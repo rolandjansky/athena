@@ -210,15 +210,6 @@ StatusCode SiTrackerSpacePointFinder::execute()
     }
   
     if (m_selectSCTs){
-/*    
-	  m_SpacePointContainer_SCT->cleanup();
-	  StatusCode sc = evtStore()->record(m_SpacePointContainer_SCT,m_spacePointsSCTName,false);
-	  if (sc.isFailure()){
-	    ATH_MSG_ERROR( "Container '" << m_spacePointsSCTName
-			   << "' could not be recorded in StoreGate !" );
-	    return StatusCode::RECOVERABLE;
-	  }
-*/	  
 	  m_SpacePointContainer_SCT = CxxUtils::make_unique<SpacePointContainer>(m_idHelper->wafer_hash_max());
           if (! m_SpacePointContainer_SCT.isValid() ){
                msg(MSG:: FATAL) << "SpacePointContainer " << m_SpacePointContainer_SCT.name() << "could not be initialised !"<< endmsg;

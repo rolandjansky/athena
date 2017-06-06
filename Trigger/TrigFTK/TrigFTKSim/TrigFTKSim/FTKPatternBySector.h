@@ -47,22 +47,22 @@ class TDirectory;
 class FTKPatternBySectorBase : public FTKLogging {
 public:
    FTKPatternBySectorBase(char const *name="FTKPatternBySectorBase")
-      : FTKLogging(name),fNLayers(0),fContentType(CONTENT_EMPTY) { }
+      : FTKLogging(name),m_NLayers(0),m_contentType(CONTENT_EMPTY) { }
    virtual ~FTKPatternBySectorBase();
-   inline int GetNLayers(void) const { return fNLayers; } // get number of layers
+   inline int GetNLayers(void) const { return m_NLayers; } // get number of layers
    int SetNLayers(int nLayer); // set number of layers
    enum CONTENT_TYPE {
       CONTENT_EMPTY=0, // no data inside
       CONTENT_MERGED=1, // data is merged
       CONTENT_NOTMERGED=2 // data is not merged
    };
-   inline CONTENT_TYPE GetContentType(void) const { return fContentType; }
-   inline void SetContentType(CONTENT_TYPE type) { fContentType=type; }
-   inline TString const &GetSourceName(void) const { return fSourceName; }
+   inline CONTENT_TYPE GetContentType(void) const { return m_contentType; }
+   inline void SetContentType(CONTENT_TYPE type) { m_contentType=type; }
+   inline TString const &GetSourceName(void) const { return m_sourceName; }
 protected:
-   int fNLayers;
-   TString fSourceName;
-   CONTENT_TYPE fContentType;
+   int m_NLayers;
+   TString m_sourceName;
+   CONTENT_TYPE m_contentType;
 };
 
 class FTKPatternBySectorReader : public virtual FTKPatternBySectorBase {
@@ -154,11 +154,11 @@ class FTKPatternBySectorWriter : public virtual FTKPatternBySectorBase {
                              FTKHitPattern const &pattern)=0;
  protected:
    FTKPatternBySectorWriter(const char *name,TDirectory &dir)
-      : FTKPatternBySectorBase(name),fDir(dir) { }
+      : FTKPatternBySectorBase(name),m_dir(dir) { }
    virtual int AppendMergedPatternsSector
       (int sector,FTKPatternOneSectorOrdered const *ordered);
-   TDirectory &fDir;
-   static uint64_t PATTERN_CHUNK;
+   TDirectory &m_dir;
+   static const uint64_t PATTERN_CHUNK;
 };
 
 class FTKPatternBySectorForestWriter : public FTKPatternBySectorWriter {
@@ -171,7 +171,7 @@ public:
    virtual int AppendMergedPatternsSector(int sector,
                                     FTKPatternOneSectorOrdered const *ordered);
    typedef std::map<int,FTKPatternRootTree *> PatternTreeBySectorRW_t;
-   PatternTreeBySectorRW_t fPatterns;
+   PatternTreeBySectorRW_t m_patterns;
 };
 
 class FTKPatternBySectorForestReader : public FTKPatternBySectorReader {
@@ -189,7 +189,7 @@ class FTKPatternBySectorForestReader : public FTKPatternBySectorReader {
    virtual FTKPatternOneSector *Read(int sector,int minCoverage); 
  protected:
    typedef std::map<int,FTKPatternRootTreeReader *> PatternTreeBySectorRO_t;
-   PatternTreeBySectorRO_t fPatterns;
+   PatternTreeBySectorRO_t m_patterns;
    void InitializeSectorByCoverageTable(void);
 };
 

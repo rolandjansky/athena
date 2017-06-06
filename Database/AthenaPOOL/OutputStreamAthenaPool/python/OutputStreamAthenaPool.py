@@ -11,7 +11,7 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaServices.AthenaServicesConf import AthenaOutputStream
 from OutputStreamAthenaPoolConf import AthenaPoolOutputStreamTool
 
-def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False ):
+def createOutputStream( streamName, fileName = "", asAlg = False, noTag = True ):
    # define athena output stream
    writingTool = AthenaPoolOutputStreamTool( streamName + "Tool" )
    writingTool.DataHeaderSatellites = [ "basic/:EventInfo#*" ]
@@ -20,20 +20,27 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False 
       WritingTool = writingTool,
       ItemList    = [ "EventInfo#*" ]
       )
+   #outputStream.ItemList += [ "xAOD::EventInfo#*" ]
    outputStream.MetadataStore = svcMgr.MetaDataStore
    outputStream.MetadataItemList = [ "EventStreamInfo#" + streamName, "IOVMetaDataContainer#*" ]
 
    from AthenaCommon.AlgSequence import AlgSequence
    topSequence = AlgSequence()
+   
+   doTag = not noTag
+   if doTag:
+      outputStream.ItemList += [ "AthenaAttributeList#SimpleTag" ]
 
-   if not noTag:
-      # build eventinfo attribute list
-      from OutputStreamAthenaPoolConf import EventInfoAttListTool
-      svcMgr.ToolSvc += EventInfoAttListTool()
-
-      from OutputStreamAthenaPoolConf import EventInfoTagBuilder
-      EventInfoTagBuilder   = EventInfoTagBuilder(AttributeList="SimpleTag")
-      topSequence += EventInfoTagBuilder
+      if ('EventInfoTagBuilder/EventInfoTagBuilder' not in topSequence.getProperties()['Members']):
+         key = "SimpleTag"
+         # Tell tool to pick it up
+         outputStream.WritingTool.AttributeListKey=key
+         # build eventinfo attribute list
+         from OutputStreamAthenaPoolConf import EventInfoAttListTool
+         svcMgr.ToolSvc += EventInfoAttListTool()
+         from OutputStreamAthenaPoolConf import EventInfoTagBuilder
+         EventInfoTagBuilder   = EventInfoTagBuilder(AttributeList=key)
+         topSequence += EventInfoTagBuilder
 
    # decide where to put outputstream in sequencing
    if asAlg:

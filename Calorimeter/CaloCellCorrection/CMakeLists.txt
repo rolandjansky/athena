@@ -19,7 +19,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloEvent
-                          DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/Identifier )
 
 # External dependencies:

@@ -10,8 +10,8 @@
 //   $Id: TIDARoi.h, v0.0   Mon  1 Feb 2010 11:34:52 GMT sutt $
 
 
-#ifndef __TRACKROI_H
-#define __TRACKROI_H
+#ifndef TRIGINDETANALYSIS_TRACKROI_H
+#define TRIGINDETANALYSIS_TRACKROI_H
 
 #include <iostream>
 #include <vector>
@@ -48,22 +48,22 @@ public:
   void addTracks( const std::vector<TIDA::Track*>& trackp);
 
   const std::vector<TIDA::Track>& tracks() const { return m_tracks; }
-  std::vector<TIDA::Track>        tracks()       { return m_tracks; }
+  std::vector<TIDA::Track>&       tracks()       { return m_tracks; }
 
  /// access the vertices 
   const std::vector<TIDA::Vertex>& vertices() const { return m_vertices; }
-  std::vector<TIDA::Vertex>        vertices()       { return m_vertices; }
+  std::vector<TIDA::Vertex>&       vertices()       { return m_vertices; }
   void addVertex( const TIDA::Vertex& v)            {  m_vertices.push_back(v); }
   void addVertices( const std::vector<TIDA::Vertex>& v) { m_vertices = v; }
 
   /// access the generic objects 
   const std::vector<TrackTrigObject>& objects() const { return m_objects; }
-  std::vector<TrackTrigObject>        objects()       { return m_objects; }
+  std::vector<TrackTrigObject>&       objects()       { return m_objects; }
   void addObject( const TrackTrigObject& o) {  m_objects.push_back(o); }
 
   /// access the user data
   const std::vector<double>& user() const { return m_user; }
-  std::vector<double>        user()       { return m_user; }
+  std::vector<double>&       user()       { return m_user; }
   void addUserData( const std::vector<double>& user) { m_user = user; }
 
 
@@ -94,7 +94,7 @@ private:
 
 
 inline std::ostream& operator<<( std::ostream& s, const TIDA::Roi& r ) { 
-  s << "\tRoi " << r.roi() << "\tnvtx: " << r.vertices().size();
+  s << "\tRoi " << r.roi();
   for ( unsigned i=0 ; i<r.tracks().size() ; i++ )   s << "\n\t\t\t" << r.tracks()[i];
   for ( unsigned i=0 ; i<r.user().size() ; i++ )     s << "\n\t\t\t" << r.user()[i];
   for ( unsigned i=0 ; i<r.objects().size() ; i++ )  s << "\n\t\t\t" << r.objects()[i];
@@ -103,7 +103,7 @@ inline std::ostream& operator<<( std::ostream& s, const TIDA::Roi& r ) {
 }
 
 
-#endif  // __TRACKROI_H 
+#endif  // TRIGINDETANALYSIS_TRACKROI_H 
 
 
 

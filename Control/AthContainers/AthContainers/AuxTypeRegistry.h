@@ -23,6 +23,10 @@
 #include "AthContainers/tools/AuxTypeVector.h"
 #include "AthContainers/tools/AuxTypeVectorFactory.h"
 #include "AthContainers/tools/threading.h"
+#ifndef XOAD_STANDALONE
+#include "AthenaKernel/IInputRename.h"
+#include "AthenaKernel/IStringPool.h"
+#endif
 #include <cstddef>
 #include <typeinfo>
 #include <vector>
@@ -477,6 +481,34 @@ public:
   void unlock_shared() const;
 
 
+#ifndef XAOD_STANDALONE
+  /**
+   * @brief Declare input renaming requests.
+   * @param map Map of (hashed) sgkey -> sgkey for renaming requests.
+   * @param pool String pool in which the hashed keys are defined.
+   *
+   * This is called by @c AddressRemappingSvc when there is a request
+   * to rename input objects.  It saves any requests involving renaming
+   * of auxiliary variables and makes that information available via
+   * @c inputRename.
+   */
+  void setInputRenameMap (const Athena::IInputRename::InputRenameMap_t* map,
+                          const IStringPool& pool);
+#endif
+
+
+  /**
+   * @brief Check for an input renaming of an auxiliary variable.
+   * @brief key The SG key of the object to which the variable is attached.
+   * @brief name The name of the variable on the input file.
+   *
+   * @returns The variable name to use in the transient representation.
+   * Will usually be @c name, but may be different if there was a renaming request.
+   */
+  const std::string& inputRename (const std::string& key,
+                                  const std::string& name) const;
+
+
 private:
   /**
    * @brief Constructor.
@@ -684,6 +716,11 @@ private:
   /// ??? Should go away when we extend the factory interface.
   /// ??? Separate from typeinfo_t to avoid the need for a full rebuild.
   std::vector<bool> m_isELVec;
+
+  /// Save the information provided by @c setInputRenameMap.
+  /// Each entry is of the form   KEY.DECOR -> DECOR_RENAMED
+  typedef std::unordered_map<std::string, std::string> renameMap_t;
+  renameMap_t m_renameMap;
 };
 
 

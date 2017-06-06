@@ -5,7 +5,7 @@
 #ifndef MUON_MUONPATTERNCOLLECTION_H
 #define MUON_MUONPATTERNCOLLECTION_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "MuonPattern/MuonPattern.h"
 #include "MuonPattern/MuonPrdPattern.h"
 #include "CLIDSvc/CLASS_DEF.h"

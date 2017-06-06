@@ -28,7 +28,6 @@ NtupleSvc.Output = [ "FILE1 DATAFILE='MuonGMCheckCorners.root' OPT='NEW'" ]
 #--------------------------------------------------------------
 
 # Load RDBAcessSvc (Access to parameter Database)
-include ("RDBAccessSvc/RDBAccessSvcPdb_jobOptions.py")
 theApp.Dlls += [ "GeoModelSvc" ]
 theApp.CreateSvc += [ "GeoModelSvc"]
 include( "AtlasGeoModel/MuonGeoModel.py" )    

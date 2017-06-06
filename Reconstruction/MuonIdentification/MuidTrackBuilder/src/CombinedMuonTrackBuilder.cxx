@@ -145,6 +145,7 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder (const std::string&type,
 	m_refineELossStandAloneTrackFit (true),
         m_addElossID                    (true),
         m_addIDMSerrors                 (true),
+        m_useRefitTrackError            (true),
         m_DetID                         (0)
 {
     m_messageHelper	= new MessageHelper(*this);
@@ -203,6 +204,7 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder (const std::string&type,
     declareProperty("RefineELossStandAloneTrackFit",    m_refineELossStandAloneTrackFit);
     declareProperty("AddElossID",                       m_addElossID);
     declareProperty("AddIDMSerrors",                    m_addIDMSerrors);          
+    declareProperty("UseRefitTrackError",               m_useRefitTrackError);
 
 }
 
@@ -1597,9 +1599,9 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
                 break;
               }
             }
-            if ((**s).trackParameters()
+            if (s != prefit->trackStateOnSurfaces()->end()
 		&& s != prefit->trackStateOnSurfaces()->begin()
-		&& s != prefit->trackStateOnSurfaces()->end())
+		&& (**s).trackParameters())
 	    {
 		parameters	= (**s).trackParameters()->clone();
 		caloParameters	= parameters;
@@ -1958,32 +1960,35 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
 //
     
     countAEOTs(&combinedTrack," in standalone Refit input combinedTrack ");
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " StandaloneRefit beam position bs_x " << bs_x << " bs_y " << bs_y << " bs_z " << bs_z << endmsg; 
-    if(fabs(bs_x-m_vertex->position().x())>0.001||fabs(bs_y-m_vertex->position().y())>0.001||fabs(bs_z-m_vertex->position().z())>0.001) {
 
-// recreate beamAxis and vertexRegion for constrained (projective) track fits
-
-          delete m_beamAxis;
-          delete m_vertex;
-          delete m_perigeeSurface;
-          Amg::Vector3D origin(bs_x,bs_y,bs_z);
-          m_perigeeSurface = new Trk::PerigeeSurface(origin);
-          AmgSymMatrix(3) beamAxisCovariance;
-          beamAxisCovariance.setZero();
-          (beamAxisCovariance)(0,0)			= m_vertex2DSigmaRPhi*m_vertex2DSigmaRPhi;
-          (beamAxisCovariance)(1,1)			= m_vertex2DSigmaRPhi*m_vertex2DSigmaRPhi;
-          (beamAxisCovariance)(2,2)			= m_vertex2DSigmaZ*m_vertex2DSigmaZ;
-          m_beamAxis					= new Trk::RecVertex(origin,beamAxisCovariance);
-    
-          AmgSymMatrix(3) vertexRegionCovariance;
-          vertexRegionCovariance.setZero();
-          (vertexRegionCovariance)(0,0)		= m_vertex3DSigmaRPhi*m_vertex3DSigmaRPhi;
-          (vertexRegionCovariance)(1,1)		= m_vertex3DSigmaRPhi*m_vertex3DSigmaRPhi;
-          (vertexRegionCovariance)(2,2)		= m_vertex3DSigmaZ*m_vertex3DSigmaZ;
-          m_vertex					= new Trk::RecVertex(origin,vertexRegionCovariance);
-
-       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " StandaloneRefit  new vertex position x " << m_vertex->position().x() << " y " << m_vertex->position().y() << " z " << m_vertex->position().z();  
+    if (!m_magFieldSvc->toroidOn()) {
+      // no standalone refit for Toroid off
+      return 0;
     }
+
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " StandaloneRefit beam position bs_x " << bs_x << " bs_y " << bs_y << " bs_z " << bs_z << endmsg; 
+
+// vertex will change track by track
+    Amg::Vector3D origin(bs_x,bs_y,bs_z);
+    AmgSymMatrix(3) vertexRegionCovariance;
+    vertexRegionCovariance.setZero();
+
+    double error2d0 = m_vertex3DSigmaRPhi*m_vertex3DSigmaRPhi;
+    double error2z0 = m_vertex3DSigmaZ*m_vertex3DSigmaZ;
+    const Trk::Perigee* measuredPerigee = combinedTrack.perigeeParameters();
+    if (measuredPerigee && measuredPerigee->covariance() && m_useRefitTrackError)
+    {
+       error2d0 = (*measuredPerigee->covariance())(Trk::d0,Trk::d0);
+       error2z0 = (*measuredPerigee->covariance())(Trk::z0,Trk::z0);
+       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " StandaloneRefit  new vertex d0 error  " << sqrt(error2d0) << " new vertex z0 error  " << sqrt(error2z0);
+    }
+
+    (vertexRegionCovariance)(0,0)		= error2d0;
+    (vertexRegionCovariance)(1,1)		= error2d0;
+    (vertexRegionCovariance)(2,2)		= error2z0;
+     Trk::RecVertex*  vertex			= new Trk::RecVertex(origin,vertexRegionCovariance);
+
+     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " StandaloneRefit  new vertex position x " << m_vertex->position().x() << " y " << m_vertex->position().y() << " z " << m_vertex->position().z();
 
     bool	addPhiPseudo		= false;
 // release 21
@@ -2135,9 +2140,16 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
 	const Trk::MaterialEffectsOnTrack* meot	=
 	    dynamic_cast<const Trk::MaterialEffectsOnTrack*>(materialEffects);
 	if (meot && meot->energyLoss()) energyDeposit = meot->energyLoss()->deltaE();
-	++s;
-	materialEffects	= (**s).materialEffectsOnTrack();
-	parameters	= (**s).trackParameters();
+	if (s != combinedTrack.trackStateOnSurfaces()->end()) ++s;
+
+	if (s != combinedTrack.trackStateOnSurfaces()->end()) {
+	  materialEffects	= (**s).materialEffectsOnTrack();
+	  parameters	= (**s).trackParameters();
+        } else {
+	  materialEffects	= 0;
+	  parameters	= 0;
+        }
+
     }
     else
     {
@@ -2186,7 +2198,7 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
 	}
 	*/
 	
-	++s;
+	if (s != combinedTrack.trackStateOnSurfaces()->end()) ++s;
 
 	// get parameters at middleSurface for energy correction,
 	// start with parameters from middle surface when vertex in fit
@@ -2382,7 +2394,7 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
     // including vertex region pseudoMeas if requested: in r21, this is always requested
     //if (addVertexRegion)
     //{
-    const Trk::PseudoMeasurementOnTrack* vertexInFit = vertexOnTrack(*perigee,m_vertex);
+    const Trk::PseudoMeasurementOnTrack* vertexInFit = vertexOnTrack(*perigee,vertex);
     if (vertexInFit)
       {
 	std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type;
@@ -2399,44 +2411,72 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
     DataVector<const Trk::TrackStateOnSurface>::const_iterator t = combinedTrack.trackStateOnSurfaces()->begin();
     if(m_addElossID) {
       double Eloss = 0.;
+      double sigmaEloss = 0.;
+      double X0tot = 0.;
+      double sigmaDeltaPhitot2 = 0.;
+      double sigmaDeltaThetatot2 = 0.;
+      std::vector <int> tsosnr;
+      tsosnr.reserve(combinedTrack.trackStateOnSurfaces()->size());
+      int itsos = -1;
       for ( ; t != combinedTrack.trackStateOnSurfaces()->end(); ++t) {
-
+        itsos++;
         if(!(**t).trackParameters()) continue;
+        if((**t).trackParameters()) {
+          if(!m_indetVolume->inside((**t).trackParameters()->position())) break;
+        }
         if((**t).materialEffectsOnTrack()) {
-
           double X0 = (**t).materialEffectsOnTrack()->thicknessInX0();
+          X0tot += X0;
           const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>((**t).materialEffectsOnTrack());
           if(meot) {
             const Trk::EnergyLoss* energyLoss = meot->energyLoss();
             if (energyLoss) {
-              Eloss += fabs(energyLoss->deltaE());
-              ATH_MSG_DEBUG("CombinedMuonFit ID Eloss found r " << ((**t).trackParameters())->position().perp() << " z " << ((**t).trackParameters())->position().z() << " value " << energyLoss->deltaE() << " Eloss " << Eloss);
+              Eloss += energyLoss->deltaE();
+              sigmaEloss += energyLoss->sigmaDeltaE();
+              ATH_MSG_DEBUG("CombinedMuonFit ID Eloss found r " << ((**t).trackParameters())->position().perp() << " z " << ((**t).trackParameters())->position().z() << " value " << energyLoss->deltaE() << " Eloss " << Eloss << " sigma Eloss " << energyLoss->sigmaDeltaE() << " X0 " << X0 );
 	      const Trk::ScatteringAngles* scat = meot->scatteringAngles();
 	      if(scat) {
-		double sigmaDeltaPhi = scat->sigmaDeltaPhi();     
-		double sigmaDeltaTheta = scat->sigmaDeltaTheta();     
-		const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(energyLoss->deltaE(),energyLoss->sigmaDeltaE(),energyLoss->sigmaDeltaE(),energyLoss->sigmaDeltaE());
-		const Trk::ScatteringAngles* scatNew = new Trk::ScatteringAngles(0.,0.,sigmaDeltaPhi,sigmaDeltaTheta);
+		double sigmaDeltaPhi = scat->sigmaDeltaPhi();
+		double sigmaDeltaTheta = scat->sigmaDeltaTheta();
+                sigmaDeltaPhitot2 += sigmaDeltaPhi*sigmaDeltaPhi;
+                sigmaDeltaThetatot2 += sigmaDeltaTheta*sigmaDeltaTheta;
+                tsosnr.push_back(itsos);
+	      }
+	    }
+          }
+        }
+      }
+
+      ATH_MSG_DEBUG("standaloneRefit Total ID Eloss " << Eloss << " sigma Eloss " << sigmaEloss << " X0 " << X0tot << " sigma scat phi " << sqrt(sigmaDeltaPhitot2) << " sigma scat theta " << sqrt(sigmaDeltaThetatot2) );
+
+      itsos = -1;
+      if(tsosnr.size()>0) {
+        int itsosMiddle = tsosnr.size()/2;
+        itsosMiddle = tsosnr[itsosMiddle];
+        t = combinedTrack.trackStateOnSurfaces()->begin();
+        ATH_MSG_DEBUG(" itsosMiddle " <<  itsosMiddle << " tsosnr size " << tsosnr.size());
+        for ( ; t != combinedTrack.trackStateOnSurfaces()->end(); ++t) {
+          itsos++;
+          if(itsos==itsosMiddle) {
+// Make TSOS for the ID
+		const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(Eloss,sigmaEloss,sigmaEloss,sigmaEloss);
+		const Trk::ScatteringAngles* scatNew = new Trk::ScatteringAngles(0.,0.,sqrt(sigmaDeltaPhitot2),sqrt(sigmaDeltaThetatot2));
 		const Trk::Surface& surfNew = (**t).trackParameters()->associatedSurface();
 		std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes> meotPattern(0);
 		meotPattern.set(Trk::MaterialEffectsBase::EnergyLossEffects);
 		meotPattern.set(Trk::MaterialEffectsBase::ScatteringEffects);
-		const Trk::MaterialEffectsOnTrack*  meotNew = new Trk::MaterialEffectsOnTrack(X0, scatNew, energyLossNew, surfNew, meotPattern);
+		const Trk::MaterialEffectsOnTrack*  meotNew = new Trk::MaterialEffectsOnTrack(X0tot, scatNew, energyLossNew, surfNew, meotPattern);
 		const Trk::TrackParameters* parsNew = ((**t).trackParameters())->clone();
 		std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePatternScat(0);
 		typePatternScat.set(Trk::TrackStateOnSurface::Scatterer);
 		const Trk::TrackStateOnSurface* newTSOS  = new Trk::TrackStateOnSurface(0, parsNew, 0, meotNew, typePatternScat);
 		trackStateOnSurfaces->push_back(newTSOS); 
-	      }
-	    }
+                ATH_MSG_DEBUG(" add new TSOS for ID ");
           }
         }
-        if((**t).trackParameters()) {
-          if(!m_indetVolume->inside((**t).trackParameters()->position())) break;
-        }
       }
-      ATH_MSG_DEBUG("CombinedMuonFit Total ID Eloss " << Eloss);
-    }   
+
+    } // end m_addElossID
 
 
     // add the 3 surface calo model
@@ -4881,7 +4921,7 @@ CombinedMuonTrackBuilder::vertexOnTrack(const Trk::TrackParameters&	parameters,
       tsos++;
       if((*it)->type(Trk::TrackStateOnSurface::Perigee)) nperigee++;
       if((*it)->trackParameters()) {
-        ATH_MSG_VERBOSE(" check tsos " << tsos << " TSOS tp " <<  " r " << (*it)->trackParameters()->position().perp() << " z " << (*it)->trackParameters()->position().z()); 
+        ATH_MSG_VERBOSE(" check tsos " << tsos << " TSOS tp " <<  " r " << (*it)->trackParameters()->position().perp() << " z " << (*it)->trackParameters()->position().z() << " momentum " << (*it)->trackParameters()->momentum().mag());
       } else if ((*it)->measurementOnTrack()) {
         ATH_MSG_VERBOSE(" check tsos " << tsos << " TSOS mst " <<  " r " << (*it)->measurementOnTrack()->associatedSurface().center().perp() << " z " << (*it)->measurementOnTrack()->associatedSurface().center().z());
       } else if ((*it)->materialEffectsOnTrack()) {

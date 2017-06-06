@@ -27,7 +27,7 @@ SCT_LinkMaskingSvc::SCT_LinkMaskingSvc( const std::string& name, ISvcLocator* pS
   m_filled(false),
   m_detStore("DetectorStore", name),
   m_IOVSvc("IOVSvc", name),
-  m_sctHelper(0),
+  m_sctHelper{nullptr},
   m_cablingSvc("SCT_CablingSvc", name)
 { 
   // nop

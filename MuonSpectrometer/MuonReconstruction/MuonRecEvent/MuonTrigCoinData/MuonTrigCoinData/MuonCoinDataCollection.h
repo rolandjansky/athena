@@ -15,7 +15,7 @@
 // Base classes
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include "CLIDSvc/CLASS_DEF.h"
 

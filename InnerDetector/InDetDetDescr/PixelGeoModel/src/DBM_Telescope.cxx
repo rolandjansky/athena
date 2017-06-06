@@ -26,57 +26,57 @@ GeoVPhysVol* DBM_Telescope::Build() {
   double safety = 0.005*CLHEP::mm;
 
   // telescope tilting angle in degree
-  double angle = gmt_mgr->DBMAngle();
+  double angle = m_gmt_mgr->DBMAngle();
 
   // Telescope dimension
-  double telescopeX = gmt_mgr->DBMTelescopeX();
-  double telescopeY = gmt_mgr->DBMTelescopeY();
-  double telescopeZ = gmt_mgr->DBMTelescopeZ();
+  double telescopeX = m_gmt_mgr->DBMTelescopeX();
+  double telescopeY = m_gmt_mgr->DBMTelescopeY();
+  double telescopeZ = m_gmt_mgr->DBMTelescopeZ();
 
   // module cage forming of three layers of plates 
   // on which is mounted a DBM module
-  double layerUnitY = gmt_mgr->DBMModuleCageY();
-  double layerUnitZ = gmt_mgr->DBMModuleCageZ();
+  double layerUnitY = m_gmt_mgr->DBMModuleCageY();
+  double layerUnitZ = m_gmt_mgr->DBMModuleCageZ();
 
   // bracket unit dimension
-  double bracketX = gmt_mgr->DBMBracketX(); // width of the bracket unit
-  double bracketY = gmt_mgr->DBMBracketY(); // total height of the bracket unit
-  double bracketZ = gmt_mgr->DBMBracketZ(); // total thickness of the bracket unit,
+  double bracketX = m_gmt_mgr->DBMBracketX(); // width of the bracket unit
+  double bracketY = m_gmt_mgr->DBMBracketY(); // total height of the bracket unit
+  double bracketZ = m_gmt_mgr->DBMBracketZ(); // total thickness of the bracket unit,
   // back trapezoid block with window
-  double trapBack_theta = gmt_mgr->DBMTrapezBackTheta();
-  double trapBackX = gmt_mgr->DBMTrapezBackX();
-  double trapBackY = gmt_mgr->DBMTrapezBackY();
-  double trapBackShortZ = gmt_mgr->DBMTrapezBackShortZ();
+  double trapBack_theta = m_gmt_mgr->DBMTrapezBackTheta();
+  double trapBackX = m_gmt_mgr->DBMTrapezBackX();
+  double trapBackY = m_gmt_mgr->DBMTrapezBackY();
+  double trapBackShortZ = m_gmt_mgr->DBMTrapezBackShortZ();
   // bracket window
-  double brcktWindowX = gmt_mgr->DBMBrcktWindowX();
-  double brcktWindowY = gmt_mgr->DBMBrcktWindowY();
-  double brcktWindow_offset = gmt_mgr->DBMBrcktWindowOffset();
-  double brcktWindow_centerZ = gmt_mgr->DBMBrcktWindowCenterZ();
+  double brcktWindowX = m_gmt_mgr->DBMBrcktWindowX();
+  double brcktWindowY = m_gmt_mgr->DBMBrcktWindowY();
+  double brcktWindow_offset = m_gmt_mgr->DBMBrcktWindowOffset();
+  double brcktWindow_centerZ = m_gmt_mgr->DBMBrcktWindowCenterZ();
   // bracket front block
-  double brcktTopBlockZ = gmt_mgr->DBMBrcktTopBlockZ();
-  double brcktSideBlockX = gmt_mgr->DBMBrcktSideBlockX();
-  double brcktSideBlockY = gmt_mgr->DBMBrcktSideBlockY();
+  double brcktTopBlockZ = m_gmt_mgr->DBMBrcktTopBlockZ();
+  double brcktSideBlockX = m_gmt_mgr->DBMBrcktSideBlockX();
+  double brcktSideBlockY = m_gmt_mgr->DBMBrcktSideBlockY();
   //// locking block
-  double brcktLockZ = gmt_mgr->DBMBrcktLockZ();
-  double brcktLockY = gmt_mgr->DBMBrcktLockY();
+  double brcktLockZ = m_gmt_mgr->DBMBrcktLockZ();
+  double brcktLockY = m_gmt_mgr->DBMBrcktLockY();
  
   // cooling side plate
-  double coolingSidePlateX = gmt_mgr->DBMCoolingSidePlateX();
-  double coolingSidePlateY = gmt_mgr->DBMCoolingSidePlateY();
-  double coolingSidePlateZ = gmt_mgr->DBMCoolingSidePlateZ();
+  double coolingSidePlateX = m_gmt_mgr->DBMCoolingSidePlateX();
+  double coolingSidePlateY = m_gmt_mgr->DBMCoolingSidePlateY();
+  double coolingSidePlateZ = m_gmt_mgr->DBMCoolingSidePlateZ();
   // position of side plate, parallel to side plate axis,
   // measured from the back of the V-slide to the front of the side plate
-  double coolingSidePlatePos = gmt_mgr->DBMCoolingSidePlatePos();
+  double coolingSidePlatePos = m_gmt_mgr->DBMCoolingSidePlatePos();
   // cooling plates next to bracket 
-  double coolingFinLongZ = gmt_mgr->DBMBrcktFinLongZ();
-  double coolingFinHeight = gmt_mgr->DBMBrcktFinHeight();
-  double coolingFinThick = gmt_mgr->DBMBrcktFinThick();
-  double coolingFinPos = gmt_mgr->DBMBrcktFinPos();
+  double coolingFinLongZ = m_gmt_mgr->DBMBrcktFinLongZ();
+  double coolingFinHeight = m_gmt_mgr->DBMBrcktFinHeight();
+  double coolingFinThick = m_gmt_mgr->DBMBrcktFinThick();
+  double coolingFinPos = m_gmt_mgr->DBMBrcktFinPos();
 
-  double mainPlateX = gmt_mgr->DBMMainPlateX(); //dimension in x-direction or width
+  double mainPlateX = m_gmt_mgr->DBMMainPlateX(); //dimension in x-direction or width
 
   // materials
-  const GeoMaterial* air = mat_mgr->getMaterial("std::Air");
+  const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
 
   // DBM telescope volume
   const GeoBox* telescopeBox = new GeoBox(telescopeX/2. + 3*safety, telescopeY/2.+ safety, telescopeZ/2.);
@@ -118,7 +118,7 @@ GeoVPhysVol* DBM_Telescope::Build() {
 
   const GeoShapeSubtraction& trapBack1 = trapBack->subtract(((*brWindow) << brWindowShift));
 
-  const GeoMaterial* dbmPeek4 = mat_mgr->getMaterialForVolume("pix::DBMPeek4",trapBack1.volume());
+  const GeoMaterial* dbmPeek4 = m_mat_mgr->getMaterialForVolume("pix::DBMPeek4",trapBack1.volume());
   const GeoLogVol* trapBackLog = new GeoLogVol("bracketLog", &trapBack1, dbmPeek4);
   GeoPhysVol* trapBackPhys = new GeoPhysVol(trapBackLog);
 
@@ -134,7 +134,7 @@ GeoVPhysVol* DBM_Telescope::Build() {
 
   // bracket front top plate
   const GeoBox* brcktTopBlock = new GeoBox(bracketX/2., (bracketY - brcktSideBlockY)/2., brcktTopBlockZ/2.);
-  const GeoMaterial* dbmPeekAluminium = mat_mgr->getMaterialForVolume("pix::DBMPeekAl",brcktTopBlock->volume());
+  const GeoMaterial* dbmPeekAluminium = m_mat_mgr->getMaterialForVolume("pix::DBMPeekAl",brcktTopBlock->volume());
   const GeoLogVol* brcktTopBlockLog = new GeoLogVol("bracketLog", brcktTopBlock, dbmPeekAluminium);
   GeoPhysVol* brcktTopBlockPhys = new GeoPhysVol(brcktTopBlockLog);
 
@@ -147,7 +147,7 @@ GeoVPhysVol* DBM_Telescope::Build() {
 
   // bracket front side blocks
   const GeoBox* brcktSideBlock = new GeoBox(brcktSideBlockX/2., brcktSideBlockY/2., brcktTopBlockZ/2.);
-  const GeoMaterial* dbmPeek2 = mat_mgr->getMaterialForVolume("pix::DBMPeek2",brcktSideBlock->volume());
+  const GeoMaterial* dbmPeek2 = m_mat_mgr->getMaterialForVolume("pix::DBMPeek2",brcktSideBlock->volume());
   const GeoLogVol* brcktSideLog = new GeoLogVol("brcktSideLog", brcktSideBlock, dbmPeek2);
   GeoPhysVol* brcktSidePhys = new GeoPhysVol(brcktSideLog);
 
@@ -167,7 +167,7 @@ GeoVPhysVol* DBM_Telescope::Build() {
 
   // bracket Locking block
   const GeoBox* brcktLock = new GeoBox(bracketX/2., brcktLockY/2.-safety, brcktLockZ/2.-safety);
-  const GeoMaterial* dbmPeek3 = mat_mgr->getMaterialForVolume("pix::DBMPeek3",brcktLock->volume());
+  const GeoMaterial* dbmPeek3 = m_mat_mgr->getMaterialForVolume("pix::DBMPeek3",brcktLock->volume());
   const GeoLogVol* brcktLockLog = new GeoLogVol("bracketLog", brcktLock, dbmPeek3);
   GeoPhysVol* brcktLockPhys = new GeoPhysVol(brcktLockLog);
 
@@ -181,7 +181,7 @@ GeoVPhysVol* DBM_Telescope::Build() {
   // rectangular aluminium side plates
 
   const GeoBox* sidePlate = new GeoBox(coolingSidePlateX/2., coolingSidePlateY/2., coolingSidePlateZ/2.);
-  const GeoMaterial* dbmAluminium2 = mat_mgr->getMaterialForVolume("pix::DBMAluminium2", sidePlate->volume());
+  const GeoMaterial* dbmAluminium2 = m_mat_mgr->getMaterialForVolume("pix::DBMAluminium2", sidePlate->volume());
   const GeoLogVol* sidePlateLog = new GeoLogVol("sidePlateLog", sidePlate, dbmAluminium2);
   GeoPhysVol* sidePlatePhys = new GeoPhysVol(sidePlateLog);
 
@@ -204,7 +204,7 @@ GeoVPhysVol* DBM_Telescope::Build() {
 
   //cooling plates next to the bracket unit
   const GeoTrap* coolingFin = new GeoTrap(coolingFinHeight/2., trapBack_theta, 90.0*CLHEP::deg, (coolingFinLongZ - coolingFinHeight*tan(angle))/2., coolingFinThick/2., coolingFinThick/2, 0.0, coolingFinLongZ/2., coolingFinThick/2., coolingFinThick/2., 0.0);
-  const GeoMaterial* dbmAluminium3 = mat_mgr->getMaterialForVolume("pix::DBMAluminium3", coolingFin->volume());
+  const GeoMaterial* dbmAluminium3 = m_mat_mgr->getMaterialForVolume("pix::DBMAluminium3", coolingFin->volume());
   const GeoLogVol* finLog = new GeoLogVol("finLog", coolingFin, dbmAluminium3);
   GeoPhysVol* coolingFinPhys = new GeoPhysVol(finLog);
 

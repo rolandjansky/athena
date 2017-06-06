@@ -30,9 +30,9 @@ class CompareModulesTDAQandBytestream:  public AthAlgorithm{
   ServiceHandle< IPixelByteStreamErrorsSvc > m_bsSvc;
   ServiceHandle< IPixelTDAQSvc > m_tdaqSvc;
 
-  std::map<unsigned int, unsigned int> runs_and_lumi_blocks;
-  unsigned int n_lumi_blocks;
-  std::map<unsigned int, std::vector<std::string> > disabled_modules;
+  std::map<unsigned int, unsigned int> m_runs_and_lumi_blocks;
+  unsigned int m_n_lumi_blocks;
+  std::map<unsigned int, std::vector<std::string> > m_disabled_modules;
 
   const PixelID* m_pixelID;
 };

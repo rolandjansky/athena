@@ -22,12 +22,14 @@
 #include "Identifier/IdentifierHash.h"
 #include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
-#include "InDetByteStreamErrors/InDetBSErrContainer.h"
+
+///Read Handle
+#include "StoreGate/ReadHandle.h"
 
 /** Constructor */
 SCT_ByteStreamErrorsSvc::SCT_ByteStreamErrorsSvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator), 
-  m_sct_id(0),
+  m_sct_id{nullptr},
   m_storeGate("StoreGateSvc",name),
   m_detStore("DetectorStore",name),
   m_cabling("SCT_CablingSvc",name),
@@ -35,9 +37,8 @@ SCT_ByteStreamErrorsSvc::SCT_ByteStreamErrorsSvc( const std::string& name, ISvcL
   m_filled(false) ,
   m_lookForSGErrContainer(true),
   //
-  m_rxRedundancy(0),
-  m_firstTempMaskedChips(nullptr),
-  m_tempMaskedChips(nullptr),
+  m_rxRedundancy{nullptr},
+  m_tempMaskedChips{nullptr},
   m_isRODSimulatedData(false),
   m_numRODsHVon(0),
   m_numRODsTotal(0),
@@ -46,7 +47,7 @@ SCT_ByteStreamErrorsSvc::SCT_ByteStreamErrorsSvc( const std::string& name, ISvcL
 {
   declareProperty("EventStore",m_storeGate);
   declareProperty("DetectorStore",m_detStore);
-  declareProperty("ContainerName",m_bsErrContainerName="SCT_ByteStreamErrs");
+  declareProperty("ContainerName",m_bsErrContainerName=std::string("SCT_ByteStreamErrs"));
   declareProperty("CablingService",m_cabling);
   declareProperty("ConfigService",m_config);
   declareProperty("useDCSfromBS",m_useDCSfromBS=false);
@@ -119,8 +120,10 @@ SCT_ByteStreamErrorsSvc::initialize(){
     } 
   }
 
-  m_firstTempMaskedChips = new std::map<IdentifierHash, unsigned int>;
   m_tempMaskedChips = new std::map<Identifier, unsigned int>;
+
+  // Read Handle Key
+  ATH_CHECK(m_bsErrContainerName.initialize());
 
   resetCounts();
   return sc;
@@ -137,8 +140,6 @@ SCT_ByteStreamErrorsSvc::finalize(){
   delete m_rxRedundancy;
   m_rxRedundancy = 0;
 
-  delete m_firstTempMaskedChips;
-  m_firstTempMaskedChips = nullptr;
   delete m_tempMaskedChips;
   m_tempMaskedChips = nullptr;
 
@@ -195,7 +196,7 @@ SCT_ByteStreamErrorsSvc::handle(const Incident& inc) {
     for(auto& rodDecodeStatus: m_rodDecodeStatuses) {
       rodDecodeStatus.second = false;
     }
-    m_firstTempMaskedChips->clear();
+    m_firstTempMaskedChips.clear();
     m_tempMaskedChips->clear();
   }
   return;
@@ -302,7 +303,7 @@ SCT_ByteStreamErrorsSvc::isGood(const IdentifierHash & elementIdHash) {
     StatusCode sc = fillData();
     if (sc.isFailure()) {
       msg(MSG::ERROR)<<"Failed to read BS errors from SG container "
-		     <<m_bsErrContainerName
+		     <<m_bsErrContainerName.key()
 		     <<endmsg;
       return true;
     }
@@ -350,14 +351,14 @@ SCT_ByteStreamErrorsSvc::isGood(const IdentifierHash & elementIdHash) {
   const Identifier wafer_id(m_sct_id->wafer_id(elementIdHash));
   const Identifier module_id(m_sct_id->module_id(wafer_id));
   unsigned int badChips(m_config->badChips(module_id));
-  unsigned int _tempMaskedChips(tempMaskedChips(module_id));
+  unsigned int tempMaskedChips2(tempMaskedChips(module_id));
   const int side(m_sct_id->side(wafer_id));
   short id(side==0 ? 0 : 6);
   bool allChipsBad(true);
   for(int errType=SCT_ByteStreamErrors::ABCDError_Chip0; (errType<=SCT_ByteStreamErrors::ABCDError_Chip5) and allChipsBad; errType++) {
     bool issueABCDError = (std::find(m_bsErrors[errType]->begin(), m_bsErrors[errType]->end(), elementIdHash)!=m_bsErrors[errType]->end());
     bool isBadChip = ((badChips >> (id)) & 0x1);
-    bool isTempMaskedChip = ((_tempMaskedChips >> (id)) & 0x1);
+    bool isTempMaskedChip = ((tempMaskedChips2 >> (id)) & 0x1);
     id++;
     allChipsBad = (issueABCDError or isBadChip or isTempMaskedChip);
     if(not allChipsBad) break;
@@ -405,7 +406,7 @@ SCT_ByteStreamErrorsSvc::getErrorSet(int errorType) {
   if (!m_filled) {
     StatusCode sc = fillData();
     if (sc.isFailure()) msg(MSG::ERROR) << "Failed to fill from SG container " 
-					<<m_bsErrContainerName
+					<<m_bsErrContainerName.key()
 					<<endmsg;
   }
   if(errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
@@ -425,21 +426,16 @@ StatusCode
 SCT_ByteStreamErrorsSvc::fillData() {
 
   if (m_lookForSGErrContainer) {
-    const InDetBSErrContainer* errCont;
+    SG::ReadHandle<InDetBSErrContainer> errCont(m_bsErrContainerName);
 
     /** When running over ESD files without BSErr container stored, don't 
      * want to flood the user with error messages.  Should just have a bunch
      * of empty sets, and keep quiet.
      */
-    bool gotErrors = m_storeGate->contains<InDetBSErrContainer>(m_bsErrContainerName);
-    if (gotErrors) {
-      StatusCode sc = m_storeGate->retrieve(errCont,m_bsErrContainerName);
-      if (sc.isFailure() ) 
-	msg(MSG::ERROR) <<"Failed to get BSError container from SG "
-			<<"even though SG::contains() says it's there.. strange."<<endmsg;
-    } else {
+    bool gotErrors = m_storeGate->contains<InDetBSErrContainer>(m_bsErrContainerName.key());
+    if ((not gotErrors) or (not errCont.isValid())) {
       msg(MSG::INFO) <<"Failed to retrieve BS error container "
-		     << m_bsErrContainerName
+		     << m_bsErrContainerName.key()
 		     <<" from StoreGate.  "
 		     <<"This is expected if you are reading an ESD file "
 		     <<"which doesn't have the ByteStreamErrors container stored, "
@@ -583,19 +579,24 @@ SCT_ByteStreamErrorsSvc::getRODOuts() const {
 }
 
 void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashId, const unsigned int firstTempMaskedChip) {
+  if(not hashId.is_valid()) {
+    ATH_MSG_INFO("setFirstTempMaskedChip hashId " << hashId << " is invalid.");
+    return;
+  }
   if(firstTempMaskedChip==0) {
     ATH_MSG_WARNING("setFirstTempMaskedChip: firstTempMaskedChip should be greater than 0. firstTempMaskedChip is " << firstTempMaskedChip);
     return;
   }
 
-  std::map<IdentifierHash, unsigned int>::const_iterator it(m_firstTempMaskedChips->find(hashId));
-  if(it!=m_firstTempMaskedChips->end()) {
-    ATH_MSG_WARNING("setFirstTempMaskedChip: already set for hashId " << hashId << " firstTempMaskedChip is " << it->second << " and you are trying to put " << firstTempMaskedChip);
+  //// 1. set m_firstTempMaskedChips for this wafer
+  std::pair<std::map<IdentifierHash, unsigned int>::const_iterator, bool>
+    ret(m_firstTempMaskedChips.insert(std::make_pair(hashId, firstTempMaskedChip)));
+  if(not ret.second) {
+    ATH_MSG_WARNING("setFirstTempMaskedChip: already set for hashId " << hashId << 
+		    " firstTempMaskedChip is " << ret.first->second << 
+		    " and you are trying to put " << firstTempMaskedChip);
     return;
   }
-
-  //// 1. set m_firstTempMaskedChips for this wafer
-  (*m_firstTempMaskedChips)[hashId] = firstTempMaskedChip;
   
   //// 2. set m_tempMaskedChips for this module
   
@@ -633,45 +634,80 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
       type = 2;
     } else if(links.first and links.second) {
       // both link-0 and link-1 are working
-      ATH_MSG_WARNING("Both link-0 and link-1 are working. But Rx redundancy is used... Why?");
+      ATH_MSG_WARNING("setFirstTempMaskedChip: Both link-0 and link-1 are working. But Rx redundancy is used... Why?");
       return;
     } else {
       // both link-0 and link-1 are broken
-      ATH_MSG_WARNING("Both link-0 and link-1 are broken. But data are coming... Why?");
+      ATH_MSG_WARNING("setFirstTempMaskedChip: Both link-0 and link-1 are broken. But data are coming... Why?");
       return;
     }
   }
+
+  if(type==1 or type==2) {
+    if(firstTempMaskedChip_side0>0 and
+       firstTempMaskedChip_side1>0 and
+       firstTempMaskedChip_side0!=firstTempMaskedChip_side1) {
+      ATH_MSG_WARNING("setFirstTempMaskedChip: Rx redundancy is used. " <<
+		      "But, side 0 and side 1 have inconsistent first masked chip information. " <<
+		      " firstTempMaskedChip_side0 " << firstTempMaskedChip_side0 <<
+		      " firstTempMaskedChip_side1 " << firstTempMaskedChip_side1 <<
+		      " firstTempMaskedChip " << firstTempMaskedChip);
+    }
+  }
       
-  unsigned int _tempMaskedChips(0);
+  unsigned int tempMaskedChips2(0);
   if(type==0) {
     // both link-0 and link-1 are working
+
+    // Chips 0-5 are on side 0 and chips 6-11 are on side 1.
+    // Normally, modules send hits on side 0 via link-0 and side 1 via link-1. 
+    // The first temporally masked chip value is the id of the chip that is 
+    // first masked in the readout chain "plus one". 
+    // If the value is in between 1 to  6, it indicates side 0.
+    // If the value is in between 7 to 12, it indicates side 1.
+    // However, some special modules send hits on side 0 via link-1 and hits on
+    // side 1 via link-0. If the first masked chip value on side 1 (0) is 
+    // between 1 to 6 (7 to 12), it indicates the module is a special one.  
+    // In that case, information is swapped.
+    if((6<firstTempMaskedChip_side0 and firstTempMaskedChip_side0<=12) or
+       (0<firstTempMaskedChip_side1 and firstTempMaskedChip_side1<= 6)) {
+      int swapFirstTempMaskedChip_side0(firstTempMaskedChip_side0);
+      firstTempMaskedChip_side0 = firstTempMaskedChip_side1;
+      firstTempMaskedChip_side1 = swapFirstTempMaskedChip_side0;
+    }
+
     if(firstTempMaskedChip_side0>0) {
       for(int iChip(firstTempMaskedChip_side0-1); iChip<6; iChip++) {
-	_tempMaskedChips |= (1<<iChip);
+	tempMaskedChips2 |= (1<<iChip);
+	addError(hash_side0, SCT_ByteStreamErrors::TempMaskedChip0+iChip);
       }
     }
     if(firstTempMaskedChip_side1>6) {
       for(int iChip(firstTempMaskedChip_side1-1); iChip<12; iChip++) {
-	_tempMaskedChips |= (1<<iChip);
+	tempMaskedChips2 |= (1<<iChip);
+	addError(hash_side1, SCT_ByteStreamErrors::TempMaskedChip0+iChip-6);
       }
     }
   } else if(type==1) {
     // link-1 is broken: chip 0 1 2 3 4 5 6 7 8 9 10 11
-    // first temporarily masked chip information is recorded in only link-0.
-    if(firstTempMaskedChip_side0>0) {
-      for(int iChip(firstTempMaskedChip_side0-1); iChip<12; iChip++) {
-	_tempMaskedChips |= (1<<iChip);
+    if(firstTempMaskedChip>0) {
+      for(int iChip(firstTempMaskedChip-1); iChip<12; iChip++) {
+	tempMaskedChips2 |= (1<<iChip);
+	if(iChip<6) addError(hash_side0, SCT_ByteStreamErrors::TempMaskedChip0+iChip);
+	else        addError(hash_side1, SCT_ByteStreamErrors::TempMaskedChip0+iChip-6);
       }
     }
   } else {
     // link-0 is broken: chip 6 7 8 9 10 11 0 1 2 3 4 5
-    // first temporarily masked chip information is recorded in only link-0.
-    if(firstTempMaskedChip_side0>0) {
-      if(firstTempMaskedChip_side0<=6) firstTempMaskedChip_side0 += 12;
-      for(int iChip(firstTempMaskedChip_side0-1); iChip<12+6; iChip++) {
+    if(firstTempMaskedChip>0) {
+      int tmpFirstTempMaskedChip(firstTempMaskedChip);
+      if(tmpFirstTempMaskedChip<=6) tmpFirstTempMaskedChip += 12;
+      for(int iChip(tmpFirstTempMaskedChip-1); iChip<12+6; iChip++) {
 	int jChip(iChip);
 	if(jChip>=12) jChip -= 12;
-	_tempMaskedChips |= (1<<jChip);
+	tempMaskedChips2 |= (1<<jChip);
+	if(jChip<6) addError(hash_side0, SCT_ByteStreamErrors::TempMaskedChip0+jChip);
+	else        addError(hash_side1, SCT_ByteStreamErrors::TempMaskedChip0+jChip-6);
       }
     }
   }
@@ -685,14 +721,14 @@ void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashI
 		  << " phi_module " << m_sct_id->phi_module(wafId) 
 		  << " side " << m_sct_id->side(wafId) 
 		  << " firstTempMaskedChip " << firstTempMaskedChip
-		  << " _tempMaskedChips" << _tempMaskedChips);
+		  << " tempMaskedChips2 " << tempMaskedChips2);
 
-  (*m_tempMaskedChips)[moduleId] = _tempMaskedChips;
+  (*m_tempMaskedChips)[moduleId] = tempMaskedChips2;
 }
 
 unsigned int SCT_ByteStreamErrorsSvc::getFirstTempMaskedChip(const IdentifierHash& hashId) const {
-  std::map<IdentifierHash, unsigned int>::const_iterator it(m_firstTempMaskedChips->find(hashId));
-  if(it!=m_firstTempMaskedChips->end()) return it->second;
+  std::map<IdentifierHash, unsigned int>::const_iterator it(m_firstTempMaskedChips.find(hashId));
+  if(it!=m_firstTempMaskedChips.end()) return it->second;
   return 0;
 }
 
@@ -703,7 +739,7 @@ unsigned int SCT_ByteStreamErrorsSvc::tempMaskedChips(const Identifier & moduleI
 }
 
 unsigned int SCT_ByteStreamErrorsSvc::abcdErrorChips(const Identifier & moduleId) const {
-  unsigned int _abcdErrorChips(0);
+  unsigned int abcdErrorChips2(0);
   int chip(0);
 
   // Side 0
@@ -715,7 +751,7 @@ unsigned int SCT_ByteStreamErrorsSvc::abcdErrorChips(const Identifier & moduleId
      !=m_bsErrors[SCT_ByteStreamErrors::ABCDError]->end()) {
     for(int errType=SCT_ByteStreamErrors::ABCDError_Chip0; errType<=SCT_ByteStreamErrors::ABCDError_Chip5; errType++) {
       if(std::find(m_bsErrors[errType]->begin(), m_bsErrors[errType]->end(), hash_side0)!=m_bsErrors[errType]->end()) {
-	_abcdErrorChips |= (1 << chip);
+	abcdErrorChips2 |= (1 << chip);
       }
       chip++;
     }
@@ -732,11 +768,11 @@ unsigned int SCT_ByteStreamErrorsSvc::abcdErrorChips(const Identifier & moduleId
      !=m_bsErrors[SCT_ByteStreamErrors::ABCDError]->end()) {
     for(int errType=SCT_ByteStreamErrors::ABCDError_Chip0; errType<=SCT_ByteStreamErrors::ABCDError_Chip5; errType++) {
       if(std::find(m_bsErrors[errType]->begin(), m_bsErrors[errType]->end(), hash_side1)!=m_bsErrors[errType]->end()) {
-	_abcdErrorChips |= (1 << chip);
+	abcdErrorChips2 |= (1 << chip);
       }
       chip++;
     }
   }
 
-  return _abcdErrorChips;
+  return abcdErrorChips2;
 }

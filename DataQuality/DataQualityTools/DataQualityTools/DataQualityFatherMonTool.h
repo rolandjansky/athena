@@ -20,13 +20,7 @@
 // StoreGate and Gaudi
 
 #include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/ListItem.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/IHistogramSvc.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ITHistSvc.h"
 
 //
 // ROOT classes

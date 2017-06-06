@@ -13,9 +13,3 @@ TFCSEnergyParametrization::TFCSEnergyParametrization(const char* name, const cha
 {
 }
 
-//=============================================
-//========== ROOT persistency stuff ===========
-//=============================================
-
-ClassImp(TFCSEnergyParametrization)
-

@@ -857,7 +857,7 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_RDOs(bool newLumiBlock, bool newRun)
       //lumi summary histograms 
       m_IntLum =bookTH1F_LW(rdoShiftSmry,"hIntLum", "Luminosity", 1, 0., 1., " ", "Luminosity [#mub^{1}]", scode);
       m_LBvsLum =bookTH1F_LW(rdoShiftSmry,"hLBvsLum", "Luminosity", 2000, 0., 2000., "Luminosity Bin", "Luminosity [#mub^{1}]", scode);
-      m_LBvsTime =bookTH1D_LW(rdoShiftSmry,"hLBvsTime", "Time", 2000, 0., 2000., " Luminosity Bin", "Time [s]", scode);
+      m_LBvsTime =bookTH1F_LW(rdoShiftSmry,"hLBvsTime", "Time", 2000, 0., 2000., " Luminosity Bin", "Time [s]", scode);
       const unsigned int maxLumiBlock = 200;
 
       for (int ibe=0; ibe<2; ibe++) { // ibe=0(barrel), ibe=1(endcap)

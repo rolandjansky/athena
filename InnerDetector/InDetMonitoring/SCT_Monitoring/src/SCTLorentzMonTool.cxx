@@ -16,6 +16,7 @@
 
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/IToolSvc.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -25,7 +26,6 @@
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "TrkTrack/TrackCollection.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetPrepRawData/SiCluster.h"
 #include "TrkParameters/TrackParameters.h"
@@ -63,7 +63,7 @@ SCTLorentzMonTool::SCTLorentzMonTool(const string &type, const string &name,
 
      declareProperty("histoPathBase", m_stream = "/stat"); **/
   m_stream = "/stat";
-  declareProperty("tracksName", m_tracksName = "CombinedInDetTracks"); // this recommended
+  declareProperty("tracksName", m_tracksName = std::string("CombinedInDetTracks")); // this recommended
   declareProperty("TrackToVertexTool", m_trackToVertexTool); // for TrackToVertexTool
   m_numberOfEvents = 0;
 }
@@ -72,6 +72,16 @@ SCTLorentzMonTool::SCTLorentzMonTool(const string &type, const string &name,
 // ====================================================================================================
 SCTLorentzMonTool::~SCTLorentzMonTool() {
   // nada
+}
+
+// ====================================================================================================
+// ====================================================================================================
+StatusCode SCTLorentzMonTool::initialize() {
+  ATH_CHECK( SCTMotherTrigMonTool::initialize() );
+
+  ATH_CHECK( m_tracksName.initialize() );
+
+  return StatusCode::SUCCESS;
 }
 
 // ====================================================================================================
@@ -158,14 +168,14 @@ SCTLorentzMonTool::fillHistograms() {
 
   ATH_MSG_DEBUG("enters fillHistograms");
 
-  const TrackCollection *tracks(0);
-  if (evtStore()->contains<TrackCollection> (m_tracksName)) {
-    if (evtStore()->retrieve(tracks, m_tracksName).isFailure()) {
-      msg(MSG::WARNING) << " TrackCollection not found: Exit SCTLorentzTool" << m_tracksName << endmsg;
+  SG::ReadHandle<TrackCollection> tracks(m_tracksName);
+  if (evtStore()->contains<TrackCollection> (m_tracksName.key())) {
+    if (not tracks.isValid()) {
+      msg(MSG::WARNING) << " TrackCollection not found: Exit SCTLorentzTool" << m_tracksName.key() << endmsg;
       return StatusCode::SUCCESS;
     }
   } else {
-    msg(MSG::WARNING) << "Container " << m_tracksName << " not found.  Exit SCTLorentzMonTool" << endmsg;
+    msg(MSG::WARNING) << "Container " << m_tracksName.key() << " not found.  Exit SCTLorentzMonTool" << endmsg;
     return StatusCode::SUCCESS;
   }
 

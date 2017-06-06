@@ -853,7 +853,7 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
     return StatusCode::SUCCESS;
   }
 
-  IOVTime t(now.run_number(), now.event_number(), now.time_stamp());
+  IOVTime t(now.run_number(), now.event_number(), (long long)now.time_stamp()*1000000000+now.time_stamp_ns_offset());
   IOVRange range;
   IOpaqueAddress* ioa;
   std::string tag;
@@ -903,8 +903,7 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
   
   ATH_MSG_DEBUG( " SG::Storable_cast to obj: " << v );
   
-  EventIDRange r2(EventIDBase(range.start().run(), range.start().event()),
-                  EventIDBase(range.stop().run(),  range.stop().event()));
+  EventIDRange r2 = range;
   
   if (!ccb->insert( r2, v)) {
     ATH_MSG_ERROR("unable to insert Object at " << v << " into CondCont " 

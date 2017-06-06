@@ -22,7 +22,6 @@ class FEI4SimTool:public FrontEndSimTool {
     FEI4SimTool();
 
     int m_HitDiscConfig;
-    int m_timingTune;
 };
 
 #endif // PIXELDIGITIZATION_FEI4SimTool_H

@@ -15,7 +15,7 @@
 /// Purpose:  This is a data object, containing a collection of MuonSpShower objects
 /////////////////////////////////////////////////////////////////////////////////////
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "CLIDSvc/CLASS_DEF.h"
 #include "muonEvent/MuonSpShower.h"
 

@@ -5,7 +5,8 @@ author Andrei Gaponenko
 
 use AtlasPolicy		AtlasPolicy-*
 use CLIDSvc             CLIDSvc-*            Control
-use DataModel 	        DataModel-*          Control
+use AthLinks 	        AthLinks-*           Control
+use AthContainers	AthContainers-*      Control
 use GeneratorObjects    GeneratorObjects-*   Generators
 use Identifier          Identifier-*         DetectorDescription
 use TrkTrack            TrkTrack-*           Tracking/TrkEvent

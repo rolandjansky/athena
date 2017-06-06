@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __H_FTK_COMPRESSEDAMBANKTSP
-#define __H_FTK_COMPRESSEDAMBANKTSP
+#ifndef TRIGFTKSIM_FTK_COMPRESSEDAMBANK_H
+#define TRIGFTKSIM_FTK_COMPRESSEDAMBANK_H
 
 #include "TrigFTKSim/FTKSetup.h"
 #include "TrigFTKSim/FTKLogging.h"
@@ -50,19 +50,19 @@ class FTKPatternBySectorReader;
 //   using the type "const_ptr" rather than "const_iterator"
 template<class T> class VECTORMAP : public MAP<int,T> {
  public:
-   VECTORMAP() : fData(0),fSize(0) { }
-   virtual ~VECTORMAP() { if(fData) delete [] fData; }
+   VECTORMAP() : m_data(0),m_size(0) { }
+   virtual ~VECTORMAP() { if(m_data) delete [] m_data; }
    class const_ptr {
    public:
-      inline const_ptr(typename std::pair<const int,T> const **p=0) : ptr(p) {
+      inline const_ptr(typename std::pair<const int,T> const **p=0) : m_ptr(p) {
       }
       inline typename std::pair<const int,T> const &operator*(void) {
-         return **ptr;
+         return **m_ptr;
       }
-      inline bool operator!=(const_ptr const &cp) { return ptr!=cp.ptr; }
-      inline const_ptr &operator++(void) { ++ptr; return *this; }
+      inline bool operator!=(const_ptr const &cp) { return m_ptr!=cp.m_ptr; }
+      inline const_ptr &operator++(void) { ++m_ptr; return *this; }
    protected:
-      typename std::pair<const int,T> const **ptr;
+      typename std::pair<const int,T> const **m_ptr;
    };
    int getMemoryEstimate(void) const {
       // size of the class
@@ -72,25 +72,25 @@ template<class T> class VECTORMAP : public MAP<int,T> {
          ((uint8_t const *)(this+1)-(uint8_t const *)this)+
          (sizeof(typename std::pair<int, T>)+4*sizeof(void *))
          *MAP<int,T>::size()
-         +sizeof(void *)*fSize;
+         +sizeof(void *)*m_size;
    }
-   inline const_ptr beginPtr(void) const { return fData; }
-   inline const_ptr endPtr(void) const { return fData+fSize; }
+   inline const_ptr beginPtr(void) const { return m_data; }
+   inline const_ptr endPtr(void) const { return m_data+m_size; }
    inline void pack() {
-      if(fData) { delete [] fData; fData=0; }
-      fSize=MAP<int,T>::size();
-      if(fSize) {
-         fData=new typename std::pair<const int,T> const * [fSize];
+      if(m_data) { delete [] m_data; m_data=0; }
+      m_size=MAP<int,T>::size();
+      if(m_size) {
+         m_data=new typename std::pair<const int,T> const * [m_size];
          unsigned k=0;
          for(typename MAP<int,T>::const_iterator i=MAP<int,T>::begin();
              i!=MAP<int,T>::end();i++) {
-            fData[k++]=&(*i);
+            m_data[k++]=&(*i);
          }
       }
    }
  protected:
-   typename std::pair<const int,T> const **fData;
-   unsigned fSize;
+   typename std::pair<const int,T> const **m_data;
+   unsigned m_size;
 };
 #else
 template<class T> class VECTORMAP : public MAP<int,T> {
@@ -136,7 +136,7 @@ public:
    int getHWModeSS_tsp(void) const;
 
    // set SS map (TSP)
-   void setSSMapTSP(FTKSSMap *m_ssmap_tsp) { m_SSmapTSP=m_ssmap_tsp; }
+   void setSSMapTSP(FTKSSMap *ssmap_tsp) { m_SSmapTSP=ssmap_tsp; }
    FTKSSMap *getSSMapTSP() const { return m_SSmapTSP; }
 
    void readSectorDefinition(const char *sectorFileHWMODEID0,
@@ -427,8 +427,8 @@ protected:
 
   //
   // identifier for wildcard SS
-  static int const k_WILDCARDid;
-  static int const k_INVALIDid;
+  static int const s_WILDCARDid;
+  static int const s_INVALIDid;
   //
   // for generating HUF table
   void SplitlistHUF(uint64_t code,int *i2char,int *integral,int i0,int i1,

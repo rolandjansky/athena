@@ -39,10 +39,6 @@ class LArNonLinearity : public CaloCellCorrection
     ~LArNonLinearity();
     virtual StatusCode initialize(); 
 
-    /** Callback added to handle Data-driven GeoModel initialisation
-     */
-    virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-    
     void MakeCorrection(CaloCell* theCell);    
 
  private: 

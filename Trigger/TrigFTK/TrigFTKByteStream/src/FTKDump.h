@@ -34,9 +34,6 @@ public:
   virtual StatusCode initialize();
   /// Function called at each event
   virtual StatusCode execute();
-
-private:
-  MsgStream* m_log; //!< std message stream
 }; // class FTKDump
 
 #endif // FTK_DUMP_EXAMPLE_H

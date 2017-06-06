@@ -8,7 +8,7 @@
 TCS::MuonNextBCTOBArray::MuonNextBCTOBArray(const std::string & name, unsigned int reserve) :
    InputTOBArray(name),
    DataArrayImpl<MuonNextBCTOB>(reserve)
-{};
+{}
 
 void
 TCS::MuonNextBCTOBArray::print(std::ostream &o) const {

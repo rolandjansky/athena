@@ -12,6 +12,7 @@
 
 
 #include "SGTools/TestStore.h"
+#include "SGTools/DataBucketBase.h"
 #include <iostream>
 
 
@@ -65,6 +66,10 @@ SG::DataProxy* TestStore::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
                                         bool returnExisting)
 {
   const void* raw_ptr = obj.get();
+  if (DataBucketBase* bucket = dynamic_cast<DataBucketBase*> (obj.get())) {
+    raw_ptr = bucket->object();
+  }
+
   CLID clid = obj->clID();
   SG::DataProxy* proxy = this->proxy (clid, key);
   if (proxy) {
@@ -73,6 +78,31 @@ SG::DataProxy* TestStore::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
     else
       return nullptr;
   }
+
+  proxy = this->proxy (raw_ptr);
+  if (proxy) {
+    sgkey_t sgkey = stringToKey (key, obj->clID());
+    if (!returnExisting)
+      return nullptr;
+    if (obj->clID() == proxy->clID()) {
+      // Alias?
+      m_kmap[sgkey] = proxy;
+      proxy->addRef();
+      proxy->transientAddress()->setAlias (key);
+      return proxy;
+    }
+    if (key == proxy->name()) {
+      // Symlink?
+      m_kmap[sgkey] = proxy;
+      proxy->addRef();
+      proxy->transientAddress()->setTransientID (obj->clID());
+      return proxy;
+    }
+
+    // Error.
+    return nullptr;
+  }
+  
   proxy = record1 (raw_ptr, obj.get(), clid, key);
   if (!allowMods)
     proxy->setConst();
@@ -203,6 +233,16 @@ void TestStore::remap (sgkey_t sgkey_in, sgkey_t sgkey_out,
 {
   m_remap[TestStoreRemap(sgkey_in, index_in)] =
     TestStoreRemap(sgkey_out, index_out);
+}
+
+
+void TestStore::alias (SG::DataProxy* proxy,
+                       const std::string& newKey)
+{
+  sgkey_t sgkey = stringToKey (newKey, proxy->clID());
+  m_kmap[sgkey] = proxy;
+  proxy->addRef();
+  proxy->transientAddress()->setAlias (newKey);
 }
 
 

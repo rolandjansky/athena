@@ -286,34 +286,15 @@ StatusCode AmdcsimrecAthenaSvc::initialize() {
   if ( (m_NameOfTheSource=="POOL" || m_NameOfTheSource=="GEOMODEL" ) && m_AlignmentSource == 3 ){
     ATH_MSG_DEBUG( "=>Strings come from Geomodel and A/B line stores as well<=" ) ;
     
-    if(p_IGeoModelSvc->geoInitialized()) {
+    m_IsInitialized = true ;
+    m_IsUsable      = true ;
     
-      ATH_MSG_DEBUG( "      p_IGeoModelSvc->geoInitialized() true "  ) ;
-      m_IsInitialized = true ;
-      m_IsUsable      = true ;
-    
-      sc = initializeFromGeomodel();
-      if ( sc.isFailure() ) {
-        ATH_MSG_FATAL("initializeFromGeomodel failed" ) ;
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_DEBUG( "Done: initializeFromGeomodel " ) ;
-
-    }else{
-    
-      ATH_MSG_DEBUG( "      p_IGeoModelSvc->geoInitialized() false "  ) ;
-      m_IsInitialized = false ;
-      m_IsUsable      = false ;
-
-      sc = regFcninitializeFromGeomodel();
-      if ( sc.isFailure() ) {
-        ATH_MSG_FATAL("regFcninitializeFromGeomodel failed" ) ;
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_DEBUG( "Done: regFcninitializeFromGeomodel " ) ;
-
+    sc = initializeFromGeomodel();
+    if ( sc.isFailure() ) {
+      ATH_MSG_FATAL("initializeFromGeomodel failed" ) ;
+      return StatusCode::FAILURE;
     }
-
+    ATH_MSG_DEBUG( "Done: initializeFromGeomodel " ) ;
   }
   
 //Strings come from Geomodel and A/B line stores from cool
@@ -322,36 +303,21 @@ StatusCode AmdcsimrecAthenaSvc::initialize() {
     m_IsInitialized = false ;
     m_IsUsable      = false ;
 
-    if(p_IGeoModelSvc->geoInitialized()) {
+    ATH_MSG_DEBUG( "      p_IGeoModelSvc->geoInitialized() true "  ) ;
 
-      ATH_MSG_DEBUG( "      p_IGeoModelSvc->geoInitialized() true "  ) ;
-
-      sc = initializeFromGeomodel();
-      if ( sc.isFailure() ) {
-        ATH_MSG_FATAL("initializeFromGeomodel failed" ) ;
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_DEBUG( "Done: initializeFromGeomodel " ) ;
-      
-      sc=regFcnSetAmdcABlineFromCool();
-      if ( sc.isFailure() ) {
-        ATH_MSG_FATAL("regFcnSetAmdcABlineFromCool failed" ) ;
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_DEBUG( "Done: regFcnSetAmdcABlineFromCool " ) ;
-
-    }else{
-
-      ATH_MSG_DEBUG( "      p_IGeoModelSvc->geoInitialized() false  "  ) ;
-
-      sc=regFcninitializeFromGeomodelSetAmdcABlineFromCool();
-      if ( sc.isFailure() ) {
-        ATH_MSG_FATAL("regFcninitializeFromGeomodelSetAmdcABlineFromCool failed" ) ;
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_DEBUG( "Done: regFcninitializeFromGeomodelSetAmdcABlineFromCool " ) ;
-
+    sc = initializeFromGeomodel();
+    if ( sc.isFailure() ) {
+      ATH_MSG_FATAL("initializeFromGeomodel failed" ) ;
+      return StatusCode::FAILURE;
     }
+    ATH_MSG_DEBUG( "Done: initializeFromGeomodel " ) ;
+    
+    sc=regFcnSetAmdcABlineFromCool();
+    if ( sc.isFailure() ) {
+      ATH_MSG_FATAL("regFcnSetAmdcABlineFromCool failed" ) ;
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_DEBUG( "Done: regFcnSetAmdcABlineFromCool " ) ;
 
   }
   
@@ -577,7 +543,7 @@ StatusCode AmdcsimrecAthenaSvc::initializeFromOracle()
       << " (node) " << m_detectorNode 
       ) ;
 
-  const IRDBRecordset *recordsetAMDC = pIRDBAccessSvc->getRecordset("AMDC",m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr recordsetAMDC = pIRDBAccessSvc->getRecordsetPtr("AMDC",m_detectorKey,m_detectorNode);
   if (recordsetAMDC->size()==0){
     ATH_MSG_FATAL( "recordsetAMDC->size() is 0" ) ;
     return StatusCode::FAILURE;
@@ -586,7 +552,7 @@ StatusCode AmdcsimrecAthenaSvc::initializeFromOracle()
   std::string AmdcString = recordAMDC->getString("DATA");
   ATH_MSG_DEBUG( "        AMDC::VNAME " << recordAMDC->getString("VNAME") ) ;
 
-  const IRDBRecordset *recordsetAGDD = pIRDBAccessSvc->getRecordset("AGDD",m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr recordsetAGDD = pIRDBAccessSvc->getRecordsetPtr("AGDD",m_detectorKey,m_detectorNode);
   if (recordsetAGDD->size()==0){
     ATH_MSG_FATAL( "        recordsetAGDD->size() is 0" ) ;
     return StatusCode::FAILURE;
@@ -603,7 +569,7 @@ StatusCode AmdcsimrecAthenaSvc::initializeFromOracle()
     m_AGDD2GeoSwitchesStamp = m_AGDD2GeoSwitchesStamp + 1;
     std::string TheKEYNAME;
     int TheKEYVALUE; 
-    const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset("AGDD2GeoSwitches",m_detectorKey,m_detectorNode);
+    IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr("AGDD2GeoSwitches",m_detectorKey,m_detectorNode);
     for(unsigned int i=0; i<pIRDBRecordset->size(); i++) {
       const IRDBRecord* record = (*pIRDBRecordset)[i];
       TheKEYNAME = record->getString("KEYNAME");

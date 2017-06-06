@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #include <cmath>
 #include "MuonEfficiencyCorrections/DetRegionBinning.h"
@@ -140,53 +140,53 @@ int DetRegionBinning::symmetricBin(const TLorentzVector & mst) const {
 std::string DetRegionBinning::GetRegionLabel(int region) const {
 
     switch (region) {
-    case bin1BARRELLG:
-        return "Barrel large";
-        break;
+        case bin1BARRELLG:
+            return "Barrel large";
+            break;
 
-    case bin1BARRELSM:
-        return "Barrel small";
-        break;
+        case bin1BARRELSM:
+            return "Barrel small";
+            break;
 
-    case bin2BARREL:
-        return "Barrel overlap";
-        break;
+        case bin2BARREL:
+            return "Barrel overlap";
+            break;
 
-    case binFEET:
-        return "Feet";
-        break;
+        case binFEET:
+            return "Feet";
+            break;
 
-    case binTRANSITION:
-        return "Transition";
-        break;
+        case binTRANSITION:
+            return "Transition";
+            break;
 
-    case binENDCAPLG:
-        return "Endcap large";
-        break;
+        case binENDCAPLG:
+            return "Endcap large";
+            break;
 
-    case binENDCAPSM:
-        return "Endcap small";
-        break;
+        case binENDCAPSM:
+            return "Endcap small";
+            break;
 
-    case binBEE:
-        return "BEE";
-        break;
+        case binBEE:
+            return "BEE";
+            break;
 
-    case binFORWARDLG:
-        return "Forward large";
-        break;
+        case binFORWARDLG:
+            return "Forward large";
+            break;
 
-    case binFORWARDSM:
-        return "Forward small";
-        break;
+        case binFORWARDSM:
+            return "Forward small";
+            break;
 
-    case binCRACK:
-        return "Crack";
-        break;
+        case binCRACK:
+            return "Crack";
+            break;
 
-    default:
-        return "unknown";
-        break;
+        default:
+            return "unknown";
+            break;
     }
 
 }

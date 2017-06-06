@@ -24,7 +24,6 @@
 
 #include "GaudiKernel/DirSearchPath.h"
 
-#include "AthenaKernel/tools/AthenaPackageInfo.h"
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/MsgStreamMember.h"
 

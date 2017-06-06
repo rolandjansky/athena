@@ -961,7 +961,7 @@ bool InDet::InDetTrackHoleSearchTool::isSensitive(const Trk::TrackParameters* pa
 	// the track plus its error hits the active material
 	if (isActiveElement) {
 
-	  if(m_checkBadSCTChip and isBadSCTChip(id, parameters, siElement)) {
+	  if(m_checkBadSCTChip and isBadSCTChip(id, *parameters, *siElement)) {
 	    ATH_MSG_VERBOSE ("Track is hiting a bad SCT chip, this is not a hole candidate!");
 	    isgood = false;
 	    return false;
@@ -1057,21 +1057,13 @@ const Trk::Track*  InDet::InDetTrackHoleSearchTool::addHolesToTrack(const Trk::T
 
 // ====================================================================================================================
 bool InDet::InDetTrackHoleSearchTool::isBadSCTChip(const Identifier& waferId, 
-						   const Trk::TrackParameters* parameters, 
-						   const InDetDD::SiDetectorElement* siElement) const {
+						   const Trk::TrackParameters& parameters,
+						   const InDetDD::SiDetectorElement& siElement) const {
   // Check if the track passes through a bad SCT ABCD chip
   // A chip is determined by the extrapolated position.
   // Algorithm is based on InnerDetector/InDetMonitoring/SCT_Monitoring/src/SCTHitEffMonTool.cxx
 
-  // Check the inputs
-  if(!parameters) {
-    ATH_MSG_WARNING("Trk::TrackParameters* parameters is null.");
-    return true;
-  }
-  if(!siElement) {
-    ATH_MSG_WARNING("InDetDD::SiDetectorElement* siElement is null.");
-    return true;
-  }
+  // Check the input
   if(not m_atlasId->is_sct(waferId)) {
     ATH_MSG_WARNING(waferId << " is not an SCT Identifier");
     return true;
@@ -1108,8 +1100,8 @@ bool InDet::InDetTrackHoleSearchTool::isBadSCTChip(const Identifier& waferId,
   
   // There is at least one bad chip on the side.
   // Get strip id from local position
-  const Amg::Vector2D localPos(parameters->localPosition());
-  const Identifier stripIdentifier(siElement->identifierOfPosition(localPos));
+  const Amg::Vector2D localPos(parameters.localPosition());
+  const Identifier stripIdentifier(siElement.identifierOfPosition(localPos));
   if(not m_atlasId->is_sct(stripIdentifier)) {
     ATH_MSG_WARNING(stripIdentifier << " is not an SCT Identifier");
     return true;
@@ -1133,7 +1125,7 @@ bool InDet::InDetTrackHoleSearchTool::isBadSCTChip(const Identifier& waferId,
   //  offline strip:   0            767
   //  chip on side 0:  5  4  3  2  1  0
   //  chip on side 1:  6  7  8  9 10 11
-  const bool swap(siElement->swapPhiReadoutDirection());
+  const bool swap(siElement.swapPhiReadoutDirection());
   if(side==0) {
     chip = swap ?  5 - chip :     chip;
   } else {

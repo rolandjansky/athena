@@ -205,12 +205,12 @@ public:
   template <typename T>
   StatusCode retrieve(T*& ptr);
 
-  /// Variant of the above which does't return a status code.
+  /// Variant of the above which doesn't return a status code.
   /// Just returns null if the object isn't found.
   template <typename T>
   T* retrieve ();
 
-  /// Variant of the above which does't print a warning message.
+  /// Variant of the above which doesn't print a warning message.
   /// Just returns null if the object isn't found. Compare to contains
   template <typename T>
   T* tryRetrieve ();
@@ -225,12 +225,12 @@ public:
   template <typename T, typename TKEY>
   StatusCode retrieve(T*& ptr, const TKEY& key);
 
-  /// Variant of the above which does't return a status code.
+  /// Variant of the above which doesn't return a status code.
   /// Just returns null if the object isn't found.
   template <typename T, class TKEY>
   T* retrieve (const TKEY& key);
 
-  /// Variant of the above which does't print a warning message.
+  /// Variant of the above which doesn't print a warning message.
   /// Just returns null if the object isn't found. Compare to contains
   template <typename T, class TKEY>
   T* tryRetrieve (const TKEY& key);
@@ -345,7 +345,7 @@ public:
   template <typename T, typename AKEY>
   StatusCode setAlias(const T* p2BAliased, const AKEY& aliasKey);
 
-  /// prevent downstream clients from modyfing the pointed-at dobj
+  /// prevent downstream clients from modifying the pointed-at dobj
   StatusCode setConst(const void* pointer);
 
   /// Remove pObject,  will remove its proxy if not reset only.
@@ -505,7 +505,7 @@ public:
   StoreID::type storeID() const;
 
 
-  /** provide list of all storegate keys associated with an object.
+  /** provide list of all StoreGate keys associated with an object.
    *  usage: p_store->keys<T>(vkeys, optional flags);
    *  @param vkeys will be filled with the (possibly empty) list of keys
    *  @param includeAlias (default false) add alias keys as well
@@ -516,7 +516,7 @@ public:
   keys(std::vector<std::string>& vkeys, 
        bool includeAlias = false, bool onlyValid = true); 
  
-  /** provide list of all storegate keys associated with an object.
+  /** provide list of all StoreGate keys associated with an object.
    *  usage: p_store->keys(CLID, vkeys, optionalFlags);
    *  @param id CLID for which we are requesting list of keys
    *  @param vkeys will be filled with the (possibly empty) list of keys
@@ -598,6 +598,8 @@ public:
    * @param returnExisting If true, return proxy if this key already exists.
    *                       If the object has been recorded under a different
    *                       key, then make an alias.
+   *                       If the object has been recorded under a different
+   *                       clid, then make a link.
    *
    * Full-blown record.  @c obj should usually be something
    * deriving from @c SG::DataBucket.
@@ -782,7 +784,7 @@ public:
   //@}
 
   //////////////////////////////////////////////////////////////////
-  /// \name Gaudi Standard Service structors
+  /// \name Gaudi Standard Service constructors/destructors
   //@{
   SGImplSvc(const std::string& name, ISvcLocator* svc);
   virtual ~SGImplSvc() override final;
@@ -819,7 +821,7 @@ public:
   /// @param forceRemove: if true remove proxies ignoring their resetOnly flag
   virtual StatusCode clearStore(bool forceRemove=false) override final;
 
-  /** Get data objects registred in store since last getNewDataObjects call (or since init for 1st call)
+  /** Get data objects registered in store since last getNewDataObjects call (or since init for 1st call)
    *
    * @param  products     [IN]     Slot number (event slot)   *
    * @return Status code indicating failure or success.
@@ -856,7 +858,7 @@ public:
   /**
    * @brief Tell the store that a proxy has been bound to a handle.
    * @param proxy The proxy that was bound.
-   * The default implemenatation does nothing.
+   * The default implementation does nothing.
    */
   virtual void boundHandle (IResetable* handle) override final;
 
@@ -937,7 +939,7 @@ private:
                               const void* const raw_ptr,
                               bool allowMods, bool resetOnly=true,
                               bool noHist=false );
-  /// same as typeless_record, allows to ovewrite an object in memory or on disk
+  /// same as typeless_record, allows to overwrite an object in memory or on disk
   StatusCode typeless_overwrite( const CLID& id,
                                  DataObject* obj, const std::string& key,
                                  const void* const raw_ptr,

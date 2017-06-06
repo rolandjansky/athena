@@ -104,7 +104,7 @@ use AtlasHepMC           AtlasHepMC-*           External
 #use AtlfastAlgs          AtlfastAlgs-*          Simulation/Atlfast
 #use CaloSimEvent         CaloSimEvent-*         Calorimeter
 use CaloTrackingGeometry CaloTrackingGeometry-* Calorimeter
-use DataModel            DataModel-*            Control
+use AthAllocators        AthAllocators-*        Control
 use EventKernel          EventKernel-*          Event
 #use ITrackToCalo         ITrackToCalo-*         Reconstruction/RecoTools
 use NavFourMom           NavFourMom-*           Event

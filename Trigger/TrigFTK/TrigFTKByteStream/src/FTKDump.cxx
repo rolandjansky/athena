@@ -10,11 +10,9 @@
 FTKDump::FTKDump(const std::string &name, ISvcLocator *pSvcLocator)
    : AthAlgorithm( name, pSvcLocator ) {
 
-  m_log = new MsgStream(messageService(), "FTKDump");
 }
 
 FTKDump::~FTKDump(){
-  delete m_log;
 }
 
 StatusCode FTKDump::initialize() {
@@ -28,8 +26,7 @@ StatusCode FTKDump::execute() {
 
   CHECK(evtStore()->retrieve(tracks_ptr, "dummy_tracks"));
 
-  //ATH_MSG_INFO( "Got the tracks" );
-  (*m_log) << MSG::INFO << "Got no of tracks: " << tracks_ptr->size() << endmsg;
+  ATH_MSG_INFO( "Got no of tracks: " << tracks_ptr->size() );
 
   return StatusCode::SUCCESS;
 }

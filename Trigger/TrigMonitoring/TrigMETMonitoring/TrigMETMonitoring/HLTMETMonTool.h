@@ -98,6 +98,9 @@ private:
   std::string m_lvl1_roi_key;
   std::string m_hlt_cell_met_key; 
   std::string m_hlt_mht_met_key; 
+  std::string m_hlt_mhtem_met_key; 
+  std::string m_hlt_trkmht_met_key; 
+  std::string m_hlt_trkmhtFTK_met_key; 
   std::string m_hlt_topocl_met_key; 
   std::string m_hlt_topocl_PS_met_key; 
   std::string m_hlt_topocl_PUC_met_key; 
@@ -116,10 +119,10 @@ private:
 
   // for the efficiencies                                                                                                    
   std::string m_denominator_trigger;
-  TH1F *h_denominator = 0;
+  //TH1F *h_denominator = 0;
 
   std::string m_numerator_trigger[4]; // = {"HLT_xe80", "HLT_xe100"};                                                        
-  TH1F *trig_eff_num[4] = {0};
+  //TH1F *trig_eff_num[4] = {0};
 
   // for MET significance
   float m_sigOffset;

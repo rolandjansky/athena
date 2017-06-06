@@ -17,6 +17,7 @@
 // RAW data access
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
 #include "InDetRawData/SCT3_RawData.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
@@ -42,7 +43,9 @@ SCT_CalibHitmapSvc::SCT_CalibHitmapSvc(const std::string &name, ISvcLocator * sv
   m_pSCTHelper(0),
   m_sct_waferHash(0),
   m_sct_firstStrip(0),
-  m_sct_rdoGroupSize(0){
+  m_sct_rdoGroupSize(0),
+  m_rdoContainerKey(std::string("SCT_RDOs"))
+{
 }
 
 StatusCode 
@@ -53,6 +56,10 @@ SCT_CalibHitmapSvc::initialize(){
   m_waferItrBegin  = m_pSCTHelper->wafer_begin();
   m_waferItrEnd  = m_pSCTHelper->wafer_end();
   //
+
+  // Read Handle Key
+  ATH_CHECK(m_rdoContainerKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -177,8 +184,8 @@ SCT_CalibHitmapSvc::fillFromData(){
   bool result(true);
   m_numberOfEventsHisto->Fill( 1 );
   // unused int eventNumber = m_numberOfEventsHisto->GetEntries();
-  const SCT_RDO_Container * prdoContainer(0);
-  if (m_evtStore->retrieve(prdoContainer,"SCT_RDOs").isFailure() ) msg(MSG::ERROR) <<"Failed to retrieve the SCT RDO container"<<endmsg;
+  SG::ReadHandle<SCT_RDO_Container> prdoContainer(m_rdoContainerKey);
+  if (not prdoContainer.isValid() ) msg(MSG::ERROR) <<"Failed to retrieve the SCT RDO container"<<endmsg;
   SCT_RDO_Container::const_iterator itr=prdoContainer->begin();
   const SCT_RDO_Container::const_iterator end=prdoContainer->end();
   for (;itr !=end;++itr){

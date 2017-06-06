@@ -10,6 +10,7 @@
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetTrackClusterAssValidation/TrackClusterAssValidation.h"
+#include "StoreGate/ReadHandle.h"
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -21,14 +22,14 @@ InDet::TrackClusterAssValidation::TrackClusterAssValidation
 
   // TrackClusterAssValidation steering parameters
   //
-  m_spacepointsSCTname     = "SCT_SpacePoints"                ;
+  m_spacepointsSCTname     = std::string("SCT_SpacePoints")   ;
   m_spacepointsPixelname   = "PixelSpacePoints"               ;
   m_spacepointsOverlapname = "OverlapSpacePoints"             ; 
   m_clustersPixelname      = "PixelClusters"                  ;
-  m_clustersSCTname        = "SCT_Clusters"                   ;
+  m_clustersSCTname        = std::string("SCT_Clusters")      ;
   m_clustersTRTname        = "TRT_DriftCircles"               ;
   m_truth_locationPixel    = "PRD_MultiTruthPixel"            ;
-  m_truth_locationSCT      = "PRD_MultiTruthSCT"              ;
+  m_truth_locationSCT      = std::string("PRD_MultiTruthSCT") ;
   m_truth_locationTRT      = "PRD_MultiTruthTRT"              ;
   m_spacepointsSCT         = 0                                ;
   m_spacepointsPixel       = 0                                ;
@@ -192,7 +193,14 @@ StatusCode InDet::TrackClusterAssValidation::initialize()
     m_particleSpacePointsBTE[i][3] = 0;
 
   }
-  if(!m_useTRT) m_clcutTRT = 0; if(!m_clcutTRT) m_useTRT = false;
+  if(!m_useTRT) m_clcutTRT = 0; 
+  if(!m_clcutTRT) m_useTRT = false;
+
+  // Read Handle Key
+  ATH_CHECK(m_truth_locationSCT.initialize(m_useSCT));
+  ATH_CHECK(m_clustersSCTname.initialize(m_useSCT));
+  ATH_CHECK(m_spacepointsSCTname.initialize(m_useSCT));
+
   return sc;
 }
 
@@ -219,11 +227,12 @@ StatusCode InDet::TrackClusterAssValidation::execute()
   }
 
   if(m_useSCT) {
-    s = evtStore()->retrieve(m_truthSCT,m_truth_locationSCT);
-    if (s.isFailure()) {
+    SG::ReadHandle<PRD_MultiTruthCollection> truthSCT(m_truth_locationSCT);
+    if (not truthSCT.isValid()) {
       msg(MSG::FATAL)<<"Could not find TruthSCT"<<endmsg;
       return s;
     }
+    m_truthSCT = truthSCT.cptr();
   }
 
   if( m_clcutTRT > 0) {
@@ -1138,7 +1147,8 @@ std::ostream& InDet::operator <<
 MsgStream& InDet::TrackClusterAssValidation::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out); return dumptools(out);
+  if(m_nprint)  return dumpevent(out);
+  return dumptools(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1162,38 +1172,38 @@ MsgStream& InDet::TrackClusterAssValidation::dumptools( MsgStream& out ) const
   }
   n     = 65-m_spacepointsPixelname.size();
   std::string s2; for(int i=0; i<n; ++i) s2.append(" "); s2.append("|");
-  n     = 65-m_spacepointsSCTname.size();
+  n     = 65-m_spacepointsSCTname.key().size();
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
   n     = 65-m_spacepointsOverlapname.size();
   std::string s4; for(int i=0; i<n; ++i) s4.append(" "); s4.append("|");
   n     = 65-m_clustersPixelname.size();
   std::string s5; for(int i=0; i<n; ++i) s5.append(" "); s5.append("|");
-  n     = 65-m_clustersSCTname.size();
+  n     = 65-m_clustersSCTname.key().size();
   std::string s6; for(int i=0; i<n; ++i) s6.append(" "); s6.append("|");
   n     = 65-m_clustersTRTname.size();
   std::string s9; for(int i=0; i<n; ++i) s9.append(" "); s9.append("|");
   n     = 65-m_truth_locationPixel.size();
   std::string s7; for(int i=0; i<n; ++i) s7.append(" "); s7.append("|");
-  n     = 65-m_truth_locationSCT.size();
+  n     = 65-m_truth_locationSCT.key().size();
   std::string s8; for(int i=0; i<n; ++i) s8.append(" "); s8.append("|");
   n     = 65-m_truth_locationTRT.size();
   std::string s10; for(int i=0; i<n; ++i) s10.append(" "); s10.append("|");
   
   out<<"| Pixel    space points                           | "<<m_spacepointsPixelname  <<s2
      <<std::endl;
-  out<<"| SCT      space points                           | "<<m_spacepointsSCTname    <<s3
+  out<<"| SCT      space points                           | "<<m_spacepointsSCTname.key()<<s3
      <<std::endl;
   out<<"| Overlap  space points                           | "<<m_spacepointsOverlapname<<s4
      <<std::endl;
   out<<"| Pixel    clusters                               | "<<m_clustersPixelname     <<s5
      <<std::endl;
-  out<<"| SCT      clusters                               | "<<m_clustersSCTname       <<s6
+  out<<"| SCT      clusters                               | "<<m_clustersSCTname.key() <<s6
      <<std::endl;
   out<<"| TRT      clusters                               | "<<m_clustersTRTname       <<s9
      <<std::endl;
   out<<"| Truth location  for pixels                      | "<<m_truth_locationPixel   <<s7
      <<std::endl;
-  out<<"| Truth location  for sct                         | "<<m_truth_locationSCT     <<s8
+  out<<"| Truth location  for sct                         | "<<m_truth_locationSCT.key()<<s8
      <<std::endl;
   out<<"| Truth location  for trt                         | "<<m_truth_locationTRT     <<s10
      <<std::endl;
@@ -1300,8 +1310,9 @@ void InDet::TrackClusterAssValidation::newClustersEvent()
   //
   m_sctcontainer = 0; 
   if(m_useSCT) {
-    sc            = evtStore()->retrieve(m_sctcontainer,m_clustersSCTname  );
-    if (sc.isFailure()) msg(MSG::DEBUG)<<"SCT clusters container"<<endmsg;
+    SG::ReadHandle<SiClusterContainer> sctcontainer(m_clustersSCTname);
+    if (not sctcontainer.isValid()) msg(MSG::DEBUG)<<"SCT clusters container"<<endmsg;
+    m_sctcontainer = sctcontainer.cptr();
   } 
 
   // Get trt   cluster container
@@ -1434,10 +1445,12 @@ void InDet::TrackClusterAssValidation::newSpacePointsEvent()
   //
   m_spacepointsSCT = 0;
   if(m_useSCT) {
-    if (evtStore()->contains<SpacePointContainer>(m_spacepointsSCTname))
+    if (evtStore()->contains<SpacePointContainer>(m_spacepointsSCTname.key()))
     {
-      if (evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname).isFailure())
+      SG::ReadHandle<SpacePointContainer> spacepointsSCT(m_spacepointsSCTname);
+      if (not spacepointsSCT.isValid())
           msg(MSG::DEBUG)<<"SCT space points container"<<endmsg;
+      m_spacepointsSCT = spacepointsSCT.cptr();
 
       if(m_spacepointsSCT) {
         

@@ -23,7 +23,7 @@
 #include "PixelCalibAlgs/PixelConvert.h"
 #include "PixelConditionsData/SpecialPixelMap.h"
 
-std::vector< std::pair< std::string, std::vector<int> > > m_pixelMapping;
+std::vector< std::pair< std::string, std::vector<int> > > pixelMapping;
 std::string getDCSIDFromPosition (int barrel_ec, int layer, int module_phi, int module_eta);
 std::vector<int> getPositionFromDCSID (std::string module_name);
 
@@ -201,7 +201,7 @@ int main(int argc, char* argv[]){
     //  std::cout << maskedLayer + " module_phi " << maskedStave << " will be masked" << std::endl;
     //}
 
-  bool m_isIBL = true; /////
+  bool isIBL = true; /////
 
   bool optionOnline = false;
 
@@ -230,12 +230,12 @@ int main(int argc, char* argv[]){
   components.push_back("Disk1C");
   components.push_back("Disk2C");
   components.push_back("Disk3C");
-  if(m_isIBL) components.push_back("IBL");     // kazuki
+  if(isIBL) components.push_back("IBL");     // kazuki
   components.push_back("B-layer");
   components.push_back("Layer1");
   components.push_back("Layer2");
-  if(m_isIBL) components.push_back("DBMA");     // kazuki
-  if(m_isIBL) components.push_back("DBMC");     // kazuki
+  if(isIBL) components.push_back("DBMA");     // kazuki
+  if(isIBL) components.push_back("DBMC");     // kazuki
 
   std::vector<std::string> types;
   types.push_back("Normal");
@@ -274,12 +274,12 @@ int main(int argc, char* argv[]){
   double nHitsBeforeMask = 0.;
   double nHitsAfterMask = 0.;
 
-  if(m_isIBL) hitMapFile->GetObject("disablePlotBI", disablePlotBI);  // kazuki
+  if(isIBL) hitMapFile->GetObject("disablePlotBI", disablePlotBI);  // kazuki
   hitMapFile->GetObject("disablePlotB0", disablePlotB0);
   hitMapFile->GetObject("disablePlotB1", disablePlotB1);
   hitMapFile->GetObject("disablePlotB2", disablePlotB2);
   hitMapFile->GetObject("disablePlotEC", disablePlotEC);
-  if(m_isIBL) hitMapFile->GetObject("disablePlotDBM", disablePlotDBM);  // kazuki
+  if(isIBL) hitMapFile->GetObject("disablePlotDBM", disablePlotDBM);  // kazuki
 
   hitMapFile->GetObject("DisabledModules", disabledModules);
 
@@ -287,12 +287,12 @@ int main(int argc, char* argv[]){
 
     nEventsHistogram->SetDirectory(noiseMapFile);
 
-    if(m_isIBL) disablePlotBI->SetDirectory(noiseMapFile); // kazuki
+    if(isIBL) disablePlotBI->SetDirectory(noiseMapFile); // kazuki
     disablePlotB0->SetDirectory(noiseMapFile);
     disablePlotB1->SetDirectory(noiseMapFile);
     disablePlotB2->SetDirectory(noiseMapFile);
     disablePlotEC->SetDirectory(noiseMapFile);
-    if(m_isIBL) disablePlotDBM->SetDirectory(noiseMapFile); // kazuki
+    if(isIBL) disablePlotDBM->SetDirectory(noiseMapFile); // kazuki
 
     disabledModules->SetDirectory(noiseMapFile);
 
@@ -403,13 +403,13 @@ int main(int argc, char* argv[]){
   // barrel
 
   std::vector<int> staves;
-  if(m_isIBL) staves.push_back(14); // kazuki
+  if(isIBL) staves.push_back(14); // kazuki
   staves.push_back(22);
   staves.push_back(38);
   staves.push_back(52);
 
   std::vector<std::string> layers;
-  if(m_isIBL) layers.push_back("IBL"); // kazuki
+  if(isIBL) layers.push_back("IBL"); // kazuki
   layers.push_back("B-layer");
   layers.push_back("Layer1");
   layers.push_back("Layer2");
@@ -453,7 +453,7 @@ int main(int argc, char* argv[]){
     }
 
     int nModulesPerStave = 13;
-    if (m_isIBL && layer == 0) nModulesPerStave = 20; // --- IBL --- //
+    if (isIBL && layer == 0) nModulesPerStave = 20; // --- IBL --- //
     for(int module = 0; module < staves[layer] * nModulesPerStave; module++) // loop on modules
     {
 
@@ -484,7 +484,7 @@ int main(int argc, char* argv[]){
         static_cast<TH1D*>((static_cast<TKey*>(((static_cast<TDirectory*>(hitMapFile->Get(lumiMapsPath.str().c_str())))
                 ->GetListOfKeys())->At(module)))->ReadObj());
       if( optionOnline ){
-        if(m_isIBL && layer == 0) noiseMapsOnline[name] = new TH2C(name.c_str(), ("occupancy: " + name).c_str(), 160, 0., 160., 336, 0., 336.);
+        if(isIBL && layer == 0) noiseMapsOnline[name] = new TH2C(name.c_str(), ("occupancy: " + name).c_str(), 160, 0., 160., 336, 0., 336.);
         else noiseMapsOnline[name] = new TH2C(name.c_str(), ("occupancy: " + name).c_str(), 144, 0., 144., 320, 0., 320.);
         TDirectory* noiseMapDir = noiseMapFile->mkdir(name.c_str());
         noiseMapsOnline[name]->SetDirectory( noiseMapDir );
@@ -494,7 +494,7 @@ int main(int argc, char* argv[]){
         hitMaps[name]->SetDirectory(hitMapSubDir);
         lumiMaps[name]->SetDirectory(lumiMapSubDir);
 
-        if(m_isIBL && layer == 0) noiseMaps[name] = new TH2C(name.c_str(), name.c_str(), 160, 0., 160., 336, 0., 336.);
+        if(isIBL && layer == 0) noiseMaps[name] = new TH2C(name.c_str(), name.c_str(), 160, 0., 160., 336, 0., 336.);
         else noiseMaps[name] = new TH2C(name.c_str(), name.c_str(), 144, 0., 144., 328, 0., 328.);
         noiseMaps[name]->SetDirectory(noiseMapSubDir);
       }
@@ -524,7 +524,7 @@ int main(int argc, char* argv[]){
   cuts["Disk1C"] = occucut;
   cuts["Disk2C"] = occucut;
   cuts["Disk3C"] = occucut;
-  if(m_isIBL) cuts["IBL"]= occucut; // IBL
+  if(isIBL) cuts["IBL"]= occucut; // IBL
   cuts["B-layer"]= occucut;
   cuts["Layer1"] = occucut;
   cuts["Layer2"] = occucut;
@@ -557,7 +557,7 @@ int main(int argc, char* argv[]){
 
   std::string testarea = std::getenv("TestArea");
   std::ifstream ifs;
-  if(m_isIBL){
+  if(isIBL){
     ifs.open(testarea + "/InstallArea/share/PixelMapping_Run2.dat");  // Run 2
   } else {
     ifs.open(testarea + "/InstallArea/share/PixelMapping_May08.dat"); // Run 1
@@ -571,7 +571,7 @@ int main(int argc, char* argv[]){
     tmp_position[1] = tmp_layer;
     tmp_position[2] = tmp_module_phi;
     tmp_position[3] = tmp_module_eta;
-    m_pixelMapping.push_back(std::make_pair(tmp_module_name, tmp_position));
+    pixelMapping.push_back(std::make_pair(tmp_module_name, tmp_position));
   }
 
   //------------------------------------
@@ -635,10 +635,10 @@ int main(int argc, char* argv[]){
     double gangedpixelcut = ComputePoisson(cut,muave*gangedPixelMultiplier);
     double longgangedpixelcut = ComputePoisson(cut,muave*longgangedPixelMultiplier);
 
-    bool isIBL3D = ( m_isIBL && barrel == 0 && layer == 0 && (module_eta <= -7 || module_eta >= 6) ) ? true : false;
-    int pixel_eta_max = (m_isIBL && barrel == 0 && layer == 0) ? 160 : 144;
+    bool isIBL3D = ( isIBL && barrel == 0 && layer == 0 && (module_eta <= -7 || module_eta >= 6) ) ? true : false;
+    int pixel_eta_max = (isIBL && barrel == 0 && layer == 0) ? 160 : 144;
     if(isIBL3D) pixel_eta_max = 80;
-    int pixel_phi_max = (m_isIBL && barrel == 0 && layer == 0) ? 336 : 328;
+    int pixel_phi_max = (isIBL && barrel == 0 && layer == 0) ? 336 : 328;
     for(int pixel_eta = 0; pixel_eta < pixel_eta_max; pixel_eta++)
     {
       for(int pixel_phi = 0; pixel_phi < pixel_phi_max; pixel_phi++)
@@ -648,12 +648,12 @@ int main(int argc, char* argv[]){
 
 
         unsigned int type = 0;
-        int pixel_eta_on_chip = (m_isIBL && barrel == 0 && layer == 0) ? pixel_eta % 80 : pixel_eta % 18; // column
+        int pixel_eta_on_chip = (isIBL && barrel == 0 && layer == 0) ? pixel_eta % 80 : pixel_eta % 18; // column
         int pixel_phi_on_chip = (pixel_phi <= 163) ? pixel_phi : 327 - pixel_phi; // eta
-        if (m_isIBL && barrel == 0 && layer == 0) pixel_phi_on_chip = pixel_phi;
+        if (isIBL && barrel == 0 && layer == 0) pixel_phi_on_chip = pixel_phi;
         int pixelType = 0;
 
-        if (m_isIBL && barrel == 0 && layer == 0) { // ----- IBL ----- //
+        if (isIBL && barrel == 0 && layer == 0) { // ----- IBL ----- //
           if( !isIBL3D && (pixel_eta_on_chip == 0 || pixel_eta_on_chip == 80 - 1) ){
             pixelType = 1; // long
           }
@@ -783,69 +783,69 @@ int main(int argc, char* argv[]){
           //////////////////////////////////////////////////////
 
           if(maskedLayer == "IBL") {
-              if (m_isIBL && layer == 0 && barrel == 0 && ( find( maskedStaves.begin(), maskedStaves.end(), module_phi ) != maskedStaves.end() ) ) {
+              if (isIBL && layer == 0 && barrel == 0 && ( find( maskedStaves.begin(), maskedStaves.end(), module_phi ) != maskedStaves.end() ) ) {
                 noiseMap->SetBinContent(pixel_eta + 1, pixel_phi + 1, 1);
               }
           } else if(maskedLayer == "B") {
-              if (m_isIBL && layer == 1 && barrel == 0 && ( find( maskedStaves.begin(), maskedStaves.end(), module_phi ) != maskedStaves.end() ) ) {
+              if (isIBL && layer == 1 && barrel == 0 && ( find( maskedStaves.begin(), maskedStaves.end(), module_phi ) != maskedStaves.end() ) ) {
                 noiseMap->SetBinContent(pixel_eta + 1, pixel_phi + 1, 1);
               }
           } else if(maskedLayer == "L1") {
-              if (m_isIBL && layer == 2 && barrel == 0 && ( find( maskedStaves.begin(), maskedStaves.end(), module_phi ) != maskedStaves.end() ) ) {
+              if (isIBL && layer == 2 && barrel == 0 && ( find( maskedStaves.begin(), maskedStaves.end(), module_phi ) != maskedStaves.end() ) ) {
                 noiseMap->SetBinContent(pixel_eta + 1, pixel_phi + 1, 1);
               }
           } else if(maskedLayer == "L2") {
-              if (m_isIBL && layer == 3 && barrel == 0 && ( find( maskedStaves.begin(), maskedStaves.end(), module_phi ) != maskedStaves.end() ) ) {
+              if (isIBL && layer == 3 && barrel == 0 && ( find( maskedStaves.begin(), maskedStaves.end(), module_phi ) != maskedStaves.end() ) ) {
                 noiseMap->SetBinContent(pixel_eta + 1, pixel_phi + 1, 1);
               }
           } else if(maskedLayer == "IBL_B") {
-              if ( (m_isIBL && layer == 0 && barrel == 0 && ( find( maskedStaves.begin(), maskedStaves.end(), module_phi ) != maskedStaves.end() )) ||
-                   (m_isIBL && layer == 1 && barrel == 0 && ( find( maskedStavesIBL_B.begin(), maskedStavesIBL_B.end(), module_phi ) != maskedStavesIBL_B.end() ))
+              if ( (isIBL && layer == 0 && barrel == 0 && ( find( maskedStaves.begin(), maskedStaves.end(), module_phi ) != maskedStaves.end() )) ||
+                   (isIBL && layer == 1 && barrel == 0 && ( find( maskedStavesIBL_B.begin(), maskedStavesIBL_B.end(), module_phi ) != maskedStavesIBL_B.end() ))
                  ) {
                 noiseMap->SetBinContent(pixel_eta + 1, pixel_phi + 1, 1);
               }
           } else if(maskedLayer == "IBL_L1") {
-              if ( (m_isIBL && layer == 0 && barrel == 0 && ( find( maskedStaves.begin(), maskedStaves.end(), module_phi ) != maskedStaves.end() )) ||
-                   (m_isIBL && layer == 2 && barrel == 0 && ( find( maskedStavesIBL_L1.begin(), maskedStavesIBL_L1.end(), module_phi ) != maskedStavesIBL_L1.end() ))
+              if ( (isIBL && layer == 0 && barrel == 0 && ( find( maskedStaves.begin(), maskedStaves.end(), module_phi ) != maskedStaves.end() )) ||
+                   (isIBL && layer == 2 && barrel == 0 && ( find( maskedStavesIBL_L1.begin(), maskedStavesIBL_L1.end(), module_phi ) != maskedStavesIBL_L1.end() ))
                  ) {
                 noiseMap->SetBinContent(pixel_eta + 1, pixel_phi + 1, 1);
               }
           } else if(maskedLayer == "IBL_L2") {
-              if ( (m_isIBL && layer == 0 && barrel == 0 && ( find( maskedStaves.begin(), maskedStaves.end(), module_phi ) != maskedStaves.end() )) ||
-                   (m_isIBL && layer == 3 && barrel == 0 && ( find( maskedStavesIBL_L2.begin(), maskedStavesIBL_L2.end(), module_phi ) != maskedStavesIBL_L2.end() ))
+              if ( (isIBL && layer == 0 && barrel == 0 && ( find( maskedStaves.begin(), maskedStaves.end(), module_phi ) != maskedStaves.end() )) ||
+                   (isIBL && layer == 3 && barrel == 0 && ( find( maskedStavesIBL_L2.begin(), maskedStavesIBL_L2.end(), module_phi ) != maskedStavesIBL_L2.end() ))
                  ) {
                 noiseMap->SetBinContent(pixel_eta + 1, pixel_phi + 1, 1);
               }
           } else if(maskedLayer == "B_L1") {
-              if ( (m_isIBL && layer == 1 && barrel == 0 && ( find( maskedStaves.begin(), maskedStaves.end(), module_phi ) != maskedStaves.end() )) ||
-                   (m_isIBL && layer == 2 && barrel == 0 && ( find( maskedStavesB_L1.begin(), maskedStavesB_L1.end(), module_phi ) != maskedStavesB_L1.end() ))
+              if ( (isIBL && layer == 1 && barrel == 0 && ( find( maskedStaves.begin(), maskedStaves.end(), module_phi ) != maskedStaves.end() )) ||
+                   (isIBL && layer == 2 && barrel == 0 && ( find( maskedStavesB_L1.begin(), maskedStavesB_L1.end(), module_phi ) != maskedStavesB_L1.end() ))
                  ) {
                 noiseMap->SetBinContent(pixel_eta + 1, pixel_phi + 1, 1);
               }
           } else if(maskedLayer == "B_L2") {
-              if ( (m_isIBL && layer == 1 && barrel == 0 && ( find( maskedStaves.begin(), maskedStaves.end(), module_phi ) != maskedStaves.end() )) ||
-                   (m_isIBL && layer == 3 && barrel == 0 && ( find( maskedStavesB_L2.begin(), maskedStavesB_L2.end(), module_phi ) != maskedStavesB_L2.end() ))
+              if ( (isIBL && layer == 1 && barrel == 0 && ( find( maskedStaves.begin(), maskedStaves.end(), module_phi ) != maskedStaves.end() )) ||
+                   (isIBL && layer == 3 && barrel == 0 && ( find( maskedStavesB_L2.begin(), maskedStavesB_L2.end(), module_phi ) != maskedStavesB_L2.end() ))
                  ) {
                 noiseMap->SetBinContent(pixel_eta + 1, pixel_phi + 1, 1);
               }
           } else if(maskedLayer == "L1_L2") {
-              if ( (m_isIBL && layer == 2 && barrel == 0 && ( find( maskedStaves.begin(), maskedStaves.end(), module_phi ) != maskedStaves.end() )) ||
-                   (m_isIBL && layer == 3 && barrel == 0 && ( find( maskedStavesL1_L2.begin(), maskedStavesL1_L2.end(), module_phi ) != maskedStavesL1_L2.end() ))
+              if ( (isIBL && layer == 2 && barrel == 0 && ( find( maskedStaves.begin(), maskedStaves.end(), module_phi ) != maskedStaves.end() )) ||
+                   (isIBL && layer == 3 && barrel == 0 && ( find( maskedStavesL1_L2.begin(), maskedStavesL1_L2.end(), module_phi ) != maskedStavesL1_L2.end() ))
                  ) {
                 noiseMap->SetBinContent(pixel_eta + 1, pixel_phi + 1, 1);
               }
           } else if(maskedLayer == "IBL_B_L1") {
-              if ( (m_isIBL && layer == 0 && barrel == 0 && ( find( maskedStaves.begin(), maskedStaves.end(), module_phi ) != maskedStaves.end() )) ||
-                   (m_isIBL && layer == 1 && barrel == 0 && ( find( maskedStavesIBL_B.begin(), maskedStavesIBL_B.end(), module_phi ) != maskedStavesIBL_B.end() )) ||
-                   (m_isIBL && layer == 2 && barrel == 0 && ( find( maskedStavesIBL_L1.begin(), maskedStavesIBL_L1.end(), module_phi ) != maskedStavesIBL_L1.end() ))
+              if ( (isIBL && layer == 0 && barrel == 0 && ( find( maskedStaves.begin(), maskedStaves.end(), module_phi ) != maskedStaves.end() )) ||
+                   (isIBL && layer == 1 && barrel == 0 && ( find( maskedStavesIBL_B.begin(), maskedStavesIBL_B.end(), module_phi ) != maskedStavesIBL_B.end() )) ||
+                   (isIBL && layer == 2 && barrel == 0 && ( find( maskedStavesIBL_L1.begin(), maskedStavesIBL_L1.end(), module_phi ) != maskedStavesIBL_L1.end() ))
                  ) {
                 noiseMap->SetBinContent(pixel_eta + 1, pixel_phi + 1, 1);
               }
           } else if(maskedLayer == "IBL_B_L1_L2") {
-              if ( (m_isIBL && layer == 0 && barrel == 0 && ( find( maskedStaves.begin(), maskedStaves.end(), module_phi ) != maskedStaves.end() )) ||
-                   (m_isIBL && layer == 1 && barrel == 0 && ( find( maskedStavesIBL_B.begin(), maskedStavesIBL_B.end(), module_phi ) != maskedStavesIBL_B.end() )) ||
-                   (m_isIBL && layer == 2 && barrel == 0 && ( find( maskedStavesIBL_L1.begin(), maskedStavesIBL_L1.end(), module_phi ) != maskedStavesIBL_L1.end() )) ||
-                   (m_isIBL && layer == 3 && barrel == 0 && ( find( maskedStavesL1_L2.begin(), maskedStavesL1_L2.end(), module_phi ) != maskedStavesL1_L2.end() ))
+              if ( (isIBL && layer == 0 && barrel == 0 && ( find( maskedStaves.begin(), maskedStaves.end(), module_phi ) != maskedStaves.end() )) ||
+                   (isIBL && layer == 1 && barrel == 0 && ( find( maskedStavesIBL_B.begin(), maskedStavesIBL_B.end(), module_phi ) != maskedStavesIBL_B.end() )) ||
+                   (isIBL && layer == 2 && barrel == 0 && ( find( maskedStavesIBL_L1.begin(), maskedStavesIBL_L1.end(), module_phi ) != maskedStavesIBL_L1.end() )) ||
+                   (isIBL && layer == 3 && barrel == 0 && ( find( maskedStavesL1_L2.begin(), maskedStavesL1_L2.end(), module_phi ) != maskedStavesL1_L2.end() ))
                  ) {
                 noiseMap->SetBinContent(pixel_eta + 1, pixel_phi + 1, 1);
               }
@@ -938,7 +938,7 @@ int main(int argc, char* argv[]){
     //double nPixels = 80363520.;
     double nPixels = 80363520.;
     double nModules = 1744.;
-    if (m_isIBL) {
+    if (isIBL) {
       nPixels = 2880. * 16. * 1744. // Pixel
         + 26880. * 112. + 53760. * 168.  // IBL 3D + Planar
         + 26880. * 24; // DBM
@@ -983,26 +983,26 @@ int main(int argc, char* argv[]){
 }
 
 std::string getDCSIDFromPosition (int barrel_ec, int layer, int module_phi, int module_eta){
-  for(unsigned int ii = 0; ii < m_pixelMapping.size(); ii++) {
-    if (m_pixelMapping[ii].second.size() != 4) {
+  for(unsigned int ii = 0; ii < pixelMapping.size(); ii++) {
+    if (pixelMapping[ii].second.size() != 4) {
       std::cout << "getDCSIDFromPosition: Vector size is not 4!" << std::endl;
       return std::string("Error!");
     }
-    if (m_pixelMapping[ii].second[0] != barrel_ec) continue;
-    if (m_pixelMapping[ii].second[1] != layer) continue;
-    if (m_pixelMapping[ii].second[2] != module_phi) continue;
-    if (m_pixelMapping[ii].second[3] != module_eta) continue;
-    return m_pixelMapping[ii].first;
+    if (pixelMapping[ii].second[0] != barrel_ec) continue;
+    if (pixelMapping[ii].second[1] != layer) continue;
+    if (pixelMapping[ii].second[2] != module_phi) continue;
+    if (pixelMapping[ii].second[3] != module_eta) continue;
+    return pixelMapping[ii].first;
   }
   std::cout << "Not found!" << std::endl;
   return std::string("Error!");
 }
 
 std::vector<int> getPositionFromDCSID (std::string module_name){
-  for(unsigned int ii = 0; ii < m_pixelMapping.size(); ii++) {
-    if (m_pixelMapping[ii].first == module_name)
-    return m_pixelMapping[ii].second;
+  for(unsigned int ii = 0; ii < pixelMapping.size(); ii++) {
+    if (pixelMapping[ii].first == module_name)
+    return pixelMapping[ii].second;
   }
   std::cout << "Not found!" << std::endl;
-  return m_pixelMapping[0].second;
+  return pixelMapping[0].second;
 }

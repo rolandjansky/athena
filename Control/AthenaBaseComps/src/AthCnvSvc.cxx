@@ -11,7 +11,7 @@
 
 // STL includes
 
-// FrameWork includes
+// Framework includes
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/SvcFactory.h"
 #include "GaudiKernel/CnvFactory.h"
@@ -163,7 +163,7 @@ AthCnvSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
     *ppvInterface = (IAddressCreator*)this;
   }
   else  {
-    // Interface is not directly availible: try out a base class
+    // Interface is not directly available: try out a base class
     return AthService::queryInterface(riid, ppvInterface);
   }
   addRef();
@@ -386,6 +386,7 @@ AthCnvSvc::removeConverter(const CLID& clid)
 IConverter*
 AthCnvSvc::converter(const CLID& clid)
 {
+  std::lock_guard<CallMutex> lock(m_conv_mut);
   Workers::iterator worker = m_workers.find (clid);
   if ( worker != m_workers.end() ) {
     return worker->second.converter();

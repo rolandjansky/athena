@@ -14,7 +14,7 @@
 // STL includes
 #include <string>
 
-// FrameWork includes
+// Framework includes
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaBaseComps/AthMessaging.h"
@@ -57,7 +57,7 @@ class AthService :
   virtual StatusCode sysInitialize();
   virtual StatusCode initialize();
 
-  /// ReInitialize @c AthService
+  /// Reinitialize @c AthService
   virtual StatusCode sysReinitialize();
   virtual StatusCode reinitialize();
 

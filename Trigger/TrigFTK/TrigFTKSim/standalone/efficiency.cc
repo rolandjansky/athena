@@ -277,7 +277,6 @@ void Process(Long64_t ientry) {
 
       double thisd0 = temp_d0 + dx*sin(temp_phi)-dy*cos(temp_phi);
       double thisz0 = temp_z0 + ((cos(temp_phi) *dx - sin(temp_phi)*dy))*curtrack->getCotTheta();
-      double thisphi = temp_phi;
 
       histod0_ftk->Fill(thisd0);
 

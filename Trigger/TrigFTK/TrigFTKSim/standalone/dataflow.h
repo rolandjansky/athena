@@ -77,5 +77,9 @@ void AddBreak(int n = 1);
 /*int quick_select(vector<float> input, int p, int r, int k);
   int partition(vector<float> input, int p, int r);*/
 
-int quick_select(int* input, int p, int r, int k);
-int partition(int* input, int p, int r);
+//int quick_select(int* input, int p, int r, int k);
+
+int quick_select(vector<int> input, int p, int r, int k);
+
+int partition(vector<int> input, int p, int r);
+//int partition(int* input, int p, int r);

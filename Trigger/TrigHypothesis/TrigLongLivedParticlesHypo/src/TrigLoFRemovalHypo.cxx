@@ -108,7 +108,7 @@ HLT::ErrorCode TrigLoFRemovalHypo::hltExecute(const HLT::TriggerElement* outputT
   //retrieve LoF cell container here 
   std::string cellCollKey  = "TrigCaloCellLoF";
   const CaloCellContainer* theLoFCellCont = 0;
-  if( HLT::ErrorCode ec = getFeature(outputTE, theLoFCellCont, cellCollKey) != HLT::OK) {
+  if( getFeature(outputTE, theLoFCellCont, cellCollKey) != HLT::OK) {
     msg() << MSG::WARNING << "Failed to get TrigLoFCells" << endmsg;
     return HLT::OK;
   }

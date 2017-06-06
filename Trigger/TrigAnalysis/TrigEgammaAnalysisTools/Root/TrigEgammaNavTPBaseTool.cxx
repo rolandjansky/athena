@@ -491,9 +491,9 @@ float TrigEgammaNavTPBaseTool::GetPseudoLifetime(const xAOD::Electron *el1,const
                        Et1,              Et2,
                        0.0,                  0.0);
 
-  float  m_ptEECalo  = (el1track+el2track).Pt();
+  float  ptEECalo  = (el1track+el2track).Pt();
 
-  return lxy*3096.916/(0.299792458*m_ptEECalo);
+  return lxy*3096.916/(0.299792458*ptEECalo);
 
 }
 

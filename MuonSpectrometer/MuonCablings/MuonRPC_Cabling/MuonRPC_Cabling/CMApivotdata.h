@@ -46,9 +46,9 @@ class CMApivotdata : BaseObject
     CMAcoverage m_coverage;
     std::string m_covtag;
 
-    ETAlist etaCMA;
-    EvenPHIlist evenphiCMA;
-    OddPHIlist oddphiCMA;
+    ETAlist m_etaCMA;
+    EvenPHIlist m_evenphiCMA;
+    OddPHIlist m_oddphiCMA;
 
     void reset_data(void);
     bool get_data(DBline&);

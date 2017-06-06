@@ -13,6 +13,7 @@ if( XAOD_STANDALONE )
       Control/AthToolSupport/AsgTools
       Trigger/TrigAnalysis/TrigAnalysisInterfaces
       PRIVATE
+      Control/CxxUtils
       Event/xAOD/xAODEventInfo
       Event/xAOD/xAODTrigger
       Trigger/TrigConfiguration/TrigConfInterfaces
@@ -24,6 +25,7 @@ else()
       GaudiKernel
       Trigger/TrigAnalysis/TrigAnalysisInterfaces
       PRIVATE
+      Control/CxxUtils
       Control/AthenaKernel
       Database/AthenaPOOL/AthenaPoolUtilities
       Event/xAOD/xAODEventInfo

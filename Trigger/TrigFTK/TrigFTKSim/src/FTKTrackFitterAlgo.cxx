@@ -281,8 +281,7 @@ StatusCode FTKTrackFitterAlgo::initialize(){
     ftkouttrackmodule->setBranchFormat("FTKTracksStream%d.");
     
 
-    std::size_t replace_index = m_trackfilename.find(".root");
-
+    // std::size_t replace_index = m_trackfilename.find(".root");
     // string pre_hw_trackfilename = m_trackfilename;
     // if (replace_index != std::string::npos) pre_hw_trackfilename.insert(replace_index, "_pre_hw");  
     // ftkouttrackmodule_pre_hw->setMultiOut(false);
@@ -467,7 +466,7 @@ StatusCode FTKTrackFitterAlgo::initialize(){
 
       if(m_PrintSSBConstants){
 
-	log << MSG::INFO << "*** Printing EXP and TF constants in a txt file ****" << endreq;
+	log << MSG::INFO << "*** Printing EXP and TF constants in a txt file ****" << endmsg;
 
 	ofstream myfile;
 	myfile.open (Form("EXPConstants_reg%d.txt",ir));
@@ -480,7 +479,7 @@ StatusCode FTKTrackFitterAlgo::initialize(){
 	vecOfMapSecID.clear();
 	vecOfMapNconn.clear();
 
-	log << MSG::INFO << "*** Reading the connection file and mapping 8L -> 12L " << endreq;
+	log << MSG::INFO << "*** Reading the connection file and mapping 8L -> 12L " << endmsg;
 	vector<vector<int>> moduleIDvec;
 	moduleIDvec.clear();
 

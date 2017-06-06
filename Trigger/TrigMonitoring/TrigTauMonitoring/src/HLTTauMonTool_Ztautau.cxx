@@ -54,7 +54,7 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
       ATH_MSG_WARNING("Failed to retrieve Muons container. Exiting.");
       return sc;
     }
-  sc = m_storeGate->retrieve(off_met_cont, "MET_Reference_AntiKt4LCTopo");
+  sc = evtStore()->retrieve(off_met_cont, "MET_Reference_AntiKt4LCTopo");
   if (!sc.isSuccess() || !off_met_cont) 
     {
       ATH_MSG_WARNING("Could not retrieve Reconstructed MET term with Key MET_Reference_AntiKt4LCTopo");

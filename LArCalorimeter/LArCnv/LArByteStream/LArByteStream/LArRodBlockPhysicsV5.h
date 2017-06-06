@@ -366,7 +366,10 @@ return ( (ch&0x7) << 4) | ( (ch&0x38) >>2 ) | ((ch&0x40)>>6);
 inline void LArRodBlockPhysicsV5::setEx(double Ex){ 
 
         int32_t copy=(int32_t)Ex;
-	copy=(copy<<9);
+        // Write as multiplication, not as left shift, since left-shifting
+        // a negative number is undefined in C++.
+        // Compiles to the same code on x86_64.
+        copy *= (1<<9);
 	uint16_t* to_push = (uint16_t*)&copy;
         if ( m_TimeQualityBlock.size()>=6 ){
                 m_TimeQualityBlock[0]=to_push[0];
@@ -378,7 +381,10 @@ inline void LArRodBlockPhysicsV5::setEx(double Ex){
 inline void LArRodBlockPhysicsV5::setEy(double Ey){
 
         int32_t copy=(int32_t)Ey;
-	copy=(copy<<9);
+        // Write as multiplication, not as left shift, since left-shifting
+        // a negative number is undefined in C++.
+        // Compiles to the same code on x86_64.
+        copy *= (1<<9);
 	uint16_t* to_push = (uint16_t*)&copy;
         if ( m_TimeQualityBlock.size()>=6 ){
                 m_TimeQualityBlock[2]=to_push[0];
@@ -390,7 +396,10 @@ inline void LArRodBlockPhysicsV5::setEy(double Ey){
 inline void LArRodBlockPhysicsV5::setEz(double Ez){
 
         int32_t copy=(int32_t)Ez;
-	copy=(copy<<9);
+        // Write as multiplication, not as left shift, since left-shifting
+        // a negative number is undefined in C++.
+        // Compiles to the same code on x86_64.
+        copy *= (1<<9);
 	uint16_t* to_push = (uint16_t*)&copy;
         if ( m_TimeQualityBlock.size()>=6 ){
                 m_TimeQualityBlock[4]=to_push[0];

@@ -132,7 +132,7 @@ namespace TrigL2MuonSA {
     const MuonGM::MdtReadoutElement* m_mdtReadout;
     const MuonGM::MuonStation* m_muonStation;
     const MdtIdHelper* m_mdtIdHelper;
-    IdentifierHash hash_id;
+    IdentifierHash m_hash_id;
     
     // Region Selector
     IRegSelSvc*          m_regionSelector;

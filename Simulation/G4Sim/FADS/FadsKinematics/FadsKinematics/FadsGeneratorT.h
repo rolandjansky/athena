@@ -16,30 +16,30 @@ namespace FADS {
 
 template <class T> class FadsGeneratorT:public FadsGenerator {
 private:
-	FadsGenerator *g;
+	FadsGenerator *m_g;
 public:
-	FadsGeneratorT(std::string n): FadsGenerator(n) , g(0) {
+	FadsGeneratorT(std::string n): FadsGenerator(n) , m_g(0) {
 		GeneratorCenter::GetGeneratorCenter()->RegisterGenerator(this);
 	}
 	~FadsGeneratorT() 
 	{
-		if (g) delete g;
+		if (m_g) delete m_g;
 	}
 	void Create() {
 		std::cout<<" This is "<<GetName()<<std::endl;
-		g=new T(GetName());				
+		m_g=new T(GetName());				
 	}
 	void Initialize()
 	{
-		if (g) g->Initialize();
+		if (m_g) m_g->Initialize();
 	}
 	void Terminate() {
-		g->Terminate();
-		delete g;
-		g=0;
+		m_g->Terminate();
+		delete m_g;
+		m_g=0;
 	}
-	HepMC::GenEvent* GenerateAnEvent() {
-		if (g) return g->GenerateAnEvent();
+	const HepMC::GenEvent* GenerateAnEvent() {
+		if (m_g) return m_g->GenerateAnEvent();
 		return 0;
 	}
 };

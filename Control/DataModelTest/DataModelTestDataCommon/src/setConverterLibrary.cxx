@@ -62,6 +62,8 @@ void setConverterLibrary (const std::string& lib)
   setConverterLibrary (9742, lib); // DMTest::GAuxContainer_v1
   setConverterLibrary (9744, lib); // DMTest::G_v1
   setConverterLibrary (9779, lib); // DMTest::CView_v1
+  setConverterLibrary (243020043, lib); // DMTest::S1
+  setConverterLibrary (243020042, lib); // DMTest::S2
   setPluginLibrary ("_PERS_DMTest::HVec_v1", lib);
   setPluginLibrary ("_PERS_DataVector<DMTest::H_v1>", lib);
 }

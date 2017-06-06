@@ -147,8 +147,6 @@ private: // Representation
   std::vector<RingSet>	m_ringsSet;	      // It will containg the raw rings generated and their configuration.
   std::vector< std::vector<const CaloCell *> > m_cell_for_br; 
 
-  bool m_saveRoI;                             // Should I save the RoI information on the StoreGate? (necessary to dump it on the Ringer CBNT algo!)
-
   /**
    * This method is responsible to generating the rings, by accessing the RoI cells supplied.
    * 

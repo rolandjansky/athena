@@ -119,6 +119,7 @@ public:
 
 void test1()
 {
+  typedef typename TestAlloc::initParams<int> defaultParams_t;
   SG::ArenaHeader head;
   TestAlloc::Params params;
   params.name = "foo";
@@ -135,7 +136,7 @@ void test1()
   params.canReclear = false;
   params.mustClear = false;
 
-  size_t i0 = TestHandle::makeIndex<TestAlloc> (params);
+  size_t i0 = TestHandle::makeIndex<TestAlloc, defaultParams_t> (&params);
   {
     TestHandle hand (&head, i0);
     assert (hand.params().name == "foo");
@@ -183,6 +184,7 @@ void test1()
 void
 test2()
 {
+  typedef typename TestAlloc::initParams<int> defaultParams_t;
   SG::ArenaHeader head;
 
   SG::ArenaBase a1 ("1");
@@ -207,7 +209,7 @@ test2()
   params.mustClear = false;
 
   params.name = "bar";
-  size_t i1 = TestHandle::makeIndex<TestAlloc> (params);
+  size_t i1 = TestHandle::makeIndex<TestAlloc, defaultParams_t> (&params);
   {
     TestHandle hand (&head, EventContext (0, 1), i1);
     assert (hand.params().name == "bar");
@@ -221,7 +223,7 @@ Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
 === default ===\n");
 
   params.name = "fee";
-  size_t i2 = TestHandle::makeIndex<TestAlloc> (params);
+  size_t i2 = TestHandle::makeIndex<TestAlloc, defaultParams_t> (&params);
 
   {
     TestHandle hand (&a2, i2);

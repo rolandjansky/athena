@@ -6,7 +6,8 @@ public
 
 use AtlasPolicy         AtlasPolicy-*
 use CLIDSvc       	CLIDSvc-*      		Control
-use DataModel		DataModel-*		Control
+use AthContainers	AthContainers-*		Control
+use AthLinks	        AthLinks-*		Control
 use SGTools             SGTools-*               Control
 
 use AtlasCLHEP          AtlasCLHEP-*            External

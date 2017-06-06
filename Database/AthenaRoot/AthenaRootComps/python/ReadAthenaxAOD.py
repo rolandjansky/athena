@@ -14,22 +14,39 @@ def _configure():
     from AthenaCommon.AppMgr import theApp
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     from AthenaCommon.Logging import logging
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     msg = logging.getLogger( 'ReadAthenaxAOD' )
     msg.debug("Configuring Athena for reading xAOD files (via TEvent)...")
 
-    if not hasattr(svcMgr, 'THistSvc'):
-        svcMgr += CfgMgr.THistSvc()
-
+    #check if we already have a selector set up
     if hasattr(svcMgr, 'EventSelector'):
         err = "svcMgr already configured with another EventSelector: [%s]"%\
             svcMgr.EventSelector.getFullJobOptName()
         msg.error( err )
         raise RuntimeError( err )
 
+   
+        
+    #Setup our EventSelector
+    svcMgr += CfgMgr.Athena__xAODEventSelector( "EventSelector" )
+    
+    #for historical reasons, we now add configurables of a bunch of services
+    if not hasattr(svcMgr, 'THistSvc'): svcMgr += CfgMgr.THistSvc()
+    if not hasattr (svcMgr, 'ProxyProviderSvc'): svcMgr += CfgMgr.ProxyProviderSvc()
+    if not hasattr (svcMgr, 'InputMetaDataStore'): svcMgr += CfgMgr.StoreGateSvc("InputMetaDataStore")
+    if not hasattr (svcMgr, 'Athena::xAODCnvSvc'): svcMgr += CfgMgr.Athena__xAODCnvSvc()
+
+    #Here we set various properties of things 
+    theApp.ExtSvc += [ svcMgr.EventSelector.getFullName() ]
+    theApp.EvtSel = "EventSelector"
+    #default the input collections to the FilesInput from AthenaCommonFlags
+    #this is so that the eventselector picks up input files in grid jobs
+    svcMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput() 
+    
+
     # suppress the event loop heartbeat as it is somewhat I/O hungry for
     # no real gain in n-tuple reading/writing scenarii
-    if not hasattr(svcMgr, theApp.EventLoop):
-        svcMgr += getattr(CfgMgr, theApp.EventLoop)()
+    if not hasattr(svcMgr, theApp.EventLoop): svcMgr += getattr(CfgMgr, theApp.EventLoop)()
     evtloop = getattr(svcMgr, theApp.EventLoop)
     try:
         evtloop.EventPrintoutInterval = 10000
@@ -37,35 +54,6 @@ def _configure():
         msg.info('disabling event loop heartbeat... [failed]')
         msg.info('performances might be sub-par... sorry.')
         pass
-        
-    # Load ProxyProviderSvc
-    if not hasattr (svcMgr, 'ProxyProviderSvc'):
-        svcMgr += CfgMgr.ProxyProviderSvc()
-        pass
-    
-    # Load a InputMetaDataStore
-    if not hasattr (svcMgr, 'InputMetaDataStore'):
-       svcMgr += CfgMgr.StoreGateSvc("InputMetaDataStore")
-    
-    # from Configurables import Athena__RootNtupleEventSelector
-    evtsel = CfgMgr.Athena__xAODEventSelector( "EventSelector" )
-    svcMgr += evtsel
-    theApp.ExtSvc += [ evtsel.getFullName() ]
-    theApp.EvtSel = "EventSelector"
-    #svcMgr.ProxyProviderSvc.ProviderNames += [evtsel.getFullName()]
-    del evtsel
-
-    #default the input collections to the FilesInput from AthenaCommonFlags
-    #this is so that the eventselector picks up input files in grid jobs
-    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-    svcMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
-    
-    # configure the cnvsvc
-    svcMgr += CfgMgr.Athena__xAODCnvSvc()
-    if not hasattr(svcMgr, 'EventPersistencySvc'):
-        svcMgr += CfgMgr.EvtPersistencySvc( "EventPersistencySvc" )
-    svcMgr.EventPersistencySvc.CnvServices += [ "Athena::xAODCnvSvc" ]
-
 
 
     

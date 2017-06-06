@@ -16,6 +16,7 @@ CREATED:  18th Aug, 2005
 #include "eflowRec/eflowRingSubtractionManager.h"
 #include "eflowRec/eflowFirstIntParameters.h"
 #include "eflowRec/eflowEEtaBinnedParameters.h"
+#include "eflowRec/eflowRingThicknesses.h"
 
 #include <cmath>
 #include <vector>
@@ -120,11 +121,12 @@ bool eflowRingSubtractionManager::getOrdering(const eflowEEtaBinnedParameters* b
   bool isFailed = !(meanBin.getWeightedParameters(bin1->getFirstIntBin(adjustedJ1st), bin2->getFirstIntBin(adjustedJ1st), weight));
   if (isFailed) { return false; }
 
-  /* Interpolate the ring thicknesses */
+  /* Set the ring thicknesses */
+  const eflowRingThicknesses ringThicknessFactory;
   std::vector<double> ringThicknesses(eflowCalo::nRegions);
   for (int i = 0; i < eflowCalo::nRegions; i++) {
-    ringThicknesses[i] = weight * bin1->getRingThickness((eflowCaloENUM) i)
-        + (1.0 - weight) * bin2->getRingThickness((eflowCaloENUM) i);
+    //This was reviously interpolated - but the ring thickeness is a geometric property of the calorimeter without any energy dependence, so it was not needed.
+    ringThicknesses[i] = ringThicknessFactory.ringThickness((eflowCaloENUM) i);
   }
 
   setParameters(meanBin, ringThicknesses);

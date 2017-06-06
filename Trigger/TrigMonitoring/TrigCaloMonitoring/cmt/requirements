@@ -19,7 +19,7 @@ use CaloIdentifier	 CaloIdentifier-*	 Calorimeter
 use CaloGeoHelpers       CaloGeoHelpers-*        Calorimeter
 use TrigCaloRec           TrigCaloRec-*           Trigger/TrigAlgorithms
 use LArIdentifier	 LArIdentifier-*	 LArCalorimeter
-use LArTools		 LArTools-*		 LArCalorimeter
+use LArCabling		 LArCabling-*		 LArCalorimeter
 use egammaEvent		 egammaEvent-*		 Reconstruction/egamma
 
 use TrigT2CaloCommon	TrigT2CaloCommon-*	Trigger/TrigAlgorithms

@@ -20,14 +20,13 @@
 #include "InDetRawData/SCT_RDO_Container.h"
 //Cannot fwd declare RawEvent, due to typedef in the .h. Needed for OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment
 #include "ByteStreamData/RawEvent.h"
+#include "InDetByteStreamErrors/InDetBSErrContainer.h"
 
 class IInterface;
 class InterfaceID;
 class StatusCode;
 
 class IdentifierHash;
-//this is a bit naughty:
-//using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 class ISCT_RodDecoder : virtual public IAlgTool {
  public: 
@@ -41,7 +40,10 @@ class ISCT_RodDecoder : virtual public IAlgTool {
   /** @brief Decode the rob data fragment and fill the collection SCT_RDO_Collection 
    *  with the RDO built by the makeRDO(..) method
    **/
-  virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*,SCT_RDO_Container*,std::vector<IdentifierHash>* vec=0) = 0;
+  virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment&,
+                                    SCT_RDO_Container&,
+                                    InDetBSErrContainer* errs,
+                                    std::vector<IdentifierHash>* vec=0) = 0;
 };
 
 inline const InterfaceID& ISCT_RodDecoder::interfaceID() {

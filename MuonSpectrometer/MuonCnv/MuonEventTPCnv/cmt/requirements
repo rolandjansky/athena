@@ -6,7 +6,8 @@ public
 use  AtlasPolicy                AtlasPolicy-*                   
 use  AthenaPoolCnvSvc           AthenaPoolCnvSvc-*              Database/AthenaPOOL
 use  AthenaPoolUtilities        AthenaPoolUtilities-*           Database/AthenaPOOL
-use  DataModel                  DataModel-*                     Control
+use  AthAllocators              AthAllocators-*                 Control
+use  AthLinks                   AthLinks-*                      Control
 use  DataModelAthenaPool        DataModelAthenaPool-*           Control
 use  GaudiInterface             GaudiInterface-*                External
 use  GeneratorObjectsTPCnv      GeneratorObjectsTPCnv-*         Generators

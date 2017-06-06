@@ -115,65 +115,65 @@ class TgcLv1RawDataValAlg: public ManagedMonitorToolBase {
     // They are filled by the readXXX functions
 
     // Trigger RoI etas and phis
-    vector<float> m_L1TGCetas,  m_L1TGCphis;
-    vector<float> m_L1RPCetas,  m_L1RPCphis;
-    vector<float> m_L1Caloetas, m_L1Calophis;
+    std::vector<float> m_L1TGCetas,  m_L1TGCphis;
+    std::vector<float> m_L1RPCetas,  m_L1RPCphis;
+    std::vector<float> m_L1Caloetas, m_L1Calophis;
 
     // Vectors to read data into from collections
     // Offline Reconstructed Muon: muid
-    vector<float> m_muid_pt;
-    vector<float> m_muid_eta;
-    vector<float> m_muid_phi;
-    vector<float> m_muid_q;
+    std::vector<float> m_muid_pt;
+    std::vector<float> m_muid_eta;
+    std::vector<float> m_muid_phi;
+    std::vector<float> m_muid_q;
 
     // Muon Trigger: Low pT
-    vector<int>   m_lpt_delta[2][3];    //[ws][pcn]
-    vector<int>   m_lpt_tid[2][3];      //[ws][pcn]trackletID
-    vector<int>   m_lpt_sub[2][3];      //[ws][pcn]
-    vector<float> m_lpt_eta[2][3];      //[ws][pcn]
-    vector<float> m_lpt_phi[2][3];      //[ws][pcn]
-    vector<int>   m_lpt_etain[2][3];    //[ws][pcn]
-    vector<int>   m_lpt_etaout[2][3];   //[ws][pcn]
-    vector<int>   m_lpt_phi48[2][3];    //[ws][pcn]
-    vector<bool>  m_lpt_isAside[2][3];  //[ws][pcn]
-    vector<bool>  m_lpt_isForward[2][3];//[ws][pcn]
-    int           m_nLptWire[4];        //[pcnt]
-    int           m_nLptStrip[4];       //[pcnt]
+    std::vector<int>   m_lpt_delta[2][3];    //[ws][pcn]
+    std::vector<int>   m_lpt_tid[2][3];      //[ws][pcn]trackletID
+    std::vector<int>   m_lpt_sub[2][3];      //[ws][pcn]
+    std::vector<float> m_lpt_eta[2][3];      //[ws][pcn]
+    std::vector<float> m_lpt_phi[2][3];      //[ws][pcn]
+    std::vector<int>   m_lpt_etain[2][3];    //[ws][pcn]
+    std::vector<int>   m_lpt_etaout[2][3];   //[ws][pcn]
+    std::vector<int>   m_lpt_phi48[2][3];    //[ws][pcn]
+    std::vector<bool>  m_lpt_isAside[2][3];  //[ws][pcn]
+    std::vector<bool>  m_lpt_isForward[2][3];//[ws][pcn]
+    int                m_nLptWire[4];        //[pcnt]
+    int                m_nLptStrip[4];       //[pcnt]
     // Muon Trigger: High pT
-    vector<int>   m_hpt_delta[2][3];    //[ws][pcn]
-    vector<int>   m_hpt_tid[2][3];      //[ws][pcn]trackletID
-    vector<int>   m_hpt_sub[2][3];      //[ws][pcn]
-    vector<float> m_hpt_eta[2][3];      //[ws][pcn]
-    vector<float> m_hpt_phi[2][3];      //[ws][pcn]
-    vector<int>   m_hpt_etain[2][3];    //[ws][pcn]
-    vector<int>   m_hpt_etaout[2][3];   //[ws][pcn]
-    vector<int>   m_hpt_phi48[2][3];    //[ws][pcn]
-    vector<bool>  m_hpt_isAside[2][3];  //[ws][pcn]
-    vector<bool>  m_hpt_isForward[2][3];//[ws][pcn]
-    int           m_nHptWire[4];        //[pcnt]
-    int           m_nHptStrip[4];       //[pcnt]
-    vector<bool>  m_hpt_isInner[2][3];//[ws][pcn] flag for inner coin
-    vector<int>   m_hpt_inner[2][3];//[ws][pcn]
+    std::vector<int>   m_hpt_delta[2][3];    //[ws][pcn]
+    std::vector<int>   m_hpt_tid[2][3];      //[ws][pcn]trackletID
+    std::vector<int>   m_hpt_sub[2][3];      //[ws][pcn]
+    std::vector<float> m_hpt_eta[2][3];      //[ws][pcn]
+    std::vector<float> m_hpt_phi[2][3];      //[ws][pcn]
+    std::vector<int>   m_hpt_etain[2][3];    //[ws][pcn]
+    std::vector<int>   m_hpt_etaout[2][3];   //[ws][pcn]
+    std::vector<int>   m_hpt_phi48[2][3];    //[ws][pcn]
+    std::vector<bool>  m_hpt_isAside[2][3];  //[ws][pcn]
+    std::vector<bool>  m_hpt_isForward[2][3];//[ws][pcn]
+    int                m_nHptWire[4];        //[pcnt]
+    int                m_nHptStrip[4];       //[pcnt]
+    std::vector<bool>  m_hpt_isInner[2][3];//[ws][pcn] flag for inner coin
+    std::vector<int>   m_hpt_inner[2][3];//[ws][pcn]
     // Muon Trigger: SL
-    vector<int>   m_sl_pt[3];           //[pcn]
-    vector<float> m_sl_eta[3];          //[pcn]
-    vector<float> m_sl_phi[3];          //[pcn]
-    vector<int>   m_sl_tidw[3];         //[pcn]trackletID for wire
-    vector<int>   m_sl_tids[3];         //[pcn]trackletID for strip
-    vector<int>   m_sl_roi[3];          //[pcn]
-    vector<int>   m_sl_etaout[3];       //[pcn]
-    vector<int>   m_sl_phi48[3];        //[pcn]
-    vector<bool>  m_sl_isAside[3];      //[pcn]
-    vector<bool>  m_sl_isForward[3];    //[pcn]
-    vector<int>   m_sl_etaroi[3];       //[pcn]
-    vector<int>   m_sl_phiroi[3];       //[pcn]
-    int           m_nSL[4];             //[pcnt]
+    std::vector<int>   m_sl_pt[3];           //[pcn]
+    std::vector<float> m_sl_eta[3];          //[pcn]
+    std::vector<float> m_sl_phi[3];          //[pcn]
+    std::vector<int>   m_sl_tidw[3];         //[pcn]trackletID for wire
+    std::vector<int>   m_sl_tids[3];         //[pcn]trackletID for strip
+    std::vector<int>   m_sl_roi[3];          //[pcn]
+    std::vector<int>   m_sl_etaout[3];       //[pcn]
+    std::vector<int>   m_sl_phi48[3];        //[pcn]
+    std::vector<bool>  m_sl_isAside[3];      //[pcn]
+    std::vector<bool>  m_sl_isForward[3];    //[pcn]
+    std::vector<int>   m_sl_etaroi[3];       //[pcn]
+    std::vector<int>   m_sl_phiroi[3];       //[pcn]
+    int                m_nSL[4];             //[pcnt]
 
     void       clearVectorsArrays();
     void       readTgcCoinDataContainer(const Muon::TgcCoinDataContainer* tgc_coin_container, int pcn);
     StatusCode readOfflineMuonContainer(std::string key,
-	vector<float>* mu_pt, vector<float>* mu_eta,
-	vector<float>* mu_phi,vector<float>* mu_q);
+	std::vector<float>* mu_pt, std::vector<float>* mu_eta,
+	std::vector<float>* mu_phi,std::vector<float>* mu_q);
     StatusCode readL1TriggerType();
     StatusCode readEventInfo();
 
@@ -185,59 +185,59 @@ class TgcLv1RawDataValAlg: public ManagedMonitorToolBase {
 
 
     // EIFI Coin
-    TH2* tgclv1hptstripinlbvssecteifilumi[2]; //[AC]	
-    TH2* tgclv1hptstripinlbvssecteifisect[2]; //[AC]	
+    TH2* m_tgclv1hptstripinlbvssecteifilumi[2]; //[AC]	
+    TH2* m_tgclv1hptstripinlbvssecteifisect[2]; //[AC]	
     // Trigger Rate histograms
-    TH2* tgclv1lptwireinlbvssect[2];  //[AC]
-    TH2* tgclv1lptstripinlbvssect[2]; //[AC]
-    TH2* tgclv1hptwireinlbvssect[2];  //[AC]
-    TH2* tgclv1hptstripinlbvssect[2]; //[AC]
-    TH2* tgclv1slinlbvssect[2];       //[AC]
+    TH2* m_tgclv1lptwireinlbvssect[2];  //[AC]
+    TH2* m_tgclv1lptstripinlbvssect[2]; //[AC]
+    TH2* m_tgclv1hptwireinlbvssect[2];  //[AC]
+    TH2* m_tgclv1hptstripinlbvssect[2]; //[AC]
+    TH2* m_tgclv1slinlbvssect[2];       //[AC]
     // Number of Trigger histograms, not produced in GM
-    TH1* tgclv1numberoflptwire[4];    //[PCNT]
-    TH1* tgclv1numberoflptstrip[4];   //[PCNT]
-    TH1* tgclv1numberofhptwire[4];    //[PCNT]
-    TH1* tgclv1numberofhptstrip[4];   //[PCNT]
-    TH1* tgclv1numberofsl[4];         //[PCNT]
+    TH1* m_tgclv1numberoflptwire[4];    //[PCNT]
+    TH1* m_tgclv1numberoflptstrip[4];   //[PCNT]
+    TH1* m_tgclv1numberofhptwire[4];    //[PCNT]
+    TH1* m_tgclv1numberofhptstrip[4];   //[PCNT]
+    TH1* m_tgclv1numberofsl[4];         //[PCNT]
     // pT Threshold profile
-    TH1* tgclv1pt[2];                 //[AC]
+    TH1* m_tgclv1pt[2];                 //[AC]
     // RoI eta vs phi maps
-    TH2* tgclv1roietavsphi[2];        //[AC]
-    TH2* tgclv1roietavsphipt[2][6];   //[AC][pT]
-    TH2* tgclv1roietavsphiAll;        
-    TH2* tgclv1roietavsphiptAll[6];   //[pT]
+    TH2* m_tgclv1roietavsphi[2];        //[AC]
+    TH2* m_tgclv1roietavsphipt[2][6];   //[AC][pT]
+    TH2* m_tgclv1roietavsphiAll;        
+    TH2* m_tgclv1roietavsphiptAll[6];   //[pT]
     // nTrigger Phi Profile histograms
-    TH1* tgclv1lptsectwire[2];    //[AC]
-    TH1* tgclv1lptsectstrip[2];   //[AC]
-    TH1* tgclv1hptsectwire[2];    //[AC]
-    TH1* tgclv1hptsectstrip[2];   //[AC]
-    TH1* tgclv1slsect[2];         //[AC]
+    TH1* m_tgclv1lptsectwire[2];    //[AC]
+    TH1* m_tgclv1lptsectstrip[2];   //[AC]
+    TH1* m_tgclv1hptsectwire[2];    //[AC]
+    TH1* m_tgclv1hptsectstrip[2];   //[AC]
+    TH1* m_tgclv1slsect[2];         //[AC]
     // inEta&outEta vs Phi maps
-    TH2* tgclv1lptwirechamber[2]; //[AC]
-    TH2* tgclv1lptstripchamber[2];//[AC]
-    TH2* tgclv1hptwirechamber[2]; //[AC]
-    TH2* tgclv1hptstripchamber[2];//[AC]
-    TH2* tgclv1slchamber[2];      //[AC]
-    TH2* tgclv1slchamberAll; 
+    TH2* m_tgclv1lptwirechamber[2]; //[AC]
+    TH2* m_tgclv1lptstripchamber[2];//[AC]
+    TH2* m_tgclv1hptwirechamber[2]; //[AC]
+    TH2* m_tgclv1hptstripchamber[2];//[AC]
+    TH2* m_tgclv1slchamber[2];      //[AC]
+    TH2* m_tgclv1slchamberAll; 
 
     // Express Stream
-    TH2* tgclv1_SL_vs_muonchain_ES;
+    TH2* m_tgclv1_SL_vs_muonchain_ES;
 
     // book histograms
     StatusCode bookHistogramsNumberOfTriggersAndProfile();
 
     // event profiles per LB
-    TH1* tgclv1eventsinlb;
-    TH1* tgclv1eventsinbcid;
+    TH1* m_tgclv1eventsinlb;
+    TH1* m_tgclv1eventsinbcid;
     // SL profiles per LB
-    TH1* tgclv1slinlb[2];             //[AC]
-    TH1* tgclv1slinbcid[2];           //[AC]
-    TH1* tgclv1slpereventlb[2];       //[AC]
-    TH1* tgclv1slpereventbcid[2];     //[AC]
-    TH1* tgclv1slinlbpt[2][6];        //[AC][pt]
-    TH1* tgclv1slinbcidpt[2][6];      //[AC][pt]
-    TH1* tgclv1slpereventlbpt[2][6];  //[AC][pt]
-    TH1* tgclv1slpereventbcidpt[2][6];//[AC][pt]
+    TH1* m_tgclv1slinlb[2];             //[AC]
+    TH1* m_tgclv1slinbcid[2];           //[AC]
+    TH1* m_tgclv1slpereventlb[2];       //[AC]
+    TH1* m_tgclv1slpereventbcid[2];     //[AC]
+    TH1* m_tgclv1slinlbpt[2][6];        //[AC][pt]
+    TH1* m_tgclv1slinbcidpt[2][6];      //[AC][pt]
+    TH1* m_tgclv1slpereventlbpt[2][6];  //[AC][pt]
+    TH1* m_tgclv1slpereventbcidpt[2][6];//[AC][pt]
 
     // book histograms
     StatusCode bookHistogramsTriggerRate();
@@ -262,71 +262,71 @@ class TgcLv1RawDataValAlg: public ManagedMonitorToolBase {
 
     // SL Timing
     // profiles per side
-    TH1* tgclv1sltiming[2];                      //[AC]
-    TH1* tgclv1sltimingptcut[2];                 //[AC] pT>1
-    TH1* tgclv1sltimingpt[2][6];                 //[AC][pT]
+    TH1* m_tgclv1sltiming[2];                      //[AC]
+    TH1* m_tgclv1sltimingptcut[2];                 //[AC] pT>1
+    TH1* m_tgclv1sltimingpt[2][6];                 //[AC][pT]
     // maps
-    TH2* tgclv1sltimingmap[2];                   //[AC]
-    TH2* tgclv1slcurrentfractionmap[2];          //[AC]
-    TH2* tgclv1sltimingmapptcut[2];              //[AC] pT>1
-    TH2* tgclv1slcurrentfractionmapptcut[2];     //[AC] pT>1
+    TH2* m_tgclv1sltimingmap[2];                   //[AC]
+    TH2* m_tgclv1slcurrentfractionmap[2];          //[AC]
+    TH2* m_tgclv1sltimingmapptcut[2];              //[AC] pT>1
+    TH2* m_tgclv1slcurrentfractionmapptcut[2];     //[AC] pT>1
     // profile per sector
-    TH1* tgclv1sltimingsector[2][12];            //[AC][sect]
-    TH1* tgclv1sltimingptcutsector[2][12];       //[AC][sect] pT>1
+    TH1* m_tgclv1sltimingsector[2][12];            //[AC][sect]
+    TH1* m_tgclv1sltimingptcutsector[2][12];       //[AC][sect] pT>1
     // profile per trigger type
-    TH1* tgclv1sltimingtrg[2][4];                //[AC][trig]
-    TH1* tgclv1sltimingptcuttrg[2][4];           //[AC][trig] pT>1
-    TH1* tgclv1sltimingpttrg[2][6][4];           //[AC][pT][trig]
+    TH1* m_tgclv1sltimingtrg[2][4];                //[AC][trig]
+    TH1* m_tgclv1sltimingptcuttrg[2][4];           //[AC][trig] pT>1
+    TH1* m_tgclv1sltimingpttrg[2][6][4];           //[AC][pT][trig]
     // profile per sector-trigger
-    TH1* tgclv1sltimingsectortrg[2][12][4];      //[AC][sect][trig]
-    TH1* tgclv1sltimingptcutsectortrg[2][12][4]; //[AC][sect][trig] pT>1
+    TH1* m_tgclv1sltimingsectortrg[2][12][4];      //[AC][sect][trig]
+    TH1* m_tgclv1sltimingptcutsectortrg[2][12][4]; //[AC][sect][trig] pT>1
     // associated offline tracks
-    TH1* tgclv1sltimingtrack[2][2];              //[AC][muid]
-    TH1* tgclv1sltimingptcuttrack[2][2];         //[AC][muid]
+    TH1* m_tgclv1sltimingtrack[2][2];              //[AC][muid]
+    TH1* m_tgclv1sltimingptcuttrack[2][2];         //[AC][muid]
 
     // LpT Timing
     // profiles
-    TH1* tgclv1lpttiming[2];                      //[AC]
-    TH1* tgclv1lpttimingptcut[2];                 //[AC] pT>1
-    TH1* tgclv1lpttimingpt[2][6];                 //[AC][pT]
+    TH1* m_tgclv1lpttiming[2];                      //[AC]
+    TH1* m_tgclv1lpttimingptcut[2];                 //[AC] pT>1
+    TH1* m_tgclv1lpttimingpt[2][6];                 //[AC][pT]
     // maps
-    TH2* tgclv1lpttimingmap[2];                   //[AC]
-    TH2* tgclv1lptcurrentfractionmap[2];          //[AC]
-    TH2* tgclv1lpttimingmapptcut[2];              //[AC] pT>1
-    TH2* tgclv1lptcurrentfractionmapptcut[2];     //[AC] pT>1
+    TH2* m_tgclv1lpttimingmap[2];                   //[AC]
+    TH2* m_tgclv1lptcurrentfractionmap[2];          //[AC]
+    TH2* m_tgclv1lpttimingmapptcut[2];              //[AC] pT>1
+    TH2* m_tgclv1lptcurrentfractionmapptcut[2];     //[AC] pT>1
     // profile per sector
-    TH1* tgclv1lpttimingsector[2][12];            //[AC][sect]
-    TH1* tgclv1lpttimingptcutsector[2][12];       //[AC][sect] pT>1
+    TH1* m_tgclv1lpttimingsector[2][12];            //[AC][sect]
+    TH1* m_tgclv1lpttimingptcutsector[2][12];       //[AC][sect] pT>1
     // profile per trigger type
-    TH1* tgclv1lpttimingtrg[2][4];                //[AC][trig]
-    TH1* tgclv1lpttimingptcuttrg[2][4];           //[AC][trig] pT>1
-    TH1* tgclv1lpttimingpttrg[2][6][4];           //[AC][pt][trig]
+    TH1* m_tgclv1lpttimingtrg[2][4];                //[AC][trig]
+    TH1* m_tgclv1lpttimingptcuttrg[2][4];           //[AC][trig] pT>1
+    TH1* m_tgclv1lpttimingpttrg[2][6][4];           //[AC][pt][trig]
     // profile per sector-trigger
-    TH1* tgclv1lpttimingsectortrg[2][12][4];      //[AC][sect][trig]
-    TH1* tgclv1lpttimingptcutsectortrg[2][12][4]; //[AC][sect][trig] pT>1
+    TH1* m_tgclv1lpttimingsectortrg[2][12][4];      //[AC][sect][trig]
+    TH1* m_tgclv1lpttimingptcutsectortrg[2][12][4]; //[AC][sect][trig] pT>1
     // associated offline tracks
-    TH1* tgclv1lpttimingtrack[2][2];              //[AC][muid]
-    TH1* tgclv1lpttimingptcuttrack[2][2];         //[AC][muid]
+    TH1* m_tgclv1lpttimingtrack[2][2];              //[AC][muid]
+    TH1* m_tgclv1lpttimingptcuttrack[2][2];         //[AC][muid]
 
     // SL vs LpT Timing
-    TH2* tgclv1slvslpttiming[2];                      //[AC]
-    TH2* tgclv1slvslpttimingptcut[2];                 //[AC] pT>1
-    TH2* tgclv1slvslpttimingsector[2][12];            //[AC][sect]
-    TH2* tgclv1slvslpttimingptcutsector[2][12];       //[AC][sect] pT>1
-    TH2* tgclv1slvslpttimingsectortrg[2][12][4];      //[AC][sect][trig]
-    TH2* tgclv1slvslpttimingptcutsectortrg[2][12][4]; //[AC][sect][trig] pT>1
+    TH2* m_tgclv1slvslpttiming[2];                      //[AC]
+    TH2* m_tgclv1slvslpttimingptcut[2];                 //[AC] pT>1
+    TH2* m_tgclv1slvslpttimingsector[2][12];            //[AC][sect]
+    TH2* m_tgclv1slvslpttimingptcutsector[2][12];       //[AC][sect] pT>1
+    TH2* m_tgclv1slvslpttimingsectortrg[2][12][4];      //[AC][sect][trig]
+    TH2* m_tgclv1slvslpttimingptcutsectortrg[2][12][4]; //[AC][sect][trig] pT>1
 
     // Express Stream
     // Sector profile of Current fraction histograms
-    TH1* tgclv1_SL_trigger_timing_ES[2];       //[AC]
-    TH1* tgclv1_SL_trigger_timing_num_ES[2];   //[AC]
-    TH1* tgclv1_SL_trigger_timing_denom_ES[2]; //[AC]
-    TH1* tgclv1_LPT_trigger_timing_ES[2];      //[AC]
-    TH1* tgclv1_LPT_trigger_timing_num_ES[2];  //[AC]
-    TH1* tgclv1_LPT_trigger_timing_denom_ES[2];//[AC]
+    TH1* m_tgclv1_SL_trigger_timing_ES[2];       //[AC]
+    TH1* m_tgclv1_SL_trigger_timing_num_ES[2];   //[AC]
+    TH1* m_tgclv1_SL_trigger_timing_denom_ES[2]; //[AC]
+    TH1* m_tgclv1_LPT_trigger_timing_ES[2];      //[AC]
+    TH1* m_tgclv1_LPT_trigger_timing_num_ES[2];  //[AC]
+    TH1* m_tgclv1_LPT_trigger_timing_denom_ES[2];//[AC]
     // Express Stream General Monitoring, (same histograms as above)
-    TH1* tgclv1_SL_trigger_timing_ES_GM[2]; //[AC]
-    TH1* tgclv1_LPT_trigger_timing_ES_GM[2];//[AC]
+    TH1* m_tgclv1_SL_trigger_timing_ES_GM[2]; //[AC]
+    TH1* m_tgclv1_LPT_trigger_timing_ES_GM[2];//[AC]
 
     // book histograms
     StatusCode bookHistogramsTiming();
@@ -336,8 +336,8 @@ class TgcLv1RawDataValAlg: public ManagedMonitorToolBase {
     void fillTriggerTiming0(int pt);
     void fillTriggerTiming1(int pt);
     void fillTriggerTimingAssociatedWithTrack( int ms,
-	vector<float>* mu_pt, vector<float>* mu_eta,
-	vector<float>* mu_phi,vector<float>* mu_q);
+	std::vector<float>* mu_pt, std::vector<float>* mu_eta,
+	std::vector<float>* mu_phi,std::vector<float>* mu_q);
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -346,36 +346,36 @@ class TgcLv1RawDataValAlg: public ManagedMonitorToolBase {
     // Manages Efficiency maps and profile histograms, also trigger turn-on curves
 
     // deltar between tracks in event
-    TH1* tgclv1deltar[2][6][2];                   //[AC][pT][charge][muid]
+    TH1* m_tgclv1deltar[2][6][2];                   //[AC][pT][charge][muid]
     // Turn-on Curves
-    TH1* tgclv1turnon[2][6][3][2];                //[AC][pT][charge][muid]
-    TGraphAsymmErrors* tgclv1turnontg[2][6][3][2];//[AC][pT][charge][muid]
-    TH1* tgclv1turnonnum[2][6][3][2];             //[AC][pT][charge][muid]
-    TH1* tgclv1turnondenom[2][6][3][2];           //[AC][pT][charge][muid]
+    TH1* m_tgclv1turnon[2][6][3][2];                //[AC][pT][charge][muid]
+    TGraphAsymmErrors* m_tgclv1turnontg[2][6][3][2];//[AC][pT][charge][muid]
+    TH1* m_tgclv1turnonnum[2][6][3][2];             //[AC][pT][charge][muid]
+    TH1* m_tgclv1turnondenom[2][6][3][2];           //[AC][pT][charge][muid]
     // LV1 trigger efficiency maps (wrt offline muons)
-    TH2* tgclv1effetavsphi[2][6][3][2][3];        //[AC][pT][charge][muid][pcn]
-    TH2* tgclv1effetavsphinum[2][6][3][2][3];     //[AC][pT][charge][muid][pcn]
-    TH2* tgclv1effetavsphidenom[2][6][3][2];      //[AC][pT][charge][muid]
+    TH2* m_tgclv1effetavsphi[2][6][3][2][3];        //[AC][pT][charge][muid][pcn]
+    TH2* m_tgclv1effetavsphinum[2][6][3][2][3];     //[AC][pT][charge][muid][pcn]
+    TH2* m_tgclv1effetavsphidenom[2][6][3][2];      //[AC][pT][charge][muid]
 
     // Express Stream
     // Turn-on curves
-    TH1* tgclv1turnon_ES[2][6];                //[AC][pT] muid
-    TGraphAsymmErrors* tgclv1turnontg_ES[2][6];//[AC][pT] muid
-    TH1* tgclv1turnonnum_ES[2][6];             //[AC][pT] muid
-    TH1* tgclv1turnondenom_ES[2][6];           //[AC][pT] muid
+    TH1* m_tgclv1turnon_ES[2][6];                //[AC][pT] muid
+    TGraphAsymmErrors* m_tgclv1turnontg_ES[2][6];//[AC][pT] muid
+    TH1* m_tgclv1turnonnum_ES[2][6];             //[AC][pT] muid
+    TH1* m_tgclv1turnondenom_ES[2][6];           //[AC][pT] muid
     // 6PT thresholds as x axis
-    TH1* tgclv1_plateau_eff_counting_ES[2];      //[AC] muid
-    TH1* tgclv1_plateau_eff_counting_num_ES[2];  //[AC] muid
-    TH1* tgclv1_plateau_eff_counting_denom_ES[2];//[AC] muid
-    TH1* tgclv1_plateau_eff_counting_ES_GM[2];   //[AC] muid
+    TH1* m_tgclv1_plateau_eff_counting_ES[2];      //[AC] muid
+    TH1* m_tgclv1_plateau_eff_counting_num_ES[2];  //[AC] muid
+    TH1* m_tgclv1_plateau_eff_counting_denom_ES[2];//[AC] muid
+    TH1* m_tgclv1_plateau_eff_counting_ES_GM[2];   //[AC] muid
 
     // book histograms
     StatusCode bookHistogramsEfficiency();
 
     // fill histograms
     void fillEfficiency(int ms,
-	vector<float>* mu_pt, vector<float>* mu_eta,
-	vector<float>* mu_phi,vector<float>* mu_q);
+	std::vector<float>* mu_pt, std::vector<float>* mu_eta,
+	std::vector<float>* mu_phi,std::vector<float>* mu_q);
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -384,17 +384,17 @@ class TgcLv1RawDataValAlg: public ManagedMonitorToolBase {
     // Manages Coincidence Window histograms (is not currently used)
 
     // Coincidence windows
-    TH2* tgclv1cw[2][9][6];                  //[AC][cwmod][pT]
-    TH2* tgclv1cwoffline[2][9][6][2];        //[AC][cwmod][pT][muid]
-    TH2* tgclv1cwrejectedoffline[2][9][6][2];//[AC][cwmod][pT][muid]
+    TH2* m_tgclv1cw[2][9][6];                  //[AC][cwmod][pT]
+    TH2* m_tgclv1cwoffline[2][9][6][2];        //[AC][cwmod][pT][muid]
+    TH2* m_tgclv1cwrejectedoffline[2][9][6][2];//[AC][cwmod][pT][muid]
 
     // book histograms
     StatusCode bookHistogramsCoincidenceWindow();
 
     // fill histograms
     void fillCoincidenceWindow(int ms,
-	vector<float>* mu_pt, vector<float>* mu_eta,
-	vector<float>* mu_phi,vector<float>* mu_q);
+	std::vector<float>* mu_pt, std::vector<float>* mu_eta,
+	std::vector<float>* mu_phi,std::vector<float>* mu_q);
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -404,11 +404,11 @@ class TgcLv1RawDataValAlg: public ManagedMonitorToolBase {
     // (And more importantly in the PostProcessor)
 
     //summary of SL and LowPT timing
-    TH1* tgclv1summaryofsltiming[2]; //[AC]
-    TH1* tgclv1summaryoflpttiming[2];//[AC]
+    TH1* m_tgclv1summaryofsltiming[2]; //[AC]
+    TH1* m_tgclv1summaryoflpttiming[2];//[AC]
 
-    TH1* tgclv1summaryofsltimingperchambertype[6]; //[chambertype]
-    TH1* tgclv1summaryoflpttimingperchambertype[6];//[chambertype]
+    TH1* m_tgclv1summaryofsltimingperchambertype[6]; //[chambertype]
+    TH1* m_tgclv1summaryoflpttimingperchambertype[6];//[chambertype]
 
     // book histograms
     StatusCode bookHistogramsSummary();
@@ -420,8 +420,8 @@ class TgcLv1RawDataValAlg: public ManagedMonitorToolBase {
     // Manages Low Statistics (per lumiblock) histograms
 
     //===
-    TH2* tgclv1slchamberlowstat[2];    //[AC]
-    TH1* tgclv1sltimingptcutlowstat[2];//[AC]
+    TH2* m_tgclv1slchamberlowstat[2];    //[AC]
+    TH1* m_tgclv1sltimingptcutlowstat[2];//[AC]
 
     // book histograms
     StatusCode bookHistogramsLowStat();

@@ -75,10 +75,5 @@ class TrigL2HVJetHypoTrk : public HLT::HypoAlgo {
   //Monitored Variables
   int m_cutCounter;
   double m_NumberOfTracks;
-
-  //Histogram Service:
-  //IHistogramSvc* m_histsvc;
-  StoreGateSvc*  m_storeGate;
-
 };
 #endif

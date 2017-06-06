@@ -20,7 +20,7 @@
 #include <fstream>
 #include <cmath>
 
-#include "AtlasCLHEP_RandomGenerators/RandExpZiggurat.h"
+#include "CLHEP/Random/RandExpZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
 
 using namespace std;

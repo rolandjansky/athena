@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 774313 2016-09-21 13:15:28Z smh $
+# $Id: CMakeLists.txt 800798 2017-03-16 17:29:50Z jburr $
 ################################################################################
 # Package: TrigEFMissingET
 ################################################################################
@@ -20,7 +20,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODTrigMissingET
    GaudiKernel
    LArCalorimeter/LArIdentifier
-   LArCalorimeter/LArTools
+   LArCalorimeter/LArCabling
    Trigger/TrigAlgorithms/TrigT2CaloCommon
    Trigger/TrigEvent/TrigCaloEvent
    Trigger/TrigEvent/TrigMissingEtEvent
@@ -28,6 +28,8 @@ atlas_depends_on_subdirs(
    Trigger/TrigSteer/TrigInterfaces
    Trigger/TrigTools/TrigTimeAlgs
    PRIVATE
+   PathResolver
+   InDetTrackSelectionTool
    Control/CxxUtils
    DetectorDescription/Identifier
    Event/EventKernel
@@ -50,9 +52,11 @@ atlas_add_library( TrigEFMissingETLib
    LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent CaloGeoHelpers CaloIdentifier
    AthenaBaseComps xAODCaloEvent xAODJet xAODTrigMissingET GaudiKernel
    LArIdentifier TrigCaloEvent TrigMissingEtEvent TrigParticle CaloDetDescrLib
-   LArToolsLib TrigT2CaloCommonLib TrigInterfacesLib TrigTimeAlgsLib
+   LArCablingLib TrigT2CaloCommonLib TrigInterfacesLib TrigTimeAlgsLib
+   InDetTrackSelectionToolLib
    PRIVATE_LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CxxUtils Identifier
    EventKernel xAODEventInfo JetEvent TrigMuonEvent TrigSteeringEvent
+   PathResolver
    TrigT1Interfaces )
 
 atlas_add_component( TrigEFMissingET

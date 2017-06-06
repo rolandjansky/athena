@@ -10,15 +10,14 @@
 #include "SCT_DCSConditionsTestAlg.h"
 #include "SCT_ConditionsServices/ISCT_DCSConditionsSvc.h"
 
-// Include Event Info 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 // Include Athena stuff
 #include "Identifier/Identifier.h"
 
 // Include Gaudi stuff
 #include "GaudiKernel/StatusCode.h"
+
+// Read Handle
+#include "StoreGate/ReadHandle.h"
 
 // Include STL stuff
 #include <string>
@@ -28,7 +27,7 @@ SCT_DCSConditionsTestAlg::SCT_DCSConditionsTestAlg(
                                                    const std::string& name, 
                                                    ISvcLocator* pSvcLocator ) : 
 AthAlgorithm( name, pSvcLocator ),
-m_currentEvent(0),
+m_currentEventKey(std::string("EventInfo")),
 m_DCSConditionsSvc("SCT_DCSConditionsSvc",name)//use SCT_DCSConditionsSvc if you are not running with InDetRecExample
 { //nop
 }
@@ -43,6 +42,9 @@ StatusCode SCT_DCSConditionsTestAlg::initialize(){
   StatusCode sc(StatusCode::SUCCESS);
   sc = m_DCSConditionsSvc.retrieve();
   if (StatusCode::SUCCESS not_eq sc) return (msg(MSG::ERROR) << "Unable to get the DCS conditions service" << endmsg), sc;
+
+  // Read Handle
+  ATH_CHECK(m_currentEventKey.initialize());
   
   return sc;
 } // SCT_DCSConditionsTestAlg::execute()
@@ -56,13 +58,13 @@ StatusCode SCT_DCSConditionsTestAlg::execute(){
   StatusCode sc(StatusCode::SUCCESS);
   
   // Get the current event
-  sc = evtStore()->retrieve(m_currentEvent);
-  if ( sc.isFailure() ) return (msg(MSG::ERROR) << "Could not get event info" << endmsg), sc;
+  SG::ReadHandle<xAOD::EventInfo> currentEvent(m_currentEventKey);
+  if ( not currentEvent.isValid() ) return (msg(MSG::ERROR) << "Could not get event info" << endmsg), sc;
   //
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Current Run.Event,Time: "
-  << "[" << m_currentEvent->event_ID()->run_number()
-  << "." << m_currentEvent->event_ID()->event_number()
-  << "," << m_currentEvent->event_ID()->time_stamp()
+  << "[" << currentEvent->runNumber()
+  << "." << currentEvent->eventNumber()
+  << "," << currentEvent->timeStamp()
   << "]" << endmsg;
   
   bool DCSfilled(false);

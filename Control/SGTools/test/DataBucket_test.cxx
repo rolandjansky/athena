@@ -404,6 +404,27 @@ int main () {
     assert (X5::log.empty());
     delete b4;
     assert (X5::log == std::vector<int> {11});
+    X5::log.clear();
+  }
+
+  {
+    std::unique_ptr<const X5> p (new X5(12));
+    DataBucketBase* b5 = new SG::DataBucket<X5> (std::move(p));
+    assert (p.get() == 0);
+    assert (X5::log.empty());
+    delete b5;
+    assert (X5::log == std::vector<int> {12});
+    X5::log.clear();
+  }
+
+  {
+    std::unique_ptr<const X5> p (new X5(13));
+    DataObject* b6 = asStorable (std::move(p));
+    assert (p.get() == 0);
+    assert (X5::log.empty());
+    delete b6;
+    assert (X5::log == std::vector<int> {13});
+    X5::log.clear();
   }
 
   {

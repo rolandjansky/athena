@@ -22,7 +22,7 @@
 #include "InDetIdentifier/SCT_ID.h"
 
 // Constructor
-SCT_StripVetoSvc::SCT_StripVetoSvc( const std::string& name, ISvcLocator* pSvcLocator ) : AthService(name, pSvcLocator), m_filled(false),m_pHelper(0){
+SCT_StripVetoSvc::SCT_StripVetoSvc( const std::string& name, ISvcLocator* pSvcLocator ) : AthService(name, pSvcLocator), m_filled(false),m_pHelper{nullptr}{
   declareProperty("BadStripIdentifiers",m_badElements);
 }
 

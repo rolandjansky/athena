@@ -42,41 +42,6 @@ namespace {
       return out;
    }
 
-   /// Helper function for deep copying the payload of auxiliary stores
-   void copyAuxStore( const SG::IConstAuxStore& orig,
-                      SG::IAuxStore& copy ) {
-
-      // Access the auxiliary type registry:
-      SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
-
-      // The auxiliary IDs that the original container has:
-      SG::auxid_set_t auxids = orig.getAuxIDs();
-
-      // Set the container to the right size:
-      const size_t size = orig.size();
-      copy.resize( size );
- 
-      // Loop over all the variables of the original container:
-      for( SG::auxid_t auxid : auxids ) {
-
-         // Create the target variable:
-         void* dst = copy.getData( auxid, size, size );
-
-         // Access the source variable:
-         const void* src = orig.getData( auxid );
-         if( ! src ) {
-            continue;
-         }
-
-         // Copy over all elements:
-         for( std::size_t i = 0; i < size; ++i ) {
-            r.copy( auxid, dst, i, src, i );
-         }
-      }
-
-      return;
-   }
-
 } // private namespace
 
 namespace xAODMaker {

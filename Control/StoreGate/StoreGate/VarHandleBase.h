@@ -67,12 +67,16 @@ namespace SG {
    * A handle object may be used as a algorithm/tool property directly.
    * Because the handle caches state, however, this means that the component
    * using it cannot be reentrant.  In such a case, the handle will be reset
-   * when the current algorithm completes.
+   * when the current algorithm completes.  In this case, the handle
+   * will be bound to the proxy.
    *
    * The preferred way of using handles is to use a HandleKey object
    * (one of ReadHandleKey<T>, WriteHandleKey<T>, UpdateHandleKey<T>)
    * as the property, and to create a handle instance on the stack from
-   * the key object (and the event context, if available).
+   * the key object (and the event context, if available).  In this
+   * case, the handle will not be bound to the proxy.  A handle created
+   * in this way should not live beyond the end of the algorithm in which
+   * it was created.
    */
   class VarHandleBase : public VarHandleKey, public IResetable
   {
@@ -259,7 +263,7 @@ namespace SG {
      *
      * This implicitly does a reset().
      */
-    StatusCode setProxyDict (IProxyDict* store);
+    virtual StatusCode setProxyDict (IProxyDict* store);
 
 
     // FIXME: Remove this once IResetable is cleaned up.
@@ -291,6 +295,7 @@ namespace SG {
      * @brief Set the 'const' bit for the bound proxy in the store.
      */
     StatusCode setConst();
+
 
   protected: 
     //*************************************************************************
@@ -353,7 +358,7 @@ namespace SG {
      */
     const void* put_impl (const EventContext* ctx,
                           std::unique_ptr<DataObject> dobj,
-                          void* dataPtr,
+                          const void* dataPtr,
                           bool allowMods,
                           bool returnExisting,
                           IProxyDict* & store) const;
@@ -363,7 +368,7 @@ namespace SG {
      * @brief Retrieve an object from StoreGate.
      * @param quiet If true, suppress failure messages.
      */
-    void* typeless_dataPointer_impl(bool quiet);
+    virtual void* typeless_dataPointer_impl(bool quiet);
 
 
     /**
@@ -404,6 +409,19 @@ namespace SG {
                           bool quiet = defaultQuiet) const;
 
 
+    /**
+     * @brief Make a symlink or alias to the object currently referenced
+     *        by this handle.
+     * @param newClid CLID of link.
+     * @param newKey SG key of link.
+     *
+     * If newClid matches the existing clid, then make an alias.
+     * If newKey matches the existing key, then make a symlink.
+     * If neither match, it's an error.
+     */
+    StatusCode symLink_impl (CLID newClid, const std::string& newKey) const;
+
+
   protected: 
     //*************************************************************************
     // Protected data.
@@ -420,6 +438,11 @@ namespace SG {
 
     /// True if the store was set explicitly via setProxyDict.
     bool m_storeWasSet;
+
+    /// True if this algorithm should be bound to the proxy.
+    /// This should be true if the handle was created as a property,
+    /// and false if it was constructed from a key.
+    bool m_doBind;
 
 
   private:

@@ -345,6 +345,7 @@ class TRTSeededTrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
                                                                   usePixel           = InDetTrigCutValues.usePixel(),
                                                                   useSCT             = InDetTrigCutValues.useSCT(),
                                                                   minTRTonTrk        = InDetTrigCutValues.minSecondaryTRTonTrk(),
+                                                                  doEmCaloSeed = False,
                                                                   #useSigmaChi2       = False
                                                                   )
       

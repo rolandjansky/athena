@@ -20,9 +20,9 @@
 #include "PixelCalibAlgs/PixelConvert.h"
 #include "PixelConditionsData/SpecialPixelMap.h"
 
-std::vector< std::pair< std::string, std::vector<int> > > m_pixelMapping;
+std::vector< std::pair< std::string, std::vector<int> > > pixelMapping;
 //std::vector< std::pair< int, std::vector<int> > > m_moduleHashMapping;
-std::vector< std::pair< int, std::vector<int> > > m_hashMapping;
+std::vector< std::pair< int, std::vector<int> > > hashMapping;
 std::string getDCSIDFromPosition (int barrel_ec, int layer, int module_phi, int module_eta);
 int getHashFromPosition (int barrel_ec, int layer, int module_phi, int module_eta);
 std::vector<int> getPositionFromDCSID (std::string module_name);
@@ -52,7 +52,7 @@ bool is_file_exist(const char *fileName)
 using namespace std;
 
 int main(int argc, char* argv[]){
-  const bool m_isIBL = true;
+  const bool isIBL = true;
 
   //-----------------------------------
   //Usage configuration of the program
@@ -97,7 +97,7 @@ int main(int argc, char* argv[]){
   components.push_back("Disk1C");
   components.push_back("Disk2C");
   components.push_back("Disk3C");
-  if (m_isIBL) components.push_back("IBL");     // kazuki
+  if (isIBL) components.push_back("IBL");     // kazuki
   components.push_back("B-layer");
   components.push_back("Layer1");
   components.push_back("Layer2");
@@ -167,13 +167,13 @@ int main(int argc, char* argv[]){
   //-----------------------------------------------------------
 
   std::vector<int> staves;
-  if(m_isIBL) staves.push_back(14);
+  if(isIBL) staves.push_back(14);
   staves.push_back(22);
   staves.push_back(38);
   staves.push_back(52);
 
   std::vector<std::string> layers;
-  if(m_isIBL) layers.push_back("IBL");
+  if(isIBL) layers.push_back("IBL");
   layers.push_back("B-layer");
   layers.push_back("Layer1");
   layers.push_back("Layer2");
@@ -196,7 +196,7 @@ int main(int argc, char* argv[]){
     // }
 
     int nModulesPerStave = 13;
-    if (m_isIBL && layer == 0) nModulesPerStave = 20; // --- IBL --- //
+    if (isIBL && layer == 0) nModulesPerStave = 20; // --- IBL --- //
     for(int module = 0; module < staves[layer] * nModulesPerStave; module++) // loop on modules
       //for(int j = 0; j < (staves[layer] * 13); j++)
     {
@@ -239,7 +239,7 @@ int main(int argc, char* argv[]){
   //std::map <std::string, int> DCSID2Hash;
   for (const auto& x : paths){
     if(is_file_exist((x + "/PixelMapping_Run2.dat").c_str())){
-      if(m_isIBL){
+      if(isIBL){
         ifs.open(x + "/PixelMapping_Run2.dat");
         ifs2.open(x + "/HashVSdcsID.dat");
       } else {
@@ -254,7 +254,7 @@ int main(int argc, char* argv[]){
         tmp_position[1] = tmp_layer;
         tmp_position[2] = tmp_module_phi;
         tmp_position[3] = tmp_module_eta;
-        m_pixelMapping.push_back(std::make_pair(tmp_module_name, tmp_position));
+        pixelMapping.push_back(std::make_pair(tmp_module_name, tmp_position));
       }
       int tmp_moduleHash; int tmp_hash; int tmp1; int tmp2; int tmp3; int tmp4; std::string tmp_id;
       while(ifs2 >> tmp_moduleHash >> tmp_hash >> tmp1 >> tmp2 >> tmp_barrel_ec >> tmp_layer >> tmp_module_phi >> tmp_module_eta >> tmp3 >> tmp4 >> tmp_id) {
@@ -262,8 +262,8 @@ int main(int argc, char* argv[]){
         tmp_position[1] = tmp_layer;
         tmp_position[2] = tmp_module_phi;
         tmp_position[3] = tmp_module_eta;
-        //m_hashMapping.push_back(std::make_pair(tmp_hash, tmp_position));
-        m_hashMapping.push_back(std::make_pair(tmp_moduleHash, tmp_position));
+        //hashMapping.push_back(std::make_pair(tmp_hash, tmp_position));
+        hashMapping.push_back(std::make_pair(tmp_moduleHash, tmp_position));
       }
       break;
     }
@@ -547,42 +547,42 @@ return 0;
 }
 
 std::string getDCSIDFromPosition (int barrel_ec, int layer, int module_phi, int module_eta){
-  for(unsigned int ii = 0; ii < m_pixelMapping.size(); ii++) {
-    if (m_pixelMapping[ii].second.size() != 4) {
+  for(unsigned int ii = 0; ii < pixelMapping.size(); ii++) {
+    if (pixelMapping[ii].second.size() != 4) {
       std::cout << "getDCSIDFromPosition: Vector size is not 4!" << std::endl;
       return std::string("Error!");
     }
-    if (m_pixelMapping[ii].second[0] != barrel_ec) continue;
-    if (m_pixelMapping[ii].second[1] != layer) continue;
-    if (m_pixelMapping[ii].second[2] != module_phi) continue;
-    if (m_pixelMapping[ii].second[3] != module_eta) continue;
-    return m_pixelMapping[ii].first;
+    if (pixelMapping[ii].second[0] != barrel_ec) continue;
+    if (pixelMapping[ii].second[1] != layer) continue;
+    if (pixelMapping[ii].second[2] != module_phi) continue;
+    if (pixelMapping[ii].second[3] != module_eta) continue;
+    return pixelMapping[ii].first;
   }
   std::cout << "Not found!" << std::endl;
   return std::string("Error!");
 }
 
 int getHashFromPosition (int barrel_ec, int layer, int module_phi, int module_eta){
-  for(unsigned int ii = 0; ii < m_hashMapping.size(); ii++) {
-    if (m_hashMapping[ii].second.size() != 4) {
+  for(unsigned int ii = 0; ii < hashMapping.size(); ii++) {
+    if (hashMapping[ii].second.size() != 4) {
       std::cout << "getDCSIDFromPosition: Vector size is not 4!" << std::endl;
       return 0;
     }
-    if (m_hashMapping[ii].second[0] != barrel_ec) continue;
-    if (m_hashMapping[ii].second[1] != layer) continue;
-    if (m_hashMapping[ii].second[2] != module_phi) continue;
-    if (m_hashMapping[ii].second[3] != module_eta) continue;
-    return m_hashMapping[ii].first;
+    if (hashMapping[ii].second[0] != barrel_ec) continue;
+    if (hashMapping[ii].second[1] != layer) continue;
+    if (hashMapping[ii].second[2] != module_phi) continue;
+    if (hashMapping[ii].second[3] != module_eta) continue;
+    return hashMapping[ii].first;
   }
   std::cout << "Not found!" << std::endl;
   return 0;
 }
 
 std::vector<int> getPositionFromDCSID (std::string module_name){
-  for(unsigned int ii = 0; ii < m_pixelMapping.size(); ii++) {
-    if (m_pixelMapping[ii].first == module_name)
-      return m_pixelMapping[ii].second;
+  for(unsigned int ii = 0; ii < pixelMapping.size(); ii++) {
+    if (pixelMapping[ii].first == module_name)
+      return pixelMapping[ii].second;
   }
   std::cout << "Not found!" << std::endl;
-  return m_pixelMapping[0].second;
+  return pixelMapping[0].second;
 }

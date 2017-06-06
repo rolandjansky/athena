@@ -19,6 +19,8 @@ from RecExConfig.RecFlags import rec
 from AthenaCommon.DetFlags import DetFlags
 
 from AthenaCommon.CfgGetter import getPublicTool,getPublicToolClone,getPrivateTool
+from RecExConfig.ObjKeyStore                  import cfgKeyStore
+
 import sys
 #==============================================================
 
@@ -148,8 +150,10 @@ class MuonStandalone(ConfiguredMuonRec):
                                                      doTGCClust = False,
                                                      doRPCClust = False) )
 
-        self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg") )
-        self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg_NCB",SegmentContainerName="NCB_MuonSegments",xAODContainerName="NCB_MuonSegments") )
+        if (not cfgKeyStore.isInInput ('xAOD::MuonSegmentContainer', 'MuonSegments')):
+            self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg") )
+        if (not cfgKeyStore.isInInput ('xAOD::MuonSegmentContainer', 'MuonSegments_NCB')):
+            self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg_NCB",SegmentContainerName="NCB_MuonSegments",xAODContainerName="NCB_MuonSegments") )
         
         if muonStandaloneFlags.doSegmentsOnly():
             return	                    

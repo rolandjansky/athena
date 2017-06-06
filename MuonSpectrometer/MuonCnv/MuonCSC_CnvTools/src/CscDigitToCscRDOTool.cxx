@@ -9,7 +9,7 @@
 
 #include "CLHEP/Random/RandomEngine.h"
 //#include "CLHEP/Random/RandGauss.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
 
 #include "MuonDigitContainer/CscDigitContainer.h"

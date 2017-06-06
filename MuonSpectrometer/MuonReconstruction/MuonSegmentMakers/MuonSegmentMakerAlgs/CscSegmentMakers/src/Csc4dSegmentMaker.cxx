@@ -158,7 +158,7 @@ Csc4dSegmentMaker::find( const MuonSegmentCombinationCollection& segcols) const
 }
 //******************************************************************************
 // For MuGirls... Seeded SegmentMaker part.... 
-
+//Note: this code was used by the old MuGirl but is not part of the current reconstruction
 std::vector<const MuonSegment*>* Csc4dSegmentMaker::find( const Amg::Vector3D& /*gpos*/, const Amg::Vector3D& /*gdir*/,
                                                           const std::vector< const MdtDriftCircleOnTrack* > & ,
                                                           const std::vector< const MuonClusterOnTrack* > & pcots,
@@ -223,6 +223,7 @@ std::vector<const MuonSegment*>* Csc4dSegmentMaker::find( const Amg::Vector3D& /
 
 } //find
 
+//Note: this code was used by the old MuGirl but is not part of the current reconstruction
 //******************************************************************************
 std::vector<const MuonSegment*>* Csc4dSegmentMaker::find( const Trk::TrackRoad& road,
                                                           const std::vector< std::vector< const MdtDriftCircleOnTrack* > >& ,

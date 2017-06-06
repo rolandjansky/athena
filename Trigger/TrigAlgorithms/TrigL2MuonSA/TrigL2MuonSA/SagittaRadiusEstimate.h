@@ -52,7 +52,6 @@ namespace TrigL2MuonSA {
   BooleanProperty  m_use_endcapInner;
 
   const ToolHandle<AlignmentBarrelLUT>*    m_alignmentBarrelLUT;
-  const AlignmentBarrelLUTSvc*             m_alignmentBarrelLUTSvc;
 
   float f(float x, float c0, float c1, float c2, float c3) const;
   float fp(float x, float c33, float c22, float c1) const;

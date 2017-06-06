@@ -91,7 +91,7 @@ float LArCellHVCorr::getCorrection(const Identifier id) {
 
  if (hvcorr<0.9 ) {
    if (hvcorr<0.4) ATH_MSG_WARNING( "HV corr for cell with id " << id.get_identifier32().get_compact() << " = " << hvcorr  );
-   else ATH_MSG_INFO( "HV corr for cell with id " << id.get_identifier32().get_compact() << " = " << hvcorr  );
+   else ATH_MSG_DEBUG( "HV corr for cell with id " << id.get_identifier32().get_compact() << " = " << hvcorr  );
  }
 
 

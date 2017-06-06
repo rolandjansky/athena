@@ -18,7 +18,6 @@
 
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "HepMC/GenEvent.h"
@@ -119,30 +118,6 @@ LArCellBuilderFromLArHitTool::LArCellBuilderFromLArHitTool(
 
 StatusCode LArCellBuilderFromLArHitTool::initialize()
 {
-  const IGeoModelSvc *geoModel=0;
-  ATH_CHECK( service("GeoModelSvc", geoModel) );
-
-  // dummy parameters for the callback:
-  int dummyInt=0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized())
-  {
-    return geoInit(dummyInt,dummyList);
-  }
-  else
-  {
-    ATH_CHECK (detStore()->regFcn(&IGeoModelSvc::geoInit,
-                                  geoModel,
-                                  &LArCellBuilderFromLArHitTool::geoInit,this) );
-  }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-LArCellBuilderFromLArHitTool::geoInit(IOVSVC_CALLBACK_ARGS)
-{
-  //
   m_WithMap = false ;
   //
   //m_WithMap = true;

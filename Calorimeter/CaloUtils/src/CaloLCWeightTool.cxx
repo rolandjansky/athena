@@ -32,7 +32,6 @@
 //#include "GaudiKernel/ISvcLocator.h"
 //#include "GaudiKernel/ListItem.h"
 //#include "StoreGate/StoreGateSvc.h" 
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
 
@@ -68,9 +67,6 @@ CaloLCWeightTool::CaloLCWeightTool(const std::string& type,
 
 StatusCode CaloLCWeightTool::initialize()
 {
-  const IGeoModelSvc *geoModel=0;
-  ATH_CHECK( service("GeoModelSvc", geoModel) );
-
   if(m_interpolate) {
     msg(MSG::INFO) << "Interpolation is ON, dimensions: ";
     for(std::vector<std::string>::iterator it=m_interpolateDimensionNames.begin(); it!=m_interpolateDimensionNames.end(); it++){
@@ -87,26 +83,6 @@ StatusCode CaloLCWeightTool::initialize()
     }
   }
 
-  // dummy parameters for the callback:
-  int dummyInt=0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized())
-  {
-    return geoInit(dummyInt,dummyList);
-  }
-  else
-  {
-    ATH_CHECK(  detStore()->regFcn(&IGeoModelSvc::geoInit,
-                                   geoModel,
-                                   &CaloLCWeightTool::geoInit,this) );
-  }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-CaloLCWeightTool::geoInit(IOVSVC_CALLBACK_ARGS)
-{
   ATH_MSG_INFO( "Initializing " << name()  );
 
   // callback for conditions data

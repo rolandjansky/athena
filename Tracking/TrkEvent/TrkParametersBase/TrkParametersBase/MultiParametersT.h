@@ -85,6 +85,9 @@ namespace Trk
     /** Access to the Surface method */
     virtual const Surface& associatedSurface() const override;
       
+    /** Test to see if there's a surface there. */
+    virtual bool hasSurface() const override { return true; }
+
     /** Return the measurement frame - this is needed for alignment, in particular for StraightLine and Perigee Surface
 	- the default implementation is the the RotationMatrix3D of the transform */
     virtual const Amg::RotationMatrix3D measurementFrame() const override;

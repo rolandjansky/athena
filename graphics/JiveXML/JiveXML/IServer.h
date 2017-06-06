@@ -16,15 +16,12 @@ namespace JiveXML {
   /**
    * Pure abstract interface for all full server implementations
    */
-  class IServer: virtual public IService,
-                 virtual public IEventServer,
+  class IServer: virtual public IEventServer,
                  virtual public IEventReceiver,
                  virtual public IMessage
   {
 
     public:
-      DeclareInterfaceID(IServer,1,0);
-
       //Need virtual destructor
       virtual ~IServer(){}
 

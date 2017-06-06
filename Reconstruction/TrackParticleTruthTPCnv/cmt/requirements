@@ -7,7 +7,8 @@ use AthenaPoolCnvSvc        AthenaPoolCnvSvc-*        Database/AthenaPOOL
 use Particle                Particle-*                Reconstruction
 use ParticleTruth           ParticleTruth-*           Reconstruction
 use GeneratorObjectsTPCnv   GeneratorObjectsTPCnv-*   Generators
-use DataModel               DataModel-*               Control
+use AthLinks                AthLinks-*                Control
+use AthContainers           AthContainers-*           Control
 use DataModelAthenaPool     DataModelAthenaPool-*     Control
 use AthenaPoolUtilities     AthenaPoolUtilities-*     Database/AthenaPOOL
 

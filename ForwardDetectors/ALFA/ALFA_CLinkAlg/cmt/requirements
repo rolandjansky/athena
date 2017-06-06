@@ -19,7 +19,7 @@ use StoreGate				StoreGate-*					Control
 public
 use AthenaBaseComps         AthenaBaseComps-*           Control
 use AthenaKernel            AthenaKernel-*              Control
-use DataModel               DataModel-*                 Control
+use AthLinks                AthLinks-*                  Control
 use xAODForward				xAODForward-*				Event/xAOD
 end_public
 

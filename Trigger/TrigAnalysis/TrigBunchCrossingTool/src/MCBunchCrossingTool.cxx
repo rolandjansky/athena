@@ -349,9 +349,9 @@ namespace Trig {
 
       // Check if we found the metadata:
       if( ! bunches.size() ) {
-         ATH_MSG_WARNING( "Bunch structure information not found in: "
+         ATH_MSG_INFO( "Bunch structure information not found in: "
                           << MC_DIGI_PARAM );
-         ATH_MSG_WARNING( "Tool will report all BCIDs as single filled bunches" );
+         ATH_MSG_INFO( "Tool will report all BCIDs as single filled bunches" );
          m_isConfigured = false;
 
          // Let everybody know that the configuration of the tool has changed:

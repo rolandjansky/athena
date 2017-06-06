@@ -71,7 +71,7 @@ void TRoot2Html::beforeFile()
   else treeNodeName = gSystem->BaseName(file()->GetName());
   
   _xml << "<!-- Start of " << treeNodeName << " -->" << endl;
-  _xml << xmlTreeItem(treeNodeName) << endl;
+  _xml << xmlTreeItem(treeNodeName).Data() << endl;
   
   // Create output directory
   gSystem->mkdir(_outDir+"/img", true);
@@ -79,7 +79,7 @@ void TRoot2Html::beforeFile()
 
 void TRoot2Html::afterFile()
 {
-  _xml << xmlTreeItemClose() << endl;
+  _xml << xmlTreeItemClose().Data() << endl;
 }
 
 
@@ -89,12 +89,12 @@ void TRoot2Html::beforeDir()
   TString imgDir = TString(_outDir) + "/img/" + s;
   gSystem->mkdir(imgDir, true);
 
-  _xml << xmlTreeItem(gDirectory->GetName()) << endl;
+  _xml << xmlTreeItem(gDirectory->GetName()).Data() << endl;
 }
 
 void TRoot2Html::afterDir()
 {
-  _xml << xmlTreeItemClose() << endl;
+  _xml << xmlTreeItemClose().Data() << endl;
 }
 
 
@@ -104,12 +104,12 @@ void TRoot2Html::processKey(TDirectory& dir, TKey& key)
   
   TObject* obj = key.ReadObj();
   if (obj->IsA()->InheritsFrom("TH1")) {
-    _xml << xmlTreeItem(key.GetName()) << endl;
+    _xml << xmlTreeItem(key.GetName()).Data() << endl;
     TString imgPath = hist2Png(*gDirectory, key.GetName());
     if (imgPath!="") {
-      _xml << xmlUserData("img",imgPath) << endl;
+      _xml << xmlUserData("img",imgPath).Data() << endl;
     }
-    _xml << xmlTreeItemClose() << endl;
+    _xml << xmlTreeItemClose().Data() << endl;
   }
 }
 
@@ -188,24 +188,24 @@ TString TRoot2Html::getDrawOptions(const TH1& h)
 }
 
 // Tree node with text and id
-const char* TRoot2Html::xmlTreeItem(const char* text)
+TString TRoot2Html::xmlTreeItem(const char* text)
 {
   TString s;
   s.Form("<item text=\"%s\" id=\"%d\">",text,_nodeId);
   _nodeId++;
-  return s.Data();
+  return s;
 }
 
 // Tree node close
-const char* TRoot2Html::xmlTreeItemClose()
+TString TRoot2Html::xmlTreeItemClose()
 {
   return "</item>";
 }
 
 // User data for tree node
-const char* TRoot2Html::xmlUserData(const char* name, const char* data)
+TString TRoot2Html::xmlUserData(const char* name, const char* data)
 {
   TString s;
   s.Form("<userdata name=\"%s\">%s</userdata>",name,data);
-  return s.Data();
+  return s;
 }

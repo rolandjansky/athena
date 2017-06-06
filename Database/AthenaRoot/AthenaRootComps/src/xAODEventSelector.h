@@ -177,6 +177,8 @@ class xAODEventSelector :
   ServiceHandle<IIncidentSvc> m_incsvc;
   /// Handle to the PoolSvc (used in Hybrid mode when user is reading metadata with pool)
   ServiceHandle<IPoolSvc> m_poolSvc;
+  /// Handle to the proxy provider svc
+  ServiceHandle<IProxyProviderSvc> m_ppSvc;
 
   /// List of input files containing @c TTree 
   StringArrayProperty m_inputCollectionsName;

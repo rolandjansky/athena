@@ -31,35 +31,20 @@ class TrigT2TileJet /* : public TrigEMCluster */
 {
   
    public:
-      /** Constructor */
-      TrigT2TileJet();
-      /** copy constructor */
-      TrigT2TileJet(TrigT2TileJet&p);
-      /** Destructor */
-      ~TrigT2TileJet();
+      // Default ctor/dtor.
 
-      /** TrigT2Tower entities making part of Jet */
-      std::vector<TrigT2Tower>* towercollection()  const {  return m_towercollection; }
-
-      /** Clear TrigT2Tower m_towercollection */
-      void clearTowerCollection();
-
-      void insertCell(Trig3Momentum newCell, MsgStream& log);
-      void searchTowerAndInsert( Trig3Momentum cell,  MsgStream& log, double etaShift = 0.0 );
+      void insertCell(const Trig3Momentum& newCell, MsgStream& log);
+      void searchTowerAndInsert( const Trig3Momentum& cell,  MsgStream& log, double etaShift = 0.0 );
 
       /** find hottest Tower */
-      bool findHottestTower(TrigT2Tower &tower);
+      bool findHottestTower(TrigT2Tower &tower) const;
 
       /** debugging */
-      void print(MsgStream& log);
+      void print(MsgStream& log) const;
 
    private:
       /** vector of TrigT2Tower elements that compose Jet */
-      std::vector<TrigT2Tower>* m_towercollection;
-
+      std::vector<TrigT2Tower> m_towercollection;
 };
-
-/// conversion to formatted string: multi-line!
-std::string str (const TrigT2TileJet& a);
 
 #endif

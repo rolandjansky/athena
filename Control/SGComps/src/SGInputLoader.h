@@ -36,13 +36,16 @@ class SGInputLoader
   /// Destructor: 
   virtual ~SGInputLoader(); 
 
+  /// this Alg is Clonable (for AthenaMT)
+  bool isClonable() const override { return true; }
+
   // Assignment operator: 
   //SGInputLoader &operator=(const SGInputLoader &alg); 
 
   // Athena algorithm's Hooks
-  virtual StatusCode  initialize();
-  virtual StatusCode  execute();
-  virtual StatusCode  finalize();
+  virtual StatusCode  initialize() override;
+  virtual StatusCode  execute() override;
+  virtual StatusCode  finalize() override;
 
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 

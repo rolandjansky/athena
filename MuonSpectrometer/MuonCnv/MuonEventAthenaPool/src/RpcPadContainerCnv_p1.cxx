@@ -23,7 +23,7 @@
 // Athena
 #include "StoreGate/StoreGateSvc.h"
 
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
 #include "RPCcablingInterface/RpcPadIdHash.h"

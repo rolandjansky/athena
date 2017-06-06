@@ -50,6 +50,7 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   m_setAMSize(0), m_setAMSplit(0), m_maxAMAfterSplit(-1), m_minDVolOverDNPatt(0), 
   m_doMakeCache(0), m_CachePath("bankcache.root"),
   m_SaveAllRoads(0), m_StoreAllSS(0),
+  m_read_FTKhits_directly(false),
   m_pmap(0x0), m_pmap_unused(0x0),
   m_rmap(0x0), m_rmap_unused(0x0), m_CUR_REGION(-1),
   m_ssmap(0x0), m_ssmap_unused(0x0), m_ssmap_tsp(0x0),
@@ -71,8 +72,7 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   m_SectorAsPatterns(0),
   m_DCMatchMethod(0),
   m_AutoDisable(false),
-  m_firstEventFTK(-1), 
-  m_read_FTKhits_directly(false)
+  m_firstEventFTK(-1)
 {
   // number of banks
   declareProperty("NBanks",m_nbanks);
@@ -623,10 +623,10 @@ StatusCode FTKRoadFinderAlgo::finalize() {
 }
 
 void FTKRoadFinderAlgo::PostMessage() {
-   if(fType==0)  ATH_MSG_FATAL(fBuffer->str());
-   else if(fType==1)  ATH_MSG_ERROR(fBuffer->str());
-   else if(fType==2)  ATH_MSG_WARNING(fBuffer->str());
-   else if(fType==3)  ATH_MSG_INFO(fBuffer->str());
-   else if(fType==4)  ATH_MSG_DEBUG(fBuffer->str());
+   if(FTKLogger::m_type==0)  ATH_MSG_FATAL(m_buffer->str());
+   else if(FTKLogger::m_type==1)  ATH_MSG_ERROR(m_buffer->str());
+   else if(FTKLogger::m_type==2)  ATH_MSG_WARNING(m_buffer->str());
+   else if(FTKLogger::m_type==3)  ATH_MSG_INFO(m_buffer->str());
+   else if(FTKLogger::m_type==4)  ATH_MSG_DEBUG(m_buffer->str());
 }
 

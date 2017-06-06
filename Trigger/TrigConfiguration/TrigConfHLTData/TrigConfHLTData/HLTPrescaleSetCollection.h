@@ -26,8 +26,8 @@ namespace TrigConf {
    public:
 
       struct cont {
-         cont(unsigned int _lb, unsigned int _psk, HLTPrescaleSet* _pss = 0) :
-            lb(_lb), psk(_psk), pss(_pss) {};
+         cont(unsigned int the_lb, unsigned int the_psk, HLTPrescaleSet* the_pss = 0) :
+            lb(the_lb), psk(the_psk), pss(the_pss) {};
          unsigned int    lb;
          unsigned int    psk;
          HLTPrescaleSet* pss;

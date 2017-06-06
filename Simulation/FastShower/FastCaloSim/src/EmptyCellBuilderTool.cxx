@@ -5,7 +5,7 @@
 #include "FastCaloSim/EmptyCellBuilderTool.h"
 #include "FastCaloSim/FastSimCell.h"
 
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/StatusCode.h"

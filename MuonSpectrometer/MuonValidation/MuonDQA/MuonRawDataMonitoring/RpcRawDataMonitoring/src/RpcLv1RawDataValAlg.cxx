@@ -30,21 +30,6 @@
 static const int  NMAXHIT = 200 ;
    
 
-//std::string lv1_layer_name         ;
-int  i_triggertimelowpt  	     ;    
-int  i_triggertimehighpt 	     ;  
-int  n_triggerlowpt	 	     ;  
-int  n_triggerlowpt_eta  	     ;
-int  n_triggerlowpt_phi  	     ;
-int  n_triggerhighpt	 	     ;
-int  n_triggerhighpt_eta 	     ;
-int  n_triggerhighpt_phi 	     ;
-
-int  IJKtriggerLowPtPhi  	     ;
-int  IJKtriggerLowPtEta  	     ;
-int  IJKtriggerHighPtPhi 	     ;
-int  IJKtriggerHighPtEta 	     ;
-
 /////////////////////////////////////////////////////////////////////////////
 
 RpcLv1RawDataValAlg::RpcLv1RawDataValAlg( const std::string & type, const std::string & name, const IInterface* parent )
@@ -66,8 +51,6 @@ RpcLv1RawDataValAlg::RpcLv1RawDataValAlg( const std::string & type, const std::s
   declareProperty("Side",             	  m_side=0); 
   declareProperty("Clusters",             m_doClusters = false); 
   declareProperty("doCoolDB",		  m_doCoolDB   = false );	 
-  m_padsId        = 0;
-  m_rpcchambersId = 0;
 }
 
 RpcLv1RawDataValAlg::~RpcLv1RawDataValAlg()
@@ -90,34 +73,6 @@ StatusCode RpcLv1RawDataValAlg::initialize()
   ATH_MSG_INFO ( "RpcLv1Hist		" << m_rpclv1hist		);
   ATH_MSG_INFO ( "RpcLv1ReduceNbins	" << m_rpclv1reducenbins	);
   StatusCode sc;
-  rpc_eventstotal=0;
-  rpc_event_inarea=0;
-  n_triggerhighpt = 0 ;
-  n_triggerhighpt_eta = 0 ;
-  n_triggerhighpt_phi = 0 ;
-  n_trigLow_ly = 0 ;
-  n_trigHigh_ly = 0 ;
-  IJKtriggerLowPtPhi = 0 ;
-  IJKtriggerLowPtEta = 0 ;
-  IJKtriggerHighPtPhi = 0 ;
-  IJKtriggerHighPtEta = 0 ;
-  istatPhi = 0 ;
-  iName = 0 ;
-  ir = 0 ;
-  side = 0 ;
-  sector = 0 ;
-  rpcRDO = 0 ;
-  rdoColl = 0 ;
-  m_SL_nSectors = 0 ;
-  m_SL_nTriggerHits = 0 ;
-  sectorLogicContainer = 0 ;
-  N_pad = 0 ;
-  N_bin_profile = 0 ;
-  TriggerCondition_vs_CM = 0 ;
-  rpclv1_logicalOR_LowPt0 = 0 ;
-  rpclv1_logicalOR_LowPt1 = 0 ;
-  rpclv1_logicalOR_HighPt0 = 0 ;
-  rpclv1_logicalOR_HighPt1 = 0 ;
  
   // Store Gate store
   sc = serviceLocator()->service("StoreGateSvc", m_eventStore);
@@ -196,7 +151,7 @@ StatusCode RpcLv1RawDataValAlg::StoreTriggerType() {
     return sc;
   }else {ATH_MSG_DEBUG ( "RpcLv1RawDataValAlg::retrieved eventInfo" );} 
   
-  trigtype = eventInfo->level1TriggerType();
+  m_trigtype = eventInfo->level1TriggerType();
 
   return sc;
 }
@@ -216,37 +171,27 @@ StatusCode RpcLv1RawDataValAlg::fillHistograms()
  
     ATH_MSG_DEBUG ( "GetTriggerType() "<< GetTriggerType()  );
 
-    i_triggertimelowpt  =-1 ;    
-    i_triggertimehighpt =-1 ;  
-    n_triggerlowpt      = 0 ;  
-    n_triggerlowpt_eta  = 0 ;
-    n_triggerlowpt_phi  = 0 ;
-    n_triggerhighpt     = 0 ;
-    n_triggerhighpt_eta = 0 ;
-    n_triggerhighpt_phi = 0 ;
+    int i_triggertimelowpt  =-1 ;    
+    int i_triggertimehighpt =-1 ;  
+    int n_triggerlowpt      = 0 ;  
+    int n_triggerlowpt_eta  = 0 ;
+    int n_triggerlowpt_phi  = 0 ;
+    int n_triggerhighpt     = 0 ;
+    int n_triggerhighpt_eta = 0 ;
+    int n_triggerhighpt_phi = 0 ;
   
-    IJKtriggerLowPtPhi  = 0 ;
-    IJKtriggerLowPtEta  = 0 ;
-    IJKtriggerHighPtPhi = 0 ;
-    IJKtriggerHighPtEta = 0 ;
+    int IJKtriggerLowPtPhi  = 0 ;
+    int IJKtriggerLowPtEta  = 0 ;
+    int IJKtriggerHighPtPhi = 0 ;
+    int IJKtriggerHighPtEta = 0 ;
  
- 
-    m_nPads          = 0;
-    m_nCMA           = 0;
-    m_nFiredChannels = 0;  	
+    int nFiredChannels = 0;  	
     
-    for ( int i=0; i!=64; i++ ) {
-      for ( int j=0; j!=4; j++) {
-        for ( int k=0; k!=4; k++ ) {
-	  for ( int l=0; l!=32; l++ ) {
-	    PhiOr[i][j][k][l] = 0;
-	  }
-	}
-      }
-    }  
+    int PhiOr[64][4][4][32] = {{{{0}}}};
   
     // Prepare the retrieval of the RpcPadContainer
-  
+
+    const RpcPadContainer* rpcRDO = nullptr;
     sc= (*m_activeStore)->retrieve(rpcRDO,"RPCPAD");
     if (sc.isFailure()) {
       ATH_MSG_ERROR ( "Could not find RPC Pads" );     
@@ -256,37 +201,21 @@ StatusCode RpcLv1RawDataValAlg::fillHistograms()
     // begin loop to get trigger time
     for (RpcPadContainer::const_iterator rdoColli = rpcRDO->begin(); rdoColli!=rpcRDO->end(); ++rdoColli)
       {
-	rdoColl = *rdoColli;
+	const RpcPad* rdoColl = *rdoColli;
 	// Now loop on the RDO to find the ones with trigger hits ijk=6
 	if ( (rdoColl)->size() != 0 ) {  	 
-	  m_nPads++;   
 	  RpcPad::const_iterator itCM = (rdoColl)->begin();
 	  for ( ; itCM != (rdoColl)->end() ; ++itCM ) {
-	    m_nCMA ++;       
 	    RpcCoinMatrix::const_iterator itChan = (*itCM)->begin();	     
 	     
 	    for ( ; itChan != (*itCM)->end() ; ++itChan ) {	     
           
-	      m_nFiredChannels++;
+	      nFiredChannels++;
 	  
-	      i_sector     = (rdoColl)->sector()     ;
-	      i_padId      = (rdoColl)->onlineId()   ;
-	      i_status     = (rdoColl)->status()     ;
-	      i_errorCode  = (rdoColl)->errorCode()  ;
-	      i_cmaId      = (*itCM)->onlineId()  ;
-	      i_fel1Id     = (*itCM)->fel1Id()    ;
-	      i_febcId     = (*itCM)->febcId()    ;
-	      i_crc        = (*itCM)->crc()	;
-	      i_bcId       = (*itChan)->bcid()    ;
-	      i_time       = (*itChan)->time()    ;
-	      i_ijk        = (*itChan)->ijk()     ;
-	      i_channel    = (*itChan)->channel() ;
-	      i_overlap    = -1                   ;
-	      i_threshold  = -1                   ;
-	      if (i_ijk==7) {
-		i_overlap  =(*itChan)->ovl();
-		i_threshold=(*itChan)->thr();
-	      }
+	      int i_cmaId      = (*itCM)->onlineId()  ;
+	      int i_bcId       = (*itChan)->bcid()    ;
+	      int i_time       = (*itChan)->time()    ;
+	      int i_ijk        = (*itChan)->ijk()     ;
 			  
 	      if(i_ijk==6){
 		if(i_cmaId<4){  
@@ -323,96 +252,116 @@ StatusCode RpcLv1RawDataValAlg::fillHistograms()
 		 
   
     //counts rpc hits
-    std::string m_generic_path_rpclv1monitoring = "Muon/MuonRawDataMonitoring/RPCLV1";
+    std::string generic_path_rpclv1monitoring = "Muon/MuonRawDataMonitoring/RPCLV1";
   
-    MonGroup rpclv1prd_shift( this, m_generic_path_rpclv1monitoring + "/Overview", run, ATTRIB_UNMANAGED );
-    MonGroup rpclv1_shift_dqmf( this, m_generic_path_rpclv1monitoring + "/GLOBAL", run, ATTRIB_UNMANAGED ); 
-    MonGroup rpcCoolDb( this, m_generic_path_rpclv1monitoring+"/CoolDB", run, ATTRIB_UNMANAGED )          ;
+    MonGroup rpclv1prd_shift( this, generic_path_rpclv1monitoring + "/Overview", run, ATTRIB_UNMANAGED );
+    MonGroup rpclv1_shift_dqmf( this, generic_path_rpclv1monitoring + "/GLOBAL", run, ATTRIB_UNMANAGED ); 
+    MonGroup rpcCoolDb( this, generic_path_rpclv1monitoring+"/CoolDB", run, ATTRIB_UNMANAGED )          ;
    
+    TH1* rpclv1_hitperEvent = nullptr;
     sc  = rpclv1prd_shift.getHist(rpclv1_hitperEvent,"rpclv1_hitperEvent");
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't register rpclv1_hitperEvent hist to MonGroup" );  
-    rpclv1_hitperEvent->Fill(float(m_nFiredChannels)); 
+    rpclv1_hitperEvent->Fill(float(nFiredChannels)); 
   
+    TH1* rpclv1triggerlowpt_etastat = nullptr;
     sc = rpclv1prd_shift.getHist(rpclv1triggerlowpt_etastat,"Trigger_Hits_LowPt_eta_Stat");
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't register rpclv1triggerlowpt_etastat hist to MonGroup" );
     rpclv1triggerlowpt_etastat->Fill(float(n_triggerlowpt_eta)); 
   
+    TH1* rpclv1triggerlowpt_phistat = nullptr;
     sc = rpclv1prd_shift.getHist(rpclv1triggerlowpt_phistat,"Trigger_Hits_LowPt_phi_Stat");
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't register rpclv1triggerlowpt_phistat hist to MonGroup" );
     rpclv1triggerlowpt_phistat->Fill(float(n_triggerlowpt_phi)); 
   
+    TH2* rpclv1triggerlowpt_etaphistat = nullptr;
     sc = rpclv1prd_shift.getHist(rpclv1triggerlowpt_etaphistat,"Trigger_Hits_Lowpt_etaphi_Stat");
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't register Trigger_Hits_Lowpt_etaphi_Stat hist to MonGroup" );
     rpclv1triggerlowpt_etaphistat->Fill( float(n_triggerlowpt_phi), float(n_triggerlowpt_eta) );
    
+    TH1* rpclv1triggerhighpt_etastat = nullptr;
     sc = rpclv1prd_shift.getHist(rpclv1triggerhighpt_etastat,"Trigger_Hits_HighPt_eta_Stat"); 
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't register rpclv1triggerhighpt_eta_stat hist to MonGroup" );  
     rpclv1triggerhighpt_etastat->Fill(float(n_triggerhighpt_eta)); 
  
+    TH1* rpclv1triggerhighpt_phistat = nullptr;
     sc = rpclv1prd_shift.getHist(rpclv1triggerhighpt_phistat,"Trigger_Hits_HighPt_phi_Stat"); 
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't register rpclv1triggerhighpt_phi_stat hist to MonGroup" );  
     rpclv1triggerhighpt_phistat->Fill(float(n_triggerhighpt_phi)); 
   
+    TH2* rpclv1triggerhighpt_etaphistat = nullptr;
     sc = rpclv1prd_shift.getHist(rpclv1triggerhighpt_etaphistat,"Trigger_Hits_HighPt_etaphi_Stat");
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't register Trigger_Hits_HighPt_etaphi_Stat hist to MonGroup" ); 
     rpclv1triggerhighpt_etaphistat->Fill( float(n_triggerhighpt_phi), float(n_triggerhighpt_eta) );
     
+    TH2* rpclv1ROI_LowPt = nullptr;
     sc = rpclv1prd_shift.getHist(rpclv1ROI_LowPt,"ROI_LowPt_distribution");
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't register ROI_LowPt_distribution hist to MonGroup" );
 
+    TH2* rpclv1ROI_HighPt = nullptr;
     sc = rpclv1prd_shift.getHist(rpclv1ROI_HighPt,"ROI_HighPt_distribution");
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't register ROI_HighPt_distribution hist to MonGroup" );
   
+    TH1* rpclv1sectorlogicstat = nullptr;
     sc = rpclv1prd_shift.getHist(rpclv1sectorlogicstat,"SLChannel_per_SectorLogic");	
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't register rpclv1sectorlogicstat hist to MonGroup" );
 	    
+    TH1* rpclv1towervslogicstat = nullptr;
     sc = rpclv1prd_shift.getHist(rpclv1towervslogicstat,"PadChannel_per_SectorLogic");	
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't register rpclv1towervslogicstat hist to MonGroup" );
 
+    TH2* rpclv1cmalogicstat = nullptr;
     sc = rpclv1prd_shift.getHist(rpclv1cmalogicstat,"CMChannel_per_SectorLogic");
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't register rpclv1cmalogicstat hist to MonGroup" );
  
-    sc = rpclv1prd_shift.getHist(rpclv1cmalogicstat,"CMChannel_per_SectorLogic");
-    if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't register rpclv1cmalogicstat hist to MonGroup" );  
- 
+    TH1* rpclv1_BCid_per_TriggerCorr = nullptr;
     sc = rpclv1prd_shift.getHist(rpclv1_BCid_per_TriggerCorr,"rpclv1_BCid_per_TriggerCorrelation");
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't register rpclv1_BCid_per_TriggerCorr hist to MonGroup" );   
   
+    TH2* rpclv1_BCid_vs_SL = nullptr;
     sc = rpclv1_shift_dqmf.getHist( rpclv1_BCid_vs_SL, "rpclv1_BCid_vs_SectorLogic") ;
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't register rpclv1_BCid_vs_SectorLogic hist to MonGroup" ); 
     
+    TH2* rpclv1_LPt_BCid_vs_SL = nullptr;
     sc = rpclv1_shift_dqmf.getHist( rpclv1_LPt_BCid_vs_SL, "rpclv1_LPt_BCid_vs_SectorLogic") ;
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't register rpclv1_LPt_BCid_vs_SectorLogic hist to MonGroup" ); 
     
+    TH2* rpclv1_HPt_BCid_vs_SL = nullptr;
     sc = rpclv1_shift_dqmf.getHist( rpclv1_HPt_BCid_vs_SL, "rpclv1_HPt_BCid_vs_SectorLogic") ;
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't register rpclv1_HPt_BCid_vs_SectorLogic hist to MonGroup" ); 
     
+    TH1* rpclv1_BCid_per_TriggerType = nullptr;
     sc = rpclv1_shift_dqmf.getHist(rpclv1_BCid_per_TriggerType,"rpclv1_BCid_per_TriggerType");
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't register rpclv1_BCid_per_TriggerType hist to MonGroup" );   
        
+    TH2* rpclv1_TriggerCond_vs_SL = nullptr;
     sc  = rpclv1_shift_dqmf.getHist(rpclv1_TriggerCond_vs_SL, "TriggerCondition_vs_SectorLogic" ) ;
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't register TriggerCondition_vs_SectorLogic hist to MonGroup" );
     
     // logical or
+    TH2* rpclv1_logicalOR_LowPt0 = nullptr;
     sc = rpclv1prd_shift.getHist(rpclv1_logicalOR_LowPt0,  "PhiLogicalOR_LowPt0"  );
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't get PhiLogicalOR_LowPt0 hist "  );
     
+    TH2* rpclv1_logicalOR_LowPt1 = nullptr;
     sc = rpclv1prd_shift.getHist(rpclv1_logicalOR_LowPt1,  "PhiLogicalOR_LowPt1"  );
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't get PhiLogicalOR_LowPt1 hist "  );
     
+    TH2* rpclv1_logicalOR_HighPt0 = nullptr;
     sc = rpclv1prd_shift.getHist(rpclv1_logicalOR_HighPt0, "PhiLogicalOR_HighPt0" );
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't get PhiLogicalOR_HighPt0 hist " );
     
+    TH2* rpclv1_logicalOR_HighPt1 = nullptr;
     sc = rpclv1prd_shift.getHist(rpclv1_logicalOR_HighPt1, "PhiLogicalOR_HighPt1" );
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't get PhiLogicalOR_HighPt1 hist " );
     
+    TH2* TriggerCondition_vs_CM = nullptr;
     sc = rpclv1prd_shift.getHist( TriggerCondition_vs_CM, "Trigger_Condition_vs_CM" );
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't get TriggerCondition_vs_CM hist " );
 
 
     for (RpcPadContainer::const_iterator rdoColli = rpcRDO->begin(); rdoColli!=rpcRDO->end(); ++rdoColli)
       {
-	rdoColl = *rdoColli;
+	const RpcPad* rdoColl = *rdoColli;
 	// Now loop on the RDO to find the ones with trigger hits ijk=6
 	if ( (rdoColl)->size() != 0 ) {		    
         	    
@@ -423,32 +372,21 @@ StatusCode RpcLv1RawDataValAlg::fillHistograms()
            
 	    for ( ; itChan != (*itCM)->end() ; ++itChan ) {	   
 
-	      i_sector	 = (rdoColl)->sector()    ;
-	      i_padId	 = (rdoColl)->onlineId()  ;
-	      i_status	 = (rdoColl)->status()    ;
-	      i_errorCode  = (rdoColl)->errorCode() ;
-	      i_cmaId	 = (*itCM)->onlineId()    ;
-	      i_fel1Id	 = (*itCM)->fel1Id()	  ;
-	      i_febcId	 = (*itCM)->febcId()	  ;
-	      i_crc	 = (*itCM)->crc()	  ;
-	      i_bcId	 = (*itChan)->bcid()	  ;
-	      i_time	 = (*itChan)->time()	  ;
-	      i_ijk	 = (*itChan)->ijk()	  ;
-	      i_channel	 = (*itChan)->channel()   ;
-	      i_overlap	 = -1			  ;
-	      i_threshold  = -1			  ;
-	      if (i_ijk==7) {
-		i_overlap  =(*itChan)->ovl()	  ;
-		i_threshold=(*itChan)->thr()	  ;
-	      }			
-	      else{
+	      int i_sector	 = (rdoColl)->sector()    ;
+	      int i_padId	 = (rdoColl)->onlineId()  ;
+	      int i_cmaId	 = (*itCM)->onlineId()    ;
+	      int i_bcId	 = (*itChan)->bcid()	  ;
+	      int i_time	 = (*itChan)->time()	  ;
+	      int i_ijk	 = (*itChan)->ijk()	  ;
+	      int i_channel	 = (*itChan)->channel()   ;
+	      {
 		if ( i_ijk==6 ) {
                   
 		 
 		  //look for thresholds ijk=7 in the next rdo's ijk=6,6...,7 with the same time  
-		  i_thr = 99 ;
+		  int i_thr = 99 ;
 		  RpcCoinMatrix::const_iterator itChanThr ;	   
-		  thrskip=0;
+		  int thrskip=0;
 		  for ( itChanThr = itChan+1 ; itChanThr!=(*itCM)->end() ; ++itChanThr ) {	
 		    if(thrskip==1)continue;
 		    if((*itChanThr)->ijk()<6) {
@@ -467,10 +405,10 @@ StatusCode RpcLv1RawDataValAlg::fillHistograms()
 		    }
 		  }
 		  
-		  rpclv1_BCid_per_TriggerCorr->Fill(trigtype, i_bcId +  8 * int(i_cmaId/4) );
+		  rpclv1_BCid_per_TriggerCorr->Fill(m_trigtype, i_bcId +  8 * int(i_cmaId/4) );
         	
 		  for (int k=0; k!= 8+1 ; k++ ) {
-		    int trigBinType = trigtype & int(pow(2,float(k))) ;
+		    int trigBinType = m_trigtype & int(pow(2,float(k))) ;
 		    if (trigBinType!=0) rpclv1_BCid_per_TriggerType->Fill(k , i_bcId +  8 * int(i_cmaId/4) );  
 		  }
         	
@@ -484,17 +422,22 @@ StatusCode RpcLv1RawDataValAlg::fillHistograms()
 		  }
 
 		  // Trigger conditions selection begin
-		  NtriggerLowPtPhi  = 0 ; IJKtriggerLowPtPhi  = 0 ;
-		  NtriggerLowPtEta  = 0 ; IJKtriggerLowPtEta  = 0 ;
-		  NtriggerHighPtPhi = 0 ; IJKtriggerHighPtPhi = 0 ;
-		  NtriggerHighPtEta = 0 ; IJKtriggerHighPtEta = 0 ;
-          
+		  int NtriggerLowPtPhi  = 0;
+		  int NtriggerLowPtEta  = 0;
+		  int NtriggerHighPtPhi = 0;
+		  int NtriggerHighPtEta = 0;
+
+                  IJKtriggerLowPtPhi  = 0;
+                  IJKtriggerLowPtEta  = 0;
+                  IJKtriggerHighPtPhi = 0;
+                  IJKtriggerHighPtEta = 0;
+                  
 		  RpcCoinMatrix::const_iterator itChan3 = (*itCM)->begin();	   
 		  for ( ; itChan3 != (*itCM)->end() ; ++itChan3 ) {
-		    ijk_trigger =  (*itChan3)->ijk() ;
+		    int ijk_trigger =  (*itChan3)->ijk() ;
 		    if ( ijk_trigger>5  ) continue; 
                
-		    Layertrigger = ijk_trigger; 
+		    int Layertrigger = ijk_trigger; 
 		    if(ijk_trigger==3) Layertrigger = Layertrigger-1;
 		    if(ijk_trigger==4) Layertrigger = Layertrigger-1;
 		    if(ijk_trigger==5) Layertrigger = Layertrigger-2;
@@ -524,17 +467,25 @@ StatusCode RpcLv1RawDataValAlg::fillHistograms()
 		    if(ijk_trigger==5)ConfirmCh +=  32 ;
 		    
         	  
-		    sprintf(sectorlogic_name_char,"SectorLogic%d",i_sector);sectorlogic_name = sectorlogic_name_char ;
-		    sprintf(tower_name_char      ,"Tower%d"      ,i_padId );tower_name	     = tower_name_char	     ;	
-		    sprintf(cma_name_char        ,"Cma%d"        ,i_cmaId );cma_name	     = cma_name_char	     ;	
-		    sprintf(thr_name_char        ,"Thr%d"        ,i_thr   );thr_name	     = thr_name_char	     ;
+                    char sectorlogic_name_char[1000]      ;
+		    sprintf(sectorlogic_name_char,"SectorLogic%d",i_sector);
+                    std::string sectorlogic_name = sectorlogic_name_char ;
+                    char tower_name_char[1000]		;
+		    sprintf(tower_name_char      ,"Tower%d"      ,i_padId );
+                    std::string tower_name	     = tower_name_char	     ;	
+                    char cma_name_char[1000]		;
+		    sprintf(cma_name_char        ,"Cma%d"        ,i_cmaId );
+                    std::string cma_name	     = cma_name_char	     ;	
+                    char thr_name_char[1000]		;
+		    sprintf(thr_name_char        ,"Thr%d"        ,i_thr   );
+                    std::string thr_name	     = thr_name_char	     ;
           
-		    histo_flag=true;
-		    for (std::vector<std::string>::const_iterator iter=sectorlogicTowerCma_name_list2.begin(); iter!=sectorlogicTowerCma_name_list2.end(); iter++){
+		    bool histo_flag=true;
+		    for (std::vector<std::string>::const_iterator iter=m_sectorlogicTowerCma_name_list2.begin(); iter!=m_sectorlogicTowerCma_name_list2.end(); iter++){
 		      if ( (sectorlogic_name+tower_name+cma_name+thr_name)==*iter){histo_flag=false;}
 		    }
 		    if (histo_flag){ 
-		      sectorlogicTowerCma_name_list2.push_back(sectorlogic_name+tower_name+cma_name+thr_name); 
+		      m_sectorlogicTowerCma_name_list2.push_back(sectorlogic_name+tower_name+cma_name+thr_name); 
 		      bookRPCLV1TriggerRoadHistograms(sectorlogic_name, tower_name, cma_name, thr_name);
 		    }
         	  
@@ -547,10 +498,12 @@ StatusCode RpcLv1RawDataValAlg::fillHistograms()
 		  }
         	
 		  // fill histo Trigger Conditions
+                  TH2* rpclv1_TriggerLy_vs_SL = nullptr;
 		  sc  = rpclv1prd_shift.getHist(rpclv1_TriggerLy_vs_SL, "TriggerLayer_vs_SectorLogic" ) ;
 		  if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't get TriggerCondition_vs_SectorLogic hist to MonGroup" );
               
 		  if ( NtriggerLowPtPhi >0 ) {
+                    TH1* rpclv1Trigger_cond_LowPt_phi = nullptr;
 		    sc  = rpclv1prd_shift.getHist(rpclv1Trigger_cond_LowPt_phi,"Trigger_Condition_LowPt_Phi");
 		    if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't register Trigger_Layer_LowPt_Phi hist to MonGroup" );
 		    rpclv1Trigger_cond_LowPt_phi -> Fill ( float(IJKtriggerLowPtPhi) )  ;
@@ -558,6 +511,7 @@ StatusCode RpcLv1RawDataValAlg::fillHistograms()
 		    TriggerCondition_vs_CM       -> Fill (i_sector*56 + i_padId*8 + i_cmaId, IJKtriggerLowPtPhi );
 		  }
 		  if ( NtriggerLowPtEta >0 ) {
+                    TH1* rpclv1Trigger_cond_LowPt_eta = nullptr;
 		    sc  = rpclv1prd_shift.getHist(rpclv1Trigger_cond_LowPt_eta,"Trigger_Condition_LowPt_Eta");
 		    if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't registerTrigger_Condition_LowPt_Eta hist to MonGroup" );
 		    rpclv1Trigger_cond_LowPt_eta -> Fill ( float(IJKtriggerLowPtEta) )   ;
@@ -565,6 +519,7 @@ StatusCode RpcLv1RawDataValAlg::fillHistograms()
 		    TriggerCondition_vs_CM       -> Fill (i_sector*56 + i_padId*8 + i_cmaId, IJKtriggerLowPtEta );
 		  }
 		  if ( NtriggerHighPtPhi >0 ) {
+                    TH1* rpclv1Trigger_cond_HighPt_phi = nullptr;
 		    sc  = rpclv1prd_shift.getHist(rpclv1Trigger_cond_HighPt_phi,"Trigger_Condition_HighPt_Phi");
 		    if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't registerTrigger_Condition_LowPt_Eta hist to MonGroup" );
 		    rpclv1Trigger_cond_HighPt_phi-> Fill ( float(IJKtriggerHighPtPhi))	    ;
@@ -572,6 +527,7 @@ StatusCode RpcLv1RawDataValAlg::fillHistograms()
 		    TriggerCondition_vs_CM       -> Fill (i_sector*56 + i_padId*8 + i_cmaId, IJKtriggerHighPtPhi );
 		  }
 		  if ( NtriggerHighPtEta >0 ) {
+                    TH1* rpclv1Trigger_cond_HighPt_eta = nullptr;
 		    sc  = rpclv1prd_shift.getHist(rpclv1Trigger_cond_HighPt_eta,"Trigger_Condition_HighPt_Eta");
 		    if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't registerTrigger_Condition_LowPt_Eta hist to MonGroup" );
 		    rpclv1Trigger_cond_HighPt_eta-> Fill ( float(IJKtriggerHighPtEta))	    ;
@@ -579,7 +535,8 @@ StatusCode RpcLv1RawDataValAlg::fillHistograms()
 		    TriggerCondition_vs_CM       -> Fill (i_sector*56 + i_padId*8 + i_cmaId, IJKtriggerHighPtEta );
 		  }
         	
-		  n_trigLow_ly = 0; n_trigHigh_ly = 0;
+		  int n_trigLow_ly = 0;
+                  int n_trigHigh_ly = 0;
 		  for (int k=0; k!=4; k++ ) {
 		    if ( ((IJKtriggerLowPtPhi | IJKtriggerLowPtEta ) & int(pow(2,float(k)))) !=0 ) n_trigLow_ly++  ;
 		  }
@@ -650,29 +607,37 @@ StatusCode RpcLv1RawDataValAlg::fillHistograms()
 		// cma per sector logic
 		rpclv1cmalogicstat -> Fill( float(i_sector), float(i_padId*8 + i_cmaId) );
         				      
-		sprintf(sectorlogic_name_char,"SectorLogic%d",i_sector);sectorlogic_name = sectorlogic_name_char ;
-		sprintf(tower_name_char	   ,"Tower%d"	   ,i_padId );tower_name	   = tower_name_char	   ;	
-		sprintf(cma_name_char	   ,"Cma%d"	   ,i_cmaId );cma_name  	   = cma_name_char	   ;
-		sprintf(ijk_name_char	   ,"ijk%d"	   ,i_ijk   );ijk_name         = ijk_name_char         ;      
+                char sectorlogic_name_char[1000]      ;
+		sprintf(sectorlogic_name_char,"SectorLogic%d",i_sector);
+                std::string sectorlogic_name = sectorlogic_name_char ;
+                char tower_name_char[1000]		;
+		sprintf(tower_name_char	   ,"Tower%d"	   ,i_padId );
+                std::string tower_name	   = tower_name_char	   ;	
+                char cma_name_char[1000]		;
+		sprintf(cma_name_char	   ,"Cma%d"	   ,i_cmaId );
+                std::string cma_name  	   = cma_name_char	   ;
+                char ijk_name_char[1000]              ;
+		sprintf(ijk_name_char	   ,"ijk%d"	   ,i_ijk   );
+                std::string ijk_name         = ijk_name_char         ;      
         	    
-		std::string m_generic_path_RPCLV1cmatimevschcxx	     = m_generic_path_rpclv1monitoring+"/"+sectorlogic_name+"/";
-		m_generic_path_RPCLV1cmatimevschcxx		    += tower_name				     ;
-		m_generic_path_RPCLV1cmatimevschcxx		    += "/rpclv1cosmic_cmatimevsch"		     ;
-		m_generic_path_RPCLV1cmatimevschcxx		    += cma_name 				     ;
+		std::string generic_path_RPCLV1cmatimevschcxx	     = generic_path_rpclv1monitoring+"/"+sectorlogic_name+"/";
+		generic_path_RPCLV1cmatimevschcxx		    += tower_name				     ;
+		generic_path_RPCLV1cmatimevschcxx		    += "/rpclv1cosmic_cmatimevsch"		     ;
+		generic_path_RPCLV1cmatimevschcxx		    += cma_name 				     ;
         	     
-		std::string m_generic_path_RPCLV1cmatimetriggervschcxx = m_generic_path_rpclv1monitoring+"/"+sectorlogic_name+"/";
-		m_generic_path_RPCLV1cmatimetriggervschcxx	       += tower_name				     ;
-		m_generic_path_RPCLV1cmatimetriggervschcxx	       += "/rpclv1cosmic_cmatimetriggervsch"	     ;
-		m_generic_path_RPCLV1cmatimetriggervschcxx	       += cma_name				     ;
+		std::string generic_path_RPCLV1cmatimetriggervschcxx = generic_path_rpclv1monitoring+"/"+sectorlogic_name+"/";
+		generic_path_RPCLV1cmatimetriggervschcxx	       += tower_name				     ;
+		generic_path_RPCLV1cmatimetriggervschcxx	       += "/rpclv1cosmic_cmatimetriggervsch"	     ;
+		generic_path_RPCLV1cmatimetriggervschcxx	       += cma_name				     ;
           
 		// Fill time histograms begin
 		if (m_rpclv1hist ) {	
-		  histo_flag=true;
-		  for (std::vector<std::string>::const_iterator iter=sectorlogicTowerCma_name_list.begin(); iter!=sectorlogicTowerCma_name_list.end(); iter++){
+		  bool histo_flag=true;
+		  for (std::vector<std::string>::const_iterator iter=m_sectorlogicTowerCma_name_list.begin(); iter!=m_sectorlogicTowerCma_name_list.end(); iter++){
 		    if ( (sectorlogic_name+tower_name+cma_name)==*iter){histo_flag=false;}
 		  }
 		  if (histo_flag){
-		    sectorlogicTowerCma_name_list.push_back(sectorlogic_name+tower_name+cma_name);
+		    m_sectorlogicTowerCma_name_list.push_back(sectorlogic_name+tower_name+cma_name);
 		    bookRPCLV1cmatimevschHistograms(sectorlogic_name, tower_name, cma_name);
 		  }
 
@@ -691,13 +656,12 @@ StatusCode RpcLv1RawDataValAlg::fillHistograms()
 		// profiles 
 		if ( m_rpclv1prof )  
 		  { 
-		    shift_ijk = 0;
-		    shift_pad = 1;
-		    if ( (i_sector % 4)==0 || (i_sector % 4)==3 )  {   // Large sector
-		      sec_large=2 ; }
-		    else {
-		      sec_large=1  ;}
+		    int shift_ijk = 0;
+		    int shift_pad = 1;
 
+                    int shift_cm = 0;
+                    std::string cma_name_p;
+                    char cma_name_p_char[1000]		;
 		    if ( i_cmaId==1 || i_cmaId==3 || i_cmaId==5 || i_cmaId==7 ) {
 		      sprintf(cma_name_p_char , "Cma%d_%d" , i_cmaId-1, i_cmaId);  cma_name_p = cma_name_p_char	 ;
 		      shift_cm = 32 ;
@@ -706,6 +670,7 @@ StatusCode RpcLv1RawDataValAlg::fillHistograms()
 		      sprintf(cma_name_p_char  ,"Cma%d_%d"  ,i_cmaId, i_cmaId+1);  cma_name_p = cma_name_p_char	 ;
 		      shift_cm = 0; }
 
+                    std::string ijk_name_p;
 		    if ( i_ijk==2 || i_ijk==3 ) {
 		      ijk_name_p = "ijk2_3" ;
 		      shift_pad = 2;
@@ -720,12 +685,12 @@ StatusCode RpcLv1RawDataValAlg::fillHistograms()
 
 		    if ( i_ijk==3  || i_ijk==5 ) { shift_ijk = 32 ; }
 
-		    histo_flag=true;
-		    for (std::vector<std::string>::const_iterator iter=profile_list.begin(); iter!=profile_list.end(); iter++){
+		    bool histo_flag=true;
+		    for (std::vector<std::string>::const_iterator iter=m_profile_list.begin(); iter!=m_profile_list.end(); iter++){
 		      if ( (sectorlogic_name+cma_name_p+ijk_name_p)==*iter){histo_flag=false;}
 		    }
 		    if (histo_flag) {
-		      profile_list.push_back(sectorlogic_name + cma_name_p + ijk_name_p);
+		      m_profile_list.push_back(sectorlogic_name + cma_name_p + ijk_name_p);
 		      //bookRPCLV1ProfilesHistograms( i_sector, sectorlogic_name, i_cmaId, cma_name_p, i_ijk, ijk_name_p ); // compilation warning to i_cmaId
 		      bookRPCLV1ProfilesHistograms( i_sector, sectorlogic_name, cma_name_p, i_ijk, ijk_name_p );
 		    }
@@ -780,6 +745,7 @@ if ( m_doCoolDB ) {
  	      std::vector<int>  	 RpcStrip = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper,prdcoll_id, 0);
  	      int strip_dbindex        = (RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper,prdcoll_id, 0)).at(16);// cool strip profile
 	        	  if ( m_doCoolDB ) {
+                            TH1* rpcCool_StripProfile = nullptr;
 	        	    if(cmaId==0||cmaId==2||cmaId==4||cmaId==6)sc = rpcCoolDb.getHist( rpcCool_StripProfile, sector_dphi_layer+"_ProfileDataCMeven" ) ;
 	        	    if(cmaId==1||cmaId==3||cmaId==5||cmaId==7)sc = rpcCoolDb.getHist( rpcCool_StripProfile, sector_dphi_layer+"_ProfileDataCModd"  ) ;
 	        	    if(sc.isFailure() ) ATH_MSG_WARNING (  "couldn't get " << sector_dphi_layer << "_ProfileDataCMeven or odd" );
@@ -842,11 +808,11 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
   
   if( m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0Raw  || m_environment ==  AthenaMonManager::online) {     
     //declare a group of histograms
-    std::string m_generic_path_rpclv1monitoring = "Muon/MuonRawDataMonitoring/RPCLV1";
+    std::string generic_path_rpclv1monitoring = "Muon/MuonRawDataMonitoring/RPCLV1";
   
-    MonGroup rpclv1prd_shift( this, m_generic_path_rpclv1monitoring +"/Overview", run, ATTRIB_UNMANAGED );
-    MonGroup rpclv1_shift_dqmf( this, m_generic_path_rpclv1monitoring + "/GLOBAL", run, ATTRIB_UNMANAGED )  ;
-    MonGroup rpcCoolDb( this, m_generic_path_rpclv1monitoring+"/CoolDB", run, ATTRIB_UNMANAGED )         ;
+    MonGroup rpclv1prd_shift( this, generic_path_rpclv1monitoring +"/Overview", run, ATTRIB_UNMANAGED );
+    MonGroup rpclv1_shift_dqmf( this, generic_path_rpclv1monitoring + "/GLOBAL", run, ATTRIB_UNMANAGED )  ;
+    MonGroup rpcCoolDb( this, generic_path_rpclv1monitoring+"/CoolDB", run, ATTRIB_UNMANAGED )         ;
      
     if(newEventsBlock){}
     if(newLumiBlock){}
@@ -857,10 +823,10 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
        
         
 	// Trigger Layers vs SL
-	std::string m_rpclv1_TriggerLy_vs_SL_title      = "TriggerLayer_vs_SectorLogic"       ;
-	const char* m_rpclv1_TriggerLy_vs_SL_title_char = m_rpclv1_TriggerLy_vs_SL_title.c_str();
+	std::string rpclv1_TriggerLy_vs_SL_title      = "TriggerLayer_vs_SectorLogic"       ;
+	const char* rpclv1_TriggerLy_vs_SL_title_char = rpclv1_TriggerLy_vs_SL_title.c_str();
 	
-	TH2* rpclv1_TriggerLy_vs_SL = new TH2I(m_rpclv1_TriggerLy_vs_SL_title_char, m_rpclv1_TriggerLy_vs_SL_title_char, 64, 0, 64, 32, 0, 32);
+	TH2* rpclv1_TriggerLy_vs_SL = new TH2I(rpclv1_TriggerLy_vs_SL_title_char, rpclv1_TriggerLy_vs_SL_title_char, 64, 0, 64, 32, 0, 32);
 	sc = rpclv1prd_shift.regHist( rpclv1_TriggerLy_vs_SL ) ;
 	if(sc.isFailure())
 	  { ATH_MSG_FATAL ( "rpclv1_TriggerLy_vs_SL Failed to register histogram " );       
@@ -871,7 +837,7 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	rpclv1_TriggerLy_vs_SL->SetOption("COLZ");
 	
 	 
-	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1_TriggerLy_vs_SL << m_rpclv1_TriggerLy_vs_SL_title.c_str() );
+	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1_TriggerLy_vs_SL << rpclv1_TriggerLy_vs_SL_title.c_str() );
 	//ATH_MSG_DEBUG ( "SHIFT : " << shift );
 	ATH_MSG_DEBUG ( "RUN : " << run ); 	     	
 	ATH_MSG_DEBUG ( "Booked rpclv1_TriggerLy_vs_SL successfully" ); 
@@ -900,9 +866,9 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	// trigger conditions per CM
 	// n bin x = 8 cm * 7 pad * 64 sector logic 
 	int n_bin_trigCm = 8 * 7 * 64;
-	std::string m_rpclv1_TriggerCond_vs_CM_title      = "Trigger_Condition_vs_CM"                ;
-	const char* m_rpclv1_TriggerCond_vs_CM_title_char = m_rpclv1_TriggerCond_vs_CM_title.c_str();
-	TH2* rpclv1_TriggerCond_vs_CM = new TH2I(m_rpclv1_TriggerCond_vs_CM_title_char,	m_rpclv1_TriggerCond_vs_CM_title_char,
+	std::string rpclv1_TriggerCond_vs_CM_title      = "Trigger_Condition_vs_CM"                ;
+	const char* rpclv1_TriggerCond_vs_CM_title_char = rpclv1_TriggerCond_vs_CM_title.c_str();
+	TH2* rpclv1_TriggerCond_vs_CM = new TH2I(rpclv1_TriggerCond_vs_CM_title_char,	rpclv1_TriggerCond_vs_CM_title_char,
 						 n_bin_trigCm , 1, n_bin_trigCm+1, 16, 0, 16 );
         sc = rpclv1prd_shift.regHist( rpclv1_TriggerCond_vs_CM );
 	
@@ -943,9 +909,9 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	int n_bin_logOR = 64 ;
 	
 	for (std::vector<std::string>::const_iterator it=LyNameVec.begin(); it!=LyNameVec.end(); it++ ) {
-	  std::string m_rpclv1_logicalOR_title      = "PhiLogicalOR_" + *it           ;
-	  const char* m_rpclv1_logicalOR_title_char = m_rpclv1_logicalOR_title.c_str();
-          TH2* rpclv1_logicalOR = new TH2I( m_rpclv1_logicalOR_title_char, m_rpclv1_logicalOR_title_char, 
+	  std::string rpclv1_logicalOR_title      = "PhiLogicalOR_" + *it           ;
+	  const char* rpclv1_logicalOR_title_char = rpclv1_logicalOR_title.c_str();
+          TH2* rpclv1_logicalOR = new TH2I( rpclv1_logicalOR_title_char, rpclv1_logicalOR_title_char, 
 					    n_bin_logOR, 0, n_bin_logOR, 128, 0, 128 );
 	  sc = rpclv1prd_shift.regHist( rpclv1_logicalOR );
 	  
@@ -967,10 +933,10 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 
 	// SHIFT histograms
 	// Trigger conditions vs SL
-	std::string m_rpclv1_TriggerCond_vs_SL_title      = "TriggerCondition_vs_SectorLogic"       ;
-	const char* m_rpclv1_TriggerCond_vs_SL_title_char = m_rpclv1_TriggerCond_vs_SL_title.c_str();
+	std::string rpclv1_TriggerCond_vs_SL_title      = "TriggerCondition_vs_SectorLogic"       ;
+	const char* rpclv1_TriggerCond_vs_SL_title_char = rpclv1_TriggerCond_vs_SL_title.c_str();
 	
-	TH2* rpclv1_TriggerCond_vs_SL = new TH2I(m_rpclv1_TriggerCond_vs_SL_title_char, m_rpclv1_TriggerCond_vs_SL_title_char, 64, 0, 64, 7, 1, 8);
+	TH2* rpclv1_TriggerCond_vs_SL = new TH2I(rpclv1_TriggerCond_vs_SL_title_char, rpclv1_TriggerCond_vs_SL_title_char, 64, 0, 64, 7, 1, 8);
 	sc = rpclv1_shift_dqmf.regHist( rpclv1_TriggerCond_vs_SL ) ;
 	if(sc.isFailure()) {
 	  ATH_MSG_FATAL ( "rpclv1_TriggerCond_vs_SL Failed to register histogram " );       
@@ -983,7 +949,7 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	
 	
 	
-	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1_TriggerCond_vs_SL << m_rpclv1_TriggerCond_vs_SL_title.c_str() );
+	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1_TriggerCond_vs_SL << rpclv1_TriggerCond_vs_SL_title.c_str() );
 	//ATH_MSG_DEBUG ( "SHIFT : " << shift );
 	ATH_MSG_DEBUG ( "RUN : " << run ); 	     	
 	ATH_MSG_DEBUG ( "Booked rpclv1_TriggerCond_vs_SL successfully" ); 
@@ -998,10 +964,10 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	rpclv1_TriggerCond_vs_SL->GetYaxis()->SetBinLabel(7,"Lpt+2/2Hpt");
 	
 	// BCid (ijk==6) vs SL
-	std::string m_rpclv1_BCid_vs_SL_title      = "rpclv1_BCid_vs_SectorLogic"     ;
-	const char* m_rpclv1_BCid_vs_SL_title_char = m_rpclv1_BCid_vs_SL_title.c_str();
+	std::string rpclv1_BCid_vs_SL_title      = "rpclv1_BCid_vs_SectorLogic"     ;
+	const char* rpclv1_BCid_vs_SL_title_char = rpclv1_BCid_vs_SL_title.c_str();
 	
-	TH2* rpclv1_BCid_vs_SL = new TH2I ( m_rpclv1_BCid_vs_SL_title_char, m_rpclv1_BCid_vs_SL_title_char, 64, 0, 64, 8*2, 0, 16) ;
+	TH2* rpclv1_BCid_vs_SL = new TH2I ( rpclv1_BCid_vs_SL_title_char, rpclv1_BCid_vs_SL_title_char, 64, 0, 64, 8*2, 0, 16) ;
 	sc = rpclv1_shift_dqmf.regHist( rpclv1_BCid_vs_SL );
 	if(sc.isFailure())
 	  { ATH_MSG_FATAL ( "rpclv1_BCid_vs_SectorLogic Failed to register histogram " );       
@@ -1011,16 +977,16 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	rpclv1_BCid_vs_SL->GetYaxis()->SetTitle("BCId+HPtTrigger*8 for trigger hits") ;
 	rpclv1_BCid_vs_SL->SetOption("COLZ");
 
-	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1_BCid_vs_SL << m_rpclv1_BCid_vs_SL_title.c_str() );
+	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1_BCid_vs_SL << rpclv1_BCid_vs_SL_title.c_str() );
 	//ATH_MSG_DEBUG ( "SHIFT : " << shift );
 	ATH_MSG_DEBUG ( "RUN : " << run ); 	     	
 	ATH_MSG_DEBUG ( "Booked rpclv1_BCid_vs_SectorLogic successfully" ); 
 		
 	// LPt BCid (ijk==6) vs SL
-	std::string m_rpclv1_LPt_BCid_vs_SL_title      = "rpclv1_LPt_BCid_vs_SectorLogic"     ;
-	const char* m_rpclv1_LPt_BCid_vs_SL_title_char = m_rpclv1_LPt_BCid_vs_SL_title.c_str();
+	std::string rpclv1_LPt_BCid_vs_SL_title      = "rpclv1_LPt_BCid_vs_SectorLogic"     ;
+	const char* rpclv1_LPt_BCid_vs_SL_title_char = rpclv1_LPt_BCid_vs_SL_title.c_str();
 	
-	TH2* rpclv1_LPt_BCid_vs_SL = new TH2I ( m_rpclv1_LPt_BCid_vs_SL_title_char, m_rpclv1_LPt_BCid_vs_SL_title_char, 64, 0, 64, 8, 0, 8) ;
+	TH2* rpclv1_LPt_BCid_vs_SL = new TH2I ( rpclv1_LPt_BCid_vs_SL_title_char, rpclv1_LPt_BCid_vs_SL_title_char, 64, 0, 64, 8, 0, 8) ;
 	sc = rpclv1_shift_dqmf.regHist( rpclv1_LPt_BCid_vs_SL );
 	if(sc.isFailure())
 	  { ATH_MSG_FATAL ( "rpclv1_BCid_vs_SectorLogic Failed to register histogram " );       
@@ -1030,16 +996,16 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	rpclv1_LPt_BCid_vs_SL->GetYaxis()->SetTitle("Trigger hits BCid") ;
 	rpclv1_LPt_BCid_vs_SL->SetOption("COLZ");
 
-	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1_LPt_BCid_vs_SL << m_rpclv1_LPt_BCid_vs_SL_title.c_str() );
+	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1_LPt_BCid_vs_SL << rpclv1_LPt_BCid_vs_SL_title.c_str() );
 	//ATH_MSG_DEBUG ( "SHIFT : " << shift );
 	ATH_MSG_DEBUG ( "RUN : " << run ); 	     	
 	ATH_MSG_DEBUG ( "Booked rpclv1_BCid_vs_SectorLogic successfully" ); 
 		
 	// BCid (ijk==6) vs SL
-	std::string m_rpclv1_HPt_BCid_vs_SL_title      = "rpclv1_HPt_BCid_vs_SectorLogic"     ;
-	const char* m_rpclv1_HPt_BCid_vs_SL_title_char = m_rpclv1_HPt_BCid_vs_SL_title.c_str();
+	std::string rpclv1_HPt_BCid_vs_SL_title      = "rpclv1_HPt_BCid_vs_SectorLogic"     ;
+	const char* rpclv1_HPt_BCid_vs_SL_title_char = rpclv1_HPt_BCid_vs_SL_title.c_str();
 	
-	TH2* rpclv1_HPt_BCid_vs_SL = new TH2I ( m_rpclv1_HPt_BCid_vs_SL_title_char, m_rpclv1_HPt_BCid_vs_SL_title_char, 64, 0, 64, 8, 0, 8) ;
+	TH2* rpclv1_HPt_BCid_vs_SL = new TH2I ( rpclv1_HPt_BCid_vs_SL_title_char, rpclv1_HPt_BCid_vs_SL_title_char, 64, 0, 64, 8, 0, 8) ;
 	sc = rpclv1_shift_dqmf.regHist( rpclv1_HPt_BCid_vs_SL );
 	if(sc.isFailure())
 	  { ATH_MSG_FATAL ( "rpclv1_BCid_vs_SectorLogic Failed to register histogram " );       
@@ -1049,7 +1015,7 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	rpclv1_HPt_BCid_vs_SL->GetYaxis()->SetTitle("Trigger hits BCid") ;
 	rpclv1_HPt_BCid_vs_SL->SetOption("COLZ");
 
-	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1_HPt_BCid_vs_SL << m_rpclv1_HPt_BCid_vs_SL_title.c_str() );
+	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1_HPt_BCid_vs_SL << rpclv1_HPt_BCid_vs_SL_title.c_str() );
 	//ATH_MSG_DEBUG ( "SHIFT : " << shift );
 	ATH_MSG_DEBUG ( "RUN : " << run ); 	     	
 	ATH_MSG_DEBUG ( "Booked rpclv1_BCid_vs_SectorLogic successfully" ); 
@@ -1059,10 +1025,10 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
      
       
 	//hits per event
-	std::string m_rpclv1_hitperEvent_title = "rpclv1_hitperEvent";      
-	const char* m_rpclv1_hitperEvent_title_char = m_rpclv1_hitperEvent_title.c_str();
+	std::string rpclv1_hitperEvent_title = "rpclv1_hitperEvent";      
+	const char* rpclv1_hitperEvent_title_char = rpclv1_hitperEvent_title.c_str();
        
-	TH1 *rpclv1_hitperEvent=new TH1I(m_rpclv1_hitperEvent_title_char,m_rpclv1_hitperEvent_title_char, NMAXHIT,0.,NMAXHIT); 				
+	TH1 *rpclv1_hitperEvent=new TH1I(rpclv1_hitperEvent_title_char,rpclv1_hitperEvent_title_char, NMAXHIT,0.,NMAXHIT); 				
 	sc=rpclv1prd_shift.regHist(rpclv1_hitperEvent) ;  
 	if(sc.isFailure())
 	  { ATH_MSG_FATAL ( "rpclv1_hitperEvent Failed to register histogram " );       
@@ -1078,11 +1044,11 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	ATH_MSG_DEBUG ( "Booked rpclv1_hitperEvent successfully" ); 
       
 	//lowpt ETA trigger hits stat
-	std::string m_generic_path_rpclv1triggerlowpt_etastat = m_generic_path_rpclv1monitoring+"/Overview";
-	std::string m_rpclv1triggerlowpt_etastat_title = "Trigger_Hits_LowPt_eta_Stat";      
-	const char* m_rpclv1triggerlowpt_etastat_title_char = m_rpclv1triggerlowpt_etastat_title.c_str();
+	std::string generic_path_rpclv1triggerlowpt_etastat = generic_path_rpclv1monitoring+"/Overview";
+	std::string rpclv1triggerlowpt_etastat_title = "Trigger_Hits_LowPt_eta_Stat";      
+	const char* rpclv1triggerlowpt_etastat_title_char = rpclv1triggerlowpt_etastat_title.c_str();
        
-	TH1 *rpclv1triggerlowpt_etastat=new TH1I(m_rpclv1triggerlowpt_etastat_title_char,m_rpclv1triggerlowpt_etastat_title_char, 15, 0, 15); 				
+	TH1 *rpclv1triggerlowpt_etastat=new TH1I(rpclv1triggerlowpt_etastat_title_char,rpclv1triggerlowpt_etastat_title_char, 15, 0, 15); 				
 	sc=rpclv1prd_shift.regHist(rpclv1triggerlowpt_etastat) ;  
 	if(sc.isFailure())
 	  { ATH_MSG_FATAL ( "rpclv1triggerlowpt_etastat Failed to register histogram " );       
@@ -1092,7 +1058,7 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	rpclv1triggerlowpt_etastat->GetXaxis()->SetTitle("LowPt eta trigger hits / event");
 	rpclv1triggerlowpt_etastat->GetYaxis()->SetTitle("Counts");
 	 
-	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1triggerlowpt_etastat << m_generic_path_rpclv1triggerlowpt_etastat.c_str() );
+	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1triggerlowpt_etastat << generic_path_rpclv1triggerlowpt_etastat.c_str() );
 	//ATH_MSG_DEBUG ( "SHIFT : " << shift );
 	ATH_MSG_DEBUG ( "RUN : " << run ); 	     	
 	ATH_MSG_DEBUG ( "Booked rpclv1triggerlowpt_etastat successfully" ); 	
@@ -1100,11 +1066,11 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	////////////////////////////////////////////// 
  
 	//lowpt PHI trigger hits stat
-	std::string m_generic_path_rpclv1triggerlowpt_phistat = m_generic_path_rpclv1monitoring+"/Overview";
-	std::string m_rpclv1triggerlowpt_phistat_title = "Trigger_Hits_LowPt_phi_Stat";      
-	const char* m_rpclv1triggerlowpt_phistat_title_char = m_rpclv1triggerlowpt_phistat_title.c_str();
+	std::string generic_path_rpclv1triggerlowpt_phistat = generic_path_rpclv1monitoring+"/Overview";
+	std::string rpclv1triggerlowpt_phistat_title = "Trigger_Hits_LowPt_phi_Stat";      
+	const char* rpclv1triggerlowpt_phistat_title_char = rpclv1triggerlowpt_phistat_title.c_str();
        
-	TH1 *rpclv1triggerlowpt_phistat=new TH1I(m_rpclv1triggerlowpt_phistat_title_char,m_rpclv1triggerlowpt_phistat_title_char, 15, 0, 15); 				
+	TH1 *rpclv1triggerlowpt_phistat=new TH1I(rpclv1triggerlowpt_phistat_title_char,rpclv1triggerlowpt_phistat_title_char, 15, 0, 15); 				
 	sc=rpclv1prd_shift.regHist(rpclv1triggerlowpt_phistat) ;  
 	if(sc.isFailure())
 	  { ATH_MSG_FATAL ( "rpclv1triggerlowpt_phistat Failed to register histogram " );       
@@ -1114,7 +1080,7 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	rpclv1triggerlowpt_phistat->GetXaxis()->SetTitle("LowPt phi trigger hits / event");
 	rpclv1triggerlowpt_phistat->GetYaxis()->SetTitle("Counts");
 	 
-	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1triggerlowpt_phistat << m_generic_path_rpclv1triggerlowpt_phistat.c_str() );
+	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1triggerlowpt_phistat << generic_path_rpclv1triggerlowpt_phistat.c_str() );
 	//ATH_MSG_DEBUG ( "SHIFT : " << shift );
 	ATH_MSG_DEBUG ( "RUN : " << run ); 	     	
 	ATH_MSG_DEBUG ( "Booked rpclv1triggerlowpt_phistat successfully" ); 	
@@ -1122,11 +1088,11 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	//////////////////////////////////////////////
       
 	//lowpt ETA-PHI trigger hits stat
-	std::string m_generic_path_rpclv1triggerlowpt_etaphistat = m_generic_path_rpclv1monitoring+"/Overview";
-	std::string m_rpclv1triggerlowpt_etaphistat_title = "Trigger_Hits_Lowpt_etaphi_Stat";      
-	const char* m_rpclv1triggerlowpt_etaphistat_title_char = m_rpclv1triggerlowpt_etaphistat_title.c_str();
+	std::string generic_path_rpclv1triggerlowpt_etaphistat = generic_path_rpclv1monitoring+"/Overview";
+	std::string rpclv1triggerlowpt_etaphistat_title = "Trigger_Hits_Lowpt_etaphi_Stat";      
+	const char* rpclv1triggerlowpt_etaphistat_title_char = rpclv1triggerlowpt_etaphistat_title.c_str();
        
-	TH2 *rpclv1triggerlowpt_etaphistat=new TH2I(m_rpclv1triggerlowpt_etaphistat_title_char,m_rpclv1triggerlowpt_etaphistat_title_char, 15, 0, 15,15,0,15); 				
+	TH2 *rpclv1triggerlowpt_etaphistat=new TH2I(rpclv1triggerlowpt_etaphistat_title_char,rpclv1triggerlowpt_etaphistat_title_char, 15, 0, 15,15,0,15); 				
 	sc=rpclv1prd_shift.regHist(rpclv1triggerlowpt_etaphistat) ;  
 	if(sc.isFailure())
 	  { ATH_MSG_FATAL ( "rpclv1triggerlowpt_etaphistat Failed to register histogram " );       
@@ -1136,7 +1102,7 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	rpclv1triggerlowpt_etaphistat->GetXaxis()->SetTitle("LowPt phi trigger hits / event");
 	rpclv1triggerlowpt_etaphistat->GetYaxis()->SetTitle("LowPt eta trigger hits / event");
 	 
-	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1triggerlowpt_etaphistat << m_generic_path_rpclv1triggerlowpt_etaphistat.c_str() );
+	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1triggerlowpt_etaphistat << generic_path_rpclv1triggerlowpt_etaphistat.c_str() );
 	//ATH_MSG_DEBUG ( "SHIFT : " << shift );
 	ATH_MSG_DEBUG ( "RUN : " << run ); 	     	
 	ATH_MSG_DEBUG ( "Booked rpclv1triggerlowpt_etaphistat successfully" ); 	
@@ -1145,10 +1111,10 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	////////////////////////////////////////////// 
            
 	//highpt ETA trigger hits stat
-	std::string m_generic_path_rpclv1triggerhighpt_etastat = m_generic_path_rpclv1monitoring+"/Overview";
-	std::string m_rpclv1triggerhighpt_etastat_title = "Trigger_Hits_HighPt_eta_Stat";
-	const char* m_rpclv1triggerhighpt_etastat_title_char = m_rpclv1triggerhighpt_etastat_title.c_str();
-	TH1 *rpclv1triggerhighpt_etastat=new TH1I(m_rpclv1triggerhighpt_etastat_title_char,m_rpclv1triggerhighpt_etastat_title_char, 15, 0, 15);
+	std::string generic_path_rpclv1triggerhighpt_etastat = generic_path_rpclv1monitoring+"/Overview";
+	std::string rpclv1triggerhighpt_etastat_title = "Trigger_Hits_HighPt_eta_Stat";
+	const char* rpclv1triggerhighpt_etastat_title_char = rpclv1triggerhighpt_etastat_title.c_str();
+	TH1 *rpclv1triggerhighpt_etastat=new TH1I(rpclv1triggerhighpt_etastat_title_char,rpclv1triggerhighpt_etastat_title_char, 15, 0, 15);
 	sc=rpclv1prd_shift.regHist(rpclv1triggerhighpt_etastat) ;
 	if(sc.isFailure())
 	  { ATH_MSG_FATAL ( "rpclv1triggerhighpt_etastat Failed to register histogram " );
@@ -1158,7 +1124,7 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	rpclv1triggerhighpt_etastat->GetXaxis()->SetTitle("HighPt eta trigger hits / event");
 	rpclv1triggerhighpt_etastat->GetYaxis()->SetTitle("Counts");
 	 
-	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1triggerhighpt_etastat << m_generic_path_rpclv1triggerhighpt_etastat.c_str() );
+	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1triggerhighpt_etastat << generic_path_rpclv1triggerhighpt_etastat.c_str() );
 	//ATH_MSG_DEBUG ( "SHIFT : " << shift );
 	ATH_MSG_DEBUG ( "RUN : " << run );
 	ATH_MSG_DEBUG ( "Booked rpclv1triggertimehighpt_etastat successfully" );
@@ -1166,10 +1132,10 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	//////////////////////////////////////////////
 
 	//highpt PHI trigger hits stat
-	std::string m_generic_path_rpclv1triggerhighpt_phistat = m_generic_path_rpclv1monitoring+"/Overview";
-	std::string m_rpclv1triggerhighpt_phistat_title = "Trigger_Hits_HighPt_phi_Stat";
-	const char* m_rpclv1triggerhighpt_phistat_title_char = m_rpclv1triggerhighpt_phistat_title.c_str();
-	TH1 *rpclv1triggerhighpt_phistat=new TH1I(m_rpclv1triggerhighpt_phistat_title_char,m_rpclv1triggerhighpt_phistat_title_char, 15, 0, 15);
+	std::string generic_path_rpclv1triggerhighpt_phistat = generic_path_rpclv1monitoring+"/Overview";
+	std::string rpclv1triggerhighpt_phistat_title = "Trigger_Hits_HighPt_phi_Stat";
+	const char* rpclv1triggerhighpt_phistat_title_char = rpclv1triggerhighpt_phistat_title.c_str();
+	TH1 *rpclv1triggerhighpt_phistat=new TH1I(rpclv1triggerhighpt_phistat_title_char,rpclv1triggerhighpt_phistat_title_char, 15, 0, 15);
 	sc=rpclv1prd_shift.regHist(rpclv1triggerhighpt_phistat) ;
 	if(sc.isFailure())
 	  { ATH_MSG_FATAL ( "rpclv1triggerhighpt_phistat Failed to register histogram " );
@@ -1179,7 +1145,7 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	rpclv1triggerhighpt_phistat->GetXaxis()->SetTitle("HighPt phi trigger hits / event");
 	rpclv1triggerhighpt_phistat->GetYaxis()->SetTitle("Counts");
 	 
-	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1triggerhighpt_phistat << m_generic_path_rpclv1triggerhighpt_phistat.c_str() );
+	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1triggerhighpt_phistat << generic_path_rpclv1triggerhighpt_phistat.c_str() );
 	//ATH_MSG_DEBUG ( "SHIFT : " << shift );
 	ATH_MSG_DEBUG ( "RUN : " << run );
 	ATH_MSG_DEBUG ( "Booked rpclv1triggertimehighpt_phistat successfully" ); 
@@ -1187,10 +1153,10 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	//////////////////////////////////////////////
       
 	//highpt ETA - PHI trigger hits stat
-	std::string m_generic_path_rpclv1triggerhighpt_etaphistat = m_generic_path_rpclv1monitoring+"/Overview";
-	std::string m_rpclv1triggerhighpt_etaphistat_title = "Trigger_Hits_HighPt_etaphi_Stat";    
-	const char* m_rpclv1triggerhighpt_etaphistat_title_char = m_rpclv1triggerhighpt_etaphistat_title.c_str();     
-	TH2 *rpclv1triggerhighpt_etaphistat=new TH2I(m_rpclv1triggerhighpt_etaphistat_title_char,m_rpclv1triggerhighpt_etaphistat_title_char, 15, 0, 15,15, 0, 15);
+	std::string generic_path_rpclv1triggerhighpt_etaphistat = generic_path_rpclv1monitoring+"/Overview";
+	std::string rpclv1triggerhighpt_etaphistat_title = "Trigger_Hits_HighPt_etaphi_Stat";    
+	const char* rpclv1triggerhighpt_etaphistat_title_char = rpclv1triggerhighpt_etaphistat_title.c_str();     
+	TH2 *rpclv1triggerhighpt_etaphistat=new TH2I(rpclv1triggerhighpt_etaphistat_title_char,rpclv1triggerhighpt_etaphistat_title_char, 15, 0, 15,15, 0, 15);
 	sc=rpclv1prd_shift.regHist(rpclv1triggerhighpt_etaphistat) ;  
 	if(sc.isFailure())
 	  { ATH_MSG_FATAL ( "rpclv1triggerhighpt_etaphistat Failed to register histogram " );       
@@ -1200,7 +1166,7 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	rpclv1triggerhighpt_etaphistat->GetXaxis()->SetTitle("HighPt phi trigger hits / event");
 	rpclv1triggerhighpt_etaphistat->GetYaxis()->SetTitle("HighPt eta trigger hits / event");
 	 
-	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1triggerhighpt_etaphistat << m_generic_path_rpclv1triggerhighpt_etaphistat.c_str() );
+	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1triggerhighpt_etaphistat << generic_path_rpclv1triggerhighpt_etaphistat.c_str() );
 	//ATH_MSG_DEBUG ( "SHIFT : " << shift );
 	ATH_MSG_DEBUG ( "RUN : " << run ); 	     	
 	ATH_MSG_DEBUG ( "Booked rpclv1triggertimehighpt_etaphistat successfully" ); 	
@@ -1208,10 +1174,10 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	////////////////////////////////////////////// 
   
 	//sector logic statistics
-	std::string m_generic_path_rpclv1sectorlogicstat = m_generic_path_rpclv1monitoring+"/Overview";
-	std::string m_rpclv1sectorlogicstat_title = "SLChannel_per_SectorLogic";    
-	const char* m_rpclv1sectorlogicstat_title_char = m_rpclv1sectorlogicstat_title.c_str ();     
-	TH1 *rpclv1sectorlogicstat=new TH1I(m_rpclv1sectorlogicstat_title_char,m_rpclv1sectorlogicstat_title_char, 64, 0, 64); 
+	std::string generic_path_rpclv1sectorlogicstat = generic_path_rpclv1monitoring+"/Overview";
+	std::string rpclv1sectorlogicstat_title = "SLChannel_per_SectorLogic";    
+	const char* rpclv1sectorlogicstat_title_char = rpclv1sectorlogicstat_title.c_str ();     
+	TH1 *rpclv1sectorlogicstat=new TH1I(rpclv1sectorlogicstat_title_char,rpclv1sectorlogicstat_title_char, 64, 0, 64); 
 	sc=rpclv1prd_shift.regHist(rpclv1sectorlogicstat) ;  
 	if(sc.isFailure())
 	  { ATH_MSG_FATAL ( "rpclv1sectorlogicstat Failed to register histogram " );       
@@ -1221,7 +1187,7 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	rpclv1sectorlogicstat->GetXaxis()->SetTitle("SectorLogic");
 	rpclv1sectorlogicstat->GetYaxis()->SetTitle("Counts/Sector Logic "); 
 	 
-	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1sectorlogicstat << m_generic_path_rpclv1sectorlogicstat.c_str() );
+	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1sectorlogicstat << generic_path_rpclv1sectorlogicstat.c_str() );
 	//ATH_MSG_DEBUG ( "SHIFT : " << shift );
 	ATH_MSG_DEBUG ( "RUN : " << run ); 	     	
 	ATH_MSG_DEBUG ( "Booked rpclv1sectorlogicstat successfully" ); 	
@@ -1229,10 +1195,10 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	////////////////////////////////////////////// 
 
 	//tower per sector logic statistics
-	std::string m_generic_path_rpclv1towervslogicstat = m_generic_path_rpclv1monitoring+"/Overview";
-	std::string m_rpclv1towervslogicstat_title = "PadChannel_per_SectorLogic";    
-	const char* m_rpclv1towervslogicstat_title_char = m_rpclv1towervslogicstat_title.c_str ();     
-	TH2 *rpclv1towervslogicstat=new TH2I(m_rpclv1towervslogicstat_title_char,m_rpclv1towervslogicstat_title_char, 64, 0, 64, 8, 0, 8); 
+	std::string generic_path_rpclv1towervslogicstat = generic_path_rpclv1monitoring+"/Overview";
+	std::string rpclv1towervslogicstat_title = "PadChannel_per_SectorLogic";    
+	const char* rpclv1towervslogicstat_title_char = rpclv1towervslogicstat_title.c_str ();     
+	TH2 *rpclv1towervslogicstat=new TH2I(rpclv1towervslogicstat_title_char,rpclv1towervslogicstat_title_char, 64, 0, 64, 8, 0, 8); 
 	sc=rpclv1prd_shift.regHist(rpclv1towervslogicstat) ;  
 	if(sc.isFailure())
 	  { ATH_MSG_FATAL ( "rpclv1towervslogicstat Failed to register histogram " );       
@@ -1243,7 +1209,7 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	rpclv1towervslogicstat->GetXaxis()->SetTitle("SectorLogic");
 	rpclv1towervslogicstat->GetYaxis()->SetTitle("Pad");
 	 
-	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1towervslogicstat << m_generic_path_rpclv1towervslogicstat.c_str() );
+	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1towervslogicstat << generic_path_rpclv1towervslogicstat.c_str() );
 	//ATH_MSG_DEBUG ( "SHIFT : " << shift );
 	ATH_MSG_DEBUG ( "RUN : " << run ); 	     	
 	ATH_MSG_DEBUG ( "Booked rpclv1towervslogicstat successfully" ); 	
@@ -1251,10 +1217,10 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	////////////////////////////////////////////// 
     
 	// cma channel per sector logic stat
-	std::string m_generic_path_rpclv1cmalogicstat = m_generic_path_rpclv1monitoring+"/Overview";
-	std::string m_rpclv1cmalogicstat_title = "CMChannel_per_SectorLogic";    
-	const char* m_rpclv1cmalogicstat_title_char = m_rpclv1cmalogicstat_title.c_str ();     
-	TH2 *rpclv1cmalogicstat=new TH2I(m_rpclv1cmalogicstat_title_char,m_rpclv1cmalogicstat_title_char, 64, 0, 64, 8*8, 0, 8*8); 
+	std::string generic_path_rpclv1cmalogicstat = generic_path_rpclv1monitoring+"/Overview";
+	std::string rpclv1cmalogicstat_title = "CMChannel_per_SectorLogic";    
+	const char* rpclv1cmalogicstat_title_char = rpclv1cmalogicstat_title.c_str ();     
+	TH2 *rpclv1cmalogicstat=new TH2I(rpclv1cmalogicstat_title_char,rpclv1cmalogicstat_title_char, 64, 0, 64, 8*8, 0, 8*8); 
 	sc=rpclv1prd_shift.regHist(rpclv1cmalogicstat) ;  
 	if(sc.isFailure())
 	  { ATH_MSG_FATAL ( "rpclv1cmalogicstat Failed to register histogram " );       
@@ -1265,7 +1231,7 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	rpclv1cmalogicstat->GetXaxis()->SetTitle("SectorLogic");
 	rpclv1cmalogicstat->GetYaxis()->SetTitle("Pad*8+Cma");
 	 
-	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1cmalogicstat << m_generic_path_rpclv1cmalogicstat.c_str() );
+	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1cmalogicstat << generic_path_rpclv1cmalogicstat.c_str() );
 	//ATH_MSG_DEBUG ( "SHIFT : " << shift );
 	ATH_MSG_DEBUG ( "RUN : " << run ); 	     	
 	ATH_MSG_DEBUG ( "Booked rpclv1cmalogicstat successfully" ); 	
@@ -1273,10 +1239,10 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	////////////////////////////////////////////// 
       
 	//ROI distribution Low Pt
-	std::string m_generic_path_rpclv1ROI_LowPt = m_generic_path_rpclv1monitoring+"/Overview";
-	std::string m_rpclv1ROI_LowPt_title = "ROI_LowPt_distribution";
-	const char* m_rpclv1ROI_LowPt_title_char = m_rpclv1ROI_LowPt_title.c_str();
-	TH2 * rpclv1ROI_LowPt = new TH2I(m_rpclv1ROI_LowPt_title_char, m_rpclv1ROI_LowPt_title_char, 64, 0, 64, 28, 0, 28); 
+	std::string generic_path_rpclv1ROI_LowPt = generic_path_rpclv1monitoring+"/Overview";
+	std::string rpclv1ROI_LowPt_title = "ROI_LowPt_distribution";
+	const char* rpclv1ROI_LowPt_title_char = rpclv1ROI_LowPt_title.c_str();
+	TH2 * rpclv1ROI_LowPt = new TH2I(rpclv1ROI_LowPt_title_char, rpclv1ROI_LowPt_title_char, 64, 0, 64, 28, 0, 28); 
 	sc=rpclv1prd_shift.regHist(rpclv1ROI_LowPt);
 	if(sc.isFailure())
 	  { ATH_MSG_FATAL ( "rpclv1ROI_LowPt Failed to register histogram " );       
@@ -1286,7 +1252,7 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	rpclv1ROI_LowPt->GetXaxis()->SetTitle("SectorLogic");
 	rpclv1ROI_LowPt->GetYaxis()->SetTitle("Region of Interest");
 	 
-	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1ROI_LowPt << m_rpclv1ROI_LowPt_title.c_str() );
+	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1ROI_LowPt << rpclv1ROI_LowPt_title.c_str() );
 	//ATH_MSG_DEBUG ( "SHIFT : " << shift );
 	ATH_MSG_DEBUG ( "RUN : " << run ); 	     	
 	ATH_MSG_DEBUG ( "Booked rpclv1ROI_LowPt successfully" ); 	
@@ -1294,10 +1260,10 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	/////////////////////////////////////////////
       
 	// ROI distribution High Pt
-	std::string m_generic_path_rpclv1ROI_HighPt = m_generic_path_rpclv1monitoring+"/Overview";
-	std::string m_rpclv1ROI_HighPt_title = "ROI_HighPt_distribution";
-	const char* m_rpclv1ROI_HighPt_title_char = m_rpclv1ROI_HighPt_title.c_str();
-	TH2 * rpclv1ROI_HighPt = new TH2I(m_rpclv1ROI_HighPt_title_char, m_rpclv1ROI_HighPt_title_char, 64, 0, 64, 28, 0, 28); 
+	std::string generic_path_rpclv1ROI_HighPt = generic_path_rpclv1monitoring+"/Overview";
+	std::string rpclv1ROI_HighPt_title = "ROI_HighPt_distribution";
+	const char* rpclv1ROI_HighPt_title_char = rpclv1ROI_HighPt_title.c_str();
+	TH2 * rpclv1ROI_HighPt = new TH2I(rpclv1ROI_HighPt_title_char, rpclv1ROI_HighPt_title_char, 64, 0, 64, 28, 0, 28); 
 	sc=rpclv1prd_shift.regHist(rpclv1ROI_HighPt);
 	if(sc.isFailure())
 	  { ATH_MSG_FATAL ( "rpclv1ROI_HighPt Failed to register histogram " );       
@@ -1307,7 +1273,7 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	rpclv1ROI_HighPt->GetXaxis()->SetTitle("SectorLogic");
 	rpclv1ROI_HighPt->GetYaxis()->SetTitle("Region of Interest");
 	 
-	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1ROI_HighPt << m_rpclv1ROI_HighPt_title.c_str() );
+	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1ROI_HighPt << rpclv1ROI_HighPt_title.c_str() );
 	//ATH_MSG_DEBUG ( "SHIFT : " << shift );
 	ATH_MSG_DEBUG ( "RUN : " << run ); 	     	
 	ATH_MSG_DEBUG ( "Booked rpclv1ROI_HighPt successfully" ); 	
@@ -1315,10 +1281,10 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	////////////////////////////////////
       
 	// Trigger_Cond LowPt PHI
-	std::string m_generic_path_rpclv1Trigger_cond_LowPt_phi = m_generic_path_rpclv1monitoring+"/Overview";
-	std::string m_rpclv1Trigger_cond_LowPt_phi_title = "Trigger_Condition_LowPt_Phi";
-	const char* m_rpclv1Trigger_cond_LowPt_phi_title_char = m_rpclv1Trigger_cond_LowPt_phi_title.c_str();
-	TH1* rpclv1Trigger_cond_LowPt_phi = new TH1I( m_rpclv1Trigger_cond_LowPt_phi_title_char, m_rpclv1Trigger_cond_LowPt_phi_title_char, 16, 0, 16 );
+	std::string generic_path_rpclv1Trigger_cond_LowPt_phi = generic_path_rpclv1monitoring+"/Overview";
+	std::string rpclv1Trigger_cond_LowPt_phi_title = "Trigger_Condition_LowPt_Phi";
+	const char* rpclv1Trigger_cond_LowPt_phi_title_char = rpclv1Trigger_cond_LowPt_phi_title.c_str();
+	TH1* rpclv1Trigger_cond_LowPt_phi = new TH1I( rpclv1Trigger_cond_LowPt_phi_title_char, rpclv1Trigger_cond_LowPt_phi_title_char, 16, 0, 16 );
 	sc=rpclv1prd_shift.regHist(rpclv1Trigger_cond_LowPt_phi);
 	if(sc.isFailure())
 	  { ATH_MSG_FATAL ( "Trigger_Condition_LowPt_Phi Failed to register histogram " );       
@@ -1331,7 +1297,7 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	rpclv1Trigger_cond_LowPt_phi->GetXaxis()->SetBinLabel(1,"None");
       
 	 
-	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1Trigger_cond_LowPt_phi << m_rpclv1Trigger_cond_LowPt_phi_title.c_str() );
+	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1Trigger_cond_LowPt_phi << rpclv1Trigger_cond_LowPt_phi_title.c_str() );
 	//ATH_MSG_DEBUG ( "SHIFT : " << shift );
 	ATH_MSG_DEBUG ( "RUN : " << run ); 	     	
 	ATH_MSG_DEBUG ( "Booked Trigger_Condition_LowPt_Phi successfully" ); 	
@@ -1339,10 +1305,10 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	//////////////////////////////////////////////
       
 	// Trigger_Cond LowPt ETA
-	std::string m_generic_path_rpclv1Trigger_cond_LowPt_eta = m_generic_path_rpclv1monitoring+"/Overview";
-	std::string m_rpclv1Trigger_cond_LowPt_eta_title = "Trigger_Condition_LowPt_Eta";
-	const char* m_rpclv1Trigger_cond_LowPt_eta_title_char = m_rpclv1Trigger_cond_LowPt_eta_title.c_str();
-	TH1* rpclv1Trigger_cond_LowPt_eta = new TH1I( m_rpclv1Trigger_cond_LowPt_eta_title_char, m_rpclv1Trigger_cond_LowPt_eta_title_char, 16, 0, 16 );
+	std::string generic_path_rpclv1Trigger_cond_LowPt_eta = generic_path_rpclv1monitoring+"/Overview";
+	std::string rpclv1Trigger_cond_LowPt_eta_title = "Trigger_Condition_LowPt_Eta";
+	const char* rpclv1Trigger_cond_LowPt_eta_title_char = rpclv1Trigger_cond_LowPt_eta_title.c_str();
+	TH1* rpclv1Trigger_cond_LowPt_eta = new TH1I( rpclv1Trigger_cond_LowPt_eta_title_char, rpclv1Trigger_cond_LowPt_eta_title_char, 16, 0, 16 );
 	sc=rpclv1prd_shift.regHist(rpclv1Trigger_cond_LowPt_eta);
 	if(sc.isFailure())
 	  { ATH_MSG_FATAL ( "Trigger_Condition_LowPt_eta Failed to register histogram " );       
@@ -1355,7 +1321,7 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	rpclv1Trigger_cond_LowPt_eta->GetXaxis()->SetBinLabel(1,"None");
       
 	 
-	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1Trigger_cond_LowPt_eta << m_rpclv1Trigger_cond_LowPt_eta_title.c_str() );
+	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1Trigger_cond_LowPt_eta << rpclv1Trigger_cond_LowPt_eta_title.c_str() );
 	//ATH_MSG_DEBUG ( "SHIFT : " << shift );
 	ATH_MSG_DEBUG ( "RUN : " << run ); 	     	
 	ATH_MSG_DEBUG ( "Booked Trigger_Condition_LowPt_eta successfully" ); 
@@ -1363,10 +1329,10 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	/////////////////////////////////////////////
       
 	// Trigger_Cond HighPt PHI
-	std::string m_generic_path_rpclv1Trigger_cond_HighPt_phi = m_generic_path_rpclv1monitoring+"/Overview";
-	std::string m_rpclv1Trigger_cond_HighPt_phi_title = "Trigger_Condition_HighPt_Phi";
-	const char* m_rpclv1Trigger_cond_HighPt_phi_title_char = m_rpclv1Trigger_cond_HighPt_phi_title.c_str();
-	TH1* rpclv1Trigger_cond_HighPt_phi = new TH1I( m_rpclv1Trigger_cond_HighPt_phi_title_char, m_rpclv1Trigger_cond_HighPt_phi_title_char, 16, 0, 16 );
+	std::string generic_path_rpclv1Trigger_cond_HighPt_phi = generic_path_rpclv1monitoring+"/Overview";
+	std::string rpclv1Trigger_cond_HighPt_phi_title = "Trigger_Condition_HighPt_Phi";
+	const char* rpclv1Trigger_cond_HighPt_phi_title_char = rpclv1Trigger_cond_HighPt_phi_title.c_str();
+	TH1* rpclv1Trigger_cond_HighPt_phi = new TH1I( rpclv1Trigger_cond_HighPt_phi_title_char, rpclv1Trigger_cond_HighPt_phi_title_char, 16, 0, 16 );
 	sc=rpclv1prd_shift.regHist(rpclv1Trigger_cond_HighPt_phi);
 	if(sc.isFailure())
 	  { ATH_MSG_FATAL ( "Trigger_Condition_HighPt_Phi Failed to register histogram " );       
@@ -1379,7 +1345,7 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	rpclv1Trigger_cond_HighPt_phi->GetXaxis()->SetBinLabel(1,"None");
       
 	 
-	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1Trigger_cond_HighPt_phi << m_rpclv1Trigger_cond_HighPt_phi_title.c_str() );
+	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1Trigger_cond_HighPt_phi << rpclv1Trigger_cond_HighPt_phi_title.c_str() );
 	//ATH_MSG_DEBUG ( "SHIFT : " << shift );
 	ATH_MSG_DEBUG ( "RUN : " << run ); 	     	
 	ATH_MSG_DEBUG ( "Booked Trigger_Condition_HighPt_Phi successfully" ); 
@@ -1387,10 +1353,10 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	///////////////////////////////////////////////
       
 	// Trigger_Cond HighPt ETA
-	std::string m_generic_path_rpclv1Trigger_cond_HighPt_eta = m_generic_path_rpclv1monitoring+"/Overview";
-	std::string m_rpclv1Trigger_cond_HighPt_eta_title = "Trigger_Condition_HighPt_Eta";
-	const char* m_rpclv1Trigger_cond_HighPt_eta_title_char = m_rpclv1Trigger_cond_HighPt_eta_title.c_str();
-	TH1* rpclv1Trigger_cond_HighPt_eta = new TH1I( m_rpclv1Trigger_cond_HighPt_eta_title_char, m_rpclv1Trigger_cond_HighPt_eta_title_char, 16, 0, 16 );
+	std::string generic_path_rpclv1Trigger_cond_HighPt_eta = generic_path_rpclv1monitoring+"/Overview";
+	std::string rpclv1Trigger_cond_HighPt_eta_title = "Trigger_Condition_HighPt_Eta";
+	const char* rpclv1Trigger_cond_HighPt_eta_title_char = rpclv1Trigger_cond_HighPt_eta_title.c_str();
+	TH1* rpclv1Trigger_cond_HighPt_eta = new TH1I( rpclv1Trigger_cond_HighPt_eta_title_char, rpclv1Trigger_cond_HighPt_eta_title_char, 16, 0, 16 );
 	sc=rpclv1prd_shift.regHist(rpclv1Trigger_cond_HighPt_eta);
 	if(sc.isFailure())
 	  { ATH_MSG_FATAL ( "Trigger_Condition_HighPt_eta Failed to register histogram " );       
@@ -1403,7 +1369,7 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	rpclv1Trigger_cond_HighPt_eta->GetXaxis()->SetBinLabel(1,"None");
       
 	 
-	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1Trigger_cond_HighPt_eta << m_rpclv1Trigger_cond_HighPt_eta_title.c_str() );
+	ATH_MSG_DEBUG ( "INSIDE bookHistograms : " << rpclv1Trigger_cond_HighPt_eta << rpclv1Trigger_cond_HighPt_eta_title.c_str() );
 	//ATH_MSG_DEBUG ( "SHIFT : " << shift );
 	ATH_MSG_DEBUG ( "RUN : " << run ); 	     	
 	ATH_MSG_DEBUG ( "Booked Trigger_Condition_HighPt_eta successfully" ); 
@@ -1444,7 +1410,7 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
     
 	/*  
 	//mean time-trigger time
-	std::string m_generic_path_rpclv1triggertimemean = m_generic_path_rpclv1monitoring+"/Overview";
+	std::string m_generic_path_rpclv1triggertimemean = generic_path_rpclv1monitoring+"/Overview";
 	std::string m_rpclv1triggertimemean_title = "Mean time - Mean Trigger time";    
 	const char* m_rpclv1triggertimemean_title_char = m_rpclv1triggertimemean_title.c_str ();     
 	TH2 *rpclv1triggertimemean=new TH2I(m_rpclv1triggertimemean_title_char,m_rpclv1triggertimemean_title_char, 1000, 0, 1000, 64, 0, 64 );
@@ -1465,7 +1431,7 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	////////////////////////////////////////////// 
   
 	//RMS time-trigger time
-	std::string m_generic_path_rpclv1triggertimeRMS = m_generic_path_rpclv1monitoring+"/Overview";
+	std::string m_generic_path_rpclv1triggertimeRMS = generic_path_rpclv1monitoring+"/Overview";
 	std::string m_rpclv1triggertimeRMS_title = "RMS of time - Trigger time";    
 	const char* m_rpclv1triggertimeRMS_title_char = m_rpclv1triggertimeRMS_title.c_str ();     
 	TH2 *rpclv1triggertimeRMS=new TH2I(m_rpclv1triggertimeRMS_title_char,m_rpclv1triggertimeRMS_title_char, 1000, 0, 1000, 64, 0, 64 );
@@ -1488,10 +1454,10 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	////////////////////////////////////////////// 
         
 	//BCid_per_TriggerType
-	std::string m_rpclv1_BCid_per_TriggerType_title = "rpclv1_BCid_per_TriggerType";      
-	const char* m_rpclv1_BCid_per_TriggerType_title_char = m_rpclv1_BCid_per_TriggerType_title.c_str();
+	std::string rpclv1_BCid_per_TriggerType_title = "rpclv1_BCid_per_TriggerType";      
+	const char* rpclv1_BCid_per_TriggerType_title_char = rpclv1_BCid_per_TriggerType_title.c_str();
        
-	TH2 *rpclv1_BCid_per_TriggerType=new TH2I( m_rpclv1_BCid_per_TriggerType_title_char,m_rpclv1_BCid_per_TriggerType_title_char,8, 0, 8, 8*2, 0, 16); 				
+	TH2 *rpclv1_BCid_per_TriggerType=new TH2I( rpclv1_BCid_per_TriggerType_title_char,rpclv1_BCid_per_TriggerType_title_char,8, 0, 8, 8*2, 0, 16); 				
 	sc=rpclv1_shift_dqmf.regHist(rpclv1_BCid_per_TriggerType) ;  
 	if(sc.isFailure())
 	  { ATH_MSG_FATAL ( "rpclv1_BCid_per_TriggerType Failed to register histogram " );       
@@ -1509,10 +1475,10 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	//
       
 	//BCid_per_TriggerCorrelation
-	std::string m_rpclv1_BCid_per_TriggerCorr_title = "rpclv1_BCid_per_TriggerCorrelation";      
-	const char* m_rpclv1_BCid_per_TriggerCorr_title_char = m_rpclv1_BCid_per_TriggerCorr_title.c_str();
+	std::string rpclv1_BCid_per_TriggerCorr_title = "rpclv1_BCid_per_TriggerCorrelation";      
+	const char* rpclv1_BCid_per_TriggerCorr_title_char = rpclv1_BCid_per_TriggerCorr_title.c_str();
        
-	TH2 *rpclv1_BCid_per_TriggerCorr=new TH2I(m_rpclv1_BCid_per_TriggerCorr_title_char,m_rpclv1_BCid_per_TriggerCorr_title_char, 256, 0, 256, 8*2, 0, 16); 				
+	TH2 *rpclv1_BCid_per_TriggerCorr=new TH2I(rpclv1_BCid_per_TriggerCorr_title_char,rpclv1_BCid_per_TriggerCorr_title_char, 256, 0, 256, 8*2, 0, 16); 				
 	sc=rpclv1prd_shift.regHist(rpclv1_BCid_per_TriggerCorr) ;  
 	if(sc.isFailure())
 	  { ATH_MSG_FATAL ( "rpclv1_BCid_per_TriggerCorr Failed to register histogram " );       
@@ -1534,6 +1500,7 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 	  // cool histogram
 	  // strip profile -> noise and dead strips
 	  if ( m_doCoolDB ) {
+            std::vector<std::string> DB_list     ;
 	    //DB_list.push_back( "StripId" );
 	    DB_list.push_back( "ProfileCabling" );
 	    DB_list.push_back( "ProfileDataCModd"  );
@@ -1590,6 +1557,7 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
     std::vector<int>           RpcStrip = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper,prdcoll_id, 0);
     int strip_dbindex        = (RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper,prdcoll_id, 0)).at(16);// cool strip profile
 		if ( m_doCoolDB ) {
+                  TH1* rpcCool_PanelIdHist = nullptr;
 		  sc = rpcCoolDb.getHist( rpcCool_PanelIdHist, sector_dphi_layer+"_ProfileCabling" ) ;
 		  if(sc.isFailure() ) ATH_MSG_WARNING (  "couldn't get " << sector_dphi_layer << "_ProfileCabling" );
   
@@ -1615,7 +1583,7 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
 
 
 
-StatusCode RpcLv1RawDataValAlg::bookRPCLV1cmatimevschHistograms(std::string m_sectorlogic_name, std::string m_tower_name, std::string m_cma_name)
+StatusCode RpcLv1RawDataValAlg::bookRPCLV1cmatimevschHistograms(std::string sectorlogic_name, std::string tower_name, std::string cma_name)
 {
  
   StatusCode sc = StatusCode::SUCCESS;
@@ -1623,14 +1591,14 @@ StatusCode RpcLv1RawDataValAlg::bookRPCLV1cmatimevschHistograms(std::string m_se
   if( m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0Raw ) {  
  		    
     //declare a group of histograms
-    std::string m_generic_path_rpclv1monitoring = "Muon/MuonRawDataMonitoring/RPCLV1";
-    MonGroup rpclv1prd_expert( this, m_generic_path_rpclv1monitoring+"/TriggerRoad/"+m_sectorlogic_name, run, ATTRIB_UNMANAGED );   
-    MuonDQAHistList& lst = m_stationHists.getList( m_sectorlogic_name );
+    std::string generic_path_rpclv1monitoring = "Muon/MuonRawDataMonitoring/RPCLV1";
+    MonGroup rpclv1prd_expert( this, generic_path_rpclv1monitoring+"/TriggerRoad/"+sectorlogic_name, run, ATTRIB_UNMANAGED );   
+    MuonDQAHistList& lst = m_stationHists.getList( sectorlogic_name );
     
-    std::string m_generic_path_RPCLV1cmatimevsch = m_generic_path_rpclv1monitoring+"/"+m_sectorlogic_name+"/"+m_tower_name+"/rpclv1cosmic_cmatimevsch"+m_cma_name;
-    std::string m_RPCLV1cmatimevsch_title = m_sectorlogic_name + "_" + m_tower_name + m_cma_name +"_time_vs_channel";     
-    const char* m_RPCLV1cmatimevsch_title_char = m_RPCLV1cmatimevsch_title.c_str();
-    TH2 *RPCLV1cmatimevsch=new TH2I(m_RPCLV1cmatimevsch_title_char,m_RPCLV1cmatimevsch_title_char, 32*7/m_rpclv1reducenbins, 0, 32*7, 64, 0,64);                       
+    std::string generic_path_RPCLV1cmatimevsch = generic_path_rpclv1monitoring+"/"+sectorlogic_name+"/"+tower_name+"/rpclv1cosmic_cmatimevsch"+cma_name;
+    std::string RPCLV1cmatimevsch_title = sectorlogic_name + "_" + tower_name + cma_name +"_time_vs_channel";     
+    const char* RPCLV1cmatimevsch_title_char = RPCLV1cmatimevsch_title.c_str();
+    TH2 *RPCLV1cmatimevsch=new TH2I(RPCLV1cmatimevsch_title_char,RPCLV1cmatimevsch_title_char, 32*7/m_rpclv1reducenbins, 0, 32*7, 64, 0,64);                       
     lst.addHist(RPCLV1cmatimevsch);
     RPCLV1cmatimevsch->SetFillColor(42);  
     RPCLV1cmatimevsch->SetMarkerColor(1);  
@@ -1639,18 +1607,18 @@ StatusCode RpcLv1RawDataValAlg::bookRPCLV1cmatimevschHistograms(std::string m_se
     RPCLV1cmatimevsch->GetXaxis()->SetTitle("Channel + 32 * ijk"     );
     RPCLV1cmatimevsch->GetYaxis()->SetTitle("Time=bcId*8+ticks"      );
      
-    ATH_MSG_DEBUG ( "INSIDE bookRPCLV1cmatimevschHistograms : " << RPCLV1cmatimevsch << m_generic_path_RPCLV1cmatimevsch.c_str() );
+    ATH_MSG_DEBUG ( "INSIDE bookRPCLV1cmatimevschHistograms : " << RPCLV1cmatimevsch << generic_path_RPCLV1cmatimevsch.c_str() );
     //ATH_MSG_DEBUG ( "SHIFT : " << shift );
     ATH_MSG_DEBUG ( "RUN : " << run ); 
   
     sc = rpclv1prd_expert.regHist( RPCLV1cmatimevsch );
     if(sc.isFailure() ) ATH_MSG_WARNING ( "couldn't register RPCLV1cmatimevsch hist to MonGroup" );
  
-    std::string m_generic_path_RPCLV1cmatimetriggervsch = m_generic_path_rpclv1monitoring+"/"+m_sectorlogic_name+"/"+m_tower_name+"/rpclv1cosmic_cmatimetriggervsch"+m_cma_name; 
-    std::string m_RPCLV1cmatimetriggervsch_title = m_sectorlogic_name + "_" + m_tower_name + m_cma_name +"_(time-triggertime)_vs_channel";        
-    const char* m_RPCLV1cmatimetriggervsch_title_char = m_RPCLV1cmatimetriggervsch_title.c_str ();
+    std::string generic_path_RPCLV1cmatimetriggervsch = generic_path_rpclv1monitoring+"/"+sectorlogic_name+"/"+tower_name+"/rpclv1cosmic_cmatimetriggervsch"+cma_name; 
+    std::string RPCLV1cmatimetriggervsch_title = sectorlogic_name + "_" + tower_name + cma_name +"_(time-triggertime)_vs_channel";        
+    const char* RPCLV1cmatimetriggervsch_title_char = RPCLV1cmatimetriggervsch_title.c_str ();
                  
-    TH2 *RPCLV1cmatimetriggervsch=new TH2I(m_RPCLV1cmatimetriggervsch_title_char,m_RPCLV1cmatimetriggervsch_title_char, 32*7/m_rpclv1reducenbins, 0, 32*7, 2*64,-64, 64);             
+    TH2 *RPCLV1cmatimetriggervsch=new TH2I(RPCLV1cmatimetriggervsch_title_char,RPCLV1cmatimetriggervsch_title_char, 32*7/m_rpclv1reducenbins, 0, 32*7, 2*64,-64, 64);             
     lst.addHist(RPCLV1cmatimetriggervsch);
     RPCLV1cmatimetriggervsch->SetFillColor(42);  
     RPCLV1cmatimetriggervsch->SetMarkerColor(1);  
@@ -1659,7 +1627,7 @@ StatusCode RpcLv1RawDataValAlg::bookRPCLV1cmatimevschHistograms(std::string m_se
     RPCLV1cmatimetriggervsch->GetXaxis()->SetTitle("Channel + 32 * ijk"     );
     RPCLV1cmatimetriggervsch->GetYaxis()->SetTitle("Time=bcId*8+ticks"      );
      
-    ATH_MSG_DEBUG ( "INSIDE bookRPCLV1cmatimevschHistograms : " << RPCLV1cmatimetriggervsch << m_generic_path_RPCLV1cmatimetriggervsch.c_str() );
+    ATH_MSG_DEBUG ( "INSIDE bookRPCLV1cmatimevschHistograms : " << RPCLV1cmatimetriggervsch << generic_path_RPCLV1cmatimetriggervsch.c_str() );
     //ATH_MSG_DEBUG ( "SHIFT : " << shift );
     ATH_MSG_DEBUG ( "RUN : " << run ); 
   
@@ -1671,7 +1639,7 @@ StatusCode RpcLv1RawDataValAlg::bookRPCLV1cmatimevschHistograms(std::string m_se
     
 }
  
-StatusCode  RpcLv1RawDataValAlg::bookRPCLV1TriggerRoadHistograms(std::string m_sectorlogic_name, std::string m_tower_name, std::string m_cma_name, std::string m_thr_name)
+StatusCode  RpcLv1RawDataValAlg::bookRPCLV1TriggerRoadHistograms(std::string sectorlogic_name, std::string tower_name, std::string cma_name, std::string thr_name)
 
 {  
   // Trigger Road LowPt vs ijk channel   
@@ -1680,20 +1648,20 @@ StatusCode  RpcLv1RawDataValAlg::bookRPCLV1TriggerRoadHistograms(std::string m_s
   if( m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0Raw  ) { 
 
     //declare a group of histograms
-    std::string m_generic_path_rpclv1monitoring = "Muon/MuonRawDataMonitoring/RPCLV1";
-    MonGroup rpclv1prd_expert( this, m_generic_path_rpclv1monitoring+"/TriggerRoad/"+m_sectorlogic_name, run, ATTRIB_UNMANAGED );   
-    MuonDQAHistList& lst = m_stationHists.getList( m_sectorlogic_name );
+    std::string generic_path_rpclv1monitoring = "Muon/MuonRawDataMonitoring/RPCLV1";
+    MonGroup rpclv1prd_expert( this, generic_path_rpclv1monitoring+"/TriggerRoad/"+sectorlogic_name, run, ATTRIB_UNMANAGED );   
+    MuonDQAHistList& lst = m_stationHists.getList( sectorlogic_name );
   
-    std::string m_generic_path_RPCLV1TriggerRoad =  m_generic_path_rpclv1monitoring+"/"+m_sectorlogic_name+"/"+m_tower_name+"/rpclv1cosmic_TriggerRoad"+m_cma_name+m_thr_name;
-    std::string m_RPCLV1TriggerRoad_title = m_sectorlogic_name + "_" + m_tower_name + m_cma_name + m_thr_name + "_TriggerRoad";     
-    const char* m_RPCLV1TriggerRoad_title_char = m_RPCLV1TriggerRoad_title.c_str();
-    TH2 *RPCLV1TriggerRoad=new TH2I(m_RPCLV1TriggerRoad_title_char,m_RPCLV1TriggerRoad_title_char, 32/m_rpclv1reducenbins, 0, 32, 64/m_rpclv1reducenbins, 0, 64);                       
+    std::string generic_path_RPCLV1TriggerRoad =  generic_path_rpclv1monitoring+"/"+sectorlogic_name+"/"+tower_name+"/rpclv1cosmic_TriggerRoad"+cma_name+thr_name;
+    std::string RPCLV1TriggerRoad_title = sectorlogic_name + "_" + tower_name + cma_name + thr_name + "_TriggerRoad";     
+    const char* RPCLV1TriggerRoad_title_char = RPCLV1TriggerRoad_title.c_str();
+    TH2 *RPCLV1TriggerRoad=new TH2I(RPCLV1TriggerRoad_title_char,RPCLV1TriggerRoad_title_char, 32/m_rpclv1reducenbins, 0, 32, 64/m_rpclv1reducenbins, 0, 64);                       
     lst.addHist(RPCLV1TriggerRoad);
     RPCLV1TriggerRoad->SetOption("COLZ");
     RPCLV1TriggerRoad->GetXaxis()->SetTitle("Channel  (ijk=6)"  );
     RPCLV1TriggerRoad->GetYaxis()->SetTitle("Confirm channel"   );
      
-    ATH_MSG_DEBUG ( "INSIDE bookRPCLV1TriggerRoadHistograms : " << RPCLV1TriggerRoad << m_generic_path_RPCLV1TriggerRoad.c_str() );
+    ATH_MSG_DEBUG ( "INSIDE bookRPCLV1TriggerRoadHistograms : " << RPCLV1TriggerRoad << generic_path_RPCLV1TriggerRoad.c_str() );
     //ATH_MSG_DEBUG ( "SHIFT : " << shift );
     ATH_MSG_DEBUG ( "RUN : " << run ); 
   
@@ -1706,45 +1674,46 @@ StatusCode  RpcLv1RawDataValAlg::bookRPCLV1TriggerRoadHistograms(std::string m_s
 }
 
 ///  profile cabling 
-//void RpcLv1RawDataValAlg::bookRPCLV1ProfilesHistograms(int m_i_sector, std::string m_sectorlogic_name, int m_i_cmaId, std::string m_cma_name, int m_i_ijk, std::string m_ijk_name) 
-StatusCode RpcLv1RawDataValAlg::bookRPCLV1ProfilesHistograms(int m_i_sector, std::string m_sectorlogic_name, std::string m_cma_name, int m_i_ijk, std::string m_ijk_name) 
+//void RpcLv1RawDataValAlg::bookRPCLV1ProfilesHistograms(int m_i_sector, std::string sectorlogic_name, int m_i_cmaId, std::string cma_name, int m_i_ijk, std::string m_ijk_name) 
+StatusCode RpcLv1RawDataValAlg::bookRPCLV1ProfilesHistograms(int i_sector, std::string sectorlogic_name, std::string cma_name, int i_ijk, std::string ijk_name) 
 {  
   // book profiles histograms
   
   StatusCode sc = StatusCode::SUCCESS;
   if( m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0Raw  ) { 
   
-    N_pad = 6            ;  
-    cm_ch_label  =  "64" ;
-    pad_ch_label = "128" ;
+    int N_pad = 6            ;  
+    std::string cm_ch_label  =  "64" ;
+    std::string pad_ch_label = "128" ;
   
     //declare a group of histograms
-    std::string m_generic_path_rpclv1monitoring = "Muon/MuonRawDataMonitoring/RPCLV1";
-    MonGroup rpclv1prd_expert( this, m_generic_path_rpclv1monitoring+"/Profiles/"+m_sectorlogic_name, run, ATTRIB_UNMANAGED );   
-    MuonDQAHistList& lst = m_stationHists.getList( m_sectorlogic_name );
+    std::string generic_path_rpclv1monitoring = "Muon/MuonRawDataMonitoring/RPCLV1";
+    MonGroup rpclv1prd_expert( this, generic_path_rpclv1monitoring+"/Profiles/"+sectorlogic_name, run, ATTRIB_UNMANAGED );   
+    MuonDQAHistList& lst = m_stationHists.getList( sectorlogic_name );
   
-    std::string m_generic_path_RPCLV1Profiles = m_generic_path_rpclv1monitoring+"/"+m_sectorlogic_name+"_"+m_cma_name+"_"+m_ijk_name+"_profiles";
+    std::string generic_path_RPCLV1Profiles = generic_path_rpclv1monitoring+"/"+sectorlogic_name+"_"+cma_name+"_"+ijk_name+"_profiles";
   
-    if ( (m_i_sector % 4)==0 || (m_i_sector % 4)==3 )  { 
+    if ( (i_sector % 4)==0 || (i_sector % 4)==3 )  { 
       N_pad = 7; 
     }
-    if ( m_i_ijk<2 || m_i_ijk==6  ) { 
+    int N_bin_profile = 0;
+    if ( i_ijk<2 || i_ijk==6  ) { 
       N_bin_profile = 2 * 32 * N_pad ;
       cm_ch_label  = "32"  ;
       pad_ch_label = "64"  ; }
     else { N_bin_profile = 2 * 64 * N_pad; }
     /*
-      if ( m_i_cmaId==0 || m_i_cmaId==1 ) { m_cma_name="Cma0_1" ; }
-      if ( m_i_cmaId==2 || m_i_cmaId==3 ) { m_cma_name="Cma2_3" ; }
-      if ( m_i_cmaId==4 || m_i_cmaId==5 ) { m_cma_name="Cma4_5" ; }
-      if ( m_i_cmaId==6 || m_i_cmaId==7 ) { m_cma_name="Cma6_7" ; }
+      if ( m_i_cmaId==0 || m_i_cmaId==1 ) { cma_name="Cma0_1" ; }
+      if ( m_i_cmaId==2 || m_i_cmaId==3 ) { cma_name="Cma2_3" ; }
+      if ( m_i_cmaId==4 || m_i_cmaId==5 ) { cma_name="Cma4_5" ; }
+      if ( m_i_cmaId==6 || m_i_cmaId==7 ) { cma_name="Cma6_7" ; }
 				       
-      if ( m_i_ijk==2 || m_i_ijk==3 ) { m_ijk_name="ijk2_3" ; }
-      if ( m_i_ijk==4 || m_i_ijk==5 ) { m_ijk_name="ijk4_5" ; }  */
+      if ( i_ijk==2 || i_ijk==3 ) { ijk_name="ijk2_3" ; }
+      if ( i_ijk==4 || i_ijk==5 ) { ijk_name="ijk4_5" ; }  */
     
-    std::string m_RPCLV1Profiles_title = m_sectorlogic_name + "_" + m_cma_name+"_"+ m_ijk_name+"_Profiles";
-    const char* m_RPCLV1Profiles_title_char = m_RPCLV1Profiles_title.c_str();
-    TH1 *RPCLV1Profiles=new TH1I(m_RPCLV1Profiles_title_char,m_RPCLV1Profiles_title_char, N_bin_profile/m_rpclv1reducenbins, 0, N_bin_profile );
+    std::string RPCLV1Profiles_title = sectorlogic_name + "_" + cma_name+"_"+ ijk_name+"_Profiles";
+    const char* RPCLV1Profiles_title_char = RPCLV1Profiles_title.c_str();
+    TH1 *RPCLV1Profiles=new TH1I(RPCLV1Profiles_title_char,RPCLV1Profiles_title_char, N_bin_profile/m_rpclv1reducenbins, 0, N_bin_profile );
     lst.addHist(RPCLV1Profiles);
   
     std::string x_axis_title = "Channel+ (ijk-ijk_off)*32 +cm*"+cm_ch_label+" +pad*"+pad_ch_label ;
@@ -1753,7 +1722,7 @@ StatusCode RpcLv1RawDataValAlg::bookRPCLV1ProfilesHistograms(int m_i_sector, std
     RPCLV1Profiles->GetYaxis()->SetTitle("Counts  "   );
     RPCLV1Profiles->SetFillColor(42) ;  // 38
      
-    ATH_MSG_DEBUG ( "INSIDE bookRPCLV1ProfilesHistograms : " << RPCLV1Profiles << m_generic_path_RPCLV1Profiles.c_str() );
+    ATH_MSG_DEBUG ( "INSIDE bookRPCLV1ProfilesHistograms : " << RPCLV1Profiles << generic_path_RPCLV1Profiles.c_str() );
    // ATH_MSG_DEBUG ( "SHIFT : " << shift );
     ATH_MSG_DEBUG ( "RUN : " << run ); 
  
@@ -1768,83 +1737,85 @@ StatusCode RpcLv1RawDataValAlg::bookRPCLV1ProfilesHistograms(int m_i_sector, std
  
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-void RpcLv1RawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const_iterator & m_iter, int m_isec, int m_idblPhi,
-					      std::string m_layer ) 
+void RpcLv1RawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const_iterator & iter, int isec, int idblPhi,
+					      std::string layer ) 
 {
   StatusCode sc = StatusCode::SUCCESS ;
   
-  std::string m_generic_path_rpcmonitoring = "Muon/MuonRawDataMonitoring/RPCLV1";
-  MonGroup rpcCoolDb( this, m_generic_path_rpcmonitoring+"/CoolDB", run, ATTRIB_UNMANAGED );
+  std::string generic_path_rpcmonitoring = "Muon/MuonRawDataMonitoring/RPCLV1";
+  MonGroup rpcCoolDb( this, generic_path_rpcmonitoring+"/CoolDB", run, ATTRIB_UNMANAGED );
   
-  sprintf(histName_char,"Sector%.2d_%s_dblPhi%d", m_isec+1, m_layer.c_str(), m_idblPhi+1) ;
+  char histName_char[100]	       ;
+  sprintf(histName_char,"Sector%.2d_%s_dblPhi%d", isec+1, layer.c_str(), idblPhi+1) ;
   // example: Sector01_Pivot0_dblPhi1_StripId
   
-  histName  = histName_char  ;
+  std::string histName  = histName_char  ;
   histName += "_"            ;
-  histName += *m_iter        ;  //histName += m_coolQuantity ;
-  istatPhi  = int( m_isec/2) ;
-  iName     = 0              ;
+  histName += *iter        ;  //histName += m_coolQuantity ;
+  int istatPhi  = int( isec/2) ;
+  int iName     = 0              ;
   int kName = 0              ;
   int ig        = 0          ;
   int iNameMax  = 0          ;
+  int ir = 0;
 
-  if ( m_isec==12) {
-    // if ( m_layer.find("Pivot",0) )
-    if ( m_layer == "Pivot0" || m_layer == "Pivot1" )   {
+  if ( isec==12) {
+    // if ( layer.find("Pivot",0) )
+    if ( layer == "Pivot0" || layer == "Pivot1" )   {
       iName     =  1          ;
       iNameMax  =  2          ;
       ir    = 2 	      ;		
-      ig    = atoi( (m_layer.substr(5,1)).c_str() ) ;
+      ig    = atoi( (layer.substr(5,1)).c_str() ) ;
     }
-    if ( m_layer == "LowPt0" || m_layer == "LowPt1" )   {
+    if ( layer == "LowPt0" || layer == "LowPt1" )   {
       iName     =  1          ;
       iNameMax  =  2          ;
       ir    = 1 	      ;
-      ig    = atoi( (m_layer.substr(5,1)).c_str() ) ;
+      ig    = atoi( (layer.substr(5,1)).c_str() ) ;
     }
-    if ( m_layer == "HighPt0" || m_layer == "HighPt1" ) {
+    if ( layer == "HighPt0" || layer == "HighPt1" ) {
       iName = 4               ;
       iNameMax  =  iName      ;
       ir    = 1 	      ;
-      ig    = atoi( (m_layer.substr(6,1)).c_str() ) ; 
+      ig    = atoi( (layer.substr(6,1)).c_str() ) ; 
     }
   }//sector 13
-  else if ( m_isec==11 ||  m_isec==13){
-    if ( m_layer == "Pivot0" || m_layer == "Pivot1" )   {
+  else if ( isec==11 ||  isec==13){
+    if ( layer == "Pivot0" || layer == "Pivot1" )   {
       iName = 8 ;
       iNameMax  =  10;
       ir    = 2 ;   
-      ig    = atoi( (m_layer.substr(5,1)).c_str() ) ;   
+      ig    = atoi( (layer.substr(5,1)).c_str() ) ;   
     }
-    if ( m_layer == "LowPt0" || m_layer == "LowPt1" )   {
+    if ( layer == "LowPt0" || layer == "LowPt1" )   {
       iName = 8 ;
       iNameMax  =  iName         ;
       ir    = 1 ;
-      ig    = atoi( (m_layer.substr(5,1)).c_str() ) ;
+      ig    = atoi( (layer.substr(5,1)).c_str() ) ;
     }
-    if ( m_layer == "HighPt0" || m_layer == "HighPt1" ) {
+    if ( layer == "HighPt0" || layer == "HighPt1" ) {
       iName = 9 ; // or 10 ;
       iNameMax=10          ;
       ir    = 1 ; // doubletR=2 -> upgrade of Atlas
-      ig    = atoi( (m_layer.substr(6,1)).c_str() ) ; 
+      ig    = atoi( (layer.substr(6,1)).c_str() ) ; 
     }
   } // end sectors 12 and 14  
   else {
-    // if ( m_layer.find("Pivot",0) )
-    if ( m_layer == "Pivot0" || m_layer == "Pivot1" )   {
-      iName = 2 + (m_isec%2 ) ;
+    // if ( layer.find("Pivot",0) )
+    if ( layer == "Pivot0" || layer == "Pivot1" )   {
+      iName = 2 + (isec%2 ) ;
       ir    = 2 	      ;		
-      ig    = atoi( (m_layer.substr(5,1)).c_str() ) ;
+      ig    = atoi( (layer.substr(5,1)).c_str() ) ;
     }
-    if ( m_layer == "LowPt0" || m_layer == "LowPt1" )   {
-      iName = 2 + (m_isec%2 ) ;
+    if ( layer == "LowPt0" || layer == "LowPt1" )   {
+      iName = 2 + (isec%2 ) ;
       ir    = 1 	      ;
-      ig    = atoi( (m_layer.substr(5,1)).c_str() ) ;
+      ig    = atoi( (layer.substr(5,1)).c_str() ) ;
     }
-    if ( m_layer == "HighPt0" || m_layer == "HighPt1" ) {
-      iName = 4 + (m_isec%2 ) ;
+    if ( layer == "HighPt0" || layer == "HighPt1" ) {
+      iName = 4 + (isec%2 ) ;
       ir    = 1 	      ;
-      ig    = atoi( (m_layer.substr(6,1)).c_str() ) ; 
+      ig    = atoi( (layer.substr(6,1)).c_str() ) ; 
     }
     iNameMax  =  iName         ;
   }
@@ -1855,14 +1826,14 @@ void RpcLv1RawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const
   int NTotStripsSideA = 1;
   int NTotStripsSideC = 1;     
  
-  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields( kName, 1 , istatPhi+1, ir, 1, m_idblPhi+1 );    
+  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields( kName, 1 , istatPhi+1, ir, 1, idblPhi+1 );    
   
   if(rpc != NULL ){  
     Identifier idr = rpc->identify();
     std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper,idr, 0)  ;
     NTotStripsSideA = rpcstripshift[6]+rpcstripshift[17];
   } 
-  rpc = m_muonMgr->getRpcRElement_fromIdFields( kName, -1 , istatPhi+1, ir, 1, m_idblPhi+1 );    
+  rpc = m_muonMgr->getRpcRElement_fromIdFields( kName, -1 , istatPhi+1, ir, 1, idblPhi+1 );    
   
   if(rpc != NULL ){  
     Identifier idr = rpc->identify();
@@ -1880,8 +1851,9 @@ void RpcLv1RawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const
   
   
   // Fill strip Id histogram
-  if ( (histName.find("ProfileCabling", 0)) != string::npos ) {
-  
+  if ( (histName.find("ProfileCabling", 0)) != std::string::npos ) {
+    
+    TH1* rpcCool_PanelIdHist = nullptr;
     sc = rpcCoolDb.getHist( rpcCool_PanelIdHist, histName.c_str() );
     if( sc.isFailure() ) ATH_MSG_WARNING (  "couldn't get "<< histName << " hist" );
     rpcCool_PanelIdHist->GetYaxis()->SetTitle("strip Id");
@@ -1899,11 +1871,11 @@ void RpcLv1RawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const
 	for (int iz=0; iz!=3; iz++ ) {
 	  int irc = ir ;	
 	  if(abs(ieta-8)==7&&ir==1&&kName==2)continue;	
-	  if(m_isec==12&&abs(ieta-8)==6&&ir==1&&kName==2)continue;
+	  if(isec==12&&abs(ieta-8)==6&&ir==1&&kName==2)continue;
 	  if(abs(ieta-8)==7&&ir==2)irc=1; 
-	  if(m_isec==12&&abs(ieta-8)==6&&ir==2)irc=1;	 
+	  if(isec==12&&abs(ieta-8)==6&&ir==2)irc=1;	 
 											   
-    	  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(kName, ieta-8, istatPhi+1, irc, iz+1, m_idblPhi+1);  
+    	  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(kName, ieta-8, istatPhi+1, irc, iz+1, idblPhi+1);  
     	  if( rpc == NULL ) continue;   
 	  
     	  if  ( iz+1 != rpc->getDoubletZ() ) { 
@@ -1915,13 +1887,13 @@ void RpcLv1RawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const
 	  
 	  
     	  for ( int istripEta=0; istripEta!=rpcElemEtaStrip; istripEta++ ) {
-    	    Identifier strip_id  =  m_rpcIdHelper->channelID(idr, iz+1, m_idblPhi+1, ig+1, 0, istripEta+1) ;
+    	    Identifier strip_id  =  m_rpcIdHelper->channelID(idr, iz+1, idblPhi+1, ig+1, 0, istripEta+1) ;
     	    if( strip_id == 0 ) continue;
     	    coolStripIndex = (RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper,strip_id, 0)).at(16);
     	    rpcCool_PanelIdHist->Fill(coolStripIndex, -1) ;
           }
     	  for ( int istripPhi=0; istripPhi!=rpcElemPhiStrip; istripPhi++ ) {
-    	    Identifier strip_id  =  m_rpcIdHelper->channelID(idr, iz+1, m_idblPhi+1, ig+1, 1, istripPhi+1) ;
+    	    Identifier strip_id  =  m_rpcIdHelper->channelID(idr, iz+1, idblPhi+1, ig+1, 1, istripPhi+1) ;
     	    if( strip_id == 0 ) continue;
     	    coolStripIndex = (RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper,strip_id, 0)).at(16);
     	    rpcCool_PanelIdHist->Fill(coolStripIndex, -1 );

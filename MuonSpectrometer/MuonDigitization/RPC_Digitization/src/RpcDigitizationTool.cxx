@@ -43,7 +43,7 @@
 //Random Numbers
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandExponential.h"
 
 //Core includes
@@ -1557,9 +1557,22 @@ int RpcDigitizationTool::findStripNumber(Amg::Vector3D posInGap, Identifier digi
   Identifier firstStrip = m_idHelper->channelID(digitId, doubletZ, doubletPhi, gasGap, measuresPhi, 1);
   Identifier lastStrip = m_idHelper->channelID(digitId, doubletZ, doubletPhi, gasGap, measuresPhi, nstrips);
 
-  Amg::Vector3D firstPos=ele->localStripPos(firstStrip);
-  Amg::Vector3D lastPos=ele->localStripPos(lastStrip);
-
+  Amg::Vector3D firstPos(0.,0.,0);
+  try {
+    firstPos=ele->localStripPos(firstStrip);
+  }
+  catch (...) {
+    ATH_MSG_ERROR("RpcReadoutElement::localStripPos call failed.");
+    ATH_MSG_WARNING("firstPos determination failed.");
+  }
+  Amg::Vector3D lastPos(0.,0.,0);
+  try {
+    lastPos=ele->localStripPos(lastStrip);
+  }
+  catch (...) {
+    ATH_MSG_ERROR("RpcReadoutElement::localStripPos call failed.");
+    ATH_MSG_WARNING("lastPos determination failed.");
+  }
 
   // if(ele->Nphigasgaps()!=1) return result; //all but BMS/F and ribs chambers
 

@@ -280,14 +280,14 @@ void PixelMonProfiles::formatHist()
 
 StatusCode PixelMonProfiles::regHist(ManagedMonitorToolBase::MonGroup &group)
 {
-   sc = group.regHist(IBL2D); 
-   sc = group.regHist(IBL3D); 
-   sc = group.regHist(IBL); 
-   sc = group.regHist(B0);
-   sc = group.regHist(B1);
-   sc = group.regHist(B2);
-   sc = group.regHist(A);
-   sc = group.regHist(C);
-   
-   return sc;
+  StatusCode sc = StatusCode::SUCCESS;
+  if (group.regHist(IBL2D).isFailure()) sc = StatusCode::FAILURE;
+  if (group.regHist(IBL3D).isFailure()) sc = StatusCode::FAILURE;
+  if (group.regHist(IBL).isFailure())   sc = StatusCode::FAILURE;
+  if (group.regHist(B0).isFailure())    sc = StatusCode::FAILURE;
+  if (group.regHist(B1).isFailure())    sc = StatusCode::FAILURE;
+  if (group.regHist(B2).isFailure())    sc = StatusCode::FAILURE;
+  if (group.regHist(A).isFailure())     sc = StatusCode::FAILURE;
+  if (group.regHist(C).isFailure())     sc = StatusCode::FAILURE;
+  return sc;
 }

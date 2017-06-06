@@ -57,7 +57,7 @@
 #include "CaloTTDetDescr/CaloTTDescrManager.h"
 #include "CaloIdentifier/CaloLVL1_ID.h" 
 #include "CaloIdentifier/CaloID_Exception.h"
-#include "LArTools/LArCablingService.h" 
+#include "LArCabling/LArCablingService.h" 
 //#include "LArIdentifier/LArHardwareID.h" 
 
 //LVL1 Calo trigger includes

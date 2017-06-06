@@ -17,6 +17,11 @@
 #include "RootTreeContainer.h"
 #include "StorageSvc/DbInstanceCount.h"
 
+// declare the types provided by this Storage plugin
+DECLARE_COMPONENT_WITH_ID(pool::RootOODb, "ROOT_All")
+DECLARE_COMPONENT_WITH_ID(pool::RootOOTree, "ROOT_Tree")
+DECLARE_COMPONENT_WITH_ID(pool::RootOOKey, "ROOT_Key")
+
 using namespace pool;
 
 /// Standard Constructor

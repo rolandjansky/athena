@@ -26,7 +26,7 @@ public:
 
    /// Extend base-class conversion methods
    virtual ExampleTrackContainer_p1* createPersistent(ExampleTrackContainer* transObj) {
-      MsgStream log(messageService(), "ExampleTrackContainerCnv");
+      MsgStream log(msgSvc(), "ExampleTrackContainerCnv");
       ExampleTrackContainer_p1* persObj = m_TPconverter.createPersistent(transObj, log);
       return(persObj);
    }
@@ -34,7 +34,7 @@ public:
    virtual ExampleTrackContainer* createTransient() {
       static pool::Guid p1_guid("FF777FDA-721C-4756-BBF3-4CE28C2A3AF5");
       if (compareClassGuid(p1_guid)) {
-         MsgStream log(messageService(), "ExampleTrackContainer");
+         MsgStream log(msgSvc(), "ExampleTrackContainer");
          std::auto_ptr<ExampleTrackContainer_p1> cont_p1(this->poolReadObject<ExampleTrackContainer_p1>());
          return(m_TPconverter.createTransient(cont_p1.get(), log));
       }

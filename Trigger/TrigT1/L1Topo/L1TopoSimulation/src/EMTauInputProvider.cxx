@@ -100,14 +100,11 @@ EMTauInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 
    ATH_MSG_DEBUG("Filling the input event. Number of emtau topo data objects: " << emtau->size());
    for(const CPCMXTopoData * topoData : * emtau) {
-
       // fill the vector of TOBs
       std::vector< CPTopoTOB > tobs;
       topoData->tobs(tobs);
-
       ATH_MSG_DEBUG("Emtau topo data object has # TOBs: " << tobs.size());
       for(const CPTopoTOB & tob : tobs ) {
-
          ATH_MSG_DEBUG( "EMTAU TOB with cmx = " << tob.cmx() << "[" << (tob.cmx()==0?"EM":"TAU") << "]"
                         << " : e = " << setw(3) << tob.et() << ", isolation " << tob.isolation()
                         << ", eta = " << setw(2) << tob.eta() << ", phi = " << tob.phi()
@@ -129,8 +126,11 @@ EMTauInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
             m_hTauEtaPhi->Fill(cl.eta(),cl.phi());
          }
       }
+      if(topoData->overflow()){
+          inputEvent.setOverflowFromEmtauInput(true);
+          ATH_MSG_DEBUG("setOverflowFromEmtauInput : true");
+      }
    }
-
    return StatusCode::SUCCESS;
 }
 

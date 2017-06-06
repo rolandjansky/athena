@@ -58,6 +58,33 @@ namespace SG {
 
 
   /**
+   * @brief Helper for symLink_impl.
+   *
+   * A simple @c DataBucket that holds an arbitrary pointer/clid.
+   * We stub out everything else that we don't use.
+   */
+  class SymlinkDataObject
+    : public DataBucketBase
+  {
+  public:
+    SymlinkDataObject (CLID clid, void* obj) : m_clid (clid), m_obj (obj) {}
+    virtual const CLID& clID() const override { return m_clid; }
+    virtual void* object() override { return m_obj; }
+    virtual const std::type_info& tinfo() const override { return typeid(void); }
+    virtual void* cast (CLID, SG::IRegisterTransient*, bool) const override { std::abort(); }
+    virtual void* cast (const std::type_info&, SG::IRegisterTransient*, bool) const override { std::abort(); }
+    virtual DataBucketBase* clone() const override { std::abort(); }
+    virtual void relinquish() override { std::abort(); }
+    virtual void lock() override { }
+
+  
+  private:
+    CLID m_clid;
+    void* m_obj;
+  };
+
+
+  /**
    * @brief Constructor with default key.
    * @param clid CLID of the referenced class.
    * @param mode Mode of this handle (read/write/update).
@@ -68,7 +95,8 @@ namespace SG {
     m_ptr(0),
     m_proxy(0),
     m_store(nullptr),
-    m_storeWasSet(false)
+    m_storeWasSet(false),
+    m_doBind(true)
   {
 #ifdef DEBUG_VHB
     std::cerr << "VarHandleBase() " << this << std::endl;
@@ -92,7 +120,8 @@ namespace SG {
     m_ptr(NULL),
     m_proxy(NULL),
     m_store(nullptr),
-    m_storeWasSet(false)
+    m_storeWasSet(false),
+    m_doBind(true)
   {
   }
 
@@ -112,7 +141,8 @@ namespace SG {
       m_ptr(nullptr),
       m_proxy(nullptr),
       m_store(nullptr),
-      m_storeWasSet(false)
+      m_storeWasSet(false),
+      m_doBind(false)
   {
     if (key.storeHandle().get() == nullptr)
       throw SG::ExcUninitKey (key.clid(), key.key(),
@@ -133,7 +163,8 @@ namespace SG {
     m_ptr(rhs.m_ptr),
     m_proxy(nullptr),
     m_store(rhs.m_store),
-    m_storeWasSet(rhs.m_storeWasSet)
+    m_storeWasSet(rhs.m_storeWasSet),
+    m_doBind(rhs.m_doBind)
   {
 #ifdef DEBUG_VHB
     std::cerr << "::VHB::copy constr from " << &rhs
@@ -156,13 +187,16 @@ namespace SG {
     m_ptr(rhs.m_ptr),
     m_proxy(nullptr),
     m_store(rhs.m_store),
-    m_storeWasSet(rhs.m_storeWasSet)
+    m_storeWasSet(rhs.m_storeWasSet),
+    m_doBind(rhs.m_doBind)
   {
     rhs.m_ptr=0;
 
     if (rhs.m_proxy) {
-      rhs.m_proxy->unbindHandle (&rhs);
-      rhs.m_proxy->bindHandle(this);
+      if (m_doBind) {
+        rhs.m_proxy->unbindHandle (&rhs);
+        rhs.m_proxy->bindHandle(this);
+      }
       m_proxy = rhs.m_proxy;
       rhs.m_proxy=0; //no release: this has the ref now
     }
@@ -212,13 +246,16 @@ namespace SG {
       m_ptr =    rhs.m_ptr;
       m_store =  rhs.m_store;
       m_storeWasSet = rhs.m_storeWasSet;
+      m_doBind = rhs.m_doBind;
 
       rhs.m_ptr=0;
 
       resetProxy();
       if (rhs.m_proxy) {
-        rhs.m_proxy->unbindHandle (&rhs);
-        rhs.m_proxy->bindHandle (this);
+        if (m_doBind) {
+          rhs.m_proxy->unbindHandle (&rhs);
+          rhs.m_proxy->bindHandle (this);
+        }
         m_proxy =  rhs.m_proxy;
         rhs.m_proxy=0; //no release: this has the ref now
       }
@@ -313,7 +350,7 @@ namespace SG {
       if (!store)
         store = this->storeHandle().get();
       if (store)
-        proxy = m_store->proxy(this->clid(), this->key());
+        proxy = store->proxy(this->clid(), this->key());
     }
     if (proxy) {
       return proxy->isValid();
@@ -659,7 +696,7 @@ namespace SG {
   const void*
   VarHandleBase::put_impl (const EventContext* ctx,
                            std::unique_ptr<DataObject> dobj,
-                           void* dataPtr,
+                           const void* dataPtr,
                            bool allowMods,
                            bool returnExisting,
                            IProxyDict* & store) const
@@ -797,6 +834,32 @@ namespace SG {
 
 
   /**
+   * @brief Make a symlink or alias to the object currently referenced
+   *        by this handle.
+   * @param newClid CLID of link.
+   * @param newKey SG key of link.
+   *
+   * If newClid matches the existing clid, then make an alias.
+   * If newKey matches the existing key, then make a symlink.
+   * If neither match, it's an error.
+   */
+  StatusCode VarHandleBase::symLink_impl (CLID newClid,
+                                          const std::string& newKey) const
+  {
+    if (!m_ptr || !m_store) {
+      REPORT_ERROR (StatusCode::FAILURE) << "symlink: Handle not valid.";
+      return StatusCode::FAILURE;
+    }
+    
+    SG::DataObjectSharedPtr<DataObject> obj (new SymlinkDataObject (newClid, m_ptr));
+    SG::DataProxy* prox = m_store->recordObject (obj, newKey, false, true);
+    if (!prox)
+      return StatusCode::FAILURE;
+    return StatusCode::SUCCESS;
+  }
+
+
+  /**
    * @brief Return the store instance to use.
    * @param ctx The current event context, or nullptr.
    *
@@ -851,8 +914,10 @@ namespace SG {
   void VarHandleBase::resetProxy()
   {
     if (m_proxy) {
-      m_proxy->unbindHandle(this);
-      m_proxy->release();
+      if (m_doBind) {
+        m_proxy->unbindHandle(this);
+        m_proxy->release();
+      }
       m_proxy = nullptr;
     }
   }
@@ -866,8 +931,10 @@ namespace SG {
   {
     resetProxy();
     if (proxy) {
-      proxy->addRef();
-      proxy->bindHandle (this);
+      if (m_doBind) {
+        proxy->addRef();
+        proxy->bindHandle (this);
+      }
       m_proxy = proxy;
     }
   }

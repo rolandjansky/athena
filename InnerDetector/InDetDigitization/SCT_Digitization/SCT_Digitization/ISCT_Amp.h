@@ -46,11 +46,6 @@ public:
   /** Neighbour strip cross talk response strip to a list of charges with times */
   virtual float crosstalk(const list_t &Charges, const float timeOverThreshold) const =0;
   virtual void crosstalk(const list_t &Charges, const float timeOverThreshold, std::vector<float> &resp) const =0;
-
-  /** diagnostics */
-  virtual void AccumulateAverages(const list_t &Charges) =0;
-  virtual void PrintAverages() const =0;
-  virtual void PrintAverages(const char *fname) const =0;
 };
 
 #endif // SIDIGITIZATION_ISCT_AMP_H

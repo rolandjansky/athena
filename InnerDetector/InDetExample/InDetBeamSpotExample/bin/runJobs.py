@@ -4,7 +4,7 @@
 # Front-end script to run JobRunner jobs
 
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: runJobs.py 676234 2015-06-18 00:29:52Z mhance $'
+__version__ = 'runJobs.py atlas/athena'
 __usage__   = """%prog [options] JOBOPTIONTEMPLATE DATASET TASK INPUTDATA
 
 Templates:  - InDetBeamSpotExample/ESDToDPDTemplate.py
@@ -240,9 +240,8 @@ if not options.testonly:
     runner.configure()
     if options.taskdb!='None':
         try:
-            taskman = TaskManager.TaskManager(options.taskdb)
-            taskman.addTask(dsname,taskname,joboptiontemplate,runner.getParam('release'),runner.getNJobs(),options.postprocsteps,comment=cmd)
-            del taskman
+            with TaskManager.TaskManager(options.taskdb) as taskman:
+                taskman.addTask(dsname,taskname,joboptiontemplate,runner.getParam('release'),runner.getNJobs(),options.postprocsteps,comment=cmd)
         except:
             print 'WARNING: Unable to add task to task manager database '+options.taskdb
     runner.run()

@@ -11,7 +11,7 @@
 
 #include "Identifier/Identifier.h"
 
-#include "DataModel/tools/IdentContIndex.h"
+#include "AthLinks/tools/IdentContIndex.h"
 
 // Eigen
 #include "GeoPrimitives/GeoPrimitives.h"

@@ -9,7 +9,7 @@
 #include "InDetEventTPCnv/InDetRIO_OnTrack/SCT_ClusterOnTrack_p2.h"
 
 #include "DataModelAthenaPool/ElementLinkCnv_p1.h"
-#include "DataModel/ElementLink.h" 
+#include "AthLinks/ElementLink.h" 
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 
 #include "TrkEventTPCnv/TrkEventPrimitives/ErrorMatrixCnv_p1.h"

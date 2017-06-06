@@ -462,7 +462,7 @@ StatusCode LArTimePhysPrediction::stop()
 	  //m_tCalibPredicted: already filled (computation to be finalized) 
 	  
 	  ATH_MSG_VERBOSE ( "Try to write to ntuple " );
-	  ATH_CHECK( ntupleService()->writeRecord(m_nt) );
+	  ATH_CHECK( ntupleSvc()->writeRecord(m_nt) );
           ATH_MSG_VERBOSE ( "wave written to ntuple" );
 	} // end of loop over DACs 	
 	

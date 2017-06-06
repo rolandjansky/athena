@@ -19,14 +19,17 @@
 
 
 ifeq ($(AtlasEvent_PLATFORM),)
-  ATLAS_ARCH = $(shell uname)
+  ifeq ($(PLATFORM),)
+    ATLAS_ARCH = $(shell uname)
+  else 
+    ATLAS_ARCH = $(PLATFORM)
+  endif
 else
   ATLAS_ARCH = $(AtlasEvent_PLATFORM)
-# ATLAS_ARCH = $(CMTCONFIG)
 endif
 
 
-ifeq ($(CMTCONFIG),)
+ifeq ($(TestArea),)
     ATLASBASE = $(HOME)/atlas/TIDA
 else
     ATLASBASE = $(TestArea)/Trigger/TrigAnalysis
@@ -342,10 +345,10 @@ libclean :
 	$(RM) -f $(LIBDIR)/lib*.{a,so} 
 
 
-resplot: 
+resplot: $(TIDUB)/Resplot/lib/$(ARCH_TYPE)/.d
 	make -C $(TIDUB)/Resplot/src install
 
-readcards: 
+readcards:  $(TIDUB)/Readcards/lib/$(ARCH_TYPE)/.d
 	make -C $(TIDUB)/Readcards/src install
 
 archive : 
@@ -361,7 +364,7 @@ $(INSTALLDIR)/TIDA% : $(EXEDIR)/%
 
 INSTALLFILES=comparitor chains cpucost runtool sb rdict reader
 
-ginstall : $(INSTALLDIR)/TIDA$(patsubst %,%,$(INSTALLFILES))
+ginstall : install $(INSTALLDIR)/TIDA$(patsubst %,%,$(INSTALLFILES))
 
 install : all 
 	cp $(EXEDIR)/comparitor $(HOME)/bin

@@ -9,7 +9,7 @@
 #ifndef MUONTGRECTOOLS_MUONTGHITS_H
 #define MUONTGRECTOOLS_MUONTGHITS_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/DetachedTrackingVolume.h"
 #include "TrkPrepRawData/PrepRawData.h"

@@ -524,12 +524,16 @@ void MonitoringFile::MDTChamEff( std::string inFilename, std::string title, int 
 						xAxis = dirName(0,1) + dirName(4,1) + "4";
 						yAxis = "M,13";
 					}
+                                        if(EffG && dirName(0,3) == "BMF"){
+                                                xAxis = dirName(0,1) + dirName(4,1) + returnString(TString(dirName(3,1)).Atoi()*2-1);
+                                        
+                                        } 
 					double tubeLength = 4.9615;
 					double tubeRadiusScale = 1;
 					// 	    double maxTubeLengthBarrel = 4961.5;  // just FYI
 					// 	    double maxTubeLengthEndcap = 5941.5;  // just FYI 
 					GetTubeLength(tubeLength,dirName);    // should always fill tubeLength
-					if(dirName(0,3) == "BME") tubeRadiusScale = 0.25;
+					if(dirName(0,3) == "BME" || dirName(0,3) == "BMG") tubeRadiusScale = 0.25;
 					double chamb_vol = (double)numTubesInChamber*tubeLength*0.0006881*tubeRadiusScale;   // 0.0006881 m2 = pi*tube_r^2
 					// BME tubes are half the radius = 1/4 the volume/
 					//double noiseCut_vol = (double)nTubes_noiseCut*tubeLength*0.0006881*tubeRadiusScale; // these represent the total volume in (m3) covered by the tubes in the chamber
@@ -550,6 +554,7 @@ void MonitoringFile::MDTChamEff( std::string inFilename, std::string title, int 
 					if( !hvOff ) {
 						TString eta_ring = dirName(0,2) + dirName(4,1);
 						TString eta_stat = dirName(3,1);
+                                                if(dirName(0,3)=="BMF") eta_stat = returnString(TString(dirName(3,1)).Atoi()*2-1);
 						if(eta_stat=="5"||eta_stat=="6"||eta_stat=="7"||eta_stat=="8") eta_ring+="5,6";
 						if(eta_stat=="3"||eta_stat=="4") eta_ring+="3,4";
 						if(eta_stat=="1"||eta_stat=="2"||eta_stat=="0") eta_ring+="1,2";
@@ -1507,6 +1512,11 @@ void MonitoringFile::MDT2DHWName(TString hardware_name, TString &stateta_IMO_c, 
 		eta_s = returnString( TString(hardware_name(3,1)).Atoi() + 1 );
 	}
 
+        //BMF1,2,3 corresponds to eta stations 1,3,5
+        if( hardware_name(0,3) == "BMF"){
+            eta_s = returnString(TString(hardware_name(3,1)).Atoi()*2 - 1);
+        }
+
 	stateta_c = hardware_name(0,2);
 	stateta_c += hardware_name(4,1);
 	stateta_c+=eta_s;
@@ -1662,6 +1672,7 @@ void MonitoringFile::GetTubeLength( double & tubeLength, TString dirName ) {
 	else if( dirName(0,4) == "BIR2" || dirName(0,4) == "BIR4" || dirName(0,4) == "BIR5" ) tubeLength = 1.5365;
 	else if( dirName(0,4) == "BIR3" || dirName(0,4) == "BIR6" ) tubeLength = 1.1055;
 	else if( dirName(0,3) == "BME" ) tubeLength = 2.15; //approximate!
+	else if( dirName(0,3) == "BMG" ) tubeLength = 1.12; //approximate!
 	else if( dirName(0,3) == "BML" ) tubeLength = 3.5515;
 	else if( dirName(0,3) == "BMS" || dirName(0,3) == "BMF" ) tubeLength = 3.0715;
 	else if( dirName(0,3) == "BOL" ) tubeLength = 4.9615;

@@ -52,10 +52,10 @@ public:
 void test1()
 {
   SG::ArenaHeader head;
+  typedef typename TestAlloc::initParams<int> defaultParams_t;
 
-  TestAlloc::Params params0;
-  params0.name = "foo";
-  size_t i0 = TestHandle::makeIndex<TestAlloc> (params0);
+  TestAlloc::Params params0 = defaultParams_t (1000, "foo");
+  size_t i0 = TestHandle::makeIndex<TestAlloc, defaultParams_t> (&params0);
 
   {
     TestHandle hand (&head, i0);
@@ -77,9 +77,8 @@ void test1()
 Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
        0/      0/      0       0/      0/      0       0/      0/      0  foo\n");
 
-  TestAlloc::Params params1;
-  params1.name = "bar";
-  size_t i1 = TestHandle::makeIndex<TestAlloc> (params1);
+  TestAlloc::Params params1 = defaultParams_t (1000, "bar");
+  size_t i1 = TestHandle::makeIndex<TestAlloc, defaultParams_t> (&params1);
 
   {
     TestHandle hand (&head, EventContext (0, 1), i1);
@@ -109,9 +108,8 @@ Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
 Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
        0/      0/      0       0/      0/      0       0/      0/      0  foo\n");
 
-  TestAlloc::Params params2;
-  params2.name = "fee";
-  size_t i2 = TestHandle::makeIndex<TestAlloc> (params2);
+  TestAlloc::Params params2 = defaultParams_t (1000, "fee");
+  size_t i2 = TestHandle::makeIndex<TestAlloc, defaultParams_t> (&params2);
   {
     TestHandle hand (&a1, i2);
     assert (hand.params().name == "fee");

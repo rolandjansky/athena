@@ -6,10 +6,12 @@
 
 TrackTruthSelector::TrackTruthSelector(const std::string &name,ISvcLocator *pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
+  m_detailedTrackTruthName("DetailedTrackTruth"),
+  m_outputName("TrackTruthNew"),
   m_subDetWeights(SubDetHitStatistics::NUM_SUBDETECTORS, 1.)
 {
-  declareProperty("DetailedTrackTruthName",  m_detailedTrackTruthName="DetailedTrackTruth");
-  declareProperty("OutputName",  m_outputName="TrackTruthNew");
+  declareProperty("DetailedTrackTruthName",  m_detailedTrackTruthName);
+  declareProperty("OutputName",  m_outputName);
 
   declareProperty("WeightPixel",  m_subDetWeights[SubDetHitStatistics::Pixel]);
   declareProperty("WeightSCT",    m_subDetWeights[SubDetHitStatistics::SCT]);
@@ -58,7 +60,7 @@ StatusCode TrackTruthSelector::execute() {
 
   TrackTruthCollection *out = new TrackTruthCollection(detailed->trackCollectionLink());
 
-  fillOutput(out, detailed);
+  fillOutput(out,detailed);
 
   ATH_CHECK(wh_output.record(std::make_unique<TrackTruthCollection>(*out)));
   

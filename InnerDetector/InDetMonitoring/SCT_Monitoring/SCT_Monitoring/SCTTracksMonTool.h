@@ -27,6 +27,9 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "TrkTrack/TrackCollection.h"
+
 // Forward declarations
 class IInterface;
 class TH1I;
@@ -42,6 +45,8 @@ class SCTTracksMonTool : public SCTMotherTrigMonTool{
  public:
   SCTTracksMonTool(const std::string & type, const std::string & name, const IInterface* parent); 
   virtual ~SCTTracksMonTool();
+  //initialize
+  virtual StatusCode initialize() final;
    /**    @name Book, fill & check (reimplemented from baseclass) */
 //@{
   ///Book histograms in initialization
@@ -142,7 +147,7 @@ private:
   bool m_useIDGlobal;
   //@}
   /// Name of the Track collection to use
-  std::string m_tracksName;
+  SG::ReadHandleKey<TrackCollection> m_tracksName;
   /// Cut on number of SCT hits on track
   int m_trackHitCut;
   /// CheckHists() frequency

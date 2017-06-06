@@ -93,7 +93,7 @@ int JetConstituentModSequence::execute() const {
     if(!m_trigger){
       if( evtStore()->record(modifiedCont, m_outputContainer+"ParticleFlowObjects").isFailure() ){
         ATH_MSG_ERROR("Unable to record cluster collection" << m_outputContainer+"ParticleFlowObjects" );
-        return NULL;
+        return 1;
       }
     }
 

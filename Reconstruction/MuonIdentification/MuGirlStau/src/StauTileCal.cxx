@@ -14,7 +14,7 @@
 #include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
 #include "ParticleCaloExtension/ParticleCellAssociation.h"
 #include "CaloEvent/CaloCellContainer.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 //static const int nLayers = 15;    // Number of layers in the calorimeter (for beta tile)
 static const int nEbins  = 44;    // Number of energy bins in calorimeter calibration (for beta tile)

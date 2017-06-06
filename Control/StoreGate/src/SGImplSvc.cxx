@@ -80,8 +80,6 @@ StoreID::type findStoreID(const string& storeNamePrefix) {
     { "StoreGateSvc", StoreID::EVENT_STORE },
     { "TagMetaDataStore", StoreID::METADATA_STORE }
       };
-  const auto BEG(NAMETOID.begin());
-  const auto END(NAMETOID.end());
 
   // Account for AthenaMT stores that start with {digits}_
   size_t ist (0);
@@ -138,15 +136,6 @@ StoreID::type findStoreID(const string& storeNamePrefix) {
     }
   }
   
-  // auto i(BEG);
-  // while (i != END) {
-  //   int comp = storeNamePrefix.compare(ist, (i->first).size(), (i->first));
-  //   //    std::cout << storeNamePrefix <<' '<< storeNamePrefix.size() <<' '<< i->first <<' '<< (i->first).size() <<' '<< comp << std::endl;
-  //   //NAMETOID is sorted so if we go past storeNamePrefix we are done
-  //   if (comp < 0) break;
-  //   else if (comp == 0) return i->second;
-  //   ++i;
-  // }
   return StoreID::UNKNOWN;
 }
 
@@ -224,7 +213,7 @@ SGImplSvc::~SGImplSvc()  {
 }
 
 //////////////////////////////////////////////////////////////
-/// Service initialisation
+/// Service initialization
 StatusCode SGImplSvc::initialize()    {
 
   msg() << MSG::VERBOSE <<  "Initializing " << name() 
@@ -404,12 +393,12 @@ StatusCode SGImplSvc::clearStore(bool forceRemove)
   return StatusCode::SUCCESS;
 }
 //////////////////////////////////////////////////////////////
-/// Service finalisation
+/// Service finalization
 StatusCode SGImplSvc::finalize()    {
   msg() << MSG::VERBOSE << "Finalizing " << name() 
         << " - package version " << PACKAGE_VERSION << endmsg ;
   
-  // Incident service may not work in finalizea.
+  // Incident service may not work in finalize.
   // Clear this, so that we won't try to send an incident from clearStore.
   (m_pIncSvc.release()).ignore();
   
@@ -467,7 +456,7 @@ StatusCode SGImplSvc::queryInterface(const InterfaceID& riid, void** ppvInterfac
   else if ( interfaceID().versionMatch(riid) )    {
     // In principle this should be cast to ISGImplSvc*. However, there
     // is an anomaly in that existing clients are using the concrete StoreGate
-    // interface instread of an abstract ISGImplSvc interface.
+    // interface instead of an abstract ISGImplSvc interface.
     *ppvInterface = (SGImplSvc*)this;
   } else  {
     // Interface is not directly available: try out a base class
@@ -498,7 +487,7 @@ StatusCode SGImplSvc::recordAddress(const std::string& skey,
       return StatusCode::FAILURE;
     }
 
-  //do not ovewrite a persistent object
+  //do not overwrite a persistent object
   if (m_pPPS) {
     DataProxy *dp(m_pPPS->retrieveProxy(dataID, skey, *m_pStore));
     if (dp && dp->transientAddress() && dp->transientAddress()->provider()) {
@@ -812,6 +801,8 @@ StatusCode SGImplSvc::addToStore (CLID id, SG::DataProxy* proxy)
  * @param returnExisting If true, return proxy if this key already exists.
  *                       If the object has been recorded under a different
  *                       key, then make an alias.
+ *                       If the object has been recorded under a different
+ *                       clid, then make a link.
  *
  * Full-blown record.  @c obj should usually be something
  * deriving from @c SG::DataBucket.
@@ -840,22 +831,61 @@ SG::DataProxy* SGImplSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
     SG::DataProxy* proxy = this->proxy (obj->clID(), key);
     if (proxy && proxy->isValid()) return proxy;
 
-    // Look for the same object recorded under a different key.
+    // Look for the same object recorded under a different key/clid.
     proxy = this->proxy (raw_ptr);
     if (proxy && proxy->isValid()) {
-      // Make an alias.
-      if (addAlias (key, proxy).isFailure()) {
+      if (proxy->transientAddress()->transientID (obj->clID())) {
+        // CLID matches.  Make an alias.
+        if (addAlias (key, proxy).isFailure()) {
+          CLID clid = proxy->clID();
+          std::string clidTypeName; 
+          m_pCLIDSvc->getTypeNameOfID(clid, clidTypeName).ignore();
+          msg() << MSG::WARNING
+                << "SGImplSvc::recordObject: addAlias fails for object "
+                << clid << "[" << clidTypeName << "] " << proxy->name()
+                << " and new key " << key
+                << endmsg;
+          
+          proxy = nullptr;
+        }
+      }
+
+      else if (key == proxy->name() ||
+               proxy->alias().count (key) > 0)
+      {
+        // key matches.  Make a symlink.
+        if (addSymLink (obj->clID(), proxy).isFailure()) {
+          CLID clid = proxy->clID();
+          std::string clidTypeName; 
+          m_pCLIDSvc->getTypeNameOfID(clid, clidTypeName).ignore();
+          CLID newclid = obj->clID();
+          std::string newclidTypeName; 
+          m_pCLIDSvc->getTypeNameOfID(newclid, newclidTypeName).ignore();
+          msg() << MSG::ERROR
+                << "SGImplSvc::recordObject: addSymLink fails for object "
+                << clid << "[" << clidTypeName << "] " << proxy->name()
+                << " and new clid " << newclid << "[" << newclidTypeName << "]"
+                << endmsg;
+          proxy = nullptr;
+        }
+      }
+
+      else {
         CLID clid = proxy->clID();
         std::string clidTypeName; 
         m_pCLIDSvc->getTypeNameOfID(clid, clidTypeName).ignore();
-        msg() << MSG::WARNING
-              << "SGImplSvc::recordObject: addAlias fails for object "
+        CLID newclid = obj->clID();
+        std::string newclidTypeName; 
+        m_pCLIDSvc->getTypeNameOfID(newclid, newclidTypeName).ignore();
+        msg() << MSG::ERROR
+              << "SGImplSvc::recordObject: existing object found with "
               << clid << "[" << clidTypeName << "] " << proxy->name()
-              << " and new key " << key
+              << " but neither clid " << newclid << "[" << newclidTypeName << "]"
+              << " nor key " << key << " match."
               << endmsg;
-
         proxy = nullptr;
       }
+
       return proxy;
     }
   }
@@ -896,6 +926,9 @@ void SGImplSvc::setSlotNumber (int slot, int numSlots)
 {
   m_slotNumber = slot;
   m_numSlots = numSlots;
+
+  SG::ArenaHeader* header = SG::ArenaHeader::defaultHeader();
+  header->setArenaForSlot (slot, &m_arena);
 }
 
 
@@ -1266,7 +1299,7 @@ SGImplSvc::proxyRange(const CLID& id,
 StatusCode SGImplSvc::setConst(const void* pObject)
 {
   lock_t lock (m_mutex);
-  // Check if dataproxy does not exist
+  // Check if DataProxy does not exist
   DataProxy * dp = proxy(pObject); 
 
   if (0 == dp)
@@ -1671,7 +1704,7 @@ void SGImplSvc::addedNewTransObject(CLID clid, const std::string& key) {
 /**
  * @brief Tell the store that a proxy has been bound to a handle.
  * @param proxy The proxy that was bound.
- * The default implemenatation does nothing.
+ * The default implementation does nothing.
  */
 void
 SGImplSvc::boundHandle (IResetable* handle)

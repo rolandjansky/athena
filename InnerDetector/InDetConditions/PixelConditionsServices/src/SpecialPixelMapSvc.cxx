@@ -851,102 +851,97 @@ StatusCode SpecialPixelMapSvc::registerCondAttrListCollection(const DetectorSpec
 }
 
 StatusCode SpecialPixelMapSvc::createFromDetectorStore(const std::string condAttrListCollectionKey, 
-						       const std::string pixelMapKey,
-						       bool fillMissing ) const{
-  
+    const std::string pixelMapKey,
+    bool fillMissing ) const{
+
   DetectorSpecialPixelMap* spm = new DetectorSpecialPixelMap();
 
   spm->resize(m_pixelID->wafer_hash_max(),NULL);
-  
+
   StatusCode sc = m_detStore->record(spm, pixelMapKey);
   if ( !sc.isSuccess() ){
     ATH_MSG_ERROR( "Unable to record DetectorSpecialPixelMap at "  << pixelMapKey );
     return StatusCode::FAILURE; 
   }
-  
+
   const CondAttrListCollection* attrListColl = 0;
-  
+
   sc = m_detStore->retrieve(attrListColl, condAttrListCollectionKey);
   if( !sc.isSuccess() ){ 
-    ATH_MSG_ERROR( "Unable to retrieve CondAttrListCollection,"
-		   << " constructing empty DetectorSpecialPixelMap" );
+    ATH_MSG_ERROR( "Unable to retrieve CondAttrListCollection," << " constructing empty DetectorSpecialPixelMap" );
   }
   else{ 
     ATH_MSG_DEBUG( "CondAttrListCollection retrieved" );
-    
+
     if( attrListColl->size() == 0 ){
-      ATH_MSG_INFO( "CondAttrListCollection is empty,"
-		    << " constructing empty DetectorSpecialPixelMap" );
-    }
-    else{
-      
-      for(CondAttrListCollection::const_iterator attrList = attrListColl->begin(); 
-	  attrList != attrListColl->end(); ++attrList){
-	
-	std::ostringstream attrStr;
-	(*attrList).second.toOutputStream(attrStr);
-	ATH_MSG_VERBOSE( "ChanNum " << (*attrList).first << " Attribute list " << attrStr.str() );
-	
-	CondAttrListCollection::ChanNum chanNum = (*attrList).first;
-	CondAttrListCollection::iov_const_iterator iovIt = attrListColl->chanIOVPair(chanNum);
-	const IOVRange& range = (*iovIt).second;
-	
-	if(range.start().isTimestamp()) {
-	  ATH_MSG_VERBOSE( "Range timestamp : from " << range.start().timestamp()
-			   << " until " << range.stop().timestamp() );
-	}
-	else {
-	  ATH_MSG_VERBOSE( "Range R/E : from " << range.start().run() << " " << range.start().event()
-			   << " until " << range.stop().run() << " " << range.stop().event() );
-	}
-	
-  const unsigned int moduleID = static_cast<unsigned int>((*attrList).second["moduleID"].data<const int>());
-  unsigned int idhash; 
-  if (m_forceNewDBContent) idhash = IdentifierHash(moduleID);
-  else if(isIBL){ 
-    if(m_dummy || IdentifierHash(moduleID)>m_pixelID->wafer_hash_max()){
-      //	    continue (useful to transport the old DB to new DB with IBL!;
-      int component = static_cast<int>((moduleID & (3 << 25)) / 33554432) * 2 - 2;
-      unsigned int layer = (moduleID & (3 << 23)) / 8388608  ;
-      if(component==0)layer +=1; // shift layer
-      unsigned int phi = (moduleID & (63 << 17)) / 131072 ;
-      int eta = static_cast<int>((moduleID & (15 << 13)) / 8192) - 6 ;
-      Identifier id = m_pixelID->wafer_id( component, layer, phi, eta );
-      idhash =  m_pixelID->wafer_hash(id);
-    }
-    else{
-      idhash = IdentifierHash(moduleID);
-    }
-  }
-  else {
-    int component = static_cast<int>((moduleID & (3 << 25)) / 33554432) * 2 - 2;
-    unsigned int layer = (moduleID & (3 << 23)) / 8388608 ;
-    unsigned int phi = (moduleID & (63 << 17)) / 131072 ;
-    int eta = static_cast<int>((moduleID & (15 << 13)) / 8192) - 6 ;
-    Identifier id = m_pixelID->wafer_id( component, layer, phi, eta );
-    idhash =  m_pixelID->wafer_hash(id);
-  }
-  if( idhash < m_pixelID->wafer_hash_max()){
-
-    coral::AttributeList::const_iterator attribute = (*attrList).second.begin();
-    ++attribute;
-    if( (*attribute).specification().typeName() == "blob" ){
-
-      const coral::Blob& blob = (*attrList).second["SpecialPixelMap"].data<const coral::Blob>();
-      delete (*spm)[idhash];
-      (*spm)[idhash] = new ModuleSpecialPixelMap(blob, getChips(idhash) );
+      ATH_MSG_INFO( "CondAttrListCollection is empty," << " constructing empty DetectorSpecialPixelMap" );
     }
     else{
 
-      const std::string& clob = (*attrList).second["ModuleSpecialPixelMap_Clob"].data<const std::string>();
-      delete (*spm)[idhash];
-      (*spm)[idhash] = new ModuleSpecialPixelMap(clob, getChips(idhash) );
-    }
-  }
-  else{
-    ATH_MSG_FATAL( "Module hashID out of range: " << idhash );
-    return StatusCode::FAILURE;
-  }
+      for(CondAttrListCollection::const_iterator attrList = attrListColl->begin(); attrList != attrListColl->end(); ++attrList){
+
+        std::ostringstream attrStr;
+        (*attrList).second.toOutputStream(attrStr);
+        ATH_MSG_VERBOSE( "ChanNum " << (*attrList).first << " Attribute list " << attrStr.str() );
+
+        CondAttrListCollection::ChanNum chanNum = (*attrList).first;
+        CondAttrListCollection::iov_const_iterator iovIt = attrListColl->chanIOVPair(chanNum);
+        const IOVRange& range = (*iovIt).second;
+
+        if(range.start().isTimestamp()) {
+          ATH_MSG_VERBOSE( "Range timestamp : from " << range.start().timestamp() << " until " << range.stop().timestamp() );
+        }
+        else {
+          ATH_MSG_VERBOSE( "Range R/E : from " << range.start().run() << " " << range.start().event() << " until " << range.stop().run() << " " << range.stop().event() );
+        }
+
+        const unsigned int moduleID = static_cast<unsigned int>((*attrList).second["moduleID"].data<const int>());
+        unsigned int idhash; 
+        if (m_forceNewDBContent) idhash = IdentifierHash(moduleID);
+        else if(isIBL){ 
+          if(m_dummy || IdentifierHash(moduleID)>m_pixelID->wafer_hash_max()){
+            //	    continue (useful to transport the old DB to new DB with IBL!;
+            int component = static_cast<int>((moduleID & (3 << 25)) / 33554432) * 2 - 2;
+            unsigned int layer = (moduleID & (3 << 23)) / 8388608  ;
+            if(component==0)layer +=1; // shift layer
+            unsigned int phi = (moduleID & (63 << 17)) / 131072 ;
+            int eta = static_cast<int>((moduleID & (15 << 13)) / 8192) - 6 ;
+            Identifier id = m_pixelID->wafer_id( component, layer, phi, eta );
+            idhash =  m_pixelID->wafer_hash(id);
+          }
+          else{
+            idhash = IdentifierHash(moduleID);
+          }
+        }
+        else {
+          int component = static_cast<int>((moduleID & (3 << 25)) / 33554432) * 2 - 2;
+          unsigned int layer = (moduleID & (3 << 23)) / 8388608 ;
+          unsigned int phi = (moduleID & (63 << 17)) / 131072 ;
+          int eta = static_cast<int>((moduleID & (15 << 13)) / 8192) - 6 ;
+          Identifier id = m_pixelID->wafer_id( component, layer, phi, eta );
+          idhash =  m_pixelID->wafer_hash(id);
+        }
+        if( idhash < m_pixelID->wafer_hash_max()){
+
+          coral::AttributeList::const_iterator attribute = (*attrList).second.begin();
+          ++attribute;
+          if( (*attribute).specification().typeName() == "blob" ){
+
+            const coral::Blob& blob = (*attrList).second["SpecialPixelMap"].data<const coral::Blob>();
+            delete (*spm)[idhash];
+            (*spm)[idhash] = new ModuleSpecialPixelMap(blob, getChips(idhash) );
+          }
+          else{
+
+            const std::string& clob = (*attrList).second["ModuleSpecialPixelMap_Clob"].data<const std::string>();
+            delete (*spm)[idhash];
+            (*spm)[idhash] = new ModuleSpecialPixelMap(clob, getChips(idhash) );
+          }
+        }
+        else{
+          ATH_MSG_FATAL( "Module hashID out of range: " << idhash );
+          return StatusCode::FAILURE;
+        }
       }
     }
   }

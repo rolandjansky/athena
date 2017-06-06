@@ -25,13 +25,15 @@
 #include "TrkParameters/TrackParameters.h"
 //#####################################
 
-#include "ISF_FastCaloSimParametrization/FastCaloSimCaloExtrapolation.h"
+#include "ISF_FastCaloSimParametrization/IFastCaloSimCaloExtrapolation.h"
 #include "ISF_FastCaloSimParametrization/IFastCaloSimGeometryHelper.h"
 #include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
 
-namespace Trk {
+namespace Trk
+{
   class TrackingVolume;
 }
+
 #include "TrkExInterfaces/ITimedExtrapolator.h" 
 #include "TrkEventPrimitives/PdgToParticleHypothesis.h"
 class ICaloSurfaceHelper;
@@ -74,7 +76,6 @@ class ISF_HitAnalysis : public AthAlgorithm {
    virtual StatusCode initialize();
    virtual StatusCode finalize();
    virtual StatusCode execute();
-   virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
    virtual StatusCode updateMetaData(IOVSVC_CALLBACK_ARGS);
 
    //bool get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector,CaloCell_ID_FCS::CaloSample sample);
@@ -172,7 +173,22 @@ class ISF_HitAnalysis : public AthAlgorithm {
    std::vector<double>* m_TTC_IDCaloBoundary_z;
    std::vector<double>* m_TTC_Angle3D;
    std::vector<double>* m_TTC_AngleEta;
-
+   
+   std::vector<std::vector<double> >* m_newTTC_entrance_eta;
+   std::vector<std::vector<double> >* m_newTTC_entrance_phi;
+   std::vector<std::vector<double> >* m_newTTC_entrance_r;
+   std::vector<std::vector<double> >* m_newTTC_entrance_z;
+   std::vector<std::vector<double> >* m_newTTC_back_eta;
+   std::vector<std::vector<double> >* m_newTTC_back_phi;
+   std::vector<std::vector<double> >* m_newTTC_back_r;
+   std::vector<std::vector<double> >* m_newTTC_back_z;
+   std::vector<double>* m_newTTC_IDCaloBoundary_eta;
+   std::vector<double>* m_newTTC_IDCaloBoundary_phi;
+   std::vector<double>* m_newTTC_IDCaloBoundary_r;
+   std::vector<double>* m_newTTC_IDCaloBoundary_z;
+   std::vector<double>* m_newTTC_Angle3D;
+   std::vector<double>* m_newTTC_AngleEta;
+   
    /** The new Extrapolator setup */
    ToolHandle<Trk::ITimedExtrapolator>   m_extrapolator;          
    ToolHandle<ICaloSurfaceHelper>   m_caloSurfaceHelper;
@@ -200,9 +216,13 @@ class ISF_HitAnalysis : public AthAlgorithm {
    std::vector< CaloCell_ID_FCS::CaloSample > m_surfacelist;
    
    //CaloGeometryFromCaloDDM* m_CaloGeometry;
+   
    /** The FastCaloSimGeometryHelper tool */
    ToolHandle<IFastCaloSimGeometryHelper> m_CaloGeometryHelper;
 
+   /** The FastCaloSimCaloExtrapolation tool */
+   ToolHandle<IFastCaloSimCaloExtrapolation> m_FastCaloSimCaloExtrapolation;
+ 
    bool   isCaloBarrel(int sample) const;
    double deta(int sample,double eta) const;
    void   minmaxeta(int sample,double eta,double& mineta,double& maxeta) const;

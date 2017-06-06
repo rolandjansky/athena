@@ -175,8 +175,8 @@ class XYPosition
   void used(bool used){m_used=used;}
   void usable(bool usable){m_usable=usable;}
 
-  friend ostream &operator << (ostream &s, XYPosition &xy) {
-    s <<"x y sigma signchi*pchi2 layer used usable type : "<<xy.x()<<" "<<xy.y()<<" "<<xy.sigma()<<" "<<setw(9)<<setprecision(2)<<xy.signchi()*xy.pchi2()<<" "<<xy.layer()<<" "<<xy.used()<<" "<<xy.usable()<<" "<<xy.type();
+  friend std::ostream &operator << (std::ostream &s, XYPosition &xy) {
+    s <<"x y sigma signchi*pchi2 layer used usable type : "<<xy.x()<<" "<<xy.y()<<" "<<xy.sigma()<<" "<<std::setw(9)<<std::setprecision(2)<<xy.signchi()*xy.pchi2()<<" "<<xy.layer()<<" "<<xy.used()<<" "<<xy.usable()<<" "<<xy.type();
     //s <<"x y sigma X XX SS pchi2 layer used usable : "<<xy.x()<<" "<<xy.y()<<" "<<xy.sigma()<<" "<<xy.X()<<" "<<xy.XX()<<" "<<xy.SS()<<" "<<xy.pchi2()<<" "<<xy.layer()<<" "<<xy.used()<<" "<<xy.usable();
     return s;
   }

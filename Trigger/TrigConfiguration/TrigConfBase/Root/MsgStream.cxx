@@ -23,7 +23,7 @@ namespace Athena {
   void reportMessage(IMessageSvc*, const std::string&, int, const std::string&) __attribute__((weak));
   int outputLevel(IMessageSvc*, const std::string&) __attribute__((weak));
   void setOutputLevel(IMessageSvc*, const std::string&, int) __attribute__((weak));
-};
+}
 
 /** Global pointer to MessageSvc and helper to fill it
  */

@@ -143,7 +143,7 @@ FTKMergerAlgo::FTKMergerAlgo(const std::string& name, ISvcLocator* pSvcLocator) 
 		  "FTK layer configuration");
   declareProperty("force_merge",m_force_merge,"Force the merging disabling any check");
  
-  declareProperty("HitWarrior",m_HW_level);
+  declareProperty("HitWarriorMerger",m_HW_level);
   declareProperty("HWNDiff",m_HW_ndiff);
   declareProperty("loadHWConf_path",m_HW_path); 
   declareProperty("KeepRejected",m_keep_rejected); 
@@ -479,9 +479,9 @@ StatusCode FTKMergerAlgo::execute() {
                m_banks[ib]->naoSetNroadsAMMissPix(0);
                m_banks[ib]->naoSetNroadsAMMissSCT(0);
                m_banks[ib]->naoSetNroadsMOD(0);
-               m_banks[ib]->naoSetNclus(zerovec);
-               m_banks[ib]->naoSetNclus_road(zerovec);
-               m_banks[ib]->naoSetNss(zerovec);
+               m_banks[ib]->naoSetNclus(m_zerovec);
+               m_banks[ib]->naoSetNclus_road(m_zerovec);
+               m_banks[ib]->naoSetNss(m_zerovec);
                StatusCode sc = merge_roads(m_banks[ib],m_srbanks[ib], ib, m_nsubregions);
                if (sc.isFailure()) {
                   log << MSG::FATAL << "Unable to merge roads" << endmsg;
@@ -879,7 +879,7 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
               m_ftkroad_tomerge_branch[ib][isub]->GetEntry(0);
               m_banks[ib]->init(m_srbanks[ib][isub]->getNPlanes()); 
               int np = m_srbanks[ib][isub]->getNPlanes();
-              if (zerovec.size() == 0) for (int i = 0; i < np; i++) zerovec.push_back(0);
+              if (m_zerovec.size() == 0) for (int i = 0; i < np; i++) m_zerovec.push_back(0);
            }
         }
 
@@ -907,7 +907,7 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
               m_ftkroad_tomerge_branch[ib][isub]->GetEntry(0);
               m_banks[m_nregions]->init(m_srbanks[ib][isub]->getNPlanes()); 
               int np = m_srbanks[ib][isub]->getNPlanes();
-              if (zerovec.size() == 0) for (int i = 0; i < np; i++) zerovec.push_back(0);
+              if (m_zerovec.size() == 0) for (int i = 0; i < np; i++) m_zerovec.push_back(0);
            }
         }
      }

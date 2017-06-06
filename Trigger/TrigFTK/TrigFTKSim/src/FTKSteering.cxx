@@ -43,137 +43,137 @@ char const *SteeringParameter::operator=(char const *) {
  */
 
 int &SteeringParameterInt::operator=(int const &i) {
-   data=i;
-   return data;
+   m_data=i;
+   return m_data;
 }
 
-SteeringParameterInt::SteeringParameterInt(int init) : data(init) {
+SteeringParameterInt::SteeringParameterInt(int init) : m_data(init) {
 }
 
 SteeringParameterInt::operator int() const {
-   return data;
+   return m_data;
 }
 
 SteeringParameterInt::operator double() const {
-   return (double)data;
+   return (double)m_data;
 }
 
 bool SteeringParameterInt::Read(istream &in) {
-   in>>data;
+   in>>m_data;
    return in.good();
 }
 
 void SteeringParameterInt::Write(ostream &out) const {
-   out<<data;
+   out<<m_data;
 }
 
 SteeringParameter *SteeringParameterInt::Clone(void) const {
-   return new SteeringParameterInt(data);
+   return new SteeringParameterInt(m_data);
 }
 
-SteeringParameterDouble::SteeringParameterDouble(double init) : data(init) {
+SteeringParameterDouble::SteeringParameterDouble(double init) : m_data(init) {
 }
 
 double &SteeringParameterDouble::operator=(double const &i) {
-   data=i;
-   return data;
+   m_data=i;
+   return m_data;
 }
 
 SteeringParameterDouble::operator double() const {
-   return data;
+   return m_data;
 }
 
 bool SteeringParameterDouble::Read(istream &in) {
-   in>>data;
+   in>>m_data;
    return in.good();
 }
 
 void SteeringParameterDouble::Write(ostream &out) const {
-   out<<data;
+   out<<m_data;
 }
 
 SteeringParameter *SteeringParameterDouble::Clone(void) const {
-   return new SteeringParameterDouble(data);
+   return new SteeringParameterDouble(m_data);
 }
 
 SteeringParameterString::SteeringParameterString(char const * init) {
-   if(init) data=init;
+   if(init) m_data=init;
 }
 
 char const *SteeringParameterString::operator=(char const *c) {
-   data=c;
-   return data.c_str();
+   m_data=c;
+   return m_data.c_str();
 }
 
 SteeringParameterString::operator char const *() const {
-   return data.c_str();
+   return m_data.c_str();
 }
 
 bool SteeringParameterString::Read(istream &in) {
-   in>>data;
+   in>>m_data;
    return in.good();
 }
 
 void SteeringParameterString::Write(ostream &out) const {
-   out<<data;
+   out<<m_data;
 }
 
 SteeringParameter *SteeringParameterString::Clone(void) const {
-   return new SteeringParameterString(data.c_str());
+   return new SteeringParameterString(m_data.c_str());
 }
 
 SteeringParameterString::~SteeringParameterString(void) {
 }
 
 SteeringParameterArray::SteeringParameterArray(void) {
-   prototype=0;
-   fixed=0;
+   m_prototype=0;
+   m_fixed=0;
 }
 
 SteeringParameterArray::~SteeringParameterArray(void) {
    while(Shrink()) ;;
-   if(prototype) delete prototype;
+   if(m_prototype) delete m_prototype;
 }
 
 SteeringParameter *SteeringParameterArray::Expand(void) {
    SteeringParameter *r=0;
-   if(!fixed) {
-      r=prototype->Clone();
-      data.push_back(r);
+   if(!m_fixed) {
+      r=m_prototype->Clone();
+      m_data.push_back(r);
    }
    return r;
 }
 
 bool SteeringParameterArray::Shrink(void) {
-   bool r=data.size();
+   bool r=m_data.size();
    if(r) {
-      delete data[data.size()-1];
-      data.resize(data.size()-1);
+      delete m_data[m_data.size()-1];
+      m_data.resize(m_data.size()-1);
    }
    return r;
 }
 
 void SteeringParameterArray::Clear(void) {
-   if(fixed) {
-      for(unsigned i=0;i<data.size();i++) {
-         *(data[i]) = *prototype;
+   if(m_fixed) {
+      for(unsigned i=0;i<m_data.size();i++) {
+         *(m_data[i]) = *m_prototype;
       }
    } else {
       while(Shrink()) ;;
-      data.resize(0);
+      m_data.resize(0);
    }
 }
 
 void SteeringParameterArray::Init(SteeringParameter *proto,unsigned size) {
-   if(prototype) delete prototype;
-   prototype=proto;
-   fixed=size;
-   for(unsigned i=0;i<data.size();i++) {
-      delete data[i];
+   if(m_prototype) delete m_prototype;
+   m_prototype=proto;
+   m_fixed=size;
+   for(unsigned i=0;i<m_data.size();i++) {
+      delete m_data[i];
    }
-   data.resize(fixed);
-   for(unsigned i=0;i<data.size();i++) {
-      data[i]=prototype->Clone();
+   m_data.resize(m_fixed);
+   for(unsigned i=0;i<m_data.size();i++) {
+      m_data[i]=m_prototype->Clone();
    }
 }
 
@@ -183,32 +183,32 @@ FTKSteering::~FTKSteering(void) {
 SteeringParameterArray &FTKSteering::AddPar
 (char const *name,SteeringParameter *proto,unsigned size) {
    string s(name);
-   if(parameter.find(s)!=parameter.end()) {
+   if(m_parameter.find(s)!=m_parameter.end()) {
       FTKLogging logging("SteeringParameterArray");
       logging.Error("AddPar")<<"duplicate name \""<<s<<"\"\n";
    }
-   SteeringParameterArray &r=parameter[name];
+   SteeringParameterArray &r=m_parameter[name];
    r.Init(proto,size);
    return r;
 }
 
 SteeringParameterArray const *FTKSteering::operator[](string const &par) const {
-   map<string,SteeringParameterArray>::const_iterator i=parameter.find(par);
-   if(i==parameter.end()) return 0;
+   map<string,SteeringParameterArray>::const_iterator i=m_parameter.find(par);
+   if(i==m_parameter.end()) return 0;
    return & (*i).second;
 }
 
 SteeringParameterArray &SteeringParameterArray::operator=
 (SteeringParameterArray const &that) {
    if(&that != this) {
-      prototype=that.prototype->Clone();
-      fixed=that.fixed;
-      for(unsigned i=0;i<data.size();i++) {
-         delete data[i];
+      m_prototype=that.m_prototype->Clone();
+      m_fixed=that.m_fixed;
+      for(unsigned i=0;i<m_data.size();i++) {
+         delete m_data[i];
       }
-      data.resize(that.data.size());
-      for(unsigned i=0;i<that.data.size();i++) {
-         data.push_back(that[i].Clone());
+      m_data.resize(that.m_data.size());
+      for(unsigned i=0;i<that.m_data.size();i++) {
+         m_data.push_back(that[i].Clone());
       }
    }
    return *this;
@@ -231,8 +231,8 @@ int FTKSteering::Parse(std::istream &inRaw) {
    inStreamBuf.push(CommentLineFilter());
    inStreamBuf.push(inRaw);
    istream in(&inStreamBuf);
-   for(map<string,SteeringParameterArray>::iterator i=parameter.begin();
-       i!=parameter.end();i++) {
+   for(map<string,SteeringParameterArray>::iterator i=m_parameter.begin();
+       i!=m_parameter.end();i++) {
       (*i).second.Clear();
    }
    string token;
@@ -241,8 +241,8 @@ int FTKSteering::Parse(std::istream &inRaw) {
    while(!in.eof()) {
       in>>token;
       if(!in.good()) break;
-      map<string,SteeringParameterArray>::iterator i=parameter.find(token);
-      if(i!=parameter.end()) {
+      map<string,SteeringParameterArray>::iterator i=m_parameter.find(token);
+      if(i!=m_parameter.end()) {
          if(in.good()) {
             SteeringParameterArray &spa=(*i).second;
             int nDim=spa.GetFixedSize();
@@ -257,7 +257,7 @@ int FTKSteering::Parse(std::istream &inRaw) {
             for(unsigned j=0;j<(unsigned)nDim;j++) {
                if(spa.GetActualSize()<=j) spa.Expand();
                if(!spa[j].Read(in)) {
-                  Error("Parse")<<"parameter "<<(*i).first
+                  Error("Parse")<<"m_parameter "<<(*i).first
                                 <<" problem while reading index "<<j<<"/"
                                 <<nDim<<"\n";
                   error++;
@@ -275,14 +275,14 @@ int FTKSteering::Parse(std::istream &inRaw) {
             if(spa.GetActualSize()==1) {
                char const *s=spa[0];
                if(s) {
-                  Info("Parse")<<"read parameter \""<<(*i).first<<"\"=\""
+                  Info("Parse")<<"read m_parameter \""<<(*i).first<<"\"=\""
                                <<s<<"\"\n";
                } else {
-                  Info("Parse")<<"read parameter \""<<(*i).first<<"\"="
+                  Info("Parse")<<"read m_parameter \""<<(*i).first<<"\"="
                                <<(double)spa[0]<<"\n";
                }
             } else {
-               Info("Parse")<<"read parameter array \""<<(*i).first
+               Info("Parse")<<"read m_parameter array \""<<(*i).first
                             <<"\" of size "<<spa.GetActualSize()
                             <<"\n";
             }
@@ -302,7 +302,7 @@ int FTKSteering::Parse(std::istream &inRaw) {
 
 void FTKSteering::Print(ostream &out) const {
    for(map<string,SteeringParameterArray>::const_iterator i=
-          parameter.begin();i!=parameter.end();i++) {
+          m_parameter.begin();i!=m_parameter.end();i++) {
       out<<(*i).first<<" =";
       for(unsigned j=0;j<(*i).second.GetActualSize();j++) {
          out<<" ";

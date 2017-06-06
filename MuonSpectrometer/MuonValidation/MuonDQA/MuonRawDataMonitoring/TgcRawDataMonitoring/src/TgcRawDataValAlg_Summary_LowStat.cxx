@@ -58,9 +58,9 @@ TgcRawDataValAlg::bookHistogramsSummary(){
   
   ///////////////////////////////////////////////////////////////////////////
   // Make MonGroups for histogram booking paths
-  MonGroup tgcprd_summary( this, generic_path_tgcmonitoring + "/Global/Summary", run, ATTRIB_UNMANAGED ); 
-  MonGroup tgcprd_summary_a( this, generic_path_tgcmonitoring + "/TGCEA/Summary", run, ATTRIB_UNMANAGED ); 
-  MonGroup tgcprd_summary_c( this, generic_path_tgcmonitoring + "/TGCEC/Summary", run, ATTRIB_UNMANAGED ); 
+  MonGroup tgcprd_summary( this, m_generic_path_tgcmonitoring + "/Global/Summary", run, ATTRIB_UNMANAGED ); 
+  MonGroup tgcprd_summary_a( this, m_generic_path_tgcmonitoring + "/TGCEA/Summary", run, ATTRIB_UNMANAGED ); 
+  MonGroup tgcprd_summary_c( this, m_generic_path_tgcmonitoring + "/TGCEC/Summary", run, ATTRIB_UNMANAGED ); 
   MonGroup* tgcprd_summary_ac[2] = { &tgcprd_summary_a,&tgcprd_summary_c };
   
   std::stringstream ss;
@@ -71,16 +71,16 @@ TgcRawDataValAlg::bookHistogramsSummary(){
   for(int i=0;i<2;i++){// side
     //Summary
     ss.str(""); ss << "Summary_Of_Log10_"<<wireoccupergasgap<<side[i];
-    tgcsummaryoflog10wireoccupancypergasgap[i]=new TH1F(ss.str().c_str(), (ss.str() + ";log10(Occupancy); Entries").c_str(),80,-8.,0.);
-    sc=tgcprd_summary_ac[i]->regHist(tgcsummaryoflog10wireoccupancypergasgap[i]) ;  
+    m_tgcsummaryoflog10wireoccupancypergasgap[i]=new TH1F(ss.str().c_str(), (ss.str() + ";log10(Occupancy); Entries").c_str(),80,-8.,0.);
+    sc=tgcprd_summary_ac[i]->regHist(m_tgcsummaryoflog10wireoccupancypergasgap[i]) ;  
     if(sc.isFailure()) { 
       m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
       return sc;
     }
     
     ss.str(""); ss << "Summary_Of_Log10_"<<stripoccupergasgap<<side[i];
-    tgcsummaryoflog10stripoccupancypergasgap[i]=new TH1F(ss.str().c_str(), (ss.str() + ";log10(Occupancy); Entries" ).c_str(),80,-8.,0.);
-    sc=tgcprd_summary_ac[i]->regHist(tgcsummaryoflog10stripoccupancypergasgap[i]) ;  
+    m_tgcsummaryoflog10stripoccupancypergasgap[i]=new TH1F(ss.str().c_str(), (ss.str() + ";log10(Occupancy); Entries" ).c_str(),80,-8.,0.);
+    sc=tgcprd_summary_ac[i]->regHist(m_tgcsummaryoflog10stripoccupancypergasgap[i]) ;  
     if(sc.isFailure()) { 
       m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
       return sc;
@@ -98,32 +98,28 @@ TgcRawDataValAlg::bookHistogramsSummary(){
   for(int sta=0;sta<4;sta++){// station
     for(int eta=0;eta<6;eta++){// eta
       if(sta==0 && eta==5){
-        tgcsummaryoflog10wireoccupancyperchambertype[ntype] = 0;
-        tgcsummaryoflog10stripoccupancyperchambertype[ntype] = 0;
         continue;
         
       }
       if(sta==3 && eta >1){
-        tgcsummaryoflog10wireoccupancyperchambertype[ntype] = 0;
-        tgcsummaryoflog10stripoccupancyperchambertype[ntype] = 0;
         continue;
       }
       
       if(chamtype[sta][eta].compare("EMPTY") == 0) continue;
       // Summary
       ss.str(""); ss << "Summary_Of_Log10_" << wireoccuperchamtype << sta+1 << chamtype[sta][eta];
-      tgcsummaryoflog10wireoccupancyperchambertype[ntype]=new TH1F(ss.str().c_str(), ( ss.str() + ";log10(Occupancy); Entries").c_str(),80,-8.,0.);
-      sc=tgcprd_summary.regHist(tgcsummaryoflog10wireoccupancyperchambertype[ntype]) ;  
+      m_tgcsummaryoflog10wireoccupancyperchambertype[ntype]=new TH1F(ss.str().c_str(), ( ss.str() + ";log10(Occupancy); Entries").c_str(),80,-8.,0.);
+      sc=tgcprd_summary.regHist(m_tgcsummaryoflog10wireoccupancyperchambertype[ntype]) ;  
       if(sc.isFailure()) { 
-        m_log << MSG::FATAL << "tgcsummaryoflog10wireoccupancyperchambertype["<<ntype<<"] Failed to register histogram " << endmsg;       
+        m_log << MSG::FATAL << "m_tgcsummaryoflog10wireoccupancyperchambertype["<<ntype<<"] Failed to register histogram " << endmsg;       
         return sc;
       }
       // Summary
       ss.str(""); ss << "Summary_Of_Log10_" << stripoccuperchamtype << sta+1 << chamtype[sta][eta];
-      tgcsummaryoflog10stripoccupancyperchambertype[ntype]=new TH1F(ss.str().c_str(), ( ss.str() + ";log10(Occupancy); Entries").c_str(),80,-8.,0.);
-      sc=tgcprd_summary.regHist(tgcsummaryoflog10stripoccupancyperchambertype[ntype]) ;  
+      m_tgcsummaryoflog10stripoccupancyperchambertype[ntype]=new TH1F(ss.str().c_str(), ( ss.str() + ";log10(Occupancy); Entries").c_str(),80,-8.,0.);
+      sc=tgcprd_summary.regHist(m_tgcsummaryoflog10stripoccupancyperchambertype[ntype]) ;  
       if(sc.isFailure()) { 
-        m_log << MSG::FATAL << "tgcsummaryoflog10stripoccupancyperchambertype["<<ntype<<"] Failed to register histogram " << endmsg;
+        m_log << MSG::FATAL << "m_tgcsummaryoflog10stripoccupancyperchambertype["<<ntype<<"] Failed to register histogram " << endmsg;
         return sc;
       }
       ntype++;
@@ -140,8 +136,8 @@ TgcRawDataValAlg::bookHistogramsLowStat(){
   m_log << MSG::INFO << "bookHistogramsLowStat" << endmsg;
   StatusCode sc=StatusCode::SUCCESS;
 
-  MonGroup tgcprd_lowstat_a( this, generic_path_tgcmonitoring + "/TGCEA", lowStat, ATTRIB_UNMANAGED ); 
-  MonGroup tgcprd_lowstat_c( this, generic_path_tgcmonitoring + "/TGCEC", lowStat, ATTRIB_UNMANAGED ); 
+  MonGroup tgcprd_lowstat_a( this, m_generic_path_tgcmonitoring + "/TGCEA", lowStat, ATTRIB_UNMANAGED ); 
+  MonGroup tgcprd_lowstat_c( this, m_generic_path_tgcmonitoring + "/TGCEC", lowStat, ATTRIB_UNMANAGED ); 
   MonGroup* tgcprd_lowstat_ac[2]={ &tgcprd_lowstat_a, &tgcprd_lowstat_c};
 
   std::stringstream ss;
@@ -153,8 +149,8 @@ TgcRawDataValAlg::bookHistogramsLowStat(){
   for(int ac=0;ac<2;ac++){
     //Wire Strip Coincidence per GasGap
     ss.str(""); ss<< "Wire_Strip_Coincidence_Per_GasGap_In_10LBs_" << side[ac];
-    tgcwirestripcoinlowstat[ac] = new TH2F( ss.str().c_str(), ss.str() .c_str(),43, 0, 43, 48, 1, 49 );
-    sc=tgcprd_lowstat_ac[ac]->regHist(tgcwirestripcoinlowstat[ac]) ;  
+    m_tgcwirestripcoinlowstat[ac] = new TH2F( ss.str().c_str(), ss.str() .c_str(),43, 0, 43, 48, 1, 49 );
+    sc=tgcprd_lowstat_ac[ac]->regHist(m_tgcwirestripcoinlowstat[ac]) ;  
     if(sc.isFailure()) { 
       m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
       return sc;
@@ -166,7 +162,7 @@ TgcRawDataValAlg::bookHistogramsLowStat(){
         if(sec<10)ss << "0";
         ss << sec << "phi" << phi;
         int k=(sec-1)*4+phi+1;
-        tgcwirestripcoinlowstat[ac] ->GetYaxis()->SetBinLabel( k, ss.str().c_str() ); 
+        m_tgcwirestripcoinlowstat[ac] ->GetYaxis()->SetBinLabel( k, ss.str().c_str() ); 
       }
     }
     int x=1;
@@ -174,24 +170,24 @@ TgcRawDataValAlg::bookHistogramsLowStat(){
     for(int l=0 ; l<3 ; l++ ){
       for( int c=0 ; c<5 ; c++ ){
         ss.str(""); ss << "L" << l+1 << "_" << schamberT1[c]; 
-        tgcwirestripcoinlowstat[ac] ->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
+        m_tgcwirestripcoinlowstat[ac] ->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
       }
     }
     //layer4-7
     for(int l=3 ; l<7 ; l++ ){
       for( int c=0 ; c<6 ; c++ ){
         ss.str(""); ss << "L" << l+1 << "_" << schamberT3[c]; 
-        tgcwirestripcoinlowstat[ac] ->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
+        m_tgcwirestripcoinlowstat[ac] ->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
       }
     }
     //layer8-9
     for(int l=7 ; l<9 ; l++ ){
       for( int c=0 ; c<2 ; c++ ){
         ss.str(""); ss << "L" << l+1 << "_" << schamberEF[c]; 
-        tgcwirestripcoinlowstat[ac] ->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
+        m_tgcwirestripcoinlowstat[ac] ->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
       }
     }
-    tgcwirestripcoinlowstat[ac]  ->GetXaxis()->LabelsOption("v");
+    m_tgcwirestripcoinlowstat[ac]  ->GetXaxis()->LabelsOption("v");
   }//ac
 
   return sc;

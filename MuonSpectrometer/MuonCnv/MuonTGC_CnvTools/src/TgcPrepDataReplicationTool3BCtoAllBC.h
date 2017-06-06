@@ -35,7 +35,7 @@ namespace Muon
       static const InterfaceID& interfaceID() { return ITgcPrepDataReplicationTool::interfaceID(); };
 
       /** Query interface */
-      virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIF);
+      virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIF) override;
 
       virtual StatusCode initialize() override;
       virtual StatusCode finalize() override;

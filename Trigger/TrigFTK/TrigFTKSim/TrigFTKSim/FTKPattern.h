@@ -33,7 +33,7 @@ private:
   TClonesArray *m_subpatterns; //-> Array of sub-patterns
 
   unsigned int *m_hashes; //! if generated store the hashes
-  static uint32_t crc32_tab[];
+  static uint32_t s_crc32_tab[];
   static unsigned int crc32(const void *buf, size_t, unsigned int);
 
   static bool m_orderByCoverage; //! static property to define if a bank is ordered by the coverage or ids content

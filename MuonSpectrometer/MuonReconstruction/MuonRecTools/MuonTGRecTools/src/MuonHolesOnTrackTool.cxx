@@ -398,9 +398,8 @@ const Trk::Track* Muon::MuonHolesOnTrackTool::getTrackWithHolesAndOutliers(const
   // get MSEntry and ordered TSoS 
   DataVector<const Trk::TrackStateOnSurface>* tSoS;   
   const Trk::TrackParameters* msEntry = getMSEntry(&input_track,tSoS);
-  //
-  DataVector<const Trk::TrackStateOnSurface>::const_iterator iter = tSoS->begin();
   /*
+  DataVector<const Trk::TrackStateOnSurface>::const_iterator iter = tSoS->begin();
   for (;iter!=tSoS->end();iter++) {
     if ( (*iter)->type(Trk::TrackStateOnSurface::Measurement) ) {
       std::cout << "ordered measurements?" << iter-tSoS->begin() << "," 
@@ -885,7 +884,7 @@ void Muon::MuonHolesOnTrackTool::countHoles( const Trk::Track& input_track,  std
   DataVector<const Trk::TrackStateOnSurface>*  holes= getHolesOnTrack(input_track, particle);
  
   if (!holes)  return;
-  if (!(&information) || information.size()<28 ) return;
+  if ( information.size()<28 ) return;
 
   for (unsigned int i=21; i<28; i++) information[i]=0; 
 

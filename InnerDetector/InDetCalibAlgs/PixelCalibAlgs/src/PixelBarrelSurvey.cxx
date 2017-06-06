@@ -17,7 +17,7 @@
 
 /////////////////////////////////////////////////////////////////////////////
 
-const int m_distosize=3;
+const int distosize=3;
 
 
 PixelBarrelSurvey::PixelBarrelSurvey(const std::string& name, ISvcLocator* pSvcLocator) :
@@ -110,7 +110,7 @@ StatusCode PixelBarrelSurvey::initialize(){
   in.close();
 
   m_transforms = new AlignableTransform(m_tag);
-  m_distorsions = new DetCondCFloat(m_distosize,m_tag);
+  m_distorsions = new DetCondCFloat(distosize,m_tag);
 
   if ( !m_transforms || !m_distorsions ) {
     msg(MSG::FATAL) << "Unable to initialize transform objects" << endmsg;
@@ -130,7 +130,7 @@ StatusCode PixelBarrelSurvey::execute() {
   std::vector<PixelBarrelSurveyUtils::StaveStruct>::iterator theStave=m_staves.begin();
   std::vector<PixelBarrelSurveyUtils::StaveStruct>::iterator lastStave=m_staves.end();
   int eta_max=ModulesOnStave/2;
-  float *disto=new float[m_distosize];
+  float *disto=new float[distosize];
   while (theStave!=lastStave) {
     for (int i=0; i<ModulesOnStave; i++) {
       HepGeom::Transform3D trans=PixelBarrelSurveyUtils::GetModuleTransform(*theStave,i-eta_max);
@@ -156,7 +156,7 @@ StatusCode PixelBarrelSurvey::execute() {
 //      m_transforms->add(hashID,Amg::CLHEPTransformToEigen(localTrans)); 
 	 m_transforms->add(hashID,localTrans); 
       // p_iddbtool->setTrans(hashID,3,trans);
-      for (int j=0; j<m_distosize; j++) 
+      for (int j=0; j<distosize; j++) 
 	disto[j]=theStave->module[i].disto[j];
       m_distorsions->add(hashID,disto);
     }

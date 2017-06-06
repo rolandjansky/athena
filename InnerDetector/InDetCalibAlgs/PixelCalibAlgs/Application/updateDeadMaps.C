@@ -20,7 +20,7 @@
 #include "PixelCalibAlgs/PixelConvert.h"
 #include "PixelConditionsData/SpecialPixelMap.h"
 
-std::vector< std::pair< std::string, std::vector<int> > > m_pixelMapping;
+std::vector< std::pair< std::string, std::vector<int> > > pixelMapping;
 std::string getDCSIDFromPosition (int barrel_ec, int layer, int module_phi, int module_eta);
 std::vector<int> getPositionFromDCSID (std::string module_name);
 
@@ -49,7 +49,7 @@ bool is_file_exist(const char *fileName)
 using namespace std;
 
 int main(int argc, char* argv[]){
-  bool m_isIBL = true;
+  bool isIBL = true;
 
   int minEventNumber = 2000000;
   int minAveragePixelHitNumber = 13;
@@ -58,7 +58,7 @@ int main(int argc, char* argv[]){
   double nModules = 1744.;
   //double nPixels = nModules*nPixelsPerModule;
 
-  if (m_isIBL) {
+  if (isIBL) {
     //nModules = 2048.;
     nModules = 2024.; // ignore DBM
     //nPixels = 2880. * 16. * 1744. // Pixel
@@ -159,7 +159,7 @@ int main(int argc, char* argv[]){
   components.push_back("Disk1C");
   components.push_back("Disk2C");
   components.push_back("Disk3C");
-  if (m_isIBL) components.push_back("IBL");     // kazuki
+  if (isIBL) components.push_back("IBL");     // kazuki
   components.push_back("B-layer");
   components.push_back("Layer1");
   components.push_back("Layer2");
@@ -341,13 +341,13 @@ int main(int argc, char* argv[]){
   //-----------------------------------------------------------
 
   std::vector<int> staves;
-  if(m_isIBL) staves.push_back(14);
+  if(isIBL) staves.push_back(14);
   staves.push_back(22);
   staves.push_back(38);
   staves.push_back(52);
 
   std::vector<std::string> layers;
-  if(m_isIBL) layers.push_back("IBL");
+  if(isIBL) layers.push_back("IBL");
   layers.push_back("B-layer");
   layers.push_back("Layer1");
   layers.push_back("Layer2");
@@ -379,7 +379,7 @@ int main(int argc, char* argv[]){
     }
 
     int nModulesPerStave = 13;
-    if (m_isIBL && layer == 0) nModulesPerStave = 20; // --- IBL --- //
+    if (isIBL && layer == 0) nModulesPerStave = 20; // --- IBL --- //
     for(int module = 0; module < staves[layer] * nModulesPerStave; module++) // loop on modules
     //for(int j = 0; j < (staves[layer] * 13); j++)
     {
@@ -426,7 +426,7 @@ int main(int argc, char* argv[]){
 
         //deadMaps[i] = new TH2C(name.c_str(), name.c_str(), 144, 0., 144., 328, 0., 328.);
         //deadMaps[i]->SetDirectory(deadmapSubDir);
-        if(m_isIBL && layer == 0) deadMaps[name] = new TH2C(name.c_str(), name.c_str(), 160, 0., 160., 336, 0., 336.);
+        if(isIBL && layer == 0) deadMaps[name] = new TH2C(name.c_str(), name.c_str(), 160, 0., 160., 336, 0., 336.);
         else deadMaps[name] = new TH2C(name.c_str(), name.c_str(), 144, 0., 144., 328, 0., 328.);
         deadMaps[name]->SetDirectory(deadmapSubDir);
 
@@ -441,12 +441,12 @@ int main(int argc, char* argv[]){
   std::ifstream ifs;
   for (const auto& x : paths){
     if(is_file_exist((x + "/PixelMapping_Run2.dat").c_str())){
-      if(m_isIBL){
+      if(isIBL){
         ifs.open(x + "/PixelMapping_Run2.dat");
       } else {
         ifs.open(x + "/PixelMapping_May08.dat");
       }
-  //if(m_isIBL){
+  //if(isIBL){
   //  ifs.open(testarea + "/InstallArea/share/PixelMapping_Run2.dat");
   //} else {
   //  ifs.open(testarea + "/InstallArea/share/PixelMapping_May08.dat");
@@ -460,7 +460,7 @@ int main(int argc, char* argv[]){
         tmp_position[1] = tmp_layer;
         tmp_position[2] = tmp_module_phi;
         tmp_position[3] = tmp_module_eta;
-        m_pixelMapping.push_back(std::make_pair(tmp_module_name, tmp_position));
+        pixelMapping.push_back(std::make_pair(tmp_module_name, tmp_position));
       }
       break;
     }
@@ -618,15 +618,15 @@ int main(int argc, char* argv[]){
 
     int thisModuleCut=0;
     bool isModuleActive = false;
-    bool isIBL3D = ( m_isIBL && barrel == 0 && layer == 0 && (module_eta <= -7 || module_eta >= 6) ) ? true : false;
+    bool isIBL3D = ( isIBL && barrel == 0 && layer == 0 && (module_eta <= -7 || module_eta >= 6) ) ? true : false;
     //int pixel_eta_max = (barrel == 0 && layer == 0) ? 160 : 144;
     int pixel_phi_max = (barrel == 0 && layer == 0) ? 336 : 328;
     int nchip = 16;
-    if (m_isIBL && barrel == 0 && layer == 0) {
+    if (isIBL && barrel == 0 && layer == 0) {
       nchip = (isIBL3D) ? 1 : 2;
     }
-    const int nrow = (m_isIBL && barrel == 0 && layer == 0) ? 336 : 160;
-    const int ncol = (m_isIBL && barrel == 0 && layer == 0) ? 80 : 18;
+    const int nrow = (isIBL && barrel == 0 && layer == 0) ? 336 : 160;
+    const int ncol = (isIBL && barrel == 0 && layer == 0) ? 80 : 18;
     bool isFEActive[16];
 
     for (int chip = 0; chip < nchip; chip++) {
@@ -640,7 +640,7 @@ int main(int argc, char* argv[]){
       }
       int rowmax = rowmin + nrow;
       int colmax = colmin + ncol;
-      if (m_isIBL && barrel == 0 && layer == 0) {
+      if (isIBL && barrel == 0 && layer == 0) {
         rowmin = 0;
         rowmax = pixel_phi_max;
         colmin = 0;
@@ -655,12 +655,12 @@ int main(int argc, char* argv[]){
 
           // check pixel type
           //unsigned int type = 0;
-          int pixel_eta_on_chip = (m_isIBL && barrel == 0 && layer == 0) ? pixel_eta % 80 : pixel_eta % 18; // column
+          int pixel_eta_on_chip = (isIBL && barrel == 0 && layer == 0) ? pixel_eta % 80 : pixel_eta % 18; // column
           int pixel_phi_on_chip = (pixel_phi <= 163) ? pixel_phi : 327 - pixel_phi; // eta
-          if (m_isIBL && barrel == 0 && layer == 0) pixel_phi_on_chip = pixel_phi;
+          if (isIBL && barrel == 0 && layer == 0) pixel_phi_on_chip = pixel_phi;
           int pixelType = 0;
 
-          if (m_isIBL && barrel == 0 && layer == 0) { // ----- IBL ----- //
+          if (isIBL && barrel == 0 && layer == 0) { // ----- IBL ----- //
             if( !isIBL3D && (pixel_eta_on_chip == 0 || pixel_eta_on_chip == 80 - 1) ){
               pixelType = 1; // long
             }
@@ -799,7 +799,7 @@ int main(int argc, char* argv[]){
       ndeadPixel[component_index]+=thisModuleCut;
       ndeadPixel_total+=thisModuleCut;
 
-      if (m_isIBL && layer == 0 && barrel == 0) {
+      if (isIBL && layer == 0 && barrel == 0) {
         nPixelsPerModule = (isIBL3D) ? 80 * 336 : 160 * 336;
       } else {
         nPixelsPerModule = 144 * 320;
@@ -929,26 +929,26 @@ int main(int argc, char* argv[]){
 }
 
 std::string getDCSIDFromPosition (int barrel_ec, int layer, int module_phi, int module_eta){
-  for(unsigned int ii = 0; ii < m_pixelMapping.size(); ii++) {
-    if (m_pixelMapping[ii].second.size() != 4) {
+  for(unsigned int ii = 0; ii < pixelMapping.size(); ii++) {
+    if (pixelMapping[ii].second.size() != 4) {
       std::cout << "getDCSIDFromPosition: Vector size is not 4!" << std::endl;
       return std::string("Error!");
     }
-    if (m_pixelMapping[ii].second[0] != barrel_ec) continue;
-    if (m_pixelMapping[ii].second[1] != layer) continue;
-    if (m_pixelMapping[ii].second[2] != module_phi) continue;
-    if (m_pixelMapping[ii].second[3] != module_eta) continue;
-    return m_pixelMapping[ii].first;
+    if (pixelMapping[ii].second[0] != barrel_ec) continue;
+    if (pixelMapping[ii].second[1] != layer) continue;
+    if (pixelMapping[ii].second[2] != module_phi) continue;
+    if (pixelMapping[ii].second[3] != module_eta) continue;
+    return pixelMapping[ii].first;
   }
   std::cout << "Not found!" << std::endl;
   return std::string("Error!");
 }
 
 std::vector<int> getPositionFromDCSID (std::string module_name){
-  for(unsigned int ii = 0; ii < m_pixelMapping.size(); ii++) {
-    if (m_pixelMapping[ii].first == module_name)
-    return m_pixelMapping[ii].second;
+  for(unsigned int ii = 0; ii < pixelMapping.size(); ii++) {
+    if (pixelMapping[ii].first == module_name)
+    return pixelMapping[ii].second;
   }
   std::cout << "Not found!" << std::endl;
-  return m_pixelMapping[0].second;
+  return pixelMapping[0].second;
 }
