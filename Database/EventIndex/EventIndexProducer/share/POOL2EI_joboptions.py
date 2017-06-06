@@ -2,6 +2,9 @@
 ## @purpose: simple joboptions to convert AOD to EI
 ## @date Feb 2014
 ## @author Javier Sanchez <Javier.Sanchez@ific.uv.es>
+#
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 
 __version__ = "$Revision$"
 __author__  = "Javier Sanchez <Javier.Sanchez@ific.uv.es>"

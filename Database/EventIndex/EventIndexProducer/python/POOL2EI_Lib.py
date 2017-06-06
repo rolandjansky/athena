@@ -2,6 +2,8 @@
 # @purpose provide components to get EventIndex data from pool files
 # @author Javier Sanchez
 # @date February 2014
+#
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 # 
 # Some code borrowed from PyAthena.FilePeekerLib
 # credits to Sebastien Binet 
