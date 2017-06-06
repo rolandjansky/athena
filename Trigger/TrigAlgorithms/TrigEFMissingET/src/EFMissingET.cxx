@@ -608,7 +608,7 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
          } else {
             if (msgLvl(MSG::DEBUG) ) {
                ATH_MSG_DEBUG( "size of vertex container " << m_vertices->size() );
-               for (auto& ivtx : *m_vertices) 
+               for (const xAOD::Vertex* ivtx : *m_vertices) 
                  ATH_MSG_DEBUG( " Vertex x, y, z, ntracks: " << ivtx->x()<<", "<< ivtx->y()<<", "<< ivtx->z() << ", "
                                 << ivtx->nTrackParticles() );
             }
