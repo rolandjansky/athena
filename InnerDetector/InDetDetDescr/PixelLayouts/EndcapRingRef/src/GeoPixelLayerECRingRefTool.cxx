@@ -11,6 +11,7 @@
 #include "InDetTrackingGeometryXML/XMLGeoTemplates.h"
 
 #include "GeoModelKernel/GeoTube.h"
+#include "GeoModelKernel/GeoTubs.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoIdentifierTag.h"
@@ -121,6 +122,8 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
   std::vector<double> v_phiOffset = discTmp->phioffset;
   std::vector<int> v_numModules = discTmp->nsectors;
   std::vector<std::string> v_moduleType = discTmp->modtype;
+  std::vector<std::string> v_splitMode = discTmp->splitMode;
+  std::vector<double> v_splitOffset = discTmp->splitOffset;
 
   int nrings = (int)v_ringPosition.size();
 
@@ -129,9 +132,9 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
   std::vector<int> v_discSide;
   v_discSide.push_back(0);
   for(int iRing=0; iRing<nrings; iRing++) v_discNumber.push_back(iRing);
-
+        
   for(int iRing=0; iRing<nrings; iRing++){
-
+        
     ATH_MSG_DEBUG("**** BUILD - prebuild layer - ring "<<iRing<<"/"<<nrings<<"  - layer "<<m_layer);
     
     //    int ringNumber = iRing;
@@ -144,32 +147,36 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
     int numModules = getValueFromVector(v_numModules, iRing);
     std::string moduleType = getValueFromVector(v_moduleType, iRing);
     double halfZoffset = zOffset*.5;
+    double splitOffset   = getValueFromVector(v_splitOffset, iRing);
+    double halfSplitOffset = splitOffset*0.5;
+    
+    SplitMode splitMode  = getSplitMode(getValueFromVector(v_splitMode,iRing));
 
     ATH_MSG_DEBUG("                            - # modules & module type"<<numModules<<"  -  "<<moduleType<<"   ");
     
     int iSide = getValueFromVector(v_discSide,iRing);
 
     // Forward ring
-    GeoPixelRingECRingRef ringF(m_layer,iRing,ringRadius, ringOuterRadius, zOffset, phiOffset, iSide, numModules, moduleType, discNumber, 1);
+    GeoPixelRingECRingRef ringF(m_layer,iRing,ringRadius, ringOuterRadius, zOffset, phiOffset, iSide, numModules, moduleType, discNumber, 1, splitMode);
     ringF.preBuild(basics);
     m_ringListF.push_back(ringF);
     m_ringPos.push_back(ringPosition-halfZoffset+ringF.getRingZShift());
 
     rLayerMin = std::min(rLayerMin,ringF.getRingRMin());
     rLayerMax = std::max(rLayerMax,ringF.getRingRMax());
-    zLayerMin = std::min(zLayerMin,ringPosition-halfZoffset+ringF.getRingZMin());
-    zLayerMax = std::max(zLayerMax,ringPosition-halfZoffset+ringF.getRingZMax());
+    zLayerMin = std::min(zLayerMin,ringPosition-halfZoffset-halfSplitOffset+ringF.getRingZMin());
+    zLayerMax = std::max(zLayerMax,ringPosition-halfZoffset+halfSplitOffset+ringF.getRingZMax());
 
     // Backward ring
-    GeoPixelRingECRingRef ringB(m_layer,iRing,ringRadius, ringOuterRadius, zOffset, phiOffset, iSide, numModules, moduleType, discNumber, -1);
+    GeoPixelRingECRingRef ringB(m_layer,iRing,ringRadius, ringOuterRadius, zOffset, phiOffset, iSide, numModules, moduleType, discNumber, -1, splitMode);
     ringB.preBuild(basics);
     m_ringListB.push_back(ringB);
     m_ringPos.push_back(ringPosition+halfZoffset-ringB.getRingZShift());
     
     rLayerMin = std::min(rLayerMin,ringB.getRingRMin());
     rLayerMax = std::max(rLayerMax,ringB.getRingRMax());
-    zLayerMin = std::min(zLayerMin,ringPosition+halfZoffset+ringB.getRingZMin());
-    zLayerMax = std::max(zLayerMax,ringPosition+halfZoffset+ringB.getRingZMax());
+    zLayerMin = std::min(zLayerMin,ringPosition+halfZoffset-halfSplitOffset+ringB.getRingZMin());
+    zLayerMax = std::max(zLayerMax,ringPosition+halfZoffset+halfSplitOffset+ringB.getRingZMax());
 
   }
 
@@ -213,34 +220,42 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
   std::vector<double> v_ringPosition = discTmp->ringpos;
   int nrings = (int)v_ringPosition.size();
   std::vector<int> v_numModules = discTmp->nsectors;
-   //   std::vector<double> v_ringRadius = discTmp->innerRadius;
-   //   std::vector<double> v_ringOuterRadius = discTmp->outerRadius;
-   //   std::vector<double> v_zOffset = discTmp->zoffset;
-   //   std::vector<std::string> v_moduleType = discTmp->modtype;
-  
+  std::vector<std::string> v_splitMode = discTmp->splitMode;
+  std::vector<double> v_splitOffset    = discTmp->splitOffset;
+   
   // Set numerology
   basics->getDetectorManager()->numerology().setNumRingsForDisk(layer,nrings);
 
-  
-//   std::vector<int> v_discNumber;
-//   std::vector<int> v_discSide;
-//   v_discSide.push_back(0);
-//   for(int iRing=0; iRing<nrings; iRing++) v_discNumber.push_back(iRing);
-
   // Build rings defined in preBuild function
   for(int iRing=0; iRing<nrings; iRing++){
-
-    ATH_MSG_DEBUG("**** BUILD ring "<<iRing<<"/"<<nrings<<"  - layer "<<m_layer<<"   ");
     
-    ringList_PV.push_back(m_ringListF[iRing].Build(basics,m_endcapSide));
-    ringList_PV.push_back(m_ringListB[iRing].Build(basics,m_endcapSide));
-
+    SplitMode splitMode  = getSplitMode(getValueFromVector(v_splitMode,iRing));
+    
+    if (splitMode==NONE) {
+    
+      ATH_MSG_DEBUG("**** BUILD ENTIRE ring "<<iRing<<"/"<<nrings<<"  - layer "<<m_layer<<"   ");
+      ringList_PV.push_back(m_ringListF[iRing].Build(basics,m_endcapSide));
+      ringList_PV.push_back(m_ringListB[iRing].Build(basics,m_endcapSide));
+    
+    } else {
+      
+      ATH_MSG_DEBUG("**** BUILD SPLIT ring "<<iRing<<"/"<<nrings<<"  - layer "<<m_layer<<"   ");
+      std::pair<GeoVPhysVol*,GeoVPhysVol*> element_F = m_ringListF[iRing].BuildSplit(basics,m_endcapSide);
+      std::pair<GeoVPhysVol*,GeoVPhysVol*> element_B = m_ringListB[iRing].BuildSplit(basics,m_endcapSide);
+      ringList_PV.push_back(element_F.first);
+      ringList_PV.push_back(element_F.second);
+      ringList_PV.push_back(element_B.first);
+      ringList_PV.push_back(element_B.second);
+    
+    }
+    
     // Set numerology
     int numModules = getValueFromVector(v_numModules, iRing);
     basics->getDetectorManager()->numerology().setNumPhiModulesForDiskRing(layer,iRing,numModules);
-
+  
   }
-
+  
+  
   // Build layer envelope
   const GeoMaterial* air = basics->matMgr()->getMaterial("std::Air");
   
@@ -258,22 +273,71 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
   int nbSvcSupport = ringHelper.getNbSupport(m_layer);
 
   // Place the ring in the layer envelpoe
+  // i runs over rings here and for all positions etc vectors, but for phys vol
+  
+  std::vector<double> v_zOffset = discTmp->zoffset;
+  
   for(int i=0; i<2*nrings; i++)
     {
-      double zPos = m_ringPos[i]-zMiddle;
-      //      std::cout<<" -> add ring (minmax): "<<i<<" "<<zPos+zMiddle<<"    vs ring minmax"<<std::endl;
-      GeoAlignableTransform* xform = new GeoAlignableTransform(HepGeom::TranslateZ3D(zPos));
+      // each face of ring has two half-rings
+      int ihalfr = 2*i;
       
-      int tagId = i;
-      std::ostringstream ostr; 
-      if(i%2==0)
-	ostr << "RingF" << i<<"L"<<m_layer;
-      else
-	ostr << "RingB" << i<<"L"<<m_layer;
-      ecPhys->add(new GeoNameTag(ostr.str()));
-      ecPhys->add( new GeoIdentifierTag(tagId));
-      ecPhys->add(xform);
-      ecPhys->add(ringList_PV[i]);
+      double zOffset = getValueFromVector(v_zOffset, int(floor(i/2)));
+      int numModules = getValueFromVector(v_numModules, int(floor(i/2)));
+      double splitOffset   = getValueFromVector(v_splitOffset, int(floor(i/2)));
+      SplitMode splitMode  = getSplitMode(getValueFromVector(v_splitMode,int(floor(i/2))));
+      
+      double halfSplitOffset = splitOffset*0.5;
+      bool halfIsEven = (numModules/2)%2==0;
+      
+      if (splitMode==NONE) {
+	
+	double zPos = m_ringPos[i]-zMiddle;
+	GeoAlignableTransform* xform = new GeoAlignableTransform(HepGeom::TranslateZ3D(zPos));
+	int tagId = i;
+	std::ostringstream ostr;
+	if(i%2==0)
+	  ostr << "RingF" << i<<"L"<<m_layer;
+	else
+	  ostr << "RingB" << i<<"L"<<m_layer;
+	ecPhys->add(new GeoNameTag(ostr.str()));
+	ecPhys->add( new GeoIdentifierTag(tagId));
+	ecPhys->add(xform);
+	ecPhys->add(ringList_PV[i]);
+      
+      } else {
+	
+	for (int iTwdAway=0; iTwdAway<2;++iTwdAway) {
+	  ihalfr +=iTwdAway;
+	  bool isTwdBSShift=(0==iTwdAway);
+	  double zPos = m_ringPos[i]-zMiddle;
+	  zPos += (isTwdBSShift) ? -halfSplitOffset : halfSplitOffset;
+	  
+	  bool swap = false;
+	  if (halfIsEven and (splitMode==MIDDLE or splitMode==GOOD) and not isTwdBSShift) 
+	    swap = true;
+	  else if (not halfIsEven and ((splitMode==MIDDLE and isTwdBSShift) or splitMode==GOOD))
+	    swap = true;
+	  
+	  if (swap)
+	    zPos+= i%2==0 ? zOffset : -zOffset;
+	  GeoAlignableTransform* xform = new GeoAlignableTransform(HepGeom::TranslateZ3D(zPos));
+	  
+	  int tagId = i;
+	  std::ostringstream ostr; 
+	  std::string sTwdAway=(isTwdBSShift) ? "Twd" : "Away";
+	  if(i%2==0)
+	    ostr << "RingF" << sTwdAway<<i<<"L"<<m_layer;
+	  else
+	    ostr << "RingB" << sTwdAway<<i<<"L"<<m_layer;
+	  
+	  ecPhys->add(new GeoNameTag(ostr.str()));
+	  ecPhys->add(new GeoIdentifierTag(tagId));
+	  ecPhys->add(xform);
+	  ecPhys->add(ringList_PV[ihalfr]);
+	}
+      
+      }
       
       if(i%2==0 and nbSvcSupport>0){
 	// std::cout<<" -> I should add some supports for disc i = " << i << std::endl;
@@ -284,47 +348,78 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
 	double thick = ringHelper.getRingSupportThickness(iSvc);
 	std::string matName = ringHelper.getRingSupportMaterial(iSvc);
 	
-	const GeoTube* supTube = new GeoTube(rminSvc,rmaxSvc,thick*.5);
-	double matVolume = supTube->volume();
+	if (splitMode==NONE) {
+	  
+	  const GeoTube* supTube = new GeoTube(rminSvc,rmaxSvc,thick*.5);
+	  double matVolume = supTube->volume();
+	  const GeoMaterial* supMat = basics->matMgr()->getMaterialForVolume(matName,matVolume);
+	  ATH_MSG_DEBUG("Density = " << supMat->getDensity() << " Mass = " << ( matVolume * supMat->getDensity() ));
+	  GeoLogVol* _supLog = new GeoLogVol("supLog",supTube,supMat);
+	  GeoPhysVol* supPhys = new GeoPhysVol(_supLog);
+	  GeoTransform* xform = new GeoTransform( HepGeom::Translate3D(0., 0., (m_ringPos[i]+m_ringPos[i+1])*.5-zMiddle));
+	  ecPhys->add(xform);
+	  ecPhys->add(supPhys);
+	  
+	} else {
+	  // here starts if we have the 2 tubs when we split the rings
+	  double SphiTwd  = 90.*CLHEP::deg;
+	  double DphiTwd  = 180.*CLHEP::deg;
+	  double SphiAway = 270.*CLHEP::deg;
+	  double DphiAway = 180.*CLHEP::deg;
+	  
+	  // adapt the extension of the support to fit the modules if needed
+	  const GeoTubs* myhalfTubeTwd = dynamic_cast<const GeoTubs*> (ringList_PV[2*i]->getLogVol()->getShape());
+	  if (myhalfTubeTwd) {
+	    SphiTwd = myhalfTubeTwd->getSPhi();
+	    DphiTwd = myhalfTubeTwd->getDPhi();
+	    if (rminSvc>myhalfTubeTwd->getRMin()) rminSvc =  myhalfTubeTwd->getRMin();
+	    if (rmaxSvc<myhalfTubeTwd->getRMax()) rmaxSvc =  myhalfTubeTwd->getRMax();
+	  }
+	  const GeoTubs* myhalfTubeAway = dynamic_cast<const GeoTubs*> (ringList_PV[2*i+1]->getLogVol()->getShape());
+	  if (myhalfTubeAway) {
+	    SphiAway = myhalfTubeAway->getSPhi();
+	    DphiAway = myhalfTubeAway->getDPhi();
+	    if (rminSvc>myhalfTubeAway->getRMin()) rminSvc =  myhalfTubeAway->getRMin();
+	    if (rmaxSvc<myhalfTubeAway->getRMax()) rmaxSvc =  myhalfTubeAway->getRMax();
+	  }
+	  
+	  // supports half-rings supports with z-gap for services
+	  // to accomodate for services, this half-ring will get a z-shift toward beam-spot
+	  // NB: geometry has 90deg offset wrt ATLAS coordinate system phi
+	  const GeoTubs* supTubsTwdBS = new GeoTubs(rminSvc,rmaxSvc,thick*.5, SphiTwd, DphiTwd);
+	  // to accomodate for services, this half-ring will get a z-shift away from beam-spot
+	  //GeoTubs* tubs = new GeoTubs(rmin,rmax,halfthick, startangle,delta_angle);
+	  const GeoTubs* supTubsAwayBS = new GeoTubs(rminSvc,rmaxSvc,thick*.5, SphiAway, DphiAway);
+	  double matVolumeT = supTubsTwdBS->volume();
+	  double matVolumeA = supTubsAwayBS->volume();
+	  
+	  // volume & material of both supports should be the same 
+	  const GeoMaterial* supMatT = basics->matMgr()->getMaterialForVolume(matName,matVolumeT);
+	  const GeoMaterial* supMatA = basics->matMgr()->getMaterialForVolume(matName,matVolumeA);
+	  ATH_MSG_DEBUG("TWD  Density of = " << supMatT->getDensity() << " Mass = " << ( matVolumeT * supMatT->getDensity() ));
+	  ATH_MSG_DEBUG("AWAY Density of = " << supMatA->getDensity() << " Mass = " << ( matVolumeA * supMatA->getDensity() ));
 	
-	// std::cout << "Ring support?: matName = " << matName << " matVolume = " << matVolume << " rminSvc = " << rminSvc << " rmaxSvc = " << rmaxSvc << " thick = " << thick << std::endl;
+	  GeoLogVol* _supLogTwdBS = new GeoLogVol("supLogTwdBS",supTubsTwdBS,supMatT);
+	  GeoPhysVol* supPhysTwdBS = new GeoPhysVol(_supLogTwdBS);
+	  GeoLogVol* _supLogAwayBS = new GeoLogVol("supLogAwayBS",supTubsAwayBS,supMatA);
+	  GeoPhysVol* supPhysAwayBS = new GeoPhysVol(_supLogAwayBS);
 	
-	const GeoMaterial* supMat = basics->matMgr()->getMaterialForVolume(matName,matVolume);
-	ATH_MSG_DEBUG("Density = " << supMat->getDensity() << " Mass = " << ( matVolume * supMat->getDensity() ));
-	GeoLogVol* _supLog = new GeoLogVol("supLog",supTube,supMat);
-	GeoPhysVol* supPhys = new GeoPhysVol(_supLog);
+	  GeoTransform* xformTwdBS = new GeoTransform( HepGeom::Translate3D(0., 0., (m_ringPos[i]+m_ringPos[i+1])*.5-zMiddle-halfSplitOffset));
+	  GeoTransform* xformAwayBS = new GeoTransform( HepGeom::Translate3D(0., 0., (m_ringPos[i]+m_ringPos[i+1])*.5-zMiddle+halfSplitOffset));
 	
-	GeoTransform* xform = new GeoTransform( HepGeom::Translate3D(0., 0., (m_ringPos[i]+m_ringPos[i+1])*.5-zMiddle));
-	ecPhys->add(xform);
-	ecPhys->add(supPhys);
+	  ecPhys->add(xformTwdBS);
+	  ecPhys->add(supPhysTwdBS);
+	
+	  ecPhys->add(xformAwayBS);
+	  ecPhys->add(supPhysAwayBS);
+	}
       }
     }
-
-  // Place the layer services
-  //nbSvcSupport = ringHelper.getNbLayerSupport(m_layer);
-  
-//   for(int iSvc=0; iSvc<nbSvcSupport; iSvc++)
-//     {
-//       std::vector<double> r = ringHelper.getLayerSupportRadius(iSvc);
-//       std::vector<double> z = ringHelper.getLayerSupportZ(iSvc);
-//       std::string matName = ringHelper.getLayerSupportMaterial(iSvc);
-// 
-//       const GeoTube* supTube = new GeoTube(r[0],r[1],(z[1]-z[0])*.5);
-//       double matVolume = supTube->volume();
-//
-//       const GeoMaterial* supMat = basics->matMgr()->getMaterial(matName);
-//       GeoLogVol* _supLog = new GeoLogVol("supLog",supTube,supMat);
-//       GeoPhysVol* supPhys = new GeoPhysVol(_supLog);
-//       
-//       GeoTransform* xform = new GeoTransform( HepGeom::Translate3D(0., 0., 0.));
-//       ecPhys->add(xform);
-//       ecPhys->add(supPhys);
-// 
-//     }
-
-  std::vector<int> Layers = ringHelper.getNbLayerSupportIndex(m_layer);
-  for(unsigned int iSvc=0; iSvc<Layers.size(); iSvc++)
-    {
+    
+    // Place the layer supports
+    std::vector<int> Layers = ringHelper.getNbLayerSupportIndex(m_layer);
+    for(unsigned int iSvc=0; iSvc<Layers.size(); iSvc++) {
+      
       if (Layers.at(iSvc)<0) continue;
 
       std::vector<double> r = ringHelper.getLayerSupportRadiusAtIndex(Layers.at(iSvc));
@@ -332,8 +427,6 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
       std::string matName = ringHelper.getLayerSupportMaterialAtIndex(Layers.at(iSvc));
 
       const GeoTube* supTube = new GeoTube(r[0],r[1],(z[1]-z[0])*.5);
-      double matVolume = supTube->volume();
-
       const GeoMaterial* supMat = basics->matMgr()->getMaterial(matName);
       GeoLogVol* _supLog = new GeoLogVol("supLog",supTube,supMat);
       GeoPhysVol* supPhys = new GeoPhysVol(_supLog);
@@ -341,13 +434,10 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
       GeoTransform* xform = new GeoTransform( HepGeom::Translate3D(0., 0., (z[0]+z[1])*0.5-zMiddle));
       ecPhys->add(xform);
       ecPhys->add(supPhys);
-
     }
-
-
-  ATH_MSG_DEBUG("Layer minmax global : "<<m_layerZMin<<" "<<m_layerZMax<<" / "<<m_layerZMin<<" "<<m_layerZMax);
-
-  return ecPhys;
+    
+    ATH_MSG_DEBUG("Layer minmax global : "<<m_layerZMin<<" "<<m_layerZMax<<" / "<<m_layerZMin<<" "<<m_layerZMax);
+    return ecPhys;
 }
 
 
@@ -369,4 +459,22 @@ std::string GeoPixelLayerECRingRefTool::getValueFromVector(std::vector<std::stri
 {
   if(i>(int)v.size()-1) return v[0];
   return v[i];
+}
+
+SplitMode GeoPixelLayerECRingRefTool::getSplitMode(std::string mode) {
+  ATH_MSG_DEBUG("Decoding SplitMode for " << mode);
+
+  if (mode == "None")
+    return NONE;
+  else if (mode == "Default")
+    return DEFAULT;
+  else if (mode == "Middle")
+    return MIDDLE;
+  else if (mode == "Good")
+    return GOOD;
+  else 
+    ATH_MSG_WARNING("SplitMode " << mode << " not defined. Check the inputs or updated GeoPixelLayerECRingRefTool::getSplitMode... Returning ring w/o split.");
+  
+  return NONE;
+  
 }

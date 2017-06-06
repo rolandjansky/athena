@@ -56,7 +56,6 @@ int PixelRingSupportXMLHelper::getNbSupport(int layer)
   int layerIndex = getChildValue_Index("PixelRingSupport", "Layer", layer);
   std::string ringGeoName = getString("PixelRingSupport", layerIndex, "RingSupportGeo");
   m_ringGeoIndex = (ringGeoName!="None")? getChildValue_Index("PixelRingSupportGeo", "name", -1, ringGeoName) : -1;
-  //  std::cout<<"RING support : "<<ringGeoName<<" "<<m_ringGeoIndex<<std::endl;  
 
   if(m_ringGeoIndex<0) return 0;
   std::vector<double> v = getVectorDouble("PixelRingSupportGeo",m_ringGeoIndex,"rmin");
@@ -113,21 +112,15 @@ std::vector<int> PixelRingSupportXMLHelper::getNbLayerSupportIndex(int layer)
 
   int layerIndex = getChildValue_Index("PixelLayerSupport", "Layer", layer);
   std::string ringGeoName = getString("PixelLayerSupport", layerIndex, "LayerSupportGeo");
-  
-  std::cout << "ringGeoName = " << ringGeoName << std::endl;
-    
+   
   // using the first name support to get the layer index
   std::stringstream ss(ringGeoName);
   std::string item;
   
   while (ss>>item) {
     if(item.size()==0) continue;
-    
-    std::cout << "item = " << item << std::endl;
-    
+       
     m_ringGeoIndex = (ringGeoName!="None")? getChildValue_Index("PixelLayerSupportGeo", "name", -1, item) : -1;
-    std::cout << "checking m_ringGeoIndex = " << m_ringGeoIndex << "   at name " << ringGeoName << std::endl;
-
     layers.push_back(m_ringGeoIndex);
   }
   return layers;

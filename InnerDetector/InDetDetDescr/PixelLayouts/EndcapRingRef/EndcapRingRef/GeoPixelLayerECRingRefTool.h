@@ -44,7 +44,7 @@ class GeoPixelLayerECRingRefTool : virtual public IGeoPixelEndcapLayerTool, publ
   double getLayerRMin() const { return m_layerRMin; }
   double getLayerRMax() const { return m_layerRMax; }
   double getZPosition() const {return m_layerPosition; }
-
+  
  private:
 
   mutable InDetMaterialManager* m_matMgr;
@@ -57,7 +57,7 @@ class GeoPixelLayerECRingRefTool : virtual public IGeoPixelEndcapLayerTool, publ
   double m_layerRMin;
   double m_layerRMax;
   double m_layerPosition;
-
+  
   std::vector<GeoPixelRingECRingRef> m_ringListF;
   std::vector<GeoPixelRingECRingRef> m_ringListB;
   std::vector<double> m_ringPos;
@@ -65,6 +65,7 @@ class GeoPixelLayerECRingRefTool : virtual public IGeoPixelEndcapLayerTool, publ
   double getValueFromVector(std::vector<double> v, int i);
   int getValueFromVector(std::vector<int> v, int i);
   std::string getValueFromVector(std::vector<std::string> v, int i);
+  SplitMode getSplitMode(std::string mode);
 
   double m_rmin;
   double m_rmax;
