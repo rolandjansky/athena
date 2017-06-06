@@ -118,6 +118,8 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    std::string hname;
    std::string htitles;
 
+   StatusCode sc;
+
    hname = makeHistname("SyncErrors_per_lumi_PIX", false);
    htitles = makeHisttitle("Average Synchronization errors per event, PIXEL BARREL", (atext_LB+atext_err), false);
    sc = rodHistos.regHist(m_errhist_syncerr_LB_pix = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
@@ -259,12 +261,14 @@ StatusCode PixelMainMon::BookRODErrorLumiBlockMon(void)
    if (m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnPixelTrack");
    MonGroup lumiBlockHist(this, path.c_str(), lowStat, ATTRIB_MANAGED); //declare a group of histograms
 
+   StatusCode sc;
+
    if (m_do2DMaps && !m_doOnline) {
       m_errors_LB = new PixelMon2DMapsLW("Errors_LB", ("Errors" + m_histTitleExt).c_str(), m_doIBL, false);
       sc = m_errors_LB->regHist(lumiBlockHist, m_doIBL, false);
 
       m_errors_RODSync_mod = new PixelMon2DMapsLW("Errors_RODSync_LB", ("Errors_RODSync" + m_histTitleExt).c_str(), m_doIBL, false);
-      sc = m_errors_RODSync_mod->regHist(lumiBlockHist, m_doIBL, true);
+      sc = m_errors_RODSync_mod->regHist(lumiBlockHist, m_doIBL, false);
 
       m_errors_ModSync_mod = new PixelMon2DMapsLW("Errors_ModSync_LB", ("Errors_ModSync" + m_histTitleExt).c_str(), m_doIBL, false);
       sc = m_errors_ModSync_mod->regHist(lumiBlockHist, m_doIBL, false);

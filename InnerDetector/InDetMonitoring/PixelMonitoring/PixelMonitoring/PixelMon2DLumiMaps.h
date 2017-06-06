@@ -34,7 +34,6 @@ class PixelMon2DLumiMaps
       void Scale(double number,bool doIBL,bool errorHist);
       StatusCode regHist(ManagedMonitorToolBase::MonGroup &group,bool doIBL=false,bool errorHist=false);
 private:
-      StatusCode sc;
       void formatHist(bool doIBL=false,bool errorHist=false);
       
 };
