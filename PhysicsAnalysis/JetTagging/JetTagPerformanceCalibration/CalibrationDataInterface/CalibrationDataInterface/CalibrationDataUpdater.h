@@ -10,7 +10,7 @@
 #define ANALYSISCALIBRATIONDATAUPDATER_H
 
 // Gaudi includes
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include <string>
 
@@ -34,7 +34,7 @@ namespace Analysis
       @author  Frank Filthaut <F.Filthaut@science.ru.nl>
   */  
 
-  class CalibrationDataUpdater : public Algorithm
+  class CalibrationDataUpdater : public AthAlgorithm
     {
     public:
 
@@ -52,9 +52,6 @@ namespace Analysis
 
     private:
       
-      /** class member version of retrieving MsgStream */
-      mutable MsgStream                 m_log;
-
       /** auxiliary functions */
       void setDefaultResults(std::string Name, TFile* fOut) const;
       void copyResults(const std::string& from, const std::string& to,
