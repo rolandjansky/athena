@@ -51,8 +51,8 @@ class TFile;
 class Identifier;
 
 // Maximum Collection and Prd
-static const int m_maxColl =  1200;
-static const int m_maxPrd  = 50000;
+static const int maxColl =  1200;
+static const int maxPrd  = 50000;
  
 template <class ConcreteAlgorithm> class AlgFactory;
 /////////////////////////////////////////////////////////////////////////////
@@ -90,7 +90,7 @@ private:
   int m_BCID;
     
   //histograms directory names
-  std::string generic_path_tgcmonitoring;
+  std::string m_generic_path_tgcmonitoring;
   
   // Keys and Locations for retrieving collections
   std::string m_tgcPrepDataContainerName;
@@ -174,16 +174,16 @@ private:
   ///////////////////////////////////////////////////////////////////////////
   
   // single bin histogram for counting events
-  TH1* tgceventcounter;
+  TH1* m_tgceventcounter;
 
   // Hits per event histograms
-  TH1* tgcevents;
-  TH1* tgcnumberofhits[2];//[ac]
-  TH1* tgcnumberofwirehits;
-  TH1* tgcnumberofstriphits;
+  TH1* m_tgcevents;
+  TH1* m_tgcnumberofhits[2];//[ac]
+  TH1* m_tgcnumberofwirehits;
+  TH1* m_tgcnumberofstriphits;
 
   // Hit rate across whole of midstation per lumiblock
-  TH2* tgctripletdoublethitsinlbvssect[2];// profile lumiblock, FE, phi
+  TH2* m_tgctripletdoublethitsinlbvssect[2];// profile lumiblock, FE, phi
   
   // book histograms
   StatusCode bookHistogramsNumberOfHits();
@@ -202,16 +202,16 @@ private:
   int m_numberingVersion;
   
   // profile histograms, filled with unique number for each element in a layer-phi48 section
-  TH1* tgcwireprofilephi48[2][7][48]; //[ac][layer][phi48]
-  TH1* tgcstripprofilephi48[2][7][48];//[ac][layer][phi48]
+  TH1* m_tgcwireprofilephi48[2][7][48]; //[ac][layer][phi48]
+  TH1* m_tgcstripprofilephi48[2][7][48];//[ac][layer][phi48]
   
   // profile and occupancy maps filled in procHistograms and PostProcessor
-  TH2* tgcprofilemap[2][2];  //[ac][ws]
-  TH2* tgcoccupancymap[2][2];//[ac][ws]
+  TH2* m_tgcprofilemap[2][2];  //[ac][ws]
+  TH2* m_tgcoccupancymap[2][2];//[ac][ws]
   
   // coincidence of wires and strip chamber maps
-  TH2* tgcwirestripcoin[2];//[ac]
-  TH2* tgcwirestripcoinlowstat[2];//[ac]
+  TH2* m_tgcwirestripcoin[2];//[ac]
+  TH2* m_tgcwirestripcoinlowstat[2];//[ac]
   
   // book histograms
   StatusCode bookHistogramsProfile();
@@ -226,23 +226,23 @@ private:
   ///////////////////////////////////////////////////////////////////////////
   
   // efficiency per layer-wire/strip
-  TH1* tgceff[2];     //[ac]
-  TH1* tgceffnum[2];  //[ac]
-  TH1* tgceffdenom[2];//[ac]
+  TH1* m_tgceff[2];     //[ac]
+  TH1* m_tgceffnum[2];  //[ac]
+  TH1* m_tgceffdenom[2];//[ac]
   
   // efficiency per sector-layer
-  TH1* tgceffsector[2][2];     //[ac][ws]
-  TH1* tgceffsectornum[2][2];  //[ac][ws]
-  TH1* tgceffsectordenom[2][2];//[ac][ws]
+  TH1* m_tgceffsector[2][2];     //[ac][ws]
+  TH1* m_tgceffsectornum[2][2];  //[ac][ws]
+  TH1* m_tgceffsectordenom[2][2];//[ac][ws]
   
   // efficiency maps (current)
-  TH2* tgceffmap[2][2];     //[ac][ws]
-  TH2* tgceffmapnum[2][2];  //[ac][ws]
-  TH2* tgceffmapdenom[2][2];//[ac][ws]
+  TH2* m_tgceffmap[2][2];     //[ac][ws]
+  TH2* m_tgceffmapnum[2][2];  //[ac][ws]
+  TH2* m_tgceffmapdenom[2][2];//[ac][ws]
   
   // efficiency maps for BCID next/prev, (current denominator is used)
-  TH2* tgceffmapbc[2][2][2];   //[ac][ws][prev/next]
-  TH2* tgceffmapnumbc[2][2][2];//[ac][ws][prev/next]
+  TH2* m_tgceffmapbc[2][2][2];   //[ac][ws][prev/next]
+  TH2* m_tgceffmapnumbc[2][2][2];//[ac][ws][prev/next]
   
   // calculates efficiency for given side, ws, chamber-layer 
   // is called by fillEfficiency after checks
@@ -260,8 +260,8 @@ private:
   ///////////////////////////////////////////////////////////////////////////
   
   // XY View histograms, filled with (per chamber) each wire's R and each strip's Phi
-  TH2* tgcxyview[2];        //[ac]
-  TH2* tgcxyviewlayer[2][9];//[ac][layer]
+  TH2* m_tgcxyview[2];        //[ac]
+  TH2* m_tgcxyviewlayer[2][9];//[ac][layer]
   
   // book histograms
   StatusCode bookHistogramsXYView();
@@ -275,14 +275,14 @@ private:
   ///////////////////////////////////////////////////////////////////////////
   
   // summary of bin values from efficiency maps
-  TH1* tgcsummaryofeffpergasgap[2][2];      //[ac][ws]
-  TH1* tgcsummaryofeffperchambertype[2][17];//[ws][TYPE]
+  TH1* m_tgcsummaryofeffpergasgap[2][2];      //[ac][ws]
+  TH1* m_tgcsummaryofeffperchambertype[2][17];//[ws][TYPE]
   
   // summary of bin values from occupancy maps
-  TH1* tgcsummaryoflog10wireoccupancypergasgap[2];       //[ac]
-  TH1* tgcsummaryoflog10stripoccupancypergasgap[2];      //[ac]
-  TH1* tgcsummaryoflog10wireoccupancyperchambertype[19]; //[TYPE]
-  TH1* tgcsummaryoflog10stripoccupancyperchambertype[19];//[TYPE]
+  TH1* m_tgcsummaryoflog10wireoccupancypergasgap[2];       //[ac]
+  TH1* m_tgcsummaryoflog10stripoccupancypergasgap[2];      //[ac]
+  TH1* m_tgcsummaryoflog10wireoccupancyperchambertype[19]; //[TYPE]
+  TH1* m_tgcsummaryoflog10stripoccupancyperchambertype[19];//[TYPE]
   
   // book histograms
   StatusCode bookHistogramsSummary();

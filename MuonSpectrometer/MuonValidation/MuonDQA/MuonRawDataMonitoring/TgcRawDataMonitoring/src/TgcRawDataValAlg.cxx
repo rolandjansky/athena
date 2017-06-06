@@ -128,7 +128,7 @@ TgcRawDataValAlg::initialize(){
   }
   
   //histograms directory names
-  generic_path_tgcmonitoring = "Muon/MuonRawDataMonitoring/TGC";
+  m_generic_path_tgcmonitoring = "Muon/MuonRawDataMonitoring/TGC";
 
   //tgcchamberId();
   
@@ -165,7 +165,7 @@ TgcRawDataValAlg::bookHistogramsRecurrent(){
     }
     else
       for(int ac=0;ac<2;ac++){
-        tgcwirestripcoinlowstat[ac] = 0;
+        m_tgcwirestripcoinlowstat[ac] = 0;
       }
   }
      
@@ -181,7 +181,7 @@ TgcRawDataValAlg::bookHistogramsRecurrent(){
     sc = bookHistogramsSummary();
     
     if (m_debuglevel) {
-      m_log << MSG::DEBUG << "INSIDE bookHistograms : " << tgcevents << generic_path_tgcmonitoring << endmsg;
+      m_log << MSG::DEBUG << "INSIDE bookHistograms : " << m_tgcevents << m_generic_path_tgcmonitoring << endmsg;
       //m_log << MSG::DEBUG << "SHIFT : " << shift << "  RUN : " << run << "  Booked booktgcevents successfully" << endmsg; //attention
     }
 
@@ -297,15 +297,15 @@ TgcRawDataValAlg::procHistograms(){
       for(int ac=0;ac<2;ac++){
         for(int ws=0;ws<2;ws++){
           
-          if( tgcprofilemap[ac][ws] && tgcoccupancymap[ac][ws] ){
-            int nbinx=tgcprofilemap[ac][ws]->GetNbinsX();
-            int nbiny=tgcprofilemap[ac][ws]->GetNbinsY();
+          if( m_tgcprofilemap[ac][ws] && m_tgcoccupancymap[ac][ws] ){
+            int nbinx=m_tgcprofilemap[ac][ws]->GetNbinsX();
+            int nbiny=m_tgcprofilemap[ac][ws]->GetNbinsY();
             
             for(int binx=1;binx<=nbinx;binx++)
               for(int biny=1;biny<=nbiny;biny++){
-                tgcoccupancymap[ac][ws]->SetBinContent( binx, biny, nWireStripMap( ws, binx, biny ) * m_nEvent );
+                m_tgcoccupancymap[ac][ws]->SetBinContent( binx, biny, nWireStripMap( ws, binx, biny ) * m_nEvent );
               }
-            tgcoccupancymap[ac][ws]->Divide( tgcprofilemap[ac][ws], tgcoccupancymap[ac][ws], 1., 1., "B");
+            m_tgcoccupancymap[ac][ws]->Divide( m_tgcprofilemap[ac][ws], m_tgcoccupancymap[ac][ws], 1., 1., "B");
           }
 
         }// ws
@@ -314,30 +314,30 @@ TgcRawDataValAlg::procHistograms(){
 
       // calculate efficiency histograms and map
       for(int ac=0;ac<2;ac++){
-        if(tgceff[ac] &&
-           tgceffnum[ac] &&
-           tgceffdenom[ac] )
-          tgceff[ac]->Divide(tgceffnum[ac], tgceffdenom[ac], 1., 1., "B");
+        if(m_tgceff[ac] &&
+           m_tgceffnum[ac] &&
+           m_tgceffdenom[ac] )
+          m_tgceff[ac]->Divide(m_tgceffnum[ac], m_tgceffdenom[ac], 1., 1., "B");
       
         for(int ws=0;ws<2;ws++){
-          if(tgceffmap[ac][ws] &&
-             tgceffmapnum[ac][ws] &&
-             tgceffmapdenom[ac][ws]){
-            tgceffmap[ac][ws]->Divide(tgceffmapnum[ac][ws], tgceffmapdenom[ac][ws], 1., 1., "B");
+          if(m_tgceffmap[ac][ws] &&
+             m_tgceffmapnum[ac][ws] &&
+             m_tgceffmapdenom[ac][ws]){
+            m_tgceffmap[ac][ws]->Divide(m_tgceffmapnum[ac][ws], m_tgceffmapdenom[ac][ws], 1., 1., "B");
           }
           
           for(int bc=0;bc<2;bc++){
-            if(tgceffmapbc[ac][ws][bc] &&
-               tgceffmapnumbc[ac][ws][bc] &&
-               tgceffmapdenom[ac][ws]){
-              tgceffmapbc[ac][ws][bc]->Divide(tgceffmapnumbc[ac][ws][bc], tgceffmapdenom[ac][ws], 1., 1., "B" );
+            if(m_tgceffmapbc[ac][ws][bc] &&
+               m_tgceffmapnumbc[ac][ws][bc] &&
+               m_tgceffmapdenom[ac][ws]){
+              m_tgceffmapbc[ac][ws][bc]->Divide(m_tgceffmapnumbc[ac][ws][bc], m_tgceffmapdenom[ac][ws], 1., 1., "B" );
             }
           }
           
-          if(tgceffsector[ac][ws] &&
-             tgceffsectornum[ac][ws] &&
-             tgceffsectordenom[ac][ws] )
-            tgceffsector[ac][ws]->Divide(tgceffsectornum[ac][ws], tgceffsectordenom[ac][ws], 1., 1., "B");
+          if(m_tgceffsector[ac][ws] &&
+             m_tgceffsectornum[ac][ws] &&
+             m_tgceffsectordenom[ac][ws] )
+            m_tgceffsector[ac][ws]->Divide(m_tgceffsectornum[ac][ws], m_tgceffsectordenom[ac][ws], 1., 1., "B");
             
         }// ws
       }// ac
@@ -350,16 +350,16 @@ TgcRawDataValAlg::procHistograms(){
     for(int ac=0;ac<2;ac++){
       for(int ws=0;ws<2;ws++){
         
-        if(tgcprofilemap[ac][ws] && tgcoccupancymap[ac][ws]){
-          int nbinx=tgcprofilemap[ac][ws]->GetNbinsX();
-          int nbiny=tgcprofilemap[ac][ws]->GetNbinsY();
+        if(m_tgcprofilemap[ac][ws] && m_tgcoccupancymap[ac][ws]){
+          int nbinx=m_tgcprofilemap[ac][ws]->GetNbinsX();
+          int nbiny=m_tgcprofilemap[ac][ws]->GetNbinsY();
           
           for(int binx=1;binx<=nbinx;binx++)
             for(int biny=1;biny<=nbiny;biny++){
-              //tgcoccupancymap[ac][ws]->SetBinContent( binx, biny, nWireStripMap(ac, binx, biny ) * m_nEvent );//run1 default
-              tgcoccupancymap[ac][ws]->SetBinContent( binx, biny, nWireStripMap(ws, binx, biny ) * m_nEvent );
+              //m_tgcoccupancymap[ac][ws]->SetBinContent( binx, biny, nWireStripMap(ac, binx, biny ) * m_nEvent );//run1 default
+              m_tgcoccupancymap[ac][ws]->SetBinContent( binx, biny, nWireStripMap(ws, binx, biny ) * m_nEvent );
             }
-          tgcoccupancymap[ac][ws]->Divide( tgcprofilemap[ac][ws], tgcoccupancymap[ac][ws], 1., 1., "B");
+          m_tgcoccupancymap[ac][ws]->Divide( m_tgcprofilemap[ac][ws], m_tgcoccupancymap[ac][ws], 1., 1., "B");
         }
 
       }// ws
@@ -367,22 +367,22 @@ TgcRawDataValAlg::procHistograms(){
 
     // calculate efficiency histogram and map
     for(int ac=0;ac<2;ac++){
-      if(tgceff[ac] &&
-         tgceffnum[ac] &&
-         tgceffdenom[ac] )
-        tgceff[ac]->Divide(tgceffnum[ac], tgceffdenom[ac], 1., 1., "B");
+      if(m_tgceff[ac] &&
+         m_tgceffnum[ac] &&
+         m_tgceffdenom[ac] )
+        m_tgceff[ac]->Divide(m_tgceffnum[ac], m_tgceffdenom[ac], 1., 1., "B");
 
       for(int ws=0;ws<2;ws++){
-        if(tgceffmap[ac][ws] &&
-           tgceffmapnum[ac][ws] &&
-           tgceffmapdenom[ac][ws] ){
-          tgceffmap[ac][ws]->Divide(tgceffmapnum[ac][ws], tgceffmapdenom[ac][ws], 1., 1., "B");
+        if(m_tgceffmap[ac][ws] &&
+           m_tgceffmapnum[ac][ws] &&
+           m_tgceffmapdenom[ac][ws] ){
+          m_tgceffmap[ac][ws]->Divide(m_tgceffmapnum[ac][ws], m_tgceffmapdenom[ac][ws], 1., 1., "B");
         }
         
-        if(tgceffsector[ac][ws] &&
-           tgceffsectornum[ac][ws] &&
-           tgceffsectordenom[ac][ws] )
-          tgceffsector[ac][ws]->Divide(tgceffsectornum[ac][ws], tgceffsectordenom[ac][ws], 1., 1., "B");
+        if(m_tgceffsector[ac][ws] &&
+           m_tgceffsectornum[ac][ws] &&
+           m_tgceffsectordenom[ac][ws] )
+          m_tgceffsector[ac][ws]->Divide(m_tgceffsectornum[ac][ws], m_tgceffsectordenom[ac][ws], 1., 1., "B");
           
       }// ws
     }// ac
