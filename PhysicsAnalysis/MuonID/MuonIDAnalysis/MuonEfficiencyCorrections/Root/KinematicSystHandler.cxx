@@ -22,7 +22,7 @@ namespace CP {
         if (name == "ptGeV") return &IKinematicSystHandler::PtGeV;
         if (name == "eta") return &IKinematicSystHandler::Eta;
         if (name == "AbsEta") return &IKinematicSystHandler::AbsEta;
-        return NULL;
+        return nullptr;
     }
 
     PtDependentSystHandler::PtDependentSystHandler(HistHandler* HistHandler) :
@@ -66,8 +66,8 @@ namespace CP {
 
     BadMuonVetoSystHandler::BadMuonVetoSystHandler(TDirectory* InDir) :
                     m_SystPolynomials(),
-                    m_FirstVar(NULL),
-                    m_SecondVar(NULL),
+                    m_FirstVar(nullptr),
+                    m_SecondVar(nullptr),
                     m_SystWeight(0.) {
         if (!InDir) {
             Error("BadMuonSysVetoHandler()", "No TDirectory is given");
@@ -80,7 +80,7 @@ namespace CP {
             if (ObjName.find("TF1") == std::string::npos) {
                 continue;
             }
-            TF1* TF = NULL;
+            TF1* TF = nullptr;
             InDir->GetObject(ObjName.c_str(), TF);
             if (!TF) {
                 continue;
@@ -102,7 +102,7 @@ namespace CP {
 
     }
     CorrectionCode BadMuonVetoSystHandler::GetKineDependent(const xAOD::Muon &mu, float& Eff) const {
-        TF1* Poly = NULL;
+        TF1* Poly = nullptr;
         if (m_SystWeight == 0) {
             return CorrectionCode::Ok;
         }
