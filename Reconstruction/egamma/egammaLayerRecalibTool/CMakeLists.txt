@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 776712 2016-10-05 16:37:44Z krasznaa $
 ################################################################################
 # Package: egammaLayerRecalibTool
 ###############################################################################
@@ -12,7 +13,7 @@ atlas_depends_on_subdirs(
    Control/AthToolSupport/AsgTools
    Event/xAOD/xAODCaloEvent
    Event/xAOD/xAODEgamma
-   Event/xAOD/xAODEventInfo
+	Event/xAOD/xAODEventInfo
    PRIVATE
    Tools/PathResolver )
 
@@ -23,7 +24,7 @@ find_package( ROOT COMPONENTS Hist Core RIO )
 atlas_add_library( egammaLayerRecalibTool
    egammaLayerRecalibTool/*.h Root/*.cxx
    PUBLIC_HEADERS egammaLayerRecalibTool
-   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+	PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES PATInterfaces AsgTools xAODCaloEvent xAODEgamma xAODEventInfo
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver )
 
