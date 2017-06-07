@@ -26,7 +26,8 @@ namespace Monitored {
             
             MonitoredScalar(MonitoredScalar&&) = default;
             
-            void operator=(T value) { m_value = value; }
+            T operator=(T value) { m_value = value;  return value; }
+	    
             operator T() const { return m_value; }
             
             const std::vector<double> getVectorRepresentation() const override { return { double(m_value) }; }
@@ -36,7 +37,7 @@ namespace Monitored {
             MonitoredScalar(std::string name, const T& defaultValue = {})
               : IMonitoredVariable(std::move(name)), m_value(defaultValue) { }
             MonitoredScalar(MonitoredScalar const&) = delete;
-            MonitoredScalar& operator=(MonitoredScalar const&) = delete;
+	    MonitoredScalar& operator=(MonitoredScalar const& ) = delete;
         };
         
         template<class T>
