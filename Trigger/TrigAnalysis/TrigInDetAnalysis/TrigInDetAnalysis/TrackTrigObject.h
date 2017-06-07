@@ -68,24 +68,14 @@ private:
 };
 
 
-inline std::ostream& operator<<( std::ostream& s, const TrackTrigObject& _t ) { 
+inline std::ostream& operator<<( std::ostream& s, const TrackTrigObject& t ) { 
   return s << "[" 
-	   << "\ttype=" << _t.type()
-	   << ":\teta=" << _t.eta()
-	   << "\tphi="  << _t.phi()
-	   << "\tpt="   << _t.pt()
+	   << "\ttype=" << t.type()
+	   << ":\teta=" << t.eta()
+	   << "\tphi="  << t.phi()
+	   << "\tpt="   << t.pt()
 	   << " ]" << std::endl;
 }
 
 
 #endif  // TRACKTRIGOBJECT_H 
-
-
-
-
-
-
-
-
-
-

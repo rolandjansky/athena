@@ -747,7 +747,6 @@ StatusCode
 SCTTracksMonTool::bookGeneralHistos() {                                        // hidetoshi 14.01.22
   //    if(isNewRun){                                                            // hidetoshi 14.01.22
   if (newRunFlag()) {                                                                   // hidetoshi 14.11.27
-    using boost::lexical_cast;
     string stem(m_path + "/SCT/GENERAL/tracks/");
     //    MonGroup Tracks(this,m_path+"SCT/GENERAL/tracks",expert,run);          // hidetoshi 14.01.21
     MonGroup Tracks(this, m_path + "SCT/GENERAL/tracks", run, ATTRIB_UNMANAGED);      // hidetoshi 14.01.21
@@ -867,7 +866,6 @@ SCTTracksMonTool::bookTrackHistos(const SCT_Monitoring::Bec becVal) {           
   if (not newRunFlag()) {
     return StatusCode::SUCCESS;                                                           // hidetoshi 14.11.27
   }
-  using boost::lexical_cast;
   const string pathDelimiter("/");
   const string streamDelimiter("_");
   const string regionNames[N_REGIONS] = {

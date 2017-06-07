@@ -78,9 +78,9 @@ private:
 
 
 
-inline std::ostream& operator<<( std::ostream& s, const TIDA::FeatureStore& _f ) { 
-  TIDA::FeatureStore::const_iterator itr  = _f.begin();
-  TIDA::FeatureStore::const_iterator iend = _f.end();
+inline std::ostream& operator<<( std::ostream& s, const TIDA::FeatureStore& f ) { 
+  TIDA::FeatureStore::const_iterator itr  = f.begin();
+  TIDA::FeatureStore::const_iterator iend = f.end();
   while( itr!=iend ) { 
     if ( itr->first.size()>5 ) s << "\t[ " << itr->first << ":\t"   << itr->second << " ]\n";
     else                       s << "\t[ " << itr->first << ":\t\t" << itr->second << " ]\n";

@@ -35,11 +35,6 @@
 using namespace std;
 
 
-static const string m_sMuType[2]    = {"_Muid","_Staco"};
-/////static const string m_sMuLowHigh[2] = {"_lowpt","_highpt"};
-static const string m_sMuCharge[3]  = {"_Posi","_Nega",""};
-static const string m_sSide[3]	    = {"_A","_C","AC"};
-
 
 //================================================================================================================================
 RpcLv1RawDataEfficiency::RpcLv1RawDataEfficiency( const std::string & type, 
@@ -71,37 +66,30 @@ StatusCode RpcLv1RawDataEfficiency::initialize()
    m_eventStore  = 0 ;
    m_activeStore  = 0 ;
    m_rpcIdHelper  = 0 ;
-   sectorLogicContainer  = 0 ;
+   m_sectorLogicContainer  = 0 ;
    m_muonMgr  = 0 ;
-   i_sectorid  = 0 ;
-   b_isInput  = 0 ;
-   i_ptid  = 0 ;
    m_trigtype  = 0 ;
    m_event  = 0 ;
    m_lumiblock  = 0 ;
    m_BCID  = 0 ;
-   rpclv1_MinDeltaRTrackTrigger [0] = 0 ;
-   rpclv1_MinDeltaRTrackTrigger [1] = 0 ;
-   rpclv1_TrackPt[0] = 0 ;
-   rpclv1_TrackPt[1] = 0 ;
-   rpclv1_sectorhits_A[0]  = 0 ;
-   rpclv1_sectorhits_C[0]  = 0 ;  	
-   rpclv1_sectorhits_all[0]= 0 ;
-   rpclv1_sectorhits_A[1]  = 0 ;
-   rpclv1_sectorhits_C[1]  = 0 ;  	
-   rpclv1_sectorhits_all[1]= 0 ;
-   rpclv1_sectorhits_A[2]  = 0 ;
-   rpclv1_sectorhits_C[2]  = 0 ;  	
-   rpclv1_sectorhits_all[2]= 0 ;
-   rpclv1_sectorhits_A[3]  = 0 ;
-   rpclv1_sectorhits_C[3]  = 0 ;  	
-   rpclv1_sectorhits_all[3]= 0 ;
-   rpclv1_sectorhits_A[4]  = 0 ;
-   rpclv1_sectorhits_C[4]  = 0 ;  	
-   rpclv1_sectorhits_all[4]= 0 ;
-   rpclv1_sectorhits_A[5]  = 0 ;
-   rpclv1_sectorhits_C[5]  = 0 ;  	
-   rpclv1_sectorhits_all[5]= 0 ;
+   m_rpclv1_sectorhits_A[0]  = 0 ;
+   m_rpclv1_sectorhits_C[0]  = 0 ;  	
+   m_rpclv1_sectorhits_all[0]= 0 ;
+   m_rpclv1_sectorhits_A[1]  = 0 ;
+   m_rpclv1_sectorhits_C[1]  = 0 ;  	
+   m_rpclv1_sectorhits_all[1]= 0 ;
+   m_rpclv1_sectorhits_A[2]  = 0 ;
+   m_rpclv1_sectorhits_C[2]  = 0 ;  	
+   m_rpclv1_sectorhits_all[2]= 0 ;
+   m_rpclv1_sectorhits_A[3]  = 0 ;
+   m_rpclv1_sectorhits_C[3]  = 0 ;  	
+   m_rpclv1_sectorhits_all[3]= 0 ;
+   m_rpclv1_sectorhits_A[4]  = 0 ;
+   m_rpclv1_sectorhits_C[4]  = 0 ;  	
+   m_rpclv1_sectorhits_all[4]= 0 ;
+   m_rpclv1_sectorhits_A[5]  = 0 ;
+   m_rpclv1_sectorhits_C[5]  = 0 ;  	
+   m_rpclv1_sectorhits_all[5]= 0 ;
   
   // Store Gate store
   sc = serviceLocator()->service("StoreGateSvc", m_eventStore);
@@ -356,31 +344,31 @@ StatusCode RpcLv1RawDataEfficiency::bookHistogramsRecurrent()
   if(newLumiBlock){}
 
   if(newRun){ //book all histograms per new run
-    std::string m_generic_path_rpclv1monitoring = "Muon/MuonRawDataMonitoring/RPCLV1Efficiency";
-    MonGroup MG_SectorHits(this, m_generic_path_rpclv1monitoring + "/SectorHits", run, ATTRIB_UNMANAGED ); 
+    std::string generic_path_rpclv1monitoring = "Muon/MuonRawDataMonitoring/RPCLV1Efficiency";
+    MonGroup MG_SectorHits(this, generic_path_rpclv1monitoring + "/SectorHits", run, ATTRIB_UNMANAGED ); 
 
     // Sector hits
     for (unsigned int iMuThreshold = 0; iMuThreshold < 6; iMuThreshold++) {  // threshold       
 
       m_ss.str(""); m_ss << "SectorHits" <<   "PT" <<iMuThreshold+1 << "_C";
-      rpclv1_sectorhits_C[iMuThreshold] = new TH2I(m_ss.str().c_str(), (m_ss.str() + ";LB;Sector").c_str() , 500, 0., 1500., 32, 0., 32.); 
-      sc = MG_SectorHits.regHist(rpclv1_sectorhits_C[iMuThreshold]);		  
+      m_rpclv1_sectorhits_C[iMuThreshold] = new TH2I(m_ss.str().c_str(), (m_ss.str() + ";LB;Sector").c_str() , 500, 0., 1500., 32, 0., 32.); 
+      sc = MG_SectorHits.regHist(m_rpclv1_sectorhits_C[iMuThreshold]);		  
       if( sc.isFailure()) {
 	msg(MSG::FATAL) << m_ss.str() << " Failed to register histogram!" << endmsg;
 	return sc;
       }
 
       m_ss.str(""); m_ss << "SectorHits" <<  "PT" <<iMuThreshold+1 << "_A";
-      rpclv1_sectorhits_A[iMuThreshold] = new TH2I(m_ss.str().c_str(), (m_ss.str() + ";LB;Sector").c_str() , 500, 0., 1500., 32, 32., 64.); 
-      sc = MG_SectorHits.regHist(rpclv1_sectorhits_A[iMuThreshold]);
+      m_rpclv1_sectorhits_A[iMuThreshold] = new TH2I(m_ss.str().c_str(), (m_ss.str() + ";LB;Sector").c_str() , 500, 0., 1500., 32, 32., 64.); 
+      sc = MG_SectorHits.regHist(m_rpclv1_sectorhits_A[iMuThreshold]);
       if( sc.isFailure()) {
 	msg(MSG::FATAL) << m_ss.str() << " Failed to register histogram!" << endmsg;
 	return sc;
       }
 
       m_ss.str(""); m_ss << "SectorHits" <<  "PT" <<iMuThreshold+1 << "_all";
-      rpclv1_sectorhits_all[iMuThreshold] = new TH2I(m_ss.str().c_str(), (m_ss.str() + ";LB;Sector").c_str() , 500, 0., 1500., 64, 0., 64.); 
-      sc = MG_SectorHits.regHist(rpclv1_sectorhits_all[iMuThreshold]);		  
+      m_rpclv1_sectorhits_all[iMuThreshold] = new TH2I(m_ss.str().c_str(), (m_ss.str() + ";LB;Sector").c_str() , 500, 0., 1500., 64, 0., 64.); 
+      sc = MG_SectorHits.regHist(m_rpclv1_sectorhits_all[iMuThreshold]);		  
       if( sc.isFailure()) {
 	msg(MSG::FATAL) << m_ss.str() << " Failed to register histogram!" << endmsg;
 	return sc;
@@ -409,7 +397,7 @@ StatusCode RpcLv1RawDataEfficiency::fillHistograms( )
   // == Filling the Histograms                                                                                                                               
   //--------------------Sector Hits---------------------------------
   // Retrieve the Sector Logic container
-  sc = (*m_activeStore) -> retrieve(sectorLogicContainer);     
+  sc = (*m_activeStore) -> retrieve(m_sectorLogicContainer);     
 		    
   if (sc.isFailure()) {
     msg(MSG::INFO) << "Cannot retrieve the RpcSectorLogicContainer" << endmsg;     
@@ -417,25 +405,25 @@ StatusCode RpcLv1RawDataEfficiency::fillHistograms( )
   }
   else {
 		      
-    RpcSectorLogicContainer::const_iterator it = sectorLogicContainer -> begin();
+    RpcSectorLogicContainer::const_iterator it = m_sectorLogicContainer -> begin();
 
-    for ( ; it != sectorLogicContainer -> end() ; ++it ) 
+    for ( ; it != m_sectorLogicContainer -> end() ; ++it ) 
       {
-	i_sectorid = (*it)->sectorId();
+	int i_sectorid = (*it)->sectorId();
 	// Loop over the trigger hits of each sector
 	RpcSectorLogic::const_iterator ithit = (*it) -> begin();
 	for ( ; ithit != (*it) -> end() ; ++ithit ) 
 	  {
-	    b_isInput        = (*ithit) -> isInput();
-	    i_ptid   = (*ithit) -> ptId();
+	    bool b_isInput        = (*ithit) -> isInput();
+	    int i_ptid   = (*ithit) -> ptId();
 	    if (b_isInput == true) // fill histograms only if there was a trigger hit
 	      {
 		for( int iThresholdIndex=0; iThresholdIndex < 6; iThresholdIndex++) {
 		  if (i_ptid == (iThresholdIndex + 1))
 		    {
-		      rpclv1_sectorhits_all[iThresholdIndex]->Fill(m_lumiblock,i_sectorid);
-		      rpclv1_sectorhits_A[iThresholdIndex]->Fill(m_lumiblock,i_sectorid);
-		      rpclv1_sectorhits_C[iThresholdIndex]->Fill(m_lumiblock,i_sectorid);
+		      m_rpclv1_sectorhits_all[iThresholdIndex]->Fill(m_lumiblock,i_sectorid);
+		      m_rpclv1_sectorhits_A[iThresholdIndex]->Fill(m_lumiblock,i_sectorid);
+		      m_rpclv1_sectorhits_C[iThresholdIndex]->Fill(m_lumiblock,i_sectorid);
 		    }
 		}
 	      }

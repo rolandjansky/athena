@@ -27,11 +27,11 @@ class ISCT_ByteStreamErrorsSvc;
 class ISCT_RodDecoder;
 
 class SCTRawDataProviderTool : virtual public ISCTRawDataProviderTool, 
-                               virtual public AthAlgTool, 
-                               virtual public IIncidentListener
+  virtual public AthAlgTool, 
+  virtual public IIncidentListener
 {
 
- public:
+public:
    
   //! AlgTool InterfaceID
   //  static const InterfaceID& interfaceID( ) ;
@@ -41,20 +41,21 @@ class SCTRawDataProviderTool : virtual public ISCTRawDataProviderTool,
 			    const IInterface* parent ) ;
 
   //! destructor 
-  virtual ~SCTRawDataProviderTool() ;
+  virtual ~SCTRawDataProviderTool();
 
   //! initialize
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   //! finalize
-  virtual StatusCode finalize();
+  virtual StatusCode finalize()  override;
   
   //! this is the main decoding method
   virtual StatusCode convert( std::vector<const ROBFragment*>& vecRobs,
-			      SCT_RDO_Container*               rdoIdc );
+			      SCT_RDO_Container&               rdoIdc,
+                              InDetBSErrContainer*             errs) override;
 
   /** function to be executed at BeginEvent incident */
-  virtual void handle(const Incident& inc);
+  virtual void handle(const Incident& inc) override;
 
 private: 
   

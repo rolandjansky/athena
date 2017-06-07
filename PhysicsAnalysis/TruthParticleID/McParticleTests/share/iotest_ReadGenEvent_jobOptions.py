@@ -91,7 +91,7 @@ if DUMPTUPLE:
 # Output options
 #--------------------------------------------------------------
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-outStream = AthenaPoolOutputStream("StreamEvGen")
+outStream = AthenaPoolOutputStream("StreamEvGen", noTag=True)
 outStream.ItemList  = [ "EventInfo#McEventInfo"]
 outStream.ItemList += [ "McEventCollection#GEN_EVENT" ]
 

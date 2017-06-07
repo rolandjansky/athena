@@ -11,13 +11,13 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/ByteStreamData
                           GaudiKernel
                           InnerDetector/InDetRawEvent/InDetRawData
+                          InnerDetector/InDetConditions/InDetByteStreamErrors
                           PRIVATE
                           Control/AthenaBaseComps
                           Control/StoreGate
                           DetectorDescription/Identifier
                           Event/EventInfo
                           Event/xAOD/xAODEventInfo
-                          InnerDetector/InDetConditions/InDetByteStreamErrors
                           InnerDetector/InDetConditions/SCT_ConditionsServices
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry

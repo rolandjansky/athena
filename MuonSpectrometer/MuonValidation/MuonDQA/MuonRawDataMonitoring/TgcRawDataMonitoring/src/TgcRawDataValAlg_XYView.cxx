@@ -64,11 +64,11 @@ TgcRawDataValAlg::bookHistogramsXYView(){
 
   StatusCode sc=StatusCode::SUCCESS;
 
-  MonGroup tgcprd_shift_a( this, generic_path_tgcmonitoring + "/TGCEA", run, ATTRIB_UNMANAGED ); 
-  MonGroup tgcprd_shift_c( this, generic_path_tgcmonitoring + "/TGCEC", run, ATTRIB_UNMANAGED ); 
+  MonGroup tgcprd_shift_a( this, m_generic_path_tgcmonitoring + "/TGCEA", run, ATTRIB_UNMANAGED ); 
+  MonGroup tgcprd_shift_c( this, m_generic_path_tgcmonitoring + "/TGCEC", run, ATTRIB_UNMANAGED ); 
   MonGroup* tgcprd_shift_ac[2]={ &tgcprd_shift_a, &tgcprd_shift_c };
-  MonGroup tgcprd_expert_a( this, generic_path_tgcmonitoring + "/TGCEA", run, ATTRIB_UNMANAGED ); 
-  MonGroup tgcprd_expert_c( this, generic_path_tgcmonitoring + "/TGCEC", run, ATTRIB_UNMANAGED ); 
+  MonGroup tgcprd_expert_a( this, m_generic_path_tgcmonitoring + "/TGCEA", run, ATTRIB_UNMANAGED ); 
+  MonGroup tgcprd_expert_c( this, m_generic_path_tgcmonitoring + "/TGCEC", run, ATTRIB_UNMANAGED ); 
   MonGroup* tgcprd_expert_ac[2]={ &tgcprd_expert_a, &tgcprd_expert_c };
   
   std::stringstream ss;
@@ -78,8 +78,8 @@ TgcRawDataValAlg::bookHistogramsXYView(){
   //    A/C side : overlay all layers
   for( int ac=0 ; ac<2 ; ac++ ){
     ss.str(""); ss<< "XY_View_" << side[ac];
-    tgcxyview[ac] = new TH2F( ss.str().c_str(), (ss.str() + ";X [cm]; Y[cm]").c_str(),120,-1200,1200,120,-1200,1200 );//20cmx20cm cell
-    sc=tgcprd_shift_ac[ac]->regHist(tgcxyview[ac]) ;  
+    m_tgcxyview[ac] = new TH2F( ss.str().c_str(), (ss.str() + ";X [cm]; Y[cm]").c_str(),120,-1200,1200,120,-1200,1200 );//20cmx20cm cell
+    sc=tgcprd_shift_ac[ac]->regHist(m_tgcxyview[ac]) ;  
     if(sc.isFailure()) { 
       m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
       return sc;
@@ -91,8 +91,8 @@ TgcRawDataValAlg::bookHistogramsXYView(){
       for(int i=0;i<9;i++){
         int layer=i+1;
         ss.str(""); ss<<"XY_View_" << side[ac] <<"_Layer"<<layer;
-        tgcxyviewlayer[ac][i] = new TH2F(ss.str().c_str(), (ss.str() + ";X [cm]; Y [cm]").c_str(),120,-1200,1200,120,-1200,1200 );//20cmx20cm cell
-        sc=tgcprd_expert_ac[ac]->regHist(tgcxyviewlayer[ac][i]) ;  
+        m_tgcxyviewlayer[ac][i] = new TH2F(ss.str().c_str(), (ss.str() + ";X [cm]; Y [cm]").c_str(),120,-1200,1200,120,-1200,1200 );//20cmx20cm cell
+        sc=tgcprd_expert_ac[ac]->regHist(m_tgcxyviewlayer[ac][i]) ;  
         if(sc.isFailure()) { 
           m_log << MSG::FATAL << ss.str() <<" Failed to register histogram " << endmsg;       
           return sc;
@@ -101,7 +101,7 @@ TgcRawDataValAlg::bookHistogramsXYView(){
     }//Global monitoring
     else
       for(int i=0;i<9;i++){
-        tgcxyviewlayer[ac][i] = 0;
+        m_tgcxyviewlayer[ac][i] = 0;
       }
 
   }//loop over ac
@@ -153,11 +153,11 @@ TgcRawDataValAlg::fillXYView(){
               double Y=R*sin(Phi);
               
               if(l!=1)// exclude layer 2 (no strips) from overall histogram
-                tgcxyview[ac]->Fill(X,Y);
+                m_tgcxyview[ac]->Fill(X,Y);
               
               //histograms not for for Global Montioring
               if(m_environment!=AthenaMonManager::online)
-                tgcxyviewlayer[ac][l]->Fill(X,Y);
+                m_tgcxyviewlayer[ac][l]->Fill(X,Y);
             }// chamberPhiHits
           }// chamberRhoHits
         }// phiIndex

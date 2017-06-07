@@ -60,31 +60,31 @@ TgcLv1RawDataValAlg::bookHistogramsEfficiency(){
 
   ///////////////////////////////////////////////////////////////////////////
   // Make MonGroups for histogram booking paths
-  std::string m_generic_path_tgclv1 = "Muon/MuonRawDataMonitoring/TGCLV1";
+  std::string generic_path_tgclv1 = "Muon/MuonRawDataMonitoring/TGCLV1";
 
-  MonGroup tgclv1_a( this, m_generic_path_tgclv1+"/TGCEA", run, ATTRIB_UNMANAGED  );
-  MonGroup tgclv1_c( this, m_generic_path_tgclv1+"/TGCEC", run, ATTRIB_UNMANAGED  );
+  MonGroup tgclv1_a( this, generic_path_tgclv1+"/TGCEA", run, ATTRIB_UNMANAGED  );
+  MonGroup tgclv1_c( this, generic_path_tgclv1+"/TGCEC", run, ATTRIB_UNMANAGED  );
 
-  MonGroup tgclv1_turnon( this, m_generic_path_tgclv1+"/Global", run, ATTRIB_UNMANAGED  );
-  MonGroup tgclv1_turnon_a( this, m_generic_path_tgclv1+"/TGCEA/Eff", run, ATTRIB_UNMANAGED  );
-  MonGroup tgclv1_turnon_c( this, m_generic_path_tgclv1+"/TGCEC/Eff", run, ATTRIB_UNMANAGED  );
+  MonGroup tgclv1_turnon( this, generic_path_tgclv1+"/Global", run, ATTRIB_UNMANAGED  );
+  MonGroup tgclv1_turnon_a( this, generic_path_tgclv1+"/TGCEA/Eff", run, ATTRIB_UNMANAGED  );
+  MonGroup tgclv1_turnon_c( this, generic_path_tgclv1+"/TGCEC/Eff", run, ATTRIB_UNMANAGED  );
   MonGroup* tgclv1_turnon_ac[2] = { &tgclv1_turnon_a, &tgclv1_turnon_c};
 
-  MonGroup tgclv1_turnon_numdenom_a( this, m_generic_path_tgclv1+"/TGCEA/Eff/NumDenom", run, ATTRIB_UNMANAGED );
-  MonGroup tgclv1_turnon_numdenom_c( this, m_generic_path_tgclv1+"/TGCEC/Eff/NumDenom", run, ATTRIB_UNMANAGED );
+  MonGroup tgclv1_turnon_numdenom_a( this, generic_path_tgclv1+"/TGCEA/Eff/NumDenom", run, ATTRIB_UNMANAGED );
+  MonGroup tgclv1_turnon_numdenom_c( this, generic_path_tgclv1+"/TGCEC/Eff/NumDenom", run, ATTRIB_UNMANAGED );
   MonGroup* tgclv1_turnon_numdenom_ac[2] = { &tgclv1_turnon_numdenom_a, &tgclv1_turnon_numdenom_c};
 
-  MonGroup tgclv1_turnon_ES( this, m_generic_path_tgclv1+"/Global/ES", run, ATTRIB_UNMANAGED  );
-  MonGroup tgclv1_turnon_a_ES( this, m_generic_path_tgclv1+"/TGCEA/ES/Eff", run, ATTRIB_UNMANAGED  );
-  MonGroup tgclv1_turnon_c_ES( this, m_generic_path_tgclv1+"/TGCEC/ES/Eff", run, ATTRIB_UNMANAGED  );
+  MonGroup tgclv1_turnon_ES( this, generic_path_tgclv1+"/Global/ES", run, ATTRIB_UNMANAGED  );
+  MonGroup tgclv1_turnon_a_ES( this, generic_path_tgclv1+"/TGCEA/ES/Eff", run, ATTRIB_UNMANAGED  );
+  MonGroup tgclv1_turnon_c_ES( this, generic_path_tgclv1+"/TGCEC/ES/Eff", run, ATTRIB_UNMANAGED  );
   MonGroup* tgclv1_turnon_ac_ES[2] = { &tgclv1_turnon_a_ES, &tgclv1_turnon_c_ES};
 
-  MonGroup tgclv1_turnon_a_ES_GM( this, m_generic_path_tgclv1+"/TGCEA/ES/Eff/GM", run, ATTRIB_UNMANAGED, "", "weightedEff"  );
-  MonGroup tgclv1_turnon_c_ES_GM( this, m_generic_path_tgclv1+"/TGCEC/ES/Eff/GM", run, ATTRIB_UNMANAGED, "", "weightedEff"  );
+  MonGroup tgclv1_turnon_a_ES_GM( this, generic_path_tgclv1+"/TGCEA/ES/Eff/GM", run, ATTRIB_UNMANAGED, "", "weightedEff"  );
+  MonGroup tgclv1_turnon_c_ES_GM( this, generic_path_tgclv1+"/TGCEC/ES/Eff/GM", run, ATTRIB_UNMANAGED, "", "weightedEff"  );
   MonGroup* tgclv1_turnon_ac_ES_GM[2] = { &tgclv1_turnon_a_ES_GM, &tgclv1_turnon_c_ES_GM};
 
-  MonGroup tgclv1_turnon_numdenom_a_ES( this, m_generic_path_tgclv1+"/TGCEA/ES/Eff/NumDenom", run, ATTRIB_UNMANAGED );
-  MonGroup tgclv1_turnon_numdenom_c_ES( this, m_generic_path_tgclv1+"/TGCEC/ES/Eff/NumDenom", run, ATTRIB_UNMANAGED );
+  MonGroup tgclv1_turnon_numdenom_a_ES( this, generic_path_tgclv1+"/TGCEA/ES/Eff/NumDenom", run, ATTRIB_UNMANAGED );
+  MonGroup tgclv1_turnon_numdenom_c_ES( this, generic_path_tgclv1+"/TGCEC/ES/Eff/NumDenom", run, ATTRIB_UNMANAGED );
   MonGroup* tgclv1_turnon_numdenom_ac_ES[2] = { &tgclv1_turnon_numdenom_a_ES, &tgclv1_turnon_numdenom_c_ES};
 
   std::stringstream ss;
@@ -119,8 +119,8 @@ TgcLv1RawDataValAlg::bookHistogramsEfficiency(){
         ss.str(""); ss << "DeltaR_BTW_Track_And_Trigger_PT"<<pt+1 << "_" << muid[m] << "_" << side[ac] ;
         m_log << MSG::DEBUG << ss.str() << endmsg;
 
-        tgclv1deltar[ac][pt][m] = new TH1F(ss.str().c_str(), (ss.str() + ";DeltaR;Entries").c_str() , 200, -1., 1.); 
-        if( ( tgclv1_turnon_numdenom_ac[ac]->regHist(tgclv1deltar[ac][pt][m]) ).isFailure()){
+        m_tgclv1deltar[ac][pt][m] = new TH1F(ss.str().c_str(), (ss.str() + ";DeltaR;Entries").c_str() , 200, -1., 1.); 
+        if( ( tgclv1_turnon_numdenom_ac[ac]->regHist(m_tgclv1deltar[ac][pt][m]) ).isFailure()){
           m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
           return StatusCode::FAILURE;
         }
@@ -131,18 +131,18 @@ TgcLv1RawDataValAlg::bookHistogramsEfficiency(){
           // Efficiency
           ss.str(""); ss << "Trigger_Turn_On_Curve" << spna[pna] << "_PT"<< pt+1 << "_" << muid[m] << "_" << side[ac] ;
           m_log << MSG::DEBUG << ss.str() << endmsg;
-          tgclv1turnon[ac][pt][pna][m] = new TH1F(ss.str().c_str(), (ss.str() + ";p_{T} GeV/c;Efficiency").c_str(), pt_nbins, pt_bins); 
-          tgclv1turnon[ac][pt][pna][m]->Sumw2();
-          if( ( tgclv1_turnon_ac[ac]->regHist(tgclv1turnon[ac][pt][pna][m]) ).isFailure()){
+          m_tgclv1turnon[ac][pt][pna][m] = new TH1F(ss.str().c_str(), (ss.str() + ";p_{T} GeV/c;Efficiency").c_str(), pt_nbins, pt_bins); 
+          m_tgclv1turnon[ac][pt][pna][m]->Sumw2();
+          if( ( tgclv1_turnon_ac[ac]->regHist(m_tgclv1turnon[ac][pt][pna][m]) ).isFailure()){
             m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
             return StatusCode::FAILURE;
           }
           // Efficiency Fit Graph
-          tgclv1turnontg[ac][pt][pna][m] = new TGraphAsymmErrors();
-          tgclv1turnontg[ac][pt][pna][m]->SetName( (ss.str() + "_Fit").c_str() );
-          tgclv1turnontg[ac][pt][pna][m]->SetTitle( (ss.str() + ";p_{T} GeV/c;Efficiency").c_str() );
-          tgclv1turnontg[ac][pt][pna][m]->SetMarkerStyle(22);
-          if( ( tgclv1_turnon_ac[ac]->regGraph(tgclv1turnontg[ac][pt][pna][m]) ).isFailure()){
+          m_tgclv1turnontg[ac][pt][pna][m] = new TGraphAsymmErrors();
+          m_tgclv1turnontg[ac][pt][pna][m]->SetName( (ss.str() + "_Fit").c_str() );
+          m_tgclv1turnontg[ac][pt][pna][m]->SetTitle( (ss.str() + ";p_{T} GeV/c;Efficiency").c_str() );
+          m_tgclv1turnontg[ac][pt][pna][m]->SetMarkerStyle(22);
+          if( ( tgclv1_turnon_ac[ac]->regGraph(m_tgclv1turnontg[ac][pt][pna][m]) ).isFailure()){
             m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
             return StatusCode::FAILURE;
           }
@@ -150,9 +150,9 @@ TgcLv1RawDataValAlg::bookHistogramsEfficiency(){
           // Numerator
           ss.str(""); ss << "Trigger_Turn_On_Curve" << spna[pna] << "_PT"<< pt+1 << "_" << muid[m] << "_" << side[ac] << "_Numerator";
           m_log << MSG::DEBUG << ss.str() << endmsg;
-          tgclv1turnonnum[ac][pt][pna][m] = new TH1F(ss.str().c_str(), (ss.str() + ";p_{T} GeV/c;Entries").c_str(), pt_nbins, pt_bins); 
-          tgclv1turnonnum[ac][pt][pna][m]->Sumw2();
-          if( ( tgclv1_turnon_numdenom_ac[ac]->regHist(tgclv1turnonnum[ac][pt][pna][m]) ).isFailure()){
+          m_tgclv1turnonnum[ac][pt][pna][m] = new TH1F(ss.str().c_str(), (ss.str() + ";p_{T} GeV/c;Entries").c_str(), pt_nbins, pt_bins); 
+          m_tgclv1turnonnum[ac][pt][pna][m]->Sumw2();
+          if( ( tgclv1_turnon_numdenom_ac[ac]->regHist(m_tgclv1turnonnum[ac][pt][pna][m]) ).isFailure()){
             m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
             return StatusCode::FAILURE;
           }
@@ -160,9 +160,9 @@ TgcLv1RawDataValAlg::bookHistogramsEfficiency(){
           // Denominator
           ss.str(""); ss << "Trigger_Turn_On_Curve" << spna[pna] << "_PT"<< pt+1 << "_" << muid[m] << "_" << side[ac] << "_Denominator";
           m_log << MSG::DEBUG << ss.str() << endmsg;
-          tgclv1turnondenom[ac][pt][pna][m] = new TH1F(ss.str().c_str(), (ss.str() + ";p_{T} GeV/c;Entries").c_str(), pt_nbins, pt_bins); 
-          tgclv1turnondenom[ac][pt][pna][m]->Sumw2();
-          if( ( tgclv1_turnon_numdenom_ac[ac]->regHist(tgclv1turnondenom[ac][pt][pna][m]) ).isFailure()){
+          m_tgclv1turnondenom[ac][pt][pna][m] = new TH1F(ss.str().c_str(), (ss.str() + ";p_{T} GeV/c;Entries").c_str(), pt_nbins, pt_bins); 
+          m_tgclv1turnondenom[ac][pt][pna][m]->Sumw2();
+          if( ( tgclv1_turnon_numdenom_ac[ac]->regHist(m_tgclv1turnondenom[ac][pt][pna][m]) ).isFailure()){
             m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
             return StatusCode::FAILURE;
           }
@@ -174,21 +174,21 @@ TgcLv1RawDataValAlg::bookHistogramsEfficiency(){
             ss.str(""); ss << "Trigger_Efficiency" << spna[pna] << spcn[pcn] << "_PT"<< pt+1 << "_" << muid[m] << "_" << side[ac] ;
             m_log << MSG::DEBUG << ss.str() << endmsg;
           
-            tgclv1effetavsphi[ac][pt][pna][m][pcn] = new TH2F(ss.str().c_str(), (ss.str() + ";eta;phi").c_str(), 28, 1.0, 2.4, 48, -CLHEP::pi/12, 23*CLHEP::pi/12 ); 
-            tgclv1effetavsphi[ac][pt][pna][m][pcn]->Sumw2();
-            if( ( tgclv1_turnon_ac[ac]->regHist(tgclv1effetavsphi[ac][pt][pna][m][pcn]) ).isFailure()){
+            m_tgclv1effetavsphi[ac][pt][pna][m][pcn] = new TH2F(ss.str().c_str(), (ss.str() + ";eta;phi").c_str(), 28, 1.0, 2.4, 48, -CLHEP::pi/12, 23*CLHEP::pi/12 ); 
+            m_tgclv1effetavsphi[ac][pt][pna][m][pcn]->Sumw2();
+            if( ( tgclv1_turnon_ac[ac]->regHist(m_tgclv1effetavsphi[ac][pt][pna][m][pcn]) ).isFailure()){
               m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
               return StatusCode::FAILURE;
             }
-            tgclv1effetavsphi[ac][pt][pna][m][pcn]->SetMaximum(1.0);
+            m_tgclv1effetavsphi[ac][pt][pna][m][pcn]->SetMaximum(1.0);
           
             // Numerator
             ss.str(""); ss << "Trigger_Efficiency" << spna[pna] << spcn[pcn] << "_PT"<< pt+1 << "_" << muid[m] << "_" << side[ac] << "_Numerator";
             m_log << MSG::DEBUG << ss.str() << endmsg;
           
-            tgclv1effetavsphinum[ac][pt][pna][m][pcn] = new TH2F(ss.str().c_str(), (ss.str() + ";eta;phi").c_str(), 28, 1.0, 2.4, 48, -CLHEP::pi/12, 23*CLHEP::pi/12 ); 
-            tgclv1effetavsphinum[ac][pt][pna][m][pcn]->Sumw2();
-            if( ( tgclv1_turnon_numdenom_ac[ac]->regHist(tgclv1effetavsphinum[ac][pt][pna][m][pcn]) ).isFailure()){
+            m_tgclv1effetavsphinum[ac][pt][pna][m][pcn] = new TH2F(ss.str().c_str(), (ss.str() + ";eta;phi").c_str(), 28, 1.0, 2.4, 48, -CLHEP::pi/12, 23*CLHEP::pi/12 ); 
+            m_tgclv1effetavsphinum[ac][pt][pna][m][pcn]->Sumw2();
+            if( ( tgclv1_turnon_numdenom_ac[ac]->regHist(m_tgclv1effetavsphinum[ac][pt][pna][m][pcn]) ).isFailure()){
               m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
               return StatusCode::FAILURE;
             }
@@ -198,9 +198,9 @@ TgcLv1RawDataValAlg::bookHistogramsEfficiency(){
           ss.str(""); ss << "Trigger_Efficiency" << spna[pna] << "_PT"<< pt+1 << "_" << muid[m] << "_" << side[ac] << "_Denominator";
           m_log << MSG::DEBUG << ss.str() << endmsg;
 
-          tgclv1effetavsphidenom[ac][pt][pna][m] = new TH2F(ss.str().c_str(), (ss.str() + ";eta;phi").c_str(), 28, 1.0, 2.4, 48, -CLHEP::pi/12, 23*CLHEP::pi/12 ); 
-          tgclv1effetavsphidenom[ac][pt][pna][m]->Sumw2();
-          if( ( tgclv1_turnon_numdenom_ac[ac]->regHist(tgclv1effetavsphidenom[ac][pt][pna][m]) ).isFailure()){
+          m_tgclv1effetavsphidenom[ac][pt][pna][m] = new TH2F(ss.str().c_str(), (ss.str() + ";eta;phi").c_str(), 28, 1.0, 2.4, 48, -CLHEP::pi/12, 23*CLHEP::pi/12 ); 
+          m_tgclv1effetavsphidenom[ac][pt][pna][m]->Sumw2();
+          if( ( tgclv1_turnon_numdenom_ac[ac]->regHist(m_tgclv1effetavsphidenom[ac][pt][pna][m]) ).isFailure()){
             m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
             return StatusCode::FAILURE;
           }
@@ -220,18 +220,18 @@ TgcLv1RawDataValAlg::bookHistogramsEfficiency(){
       // Efficiency
       ss.str(""); ss << "ES_Trigger_Turn_On_Curve" << "_PT"<< pt+1 << "_" << side[ac] ;
       m_log << MSG::DEBUG << ss.str() << endmsg;
-      tgclv1turnon_ES[ac][pt] = new TH1F(ss.str().c_str(), (ss.str() + ";p_{T} GeV/c;Efficiency").c_str(), pt_nbins, pt_bins); 
-      tgclv1turnon_ES[ac][pt]->Sumw2();
-      if( ( tgclv1_turnon_ac_ES[ac]->regHist(tgclv1turnon_ES[ac][pt]) ).isFailure()){
+      m_tgclv1turnon_ES[ac][pt] = new TH1F(ss.str().c_str(), (ss.str() + ";p_{T} GeV/c;Efficiency").c_str(), pt_nbins, pt_bins); 
+      m_tgclv1turnon_ES[ac][pt]->Sumw2();
+      if( ( tgclv1_turnon_ac_ES[ac]->regHist(m_tgclv1turnon_ES[ac][pt]) ).isFailure()){
         m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
         return StatusCode::FAILURE;
       }
       // Efficiency Fit Graph
-      tgclv1turnontg_ES[ac][pt] = new TGraphAsymmErrors();
-      tgclv1turnontg_ES[ac][pt]->SetName( (ss.str() + "_Fit").c_str() );
-      tgclv1turnontg_ES[ac][pt]->SetTitle( (ss.str() + ";p_{T} GeV/c;Efficiency").c_str() );
-      tgclv1turnontg_ES[ac][pt]->SetMarkerStyle(22);
-      if( ( tgclv1_turnon_ac_ES[ac]->regGraph(tgclv1turnontg_ES[ac][pt]) ).isFailure()){
+      m_tgclv1turnontg_ES[ac][pt] = new TGraphAsymmErrors();
+      m_tgclv1turnontg_ES[ac][pt]->SetName( (ss.str() + "_Fit").c_str() );
+      m_tgclv1turnontg_ES[ac][pt]->SetTitle( (ss.str() + ";p_{T} GeV/c;Efficiency").c_str() );
+      m_tgclv1turnontg_ES[ac][pt]->SetMarkerStyle(22);
+      if( ( tgclv1_turnon_ac_ES[ac]->regGraph(m_tgclv1turnontg_ES[ac][pt]) ).isFailure()){
         m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
         return StatusCode::FAILURE;
       }
@@ -239,9 +239,9 @@ TgcLv1RawDataValAlg::bookHistogramsEfficiency(){
       // Numerator
       ss.str(""); ss << "ES_Trigger_Turn_On_Curve" << "_PT"<< pt+1 << "_" << side[ac] << "_Numerator";
       m_log << MSG::DEBUG << ss.str() << endmsg;
-      tgclv1turnonnum_ES[ac][pt] = new TH1F(ss.str().c_str(), (ss.str() + ";p_{T} GeV/c;Entries").c_str(), pt_nbins, pt_bins); 
-      tgclv1turnonnum_ES[ac][pt]->Sumw2();
-      if( ( tgclv1_turnon_numdenom_ac_ES[ac]->regHist(tgclv1turnonnum_ES[ac][pt]) ).isFailure()){
+      m_tgclv1turnonnum_ES[ac][pt] = new TH1F(ss.str().c_str(), (ss.str() + ";p_{T} GeV/c;Entries").c_str(), pt_nbins, pt_bins); 
+      m_tgclv1turnonnum_ES[ac][pt]->Sumw2();
+      if( ( tgclv1_turnon_numdenom_ac_ES[ac]->regHist(m_tgclv1turnonnum_ES[ac][pt]) ).isFailure()){
         m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
         return StatusCode::FAILURE;
       }
@@ -249,9 +249,9 @@ TgcLv1RawDataValAlg::bookHistogramsEfficiency(){
       // Denominator
       ss.str(""); ss << "ES_Trigger_Turn_On_Curve" << "_PT"<< pt+1 << "_" << side[ac] << "_Denominator";
       m_log << MSG::DEBUG << ss.str() << endmsg;
-      tgclv1turnondenom_ES[ac][pt] = new TH1F(ss.str().c_str(), (ss.str() + ";p_{T} GeV/c;Entries").c_str(), pt_nbins, pt_bins); 
-      tgclv1turnondenom_ES[ac][pt]->Sumw2();
-      if( ( tgclv1_turnon_numdenom_ac_ES[ac]->regHist(tgclv1turnondenom_ES[ac][pt]) ).isFailure()){
+      m_tgclv1turnondenom_ES[ac][pt] = new TH1F(ss.str().c_str(), (ss.str() + ";p_{T} GeV/c;Entries").c_str(), pt_nbins, pt_bins); 
+      m_tgclv1turnondenom_ES[ac][pt]->Sumw2();
+      if( ( tgclv1_turnon_numdenom_ac_ES[ac]->regHist(m_tgclv1turnondenom_ES[ac][pt]) ).isFailure()){
         m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
         return StatusCode::FAILURE;
       }
@@ -262,40 +262,40 @@ TgcLv1RawDataValAlg::bookHistogramsEfficiency(){
     // Plateau efficiency for each pT threshold
     // Efficiency
     ss.str(""); ss << "ES_Trigger_Efficiency" << "_" << side[ac] ;
-    tgclv1_plateau_eff_counting_ES[ac] = new TH1F(ss.str().c_str(), (ss.str() + ";PT;efficiency").c_str(), 6, 0, 6 ); 
-    tgclv1_plateau_eff_counting_ES[ac] ->Sumw2();
-    tgclv1_plateau_eff_counting_ES[ac] ->SetMinimum(0.7);
-    tgclv1_plateau_eff_counting_ES[ac] ->SetMaximum(1.05);
-    if( ( tgclv1_turnon_ac_ES[ac]->regHist( tgclv1_plateau_eff_counting_ES[ac] ) ).isFailure() ){
+    m_tgclv1_plateau_eff_counting_ES[ac] = new TH1F(ss.str().c_str(), (ss.str() + ";PT;efficiency").c_str(), 6, 0, 6 ); 
+    m_tgclv1_plateau_eff_counting_ES[ac] ->Sumw2();
+    m_tgclv1_plateau_eff_counting_ES[ac] ->SetMinimum(0.7);
+    m_tgclv1_plateau_eff_counting_ES[ac] ->SetMaximum(1.05);
+    if( ( tgclv1_turnon_ac_ES[ac]->regHist( m_tgclv1_plateau_eff_counting_ES[ac] ) ).isFailure() ){
       m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
       return StatusCode::FAILURE;
     }
     
     // Numerator
     ss.str(""); ss << "ES_Trigger_Efficiency_Numerator" << "_" << side[ac] ;
-    tgclv1_plateau_eff_counting_num_ES[ac] = new TH1F(ss.str().c_str(), (ss.str() + ";PT;efficiency").c_str(), 6, 0, 6 ); 
-    tgclv1_plateau_eff_counting_num_ES[ac] ->Sumw2();
-    if( ( tgclv1_turnon_numdenom_ac_ES[ac]->regHist( tgclv1_plateau_eff_counting_num_ES[ac] ) ).isFailure() ){
+    m_tgclv1_plateau_eff_counting_num_ES[ac] = new TH1F(ss.str().c_str(), (ss.str() + ";PT;efficiency").c_str(), 6, 0, 6 ); 
+    m_tgclv1_plateau_eff_counting_num_ES[ac] ->Sumw2();
+    if( ( tgclv1_turnon_numdenom_ac_ES[ac]->regHist( m_tgclv1_plateau_eff_counting_num_ES[ac] ) ).isFailure() ){
       m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
       return StatusCode::FAILURE;
     }
      
     // Denominator
     ss.str(""); ss << "ES_Trigger_Efficiency_Denominator" << "_" << side[ac] ;
-    tgclv1_plateau_eff_counting_denom_ES[ac] = new TH1F(ss.str().c_str(), (ss.str() + ";PT;efficiency").c_str(), 6, 0, 6 ); 
-    tgclv1_plateau_eff_counting_denom_ES[ac] ->Sumw2();
-    if( ( tgclv1_turnon_numdenom_ac_ES[ac]->regHist( tgclv1_plateau_eff_counting_denom_ES[ac] ) ).isFailure() ){
+    m_tgclv1_plateau_eff_counting_denom_ES[ac] = new TH1F(ss.str().c_str(), (ss.str() + ";PT;efficiency").c_str(), 6, 0, 6 ); 
+    m_tgclv1_plateau_eff_counting_denom_ES[ac] ->Sumw2();
+    if( ( tgclv1_turnon_numdenom_ac_ES[ac]->regHist( m_tgclv1_plateau_eff_counting_denom_ES[ac] ) ).isFailure() ){
       m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
       return StatusCode::FAILURE;
     }
     
     // Efficiency, General Monitoring
     ss.str(""); ss << "ES_GM_Trigger_Efficiency" << "_" << side[ac] ;
-    tgclv1_plateau_eff_counting_ES_GM[ac] = new TH1F(ss.str().c_str(), (ss.str() + ";PT;efficiency").c_str(), 6, 0, 6 ); 
-    tgclv1_plateau_eff_counting_ES_GM[ac] ->Sumw2();
-    tgclv1_plateau_eff_counting_ES_GM[ac] ->SetMinimum(0.7);
-    tgclv1_plateau_eff_counting_ES_GM[ac] ->SetMaximum(1.05);
-    if( ( tgclv1_turnon_ac_ES_GM[ac]->regHist( tgclv1_plateau_eff_counting_ES_GM[ac] ) ).isFailure() ){
+    m_tgclv1_plateau_eff_counting_ES_GM[ac] = new TH1F(ss.str().c_str(), (ss.str() + ";PT;efficiency").c_str(), 6, 0, 6 ); 
+    m_tgclv1_plateau_eff_counting_ES_GM[ac] ->Sumw2();
+    m_tgclv1_plateau_eff_counting_ES_GM[ac] ->SetMinimum(0.7);
+    m_tgclv1_plateau_eff_counting_ES_GM[ac] ->SetMaximum(1.05);
+    if( ( tgclv1_turnon_ac_ES_GM[ac]->regHist( m_tgclv1_plateau_eff_counting_ES_GM[ac] ) ).isFailure() ){
       m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
       return StatusCode::FAILURE;
     }
@@ -303,10 +303,10 @@ TgcLv1RawDataValAlg::bookHistogramsEfficiency(){
     // Set Bin Labels
     for( int bin=0;bin<6;bin++){
       ss.str(""); ss << "PT" << bin+1 ;
-      tgclv1_plateau_eff_counting_ES[ac] -> GetXaxis() -> SetBinLabel(bin+1, ss.str().c_str() );
-      tgclv1_plateau_eff_counting_ES_GM[ac] -> GetXaxis() -> SetBinLabel(bin+1, ss.str().c_str() );
-      tgclv1_plateau_eff_counting_num_ES[ac] -> GetXaxis() -> SetBinLabel(bin+1, ss.str().c_str() );
-      tgclv1_plateau_eff_counting_denom_ES[ac] -> GetXaxis() -> SetBinLabel(bin+1, ss.str().c_str() );
+      m_tgclv1_plateau_eff_counting_ES[ac] -> GetXaxis() -> SetBinLabel(bin+1, ss.str().c_str() );
+      m_tgclv1_plateau_eff_counting_ES_GM[ac] -> GetXaxis() -> SetBinLabel(bin+1, ss.str().c_str() );
+      m_tgclv1_plateau_eff_counting_num_ES[ac] -> GetXaxis() -> SetBinLabel(bin+1, ss.str().c_str() );
+      m_tgclv1_plateau_eff_counting_denom_ES[ac] -> GetXaxis() -> SetBinLabel(bin+1, ss.str().c_str() );
     }//bin
 
   }//ac
@@ -368,14 +368,14 @@ TgcLv1RawDataValAlg::fillEfficiency(int ms,// 0:Muid 1:Staco
     // This Block Fills Denominators
     // Loop pT Thresholds
     for(int pt=0;pt<6;pt++){
-      tgclv1turnondenom[ac][pt][pn][ms]->Fill(opt);
+      m_tgclv1turnondenom[ac][pt][pn][ms]->Fill(opt);
       if(opt> thresetavsphi[pt]){
-        tgclv1effetavsphidenom[ac][pt][pn][ms]->Fill(fabs(oeta),ophi_mod);
+        m_tgclv1effetavsphidenom[ac][pt][pn][ms]->Fill(fabs(oeta),ophi_mod);
       }
       if( m_found_express_stream && m_found_nonmuon_express_chain ){
-        tgclv1turnondenom_ES[ac][pt]->Fill(opt);
+        m_tgclv1turnondenom_ES[ac][pt]->Fill(opt);
         if( opt > threscount[pt] )
-          tgclv1_plateau_eff_counting_denom_ES[ac]->Fill(pt);
+          m_tgclv1_plateau_eff_counting_denom_ES[ac]->Fill(pt);
       }
     }
     
@@ -449,16 +449,16 @@ TgcLv1RawDataValAlg::fillEfficiency(int ms,// 0:Muid 1:Staco
       if(pcn==1){
         // If dR < 1 SL Trigger found, fill minimum dR found
         if(tptmin!=-1){
-          tgclv1deltar[ac][tptmin-1][ms]->Fill(deltarmin*charge);
+          m_tgclv1deltar[ac][tptmin-1][ms]->Fill(deltarmin*charge);
         }
         // Loop over pT Thresholds, fill Numerators if Thresholds met 
         for(int pt=0;pt<6;pt++){
           if(flag[pt]==true){
-            tgclv1turnonnum[ac][pt][pn][ms]->Fill(opt);
+            m_tgclv1turnonnum[ac][pt][pn][ms]->Fill(opt);
             if(m_found_express_stream && m_found_nonmuon_express_chain){
-              tgclv1turnonnum_ES[ac][pt]->Fill(opt);
+              m_tgclv1turnonnum_ES[ac][pt]->Fill(opt);
               if(opt>threscount[pt])
-                tgclv1_plateau_eff_counting_num_ES[ac]->Fill(pt);
+                m_tgclv1_plateau_eff_counting_num_ES[ac]->Fill(pt);
             }
           }
         }
@@ -467,7 +467,7 @@ TgcLv1RawDataValAlg::fillEfficiency(int ms,// 0:Muid 1:Staco
       for(int pt=0;pt<6;pt++){
         if(flag[pt]==true){
           if(opt> thresetavsphi[pt]){
-            tgclv1effetavsphinum[ac][pt][pn][ms][pcn]->Fill(fabs(oeta),ophi_mod);
+            m_tgclv1effetavsphinum[ac][pt][pn][ms][pcn]->Fill(fabs(oeta),ophi_mod);
           }
         }
       }
@@ -502,9 +502,9 @@ TgcLv1RawDataValAlg::fillEfficiency(int ms,// 0:Muid 1:Staco
                 phi48lpts != slphi48 ) continue ;
             
             if(m_debuglevel ) m_log << "fill triggertiming " <<ac <<" " << ms << " " << pcn <<  endmsg;
-            tgclv1lpttimingtrack[ac][ms]->Fill(pcn);
+            m_tgclv1lpttimingtrack[ac][ms]->Fill(pcn);
             if( slpt > 1 )
-              tgclv1lpttimingptcuttrack[ac][ms]->Fill(pcn);
+              m_tgclv1lpttimingptcuttrack[ac][ms]->Fill(pcn);
 
             lptflag=true;
             break;

@@ -36,6 +36,7 @@ namespace SG {
     DataBucket(): m_ptr(0) {}  //needed by the generic converters
     DataBucket(T* data);                 
     DataBucket(std::unique_ptr<T> data);
+    DataBucket(std::unique_ptr<const T> data);
     DataBucket(SG::DataObjectSharedPtr<T> data);
   
     // DESTRUCTOR:

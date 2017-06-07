@@ -257,6 +257,8 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(PFO_v1, float, centerMag, setCenterMag)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(PFO_v1, float, charge, setCharge)
 
+
+
   /** specaial implementations for floats, for eflowRec JetETMiss variables, to reduce disk space usage */
 
   template<> void PFO_v1::setAttribute(const std::string& AttributeType, const xAOD::PFODetails::PFOLeptonType& anAttribute){
@@ -647,7 +649,7 @@ namespace xAOD {
     else if (!p_acc->isAvailable(*this)) {return nullptr;}
     else {
       const std::vector<ElementLink<IParticleContainer> >& theLinks = (*p_acc)(*this);
-      if(index<=theLinks.size()) {
+      if(index<theLinks.size()) {
 	ElementLink<IParticleContainer> theLink = theLinks[index];
 	if (theLink.isValid()){
 	  const IParticle *theParticle = *theLink;
@@ -669,7 +671,7 @@ namespace xAOD {
     else if (!p_acc->isAvailable(*this)) {return nullptr;}
     else {
       const std::vector<ElementLink<IParticleContainer> >& theLinks = (*p_acc)(*this);
-      if(index<=theLinks.size()) {
+      if(index<theLinks.size()) {
 	ElementLink<IParticleContainer> theLink = theLinks[index];
 	if (theLink.isValid()){
 	  const IParticle *theParticle = *theLinks[index];

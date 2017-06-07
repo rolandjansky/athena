@@ -27,34 +27,34 @@ public:
 
   ChainString(const ChainString& s);
 
-  std::string head()  { return mhead;  }
-  std::string tail()  { return mtail;  }
-  std::string extra() { return mextra; }
-  std::string element() { return melement; }
-  std::string roi()     { return mroi; }
-  std::string vtx()     { return mvtx; }
+  std::string head()  { return m_head;  }
+  std::string tail()  { return m_tail;  }
+  std::string extra() { return m_extra; }
+  std::string element() { return m_element; }
+  std::string roi()     { return m_roi; }
+  std::string vtx()     { return m_vtx; }
 
-  bool        passed()  { return mpassed; }
+  bool        passed()  { return m_passed; }
 
-  const std::string& head()  const { return mhead;  }
-  const std::string& tail()  const { return mtail;  }
-  const std::string& extra() const { return mextra; }
-  const std::string& element() const { return melement; }
-  const std::string& roi()     const { return mroi; }
-  const std::string& vtx()     const { return mvtx; }
+  const std::string& head()  const { return m_head;  }
+  const std::string& tail()  const { return m_tail;  }
+  const std::string& extra() const { return m_extra; }
+  const std::string& element() const { return m_element; }
+  const std::string& roi()     const { return m_roi; }
+  const std::string& vtx()     const { return m_vtx; }
 
-  const bool&        passed()  const { return mpassed; }
+  const bool&        passed()  const { return m_passed; }
 
-  const std::string& raw() const { return mraw; }
+  const std::string& raw() const { return m_raw; }
   
   std::string value( const std::string& key ) const { 
     int i=find(key);
-    if ( i>=0 ) return mvalues[i];
+    if ( i>=0 ) return m_values[i];
     return "";
   }
 
-  const std::vector<std::string> values() const { return mvalues; }
-  const std::vector<std::string>   keys() const { return   mkeys; }
+  const std::vector<std::string> values() const { return m_values; }
+  const std::vector<std::string>   keys() const { return   m_keys; }
 
 public:   
 
@@ -117,25 +117,25 @@ protected:
   void parse();
 
   int find( const std::string& key ) const { 
-    for ( int i=mkeys.size() ; i-- ; ) if ( key==mkeys[i] ) return i;
+    for ( int i=m_keys.size() ; i-- ; ) if ( key==m_keys[i] ) return i;
     return -1;
   }
 
 private:
 
-  std::string mhead;
-  std::string mtail;
-  std::string mextra;
-  std::string melement;
-  std::string mroi;
-  std::string mvtx;
+  std::string m_head;
+  std::string m_tail;
+  std::string m_extra;
+  std::string m_element;
+  std::string m_roi;
+  std::string m_vtx;
 
-  bool        mpassed;
+  bool        m_passed;
 
-  std::vector<std::string> mkeys;
-  std::vector<std::string> mvalues;
+  std::vector<std::string> m_keys;
+  std::vector<std::string> m_values;
 
-  std::string mraw;
+  std::string m_raw;
 };
 
 

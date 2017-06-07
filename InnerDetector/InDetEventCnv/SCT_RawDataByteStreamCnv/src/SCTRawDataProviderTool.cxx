@@ -93,7 +93,10 @@ void SCTRawDataProviderTool::handle(const Incident& inc) {
   }  
 }
 
-StatusCode SCTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vecRobs,SCT_RDO_Container* rdoIdc ){
+StatusCode SCTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vecRobs,
+                                            SCT_RDO_Container& rdoIdc,
+                                            InDetBSErrContainer* errs)
+{
   if(vecRobs.empty()) return StatusCode::SUCCESS;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SCTRawDataProviderTool::convert()" << endmsg;
   static int DecodeErrCount = 0;
@@ -114,7 +117,7 @@ StatusCode SCTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
 					      << std::hex<<robid<<std::dec
 					      << " already decoded, skip" << endmsg; 
     } else {
-      sc = m_decoder->fillCollection( &**rob_it, rdoIdc);
+      sc = m_decoder->fillCollection( **rob_it, rdoIdc, errs);
       if ( sc==StatusCode::FAILURE ) {
 	if ( DecodeErrCount < 100 ) {
 	  msg(MSG::ERROR) << "Problem with SCT ByteStream Decoding!" << endmsg;

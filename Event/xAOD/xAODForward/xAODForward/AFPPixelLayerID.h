@@ -57,7 +57,7 @@ namespace xAOD
   class AFPPixelLayerID
   {
   public:
-    static const int fristFromIP = 0; ///< the silicon layer closest to the interaction point
+    static const int firstFromIP = 0; ///< the silicon layer closest to the interaction point
     static const int secondFromIP = 1; ///< the second silicon layer counting from the interaction point
     static const int thirdFromIP = 2; ///< the third silicon layer counting from the interaction point
     static const int fourthFromIP = 3; ///< the fourth (last) silicon layer counting from the interaction point

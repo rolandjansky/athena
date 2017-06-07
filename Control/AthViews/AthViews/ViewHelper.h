@@ -84,6 +84,9 @@ namespace ViewHelper
                 return StatusCode::SUCCESS;
         }
 
+	
+
+	
 	//Function to run a set of views with the named algorithms
 	inline StatusCode RunViews( std::vector< SG::View* > const& ViewVector, std::vector< std::string > const& AlgorithmNames,
 			EventContext const& InputContext, SmartIF< IService > & AlgPool )
@@ -113,6 +116,26 @@ namespace ViewHelper
 		return StatusCode::SUCCESS;
 	}
 
+
+	// a varaint of RunViews accepting ready to use contexts
+	// useful ehne contexts neeed to be made anyways for the purpose of filling the handles
+	// to avoid confusion it start from small run
+	inline StatusCode runInViews( std::vector<EventContext>& contexts, const std::vector< std::string >& algorithms, SmartIF< IService > & algPool) {
+	  if ( contexts.empty() )
+	    return StatusCode::SUCCESS;
+	  
+	  tbb::task_list allTasks;
+	  for ( EventContext& ctx: contexts ) {
+
+	    tbb::task * viewTask  = new ( tbb::task::allocate_root() )GraphExecutionTask( algorithms, &ctx, algPool );
+	    allTasks.push_back( *viewTask );
+
+	  }
+	  tbb::task::spawn_root_and_wait( allTasks );
+
+	  return StatusCode::SUCCESS;
+	}
+	
 	//Function merging view data into a single collection
 	template< typename T >
 	inline StatusCode MergeViewCollection( std::vector< SG::View* > const& ViewVector, SG::ReadHandle< T > & QueryHandle, T & OutputData )

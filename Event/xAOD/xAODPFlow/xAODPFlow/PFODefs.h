@@ -87,6 +87,10 @@ namespace PFODetails
     eflowRec_LAYERENERGY_MINIFCAL2,
     eflowRec_LAYERENERGY_MINIFCAL3,
     eflowRec_EM_PROBABILITY,
+    eflowRec_layerVectorCellOrdering,
+    eflowRec_radiusVectorCellOrdering,
+    eflowRec_avgEdensityVectorCellOrdering,
+    eflowRec_layerHED,
     /** These variables belong to the cell-based particle flow algorithm */
     cellBased_FIRST_ETA = 400, 
     cellBased_SECOND_R, 

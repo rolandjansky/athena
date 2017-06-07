@@ -76,25 +76,25 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
   m_log << MSG::INFO << "bookHistogramsEfficiency" << endmsg;       
   StatusCode sc=StatusCode::SUCCESS;
 
-  MonGroup tgcprd_eff_a( this, generic_path_tgcmonitoring + "/TGCEA/Efficiency", run, ATTRIB_UNMANAGED ); 
-  MonGroup tgcprd_eff_c( this, generic_path_tgcmonitoring + "/TGCEC/Efficiency", run, ATTRIB_UNMANAGED ); 
+  MonGroup tgcprd_eff_a( this, m_generic_path_tgcmonitoring + "/TGCEA/Efficiency", run, ATTRIB_UNMANAGED ); 
+  MonGroup tgcprd_eff_c( this, m_generic_path_tgcmonitoring + "/TGCEC/Efficiency", run, ATTRIB_UNMANAGED ); 
   MonGroup* tgcprd_eff_ac[2] = { &tgcprd_eff_a, &tgcprd_eff_c}; 
 
-  MonGroup tgcprd_eff_expert_a( this, generic_path_tgcmonitoring + "/TGCEA/Efficiency", run, ATTRIB_UNMANAGED ); 
-  MonGroup tgcprd_eff_expert_c( this, generic_path_tgcmonitoring + "/TGCEC/Efficiency", run, ATTRIB_UNMANAGED ); 
+  MonGroup tgcprd_eff_expert_a( this, m_generic_path_tgcmonitoring + "/TGCEA/Efficiency", run, ATTRIB_UNMANAGED ); 
+  MonGroup tgcprd_eff_expert_c( this, m_generic_path_tgcmonitoring + "/TGCEC/Efficiency", run, ATTRIB_UNMANAGED ); 
   MonGroup* tgcprd_eff_expert_ac[2] = { &tgcprd_eff_expert_a, &tgcprd_eff_expert_c}; 
 
-  MonGroup tgcprd_effnumdenom_a( this, generic_path_tgcmonitoring + "/TGCEA/Efficiency/NumDenom", run, ATTRIB_UNMANAGED ); 
-  MonGroup tgcprd_effnumdenom_c( this, generic_path_tgcmonitoring + "/TGCEC/Efficiency/NumDenom", run, ATTRIB_UNMANAGED ); 
+  MonGroup tgcprd_effnumdenom_a( this, m_generic_path_tgcmonitoring + "/TGCEA/Efficiency/NumDenom", run, ATTRIB_UNMANAGED ); 
+  MonGroup tgcprd_effnumdenom_c( this, m_generic_path_tgcmonitoring + "/TGCEC/Efficiency/NumDenom", run, ATTRIB_UNMANAGED ); 
   MonGroup* tgcprd_effnumdenom_ac[2] = { &tgcprd_effnumdenom_a, &tgcprd_effnumdenom_c}; 
 
-  MonGroup tgcprd_effnumdenom_expert_a( this, generic_path_tgcmonitoring + "/TGCEA/Efficiency/NumDenom", run, ATTRIB_UNMANAGED ); 
-  MonGroup tgcprd_effnumdenom_expert_c( this, generic_path_tgcmonitoring + "/TGCEC/Efficiency/NumDenom", run, ATTRIB_UNMANAGED ); 
+  MonGroup tgcprd_effnumdenom_expert_a( this, m_generic_path_tgcmonitoring + "/TGCEA/Efficiency/NumDenom", run, ATTRIB_UNMANAGED ); 
+  MonGroup tgcprd_effnumdenom_expert_c( this, m_generic_path_tgcmonitoring + "/TGCEC/Efficiency/NumDenom", run, ATTRIB_UNMANAGED ); 
   MonGroup* tgcprd_effnumdenom_expert_ac[2] = { &tgcprd_effnumdenom_expert_a, &tgcprd_effnumdenom_expert_c}; 
 
-  MonGroup tgcprd_summary( this, generic_path_tgcmonitoring + "/Global/Summary", run, ATTRIB_UNMANAGED ); 
-  MonGroup tgcprd_summary_a( this, generic_path_tgcmonitoring + "/TGCEA/Summary", run, ATTRIB_UNMANAGED ); 
-  MonGroup tgcprd_summary_c( this, generic_path_tgcmonitoring + "/TGCEC/Summary", run, ATTRIB_UNMANAGED ); 
+  MonGroup tgcprd_summary( this, m_generic_path_tgcmonitoring + "/Global/Summary", run, ATTRIB_UNMANAGED ); 
+  MonGroup tgcprd_summary_a( this, m_generic_path_tgcmonitoring + "/TGCEA/Summary", run, ATTRIB_UNMANAGED ); 
+  MonGroup tgcprd_summary_c( this, m_generic_path_tgcmonitoring + "/TGCEC/Summary", run, ATTRIB_UNMANAGED ); 
   MonGroup* tgcprd_summary_ac[2] = { &tgcprd_summary_a, &tgcprd_summary_c};
 
   std::stringstream ss;
@@ -104,44 +104,44 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
   for(int ac=0;ac<2;ac++){
     //efficiency for A/C side, wire 1-7, strip 8-13
     ss.str(""); ss << "Efficiency_" << side[ac];
-    tgceff[ac]=new TH1F(ss.str().c_str(), (ss.str() + ";;Efficiency").c_str(),13,0,13); 
-    sc=tgcprd_eff_ac[ac]->regHist(tgceff[ac]) ;  
+    m_tgceff[ac]=new TH1F(ss.str().c_str(), (ss.str() + ";;Efficiency").c_str(),13,0,13); 
+    sc=tgcprd_eff_ac[ac]->regHist(m_tgceff[ac]) ;  
     if(sc.isFailure()) { 
-      m_log << MSG::FATAL << "tgceff[ac] Failed to register histogram " << endmsg;       
+      m_log << MSG::FATAL << "m_tgceff[ac] Failed to register histogram " << endmsg;       
       return sc;
     }
     
     //efficiency for A/C side numerator
     ss.str(""); ss << "Efficiency_" << side[ac] << "_Numerator";
-    tgceffnum[ac]=new TH1F(ss.str().c_str(), (ss.str() + ";;Number of Events").c_str(),13,0,13);
-    tgceffnum[ac]->Sumw2();
-    sc=tgcprd_effnumdenom_ac[ac]->regHist(tgceffnum[ac]);
+    m_tgceffnum[ac]=new TH1F(ss.str().c_str(), (ss.str() + ";;Number of Events").c_str(),13,0,13);
+    m_tgceffnum[ac]->Sumw2();
+    sc=tgcprd_effnumdenom_ac[ac]->regHist(m_tgceffnum[ac]);
     if(sc.isFailure()) { 
-      m_log << MSG::FATAL << "tgceffnum[ac] Failed to register histogram " << endmsg;       
+      m_log << MSG::FATAL << "m_tgceffnum[ac] Failed to register histogram " << endmsg;       
       return sc;
     }
     
     //efficiency for A side wire and stripdenominator
     ss.str(""); ss << "Efficiency_" << side[ac] << "_Denominator";
-    tgceffdenom[ac]=new TH1F(ss.str().c_str(), (ss.str() + "Number of Events").c_str(),13,0,13);
-    tgceffdenom[ac]->Sumw2();
-    sc=tgcprd_effnumdenom_ac[ac]->regHist(tgceffdenom[ac]) ;  
+    m_tgceffdenom[ac]=new TH1F(ss.str().c_str(), (ss.str() + "Number of Events").c_str(),13,0,13);
+    m_tgceffdenom[ac]->Sumw2();
+    sc=tgcprd_effnumdenom_ac[ac]->regHist(m_tgceffdenom[ac]) ;  
     if(sc.isFailure()) { 
-      m_log << MSG::FATAL << "tgceffdenom[ac] Failed to register histogram " << endmsg;       
+      m_log << MSG::FATAL << "m_tgceffdenom[ac] Failed to register histogram " << endmsg;       
       return sc;
     }
 
     // no strip layer2
-    //tgceffnum[ac]->Fill(8);
-    //tgceffdenom[ac]->Fill(8);
+    //m_tgceffnum[ac]->Fill(8);
+    //m_tgceffdenom[ac]->Fill(8);
 
     std::string sbc[2] = {"_Previous", "_Next"};
 
     for(int ws=0;ws<2;ws++){
       //Efficiency map
       ss.str(""); ss << wseff[ws] << "_Map_" << side[ac];
-      tgceffmap[ac][ws] = new TH2F( ss.str().c_str(), ss.str().c_str(),43, 0, 43, 48, 1, 49 );
-      sc=tgcprd_eff_ac[ac]->regHist(tgceffmap[ac][ws]) ;  
+      m_tgceffmap[ac][ws] = new TH2F( ss.str().c_str(), ss.str().c_str(),43, 0, 43, 48, 1, 49 );
+      sc=tgcprd_eff_ac[ac]->regHist(m_tgceffmap[ac][ws]) ;  
       if(sc.isFailure()) { 
         m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
         return sc;
@@ -149,8 +149,8 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
       
       //Efficiency map numerator
       ss.str(""); ss << wseff[ws] << "_Map_" << side[ac] << "_Numerator";
-      tgceffmapnum[ac][ws] = new TH2F( ss.str().c_str(), ss.str().c_str(),43, 0, 43, 48, 1, 49 );
-      sc=tgcprd_effnumdenom_ac[ac]->regHist(tgceffmapnum[ac][ws]) ;  
+      m_tgceffmapnum[ac][ws] = new TH2F( ss.str().c_str(), ss.str().c_str(),43, 0, 43, 48, 1, 49 );
+      sc=tgcprd_effnumdenom_ac[ac]->regHist(m_tgceffmapnum[ac][ws]) ;  
       if(sc.isFailure()) { 
         m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
         return sc;
@@ -158,8 +158,8 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
       
       //Efficiency map denominator
       ss.str(""); ss << wseff[ws] << "_Map_" << side[ac] << "_Denominator";
-      tgceffmapdenom[ac][ws] = new TH2F( ss.str().c_str(), ss.str().c_str(),43, 0, 43, 48, 1, 49 );
-      sc=tgcprd_effnumdenom_ac[ac]->regHist(tgceffmapdenom[ac][ws]) ;  
+      m_tgceffmapdenom[ac][ws] = new TH2F( ss.str().c_str(), ss.str().c_str(),43, 0, 43, 48, 1, 49 );
+      sc=tgcprd_effnumdenom_ac[ac]->regHist(m_tgceffmapdenom[ac][ws]) ;  
       if(sc.isFailure()) { 
         m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
         return sc;
@@ -169,8 +169,8 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
       for(int bc=0;bc<2;bc++){
         //Efficiency map
         ss.str(""); ss << wseff[ws] << "_Map" << sbc[bc] << "_" << side[ac];
-        tgceffmapbc[ac][ws][bc] = new TH2F( ss.str().c_str(), ss.str().c_str(),43, 0, 43, 48, 1, 49 );
-        sc=tgcprd_eff_expert_ac[ac]->regHist(tgceffmapbc[ac][ws][bc]) ;  
+        m_tgceffmapbc[ac][ws][bc] = new TH2F( ss.str().c_str(), ss.str().c_str(),43, 0, 43, 48, 1, 49 );
+        sc=tgcprd_eff_expert_ac[ac]->regHist(m_tgceffmapbc[ac][ws][bc]) ;  
         if(sc.isFailure()) { 
           m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
           return sc;
@@ -178,8 +178,8 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
         
         // Numerator
         ss.str(""); ss << wseff[ws] << "_Map" << sbc[bc] << "_" << side[ac] << "_Numerator";
-        tgceffmapnumbc[ac][ws][bc] = new TH2F( ss.str().c_str(), ss.str().c_str(),43, 0, 43, 48, 1, 49 );
-        sc=tgcprd_effnumdenom_expert_ac[ac]->regHist(tgceffmapnumbc[ac][ws][bc]) ;  
+        m_tgceffmapnumbc[ac][ws][bc] = new TH2F( ss.str().c_str(), ss.str().c_str(),43, 0, 43, 48, 1, 49 );
+        sc=tgcprd_effnumdenom_expert_ac[ac]->regHist(m_tgceffmapnumbc[ac][ws][bc]) ;  
         if(sc.isFailure()) { 
           m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
           return sc;
@@ -200,9 +200,9 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
         }
         k++;
         ss<<"L"<<layer;
-        tgceff[ac]->GetXaxis()->SetBinLabel(k,ss.str().c_str());
-        tgceffnum[ac]->GetXaxis()->SetBinLabel(k,ss.str().c_str());
-        tgceffdenom[ac]->GetXaxis()->SetBinLabel(k,ss.str().c_str());
+        m_tgceff[ac]->GetXaxis()->SetBinLabel(k,ss.str().c_str());
+        m_tgceffnum[ac]->GetXaxis()->SetBinLabel(k,ss.str().c_str());
+        m_tgceffdenom[ac]->GetXaxis()->SetBinLabel(k,ss.str().c_str());
       }
   }
 
@@ -212,14 +212,14 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
 
   for(int ac=0;ac<2;ac++){
     for(int ws=0;ws<2;ws++){
-      BlankStationMap(tgceffmap[ac][ws]);  
-      if(ws==1) BlankStripStationMap(tgceffmap[ac][ws]);
+      BlankStationMap(m_tgceffmap[ac][ws]);  
+      if(ws==1) BlankStripStationMap(m_tgceffmap[ac][ws]);
       for(int bc=0; bc<2; bc++){
-        BlankStationMap(tgceffmapbc[ac][ws][bc]);
-        BlankStationMap(tgceffmapnumbc[ac][ws][bc]);                                                                                                     
+        BlankStationMap(m_tgceffmapbc[ac][ws][bc]);
+        BlankStationMap(m_tgceffmapnumbc[ac][ws][bc]);                                                                                                     
         if(ws==1){
-          BlankStripStationMap(tgceffmapbc[ac][ws][bc]);
-          BlankStripStationMap(tgceffmapnumbc[ac][ws][bc]);
+          BlankStripStationMap(m_tgceffmapbc[ac][ws][bc]);
+          BlankStripStationMap(m_tgceffmapnumbc[ac][ws][bc]);
         }
       }
       for(int sec=1;sec<=12;sec++){
@@ -229,12 +229,12 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
           ss << sec << "phi" << phi;
           int k=(sec-1)*4+phi+1;
           for(int bc=0;bc<2;bc++){
-            tgceffmapbc[ac][ws][bc]   ->GetYaxis()->SetBinLabel( k, ss.str().c_str() );
-            tgceffmapnumbc[ac][ws][bc]->GetYaxis()->SetBinLabel( k, ss.str().c_str() );
+            m_tgceffmapbc[ac][ws][bc]   ->GetYaxis()->SetBinLabel( k, ss.str().c_str() );
+            m_tgceffmapnumbc[ac][ws][bc]->GetYaxis()->SetBinLabel( k, ss.str().c_str() );
           }
-          tgceffmap[ac][ws]     ->GetYaxis()->SetBinLabel( k, ss.str().c_str() );
-          tgceffmapnum[ac][ws]  ->GetYaxis()->SetBinLabel( k, ss.str().c_str() );
-          tgceffmapdenom[ac][ws]->GetYaxis()->SetBinLabel( k, ss.str().c_str() );
+          m_tgceffmap[ac][ws]     ->GetYaxis()->SetBinLabel( k, ss.str().c_str() );
+          m_tgceffmapnum[ac][ws]  ->GetYaxis()->SetBinLabel( k, ss.str().c_str() );
+          m_tgceffmapdenom[ac][ws]->GetYaxis()->SetBinLabel( k, ss.str().c_str() );
         }
       }
       int x=1;
@@ -243,12 +243,12 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
       //  for(int c=0;c<5;c++){
       //    ss.str(""); ss << "L" << l+1 << "_" << schamberT1[c];
       //    for(int bc=0;bc<2;bc++){
-      //      tgceffmapbc[ac][ws][bc]   ->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
-      //      tgceffmapnumbc[ac][ws][bc]->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
+      //      m_tgceffmapbc[ac][ws][bc]   ->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
+      //      m_tgceffmapnumbc[ac][ws][bc]->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
       //    }
-      //    tgceffmap[ac][ws]     ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
-      //    tgceffmapnum[ac][ws]  ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
-      //    tgceffmapdenom[ac][ws]->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
+      //    m_tgceffmap[ac][ws]     ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+      //    m_tgceffmapnum[ac][ws]  ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+      //    m_tgceffmapdenom[ac][ws]->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
       //  }
       //}
       ////layer4-7
@@ -256,12 +256,12 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
       //  for(int c=0;c<6;c++){
       //    ss.str(""); ss << "L" << l+1 << "_" << schamberT3[c]; 
       //    for(int bc=0;bc<2;bc++){
-      //      tgceffmapbc[ac][ws][bc]   ->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
-      //      tgceffmapnumbc[ac][ws][bc]->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
+      //      m_tgceffmapbc[ac][ws][bc]   ->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
+      //      m_tgceffmapnumbc[ac][ws][bc]->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
       //    }
-      //    tgceffmap[ac][ws]     ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
-      //    tgceffmapnum[ac][ws]  ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
-      //    tgceffmapdenom[ac][ws]->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
+      //    m_tgceffmap[ac][ws]     ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+      //    m_tgceffmapnum[ac][ws]  ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+      //    m_tgceffmapdenom[ac][ws]->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
       //  }
       //}
       ////layer8-9
@@ -269,12 +269,12 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
       //  for(int c=0;c<2;c++){
       //    ss.str(""); ss << "L" << l+1 << "_" << schamberEF[c]; 
       //    for(int bc=0;bc<2;bc++){
-      //      tgceffmapbc[ac][ws][bc] ->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
-      //      tgceffmapnumbc[ac][ws][bc] ->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
+      //      m_tgceffmapbc[ac][ws][bc] ->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
+      //      m_tgceffmapnumbc[ac][ws][bc] ->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
       //    }
-      //    tgceffmap[ac][ws] ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
-      //    tgceffmapnum[ac][ws] ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
-      //    tgceffmapdenom[ac][ws] ->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
+      //    m_tgceffmap[ac][ws] ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+      //    m_tgceffmapnum[ac][ws] ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+      //    m_tgceffmapdenom[ac][ws] ->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
       //  }
       //}
 
@@ -283,12 +283,12 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
 	for(int l=1;l<=7;l++){
 	  ss.str(""); ss << "L" << l << "_" << schamberT1[c];
           for(int bc=0;bc<2;bc++){
-            tgceffmapbc[ac][ws][bc]   ->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
-            tgceffmapnumbc[ac][ws][bc]->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
+            m_tgceffmapbc[ac][ws][bc]   ->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
+            m_tgceffmapnumbc[ac][ws][bc]->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
           }
-          tgceffmap[ac][ws]     ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
-          tgceffmapnum[ac][ws]  ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
-          tgceffmapdenom[ac][ws]->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
+          m_tgceffmap[ac][ws]     ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+          m_tgceffmapnum[ac][ws]  ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+          m_tgceffmapdenom[ac][ws]->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
 
 	}
       }
@@ -297,12 +297,12 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
 	for(int l=4;l<=7;l++){
 	  ss.str(""); ss << "L" << l << "_" << schamberT3[c];
           for(int bc=0;bc<2;bc++){
-            tgceffmapbc[ac][ws][bc]   ->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
-            tgceffmapnumbc[ac][ws][bc]->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
+            m_tgceffmapbc[ac][ws][bc]   ->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
+            m_tgceffmapnumbc[ac][ws][bc]->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
           }
-          tgceffmap[ac][ws]     ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
-          tgceffmapnum[ac][ws]  ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
-          tgceffmapdenom[ac][ws]->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
+          m_tgceffmap[ac][ws]     ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+          m_tgceffmapnum[ac][ws]  ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+          m_tgceffmapdenom[ac][ws]->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
 	}
       }
       // chamber F,  layer1-7
@@ -310,12 +310,12 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
 	for(int l=1;l<=7;l++){
 	  ss.str(""); ss << "L" << l << "_" << schamberT3[c];
           for(int bc=0;bc<2;bc++){
-            tgceffmapbc[ac][ws][bc]   ->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
-            tgceffmapnumbc[ac][ws][bc]->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
+            m_tgceffmapbc[ac][ws][bc]   ->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
+            m_tgceffmapnumbc[ac][ws][bc]->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
           }
-          tgceffmap[ac][ws]     ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
-          tgceffmapnum[ac][ws]  ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
-          tgceffmapdenom[ac][ws]->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
+          m_tgceffmap[ac][ws]     ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+          m_tgceffmapnum[ac][ws]  ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+          m_tgceffmapdenom[ac][ws]->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
 	}
       }
       // chamber EIFI,  layer8-9
@@ -323,23 +323,23 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
 	for(int l=8;l<=9;l++){
 	  ss.str(""); ss << "L" << l << "_" << schamberEF[c];
           for(int bc=0;bc<2;bc++){
-            tgceffmapbc[ac][ws][bc]   ->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
-            tgceffmapnumbc[ac][ws][bc]->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
+            m_tgceffmapbc[ac][ws][bc]   ->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
+            m_tgceffmapnumbc[ac][ws][bc]->GetXaxis()->SetBinLabel( x, ss.str().c_str() ); 
           }
-          tgceffmap[ac][ws]     ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
-          tgceffmapnum[ac][ws]  ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
-          tgceffmapdenom[ac][ws]->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
+          m_tgceffmap[ac][ws]     ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+          m_tgceffmapnum[ac][ws]  ->GetXaxis()->SetBinLabel( x, ss.str().c_str() );
+          m_tgceffmapdenom[ac][ws]->GetXaxis()->SetBinLabel( x++, ss.str().c_str() );
 	}
       }
 
 
 
-      tgceffmap[ac][ws] ->GetXaxis()->LabelsOption("v");
-      tgceffmapnum[ac][ws] ->GetXaxis()->LabelsOption("v");
-      tgceffmapdenom[ac][ws] ->GetXaxis()->LabelsOption("v");
+      m_tgceffmap[ac][ws] ->GetXaxis()->LabelsOption("v");
+      m_tgceffmapnum[ac][ws] ->GetXaxis()->LabelsOption("v");
+      m_tgceffmapdenom[ac][ws] ->GetXaxis()->LabelsOption("v");
       for(int bc=0;bc<2;bc++){
-        tgceffmapbc[ac][ws][bc] ->GetXaxis()->LabelsOption("v");
-        tgceffmapnumbc[ac][ws][bc] ->GetXaxis()->LabelsOption("v");
+        m_tgceffmapbc[ac][ws][bc] ->GetXaxis()->LabelsOption("v");
+        m_tgceffmapnumbc[ac][ws][bc] ->GetXaxis()->LabelsOption("v");
       }
     }//ws
   }//ac
@@ -348,8 +348,8 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
     for(int ws=0;ws<2;ws++){
       // efficiency for each sector/layer
       ss.str(""); ss << wseff[ws] << "_" << side[i];
-      tgceffsector[i][ws]=new TH1F(ss.str().c_str(), (ss.str() + ";;Efficiency").c_str(),84,0,84);
-      sc=tgcprd_eff_expert_ac[i]->regHist(tgceffsector[i][ws]) ;  
+      m_tgceffsector[i][ws]=new TH1F(ss.str().c_str(), (ss.str() + ";;Efficiency").c_str(),84,0,84);
+      sc=tgcprd_eff_expert_ac[i]->regHist(m_tgceffsector[i][ws]) ;  
       if(sc.isFailure()) { 
         m_log << MSG::FATAL << ss.str() <<" Failed to register histogram " << endmsg;       
         return sc;
@@ -357,9 +357,9 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
 
       // efficiency numerator
       ss.str(""); ss << wseff[ws] << "_" << side[i] << "_Numerator";    
-      tgceffsectornum[i][ws]=new TH1F(ss.str().c_str(), (ss.str() + ";;Efficiency" ).c_str(),84,0,84);       
-      tgceffsectornum[i][ws]->Sumw2();
-      sc=tgcprd_effnumdenom_expert_ac[i]->regHist(tgceffsectornum[i][ws]) ;  
+      m_tgceffsectornum[i][ws]=new TH1F(ss.str().c_str(), (ss.str() + ";;Efficiency" ).c_str(),84,0,84);       
+      m_tgceffsectornum[i][ws]->Sumw2();
+      sc=tgcprd_effnumdenom_expert_ac[i]->regHist(m_tgceffsectornum[i][ws]) ;  
       if(sc.isFailure()) { 
         m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
         return sc;
@@ -367,9 +367,9 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
 
       // efficiency denominator
       ss.str(""); ss << wseff[ws] << "_" << side[i] << "_Denominator";
-      tgceffsectordenom[i][ws]=new TH1F(ss.str().c_str(),(ss.str() + ";;Efficiency" ).c_str(),84,0,84);
-      tgceffsectordenom[i][ws]->Sumw2();
-      sc=tgcprd_effnumdenom_expert_ac[i]->regHist(tgceffsectordenom[i][ws]) ;  
+      m_tgceffsectordenom[i][ws]=new TH1F(ss.str().c_str(),(ss.str() + ";;Efficiency" ).c_str(),84,0,84);
+      m_tgceffsectordenom[i][ws]->Sumw2();
+      sc=tgcprd_effnumdenom_expert_ac[i]->regHist(m_tgceffsectordenom[i][ws]) ;  
       if(sc.isFailure()) { 
         m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
         return sc;
@@ -383,17 +383,17 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
           if(sector<10)ss<<0;
           ss<<sector<<"L"<<layer;
           int k=(sector-1)*7+layer;
-          tgceffsector[i][ws]->GetXaxis()->SetBinLabel(k,ss.str().c_str());
-          tgceffsectornum[i][ws]->GetXaxis()->SetBinLabel(k,ss.str().c_str());
-          tgceffsectordenom[i][ws]->GetXaxis()->SetBinLabel(k,ss.str().c_str());
+          m_tgceffsector[i][ws]->GetXaxis()->SetBinLabel(k,ss.str().c_str());
+          m_tgceffsectornum[i][ws]->GetXaxis()->SetBinLabel(k,ss.str().c_str());
+          m_tgceffsectordenom[i][ws]->GetXaxis()->SetBinLabel(k,ss.str().c_str());
           ss.str();
         }
 
     //Summary
     for(int ws=0;ws<2;ws++){
       ss.str(""); ss<<"Summary_Of_"<<wseff[ws]<<"_Per_GasGap_"<<side[i];
-      tgcsummaryofeffpergasgap[i][ws]=new TH1F(ss.str().c_str(), (ss.str() + ";Efficiency; Entries").c_str(), 101, 0., 1.01);
-      sc=tgcprd_summary_ac[i]->regHist(tgcsummaryofeffpergasgap[i][ws]) ;  
+      m_tgcsummaryofeffpergasgap[i][ws]=new TH1F(ss.str().c_str(), (ss.str() + ";Efficiency; Entries").c_str(), 101, 0., 1.01);
+      sc=tgcprd_summary_ac[i]->regHist(m_tgcsummaryofeffpergasgap[i][ws]) ;  
       if(sc.isFailure()) { 
         m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
         return sc;
@@ -412,8 +412,8 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
         if(sta==0 && eta==5 )continue;
         //Summary
         ss.str(""); ss<<"Summary_Of_"<<wseff[ws]<<"_Per_Chamber_Type_Station"<<sta+1<<type[ntype];
-        tgcsummaryofeffperchambertype[ws][ntype]=new TH1F(ss.str().c_str(), (ss.str() + ";Efficiency; Entries").c_str(), 101, 0., 1.01);
-        sc=tgcprd_summary.regHist(tgcsummaryofeffperchambertype[ws][ntype++]) ;  
+        m_tgcsummaryofeffperchambertype[ws][ntype]=new TH1F(ss.str().c_str(), (ss.str() + ";Efficiency; Entries").c_str(), 101, 0., 1.01);
+        sc=tgcprd_summary.regHist(m_tgcsummaryofeffperchambertype[ws][ntype++]) ;  
         if(sc.isFailure()) { 
           m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
           return sc;
@@ -734,23 +734,23 @@ TgcRawDataValAlg::calculateEfficiency(int ac, int ws, int eta, int phi48, int la
   int layerws=-1, sectorlayer=-1;
   bool isEIFI = (layer>6);
   if(!isEIFI){
-    //tgceff, tgceffsector not implemented for EIFI
+    //m_tgceff, m_tgceffsector not implemented for EIFI
     // Layer efficiency
     layerws=layer+ws*7;
     if(ws==1&&layer>1) layerws-=1;
-    tgceffdenom[ac]->Fill(layerws);//fill denominator
+    m_tgceffdenom[ac]->Fill(layerws);//fill denominator
     
     // Sector efficiency
     int sector12, phi4;
     phi48ToSectorPhi4(phi48, sector12, phi4);
     sectorlayer=sector12*7+layer;
-    tgceffsectordenom[ac][ws]->Fill(sectorlayer);//fill denominator
+    m_tgceffsectordenom[ac][ws]->Fill(sectorlayer);//fill denominator
   }
   
   // Chamber efficiency
   int binx, biny;
   getChamberMapIndexes(eta, phi48, layer, binx, biny);
-  tgceffmapdenom[ac][ws]->Fill(binx, biny);//fill denominator
+  m_tgceffmapdenom[ac][ws]->Fill(binx, biny);//fill denominator
   
   // additional leeway for comparing channels, due to miscabling
   int dch_extra=2;
@@ -781,10 +781,10 @@ TgcRawDataValAlg::calculateEfficiency(int ac, int ws, int eta, int phi48, int la
     int dmax       = m_dchmax[layer][refLayer][ws][ac] + dch_extra;
     if(compareID(prdChannel, referenceChannel, dmin, dmax)){
       if(m_debuglevel)m_log<<MSG::DEBUG<<"calculate efficiency current layer"<<layer+1 << " eta" << eta << " phi" << phi48 << " fire" <<std::endl;
-      tgceffmapnum[ac][ws]->Fill(binx, biny);
-      tgceffnum[ac]->Fill(layerws);//fill numerator
+      m_tgceffmapnum[ac][ws]->Fill(binx, biny);
+      m_tgceffnum[ac]->Fill(layerws);//fill numerator
       if(!isEIFI){
-        tgceffsectornum[ac][ws]->Fill(sectorlayer);//fill numerator
+        m_tgceffsectornum[ac][ws]->Fill(sectorlayer);//fill numerator
       }
       return;
     }
@@ -801,7 +801,7 @@ TgcRawDataValAlg::calculateEfficiency(int ac, int ws, int eta, int phi48, int la
     if(compareID(prdChannel, referenceChannel, dmin, dmax)){
       if(m_debuglevel)m_log<<MSG::DEBUG<<"calculate efficiency previous layer"<<layer+1 << " eta" << eta << " phi" << phi48 << " fire" <<std::endl;
       //if(!isEIFI){
-        tgceffmapnumbc[ac][ws][PREV]->Fill(binx, biny);
+        m_tgceffmapnumbc[ac][ws][PREV]->Fill(binx, biny);
       //}
       break;
     }
@@ -818,7 +818,7 @@ TgcRawDataValAlg::calculateEfficiency(int ac, int ws, int eta, int phi48, int la
     if(compareID(prdChannel, referenceChannel, dmin, dmax)){
       if(m_debuglevel)m_log<<MSG::DEBUG<<"calculate efficiency next layer"<<layer+1 << " eta" << eta << " phi" << phi48 << " fire" <<std::endl;
       //if(!isEIFI){
-        tgceffmapnumbc[ac][ws][NEXT-1]->Fill(binx, biny); // only prev/next defined, array index should be 1 for NEXT PRD
+        m_tgceffmapnumbc[ac][ws][NEXT-1]->Fill(binx, biny); // only prev/next defined, array index should be 1 for NEXT PRD
       //}
       break;
     }

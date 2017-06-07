@@ -60,7 +60,7 @@ TrigmuRoI::TrigmuRoI(const std::string& name, ISvcLocator* pSvcLocator)
 
 HLT::ErrorCode TrigmuRoI::hltInitialize()
 {
-  m_log.setLevel(outputLevel());
+  m_log.setLevel(msgLevel());
 
   m_log << MSG::INFO << "initialize()" << endmsg;
 

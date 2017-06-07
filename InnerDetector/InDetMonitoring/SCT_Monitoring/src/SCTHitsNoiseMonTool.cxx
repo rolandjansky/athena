@@ -26,7 +26,6 @@
 #include "TMath.h"
 #include "TH1F.h"
 #include "TH2I.h"
-#include "TH2I.h"
 #include "TH2F.h"
 #include "TProfile.h"
 #include "TProfile2D.h"

@@ -216,16 +216,19 @@ CondInputLoader::execute()
     now.set_run_number(thisEventInfo->runNumber());
     now.set_event_number(thisEventInfo->eventNumber());
     now.set_time_stamp(thisEventInfo->timeStamp());
+    now.set_time_stamp_ns_offset(thisEventInfo->timeStampNSOffset());
   }
   else {
 #ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
     now.set_run_number(getContext().eventID().run_number());
     now.set_event_number(getContext().eventID().event_number());
     now.set_time_stamp(getContext().eventID().time_stamp());
+    now.set_time_stamp_ns_offset(getContext().eventID().time_stamp_ns_offset());
 #else
     now.set_run_number(getContext()->eventID().run_number());
     now.set_event_number(getContext()->eventID().event_number());
     now.set_time_stamp(getContext()->eventID().time_stamp());
+    now.set_time_stamp_ns_offset(getContext()->eventID().time_stamp_ns_offset());
 #endif
   }
 

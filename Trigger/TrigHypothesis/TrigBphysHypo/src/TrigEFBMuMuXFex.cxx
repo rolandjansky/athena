@@ -2660,25 +2660,25 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                     else {
                                                       m_TrigBphysColl_b->push_back( trigPartBcMuMuDplus );
                                                       m_TrigBphysColl_X->push_back( trigPartDplus );
-                                                    }
 
-                                                    m_bphysHelperTool->setBeamlineDisplacement(trigPartBcMuMuDplus,
-                                                                                               {*trkIt1,*trkIt2,*trkIt3,*trackELmu1,*trackELmu2});
-                                                    m_bphysHelperTool->setBeamlineDisplacement(trigPartDplus,
-                                                                                               {*trkIt1,*trkIt2,*trkIt3});
-                                                    trigPartDplus->addParticleLink(ItrackEL3);
-                                                    trigPartDplus->addParticleLink(ItrackEL4);
-                                                    trigPartDplus->addParticleLink(ItrackEL5);
-                                                   
-                                                    int iDplus = m_TrigBphysColl_X->size() - 1;
-                                                    ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iDplus);
+                                                      m_bphysHelperTool->setBeamlineDisplacement(trigPartBcMuMuDplus,
+                                                                                                {*trkIt1,*trkIt2,*trkIt3,*trackELmu1,*trackELmu2});
+                                                      m_bphysHelperTool->setBeamlineDisplacement(trigPartDplus,
+                                                                                                {*trkIt1,*trkIt2,*trkIt3});
+                                                      trigPartDplus->addParticleLink(ItrackEL3);
+                                                      trigPartDplus->addParticleLink(ItrackEL4);
+                                                      trigPartDplus->addParticleLink(ItrackEL5);
                                                     
-                                                    trigPartBcMuMuDplus->addParticleLink(ItrackEL3);
-                                                    trigPartBcMuMuDplus->addParticleLink(ItrackEL4);
-                                                    trigPartBcMuMuDplus->addParticleLink(ItrackEL5);
-                                                    if(Found1Track) trigPartBcMuMuDplus->addParticleLink(ELmu1);
-                                                    if(Found2Track) trigPartBcMuMuDplus->addParticleLink(ELmu2);
-                                                    trigPartBcMuMuDplus->setSecondaryDecayLink(trigPartXEL);
+                                                      int iDplus = m_TrigBphysColl_X->size() - 1;
+                                                      ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iDplus);
+                                                      
+                                                      trigPartBcMuMuDplus->addParticleLink(ItrackEL3);
+                                                      trigPartBcMuMuDplus->addParticleLink(ItrackEL4);
+                                                      trigPartBcMuMuDplus->addParticleLink(ItrackEL5);
+                                                      if(Found1Track) trigPartBcMuMuDplus->addParticleLink(ELmu1);
+                                                      if(Found2Track) trigPartBcMuMuDplus->addParticleLink(ELmu2);
+                                                      trigPartBcMuMuDplus->setSecondaryDecayLink(trigPartXEL);
+                                                    }
                                                     
                                                     result=true;
                                                     m_mon_BcMuMuDplus_n++;
@@ -2819,25 +2819,25 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                     else {
                                                       m_TrigBphysColl_b->push_back( trigPartBcMuMuDstar );
                                                       m_TrigBphysColl_X->push_back( trigPartDstar );
-                                                    }
 
-                                                    m_bphysHelperTool->setBeamlineDisplacement(trigPartBcMuMuDstar,
-                                                                                               {*trkIt1,*trkIt2,*trkIt3,*trackELmu1,*trackELmu2});
-                                                    m_bphysHelperTool->setBeamlineDisplacement(trigPartDstar,
-                                                                                               {*trkIt1,*trkIt2,*trkIt3});
-                                                    trigPartDstar->addParticleLink(ItrackEL3);
-                                                    trigPartDstar->addParticleLink(ItrackEL4);
-                                                    trigPartDstar->addParticleLink(ItrackEL5);
-                                                   
-                                                    int iDstar = m_TrigBphysColl_X->size() - 1;
-                                                    ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iDstar);
+                                                      m_bphysHelperTool->setBeamlineDisplacement(trigPartBcMuMuDstar,
+                                                                                                {*trkIt1,*trkIt2,*trkIt3,*trackELmu1,*trackELmu2});
+                                                      m_bphysHelperTool->setBeamlineDisplacement(trigPartDstar,
+                                                                                                {*trkIt1,*trkIt2,*trkIt3});
+                                                      trigPartDstar->addParticleLink(ItrackEL3);
+                                                      trigPartDstar->addParticleLink(ItrackEL4);
+                                                      trigPartDstar->addParticleLink(ItrackEL5);
                                                     
-                                                    trigPartBcMuMuDstar->addParticleLink(ItrackEL3);
-                                                    trigPartBcMuMuDstar->addParticleLink(ItrackEL4);
-                                                    trigPartBcMuMuDstar->addParticleLink(ItrackEL5);
-                                                    if(Found1Track) trigPartBcMuMuDstar->addParticleLink(ELmu1);
-                                                    if(Found2Track) trigPartBcMuMuDstar->addParticleLink(ELmu2);
-                                                    trigPartBcMuMuDstar->setSecondaryDecayLink(trigPartXEL);
+                                                      int iDstar = m_TrigBphysColl_X->size() - 1;
+                                                      ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iDstar);
+                                                      
+                                                      trigPartBcMuMuDstar->addParticleLink(ItrackEL3);
+                                                      trigPartBcMuMuDstar->addParticleLink(ItrackEL4);
+                                                      trigPartBcMuMuDstar->addParticleLink(ItrackEL5);
+                                                      if(Found1Track) trigPartBcMuMuDstar->addParticleLink(ELmu1);
+                                                      if(Found2Track) trigPartBcMuMuDstar->addParticleLink(ELmu2);
+                                                      trigPartBcMuMuDstar->setSecondaryDecayLink(trigPartXEL);
+                                                    }
                                                     
                                                     result=true;
                                                     m_mon_BcMuMuDstar_n++;
@@ -2919,23 +2919,23 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                     else {
                                                       m_TrigBphysColl_b->push_back( trigPartBcMuMuD0 );
                                                       m_TrigBphysColl_X->push_back( trigPartD0 );
-                                                    }
 
-                                                    m_bphysHelperTool->setBeamlineDisplacement(trigPartBcMuMuD0,
-                                                                                               {*trkIt1,*trkIt2,*trackELmu1,*trackELmu2});
-                                                    m_bphysHelperTool->setBeamlineDisplacement(trigPartD0,
-                                                                                               {*trkIt1,*trkIt2});
-                                                    trigPartD0->addParticleLink(ItrackEL3);
-                                                    trigPartD0->addParticleLink(ItrackEL4);
-                                                   
-                                                    int iD0 = m_TrigBphysColl_X->size() - 1;
-                                                    ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iD0);
+                                                      m_bphysHelperTool->setBeamlineDisplacement(trigPartBcMuMuD0,
+                                                                                                {*trkIt1,*trkIt2,*trackELmu1,*trackELmu2});
+                                                      m_bphysHelperTool->setBeamlineDisplacement(trigPartD0,
+                                                                                                {*trkIt1,*trkIt2});
+                                                      trigPartD0->addParticleLink(ItrackEL3);
+                                                      trigPartD0->addParticleLink(ItrackEL4);
                                                     
-                                                    trigPartBcMuMuD0->addParticleLink(ItrackEL3);
-                                                    trigPartBcMuMuD0->addParticleLink(ItrackEL4);
-                                                    if(Found1Track) trigPartBcMuMuD0->addParticleLink(ELmu1);
-                                                    if(Found2Track) trigPartBcMuMuD0->addParticleLink(ELmu2);
-                                                    trigPartBcMuMuD0->setSecondaryDecayLink(trigPartXEL);
+                                                      int iD0 = m_TrigBphysColl_X->size() - 1;
+                                                      ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iD0);
+                                                      
+                                                      trigPartBcMuMuD0->addParticleLink(ItrackEL3);
+                                                      trigPartBcMuMuD0->addParticleLink(ItrackEL4);
+                                                      if(Found1Track) trigPartBcMuMuD0->addParticleLink(ELmu1);
+                                                      if(Found2Track) trigPartBcMuMuD0->addParticleLink(ELmu2);
+                                                      trigPartBcMuMuD0->setSecondaryDecayLink(trigPartXEL);
+                                                    }
                                                     
                                                     result=true;
                                                     m_mon_BcMuMuD0_n++;

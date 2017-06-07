@@ -43,9 +43,9 @@ class SGInputLoader
   //SGInputLoader &operator=(const SGInputLoader &alg); 
 
   // Athena algorithm's Hooks
-  virtual StatusCode  initialize();
-  virtual StatusCode  execute();
-  virtual StatusCode  finalize();
+  virtual StatusCode  initialize() override;
+  virtual StatusCode  execute() override;
+  virtual StatusCode  finalize() override;
 
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 
