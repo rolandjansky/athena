@@ -91,6 +91,7 @@ void TElectronMCShifterTool::shiftAll( float eT,
                                        float& f3     ,
                                        float& fside  ,
                                        float& ws3    ,
+                                       float& wstot  ,
                                        float& eratio ,
                                        float& e277   ,
                                        float& DeltaE ,
@@ -120,10 +121,10 @@ void TElectronMCShifterTool::shiftAll( float eT,
   }
 
   if(Shifts[ElePIDNames::Var::f1].size() != 0){
-    if ( f1 != 0){ f1 = f1 + Shifts[ElePIDNames::Var::f1].at(ibin_combined); }
+    if (f1 != 0){ f1 = f1 + Shifts[ElePIDNames::Var::f1].at(ibin_combined); }
   }
   if(Shifts[ElePIDNames::Var::f3].size() != 0){
-    if ( f3 != 0){ f3 = f3 + Shifts[ElePIDNames::Var::f3].at(ibin_combined); }
+    if (f3 != 0){ f3 = f3 + Shifts[ElePIDNames::Var::f3].at(ibin_combined); }
   }
   if(Shifts[ElePIDNames::Var::reta].size() != 0){
     reta = reta + Shifts[ElePIDNames::Var::reta].at(ibin_combined);
@@ -132,20 +133,23 @@ void TElectronMCShifterTool::shiftAll( float eT,
     weta2 = weta2 + Shifts[ElePIDNames::Var::weta2].at(ibin_combined);
   }
   if(Shifts[ElePIDNames::Var::eratio].size() != 0){
-    if ( eratio != 1){ eratio = eratio + Shifts[ElePIDNames::Var::eratio].at(ibin_combined); }
+    if (eratio != 0 && eratio != 1){ eratio = eratio + Shifts[ElePIDNames::Var::eratio].at(ibin_combined); }
   }
   if(Shifts[ElePIDNames::Var::rhad].size() != 0){
     rhad = rhad + Shifts[ElePIDNames::Var::rhad].at(ibin_combined);
     rhad1 = rhad1 + Shifts[ElePIDNames::Var::rhad].at(ibin_combined);
   }
   if(Shifts[ElePIDNames::Var::rphi].size() != 0){
-    rphi = rphi + Shifts[ElePIDNames::Var::rphi].at(ibin_combined);
+    if(rphi != 1){ rphi = rphi + Shifts[ElePIDNames::Var::rphi].at(ibin_combined); }
   }
   if(Shifts[ElePIDNames::Var::fside].size() != 0){
-    if( fside!=0){ fside = fside + Shifts[ElePIDNames::Var::fside].at(ibin_combined); };
+    if(fside != 0){ fside = fside + Shifts[ElePIDNames::Var::fside].at(ibin_combined); };
   }
   if(Shifts[ElePIDNames::Var::ws3].size() != 0){
     ws3 = ws3 + Shifts[ElePIDNames::Var::ws3].at(ibin_combined);
+  }
+  if(Shifts[ElePIDNames::Var::wstot].size() != 0){
+    wstot = wstot + Shifts[ElePIDNames::Var::wstot].at(ibin_combined);
   }
   if(Shifts[ElePIDNames::Var::e277].size() != 0){
     e277 = e277 + Shifts[ElePIDNames::Var::e277].at(ibin_combined);

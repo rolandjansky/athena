@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 776838 2016-10-06 12:21:19Z krasznaa $
 ################################################################################
 # Package: ElectronPhotonShowerShapeFudgeTool
 ################################################################################
@@ -43,6 +44,14 @@ atlas_add_dictionary( ElectronPhotonShowerShapeFudgeToolDict
    ElectronPhotonShowerShapeFudgeTool/ElectronPhotonShowerShapeFudgeToolDict.h
    ElectronPhotonShowerShapeFudgeTool/selection.xml
    LINK_LIBRARIES ElectronPhotonShowerShapeFudgeToolLib )
+
+atlas_add_executable( EPSSFT_convertFF util/convertFF.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} ElectronPhotonShowerShapeFudgeToolLib )
+
+atlas_add_executable( EPSSFT_drawFFs util/drawFFs.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} ElectronPhotonShowerShapeFudgeToolLib )
 
 # Install files from the package:
 atlas_install_data( data/*.conf data/*.root )
