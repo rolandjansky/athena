@@ -10,6 +10,7 @@
  
 class TFCSTruthState;
 class TFCSExtrapolationState;
+//class IFastCaloSimGeometryHelper;
 
 static const InterfaceID IID_IFastCaloSimCaloExtrapolation("IFastCaloSimCaloExtrapolation", 1, 0);
    
@@ -21,6 +22,7 @@ class IFastCaloSimCaloExtrapolation : virtual public IAlgTool
 
    virtual void extrapolate(TFCSExtrapolationState& result,const TFCSTruthState* truth) = 0;
 
+  //virtual IFastCaloSimGeometryHelper* GetCaloGeometry() const = 0;
 };
 
 #endif // IFastCaloSimCaloExtrapolation_H
