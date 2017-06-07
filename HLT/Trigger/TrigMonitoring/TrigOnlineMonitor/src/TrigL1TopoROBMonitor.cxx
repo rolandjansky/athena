@@ -94,6 +94,7 @@ TrigL1TopoROBMonitor::TrigL1TopoROBMonitor(const std::string& name, ISvcLocator*
   m_histTopoCtpSimHdwEventComparison(0),
   m_histTopoCtpHdwEventComparison(0),
   m_histTopoDaqRobEventComparison(0),
+  m_histDaqRobCtpEventComparison(0),
   m_histTopoSimResult(0),
   m_histTopoHdwResult(0),
   m_histTopoSimNotHdwResult(0),
@@ -298,6 +299,7 @@ StatusCode TrigL1TopoROBMonitor::beginRun() {
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoCtpSimHdwEventComparison, "CTP_Hdw_vs_Sim_Events", "L1Topo decisions CTP hardware XOR simulation event-by-event differences, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoCtpHdwEventComparison, "CTP_Hdw_vs_L1Topo_Hdw_Events", "L1Topo decisions hardware (trigger|overflow) XOR CTP TIP hardware event-by-event differences, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoDaqRobEventComparison, "DAQ_ROB_Hdw_vs_L1Topo_Hdw_Events", "L1Topo decisions hardware XOR DAQ ROB hardware event-by-event differences", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
+  CHECK( bookAndRegisterHist(rootHistSvc, m_histDaqRobCtpEventComparison, "DAQ_ROB_Hdw_vs_CTP_Hdw_Events", "L1Topo DAQ ROB hardware XOR CTP TIP hardware event-by-event differences", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoSimResult, "SimResults", "L1Topo simulation accepts, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoHdwResult, "HdwResults", "L1Topo hardware accepts, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoSimNotHdwResult, "SimNotHdwResult", "L1Topo events with simulation accept and hardware fail, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
@@ -379,6 +381,7 @@ StatusCode TrigL1TopoROBMonitor::beginRun() {
       m_histTopoCtpSimHdwEventComparison->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
       m_histTopoCtpHdwEventComparison->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
       m_histTopoDaqRobEventComparison->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
+      m_histDaqRobCtpEventComparison->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
       m_histTopoDaqRobSimResult->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
       m_histTopoDaqRobHdwResult->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
       m_histTopoDaqRobSimNotHdwResult->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
@@ -829,7 +832,9 @@ StatusCode TrigL1TopoROBMonitor::doSimMon(bool prescalForDAQROBAccess){
         compBitSets("L1Topo hardware trigger|overflow", "CTP TIP hardware",
                     m_triggerBits|m_overflowBits, m_topoCtpResult,
                     m_histTopoCtpHdwEventComparison);
-
+        compBitSets("L1Topo DAQ ROB trigger|overflow", "CTP TIP hardware",
+                    m_triggerBitsDaqRob|m_overflowBitsDaqRob, m_topoCtpResult,
+                    m_histDaqRobCtpEventComparison);
 	if (m_overflowBits.none() && m_setTopoSimResult){
 	  // Compare L1Topo outputs from simulation with those at the CTP
 	  compBitSets("L1Topo CTP TIP hardware", "L1Topo CTP simulation",
