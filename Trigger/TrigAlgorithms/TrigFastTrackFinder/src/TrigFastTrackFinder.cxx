@@ -153,6 +153,12 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   declareProperty( "MinHits",               m_minHits = 5 );
 
   declareProperty( "OutputCollectionSuffix",m_outputCollectionSuffix = "");
+
+  declareProperty("TracksName", 
+                  m_outputTracksKey = std::string("TrigFastTrackFinder_Tracks"),
+                  "TrackCollection name");
+
+  declareProperty("RoIs", m_roiCollectionKey = std::string("OutputRoIs"), "RoIs to read in");
  
   declareProperty( "UseBeamSpot",           m_useBeamSpot = true);
   declareProperty( "FreeClustersCut"   ,m_nfreeCut      );
@@ -410,6 +416,30 @@ HLT::ErrorCode TrigFastTrackFinder::hltBeginRun()
   }
 
   return HLT::OK;
+}
+
+StatusCode TrigFastTrackFinder::execute() {
+  //RoI preparation/update 
+  SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection(m_roiCollectionKey);
+  ATH_CHECK(roiCollection.isValid());
+  TrigRoiDescriptorCollection::const_iterator roi = roiCollection->begin();
+  TrigRoiDescriptorCollection::const_iterator roiE = roiCollection->end();
+  TrigRoiDescriptor internalRoI;
+  for (; roi != roiE; ++roi) {
+    internalRoI.push_back(*roi);
+  }
+  internalRoI.manageConstituents(false);//Don't try to delete RoIs at the end
+  m_currentStage = 1;
+  m_countTotalRoI++;
+  m_tcs.roiDescriptor = &internalRoI;
+
+  m_outputTracksKey = m_attachedFeatureName;
+  SG::WriteHandle<TrackCollection> outputTracks(m_outputTracksKey);
+  outputTracks = std::make_unique<TrackCollection>();
+
+  ATH_CHECK(findTracks(internalRoI, *outputTracks));
+  
+  return StatusCode::SUCCESS;
 }
 
 //-------------------------------------------------------------------------

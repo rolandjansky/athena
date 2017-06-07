@@ -72,6 +72,7 @@ class TrigFastTrackFinder : public HLT::FexAlgo {
   HLT::ErrorCode hltFinalize();
   HLT::ErrorCode hltBeginRun();
 
+  StatusCode execute();
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE,
 			    HLT::TriggerElement* outputTE);
 
@@ -106,6 +107,10 @@ protected:
   ToolHandle< Trk::ITrackSummaryTool > m_trackSummaryTool;
   ServiceHandle<IFTK_DataProviderSvc > m_ftkDataProviderSvc;
   std::string m_ftkDataProviderSvcName;
+
+  //DataHandles
+  SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
+  SG::WriteHandleKey<TrackCollection> m_outputTracksKey;
 
  
   double m_shift_x, m_shift_y;

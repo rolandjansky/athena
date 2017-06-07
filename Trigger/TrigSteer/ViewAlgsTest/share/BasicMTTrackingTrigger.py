@@ -194,7 +194,7 @@ InDetPixelClusterization = InDet__PixelClusterization(name                    = 
                                                       gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
                                                       DetectorManagerName     = InDetKeys.PixelManager(), 
                                                       DataObjectName          = InDetKeys.PixelRDOs(),
-                                                      ClustersName            = InDetKeys.PixelClusters(),
+                                                      ClustersName            = "PixelTrigClusters",
                                                       isRoI_Seeded = True,
                                                       RoIs = "L1EMRoIs",
                                                       )
@@ -218,7 +218,7 @@ InDetSCT_Clusterization = InDet__SCT_Clusterization(name                    = "I
                                                     # ChannelStatus         = InDetSCT_ChannelStatusAlg,
                                                     DetectorManagerName     = InDetKeys.SCT_Manager(), 
                                                     DataObjectName          = InDetKeys.SCT_RDOs(),
-                                                    ClustersName            = InDetKeys.SCT_Clusters(),
+                                                    ClustersName            = "SCT_TrigClusters",
                                                     conditionsService       = InDetSCT_ConditionsSummarySvc,
                                                     FlaggedConditionService = InDetSCT_FlaggedConditionSvc,
                                                     isRoI_Seeded = True,
@@ -233,10 +233,10 @@ ToolSvc += InDetSiSpacePointMakerTool
 from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiTrackerSpacePointFinder
 InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name                   = "InDetSiTrackerSpacePointFinder",
                                                                   SiSpacePointMakerTool  = InDetSiSpacePointMakerTool,
-                                                                  PixelsClustersName     = InDetKeys.PixelClusters(),
-                                                                  SCT_ClustersName       = InDetKeys.SCT_Clusters(),
-                                                                  SpacePointsPixelName   = InDetKeys.PixelSpacePoints(),
-                                                                  SpacePointsSCTName     = InDetKeys.SCT_SpacePoints(),
+                                                                  PixelsClustersName     = "PixelTrigClusters",
+                                                                  SCT_ClustersName       = "SCT_TrigClusters",
+                                                                  SpacePointsPixelName   = "PixelTrigSpacePoints",
+                                                                  SpacePointsSCTName     = "SCT_TrigSpacePoints",
                                                                   SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
                                                                   ProcessPixels          = DetFlags.haveRIO.pixel_on(),
                                                                   ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
@@ -244,12 +244,12 @@ InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name          
 topSequence += InDetSiTrackerSpacePointFinder
 
 
-from TrigFastTrackFinder.TrigFastTrackFinderMT_Config import TrigFastTrackFinderMT_eGamma
-theFTFMT = TrigFastTrackFinderMT_eGamma()
-theFTFMT.RoIs="L1EMRoIs"
+from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma
+theFTF = TrigFastTrackFinder_eGamma()
+theFTF.RoIs="L1EMRoIs"
 
-topSequence += theFTFMT
-log.info(theFTFMT)
+topSequence += theFTF
+log.info(theFTF)
 
 #probably initialized only in trigger=True?
 from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
