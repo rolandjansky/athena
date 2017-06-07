@@ -71,16 +71,15 @@ CaloDetDescrElement::print() const
 
 CaloCell_ID::CaloSample CaloDetDescrElement::getSampling() const
 {
-
   if ( m_descriptor ) {
         if ( !m_descriptor->is_tile() ){
             return m_descriptor->getSampling();
         }else {
+          if (m_descriptor->get_calo_helper()->tile_idHelper()->sampling(identify())==4) return CaloCell_ID::TileGap1; // temporary fix for sample C in upgrade geometry
           CaloCell_ID::CaloSample sample = (CaloCell_ID::CaloSample)(m_descriptor->getSampling()+ m_descriptor->get_calo_helper()->tile_idHelper()->sampling(identify()) )  ;
           return sample;
         }
   } else return CaloCell_ID::Unknown;
-
 }
 
 int CaloDetDescrElement::getLayer() const

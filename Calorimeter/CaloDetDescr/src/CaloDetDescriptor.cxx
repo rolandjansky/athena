@@ -185,7 +185,9 @@ CaloDetDescriptor::getSampling(IdentifierHash onecalo_hash) const
   {
     const Tile_Base_ID* tileid = reinterpret_cast<const Tile_Base_ID*> (m_helper);
     Identifier id = tileid->cell_id (onecalo_hash);
-    return (CaloCell_ID::CaloSample) (m_calo_sampl + tileid->sample(id));
+    int smp = tileid->sample(id);
+    if (smp==4) return CaloCell_ID::TileGap1; // temporary fix for sample C in upgrade geometry
+    else return (CaloCell_ID::CaloSample) (m_calo_sampl + smp);
   } 
   else 
   {
