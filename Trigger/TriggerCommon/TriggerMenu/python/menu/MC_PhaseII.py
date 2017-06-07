@@ -38,7 +38,7 @@ def setupMenu():
 
         #upgrade study chains
         ['mu20_ivarmedium',	   'L1_MU6', 	  [], [PhysicsStream], ['RATE:SingleMuon', 'RATE:UpgradeMuon', 'RATE:UpgradeAll', 'BW:Muon'], -1],
-        ['mu20',			   'L1_MU6',           [], [PhysicsStream], ['RATE:SingleMuon', 'RATE:UpgradeMuon', 'RATE:UpgradeAll', 'BW:Muon'], -1],
+        # ['mu20',			   'L1_MU6',           [], [PhysicsStream], ['RATE:SingleMuon', 'RATE:UpgradeMuon', 'RATE:UpgradeAll', 'BW:Muon'], -1],
         ['mu40_L1MU6',			  'L1_MU6',           [], [PhysicsStream], ['RATE:SingleMuon', 'RATE:UpgradeMuon', 'RATE:UpgradeAll', 'BW:Muon'], -1],
         ['mu20_mu8noL1',          'L1_MU6', ['L1_MU6',''], [PhysicsStream], ['RATE:MultiMuon', 'RATE:UpgradeMuon', 'RATE:UpgradeAll','BW:Muon'], -1,['serial',-1,['mu20','mu8noL1']]],
         ['mu20_2mu4noL1',        'L1_MU6', ['L1_MU6',''], [PhysicsStream], ['RATE:MultiMuon', 'RATE:UpgradeMuon', 'RATE:UpgradeAll','BW:Muon'], -1,['serial',-1,['mu20','2mu4noL1']]],
@@ -48,9 +48,13 @@ def setupMenu():
 
     TriggerFlags.JetSlice.signatures = [   
         # Current primaries (2017 menu)
+        ['j175',                        'L1_J50',  [], [PhysicsStream], ['RATE:SingleJet', 'RATE:UpgradeJet', 'RATE:UpgradeAll', 'BW:Jet'], -1],
+
         ['j400',                    			    'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'RATE:UpgradeJet', 'RATE:UpgradeAll', 'BW:Jet'], -1],
         ['j420',                    			    'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'RATE:UpgradeJet', 'RATE:UpgradeAll', 'BW:Jet'], -1],
         ['j440_a10t_lcw_jes_L1J100',        'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'RATE:UpgradeJet', 'RATE:UpgradeAll', 'BW:Jet'], -1],
+        ['4j65',                        'L1_3J15', [], [PhysicsStream], ['RATE:MultiJet', 'RATE:UpgradeJet', 'RATE:UpgradeAll', 'BW:Jet'], -1],
+
         ['4j110',                  			    'L1_3J50', [], [PhysicsStream], ['RATE:MultiJet', 'RATE:UpgradeJet', 'RATE:UpgradeAll', 'BW:Jet'], -1],
         ['2j250_j150',         		             'L1_J100', [], [PhysicsStream], ['RATE:MultiJet', 'RATE:UpgradeJet', 'RATE:UpgradeAll',  'BW:Jet'], -1],
         ['3j200',                    			    'L1_J100', [], [PhysicsStream], ['RATE:MultiJet', 'RATE:UpgradeJet', 'RATE:UpgradeAll',  'BW:Jet'], -1],
@@ -63,13 +67,20 @@ def setupMenu():
         ['6j70',                        'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet', 'RATE:UpgradeJet', 'RATE:UpgradeAll', 'BW:Jet'], -1],
         ['6j50_0eta240_L14J15',         'L1_4J15', [], [PhysicsStream], ['RATE:MultiJet', 'RATE:UpgradeJet', 'RATE:UpgradeAll',  'BW:Jet'], -1],
         ['6j50_0eta240_L14J20',         'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet', 'RATE:UpgradeJet', 'RATE:UpgradeAll',  'BW:Jet'], -1],
+
+        ['ht1000_L1J100',               'L1_J100', [], [PhysicsStream], ['RATE:MultiJet', 'RATE:UpgradeJet', 'RATE:UpgradeAll','BW:Jet'], -1],
+
         
         #upgrade study chains
+        ['j175_L1J12',                        'L1_J12',  [], [PhysicsStream], ['RATE:SingleJet', 'RATE:UpgradeJet', 'RATE:UpgradeAll', 'BW:Jet'], -1],
+
         ['j400_L1J12',                    			    'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'RATE:UpgradeJet', 'RATE:UpgradeAll', 'BW:Jet'], -1],
         ['j420_L1J12',                    			    'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'RATE:UpgradeJet', 'RATE:UpgradeAll', 'BW:Jet'], -1],
         ['j440_a10t_lcw_jes_L1J12',        	  		    'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'RATE:UpgradeJet', 'RATE:UpgradeAll', 'BW:Jet'], -1],
         ['2j250_j150_L1J12',         		                    'L1_J12', [], [PhysicsStream], ['RATE:MultiJet', 'RATE:UpgradeJet', 'RATE:UpgradeAll',  'BW:Jet'], -1],
         ['3j200_L1J12',                    		            'L1_J12', [], [PhysicsStream], ['RATE:MultiJet', 'RATE:UpgradeJet', 'RATE:UpgradeAll',  'BW:Jet'], -1],
+
+        ['4j65_L1J12',                        'L1_J12', [], [PhysicsStream], ['RATE:MultiJet', 'RATE:UpgradeJet', 'RATE:UpgradeAll', 'BW:Jet'], -1],
         ['4j110_L1J12',                  		    'L1_J12', [], [PhysicsStream], ['RATE:MultiJet', 'RATE:UpgradeJet', 'RATE:UpgradeAll', 'BW:Jet'], -1],
         ['5j90_L1J12',                		            'L1_J12', [], [PhysicsStream], ['RATE:MultiJet', 'RATE:UpgradeJet', 'RATE:UpgradeAll',  'BW:Jet'], -1],
         
@@ -80,6 +91,12 @@ def setupMenu():
         ['3j200_L1RD0_FILLED',                    		    'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet', 'RATE:UpgradeJet', 'RATE:UpgradeAll',  'BW:Jet'], -1],
         ['4j110_L1RD0_FILLED',                  		    'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet', 'RATE:UpgradeJet', 'RATE:UpgradeAll', 'BW:Jet'], -1],
         ['5j90_L1RD0_FILLED',                		            'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet', 'RATE:UpgradeJet', 'RATE:UpgradeAll',  'BW:Jet'], -1],       
+
+        ['ht1000_L1J12',   'L1_J12', [], [PhysicsStream], ['RATE:MultiJet', 'RATE:UpgradeJet', 'RATE:UpgradeAll', 'BW:Jet'], -1],
+
+        # Standard topocluster large-R jet triggers
+        ['j370_a10_lcw_subjes_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'RATE:UpgradeJet', 'RATE:UpgradeAll',  'BW:Jet'], -1],
+
         ]
 
     TriggerFlags.BjetSlice.signatures = [
@@ -167,6 +184,7 @@ def setupMenu():
     TriggerFlags.BphysicsSlice.signatures = [
             ]
 
+
     TriggerFlags.CombinedSlice.signatures = [
 # Current primaries (2017 menu)
         ['j60_gsc100_bmv2c2050_split_xe80_mht_L1XE60','L1_XE60',[],[PhysicsStream], ['RATE:MultiBJet', 'RATE:UpgradeBJet', 'RATE:UpgradeAll',  'BW:BJet', 'BW:MET'], -1,['serial',-1,['j60_gsc100_bmv2c2050_split','xe80_mht_L1XE60']]],
@@ -175,13 +193,17 @@ def setupMenu():
         ['3j35_bmv2c2077_split_xe60_mht_L13J15.0ETA25_XE40',"L1_3J15.0ETA25_XE40",[],[PhysicsStream], ['RATE:MultiBJet', 'RATE:UpgradeBJet', 'RATE:UpgradeAll',  'BW:BJet', 'BW:MET'], -1, ['serial',-1,['3j35_bmv2c2077_split','xe60_mht']]],
         ['3j15_gsc35_bmv2c2077_split_xe60_mht_L13J15.0ETA25_XE40',"L1_3J15.0ETA25_XE40",[],[PhysicsStream], ['RATE:MultiBJet', 'RATE:UpgradeBJet', 'RATE:UpgradeAll',  'BW:BJet', 'BW:MET'], -1, ['serial',-1,['3j15_gsc35_bmv2c2077_split','xe60_mht']]],
         ['j100_xe80',                    'L1_J40_XE50',['',''], [PhysicsStream], ['RATE:JetMET', 'RATE:UpgradeJetMET', 'RATE:UpgradeAll',  'BW:Jet', 'BW:MET'], -1,['serial',-1,["j100","xe80"]]],
+        ['j100_xe80_mht',                    'L1_J40_XE50',['',''], [PhysicsStream], ['RATE:JetMET', 'RATE:UpgradeJetMET', 'RATE:UpgradeAll',  'BW:Jet', 'BW:MET'], -1,['serial',-1,["j100","xe80_mht"]]],
         ['j80_bmv2c2050_split_xe60_L12J50_XE40','L1_2J50_XE40',  [],  [PhysicsStream], ['RATE:JetMET', 'RATE:UpgradeJetMET', 'RATE:UpgradeAll','BW:MET', 'BW:BJet'], -1,['serial',-1,["j80_bmv2c2050_split","xe60"]]],
         
         #upgrade study chains
         ['j60_gsc100_bmv2c2050_split_xe80_mht_L1XE35','L1_XE35',[],[PhysicsStream], ['RATE:MultiBJet', 'RATE:UpgradeBJet', 'RATE:UpgradeAll',  'BW:BJet', 'BW:MET'], -1,['serial',-1,['j60_gsc100_bmv2c2050_split','xe80_mht_L1XE35']]],
         ['j80_bmv2c2050_split_xe60_L1XE35', 'L1_XE35',  [],  [PhysicsStream], ['RATE:JetMET', 'RATE:UpgradeJetMET', 'RATE:UpgradeAll','BW:MET', 'BW:BJet'], -1,['serial',-1,["j80_bmv2c2050_split","xe60_L1XE35"]]],
         ['j80_xe80_L1XE35',                    'L1_XE35',['',''], [PhysicsStream], ['RATE:JetMET', 'RATE:UpgradeJetMET', 'RATE:UpgradeAll',  'BW:Jet', 'BW:MET'], -1,['serial',-1,["j80","xe80_L1XE35"]]],
-        ['j140_xe125_L1XE35',                'L1_XE35',['',''], [PhysicsStream], ['RATE:JetMET', 'RATE:UpgradeJetMET', 'RATE:UpgradeAll',  'BW:Jet', 'BW:MET'], -1,['serial',-1,["j140","xe125_L1XE35"]]],
+        #['j140_xe125_L1XE35',                'L1_XE35',['',''], [PhysicsStream], ['RATE:JetMET', 'RATE:UpgradeJetMET', 'RATE:UpgradeAll',  'BW:Jet', 'BW:MET'], -1,['serial',-1,["j140","xe125_L1XE35"]]],
+
+        ['j135_xe110_mht_L1XE35',                'L1_XE35',['',''], [PhysicsStream], ['RATE:JetMET', 'RATE:UpgradeJetMET', 'RATE:UpgradeAll',  'BW:Jet', 'BW:MET'], -1,['serial',-1,["j135","xe110_mht_L1XE35"]]],
+        ['j135_xe120_mht_L1XE35',                'L1_XE35',['',''], [PhysicsStream], ['RATE:JetMET', 'RATE:UpgradeJetMET', 'RATE:UpgradeAll',  'BW:Jet', 'BW:MET'], -1,['serial',-1,["j135","xe120_mht_L1XE35"]]],
         
         ]
 
@@ -204,6 +226,7 @@ def setupMenu():
         ]
 
     TriggerFlags.MonitorSlice.signatures = [
+        ['costmonitor', '', [], ['CostMonitoring'], ['RATE:Monitoring','BW:Other'],1],
         ]
 
     TriggerFlags.EnhancedBiasSlice.signatures = [
