@@ -9,6 +9,8 @@ atlas_subdir( IsolationSelection )
 set( extra_dep )
 if( XAOD_STANDALONE )
    set( extra_dep Control/xAODRootAccess )
+elseif( XAOD_ANALYSIS )
+   set( extra_dep Control/xAODRootAccess GaudiKernel )
 else()
    set( extra_dep GaudiKernel )
 endif()
@@ -34,7 +36,7 @@ atlas_depends_on_subdirs(
 find_package( ROOT COMPONENTS Core Hist Tree )
 
 set(extra_libs)
-if ( NOT XAOD_STANDALONE)
+if ( NOT XAOD_ANALYSIS )
   set(extra_libs TrkExUtils)
 endif()
 
@@ -50,7 +52,7 @@ atlas_add_library( IsolationSelectionLib
 if( NOT XAOD_STANDALONE )
    atlas_add_component( IsolationSelection
       src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES AsgTools AthenaBaseComps xAODEgamma xAODMuon GaudiKernel
+      LINK_LIBRARIES AsgTools AthenaBaseComps GaudiKernel
       IsolationSelectionLib )
 endif()
 
@@ -60,7 +62,7 @@ atlas_add_dictionary( IsolationSelectionDict
    LINK_LIBRARIES IsolationSelectionLib )
 
 # Executable(s) in the package:
-if( XAOD_STANDALONE )
+if( XAOD_ANALYSIS )
    atlas_add_executable( testIsolationCloseByCorrectionTool
       util/testIsolationCloseByCorrectionTool.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
@@ -75,7 +77,7 @@ if( XAOD_STANDALONE )
 endif()
 
 # Test(s) in the package:
-if( XAOD_STANDALONE )
+if( XAOD_ANALYSIS )
    atlas_add_test( ut_reflex SCRIPT test/ut_reflex.py )
 endif()
 

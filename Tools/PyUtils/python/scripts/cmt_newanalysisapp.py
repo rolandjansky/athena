@@ -9,7 +9,7 @@
 
 from __future__ import with_statement
 
-__version__ = "$Revision: 734631 $"
+__version__ = "$Revision: 802385 $"
 __author__ = "Will Buttinger"
 __doc__ = "streamline and ease the creation of new standalone applications"
 
@@ -41,7 +41,7 @@ using namespace asg::msgUserCode;  //messaging
 
 int main( int argc, char* argv[] ) {
 
-   IAppMgrUI* app = POOL::Init(); //important to do this first!
+   IAppMgrUI* app = Gaudi::Init(); //important to do this first, for MessageSvc to exist properly for MSG_INFO macro
 
    // Open the input file:
    TString fileName = "$ASG_TEST_FILE_MC";
@@ -55,11 +55,19 @@ int main( int argc, char* argv[] ) {
    //Here's an example of how you would create a tool of type ToolType, and set a property on it
    //The preferred way to create and configure the tool is with a ToolHandle:
    //ToolHandle<IToolInterface> myTool("ToolType/myTool");
-   //AthAnalysisHelper::setProperty( myTool, "MyProperty", value );
+   //AAH::setProperty( myTool, "MyProperty", value );
    //myTool.retrieve(); //this will cause the tool to be created and initialized
 
    //loop over input file with POOL 
-   POOL::TEvent evt;
+   POOL::TEvent evt(POOL::TEvent::kPOOLAccess); 
+
+   //read modes (constructor argument) are:
+   //kPOOLAccess = default (slowest but reads all POOL file types (including xAOD)), 
+   //kAthenaAccess, (just xAOD)
+   //kClassAccess, (just xAOD, but not some primary xAOD)
+   //kBranchAccess (just xAOD, fastest but might not always work)
+
+
    evt.readFrom( fileName );
 
    for(int i=0;i < evt.getEntries(); i++) {
@@ -72,7 +80,7 @@ int main( int argc, char* argv[] ) {
 
    }
 
-   app->finalize(); //trigger finalization of all services and tools created by the Gaudi Application
+   app->finalize(); //optional finalization of all services and tools created by the Gaudi Application
    return 0;
 }
 
@@ -151,9 +159,7 @@ def main(args):
             elif line.startswith("end_private"): inPrivate=False
             print line,
      
-     #append application line
-    with open("cmt/requirements", "a") as myfile:
-         myfile.write("application %s %s.cxx\n" % (full_app_name,full_app_name))
+    
     
     #following code borrowed from gen_klass
     cxx = getattr(Templates, 'app_template')
@@ -170,13 +176,18 @@ def main(args):
 
     guard = "%s_%s_H" % (full_pkg_name.upper(), namespace_klass.upper())
 
+    #create util directory if not existing
+    if not os.path.exists("util"): 
+        print ":::  INFO Creating util directory"
+        os.makedirs("util")
+
     d = dict( pkg=full_pkg_name,
               klass=full_app_name,
               guard=guard,
               namespace_begin=namespace_begin,
               namespace_end=namespace_end,namespace_klass=namespace_klass,namespace=namespace
               )
-    fname = os.path.splitext("src/%s"%namespace_klass)[0]
+    fname = os.path.splitext("util/%s"%namespace_klass)[0]
 
 
     if os.path.isfile(fname+'.cxx'):
@@ -187,6 +198,11 @@ def main(args):
     o_cxx.writelines(cxx%d)
     o_cxx.flush()
     o_cxx.close()
+
+     #append application line
+    print ":::  INFO adding 'application %s ../util/%s.cxx' to requirements" % (full_app_name,full_app_name)
+    with open("cmt/requirements", "a") as myfile:
+         myfile.write("application %s ../util/%s.cxx\n" % (full_app_name,full_app_name))
 
     #to finish up, call cmt config so that the new algorithm will be captured and genconf run on it
     cwd = os.getcwd()

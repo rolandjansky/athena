@@ -122,6 +122,11 @@
 + Control/RootUtils
 + Control/PerformanceMonitoring/PerfMonKernel
 + Control/Navigation
++ Tools/PyUtils
+# Pycmt is pulled in by PyUtils, which is pulled in by athena.py
++ Tools/PyCmt
+# Need next package to get 'extensions' module for acmd
++ External/AtlasPyFwdBwdPorts
 
 + PhysicsAnalysis/POOLRootAccess
 

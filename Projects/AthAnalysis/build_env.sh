@@ -46,9 +46,8 @@ env_setup() {
     export NICOS_PROJECT_RELNAME=${NICOS_PROJECT_VERSION}
     export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/AthAnalysis
 
-    # Set up the environment variables for finding LCG and the TDAQ externals:
+    # Set up the environment variables for finding LCG externals:
     source ${scriptsdir}/LCG_RELEASE_BASE.sh
-    source ${scriptsdir}/TDAQ_RELEASE_BASE.sh
 
     # Set up the AthAnalysisExternals project:
     extDir=${BUILDDIR}/install/AthAnalysisExternals/${NICOS_PROJECT_VERSION}/InstallArea

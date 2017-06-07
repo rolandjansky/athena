@@ -5,7 +5,7 @@
 #ifndef CPANALYSISEXAMPLES_ERRORCHECK_H
 #define CPANALYSISEXAMPLES_ERRORCHECK_H
 
-#define CHECK( ARG )                                     \
+#define SCHECK( ARG )                                     \
    do {                                                  \
       const bool result = ARG;                           \
       if( ! result ) {                                   \
@@ -22,11 +22,9 @@
 #include <TTree.h>
 
 // Infrastructure include(s):
-#ifdef ROOTCORE
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
 #include "xAODRootAccess/tools/ReturnCheck.h"
-#endif // ROOTCORE
 
 // EDM include(s):
 #include "xAODEventInfo/EventInfo.h"
@@ -52,7 +50,7 @@ int main(int argc, char** argv ){
 
     gErrorIgnoreLevel = 0;
     const char* APP_NAME = "test_IsolationCloseByCorrectionTool";
-    CHECK(xAOD::Init());
+    SCHECK(xAOD::Init());
 
     bool produceOutput = true;
     
@@ -274,7 +272,7 @@ int main(int argc, char** argv ){
 
     // Create a TEvent object:
     xAOD::TEvent event(xAOD::TEvent::kClassAccess);
-    CHECK(event.readFrom(ifile.get()));
+    SCHECK(event.readFrom(ifile.get()));
 
     // Creating tools.
     CP::IsolationCloseByCorrectionTool* m_isoCloseByTool_Muon = 
@@ -283,12 +281,12 @@ int main(int argc, char** argv ){
     m_isoCloseByTool_Muon->msg().setLevel(MSG::INFO);
     
     CP::IsolationSelectionTool* m_isoSelTool_Muon = new CP::IsolationSelectionTool("isoSelTool_Muon");
-    CHECK(m_isoSelTool_Muon->setProperty("MuonWP", "FixedCutLoose"));
-    CHECK(m_isoSelTool_Muon->initialize());
+    SCHECK(m_isoSelTool_Muon->setProperty("MuonWP", "FixedCutLoose"));
+    SCHECK(m_isoSelTool_Muon->initialize());
     
     ToolHandle<CP::IIsolationSelectionTool> m_iIsoSelTool_Muon = m_isoSelTool_Muon;
-    CHECK(m_isoCloseByTool_Muon->setProperty("IsolationSelectionTool", m_iIsoSelTool_Muon)); 
-    CHECK(m_isoCloseByTool_Muon->initialize());
+    SCHECK(m_isoCloseByTool_Muon->setProperty("IsolationSelectionTool", m_iIsoSelTool_Muon)); 
+    SCHECK(m_isoCloseByTool_Muon->initialize());
 
     CP::IsolationCloseByCorrectionTool* m_isoCloseByTool_Electron = 
         new CP::IsolationCloseByCorrectionTool("isoCloseByTool_Electron"); 
@@ -296,12 +294,12 @@ int main(int argc, char** argv ){
     m_isoCloseByTool_Electron->msg().setLevel(MSG::INFO);
     
     CP::IsolationSelectionTool* m_isoSelTool_Electron = new CP::IsolationSelectionTool("isoSelTool_Electron");
-    CHECK(m_isoSelTool_Electron->setProperty("ElectronWP", "Loose"));
-    CHECK(m_isoSelTool_Electron->initialize());
+    SCHECK(m_isoSelTool_Electron->setProperty("ElectronWP", "Loose"));
+    SCHECK(m_isoSelTool_Electron->initialize());
     
     ToolHandle<CP::IIsolationSelectionTool> m_iIsoSelTool_Electron = m_isoSelTool_Electron;
-    CHECK(m_isoCloseByTool_Electron->setProperty("IsolationSelectionTool", m_iIsoSelTool_Electron)); 
-    CHECK(m_isoCloseByTool_Electron->initialize());
+    SCHECK(m_isoCloseByTool_Electron->setProperty("IsolationSelectionTool", m_iIsoSelTool_Electron)); 
+    SCHECK(m_isoCloseByTool_Electron->initialize());
     
     CP::IsolationCloseByCorrectionTool* m_isoCloseByTool_Photon = 
         new CP::IsolationCloseByCorrectionTool("isoCloseByTool_Photon"); 
@@ -309,12 +307,12 @@ int main(int argc, char** argv ){
     m_isoCloseByTool_Photon->msg().setLevel(MSG::INFO);
     
     CP::IsolationSelectionTool* m_isoSelTool_Photon = new CP::IsolationSelectionTool("isoSelTool_Photon");
-    CHECK(m_isoSelTool_Photon->setProperty("PhotonWP", "FixedCutTightCaloOnly"));
-    CHECK(m_isoSelTool_Photon->initialize());
+    SCHECK(m_isoSelTool_Photon->setProperty("PhotonWP", "FixedCutTightCaloOnly"));
+    SCHECK(m_isoSelTool_Photon->initialize());
 
     ToolHandle<CP::IIsolationSelectionTool> m_iIsoSelTool_Photon = m_isoSelTool_Photon;
-    CHECK(m_isoCloseByTool_Photon->setProperty("IsolationSelectionTool", m_iIsoSelTool_Photon)); 
-    CHECK(m_isoCloseByTool_Photon->initialize());
+    SCHECK(m_isoCloseByTool_Photon->setProperty("IsolationSelectionTool", m_iIsoSelTool_Photon)); 
+    SCHECK(m_isoCloseByTool_Photon->initialize());
 
 
   
@@ -359,7 +357,7 @@ int main(int argc, char** argv ){
     
         event.getEntry(entry);
         const xAOD::EventInfo* ei = 0;
-        CHECK(event.retrieve(ei, "EventInfo"));
+        SCHECK(event.retrieve(ei, "EventInfo"));
 
         if(entry % INTERVAL == 0){
             Info(APP_NAME, "%lld events processed, on event %llu of run %u", 
@@ -434,7 +432,7 @@ int main(int argc, char** argv ){
 
         // get muon container of interest
         const xAOD::MuonContainer* muons = 0;
-        CHECK(event.retrieve(muons, "Muons"));
+        SCHECK(event.retrieve(muons, "Muons"));
 
         // Stores the muons in a vector.
         vector<const xAOD::IParticle*> muonsVec;
@@ -444,7 +442,7 @@ int main(int argc, char** argv ){
 
         // get electron container of interest
         const xAOD::ElectronContainer* electrons = 0;
-        CHECK(event.retrieve(electrons, "Electrons"));
+        SCHECK(event.retrieve(electrons, "Electrons"));
 
         // Stores the electrons in a vector.
         vector<const xAOD::IParticle*> electronsVec;
@@ -454,7 +452,7 @@ int main(int argc, char** argv ){
 
         // get photon container of interest
         const xAOD::PhotonContainer* photons = 0;
-        CHECK(event.retrieve(photons, "Photons"));
+        SCHECK(event.retrieve(photons, "Photons"));
 
         // Stores the electrons in a vector.
         vector<const xAOD::IParticle*> photonsVec;
