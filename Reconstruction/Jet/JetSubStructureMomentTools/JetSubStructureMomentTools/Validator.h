@@ -14,8 +14,6 @@
 
 class TH1;
 
-using namespace std;
-
 class Validator :
   virtual public IJetExecuteTool,
   virtual public asg::AsgTool {
@@ -29,7 +27,7 @@ class Validator :
 
     private:
       std::string m_InputContainer;
-      vector<string> m_FloatMoments;
+      std::vector<std::string> m_FloatMoments;
 
 };
 
