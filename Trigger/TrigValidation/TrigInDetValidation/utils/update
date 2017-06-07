@@ -1,0 +1,69 @@
+#!/bin/csh
+
+
+### Run from directory /eos/atlas/atlascerngroupdisk/proj-sit/trigindet/TrigInDetValidationReference
+#set PROJECT=devval
+#set PROJECT=master
+#set PROJECT=21.1
+#set BUILD=AthenaP1 
+set PROJECT=21.0
+set BUILD=Athena
+set RELEASE=rel_2
+
+set DIR=$PWD
+
+set BASE=/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/$RELEASE/$PROJECT/build/x86_64-slc6-gcc62-opt/$BUILD/TrigInDetValidation 
+set EOSBASE=/eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/rtt/$RELEASE/$PROJECT/x86_64-slc6-gcc62-opt/$BUILD/TrigInDetValidation 
+
+echo "basedir:      $BASE"
+echo "updating expert files ..."
+
+set files = ($BASE/*/expert*.root)
+
+
+foreach job ( $BASE/* ) 
+##foreach job ( $BASE/*FTK*offline* ) 
+   echo ""
+   echo "job:        $job"
+
+
+   cd $job
+
+   ls -l data*.root expert*.root
+
+   set testfile   = `\ls -1 data*.root | grep -v reference`
+   set expertfile = `\ls -1 expert*.root | grep -v ref.root`
+
+   cd $DIR
+
+   set jobid = `echo ${job:t} | sed 's|TrigInDetValidation_||g'`
+
+   echo "jobid:      $jobid"
+   echo "testfile:   $testfile"
+   echo "expertfile: $expertfile"
+  
+   if ( "$testfile" != "" ) then 
+      cp -v $job/$testfile /tmp/data-$jobid-reference.root
+      TIDAmakeSmallRefFile.exe /tmp/data-$jobid-reference.root share/$PROJECT/data-$jobid-reference.root >& $jobid.log
+      rm /tmp/data-$jobid-reference.root
+   endif
+
+   if ( "$expertfile" != "" ) then 
+      cp -v $job/$expertfile share/$PROJECT/expert/expert-monitoring-$jobid-ref.root
+   endif
+
+   if ( "$testfile" == "" ) then 
+    set eosdir = $EOSBASE/TrigInDetValidation_$jobid
+    echo "no afs testfile, try eos $eosdir "
+    cd $eosdir
+    ls -l data*.root
+    set testfile   = `\ls -1 data*.root | grep -v reference`
+    echo "eos jobid:   $jobid"
+    echo "eos testfile:   $testfile"
+    cd $DIR
+    cp -v $eosdir/$testfile /tmp/data-$jobid-reference.root
+    TIDAmakeSmallRefFile.exe /tmp/data-$jobid-reference.root share/$PROJECT/data-$jobid-reference.root >& $jobid.log
+    rm /tmp/data-$jobid-reference.root
+   endif
+
+end

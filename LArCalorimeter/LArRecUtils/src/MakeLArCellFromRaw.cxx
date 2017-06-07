@@ -61,9 +61,9 @@ void MakeLArCellFromRaw::initialize( const LArRoI_Map* roiMap ,
 
   MsgStream log(m_msgSvc, "MakeLArCellFromRaw");
 
-  log << MSG::INFO <<" initializing MakeLArCellFromRaw"<< endreq ;
+  log << MSG::INFO <<" initializing MakeLArCellFromRaw"<< endmsg ;
 
-  if(pCorr) log <<MSG::INFO <<" Number of Corrections "<< pCorr->size()<< endreq ;
+  if(pCorr) log <<MSG::INFO <<" Number of Corrections "<< pCorr->size()<< endmsg ;
   
 
   const CaloDetDescrManager* man = CaloDetDescrManager::instance();
@@ -75,13 +75,13 @@ void MakeLArCellFromRaw::initialize( const LArRoI_Map* roiMap ,
   //StatusCode status   = svcLoc->service( "ToolSvc",p_toolSvc  );
   if(status.isFailure())
   {
-    log <<MSG::ERROR << "cannot find ToolSvc in MakeLArCellFromRaw " << endreq;
+    log <<MSG::ERROR << "cannot find ToolSvc in MakeLArCellFromRaw " << endmsg;
     return;
   }
   sc = p_toolSvc->retrieveTool("LArCablingService",m_cablingSvc);
   if (sc.isFailure())
   {
-    log <<MSG::INFO<< "cannot find LArCablingService in MakeLArCellFromRaw " << endreq;
+    log <<MSG::INFO<< "cannot find LArCablingService in MakeLArCellFromRaw " << endmsg;
     return;
   }
 
@@ -95,9 +95,9 @@ void MakeLArCellFromRaw::initialize( const LArRoI_Map* roiMap ,
   if (poolMaxSize!=0) {
     m_dataPool = new DataPool<LArCell>();
     m_dataPool->reserve(poolMaxSize);
-    log << MSG::INFO << "MakeLArCellFromRaw Creating DataPool<LArCell> of size " << poolMaxSize << endreq ;
+    log << MSG::INFO << "MakeLArCellFromRaw Creating DataPool<LArCell> of size " << poolMaxSize << endmsg ;
   }else{
-    log << MSG::INFO << "MakeLArCellFromRaw do not use DataPool" << endreq ;
+    log << MSG::INFO << "MakeLArCellFromRaw do not use DataPool" << endmsg ;
   }
 
 
@@ -110,14 +110,14 @@ void MakeLArCellFromRaw::initialize( const LArRoI_Map* roiMap ,
 
    StoreGateSvc* detStore;
    if (svcLoc->service("DetectorStore", detStore).isFailure()) {
-     log << MSG::ERROR   << "Unable to access DetectoreStoren MakeLArCellFromRaw" << endreq ;
+     log << MSG::ERROR   << "Unable to access DetectoreStoren MakeLArCellFromRaw" << endmsg ;
      return;
    }
 
 // retrieve OnlineID helper from detStore
    sc = detStore->retrieve(m_onlineID, "LArOnlineID");
    if (sc.isFailure()) {
-     log << MSG::ERROR <<  "MakeLArCellFromRaw: Could not get LArOnlineID helper !" << endreq ;
+     log << MSG::ERROR <<  "MakeLArCellFromRaw: Could not get LArOnlineID helper !" << endmsg ;
       return;
    }
 
@@ -278,9 +278,9 @@ void MakeLArCellFromRaw::initialize( const LArRoI_Map* roiMap ,
   } // end of FCAL
 
 
-  log <<MSG::INFO <<" number of em, hec, fcal cells="<<n_em<<" "<<n_hec<<" "<<n_fcal<<endreq;
-  log <<MSG::INFO<<" number of exceptions for em,hec,fcal="<<n_em_err<<" "<<n_hec_err<<" "<<n_fcal_err<< endreq;
-  log <<MSG::INFO<<" done with initializing MakeLArCellFromRaw"<< endreq;
+  log <<MSG::INFO <<" number of em, hec, fcal cells="<<n_em<<" "<<n_hec<<" "<<n_fcal<<endmsg;
+  log <<MSG::INFO<<" number of exceptions for em,hec,fcal="<<n_em_err<<" "<<n_hec_err<<" "<<n_fcal_err<< endmsg;
+  log <<MSG::INFO<<" done with initializing MakeLArCellFromRaw"<< endmsg;
   return; 
 }
 
@@ -320,7 +320,7 @@ LArCell* MakeLArCellFromRaw::getLArCell(unsigned int feb, unsigned int chan ,
 
   if(it == m_cellMap.end()){
 	MsgStream log(m_msgSvc, "MakeLArCellFromRaw");
-	log << MSG::ERROR <<" MakeLArCellFromRaw ERROR, failed to find existing cells. "<< endreq; 
+	log << MSG::ERROR <<" MakeLArCellFromRaw ERROR, failed to find existing cells. "<< endmsg; 
 	std::cout <<std::hex<<"FEBID = "<< feb <<std::dec<< std::endl ; 
 	//DR	assert(0); 
 	return 0;
@@ -329,7 +329,7 @@ LArCell* MakeLArCellFromRaw::getLArCell(unsigned int feb, unsigned int chan ,
   CELL_VEC& cellVec = (*it).second; 
   if(cellVec.size()<= chan){
 	MsgStream log(m_msgSvc, "MakeLArCellFromRaw");
-	log << MSG::FATAL <<" MakeLArCellFromRaw ERROR, channel number= "<<chan<< endreq ;
+	log << MSG::FATAL <<" MakeLArCellFromRaw ERROR, channel number= "<<chan<< endmsg ;
 	assert(0);
 	return 0;
   }

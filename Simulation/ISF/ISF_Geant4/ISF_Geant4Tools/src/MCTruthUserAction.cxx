@@ -13,10 +13,13 @@
 #include "ISFTrajectory.h"
 
 // ISF includes
+#include "ISF_Event/ISFParticle.h"
+
 #include "ISF_Interfaces/ITruthSvc.h"
 #include "ISF_Interfaces/IParticleBroker.h"
 
-#include "ISF_Event/ISFParticle.h"
+// ISF Geant4 includes
+#include "ISF_Geant4Event/Geant4TruthIncident.h"
 
 // Athena includes
 #include "MCTruth/TrackInformation.h"
@@ -28,6 +31,7 @@
 #include "G4EventManager.hh"
 
 // Atlas G4 Helpers
+
 
 namespace G4UA{
 

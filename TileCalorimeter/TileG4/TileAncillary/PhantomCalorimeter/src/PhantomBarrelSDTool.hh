@@ -10,8 +10,8 @@
 //
 //**************************************************************
 
-#ifndef PhantomCalorimeter_PhantomBarrelSDTool_H
-#define PhantomCalorimeter_PhantomBarrelSDTool_H
+#ifndef PHANTOMCALORIMETER_PHANTOMBARRELSDTOOL_H
+#define PHANTOMCALORIMETER_PHANTOMBARRELSDTOOL_H
 
 // Base class header
 #include "G4AtlasTools/SensitiveDetectorBase.h"
@@ -21,20 +21,19 @@
 
 class G4VSensitiveDetector;
 
-class PhantomBarrelSDTool : public SensitiveDetectorBase
-{
-public:
-  PhantomBarrelSDTool(const std::string& type, const std::string& name, const IInterface *parent);
+class PhantomBarrelSDTool: public SensitiveDetectorBase {
+  public:
+    PhantomBarrelSDTool(const std::string& type, const std::string& name, const IInterface *parent);
 
-  ~PhantomBarrelSDTool();
+    ~PhantomBarrelSDTool();
 
-  virtual StatusCode SetupEvent() override final;
+    virtual StatusCode SetupEvent() override final;
 
-  virtual StatusCode Gather() override final;
+    virtual StatusCode Gather() override final;
 
-protected:
-  // Make me an SD!
-  G4VSensitiveDetector* makeSD() override final;
+  protected:
+    // Make me an SD!
+    G4VSensitiveDetector* makeSD() override final;
 };
 
-#endif // PhantomCalorimeter_PhantomBarrelSDTool_H
+#endif // PHANTOMCALORIMETER_PHANTOMBARRELSDTOOL_H

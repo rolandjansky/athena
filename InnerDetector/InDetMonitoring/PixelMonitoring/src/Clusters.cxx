@@ -81,13 +81,15 @@ StatusCode PixelMainMon::BookClustersMon(void)
   std::string atitles;
   std::string hname;
   std::string htitles;
+
+  StatusCode sc;
   
   hname = makeHistname("ClusterSize_vs_eta", false);
   htitles = makeHisttitle("Average cluster size as a function of barrel module eta", (atext_eta+atext_cluw), false);
   sc = clusterExpert.regHist(m_clusterSize_eta = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_eta, min_eta, max_eta));
   
   hname = makeHistname("LargeClusters_per_lumi", true);
-  htitles = makeHisttitle("Avetarge number of large clusters (with >10 pixels) per event", (atext_LB+atext_clu), true);
+  htitles = makeHisttitle("Average number of large clusters (with >10 pixels) per event", (atext_LB+atext_clu), true);
   sc = clusterShift.regHist(m_largeclusters_per_lumi = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
   
   hname = makeHistname("VeryLargeClusters_per_lumi", true);
@@ -402,6 +404,8 @@ StatusCode PixelMainMon::BookClustersLumiBlockMon(void)
   if (m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnPixelTrack");
   MonGroup lumiBlockHist(   this, path.c_str(), lowStat, ATTRIB_MANAGED); //declare a group of histograms                                  
   
+  StatusCode sc;
+
   sc = lumiBlockHist.regHist(m_cluster_ToT_LB  = TH1F_LW::create("Cluster_ToT_LB", ("Cluster Time over Threshold" + m_histTitleExt + ";ToT;# clusters").c_str(), 300,-0.5,299.5));   
   
   if (m_do2DMaps) {
@@ -427,7 +431,7 @@ StatusCode PixelMainMon::BookClustersLumiBlockMon(void)
 
 StatusCode PixelMainMon::FillClustersMon(void)
 {
-  sc = evtStore()->retrieve(m_Pixel_clcontainer, m_Pixel_SiClustersName);
+  StatusCode sc = evtStore()->retrieve(m_Pixel_clcontainer, m_Pixel_SiClustersName);
   if (sc.isFailure()  || !m_Pixel_clcontainer)
     {
       if (msgLvl(MSG::INFO)) msg(MSG::INFO)  <<"Pixel Cluster container for Pixels not found"<< endmsg;

@@ -9,6 +9,9 @@
 #include "LArRawConditions/LArRampComplete.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
 
+#include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
+
 #include <Eigen/Dense>
 
 #include <fstream>
@@ -26,7 +29,7 @@ LArRampBuilder::LArRampBuilder(const std::string& name, ISvcLocator* pSvcLocator
     m_peakOFTool("LArOFPeakRecoTool"),
     m_event_counter(0),
     m_recoType(OF),
-    m_larCablingSvc("LArCablingService"),
+    m_larCablingSvc(0),
     //m_badChanneMasker("LArBadChanTool"),
     m_onlineHelper(),
     m_emId(0),
@@ -54,6 +57,7 @@ LArRampBuilder::LArRampBuilder(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty("GroupingType",    m_groupingType);
   declareProperty("DelayShift",      m_delayShift=23); //Only for OF peak reco
   declareProperty("PeakOFTool",      m_peakOFTool); 
+  declareProperty("isSC",            m_isSC=false);
   declareProperty("isHEC",           m_ishec=false);
   declareProperty("HECKey",          m_hec_key="");
   declareProperty("BadChannelMask",  m_badChannelMask);
@@ -78,22 +82,61 @@ LArRampBuilder::~LArRampBuilder()
 
 StatusCode LArRampBuilder::initialize()
 {
-  StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
+  /*StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not get LArOnlineID helper !" << endreq;
+    msg(MSG::FATAL) << "Could not get LArOnlineID helper !" << endmsg;
     return StatusCode::FAILURE;
+  }*/
+  
+  StatusCode sc;
+  if ( m_isSC ) {
+    const LArOnline_SuperCellID* ll;
+    sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+      return StatusCode::FAILURE;
+    }
+    else {
+      m_onlineHelper = (const LArOnlineID_Base*)ll;
+      ATH_MSG_DEBUG("Found the LArOnlineID helper");
+    }
+    
+    ToolHandle<LArSuperCellCablingTool> tool("LArSuperCellCablingTool");
+    sc = tool.retrieve();
+    if (sc!=StatusCode::SUCCESS) {
+      msg(MSG::ERROR) << " Can't get LArCablingSvc." << endmsg;
+      return sc;
+    } else m_larCablingSvc = (LArCablingBase*)&(*tool);
+  } else { // m_isSC
+    const LArOnlineID* ll;
+    sc = detStore()->retrieve(ll, "LArOnlineID");
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+      return StatusCode::FAILURE;
+    }
+    else {
+      m_onlineHelper = (const LArOnlineID_Base*)ll;
+      ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
+    }
+    
+    ToolHandle<LArCablingService> tool("LArCablingService");
+    sc = tool.retrieve();
+    if (sc!=StatusCode::SUCCESS) {
+      msg(MSG::ERROR) << " Can't get LArCablingSvc." << endmsg;
+      return sc;
+    } else m_larCablingSvc = (LArCablingBase*)&(*tool);
   }
   
-  sc = m_larCablingSvc.retrieve(); 
+  /*sc = m_larCablingSvc.retrieve(); 
   if(sc.isFailure()){
-    msg(MSG::FATAL) << "Could not retrieve LArCablingService Tool" << endreq;
+    msg(MSG::FATAL) << "Could not retrieve LArCablingService Tool" << endmsg;
     return sc;
-  }
+  }*/
   if(m_doBadChannelMask) { 
     sc=m_badChannelMask.retrieve(); 
     if (sc.isFailure()) {
       msg(MSG::FATAL) << "Could not retrieve BadChannelMask "
-		    << m_badChannelMask << endreq;
+		    << m_badChannelMask << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -102,12 +145,12 @@ StatusCode LArRampBuilder::initialize()
   //FIXME: Thats probably nonsenes, these raw ramps aren't written to COOL
   sc=m_ramps->setGroupingType(m_groupingType,msg()); 
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to set groupingType for intermediate LArRamps object" << endreq;
+    msg(MSG::ERROR) << "Failed to set groupingType for intermediate LArRamps object" << endmsg;
     return sc;
   }
   sc=m_ramps->initialize(); 
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed initialize intermediate LArRamps object" << endreq;
+    msg(MSG::ERROR) << "Failed initialize intermediate LArRamps object" << endmsg;
     return sc;
   }
   
@@ -120,10 +163,10 @@ StatusCode LArRampBuilder::initialize()
   if(m_ishec) {
      sc = detStore()->regHandle(m_dd_rinj,m_hec_key);
      if (sc!=StatusCode::SUCCESS) {
-       msg(MSG::ERROR) << "Cannot get register callback for HEC map" << endreq; 
-       msg(MSG::ERROR) << "Will use default "<< endreq;
+       msg(MSG::ERROR) << "Cannot get register callback for HEC map" << endmsg; 
+       msg(MSG::ERROR) << "Will use default "<< endmsg;
      } else {
-       msg(MSG::INFO) << " register callback for HEC map " << endreq;
+       msg(MSG::INFO) << " register callback for HEC map " << endmsg;
      }
   }
 
@@ -138,7 +181,7 @@ void LArRampBuilder::chooseRecoMode()  {
     m_recoType=PARABOLA;
     StatusCode sc=m_peakParabolaTool.retrieve();
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "Can't get LArParabolaPeakRecoTool" << endreq;
+      msg(MSG::ERROR) << "Can't get LArParabolaPeakRecoTool" << endmsg;
 	return;
       }
     ATH_MSG_DEBUG("LArParabolaPeakRecoTool retrieved with success!");
@@ -146,9 +189,13 @@ void LArRampBuilder::chooseRecoMode()  {
     if(m_correctBias){
       // if using parabola, get the cabling service and offlineID helper to obtain the layer (needed for correction) 
       const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
-      m_emId=caloIdMgr->getEM_ID();
+      if ( m_isSC ) {
+        m_emId=caloIdMgr->getEM_SuperCell_ID();
+      } else {
+        m_emId=caloIdMgr->getEM_ID();
+      }
       if (!m_emId) {
-	msg(MSG::ERROR) << "Could not access lar EM ID helper" << endreq;
+	msg(MSG::ERROR) << "Could not access lar EM ID helper" << endmsg;
 	return ;
       }
       
@@ -373,7 +420,7 @@ StatusCode LArRampBuilder::execute()
 	    //larPedestal=NULL;
 	    //ATH_MSG_WARNING("No pedestals found in database. Use default value for all channels.");
 	    //m_thePedestal[chid_hash] = 1000;
-	    msg(MSG::FATAL) << "No pedestals found in database. Aborting executiong." << endreq;
+	    msg(MSG::FATAL) << "No pedestals found in database. Aborting executiong." << endmsg;
 	    return sc;
 	  }
 	  
@@ -505,7 +552,7 @@ StatusCode LArRampBuilder::stop()
 	if(m_dac0sub && dac_it->first== m_DAC0){
 	  // check that DAC0 is the first DAC of list
 	  if(dac_it!=cell_it->begin()) 
-	    msg(MSG::ERROR) << "DAC0 is not the first DAC ? This might be a problem... " << endreq;
+	    msg(MSG::ERROR) << "DAC0 is not the first DAC ? This might be a problem... " << endmsg;
 	  adc0v = dac_it->second.mean();
 	  ramppoint.Samples   = adc0v;
 	  ramppoint.RMS       = dac_it->second.RMS();
@@ -551,12 +598,12 @@ StatusCode LArRampBuilder::stop()
 	    if (m_larCablingSvc->isOnlineConnected(chid) && isgood) {
 	      msg(MSG::WARNING) << "Not enough samples around the maximum! Use kMax=2 ("
 				<< m_onlineHelper->channel_name(chid) <<", DAC=" << dac_it->first 
-				<< ", Amp[2]=" << ramppoint.Samples[2] <<   " )" << endreq;
+				<< ", Amp[2]=" << ramppoint.Samples[2] <<   " )" << endmsg;
 	      if (msgLvl(MSG::VERBOSE)) {
 		msg(MSG::VERBOSE) <<  " Samples: ";
 		for (unsigned k=0;k<ramppoint.Samples.size();k++) 
 		  msg() << ramppoint.Samples[k] << " "; 
-		msg() << endreq;
+		msg() << endmsg;
 	      }//end if verbose message
 	    }//end if bad or disconnected channel
 	   }//end if kmax out-of-range
@@ -722,7 +769,7 @@ StatusCode LArRampBuilder::stop()
 	else{
 	  if(rampCoeffs[1]<0) 
 	    msg (MSG::ERROR) <<  "Negative 1rst order coef for ramp = " << rampCoeffs[1] << " for channel " 
-			     << m_onlineHelper->channel_name(chid) << endreq;
+			     << m_onlineHelper->channel_name(chid) << endmsg;
 
 	  if (vSat[0] != -1) { rawramp->setsat(vSat[0]); } 	// if a saturation point was found in rampfit, record it 
 	  else {
@@ -809,7 +856,7 @@ StatusCode LArRampBuilder::rampfit(unsigned deg, const std::vector<LArRawRamp::R
     bool isgood=true;
     if(m_doBadChannelMask && m_badChannelMask->cellShouldBeMasked(chid)) isgood=false; 
     if (m_larCablingSvc->isOnlineConnected(chid) && isgood ) {
-      msg(MSG::ERROR) << "Not enough datapoints (" << linRange << ") to fit a polynom!" << endreq;
+      msg(MSG::ERROR) << "Not enough datapoints (" << linRange << ") to fit a polynom!" << endmsg;
       return StatusCode::FAILURE;
     }
     else {
@@ -862,7 +909,7 @@ StatusCode LArRampBuilder::rampfit(unsigned deg, const std::vector<LArRawRamp::R
   if(m_doBadChannelMask && m_badChannelMask->cellShouldBeMasked(chid)) isgood=false;
   if (deg>linRange) {
     if (m_larCablingSvc->isOnlineConnected(chid) && isgood ) 
-      msg(MSG::ERROR) << "Not enough datapoints before saturation (" << linRange << ") to fit a polynom of degree " << deg << endreq;
+      msg(MSG::ERROR) << "Not enough datapoints before saturation (" << linRange << ") to fit a polynom of degree " << deg << endmsg;
     else
       ATH_MSG_DEBUG("Not enough datapoints before saturation (" << linRange << ") to fit a polynom of degree " << deg 
 		    << " (channel disconnected or known to be bad)");
@@ -872,7 +919,7 @@ StatusCode LArRampBuilder::rampfit(unsigned deg, const std::vector<LArRawRamp::R
   
   if (data[linRange-1].DAC>0 && data[linRange-1].ADC<m_DeadChannelCut && data[linRange-1].ADC!=-999.) {
     msg(MSG::ERROR) << "DAC= " << data[linRange-1].DAC << " yields ADC= " << data[linRange-1].ADC 
-	   << ". Dead channel?" << endreq;
+	   << ". Dead channel?" << endmsg;
     return StatusCode::FAILURE;
   }
 

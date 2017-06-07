@@ -579,6 +579,10 @@ SCT_ByteStreamErrorsSvc::getRODOuts() const {
 }
 
 void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashId, const unsigned int firstTempMaskedChip) {
+  if(not hashId.is_valid()) {
+    ATH_MSG_INFO("setFirstTempMaskedChip hashId " << hashId << " is invalid.");
+    return;
+  }
   if(firstTempMaskedChip==0) {
     ATH_MSG_WARNING("setFirstTempMaskedChip: firstTempMaskedChip should be greater than 0. firstTempMaskedChip is " << firstTempMaskedChip);
     return;

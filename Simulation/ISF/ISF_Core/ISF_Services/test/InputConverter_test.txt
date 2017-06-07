@@ -1,0 +1,2 @@
+// Need to set a BarcodeService as InputConverter will otherwise fail to initialize
+InputConverter.BarcodeSvc = "Barcode::LegacyBarcodeSvc/LegacyBarcodeSvc";

@@ -5,8 +5,8 @@
 #ifndef G4AtlasControl_SimControl_H
 #define G4AtlasControl_SimControl_H
 
-#include <string>
 #include "G4AtlasControl/MCTruthMenu.h"
+#include <string>
 
 /// @class SimControl
 /// @brief C++ class used for passing configuration
@@ -23,20 +23,12 @@ public:
   SimControl();
   /// Empty Destructor
   virtual ~SimControl();
-  /// Pass a command to the G4UIManager from the python layer
-  void G4Command(const std::string&) const;
-  /// Start a UIsession. FIXME not used anywhere - already obsolete? ATLASSIM-2766
-  void UIsession() const;
   /// Used to load libraries for G4Extentions using FadsPackageLoader. FIXME Drop this. ATLASSIM-2768
   void load(const std::string&) const;
-  /// Used to read XML configuration by FadsXMLParser. FIXME Migrate remaining clients so this can be dropped. ATLASSIM-2769
-  void ReadXML(const std::string&) const;
   /// Access the MCTruthMenu. FIXME Migrate TruthStrategy configuration. ATLASSIM-2767
   const MCTruthMenu& mcMenu() const ;
   /// Still used from PyG4Atlas.G4AtlasEngine to initialize Geant4.
   void initializeG4(bool isMT=false) const;
-  /// Still used from PyG4Atlas.menu_Visualization used by PyG4Atlas.G4AtlasEngine._init_Graphics. FIXME Drop this - obsolete.
-  void initializeGraphics() const;
   /// Currently used to configure TruthStrategies for AtlasG4 jobs. FIXME Migrate TruthStrategy configuration. ATLASSIM-2767
   MCTruthMenu          mctruthMenu;
 };

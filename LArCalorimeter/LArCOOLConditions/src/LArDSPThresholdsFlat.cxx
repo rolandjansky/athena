@@ -40,7 +40,7 @@ float LArDSPThresholdsFlat::tQThr(const HWIdentifier&  CellID) const {
   
 float LArDSPThresholdsFlat::tQThrByHash(const IdentifierHash& h) const {
   if (h>=m_nChannels) {
-    (*m_log) << MSG::ERROR << "tQThrByHash: Hash out of range ( " << h << ", max=" << m_nChannels << ")" << endreq;
+    (*m_log) << MSG::ERROR << "tQThrByHash: Hash out of range ( " << h << ", max=" << m_nChannels << ")" << endmsg;
     return 0;
   }
   return m_ptQThr[h];
@@ -52,7 +52,7 @@ float LArDSPThresholdsFlat::samplesThr(const HWIdentifier&  CellID) const {
   
 float LArDSPThresholdsFlat::samplesThrByHash(const IdentifierHash& h) const {
   if (h>=m_nChannels) {
-    (*m_log) << MSG::ERROR << "samplesThrByHash: Hash out of range ( " << h << ", max=" << m_nChannels << ")" << endreq;
+    (*m_log) << MSG::ERROR << "samplesThrByHash: Hash out of range ( " << h << ", max=" << m_nChannels << ")" << endmsg;
     return 0;
   }
   return m_psamplesThr[h];
@@ -64,7 +64,7 @@ float LArDSPThresholdsFlat::trigSumThr(const HWIdentifier&  CellID) const {
   
 float LArDSPThresholdsFlat::trigSumThrByHash(const IdentifierHash& h) const {
   if (h>=m_nChannels) {
-    (*m_log) << MSG::ERROR << "trigSumThrByHash: Hash out of range ( " << h << ", max=" << m_nChannels << ")" << endreq;
+    (*m_log) << MSG::ERROR << "trigSumThrByHash: Hash out of range ( " << h << ", max=" << m_nChannels << ")" << endmsg;
     return 0;
   }
   return m_ptrigSumThr[h];
@@ -90,20 +90,20 @@ void LArDSPThresholdsFlat::readBlob(const AthenaAttributeList* attrList) {
   if (!(tQThrBlob.size()==samplesThrBlob.size() && samplesThrBlob.size()==trigSumThrBlob.size())) {
     (*m_log) << MSG::ERROR << "Unequal blob size tQThr/samplesThr/trigSumThr = " 
 	   << tQThrBlob.size() << "/" << samplesThrBlob.size()  << "/" << trigSumThrBlob.size() 
-	   << endreq;
+	   << endmsg;
     return;
   }
 
   m_nChannels=tQThrBlob.size()/sizeof(float);
   
 
-  //(*m_log) << MSG::INFO << "Blob sizes:" << tQThrBlob.size() << "/" << samplesThrBlob.size()  << "/" << trigSumThrBlob.size() << endreq;
+  //(*m_log) << MSG::INFO << "Blob sizes:" << tQThrBlob.size() << "/" << samplesThrBlob.size()  << "/" << trigSumThrBlob.size() << endmsg;
 
   if (m_nChannels!=m_onlineHelper->channelHashMax()) {
-    (*m_log) << MSG::WARNING << "Found data for " << m_nChannels << " but expected " << m_onlineHelper->channelHashMax() << endreq;
+    (*m_log) << MSG::WARNING << "Found data for " << m_nChannels << " but expected " << m_onlineHelper->channelHashMax() << endmsg;
   }
 
-  (*m_log) << MSG::DEBUG << "Found data for " << m_nChannels << endreq;
+  (*m_log) << MSG::DEBUG << "Found data for " << m_nChannels << endmsg;
   m_ptQThr=static_cast<const float*>(tQThrBlob.startingAddress());
   m_psamplesThr=static_cast<const float*>(samplesThrBlob.startingAddress());
   m_ptrigSumThr=static_cast<const float*>(trigSumThrBlob.startingAddress());

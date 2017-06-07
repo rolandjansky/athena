@@ -19,6 +19,7 @@
 
 #include <cstddef>
 #include <typeinfo>
+#include <cstdlib>
 
 
 namespace SG {
@@ -57,8 +58,32 @@ public:
    * @brief Create a vector object of this type.
    * @param size Initial size of the new vector.
    * @param capacity Initial capacity of the new vector.
+   *
+   * Returns a newly-allocated object.
+   * FIXME: Should return a unique_ptr.
    */
   virtual IAuxTypeVector* create (size_t size, size_t capacity) const = 0;
+
+
+  /**
+   * @brief Create a vector object of this type from a data blob.
+   * @param data The vector object.
+   * @param isPacked If true, @c data is a @c PackedContainer.
+   * @param ownFlag If true, the newly-created IAuxTypeVector object
+   *                will take ownership of @c data.
+   *
+   * If the element type is T, then @c data should be a pointer
+   * to a std::vector<T> object, which was obtained with @c new.
+   * But if @c isPacked is @c true, then @c data
+   * should instead point at an object of type @c SG::PackedContainer<T>.
+   *
+   * Returns a newly-allocated object.
+   * FIXME: Should return a unique_ptr.
+   */
+  virtual IAuxTypeVector* createFromData (void* /*data*/,
+                                          bool /*isPacked*/,
+                                          bool /*ownFlag*/) const
+  { std::abort(); }
 
 
   /**

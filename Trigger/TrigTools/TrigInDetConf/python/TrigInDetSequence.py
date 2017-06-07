@@ -220,10 +220,6 @@ class TrigInDetSequence(TrigInDetSequenceBase):
           cnvname = "InDetTrigTrackingxAODCnv_%s_FTF";  cnv2name = "InDetTrigTrackingxAODCnv_%sIso_FTF";  
           roiupdater = "IDTrigRoiUpdater_%s_IDTrig";  roi2updater="IDTrigRoiUpdater_%sIso_IDTrig"
     
-    if self.__signature__=="bphysHighPt":
-      cnvname = "InDetTrigTrackingxAODCnv_Bphysics_FTF"
-      cnvptname = "InDetTrigTrackingxAODCnv_Bphysics_%s" % sequenceType
-
     if sequenceType=="IDTrig":
 
       algos = list()

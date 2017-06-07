@@ -50,7 +50,7 @@ StatusCode LArCablingService::initialize ()
   unsigned nCallbacks=0;
 
   if (m_onOffIdKey.size()) {
-    sc=detStore()->regFcn(&LArCablingService::iovCallBack,this,m_attrOnOff,m_onOffIdKey);
+    sc=detStore()->regFcn(&LArCablingService::iovCallBack,this,m_attrOnOff,m_onOffIdKey,true);
     if (sc.isFailure()) {
       msg(MSG::ERROR) << "Failed to register callback on SG key" << m_onOffIdKey << endmsg;
     }
@@ -98,6 +98,7 @@ StatusCode LArCablingService::iovCallBack(IOVSVC_CALLBACK_ARGS_K(keys)) {
     ATH_MSG_DEBUG("IOV callback for key " << *itr);
     if (*itr==m_onOffIdKey) {
       m_onOffValid=false;
+      readOnlOffMap();
       continue;
     }
     if (*itr==m_calibIdKey) {

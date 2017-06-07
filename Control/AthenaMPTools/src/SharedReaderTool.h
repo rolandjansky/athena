@@ -54,8 +54,6 @@ class SharedReaderTool : public AthenaMPToolBase
 
   int  m_nEvtRequested;    // Max event received from AppMgr
 
-  boost::interprocess::mapped_region* m_shmemSegment; // Shared memory segment for getting maximum number of events to read
-
   IEventShare*                   m_evtShare;
 };
 
