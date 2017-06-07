@@ -53,12 +53,6 @@ namespace InDet {
       StatusCode execute();
       StatusCode finalize();
 
-      ///////////////////////////////////////////////////////////////////
-      // Print internal tool parameters and status
-      ///////////////////////////////////////////////////////////////////
-
-      MsgStream&    dump     (MsgStream&    out) const;
-      std::ostream& dump     (std::ostream& out) const;
 
     protected:
 
@@ -71,12 +65,24 @@ namespace InDet {
       bool                           m_useNewStrategy     ;
       bool                           m_useZBoundaryFinding;
       bool                           m_ITKGeometry        ; // Is it ITK geometry
-      int                            m_outputlevel        ; // Print level for debug
-      int                            m_nprint             ; // Kind of  print    
-      int                            m_nseeds             ; // Number seeds
-      int                            m_ntracks            ; // Number found tracks
-      int                            m_nseedsTotal        ; // Number seeds
-      int                            m_ntracksTotal       ; // Number found tracks
+
+      enum ECounter {kNSeeds,kNTracks,kNCounter};
+      class Counter_t : public std::array<int,kNCounter> 
+      {
+      public:
+        Counter_t & operator +=(const Counter_t &counter) {
+          for (unsigned int idx=0; idx <kNCounter; ++idx) { (*this)[idx] += counter[idx];}
+          return *this;
+        }
+      };
+
+      /** Print internal tool parameters and status
+       */
+      MsgStream&    dump     (MSG::Level lvl, const SiSPSeededTrackFinder::Counter_t *) const;
+
+      Counter_t m_counter;
+      Counter_t m_counterTotal;
+
       int                            m_neventsTotal       ; // Number events 
       int                            m_neventsTotalV      ; // Number events 
       int                            m_problemsTotal      ; // Numbe revents with number seeds > maxNumber
@@ -126,10 +132,9 @@ namespace InDet {
       void magneticFieldInit();
 
       MsgStream&    dumptools(MsgStream&    out) const;
-      MsgStream&    dumpevent(MsgStream&    out) const;
+      MsgStream&    dumpevent(MsgStream&    out, const SiSPSeededTrackFinder::Counter_t &counter) const;
 
     };
-  MsgStream&    operator << (MsgStream&   ,const SiSPSeededTrackFinder&);
-  std::ostream& operator << (std::ostream&,const SiSPSeededTrackFinder&); 
+  //  MsgStream&    operator << (MsgStream&   ,const SiSPSeededTrackFinder&);
 }
 #endif // SiSPSeededTrackFinder_H

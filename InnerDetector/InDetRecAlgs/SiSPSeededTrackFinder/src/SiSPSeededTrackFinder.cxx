@@ -21,10 +21,7 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   m_useNewStrategy(false)                                              ,
   m_useZBoundaryFinding(false)                                         ,
   m_ITKGeometry(false)                                                 ,
-  m_outputlevel(0)                                                     ,
-  m_nprint(0)                                                          ,
-  m_nseeds(0)                                                          ,
-  m_ntracks(0)                                                         ,
+  m_counterTotal {}                                                    ,
   m_maxNumberSeeds(3000000)                                            , 
   m_maxPIXsp(150000)                                                   ,
   m_maxSCTsp(500000) 						       ,
@@ -48,8 +45,6 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   m_nhistogram             = 0                 ;
   m_zhistogram             = 0                 ;
   m_phistogram             = 0                 ;
-  m_nseedsTotal            = 0                 ;
-  m_ntracksTotal           = 0                 ;
   m_neventsTotal           = 0                 ;
   m_neventsTotalV          = 0                 ;
   m_problemsTotal          = 0                 ; 
@@ -130,12 +125,10 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
 
   // Get output print level
   //
-  m_outputlevel = msg().level()-MSG::DEBUG;
-  if(m_outputlevel<=0) {
-    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endmsg;
+  if(msgLvl(MSG::DEBUG)) {
+    dump(MSG::DEBUG,nullptr);
   }
-  m_nseedsTotal    = 0;
-  m_ntracksTotal   = 0;
+  m_counterTotal = {};
   m_neventsTotal   = 0;
   m_neventsTotalV  = 0;
   m_problemsTotal  = 0; 
@@ -191,17 +184,16 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
   // Loop through all seed and reconsrtucted tracks collection preparation
   //
   
-  m_nseeds  = 0;
-  m_ntracks = 0;
+  Counter_t counter {};
 
   while((seed = m_seedsmaker->next())) {
 
-    ++m_nseeds;
+    ++counter[kNSeeds];
     const std::list<Trk::Track*>& T = m_trackmaker->getTracks(seed->spacePoints()); 
     for(std::list<Trk::Track*>::const_iterator t=T.begin(); t!=T.end(); ++t) {
       qualityTrack.insert(std::make_pair(-trackQuality((*t)),(*t)));
     }
-    if( ZVE == false  && m_nseeds >= m_maxNumberSeeds) {
+    if( ZVE == false  && counter[kNSeeds] >= m_maxNumberSeeds) {
       ERR = true; ++m_problemsTotal;  break;
     }
   }
@@ -217,14 +209,14 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
   std::multimap<double,Trk::Track*>::iterator 
     q = qualityTrack.begin(), qe =qualityTrack.end(); 
 
-  for(; q!=qe; ++q) {++m_ntracks; m_outputTracks->push_back((*q).second);}
+  for(; q!=qe; ++q) {++counter[kNTracks]; m_outputTracks->push_back((*q).second);}
 
-  m_nseedsTotal += m_nseeds ;
+  m_counterTotal[kNSeeds] += counter[kNSeeds] ;
 
   ZVE == true ? ++m_neventsTotalV : ++m_neventsTotal;
 
   if(ERR) { m_outputTracks->clear(); }
-  else    {m_ntracksTotal+=m_ntracks;}
+  else    {m_counterTotal[kNTracks]+=counter[kNTracks];}
 
 
 
@@ -233,8 +225,8 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
 
   // Print common event information
   //
-  if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
+  if(msgLvl(MSG::DEBUG)) {
+    dump(MSG::DEBUG,&counter);
   }
   return StatusCode::SUCCESS;
 }
@@ -282,12 +274,10 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
 
   // Loop through all seed and reconsrtucted tracks collection preparation
   //
-  m_nseeds  = 0;
-  m_ntracks = 0;
-
+  Counter_t counter {};
   while((seed = m_seedsmaker->next())) {
 
-    ++m_nseeds;
+    ++counter[kNSeeds];
     const std::list<Trk::Track*>& T = m_trackmaker->getTracks(seed->spacePoints()); 
     for(std::list<Trk::Track*>::const_iterator t=T.begin(); t!=T.end(); ++t) {
       qualityTrack.insert(std::make_pair(-trackQuality((*t)),(*t)));
@@ -295,7 +285,7 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
       if(t==T.begin() && !m_ITKGeometry) fillZHistogram(*t,per);
 
     }
-    if( m_nseeds >= m_maxNumberSeeds) {
+    if( counter[kNSeeds] >= m_maxNumberSeeds) {
       ERR = true; ++m_problemsTotal;  break;
     }
   }
@@ -308,13 +298,13 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
   // Loop through all seed and reconsrtucted tracks collection preparation
   //
   while((seed = m_seedsmaker->next())) {
-    ++m_nseeds;
+    ++counter[kNSeeds];
     const std::list<Trk::Track*>& T = m_trackmaker->getTracks(seed->spacePoints()); 
     for(std::list<Trk::Track*>::const_iterator t=T.begin(); t!=T.end(); ++t) {
       qualityTrack.insert(std::make_pair(-trackQuality((*t)),(*t)));
 
     }
-    if( m_nseeds >= m_maxNumberSeeds) {
+    if( counter[kNSeeds] >= m_maxNumberSeeds) {
       ERR = true; ++m_problemsTotal;  break;
     }
   }
@@ -329,14 +319,14 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
   std::multimap<double,Trk::Track*>::iterator 
     q = qualityTrack.begin(), qe =qualityTrack.end(); 
 
-  for(; q!=qe; ++q) {++m_ntracks; m_outputTracks->push_back((*q).second);}
+  for(; q!=qe; ++q) {++counter[kNTracks]; m_outputTracks->push_back((*q).second);}
 
-  m_nseedsTotal += m_nseeds ;
+  m_counterTotal[kNSeeds] += counter[kNSeeds] ;
 
   ++m_neventsTotal;
 
   if(ERR) {m_outputTracks->clear();}
-  else    {m_ntracksTotal+=m_ntracks;                            }
+  else    {m_counterTotal[kNTracks]+=counter[kNTracks];                            }
 
 
   // Save reconstructed tracks
@@ -344,8 +334,8 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
 
   // Print common event information
   //
-  if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
+  if(msgLvl(MSG::DEBUG)) {
+    dump(MSG::DEBUG,&counter);
   }
   return StatusCode::SUCCESS;
 }
@@ -360,7 +350,9 @@ StatusCode InDet::SiSPSeededTrackFinder::finalize()
   if(m_zhistogram) delete [] m_zhistogram;
   if(m_phistogram) delete [] m_phistogram;
 
-  m_nprint=2; msg(MSG::INFO)<<(*this)<<endmsg;
+  if (msgLvl(MSG::INFO)) {
+    dump(MSG::INFO,&m_counterTotal);
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -368,38 +360,41 @@ StatusCode InDet::SiSPSeededTrackFinder::finalize()
 // Overload of << operator MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::operator    << 
-  (MsgStream& sl,const InDet::SiSPSeededTrackFinder& se)
-{ 
-  return se.dump(sl);
-}
+// MsgStream& InDet::operator    << 
+//   (MsgStream& sl,const InDet::SiSPSeededTrackFinder& se)
+// { 
+//   return se.dump(sl);
+// }
 
 ///////////////////////////////////////////////////////////////////
 // Overload of << operator std::ostream
 ///////////////////////////////////////////////////////////////////
 
-std::ostream& InDet::operator << 
-  (std::ostream& sl,const InDet::SiSPSeededTrackFinder& se)
-{
-  return se.dump(sl);
-}   
+// std::ostream& InDet::operator << 
+//   (std::ostream& sl,const InDet::SiSPSeededTrackFinder& se)
+// {
+//   return se.dump(sl);
+// }   
 
 ///////////////////////////////////////////////////////////////////
 // Dumps relevant information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiSPSeededTrackFinder::dump( MsgStream& out ) const
+MsgStream& InDet::SiSPSeededTrackFinder::dump( MSG::Level assign_level, const InDet::SiSPSeededTrackFinder::Counter_t *counter ) const
 {
-  out<<std::endl;
-  if(m_nprint)  return dumpevent(out);
-  return dumptools(out);
+  msg(assign_level) <<std::endl;
+  MsgStream& out_msg=msg();
+  if(counter)  dumpevent(out_msg ,*counter);
+  else dumptools( out_msg );
+  out_msg << endmsg;
+  return out_msg;
 }
 
 ///////////////////////////////////////////////////////////////////
 // Dumps conditions information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiSPSeededTrackFinder::dumptools( MsgStream& out ) const
+MsgStream& InDet::SiSPSeededTrackFinder::dumptools( MsgStream& out) const
 {
   int n = 65-m_zvertexmaker.type().size();
   std::string s1; for(int i=0; i<n; ++i) s1.append(" "); s1.append("|");
@@ -439,21 +434,18 @@ MsgStream& InDet::SiSPSeededTrackFinder::dumptools( MsgStream& out ) const
 // Dumps event information into the ostream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::SiSPSeededTrackFinder::dumpevent( MsgStream& out ) const
+MsgStream& InDet::SiSPSeededTrackFinder::dumpevent( MsgStream& out,  const InDet::SiSPSeededTrackFinder::Counter_t &counter) const
 {
-  int ns = m_nseeds;
-  int nt = m_ntracks;
-  if(m_nprint > 1) {ns = m_nseedsTotal; nt = m_ntracksTotal;}
-
   out<<"|-------------------------------------------------------------------";
   out<<"---------------------------------|"
      <<std::endl;
   out<<"|  Investigated "
-     <<std::setw(9)<<ns<<" space points seeds and found ";
-  if     (m_ITKGeometry        ) out<<std::setw(9)<<nt<<" tracks using new strategy for ITK   |"<<std::endl; 
-  else if(m_useNewStrategy     ) out<<std::setw(9)<<nt<<" tracks using new strategy ("<<std::setw(2)<<  m_nvertex <<")      |"<<std::endl;
-  else if(m_useZBoundaryFinding) out<<std::setw(9)<<nt<<" tracks using old strategy with Zb   |"<<std::endl;
-  else                           out<<std::setw(9)<<nt<<" tracks using old strategy           |"<<std::endl;
+     <<std::setw(9)<<counter[kNSeeds]<<" space points seeds and found ";
+  out<<std::setw(9)<<counter[kNTracks];
+  if     (m_ITKGeometry        ) out<<" tracks using new strategy for ITK   |"<<std::endl; 
+  else if(m_useNewStrategy     ) out<<" tracks using new strategy ("<<std::setw(2)<<  m_nvertex <<")      |"<<std::endl;
+  else if(m_useZBoundaryFinding) out<<" tracks using old strategy with Zb   |"<<std::endl;
+  else                           out<<" tracks using old strategy           |"<<std::endl;
 
   out<<"|-------------------------------------------------------------------";
   out<<"---------------------------------|"
@@ -687,14 +679,6 @@ void  InDet::SiSPSeededTrackFinder::findZvertex(std::list<Trk::Vertex>& ZV,doubl
  
 } 
 
-///////////////////////////////////////////////////////////////////
-// Dumps relevant information into the ostream
-///////////////////////////////////////////////////////////////////
-
-std::ostream& InDet::SiSPSeededTrackFinder::dump( std::ostream& out ) const
-{
-  return out;
-}
 
 ///////////////////////////////////////////////////////////////////
 // Callback function - get the magnetic field /
