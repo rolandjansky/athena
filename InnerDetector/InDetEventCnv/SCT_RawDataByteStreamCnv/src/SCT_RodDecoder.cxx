@@ -763,7 +763,7 @@ SCT_RodDecoder::fillCollection( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& 
             ATH_MSG_DEBUG("ABCD error has an invalid chip 0x" << std::hex << chip << std::dec <<
                           " the 16-bit word is 0x" << std::hex << d[n] << std::dec <<
                           " for hash " << flagIdHash.value());
-            addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Invalid);
+            addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Invalid, errs);
 	  } else {
             if(     ABCerror==0x1) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Error1, errs);
             else if(ABCerror==0x2) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Error2, errs);
