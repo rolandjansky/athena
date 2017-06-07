@@ -40,7 +40,6 @@ class PixelMon2DMapsLW
       void Scale(double number);
       StatusCode regHist(ManagedMonitorToolBase::MonGroup &group, bool doIBL, bool errorHist);
 private:
-      StatusCode sc;
       void formatHist(bool doIBL, bool errorHist);
       
 };
