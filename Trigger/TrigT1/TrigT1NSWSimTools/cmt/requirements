@@ -1,0 +1,68 @@
+package TrigT1NSWSimTools
+
+author Alessandro Di Mattia <dimattia@cern.ch>
+author Davide Gerbaudo <gerbaudo@cern.ch>
+
+public
+
+# public general packages:
+use AtlasPolicy            AtlasPolicy-*
+use GaudiInterface         GaudiInterface-*         External
+#use AthenaKernel           AthenaKernel-*           Control
+
+# HLT based monitoring
+#use TrigInterfaces         TrigInterfaces-*         Trigger/TrigSteer
+
+
+public
+
+library TrigT1NSWSimTools *.cxx components/*.cxx
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+apply_tag ROOTMathLibs
+
+#apply_pattern generic_declare_for_link kind=data files="-s=../data *.cfg" prefix=share/TrigT1NSW
+
+
+private
+
+macro DOXYGEN_IMAGE_PATH "../doc/images"
+
+# private general packages:
+use AtlasROOT              AtlasROOT-*              External
+use AtlasCLHEP             AtlasCLHEP-*             External
+use AtlasHepMC		   AtlasHepMC-*		    External
+use AtlasBoost             AtlasBoost-*             External
+use AthenaKernel           AthenaKernel-*           Control
+use AthenaBaseComps        AthenaBaseComps-*        Control
+
+use EventInfo              EventInfo-*              Event
+
+use Identifier             Identifier-*             DetectorDescription
+use MuonIdHelpers          MuonIdHelpers-*          MuonSpectrometer
+use MuonDigitContainer     MuonDigitContainer-*     MuonSpectrometer
+use MuonSimData            MuonSimData-*            MuonSpectrometer
+use MuonReadoutGeometry    MuonReadoutGeometry-*    MuonSpectrometer/MuonDetDescr
+use AGDDKernel             AGDDKernel-*             DetectorDescription/AGDD
+use GeoPrimitives          GeoPrimitives-*          DetectorDescription
+use GeneratorObjects 	   GeneratorObjects-*       Generators
+use MuonSimEvent	   MuonSimEvent-*	    MuonSpectrometer
+use TrackRecord            TrackRecord-*            Simulation/G4Sim
+use MuonAGDDBase           MuonAGDDBase-*           MuonSpectrometer/MuonDetDescr
+use MuonAGDDDescription    MuonAGDDDescription-*    MuonSpectrometer/MuonDetDescr
+#use NSW_Sim                NSW_Sim-*                MuonSpectrometer/MuonG4
+use TrkSurfaces            TrkSurfaces-*            Tracking/TrkDetDescr
+use MuonAGDDDescription  MuonAGDDDescription-*  MuonSpectrometer/MuonDetDescr
+# unit tests
+# see https://twiki.cern.ch/twiki/bin/view/AtlasComputing/SoftwareQuality#Unit_tests
+private
+use TestTools      TestTools-*         AtlasTest
+
+apply_pattern UnitTest_run unit_test=PadTriggerLogicOfflineTool
+macro_append PadTriggerLogicOfflineTool_testlinkopts " -lTrigT1NSWSimTools"
+
+apply_pattern UnitTest_run unit_test=L1TdrStgcTriggerLogic
+macro_append L1TdrStgcTriggerLogic_testlinkopts " -lTrigT1NSWSimTools"
+

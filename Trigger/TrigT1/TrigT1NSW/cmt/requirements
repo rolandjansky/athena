@@ -1,0 +1,36 @@
+package TrigT1NSW
+
+author Alessandro Di Mattia <dimattia@cern.ch>
+
+public
+
+# public general packages:
+use AtlasPolicy            AtlasPolicy-*
+use AthenaBaseComps        AthenaBaseComps-*        Control
+use GaudiInterface         GaudiInterface-*         External
+
+# HLT based monitoring
+use TrigInterfaces         TrigInterfaces-*         Trigger/TrigSteer
+
+use TrigT1NSWSimTools      TrigT1NSWSimTools-*      Trigger/TrigT1
+
+
+public
+
+library TrigT1NSW *.cxx components/*.cxx
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+#apply_pattern generic_declare_for_link kind=data files="-s=../data *.cfg" prefix=share/TrigT1NSW
+
+
+private
+
+# private general packages:
+use AtlasROOT             AtlasROOT-*              External
+
+use AthenaMonitoring       AthenaMonitoring-*       Control
+use StoreGate              StoreGate-*              Control
+
+use EventInfo              EventInfo-*              Event
