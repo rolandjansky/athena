@@ -10,16 +10,17 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "InDetRecToolInterfaces/ISiSpacePointsSeedMaker.h"
-#include "InDetRecToolInterfaces/ISiZvertexMaker.h" 
-#include "InDetRecToolInterfaces/ISiTrackMaker.h" 
-#include "TrkSpacePoint/SpacePointContainer.h" 
+#include "InDetRecToolInterfaces/ISiZvertexMaker.h"
+#include "InDetRecToolInterfaces/ISiTrackMaker.h"
+#include "TrkSpacePoint/SpacePointContainer.h"
+#include "xAODEventInfo/EventInfo.h"
 
 // For new strategy reconstruction
 #include "TrkTrack/TrackCollection.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrkExInterfaces/IPatternParametersPropagator.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
-#include "TrkSurfaces/PerigeeSurface.h" 
+#include "TrkSurfaces/PerigeeSurface.h"
 #include "StoreGate/DataHandle.h"
 
 //class SpacePointContainer;
@@ -92,6 +93,7 @@ namespace InDet {
       int                            m_maxSCTsp           ; // Max. number sct    space points
       int                            m_nfreeCut           ; // Min number free clusters
 
+      SG::ReadHandleKey<xAOD::EventInfo>  m_evtKey;
       SG::ReadHandle<SpacePointContainer> m_SpacePointsSCT  ;
       SG::ReadHandle<SpacePointContainer> m_SpacePointsPixel;
       SG::WriteHandle<TrackCollection>    m_outputTracks    ;

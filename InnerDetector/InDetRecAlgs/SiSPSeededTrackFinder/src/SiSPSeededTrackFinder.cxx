@@ -5,7 +5,6 @@
 #include <set>
 
 #include "SiSPSeededTrackFinder/SiSPSeededTrackFinder.h"
-#include "xAODEventInfo/EventInfo.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkPatternParameters/PatternTrackParameters.h"
@@ -22,10 +21,11 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   m_useZBoundaryFinding(false)                                         ,
   m_ITKGeometry(false)                                                 ,
   m_counterTotal {}                                                    ,
-  m_maxNumberSeeds(3000000)                                            , 
+  m_maxNumberSeeds(3000000)                                            ,
   m_maxPIXsp(150000)                                                   ,
   m_maxSCTsp(500000) 						       ,
   m_nfreeCut(1)                                                        ,
+  m_evtKey("EventInfo")                                                ,
   m_SpacePointsSCT("SCT_SpacePoints"),
   m_SpacePointsPixel("PixelSpacePoints"),
   m_outputTracks("SiSPSeededTracks"),
@@ -33,7 +33,7 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   m_zvertexmaker("InDet::SiZvertexMaker_xk/InDetSiZvertexMaker")       ,
   m_trackmaker("InDet::SiTrackMaker_xk/InDetSiTrackMaker")             ,
   m_fieldmode("MapSolenoid")                                           ,
-  m_proptool   ("Trk::RungeKuttaPropagator/InDetPropagator"  )         
+  m_proptool   ("Trk::RungeKuttaPropagator/InDetPropagator"  )
 {
   m_beamconditions         = "BeamCondSvc"     ;
   m_beam                   = 0                 ;
@@ -74,6 +74,7 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   declareProperty("Zcut"                ,m_zcut                );
   declareProperty("MagneticFieldMode"   ,m_fieldmode           );
   declareProperty("ITKGeometry"         ,m_ITKGeometry         );
+  declareProperty("EventInfoKey"        ,m_evtKey              );
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -476,9 +477,8 @@ bool InDet::SiSPSeededTrackFinder::isGoodEvent() {
 
   // Test MBTS information from calorimeter
   //
-  const xAOD::EventInfo* eventInfo = 0; 
-  StatusCode sc = evtStore()->retrieve(eventInfo);  
-  if(sc.isFailure() || !eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::MBTSTimeDiffHalo)) {
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_evtKey);
+  if(!eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background,xAOD::EventInfo::MBTSTimeDiffHalo)) {
     return true;
   }
 
