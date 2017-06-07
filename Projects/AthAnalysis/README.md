@@ -47,6 +47,13 @@ sourcing the setup script in the install area:
 where you should replace `21.2.0` with whatever you find in the `version.txt` file.
 If you do this in a new shell you will need to lsetup cmake and gcc again though!
 
+In fact, instead of sourcing the setup script directly, you are advised to use `asetup` command 
+if it is available to you (which will source it on your behalf, as well as probably do some other things). E.g. you can do:
+
+    asetup AthAnalysis,21.2.0 --releasesarea=../../../build/install
+
+of course substitute in the correct path to the install area.
+
 Custom Builds
 -------------
 
