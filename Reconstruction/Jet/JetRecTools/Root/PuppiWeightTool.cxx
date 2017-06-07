@@ -168,8 +168,8 @@ StatusCode PuppiWeightTool::process(xAOD::PFOContainer* cont) const{
     //evtStore()->record(puppi->getMedian(0),"PUPPI_alpha_median");
     //evtStore()->record(puppi->getRMS(0),"PUPPI_alpha_RMS");
 
-    std::cout<<"median: "<<puppi->getMedian()<<std::endl;
-    std::cout<<"RMS: "<<puppi->getRMS()<<std::endl;
+    //std::cout<<"median: "<<puppi->getMedian()<<std::endl;
+    //std::cout<<"RMS: "<<puppi->getRMS()<<std::endl;
 
     //ATH_MSG_INFO("Leaving execute");
     return StatusCode::SUCCESS;
