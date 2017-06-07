@@ -51,7 +51,7 @@ StatusCode PuppiWeightTool::process(xAOD::IParticleContainer* cont) const {
 //------------------------------------------------------------------------------
 
 StatusCode PuppiWeightTool::process(xAOD::PFOContainer* cont) const{
-  ATH_MSG_WARNING("Testing PUPPI");
+  //ATH_MSG_WARNING("Testing PUPPI");
  
   SG::AuxElement::Accessor<bool> PVMatchedAcc("matchedToPV");
   SG::AuxElement::Accessor<double> alphaAcc("PUPPI_alpha");
@@ -171,6 +171,6 @@ StatusCode PuppiWeightTool::process(xAOD::PFOContainer* cont) const{
     std::cout<<"median: "<<puppi->getMedian()<<std::endl;
     std::cout<<"RMS: "<<puppi->getRMS()<<std::endl;
 
-    ATH_MSG_INFO("Leaving execute");
+    //ATH_MSG_INFO("Leaving execute");
     return StatusCode::SUCCESS;
   }
