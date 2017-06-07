@@ -28,7 +28,11 @@ find_package( GMock )
 
 # Decide which sources to use:
 if( XAOD_STANDALONE )
-   set( sources Root/*.cxx )
+   atlas_add_root_dictionary( AsgTools AsgToolsCintDict
+          ROOT_HEADERS  AsgTools/MsgLevel.h  AsgTools/MsgStream.h
+          AsgTools/INamedInterface.h Root/LinkDef.h
+          EXTERNAL_PACKAGES ROOT )
+   set( sources Root/*.cxx  ${AsgToolsCintDict} )
 else()
    set( sources Root/MsgLevel.cxx Root/AsgTool.cxx Root/AsgMetadataTool.cxx
       Root/AsgMessaging.cxx Root/ToolStore.cxx Root/AnaToolHandle.cxx
