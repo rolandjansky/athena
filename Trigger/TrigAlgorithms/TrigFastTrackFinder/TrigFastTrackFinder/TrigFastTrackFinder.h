@@ -75,6 +75,8 @@ class TrigFastTrackFinder : public HLT::FexAlgo {
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE,
 			    HLT::TriggerElement* outputTE);
 
+  StatusCode findTracks(const TrigRoiDescriptor& roi, TrackCollection& outputTracks);
+
   double trackQuality(const Trk::Track* Tr);
   void filterSharedTracks(std::vector<std::tuple<bool, double, Trk::Track*>>& QT);
 
