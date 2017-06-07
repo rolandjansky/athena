@@ -134,7 +134,6 @@ namespace InDet {
       double m_w_1;
       TH1D* m_hb_massPiPi;
       TH1D* m_hb_massPiPi1;
-      TH1D* m_hb_massPiPi2;
       TH1D* m_hb_massPPi;
       TH1D* m_hb_massEE;
       TH1D* m_hb_totmassEE;
@@ -150,7 +149,10 @@ namespace InDet {
       TH1D* m_hb_ntrkjet;
       TH1D* m_hb_impactZ;
       TH1D* m_hb_r2d;
+      TH1D* m_hb_r1dc;
       TH1D* m_hb_r2dc;
+      TH1D* m_hb_r3dc;
+      TH1D* m_hb_rNdc;
       TH1D* m_hb_dstToMat;
       TH1D* m_hb_jmom;
       TH1D* m_hb_mom;
@@ -167,17 +169,16 @@ namespace InDet {
       TH1D* m_hb_tr2SelVar;
       TH1F* m_hb_blshared;
       TH1F* m_hb_pxshared;
-      TH1F* m_hb_addRatioMV;
-      TH1F* m_hb_addChi2MV;
-      TH1F* m_hb_addNVrtMV;
       TH1F* m_hb_rawVrtN;
       TH1F* m_hb_lifetime;
       TH1F* m_hb_trkPErr;
+      TH1F* m_hb_deltaRSVPV;
 //--
       TH1D*  m_hb_massJetTrkSV;
       TH1D*  m_hb_ratioJetTrkSV;
       TH1D*  m_hb_DST_JetTrkSV;
       TH1D*  m_hb_NImpJetTrkSV;
+      TH1D*  m_hb_nHImpTrkCnt;
 //--
       TProfile * m_pr_effVrt2tr;
       TProfile * m_pr_effVrt2trEta;
@@ -215,6 +216,7 @@ namespace InDet {
       double m_JetPtFractionCut;
       int    m_TrackInJetNumberLimit;
       double m_pseudoSigCut;
+      double m_hadronIntPtCut;
 
       bool m_FillHist;
 
@@ -239,12 +241,13 @@ namespace InDet {
 
       bool     m_useMaterialRejection;
       bool     m_useVertexCleaning;
-      long int m_MassType;
+      int      m_MassType;
       bool     m_MultiVertex;
       bool     m_MultiWithPrimary;
       bool     m_getNegativeTail;
       bool     m_getNegativeTag;
       bool     m_MultiWithOneTrkVrt;
+      //bool     m_killHighPtIBLFakes;
 
       double    m_VertexMergeCut;
       double    m_TrackDetachCut;
@@ -353,9 +356,12 @@ namespace InDet {
       double           TotalTVMom(const Amg::Vector3D &Dir, const std::vector<const Trk::Perigee*>& InpTrk) const; 
       double           pTvsDir(const Amg::Vector3D &Dir, const std::vector<double>& InpTrk) const; 
 
+      bool   insideMatLayer(float ,float ) const;
+
       TLorentzVector GetBDir( const xAOD::TrackParticle* trk1,
                               const xAOD::TrackParticle* trk2,
-                              const xAOD::Vertex    & PrimVrt) const;
+                              const xAOD::Vertex    & PrimVrt,
+			      Amg::Vector3D &V1, Amg::Vector3D &V2) const;
 
       int   nTrkCommon( std::vector<WrkVrt> *WrkVrtSet, int V1, int V2) const;
       double minVrtVrtDist( std::vector<WrkVrt> *WrkVrtSet, int & V1, int & V2) const;
@@ -411,6 +417,9 @@ namespace InDet {
       StatusCode RefitVertex( std::vector<WrkVrt> *WrkVrtSet, int SelectedVertex,
                               std::vector<const Particle*> & SelectedTracks) const;
       template <class Particle>
+      double RefitVertex( WrkVrt &Vrt,std::vector<const Particle*> & SelectedTracks) const;
+
+      template <class Particle>
       double FitVertexWithPV( std::vector<WrkVrt> *WrkVrtSet, int SelectedVertex, const xAOD::Vertex & PV,
                               std::vector<const Particle*> & SelectedTracks) const;
 
@@ -464,11 +473,17 @@ namespace InDet {
 
      template <class Track>
      bool  Check2TrVertexInPixel( const Track* p1, const Track* p2, Amg::Vector3D &, double ) const;
+     template <class Track>
+     bool  Check1TrVertexInPixel( const Track* p1, Amg::Vector3D &) const;
+     template <class Track>
+     double medianPtF( std::vector<const Track*> & Trks) const;
 
      void  getPixelLayers(const  Rec::TrackParticle* Part, int &blHit, int &l1Hit, int &l2Hit, int &nLay) const;
      void  getPixelLayers(const xAOD::TrackParticle* Part, int &blHit, int &l1Hit, int &l2Hit, int &nLay) const;
      void  getPixelDiscs(const xAOD::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) const;
      void  getPixelDiscs(const  Rec::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) const;
+     void  getPixelProblems(const xAOD::TrackParticle* Part, int &splshIBL, int &splshBL ) const;
+     void  getPixelProblems(const Rec::TrackParticle* Part, int &splshIBL, int &splshBL ) const;
 
 
      StatusCode VKalVrtFitBase(const std::vector<const Rec::TrackParticle*> & listPart,
@@ -529,6 +544,55 @@ namespace InDet {
 
   };
 
+   template <class Track>
+   bool InDetVKalVxInJetTool::Check1TrVertexInPixel( const Track* p1, Amg::Vector3D &FitVertex)
+   const
+   {
+	int blTrk=0, blP=0, l1Trk=0, l1P=0, l2Trk=0, nLays=0; 
+        getPixelLayers( p1, blTrk , l1Trk, l2Trk, nLays );
+        getPixelProblems(p1, blP, l1P );
+        double xDif=FitVertex.x()-m_XlayerB, yDif=FitVertex.y()-m_YlayerB ; 
+        double Dist2DBL=sqrt(xDif*xDif+yDif*yDif);
+        if      (Dist2DBL < m_RlayerB-m_SVResolutionR){       //----------------------------------------- Inside B-layer
+          if( blTrk<1  && l1Trk<1  )  return false;
+          if(  nLays           <2 )   return false;  // Less than 2 layers on track 0
+	  return true;
+        }else if(Dist2DBL > m_RlayerB+m_SVResolutionR){      //----------------------------------------- Outside b-layer
+          if( blTrk>0 && blP==0 ) return false;  // Good hit in b-layer is present
+       }
+// 
+// L1 and L2 are considered only if vertex is in acceptance
+//
+	if(fabs(FitVertex.z())<400.){
+          xDif=FitVertex.x()-m_Xlayer1, yDif=FitVertex.y()-m_Ylayer1 ;
+	  double Dist2DL1=sqrt(xDif*xDif+yDif*yDif);
+          xDif=FitVertex.x()-m_Xlayer2, yDif=FitVertex.y()-m_Ylayer2 ; 
+	  double Dist2DL2=sqrt(xDif*xDif+yDif*yDif);
+          if      (Dist2DL1 < m_Rlayer1-m_SVResolutionR) {   //------------------------------------------ Inside 1st-layer
+             if( l1Trk<1  && l2Trk<1  )     return false;  // Less than 1 hits on track 0
+             return true;
+          }else if(Dist2DL1 > m_Rlayer1+m_SVResolutionR) {  //------------------------------------------- Outside 1st-layer
+	     if( l1Trk>0 && l1P==0 )       return false;  //  Good L1 hit is present
+          }
+          
+          if      (Dist2DL2 < m_Rlayer2-m_SVResolutionR) {  //------------------------------------------- Inside 2nd-layer
+	     if( l2Trk==0 )  return false;           // At least one L2 hit must be present
+          }else if(Dist2DL2 > m_Rlayer2+m_SVResolutionR) {  
+	  //   if( l2Trk>0  )  return false;           // L2 hits are present
+	  }           
+        } else {
+	  int d0Trk=0, d1Trk=0, d2Trk=0; 
+          getPixelDiscs( p1, d0Trk , d1Trk, d2Trk );
+          if( d0Trk+d1Trk+d2Trk ==0 )return false;
+        }
+        return true;
+   }
+
+   template <class Track>
+   double InDetVKalVxInJetTool::medianPtF( std::vector<const Track*> & Trks) const{
+     int NT=Trks.size(); if(NT==0)return 0.;
+     return (Trks[(NT-1)/2]->pt()+Trks[NT/2]->pt())/2.;
+   }
 }  //end namespace
 
 #endif
