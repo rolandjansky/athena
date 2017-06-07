@@ -368,8 +368,7 @@ SCT_RodDecoder::fillCollection( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* 
 	    oldside = side;
 	    groupSize = 0;
 	  }
-     
-	  groupSize = (groupSize>=nStripsInWord ? groupSize : nStripsInWord); // keep maximum groupSize
+	  groupSize+=nStripsInWord ; // Split clusters have the same strip number.
      
 	} else if (m_condensedMode) {
     
