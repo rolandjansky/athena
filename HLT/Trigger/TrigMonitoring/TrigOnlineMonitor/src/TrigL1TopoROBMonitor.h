@@ -89,6 +89,7 @@ class TrigL1TopoROBMonitor:public AthAlgorithm {
   TH1F* m_histTopoCtpSimHdwEventComparison;
   TH1F* m_histTopoCtpHdwEventComparison;
   TH1F* m_histTopoDaqRobEventComparison;
+  TH1F* m_histDaqRobCtpEventComparison;
   TH1F* m_histTopoSimResult;
   TH1F* m_histTopoHdwResult;
   TH1F* m_histTopoSimNotHdwResult;
