@@ -649,6 +649,12 @@ void *RootType::Construct(void *place) const {
    return (place && fClass.GetClass())? fClass.GetClass()->New(place) : 0;
 }
 
+//____________________________________________________________________________
+void TScopeAdapter::Destruct(void *place) const
+{
+   if (place && fClass.GetClass()) fClass.GetClass()->Destructor(place);
+}
+
 
 //____________________________________________________________________________
 const type_info& TScopeAdapter::TypeInfo() const
