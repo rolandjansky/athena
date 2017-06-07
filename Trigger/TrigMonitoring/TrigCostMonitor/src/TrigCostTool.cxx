@@ -340,26 +340,26 @@ StatusCode TrigCostTool::fillHists()
   }
 
   // Have I passed my own personal "prescale" (not this is currently not used)
-  bool _prescaleDecision = true;
+  bool prescaleDecision = true;
   if (m_execPrescale) {
-    _prescaleDecision = m_scalerTool->decision(m_execPrescale);
+    prescaleDecision = m_scalerTool->decision(m_execPrescale);
   } 
 
   // If only saving full cost events then make sure pass internal and OPI prescales
-  bool _runTools = true; // Do we create a new TrigMonEvent and fill it with stuff?
-  int _ranSacleTools = 0; // Set to 1 if we additioanlly run the scale tools (full mon event)
+  bool runTools = true; // Do we create a new TrigMonEvent and fill it with stuff?
+  int ranSacleTools = 0; // Set to 1 if we additioanlly run the scale tools (full mon event)
   if (m_onlySaveCostEvent == true && m_writeAlways == false) {
-    if (opiLevel == 0 || m_execPrescale == 0 || _prescaleDecision == 0) {
+    if (opiLevel == 0 || m_execPrescale == 0 || prescaleDecision == 0) {
       ATH_MSG_DEBUG("Not a full monitoring event, not processing. To save basic info for all events set onlySaveCostEvent=0");
-      _runTools = false;
+      runTools = false;
     }
   }
 
   // If only running when the chain is active (default) and we're online (costForCAF false)
   if (m_obeyCostChainPS == true && m_costForCAF == false) {
-    if (m_costChainPS <= 0.) _runTools = false;
+    if (m_costChainPS <= 0.) runTools = false;
   }
-  ATH_MSG_DEBUG("Obey cost chain PS=" << m_obeyCostChainPS << ", CostChainPS=" << m_costChainPS << " costForCAF=" << m_costForCAF << " and runTools=" << _runTools);
+  ATH_MSG_DEBUG("Obey cost chain PS=" << m_obeyCostChainPS << ", CostChainPS=" << m_costChainPS << " costForCAF=" << m_costForCAF << " and runTools=" << runTools);
 
   if(m_stopAfterNEvent > 0 && m_bufferEvents.size() >= m_stopAfterNEvent) { // Have we filled up the buffer? This is bad!
     delete m_bufferEvents.front();
@@ -370,7 +370,7 @@ StatusCode TrigCostTool::fillHists()
   // Only for full monitoring events, or for all events if m_onlySaveCostEvent=false (but scale tools are still not run in this case)
   // Note that if writeAlways is true, runTools will be true too
   TrigMonEvent *event = 0;
-  if (_runTools) {
+  if (runTools) {
 
     event = new TrigMonEvent();
     m_bufferEvents.push_back(event);
@@ -393,19 +393,19 @@ StatusCode TrigCostTool::fillHists()
          << " doOperationalInfo=" << m_doOperationalInfo
          << " [descision=" << opiLevel << "]"
          << ". execPrescale=" << m_execPrescale 
-         << " [descision=" << _prescaleDecision << "]" );
-    if(m_writeAlways || (opiLevel > 0 && m_execPrescale > 0.0 && _prescaleDecision == true)) {
+         << " [descision=" << prescaleDecision << "]" );
+    if(m_writeAlways || (opiLevel > 0 && m_execPrescale > 0.0 && prescaleDecision == true)) {
       for(unsigned i = 0; i < m_scaleTools.size(); ++i) { 
         ATH_MSG_DEBUG( "Running Event ScaleTools " << i << ", " << m_scaleTools[i]->type() );
         m_scaleTools[i]->Fill(*event); 
       }
       // Also use the EB weight tool
       if (m_doEBWeight) m_toolEBWeight->Fill(*event);
-      _ranSacleTools = 1;
+      ranSacleTools = 1;
     } else {
       ATH_MSG_DEBUG( "NOT Running ScaleTools on this event. Not a full monitoring event." );
     }
-    event->addVar(Trig::kIsCostEvent, _ranSacleTools);
+    event->addVar(Trig::kIsCostEvent, ranSacleTools);
 
     //
     // Fill basic event data
@@ -420,7 +420,7 @@ StatusCode TrigCostTool::fillHists()
     if (event) SavePrevLumi(*event);
     
     //
-    // Process always tools. m_writeAlways implied _runTools, but check 'event' non null to be careful. Also we currenly have no alwaysTools
+    // Process always tools. m_writeAlways implied runTools, but check 'event' non null to be careful. Also we currenly have no alwaysTools
     //
     if(m_writeAlways && event) {
       for(unsigned i = 0; i < m_alwaysTools.size(); ++i) {
@@ -503,10 +503,10 @@ StatusCode TrigCostTool::fillHists()
     }
   }
 
-  if(outputLevel() <= MSG::DEBUG) { 
+  if(msgLvl(MSG::DEBUG)) { 
     ATH_MSG_DEBUG("Processed run #" << eventInfo->runNumber() << " lb #" << eventInfo->lumiBlock() << " event #" << eventInfo->eventNumber() );
     ATH_MSG_DEBUG("  steeringOPILevel  = " << opiLevel );
-    ATH_MSG_DEBUG("  isMonitoringEvent = " << monitoringEvent << ", ranTools = " << _runTools << ", ranScaleTools = " << _ranSacleTools );
+    ATH_MSG_DEBUG("  isMonitoringEvent = " << monitoringEvent << ", ranTools = " << runTools << ", ranScaleTools = " << ranSacleTools );
     ATH_MSG_DEBUG("  event buffer size = " << m_bufferEvents.size() );
     ATH_MSG_DEBUG("  elapsed time=" << event_timer << " ms" );
 
@@ -616,38 +616,38 @@ void TrigCostTool::ProcessConfig(xAOD::EventInfo* info)
 
       //Offline, get the BunchGroup info at this point. TODO: Migrate to 16x BGs when the tool updates
       if (m_costForCAF == true) {
-        unsigned _bunchGroupLength[8] = {0};
-        _bunchGroupLength[0] = m_toolBunchGroup->nBunchGroup0();
-        _bunchGroupLength[1] = m_toolBunchGroup->nBunchGroup1();
-        _bunchGroupLength[2] = m_toolBunchGroup->nBunchGroup2();
-        _bunchGroupLength[3] = m_toolBunchGroup->nBunchGroup3();
-        _bunchGroupLength[4] = m_toolBunchGroup->nBunchGroup4();   
-        _bunchGroupLength[5] = m_toolBunchGroup->nBunchGroup5();
-        _bunchGroupLength[6] = m_toolBunchGroup->nBunchGroup6();
-        _bunchGroupLength[7] = m_toolBunchGroup->nBunchGroup7();
-        for (unsigned _bg = 0; _bg < 8; ++_bg) {
-          std::stringstream _ssKey, _ssVal;
-          _ssKey << "DB:BGRP" << _bg;
-          _ssVal << _bunchGroupLength[_bg];
-          ATH_MSG_DEBUG( "Database DB:BGRP" << _bg << " size:" << _bunchGroupLength[_bg] );
-          m_config_sv.addValue(_ssKey.str(), _ssVal.str());
+        unsigned bunchGroupLength[8] = {0};
+        bunchGroupLength[0] = m_toolBunchGroup->nBunchGroup0();
+        bunchGroupLength[1] = m_toolBunchGroup->nBunchGroup1();
+        bunchGroupLength[2] = m_toolBunchGroup->nBunchGroup2();
+        bunchGroupLength[3] = m_toolBunchGroup->nBunchGroup3();
+        bunchGroupLength[4] = m_toolBunchGroup->nBunchGroup4();   
+        bunchGroupLength[5] = m_toolBunchGroup->nBunchGroup5();
+        bunchGroupLength[6] = m_toolBunchGroup->nBunchGroup6();
+        bunchGroupLength[7] = m_toolBunchGroup->nBunchGroup7();
+        for (unsigned bg = 0; bg < 8; ++bg) {
+          std::stringstream ssKey, ssVal;
+          ssKey << "DB:BGRP" << bg;
+          ssVal << bunchGroupLength[bg];
+          ATH_MSG_DEBUG( "Database DB:BGRP" << bg << " size:" << bunchGroupLength[bg] );
+          m_config_sv.addValue(ssKey.str(), ssVal.str());
         }
       }
 
       // Save the OPI prescale
-      std::stringstream _ss1, _ss2;
-      _ss1 << m_execPrescale;
-      _ss2 << m_doOperationalInfo;
-      m_config_sv.addValue("ExecPrescale", _ss1.str() );
-      m_config_sv.addValue("doOperationalInfo", _ss2.str() );
+      std::stringstream ss1, ss2;
+      ss1 << m_execPrescale;
+      ss2 << m_doOperationalInfo;
+      m_config_sv.addValue("ExecPrescale", ss1.str() );
+      m_config_sv.addValue("doOperationalInfo", ss2.str() );
       ATH_MSG_DEBUG("ProcessConfig - Exporting the operational prescale " << m_execPrescale );
       ATH_MSG_DEBUG("ProcessConfig - Exporting the operational info frequency " << m_doOperationalInfo );
 
       //Get the prescale of the cost chain
-      const std::vector<TrigConfChain> _chains = m_config_sv.getVec<TrigConfChain>();
-      for(unsigned int i = 0; i < _chains.size(); ++i) {
-        if ( _chains.at(i).getChainName().find("costmonitor") != std::string::npos ) {
-          m_costChainPS =  _chains.at(i).getPrescale();
+      const std::vector<TrigConfChain> chains = m_config_sv.getVec<TrigConfChain>();
+      for(unsigned int i = 0; i < chains.size(); ++i) {
+        if ( chains.at(i).getChainName().find("costmonitor") != std::string::npos ) {
+          m_costChainPS =  chains.at(i).getPrescale();
           ATH_MSG_DEBUG( "Got CostChain prescale: " << m_costChainPS);
         }
       }
@@ -803,10 +803,10 @@ void TrigCostTool::ProcessEvent(TrigMonEvent &event)
     if (m_readLumiBlock.getTriedSetup() == false) {
       ATH_MSG_INFO( "LumiBlockReader not setup (tried="<<m_readLumiBlock.getTriedSetup()<<") - fetching lumiblock lengths from COOL" );
       m_readLumiBlock.updateLumiBlocks(event.getRun());
-      std::string _msg = m_readLumiBlock.infos();
-      if (_msg.size()) ATH_MSG_INFO(_msg);
-      std::string _dbg = m_readLumiBlock.debug();
-      if (_dbg.size()) ATH_MSG_DEBUG(_dbg);
+      std::string msg = m_readLumiBlock.infos();
+      if (msg.size()) ATH_MSG_INFO(msg);
+      std::string dbg = m_readLumiBlock.debug();
+      if (dbg.size()) ATH_MSG_DEBUG(dbg);
       m_readLumiBlock.clearMsg();
     }
     ATH_MSG_DEBUG( "LB " << event.getLumi() << " is Length " << m_readLumiBlock.getLumiBlockLength(event.getLumi()) );
@@ -881,7 +881,7 @@ StatusCode TrigCostTool::IsMonitoringEvent(bool& monitoringEvent)
   bool costEvent = false;
   bool passLogic = true;
 
-  std::vector< xAOD::EventInfo::StreamTag > _streamTagPurgeList; // List of StreamTags to be removed if not saving cost data
+  std::vector< xAOD::EventInfo::StreamTag > streamTagPurgeList; // List of StreamTags to be removed if not saving cost data
 
   for(unsigned i = 0; i < streams.size(); ++i) {
     const xAOD::EventInfo::StreamTag &stag = streams.at(i);
@@ -910,7 +910,7 @@ StatusCode TrigCostTool::IsMonitoringEvent(bool& monitoringEvent)
       costEvent = true;
       ATH_MSG_DEBUG("Event has monitoring stream: " << m_monitoringStream);
       // If the pass logic ends up false and stream purge is on, we'll want to remove this stream
-      _streamTagPurgeList.push_back( stag );
+      streamTagPurgeList.push_back( stag );
     }
 
   }
@@ -925,7 +925,7 @@ StatusCode TrigCostTool::IsMonitoringEvent(bool& monitoringEvent)
 
   if(m_purgeCostStream && costEvent && !passLogic) {
     ATH_MSG_DEBUG("Failed Pass Logic, purge the Cost stream tag from the event to save writing out empty RAW event to SFO");
-    CHECK( m_eventInfoAccessTool->removeStreamTags(_streamTagPurgeList) ); // Remove stream tags 
+    CHECK( m_eventInfoAccessTool->removeStreamTags(streamTagPurgeList) ); // Remove stream tags 
   }
 
   monitoringEvent = (costEvent && passLogic);
