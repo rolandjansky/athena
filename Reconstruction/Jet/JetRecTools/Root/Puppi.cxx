@@ -89,7 +89,7 @@ double Puppi::getAlpha(const PseudoJet pfo){
 		for (auto p: chargedHSNeighbors){
 			float dR=pfo.delta_R(p);
 			if (dR>m_Rmin){
-				sum+=pow(p.pt()/dR, m_beta);
+			  sum+=p.pt()/pow(dR, m_beta);
 				nNeighbors+=1;
 			}
 		}
