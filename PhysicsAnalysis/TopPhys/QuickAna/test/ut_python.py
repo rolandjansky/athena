@@ -82,4 +82,6 @@ for entry in xrange(entries) :
     qa.met()
     store.clear()
 
+del qa
+
 ROOT.xAOD.ClearTransientTrees()

@@ -44,23 +44,23 @@ namespace ana
       DefinitionArgs masterArgs (prefix, &internal);
       ANA_CHECK (makeToolSequence (confList, masterArgs, tools));
     }
-    for (auto tool : tools)
+    for (auto& tool : tools)
     {
       if (tool.first)
-	ANA_CHECK (tool.first->getInitialConfiguration(internal));
+        ANA_CHECK (tool.first->getInitialConfiguration(internal));
     }
-    for (auto tool : tools)
+    for (auto& tool : tools)
     {
       if (tool.first)
-	ANA_CHECK (tool.first->useInitialConfiguration(internal));
+        ANA_CHECK (tool.first->useInitialConfiguration(internal));
     }
-    for (auto tool : tools)
+    for (auto& tool : tools)
     {
       if (tool.first)
       {
 	ANA_CHECK (tool.first->initialize());
 	ANA_CHECK (tool.first->useConfiguration (internal));
-	ANA_CHECK (addTool (tool.first));
+	ANA_CHECK (addTool (std::move (tool.first)));
       }
     }
     return StatusCode::SUCCESS;
