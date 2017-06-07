@@ -170,6 +170,13 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
          htitles = makeHisttitle((tmp[j]+", "+modlabel2[i]), (atext_LB+atext_erf), false);
          sc = rodHistos.regHist(m_errhist_errcat_avg[j][i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
       }
+
+      const std::string tmp2[ErrorCategoryMODROD::COUNT - 3] = {"SyncErrors_Mod_Frac_per_event", "SyncErrors_ROD_Frac_per_event", "TruncErrors_Mod_Frac_per_event", "TruncErrors_ROD_Frac_per_event"};
+      for (int j = 0; j < ErrorCategoryMODROD::COUNT - 3; j++) {
+         hname = makeHistname((tmp2[j]+"_"+modlabel2[i]), false);
+         htitles = makeHisttitle((tmp2[j]+", "+modlabel2[i]), (atext_LB+atext_erf), false);
+         sc = rodHistos.regHist(m_errhist_errtype_avg[j][i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
+      }
    }
 
    if (m_doOnline) {
@@ -472,6 +479,11 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
       for (int j = 0; j < ErrorCategory::COUNT; j++) {
          if (m_errhist_errcat_avg[j][i] && m_nActive_mod[i] > 0) {
             m_errhist_errcat_avg[j][i]->Fill(kLumiBlock, (float) num_errormodules_per_cat[i][j]/m_nActive_mod[i]);
+         }
+      }
+      for (int j = 0; j < ErrorCategoryMODROD::COUNT - 3; j++) {
+         if (m_errhist_errtype_avg[j][i] && m_nActive_mod[i] > 0) {
+            m_errhist_errtype_avg[j][i]->Fill(kLumiBlock, (float) num_errormodules_per_type[i][j]/m_nActive_mod[i]);
          }
       }
    }
