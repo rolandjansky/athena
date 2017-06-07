@@ -87,6 +87,12 @@ commissionTP_electron = ['HLT_e17_lhvloose_nod0_ringer_L1EM15VHI',
                          #'HLT_e26_lhtight_cutd0detadphi_ivarloose',
                          'HLT_e26_lhtight_nod0_ivarloose_L1EM22VHIM',
                          'HLT_e28_lhtight_nod0_ivarloose_L1EM24VHIM',
+                         'HLT_e26_lhloose_nod0',
+                         'HLT_e26_lhloose_nod0_ringer',
+                         'HLT_e26_lhmedium_nod0',
+                         'HLT_e26_lhmedium_nod0_ringer ',
+                         'HLT_e26_lhtight_nod0',
+                         'HLT_e26_lhtight_nod0_ringer ',
                          #'HLT_e26_lhmedium_nod0_ringer_ivarmedium_icalomedium',
                          #'HLT_e26_lhmedium_nod0_ivarmedium_icalomedium' 
                          ]
@@ -97,14 +103,16 @@ monitoringTP_electron += commissionTP_electron
 
 monitoringTP_Jpsiee = ["HLT_e5_lhtight_nod0"]    
 monitoring_photon = [ 'HLT_g25_medium_L1EM20VH',
-                      #'HLT_g25_medium',
+                      'HLT_g25_medium',
+                      'HLT_g35_medium',
                       'HLT_g200_loose',
                       #'HLT_g140_loose',
-                      'HLT_g22_tight' ,
-                      'HLT_g22_tight_icalovloose_L1EM15VHI' ,
-                      #'HLT_g20_tight_icalovloose_L1EM15VHI',
+                      'HLT_g22_tight',
+                      'HLT_g22_tight_icalotight',
+                      'HLT_g22_tight_icalotight_L1EM15VHI',
+                      'HLT_g22_tight_icalovloose',
+                      'HLT_g22_tight_icalovloose_L1EM15VHI',
                       'HLT_g22_tight_L1EM15VHI',
-                      #'HLT_g20_tight_L1EM15VHI'
                       ]
 #Add the Menu-Aware monitoring; maps a trigger to a category
 monitoring_mam = {'primary_single_ele_iso':'HLT_e26_lhtight_nod0_ivarloose',

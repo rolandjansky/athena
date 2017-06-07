@@ -47,6 +47,7 @@ StatusCode TrigEgammaResolutionTool::toolExecute(const std::string basePath,Trig
     const std::string dir = basePath+"/"+info.trigName;
     bool filliso=false;
     if(boost::contains(info.trigName,"iloose") || boost::contains(info.trigName,"ivarloose")) filliso=true;
+    if(boost::contains(info.trigName,"icaloloose") || boost::contains(info.trigName,"icalovloose") || boost::contains(info.trigName,"icalotight")) filliso=true;
     ATH_MSG_DEBUG("Executing resolution for " << dir);
     for(const auto pairObj : pairObjs){
         const xAOD::Egamma* eg =pairObj.first;
@@ -501,8 +502,6 @@ void TrigEgammaResolutionTool::fillIsolationResolution(const std::string dir,con
         float etoff=off->pt();
         if (val_off > 0.) {
             hist1("res_topoetcone20")->Fill((getIsolation_topoetcone20(onl)-val_off)/val_off);
-            hist2("res_topoetcone20_onVsOff")->Fill(getIsolation_topoetcone20(off),
-                    getIsolation_topoetcone20(onl));
             if (etonl > 0. && etoff > 0.) {
                 const float reliso_onl=getIsolation_topoetcone20(onl)/etonl;
                 const float reliso_off=getIsolation_topoetcone20(off)/etoff;
@@ -515,9 +514,17 @@ void TrigEgammaResolutionTool::fillIsolationResolution(const std::string dir,con
                         (reliso_onl-reliso_off)/reliso_off);
                 hist2("res_topoetcone20VsMu")->Fill(getAvgMu(),
                         (reliso_onl-reliso_off)/reliso_off);
-                hist2("res_topoetcone20_rel_onVsOff")->Fill(getIsolation_topoetcone20(off)/etoff,
-                        getIsolation_topoetcone20(onl)/etonl);
             }
+        }
+        hist2("res_topoetcone20_onVsOff")->Fill(getIsolation_topoetcone20(off)/1e3,
+                    getIsolation_topoetcone20(onl)/1e3);
+        hist2("res_topoetcone40_shift_onVsOff")->Fill((getIsolation_topoetcone40(off)-2450)/1e3,
+                    (getIsolation_topoetcone40(onl)-2450)/1e3);
+        if (etonl > 0. && etoff > 0.) {
+            hist2("res_topoetcone20_rel_onVsOff")->Fill(getIsolation_topoetcone20(off)/etoff,
+                        getIsolation_topoetcone20(onl)/etonl);
+            hist2("res_topoetcone40_shift_rel_onVsOff")->Fill((getIsolation_topoetcone40(off)-2450)/etoff,
+                        (getIsolation_topoetcone40(onl)-2450)/etonl);
         }
     }
 }

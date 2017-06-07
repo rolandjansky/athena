@@ -362,8 +362,11 @@ void TrigEgammaDistTool::fillShowerShapes(const std::string dir,const xAOD::Egam
         hist1("eta")->Fill(eg->eta());
         hist1("phi")->Fill(eg->phi());
         hist1("topoetcone20")->Fill(getIsolation_topoetcone20(eg)/1e3);
-        if (eg->pt() > 0) 
+        hist1("topoetcone40_shift")->Fill((getIsolation_topoetcone40(eg)-2450)/1e3);
+        if (eg->pt() > 0) {
             hist1("topoetcone20_rel")->Fill(getIsolation_topoetcone20(eg)/eg->pt());
+            hist1("topoetcone40_shift_rel")->Fill((getIsolation_topoetcone40(eg)-2450)/eg->pt());
+        }
         
     }
 }
