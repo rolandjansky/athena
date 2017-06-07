@@ -189,7 +189,10 @@ def setupMenu():
         ]
 
     TriggerFlags.BeamspotSlice.signatures = [
-        ]   
+        ]
+
+    TriggerFlags.AFPSlice.signatures = [
+        ]
 
     TriggerFlags.MinBiasSlice.signatures = [
         ]

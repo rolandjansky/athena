@@ -8,6 +8,7 @@ from TriggerMenu.jet.JetSliceFlags                     import JetSliceFlags
 from TriggerMenu.bjet.BjetSliceFlags                   import BjetSliceFlags
 from TriggerMenu.met.METSliceFlags                     import METSliceFlags
 from TriggerMenu.tau.TauSliceFlags                     import TauSliceFlags
+from TriggerMenu.afp.AFPSliceFlags                     import AFPSliceFlags
 from TriggerMenu.minbias.MinBiasSliceFlags             import MinBiasSliceFlags
 from TriggerMenu.heavyion.HeavyIonSliceFlags           import HeavyIonSliceFlags
 from TriggerMenu.combined.CombinedSliceFlags           import CombinedSliceFlags
@@ -76,6 +77,7 @@ class GenerateMenu:
         self.doBphysicsChains    = True
         self.doMETChains         = True
         self.doTauChains         = True
+        self.doAFPChains         = True
         self.doMinBiasChains     = True
         self.doHeavyIonChains     = True
         self.doCosmicChains      = True
@@ -148,6 +150,12 @@ class GenerateMenu:
             log.debug('GenerateMenu : Tau : %s', chains)
         else:
             self.doTauChains = False
+
+        if (CombinedSliceFlags.signatures() or AFPSliceFlags.signatures()) and self.doAFPChains:
+            chains += AFPSliceFlags.signatures()
+            log.debug('GenerateMenu : AFP : %s', chains)
+        else:
+            self.doAFPChains = False
 
         if (CombinedSliceFlags.signatures() or MinBiasSliceFlags.signatures()) and self.doMinBiasChains:
             chains += MinBiasSliceFlags.signatures()
@@ -321,6 +329,14 @@ class GenerateMenu:
                 log.info(traceback.print_exc())
                 self.doBjetChains = False
 
+        if self.doAFPChains:
+            try:
+                import TriggerMenu.afp.generateAFPChainDefs
+            except:
+                log.error('Problems when importing AFP.py, disabling AFP chains.')
+                log.info(traceback.print_exc())
+                self.doAFPChains = False
+
         if self.doMinBiasChains:
             try:
                 import TriggerMenu.minbias.generateMinBiasChainDefs 
@@ -405,7 +421,7 @@ class GenerateMenu:
 
 
 
-        #allowedSignatures = ["jet","egamma","muon", "electron", "photon","met","tau", 
+        #allowedSignatures = ["jet","egamma","muon", "electron", "photon","met","tau", "afp",
         #                     "minbias", "heavyion", "cosmic", "calibration", "streaming", "monitoring", "ht", 'bjet','eb']
         
         listOfChainDefs = []
@@ -485,6 +501,14 @@ class GenerateMenu:
             elif chainDict["signature"] == "Tau" and self.doTauChains:
                 try:
                     chainDefs = TriggerMenu.tau.generateTauChainDefs.generateChainDefs(chainDict)
+                except:
+                    log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
+                    log.info(traceback.print_exc())
+                    continue
+                
+            elif chainDict["signature"] == "AFP" and self.doAFPChains:
+                try:
+                    chainDefs = TriggerMenu.afp.generateAFPChainDefs.generateChainDefs(chainDict)
                 except:
                     log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
                     log.info(traceback.print_exc())
@@ -718,6 +742,7 @@ class GenerateMenu:
         dumpIt(f, EgammaSliceFlags.signatures(), 'Egamma')
         dumpIt(f, METSliceFlags.signatures(), 'MET')
         dumpIt(f, TauSliceFlags.signatures(), 'Tau')
+        dumpIt(f, AFPSliceFlags.signatures(), 'AFP')
         dumpIt(f, MinBiasSliceFlags.signatures(), 'MinBias')
         dumpIt(f, HeavyIonSliceFlags.signatures(), 'HeavyIon')
         dumpIt(f, CosmicSliceFlags.signatures(), 'Cosmic')

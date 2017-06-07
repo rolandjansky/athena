@@ -40,6 +40,7 @@ def setupMenu():
 
     TriggerFlags.TestSlice.signatures = []
 
+    TriggerFlags.AFPSlice.signatures = []
 
     TriggerFlags.MuonSlice.signatures = [
         # single muon
