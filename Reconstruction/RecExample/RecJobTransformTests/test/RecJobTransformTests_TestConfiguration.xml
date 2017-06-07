@@ -395,23 +395,55 @@
                 <queue>long</queue>
             </jobTransform>
 
-            <!-- Test runs on 8TeV collision data with Hephaestos -->
+            <!-- Test runs on 13TeV collision data -->
       
-            <jobTransform userJobId="data12_8TeV_memleak">
-                <doc>Reco_tf runs on 8TeV collision data with Hephaestos for checking for memory leaks</doc>
-                <jobTransformJobName>RecoTf_8TeV_data</jobTransformJobName>
+            <jobTransform userJobId="data15_13TeV">
+                <doc>Reco_tf runs on 13TeV collision data 2015</doc>
+                <jobTransformJobName>RecoTf_13TeV_data_2015</jobTransformJobName>
                 <jobTransformCmd>
-                    export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/x86_64-slc6-gcc48-opt/lib/libunwind.so; Reco_tf.py --inputBSFile /afs/cern.ch/atlas/project/rig/referencefiles/PerformanceTestDataFiles_data12/data12_8TeV.00213092.physics_JetTauEtmiss.merge.RAW._lb0285._SFO-1._0001.1 --maxEvents 5 --autoConfiguration everything --conditionsTag="COMCOND-BLKPA-RUN1-07" --preExec 'rec.doTrigger=False' --outputESDFile myESD.pool.root --athenaopts '--stdcmalloc --leak-check-execute' 
+				Reco_tf.py --inputBSFile /eos/atlas/atlascerngroupdisk/phys-rig/data15_13TeV.00283429.physics_Main.daq.RAW/data15_13TeV.00283429.physics_Main.daq.RAW._lb0154._SFO-1._0001.data --maxEvents 300 --autoConfiguration everything --conditionsTag="CONDBR2-BLKPA-2016-14" --preExec 'rec.doTrigger=False;' --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHist.root
+                </jobTransformCmd>
+                <group>RecTrf</group>
+                <queue>long</queue>
+            </jobTransform>
+
+            <jobTransform userJobId="data16_13TeV">
+                <doc>Reco_tf runs on 13TeV collision data 2016</doc>
+                <jobTransformJobName>RecoTf_13TeV_data_2016</jobTransformJobName>
+                <jobTransformCmd>
+				Reco_tf.py --inputBSFile /eos/atlas/atlascerngroupdisk/phys-rig/data16_13TeV.00310809.physics_Main.daq.RAW/data16_13TeV.00310809.physics_Main.daq.RAW._lb1219._SFO-2._0001.data --maxEvents 300 --autoConfiguration everything --conditionsTag="CONDBR2-BLKPA-2016-19" --preExec 'rec.doTrigger=False;' --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHist.root
+                </jobTransformCmd>
+                <group>RecTrf</group>
+                <queue>long</queue>
+            </jobTransform>
+
+            <jobTransform userJobId="data17_13TeV">
+                <doc>Reco_tf runs on 13TeV collision data 2017, early data, A3, Toroid and solenoid off</doc>
+                <jobTransformJobName>RecoTf_13TeV_data_2017</jobTransformJobName>
+                <jobTransformCmd>
+				Reco_tf.py --inputBSFile /eos/atlas/atlascerngroupdisk/phys-rig/data17_13TeV.00324910.physics_Main.daq.RAW/data17_13TeV.00324910.physics_Main.daq.RAW._lb0713._SFO-6._0001.data --maxEvents 300 --autoConfiguration everything --conditionsTag="CONDBR2-BLKPA-2017-08" --preExec 'rec.doTrigger=False;' --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHist.root
+                </jobTransformCmd>
+                <group>RecTrf</group>
+                <queue>long</queue>
+            </jobTransform>
+
+            <!-- Test runs on 13TeV collision data with Hephaestos -->
+      
+            <jobTransform userJobId="data17_13TeV_memleak">
+                <doc>Reco_tf runs on 13TeV collision data with Hephaestos for checking for memory leaks 2017</doc>
+                <jobTransformJobName>RecoTf_13TeV_data</jobTransformJobName>
+                <jobTransformCmd>
+				export LD_PRELOAD=$LCG_RELEASE_BASE/libunwind/5c2cade-76996/$LCG_PLATFORM/lib/libunwind.so; Reco_tf.py --inputBSFile /eos/atlas/atlascerngroupdisk/phys-rig/data17_13TeV.00324910.physics_Main.daq.RAW/data17_13TeV.00324910.physics_Main.daq.RAW._lb0713._SFO-6._0001.data --maxEvents 10 --autoConfiguration everything --conditionsTag="CONDBR2-BLKPA-2017-08" --preExec 'rec.doTrigger=False' --outputESDFile myESD.pool.root --athenaopts '--stdcmalloc --leak-check-execute'
                 </jobTransformCmd>
                 <group>RecTrf</group>
                 <queue>long</queue>
             </jobTransform>
       
-            <jobTransform userJobId="data12_8TeV_fpe">
-                <doc>Reco_tf runs on 8TeV collision data with floating point exception enabled</doc>
-                <jobTransformJobName>RecoTf_8TeV_data_fpe</jobTransformJobName>
+            <jobTransform userJobId="data17_13TeV_fpe">
+                <doc>Reco_tf runs on 13TeV collision data with floating point exception enabled 2017</doc>
+                <jobTransformJobName>RecoTf_13TeV_data_fpe</jobTransformJobName>
                 <jobTransformCmd>
-                    Reco_tf.py --inputBSFile /afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_high_mu/data12_8TeV/data12_8TeV.00209109.physics_JetTauEtmiss.merge.RAW._lb0186._SFO-1._0001.1 --maxEvents 300 --autoConfiguration everything --conditionsTag="COMCOND-BLKPA-RUN1-07" --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHist.root --preExec 'rec.doFloatingPointException=True;rec.doTrigger=False;' --postExec 'FPEAuditor.NStacktracesOnFPE=5' 
+				Reco_tf.py --inputBSFile /eos/atlas/atlascerngroupdisk/phys-rig/data17_13TeV.00324910.physics_Main.daq.RAW/data17_13TeV.00324910.physics_Main.daq.RAW._lb0713._SFO-6._0001.data --maxEvents -1 --autoConfiguration everything --conditionsTag="CONDBR2-BLKPA-2017-08" --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHist.root --preExec 'rec.doFloatingPointException=True;rec.doTrigger=False;' --postExec 'FPEAuditor.NStacktracesOnFPE=5' 
                 </jobTransformCmd>
                 <group>RecTrf</group>
                 <queue>long</queue>
