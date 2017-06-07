@@ -285,7 +285,7 @@ protected:
         /// get chain
         ChainString& chainName = (*chainitr);
 
-        m_provider->msg(MSG::INFO) << "process chain " << chainName << "\traw: " << chainitr->raw() << endmsg;
+        m_provider->msg(MSG::INFO) << "process chain " << chainName << endmsg;
 
         /// get matching chains
         std::vector<std::string> selectChains  = (*(m_tdt))->getListOfTriggers( chainName.head() );

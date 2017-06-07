@@ -1691,19 +1691,20 @@ int main(int argc, char** argv) {
       double  yminset = 0;
       double  ymaxset = 0;
 
+      double rmin = 0;
+      double rmax = 0;
+      
+      if ( xinfo.rangeset() ) { 
+	rmin = plots.realmin( plots.lo(), plots.hi() );
+	rmax = plots.realmax( plots.lo(), plots.hi() );
+      }
+      else {
+	rmin = plots.realmin();
+	rmax = plots.realmax();
+      }
+      
+
       if ( yinfo.autoset() ) { 
-	
-	double rmin = 0;
-	double rmax = 0;
-	
-	if ( xinfo.rangeset() ) { 
-	  rmin = plots.realmin( plots.lo(), plots.hi() );
-	  rmax = plots.realmax( plots.lo(), plots.hi() );
-	}
-	else {
-	  rmin = plots.realmin();
-	  rmax = plots.realmax();
-	}
 	
 	int csize = chains.size() + taglabels.size() + ( atlasstyle ? 1 : 0 );
 
@@ -1733,16 +1734,31 @@ int main(int argc, char** argv) {
 	  /// calculate the required range such that the histogram labels 
 	  /// won't crowd the points
 
-	  double delta = rmax-rmin;
+	  if ( ypos>0.5 ) { 
+	    double delta = rmax-rmin;
+	    
+	    yminset = rmin-0.1*delta;
+	    
+	    if ( rmin>=0 && yminset<=0 ) yminset = 0;
+	    
+	    double newdelta = rmax - yminset + 0.05*delta;
+	    
+	    if ( csize<10 ) ymaxset = yminset + newdelta/(1-0.09*csize);
+	    else            ymaxset = yminset + newdelta*2;
+	  }
+	  else { 
+	    double delta = rmax-rmin;
+  
+	    ymaxset = rmax+0.1*delta;
+	    	    
+	    double newdelta = ymaxset - rmin - 0.05*delta;
+	    
+	    if ( csize<10 ) yminset = ymaxset - newdelta/(1-0.09*csize);
+	    else            yminset = ymaxset - newdelta*2;
 
-	  yminset = rmin-0.1*delta;
+	    if ( rmin>=0 && yminset<=0 ) yminset = 0;
 
-	  if ( rmin>=0 && yminset<=0 ) yminset = 0;
-	  
-	  double newdelta = rmax - yminset + 0.05*delta;
-
-	  if ( csize<10 ) ymaxset = yminset + newdelta/(1-0.09*csize);
-	  else            ymaxset = yminset + newdelta*2;
+	  }
 
 	}
 	
@@ -1789,9 +1805,12 @@ int main(int argc, char** argv) {
 
       if ( fulldbg ) std::cout << __LINE__ << std::endl;
 
-      if ( yminset>0 ) plots.SetLogy(yinfo.log());
-      else             plots.SetLogy(false);
-   
+      if ( yminset!=0 || ymaxset!=0 ) { 
+	if ( yminset>0 ) plots.SetLogy(yinfo.log());
+	else             plots.SetLogy(false);
+      }	
+      else plots.SetLogy(yinfo.log());
+
       //      plots.SetLogy(false);
 
       if ( fulldbg ) std::cout << __LINE__ << std::endl;
