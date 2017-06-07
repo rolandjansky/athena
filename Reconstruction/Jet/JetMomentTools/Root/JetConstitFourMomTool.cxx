@@ -20,7 +20,7 @@ JetConstitFourMomTool::JetConstitFourMomTool(std::string myname)
     m_altColls({}),
     m_altConstitScales({}),
     m_altJetScales({}),
-    m_datahandle_keys({})
+    m_datahandle_keys {}  // calls default constructor 
 {
   // What cluster signal state to use for the jet constituents
   declareProperty("ConstitScale",     m_constitScale     );
@@ -33,11 +33,9 @@ JetConstitFourMomTool::JetConstitFourMomTool(std::string myname)
   // If an existing momentum scale should just be copied
   declareProperty("AltJetScales",     m_altJetScales     );
 
-  declareProperty("AltJetScales",     m_altJetScales     );
+  // initialize data handles in a handle array from a python list of strings
+  declareProperty("AltJetScales", m_datahandle_keys );
 
-  for(auto s : m_altColls) {
-    m_datahandle_keys.push_back(SG::ReadHandleKey<xAOD::CaloClusterContainer>(s));
-  }
 }
 
 //**********************************************************************
@@ -50,7 +48,12 @@ StatusCode JetConstitFourMomTool::initialize() {
       (m_jetScaleNames.size() != m_altJetScales.size()) ||
       (m_jetScaleNames.size() != m_datahandle_keys.size())
       ) {
-    ATH_MSG_FATAL("Inconsistency in configuration -- all vector properties must have the same (nonzero) length!");
+    ATH_MSG_FATAL("Inconsistency in configuration -- all vector properties must have the same (nonzero) length! Sizes: " 
+                  << m_jetScaleNames.size() << " "
+                  << m_altColls.size() << " "
+                  << m_altConstitScales.size() << " "
+                  << m_altJetScales.size() << " "
+                  << m_datahandle_keys.size());
     return StatusCode::FAILURE;
   }
 
@@ -66,7 +69,7 @@ StatusCode JetConstitFourMomTool::initialize() {
     }
   }
 
-  for(auto k : m_datahandle_keys){ATH_CHECK(k.initialize());}
+  ATH_CHECK(m_datahandle_keys.initialize());
 
   return StatusCode::SUCCESS;
 }
