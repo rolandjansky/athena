@@ -7348,18 +7348,15 @@
             <queue>long</queue>
 
 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000010.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000017.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000031.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000039.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000049.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000063.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000079.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000082.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000091.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000094.RDO_FTK.root</dataset>
-
-
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000015.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000020.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000023.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000027.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000031.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000035.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000051.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000055.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000072.pool.root.1</dataset> 
 
 
 
@@ -7790,18 +7787,15 @@
             <queue>long</queue>
 	   
 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000010.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000017.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000031.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000039.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000049.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000063.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000079.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000082.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000091.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000094.RDO_FTK.root</dataset>
-
-
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000015.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000020.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000023.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000027.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000031.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000035.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000051.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000055.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000072.pool.root.1</dataset> 
 
 
 
@@ -8000,18 +7994,15 @@
             <queue>long</queue>
 
 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000010.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000017.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000031.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000039.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000049.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000063.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000079.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000082.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000091.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000094.RDO_FTK.root</dataset>
-
-
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000015.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000020.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000023.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000027.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000031.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000035.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000051.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000055.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000072.pool.root.1</dataset> 
 
 	   
 
@@ -8040,7 +8031,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-beamspot-FTK.root data-FTK_beamspot_ttbar-reference.root HLT_beamspot_allTE_trkfast_InDetTrigTrackingxAODCnv_BeamSpot_FTF  HLT_beamspot_idperf_FTK_InDetTrigTrackingxAODCnv_BeamSpot_FTKMon -d HLTL2-plots </argvalue>
+                <argvalue>data-beamspot-FTK.root data-FTK_beamspot_ttbar-reference.root HLT_beamspot_allTE_trkfast_InDetTrigTrackingxAODCnv_BeamSpot_FTF  HLT_beamspot_idperf_FTK_InDetTrigTrackingxAODCnv_BeamSpot_FTKMon HLT_beamspot_allTE_FTKRefit_InDetTrigTrackingxAODCnv_BeamSpot_FTKRefit -d HLTL2-plots </argvalue>
               </arg>
             </action>
 
@@ -8195,18 +8186,15 @@
             <queue>long</queue>
 
 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000010.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000017.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000031.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000039.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000049.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000063.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000079.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000082.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000091.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000094.RDO_FTK.root</dataset>
-
-
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000015.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000020.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000023.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000027.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000031.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000035.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000051.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000055.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000072.pool.root.1</dataset> 
 
 
 
@@ -8434,18 +8422,15 @@
             <queue>long</queue>
 	   
 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000010.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000017.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000031.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000039.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000049.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000063.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000079.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000082.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000091.RDO_FTK.root</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/user.jahreda.valid1.110401.ttbar.RDO_FTK.july28.64tower.PCM101.FixEndcapFalse.e3099_s2578_r7579.redoNov1_EXT2/user.jahreda.9778320.EXT2._000094.RDO_FTK.root</dataset>
-
-
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000015.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000020.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000023.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000027.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000031.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000035.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000051.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000055.pool.root.1</dataset> 
+            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e4993_s2887_r8937_r9119/RDO_FTK.10733709._000072.pool.root.1</dataset> 
 
 
 
