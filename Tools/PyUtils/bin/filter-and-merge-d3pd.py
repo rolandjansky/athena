@@ -13,7 +13,6 @@ import atexit
 
 # 3rd party imports
 import ROOT
-import PyCintex; PyCintex.Cintex.Enable()
 
 # root globals to prevent ROOT garbage collector to sweep the rug....
 _root_files = []
