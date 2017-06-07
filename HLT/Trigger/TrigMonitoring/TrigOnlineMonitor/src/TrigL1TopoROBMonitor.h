@@ -43,6 +43,7 @@ class TrigL1TopoROBMonitor:public AthAlgorithm {
   StatusCode doCnvMon(bool);
   StatusCode doRawMon(bool);
   StatusCode doSimMon(bool);
+  StatusCode doSimDaq(bool);
   StatusCode doOverflowSimMon();
   StatusCode doWriteValData();
   StatusCode monitorROBs(const std::vector<uint32_t>&, bool);
@@ -58,6 +59,7 @@ class TrigL1TopoROBMonitor:public AthAlgorithm {
   BooleanProperty m_doRawMon;
   BooleanProperty m_doCnvMon;
   BooleanProperty m_doSimMon;
+  BooleanProperty m_doSimDaq;
   BooleanProperty m_doWriteValData;
   UnsignedIntegerArrayProperty m_vDAQROBIDs;
   UnsignedIntegerArrayProperty m_vROIROBIDs;
@@ -87,6 +89,7 @@ class TrigL1TopoROBMonitor:public AthAlgorithm {
   TH1F* m_histTopoCtpSimHdwEventComparison;
   TH1F* m_histTopoCtpHdwEventComparison;
   TH1F* m_histTopoDaqRobEventComparison;
+  TH1F* m_histDaqRobCtpEventComparison;
   TH1F* m_histTopoSimResult;
   TH1F* m_histTopoHdwResult;
   TH1F* m_histTopoSimNotHdwResult;
