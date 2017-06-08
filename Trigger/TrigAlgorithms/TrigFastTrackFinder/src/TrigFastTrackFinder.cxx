@@ -268,6 +268,13 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
 
   ATH_MSG_DEBUG("TrigFastTrackFinder::initialize() "  << PACKAGE_VERSION);
 
+  if (m_roiCollectionKey.initialize().isFailure() ) {
+    return HLT::BAD_JOB_SETUP;
+  }
+  if (m_outputTracksKey.initialize().isFailure() ) {
+    return HLT::BAD_JOB_SETUP;
+  }
+
   if ( timerSvc() ) {
     m_SpacePointConversionTimer = addTimer("SpacePointConversion"); 
     m_ZFinderTimer              = addTimer("ZFinder"); 
