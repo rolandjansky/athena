@@ -740,13 +740,6 @@ class TruthService(JobProperty):
     StoredValue  = 'ISF_TruthService'
 
 
-class BarcodeService(JobProperty):
-    """Steering of ISF: set the BarcodeService"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'Barcode_MC12BarcodeSvc'
-
-
 ## Definition and registration of the simulation flag container
 class SimFlags(JobPropertyContainer):
     """
