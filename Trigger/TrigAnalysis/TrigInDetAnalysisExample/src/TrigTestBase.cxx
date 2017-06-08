@@ -421,11 +421,11 @@ StatusCode TrigTestBase::fill() {
   int passed_count = 0;
 
   /// print out all the configured chains is need be
-  static bool _first = true;
+  static bool first = true;
   for ( unsigned i=0 ; i<selectChains.size() ; i++ ) {
-    if ( _first ) ATH_MSG_DEBUG( "\tchain " << selectChains[i] << " from TDT" );
+    if ( first ) ATH_MSG_DEBUG( "\tchain " << selectChains[i] << " from TDT" );
   }
-  _first = false;
+  first = false;
 
 
   for ( unsigned i=0 ; i<selectChains.size() ; i++ ) {

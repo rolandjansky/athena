@@ -10,9 +10,10 @@
 // includes
 #include <string>
 #include <set>
-#include <list>
+#include <vector>
 #include <typeinfo>
 #include <memory>
+#include <mutex>
 #include "GaudiKernel/IRegistry.h"
 #include "GaudiKernel/ClassID.h"
 #include "AthenaKernel/getMessageSvc.h" /*Athena::IMessageSvcHolder*/
@@ -224,7 +225,8 @@ namespace SG {
     bool m_resetFlag;        
 
     /// list of bound DataHandles
-    std::list<IResetable*> m_handles;
+    typedef std::vector<IResetable*> handleList_t;
+    handleList_t m_handles;
 
     T2pMap* m_t2p;
     Athena::IMessageSvcHolder m_ims;
@@ -235,6 +237,12 @@ namespace SG {
     /// The store of which we are a part.
     IProxyDict* m_store;
 
+
+    typedef std::mutex mutex_t;
+    typedef std::lock_guard<mutex_t> lock_t;
+    mutable mutex_t m_mutex;
+
+    
     /**
      * @brief Lock the data object we're holding, if any.
      */

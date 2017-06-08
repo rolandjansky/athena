@@ -27,8 +27,8 @@ void Trig::Print(const TrigMonEvent &event,
   const std::vector<TrigMonChain>  hlt = event.getChains();
 
   if (verb == 0) { // Ultra compact
-    float _costEvent = 0;
-    event.getVar(kIsCostEvent, _costEvent); // 47 is magic number for this data. TODO. Put all magic numbers in an enum
+    float costEvent = 0;
+    event.getVar(kIsCostEvent, costEvent); // 47 is magic number for this data. TODO. Put all magic numbers in an enum
     log << level 
         << "TrigMonEvent R:" << event.getRun() 
         << " L:" << event.getLumi()
@@ -40,7 +40,7 @@ void Trig::Print(const TrigMonEvent &event,
         << "|#L1=" << event.getL1Item().size()
         << "|#HLT=" << event.getChain().size() 
         << "|#WORD=" << event.getWord().size() 
-        << "|CE?:" << (_costEvent < 0.5 ? "N" : "Y")  << "]" << endmsg;
+        << "|CE?:" << (costEvent < 0.5 ? "N" : "Y")  << "]" << endmsg;
     return;
   }
  

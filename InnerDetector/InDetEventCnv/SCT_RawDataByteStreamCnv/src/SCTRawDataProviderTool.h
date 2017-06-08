@@ -65,8 +65,8 @@ private:
   // bookkeeping if we have decoded a ROB already
   std::set<uint32_t> m_robIdSet;
 
-  SG::ReadHandleKey<xAOD::EventInfo> xevtInfoKey;
-  SG::ReadHandleKey<EventInfo> evtInfoKey;
+  SG::ReadHandleKey<xAOD::EventInfo> m_xevtInfoKey;
+  SG::ReadHandleKey<EventInfo> m_evtInfoKey;
 };
 
 #endif

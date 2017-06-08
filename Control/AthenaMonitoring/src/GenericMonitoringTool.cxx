@@ -38,7 +38,6 @@ StatusCode GenericMonitoringTool::initialize() {
 
   for (const string& item : m_histograms) {
     ATH_MSG_DEBUG( "Configuring monitoring from: " << item );
-
     HistogramDef def = HistogramDef::parse(item);
 
     if (def.ok) {
@@ -46,7 +45,6 @@ StatusCode GenericMonitoringTool::initialize() {
         HistogramFiller* filler = factory.create(def);
         
         if (filler != nullptr) {
-
             m_fillers.push_back(filler);
 	    ATH_MSG_DEBUG( "Intermediate structures created" );
         } else {

@@ -37,5 +37,10 @@ private:
 };
 
 CLASS_DEF( LArMphysOverMcalSC ,125003343 , 1 )
+//ConditionsContainer clid for athenaMT
+#include "AthenaKernel/CondCont.h"
+CLASS_DEF( CondCont<LArMphysOverMcalSC> , 3164993 , 1 )
+#include "SGTools/BaseInfo.h"
+SG_BASE( CondCont<LArMphysOverMcalSC>, CondContBase );
 
 #endif 

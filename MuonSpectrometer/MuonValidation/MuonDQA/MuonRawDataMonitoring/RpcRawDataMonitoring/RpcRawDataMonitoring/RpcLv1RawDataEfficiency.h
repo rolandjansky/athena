@@ -192,7 +192,7 @@ class RpcLv1RawDataEfficiency: public ManagedMonitorToolBase {
   StoreGateSvc*   m_eventStore;  // to get event info
   ActiveStoreSvc* m_activeStore; // to get all the other information
   const RpcIdHelper* m_rpcIdHelper; 
-  const RpcSectorLogicContainer* sectorLogicContainer; 
+  const RpcSectorLogicContainer* m_sectorLogicContainer; 
   const MuonGM::MuonDetectorManager* m_muonMgr; // to retrieve coincidence informations
   
   // Trigger type stuff
@@ -202,9 +202,6 @@ class RpcLv1RawDataEfficiency: public ManagedMonitorToolBase {
   std::stringstream m_ss; 
 
   //for Sector Hits histograms
-  float i_sectorid;
-  bool b_isInput;
-  int i_ptid;
 
   int m_trigtype;
   int m_event;
@@ -216,12 +213,9 @@ class RpcLv1RawDataEfficiency: public ManagedMonitorToolBase {
   std::vector<CoincidenceData*> m_CoincidenceData;
 
   // Declare Histograms
-  TH1* rpclv1_MinDeltaRTrackTrigger[2];
-  TH1* rpclv1_TrackPt[2];
-
-  TH2I* rpclv1_sectorhits_A[6];
-  TH2I* rpclv1_sectorhits_C[6];
-  TH2I* rpclv1_sectorhits_all[6];
+  TH2I* m_rpclv1_sectorhits_A[6];
+  TH2I* m_rpclv1_sectorhits_C[6];
+  TH2I* m_rpclv1_sectorhits_all[6];
 
 };
 

@@ -54,7 +54,7 @@ public:
   virtual
   void registerKey (sgkey_t key,
                     const std::string& str,
-                    CLID clid)
+                    CLID clid) override
   {
     m_pool.registerKey (key, str, clid);
   }

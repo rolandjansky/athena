@@ -93,5 +93,6 @@ StatusCode DBMMon2DMaps::regHist(ManagedMonitorToolBase::MonGroup &group)
    StatusCode sc = StatusCode::SUCCESS;
    if (group.regHist(DBMA).isFailure()) sc = StatusCode::FAILURE;
    if (group.regHist(DBMC).isFailure()) sc = StatusCode::FAILURE;
+  
    return sc;
 }

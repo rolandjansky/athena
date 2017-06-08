@@ -195,17 +195,17 @@ TgcRawDataValAlg::readTgcPrepDataContainer(const Muon::TgcPrepDataContainer* tgc
         }
         
         if(m_debuglevel) m_log << MSG::DEBUG << " TgcPrepData number:  " << m_nPrd << endmsg;
-        if(m_nPrd>m_maxPrd-1){
-          m_log << MSG::WARNING << "Maximum number of TgcPrepData in the Histograms reached: " << m_maxPrd << endmsg;
+        if(m_nPrd>maxPrd-1){
+          m_log << MSG::WARNING << "Maximum number of TgcPrepData in the Histograms reached: " << maxPrd << endmsg;
           return;
         }
       }// Collection
       
       if(m_debuglevel) m_log << MSG::DEBUG << " TgcCollection number  " << m_nColl << endmsg;
-      if(m_nColl>m_maxColl-1){
+      if(m_nColl>maxColl-1){
         m_log << MSG::WARNING
               << "Maximum number of TgcPrepDataCollection in the TGCRawData Monitoring Histos reached: "
-              << m_maxColl << endmsg;
+              << maxColl << endmsg;
         return;
       } 
     }// Container

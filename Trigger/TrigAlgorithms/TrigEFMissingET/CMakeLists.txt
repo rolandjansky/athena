@@ -28,8 +28,8 @@ atlas_depends_on_subdirs(
    Trigger/TrigSteer/TrigInterfaces
    Trigger/TrigTools/TrigTimeAlgs
    PRIVATE
-   PathResolver
-   InDetTrackSelectionTool
+   Tools/PathResolver
+   InnerDetector/InDetRecTools/InDetTrackSelectionTool
    Control/CxxUtils
    DetectorDescription/Identifier
    Event/EventKernel

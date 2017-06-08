@@ -169,6 +169,7 @@ void DataProxy::setConst()
 
 bool DataProxy::bindHandle(IResetable* ir) {
   assert(ir);
+  lock_t lock (m_mutex);
   if (ir->isSet()) {
     return false;
   } else {
@@ -206,20 +207,31 @@ void DataProxy::finalReset()
 
 /// don't need no comment
 void DataProxy::resetBoundHandles (bool hard) {
-  auto i = m_handles.begin();
-  auto iEnd = m_handles.end();
-  while (i != iEnd) {
-    //    std::cout << "resetBoundHandles loop " << *i << std::endl;
-    if (0 == *i) {
-      i = m_handles.erase(i); //NULL IResetable* means handle was unbound
-    } else {
-      (*(i++))->reset(hard);
-    }
+  handleList_t handles;
+  {
+    lock_t lock (m_mutex);
+    // Early exit if the list is empty.
+    if (m_handles.empty()) return;
+
+    // Remove empty entries.
+    handleList_t::iterator it =
+      std::remove (m_handles.begin(), m_handles.end(), nullptr);
+    m_handles.erase (it, m_handles.end());
+    if (m_handles.empty()) return;
+
+    // Make a copy and drop the lock, so we're not holding the lock
+    // during the callback.
+    handles = m_handles;
+  }
+
+  for (IResetable* h : handles) {
+    h->reset(hard);
   }
 }
 
 void DataProxy::unbindHandle(IResetable *ir) {
   assert(ir);
+  lock_t lock (m_mutex);
   //  std::cout << "unbindHandle " << ir << std::endl;
   auto ifr = find(m_handles.begin(), m_handles.end(), ir );
   //reset the entry for ir instead of deleting it, so this can be called
@@ -234,19 +246,25 @@ void DataProxy::unbindHandle(IResetable *ir) {
 /// return refCount
 unsigned long DataProxy::refCount() const
 {
+  lock_t lock (m_mutex);
   return m_refCount;
 }
 
 /// Add reference to object
 unsigned long DataProxy::addRef()
 { 
+  lock_t lock (m_mutex);
   return ++m_refCount;
 }
 
 /// release reference to object
 unsigned long DataProxy::release()
-{ 
-  unsigned long count(--m_refCount);
+{
+  unsigned long count;
+  {
+    lock_t lock (m_mutex);
+    count = --m_refCount;
+  }
   if ( 0 == count ) delete this;
   return count;
 }

@@ -317,7 +317,7 @@ protected:
   /// List of conversion workers
   Workers             m_workers;
   /// Mutex to protect Converter creation
-  typedef std::mutex CallMutex;
+  typedef std::recursive_mutex CallMutex;
   CallMutex           m_conv_mut;
 }; 
 

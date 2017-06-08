@@ -24,8 +24,8 @@ SCTRawDataProviderTool::SCTRawDataProviderTool
 {
   declareProperty ("Decoder", m_decoder);
   declareProperty ("ErrorsSvc",m_bsErrSvc);
-  declareProperty ("xAODEventInfoKey", xevtInfoKey=std::string("EventInfo"));
-  declareProperty ("EventInfoKey", evtInfoKey=std::string("ByteStreamEventInfo"));
+  declareProperty ("xAODEventInfoKey", m_xevtInfoKey=std::string("EventInfo"));
+  declareProperty ("EventInfoKey", m_evtInfoKey=std::string("ByteStreamEventInfo"));
   declareInterface< ISCTRawDataProviderTool >( this );   
 }
 
@@ -68,8 +68,8 @@ StatusCode SCTRawDataProviderTool::initialize()
     incsvc->addListener( this, "BeginEvent", priority);
   }
 
-  ATH_CHECK( xevtInfoKey.initialize() );
-  ATH_CHECK( evtInfoKey.initialize() );
+  ATH_CHECK( m_xevtInfoKey.initialize() );
+  ATH_CHECK( m_evtInfoKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -141,7 +141,7 @@ StatusCode SCTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
     //// retrieve EventInfo.  
     /// First the xAOD one
     bool setOK_xAOD = false;
-    SG::ReadHandle<xAOD::EventInfo> xevtInfo_const(xevtInfoKey);
+    SG::ReadHandle<xAOD::EventInfo> xevtInfo_const(m_xevtInfoKey);
     if (xevtInfo_const.isValid()) {
       xAOD::EventInfo* xevtInfo = const_cast<xAOD::EventInfo*>(&*xevtInfo_const);
       setOK_xAOD = xevtInfo->setErrorState(xAOD::EventInfo::SCT, xAOD::EventInfo::Error);
@@ -149,7 +149,7 @@ StatusCode SCTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
 
     /// Second the old-style one
     bool setOK_old = false;
-    SG::ReadHandle<EventInfo> evtInfo_const(evtInfoKey);
+    SG::ReadHandle<EventInfo> evtInfo_const(m_evtInfoKey);
     if (evtInfo_const.isValid()) {
       EventInfo* evtInfo = const_cast<EventInfo*>(&*evtInfo_const);
       setOK_old = evtInfo->setErrorState(EventInfo::SCT, EventInfo::Error);
