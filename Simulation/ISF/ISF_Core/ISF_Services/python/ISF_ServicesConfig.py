@@ -19,7 +19,8 @@ def getParticleBrokerSvcNoOrdering(name="ISF_ParticleBrokerSvcNoOrdering", **kwa
     kwargs.setdefault('ValidateGeoIDs', ISF_Flags.ValidationMode())
     kwargs.setdefault('ValidationOutput', ISF_Flags.ValidationMode())
     kwargs.setdefault('ValidationStreamName', "ParticleBroker")
-    kwargs.setdefault('BarcodeService', ISF_Flags.BarcodeService())
+    from G4tlasApps.SimFlags import simFlags
+    kwargs.setdefault('BarcodeService', simFlags.BarcodeService())
     return CfgMgr.ISF__ParticleBrokerDynamicOnReadIn(name, **kwargs)
 
 def getParticleBrokerSvc(name="ISF_ParticleBrokerSvc", **kwargs):
@@ -95,8 +96,8 @@ def getLongLivedInputConverter(name="ISF_LongLivedInputConverter", **kwargs):
 #
 
 def getGenericTruthService(name="ISF_TruthService", **kwargs):
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    kwargs.setdefault('BarcodeSvc', ISF_Flags.BarcodeService())
+    from G4tlasApps.SimFlags import simFlags
+    kwargs.setdefault('BarcodeSvc', simFlags.BarcodeService())
     kwargs.setdefault('SkipIfNoChildren', True)
     kwargs.setdefault('SkipIfNoParentBarcode', True)
     kwargs.setdefault('ForceEndVtxInRegions', [])
