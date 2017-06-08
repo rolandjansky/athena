@@ -17,6 +17,8 @@ namespace LVL1MUCTPI {
   static const std::string DEFAULT_MuonCTPLocation   = "L1MuCTPItoCTPLocation";
   //! default StoreGate location for MuCTPI to RoIB input
   static const std::string DEFAULT_MuonRoIBLocation  = "L1MuCTPItoRoIBLocation";
+  //! default StoreGate location for MuCTPI to L1Topo input
+  static const std::string DEFAULT_MuonL1TopoLocation  = "L1MuCTPItoL1TopoLocation";
 
 } // namespace LVL1MUCTPI
 
