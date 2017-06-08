@@ -144,7 +144,10 @@ StatusCode InDet::InDetTrackSummaryHelperTool::initialize()
      m_startInclined[0] = 6; m_startInclined[1] = 6; m_startInclined[2] = 9; m_startInclined[3] = 13; m_startInclined[4] = 17;
    } else if ( "Inclined_LightBarrel" == m_geometryType ) {
      m_startInclined[0] = 6; m_startInclined[1] = 6; m_startInclined[2] = 8; m_startInclined[3] = 8; m_startInclined[4] = 9;
+   } else if ( "Inclined_Duals" == m_geometryType ) {
+     m_startInclined[0] = 6; m_startInclined[1] = 6; m_startInclined[2] = 11; m_startInclined[3] = 12; m_startInclined[4] = 13;
    }
+
 
    msg(MSG::INFO) << "initialize() successful in " << name() << endreq;
 
