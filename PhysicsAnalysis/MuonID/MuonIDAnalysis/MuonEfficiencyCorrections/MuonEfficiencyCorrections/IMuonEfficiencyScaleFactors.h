@@ -103,6 +103,7 @@
  */
 
 namespace CP {
+    class SystematicSet;
 
     class IMuonEfficiencyScaleFactors: public virtual asg::IAsgTool, public virtual CP::ISystematicsTool {
             ///
@@ -143,6 +144,11 @@ namespace CP {
             virtual CorrectionCode getMCEfficiency(const xAOD::Muon &mu, float& eff, const xAOD::EventInfo* info = 0) const=0;
             // decorate a muon with the efficiency information
             virtual CorrectionCode applyMCEfficiency(const xAOD::Muon &mu, const xAOD::EventInfo* info = 0) const =0;
+
+            //Functions to get the names of the unfolded systematic bins
+            virtual int getUnCorrelatedSystBin(const xAOD::Muon& mu) const=0;
+            virtual std::string getUncorrelatedSysBinName(unsigned int Bin) const = 0;
+            virtual std::string getUncorrelatedSysBinName(const SystematicSet& systConfig) const = 0;
 
             virtual ~IMuonEfficiencyScaleFactors() {
             }

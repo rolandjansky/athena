@@ -19,12 +19,12 @@
 #include <TString.h>
 
 // Infrastructure include(s):
-#ifdef ROOTCORE
+//#ifdef ROOTCORE
 #   include "xAODRootAccess/Init.h"
 #   include "xAODRootAccess/TEvent.h"
 #   include "xAODRootAccess/tools/ReturnCheck.h"
 #   include "AsgTools/Check.h"
-#endif // ROOTCORE
+//#endif // ROOTCORE
 
 // EDM include(s):
 #include "xAODEventInfo/EventInfo.h"
@@ -122,8 +122,8 @@ int main(int argc, char* argv[]) {
 
     //This option unfolds all the statistical systematics per bin of the SFs. Please only activate
     //this *if* you know what you're doing. The world is gonna implode by that
-    bool doUnfoldSystematicsForMedium = true;
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr, "UnfoldSystematics", doUnfoldSystematicsForMedium));
+    bool doUncorrelateSystematicsForMedium = true;
+    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr, "UncorrelateSystematics", doUncorrelateSystematicsForMedium));
 
     // setting a custom input folder containing SF files: this is NOT recommended!
     if (!DefaultCalibRelease.empty()) ASG_CHECK_SA(APP_NAME, asg::setProperty(m_effi_corr, "CustomInputFolder", DefaultCalibRelease));
@@ -140,7 +140,7 @@ int main(int argc, char* argv[]) {
     // instance for TTVA scale factors
     CP::MuonEfficiencyScaleFactors m_ttva_corr("TTVASFTestClass");
     ASG_CHECK_SA(APP_NAME, asg::setProperty(m_ttva_corr, "WorkingPoint", "TTVA"));
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_ttva_corr, "UnfoldSystematics", doUnfoldSystematicsForMedium));
+    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_ttva_corr, "UncorrelateSystematics", doUncorrelateSystematicsForMedium));
 
     // setting a custom input folder containing SF files: this is NOT recommended!
     if (!DefaultCalibRelease.empty()) ASG_CHECK_SA(APP_NAME, asg::setProperty(m_ttva_corr, "CustomInputFolder", DefaultCalibRelease));
@@ -158,7 +158,7 @@ int main(int argc, char* argv[]) {
 
     // instance for isolation scale factors
     CP::MuonEfficiencyScaleFactors m_iso_effi_corr("GradientIsoSFTestClass");
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_iso_effi_corr, "UnfoldSystematics", doUnfoldSystematicsForMedium));
+    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_iso_effi_corr, "UncorrelateSystematics", doUncorrelateSystematicsForMedium));
 
     ASG_CHECK_SA(APP_NAME, m_iso_effi_corr.setProperty("WorkingPoint", "GradientIso"));
     // setting a custom input folder containing SF files: this is NOT recommended!
@@ -172,7 +172,7 @@ int main(int argc, char* argv[]) {
 
     CP::MuonEfficiencyScaleFactors m_badboys_effi_corr("HighPtBadMuonVetoSFTestClass");
     ASG_CHECK_SA(APP_NAME, m_badboys_effi_corr.setProperty("WorkingPoint", "BadMuonHighPt"));
-    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_badboys_effi_corr, "UnfoldSystematics", doUnfoldSystematicsForMedium));
+    ASG_CHECK_SA(APP_NAME, asg::setProperty(m_badboys_effi_corr, "UncorrelateSystematics", doUncorrelateSystematicsForMedium));
 
     // setting a custom input folder containing SF files: this is NOT recommended!
     if (!DefaultCalibRelease.empty()) ASG_CHECK_SA(APP_NAME, asg::setProperty(m_badboys_effi_corr, "CustomInputFolder", DefaultCalibRelease));
@@ -231,13 +231,13 @@ int main(int argc, char* argv[]) {
 
             float nominalSF = 1.;
             CHECK_CPCorr(m_effi_corr.getEfficiencyScaleFactor(**mu_itr, nominalSF));
-            if (doUnfoldSystematicsForMedium) std::cout << "nominal SF " << nominalSF << std::endl;
+            if (doUncorrelateSystematicsForMedium) std::cout << "nominal SF " << nominalSF << std::endl;
             for (const auto &sysMedium : m_SystMedium) {
                 CHECK_CPSys(m_effi_corr.applySystematicVariation(sysMedium));
                 CHECK_CPCorr(m_effi_corr.getEfficiencyScaleFactor(**mu_itr, sf));
                 std::string sysMediumName = (sysMedium.name().empty()) ? "Nominal" : sysMedium.name();
-                // only print the systematic variation in case it is the relevant one when UnfoldSystematics is enabled
-                if (!doUnfoldSystematicsForMedium || nominalSF != sf) std::cout << sysMediumName << " scaleFactor = " << sf << std::endl;
+                // only print the systematic variation in case it is the relevant one when UncorrelateSystematics is enabled
+                if (!doUncorrelateSystematicsForMedium || nominalSF != sf) std::cout << sysMediumName << " scaleFactor = " << sf << std::endl;
             }
             CHECK_CPSys(m_effi_corr.applySystematicVariation(CP::SystematicSet()));
 
