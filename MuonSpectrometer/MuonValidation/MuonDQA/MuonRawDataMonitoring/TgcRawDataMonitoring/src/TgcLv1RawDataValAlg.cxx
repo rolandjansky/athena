@@ -61,9 +61,8 @@ using namespace std;
 // TgcLv1RawDataValAlg Constructor
 ///////////////////////////////////////////////////////////////////////////
 TgcLv1RawDataValAlg::TgcLv1RawDataValAlg(const std::string &type, const std::string &name, const IInterface* parent)
-  :ManagedMonitorToolBase(type, name, parent),
-   m_log(msgSvc(), name),
-   m_debuglevel(true){
+  :ManagedMonitorToolBase(type, name, parent)
+{
   // Declare the properties
   declareProperty("TgcPrepDataContainer",         m_hitContainerLocation="TGC_Measurements");
   declareProperty("TgcPrepDataPreviousContainer", m_hitContainerLocationPrevious="TGC_MeasurementsPriorBC");
@@ -190,7 +189,7 @@ TgcLv1RawDataValAlg::TgcLv1RawDataValAlg(const std::string &type, const std::str
 // TgcLv1RawDataValAlg Destructor
 ///////////////////////////////////////////////////////////////////////////
 TgcLv1RawDataValAlg::~TgcLv1RawDataValAlg(){
-  m_log << MSG::INFO << " deleting TgcLv1RawDataValAlg " << endmsg;
+  ATH_MSG_INFO( " deleting TgcLv1RawDataValAlg "  );
 }
 
 
@@ -199,14 +198,7 @@ TgcLv1RawDataValAlg::~TgcLv1RawDataValAlg(){
 ///////////////////////////////////////////////////////////////////////////
 StatusCode
 TgcLv1RawDataValAlg::initialize(){
-  // init message streams
-  m_log.setLevel(outputLevel());                // individual outputlevel not known before initialise
-  //m_log.setLevel(MSG::DEBUG);                   // individual outputlevel not known before initialise
-  m_debuglevel = (m_log.level() <= MSG::DEBUG); // save if threshold for debug printout reached
-  
-  m_log << MSG::INFO << "in TgcLv1RawDataValAlg initialize" << endmsg;
-
-  StatusCode sc;
+  ATH_MSG_INFO( "in TgcLv1RawDataValAlg initialize"  );
 
   /*
   // Store Gate store
@@ -218,34 +210,13 @@ TgcLv1RawDataValAlg::initialize(){
   */
   
   // Retrieve the Active Store
-  sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
-  if(sc != StatusCode::SUCCESS ){
-    m_log << MSG::ERROR << " Cannot get ActiveStoreSvc " << endmsg;
-    return sc ;
-  }
+  ATH_CHECK( serviceLocator()->service("ActiveStoreSvc", m_activeStore) );
 
-  // Initialize the IdHelper
-  StoreGateSvc* detStore = 0;
-  sc = service("DetectorStore", detStore);
-  if(sc.isFailure()){
-    m_log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
-    return StatusCode::FAILURE;
-  }   
-  
   // Retrieve the MuonDetectorManager  
-  sc = detStore->retrieve(m_muonMgr);
-  if(sc.isFailure()){
-    m_log << MSG::FATAL << "Cannot get MuonDetectorManager from detector store" << endmsg;
-    return StatusCode::FAILURE;
-  }else{
-    if (m_debuglevel) m_log << MSG::DEBUG << " Found the MuonDetectorManager from detector store. " << endmsg;
-  }
+  ATH_CHECK( detStore()->retrieve(m_muonMgr) );
+  ATH_MSG_DEBUG( " Found the MuonDetectorManager from detector store. "  );
 
-  sc = detStore->retrieve(m_tgcIdHelper,"TGCIDHELPER");
-  if(sc.isFailure()){
-    m_log << MSG::ERROR << "Can't retrieve TgcIdHelper" << endmsg;
-    return sc;
-  } 
+  ATH_CHECK( detStore()->retrieve(m_tgcIdHelper,"TGCIDHELPER") );
   
   /*
     if ( m_checkCabling ) {
@@ -290,16 +261,13 @@ TgcLv1RawDataValAlg::initialize(){
 ///////////////////////////////////////////////////////////////////////////
 StatusCode
 TgcLv1RawDataValAlg::bookHistogramsRecurrent(){
-  if (m_debuglevel) m_log << MSG::DEBUG << "TGCLV1 RawData Monitoring Histograms being booked" << endmsg;
+  ATH_MSG_DEBUG( "TGCLV1 RawData Monitoring Histograms being booked"  );
   
   // Book histograms per 10LBs 
-  if( newRun || newLowStatInterval ){
+  if( newRunFlag() || newLowStatIntervalFlag() ){
     // not monitor these profiles at GM
     if( m_environment != AthenaMonManager::online ){
-      if( ( bookHistogramsLowStat() ).isFailure() ){
-        m_log << MSG::FATAL << "bookLowStatHisto() Failed  " << endmsg;       
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK(  bookHistogramsLowStat() );
     }
     else{
       for(int ac=0;ac<2;ac++){
@@ -310,42 +278,27 @@ TgcLv1RawDataValAlg::bookHistogramsRecurrent(){
   }// newLowStatInterval
   
   // Book histograms per ... (not used yet, but commenting them out causes "unused" warnings)
-  if(newLumiBlock){}
+  if(newLumiBlockFlag()){}
   
   
   // Book histograms per Run
-  if(newRun){         
+  if(newRunFlag()){
     // Book Number Of Trigger And Profile histograms
-    if((bookHistogramsNumberOfTriggersAndProfile()).isFailure()){
-      m_log << MSG::FATAL << "bookNumberOfTriggersAndProfileHisto() Failed  " << endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( bookHistogramsNumberOfTriggersAndProfile() );
 
     // Book Number Of Trigger Rate histograms
-    if((bookHistogramsTriggerRate()).isFailure()){
-      m_log << MSG::FATAL << "bookTriggerRateHisto() Failed  " << endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( bookHistogramsTriggerRate() );
 
     // Book Timing histograms
-    if((bookHistogramsTiming()).isFailure()){
-      m_log << MSG::FATAL << "bookTimingHisto() Failed  " << endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( bookHistogramsTiming() );
 
     // Book Turn-on curves and efficiency maps
-    if((bookHistogramsEfficiency()).isFailure()){
-      m_log << MSG::FATAL << "bookEfficiencyHisto() Failed  " << endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( bookHistogramsEfficiency() );
 
     // not monitor these profiles at GM
     if( m_environment != AthenaMonManager::online ){
       // Book Coincidence Windows
-      if((bookHistogramsCoincidenceWindow()).isFailure()){
-        m_log << MSG::FATAL << "bookCoincidenceWindowHisto() Failed  " << endmsg;
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK( bookHistogramsCoincidenceWindow() );
     }
     else
       for(int ac=0;ac<2;ac++)
@@ -359,13 +312,10 @@ TgcLv1RawDataValAlg::bookHistogramsRecurrent(){
           }
 
     // Book Summary histograms
-    if( ( bookHistogramsSummary() ).isFailure() ){
-      m_log << MSG::FATAL << "bookSummaryHisto() Failed  " << endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( bookHistogramsSummary() );
   }// newRun
 
-  m_log << MSG::INFO << "TGCLV1 RawData Monitoring : histo booked " << endmsg;
+  ATH_MSG_INFO( "TGCLV1 RawData Monitoring : histo booked "  );
 
   return StatusCode::SUCCESS;
 }// EOF
@@ -376,20 +326,17 @@ TgcLv1RawDataValAlg::bookHistogramsRecurrent(){
 ///////////////////////////////////////////////////////////////////////////
 StatusCode
 TgcLv1RawDataValAlg::fillHistograms(){
-  StatusCode sc = StatusCode::SUCCESS;
-  if (m_debuglevel) m_log << MSG::DEBUG << "TgcLv1RawDataValAlg::TGCLV1 RawData Monitoring Histograms being filled" << endmsg;  
+  ATH_MSG_DEBUG( "TgcLv1RawDataValAlg::TGCLV1 RawData Monitoring Histograms being filled"  );
   
   ///////////////////////////////////////////////////////////////////////////
   // Get Event Data
   /////////////////////////////////////
   // Read Event Info
-  sc=readEventInfo();
-  if( sc.isFailure() ){
-    m_log << MSG::WARNING << "no event info container" << endmsg;
+  if( readEventInfo().isFailure() ){
+    ATH_MSG_WARNING( "no event info container"  );
   }
   // Read L1 Trigger Data
-  sc = readL1TriggerType();
-  if( sc.isFailure() )return sc;
+  ATH_CHECK(  readL1TriggerType() );
   
   /////////////////////////////////////
   // Get TGC Coin Containers
@@ -398,38 +345,23 @@ TgcLv1RawDataValAlg::fillHistograms(){
   const Muon::TgcCoinDataContainer* tgc_next_coin_container(0);
   
   // Previous
-  sc = (*m_activeStore)->retrieve(tgc_previous_coin_container, m_coinCollectionLocationPrevious);
-  if (sc.isFailure() || 0 == tgc_previous_coin_container ) {
-    m_log << MSG::ERROR << " Cannot retrieve TgcCoinDataContainer for previous BC" << endmsg;
-    return sc;
-  }
-  if (m_debuglevel) m_log << MSG::DEBUG << "****** tgc previous coin container size() : " << tgc_previous_coin_container->size() << endmsg;
+  ATH_CHECK(  (*m_activeStore)->retrieve(tgc_previous_coin_container, m_coinCollectionLocationPrevious) );
+  ATH_MSG_DEBUG( "****** tgc previous coin container size() : " << tgc_previous_coin_container->size()  );
   
   // Current
-  sc = (*m_activeStore)->retrieve(tgc_current_coin_container, m_coinCollectionLocation);
-  if (sc.isFailure() || 0 == tgc_current_coin_container ) {
-    m_log << MSG::ERROR << " Cannot retrieve TgcCoinDataContainer for current BC" << endmsg;
-    return sc;
-  }
-  if (m_debuglevel) m_log << MSG::DEBUG << "****** tgc current coin container size() : " << tgc_current_coin_container->size() << endmsg;
+  ATH_CHECK(  (*m_activeStore)->retrieve(tgc_current_coin_container, m_coinCollectionLocation) );
+  ATH_MSG_DEBUG( "****** tgc current coin container size() : " << tgc_current_coin_container->size()  );
   
   // Next
-  sc = (*m_activeStore)->retrieve(tgc_next_coin_container, m_coinCollectionLocationNext);
-  if (sc.isFailure() || 0 == tgc_next_coin_container ) {
-    m_log << MSG::ERROR << " Cannot retrieve TgcCoinDataContainer for next BC" << endmsg;
-    return sc;
-  }
-  if (m_debuglevel) m_log << MSG::DEBUG << "****** tgc next coin container size() : " << tgc_next_coin_container->size() << endmsg;
+  ATH_CHECK(  (*m_activeStore)->retrieve(tgc_next_coin_container, m_coinCollectionLocationNext) );
+  ATH_MSG_DEBUG( "****** tgc next coin container size() : " << tgc_next_coin_container->size()  );
   
   
   ///////////////////////////////////////////////////////////////////////////
   // ReadContainer
   /////////////////////////////////////
   // Read Offline Muon Containers
-  if(readOfflineMuonContainer( "Muons",  &m_muid_pt,  &m_muid_eta,  &m_muid_phi,  &m_muid_q).isFailure()){
-    m_log << MSG::ERROR << " fillOfflineMuon failed" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( readOfflineMuonContainer( "Muons",  &m_muid_pt,  &m_muid_eta,  &m_muid_phi,  &m_muid_q) );
 
   /////////////////////////////////////
   // Get Data from TGC Containers
@@ -473,7 +405,7 @@ TgcLv1RawDataValAlg::fillHistograms(){
     if(numberOfSL!=1) return StatusCode::SUCCESS;//not single RoI
   */
   
-  return sc;  // statuscode check  
+  return StatusCode::SUCCESS;  // statuscode check  
 }// EOF
 
 
@@ -482,10 +414,10 @@ TgcLv1RawDataValAlg::fillHistograms(){
 ///////////////////////////////////////////////////////////////////////////
 StatusCode
 TgcLv1RawDataValAlg::procHistograms(){
-  if (m_debuglevel) m_log << MSG::DEBUG << "TgcLv1RawDataValAlg finalize()" << endmsg;
+  ATH_MSG_DEBUG( "TgcLv1RawDataValAlg finalize()"  );
   
   // Process histograms per LumiBlock
-  if(endOfLumiBlock){
+  if(endOfLumiBlockFlag()){
 
     // Efficiency for Global Monitoring
     if( m_environment == AthenaMonManager::online ) {
@@ -509,7 +441,7 @@ TgcLv1RawDataValAlg::procHistograms(){
     }
   }
   // Process histograms per Run
-  if(endOfRun){
+  if(endOfRunFlag()){
     ///////////////////////////////////////////////////////////////////////////
     // TriggerTiming
     // SL/LPT timing

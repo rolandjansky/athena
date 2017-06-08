@@ -57,7 +57,6 @@ using namespace std;
 ///////////////////////////////////////////////////////////////////////////
 StatusCode
 TgcLv1RawDataValAlg::bookHistogramsCoincidenceWindow(){
-  StatusCode sc = StatusCode::SUCCESS; 
 
   ///////////////////////////////////////////////////////////////////////////
   // Make MonGroups for histogram booking paths
@@ -83,33 +82,24 @@ TgcLv1RawDataValAlg::bookHistogramsCoincidenceWindow(){
         // Coincidence Window for SL triggers for current pT threshold
         ss.str(""); ss << "CW_Mod"<< mod << "_RoI" << roi << "_PT"<< pt+1 << "_" << side[ac] ;
         m_tgclv1cw[ac][mod][pt] = new TH2F(ss.str().c_str(), (ss.str() + ";d#phi;dR").c_str(), 15,  -7, 8, 31, -15, 16);
-        if( ( tgclv1_cw_ac[ac]->regHist(m_tgclv1cw[ac][mod][pt]) ).isFailure()){
-          m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-          return StatusCode::FAILURE;
-        }
+        ATH_CHECK( tgclv1_cw_ac[ac]->regHist(m_tgclv1cw[ac][mod][pt]) );
         // Coincidence Window for SL triggers compared with Offline Muons
         for(int m=0;m<m_nMuonAlgorithms;m++){
           // CW for SL triggers matched with offline muons above current pT threshold
           ss.str(""); ss << "CW_Mod"<< mod << "_RoI" << roi << "_PT"<< pt+1 << "_" << muid[m] << "_" << side[ac] ;
           m_tgclv1cwoffline[ac][mod][pt][m] = new TH2F(ss.str().c_str(), (ss.str() + ";d#phi;dR").c_str(), 15,  -7, 8, 31, -15, 16);
-          if( ( tgclv1_cw_ac[ac]->regHist(m_tgclv1cwoffline[ac][mod][pt][m]) ).isFailure()){
-            m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-            return StatusCode::FAILURE;
-          }
+          ATH_CHECK( tgclv1_cw_ac[ac]->regHist(m_tgclv1cwoffline[ac][mod][pt][m]) );
           
           // CW for SL triggers matched with offline muons below current pT threshold
           ss.str(""); ss << "!CW_Mod"<< mod << "_RoI" << roi << "_PT"<< pt+1 << "_" << muid[m] <<  "_" << side[ac] ;
           m_tgclv1cwrejectedoffline[ac][mod][pt][m] = new TH2F(ss.str().c_str(), (ss.str() + ";d#phi;dR").c_str(), 15,  -7, 8, 31, -15, 16);
-          if( ( tgclv1_cw_ac[ac]->regHist(m_tgclv1cwrejectedoffline[ac][mod][pt][m]) ).isFailure()){
-            m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-            return StatusCode::FAILURE;
-          }
+          ATH_CHECK( tgclv1_cw_ac[ac]->regHist(m_tgclv1cwrejectedoffline[ac][mod][pt][m]) );
         }// muon algorithm
       }// pt
     }// mod
   }// ac
 
-  return sc;
+  return StatusCode::SUCCESS;
 }// EOF
 
 

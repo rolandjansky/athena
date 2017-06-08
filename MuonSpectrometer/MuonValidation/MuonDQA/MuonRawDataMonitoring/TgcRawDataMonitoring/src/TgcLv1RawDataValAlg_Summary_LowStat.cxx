@@ -57,7 +57,6 @@ using namespace std;
 ///////////////////////////////////////////////////////////////////////////
 StatusCode
 TgcLv1RawDataValAlg::bookHistogramsSummary(){
-  StatusCode sc = StatusCode::SUCCESS; 
   
   ///////////////////////////////////////////////////////////////////////////
   // Make MonGroups for histogram booking paths
@@ -74,24 +73,16 @@ TgcLv1RawDataValAlg::bookHistogramsSummary(){
     // SL Timing summary
     ss.str(""); ss << "Summary_Of_SL_Timing_" << side[ac];
     m_tgclv1summaryofsltiming[ac] = new TH1F(ss.str().c_str(), ss.str().c_str(), 151, 0.7, 1.002);
-    if(ac==0) sc=tgclv1_summary_a.regHist(m_tgclv1summaryofsltiming[ac]);
-    else      sc=tgclv1_summary_c.regHist(m_tgclv1summaryofsltiming[ac]);
-    if(sc.isFailure()){
-      m_log << MSG::FATAL << "m_tgclv1summaryofsltiming[" << ac << "] Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    if(ac==0) ATH_CHECK( tgclv1_summary_a.regHist(m_tgclv1summaryofsltiming[ac]) );
+    else      ATH_CHECK( tgclv1_summary_c.regHist(m_tgclv1summaryofsltiming[ac]) );
     m_tgclv1summaryofsltiming[ac]->GetXaxis()->SetTitle("Current BC fraction");
     m_tgclv1summaryofsltiming[ac]->GetYaxis()->SetTitle("Entries");
 
     // LpT Timing summary
     ss.str(""); ss << "Summary_Of_Low_Pt_Timing_" << side[ac];
     m_tgclv1summaryoflpttiming[ac] = new TH1F(ss.str().c_str(), ss.str().c_str(), 151, 0.7, 1.002);
-    if(ac==0) sc=tgclv1_summary_a.regHist(m_tgclv1summaryoflpttiming[ac]);
-    else      sc=tgclv1_summary_c.regHist(m_tgclv1summaryoflpttiming[ac]);
-    if(sc.isFailure()){
-      m_log << MSG::FATAL << "m_tgclv1summaryoflpttiming[" << ac << "] Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    if(ac==0) ATH_CHECK( tgclv1_summary_a.regHist(m_tgclv1summaryoflpttiming[ac]) );
+    else      ATH_CHECK( tgclv1_summary_c.regHist(m_tgclv1summaryoflpttiming[ac]) );
     m_tgclv1summaryoflpttiming[ac]->GetXaxis()->SetTitle("Current BC fraction");
     m_tgclv1summaryoflpttiming[ac]->GetYaxis()->SetTitle("Entries");
   }// side
@@ -103,11 +94,7 @@ TgcLv1RawDataValAlg::bookHistogramsSummary(){
     ss.str(""); ss << "Summary_Of_SL_Timing_Per_Chamber_Type" << type[itype];
     m_tgclv1summaryofsltimingperchambertype[itype]=new TH1F(ss.str().c_str(), ss.str().c_str(), 151, 0.7, 1.002);
         
-    sc=tgclv1_summary.regHist(m_tgclv1summaryofsltimingperchambertype[itype]) ;  
-    if(sc.isFailure()) { 
-      m_log << MSG::FATAL << "m_tgclv1summaryofsltimingperchambertype[" << itype << "] Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    ATH_CHECK( tgclv1_summary.regHist(m_tgclv1summaryofsltimingperchambertype[itype]) );
     m_tgclv1summaryofsltimingperchambertype[itype]->GetXaxis()->SetTitle("Current BC fraction"); 
     m_tgclv1summaryofsltimingperchambertype[itype]->GetYaxis()->SetTitle("Entries"); 
     
@@ -115,16 +102,12 @@ TgcLv1RawDataValAlg::bookHistogramsSummary(){
     ss.str(""); ss << "Summary_Of_Low_Pt_Timing_Per_Chamber_Type" << type[itype];
     m_tgclv1summaryoflpttimingperchambertype[itype]=new TH1F(ss.str().c_str(), ss.str().c_str(), 151, 0.7, 1.002);
       
-    sc=tgclv1_summary.regHist(m_tgclv1summaryoflpttimingperchambertype[itype]) ;  
-    if(sc.isFailure()) { 
-      m_log << MSG::FATAL << "m_tgclv1summaryoflpttimingperchambertype[" << itype << "] Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    ATH_CHECK( tgclv1_summary.regHist(m_tgclv1summaryoflpttimingperchambertype[itype]) );
     m_tgclv1summaryoflpttimingperchambertype[itype]->GetXaxis()->SetTitle("Current BC fraction"); 
     m_tgclv1summaryoflpttimingperchambertype[itype]->GetYaxis()->SetTitle("Entries");
   }// chambertype
 
-  return sc;
+  return StatusCode::SUCCESS;
 }// EOF
 
 
@@ -133,7 +116,6 @@ TgcLv1RawDataValAlg::bookHistogramsSummary(){
 ///////////////////////////////////////////////////////////////////////////
 StatusCode
 TgcLv1RawDataValAlg::bookHistogramsLowStat(){
-  StatusCode sc = StatusCode::SUCCESS; 
   
   ///////////////////////////////////////////////////////////////////////////
   // Make MonGroups for histogram booking paths
@@ -154,19 +136,13 @@ TgcLv1RawDataValAlg::bookHistogramsLowStat(){
     // SL trigger chamber map in 10LBs
     ss.str(""); ss << "SL_Chamber_In_10LBs_" << side[ac];
     m_tgclv1slchamberlowstat[ac] =new TH2F(ss.str().c_str(),ss.str().c_str(), 6, 0, 6, 48, 1, 49); 
-    if((tgclv1_lowstat_ac[ac]->regHist(m_tgclv1slchamberlowstat[ac])).isFailure()){
-      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    ATH_CHECK( tgclv1_lowstat_ac[ac]->regHist(m_tgclv1slchamberlowstat[ac]) );
     
     // SL trigger chamber map in 10LBs for pT threshold > pT1
     ss.str(""); ss << sltiming << morethanpt1 << "_In_10LBs_" << side[ac];
     m_tgclv1sltimingptcutlowstat[ac] = new TH1F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3);
     setTH1TitleLabelBCID(m_tgclv1sltimingptcutlowstat[ac]);
-    if((tgclv1_lowstat_ac[ac]->regHist(m_tgclv1sltimingptcutlowstat[ac])).isFailure()){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( tgclv1_lowstat_ac[ac]->regHist(m_tgclv1sltimingptcutlowstat[ac]) );
     
     // Set Bin Labels
     for(int icham=0;icham<6;icham++){
@@ -185,5 +161,5 @@ TgcLv1RawDataValAlg::bookHistogramsLowStat(){
     }// sector
   }// side
   
-  return sc;
+  return StatusCode::SUCCESS;
 }// EOF
