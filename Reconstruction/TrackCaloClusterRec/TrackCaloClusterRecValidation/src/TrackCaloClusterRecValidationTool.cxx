@@ -54,8 +54,11 @@ TrackCaloClusterRecValidationTool::TrackCaloClusterRecValidationTool(const std::
   declareProperty("TrackProdRadiusBins"         , m_trackProdRadiusBins );
   declareProperty("SaveClusterInfo"             , m_saveClusterInfo = false);
   declareProperty("ClusterCollectionName"       , m_caloClusterCollectionName = "TimedCaloCalTopoClusters");
+  declareProperty("ClusterEtaMax"               , m_caloClusterEtaMax = 2.5);
   declareProperty("SaveTrackCaloClusterInfo"    , m_saveTCCInfo = false);
-  declareProperty("TCCCombinedCollectionName"   , m_TCCCombinedCollectionName = "TrackCaloClustersCombined");
+  declareProperty("TCCCombinedCollectionNames"  , m_TCCCombinedCollectionNames);
+  declareProperty("TCCptMin"                    , m_tccPtMin = 10.*GeV);
+  declareProperty("TCCetaMax"                   , m_tccEtaMax = 2.5);
   
   }
 
@@ -92,9 +95,11 @@ TrackCaloClusterRecValidationTool::initialize() {
   }
   
   if (m_saveTCCInfo) {
-    ATH_MSG_INFO("Saving Plots for " << m_TCCCombinedCollectionName << "...");
-    m_tccPlots.insert(std::pair<std::string, TCCPlots*>(m_TCCCombinedCollectionName, new TCCPlots(0, m_dirName + m_TCCCombinedCollectionName, "tccs")));    
-    m_tccPlots.at(m_TCCCombinedCollectionName)->setTrackPtBinning(m_trackPtBins);
+    for (auto name : m_TCCCombinedCollectionNames) {
+      ATH_MSG_INFO("Saving Plots for " << name << "...");
+      m_tccPlots.insert(std::pair<std::string, TCCPlots*>(name, new TCCPlots(0, m_dirName + name, "tccs")));
+      m_tccPlots.at(name)->setTrackPtBinning(m_trackPtBins);
+    }
   }
   
   return StatusCode::SUCCESS;
@@ -310,16 +315,30 @@ TrackCaloClusterRecValidationTool::fillHistograms() {
    if (not clusters) return StatusCode::FAILURE;
    for (const auto& cluster: *clusters) {
      m_tccPlots.at(m_caloClusterCollectionName)->fillCluster(*cluster);
+     if (fabs(cluster->eta())<m_caloClusterEtaMax)
+       m_tccPlots.at(m_caloClusterCollectionName)->fillClusterEtaCut(*cluster);
    }    
   }
   
   // Getting the collections for the TrackCaloClusters
   if (m_saveTCCInfo) {
-   const auto tccs = getContainer<xAOD::TrackCaloClusterContainer>(m_TCCCombinedCollectionName);
-   if (not tccs) return StatusCode::FAILURE;
-   for (const auto& tcc: *tccs) {
-     m_tccPlots.at(m_TCCCombinedCollectionName)->fillTCC(*tcc);
-   }    
+    for (auto name : m_TCCCombinedCollectionNames) {
+      const auto tccs = getContainer<xAOD::TrackCaloClusterContainer>(name);
+      if (not tccs) return StatusCode::FAILURE;
+      // fill the map with all the tracks creating tcc (means from PV0)
+      std::vector<const xAOD::TrackParticle*> allpv0tracks;
+      for (const auto& tcc: *tccs) {
+	allpv0tracks.push_back(*tcc->trackParticleLink());
+      }
+      
+      for (const auto& tcc: *tccs) {
+	m_tccPlots.at(name)->fillTCC(*tcc, allpv0tracks);
+	if (tcc->pt()>m_tccPtMin)
+	  m_tccPlots.at(name)->fillTCCptCut(*tcc);
+	if (fabs(tcc->eta())<m_tccEtaMax)
+	  m_tccPlots.at(name)->fillTCCetaCut(*tcc);
+      }
+    } 
   }
   
   return StatusCode::SUCCESS;

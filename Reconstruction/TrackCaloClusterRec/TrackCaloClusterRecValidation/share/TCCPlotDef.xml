@@ -169,7 +169,7 @@
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Mass response"         n="100" lo="0." hi="5."/>
   </h> 
-
+  
 <!-- m_jet_response_pt_2leadings -->
   <h id="jet_response_pt_2leadings" type="TH1F" title="p_{T} response - 2 leading jets">
     <x title="p_{T} response" n="100" lo="0." hi="5."/>
@@ -199,7 +199,6 @@
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Mass response"         n="100" lo="0." hi="5."/>
   </h> 
-
 
 <!-- m_jet_response_pt_leading -->
   <h id="jet_response_pt_leading" type="TH1F" title="p_{T} response - leading jet">
@@ -272,6 +271,30 @@
   <h id="jet_response_m_npv_subleading" type="TH2F" title="Mass response vs NPV - subleading jets">
     <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
     <y title="Mass response" n="100" lo="0." hi="5."/>
+  </h> 
+
+  <!-- m_jet_response_d2_pt -->
+  <h id="jet_response_d2_pt" type="TH2F" title="D_{2} response vs Truth jet p_{T} - all jets">
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
+    <y title="D_{2} response"        n="500" lo="0." hi="5."/>
+  </h> 
+
+  <!-- m_jet_response_d2_pt_2leadings -->
+  <h id="jet_response_d2_pt_2leadings" type="TH2F" title="D_{2} response vs Truth jet p_{T} - 2 leading jets">
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
+    <y title="D_{2} response"        n="500" lo="0." hi="5."/>
+  </h> 
+
+  <!-- m_jet_response_d2_pt_leading -->
+  <h id="jet_response_d2_pt_leading" type="TH2F" title="D_{2} response vs Truth jet p_{T} - leading jets">
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
+    <y title="D_{2} response"        n="500" lo="0." hi="5."/>
+  </h> 
+
+  <!-- m_jet_response_d2_pt_subleading -->
+  <h id="jet_response_d2_pt_subleading" type="TH2F" title="D_{2} response vs Truth jet p_{T} - subleading jets">
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
+    <y title="D_{2} response"        n="500" lo="0." hi="5."/>
   </h> 
 
   
@@ -395,52 +418,220 @@
     <y title="Entries"/>
   </h> 
   
-<!-- m_jet_resolution_m -->
-  <h id="jet_resolution_m" type="TH1F" title="Mass resolution - all jets">
+<!-- m_jet_resolution_IQR1_m -->
+  <h id="jet_resolution_IQR1_m" type="TH1F" title="Mass resolution - all jets">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
-<!-- m_jet_resolution_m_2leadings -->
-  <h id="jet_resolution_m_2leadings" type="TH1F" title="Mass resolution - 2 leading jets">
+<!-- m_jet_resolution_IQR1_m_2leadings -->
+  <h id="jet_resolution_IQR1_m_2leadings" type="TH1F" title="Mass resolution - 2 leading jets">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
-<!-- m_jet_resolution_m_leading -->
-  <h id="jet_resolution_m_leading" type="TH1F" title="Mass resolution - leading jet">
+<!-- m_jet_resolution_IQR1_m_leading -->
+  <h id="jet_resolution_IQR1_m_leading" type="TH1F" title="Mass resolution - leading jet">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
-<!-- m_jet_resolution_m_subleading -->
-  <h id="jet_resolution_m_subleading" type="TH1F" title="Mass resolution - subleading jet">
+<!-- m_jet_resolution_IQR1_m_subleading -->
+  <h id="jet_resolution_IQR1_m_subleading" type="TH1F" title="Mass resolution - subleading jet">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
   
-<!-- m_jet_resolution_m_npv -->
-  <h id="jet_resolution_m_npv" type="TH1F" title="Mass resolution - all jets">
+  <!-- m_jet_resolution_IQR2_m -->
+  <h id="jet_resolution_IQR2_m" type="TH1F" title="Mass resolution - all jets">
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
+    <y title="0.5 x 68 % IQnR(R_{m})/(1 - |1 - median(R_{m})|)" />
+  </h> 
+
+<!-- m_jet_resolution_IQR2_m_2leadings -->
+  <h id="jet_resolution_IQR2_m_2leadings" type="TH1F" title="Mass resolution - 2 leading jets">
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
+    <y title="0.5 x 68 % IQnR(R_{m})/(1 - |1 - median(R_{m})|))" />
+  </h> 
+
+<!-- m_jet_resolution_IQR2_m_leading -->
+  <h id="jet_resolution_IQR2_m_leading" type="TH1F" title="Mass resolution - leading jet">
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
+    <y title="0.5 x 68 % IQnR(R_{m})/(1 - |1 - median(R_{m})|)" />
+  </h> 
+
+<!-- m_jet_resolution_IQR2_m_subleading -->
+  <h id="jet_resolution_IQR2_m_subleading" type="TH1F" title="Mass resolution - subleading jet">
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
+    <y title="0.5 x 68 % IQnR(R_{m})/(1 - |1 - median(R_{m})|)" />
+  </h> 
+  
+<!-- m_jet_resolution_IQR1_m_npv -->
+  <h id="jet_resolution_IQR1_m_npv" type="TH1F" title="Mass resolution - all jets">
     <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
     <y title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
-<!-- m_jet_resolution_m_npv_2leadings -->
-  <h id="jet_resolution_m_npv_2leadings" type="TH1F" title="Mass resolution - 2 leading jets">
+<!-- m_jet_resolution_IQR1_m_npv_2leadings -->
+  <h id="jet_resolution_IQR1_m_npv_2leadings" type="TH1F" title="Mass resolution - 2 leading jets">
     <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
     <y title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
-<!-- m_jet_resolution_m_npv_leading -->
-  <h id="jet_resolution_m_npv_leading" type="TH1F" title="Mass resolution - leading jet">
+<!-- m_jet_resolution_IQR1_m_npv_leading -->
+  <h id="jet_resolution_IQR1_m_npv_leading" type="TH1F" title="Mass resolution - leading jet">
     <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
     <y title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
   </h> 
 
-<!-- m_jet_resolution_m_npv_subleading -->
-  <h id="jet_resolution_m_npv_subleading" type="TH1F" title="Mass resolution - subleading jet">
+<!-- m_jet_resolution_IQR1_m_npv_subleading -->
+  <h id="jet_resolution_IQR1_m_npv_subleading" type="TH1F" title="Mass resolution - subleading jet">
     <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
     <y title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+  
+  <!-- m_jet_resolution_IQR2_m_npv -->
+  <h id="jet_resolution_IQR2_m_npv" type="TH1F" title="Mass resolution - all jets">
+    <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
+    <y title="0.5 x 68 % IQnR(R_{m})/(1 - |1 - median(R_{m})|)" />
+  </h> 
+
+<!-- m_jet_resolution_IQR2_m_npv_2leadings -->
+  <h id="jet_resolution_IQR2_m_npv_2leadings" type="TH1F" title="Mass resolution - 2 leading jets">
+    <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
+    <y title="0.5 x 68 % IQnR(R_{m})/(1 - |1 - median(R_{m})|)" />
+  </h> 
+
+<!-- m_jet_resolution_IQR2_m_npv_leading -->
+  <h id="jet_resolution_IQR2_m_npv_leading" type="TH1F" title="Mass resolution - leading jet">
+    <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
+    <y title="0.5 x 68 % IQnR(R_{m})/(1 - |1 - median(R_{m})|)" />
+  </h> 
+
+<!-- m_jet_resolution_IQR2_m_npv_subleading -->
+  <h id="jet_resolution_IQR2_m_npv_subleading" type="TH1F" title="Mass resolution - subleading jet">
+    <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
+    <y title="0.5 x 68 % IQnR(R_{m})/(1 - |1 - median(R_{m})|)" />
+  </h> 
+  
+<!-- m_jet_median_m_npv -->
+  <h id="jet_median_m_npv" type="TH1F" title="Mass resolution - all jets">
+    <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
+    <y title="median(R_{m})" />
+  </h> 
+
+<!-- m_jet_median_m_npv_2leadings -->
+  <h id="jet_median_m_npv_2leadings" type="TH1F" title="Mass resolution - 2 leading jets">
+    <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
+    <y title="median(R_{m})" />
+  </h> 
+
+<!-- m_jet_median_m_npv_leading -->
+  <h id="jet_median_m_npv_leading" type="TH1F" title="Mass resolution - leading jet">
+    <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
+    <y title="median(R_{m})" />
+  </h> 
+
+<!-- m_jet_median_m_npv_subleading -->
+  <h id="jet_median_m_npv_subleading" type="TH1F" title="Mass resolution - subleading jet">
+    <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
+    <y title="median(R_{m})" />
+  </h>
+  
+<!-- m_jet_median_width_IQR1_m_npv -->
+  <h id="jet_median_width_IQR1_m_npv" type="TH1F" title="Mass resolution - all jets">
+    <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
+    <y title="median(R_{m}) with 0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+
+<!-- m_jet_median_width_IQR1_m_npv_2leadings -->
+  <h id="jet_median_width_IQR1_m_npv_2leadings" type="TH1F" title="Mass resolution - 2 leading jets">
+    <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
+    <y title="median(R_{m}) with 0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+
+<!-- m_jet_median_width_IQR1_m_npv_leading -->
+  <h id="jet_median_width_IQR1_m_npv_leading" type="TH1F" title="Mass resolution - leading jet">
+    <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
+    <y title="median(R_{m}) with 0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h> 
+
+<!-- m_jet_median_width_IQR1_m_npv_subleading -->
+  <h id="jet_median_width_IQR1_m_npv_subleading" type="TH1F" title="Mass resolution - subleading jet">
+    <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
+    <y title="median(R_{m}) with 0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+  </h>
+  
+<!-- m_jet_median_width_IQR2_m_npv -->
+  <h id="jet_median_width_IQR2_m_npv" type="TH1F" title="Mass resolution - all jets">
+    <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
+    <y title="median(R_{m}) with 0.5 x 68 % IQnR(R_{m})/(1 - |1 - median(R_{m})|)" />
+  </h> 
+
+<!-- m_jet_median_width_IQR2_m_npv_2leadings -->
+  <h id="jet_median_width_IQR2_m_npv_2leadings" type="TH1F" title="Mass resolution - 2 leading jets">
+    <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
+    <y title="median(R_{m}) with 0.5 x 68 % IQnR(R_{m})/(1 - |1 - median(R_{m})|)" />
+  </h> 
+
+<!-- m_jet_median_width_IQR2_m_npv_leading -->
+  <h id="jet_median_width_IQR2_m_npv_leading" type="TH1F" title="Mass resolution - leading jet">
+    <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
+    <y title="median(R_{m}) with 0.5 x 68 % IQnR(R_{m})/(1 - |1 - median(R_{m})|)" />
+  </h> 
+
+<!-- m_jet_median_width_IQR2_m_npv_subleading -->
+  <h id="jet_median_width_IQR2_m_npv_subleading" type="TH1F" title="Mass resolution - subleading jet">
+    <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
+    <y title="median(R_{m}) with 0.5 x 68 % IQnR(R_{m})/(1 - |1 - median(R_{m})|)" />
+  </h>
+
+<!-- m_jet_resolution_IQR1_d2 -->
+  <h id="jet_resolution_IQR1_d2" type="TH1F" title="D_{2} resolution vs truth jet p_{T} - all jets">
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
+    <y title="0.5 x 68 % IQnR(R_{D_{2}})/median(R_{D_{2}})" />
+  </h> 
+
+<!-- m_jet_resolution_IQR1_d2_2leadings -->
+  <h id="jet_resolution_IQR1_d2_2leadings" type="TH1F" title="D_{2} resolution vs truth jet p_{T} - 2 leading jets">
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
+    <y title="0.5 x 68 % IQnR(R_{D_{2}})/median(R_{D_{2}})" />
+  </h> 
+
+<!-- m_jet_resolution_IQR1_d2_leading -->
+  <h id="jet_resolution_IQR1_d2_leading" type="TH1F" title="D_{2} resolution vs truth jet p_{T} - leading jet">
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
+    <y title="0.5 x 68 % IQnR(R_{D_{2}})/median(R_{D_{2}})" />
+  </h> 
+
+<!-- m_jet_resolution_IQR1_d2_subleading -->
+  <h id="jet_resolution_IQR1_d2_subleading" type="TH1F" title="D_{2} resolution vs truth jet p_{T} - subleading jet">
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
+    <y title="0.5 x 68 % IQnR(R_{D_{2}})/median(R_{D_{2}})" />
+  </h> 
+
+<!-- m_jet_resolution_IQR2_d2 -->
+  <h id="jet_resolution_IQR2_d2" type="TH1F" title="D_{2} resolution vs truth jet p_{T} - all jets">
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
+    <y title="0.5 x 68 % IQnR(R_{D_{2}})/(1 - |1 - median(R_{D_{2}})|)" />
+  </h> 
+
+<!-- m_jet_resolution_IQR2_d2_2leadings -->
+  <h id="jet_resolution_IQR2_d2_2leadings" type="TH1F" title="D_{2} resolution vs truth jet p_{T} - 2 leading jets">
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
+    <y title="0.5 x 68 % IQnR(R_{D_{2}})/(1 - |1 - median(R_{D_{2}})|)" />
+  </h> 
+
+<!-- m_jet_resolution_IQR2_d2_leading -->
+  <h id="jet_resolution_IQR2_d2_leading" type="TH1F" title="D_{2} resolution vs truth jet p_{T} - leading jet">
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
+    <y title="0.5 x 68 % IQnR(R_{D_{2}})/(1 - |1 - median(R_{D_{2}})|)" />
+  </h> 
+
+<!-- m_jet_resolution_IQR2_d2_subleading -->
+  <h id="jet_resolution_IQR2_d2_subleading" type="TH1F" title="D_{2} resolution vs truth jet p_{T} - subleading jet">
+    <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
+    <y title="0.5 x 68 % IQnR(R_{D_{2}})/(1 - |1 - median(R_{D_{2}})|)" />
   </h> 
 
 <!-- m_jet_mopt_pt_response_m -->
@@ -621,112 +812,112 @@
   <h id="jet_resolution_mopt_pt_pt" type="TH2F" title="p_{T} resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - all jets">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
-    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+    <z title="0.5 x 68 % IQnR(R_{p_{T}})/median(R_{p_{T}})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_pt_2leadings -->
   <h id="jet_resolution_mopt_pt_pt_2leadings" type="TH2F" title="p_{T} resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - 2 leading jets">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
-    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+    <z title="0.5 x 68 % IQnR(R_{p_{T}})/median(R_{p_{T}})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_pt_leading -->
   <h id="jet_resolution_mopt_pt_pt_leading" type="TH2F" title="p_{T} resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - leading jet">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
-    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+    <z title="0.5 x 68 % IQnR(R_{p_{T}})/median(R_{p_{T}})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_pt_subleading -->
   <h id="jet_resolution_mopt_pt_pt_subleading" type="TH2F" title="p_{T} resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - subleading jet">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
-    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+    <z title="0.5 x 68 % IQnR(R_{p_{T}})/median(R_{p_{T}})" />
   </h> 
   
 <!-- m_jet_resolution_mopt_pt_eta -->
   <h id="jet_resolution_mopt_pt_eta" type="TH2F" title="#eta resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - all jets">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
-    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+    <z title="0.5 x 68 % IQnR(R_{#eta})/median(R_{#eta})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_eta_2leadings -->
   <h id="jet_resolution_mopt_pt_eta_2leadings" type="TH2F" title="#eta resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - 2 leading jets">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
-    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+    <z title="0.5 x 68 % IQnR(R_{#eta})/median(R_{#eta})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_eta_leading -->
   <h id="jet_resolution_mopt_pt_eta_leading" type="TH2F" title="#eta resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - leading jet">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
-    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+    <z title="0.5 x 68 % IQnR(R_{#eta})/median(R_{#eta})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_eta_subleading -->
   <h id="jet_resolution_mopt_pt_eta_subleading" type="TH2F" title="#eta resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - subleading jet">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
-    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+    <z title="0.5 x 68 % IQnR(R_{#eta})/median(R_{#eta})" />
   </h> 
   
 <!-- m_jet_resolution_mopt_pt_phi -->
   <h id="jet_resolution_mopt_pt_phi" type="TH2F" title="#phi resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - all jets">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
-    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+    <z title="0.5 x 68 % IQnR(R_{#phi})/median(R_{#phi})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_phi_2leadings -->
   <h id="jet_resolution_mopt_pt_phi_2leadings" type="TH2F" title="#phi resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - 2 leading jets">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
-    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+    <z title="0.5 x 68 % IQnR(R_{#phi})/median(R_{#phi})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_phi_leading -->
   <h id="jet_resolution_mopt_pt_phi_leading" type="TH2F" title="#phi resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - leading jet">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
-    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+    <z title="0.5 x 68 % IQnR(R_{#phi})/median(R_{#phi})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_phi_subleading -->
   <h id="jet_resolution_mopt_pt_phi_subleading" type="TH2F" title="#phi resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - subleading jet">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
-    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+    <z title="0.5 x 68 % IQnR(R_{#phi})/median(R_{#phi})" />
   </h> 
   
 <!-- m_jet_resolution_mopt_pt_d2 -->
   <h id="jet_resolution_mopt_pt_d2" type="TH2F" title="D_{2} resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - all jets">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
-    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+    <z title="0.5 x 68 % IQnR(R_{D_{2}})/median(R_{D_{2}})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_d2_2leadings -->
   <h id="jet_resolution_mopt_pt_d2_2leadings" type="TH2F" title="D_{2} resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - 2 leading jets">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
-    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+    <z title="0.5 x 68 % IQnR(R_{D_{2}})/median(R_{D_{2}})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_d2_leading -->
   <h id="jet_resolution_mopt_pt_d2_leading" type="TH2F" title="D_{2} resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - leading jet">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
-    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+    <z title="0.5 x 68 % IQnR(R_{D_{2}})/median(R_{D_{2}})" />
   </h> 
 
 <!-- m_jet_resolution_mopt_pt_d2_subleading -->
   <h id="jet_resolution_mopt_pt_d2_subleading" type="TH2F" title="D_{2} resolution vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - subleading jet">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
-    <z title="0.5 x 68 % IQnR(R_{m})/median(R_{m})" />
+    <z title="0.5 x 68 % IQnR(R_{D_{2}})/median(R_{D_{2}})" />
   </h> 
    
   <!-- m_trk_d0 -->
@@ -930,19 +1121,19 @@
   <!-- m_trk_caloEntryUncTot_eta -->
   <h id="trk_caloEntryUncTot_eta" type="TH2F" title="calo entry #sigma(#Delta R) vs track #eta">
     <x title="track #eta [rad]" n="500" lo="-4." hi="4."/>
-    <y title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
+    <y title="Calo Entry #sigma(#Delta R)" n="20000" lo="0" hi="1."/>
   </h>
   
   <!-- m_trk_caloEntryUncTot_pt -->
   <h id="trk_caloEntryUncTot_pt" type="TH2F" title="calo entry #sigma(#Delta R) vs track p_{T}">
     <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
-    <y title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
+    <y title="Calo Entry #sigma(#Delta R)" n="20000" lo="0" hi="1."/>
   </h>
     
   <!-- m_trk_caloEntryUncTot_prodRadius -->
   <h id="trk_caloEntryUncTot_prodRadius" type="TH2F" title="calo entry #sigma(#Delta R) vs truth production radius">
     <x title="Truth Production Radius [mm]" n="1500" lo="0." hi="1500."/>
-    <y title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
+    <y title="Calo Entry #sigma(#Delta R)" n="20000" lo="0" hi="1."/>
   </h>
   
   <!-- m_trk_perigeeEta -->
@@ -1230,14 +1421,50 @@
 
   <!-- m_clusters_width -->
   <h id="clusters_width" type="TH1F" title="Cluster width for all clusters - Energy weight">
-    <x title="Cluster width" n="100" lo="0" hi="1."/>
+    <x title="Cluster width" n="2000" lo="0" hi="1."/>
     <y title="Entries"/>
   </h>
 
   <!-- m_clusters_width_eta -->
   <h id="clusters_width_eta" type="TH2F" title="Cluster width vs #eta for all clusters - Energy weight">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
-    <y title="Cluster width" n="100" lo="0" hi="1.0"/>
+    <y title="Cluster width" n="2000" lo="0" hi="1.0"/>
+  </h>
+  
+  <!-- m_clusters_energy -->
+  <h id="clusters_energy" type="TH1F" title="Cluster energy - Energy weight">
+    <x title="Cluster Energy [GeV]" n="4000" lo="-500" hi="3500"/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_clusters_matched_energy -->
+  <h id="clusters_matched_energy" type="TH1F" title="Energy of matching clusters - Energy weight">
+    <x title="Cluster Energy [GeV]" n="4000" lo="-500" hi="3500"/>
+    <y title="Entries"/>
+  </h>
+ 
+  <!-- m_clusters_notMatched_energy -->
+  <h id="clusters_notMatched_energy" type="TH1F" title="Energy of not matching clusters - Energy weight">
+    <x title="Cluster Energy [GeV]" n="4000" lo="-500" hi="3500"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_matchedFraction_energy -->
+  <h id="clusters_matchedFraction_energy" type="TH1F" title="fraction of matching clusters - Energy weight">
+    <x title="Cluster Energy [GeV]" n="4000" lo="-500" hi="3500"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_notMatchedFraction_energy -->
+  <h id="clusters_notMatchedFraction_energy" type="TH1F" title="fraction of not matching clusters - Energy weight">
+    <x title="Cluster Energy [GeV]" n="4000" lo="-500" hi="3500"/>
+    <y title="Fraction of not matching clusters"/>
+  </h>
+  
+  <!-- m_clusters_width_energy -->
+  <h id="clusters_width_energy" type="TH2F" title="Cluster width vs Cluster energy for all clusters - Energy weight">
+    <x title="Cluster Energy [GeV]" n="4000" lo="-500" hi="3500"/>
+    <y title="Cluster width" n="2000" lo="0" hi="1.0"/>
   </h>
   
   <!-- m_clusters_matched_eta_fix_and_var -->
@@ -1348,6 +1575,222 @@
     <y title="Fraction of not matching clusters"/>
   </h>
   
+  <!-- m_clusters_matched_pv0_eta_fix_and_var -->
+  <h id="clusters_matched_pv0_eta_fix_and_var" type="TH1F" title="#eta of matching clusters - fixed and variable #Delta R - Energy weight  - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_clusters_matched_pv0_eta_fix_or_var -->
+  <h id="clusters_matched_pv0_eta_fix_or_var" type="TH1F" title="#eta of matching clusters - fixed or variable #Delta R - Energy weight  - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_matched_pv0_eta_fix -->
+  <h id="clusters_matched_pv0_eta_fix" type="TH1F" title="#eta of matching clusters - fixed #Delta R - Energy weight  - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_clusters_matched_pv0_eta_notfix -->
+  <h id="clusters_matched_pv0_eta_notfix" type="TH1F" title="#eta of not matching clusters - fixed #Delta R - Energy weight  - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_clusters_matched_pv0_eta_var -->
+  <h id="clusters_matched_pv0_eta_var" type="TH1F" title="#eta of matching clusters - variable #Delta R - Energy weight  - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_matched_pv0_eta_notvar -->
+  <h id="clusters_matched_pv0_eta_notvar" type="TH1F" title="#eta of not matching clusters - variable #Delta R - Energy weight  - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_matched_pv0_eta_onlyvar -->
+  <h id="clusters_matched_pv0_eta_onlyvar" type="TH1F" title="#eta of matching clusters - only variable #DeltaR - Energy weight  - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_matched_pv0_eta_onlyfix -->
+  <h id="clusters_matched_pv0_eta_onlyfix" type="TH1F" title="#eta of matching clusters - only fixed #DeltaR - Energy weight  - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_matched_pv0_eta_none -->
+  <h id="clusters_matched_pv0_eta_none" type="TH1F" title="#eta of not matching clusters - Energy weight  - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_matchedFraction_eta_fix_and_var -->
+  <h id="clusters_matchedpv0Fraction_eta_fix_and_var" type="TH1F" title="Fraction of matching clusters - fixed and variable #Delta R - Energy weight  - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_matchedpv0Fraction_eta_fix_or_var -->
+  <h id="clusters_matchedpv0Fraction_eta_fix_or_var" type="TH1F" title="Fraction of matching clusters - fixed or variable #Delta R - Energy weight  - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_matchedpv0Fraction_eta_fix -->
+  <h id="clusters_matchedpv0Fraction_eta_fix" type="TH1F" title="Fraction of matching clusters - fixed #Delta R - Energy weight  - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_matchedpv0Fraction_eta_notfix -->
+  <h id="clusters_matchedpv0Fraction_eta_notfix" type="TH1F" title="Fraction of not matching clusters - fixed #Delta R - Energy weight  - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of not matching clusters"/>
+  </h>
+
+  <!-- m_clusters_matchedpv0Fraction_eta_var -->
+  <h id="clusters_matchedpv0Fraction_eta_var" type="TH1F" title="Fraction of matching clusters - variable #Delta R - Energy weight  - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_matchedpv0Fraction_eta_notvar -->
+  <h id="clusters_matchedpv0Fraction_eta_notvar" type="TH1F" title="Fraction of not matching clusters - variable #Delta R - Energy weight  - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_matchedpv0Fraction_eta_onlyvar -->
+  <h id="clusters_matchedpv0Fraction_eta_onlyvar" type="TH1F" title="Fraction of matching clusters - only variable #Delta R - Energy weight  - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_matchedpv0Fraction_eta_onlyfix -->
+  <h id="clusters_matchedpv0Fraction_eta_onlyfix" type="TH1F" title="Fraction of matching clusters - only fixed #Delta R - Energy weight  - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_matchedpv0Fraction_eta_none -->
+  <h id="clusters_matchedpv0Fraction_eta_none" type="TH1F" title="Fraction of not matching clusters - Energy weight  - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of not matching clusters"/>
+  </h>
+ 
+  <!-- m_clusters_matched_pvx_eta_fix_and_var -->
+  <h id="clusters_matched_pvx_eta_fix_and_var" type="TH1F" title="#eta of matching clusters - fixed and variable #Delta R - Energy weight - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_clusters_matched_pvx_eta_fix_or_var -->
+  <h id="clusters_matched_pvx_eta_fix_or_var" type="TH1F" title="#eta of matching clusters - fixed or variable #Delta R - Energy weight - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_matched_pvx_eta_fix -->
+  <h id="clusters_matched_pvx_eta_fix" type="TH1F" title="#eta of matching clusters - fixed #Delta R - Energy weight - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_clusters_matched_pvx_eta_notfix -->
+  <h id="clusters_matched_pvx_eta_notfix" type="TH1F" title="#eta of not matching clusters - fixed #Delta R - Energy weight - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_clusters_matched_pvx_eta_var -->
+  <h id="clusters_matched_pvx_eta_var" type="TH1F" title="#eta of matching clusters - variable #Delta R - Energy weight - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_matched_pvx_eta_notvar -->
+  <h id="clusters_matched_pvx_eta_notvar" type="TH1F" title="#eta of not matching clusters - variable #Delta R - Energy weight - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_matched_pvx_eta_onlyvar -->
+  <h id="clusters_matched_pvx_eta_onlyvar" type="TH1F" title="#eta of matching clusters - only variable #DeltaR - Energy weight - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_matched_pvx_eta_onlyfix -->
+  <h id="clusters_matched_pvx_eta_onlyfix" type="TH1F" title="#eta of matching clusters - only fixed #DeltaR - Energy weight - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_matched_pvx_eta_none -->
+  <h id="clusters_matched_pvx_eta_none" type="TH1F" title="#eta of not matching clusters - Energy weight - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_matchedFraction_eta_fix_and_var -->
+  <h id="clusters_matchedpvxFraction_eta_fix_and_var" type="TH1F" title="Fraction of matching clusters - fixed and variable #Delta R - Energy weight - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_matchedpvxFraction_eta_fix_or_var -->
+  <h id="clusters_matchedpvxFraction_eta_fix_or_var" type="TH1F" title="Fraction of matching clusters - fixed or variable #Delta R - Energy weight - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_matchedpvxFraction_eta_fix -->
+  <h id="clusters_matchedpvxFraction_eta_fix" type="TH1F" title="Fraction of matching clusters - fixed #Delta R - Energy weight - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_matchedpvxFraction_eta_notfix -->
+  <h id="clusters_matchedpvxFraction_eta_notfix" type="TH1F" title="Fraction of not matching clusters - fixed #Delta R - Energy weight - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of not matching clusters"/>
+  </h>
+
+  <!-- m_clusters_matchedpvxFraction_eta_var -->
+  <h id="clusters_matchedpvxFraction_eta_var" type="TH1F" title="Fraction of matching clusters - variable #Delta R - Energy weight - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_matchedpvxFraction_eta_notvar -->
+  <h id="clusters_matchedpvxFraction_eta_notvar" type="TH1F" title="Fraction of not matching clusters - variable #Delta R - Energy weight - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_matchedpvxFraction_eta_onlyvar -->
+  <h id="clusters_matchedpvxFraction_eta_onlyvar" type="TH1F" title="Fraction of matching clusters - only variable #Delta R - Energy weight - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_matchedpvxFraction_eta_onlyfix -->
+  <h id="clusters_matchedpvxFraction_eta_onlyfix" type="TH1F" title="Fraction of matching clusters - only fixed #Delta R - Energy weight - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_matchedpvxFraction_eta_none -->
+  <h id="clusters_matchedpvxFraction_eta_none" type="TH1F" title="Fraction of not matching clusters - Energy weight - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of not matching clusters"/>
+  </h>
+  
   <!-- m_clusters_abs_eta -->
   <h id="clusters_abs_eta" type="TH1F" title="#eta of all clusters">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
@@ -1380,16 +1823,52 @@
 
   <!-- m_clusters_abs_width -->
   <h id="clusters_abs_width" type="TH1F" title="Cluster width for all clusters">
-    <x title="Cluster width" n="100" lo="0" hi="1."/>
+    <x title="Cluster width" n="2000" lo="0" hi="1."/>
     <y title="Entries"/>
   </h>
 
   <!-- m_clusters_abs_width_eta -->
   <h id="clusters_abs_width_eta" type="TH2F" title="Cluster width vs #eta for all clusters">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
-    <y title="Cluster width" n="100" lo="0" hi="1.0"/>
+    <y title="Cluster width" n="2000" lo="0" hi="1.0"/>
   </h>
   
+  <!-- m_clusters_abs_energy -->
+  <h id="clusters_abs_energy" type="TH1F" title="Cluster energy">
+    <x title="Cluster Energy [GeV]" n="4000" lo="-500" hi="3500"/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_clusters_abs_matched_energy -->
+  <h id="clusters_abs_matched_energy" type="TH1F" title="Energy of matching clusters">
+    <x title="Cluster Energy [GeV]" n="4000" lo="-500" hi="3500"/>
+    <y title="Entries"/>
+  </h>
+ 
+  <!-- m_clusters_abs_notMatched_energy -->
+  <h id="clusters_abs_notMatched_energy" type="TH1F" title="Energy of not matching clusters">
+    <x title="Cluster Energy [GeV]" n="4000" lo="-500" hi="3500"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedFraction_energy -->
+  <h id="clusters_abs_matchedFraction_energy" type="TH1F" title="fraction of matching clusters">
+    <x title="Cluster Energy [GeV]" n="4000" lo="-500" hi="3500"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_notMatchedFraction_energy -->
+  <h id="clusters_abs_notMatchedFraction_energy" type="TH1F" title="fraction of not matching clusters">
+    <x title="Cluster Energy [GeV]" n="4000" lo="-500" hi="3500"/>
+    <y title="Fraction of not matching clusters"/>
+  </h>
+  
+  <!-- m_clusters_abs_width_energy -->
+  <h id="clusters_abs_width_energy" type="TH2F" title="Cluster width vs Cluster energy for all clusters">
+    <x title="Cluster Energy [GeV]" n="4000" lo="-500" hi="3500"/>
+    <y title="Cluster width" n="2000" lo="0" hi="1.0"/>
+  </h>
+      
   <!-- m_clusters_abs_matched_eta_fix_and_var -->
   <h id="clusters_abs_matched_eta_fix_and_var" type="TH1F" title="#eta of matching clusters - fixed and variable #Delta R">
     <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
@@ -1498,6 +1977,222 @@
     <y title="Fraction of not matching clusters"/>
   </h>
   
+  <!-- m_clusters_abs_matched_pv0_eta_fix_and_var -->
+  <h id="clusters_abs_matched_pv0_eta_fix_and_var" type="TH1F" title="#eta of matching clusters - fixed and variable #Delta R - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_clusters_abs_matched_pv0_eta_fix_or_var -->
+  <h id="clusters_abs_matched_pv0_eta_fix_or_var" type="TH1F" title="#eta of matching clusters - fixed or variable #Delta R - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_abs_matched_pv0_eta_fix -->
+  <h id="clusters_abs_matched_pv0_eta_fix" type="TH1F" title="#eta of matching clusters - fixed #Delta R - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_clusters_abs_matched_pv0_eta_notfix -->
+  <h id="clusters_abs_matched_pv0_eta_notfix" type="TH1F" title="#eta of not matching clusters - fixed #Delta R - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_clusters_abs_matched_pv0_eta_var -->
+  <h id="clusters_abs_matched_pv0_eta_var" type="TH1F" title="#eta of matching clusters - variable #Delta R - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_abs_matched_pv0_eta_notvar -->
+  <h id="clusters_abs_matched_pv0_eta_notvar" type="TH1F" title="#eta of not matching clusters - variable #Delta R - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_abs_matched_pv0_eta_onlyvar -->
+  <h id="clusters_abs_matched_pv0_eta_onlyvar" type="TH1F" title="#eta of matching clusters - only variable #DeltaR - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_abs_matched_pv0_eta_onlyfix -->
+  <h id="clusters_abs_matched_pv0_eta_onlyfix" type="TH1F" title="#eta of matching clusters - only fixed #DeltaR - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_abs_matched_pv0_eta_none -->
+  <h id="clusters_abs_matched_pv0_eta_none" type="TH1F" title="#eta of not matching clusters - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedFraction_eta_fix_and_var -->
+  <h id="clusters_abs_matchedpv0Fraction_eta_fix_and_var" type="TH1F" title="Fraction of matching clusters - fixed and variable #Delta R - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedpv0Fraction_eta_fix_or_var -->
+  <h id="clusters_abs_matchedpv0Fraction_eta_fix_or_var" type="TH1F" title="Fraction of matching clusters - fixed or variable #Delta R - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedpv0Fraction_eta_fix -->
+  <h id="clusters_abs_matchedpv0Fraction_eta_fix" type="TH1F" title="Fraction of matching clusters - fixed #Delta R - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedpv0Fraction_eta_notfix -->
+  <h id="clusters_abs_matchedpv0Fraction_eta_notfix" type="TH1F" title="Fraction of not matching clusters - fixed #Delta R - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of not matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedpv0Fraction_eta_var -->
+  <h id="clusters_abs_matchedpv0Fraction_eta_var" type="TH1F" title="Fraction of matching clusters - variable #Delta R - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedpv0Fraction_eta_notvar -->
+  <h id="clusters_abs_matchedpv0Fraction_eta_notvar" type="TH1F" title="Fraction of not matching clusters - variable #Delta R - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedpv0Fraction_eta_onlyvar -->
+  <h id="clusters_abs_matchedpv0Fraction_eta_onlyvar" type="TH1F" title="Fraction of matching clusters - only variable #Delta R - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedpv0Fraction_eta_onlyfix -->
+  <h id="clusters_abs_matchedpv0Fraction_eta_onlyfix" type="TH1F" title="Fraction of matching clusters - only fixed #Delta R - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedpv0Fraction_eta_none -->
+  <h id="clusters_abs_matchedpv0Fraction_eta_none" type="TH1F" title="Fraction of not matching clusters - Tracks from PV0">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of not matching clusters"/>
+  </h>
+  
+  <!-- m_clusters_abs_matched_pvx_eta_fix_and_var -->
+  <h id="clusters_abs_matched_pvx_eta_fix_and_var" type="TH1F" title="#eta of matching clusters - fixed and variable #Delta R - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_clusters_abs_matched_pvx_eta_fix_or_var -->
+  <h id="clusters_abs_matched_pvx_eta_fix_or_var" type="TH1F" title="#eta of matching clusters - fixed or variable #Delta R - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_abs_matched_pvx_eta_fix -->
+  <h id="clusters_abs_matched_pvx_eta_fix" type="TH1F" title="#eta of matching clusters - fixed #Delta R - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_clusters_abs_matched_pvx_eta_notfix -->
+  <h id="clusters_abs_matched_pvx_eta_notfix" type="TH1F" title="#eta of not matching clusters - fixed #Delta R - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_clusters_abs_matched_pvx_eta_var -->
+  <h id="clusters_abs_matched_pvx_eta_var" type="TH1F" title="#eta of matching clusters - variable #Delta R - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_abs_matched_pvx_eta_notvar -->
+  <h id="clusters_abs_matched_pvx_eta_notvar" type="TH1F" title="#eta of not matching clusters - variable #Delta R - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_abs_matched_pvx_eta_onlyvar -->
+  <h id="clusters_abs_matched_pvx_eta_onlyvar" type="TH1F" title="#eta of matching clusters - only variable #DeltaR - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_abs_matched_pvx_eta_onlyfix -->
+  <h id="clusters_abs_matched_pvx_eta_onlyfix" type="TH1F" title="#eta of matching clusters - only fixed #DeltaR - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_abs_matched_pvx_eta_none -->
+  <h id="clusters_abs_matched_pvx_eta_none" type="TH1F" title="#eta of not matching clusters - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedFraction_eta_fix_and_var -->
+  <h id="clusters_abs_matchedpvxFraction_eta_fix_and_var" type="TH1F" title="Fraction of matching clusters - fixed and variable #Delta R - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedpvxFraction_eta_fix_or_var -->
+  <h id="clusters_abs_matchedpvxFraction_eta_fix_or_var" type="TH1F" title="Fraction of matching clusters - fixed or variable #Delta R - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedpvxFraction_eta_fix -->
+  <h id="clusters_abs_matchedpvxFraction_eta_fix" type="TH1F" title="Fraction of matching clusters - fixed #Delta R - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedpvxFraction_eta_notfix -->
+  <h id="clusters_abs_matchedpvxFraction_eta_notfix" type="TH1F" title="Fraction of not matching clusters - fixed #Delta R - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of not matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedpvxFraction_eta_var -->
+  <h id="clusters_abs_matchedpvxFraction_eta_var" type="TH1F" title="Fraction of matching clusters - variable #Delta R - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedpvxFraction_eta_notvar -->
+  <h id="clusters_abs_matchedpvxFraction_eta_notvar" type="TH1F" title="Fraction of not matching clusters - variable #Delta R - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedpvxFraction_eta_onlyvar -->
+  <h id="clusters_abs_matchedpvxFraction_eta_onlyvar" type="TH1F" title="Fraction of matching clusters - only variable #Delta R - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedpvxFraction_eta_onlyfix -->
+  <h id="clusters_abs_matchedpvxFraction_eta_onlyfix" type="TH1F" title="Fraction of matching clusters - only fixed #Delta R - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of matching clusters"/>
+  </h>
+
+  <!-- m_clusters_abs_matchedpvxFraction_eta_none -->
+  <h id="clusters_abs_matchedpvxFraction_eta_none" type="TH1F" title="Fraction of not matching clusters - Tracks from PVX(X>0)">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Fraction of not matching clusters"/>
+  </h>
+ 
   <!-- m_clusters_pt_fraction_e -->
   <h id="clusters_pt_fraction_e" type="TH2F" title="p_{T} fraction at PV0 - all clusters">
     <x title="Cluster Energy [GeV]" n="4000" lo="-500" hi="3500"/>
@@ -1521,7 +2216,68 @@
     <x title="Cluster Energy [GeV]" n="4000" lo="-500" hi="3500"/>
     <y title="p_{T} fraction at PV0" n="1000" lo="0." hi="1."/>
   </h>
-      
+  
+  
+  <!-- m_clusters_etacut_abs_width -->
+  <h id="clusters_etacut_abs_width" type="TH1F" title="Cluster width for all clusters - #eta^{cluster} cut">
+    <x title="Cluster width" n="2000" lo="0" hi="1."/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_etacut_abs_width_eta -->
+  <h id="clusters_etacut_abs_width_eta" type="TH2F" title="Cluster width vs #eta for all clusters - #eta^{cluster} cut">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Cluster width" n="2000" lo="0" hi="1.0"/>
+  </h>
+  
+  <!-- m_clusters_etacut_abs_energy -->
+  <h id="clusters_etacut_abs_energy" type="TH1F" title="Cluster energy - #eta^{cluster} cut">
+    <x title="Cluster Energy [GeV]" n="4000" lo="-500" hi="3500"/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_clusters_etacut_abs_width_energy -->
+  <h id="clusters_etacut_abs_width_energy" type="TH2F" title="Cluster width vs Cluster energy for all clusters - #eta^{cluster} cut">
+    <x title="Cluster Energy [GeV]" n="4000" lo="-500" hi="3500"/>
+    <y title="Cluster width" n="2000" lo="0" hi="1.0"/>
+  </h>
+  
+  <!-- m_clusters_etacut_etacut__eta -->
+  <h id="clusters_etacut_eta" type="TH1F" title="#eta of all clusters - Energy weight - #eta^{cluster} cut">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_clusters_etacut_abs_eta -->
+  <h id="clusters_etacut_abs_eta" type="TH1F" title="#eta of all clusters - #eta^{cluster} cut">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_clusters_etacut_width -->
+  <h id="clusters_etacut_width" type="TH1F" title="Cluster width for all clusters - Energy weight - #eta^{cluster} cut">
+    <x title="Cluster width" n="2000" lo="0" hi="1."/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_clusters_etacut_width_eta -->
+  <h id="clusters_etacut_width_eta" type="TH2F" title="Cluster width vs #eta for all clusters - Energy weight - #eta^{cluster} cut">
+    <x title="Cluster #eta" n="200" lo="-4.0" hi="4.0"/>
+    <y title="Cluster width" n="2000" lo="0" hi="1.0"/>
+  </h>
+  
+  <!-- m_clusters_etacut_energy -->
+  <h id="clusters_etacut_energy" type="TH1F" title="Cluster energy - Energy weight - #eta^{cluster} cut">
+    <x title="Cluster Energy [GeV]" n="4000" lo="-500" hi="3500"/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_clusters_etacut_width_energy -->
+  <h id="clusters_etacut_width_energy" type="TH2F" title="Cluster width vs Cluster energy for all clusters - Energy weight - #eta^{cluster} cut">
+    <x title="Cluster Energy [GeV]" n="4000" lo="-500" hi="3500"/>
+    <y title="Cluster width" n="2000" lo="0" hi="1.0"/>
+  </h>
+        
   <!-- m_trk_total_eta -->
   <h id="trk_total_eta" type="TH1F" title="#eta of all extrapolated tracks">
     <x title="Track #eta [rad]"  n="200" lo="-4." hi="4."/>
@@ -1905,7 +2661,259 @@
     <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
     <y title="Fraction of not matching tracks"/>
   </h>
+  
+  <!-- m_trk_pv0_total_eta -->
+  <h id="trk_pv0_total_eta" type="TH1F" title="#eta of all extrapolated tracks - tracks from PV0">
+    <x title="Track #eta [rad]"  n="200" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_pv0_total_pt -->
+  <h id="trk_pv0_total_pt" type="TH1F" title="p_{T} of all extrapolated tracks - tracks from PV0">
+    <x title="Track p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_pv0_caloEntryUncTot_eta -->
+  <h id="trk_pv0_caloEntryUncTot_eta" type="TH2F" title="calo entry #sigma(#Delta R) vs track #eta - tracks from PV0">
+    <x title="track #eta [rad]" n="500" lo="-4." hi="4."/>
+    <y title="Calo Entry #sigma(#Delta R)" n="20000" lo="0" hi="1."/>
+  </h>
+  
+  <!-- m_trk_pv0_caloEntryUncTot_pt -->
+  <h id="trk_pv0_caloEntryUncTot_pt" type="TH2F" title="calo entry #sigma(#Delta R) vs track p_{T} - tracks from PV0">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Calo Entry #sigma(#Delta R)" n="20000" lo="0" hi="1."/>
+  </h>
+  
+  <!-- m_trk_pv0_total_clusters_eta -->
+  <h id="trk_pv0_total_clusters_eta" type="TH2F" title="Number of clusters vs extrapolated track #eta - tracks from PV0">
+    <x title="Track #eta [rad]"  n="200" lo="-4." hi="4."/>
+    <y title="# Clusters" n = "500" lo = "0" hi = "500"/>
+  </h>
 
+  <!-- m_trk_pv0_total_clusters_pt -->
+  <h id="trk_pv0_total_clusters_pt" type="TH2F" title="Number of clusters vs extrapolated track p_{T} - tracks from PV0">
+    <x title="Track p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+    <y title="# Clusters" n = "15" lo = "0" hi = "15"/>
+  </h>
+  
+  <!-- m_trk_pv0_notMatching_deltar_fix_pt -->
+  <h id="trk_pv0_notMatching_deltar_fix_pt" type="TH1F" title="track p_{T} not matching with fixed #Delta R - tracks from PV0">
+    <x title="Track p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_pv0_notMatching_deltar_fix_eta -->
+  <h id="trk_pv0_notMatching_deltar_fix_eta" type="TH1F" title="track #eta not matching with fixed #Delta R - tracks from PV0">
+    <x title="Track #eta [rad]"  n="200" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_pv0_notMatching_deltar_var_pt -->
+  <h id="trk_pv0_notMatching_deltar_var_pt" type="TH1F" title="track p_{T} not matching with variable #Delta R - tracks from PV0">
+    <x title="Track p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_pv0_notMatching_deltar_var_eta -->
+  <h id="trk_pv0_notMatching_deltar_var_eta" type="TH1F" title="track #eta not matching with variable #Delta R - tracks from PV0">
+    <x title="Track #eta [rad]"  n="200" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_pv0_notMatching_deltar_none_eta -->
+  <h id="trk_pv0_notMatching_deltar_none_eta" type="TH1F" title="track #eta not matching any #Delta R - tracks from PV0">
+    <x title="Track #eta [rad]"  n="200" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_pv0_notMatching_deltar_none_pt -->
+  <h id="trk_pv0_notMatching_deltar_none_pt" type="TH1F" title="track p_{T} not matching any #Delta R - tracks from PV0">
+    <x title="Track p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_trk_pv0_matching_deltar_fix_eta -->
+  <h id="trk_pv0_matching_deltar_fix_eta" type="TH1F" title="matching track #eta - fixed #Delta R - tracks from PV0">
+    <x title="Track #eta [rad]"  n="200" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_pv0_matching_deltar_fix_pt -->
+  <h id="trk_pv0_matching_deltar_fix_pt" type="TH1F" title="matching track p_{T} - fixed #Delta R - tracks from PV0">
+    <x title="Track p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+    <y title="Entries"/>
+  </h>
+
+  <!-- m_trk_pv0_matching_deltar_var_eta -->
+  <h id="trk_pv0_matching_deltar_var_eta" type="TH1F" title="matching track #eta - variable #Delta R - tracks from PV0">
+    <x title="Track #eta [rad]"  n="200" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_pv0_matching_deltar_var_pt -->
+  <h id="trk_pv0_matching_deltar_var_pt" type="TH1F" title="matching track p_{T} - variable #Delta R - tracks from PV0">
+    <x title="Track p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_pv0_matching_deltar_onlyfix_eta -->
+  <h id="trk_pv0_matching_deltar_onlyfix_eta" type="TH1F" title="matching track #eta - only fix #Delta R - tracks from PV0">
+    <x title="Track #eta [rad]"  n="200" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_pv0_matching_deltar_onlyfix_pt -->
+  <h id="trk_pv0_matching_deltar_onlyfix_pt" type="TH1F" title="matching track p_{T} - only fix #Delta R - tracks from PV0">
+    <x title="Track p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_pv0_matching_deltar_onlyvar_eta -->
+  <h id="trk_pv0_matching_deltar_onlyvar_eta" type="TH1F" title="matching track #eta - only variable #Delta R - tracks from PV0">
+    <x title="Track #eta [rad]"  n="200" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_pv0_matching_deltar_onlyvar_pt -->
+  <h id="trk_pv0_matching_deltar_onlyvar_pt" type="TH1F" title="matching track p_{T} - only #Delta R - tracks from PV0">
+    <x title="Track p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_pv0_matching_deltar_fix_or_var_eta -->
+  <h id="trk_pv0_matching_deltar_fix_or_var_eta" type="TH1F" title="matching track #eta - fixed or variable #Delta R - tracks from PV0">
+    <x title="Track #eta [rad]"  n="200" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_pv0_matching_deltar_fix_or_var_pt -->
+  <h id="trk_pv0_matching_deltar_fix_or_var_pt" type="TH1F" title="matching track p_{T} - fixed or variable #Delta R - tracks from PV0">
+    <x title="Track p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_pv0_matching_deltar_fix_and_var_eta -->
+  <h id="trk_pv0_matching_deltar_fix_and_var_eta" type="TH1F" title="matching track #eta - fixed and variable #Delta R - tracks from PV0">
+    <x title="Track #eta [rad]"  n="200" lo="-4." hi="4."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_pv0_matching_deltar_fix_and_var_pt -->
+  <h id="trk_pv0_matching_deltar_fix_and_var_pt" type="TH1F" title="matching track p_{T} - fixed and variable #Delta R - tracks from PV0">
+    <x title="Track p_{T} [GeV]"  n="64" lo="0." hi="2000."/>
+    <y title="Entries"/>
+  </h>
+  
+  <!-- m_trk_pv0_matchedFraction_eta_fix_and_var -->
+  <h id="trk_pv0_matchedFraction_eta_fix_and_var" type="TH1F" title="Fraction of matching tracks - fixed and variable #Delta R - tracks from PV0">
+    <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
+    <y title="Fraction of matching tracks"/>
+  </h>
+  
+  <!-- m_trk_pv0_matchedFraction_eta_fix_or_var -->
+  <h id="trk_pv0_matchedFraction_eta_fix_or_var" type="TH1F" title="Fraction of matching tracks - fixed or variable #Delta R - tracks from PV0">
+    <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
+    <y title="Fraction of matching tracks"/>
+  </h>
+  
+  <!-- m_trk_pv0_matchedFraction_eta_fix -->
+  <h id="trk_pv0_matchedFraction_eta_fix" type="TH1F" title="Fraction of matching tracks - fixed #Delta R - tracks from PV0">
+    <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
+    <y title="Fraction of matching tracks"/>
+  </h>
+  
+  <!-- m_trk_pv0_matchedFraction_eta_notfix -->
+  <h id="trk_pv0_matchedFraction_eta_notfix" type="TH1F" title="Fraction of not matching tracks - fixed #Delta R - tracks from PV0">
+    <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
+    <y title="Fraction of not matching tracks"/>
+  </h>
+  
+  <!-- m_trk_pv0_matchedFraction_eta_var -->
+  <h id="trk_pv0_matchedFraction_eta_var" type="TH1F" title="Fraction of matching tracks - variable #Delta R - tracks from PV0">
+    <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
+    <y title="Fraction of matching tracks"/>
+  </h>
+  
+  <!-- m_trk_pv0_matchedFraction_eta_notvar -->
+  <h id="trk_pv0_matchedFraction_eta_notvar" type="TH1F" title="Fraction of not matching tracks - variable #Delta R - tracks from PV0">
+    <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
+    <y title="Fraction of not matching tracks"/>
+  </h>
+  
+  <!-- m_trk_pv0_matchedFraction_eta_onlyvar -->
+  <h id="trk_pv0_matchedFraction_eta_onlyvar" type="TH1F" title="Fraction of matching tracks - only variable #Delta R - tracks from PV0">
+    <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
+    <y title="Fraction of matching tracks"/>
+  </h>
+  
+  <!-- m_trk_pv0_matchedFraction_eta_onlyfix -->
+  <h id="trk_pv0_matchedFraction_eta_onlyfix" type="TH1F" title="Fraction of matching tracks - only fixed #Delta R - tracks from PV0">
+    <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
+    <y title="Fraction of matching tracks"/>
+  </h>
+  
+  <!-- m_trk_pv0_matchedFraction_eta_none -->
+  <h id="trk_pv0_matchedFraction_eta_none" type="TH1F" title="Fraction of not matching tracks - tracks from PV0">
+    <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
+    <y title="Fraction of not matching tracks"/>
+  </h>
+  
+  <!-- m_trk_pv0_matchedFraction_pt_fix_and_var -->
+  <h id="trk_pv0_matchedFraction_pt_fix_and_var" type="TH1F" title="Fraction of matching tracks - fixed and variable #Delta R - tracks from PV0">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Fraction of matching tracks"/>
+  </h>
+  
+  <!-- m_trk_pv0_matchedFraction_pt_fix_or_var -->
+  <h id="trk_pv0_matchedFraction_pt_fix_or_var" type="TH1F" title="Fraction of matching tracks - fixed or variable #Delta R - tracks from PV0">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Fraction of matching tracks"/>
+  </h>
+  
+  <!-- m_trk_pv0_matchedFraction_pt_fix -->
+  <h id="trk_pv0_matchedFraction_pt_fix" type="TH1F" title="Fraction of matching tracks - fixed #Delta R - tracks from PV0">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Fraction of matching tracks"/>
+  </h>
+  
+  <!-- m_trk_pv0_matchedFraction_pt_notfix -->
+  <h id="trk_pv0_matchedFraction_pt_notfix" type="TH1F" title="Fraction of not matching tracks - fixed #Delta R - tracks from PV0">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Fraction of not matching tracks"/>
+  </h>
+  
+  <!-- m_trk_pv0_matchedFraction_pt_var -->
+  <h id="trk_pv0_matchedFraction_pt_var" type="TH1F" title="Fraction of matching tracks - variable #Delta R - tracks from PV0">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Fraction of matching tracks"/>
+  </h>
+  
+  <!-- m_trk_pv0_matchedFraction_pt_notvar -->
+  <h id="trk_pv0_matchedFraction_pt_notvar" type="TH1F" title="Fraction of not matching tracks - variable #Delta R - tracks from PV0">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Fraction of not matching tracks"/>
+  </h>
+  
+  <!-- m_trk_pv0_matchedFraction_pt_onlyvar -->
+  <h id="trk_pv0_matchedFraction_pt_onlyvar" type="TH1F" title="Fraction of matching tracks - only variable #Delta R - tracks from PV0">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Fraction of matching tracks"/>
+  </h>
+  
+  <!-- m_trk_pv0_matchedFraction_pt_onlyfix -->
+  <h id="trk_pv0_matchedFraction_pt_onlyfix" type="TH1F" title="Fraction of matching tracks - only fixed #Delta R - tracks from PV0">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Fraction of matching tracks"/>
+  </h>
+  
+  <!-- m_trk_pv0_matchedFraction_pt_none -->
+  <h id="trk_pv0_matchedFraction_pt_none" type="TH1F" title="Fraction of not matching tracks - tracks from PV0">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Fraction of not matching tracks"/>
+  </h>
+  
   <!-- trk_tcc_reco_pt_response -->
   <h id="trk_tcc_reco_pt_response" type="TH1F" title="p_{T} response">
     <x title="Track p_{T} response" n="100" lo="0." hi="5."/>
@@ -1924,8 +2932,20 @@
     <y title="Entries" />
   </h> 
   
+  <!-- m_tcc_pt_etacut -->
+  <h id="tcc_pt_etacut" type="TH1F" title="TCC p_{T} - #eta cut">
+    <x title="TrackCaloCluster p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Entries" />
+  </h> 
+  
   <!-- m_tcc_eta -->
   <h id="tcc_eta" type="TH1F" title="TCC #eta">
+    <x title="TrackCaloCluster #eta [rad]" n="500"  lo="-4." hi="4."/>
+    <y title="Entries" />
+  </h>  
+  
+  <!-- m_tcc_eta_ptcut -->
+  <h id="tcc_eta_ptcut" type="TH1F" title="TCC #eta - p_{T} cut">
     <x title="TrackCaloCluster #eta [rad]" n="500"  lo="-4." hi="4."/>
     <y title="Entries" />
   </h>  
@@ -1946,6 +2966,30 @@
   <h id="tcc_taste" type="TH1F" title="TCC Taste">
     <x title="TrackCaloCluster Taste" n="5" lo="0" hi="5"/>
     <y title="Entries" />
+  </h> 
+  
+  <!-- m_tcc_taste_eta -->
+  <h id="tcc_taste_eta" type="TH2F" title="TCC Taste vs TCC #eta">
+    <x title="TrackCaloCluster #eta [rad]" n="500"  lo="-4." hi="4."/>
+    <y title="TrackCaloCluster Taste" n="5" lo="0" hi="5"/>
+  </h> 
+  
+  <!-- m_tcc_taste_eta_ptcut -->
+  <h id="tcc_taste_eta_ptcut" type="TH2F" title="TCC Taste vs TCC #eta - p_{T} cut">
+    <x title="TrackCaloCluster #eta [rad]" n="500"  lo="-4." hi="4."/>
+    <y title="TrackCaloCluster Taste" n="5" lo="0" hi="5"/>
+  </h>
+  
+  <!-- m_tcc_taste_pt -->
+  <h id="tcc_taste_pt" type="TH2F" title="TCC Taste vs TCC p_{T}">
+    <x title="TrackCaloCluster p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="TrackCaloCluster Taste" n="5" lo="0" hi="5"/>
+  </h> 
+  
+  <!-- m_tcc_taste_pt_etacut -->
+  <h id="tcc_taste_pt_etacut" type="TH2F" title="TCC Taste vs TCC p_{T} - #eta cut">
+    <x title="TrackCaloCluster p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="TrackCaloCluster Taste" n="5" lo="0" hi="5"/>
   </h> 
 
   <!-- m_tcc_pt_pseudoresponse -->
@@ -1974,8 +3018,15 @@
   
   <!-- m_tcc_N_M -->
   <h id="tcc_N_M" type="TH2F" title="TCC N vs M">
-    <x title="# Matched Clusters"  n="100" lo="-0.5" hi="99.5" />
-    <y title="# Matched Tracks"    n="100" lo="-0.5" hi="99.5" />
+    <x title="# Matched Clusters"  n="200" lo="-0.5" hi="199.5" />
+    <y title="# Matched Tracks"    n="200" lo="-0.5" hi="199.5" />
+    <z title="Entries" />
+  </h>
+  
+  <!-- tcc_N_M_pv0 -->
+  <h id="tcc_N_M_pv0" type="TH2F" title="TCC N vs M - tracks from PV0">
+    <x title="# Matched Clusters"  n="200" lo="-0.5" hi="199.5" />
+    <y title="# Matched Tracks"    n="200" lo="-0.5" hi="199.5" />
     <z title="Entries" />
   </h>
   
