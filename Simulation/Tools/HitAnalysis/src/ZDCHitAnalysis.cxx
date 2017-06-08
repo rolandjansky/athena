@@ -1,3 +1,7 @@
+/*
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "ZDCHitAnalysis.h"
 
 #include "ZDC_SimEvent/ZDC_SimStripHit_Collection.h"

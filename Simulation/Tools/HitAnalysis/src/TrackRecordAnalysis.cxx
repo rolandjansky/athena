@@ -1,3 +1,7 @@
+/*
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "TrackRecordAnalysis.h"
 
 // Section of includes for TrackRecord tests
@@ -213,9 +217,6 @@ StatusCode TrackRecordAnalysis::execute() {
   const DataHandle<TrackRecordCollection> TRcoll;
   if (evtStore()->retrieve(TRcoll, m_collection ) == StatusCode::SUCCESS) {
     for (TrackRecordCollection::const_iterator track = TRcoll->begin(); track != TRcoll->end(); ++track) {
-      //TrackRecordCollection::const_iterator track;
-      //for(auto track : *TRcoll){
-      //std::cout<<"Entra en el loop"<<std::endl;
       
       CLHEP::Hep3Vector p =(*track).GetPosition();
       h_hits_x->Fill(p.x());

@@ -1,3 +1,7 @@
+/*
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef RPC_HIT_ANALYSIS_H
 #define RPC_HIT_ANALYSIS_H
 

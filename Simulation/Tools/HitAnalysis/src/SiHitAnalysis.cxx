@@ -1,3 +1,7 @@
+/*
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "SiHitAnalysis.h"
 
 // Section of includes for Pixel and SCT tests
