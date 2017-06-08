@@ -93,7 +93,7 @@ def fillAtlasMetadata(dbFiller):
         if sp in ("RandomSeedList", "RandomSeedOffset", "RunDict"):
             continue
         ## Don't write out Tool and Service names
-        if sp in ("TruthService", "BarcodeService"):
+        if sp in ("TruthService"):
             continue
         ## Only store InitFunction names
         if sp in ("InitFunctions"):

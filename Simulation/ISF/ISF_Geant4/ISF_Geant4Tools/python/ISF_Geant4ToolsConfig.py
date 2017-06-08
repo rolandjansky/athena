@@ -80,7 +80,7 @@ def addTrackProcessorTool(name,system=False):
 ### Base Version
 def getG4TransportTool(name='ISFG4TransportTool', **kwargs):
     from G4AtlasApps.SimFlags import simFlags
-    kwargs.setdefault('BarcodeSvc', simFlags.BarcodeService())
+    kwargs.setdefault('BarcodeSvc', simFlags.TruthStrategy.BarcodeServiceName())
     kwargs.setdefault('RandomGenerator', 'athena')
     kwargs.setdefault('RandomNumberService', simFlags.RandomSvc())
 

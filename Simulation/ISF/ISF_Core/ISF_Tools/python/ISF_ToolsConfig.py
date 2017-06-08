@@ -18,9 +18,8 @@ from ISF_Config.ISF_jobProperties import ISF_Flags # IMPORTANT: Flags must be se
 
 def getParticleHelper(name="ISF_ParticleHelper", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
-    kwargs.setdefault("BarcodeSvc"             , simFlags.BarcodeService())
-    from ISF_Tools.ISF_ToolsConf import ISF__ParticleHelper
-    return ISF__ParticleHelper(name, **kwargs)
+    kwargs.setdefault("BarcodeSvc"             , simFlags.TruthStrategy.BarcodeServiceName())
+    return CfgMgr.ISF__ParticleHelper(name, **kwargs)
 
 def getMemoryMonitor(name="ISF_MemoryMonitor", **kwargs):
     from ISF_Tools.ISF_ToolsConf import ISF__MemoryMonitoringTool
