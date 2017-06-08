@@ -24,9 +24,9 @@
 using namespace Monitored;
 
 TH1* getHist( ITHistSvc* histSvc, const std::string& histName ) {
-  TH1* h( 0 );
+  TH1* h( nullptr );
   histSvc->getHist( histName, h );
-  VALUE( h ) NOT_EXPECTED( ( TH1* )0 );
+  VALUE( h ) NOT_EXPECTED( ( TH1* )nullptr );
   return h;
 }
 
@@ -54,7 +54,7 @@ double contentInBin1DHist( ITHistSvc* histSvc, const std::string& histName, int 
 }
 
 double contentInBin2DHist( ITHistSvc* histSvc, const std::string& histName, int bin1, int bin2 ) {
-  TH2* h( 0 );
+  TH2* h( nullptr );
   histSvc->getHist( histName, h );
   // this are in fact securing basic correctness of the tests
   VALUE( h )   NOT_EXPECTED( nullptr );  
