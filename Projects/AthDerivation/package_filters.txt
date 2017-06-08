@@ -259,8 +259,10 @@
 + Reconstruction/RecJobTransforms
 + Reconstruction/RecoAlgs/CaloRingerAlgs
 + Reconstruction/RecoEvent/ParticleCaloExtension
++ Reconstruction/RecoTools/CaloClusterMatching
 + Reconstruction/RecoTools/CaloRingerTools
 + Reconstruction/RecoTools/I?TrackToVertex
++ Reconstruction/RecoTools/IsolationTool
 + Reconstruction/RecoTools/ParticlesInConeTools
 + Reconstruction/RecoTools/RecoToolInterfaces
 + Reconstruction/RecoTools/TrackToCalo
