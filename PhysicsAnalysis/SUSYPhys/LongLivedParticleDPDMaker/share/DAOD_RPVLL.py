@@ -116,8 +116,10 @@ try:
 except:
     logRecExCommon_topOptions.warning("Failed to add TAG attribute list to payload data")
 
-# -- Note that inside below script, assumes that a StreamAOD globals exist
+# -- Note that inside below script, assumes that a global StreamAOD and StreamAOD_Augmented exist
 StreamAOD = DAOD_RPVLLStream
+StreamAOD_Augmented = DAOD_RPVLLStream_Augmented
+
 protectedInclude( "RecExPers/RecoOutputAODList_jobOptions.py")
 DAOD_RPVLLStream_Augmented.AddItem("SkimDecisionCollection#*")
 #FIXME HACK remove faulty object
