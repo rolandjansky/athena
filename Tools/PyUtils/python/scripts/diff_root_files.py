@@ -92,8 +92,7 @@ def main(args):
     msg = L.logging.getLogger('diff-root')
     msg.setLevel(L.logging.INFO)
 
-    from PyUtils.Helpers import ShutUp, ROOT6Setup
-    ROOT6Setup()
+    from PyUtils.Helpers import ShutUp
 
     if args.entries == '':
         args.entries = -1

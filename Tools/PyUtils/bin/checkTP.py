@@ -18,11 +18,11 @@
 import user
 import sys
 import os
-import PyCintex
 
 __version__ = "$Revision: 1.3 $"
 __author__  = "Sebastien Binet"
 
+# MN: this has no effect when using RootType 
 S   = 4 # SCOPED
 SF  = 5 # SCOPED|FINAL
 SQ  = 6 # SCOPED|QUALIFIED
@@ -57,30 +57,14 @@ class Columbo(object):
 
     def __init__(self):
         object.__init__(self)
-        self.__initialize()
+        print ""
+        print "#"*80
+        print "## initializing..."
+        import cppyy
+        self.gbl = cppyy.gbl
+        self.Type = cppyy.gbl.RootType
 
         self.report = []
-        return
-
-    def __initialize(self):
-
-        PyCintex.Cintex.Enable()
-        
-        # global name space
-        self.gbl = gbl = PyCintex.Namespace('')
-        
-        # load reflex
-        _load_dict = PyCintex.loadDict
-        _load_dict ('ReflexRflx')
-        
-        # Create the Reflex::Type class
-        print "...creating Reflex::Type class..."
-        _rflx = PyCintex.makeNamespace ('Reflex')
-        if not _rflx:
-            _rflx = PyCintex.makeNamespace ('ROOT::Reflex')
-        _rflx_type = _rflx.Type.ByName
-        self.rflxType = _rflx.Type
-
         return
 
     def loadDicts(self, klassName):
@@ -99,18 +83,19 @@ class Columbo(object):
         loaded = False
         try:
             loaded = getattr (self.gbl, klassName)
-        except:
+        except Exception as e:
             print "Error loading dict. for [%s]" % klassName
+            print "--> ", e
         if not loaded:
             print "Failed to load dict for [%s]" % klassName
             return klassNames
-        klass = self.rflxType.ByName(klassName)
+        klass = self.Type.ByName(klassName)
 
         if not klass.IsStruct() and not klass.IsClass():
             return klassNames
         
         for i in range(klass.BaseSize()):
-            baseKlassName = klass.BaseAt(i).Name(DICTSCOPE)
+            baseKlassName = klass.BaseAt(i).Name()
             klassNames.extend (self.loadDicts(baseKlassName))
             pass
 ##         for i in xrange(klass.DataMemberSize()):
@@ -122,10 +107,11 @@ class Columbo(object):
         dataMembers = []
         for i in range(klass.DataMemberSize()):
             d = klass.DataMemberAt(i)
-            dataMembers.append( DataMember( d.Offset(),
-                                            d.Name(SFQ),
-                                            d.TypeOf().Name(SFQ) ) )
-            pass
+            scope = klass.Name()
+            offset = '<s>' if d.IsStatic() else d.Offset()
+            fullname = '::'.join([scope, d.Name(SFQ)])
+            typename = d.TypeOf().Name(SFQ)
+            dataMembers.append( DataMember(offset, fullname, typename) )
         return dataMembers
 
     def dumpFctMembers(self, klass):
@@ -138,7 +124,6 @@ class Columbo(object):
         return fctMembers
 
     def inspect(self, klassName):
-        
         self.report = []
         print ""
         print "#"*80
@@ -165,7 +150,7 @@ class Columbo(object):
         print "## infos for class [%s]:" % klassName
         print "## sizeof(%s) = %i" % \
               (klassName,
-               self.rflxType.SizeOf(self.rflxType.ByName(klassName)))
+               self.Type.SizeOf(self.Type.ByName(klassName)))
         print "##"
         print "## (offset, data member name, data member type)"
         print ""
@@ -179,12 +164,11 @@ class Columbo(object):
                 
             print line
             self.report.append(line)
-            dataMembers = self.dumpDataMembers( self.rflxType.ByName(klass) )
+            dataMembers = self.dumpDataMembers( self.Type.ByName(klass) )
             for i in dataMembers:
-                line = "%3i %s %-10s %-50s %s %s" % ( i.offset,
+                line = "%3s %s %-50s %s %s" % ( str(i.offset),
                                                       " "*5,
-                                                      i.name.split(" ")[0],
-                                                      i.name.split(" ")[1],
+                                                      i.name,
                                                       " "*5, i.type )
                 print line
                 self.report.append(line)
@@ -206,7 +190,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         klassName = sys.argv[1]
     else:
-        klassName = "TruthParticle"
+        klassName = "xAOD::TruthParticle_v1"
         pass
 
     columbo = Columbo()
