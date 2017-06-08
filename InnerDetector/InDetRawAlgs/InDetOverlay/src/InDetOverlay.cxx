@@ -285,21 +285,21 @@ InDetOverlay::InDetOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
 
   declareProperty("do_TRT", m_do_TRT=true);
   declareProperty("do_TRT_background", m_do_TRT_background=true);
-  declareProperty("mainInputTRTKey", m_mainInputTRTKey="TRT_RDOs");
-  declareProperty("overlayInputTRTKey", m_overlayInputTRTKey="TRT_RDOs");
-  declareProperty("mainOutputTRTKey", m_mainOutputTRTKey="TRT_RDOs");
+  declareProperty("mainInputTRTKey", m_mainInputTRTKey);
+  declareProperty("overlayInputTRTKey", m_overlayInputTRTKey);
+  declareProperty("mainOutputTRTKey", m_mainOutputTRTKey);
 
   declareProperty("do_SCT", m_do_SCT=true);
   declareProperty("do_SCT_background", m_do_SCT_background=true);
-  declareProperty("mainInputSCTKey", m_mainInputSCTKey="SCT_RDOs");
-  declareProperty("overlayInputSCTKey", m_overlayInputSCTKey="SCT_RDOs");
-  declareProperty("mainOutputSCTKey", m_mainOutputSCTKey="SCT_RDOs");
+  declareProperty("mainInputSCTKey", m_mainInputSCTKey);
+  declareProperty("overlayInputSCTKey", m_overlayInputSCTKey);
+  declareProperty("mainOutputSCTKey", m_mainOutputSCTKey);
 
   declareProperty("do_Pixel", m_do_Pixel=true);
   declareProperty("do_Pixel_background", m_do_Pixel_background=true);
-  declareProperty("mainInputPixelKey", m_mainInputPixelKey="PixelRDOs");
-  declareProperty("overlayInputPixelKey", m_overlayInputPixelKey="PixelRDOs");
-  declareProperty("mainOutputPixelKey", m_mainOutputPixelKey="PixelRDOs");    
+  declareProperty("mainInputPixelKey", m_mainInputPixelKey);
+  declareProperty("overlayInputPixelKey", m_overlayInputPixelKey);
+  declareProperty("mainOutputPixelKey", m_mainOutputPixelKey);    
 }
 
 //================================================================
@@ -311,17 +311,6 @@ StatusCode InDetOverlay::overlayInitialize()
     msg(MSG::FATAL) << "Cannot retrieve SCT ID helper"  << endmsg;
     return StatusCode::FAILURE;
   }
-  
-  // Update store keys to use proper StoreGate
-  m_mainInputTRTKey = m_storeGateData->name() + "/" + m_mainInputTRTKey.key();
-  m_overlayInputTRTKey = m_storeGateMC->name() + "/" + m_overlayInputTRTKey.key();
-  m_mainOutputTRTKey = m_storeGateOutput->name() + "/" + m_mainOutputTRTKey.key();
-  m_mainInputSCTKey = m_storeGateData->name() + "/" + m_mainInputSCTKey.key();
-  m_overlayInputSCTKey = m_storeGateMC->name() + "/" + m_overlayInputSCTKey.key();
-  m_mainOutputSCTKey = m_storeGateOutput->name() + "/" + m_mainOutputSCTKey.key();
-  m_mainInputPixelKey = m_storeGateData->name() + "/" + m_mainInputPixelKey.key();
-  m_overlayInputPixelKey = m_storeGateMC->name() + "/" + m_overlayInputPixelKey.key();
-  m_mainOutputPixelKey = m_storeGateOutput->name() + "/" + m_mainOutputPixelKey.key();
 
   // Check and initialize keys
   ATH_CHECK( m_mainInputTRTKey.initialize() );
