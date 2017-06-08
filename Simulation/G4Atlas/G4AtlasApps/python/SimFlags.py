@@ -705,6 +705,46 @@ class specialConfiguration(JobProperty):
     StoredValue = dict()
 
 
+class TruthStrategy(JobProperty): ## TODO Setting this should automatically update dependent jobproperties.
+    """Steering of ISF: set truthStrategy"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'MC15'
+    def TruthServiceName(self):
+        # Sometimes want to override and use the Validation Truth Service for example
+        if  jobproperties.SimFlags.TruthService.statusOn:
+            return jobproperties.SimFlags.TruthService.get_Value()
+        if self.statusOn:
+            return 'ISF_' + self.StoredValue + 'TruthService'
+    def EntryLayerFilterName(self):
+        if self.statusOn:
+            return 'ISF_' + self.StoredValue + 'EntryLayerFilter'
+    def BarcodeServiceName(self):
+        if self.statusOn:
+            return 'Barcode_' + self.StoredValue + 'BarcodeSvc'
+
+
+class TruthService(JobProperty):
+    """Steering of ISF: set the TruthService"""
+    statusOn     = False
+    allowedTypes = ['str']
+    StoredValue  = 'ISF_TruthService'
+
+
+class EntryLayerFilter(JobProperty):
+    """Steering of ISF: set the EntryLayerFilter"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ISF_MC12EntryLayerFilter'
+
+
+class BarcodeService(JobProperty):
+    """Steering of ISF: set the BarcodeService"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'Barcode_MC12BarcodeSvc'
+
+
 ## Definition and registration of the simulation flag container
 class SimFlags(JobPropertyContainer):
     """
