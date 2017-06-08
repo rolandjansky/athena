@@ -23,10 +23,7 @@
 #define IDSCAN_IDSCANSPPOINT_H
 
 #include <vector>
-using std::vector;
-
 #include <iostream>
-using std::ostream;
 
 #include "IDScanHitFilter/tIdScanSpPoint.h"
 #include "TrigInDetEvent/TrigSiSpacePoint.h"
