@@ -12,7 +12,7 @@ from AthenaCommon.DetFlags import DetFlags
 
 def getParticleHelper(name="ISF_ParticleHelper", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
-    kwargs.setdefault("BarcodeSvc"             , simFlags.BarcodeService())
+    kwargs.setdefault("BarcodeSvc"             , simFlags.TruthStrategy.BarcodeServiceName())
     return CfgMgr.ISF__ParticleHelper(name, **kwargs)
 
 def getMemoryMonitor(name="ISF_MemoryMonitor", **kwargs):
