@@ -220,12 +220,34 @@ if jobproperties.Beam.beamType.get_Value() != 'cosmics':
     else:
         simFlags.EventFilter.set_On()
 
+if hasattr(runArgs, 'truthStrategy'):
+    simFlags.BarcodeService   = 'Barcode_' + runArgs.truthStrategy + 'BarcodeSvc'
+    simFlags.TruthService     = 'ISF_'     + runArgs.truthStrategy + 'TruthService'
+    simFlags.EntryLayerFilter = 'ISF_'     + runArgs.truthStrategy + 'EntryLayerFilter'
+    simFlags.TruthStrategy    = runArgs.truthStrategy
+    try:
+        from BarcodeServices.BarcodeServicesConfig import barcodeOffsetForTruthStrategy
+        simFlags.SimBarcodeOffset  = barcodeOffsetForTruthStrategy(runArgs.truthStrategy)
+    except RuntimeError:
+        Offset200kStrings = ['MC12', 'MC15a', 'MC16']
+        is200kOffset = any(x in runArgs.truthStrategy for x in Offset200kStrings)
+        if is200kOffset:
+            simFlags.SimBarcodeOffset  = 200000 #MC12, MC15a, MC16 setting
+        else:
+            simFlags.SimBarcodeOffset  = 1000000 #MC15 setting
+        atlasG4log.warning('Using unknown truth strategy '+str(runArgs.truthStrategy)+' guessing that barcode offset is '+str(simFlags.SimBarcodeOffset))
+else:
+    simFlags.BarcodeService   = 'Barcode_MC12BarcodeSvc'
+    simFlags.TruthService     = 'ISF_TruthService'
+    simFlags.EntryLayerFilter = 'ISF_MC12EntryLayerFilter'
+    simFlags.TruthStrategy    = 'MC12'
+    simFlags.SimBarcodeOffset  = 200000 #MC12 setting
+
 ## Always enable the looper killer, unless it's been disabled
 if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
     simFlags.OptionalUserActionList.addAction('G4UA::LooperKillerTool', ['Step'])
 else:
     atlasG4log.warning("The looper killer will NOT be run in this job.")
-
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
