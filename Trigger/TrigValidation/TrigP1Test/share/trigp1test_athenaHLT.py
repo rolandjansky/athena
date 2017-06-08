@@ -56,7 +56,8 @@ def main():
   print subset 
 
   trigCmd = "athenaHLT.py -f \"" + str(subset) + "\" -c \"" + opts.modifiers + "\" TriggerRelease/runHLT_standalone.py"
-  check_call("echo " + trigCmd, shell=True)
+  trigCmdEsc = trigCmd.replace("\\","\\\\").replace("\"","\\\"")#For output to echo
+  check_call("echo \"" + trigCmdEsc + "\"", shell=True)#Call echo rather than print so that it completes first
   check_call(trigCmd, shell=True)
 
 if __name__ == "__main__":
