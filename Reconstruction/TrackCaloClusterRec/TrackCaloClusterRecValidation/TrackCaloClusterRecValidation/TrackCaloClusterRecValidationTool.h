@@ -84,9 +84,12 @@ private:
     
     bool m_saveClusterInfo;
     std::string m_caloClusterCollectionName;
+    float m_caloClusterEtaMax;
     
     bool m_saveTCCInfo;
-    std::string m_TCCCombinedCollectionName;
+    std::vector<std::string> m_TCCCombinedCollectionNames;
+    float m_tccPtMin;
+    float m_tccEtaMax;
     
     //histograms
     std::map<std::string, TCCPlots*>    m_tccPlots;

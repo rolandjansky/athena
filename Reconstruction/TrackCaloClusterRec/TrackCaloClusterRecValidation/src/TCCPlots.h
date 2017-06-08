@@ -62,10 +62,13 @@ public:
   
   void fillMatching(const xAOD::TrackParticle& track);
   void fillCluster(const xAOD::CaloCluster& cluster);
+  void fillClusterEtaCut(const xAOD::CaloCluster& cluster);
   
-  void fillTCC(const xAOD::TrackCaloCluster& tcc);
+  void fillTCC(const xAOD::TrackCaloCluster& tcc, std::vector<const xAOD::TrackParticle*>& alltracksPV0);
+  void fillTCCptCut(const xAOD::TrackCaloCluster& tcc);
+  void fillTCCetaCut(const xAOD::TrackCaloCluster& tcc);
     
-  void make_median(TH2* h2_response, TH1* h1_resolution);
+  void make_median(TH2* h2_response, TH1* h1_resolution, TH1* h1_resolution_2=nullptr, TH1* h1_median=nullptr);
   void make_median(TH3* h3_response, TH2* h2_resolution);
   
   void setEventWeight(const float& weight);
@@ -141,6 +144,11 @@ private:
   TH2* m_jet_response_m_npv_2leadings      ;
   TH2* m_jet_response_m_npv_leading        ;
   TH2* m_jet_response_m_npv_subleading     ;
+      
+  TH2* m_jet_response_d2_pt                ;
+  TH2* m_jet_response_d2_pt_2leadings      ;
+  TH2* m_jet_response_d2_pt_leading        ;
+  TH2* m_jet_response_d2_pt_subleading     ;
   
   TH1* m_jet_pseudoresponse_m              ;
   TH1* m_jet_pseudoresponse_pt             ;
@@ -169,15 +177,50 @@ private:
   TH1* m_jet_response_d2_leading           ;
   TH1* m_jet_response_d2_subleading        ;  
    
-  TH1* m_jet_resolution_m                  ;
-  TH1* m_jet_resolution_m_2leadings        ;
-  TH1* m_jet_resolution_m_leading          ;
-  TH1* m_jet_resolution_m_subleading       ;  
+  TH1* m_jet_resolution_IQR1_m                  ;
+  TH1* m_jet_resolution_IQR1_m_2leadings        ;
+  TH1* m_jet_resolution_IQR1_m_leading          ;
+  TH1* m_jet_resolution_IQR1_m_subleading       ;
+
+  TH1* m_jet_resolution_IQR2_m                  ;
+  TH1* m_jet_resolution_IQR2_m_2leadings        ;
+  TH1* m_jet_resolution_IQR2_m_leading          ;
+  TH1* m_jet_resolution_IQR2_m_subleading       ;  
   
-  TH1* m_jet_resolution_m_npv              ;
-  TH1* m_jet_resolution_m_npv_2leadings    ;
-  TH1* m_jet_resolution_m_npv_leading      ;
-  TH1* m_jet_resolution_m_npv_subleading   ;  
+  TH1* m_jet_resolution_IQR1_m_npv              ;
+  TH1* m_jet_resolution_IQR1_m_npv_2leadings    ;
+  TH1* m_jet_resolution_IQR1_m_npv_leading      ;
+  TH1* m_jet_resolution_IQR1_m_npv_subleading   ;
+  
+  TH1* m_jet_resolution_IQR2_m_npv              ;
+  TH1* m_jet_resolution_IQR2_m_npv_2leadings    ;
+  TH1* m_jet_resolution_IQR2_m_npv_leading      ;
+  TH1* m_jet_resolution_IQR2_m_npv_subleading   ;
+  
+  TH1* m_jet_median_m_npv              ;
+  TH1* m_jet_median_m_npv_2leadings    ;
+  TH1* m_jet_median_m_npv_leading      ;
+  TH1* m_jet_median_m_npv_subleading   ;
+  
+  TH1* m_jet_median_width_IQR1_m_npv              ;
+  TH1* m_jet_median_width_IQR1_m_npv_2leadings    ;
+  TH1* m_jet_median_width_IQR1_m_npv_leading      ;
+  TH1* m_jet_median_width_IQR1_m_npv_subleading   ;
+  
+  TH1* m_jet_median_width_IQR2_m_npv              ;
+  TH1* m_jet_median_width_IQR2_m_npv_2leadings    ;
+  TH1* m_jet_median_width_IQR2_m_npv_leading      ;
+  TH1* m_jet_median_width_IQR2_m_npv_subleading   ;
+
+  TH1* m_jet_resolution_IQR1_d2              ;
+  TH1* m_jet_resolution_IQR1_d2_2leadings    ;
+  TH1* m_jet_resolution_IQR1_d2_leading      ;
+  TH1* m_jet_resolution_IQR1_d2_subleading   ;  
+  
+  TH1* m_jet_resolution_IQR2_d2              ;
+  TH1* m_jet_resolution_IQR2_d2_2leadings    ;
+  TH1* m_jet_resolution_IQR2_d2_leading      ;
+  TH1* m_jet_resolution_IQR2_d2_subleading   ;
   
   TH3* m_jet_mopt_pt_response_m                  ;
   TH3* m_jet_mopt_pt_response_m_2leadings        ;
@@ -313,6 +356,18 @@ private:
   TH1* m_clusters_notMatchedFraction_eta ;
   TH1* m_clusters_width                  ;
   TH2* m_clusters_width_eta              ;
+  TH1* m_clusters_energy                 ;  
+  TH1* m_clusters_matched_energy            ;
+  TH1* m_clusters_notMatched_energy         ;
+  TH1* m_clusters_matchedFraction_energy    ;
+  TH1* m_clusters_notMatchedFraction_energy ;
+  TH2* m_clusters_width_energy              ;
+  TH1* m_clusters_etacut_eta                 ;
+  TH1* m_clusters_etacut_width               ;
+  TH2* m_clusters_etacut_width_eta           ;
+  TH1* m_clusters_etacut_energy              ;
+  TH2* m_clusters_etacut_width_energy        ;  
+
   TH1* m_clusters_matched_eta_fix_and_var        ;
   TH1* m_clusters_matched_eta_fix_or_var         ;
   TH1* m_clusters_matched_eta_fix                ;
@@ -339,25 +394,113 @@ private:
   TH1* m_clusters_abs_notMatchedFraction_eta ;
   TH1* m_clusters_abs_width                  ;
   TH2* m_clusters_abs_width_eta              ;
-  TH1* m_clusters_abs_matched_eta_fix_and_var        ;
-  TH1* m_clusters_abs_matched_eta_fix_or_var         ;
-  TH1* m_clusters_abs_matched_eta_fix                ;
-  TH1* m_clusters_abs_matched_eta_notfix             ;
-  TH1* m_clusters_abs_matched_eta_var                ;
-  TH1* m_clusters_abs_matched_eta_notvar             ;
-  TH1* m_clusters_abs_matched_eta_onlyvar            ;
-  TH1* m_clusters_abs_matched_eta_onlyfix            ;
-  TH1* m_clusters_abs_matched_eta_none               ;
-  TH1* m_clusters_abs_matchedFraction_eta_fix_and_var;
-  TH1* m_clusters_abs_matchedFraction_eta_fix_or_var ;
-  TH1* m_clusters_abs_matchedFraction_eta_fix        ;
-  TH1* m_clusters_abs_matchedFraction_eta_notfix     ;
-  TH1* m_clusters_abs_matchedFraction_eta_var        ;
-  TH1* m_clusters_abs_matchedFraction_eta_notvar     ;
-  TH1* m_clusters_abs_matchedFraction_eta_onlyvar    ;
-  TH1* m_clusters_abs_matchedFraction_eta_onlyfix    ;
-  TH1* m_clusters_abs_matchedFraction_eta_none       ; 
+  TH1* m_clusters_abs_energy                 ;  
+  TH1* m_clusters_abs_matched_energy            ;
+  TH1* m_clusters_abs_notMatched_energy         ;
+  TH1* m_clusters_abs_matchedFraction_energy    ;
+  TH1* m_clusters_abs_notMatchedFraction_energy ;
+  TH2* m_clusters_abs_width_energy           ;
+  TH1* m_clusters_etacut_abs_eta             ;
+  TH1* m_clusters_etacut_abs_width           ;
+  TH2* m_clusters_etacut_abs_width_eta       ;
+  TH1* m_clusters_etacut_abs_energy          ;
+  TH2* m_clusters_etacut_abs_width_energy    ;
   
+  TH1* m_clusters_abs_matched_eta_fix_and_var         ;
+  TH1* m_clusters_abs_matched_eta_fix_or_var          ;
+  TH1* m_clusters_abs_matched_eta_fix                 ;
+  TH1* m_clusters_abs_matched_eta_notfix              ;
+  TH1* m_clusters_abs_matched_eta_var                 ;
+  TH1* m_clusters_abs_matched_eta_notvar              ;
+  TH1* m_clusters_abs_matched_eta_onlyvar             ;
+  TH1* m_clusters_abs_matched_eta_onlyfix             ;
+  TH1* m_clusters_abs_matched_eta_none                ;
+  TH1* m_clusters_abs_matchedFraction_eta_fix_and_var ;
+  TH1* m_clusters_abs_matchedFraction_eta_fix_or_var  ;
+  TH1* m_clusters_abs_matchedFraction_eta_fix         ;
+  TH1* m_clusters_abs_matchedFraction_eta_notfix      ;
+  TH1* m_clusters_abs_matchedFraction_eta_var         ;
+  TH1* m_clusters_abs_matchedFraction_eta_notvar      ;
+  TH1* m_clusters_abs_matchedFraction_eta_onlyvar     ;
+  TH1* m_clusters_abs_matchedFraction_eta_onlyfix     ;
+  TH1* m_clusters_abs_matchedFraction_eta_none        ;
+                                                      
+  TH1* m_clusters_matched_pv0_eta_fix_and_var         ;
+  TH1* m_clusters_matched_pv0_eta_fix_or_var          ;
+  TH1* m_clusters_matched_pv0_eta_fix                 ;
+  TH1* m_clusters_matched_pv0_eta_notfix              ;
+  TH1* m_clusters_matched_pv0_eta_var                 ;
+  TH1* m_clusters_matched_pv0_eta_notvar              ;
+  TH1* m_clusters_matched_pv0_eta_onlyvar             ;
+  TH1* m_clusters_matched_pv0_eta_onlyfix             ;
+  TH1* m_clusters_matched_pv0_eta_none                ;
+  TH1* m_clusters_abs_matched_pv0_eta_fix_and_var     ;
+  TH1* m_clusters_abs_matched_pv0_eta_fix_or_var      ;
+  TH1* m_clusters_abs_matched_pv0_eta_fix             ;
+  TH1* m_clusters_abs_matched_pv0_eta_notfix          ;
+  TH1* m_clusters_abs_matched_pv0_eta_var             ;
+  TH1* m_clusters_abs_matched_pv0_eta_notvar          ;
+  TH1* m_clusters_abs_matched_pv0_eta_onlyvar         ;
+  TH1* m_clusters_abs_matched_pv0_eta_onlyfix         ;
+  TH1* m_clusters_abs_matched_pv0_eta_none            ;
+  
+  TH1* m_clusters_matchedpv0Fraction_eta_fix_and_var     ;
+  TH1* m_clusters_matchedpv0Fraction_eta_fix_or_var      ;
+  TH1* m_clusters_matchedpv0Fraction_eta_fix             ;
+  TH1* m_clusters_matchedpv0Fraction_eta_notfix          ;
+  TH1* m_clusters_matchedpv0Fraction_eta_var             ;
+  TH1* m_clusters_matchedpv0Fraction_eta_notvar          ;
+  TH1* m_clusters_matchedpv0Fraction_eta_onlyvar         ;
+  TH1* m_clusters_matchedpv0Fraction_eta_onlyfix         ;
+  TH1* m_clusters_matchedpv0Fraction_eta_none            ;                                                         
+  TH1* m_clusters_abs_matchedpv0Fraction_eta_fix_and_var ;
+  TH1* m_clusters_abs_matchedpv0Fraction_eta_fix_or_var  ;
+  TH1* m_clusters_abs_matchedpv0Fraction_eta_fix         ;
+  TH1* m_clusters_abs_matchedpv0Fraction_eta_notfix      ;
+  TH1* m_clusters_abs_matchedpv0Fraction_eta_var         ;
+  TH1* m_clusters_abs_matchedpv0Fraction_eta_notvar      ;
+  TH1* m_clusters_abs_matchedpv0Fraction_eta_onlyvar     ;
+  TH1* m_clusters_abs_matchedpv0Fraction_eta_onlyfix     ;
+  TH1* m_clusters_abs_matchedpv0Fraction_eta_none        ;
+  
+  TH1* m_clusters_matched_pvx_eta_fix_and_var         ;
+  TH1* m_clusters_matched_pvx_eta_fix_or_var          ;
+  TH1* m_clusters_matched_pvx_eta_fix                 ;
+  TH1* m_clusters_matched_pvx_eta_notfix              ;
+  TH1* m_clusters_matched_pvx_eta_var                 ;
+  TH1* m_clusters_matched_pvx_eta_notvar              ;
+  TH1* m_clusters_matched_pvx_eta_onlyvar             ;
+  TH1* m_clusters_matched_pvx_eta_onlyfix             ;
+  TH1* m_clusters_matched_pvx_eta_none                ;
+  TH1* m_clusters_abs_matched_pvx_eta_fix_and_var     ;
+  TH1* m_clusters_abs_matched_pvx_eta_fix_or_var      ;
+  TH1* m_clusters_abs_matched_pvx_eta_fix             ;
+  TH1* m_clusters_abs_matched_pvx_eta_notfix          ;
+  TH1* m_clusters_abs_matched_pvx_eta_var             ;
+  TH1* m_clusters_abs_matched_pvx_eta_notvar          ;
+  TH1* m_clusters_abs_matched_pvx_eta_onlyvar         ;
+  TH1* m_clusters_abs_matched_pvx_eta_onlyfix         ;
+  TH1* m_clusters_abs_matched_pvx_eta_none            ;
+  
+  TH1* m_clusters_matchedpvxFraction_eta_fix_and_var     ;
+  TH1* m_clusters_matchedpvxFraction_eta_fix_or_var      ;
+  TH1* m_clusters_matchedpvxFraction_eta_fix             ;
+  TH1* m_clusters_matchedpvxFraction_eta_notfix          ;
+  TH1* m_clusters_matchedpvxFraction_eta_var             ;
+  TH1* m_clusters_matchedpvxFraction_eta_notvar          ;
+  TH1* m_clusters_matchedpvxFraction_eta_onlyvar         ;
+  TH1* m_clusters_matchedpvxFraction_eta_onlyfix         ;
+  TH1* m_clusters_matchedpvxFraction_eta_none            ;                                                         
+  TH1* m_clusters_abs_matchedpvxFraction_eta_fix_and_var ;
+  TH1* m_clusters_abs_matchedpvxFraction_eta_fix_or_var  ;
+  TH1* m_clusters_abs_matchedpvxFraction_eta_fix         ;
+  TH1* m_clusters_abs_matchedpvxFraction_eta_notfix      ;
+  TH1* m_clusters_abs_matchedpvxFraction_eta_var         ;
+  TH1* m_clusters_abs_matchedpvxFraction_eta_notvar      ;
+  TH1* m_clusters_abs_matchedpvxFraction_eta_onlyvar     ;
+  TH1* m_clusters_abs_matchedpvxFraction_eta_onlyfix     ;
+  TH1* m_clusters_abs_matchedpvxFraction_eta_none        ;
+    
   TH2* m_clusters_pt_fraction_e                      ;
   TH2* m_clusters_PV0_pt_fraction_e                  ;
   TH2* m_clusters_PVX_pt_fraction_e                  ;
@@ -437,17 +580,67 @@ private:
   TH1* m_trk_matchedFraction_pt_onlyvar                           ;
   TH1* m_trk_matchedFraction_pt_onlyfix                           ;
   TH1* m_trk_matchedFraction_pt_none                              ;
+  
+  TH1* m_trk_pv0_total_eta                                        ;
+  TH1* m_trk_pv0_total_pt                                         ;
+  TH2* m_trk_pv0_caloEntryUncTot_eta                              ;
+  TH2* m_trk_pv0_caloEntryUncTot_pt                               ;
+  TH2* m_trk_pv0_total_clusters_eta                               ;
+  TH2* m_trk_pv0_total_clusters_pt                                ;
+  TH1* m_trk_pv0_matching_deltar_fix_eta                          ;
+  TH1* m_trk_pv0_matching_deltar_fix_pt                           ;
+  TH1* m_trk_pv0_matching_deltar_var_eta                          ;
+  TH1* m_trk_pv0_matching_deltar_var_pt                           ;
+  TH1* m_trk_pv0_notMatching_deltar_fix_eta                       ; 
+  TH1* m_trk_pv0_notMatching_deltar_fix_pt                        ;
+  TH1* m_trk_pv0_notMatching_deltar_var_eta                       ;
+  TH1* m_trk_pv0_notMatching_deltar_var_pt                        ;
+  TH1* m_trk_pv0_notMatching_deltar_none_eta                      ;
+  TH1* m_trk_pv0_notMatching_deltar_none_pt                       ;
+  TH1* m_trk_pv0_matching_deltar_fix_and_var_eta                  ;
+  TH1* m_trk_pv0_matching_deltar_fix_and_var_pt                   ;
+  TH1* m_trk_pv0_matching_deltar_fix_or_var_eta                   ;
+  TH1* m_trk_pv0_matching_deltar_fix_or_var_pt                    ;
+  TH1* m_trk_pv0_matching_deltar_onlyfix_eta                      ;
+  TH1* m_trk_pv0_matching_deltar_onlyfix_pt                       ;
+  TH1* m_trk_pv0_matching_deltar_onlyvar_eta                      ;
+  TH1* m_trk_pv0_matching_deltar_onlyvar_pt                       ;
+  TH1* m_trk_pv0_matchedFraction_eta_fix_and_var                  ;
+  TH1* m_trk_pv0_matchedFraction_eta_fix_or_var                   ;
+  TH1* m_trk_pv0_matchedFraction_eta_fix                          ;
+  TH1* m_trk_pv0_matchedFraction_eta_notfix                       ;
+  TH1* m_trk_pv0_matchedFraction_eta_var                          ;
+  TH1* m_trk_pv0_matchedFraction_eta_notvar                       ;
+  TH1* m_trk_pv0_matchedFraction_eta_onlyvar                      ;
+  TH1* m_trk_pv0_matchedFraction_eta_onlyfix                      ;
+  TH1* m_trk_pv0_matchedFraction_eta_none                         ;
+  TH1* m_trk_pv0_matchedFraction_pt_fix_and_var                   ;
+  TH1* m_trk_pv0_matchedFraction_pt_fix_or_var                    ;
+  TH1* m_trk_pv0_matchedFraction_pt_fix                           ;
+  TH1* m_trk_pv0_matchedFraction_pt_notfix                        ;
+  TH1* m_trk_pv0_matchedFraction_pt_var                           ;
+  TH1* m_trk_pv0_matchedFraction_pt_notvar                        ;
+  TH1* m_trk_pv0_matchedFraction_pt_onlyvar                       ;
+  TH1* m_trk_pv0_matchedFraction_pt_onlyfix                       ;
+  TH1* m_trk_pv0_matchedFraction_pt_none                          ;
     
   TH1* m_tcc_pt                                                   ;
+  TH1* m_tcc_pt_etacut                                            ;
   TH1* m_tcc_phi                                                  ;
   TH1* m_tcc_eta                                                  ;
+  TH1* m_tcc_eta_ptcut                                            ;
   TH1* m_tcc_m                                                    ;
   TH1* m_tcc_taste                                                ;
+  TH2* m_tcc_taste_pt                                             ;
+  TH2* m_tcc_taste_pt_etacut                                      ;
+  TH2* m_tcc_taste_eta                                            ;
+  TH2* m_tcc_taste_eta_ptcut                                      ;
   TH2* m_tcc_pt_truth_pt                                          ;
   TH1* m_tcc_pt_response                                          ;
   TH2* m_tcc_pt_track_pt                                          ;
   TH1* m_tcc_pt_pseudoresponse                                    ;
   TH2* m_tcc_N_M                                                  ;
+  TH2* m_tcc_N_M_pv0                                              ;
   
   TH2* m_trk_tcc_reco_pt_truth_pt                                 ;
   TH1* m_trk_tcc_reco_pt_response                                 ;   

@@ -18,6 +18,8 @@ authors : Niels van Eldik (CERN PH-ATC)
 #include "ParticleCaloExtension/ParticleClusterAssociation.h"
 
 #include "TrackCaloClusterRecInterfaces/IParticleExtrapolationTool.h"
+#include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
+
 
 namespace Trk {
   class CaloExtension;
@@ -75,6 +77,8 @@ namespace Rec {
     double      m_coneSize;
     bool        m_useCovariance;
     bool        m_storeParameters;
+    ToolHandle<CP::ITrackVertexAssociationTool> m_loosetrackvertexassoTool;
+
 
   };
 

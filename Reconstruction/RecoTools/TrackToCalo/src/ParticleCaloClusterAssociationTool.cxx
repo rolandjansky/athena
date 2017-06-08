@@ -16,6 +16,8 @@
 #include "CaloGeoHelpers/CaloSampling.h"
 
 #include "TrackCaloClusterRecTools/IParticleToCaloExtensionMap.h"
+#include "xAODTracking/VertexContainer.h"
+
 
 namespace Rec {
 
@@ -25,7 +27,8 @@ namespace Rec {
       m_clustersInConeTool("xAOD::CaloClustersInConeTool/CaloClustersInConeTool"),
       m_caloClusters("CaloCalTopoClusters"),
       m_caloEntryMapName("ParticleToCaloExtensionMap"),
-      m_storeParameters(false)
+      m_storeParameters(false),
+      m_loosetrackvertexassoTool("LooseTrackVertexAssociationTool")
   {
     declareInterface<IParticleCaloClusterAssociationTool>(this);
     declareProperty("ParticleCaloExtensionTool",   m_caloExtensionTool );
@@ -37,6 +40,7 @@ namespace Rec {
     declareProperty("ConeSize",                    m_coneSize = 0.1);
     declareProperty("UseCovariance",               m_useCovariance = true);
     declareProperty("StoreParameters",             m_storeParameters = false);
+    declareProperty("LooseTrackVertexAssoTool",    m_loosetrackvertexassoTool);
   }
 
   ParticleCaloClusterAssociationTool::~ParticleCaloClusterAssociationTool() {}
@@ -46,6 +50,9 @@ namespace Rec {
     ATH_CHECK( m_caloExtensionTool.retrieve() );
 
     if (!m_clustersInConeTool.empty()) ATH_CHECK(m_clustersInConeTool.retrieve());
+    
+    if (m_storeParameters)
+        ATH_CHECK(m_loosetrackvertexassoTool.retrieve());
 
     return StatusCode::SUCCESS;
   }
@@ -153,6 +160,14 @@ namespace Rec {
     float phi = pars->position().phi();
     // ATH_MSG_DEBUG("eta trk " << eta << " phi trk " << phi );
     
+    const xAOD::VertexContainer * allVertices = evtStore()->retrieve< const xAOD::VertexContainer>("PrimaryVertices");
+    bool isPVOCompatible = false;
+    if (m_storeParameters) {
+      if (m_loosetrackvertexassoTool->isCompatible(*(dynamic_cast<const xAOD::TrackParticle*>(&particle)), *(allVertices->at(0))))
+	isPVOCompatible = true;
+      if (isPVOCompatible) particle.auxdecor<int>("IsPV0Compatible") = 1;
+    }
+        
     int all_clusters      = 0;
     int matching_clusters = 0;
     int dr_fix            = 0;
@@ -240,10 +255,24 @@ namespace Rec {
 	    if(sqrt(dr2)>sqrt(dr2Cut) && dr2 < dr2CutTmp) ATH_MSG_DEBUG("3. only new matches! dR " << sqrt(dr2) << " new cut value " << sqrt(dr2CutTmp) << " pt trk " << pars->pT() << " sigma(phi) trk " << uncertPhi << " sigma(eta) trk " << uncertEta << " energy cluster " << (*container)[i]->e() << " sigma width " << sigmaWidth << " em frac " << emfrac);           
             
 	    if (sqrt(dr2)<sqrt(dr2Cut)) {
-	      dr_fix++; if (m_storeParameters) (*container)[i]->auxdecor<int>("ClusterMatchedFixedDeltaR") = 1;
+	      dr_fix++; 
+	      if (m_storeParameters) {
+		if (isPVOCompatible)
+		  (*container)[i]->auxdecor<int>("FixedMatchPV0") = 1;
+		else 
+		  (*container)[i]->auxdecor<int>("FixedMatchPVX") = 1;
+		(*container)[i]->auxdecor<int>("ClusterMatchedFixedDeltaR") = 1;
+	      }
 	    }
 	    if (sqrt(dr2)<sqrt(dr2CutTmp)) {
-	      dr_variable++;  if (m_storeParameters) (*container)[i]->auxdecor<int>("ClusterMatchedVariableDeltaR") = 1;
+	      dr_variable++;  
+	      if (m_storeParameters) {
+		if (isPVOCompatible) 
+		  (*container)[i]->auxdecor<int>("VarMatchPV0") = 1;
+		else 
+		  (*container)[i]->auxdecor<int>("VarMatchPVX") = 1;
+		(*container)[i]->auxdecor<int>("ClusterMatchedVariableDeltaR") = 1;
+	      }
 	    }
 	    if (sqrt(dr2)<sqrt(dr2Cut) or sqrt(dr2)<sqrt(dr2CutTmp)) dr_match++;
 	    if (sqrt(dr2)<sqrt(dr2Cut) and sqrt(dr2)<sqrt(dr2CutTmp)) dr_both++;
