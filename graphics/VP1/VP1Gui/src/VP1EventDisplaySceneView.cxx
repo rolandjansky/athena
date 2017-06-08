@@ -15,9 +15,11 @@
 #include "VP1Base/VP1Msg.h"
 
 #include <QtGui>
+#include <QPrinter>
+#include <QPrintDialog>
 
 #ifndef QT_NO_OPENGL
-#include <QtOpenGL>
+	#include <QtOpenGL>
 #endif
 
 #include <qmath.h>

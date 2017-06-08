@@ -13,11 +13,13 @@
 /////////////////////////////////////////////////////////////
 
 #include "VP1Base/VP1GraphicsItemCollection.h"
-#include <QtGui/QGraphicsItem>
-#include <QtGui/QGraphicsScene>
 #include "VP1Base/VP1GraphicsView.h"
-#include <QtCore/QHash>
-#include <QtCore/QSet>
+
+#include <QGraphicsItem>
+#include <QGraphicsScene>
+#include <QHash>
+#include <QSet>
+
 #include <iostream>
 #include <cassert>
 

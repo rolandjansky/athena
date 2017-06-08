@@ -15,7 +15,9 @@
 #ifndef VP1GRAPHICSVIEW_H
 #define VP1GRAPHICSVIEW_H
 
-#include <QtGui/QGraphicsView>
+// #include <QtGui/QGraphicsView>
+#include <QGraphicsView>
+
 class VP1GraphicsItemCollection;
 
 class VP1GraphicsView : public QGraphicsView {

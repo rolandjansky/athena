@@ -15,7 +15,7 @@
 #ifndef VP1COLORSELECTBUTTON_H
 #define VP1COLORSELECTBUTTON_H
 
-#include <QtGui/QPushButton>
+#include <QPushButton>
 
 class VP1ColorSelectButton : public QPushButton {
 

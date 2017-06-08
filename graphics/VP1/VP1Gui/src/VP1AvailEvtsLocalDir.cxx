@@ -13,8 +13,9 @@
 ////////////////////////////////////////////////////////////////
 
 #include "VP1Gui/VP1AvailEvtsLocalDir.h"
-#include "VP1LocalEvtRetriever.h"
-#include <QtCore/QStringList>
+#include "VP1Gui/VP1LocalEvtRetriever.h"
+
+#include <QStringList>
 
 //____________________________________________________________________
 class VP1AvailEvtsLocalDir::Imp {
@@ -78,5 +79,3 @@ QStringList VP1AvailEvtsLocalDir::availableSourceDirectories() const
 {
   return d->availablesourcedirs;
 }
-
-

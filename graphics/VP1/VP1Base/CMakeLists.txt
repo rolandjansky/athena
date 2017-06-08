@@ -1,4 +1,12 @@
 # $Id: CMakeLists.txt 784633 2016-11-16 16:16:34Z rbianchi $
+################################################################################
+# Package: VP1Base
+################################################################################
+# Author: Riccardo Maria BIANCHI <rbianchi@cern.ch>
+################################################################################
+
+# Set the minimum required CMake version:
+cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
 
 # Set the name of the package:
 atlas_subdir( VP1Base )
@@ -9,9 +17,12 @@ atlas_depends_on_subdirs(
    PRIVATE graphics/VP1/VP1HEPVis )
 
 # Find the external dependencies:
-find_package( Qt4 COMPONENTS QtCore QtGui QtOpenGL )
-find_package( SoQt )
-find_package( Coin3D )
+#find_package( Qt4 COMPONENTS QtCore QtGui QtOpenGL )
+#find_package( Qt5 COMPONENTS Core OpenGL Gui REQUIRED HINTS ${QT5_ROOT} )
+find_package( Qt5 5.6.2 COMPONENTS Core OpenGL Gui REQUIRED HINTS ${QT5_ROOT} )
+
+find_package( SoQt REQUIRED )
+find_package( Coin3D REQUIRED )
 
 # Generate UI files automatically:
 set( CMAKE_AUTOUIC TRUE )
@@ -27,8 +38,8 @@ atlas_add_library( VP1Base VP1Base/*.h src/*.cxx src/*.qrc
    PUBLIC_HEADERS VP1Base
    INCLUDE_DIRS ${SOQT_INCLUDE_DIRS} ${COIN3D_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}
-   LINK_LIBRARIES Qt4::QtCore Qt4::QtGui ${SOQT_LIBRARIES} ${COIN3D_LIBRARIES} GeoPrimitives
-   PRIVATE_LINK_LIBRARIES Qt4::QtOpenGL VP1HEPVis )
+   LINK_LIBRARIES Qt5::Core Qt5::Gui ${SOQT_LIBRARIES} ${COIN3D_LIBRARIES} GeoPrimitives
+   PRIVATE_LINK_LIBRARIES Qt5::OpenGL VP1HEPVis )
 
 atlas_install_scripts( share/generate-vp1-factory-code-cmake )
 
