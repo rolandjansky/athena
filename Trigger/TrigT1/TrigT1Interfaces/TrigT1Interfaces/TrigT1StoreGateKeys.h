@@ -41,7 +41,7 @@ namespace LVL1 {
   //! default StoreGate location for NIM to CTP input
   static const std::string DEFAULT_NimCTPLocation = "L1NIMtoCTPLocation";
   //! XXX default StoreGate location for Front Panel CTP inputs
-  //static const std::string DEFAULT_FrontPanelCTPLocation = "/Run/FrontPanelCTPLocation";
+  //static const std::string DEFAULT_FrontPanelCTPLocation = "FrontPanelCTPLocation";
   //! default StoreGate location for Front Panel CTP inputs
   static const std::string DEFAULT_L1TopoCTPLocation = "L1TopoToCTPLocation";
   //! default StoreGate location for Front Panel CTP inputs of l1topo overflow bits
