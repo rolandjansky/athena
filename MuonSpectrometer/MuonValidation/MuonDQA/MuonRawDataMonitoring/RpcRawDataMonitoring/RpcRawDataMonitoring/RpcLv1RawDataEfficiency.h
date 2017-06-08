@@ -182,14 +182,8 @@ class RpcLv1RawDataEfficiency: public ManagedMonitorToolBase {
   virtual StatusCode procHistograms();  
 
  private:
-  // Message, Printing of output
-  mutable MsgStream m_log;     // Gaudi message stream
-  bool m_debuglevel;           // control debug messages  
-  
-
   StatusCode readOfflineMuonContainer(std::string key);
   // Retrieving information and data
-  StoreGateSvc*   m_eventStore;  // to get event info
   ActiveStoreSvc* m_activeStore; // to get all the other information
   const RpcIdHelper* m_rpcIdHelper; 
   const RpcSectorLogicContainer* m_sectorLogicContainer; 

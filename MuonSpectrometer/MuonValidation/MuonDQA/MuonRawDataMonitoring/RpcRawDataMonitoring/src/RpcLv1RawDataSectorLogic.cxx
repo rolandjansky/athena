@@ -34,9 +34,7 @@ using namespace std;
 RpcLv1RawDataSectorLogic::RpcLv1RawDataSectorLogic( const std::string & type, 
 						    const std::string & name, 
 						    const IInterface* parent )
-  :ManagedMonitorToolBase( type, name, parent ), 
-   m_log( msgSvc(), name ),
-   m_debuglevel(false)
+  :ManagedMonitorToolBase( type, name, parent )
 {  
   // Declare the properties      
   declareProperty("LumiblockHist" ,      m_lumiblockhist	= false	);   
@@ -45,7 +43,7 @@ RpcLv1RawDataSectorLogic::RpcLv1RawDataSectorLogic( const std::string & type,
 //***********************************************************************************************************************
 RpcLv1RawDataSectorLogic::~RpcLv1RawDataSectorLogic()
 {
-  m_log << MSG::INFO << " Deleting RpcLv1RawDataSectorLogic " << endmsg;
+  ATH_MSG_INFO( " Deleting RpcLv1RawDataSectorLogic "  );
 }
 
 
@@ -53,57 +51,30 @@ RpcLv1RawDataSectorLogic::~RpcLv1RawDataSectorLogic()
 StatusCode RpcLv1RawDataSectorLogic::initialize()
 {
   // Init message stream
-  m_log.setLevel(outputLevel());                // individual outputLevel not known before initialize
-  m_debuglevel = (m_log.level() <= MSG::DEBUG); // save if threshold for debug printout reached
   
-  m_log << MSG::INFO << "In initializing 'RpcLv1RawDataSectorLogic': "          << endmsg;
-  m_log << MSG::INFO << "Package version = "      << PACKAGE_VERSION            << endmsg;
+  ATH_MSG_INFO( "In initializing 'RpcLv1RawDataSectorLogic': "           );
+  ATH_MSG_INFO( "Package version = "      << PACKAGE_VERSION             );
 
-  StatusCode sc;
-
-   m_rpc_eventstotal = 0;
-   m_rpc_event_inarea = 0; 
-   m_nTriggerHits = 0 ;
-   m_nTriggerHits_out = 0 ;
-   m_nTriggerHitsperSector = 0 ;
-   m_Diff_triggerBCid = 0 ;
-   m_in_triggerBCid = 0 ;
-   m_out_triggerBCid = 0 ;
-   m_in_rowinBCid = 0 ;
-   m_out_rowinBCid = 0 ;
-   m_Tower_out = 0 ;
-   m_Tower_in = 0 ;
-   m_in_sectorid = 0 ;
-   m_sectorLogicContainer = 0 ;
+  m_rpc_eventstotal = 0;
+  m_rpc_event_inarea = 0; 
+  m_nTriggerHits = 0 ;
+  m_nTriggerHits_out = 0 ;
+  m_nTriggerHitsperSector = 0 ;
+  m_Diff_triggerBCid = 0 ;
+  m_in_triggerBCid = 0 ;
+  m_out_triggerBCid = 0 ;
+  m_in_rowinBCid = 0 ;
+  m_out_rowinBCid = 0 ;
+  m_Tower_out = 0 ;
+  m_Tower_in = 0 ;
+  m_in_sectorid = 0 ;
+  m_sectorLogicContainer = 0 ;
       
-  // Store Gate store
-  sc = serviceLocator() -> service("StoreGateSvc", m_eventStore);
-  if (sc != StatusCode::SUCCESS ) {
-    m_log << MSG::ERROR << " Cannot get StoreGateSvc !" << endmsg;
-    return sc;
-  }
-  
   // Retrieve the active store
-  sc = serviceLocator() -> service("ActiveStoreSvc", m_activeStore);
-  if (sc != StatusCode::SUCCESS ) {
-    m_log << MSG::ERROR << " Cannot get ActiveStoreSvc !" << endmsg;
-    return sc;
-  }
+  ATH_CHECK( serviceLocator() -> service("ActiveStoreSvc", m_activeStore) );
 
-  // Initialize the IdHelper
-  StoreGateSvc* detStore = 0;
-  sc = service("DetectorStore", detStore);
-  if (sc.isFailure()) {
-    m_log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  
-  
   // Ignore the checking code
   ManagedMonitorToolBase::initialize().ignore();
-   
-      
-    
 
   return StatusCode::SUCCESS;
 }
@@ -113,18 +84,12 @@ StatusCode RpcLv1RawDataSectorLogic::initialize()
 StatusCode RpcLv1RawDataSectorLogic::StoreTriggerType() 
 {
   const xAOD::EventInfo* eventInfo;
-  StatusCode sc = StatusCode::SUCCESS;
-  sc = m_eventStore -> retrieve(eventInfo);
-  if (sc.isFailure()){
-    m_log << MSG::ERROR << "Cannot find eventInfo " << endmsg;
-    return sc;
-  }
-  else if (m_debuglevel) 
-    m_log << MSG::DEBUG << "RpcLv1RawDataSectorLogic::retrieved eventInfo" << endmsg;
+  ATH_CHECK(  evtStore() -> retrieve(eventInfo) );
+  ATH_MSG_DEBUG( "RpcLv1RawDataSectorLogic::retrieved eventInfo"  );
   
   m_trigtype = eventInfo->level1TriggerType();
   
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -137,14 +102,12 @@ StatusCode RpcLv1RawDataSectorLogic::fillHistograms( )
       m_environment == AthenaMonManager::tier0Raw || 
       m_environment == AthenaMonManager::online )  {  
 
-    if (m_debuglevel) 
-      m_log << MSG::DEBUG << "RpcLv1RawDataSectorLogic::RPCLV1SectorLogic RawData Monitoring Histograms being filled" << endmsg;
+    ATH_MSG_DEBUG( "RpcLv1RawDataSectorLogic::RPCLV1SectorLogic RawData Monitoring Histograms being filled"  );
     // Retreive and store trigger type for this event
     if (StoreTriggerType() != StatusCode::SUCCESS) 
-      m_log << MSG::ERROR << "Cannot find StoreTriggerType !" << endmsg;  
+      ATH_MSG_ERROR( "Cannot find StoreTriggerType !"  );
     
-    if (m_debuglevel) 
-      m_log << MSG::DEBUG << "GetTriggerType(): "<< GetTriggerType() << endmsg;
+    ATH_MSG_DEBUG( "GetTriggerType(): "<< GetTriggerType()  );
     
     
     // Path for Sector Logic Monitoring
@@ -160,53 +123,53 @@ StatusCode RpcLv1RawDataSectorLogic::fillHistograms( )
       // get histograms
       // per lumi block
       sc = rpclv1sl_lumi_block.getHist(m_rpclv1_TriggerHitsperEventperTriggerSector_LB,"SL_TriggerHits_per_Event_per_TriggerSector_LB");
-      if( sc.isFailure()) m_log << MSG::WARNING << "SL_TriggerHits_per_Event_per_TriggerSector_LB: Histogram could not be associated to MonGroup." << endmsg;   
+      if( sc.isFailure()) ATH_MSG_WARNING( "SL_TriggerHits_per_Event_per_TriggerSector_LB: Histogram could not be associated to MonGroup."  );
       sc = rpclv1sl_lumi_block.getHist(m_rpclv1_Hits_per_TriggerSector_LB,"SL_Hits_per_TriggerSector_LB");	
-      if( sc.isFailure() ) m_log << MSG::WARNING << "SL_Hits_per_TriggerSector_LB: Histogram could not be associated to MonGroup." << endmsg;
+      if( sc.isFailure() ) ATH_MSG_WARNING( "SL_Hits_per_TriggerSector_LB: Histogram could not be associated to MonGroup."  );
       sc = rpclv1sl_lumi_block.getHist( m_rpclv1_triggerBCid_inout_LB, "SL_triggerBCid_inout_LB") ;
-      if( sc.isFailure() ) m_log << MSG::WARNING << "SL_triggerBCid_inout_LB: Histogram could not be associated to MonGroup." << endmsg; 
+      if( sc.isFailure() ) ATH_MSG_WARNING( "SL_triggerBCid_inout_LB: Histogram could not be associated to MonGroup."  );
     }
    
     // Overview
     sc = rpclv1sl_shift.getHist(m_rpclv1_TriggerHitsperEvent,"SL_TriggerHits_per_Event");
-    if( sc.isFailure()) m_log << MSG::WARNING << "SL_TriggerHits_per_Event: Histogram could not be associated to MonGroup." << endmsg;   
+    if( sc.isFailure()) ATH_MSG_WARNING( "SL_TriggerHits_per_Event: Histogram could not be associated to MonGroup."  );
  
     sc = rpclv1sl_shift.getHist(m_rpclv1_TriggerHitsperEventperTriggerSector,"SL_TriggerHits_per_Event_per_TriggerSector");
-    if( sc.isFailure()) m_log << MSG::WARNING << "SL_TriggerHits_per_Event_per_TriggerSector: Histogram could not be associated to MonGroup." << endmsg;   
+    if( sc.isFailure()) ATH_MSG_WARNING( "SL_TriggerHits_per_Event_per_TriggerSector: Histogram could not be associated to MonGroup."  );
  
     sc = rpclv1sl_shift.getHist(m_rpclv1_Hits_per_TriggerSector,"SL_Hits_per_TriggerSector");	
-    if( sc.isFailure() ) m_log << MSG::WARNING << "SL_Hits_per_TriggerSector: Histogram could not be associated to MonGroup." << endmsg;
+    if( sc.isFailure() ) ATH_MSG_WARNING( "SL_Hits_per_TriggerSector: Histogram could not be associated to MonGroup."  );
 
     sc = rpclv1sl_shift.getHist(m_rpclv1_TriggerSector_vs_Pad_triggerBCid_inout,"SL_TriggerSector_vs_Tower_triggerBCid_inout");	
-    if( sc.isFailure() ) m_log << MSG::WARNING << "rpclv1_TriggerSector_vs_Pad_triggerBCid_inout: Histogram could not be associated to MonGroup." << endmsg;
+    if( sc.isFailure() ) ATH_MSG_WARNING( "rpclv1_TriggerSector_vs_Pad_triggerBCid_inout: Histogram could not be associated to MonGroup."  );
 
     sc = rpclv1sl_shift.getHist(m_rpclv1_TriggerSector_vs_Pad,"SL_TriggerSector_vs_Tower");	
-    if( sc.isFailure() ) m_log << MSG::WARNING << "_rpclv1_TriggerSector_vs_Pad: Histogram could not be associated to MonGroup." << endmsg;
+    if( sc.isFailure() ) ATH_MSG_WARNING( "_rpclv1_TriggerSector_vs_Pad: Histogram could not be associated to MonGroup."  );
     sc = rpclv1sl_shift.getHist(m_rpclv1_TriggerSector_vs_Pad_Pt1,"SL_TriggerSector_vs_Tower_Pt1");	
-    if( sc.isFailure() ) m_log << MSG::WARNING << "rpclv1_TriggerSector_vs_Pad_Pt1: Histogram could not be associated to MonGroup." << endmsg;
+    if( sc.isFailure() ) ATH_MSG_WARNING( "rpclv1_TriggerSector_vs_Pad_Pt1: Histogram could not be associated to MonGroup."  );
     sc = rpclv1sl_shift.getHist(m_rpclv1_TriggerSector_vs_Pad_Pt2,"SL_TriggerSector_vs_Tower_Pt2");	
-    if( sc.isFailure() ) m_log << MSG::WARNING << "rpclv1_TriggerSector_vs_Pad_Pt2: Histogram could not be associated to MonGroup." << endmsg;
+    if( sc.isFailure() ) ATH_MSG_WARNING( "rpclv1_TriggerSector_vs_Pad_Pt2: Histogram could not be associated to MonGroup."  );
     sc = rpclv1sl_shift.getHist(m_rpclv1_TriggerSector_vs_Pad_Pt3,"SL_TriggerSector_vs_Tower_Pt3");	
-    if( sc.isFailure() ) m_log << MSG::WARNING << "rpclv1_TriggerSector_vs_Pad_Pt3: Histogram could not be associated to MonGroup." << endmsg;
+    if( sc.isFailure() ) ATH_MSG_WARNING( "rpclv1_TriggerSector_vs_Pad_Pt3: Histogram could not be associated to MonGroup."  );
     sc = rpclv1sl_shift.getHist(m_rpclv1_TriggerSector_vs_Pad_Pt4,"SL_TriggerSector_vs_Tower_Pt4");	
-    if( sc.isFailure() ) m_log << MSG::WARNING << "rpclv1_TriggerSector_vs_Pad_Pt4: Histogram could not be associated to MonGroup." << endmsg;
+    if( sc.isFailure() ) ATH_MSG_WARNING( "rpclv1_TriggerSector_vs_Pad_Pt4: Histogram could not be associated to MonGroup."  );
     sc = rpclv1sl_shift.getHist(m_rpclv1_TriggerSector_vs_Pad_Pt5,"SL_TriggerSector_vs_Tower_Pt5");	
-    if( sc.isFailure() ) m_log << MSG::WARNING << "rpclv1_TriggerSector_vs_Pad_Pt5: Histogram could not be associated to MonGroup." << endmsg;
+    if( sc.isFailure() ) ATH_MSG_WARNING( "rpclv1_TriggerSector_vs_Pad_Pt5: Histogram could not be associated to MonGroup."  );
     sc = rpclv1sl_shift.getHist(m_rpclv1_TriggerSector_vs_Pad_Pt6,"SL_TriggerSector_vs_Tower_Pt6");	
-    if( sc.isFailure() ) m_log << MSG::WARNING << "rpclv1_TriggerSector_vs_Pad_Pt6: Histogram could not be associated to MonGroup." << endmsg;
+    if( sc.isFailure() ) ATH_MSG_WARNING( "rpclv1_TriggerSector_vs_Pad_Pt6: Histogram could not be associated to MonGroup."  );
 
     sc = rpclv1sl_shift.getHist(m_rpclv1_triggerBCid_inout_vs_TriggerSector,"SL_triggerBCid_inout_vs_TriggerSector");
-    if( sc.isFailure() ) m_log << MSG::WARNING << "SL_triggerBCid_inout_vs_TriggerSector: Histogram could not be associated to MonGroup." << endmsg;
+    if( sc.isFailure() ) ATH_MSG_WARNING( "SL_triggerBCid_inout_vs_TriggerSector: Histogram could not be associated to MonGroup."  );
 
     sc = rpclv1sl_shift.getHist( m_rpclv1_rowinBCid_vs_TriggerSector, "SL_rowinBCid_vs_TriggerSector") ;
-    if( sc.isFailure() ) m_log << MSG::WARNING << "SL_rowinBCid_vs_TriggerSector: Histogram could not be associated to MonGroup." << endmsg; 
+    if( sc.isFailure() ) ATH_MSG_WARNING( "SL_rowinBCid_vs_TriggerSector: Histogram could not be associated to MonGroup."  );
     sc = rpclv1sl_shift.getHist( m_rpclv1_triggerBCid_inout_vs_Tower , "SL_triggerBCid_inout_vs_Tower") ;
-    if( sc.isFailure() ) m_log << MSG::WARNING << "SL_triggerBCid_inout_vs_Tower: Histogram could not be associated to MonGroup." << endmsg; 
+    if( sc.isFailure() ) ATH_MSG_WARNING( "SL_triggerBCid_inout_vs_Tower: Histogram could not be associated to MonGroup."  );
     sc = rpclv1sl_shift.getHist( m_rpclv1_ptid_vs_Tower, "SL_ptid_vs_Tower") ;
-    if( sc.isFailure() ) m_log << MSG::WARNING << "SL_ptid_vs_Tower: Histogram could not be associated to MonGroup." << endmsg; 
+    if( sc.isFailure() ) ATH_MSG_WARNING( "SL_ptid_vs_Tower: Histogram could not be associated to MonGroup."  );
 
     sc = rpclv1sl_shift.getHist( m_rpclv1_triggerBCid_inout, "SL_triggerBCid_inout") ;
-    if( sc.isFailure() ) m_log << MSG::WARNING << "SL_triggerBCid_inout: Histogram could not be associated to MonGroup." << endmsg; 
+    if( sc.isFailure() ) ATH_MSG_WARNING( "SL_triggerBCid_inout: Histogram could not be associated to MonGroup."  );
 
 
     //---------------------------------------
@@ -219,7 +182,7 @@ StatusCode RpcLv1RawDataSectorLogic::fillHistograms( )
     sc = (*m_activeStore) -> retrieve(m_sectorLogicContainer);     
     
     if (sc.isFailure()) {
-      m_log << MSG::INFO << "Cannot retrieve the RpcSectorLogicContainer" << endmsg;     
+      ATH_MSG_INFO( "Cannot retrieve the RpcSectorLogicContainer"  );
       return StatusCode::SUCCESS;
     }
     else {
@@ -380,7 +343,7 @@ StatusCode RpcLv1RawDataSectorLogic::fillHistograms( )
 //***********************************************************************************************************************
 StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
 {
-  if (m_debuglevel) m_log << MSG::DEBUG << "Booking Histograms for RPC RawData Sector Logic Monitoring" << endmsg;
+  ATH_MSG_DEBUG( "Booking Histograms for RPC RawData Sector Logic Monitoring"  );
 
   StatusCode sc = StatusCode::SUCCESS; 
   
@@ -393,15 +356,10 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
      
     MonGroup rpclv1sl_shift ( this, generic_path_rpclv1monitoring + "/Overview", run, ATTRIB_UNMANAGED );
     
-    if(newEventsBlock){}
-
-    if(newLumiBlock && m_lumiblockhist){
+    if(newLumiBlockFlag() && m_lumiblockhist){
       MonGroup rpclv1sl_lumi_block ( this, generic_path_rpclv1monitoring + "/lumiblock", lumiBlock, ATTRIB_UNMANAGED )  ;
-      if (m_debuglevel) {
-      	//m_log << MSG::DEBUG << "SHIFT : "<< shift << endmsg;
-      	m_log << MSG::DEBUG << "RUN : "  << run << endmsg; 	     	
-      	m_log << MSG::DEBUG << "LumiBlock : "   << lumiBlock << endmsg; 	     	
-      }
+      ATH_MSG_DEBUG( "RUN : "  << run  );
+      ATH_MSG_DEBUG( "LumiBlock : "   << lumiBlock  );
       
       //_____________________________________________________________________
       // Sector logic statistics
@@ -411,16 +369,12 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
 
       TH1 *rpclv1_Hits_per_TriggerSector_LB = new TH1I(rpclv1_Hits_per_TriggerSector_LB_title_char, rpclv1_Hits_per_TriggerSector_LB_title_char, 64, 0, 64);
 
-      sc = rpclv1sl_lumi_block.regHist(rpclv1_Hits_per_TriggerSector_LB);
-      if (sc.isFailure()) { 
-      	m_log << MSG::FATAL << "rpclv1_TriggerSector_LB_stat Failed to register histogram " << endmsg;       
-      	return sc;
-      }  		
+      ATH_CHECK(  rpclv1sl_lumi_block.regHist(rpclv1_Hits_per_TriggerSector_LB) );
       rpclv1_Hits_per_TriggerSector_LB -> SetFillColor(9);
       rpclv1_Hits_per_TriggerSector_LB -> GetXaxis() -> SetTitle("RPC trigger sector");
       rpclv1_Hits_per_TriggerSector_LB -> GetYaxis() -> SetTitle("Counts per trigger sector"); 
       
-      if (m_debuglevel) m_log << MSG::DEBUG << "INSIDE bookHistograms successfully: " << rpclv1_Hits_per_TriggerSector_LB << endmsg;
+      ATH_MSG_DEBUG( "INSIDE bookHistograms successfully: " << rpclv1_Hits_per_TriggerSector_LB  );
       
       
 
@@ -432,16 +386,12 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
       // Create Histogram
       TH2 *rpclv1_TriggerHitsperEventperTriggerSector_LB = new TH2I(rpclv1_TriggerHitsperEventperTriggerSector_LB_title_char, rpclv1_TriggerHitsperEventperTriggerSector_LB_title_char, 64, 0, 64, 30, -0.5, 29.5);
  
-      sc = rpclv1sl_lumi_block.regHist(rpclv1_TriggerHitsperEventperTriggerSector_LB) ; 
-      if(sc.isFailure()) { 
-      	m_log << MSG::FATAL << "rpclv1_TriggerHitsperEventperTriggerSector_LB: Histogram registration failed. " << endmsg;       
-      	return sc;
-      }
+      ATH_CHECK( rpclv1sl_lumi_block.regHist(rpclv1_TriggerHitsperEventperTriggerSector_LB) );
       rpclv1_TriggerHitsperEventperTriggerSector_LB -> SetOption("COLZ");
       rpclv1_TriggerHitsperEventperTriggerSector_LB -> GetXaxis() -> SetTitle("RPC trigger sector");
       rpclv1_TriggerHitsperEventperTriggerSector_LB -> GetYaxis() -> SetTitle("RPC trigger hits / event");
 
-      if (m_debuglevel) m_log << MSG::DEBUG << "INSIDE bookHistograms successfully: " << rpclv1_TriggerHitsperEventperTriggerSector_LB << endmsg;
+      ATH_MSG_DEBUG( "INSIDE bookHistograms successfully: " << rpclv1_TriggerHitsperEventperTriggerSector_LB  );
 
 
       //_____________________________________________________________________
@@ -452,27 +402,20 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
 
       TH1 * rpclv1_triggerBCid_inout_LB = new TH1I(rpclv1_triggerBCid_inout_LB_title_char, rpclv1_triggerBCid_inout_LB_title_char, 8, 0, 8);
  
-      sc = rpclv1sl_lumi_block.regHist(rpclv1_triggerBCid_inout_LB);
-      if(sc.isFailure()){ 
-	m_log << MSG::FATAL << "rpclv1_triggerBCid_inout_LB Failed to register histogram " << endmsg;       
-	return sc;
-      } 
+      ATH_CHECK(  rpclv1sl_lumi_block.regHist(rpclv1_triggerBCid_inout_LB) );
       rpclv1_triggerBCid_inout_LB -> SetFillColor(9);
       rpclv1_triggerBCid_inout_LB -> GetXaxis() -> SetTitle("triggerBCid (in - out)");
       rpclv1_triggerBCid_inout_LB -> GetYaxis() -> SetTitle("Counts");
 
-      if (m_debuglevel)	m_log << MSG::DEBUG << "INSIDE bookHistograms successfully: " << rpclv1_triggerBCid_inout_LB << rpclv1_triggerBCid_inout_LB_title.c_str() << endmsg;
+      ATH_MSG_DEBUG( "INSIDE bookHistograms successfully: " << rpclv1_triggerBCid_inout_LB << rpclv1_triggerBCid_inout_LB_title.c_str()  );
 	
 	
     }// isNewLumiBlock
     
     
-    if(newRun) {
+    if(newRunFlag()) {
       
-      if (m_debuglevel) {
-	//m_log << MSG::DEBUG << "SHIFT : "<< shift << endmsg;
-	m_log << MSG::DEBUG << "RUN : "  << run << endmsg; 	     	
-      }
+      ATH_MSG_DEBUG( "RUN : "  << run  );
 
       //_____________________________________________________________________
       // rowin BCid vs Trigger Sector
@@ -481,16 +424,12 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
 	
       TH2* rpclv1_rowinBCid_vs_TriggerSector = new TH2I ( rpclv1_rowinBCid_vs_TriggerSector_title_char, rpclv1_rowinBCid_vs_TriggerSector_title_char, 64, 0, 64, 8, 0, 8);
 
-      sc = rpclv1sl_shift.regHist( rpclv1_rowinBCid_vs_TriggerSector );
-      if(sc.isFailure()){ 
-	m_log << MSG::FATAL << "rpclv1_BCid_vs_TriggerSector Failed to register histogram " << endmsg;       
-	return sc;
-      }
+      ATH_CHECK(  rpclv1sl_shift.regHist( rpclv1_rowinBCid_vs_TriggerSector ) );
       rpclv1_rowinBCid_vs_TriggerSector -> GetXaxis() -> SetTitle("RPC trigger sector");  
       rpclv1_rowinBCid_vs_TriggerSector -> GetYaxis() -> SetTitle("rowinBCid");
       rpclv1_rowinBCid_vs_TriggerSector -> SetOption("COLZ");
 
-      if (m_debuglevel) m_log << MSG::DEBUG << "INSIDE bookHistograms successfully: " << rpclv1_rowinBCid_vs_TriggerSector << rpclv1_rowinBCid_vs_TriggerSector_title.c_str() << endmsg;
+      ATH_MSG_DEBUG( "INSIDE bookHistograms successfully: " << rpclv1_rowinBCid_vs_TriggerSector << rpclv1_rowinBCid_vs_TriggerSector_title.c_str()  );
 	
 	
 
@@ -501,17 +440,13 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
       const char* rpclv1_triggerBCid_inout_vs_Tower_title_char = rpclv1_triggerBCid_inout_vs_Tower_title.c_str();
 	
       TH2* rpclv1_triggerBCid_inout_vs_Tower = new TH2I ( rpclv1_triggerBCid_inout_vs_Tower_title_char, rpclv1_triggerBCid_inout_vs_Tower_title_char, 8, 0, 8, 8, 0, 8);
-
-      sc = rpclv1sl_shift.regHist( rpclv1_triggerBCid_inout_vs_Tower );
-      if(sc.isFailure()){ 
-      	m_log << MSG::FATAL << "rpclv1_triggerBCid_inout_vs_Tower Failed to register histogram " << endmsg;       
-      	return sc;
-      }
+      
+      ATH_CHECK(  rpclv1sl_shift.regHist( rpclv1_triggerBCid_inout_vs_Tower ) );
       rpclv1_triggerBCid_inout_vs_Tower -> GetXaxis() -> SetTitle("Tower");  
       rpclv1_triggerBCid_inout_vs_Tower -> GetYaxis() -> SetTitle("triggerBCid (in - out)");
       rpclv1_triggerBCid_inout_vs_Tower -> SetOption("COLZ");
 
-      if (m_debuglevel)	m_log << MSG::DEBUG << "INSIDE bookHistograms successfully: " <<  rpclv1_triggerBCid_inout_vs_Tower << rpclv1_triggerBCid_inout_vs_Tower_title.c_str() << endmsg;
+      ATH_MSG_DEBUG( "INSIDE bookHistograms successfully: " <<  rpclv1_triggerBCid_inout_vs_Tower << rpclv1_triggerBCid_inout_vs_Tower_title.c_str()  );
 
 
 
@@ -523,16 +458,12 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
 
       TH1 *rpclv1_Hits_per_TriggerSector = new TH1I(rpclv1_Hits_per_TriggerSector_title_char, rpclv1_Hits_per_TriggerSector_title_char, 64, 0, 64);
 
-      sc = rpclv1sl_shift.regHist(rpclv1_Hits_per_TriggerSector);
-      if (sc.isFailure()) { 
-	m_log << MSG::FATAL << "rpclv1_TriggerSector_stat Failed to register histogram " << endmsg;       
-	return sc;
-      }  		
+      ATH_CHECK(  rpclv1sl_shift.regHist(rpclv1_Hits_per_TriggerSector) );
       rpclv1_Hits_per_TriggerSector -> SetFillColor(9);
       rpclv1_Hits_per_TriggerSector -> GetXaxis() -> SetTitle("RPC trigger sector");
       rpclv1_Hits_per_TriggerSector -> GetYaxis() -> SetTitle("Counts per trigger sector"); 
       
-      if (m_debuglevel) m_log << MSG::DEBUG << "INSIDE bookHistograms successfully: " << rpclv1_Hits_per_TriggerSector << endmsg;
+      ATH_MSG_DEBUG( "INSIDE bookHistograms successfully: " << rpclv1_Hits_per_TriggerSector  );
     
       //_____________________________________________________________________
       // Trigger hits per event
@@ -542,16 +473,12 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
       // Create Histogram
       TH1 *rpclv1_TriggerHitsperEvent = new TH1I(rpclv1_TriggerHitsperEvent_title_char, rpclv1_TriggerHitsperEvent_title_char, 30, -0.5, 29.5);
  
-      sc = rpclv1sl_shift.regHist(rpclv1_TriggerHitsperEvent) ; 
-      if(sc.isFailure()) { 
-	m_log << MSG::FATAL << "rpclv1_TriggerHitsperEvent: Histogram registration failed. " << endmsg;       
-	return sc;
-      }
+      ATH_CHECK(  rpclv1sl_shift.regHist(rpclv1_TriggerHitsperEvent) );
       rpclv1_TriggerHitsperEvent -> SetFillColor(9);
       rpclv1_TriggerHitsperEvent -> GetXaxis() -> SetTitle("RPC trigger hits / event");
       rpclv1_TriggerHitsperEvent -> GetYaxis() -> SetTitle("Counts");
 
-      if (m_debuglevel) m_log << MSG::DEBUG << "INSIDE bookHistograms successfully: " << rpclv1_TriggerHitsperEvent << endmsg;
+      ATH_MSG_DEBUG( "INSIDE bookHistograms successfully: " << rpclv1_TriggerHitsperEvent  );
  
  
 
@@ -563,16 +490,12 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
       // Create Histogram
       TH2 *rpclv1_TriggerHitsperEventperTriggerSector = new TH2I(rpclv1_TriggerHitsperEventperTriggerSector_title_char, rpclv1_TriggerHitsperEventperTriggerSector_title_char, 64, 0, 64, 30, -0.5, 29.5);
  
-      sc = rpclv1sl_shift.regHist(rpclv1_TriggerHitsperEventperTriggerSector) ; 
-      if(sc.isFailure()) { 
-	m_log << MSG::FATAL << "rpclv1_TriggerHitsperEventperTriggerSector: Histogram registration failed. " << endmsg;       
-	return sc;
-      }
+      ATH_CHECK(  rpclv1sl_shift.regHist(rpclv1_TriggerHitsperEventperTriggerSector) );
       rpclv1_TriggerHitsperEventperTriggerSector -> SetOption("COLZ");
       rpclv1_TriggerHitsperEventperTriggerSector -> GetXaxis() -> SetTitle("RPC trigger sector");
       rpclv1_TriggerHitsperEventperTriggerSector -> GetYaxis() -> SetTitle("RPC trigger hits / event");
 
-      if (m_debuglevel) m_log << MSG::DEBUG << "INSIDE bookHistograms successfully: " << rpclv1_TriggerHitsperEventperTriggerSector << endmsg;
+      ATH_MSG_DEBUG( "INSIDE bookHistograms successfully: " << rpclv1_TriggerHitsperEventperTriggerSector  );
  
 
       //_____________________________________________________________________
@@ -583,16 +506,12 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
 
       TH2 *rpclv1_TriggerSector_vs_Pad_triggerBCid_inout = new TH2I(rpclv1_TriggerSector_vs_Pad_triggerBCid_inout_title_char,rpclv1_TriggerSector_vs_Pad_triggerBCid_inout_title_char, 17, -8.5, 8.5, 32, 0, 32);
 
-      sc = rpclv1sl_shift.regHist(rpclv1_TriggerSector_vs_Pad_triggerBCid_inout);  
-      if (sc.isFailure()) { 
-	m_log << MSG::FATAL << "rpclv1_TriggerSector_vs_Pad: Histogram registration failed. " << endmsg;       
-	return sc;
-      }  		  
+      ATH_CHECK(  rpclv1sl_shift.regHist(rpclv1_TriggerSector_vs_Pad_triggerBCid_inout) );
       rpclv1_TriggerSector_vs_Pad_triggerBCid_inout -> SetOption("COLZ");
       rpclv1_TriggerSector_vs_Pad_triggerBCid_inout -> GetXaxis() -> SetTitle("Tower");
       rpclv1_TriggerSector_vs_Pad_triggerBCid_inout -> GetYaxis() -> SetTitle("RPC trigger sector");
 
-      if (m_debuglevel) m_log << MSG::DEBUG << "INSIDE bookHistograms successfully: " << rpclv1_TriggerSector_vs_Pad_triggerBCid_inout << endmsg;
+      ATH_MSG_DEBUG( "INSIDE bookHistograms successfully: " << rpclv1_TriggerSector_vs_Pad_triggerBCid_inout  );
 
       //_____________________________________________________________________
       //TriggerSector_vs_Tower
@@ -602,16 +521,12 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
 
       TH2 *rpclv1_TriggerSector_vs_Pad = new TH2I(rpclv1_TriggerSector_vs_Pad_title_char,rpclv1_TriggerSector_vs_Pad_title_char, 17, -8.5, 8.5, 32, 0, 32);
 
-      sc = rpclv1sl_shift.regHist(rpclv1_TriggerSector_vs_Pad);  
-      if (sc.isFailure()) { 
-	m_log << MSG::FATAL << "rpclv1_TriggerSector_vs_Pad: Histogram registration failed. " << endmsg;       
-	return sc;
-      }  		  
+      ATH_CHECK(  rpclv1sl_shift.regHist(rpclv1_TriggerSector_vs_Pad) );
       rpclv1_TriggerSector_vs_Pad -> SetOption("COLZ");
       rpclv1_TriggerSector_vs_Pad -> GetXaxis() -> SetTitle("Tower");
       rpclv1_TriggerSector_vs_Pad -> GetYaxis() -> SetTitle("RPC trigger sector");
 
-      if (m_debuglevel) m_log << MSG::DEBUG << "INSIDE bookHistograms successfully: " << rpclv1_TriggerSector_vs_Pad << endmsg;
+      ATH_MSG_DEBUG( "INSIDE bookHistograms successfully: " << rpclv1_TriggerSector_vs_Pad  );
 
       //_____________________________________________________________________
       //TriggerSector_vs_Tower_Pt1
@@ -620,11 +535,7 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
 
       TH2 *rpclv1_TriggerSector_vs_Pad_Pt1 = new TH2I(rpclv1_TriggerSector_vs_Pad_Pt1_title_char,rpclv1_TriggerSector_vs_Pad_Pt1_title_char, 17, -8.5, 8.5, 32, 0, 32);
 
-      sc = rpclv1sl_shift.regHist(rpclv1_TriggerSector_vs_Pad_Pt1);  
-      if (sc.isFailure()) { 
-	m_log << MSG::FATAL << "rpclv1_TriggerSector_vs_Pad_Pt1: Histogram registration failed. " << endmsg;       
-	return sc;
-      }  		  
+      ATH_CHECK(  rpclv1sl_shift.regHist(rpclv1_TriggerSector_vs_Pad_Pt1) );
       rpclv1_TriggerSector_vs_Pad_Pt1 -> SetOption("COLZ");
       rpclv1_TriggerSector_vs_Pad_Pt1 -> GetXaxis() -> SetTitle("Tower");
       rpclv1_TriggerSector_vs_Pad_Pt1 -> GetYaxis() -> SetTitle("RPC trigger sector");
@@ -635,11 +546,7 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
 
       TH2 *rpclv1_TriggerSector_vs_Pad_Pt2 = new TH2I(rpclv1_TriggerSector_vs_Pad_Pt2_title_char,rpclv1_TriggerSector_vs_Pad_Pt2_title_char, 17, -8.5, 8.5, 32, 0, 32);
 
-      sc = rpclv1sl_shift.regHist(rpclv1_TriggerSector_vs_Pad_Pt2);  
-      if (sc.isFailure()) { 
-	m_log << MSG::FATAL << "rpclv1_TriggerSector_vs_Pad_Pt2: Histogram registration failed. " << endmsg;       
-	return sc;
-      }  		  
+      ATH_CHECK( rpclv1sl_shift.regHist(rpclv1_TriggerSector_vs_Pad_Pt2) );
       rpclv1_TriggerSector_vs_Pad_Pt2 -> SetOption("COLZ");
       rpclv1_TriggerSector_vs_Pad_Pt2 -> GetXaxis() -> SetTitle("Tower");
       rpclv1_TriggerSector_vs_Pad_Pt2 -> GetYaxis() -> SetTitle("RPC trigger sector");
@@ -650,11 +557,7 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
 
       TH2 *rpclv1_TriggerSector_vs_Pad_Pt3 = new TH2I(rpclv1_TriggerSector_vs_Pad_Pt3_title_char,rpclv1_TriggerSector_vs_Pad_Pt3_title_char, 17, -8.5, 8.5, 32, 0, 32);
 
-      sc = rpclv1sl_shift.regHist(rpclv1_TriggerSector_vs_Pad_Pt3);  
-      if (sc.isFailure()) { 
-	m_log << MSG::FATAL << "rpclv1_TriggerSector_vs_Pad_Pt3: Histogram registration failed. " << endmsg;       
-	return sc;
-      }  		  
+      ATH_CHECK(  rpclv1sl_shift.regHist(rpclv1_TriggerSector_vs_Pad_Pt3) );
       rpclv1_TriggerSector_vs_Pad_Pt3 -> SetOption("COLZ");
       rpclv1_TriggerSector_vs_Pad_Pt3 -> GetXaxis() -> SetTitle("Tower");
       rpclv1_TriggerSector_vs_Pad_Pt3 -> GetYaxis() -> SetTitle("RPC trigger sector");
@@ -665,11 +568,7 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
 
       TH2 *rpclv1_TriggerSector_vs_Pad_Pt4 = new TH2I(rpclv1_TriggerSector_vs_Pad_Pt4_title_char,rpclv1_TriggerSector_vs_Pad_Pt4_title_char, 17, -8.5, 8.5, 32, 0, 32);
 
-      sc = rpclv1sl_shift.regHist(rpclv1_TriggerSector_vs_Pad_Pt4);  
-      if (sc.isFailure()) { 
-	m_log << MSG::FATAL << "rpclv1_TriggerSector_vs_Pad_Pt4: Histogram registration failed. " << endmsg;       
-	return sc;
-      }  		  
+      ATH_CHECK(  rpclv1sl_shift.regHist(rpclv1_TriggerSector_vs_Pad_Pt4) );
       rpclv1_TriggerSector_vs_Pad_Pt4 -> SetOption("COLZ");
       rpclv1_TriggerSector_vs_Pad_Pt4 -> GetXaxis() -> SetTitle("Tower");
       rpclv1_TriggerSector_vs_Pad_Pt4 -> GetYaxis() -> SetTitle("RPC trigger sector");
@@ -680,11 +579,7 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
 
       TH2 *rpclv1_TriggerSector_vs_Pad_Pt5 = new TH2I(rpclv1_TriggerSector_vs_Pad_Pt5_title_char,rpclv1_TriggerSector_vs_Pad_Pt5_title_char, 17, -8.5, 8.5, 32, 0, 32);
 
-      sc = rpclv1sl_shift.regHist(rpclv1_TriggerSector_vs_Pad_Pt5);  
-      if (sc.isFailure()) { 
-	m_log << MSG::FATAL << "rpclv1_TriggerSector_vs_Pad_Pt5: Histogram registration failed. " << endmsg;       
-	return sc;
-      }  		  
+      ATH_CHECK(  rpclv1sl_shift.regHist(rpclv1_TriggerSector_vs_Pad_Pt5) );
       rpclv1_TriggerSector_vs_Pad_Pt5 -> SetOption("COLZ");
       rpclv1_TriggerSector_vs_Pad_Pt5 -> GetXaxis() -> SetTitle("Tower");
       rpclv1_TriggerSector_vs_Pad_Pt5 -> GetYaxis() -> SetTitle("RPC trigger sector");
@@ -695,11 +590,7 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
 
       TH2 *rpclv1_TriggerSector_vs_Pad_Pt6 = new TH2I(rpclv1_TriggerSector_vs_Pad_Pt6_title_char,rpclv1_TriggerSector_vs_Pad_Pt6_title_char, 17, -8.5, 8.5, 32, 0, 32);
 
-      sc = rpclv1sl_shift.regHist(rpclv1_TriggerSector_vs_Pad_Pt6);  
-      if (sc.isFailure()) { 
-	m_log << MSG::FATAL << "rpclv1_TriggerSector_vs_Pad_Pt6: Histogram registration failed. " << endmsg;       
-	return sc;
-      }  		  
+      ATH_CHECK(  rpclv1sl_shift.regHist(rpclv1_TriggerSector_vs_Pad_Pt6) );
       rpclv1_TriggerSector_vs_Pad_Pt6 -> SetOption("COLZ");
       rpclv1_TriggerSector_vs_Pad_Pt6 -> GetXaxis() -> SetTitle("Tower");
       rpclv1_TriggerSector_vs_Pad_Pt6 -> GetYaxis() -> SetTitle("RPC trigger sector");
@@ -714,16 +605,12 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
 
       TH2 *rpclv1_triggerBCid_inout_vs_TriggerSector = new TH2I(rpclv1_triggerBCid_inout_vs_TriggerSector_title_char,rpclv1_triggerBCid_inout_vs_TriggerSector_title_char, 64, 0, 64, 8, 0, 8);
 
-      sc = rpclv1sl_shift.regHist(rpclv1_triggerBCid_inout_vs_TriggerSector);  
-      if (sc.isFailure()) { 
-      	m_log << MSG::FATAL << "rpclv1_triggerBCid_inout_vs_TriggerSector: Histogram registration failed. " << endmsg;       
-      	return sc;
-      }  		  
+      ATH_CHECK(  rpclv1sl_shift.regHist(rpclv1_triggerBCid_inout_vs_TriggerSector) );
       rpclv1_triggerBCid_inout_vs_TriggerSector -> SetOption("COLZ");
       rpclv1_triggerBCid_inout_vs_TriggerSector -> GetXaxis() -> SetTitle("RPC trigger sector");
       rpclv1_triggerBCid_inout_vs_TriggerSector -> GetYaxis() -> SetTitle("triggerBCid (in - out)");
 
-      if (m_debuglevel) m_log << MSG::DEBUG << "INSIDE bookHistograms successfully: " << rpclv1_triggerBCid_inout_vs_TriggerSector << endmsg;
+      ATH_MSG_DEBUG( "INSIDE bookHistograms successfully: " << rpclv1_triggerBCid_inout_vs_TriggerSector  );
 
 	
 	
@@ -735,16 +622,12 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
 
       TH2 * rpclv1_ptid_vs_Tower = new TH2I(rpclv1_ptid_vs_Tower_title_char, rpclv1_ptid_vs_Tower_title_char, 8, 0, 8, 6, 1, 7);
  
-      sc = rpclv1sl_shift.regHist(rpclv1_ptid_vs_Tower);
-      if(sc.isFailure()){ 
-	m_log << MSG::FATAL << "rpclv1_ptid_vs_Tower Failed to register histogram " << endmsg;       
-	return sc;
-      } 
+      ATH_CHECK(  rpclv1sl_shift.regHist(rpclv1_ptid_vs_Tower) );
       rpclv1_ptid_vs_Tower -> SetOption("COLZ");
       rpclv1_ptid_vs_Tower -> GetXaxis() -> SetTitle("Tower");
       rpclv1_ptid_vs_Tower -> GetYaxis() -> SetTitle("Threshold");
 
-      if (m_debuglevel)	m_log << MSG::DEBUG << "INSIDE bookHistograms successfully: " << rpclv1_ptid_vs_Tower << rpclv1_ptid_vs_Tower_title.c_str() << endmsg;
+      ATH_MSG_DEBUG( "INSIDE bookHistograms successfully: " << rpclv1_ptid_vs_Tower << rpclv1_ptid_vs_Tower_title.c_str()  );
 	
 	
       //_____________________________________________________________________
@@ -755,16 +638,12 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
 
       TH1 * rpclv1_triggerBCid_inout = new TH1I(rpclv1_triggerBCid_inout_title_char, rpclv1_triggerBCid_inout_title_char, 8, 0, 8);
  
-      sc = rpclv1sl_shift.regHist(rpclv1_triggerBCid_inout);
-      if(sc.isFailure()){ 
-	m_log << MSG::FATAL << "rpclv1_triggerBCid_inout Failed to register histogram " << endmsg;       
-	return sc;
-      } 
+      ATH_CHECK(  rpclv1sl_shift.regHist(rpclv1_triggerBCid_inout) );
       rpclv1_triggerBCid_inout -> SetFillColor(9);
       rpclv1_triggerBCid_inout -> GetXaxis() -> SetTitle("triggerBCid (in - out)");
       rpclv1_triggerBCid_inout -> GetYaxis() -> SetTitle("Counts");
 
-      if (m_debuglevel)	m_log << MSG::DEBUG << "INSIDE bookHistograms successfully: " << rpclv1_triggerBCid_inout << rpclv1_triggerBCid_inout_title.c_str() << endmsg;
+      ATH_MSG_DEBUG( "INSIDE bookHistograms successfully: " << rpclv1_triggerBCid_inout << rpclv1_triggerBCid_inout_title.c_str()  );
 	
 	
  
@@ -782,10 +661,7 @@ StatusCode RpcLv1RawDataSectorLogic::bookHistogramsRecurrent()
 StatusCode RpcLv1RawDataSectorLogic::procHistograms() 
 {
 
-  if (m_debuglevel) m_log << MSG::DEBUG << "RpcLv1RawDataSectorLogic finalize()" << endmsg;
-  if(endOfEventsBlock){}
-  if(endOfLumiBlock){}
-  if(endOfRun){} 
+  ATH_MSG_DEBUG( "RpcLv1RawDataSectorLogic finalize()"  );
   return StatusCode::SUCCESS;
 }
 
@@ -793,7 +669,7 @@ StatusCode RpcLv1RawDataSectorLogic::procHistograms()
 //***********************************************************************************************************************
 StatusCode RpcLv1RawDataSectorLogic::finalize() 
 {
-  if (m_debuglevel) m_log << MSG::DEBUG << "RpcLv1RawDataSectorLogic finalize()" << endmsg;
+  ATH_MSG_DEBUG( "RpcLv1RawDataSectorLogic finalize()"  );
    
   return StatusCode::SUCCESS;
 }

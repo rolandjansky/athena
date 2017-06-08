@@ -2625,9 +2625,7 @@ StatusCode RPCStandaloneTracksMon::bookHistogramsRecurrent( )
       MonGroup rpc_radiography(this, generic_path_rpcmonitoring +"/RPCRadiography",run, ATTRIB_UNMANAGED) ;
       MonGroup rpc_triggerefficiency(this, generic_path_rpcmonitoring +"/TriggerEfficiency",run, ATTRIB_UNMANAGED) ;
     
-      if(newEventsBlock){}
-      if(newLumiBlock){}
-      if(newRun)
+      if(newRunFlag())
 	{      
 	  ATH_MSG_INFO ( "RPCStandaloneTracksMon : begin of run" );
 	
@@ -5287,9 +5285,7 @@ StatusCode RPCStandaloneTracksMon::procHistograms( )
       MonGroup rpcprd_dq_BA      ( this, generic_path_rpcmonitoring + "/RPCBA"   ,  run, ATTRIB_UNMANAGED );
       MonGroup rpcprd_dq_BC      ( this, generic_path_rpcmonitoring + "/RPCBC"   ,  run, ATTRIB_UNMANAGED );
     
-      if(endOfEventsBlock){}
-      if(endOfLumiBlock){}
-      if(endOfRun){        
+      if(endOfRunFlag()){        
 
         TH1* RPCBA_layerTrackProj = nullptr;
 	sc = rpcprd_dq_BA.getHist(RPCBA_layerTrackProj,"Layer_TrackProj_sideA");	      
