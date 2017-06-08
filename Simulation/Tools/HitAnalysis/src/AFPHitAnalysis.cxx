@@ -137,8 +137,7 @@ StatusCode AFPHitAnalysis::initialize() {
   
 
 StatusCode AFPHitAnalysis::execute() {
-  //ATH_MSG_DEBUG( "In AFPHitAnalysis::execute()" );
-  ATH_MSG_INFO( "In AFPHitAnalysis::execute()" );
+  ATH_MSG_DEBUG( "In AFPHitAnalysis::execute()" );
 
   m_hitID->clear();
   m_pdgID->clear();
@@ -154,13 +153,13 @@ StatusCode AFPHitAnalysis::execute() {
   m_pixelRow->clear();
   m_pixelCol->clear();
 
-  ATH_MSG_INFO( "AFPHitAnalysis tree branches cleared" );
+  ATH_MSG_DEBUG( "AFPHitAnalysis tree branches cleared" );
 
   AFP_SIDSimHitConstIter hi;
   const DataHandle<AFP_SIDSimHitCollection> iter;
   CHECK( evtStore()->retrieve(iter,"AFP_SIDSimHitCollection") );
 
-  ATH_MSG_INFO( "AFP_SIDSSimHitCollection retrieved" );
+  ATH_MSG_DEBUG( "AFP_SIDSSimHitCollection retrieved" );
   
   for ( hi=(*iter).begin(); hi != (*iter).end(); ++hi ) {
     AFP_SIDSimHit ghit(*hi);
