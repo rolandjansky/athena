@@ -8,6 +8,7 @@ KG Tan, 17/06/2012
 from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,\
         getService,getServiceClone,getAlgorithm,getAlgorithmClone
 
+from AthenaCommon import CfgMgr
 from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 from AthenaCommon.SystemOfUnits import *
 from AthenaCommon.DetFlags import DetFlags
@@ -16,7 +17,8 @@ from ISF_Config.ISF_jobProperties import ISF_Flags # IMPORTANT: Flags must be se
 
 
 def getParticleHelper(name="ISF_ParticleHelper", **kwargs):
-    kwargs.setdefault("BarcodeSvc"             , ISF_Flags.BarcodeService())
+    from G4AtlasApps.SimFlags import simFlags
+    kwargs.setdefault("BarcodeSvc"             , simFlags.BarcodeService())
     from ISF_Tools.ISF_ToolsConf import ISF__ParticleHelper
     return ISF__ParticleHelper(name, **kwargs)
 
