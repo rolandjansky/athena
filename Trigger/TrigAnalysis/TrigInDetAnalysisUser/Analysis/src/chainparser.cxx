@@ -15,6 +15,9 @@
 #include <cstdlib> 
 #include <cstdio> 
 #include <map> 
+#include <regex>
+
+
 
 #include <cmath>
 
@@ -29,8 +32,12 @@ std::ostream& operator<<( std::ostream& s, std::vector<T>& v ) {
 }
 
 
-bool contains( const std::string& s, const std::string& regex ) { 
-  return s.find( regex )!=std::string::npos;
+bool contains( const std::string& s, const std::string& regx ) { 
+  return s.find( regx )!=std::string::npos;
+}
+
+bool contains_end( const std::string& s, const std::string& regx ) { 
+  return std::regex_match( s, std::regex(regx+"$") ); 
 }
 
 
