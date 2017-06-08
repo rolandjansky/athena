@@ -112,7 +112,7 @@ namespace InDet {
   {
     // now the files are stored in the calibration area
     string filenameWithPath = PathResolverFindCalibFile
-      ("InDetTrackSystematicsTools/CalibData_20.7_2016_EOYE-v06/" + filename);
+      ("InDetTrackSystematicsTools/CalibData_20.7_2017-v10/" + filename);
     TFile* file =  TFile::Open(filenameWithPath.data(), "READ");
     if (file != nullptr) return file;
     ATH_MSG_WARNING( "Could not find file " << filename << " in the calibration database." );
