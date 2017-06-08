@@ -100,7 +100,6 @@ except:
 if 'truthStrategy' in dir():
     simFlags.BarcodeService   = 'Barcode_' + truthStrategy + 'BarcodeSvc'
     simFlags.TruthService     = 'ISF_'     + truthStrategy + 'TruthService'
-    simFlags.EntryLayerFilter = 'ISF_'     + truthStrategy + 'EntryLayerFilter'
     simFlags.TruthStrategy    = truthStrategy
     try:
         from BarcodeServices.BarcodeServicesConfig import barcodeOffsetForTruthStrategy
@@ -120,7 +119,6 @@ if 'truthStrategy' in dir():
 else:
     simFlags.BarcodeService   = 'Barcode_MC12BarcodeSvc'
     simFlags.TruthService     = 'ISF_TruthService'
-    simFlags.EntryLayerFilter = 'ISF_MC12EntryLayerFilter'
     simFlags.TruthStrategy    = 'MC12'
     simFlags.SimBarcodeOffset  = 200000 #MC12 setting
 

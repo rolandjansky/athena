@@ -223,7 +223,6 @@ if jobproperties.Beam.beamType.get_Value() != 'cosmics':
 if hasattr(runArgs, 'truthStrategy'):
     simFlags.BarcodeService   = 'Barcode_' + runArgs.truthStrategy + 'BarcodeSvc'
     simFlags.TruthService     = 'ISF_'     + runArgs.truthStrategy + 'TruthService'
-    simFlags.EntryLayerFilter = 'ISF_'     + runArgs.truthStrategy + 'EntryLayerFilter'
     simFlags.TruthStrategy    = runArgs.truthStrategy
     try:
         from BarcodeServices.BarcodeServicesConfig import barcodeOffsetForTruthStrategy
@@ -239,7 +238,6 @@ if hasattr(runArgs, 'truthStrategy'):
 else:
     simFlags.BarcodeService   = 'Barcode_MC12BarcodeSvc'
     simFlags.TruthService     = 'ISF_TruthService'
-    simFlags.EntryLayerFilter = 'ISF_MC12EntryLayerFilter'
     simFlags.TruthStrategy    = 'MC12'
     simFlags.SimBarcodeOffset  = 200000 #MC12 setting
 

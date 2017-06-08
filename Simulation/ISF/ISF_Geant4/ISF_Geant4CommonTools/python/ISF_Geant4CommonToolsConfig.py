@@ -10,7 +10,7 @@ from AthenaCommon import CfgMgr
 def getEntryLayerTool(name="ISF_EntryLayerTool", **kwargs):
     kwargs.setdefault('GeoIDSvc'        , 'ISF_GeoIDSvc')
     from G4AtlasApps.SimFlags import simFlags
-    kwargs.setdefault('ParticleFilters' , [ simFlags.EntryLayerFilter() ] )
+    kwargs.setdefault('ParticleFilters' , [ simFlags.TruthStrategy.EntryLayerFilterName() ] )
     return CfgMgr.ISF__EntryLayerTool(name, **kwargs)
 
 def getAFIIEntryLayerTool(name="ISF_AFIIEntryLayerTool", **kwargs):
