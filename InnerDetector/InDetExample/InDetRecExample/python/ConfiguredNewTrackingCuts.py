@@ -293,7 +293,7 @@ class ConfiguredNewTrackingCuts :
         self.__phiWidthBrem             = [0.3, 0.3]
         self.__etaWidthBrem             = [0.2, 0.2]  
 
-      elif self.__indetflags.useInDetDynamicCuts() and ( "BrlInclOptRing4.0_ref" == GeometryFlags.GeoType() or "Inclined_Quads" == GeometryFlags.GeoType() or "Inclined_Alternative" == GeometryFlags.GeoType() or "Inclined_LightBarrel" == GeometryFlags.GeoType() ):
+      elif self.__indetflags.useInDetDynamicCuts() and ( "BrlInclOptRing4.0_ref" == GeometryFlags.GeoType() or "Inclined_Quads" == GeometryFlags.GeoType() or "Inclined_Alternative" == GeometryFlags.GeoType() or "Inclined_LightBarrel" == GeometryFlags.GeoType() or "Inclined_Duals" == GeometryFlags.GeoType() ):
         self.__maxEta                  = 4.0
         self.__etaBins                 = [-1.0, 2.4, 2.6]		# last bin goes from the last value in the list up to maxEta
     

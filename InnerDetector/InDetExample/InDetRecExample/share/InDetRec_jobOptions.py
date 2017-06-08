@@ -814,7 +814,7 @@ else:
         if InDetFlags.doSplitReco() :
             PixelClusterCont    = InDetKeys.PixelPUClusters()
             SCT_ClusterCont     = InDetKeys.SCT_PU_Clusters()
-            if InDetFlags.doTrackSegmentsTRT() :
+            if DetFlags.TRT_on() :
                 TRT_DriftCircleCont = InDetKeys.TRT_PU_DriftCircles()
             else:
                 TRT_DriftCircleCont =""
