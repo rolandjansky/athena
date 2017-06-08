@@ -90,9 +90,9 @@ commissionTP_electron = ['HLT_e17_lhvloose_nod0_ringer_L1EM15VHI',
                          'HLT_e26_lhloose_nod0',
                          'HLT_e26_lhloose_nod0_ringer',
                          'HLT_e26_lhmedium_nod0',
-                         'HLT_e26_lhmedium_nod0_ringer ',
+                         'HLT_e26_lhmedium_nod0_ringer',
                          'HLT_e26_lhtight_nod0',
-                         'HLT_e26_lhtight_nod0_ringer ',
+                         'HLT_e26_lhtight_nod0_ringer',
                          #'HLT_e26_lhmedium_nod0_ringer_ivarmedium_icalomedium',
                          #'HLT_e26_lhmedium_nod0_ivarmedium_icalomedium' 
                          ]
