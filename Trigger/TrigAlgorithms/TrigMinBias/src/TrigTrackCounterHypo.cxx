@@ -91,10 +91,10 @@ HLT::ErrorCode TrigTrackCounterHypo::hltExecute(const HLT::TriggerElement* outpu
 			  m_trigTrackCounts->phiMax());
     th2dZ0_pt->setContents(m_trigTrackCounts->eta_phi());
     
-    double m_ntrksSelected_low = th2dZ0_pt->sumEntries(m_min_eta, 100, xAOD::TrigHistoCutType::ABOVE_X_BELOW_Y);
-    double m_ntrksSelected_up = th2dZ0_pt->sumEntries(m_max_eta, 100, xAOD::TrigHistoCutType::ABOVE_X_BELOW_Y);
+    double ntrksSelected_low = th2dZ0_pt->sumEntries(m_min_eta, 100, xAOD::TrigHistoCutType::ABOVE_X_BELOW_Y);
+    double ntrksSelected_up = th2dZ0_pt->sumEntries(m_max_eta, 100, xAOD::TrigHistoCutType::ABOVE_X_BELOW_Y);
     
-    m_ntrksSelected = m_ntrksSelected_low-m_ntrksSelected_up;
+    m_ntrksSelected = ntrksSelected_low-ntrksSelected_up;
   }
   
   ATH_MSG_DEBUG("There are " << m_ntrksSelected << " tracks within selection window.  ");
