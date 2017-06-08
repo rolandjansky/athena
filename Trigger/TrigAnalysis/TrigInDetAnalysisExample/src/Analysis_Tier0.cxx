@@ -323,10 +323,14 @@ void Analysis_Tier0::initialise() {
   /// miscelaneous histograms
 
   h_d0vsphi       = new TProfile( "d0_vs_phi_prof", "d0 vs phi_prof",  25, -M_PI, M_PI );
-  h2d_d0vsphi     = 0; // new     TH2D( "d0_vs_phi",      "d0 vs phi",       25, -M_PI, M_PI, 50, -2.6, 2.6 );
-  h2d_d0vsphi_rec = 0; // new     TH2D( "d0_vs_phi_rec",  "d0 vs phi rec",   25, -M_PI, M_PI, 50, -2.6, 2.6 );
+  h_d0vsphi_rec   = new TProfile( "d0_vs_phi_rec_prof", "d0 vs phi_rec_prof",  25, -M_PI, M_PI );
 
   addHistogram( h_d0vsphi ); 
+  addHistogram( h_d0vsphi_rec );
+ 
+  //  h2d_d0vsphi     = 0; // new     TH2D( "d0_vs_phi",      "d0 vs phi",       25, -M_PI, M_PI, 50, -2.6, 2.6 );
+  //  h2d_d0vsphi_rec = 0; // new     TH2D( "d0_vs_phi_rec",  "d0 vs phi rec",   25, -M_PI, M_PI, 50, -2.6, 2.6 );
+
   //  addHistogram( h2d_d0vsphi ); 
   //  addHistogram( h2d_d0vsphi_rec ); 
 
@@ -446,8 +450,7 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
     h_nsihits_lb->Fill( event()->lumi_block(), (*reference)->siHits() ); 
  
     h_d0vsphi->Fill(referencePhi, referenceD0 );
-    //   h2d_d0vsphi->Fill(referencePhi, referenceD0 );
-
+ 
     h_chain->Fill(2.5);
 
 
@@ -515,8 +518,6 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
       h_trkdd0_residual->Fill( test->da0() - referenceDD0 );
       h_trkdz0_residual->Fill( test->dz0() - referenceDZ0  );
 
-      //      h2d_d0vsphi_rec->Fill( test->phi(), test->a0() );
-
       h_npixvseta_rec->Fill( referenceEta, int((test->pixelHits()+0.5)*0.5) ); 
       h_nsctvseta_rec->Fill( referenceEta, test->sctHits() ); 
 
@@ -537,6 +538,8 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
 
       h_ntrtvseta_rec->Fill( referenceEta, test->strawHits() ); 
       h_ntrtvsphi_rec->Fill( referencePhi, test->strawHits() ); 
+
+      h_d0vsphi_rec->Fill( test->phi(), test->a0() );
 
     }
     //    else { 
