@@ -9,8 +9,8 @@
 
 //---------------------------------------------------------------------------------
 
-TrigTrackCounterHypo::TrigTrackCounterHypo(const std::string& name, ISvcLocator* pSvcLocator): HLT::HypoAlgo(name, pSvcLocator),
-m_log(msgSvc(), name) {
+TrigTrackCounterHypo::TrigTrackCounterHypo(const std::string& name, ISvcLocator* pSvcLocator): HLT::HypoAlgo(name, pSvcLocator)
+{
   declareProperty("Max_z0", m_max_z0 = 200.0); // (mm)
   declareProperty("Min_pt", m_min_pt = 0.100); // (GeV)
   declareProperty("Min_eta", m_min_eta = -1.0); // eta
@@ -34,8 +34,6 @@ TrigTrackCounterHypo::~TrigTrackCounterHypo(){;}
 //---------------------------------------------------------------------------------
 
 HLT::ErrorCode TrigTrackCounterHypo::hltInitialize() {
-  m_log.setLevel( outputLevel() );
-  
   ATH_MSG_INFO("Initialising TrigTrackCounterHypo, name = " << name());
   ATH_MSG_INFO("max_z0 = " << m_max_z0 << " mm");
   ATH_MSG_INFO("min_pt = " << m_min_pt << " GeV");
