@@ -2,6 +2,7 @@ from AthenaCommon.Logging import logging
 from AthenaCommon.Configurable import ConfigurableService,ConfigurableAlgorithm
 import GaudiKernel.GaudiHandles as GaudiHandles
 import ast
+from collections import defaultdict
 
 class ComponentAccumulator(object): 
     
@@ -24,6 +25,11 @@ class ComponentAccumulator(object):
         self._eventAlgs.append(algo)
         pass
 
+    def getEventAlgo(self,name):
+        #Fixme, deduplicate here? 
+        hits=[a for a in self._eventAlgs if a.getName()==name]
+        return hits
+
     def addCondAlgo(self,algo):
         if not isinstance(algo, ConfigurableAlgorithm):
             self._msg.error("Attempt to add wrong type as conditions algorithm")
@@ -32,13 +38,59 @@ class ComponentAccumulator(object):
         self._conditionsAlgs.append(algo)
         pass
 
-    def addService(self,svc):
-        if not isinstance(svc,ConfigurableService):
+    def getCondAlgo(self,name):
+        #Fixme, deduplicate here? 
+        hits=[a for a in self._conditionsAlgs if a.getName()==name]
+        return hits
+
+    def addService(self,newSvc):
+        if not isinstance(newSvc,ConfigurableService):
             self._msg.error("Attempt to add wrong type as service")
             #raise exception ..
             pass
-        self._services.append(svc)
+        #self._services.append(svc)
+
+        #Check for duplicates:
+        for svc in self._services:
+            if svc.getType()==newSvc.getType():
+                #Found service of the same type
+                if svc.getJobOptName()==newSvc.getJobOptName():
+                    #Found service of the same type and name:
+                    if (svc==newsvc):
+                        #the new service is an identical copy of an existing one. Ignore it.
+                        return
+                    else:
+                        #Now it gets tricky: Same name but different configuration
+                        #Loop over properties:
+                        for prop in svc.getProperties():
+                            if not prop.startswith('_'):
+                                oldprop=getattr(svc,prop)
+                                newprop=getattr(newsvc,prop)
+                                if (oldprop!=newprop):
+                                    #found property mismatch
+                                    if isinstance(oldprop,list): #if properties are concatinable, do that!
+                                        oldprop+=newprop
+                                        setattr(svc,oldprop)
+                                    else:
+                                        self._msg.error("service '%s' defined mutiple times with mismatching configuraton" % svcs[i].getJobOptName())
+                                        return None
+                                    pass 
+                                #end if prop-mismatch
+                            #end if startswith("_")
+                        #end loop over properties
+                    #end else
+                return # We found a service of the same type and name and could reconcile the two instances
+                #end if same name
+            #end if same type
+        
+
+        #No duplication, simply append 
+        self._services.append(newSvc)
         pass
+
+    def getService(self,name):
+        hits=[a for a in self._services if a.getName()==name]
+        return hits
 
     def addConditionsInput(self,condObj):
         #That's a string, should do some sanity checks on formatting
@@ -75,34 +127,26 @@ class ComponentAccumulator(object):
         
         self._eventAlgs+=other._eventAlgs
         self._conditionsAlgs+=other._conditionsAlgs
-        self._services+=other._services
-        self._conditionsInput|=other._conditionsInputs
+        #self._services+=other._services
+        self._conditionsInput|=other._conditionsInput
 
-        for k in other._outputPerStreams.keys():
+        for svc in other._services:
+            self.addService(svc) #Profit from deduplicaton here
+
+
+        for k in other._outputPerStream.keys():
             if k in self._outputPerStream:
                 self._outputPerStream[k].update(other._outputPerStream[k])
             else: #New stream type
                 self._outputPerStream[k]=other._outputPerStream[k]
                 
+                
+
     def __iadd__(self,other):
-        merge(other)
+        self.merge(other)
+        return self
 
-
-    def appendTool(self,tool,jocat):
-        toolname=tool.getJobOptName() #FIXME: Don't overwrite duplicates! 
-        for k, v in tool.getValuedProperties().items():
-            if isinstance(v,GaudiHandles.GaudiHandle):
-                jocat[toolname][k]=v.getJobOptName()
-                self.appendTool(v,jocat)
-            elif isinstance(v,GaudiHandles.GaudiHandleArray):
-                jocat[toolname][k]=[]
-                for v1 in v:
-                    jocat[algname][k].append(v1.getJobOptName())
-                    self.appendTool(v1,jocat)
-            else:
-                jocat[toolname][k]=str(v)
-
-
+ 
     def appendConfigurable(self,confElem):
         name=confElem.getJobOptName() #FIXME: Don't overwrite duplicates! 
         for k, v in confElem.getValuedProperties().items():
@@ -114,7 +158,7 @@ class ComponentAccumulator(object):
                 children=[]
                 for v1 in v:
                     children.append(v1.getFullName())
-                    print "Appending ",v1.getJobOptName(),"to", name, k
+                    #print "Appending ",v1.getJobOptName(),"to", name, k
                     self.appendConfigurable(v1)
                 self._jocat[name][k]=str(children)
             else:
@@ -153,13 +197,14 @@ class ComponentAccumulator(object):
             condalgseq.append(alg.getFullName())
         self._jocat["AthCondSeq"]["Members"]=str(condalgseq)
 
-        #Service:
+
         svcList=ast.literal_eval(self._jocfg["ApplicationMgr"]["ExtSvc"])
         for svc in self._services:
             svcname=svc.getJobOptName()
-            svcList.append(svc.getFullname())
-            for k, v in svc.getValuedProperties().items():
-                self._jocat[svcname][k]=str(v)
+            svcList.append(svc.getFullName())
+            #for k, v in svc.getValuedProperties().items():
+            #    self._jocat[svcname][k]=str(v)
+            self.appendConfigurable(svc)
         self._jocfg["ApplicationMgr"]["ExtSvc"]=str(svcList)
         pickle.dump( self._jocat, outfile ) 
         pickle.dump( self._jocfg, outfile ) 
