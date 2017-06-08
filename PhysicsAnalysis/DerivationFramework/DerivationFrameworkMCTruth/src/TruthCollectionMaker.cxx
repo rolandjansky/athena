@@ -184,14 +184,14 @@ StatusCode DerivationFramework::TruthCollectionMaker::addBranches() const
                         bool same_as_mother = false;
                         bool same_as_daughter = false;
                         if (theParticle->hasProdVtx()){
-                            if (theParticle->prodVtx()->nIncomingParticles() > 0) {
+                            if ((theParticle->prodVtx()->nIncomingParticles() > 0) && (theParticle->prodVtx()->incomingParticle(0)!=NULL)) {
                                 if (theParticle->prodVtx()->incomingParticle(0)->pdgId() == theParticle->pdgId()){
                                     same_as_mother = true;
                                 }
                             }
                         }
                         if (theParticle->hasDecayVtx()){
-                            if (theParticle->decayVtx()->nOutgoingParticles() > 0) {
+                            if ((theParticle->decayVtx()->nOutgoingParticles() > 0) && (theParticle->decayVtx()->outgoingParticle(0)!=NULL)) {
                                 if (theParticle->decayVtx()->outgoingParticle(0)->pdgId() == theParticle->pdgId()){
                                     same_as_daughter = true;
                                 }
@@ -205,11 +205,15 @@ StatusCode DerivationFramework::TruthCollectionMaker::addBranches() const
                     xAOD::TruthParticle* xTruthParticle = new xAOD::TruthParticle();
                     newParticleCollection->push_back( xTruthParticle );
                     if (theParticle->hasProdVtx()) {
-                        if (theParticle->prodVtx()->nIncomingParticles() > 0) motherIDDecorator(*xTruthParticle) = theParticle->prodVtx()->incomingParticle(0)->pdgId();
-                    }
+                        if ((theParticle->prodVtx()->nIncomingParticles() > 0) && (theParticle->prodVtx()->incomingParticle(0)!=NULL)) {
+                            motherIDDecorator(*xTruthParticle) = theParticle->prodVtx()->incomingParticle(0)->pdgId();
+                        } else {motherIDDecorator(*xTruthParticle) = 0;}
+                    } else {motherIDDecorator(*xTruthParticle) = 0;} 
                     if (theParticle->hasDecayVtx()) {
-                        if (theParticle->decayVtx()->nOutgoingParticles() > 0) daughterIDDecorator(*xTruthParticle) = theParticle->decayVtx()->outgoingParticle(0)->pdgId();
-                    }
+                        if ((theParticle->decayVtx()->nOutgoingParticles() > 0) && (theParticle->decayVtx()->outgoingParticle(0)!=NULL)) {
+                            daughterIDDecorator(*xTruthParticle) = theParticle->decayVtx()->outgoingParticle(0)->pdgId();
+                        } else {daughterIDDecorator(*xTruthParticle) = 0;}
+                    } else {daughterIDDecorator(*xTruthParticle) = 0;}
                     // Fill with numerical content
                     xTruthParticle->setPdgId(theParticle->pdgId());
                     xTruthParticle->setBarcode(theParticle->barcode());
@@ -220,15 +224,19 @@ StatusCode DerivationFramework::TruthCollectionMaker::addBranches() const
                     xTruthParticle->setPz(theParticle->pz());
                     xTruthParticle->setE(theParticle->e());
                     // Copy over the decorations if they are available
-                    if (theParticle->isAvailable<unsigned int>("classifierParticleType"))
-                    typeDecorator(*xTruthParticle) = theParticle->auxdata< unsigned int >( "classifierParticleType" );
-                    if (theParticle->isAvailable<unsigned int>("classifierParticleOrigin"))
-                    originDecorator(*xTruthParticle) = theParticle->auxdata< unsigned int >( "classifierParticleOrigin" );
-                    if (theParticle->isAvailable<unsigned int>("classifierParticleOutCome"))
-                    outcomeDecorator(*xTruthParticle) = theParticle->auxdata< unsigned int >( "classifierParticleOutCome" );
+                    if (theParticle->isAvailable<unsigned int>("classifierParticleType")) {
+                        typeDecorator(*xTruthParticle) = theParticle->auxdata< unsigned int >( "classifierParticleType" );
+                    } else {typeDecorator(*xTruthParticle) = 0;}
+                    if (theParticle->isAvailable<unsigned int>("classifierParticleOrigin")) {
+                        originDecorator(*xTruthParticle) = theParticle->auxdata< unsigned int >( "classifierParticleOrigin" );
+                    } else {originDecorator(*xTruthParticle) = 0;}
+                    if (theParticle->isAvailable<unsigned int>("classifierParticleOutCome")) {
+                        outcomeDecorator(*xTruthParticle) = theParticle->auxdata< unsigned int >( "classifierParticleOutCome" );
+                    } else {outcomeDecorator(*xTruthParticle) = 0;}
                     if (m_collectionName=="TruthHFHadrons"){
-                        if (theParticle->isAvailable<int>("TopHadronOriginFlag"))
-                        HadronOriginDecorator(*xTruthParticle) = theParticle->auxdata< int >( "TopHadronOriginFlag" );
+                        if (theParticle->isAvailable<int>("TopHadronOriginFlag")) {
+                            HadronOriginDecorator(*xTruthParticle) = theParticle->auxdata< int >( "TopHadronOriginFlag" );
+                        } else {HadronOriginDecorator(*xTruthParticle) = 0;}
                     }
                     linkDecorator(*xTruthParticle) = eltp;
                 }

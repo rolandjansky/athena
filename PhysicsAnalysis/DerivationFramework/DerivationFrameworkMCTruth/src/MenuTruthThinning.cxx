@@ -76,6 +76,10 @@ m_thinningSvc("ThinningSvc",n)
     declareProperty ("WriteBHadrons",
                      m_writeBHadrons = true,
                      "Keep b-hadrons?");
+
+    declareProperty ("WriteCHadrons",
+                     m_writeCHadrons = true,
+                     "Keep c-hadrons?");
     
     declareProperty ("WriteGeant",
                      m_writeGeant = false,
@@ -348,6 +352,11 @@ bool DerivationFramework::MenuTruthThinning::isAccepted(const xAOD::TruthParticl
     // OK if we should select b hadrons and are in hadron range
     // JRC: cut changed from PHOTOSMIN to m_geantOffset
     if( m_writeBHadrons &&  barcode < m_geantOffset && HepPID::isHadron (pdg_id) && HepPID::hasBottom (pdg_id) )
+        ok= true;
+
+    // OK if we should select c hadrons and are in hadron range
+    // JRC: cut changed from PHOTOSMIN to m_geantOffset
+    if( m_writeCHadrons &&  barcode < m_geantOffset && HepPID::isHadron (pdg_id) && HepPID::hasCharm (pdg_id) )
         ok= true;
     
     // PHOTOS range: check whether photons come from parton range or

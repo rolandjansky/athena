@@ -38,20 +38,51 @@ namespace DerivationFramework{
   //---------------------------------------------------------------------------
   StatusCode HadronOriginClassifier::initialize() {
     ATH_MSG_INFO("Initialize " );
-    if(m_DSID==410003 || m_DSID == 410004 || m_DSID == 410008 || m_DSID == 410232 || m_DSID == 410233){
+    // all Herwig++/Herwig7 showered samples
+    if( m_DSID==410003 || m_DSID == 410008 //aMC@NLO+Hpp
+          || m_DSID == 410004 || m_DSID == 410163 //Powheg+Hpp
+          || m_DSID == 410232 //first attempt for Powheg+H7
+          || m_DSID == 410233 //first attempt for aMC@NLO+H7
+          || (m_DSID>=410525 && m_DSID<=410530) //New Powheg+H7 samples
+          || (m_DSID>=407037 && m_DSID<=407040) //Powheg+Hpp MET/HT sliced
+          || m_DSID == 410245 //aMC@NLO+H++ , ttbb
+          ){
       m_GenUsed=HerwigPP;
+      if (m_DSID==410245){
+  m_ttbb=true;
+      }
     }
-    else if(m_DSID==410006 || m_DSID==410500 || m_DSID==410159 || m_DSID==410160){
+    // all Pythia8 showered samples
+    else if( m_DSID==410006 //Powheg+P8 old main31
+          || m_DSID==410500 //Powheg+P8 new main31, hdamp=mt
+          || (m_DSID>=410501 && m_DSID<=410508) //Powheg+P8 new main31, hdamp=1.5m // Boosted samples are included 410507 410508
+          || (m_DSID>=410511 && m_DSID<=410522) //Powheg+P8 new main31, hdamp=1.5mt, radiation systematics
+          || m_DSID==410159 || m_DSID==410160 //aMC@NLO+P8, old settings
+          || (m_DSID>=410225 && m_DSID<=410227) || m_DSID==410274 || m_DSID==410275 //aMC@NLO+P8, new settings
+          || m_DSID==410244 //aMC@NLO+P8, ttbb
+           ){
       m_GenUsed=Pythia8;
+      if (m_DSID==410244){
+  m_ttbb=true;
+      } 
     }
-    else if(m_DSID==410186 || m_DSID==410187 || m_DSID==410188 || m_DSID==410189 || m_DSID==410051){
+    // all Sherpa showered samples
+    else if( (m_DSID>=410186 && m_DSID<=410189) //Sherpa 2.2.0
+          || (m_DSID>=410249 && m_DSID<=410252) //Sherpa 2.2.1
+          || (m_DSID>=410342 && m_DSID<=410347) //Sherpa 2.2.1 sys
+          || (m_DSID>=410350 && m_DSID<=410355) //Sherpa 2.2.1 sys
+          || (m_DSID>=410357 && m_DSID<=410359) //Sherpa 2.2.1 sys
+          || (m_DSID>=410361 && m_DSID<=410367) //Sherpa 2.2.1 sys
+          || (m_DSID>=410281 && m_DSID<=410283) //Sherpa BFilter 
+          || m_DSID==410051 //Sherpa ttbb (ICHEP sample)
+          || m_DSID==410323 || m_DSID==410324 || m_DSID==410325 //New Sherpa ttbb 
+           ){
       m_GenUsed=Sherpa;
-      
-      if(m_DSID==410051){
+      if(m_DSID==410051 || m_DSID==410323 || m_DSID==410324 || m_DSID==410325){
 	m_ttbb=true;
       }
-      
     }
+    // the default is Pythia6, so no need to list the Pythia6 showered samples
     else{
       m_GenUsed=Pythia6;
     }

@@ -151,6 +151,7 @@ StatusCode DerivationFramework::TruthCollectionMakerTau::examineTruthTau(const x
   for ( size_t iOutgoingParticle = 0; iOutgoingParticle < xDecayVertex->nOutgoingParticles(); ++iOutgoingParticle )
   {
     const xAOD::TruthParticle* xTruthDaughter = xDecayVertex->outgoingParticle(iOutgoingParticle);
+    if (xTruthDaughter==NULL) continue;
     // if tau decays into tau this is not a proper tau decay 
     if ( xTruthDaughter->isTau() )
     {
@@ -219,6 +220,7 @@ StatusCode DerivationFramework::TruthCollectionMakerTau::examineTruthTauDecay(co
   for ( size_t iOutgoingParticle = 0; iOutgoingParticle < xDecayVertex->nOutgoingParticles(); ++iOutgoingParticle )
   {
     const xAOD::TruthParticle* xTruthDaughter = xDecayVertex->outgoingParticle(iOutgoingParticle);
+    if (xTruthDaughter==NULL) continue; 
     int iAbsPdgId = xTruthDaughter->absPdgId();
     int iPdgId = xTruthDaughter->pdgId();
 
@@ -299,7 +301,7 @@ StatusCode DerivationFramework::TruthCollectionMakerTau::getPromptTLV(const xAOD
     // if parent is a tau then proceed to this particle for finding the prompt
     // TLV, if it is not a tau, then the current particle is the prompt tau 
     const xAOD::TruthParticle* xTruthParent = xProdVertex->incomingParticle(0);
-    
+    if (xTruthParent==NULL) return StatusCode::SUCCESS; 
     if (xTruthParent->isTau())
     {
       return getPromptTLV(*xTruthParent);
@@ -325,6 +327,7 @@ void DerivationFramework :: TruthCollectionMakerTau :: printDecay(const xAOD::Tr
   for ( size_t iOutgoingParticle = 0; iOutgoingParticle < xDecayVertex->nOutgoingParticles(); ++iOutgoingParticle )
   {
     const xAOD::TruthParticle* xTruthDaughter = xDecayVertex->outgoingParticle(iOutgoingParticle);
+    if (xTruthDaughter==NULL) continue;
     ATH_MSG_WARNING("depth "<<depth
 		    <<" e "<<xTruthDaughter->e()
 		    <<" eta "<<xTruthDaughter->p4().Eta()
