@@ -22,18 +22,14 @@ from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.CheckDependencies( True )
 AlgScheduler.OutputLevel( VERBOSE )
 AlgScheduler.ShowDataDependencies( True )
+AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
+
 
 ## get a handle on the ServiceManager
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 from SGComps.SGCompsConf import SGInputLoader
-#topSequence += SGInputLoader( OutputLevel=INFO, ShowEventDump=False )
 topSequence += SGInputLoader( )
-topSequence.SGInputLoader.Load = [ ('PixelRDO_Container','PixelRDOs'),
-                                   #('TRT_RDO_Container','TRT_RDOs'),
-                                   ('SCT_RDO_Container','SCT_RDOs'),
-#                                  # ('Trk::SegmentCollection','TRTSegments'),
-                                 ]
 
 
 from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc
