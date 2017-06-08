@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef CaloGeometry_h
-#define CaloGeometry_h
+#ifndef ISF_FASTCALOSIMPARAMETRIZATION_CALOGEOMETRY_H
+#define ISF_FASTCALOSIMPARAMETRIZATION_CALOGEOMETRY_H
 
 #include <TMath.h>
 

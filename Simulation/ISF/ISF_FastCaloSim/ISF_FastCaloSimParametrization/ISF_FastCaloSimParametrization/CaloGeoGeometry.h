@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef CaloGeoGeometry_h
-#define CaloGeoGeometry_h
+#ifndef ISF_FASTCALOSIMPARAMETRIZATION_CALOGEOGEOMETRY_H
+#define ISF_FASTCALOSIMPARAMETRIZATION_CALOGEOGEOMETRY_H
 
 #include <TMath.h>
 
@@ -198,5 +198,3 @@ class CaloGeoGeometry //: virtual public ICaloGeometry {
 };
 
 #endif
-
-
