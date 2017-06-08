@@ -731,13 +731,6 @@ class TruthService(JobProperty):
     StoredValue  = 'ISF_TruthService'
 
 
-class EntryLayerFilter(JobProperty):
-    """Steering of ISF: set the EntryLayerFilter"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'ISF_MC12EntryLayerFilter'
-
-
 class BarcodeService(JobProperty):
     """Steering of ISF: set the BarcodeService"""
     statusOn     = True
