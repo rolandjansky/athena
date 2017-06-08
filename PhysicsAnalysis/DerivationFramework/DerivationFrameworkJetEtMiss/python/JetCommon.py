@@ -119,7 +119,10 @@ def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variab
             defaultmods = {"EMTopo":"emtopo_ungroomed",
                            "LCTopo":"lctopo_ungroomed",
                            "EMPFlow":"pflow_ungroomed",
-                           "EMCPFlow":"pflow_ungroomed"}
+                           "EMCPFlow":"pflow_ungroomed",
+                           "Truth":"truth_ungroomed",
+                           "TruthWZ":"truth_ungroomed",
+                           "PV0Track":"track_ungroomed"}
             finderArgs['modifiersin'] = defaultmods[inputtype]
             finderArgs['ptmin'] = 2000
             finderArgs['ptminFilter'] = 50000
@@ -258,7 +261,7 @@ def addFilteredJets(jetalg, rsize, inputtype, mumax=1.0, ymin=0.15, mods="groome
 
 ##################################################################
 
-def addStandardJets(jetalg, rsize, inputtype, ptmin=2000, ptminFilter=5000,
+def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
                     mods="default", calibOpt="none", ghostArea=0.01,
                     algseq=None, outputGroup="CustomJets"):
     jetnamebase = "{0}{1}{2}".format(jetalg,int(rsize*10),inputtype)
@@ -284,21 +287,25 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=2000, ptminFilter=5000,
 
     from JetRec.JetRecStandard import jtm
     if not jetname in jtm.tools:
+        # no container exist. simply build a new one.
         # Set default for the arguments to be passd to addJetFinder
-        finderArgs = dict( modifiersin= [], consumers = [])
+        defaultmods = {"EMTopo":"emtopo_ungroomed",
+                       "LCTopo":"lctopo_ungroomed",
+                       "EMPFlow":"pflow_ungroomed",
+                       "EMCPFlow":"pflow_ungroomed",
+                       "Truth":"truth_ungroomed",
+                       "TruthWZ":"truth_ungroomed",
+                       "PV0Track":"track_ungroomed",
+                       }
+        if mods=="default":
+            mods = defaultmods[inputtype] if inputtype in defaultmods else []
+        finderArgs = dict( modifiersin= mods, consumers = [])
         finderArgs['ptmin'] = ptmin
         finderArgs['ptminFilter'] = ptminFilter
         finderArgs['ghostArea'] = ghostArea
-        # no container exist. simply build a new one.
-        if inputtype=="LCTopo" or inputtype=="EMTopo" or inputtype == "EMPFlow" or inputtype == "EMCPFlow":
-            defaultmods = {"EMTopo":"emtopo_ungroomed",
-                           "LCTopo":"lctopo_ungroomed",
-                           "EMPFlow":"pflow_ungroomed",
-                           "EMCPFlow":"pflow_ungroomed"}
-            if mods=="default":
-                mods = defaultmods[inputtype]
-            finderArgs['modifiersin'] = mods
-            finderArgs['calibOpt'] = calibOpt
+        finderArgs['modifiersin'] = mods
+        finderArgs['calibOpt'] = calibOpt
+        print "mods in:", finderArgs['modifiersin']
         #finderArgs.pop('modifiersin') # leave the default modifiers.
     
         # map the input to the jtm code for PseudoJetGetter
@@ -325,7 +332,6 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=2000, ptminFilter=5000,
 OutputJets = {}
 OutputJets["SmallR"] = [
     "AntiKt2PV0TrackJets",
-#    "AntiKt3PV0TrackJets",
     "AntiKt4EMTopoJets",
     "AntiKt4LCTopoJets",
     "AntiKt4PV0TrackJets",
@@ -341,16 +347,9 @@ OutputJets["LargeR"] = [
     ]
 
 Tier0Jets = [
-    # "AntiKt10LCTopoJets",
-    # "AntiKt10TruthJets",
-    # "AntiKt10TruthWZJets",
-    # "AntiKt2PV0TrackJets",
     "AntiKt4EMPFlowJets",
     "AntiKt4EMTopoJets",
     "AntiKt4LCTopoJets",
-    # "AntiKt4PV0TrackJets",
-    # "AntiKt4TruthJets",
-    # "AntiKt4TruthWZJets",
     ]
 
 def addJetOutputs(slimhelper,contentlist,smartlist=[],vetolist=[]):

@@ -12,7 +12,7 @@ from DerivationFrameworkMuons.MuonsCommon import *
 #
 from DerivationFrameworkJetEtMiss.METCommon import *
 #
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
     from DerivationFrameworkMCTruth.MCTruthCommon import *
     from DerivationFrameworkTau.TauTruthCommon import *
 
@@ -102,7 +102,7 @@ thinningTools.append(JETM2TauTPThinningTool)
 doTruthThinning = True
 preserveAllDescendants = False
 from AthenaCommon.GlobalFlags import globalflags
-if doTruthThinning and globalflags.DataSource()=='geant4':
+if doTruthThinning and DerivationFrameworkIsMonteCarlo:
     truth_cond_WZH    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))"            # W, Z and Higgs
     truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16) && (TruthParticles.barcode < 200000))" # Leptons
     truth_cond_Quark  = "((abs(TruthParticles.pdgId) <=  5  && (TruthParticles.pt > 10000.)) || (abs(TruthParticles.pdgId) == 6))"                 # Quarks
@@ -143,19 +143,11 @@ jetm2Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM2Kernel",
 # SCHEDULE CUSTOM MET RECONSTRUCTION
 #=======================================
 
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
     addMETTruthMap('AntiKt4EMTopo',"JETMX")
     addMETTruthMap('AntiKt4LCTopo',"JETMX")
     addMETTruthMap('AntiKt4EMPFlow',"JETMX")
     scheduleMETAssocAlg(jetm2Seq,"JETMX")
-
-#=========================================
-# SCHEDULE REPLACEMENT B-TAG COLLECTIONS
-# Has to go after MET because of potential
-# problems with broken elementLinks
-#=========================================
-
-#from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 
 
 #====================================================================
@@ -168,14 +160,14 @@ JETM2SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "MET_Reference_AntiKt4EMTopo",
                                         "MET_Reference_AntiKt4LCTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
-                                        "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets"]
-JETM2SlimmingHelper.AllVariables = ["BTagging_AntiKt4EMTopo",
-                                    "MuonTruthParticles", "egammaTruthParticles",
+                                        "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
+                                        "BTagging_AntiKt4EMTopo",
+                                        ]
+JETM2SlimmingHelper.AllVariables = ["MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
                                     "MuonSegments",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
-JETM2SlimmingHelper.StaticContent = ["xAOD::BTaggingContainer#BTagging_AntiKt4LCTopo"]
 JETM2SlimmingHelper.ExtraVariables = ["Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus",
                                       "TauJets.IsTruthMatched.truthParticleLink.truthJetLink"]
 for truthc in [

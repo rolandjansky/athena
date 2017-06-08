@@ -10,7 +10,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 #
 from DerivationFrameworkJetEtMiss.METCommon import *
 #
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
     from DerivationFrameworkMCTruth.MCTruthCommon import *
     from DerivationFrameworkTau.TauTruthCommon import *
 
@@ -100,7 +100,7 @@ thinningTools.append(JETM4TauTPThinningTool)
 doTruthThinning = True
 preserveAllDescendants = False
 from AthenaCommon.GlobalFlags import globalflags
-if doTruthThinning and globalflags.DataSource()=='geant4':
+if doTruthThinning and DerivationFrameworkIsMonteCarlo:
     truth_cond_WZH    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))"            # W, Z and Higgs
     truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16) && (TruthParticles.barcode < 200000))"            # Leptons
     truth_cond_Quark  = "((abs(TruthParticles.pdgId) <=  5  && (TruthParticles.pt > 10000.)) || (abs(TruthParticles.pdgId) == 6))"                 # Quarks
@@ -141,22 +141,16 @@ jetm4Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM4Kernel" ,
 
 OutputJets["JETM4"] = []
 
-#AntiKt4PV0TrackJets
-#addStandardJets("AntiKt", 0.2, "PV0Track", 2000, mods="track_ungroomed", algseq=jetm4Seq, outputGroup="JETM4")
-#addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=jetm4Seq, outputGroup="JETM4")
-#addStandardJets("AntiKt", 1.0, "PV0Track", 2000, mods="track_ungroomed", algseq=jetm4Seq, outputGroup="JETM4")
-#AntiKt4PV0TrackJets
-addAntiKt2PV0TrackJets(jetm4Seq, "JETM4")
-addAntiKt4PV0TrackJets(jetm4Seq, "JETM4")
-addAntiKt10PV0TrackJets(jetm4Seq, "JETM4")
+#=======================================
+# RESTORE AOD-REDUCED JET COLLECTIONS
+#=======================================
+reducedJetList = ["AntiKt2PV0TrackJets",
+                  "AntiKt4PV0TrackJets",
+                  "AntiKt10PV0TrackJets",
+                  "AntiKt4TruthJets",
+                  "AntiKt10TruthJets"]
+replaceAODReducedJets(reducedJetList,jetm4Seq,"JETM4")
 
-if globalflags.DataSource()=='geant4':
-#    addStandardJets("AntiKt", 0.4, "Truth", 5000, mods="truth_ungroomed",
-#                    algseq=jetm4Seq, outputGroup="JETM4")
-#    addStandardJets("AntiKt", 1.0, "Truth", 40000, mods="truth_ungroomed",
-#                    algseq=jetm4Seq, outputGroup="JETM4")
-     addAntiKt4TruthJets(jetm4Seq, "JETM4")
-     addAntiKt10TruthJets(jetm4Seq, "JETM4")
 # AntiKt10*PtFrac5Rclus20
 addDefaultTrimmedJets(jetm4Seq,"JETM4")
 
@@ -164,20 +158,11 @@ addDefaultTrimmedJets(jetm4Seq,"JETM4")
 # SCHEDULE CUSTOM MET RECONSTRUCTION
 #=======================================
 
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
     addMETTruthMap('AntiKt4EMTopo',"JETMX")
     addMETTruthMap('AntiKt4LCTopo',"JETMX")
     addMETTruthMap('AntiKt4EMPFlow',"JETMX")
     scheduleMETAssocAlg(jetm4Seq,"JETMX")
-
-#=======================================
-# SCHEDULE REPLACEMENT B-TAG COLLECTIONS
-# Has to go after MET because of potential
-# problems with broken elementLinks
-#=======================================
-
-#from .FlavourTagCommon import FlavorTagInit
-
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -190,17 +175,14 @@ JETM4SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "MET_Reference_AntiKt4LCTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
-					#"AntiKt2PV0TrackJets",
-					#"AntiKt4PV0TrackJets",
-					#"AntiKt10PV0TrackJets",
-                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
-JETM4SlimmingHelper.AllVariables = ["BTagging_AntiKt4EMTopo",# "CaloCalTopoClusters",
+                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                        "BTagging_AntiKt4EMTopo"]
+JETM4SlimmingHelper.AllVariables = [# "CaloCalTopoClusters",
                                     "MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
                                     "MuonSegments",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
-JETM4SlimmingHelper.StaticContent = ["xAOD::BTaggingContainer#BTagging_AntiKt4LCTopo"]
 #JETM4SlimmingHelper.ExtraVariables = []
 for truthc in [
     "TruthMuons",

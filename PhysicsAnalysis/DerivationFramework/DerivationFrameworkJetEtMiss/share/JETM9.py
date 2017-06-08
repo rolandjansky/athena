@@ -48,7 +48,7 @@ svcMgr += createThinningSvc( svcName="JETM9ThinningSvc", outStreams=[evtStream] 
 # Truth particle thinning
 thinningTools = []
 from AthenaCommon.GlobalFlags import globalflags
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
     JETM9TruthThinning = DerivationFramework__MenuTruthThinning(name                  = "JETM9TruthThinning",
                                                                 ThinningService            = "JETM9ThinningSvc",
@@ -76,20 +76,17 @@ jetm9Seq += CfgMgr.DerivationFramework__DerivationKernel(	name = "JETM9Kernel",
 # Special jets
 #====================================================================
 
-#AntiKt4PV0TrackJets
-#addStandardJets("AntiKt", 0.2, "PV0Track", 2000, mods="track_ungroomed", algseq=jetm9Seq, outputGroup="JETM9")
-#addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=jetm9Seq, outputGroup="JETM9")
-#AntiKt4PV0TrackJets
-addAntiKt2PV0TrackJets(jetm9Seq, "JETM9")
-addAntiKt4PV0TrackJets(jetm9Seq, "JETM9")
+#=======================================
+# RESTORE AOD-REDUCED JET COLLECTIONS
+#=======================================
+reducedJetList = ["AntiKt2PV0TrackJets",
+                  "AntiKt4PV0TrackJets",
+                  "AntiKt4TruthJets",
+                  "AntiKt4TruthWZJets"]
+replaceAODReducedJets(reducedJetList,jetm9Seq,"JETM9")
 
-OutputJets["JETM9"] = ["AntiKt4EMTopoJets","AntiKt4LCTopoJets"]
-
-if globalflags.DataSource()=='geant4':
-#    addStandardJets("AntiKt", 0.4, "Truth", mods="truth_ungroomed", ptmin=5000, algseq=jetm9Seq, outputGroup="JETM9")
-#    addStandardJets("AntiKt", 0.4, "TruthWZ", mods="truth_ungroomed", ptmin=5000, algseq=jetm9Seq, outputGroup="JETM9")
-     addAntiKt4TruthJets(jetm9Seq, "JETM9")
-     addAntiKt4TruthWZJets(jetm9Seq, "JETM9")
+OutputJets["JETM9"] = ["AntiKt4EMTopoJets","AntiKt4LCTopoJets",
+                       "AntiKt4TruthJets","AntiKt4TruthWZJets"]
 
 #====================================================================
 # Jets for R-scan 

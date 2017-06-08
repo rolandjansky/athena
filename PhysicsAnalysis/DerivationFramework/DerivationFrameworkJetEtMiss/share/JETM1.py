@@ -66,7 +66,7 @@ thinningTools.append(JETM1ElectronTPThinningTool)
 doTruthThinning = True
 preserveAllDescendants = False
 from AthenaCommon.GlobalFlags import globalflags
-if doTruthThinning and globalflags.DataSource()=='geant4':
+if doTruthThinning and DerivationFrameworkIsMonteCarlo:
     truth_cond_WZH    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))"           # W, Z and Higgs
     truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16) && (TruthParticles.barcode < 200000))"           # Leptons
     truth_cond_Quark  = "((abs(TruthParticles.pdgId) <=  5  && (TruthParticles.pt > 10000.)) || (abs(TruthParticles.pdgId) == 6))" # Quarks
@@ -109,61 +109,51 @@ jetm1Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM1Kernel" ,
 
 OutputJets["JETM1"] = []
 
-#AntiKt4PV0TrackJets
-addAntiKt2PV0TrackJets(jetm1Seq, "JETM1")
-addAntiKt4PV0TrackJets(jetm1Seq, "JETM1")
-#addStandardJets("AntiKt", 0.2, "PV0Track", 2000, mods="track_ungroomed", algseq=jetm1Seq, outputGroup="JETM1")
-#addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=jetm1Seq, outputGroup="JETM1")
+#=======================================
+# RESTORE AOD-REDUCED JET COLLECTIONS
+#=======================================
+reducedJetList = ["AntiKt2PV0TrackJets",
+                  "AntiKt4PV0TrackJets",
+                  "AntiKt4TruthJets"]
+replaceAODReducedJets(reducedJetList,jetm1Seq,"JETM1")
 
 # AntiKt10*PtFrac5Rclus20
 addDefaultTrimmedJets(jetm1Seq,"JETM1")
-
-if globalflags.DataSource()=='geant4':
-#    addStandardJets("AntiKt", 0.4, "Truth", 5000, mods="truth_ungroomed",
-#                   algseq=jetm1Seq, outputGroup="JETM1")
-    addAntiKt4TruthJets(jetm1Seq, "JETM1")
-#=======================================
-# SCHEDULE REPLACEMENT B-TAG COLLECTIONS
-#=======================================
-
-#from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-
 
 #=======================================
 # SCHEDULE SMALL-R JETS WITH LOW PT CUT
 #=======================================
 
-# Switched off LowPtJets for the moment ATLJETMET-753
-#if globalflags.DataSource()=='geant4':
-#    from JetRec.JetRecStandard import jtm
-#    #EMTopo
-#    lowptjetalg = None
-#    if "jetalgAntiKt4EMTopoLowPtJets" in DFJetAlgs.keys():
-#        lowptjetalg = DFJetAlgs["jetalgAntiKt4EMTopoLowPtJets"]
-#    else:
-#        jtm.addJetFinder("AntiKt4EMTopoLowPtJets", "AntiKt", 0.4, "emtopo", "emtopo_ungroomed", ghostArea=0.01, ptmin= 2000, ptminFilter= 2000, calibOpt="ar")
-#        lowptjetalg = CfgMgr.JetAlgorithm("jetalgAntiKt4EMTopoLowPtJets", Tools = [jtm.AntiKt4EMTopoLowPtJets])
-#        DFJetAlgs["jetalgAntiKt4EMTopoLowPtJets"] = lowptjetalg;
-#    jetm1Seq += lowptjetalg
-#    OutputJets["JETM1"].append("AntiKt4EMTopoLowPtJets")
-#    #LCTopo
-#    if "jetalgAntiKt4LCTopoLowPtJets" in DFJetAlgs.keys():
-#        lowptjetalg = DFJetAlgs["jetalgAntiKt4LCTopoLowPtJets"]
-#    else:
-#        jtm.addJetFinder("AntiKt4LCTopoLowPtJets", "AntiKt", 0.4, "lctopo", "lctopo_ungroomed", ghostArea=0.01, ptmin= 2000, ptminFilter= 2000, calibOpt="ar")
-#        lowptjetalg = CfgMgr.JetAlgorithm("jetalgAntiKt4LCTopoLowPtJets", Tools = [jtm.AntiKt4LCTopoLowPtJets])
-#        DFJetAlgs["jetalgAntiKt4LCTopoLowPtJets"] = lowptjetalg;
-#    jetm1Seq += lowptjetalg
-#    OutputJets["JETM1"].append("AntiKt4LCTopoLowPtJets")
-#    #EMPFlow
-#    if "jetalgAntiKt4EMPFlowLowPtJets" in DFJetAlgs.keys():
-#        lowptjetalg = DFJetAlgs["jetalgAntiKt4EMPFlowLowPtJets"]
-#    else:
-#        jtm.addJetFinder("AntiKt4EMPFlowLowPtJets", "AntiKt", 0.4, "empflow", "pflow_ungroomed", ghostArea=0.01, ptmin= 2000, ptminFilter= 2000, calibOpt="ar:pflow")
-#        lowptjetalg = CfgMgr.JetAlgorithm("jetalgAntiKt4EMPFlowLowPtJets", Tools = [jtm.AntiKt4EMPFlowLowPtJets])
-#        DFJetAlgs["jetalgAntiKt4EMPFlowLowPtJets"] = lowptjetalg;
-#    jetm1Seq += lowptjetalg
-#    OutputJets["JETM1"].append("AntiKt4EMPFlowLowPtJets")
+if DerivationFrameworkIsMonteCarlo:
+   from JetRec.JetRecStandard import jtm
+   #EMTopo
+   lowptjetalg = None
+   if "jetalgAntiKt4EMTopoLowPtJets" in DFJetAlgs.keys():
+       lowptjetalg = DFJetAlgs["jetalgAntiKt4EMTopoLowPtJets"]
+   else:
+       jtm.addJetFinder("AntiKt4EMTopoLowPtJets", "AntiKt", 0.4, "emtopo", "emtopo_ungroomed", ghostArea=0.01, ptmin= 2000, ptminFilter= 2000, calibOpt="ar")
+       lowptjetalg = CfgMgr.JetAlgorithm("jetalgAntiKt4EMTopoLowPtJets", Tools = [jtm.AntiKt4EMTopoLowPtJets])
+       DFJetAlgs["jetalgAntiKt4EMTopoLowPtJets"] = lowptjetalg;
+   jetm1Seq += lowptjetalg
+   OutputJets["JETM1"].append("AntiKt4EMTopoLowPtJets")
+   #LCTopo
+   if "jetalgAntiKt4LCTopoLowPtJets" in DFJetAlgs.keys():
+       lowptjetalg = DFJetAlgs["jetalgAntiKt4LCTopoLowPtJets"]
+   else:
+       jtm.addJetFinder("AntiKt4LCTopoLowPtJets", "AntiKt", 0.4, "lctopo", "lctopo_ungroomed", ghostArea=0.01, ptmin= 2000, ptminFilter= 2000, calibOpt="ar")
+       lowptjetalg = CfgMgr.JetAlgorithm("jetalgAntiKt4LCTopoLowPtJets", Tools = [jtm.AntiKt4LCTopoLowPtJets])
+       DFJetAlgs["jetalgAntiKt4LCTopoLowPtJets"] = lowptjetalg;
+   jetm1Seq += lowptjetalg
+   OutputJets["JETM1"].append("AntiKt4LCTopoLowPtJets")
+   #EMPFlow
+   if "jetalgAntiKt4EMPFlowLowPtJets" in DFJetAlgs.keys():
+       lowptjetalg = DFJetAlgs["jetalgAntiKt4EMPFlowLowPtJets"]
+   else:
+       jtm.addJetFinder("AntiKt4EMPFlowLowPtJets", "AntiKt", 0.4, "empflow", "pflow_ungroomed", ghostArea=0.01, ptmin= 2000, ptminFilter= 2000, calibOpt="ar:pflow")
+       lowptjetalg = CfgMgr.JetAlgorithm("jetalgAntiKt4EMPFlowLowPtJets", Tools = [jtm.AntiKt4EMPFlowLowPtJets])
+       DFJetAlgs["jetalgAntiKt4EMPFlowLowPtJets"] = lowptjetalg;
+   jetm1Seq += lowptjetalg
+   OutputJets["JETM1"].append("AntiKt4EMPFlowLowPtJets")
 
 if jetFlags.useTruth:
     # CamKt R=1.2 jets
@@ -182,31 +172,24 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM1SlimmingHelper = SlimmingHelper("JETM1SlimmingHelper")
 JETM1SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "PrimaryVertices",
                                         "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
-                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
-JETM1SlimmingHelper.AllVariables = [ "BTagging_AntiKt4EMTopo",
-                                     "MuonTruthParticles", "egammaTruthParticles",
+                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                        "BTagging_AntiKt4EMTopo",
+                                        "BTagging_AntiKt2Track",
+                                        ]
+JETM1SlimmingHelper.AllVariables = [ "MuonTruthParticles", "egammaTruthParticles",
                                      "TruthParticles", "TruthEvents", "TruthVertices",
                                      "MuonSegments",
                                      "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                      ]
-JETM1SlimmingHelper.StaticContent = ["xAOD::BTaggingContainer#BTagging_AntiKt4LCTopo"]
 #JETM1SlimmingHelper.ExtraVariables = []
 
 # Trigger content
 JETM1SlimmingHelper.IncludeJetTriggerContent = True
 
 # Add the jet containers to the stream
-addJetOutputs(JETM1SlimmingHelper,["SmallR","LargeR","JETM1"],[], # smart list
+addJetOutputs(JETM1SlimmingHelper,["SmallR","JETM1"],[], # smart list
               [
-               #"AntiKt2PV0TrackJets",
-               #"AntiKt4PV0TrackJets",
                "AntiKt4TruthWZJets",
-               "AntiKt10LCTopoJets",
-               "AntiKt10TruthJets",
-               "AntiKt10TruthWZJets",
-               #"CamKt12LCTopoJets",
-               #"CamKt12TruthJets",
-               #"CamKt12TruthWZJets"
                ]# veto list
               )
 
