@@ -1,3 +1,9 @@
+# H1
+## H2
+### H3
+#### H4
+##### H5
+###### H6
 ######################################################################
 ##
 ## Check out 
@@ -22,6 +28,10 @@ cd ..
 ##
 ######################################################################
 
+#if not already done
+setupATLAS 
+lsetup git
+
 ##for old athena releases e.g. 21.0.17,AtlasHLT
 asetup 21.0.17,AtlasHLT,here
 mv CMakeLists.txt athena/
@@ -39,6 +49,7 @@ asetup 21.1.2,AthenaP1,here
 mkdir build
 cd build/
 cmake ../athena/Projects/WorkDir/
+make
 
 #####################################################################
 ##
@@ -50,7 +61,7 @@ source x86*/setup.sh
 cd x86*/bin
 
 ## At lxplus
-./MonitoringFTKHWSWComparison.exe -f /eos/user/a/amaranti/FTK_DQM_tests/21.0.11_lxplus/OUT.BS_FTK.root -n /eos/user/a/amaranti/FTK_DQM_tests/20.11.2.6.2_AtlasP1MON_lxplus/FTKIPtoFTK/OUT.NTUP.root -s -v
+./MonitoringFTKHWSWComparison -f /eos/user/a/amaranti/FTK_DQM_tests/21.0.11_lxplus/OUT.BS_FTK.root -n /eos/user/a/amaranti/FTK_DQM_tests/20.11.2.6.2_AtlasP1MON_lxplus/FTKIPtoFTK/OUT.NTUP.root -s -v
 ## At P1
 ./MonitoringFTKHWSWComparison -f ../../../files/alex.OUT.BS_FTK.root -n ../../../files/alex.OUT.NTUP.root
 ## to be added if you are not running within the partition

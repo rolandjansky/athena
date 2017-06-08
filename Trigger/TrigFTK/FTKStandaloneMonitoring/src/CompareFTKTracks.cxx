@@ -4,18 +4,23 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include "FTKStandaloneMonitoring/CompareFTKTracks.h"
 #include <iostream>
 #include <string>
+
+// initialization of the object with the vectors of reference and test FTK_RawTrack, and the maps of histos to be filled
 CompareFTKTracks::CompareFTKTracks(std::vector<const FTK_RawTrack *> &ref, std::vector<const FTK_RawTrack *> &test, std::map<std::string , TH1D * > &map_histo, std::map<std::string , TH2D * > &map_histo_2D){
       m_ref=ref;
       m_test=test;
       m_map_histo=map_histo;
       m_map_histo_2D=map_histo_2D;
 }
+
+// here the matching is done: the criterium is angular distance specified by m_dmax
 void CompareFTKTracks::AssociateTracks(){
       m_associator= new FTKTrkAssoc("FTKTrkAssoc", m_dmax);
       m_associator->match( m_ref,m_test);
       std::cout<<"Of N ref trks ("<<m_ref.size()<<") wrt to test trk ("<<m_test.size()<<"), number of matched trks: "<<m_associator->size()<<std::endl;
 }
 
+// here a rough printout equivalence between the two vectors of tracks is performed
 void CompareFTKTracks::TestEquivalence(){
       const FTK_RawTrack* match_track = NULL;
       int itrk=0;
@@ -31,6 +36,9 @@ void CompareFTKTracks::TestEquivalence(){
       if (m_allmatched) std::cout<<"CompareFTKTracks: All matched tracks had the same phi"<<std::endl;
       else std::cout<<"CompareFTKTracks: Some matched tracks had different phi"<<std::endl;
 }
+
+// functions which from a string concerning the track parameter returns the value of the track parameter, 
+// through the FTK_RawTrack method 
 double CompareFTKTracks::GetValue(std::string & variable, const FTK_RawTrack  *tmptrk){
      double outvar=0.;
      if (variable.find("pt")!=std::string::npos)        {outvar= 1./tmptrk->getInvPt();}
@@ -42,6 +50,21 @@ double CompareFTKTracks::GetValue(std::string & variable, const FTK_RawTrack  *t
      else std::cout<<"variable not found!! "<<variable<<std::endl;
      return outvar;
 }
+
+// here histograms are filled wrt to the 4 types of histograms:
+// HWSW*: if HW and SW tracks are completely matched, i.e. have the same track parameters within 0.1% of relative error
+//       the distrubutions of the track paramters (like pt, eta, ...) are displayed in the histograms
+// HWonly*: if HW tracks do not have SW tracks within m_dmax=0.2, 
+//         the distrubutions of these HW track paramters (like pt, eta, ...) are displayed in the histograms
+// SWonly*: if SW tracks do not have HW tracks within m_dmax=0.2, 
+//         the distrubutions of these SW track paramters (like pt, eta, ...) are displayed in the histograms
+// HWvsSW: if HW and SW tracks are not completely matched, 
+//         i.e. they are geometrically closed but do not have the same track parameters
+//         these histograms in turn are divided into :
+//         HWvsSWsw*: the distrubutions of the SW track paramters (like pt, eta, ...) are displayed in the histograms
+//         HWvsSWhw*: the distrubutions of the HW track paramters (like pt, eta, ...) are displayed in the histograms
+//         HWvsSWdiff*: the distrubutions of the difference btw the HW and SW track paramters (like pt, eta, ...) 
+//         	        are displayed in the histograms
 void CompareFTKTracks::FillHistos(){
       const FTK_RawTrack* match_track = NULL;
       int itrk=0;
@@ -49,6 +72,7 @@ void CompareFTKTracks::FillHistos(){
       int HWSWdifferent=0;
       int HWonly=0;
       int SWonly=0;
+      // filling the SWonly histograms by looping over the test tracks
       for(auto& test_track : m_test){
           match_track = m_associator->revmatched(test_track);
 	  if (!match_track) {
@@ -72,10 +96,12 @@ void CompareFTKTracks::FillHistos(){
 	     SWonly+=1;	      
 	  }    
       }  
+      
+      // loop over the reference tracks
       for(auto& ref_track : m_ref){
          itrk+=1;
          match_track = m_associator->matched(ref_track);
-	 //no SW matched track
+	 //no SW matched track -> HWonly histograms
 	 if (!match_track) {
 	     std::cout<<"the "<<itrk<<"-th HW track has no matched track"<<std::endl; 
              for (auto& imap : m_map_histo){
@@ -96,7 +122,7 @@ void CompareFTKTracks::FillHistos(){
              }
 	     HWonly+=1;
 	 }
-	 //completely matched tracks    
+	 //completely matched tracks : HWSW histograms   
 	 else if (!(
 	      (ref_track->getPhi()!=0&&fabs(match_track->getPhi()/ref_track->getPhi()-1.)>0.001)||
 	      (ref_track->getInvPt()!=0&&fabs(match_track->getInvPt()/ref_track->getInvPt()-1.)>0.001)||
@@ -125,7 +151,7 @@ void CompareFTKTracks::FillHistos(){
              
 	     HWSWmatched+=1;
 	 }
-	 //not matched tracks
+	 //not matched tracks -> HWvsSW histograms
 	 else{
 	     for (auto& imap : m_map_histo){
 	        if (imap.first.find("HWvsSW")==std::string::npos && imap.first.find("res")==std::string::npos) continue;
@@ -158,8 +184,13 @@ void CompareFTKTracks::FillHistos(){
 	     HWSWdifferent+=1;
 	 }   
       }
+      //histogram cointaining the number of SW tracks not matched to any HW track per event
       m_map_histo["nTrk_only_sw"]->Fill(SWonly); 
+      //histogram cointaining the number of HW tracks not matched to any SW track per event
       m_map_histo["nTrk_only_hw"]->Fill(HWonly); 
+      //histogram cointaining the number of HW tracks not completely matched 
+      // to SW tracks per event (some differences in the track paramters)
       m_map_histo["nTrk_different_hw_sw"]->Fill(HWSWdifferent); 
+      //histogram cointaining the number of HW tracks completely matched to SW tracks per event
       m_map_histo["nTrk_same_hw_sw"]->Fill(HWSWmatched); 
 }

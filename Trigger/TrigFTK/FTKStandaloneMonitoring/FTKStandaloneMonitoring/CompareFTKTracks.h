@@ -1,6 +1,17 @@
 /*
 Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
+
+///////////////////////////////////////////////////////////////////
+//
+// This class aims to do track matching given two vectors of 
+// FTK_RawTrack: one is the reference and one is the test
+// this class gets also maps of histograms to be filled with
+// the track parameters
+// 
+///////////////////////////////////////////////////////////////////
+
+
 #ifndef __CompareFTKTracks__
 #define __CompareFTKTracks__
 
@@ -34,6 +45,6 @@ class CompareFTKTracks{
     FTKTrkAssoc* m_associator;
     double m_dmax=0.2;
     bool m_allmatched=true;
-    std::vector<std::string> variable_list={"pt","eta","phi","d0","z0","chi2","ETA_PHI"};
+    std::vector<std::string> m_variable_list={"pt","eta","phi","d0","z0","chi2","ETA_PHI"};
 };
 #endif //__CompareFTKTracks__
