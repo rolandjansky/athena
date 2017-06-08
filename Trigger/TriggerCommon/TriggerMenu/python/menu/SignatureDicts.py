@@ -18,6 +18,7 @@ SliceIDDict = {
     'MET'     : 'xe',
     'XS'      : 'xs',
     'TE'      : 'te',
+    'AFP'     : 'afp',
     'MinBias' : 'mb',
     'HeavyIon' : 'hi',
     'Cosmic'  : 'cosmic',
@@ -494,6 +495,33 @@ CombinedChainParts_Default['trigType'] =['g','mu']
 CombinedChainParts_Default['topo'] = []
 
 #==========================================================
+# AFP
+#==========================================================
+# ---- AFP Dictinary of all allowed Values ----
+AFPChainParts = {
+    'signature'      : ['AFP'],
+    'L1item'         : '',
+    'chainPartName'  : '',
+    'multiplicity'   : '',
+    'trigType'       : ['afp'],
+    'threshold'      : '',
+    'extra'          : [],
+    'addInfo'        : []
+    }
+# ---- AFPDictinary of default Values ----
+AFPChainParts_Default = {
+    'signature'      : ['AFP'],
+    'L1item'         : '',
+    'chainPartName'  : '',
+    'multiplicity'   : '',
+    'trigType'       : ['afp'],
+    'threshold'      : '',
+    'extra'          : '',
+    'addInfo'        : []
+    }
+
+
+#==========================================================
 # MinBias chains
 #==========================================================
 # ---- MinBias Dictionary of all allowed Values ----
@@ -877,6 +905,8 @@ def getSignatureInformation(signature):
         return [XSChainParts_Default, XSChainParts]
     if signature == "TE":
         return [TEChainParts_Default, TEChainParts]
+    if signature == "AFP":
+        return [AFPChainParts_Default, AFPChainParts]
     if signature == "MinBias":
         return [MinBiasChainParts_Default, MinBiasChainParts]
     if signature == "HeavyIon":

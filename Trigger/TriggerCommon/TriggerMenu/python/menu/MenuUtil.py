@@ -218,6 +218,7 @@ def allSignatures():
         TriggerFlags.METSlice,
         TriggerFlags.TauSlice,
         TriggerFlags.EgammaSlice,
+        TriggerFlags.AFPSlice,
         TriggerFlags.MinBiasSlice,
         TriggerFlags.CombinedSlice,
         )

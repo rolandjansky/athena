@@ -31,6 +31,8 @@ def setupMenu():
     TriggerFlags.Slices_all_setOff()
 
     TriggerFlags.TestSlice.signatures = [] 
+
+    TriggerFlags.AFPSlice.signatures = []
     
     TriggerFlags.MuonSlice.signatures = [
 	#ID tracking performance
