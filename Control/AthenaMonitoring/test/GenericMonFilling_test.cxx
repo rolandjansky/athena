@@ -272,9 +272,9 @@ bool assignWorked() {
     VALUE ( double( eta ) ) EXPECTED ( 0.6 );
     auto etaBis = MonitoredScalar::declare( "EtaBis", 0. );
     etaBis = 0.4;
-    VALUE( double(etaBis) ) EXPECTED( 0.4 );
-    etaBis = double(eta);    
-    VALUE( double(etaBis) ) EXPECTED( 0.6 );
+    VALUE( double( etaBis ) ) EXPECTED( 0.4 );
+    etaBis = double( eta );    
+    VALUE( double( etaBis ) ) EXPECTED( 0.6 );
     return true;
 }
 
@@ -346,13 +346,13 @@ int main() {
   assert( fillExplcitelyWorked( validMon, histSvc ) );
   assert( fillFromScalarIndependentScopesWorked( validMon, histSvc ) );
   assert( assignWorked() );
-  assert( timerFillingWorked(m_validMon, histSvc) );
+  assert( timerFillingWorked( validMon, histSvc ) );
 
   log << MSG::DEBUG << "All OK"  << endmsg;
 
   // Make sure that THistSvc gets finalized.
   // Otherwise, the output file will get closed while global dtors are running,
   // which can lead to crashes.
-  dynamic_cast<ISvcManager*>(pSvcLoc)->finalizeServices().ignore();
+  dynamic_cast<ISvcManager*>( pSvcLoc )->finalizeServices().ignore();
   return 0;
 }
