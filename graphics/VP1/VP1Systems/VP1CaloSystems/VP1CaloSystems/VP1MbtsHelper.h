@@ -8,7 +8,7 @@
 #include "VP1Base/VP1Interval.h"
 #include <vector>
 #include <string>
-#include <QtCore/QObject>
+#include <QObject>
 
 class StoreGateSvc;
 class SoSeparator;

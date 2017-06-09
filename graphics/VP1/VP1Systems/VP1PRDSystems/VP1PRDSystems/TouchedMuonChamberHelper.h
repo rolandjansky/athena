@@ -19,7 +19,7 @@
 #ifndef TOUCHEDMUONCHAMBERHELPER_H
 #define TOUCHEDMUONCHAMBERHELPER_H
 
-#include <QtCore/QObject>
+#include <QObject>
 #include "GeoModelKernel/GeoPVConstLink.h"
 #include <set>
 

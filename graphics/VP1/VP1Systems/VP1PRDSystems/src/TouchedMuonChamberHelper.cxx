@@ -13,7 +13,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include "VP1PRDSystems/TouchedMuonChamberHelper.h"
-#include <QtCore/QTimer>
+#include <QTimer>
 #include <map>
 #include <set>
 #include <iostream>

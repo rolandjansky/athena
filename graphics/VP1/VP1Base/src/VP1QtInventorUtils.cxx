@@ -36,6 +36,10 @@
 #include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/nodes/SoVertexProperty.h>
 
+
+#include <Inventor/VRMLnodes/SoVRMLGroup.h>
+#include <Inventor/actions/SoToVRML2Action.h>
+
 #include <QDir>
 #include <QTime>
 #include <QBuffer>

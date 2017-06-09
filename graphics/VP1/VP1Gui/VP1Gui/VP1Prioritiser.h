@@ -15,7 +15,7 @@
 #ifndef VP1PRIORITISER_H
 #define VP1PRIORITISER_H
 
-#include <QtCore/QObject>
+#include <QObject>
 class IVP1System;
 class IVP1ChannelWidget;
 

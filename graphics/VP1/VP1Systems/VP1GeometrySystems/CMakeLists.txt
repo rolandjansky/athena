@@ -3,6 +3,10 @@
 # Package: VP1GeometrySystems
 ################################################################################
 
+# Set the minimum required CMake version:
+cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
+
+
 # Declare the package name:
 atlas_subdir( VP1GeometrySystems )
 
@@ -20,12 +24,17 @@ atlas_depends_on_subdirs(
 # External dependencies:
 find_package( CLHEP )
 find_package( Coin3D )
-find_package( Qt4 COMPONENTS QtCore QtGui )
+find_package( Qt5 COMPONENTS Core Gui REQUIRED )
 
 # Generate UI files automatically:
 set( CMAKE_AUTOUIC TRUE )
 # Generate MOC files automatically:
 set( CMAKE_AUTOMOC TRUE )
+# Generate resource files automatically:
+set( CMAKE_AUTORCC TRUE )
+
+# Find includes in corresponding build directories
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # Component(s) in the package:
 atlas_add_library( VP1GeometrySystems
@@ -35,6 +44,6 @@ atlas_add_library( VP1GeometrySystems
    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR}
    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
    LINK_LIBRARIES ${COIN3D_LIBRARIES} GeoModelKernel MuonReadoutGeometry
-   VP1Base GL Qt4::QtCore
+   VP1Base GL Qt5::Core
    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} GeoModelUtilities VP1HEPVis
-   VP1Utils Qt4::QtGui )
+   VP1Utils Qt5::Gui )

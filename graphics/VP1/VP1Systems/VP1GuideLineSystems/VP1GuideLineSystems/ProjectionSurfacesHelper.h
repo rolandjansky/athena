@@ -21,7 +21,7 @@
 class SoSeparator;
 class SoMaterial;
 
-#include <QtCore/QObject>
+#include <QObject>
 #include "VP1Base/VP1HelperClassBase.h"
 #include "VP1Utils/InDetProjFlags.h"
 

@@ -21,8 +21,6 @@
 #include "VP1Base/VP1Interval.h"
 
 #include <QWidget>
-// #include <QtCore/QList>
-// #include <QtCore/QByteArray>
 
 class QPushButton;
 class QAbstractButton;

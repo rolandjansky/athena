@@ -28,7 +28,7 @@
 #include "xAODBase/ObjectType.h" // for xAOD::Type::ObjectType
 
 // Qt
-#include <QtGui/QColor>
+#include <QColor>
 #include <QList>
 
 //Misc

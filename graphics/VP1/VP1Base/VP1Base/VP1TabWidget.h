@@ -36,7 +36,6 @@
 #ifndef VP1TABWIDGET_H
 #define VP1TABWIDGET_H
 
-// #include <QtGui/QTabWidget>
 #include <QTabWidget>
 
 class QTab;

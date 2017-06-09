@@ -5,14 +5,14 @@
 #include "VP1Gui/VP1Authenticator.h"
 #include "VP1Base/VP1QtUtils.h"
 
-#include <QtNetwork/QNetworkAccessManager>
-#include <QtNetwork/QSslError>
-#include <QtNetwork/QNetworkCookie>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QUrl>
-#include <QtCore/QBuffer>
-#include <QtCore/QStringMatcher>
+#include <QNetworkAccessManager>
+#include <QSslError>
+#include <QNetworkCookie>
+#include <QFile>
+#include <QFileInfo>
+#include <QUrl>
+#include <QBuffer>
+#include <QStringMatcher>
 
 #include <iostream>
 #include <QMetaType>

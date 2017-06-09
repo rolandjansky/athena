@@ -13,7 +13,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include "VP1Gui/VP1AvailEvtsLocalDir.h"
-#include "VP1Gui/VP1LocalEvtRetriever.h"
+#include "VP1LocalEvtRetriever.h"
 
 #include <QStringList>
 

@@ -15,7 +15,6 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( Coin3D )
-find_package( Qt4 COMPONENTS QtCore QtOpenGL QtGui )
 
 include_directories( /usr/X11R6/include )
 

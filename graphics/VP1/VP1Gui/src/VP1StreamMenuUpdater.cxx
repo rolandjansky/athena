@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "VP1Gui/VP1StreamMenuUpdater.h"
+#include "VP1StreamMenuUpdater.h"
 
 #include <QDir>
 #include <QFile>

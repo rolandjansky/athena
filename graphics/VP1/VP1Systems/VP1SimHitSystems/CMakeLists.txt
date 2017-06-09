@@ -20,7 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( Coin3D )
 find_package( Eigen )
-find_package( Qt4 COMPONENTS QtCore QtOpenGL QtGui )
+find_package( Qt5 COMPONENTS Core Gui REQUIRED )
 
 # Generate UI files automatically:
 set( CMAKE_AUTOUIC TRUE )
@@ -38,6 +38,6 @@ atlas_add_library( VP1SimHitSystems VP1SimHitSystems/*.h src/*.h src/*.cxx src/*
                    PUBLIC_HEADERS VP1SimHitSystems
                    INCLUDE_DIRS ${QT4_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES VP1Base ${QT4_LIBRARIES} GL StoreGateLib SGtests
+                   LINK_LIBRARIES VP1Base ${QT5_LIBRARIES} GL StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${EIGEN_LIBRARIES} GeoAdaptors GeoPrimitives ForwardRegion_SimEv InDetSimEvent MuonSimEvent VP1Utils )
 

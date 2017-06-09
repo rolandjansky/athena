@@ -42,12 +42,12 @@ class QComboBox;
 class VP1StreamMenuUpdater;
 class QMutex;
 
-#include <QtGlobal>
-#if QT_VERSION > QT_VERSION_CHECK(5, 5, 0)
-  class QWebEngineView; // Qt 5.6
-#else
-  class QWebView;
-#endif
+//#include <QtGlobal>
+//#if QT_VERSION > QT_VERSION_CHECK(5, 5, 0)
+//  class QWebEngineView; // Qt 5.6
+//#else
+//  class QWebView;
+//#endif
 
 
 struct VP1DirStatusData
@@ -245,12 +245,12 @@ protected:
   VP1StreamMenuUpdater* m_streamMenuUpdater;
   QMutex* m_mutex;
 
-  // Web broser instance to show VP1 documentation
-  #if QT_VERSION > QT_VERSION_CHECK(5, 5, 0)
-    QWebEngineView *m_view; // Qt 5
-  #else
-    QWebView *m_view;
-  #endif
+//  // Web broser instance to show VP1 documentation
+//  #if QT_VERSION > QT_VERSION_CHECK(5, 5, 0)
+//    QWebEngineView *m_view; // Qt 5
+//  #else
+//    QWebView *m_view;
+//  #endif
 
   // Event display editor
   VP1EventDisplayEditor* edEditor;

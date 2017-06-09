@@ -28,7 +28,7 @@
 #include "ui_settings_treebrowser_form.h"
 #include <Inventor/nodes/SoPickStyle.h>
 #include <map>
-#include <QtGui/QFileDialog>
+#include <QFileDialog>
 
 //____________________________________________________________________
 class GeoSysController::Imp {

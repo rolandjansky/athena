@@ -21,7 +21,7 @@
 #include "VP1Gui/VP1DockWidget.h"
 #include "VP1Gui/VP1AvailEvents.h"
 #include "VP1Gui/VP1AvailEvtsLocalDir.h"
-#include "VP1Gui/VP1StreamMenuUpdater.h"
+#include "VP1StreamMenuUpdater.h"
 
 #include "VP1UtilsBase/VP1FileUtilities.h"
 
@@ -55,12 +55,19 @@
 #include <QGraphicsScene>
 #include <QtGui>
 
+
+
+/* FIXME: LCG does not ship QWebEngine with Qt5 at the moment,
+ * but later you want to put it back again!
+ */
+/*
 #include <QtGlobal>
 #if QT_VERSION > QT_VERSION_CHECK(5, 5, 0)
   #include <QWebEngineView> // Qt 5.6
 #else
   #include <QtWebKit>
 #endif
+*/
 
 #include <cassert>
 #include <iostream>
@@ -80,11 +87,11 @@ VP1MainWindow::VP1MainWindow(VP1ExecutionScheduler*sched,VP1AvailEvents * ae,QWi
   m_userRequestedExit(false),
   m_streamMenuUpdater(0),
   m_mutex(new QMutex()),
-  #if QT_VERSION > QT_VERSION_CHECK(5, 5, 0)
-    m_view(new QWebEngineView(0)),
-  #else
-    m_view(new QWebView(0)),
-  #endif
+//  #if QT_VERSION > QT_VERSION_CHECK(5, 5, 0)
+//    m_view(new QWebEngineView(0)),
+//  #else
+//    m_view(new QWebView(0)),
+//  #endif
   edEditor(0)
 {
 	setupUi(this); // this sets up the GUI
@@ -376,19 +383,19 @@ void VP1MainWindow::help_openUserGuide() {
 	 * with the default system web browser
 	 */
 	VP1Msg::messageDebug("VP1MainWindow::help_openUserGuide()");
-
-	// we use the Qt Web Browser to show the VP1 documentation
-  #if QT_VERSION > QT_VERSION_CHECK(5, 5, 0)
-    QWebEngineView *old = m_view;
-    m_view = new QWebEngineView(0);
-  #else
-    QWebView *old = m_view;
-    m_view = new QWebView(0);
-  #endif
-
-	m_view->load(QUrl("http://atlas-vp1.web.cern.ch/atlas-vp1/doc/"));
-	m_view->show();
-	delete old; old = 0;
+//
+//	// we use the Qt Web Browser to show the VP1 documentation
+//  #if QT_VERSION > QT_VERSION_CHECK(5, 5, 0)
+//    QWebEngineView *old = m_view;
+//    m_view = new QWebEngineView(0);
+//  #else
+//    QWebView *old = m_view;
+//    m_view = new QWebView(0);
+//  #endif
+//
+//	m_view->load(QUrl("http://atlas-vp1.web.cern.ch/atlas-vp1/doc/"));
+//	m_view->show();
+//	delete old; old = 0;
 
 	return;
 }
@@ -423,20 +430,20 @@ void VP1MainWindow::help_openVP1WebSite() {
 	 * with the default system web browser
 	 */
 	VP1Msg::messageDebug("VP1MainWindow::help_openVP1WebSite()");
-
-	// we use the Qt Web Browser to show the VP1 web site
-  #if QT_VERSION > QT_VERSION_CHECK(5, 5, 0)
-    QWebEngineView *old = m_view;
-    m_view = new QWebEngineView(0);
-  #else
-    QWebView *old = m_view;
-    m_view = new QWebView(0);
-  #endif
-
-	m_view->resize(1000, 800);
-	m_view->load(QUrl("http://atlas-vp1.web.cern.ch/atlas-vp1/"));
-	m_view->show();
-	delete old; old = 0;
+//
+//	// we use the Qt Web Browser to show the VP1 web site
+//  #if QT_VERSION > QT_VERSION_CHECK(5, 5, 0)
+//    QWebEngineView *old = m_view;
+//    m_view = new QWebEngineView(0);
+//  #else
+//    QWebView *old = m_view;
+//    m_view = new QWebView(0);
+//  #endif
+//
+//	m_view->resize(1000, 800);
+//	m_view->load(QUrl("http://atlas-vp1.web.cern.ch/atlas-vp1/"));
+//	m_view->show();
+//	delete old; old = 0;
 	return;
 }
 
@@ -447,19 +454,19 @@ void VP1MainWindow::help_openAbout() {
 	 * open the online help with the internal web browser
 	 */
 	VP1Msg::messageDebug("VP1MainWindow::help_openAbout()");
-
-	// we use the Qt Web Browser to show the VP1 "About" page
-  #if QT_VERSION > QT_VERSION_CHECK(5, 5, 0)
-    QWebEngineView *old = m_view;
-    m_view = new QWebEngineView(0);
-  #else
-    QWebView *old = m_view;
-    m_view = new QWebView(0);
-  #endif
-
-	m_view->load(QUrl("https://atlas-vp1.web.cern.ch/atlas-vp1/doc_new/about_vp1/CREDITS.html"));
-	m_view->show();
-	delete old; old = 0;
+//
+//	// we use the Qt Web Browser to show the VP1 "About" page
+//  #if QT_VERSION > QT_VERSION_CHECK(5, 5, 0)
+//    QWebEngineView *old = m_view;
+//    m_view = new QWebEngineView(0);
+//  #else
+//    QWebView *old = m_view;
+//    m_view = new QWebView(0);
+//  #endif
+//
+//	m_view->load(QUrl("https://atlas-vp1.web.cern.ch/atlas-vp1/doc_new/about_vp1/CREDITS.html"));
+//	m_view->show();
+//	delete old; old = 0;
 
 	return;
 }
@@ -541,8 +548,8 @@ VP1MainWindow::~VP1MainWindow()
 	delete m_mutex;
 
 	VP1Msg::messageDebug("deleting the view");
-	delete m_view;
-	m_view = 0;
+//	delete m_view; // TODO: Qt5
+//	m_view = 0;// TODO: Qt5
 }
 
 //_________________________________________________________________________________

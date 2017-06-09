@@ -17,8 +17,8 @@
 #ifndef VP1GEOFLAGS_H
 #define VP1GEOFLAGS_H
 
-#include <QtCore/QFlags>
-#include <QtCore/QString>
+#include <QFlags>
+#include <QString>
 
 class VP1GeoFlags {
 public:

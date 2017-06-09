@@ -15,8 +15,8 @@
 /////////////////////////////////////////////////////////////////////////
 
 #include "VP1Base/IVP13DSystemSimple.h"
-#include <QtCore/QStack>
-#include <QtCore/QString>
+#include <QStack>
+#include <QString>
 
 class VP1PartSpectSystem : public IVP13DSystemSimple 
 {

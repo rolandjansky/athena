@@ -15,7 +15,7 @@
 #include "VP1BanksPlugin/VP1BanksChannel.h"
 #include "ui_bankschannelwidgetform.h"
 #include "VP1BanksSystems/VP1BanksSystem.h"
-#include <QtGui/QLabel>
+#include <QLabel>
 
 //_________________________________________________________
 VP1BanksChannel::VP1BanksChannel()

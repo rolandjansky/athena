@@ -17,7 +17,7 @@
 
 #include "VP1Base/IVP13DSystemSimple.h"
 #include "VP1Utils/InDetProjFlags.h"
-#include <QtGui/QColor>//Fixme obsolete
+#include <QColor>//Fixme obsolete
 
 class VP1GuideLineSystem : public IVP13DSystemSimple {
 

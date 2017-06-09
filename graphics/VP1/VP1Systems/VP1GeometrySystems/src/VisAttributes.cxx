@@ -7,7 +7,7 @@
 #include "VP1Base/VP1QtInventorUtils.h"
 #include <Inventor/nodes/SoMaterial.h>
 #include <iostream>
-#include <QtCore/QBuffer>
+#include <QBuffer>
 
 /////////////////////////////////////// Base class ///////////////////////////////////////
 

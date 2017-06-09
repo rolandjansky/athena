@@ -18,7 +18,7 @@
 #define VP1CYLINDRICALGRID_H
 
 #include "VP1Base/VP1HelperClassBase.h"
-#include <QtCore/QObject>
+#include <QObject>
 #include <Inventor/C/errors/debugerror.h>
 #include <Inventor/SbColor4f.h>
 class SoSeparator;

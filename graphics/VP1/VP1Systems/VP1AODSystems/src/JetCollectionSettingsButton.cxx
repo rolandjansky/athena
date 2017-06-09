@@ -23,14 +23,14 @@
 #include "Inventor/nodes/SoMaterial.h"
 
 // Qt
-#include <QtCore/QTimer>
-#include <QtCore/QByteArray>
-#include <QtCore/QBuffer>
-#include <QtCore/QDataStream>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QDragEnterEvent>
-#include <QtGui/QDropEvent>
-#include <QtGui/QShortcut>
+#include <QTimer>
+#include <QByteArray>
+#include <QBuffer>
+#include <QDataStream>
+#include <QMouseEvent>
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QShortcut>
 
 // Misc
 #include <iostream>
