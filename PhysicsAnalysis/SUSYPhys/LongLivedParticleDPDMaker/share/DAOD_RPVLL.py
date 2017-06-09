@@ -123,9 +123,17 @@ StreamAOD_Augmented = DAOD_RPVLLStream_Augmented
 protectedInclude( "RecExPers/RecoOutputAODList_jobOptions.py")
 DAOD_RPVLLStream_Augmented.AddItem("SkimDecisionCollection#*")
 #FIXME HACK remove faulty object
-DAOD_RPVLLStream_Augmented.GetEventStream().ItemList = \
-        [ e for e in DAOD_RPVLLStream_Augmented.GetEventStream().ItemList \
+DAOD_RPVLLStream.ItemList = \
+        [ e for e in DAOD_RPVLLStream.ItemList \
           if not e in [ 'CaloTowerContainer#HLT_TrigCaloTowerMaker'] ]
+
+
+DAOD_RPVLLStream.ItemList+=['xAOD::TrackParticleContainer#VrtSecInclusive*',
+                            'xAOD::TrackParticleAuxContainer#VrtSecInclusive*',
+                            'xAOD::VertexContainer#VrtSecInclusive*',
+                            'xAOD::VertexAuxContainer#VrtSecInclusive*'    ]
+
+
 
 if AODFlags.TrackParticleSlimmer or AODFlags.TrackParticleLastHitAndPerigeeSlimmer:
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
