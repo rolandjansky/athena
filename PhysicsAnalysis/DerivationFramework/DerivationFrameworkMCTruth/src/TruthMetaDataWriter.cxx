@@ -23,7 +23,7 @@ DerivationFramework::TruthMetaDataWriter::TruthMetaDataWriter(const std::string&
 
 AthAlgTool(t,n,p),
 m_metaStore( "MetaDataStore", n ),
-inputMetaStore( "StoreGateSvc/InputMetaDataStore",n)
+m_inputMetaStore( "StoreGateSvc/InputMetaDataStore",n)
 {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty( "MetaObjectName", m_metaName = "TruthMetaData" );
@@ -66,7 +66,7 @@ StatusCode DerivationFramework::TruthMetaDataWriter::addBranches() const
 
     //The mcChannelNumber is used as a unique identifier for which truth meta data belongs to
     const EventStreamInfo* esi = nullptr;
-    CHECK( inputMetaStore->retrieve(esi));
+    CHECK( m_inputMetaStore->retrieve(esi));
     uint32_t mcChannelNumber = esi->getEventTypes().begin()->mc_channel_number();
     
     //Inserting in a (unordered_)set returns an <iterator, boolean> pair, where the boolean

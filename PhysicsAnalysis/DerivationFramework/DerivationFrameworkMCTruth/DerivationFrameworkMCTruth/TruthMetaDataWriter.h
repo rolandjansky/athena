@@ -31,7 +31,7 @@ namespace DerivationFramework {
     private:
       /// Connection to the metadata store
       ServiceHandle< StoreGateSvc > m_metaStore;
-      ServiceHandle<StoreGateSvc> inputMetaStore;
+      ServiceHandle<StoreGateSvc> m_inputMetaStore;
       /// The meta data container to be written out
       xAOD::TruthMetaDataContainer* m_tmd;
       /// SG key and name for meta data
