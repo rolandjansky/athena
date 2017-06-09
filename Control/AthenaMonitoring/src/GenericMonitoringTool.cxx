@@ -51,7 +51,8 @@ StatusCode GenericMonitoringTool::initialize() {
 	  ATH_MSG_WARNING( "The histogram filler can not be instantiated for: " << def.name );
 	}
     } else {
-      ATH_MSG_WARNING( "Unparsable histogram definition: " << item );
+      ATH_MSG_ERROR( "Unparsable histogram definition: " << item );
+      return StatusCode::FAILURE;
     }
     ATH_MSG_DEBUG( "Monitoring for varaible " << def.name << " prepared" );
   }
