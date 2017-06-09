@@ -22,6 +22,7 @@
 #include "TestTools/initGaudi.h"
 #include "TestTools/expect_exception.h"
 #include "AthContainersInterfaces/IConstAuxStore.h"
+#include "AthContainers/DataVector.h"
 #include "AthenaKernel/errorcheck.h"
 #include "CxxUtils/unused.h"
 #include <cassert>
@@ -64,6 +65,8 @@ public:
 std::vector<int> MyObj::deleted;
 CLASS_DEF (MyObj, 293847295, 1)
 static const CLID MyCLID = 293847295;
+
+CLASS_DEF (DataVector<MyObj>, 293847495, 1)
 
 
 class MyObj2 {};
@@ -537,6 +540,12 @@ void test9()
   o = h6.put (ctx2, std::make_unique<const MyObj>(34));
   assert (o->x == 34);
   assert (MyObj::deleted.empty());
+
+  SG::WriteHandle<DataVector<MyObj> > h7 ("foo7");
+  assert (h7.setProxyDict (&testStore).isSuccess());
+  const DataVector<MyObj>* vo =
+    h7.put (std::make_unique<const DataVector<MyObj> >());
+  assert (vo->empty());
 }
 
 
