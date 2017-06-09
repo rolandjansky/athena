@@ -12,7 +12,7 @@ if doConversion:
     print "Converting Rec::TrackParticles to xAOD::TrackParticles"
 
 _perigee_expression=InDetFlags.perigeeExpression()
-# need to tread Vertex specifically because at the time of
+# need to treat Vertex specifically because at the time of
 # the track particle creation the primary vertex does not yet exist.
 # The problem is solved by first creating track particles wrt. the beam line
 # and correcting the parameters after the vertex finding.
@@ -27,6 +27,7 @@ InDetxAODParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetxAODPa
                                                              BadClusterID            = InDetFlags.pixelClusterBadClusterID(),
                                                              ForceTrackSummaryUpdate = False,
                                                              KeepParameters          = True,
+                                                             KeepFirstParameters     = InDetFlags.KeepFirstParameters(),
                                                              PerigeeExpression       = _perigee_expression)
 
 
