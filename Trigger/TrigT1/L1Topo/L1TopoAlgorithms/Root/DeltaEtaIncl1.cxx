@@ -132,8 +132,7 @@ TCS::DeltaEtaIncl1::process( const std::vector<TCS::TOBArray const *> & input,
                              Decision & decison )
 {
    if(input.size() == 1) {
-       bool iaccept[numberOutputBits()];
-       std::fill_n(iaccept,numberOutputBits(),0);
+       std::vector<bool> iaccept (numberOutputBits());
        //LOG << "input size     : " << input[0]->size() << endl;
        unsigned int nLeading = p_NumberLeading1;
        unsigned int nLeading2 = p_NumberLeading2;
