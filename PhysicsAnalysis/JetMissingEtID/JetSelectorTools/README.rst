@@ -49,7 +49,7 @@ After RootCore is setup, simply do:
   rc compile_pkg JetSelectorTools
 
 ---------------
-Tool Usage
+Jet Cleaning Tool Usage
 ---------------
 
 The tool can be constructed in C++ or python using one of three constructors:
@@ -81,4 +81,47 @@ instantiations, which can be directly used in your analysis.  The python file
 python/JetCleaningCutDefs.py contains a simple helper to set up the tool at a given level.
 These functions are a bit of overkill given the current interface, but they may be helpful in
 the future if the cleaning functions change significantly.
+
+---------------
+Event Cleaning Tool Usage
+---------------
+
+The EventCleaningTool is designed to assess the cleanliness of every jet in an event. The tool 
+runs over a jet collection which is required to have JVT and overlap removal decorations applied 
+prior to event cleaning. For each jet in the collection, the individual cleaning decision is made 
+with a JetCleaningTool that is created by the EventCleaningTool. If the jet passes the criteria 
+needed for cleaning consideration (passing pT, eta cuts, along with JVT and OR requirements), 
+it is decorated as either clean or not clean. As per the official jet cleaning recommendation,
+the event level decision is taken as an AND of all jet cleaning decisions; if any event has an
+unclean jet, the whole event is flagged as unclean. 
+
+The methods in the tool are: 
+    - virtual bool acceptEvent(const xAOD::JetContainer* jets) : Loops over the input decorated jet 
+    collection. Checks pT, eta, JVT, and OR. If a jet passes all four of these, the JetCleaningTool 
+    is used to check its cleanliness, and it is decorated accordingly. If a jet fails any of these four 
+    checks, it is decorated as bad, but will not affect the event level decision. Returns the event 
+    cleaning decision as a boolean. 
+
+    - virtual int keep_jet(const xAOD::Jet& jet) const override : Simply calls the keep method 
+    of the JetCleaningTool.
+
+The properties of the tool are: 
+   - Minimum jet pT cut for cleaning consideration (default 20.0 GeV)
+   - Maximum eta cut for cleaning consideration (default 2.8) 
+   - The name of the JVT decorator for cleaning consideration (default 'passJvt')
+   - The name of the OR decorator for cleaning consideration (default 'passOR') 
+   - The cleaning level (default 'LooseBad') for initializing the JetCleaningTool
+
+In addition to the EventCleaningTool, there is an EventCleaningTestAlg which calls acceptEvent 
+once per event. Here, the tool can be configured, and its five properties can be set. The algorithm has
+an additional property, the name of the jet collection (default "AntiKt4EMTopoJets"). It then uses this
+name to pull the jet collection out of event store. The event decision is decorated onto the EventInfo
+object, using the boolean return value of acceptEvent.
+
+A sample job options file for the algorithm can be found in share/EventCleaningTest_jobOptions.py. 
+
+NOTE: Because the algorithm relies on JVT and OR decorations, it can only be used in an algorithm
+sequence where these decorations have already been performed (for example, applyST.py in SUSYTools.) 
+
+
 
