@@ -99,7 +99,7 @@ StatusCode AFPTechnicalMonitorTool::fillHistograms()
 
     for (AFP_RawDataCollection* hitCollection : *afpContainer) {
       for (AFP_RawData* hit : *hitCollection) {
-    	if (hit->Get_link() >= 0 && hit->Get_link() <= 3) {
+    	if (hit->Get_link() <= 3) {
     	  m_cNearStation.fillHistograms(*hit);
     	}
     	else if (hit->Get_link() >= 8 && hit->Get_link() <= 11) {
