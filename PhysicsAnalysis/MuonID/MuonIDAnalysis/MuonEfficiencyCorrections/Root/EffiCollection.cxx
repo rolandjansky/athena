@@ -238,9 +238,10 @@ namespace CP {
     std::string EffiCollection::FileTypeName(EffiCollection::CollectionType T) {
         if (T == CollectionType::Central) return "Central ";
         if (T == CollectionType::Calo) return "Calo ";
+        if (T == CollectionType::Forward) return "Forward ";
         if (T == CollectionType::CentralLowPt) return "CentralLowPt ";
         if (T == CollectionType::CaloLowPt) return "CaloLowPt ";
-        return "What are we talking about?";
+        return "EffiCollection::FileTypeName() - WARNING: Unknown EffiCollection::CollectionType!";
     }
 
     std::string EffiCollection::GetBinName(unsigned int bin) const {
@@ -251,10 +252,9 @@ namespace CP {
                 BinName = ReplaceExpInString(BinName,R,"");
             }
             return BinName;
-//            return FileTypeName(Cont->type()) + Cont->GetBinName(bin);
         }
         Warning("EffiCollection::GetBinName()", "Unknown bin %u", bin);
-        return "The thing";
+        return "UNKNOWN_BIN";
     }
     int EffiCollection::getUnCorrelatedSystBin(const xAOD::Muon& mu) const {
         int Bin = 0;

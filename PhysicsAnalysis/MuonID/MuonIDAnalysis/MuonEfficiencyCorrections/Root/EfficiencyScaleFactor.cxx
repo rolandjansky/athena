@@ -179,11 +179,11 @@ namespace CP {
     HistHandler *EfficiencyScaleFactor::package_histo(TH1* h) {
         // make sure that the correct type of histo is used
         if (dynamic_cast<TH1F*>(h)) {
-            return new HistHandler_TH1F(dynamic_cast<TH1F*>(h));
+            return new HistHandler_TH1(dynamic_cast<TH1F*>(h));
         } else if (dynamic_cast<TH2F*>(h)) {
-            return new HistHandler_TH2F(dynamic_cast<TH2F*>(h));
+            return new HistHandler_TH2(dynamic_cast<TH2F*>(h));
         } else if (dynamic_cast<TH3F*>(h)) {
-            return new HistHandler_TH3F(dynamic_cast<TH3F*>(h));
+            return new HistHandler_TH3(dynamic_cast<TH3F*>(h));
         } else if (dynamic_cast<TH2Poly*>(h)) {
             return new HistHandler_TH2Poly(dynamic_cast<TH2Poly*>(h));
         } else {
