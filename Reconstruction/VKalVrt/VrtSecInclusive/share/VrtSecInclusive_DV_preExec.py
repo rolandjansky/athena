@@ -50,11 +50,3 @@ HadronicVertexMapper = Trk__VertexMapper("HadronicVertexMapper")
 ToolSvc += HadronicVertexMapper
 topSequence.VrtSecInclusive.VertexMapper = HadronicVertexMapper
 
-# # now add the new vertex collection to the output DAOD_RPVLL file
-# from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-# MSMgr.GetStream("StreamDAOD_RPVLL").AddItem( [ 'xAOD::TrackParticleContainer#VrtSecInclusive*',
-#                                                'xAOD::TrackParticleAuxContainer#VrtSecInclusive*',
-#                                                'xAOD::VertexContainer#VrtSecInclusive*',
-#                                                'xAOD::VertexAuxContainer#VrtSecInclusive*'] )
-# print "List of items for the DAOD_RPVLL output stream:"
-# print MSMgr.GetStream("StreamDAOD_RPVLL").GetItems()
