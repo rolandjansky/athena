@@ -18,7 +18,6 @@
 TauVertexFinder::TauVertexFinder(const std::string& name ) :
   TauRecToolBase(name),
   m_printMissingContainerINFO(true),
-  m_maxJVF(-100.),
   m_TrackSelectionToolForTJVA(""),
   m_assocTracksName(""),
   m_trackVertexAssocName("")
@@ -116,13 +115,15 @@ StatusCode TauVertexFinder::execute(xAOD::TauJet& pTau) {
   // try to find new PV with TJVA
   ATH_MSG_DEBUG("TJVA enabled -> try to find new PV for the tau candidate");
 
-  ElementLink<xAOD::VertexContainer> newPrimaryVertexLink = getPV_TJVA(pTau, *vxContainer );
+  float maxJVF = -100;
+  ElementLink<xAOD::VertexContainer> newPrimaryVertexLink =
+    getPV_TJVA(pTau, *vxContainer, maxJVF );
   if (newPrimaryVertexLink.isValid()) {
     // set new primary vertex
     // will overwrite default one which was set above
     pTau.setVertexLink(newPrimaryVertexLink);
     // save highest JVF value
-    pTau.setDetail(xAOD::TauJetParameters::TauJetVtxFraction,static_cast<float>(m_maxJVF));
+    pTau.setDetail(xAOD::TauJetParameters::TauJetVtxFraction,static_cast<float>(maxJVF));
     ATH_MSG_DEBUG("TJVA vertex found and set");
   }
   else {
@@ -133,7 +134,10 @@ StatusCode TauVertexFinder::execute(xAOD::TauJet& pTau) {
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-ElementLink<xAOD::VertexContainer> TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau, const xAOD::VertexContainer& vertices)
+ElementLink<xAOD::VertexContainer>
+TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
+                            const xAOD::VertexContainer& vertices,
+                            float& maxJVF)
 {
   const xAOD::Jet* pJetSeed = (*pTau.jetLink());
   std::vector<const xAOD::TrackParticle*> tracksForTJVA;
@@ -239,32 +243,28 @@ ElementLink<xAOD::VertexContainer> TauVertexFinder::getPV_TJVA(const xAOD::TauJe
   }
  
 
-  // Calculate Jet Vertex Fraction
-  std::vector<float> jvf;
-  jvf.resize(vertices.size());
-  for (size_t iVertex = 0; iVertex < vertices.size(); ++iVertex) {
-    if(!inTrigger) jvf.at(iVertex) = getJetVertexFraction(vertices.at(iVertex),tracksForTJVA,tva);
-    else jvf.at(iVertex) = getJetVertexFraction(vertices.at(iVertex),tracksForTJVA);
-  }
-    
   // Get the highest JVF vertex and store maxJVF for later use
   // Note: the official JetMomentTools/JetVertexFractionTool doesn't provide any possibility to access the JVF value, but just the vertex.
-  m_maxJVF=-100.;
+  maxJVF=-100.;
+  const xAOD::Vertex* max_vert = nullptr;
+  size_t iVertex = 0;
   size_t maxIndex = 0;
-  for (size_t iVertex = 0; iVertex < jvf.size(); ++iVertex) {
-    if (jvf.at(iVertex) > m_maxJVF) {
-      m_maxJVF = jvf.at(iVertex);
+  for (const xAOD::Vertex* vert : vertices) {
+    float jvf = 0;
+    if(!inTrigger) jvf = getJetVertexFraction(vert,tracksForTJVA,tva);
+    else jvf = getJetVertexFraction(vert,tracksForTJVA);
+    if (jvf > maxJVF) {
+      maxJVF = jvf;
+      max_vert = vert;
       maxIndex = iVertex;
     }
+    ++iVertex;
   }
 
-  // Set the highest JVF vertex
-  ElementLink<xAOD::VertexContainer> vtxlink = ElementLink<xAOD::VertexContainer>(vertices,vertices.at(maxIndex)->index());
-
-  ATH_MSG_DEBUG("TJVA vtx found at z: " << vertices.at(maxIndex)->z());
+  ATH_MSG_DEBUG("TJVA vtx found at z: " << max_vert->z());
   ATH_MSG_DEBUG("highest pt vtx found at z: " << vertices.at(0)->z());
     
-  return vtxlink;
+  return ElementLink<xAOD::VertexContainer> (vertices, maxIndex);
 }
 
 // reimplementation of JetVertexFractionTool::getJetVertexFraction(const xAOD::Vertex* vertex, const std::vector<const xAOD::TrackParticle*>& tracks, const jet::TrackVertexAssociation* tva) const
