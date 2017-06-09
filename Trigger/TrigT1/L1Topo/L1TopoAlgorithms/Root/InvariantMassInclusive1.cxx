@@ -135,8 +135,7 @@ TCS::InvariantMassInclusive1::processBitCorrect( const std::vector<TCS::TOBArray
 
    if(input.size() == 1) {     
      
-      bool iaccept[numberOutputBits()];
-      std::fill_n(iaccept,numberOutputBits(),0);
+      std::vector<bool> iaccept (numberOutputBits());
 
       for( TOBArray::const_iterator tob1 = input[0]->begin(); 
            tob1 != input[0]->end() && distance( input[0]->begin(), tob1) < p_NumberLeading1;
@@ -193,8 +192,7 @@ TCS::InvariantMassInclusive1::process( const std::vector<TCS::TOBArray const *> 
 
    if(input.size() == 1) {     
      
-      bool iaccept[numberOutputBits()];
-      std::fill_n(iaccept,numberOutputBits(),0);
+      std::vector<bool> iaccept (numberOutputBits());
 
       for( TOBArray::const_iterator tob1 = input[0]->begin(); 
            tob1 != input[0]->end() && distance( input[0]->begin(), tob1) < p_NumberLeading1;
