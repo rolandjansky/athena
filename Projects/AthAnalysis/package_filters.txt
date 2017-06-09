@@ -18,7 +18,7 @@
 # EDM:
 + Event/EventPrimitives
 + Event/FourMomUtils
-- Event/xAOD/.*AthenaPool
+## - Event/xAOD/.*AthenaPool
 + Event/xAOD/xAODMetaDataCnv
 + Event/xAOD/xAODTriggerCnv
 - Event/xAOD/.*Cnv
@@ -60,7 +60,7 @@
 + PhysicsAnalysis/MCTruthClassifier
 + PhysicsAnalysis/MuonID/MuonIDAnalysis/.*
 + PhysicsAnalysis/MuonID/MuonSelectorTools
-# + PhysicsAnalysis/SUSYPhys/SUSYTools
++ PhysicsAnalysis/SUSYPhys/SUSYTools
 + PhysicsAnalysis/TauID/DiTauMassTools
 + PhysicsAnalysis/TauID/TauAnalysisTools
 + PhysicsAnalysis/TauID/TauCorrUncert
@@ -142,6 +142,7 @@
 + Database/PersistentDataModel.*
 + Database/TPTools
 + Database/CoraCool
++ Control/DataModelAthenaPool
 
 
 # Basic DF setup :
