@@ -66,4 +66,4 @@ atlas_add_component( DataQualityTools
 # Install files from the package:
 #atlas_install_headers( DataQualityTools )
 atlas_install_joboptions( share/*.py )
-
+atlas_install_scripts( scripts/*.py )

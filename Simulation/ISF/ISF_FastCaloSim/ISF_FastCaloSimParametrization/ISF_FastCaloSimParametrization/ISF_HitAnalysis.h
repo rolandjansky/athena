@@ -174,7 +174,22 @@ class ISF_HitAnalysis : public AthAlgorithm {
    std::vector<double>* m_TTC_IDCaloBoundary_z;
    std::vector<double>* m_TTC_Angle3D;
    std::vector<double>* m_TTC_AngleEta;
-
+   
+   std::vector<std::vector<double> >* m_newTTC_entrance_eta;
+   std::vector<std::vector<double> >* m_newTTC_entrance_phi;
+   std::vector<std::vector<double> >* m_newTTC_entrance_r;
+   std::vector<std::vector<double> >* m_newTTC_entrance_z;
+   std::vector<std::vector<double> >* m_newTTC_back_eta;
+   std::vector<std::vector<double> >* m_newTTC_back_phi;
+   std::vector<std::vector<double> >* m_newTTC_back_r;
+   std::vector<std::vector<double> >* m_newTTC_back_z;
+   std::vector<double>* m_newTTC_IDCaloBoundary_eta;
+   std::vector<double>* m_newTTC_IDCaloBoundary_phi;
+   std::vector<double>* m_newTTC_IDCaloBoundary_r;
+   std::vector<double>* m_newTTC_IDCaloBoundary_z;
+   std::vector<double>* m_newTTC_Angle3D;
+   std::vector<double>* m_newTTC_AngleEta;
+   
    /** The new Extrapolator setup */
    ToolHandle<Trk::ITimedExtrapolator>   m_extrapolator;          
    ToolHandle<ICaloSurfaceHelper>   m_caloSurfaceHelper;

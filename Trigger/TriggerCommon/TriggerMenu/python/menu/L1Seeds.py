@@ -342,6 +342,15 @@ def getSpecificL1Seeds(l1seedname, l1itemobject):
     elif (l1seedname in ['L1_Muon', 'L1_Muon_EMPTY']):
         L1Seed = getL1MuonSeed(l1seedname, l1itemobject)
 
+    elif (l1seedname == 'L1_MU20MU21'):
+        L1Seed = 'L1_MU20,L1_MU21'
+
+    elif (l1seedname == 'L1_MU20MU21_FIRSTEMPTY'):
+        L1Seed = 'L1_MU20_FIRSTEMPTY,L1_MU21_FIRSTEMPTY'
+
+    elif (l1seedname == 'L1_MU20MU21_FTK'):
+        L1Seed = 'L1_MU20_FTK,L1_MU21_FTK'
+
     elif (l1seedname == 'L1_TAU'):
         L1Seed = getL1TauSeed(l1items)
 

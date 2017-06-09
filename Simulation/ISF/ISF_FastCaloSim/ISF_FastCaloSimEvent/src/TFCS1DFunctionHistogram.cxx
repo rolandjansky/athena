@@ -44,19 +44,19 @@ void TFCS1DFunctionHistogram::Initialize(TH1* hist, int verbose,double cut_maxde
 
 double* TFCS1DFunctionHistogram::histo_to_array(TH1* hist)
 {
- 
+
  TH1D* h_clone=(TH1D*)hist->Clone("h_clone");
  h_clone->Scale(1.0/h_clone->Integral());
- 
+
  double *histoVals=new double[h_clone->GetNbinsX()];
  histoVals[0]=h_clone->GetBinContent(1);
  for (int i=1; i<h_clone->GetNbinsX(); i++)
  {
   histoVals[i]=histoVals[i-1] + h_clone->GetBinContent(i+1);
  }
- 
+
  return histoVals;
- 
+
 }
 
 double TFCS1DFunctionHistogram::sample_from_histo(TH1* hist, double random)
@@ -75,7 +75,7 @@ double TFCS1DFunctionHistogram::sample_from_histo(TH1* hist, double random)
 }
 
 double TFCS1DFunctionHistogram::sample_from_histovalues(double random)
-{ 
+{
   double value=0.0;
 
   TH1* hist=vector_to_histo(); hist->SetName("hist");
@@ -96,6 +96,9 @@ TH1* TFCS1DFunctionHistogram::vector_to_histo()
   TH1* h_out=new TH1D("h_out","h_out",m_HistoBorders.size()-1,bins);
   for(int b=1;b<=h_out->GetNbinsX();b++)
     h_out->SetBinContent(b,m_HistoContents[b-1]);
+
+
+  delete bins;
 
   return h_out;
 
@@ -275,4 +278,3 @@ double TFCS1DFunctionHistogram::get_inverse(double rnd)
 
   return value;
 }
-

@@ -21,7 +21,7 @@
 
 //#define LARBSDBGOUTPUT
 #ifdef  LARBSDBGOUTPUT
-#define LARBSDBG(text) m_logstr<<MSG::DEBUG<<text<<endreq
+#define LARBSDBG(text) m_logstr<<MSG::DEBUG<<text<<endmsg
 #else
 #define LARBSDBG(text)
 #endif
@@ -44,19 +44,19 @@ m_logstr(Athena::getMessageSvc(), BlockType())
  ISvcLocator* svcLoc = Gaudi::svcLocator( );
  StatusCode sc =svcLoc->service( "DetectorStore", detStore );
  if (sc.isFailure()) {
-   m_logstr << MSG::ERROR << "Unable to locate DetectorStore" << endreq;
+   m_logstr << MSG::ERROR << "Unable to locate DetectorStore" << endmsg;
    exit(1);
  } else {
-   m_logstr << MSG::INFO << "Successfully located DetectorStore" << endreq;
+   m_logstr << MSG::INFO << "Successfully located DetectorStore" << endmsg;
  }     
  sc = detStore->retrieve(online_id, "LArOnlineID");
  if (sc.isFailure()) {
-   m_logstr << MSG::FATAL << "Could not get LArOnlineID helper !" << endreq;
+   m_logstr << MSG::FATAL << "Could not get LArOnlineID helper !" << endmsg;
    exit(1);
  } 
  else {
    m_onlineHelper=online_id;
-   m_logstr << MSG::DEBUG << " Found the LArOnlineID helper. " << endreq;
+   m_logstr << MSG::DEBUG << " Found the LArOnlineID helper. " << endmsg;
  }
 
  m_iHeadBlockSize=endtag/2; // The implicit cast rounds down to the right size 
@@ -151,7 +151,7 @@ void LArRodBlockPhysicsV0::setNextEnergy(const int channel, const int32_t energy
  //In the latter case, we fill up the missing  channels with zero
  if (rcNb<m_EIndex) {
    m_logstr << MSG::ERROR  << "LArRODBlockStructure ERROR: Internal error. Channels not ordered correctly. rcNb=" << rcNb
-	     << " m_EIndex=" << m_EIndex << endreq;;
+	     << " m_EIndex=" << m_EIndex << endmsg;;
    return;
  }
  //Fill up missing channels with zeros:
@@ -167,7 +167,7 @@ void LArRodBlockPhysicsV0::setNextEnergy(const int32_t energy, const int32_t tim
 {
  if (m_EIndex>=m_channelsPerFEB)        //Use m_EIndex to count total number of channels
   {m_logstr << MSG::ERROR  << "LArRodBlockStructure ERROR: Attempt to write Energy for channel " 
-	  << m_EIndex << " channels into a FEB!" <<endreq;;
+	  << m_EIndex << " channels into a FEB!" <<endmsg;;
    return;
   }
  LARBSDBG("LArRodBlockStructure: Setting Energy for channel " << m_EIndex << ". E=" << energy); 
@@ -218,14 +218,14 @@ void LArRodBlockPhysicsV0::setRawData(const int channel, const std::vector<short
  //int rcNb=(channel>>3) + ((channel&0x7)<<4);
  int rcNb=FebToRodChannel(channel);
  if (rcNb>=m_channelsPerFEB) 
-   {m_logstr << MSG::ERROR << "Attempt to write Energy for channel " << rcNb << " channels into a FEB!" << endreq;
+   {m_logstr << MSG::ERROR << "Attempt to write Energy for channel " << rcNb << " channels into a FEB!" << endmsg;
     return;
    } 
  unsigned int nsamples = LE_getVectorHeader16(NGainNSamples) & 0x00FF;
  if(samples.size() != nsamples) {
    m_logstr << MSG::ERROR << "Number of samples mismatch!\n";
    m_logstr << "  nsamples       =" << nsamples;
-   m_logstr << "  samples.size() =" << samples.size() << endreq;
+   m_logstr << "  samples.size() =" << samples.size() << endmsg;
    exit(0);
  }
  
@@ -261,7 +261,7 @@ void LArRodBlockPhysicsV0::initializeFragment(std::vector<uint32_t>& fragment)
       //std::cout << "FebID=" << currFEBid << " FEBSize=" << currFebSize << " Vector size=" << fragment.size() << std::endl;
       if (FebIter+currFebSize>fragment.end()) {
 	fragment.clear(); //Clear existing vector
-	m_logstr << MSG::ERROR  << "Got inconsistent ROD-Fragment!" << endreq; 
+	m_logstr << MSG::ERROR  << "Got inconsistent ROD-Fragment!" << endmsg; 
 	return;
       }
       m_mFebBlocks[currFEBid].assign(FebIter,FebIter+currFebSize); //Copy data from ROD-fragment into FEB-Block

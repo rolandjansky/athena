@@ -1,6 +1,7 @@
 
-from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-UAStore.addAction('SG_StepNtuple',['BeginOfEvent','EndOfEvent','Step'])
+from G4AtlasApps.SimFlags import simFlags
+simFlags.OptionalUserActionList.addAction('G4UA::SG_StepNtupleTool',['BeginOfRun','BeginOfEvent','EndOfEvent','Step'])
+
 
 theApp.HistogramPersistency = "ROOT"
 NTupleSvc = Service( "NTupleSvc" )

@@ -3,7 +3,6 @@
 */
 
 #include "LArRecUtils/LArOFPeakRecoTool.h"
-#include "GaudiKernel/MsgStream.h"
 #include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/Matrix/Vector.h"
 #include "GaudiKernel/SystemOfUnits.h"
@@ -47,31 +46,17 @@ StatusCode LArOFPeakRecoTool::initialize() {
 // call back for OFC 
   
 //  sc = m_detStore->regFcn(&LArOFPeakRecoTool::LoadCalibration,this,m_dd_ofc,m_keyOFC);
-  StatusCode sc = detStore()->regHandle(m_dd_ofc,m_keyOFC);
-  if (sc!=StatusCode::SUCCESS) {
-     msg() << MSG::ERROR << "Cannot get register callback for OFC" << endreq; 
-    return sc;
-  }
-  else {
-     msg() << MSG::INFO << " register callback for OFC " << endreq;
-  }
+  ATH_CHECK(  detStore()->regHandle(m_dd_ofc,m_keyOFC) );
+  ATH_MSG_INFO( " register callback for OFC "  );
+
   if (m_useShape) {
-    sc = detStore()->regHandle(m_dd_shape,m_keyShape);
-    if (sc!=StatusCode::SUCCESS) {
-      msg() << MSG::WARNING << "Cannot get register handle for LArShape" << endreq; 
-      return sc;
-    }
+    ATH_CHECK(  detStore()->regHandle(m_dd_shape,m_keyShape) );
   }
   else {
-    msg() << MSG::WARNING << "jobOption 'UseShape' set to false. Will work without shape" << endreq; 
+    ATH_MSG_WARNING( "jobOption 'UseShape' set to false. Will work without shape"  );
   }
 
-  sc = detStore()->retrieve(m_lar_on_id,"LArOnlineID");
-  if (sc.isFailure()) {
-    msg()  << MSG::ERROR << "Unable to retrieve  LArOnlineID from DetectorStore" 
-         << endreq;
-    return sc;
-  }
+  ATH_CHECK( detStore()->retrieve(m_lar_on_id,"LArOnlineID") );
 
   return StatusCode::SUCCESS;
 }
@@ -136,7 +121,7 @@ const LArOFPeakRecoTool::Result& LArOFPeakRecoTool::peak(
   const unsigned nSamples=samples.size();
   //if (samples.size()<5){ 
   //  msg() << MSG::WARNING << "Not enough ADC samples (" << nSamples << ") found for channel 0x"  
- //	     << std::hex << chID.get_compact() << std::dec << endreq;
+ //	     << std::hex << chID.get_compact() << std::dec << endmsg;
  //   return m_result;
  // }
 
@@ -164,7 +149,7 @@ const LArOFPeakRecoTool::Result& LArOFPeakRecoTool::peak(
     timeBinWidth=m_dd_ofc->timeBinWidth(chID,usedGain);
     timeMax =  (nOFCPhase-1)*timeBinWidth;
     if (timeBinWidth==0.) {
-      msg() << MSG::ERROR << "timeBinWidth is zero for channel " << m_lar_on_id->channel_name(chID) << endreq;
+      ATH_MSG_ERROR( "timeBinWidth is zero for channel " << m_lar_on_id->channel_name(chID)  );
       return m_result;
     }
     //Check if initial delay isn't too big
@@ -189,9 +174,9 @@ const LArOFPeakRecoTool::Result& LArOFPeakRecoTool::peak(
   }
 
   if ( this_OFC_a.size() != this_OFC_b.size() ) {
-    msg() << MSG::ERROR << "OFC a (" << this_OFC_a.size() << 
-      ")and b (" << this_OFC_b.size() << ") are not the same size for channel 0x" 
-	     << std::hex << chID.get_compact() << std::dec << endreq;
+    ATH_MSG_ERROR( "OFC a (" << this_OFC_a.size() << 
+                   ")and b (" << this_OFC_b.size() << ") are not the same size for channel 0x" 
+                   << std::hex << chID.get_compact() << std::dec  );
     return m_result;
   }
 
@@ -199,8 +184,8 @@ const LArOFPeakRecoTool::Result& LArOFPeakRecoTool::peak(
   if (peak_low<2) peak_low=2; //By convention we expect at least 2 samples before the peak
   if (peak_high>(nSamples+2-ofcSize)) peak_high=(nSamples+2-ofcSize);
   if (peak_high<peak_low) {
-    msg() << MSG::WARNING << "Channel 0x"  << std::hex << chID.get_compact() << std::dec 
-	     << "Not enough ADC samples (" << nSamples << ") to apply " << ofcSize << " OFCs." << endreq;
+    ATH_MSG_WARNING( "Channel 0x"  << std::hex << chID.get_compact() << std::dec 
+                     << "Not enough ADC samples (" << nSamples << ") to apply " << ofcSize << " OFCs."  );
     return m_result;
   }
   if(kMax<peak_low)  kMax=peak_low; 
@@ -231,15 +216,15 @@ const LArOFPeakRecoTool::Result& LArOFPeakRecoTool::peak(
     // Uncomment the following if you suspect that the ofc are corrupt for some phases:
     /*  
     if ( this_OFC_a.size() == 0 || this_OFC_b.size() == 0 ) {
-      msg() << MSG::DEBUG << "OFC not found for channel 0x"  << std::hex << chID.get_compact() << std::dec << endreq;
+      ATH_MSG_DEBUG( "OFC not found for channel 0x"  << std::hex << chID.get_compact() << std::dec  );
       std::cout << "OFC not found for channel 0x"  << std::hex << chID.get_compact() << std::dec << std::endl;
       return m_result;
     }
 
     if ( this_OFC_a.size() != this_OFC_b.size() ) {
-      msg() << MSG::ERROR << "OFC a (" << this_OFC_a.size() << 
+      ATH_MSG_ERROR( "OFC a (" << this_OFC_a.size() << 
 	")and b (" << this_OFC_b.size() << ") are not the same size for channel 0x" 
-	  << std::hex << chID.get_compact() << std::dec << endreq;
+	  << std::hex << chID.get_compact() << std::dec  );
       return m_result;
     }
     */

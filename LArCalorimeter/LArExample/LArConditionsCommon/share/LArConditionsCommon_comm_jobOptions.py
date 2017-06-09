@@ -7,6 +7,9 @@
 
 include.block ( "LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py" )
 
+if not "SuperCells" in dir():
+   SuperCells=False
+
 from RecExConfig.RecFlags import rec
 from LArConditionsCommon.LArCondFlags import larCondFlags 
 
@@ -90,6 +93,7 @@ if larCondFlags.LoadElecCalib():
 
 
   if (haveElecCalibInline):
+   if not SuperCells: 
       # Run 2 case:
       #1. uA2MeV
       if larCondFlags.ua2MeVFolder()=="":
@@ -145,9 +149,12 @@ if larCondFlags.LoadElecCalib():
               pass
           pass
       pass
+   else:
+      print "In SuperCell case... so far will not initialise folders."   
 
   else: #Run 1 case, no COOL-inline electronic calibration
 
+   if not SuperCells: 
       #For run 1 we read some electronic calibration constants from the offline DB:
       if not larCondFlags.ua2MeVFolder.is_locked():
           larCondFlags.ua2MeVFolder="uA2MeV/Symmetry"
@@ -206,4 +213,6 @@ if larCondFlags.LoadElecCalib():
               pass
           pass
       pass
+   else:
+      print "In SuperCell case... so far will not initialise folders."   
   pass

@@ -62,6 +62,8 @@ StatusCode PixelMainMon::BookTrackMon(void)
   std::string hname;
   std::string htitles;
   
+  StatusCode sc;
+
   int nbins_LB = m_lbRange;     double min_LB  = -0.5;   double max_LB = min_LB + (1.0*nbins_LB);        
   
   ///

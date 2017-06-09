@@ -19,6 +19,7 @@
 #include "GaudiKernel/Message.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/IIncidentSvc.h"
+#include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/ILoggedMessageSvc.h"
 
 #include <boost/thread/recursive_mutex.hpp>
@@ -36,7 +37,7 @@ class ISvcLocator;
 //
 // Author:      Charles Leggett
 //
-class LoggedMessageSvc : public extends2<Service, ILoggedMessageSvc, IInactiveMessageCounter> {
+class LoggedMessageSvc : public extends2<AthService, ILoggedMessageSvc, IInactiveMessageCounter> {
 public:
   typedef std::pair< std::string, std::ostream* > NamedStream;
   typedef std::multimap< int, NamedStream > StreamMap;

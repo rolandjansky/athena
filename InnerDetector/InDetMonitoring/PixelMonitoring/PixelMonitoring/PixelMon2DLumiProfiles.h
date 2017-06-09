@@ -33,7 +33,6 @@ class PixelMon2DLumiProfiles
       void Fill(double LB, Identifier &id, const PixelID* pixID,double weight=1,bool doIBL=false,bool errorHist=false);
       StatusCode regHist(ManagedMonitorToolBase::MonGroup &group,bool doIBL=false,bool errorHist=false);
 private:
-      StatusCode sc;
       void formatHist(bool doIBL,bool errorHist);
       
 };

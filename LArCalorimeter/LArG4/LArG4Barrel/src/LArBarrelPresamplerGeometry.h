@@ -11,7 +11,6 @@
 #include "AthenaBaseComps/AthService.h"
 
 #include "LArG4Code/LArG4Identifier.h"
-#include "LArG4Code/LArVG4DetectorParameters.h"
 
 #include "globals.hh"
 
@@ -76,8 +75,6 @@ namespace LArG4 {
       // total LAr thickness
       G4double m_halfThickLAr;
 
-      // Pointer to detector parameters routine.
-      LArVG4DetectorParameters* m_parameters;
 
     } ;
 

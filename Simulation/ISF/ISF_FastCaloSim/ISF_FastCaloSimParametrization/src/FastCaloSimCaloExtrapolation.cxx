@@ -1,12 +1,11 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
- */
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 
 #include "FastCaloSimCaloExtrapolation.h"
 
 #include "ISF_FastCaloSimEvent/TFCSTruthState.h"
 
-#include "ISF_FastCaloSimParametrization/IFastCaloSimGeometryHelper.h"
 
 #include "TrkParameters/TrackParameters.h"
 #include "TrkGeometry/TrackingGeometry.h"
@@ -20,22 +19,25 @@
 #include "GaudiKernel/ListItem.h"
 
 FastCaloSimCaloExtrapolation::FastCaloSimCaloExtrapolation(const std::string& t, const std::string& n, const IInterface* p) :
-AthAlgTool(t,n,p),
-m_CaloBoundaryR(1148.0),
-m_CaloBoundaryZ(3549.5),
-m_calomargin(100),
-m_caloEntrance(0),
-m_caloEntranceName("")
+  AthAlgTool(t,n,p),
+  m_CaloBoundaryR(1148.0),
+  m_CaloBoundaryZ(3549.5),
+  m_calomargin(100),
+  m_extrapolator("TimedExtrapolator"),
+  m_caloSurfaceHelper("CaloSurfaceHelper"),
+  m_caloEntrance(nullptr),
+  m_caloEntranceName(""),
+  m_CaloGeometryHelper("FastCaloSimGeometryHelper")
 {
   declareInterface<IFastCaloSimCaloExtrapolation>(this);
-  
+
   m_surfacelist.resize(0);
   m_surfacelist.push_back(CaloCell_ID_FCS::PreSamplerB);
   m_surfacelist.push_back(CaloCell_ID_FCS::PreSamplerE);
   m_surfacelist.push_back(CaloCell_ID_FCS::EME1);
   m_surfacelist.push_back(CaloCell_ID_FCS::EME2);
   m_surfacelist.push_back(CaloCell_ID_FCS::FCAL0);
-  
+
   declareProperty("CaloBoundaryR",                  m_CaloBoundaryR);
   declareProperty("CaloBoundaryZ",                  m_CaloBoundaryZ);
   declareProperty("CaloMargin",                     m_calomargin);
@@ -52,48 +54,43 @@ FastCaloSimCaloExtrapolation::~FastCaloSimCaloExtrapolation()
 
 StatusCode FastCaloSimCaloExtrapolation::initialize() {
   ATH_MSG_INFO( "Initializing FastCaloSimCaloExtrapolation" );
-  
+
   // Get CaloGeometryHelper
-  if (m_CaloGeometryHelper.retrieve().isFailure()) {
-    ATH_MSG_ERROR("CaloGeometryHelper not found ");
-    return StatusCode::FAILURE;
-  }
-  
+  ATH_CHECK(m_CaloGeometryHelper.retrieve());
+
   // Get PDG table
-  IPartPropSvc* p_PartPropSvc=0;
-  if (service("PartPropSvc",p_PartPropSvc).isFailure() || p_PartPropSvc == 0)
-  {
-    ATH_MSG_ERROR("could not find PartPropService");
-    return StatusCode::FAILURE;
-  }
-  
+  IPartPropSvc* p_PartPropSvc=nullptr;
+
+  ATH_CHECK(service("PartPropSvc",p_PartPropSvc));
+  if(!p_PartPropSvc)
+    {
+      ATH_MSG_ERROR("could not find PartPropService");
+      return StatusCode::FAILURE;
+    }
+
   m_particleDataTable = (HepPDT::ParticleDataTable*) p_PartPropSvc->PDT();
-  if(m_particleDataTable == 0)
-  {
-	   ATH_MSG_ERROR("PDG table not found");
-    return StatusCode::FAILURE;
-  }
+  if(!m_particleDataTable)
+    {
+      ATH_MSG_ERROR("PDG table not found");
+      return StatusCode::FAILURE;
+    }
   //#########################
-  
+
   // Get TimedExtrapolator
-  if (!m_extrapolator.empty() && m_extrapolator.retrieve().isFailure()) {
-	   ATH_MSG_ERROR("Extrapolator retrieval failed");
-    return StatusCode::FAILURE;
-  } else ATH_MSG_DEBUG("Extrapolator retrieved "<< m_extrapolator);
-  
-  // Get CaloSurfaceHelper
-  if (m_caloSurfaceHelper.retrieve().isFailure()) {
-    ATH_MSG_ERROR("CaloSurfaceHelper not found ");
-    return StatusCode::FAILURE;
+  if (!m_extrapolator.empty()) {
+    ATH_CHECK(m_extrapolator.retrieve());
+    ATH_MSG_INFO("Extrapolator retrieved "<< m_extrapolator);
   }
-  
+  // Get CaloSurfaceHelper
+  ATH_CHECK(m_caloSurfaceHelper.retrieve());
+
   return StatusCode::SUCCESS;
 }
 
 StatusCode FastCaloSimCaloExtrapolation::finalize()
 {
   ATH_MSG_INFO( "Finalizing FastCaloSimCaloExtrapolation" );
-  
+
   return StatusCode::SUCCESS;
 }
 
@@ -104,7 +101,7 @@ void FastCaloSimCaloExtrapolation::extrapolate(TFCSExtrapolationState& result,co
   ATH_MSG_INFO("Start FastCaloSimCaloExtrapolation::extrapolate");
   std::vector<Trk::HitInfo>* hitVector = caloHits(truth);
   ATH_MSG_INFO("Done FastCaloSimCaloExtrapolation::extrapolate: caloHits");
-  
+
   //////////////////////////////////////
   // Start calo extrapolation
   // First: get entry point into first calo sample
@@ -116,7 +113,7 @@ void FastCaloSimCaloExtrapolation::extrapolate(TFCSExtrapolationState& result,co
   ATH_MSG_INFO("FastCaloSimCaloExtrapolation::extrapolate:*** Do extrapolation ***");
   extrapolate(result,truth,hitVector);
   ATH_MSG_INFO("FastCaloSimCaloExtrapolation::extrapolate: Truth extrapolation done");
-  
+
   for(std::vector<Trk::HitInfo>::iterator it = hitVector->begin();it < hitVector->end();++it)  {
     if((*it).trackParms) {
       delete (*it).trackParms;
@@ -131,30 +128,30 @@ std::vector<Trk::HitInfo>* FastCaloSimCaloExtrapolation::caloHits(const TFCSTrut
 {
   // Start calo extrapolation
   ATH_MSG_INFO ("[ fastCaloSim transport ] processing particle "<<truth->pdgid() );
-  
+
   std::vector<Trk::HitInfo>* hitVector =  new std::vector<Trk::HitInfo>;
-  
+
   int     pdgId    = truth->pdgid();
   double  charge   = HepPDT::ParticleID(pdgId).charge();
-  
+
   // particle Hypothesis for the extrapolation
-  
+
   Trk::ParticleHypothesis pHypothesis = m_pdgToParticleHypothesis.convert(pdgId,charge);
-  
+
   ATH_MSG_INFO ("particle hypothesis "<< pHypothesis );
-  
+
   // geantinos not handled by PdgToParticleHypothesis - fix there
   if ( pdgId == 999 ) pHypothesis = Trk::geantino;
-  
+
   Amg::Vector3D pos = Amg::Vector3D( truth->vertex().X(), truth->vertex().Y(), truth->vertex().Z());
-  
+
   Amg::Vector3D mom(truth->X(),truth->Y(),truth->Z());
-  
+
   ATH_MSG_INFO( "[ fastCaloSim transport ] starting transport from position eta="<<pos.eta()<<" phi="<<pos.phi()<<" d="<<pos.mag()<<" pT="<<mom.perp() );
-  
+
   // input parameters : curvilinear parameters
   Trk::CurvilinearParameters inputPar(pos,mom,charge);
-  
+
   // stable vs. unstable check : ADAPT for FASTCALOSIM
   //double freepath = ( !m_particleDecayHelper.empty()) ? m_particleDecayHelper->freePath(isp) : - 1.;
   double freepath = -1.;
@@ -162,21 +159,21 @@ std::vector<Trk::HitInfo>* FastCaloSimCaloExtrapolation::caloHits(const TFCSTrut
   // path limit -> time limit  ( TODO : extract life-time directly from decay helper )
   double tDec = freepath > 0. ? freepath : -1.;
   int decayProc = 0;
-  
+
   /* uncomment if unstable particles used by FastCaloSim
-   // beta calculated here for further use in validation
-   double mass = m_particleMasses.mass[pHypothesis];
-   double mom = isp.momentum().mag();
-   double beta = mom/sqrt(mom*mom+mass*mass);
-   
-   if ( tDec>0.) {
-   tDec = tDec/beta/CLHEP::c_light + isp.timeStamp();
-   decayProc = 201;
-   }
-   */
-  
+  // beta calculated here for further use in validation
+  double mass = m_particleMasses.mass[pHypothesis];
+  double mom = isp.momentum().mag();
+  double beta = mom/sqrt(mom*mom+mass*mass);
+
+  if ( tDec>0.) {
+  tDec = tDec/beta/CLHEP::c_light + isp.timeStamp();
+  decayProc = 201;
+  }
+  */
+
   Trk::TimeLimit timeLim(tDec,0.,decayProc);        // TODO: set vertex time info
-  
+
   // prompt decay ( uncomment if unstable particles used )
   //if ( freepath>0. && freepath<0.01 ) {
   //  if (!m_particleDecayHelper.empty()) {
@@ -185,72 +182,80 @@ std::vector<Trk::HitInfo>* FastCaloSimCaloExtrapolation::caloHits(const TFCSTrut
   //  }
   //  return 0;
   //}
-  
+
   // presample interactions - ADAPT FOR FASTCALOSIM
   Trk::PathLimit pathLim(-1.,0);
   //if (absPdg!=999 && pHypothesis<99) pathLim = m_samplingTool->sampleProcess(mom,isp.charge(),pHypothesis);
-  
+
   Trk::GeometrySignature nextGeoID=Trk::Calo;
-  
+
   // first extrapolation to reach the ID boundary
-  
+
   ATH_MSG_INFO( "[ fastCaloSim transport ] before calo entrance ");
-  
+
   // get CaloEntrance if not done already
-  if (!m_caloEntrance) {
-    m_caloEntrance = m_extrapolator->trackingGeometry()->trackingVolume(m_caloEntranceName);
-    if (!m_caloEntrance)  ATH_MSG_INFO("CaloEntrance not found ");
-    else ATH_MSG_INFO("CaloEntrance found ");
-  }
-  
+  if (!m_caloEntrance)
+    {
+      std::cout<<"check1"<<std::endl;
+      std::cout<<"m_extrapolator "<<m_extrapolator<<std::endl;
+      std::cout<<"trackingGeometry() "<<m_extrapolator->trackingGeometry()<<std::endl;
+      std::cout<<"trackingVolume(m_caloEntranceName) "<<m_extrapolator->trackingGeometry()->trackingVolume(m_caloEntranceName)<<std::endl;
+
+      m_caloEntrance = m_extrapolator->trackingGeometry()->trackingVolume(m_caloEntranceName);
+
+      if (!m_caloEntrance)
+        ATH_MSG_INFO("CaloEntrance not found ");
+      else ATH_MSG_INFO("CaloEntrance found ");
+    }
+
   ATH_MSG_INFO( "[ fastCaloSim transport ] after calo entrance ");
-  
+
   const Trk::TrackParameters* caloEntry = 0;
-  
+
   if (m_caloEntrance && m_caloEntrance->inside(pos,0.001) &&
       !m_extrapolator->trackingGeometry()->atVolumeBoundary(pos,m_caloEntrance,0.001)) {
-    
+
     std::vector<Trk::HitInfo>*     dummyHitVector = 0;
     if ( charge==0 ) {
-      
+
       caloEntry = m_extrapolator->transportNeutralsWithPathLimit(inputPar,pathLim,timeLim,
                                                                  Trk::alongMomentum,pHypothesis,dummyHitVector,nextGeoID,m_caloEntrance);
-      
+
     } else {
-      
+
       caloEntry = m_extrapolator->extrapolateWithPathLimit(inputPar,pathLim,timeLim,
                                                            Trk::alongMomentum,pHypothesis,dummyHitVector,nextGeoID,m_caloEntrance);
     }
   } else caloEntry=&inputPar;
-  
+
   ATH_MSG_INFO( "[ fastCaloSim transport ] after calo caloEntry ");
-  
+
   if ( caloEntry ) {
-    
+
     const Trk::TrackParameters* eParameters = 0;
-    
+
     // save Calo entry hit (fallback info)
     hitVector->push_back(Trk::HitInfo(caloEntry->clone(),timeLim.time,nextGeoID,0.));
-    
+
     ATH_MSG_DEBUG( "[ fastCaloSim transport ] starting Calo transport from position eta="<<caloEntry->position().eta()<<" phi="<<caloEntry->position().phi()<<" d="<<caloEntry->position().mag() );
-    
+
     if ( charge==0 ) {
-      
+
       eParameters = m_extrapolator->transportNeutralsWithPathLimit(*caloEntry,pathLim,timeLim,
                                                                    Trk::alongMomentum,pHypothesis,hitVector,nextGeoID);
     } else {
-      
+
       eParameters = m_extrapolator->extrapolateWithPathLimit(*caloEntry,pathLim,timeLim,
                                                              Trk::alongMomentum,pHypothesis,hitVector,nextGeoID);
     }
-    
+
     // save Calo exit hit (fallback info)
     if (eParameters) hitVector->push_back(Trk::HitInfo(eParameters,timeLim.time,nextGeoID,0.));
-    
+
     //delete eParameters;   // HitInfo took ownership
-    
+
   }
-  
+
   if(msgLvl(MSG::DEBUG)) {
     std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
     while (it < hitVector->end() )  {
@@ -260,7 +265,7 @@ std::vector<Trk::HitInfo>* FastCaloSimCaloExtrapolation::caloHits(const TFCSTrut
       it++;
     }
   }
-  
+
   return hitVector;
 }
 
@@ -268,17 +273,17 @@ std::vector<Trk::HitInfo>* FastCaloSimCaloExtrapolation::caloHits(const TFCSTrut
 void FastCaloSimCaloExtrapolation::extrapolate(TFCSExtrapolationState& result,const TFCSTruthState* truth,std::vector<Trk::HitInfo>* hitVector)
 {
   ATH_MSG_DEBUG("Start extrapolate()");
-  
+
   double ptruth_eta=truth->Eta();
   double ptruth_phi=truth->Phi();
   double ptruth_pt =truth->Pt();
   double ptruth_p  =truth->P();
   int    pdgid     =truth->pdgid();
-  
+
   //////////////////////////////////////
   // Start calo extrapolation
   //////////////////////////////////////
-  
+
   std::vector< std::vector<double> > eta_safe(3);
   std::vector< std::vector<double> > phi_safe(3);
   std::vector< std::vector<double> > r_safe(3);
@@ -289,31 +294,31 @@ void FastCaloSimCaloExtrapolation::extrapolate(TFCSExtrapolationState& result,co
     r_safe[subpos].resize(CaloCell_ID_FCS::MaxSample,-999.0);
     z_safe[subpos].resize(CaloCell_ID_FCS::MaxSample,-999.0);
   }
-  
+
   // only continue if inside the calo
   if( fabs(result.CaloSurface_eta())<6 )
-  {
-    // now try to extrpolate to all calo layers, that contain energy
-    ATH_MSG_DEBUG("Calo position for particle id "<<pdgid<<", trutheta= " << ptruth_eta <<", truthphi= "<<ptruth_phi<<", truthp="<<ptruth_p<<", truthpt="<<ptruth_pt);
-    for(int sample=CaloCell_ID_FCS::FirstSample;sample<CaloCell_ID_FCS::MaxSample;++sample) {
-      for(int subpos=SUBPOS_MID;subpos<=SUBPOS_EXT;++subpos) {
-        if(get_calo_etaphi(result,hitVector,sample,subpos)) {
-          ATH_MSG_DEBUG( "Result in sample "<<sample<<"."<<subpos<<": eta="<<result.eta(sample,subpos)<<" phi="<<result.phi(sample,subpos)<<" r="<<result.r(sample,subpos)<<" z="<<result.z(sample,subpos)<<" (ok="<<result.OK(sample,subpos)<<")");
-        }
-        else {
-          ATH_MSG_DEBUG( "Extrapolation to sample "<<sample<<" failed (ok="<<result.OK(sample,subpos)<<")");
+    {
+      // now try to extrpolate to all calo layers, that contain energy
+      ATH_MSG_DEBUG("Calo position for particle id "<<pdgid<<", trutheta= " << ptruth_eta <<", truthphi= "<<ptruth_phi<<", truthp="<<ptruth_p<<", truthpt="<<ptruth_pt);
+      for(int sample=CaloCell_ID_FCS::FirstSample;sample<CaloCell_ID_FCS::MaxSample;++sample) {
+        for(int subpos=SUBPOS_MID;subpos<=SUBPOS_EXT;++subpos) {
+          if(get_calo_etaphi(result,hitVector,sample,subpos)) {
+            ATH_MSG_DEBUG( "Result in sample "<<sample<<"."<<subpos<<": eta="<<result.eta(sample,subpos)<<" phi="<<result.phi(sample,subpos)<<" r="<<result.r(sample,subpos)<<" z="<<result.z(sample,subpos)<<" (ok="<<result.OK(sample,subpos)<<")");
+          }
+          else {
+            ATH_MSG_DEBUG( "Extrapolation to sample "<<sample<<" failed (ok="<<result.OK(sample,subpos)<<")");
+          }
         }
       }
-    }
-  } //inside calo
-  
+    } //inside calo
+
   ATH_MSG_DEBUG("End extrapolate()");
 }
 
 void FastCaloSimCaloExtrapolation::extrapolate_to_ID(TFCSExtrapolationState& result,const TFCSTruthState* /*truth*/,std::vector<Trk::HitInfo>* hitVector)
 {
   ATH_MSG_DEBUG("Start extrapolate_to_ID()");
-  
+
   Amg::Vector3D hitpos(0,0,0);
   Amg::Vector3D hitmom(0,0,0);
   if(rz_cylinder_get_calo_etaphi(hitVector,m_CaloBoundaryR,m_CaloBoundaryZ,hitpos,hitmom)) {
@@ -329,9 +334,9 @@ void FastCaloSimCaloExtrapolation::extrapolate_to_ID(TFCSExtrapolationState& res
     result.set_IDCaloBoundary_r(0);
     result.set_IDCaloBoundary_z(0);
   }
-  
+
   TVector3 vec(hitpos[Amg::x],hitpos[Amg::y],hitpos[Amg::z]);
-  
+
   //get the tangentvector on this interaction point:
   //GlobalMomentum* mom=params_on_surface_ID->TrackParameters::momentum().unit() ;
   //Trk::GlobalMomentum* trackmom=params_on_surface_ID->Trk::TrackParameters::momentum();
@@ -340,10 +345,10 @@ void FastCaloSimCaloExtrapolation::extrapolate_to_ID(TFCSExtrapolationState& res
     TVector3 Trackmom(hitmom[Amg::x],hitmom[Amg::y],hitmom[Amg::z]);
     double angle3D=Trackmom.Angle(vec); //isn't this the same as TVector3 vec?
     ATH_MSG_DEBUG("    3D ANGLE "<<angle3D);
-    
+
     double angleEta=vec.Theta()-Trackmom.Theta();
     ATH_MSG_DEBUG("    ANGLE dTHEA"<<angleEta);
-    
+
     result.set_IDCaloBoundary_AngleEta(angleEta);
     result.set_IDCaloBoundary_Angle3D(angle3D);
   } else {
@@ -362,23 +367,23 @@ bool FastCaloSimCaloExtrapolation::get_calo_surface(TFCSExtrapolationState& resu
   result.set_CaloSurface_r(0);
   result.set_CaloSurface_z(0);
   double min_calo_surf_dist=1000;
-  
+
   for(unsigned int i=0;i<m_surfacelist.size();++i) {
     int sample=m_surfacelist[i];
     std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
     while (it != hitVector->end() && it->detID != (3000+sample) )  { it++;}
     if(it==hitVector->end()) continue;
     Amg::Vector3D hitPos = (*it).trackParms->position();
-    
+
     //double offset = 0.;
     double etaCalo = hitPos.eta();
-    
+
     msg(MSG::DEBUG)<<"test: entrance to calo surface : sample="<<sample<<" eta="<<etaCalo;
-    
+
     if (fabs(etaCalo)<900) {
       double phiCalo = hitPos.phi();
       double distsamp =deta(sample,etaCalo);
-      
+
       msg(MSG::DEBUG)<<" phi="<<phiCalo<<" dist="<<distsamp;
       if(distsamp<min_calo_surf_dist && min_calo_surf_dist>=0) {
         //hitVector is ordered in r, so if first surface was hit, keep it
@@ -401,7 +406,7 @@ bool FastCaloSimCaloExtrapolation::get_calo_surface(TFCSExtrapolationState& resu
       msg(MSG::DEBUG)<<": eta > 900, not using this"<<endreq;
     }
   }
-  
+
   if(result.CaloSurface_sample()==CaloCell_ID_FCS::noSample) {
     // first intersection with sensitive calo layer
     std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
@@ -410,12 +415,12 @@ bool FastCaloSimCaloExtrapolation::get_calo_surface(TFCSExtrapolationState& resu
       return false;
     }
     Amg::Vector3D surface_hitPos = (*it).trackParms->position();
-    
+
     result.set_CaloSurface_eta(surface_hitPos.eta());
     result.set_CaloSurface_phi(surface_hitPos.phi());
     result.set_CaloSurface_r(surface_hitPos.perp());
     result.set_CaloSurface_z(surface_hitPos[Amg::z]);
-    
+
     double pT=(*it).trackParms->momentum().perp();
     if(TMath::Abs(result.CaloSurface_eta())>4.9 || pT<500 || (TMath::Abs(result.CaloSurface_eta())>4 && pT<1000) ) {
       ATH_MSG_DEBUG("only entrance to calo entrance layer found, no surface : eta="<<result.CaloSurface_eta()<<" phi="<<result.CaloSurface_phi()<<" r="<<result.CaloSurface_r()<<" z="<<result.CaloSurface_z()<<" pT="<<pT);
@@ -425,7 +430,7 @@ bool FastCaloSimCaloExtrapolation::get_calo_surface(TFCSExtrapolationState& resu
   } else {
     ATH_MSG_DEBUG("entrance to calo surface : sample="<<result.CaloSurface_sample()<<" eta="<<result.CaloSurface_eta()<<" phi="<<result.CaloSurface_phi()<<" r="<<result.CaloSurface_r()<<" z="<<result.CaloSurface_z()<<" deta="<<min_calo_surf_dist);
   }
-  
+
   ATH_MSG_DEBUG("End get_calo_surface()");
   return true;
 }
@@ -443,18 +448,18 @@ bool FastCaloSimCaloExtrapolation::get_calo_etaphi(TFCSExtrapolationState& resul
   double hitdist=0;
   bool best_found=false;
   double best_target=0;
-  
+
   std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
   while ( it!= hitVector->end() && it->detID != (3000+sample) ) { it++;}
   //while ((*it).detID != (3000+sample) && it < hitVector->end() )  it++;
-  
+
   if (it!=hitVector->end()) {
     Amg::Vector3D hitPos1 = (*it).trackParms->position();
     int sid1=(*it).detID;
     int sid2=-1;
     Amg::Vector3D hitPos;
     Amg::Vector3D hitPos2;
-    
+
     std::vector<Trk::HitInfo>::iterator itnext = it;
     ++itnext;
     if(itnext!=hitVector->end()) {
@@ -463,28 +468,28 @@ bool FastCaloSimCaloExtrapolation::get_calo_etaphi(TFCSExtrapolationState& resul
       double eta_avg=0.5*(hitPos1.eta()+hitPos2.eta());
       double t;
       if(isCaloBarrel(sample))
-      {
-        double r=rpos(sample,eta_avg,subpos);
-        double r1=hitPos1.perp();
-        double r2=hitPos2.perp();
-        t=(r-r1)/(r2-r1);
-        best_target=r;
-      }
+        {
+          double r=rpos(sample,eta_avg,subpos);
+          double r1=hitPos1.perp();
+          double r2=hitPos2.perp();
+          t=(r-r1)/(r2-r1);
+          best_target=r;
+        }
       else
-      {
-        double z=zpos(sample,eta_avg,subpos);
-        double z1=hitPos1[Amg::z];
-        double z2=hitPos2[Amg::z];
-        t=(z-z1)/(z2-z1);
-        best_target=z;
-      }
+        {
+          double z=zpos(sample,eta_avg,subpos);
+          double z1=hitPos1[Amg::z];
+          double z2=hitPos2[Amg::z];
+          t=(z-z1)/(z2-z1);
+          best_target=z;
+        }
       hitPos=t*hitPos2+(1-t)*hitPos1;
     }
     else
-    {
-      hitPos=hitPos1;
-      hitPos2=hitPos1;
-    }
+      {
+        hitPos=hitPos1;
+        hitPos2=hitPos1;
+      }
     double etaCalo = hitPos.eta();
     double phiCalo = hitPos.phi();
     result.set_OK(sample,subpos,true);
@@ -568,7 +573,7 @@ bool FastCaloSimCaloExtrapolation::get_calo_etaphi(TFCSExtrapolationState& resul
         result.set_phi(sample,subpos,best_hitPos.phi());
         result.set_r(sample,subpos,best_hitPos.perp());
         result.set_z(sample,subpos,best_hitPos[Amg::z]);
-        
+
         hitdist=best_hitPos.mag();
         lrzpos=rzpos(sample,etaCalo,subpos);
         distsamp=deta(sample,etaCalo);
@@ -581,20 +586,20 @@ bool FastCaloSimCaloExtrapolation::get_calo_etaphi(TFCSExtrapolationState& resul
                     );
     }
   }
-  
+
   if(isCaloBarrel(sample)) lrzpos*=cosh(result.eta(sample,subpos));
   else                    lrzpos= fabs(lrzpos/tanh(result.eta(sample,subpos)));
-  
+
   result.set_d(sample,subpos,lrzpos);
   result.set_detaBorder(sample,subpos,distsamp);
-  
+
   if(msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG)<<"  Final par TTC sample "<<sample<<" subpos="<<subpos;
     if(result.OK(sample,subpos)) msg()<<" (good)";
     else msg()<<" (bad)";
     msg()<<" eta=" << result.eta(sample,subpos) << "   phi=" << result.phi(sample,subpos) <<" dCalo="<<result.d(sample,subpos)<<" dist(hit)="<<hitdist<< endreq;
   }
-  
+
   return result.OK(sample,subpos);
 }
 
@@ -605,7 +610,7 @@ bool FastCaloSimCaloExtrapolation::rz_cylinder_get_calo_etaphi(std::vector<Trk::
   double best_dist=10000;
   bool best_inside=false;
   int best_id1,best_id2;
-  
+
   std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
   Amg::Vector3D best_hitPos=(*it).trackParms->position();
   for(int rz=0;rz<=1;++rz) {
@@ -618,7 +623,7 @@ bool FastCaloSimCaloExtrapolation::rz_cylinder_get_calo_etaphi(std::vector<Trk::
       Amg::Vector3D hitPos2 = (*it).trackParms->position();
       Amg::Vector3D hitMom2 = (*it).trackParms->momentum();
       int sid2=(*it).detID;
-      
+
       double t;
       if(rz==1) {
         double r=cylR;
@@ -632,11 +637,11 @@ bool FastCaloSimCaloExtrapolation::rz_cylinder_get_calo_etaphi(std::vector<Trk::
         t=(z-z1)/(z2-z1);
       }
       Amg::Vector3D hitPos=t*hitPos2+(1-t)*hitPos1;
-      
+
       double dist=hitPos.mag();
       bool inside=false;
       if(t>=-0.001 && t<=1.001) inside=true;
-      
+
       if(!best_found || inside) {
         if(!best_inside || dist<best_dist) {
           best_dist=dist;
@@ -666,7 +671,7 @@ bool FastCaloSimCaloExtrapolation::rz_cylinder_get_calo_etaphi(std::vector<Trk::
                     );
     }
   }
-  
+
   if(best_found) {
     ATH_MSG_DEBUG(" extrapol to r="<<cylR<<" z="<<cylZ<<": id="<<best_id1<<" -> "<<best_id2<<" dist="<<best_dist<<
                   " best_inside="<<best_inside<<
@@ -674,7 +679,7 @@ bool FastCaloSimCaloExtrapolation::rz_cylinder_get_calo_etaphi(std::vector<Trk::
                   );
   }
   pos=best_hitPos;
-  
+
   return best_found;
 }
 
@@ -753,5 +758,3 @@ double FastCaloSimCaloExtrapolation::rzpos(int sample,double eta,int subpos) con
 {
   return GetCaloGeometry()->rzpos(sample,eta,subpos);
 }
-
-

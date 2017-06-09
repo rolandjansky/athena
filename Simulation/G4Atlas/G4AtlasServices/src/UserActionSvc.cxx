@@ -59,35 +59,35 @@ namespace G4UA
     ATH_MSG_INFO("Initializing. user action tools of each type, in order of execution:");
 
     ATH_MSG_INFO("  begin-run:     " << m_beginRunActionTools.size());
-    for(auto action : m_beginRunActionTools)
+    for(auto& action : m_beginRunActionTools)
       ATH_MSG_INFO("      -> " << action.name());
 
     ATH_MSG_INFO("  end-run:       " << m_endRunActionTools.size());
-    for(auto action : m_endRunActionTools)
+    for(auto& action : m_endRunActionTools)
       ATH_MSG_INFO("      -> " << action.name());
 
     ATH_MSG_INFO("  begin-event:   " << m_beginEventActionTools.size());
-    for(auto action : m_beginEventActionTools)
+    for(auto& action : m_beginEventActionTools)
       ATH_MSG_INFO("      -> " << action.name());
 
     ATH_MSG_INFO("  end-event:     " << m_endEventActionTools.size());
-    for(auto action : m_endEventActionTools)
+    for(auto& action : m_endEventActionTools)
       ATH_MSG_INFO("      -> " << action.name());
 
     ATH_MSG_INFO("  stacking:      " << m_stackingActionTools.size());
-    for(auto action : m_stackingActionTools)
+    for(auto& action : m_stackingActionTools)
       ATH_MSG_INFO("      -> " << action.name());
 
     ATH_MSG_INFO("  pre-tracking:  " << m_preTrackingActionTools.size());
-    for(auto action : m_preTrackingActionTools)
+    for(auto& action : m_preTrackingActionTools)
       ATH_MSG_INFO("      -> " << action.name());
 
     ATH_MSG_INFO("  post-tracking: " << m_postTrackingActionTools.size());
-    for(auto action : m_postTrackingActionTools)
+    for(auto& action : m_postTrackingActionTools)
       ATH_MSG_INFO("      -> " << action.name());
 
     ATH_MSG_INFO("  stepping:      " << m_steppingActionTools.size());
-    for(auto action : m_steppingActionTools)
+    for(auto& action : m_steppingActionTools)
       ATH_MSG_INFO("      -> " << action.name());
 
     ATH_CHECK( m_beginRunActionTools.retrieve() );
@@ -144,10 +144,10 @@ namespace G4UA
     }
     auto runAction = CxxUtils::make_unique<G4AtlasRunAction>();
     // Assign begin-run plugins
-    for(auto beginRunTool : m_beginRunActionTools)
+    for(auto& beginRunTool : m_beginRunActionTools)
       runAction->addBeginRunAction( beginRunTool->getBeginRunAction() );
     // Assign end-run plugins
-    for(auto endRunTool : m_endRunActionTools)
+    for(auto& endRunTool : m_endRunActionTools)
       runAction->addEndRunAction( endRunTool->getEndRunAction() );
 
     G4RunManager::GetRunManager()->SetUserAction( runAction.get() );
@@ -160,10 +160,10 @@ namespace G4UA
     }
     auto eventAction = CxxUtils::make_unique<G4AtlasEventAction>();
     // Assign begin-event plugins
-    for(auto beginEventTool : m_beginEventActionTools)
+    for(auto& beginEventTool : m_beginEventActionTools)
       eventAction->addBeginEventAction( beginEventTool->getBeginEventAction() );
     // Assign end-event plugins
-    for(auto endEventTool : m_endEventActionTools)
+    for(auto& endEventTool : m_endEventActionTools)
       eventAction->addEndEventAction( endEventTool->getEndEventAction() );
     G4RunManager::GetRunManager()->SetUserAction( eventAction.get() );
     m_eventActions.set( std::move(eventAction) );
@@ -175,7 +175,7 @@ namespace G4UA
     }
     auto stackAction = CxxUtils::make_unique<G4AtlasStackingAction>();
     // Assign stacking plugins
-    for(auto stackTool : m_stackingActionTools){
+    for(auto& stackTool : m_stackingActionTools){
       auto stackPlugin = stackTool->getStackingAction();
       ATH_MSG_INFO("stackPlugin " << stackPlugin);
       stackAction->addAction( stackPlugin );
@@ -190,10 +190,10 @@ namespace G4UA
     }
     auto trackAction = CxxUtils::make_unique<G4AtlasTrackingAction>();
     // Assign pre-tracking plugins
-    for(auto preTrackTool : m_preTrackingActionTools)
+    for(auto& preTrackTool : m_preTrackingActionTools)
       trackAction->addPreTrackAction( preTrackTool->getPreTrackingAction() );
     // Assign post-tracking plugins
-    for(auto postTrackTool : m_postTrackingActionTools)
+    for(auto& postTrackTool : m_postTrackingActionTools)
       trackAction->addPostTrackAction( postTrackTool->getPostTrackingAction() );
     G4RunManager::GetRunManager()->SetUserAction( trackAction.get() );
     m_trackingActions.set( std::move(trackAction) );
@@ -205,7 +205,7 @@ namespace G4UA
     }
     auto stepAction = CxxUtils::make_unique<G4AtlasSteppingAction>();
     // Assign stepping plugins
-    for(auto stepTool : m_steppingActionTools)
+    for(auto& stepTool : m_steppingActionTools)
       stepAction->addAction( stepTool->getSteppingAction() );
     G4RunManager::GetRunManager()->SetUserAction( stepAction.get() );
     m_steppingActions.set( std::move(stepAction) );

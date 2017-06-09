@@ -32,7 +32,7 @@ namespace G4UA
     public:
 
       /// Constructor
-      AthenaTrackingAction(MSG::Level lvl = MSG::INFO);
+      AthenaTrackingAction(MSG::Level lvl, int secondarySavingLevel);
 
       /// @brief Called before tracking a new particle.
       ///
@@ -52,7 +52,8 @@ namespace G4UA
       MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
       bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
       mutable Athena::MsgStreamMember m_msg;
-
+      /// The saving level for secondaries.
+      int m_secondarySavingLevel;
   }; // class AthenaTrackingAction
 
 } // namespace G4UA

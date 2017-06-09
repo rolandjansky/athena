@@ -72,6 +72,8 @@ def getParticleKillerSvc(name="ISF_ParticleKillerSvc", **kwargs):
     return CfgMgr.ISF__ParticleKillerSimSvc(name, **kwargs)
 
 def getInputConverter(name="ISF_InputConverter", **kwargs):
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    kwargs.setdefault('BarcodeSvc',               ISF_Flags.BarcodeService()     )
     kwargs.setdefault("UseGeneratedParticleMass", False)
     genParticleFilters = ['ISF_ParticleFinalStateFilter']
     from AthenaCommon.BeamFlags import jobproperties
@@ -82,12 +84,15 @@ def getInputConverter(name="ISF_InputConverter", **kwargs):
     kwargs.setdefault("GenParticleFilters", genParticleFilters)
     return CfgMgr.ISF__InputConverter(name, **kwargs)
 
+
 def getLongLivedInputConverter(name="ISF_LongLivedInputConverter", **kwargs):
     kwargs.setdefault("GenParticleFilters"      , [ 'ISF_ParticleSimWhiteList',
                                                     'ISF_ParticlePositionFilterDynamic',
                                                     'ISF_EtaPhiFilter',
                                                     'ISF_GenParticleInteractingFilter', ] )
+    kwargs.setdefault('QuasiStableParticlesIncluded', True)
     return getInputConverter(name, **kwargs)
+
 
 def getGenericTruthService(name="ISF_TruthService", **kwargs):
     from ISF_Config.ISF_jobProperties import ISF_Flags

@@ -5,6 +5,7 @@
 #include "ISF_FastCaloSimEvent/DoubleArray.h"
 #include "ISF_FastCaloSimEvent/IntArray.h"
 #include "ISF_FastCaloSimEvent/TFCS1DFunction.h"
+#include "ISF_FastCaloSimEvent/TFCS1DFunctionHistogram.h"
 #include "ISF_FastCaloSimEvent/TFCSEnergyParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSExtrapolationState.h"
 #include "ISF_FastCaloSimEvent/TFCSParametrization.h"
@@ -17,6 +18,7 @@
 #pragma link C++ class DoubleArray+;
 #pragma link C++ class IntArray+;
 #pragma link C++ class TFCS1DFunction+;
+#pragma link C++ class TFCS1DFunctionHistogram+;
 #pragma link C++ class TFCSEnergyParametrization+;
 #pragma link C++ class TFCSExtrapolationState+;
 #pragma link C++ class TFCSParametrization+;

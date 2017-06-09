@@ -109,7 +109,10 @@ JetInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
          m_hPt2->Fill(jet.Et2());
          m_hEtaPhi->Fill(jet.eta(),jet.phi());
       }
+      if(topoData->overflow()){
+          inputEvent.setOverflowFromJetInput(true);
+          ATH_MSG_DEBUG("setOverflowFromJetInput : true");
+      }
    }
-
    return StatusCode::SUCCESS;
 }

@@ -99,6 +99,22 @@ except:
     job.pool2ei.EiDsName = None
 
 #--------------------------------------------------------------
+# Test Message Broker. Overrrides value read for job options
+#--------------------------------------------------------------
+try: 
+    job.pool2ei.TestBrk = TestBrk
+except:
+    job.pool2ei.TestBrk = False
+
+#--------------------------------------------------------------
+# EI Format. Overrrides value read for job options
+#--------------------------------------------------------------
+try: 
+    job.pool2ei.EiFmt = EiFmt
+except:
+    job.pool2ei.EiFmt = 0
+
+#--------------------------------------------------------------
 # Tier0 job parameters
 #--------------------------------------------------------------
 try:

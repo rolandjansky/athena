@@ -56,6 +56,16 @@ if hasattr(runArgs,"eidsname"):
 else:
     EiDsName = None
 
+if hasattr(runArgs,"testbrk"):
+    TestBrk = runArgs.testbrk
+else:
+    TestBrk = False
+
+if hasattr(runArgs,"eifmt"):
+    EiFmt = runArgs.eifmt
+else:
+    EiFmt = 0
+
 # Tier0 job identification
 if hasattr(runArgs,"_taskid"):
     TaskID = runArgs._taskid

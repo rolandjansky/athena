@@ -158,6 +158,7 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   StatusCode fillLumiBlock();
   StatusCode GetTimingInfo();
   StatusCode GetEventNum();
+  void initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl);
 
   ToolHandleArray<IDQFilterTool> m_DQFilterTools;
   bool m_atlas_ready;
@@ -350,6 +351,9 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   float  m_road_width;     //road width for pattern recognition
   float  m_chi2_cut;       //track chi2 cut;
   float  m_HighOccThreshold; //minimum number of hits to consider an event a possible noise burst
+  bool   m_BMGpresent;
+  int    m_BMGid;
+  std::map<Identifier, std::vector<Identifier> > m_DeadChannels;
 
 };
     

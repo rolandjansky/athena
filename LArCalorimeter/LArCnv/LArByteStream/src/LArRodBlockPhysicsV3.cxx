@@ -21,7 +21,7 @@
 
 //#define LARBSDBGOUTPUT
 #ifdef  LARBSDBGOUTPUT
-#define LARBSDBG(text) m_logstr<<MSG::DEBUG<<text<<endreq
+#define LARBSDBG(text) m_logstr<<MSG::DEBUG<<text<<endmsg
 #else
 #define LARBSDBG(text)
 #endif
@@ -44,19 +44,19 @@ m_logstr(Athena::getMessageSvc(), BlockType())
   ISvcLocator* svcLoc = Gaudi::svcLocator( );
   StatusCode sc =svcLoc->service( "DetectorStore", detStore );
   if (sc.isFailure()) {
-    m_logstr << MSG::ERROR << "Unable to locate DetectorStore" << endreq;
+    m_logstr << MSG::ERROR << "Unable to locate DetectorStore" << endmsg;
     exit(1);
   } else {
-    m_logstr << MSG::INFO << "Successfully located DetectorStore" << endreq;
+    m_logstr << MSG::INFO << "Successfully located DetectorStore" << endmsg;
   }     
   sc = detStore->retrieve(online_id, "LArOnlineID");
   if (sc.isFailure()) {
-    m_logstr << MSG::FATAL << "Could not get LArOnlineID helper !" << endreq;
+    m_logstr << MSG::FATAL << "Could not get LArOnlineID helper !" << endmsg;
     exit(1);
   } 
   else {
     m_onlineHelper=online_id;
-    m_logstr << MSG::DEBUG << " Found the LArOnlineID helper. " << endreq;
+    m_logstr << MSG::DEBUG << " Found the LArOnlineID helper. " << endmsg;
   }
   
   m_iHeadBlockSize=endtag/2; // The implicit cast rounds down to the right size 
@@ -159,40 +159,40 @@ bool LArRodBlockPhysicsV3::setPointers()
        else m_FebInfoDataPtr=(const int16_t*)m_DummyBitMap;
 
 #ifdef  LARBSDBGOUTPUT
-      m_logstr << MYLEVEL  << "***********************************************************************"<< endreq;
-      m_logstr << MYLEVEL  << "Energy Pointed values :"<< endreq;
-      m_logstr << MYLEVEL  << "************************************************************************"<< endreq;
-      m_logstr << MYLEVEL  << "LE_getHeader16(SumBlkOffset) = "<< MSG::hex << LE_getHeader16(SumBlkOffset) << endreq;
-      m_logstr << MYLEVEL  << "LE_getHeader16(CounterBlkOffset) = "<< MSG::hex << LE_getHeader16(CounterBlkOffset) << endreq;
-      m_logstr << MYLEVEL  << "LE_getHeader16(GainBlkOffset) = "<< MSG::hex << LE_getHeader16(GainBlkOffset) << endreq;
-      m_logstr << MYLEVEL  << "LE_getHeader16(EBlkOffset) = "<< MSG::hex << LE_getHeader16(EBlkOffset) << endreq;
-      m_logstr << MYLEVEL  << "LE_getHeader16(FebInfoBlkOffset) = "<< MSG::hex << LE_getHeader16(FebInfoBlkOffset) << endreq;
-      m_logstr << MYLEVEL  << "LE_getHeader16(TimeQualityBlkOffset) = "<< MSG::hex << LE_getHeader16(TimeQualityBlkOffset) << endreq;
-      m_logstr << MYLEVEL  << "************************************************************************"<< endreq;
+      m_logstr << MYLEVEL  << "***********************************************************************"<< endmsg;
+      m_logstr << MYLEVEL  << "Energy Pointed values :"<< endmsg;
+      m_logstr << MYLEVEL  << "************************************************************************"<< endmsg;
+      m_logstr << MYLEVEL  << "LE_getHeader16(SumBlkOffset) = "<< MSG::hex << LE_getHeader16(SumBlkOffset) << endmsg;
+      m_logstr << MYLEVEL  << "LE_getHeader16(CounterBlkOffset) = "<< MSG::hex << LE_getHeader16(CounterBlkOffset) << endmsg;
+      m_logstr << MYLEVEL  << "LE_getHeader16(GainBlkOffset) = "<< MSG::hex << LE_getHeader16(GainBlkOffset) << endmsg;
+      m_logstr << MYLEVEL  << "LE_getHeader16(EBlkOffset) = "<< MSG::hex << LE_getHeader16(EBlkOffset) << endmsg;
+      m_logstr << MYLEVEL  << "LE_getHeader16(FebInfoBlkOffset) = "<< MSG::hex << LE_getHeader16(FebInfoBlkOffset) << endmsg;
+      m_logstr << MYLEVEL  << "LE_getHeader16(TimeQualityBlkOffset) = "<< MSG::hex << LE_getHeader16(TimeQualityBlkOffset) << endmsg;
+      m_logstr << MYLEVEL  << "************************************************************************"<< endmsg;
  
-      m_logstr << MYLEVEL  << "********************* SumBlck ************************************"<< endreq;
+      m_logstr << MYLEVEL  << "********************* SumBlck ************************************"<< endmsg;
       for(int toto=0;toto<4;toto++)
-        m_logstr << MYLEVEL  << "hexa = 0x" << MSG::hex << m_SumBlkPtr[toto] << endreq;
-      m_logstr << MYLEVEL  << "************************************************************************"<< endreq;
+        m_logstr << MYLEVEL  << "hexa = 0x" << MSG::hex << m_SumBlkPtr[toto] << endmsg;
+      m_logstr << MYLEVEL  << "************************************************************************"<< endmsg;
  
-      m_logstr << MYLEVEL  << "********************* CounterBlck ************************************"<< endreq;
-      for(int toto=0;toto<10;toto++)        m_logstr << MYLEVEL  << "hexa = 0x" << MSG::hex << m_CounterPtr[toto] << endreq;
-      m_logstr << MYLEVEL  << "************************************************************************"<< endreq;
+      m_logstr << MYLEVEL  << "********************* CounterBlck ************************************"<< endmsg;
+      for(int toto=0;toto<10;toto++)        m_logstr << MYLEVEL  << "hexa = 0x" << MSG::hex << m_CounterPtr[toto] << endmsg;
+      m_logstr << MYLEVEL  << "************************************************************************"<< endmsg;
 
-      m_logstr << MYLEVEL  << "********************* FebInfoBlck ************************************"<< endreq;
-      for(int toto=0;toto<4;toto++)        m_logstr << MYLEVEL  << "hexa = 0x" << MSG::hex << m_FebInfoDataPtr[toto] << endreq;
-      m_logstr << MYLEVEL  << "************************************************************************"<< endreq;
+      m_logstr << MYLEVEL  << "********************* FebInfoBlck ************************************"<< endmsg;
+      for(int toto=0;toto<4;toto++)        m_logstr << MYLEVEL  << "hexa = 0x" << MSG::hex << m_FebInfoDataPtr[toto] << endmsg;
+      m_logstr << MYLEVEL  << "************************************************************************"<< endmsg;
 
  
-      m_logstr << MYLEVEL  << "********************* Energies ************************************"<< endreq;
+      m_logstr << MYLEVEL  << "********************* Energies ************************************"<< endmsg;
       for(int toto=0;toto<128;toto++)
-      m_logstr << MYLEVEL  << "hexa = 0x" << MSG::hex << m_EnergyPtr[toto] << endreq;
-      m_logstr << MYLEVEL  << "************************************************************************"<< endreq;
+      m_logstr << MYLEVEL  << "hexa = 0x" << MSG::hex << m_EnergyPtr[toto] << endmsg;
+      m_logstr << MYLEVEL  << "************************************************************************"<< endmsg;
  
-      m_logstr << MYLEVEL  << "********************* Time & Quality ************************************"<< endreq;
+      m_logstr << MYLEVEL  << "********************* Time & Quality ************************************"<< endmsg;
       for(int toto=0;toto<10;toto++)
-        m_logstr << MYLEVEL  << "hexa = 0x" << MSG::hex << m_TimeQualityPtr[toto] << endreq;
-      m_logstr << MYLEVEL  << "************************************************************************"<< endreq;
+        m_logstr << MYLEVEL  << "hexa = 0x" << MSG::hex << m_TimeQualityPtr[toto] << endmsg;
+      m_logstr << MYLEVEL  << "************************************************************************"<< endmsg;
 #endif
 
    }
@@ -226,14 +226,14 @@ void LArRodBlockPhysicsV3::setNumberOfGains(const uint8_t n)
 void LArRodBlockPhysicsV3::setNextEnergy(const int channel, const int32_t energy, 
 					 const int32_t time, const int32_t quality, const uint32_t gain) 
 {
- m_logstr << MYLEVEL  << "setNextEnergy-------------------->>>>>********************** new format V3 ***********" <<  endreq;
- m_logstr << MYLEVEL  << "Channel=" << channel << " energy =" << energy <<   endreq;
+ m_logstr << MYLEVEL  << "setNextEnergy-------------------->>>>>********************** new format V3 ***********" <<  endmsg;
+ m_logstr << MYLEVEL  << "Channel=" << channel << " energy =" << energy <<   endmsg;
  int rcNb=FebToRodChannel(channel);
  //rcNb ist supposed to equal or bigger than m_EIndex.
  //In the latter case, we fill up the missing  channels with zero
  if (rcNb<m_EnergyIndex) {
    m_logstr << MSG::ERROR  << "LArRODBlockStructure ERROR: Internal error. Channels not ordered correctly. rcNb=" << rcNb
-	     << " m_EnergyIndex=" << m_EnergyIndex << endreq;;
+	     << " m_EnergyIndex=" << m_EnergyIndex << endmsg;;
    return;
  }
 
@@ -243,9 +243,9 @@ void LArRodBlockPhysicsV3::setNextEnergy(const int channel, const int32_t energy
 
 
  // update fi needed the hottest cell info
- // m_logstr << MYLEVEL  << "Before " << endreq;
- // m_logstr << MYLEVEL  << "m_HottestCellIndex : "<< m_HottestCellIndex << endreq;
- // m_logstr << MYLEVEL  << "m_HottestCellEnergy : "<< m_HottestCellEnergy << endreq;
+ // m_logstr << MYLEVEL  << "Before " << endmsg;
+ // m_logstr << MYLEVEL  << "m_HottestCellIndex : "<< m_HottestCellIndex << endmsg;
+ // m_logstr << MYLEVEL  << "m_HottestCellEnergy : "<< m_HottestCellEnergy << endmsg;
 
  if ((energy>0)&&(energy>(int)m_HottestCellEnergy)) 
    {
@@ -253,9 +253,9 @@ void LArRodBlockPhysicsV3::setNextEnergy(const int channel, const int32_t energy
      m_HottestCellIndex = channel;
    }
 
- // m_logstr << MYLEVEL  << "After " << endreq;
- // m_logstr << MYLEVEL  << "m_HottestCellIndex : "<< m_HottestCellIndex << endreq;
- // m_logstr << MYLEVEL  << "m_HottestCellEnergy : "<< m_HottestCellEnergy << endreq;
+ // m_logstr << MYLEVEL  << "After " << endmsg;
+ // m_logstr << MYLEVEL  << "m_HottestCellIndex : "<< m_HottestCellIndex << endmsg;
+ // m_logstr << MYLEVEL  << "m_HottestCellEnergy : "<< m_HottestCellEnergy << endmsg;
 
 
  // transform 32 bits data into 16 bits data
@@ -294,7 +294,7 @@ void LArRodBlockPhysicsV3::setNextEnergy(const int channel, const int32_t energy
 
  // Add data...
 
- m_logstr << MYLEVEL  << "setNextEnergy-------------------->>>>> Energy = "<< energy << "   Encoded Energy =" << theenergy  << endreq; 
+ m_logstr << MYLEVEL  << "setNextEnergy-------------------->>>>> Energy = "<< energy << "   Encoded Energy =" << theenergy  << endmsg; 
 
  if (abse> m_EnergyThreshold)
    {
@@ -313,12 +313,12 @@ void LArRodBlockPhysicsV3::setNextEnergy(const uint16_t energy,const int16_t tim
 
   if (m_EnergyIndex>=m_channelsPerFEB)        //Use m_EIndex to count total number of channels
     {m_logstr << MSG::ERROR  << "LArRodBlockStructure ERROR: Attempt to write Energy for channel " 
-	    << m_EnergyIndex << " channels into a FEB!" <<endreq;;
+	    << m_EnergyIndex << " channels into a FEB!" <<endmsg;;
       return;
     }
   LARBSDBG("LArRodBlockStructure: Setting Energy for channel " << m_EnergyIndex << ". E=" << energy);
   
-  m_logstr << MYLEVEL  << "In setNextEnergy-------------------->>>>> time = " << time << " quality=" << quality << endreq; 
+  m_logstr << MYLEVEL  << "In setNextEnergy-------------------->>>>> time = " << time << " quality=" << quality << endmsg; 
 
   // write for all cells energy and hardware gain 
   
@@ -341,7 +341,7 @@ void LArRodBlockPhysicsV3::setNextEnergy(const uint16_t energy,const int16_t tim
       twoValues.s[1]=(uint16_t)energy;
     }
   
-  //m_logstr << MSG::DEBUG  << "In setNextEnergy-------------------->>>>> Length of m_EnergyBlock =" << m_EnergyBlock.size() << endreq; 
+  //m_logstr << MSG::DEBUG  << "In setNextEnergy-------------------->>>>> Length of m_EnergyBlock =" << m_EnergyBlock.size() << endmsg; 
 
   LARBSDBG("Writing words: val0= " << twoValues.s[0] << " val1= " << twoValues.s[1]);
   m_EnergyBlock.push_back(twoValues.l);
@@ -351,18 +351,18 @@ void LArRodBlockPhysicsV3::setNextEnergy(const uint16_t energy,const int16_t tim
   // Summary block is one bit per cell
   
   int mylocalBitwiseIndex = (int) (m_EnergyIndex-1)%32; // 1 bits in SB per channel
-  //  m_logstr << MYLEVEL  << "In setNextEnergy-------------------->>  Summary Block Construction "  << endreq; 
-  //  m_logstr << MYLEVEL  << "In setNextEnergy-------------------->>  mylocalBitwiseIndex= " << mylocalBitwiseIndex << endreq; 
+  //  m_logstr << MYLEVEL  << "In setNextEnergy-------------------->>  Summary Block Construction "  << endmsg; 
+  //  m_logstr << MYLEVEL  << "In setNextEnergy-------------------->>  mylocalBitwiseIndex= " << mylocalBitwiseIndex << endmsg; 
   if (mylocalBitwiseIndex==0) // need for a new 32 bits word to store SM info of that cell
     {
-      // m_logstr << MYLEVEL  << "In setNextEnergy-------------------->>  Set new 32 bits word "  << endreq; 
+      // m_logstr << MYLEVEL  << "In setNextEnergy-------------------->>  Set new 32 bits word "  << endmsg; 
       uint32_t SB;
       SB = (quality==-32767?0x00000000:0x00000001);
       m_SumBlkBlock.push_back(SB);
     }
   else 
     {
-      // m_logstr << MYLEVEL  << "In setNextEnergy-------------------->>  Use existing 32 bits word "  << endreq; 
+      // m_logstr << MYLEVEL  << "In setNextEnergy-------------------->>  Use existing 32 bits word "  << endmsg; 
       uint32_t SB=m_SumBlkBlock[m_GainBlock.size()-1]; //Take out last element of vector
       m_SumBlkBlock.pop_back();
       SB=(SB<<1)|(quality==-32767?0x00000000:0x00000001);
@@ -386,11 +386,11 @@ void LArRodBlockPhysicsV3::setNextEnergy(const uint16_t energy,const int16_t tim
   
   // write Time and Chi2 for cells above HighEnergyCellCut threshold
   
-  // m_logstr << MYLEVEL  << "In setNextEnergy-------------------->>>>> treat Time and Chi2"  << endreq; 
+  // m_logstr << MYLEVEL  << "In setNextEnergy-------------------->>>>> treat Time and Chi2"  << endmsg; 
 
   if (quality!=-32767) // Do write Time and Chi2 information
     {
-      // m_logstr << MSG::DEBUG  << "In setNextEnergy-------------------->>>>> treat Time and Chi2 of that hot cell "  << endreq; 
+      // m_logstr << MSG::DEBUG  << "In setNextEnergy-------------------->>>>> treat Time and Chi2 of that hot cell "  << endmsg; 
       // count the number of hot cells
       m_numberHotCell++;
       // count the number of cells offtime
@@ -422,14 +422,14 @@ void LArRodBlockPhysicsV3::setRawData(const int channel, const std::vector<short
  //int rcNb=(channel>>3) + ((channel&0x7)<<4);
  int rcNb=FebToRodChannel(channel);
  if (rcNb>=m_channelsPerFEB) 
-   {m_logstr << MSG::ERROR << "Attempt to write Energy for channel " << rcNb << " channels into a FEB!" << endreq;
+   {m_logstr << MSG::ERROR << "Attempt to write Energy for channel " << rcNb << " channels into a FEB!" << endmsg;
     return;
    } 
  unsigned int nsamples = LE_getVectorHeader16(NGainNSamples) & 0x00FF;
  if(samples.size() != nsamples) {
    m_logstr << MSG::ERROR << "Number of samples mismatch!\n";
    m_logstr << "  nsamples       =" << nsamples;
-   m_logstr << "  samples.size() =" << samples.size() << endreq;
+   m_logstr << "  samples.size() =" << samples.size() << endmsg;
    exit(0);
  }
  
@@ -465,7 +465,7 @@ void LArRodBlockPhysicsV3::initializeFragment(std::vector<uint32_t>& fragment)
       //std::cout << "FebID=" << currFEBid << " FEBSize=" << currFebSize << " Vector size=" << fragment.size() << std::endl;
       if (FebIter+currFebSize>fragment.end()) {
 	fragment.clear(); //Clear existing vector
-	m_logstr << MSG::ERROR  << "Got inconsistent ROD-Fragment!" << endreq; 
+	m_logstr << MSG::ERROR  << "Got inconsistent ROD-Fragment!" << endmsg; 
 	return;
       }
       m_mFebBlocks[currFEBid].assign(FebIter,FebIter+currFebSize); //Copy data from ROD-fragment into FEB-Block
@@ -516,7 +516,7 @@ void LArRodBlockPhysicsV3::finalizeFEB()
    {
      LE_setHeader16(SumBlkOffset,m_vFragment->size());
      BlockOffset=LE_getVectorHeader16(SumBlkOffset);
-          m_logstr << MSG::DEBUG << "In finalizeFEB-------------------->>>>> " << "Checking for Summary Block :  length= " << n << "  BlockOffset=" << BlockOffset << endreq; 
+          m_logstr << MSG::DEBUG << "In finalizeFEB-------------------->>>>> " << "Checking for Summary Block :  length= " << n << "  BlockOffset=" << BlockOffset << endmsg; 
      for (unsigned i=0;i<n;i++)
        m_vFragment->push_back(m_SumBlkBlock[i]);
    }
@@ -573,7 +573,7 @@ void LArRodBlockPhysicsV3::finalizeFEB()
    {
      LE_setHeader16(CounterBlkOffset,m_vFragment->size());
      BlockOffset=LE_getVectorHeader16(CounterBlkOffset);
-     m_logstr << MSG::INFO  << "In finalyseFEB-------------------->>>>> " << "Checking for Counter Block :  length= " << n << "  BlockOffset=" << BlockOffset << endreq; 
+     m_logstr << MSG::INFO  << "In finalyseFEB-------------------->>>>> " << "Checking for Counter Block :  length= " << n << "  BlockOffset=" << BlockOffset << endmsg; 
      for (unsigned i=0;i<n;i++)
        m_vFragment->push_back(m_CounterBlkBlock[i]);
    }
@@ -587,8 +587,8 @@ void LArRodBlockPhysicsV3::finalizeFEB()
    {
      LE_setHeader16(EBlkOffset,m_vFragment->size());
      BlockOffset=LE_getVectorHeader16(EBlkOffset);
-     m_logstr << MSG::DEBUG  << "In finalyseFEB-------------------->>>>> " << "Checking for Energy Block :  length= " << n << "  BlockOffset=" << BlockOffset << endreq; 
-     //m_logstr << MSG::DEBUG  << "In finalyseFEB-------------------->>>>> " << "Checking for Energy Block :  m_EnergyIndex= " << m_EnergyIndex << endreq; 
+     m_logstr << MSG::DEBUG  << "In finalyseFEB-------------------->>>>> " << "Checking for Energy Block :  length= " << n << "  BlockOffset=" << BlockOffset << endmsg; 
+     //m_logstr << MSG::DEBUG  << "In finalyseFEB-------------------->>>>> " << "Checking for Energy Block :  m_EnergyIndex= " << m_EnergyIndex << endmsg; 
      for(unsigned int i=0;i<n;i++)
        m_vFragment->push_back(m_EnergyBlock[i]);
    } 
@@ -602,7 +602,7 @@ void LArRodBlockPhysicsV3::finalizeFEB()
    {
      LE_setHeader16(GainBlkOffset,m_vFragment->size());
      BlockOffset=LE_getVectorHeader16(GainBlkOffset);
-     //m_logstr << MSG::DEBUG  << "In finalyseFEB-------------------->>>>> " << "Checking for Gain Block :  length= " << n << "  BlockOffset=" << BlockOffset << endreq; 
+     //m_logstr << MSG::DEBUG  << "In finalyseFEB-------------------->>>>> " << "Checking for Gain Block :  length= " << n << "  BlockOffset=" << BlockOffset << endmsg; 
      for(unsigned int i=0;i<n;i++)
        m_vFragment->push_back(m_GainBlock[i]);
    } 
@@ -620,7 +620,7 @@ void LArRodBlockPhysicsV3::finalizeFEB()
    {
      LE_setHeader16(FebInfoBlkOffset,m_vFragment->size());
      BlockOffset=LE_getVectorHeader16(FebInfoBlkOffset);
-     //m_logstr << MSG::DEBUG  << "In finalyseFEB-------------------->>>>> " << "Checking for FEB Info Block :  length= " << n << "  BlockOffset=" << BlockOffset << endreq; 
+     //m_logstr << MSG::DEBUG  << "In finalyseFEB-------------------->>>>> " << "Checking for FEB Info Block :  length= " << n << "  BlockOffset=" << BlockOffset << endmsg; 
      for(unsigned int i=0;i<n;i++)
        m_vFragment->push_back(m_FebInfoBlock[i]);
    } 
@@ -634,7 +634,7 @@ void LArRodBlockPhysicsV3::finalizeFEB()
    {
      LE_setHeader16(TimeQualityBlkOffset,m_vFragment->size());
      BlockOffset=LE_getVectorHeader16(TimeQualityBlkOffset);
-     m_logstr << MSG::DEBUG  << "In finalyseFEB-------------------->>>>> " << "Checking for Time and Quality Block :  length= " << n << "  BlockOffset=" << BlockOffset << endreq; 
+     m_logstr << MSG::DEBUG  << "In finalyseFEB-------------------->>>>> " << "Checking for Time and Quality Block :  length= " << n << "  BlockOffset=" << BlockOffset << endmsg; 
      for(unsigned int i=0;i<n;i++)
        m_vFragment->push_back(m_TimeQualityBlock[i]);
    } 
@@ -653,24 +653,24 @@ void LArRodBlockPhysicsV3::finalizeFEB()
    }
  setHeader32(NWTot,m_vFragment->size());
 
- // m_logstr << MSG::DEBUG  << "############################################################################>>>>>  " << endreq;
- // m_logstr << MSG::DEBUG  << "In finalyseFEB-------------------->>>>> Ofsets summary  (en hexa) : " << endreq;
- // m_logstr << MSG::DEBUG  << "Summary Block Offset : " << LE_getVectorHeader16(SumBlkOffset) << endreq;
- // m_logstr << MSG::DEBUG  << "Counter Block Offset : " << LE_getVectorHeader16(CounterBlkOffset) << endreq;
- // m_logstr << MSG::DEBUG  << "Energy Block Offset  : " << LE_getVectorHeader16(EBlkOffset) << endreq;
- // m_logstr << MSG::DEBUG  << "Gain Block Offset    : " << LE_getVectorHeader16(GainBlkOffset) << endreq;
- // m_logstr << MSG::DEBUG  << "Gain Block Offset    : " << LE_getVectorHeader16(FebInfoBlkOffset) << endreq;
- // m_logstr << MSG::DEBUG  << "Raw Data Block Offset: " << LE_getVectorHeader16(RawDataBlkOffset) << endreq;
- // m_logstr << MSG::DEBUG  << "Number of hot cells  : " << m_numberHotCell << endreq;
- // m_logstr << MSG::DEBUG  << "############################################################################>>>>>  " << endreq;
+ // m_logstr << MSG::DEBUG  << "############################################################################>>>>>  " << endmsg;
+ // m_logstr << MSG::DEBUG  << "In finalyseFEB-------------------->>>>> Ofsets summary  (en hexa) : " << endmsg;
+ // m_logstr << MSG::DEBUG  << "Summary Block Offset : " << LE_getVectorHeader16(SumBlkOffset) << endmsg;
+ // m_logstr << MSG::DEBUG  << "Counter Block Offset : " << LE_getVectorHeader16(CounterBlkOffset) << endmsg;
+ // m_logstr << MSG::DEBUG  << "Energy Block Offset  : " << LE_getVectorHeader16(EBlkOffset) << endmsg;
+ // m_logstr << MSG::DEBUG  << "Gain Block Offset    : " << LE_getVectorHeader16(GainBlkOffset) << endmsg;
+ // m_logstr << MSG::DEBUG  << "Gain Block Offset    : " << LE_getVectorHeader16(FebInfoBlkOffset) << endmsg;
+ // m_logstr << MSG::DEBUG  << "Raw Data Block Offset: " << LE_getVectorHeader16(RawDataBlkOffset) << endmsg;
+ // m_logstr << MSG::DEBUG  << "Number of hot cells  : " << m_numberHotCell << endmsg;
+ // m_logstr << MSG::DEBUG  << "############################################################################>>>>>  " << endmsg;
 
- m_logstr << MYLEVEL  << "***********************************************************************"<< endreq;
- m_logstr << MYLEVEL  << "m_HottestCellIndex : "<< m_HottestCellIndex << endreq;
- m_logstr << MYLEVEL  << "m_HottestCellEnergy : "<< m_HottestCellEnergy << endreq;
- m_logstr << MYLEVEL  << "***********************************************************************"<< endreq;
- m_logstr << MYLEVEL  << "m_Ex : "<< m_Ex << endreq;
- m_logstr << MYLEVEL  << "m_Ey : "<< m_Ey << endreq;
- m_logstr << MYLEVEL  << "***********************************************************************"<< endreq;
+ m_logstr << MYLEVEL  << "***********************************************************************"<< endmsg;
+ m_logstr << MYLEVEL  << "m_HottestCellIndex : "<< m_HottestCellIndex << endmsg;
+ m_logstr << MYLEVEL  << "m_HottestCellEnergy : "<< m_HottestCellEnergy << endmsg;
+ m_logstr << MYLEVEL  << "***********************************************************************"<< endmsg;
+ m_logstr << MYLEVEL  << "m_Ex : "<< m_Ex << endmsg;
+ m_logstr << MYLEVEL  << "m_Ey : "<< m_Ey << endmsg;
+ m_logstr << MYLEVEL  << "***********************************************************************"<< endmsg;
 
 
  clearBlocks();

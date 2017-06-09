@@ -13,6 +13,7 @@
 
 #include "G4DynamicParticle.hh"
 #include "G4PrimaryParticle.hh"
+#include "G4Event.hh"
 #include "G4EventManager.hh"
 
 #include <iostream>
@@ -24,8 +25,9 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Constructor
   //---------------------------------------------------------------------------
-  AthenaTrackingAction::AthenaTrackingAction(MSG::Level lvl)
+  AthenaTrackingAction::AthenaTrackingAction(MSG::Level lvl, int secondarySavingLevel)
     : m_msg("AthenaTrackingAction")
+    , m_secondarySavingLevel(secondarySavingLevel)
   {
     m_msg.get().setLevel(lvl);
   }
@@ -36,11 +38,6 @@ namespace G4UA
   void AthenaTrackingAction::preTracking(const G4Track* track)
   {
     ATH_MSG_DEBUG("Starting to track a new particle");
-
-    // Retrieve the saving level for secondaries.
-    // TODO: use a more normal configuration mechanism for this.
-    static int ilevel =
-      TruthStrategyManager::GetStrategyManager()->GetSecondarySavingLevel();
 
     // Use the TrackHelper code to identify the kind of particle.
     TrackHelper trackHelper(track);
@@ -55,16 +52,16 @@ namespace G4UA
                                          GetHepMCParticle() );
 
       // Assign the GenParticle to the EventInformation.
-      EventInformation* eventInfo =
-        TruthStrategyManager::GetStrategyManager()->GetEventInformation();
+      EventInformation* eventInfo = static_cast<EventInformation*>
+        (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
       if (trackHelper.IsPrimary()) eventInfo->SetCurrentPrimary(part);
       eventInfo->SetCurrentlyTraced(part);
     }
 
     // Condition for creating a trajectory object to store truth.
     if (trackHelper.IsPrimary() ||
-        (trackHelper.IsRegisteredSecondary() && ilevel>1) ||
-        (trackHelper.IsSecondary() && ilevel>2))
+        (trackHelper.IsRegisteredSecondary() && m_secondarySavingLevel>1) ||
+        (trackHelper.IsSecondary() && m_secondarySavingLevel>2))
     {
       ATH_MSG_DEBUG("Preparing an AtlasTrajectory for saving truth");
 

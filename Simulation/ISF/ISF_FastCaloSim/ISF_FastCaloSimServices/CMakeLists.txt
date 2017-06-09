@@ -9,6 +9,7 @@ atlas_subdir( ISF_FastCaloSimServices )
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
+                          Control/AthenaKernel
                           DetectorDescription/IdDictParser
                           Control/AthenaBaseComps
                           Simulation/Barcode/BarcodeEvent
@@ -35,7 +36,7 @@ atlas_add_component( ISF_FastCaloSimServices
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps GaudiKernel IdDictParser ISF_Interfaces TrkEventPrimitives TrkExInterfaces CaloEvent StoreGateLib SGtests NavFourMom GeneratorObjects FastCaloSimLib ISF_Event ISF_FastCaloSimEvent ISF_FastCaloSimInterfaces ISF_FastCaloSimParametrizationLib )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel IdDictParser ISF_Interfaces TrkEventPrimitives TrkExInterfaces CaloEvent StoreGateLib SGtests NavFourMom GeneratorObjects FastCaloSimLib ISF_Event ISF_FastCaloSimEvent ISF_FastCaloSimInterfaces ISF_FastCaloSimParametrizationLib )
 
 # Install files from the package:
 atlas_install_headers( ISF_FastCaloSimServices )

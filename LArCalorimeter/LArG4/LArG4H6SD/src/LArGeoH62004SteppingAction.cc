@@ -40,7 +40,6 @@ namespace G4UA
     static G4Track* theTrack;
     static G4String thePrePVname;
     static G4StepPoint* tacka;
-    //  static ILArCalculatorSvc *whcalc;
     static double z;
 
     // Check the primary track

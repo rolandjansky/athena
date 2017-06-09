@@ -60,8 +60,8 @@ class JobDetails(BeamSpotWebPage):
             return error % ('CONFIGURATION ERROR: No data set name specified')
         if not 't' in args:
             return error % ('CONFIGURATION ERROR: No task name specified')
-        taskman = TaskManager(self.globalConfig['taskDb'])
-        t = taskman.getTaskDict(args['d'],args['t'])
+        with TaskManager(self.globalConfig['taskDb']) as taskman:
+            t = taskman.getTaskDict(args['d'],args['t'])
         if not t:
             return error % ('ERROR: Task %s/%s not found' % (args['d'],args['t']))
 

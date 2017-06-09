@@ -31,7 +31,7 @@ class _BTaggingFlags:
               'MV2c10mu','MV2c10rnn','MV2c100','MV2cl100',
               'MV1Flip', 'MV1cFlip', 'MV2Flip',
               'MV2c10Flip','MV2c10muFlip','MV2c10rnnFlip','MV2c100Flip','MV2cl100Flip',
-              'RNNIP',
+              'RNNIP', 'RNNIPNeg',
               'DL1', 'DL1Flip','DL1mu', 'DL1muFlip','DL1rnn', 'DL1rnnFlip',
               'TagNtupleDumper',
               'JetVertexCharge']
@@ -159,13 +159,21 @@ class _BTaggingFlags:
       self.TagNtupleStream = 'FTAG'
 
       self.RNNIP = True
+      self.RNNIPNeg = False
       self.RNNIPConfig = {'rnnip':''}
       self.WriteRNNInputs = False
 
+      rnnip_outputs = ['b','c','u','tau']
       self.MultivariateTagManagerAuxBranches=[
-          'rnnip_p' + x for x in ['b','c','u','tau']
+          'rnnip_p' + x for x in rnnip_outputs
       ]
       self.MultivariateTagManagerAuxBranches+= ['SMT_discriminant']
+      self.MultivariateTagManagerAuxNameMap = {
+          'rnnipneg_p' + x: 'rnnip_p' + x for x in rnnip_outputs
+      }
+      self.MultivariateFlipTagManagerAuxBranches = [
+          'rnnipneg_p' + x for x in rnnip_outputs
+      ]
 
       # you can force the NN tool off with this flag (avoids loading
       # old jetfitter nns which sometimes crash

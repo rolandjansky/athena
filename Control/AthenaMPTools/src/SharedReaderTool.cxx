@@ -16,14 +16,11 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include <boost/interprocess/managed_shared_memory.hpp>
-
 SharedReaderTool::SharedReaderTool(const std::string& type
 				   , const std::string& name
 				   , const IInterface* parent)
   : AthenaMPToolBase(type,name,parent)
   , m_nEvtRequested(-1)
-  , m_shmemSegment()
   , m_evtShare(0)
 {
   m_subprocDirPrefix = "shared_reader";
@@ -31,7 +28,6 @@ SharedReaderTool::SharedReaderTool(const std::string& type
 
 SharedReaderTool::~SharedReaderTool()
 {
-  delete m_shmemSegment; m_shmemSegment = 0;
 }
 
 StatusCode SharedReaderTool::initialize()
@@ -191,17 +187,6 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedReaderTool::bootstrap_f
     return outwork;
   }
 
-  // Instantiate shared memory segment in the reader
-  try {
-    std::string shmemName("/athmp-shmem-"+m_randStr);
-    boost::interprocess::shared_memory_object shmemSegment(boost::interprocess::open_only, shmemName.c_str(), boost::interprocess::read_write);
-    m_shmemSegment = new boost::interprocess::mapped_region(shmemSegment,boost::interprocess::read_write);
-  }
-  catch(yampl::ErrnoException& ex) {
-    ATH_MSG_ERROR("Exception caught when trying to acquire shared memory segment: " << ex.what());
-    return outwork;
-  }
-
   // Declare success and return
   *(int*)(outwork->data) = 0;
   return outwork;
@@ -211,48 +196,15 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedReaderTool::exec_func()
 {
   ATH_MSG_INFO("Exec function in the AthenaMP Shared Reader PID=" << getpid());
 
-/*
-  int eventsRead(0);
-  int* shmemCountedEvts = (int*)m_shmemSegment->get_address();
-  int* shmemCountFinal = shmemCountedEvts+1;
-
-  int ctFinal(*shmemCountFinal), evtCounted(*shmemCountedEvts);
-  while(evtCounted==0 && ctFinal==0) { 
-    usleep(10);
-    ctFinal = *shmemCountFinal;
-    evtCounted = *shmemCountedEvts;
-  }
-  ATH_MSG_DEBUG("SharedReaderTool::exec_func evtCounted=" << evtCounted << ", CountFinal=" << (ctFinal?"YES":"NO"));
-*/
-
   bool all_ok=true;
   ATH_MSG_DEBUG("SharedReaderTool::exec_func entering loop ");
-//  while(eventsRead<evtCounted) {
-    ATH_MSG_DEBUG("SharedReaderTool::exec_func loop ");
-    if(m_evtShare->readEvent(m_nEvtRequested).isFailure()) {
-      ATH_MSG_ERROR("Failed to read " << m_nEvtRequested << " events");
-      all_ok=false;
-    }
-    else {
-      ATH_MSG_DEBUG("readEvent succeeded");
-/*
-      if(ctFinal)
-	break;
-      eventsRead=evtCounted;
-      ctFinal = *shmemCountFinal;
-      evtCounted = *shmemCountedEvts;
-      ATH_MSG_DEBUG("SharedReaderTool::exec_func evtCounted=" << evtCounted << ", CountFinal=" << (ctFinal?"YES":"NO"));
-
-      while(eventsRead==evtCounted 
-	    && !ctFinal) {
-	usleep(10);
-	ctFinal = *shmemCountFinal;
-	evtCounted = *shmemCountedEvts;
-      }
-      ATH_MSG_DEBUG("SharedReaderTool::exec_func evtCounted=" << evtCounted << ", CountFinal=" << (ctFinal?"YES":"NO"));
-*/
-    }
-//  }
+  if(m_evtShare->readEvent(m_nEvtRequested).isFailure()) {
+    ATH_MSG_ERROR("Failed to read " << m_nEvtRequested << " events");
+    all_ok=false;
+  }
+  else {
+    ATH_MSG_DEBUG("readEvent succeeded");
+  }
 
   if(m_appMgr->stop().isFailure()) {
     ATH_MSG_ERROR("Unable to stop AppMgr"); 

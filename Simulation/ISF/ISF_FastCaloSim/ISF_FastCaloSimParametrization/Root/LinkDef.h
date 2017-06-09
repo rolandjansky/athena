@@ -7,15 +7,7 @@
 #pragma link C++ class TFCSNNLateralShapeParametrization+;
 #pragma link C++ class TFCSSimpleLateralShapeParametrization+;
 #pragma link C++ class MeanAndRMS;
-#pragma link C++ class TFCS1DFunctionRegression;
-#pragma link C++ class TFCS1DFunctionHistogram;
-#pragma link C++ class TFCSFunction;
 #pragma link C++ class TreeReader;
-#pragma link C++ class firstPCA;
-#pragma link C++ class secondPCA;
-#pragma link C++ class DetailedShowerShape;
-#pragma link C++ class ShowerShapeBinning;
-#pragma link C++ class TFCS1DFunctionRegressionTF;
 #pragma link C++ class EnergyParametrizationValidation;
 #ifndef CaloGeometryFromFile_h
 #pragma link C++ class CaloGeometryLookup;

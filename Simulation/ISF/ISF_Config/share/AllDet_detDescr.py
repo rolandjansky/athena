@@ -17,7 +17,7 @@ if DetFlags.detdescr.any_on():
         protectedInclude("InDetBeamSpotService/BeamCondSvc.py" )
 
     import os
-    if "AthSimulationBase" not in os.environ.get("CMTEXTRATAGS",""):
+    if "AthSimulation_DIR" not in os.environ:
         if DetFlags.detdescr.LAr_on():
             protectedInclude( "LArDetDescr/LArDetDescr_joboptions.py" )
 

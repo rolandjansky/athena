@@ -41,39 +41,39 @@ namespace ISF {
 #include "G4AtlasInterfaces/IBeginRunAction.h"
 #include "G4AtlasInterfaces/ISteppingAction.h"
 #include "G4AtlasInterfaces/IPreTrackingAction.h"
-#include "AthenaBaseComps/AthMessaging.h"
+#include "AthenaKernel/MsgStreamMember.h"
 
 namespace G4UA{
   namespace iGeant4 {
-    class PhysicsValidationUserAction: public IBeginEventAction,  public IEndEventAction,  public IBeginRunAction,  public ISteppingAction,  public IPreTrackingAction, public AthMessaging
+    class PhysicsValidationUserAction: public IBeginEventAction,  public IEndEventAction,  public IBeginRunAction,  public ISteppingAction,  public IPreTrackingAction
     {
 
     public:
 
       struct Config
       {
-        unsigned int verboseLevel=0;
-	bool validationOutput = true;
-	std::string validationStream="ISFG4SimKernel";
-	ServiceHandle<ITHistSvc> thistSvc=ServiceHandle<ITHistSvc>("THistSvc", "PhysicsValidationUserAction");
-	ServiceHandle<ISF::IParticleBroker>  particleBroker=
-	  ServiceHandle<ISF::IParticleBroker>("ISF::ParticleBroker/ISF_ParticleStackService", "PhysicsValidationUserAction");
-	ToolHandle<ISF::IParticleHelper>     particleHelper=
-	  ToolHandle<ISF::IParticleHelper>("ISF::ParticleHelper/ISF_ParticleHelper");
-	ServiceHandle<ISF::IGeoIDSvc>        geoIDSvc=
-	  ServiceHandle<ISF::IGeoIDSvc>("ISF::GeoIDSvc/ISF_GeoIDSvc", "PhysicsValidationUserAction");  
-	
-	ServiceHandle<G4UA::IUserActionSvc>  UASvc=
-	  ServiceHandle<G4UA::IUserActionSvc>("G4UA::UserActionService","PhysicsValidationUserAction");
-	double idR=1150.-1.e-5;
-	double idZ=3490.;
-	double caloRmean=0.5*(40.+4250.);
-	double caloZmean=0.5*(3490.+6740.);
-	double muonRmean=0.5*(60.+30000.);
-	double muonZmean=0.5*(6740.+30000.);
-	double cavernRmean=300000.0;
-	double cavernZmean=300000.0;
-	
+        MSG::Level verboseLevel=MSG::INFO;
+        bool validationOutput = true;
+        std::string validationStream="ISFG4SimKernel";
+        ServiceHandle<ITHistSvc> thistSvc=ServiceHandle<ITHistSvc>("THistSvc", "PhysicsValidationUserAction");
+        ServiceHandle<ISF::IParticleBroker>  particleBroker=
+          ServiceHandle<ISF::IParticleBroker>("ISF::ParticleBroker/ISF_ParticleStackService", "PhysicsValidationUserAction");
+        ToolHandle<ISF::IParticleHelper>     particleHelper=
+          ToolHandle<ISF::IParticleHelper>("ISF::ParticleHelper/ISF_ParticleHelper");
+        ServiceHandle<ISF::IGeoIDSvc>        geoIDSvc=
+          ServiceHandle<ISF::IGeoIDSvc>("ISF::GeoIDSvc/ISF_GeoIDSvc", "PhysicsValidationUserAction");
+
+        ServiceHandle<G4UA::IUserActionSvc>  UASvc=
+          ServiceHandle<G4UA::IUserActionSvc>("G4UA::UserActionService","PhysicsValidationUserAction");
+        double idR=1150.-1.e-5;
+        double idZ=3490.;
+        double caloRmean=0.5*(40.+4250.);
+        double caloZmean=0.5*(3490.+6740.);
+        double muonRmean=0.5*(60.+30000.);
+        double muonZmean=0.5*(6740.+30000.);
+        double cavernRmean=300000.0;
+        double cavernZmean=300000.0;
+
       };
 
       PhysicsValidationUserAction(const Config& config);
@@ -85,12 +85,12 @@ namespace G4UA{
     private:
 
       Config m_config;
-      
+
       SecondaryTracksHelper m_sHelper;
-      
+
       /** access to the central ISF GeoID serice*/
       ISF::IGeoIDSvc                      *m_geoIDSvcQuick; //!< quickaccess avoiding gaudi ovehead
-      
+
       TTree                                                        *m_particles;    //!< ROOT tree containing track info
       int                                                           m_pdg;
       int                                                           m_scIn;
@@ -115,7 +115,7 @@ namespace G4UA{
       float                                                         m_L0;
       float                                                         m_wZ;
       float                                                         m_dt;
-      
+
       TTree                                                        *m_interactions;   //!< ROOT tree containing vertex info
       mutable int                                                   m_process;
       mutable int                                                   m_pdg_mother;
@@ -133,14 +133,19 @@ namespace G4UA{
       mutable int                                                   m_pdg_child[MAXCHILDREN];     // decay product pdg code
       mutable float                                                 m_fp_child[MAXCHILDREN];      // fraction of incoming momentum
       mutable float                                                 m_oa_child[MAXCHILDREN];      // opening angle wrt the mother
-      
-      
+
+
       int m_volumeOffset;
       int m_minHistoryDepth;
-      
+
       mutable int m_currentTrack;
       std::map<int, int> m_trackGenMap;
-      
+
+      /// Log a message using the Athena controlled logging system
+      MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
+      bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
+      mutable Athena::MsgStreamMember m_msg;
+
     }; // class PhysicsValidationUserAction
 
   } // namespace iGeant4
