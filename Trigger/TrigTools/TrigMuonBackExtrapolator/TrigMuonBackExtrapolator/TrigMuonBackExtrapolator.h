@@ -154,13 +154,13 @@ class TrigMuonBackExtrapolator: public AthAlgTool,
     BooleanProperty m_aligned;
     BooleanProperty m_dataset;
 
-    double data_Barrel_Param[2][2][2]; 
-    double data_Barrel_Sigmas[2][2][2][2]; 
-    double data_Endcap_TriggerST_Param[4][12][2][2][2][2];
-    double data_Endcap_TriggerST_Sigmas[4][12][2][2][2][2];
-    double data_Endcap_InnerST_Param[4][12][2][2][2];
-    double data_Endcap_InnerST_PhiSigmas[4][12][2][2][2];
-    double data_Endcap_InnerST_EtaSigmas[2][2][2][2][2]; 
+    double m_data_Barrel_Param[2][2][2]; 
+    double m_data_Barrel_Sigmas[2][2][2][2]; 
+    double m_data_Endcap_TriggerST_Param[4][12][2][2][2][2];
+    double m_data_Endcap_TriggerST_Sigmas[4][12][2][2][2][2];
+    double m_data_Endcap_InnerST_Param[4][12][2][2][2];
+    double m_data_Endcap_InnerST_PhiSigmas[4][12][2][2][2];
+    double m_data_Endcap_InnerST_EtaSigmas[2][2][2][2][2]; 
 
 };
 
