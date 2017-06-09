@@ -184,14 +184,14 @@ StatusCode DerivationFramework::TruthCollectionMaker::addBranches() const
                         bool same_as_mother = false;
                         bool same_as_daughter = false;
                         if (theParticle->hasProdVtx()){
-                            if ((theParticle->prodVtx()->nIncomingParticles() > 0) && (theParticle->prodVtx()->incomingParticle(0)!=NULL)) {
+                            if ((theParticle->prodVtx()->nIncomingParticles() > 0) && (theParticle->prodVtx()->incomingParticle(0)!=nullptr)) {
                                 if (theParticle->prodVtx()->incomingParticle(0)->pdgId() == theParticle->pdgId()){
                                     same_as_mother = true;
                                 }
                             }
                         }
                         if (theParticle->hasDecayVtx()){
-                            if ((theParticle->decayVtx()->nOutgoingParticles() > 0) && (theParticle->decayVtx()->outgoingParticle(0)!=NULL)) {
+                            if ((theParticle->decayVtx()->nOutgoingParticles() > 0) && (theParticle->decayVtx()->outgoingParticle(0)!=nullptr)) {
                                 if (theParticle->decayVtx()->outgoingParticle(0)->pdgId() == theParticle->pdgId()){
                                     same_as_daughter = true;
                                 }
@@ -205,12 +205,12 @@ StatusCode DerivationFramework::TruthCollectionMaker::addBranches() const
                     xAOD::TruthParticle* xTruthParticle = new xAOD::TruthParticle();
                     newParticleCollection->push_back( xTruthParticle );
                     if (theParticle->hasProdVtx()) {
-                        if ((theParticle->prodVtx()->nIncomingParticles() > 0) && (theParticle->prodVtx()->incomingParticle(0)!=NULL)) {
+                        if ((theParticle->prodVtx()->nIncomingParticles() > 0) && (theParticle->prodVtx()->incomingParticle(0)!=nullptr)) {
                             motherIDDecorator(*xTruthParticle) = theParticle->prodVtx()->incomingParticle(0)->pdgId();
                         } else {motherIDDecorator(*xTruthParticle) = 0;}
                     } else {motherIDDecorator(*xTruthParticle) = 0;} 
                     if (theParticle->hasDecayVtx()) {
-                        if ((theParticle->decayVtx()->nOutgoingParticles() > 0) && (theParticle->decayVtx()->outgoingParticle(0)!=NULL)) {
+                        if ((theParticle->decayVtx()->nOutgoingParticles() > 0) && (theParticle->decayVtx()->outgoingParticle(0)!=nullptr)) {
                             daughterIDDecorator(*xTruthParticle) = theParticle->decayVtx()->outgoingParticle(0)->pdgId();
                         } else {daughterIDDecorator(*xTruthParticle) = 0;}
                     } else {daughterIDDecorator(*xTruthParticle) = 0;}

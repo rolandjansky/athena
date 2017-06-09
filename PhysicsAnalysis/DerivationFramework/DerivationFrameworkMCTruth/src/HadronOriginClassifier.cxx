@@ -753,7 +753,7 @@ namespace DerivationFramework{
 
   const xAOD::TruthParticle* HadronOriginClassifier::partonToHadron(const xAOD::TruthParticle* parton){
 
-    const xAOD::TruthParticle* hadron(NULL);
+    const xAOD::TruthParticle* hadron(nullptr);
     
     TVector3 v, vtmp;
     v.SetPtEtaPhi(parton->pt(),parton->eta(),parton->phi());
