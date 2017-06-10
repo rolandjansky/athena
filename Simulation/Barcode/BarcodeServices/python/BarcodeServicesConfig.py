@@ -43,7 +43,16 @@ def getMC12PlusBarcodeSvc(name="Barcode_MC12PlusBarcodeSvc", **kwargs):
 def getMC15aPlusBarcodeSvc(name="Barcode_MC15aPlusBarcodeSvc", **kwargs):
     return getMC12BarcodeSvc(name, **kwargs)
 
+def getMC15aPlusLLPBarcodeSvc(name="Barcode_MC15aPlusLLPBarcodeSvc", **kwargs):
+    return getMC12BarcodeSvc(name, **kwargs)
+
 def getMC15aBarcodeSvc(name="Barcode_MC15aBarcodeSvc", **kwargs):
+    return getMC12BarcodeSvc(name, **kwargs)
+
+def getMC16BarcodeSvc(name="Barcode_MC16BarcodeSvc", **kwargs):
+    return getMC12BarcodeSvc(name, **kwargs)
+
+def getMC16LLPBarcodeSvc(name="Barcode_MC16LLPBarcodeSvc", **kwargs):
     return getMC12BarcodeSvc(name, **kwargs)
 
 def getPhysicsProcessBarcodeSvc(name="Barcode_PhysicsProcessBarcodeSvc", **kwargs):
@@ -80,12 +89,16 @@ def getValidationBarcodeSvc(name="Barcode_ValidationBarcodeSvc", **kwargs):
     return Barcode__ValidationBarcodeSvc(name, **kwargs)
 
 def barcodeOffsetForTruthStrategy(strategyName):
-    offsets = {'MC12':      200000,
-               'MC12LLP':   200000,
-               'MC12Plus':  200000,
-               'MC15a':     200000,
-               'MC15aPlus': 200000,
-               'MC15':     1000000
+    offsets = {'MC12':         200000,
+               'MC12LLP':      200000,
+               'MC12Plus':     200000,
+               'MC15a':        200000,
+               'MC15aPlus':    200000,
+               'MC15aPlusLLP': 200000,
+               'MC15':        1000000,
+               'MC16':         200000,
+               'MC16LLP':      200000,
+               'Validation':   200000
                }
     currentOffset=offsets.get(strategyName)
     if currentOffset==None:
