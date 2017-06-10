@@ -5,16 +5,10 @@ Tools configurations for ISF
 KG Tan, 17/06/2012
 """
 
-from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,\
-        getService,getServiceClone,getAlgorithm,getAlgorithmClone
-
 from AthenaCommon import CfgMgr
 from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 from AthenaCommon.SystemOfUnits import *
 from AthenaCommon.DetFlags import DetFlags
-
-from ISF_Config.ISF_jobProperties import ISF_Flags # IMPORTANT: Flags must be set before tools are retrieved
-
 
 def getParticleHelper(name="ISF_ParticleHelper", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
@@ -22,16 +16,14 @@ def getParticleHelper(name="ISF_ParticleHelper", **kwargs):
     return CfgMgr.ISF__ParticleHelper(name, **kwargs)
 
 def getMemoryMonitor(name="ISF_MemoryMonitor", **kwargs):
-    from ISF_Tools.ISF_ToolsConf import ISF__MemoryMonitoringTool
-    return ISF__MemoryMonitoringTool(name, **kwargs)
+    return CfgMgr.ISF__MemoryMonitoringTool(name, **kwargs)
 
 def getMC12EntryLayerFilter(name="ISF_MC12EntryLayerFilter", **kwargs):
     kwargs.setdefault('AllowOnlyDefinedBarcodes'          , True    )
     kwargs.setdefault('AllowOnlyLegacyPrimaries'          , False   )
     kwargs.setdefault('LegacyParticleGenerationIncrement' , 1000000 )
     kwargs.setdefault('LegacyFirstSecondaryBarcode'       , 200001  )
-    from ISF_Tools.ISF_ToolsConf import ISF__GenericBarcodeFilter
-    return ISF__GenericBarcodeFilter(name, **kwargs)
+    return CfgMgr.ISF__GenericBarcodeFilter(name, **kwargs)
 
 def getMC12LLPEntryLayerFilter(name="ISF_MC12LLPEntryLayerFilter", **kwargs):
     return getMC12EntryLayerFilter(name, **kwargs)
@@ -42,14 +34,22 @@ def getMC12PlusEntryLayerFilter(name="ISF_MC12PlusEntryLayerFilter", **kwargs):
 def getMC15EntryLayerFilter(name="ISF_MC15EntryLayerFilter", **kwargs):
     kwargs.setdefault('MinEkinCharged'      , 100.*MeV  )
     kwargs.setdefault('MinEkinNeutral'      , -1.       )
-    from ISF_Tools.ISF_ToolsConf import ISF__EntryLayerFilter
-    return ISF__EntryLayerFilter(name, **kwargs  )
+    return CfgMgr.ISF__EntryLayerFilter(name, **kwargs  )
 
 def getMC15aEntryLayerFilter(name="ISF_MC15aEntryLayerFilter", **kwargs):
     return getMC15EntryLayerFilter(name, **kwargs)
 
 def getMC15aPlusEntryLayerFilter(name="ISF_MC15aPlusEntryLayerFilter", **kwargs):
     return getMC15EntryLayerFilter(name, **kwargs)
+
+def getMC15aPlusLLPEntryLayerFilter(name="ISF_MC15aPlusLLPEntryLayerFilter", **kwargs):
+    return getMC15aPlusEntryLayerFilter(name, **kwargs)
+
+def getMC16EntryLayerFilter(name="ISF_MC16EntryLayerFilter", **kwargs):
+    return getMC15aPlusEntryLayerFilter(name, **kwargs)
+
+def getMC16LLPEntryLayerFilter(name="ISF_MC16LLPEntryLayerFilter", **kwargs):
+    return getMC15aPlusLLPEntryLayerFilter(name, **kwargs)
 
 def getValidationEntryLayerFilter(name="ISF_ValidationEntryLayerFilter", **kwargs):
     return getMC12EntryLayerFilter(name, **kwargs)
@@ -108,8 +108,7 @@ def getCosmicEventFilterTool(name="ISF_CosmicEventFilter", **kwargs):
         kwargs.setdefault('ptMin'  , simFlags.CosmicFilterPTmin.get_Value() )
     if simFlags.CosmicFilterPTmax.statusOn:
         kwargs.setdefault('ptMax'  , simFlags.CosmicFilterPTmax.get_Value() )
-    from ISF_Tools.ISF_ToolsConf import ISF__CosmicEventFilterTool
-    return ISF__CosmicEventFilterTool(name, **kwargs)
+    return CfgMgr.ISF__CosmicEventFilterTool(name, **kwargs)
 
 def getInToOutSubDetOrderingTool(name="ISF_InToOutSubDetOrderingTool", **kwargs):
     # higher ordered particles will be simulated first
@@ -118,8 +117,7 @@ def getInToOutSubDetOrderingTool(name="ISF_InToOutSubDetOrderingTool", **kwargs)
     kwargs.setdefault('OrderCalo'        , 10000       )
     kwargs.setdefault('OrderMS'          , 100         )
     kwargs.setdefault('OrderCavern'      , 1           )
-    from ISF_Tools.ISF_ToolsConf import ISF__GenericParticleOrderingTool
-    return ISF__GenericParticleOrderingTool(name, **kwargs)
+    return CfgMgr.ISF__GenericParticleOrderingTool(name, **kwargs)
 
 def getParticleOrderingTool(name="ISF_ParticleOrderingTool", **kwargs):
     kwargs.setdefault('OrderID'          , 1           )
@@ -127,6 +125,5 @@ def getParticleOrderingTool(name="ISF_ParticleOrderingTool", **kwargs):
     kwargs.setdefault('OrderCalo'        , 1           )
     kwargs.setdefault('OrderMS'          , 1           )
     kwargs.setdefault('OrderCavern'      , 1           )
-    from ISF_Tools.ISF_ToolsConf import ISF__GenericParticleOrderingTool
-    return ISF__GenericParticleOrderingTool(name, **kwargs)
+    return CfgMgr.ISF__GenericParticleOrderingTool(name, **kwargs)
 
