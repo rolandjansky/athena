@@ -237,6 +237,10 @@
 - Reconstruction/Jet/JetMonitoring
 - Reconstruction/Jet/JetEvent.+
 + Reconstruction/Jet/.*
++ Reconstruction/MET/METRecoInterface
++ Reconstruction/MET/METReconstruction
++ Reconstruction/MET/METInterface
++ Reconstruction/MET/METUtilities
 + Reconstruction/MuonIdentification/.*Interfaces
 + Reconstruction/MuonIdentification/ICaloTrkMuIdTools
 + Reconstruction/MuonIdentification/MuidEvent
@@ -255,8 +259,10 @@
 + Reconstruction/RecJobTransforms
 + Reconstruction/RecoAlgs/CaloRingerAlgs
 + Reconstruction/RecoEvent/ParticleCaloExtension
++ Reconstruction/RecoTools/CaloClusterMatching
 + Reconstruction/RecoTools/CaloRingerTools
 + Reconstruction/RecoTools/I?TrackToVertex
++ Reconstruction/RecoTools/IsolationTool
 + Reconstruction/RecoTools/ParticlesInConeTools
 + Reconstruction/RecoTools/RecoToolInterfaces
 + Reconstruction/RecoTools/TrackToCalo

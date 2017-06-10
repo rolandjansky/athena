@@ -13,7 +13,7 @@ from DerivationFrameworkMuons.MuonsCommon import *
 #
 from DerivationFrameworkJetEtMiss.METCommon import *
 #
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
     from DerivationFrameworkMCTruth.MCTruthCommon import *
     from DerivationFrameworkTau.TauTruthCommon import *
 
@@ -113,7 +113,7 @@ thinningTools.append(JETM3TPThinningTool)
 doTruthThinning = True
 preserveAllDescendants = False
 from AthenaCommon.GlobalFlags import globalflags
-if doTruthThinning and globalflags.DataSource()=='geant4':
+if doTruthThinning and DerivationFrameworkIsMonteCarlo:
     truth_cond_WZH    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))"            # W, Z and Higgs
     truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16) && (TruthParticles.barcode < 200000))"            # Leptons
     truth_cond_Quark  = "((abs(TruthParticles.pdgId) <=  5 && (TruthParticles.pt > 10000.)) || (abs(TruthParticles.pdgId) == 6))"                 # Quarks
@@ -157,17 +157,14 @@ applyPFOAugmentation(jetm3Seq)
 
 OutputJets["JETM3"] = []
 
-#AntiKt4PV0TrackJets
-#addStandardJets("AntiKt", 0.2, "PV0Track", 2000, mods="track_ungroomed", algseq=jetm3Seq, outputGroup="JETM3")
-#addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=jetm3Seq, outputGroup="JETM3")
-#AntiKt4PV0TrackJets
-addAntiKt2PV0TrackJets(jetm3Seq, "JETM3")
-addAntiKt4PV0TrackJets(jetm3Seq, "JETM3")
+#=======================================
+# RESTORE AOD-REDUCED JET COLLECTIONS
+#=======================================
+reducedJetList = ["AntiKt2PV0TrackJets",
+                  "AntiKt4PV0TrackJets",
+                  "AntiKt4TruthJets"]
+replaceAODReducedJets(reducedJetList,jetm3Seq,"JETM3")
 
-if globalflags.DataSource()=='geant4':
-#    addStandardJets("AntiKt", 0.4, "Truth", 5000, mods="truth_ungroomed",
-#                    algseq=jetm3Seq, outputGroup="JETM3")
-     addAntiKt4TruthJets(jetm3Seq, "JETM3")
 from JetRec.JetRecStandard import jtm
 #EMTopo
 lowptjetalg = None
@@ -201,20 +198,11 @@ OutputJets["JETM3"].append("AntiKt4EMPFlowLowPtJets")
 #=======================================
 # SCHEDULE CUSTOM MET RECONSTRUCTION
 #=======================================
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
     addMETTruthMap('AntiKt4EMTopo',"JETMX")
     addMETTruthMap('AntiKt4LCTopo',"JETMX")
     addMETTruthMap('AntiKt4EMPFlow',"JETMX")
     scheduleMETAssocAlg(jetm3Seq,"JETMX")
-
-#=======================================
-# SCHEDULE REPLACEMENT B-TAG COLLECTIONS
-# Has to go after MET because of potential
-# problems with broken elementLinks
-#=======================================
-
-#from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -227,8 +215,9 @@ JETM3SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "MET_Reference_AntiKt4LCTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
+                                        "BTagging_AntiKt4EMTopo",
 					]
-JETM3SlimmingHelper.AllVariables = ["BTagging_AntiKt4EMTopo", "CaloCalTopoClusters",
+JETM3SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                     "MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
                                     "MuonSegments",
@@ -236,7 +225,6 @@ JETM3SlimmingHelper.AllVariables = ["BTagging_AntiKt4EMTopo", "CaloCalTopoCluste
                                     "JetETMissNeutralParticleFlowObjects",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
-JETM3SlimmingHelper.StaticContent = ["xAOD::BTaggingContainer#BTagging_AntiKt4LCTopo"]
 JETM3SlimmingHelper.ExtraVariables = ["Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus"]
 for truthc in [
     "TruthMuons",

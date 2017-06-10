@@ -11,7 +11,7 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 
 #
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
     from DerivationFrameworkMCTruth.MCTruthCommon import *
     from DerivationFrameworkTau.TauTruthCommon import *
 
@@ -79,7 +79,7 @@ thinningTools = []
 doTruthThinning = True
 preserveAllDescendants = False
 from AthenaCommon.GlobalFlags import globalflags
-if doTruthThinning and globalflags.DataSource()=='geant4':
+if doTruthThinning and DerivationFrameworkIsMonteCarlo:
     truth_cond_WZH    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))"            # W, Z and Higgs
     truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16) && (TruthParticles.barcode < 200000))"            # Leptons
     truth_cond_Quark  = "((abs(TruthParticles.pdgId) <=  5  && (TruthParticles.pt > 10000.)) || (abs(TruthParticles.pdgId) == 6))"                 # Quarks
@@ -128,23 +128,15 @@ jetm8Seq += CfgMgr.DerivationFramework__DerivationKernel(	name = "JETM8TrigKerne
 									SkimmingTools = [JETM8TrigSkimmingTool],
 									ThinningTools = [])
 
-# needed for skimming
-#AntiKt*PV0TrackJets
-#addStandardJets("AntiKt", 0.2, "PV0Track", 2000, mods="track_ungroomed", algseq=jetm8Seq, outputGroup="JETM8")
-#addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=jetm8Seq, outputGroup="JETM8")
-addAntiKt2PV0TrackJets(jetm8Seq,"JETM8")
-addAntiKt4PV0TrackJets(jetm8Seq,"JETM8")
-
-if globalflags.DataSource()=='geant4':
-#    addStandardJets("AntiKt", 0.4, "Truth", 5000, mods="truth_ungroomed",
-#                    algseq=jetm8Seq, outputGroup="JETM8")
-#    addStandardJets("AntiKt", 1.0, "Truth", 40000, mods="truth_ungroomed",
-#                    algseq=jetm8Seq, outputGroup="JETM8")
-  addAntiKt4TruthJets(jetm8Seq,"JETM8")
-  addAntiKt10TruthJets(jetm8Seq,"JETM8")
-
-# AntiKt10LCTopoJets
-addStandardJets("AntiKt", 1.0, "LCTopo", mods="lctopo_ungroomed", ptmin=40000, ptminFilter=50000, calibOpt="none", algseq=jetm8Seq, outputGroup="JETM8")
+#=======================================
+# RESTORE AOD-REDUCED JET COLLECTIONS
+#=======================================
+reducedJetList = ["AntiKt2PV0TrackJets",
+                  "AntiKt4PV0TrackJets",
+                  "AntiKt4TruthJets",
+                  "AntiKt10TruthJets"
+                  "AntiKt10LCTopoJets"]
+replaceAODReducedJets(reducedJetList,jetm8Seq,"JETM8")
 
 jetm8Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM8MainKernel", 
                                                           SkimmingTools = [JETM8OfflineSkimmingTool],
@@ -232,7 +224,7 @@ addDefaultTrimmedJets(jetm8Seq,"JETM8")
 addAntiKt2PV0TrackJets(jetm8Seq, "JETM8")
 addAntiKt4PV0TrackJets(jetm8Seq, "JETM8")
 
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
      addAntiKt4TruthJets(jetm8Seq, "JETM8")
      addAntiKt10TruthJets(jetm8Seq, "JETM8")
 
@@ -267,11 +259,10 @@ JETM8SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "MET_Reference_AntiKt4LCTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
-                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                        "BTagging_AntiKt4EMTopo", "BTagging_AntiKt2Track",
                                         ] #+ correctedClusters
-JETM8SlimmingHelper.AllVariables = ["BTagging_AntiKt4LCTopo", "BTagging_AntiKt4EMTopo",
-                                    "BTagging_AntiKt2Track", "BTagging_AntiKt3Track",
-                                    "CaloCalTopoClusters", 
+JETM8SlimmingHelper.AllVariables = ["CaloCalTopoClusters", 
                                     "MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
                                     "JetETMissChargedParticleFlowObjects", "JetETMissNeutralParticleFlowObjects",
@@ -287,8 +278,6 @@ for truthc in [
     ]:
     JETM8SlimmingHelper.StaticContent.append("xAOD::TruthParticleContainer#"+truthc)
     JETM8SlimmingHelper.StaticContent.append("xAOD::TruthParticleAuxContainer#"+truthc+"Aux.")
-JETM8SlimmingHelper.StaticContent = ["xAOD::BTaggingContainer#BTagging_AntiKt2Track",
-                                     "xAOD::BTaggingContainer#BTagging_AntiKt4LCTopo"]
 
 for caloc in correctedClusters:
     JETM8SlimmingHelper.AppendToDictionary.update({caloc:"xAOD::CaloClusterContainer",

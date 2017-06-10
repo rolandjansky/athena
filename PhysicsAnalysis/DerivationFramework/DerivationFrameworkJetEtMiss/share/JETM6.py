@@ -12,7 +12,7 @@ from DerivationFrameworkMuons.MuonsCommon import *
 
 from DerivationFrameworkJetEtMiss.METCommon import *
 #
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
     from DerivationFrameworkMCTruth.MCTruthCommon import *
     from DerivationFrameworkTau.TauTruthCommon import *
 
@@ -23,6 +23,7 @@ if globalflags.DataSource()=='geant4':
 from DerivationFrameworkJetEtMiss.TriggerLists import *
 electronTriggers = singleElTriggers
 muonTriggers = singleMuTriggers
+photonTriggers = singlePhotonTriggers
 
 # For first data
 jetSelection = '(count( AntiKt10LCTopoJets.pt > 180.*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5 ) >=1)'
@@ -49,7 +50,7 @@ expression = jetSelection + ' || '+ lepSelection
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 JETM6TrigSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name           = "JETM6TrigSkimmingTool",
-                                                                    TriggerListOR  = jetTriggers+electronTriggers+muonTriggers )
+                                                                    TriggerListOR  = jetTriggers+electronTriggers+muonTriggers+photonTriggers )
                                                                     #TriggerListOR  = triggers )
 ToolSvc += JETM6TrigSkimmingTool
 
@@ -136,7 +137,7 @@ thinningTools.append(JETM6TauTPThinningTool)
 doTruthThinning = True
 preserveAllDescendants = False
 from AthenaCommon.GlobalFlags import globalflags
-if doTruthThinning and globalflags.DataSource()=='geant4':
+if doTruthThinning and DerivationFrameworkIsMonteCarlo:
     truth_cond_WZH    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))"            # W, Z and Higgs
     truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16) && (TruthParticles.barcode < 200000))"            # Leptons
     truth_cond_Quark  = "((abs(TruthParticles.pdgId) <=  5  && (TruthParticles.pt > 10000.)) || (abs(TruthParticles.pdgId) == 6))"                 # Quarks
@@ -177,21 +178,15 @@ jetm6Seq += CfgMgr.DerivationFramework__DerivationKernel(	name = "JETM6TrigSkimK
                                                             SkimmingTools = [JETM6TrigSkimmingTool],
                                                             ThinningTools = [])
 
-#AntiKt2PV0TrackJets
-#addStandardJets("AntiKt", 0.2, "PV0Track", 2000, mods="track_ungroomed", algseq=jetm6Seq, outputGroup="JETM6")
-#addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=jetm6Seq, outputGroup="JETM6")
-addAntiKt2PV0TrackJets(jetm6Seq, "JETM6")
-addAntiKt4PV0TrackJets(jetm6Seq, "JETM6")
-
-if globalflags.DataSource()=='geant4':
-#    addStandardJets("AntiKt", 0.4, "Truth", 5000, mods="truth_ungroomed",
-#                    algseq=jetm6Seq, outputGroup="JETM6")
-#    addStandardJets("AntiKt", 1.0, "Truth", 40000, mods="truth_ungroomed",
-#                    calibOpt="none", algseq=jetm6Seq, outputGroup="JETM6")
-     addAntiKt4TruthJets(jetm6Seq, "JETM6")
-     addAntiKt10TruthJets(jetm6Seq, "JETM6")
-# AntiKt10LCTopoJets
-addStandardJets("AntiKt", 1.0, "LCTopo", mods="lctopo_ungroomed", ptmin=40000, ptminFilter=50000, calibOpt="none", algseq=jetm6Seq, outputGroup="JETM6")
+#=======================================
+# RESTORE AOD-REDUCED JET COLLECTIONS
+#=======================================
+reducedJetList = ["AntiKt2PV0TrackJets",
+                  "AntiKt4PV0TrackJets",
+                  "AntiKt4TruthJets",
+                  "AntiKt10TruthJets",
+                  "AntiKt10LCTopoJets"]
+replaceAODReducedJets(reducedJetList,jetm6Seq,"JETM6")
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 jetm6Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM6MainKernel",
@@ -208,16 +203,7 @@ OutputJets["JETM6"] = []
 # AntiKt10*PtFrac5Rclus20
 addDefaultTrimmedJets(jetm6Seq,"JETM6")
 
-#addStandardJets("AntiKt", 1.0, "PV0Track", ptmin=40000, algseq=jetm6Seq, outputGroup="JETM6")
 addTrimmedJets("AntiKt", 1.0, "PV0Track", rclus=0.2, ptfrac=0.05, algseq=jetm6Seq, outputGroup="JETM6")
-
-#=======================================
-# SCHEDULE REPLACEMENT B-TAG COLLECTIONS
-#=======================================
-
-from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-FlavorTagInit(JetCollections  = ['AntiKt2PV0TrackJets'], Sequencer = jetm6Seq)
-#jetm6Seq += CfgMgr.xAODMaker__ElementLinkResetAlg( "JETM6_ElementLinkReset" )
 
 #====================================================================
 # SET UP STREAM   
@@ -257,15 +243,9 @@ JETM6SlimmingHelper.AllVariables = [
     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
     ]
 
-JETM6SlimmingHelper.StaticContent = ["xAOD::BTaggingContainer#BTagging_AntiKt2Track",
-                                     "xAOD::BTaggingContainer#BTagging_AntiKt4LCTopo",
-                                     "xAOD::JetContainer#AntiKt2PV0TrackJets"
-                                     ]
-
 JETM6SlimmingHelper.ExtraVariables = [
     'CaloCalTopoClusters.calE.calEta.calM.calPhi.CENTER_MAG',
-#    'BTagging_AntiKt2Track.MSV_N2Tpair.MSV_badTracksIP.MSV_energyTrkInJet.MSV_normdist.MSV_nvsec.MSV_vertices.MV1_discriminant.MV2c00_discriminant.MV2c100_discriminant.MV2c10_discriminant.MV2c20_discriminant.MV2m_pb.MV2m_pc.MV2m_pu.MultiSVbb1_discriminant.MultiSVbb2_discriminant.SV0_N2Tpair.SV1_pb.SV1_pc.SV1_pu.IP3D_pb.IP3D_pc.IP3D_pu',
-#    'BTagging_AntiKt4LCTopo.MSV_N2Tpair.MSV_badTracksIP.MSV_energyTrkInJet.MSV_normdist.MSV_nvsec.MSV_vertices.MV1_discriminant.MV2c00_discriminant.MV2c100_discriminant.MV2c10_discriminant.MV2c20_discriminant.MV2m_pb.MV2m_pc.MV2m_pu.MultiSVbb1_discriminant.MultiSVbb2_discriminant.SV0_N2Tpair.SV1_pb.SV1_pc.SV1_pu.IP3D_pb.IP3D_pc.IP3D_pu',
+    'BTagging_AntiKt2Track.MSV_N2Tpair.MSV_badTracksIP.MSV_energyTrkInJet.MSV_normdist.MSV_nvsec.MSV_vertices.MV1_discriminant.MV2c00_discriminant.MV2c100_discriminant.MV2c10_discriminant.MV2c20_discriminant.MV2m_pb.MV2m_pc.MV2m_pu.MultiSVbb1_discriminant.MultiSVbb2_discriminant.SV0_N2Tpair.SV1_pb.SV1_pc.SV1_pu.IP3D_pb.IP3D_pc.IP3D_pu',
     'BTagging_AntiKt4EMTopo.MSV_N2Tpair.MSV_badTracksIP.MSV_energyTrkInJet.MSV_normdist.MSV_nvsec.MSV_vertices.MV1_discriminant.MV2c00_discriminant.MV2c100_discriminant.MV2c10_discriminant.MV2c20_discriminant.MV2m_pb.MV2m_pc.MV2m_pu.MultiSVbb1_discriminant.MultiSVbb2_discriminant.SV0_N2Tpair.SV1_pb.SV1_pc.SV1_pu.IP3D_pb.IP3D_pc.IP3D_pu'
     ]
 

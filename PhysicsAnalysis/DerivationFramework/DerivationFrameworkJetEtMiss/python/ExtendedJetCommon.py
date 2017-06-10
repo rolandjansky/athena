@@ -15,7 +15,7 @@ extjetlog = Logging.logging.getLogger('ExtendedJetCommon')
 ##################################################################
 
 def addDefaultTrimmedJets(sequence,outputlist,dotruth=True,writeUngroomed=False):
-    if jetFlags.useTruth and dotruth:
+    if DerivationFrameworkIsMonteCarlo and dotruth:
         addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
     addTrimmedJets('AntiKt', 1.0, 'LCTopo', rclus=0.2, ptfrac=0.05, algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
 
@@ -23,26 +23,74 @@ def addDefaultTrimmedJets(sequence,outputlist,dotruth=True,writeUngroomed=False)
 # Add AntiKt jets                                                               
 ##################################################################              
 
+from BTagging.BTaggingFlags import BTaggingFlags
+BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4TopoEM->AntiKt4EMTopo" ]
+BTaggingFlags.Jets=[]
+from BTagging.BTaggingConfiguration import getConfiguration
+
+ConfInst=getConfiguration()
+ConfInst.doNotCheckForTaggerObstacles()
+
+from JetRec.JetRecStandard import jtm
+
 def addAntiKt10LCTopoJets(sequence, outputlist):
-        addStandardJets("AntiKt", 1.0, "LCTopo", 40000, mods="lctopo_ungroomed", algseq=sequence, outputGroup=outputlist)
+    addStandardJets("AntiKt", 1.0, "LCTopo", ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt2PV0TrackJets(sequence, outputlist):
-        addStandardJets("AntiKt", 0.2, "PV0Track", 2000, mods="track_ungroomed", algseq=sequence, outputGroup=outputlist)
+    btag_akt2trk = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt2Track", AddToToolSvc=True,
+                                                Verbose=True,
+                                                options={"name"         : "btagging_antikt2track",
+                                                         "BTagName"     : "BTagging_AntiKt2Track",
+                                                         "BTagJFVtxName": "JFVtx",
+                                                         "BTagSVName"   : "SecVtx",
+                                                         },
+                                                SetupScheme = "",
+                                                TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP', 'MV2c10Flip']
+                                                )
+    jtm.modifiersMap["akt2track"] = jtm.modifiersMap["track_ungroomed"] + [btag_akt2trk]
+    addStandardJets("AntiKt", 0.2, "PV0Track", ptmin=2000, mods="akt2track",
+                    algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt4PV0TrackJets(sequence, outputlist):
-        addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=sequence, outputGroup=outputlist)
+    addStandardJets("AntiKt", 0.4, "PV0Track", ptmin=2000, mods="track_ungroomed", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt10PV0TrackJets(sequence, outputlist):
-        addStandardJets("AntiKt", 1.0, "PV0Track", 2000, mods="track_ungroomed", algseq=sequence, outputGroup=outputlist)
+    addStandardJets("AntiKt", 1.0, "PV0Track", ptmin=2000, ptminFilter=40000, mods="track_ungroomed", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt4TruthJets(sequence,outputlist):
-        addStandardJets("AntiKt", 0.4, "Truth", 5000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
-
-def addAntiKt10TruthJets(sequence,outputlist):
-        addStandardJets("AntiKt", 1.0, "Truth", 40000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
+    if DerivationFrameworkIsMonteCarlo:
+        addStandardJets("AntiKt", 0.4, "Truth", ptmin=5000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt4TruthWZJets(sequence,outputlist):
-        addStandardJets("AntiKt", 0.4, "TruthWZ", 5000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
+    if DerivationFrameworkIsMonteCarlo:
+        addStandardJets("AntiKt", 0.4, "TruthWZ", ptmin=5000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
+
+def addAntiKt10TruthJets(sequence,outputlist):
+    if DerivationFrameworkIsMonteCarlo:
+        addStandardJets("AntiKt", 1.0, "Truth", ptmin=40000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
+
+def addAntiKt10TruthWZJets(sequence,outputlist):
+    if DerivationFrameworkIsMonteCarlo:
+        addStandardJets("AntiKt", 1.0, "TruthWZ", ptmin=40000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
+
+def replaceAODReducedJets(jetlist,sequence,outputlist):
+    extjetlog.info( "Replacing AOD-reduced jet collections: {0}".format(",".join(jetlist)))
+    if "AntiKt2PV0TrackJets" in jetlist:
+        addAntiKt2PV0TrackJets(sequence,outputlist)
+    if "AntiKt4PV0TrackJets" in jetlist:
+        addAntiKt4PV0TrackJets(sequence,outputlist)
+    if "AntiKt10PV0TrackJets" in jetlist:
+        addAntiKt10PV0TrackJets(sequence,outputlist)
+    if "AntiKt4TruthJets" in jetlist:
+        addAntiKt4TruthJets(sequence,outputlist)
+    if "AntiKt4TruthWZJets" in jetlist:
+        addAntiKt4TruthWZJets(sequence,outputlist)
+    if "AntiKt10TruthJets" in jetlist:
+        addAntiKt10TruthJets(sequence,outputlist)
+    if "AntiKt10TruthWZJets" in jetlist:
+        addAntiKt10TruthWZJets(sequence,outputlist)
+    if "AntiKt10LCTopoJets" in jetlist:
+        addAntiKt10LCTopoJets(sequence,outputlist)
 
 ##################################################################
 
@@ -103,7 +151,7 @@ def applyJetCalibration(jetalg,algname,sequence):
                       'AntiKt10LCTopoTrimmedPtFrac5SmallR20':('JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights.config',
                                                               'EtaJES_JMS'),
                       }
-        isMC = "IS_SIMULATION" in inputFileSummary["evt_type"]
+        isMC = DerivationFrameworkIsMonteCarlo
         isAF2 = False
         if isMC:
             isAF2 = 'ATLFASTII' in inputFileSummary['metadata']['/Simulation/Parameters']['SimulationFlavour'].upper()
@@ -189,16 +237,5 @@ def applyBTaggingAugmentation(jetalg,algname='JetCommonKernel_xAODJets',sequence
 
     extjetlog.info('ExtendedJetCommon: Applying b-tagging working points for jet collection: '+jetalg+'Jets')
     applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
-
-def addTrackSumMoments(jetalg,algname='JetCommonKernel_xAODJets',sequence=DerivationFrameworkJob):
-    extjetlog.warning('addTrackSumMoments is now deprecated. Its no longer used for Release 21')
-
-##################################################################
-
-def replaceBuggyAntiKt4TruthWZJets(algseq,outputGroup='BugFix'):
-    extjetlog.warning('replaceBuggyAntiKt4TruthWZJets is now deprecated')
-
-def replaceBuggyAntiKt10TruthWZJets(algseq,outputGroup='BugFix'):
-    extjetlog.warning('replaceBuggyAntiKt10TruthWZJets is now deprecated')
 
 ##################################################################

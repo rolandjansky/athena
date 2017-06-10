@@ -284,7 +284,8 @@ class METConfig:
             ToolSvc += self.trkisotool
         #
         self.caloisotool = CfgMgr.xAOD__CaloIsolationTool("CaloIsolationTool_MET",
-                                                          saveOnlyRequestedCorrections=True)
+                                                          saveOnlyRequestedCorrections=True,
+                                                          addCaloExtensionDecoration=False)
         if not hasattr(ToolSvc,self.caloisotool.name()):
             ToolSvc += self.caloisotool
 

@@ -60,6 +60,9 @@ namespace DerivationFramework {
         
         /// Parameter: Keep b-hadrons?
         bool m_writeBHadrons;
+
+        /// Parameter: Keep c-hadrons?
+        bool m_writeCHadrons;
         
         /// Parameter: Keep geant particles?
         bool m_writeGeant;
