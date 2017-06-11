@@ -68,7 +68,6 @@ StatusCode JetAlgorithm::execute() {
     else ATH_MSG_DEBUG("Tool execution succeeded");
     ATH_MSG_DEBUG(line);
   }
-  return StatusCode::SUCCESS;
 }
 
 //**********************************************************************
