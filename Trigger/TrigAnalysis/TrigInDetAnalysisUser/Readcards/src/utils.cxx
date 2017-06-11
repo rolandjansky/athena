@@ -194,14 +194,14 @@ std::string number(const int& i, const std::string& s) {
 
 
 std::string dirname( std::string name ) { 
-  size_t pos = name.find_last_of( "/" );
+  std::string::size_type pos = name.find_last_of( "/" );
   if ( pos!=std::string::npos ) name = name.substr( 0, pos );
   return name;
 }
 
 
 std::string basename( std::string name ) { 
-  size_t pos = name.find( "/" );
+  std::string::size_type  pos = name.find( "/" );
   while ( pos!=std::string::npos ) {
     name = name.substr( pos+1, name.size()-pos-1 );
     pos  = name.find( "/" );
