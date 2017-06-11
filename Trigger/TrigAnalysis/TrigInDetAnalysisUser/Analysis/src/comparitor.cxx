@@ -1131,6 +1131,8 @@ int main(int argc, char** argv) {
 	  std::string name = hchain->GetTitle();
 	  if ( usechainref ) { 
 	    chainref = name;
+	    std::string::size_type pos = chainref.find(":for");
+            if ( pos!=std::string::npos ) chainref.replace( pos, 4, "_for" );
 	    std::replace( chainref.begin(), chainref.end(), ':', '/');	    
 	    std::string newchain = dirname( dirname( chains[j]) ) + "/Expert/" + chainref;
 	    chainref = newchain;

@@ -92,7 +92,7 @@ std::ostream& operator<<( std::ostream& s, const threshold& t ) {
 }
 
 
-int usage( int argc, char** argv, int i=0 ) { 
+int usage( int , char** argv, int i=0 ) { 
   if ( i!=0 ) std::cout << "error " << i << "\n\n"; 
 
   std::cout << "Usage: " << argv[0] << " FILE SLICE [OPTIONS] file\n\n";
