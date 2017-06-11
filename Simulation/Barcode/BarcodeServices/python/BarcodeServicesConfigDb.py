@@ -5,7 +5,7 @@ Configuration database for BarcodeServices
 Elmar Ritsch, 23/10/2014
 """
 
-from AthenaCommon.CfgGetter import addTool
+from AthenaCommon.CfgGetter import addService
 
 # Common tools, services and algorithms used by jobs:
 addService("BarcodeServices.BarcodeServicesConfig.getMC12BarcodeSvc"          ,  "Barcode_MC12BarcodeSvc"          )
