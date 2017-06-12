@@ -212,10 +212,6 @@ namespace InDet {
     return true;
   }
 
-  bool InDetTrackTruthFilterTool::selectTrack(const xAOD::TrackParticle* track) const {
-    return accept(track);
-  }
-
   StatusCode InDetTrackTruthFilterTool::initTrkEffSystHistogram(float scale, TH2 *&histogram, string rootFileName, string histogramName) const {
 
     ATH_CHECK( initObject<TH2>(histogram, rootFileName, histogramName) );
