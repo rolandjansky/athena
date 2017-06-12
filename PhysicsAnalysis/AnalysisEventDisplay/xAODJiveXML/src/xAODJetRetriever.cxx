@@ -48,6 +48,7 @@ namespace JiveXML {
 	"Other collections to be retrieved. If list left empty, all available retrieved");
     declareProperty("DoWriteHLT", m_doWriteHLT = false,"Ignore HLTAutokey object by default."); // ignore HLTAutoKey objects
     declareProperty("WriteJetQuality", m_writeJetQuality = false,"Don't write extended jet quality details by default.");
+    declareProperty("TracksName", m_tracksName="InDetTrackParticles_xAOD");
   }
   
   /**
