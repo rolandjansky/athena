@@ -59,14 +59,14 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
   declareProperty( "etaCutOffline",     m_etaCutOffline     = 2.5 );
   declareProperty( "d0CutOffline",      m_d0CutOffline      = 1000 );
   declareProperty( "z0CutOffline",      m_z0CutOffline      = 2000 );
-  declareProperty( "pixHitsOffline",    m_pixHitsOffline    =  2 ); // 1 <- old value
-  declareProperty( "sctHitsOffline",    m_sctHitsOffline    =  6 ); // 6 <- old value
+  declareProperty( "pixHitsOffline",    m_pixHitsOffline    =  2 ); // 1 <- old value ( 2 degrees of freedom = 1 cluster ) 
+  declareProperty( "sctHitsOffline",    m_sctHitsOffline    =  6 ); // 6 <- old value ( 6 clusters = 3 spacepoints )
   declareProperty( "siHitsOffline",     m_siHitsOffline     =  8 );
-  declareProperty( "blayerHitsOffline", m_blayerHitsOffline = -1 );
+  declareProperty( "blayerHitsOffline", m_blayerHitsOffline = -1 ); // no requirement - in case IBL is off
 
-  declareProperty( "pixHolesOffline",   m_pixHolesOffline   =  20 ); // essentially no limit
+  declareProperty( "pixHolesOffline",   m_pixHolesOffline   =  20 ); // maximum 2 degrees of freedom ? 
   declareProperty( "sctHolesOffline",   m_sctHolesOffline   =  20 ); // essentially no limit
-  declareProperty( "siHolesOffline",    m_siHolesOffline    =  2 );  // npix holes + nsi holes <= 2 
+  declareProperty( "siHolesOffline",    m_siHolesOffline    =  2 );  // npix holes + nsi holes <= 2 ( not degrees of freedom ! )   
 
   declareProperty( "trtHitsOffline",    m_trtHitsOffline    = -2 );
   declareProperty( "strawHitsOffline",  m_strawHitsOffline  = -2 );
@@ -177,7 +177,8 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
     // reference (offline) tracks...
     TrackFilter* filterRef = new Filter_Track( m_etaCutOffline,    m_d0CutOffline,   m_z0CutOffline,  m_pTCutOffline,
 					       m_pixHitsOffline,   m_sctHitsOffline, m_siHitsOffline, m_blayerHitsOffline,  
-					       m_strawHitsOffline, m_trtHitsOffline, 0, 20, 20, m_siHolesOffline );
+					       m_strawHitsOffline, m_trtHitsOffline, 0, 
+					       m_pixHolesOffline, m_sctHolesOffline, m_siHolesOffline );
 
     // test (trigger) tracks...
     //  TrackFilter* filterTest = new Filter_Track( m_etaCut, m_d0Cut, m_z0Cut, m_pTCut, -1, -1, -1, -1,  -2, -2 );
