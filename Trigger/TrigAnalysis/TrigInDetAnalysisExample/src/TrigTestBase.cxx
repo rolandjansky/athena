@@ -64,7 +64,7 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
   declareProperty( "siHitsOffline",     m_siHitsOffline     =  8 );
   declareProperty( "blayerHitsOffline", m_blayerHitsOffline = -1 ); // no requirement - in case IBL is off
 
-  declareProperty( "pixHolesOffline",   m_pixHolesOffline   =  20 ); // maximum 2 degrees of freedom ? 
+  declareProperty( "pixHolesOffline",   m_pixHolesOffline   =  20 ); // essentially no limit
   declareProperty( "sctHolesOffline",   m_sctHolesOffline   =  20 ); // essentially no limit
   declareProperty( "siHolesOffline",    m_siHolesOffline    =  2 );  // npix holes + nsi holes <= 2 ( not degrees of freedom ! )   
 
