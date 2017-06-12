@@ -30,12 +30,13 @@ class PixelMon2DLumiMaps
       TH2F_LW* B2lbm;
       TH2F_LW* Albm;
       TH2F_LW* Clbm;
-      void Fill(double LB,Identifier &id, const PixelID* pixID,double weight=1, bool errorHist=false);
-      void Scale(double number, bool errorHist);
-      StatusCode regHist(ManagedMonitorToolBase::MonGroup &group, bool errorHist=false);
+      void Fill(double LB,Identifier &id, const PixelID* pixID, double weight=1);
+      void Scale(double number);
+      StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
 private:
-      void formatHist(bool errorHist=false);
+      void formatHist();
       const bool m_doIBL;
+      const bool m_errorHist;
       
 };
 

@@ -202,7 +202,7 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    if (m_do2DMaps && !m_doOnline) {
       for (int j = 0; j < kNumErrorStates; j++) {
          m_errhist_expert_LB_maps[j]  = new PixelMon2DLumiMaps(error_state_labels[j].first + "_int_LB", error_state_labels[j].second + " per event per LB" + m_histTitleExt, "# Errors", m_doIBL, false);
-         sc = m_errhist_expert_LB_maps[j]->regHist(rodExpert, false);
+         sc = m_errhist_expert_LB_maps[j]->regHist(rodExpert);
       }
    }
 
@@ -411,7 +411,7 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
                if (m_errhist_expert_maps[getErrorState(bit, is_ibl)])
                   m_errhist_expert_maps[getErrorState(bit, is_ibl)]->Fill(WaferID, m_pixelid);
                if (m_errhist_expert_LB_maps[getErrorState(bit, is_ibl)])
-                  m_errhist_expert_LB_maps[getErrorState(bit, is_ibl)]->Fill(kLumiBlock, WaferID, m_pixelid, 1, true);
+                  m_errhist_expert_LB_maps[getErrorState(bit, is_ibl)]->Fill(kLumiBlock, WaferID, m_pixelid, 1);
             }
 
             if (kLayer == PixLayer::kIBL) {
