@@ -23,3 +23,12 @@ foreach( _external ${_externals} )
 endforeach()
 unset( _external )
 unset( _externals )
+
+# This is an analysis project, so set the appropriate compile flags:
+add_definitions( -DXAOD_ANALYSIS )
+add_definitions( -DROOTCORE_RELEASE_SERIES=$ENV{ROOTCORE_RELEASE_SERIES} )
+
+# And some variables for CMake as well:
+set( XAOD_ANALYSIS TRUE CACHE BOOL
+   "Flag specifying that this is an analysis release" )
+
