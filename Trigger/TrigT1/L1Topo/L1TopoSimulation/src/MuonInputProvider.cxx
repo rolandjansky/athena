@@ -187,7 +187,7 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
     } else if( evtStore()->contains<ROIB::RoIBResult>(m_roibLocation) ) {
       CHECK( evtStore()->retrieve(roibResult, m_roibLocation) );
     } else {
-      ATH_MSG_WARNING("Neither a MuCTPIToRoIBSLink with SG key " << LVL1MUCTPI::DEFAULT_MuonRoIBLocation << " nor a an RoIBResult were found in the event. No muon input for the L1Topo simulation.");
+      ATH_MSG_WARNING("Neither a MuCTPIToRoIBSLink with SG key " << LVL1MUCTPI::DEFAULT_MuonRoIBLocation << " nor an RoIBResult were found in the event. No muon input for the L1Topo simulation.");
       return StatusCode::RECOVERABLE;
     }
 
