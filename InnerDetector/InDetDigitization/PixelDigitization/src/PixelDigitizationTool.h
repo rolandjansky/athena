@@ -52,7 +52,7 @@ class PixelDigitizationTool : public PileUpToolBase {
     PixelDigitizationTool(const PixelDigitizationTool&);
     PixelDigitizationTool &operator=(const PixelDigitizationTool&);
 
-    std::vector<SiHitCollection*> hitCollPtrs;
+    std::vector<SiHitCollection*> m_hitCollPtrs;
 
     SG::WriteHandle<PixelRDO_Container>     m_rdoContainer;
     SG::WriteHandle<InDetSimDataCollection> m_simDataColl;
