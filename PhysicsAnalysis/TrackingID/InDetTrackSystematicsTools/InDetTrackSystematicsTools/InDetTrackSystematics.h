@@ -3,7 +3,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#pragma once
+#ifndef INDETTRACKSYSTEMATICSTOOLS_INDETTRACKSYSTEMATICS_H
+#define INDETTRACKSYSTEMATICSTOOLS_INDETTRACKSYSTEMATICS_H
+
 #include "PATInterfaces/SystematicVariation.h"
 #include <unordered_map>
 
@@ -73,3 +75,4 @@ namespace InDet {
 
 }
 
+#endif
