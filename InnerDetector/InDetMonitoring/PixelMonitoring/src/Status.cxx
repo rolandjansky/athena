@@ -62,7 +62,7 @@ StatusCode PixelMainMon::BookStatusMon(void)
     }
   if (m_doOffline)
     { 
-      m_dqStatus = new PixelMon2DMaps("Ok_modules", ("module problems, empty bin means dead module not listed in status database"+ m_histTitleExt).c_str());
+      m_dqStatus = new PixelMon2DMaps("Ok_modules", ("module problems, empty bin means dead module not listed in status database"+ m_histTitleExt).c_str(), m_doIBL);
       sc = m_dqStatus->regHist(statusHistos);
     }
 

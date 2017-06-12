@@ -13,7 +13,7 @@
 #include "GaudiKernel/StatusCode.h"     
 #include <string.h>
 
-PixelMon2DMaps::PixelMon2DMaps(std::string name, std::string title)
+PixelMon2DMaps::PixelMon2DMaps(std::string name, std::string title, bool doIBL) : m_doIBL(doIBL)
 {
    m_cnt = 0;
    IBL3D = new TH2F((name+"_IBL3D").c_str(),(title + ", IBL 3D modules " + ";eta index of module;phi index of module").c_str(), 8, -.5, 7.5, 14, -0.5, 13.5);
@@ -58,7 +58,7 @@ void PixelMon2DMaps::Reset()
    DBMC->Reset();
 }
 
-void PixelMon2DMaps::Fill(Identifier &id, const PixelID* pixID, bool doIBL)
+void PixelMon2DMaps::Fill(Identifier &id, const PixelID* pixID)
 {
    int bec = pixID->barrel_ec(id);
    int ld  = pixID->layer_disk(id);
@@ -70,7 +70,7 @@ void PixelMon2DMaps::Fill(Identifier &id, const PixelID* pixID, bool doIBL)
    else if(bec==-4) DBMC->Fill(ld, pm);
    else if(bec==0)
    {
-      if(doIBL){ld--;}
+      if (m_doIBL) ld--;
       int em  = pixID->eta_module(id);
       if(ld ==0){ 
 	      B0->Fill(em, pm);
@@ -102,7 +102,7 @@ void PixelMon2DMaps::Fill(Identifier &id, const PixelID* pixID, bool doIBL)
    }
 }
 
-void PixelMon2DMaps::WeightingFill(Identifier &id, const PixelID* pixID, bool doIBL, float weight)
+void PixelMon2DMaps::WeightingFill(Identifier &id, const PixelID* pixID, float weight)
 {
    int bec = pixID->barrel_ec(id);
    int ld  = pixID->layer_disk(id);
@@ -115,7 +115,7 @@ void PixelMon2DMaps::WeightingFill(Identifier &id, const PixelID* pixID, bool do
 
    else if(bec==0)
    {
-      if(doIBL){ld--;}
+      if (m_doIBL) ld--;
       int em  = pixID->eta_module(id);
       if(ld ==0){ 
 	      B0->Fill(em, pm, weight);
@@ -149,7 +149,7 @@ void PixelMon2DMaps::WeightingFill(Identifier &id, const PixelID* pixID, bool do
 
 
 //void PixelMon2DMaps::Scale (double number)
-void PixelMon2DMaps::Scale (double number, bool doIBL)
+void PixelMon2DMaps::Scale (double number)
 {
    if (number==0) return; //shouldn't happen the way function is called, but dummy check to avoid divide by zero
 
@@ -160,15 +160,14 @@ void PixelMon2DMaps::Scale (double number, bool doIBL)
    B0->Scale((float) 1.0/number);
    B1->Scale((float) 1.0/number);
    B2->Scale((float) 1.0/number);
-   if(doIBL){
+   if (m_doIBL) {
       IBL2D->Scale((float) 1.0/number);
       IBL3D->Scale((float) 1.0/number);
       IBL->Scale((float) 1.0/number);
    }
 }
 
-void PixelMon2DMaps::ScaleBynPixnEvt(int nevent, bool doIBL)
-//void PixelMon2DMaps::FillNormalized(PixelMon2DMaps* old, int nevent, int nActive_IBL2D, int nActive_IBL3D, int nActive_B0, int nActive_B1, int nActive_B2, int nActive_ECA, int nActive_ECC, bool doIBL)
+void PixelMon2DMaps::ScaleBynPixnEvt(int nevent)
 //void PixelMon2DMaps::FillNormalized(PixelMon2DMaps* old, int nevent, int nActive_IBL2D, int nActive_IBL3D, int nActive_B0, int nActive_B1, int nActive_B2, int nActive_ECA, int nActive_ECC)
 {
    double nactivechannels_DBMA   = 1.0*nevent*46080;
@@ -191,7 +190,7 @@ void PixelMon2DMaps::ScaleBynPixnEvt(int nevent, bool doIBL)
    B0->Scale((float) 1.0/nactivechannels_B0);
    B1->Scale((float) 1.0/nactivechannels_B1);
    B2->Scale((float) 1.0/nactivechannels_B2);
-   if(doIBL){
+   if (m_doIBL) {
       IBL2D->Scale((float) 1.0/nactivechannels_IBL2D);
       IBL3D->Scale((float) 1.0/nactivechannels_IBL3D);
       IBL->Scale((float) 1.0/nactivechannels_IBL);
@@ -222,7 +221,7 @@ void PixelMon2DMaps::ScaleBynPixnEvt(int nevent, bool doIBL)
          B2->SetBinContent(x, y, old->B2->GetBinContent(x, y)/nactivechannels_B2 );
       }
    }
-   if(doIBL){
+   if (m_doIBL) {
    for(int x=1; x<=IBL->GetXaxis()->GetNbins(); x++){
       for(int y=1; y<=IBL->GetYaxis()->GetNbins(); y++){
          IBL->SetBinContent(x, y, old->IBL->GetBinContent(x, y)/nactivechannels_IBL );

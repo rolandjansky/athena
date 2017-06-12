@@ -22,7 +22,7 @@ class StatusCode;
 class PixelMon2DMaps
 {
    public:
-      PixelMon2DMaps(std::string name, std::string title);
+      PixelMon2DMaps(std::string name, std::string title, bool doIBL);
       ~PixelMon2DMaps();
       TH2F* IBL2D;
       TH2F* IBL3D;
@@ -36,18 +36,18 @@ class PixelMon2DMaps
       TH2F* DBMC;
       int m_cnt;
       void Reset();
-      void Fill(Identifier &id, const PixelID* pixID, bool doIBL);
-      void WeightingFill(Identifier &id, const PixelID* pixID, bool doIBL, float weight);
+      void Fill(Identifier &id, const PixelID* pixID);
+      void WeightingFill(Identifier &id, const PixelID* pixID, float weight);
       //void Scale(double number);
-      void Scale(double number, bool doIBL);
+      void Scale(double number);
       void ScaleByNChannels(int nActive_IBL2D, int nActive_IBL3D, int nActive_B0, int nActive_B1, int nActive_B2, int nActive_ECA, int nActive_ECC, int nActive_DBMA, int nActive_DBMC);
-      void ScaleBynPixnEvt(int nevent, bool doIBL);
-      //void FillNormalized(PixelMon2DMaps* old, int nevent, int nActive_IBL2D, int nActive_IBL3D, int nActive_B0, int nActive_B1, int nActive_B2, int nActive_ECA, int nActive_ECC, bool doIBL);
+      void ScaleBynPixnEvt(int nevent);
       //void FillNormalized(PixelMon2DMaps* old, int nevent, int nActive_IBL2D, int nActive_IBL3D, int nActive_B0, int nActive_B1, int nActive_B2, int nActive_ECA, int nActive_ECC);
       void Fill2DMon(PixelMon2DMaps* oldmap);
       StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
 private:
       void formatHist();
+      const bool m_doIBL;
 };
 
 #endif
