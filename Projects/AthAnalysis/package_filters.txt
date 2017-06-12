@@ -21,6 +21,7 @@
 ## - Event/xAOD/.*AthenaPool
 + Event/xAOD/xAODMetaDataCnv
 + Event/xAOD/xAODTriggerCnv
++ Event/xAOD/xAODTrackingCnv
 - Event/xAOD/.*Cnv
 + Event/xAOD/.*
 
