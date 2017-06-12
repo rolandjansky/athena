@@ -260,14 +260,14 @@ protected:
 
       m_first = false;
       
-      m_provider->msg(MSG::INFO) << " using beam position\tx=" << xbeam << "\ty=" << ybeam << endmsg;
+      m_provider->msg(MSG::VERBOSE) << " using beam position\tx=" << xbeam << "\ty=" << ybeam << endmsg;
 
       if(m_provider->msg().level() <= MSG::VERBOSE) {
 	
 	std::vector<std::string> configuredChains  = (*(m_tdt))->getListOfTriggers("L2_.*, EF_.*, HLT_.*");
 	
         for ( unsigned i=0 ; i<configuredChains.size() ; i++ ) {
-	  m_provider->msg(MSG::INFO)  << "Chain " << configuredChains[i]  << endmsg;
+	  m_provider->msg(MSG::VERBOSE)  << "Chain " << configuredChains[i]  << endmsg;
         }
 
       }
@@ -290,9 +290,6 @@ protected:
         /// get matching chains
         std::vector<std::string> selectChains  = (*(m_tdt))->getListOfTriggers( chainName.head() );
 
-        // std::cout << "selected chains " << selectChains.size() << std::endl;
-
-        // if ( selectChains.size()==0 ) m_provider->msg(MSG::WARNING) << "No chains matched for  " << chainName << endmsg;
 	
         for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
 
@@ -870,8 +867,10 @@ protected:
 	      xAOD::VertexContainer::const_iterator vtxitr = vert->begin();
 	      
 	      for ( ; vtxitr != vert->end(); ++vtxitr) {
-		if ( ( (*vtxitr)->nTrackParticles()>0 && (*vtxitr)->vertexType()!=0 ) || vtx_name=="EFHistoPrmVtx" ) {
-		  // vertices_rec.push_back( TIDA::Vertex( (*vtxitr)->x(),
+		/// leave this code commented so that we have a record of the change - as soon as we can 
+		/// fix the missing track multiplicity from the vertex this will need to go back  
+		//  if ( ( (*vtxitr)->nTrackParticles()>0 && (*vtxitr)->vertexType()!=0 ) || vtx_name=="EFHistoPrmVtx" ) {
+		if ( (*vtxitr)->vertexType()!=0 || vtx_name=="EFHistoPrmVtx" ) {
 		  chain.back().addVertex( TIDA::Vertex( (*vtxitr)->x(),
 							(*vtxitr)->y(),
 							(*vtxitr)->z(),
@@ -883,7 +882,6 @@ protected:
 							/// quality
 							(*vtxitr)->chiSquared(),
 							(*vtxitr)->numberDoF() ) );
-	
 		  
 		}
 	      }
@@ -905,8 +903,6 @@ protected:
       for ( unsigned  iroi=0 ; iroi<chain.size() ; iroi++ ) {
 
         m_selectorRef->clear();
-
-	//	std::cout << "SUTT: filterOnRoi() " << this->filterOnRoi() << " " << chain.rois().at(iroi).roi() << std::endl;
 
 	if ( this->filterOnRoi() ) filterRef.setRoi( &chain.rois().at(iroi).roi() );
 	else                       filterRef.setRoi( 0 );
@@ -1037,7 +1033,7 @@ protected:
 
             int pid = (*evitr)->signal_process_id();
 
-            //      if ( (*evitr)->particles_size()>0 ) std::cout << "process " << "\tpid " << pid << std::endl;
+
             if ( pid!=0 && (*evitr)->particles_size()>0 ) { /// hooray! actually found a sensible event
               /// go through the particles
               HepMC::GenEvent::particle_const_iterator pitr((*evitr)->particles_begin());
@@ -1106,17 +1102,14 @@ protected:
             m_provider->msg(MSG::WARNING) << " Offline tracks not found " << endmsg;
 	  }
 
-	  // std::cout << "seeking (more?) offline tracks..." << std::endl;
-
-	  
-	  //Noff = m_selectorRef->tracks().size();
           ref_tracks = m_selectorRef->tracks();
 
           if ( m_provider->msg().level() <= MSG::VERBOSE ) {
             m_provider->msg(MSG::VERBOSE) << "ref tracks.size() " << m_selectorRef->tracks().size() << endmsg;
-            for ( int ii=m_selectorRef->tracks().size() ; ii-- ; )
+            for ( int ii=m_selectorRef->tracks().size() ; ii-- ; ) {
               m_provider->msg(MSG::VERBOSE) << "  ref track " << ii << " " << *m_selectorRef->tracks()[ii] << endmsg;
-          }
+	    }
+	  }
         }
 	else { 
 	  /// what is this ???
@@ -1142,7 +1135,7 @@ protected:
 	/// if we want a purity, we need to swap round which tracks are the 
 	/// reference tracks and which the test tracks
 
-	if ( m_runPurity ) { 
+	if ( m_runPurity ) {
 
 	  if ( this->getUseHighestPT() ) HighestPTOnly( test_tracks );
 
@@ -1169,7 +1162,6 @@ protected:
 	  
 	  if ( m_pTthreshold>0 )         FilterPT( ref_tracks, m_pTthreshold );
 
-
 	  /// stats book keeping 
 	  m_NRois++;
 	  m_NRefTracks  += ref_tracks.size();
@@ -1179,7 +1171,8 @@ protected:
 	  m_associator->match( ref_tracks, test_tracks );
 	 
 	  //	  std::cout << "SUTT: execute : N tracks " << ref_tracks.size() << " " << test_tracks.size() << std::endl; 
- 
+
+	  
 	  _analysis->execute( ref_tracks, test_tracks, m_associator );
 	  
 	  //	  std::cout << "chain " << m_chainNames[ichain]  << " " << "\tvtx name " << vtx_name << std::endl;
@@ -1453,7 +1446,7 @@ protected:
 
     m_analysis->finalise();
 
-    m_provider->msg(MSG::INFO) << m_provider->name() << " NRois processed: " << m_NRois << "\tRef tracks: " << m_NRefTracks << "\tTestTracks: " << m_NTestTracks << endmsg;
+    m_provider->msg(MSG::INFO) << m_provider->name() << " " << m_chainNames[0] << "   \tNRois processed: " << m_NRois << "\tRef tracks: " << m_NRefTracks << "\tTestTracks: " << m_NTestTracks << endmsg;
 
     if(m_provider->msg().level() <= MSG::VERBOSE)
       m_provider->msg(MSG::VERBOSE) << m_provider->name() << " finalised" << endmsg;

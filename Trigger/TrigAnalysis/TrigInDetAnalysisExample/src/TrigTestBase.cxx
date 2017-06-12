@@ -352,10 +352,11 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 								    dR_matcher,
 								    new Analysis_Tier0( m_chainNames[i], m_pTCut, m_etaCut, m_d0Cut, m_z0Cut ) );
 
-	analysis->setRunPurity(m_runPurity);
-	analysis->setShifter(m_shifter);
       
         m_sequences.push_back( analysis );
+
+	dynamic_cast<AnalysisConfig_Tier0*>(m_sequences.back())->setRunPurity(m_runPurity);
+	dynamic_cast<AnalysisConfig_Tier0*>(m_sequences.back())->setShifter(m_shifter);
 
 
 	std::string highestPT_str = "";
@@ -365,6 +366,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	  highestPT_str = ": using highest PT only";
 	  m_sequences.back()->setUseHighestPT(true);
 	}
+	else m_sequences.back()->setUseHighestPT(false); /// not needed now, but can't do any harm
 
 	if ( !(m_vtxIndex<0) )  {
 	  vtxindex_str = ": searching for vertex index ";

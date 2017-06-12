@@ -94,7 +94,7 @@ public:
   /// vector operator
   TIDA::Chain& operator[](int i) { return m_chains.at(i); }
 
-  const std::vector<TIDA::Vertex> vertices() const { return m_vertices; }
+  const std::vector<TIDA::Vertex>& vertices() const { return m_vertices; }
 
   std::vector<std::string> chainnames() const;
 
