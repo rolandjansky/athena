@@ -184,7 +184,6 @@ private:
    ToolHandle<ILuminosityTool> m_lumiTool;
 
    //IPixelByteStreamErrorsSvc* m_ErrorSvc;
-   //ToolHandle<Trk::ITrackSummaryTool> m_trkSummaryTool;
 
    //ActiveStoreSvc* m_activeStore;
    //StoreGateSvc* m_StoreGate;
