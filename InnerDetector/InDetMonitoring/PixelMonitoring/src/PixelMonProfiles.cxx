@@ -12,7 +12,7 @@
 #include "GaudiKernel/StatusCode.h"     
 #include <string.h>
 
-PixelMonProfiles::PixelMonProfiles(std::string name, std::string title )
+PixelMonProfiles::PixelMonProfiles(std::string name, std::string title, bool doIBL) : m_doIBL(doIBL)
 {
 
   IBL3D = TProfile2D_LW::create((name+"_IBL3D").c_str(),(title + ", IBL 3D module " + ";eta index of module;phi index of module").c_str(),8,-.5,7.5,14,-0.5,13.5);
@@ -63,7 +63,7 @@ void PixelMonProfiles::Reset()
    C->Reset();
 }
 
-void PixelMonProfiles::Fill(Identifier &id, const PixelID* pixID, float Index, bool doIBL)
+void PixelMonProfiles::Fill(Identifier &id, const PixelID* pixID, float Index)
 {
    int bec = pixID->barrel_ec(id);
    int ld  = pixID->layer_disk(id);
@@ -73,7 +73,7 @@ void PixelMonProfiles::Fill(Identifier &id, const PixelID* pixID, float Index, b
    else if(bec==-2) C->Fill(ld,pm,Index);
    else if(bec==0)
    {
-      if(doIBL){ld--;}
+      if (m_doIBL) ld--;
       int em  = pixID->eta_module(id);
       if(ld ==0) B0->Fill(em,pm,Index);
       else if(ld ==1) B1->Fill(em,pm,Index);
