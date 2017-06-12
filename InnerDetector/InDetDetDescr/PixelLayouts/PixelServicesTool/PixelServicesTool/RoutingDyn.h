@@ -87,7 +87,7 @@ private:
   double DecodeLayerZPosition(std::string z, int layer,  double zShift, double zMin=-99999., double zMax=99999.);
   double DecodeLayerRadialShiftPosition(std::string r, double svcThick);
   double DecodeLayerMarginPosition(std::string r);
-  void   AddRGap(std::string r, int routeId);
+  void   AddRGap(std::string& r, int routeId);
 
   void createRoutes(ServicesDynTracker& tracker);
   ServiceDynMaterial computeRouteMaterial(const PixelGeoBuilderBasics* basics, DetTypeDyn::Type layerType, DetTypeDyn::Part layerPart, int layerNumber,
@@ -102,7 +102,7 @@ private:
   void dumpRoute( const SvcRoute& route);
   std::string nextVolumeName( const SvcRoute& route) const;
 
-  std::string constructBarrelLayerName(std::string svcName, std::vector<int> nModule);  
+  std::string constructBarrelLayerName(std::string svcName, std::vector<int> nModule, int iLayer);  
   std::map<std::string,std::string> m_svcMaterialNameTable;
 
   // the message stream (same for all derived classes)

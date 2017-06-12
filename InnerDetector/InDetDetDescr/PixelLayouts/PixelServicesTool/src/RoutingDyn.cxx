@@ -571,7 +571,7 @@ void RoutingDyn::createVerticalRoute(const RouteParameter& param)
 
 }
 
-void RoutingDyn::AddRGap(std::string r, int routeId){
+void RoutingDyn::AddRGap(std::string& r, int routeId){
   float m = DecodeLayerMarginPosition(r)+m_svcRoutingXMLHelper->getRGap(routeId);
   std::size_t found=r.find_first_of("+-");
   r=r.substr(0,found);
@@ -595,7 +595,7 @@ void RoutingDyn::createHorizontalRoute(const RouteParameter& param)
   std::string type = (param.getType()=="endcap")?"Ec":"Brl";
 
   if (not bBarrel) AddRGap(r1,param.getRouteId());
-    
+  
   MinMaxHelper boxZR = getLayerMinMaxBox(bBarrel,layerIndices, EOScardLength, EOSlength);
   double rMin = boxZR.getRMin();
   double rMax = boxZR.getRMax();
@@ -1233,7 +1233,7 @@ void RoutingDyn::computeBarrelModuleMaterial(const PixelGeoBuilderBasics* basics
 		msg(MSG::DEBUG)<<"MODULE per layer : "<<iModule<<" : "; for(int i=0; i<(int)nbModuleLayer.size(); i++) msg(MSG::DEBUG)<<nbModuleLayer[i]<<"  "; msg(MSG::DEBUG)<<"// "<<materialId<<endreq;
 	      }
 	      
-	      std::string matName = constructBarrelLayerName(materialId, nbModuleLayer);
+	      std::string matName = constructBarrelLayerName(materialId, nbModuleLayer, iLayer);
 	      bool bAlreadyDefined = (std::find(brlModuleMaterialNames.begin(), brlModuleMaterialNames.end(), matName)!=brlModuleMaterialNames.end());	 
 	      
 	      // Register material name
@@ -1336,11 +1336,12 @@ void RoutingDyn::computeBarrelModuleMaterial(const PixelGeoBuilderBasics* basics
 }
 
 
-std::string RoutingDyn::constructBarrelLayerName(std::string svcName, std::vector<int> nModule)
+std::string RoutingDyn::constructBarrelLayerName(std::string svcName, std::vector<int> nModule, int iLayer)
 {
   std::ostringstream os;
   os << "Brl_"<<svcName;
   for(int i=0 ; i<(int)nModule.size(); i++) os<<"_M"<<nModule[i];
+  os << "_L"<<iLayer;
   return os.str();
 }
 

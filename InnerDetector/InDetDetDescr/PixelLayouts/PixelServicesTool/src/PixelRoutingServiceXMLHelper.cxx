@@ -247,10 +247,10 @@ std::vector<double> PixelRoutingServiceXMLHelper::EOScardLength(int index) const
 
 double PixelRoutingServiceXMLHelper::getZGap(int index) const
 {
-  return getDouble("PixelSvcRoute",index,"zgap",0.);
+  return getDouble("PixelSvcRoute",index,"zgap", 0, 0.);
 }
 
 double PixelRoutingServiceXMLHelper::getRGap(int index) const
 {
-  return getDouble("PixelSvcRoute",index,"rgap",0.);
+  return getDouble("PixelSvcRoute",index,"rgap", 0, 0.);
 }
