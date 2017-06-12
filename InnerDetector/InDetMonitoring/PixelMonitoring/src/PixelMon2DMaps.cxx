@@ -16,9 +16,11 @@
 PixelMon2DMaps::PixelMon2DMaps(std::string name, std::string title, bool doIBL) : m_doIBL(doIBL)
 {
    m_cnt = 0;
-   IBL3D = new TH2F((name+"_IBL3D").c_str(),(title + ", IBL 3D modules " + ";eta index of module;phi index of module").c_str(), 8, -.5, 7.5, 14, -0.5, 13.5);
-   IBL2D = new TH2F((name+"_IBL2D").c_str(),(title + ", IBL planar modules " + ";shifted eta index of module;phi index of module").c_str(), 12, -6.5, 5.5, 14, -0.5, 13.5);
-   IBL = new TH2F((name+"_IBL").c_str(),    (title + ", IBL "        + ";shifted eta index of module;phi index of module").c_str(), 32, -16.5, 15.5, 14, -0.5, 13.5);
+   if (m_doIBL) {
+      IBL3D = new TH2F((name+"_IBL3D").c_str(),(title + ", IBL 3D modules " + ";eta index of module;phi index of module").c_str(), 8, -.5, 7.5, 14, -0.5, 13.5);
+      IBL2D = new TH2F((name+"_IBL2D").c_str(),(title + ", IBL planar modules " + ";shifted eta index of module;phi index of module").c_str(), 12, -6.5, 5.5, 14, -0.5, 13.5);
+      IBL   = new TH2F((name+"_IBL").c_str(),  (title + ", IBL " + ";shifted eta index of module;phi index of module").c_str(), 32, -16.5, 15.5, 14, -0.5, 13.5);
+   }
    B0 = new TH2F((name+"_B0").c_str(),      (title + ", B0 "  + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,22,-0.5,21.5);
    B1 = new TH2F((name+"_B1").c_str(),      (title + ", B1 "  + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,38,-0.5,37.5);
    B2 = new TH2F((name+"_B2").c_str(),      (title + ", B2 "  + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,52,-0.5,51.5);
@@ -32,9 +34,11 @@ PixelMon2DMaps::PixelMon2DMaps(std::string name, std::string title, bool doIBL) 
 
 PixelMon2DMaps::~PixelMon2DMaps()
 {
-   delete IBL3D;
-   delete IBL2D;
-   delete IBL;
+   if (m_doIBL) {
+      delete IBL3D;
+      delete IBL2D;
+      delete IBL;
+   }
    delete B0;
    delete B1;
    delete B2;
@@ -46,9 +50,11 @@ PixelMon2DMaps::~PixelMon2DMaps()
 
 void PixelMon2DMaps::Reset()
 {
-   IBL3D->Reset();
-   IBL2D->Reset();
-   IBL->Reset();
+   if (m_doIBL) {
+      IBL3D->Reset();
+      IBL2D->Reset();
+      IBL->Reset();
+   }
    B0->Reset();
    B1->Reset();
    B2->Reset();
@@ -292,25 +298,27 @@ void PixelMon2DMaps::Fill2DMon(PixelMon2DMaps* oldmap)
          oldmap->B2->SetBinContent(x, y, 0);
       }
    }
-   for(int x=1; x<=IBL->GetNbinsX(); x++){
-      for(int y=1; y<=IBL->GetNbinsY(); y++){
-         float content = oldmap->IBL->GetBinContent(x, y);
-         IBL->SetBinContent(x, y, content);
-         oldmap->IBL->SetBinContent(x, y, 0);
+   if (m_doIBL) {
+      for (int x = 1; x <= IBL->GetNbinsX(); x++) {
+         for (int y = 1; y <= IBL->GetNbinsY(); y++) {
+            float content = oldmap->IBL->GetBinContent(x, y);
+            IBL->SetBinContent(x, y, content);
+            oldmap->IBL->SetBinContent(x, y, 0);
+         }
       }
-   }
-   for(int x=1; x<=IBL2D->GetNbinsX(); x++){
-      for(int y=1; y<=IBL2D->GetNbinsY(); y++){
-         float content = oldmap->IBL2D->GetBinContent(x, y);
-         IBL2D->SetBinContent(x, y, content);
-         oldmap->IBL2D->SetBinContent(x, y, 0);
+      for (int x = 1; x <= IBL2D->GetNbinsX(); x++) {
+         for (int y = 1; y <= IBL2D->GetNbinsY(); y++) {
+            float content = oldmap->IBL2D->GetBinContent(x, y);
+            IBL2D->SetBinContent(x, y, content);
+            oldmap->IBL2D->SetBinContent(x, y, 0);
+         }
       }
-   }
-   for(int x=1; x<=IBL3D->GetNbinsX(); x++){
-      for(int y=1; y<=IBL3D->GetNbinsY(); y++){
-         float content = oldmap->IBL3D->GetBinContent(x, y);
-         IBL3D->SetBinContent(x, y, content);
-         oldmap->IBL3D->SetBinContent(x, y, 0);
+      for (int x = 1; x <= IBL3D->GetNbinsX(); x++) {
+         for (int y = 1; y <= IBL3D->GetNbinsY(); y++) {
+            float content = oldmap->IBL3D->GetBinContent(x, y);
+            IBL3D->SetBinContent(x, y, content);
+            oldmap->IBL3D->SetBinContent(x, y, 0);
+         }
       }
    }
 }
@@ -336,9 +344,11 @@ void PixelMon2DMaps::ScaleByNChannels(int nActive_IBL2D, int nActive_IBL3D, int 
    if(nActive_B0>0)   B0->Scale((double) 1.0/nactivechannels_B0);
    if(nActive_B1>0)   B1->Scale((double) 1.0/nactivechannels_B1);
    if(nActive_B2>0)   B2->Scale((double) 1.0/nactivechannels_B2);
-   if(nActive_IBL2D>0) IBL2D->Scale((double) 1.0/nactivechannels_IBL2D);
-   if(nActive_IBL3D>0) IBL3D->Scale((double) 1.0/nactivechannels_IBL3D);
-   if(nActive_IBL3D>0 || nActive_IBL2D>0) IBL->Scale((double) 1.0/nactivechannels_IBL);
+   if (m_doIBL) {
+      if(nActive_IBL2D>0) IBL2D->Scale((double) 1.0/nactivechannels_IBL2D);
+      if(nActive_IBL3D>0) IBL3D->Scale((double) 1.0/nactivechannels_IBL3D);
+      if(nActive_IBL3D>0 || nActive_IBL2D>0) IBL->Scale((double) 1.0/nactivechannels_IBL);
+   }
 }
 
 void PixelMon2DMaps::formatHist()
@@ -447,31 +457,13 @@ void PixelMon2DMaps::formatHist()
       B2->GetXaxis()->SetBinLabel( i+1, mod[i] );
    }
 
-   for (int i=0; i<nmodIBL; i++)
-     {
-       IBL->GetXaxis()->SetBinLabel( i+1, modIBL[i] );
-     }
-   for (int i=0; i<nstaveb; i++)
-   {
-      IBL->GetYaxis()->SetBinLabel( i+1, staveb[i] );
-   }
-
-   for (int i=0; i<nmodIBL2D; i++)
-     {
-       IBL2D->GetXaxis()->SetBinLabel( i+1, modIBL2D[i] );
-     }
-   for (int i=0; i<nstaveb; i++)
-   {
-      IBL2D->GetYaxis()->SetBinLabel( i+1, staveb[i] );
-   }
-
-   for (int i=0; i<nmodIBL3D; i++)
-     {
-       IBL3D->GetXaxis()->SetBinLabel( i+1, modIBL3D[i] );
-     }
-   for (int i=0; i<nstaveb; i++)
-   {
-      IBL3D->GetYaxis()->SetBinLabel( i+1, staveb[i] );
+   if (m_doIBL) {
+      for (int i = 0; i < nmodIBL; i++) IBL->GetXaxis()->SetBinLabel(i + 1, modIBL[i]);
+      for (int i = 0; i < nstaveb; i++) IBL->GetYaxis()->SetBinLabel(i + 1, staveb[i]);
+      for (int i = 0; i < nmodIBL2D; i++) IBL2D->GetXaxis()->SetBinLabel(i + 1, modIBL2D[i]);
+      for (int i = 0; i < nstaveb; i++) IBL2D->GetYaxis()->SetBinLabel(i + 1, staveb[i]);
+      for (int i = 0; i < nmodIBL3D; i++) IBL3D->GetXaxis()->SetBinLabel(i + 1, modIBL3D[i]);
+      for (int i = 0; i < nstaveb; i++) IBL3D->GetYaxis()->SetBinLabel(i + 1, staveb[i]);
    }
 
    for (int i=0; i<nstave0; i++) 
@@ -488,9 +480,11 @@ void PixelMon2DMaps::formatHist()
    }
 
    //Make the text smaller
-   IBL2D->GetYaxis()->SetLabelSize(0.03);
-   IBL3D->GetYaxis()->SetLabelSize(0.03);
-   IBL->GetYaxis()->SetLabelSize(0.03);
+   if (m_doIBL) {
+      IBL2D->GetYaxis()->SetLabelSize(0.03);
+      IBL3D->GetYaxis()->SetLabelSize(0.03);
+      IBL->GetYaxis()->SetLabelSize(0.03);
+   }
    B0->GetYaxis()->SetLabelSize(0.03);
    B1->GetYaxis()->SetLabelSize(0.03);
    B2->GetYaxis()->SetLabelSize(0.03);
@@ -499,9 +493,11 @@ void PixelMon2DMaps::formatHist()
    DBMA->GetYaxis()->SetLabelSize(0.02);
    DBMC->GetYaxis()->SetLabelSize(0.02);
    //Move the lable so you can read it
-   IBL2D->GetYaxis()->SetTitleOffset(1.35);
-   IBL3D->GetYaxis()->SetTitleOffset(1.35);
-   IBL->GetYaxis()->SetTitleOffset(1.35);
+   if (m_doIBL) {
+      IBL2D->GetYaxis()->SetTitleOffset(1.35);
+      IBL3D->GetYaxis()->SetTitleOffset(1.35);
+      IBL->GetYaxis()->SetTitleOffset(1.35);
+   }
    B0->GetYaxis()->SetTitleOffset(1.35);
    B1->GetYaxis()->SetTitleOffset(1.35);
    B2->GetYaxis()->SetTitleOffset(1.35);
@@ -510,9 +506,11 @@ void PixelMon2DMaps::formatHist()
    DBMA->GetYaxis()->SetTitleOffset(1.35);
    DBMC->GetYaxis()->SetTitleOffset(1.35);
    //put histograms in the easier to read colz format
-   IBL2D->SetOption("colz");
-   IBL3D->SetOption("colz");
-   IBL->SetOption("colz");
+   if (m_doIBL) {
+      IBL2D->SetOption("colz");
+      IBL3D->SetOption("colz");
+      IBL->SetOption("colz");
+   }
    B0->SetOption("colz");
    B1->SetOption("colz");
    B2->SetOption("colz");
@@ -521,9 +519,11 @@ void PixelMon2DMaps::formatHist()
    DBMA->SetOption("colz");
    DBMC->SetOption("colz");
    //force the minimum to be 0 so you can spot empty blocks easily
-   IBL2D->SetMinimum(0.);
-   IBL3D->SetMinimum(0.);
-   IBL->SetMinimum(0.);
+   if (m_doIBL) {
+      IBL2D->SetMinimum(0.);
+      IBL3D->SetMinimum(0.);
+      IBL->SetMinimum(0.);
+   }
    B0->SetMinimum(0.);
    B1->SetMinimum(0.);
    B2->SetMinimum(0.);
@@ -532,9 +532,11 @@ void PixelMon2DMaps::formatHist()
    DBMA->SetMinimum(0.);
    DBMC->SetMinimum(0.);
    //Remvoe the stats box because it's in the way
-   IBL2D->SetStats(0.);
-   IBL3D->SetStats(0.);
-   IBL->SetStats(0.);
+   if (m_doIBL) {
+      IBL2D->SetStats(0.);
+      IBL3D->SetStats(0.);
+      IBL->SetStats(0.);
+   }
    B0->SetStats(0.);
    B1->SetStats(0.);
    B2->SetStats(0.);
@@ -548,9 +550,11 @@ void PixelMon2DMaps::formatHist()
 StatusCode PixelMon2DMaps::regHist(ManagedMonitorToolBase::MonGroup &group)
 {
   StatusCode sc = StatusCode::SUCCESS;
-  if (group.regHist(IBL2D).isFailure()) sc = StatusCode::FAILURE;
-  if (group.regHist(IBL3D).isFailure()) sc = StatusCode::FAILURE;
-  if (group.regHist(IBL).isFailure()) sc = StatusCode::FAILURE;
+  if (m_doIBL) {
+     if (group.regHist(IBL2D).isFailure()) sc = StatusCode::FAILURE;
+     if (group.regHist(IBL3D).isFailure()) sc = StatusCode::FAILURE;
+     if (group.regHist(IBL).isFailure()) sc = StatusCode::FAILURE;
+  }
   if (group.regHist(B0).isFailure()) sc = StatusCode::FAILURE;
   if (group.regHist(B1).isFailure()) sc = StatusCode::FAILURE;
   if (group.regHist(B2).isFailure()) sc = StatusCode::FAILURE;
