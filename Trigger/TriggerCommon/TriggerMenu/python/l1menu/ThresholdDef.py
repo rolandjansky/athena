@@ -295,8 +295,8 @@ class ThresholdDef:
 
         # Beam Splashes
         for thrV in [75]:
-            tc.registerThr('J%iA' % thrV, 'JET').addThrValue(JetOff).addThrValue( thrV, etamin = 16,  etamax = 24, priority=1)
-            tc.registerThr('J%iC' % thrV, 'JET').addThrValue(JetOff).addThrValue( thrV, etamin = -24,  etamax = -16, priority=1)          
+            tc.registerThr('J%iA' % thrV, 'JET').addThrValue(JetOff).addThrValue( thrV, etamin = 15,  etamax = 23, priority=1)
+            tc.registerThr('J%iC' % thrV, 'JET').addThrValue(JetOff).addThrValue( thrV, etamin = -23,  etamax = -15, priority=1)          
         
 
         # Central jet
