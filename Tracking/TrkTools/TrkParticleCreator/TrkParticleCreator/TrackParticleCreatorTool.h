@@ -194,6 +194,7 @@ private:
   rather than using the cached summary */
     /** the following keep options are mutually exclusive **/
   bool m_keepParameters;  /** keep all TrackParameters */
+  bool m_keepFirstParameters; ///< keep the first parameters when creating track particles.
   bool m_keepAllPerigee;  /** keep all MeasuredPerigee parameters
   (e.g. adding those that may exist at Volume boundaries) */
   bool m_expressPerigeeToBeamSpot;
