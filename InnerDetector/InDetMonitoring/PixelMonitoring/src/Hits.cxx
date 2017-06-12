@@ -240,10 +240,10 @@ StatusCode PixelMainMon::BookHitsMon(void)
        sc = m_occupancy_pix_evt->regHist(rdoShift);
              
        m_Lvl1ID_diff_mod_ATLAS_per_LB = new PixelMon2DLumiProfiles("Lvl1ID_diff_ATLAS_mod_per_LB", ("ATLAS_{Level 1 ID} - Module_{Level 1 ID} per LB" + m_histTitleExt).c_str(),"#Delta Level 1 ID",m_doIBL,false);
-       sc = m_Lvl1ID_diff_mod_ATLAS_per_LB->regHist(timeExpert, false);
+       sc = m_Lvl1ID_diff_mod_ATLAS_per_LB->regHist(timeExpert);
        
        m_Lvl1ID_absdiff_mod_ATLAS_per_LB = new PixelMon2DLumiProfiles("Lvl1ID_absdiff_ATLAS_mod_per_LB", ("ATLAS_{Level 1 ID} - Module_{Level 1 ID} per LB" + m_histTitleExt).c_str(),"#Delta Level 1 ID",m_doIBL,false);
-       sc = m_Lvl1ID_absdiff_mod_ATLAS_per_LB->regHist(timeExpert,false);
+       sc = m_Lvl1ID_absdiff_mod_ATLAS_per_LB->regHist(timeExpert);
      }
    
    if (m_doModules)
@@ -571,8 +571,8 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	int difflvl1id = lvl1idATLAS - lvl1idMOD%32;	  
 	if(pixlayer != 99 && m_Lvl1ID_diff_mod_ATLAS_mod[pixlayer]) m_Lvl1ID_diff_mod_ATLAS_mod[pixlayer]->Fill(difflvl1id);
 	
-	if(m_Lvl1ID_diff_mod_ATLAS_per_LB) m_Lvl1ID_diff_mod_ATLAS_per_LB->Fill(m_manager->lumiBlockNumber(),rdoID,m_pixelid,difflvl1id,false);
-	if(m_Lvl1ID_absdiff_mod_ATLAS_per_LB) m_Lvl1ID_absdiff_mod_ATLAS_per_LB->Fill(m_manager->lumiBlockNumber(),rdoID,m_pixelid,fabs(difflvl1id),false);
+	if(m_Lvl1ID_diff_mod_ATLAS_per_LB) m_Lvl1ID_diff_mod_ATLAS_per_LB->Fill(m_manager->lumiBlockNumber(),rdoID,m_pixelid,difflvl1id);
+	if(m_Lvl1ID_absdiff_mod_ATLAS_per_LB) m_Lvl1ID_absdiff_mod_ATLAS_per_LB->Fill(m_manager->lumiBlockNumber(),rdoID,m_pixelid,fabs(difflvl1id));
 	
 	
 	/// Fill BCID

@@ -30,11 +30,12 @@ class PixelMon2DLumiProfiles
       TProfile2D_LW* B2lbp;
       TProfile2D_LW* Albp;
       TProfile2D_LW* Clbp;
-      void Fill(double LB, Identifier &id, const PixelID* pixID, double weight=1, bool errorHist=false);
-      StatusCode regHist(ManagedMonitorToolBase::MonGroup &group, bool errorHist=false);
+      void Fill(double LB, Identifier &id, const PixelID* pixID, double weight=1);
+      StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
 private:
-      void formatHist(bool errorHist);
+      void formatHist();
       const bool m_doIBL;
+      const bool m_errorHist;
       
 };
 
