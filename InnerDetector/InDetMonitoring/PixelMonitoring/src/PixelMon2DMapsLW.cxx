@@ -14,7 +14,7 @@
 #include "GaudiKernel/StatusCode.h"     
 #include <string.h>
 
-PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title,bool doIBL, bool errorHist)
+PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title, bool doIBL, bool errorHist) : m_doIBL(doIBL)
 
 {
   std::string setatext = ";shifted eta index of module";
@@ -33,7 +33,7 @@ PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title,bool doIB
   DBMA = TH2F_LW::create((name+"_DBMA" ).c_str(),  (title + ", DBMA " + disktext + phitext).c_str(),3,-0.5,2.5,4,-0.5,3.5);
   DBMC = TH2F_LW::create((name+"_DBMC" ).c_str(),  (title + ", DBMC " + disktext + phitext).c_str(),3,-0.5,2.5,4,-0.5,3.5);
 
-  formatHist(doIBL,errorHist);
+  formatHist(errorHist);
 }
 
 PixelMon2DMapsLW::~PixelMon2DMapsLW()
@@ -50,7 +50,7 @@ PixelMon2DMapsLW::~PixelMon2DMapsLW()
    LWHist::safeDelete(DBMC);
 }
 
-void PixelMon2DMapsLW::Fill(Identifier &id, const PixelID* pixID, bool doIBL,bool errorHist)
+void PixelMon2DMapsLW::Fill(Identifier &id, const PixelID* pixID, bool errorHist)
 {
   int bec = pixID->barrel_ec(id);
    int ld  = pixID->layer_disk(id);
@@ -63,7 +63,7 @@ void PixelMon2DMapsLW::Fill(Identifier &id, const PixelID* pixID, bool doIBL,boo
 
    else if(bec==0)
      {
-       if(doIBL){ld--;}
+       if (m_doIBL) ld--;
        int em  = pixID->eta_module(id);
        if(ld ==0){ 
 	 B0->Fill(em,pm);
@@ -74,7 +74,7 @@ void PixelMon2DMapsLW::Fill(Identifier &id, const PixelID* pixID, bool doIBL,boo
        else if(ld ==2){ 
 	 B2->Fill(em,pm);
        }
-       else if(ld ==-1 && doIBL && !errorHist){
+       else if(ld ==-1 && m_doIBL && !errorHist){
 	 int feid = 0;
 	 int emf = 0;
     bool copy = false;
@@ -98,7 +98,7 @@ void PixelMon2DMapsLW::Fill(Identifier &id, const PixelID* pixID, bool doIBL,boo
      }
 }
 
-void PixelMon2DMapsLW::WeightingFill(Identifier &id, const PixelID* pixID, bool doIBL, float weight)
+void PixelMon2DMapsLW::WeightingFill(Identifier &id, const PixelID* pixID, float weight)
 {
    int bec = pixID->barrel_ec(id);
    int ld  = pixID->layer_disk(id);
@@ -111,7 +111,7 @@ void PixelMon2DMapsLW::WeightingFill(Identifier &id, const PixelID* pixID, bool 
 
    else if(bec==0)
    {
-      if(doIBL){ld--;}
+      if (m_doIBL) ld--;
       int em  = pixID->eta_module(id);
       if(ld ==0){ 
 	      B0->Fill(em, pm, weight);
@@ -209,7 +209,7 @@ void PixelMon2DMapsLW::FillNormalized(PixelMon2DMapsLW* old, int nevent)
 //    IBL3D->Scale((float) 1.0/number);
 // }
 
-void PixelMon2DMapsLW::formatHist(bool doIBL, bool errorHist)
+void PixelMon2DMapsLW::formatHist(bool errorHist)
 {
    const int ndisk = 3;
    const int nphi  = 48;
@@ -303,7 +303,7 @@ void PixelMon2DMapsLW::formatHist(bool doIBL, bool errorHist)
       B1->GetXaxis()->SetBinLabel( i+1, mod[i] );
       B2->GetXaxis()->SetBinLabel( i+1, mod[i] );
    }
-   if(doIBL && !errorHist){
+   if (m_doIBL && !errorHist) {
      for (int i=0; i<nmodIBL; i++)
        {
          IBL->GetXaxis()->SetBinLabel( i+1, modIBL[i] );
@@ -343,7 +343,7 @@ void PixelMon2DMapsLW::formatHist(bool doIBL, bool errorHist)
       B2->GetYaxis()->SetBinLabel( i+1, stave2[i] ); 
    }
 
-   if(doIBL && !errorHist){
+   if (m_doIBL && !errorHist) {
      IBL->GetYaxis()->SetLabelSize(0.03);
      IBL2D->GetYaxis()->SetLabelSize(0.03);
      IBL3D->GetYaxis()->SetLabelSize(0.03);
@@ -398,11 +398,11 @@ void PixelMon2DMapsLW::formatHist(bool doIBL, bool errorHist)
 
 }
 
-StatusCode PixelMon2DMapsLW::regHist(ManagedMonitorToolBase::MonGroup &group, bool doIBL, bool errorHist)
+StatusCode PixelMon2DMapsLW::regHist(ManagedMonitorToolBase::MonGroup &group, bool errorHist)
 {
   StatusCode sc = StatusCode::SUCCESS;
 
-  if(doIBL && !errorHist){
+  if(m_doIBL && !errorHist){
     if (group.regHist(IBL).isFailure()) sc = StatusCode::FAILURE;
     if (group.regHist(IBL2D).isFailure()) sc = StatusCode::FAILURE;
     if (group.regHist(IBL3D).isFailure()) sc = StatusCode::FAILURE;

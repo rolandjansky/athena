@@ -234,7 +234,7 @@ StatusCode PixelMainMon::BookHitsMon(void)
        sc = m_occupancy->regHist(rdoShift);
        
        m_average_pixocc = new PixelMon2DMapsLW("Occupancy_per_pixel", ("#hits / pixel" + m_histTitleExt).c_str(), m_doIBL, false);
-       sc = m_average_pixocc->regHist(rdoShift, m_doIBL, false);
+       sc = m_average_pixocc->regHist(rdoShift, false);
        
        m_occupancy_pix_evt = new PixelMon2DProfilesLW("Occupancy_per_pixel_event", ("#hits / pixel / event" + m_histTitleExt).c_str(), m_doIBL, false, false);
        sc = m_occupancy_pix_evt->regHist(rdoShift);
@@ -553,7 +553,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	if ( m_occupancy) m_occupancy->Fill(rdoID, m_pixelid);
 	if ( m_occupancy_10min && m_doLumiBlock) m_occupancy_10min->Fill(rdoID, m_pixelid);
 	if ( m_hitmap_tmp ) m_hitmap_tmp->Fill(rdoID, m_pixelid);
-	if ( m_average_pixocc && nChannels_mod[pixlayeribl2d3d] > 0 ) m_average_pixocc->WeightingFill(rdoID, m_pixelid, m_doIBL, 1.0/( 1.0*nChannels_mod[pixlayeribl2d3d]) );
+	if ( m_average_pixocc && nChannels_mod[pixlayeribl2d3d] > 0 ) m_average_pixocc->WeightingFill(rdoID, m_pixelid, 1.0/( 1.0*nChannels_mod[pixlayeribl2d3d]) );
 
        
 	/// Fill Lvl1A
