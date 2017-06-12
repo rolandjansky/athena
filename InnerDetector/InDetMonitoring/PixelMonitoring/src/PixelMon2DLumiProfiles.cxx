@@ -14,7 +14,7 @@
 #include "GaudiKernel/StatusCode.h"     
 #include <string.h>
 
-PixelMon2DLumiProfiles::PixelMon2DLumiProfiles(std::string name, std::string title,std::string zlabel,bool doIBL,bool errorHist)
+PixelMon2DLumiProfiles::PixelMon2DLumiProfiles(std::string name, std::string title, std::string zlabel, bool doIBL, bool errorHist) : m_doIBL(doIBL)
 {
   const int lbRange = 3000;
   IBLlbp= TProfile2D_LW::create((name+"_2D_Profile_IBL").c_str(), (title + ", IBL " + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+(float)lbRange,280,-0.5,279.5);
@@ -24,7 +24,7 @@ PixelMon2DLumiProfiles::PixelMon2DLumiProfiles(std::string name, std::string tit
   Albp  = TProfile2D_LW::create((name+"_2D_Profile_ECA" ).c_str(),(title + ", ECA " + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+(float)lbRange,144,-0.5,143.5);
   Clbp  = TProfile2D_LW::create((name+"_2D_Profile_ECC" ).c_str(),(title + ", ECC " + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+(float)lbRange,144,-0.5,143.5);
 
-  formatHist(doIBL,errorHist);
+  formatHist(errorHist);
 }
 
 PixelMon2DLumiProfiles::~PixelMon2DLumiProfiles()
@@ -37,7 +37,7 @@ PixelMon2DLumiProfiles::~PixelMon2DLumiProfiles()
    LWHist::safeDelete(Clbp);
 }
 
-void PixelMon2DLumiProfiles::Fill(double LB,Identifier &id, const PixelID* pixID,double weight,bool doIBL,bool errorHist)
+void PixelMon2DLumiProfiles::Fill(double LB,Identifier &id, const PixelID* pixID, double weight, bool errorHist)
 {
    int bec = pixID->barrel_ec(id);
    int ld  = pixID->layer_disk(id);
@@ -51,7 +51,7 @@ void PixelMon2DLumiProfiles::Fill(double LB,Identifier &id, const PixelID* pixID
    }
    else if(bec==0)
    {
-     if(doIBL){ld--;}
+     if (m_doIBL) ld--;
       int em  = pixID->eta_module(id)+6;
       if(ld ==0){
          B0lbp->Fill(LB,em+13*pm,weight);
@@ -62,14 +62,14 @@ void PixelMon2DLumiProfiles::Fill(double LB,Identifier &id, const PixelID* pixID
       else if(ld ==2){
          B2lbp->Fill(LB,em+13*pm,weight);
       }
-      else if(ld ==-1 && !errorHist && doIBL){
+      else if (ld ==-1 && !errorHist && m_doIBL) {
 	IBLlbp->Fill(LB,em+4+20*pm,weight);
       }
    }
 }
 
 
-void PixelMon2DLumiProfiles::formatHist(bool doIBL,bool errorHist)
+void PixelMon2DLumiProfiles::formatHist(bool errorHist)
 {
    const int ndisk = 3;
    const int nphi  = 48;
@@ -166,7 +166,7 @@ void PixelMon2DLumiProfiles::formatHist(bool doIBL,bool errorHist)
       } 
    }
    count = 1;
-   if(!errorHist && doIBL){
+   if (!errorHist && m_doIBL) {
      for (int i=0; i<nstaveb; i++)
        {
 	 for (int j=0; j<nmodIBL; j++){
@@ -177,7 +177,7 @@ void PixelMon2DLumiProfiles::formatHist(bool doIBL,bool errorHist)
        }
    }
 
-   if(!errorHist && doIBL){
+   if (!errorHist && m_doIBL) {
      IBLlbp->GetYaxis()->SetLabelSize(0.03);
      IBLlbp->SetOption("colz");
    }
@@ -208,10 +208,10 @@ void PixelMon2DLumiProfiles::formatHist(bool doIBL,bool errorHist)
     //Clbp->SetStats(0.);
 }
 
-StatusCode PixelMon2DLumiProfiles::regHist(ManagedMonitorToolBase::MonGroup &group,bool doIBL,bool errorHist)
+StatusCode PixelMon2DLumiProfiles::regHist(ManagedMonitorToolBase::MonGroup &group, bool errorHist)
 {
   StatusCode sc = StatusCode::SUCCESS;
-  if(!errorHist && doIBL) {
+  if (!errorHist && m_doIBL) {
     if (group.regHist(IBLlbp).isFailure()) sc = StatusCode::FAILURE;
   }
   if (group.regHist(B0lbp).isFailure()) sc = StatusCode::FAILURE;
