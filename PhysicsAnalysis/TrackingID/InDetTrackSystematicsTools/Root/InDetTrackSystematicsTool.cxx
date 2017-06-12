@@ -119,7 +119,7 @@ namespace InDet {
     ATH_MSG_WARNING( "Will now look in InDetTrackSystematicsTools/data/ ." );
     ATH_MSG_WARNING( "You should not see this message unless you are a dev testing a new file." );
 #ifdef XAOD_STANDALONE
-    filenameWithPath = PathResolverFindCalibFile("$ROOTCOREBIN/data/InDetTrackSystematicsTools/" + filename);
+    filenameWithPath = PathResolverFindCalibFile("InDetTrackSystematicsTools/" + filename);
 #else
     filenameWithPath = PathResolverFindDataFile("InDetTrackSystematicsTools/data/" + filename);
 #endif
