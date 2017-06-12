@@ -12,8 +12,11 @@
 #include "IRegionSelector/IRegSelSvc.h" 
 #include "PixelRawDataByteStreamCnv/IPixelRawDataProviderTool.h"
 
-namespace InDet {
 
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+
+
+namespace InDet {
 
   
 

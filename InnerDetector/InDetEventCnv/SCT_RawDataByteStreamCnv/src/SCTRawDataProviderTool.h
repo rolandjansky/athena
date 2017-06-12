@@ -21,7 +21,6 @@
 #include <set>
 #include <string>
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 class ISCT_ByteStreamErrorsSvc;
 class ISCT_RodDecoder;
@@ -50,7 +49,7 @@ public:
   virtual StatusCode finalize()  override;
   
   //! this is the main decoding method
-  virtual StatusCode convert( std::vector<const ROBFragment*>& vecRobs,
+  virtual StatusCode convert( std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
 			      SCT_RDO_Container&               rdoIdc,
                               InDetBSErrContainer*             errs) override;
 

@@ -13,6 +13,8 @@
 #include "TRT_RawDataByteStreamCnv/ITRTRawDataProviderTool.h"
 
 
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+
 
 namespace InDet {
 
