@@ -102,7 +102,6 @@ TileCellBuilderFromHit::TileCellBuilderFromHit(const std::string& type, const st
   , m_MBTSCells(0)
   , m_E4prCells(0)
   , m_RChType(TileFragHash::Default)
-  , m_RChUnit(TileRawChannelUnit::ADCcounts)
 {
   declareInterface<ICaloCellMakerTool>( this );
   declareInterface<TileCellBuilderFromHit>( this );
