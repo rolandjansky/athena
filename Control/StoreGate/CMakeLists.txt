@@ -123,7 +123,7 @@ atlas_add_test( VarHandles_test
 
 atlas_add_test( WriteHandle_test
    SOURCES test/WriteHandle_test.cxx
-   LINK_LIBRARIES SGtests
+   LINK_LIBRARIES SGtests AthContainers
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( ReadHandle_test
