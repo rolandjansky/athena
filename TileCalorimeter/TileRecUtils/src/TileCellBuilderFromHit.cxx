@@ -1053,7 +1053,7 @@ void TileCellBuilderFromHit::build(const ITERATOR & begin, const ITERATOR & end,
     int sample = m_tileID->sample(cell_id);
 
     bool single_PMT_C10 = ( section == TileID::GAPDET && sample == TileID::SAMP_B && !m_cabling->C10_connected(module) );
-    bool missing_D4 = ( section == TileID::GAPDET && sample == TileID::SAMP_D && (module == (side>0)?14:17) );
+    bool missing_D4 = ( section == TileID::GAPDET && sample == TileID::SAMP_D && (module == ((side>0)?14:17)) );
     bool Ecell = (sample == TileID::SAMP_E);
     bool single_PMT = Ecell || single_PMT_C10;
     
