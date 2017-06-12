@@ -23,7 +23,6 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "MuonDQAUtils/MuonDQAHistMap.h"
 
-#include "DataModel/DataLink.h"
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
