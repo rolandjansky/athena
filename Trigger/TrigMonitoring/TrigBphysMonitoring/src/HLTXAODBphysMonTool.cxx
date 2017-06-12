@@ -85,8 +85,8 @@ namespace  { // variable binning
     const double ptmumus[] = {0.,4.,8.,10.,12.,15.,20.,25.,30.,40.,50.,60.,80.,100.};
     const int nptmumus = (int) sizeof(ptmumus) / sizeof(ptmumus[0])  - 1;
     
-    const double taus[] = {-1,-0.3,-0.2,-0.1,0.,0.1,0.2,0.3,0.5,0.75,1.0,1.25,1.5,2.0,3.0,5.0,7.5,10,12.5,15,20};
-    const int ntaus = (int) sizeof(taus) / sizeof(taus[0])  - 1;
+    //const double taus[] = {-1,-0.3,-0.2,-0.1,0.,0.1,0.2,0.3,0.5,0.75,1.0,1.25,1.5,2.0,3.0,5.0,7.5,10,12.5,15,20};
+    //const int ntaus = (int) sizeof(taus) / sizeof(taus[0])  - 1;
 
 }
 
