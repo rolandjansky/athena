@@ -55,5 +55,8 @@ atlas_add_test( IDRunData     SCRIPT scripts/IDRunData.sh
 atlas_add_test( caloRunData   SCRIPT scripts/caloRunData.sh
                 PROPERTIES TIMEOUT 500 
               )
+
+atlas_add_test( EmuL1DecodingTest SCRIPT scripts/EmuL1DecodingTest.sh)
+
 atlas_install_joboptions( share/*.py )
 atlas_install_python_modules( python/*.py )
