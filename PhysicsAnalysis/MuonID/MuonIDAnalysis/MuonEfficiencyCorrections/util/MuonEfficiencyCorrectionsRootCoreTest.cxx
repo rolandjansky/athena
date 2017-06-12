@@ -40,7 +40,8 @@
 
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AnaToolHandle.h"
-#include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
+#include "PileupReweighting/IPileupReweightingTool.h"
+//#include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 #include "PATInterfaces/SystematicsUtil.h"
 
 #define CHECK_CPCorr(Arg) \
