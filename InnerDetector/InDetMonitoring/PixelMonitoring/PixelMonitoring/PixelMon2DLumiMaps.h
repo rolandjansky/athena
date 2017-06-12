@@ -22,7 +22,7 @@ class StatusCode;
 class PixelMon2DLumiMaps
 {
    public:
-  PixelMon2DLumiMaps(std::string name, std::string title, std::string zlabel,bool doIBL=false,bool errorHist=false);
+      PixelMon2DLumiMaps(std::string name, std::string title, std::string zlabel, bool doIBL=false, bool errorHist=false);
       ~PixelMon2DLumiMaps();
       TH2F_LW* IBLlbm;
       TH2F_LW* B0lbm;
@@ -30,11 +30,12 @@ class PixelMon2DLumiMaps
       TH2F_LW* B2lbm;
       TH2F_LW* Albm;
       TH2F_LW* Clbm;
-      void Fill(double LB,Identifier &id, const PixelID* pixID,double weight=1, bool doIBL=false, bool errorHist=false);
-      void Scale(double number,bool doIBL,bool errorHist);
-      StatusCode regHist(ManagedMonitorToolBase::MonGroup &group,bool doIBL=false,bool errorHist=false);
+      void Fill(double LB,Identifier &id, const PixelID* pixID,double weight=1, bool errorHist=false);
+      void Scale(double number, bool errorHist);
+      StatusCode regHist(ManagedMonitorToolBase::MonGroup &group, bool errorHist=false);
 private:
-      void formatHist(bool doIBL=false,bool errorHist=false);
+      void formatHist(bool errorHist=false);
+      const bool m_doIBL;
       
 };
 
