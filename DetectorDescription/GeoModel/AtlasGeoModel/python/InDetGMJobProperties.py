@@ -131,7 +131,7 @@ class useDynamicAlignFolders(JobProperty):
     """ Use to turn on dynamic alignment constants folder scheme (first deployed in 2016) """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False
+    StoredValue  = True
 
 
 
