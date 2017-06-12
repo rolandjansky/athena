@@ -144,8 +144,8 @@ int main( int argc, char** argv ) {
 
   unsigned n = 4;
 
-  std::string  _file = "";
-  std::string _slice = "";
+  std::string  afile = "";
+  std::string aslice = "";
   
   double userthreshold = 100;
 
@@ -190,15 +190,15 @@ int main( int argc, char** argv ) {
     else if (  arg=="-h" || arg=="--help" )     return usage( argc, argv, 6 );
     else if (  arg=="-x" || arg=="--excluded" ) excluded = true;
     else { 
-      if      (  _file=="" )  _file=arg;
-      else if ( _slice=="" ) _slice=arg;
+      if      (  afile=="" )  afile=arg;
+      else if ( aslice=="" ) aslice=arg;
       else  return usage( argc, argv, 7 );
     }
   }
 
-  if ( _file=="" ) return usage( argc, argv, 8 );
+  if ( afile=="" ) return usage( argc, argv, 8 );
 
-  std::ifstream file( _file.c_str() );
+  std::ifstream file( afile.c_str() );
 
   std::vector<std::vector<std::string> > block(1,std::vector<std::string>() );  
 
@@ -206,11 +206,11 @@ int main( int argc, char** argv ) {
 
   std::vector<int> position(1, 0);
 
-  if ( _slice=="" ) return usage( argc, argv, 9 ); 
+  if ( aslice=="" ) return usage( argc, argv, 9 ); 
 
-  std::string slice = "/" + _slice + "/";
+  std::string slice = "/" + aslice + "/";
 
-  std::string rawslice = _slice;
+  std::string rawslice = aslice;
 
   std::map<std::string, std::string> chains;
 

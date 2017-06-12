@@ -158,6 +158,7 @@ void zero( TH2* h ) {
 
 double chi2( TH1* h0, TH1* h1 ) { 
   double c2 = 0;
+
   for ( int i=0 ; i<h0->GetNbinsX() ; i++ ) {
  
     double d0 = h0->GetBinContent(i+1);
@@ -1580,7 +1581,7 @@ int main(int argc, char** argv) {
       }
       
 
-      if ( href ) Chi2.push_back( label( "chi2 = %lf", chi2( htest, href ) ) );
+      if ( href ) Chi2.push_back( label( "chi2 = %5.2lf / %2.0lf", chi2( htest, href ), double(htest->GetNbinsX()) ) );
 
       if( residual ) {
 	
