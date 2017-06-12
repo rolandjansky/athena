@@ -366,7 +366,8 @@ public:
       if ( htest() ) std::cout << "\tentries " << plotable( htest() );
       std::cout << std::endl;
 
-      if(first)  { 
+      if(first)  {
+#if 0 
 	if ( plotref && href() ) {
 	  href()->GetXaxis()->SetMoreLogLabels(true);
 	  href()->Draw("hist][");
@@ -374,7 +375,9 @@ public:
 	  //	    setParameters( href(), tgref() );
 	  //	  }
 	}
-	else    {
+	else
+#endif
+        {
 	  if ( tgtest() ) { 
 	    zeroErrors(htest());
 	    htest()->GetXaxis()->SetMoreLogLabels(true);
