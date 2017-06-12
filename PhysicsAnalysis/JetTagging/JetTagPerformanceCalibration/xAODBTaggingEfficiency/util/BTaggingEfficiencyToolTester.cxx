@@ -30,7 +30,7 @@ int main() {
   code = tool->setProperty("JetAuthor",           "AntiKt4EMTopoJets");
   if (code != StatusCode::SUCCESS) std::cout << "error setting BTaggingEfficiencyTool JetAuthor property" << std::endl;
   // name of the CDI file
-  code = tool->setProperty("ScaleFactorFileName", "13TeV/2016-20_7-13TeV-MC15-CDI-May31_v1.root");
+  code = tool->setProperty("ScaleFactorFileName", "13TeV/2016-20_7-13TeV-MC15-CDI-2017-04-24_v1.root");
   if (code != StatusCode::SUCCESS) std::cout << "error setting BTaggingEfficiencyTool ScaleFactorFileName property" << std::endl;
   // calibration specification (there should always be a "default" available so this doesn't need to be set
   // tool->setProperty("ScaleFactorBCalibration", "ttbar_PDF_7b_SF");
@@ -185,8 +185,8 @@ int main() {
   default:
     break;
   }
-  // (2) b jet outside the extrapolation range (1200 GeV, at present)
-  xAOD::JetFourMom_t p4Invalid(1500000.,0.7,0.3,1000.);
+  // (2) b jet outside the extrapolation range (3000 GeV, at present)
+  xAOD::JetFourMom_t p4Invalid(4000000.,0.7,0.3,1000.);
   xAOD::Jet* invalidJet = new xAOD::Jet;
   invalidJet->makePrivateStore();
   std::cout << "\nSetting jet 4 momentum for b jet outside extrapolation range" << std::endl;
