@@ -34,13 +34,13 @@ class PixelDigitizationTool : public PileUpToolBase {
   public:
     PixelDigitizationTool(const std::string &type, const std::string &name, const IInterface *pIID);
 
-    virtual StatusCode initialize();
-    virtual StatusCode processAllSubEvents();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode processAllSubEvents() override;
+    virtual StatusCode finalize() override;
 
-    StatusCode prepareEvent(unsigned int);
+    virtual StatusCode prepareEvent(unsigned int) override;
     StatusCode digitizeEvent();
-    StatusCode mergeEvent();
+    virtual StatusCode mergeEvent() override;
     virtual StatusCode processBunchXing(int bunchXing, SubEventIterator bSubEvents, SubEventIterator eSubEvents) override final;
 
   protected:
