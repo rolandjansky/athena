@@ -134,7 +134,7 @@ jetm8Seq += CfgMgr.DerivationFramework__DerivationKernel(	name = "JETM8TrigKerne
 reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
                   "AntiKt4TruthJets",
-                  "AntiKt10TruthJets"
+                  "AntiKt10TruthJets",
                   "AntiKt10LCTopoJets"]
 replaceAODReducedJets(reducedJetList,jetm8Seq,"JETM8")
 
