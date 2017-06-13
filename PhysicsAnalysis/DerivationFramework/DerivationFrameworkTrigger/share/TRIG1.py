@@ -32,6 +32,8 @@ else: ToolSvc += BunchCrossingTool( "LHC" )
 # AUGMENTATION TOOLS 
 # Used to decorate enhanced bias weighting quantites for rate estimations
 #====================================================================
+#
+# TODO this doesn't work - component not yet exposed
 from EnhancedBiasWeighter.EnhancedBiasWeighterConf import DerivationFramework__EnhancedBiasWeighter
 TRIG1AugmentationTool = DerivationFramework__EnhancedBiasWeighter(name = "TRIG1AugmentationTool")
 TRIG1AugmentationTool.RunNumber = run_number

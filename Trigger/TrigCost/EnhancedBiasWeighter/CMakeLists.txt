@@ -24,6 +24,8 @@ find_package( xml )
 
 # tag NEEDS_CORAL_BASE was not recognized in automatic conversion in cmt2cmake
 
+atlas_install_python_modules( python/*.py )
+
 # Component(s) in the package:
 atlas_add_library( EnhancedBiasWeighterLib
                    Root/*.cxx
