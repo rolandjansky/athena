@@ -173,6 +173,8 @@ class TileROD_Decoder: public AthAlgTool {
     void setUseFrag5Raw (bool f) { m_useFrag5Raw = f; }
     void setUseFrag5Reco (bool f) { m_useFrag5Reco = f; }
 
+  enum TileFagStatus {ALL_OK=0, CRC_ERR=1, ALL_FF=0x10, ALL_00=0x20, NO_FRAG=0x40, NO_ROB=0x80};
+
   private:
     friend class TileHid2RESrcID;
 
@@ -529,18 +531,32 @@ class TileROD_Decoder: public AthAlgTool {
       if (size < 3 && size > 0) {
         if (rob->rod_source_id() > 0x50ffff) m_error |= 0x10000; // indicate error in frag size, but ignore error in laser ROD
         if (m_ErrorCounter < (m_maxErrorPrint--)) {
-          ATH_MSG_ERROR("ROB " << std::hex << rob->source_id()
-              << " ROD " << std::hex << rob->rod_source_id() << std::dec
+          ATH_MSG_ERROR("ROB " << MSG::hex << rob->source_id()
+              << " ROD " << rob->rod_source_id() << MSG::dec
               << " has unexpected data size: " << size << " - assuming zero size " );
         }
         return 0;
       } else if (size > max_allowed_size) {
         if (rob->rod_source_id() > 0x50ffff) m_error |= 0x10000; // indicate error in frag size, but ignore error in laser ROD
-        if ((m_ErrorCounter++) < m_maxErrorPrint) {
-          ATH_MSG_ERROR("ROB " << std::hex << rob->source_id()
-                        << " ROD " << std::hex << rob->rod_source_id() << std::dec
-                        << " has unexpected data size: " << size
-                        << " - assuming size = " << max_allowed_size << " words " );
+
+        if (size - rob->rod_trailer_size_word() <= max_allowed_size) {
+          if ((m_ErrorCounter++) < m_maxErrorPrint) {
+            ATH_MSG_ERROR("ROB " << MSG::hex << rob->source_id()
+                          << " ROD " << rob->rod_source_id() << MSG::dec
+                          << " size " << size << " is longer than allowed size " << max_allowed_size
+                          << " - assuming that ROB trailer is shorter: "
+                          << rob->rod_trailer_size_word()-(size-max_allowed_size)
+                          << " words instead of " << rob->rod_trailer_size_word());
+          }
+          max_allowed_size = size;
+        } else {
+          max_allowed_size += rob->rod_trailer_size_word();
+          if ((m_ErrorCounter++) < m_maxErrorPrint) {
+            ATH_MSG_ERROR("ROB " << MSG::hex << rob->source_id()
+                          << " ROD " << rob->rod_source_id() << MSG::dec
+                          << " has unexpected data size: " << size
+                          << " - assuming size = " << max_allowed_size << " words and no trailer at all" );
+          }
         }
         return max_allowed_size;
       } else {
@@ -629,7 +645,17 @@ void TileROD_Decoder::make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVe
       //m_RCBuilder->build(pDigits.begin(),pDigits.end(),(&v));
 
       delete_vec(pDigits); // Digits deleted
+
+    } else {
+      ATH_MSG_DEBUG( "data for drawer 0x" << MSG::hex << v.identify() << MSG::dec << " not found in BS" );
     }
+    m_rawchannelMetaData[6]->push_back(TileFagStatus::NO_FRAG);
+    HWIdentifier drawerID = m_tileHWID->drawer_id(v.identify());
+    for (unsigned int ch = 0; ch < m_maxChannels; ++ch) {
+      HWIdentifier adcID = m_tileHWID->adc_id(drawerID, ch, 0);
+      v.push_back(new TileRawChannel(adcID, 0.0, -100.0, 31));
+    }
+
   }
 
   v.setLvl1Id(rob->rod_lvl1_id());
@@ -650,7 +676,14 @@ void TileROD_Decoder::make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVe
     }
   }
 
-  v.setFragGlobalCRC((*(m_rawchannelMetaData[0]))[0]);
+  uint32_t status = ((*(m_rawchannelMetaData[0]))[0] & 0x1) ? TileFagStatus::CRC_ERR : TileFagStatus::ALL_OK ;
+  for (size_t j=0; j<m_rawchannelMetaData[6]->size(); ++j) {
+    status |= (*(m_rawchannelMetaData[6]))[j];
+  }
+  if (status>TileFagStatus::CRC_ERR)
+    ATH_MSG_DEBUG( "Status for drawer 0x" << MSG::hex << v.identify() << " is 0x" << status << MSG::dec);
+
+  v.setFragGlobalCRC(status);
   v.setFragDSPBCID((*(m_rawchannelMetaData[0]))[1]);
   v.setFragBCID((*(m_rawchannelMetaData[1]))[0]);
   v.setFragMemoryPar((*(m_rawchannelMetaData[1]))[1]);
@@ -718,8 +751,8 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
   //
   //  if (msgLvl(MSG::VERBOSE)) {
   //    msg(MSG::VERBOSE) << "ROD header info: " << endmsg
-  //    msg(MSG::VERBOSE) << " Format Vers.  " << std::hex << "0x" << rob->rod_version() << std::dec << endmsg;
-  //    msg(MSG::VERBOSE) << " Source ID     " << std::hex << "0x" << rob->rod_source_id() << std::dec << endmsg;
+  //    msg(MSG::VERBOSE) << " Format Vers.  " << MSG::hex << "0x" << rob->rod_version() << MSG::dec << endmsg;
+  //    msg(MSG::VERBOSE) << " Source ID     " << MSG::hex << "0x" << rob->rod_source_id() << MSG::dec << endmsg;
   //    msg(MSG::VERBOSE) << " Source ID str " << eformat::helper::SourceIdentifier(rob->source_id()).human().c_str() << endmsg;
   //    msg(MSG::VERBOSE) << " Run number    " << (int) rob->rod_run_no() << endmsg;
   //    msg(MSG::VERBOSE) << " Level1 ID     " << rob->rod_lvl1_id() << endmsg;
@@ -734,7 +767,7 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
   //    msg(MSG::VERBOSE) << " Status pos    " << rob->rod_status_position() << endmsg;
   //  }
 
-  uint32_t version = rob->rod_version() & 0xFF;
+  uint32_t version = rob->rod_version() & 0xFFFF;
 
   bool isBeamROD = false;
   // figure out which fragment we want to unpack
@@ -762,6 +795,11 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
   if (size) {
     bool V3format = (*(p) == 0xff1234ff); // additional frag marker since Sep 2005
     V3format |= (*(p) == 0x00123400); // additional frag marker since Sep 2005 (can appear in buggy ROD frags)
+    if (!V3format && version>0xff) {
+      V3format = true;
+      if ((m_ErrorCounter++) < m_maxErrorPrint)
+        ATH_MSG_ERROR("fillCollection: corrupted frag separator 0x" << MSG::hex << (*p) << " instead of 0xff1234ff in ROB 0x" << rob->rod_source_id() << MSG::dec );
+    }
     if (V3format) {
       ++p; // skip frag marker
       m_sizeOverhead = 3;
@@ -796,7 +834,7 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
         }
       }
       if ((m_ErrorCounter++) < m_maxErrorPrint) {
-        msg(MSG::ERROR) << "Frag 0x" << std::hex << frag << std::dec
+        msg(MSG::ERROR) << "Frag 0x" << MSG::hex << frag << MSG::dec
                         << " has unexpected size: " << count;
         if (wc < size) {
           msg(MSG::ERROR) << "  skipping " << cnt << " words to the next frag" << endmsg;
@@ -856,7 +894,7 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
     pChannel.reserve(48);
 
     // initialize meta data storage
-    for (unsigned int i = 0; i < 6; ++i) {
+    for (unsigned int i = 0; i < 7; ++i) {
       m_digitsMetaData[i]->clear();
       m_rawchannelMetaData[i]->clear();
     }
@@ -876,8 +914,8 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
       uint32_t idAndType = *(p + 1);
       int type = (idAndType & 0x00FF0000) >> 16;
 
-      ATH_MSG_VERBOSE( "Unpacking frag: 0x" << std::hex << (idAndType & 0xFFFF)
-                      << " type " << type << std::dec );
+      ATH_MSG_VERBOSE( "Unpacking frag: 0x" << MSG::hex << (idAndType & 0xFFFF)
+                      << " type " << type << MSG::dec );
 
       createdFrom |= (1 << type);
 
