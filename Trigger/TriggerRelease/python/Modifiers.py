@@ -1649,6 +1649,14 @@ class LumiRegionZmax168(_modifier):
         from AthenaCommon.SystemOfUnits import mm 
         RegSelSvc.DeltaZ = 168* mm
 
+class useDynamicAlignFolders(_modifier):
+    """
+    enable the new (2016-) alignment scheme
+    """
+    def preSetup(self):
+        from AtlasGeoModel.InDetGMJobProperties import GeometryFlags;
+        GeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(True)
+
     
 ###############################################################
 # Modifiers believed to be obsolete.
