@@ -65,4 +65,5 @@ atlas_add_executable( graph_to_function
 atlas_install_joboptions( share/*.py )
 
 # This will allow us to put files into data/ to test new calibration files
-atlas_install_data( data/*.root )
+# Uncomment this line after putting test files into data/, then run "make" again to install.
+# atlas_install_data( data/*.root )
