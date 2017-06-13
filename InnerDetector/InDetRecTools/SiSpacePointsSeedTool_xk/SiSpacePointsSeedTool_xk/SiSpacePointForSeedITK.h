@@ -182,9 +182,10 @@ namespace InDet {
 	float f22 = float(v(1,1) );
 	float wid = float(c->width().z());
 	float cov = wid*wid*.08333; if(cov < f22) cov = f22;
-	if(de->isBarrel()) {m_covz = 9.*cov; m_covr = .06;}
-	else               {m_covr = 9.*cov; m_covz = .06;}
-	m_sn = 0;
+	cov*=16.;
+	m_covz = cov*(r[3]*r[3]+r[4]*r[4]); 
+	m_covr = cov*(r[5]*r[5]);
+	m_sn   = 0;
       }
       else                {
 
@@ -227,9 +228,10 @@ namespace InDet {
 	float f22 = float(v(1,1));
 	float wid = float(c->width().z());
 	float cov = wid*wid*.08333; if(cov < f22) cov = f22;
-	if(de->isBarrel()) {m_covz = 9.*cov*sc[0]; m_covr = .06;}
-	else               {m_covr = 9.*cov*sc[1]; m_covz = .06;}
-	m_sn = 0;
+	cov*=16.;
+	m_covz = cov*(r[3]*r[3]+r[4]*r[4]); 
+	m_covr = cov*(r[5]*r[5]);
+	m_sn   = 0;
       }
       else                {
 
