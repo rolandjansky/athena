@@ -137,8 +137,8 @@ namespace InDet {
 
   inline bool SiSpacePointsProSeedITK::set3(InDet::SiSpacePointsSeed& s)
     {
-      
-      if(!m_s0->spacepoint->clusterList().second) {
+            
+      if(!m_s2->spacepoint->clusterList().second) {
 	if(m_q > m_s0->quality() && m_q > m_s1->quality() && m_q > m_s2->quality()) return false;
       }
       
@@ -162,7 +162,7 @@ namespace InDet {
     {
       m_q = q;
       
-      if(!m_s0->spacepoint->clusterList().second) {
+      if(!m_s2->spacepoint->clusterList().second) {
 	if(q > m_s0->quality() && q > m_s1->quality() && q > m_s2->quality()) return false;
       }
       m_s0->setQuality(m_q);
