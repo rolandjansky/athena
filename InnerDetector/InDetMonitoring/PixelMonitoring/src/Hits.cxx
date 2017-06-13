@@ -459,13 +459,13 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
   Identifier rdoID;
   
   int nChannels_mod[PixLayerIBL2D3D::COUNT] = {46080, 46080, 46080, 46080, 46080, 26880, 53760, 26880};
-  double nActiveChannels_total = 0.;
+  double nGoodChannels_total = 0.;
   double nGoodChannels_layer[PixLayerIBL2D3D::COUNT];
   double nActiveChannels_layer[PixLayerIBL2D3D::COUNT];
   for( int i=0; i<PixLayerIBL2D3D::COUNT; i++){
     nGoodChannels_layer[i]   = 1.0 * nChannels_mod[i] * m_nGood_mod[i];
     nActiveChannels_layer[i] = 1.0 * nChannels_mod[i] * m_nActive_mod[i];
-    nActiveChannels_total    =+ nGoodChannels_layer[i];
+    nGoodChannels_total    =+ nGoodChannels_layer[i];
   }
 
   StatusCode sc;
@@ -705,7 +705,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
   double avgocc = 0;
   double avgocc_mod[PixLayerIBL2D3D::COUNT] = {0};
   double avgocc_active_mod[PixLayerIBL2D3D::COUNT] = {0};
-  if(nActiveChannels_total>0) avgocc = nhits/nActiveChannels_total;
+  if(nGoodChannels_total>0) avgocc = nhits/nGoodChannels_total;
   if(m_avgocc_per_lumi) m_avgocc_per_lumi->Fill(m_manager->lumiBlockNumber(), avgocc);
 
   if (m_doOfflineAnalysis) {

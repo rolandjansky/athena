@@ -354,8 +354,6 @@ StatusCode PixelMainMon::BookClustersMon(void)
     if (m_doHeavyIonMon) {max_clusters = 100000; max_clusters_region = 40000; max_avclusters = 1000; }
     
     tmp = "num_clusters"; tmp2 = "Number of pixel clusters in an event";
-    if (m_doOnTrack) { tmp = tmp + addOnTrack; tmp2 = tmp2 + addOnTrack; }
-    tmp = "num_clusters"; tmp2 = "Number of pixel clusters in an event";
     sc = clusterShift.regHist(m_num_clusters = TH1I_LW::create(tmp.c_str(), (tmp2 + ";# pixel clusters/event" + m_histTitleExt + ";# events").c_str(), nbins_clusters, 0., max_clusters));
     
     for(int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++){
