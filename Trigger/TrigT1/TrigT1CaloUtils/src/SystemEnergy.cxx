@@ -61,17 +61,25 @@ SystemEnergy::SystemEnergy(const DataVector<CrateEnergy> *crates, ServiceHandle<
       m_systemEy += (*it)->ey();
       m_systemEt += (*it)->et();
     }
-    m_overflowX = m_overflowX | (*it)->exOverflow();
-    m_overflowY = m_overflowY | (*it)->eyOverflow();
-    m_overflowT = m_overflowT | (*it)->etOverflow();
+    
+    // In the current implementation we could not trust to
+    // overflow errors for restricted sums:
+    // m_overflowX = m_overflowX | (*it)->exOverflow();
+    // m_overflowY = m_overflowY | (*it)->eyOverflow();
+    // m_overflowT = m_overflowT | (*it)->etOverflow();
+    
+    m_overflowX = m_overflowX | ((*it)->ex() == -(m_maxEtSumThr + 1));
+    m_overflowY = m_overflowY | ((*it)->ey() == -(m_maxEtSumThr + 1));
+    m_overflowT = m_overflowT | ((*it)->et() == m_maxEtSumThr);
 
     if ((*it)->restricted())
       m_restricted = 1;
   }
 
   /** Check for EtSum overflow */
-  if (m_overflowT != 0)
+  if (m_overflowT != 0) {
     m_systemEt = m_etSumOverflow;
+  }
     
   /** Check for overflow of Ex, Ey sums */
   int xyMax = 1 << (m_sumBits - 1);
