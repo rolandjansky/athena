@@ -22,9 +22,11 @@ PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title, bool doI
   std::string phitext = ";phi index of module";
   std::string disktext = ";disk number";
 
-  IBL3D = TH2F_LW::create((name+"_IBL3D").c_str(), (title + ", IBL 3D modules " + etatext + phitext).c_str(),8,-.5,7.5,14,-0.5,13.5);
-  IBL2D = TH2F_LW::create((name+"_IBL2D").c_str(), (title + ", IBL planar modules " + setatext + phitext).c_str(),12,-6.5,5.5,14,-0.5,13.5);
-  IBL   = TH2F_LW::create((name+"_IBL").c_str(),   (title + ", IBL " + setatext + phitext).c_str(),32,-16.5,15.5,14,-0.5,13.5);
+  if (m_doIBL && !m_errorHist) {
+     IBL3D = TH2F_LW::create((name+"_IBL3D").c_str(), (title + ", IBL 3D modules " + etatext + phitext).c_str(),8,-.5,7.5,14,-0.5,13.5);
+     IBL2D = TH2F_LW::create((name+"_IBL2D").c_str(), (title + ", IBL planar modules " + setatext + phitext).c_str(),12,-6.5,5.5,14,-0.5,13.5);
+     IBL   = TH2F_LW::create((name+"_IBL").c_str(),   (title + ", IBL " + setatext + phitext).c_str(),32,-16.5,15.5,14,-0.5,13.5);
+  }
   B0 = TH2F_LW::create((name+"_B0").c_str(),       (title + ", B0 " + etatext + phitext).c_str(),13,-6.5,6.5,22,-0.5,21.5);
   B1 = TH2F_LW::create((name+"_B1").c_str(),       (title + ", B1 " + etatext + phitext).c_str(),13,-6.5,6.5,38,-0.5,37.5);
   B2 = TH2F_LW::create((name+"_B2").c_str(),       (title + ", B2 " + etatext + phitext).c_str(),13,-6.5,6.5,52,-0.5,51.5);
@@ -38,9 +40,11 @@ PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title, bool doI
 
 PixelMon2DMapsLW::~PixelMon2DMapsLW()
 {
-   LWHist::safeDelete(IBL3D);
-   LWHist::safeDelete(IBL2D);
-   LWHist::safeDelete(IBL);
+   if (m_doIBL && !m_errorHist) {
+      LWHist::safeDelete(IBL3D);
+      LWHist::safeDelete(IBL2D);
+      LWHist::safeDelete(IBL);
+   }
    LWHist::safeDelete(B0);
    LWHist::safeDelete(B1);
    LWHist::safeDelete(B2);
@@ -122,7 +126,7 @@ void PixelMon2DMapsLW::WeightingFill(Identifier &id, const PixelID* pixID, float
       else if(ld ==2){ 
 	      B2->Fill(em, pm, weight);
       }
-      else if(ld ==-1){
+      else if(ld ==-1 && m_doIBL && !m_errorHist){
 	      int feid = 0;
 	      int emf = 0;
 	      if(em<6 && em>-7){
@@ -179,19 +183,21 @@ void PixelMon2DMapsLW::FillNormalized(PixelMon2DMapsLW* old, int nevent)
          B2->SetBinContent(x, y, old->B2->GetBinContent(x, y)/nactivechannels_B2 );
       }
    }
-   for(unsigned int x=1; x<=IBL->GetXaxis()->GetNbins(); x++){
-      for(unsigned int y=1; y<=IBL->GetYaxis()->GetNbins(); y++){
-         IBL->SetBinContent(x, y, old->IBL->GetBinContent(x, y)/nactivechannels_IBL );
+   if (m_doIBL && !m_errorHist) {
+      for(unsigned int x=1; x<=IBL->GetXaxis()->GetNbins(); x++){
+         for(unsigned int y=1; y<=IBL->GetYaxis()->GetNbins(); y++){
+            IBL->SetBinContent(x, y, old->IBL->GetBinContent(x, y)/nactivechannels_IBL );
+         }
       }
-   }
-   for(unsigned int x=1; x<=IBL2D->GetXaxis()->GetNbins(); x++){
-      for(unsigned int y=1; y<=IBL2D->GetYaxis()->GetNbins(); y++){
-         IBL2D->SetBinContent(x, y, old->IBL2D->GetBinContent(x, y)/nactivechannels_IBL2D );
+      for(unsigned int x=1; x<=IBL2D->GetXaxis()->GetNbins(); x++){
+         for(unsigned int y=1; y<=IBL2D->GetYaxis()->GetNbins(); y++){
+            IBL2D->SetBinContent(x, y, old->IBL2D->GetBinContent(x, y)/nactivechannels_IBL2D );
+         }
       }
-   }
-   for(unsigned int x=1; x<=IBL3D->GetXaxis()->GetNbins(); x++){
-      for(unsigned int y=1; y<=IBL3D->GetYaxis()->GetNbins(); y++){
-         IBL3D->SetBinContent(x, y, old->IBL3D->GetBinContent(x, y)/nactivechannels_IBL3D );
+      for(unsigned int x=1; x<=IBL3D->GetXaxis()->GetNbins(); x++){
+         for(unsigned int y=1; y<=IBL3D->GetYaxis()->GetNbins(); y++){
+            IBL3D->SetBinContent(x, y, old->IBL3D->GetBinContent(x, y)/nactivechannels_IBL3D );
+         }
       }
    }
 }

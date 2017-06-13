@@ -22,9 +22,11 @@ PixelMon2DProfilesLW::PixelMon2DProfilesLW(std::string name, std::string title, 
   std::string phitext = ";phi index of module";
   std::string disktext = ";disk number";
 
-  IBL3D = TProfile2D_LW::create((name+"_IBL3D").c_str(), (title + ", IBL 3D modules " + etatext + phitext).c_str(),8,-.5,7.5,14,-0.5,13.5);
-  IBL2D = TProfile2D_LW::create((name+"_IBL2D").c_str(), (title + ", IBL planar modules " + setatext + phitext).c_str(),12,-6.5,5.5,14,-0.5,13.5);
-  IBL   = TProfile2D_LW::create((name+"_IBL").c_str(),   (title + ", IBL " + setatext + phitext).c_str(),32,-16.5,15.5,14,-0.5,13.5);
+  if (doIBL && !errorHist) {
+     IBL3D = TProfile2D_LW::create((name+"_IBL3D").c_str(), (title + ", IBL 3D modules " + etatext + phitext).c_str(),8,-.5,7.5,14,-0.5,13.5);
+     IBL2D = TProfile2D_LW::create((name+"_IBL2D").c_str(), (title + ", IBL planar modules " + setatext + phitext).c_str(),12,-6.5,5.5,14,-0.5,13.5);
+     IBL   = TProfile2D_LW::create((name+"_IBL").c_str(),   (title + ", IBL " + setatext + phitext).c_str(),32,-16.5,15.5,14,-0.5,13.5);
+  }
   B0    = TProfile2D_LW::create((name+"_B0").c_str(),    (title + ", B0 " + etatext + phitext).c_str(),13,-6.5,6.5,22,-0.5,21.5);
   B1    = TProfile2D_LW::create((name+"_B1").c_str(),    (title + ", B1 " + etatext + phitext).c_str(),13,-6.5,6.5,38,-0.5,37.5);
   B2    = TProfile2D_LW::create((name+"_B2").c_str(),    (title + ", B2 " + etatext + phitext).c_str(),13,-6.5,6.5,52,-0.5,51.5);
@@ -40,9 +42,11 @@ PixelMon2DProfilesLW::PixelMon2DProfilesLW(std::string name, std::string title, 
 
 PixelMon2DProfilesLW::~PixelMon2DProfilesLW()
 {
-   LWHist::safeDelete(IBL3D);
-   LWHist::safeDelete(IBL2D);
-   LWHist::safeDelete(IBL);
+   if (mDoIBL && mDoErrorHist) {
+      LWHist::safeDelete(IBL3D);
+      LWHist::safeDelete(IBL2D);
+      LWHist::safeDelete(IBL);
+   }
    LWHist::safeDelete(B0);
    LWHist::safeDelete(B1);
    LWHist::safeDelete(B2);
@@ -313,25 +317,27 @@ void PixelMon2DProfilesLW::Fill2DMon(PixelMon2DProfilesLW* oldmap)
          oldmap->B2->SetBinContent(x, y, 0);
       }
    }
-   for(unsigned int x=1; x<=IBL->GetNbinsX(); x++){
-      for(unsigned int y=1; y<=IBL->GetNbinsY(); y++){
-         float content = oldmap->IBL->GetBinContent(x, y);
-         IBL->SetBinContent(x, y, content);
-         oldmap->IBL->SetBinContent(x, y, 0);
+   if (mDoIBL && !mDoErrorHist) {
+      for(unsigned int x=1; x<=IBL->GetNbinsX(); x++){
+         for(unsigned int y=1; y<=IBL->GetNbinsY(); y++){
+            float content = oldmap->IBL->GetBinContent(x, y);
+            IBL->SetBinContent(x, y, content);
+            oldmap->IBL->SetBinContent(x, y, 0);
+         }
       }
-   }
-   for(unsigned int x=1; x<=IBL2D->GetNbinsX(); x++){
-      for(unsigned int y=1; y<=IBL2D->GetNbinsY(); y++){
-         float content = oldmap->IBL2D->GetBinContent(x, y);
-         IBL2D->SetBinContent(x, y, content);
-         oldmap->IBL2D->SetBinContent(x, y, 0);
+      for(unsigned int x=1; x<=IBL2D->GetNbinsX(); x++){
+         for(unsigned int y=1; y<=IBL2D->GetNbinsY(); y++){
+            float content = oldmap->IBL2D->GetBinContent(x, y);
+            IBL2D->SetBinContent(x, y, content);
+            oldmap->IBL2D->SetBinContent(x, y, 0);
+         }
       }
-   }
-   for(unsigned int x=1; x<=IBL3D->GetNbinsX(); x++){
-      for(unsigned int y=1; y<=IBL3D->GetNbinsY(); y++){
-         float content = oldmap->IBL3D->GetBinContent(x, y);
-         IBL3D->SetBinContent(x, y, content);
-         oldmap->IBL3D->SetBinContent(x, y, 0);
+      for(unsigned int x=1; x<=IBL3D->GetNbinsX(); x++){
+         for(unsigned int y=1; y<=IBL3D->GetNbinsY(); y++){
+            float content = oldmap->IBL3D->GetBinContent(x, y);
+            IBL3D->SetBinContent(x, y, content);
+            oldmap->IBL3D->SetBinContent(x, y, 0);
+         }
       }
    }
 }
@@ -392,27 +398,29 @@ void PixelMon2DProfilesLW::FillFromMap(PixelMon2DMaps* inputmap, bool clear_inpu
     }
   }
   if (clear_inputmap) inputmap->B2->Reset();
-  for(unsigned int x=1; x<=IBL->GetNbinsX(); x++){
-    for(unsigned int y=1; y<=IBL->GetNbinsY(); y++){
-      float content = inputmap->IBL->GetBinContent(x, y);
-      IBL->Fill(inputmap->IBL->GetXaxis()->GetBinCenter(x), inputmap->IBL->GetYaxis()->GetBinCenter(y), content*weightIBL);
-    }
+  if (mDoIBL && mDoErrorHist) {
+     for(unsigned int x=1; x<=IBL->GetNbinsX(); x++){
+        for(unsigned int y=1; y<=IBL->GetNbinsY(); y++){
+           float content = inputmap->IBL->GetBinContent(x, y);
+           IBL->Fill(inputmap->IBL->GetXaxis()->GetBinCenter(x), inputmap->IBL->GetYaxis()->GetBinCenter(y), content*weightIBL);
+        }
+     }
+     if (clear_inputmap) inputmap->IBL->Reset();
+     for(unsigned int x=1; x<=IBL2D->GetNbinsX(); x++){
+        for(unsigned int y=1; y<=IBL2D->GetNbinsY(); y++){
+           float content = inputmap->IBL2D->GetBinContent(x, y);
+           IBL2D->Fill(inputmap->IBL2D->GetXaxis()->GetBinCenter(x), inputmap->IBL2D->GetYaxis()->GetBinCenter(y), content*weightIBL*0.5);
+        }
+     }
+     if (clear_inputmap) inputmap->IBL2D->Reset();
+     for(unsigned int x=1; x<=IBL3D->GetNbinsX(); x++){
+        for(unsigned int y=1; y<=IBL3D->GetNbinsY(); y++){
+           float content = inputmap->IBL3D->GetBinContent(x, y);
+           IBL3D->Fill(inputmap->IBL3D->GetXaxis()->GetBinCenter(x), inputmap->IBL3D->GetYaxis()->GetBinCenter(y), content*weightIBL);
+        }
+     }
+     if (clear_inputmap) inputmap->IBL3D->Reset();
   }
-  if (clear_inputmap) inputmap->IBL->Reset();
-  for(unsigned int x=1; x<=IBL2D->GetNbinsX(); x++){
-    for(unsigned int y=1; y<=IBL2D->GetNbinsY(); y++){
-      float content = inputmap->IBL2D->GetBinContent(x, y);
-      IBL2D->Fill(inputmap->IBL2D->GetXaxis()->GetBinCenter(x), inputmap->IBL2D->GetYaxis()->GetBinCenter(y), content*weightIBL*0.5);
-    }
-  }
-  if (clear_inputmap) inputmap->IBL2D->Reset();
-  for(unsigned int x=1; x<=IBL3D->GetNbinsX(); x++){
-    for(unsigned int y=1; y<=IBL3D->GetNbinsY(); y++){
-      float content = inputmap->IBL3D->GetBinContent(x, y);
-      IBL3D->Fill(inputmap->IBL3D->GetXaxis()->GetBinCenter(x), inputmap->IBL3D->GetYaxis()->GetBinCenter(y), content*weightIBL);
-    }
-  }
-  if (clear_inputmap) inputmap->IBL3D->Reset();
 }
 
 

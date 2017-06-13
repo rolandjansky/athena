@@ -16,7 +16,9 @@
 PixelMon2DLumiMaps::PixelMon2DLumiMaps(std::string name, std::string title, std::string zlabel, bool doIBL, bool errorHist) : m_doIBL(doIBL), m_errorHist(errorHist)
 {
   const int lbRange = 3000;
-  IBLlbm = TH2F_LW::create((name+"_2D_Map_IBL").c_str(),(title + ", IBL " + " (Map);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5 + (float)lbRange,280,-0.5,279.5);
+  if (m_doIBL && !m_errorHist) {
+     IBLlbm = TH2F_LW::create((name+"_2D_Map_IBL").c_str(),(title + ", IBL " + " (Map);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5 + (float)lbRange,280,-0.5,279.5);
+  }
   B0lbm = TH2F_LW::create((name+"_2D_Map_B0").c_str(),  (title + ", B0 "  + " (Map);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5 + (float)lbRange,286,-0.5,285.5);
   B1lbm = TH2F_LW::create((name+"_2D_Map_B1").c_str(),  (title + ", B1 "  + " (Map);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5 + (float)lbRange,494,-0.5,493.5);
   B2lbm = TH2F_LW::create((name+"_2D_Map_B2").c_str(),  (title + ", B2 "  + " (Map);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5 + (float)lbRange,676,-0.5,675.5);
@@ -28,7 +30,9 @@ PixelMon2DLumiMaps::PixelMon2DLumiMaps(std::string name, std::string title, std:
 
 PixelMon2DLumiMaps::~PixelMon2DLumiMaps()
 {
-  LWHist::safeDelete(IBLlbm);//includes null pointer check
+   if (m_doIBL && !m_errorHist) {
+      LWHist::safeDelete(IBLlbm);//includes null pointer check
+   }
    LWHist::safeDelete(B0lbm);
    LWHist::safeDelete(B1lbm);
    LWHist::safeDelete(B2lbm);
