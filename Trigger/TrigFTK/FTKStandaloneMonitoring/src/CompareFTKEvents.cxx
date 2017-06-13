@@ -36,6 +36,16 @@ void CompareFTKEvents::SetupPartition(const std::string &partition_name)
     }
     catch ( daq::rc::Exception & ex ){	    
        ers::warning(ex);  //or throw e; 
+       if (m_partition_name!="") std::cout<< "Partition set to the input variable: "<<m_partition_name<<std::endl;
+       else if (std::getenv("TDAQ_PARTITION")!=NULL) {
+           m_partition_name = std::getenv("TDAQ_PARTITION");
+	   std::cout<< "Partition set to the environment variable TDAQ_PARTITION: "<<m_partition_name<<std::endl;
+       }	   
+       //set to some default, e.g. ATLAS and print a warning, this should not happen
+       else {
+           m_partition_name="ATLAS";
+	   std::cout<< "Partition set to ATLAS, this should not happen!!! "<<std::endl;
+       }   
        m_ipcpartition = IPCPartition( m_partition_name );
        std::cout<<"==> Setting up partition from the name you provided in the command line: "<<m_partition_name<<std::endl;
        if (m_partition_name.empty()) std::cout<<"!!!! Empty partition name => you should provide it with \"-p [partition_name]\" as argument while executing"<<std::endl;
