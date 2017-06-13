@@ -32,8 +32,10 @@ PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title, bool doI
   B2 = TH2F_LW::create((name+"_B2").c_str(),       (title + ", B2 " + etatext + phitext).c_str(),13,-6.5,6.5,52,-0.5,51.5);
   A  = TH2F_LW::create((name+"_ECA" ).c_str(),     (title + ", ECA " + disktext + phitext).c_str(),3,-0.5,2.5,48,-0.5,47.5);
   C  = TH2F_LW::create((name+"_ECC" ).c_str(),     (title + ", ECC " + disktext + phitext).c_str(),3,-0.5,2.5,48,-0.5,47.5);
-  DBMA = TH2F_LW::create((name+"_DBMA" ).c_str(),  (title + ", DBMA " + disktext + phitext).c_str(),3,-0.5,2.5,4,-0.5,3.5);
-  DBMC = TH2F_LW::create((name+"_DBMC" ).c_str(),  (title + ", DBMC " + disktext + phitext).c_str(),3,-0.5,2.5,4,-0.5,3.5);
+  if (!m_errorHist) {
+    DBMA = TH2F_LW::create((name+"_DBMA" ).c_str(),  (title + ", DBMA " + disktext + phitext).c_str(),3,-0.5,2.5,4,-0.5,3.5);
+    DBMC = TH2F_LW::create((name+"_DBMC" ).c_str(),  (title + ", DBMC " + disktext + phitext).c_str(),3,-0.5,2.5,4,-0.5,3.5);
+  }
 
   formatHist();
 }
@@ -50,8 +52,10 @@ PixelMon2DMapsLW::~PixelMon2DMapsLW()
    LWHist::safeDelete(B2);
    LWHist::safeDelete(A);
    LWHist::safeDelete(C);
-   LWHist::safeDelete(DBMA);
-   LWHist::safeDelete(DBMC);
+   if (!m_errorHist) {
+      LWHist::safeDelete(DBMA);
+      LWHist::safeDelete(DBMC);
+   }
 }
 
 void PixelMon2DMapsLW::Fill(Identifier &id, const PixelID* pixID)
@@ -62,8 +66,8 @@ void PixelMon2DMapsLW::Fill(Identifier &id, const PixelID* pixID)
 
    if(bec==2) A->Fill(ld,pm); 
    else if(bec==-2) C->Fill(ld,pm);
-   else if(bec==4) DBMA->Fill(ld, pm);
-   else if(bec==-4) DBMC->Fill(ld, pm);
+   else if (bec == 4 && !m_errorHist) DBMA->Fill(ld, pm);
+   else if (bec == -4 && !m_errorHist) DBMC->Fill(ld, pm);
 
    else if(bec==0)
      {
@@ -110,8 +114,8 @@ void PixelMon2DMapsLW::WeightingFill(Identifier &id, const PixelID* pixID, float
 
    if(bec==2) A->Fill(ld, pm, weight);
    else if(bec==-2) C->Fill(ld, pm, weight);
-   else if(bec==4) DBMA->Fill(ld, pm, weight);
-   else if(bec==-4) DBMC->Fill(ld, pm, weight);
+   else if (bec == 4 && !m_errorHist) DBMA->Fill(ld, pm, weight);
+   else if (bec == -4 && !m_errorHist) DBMC->Fill(ld, pm, weight);
 
    else if(bec==0)
    {
@@ -291,17 +295,20 @@ void PixelMon2DMapsLW::formatHist()
       A->GetYaxis()->SetBinLabel( i+1, nstaveA[i] );
       C->GetYaxis()->SetBinLabel( i+1, nstaveC[i] );
    }
-   for (int i=0; i<nphi_dbm; i++) 
-   {
-      DBMA->GetYaxis()->SetBinLabel( i+1, phi_dbm[i] );
-      DBMC->GetYaxis()->SetBinLabel( i+1, phi_dbm[i] );
+   if (!m_errorHist) {
+     for (int i = 0; i < nphi_dbm; i++) {
+       DBMA->GetYaxis()->SetBinLabel( i+1, phi_dbm[i] );
+       DBMC->GetYaxis()->SetBinLabel( i+1, phi_dbm[i] );
+     }
+     for (int i = 0; i < ndisk; i++) {
+       DBMA->GetXaxis()->SetBinLabel( i+1, disk[i] );
+       DBMC->GetXaxis()->SetBinLabel( i+1, disk[i] );
+     }
    }
    for (int i=0; i<ndisk; i++) 
    {
       A->GetXaxis()->SetBinLabel( i+1, disk[i] );
       C->GetXaxis()->SetBinLabel( i+1, disk[i] );
-      DBMA->GetXaxis()->SetBinLabel( i+1, disk[i] );
-      DBMC->GetXaxis()->SetBinLabel( i+1, disk[i] );
    }
    for (int i=0; i<nmod; i++) 
    {
@@ -361,14 +368,21 @@ void PixelMon2DMapsLW::formatHist()
      IBL3D->SetMinimum(0.);
    }
 
+   if (!m_errorHist) {
+      DBMA->GetYaxis()->SetLabelSize(0.02);
+      DBMC->GetYaxis()->SetLabelSize(0.02);
+      DBMA->SetOption("colz");
+      DBMC->SetOption("colz");
+      DBMA->SetMinimum(0.);
+      DBMC->SetMinimum(0.);
+   }
+
    //Make the text smaller
    B0->GetYaxis()->SetLabelSize(0.03);
    B1->GetYaxis()->SetLabelSize(0.03);
    B2->GetYaxis()->SetLabelSize(0.03);
    A->GetYaxis()->SetLabelSize(0.02);
    C->GetYaxis()->SetLabelSize(0.02);
-   DBMA->GetYaxis()->SetLabelSize(0.02);
-   DBMC->GetYaxis()->SetLabelSize(0.02);
    //Move the lable so you can read it
    // IBL2D->GetYaxis()->SetTitleOffset(1.35);
    // IBL3D->GetYaxis()->SetTitleOffset(1.35);
@@ -383,16 +397,12 @@ void PixelMon2DMapsLW::formatHist()
    B2->SetOption("colz");
    A->SetOption("colz");
    C->SetOption("colz");
-   DBMA->SetOption("colz");
-   DBMC->SetOption("colz");
    //force the minimum to be 0 so you can spot empty blocks easily
    B0->SetMinimum(0.);
    B1->SetMinimum(0.);
    B2->SetMinimum(0.);
    A->SetMinimum(0.);
    C->SetMinimum(0.);
-   DBMA->SetMinimum(0.);
-   DBMC->SetMinimum(0.);
    //Remvoe the stats box because it's in the way
    // IBL2D->SetStats(0.);
    // IBL3D->SetStats(0.);
@@ -418,8 +428,10 @@ StatusCode PixelMon2DMapsLW::regHist(ManagedMonitorToolBase::MonGroup &group)
   if (group.regHist(B2).isFailure()) sc = StatusCode::FAILURE;
   if (group.regHist(A).isFailure()) sc = StatusCode::FAILURE;
   if (group.regHist(C).isFailure()) sc = StatusCode::FAILURE;
-  if (group.regHist(DBMA).isFailure()) sc = StatusCode::FAILURE;
-  if (group.regHist(DBMC).isFailure()) sc = StatusCode::FAILURE;
+  if (!m_errorHist) {
+    if (group.regHist(DBMA).isFailure()) sc = StatusCode::FAILURE;
+    if (group.regHist(DBMC).isFailure()) sc = StatusCode::FAILURE;
+  }
 
   return sc;
 }
