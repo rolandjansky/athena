@@ -21,7 +21,7 @@ class AODFix_r207(AODFix_base):
     @staticmethod
     def latestAODFixVersion():
         """The latest version of the AODFix. Moving to new AODFix version scheme"""
-        nextMajRel = "20.7.8"
+        nextMajRel = "20.7.10"
 
         # items in this list will be excluded from the metadata, so will always rerun
         excludeFromMetadata = ["btagging"] 
@@ -74,6 +74,10 @@ class AODFix_r207(AODFix_base):
             if "btagging" not in oldMetadataList:
                 self.btagging_postSystemRec(topSequence)
                 pass
+            if "tau" not in oldMetadataList:
+                self.tau_postSystemRec(topSequence)
+                pass
+
             if "met" not in oldMetadataList:
                 self.met_postSystemRec(topSequence)
                 pass
@@ -85,9 +89,22 @@ class AODFix_r207(AODFix_base):
                 self.muon_postSystemRec(topSequence)
                 pass
 
-            # if "tau" not in oldMetadataList:
-            #     self.tau_postSystemRec(topSequence)
-            #     pass
+            # The isolation fixes
+            if "elIso" not in oldMetadataList:
+                self.elIso_postSystemRec(topSequence)
+                pass
+            
+            if "phIso" not in oldMetadataList:
+                self.phIso_postSystemRec(topSequence)
+                pass
+            
+            if "fwdelIso" not in oldMetadataList:
+                self.fwdelIso_postSystemRec(topSequence)
+                pass
+            
+            if "muIso" not in oldMetadataList:
+                self.muIso_postSystemRec(topSequence)
+                pass
 
             # Reset all of the ElementLinks. To be safe.
             from AthenaCommon import CfgMgr
@@ -186,10 +203,13 @@ class AODFix_r207(AODFix_base):
         
     # Comment out for now so that it doesn't get added in the metadata
 
-    # def tau_postSystemRec(self, topSequence):
-    #     from tauRec.TauRecAODBuilder import TauRecAODProcessor
-    #     TauRecAODProcessor()
-    #     return
+    def tau_postSystemRec(self, topSequence):
+        from tauRec.TauRecAODBuilder import TauRecAODProcessor, TauRecAODPi0Processor
+        TauRecAODPi0Processor()
+        from PanTauAnalysis.PanTauMain import PanTauAlg
+        topSequence+=PanTauAlg()
+        TauRecAODProcessor() 
+        
 
     def pflow_postSystemRec(self, topSequence):
 
@@ -226,6 +246,9 @@ class AODFix_r207(AODFix_base):
 
             pflowRetriever = CfgMgr.CP__RetrievePFOTool("pflowretriever_AODFix")
             ToolSvc += pflowRetriever
+
+            pflowWeighter = CfgMgr.CP__WeightPFOTool("pflowweighter_AODFix")
+            ToolSvc += pflowWeighter
 
             trk_trackselloose = CfgMgr.InDet__InDetTrackSelectionTool(
                 "trk_trackselloose_AODFix",
@@ -393,6 +416,7 @@ class AODFix_r207(AODFix_base):
                 Label = "EMPFlow",
                 OutputContainer = "PseudoJetEMPFlow_AODFix",
                 RetrievePFOTool = pflowRetriever,
+                WeightPFOTool = pflowWeighter,
                 InputIsEM = True,
                 CalibratePFO = False,
                 SkipNegativeEnergy = True,
@@ -548,17 +572,18 @@ class AODFix_r207(AODFix_base):
 
             JetType = 'PFlowJet'
             PFtermlist = ['PFlowJet','Muon','Ele','Gamma','Tau','Soft']
-            newpfotool = CfgMgr.CP__RetrievePFOTool('MET_PFOTool_AODFix')
-            ToolSvc += newpfotool
 
-            #is this the right config ????? undefined before I put this here <griffith@cern.ch>
+            newpfotool = CfgMgr.CP__RetrievePFOTool('MET_RetrievePFOTool_AODFix')
+            newpfoweighttool = CfgMgr.CP__WeightPFOTool('MET_WeightPFOTool_AODFix')
+            ToolSvc += newpfotool
+            ToolSvc += newpfoweighttool
             newtrkseltool=CfgMgr.InDet__InDetTrackSelectionTool("IDTrkSel_METAssoc_AODFix",
                                                                 CutLevel="TightPrimary",
                                                                 maxZ0SinTheta=3,
                                                                 maxD0overSigmaD0=2)
 
             from METReconstruction.METAssocConfig import AssocConfig, getAssociator
-            PFAssociators = [ getAssociator(AssocConfig(config),suffix='AntiKt4EMPFlow',doPFlow=True,trkseltool=newtrkseltool,pfotool=newpfotool) for config in PFtermlist ]
+            PFAssociators = [ getAssociator(AssocConfig(config),suffix='AntiKt4EMPFlow',doPFlow=True,trkseltool=newtrkseltool,pfotool=newpfotool,pfoweighttool=newpfoweighttool) for config in PFtermlist ]
             PFAssocTool = CfgMgr.met__METAssociationTool('MET_AssociationTool_AntiKt4EMPFlow_AODFix',
                                                          METAssociators = PFAssociators,
                                                          METSuffix = 'AntiKt4EMPFlow',
@@ -580,7 +605,7 @@ class AODFix_r207(AODFix_base):
             ParticleFlowJetSequence += CfgMgr.ParticleFlowEventFilter_r207("ParticleFlowEventFilter_r207")
             #Add the particle flow jet finding to our sequence
             ParticleFlowJetSequence += CfgMgr.JetAlgorithm("pflowJetAlg_AODFix", Tools = [jetrun,
-                                                                                   ToolSvc.AntiKt4EMPFlowJets_AODFix])
+                                                                                          ToolSvc.AntiKt4EMPFlowJets_AODFix])
             #Add MET map builder to our sequence
             ParticleFlowJetSequence += METAssocAlg_PFlow
             #Build the reference MET container
@@ -635,6 +660,24 @@ class AODFix_r207(AODFix_base):
         METMapSequence += METMakerAlg_EM
 
     # End MET AODFix
+
+    # the isolation fixes
+
+    def elIso_postSystemRec (self, topSequence):
+        from IsolationAlgs.IsoAODFixGetter import isoAODFixGetter                
+        isoAODFixGetter("Electrons")
+
+    def phIso_postSystemRec (self, topSequence):
+        from IsolationAlgs.IsoAODFixGetter import isoAODFixGetter                
+        isoAODFixGetter("Photons")
+
+    def fwdelIso_postSystemRec (self, topSequence):
+        from IsolationAlgs.IsoAODFixGetter import isoAODFixGetter                
+        isoAODFixGetter("ForwardElectrons")
+
+    def muIso_postSystemRec (self, topSequence):
+        from IsolationAlgs.IsoAODFixGetter import isoAODFixGetter                
+        isoAODFixGetter("Muons")
 
     def mcutils_postSystemRec(self, topSequence):
         """

@@ -8,6 +8,7 @@ if globalflags.DataSource() == 'geant4':
     from EventBookkeeperTools.CutFlowHelpers import GetInputStreamNameFromMetaDataItemList
     inputStreamName = GetInputStreamNameFromMetaDataItemList(af.fileinfos["metadata_items"] )
 
+    #add PDF weights metadata 
     name = "PDFSumOfWeights"
     cutflowsvc = CfgMgr.CutFlowSvc("CutFlowSvc"+name)
     cutflowsvc.InputStream = inputStreamName
@@ -18,3 +19,26 @@ if globalflags.DataSource() == 'geant4':
 
     theApp.CreateSvc += ["CutFlowSvc/CutFlowSvc"+name]
 
+
+    #add LHE3 weights metadata 
+    name = "LHE3SumOfWeights"
+    cutflowsvc = CfgMgr.CutFlowSvc("CutFlowSvc"+name)
+    cutflowsvc.InputStream = inputStreamName
+    cutflowsvc.OutputCollName=name
+    cutflowsvc.OutputIncompleteCollName = "Incomplete"+name
+
+    svcMgr += cutflowsvc
+
+    theApp.CreateSvc += ["CutFlowSvc/CutFlowSvc"+name]
+
+
+    #add SUSY weights metadata 
+    name = "SUSYSumOfWeights"
+    cutflowsvc = CfgMgr.CutFlowSvc("CutFlowSvc"+name)
+    cutflowsvc.InputStream = inputStreamName
+    cutflowsvc.OutputCollName=name
+    cutflowsvc.OutputIncompleteCollName = "Incomplete"+name
+
+    svcMgr += cutflowsvc
+
+    theApp.CreateSvc += ["CutFlowSvc/CutFlowSvc"+name]

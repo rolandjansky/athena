@@ -2,7 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ElementLinkResetAlg.cxx 751107 2016-05-31 11:23:23Z krasznaa $
+// $Id: ElementLinkResetAlg.cxx 788434 2016-12-07 14:46:53Z krasznaa $
+
+// System include(s):
+#include <map>
 
 // EDM include(s):
 #include "AthContainersInterfaces/IConstAuxStore.h"
@@ -35,12 +38,12 @@ namespace xAODMaker {
    StatusCode ElementLinkResetAlg::execute() {
 
       // Collect all the container(s):
-      std::vector< const SG::IConstAuxStore* > stores;
+      std::vector< std::pair< const SG::IConstAuxStore*, std::string > > stores;
       if( m_keys.size() ) {
          for( const std::string& key : m_keys ) {
             const SG::IConstAuxStore* store = 0;
             ATH_CHECK( evtStore()->retrieve( store, key ) );
-            stores.push_back( store );
+            stores.push_back( std::make_pair( store, key ) );
          }
       } else {
          SG::ConstIterator< SG::IConstAuxStore > begin, end;
@@ -48,23 +51,30 @@ namespace xAODMaker {
          for( auto itr = begin; itr != end; ++itr ) {
             const SG::IConstAuxStore* store = 0;
             ATH_CHECK( evtStore()->retrieve( store, itr.key() ) );
-            stores.push_back( store );
+            stores.push_back( std::make_pair( store, itr.key() ) );
          }
       }
       ATH_MSG_DEBUG( "Number of IConstAuxStore objects retrieved: "
                      << stores.size() );
 
       // Reset the ElementLinks in all of them:
-      for( const SG::IConstAuxStore* store : stores ) {
-         ATH_MSG_VERBOSE( "Reseting element links in store: " << store );
-         ATH_CHECK( reset( *store ) );
+      for( const auto& storeKey : stores ) {
+         ATH_MSG_VERBOSE( "Reseting element links in store: "
+                          << storeKey.second );
+         ATH_CHECK( reset( *( storeKey.first ), storeKey.second ) );
       }
 
       // Return gracefully:
       return StatusCode::SUCCESS;
    }
 
-   StatusCode ElementLinkResetAlg::reset( const SG::IConstAuxStore& store ) {
+   StatusCode ElementLinkResetAlg::reset( const SG::IConstAuxStore& store,
+                                          const std::string& key ) {
+
+      // If the container is empty, return right away:
+      if( ! store.size() ) {
+         return StatusCode::SUCCESS;
+      }
 
       // Get all the IDs stored in this object:
       const SG::auxid_set_t& auxids = store.getAuxIDs();
@@ -107,6 +117,14 @@ namespace xAODMaker {
          // and now needs its cache wiped.
          void* ptr = const_cast< void* >( store.getData( auxid ) );
 
+         // If the pointer is null, then something dodgy happened with this
+         // (dynamic) variable.
+         if( ! ptr ) {
+            ATH_MSG_ERROR( "Invalid pointer received for variable: "
+                           << key << reg.getName( auxid ) );
+            continue;
+         }
+
          // Get the variable's element size:
          const size_t eltSize = reg.getEltSize( auxid );
 
@@ -119,8 +137,13 @@ namespace xAODMaker {
 
             // Do different things based on the variable type:
             if( m_typeCache[ auxid ].isEL ) {
-               // For a single ElementLink, the logic is relatively simple:
-               reinterpret_cast< ElementLinkBase* >( eltPtr )->toTransient();
+               // Cast to an ElementLinkBase object:
+               ElementLinkBase* elb =
+                  reinterpret_cast< ElementLinkBase* >( eltPtr );
+               // Reset the link only if it has its persistent variable(s) set:
+               if( elb->persKey() ) {
+                  elb->toTransient();
+               }
             } else if( m_typeCache[ auxid ].isELVec ) {
                // For a vector of links we heavily rely on knowing how GCC/Clang
                // lays out the memory for vectors.
@@ -128,7 +151,13 @@ namespace xAODMaker {
                   *( reinterpret_cast< std::vector< ElementLinkBase >* >( eltPtr ) );
                const size_t sz_j = v.size();
                for( size_t j = 0; j < sz_j; ++j ) {
-                  v[ j ].toTransient();
+                  // Access the link:
+                  ElementLinkBase& elb = v[ j ];
+                  // Reset the link only if it has its persistent variable(s)
+                  // set:
+                  if( elb.persKey() ) {
+                     elb.toTransient();
+                  }
                }
             } else {
                ATH_MSG_FATAL( "There is a logic error in the code" );

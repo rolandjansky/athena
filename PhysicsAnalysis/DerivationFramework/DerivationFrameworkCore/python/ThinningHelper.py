@@ -122,7 +122,6 @@ class ThinningHelper:
         from AthenaServices.Configurables import createThinningSvc
         # If no trigger selection was required, just set up "the usual" thinning
         # service:
-        
         if self.TriggerChains == "":
             svcMgr += createThinningSvc( svcName = formatName + "ThinningSvc",
                                          outStreams = [ stream ] )
@@ -147,7 +146,7 @@ class ThinningHelper:
 
         # And finally, configure what the navigation thinning is supposed
         # to do:
-        from DerivationFrameworkCore.MuonTriggerContent import \
+        from DerivationFrameworkMuons.MuonTriggerContent import \
             MuonTriggerContent
         from DerivationFrameworkCore.EGammaTriggerContent import \
             EGammaTriggerContent
@@ -157,7 +156,7 @@ class ThinningHelper:
             EtMissTriggerContent 
         from DerivationFrameworkCore.TauTriggerContent import \
             TauTriggerContent 
-        from DerivationFrameworkCore.BJetTriggerContent import \
+        from DerivationFrameworkFlavourTag.BJetTriggerContent import \
             BJetTriggerContent
         from DerivationFrameworkCore.BPhysTriggerContent import \
             BPhysTriggerContent 

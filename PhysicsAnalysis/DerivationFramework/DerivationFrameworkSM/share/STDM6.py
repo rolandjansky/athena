@@ -9,7 +9,11 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
+from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkEGamma.EGammaCommon import *
+
+# Add sumOfWeights metadata for LHE3 multiweights =======
+from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 
 #====================================================================                                               
@@ -21,8 +25,7 @@ fileName   = buildFileName( derivationFlags.WriteDAOD_STDM6Stream )
 STDM6Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 STDM6Stream.AcceptAlgs(["STDM6Kernel"])
 
-
-
+isMC = globalflags.DataSource()=='geant4'
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM
@@ -36,6 +39,12 @@ STDM6Sequence = CfgMgr.AthSequencer("STDM6Sequence")
 STDM6Sequence += CfgMgr.DerivationFramework__DerivationKernel("STDM6Kernel",
                                                                  SkimmingTools = [],
                                                                  ThinningTools = [])
+
+# JET REBUILDING
+from DerivationFrameworkSM import STDMHelpers
+if not "STDM6Jets" in OutputJets.keys():
+    OutputJets["STDM6Jets"] = STDMHelpers.STDMRecalcJets(STDM6Sequence, "STDM6", isMC)
+
 # FIX TRUTH JETS
 if globalflags.DataSource()=='geant4':
     replaceBuggyAntiKt4TruthWZJets(STDM6Sequence,"STDM6")
@@ -76,39 +85,27 @@ STDM6SlimmingHelper.SmartCollections = ["Electrons",
                                         "TauJets",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4LCTopoJets",
-                                        "BTagging_AntiKt4LCTopo",
                                         "InDetTrackParticles",
                                         "PrimaryVertices"  ]
 
-STDM6SlimmingHelper.AllVariables=[ "CaloCalTopoClusters","ALFADataContainer","MBTSModules"]
+STDM6SlimmingHelper.AllVariables=[ "CaloCalTopoClusters","ALFADataContainer","MBTSModules","AFPTrackContainer", "AFPSiHitContainer", "AFPTrackContainerAux", "AFPSiHitContainerAux"]
 STDM6SlimmingHelper.AppendToDictionary = {"MBTSModules":"xAOD::MBTSModuleContainer","MBTSModulesAux":"xAOD::MBTSModuleAuxContainer"}
 
 STDM6SlimmingHelper.IncludeEGammaTriggerContent = True
 STDM6SlimmingHelper.IncludeMuonTriggerContent = True
+STDM6SlimmingHelper.IncludeMinBiasTriggerContent = True
 
 
 STDM6SlimmingHelper.ExtraVariables = ExtraContentAll
+STDM6SlimmingHelper.ExtraVariables += ["InDetTrackParticles.pixeldEdx.numberOfUsedHitsdEdx.numberOfIBLOverflowsdEdx"]
 STDM6SlimmingHelper.AllVariables += ExtraContainersAll
 if globalflags.DataSource()=='geant4':
     STDM6SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     STDM6SlimmingHelper.AllVariables += ExtraContainersTruth
-    
+    STDM6SlimmingHelper.AppendToDictionary = ExtraDictionary
+
+addJetOutputs(STDM6SlimmingHelper,["STDM6","STDM6Jets"])
+
 STDM6SlimmingHelper.AppendContentToStream(STDM6Stream)
-
-
-
-
-
-if globalflags.DataSource()=='geant4':
-    STDM6Stream.AddItem( "xAOD::TruthParticleContainer#TruthMuons" )
-    STDM6Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthMuonsAux." )
-    STDM6Stream.AddItem( "xAOD::TruthParticleContainer#TruthElectrons" )
-    STDM6Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthElectronsAux." )
-    STDM6Stream.AddItem( "xAOD::TruthParticleContainer#TruthPhotons" )
-    STDM6Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthPhotonsAux." )
-    STDM6Stream.AddItem( "xAOD::TruthParticleContainer#TruthNeutrinos" )
-    STDM6Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthNeutrinosAux." )
-    STDM6Stream.AddItem( "xAOD::TruthParticleContainer#TruthTaus" )
-    STDM6Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthTausAux." )
 
 

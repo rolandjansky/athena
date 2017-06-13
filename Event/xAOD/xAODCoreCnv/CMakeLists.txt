@@ -1,4 +1,4 @@
-# $Id$
+# $Id: CMakeLists.txt 803546 2017-04-25 09:44:26Z krasznaa $
 ################################################################################
 # Package: xAODCoreCnv
 ################################################################################
@@ -18,11 +18,15 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODCore
    GaudiKernel )
 
+# Make use of ROOT:
+find_package( ROOT COMPONENTS Core )
+
 # Component(s) in the package:
 atlas_add_component( xAODCoreCnv
    src/*.h src/*.cxx src/components/*.cxx
-   LINK_LIBRARIES AthContainers AthLinks AthenaBaseComps AthenaKernel SGTools
-   xAODCore GaudiKernel )
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks AthenaBaseComps
+   AthenaKernel SGTools xAODCore GaudiKernel )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
