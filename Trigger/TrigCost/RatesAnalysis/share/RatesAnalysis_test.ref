@@ -1,0 +1,6 @@
+Rate:      30050 +- 25495.1     Hz : SeedA [PS:2] -> TriggerA1 [PS:1]
+Rate:      15000 +- 12747.5     Hz : SeedA [PS:2] -> TriggerA2 [PS:2]
+Rate:    4591.67 +- 4187.46     Hz : SeedB [PS:4] -> TriggerB1 [PS:3]
+Rate:     3437.5 +- 3140.59     Hz : SeedB [PS:4] -> TriggerB2 [PS:4]
+RateOR:      30050 +- 25495.1     Hz,  RateAND:      15000 +- 12747.5     Hz : GroupA
+RateOR:    6883.33 +- 6281.18     Hz,  RateAND:    1145.83 +- 1046.86     Hz : GroupB
