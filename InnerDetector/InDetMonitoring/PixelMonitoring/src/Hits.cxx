@@ -220,8 +220,8 @@ StatusCode PixelMainMon::BookHitsMon(void)
        }
 
        for(int i=0; i<PixLayerDBM::COUNT-1+(int)(m_doIBL); i++){
-         hname = makeHistname(("Lvl1A_"+m_modLabel_PixLayerIBL2D3DDBM[i]), false);
-         htitles = makeHisttitle(("Hit Level 1 Accept, "+m_modLabel_PixLayerIBL2D3DDBM[i]), (atext_lv1+atext_nhit), false);
+         hname = makeHistname(("Lvl1A_"+m_modLabel_PixLayerDBM[i]), false);
+         htitles = makeHisttitle(("Hit Level 1 Accept, "+m_modLabel_PixLayerDBM[i]), (atext_lv1+atext_nhit), false);
          sc = timeShift.regHist(m_Lvl1A_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), 14, -1.5, 12.5));
        }
      }
@@ -595,12 +595,8 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	    
 
 	/// Fill ToT
-	if (pixlayerdbm != 99 && m_hit_ToT[pixlayerdbm]) m_hit_ToT[pixlayerdbm]->Fill((*p_rdo)->getToT());
+	if (pixlayeribl2d3ddbm != 99 && m_hit_ToT[pixlayeribl2d3ddbm]) m_hit_ToT[pixlayeribl2d3ddbm]->Fill((*p_rdo)->getToT());
 	if (pixlayer != 99 && m_hit_ToTMean_mod[pixlayer]) m_hit_ToTMean_mod[pixlayer]->Fill(m_manager->lumiBlockNumber(), (*p_rdo)->getToT());
-	if (pixlayerdbm == PixLayerDBM::kIBL){
-	  int ibl2d3d = GetPixLayerIDIBL2D3DDBM(m_pixelid->barrel_ec(rdoID), m_pixelid->layer_disk(rdoID), m_pixelid->eta_module(rdoID), m_doIBL);
-	  if(m_hit_ToT[ibl2d3d]) m_hit_ToT[ibl2d3d]->Fill((*p_rdo)->getToT());
-	}
 	if (m_doLumiBlock && pixlayer != 99){
 	  if(m_hit_ToT_LB_mod[pixlayer]) m_hit_ToT_LB_mod[pixlayer]->Fill((*p_rdo)->getToT());
 	}

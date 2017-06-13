@@ -100,12 +100,12 @@ class IBLStave{
 
 class PixLayerDBM{
    public:
-   enum PixLayerDBMID {kECA0 = 0, kECA1, kECA2, kECC0, kECC1, kECC2, kB0, kB1, kB2, kDBMA, kDBMC, kIBL, COUNT};
+   enum PixLayerDBMID {kECA = 0, kECC, kB0, kB1, kB2, kDBMA, kDBMC, kIBL, COUNT};
 };
 
 class PixLayerIBL2D3DDBM{
    public:
-   enum PixLayerIBL2D3DDBMID {kECA0 = 0, kECA1, kECA2, kECC0, kECC1, kECC2, kB0, kB1, kB2, kDBMA, kDBMC, kIBL, kIBL2D, kIBL3D, COUNT};
+   enum PixLayerIBL2D3DDBMID {kECA = 0, kECC, kB0, kB1, kB2, kDBMA, kDBMC, kIBL, kIBL2D, kIBL3D, COUNT};
 };
 
 class PixelMainMon:public ManagedMonitorToolBase 
@@ -235,11 +235,15 @@ private:
       "ECA", "ECC", "B0", "B1", "B2",
       "IBL", "IBL2D", "IBL3D"
    };
+   std::string m_modLabel_PixLayerDBM[PixLayerDBM::COUNT] = {
+     "ECA", "ECC",
+     "B0",   "B1",   "B2",
+     "DBMA", "DBMC", "IBL"
+   };
    std::string m_modLabel_PixLayerIBL2D3DDBM[PixLayerIBL2D3DDBM::COUNT] = {
-      "ECA0", "ECA1", "ECA2",
-      "ECC0", "ECC1", "ECC2",
-      "B0",   "B1",   "B2",
-      "DBMA", "DBMC", "IBL", "IBL2D", "IBL3D"
+     "ECA", "ECC",
+     "B0",   "B1",   "B2",
+     "DBMA", "DBMC", "IBL", "IBL2D", "IBL3D"
    };
    std::string m_modLabel_PixLayerDisk[PixLayerDisk::COUNT] = {
       "ECA0", "ECA1", "ECA2",
@@ -481,7 +485,7 @@ private:
    TH1F_LW*              m_cluster_row_width;
    TH1F_LW*              m_cluster_col_width_mod[PixLayerIBL2D3D::COUNT];
    TH1F_LW*              m_cluster_row_width_mod[PixLayerIBL2D3D::COUNT];
-   TH1F_LW*              m_cluster_groupsize_mod[PixLayerIBL2D3D::COUNT];
+   TH1F_LW*              m_cluster_groupsize_mod[PixLayerIBL2D3DDBM::COUNT];
    TH1F_LW*              m_cluster_LVL1A;
    TH1F_LW*              m_cluster_LVL1A1d_mod[PixLayer::COUNT];
    TProfile_LW*          m_clusterSize_eta;
