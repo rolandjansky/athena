@@ -595,7 +595,9 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	    
 
 	/// Fill ToT
-	if (pixlayeribl2d3ddbm != 99 && m_hit_ToT[pixlayeribl2d3ddbm]) m_hit_ToT[pixlayeribl2d3ddbm]->Fill((*p_rdo)->getToT());
+	if (pixlayeribl2d3ddbm != 99 && m_hit_ToT[pixlayeribl2d3ddbm])  m_hit_ToT[pixlayeribl2d3ddbm]->Fill((*p_rdo)->getToT());
+	if (pixlayerdbm == PixLayerDBM::kIBL && m_hit_ToT[pixlayerdbm]) m_hit_ToT[pixlayerdbm]->Fill((*p_rdo)->getToT());
+
 	if (pixlayer != 99 && m_hit_ToTMean_mod[pixlayer]) m_hit_ToTMean_mod[pixlayer]->Fill(m_manager->lumiBlockNumber(), (*p_rdo)->getToT());
 	if (m_doLumiBlock && pixlayer != 99){
 	  if(m_hit_ToT_LB_mod[pixlayer]) m_hit_ToT_LB_mod[pixlayer]->Fill((*p_rdo)->getToT());

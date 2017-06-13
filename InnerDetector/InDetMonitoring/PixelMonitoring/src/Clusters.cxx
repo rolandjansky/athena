@@ -546,9 +546,12 @@ StatusCode PixelMainMon::FillClustersMon(void)
 	  //
 	  // Fill first histograms with DBM
 	  //
-	  if (pixlayeribl2d3ddbm!=99 && m_cluster_ToT1d_mod[pixlayeribl2d3ddbm]) m_cluster_ToT1d_mod[pixlayeribl2d3ddbm]->Fill(cluster.totalToT());
-	  if (pixlayeribl2d3ddbm!=99 && m_cluster_Q_mod[pixlayeribl2d3ddbm]) m_cluster_Q_mod[pixlayeribl2d3ddbm]->Fill(cluster.totalCharge());
-	  if (pixlayeribl2d3ddbm!=99 && m_cluster_groupsize_mod[pixlayeribl2d3ddbm]) m_cluster_groupsize_mod[pixlayeribl2d3ddbm]->Fill( npixHitsInCluster );
+	  if (pixlayeribl2d3ddbm!=99 && m_cluster_ToT1d_mod[pixlayeribl2d3ddbm])        m_cluster_ToT1d_mod[pixlayeribl2d3ddbm]->Fill(cluster.totalToT());
+	  if (pixlayerdbm == PixLayerDBM::kIBL && m_cluster_ToT1d_mod[pixlayerdbm])     m_cluster_ToT1d_mod[pixlayerdbm]->Fill(cluster.totalToT());
+	  if (pixlayeribl2d3ddbm!=99 && m_cluster_Q_mod[pixlayeribl2d3ddbm])            m_cluster_Q_mod[pixlayeribl2d3ddbm]->Fill(cluster.totalCharge());
+	  if (pixlayerdbm == PixLayerDBM::kIBL && m_cluster_Q_mod[pixlayerdbm])         m_cluster_Q_mod[pixlayerdbm]->Fill(cluster.totalCharge());
+	  if (pixlayeribl2d3ddbm!=99 && m_cluster_groupsize_mod[pixlayeribl2d3ddbm])    m_cluster_groupsize_mod[pixlayeribl2d3ddbm]->Fill( npixHitsInCluster );
+	  if (pixlayerdbm == PixLayerDBM::kIBL && m_cluster_groupsize_mod[pixlayerdbm]) m_cluster_groupsize_mod[pixlayerdbm]->Fill( npixHitsInCluster );
 	  if (m_cluster_occupancy) m_cluster_occupancy->Fill(clusID,m_pixelid,m_doIBL);
 
 	  if (pixlayer == 99) continue; // DBM case
