@@ -78,7 +78,7 @@ TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& nam
   m_timeMinThresh = -25;
   m_timeMaxThresh = 25;
   
-  for (unsigned int i = 0; i < 6; ++i) {
+  for (unsigned int i = 0; i < 7; ++i) {
     m_digitsMetaData.push_back(new std::vector<uint32_t>);
     m_digitsMetaData[i]->reserve(16);
     m_rawchannelMetaData.push_back(new std::vector<uint32_t>);
@@ -110,7 +110,7 @@ void TileROD_Decoder::updateAmpThreshold(float ampMinThresh) {
 /** destructor
  */
 TileROD_Decoder::~TileROD_Decoder() {
-  for (unsigned int i = 0; i < 6; ++i) {
+  for (unsigned int i = 0; i < 7; ++i) {
     delete m_digitsMetaData[i];
     delete m_rawchannelMetaData[i];
   }
@@ -167,7 +167,7 @@ StatusCode TileROD_Decoder::initialize() {
   ATH_MSG_DEBUG( "algtool " << m_TileDefaultChannelBuilder << " created " );
   CHECK( m_RCBuilder->setProperty(BooleanProperty("calibrateEnergy", m_calibrateEnergy)) );
   
-  m_maxChannels = TileCalibUtils::MAX_CHAN; //TileCablingService::getInstance()->getMaxChannels();
+  m_maxChannels = TileCablingService::getInstance()->getMaxChannels();
 
   m_pRwChVec.reserve(m_maxChannels);
   // Accumulate TileRawChannels for storing temp data
@@ -870,6 +870,8 @@ void TileROD_Decoder::unpack_frag4(uint32_t /* version */, const uint32_t* p,
   
   HWIdentifier drawerID = m_tileHWID->drawer_id(frag);
   TileRawChannel* rc;
+  uint32_t all00 = TileFagStatus::ALL_00;
+  uint32_t allFF = TileFagStatus::ALL_FF;
   
   for (unsigned int ch = 0; ch < m_maxChannels; ++ch) {
     unsigned int w = (*p);
@@ -877,7 +879,9 @@ void TileROD_Decoder::unpack_frag4(uint32_t /* version */, const uint32_t* p,
     int gain = m_rc2bytes4.gain(w);
     HWIdentifier adcID = m_tileHWID->adc_id(drawerID, ch, gain);
     
+    if (allFF && w!=0xFFFFFFFF) allFF = TileFagStatus::ALL_OK;
     if (w != 0) { // skip invalid channels
+      if (all00) all00 = TileFagStatus::ALL_OK;
       rc = new TileRawChannel(adcID
                               , m_rc2bytes4.amplitude(w)
                               , m_rc2bytes4.time(w)
@@ -900,6 +904,8 @@ void TileROD_Decoder::unpack_frag4(uint32_t /* version */, const uint32_t* p,
     ++p;
   }
   
+  m_rawchannelMetaData[6]->push_back( all00 | allFF );
+
   if (wc > count) {
     // check word count
     ATH_MSG_ERROR( "unpack_frag4 => Incorrect word count: "
@@ -2338,7 +2344,7 @@ void TileROD_Decoder::unpack_frag17(uint32_t /* version */, const uint32_t* p,
   if (true) {
     int maxn=size+2-m_sizeOverhead;
     for(int n=0; n<maxn; ++n){
-      ATH_MSG_DEBUG("WORD " << n << " (" << n+11 << ") : (DEC) " << p[n] << "  (HEX) 0x" << std::hex << p[n] << std::dec );
+      ATH_MSG_DEBUG("WORD " << n << " (" << n+11 << ") : (DEC) " << p[n] << "  (HEX) 0x" << MSG::hex << p[n] << MSG::dec );
     }
   }
   
@@ -2352,7 +2358,7 @@ void TileROD_Decoder::unpack_frag17(uint32_t /* version */, const uint32_t* p,
   laserObject.setPLC(-99,-99,-99,-99,-99,-99);
   laserObject.setDaqType(int(p[2]));
   
-  ATH_MSG_DEBUG("SETTING DAQ TYPE IN DECODER = " << std::hex << "0x" << int(p[2]) << "  " << std::dec << int(p[2]));
+  ATH_MSG_DEBUG("SETTING DAQ TYPE IN DECODER = " << MSG::hex << "0x" << int(p[2]) << "  " << MSG::dec << int(p[2]));
   
   int countr = p[3];
   int idiode = (p[4]>>16);
@@ -2363,7 +2369,7 @@ void TileROD_Decoder::unpack_frag17(uint32_t /* version */, const uint32_t* p,
   if(laserObject.isLASERII()) ATH_MSG_DEBUG("LASERII VERSION IS " << laserObject.getVersion());
   else                        ATH_MSG_DEBUG("LASERI VERSION IS "  << laserObject.getVersion());
   
-  ATH_MSG_DEBUG("laserObject.setLaser: " << std::dec << "COUNTER=" << countr << " | "
+  ATH_MSG_DEBUG("laserObject.setLaser: " << MSG::dec << "COUNTER=" << countr << " | "
                 << "I_DIODE=" << idiode << " | "
                 << "FILTERN=" << filter << " | "
                 << "TIMINGD=" << timing << " | "
@@ -2463,8 +2469,8 @@ void TileROD_Decoder::unpack_frag17(uint32_t /* version */, const uint32_t* p,
           ATH_MSG_DEBUG("ALP CHAN=" << channel << " GAIN=LG" << " TYPE=" << laserObject.getType(channel,TileID::LOWGAIN,3) << " MEAN=" << laserObject.getMean(channel,TileID::LOWGAIN,3) << " SIGMA=" << laserObject.getSigma(channel,TileID::LOWGAIN,3) << " N=" << laserObject.getN(channel,TileID::LOWGAIN,3) << " isSet?=" << laserObject.isSet(channel,TileID::LOWGAIN,3) );
           ATH_MSG_DEBUG("ALP CHAN=" << channel << " GAIN=HG" << " TYPE=" << laserObject.getType(channel,TileID::HIGHGAIN,3) << " MEAN=" << laserObject.getMean(channel,TileID::HIGHGAIN,3) << " SIGMA=" << laserObject.getSigma(channel,TileID::HIGHGAIN,3) << " N=" << laserObject.getN(channel,TileID::HIGHGAIN,3) << " isSet?=" << laserObject.isSet(channel,TileID::HIGHGAIN,3) );
           
-          ATH_MSG_DEBUG(std::hex << msb0 << " + " << lsb0 << " => " << SSQ0 <<
-                        std::dec << "  >>>  D" << channel << "(HG)"
+          ATH_MSG_DEBUG(MSG::hex << msb0 << " + " << lsb0 << " => " << SSQ0 <<
+                        MSG::dec << "  >>>  D" << channel << "(HG)"
                         << " SUMX/N="
                         << sum[channel*2+HG]
                         << " / " << nevt
@@ -2475,8 +2481,8 @@ void TileROD_Decoder::unpack_frag17(uint32_t /* version */, const uint32_t* p,
                         << " / " << nevt
                         << " => STD="
                         << std[channel*2+0]);
-          ATH_MSG_DEBUG(std::hex << msb1 << " + " << lsb1 << " => " << SSQ1 <<
-                        std::dec << "  >>>  D" << channel << "(LG)"
+          ATH_MSG_DEBUG(MSG::hex << msb1 << " + " << lsb1 << " => " << SSQ1 <<
+                        MSG::dec << "  >>>  D" << channel << "(LG)"
                         << " SUMX/N="
                         << sum[channel*2+LG]
                         << " / " << nevt
@@ -2507,7 +2513,7 @@ void TileROD_Decoder::unpack_frag17(uint32_t /* version */, const uint32_t* p,
     }
     
   } else { // short fragment
-    ATH_MSG_DEBUG("SHORT FRAGMENT, size=" << p[0] << " type=0x" << std::hex << p[1] << std::dec);
+    ATH_MSG_DEBUG("SHORT FRAGMENT, size=" << p[0] << " type=0x" << MSG::hex << p[1] << MSG::dec);
     memset(ped,0,sizeof(ped));
     memset(std,0,sizeof(std));
   }
@@ -2809,7 +2815,7 @@ StatusCode TileROD_Decoder::convert(const RawEvent* re, TileL2Container* L2Cnt) 
 }
 
 void TileROD_Decoder::fillCollectionL2(const ROBData * rob, TileL2Container & v) {
-  uint32_t version = rob->rod_version() & 0xFF;
+  uint32_t version = rob->rod_version() & 0xFFFF;
   
   uint32_t wc = 0;
   uint32_t size = data_size(rob);
@@ -2820,6 +2826,11 @@ void TileROD_Decoder::fillCollectionL2(const ROBData * rob, TileL2Container & v)
   
   if (size) {
     bool V3format = (*(p) == 0xff1234ff); // additional frag marker since Sep 2005
+    if (!V3format && version>0xff) {
+      V3format = true;
+      if ((m_ErrorCounter++) < m_maxErrorPrint)
+        ATH_MSG_WARNING("fillCollectionL2( corrupted frag separator 0x" << MSG::hex << (*p) << " instead of 0xff1234ff in ROB 0x" << rob->rod_source_id() << MSG::dec );
+    }
     if (V3format) ++p; // skip frag marker
   }
   
@@ -3004,7 +3015,7 @@ StatusCode TileROD_Decoder::convertLaser(const RawEvent* re, TileLaserObject* la
 void TileROD_Decoder::fillTileLaserObj(const ROBData * rob, TileLaserObject & v) {
   // v.setBCID(-999);  // TileLaserObject default tag -> Laser only if BCID != -999
   
-  uint32_t version = rob->rod_version() & 0xFF;
+  uint32_t version = rob->rod_version() & 0xFFFF;
   
   uint32_t wc = 0;
   uint32_t size = data_size(rob);
@@ -3021,6 +3032,11 @@ void TileROD_Decoder::fillTileLaserObj(const ROBData * rob, TileLaserObject & v)
   }
   
   bool V3format = (*(p) == 0xff1234ff); // additional frag marker since Sep 2005
+  if (!V3format && version>0) {
+    V3format = true;
+    if ((m_ErrorCounter++) < m_maxErrorPrint)
+      ATH_MSG_ERROR("fillTileLaserObj: corrupted frag separator 0x" << MSG::hex << (*p) << " instead of 0xff1234ff in ROB 0x" << rob->rod_source_id() << MSG::dec );
+  }
   if (V3format) {
     ++p; // skip frag marker
     m_sizeOverhead = 3;
@@ -3038,13 +3054,13 @@ void TileROD_Decoder::fillTileLaserObj(const ROBData * rob, TileLaserObject & v)
     int frag = *(p + 1) & 0xFFFF;
     int type = *(p + 1) >> 16;
     
-    msg(MSG::DEBUG) << wc << " / " << size << " HEX = 0x" << std::hex << count << " DEC = " << std::dec << count << " ( FRAG , TYPE ) = " << frag << " , " << type << endmsg;
+    msg(MSG::DEBUG) << wc << " / " << size << " HEX = 0x" << MSG::hex << count << " DEC = " << MSG::dec << count << " ( FRAG , TYPE ) = " << frag << " , " << type << endmsg;
     
     if (count < m_sizeOverhead || count > size - wc) {
       int cnt = 0;
       for (; wc < size; ++wc, ++cnt, ++p) {
         if ((*p) == 0xff1234ff) {
-          msg(MSG::DEBUG) << "DATA POINTER: HEX = " << std::hex << (*p) << " DEC = " << std::dec << (*p) << endmsg;
+          msg(MSG::DEBUG) << "DATA POINTER: HEX = " << MSG::hex << (*p) << " DEC = " << MSG::dec << (*p) << endmsg;
           ++cnt;
           ++wc;
           ++p;
@@ -3103,7 +3119,7 @@ void TileROD_Decoder::fillTileLaserObj(const ROBData * rob, TileLaserObject & v)
 } //end of FillLaserObj
 
 void TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollection & v) {
-  uint32_t version = rob->rod_version() & 0xFF;
+  uint32_t version = rob->rod_version() & 0xFFFF;
   // Resets error flag
   m_error = 0x0;
   
@@ -3125,6 +3141,11 @@ void TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollection 
   
   if (size) {
     bool V3format = (*(p) == 0xff1234ff); // additional frag marker since Sep 2005
+    if (!V3format && version>0xff) {
+      V3format = true;
+      if ((m_ErrorCounter++) < m_maxErrorPrint)
+        ATH_MSG_ERROR("fillCollectionHLT: corrupted frag separator 0x" << MSG::hex << (*p) << " instead of 0xff1234ff in ROB 0x" << rob->rod_source_id() << MSG::dec );
+    }
     if (V3format) {
       ++p; // skip frag marker
       m_sizeOverhead = 3;
@@ -3965,7 +3986,7 @@ void TileROD_Decoder::fillCollection_TileMuRcv_Digi(const ROBData* rob , TileDig
   bool b_sof      = false;
   bool b_digiTmdb = false;
 
-  uint32_t version  = rob->rod_version() & 0xFF;
+  uint32_t version  = rob->rod_version() & 0xFFFF;
   uint32_t sourceid = rob->rod_source_id();
   int size          = rob->rod_ndata();
 
@@ -4025,7 +4046,7 @@ void TileROD_Decoder::fillCollection_TileMuRcv_RawChannel(const ROBData* rob , T
   bool b_sof    = false;
   bool b_rcTmdb = false;
 
-  uint32_t version  = rob->rod_version() & 0xFF;
+  uint32_t version  = rob->rod_version() & 0xFFFF;
   uint32_t sourceid = rob->rod_source_id();
   int size          = rob->rod_ndata();
   int offset = 0;
@@ -4124,7 +4145,7 @@ void TileROD_Decoder::fillContainer_TileMuRcv_Decision(const ROBData* rob ,TileM
   bool b_sof      = false;
   bool b_deciTmdb = false;
 
-  uint32_t version  = rob->rod_version() & 0xFF;
+  uint32_t version  = rob->rod_version() & 0xFFFF;
   uint32_t sourceid = rob->rod_source_id();
   int size          = rob->rod_ndata();
   int offset        = 0;
