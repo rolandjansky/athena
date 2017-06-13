@@ -457,16 +457,26 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
   if(ec != HLT::OK) {
     return ec;
   }
-  TrackCollection* outputTracks = new TrackCollection();
+  TrackCollection* outputTracks = new TrackCollection(SG::OWN_ELEMENTS);
   StatusCode sc = findTracks(*internalRoI, *outputTracks);
+  HLT::ErrorCode code = HLT::OK;
   if (sc != StatusCode::SUCCESS) {
+    delete outputTracks;
+    code = attachFeature(outputTE, new TrackCollection(SG::VIEW_ELEMENTS), m_attachedFeatureName);
+    if (code != HLT::OK) {
+      return code;
+    }
     return HLT::ERROR;
   }
-  HLT::ErrorCode code = attachFeature(outputTE, outputTracks, m_attachedFeatureName);
-  if (code != HLT::OK) {
-    return code;
+  if (outputTracks->empty()) {
+    delete outputTracks;
+    code = attachFeature(outputTE, new TrackCollection(SG::VIEW_ELEMENTS), m_attachedFeatureName);
   }
-  return HLT::OK;
+  else {
+    code = attachFeature(outputTE, outputTracks, m_attachedFeatureName);
+  }
+  
+  return code;
 }
 
 
