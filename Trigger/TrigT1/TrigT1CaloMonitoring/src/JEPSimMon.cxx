@@ -341,7 +341,7 @@ StatusCode JEPSimMon::bookHistogramsRecurrent()
     // if (newEventsBlock || newLumiBlock) {
     //}
 
-    if (newRun)
+    if (newRunFlag())
     {
         MgmtAttr_t attr = ATTRIB_UNMANAGED;
         std::string dir1(m_rootDir + "/Errors/Transmission_Simulation");
@@ -761,11 +761,6 @@ StatusCode JEPSimMon::fillHistograms()
         msg(MSG::DEBUG) << "No DAQ JEM RoIs container found" << endmsg;
     }
 
-    // for (const xAOD::JEMTobRoI *jemRoI: *jemRoiTES){
-    //     const xAOD::JEMTobRoI &roi = *jemRoI;
-    //     ATH_MSG_INFO("SASHA1 " << roi); 
-    // }
-
     // Retrieve ROD Headers from SG
     m_rodTES = 0;
     m_limitedRoi = 0;
@@ -908,7 +903,7 @@ StatusCode JEPSimMon::fillHistograms()
     compare(cmxTobSimMap, ctMap, errorsJEM, errorsCMX);
     cmxTobSimMap.clear();
     
-    // Sasha: Delate later, will use simulated tobs later since data tobs does not
+    // Sasha: Delete later, will use simulated tobs later since data tobs does not
     // contains overflow bits
     // delete cmxTobSIM;
     // delete cmxTobSIMAux;
@@ -928,17 +923,22 @@ StatusCode JEPSimMon::fillHistograms()
     }
     CmxJetHitsMap cmxLocalSimMap;
     setupMap(cmxLocalSIM, cmxLocalSimMap);
-    //SASHA
     compare(cmxLocalSimMap, chMap, errorsCMX,
             xAOD::CMXJetHits::Sources::LOCAL_MAIN);
-    // for(auto p: chMap){
-    //     auto key = p.first;
-    //     auto v = p.second;
-    //     ATH_MSG_INFO("SASHA0 DAT " << *v);
-    //     if (cmxLocalSimMap.find(key) != cmxLocalSimMap.end()){
-    //         ATH_MSG_INFO("SASHA0 SIM " << *cmxLocalSimMap[key] << std::endl);
-    //     }
-    // }
+    
+    if (m_debug) {
+      ATH_MSG_DEBUG("Compare Local sums simulated from CMX TOBs with Local sums from data");
+      for(auto p: chMap){
+          auto key = p.first;
+          auto v = p.second;
+          ATH_MSG_DEBUG(" DAT " << *v);
+          if (cmxLocalSimMap.find(key) != cmxLocalSimMap.end()){
+              ATH_MSG_DEBUG(" SIM " << *cmxLocalSimMap[key] << std::endl);
+          }
+      }
+      ATH_MSG_DEBUG("End Compare");
+    }
+
     cmxLocalSimMap.clear();
     delete cmxLocalSIM;
     delete cmxLocalSIMAux;
@@ -1026,7 +1026,19 @@ StatusCode JEPSimMon::fillHistograms()
     setupMap(cmxEtLocalSIM, cmxEtLocalSimMap);
     compare(cmxEtLocalSimMap, csMap, errorsCMX,
             xAOD::CMXEtSums::Sources::LOCAL_STANDARD);
-
+    
+    if (m_debug) {
+      ATH_MSG_DEBUG("Compare Local sums simulated from CMXEtSums with Local sums from data");
+      for(auto p: csMap){
+          auto key = p.first;
+          auto v = p.second;
+          ATH_MSG_DEBUG(" DAT " << *v);
+          if (cmxEtLocalSimMap.find(key) != cmxEtLocalSimMap.end()){
+              ATH_MSG_DEBUG(" SIM " << *cmxEtLocalSimMap[key] << std::endl);
+          }
+      }
+      ATH_MSG_DEBUG("End Compare");
+    }
     cmxEtLocalSimMap.clear();
     delete cmxEtLocalSIM;
     delete cmxEtLocalSIMAux;
@@ -1052,6 +1064,20 @@ StatusCode JEPSimMon::fillHistograms()
     setupMap(cmxEtTotalSIM, cmxEtTotalSimMap);
     compare(cmxEtTotalSimMap, csMap, errorsCMX,
             xAOD::CMXEtSums::Sources::TOTAL_STANDARD);
+    
+    if (m_debug)
+    {
+      ATH_MSG_DEBUG("Compare Total sums simulated from Remote sums with Total sums from data");
+      for(auto p: csMap){
+          auto key = p.first;
+          auto v = p.second;
+          ATH_MSG_DEBUG(" DAT " << *v);
+          if (cmxEtTotalSimMap.find(key) != cmxEtTotalSimMap.end()){
+              ATH_MSG_DEBUG(" SIM " << *cmxEtTotalSimMap[key] << std::endl);
+          }
+      }
+      ATH_MSG_DEBUG("End compare");
+    }
 
     cmxEtTotalSimMap.clear();
     delete cmxEtTotalSIM;
@@ -1075,6 +1101,21 @@ StatusCode JEPSimMon::fillHistograms()
     setupMap(cmxSumEtSIM, cmxSumEtSimMap);
     compare(cmxSumEtSimMap, csMap, errorsCMX,
               xAOD::CMXEtSums::Sources::SUM_ET_STANDARD);
+    
+    if (m_debug)
+    {
+      ATH_MSG_DEBUG("Compare Et Maps (sumEt/missingEt/missingEtSig) simulated from Total sums");
+      ATH_MSG_DEBUG("with Et Maps from data");
+      for(auto p: csMap){
+          auto key = p.first;
+          auto v = p.second;
+          ATH_MSG_DEBUG(" DAT " << *v);
+          if (cmxSumEtSimMap.find(key) != cmxSumEtSimMap.end()){
+              ATH_MSG_DEBUG(" SIM " << *cmxSumEtSimMap[key] << std::endl);
+          }
+      }
+      ATH_MSG_DEBUG("End compare");
+    }
 
     cmxSumEtSimMap.clear();
     delete cmxSumEtSIM;
@@ -1688,16 +1729,7 @@ void JEPSimMon::compare(const CmxJetHitsMap &cmxSimMap,
     if (!local && !remote && !total /* && !topo*/)
         return;
     
-    // ATH_MSG_INFO("SASHA3 " << hitsSourceComponent(selection));
-    // for(auto p: cmxMap){
-    //     auto key = p.first;
-    //     auto v = p.second;
-    //     ATH_MSG_INFO("SASHA0 DAT " << *v);
-    //     if (cmxSimMap.find(key) != cmxSimMap.end()){
-    //         const xAOD::CMXJetHits &hit = *(*cmxSimMap.find(key)).second;
-    //         ATH_MSG_INFO("SASHA0 SIM " << hit << std::endl);
-    //     }
-    // }
+    
 
     unsigned int hitsSimMain0 = 0;
     unsigned int hitsSimMain1 = 0;
@@ -1853,11 +1885,6 @@ void JEPSimMon::compare(const CmxJetHitsMap &cmxSimMap,
             {
                 errors[loc + cmxBins] |= bit;
                 if ((cmxSimHit0 || cmxSimHit1) && (cmxHit0 || cmxHit1)) {
-                    // ATH_MSG_INFO("SASHA2 cmxSimHit0=0x" << std::hex << cmxSimHit0 << std::dec
-                    //  << " cmxSimHit1=0x" << std::hex << cmxSimHit1 << std::dec
-                    //  << " cmxHit0=0x" << std::hex << cmxHit0 << std::dec 
-                    //  << " cmxHit1=0x" << std::hex <<cmxHit1 << std::dec
-                    // );
                     hist = m_h_cmx_1d_thresh_SumsSimNeData;
                 }
                 else if (!cmxHit0 && !cmxHit1)
@@ -2388,16 +2415,6 @@ void JEPSimMon::compare(const CmxEtSumsMap &cmxSimMap,
     const bool etmaps = (selection == xAOD::CMXEtSums::Sources::SUM_ET_STANDARD);
     if (!local && !remote && !total && !etmaps)
         return;
-    // ATH_MSG_INFO("SASHA4 " << sourceComponent(selection));
-    // for(auto p: cmxMap){
-    //     auto key = p.first;
-    //     auto v = p.second;
-    //     ATH_MSG_INFO("SASHA5 DAT " << *v);
-    //     if (cmxSimMap.find(key) != cmxSimMap.end()){
-    //         const xAOD::CMXEtSums &et = *(*cmxSimMap.find(key)).second;
-    //         ATH_MSG_INFO("SASHA0 SIM " << et << std::endl);
-    //     }
-    // }
 
     unsigned int localEt = 0;
     unsigned int localEx = 0;
@@ -2438,7 +2455,6 @@ void JEPSimMon::compare(const CmxEtSumsMap &cmxSimMap,
             ((cmxSimMapIter != cmxSimMapIterEnd) && (cmxKey > cmxSimKey)))
         {
             // Sim CMX EtSums but no Data CMX EtSums
-
             const xAOD::CMXEtSums *cmxS = cmxSimMapIter->second;
             ++cmxSimMapIter;
             source = cmxS->sourceComponent();
@@ -2452,7 +2468,7 @@ void JEPSimMon::compare(const CmxEtSumsMap &cmxSimMap,
                 source != xAOD::CMXEtSums::Sources::TOTAL_RESTRICTED)
                 continue;
             if (etmaps && source != xAOD::CMXEtSums::Sources::SUM_ET_STANDARD &&
-                source != xAOD::CMXEtSums::Sources::SUM_ET_RESTRICTED &&
+                /*source != xAOD::CMXEtSums::Sources::SUM_ET_RESTRICTED && */
                 source != xAOD::CMXEtSums::Sources::MISSING_ET_STANDARD &&
                 source != xAOD::CMXEtSums::Sources::MISSING_ET_RESTRICTED 
                 /*&& source != xAOD::CMXEtSums::Sources::MISSING_ET_SIG_STANDARD*/)
@@ -2536,9 +2552,18 @@ void JEPSimMon::compare(const CmxEtSumsMap &cmxSimMap,
             cmxEy = cmxD->ey();
             if (!etmaps)
             {
-                cmxSimEt |= ((cmxS->etError() & 0x1) << 15);
-                cmxSimEx |= ((cmxS->exError() & 0x1) << 15);
-                cmxSimEy |= ((cmxS->eyError() & 0x1) << 15);
+                if (source == xAOD::CMXEtSums::Sources::LOCAL_RESTRICTED || source == xAOD::CMXEtSums::Sources::TOTAL_RESTRICTED)
+                {
+                  // Take error bits from data!
+                  cmxSimEt |= ((cmxD->etError() & 0x1) << 15);
+                  cmxSimEx |= ((cmxD->exError() & 0x1) << 15);
+                  cmxSimEy |= ((cmxD->eyError() & 0x1) << 15);
+                } else {
+                  cmxSimEt |= ((cmxS->etError() & 0x1) << 15);
+                  cmxSimEx |= ((cmxS->exError() & 0x1) << 15);
+                  cmxSimEy |= ((cmxS->eyError() & 0x1) << 15);
+                }
+
                 cmxEt |= ((cmxD->etError() & 0x1) << 15);
                 cmxEx |= ((cmxD->exError() & 0x1) << 15);
                 cmxEy |= ((cmxD->eyError() & 0x1) << 15);
