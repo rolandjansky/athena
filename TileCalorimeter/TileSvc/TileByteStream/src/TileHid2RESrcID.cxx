@@ -269,11 +269,11 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
                   if ( (*it).second != ROBid ) {
                     log << MSG::INFO << "Frag 0x" << MSG::hex << fragid 
                         <<" remapping from ROB 0x" << (*it).second
-                        << " to 0x" << ROBid << endmsg;
+                        << " to 0x" << ROBid << MSG::dec << endmsg;
                   } else {
                     log << MSG::DEBUG << "Frag 0x" << MSG::hex << fragid 
                         <<" found in ROB 0x" << (*it).second
-                        << " as expected" << endmsg;
+                        << " as expected" << MSG::dec << endmsg;
                   }
                 }
 

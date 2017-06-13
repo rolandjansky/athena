@@ -363,8 +363,15 @@ StatusCode TileTBDump::execute() {
 
       unsigned int size = robf.rod_ndata();
       if (size > max_allowed_size) {
-        size = max_allowed_size;
-        std::cout<<" Problem with data size - assuming " << size << " words"<<std::endl;
+        if (size - robf.rod_trailer_size_word() <= max_allowed_size) {
+          std::cout<<" Problem with data size - assuming that trailer size is " << robf.rod_trailer_size_word()-(size-max_allowed_size)
+                   <<" words instead of " << robf.rod_trailer_size_word() << " and data size is " << size << " words " << std::endl;
+          max_allowed_size = size;
+        } else {
+          max_allowed_size += robf.rod_trailer_size_word();
+          size = max_allowed_size;
+          std::cout<<" Problem with data size - assuming " << size << " words and no trailer at all"<<std::endl;
+        }
       }
 
       if ( size > 0 ) {
@@ -486,7 +493,7 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
     version = 0; // reset version in COMMON BEAM ROD
                  // don't expect different versions there
   } else {
-    version &= 0xFF; // keep just minor version number
+    version &= 0xFFFF; // keep just minor version number
   }
 
   find_frag(roddata, rodsize, version, verbosity, frag, &nfrag);
@@ -1811,11 +1818,18 @@ void TileTBDump::find_frag(const uint32_t* data, unsigned int size, unsigned int
   *nfrag = 0;
   m_v3Format = (*(data) == 0xff1234ff); // additional frag marker since Sep 2005
   m_v3Format |= (*(data) == 0x00123400); // another possible frag marker (can appear in buggy ROD frags)
-  if (m_v3Format) {
+  if (m_v3Format || (version > 0xff)) {
     m_sizeOverhead = 3;
     ++offset; // skip frag marker
-    std::cout << " *(p) = 0x" << std::hex << (*(data)) << std::dec << std::endl;
+    std::cout << " *(p) = 0x" << std::hex << (*(data)) << std::dec << ((m_v3Format)?"":" => ERROR Corrupted frag separator") << std::endl;
     std::cout << " v3Format = true" << std::endl;
+    if (!m_v3Format) {
+      m_v3Format = true;
+      std::cout << std::endl << "Dump of whole data fragment:" << std::endl;
+      for (unsigned int i = 0; i < size; ++i) {
+        std::cout << "\t" << i << "\t" << data[i] << "\t0x" << std::hex  << data[i] << std::dec << std::endl;
+      }
+    }
   } else {
     m_sizeOverhead = 2;
   }

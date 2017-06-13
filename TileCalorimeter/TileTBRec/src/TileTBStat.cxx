@@ -255,8 +255,16 @@ StatusCode TileTBStat::execute() {
             
         unsigned int size = robf.rod_ndata();
         if (size > max_allowed_size) {
+
+          if (size - robf.rod_trailer_size_word() <= max_allowed_size) {
+            ATH_MSG_ERROR( "Problem with data size - assuming that trailer size is " << robf.rod_trailer_size_word()-(size-max_allowed_size)
+                           <<" words instead of " << robf.rod_trailer_size_word() << " and data size is " << size << " words " );
+            max_allowed_size = size;
+          } else {
+            max_allowed_size += robf.rod_trailer_size_word();
             size = max_allowed_size;
-            ATH_MSG_ERROR( "Problem with data size - assuming " << size << " words " );
+            ATH_MSG_ERROR( "Problem with data size - assuming " << size << " words and no trailer at all" );
+          }
         }
 
         if ( size > 0 ) {
