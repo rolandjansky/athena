@@ -1,0 +1,36 @@
+package DerivationFrameworkTrigger
+author Tim Martin <Tim.Martin@cern.ch>
+
+#################################################################
+# public use statements
+use AtlasPolicy                   AtlasPolicy-*
+use AthenaBaseComps               AthenaBaseComps-*               Control
+use DerivationFrameworkInterfaces DerivationFrameworkInterfaces-* PhysicsAnalysis/DerivationFramework
+use GaudiInterface                GaudiInterface-*                External
+use TrigCostMonitor               TrigCostMonitor-*               Trigger/TrigMonitoring
+use TrigAnalysisInterfaces        TrigAnalysisInterfaces-*        Trigger/TrigAnalysis
+private
+use xAODEventInfo   xAODEventInfo-*   Event/xAOD
+use PathResolver    PathResolver-*    Tools
+use AtlasROOT       AtlasROOT-*       External
+
+
+#################################################################
+#
+public
+
+## declare the directories CMT should know about
+branches python share src
+
+apply_pattern dual_use_library files= " *.cxx "
+apply_pattern declare_joboptions files=" *.py"
+apply_pattern declare_python_modules files="*.py"
+
+# need ROOT xml
+private
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS XMLIO XMLParser)"
+apply_pattern cmake_add_command command="find_package(xml)"
+
+macro_append DerivationFrameworkTriggerLib_cppflags " `xml2-config --cflags`"
+macro_append DerivationFrameworkTriggerLib_use_linkopts " -L$(ROOTSYS)/lib -lXMLIO -lXMLParser"
+macro_append DerivationFrameworkTriggerLib_use_linkopts " -lxml2" slc4-gcc34 " /usr/lib/libxml2.so.2"
