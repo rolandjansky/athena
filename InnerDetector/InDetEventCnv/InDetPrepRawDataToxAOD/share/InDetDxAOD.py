@@ -221,8 +221,8 @@ if TrtZSel or TrtJSel:
                                                               ObjectRequirements = requirement_Zmm_tag,
                                                               SecondObjectRequirements = requirement_Zmm_probe,
                                                               StoreGateEntryName = "Zmm_DiMuonMass",
-                                                              MassHypothesis = 0.511*MeV,
-                                                              SecondMassHypothesis = 0.511*MeV,
+                                                              MassHypothesis = 105.66*MeV,
+                                                              SecondMassHypothesis = 105.66*MeV,
                                                               ContainerName = "Muons",
                                                               SecondContainerName = "Muons")
         ToolSvc+=ZmmMassTool
@@ -290,8 +290,8 @@ if TrtZSel or TrtJSel:
                                                                  ObjectRequirements = requirement_JPSImm_tag,
                                                                  SecondObjectRequirements = requirement_JPSImm_probe,
                                                                  StoreGateEntryName = "JPSImm_DiMuonMass",
-                                                                 MassHypothesis = 0.511*MeV,
-                                                                 SecondMassHypothesis = 0.511*MeV,
+                                                                 MassHypothesis = 105.66*MeV,
+                                                                 SecondMassHypothesis = 105.66*MeV,
                                                                  ContainerName = "Muons",
                                                                  SecondContainerName = "Muons")
         ToolSvc+=JPSImmMassTool
@@ -395,9 +395,9 @@ if dumpPixInfo:
 #################
 augmentationTools=[]
 if TrtZSel:
-    augmentationTools=[ZeeMassTool, ZmmMassTool]
-elif TrtJSel:
-    augmentationTools=[JPSIeeMassTool, JPSImmMassTool]
+    augmentationTools.append(ZeeMassTool, ZmmMassTool)
+if TrtJSel:
+    augmentationTools.append(JPSIeeMassTool, JPSImmMassTool)
 
 from AthenaCommon import CfgMgr
 

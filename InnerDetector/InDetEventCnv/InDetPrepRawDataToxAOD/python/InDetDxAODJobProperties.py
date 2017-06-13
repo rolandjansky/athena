@@ -143,7 +143,6 @@ class TrtZSelection(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = False
-    pass
 jobproperties.InDetDxAODJobPropertyContainer.add_JobProperty(TrtZSelection)
 
 class TrtJpsiSelection(JobProperty):
@@ -151,7 +150,6 @@ class TrtJpsiSelection(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
     StoredValue = False
-    pass
 jobproperties.InDetDxAODJobPropertyContainer.add_JobProperty(TrtJpsiSelection)
 
 
