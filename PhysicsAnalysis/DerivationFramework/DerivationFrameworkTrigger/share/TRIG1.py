@@ -32,11 +32,14 @@ else: ToolSvc += BunchCrossingTool( "LHC" )
 # AUGMENTATION TOOLS 
 # Used to decorate enhanced bias weighting quantites for rate estimations
 #====================================================================
-from DerivationFrameworkTrigger.DerivationFrameworkTriggerConf import DerivationFramework__EnhancedBiasAugmentationTool
-TRIG1AugmentationTool = DerivationFramework__EnhancedBiasAugmentationTool(name = "TRIG1AugmentationTool")
+from EnhancedBiasWeighter.EnhancedBiasWeighterConf import DerivationFramework__EnhancedBiasWeighter
+TRIG1AugmentationTool = DerivationFramework__EnhancedBiasWeighter(name = "TRIG1AugmentationTool")
 TRIG1AugmentationTool.RunNumber = run_number
-if isMC: TRIG1AugmentationTool.BCTool = "Trig::MCBunchCrossingTool/BunchCrossingTool"
-else: TRIG1AugmentationTool.BCTool = "Trig::LHCBunchCrossingTool/BunchCrossingTool"
+TRIG1AugmentationTool.UseBunchCrossingTool = True
+# These are needed for MC rates
+#TRIG1AugmentationTool.MCCrossSection = xxx
+#TRIG1AugmentationTool.MCFilterEfficiency = xxx
+#TRIG1AugmentationTool.MCKFactor = xxx
 ToolSvc += TRIG1AugmentationTool
 print TRIG1AugmentationTool
 #====================================================================
