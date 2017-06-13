@@ -198,6 +198,8 @@ def addFTKSimulationArgs(parser):
                         help='6/8 option for transition region', group='TrigFTKSim')
     parser.add_argument('--Save1stStageTrks', default=False, type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='keep 1st stage tracks', group='TrigFTKSim')
+    parser.add_argument('--dumpModuleGeom', default=False, type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help='dump module geometry', group='TrigFTKSim')
     #end JDC
 
 
