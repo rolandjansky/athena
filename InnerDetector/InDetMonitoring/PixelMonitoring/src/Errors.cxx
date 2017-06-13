@@ -28,7 +28,6 @@
 #include "PixelMonitoring/PixelMon2DMapsLW.h"
 #include "PixelMonitoring/PixelMonModules.h"
 #include "PixelMonitoring/PixelMon2DLumiMaps.h"
-#include "PixelMonitoring/PixelMon2DLumiProfiles.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -190,18 +189,18 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
 
    if (m_do2DMaps && !m_doOnline) {
       for (int i = 0; i < ErrorCategoryMODROD::COUNT - 3; i++) {
-         m_errhist_errtype_map[i] = new PixelMon2DMapsLW(error_type_labels[i].first, (error_type_labels[i].second + m_histTitleExt).c_str(), m_doIBL, false);
+         m_errhist_errtype_map[i] = new PixelMon2DMapsLW(error_type_labels[i].first, (error_type_labels[i].second + m_histTitleExt).c_str(), m_doIBL);
          sc = m_errhist_errtype_map[i]->regHist(rodHistos);
       }
       for (int i = 0; i < ErrorCategory::COUNT; i++) {
-         m_errhist_errcat_map[i] = new PixelMon2DMapsLW(error_cat_labels[i].first.c_str(), (error_cat_labels[i].second + m_histTitleExt).c_str(), m_doIBL, false);
+         m_errhist_errcat_map[i] = new PixelMon2DMapsLW(error_cat_labels[i].first.c_str(), (error_cat_labels[i].second + m_histTitleExt).c_str(), m_doIBL);
          sc = m_errhist_errcat_map[i]->regHist(rodHistos);
       }
    }
 
    if (m_do2DMaps && !m_doOnline) {
       for (int j = 0; j < kNumErrorStates; j++) {
-         m_errhist_expert_LB_maps[j]  = new PixelMon2DLumiMaps(error_state_labels[j].first + "_int_LB", error_state_labels[j].second + " per event per LB" + m_histTitleExt, "# Errors", m_doIBL, false);
+         m_errhist_expert_LB_maps[j]  = new PixelMon2DLumiMaps(error_state_labels[j].first + "_int_LB", error_state_labels[j].second + " per event per LB" + m_histTitleExt, "# Errors", m_doIBL);
          sc = m_errhist_expert_LB_maps[j]->regHist(rodExpert);
       }
    }
@@ -214,7 +213,7 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
       }
       hname = makeHistname((error_state_labels[j].first+"_Map"), false);
       htitles = makeHisttitle((error_state_labels[j].second + " per event per LB"), "", false);
-      m_errhist_expert_maps[j] = new PixelMon2DMapsLW(hname.c_str(), htitles.c_str(), m_doIBL, false);
+      m_errhist_expert_maps[j] = new PixelMon2DMapsLW(hname.c_str(), htitles.c_str(), m_doIBL);
       sc = m_errhist_expert_maps[j]->regHist(rodExpert);
    }
 
@@ -264,13 +263,13 @@ StatusCode PixelMainMon::BookRODErrorLumiBlockMon(void)
    StatusCode sc;
 
    if (m_do2DMaps && !m_doOnline) {
-      m_errors_LB = new PixelMon2DMapsLW("Errors_LB", ("Errors" + m_histTitleExt).c_str(), m_doIBL, false);
+      m_errors_LB = new PixelMon2DMapsLW("Errors_LB", ("Errors" + m_histTitleExt).c_str(), m_doIBL);
       sc = m_errors_LB->regHist(lumiBlockHist);
 
-      m_errors_RODSync_mod = new PixelMon2DMapsLW("Errors_RODSync_LB", ("Errors_RODSync" + m_histTitleExt).c_str(), m_doIBL, false);
+      m_errors_RODSync_mod = new PixelMon2DMapsLW("Errors_RODSync_LB", ("Errors_RODSync" + m_histTitleExt).c_str(), m_doIBL);
       sc = m_errors_RODSync_mod->regHist(lumiBlockHist);
 
-      m_errors_ModSync_mod = new PixelMon2DMapsLW("Errors_ModSync_LB", ("Errors_ModSync" + m_histTitleExt).c_str(), m_doIBL, false);
+      m_errors_ModSync_mod = new PixelMon2DMapsLW("Errors_ModSync_LB", ("Errors_ModSync" + m_histTitleExt).c_str(), m_doIBL);
       sc = m_errors_ModSync_mod->regHist(lumiBlockHist);
    }
 

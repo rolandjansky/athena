@@ -22,7 +22,7 @@ class StatusCode;
 class PixelMon2DLumiProfiles
 {
    public:
-      PixelMon2DLumiProfiles(std::string name, std::string title, std::string zlabel, bool doIBL=false, bool errorHist=false);
+      PixelMon2DLumiProfiles(std::string name, std::string title, std::string zlabel, bool doIBL, bool errorHist = false);
       ~PixelMon2DLumiProfiles();
       TProfile2D_LW* IBLlbp;
       TProfile2D_LW* B0lbp;

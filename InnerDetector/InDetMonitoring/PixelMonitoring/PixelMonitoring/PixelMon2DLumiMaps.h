@@ -22,7 +22,7 @@ class StatusCode;
 class PixelMon2DLumiMaps
 {
    public:
-      PixelMon2DLumiMaps(std::string name, std::string title, std::string zlabel, bool doIBL=false, bool errorHist=false);
+      PixelMon2DLumiMaps(std::string name, std::string title, std::string zlabel, bool doIBL, bool errorHist = false);
       ~PixelMon2DLumiMaps();
       TH2F_LW* IBLlbm;
       TH2F_LW* B0lbm;
