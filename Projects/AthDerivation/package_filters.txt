@@ -370,6 +370,7 @@
 + Trigger/TriggerCommon/TriggerJobOpts
 + Trigger/TriggerCommon/TrigTier0
 + Trigger/TriggerCommon/TriggerMenu
++ Trigger/TrigCost/EnhancedBiasWeighter
 + Trigger/TrigDataAccess/TrigSerialize.*
 + Trigger/TrigEvent/Trig.*Event
 + Trigger/TrigEvent/Trig.*TPCnv

@@ -112,6 +112,9 @@
 + Trigger/TrigConfiguration/TrigConfInterfaces
 + Trigger/TrigConfiguration/TrigConfL1Data
 + Trigger/TrigConfiguration/TrigConfxAOD
++ Trigger/TrigCost/EnhancedBiasWeighter
++ Trigger/TrigCost/RatesAnalysis
++ Trigger/TrigCost/RatesAnalysisExamplesXAOD
 + Trigger/TrigEvent/TrigDecisionInterface
 + Trigger/TrigEvent/TrigNavStructure
 + Trigger/TrigEvent/TrigRoiConversion
