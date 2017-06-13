@@ -15,14 +15,14 @@
 #include "GaudiKernel/StatusCode.h"     
 #include <string.h>
 
-PixelMon2DProfilesLW::PixelMon2DProfilesLW(std::string name, std::string title, bool doIBL, bool errorHist, bool copy2DFEval)
+PixelMon2DProfilesLW::PixelMon2DProfilesLW(std::string name, std::string title, bool doIBL, bool errorHist, bool copy2DFEval) : m_doIBL(doIBL), m_errorHist(errorHist), m_copy2DFEval(copy2DFEval)
 {
   std::string setatext = ";shifted eta index of module";
   std::string etatext = ";eta index of module";
   std::string phitext = ";phi index of module";
   std::string disktext = ";disk number";
 
-  if (doIBL && !errorHist) {
+  if (m_doIBL && !m_errorHist) {
      IBL3D = TProfile2D_LW::create((name+"_IBL3D").c_str(), (title + ", IBL 3D modules " + etatext + phitext).c_str(),8,-.5,7.5,14,-0.5,13.5);
      IBL2D = TProfile2D_LW::create((name+"_IBL2D").c_str(), (title + ", IBL planar modules " + setatext + phitext).c_str(),12,-6.5,5.5,14,-0.5,13.5);
      IBL   = TProfile2D_LW::create((name+"_IBL").c_str(),   (title + ", IBL " + setatext + phitext).c_str(),32,-16.5,15.5,14,-0.5,13.5);
@@ -34,15 +34,12 @@ PixelMon2DProfilesLW::PixelMon2DProfilesLW(std::string name, std::string title, 
   C     = TProfile2D_LW::create((name+"_ECC" ).c_str(),  (title + ", ECC " + disktext + phitext).c_str(),3,-0.5,2.5,48,-0.5,47.5);
   //DBMA = TProfile2D_LW::create((name+"_DBMA" ).c_str(),  (title + ", DBMA " + disktext + phitext).c_str(),3,-0.5,2.5,4,-0.5,3.5);
   //DBMC = TProfile2D_LW::create((name+"_DBMC" ).c_str(),  (title + ", DBMC " + disktext + phitext).c_str(),3,-0.5,2.5,4,-0.5,3.5);
-  mDoIBL = doIBL;
-  mDoErrorHist = errorHist;
-  mCopy2DFEval = copy2DFEval;
   formatHist();
 }
 
 PixelMon2DProfilesLW::~PixelMon2DProfilesLW()
 {
-   if (mDoIBL && mDoErrorHist) {
+   if (m_doIBL && !m_errorHist) {
       LWHist::safeDelete(IBL3D);
       LWHist::safeDelete(IBL2D);
       LWHist::safeDelete(IBL);
@@ -68,7 +65,7 @@ void PixelMon2DProfilesLW::Fill(Identifier &id, const PixelID* pixID, float weig
   //else if (bec==-4) DBMC->Fill(ld, pm, weight);
 
   else if (bec==0) {
-    if (mDoIBL) ld--;
+    if (m_doIBL) ld--;
     int em  = pixID->eta_module(id);
     if (ld ==0) { 
       B0->Fill(em,pm,weight);
@@ -79,7 +76,7 @@ void PixelMon2DProfilesLW::Fill(Identifier &id, const PixelID* pixID, float weig
     else if (ld ==2) { 
       B2->Fill(em,pm,weight);
     }
-    else if (ld ==-1 && mDoIBL && !mDoErrorHist) {
+    else if (ld ==-1 && m_doIBL && !m_errorHist) {
       int feid = 0;
       int emf = 0;
       bool copy = false;
@@ -98,7 +95,7 @@ void PixelMon2DProfilesLW::Fill(Identifier &id, const PixelID* pixID, float weig
 	IBL3D->Fill(em-2,pm,weight); 
       }
       IBL->Fill(emf,pm,weight);
-      if (mCopy2DFEval && copy) IBL->Fill(emf+1, pm, weight);
+      if (m_copy2DFEval && copy) IBL->Fill(emf+1, pm, weight);
     }
   }
 }
@@ -197,7 +194,7 @@ void PixelMon2DProfilesLW::formatHist()
      B2->GetXaxis()->SetBinLabel( i+1, mod[i] );
    }
 
-   if (mDoIBL && !mDoErrorHist) {
+   if (m_doIBL && !m_errorHist) {
      for (int i=0; i<nmodIBL; i++)   IBL->GetXaxis()->SetBinLabel( i+1, modIBL[i] );
      for (int i=0; i<nstaveb; i++)   IBL->GetYaxis()->SetBinLabel( i+1, staveb[i] );
      for (int i=0; i<nmodIBL2D; i++) IBL2D->GetXaxis()->SetBinLabel( i+1, modIBL2D[i] );
@@ -211,7 +208,7 @@ void PixelMon2DProfilesLW::formatHist()
    for (int i=0; i<nstave2; i++) B2->GetYaxis()->SetBinLabel( i+1, stave2[i] ); 
   
 
-   if (mDoIBL && !mDoErrorHist){
+   if (m_doIBL && !m_errorHist){
      IBL->GetYaxis()->SetLabelSize(0.03);
      IBL2D->GetYaxis()->SetLabelSize(0.03);
      IBL3D->GetYaxis()->SetLabelSize(0.03);
@@ -317,7 +314,7 @@ void PixelMon2DProfilesLW::Fill2DMon(PixelMon2DProfilesLW* oldmap)
          oldmap->B2->SetBinContent(x, y, 0);
       }
    }
-   if (mDoIBL && !mDoErrorHist) {
+   if (m_doIBL && !m_errorHist) {
       for(unsigned int x=1; x<=IBL->GetNbinsX(); x++){
          for(unsigned int y=1; y<=IBL->GetNbinsY(); y++){
             float content = oldmap->IBL->GetBinContent(x, y);
@@ -398,7 +395,7 @@ void PixelMon2DProfilesLW::FillFromMap(PixelMon2DMaps* inputmap, bool clear_inpu
     }
   }
   if (clear_inputmap) inputmap->B2->Reset();
-  if (mDoIBL && mDoErrorHist) {
+  if (m_doIBL && !m_errorHist) {
      for(unsigned int x=1; x<=IBL->GetNbinsX(); x++){
         for(unsigned int y=1; y<=IBL->GetNbinsY(); y++){
            float content = inputmap->IBL->GetBinContent(x, y);
@@ -427,7 +424,7 @@ void PixelMon2DProfilesLW::FillFromMap(PixelMon2DMaps* inputmap, bool clear_inpu
 StatusCode PixelMon2DProfilesLW::regHist(ManagedMonitorToolBase::MonGroup &group)
 {
   StatusCode sc = StatusCode::SUCCESS;
-  if (mDoIBL && !mDoErrorHist) {
+  if (m_doIBL && !m_errorHist) {
     if (group.regHist(IBL).isFailure()) sc = StatusCode::FAILURE;
     if (group.regHist(IBL2D).isFailure()) sc = StatusCode::FAILURE;
     if (group.regHist(IBL3D).isFailure()) sc = StatusCode::FAILURE;
