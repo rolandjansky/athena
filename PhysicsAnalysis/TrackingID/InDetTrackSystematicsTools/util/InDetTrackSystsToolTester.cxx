@@ -105,9 +105,9 @@ int main( int argc, char* argv[] ) {
 
    InDet::InDetTrackBiasingTool biasingTool( "InDetTrackBiasingTool" );
    ///  comment / uncomment these lines to test
-   CHECK( biasingTool.setProperty( "isData", true ) ); // override to test, since ROOTCORE_TEST_FILE is simluation
-   uint32_t testRunNumber = 287000;
-   CHECK( biasingTool.setProperty( "runNumber", testRunNumber ) ); // this line is only for testing that other files are properly accessible
+   // CHECK( biasingTool.setProperty( "isData", true ) ); // override to test, since ROOTCORE_TEST_FILE is simluation
+   // uint32_t testRunNumber = 287000;
+   // CHECK( biasingTool.setProperty( "runNumber", testRunNumber ) ); // this line is only for testing that other files are properly accessible
 
    InDet::InDetTrackTruthFilterTool filterTool( "InDetTrackFilterTool" );
    auto originTool = make_unique<InDet::InDetTrackTruthOriginTool> ( "InDetTrackTruthOriginTool" );
@@ -116,7 +116,7 @@ int main( int argc, char* argv[] ) {
    CHECK( filterTool.setProperty("trackOriginTool", trackTruthOriginToolHandle) );
 
    InDet::JetTrackFilterTool jetFilterTool( "JetTrackFilterTool" );
-
+   
    // Not a realistic set of systematics - we just want to make sure they can all be applied without breaking the tools
    CP::SystematicSet systSet = {
      // CP::SystematicVariation("TRK_RES_D0_MEAS"),
