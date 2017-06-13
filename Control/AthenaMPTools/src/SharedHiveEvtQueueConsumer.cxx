@@ -332,12 +332,14 @@ SharedHiveEvtQueueConsumer::bootstrap_func()
 
   msg(MSG::INFO) << "Io registry updated in the AthenaMP event worker PID=" << getpid() << endreq;
 
-  // ________________________ SimParams & DigiParams ____________________________
+  // ________________________ SimParams & DigiParams & PDGTABLE.MeV ____________________________
   boost::filesystem::path abs_worker_rundir = boost::filesystem::absolute(worker_rundir);
   if(boost::filesystem::is_regular_file("SimParams.db"))
     COPY_FILE_HACK("SimParams.db", abs_worker_rundir.string()+"/SimParams.db");
   if(boost::filesystem::is_regular_file("DigitParams.db"))
     COPY_FILE_HACK("DigitParams.db", abs_worker_rundir.string()+"/DigitParams.db");
+  if(boost::filesystem::is_regular_file("PDGTABLE.MeV"))
+    COPY_FILE_HACK("PDGTABLE.MeV", abs_worker_rundir.string()+"/PDGTABLE.MeV");
 
   // _______________________ Handle saved PFC (if any) ______________________
   if(handleSavedPfc(abs_worker_rundir))

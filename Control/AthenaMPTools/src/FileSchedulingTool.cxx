@@ -221,18 +221,21 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::bootstrap
      sc = propertyServer->getProperty(&inputFileList);
   }
   if(sc.isFailure()) {
-     ATH_MSG_ERROR("Unable to get " << inputFileList.name() << " property from the property server");
-     return outwork;
+     ATH_MSG_WARNING("Unable to get " << inputFileList.name() << " property from the property server");
+     //return outwork;
   }
-  for(std::size_t i=0, imax=inputFileList.value().size(); i!=imax; ++i)
-     if((int)i%m_nprocs==m_rankId) {
+  if(inputFileList.value().size()>0) {
+    for(std::size_t i=0, imax=inputFileList.value().size(); i!=imax; ++i) {
+      if((int)i%m_nprocs==m_rankId) {
         vect.push_back(inputFileList.value()[i]);
         ATH_MSG_INFO("Assigning input file #" << i << ": " << inputFileList.value()[i]);
-     }
-  StringArrayProperty newInputFileList(inputFileList.name(), vect);
-  if(propertyServer->setProperty(newInputFileList).isFailure()) {
-     ATH_MSG_ERROR("Unable to update " << newInputFileList.name() << " property on the property server");
-     return outwork;
+      }
+    }
+    StringArrayProperty newInputFileList(inputFileList.name(), vect);
+    if(propertyServer->setProperty(newInputFileList).isFailure()) {
+      ATH_MSG_ERROR("Unable to update " << newInputFileList.name() << " property on the property server");
+      return outwork;
+    }
   }
 
   // ________________________ Update Io Registry ____________________________
@@ -241,12 +244,14 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::bootstrap
 
   ATH_MSG_INFO("Io registry updated in the AthenaMP event worker PID=" << getpid());
 
-  // ________________________ SimParams & DigiParams ____________________________
+  // ________________________ SimParams & DigiParams & PDGTABLE.MeV ____________________________
   boost::filesystem::path abs_worker_rundir = boost::filesystem::absolute(worker_rundir);
   if(boost::filesystem::is_regular_file("SimParams.db"))
     COPY_FILE_HACK("SimParams.db", abs_worker_rundir.string()+"/SimParams.db");
   if(boost::filesystem::is_regular_file("DigitParams.db"))
     COPY_FILE_HACK("DigitParams.db", abs_worker_rundir.string()+"/DigitParams.db");
+  if(boost::filesystem::is_regular_file("PDGTABLE.MeV"))
+    COPY_FILE_HACK("PDGTABLE.MeV", abs_worker_rundir.string()+"/PDGTABLE.MeV");
 
   // _______________________ Handle saved PFC (if any) ______________________
   if(handleSavedPfc(abs_worker_rundir))

@@ -2,35 +2,30 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ATHENAMPTOOLS_SHAREDREADERTOOL_H
-#define ATHENAMPTOOLS_SHAREDREADERTOOL_H 1
+#ifndef ATHENAMPTOOLS_SHAREDWRITERTOOL_H
+#define ATHENAMPTOOLS_SHAREDWRITERTOOL_H 1
 
 #include "AthenaMPToolBase.h"
 
+/*
 #include "AthenaInterprocess/SharedQueue.h"
 #include "yampl/Exceptions.h"
+#include "yampl/utils/SharedMemory.h"
+
 #include "boost/shared_ptr.hpp"
-
-#if defined(__GNUC__) && __GNUC__>=6 && !defined(__clang__)
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wterminate"
-# include "yampl/utils/SharedMemory.h"
-# pragma GCC diagnostic pop
-#else
-# include "yampl/utils/SharedMemory.h"
-#endif
-
+*/
 
 class IEventShare;
+class IConversionSvc;
 
-class SharedReaderTool : public AthenaMPToolBase
+class SharedWriterTool : public AthenaMPToolBase
 {
  public:
-  SharedReaderTool(const std::string& type
+  SharedWriterTool(const std::string& type
 		   , const std::string& name
 		   , const IInterface* parent);
 
-  virtual ~SharedReaderTool();
+  virtual ~SharedWriterTool();
   
   StatusCode initialize();
   StatusCode finalize();
@@ -48,15 +43,13 @@ class SharedReaderTool : public AthenaMPToolBase
   std::unique_ptr<AthenaInterprocess::ScheduledWork> fin_func();
 
  private:
-  SharedReaderTool();
-  SharedReaderTool(const SharedReaderTool&);
-  SharedReaderTool& operator= (const SharedReaderTool&);
-
-  int  m_nEvtRequested;    // Max event received from AppMgr
-
-  boost::interprocess::mapped_region* m_shmemSegment; // Shared memory segment for getting maximum number of events to read
+  SharedWriterTool();
+  SharedWriterTool(const SharedWriterTool&);
+  SharedWriterTool& operator= (const SharedWriterTool&);
 
   IEventShare*                   m_evtShare;
+  IConversionSvc*             m_cnvSvc;
+
 };
 
 #endif
