@@ -33,7 +33,7 @@ namespace TrigCompositeUtils {
 
   void addDecisionID( DecisionID id,  Decision* d ) {   
     std::vector<int>& decisions = readWriteAccessor( *d );
-    if ( decisions.size() == 0 or decisions.back() != ( int )id ) 
+    if ( decisions.size() == 0 or decisions.back() != static_cast<int>(id) ) 
       decisions.push_back( id );
   }
   

@@ -29,7 +29,7 @@ namespace TrigCompositeUtils {
 
   typedef SG::WriteHandle<DecisionContainer> DecisionWriteHandle;
   /**
-   * @beirf creates and right away stores the DecisionContainer under the key
+   * @brief creates and right away stores the DecisionContainer under the key
    **/
   DecisionWriteHandle createAndStore(const SG::WriteHandleKey<DecisionContainer>& key, const EventContext& ctx);
 
