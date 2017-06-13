@@ -58,7 +58,6 @@ void RD53SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
 
     // Apply analogu threshold, timing simulation
     double th0  = m_pixelCalibSvc->getThreshold(diodeID);
-    double ith0 = m_pixelCalibSvc->getTimeWalk(diodeID);
 
     double threshold = th0+m_pixelCalibSvc->getThresholdSigma(diodeID)*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine)+m_pixelCalibSvc->getNoise(diodeID)*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
 
