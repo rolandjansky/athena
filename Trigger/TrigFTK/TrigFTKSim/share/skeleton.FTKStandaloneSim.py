@@ -1106,8 +1106,26 @@ for runArgName in (runArgsFromTrfMandatory
         raise RuntimeError("Failed to find mandatory FTKTrackFitter runtime "
                            "argument for transform %s" % runArgName)
 
-alg += FTKRoadFinder
-alg += FTKTrackFitter
+if hasattr(runArgs,"dumpModuleGeom"):
+    from TrigFTKSim.TrigFTKSimConf import FTKDetectorTool, FTKDumpCondAlgo 
+    FTKDet = FTKDetectorTool()
+    FTKDet.FTK_BadModuleMapPath = "badModulemap_FTK.bmap"
+    FTKDet.ATLAS_BadModuleMapPath = "badModulemap_ATLAS.bmap"
+    FTKDet.pmap_path = runArgs.pmap_path
+    FTKDet.rmap_path = runArgs.rmap_path
+    ToolSvc += FTKDet
+
+    FTKDumpCond = FTKDumpCondAlgo("FTKDumpCondAlgo" , OutputLevel=INFO)
+    FTKDumpCond.IBLMode = runArgs.IBLMode
+    FTKDumpCond.DumpBadModules = False
+    FTKDumpCond.DumpGlobalToLocalMap = False
+    FTKDumpCond.DumpModulePositions = True
+
+    alg += FTKDumpCond
+
+else :
+    alg += FTKRoadFinder
+    alg += FTKTrackFitter
 
 if not FTKTrackFitter.doTrackFile :
     from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
