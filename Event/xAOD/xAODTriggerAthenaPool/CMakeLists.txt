@@ -7,9 +7,17 @@
 atlas_subdir( xAODTriggerAthenaPool )
 
 # Declare the package's dependencies:
+
+set( extra_dep )
+set( extra_lib )
+if( NOT XAOD_ANALYSIS )
+  set( extra_dep Trigger/TrigEvent/TrigNavTools )
+  set( extra_lib TrigNavToolsLib )
+endif()
+
 atlas_depends_on_subdirs(
    PUBLIC
-   Trigger/TrigEvent/TrigNavTools
+   ${extra_dep}
    PRIVATE
    Control/AthContainers
    Control/AthenaKernel
@@ -49,5 +57,5 @@ atlas_add_poolcnv_library( xAODTriggerAthenaPoolPoolCnv
    xAOD::BunchConfContainer xAOD::BunchConfAuxContainer
    xAOD::TrigPassBitsContainer xAOD::TrigPassBitsAuxContainer
    CNV_PFX xAOD
-   LINK_LIBRARIES TrigNavToolsLib AthContainers AthenaKernel AthenaPoolCnvSvcLib
+   LINK_LIBRARIES ${extra_lib} AthContainers AthenaKernel AthenaPoolCnvSvcLib
    AthenaPoolUtilities xAODTrigger )
