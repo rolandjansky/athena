@@ -184,7 +184,7 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
 
    if (m_doModules) {
       m_errors = new PixelMonModules1D("errors", ("Errors in module:ErrorType" + m_histTitleExt + ";Number of Errors").c_str(), 7, 0.5, 7.5, m_doIBL);
-      sc = m_errors->regHist(this, (path+"/ModulesErrors").c_str(), run, m_doIBL);
+      sc = m_errors->regHist(this, (path+"/ModulesErrors").c_str(), run);
       for (int k = 0; k < 7; k++) m_errors->SetBinLabel(error_type_labels[k].second.c_str(), k+1);
    }
 
@@ -360,7 +360,7 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
                if (error_type == 6) error_cat = ErrorCategory::kSeu;
                if (error_type == 7) error_cat = ErrorCategory::kTout;
 
-               if (m_errors) m_errors->Fill(error_type, WaferID, m_pixelid, m_doIBL);
+               if (m_errors) m_errors->Fill(error_type, WaferID, m_pixelid);
 
                if (m_doLumiBlock && m_errors_LB) {
                   m_errors_LB->Fill(WaferID, m_pixelid);

@@ -56,9 +56,9 @@ StatusCode PixelMainMon::BookStatusMon(void)
   if (m_doModules)
     {
       m_Status_modules = new PixelMonModules1D("Status_of_Module", ("Module Status (0=Active+Good, 1=Active+Bad, 2=Inactive)" + m_histTitleExt + ";Status").c_str(),2,0,2,m_doIBL);
-      sc = m_Status_modules->regHist(this, (path+"/Modules_Status").c_str(),run,m_doIBL);
+      sc = m_Status_modules->regHist(this, (path+"/Modules_Status").c_str(),run);
       m_Status_modules->SetBinLabel( "Status",2 ); 
-      m_Status_modules->formatHist("status",m_doIBL);
+      m_Status_modules->formatHist("status");
     }
   if (m_doOffline)
     { 
@@ -186,7 +186,7 @@ StatusCode PixelMainMon::FillStatusMon(void)
 	      {
 		diffToFill=Index;
 	      }
-            for (int i=0; i<diffToFill; i++) m_Status_modules->Fill(1.5,WaferID,m_pixelid,m_doIBL);  //fill to the required value
+            for (int i=0; i<diffToFill; i++) m_Status_modules->Fill(1.5,WaferID,m_pixelid);  //fill to the required value
          }
       }
     } // of pixelid wafer loop 
