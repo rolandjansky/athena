@@ -82,14 +82,18 @@ HLT::ErrorCode TrigGSCFex::hltInitialize() {
 
   }
 
-  if(m_jetGSCCalib_tool.empty()){
-    if(m_jetGSCCalib_tool.retrieve().isFailure()) {
-      msg() << MSG::FATAL << "Failed to locate tool " << m_jetGSCCalib_tool << endmsg;
-      return HLT::BAD_JOB_SETUP;
-    } else 
-      msg() << MSG::INFO << "Retrieved tool " << m_jetGSCCalib_tool << endmsg;	
-  } else if(msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "No GSCCalibrationTool tool to retrieve" << endmsg;
+  if(m_setupOfflineTools) {
+
+    if(m_jetGSCCalib_tool.empty()){
+      if(m_jetGSCCalib_tool.retrieve().isFailure()) {
+	msg() << MSG::FATAL << "Failed to locate tool " << m_jetGSCCalib_tool << endmsg;
+	return HLT::BAD_JOB_SETUP;
+      } else 
+	msg() << MSG::INFO << "Retrieved tool " << m_jetGSCCalib_tool << endmsg;	
+    } else if(msgLvl() <= MSG::DEBUG)
+      msg() << MSG::DEBUG << "No GSCCalibrationTool tool to retrieve" << endmsg;
+
+  }
 
   return HLT::OK;
 }
