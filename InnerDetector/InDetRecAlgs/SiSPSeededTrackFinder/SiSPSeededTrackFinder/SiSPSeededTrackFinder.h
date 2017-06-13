@@ -71,6 +71,7 @@ namespace InDet {
       bool                           m_useNewStrategy     ;
       bool                           m_useZBoundaryFinding;
       bool                           m_ITKGeometry        ; // Is it ITK geometry
+      bool                           m_useITKPPSseeds     ; // Use PPS seeds for ITK geometry
       int                            m_outputlevel        ; // Print level for debug
       int                            m_nprint             ; // Kind of  print    
       int                            m_nseeds             ; // Number seeds
@@ -123,6 +124,7 @@ namespace InDet {
       void findZvertex(std::list<Trk::Vertex>&,double*); 
       StatusCode  oldStrategy();
       StatusCode  newStrategy();
+      StatusCode  StrategyITK();
       void magneticFieldInit();
 
       MsgStream&    dumptools(MsgStream&    out) const;

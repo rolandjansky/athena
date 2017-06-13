@@ -21,6 +21,7 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   m_useNewStrategy(false)                                              ,
   m_useZBoundaryFinding(false)                                         ,
   m_ITKGeometry(false)                                                 ,
+  m_useITKPPSseeds(false)                                              ,
   m_outputlevel(0)                                                     ,
   m_nprint(0)                                                          ,
   m_nseeds(0)                                                          ,
@@ -79,6 +80,7 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
   declareProperty("Zcut"                ,m_zcut                );
   declareProperty("MagneticFieldMode"   ,m_fieldmode           );
   declareProperty("ITKGeometry"         ,m_ITKGeometry         );
+  declareProperty("useITKPPSseeds"      ,m_useITKPPSseeds      );
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -128,8 +130,7 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
 
     if(m_beam) {
     
-      // Get RungeKutta propagator tool
-      //
+      // Get RungeKutta propagator tool      //
       if ( m_proptool.retrieve().isFailure() ) {
 	msg(MSG::FATAL) << "Failed to retrieve tool " << m_proptool << endmsg;
 	return StatusCode::FAILURE;
@@ -173,6 +174,7 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
 
 StatusCode InDet::SiSPSeededTrackFinder::execute() 
 { 
+  if(m_ITKGeometry                              ) return StrategyITK(); 
   if(!m_useNewStrategy && !m_useZBoundaryFinding) return oldStrategy();
   else                                            return newStrategy();
 }
@@ -250,11 +252,6 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
   if(ERR) { m_outputTracks->clear(); }
   else    {m_ntracksTotal+=m_ntracks;}
 
-
-
-  // Save reconstructed tracks
-  //
-
   // Print common event information
   //
   if(m_outputlevel<=0) {
@@ -316,7 +313,7 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
     for(std::list<Trk::Track*>::const_iterator t=T.begin(); t!=T.end(); ++t) {
       qualityTrack.insert(std::make_pair(-trackQuality((*t)),(*t)));
 
-      if(t==T.begin() && !m_ITKGeometry) fillZHistogram(*t,per);
+      if(t==T.begin()) fillZHistogram(*t,per);
 
     }
     if( m_nseeds >= m_maxNumberSeeds) {
@@ -326,8 +323,7 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
 
   m_seedsmaker->newEvent(1); 
 
-  if(!m_ITKGeometry) {findZvertex(VZ,ZB); m_seedsmaker->find3Sp(VZ,ZB);}
-  else               {                    m_seedsmaker->find3Sp(VZ   );}
+  findZvertex(VZ,ZB); m_seedsmaker->find3Sp(VZ,ZB);
 
   // Loop through all seed and reconsrtucted tracks collection preparation
   //
@@ -362,9 +358,114 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
   if(ERR) {m_outputTracks->clear();}
   else    {m_ntracksTotal+=m_ntracks;                            }
 
-
-  // Save reconstructed tracks
+  // Print common event information
   //
+  if(m_outputlevel<=0) {
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
+  }
+  return StatusCode::SUCCESS;
+}
+
+///////////////////////////////////////////////////////////////////
+// Execute with strategy for ITK
+///////////////////////////////////////////////////////////////////
+
+StatusCode InDet::SiSPSeededTrackFinder::StrategyITK()
+{ 
+  m_outputTracks = CxxUtils::make_unique<TrackCollection>();
+
+  // For HI events we can use MBTS information from calorimeter
+  //
+  if(!isGoodEvent()) {
+    return StatusCode::SUCCESS;
+  }
+
+  std::multimap<double,Trk::Track*>    qualityTrack;
+  const InDet::SiSpacePointsSeed* seed = 0;
+
+  // Test is sct clusters collection for given event
+  //
+  bool PIX = true ;
+  bool SCT = true ;
+  bool ERR = false;
+
+  m_trackmaker->newEvent(PIX,SCT);
+
+  m_nseeds  = 0;
+  m_ntracks = 0;
+  std::list<Trk::Vertex> VZ;
+
+  // Loop through all SSS seeds 
+  //
+  m_seedsmaker->newEvent(0); m_seedsmaker->find3Sp(VZ); 
+ 
+  while((seed = m_seedsmaker->next())) {
+
+    ++m_nseeds;
+    const std::list<Trk::Track*>& T = m_trackmaker->getTracks(seed->spacePoints()); 
+    for(std::list<Trk::Track*>::const_iterator t=T.begin(); t!=T.end(); ++t) {
+      qualityTrack.insert(std::make_pair(-trackQuality((*t)),(*t)));
+
+    }
+    if( m_nseeds >= m_maxNumberSeeds) {
+      ERR = true; ++m_problemsTotal;  break;
+    }
+  }
+
+  // Loop through all PPS seeds 
+  //
+  if(m_useITKPPSseeds) { 
+   
+    m_seedsmaker->newEvent(2); m_seedsmaker->find3Sp(VZ);
+
+    while((seed = m_seedsmaker->next())) {
+      ++m_nseeds;
+      const std::list<Trk::Track*>& T = m_trackmaker->getTracks(seed->spacePoints()); 
+      for(std::list<Trk::Track*>::const_iterator t=T.begin(); t!=T.end(); ++t) {
+	qualityTrack.insert(std::make_pair(-trackQuality((*t)),(*t)));
+	
+      }
+      if( m_nseeds >= m_maxNumberSeeds) {
+	ERR = true; ++m_problemsTotal;  break;
+      }
+    }
+  }
+  
+  // Loop through all PPP seeds 
+  //
+  m_seedsmaker->newEvent(1); m_seedsmaker->find3Sp(VZ);
+
+  while((seed = m_seedsmaker->next())) {
+    ++m_nseeds;
+    const std::list<Trk::Track*>& T = m_trackmaker->getTracks(seed->spacePoints()); 
+    for(std::list<Trk::Track*>::const_iterator t=T.begin(); t!=T.end(); ++t) {
+      qualityTrack.insert(std::make_pair(-trackQuality((*t)),(*t)));
+
+    }
+    if( m_nseeds >= m_maxNumberSeeds) {
+      ERR = true; ++m_problemsTotal;  break;
+    }
+  }
+  
+  m_trackmaker->endEvent();
+
+  // Remove shared tracks with worse quality
+  //
+  filterSharedTracks(qualityTrack);
+
+  // Save good tracks in track collection
+  //
+  std::multimap<double,Trk::Track*>::iterator 
+    q = qualityTrack.begin(), qe =qualityTrack.end(); 
+
+  for(; q!=qe; ++q) {++m_ntracks; m_outputTracks->push_back((*q).second);}
+
+  m_nseedsTotal += m_nseeds ;
+
+  ++m_neventsTotal;
+
+  if(ERR) {m_outputTracks->clear();}
+  else    {m_ntracksTotal+=m_ntracks;                            }
 
   // Print common event information
   //
