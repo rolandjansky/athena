@@ -327,7 +327,7 @@ StatusCode TileTBDump::execute() {
           
     unsigned int max_allowed_size = robf.rod_fragment_size_word();
     unsigned int delta = robf.rod_header_size_word() + robf.rod_trailer_size_word();
-    if (max_allowed_size > delta) {
+    if (max_allowed_size >= delta) {
       max_allowed_size -= delta;
     } else {
       std::cout << " Problem with ROD data: total length " << max_allowed_size
@@ -363,15 +363,25 @@ StatusCode TileTBDump::execute() {
 
       unsigned int size = robf.rod_ndata();
       if (size > max_allowed_size) {
-        if (size - robf.rod_trailer_size_word() <= max_allowed_size) {
+        if (size - robf.rod_trailer_size_word() < max_allowed_size) {
           std::cout<<" Problem with data size - assuming that trailer size is " << robf.rod_trailer_size_word()-(size-max_allowed_size)
                    <<" words instead of " << robf.rod_trailer_size_word() << " and data size is " << size << " words " << std::endl;
+          max_allowed_size = size;
+        } else if (size - robf.rod_trailer_size_word() == max_allowed_size) {
+          std::cout<<" Problem with data size - assuming that trailer is absent "
+                   << " ROD size " << robf.rod_fragment_size_word()
+                   << " header size " << robf.rod_header_size_word()
+                   << " data size " << size << std::endl;
           max_allowed_size = size;
         } else {
           max_allowed_size += robf.rod_trailer_size_word();
           size = max_allowed_size;
           std::cout<<" Problem with data size - assuming " << size << " words and no trailer at all"<<std::endl;
         }
+        std::cout << std::endl << "Dump of whole ROB fragment ("
+                  << robf.rod_fragment_size_word()+robf.header_size_word()
+                  << " words)" << std::endl;
+        dump_data(fprob, robf.rod_fragment_size_word()+robf.header_size_word(), version, verbosity);
       }
 
       if ( size > 0 ) {
@@ -450,14 +460,14 @@ std::ostream &setupPr4 (std::ostream &stream){
 void TileTBDump::dump_data(const uint32_t * data, unsigned int size, unsigned int /* version */, int /* verbosity */) {
 
   boost::io::ios_base_all_saver coutsave(std::cout);
-  std::cout << std::endl << " Fragment data as 4 byte words:" << std::hex << std::setw(8) << std::setprecision(8);
+  std::cout << std::endl << " Fragment data as 4 byte words:" << std::hex << std::setfill('0') ;
 
   for (unsigned int cnter = 0; cnter < size; ++cnter) {
     if (!(cnter % 8)) std::cout << std::endl;
-    std::cout << (*data++) << " ";
+    std::cout << std::setw(8) << (*data++) << " ";
   }
 
-  std::cout << std::dec << std::endl << std::endl;
+  std::cout <<std::setfill(' ') << std::dec << std::endl << std::endl;
 
 }
 
@@ -1813,7 +1823,7 @@ void dump_it(unsigned int nw, unsigned int * data) {
 /* ------------------------------------------------------------------------ */
 
 void TileTBDump::find_frag(const uint32_t* data, unsigned int size, unsigned int version
-                           , int /* verbosity */, T_RodDataFrag** frag, int* nfrag) {
+                           , int verbosity, T_RodDataFrag** frag, int* nfrag) {
   unsigned int offset = 0;
   *nfrag = 0;
   m_v3Format = (*(data) == 0xff1234ff); // additional frag marker since Sep 2005
@@ -1825,10 +1835,9 @@ void TileTBDump::find_frag(const uint32_t* data, unsigned int size, unsigned int
     std::cout << " v3Format = true" << std::endl;
     if (!m_v3Format) {
       m_v3Format = true;
-      std::cout << std::endl << "Dump of whole data fragment:" << std::endl;
-      for (unsigned int i = 0; i < size; ++i) {
-        std::cout << "\t" << i << "\t" << data[i] << "\t0x" << std::hex  << data[i] << std::dec << std::endl;
-      }
+      std::cout << std::endl << "Dump of whole data fragment ("
+                << size << " words)" << std::endl;
+      dump_data(data, size, version, verbosity);
     }
   } else {
     m_sizeOverhead = 2;
