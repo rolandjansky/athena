@@ -77,7 +77,12 @@ StatusCode xAODTestWriteCInfo::execute_r (const EventContext& ctx) const
   cEL(*cinfo).toIndexedElement (*cvec, count % cvec->size());
 
   SG::WriteHandle<DMTest::C> cinfoH (m_cinfoKey, ctx);
-  CHECK( cinfoH.record (std::move(cinfo), std::move(info_store)) );
+  std::unique_ptr<const DMTest::C> cinfo_c (std::move (cinfo));
+  std::unique_ptr<const DMTest::CInfoAuxContainer> info_store_c (std::move (info_store));
+  if (cinfoH.put (std::move(cinfo_c), std::move(info_store_c)) == nullptr) {
+    ATH_MSG_ERROR ("Can't record CInfo");
+    return StatusCode::FAILURE;
+  }
 
   return StatusCode::SUCCESS;
 }
