@@ -878,16 +878,10 @@ namespace SG {
   IProxyDict* VarHandleBase::storeFromHandle (const EventContext* ctx) const
   {
     if (this->storeHandle().name() == "StoreGateSvc") {
-      if (ctx) {
-        const Atlas::ExtendedEventContext *eec =
-          ctx->getExtension<Atlas::ExtendedEventContext>();
-        return ( (eec==0) ? nullptr : eec->proxy() );
-      }
+      if (ctx)
+        return ctx->getExtension<Atlas::ExtendedEventContext>()->proxy();
       if (m_storeWasSet && m_store) return m_store;
-      const Atlas::ExtendedEventContext *eec =
-        Gaudi::Hive::currentContext().getExtension<Atlas::ExtendedEventContext>();
-
-      return ( (eec==0) ? nullptr : eec->proxy() );
+      return Gaudi::Hive::currentContext().getExtension<Atlas::ExtendedEventContext>()->proxy();
     }
 
     if (m_storeWasSet && m_store) return m_store;
@@ -910,13 +904,8 @@ namespace SG {
   {
     CHECK( VarHandleKey::initialize() );
     m_store = storeFromHandle (ctx);
-    if (ctx) {
-      const Atlas::ExtendedEventContext *eec =
-        ctx->getExtension<Atlas::ExtendedEventContext>();
-      m_storeWasSet = (eec && m_store == eec->proxy());
-    } else {
-      m_storeWasSet = false;
-    }
+    m_storeWasSet = (ctx && m_store ==
+                     ctx->getExtension<Atlas::ExtendedEventContext>()->proxy());
     return StatusCode::SUCCESS;
   }
 
