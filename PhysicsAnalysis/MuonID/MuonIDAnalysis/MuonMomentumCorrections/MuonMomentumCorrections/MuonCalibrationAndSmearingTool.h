@@ -13,6 +13,8 @@
 #include "TH3F.h"
 #include "TProfile2D.h"
 #include "TFile.h"
+#include "TMatrix.h"
+#include "TVectorD.h"
 
 // C++ include(s)
 #include <boost/unordered_map.hpp>
@@ -201,6 +203,13 @@ protected:
   
   double m_StatCombPtThreshold;
   bool m_useStatComb;
+
+  unsigned int m_sgItersID;
+  unsigned int m_sgItersCB;
+  unsigned int m_sgItersME;  
+  bool m_sgIetrsMamual;
+  double m_fixedRho;
+  bool m_useFixedRho;
   
   std::vector <TProfile2D*> *m_sagittasCB;
   std::vector <TProfile2D*> *m_sagittasID;
@@ -212,6 +221,9 @@ protected:
   std::string m_SagittaRelease;
   bool m_doSagittaMCDistortion;
   
+  bool m_doNotUseAMGMATRIXDECOR;
+  std::vector  <  float >  m_cbParsA;
+  std::vector < float >  m_cbCovMat;
 
 }; //::: class MuonCalibrationAndSmearingTool
 

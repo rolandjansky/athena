@@ -108,20 +108,24 @@ int main( int argc, char* argv[] ) {
 
   //::: Muon Calibration and Smearing
   CP::MuonCalibrationAndSmearingTool corrTool( "MuonCorrectionTool" );
-  //corrTool.msg().setLevel( MSG::VERBOSE);
-  corrTool.msg().setLevel( MSG::INFO);
+  corrTool.msg().setLevel( MSG::VERBOSE);
+  //corrTool.msg().setLevel( MSG::INFO);
   //corrTool.msg().setLevel( MSG::WARNING);
   //ATH_CHECK( corrTool.initialize() );
   //corrTool.setProperty( "Release", "PreRecs" );
   //corrTool.setProperty( "Year", "Data15" );
   corrTool.setProperty( "Year", "Data16" );
-  corrTool.setProperty("Release","Recs2016_08_07");
+  //corrTool.setProperty("Release","Recs2016_08_07");
   corrTool.setProperty("StatComb",true);
   //corrTool.setProperty("MinCombPt",300.00); 
-  corrTool.setProperty("SagittaCorr",false); 
+  corrTool.setProperty("SagittaCorr",true); 
   corrTool.setProperty("SagittaRelease","sagittaBiasDataAll_06_02_17"); 
-  corrTool.setProperty("doSagittaMCDistortion",true);
+  corrTool.setProperty("doSagittaMCDistortion",false);
+  corrTool.setProperty("noEigenDecor",false);
+  //corrTool.setProperty("FilesPath","/afs/cern.ch/work/g/gabarone/public/TestSingleMuon/Run/test_itk/");
   if(corrTool.initialize()!=StatusCode::SUCCESS) return 1;
+
+  
 
   //::: Muon Selection
 
@@ -255,6 +259,9 @@ int main( int argc, char* argv[] ) {
           const ElementLink< xAOD::TrackParticleContainer >& cb_track = muon->primaryTrackParticleLink();
           ptCB = (!cb_track) ? 0:(*cb_track)->pt();
         }
+        else {
+          Info( APP_NAME, "Missing primary track particle link for --> CB %g, author: %d, type: %d",ptCB,muon->author(),muon->muonType());
+        }
         float ptID = 0; 
         if(muon->inDetTrackParticleLink().isValid()){
           const ElementLink< xAOD::TrackParticleContainer >& id_track = muon->inDetTrackParticleLink();
@@ -266,8 +273,8 @@ int main( int argc, char* argv[] ) {
           ptME = (!ms_track) ? 0:(*ms_track)->pt();
         }
        
-        if(entry %  1000 ==0 ) 
-          Info( APP_NAME, "--> CB %g, ID %g, ME %g, author: %d, type: %d",ptCB,ptID,ptME,muon->author(),muon->muonType());
+        //if(entry %  1000 ==0 ) 
+        Info( APP_NAME, "--> CB %g, ID %g, ME %g, author: %d, type: %d",ptCB,ptID,ptME,muon->author(),muon->muonType());
         
         //:::
         if( do_it_the_right_way ) {
@@ -299,8 +306,8 @@ int main( int argc, char* argv[] ) {
           ExpResoCB = corrTool.ExpectedResolution( "CB", *muon );
           ExpResoID = corrTool.ExpectedResolution( "ID", *muon );
           ExpResoMS = corrTool.ExpectedResolution( "MS", *muon );
-          if(entry %  1000 ==0 ) 
-            Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", muon->eta(), muon->phi(), muon->pt()/1e3,CorrPtID,CorrPtMS);
+          //if(entry %  1000 ==0 ) 
+          Info( APP_NAME, "Calibrated muon: eta = %g, phi = %g, pt(CB) = %g, pt(ID) = %g, pt(MS) = %g", muon->eta(), muon->phi(), muon->pt()/1e3,CorrPtID,CorrPtMS);
           sysTreeMap[ *sysListItr ]->Fill();
         }
         //break; 
@@ -309,7 +316,7 @@ int main( int argc, char* argv[] ) {
     }
     
     //::: Close with a message:
-    if(entry %  1000 ==0 ) 
+    //if(entry %  1000 ==0 ) 
       Info( APP_NAME, "===>>>  done processing event #%i, run #%i %i events processed so far  <<<===", static_cast< int >( evtInfo->eventNumber() ), static_cast< int >( evtInfo->runNumber() ), static_cast< int >( entry + 1 ) );
   }
 
