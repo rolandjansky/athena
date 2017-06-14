@@ -442,29 +442,8 @@ void L1EnergyCMXTools::etSumsToCrateEnergy(const xAOD::CMXEtSumsContainer *etSum
         }
     }
 
-    if (m_debug)
-    {
-        ATH_MSG_DEBUG("Crates from full region (for total):");
-        for(auto p: crateVecFull) {
-            for(auto c: *p){
-                ATH_MSG_DEBUG("  CrateEnergy: crate " << c->crate() << " results " << std::endl
-                  << "   Et "  << c->et() << " overflow " << c->etOverflow() << std::endl
-                  << "   Ex "  << c->ex() << " overflow " << c->exOverflow() << std::endl
-                  << "   Ey "  << c->ey() << " overflow " << c->eyOverflow());
-            }
-            ATH_MSG_DEBUG("");
-        }
-        ATH_MSG_DEBUG("Crates from restricted region (for total):");
-        for(auto p: crateVecRestricted) {
-            for(auto c: *p){
-                ATH_MSG_DEBUG("  CrateEnergy: crate " << c->crate() << " results " << std::endl
-                  << "   Et "  << c->et() << " overflow " << c->etOverflow() << std::endl
-                  << "   Ex "  << c->ex() << " overflow " << c->exOverflow() << std::endl
-                  << "   Ey "  << c->ey() << " overflow " << c->eyOverflow());
-            }
-            ATH_MSG_DEBUG("");
-        }
-    }
+    dumpCrateEnergies("Crates from full region (for total)", crateVecFull);
+    dumpCrateEnergies("Crates from restricted region (for total)", crateVecRestricted);
 }
 
 /** Convert CMXEtSums container to internal SystemEnergy objects */
@@ -665,29 +644,9 @@ void L1EnergyCMXTools::crateEnergyToEtSums(
     std::vector<uint16_t> dummy(nslices);
     std::vector<uint32_t> error(nslices);
     
-    if (m_debug)
-    {
-        ATH_MSG_DEBUG("Crates from full region:");
-        for(auto p: cratesVecFull) {
-            for(auto c: *p){
-                ATH_MSG_DEBUG(" CrateEnergy: crate " << c->crate() << " results " << std::endl
-                  << "   Et "  << c->et() << " overflow " << c->etOverflow() << std::endl
-                  << "   Ex "  << c->ex() << " overflow " << c->exOverflow() << std::endl
-                  << "   Ey "  << c->ey() << " overflow " << c->eyOverflow());
-            }
-            ATH_MSG_DEBUG("");
-        }
-        ATH_MSG_DEBUG("Crates from restricted region:");
-        for(auto p: cratesVecRestricted) {
-            for(auto c: *p){
-                ATH_MSG_DEBUG(" CrateEnergy: crate " << c->crate() << " results " << std::endl
-                  << "   Et "  << c->et() << " overflow " << c->etOverflow() << std::endl
-                  << "   Ex "  << c->ex() << " overflow " << c->exOverflow() << std::endl
-                  << "   Ey "  << c->ey() << " overflow " << c->eyOverflow());
-            }
-            ATH_MSG_DEBUG("");
-        }
-    }
+    dumpCrateEnergies("Crates from full region", cratesVecFull);
+    dumpCrateEnergies("Crates from restricted region", cratesVecRestricted);
+    
  
     for (unsigned int slice = 0; slice < nslices; ++slice)
     {
@@ -995,6 +954,22 @@ void L1EnergyCMXTools::etMapsToEtSums(
         }
         (*iSlice)++;
     }
+}
+
+void L1EnergyCMXTools::dumpCrateEnergies(
+    const std::string &msg, const MultiSliceCrateEnergy &crates) const {
+  if (!m_debug) return;
+
+  ATH_MSG_DEBUG(msg);
+  for (const auto& p : crates) {
+    for (const auto& c : *p) {
+      ATH_MSG_DEBUG(" CrateEnergy: crate " << c->crate() << " results ");
+      ATH_MSG_DEBUG("  Et " << c->et() << " overflow " << c->etOverflow());
+      ATH_MSG_DEBUG("  Ex " << c->ex() << " overflow " << c->exOverflow());
+      ATH_MSG_DEBUG("  Ey " << c->ey() << " overflow "<< c->eyOverflow());
+    }
+    ATH_MSG_DEBUG("");
+  }
 }
 
 } // end of namespace
