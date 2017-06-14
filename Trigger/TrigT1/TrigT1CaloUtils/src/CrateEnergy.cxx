@@ -175,22 +175,7 @@ CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<EnergyCMXData>* JE
   
   /** Check for overflows then truncate quadrant sums*/
   unsigned int mask = (1<<m_sumBits) - 1;
-  // for (int quad = 0; quad < 2; quad++) {
-  //   if (eT[quad] >= mask){
-  //     m_overflowT = 1;
-  //     eT[quad] = mask;
-  //   }
-    
-  //   if (eX[quad] >= mask) {
-  //     m_overflowX = 1;
-  //     eX[quad] = mask + 1;
-  //   }
-    
-  //   if (eY[quad] >= mask) {
-  //     m_overflowY = 1;
-  //     eY[quad] = mask + 1;
-  //   }
-  // }
+
 
   /** Form crate sums */
   /** For total ET we must check for further overflows */
