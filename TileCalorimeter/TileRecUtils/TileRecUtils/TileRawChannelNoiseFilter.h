@@ -53,9 +53,6 @@ class TileRawChannelNoiseFilter: public AthAlgTool, virtual public ITileRawChann
     /** proceed the coherent noise subtruction algorithm and correct TileRawChannel amplitudes */
     virtual StatusCode process(const TileRawChannelContainer *rchCnt);
 
-    /** Callback to handle Data-driven GeoModel initialisation */
-    virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
   private:
 
     const TileHWID* m_tileHWID; //!< Pointer to TileHWID

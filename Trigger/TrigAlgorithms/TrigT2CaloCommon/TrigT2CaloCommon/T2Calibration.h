@@ -21,6 +21,7 @@
 #include <vector>
 #include <math.h>
 #include <iostream>
+#include <cmath>
 
 /** Class to perform calibration on LVL2 Calorimeter Trigger Clusters */
 class T2Calibration {
@@ -65,7 +66,7 @@ inline double T2Calibration::Calib ( const double ClusterEta,
 	if ( m_dimension.size() == 0 ) return 1.0;
         int jump = m_dimension[0];
         // search for correction
-        double eta_search = (fabsf(ClusterEta) - m_limit[0]);
+        double eta_search = (std::abs(ClusterEta) - m_limit[0]);
         eta_search *= m_factor;
         eta_search = floorf(eta_search);
         // Calculates correction factor

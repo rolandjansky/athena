@@ -67,11 +67,11 @@ class LArHVLineID : public AtlasDetectorID {
    */
   IdentifierHash hvlineHash( HWIdentifier hvline_id ) const;
   /**
-   * @bried Return an iterator pointing to a collection of high voltage line identifier
+   * @brief Return an iterator pointing to a collection of high voltage line identifier
    */
   std::vector<HWIdentifier>::const_iterator hvline_begin(void) const;
   /**
-   * @bried Return an iterator pointing to a collection of high voltage line identifier
+   * @brief Return an iterator pointing to a collection of high voltage line identifier
    */
   std::vector<HWIdentifier>::const_iterator hvline_end(void) const; 
 

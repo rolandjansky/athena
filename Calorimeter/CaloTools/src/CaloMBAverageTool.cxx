@@ -7,7 +7,6 @@
 #include "CaloEvent/CaloCell.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/CaloIdManager.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 
 
 CaloMBAverageTool::CaloMBAverageTool (const std::string& type, 
@@ -41,32 +40,6 @@ StatusCode CaloMBAverageTool::initialize() {
   ATH_MSG_INFO( " initialize "  );
 
   m_ncell = 0;
-
-  const IGeoModelSvc *geoModel=nullptr;
-  ATH_CHECK( service("GeoModelSvc", geoModel) );
-
-  // dummy parameters for the callback:
-  int dummyInt=0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized())
-  {
-    return geoInit(dummyInt,dummyList);
-  }
-  else
-  {
-    ATH_CHECK(  detStore()->regFcn(&IGeoModelSvc::geoInit,
-                                   geoModel,
-                                   &CaloMBAverageTool::geoInit,this) );
-  }
-  return StatusCode::SUCCESS;
-}
-
-// ------------------------------------------------------------------------------
-
-StatusCode CaloMBAverageTool::geoInit(IOVSVC_CALLBACK_ARGS) {
-
-  ATH_MSG_INFO( " geoInit "  );
 
   ATH_CHECK(  detStore()->retrieve( m_caloIdMgr ) );
   m_calo_id      = m_caloIdMgr->getCaloCell_ID();

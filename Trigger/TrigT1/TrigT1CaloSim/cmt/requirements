@@ -10,7 +10,7 @@ use     CaloDetDescr    CaloDetDescr-*   Calorimeter
 use     CaloIdentifier  CaloIdentifier-* Calorimeter
 use     LArRawEvent     LArRawEvent-*    LArCalorimeter
 #use     LArIdentifier   LArIdentifier-*  LArCalorimeter
-use     LArTools        LArTools-*       LArCalorimeter
+use     LArCabling      LArCabling-*     LArCalorimeter
 use     TileConditions  TileConditions-* TileCalorimeter
 use     TileEvent       TileEvent-*      TileCalorimeter
 use     CaloTTDetDescr  CaloTTDetDescr-* Calorimeter

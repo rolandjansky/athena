@@ -61,10 +61,6 @@ public:
   virtual void registerKey (sgkey_t /*key*/,
                             const std::string& /*str*/,
                             CLID /*clid*/) override;
-  virtual SG::DataProxy* recordObject (SG::DataObjectSharedPtr<DataObject> obj,
-                                       const std::string& key,
-                                       bool allowMods,
-                                       bool returnExisting) override;
   virtual StatusCode updatedObject (CLID id, const std::string& key) override;
 
   
@@ -81,6 +77,10 @@ public:
   virtual void boundHandle (IResetable* handle) override;
   virtual void unboundHandle (IResetable* handle) override;
 
+  virtual SG::DataProxy* recordObject (SG::DataObjectSharedPtr<DataObject> obj,
+                                       const std::string& key,
+                                       bool allowMods,
+                                       bool returnExisting) override;
   SG::DataProxy* record1 (const void* p, DataObject* obj,
                           CLID clid, const std::string& key);
 
@@ -89,6 +89,16 @@ public:
   void record (const T* p, const std::string& key)
   {
     DataObject* obj = SG::asStorable<T>(const_cast<T*>(p));
+    CLID clid = ClassID_traits<T>::ID();
+    record1 (p, obj, clid, key);
+  }
+
+
+  template <class T>
+  void record (std::unique_ptr<T> up, const std::string& key)
+  {
+    T* p = up.get();
+    DataObject* obj = SG::asStorable<T>(std::move (up));
     CLID clid = ClassID_traits<T>::ID();
     record1 (p, obj, clid, key);
   }
@@ -107,6 +117,8 @@ public:
     sgkey_t sgkey_out = stringToKey (key_out, clid);
     remap (sgkey_in, sgkey_out, index_in, index_out);
   }
+
+  void alias (SG::DataProxy* proxy, const std::string& newKey);
 
   typedef std::unordered_map<const void*, SG::DataProxy*> tmap_t;
   tmap_t m_tmap;

@@ -432,7 +432,6 @@ const RawEvent* ByteStreamEmonInputSvc::nextEvent()
             try {
                 m_re->check_tree();
                 log << MSG::INFO << "nextEvent: Got valid fragment of size:" << event.size() << endmsg;
-                log << MSG::INFO << "nextEvent: Got valid fragment of size:" << event.size() << endreq;
                 m_robProvider->setNextEvent(m_re);
                 m_robProvider->setEventStatus(0);
             } catch (ers::Issue& ex) {

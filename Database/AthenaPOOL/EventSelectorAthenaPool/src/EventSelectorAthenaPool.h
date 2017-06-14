@@ -21,7 +21,6 @@
 #include "AthenaKernel/IEventShare.h"
 #include "AthenaKernel/ICollectionSize.h"
 #include "AthenaBaseComps/AthService.h"
-#include "tbb/recursive_mutex.h"
 
 #include <map>
 
@@ -227,7 +226,7 @@ private: // properties
    mutable int m_evtCount; // internal count of events
    mutable bool m_firedIncident;
 
-   typedef tbb::recursive_mutex CallMutex;
+   typedef std::mutex CallMutex;
    mutable CallMutex m_callLock;
 
 };

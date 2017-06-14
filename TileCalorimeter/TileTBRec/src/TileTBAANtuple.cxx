@@ -105,6 +105,7 @@ TileTBAANtuple::TileTBAANtuple(std::string name, ISvcLocator* pSvcLocator)
   , m_muBack(0)
   , m_muCalib(0)
   , m_ecal(0)
+  , m_qdc(nullptr)
   , m_las_BCID(0)
   , m_las_Filt(0)
   , m_las_ReqAmp(0.0)
@@ -237,8 +238,9 @@ TileTBAANtuple::TileTBAANtuple(std::string name, ISvcLocator* pSvcLocator)
   declareProperty("CompleteNtuple", m_completeNtuple = true);
   declareProperty("CommitNtuple", m_commitNtuple = true);
   declareProperty("BSInput", m_bsInput = true);
+  declareProperty("PMTOrder", m_pmtOrder = true);
 
-  declareProperty("TBperiod", m_TBperiod = 2015); // tuned for 2015 testbeam by default
+  declareProperty("TBperiod", m_TBperiod = 2016); // tuned for 2016 testbeam by default
 
   declareProperty("NTupleLoc", m_ntupleLoc = "/NTUPLES/FILE%d/TileRec");
   declareProperty("NTupleID", m_ntupleID = "h1000");
@@ -359,14 +361,26 @@ StatusCode TileTBAANtuple::ntuple_initialize() {
   CHECK( m_beamInfo->setProperty("TileDigitsContainer", m_digitsContainer) );
 
   if (m_TBperiod >= 2015)  {
-      m_unpackAdder = false;
+    m_unpackAdder = false;
 
+    if (m_nSamples != 16) {
       m_nSamples = 7;
-      m_nDrawers = 2;
-      m_drawerList.resize(2);    m_drawerType.resize(2);
-      m_drawerList[0] = "0x200"; m_drawerType[0] = 2; // barrel neg
-      m_drawerList[1] = "0x401"; m_drawerType[1] = 4; // barrel neg
-
+      if (m_TBperiod == 2015) {
+        m_nDrawers = 2;
+        m_drawerList.resize(2);    m_drawerType.resize(2);
+        m_drawerList[0] = "0x200"; m_drawerType[0] = 2; // barrel neg
+        m_drawerList[1] = "0x401"; m_drawerType[1] = 4; // ext.barrel neg
+      }
+      if (m_TBperiod == 2016) {
+        m_nDrawers = 5;
+        m_drawerList.resize(5);    m_drawerType.resize(5);
+        m_drawerList[0] = "0x100"; m_drawerType[0] = 1; // M0 pos
+        m_drawerList[1] = "0x101"; m_drawerType[1] = 1; // barrel pos
+        m_drawerList[2] = "0x200"; m_drawerType[2] = 2; // M0 neg
+        m_drawerList[3] = "0x201"; m_drawerType[3] = 2; // barrel neg
+        m_drawerList[4] = "0x402"; m_drawerType[4] = 4; // ext.barrel neg
+      }
+    }
 //      m_beamFragList.resize(5);
 //      m_beamFragList[0] = "0x01";
 //      m_beamFragList[1] = "0x02";
@@ -384,17 +398,78 @@ StatusCode TileTBAANtuple::ntuple_initialize() {
 //      m_xCha2 = 0.25202 + (-0.18053)*(m_btdc1[5] - m_btdc1[4]);
 //      m_yCha2 = 0.0431688 + (-0.181128)*(m_btdc1[6] - m_btdc1[7]);
 
-      m_beamBC1X1 = -0.0462586;
-      m_beamBC1X2 = -0.175666;
-      m_beamBC1Y1 = -0.051923 ;
-      m_beamBC1Y2 = -0.176809;
+    m_beamBC1X1 = -0.0462586;
+    m_beamBC1X2 = -0.175666;
+    m_beamBC1Y1 = -0.051923 ;
+    m_beamBC1Y2 = -0.176809;
+    m_beamBC1Z  = 13000. + 2760 /* 2600. */;
+
+    m_beamBC2X1 = 0.25202;
+    m_beamBC2X2 = -0.18053;
+    m_beamBC2Y1 = 0.0431688;
+    m_beamBC2Y2 = -0.181128;
+    m_beamBC2Z  = 2760 /* 2600. */;
+
+// 2016 settings:
+//
+// https://pcata007.cern.ch/elog/TB2016/88
+//
+//
+// The calibration has been done with the following runs :
+// BC1:
+// Center : 610212
+// Left/up : 610210
+// Right/down : 610209
+// 
+// BC2:
+// Center : 610256
+// Left/up : 610321
+// Right/down : 610320
+// 
+// Here are the new constants :
+// 
+// BC1
+// horizontal slope = -0.171928
+// horizontal offset = -0.047624
+// 
+// vertical slope = -0.172942
+// vertical offset = -0.0958677
+// 
+// BC2
+// horizontal slope = -0.175698
+// horizontal offset = -1.04599
+// 
+// vertical slope = -0.174535
+// vertical offset = -3.10666
+
+    if (m_TBperiod == 2016) {
+
+      // June 2016 calibration
+      //m_beamBC1X1 = -0.047624;
+      //m_beamBC1X2 = -0.171928;
+      //m_beamBC1Y1 = -0.0958677;
+      //m_beamBC1Y2 = -0.172942;
+      //m_beamBC1Z  = 13000. + 2760 /* 2600. */;
+
+      //m_beamBC2X1 = -1.04599;
+      //m_beamBC2X2 = -0.175698;
+      //m_beamBC2Y1 = -3.10666;
+      //m_beamBC2Y2 = -0.174535;
+      //m_beamBC2Z  = 2760 /* 2600. */;
+
+      // September 2016 calibration, https://pcata007.cern.ch/elog/TB2016/300 (joakim.olsson@cern.ch)
+      m_beamBC1X1 = 0.100857923042;
+      m_beamBC1X2 = -0.172098;
+      m_beamBC1Y1 = -0.133045996607;
+      m_beamBC1Y2 = -0.172855178323;
       m_beamBC1Z  = 13000. + 2760 /* 2600. */;
 
-      m_beamBC2X1 = 0.25202;
-      m_beamBC2X2 = -0.18053;
-      m_beamBC2Y1 = 0.0431688;
-      m_beamBC2Y2 = -0.181128;
+      m_beamBC2X1 = 0.271555258578 ;
+      m_beamBC2X2 = -0.173463 ;
+      m_beamBC2Y1 = 0.305483228502;
+      m_beamBC2Y2 = -0.173805131744 ;
       m_beamBC2Z  = 2760 /* 2600. */;
+    }
   }
   
   if (m_unpackAdder) {
@@ -554,12 +629,12 @@ StatusCode TileTBAANtuple::execute() {
 
   if (m_evtNr < 0) {
 
-    bool calibMode  = (m_beamInfo->calibMode() == 1);
-    if ( calibMode != m_calibMode ) {
-      ATH_MSG_INFO( "Calib mode from data is " << calibMode );
-      ATH_MSG_INFO( "  Overwriting calib mode " );
-      m_calibMode = calibMode;
-    }
+    //bool calibMode  = (m_beamInfo->calibMode() == 1);
+    //if ( calibMode != m_calibMode ) {
+    //  ATH_MSG_INFO( "Calib mode from data is " << calibMode );
+    //  ATH_MSG_INFO( "  Overwriting calib mode " );
+    //  m_calibMode = calibMode;
+    //}
 
     if (ntuple_initialize().isFailure()) {
       ATH_MSG_ERROR( "ntuple_initialize failed" );
@@ -625,6 +700,20 @@ StatusCode TileTBAANtuple::execute() {
     m_evTime = 0;
     m_evt = m_evtNr;
     m_run = 0;
+  }
+
+
+  // new way to set run/event/lumi block
+  // Retrieve eventInfo from StoreGate
+  const xAOD::EventInfo* eventInfo(nullptr);
+  if (evtStore()->retrieve(eventInfo).isSuccess()){
+    //Get run and event numbers
+    m_run = eventInfo->runNumber();
+    m_evt = eventInfo->eventNumber();
+    //Get timestamp of the event
+    if (eventInfo->timeStamp() > 0) {
+      m_evTime = eventInfo->timeStamp();
+    }
   }
 
 
@@ -797,7 +886,8 @@ StatusCode TileTBAANtuple::storeBeamElements() {
 
         } else if ( dsize != 1              && frag != ADD_FADC_FRAG    &&
                     frag != BEAM_TDC_FRAG   && frag != COMMON_TDC1_FRAG &&
-                    frag != COMMON_TOF_FRAG && frag != COMMON_TDC2_FRAG ) {
+                    frag != COMMON_TOF_FRAG && frag != COMMON_TDC2_FRAG && 
+		    !(frag == ECAL_ADC_FRAG && cha == 15)) {
 
           WRONG_SAMPLE(frag,cha,dsize);
 
@@ -934,8 +1024,23 @@ StatusCode TileTBAANtuple::storeBeamElements() {
 
           case ECAL_ADC_FRAG:
 
-            if(cha < 8) m_ecal[cha] = amplitude;
-            else WRONG_CHANNEL(frag, cha);
+	    if (m_TBperiod > 2015) {
+
+	      if(cha < 15) {
+		m_qdc[cha] = amplitude;
+	      } else if (cha == 15) {
+		for (int idx = 0; idx < dsize && idx < 18; ++idx) {
+		  m_qdc[idx + 15] = digits[idx];
+		}
+	      } else {
+		WRONG_CHANNEL(frag, cha);
+	      }
+
+	    } else {
+	      if(cha < 8) m_ecal[cha] = amplitude;
+	      else WRONG_CHANNEL(frag, cha);
+	    }
+
             break;
 
           case DIGI_PAR_FRAG:
@@ -1346,7 +1451,11 @@ StatusCode TileTBAANtuple::storeRawChannels(std::string containerId
         }
 
         // cabling for testbeam (convert to pmt#-1)
-        if ((m_TBperiod < 2015 || fragType<3) && fragType > 0) channel = digiChannel2PMT(fragType, channel);
+        if ((m_TBperiod < 2015 || 
+             (m_TBperiod==2015 && fragType<3) ||
+             (m_TBperiod==2016 && (/* fragId != 0x100 && */(fragId&0xFF)<4 && fragId != 0x201)) ) 
+            && fragType > 0 && m_pmtOrder)
+          channel = digiChannel2PMT(fragType, channel);
 
         //	if  ( int((eneVec->at(index))->size()) < (channel+1) ) (eneVec->at(index))->resize(channel+1); //ugly
         (eneVec->at(index))[channel] = energy;
@@ -1557,7 +1666,12 @@ StatusCode TileTBAANtuple::storeDigits() {
             // determine channel
             channel = m_tileHWID->channel(hwid);
             // cabling for testbeam (convert to pmt#-1)
-            if ((m_TBperiod < 2015 || fragType<3) && fragType > 0) channel = digiChannel2PMT(fragType, channel);
+
+            if ((m_TBperiod < 2015 || 
+                 (m_TBperiod==2015 && fragType<3) ||
+                 (m_TBperiod==2016 && (/* fragId != 0x100 && */ (fragId&0xFF)<4 && fragId != 0x201)) ) 
+                && fragType > 0 && m_pmtOrder)
+              channel = digiChannel2PMT(fragType, channel);
 
             /*	    if  ( int((m_gainVec.at(type))->size()) < (channel+1) ) {
              (m_gainVec.at(type))->resize(channel+1); //ugly
@@ -1640,7 +1754,11 @@ StatusCode TileTBAANtuple::storeDigits() {
           // determine channel
           channel = m_tileHWID->channel(hwid);
           // cabling for testbeam
-          if ((m_TBperiod < 2015 || fragType<3) && fragType > 0) channel = digiChannel2PMT(fragType, channel);
+          if ((m_TBperiod < 2015 || 
+               (m_TBperiod==2015 && fragType<3) ||
+               (m_TBperiod==2016 && (/* fragId != 0x100 && */ (fragId&0xFF)<4 && fragId != 0x201)) ) 
+              && fragType > 0 && m_pmtOrder)
+            channel = digiChannel2PMT(fragType, channel);
 
           // gain
           /*if ( int((m_gainVec.at(type))->size()) < (channel+1) ) {
@@ -1691,6 +1809,7 @@ StatusCode TileTBAANtuple::ntuple_clear() {
 
   if (m_beamIdList[ECAL_ADC_FRAG]) {
     ECAL_clearBranch();
+    if (m_TBperiod > 2015) QDC_clearBranch();
   }
 
   LASER_clearBranch();
@@ -1793,6 +1912,7 @@ StatusCode TileTBAANtuple::initNTuple(void) {
 
   TRIGGER_addBranch();
   MUON_addBranch();
+
   if (m_TBperiod < 2015) {
     ECAL_addBranch();
     LASER_addBranch();
@@ -1800,6 +1920,11 @@ StatusCode TileTBAANtuple::initNTuple(void) {
     ENETOTAL_addBranch();
     COINCBOARD_addBranch();
   }
+
+  if (m_TBperiod > 2015) {
+    QDC_addBranch();
+  }
+
   CISPAR_addBranch();
   BEAM_addBranch();
   DIGI_addBranch(); //working now
@@ -2127,8 +2252,10 @@ void TileTBAANtuple::MUON_addBranch(void)
       if (m_TBperiod < 2015) {
         m_ntuplePtr->Branch("MuBack",m_muBack,"m_muBack[14]");
         m_ntuplePtr->Branch("MuCalib",m_muCalib,"m_muCalib[2]");
-      } else {
+      } else if (m_TBperiod == 2015) {
         m_ntuplePtr->Branch("MuBack",m_muBack,"MuBack[8]/F");
+      } else {
+        m_ntuplePtr->Branch("MuBack",m_muBack,"MuBack[12]/F");
       }
     }
 
@@ -2150,6 +2277,23 @@ void TileTBAANtuple::ECAL_addBranch(void)
   }
 
 }
+
+/**
+//////////////////////////////////////////////////////////////////////////////
+///Add QDC variables to the Tree
+//
+//////////////////////////////////////////////////////////////////////////////
+*/
+void TileTBAANtuple::QDC_addBranch(void)
+{
+
+  if (m_beamIdList[ECAL_ADC_FRAG]) {
+    m_qdc = new  uint32_t[33];
+    m_ntuplePtr->Branch("qdc", m_qdc, "qdc[33]/i");
+  }
+
+}
+
 
 /**
 //////////////////////////////////////////////////////////////////////////////
@@ -2206,6 +2350,18 @@ void TileTBAANtuple::ECAL_clearBranch(void)
 {
 
 }
+
+/**
+//////////////////////////////////////////////////////////////////////////////
+//Clear Tree QDC variables
+//
+//////////////////////////////////////////////////////////////////////////////
+*/
+void TileTBAANtuple::QDC_clearBranch(void)
+{
+
+}
+
 
 /**
 //////////////////////////////////////////////////////////////////////////////
@@ -2418,13 +2574,23 @@ void TileTBAANtuple::BEAM_addBranch(void) {
 
     m_ntuplePtr->Branch("S1cou", &m_s1cou, "S1cou/S");
     m_ntuplePtr->Branch("S2cou", &m_s2cou, "S2cou/S");
-    m_ntuplePtr->Branch("S3cou", &m_s3cou, "S3cou/S");
+    if (m_TBperiod >= 2016) {
+      m_ntuplePtr->Branch("Cher3", &m_s3cou, "Cher3/S"); // dropped S3 in favor of Cher3 in September 2016 TB
+    } else {
+      m_ntuplePtr->Branch("S3cou", &m_s3cou, "S3cou/S");
+    }
     m_ntuplePtr->Branch("Cher1", &m_cher1, "Cher1/S");
     m_ntuplePtr->Branch("Cher2", &m_cher2, "Cher2/S");
     if (m_TBperiod < 2015) {
       m_ntuplePtr->Branch("MuTag", &m_muTag, "MuTag/S");
       m_ntuplePtr->Branch("MuHalo", &m_muHalo, "MuHalo/S");
       m_ntuplePtr->Branch("MuVeto", &m_muVeto, "MuVeto/S");
+    //} else if (m_TBperiod == 2015) {
+      // nothing
+    } else if (m_TBperiod >= 2016) {
+      m_ntuplePtr->Branch("SCalo1", &m_muTag, "SCalo1/S");
+      m_ntuplePtr->Branch("SCalo2", &m_muHalo, "SCalo2/S");
+      //m_ntuplePtr->Branch("SCalo3", &m_muVeto, "SCalo3/S");
     }
   }
 
@@ -2727,7 +2893,10 @@ void TileTBAANtuple::DIGI_addBranch(void)
         unsigned int ros = m_drawerType[i];
         unsigned int drawer = strtol(m_drawerList[i].data(), NULL, 0) & 0x3F;
         std::string digits;
-        if (testbeam) {
+        if (m_TBperiod >= 2010) {
+          ++drawer; // count modules from 1
+          digits = digit[drawer / 10] + digit[drawer % 10];
+        } else if (testbeam) {
           digits = digit[drawer & 7];
         } else {
           ++drawer; // count modules from 1
@@ -2753,7 +2922,10 @@ void TileTBAANtuple::DIGI_addBranch(void)
         unsigned int ros = m_drawerType[i];
         unsigned int drawer = strtol(m_drawerList[i].data(), NULL, 0) & 0x3F;
         std::string digits;
-        if (testbeam) {
+        if (m_TBperiod >= 2010) {
+          ++drawer; // count modules from 1
+          digits = digit[drawer / 10] + digit[drawer % 10];
+        } else if (testbeam) {
           digits = digit[drawer & 7];
         } else {
           ++drawer; // count modules from 1

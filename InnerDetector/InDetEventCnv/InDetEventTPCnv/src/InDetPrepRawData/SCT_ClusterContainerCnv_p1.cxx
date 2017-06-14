@@ -25,7 +25,7 @@
 
 
 
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 void InDet::SCT_ClusterContainerCnv_p1::transToPers(const InDet::SCT_ClusterContainer* transCont,  InDet::InDetPRD_Container_p1* persCont, MsgStream &log) 
 {

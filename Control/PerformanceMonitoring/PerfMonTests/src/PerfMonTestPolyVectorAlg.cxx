@@ -4,7 +4,7 @@
 
 #include <map>
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include "Hit.h"
 #include "PerfMonTestPolyVectorAlg.h"

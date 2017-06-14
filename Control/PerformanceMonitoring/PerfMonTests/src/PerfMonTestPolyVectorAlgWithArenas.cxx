@@ -3,8 +3,8 @@
 */
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "DataModel/DataVector.h"
-#include "DataModel/DataPool.h"    /* NEW */
+#include "AthContainers/DataVector.h"
+#include "AthAllocators/DataPool.h"    /* NEW */
 
 #include "Hit.h"
 #include "PerfMonTestPolyVectorAlgWithArenas.h"

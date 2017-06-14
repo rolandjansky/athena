@@ -38,7 +38,7 @@ class MuonCalibEvent_E;
 
 /** @class NtupleSplitterTool
 Scans a run and checks for present chambers and number of hits
-@author rauscher@cern
+@author rauscher@cern.ch
 */
 
 class NtupleSplitterTool: public AthAlgTool, virtual public NtupleCalibrationTool {

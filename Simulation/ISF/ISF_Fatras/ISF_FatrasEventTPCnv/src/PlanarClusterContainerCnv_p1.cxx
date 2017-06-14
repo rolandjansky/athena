@@ -12,7 +12,7 @@
 #include "InDetIdentifier/PixelID.h"
 #include "ISF_FatrasEventTPCnv/ISF_FatrasEvent/PlanarClusterCnv_p1.h"
 #include "ISF_FatrasEventTPCnv/PlanarClusterContainerCnv_p1.h"
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"

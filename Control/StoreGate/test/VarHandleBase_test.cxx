@@ -48,6 +48,7 @@ public:
   using SG::VarHandleBase::get_impl;
   using SG::VarHandleBase::record_impl;
   using SG::VarHandleBase::put_impl;
+  using SG::VarHandleBase::symLink_impl;
   using SG::VarHandleBase::m_store;
   using SG::VarHandleBase::m_proxy;
   using SG::VarHandleBase::m_ptr;
@@ -223,6 +224,18 @@ void test2()
   // h2, h3 went away
   assert (proxy->refCount() == 1);
   assert ((testStore.m_boundHandles == std::vector<IResetable*>{&h1}));
+
+  {
+    SG::VarHandleKey k11 (293847295, "foo", Gaudi::DataHandle::Writer);
+    k11.initialize().ignore();
+    TestHandle h11 (k11, nullptr);
+    assert (proxy->refCount() == 1);
+    assert ((testStore.m_boundHandles == std::vector<IResetable*>{&h1}));
+
+    TestHandle h12 (h11);
+    assert (proxy->refCount() == 1);
+    assert ((testStore.m_boundHandles == std::vector<IResetable*>{&h1}));
+  }
 
   // Test a !resetOnly proxy.
   auto obj5 = std::make_unique<MyObj>();
@@ -626,6 +639,7 @@ void test10()
                        true, false, store) == nullptr);
 }
 
+
 // get_impl
 void test11()
 {
@@ -666,6 +680,35 @@ void test11()
 }
 
 
+// symLink_impl
+void test12()
+{
+  std::cout << "test12\n";
+
+  SGTest::TestStore testStore;
+  TestHandle h1 (293847295, "foo", Gaudi::DataHandle::Writer, "FooSvc");
+  assert (h1.symLink_impl (293847295, "bar").isFailure()); 
+  assert (h1.setProxyDict (&testStore).isSuccess());
+  assert (h1.symLink_impl (293847295, "bar").isFailure()); 
+
+  auto obj = std::make_unique<MyObj>();
+  MyObj* objptr = obj.get();
+  assert (h1.record_impl (std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
+                          objptr,
+                          true, false).isSuccess());
+  SG::DataProxy* prox = testStore.proxy (293847295, "foo");
+  assert (prox != nullptr);
+
+  assert (h1.symLink_impl (293847295, "bar").isSuccess());
+  assert (testStore.proxy (293847295, "bar") == prox);
+
+  assert (h1.symLink_impl (293847294, "foo").isSuccess());
+  assert (testStore.proxy (293847294, "foo") == prox);
+
+  assert (h1.symLink_impl (293847294, "bar").isFailure());
+}
+
+
 int main()
 {
   errorcheck::ReportMessage::hideErrorLocus();
@@ -683,6 +726,7 @@ int main()
   test9();
   test10();
   test11();
+  test12();
   return 0;
 }
 

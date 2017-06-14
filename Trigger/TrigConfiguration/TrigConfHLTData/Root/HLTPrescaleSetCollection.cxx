@@ -7,6 +7,7 @@
 
 #include <iomanip>
 #include <stdexcept>
+#include <iostream>
 
 using namespace std;
 using namespace TrigConf;
@@ -37,7 +38,7 @@ HLTPrescaleSetCollection::operator=(const HLTPrescaleSetCollection &) {
 
 void
 HLTPrescaleSetCollection::clear() {
-   boost::recursive_mutex::scoped_lock lock(m_prescaleSetCollection_mutex);
+   lock_guard<recursive_mutex> lock(m_prescaleSetCollection_mutex);
    for(const cont& psinfo : m_prescaleSets)
       delete psinfo.pss;
    m_prescaleSets.clear();
@@ -59,7 +60,7 @@ TrigConf::HLTPrescaleSetCollection::thePrescaleSet(unsigned int lumiblock) const
       return m_currentPSS;
    }
   
-   boost::recursive_mutex::scoped_lock lock(m_prescaleSetCollection_mutex);
+   lock_guard<recursive_mutex> lock(m_prescaleSetCollection_mutex);
 
    m_currentLB = lumiblock;
    m_currentPSS = nullptr;
@@ -94,7 +95,7 @@ TrigConf::HLTPrescaleSetCollection::setPrescaleSet( HLTPrescaleSet* pss ) {
     * Everybody accessing m_prescaleSetCollection needs to obtain this mutex
     * before accessing this list.
     */
-   boost::recursive_mutex::scoped_lock lock(m_prescaleSetCollection_mutex);
+   lock_guard<recursive_mutex> lock(m_prescaleSetCollection_mutex);
    clear();
    m_prescaleSets.insert(m_prescaleSets.begin(), cont(0, pss->id(), pss));
    m_currentLB = 0;
@@ -120,7 +121,7 @@ TrigConf::HLTPrescaleSetCollection::addPrescaleSet( const cont& add_psinfo ) {
        * Everybody accessing m_prescaleSetCollection needs to obtain this mutex
        * before accessing this list.
        */
-      boost::recursive_mutex::scoped_lock lock(m_prescaleSetCollection_mutex);
+      lock_guard<recursive_mutex> lock(m_prescaleSetCollection_mutex);
       if( (psinfo_it != m_prescaleSets.end()) && (psinfo_it->lb == add_psinfo.lb) ) {
          delete psinfo_it->pss;
          psinfo_it->pss = add_psinfo.pss;
@@ -178,7 +179,7 @@ HLTPrescaleSetCollection::setCurrentToFirstIfUnset() {
 
 bool
 TrigConf::HLTPrescaleSetCollection::contains(unsigned int lumiblock, unsigned int psk) {
-   boost::recursive_mutex::scoped_lock lock(m_prescaleSetCollection_mutex);
+   lock_guard<recursive_mutex> lock(m_prescaleSetCollection_mutex);
    for(const cont& psinfo: m_prescaleSets)
       if( psinfo.lb==lumiblock && psinfo.psk==psk ) return true;
    return false;
@@ -187,7 +188,7 @@ TrigConf::HLTPrescaleSetCollection::contains(unsigned int lumiblock, unsigned in
 
 void
 TrigConf::HLTPrescaleSetCollection::print(const std::string& indent, unsigned int detail) const {
-   boost::recursive_mutex::scoped_lock lock(m_prescaleSetCollection_mutex);
+   lock_guard<recursive_mutex> lock(m_prescaleSetCollection_mutex);
    if(detail>=1) {
       unsigned int count_loaded(0);
       for(const cont& psinfo : m_prescaleSets)
@@ -198,7 +199,7 @@ TrigConf::HLTPrescaleSetCollection::print(const std::string& indent, unsigned in
          cout << indent << "       LB      PSK       Loaded     Name" << endl;
          for(const cont& psinfo : m_prescaleSets)
             cout << indent << setw(9) << right << psinfo.lb << setw(9) << right << psinfo.psk << "          " << (psinfo.pss!=0?"yes":" no")
-                 << "     " << (psinfo.pss!=0?psinfo.pss->name():"") << endl;
+		 << "     " << (psinfo.pss!=0?psinfo.pss->name():"") << endl;
       }
       if(detail>=2) {
          for(const cont& psinfo : m_prescaleSets)
@@ -210,7 +211,7 @@ TrigConf::HLTPrescaleSetCollection::print(const std::string& indent, unsigned in
 
 std::ostream&
 TrigConf::operator<<(std::ostream & o, const TrigConf::HLTPrescaleSetCollection & c) {
-   boost::recursive_mutex::scoped_lock lock(c.m_prescaleSetCollection_mutex);
+   lock_guard<recursive_mutex> lock(c.m_prescaleSetCollection_mutex);
    o << "HLTPrescaleSetCollection has " << c.size() << " prescale sets" << endl;
    if(c.size()>0) {
       o << "       LB   Prescale set key   Loaded   Prescale set" << endl;

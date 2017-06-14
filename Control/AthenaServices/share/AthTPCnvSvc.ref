@@ -49,7 +49,7 @@ Py:Configurable     ERROR attempt to add a duplicate (AthMasterSeq.AthAlgEvtSeq)
 Py:Configurable     ERROR attempt to add a duplicate (AthMasterSeq.AthOutSeq) ... dupe ignored
 Py:Configurable     ERROR attempt to add a duplicate (AthMasterSeq.AthRegSeq) ... dupe ignored
 StatusCodeSvc        INFO reinitialize
-ClassIDSvc           INFO RE-initializing ClassIDSvc - package version CLIDComps-00-00-00
+ClassIDSvc           INFO RE-initializing ClassIDSvc
 HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Started successfully
 AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===

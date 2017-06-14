@@ -29,6 +29,7 @@ class MyObj
 public:
   MyObj(int x=0) : x(x) {}
   int x;
+  typedef std::true_type thread_safe;
 };
 CLASS_DEF (MyObj, 293847295, 1)
 static const CLID MyCLID = 293847295;

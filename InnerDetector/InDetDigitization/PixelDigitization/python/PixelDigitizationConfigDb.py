@@ -3,6 +3,7 @@
 from AthenaCommon.CfgGetter import addTool,addService,addAlgorithm
 
 addTool("PixelDigitization.PixelDigitizationConfig.PixelDigitizationTool", "PixelDigitizationTool")
+addTool("PixelDigitization.PixelDigitizationConfig.PixelGeantinoTruthDigitizationTool", "PixelGeantinoTruthDigitizationTool")
 addTool("PixelDigitization.PixelDigitizationConfig.PixelDigitizationToolHS", "PixelDigitizationToolHS")
 addTool("PixelDigitization.PixelDigitizationConfig.PixelDigitizationToolPU", "PixelDigitizationToolPU")
 addTool("PixelDigitization.PixelDigitizationConfig.PixelDigitizationToolSplitNoMergePU", "PixelDigitizationToolSplitNoMergePU")
@@ -21,9 +22,9 @@ addTool("PixelDigitization.PixelDigitizationConfig.PixelPlanarChargeTool","Pixel
 addTool("PixelDigitization.PixelDigitizationConfig.Pixel3DChargeTool","Pixel3DChargeTool")
 addTool("PixelDigitization.PixelDigitizationConfig.SubChargesTool","SubChargesTool")
 addTool("PixelDigitization.PixelDigitizationConfig.FrontEndSimTool","FrontEndSimTool")
+addTool("PixelDigitization.PixelDigitizationConfig.RD53SimTool","RD53SimTool")
 addTool("PixelDigitization.PixelDigitizationConfig.FEI4SimTool","FEI4SimTool")
 addTool("PixelDigitization.PixelDigitizationConfig.FEI3SimTool","FEI3SimTool")
-addService("PixelDigitization.PixelDigitizationConfig.TimeSvc","TimeSvc")
 addTool("PixelDigitization.PixelDigitizationConfig.PixelOverlayDigitizationTool", "PixelOverlayDigitizationTool")
 addAlgorithm("PixelDigitization.PixelDigitizationConfig.PixelOverlayDigitization", "PixelOverlayDigitization")
 addTool("PixelDigitization.PixelDigitizationConfig.BichselSimTool", "BichselSimTool")

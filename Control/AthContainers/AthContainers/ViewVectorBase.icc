@@ -45,7 +45,7 @@ SG::AuxVectorData* getContainer (T* p)
 }
 
 
-} // anonyous namespace
+} // anonymous namespace
 
 
 namespace SG {

@@ -107,6 +107,7 @@ public:
   { return nullptr; }
 
   std::vector<SG::TransientAddress> tads;
+  std::vector<std::unique_ptr<SG::DataProxy> > proxies;
 };
 
 
@@ -114,7 +115,7 @@ StatusCode
 TestProxyRegistry::addToStore (const CLID& /*id*/, SG::DataProxy* proxy)
 {
   tads.emplace_back (*proxy->transientAddress());
-  delete proxy;
+  proxies.push_back (std::unique_ptr<SG::DataProxy> (proxy));
   return StatusCode::SUCCESS;
 }
 

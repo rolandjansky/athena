@@ -70,7 +70,7 @@ private:
 
   L1CaloCondSvc *m_condSvc;
   const CaloLVL1_ID *m_lvl1Helper;
-  const CaloIdManager *caloMgr;
+  const CaloIdManager *m_caloMgr;
   const LArOnlineID *m_LArOnlineHelper;
 
   CaloTriggerTowerService* m_ttService;

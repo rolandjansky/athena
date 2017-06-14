@@ -25,7 +25,7 @@
 
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 StatusCode Muon::RpcPrepDataContainerCnv_p1::initialize(MsgStream &log) {
    // Do not initialize again:

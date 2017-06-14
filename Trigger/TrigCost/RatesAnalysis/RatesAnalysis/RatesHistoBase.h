@@ -27,7 +27,7 @@ enum ExtrapStrat_t{
   kLINEAR, //!< Scale trigger linearly with luminosity
   kEXPO_MU, //!< Scale trigger linearly in bunches and exponentially in mu. Exponential modifier factor is to be provided.
   kBUNCH_SCALING, //!< Scale trigger linearly but only in the number of bunches
-  kMU_SCALING, //!< Scale trigger linearly but only in the change in <mu>
+  kMU_SCALING, //!< Scale trigger linearly but only in the change in \<mu\>
   kNONE //!< Do not scale this trigger for changes in luminosity
 };
 

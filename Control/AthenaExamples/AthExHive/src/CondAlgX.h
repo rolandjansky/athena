@@ -24,6 +24,8 @@ public:
   CondAlgX (const std::string& name, ISvcLocator* pSvcLocator);
   ~CondAlgX();
   
+  bool isClonable() const override { return true; }
+
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();

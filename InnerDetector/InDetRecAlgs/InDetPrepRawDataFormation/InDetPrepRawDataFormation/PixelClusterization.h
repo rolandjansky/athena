@@ -88,6 +88,7 @@ private:
   bool m_roiSeeded; 		                   //!< detector manager name in StoreGate
   const PixelID* m_idHelper;
   SG::WriteHandleKey<PixelClusterContainer> m_clusterContainerKey;
+  SG::WriteHandleKey<SiClusterContainer> m_clusterContainerLinkKey;
   SG::WriteHandleKey<PixelGangedClusterAmbiguities> m_ambiguitiesMapKey;
   const SiDetectorManager* m_manager;
 };

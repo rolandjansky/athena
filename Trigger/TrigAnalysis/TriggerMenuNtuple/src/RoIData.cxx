@@ -38,23 +38,23 @@ bool isAssociated(const std::string& chain_name,
 }
 
 RoIData::RoIData(int /*create*/) {
-  mAssociatedChains.clear();
-  mPassedChains.clear();
+  m_associatedChains.clear();
+  m_passedChains.clear();
 
 //   if (create != 0) {
-//     mAssociatedChains = new std::vector<std::string>();
-//     mPassedChains = new std::vector<std::string>();
+//     m_associatedChains = new std::vector<std::string>();
+//     m_passedChains = new std::vector<std::string>();
 //   }
 }
 
 RoIData::~RoIData() {
-//   if (mAssociatedChains) {
-//     delete mAssociatedChains;
-//     mAssociatedChains = 0;
+//   if (m_associatedChains) {
+//     delete m_associatedChains;
+//     m_associatedChains = 0;
 //   }
-//   if (mPassedChains) {
-//     delete mPassedChains;
-//     mPassedChains = 0;
+//   if (m_passedChains) {
+//     delete m_passedChains;
+//     m_passedChains = 0;
 //   }
 }
 
@@ -85,8 +85,8 @@ float RoIData::efphi() const {
 }
 
 bool RoIData::isAssociated(const std::string& cname) const {
-  if (find(mAssociatedChains.begin(), 
-	   mAssociatedChains.end(), cname) == mAssociatedChains.end()) {
+  if (find(m_associatedChains.begin(), 
+	   m_associatedChains.end(), cname) == m_associatedChains.end()) {
     return false;
   } else {
     return true;
@@ -94,8 +94,8 @@ bool RoIData::isAssociated(const std::string& cname) const {
 }
 
 bool RoIData::isPassed(const std::string& cname) const {
-  if (find(mPassedChains.begin(), 
-	   mPassedChains.end(), cname) == mPassedChains.end()) {
+  if (find(m_passedChains.begin(), 
+	   m_passedChains.end(), cname) == m_passedChains.end()) {
     return false;
   } else {
     return true;
@@ -130,16 +130,16 @@ bool RoIData::isAssociated(const std::string& chain_name,
 
 
 
-std::string RoIData::sChainName="";
+std::string RoIData::s_chainName="";
 
 void RoIData::setChainToCheck(const string str){
-  sChainName = str;
+  s_chainName = str;
 }
 
 string RoIData::getChainToCheck(){
-  return sChainName;
+  return s_chainName;
 }
 
 bool RoIData::isPassed() const{
-  return isPassed(sChainName);
+  return isPassed(s_chainName);
 }

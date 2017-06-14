@@ -15,7 +15,7 @@
        CONV = TP converter between T and P
 */
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 

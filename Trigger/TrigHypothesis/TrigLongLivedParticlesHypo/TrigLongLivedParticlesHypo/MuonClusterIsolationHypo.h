@@ -64,11 +64,11 @@ class MuonClusterIsolationHypo: public HLT::HypoAlgo {
 
 
   /** Numbers of Roi in cluster */
-  int mCluNum;
+  int m_CluNum;
   /** Number of Jet with Log(h/e)<0.5 **/
-  int mNumJet;
+  int m_NumJet;
   /** Cut on Tracks */
-  int mNumTrk;
+  int m_NumTrk;
 
 
     // Other members:   

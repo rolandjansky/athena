@@ -13,7 +13,7 @@
 
 
 LumiBlockCollection_PERS* LumiBlockCollectionCnv::createPersistent(LumiBlockCollection* transCont) {
-  MsgStream log(messageService(), "LumiBlockCollectionConverter" );
+  MsgStream log(msgSvc(), "LumiBlockCollectionConverter" );
   LumiBlockCollection_PERS * persObj = m_TPConverter.createPersistent( transCont,   log );
 
   log << MSG::DEBUG << "Success" << endmsg;
@@ -21,7 +21,7 @@ LumiBlockCollection_PERS* LumiBlockCollectionCnv::createPersistent(LumiBlockColl
 }
     
 LumiBlockCollection* LumiBlockCollectionCnv::createTransient() {
-  MsgStream log(messageService(), "LumiBlockCollectionConverter" );
+  MsgStream log(msgSvc(), "LumiBlockCollectionConverter" );
   static pool::Guid   p1_guid("CF1F40C9-6125-4C35-87FF-DDA2C319000C");
   static pool::Guid   p2_guid("DEF9282A-F174-4382-8248-B94567CD869F");
 

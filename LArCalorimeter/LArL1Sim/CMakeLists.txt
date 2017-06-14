@@ -26,7 +26,6 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArIdentifier
                           LArCalorimeter/LArRawEvent
                           LArCalorimeter/LArSimEvent
-                          Simulation/Tools/AtlasCLHEP_RandomGenerators
                           Tools/PathResolver )
 
 # External dependencies:
@@ -38,7 +37,7 @@ atlas_add_component( LArL1Sim
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} AthAllocators AthenaBaseComps GaudiKernel LArDigitizationLib CaloDetDescrLib CaloEvent CaloIdentifier CaloTriggerToolLib AthenaKernel PileUpToolsLib StoreGateLib SGtests EventInfo LArCablingLib LArIdentifier LArRawEvent LArSimEvent AtlasCLHEP_RandomGenerators PathResolver )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} AthAllocators AthenaBaseComps GaudiKernel LArDigitizationLib CaloDetDescrLib CaloEvent CaloIdentifier CaloTriggerToolLib AthenaKernel PileUpToolsLib StoreGateLib SGtests EventInfo LArCablingLib LArIdentifier LArRawEvent LArSimEvent PathResolver )
 
 # Install files from the package:
 atlas_install_headers( LArL1Sim )

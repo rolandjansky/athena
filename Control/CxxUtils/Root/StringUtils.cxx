@@ -30,7 +30,7 @@ namespace CxxUtils {
        entities) in any string. for well-behaved strings, this will be
        identical to std::string::size(). however,
          - non-printable-characters will not be counted
-	 - control sequences will not be counted
+	     - control sequences will not be counted
          - multi-byte characters will only be counted once
      */
     size_t getStringWidth(const std::string& str){

@@ -2,7 +2,6 @@
 
 ##
 ## @file InDetTrigRecExample/python/InDetTrigSliceSettings.py
-## @purpose 
 ##
 ##
 
@@ -10,7 +9,6 @@
 """
 
 __author__ = "Jiri Masik"
-__version__= "$Revision: 1.6 $"
 __doc__    = "InDetTrigSliceSettings"
 __all__    = [ "InDetTrigSliceSettings" ]
 
@@ -20,6 +18,9 @@ class InDetTrigSliceSettingsDB:
   their default settings. The settings may be overriden by user if the
   InDetTrigSliceSettings is instantiated early in the jO (before
   other InDetTrigRecExample files are included)
+  for example a preExec line
+  from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings; InDetTrigSliceSettings[('pTmin','bjetVtx')] = 2000.
+  allows testing the bjetVtx instance with as different reconstruction threshold 
   """
   def __init__(self):
     from AthenaCommon.SystemOfUnits import GeV
@@ -34,7 +35,8 @@ class InDetTrigSliceSettingsDB:
                'tauCore', 'tauIso',
                'beamSpot', 'cosmics',
                'bjetVtx',
-               'FTK', 'FTKRefit'
+               'FTK', 'FTKRefit',
+               'bphysHighPt'
                ]
 
     self.db = {}
@@ -73,6 +75,8 @@ class InDetTrigSliceSettingsDB:
     ptmin['hadCalib'] = 0.5 * GeV
     ptmin['fullScan500'] = 0.5 * GeV
     ptmin['minBias400'] = 0.39 * GeV
+    ptmin['bphysHighPt'] = 2. * GeV
+    ptmin['bjetVtx'] = 5. * GeV
 
     self.db['pTmin']=ptmin
 
@@ -81,6 +85,7 @@ class InDetTrigSliceSettingsDB:
       d0seedppsmax[i] = 1.7
       d0trackinitialmax[i] = 20.0
     d0seedmax['bphysics'] = 10.0
+    d0seedmax['bphysHighPt'] = 10.0
     d0seedmax['muon'] = 10.0
     d0seedmax['muonCore'] = 10.0
 
@@ -110,6 +115,7 @@ class InDetTrigSliceSettingsDB:
     dospphifiltering['muon'] = False
     dospphifiltering['muonCore'] = False
     dospphifiltering['bphysics'] = False
+    dospphifiltering['bphysHighPt'] = False
     self.db['doSpPhiFiltering'] = dospphifiltering
 
     for i in _slices:
@@ -147,6 +153,7 @@ class InDetTrigSliceSettingsDB:
       'tau'       : 0.4,
       'bjet'      : 0.2,
       'bphysics'  : 0.75,
+      'bphysHighPt'  : 0.75,
       'hadCalib'  : 0.4,
       'fullScan'  : 3.0,
       'fullScan500': 3.0,
@@ -176,6 +183,7 @@ class InDetTrigSliceSettingsDB:
       'tau'       : 0.4,
       'bjet'      : 0.201,
       'bphysics'  : 0.75,
+      'bphysHighPt'  : 0.75,
       'hadCalib'  : 0.4,
       'fullScan'  : 3.14159,
       'fullScan500' : 3.14159,

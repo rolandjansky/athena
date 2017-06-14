@@ -1,10 +1,8 @@
-// Dear emacs, this is -*- c++ -*-
-
+// -*- c++ -*-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: InDetTrackSmearingTool.h 300810 2014-06-06 12:28:18Z krasznaa $
 #pragma once
 
 // Framework include(s):

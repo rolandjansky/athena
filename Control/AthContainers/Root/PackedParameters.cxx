@@ -211,7 +211,7 @@ bool PackedParameters::isValidOption (const AuxDataOption& option)
 
 /**
  * @brief Set a packing option.
- * @parameter option The option to set.
+ * @param option The option to set.
  *
  * Recognized options are `nbits', `nmantissa', `scale', `signed',
  * `rounding', and `float'.  See the setter functions above for details

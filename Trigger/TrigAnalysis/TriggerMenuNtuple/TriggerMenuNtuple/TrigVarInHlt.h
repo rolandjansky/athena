@@ -4,8 +4,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TrigVarInHlt_h__
-#define __TrigVarInHlt_h__
+#ifndef TRIGGERMENUNTUPLE_TRIGVARINHLT_H
+#define TRIGGERMENUNTUPLE_TRIGVARINHLT_H
 /*
   TrigVarInHlt.h
 */
@@ -76,8 +76,8 @@ public:
 	       float rescale1=1.0, float rescale2=1.0);
 
 protected:
-  std::string mChainName;
-  bool mActiveOnly;
+  std::string m_chainName;
+  bool m_activeOnly;
 };
 
 
@@ -90,15 +90,15 @@ void TrigVarInHlt::fillVar(std::vector<T>& Vars,
   Vars.clear();
   std::vector<ChainEntry>::const_iterator pChain;
   for (pChain=chains.begin(); pChain!=chains.end(); ++pChain) {
-    if( pChain->getName()==mChainName ) {
+    if( pChain->getName()==m_chainName ) {
       std::vector<CombLinks> Combs = roi.getCombLinks(*pChain);
       std::vector<CombLinks>::const_iterator pComb;
       for(pComb=Combs.begin(); pComb!=Combs.end(); ++pComb) {
 	const FeatureIndex* fIndex = pComb->index(feature);
 	const std::vector<FeatureIndex>* fIndexVec = pComb->indexVec(feature);
 	if (fIndex){// Case 1: featureContainer is not a vector
-	  if ( !mActiveOnly ||
-	       ( mActiveOnly && fIndex->getStatus()) ){
+	  if ( !m_activeOnly ||
+	       ( m_activeOnly && fIndex->getStatus()) ){
 	    int i = fIndex->getIndex();
 	    int n = var->size();
 	    if( i>=0 && i<n ) {
@@ -110,8 +110,8 @@ void TrigVarInHlt::fillVar(std::vector<T>& Vars,
 	  }// Active ?
 	} else if(fIndexVec) {//case 2: featureContainer is a vector
 	  const FeatureIndex* Index = &((*fIndexVec)[0]);// Need to chanege(to select matched one)
-	  if ( !mActiveOnly ||
-	       ( mActiveOnly && Index->getStatus()) ){
+	  if ( !m_activeOnly ||
+	       ( m_activeOnly && Index->getStatus()) ){
 	    int i = Index->getIndex();
 	    int n = var->size();
 	    if( i>=0 && i<n ) {
@@ -139,15 +139,15 @@ void TrigVarInHlt::fillVar(std::vector<T>& Vars,
   Vars.clear();
   std::vector<ChainEntry>::const_iterator pChain;
   for (pChain=chains.begin(); pChain!=chains.end(); ++pChain) {
-    if( pChain->getName()==mChainName ) {
+    if( pChain->getName()==m_chainName ) {
       std::vector<CombLinks> Combs = roi.getCombLinks(*pChain);
       std::vector<CombLinks>::const_iterator pComb;
       for(pComb=Combs.begin(); pComb!=Combs.end(); ++pComb) {
 	const FeatureIndex* fIndex = pComb->index(feature);
 	const std::vector<FeatureIndex>* fIndexVec = pComb->indexVec(feature);
 	if (fIndex){// Case 1: featureContainer is not a vector
-	  if ( !mActiveOnly ||
-	       ( mActiveOnly && fIndex->getStatus()) ){
+	  if ( !m_activeOnly ||
+	       ( m_activeOnly && fIndex->getStatus()) ){
 	    int i = fIndex->getIndex();
 	    int n = size;
 	    if( i>=0 && i<n ) {
@@ -159,8 +159,8 @@ void TrigVarInHlt::fillVar(std::vector<T>& Vars,
 	  }// Active ?
 	} else if(fIndexVec) {//case 2: featureContainer is a vector
 	  const FeatureIndex* Index = &((*fIndexVec)[0]);// Need to chanege(to select matched one)
-	  if ( !mActiveOnly ||
-	       ( mActiveOnly && Index->getStatus()) ){
+	  if ( !m_activeOnly ||
+	       ( m_activeOnly && Index->getStatus()) ){
 	    int i = Index->getIndex();
 	    int n = size;
 	    if( i>=0 && i<n ) {
@@ -189,7 +189,7 @@ void TrigVarInHlt::fillVarPair(std::multimap<T, U>& varPair,
    varPair.clear();
    std::vector<ChainEntry>::const_iterator pChain;
    for (pChain=chains.begin(); pChain!=chains.end(); ++pChain) {
-     if( pChain->getName()==mChainName ) {
+     if( pChain->getName()==m_chainName ) {
        std::vector<CombLinks> Combs = roi.getCombLinks(*pChain);
        std::vector<CombLinks>::const_iterator pComb;
        for(pComb=Combs.begin(); pComb!=Combs.end(); ++pComb) {
@@ -254,7 +254,7 @@ void TrigVarInHlt::fillVarPair(std::multimap<T, U>& varPair,
   varPair.clear();
   std::vector<ChainEntry>::const_iterator pChain;
   for (pChain=chains.begin(); pChain!=chains.end(); ++pChain) {
-     if( pChain->getName()==mChainName ) {
+     if( pChain->getName()==m_chainName ) {
        std::vector<CombLinks> Combs = roi.getCombLinks(*pChain);
        std::vector<CombLinks>::const_iterator pComb;
        for(pComb=Combs.begin(); pComb!=Combs.end(); ++pComb) {
@@ -348,4 +348,4 @@ void TrigVarInHlt::fillTH2abs(TH2* hist, std::multimap<T, U>& varPair,
 }
 
 
-#endif // __TrigVarInHlt_h__
+#endif // TRIGGERMENUNTUPLE_TRIGVARINHLT_H

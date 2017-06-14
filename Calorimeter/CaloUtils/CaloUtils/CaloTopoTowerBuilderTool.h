@@ -55,8 +55,6 @@ class CaloTopoTowerBuilderTool : public CaloTopoTowerBuilderToolBase
 
   virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS);
 
-  virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
  protected:
 
   /////////////////////////////

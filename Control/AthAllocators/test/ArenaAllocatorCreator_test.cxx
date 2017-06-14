@@ -12,19 +12,21 @@
 
 #undef NDEBUG
 #include "AthAllocators/ArenaAllocatorCreator.h"
+#include "AthAllocators/ArenaAllocatorBase.h"
 #include <cassert>
 
 class Test
   : public SG::ArenaAllocatorCreator
 {
 public:
-  virtual SG::ArenaAllocatorBase* create() override { return nullptr; }
+  virtual std::unique_ptr<SG::ArenaAllocatorBase> create() override
+  { return std::unique_ptr<SG::ArenaAllocatorBase>(); }
 };
   
 
 int main()
 {
   Test test;
-  assert (test.create() == nullptr);
+  assert ( ! test.create() );
   return 0;
 }

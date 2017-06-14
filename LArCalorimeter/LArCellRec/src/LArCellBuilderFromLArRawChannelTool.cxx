@@ -21,7 +21,6 @@
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescriptor.h"
 
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "StoreGate/ReadHandle.h"
 
 
@@ -64,27 +63,8 @@ LArCellBuilderFromLArRawChannelTool::~LArCellBuilderFromLArRawChannelTool() {
 
 StatusCode LArCellBuilderFromLArRawChannelTool::initialize() {
 
-  const IGeoModelSvc *geoModel=0;
-  ATH_CHECK( service("GeoModelSvc", geoModel) );
-
   ATH_CHECK(m_rawChannelsKey.initialize());
 
-  // dummy parameters for the callback:
-  int dummyInt=0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized()){
-    return geoInit(dummyInt,dummyList);
-  }
-  else{
-    ATH_CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit, geoModel,
-                                  &LArCellBuilderFromLArRawChannelTool::geoInit,this) );
-  }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-LArCellBuilderFromLArRawChannelTool::geoInit(IOVSVC_CALLBACK_ARGS) {  
   ATH_MSG_DEBUG("Accesssing CaloDetDescrManager");
   m_caloDDM = CaloDetDescrManager::instance() ;
 

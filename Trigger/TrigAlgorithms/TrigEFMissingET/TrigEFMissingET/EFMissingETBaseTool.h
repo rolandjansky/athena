@@ -13,14 +13,14 @@ PACKAGE:  Trigger/TrigAlgorithms/TrigEFMissingET
 AUTHORS:  Rashid Djilkibaev (updated by Diego Casadei)
 CREATED:  March 1, 2006     (March 2008)
 
-PURPOSE:  Base Tool for all EFMissingET tools.  The derived 
+PURPOSE:  Base Tool for all EFMissingET tools.  The derived
 tools must implement the execute(...) method.
 
  ********************************************************************/
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/MsgStream.h"
-#include "TrigTimeAlgs/ITrigTimerSvc.h" 
+#include "TrigTimeAlgs/ITrigTimerSvc.h"
 #include "TrigEFMissingET/EFMissingETHelper.h"
 #include "CaloEvent/CaloCell2ClusterMap.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -33,7 +33,7 @@ class TrigMissingET;
 struct FexType {
         enum Type {
           OTHER         = -1,
-          TOPO          =  0, 
+          TOPO          =  0,
           CELL          =  1,
           FEB           =  2,
           JET           =  3
@@ -47,7 +47,7 @@ class EFMissingETBaseTool : public AthAlgTool
   public:
     /** constructor */
     EFMissingETBaseTool(const std::string& type,
-        const std::string& name, 
+        const std::string& name,
         const IInterface* parent);
     /** destructor */
     ~EFMissingETBaseTool();
@@ -58,9 +58,12 @@ class EFMissingETBaseTool : public AthAlgTool
     virtual StatusCode execute();       //!< not used
     virtual StatusCode finalize();      //!< not used
 
-    virtual StatusCode execute(xAOD::TrigMissingET *met, 
-        TrigEFMissingEtHelper *metHelper, 
-        const xAOD::CaloClusterContainer *caloCluster, const xAOD::JetContainer *jets);  
+    virtual StatusCode execute(xAOD::TrigMissingET *met,
+                               TrigEFMissingEtHelper *metHelper,
+                               const xAOD::CaloClusterContainer *caloCluster,
+                               const xAOD::JetContainer *jets,
+                               const xAOD::TrackParticleContainer *track,
+                               const xAOD::VertexContainer *vertex);
 
     /** save time for detector iDet at step iStep in timerTime */
     StatusCode getTime(int iDet, int iStep, float *timerTime);
@@ -73,13 +76,13 @@ class EFMissingETBaseTool : public AthAlgTool
     StatusCode getTimeLoop(float *timerTime);            //!< total time spent looping on all channels
 
     static const InterfaceID& interfaceID() { return IID_EFMissingETBaseTool; }
-    
+
     int getFexType() { return m_fextype; }
 
   protected:
-    
-    int m_fextype;    			  //!< Fex type 
-         
+
+    int m_fextype;    			  //!< Fex type
+
     ITrigTimerSvc* m_timersvc;    //!< Timer service
     TrigTimer*     m_timer[4][3]; //!< (EM, HEC, Tile, FCAL) x (RegionSelector, LoadCollections, loop)
     TrigTimer*     m_glob_timer;  //!< total time
@@ -121,7 +124,7 @@ class EFMissingETBaseTool : public AthAlgTool
     //    unsigned m_maskTileB_C_Missing;        //!< TileB_C absent in DetMask
     //    unsigned m_maskTileE_A_Missing;        //!< TileE_A absent in DetMask
     //    unsigned m_maskTileE_C_Missing;        //!< TileE_C absent in DetMask
-    
+
     unsigned m_maskGlobNoisyEnergyRatio;   //!< Bad value for BadSET/SET ratio
     unsigned m_maskBadEMfraction;          //!< Bad value for EM/tot SumE ratio
     unsigned m_maskGlobBigMEtSEtRatio;     //!< large value for |MET/SumET|

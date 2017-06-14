@@ -23,46 +23,46 @@ GeoVPhysVol* DBM_ModuleCage::Build() {
   double safety = 0.005*CLHEP::mm;
 
   // Telescope dimension
-  double layerUnitY = gmt_mgr->DBMModuleCageY();
-  double layerUnitZ = gmt_mgr->DBMModuleCageZ();
+  double layerUnitY = m_gmt_mgr->DBMModuleCageY();
+  double layerUnitZ = m_gmt_mgr->DBMModuleCageZ();
 
   // layer spacing
-  double Zspacing = gmt_mgr->DBMSpacingZ();
-  double Rspacing = gmt_mgr->DBMSpacingRadial();
+  double Zspacing = m_gmt_mgr->DBMSpacingZ();
+  double Rspacing = m_gmt_mgr->DBMSpacingRadial();
   // gap between V-slide and first main plate
-  double layer1Space = gmt_mgr->DBMSpace();
+  double layer1Space = m_gmt_mgr->DBMSpace();
 
   // main plate, on which is mounted the sensor module
-  double mainPlateX = gmt_mgr->DBMMainPlateX(); //dimension in x-direction or width
-  double mainPlateY = gmt_mgr->DBMMainPlateY(); //y-direction or height
-  double mainPlateZ = gmt_mgr->DBMMainPlateZ(); //z-direction or thickness
-  double mPlateWindowX = gmt_mgr->DBMMPlateWindowWidth(); // window width in the main plate
-  double mPlateWindowY = gmt_mgr->DBMMPlateWindowHeight(); // window height
-  double mPlateWindowPos = gmt_mgr->DBMMPlateWindowPos(); // window position from bottom of the main plate
+  double mainPlateX = m_gmt_mgr->DBMMainPlateX(); //dimension in x-direction or width
+  double mainPlateY = m_gmt_mgr->DBMMainPlateY(); //y-direction or height
+  double mainPlateZ = m_gmt_mgr->DBMMainPlateZ(); //z-direction or thickness
+  double mPlateWindowX = m_gmt_mgr->DBMMPlateWindowWidth(); // window width in the main plate
+  double mPlateWindowY = m_gmt_mgr->DBMMPlateWindowHeight(); // window height
+  double mPlateWindowPos = m_gmt_mgr->DBMMPlateWindowPos(); // window position from bottom of the main plate
 
   // DBM module
-  double diamondZ = gmt_mgr->DBMDiamondZ(); 
-  double FEI4Z = gmt_mgr->DBMFEI4Z();
-  double ceramicY = gmt_mgr->DBMCeramicY(); 
-  double ceramicZ = gmt_mgr->DBMCeramicZ();
-  double moduleAirGap = gmt_mgr->DBMAirGap();   // air gap between diamond and FE-I4 chip
-  double kaptonZ = gmt_mgr->DBMKaptonZ();
+  double diamondZ = m_gmt_mgr->DBMDiamondZ(); 
+  double FEI4Z = m_gmt_mgr->DBMFEI4Z();
+  double ceramicY = m_gmt_mgr->DBMCeramicY(); 
+  double ceramicZ = m_gmt_mgr->DBMCeramicZ();
+  double moduleAirGap = m_gmt_mgr->DBMAirGap();   // air gap between diamond and FE-I4 chip
+  double kaptonZ = m_gmt_mgr->DBMKaptonZ();
 
   // flex support
-  double flexSupportX = gmt_mgr->DBMFlexSupportX();
-  double flexSupportY = gmt_mgr->DBMFlexSupportY();
-  double flexSupportZ = gmt_mgr->DBMFlexSupportZ();
-  double flexSupportOffset = gmt_mgr->DBMFlexSupportOffset();
+  double flexSupportX = m_gmt_mgr->DBMFlexSupportX();
+  double flexSupportY = m_gmt_mgr->DBMFlexSupportY();
+  double flexSupportZ = m_gmt_mgr->DBMFlexSupportZ();
+  double flexSupportOffset = m_gmt_mgr->DBMFlexSupportOffset();
 
   // rods
-  double rodRadius = gmt_mgr->DBMRodRadius();
-  double mPlateRod2RodY = gmt_mgr->DBMMPlateRod2RodY(); // distance between center of top and bottom rods
-  double mPlateRod2RodX = gmt_mgr->DBMMPlateRod2RodX(); // distance between center of left and right rods
+  double rodRadius = m_gmt_mgr->DBMRodRadius();
+  double mPlateRod2RodY = m_gmt_mgr->DBMMPlateRod2RodY(); // distance between center of top and bottom rods
+  double mPlateRod2RodX = m_gmt_mgr->DBMMPlateRod2RodX(); // distance between center of left and right rods
 
   // materials
-  const GeoMaterial* air = mat_mgr->getMaterial("std::Air");
-  const GeoMaterial* aluminium = mat_mgr->getMaterial("std::Aluminium");
-  const GeoMaterial* DBMRod_mat = mat_mgr->getMaterial("pix::DBMRod");
+  const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
+  const GeoMaterial* aluminium = m_mat_mgr->getMaterial("std::Aluminium");
+  const GeoMaterial* DBMRod_mat = m_mat_mgr->getMaterial("pix::DBMRod");
 
 
 
@@ -74,7 +74,7 @@ GeoVPhysVol* DBM_ModuleCage::Build() {
   //**** blocks to form the main plate
   
   const GeoBox* mPSide = new GeoBox((mainPlateX - mPlateWindowX)/4., mainPlateY/2., mainPlateZ/2.);
-  const GeoMaterial* dbmAluminium1 = mat_mgr->getMaterialForVolume("pix::DBMAluminium1", mPSide->volume());
+  const GeoMaterial* dbmAluminium1 = m_mat_mgr->getMaterialForVolume("pix::DBMAluminium1", mPSide->volume());
   const GeoLogVol* mPSideLog = new GeoLogVol("dbmWallLogPlt", mPSide, dbmAluminium1);
   GeoPhysVol* mPSidePhys = new GeoPhysVol(mPSideLog);
 
@@ -116,7 +116,7 @@ GeoVPhysVol* DBM_ModuleCage::Build() {
   CLHEP::HepRotation rm;
  
   // store initial value Eta value 
-  int tempLD = gmt_mgr->GetLD();
+  int tempLD = m_gmt_mgr->GetLD();
 
   // strings for volume tag
   std::string tag_mainPlate[3] = {"mainPlate1", "mainPlate2", "mainPlate3"};
@@ -131,12 +131,12 @@ GeoVPhysVol* DBM_ModuleCage::Build() {
     // add sensor module
 
     // set telescope layer number 
-    gmt_mgr->SetCurrentLD(i);
+    m_gmt_mgr->SetCurrentLD(i);
 
     DBM_Module module;
     GeoVPhysVol* modulePhys = module.Build();
 
-    Rspacing = gmt_mgr->DBMSpacingRadial();
+    Rspacing = m_gmt_mgr->DBMSpacingRadial();
     CLHEP::Hep3Vector modulePos(0, -layerUnitY/2. + Rspacing + ceramicY/2., mainPlatePosZ[i]-mainPlateZ/2.-(ceramicZ+FEI4Z+moduleAirGap+diamondZ + kaptonZ)/2.-2*safety);
     GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(rm,modulePos));
     GeoNameTag* tag = new GeoNameTag(tag_module[i].c_str());
@@ -186,7 +186,7 @@ GeoVPhysVol* DBM_ModuleCage::Build() {
     } else if (i == 2) {
       flexSupp_matName = "pix::DBMPeek7";
     }
-    const GeoMaterial* dbmFlexSupp_mat = mat_mgr->getMaterialForVolume(flexSupp_matName.c_str(), flexSupp->volume());
+    const GeoMaterial* dbmFlexSupp_mat = m_mat_mgr->getMaterialForVolume(flexSupp_matName.c_str(), flexSupp->volume());
 
     const GeoLogVol* flexSuppLog = new GeoLogVol("dbmWallLog", flexSupp, dbmFlexSupp_mat);
     GeoPhysVol* flexSuppPhys = new GeoPhysVol(flexSuppLog);
@@ -211,7 +211,7 @@ GeoVPhysVol* DBM_ModuleCage::Build() {
     double topRodPosY = mainPlatePosY + mPlateRod2RodY/2.; 
     double botRodPosY = mainPlatePosY - mPlateRod2RodY/2.;
 
-    if (gmt_mgr->GetLD() == 0) { //first layer
+    if (m_gmt_mgr->GetLD() == 0) { //first layer
 
       double rodPosZ = mainPlatePosZ[i] - mainPlateZ/2.0 - layer1Space/2.; // Z position of rod
 
@@ -240,7 +240,7 @@ GeoVPhysVol* DBM_ModuleCage::Build() {
       containerPhys->add(xform);
       containerPhys->add(rodAPhys);
 
-    } else if (gmt_mgr->GetLD() > 0 && gmt_mgr->GetLD() < 3) { //second and third layer
+    } else if (m_gmt_mgr->GetLD() > 0 && m_gmt_mgr->GetLD() < 3) { //second and third layer
 
       //Z position of rods
       double topRodPosZ = mainPlatePosZ[i] - mainPlateZ/2. - (Zspacing - mainPlateZ - flexSupportZ)/2.;
@@ -272,13 +272,13 @@ GeoVPhysVol* DBM_ModuleCage::Build() {
       containerPhys->add(botRodPhys);
 
     } else 
-      gmt_mgr->msg(MSG::WARNING) << "Module cage   invalid layer value: " << gmt_mgr->GetLD() << endmsg; 
+      m_gmt_mgr->msg(MSG::WARNING) << "Module cage   invalid layer value: " << m_gmt_mgr->GetLD() << endmsg; 
 
   
   }
 
   // restore Eta value
-  gmt_mgr->SetCurrentLD(tempLD);
+  m_gmt_mgr->SetCurrentLD(tempLD);
 
   return containerPhys;
 }

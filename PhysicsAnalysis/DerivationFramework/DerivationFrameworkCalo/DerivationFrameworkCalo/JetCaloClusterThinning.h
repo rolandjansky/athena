@@ -36,7 +36,7 @@ namespace DerivationFramework {
 
     private:
       ServiceHandle<IThinningSvc> m_thinningSvc;
-      mutable unsigned int m_ntot, m_ntotTopo, m_npass, m_npassTopo; //, m_ntotFrwd, m_npassFrwd;
+      mutable unsigned int m_ntotTopo, m_npassTopo; //, m_ntotFrwd, m_npassFrwd;
       std::string m_sgKey;
       std::string m_TopoClSGKey;
       std::string m_selectionString;

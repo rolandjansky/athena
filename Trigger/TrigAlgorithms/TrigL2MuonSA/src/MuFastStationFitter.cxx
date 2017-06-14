@@ -399,7 +399,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
 // --------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------
 StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::TrackPattern& trackPattern,
-                                                               const TrigL2MuonSA::MuonRoad&    m_muonRoad)
+                                                               const TrigL2MuonSA::MuonRoad&    muonRoad)
 {
   const unsigned int MAX_STATION = 10;
   TrigL2MuonSA::MdtHits*    mdtSegment;
@@ -521,8 +521,8 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
        continue;
     }
 
-    double m_aw = m_muonRoad.aw[chamber][0];
-    double m_bw = m_muonRoad.bw[chamber][0];
+    double aw = muonRoad.aw[chamber][0];
+    double bw = muonRoad.bw[chamber][0];
     double nrWidth = 0.; 
     unsigned int  sumN = 0;
     //chamber=3/4/5 => Endcap Inner/Middle/Outer
@@ -540,7 +540,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
       if(itMdtHit->isOutlier > 1)continue;
       double Z = itMdtHit->Z;
       double R = itMdtHit->R;
-      double nbw = m_aw*Z + m_bw;
+      double nbw = aw*Z + bw;
       if (R>(nbw-nrWidth) && R<(nbw+nrWidth)){
         itMdtHit->isOutlier = 0;
         sumN++;
@@ -551,7 +551,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
     }
     if(sumN==0) continue;
     
-    stationSPFit(mdtSegment, superPoint,pbFitResult, trackPattern.s_address,chamber,m_aw, trackPattern.phiMSDir);
+    stationSPFit(mdtSegment, superPoint,pbFitResult, trackPattern.s_address,chamber,aw, trackPattern.phiMSDir);
     
   } // end loop for stations
   

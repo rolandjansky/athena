@@ -18,12 +18,12 @@ GeoPixelDiskSupports::GeoPixelDiskSupports() {
   //
   // zpos is not needed, but it's here just in case...
   //
-  for (int ii =0; ii< gmt_mgr->PixelDiskNumSupports(); ii++) {
-    double rmin = gmt_mgr->PixelDiskSupportRMin(ii);
-    double rmax = gmt_mgr->PixelDiskSupportRMax(ii);
-    double halflength = gmt_mgr->PixelDiskSupportThickness(ii)/2.;
+  for (int ii =0; ii< m_gmt_mgr->PixelDiskNumSupports(); ii++) {
+    double rmin = m_gmt_mgr->PixelDiskSupportRMin(ii);
+    double rmax = m_gmt_mgr->PixelDiskSupportRMax(ii);
+    double halflength = m_gmt_mgr->PixelDiskSupportThickness(ii)/2.;
     double zpos = 0.;
-    int matTypeNum = gmt_mgr->PixelDiskSupportMaterialTypeNum(ii);
+    int matTypeNum = m_gmt_mgr->PixelDiskSupportMaterialTypeNum(ii);
     m_rmin.push_back(rmin);
     m_rmax.push_back(rmax);
     m_zpos.push_back(zpos);
@@ -44,8 +44,8 @@ GeoVPhysVol* GeoPixelDiskSupports::Build( ) {
   int typeNum = m_typeNum[m_nframe];
 
   const GeoTube* supportTube = new GeoTube(rmin,rmax,halflength);
-  std::string matName = gmt_mgr->getMaterialName("DiskSupport", gmt_mgr->GetLD(), typeNum);
-  const GeoMaterial* supportMat = mat_mgr->getMaterialForVolume(matName, supportTube->volume());
+  std::string matName = m_gmt_mgr->getMaterialName("DiskSupport", m_gmt_mgr->GetLD(), typeNum);
+  const GeoMaterial* supportMat = m_mat_mgr->getMaterialForVolume(matName, supportTube->volume());
   std::string logName = "DiskSup";
   std::ostringstream o;
   o << m_nframe;

@@ -39,7 +39,7 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/Randomize.h"
 #include "CLHEP/Random/RandomEngine.h"
 

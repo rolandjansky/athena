@@ -81,7 +81,21 @@ public:
   double getVarEExpect() const { return m_varEExpect; }
   int getTrackId() const { return m_trackId; }
   void setTrackId(int trackId) { m_trackId = trackId; }
-
+  
+  
+  int getLayerHED() const { return m_layerHED; }
+  void setLayerHED(int layerHED) { m_layerHED = layerHED; }
+  
+  std::vector<int> getLayerCellOrderVector() const { return m_layerCellOrderVector; }
+  void setLayerCellOrderVector(std::vector<int> layerToStoreVector) { m_layerCellOrderVector = layerToStoreVector; }
+  
+  std::vector<float> getRadiusCellOrderVector() const { return m_radiusCellOrderVector; }
+  void setRadiusCellOrderVector(std::vector<float> radiusToStoreVector) { m_radiusCellOrderVector = radiusToStoreVector; }
+  
+  std::vector<float> getAvgEDensityCellOrderVector() const { return m_avgEdensityCellOrderVector; }
+  void setAvgEDensityCellOrderVector(std::vector<float> avgEdensityToStoreVector) { m_avgEdensityCellOrderVector = avgEdensityToStoreVector; }
+  
+  
   bool isInDenseEnvironment() const { return m_isInDenseEnvironment;}
   void setIsInDenseEnvironment() { m_isInDenseEnvironment = true; }
   
@@ -95,6 +109,16 @@ private:
   const xAOD::TrackParticle* m_track;
   int m_type;
   double m_pull15;
+  
+  int m_layerHED;
+  std::vector<int> m_layerCellOrderVector;
+  std::vector<float> m_radiusCellOrderVector;
+  std::vector<float> m_avgEdensityCellOrderVector;
+//   int m_layerCellOrder;
+//   float m_radiusCellOrder;
+// 
+//   float m_avgEdensityCellOrder;
+  
 
   double m_eExpect;
   double m_varEExpect;
@@ -105,6 +129,9 @@ private:
 
   std::vector<double> m_caloDepthArray;
 
+
+//create new class -- link from here, e.g.
+// eflowCellOrderingParameters* m_cellOrderingParameters;
   eflowTrackCaloPoints* m_trackCaloPoints;
   eflowRingSubtractionManager m_ringSubtractionManager;
   std::vector<eflowTrackClusterLink*> m_clusterMatches;

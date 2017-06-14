@@ -126,7 +126,7 @@ public:
 
 
   /**
-   * If the held object derives from @c ILockable, call @lock() on it.
+   * If the held object derives from @c ILockable, call @c lock() on it.
    *
    * This is a no-op for ARA.
    */

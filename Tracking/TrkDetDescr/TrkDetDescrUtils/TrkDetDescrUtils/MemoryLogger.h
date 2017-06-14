@@ -20,7 +20,7 @@ namespace Trk {
     @class MemoryLogger
 
     A small helper class looking at
-    /proc/<PID>status
+    /proc/\<PID\>status
 
     to monitor the memory usage of the Geometry objects
 

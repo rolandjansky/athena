@@ -16,22 +16,42 @@ namespace SG {
 
 
 /**
- * @brief Translate an integer index to an Allocator index.
+ * @brief Translate an integer index to an Allocator pointer.
  * @param i The index to look up.
  *
  * If the index isn't valid, an assertion will be tripped.
- *
- * This is on the fast path for element allocation, so keep
- * it small and inline.
  */
 inline
-ArenaAllocatorBase* ArenaHeader::allocator (size_t i)
+LockedAllocator ArenaHeader::allocator (size_t i)
 {
-  if (m_allocvec.get() && i < m_allocvec->size()) {
-    ArenaAllocatorBase* allocbase = (*m_allocvec)[i];
-    if (allocbase) return allocbase;
+  if (m_arena.get()) {
+    return  m_arena->allocator (i);
   }
-  return makeAllocator (i);
+  return m_defaultArena.allocator (i);
+}
+
+
+/**
+ * @brief Translate an integer index to an Allocator pointer.
+ * @param ctx Use the Arena associated with this event context.
+ * @param i The index to look up.
+ *
+ * If the index isn't valid, an assertion will be tripped.
+ */
+inline
+LockedAllocator ArenaHeader::allocator (const EventContext& ctx, size_t i)
+{
+  size_t slot = ctx.slot();
+  {
+    std::lock_guard<std::mutex> lock (m_mutex);
+    if (slot < m_slots.size()) {
+      ArenaBase* a = m_slots[slot];
+      if (a) {
+        return a->allocator (i);
+      }
+    }
+  }
+  return m_defaultArena.allocator (i);
 }
 
 

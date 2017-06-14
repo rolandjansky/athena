@@ -7,7 +7,7 @@
 #define RECBACKGROUNDEVENT_BEAMBACKGROUNDDATA
 
 #include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/ElementLinkVector.h"
+#include "AthLinks/ElementLinkVector.h"
 #include "TrkSegment/Segment.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "xAODCaloEvent/CaloCluster.h"

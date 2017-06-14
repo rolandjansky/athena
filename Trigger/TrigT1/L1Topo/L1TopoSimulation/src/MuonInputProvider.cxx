@@ -201,6 +201,7 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 
 	if( !( muonRoI.roIWord() & LVL1::CandidateVetoMask  )  )
 	  inputEvent.addMuon( MuonInputProvider::createMuonTOB( muonRoI.roIWord() ) );
+    // overflow implemented only for reduced granularity encoding (see below)
 	else
 	  ATH_MSG_DEBUG(" Ignore Vetoed L1 Mu RoI " <<  muonRoI.roIWord() );
       }
@@ -247,19 +248,27 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 	{
 	  //MuonInputProvider::createMuonTOB( *iMuCand );
 	  inputEvent.addMuon( MuonInputProvider::createMuonTOB( *iMuCand ) );
+      if(iMuCand->moreThan2CandidatesOverflow()){
+          inputEvent.setOverflowFromMuonInput(true);
+          ATH_MSG_DEBUG("setOverflowFromMuonInput : true (MuCTPIL1TopoCandidate from SG)");
+      }
 	}
     } else {
 
       ATH_MSG_DEBUG("Use MuCTPiToTopo granularity Muon ROIs: calculate from ROIs sent to RoIB");
       LVL1::MuCTPIL1Topo l1topo;
-      m_MuctpiSimTool->fillMuCTPIL1Topo(l1topo);
+      CHECK(m_MuctpiSimTool->fillMuCTPIL1Topo(l1topo));
 
       // std::cout << "TW: MuonInputProvider print l1topo candidates from Tool" << std::endl; 
       // l1topo.print();
       
             
       for( const MuCTPIL1TopoCandidate & cand : l1topo.getCandidates() ) {
-	inputEvent.addMuon( MuonInputProvider::createMuonTOB( cand ) );
+          inputEvent.addMuon( MuonInputProvider::createMuonTOB( cand ) );
+          if(cand.moreThan2CandidatesOverflow()){
+              inputEvent.setOverflowFromMuonInput(true);
+              ATH_MSG_DEBUG("setOverflowFromMuonInput : true (MuCTPIL1TopoCandidate from MuctpiSimTool)");
+          }
       }
     }
     

@@ -6,6 +6,7 @@
 #define ManagedMonitorToolBase_H
 
 #define ManagedMonitorToolBase_Uses_API_201401
+#define ManagedMonitorToolBase_Uses_API_201704
 
 #include <string>
 #include <vector>
@@ -652,7 +653,7 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
 
 
       /**
-       * Average mu, i.e. <mu>
+       * Average mu, i.e. \<mu\>
        *
        */
        virtual float lbAverageInteractionsPerCrossing();

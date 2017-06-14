@@ -80,10 +80,10 @@ private:
 	std::vector<TH1F *> m_etaClustersize;
 	std::vector<TH1F *> m_phiClustersize;
 
-	TH2F *eta_phi_correlation;
-	TH2F *CSeta_CSphi_correlation;
-	TH2F *ResEtaDig_vs_p;
-	TH2F *ResPhiDig_vs_p;
+	TH2F *m_eta_phi_correlation;
+	TH2F *m_CSeta_CSphi_correlation;
+	TH2F *m_ResEtaDig_vs_p;
+	TH2F *m_ResPhiDig_vs_p;
 	
 	
 

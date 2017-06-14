@@ -158,6 +158,27 @@ private:
 CLASS_DEF( TestAuxStore , 125030194 , 1 )
 
 
+class SymlinkDataObject
+  : public DataBucketBase
+{
+public:
+  SymlinkDataObject (CLID clid, void* obj) : m_clid (clid), m_obj (obj) {}
+  virtual const CLID& clID() const override { return m_clid; }
+  virtual void* object() override { return m_obj; }
+  virtual const std::type_info& tinfo() const override { return typeid(Foo); }
+  virtual void* cast (CLID, SG::IRegisterTransient*, bool) const override { std::abort(); }
+  virtual void* cast (const std::type_info&, SG::IRegisterTransient*, bool) const override { std::abort(); }
+  virtual DataBucketBase* clone() const override { std::abort(); }
+  virtual void relinquish() override { std::abort(); }
+  virtual void lock() override { std::abort(); }
+
+  
+private:
+  CLID m_clid;
+  void* m_obj;
+};
+
+
 #include "AthContainersInterfaces/CLASS_AUXSTORE.h"
 CLASS_AUXSTORE3( TestVector<BBX> , TestAuxStore, TestAuxStore )
 
@@ -174,7 +195,7 @@ namespace Athena_test
     assert(rSG.record(pFoo, "pFoo1").isSuccess());
     //can't record with same key
     SGASSERTERROR(rSG.record(new Foo(3), "pFoo1", LOCKED).isSuccess());
-    //can'r record same object twice
+    //can't record same object twice
     SGASSERTERROR(rSG.record(pFoo, "pFoo2", !LOCKED).isSuccess());
     //check we haven't left any trace of "pFoo2" in DataStore
     assert(rSG.record(new Foo(2), "pFoo2", !LOCKED).isSuccess());
@@ -263,7 +284,7 @@ namespace Athena_test
     SGASSERTERROR(rSG.retrieve(pFoo).isSuccess());
 
     /// retrieve a keyless object with default key: should also fail
-    /// becaus of ambiguity
+    /// because of ambiguity
     SGASSERTERROR(rSG.retrieve(pFoo, SG::DEFAULTKEY).isSuccess());
 
     // record a keyed object and remove. this will only reset proxy
@@ -322,7 +343,7 @@ namespace Athena_test
     Base* pB;
     assert(rSG.retrieve(pB, "UnLocked").isSuccess());
 
-    //FIXME this will work when we'll have the inher tree from reflection
+    //FIXME this will work when we'll have the inheritance tree from reflection
     //FIXME    SGASSERTERROR(rSG.symLink(ClassID_traits<Foo>::ID(), 
     //FIXME			      "UnLocked", 
     //FIXME			      ClassID_traits<NotThere>::ID()).isSuccess()); 
@@ -1017,8 +1038,10 @@ namespace Athena_test {
     cout << "\n*** StoreGateSvcClient_test testRecordObject BEGINS ***" << endl;
     Foo::dtor_log.clear();
 
-    SG::DataObjectSharedPtr<DataObject> obj101
-      (SG::asStorable (std::make_unique<Foo> (101)));
+    auto obj101_uptr = std::make_unique<Foo> (101);
+    Foo* obj101_ptr = obj101_uptr.get();
+    SG::DataObjectSharedPtr<DataObject> obj101 
+      (SG::asStorable (std::move (obj101_uptr)));
     SG::DataProxy* proxy101 = rSG.recordObject (obj101, "obj101", false, false);
     assert (proxy101->name() == "obj101");
     assert (proxy101->object() == obj101.get());
@@ -1036,6 +1059,7 @@ namespace Athena_test {
 
     assert (Foo::dtor_log.empty());
 
+    // Dup with returnExisting false.
     std::cout << ">>> test duplicate record1\n";
     SG::DataObjectSharedPtr<DataObject> obj103
       (SG::asStorable (std::make_unique<Foo> (103)));
@@ -1044,23 +1068,42 @@ namespace Athena_test {
     assert (obj103->refCount() == 2); // Held by m_trash
     std::cout << "<<< test duplicate record1\n";
 
+    // Dup with returnExisting true.
     SG::DataObjectSharedPtr<DataObject> obj104
       (SG::asStorable (std::make_unique<Foo> (104)));
     SG::DataProxy* proxy104 = rSG.recordObject (obj104, "obj101", false, true);
     assert (proxy104 == proxy101);
     assert (obj104->refCount() == 1);
 
+    // Dup with returnExisting false but different key.
     std::cout << ">>> test duplicate record2\n";
     SG::DataProxy* proxy999 = rSG.recordObject (obj101, "obj999", false, false);
     assert (proxy999 == nullptr);
     assert (obj101->refCount() == 3); // Held by m_trash
     std::cout << "<<< test duplicate record2\n";
 
+    // Making alias.
     assert (proxy101->refCount() == 1);
     proxy999 = rSG.recordObject (obj101, "obj999", false, true);
     assert (proxy999 == proxy101);
     assert (proxy101->refCount() == 2);
     assert (obj101->refCount() == 3);
+
+    // Making symlink.
+    SG::DataObjectSharedPtr<DataObject> obj105
+      (new SymlinkDataObject (ClassID_traits<Base>::ID(), static_cast<Base*>(obj101_ptr)));
+    SG::DataProxy* proxy105 = rSG.recordObject (obj105, "obj101", false, true);
+    assert (proxy105 == proxy101);
+    assert (obj101->refCount() == 3);
+    assert (proxy101->refCount() == 3);
+
+    // Error handling.
+    std::cout << ">>> test duplicate error\n";
+    SG::DataObjectSharedPtr<DataObject> obj106
+      (new SymlinkDataObject (543543, static_cast<Base*>(obj101_ptr)));
+    SG::DataProxy* proxy106 = rSG.recordObject (obj106, "obj101xxx", false, true);
+    assert (proxy106 == nullptr);
+    std::cout << "<<< test duplicate error\n";
 
     rSG.clearStore();
     assert (obj101->refCount() == 1);
@@ -1073,7 +1116,7 @@ namespace Athena_test {
     assert (proxy101->name() == "obj101");
     assert (proxy101->object() == obj101.get());
     assert (obj101->refCount() == 2);
-    assert (proxy101->refCount() == 2);
+    assert (proxy101->refCount() == 3);
     assert (proxy101->isConst());
 
     rSG.clearStore();
@@ -1083,7 +1126,7 @@ namespace Athena_test {
     assert (proxy101->name() == "obj101");
     assert (proxy101->object() == obj101.get());
     assert (obj101->refCount() == 2);
-    assert (proxy101->refCount() == 2);
+    assert (proxy101->refCount() == 3);
     assert (proxy101->isConst());
 
     cout << "\n*** StoreGateSvcClient_test testRecordObject OK ***" << endl;

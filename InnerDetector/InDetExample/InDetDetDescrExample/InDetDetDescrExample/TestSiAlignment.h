@@ -23,8 +23,6 @@ namespace InDetDD{
   class SiDetectorElement;
 }
 
-class IGeoModelSvc;
-
 /////////////////////////////////////////////////////////////////////////////
 
 class TestSiAlignment : public AthAlgorithm {
@@ -33,9 +31,6 @@ public:
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();
-  /// GeoInit callback
-  StatusCode geoInitCallback(IOVSVC_CALLBACK_ARGS);
-  StatusCode geoInitialize();
 
 private:
   void printAlignmentShifts();
@@ -43,7 +38,6 @@ private:
   void extractAlphaBetaGamma(const Amg::Transform3D & trans, double& alpha, double& beta, double &gamma) const; 
   const InDetDD::SiDetectorManager * m_manager;
   std::string m_managerName;
-  ServiceHandle<IGeoModelSvc> m_geoModelSvc;
   bool m_longPrintOut;
   double m_errRot;
   double m_errTrans;

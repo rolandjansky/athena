@@ -73,7 +73,7 @@ StatusCode TestCombiner::execute()
   m_outputAux = CxxUtils::make_unique< xAOD::TrigCompositeAuxContainer>();  
   m_output->setStore(m_outputAux.ptr());
 
-  for ( auto objA: *m_inputA.cptr() ) {
+  for (size_t i = 0; i < m_inputA->size(); i++) {
     xAOD::TrigComposite* o  = new xAOD::TrigComposite(); 
     m_output->push_back(o);    
     o->setDetail("et", 3.34f);

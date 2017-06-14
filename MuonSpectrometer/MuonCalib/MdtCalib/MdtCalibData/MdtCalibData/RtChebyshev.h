@@ -38,8 +38,8 @@ parametrized by a linear combination of Chebyshev polyonomials.
 
 Convention:
 
-r(t) = \sum_{k=0}^{K}                                 
-                     p_k*T_k(2*(t-0.5*(tupper+tlower))/(tupper-tlower) 
+@f[ r(t) = \sum_{k=0}^{K}                                 
+                     p_k*T_k(2*(t-0.5*(tupper+tlower))/(tupper-tlower) @f]
 where T_k is the Chebyshev polynomial of k-th order,              
 tupper and tlower are upper and lower drift-time bounds.          
 

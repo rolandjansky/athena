@@ -16,13 +16,13 @@ namespace Monitored {
         friend MonitoredScope;
         virtual ~IMonitoredVariable() {}
         
-        const std::string& name() const { return mName; }
+        const std::string& name() const { return m_name; }
         virtual const std::vector<double> getVectorRepresentation() const = 0;
     protected:
-        const std::string mName;
+        const std::string m_name;
         
         IMonitoredVariable(std::string name)
-        : mName(std::move(name)) {}
+        : m_name(std::move(name)) {}
     };
 }
 

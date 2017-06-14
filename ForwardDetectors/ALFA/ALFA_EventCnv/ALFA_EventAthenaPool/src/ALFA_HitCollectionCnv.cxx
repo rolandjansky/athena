@@ -8,7 +8,7 @@
  
 
 ALFA_HitCollection_PERS* ALFA_HitCollectionCnv::createPersistent(ALFA_HitCollection* transCont) {
-    MsgStream mlog(messageService(), "ALFA_HitCollectionConverter" );
+    MsgStream mlog(msgSvc(), "ALFA_HitCollectionConverter" );
     ALFA_HitCollectionCnv_p1   TPConverter;
     ALFA_HitCollection_PERS *persObj = TPConverter.createPersistent( transCont, mlog );
     return persObj;
@@ -16,7 +16,7 @@ ALFA_HitCollection_PERS* ALFA_HitCollectionCnv::createPersistent(ALFA_HitCollect
 
 
 ALFA_HitCollection* ALFA_HitCollectionCnv::createTransient() {
-    MsgStream mlog(messageService(), "ALFA_HitCollectionConverter" );
+    MsgStream mlog(msgSvc(), "ALFA_HitCollectionConverter" );
     
     ALFA_HitCollectionCnv_p1   TPConverter_p1;
 

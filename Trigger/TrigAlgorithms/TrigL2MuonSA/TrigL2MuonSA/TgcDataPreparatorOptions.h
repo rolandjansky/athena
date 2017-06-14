@@ -14,32 +14,32 @@ class TgcDataPreparatorRoadParameters
 {
    public:
       TgcDataPreparatorRoadParameters() :
-	 ETA_LOW_MID_DELTA(0.075),
-	 ETA_HIGH_MID_DELTA(0.035),
-	 PHI_MID_DELTA(0.035),
-	 ETA_LOW_INN_DELTA(0.15),
-	 ETA_HIGH_INN_DELTA(0.10),
-	 PHI_INN_DELTA(0.10)
+	 m_ETA_LOW_MID_DELTA(0.075),
+	 m_ETA_HIGH_MID_DELTA(0.035),
+	 m_PHI_MID_DELTA(0.035),
+	 m_ETA_LOW_INN_DELTA(0.15),
+	 m_ETA_HIGH_INN_DELTA(0.10),
+	 m_PHI_INN_DELTA(0.10)
       {};
 
       ~TgcDataPreparatorRoadParameters() {};
 
    public:
-      inline double deltaEtaAtMiddleForLowPt()  const { return ETA_LOW_MID_DELTA; };
-      inline double deltaEtaAtMiddleForHighPt() const { return ETA_HIGH_MID_DELTA; };
-      inline double deltaPhiAtMiddle()          const { return PHI_MID_DELTA; };
+      inline double deltaEtaAtMiddleForLowPt()  const { return m_ETA_LOW_MID_DELTA; };
+      inline double deltaEtaAtMiddleForHighPt() const { return m_ETA_HIGH_MID_DELTA; };
+      inline double deltaPhiAtMiddle()          const { return m_PHI_MID_DELTA; };
 
-      inline double deltaEtaAtInnerForLowPt()   const { return ETA_LOW_INN_DELTA; };
-      inline double deltaEtaAtInnerForHighPt()  const { return ETA_HIGH_INN_DELTA; };
-      inline double deltaPhiAtInner()           const { return PHI_INN_DELTA; };
+      inline double deltaEtaAtInnerForLowPt()   const { return m_ETA_LOW_INN_DELTA; };
+      inline double deltaEtaAtInnerForHighPt()  const { return m_ETA_HIGH_INN_DELTA; };
+      inline double deltaPhiAtInner()           const { return m_PHI_INN_DELTA; };
 
    private:
-      double ETA_LOW_MID_DELTA;
-      double ETA_HIGH_MID_DELTA;
-      double PHI_MID_DELTA;
-      double ETA_LOW_INN_DELTA;
-      double ETA_HIGH_INN_DELTA;
-      double PHI_INN_DELTA;
+      double m_ETA_LOW_MID_DELTA;
+      double m_ETA_HIGH_MID_DELTA;
+      double m_PHI_MID_DELTA;
+      double m_ETA_LOW_INN_DELTA;
+      double m_ETA_HIGH_INN_DELTA;
+      double m_PHI_INN_DELTA;
 };
 
 // --------------------------------------------------------------------------------

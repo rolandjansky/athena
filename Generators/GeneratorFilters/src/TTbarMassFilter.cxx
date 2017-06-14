@@ -52,7 +52,7 @@ StatusCode TTbarMassFilter::filterEvent() {
         HepMC::GenVertex::particles_out_const_iterator child_mcpartItrE = decayVtx->particles_out_const_end();
         for (; child_mcpartItr!=child_mcpartItrE; ++child_mcpartItr) {
           HepMC::GenParticle* child_mcpart = (*child_mcpartItr);
-          if (fabs(child_mcpart->pdg_id()) == 6) {
+          if (std::abs(child_mcpart->pdg_id()) == 6) {
             // This is not a 'last' top: break the loop over the children, and do nothing with this top particle
             isLastTop = false;
             break;

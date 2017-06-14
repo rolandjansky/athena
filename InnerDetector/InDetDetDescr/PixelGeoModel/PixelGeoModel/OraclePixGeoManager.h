@@ -34,65 +34,65 @@ class OraclePixGeoManager : public PixelGeometryManager {
 
 
   // Database tables
-  IRDBRecordset_ptr PixelSwitches;
-  IRDBRecordset_ptr PixelBarrelGeneral;
-  IRDBRecordset_ptr PixelBarrelService;
-  IRDBRecordset_ptr PixelSimpleService;
-  IRDBRecordset_ptr PixelCommon;
-  IRDBRecordset_ptr PixelEnvelope;
-  IRDBRecordset_ptr PixelDisk;
-  IRDBRecordset_ptr PixelDiskRing;
-  IRDBRecordset_ptr PixelRing;
-  IRDBRecordset_ptr PixelEndcapGeneral;
-  IRDBRecordset_ptr PixelEndcapService;
-  IRDBRecordset_ptr PixelEnvelopeService;
-  IRDBRecordset_ptr PixelLayer;
-  IRDBRecordset_ptr PixelModule;
-  IRDBRecordset_ptr PixelModuleSvc;
-  IRDBRecordset_ptr PixelStave;
-  IRDBRecordset_ptr PixelStaveZ;
-  IRDBRecordset_ptr PixelTopLevel;
-  IRDBRecordset_ptr PixelReadout;
-  IRDBRecordset_ptr PixelGangedPixels;
-  IRDBRecordset_ptr PixelBarrelCable;
-  IRDBRecordset_ptr PixelTMT;
-  IRDBRecordset_ptr PixelOmega;
-  IRDBRecordset_ptr PixelOmegaGlue;
-  IRDBRecordset_ptr PixelAlTube;
-  IRDBRecordset_ptr PixelFluid;
-  IRDBRecordset_ptr PixelConnector;
-  IRDBRecordset_ptr PixelPigtail;
-  IRDBRecordset_ptr PixelFrame;
-  IRDBRecordset_ptr PixelFrameSect;
-  IRDBRecordset_ptr PixelIBLStave;
-  IRDBRecordset_ptr PixelIBLSupport;
-  IRDBRecordset_ptr PixelIBLFlex;
-  IRDBRecordset_ptr PixelIBLFlexMaterial;
-  IRDBRecordset_ptr PixelIBLGlueGrease;
-  IRDBRecordset_ptr PixelConicalStave;
+  IRDBRecordset_ptr m_PixelSwitches;
+  IRDBRecordset_ptr m_PixelBarrelGeneral;
+  IRDBRecordset_ptr m_PixelBarrelService;
+  IRDBRecordset_ptr m_PixelSimpleService;
+  IRDBRecordset_ptr m_PixelCommon;
+  IRDBRecordset_ptr m_PixelEnvelope;
+  IRDBRecordset_ptr m_PixelDisk;
+  IRDBRecordset_ptr m_PixelDiskRing;
+  IRDBRecordset_ptr m_PixelRing;
+  IRDBRecordset_ptr m_PixelEndcapGeneral;
+  IRDBRecordset_ptr m_PixelEndcapService;
+  IRDBRecordset_ptr m_PixelEnvelopeService;
+  IRDBRecordset_ptr m_PixelLayer;
+  IRDBRecordset_ptr m_PixelModule;
+  IRDBRecordset_ptr m_PixelModuleSvc;
+  IRDBRecordset_ptr m_PixelStave;
+  IRDBRecordset_ptr m_PixelStaveZ;
+  IRDBRecordset_ptr m_PixelTopLevel;
+  IRDBRecordset_ptr m_PixelReadout;
+  IRDBRecordset_ptr m_PixelGangedPixels;
+  IRDBRecordset_ptr m_PixelBarrelCable;
+  IRDBRecordset_ptr m_PixelTMT;
+  IRDBRecordset_ptr m_PixelOmega;
+  IRDBRecordset_ptr m_PixelOmegaGlue;
+  IRDBRecordset_ptr m_PixelAlTube;
+  IRDBRecordset_ptr m_PixelFluid;
+  IRDBRecordset_ptr m_PixelConnector;
+  IRDBRecordset_ptr m_PixelPigtail;
+  IRDBRecordset_ptr m_PixelFrame;
+  IRDBRecordset_ptr m_PixelFrameSect;
+  IRDBRecordset_ptr m_PixelIBLStave;
+  IRDBRecordset_ptr m_PixelIBLSupport;
+  IRDBRecordset_ptr m_PixelIBLFlex;
+  IRDBRecordset_ptr m_PixelIBLFlexMaterial;
+  IRDBRecordset_ptr m_PixelIBLGlueGrease;
+  IRDBRecordset_ptr m_PixelConicalStave;
   IRDBRecordset_ptr m_weightTable;
   IRDBRecordset_ptr m_scalingTable;
   IRDBRecordset_ptr m_materialTable;
   IRDBRecordset_ptr m_staveTypeTable;
   
   //DBM 
-  IRDBRecordset_ptr DBMTelescope;
+  IRDBRecordset_ptr m_DBMTelescope;
   //IRDBRecordset_ptr DBMSpacing;
-  IRDBRecordset_ptr DBMBracket;
-  IRDBRecordset_ptr DBMCage;
+  IRDBRecordset_ptr m_DBMBracket;
+  IRDBRecordset_ptr m_DBMCage;
   //IRDBRecordset_ptr DBMRod;
   //IRDBRecordset_ptr DBMMainPlate;
   //IRDBRecordset_ptr DBMVslide;
-  IRDBRecordset_ptr DBMModule;
+  IRDBRecordset_ptr m_DBMModule;
   //IRDBRecordset_ptr DBMFlex;
   //IRDBRecordset_ptr DBMServices;
   IRDBRecordset_ptr m_dbmWeightTable;
 
   // eta, phi, layer/disk, side (EC)
   int m_eta,m_phi;
-  int currentLD;
-  int BarrelEndcap;
-  int _side;
+  int m_currentLD;
+  int m_BarrelEndcap;
+  int m_side;
   int m_diskFrontBack;
 
   // number or general service elements
@@ -263,24 +263,24 @@ class OraclePixGeoManager : public PixelGeometryManager {
 
   // The layer/disk barrel/endcap can be changed by these function.
   void SetCurrentLD(int i);
-  int GetLD() {return currentLD;}
+  int GetLD() {return m_currentLD;}
   std::string getLD_Label();
 
   // Which layers/disks are present?
   bool isLDPresent();
 
   // The side
-  void SetPos() {_side = 1;}
-  void SetNeg() {_side = -1;}
-  int GetSide() {return _side;}
-  bool isAside() {return _side>0;}
-  bool isCside() {return _side<0;}
+  void SetPos() {m_side = 1;}
+  void SetNeg() {m_side = -1;}
+  int GetSide() {return m_side;}
+  bool isAside() {return m_side>0;}
+  bool isCside() {return m_side<0;}
   void setDiskFront() { m_diskFrontBack &= 0x3; m_diskFrontBack |= 0x4; }
   void setDiskBack()  { m_diskFrontBack &= 0x3; m_diskFrontBack |= 0x8; }
   bool isDiskFront() const { return m_diskFrontBack & 0x4; }
   bool isDiskBack() const  { return m_diskFrontBack & 0x8; }
 
-  bool isInnermostPixelLayer() {return (isBarrel() && currentLD == 0);}
+  bool isInnermostPixelLayer() {return (isBarrel() && m_currentLD == 0);}
 
   //
   // DETECTOR PARAMTERS

@@ -21,7 +21,6 @@
 #include "SiPropertiesSvc/ISiPropertiesSvc.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
 
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "InDetReadoutGeometry/SiLocalPosition.h"
 
 
@@ -51,7 +50,6 @@ ReadSiDetectorElements::ReadSiDetectorElements(const std::string& name, ISvcLoca
   AthAlgorithm(name, pSvcLocator),
   m_managerName("Pixel"),  // or SCT
   m_doLoop(true),
-  m_geoModelSvc("GeoModelSvc", name),
   m_siLorentzAngleSvc("PixelLorentzAngleSvc",name),
   m_siConditionsSvc("PixelSiliconConditionsSvc",name),
   m_siPropertiesSvc("PixelSiPropertiesSvc",name),
@@ -66,7 +64,6 @@ ReadSiDetectorElements::ReadSiDetectorElements(const std::string& name, ISvcLoca
   declareProperty("LoopOverElements", m_doLoop);
   declareProperty("DoInitialize", m_doInit = false);
   declareProperty("DoExecute",    m_doExec = true);
-  declareProperty("GeoModelSvc", m_geoModelSvc);
   declareProperty("SiLorentzAngleSvc", m_siLorentzAngleSvc);
   declareProperty("SiConditionsSvc", m_siConditionsSvc);
   declareProperty("SiPropertiesSvc", m_siPropertiesSvc);
@@ -83,32 +80,6 @@ StatusCode ReadSiDetectorElements::initialize(){
   //  const PixelDetectorManager * manager;
   //  const SCT_DetectorManager  * manager;
 
-  // GeoModelSvc
-  ATH_CHECK (m_geoModelSvc.retrieve());
-  StatusCode sc;
-  if(m_geoModelSvc->geoInitialized()) {
-    ATH_MSG_INFO( "Geometry already initialized. Call geoInitialize."  );
-    sc = geoInitialize();
-  } else {
-    ATH_MSG_INFO( "Geometry not yet initialized. Registering callback"  );
-    // Register callback to check when TagInfo has changed
-    sc =  detStore()->regFcn(&IGeoModelSvc::geoInit, &*m_geoModelSvc,&ReadSiDetectorElements::geoInitCallback, this);
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Cannot register geoInitCallback function "  );
-    } else {
-      ATH_MSG_DEBUG( "Registered geoInitCallback callback  " );
-    }
-  }
-  return sc;
-}
-
-
-StatusCode ReadSiDetectorElements::geoInitCallback(IOVSVC_CALLBACK_ARGS){
-  ATH_MSG_DEBUG("geoInitCallback is called" ); 
-  return geoInitialize();
-}
-
-StatusCode ReadSiDetectorElements::geoInitialize() {
   ATH_CHECK( detStore()->retrieve(m_manager,m_managerName));
   if (m_managerName == "Pixel") {
     //

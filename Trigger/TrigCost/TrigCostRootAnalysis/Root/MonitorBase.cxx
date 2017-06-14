@@ -694,8 +694,8 @@ namespace TrigCostRootAnalysis {
         switch (_toSave[_i].m_formatOption) {
         case kFormatOptionNormaliseEntriesWallTime:
           _value = _entries;
-
-        // NOTE: Explicit fall-through of case logic
+          // NOTE: Explicit fall-through of case logic
+          /* FALLTHROUGH */
         case kFormatOptionNormaliseWallTime:
           if (isZero(m_collectionLumiCollector[ _counterCollectionName ]->getTotalLumiBlockTime())) {
             _value = 0.;

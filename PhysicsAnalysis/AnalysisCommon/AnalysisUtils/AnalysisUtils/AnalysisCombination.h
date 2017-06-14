@@ -37,7 +37,7 @@ namespace AnalysisUtils {
 
     /** get a combination. internal indices are incremented
 	@param comb [out] combination of elements
-	@retrun true:success false:end of selection
+	@return true:success false:end of selection
     */
     template <class OUT>
     bool get(OUT &comb)
@@ -64,7 +64,7 @@ namespace AnalysisUtils {
 	@param caller
 	@param comb [out] combination of elements
 	@param criteria [in] a function pointer of selection criteria 
-	@retrun true:success false:end of selection
+	@return true:success false:end of selection
     */
     template <class CALLER, class OUT, class CRITERIA>
     bool goodOnes(CALLER *caller, OUT &comb, CRITERIA criteria)

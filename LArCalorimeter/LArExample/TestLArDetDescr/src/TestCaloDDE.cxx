@@ -774,8 +774,6 @@ TestCaloDDE::try_zone()
 void
 TestCaloDDE::try_each_descr_zone()
 {
-
-  MsgStream log( messageService(), name() );
   ATH_MSG_INFO( "" );
   ATH_MSG_INFO ( "Executing TestCaloDDE : try_zone for each descriptor " );
   ATH_MSG_INFO( "" );

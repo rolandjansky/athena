@@ -26,13 +26,36 @@ namespace SG {
  * @param index The index of this Handle's Allocator type.
  */
 ArenaHandleBase::ArenaHandleBase (ArenaHeader* header, size_t index)
+  : m_allocator ( (header ? header : ArenaHeader::defaultHeader()) ->
+                    allocator (index))
 {
-  // If the supplied header is null, use the global default.
-  if (!header)
-    header = ArenaHeader::defaultHeader();
+}
 
-  // Get the allocator.
-  m_allocator = header->allocator (index);
+
+/**
+ * @brief Constructor.
+ * @param header The group of Arenas which this Handle may reference.
+ *               May be null to select the global default.
+ * @param ctx Event context to select the Arena for the proper event slot.
+ * @param index The index of this Handle's Allocator type.
+ */
+ArenaHandleBase::ArenaHandleBase (ArenaHeader* header,
+                                  const EventContext& ctx,
+                                  size_t index)
+  : m_allocator ( (header ? header : ArenaHeader::defaultHeader()) ->
+                    allocator (ctx, index))
+{
+}
+
+
+/**
+ * @brief Constructor.
+ * @parma arena The particular Arena to use.
+ * @param index The index of this Handle's Allocator type.
+ */
+ArenaHandleBase::ArenaHandleBase (ArenaBase* arena, size_t index)
+  : m_allocator (arena->allocator (index))
+{
 }
 
 
@@ -95,7 +118,7 @@ void ArenaHandleBase::reserve (size_t size)
  * @brief Return the statistics block for this allocator,
  * for the current Arena.
  */
-const ArenaAllocatorBase::Stats& ArenaHandleBase::stats() const
+ArenaAllocatorBase::Stats ArenaHandleBase::stats() const
 {
   return baseAllocator()->stats();
 }

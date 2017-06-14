@@ -150,9 +150,14 @@ list+=[doOfflineTauTTP]
 
 #create a JobProperty container
 class HLTMonFlagsCont(JobPropertyContainer):
-	"""Container for HLT Monitoring FLags
-	"""
-	pass
+    """
+    Container for HLT Monitoring FLags
+    """
+    def set_All_Off(self):
+        for j in list:
+            if j.__name__.startswith('do'):
+                j.StoredValue=False
+    pass
 
 jobproperties.add_Container(HLTMonFlagsCont)
 

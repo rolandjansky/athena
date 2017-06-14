@@ -16,7 +16,7 @@
 #include <string>
 #include <type_traits>
 
-// FrameWork includes
+// Framework includes
 #ifndef REENTRANT_GAUDI
  #define ReEntAlgorithm Algorithm
  #include "GaudiKernel/Algorithm.h"
@@ -172,7 +172,7 @@ public:
    * @brief Declare a new Gaudi property.
    * @param name Name of the property.
    * @param property Object holding the property value.
-   * @param doc Documenation string for the property.
+   * @param doc Documentation string for the property.
    *
    * This is the version for types that derive from @c SG::VarHandleKey.
    * The property value object is put on the input and output lists as
@@ -188,6 +188,34 @@ public:
     hndl.setOwner(this);
 
     return Algorithm::declareProperty(name,hndl,doc);
+  }
+
+  /**
+   * @brief Declare a new Gaudi property.
+   * @param name Name of the property.
+   * @param property Object holding the property value.
+   * @param doc Documentation string for the property.
+   *
+   * This is the version for a @c WriteDecorHandleKey.
+   * This one is special, since it's actually two keys: a read handle key
+   * for the container and a write handle key for the decoration.
+   * We need to put both of these on the list.
+   */
+  template <class T>
+  Property* declareProperty(const std::string& name,
+                            SG::WriteDecorHandleKey<T>& hndl,
+                            const std::string& doc,
+                            std::true_type,
+                            std::false_type)
+  {
+    this->declare(hndl.contHandleKey_nc());
+    hndl.contHandleKey_nc().setOwner(this);
+
+    return this->declareProperty (name,
+                                  static_cast<SG::VarHandleKey&>(hndl),
+                                  doc,
+                                  std::true_type(),
+                                  std::false_type());
   }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -240,7 +268,7 @@ public:
    * @brief Declare a new Gaudi property.
    * @param name Name of the property.
    * @param property Object holding the property value.
-   * @param doc Documenation string for the property.
+   * @param doc Documentation string for the property.
    *
    * This is the generic version, for types that do not derive
    * from  @c SG::VarHandleKey.  It just forwards to the base class version
@@ -262,7 +290,7 @@ public:
    * @brief Declare a new Gaudi property.
    * @param name Name of the property.
    * @param property Object holding the property value.
-   * @param doc Documenation string for the property.
+   * @param doc Documentation string for the property.
    *
    * This dispatches to either the generic @c declareProperty or the one
    * for VarHandle/Key, depending on whether or not @c property
@@ -281,7 +309,16 @@ public:
 
   }
 
-  
+
+  /**
+   * @brief Return the list of extra output dependencies.
+   *
+   * This list is extended to include symlinks implied by inheritance
+   * relations.
+   */
+  virtual const DataObjIDColl& extraOutputDeps() const override;
+
+
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
   /////////////////////////////////////////////////////////////////// 
@@ -314,6 +351,10 @@ public:
   typedef ServiceHandle<IUserDataSvc> UserDataSvc_t;
   /// Pointer to IUserDataSvc
   mutable UserDataSvc_t m_userStore;
+
+  /// Extra output dependency collection, extended by AthAlgorithmDHUpdate
+  /// to add symlinks.  Empty if no symlinks were found.
+  DataObjIDColl m_extendedExtraObjects;
 }; 
 
 /////////////////////////////////////////////////////////////////// 

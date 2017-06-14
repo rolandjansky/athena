@@ -53,11 +53,6 @@ class TrigLoFRemovalHypo : public HLT::HypoAlgo {
 
   int m_cutCounter;
   float m_CellContainerSize;
-
-
-  StoreGateSvc*                           m_storeGate;
-
-
 };
 #endif
 

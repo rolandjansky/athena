@@ -3,8 +3,8 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
-@page xAODMissingET_page @mainpage Data objects for Missing Transverse Momentum reconstruction
+/**
+@page xAODMissingET_page Data objects for Missing Transverse Momentum reconstruction
  *
  *  @tableofcontents
  *

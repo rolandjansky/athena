@@ -26,7 +26,6 @@
 
 HTFilter::HTFilter(const std::string& name, ISvcLocator* pSvcLocator)
    : GenFilter(name,pSvcLocator) 
-   , m_storeGate("StoreGateSvc",name)
    , m_total(0)
    , m_passed(0)
    , m_ptfailed(0)
@@ -40,14 +39,11 @@ HTFilter::HTFilter(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("UseLeptonsFromWZTau",m_UseLep = false, "Include e/mu from W/Z/tau decays in the HT");
   declareProperty("MinLeptonPt",m_MinLepPt = 0*CLHEP::GeV);
   declareProperty("MaxLeptonEta",m_MaxLepEta = 10.0);
-
-  m_log = new MsgStream(messageService(),name);
 }
 
 //--------------------------------------------------------------------------
 
 HTFilter::~HTFilter() {
-  if (m_log) delete m_log;
 }
 
 //---------------------------------------------------------------------------
@@ -64,19 +60,14 @@ StatusCode HTFilter::filterInitialize() {
   if (m_UseNu)  ATH_MSG_INFO( " including neutrinos" );
   if (m_UseLep)  ATH_MSG_INFO( " including W/Z/tau leptons in range "  << m_MinLepPt << "<p_T GeV and abs(eta)<" << m_MaxLepEta );
 
-  if (m_storeGate.retrieve().isFailure()) {
-    ATH_MSG_ERROR( "Unable to retrieve pointer to StoreGateSvc " << m_storeGate );
-    return StatusCode::FAILURE;
-  }
-
   return StatusCode::SUCCESS;
 }
 
 //---------------------------------------------------------------------------
 
 StatusCode HTFilter::filterFinalize() {
-  (*m_log) << MSG::INFO << "Total efficiency: " << 100.*double(m_passed)/double(m_total) << "% (" 
-           << 100.*double(m_ptfailed)/double(m_total) << "% failed p_T cuts)" << endmsg;
+  ATH_MSG_INFO( "Total efficiency: " << 100.*double(m_passed)/double(m_total) << "% (" 
+                << 100.*double(m_ptfailed)/double(m_total) << "% failed p_T cuts)"  );
   return StatusCode::SUCCESS;
 }
 
@@ -87,8 +78,8 @@ StatusCode HTFilter::filterEvent() {
 
   // Get jet container out
   const DataHandle<xAOD::JetContainer> truthjetTES = 0;
-  if ( !m_storeGate->contains<xAOD::JetContainer>( m_TruthJetContainerName ) ||
-        m_storeGate->retrieve( truthjetTES, m_TruthJetContainerName).isFailure() || !truthjetTES ){
+  if ( !evtStore()->contains<xAOD::JetContainer>( m_TruthJetContainerName ) ||
+        evtStore()->retrieve( truthjetTES, m_TruthJetContainerName).isFailure() || !truthjetTES ){
     ATH_MSG_INFO( "No xAOD::JetContainer found in StoreGate with key " << m_TruthJetContainerName ); 
     setFilterPassed(m_MinHT<1.);  
     return StatusCode::SUCCESS;
@@ -111,7 +102,7 @@ StatusCode HTFilter::filterEvent() {
   if (m_UseLep || m_UseNu){  
     // Get MC event collection
     const DataHandle<McEventCollection> mecc = 0;
-    if ( m_storeGate->retrieve(mecc).isFailure() || !mecc || mecc->size()<1 || !((*mecc)[0]) ){
+    if ( evtStore()->retrieve(mecc).isFailure() || !mecc || mecc->size()<1 || !((*mecc)[0]) ){
       ATH_MSG_WARNING( "Could not retrieve MC Event Collection - weight might not work" );
       return StatusCode::SUCCESS;
     }

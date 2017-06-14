@@ -29,7 +29,7 @@
 IParticleLinkContainer_PERS* IParticleLinkContainerCnv::createPersistent( IParticleLinkContainer* transCont )
 {
   // Create the message service for this class
-  MsgStream log( messageService(), "IParticleLinkContainerConverter" );
+  MsgStream log( msgSvc(), "IParticleLinkContainerConverter" );
 
   // Do the actual creation of the persistent object
   IParticleLinkContainer_PERS *persObj = m_TPConverter.createPersistent( transCont, log );
@@ -45,7 +45,7 @@ IParticleLinkContainer_PERS* IParticleLinkContainerCnv::createPersistent( IParti
 IParticleLinkContainer* IParticleLinkContainerCnv::createTransient()
 {
   // Create the message service for this class
-  MsgStream log( messageService(), "IParticleLinkContainerConverter" );
+  MsgStream log( msgSvc(), "IParticleLinkContainerConverter" );
 
   // Define the pool IDs
   static pool::Guid  p1_guid("E82C71AF-AC5C-453B-9A35-FA45A849838E");

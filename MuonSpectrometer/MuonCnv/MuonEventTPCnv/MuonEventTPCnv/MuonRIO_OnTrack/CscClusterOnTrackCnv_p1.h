@@ -17,7 +17,7 @@
 
 #include "TrkEventTPCnv/TrkRIO_OnTrack/RIO_OnTrackCnv_p1.h"
 #include "DataModelAthenaPool/ElementLinkCnv_p1.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "MuonPrepRawData/CscPrepData.h"
 
 class MsgStream;

@@ -1,3 +1,7 @@
+#
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
 ###############################################################
 #
 # AthExStoreGateExample Job options file reading Generated events
@@ -26,19 +30,15 @@ from StoreGate.StoreGateConf import SG__HiveMgrSvc
 svcMgr += SG__HiveMgrSvc("EventDataSvc")
 svcMgr.EventDataSvc.NSlots = numStores
 
-from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
-svcMgr += ForwardSchedulerSvc()
-svcMgr.ForwardSchedulerSvc.OutputLevel = DEBUG
-svcMgr.ForwardSchedulerSvc.MaxEventsInFlight = numStores
-svcMgr.ForwardSchedulerSvc.MaxAlgosInFlight = 1
-svcMgr.ForwardSchedulerSvc.ThreadPoolSize = 1
+#svcMgr.ForwardSchedulerSvc.AlgosDependencies = [[],['8000/WriteData'],[],[]]
 
-svcMgr.ForwardSchedulerSvc.AlgosDependencies = [[],['8000/WriteData'],[],[]]
-
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.setThreadPoolSize( 1 )
 
 svcMgr += AthenaHiveEventLoopMgr()
 svcMgr.AthenaHiveEventLoopMgr.WhiteboardSvc = "EventDataSvc"
 svcMgr.AthenaHiveEventLoopMgr.OutputLevel = DEBUG
+svcMgr.AthenaHiveEventLoopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
 
 from StoreGate.StoreGateConf import SG__HiveMgrSvc
 svcMgr += SG__HiveMgrSvc("EventDataSvc")

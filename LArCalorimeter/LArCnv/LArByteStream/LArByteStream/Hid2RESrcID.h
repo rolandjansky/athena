@@ -2,12 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __HID2RESRCID__
-#define __HID2RESRCID__
+#ifndef LARBYTESTREAM_HID2RESRCID_H
+#define LARBYTESTREAM_HID2RESRCID_H
 
 // #include "ByteStreamData/RESrcID.h" 
 #include "LArIdentifier/LArOnlineID.h" 
-#include "LArTools/LArCablingService.h" 
+#include "LArCabling/LArCablingService.h" 
 
 
 #include <stdint.h> 

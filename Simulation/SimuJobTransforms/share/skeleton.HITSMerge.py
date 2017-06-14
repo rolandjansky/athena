@@ -108,9 +108,9 @@ if not hasattr(runArgs,"outputHITS_MRGFile"):
 Out = runArgs.outputHITS_MRGFile
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 try:
-  StreamHITS = AthenaPoolOutputStream( "StreamHITS", Out, True )
+  StreamHITS = AthenaPoolOutputStream( "StreamHITS", Out, True, noTag=True )
 except:
-  StreamHITS = AthenaPoolOutputStream( "StreamHITS", "DidNotSetOutputName.root", True )
+  StreamHITS = AthenaPoolOutputStream( "StreamHITS", "DidNotSetOutputName.root", True, noTag=True )
 StreamHITS.TakeItemsFromInput=TRUE;
 StreamHITS.ForceRead=TRUE;  #force read of output data objs
 # The next line is an example on how to exclude clid's if they are causing a  problem

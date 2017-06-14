@@ -144,6 +144,9 @@ private:
   /// property: is this job running RDO+RDO overlay.
   Gaudi::Property<bool> m_isEventOverlayJob;
 
+  /// property: is this job running MC RDO+RDO overlay.
+  BooleanProperty m_isEventOverlayJobMC;
+
   /// property: the run number from an EVNT file, used to set the mc_channel_number, for overlay
   Gaudi::Property<int> m_mcRunNumber;
 

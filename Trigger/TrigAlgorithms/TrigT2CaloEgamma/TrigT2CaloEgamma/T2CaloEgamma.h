@@ -62,8 +62,6 @@ class T2CaloEgamma: public T2CaloBase {
     HLT::ErrorCode recordAndAttachRings(HLT::TriggerElement *outputTE);
 
   private:
-    /** log output cached to avoid fetching MsgStream once per RoI */
-    MsgStream* m_log;
     /** Monitoring Tool */
     // T2CaloEgammaMon* m_monitoring;
     /** To support new monitoring. Values must be copied to

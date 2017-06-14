@@ -20,7 +20,6 @@ namespace InDetDD{
   class SiDetectorElement;
 }
 
-class IGeoModelSvc;
 class ISiLorentzAngleSvc;
 class ISiliconConditionsSvc;
 class ISiPropertiesSvc;
@@ -38,10 +37,6 @@ public:
   StatusCode execute();
   StatusCode finalize();
 
-  /// GeoInit callback
-  StatusCode geoInitCallback(IOVSVC_CALLBACK_ARGS);
-  StatusCode geoInitialize();
-
   void testElement(const Identifier & id, 
        const std::vector<InDetDD::SiCellId> & cellIdVec, 
        const std::vector<Amg::Vector2D> & positionsVec) const;
@@ -55,7 +50,6 @@ public:
   bool m_doLoop;
   bool m_doInit;
   bool m_doExec;
-  ServiceHandle<IGeoModelSvc> m_geoModelSvc;
   ServiceHandle<ISiLorentzAngleSvc> m_siLorentzAngleSvc;
   ServiceHandle<ISiliconConditionsSvc> m_siConditionsSvc;
   ServiceHandle<ISiPropertiesSvc> m_siPropertiesSvc;

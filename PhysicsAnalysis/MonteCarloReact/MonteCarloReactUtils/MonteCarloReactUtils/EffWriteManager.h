@@ -28,7 +28,7 @@ public:
 
 private:
   //recursive search for spc files in directory
-  void m_addFilesToList(const char* path, std::vector<std::string>& files) ;
+  void addFilesToList(const char* path, std::vector<std::string>& files) ;
   };
 }
 #endif // _EFFWRITEMANAGER_HPP_

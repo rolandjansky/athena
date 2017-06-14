@@ -18,13 +18,14 @@
 #include "AthenaBaseComps/AthService.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 
 //Inner detector includes
 #include "InDetIdentifier/SCT_ID.h"
+#include "InDetRawData/SCT_RDO_Container.h"
 
 //local includes
 #include "SCT_CalibAlgs/ISCT_CalibHistoSvc.h"
-
 
 //fwd declarations
 template <class TYPE> class SvcFactory;
@@ -64,7 +65,7 @@ private:
   VecInt *m_sct_firstStrip;
   VecInt *m_sct_rdoGroupSize;
   
-
+  SG::ReadHandleKey<SCT_RDO_Container> m_rdoContainerKey;
 
 };
 #endif

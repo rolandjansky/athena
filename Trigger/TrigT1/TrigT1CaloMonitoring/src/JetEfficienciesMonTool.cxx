@@ -289,7 +289,7 @@ StatusCode JetEfficienciesMonTool::bookHistogramsRecurrent()
 	//if (newLumiBlock) {
 	//}
 
-	if (newRun) {
+	if (newRunFlag()) {
 
 		MgmtAttr_t attr = ATTRIB_UNMANAGED;
 		std::string dir(m_rootDir + "/Reco/JetEfficiencies");
@@ -651,7 +651,7 @@ StatusCode JetEfficienciesMonTool::procHistograms()
 	//if (endOfLumiBlock) {
 	//}
 
-	if (endOfRun) {
+	if (endOfRunFlag()) {
 		msg(MSG::DEBUG) << "Number of offline jets = " << m_numOffJets << endmsg;
 		msg(MSG::DEBUG) << "Number of events = " << m_numEvents << endmsg;
 

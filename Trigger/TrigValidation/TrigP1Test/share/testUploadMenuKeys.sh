@@ -16,6 +16,10 @@ source /afs/cern.ch/sw/lcg/external/Java/bin/setup.sh
 export _JAVA_OPTIONS="-Xms512m -Xmx1048m"
 export DBConn="TRIGGERDBATN"
 
+export TDAQ_VERSION="tdaq-07-01-00"
+export TDAQ_RELEASE_BASE=/afs/cern.ch/atlas/project/tdaq/prod
+export TDAQ_DB_PATH=/afs/cern.ch/atlas/project/tdaq/prod/tdaq/$TDAQ_VERSION/installed/share/data:/afs/cern.ch/atlas/project/tdaq/prod/tdaq/$TDAQ_VERSION/installed/databases:/afs/cern.ch/atlas/project/tdaq/prod/tdaq/$TDAQ_VERSION/databases
+source $TDAQ_RELEASE_BASE/../cmake/cmake_tdaq/bin/cm_setup.sh $TDAQ_VERSION
 
 ##get the right pattern to load LVl1 xml file
 if [ "$type" == "HLT_LS1V1" ]; then
@@ -101,8 +105,7 @@ rundate=`date +%F" "%H:%M" "`
 
 # Upload SMK
 
-cmd="java -Duser.timezone=CET -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release $p1_rel --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'P1HLTtest'  -l INFO --SMcomment \"${rundate}${nightly}_${rel}\" --dbConn $DBConn -w_n 50 -w_t 60"
-
+cmd="java -Duser.timezone=CET -cp \"*:$TDAQ_CLASSPATH\"  triggertool.TriggerTool -up -release $p1_rel --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'P1HLTtest'  -l INFO --SMcomment \"${rundate}${nightly}_${rel}\" --dbConn $DBConn -w_n 50 -w_t 60"
 echo $cmd "&> uploadSMK.log"
 eval $cmd &> uploadSMK.log
 

@@ -31,16 +31,41 @@ ArenaPoolAllocator_iterator_increment (ArenaPoolAllocator::pointer base,
 {
   // If we haven't yet reached the start of this block, move the iterator
   // back one.
-  if (base > block->index(0,0))
+  if (base > block->index(0,0)) {
     return base - block->eltSize();
-  else {
-    // Move to the previous block.
-    block = block->link();
-    if (block)
-      return block->index (block->size()-1, block->eltSize());
-    else
-      return nullptr;
   }
+
+  // Move to the previous block.
+  block = block->link();
+  if (block) {
+    return block->index (block->size()-1, block->eltSize());
+  }
+  return nullptr;
+}
+
+
+/**
+ * @brief Helper: common code for advancing an iterator.
+ * @param base Element pointer.
+ * @param block Block pointer.
+ */
+inline
+ArenaPoolAllocator::const_pointer
+ArenaPoolAllocator_iterator_increment (ArenaPoolAllocator::const_pointer base,
+                                       ArenaBlock* & block)
+{
+  // If we haven't yet reached the start of this block, move the iterator
+  // back one.
+  if (base > block->index(0,0)) {
+    return base - block->eltSize();
+  }
+
+  // Move to the previous block.
+  block = block->link();
+  if (block) {
+    return block->index (block->size()-1, block->eltSize());
+  }
+  return nullptr;
 }
 
 
@@ -59,8 +84,7 @@ void ArenaPoolAllocator::iterator::increment()
  */
 void ArenaPoolAllocator::const_iterator::increment()
 {
-  ArenaPoolAllocator::pointer base =
-    const_cast<ArenaPoolAllocator::pointer> (this->base_reference());
+  ArenaPoolAllocator::const_pointer base = this->base_reference();
   base = ArenaPoolAllocator_iterator_increment (base, m_block);
   this->base_reference() = base;
 }
@@ -144,8 +168,9 @@ void ArenaPoolAllocator::swap (ArenaPoolAllocator& other)
 void ArenaPoolAllocator::reset()
 {
   // Clear each block in turn.
-  while (m_blocks)
+  while (m_blocks) {
     clearBlock();
+  }
 
   // Check that things are consistent.
   assert (m_stats.elts.inuse == 0);
@@ -198,8 +223,9 @@ void ArenaPoolAllocator::resetTo (pointer blk)
 
   // If the element is at the beginning of this block, just clear the whole
   // thing.
-  if (blk == p->index(0, elt_size))
+  if (blk == p->index(0, elt_size)) {
     clearBlock();
+  }
   else {
     // Otherwise, we need to clear some of the elements in this block.
     // See if we need to call @c clear.

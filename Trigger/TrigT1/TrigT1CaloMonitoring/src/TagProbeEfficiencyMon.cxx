@@ -156,7 +156,7 @@ StatusCode TagProbeEfficiencyMon::bookHistogramsRecurrent()
 
   MgmtAttr_t attr = ATTRIB_UNMANAGED;
 
-  if (newRun) {
+  if (newRunFlag()) {
  
     // Create the directories & MonGroups for the histograms
     // Each directory has its own MonGroup
@@ -429,7 +429,7 @@ StatusCode TagProbeEfficiencyMon::procHistograms()
 
   msg(MSG::DEBUG) << "procHistograms entered" << endmsg;
 
-  if (endOfLumiBlock) {
+  if (endOfLumiBlockFlag()) {
 	// At the end of each lumiblock add all the information to *_lumib_int* histograms, for use at end of run
 	// Currently brute forcing this, however this is mostly what is done underneath TH1::Add
     TrigConf::L1DataDef def;
@@ -485,7 +485,7 @@ StatusCode TagProbeEfficiencyMon::procHistograms()
 	}
   }
   }
-  if (endOfRun){
+  if (endOfRunFlag()){
     TrigConf::L1DataDef def;
     if (m_configSvc->ctpConfig()) {
       const std::vector<TrigConf::TriggerThreshold*>& end_thresholds(m_configSvc->ctpConfig()->menu().thresholdVector());  

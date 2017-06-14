@@ -17,7 +17,7 @@
 #include "InDetEventTPCnv/InDetRIO_OnTrack/SiClusterOnTrackCnv_p1.h"
 
 #include "DataModelAthenaPool/ElementLinkCnv_p1.h"
-#include "DataModel/ElementLink.h" 
+#include "AthLinks/ElementLink.h" 
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 
 

@@ -37,5 +37,5 @@ atlas_add_component( MuonPhysValMonitoring
                      LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaMonitoringLib xAODBase xAODCore xAODEventInfo xAODMuon xAODTracking xAODTrigMuon xAODTrigger xAODTruth MuonHistUtils IsolationSelectionLib MuonSelectorToolsLib MuonCombinedToolInterfaces TrkToolInterfaces TrkValHistUtils TrigDecisionToolLib )
 
 # Install files from the package:
-atlas_install_scripts( macros/*.py macros/*.sh macros/*.C )
+atlas_install_scripts( macros/MuonValidation_*.py macros/MuonValidation_*.sh )
 

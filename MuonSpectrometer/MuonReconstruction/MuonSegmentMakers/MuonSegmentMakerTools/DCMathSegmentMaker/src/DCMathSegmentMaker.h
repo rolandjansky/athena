@@ -255,7 +255,7 @@ class MdtDriftCircleOnTrack;
 	- a list of MdtDriftCircleOnTrack
 	- a list of MuonClusterOnTrack
 	- a boolean to indicate whether the external prediction should be used to set the 
-	  $\phi$-direction of the segment
+	  @f$ \phi @f$-direction of the segment
         - an estimate of the momentum of the particle
 	
 	The global direction is used to perform a seeded search for segments. 

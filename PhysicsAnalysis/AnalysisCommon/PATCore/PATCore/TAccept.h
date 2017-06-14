@@ -4,8 +4,8 @@
 
 // Dear emacs, this is -*-c++-*-
 
-#ifndef __TACCEPT__
-#define __TACCEPT__
+#ifndef PATCORE_TACCEPT_H
+#define PATCORE_TACCEPT_H
 
 /**
    @class TAccept
@@ -21,16 +21,14 @@
 #include <bitset>
 
 
-/** The number of bits for cuts */
-static const unsigned int m_nBits=32;
-
-
-
 namespace Root {
   class TAccept
   {
 
   public: 
+    /** The number of bits for cuts */
+    static const unsigned int NBITS=32;
+
     /** Standard constructor */
     TAccept(const char* name="TAccept");
 
@@ -111,16 +109,16 @@ namespace Root {
 
 
     /** Get the cut result bitset */
-    inline std::bitset<m_nBits> getCutResultBitSet() const
+    inline std::bitset<NBITS> getCutResultBitSet() const
     {
       return m_accept;
     }
 
     /** Get an inverted bitset of the cut result. 
         This is IsEM-style, i.e, 0 means the cut is passed */
-    inline std::bitset<m_nBits> getCutResultInvertedBitSet() const
+    inline std::bitset<NBITS> getCutResultInvertedBitSet() const
     {
-      std::bitset<m_nBits> inverted;
+      std::bitset<NBITS> inverted;
       // Iterate over the "active" bits and invert them.
       for ( std::size_t i=0; i<m_cutMap.size(); ++i )
       {
@@ -133,7 +131,7 @@ namespace Root {
         This is IsEM-style, i.e, 0 means that all cuts are passed */
     inline unsigned int getCutResultInverted() const
     {
-      std::bitset<m_nBits> inverted;
+      std::bitset<NBITS> inverted;
       // Iterate over the "active" bits and invert them.
       for ( std::size_t i=0; i<m_cutMap.size(); ++i )
       {
@@ -185,7 +183,7 @@ namespace Root {
     // Private members
   private:
     /** The cut bits */
-    std::bitset<m_nBits> m_accept;
+    std::bitset<NBITS> m_accept;
 
     /** The map for mapping cut names to their description and position */
     std::map< TString, std::pair< TString, unsigned int > > m_cutMap;

@@ -20,7 +20,7 @@ use TileByteStream      TileByteStream-*             TileCalorimeter/TileSvc
 use LArRecEvent         LArRecEvent-*                LArCalorimeter
 use LArRawUtils         LArRawUtils-*                LArCalorimeter
 use LArRecEvent         LArRecEvent-*                LArCalorimeter
-use LArTools            LArTools-*                   LArCalorimeter
+use LArCabling          LArCabling-*                 LArCalorimeter
 
 use TileEvent           TileEvent-*                  TileCalorimeter
 use Identifier          Identifier-*                 DetectorDescription

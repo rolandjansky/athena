@@ -69,12 +69,8 @@ public:
   virtual void getInitPotentialValue();
   /// IOV CallBack
   virtual StatusCode callBack(IOVSVC_CALLBACK_ARGS);
-  /// GeoInit callback
-  StatusCode geoInitCallback(IOVSVC_CALLBACK_ARGS);
   
 private:
-  StatusCode geoInitialize();
-
   void updateCache(const IdentifierHash & elementHash, const  double & pos);
 
   bool valid(const IdentifierHash & elementHash);
@@ -99,7 +95,6 @@ private:
   //bool m_ignoreLocalPos; // Makes methods using localPosition  behave as method without passing localPosition.
   ServiceHandle<ISiliconConditionsSvc> m_siConditionsSvc;
   ServiceHandle<StoreGateSvc> m_detStore;
-  ServiceHandle<IGeoModelSvc> m_geoModelSvc;
   bool m_conditionsSvcValid;
   bool m_conditionsSvcWarning;
   bool m_isSCT;

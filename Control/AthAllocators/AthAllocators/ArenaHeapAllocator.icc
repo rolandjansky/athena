@@ -84,8 +84,9 @@ ArenaHeapAllocator::pointer ArenaHeapAllocator::allocate()
 inline
 void ArenaHeapAllocator::free (pointer p)
 {
-  if (m_params.clear)
+  if (m_params.clear) {
     m_params.clear (p);
+  }
   link (p) = m_freeptr;
   m_freeptr = p;
   --m_stats.elts.inuse;

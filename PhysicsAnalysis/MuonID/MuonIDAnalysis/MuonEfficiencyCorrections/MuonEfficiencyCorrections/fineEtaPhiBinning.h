@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef NEWETAPHI_BINNING_CLASS_H
 #define NEWETAPHI_BINNING_CLASS_H
@@ -76,9 +76,9 @@ class fineEtaPhiBinning {
         // called by GetPhiSector - for barrel
         int getSector(double phi) const;
 
-        float m_barrel_endcap_transition;   // location in |eta| where the endcaps start
+        float m_barrel_endcap_transition; // location in |eta| where the endcaps start
 
-        std::vector<float> m_abs_eta_bins;  // bins in |eta|
+        std::vector<float> m_abs_eta_bins; // bins in |eta|
 
         std::vector<float> m_phi_upper_BAR; // bin edges in the barrel
         std::vector<float> m_phi_lower_BAR;

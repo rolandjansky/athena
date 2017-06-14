@@ -80,7 +80,7 @@ private:
 
    std::vector< std::unordered_map< int, FTKSS > > m_usedssmap; // map of used SSs
 
-   int ipatt_step;
+   int m_ipatt_step;
    virtual void pattlookup_make_map();  // STL hashmap version
    
    // STL internal structures to manage the hits

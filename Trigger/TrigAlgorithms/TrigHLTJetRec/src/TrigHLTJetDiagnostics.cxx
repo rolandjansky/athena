@@ -34,21 +34,21 @@ TrigHLTJetDiagnostics::~TrigHLTJetDiagnostics() { }
 HLT::ErrorCode TrigHLTJetDiagnostics::hltInitialize() {
   ATH_MSG_INFO("Initializing " << name() << "...");  
   // Add histograms to map
-  addHist(hMap1D,"nJets",      200,   0.0,  200.0);	  
-  addHist(hMap1D,"Eta",        100,  -5.0,  5.0);	
-  addHist(hMap1D,"Phi",         64,  -3.2,  3.2);	
-  addHist(hMap1D,"Rapidity",   100,  -5.0,  5.0);	
-  addHist(hMap1D,"Mass",       500,   0.0,  500.0);
-  addHist(hMap1D,"Energy",     500,   0.0,  500.0);	
-  addHist(hMap1D,"Et",         500,   0.0,  500.0);	
-  addHist(hMap1D,"Pt",         500,   0.0,  500.0);	 
-  addHist(hMap1D,"Px",         500,   0.0,  500.0);	 
-  addHist(hMap1D,"Py",         500,   0.0,  500.0);	 
-  addHist(hMap1D,"Pz",         500,   0.0,  500.0);	
-  addHist(hMap1D,"LeadingEt",  100,   0.0,  500.0);	
-  addHist(hMap1D,"LeadingPt",  100,   0.0,  500.0);	
-  addHist(hMap2D,"Eta_vs_Phi",    64,  -3.2,  3.2,  100,  -5.0,  5.0);
-  addHist(hMap2D,"Energy_vs_Pt",  100,  0.0,  100.0,  100,  0.0,  100.0);	
+  addHist(m_hMap1D,"nJets",      200,   0.0,  200.0);	  
+  addHist(m_hMap1D,"Eta",        100,  -5.0,  5.0);	
+  addHist(m_hMap1D,"Phi",         64,  -3.2,  3.2);	
+  addHist(m_hMap1D,"Rapidity",   100,  -5.0,  5.0);	
+  addHist(m_hMap1D,"Mass",       500,   0.0,  500.0);
+  addHist(m_hMap1D,"Energy",     500,   0.0,  500.0);	
+  addHist(m_hMap1D,"Et",         500,   0.0,  500.0);	
+  addHist(m_hMap1D,"Pt",         500,   0.0,  500.0);	 
+  addHist(m_hMap1D,"Px",         500,   0.0,  500.0);	 
+  addHist(m_hMap1D,"Py",         500,   0.0,  500.0);	 
+  addHist(m_hMap1D,"Pz",         500,   0.0,  500.0);	
+  addHist(m_hMap1D,"LeadingEt",  100,   0.0,  500.0);	
+  addHist(m_hMap1D,"LeadingPt",  100,   0.0,  500.0);	
+  addHist(m_hMap2D,"Eta_vs_Phi",    64,  -3.2,  3.2,  100,  -5.0,  5.0);
+  addHist(m_hMap2D,"Energy_vs_Pt",  100,  0.0,  100.0,  100,  0.0,  100.0);	
   return HLT::OK; 
 }
 
@@ -62,17 +62,17 @@ HLT::ErrorCode TrigHLTJetDiagnostics::hltFinalize(){
   TDirectory* dir = fOut->mkdir(directory.c_str());
   dir->cd();
   // Save histograms and close file 
-  for (auto hist : hMap1D) {
+  for (auto hist : m_hMap1D) {
     hist.second->Write();
   }
-  for (auto hist : hMap2D) {
+  for (auto hist : m_hMap2D) {
     hist.second->Write();
   }
   fOut->Write();
   fOut->Close();
   // Clear histogram maps
-  hMap2D.clear();
-  hMap1D.clear();
+  m_hMap2D.clear();
+  m_hMap1D.clear();
   return HLT::OK;
 }
 
@@ -114,7 +114,7 @@ HLT::ErrorCode TrigHLTJetDiagnostics::hltExecute(const HLT::TriggerElement* inpu
   }
 
   ATH_MSG_DEBUG("No of jets in the container: " << j_container->size());
-  hMap1D["nJets"]->Fill(j_container->size());
+  m_hMap1D["nJets"]->Fill(j_container->size());
 
   double leadingPt = 0;
   double leadingEt = 0;
@@ -135,41 +135,41 @@ HLT::ErrorCode TrigHLTJetDiagnostics::hltExecute(const HLT::TriggerElement* inpu
     if (et > leadingEt) leadingEt = et;
 
     // Fill histograms
-    hMap1D["Energy"]->Fill(energy*0.001);
-    hMap1D["Et"]->Fill(et*0.001);
-    hMap1D["Mass"]->Fill(mass*0.001);
-    hMap1D["Eta"]->Fill(eta);
-    hMap1D["Phi"]->Fill(phi);
-    hMap1D["Rapidity"]->Fill(rapidity);
-    hMap1D["Pt"]->Fill(pt*0.001);
-    hMap1D["Px"]->Fill(px*0.001);
-    hMap1D["Py"]->Fill(py*0.001);
-    hMap1D["Pz"]->Fill(pz*0.001);
-    hMap2D["Eta_vs_Phi"]->Fill(phi, eta);
-    hMap2D["Energy_vs_Pt"]->Fill(pt*0.001, energy*0.001);
+    m_hMap1D["Energy"]->Fill(energy*0.001);
+    m_hMap1D["Et"]->Fill(et*0.001);
+    m_hMap1D["Mass"]->Fill(mass*0.001);
+    m_hMap1D["Eta"]->Fill(eta);
+    m_hMap1D["Phi"]->Fill(phi);
+    m_hMap1D["Rapidity"]->Fill(rapidity);
+    m_hMap1D["Pt"]->Fill(pt*0.001);
+    m_hMap1D["Px"]->Fill(px*0.001);
+    m_hMap1D["Py"]->Fill(py*0.001);
+    m_hMap1D["Pz"]->Fill(pz*0.001);
+    m_hMap2D["Eta_vs_Phi"]->Fill(phi, eta);
+    m_hMap2D["Energy_vs_Pt"]->Fill(pt*0.001, energy*0.001);
   }
 
-  hMap1D["LeadingEt"]->Fill(leadingEt*0.001);
-  hMap1D["LeadingPt"]->Fill(leadingPt*0.001);
+  m_hMap1D["LeadingEt"]->Fill(leadingEt*0.001);
+  m_hMap1D["LeadingPt"]->Fill(leadingPt*0.001);
 
   // Set axis labels
-  hMap1D["nJets"]->GetXaxis()->SetTitle("nJets");
-  hMap1D["Energy"]->GetXaxis()->SetTitle("E [GeV]");
-  hMap1D["Et"]->GetXaxis()->SetTitle("Et [GeV]");
-  hMap1D["Mass"]->GetXaxis()->SetTitle("M [GeV]");
-  hMap1D["Eta"]->GetXaxis()->SetTitle("Eta");
-  hMap1D["Phi"]->GetXaxis()->SetTitle("Phi");
-  hMap1D["Rapidity"]->GetXaxis()->SetTitle("y");
-  hMap1D["Pt"]->GetXaxis()->SetTitle("Pt [GeV]");
-  hMap1D["Px"]->GetXaxis()->SetTitle("Px [GeV]");
-  hMap1D["Py"]->GetXaxis()->SetTitle("Py [GeV]");
-  hMap1D["Pz"]->GetXaxis()->SetTitle("Pz [GeV]");
-  hMap1D["LeadingEt"]->GetXaxis()->SetTitle("Et [GeV]");
-  hMap1D["LeadingPt"]->GetXaxis()->SetTitle("Pt [GeV]");
-  hMap2D["Eta_vs_Phi"]->GetYaxis()->SetTitle("Eta");
-  hMap2D["Eta_vs_Phi"]->GetXaxis()->SetTitle("Phi");
-  hMap2D["Energy_vs_Pt"]->GetYaxis()->SetTitle("E [Gev]");
-  hMap2D["Energy_vs_Pt"]->GetXaxis()->SetTitle("Pt [Gev]");
+  m_hMap1D["nJets"]->GetXaxis()->SetTitle("nJets");
+  m_hMap1D["Energy"]->GetXaxis()->SetTitle("E [GeV]");
+  m_hMap1D["Et"]->GetXaxis()->SetTitle("Et [GeV]");
+  m_hMap1D["Mass"]->GetXaxis()->SetTitle("M [GeV]");
+  m_hMap1D["Eta"]->GetXaxis()->SetTitle("Eta");
+  m_hMap1D["Phi"]->GetXaxis()->SetTitle("Phi");
+  m_hMap1D["Rapidity"]->GetXaxis()->SetTitle("y");
+  m_hMap1D["Pt"]->GetXaxis()->SetTitle("Pt [GeV]");
+  m_hMap1D["Px"]->GetXaxis()->SetTitle("Px [GeV]");
+  m_hMap1D["Py"]->GetXaxis()->SetTitle("Py [GeV]");
+  m_hMap1D["Pz"]->GetXaxis()->SetTitle("Pz [GeV]");
+  m_hMap1D["LeadingEt"]->GetXaxis()->SetTitle("Et [GeV]");
+  m_hMap1D["LeadingPt"]->GetXaxis()->SetTitle("Pt [GeV]");
+  m_hMap2D["Eta_vs_Phi"]->GetYaxis()->SetTitle("Eta");
+  m_hMap2D["Eta_vs_Phi"]->GetXaxis()->SetTitle("Phi");
+  m_hMap2D["Energy_vs_Pt"]->GetYaxis()->SetTitle("E [Gev]");
+  m_hMap2D["Energy_vs_Pt"]->GetXaxis()->SetTitle("Pt [Gev]");
 
   return HLT::OK;
 }

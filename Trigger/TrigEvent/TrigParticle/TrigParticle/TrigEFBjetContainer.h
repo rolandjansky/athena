@@ -15,7 +15,7 @@
 #ifndef TRIG_EF_BJET_CONTAINER
 #define TRIG_EF_BJET_CONTAINER
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "CLIDSvc/CLASS_DEF.h"
 
 #include "TrigParticle/TrigEFBjet.h"

@@ -7,6 +7,8 @@
 
 // Tile includes
 #include "TileConditions/TileCondToolOfc.h"
+#include "TileConditions/TileCablingService.h"
+#include "TileConditions/TileCablingSvc.h"
 
 
 //
@@ -20,12 +22,13 @@ const InterfaceID& TileCondToolOfc::interfaceID() {
 TileCondToolOfc::TileCondToolOfc(const std::string& type, const std::string& name,
     const IInterface* parent)
     : AthAlgTool(type, name, parent)
-    , m_ofc_phase_cache{}
     , m_tileToolPulseShape("TileCondToolPulseShape")
     , m_tileToolAutoCr("TileCondToolAutoCr")
 //  , m_tileToolNoiseSample("TileCondToolNoiseSample")
     , m_tileInfo(0)
-    , m_weights(0)
+    , m_maxChannels(0)
+    , m_maxGains(0)
+    , m_drawerCacheSize(0)
 {
   declareInterface<ITileCondToolOfc>(this);
   declareProperty("nSamples", m_nSamples = 7, "number of samples used in the run");
@@ -41,10 +44,6 @@ TileCondToolOfc::TileCondToolOfc(const std::string& type, const std::string& nam
 //
 //____________________________________________________________________
 TileCondToolOfc::~TileCondToolOfc() {
-
-  if (m_weights) delete m_weights;
-  if (m_cache) for (int i = 0; i < MAX_ADCS * 2; i++)
-    delete m_ofc_phase_cache[i];
 
 }
 
@@ -84,12 +83,36 @@ StatusCode TileCondToolOfc::initialize() {
   }
 
   //=== Prepare for calculation of OFCs
-  m_weights = new TileOfcWeightsStruct;
-  m_weights->n_samples = m_nSamples;
+  m_weights.n_samples = m_nSamples;
+
+  //=== Initialize max values
+  ServiceHandle<TileCablingSvc> cablingSvc("TileCablingSvc", name());
+  CHECK( cablingSvc.retrieve());
+
+  const TileCablingService* cabling = cablingSvc->cablingService();
+  if (!cabling) {
+    ATH_MSG_ERROR( "Unable to retrieve TileCablingService" );
+    return StatusCode::FAILURE;
+  }
+
+  m_maxChannels = cabling->getMaxChannels();
+  m_maxGains = cabling->getMaxGains();
+  m_drawerCacheSize = m_maxChannels * m_maxGains;
 
   // Prepare cache table for all channels (array of pointers to "MAP"s)
-  if (m_cache)
-    for (int i = 0; i < MAX_ADCS * 2; i++) m_ofc_phase_cache[i] = new ADCPhaseCache;
+  if (m_cache) {
+
+    m_ofc_phase_cache.reserve(m_drawerCacheSize * TileCalibUtils::MAX_DRAWERIDX);
+
+    for (unsigned int drawerIdx = 0; drawerIdx < TileCalibUtils::MAX_DRAWERIDX; ++ drawerIdx) {
+      for (unsigned int channel = 0; channel < m_maxChannels; ++channel) {
+        for (unsigned int adc = 0; adc < m_maxGains; ++adc) {
+          m_ofc_phase_cache.push_back(std::make_unique<OfcPhaseCache>());
+        }
+      }
+    }
+  }
+
 
   //--------------------------------------------------------
   ATH_MSG_INFO( "TileCondToolOfc initialization completed. " );
@@ -103,15 +126,13 @@ StatusCode TileCondToolOfc::finalize() {
   ATH_MSG_DEBUG( "TileCondToolOfc finalize called" );
 
   if (m_cache) {
-    std::map<int, TileOfcWeightsStruct*>::iterator iter;
     unsigned int cache_size = 0;
-    for (int i = 0; i < MAX_ADCS * 2; i++) {
-      if (!m_ofc_phase_cache[i]) continue;
-      iter = (*m_ofc_phase_cache[i]).begin();
-      ATH_MSG_DEBUG( "TileCondToolOfc cache table size: " << (*m_ofc_phase_cache[i]).size()
-                    << " " << sizeof((*m_weights)) );
+    for (std::unique_ptr<OfcPhaseCache>& ofcCache : m_ofc_phase_cache) {
 
-      cache_size += (*m_ofc_phase_cache[i]).size() * sizeof((*m_weights));
+      ATH_MSG_DEBUG( "TileCondToolOfc cache table size: " << ofcCache->size()
+                     << " " << sizeof(m_weights) );
+
+      cache_size += ofcCache->size() * sizeof(m_weights);
     }
     ATH_MSG_INFO( "TileCondToolOfc total cache size " << cache_size << " bytes" );
   }
@@ -153,8 +174,8 @@ void TileCondToolOfc::CalcWeights(unsigned int drawerIdx
 
   int npr = 2;
   if (of2) npr = 3;
-  m_weights->n_samples = m_nSamples;
-  m_weights->of2 = of2;
+  m_weights.n_samples = m_nSamples;
+  m_weights.of2 = of2;
 
   if (!m_deltaCorrelation) { //=== Retrieve autocorrelations from COOL DB
     std::vector<float> vecAutoCr;
@@ -197,8 +218,8 @@ void TileCondToolOfc::CalcWeights(unsigned int drawerIdx
 
       PulseShape[i][0] = py;
       DPulseShape[i][0] = pdy;
-      m_weights->g[i] = PulseShape[i][0];
-      m_weights->dg[i] = DPulseShape[i][0];
+      m_weights.g[i] = PulseShape[i][0];
+      m_weights.dg[i] = DPulseShape[i][0];
 
       ATH_MSG_VERBOSE( " Pulse shape: isamp " << i
                       << " phase " << phase
@@ -240,24 +261,24 @@ void TileCondToolOfc::CalcWeights(unsigned int drawerIdx
     Result = solve(SystemMatrix, IndependTermsAmp);
 
     for (int ismp = 0; ismp < m_nSamples; ismp++) {
-      m_weights->w_a[ismp] = (double) Result[ismp];
-//      ATH_MSG_DEBUG( "w_a " << m_weights->w_a[ismp] << " ismp " << ismp  );
+      m_weights.w_a[ismp] = (double) Result[ismp];
+//      ATH_MSG_DEBUG( "w_a " << m_weights.w_a[ismp] << " ismp " << ismp  );
 
     }
 
     Result = solve(SystemMatrix, IndependTermsTime);
 
     for (int ismp = 0; ismp < m_nSamples; ismp++) {
-      m_weights->w_b[ismp] = (double) Result[ismp];
-//      ATH_MSG_DEBUG( "w_b " << m_weights->w_b[ismp] << " ismp " << ismp );
+      m_weights.w_b[ismp] = (double) Result[ismp];
+//      ATH_MSG_DEBUG( "w_b " << m_weights.w_b[ismp] << " ismp " << ismp );
     }
 
     if (of2) { // OF2
       Result = solve(SystemMatrix, IndependTermsPed);
 
       for (int ismp = 0; ismp < m_nSamples; ismp++) {
-        m_weights->w_c[ismp] = (double) Result[ismp];
-//        ATH_MSG_DEBUG( "w_c " << m_weights->w_c[ismp] << " ismp " << ismp );
+        m_weights.w_c[ismp] = (double) Result[ismp];
+//        ATH_MSG_DEBUG( "w_c " << m_weights.w_c[ismp] << " ismp " << ismp );
       }
     }
 
@@ -266,11 +287,11 @@ void TileCondToolOfc::CalcWeights(unsigned int drawerIdx
 #if 0
   else {
     for (int ismp=0; ismp<m_nSamples; ismp++) {
-      m_weights->w_a[ismp] = 0.;
-      m_weights->w_b[ismp] = 0.;
-      m_weights->w_c[ismp] = 0.;
-      m_weights->g[ismp] = 0.;
-      m_weights->dg[ismp] = 0.;
+      m_weights.w_a[ismp] = 0.;
+      m_weights.w_b[ismp] = 0.;
+      m_weights.w_c[ismp] = 0.;
+      m_weights.g[ismp] = 0.;
+      m_weights.dg[ismp] = 0.;
     }
   }
 #endif
@@ -292,29 +313,27 @@ const TileOfcWeightsStruct* TileCondToolOfc::getOfcWeights(unsigned int drawerId
                 << " Cache " << m_cache );
 
 
-  unsigned int chanIdx = 0;
-  if (m_cache) chanIdx = TileCalibUtils::getChanIdx(drawerIdx, channel) + MAX_ADCS * adc;
+  unsigned int adcIdx = 0;
+  if (m_cache) adcIdx = cacheIndex(drawerIdx, channel, adc);
   // --- calculate on-fly if #of cached phases for this channel is too big
-  if (m_cache && ((*m_ofc_phase_cache[chanIdx]).size() < m_cache)) {
+  if (m_cache && ((m_ofc_phase_cache[adcIdx])->size() < m_cache)) {
     int iphase = int(phase + (phase < 0 ? -0.5 : 0.5)); // 1 ns step
 
-    if ((*m_ofc_phase_cache[chanIdx]).find(iphase) == (*m_ofc_phase_cache[chanIdx]).end()) {
+    if ((m_ofc_phase_cache[adcIdx])->find(iphase) == (m_ofc_phase_cache[adcIdx])->end()) {
       CalcWeights(drawerIdx, channel, adc, float(iphase), of2);
-      (*m_ofc_phase_cache[chanIdx])[iphase] = new TileOfcWeightsStruct;
-      *((*m_ofc_phase_cache[chanIdx])[iphase]) = *m_weights;
-
+      (*m_ofc_phase_cache[adcIdx])[iphase] = std::make_unique<TileOfcWeightsStruct>(m_weights);
     }
     
     phase = float(iphase);
-    return (*m_ofc_phase_cache[chanIdx])[iphase];
+    return ((*m_ofc_phase_cache[adcIdx])[iphase]).get();
   } else {
     CalcWeights(drawerIdx, channel, adc, phase, of2);
-    return m_weights;
+    return &m_weights;
   }
 
 }
 //--------------------------------------------------------
 int TileCondToolOfc::getNSamples() {
-  return m_weights->n_samples;
+  return m_weights.n_samples;
 }
 

@@ -34,12 +34,12 @@ GeoPixelStaveRingServices::GeoPixelStaveRingServices(GeoPixelLadder& ladder, Geo
 GeoVPhysVol* GeoPixelStaveRingServices::Build()
 {
 
-  gmt_mgr->msg(MSG::INFO) <<"Build IBL stave ring services"<<endmsg;
+  m_gmt_mgr->msg(MSG::INFO) <<"Build IBL stave ring services"<<endmsg;
 
 
-  double layerRadius = gmt_mgr->PixelLayerRadius();
-  double ladderTilt   = gmt_mgr->PixelLadderTilt();
-  int nSectors = gmt_mgr->NPixelSectors();
+  double layerRadius = m_gmt_mgr->PixelLayerRadius();
+  double ladderTilt   = m_gmt_mgr->PixelLadderTilt();
+  int nSectors = m_gmt_mgr->NPixelSectors();
 
   double ladderHalfThickN = m_ladder.thicknessN();
   double ladderHalfThickP = m_ladder.thicknessP();
@@ -60,7 +60,7 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
   double dogLegStaveLength=17.87;
   double halfSupportLength=endblockLength*0.5+dogLegStaveLength*0.5;
   
-  gmt_mgr->msg(MSG::DEBUG)<<"IBL EOS : "<<endblockZpos<<"  "<<serviceZpos<<"   "<<endblockLength<<endmsg;
+  m_gmt_mgr->msg(MSG::DEBUG)<<"IBL EOS : "<<endblockZpos<<"  "<<serviceZpos<<"   "<<endblockLength<<endmsg;
   
   
   // Define staveRing for side A
@@ -81,16 +81,16 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
 
   double zmin = serviceZpos-(endblockLength*0.5+dogLegStaveLength*0.5);
   double zmax = serviceZpos+(endblockLength*0.5+dogLegStaveLength*0.5);
-  double outerRadius = gmt_mgr->IBLServiceGetMinRadialPosition("IST","simple",zmin, zmax);
+  double outerRadius = m_gmt_mgr->IBLServiceGetMinRadialPosition("IST","simple",zmin, zmax);
 
     //layerRadius+ladderHalfThickP+m_staveSupport.thicknessP();
   
-  gmt_mgr->msg(MSG::DEBUG)<<"Support assembly : "<<innerRadius<<" "<<outerRadius<<" ladderThickP  "<<ladderHalfThickP<<" "<<ladderHalfThickN<<
+  m_gmt_mgr->msg(MSG::DEBUG)<<"Support assembly : "<<innerRadius<<" "<<outerRadius<<" ladderThickP  "<<ladderHalfThickP<<" "<<ladderHalfThickN<<
     " supportThickP "<<m_staveSupport.thicknessP()<<" "<<m_staveSupport.thicknessN()<<endmsg;
   
   
   const GeoTube* supportShape = new GeoTube(innerRadius,outerRadius,endblockLength*0.5+dogLegStaveLength*0.5);
-  const GeoMaterial* ether = mat_mgr->getMaterial("special::Ether");
+  const GeoMaterial* ether = m_mat_mgr->getMaterial("special::Ether");
   GeoLogVol* supportLogVol_A = new GeoLogVol("StaveRingAndEndblocks_A",supportShape,ether);
   GeoLogVol* supportLogVol_C = new GeoLogVol("StaveRingAndEndblocks_C",supportShape,ether);
   
@@ -101,29 +101,29 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
   m_supportPhysC = new GeoPhysVol(supportLogVol_C);
   
   if(nSectors==0){
-    gmt_mgr->msg(MSG::ERROR)<<"No phi sectors defined"<<std::endl;
+    m_gmt_mgr->msg(MSG::ERROR)<<"No phi sectors defined"<<std::endl;
   }
   else {
 
     double angle=360./nSectors*CLHEP::deg;
     HepGeom::Transform3D transRadiusAndTilt = HepGeom::TranslateX3D(layerRadius)*HepGeom::RotateZ3D(ladderTilt);
-    double phiOfModuleZero =  gmt_mgr->PhiOfModuleZero();
+    double phiOfModuleZero =  m_gmt_mgr->PhiOfModuleZero();
 
-    if(gmt_mgr->PixelStaveAxe()==1)   
+    if(m_gmt_mgr->PixelStaveAxe()==1)   
       {
 	//  Point that defines the center of the cooling pipe
-	HepGeom::Point3D<double> centerCoolingPipe = gmt_mgr->IBLStaveRotationAxis() ;
+	HepGeom::Point3D<double> centerCoolingPipe = m_gmt_mgr->IBLStaveRotationAxis() ;
 	HepGeom::Point3D<double> centerCoolingPipe_inv = -centerCoolingPipe;
 	
 	// Transforms
 	HepGeom::Transform3D staveTrf = HepGeom::RotateZ3D(ladderTilt)*HepGeom::Translate3D(centerCoolingPipe_inv);
-	double staveRadius = gmt_mgr->IBLStaveRadius() ;
+	double staveRadius = m_gmt_mgr->IBLStaveRadius() ;
 	
 	transRadiusAndTilt = HepGeom::TranslateX3D(staveRadius)*staveTrf;
       }
     
     for(int ii = 0; ii < nSectors; ii++) {
-      gmt_mgr->SetPhi(ii);
+      m_gmt_mgr->SetPhi(ii);
       
       double phiOfSector = phiOfModuleZero + ii*angle;
       
@@ -192,22 +192,22 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
 	//  flex dogleg
 	//
 	
-	double length=gmt_mgr->IBLFlexDoglegLength();
+	double length=m_gmt_mgr->IBLFlexDoglegLength();
 	double eoStave=halfSupportLength-dogLegStaveLength;
 	
-	double height1=gmt_mgr->IBLFlexDoglegHeight(1);
-	double height2=gmt_mgr->IBLFlexDoglegHeight(2);
-	double part1=gmt_mgr->IBLFlexDoglegRatio();
+	double height1=m_gmt_mgr->IBLFlexDoglegHeight(1);
+	double height2=m_gmt_mgr->IBLFlexDoglegHeight(2);
+	double part1=m_gmt_mgr->IBLFlexDoglegRatio();
 	
 	double alpha1=atan(height1/(length*part1));
 	double alpha2=atan(height2/(length*(1.-part1)));
 	
 	double dimX_lin=length*part1;
 	double dimX=dimX_lin/cos(alpha1)-.15;
-	double dimY=gmt_mgr->IBLStaveFlexWidth();
-	double dimZ=gmt_mgr->IBLStaveFlexBaseThickness();
+	double dimY=m_gmt_mgr->IBLStaveFlexWidth();
+	double dimZ=m_gmt_mgr->IBLStaveFlexBaseThickness();
 	double angle=90.*CLHEP::deg-alpha1;   //90.-27.99;
-	double delta=gmt_mgr->IBLFlexDoglegDY();
+	double delta=m_gmt_mgr->IBLFlexDoglegDY();
 	double trX=-dimX_lin*tan(alpha1)*0.5;   //-3.28;
 	double trZ=eoStave+dimX_lin*0.5;
 	
@@ -221,8 +221,8 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
 	
 	
 	//	GeoPara * tmp_shape = new GeoPara(0.47,5.5,9.,0.*CLHEP::deg,55.*CLHEP::deg,0.);
-	std::string flexMatName = gmt_mgr->IBLFlexMaterial(1,"doglegA");
-	const GeoMaterial* tmp_material = mat_mgr->getMaterial(flexMatName);
+	std::string flexMatName = m_gmt_mgr->IBLFlexMaterial(1,"doglegA");
+	const GeoMaterial* tmp_material = m_mat_mgr->getMaterial(flexMatName);
 	GeoLogVol* tmp_logVol = new GeoLogVol("FlexDogLeg1",tmp_shape,tmp_material);
 	GeoPhysVol * tmp_logVolPV = new GeoPhysVol(tmp_logVol);
 	GeoNameTag* tmp_tag = new GeoNameTag("FlexDogLeg1");
@@ -247,7 +247,7 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
 	//
 	double dimX2_lin=length*(1.-part1);
 	double dimX2=dimX2_lin/cos(alpha2)-.15;
-	double dimY2=gmt_mgr->IBLStaveFlexWidth();
+	double dimY2=m_gmt_mgr->IBLStaveFlexWidth();
 	double trX2=trX*2.-dimX2_lin*tan(alpha2)*0.5;   //-3.28;
 	double trZ2=eoStave+dimX_lin+dimX2_lin*0.5;
 	xShape.clear(); yShape.clear();
@@ -259,7 +259,7 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
 	GeoSimplePolygonBrep* tmp2_shape = new GeoSimplePolygonBrep(dimZ*0.5);
 	for(unsigned int iPt=0; iPt<xShape.size(); iPt++) tmp2_shape->addVertex(xShape[iPt],yShape[iPt]);
 	
-	const GeoMaterial* tmp2_material = mat_mgr->getMaterial(flexMatName);
+	const GeoMaterial* tmp2_material = m_mat_mgr->getMaterial(flexMatName);
 	GeoLogVol* tmp2_logVol = new GeoLogVol("FlexDogLeg2",tmp2_shape,tmp2_material);
 	GeoPhysVol * tmp2_logVolPV = new GeoPhysVol(tmp2_logVol);
 	GeoNameTag* tmp2_tag = new GeoNameTag("FlexDogLeg2");
@@ -279,7 +279,7 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
   }
   
   // IBL layer shift ( 2mm shift issue )
-  double layerZshift = gmt_mgr->PixelLayerGlobalShift();
+  double layerZshift = m_gmt_mgr->PixelLayerGlobalShift();
 
   CLHEP::Hep3Vector ring_posA(0.0,0.0,staveRing.GetPositionAlongZAxis()-serviceZpos-dogLegStaveLength*0.5+layerZshift);
   GeoTransform* xformA  = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),ring_posA));
@@ -293,7 +293,7 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
   m_supportPhysC->add(xformC);
   m_supportPhysC->add(ringphysC);
   
-  gmt_mgr->msg(MSG::DEBUG)<<"IBL EOS : zpos "<<serviceZpos<<endmsg;
+  m_gmt_mgr->msg(MSG::DEBUG)<<"IBL EOS : zpos "<<serviceZpos<<endmsg;
   HepGeom::Transform3D supportTrfA = HepGeom::TranslateZ3D(serviceZpos+dogLegStaveLength*0.5+layerZshift);
   m_xformSupportA = new GeoTransform(supportTrfA);
   

@@ -10,8 +10,7 @@
 #include "TrigMuonEventTPCnv/TrigMuonEFIsolation_p1.h"
 #include <vector>
 /**
- * @Project: Trigger
- * @Package: TrigMuonEventTPCnv
+ * @package: TrigMuonEventTPCnv
  * @class TrigMuonEFIsolationContainer_p1
  *
  * @brief Persistent class partner for TrigMuonEFIsolationContainer

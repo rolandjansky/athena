@@ -25,24 +25,24 @@ using namespace std;
 
 void FTKPatternOneSector::AddPattern(FTKPatternWithCoverage const &p) {
    // insert pattern if needed and increase coverage
-   fPatterns[p.GetHitPattern()] += p.GetCoverage();
+   m_patterns[p.GetHitPattern()] += p.GetCoverage();
 }
 
 FTKPatternOneSectorOrdered *FTKPatternOneSector::OrderPatterns
 (FTKPatternOrderByCoverage const &compare) const {
    // return ordered patterns, using "compare" rule
-   return new FTKPatternOneSectorOrdered(fPatterns,compare);
+   return new FTKPatternOneSectorOrdered(m_patterns,compare);
 }
 
 //======================== class FTKPatternOneSectorOrdered  =========
 
 FTKPatternOneSectorOrdered::FTKPatternOneSectorOrdered
 (FTKPatternCoverageMap_t const &patterns,
- FTKPatternOrderByCoverage const &compare) : fPatterns(compare) {
+ FTKPatternOrderByCoverage const &compare) : m_patterns(compare) {
    for(FTKPatternCoverageMap_t::const_iterator i=patterns.begin();
        i!=patterns.end();i++) {
       if(compare.IsSelected(i))
-         fPatterns.insert(i);
+         m_patterns.insert(i);
    }
 }
 
@@ -63,5 +63,5 @@ bool FTKPatternOrderByCoverage::operator()
    if((*a).second>(*b).second) return true;
    if((*a).second<(*b).second) return false;
    // for same coverage, order by hit numbers (smallest hits first)
-   return fHitPatternCompare((*a).first,(*b).first);
+   return m_hitPatternCompare((*a).first,(*b).first);
 }

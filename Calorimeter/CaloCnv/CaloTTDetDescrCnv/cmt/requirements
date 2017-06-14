@@ -18,5 +18,5 @@ use CaloDetDescr	  CaloDetDescr-*	     Calorimeter
 use CaloTTDetDescr	  CaloTTDetDescr-*	     Calorimeter
 use CaloIdentifier	  CaloIdentifier-*	     Calorimeter
 use CaloTriggerTool	  CaloTriggerTool-*	     Calorimeter
-use LArTools	          LArTools-*		     LArCalorimeter       
+use LArCabling	          LArCabling-*		     LArCalorimeter       
 

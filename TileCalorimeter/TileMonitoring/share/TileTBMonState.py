@@ -65,6 +65,7 @@ try:
 except:
     tilemon_log.warning( "Could not find Run Parameters in IS - Set default beam type to 'cosmics'")
     beamType = 'cosmics'
+    RunNumber = 000000
 else:
     run_params.checkout()
     beam_type = run_params.beam_type
@@ -72,10 +73,52 @@ else:
     RunNumber = run_params.run_number
     project = run_params.T0_project_tag
     run_type = run_params.run_type
-    tilemon_log.info( "RUN CONFIGURATION: run type: %s, beam type: %i, beam energy: %i, run number: %i, project tag: %s" %(run_type, beam_type, beam_energy, RunNumber, project) )
+    tilemon_log.info( "RUN CONFIGURATION: run type: %s, beam type: %i, beam energy: %i, run number: %i, project tag: %s" 
+                      %(run_type, beam_type, beam_energy, RunNumber, project) )
+
     if 'CIS mono' in run_type:
         TileMonoRun = True
 
+
+try:
+    cis_params = ISObject(ipc_partition, 'TileParams.cispar', 'TileCISparameters')
+except:
+    tilemon_log.info( "Could not find Tile Parameters in IS - Set default run type to 'physics'")
+else:
+    try:
+        cis_params.checkout()
+    except:
+        tilemon_log.info( "Could not find Tile Parameters in IS - Set default run type to 'physics'")
+    else:
+
+        tilemon_log.info( 'TILE CONFIGURATION: CISPAR size: %s', len(cis_params.data))
+        cispar = 'TILE CONFIGURATION: CISPAR: '
+        for d in cis_params.data:
+            cispar += ' ' + str(d)
+
+
+        tilemon_log.info( cispar)
+        if len(cis_params.data) == 16:
+            data = cis_params.data
+            run_type = 'Uknown'
+            if data[12] == 1:
+                run_type = 'Physics'
+            elif data[12] == 2:
+                run_type = 'Laser'
+            elif data[12] == 4:
+                run_type = 'Pedestals'
+                TilePedRun = True
+                tilemon_log.info('Set up run type: Pedestals (TilePedRun=True)')
+            elif data[12] == 8:
+                run_type = 'CIS mono'
+            elif data[12] == 8:
+                run_type = 'CIS scan'
+                TileCisRun = True
+                tilemon_log.info('Set up run type: CIS scan (TileCisRun=True)')
+                
+            tilemon_log.info('TILE CONFIGURATION: RunType: %s, Mode: %s, Samples: %s, Pipeline: %s, I3Delay: %s, Event: %s, Phase: %s, DAC: %s, Capacity: %s'
+                             % (run_type, data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7]))
+                
 
 # #########################################
 # The source of events, SFI for full events
@@ -96,8 +139,10 @@ ByteStreamEmonInputSvc.KeyCount = KeyCount
 # A list of of key values, e.g. a list of SFIs to contact.
 # If not defined, all event providers of this type (e.g. all SFIs)
 # ############################################################
-if 'KeyValue' not in dir():
-    KeyValue = ['TileREB-ROS', 'TileEBA-ROS']
+if 'KeyValue' not in dir() or True:
+    #KeyValue = ['TileREB-ROS', 'TileEBA-ROS']
+    KeyValue = ['TileREB-ROS']
+    #KeyValue = ['TileEBA-ROS']
 
 ByteStreamEmonInputSvc.KeyValue = KeyValue
 
@@ -169,7 +214,7 @@ if 'StreamNames' in dir():
 #ByteStreamEmonInputSvc.ExitOnPartitionShutdown = False
 
 if 'UpdatePeriod' not in dir():
-    UpdatePeriod = 60
+    UpdatePeriod = 30
 
 if 'ISServer' not in dir():
     ISServer="Histogramming"
@@ -190,11 +235,14 @@ if 'UpdatePeriod' in dir():
         treatException("Could not set UpdatePeriod")
 
 if 'BufferSize' not in dir():
-    BufferSize=10
+    BufferSize=2000
 try:
      ByteStreamEmonInputSvc.BufferSize = BufferSize
 except Exception:
      treatException("Could not set BufferSize")
+
+
+PublishInclude = '.*LBA01.*|.*LBC01.*|.*LBA02.*|.*LBC02.*|.*EBC03.*|.*BeamElements.*|.*TileTB.*'
 
 if 'PublishInclude' in dir():
     ByteStreamEmonInputSvc.Include = PublishInclude
@@ -204,6 +252,25 @@ ByteStreamCnvSvc = Service( 'ByteStreamCnvSvc' )
 theApp.ExtSvc += [ 'ByteStreamCnvSvc']
 
 print ByteStreamEmonInputSvc
+
+
+if not 'OutputDirectory' in dir() or True:
+    import os
+    if os.path.exists("/home/tiledemo/tilemon"):
+        OutputDirectory = "/home/tiledemo/tilemon"
+    else:
+        OutputDirectory = "."
+
+if not "histo_name" in dir():
+    if "RootHistOutputFileName" in dir():
+        # histo_name = RootHistOutputFileName[:-5] + '_' + str(RunNumber) + '.root'
+        histo_name = RootHistOutputFileName
+    else:
+        histo_name = "tilemon-tb_" + str(RunNumber) + ".root"
+
+
+RootHistOutputFileName = OutputDirectory + "/" + histo_name
+
 
 include('TileMonitoring/jobOptions_TileTBMon.py')
 

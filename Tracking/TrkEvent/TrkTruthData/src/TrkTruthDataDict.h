@@ -14,7 +14,7 @@
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "TrkTruthData/DetailedTrackTruthCollection.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
-#include "DataModel/DataLink.h"
+#include "AthLinks/DataLink.h"
 #include <utility>
  
 namespace 

@@ -3,7 +3,7 @@
 */
 
 /** 
- @mainpage CoolDozer
+ @page CoolDozer_page CoolDozer
  @author Krzysztof Daniel Ciba (Krzysztof.Ciba@NOSPAMagh.edu.pl)
  @brief Long term monitoring API for various test frameworks in the Atlas experiment. 
 

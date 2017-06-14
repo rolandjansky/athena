@@ -17,11 +17,13 @@
 #include "AthAllocators/ArenaHeapAllocator.h"
 #include "AthAllocators/ArenaBlock.h"
 #include <cassert>
+#include <atomic>
 
-int count = 0;
-int nctor = 0;
-int ndtor = 0;
-int nclear = 0;
+
+std::atomic<int> count;
+std::atomic<int> nctor;
+std::atomic<int> ndtor;
+std::atomic<int> nclear;
 struct Payload
 {
   int x;
@@ -46,100 +48,104 @@ void test1()
   SG::Arena::Push push (arena);
   
 
-  Handtype hand (&arena,
-                 SG::ArenaPoolAllocator::initParams<Payload, true>(50));
   std::vector<Payload*> ptrs;
-  for (int i=0; i < 100; i++) {
-    Payload* p = new (hand.allocate()) Payload;
-    assert (p->y == 0);
-    p->y = i+1;
-    ptrs.push_back (p);
-  }
-  assert (nctor == 100);
-  assert (ndtor == 0);
-  assert (nclear == 0);
-  assert (hand.stats().elts.inuse == 100);
-  assert (hand.stats().elts.free == 0);
-  assert (hand.stats().elts.total == 100);
-
-  std::vector<int> v;
-  for (Handtype::iterator ii = hand.begin();
-       ii != hand.end();
-       ++ii)
   {
-    assert (ii->y != 0);
-    v.push_back (ii->x);
-  }
-  assert (v.size() == 100);
-  for (size_t i = 0; i < v.size(); i++) {
-    assert (v[i] == 100-(int)i);
+    auto params = Handtype::alloc_t::initParams<Payload, true>(50).params();
+    Handtype hand (&arena, &params);
+    for (int i=0; i < 100; i++) {
+      Payload* p = new (hand.allocate()) Payload;
+      assert (p->y == 0);
+      p->y = i+1;
+      ptrs.push_back (p);
+    }
+    assert (nctor == 100);
+    assert (ndtor == 0);
+    assert (nclear == 0);
+    assert (hand.stats().elts.inuse == 100);
+    assert (hand.stats().elts.free == 0);
+    assert (hand.stats().elts.total == 100);
+
+    std::vector<int> v;
+    for (Handtype::iterator ii = hand.begin();
+         ii != hand.end();
+         ++ii)
+    {
+      assert (ii->y != 0);
+      v.push_back (ii->x);
+    }
+    assert (v.size() == 100);
+    for (size_t i = 0; i < v.size(); i++) {
+      assert (v[i] == 100-(int)i);
+    }
+
+    const Handtype& chand = hand;
+    v.clear();
+    for (Handtype::const_iterator ii = chand.begin();
+         ii != chand.end();
+         ++ii)
+    {
+      assert (ii->y != 0);
+      v.push_back (ii->x);
+    }
+    assert (v.size() == 100);
+    for (size_t i = 0; i < v.size(); i++) {
+      assert (v[i] == 100-(int)i);
+    }
+
+    v.clear();
+    for (Handtype::const_iterator ii = hand.begin();
+         ii != hand.end();
+         ++ii)
+    {
+      assert (ii->y != 0);
+      v.push_back (ii->x);
+    }
+    assert (v.size() == 100);
+    for (size_t i = 0; i < v.size(); i++) {
+      assert (v[i] == 100-(int)i);
+    }
+
+    hand.reset();
+    assert (nctor == 100);
+    assert (ndtor == 100);
+    assert (nclear == 0);
+    assert (hand.stats().elts.inuse == 0);
+    assert (hand.stats().elts.free == 100);
+    assert (hand.stats().elts.total == 100);
+
+    ptrs.clear();
+    for (int i=0; i < 100; i++) {
+      Payload* p = new (hand.allocate()) Payload;
+      p->y = i + 1;
+      ptrs.push_back (p);
+    }
+    assert (nctor == 200);
+    assert (ndtor == 100);
+    assert (nclear == 0);
+    assert (hand.stats().elts.inuse == 100);
+    assert (hand.stats().elts.free == 0);
+    assert (hand.stats().elts.total == 100);
   }
 
-  const Handtype& chand = hand;
-  v.clear();
-  for (Handtype::const_iterator ii = chand.begin();
-       ii != chand.end();
-       ++ii)
   {
-    assert (ii->y != 0);
-    v.push_back (ii->x);
+    Handtype hand2 (&head, static_cast<size_t>(0));
+
+    hand2.resetTo (ptrs[50]);
+    assert (nctor == 200);
+    assert (ndtor == 150);
+    assert (nclear == 00);
+    assert (hand2.stats().elts.inuse == 50);
+    assert (hand2.stats().elts.free == 50);
+    assert (hand2.stats().elts.total == 100);
+
+    hand2.erase();
+    assert (nctor == 200);
+    assert (ndtor == 200);
+    assert (nclear == 0);
+    assert (hand2.stats().elts.inuse == 0);
+    assert (hand2.stats().elts.free == 0);
+    assert (hand2.stats().elts.total == 0);
   }
-  assert (v.size() == 100);
-  for (size_t i = 0; i < v.size(); i++) {
-    assert (v[i] == 100-(int)i);
-  }
-
-  v.clear();
-  for (Handtype::const_iterator ii = hand.begin();
-       ii != hand.end();
-       ++ii)
-  {
-    assert (ii->y != 0);
-    v.push_back (ii->x);
-  }
-  assert (v.size() == 100);
-  for (size_t i = 0; i < v.size(); i++) {
-    assert (v[i] == 100-(int)i);
-  }
-
-  hand.reset();
-  assert (nctor == 100);
-  assert (ndtor == 100);
-  assert (nclear == 0);
-  assert (hand.stats().elts.inuse == 0);
-  assert (hand.stats().elts.free == 100);
-  assert (hand.stats().elts.total == 100);
-
-  ptrs.clear();
-  for (int i=0; i < 100; i++) {
-    Payload* p = new (hand.allocate()) Payload;
-    p->y = i + 1;
-    ptrs.push_back (p);
-  }
-  assert (nctor == 200);
-  assert (ndtor == 100);
-  assert (nclear == 0);
-  assert (hand.stats().elts.inuse == 100);
-  assert (hand.stats().elts.free == 0);
-  assert (hand.stats().elts.total == 100);
-
-  Handtype hand2 (&head, 0);
-
-  hand2.resetTo (ptrs[50]);
-  assert (nctor == 200);
-  assert (ndtor == 150);
-  assert (nclear == 00);
-  assert (hand2.stats().elts.inuse == 50);
-  assert (hand2.stats().elts.free == 50);
-  assert (hand2.stats().elts.total == 100);
-
-  hand2.erase();
-  assert (nctor == 200);
-  assert (ndtor == 200);
-  assert (nclear == 0);
-  assert (hand2.stats().elts.inuse == 0);
-  assert (hand2.stats().elts.free == 0);
-  assert (hand2.stats().elts.total == 0);
 }
 
 
@@ -153,7 +159,8 @@ void test2()
   typedef
     SG::ArenaHandle<Payload, SG::ArenaHeapAllocator> Handtype;
   
-  Handtype hand (SG::ArenaHeapAllocator::initParams<Payload, true>(50));
+  auto params = Handtype::alloc_t::initParams<Payload, true>(50).params();
+  Handtype hand (&params);
   size_t elt_size = hand.params().eltSize;
   assert (elt_size == sizeof (Payload));
   size_t block_ov = SG::ArenaBlock::overhead();
@@ -218,8 +225,8 @@ void test3()
     SG::ArenaHandle<Payload, SG::ArenaHeapAllocator> Handtype;
   
   SG::ArenaHeader head;
-  Handtype hand (&head,
-                 SG::ArenaHeapAllocator::initParams<Payload, true>(50));
+  auto params = Handtype::alloc_t::initParams<Payload, true>(50).params();
+  Handtype hand (&head, &params);
 
   hand.reserve (100);
   assert (hand.stats().elts.inuse == 0);
@@ -228,10 +235,51 @@ void test3()
 }
 
 
+
+
+void test4()
+{
+  SG::ArenaHeader head;
+
+  SG::ArenaBase a1 ("1");
+  SG::ArenaBase a2  ("2");
+  head.addArena (&a1);
+  head.addArena (&a2);
+  head.setArenaForSlot (1, &a1);
+  head.setArenaForSlot (2, &a2);
+
+  typedef
+    SG::ArenaHandle<Payload, SG::ArenaHeapAllocator> Handtype;
+
+  {
+    Handtype hand (&head, EventContext (0, 1));
+  }
+  assert (head.reportStr() == "\
+=== 1 ===\n\
+Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
+       0/      0/      0       0/      0/      0       0/      0/      0  SG::ArenaHandle<Payload,SG::ArenaHeapAllocator>\n\
+=== 2 ===\n\
+=== default ===\n");
+
+  {
+    Handtype hand (&head, EventContext (0, 2));
+  }
+  assert (head.reportStr() == "\
+=== 1 ===\n\
+Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
+       0/      0/      0       0/      0/      0       0/      0/      0  SG::ArenaHandle<Payload,SG::ArenaHeapAllocator>\n\
+=== 2 ===\n\
+Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
+       0/      0/      0       0/      0/      0       0/      0/      0  SG::ArenaHandle<Payload,SG::ArenaHeapAllocator>\n\
+=== default ===\n");
+}
+
+
 int main()
 {
   test1();
   test2();
   test3();
+  test4();
   return 0;
 }

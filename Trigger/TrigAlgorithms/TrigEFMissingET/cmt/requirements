@@ -17,7 +17,7 @@ use  CaloIdentifier             CaloIdentifier-*                Calorimeter
 use  CaloInterface              CaloInterface-*                 Calorimeter
 use  GaudiInterface             GaudiInterface-*                External
 use  LArIdentifier              LArIdentifier-*                 LArCalorimeter
-use  LArTools                   LArTools-*                      LArCalorimeter
+use  LArCabling                 LArCabling-*                    LArCalorimeter
 use  TrigInterfaces             TrigInterfaces-*                Trigger/TrigSteer
 use  TrigMissingEtEvent         TrigMissingEtEvent-*            Trigger/TrigEvent
 use  TrigT2CaloCommon           TrigT2CaloCommon-*              Trigger/TrigAlgorithms

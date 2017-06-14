@@ -35,7 +35,7 @@ T2CaloEgammaFastAlgo::T2CaloEgammaFastAlgo(const std::string & name, ISvcLocator
     m_calibsBarrel(this), 
     m_calibsEndcap(this),
     m_storeCells(false),
-    mroiCollection("OutputRoIs"),
+    m_roiCollection("OutputRoIs"),
     m_trigEmClusterCollection("CaloClusters"),
     m_regionSelector("RegSelSvc", name)
 {
@@ -88,19 +88,15 @@ StatusCode T2CaloEgammaFastAlgo::execute()
 
   ATH_CHECK( m_trigEmClusterCollection.record( CxxUtils::make_unique<xAOD::TrigEMClusterContainer>(), CxxUtils::make_unique<xAOD::TrigEMClusterAuxContainer>() ) );
 
-  ATH_CHECK(mroiCollection.isValid());
-
-
-  TrigRoiDescriptorCollection::const_iterator roi = mroiCollection->begin();
-  TrigRoiDescriptorCollection::const_iterator roiE = mroiCollection->end();
+  ATH_CHECK(m_roiCollection.isValid());
 
 
   const TrigRoiDescriptor* roiDescriptor = 0;
   //TrigRoiDescriptor* roiDescriptor = 0;
 
   // datahandle 
-  TrigRoiDescriptorCollection::const_iterator  roiCollectionIt  = mroiCollection->begin(); 
-  for(; roiCollectionIt!=mroiCollection->end(); ++roiCollectionIt){
+  TrigRoiDescriptorCollection::const_iterator  roiCollectionIt  = m_roiCollection->begin(); 
+  for(; roiCollectionIt!=m_roiCollection->end(); ++roiCollectionIt){
 	roiDescriptor = *roiCollectionIt;
 
   float etaL1, phiL1;
@@ -238,12 +234,12 @@ StatusCode T2CaloEgammaFastAlgo::execute()
   (*m_log) << MSG::INFO  << " ptrigEmCluster->setxxx : DONE  "<< endmsg;
   if ( caloDDE != 0 ){
     if ( caloDDE->is_lar_em_barrel() ){
-      for( ToolHandleArray<IEgammaCalibration>::const_iterator
+      for( ToolHandleArray<IEgammaCalibration>::iterator
   		  ical=m_calibsBarrel.begin();
   		  ical != m_calibsBarrel.end(); ++ical )
   	  (*ical)->makeCorrection(ptrigEmCluster,caloDDE);
     }else{
-    for( ToolHandleArray<IEgammaCalibration>::const_iterator
+    for( ToolHandleArray<IEgammaCalibration>::iterator
   		ical=m_calibsEndcap.begin();
   		ical != m_calibsEndcap.end(); ++ical )
   	(*ical)->makeCorrection(ptrigEmCluster,caloDDE);

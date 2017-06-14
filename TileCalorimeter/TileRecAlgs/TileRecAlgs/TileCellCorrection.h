@@ -67,8 +67,6 @@ class TileCellCorrection: public AthService, virtual public IIncidentListener {
     virtual StatusCode initialize();  //!< intialize method
     virtual StatusCode finalize();    //!< finalize method
 
-    virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS); //!< Callback to handle Data-driven GeoModel initialisation
-
     virtual void handle(const Incident&);   //!< Callback for Incident service
 
     static const InterfaceID& interfaceID() {

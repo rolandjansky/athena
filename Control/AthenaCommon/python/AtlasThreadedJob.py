@@ -26,14 +26,6 @@ def _setupAtlasThreadedJob():
 
     theApp.StatusCodeCheck = False
 
-    from AthenaServices.AthenaServicesConf import AthenaHiveEventLoopMgr
-
-    svcMgr += AthenaHiveEventLoopMgr()
-    svcMgr.AthenaHiveEventLoopMgr.WhiteboardSvc = "EventDataSvc"
-#    svcMgr.AthenaHiveEventLoopMgr.OutputLevel = INFO
-
-    theApp.EventLoop = "AthenaHiveEventLoopMgr"
-
     svcMgr.StatusCodeSvc.AbortOnError = False
 
     nThreads = jps.ConcurrencyFlags.NumThreads()
@@ -44,7 +36,6 @@ def _setupAtlasThreadedJob():
     from StoreGate.StoreGateConf import SG__HiveMgrSvc
     svcMgr += SG__HiveMgrSvc("EventDataSvc")
     svcMgr.EventDataSvc.NSlots = numStores
-#    svcMgr.EventDataSvc.OutputLevel = INFO
 
     import StoreGate.StoreGateConf as StoreGateConf
     svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
@@ -55,14 +46,17 @@ def _setupAtlasThreadedJob():
     arp.TopAlg=["AthMasterSeq"] #this should enable control flow
     svcMgr += arp
 
-    from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
-    svcMgr += ForwardSchedulerSvc()
-    svcMgr.ForwardSchedulerSvc.OutputLevel = INFO
-    svcMgr.ForwardSchedulerSvc.MaxEventsInFlight = numStores
-    svcMgr.ForwardSchedulerSvc.MaxAlgosInFlight = numAlgsInFlight
-    svcMgr.ForwardSchedulerSvc.ThreadPoolSize = numThreads
-    svcMgr.ForwardSchedulerSvc.useGraphFlowManagement = True
-    svcMgr.ForwardSchedulerSvc.DataFlowManagerNext = True
+    from AlgScheduler import AlgScheduler
+    AlgScheduler.ShowDataDependencies(False)
+    AlgScheduler.ShowControlFlow(False)
+
+    from AthenaServices.AthenaServicesConf import AthenaHiveEventLoopMgr
+
+    svcMgr += AthenaHiveEventLoopMgr()
+    svcMgr.AthenaHiveEventLoopMgr.WhiteboardSvc = "EventDataSvc"
+    svcMgr.AthenaHiveEventLoopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
+
+    theApp.EventLoop = "AthenaHiveEventLoopMgr"
 
     # enable timeline recording
     from GaudiHive.GaudiHiveConf import TimelineSvc

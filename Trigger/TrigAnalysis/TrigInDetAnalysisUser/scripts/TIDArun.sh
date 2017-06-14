@@ -20,8 +20,8 @@ if [ -e TrkNtuple-0000.root ]; then
 
     echo "RELEASE: $RELEASE"
 
-    if [ -d $BASEREFDIR/$RELEASE ]; then 
-        REFDIR=$BASEREFDIR/$RELEASE
+    if [ -d $BASEREFDIR/share/$RELEASE ]; then 
+        REFDIR=$BASEREFDIR/share/$RELEASE
     fi
 
     echo "fetching reference files from $REFDIR"

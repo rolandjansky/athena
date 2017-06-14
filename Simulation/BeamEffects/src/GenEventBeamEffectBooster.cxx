@@ -10,7 +10,7 @@
 #include "GenEventBeamEffectBooster.h"
 
 // Athena includes
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 // CLHEP includes
 #include "CLHEP/Vector/LorentzVector.h"

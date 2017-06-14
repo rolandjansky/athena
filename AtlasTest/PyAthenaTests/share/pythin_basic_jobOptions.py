@@ -1,5 +1,5 @@
 ## @file PyAthenaTests/share/pythin_basic_jobOptions.py
-## @purpose read a POOL file and thin out some elements
+## @brief read a POOL file and thin out some elements
 
 ###############################################
 if not 'EVTMAX' in dir():

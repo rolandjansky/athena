@@ -125,11 +125,11 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
   const Amg::Vector3D centreChamber = tgcChamber->globalPosition();
   float height                   = tgcChamber->getRsize();
   float hmin                     = sqrt(pow(centreChamber.x(),2)+pow(centreChamber.y(),2)) - height/2.;
+  float wirePitch   = 1.8*CLHEP::mm;
+  float frameZwidth = 17. *CLHEP::mm;
+  float frameXwidth = 20. *CLHEP::mm;
+  
 
-  bool isQGeometry  = (tgcChamber->getGeometryVersion().substr(0,1)=="Q");
-  float wirePitch   = (!isQGeometry ?  1.8*CLHEP::mm : tgcChamber->getWirePitch());
-  float frameZwidth = (!isQGeometry ? 17. *CLHEP::mm : tgcChamber->frameZwidth());
-  float frameXwidth = (!isQGeometry ? 20. *CLHEP::mm : tgcChamber->frameXwidth());
 
   IdContext tgcContext = m_idHelper->module_context();
   IdentifierHash coll_hash;
@@ -209,19 +209,6 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 						 << " dir cosine: " << direCos[0] << "/" << direCos[1] << "/" << direCos[2]
 						 << " active region: " << height-frameZwidth*2.
 						 << endmsg;
-      }
-      else if(isQGeometry &&
-	      (stationName.substr(0,2) != "T1" || ilyr != 2) &&
-	      (yLocal < tgcChamber->stripMinX(ilyr, 1, zLocal) ||
-	       tgcChamber->stripMaxX(ilyr, 32, zLocal) < yLocal)) {
-	if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "executeDigi(): Wire: Hit position is outside of chamber. "
-						 << " id: " << stationName << "/" << stationEta << "/" << stationPhi << "/" << ilyr
-						 << " iPosition=" << iPosition << " y=" << yLocal 
-						 << " lower edge of strip  1= " << tgcChamber->stripMinX(ilyr,  1, zLocal)
-						 << " Upper edge of strip 32= " << tgcChamber->stripMaxX(ilyr, 32, zLocal)
-						 << endmsg;
-	iWireGroup[iPosition] = -1;
-	posInWireGroup[iPosition] = 0.;
       }
       else {
 	int igang      = 1;
@@ -329,8 +316,6 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 	//
 	// for layout P03
 	//
-	if(!isQGeometry) {
-
 	  // number of strips in exclusive phi coverage of a chamber in T[1-3] and T4
 	  const float nDivInChamberPhi[4] = {29.5, 29.5, 29.5, 31.5};
 	  float dphi;
@@ -373,38 +358,6 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 	    posInStrip[iPosition] = 0.;
 	  }
 	  iStrip[iPosition] = istr;
-	}
-	else { // layout Q
-	  if (yLocal < tgcChamber->stripMinX(ilyr, 1, zLocal)) {
-	    if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Strip: Hit position is outside of chamber. id "
-						     << stationName << "/" << stationEta << "/" << stationPhi << "/" << ilyr 
-						     << " iPosition=" << iPosition << " y=" << yLocal 
-						     << " lower edge of strip 1= " << tgcChamber->stripMinX(ilyr, 1, zLocal)
-						     << endmsg;
-	    iStrip[iPosition] = -1;
-	    posInStrip[iPosition] = 0.;
-	  }
-	  else if (tgcChamber->stripMaxX(ilyr, 32, zLocal) < yLocal) {
-	    if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Strip: Hit position is outside of chamber. id "
-						     << stationName << "/" << stationEta << "/" << stationPhi << "/" << ilyr
-						     << " iPosition=" << iPosition << " y=" << yLocal 
-						     << " Upper edge of strip 32= " << tgcChamber->stripMaxX(ilyr, 32, zLocal)
-						     << endmsg;
-	    iStrip[iPosition] = 34;
-	    posInStrip[iPosition] = 0.;
-	  }
-	  else {
-	    for (int istrip = 1; istrip <= 32; istrip++) {
-	      float pos_lower_edge = tgcChamber->stripMinX(ilyr, istrip, zLocal);
-	      float pos_upper_edge = tgcChamber->stripMaxX(ilyr, istrip, zLocal);
-	      if (pos_lower_edge < yLocal && yLocal < pos_upper_edge) {
-		iStrip[iPosition] = istrip;
-		posInStrip[iPosition] = (yLocal-pos_lower_edge)/(pos_upper_edge-pos_lower_edge);
-		break;
-	      }
-	    }
-	  }
-	} // layout Q
       } // sensitive area
     }
 

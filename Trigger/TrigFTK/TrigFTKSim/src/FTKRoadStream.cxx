@@ -255,7 +255,7 @@ void FTKRoadStream::attachHits( int roadid)
       int basessid = curroad->getSSID(ipl); // base full resolution SS for this layer
 
       // extract DC mask for this layer, reading only the related bits
-      unsigned int localdcmask = dcmask>>maskoffset & (~(~0<<ndcbits));
+      unsigned int localdcmask = dcmask>>maskoffset & (~(~0u<<ndcbits));
       // in the basessid mask the bits involved by the DC placing them to 0
       basessid &= ~localdcmask;
 
@@ -584,11 +584,10 @@ FTKRoad* FTKRoadStream:: fetchRoad()
 
 /** Expand the sub-roads of this road and if these are final roads are apppended to the fit list,
     if there are further level the navigation continues  */
-void FTKRoadStream::expandSubRoads(FTKRoad *AMroad, FTKRoad *uproad, int position, bool _first)
+void FTKRoadStream::expandSubRoads(FTKRoad *AMroad, FTKRoad *uproad, int position, bool first)
 {
 
-  // true if the road is the one that has to populate the hits for the group
-  bool first(_first);
+  // first is true if the road is the one that has to populate the hits for the group
 
   for ( int iroad=0;iroad!=uproad->getNSubRoads();++iroad) { // sub-roads loop
     FTKRoad *curroad = uproad->getSubRoad(iroad);

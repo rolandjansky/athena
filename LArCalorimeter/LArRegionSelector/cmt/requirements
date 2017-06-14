@@ -19,7 +19,7 @@ use CaloTTDetDescr 	CaloTTDetDescr-*    	Calorimeter
 use CaloTriggerTool	CaloTriggerTool-*	Calorimeter       
 use ByteStreamData	ByteStreamData-*	Event
 use LArIdentifier  	LArIdentifier-*     	LArCalorimeter
-use LArTools       	LArTools-*          	LArCalorimeter
+use LArCabling       	LArCabling-*          	LArCalorimeter
 use LArRawUtils    	LArRawUtils-*       	LArCalorimeter
 
 

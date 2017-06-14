@@ -73,7 +73,7 @@ L1CaloPprPlotManager::L1CaloPprPlotManager(ITHistSvc* histSvc,
     m_h_offline_had_etaPhiValueRMS(0),
     m_p_offline_em_valueVsRunNumber(0),
     m_p_offline_had_valueVsRunNumber(0),
-    isOnline(false),
+    m_isOnline(false),
     m_firstRun(true),
     m_doRunHistograms(doRunHistograms),
     m_ppmAdcMinValue(ADC_cut),
@@ -125,7 +125,7 @@ L1CaloPprPlotManager::L1CaloPprPlotManager(ManagedMonitorToolBase* aMonObj,
     m_h_offline_had_etaPhiValueRMS(0),
     m_p_offline_em_valueVsRunNumber(0),
     m_p_offline_had_valueVsRunNumber(0),
-    isOnline(true),
+    m_isOnline(true),
     m_firstRun(true),
     m_doRunHistograms(false),
     m_ppmAdcMinValue(ADC_cut),
@@ -158,7 +158,7 @@ void L1CaloPprPlotManager::Analyze(const EventInfo* evtInfo, const xAOD::Trigger
     m_currentRunNo = evtInfo->event_ID()->run_number();
     m_bunchCrossing = evtInfo->event_ID()->bunch_crossing_id();
 
-    if (!isOnline && m_doRunHistograms)
+    if (!m_isOnline && m_doRunHistograms)
     {
         if (m_firstRun)
         {
@@ -175,7 +175,7 @@ void L1CaloPprPlotManager::Analyze(const EventInfo* evtInfo, const xAOD::Trigger
             if (sc.isFailure()) {*m_log << MSG::FATAL << "Could not book Run Histograms" << endmsg;}
         }
     }
-    if (isOnline && this->isNewRun())
+    if (m_isOnline && this->isNewRun())
     {
         m_p_online_em_valueVsLumi = 0;
         m_p_online_had_valueVsLumi = 0;
@@ -194,7 +194,7 @@ void L1CaloPprPlotManager::Analyze(const EventInfo* evtInfo, const xAOD::Trigger
     //Check if the TriggerTowers are disabled or not before analysis
     if (!channelDisabled)
     {
-        if ( isOnline) {
+        if ( m_isOnline) {
             if ( trigTower->layer() == 0 ) { this->fillOnlineHistos(trigTower, coolID, Emlayer); }
             if ( trigTower->layer() == 1 ) { this->fillOnlineHistos(trigTower, coolID, Hadlayer); }
         }
@@ -687,7 +687,7 @@ void L1CaloPprPlotManager::fillDifferentialOfflineHistos(const xAOD::TriggerTowe
 StatusCode L1CaloPprPlotManager::MakeSummary()
 {
     StatusCode sc;
-    if ( !isOnline && m_doRunHistograms )
+    if ( !m_isOnline && m_doRunHistograms )
     {
         *m_log << MSG::INFO << "MakeSummary for " << m_monitoringName.data() << " plots" << endmsg;
         sc =  m_histoSvc->regHist(Form("/AANT/ADC/%s/run#%d/ppm_em_2d_profile_etaPhi_adc_%s",

@@ -13,7 +13,6 @@ import atexit
 
 # 3rd party imports
 import ROOT
-import PyCintex; PyCintex.Cintex.Enable()
 
 # root globals to prevent ROOT garbage collector to sweep the rug....
 _root_files = []
@@ -751,7 +750,7 @@ Accepted command line options:
 
 ###################### xmldict #########################
 # @file PyUtils/python/xmldict.py
-# @purpose converts an XML file into a python dict, back and forth
+# @brief converts an XML file into a python dict, back and forth
 # @author http://code.activestate.com/recipes/573463
 #         slightly adapted to follow PEP8 conventions
 

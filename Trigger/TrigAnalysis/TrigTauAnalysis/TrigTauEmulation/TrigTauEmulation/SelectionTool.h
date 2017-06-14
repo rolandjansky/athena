@@ -13,9 +13,8 @@
 #include "TrigTauEmulation/ISelectionTool.h"
 #include "TrigTauEmulation/extension.h"
 
-using namespace bitpowder::lib;
 
-class SelectionTool : public Extension<SelectionTool*>, public virtual ISelectionTool, public asg::AsgTool
+class SelectionTool : public bitpowder::lib::Extension<SelectionTool*>, public virtual ISelectionTool, public asg::AsgTool
 {
   ASG_TOOL_CLASS(SelectionTool, ISelectionTool)
 

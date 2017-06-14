@@ -19,7 +19,7 @@ static const InterfaceID IID_ITRT_Recon("ITRT_Recon", 1, 0);
 /**@class ITRT_Recon
 
 Abstract base class for TRT_Recon AlgTool
-@performs TRT data access and pattern recognition for a single Track
+@brief TRT data access and pattern recognition for a single Track
      
 @author Alan.Poppleton@cern.ch
 */
@@ -43,9 +43,9 @@ public:
     virtual bool		bremLike (void) const = 0;
 
     /**ITRT_Recon interface: reconstructSegment
-	@null pointer   - outside TRT acceptance (or TRT deselected)
-	@empty list     - TRT veto (i.e. no TRT association)
-	@populated list - TRT confirmation (at least minStraws associated)*/
+	null pointer   - outside TRT acceptance (or TRT deselected)
+	empty list     - TRT veto (i.e. no TRT association)
+	populated list - TRT confirmation (at least minStraws associated)*/
     virtual const std::vector<HitOnTrack*>*
                                 reconstructSegment(const PerigeeParameters&	perigee,
 						  const TrackParameters&	params,

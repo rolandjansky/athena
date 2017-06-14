@@ -15,7 +15,7 @@ namespace pool{
      The URI string can be read from environment variable POOL_CATALOG 
      or from the URIParser constructor. 
      Protocol, host, path MUST be specified. 
-     @Author Zhen Xie
+     @author Zhen Xie
   */
   
   class URIParser{

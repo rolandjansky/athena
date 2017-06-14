@@ -184,7 +184,7 @@ def addMetadataArguments(parser):
 # @param transform Transform object. DPD data types will be added to the correct executor (by name or substep)
 # @param multipleOK If the @c multipleOK flag should be set for this argument
 # @param RAWtoALL Flag if DPDs should be made direct from bytestream, instead of 'classic' workflow
-#@silent
+# \@silent
 def addPrimaryDPDArguments(parser, pick = None, transform = None, multipleOK=False, RAWtoALL=False):
     parser.defineArgGroup('Primary DPDs', 'Primary DPD File Options')
     # list* really gives just a list of DPD names

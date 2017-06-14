@@ -10,8 +10,6 @@
 
 class StatusCode;
 
-using jet::PseudoJetVector;
-
 class IPseudoJetSelector: virtual public IAlgTool {
 
 public:
@@ -25,7 +23,7 @@ public:
   virtual ~IPseudoJetSelector();
 
   // Pseudojet vector setter
-  virtual StatusCode select(const PseudoJetVector&, PseudoJetVector&) const = 0;
+  virtual StatusCode select(const jet::PseudoJetVector&, jet::PseudoJetVector&) const = 0;
   
 };
 

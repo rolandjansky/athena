@@ -30,8 +30,8 @@ int FTKTrackInput::nextEvent()
   // Also need to rebuild the map for FTKTrackStream::findTrack
   for (int ib=0;ib!=m_nbanks;++ib) {
     //  if(cur_object[ib]) m_data[ib]->Print(); // cy experiment
-    cur_iobject[ib] = -1;
-    cur_object[ib] = 0;
+    m_cur_iobject[ib] = -1;
+    m_cur_object[ib] = 0;
     m_data[ib]->buildTrackMap();
   }
 
@@ -46,18 +46,18 @@ int FTKTrackInput::nextEvent()
  */
 const FTKTrack* FTKTrackInput::nextTrack(int ibank)
 {
-  cur_iobject[ibank] += 1; // increment track counter
+  m_cur_iobject[ibank] += 1; // increment track counter
   // check if the bank has enough tracks
-  if (cur_iobject[ibank]==m_data[ibank]->getNTracks()) {
-    cur_iobject[ibank] -= 1; // return to the previous element
-    cur_object[ibank] = 0;
+  if (m_cur_iobject[ibank]==m_data[ibank]->getNTracks()) {
+    m_cur_iobject[ibank] -= 1; // return to the previous element
+    m_cur_object[ibank] = 0;
   }
   else {
     // return the track
-    cur_object[ibank] = m_data[ibank]->getTrack(cur_iobject[ibank]);
+    m_cur_object[ibank] = m_data[ibank]->getTrack(m_cur_iobject[ibank]);
   }
 
-  return cur_object[ibank];
+  return m_cur_object[ibank];
 }
 
 const FTKTrack* FTKTrackInput::getTrack(int region,int trackid,int bankid) const {

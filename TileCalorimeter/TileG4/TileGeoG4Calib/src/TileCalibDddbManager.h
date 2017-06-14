@@ -18,8 +18,7 @@
 #include <string>
 
 #include "GaudiKernel/ServiceHandle.h"
-class IRDBAccessSvc;
-class IRDBRecordset;
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 class IRDBRecord;
 
 class TileCalibDddbManager {
@@ -119,12 +118,12 @@ class TileCalibDddbManager {
 
   private:
 
-    const IRDBRecordset* m_tile;
-    const IRDBRecordset* m_tileSection;
-    const IRDBRecordset* m_tileCell;
-    const IRDBRecordset* m_tilePlateCell;
-    const IRDBRecordset* m_tileGirderCell;
-    const IRDBRecordset* m_switches;
+    IRDBRecordset_ptr m_tile;
+    IRDBRecordset_ptr m_tileSection;
+    IRDBRecordset_ptr m_tileCell;
+    IRDBRecordset_ptr m_tilePlateCell;
+    IRDBRecordset_ptr m_tileGirderCell;
+    IRDBRecordset_ptr m_switches;
 
     unsigned int m_nTile;
     unsigned int m_nTileSect;

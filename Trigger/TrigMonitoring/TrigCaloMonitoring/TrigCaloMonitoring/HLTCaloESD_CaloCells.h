@@ -30,9 +30,6 @@ class HLTCaloESD_CaloCells: public IHLTMonTool {
 
   float    m_HLT_min_et;
   float    m_OFF_min_et;
-  bool     m_do_subcalo;
-  bool     m_do_layers;
-  float    m_max_delta_energy;
   
 };
 

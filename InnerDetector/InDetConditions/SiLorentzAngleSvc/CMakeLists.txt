@@ -17,7 +17,6 @@ atlas_depends_on_subdirs( PUBLIC
                           MagneticField/MagFieldInterfaces
                           PRIVATE
                           Database/AthenaPOOL/AthenaPoolUtilities
-                          DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/Identifier
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetDetDescr/InDetIdentifier

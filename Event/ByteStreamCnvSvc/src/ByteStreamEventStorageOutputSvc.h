@@ -25,7 +25,7 @@
 class EventInfo;
 class ByteStreamMetadata;
 
-/** @classByteStreamEventStorageOutputSvc
+/** @class ByteStreamEventStorageOutputSvc
  *  @brief This class provides the services for writing FullEventFragment into file.
  *  This class implements the interface ByteStreamOutputSvc for the conversion service to write the output.
  **/

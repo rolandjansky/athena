@@ -40,10 +40,6 @@ class SimpleNoiseToolFromTextFile : public AthAlgTool,
   
   StatusCode initialize();
 
-  /** Callback added to handle Data-driven GeoModel initialisation
-   */
-  virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-  
   float getNoise(const CaloCell* aCell, CalorimeterNoiseType type=JOBOPTION);
   float getNoise(const CaloDetDescrElement* caloDDE, CalorimeterNoiseType type=JOBOPTION);
 

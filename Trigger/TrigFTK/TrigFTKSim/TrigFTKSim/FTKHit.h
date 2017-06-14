@@ -41,7 +41,7 @@ class FTKCoord {
   float &operator[](int i) const { return m_coord[i]; }
 
   void setHwWord(unsigned int hw_word) { m_hw_word = hw_word; }
-  unsigned int getHwWord() { return m_hw_word; }
+  unsigned int getHwWord() const { return m_hw_word; }
   void setHwCoord(int i, unsigned int v) {
     if (m_dim==1 && i==0)
       m_hw_word = (m_hw_word & ~FTKRawHit::strip_coord_mask) |
@@ -167,7 +167,7 @@ public:
 
   //  int getHwLocalCoord(int i) const;
   void setHwWord(unsigned int hw_word) { m_coord.setHwWord(hw_word); }
-  unsigned int getHwWord() { return m_coord.getHwWord(); }
+  unsigned int getHwWord() const { return m_coord.getHwWord(); }
   void setHwCoord(int i, unsigned int v) { m_coord.setHwCoord(i, v); }
   unsigned int getHwCoord(int i) const { return m_coord.getHwCoord(i); }
 

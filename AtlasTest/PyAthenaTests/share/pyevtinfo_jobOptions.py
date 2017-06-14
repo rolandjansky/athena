@@ -1,5 +1,5 @@
 ## @file PyAthenaTests/share/pyevtinfo_jobOptions.py
-## @purpose read a POOL file and dump/print out run and event numbers
+## @brief read a POOL file and dump/print out run and event numbers
 
 ###########################
 if not 'EVTMAX' in dir():

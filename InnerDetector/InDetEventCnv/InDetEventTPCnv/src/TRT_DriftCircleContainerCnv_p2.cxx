@@ -13,7 +13,7 @@
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetEventTPCnv/InDetPrepRawData/TRT_DriftCircleCnv_p2.h"
 #include "InDetEventTPCnv/TRT_DriftCircleContainerCnv_p2.h"
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"

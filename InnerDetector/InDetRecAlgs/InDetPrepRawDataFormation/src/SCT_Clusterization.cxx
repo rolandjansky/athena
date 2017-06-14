@@ -20,13 +20,8 @@
 #include "SCT_ConditionsServices/ISCT_FlaggedConditionSvc.h"
 #include "SiClusterizationTool/ISCT_ClusteringTool.h"
 
-#include "StoreGate/StoreClearedIncident.h"
-#include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/WriteHandle.h"
 
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/IIncidentSvc.h"
-#include "StoreGate/DataHandle.h"
-#include "CxxUtils/make_unique.h"
 
 namespace InDet{
   using namespace InDet;
@@ -42,6 +37,7 @@ namespace InDet{
     m_rdoContainerKey("SCT_RDOs"),
     m_roiSeeded(false),
     m_clusterContainerKey("SCT_Clusters"),
+    m_clusterContainerLinkKey("SCT_Clusters"),
     m_manager(nullptr),
     m_maxRDOs(384), //(77),
     m_pSummarySvc("SCT_ConditionsSummarySvc", name),
@@ -62,6 +58,7 @@ namespace InDet{
     declareProperty("FlaggedConditionService", m_flaggedConditionSvc);
     declareProperty("maxTotalOccupancyInPercent",m_maxTotalOccupancyPercent);
     declareProperty("ClustersName", m_clusterContainerKey, "SCT cluster container");    
+    declareProperty("ClustersLinkName_", m_clusterContainerLinkKey, "SCT cluster container link name (don't set this)");
     
   }
 
@@ -76,8 +73,12 @@ namespace InDet{
       ATH_MSG_INFO( "Clusterization has been asked to look at bad module info" );
       ATH_CHECK(m_pSummarySvc.retrieve());
     }
+
+    m_clusterContainerLinkKey = m_clusterContainerKey.key();
+
     ATH_CHECK(m_rdoContainerKey.initialize());
     ATH_CHECK(m_clusterContainerKey.initialize());
+    ATH_CHECK(m_clusterContainerLinkKey.initialize());
 
     // Get the flagged conditions service
     ATH_CHECK(m_flaggedConditionSvc.retrieve());
@@ -104,13 +105,10 @@ namespace InDet{
   StatusCode SCT_Clusterization::execute(){
   // Register the IdentifiableContainer into StoreGate
    SG::WriteHandle<SCT_ClusterContainer> clusterContainer(m_clusterContainerKey);   
-   clusterContainer = CxxUtils::make_unique<SCT_ClusterContainer>(m_idHelper->wafer_hash_max());   
+   ATH_CHECK( clusterContainer.record (std::make_unique<SCT_ClusterContainer>(m_idHelper->wafer_hash_max())) );
    ATH_MSG_DEBUG( "Container '" << clusterContainer.name() << "' initialised" );
 
-   
-   SiClusterContainer* symSiContainer = nullptr;
-
-   ATH_CHECK(evtStore()->symLink(clusterContainer.cptr(), symSiContainer));
+   ATH_CHECK( clusterContainer.symLink (m_clusterContainerLinkKey) );
    ATH_CHECK(clusterContainer.isValid());
    ATH_MSG_DEBUG( "SCT clusters '" << clusterContainer.name() << "' symlinked in StoreGate");
 

@@ -75,13 +75,17 @@ void fillTADList (IAddressProvider::tadList& tads,
     auto tad = std::make_unique<SG::TransientAddress>
       (fooclid, "foo2", &addrs.addr2, false);
     tad->setTransientID (321);
-    tad->setAlias ("xxx");
+    tad->setAlias ("foo2.d1");
+    tad->setAlias ("foo2.d2");
+    tad->setAlias ("foo2.d3");
     tads.push_back (tad.release());
   }
 
   {
     auto tad = std::make_unique<SG::TransientAddress>
       (fooclid, "foo3", &addrs.addr3, false);
+    tad->setAlias ("foo3.d1");
+    tad->setAlias ("foo3.d2");
     tads.push_back (tad.release());
   }
 }
@@ -112,7 +116,9 @@ void checkTADList (const IAddressProvider::tadList& tads,
       assert (tad->transientID() ==
               (SG::TransientAddress::TransientClidSet { fooclid, 321 }));
       assert (tad->alias() ==
-              (SG::TransientAddress::TransientAliasSet { "xxx" }));
+              (SG::TransientAddress::TransientAliasSet { "bar2.d1",
+                                                         "bar2.d2",
+                                                         "bar2.x3" }));
     }
     else if (i == 2) {
       assert (tad->clID() == fooclid);
@@ -121,7 +127,9 @@ void checkTADList (const IAddressProvider::tadList& tads,
       assert (tad->clearAddress() == false);
       assert (tad->transientID() ==
               SG::TransientAddress::TransientClidSet { fooclid });
-      assert (tad->alias().empty());
+      assert (tad->alias() ==
+              (SG::TransientAddress::TransientAliasSet { "foo3.x1",
+                                                         "foo3.d2" }));
     }
     ++i;
   }
@@ -150,7 +158,7 @@ void test1 (Athena::IInputRename& svc,
 
   Athena::RCURead<Athena::IInputRename::InputRenameMap_t> r
     (*svc.inputRenameMap());
-  assert (r->size() == 3);
+  assert (r->size() == 5);
 
   CLID fooclid = ClassID_traits<Foo>::ID();
   SG::StringPool sp;
@@ -167,6 +175,14 @@ void test1 (Athena::IInputRename& svc,
   it = r->find (sp.stringToKey ("foo2", 321));
   assert (it != r->end());
   assert (it->second == sp.stringToKey ("bar2", 321));
+
+  it = r->find (sp.stringToKey ("foo3.d1", fooclid));
+  assert (it != r->end());
+  assert (it->second == sp.stringToKey ("foo3.x1", fooclid));
+
+  it = r->find (sp.stringToKey ("foo2.d3", fooclid));
+  assert (it != r->end());
+  assert (it->second == sp.stringToKey ("bar2.x3", fooclid));
 }
 
 

@@ -11,12 +11,6 @@
 // Sebastian.Fleischmann@cern.ch
 ///////////////////////////////////////////////////////////////////
 
-//Gaudi
-//#include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/ServiceHandle.h"
-
 #include "TTree.h"
 
 // Trk

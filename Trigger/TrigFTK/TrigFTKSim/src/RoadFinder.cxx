@@ -208,6 +208,7 @@ int RoadFinder::nextEvent()
       m_roadoutput->beginFile(ofname.Data());
     }
   }
+  
   m_datainput->processEvent();
 
   m_roadoutput->eventBegin();
@@ -261,7 +262,10 @@ int RoadFinder::nextEvent()
      m_roadoutput->naoSetNroadsAMMissSCT(ibank,pbank->naoGetNroadsAMMissSCT());
      m_roadoutput->naoSetNroadsRW(ibank,pbank->naoGetNroadsRW());
 
+
      const list<FTKRoad>& roadslist = pbank->getRoads();
+     // needs to be done after getting roads
+     m_roadoutput->naoSetNclus_road(ibank,pbank->naoGetNclus_road());
 
      // counters for a more faithful assessment of hardware-level # of 4L roads
      long int final_count(0);
@@ -272,7 +276,6 @@ int RoadFinder::nextEvent()
      int rid(0);
      bool soft_limit(true), hard_limit(true);
      for (;iroad!=roadslist.end();++iroad) {
-
        // default case: just save the road
        if (!FTKSetup::getFTKSetup().getSCTtrkMode()) {
          m_roadoutput->addRoad(pbank->getBankID(),*iroad);
@@ -461,7 +464,6 @@ int RoadFinder::nextEvent()
        } // end SCTTrk Mode case
 
      } // end loop over roads
-
      if (FTKSetup::getFTKSetup().getSCTtrkMode()) {
        if(FTKSetup::getDBG()) {
 	 cout << "DBG: final 4L AM count = " << final_count << "; misses = " << count_misses << "; lookup = " << count_lookup << endl;

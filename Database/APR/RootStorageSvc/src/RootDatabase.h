@@ -10,10 +10,13 @@
 //====================================================================
 #ifndef POOL_ROOTSTORAGESVC_ROOTDBASE_H
 #define POOL_ROOTSTORAGESVC_ROOTDBASE_H 1
+
 // Framework include files
 #include "StorageSvc/DbDatabaseImp.h"
+
 #include <set>
 #include <map>
+#include <mutex>
 
 // Forward declarations
 class TFile;
@@ -75,7 +78,10 @@ namespace pool  {
     
     std::map< std::string, int >        m_customSplitLevel;
     
-    IFileMgr*  m_fileMgr;
+    IFileMgr*   m_fileMgr;
+
+    // mutex to prevent concurrent read I/O from AuxDynReader
+    std::mutex  m_iomutex;
     
   public:
     /// Standard Constuctor
@@ -114,6 +120,9 @@ namespace pool  {
     DbStatus    markBranchContainerForFill(RootTreeContainer*);
     
     void        registerBranchContainer(RootTreeContainer*);
+
+    /// provide access to the I/O mutex for AuxDynReader and Containers
+    std::mutex& ioMutex()               { return m_iomutex; }
     
     /// Access options
     /** @param opt      [IN]  Reference to option object.

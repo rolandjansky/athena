@@ -15,9 +15,7 @@
 #include <iostream>
 #include <algorithm>
 
-#include "GaudiKernel/PropertyMgr.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IssueSeverity.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
@@ -303,22 +301,22 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltInitialize() {
   }
 
   if ( m_outputCollectionSuffix != "" )  {
-    m_attachedFeatureName = string("TrigL2SiTrackFinder_") + m_outputCollectionSuffix;  
-    m_attachedFeatureName2 = string("TrigL2SiTrackFinder_TrkTrack_") + m_outputCollectionSuffix;  
+    m_attachedFeatureName = std::string("TrigL2SiTrackFinder_") + m_outputCollectionSuffix;  
+    m_attachedFeatureName2 = std::string("TrigL2SiTrackFinder_TrkTrack_") + m_outputCollectionSuffix;  
 
   }
   else {
-    string namestr = name();
+    std::string namestr = name();
     std::transform(namestr.begin(), namestr.end(),
 		   namestr.begin(), (int(*)(int)) std::tolower);
-    if ( namestr.find("cosmic") == string::npos ) {
+    if ( namestr.find("cosmic") == std::string::npos ) {
       m_attachedFeatureName = name();
       m_attachedFeatureName2 = m_attachedFeatureName; 
       m_attachedFeatureName2.append("_TrkTrack"); 
     }
     else {
-      m_attachedFeatureName = string("TrigL2SiTrackFinder");
-      m_attachedFeatureName2 = string("TrigL2SiTrackFinder_TrkTrack");
+      m_attachedFeatureName = std::string("TrigL2SiTrackFinder");
+      m_attachedFeatureName2 = std::string("TrigL2SiTrackFinder_TrkTrack");
     }
   }
   msg() << MSG::DEBUG << " Features recorded with Key " << m_attachedFeatureName << endmsg;
@@ -526,10 +524,10 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltExecute(const HLT::TriggerElement* inputT
 	  msg() << MSG::WARNING << "REGTEST / RoI width not set properly" << " " << *roi << endmsg;
 	  m_roiWidthWarning=true;
 	}
-	TrigRoiDescriptor* _roi = new TrigRoiDescriptor( m_roiEta, m_roiEta-m_etaHalfWidth, m_roiEta+m_etaHalfWidth, 
+	TrigRoiDescriptor* newroi = new TrigRoiDescriptor( m_roiEta, m_roiEta-m_etaHalfWidth, m_roiEta+m_etaHalfWidth, 
 							 m_roiPhi, m_roiPhi-m_phiHalfWidth, m_roiPhi+m_phiHalfWidth ); 
-	attachFeature( outputTE, _roi );
-	internalRoI = _roi;
+	attachFeature( outputTE, newroi );
+	internalRoI = newroi;
       }
 
      

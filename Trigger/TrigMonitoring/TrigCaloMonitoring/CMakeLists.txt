@@ -17,7 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloInterface
                           Control/StoreGate
                           LArCalorimeter/LArIdentifier
-                          LArCalorimeter/LArTools
+                          LArCalorimeter/LArCabling
                           Reconstruction/egamma/egammaEvent
                           Trigger/TrigAlgorithms/TrigCaloRec
                           Trigger/TrigAlgorithms/TrigT2CaloCommon
@@ -32,13 +32,13 @@ atlas_add_library( TrigCaloMonitoringLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigCaloMonitoring
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel LArRecEvent TrigHLTMonitoringLib StoreGateLib SGtests LArToolsLib TrigCaloRecLib TrigT2CaloCommonLib
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel LArRecEvent TrigHLTMonitoringLib StoreGateLib SGtests LArCablingLib TrigCaloRecLib TrigT2CaloCommonLib
                    PRIVATE_LINK_LIBRARIES CaloEvent CaloGeoHelpers CaloIdentifier LArIdentifier egammaEvent TrigCaloEvent TrigSteeringEvent )
 
 atlas_add_component( TrigCaloMonitoring
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel LArRecEvent TrigHLTMonitoringLib CaloEvent CaloGeoHelpers CaloIdentifier StoreGateLib SGtests LArIdentifier LArToolsLib egammaEvent TrigCaloRecLib TrigT2CaloCommonLib TrigCaloEvent TrigSteeringEvent TrigCaloMonitoringLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel LArRecEvent TrigHLTMonitoringLib CaloEvent CaloGeoHelpers CaloIdentifier StoreGateLib SGtests LArIdentifier LArCablingLib egammaEvent TrigCaloRecLib TrigT2CaloCommonLib TrigCaloEvent TrigSteeringEvent TrigCaloMonitoringLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

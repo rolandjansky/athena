@@ -55,7 +55,7 @@ StatusCode tauMonTool::bookHistograms()
 	MonGroup mainFolder (this, folderName, run);
         MonGroup lowStatFds( this, folderName, lowStat ) ;
 
-        if ( m_doLS && ( newRun || newLowStatInterval ) )
+        if ( m_doLS && ( newRunFlag() || newLowStatIntervalFlag() ) )
         { 
           if ( bookBasicPlots(m_basic_LS, lowStatFds,"" ).isFailure() )  
             ATH_MSG_ERROR("Couldn't book Low Stat basic histograms");
@@ -341,7 +341,7 @@ StatusCode tauMonTool::fillHistograms()
 //--------------------------------------------------------------------------------
 StatusCode tauMonTool::procHistograms()
 {
-  if( endOfRun || endOfLumiBlock) {
+  if( endOfRunFlag() || endOfLumiBlockFlag()) {
           //fill the vs_LB plots
     if (m_currentLB <= m_maxNLB) 
     {

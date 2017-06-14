@@ -223,8 +223,9 @@ TopoSteering::executeInputConnector(TCS::InputConnector *conn) {
    // attaching data from inputEvent to input connector, depending on the configured input type
 
    const InputTOBArray * inputData = inputEvent().inputTOBs( conn->inputTOBType() );
-
+   const bool hasInputOverflow = inputEvent().hasInputOverflow(conn->inputTOBType());
    conn->attachOutputData( inputData );
+   conn->toggleInputOverflow(hasInputOverflow);
 
    TRG_MSG_DEBUG("  ... executing input connector '" << conn->name() << "' -> attaching '" << inputData->name() << "' of size " << inputData->size());
 
@@ -243,9 +244,11 @@ TopoSteering::executeSortingConnector(TCS::SortingConnector *conn) {
    StatusCode sc = StatusCode::SUCCESS;
   
    // execute all the prior connectors
-   for( TCS::Connector* inputConn: conn->inputConnectors() )
+   for( TCS::Connector* inputConn: conn->inputConnectors() ){
       sc &= executeConnector(inputConn);
-
+      conn->toggleInputOverflow(conn->hasInputOverflow() ||
+                                inputConn->hasInputOverflow());
+   }
    TCS::SortingAlg* alg = conn->sortingAlgorithm();
 
    TOBArray * sortedOutput = new TOBArray(conn->outputName());
@@ -271,9 +274,12 @@ TopoSteering::executeDecisionConnector(TCS::DecisionConnector *conn) {
    StatusCode sc = StatusCode::SUCCESS;
   
    // execute all the prior connectors
-   for( TCS::Connector* inputConn: conn->inputConnectors() )
+   for( TCS::Connector* inputConn: conn->inputConnectors() ){
       sc &= executeConnector(inputConn);
-  
+      conn->toggleInputOverflow(conn->hasInputOverflow() ||
+                                inputConn->hasInputOverflow());
+
+   }
    // execute
    TCS::DecisionAlg* alg = conn->decisionAlgorithm();
 
@@ -296,7 +302,15 @@ TopoSteering::executeDecisionConnector(TCS::DecisionConnector *conn) {
 
    conn->setIsExecuted(true);
    conn->setExecutionStatusCode(sc);
-  
+   bool sortOverflow = false;
+   for(TCS::Connector* inputConnector: conn->inputConnectors()) {
+       // TODO DG-2017-04-18 the sort overflow (>10 TOBs) in the SortAlg is not implemented yet
+       if(inputConnector->isSortingConnector()) {
+           sortOverflow = (sortOverflow ||
+                            dynamic_cast<SortingConnector*>(inputConnector)->sortingAlgorithm()->overflow());
+       }
+   }
+   conn->m_decision.setOverflow(conn->hasInputOverflow() || sortOverflow);
    return sc;
 }
 

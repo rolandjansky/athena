@@ -1,5 +1,5 @@
 ## @file PyAthenaTests/share/pythin_multistream_checker_jobOptions.py
-## @purpose read a POOL file and inspect possibly thinned containers
+## @brief read a POOL file and inspect possibly thinned containers
 
 ###############################################
 if not 'EVTMAX' in dir():

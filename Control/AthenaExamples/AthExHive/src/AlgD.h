@@ -21,6 +21,8 @@ public:
   AlgD (const std::string& name, ISvcLocator* pSvcLocator);
   ~AlgD();
   
+  bool isClonable() const override { return true; }
+
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();

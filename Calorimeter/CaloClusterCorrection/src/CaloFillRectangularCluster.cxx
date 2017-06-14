@@ -17,7 +17,6 @@
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "StoreGate/ReadHandle.h"
 
 #include "CaloEvent/CaloCellContainer.h"
@@ -751,39 +750,6 @@ StatusCode CaloFillRectangularCluster::initialize()
   if (!m_cellsName.key().empty())
     CHECK( m_cellsName.initialize() );
 
-  const IGeoModelSvc *geoModel=0;
-  StatusCode sc = service("GeoModelSvc", geoModel);
-  if(sc.isFailure())
-  {
-    msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endmsg;
-    return sc;
-  }
-
-  // dummy parameters for the callback:
-  int dummyInt=0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized())
-  {
-    return geoInit(dummyInt,dummyList);
-  }
-  else
-  {
-    sc = detStore()->regFcn(&IGeoModelSvc::geoInit,
-			  geoModel,
-			  &CaloFillRectangularCluster::geoInit,this);
-    if(sc.isFailure())
-    {
-      msg(MSG::ERROR) << "Could not register geoInit callback" << endmsg;
-      return sc;
-    }
-  }
-  return sc;
-}
-
-StatusCode
-CaloFillRectangularCluster::geoInit(IOVSVC_CALLBACK_ARGS)
-{
   // Look up the middle layer cell segmentation.
   {
     const CaloDetDescrManager* dd_man = CaloDetDescrManager::instance();

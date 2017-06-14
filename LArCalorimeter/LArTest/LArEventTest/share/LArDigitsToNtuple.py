@@ -52,11 +52,6 @@ MessageSvc.OutputLevel = INFO
 #AthenaEventLoopMgr = Service ("AthenaEventLoopMgr")
 #AthenaEventLoopMgr.OutputLevel= INFO
 
-#Necessary DLL's 
-theApp.Dlls += [ "LArRawUtils","LArTools"]
-theApp.Dlls += [ "LArByteStream"]
-#theApp.Dlls += [ "CaloDetMgrDetDescrCnv" ]
-
 #----- JobOptions for Ntuple-output
 theApp.Dlls += [ "RootHistCnv" ]; 
 theApp.HistogramPersistency = "ROOT" 

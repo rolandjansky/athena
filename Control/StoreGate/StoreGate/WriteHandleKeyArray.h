@@ -42,7 +42,7 @@ namespace SG {
 
     /**
      * @brief Constructor from a WriteHandleKeyArray that takes a vector
-     * of ReaDHandleKeys
+     * of ReadHandleKeys
      * @param v vector of WriteHandleKey
      */
     WriteHandleKeyArray( const std::vector<WriteHandleKey<T>>& v ) :

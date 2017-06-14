@@ -2,6 +2,7 @@ include.block ( "EventOverlayJobTransforms/OverlayOutputItemList_jobOptions.py" 
 
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.DetFlags import DetFlags
+from Digitization.DigitizationFlags import digitizationFlags
 
 # The output - overlay
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
@@ -13,11 +14,17 @@ print "ACH123 new OverlayOutputItemList_jobOptions.py"
 outStream.ItemList += [ "EventInfo#*", "PileUpEventInfo#*" ]
 outStream.ItemList += [ "LumiBlockCollection#*" ]
 
+# timings
+if not isRealData:
+    outStream.ItemList += ["RecoTimingObj#EVNTtoHITS_timings"]
+    outStream.ItemList += ["RecoTimingObj#HITStoRDO_timings"]
+
 if DetFlags.overlay.Truth_on():
-   outStream.ItemList += [
-                             "McEventCollection#*",
-                             "TrackRecordCollection#*"
-                           ]
+   outStream.ItemList += [ "McEventCollection#*", "TrackRecordCollection#*" ]
+   outStream.ItemList += [ "xAOD::JetContainer#InTimeAntiKt4TruthJets" ]
+   outStream.ItemList += [ "xAOD::JetAuxContainer#InTimeAntiKt4TruthJetsAux." ]
+   outStream.ItemList += [ "xAOD::JetContainer#OutOfTimeAntiKt4TruthJets" ]
+   outStream.ItemList += [ "xAOD::JetAuxContainer#OutOfTimeAntiKt4TruthJetsAux." ]
    if DetFlags.overlay.CSC_on():
       outStream.ItemList += [ "CscSimDataCollection#CSC_SDO" ]
    if DetFlags.overlay.MDT_on():
@@ -42,7 +49,6 @@ if DetFlags.overlay.pixel_on():
    outStream.ItemList += ["InDetBSErrContainer#*"]
 if DetFlags.overlay.SCT_on():
    outStream.ItemList += ["SCT_RDO_Container#*"]
-   outStream.ItemList += ["SCT_RDO_Container#*"]
 if DetFlags.overlay.TRT_on():
    outStream.ItemList += ["TRT_RDO_Container#*"]
    outStream.ItemList += ["TRT_BSIdErrContainer#*"]
@@ -50,14 +56,18 @@ if DetFlags.overlay.TRT_on():
 
 if DetFlags.overlay.LAr_on():
    outStream.ItemList+=["LArRawChannelContainer#*"]
-   outStream.ItemList+=["LArDigitContainer#LArDigitContainer_MC_Thinned"]
+   if 'AddCaloDigi' in digitizationFlags.experimentalDigi():
+       outStream.ItemList+=["LArDigitContainer#*"]
+   else:
+       outStream.ItemList+=["LArDigitContainer#LArDigitContainer_MC_Thinned"]
    outStream.ItemList+=["LArFebErrorSummary#*"]
 if DetFlags.overlay.Tile_on():
-   if isRealData:
-      outStream.ItemList += [ "TileDigitsContainer#*" ]
-   else:
-      outStream.ItemList += [ "TileDigitsContainer#TileDigitsFlt" ]
    outStream.ItemList += [ "TileRawChannelContainer#*" ]
+   if isRealData or 'AddCaloDigi' in digitizationFlags.experimentalDigi():
+       outStream.ItemList += [ "TileDigitsContainer#*" ]
+   else:
+       outStream.ItemList += [ "TileDigitsContainer#TileDigitsFlt" ]
+   outStream.ItemList += [ "TileL2Container#TileL2Cnt" ]
 
 if DetFlags.overlay.CSC_on():
    outStream.ItemList += [ "CscRawDataContainer#*" ]
@@ -76,9 +86,15 @@ if DetFlags.overlay.BCM_on():
    outStream.ItemList+=["BCM_RDO_Container#*"]
 
 if DetFlags.overlay.LVL1_on():
-   outStream.ItemList+=["LArTTL1Container#*"]
-   outStream.ItemList+=["TileTTL1Container#*"]
-   outStream.ItemList+=[
+   if DetFlags.simulateLVL1.LAr_on():
+      outStream.ItemList += [ "LArTTL1Container#*" ]
+   if DetFlags.simulateLVL1.Tile_on():
+      outStream.ItemList += [ "TileTTL1Container#*" ]
+      outStream.ItemList += [ "TileDigitsContainer#MuRcvDigitsCnt" ]
+      outStream.ItemList += [ "TileRawChannelContainer#MuRcvRawChCnt" ]
+      outStream.ItemList += [ "TileMuonReceiverContainer#*" ]
+   if DetFlags.digitize.LVL1_on():
+      outStream.ItemList += [
                            "ROIB::RoIBResult#*",
                            "MuCTPI_RDO#*",
                            "CTP_RDO#*",

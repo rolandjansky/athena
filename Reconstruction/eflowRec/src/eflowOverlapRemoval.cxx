@@ -78,7 +78,7 @@ StatusCode eflowOverlapRemoval::execute(){
 				<< endmsg;
   }
 
-  const xAOD::EgammaContainer* egammaColl = 0;
+  const xAOD::EgammaContainer* egammaColl = nullptr;
   if ( (m_storeGate->retrieve(egammaColl,m_egammaContainerName)).isFailure() )
     {
       msg(MSG::WARNING )<< "cannot allocate egamma Container with key "

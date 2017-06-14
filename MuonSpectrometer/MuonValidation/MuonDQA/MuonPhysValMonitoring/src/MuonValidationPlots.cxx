@@ -8,9 +8,8 @@
 typedef ElementLink< xAOD::TrackParticleContainer > TrackLink;
 typedef ElementLink< xAOD::MuonContainer > MuonLink;
 
-MuonValidationPlots::MuonValidationPlots(PlotBase* pParent, std::string sDir,std::vector<int> wps,std::vector<unsigned int> authors, bool isData, bool doBinnedResolutionPlots, bool /*doMuonTree*/):
-  PlotBase(pParent, sDir),  m_selectedWPs(wps), m_selectedAuthors(authors), m_truthSelections(2,""), m_oTruthRelatedMuonPlots(NULL), m_isData(isData)
-
+MuonValidationPlots::MuonValidationPlots(PlotBase* pParent, std::string sDir,std::vector<int> wps,std::vector<unsigned int> authors, bool isData, bool doBinnedResolutionPlots, bool doSeparateSAFMuons, bool /*doMuonTree*/):
+  PlotBase(pParent, sDir),  m_selectedWPs(wps), m_selectedAuthors(authors), m_truthSelections(2,""), m_oTruthRelatedMuonPlots(NULL), m_isData(isData), m_doSeparateSAFMuons(doSeparateSAFMuons)
 {
   if (!m_isData) {
     m_truthSelections[0] = "all"; //no selection on truth muons (minimum selection is |eta|<2.5, pt>5 GeV, defined in MuonPhysValMonitoringTool::handleTruthMuon() 
@@ -48,13 +47,24 @@ MuonValidationPlots::MuonValidationPlots(PlotBase* pParent, std::string sDir,std
   //define a histogram class for each of the selected muon authors (+one inclusive for all authors)
   for (unsigned int i=0; i<m_selectedAuthors.size(); i++) {
     std::string sAuthor = Muon::EnumDefs::toString( (xAOD::Muon::Author) m_selectedAuthors[i] );
+    if (sAuthor=="CaloTag") sAuthor="CaloTagTight"; 
     m_oRecoMuonPlots_perAuthor.push_back(new Muon::RecoMuonPlotOrganizer(this, "reco/"+sAuthor, (sAuthor=="MuidCo")? &allPlotCategories: &selectedPlotCategories));
     if (!m_isData) m_oTruthRelatedMuonPlots_perAuthor.push_back(new Muon::TruthRelatedMuonPlotOrganizer(this, "matched/"+sAuthor, doBinnedResolutionPlots));
   }
 
-  //define histogram class for SiliconAssociatedForwardMuons 
-  m_oRecoMuonPlots_SiAssocFwrdMu.push_back(new Muon::RecoMuonPlotOrganizer(this, "reco/SiAssocForward", &selectedPlotCategories));  
-  if (!m_isData) m_oTruthRelatedMuonPlots_SiAssocFwrdMu.push_back(new Muon::TruthRelatedMuonPlotOrganizer(this, "matched/SiAssocForward", doBinnedResolutionPlots)); 
+   //define histogram class for loose CaloTag and append to author plots, not very nice workaround though
+   for (unsigned int i=0; i<m_selectedAuthors.size(); i++) { 
+     if ((xAOD::Muon::Author) m_selectedAuthors[i]==xAOD::Muon::CaloTag){ //found CaloTag in list, also do CaloTagLoose
+       m_oRecoMuonPlots_perAuthor.push_back(new Muon::RecoMuonPlotOrganizer(this, "reco/CaloTagLoose",  &selectedPlotCategories));
+       if (!m_isData) m_oTruthRelatedMuonPlots_perAuthor.push_back(new Muon::TruthRelatedMuonPlotOrganizer(this, "matched/CaloTagLoose", doBinnedResolutionPlots));
+      }
+   }
+
+  //define histogram class for SiliconAssociatedForwardMuons
+  if (m_doSeparateSAFMuons) {
+    m_oRecoMuonPlots_SiAssocFwrdMu.push_back(new Muon::RecoMuonPlotOrganizer(this, "reco/SiAssocForward", &selectedPlotCategories));  
+    if (!m_isData) m_oTruthRelatedMuonPlots_SiAssocFwrdMu.push_back(new Muon::TruthRelatedMuonPlotOrganizer(this, "matched/SiAssocForward", doBinnedResolutionPlots));
+  }
 
 }
 
@@ -122,13 +132,18 @@ void MuonValidationPlots::fillRecoMuonPlots(const xAOD::Muon& mu)
 	if (ipar<11) continue;
       }
 
-      //filter SiliconAssociatedForwardMuons 
-      if (mu.muonType()!=(xAOD::Muon::MuonType) xAOD::Muon::SiliconAssociatedForwardMuon) m_oRecoMuonPlots_perAuthor[i]->fill(mu);	     
+      //filter SiliconAssociatedForwardMuons
+      if (mu.muonType()!=(xAOD::Muon::MuonType)xAOD::Muon::SiliconAssociatedForwardMuon || !m_doSeparateSAFMuons) m_oRecoMuonPlots_perAuthor[i]->fill(mu);	     
     }
   }
   //fill SiliconAssociatedForwardMuons
   for (unsigned int i=0; i<m_oTruthRelatedMuonPlots_SiAssocFwrdMu.size();i++){
     if (mu.muonType()==(xAOD::Muon::MuonType) xAOD::Muon::SiliconAssociatedForwardMuon) m_oRecoMuonPlots_SiAssocFwrdMu[i]->fill(mu);
+  }
+  //fill CaloTagLoose (one additional plot in plot list)
+  unsigned int counter= m_selectedAuthors.size();
+  if ( counter+1==m_oRecoMuonPlots_perAuthor.size()){
+    if (mu.isAuthor(xAOD::Muon::CaloTag)) m_oRecoMuonPlots_perAuthor[counter]->fill(mu);
   }
 }
 
@@ -160,7 +175,7 @@ void MuonValidationPlots::fill(const xAOD::TruthParticle* truthMu, const xAOD::M
     m_oTruthRelatedMuonPlots->fill(*truthMu, *mu, MSTracks);
     //fill SiliconAssociatedForwardMuons
     for (unsigned int i=0; i<m_oTruthRelatedMuonPlots_SiAssocFwrdMu.size();i++){
-      if (mu->muonType()==xAOD::Muon::SiliconAssociatedForwardMuon) m_oTruthRelatedMuonPlots_SiAssocFwrdMu[i]->fill(*truthMu, *mu, MSTracks);	     
+      if (mu->muonType()==xAOD::Muon::SiliconAssociatedForwardMuon || !m_doSeparateSAFMuons) m_oTruthRelatedMuonPlots_SiAssocFwrdMu[i]->fill(*truthMu, *mu, MSTracks);	     
     }
     
     //plots per quality
@@ -179,9 +194,14 @@ void MuonValidationPlots::fill(const xAOD::TruthParticle* truthMu, const xAOD::M
 	  if (ipar<11) continue;
 	}
 	//filter SilicionAssociatedForwardMuons 
-	if (mu->muonType()!=xAOD::Muon::SiliconAssociatedForwardMuon) m_oTruthRelatedMuonPlots_perAuthor[i]->fill(*truthMu, *mu, MSTracks);	     
+	if (mu->muonType()!=xAOD::Muon::SiliconAssociatedForwardMuon || !m_doSeparateSAFMuons) m_oTruthRelatedMuonPlots_perAuthor[i]->fill(*truthMu, *mu, MSTracks);	     
       }
-    }    
+    }
+    //fill CaloTagLoose (one additional plot in plot list)
+    unsigned int counter= m_selectedAuthors.size();
+    if ( counter+1==m_oRecoMuonPlots_perAuthor.size()){
+      if (mu->isAuthor(xAOD::Muon::CaloTag)) m_oTruthRelatedMuonPlots_perAuthor[counter]->fill(*truthMu, *mu, MSTracks);
+    }   
   }
 
 }

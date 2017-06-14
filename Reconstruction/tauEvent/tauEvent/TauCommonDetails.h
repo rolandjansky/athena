@@ -1087,7 +1087,7 @@ namespace Analysis {
 
         //@} --------------------------------------------------------------
         /// @name Accessors for seedTrk_sumEMCellEtOverLeadTrkPt
-        ///@copydoc
+        /// @copydoc
         /// Analysis::TauCommonDetails::m_seedTrk_sumEMCellEtOverLeadTrkPt
         //@{ --------------------------------------------------------------
 
@@ -1275,13 +1275,13 @@ namespace Analysis {
         void setTRT_NHT_OVER_NLT(double value);
 
         //@} -----------------------------------------------------------------
-        /// @Tau Jet Vertex Fraction
+        /// @brief Tau Jet Vertex Fraction
         //@{ -----------------------------------------------------------------
 	      double TauJetVtxFraction() const;
 	      void setTauJetVtxFraction(double value);
 
         //@} -----------------------------------------------------------------
-        /// @Track filter and generic pi0 cone
+        /// @brief Track filter and generic pi0 cone
         //@{ -----------------------------------------------------------------
 
         // vector bool of which tracks pass the track filter
@@ -1386,7 +1386,7 @@ namespace Analysis {
 
 
         //@} -----------------------------------------------------------------
-        /// @Members for electron LLH calculation
+        /// @brief Members for electron LLH calculation
         //@{ -----------------------------------------------------------------
 
         /// ratio of energy in window of 3X7 cells over 7X7 cells in second layer of ECAL
@@ -1399,7 +1399,7 @@ namespace Analysis {
         double m_Ele_ECALFirstFraction;
 
         //@} -----------------------------------------------------------------
-        /// @Members for topocluster ID variables
+        /// @brief Members for topocluster ID variables
         //@{ -----------------------------------------------------------------
 
         ///number of cells in topoclusters associated to tau candidate
@@ -1700,7 +1700,7 @@ namespace Analysis {
         double m_LC_TES_precalib;
 
   	    //@} -----------------------------------------------------------------
-        /// @Cell-based energies in rings for centrality fraction
+        /// @brief Cell-based energies in rings for centrality fraction
         //@{ -----------------------------------------------------------------
 	
 	      /// Ring 1: 0.00  < R < 0.05
@@ -1729,14 +1729,14 @@ namespace Analysis {
         double m_TRT_NHT_OVER_NLT;
 
         //@} -----------------------------------------------------------------
-        /// @Tau Jet Vertex Fraction
+        /// @brief Tau Jet Vertex Fraction
         //@{ -----------------------------------------------------------------
 
         /// Tau Jet Vertex Fraction
         double m_TauJetVtxFraction;
 
         //@} -----------------------------------------------------------------
-        /// @Track filter and generic pi0 cone
+        /// @brief Track filter and generic pi0 cone
         //@{ -----------------------------------------------------------------
 
         // vector bool of which tracks pass the track filter

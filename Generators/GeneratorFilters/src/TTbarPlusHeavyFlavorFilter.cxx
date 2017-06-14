@@ -10,8 +10,7 @@
 //--------------------------------------------------------------------------
 TTbarPlusHeavyFlavorFilter::TTbarPlusHeavyFlavorFilter(const std::string& fname, 
 						 ISvcLocator* pSvcLocator)
-  : GenFilter(fname,pSvcLocator),
-    m_log(MsgStream(messageService(), name()))
+  : GenFilter(fname,pSvcLocator)
  {
 
   declareProperty("UseFinalStateHadrons",m_useFinalStateHadrons=true);
@@ -36,13 +35,12 @@ TTbarPlusHeavyFlavorFilter::TTbarPlusHeavyFlavorFilter(const std::string& fname,
 
 //---------------------------------------------------------------------------
 StatusCode TTbarPlusHeavyFlavorFilter::filterInitialize() {
-  m_log << MSG::INFO << "Initialized" << endmsg;
   return StatusCode::SUCCESS;
 }
 
 //---------------------------------------------------------------------------
 StatusCode TTbarPlusHeavyFlavorFilter::filterFinalize() {
-  m_log << MSG::INFO << m_nPass  << " Events out of " << m_nPass+m_nFail << " passed the filter" << endmsg;
+  ATH_MSG_INFO( m_nPass  << " Events out of " << m_nPass+m_nFail << " passed the filter"  );
   return StatusCode::SUCCESS;
 }
 

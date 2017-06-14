@@ -38,6 +38,7 @@ public:
   virtual void getSensorsData(std::vector<std::string> & userVector)=0;
   //virtual std::string getManufacturer(const IdentifierHash &hashId)=0;
   virtual std::string getManufacturer(unsigned int i)=0;
+  virtual void printManufacturers()=0;
 };
 
 

@@ -22,7 +22,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigT1/TrigT1Interfaces
                           Trigger/TrigT1/TrigT1Result
-			  Trigger/TrigMonitoring/TrigMonitorBase )
+			  Trigger/TrigMonitoring/TrigMonitorBase
+			  Trigger/TrigSteer/DecisionHandling )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -33,13 +34,22 @@ atlas_add_library( L1DecoderLib
                    src/*.cxx
                    PUBLIC_HEADERS L1Decoder
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} GaudiKernel AthViews AthenaBaseComps  CxxUtils xAODTrigger TrigConfHLTData TrigConfL1Data TrigSteeringEvent TrigT1Interfaces TrigT1Result  TrigMonitorBaseLib
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES}
+		   GaudiKernel AthViews AthenaBaseComps  CxxUtils
+		   xAODTrigger TrigConfHLTData TrigConfL1Data
+		   TrigSteeringEvent TrigT1Interfaces TrigT1Result
+		   TrigMonitorBaseLib DecisionHandlingLib
                    )
                    
 atlas_add_component( L1Decoder
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} GaudiKernel AthViews AthenaBaseComps CxxUtils xAODTrigger TrigConfHLTData TrigConfL1Data TrigSteeringEvent TrigT1Interfaces TrigT1Result L1DecoderLib 
+                     LINK_LIBRARIES ${Boost_LIBRARIES}
+                     ${ROOT_LIBRARIES} GaudiKernel AthViews
+                     AthenaBaseComps CxxUtils xAODTrigger
+                     TrigConfHLTData TrigConfL1Data TrigSteeringEvent
+                     TrigT1Interfaces TrigT1Result
+		     L1DecoderLib	
                      )
 
 # Install files from the package:

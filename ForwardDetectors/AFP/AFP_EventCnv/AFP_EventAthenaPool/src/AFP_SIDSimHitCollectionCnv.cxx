@@ -8,7 +8,7 @@
 
 AFP_SIDSimHitCollection_PERS* AFP_SIDSimHitCollectionCnv::createPersistent(AFP_SIDSimHitCollection* transCont)
 {
-	MsgStream mlog(messageService(), "AFP_SIDSimHitCollectionConverter" );
+	MsgStream mlog(msgSvc(), "AFP_SIDSimHitCollectionConverter" );
 
 	AFP_SIDSimHitCollectionCnv_p1 TPConverter;
 	AFP_SIDSimHitCollection_PERS *pPersColl = TPConverter.createPersistent( transCont, mlog );
@@ -18,7 +18,7 @@ AFP_SIDSimHitCollection_PERS* AFP_SIDSimHitCollectionCnv::createPersistent(AFP_S
 
 AFP_SIDSimHitCollection* AFP_SIDSimHitCollectionCnv::createTransient()
 {
-	MsgStream mlog(messageService(), "AFP_SIDSimHitCollectionConverter" );
+	MsgStream mlog(msgSvc(), "AFP_SIDSimHitCollectionConverter" );
 
 	//GUID of persistence collection class (see selection.xml in AFP_EventTPCnv, class item AFP_SIDSimHitCollection_p1
 	static const pool::Guid p1_guid("AAA03560-D4CC-40C3-80D6-165448375201");

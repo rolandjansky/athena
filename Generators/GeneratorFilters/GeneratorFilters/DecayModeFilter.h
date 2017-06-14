@@ -37,7 +37,7 @@ private:
   std::string m_modeID;
   std::string m_submode;
   int m_nChargedLeptons;
-  bool selected;
+  bool m_selected;
 
   std::vector<unsigned int> m_producedParticles_PDG;
   std::vector<unsigned int> m_chi2s_PDG;

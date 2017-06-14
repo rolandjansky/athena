@@ -9,12 +9,14 @@
 
 #include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/IEventShare.h"
+#include "AthenaKernel/IDataShare.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/IFileMgr.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/IConversionSvc.h"
 
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
@@ -34,6 +36,7 @@ SharedEvtQueueConsumer::SharedEvtQueueConsumer(const std::string& type
 					       , const IInterface* parent)
   : AthenaMPToolBase(type,name,parent)
   , m_useSharedReader(false)
+  , m_useSharedWriter(false)
   , m_isPileup(false)
   , m_isRoundRobin(false)
   , m_nEventsBeforeFork(0)
@@ -42,6 +45,7 @@ SharedEvtQueueConsumer::SharedEvtQueueConsumer(const std::string& type
   , m_chronoStatSvc("ChronoStatSvc", name)
   , m_evtSeek(0)
   , m_evtShare(0)
+  , m_dataShare(0)
   , m_sharedEventQueue(0)
   , m_sharedRankQueue(0)
   , m_readEventOrders(false)
@@ -51,6 +55,7 @@ SharedEvtQueueConsumer::SharedEvtQueueConsumer(const std::string& type
   declareInterface<IAthenaMPTool>(this);
 
   declareProperty("UseSharedReader",m_useSharedReader);
+  declareProperty("UseSharedWriter",m_useSharedWriter);
   declareProperty("IsPileup",m_isPileup);
   declareProperty("IsRoundRobin",m_isRoundRobin);
   declareProperty("EventsBeforeFork",m_nEventsBeforeFork);
@@ -104,6 +109,17 @@ StatusCode SharedEvtQueueConsumer::initialize()
       return StatusCode::FAILURE;
     }
     msg(MSG::INFO) << "Could not retrieve IEventShare" << endmsg;
+  }
+
+  //FIXME: AthenaPool dependent for now
+  IConversionSvc* cnvSvc = 0;
+  sc = serviceLocator()->service("AthenaPoolCnvSvc",cnvSvc);
+  m_dataShare = dynamic_cast<IDataShare*>(cnvSvc);
+  if(sc.isFailure() || m_dataShare==0) {
+    if(m_useSharedWriter) {
+      msg(MSG::ERROR) << "Error retrieving AthenaPoolCnvSvc " << cnvSvc << endmsg;
+      return StatusCode::FAILURE;
+    }
   }
 
   sc = m_chronoStatSvc.retrieve();
@@ -349,15 +365,21 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::boots
 
   
   // ________________________ Make Shared Reader/Writer Client ________________________
-  if(m_evtShare) {
+  if(m_useSharedReader && m_evtShare) {
     if(!m_evtShare->makeClient(m_rankId).isSuccess()) {
-      if(m_useSharedReader) {
-        msg(MSG::ERROR) << "Failed to make the event selector a share client" << endmsg;
-        return outwork;
-      }
-      msg(MSG::INFO) << "Could not make the event selector a share client" << endmsg;
+      msg(MSG::ERROR) << "Failed to make the event selector a share client" << endmsg;
+      return outwork;
     } else {
       msg(MSG::DEBUG) << "Successfully made the event selector a share client" << endmsg;
+    }
+  }
+
+  if(m_useSharedWriter && m_dataShare) {
+    if(!m_dataShare->makeClient(m_rankId + 1).isSuccess()) {
+      msg(MSG::ERROR) << "Failed to make the conversion service a share client" << endmsg;
+      return outwork;
+    } else {
+      msg(MSG::DEBUG) << "Successfully made the conversion service a share client" << endmsg;
     }
   }
 

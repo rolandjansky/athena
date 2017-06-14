@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 #ifndef RAW2DIGI_RAW2DIGI_H
 #define RAW2DIGI_RAW2DIGI_H 1
 
@@ -10,14 +11,10 @@
 #include "GaudiKernel/ToolHandle.h" //included under assumption you'll want to use some tools! Remove if you don't!
 
 
-#include "AFP_DigiEv/AFP_SiDigi.h"
-#include "AFP_DigiEv/AFP_SiDigiCollection.h"
-#include "AFP_RawEv/AFP_RawData.h"
-#include "AFP_RawEv/AFP_RawDataCollection.h"
-#include "AFP_RawEv/AFP_RawDataContainer.h"
+#include "AFP_Raw2Digi/IAFP_Raw2DigiTool.h"
+
 #include <iostream>
 #include <string>
-
 
 class AFP_Raw2Digi : public ::AthAlgorithm {
 public:
@@ -29,10 +26,7 @@ public:
   virtual StatusCode finalize();
 
 private:
-
-  std::string m_AFP_RawDataCollectionKey;
-//  std::string m_SiDigiCollectionName;
-std::string m_SiHitContainerName;
+  ToolHandle<IAFP_Raw2DigiTool> m_DigiTool;
 };
 
 #endif //> !RAW2DIGI_RAW2DIGI_H

@@ -3,7 +3,7 @@
 */
 
 /**
-@page PanTauInterfaces_page @mainpage The PanTauInterfaces package
+@page PanTauInterfaces_page PanTauInterfaces package
  * The interface package for PanTau.
  *
  * @author Sebastian.Fleischmann@cern.ch

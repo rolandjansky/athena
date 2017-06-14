@@ -29,15 +29,13 @@
 #include "LArROD/LArCellBuilderDriver.h"
 
 
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "LArByteStream/LArRodBlockStructure.h"
 #include "LArRecUtils/MakeLArCellFromRaw.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
 #include "CaloUtils/CaloCellCorrection.h"
 
 #include "LArRawUtils/LArRoI_Map.h"
-
-#include "LArTools/LArCablingService.h"
 
 #include "ByteStreamData/RawEvent.h" 
 #include "LArRecEvent/LArFebEnergy.h" 

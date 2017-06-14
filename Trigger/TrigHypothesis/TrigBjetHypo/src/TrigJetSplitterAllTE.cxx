@@ -37,7 +37,7 @@ TrigJetSplitterAllTE::TrigJetSplitterAllTE(const std::string & name, ISvcLocator
   declareProperty ("PriVtxKeyBackup",        m_priVtxKeyBackup        = "EFHistoPrmVtx");
   declareProperty ("EtaHalfWidth",           m_etaHalfWidth           = 0.4);
   declareProperty ("PhiHalfWidth",           m_phiHalfWidth           = 0.4);
-  declareProperty ("ZHalfWidth",             m_zHalfWidth             = 20.0); // in mm
+  declareProperty ("ZHalfWidth",             m_zHalfWidth             = 10.0); // in mm
   declareProperty ("JetMinEt",               m_minJetEt               = 15.0); // in GeV ==> Can't be any higher than the lowest pT chain that will run
   declareProperty ("JetMaxEta",              m_maxJetEta              = 3.2);  //2.5+m_etaHalfWidth);  // tracker acceptance + jet half-width
   declareProperty ("DynamicEtaPhiHalfWidth", m_dynamicEtaPhiHalfWidth = "off"); // "off", "loose", "medium", "tight", "loose_exp", "medium_exp", "tight_exp"

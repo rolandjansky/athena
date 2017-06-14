@@ -22,7 +22,7 @@ Modified:
 #ifndef TRIG_TAU_CONTAINER
 #define TRIG_TAU_CONTAINER
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "CLIDSvc/CLASS_DEF.h"
 
 #include "TrigParticle/TrigTau.h"

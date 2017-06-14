@@ -1085,22 +1085,22 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	  
 	 ///create and insert entries in SQLite DB 
          //  bool do_asciiCoolFile1  = true;
-	   float effeta            = -9999;	  float effphi  	  = -9999;  	 char m_effeta  	  [10];      char m_effphi	      [10];	    
-           float erreffeta         = -1; 	  float erreffphi	  =-1;  	 char m_erreffeta	  [10];      char m_erreffphi	      [10];	    
-	   float reseta_cs1        = -9999;	  float resphi_cs1	  = -9999;  	 char m_reseta_cs1	  [10];      char m_resphi_cs1        [10];	    
-           float errreseta_cs1     = -1; 	  float errresphi_cs1	  =-1;  	 char m_errreseta_cs1	  [10];      char m_errresphi_cs1     [10];	    
-	   float reseta_cs2        = -9999;	  float resphi_cs2	  = -9999;  	 char m_reseta_cs2	  [10];      char m_resphi_cs2        [10];	    
-           float errreseta_cs2     = -1; 	  float errresphi_cs2	  =-1;  	 char m_errreseta_cs2	  [10];      char m_errresphi_cs2     [10];	    
-	   float reseta_csother    = -9999;	  float resphi_csother	  = -9999;  	 char m_reseta_csother    [10];      char m_resphi_csother    [10];	    
-           float errreseta_csother = -1; 	  float errresphi_csother =-1;  	 char m_errreseta_csother [10];      char m_errresphi_csother [10];	    
-	   float timeeta           = -9999;	  float timephi 	  = -9999;  	 char m_timeeta 	  [10];      char m_timephi	      [10];	    
-           float errtimeeta        = -1; 	  float errtimephi	  =-1;  	 char m_errtimeeta	  [10];      char m_errtimephi        [10];	    
-	   float noiseeta          = -9999;	  float noisephi	  = -9999;  	 char m_noiseeta	  [10];      char m_noisephi	      [10];	    
-           float errnoiseeta       = -1; 	  float errnoisephi	  =-1;  	 char m_errnoiseeta	  [10];      char m_errnoisephi       [10];	    
-	   float noiseeta_cor      = -9999;	  float noisephi_cor	  = -9999;  	 char m_noiseeta_cor	  [10];      char m_noisephi_cor      [10];	    
-           float errnoiseeta_cor   = -1; 	  float errnoisephi_cor   =-1;  	 char m_errnoiseeta_cor   [10];      char m_errnoisephi_cor   [10];	    
-	   float cl_sizeeta        = -9999;	  float cl_sizephi	  = -9999;  	 char m_cl_sizeeta	  [10];      char m_cl_sizephi        [10];	    
-           float errcl_sizeeta     = -1; 	  float errcl_sizephi	  =-1;  	 char m_errcl_sizeeta	  [10];      char m_errcl_sizephi     [10];	    
+	   float effeta            = -9999;	  float effphi  	  = -9999;  	 char arr_effeta  	  [10];      char arr_effphi	      [10];	    
+           float erreffeta         = -1; 	  float erreffphi	  =-1;  	 char arr_erreffeta	  [10];      char arr_erreffphi	      [10];	    
+	   float reseta_cs1        = -9999;	  float resphi_cs1	  = -9999;  	 char arr_reseta_cs1	  [10];      char arr_resphi_cs1        [10];	    
+           float errreseta_cs1     = -1; 	  float errresphi_cs1	  =-1;  	 char arr_errreseta_cs1	  [10];      char arr_errresphi_cs1     [10];	    
+	   float reseta_cs2        = -9999;	  float resphi_cs2	  = -9999;  	 char arr_reseta_cs2	  [10];      char arr_resphi_cs2        [10];	    
+           float errreseta_cs2     = -1; 	  float errresphi_cs2	  =-1;  	 char arr_errreseta_cs2	  [10];      char arr_errresphi_cs2     [10];	    
+	   float reseta_csother    = -9999;	  float resphi_csother	  = -9999;  	 char arr_reseta_csother    [10];      char arr_resphi_csother    [10];	    
+           float errreseta_csother = -1; 	  float errresphi_csother =-1;  	 char arr_errreseta_csother [10];      char arr_errresphi_csother [10];	    
+	   float timeeta           = -9999;	  float timephi 	  = -9999;  	 char arr_timeeta 	  [10];      char arr_timephi	      [10];	    
+           float errtimeeta        = -1; 	  float errtimephi	  =-1;  	 char arr_errtimeeta	  [10];      char arr_errtimephi        [10];	    
+	   float noiseeta          = -9999;	  float noisephi	  = -9999;  	 char arr_noiseeta	  [10];      char arr_noisephi	      [10];	    
+           float errnoiseeta       = -1; 	  float errnoisephi	  =-1;  	 char arr_errnoiseeta	  [10];      char arr_errnoisephi       [10];	    
+	   float noiseeta_cor      = -9999;	  float noisephi_cor	  = -9999;  	 char arr_noiseeta_cor	  [10];      char arr_noisephi_cor      [10];	    
+           float errnoiseeta_cor   = -1; 	  float errnoisephi_cor   =-1;  	 char arr_errnoiseeta_cor   [10];      char arr_errnoisephi_cor   [10];	    
+	   float cl_sizeeta        = -9999;	  float cl_sizephi	  = -9999;  	 char arr_cl_sizeeta	  [10];      char arr_cl_sizephi        [10];	    
+           float errcl_sizeeta     = -1; 	  float errcl_sizephi	  =-1;  	 char arr_errcl_sizeeta	  [10];      char arr_errcl_sizephi     [10];	    
   		
 	 
 	   int   PanelCode   = 0;
@@ -1124,43 +1124,75 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	      if (h_TrackProj) n_tr_pphi  =(int)h_TrackProj   -> GetBinContent(ibin) ;
 	      if(n_tr_pphi <1000 ) continue;
 
-	      if ( h_Eff	 )effphi	      = h_Eff		  ->GetBinContent(ibin) ;    sprintf(m_effphi		,    "%f ", effphi	      ) ;   m_effphi	       [5]   =0;
-	      if ( h_Eff	 )erreffphi	      = h_Eff		  ->GetBinError  (ibin) ;    sprintf(m_erreffphi	,    "%f ", erreffphi	      ) ;   m_erreffphi        [5]   =0;
-	      if ( h_Res_CS1	 )resphi_cs1	      = h_Res_CS1	  ->GetBinContent(ibin) ;    sprintf(m_resphi_cs1	,    "%f ", resphi_cs1        ) ;   m_resphi_cs1       [5]   =0;
-	      if ( h_Res_CS1	 )errresphi_cs1       = h_Res_CS1	  ->GetBinError  (ibin) ;    sprintf(m_errresphi_cs1	,    "%f ", errresphi_cs1     ) ;   m_errresphi_cs1    [5]   =0;
-	      if ( h_Res_CS2	 )resphi_cs2	      = h_Res_CS2	  ->GetBinContent(ibin) ;    sprintf(m_resphi_cs2	,    "%f ", resphi_cs2        ) ;   m_resphi_cs2       [5]   =0;
-	      if ( h_Res_CS2	 )errresphi_cs2       = h_Res_CS2	  ->GetBinError  (ibin) ;    sprintf(m_errresphi_cs2	,    "%f ", errresphi_cs2     ) ;   m_errresphi_cs2    [5]   =0;
-	      if ( h_Res_CSmore2 )resphi_csother      = h_Res_CSmore2	  ->GetBinContent(ibin) ;    sprintf(m_resphi_csother	,    "%f ", resphi_csother    ) ;   m_resphi_csother   [5]   =0;
-	      if ( h_Res_CSmore2 )errresphi_csother   = h_Res_CSmore2	  ->GetBinError  (ibin) ;    sprintf(m_errresphi_csother,    "%f ", errresphi_csother ) ;   m_errresphi_csother[5]   =0;
-	      if ( h_Time	 )timephi	      = h_Time  	  ->GetBinContent(ibin) ;    sprintf(m_timephi  	,    "%f ", timephi	      ) ;   m_timephi	       [5]   =0;
-              if ( h_Time	 )errtimephi	      = h_Time  	  ->GetBinError  (ibin) ;    sprintf(m_errtimephi	,    "%f ", errtimephi        ) ;   m_errtimephi       [5]   =0;
-	      if ( h_NoiseTot	 )noisephi	      = h_NoiseTot	  ->GetBinContent(ibin) ;    sprintf(m_noisephi 	,    "%f ", noisephi	      ) ;   m_noisephi         [5]   =0;
-	      if ( h_NoiseTot	 )errnoisephi	      = h_NoiseTot	  ->GetBinError  (ibin) ;    sprintf(m_errnoisephi	,    "%f ", errnoisephi       ) ;   m_errnoisephi      [5]   =0;
-	      if ( h_NoiseCorr   )noisephi_cor        = h_NoiseCorr	  ->GetBinContent(ibin) ;    sprintf(m_noisephi_cor	,    "%f ", noisephi_cor      ) ;   m_noisephi_cor     [5]   =0;
-	      if ( h_NoiseCorr   )errnoisephi_cor     = h_NoiseCorr	  ->GetBinError  (ibin) ;    sprintf(m_errnoisephi_cor  ,    "%f ", errnoisephi_cor   ) ;   m_errnoisephi_cor  [5]   =0;
-	      if ( h_CS 	 )cl_sizephi	      = h_CS		  ->GetBinContent(ibin) ;    sprintf(m_cl_sizephi	,    "%f ", cl_sizephi        ) ;   m_cl_sizephi       [5]   =0;
-	      if ( h_CS 	 )errcl_sizephi       = h_CS		  ->GetBinError  (ibin) ;    sprintf(m_errcl_sizephi	,    "%f ", errcl_sizephi     ) ;   m_errcl_sizephi    [5]   =0;
+	      if ( h_Eff	 )effphi	      = h_Eff		  ->GetBinContent(ibin) ;
+              sprintf(arr_effphi		,    "%f ", effphi	      ) ;   arr_effphi	       [5]   =0;
+	      if ( h_Eff	 )erreffphi	      = h_Eff		  ->GetBinError  (ibin) ;
+              sprintf(arr_erreffphi	,    "%f ", erreffphi	      ) ;   arr_erreffphi        [5]   =0;
+	      if ( h_Res_CS1	 )resphi_cs1	      = h_Res_CS1	  ->GetBinContent(ibin) ;
+              sprintf(arr_resphi_cs1	,    "%f ", resphi_cs1        ) ;   arr_resphi_cs1       [5]   =0;
+	      if ( h_Res_CS1	 )errresphi_cs1       = h_Res_CS1	  ->GetBinError  (ibin) ;
+              sprintf(arr_errresphi_cs1	,    "%f ", errresphi_cs1     ) ;   arr_errresphi_cs1    [5]   =0;
+	      if ( h_Res_CS2	 )resphi_cs2	      = h_Res_CS2	  ->GetBinContent(ibin) ;
+              sprintf(arr_resphi_cs2	,    "%f ", resphi_cs2        ) ;   arr_resphi_cs2       [5]   =0;
+	      if ( h_Res_CS2	 )errresphi_cs2       = h_Res_CS2	  ->GetBinError  (ibin) ;
+              sprintf(arr_errresphi_cs2	,    "%f ", errresphi_cs2     ) ;   arr_errresphi_cs2    [5]   =0;
+	      if ( h_Res_CSmore2 )resphi_csother      = h_Res_CSmore2	  ->GetBinContent(ibin) ;
+              sprintf(arr_resphi_csother	,    "%f ", resphi_csother    ) ;   arr_resphi_csother   [5]   =0;
+	      if ( h_Res_CSmore2 )errresphi_csother   = h_Res_CSmore2	  ->GetBinError  (ibin) ;
+              sprintf(arr_errresphi_csother,    "%f ", errresphi_csother ) ;   arr_errresphi_csother[5]   =0;
+	      if ( h_Time	 )timephi	      = h_Time  	  ->GetBinContent(ibin) ;
+              sprintf(arr_timephi  	,    "%f ", timephi	      ) ;   arr_timephi	       [5]   =0;
+              if ( h_Time	 )errtimephi	      = h_Time  	  ->GetBinError  (ibin) ;
+              sprintf(arr_errtimephi	,    "%f ", errtimephi        ) ;   arr_errtimephi       [5]   =0;
+	      if ( h_NoiseTot	 )noisephi	      = h_NoiseTot	  ->GetBinContent(ibin) ;
+              sprintf(arr_noisephi 	,    "%f ", noisephi	      ) ;   arr_noisephi         [5]   =0;
+	      if ( h_NoiseTot	 )errnoisephi	      = h_NoiseTot	  ->GetBinError  (ibin) ;
+              sprintf(arr_errnoisephi	,    "%f ", errnoisephi       ) ;   arr_errnoisephi      [5]   =0;
+	      if ( h_NoiseCorr   )noisephi_cor        = h_NoiseCorr	  ->GetBinContent(ibin) ;
+              sprintf(arr_noisephi_cor	,    "%f ", noisephi_cor      ) ;   arr_noisephi_cor     [5]   =0;
+	      if ( h_NoiseCorr   )errnoisephi_cor     = h_NoiseCorr	  ->GetBinError  (ibin) ;
+              sprintf(arr_errnoisephi_cor  ,    "%f ", errnoisephi_cor   ) ;   arr_errnoisephi_cor  [5]   =0;
+	      if ( h_CS 	 )cl_sizephi	      = h_CS		  ->GetBinContent(ibin) ;
+              sprintf(arr_cl_sizephi	,    "%f ", cl_sizephi        ) ;   arr_cl_sizephi       [5]   =0;
+	      if ( h_CS 	 )errcl_sizephi       = h_CS		  ->GetBinError  (ibin) ;
+              sprintf(arr_errcl_sizephi	,    "%f ", errcl_sizephi     ) ;   arr_errcl_sizephi    [5]   =0;
 	     
 	     }else{
 	      if (h_TrackProj) {n_tr_peta  =(int)h_TrackProj   -> GetBinContent(ibin) ;}
               if(n_tr_peta <1000) continue;
 
- 	      if ( h_Eff	)effeta 	     = h_Eff		 ->GetBinContent(ibin) ;      sprintf(m_effeta  	 ,    "%f ", effeta	       ) ;   m_effeta		[5]   =0;
-	      if ( h_Eff	)erreffeta	     = h_Eff		 ->GetBinError  (ibin) ;      sprintf(m_erreffeta	 ,    "%f ", erreffeta         ) ;   m_erreffeta	[5]   =0;
-	      if ( h_Res_CS1	)reseta_cs1	     = h_Res_CS1	 ->GetBinContent(ibin) ;      sprintf(m_reseta_cs1	 ,    "%f ", reseta_cs1        ) ;   m_reseta_cs1	[5]   =0;
-	      if ( h_Res_CS1	)errreseta_cs1       = h_Res_CS1	 ->GetBinError  (ibin) ;      sprintf(m_errreseta_cs1	 ,    "%f ", errreseta_cs1     ) ;   m_errreseta_cs1	[5]   =0;
-	      if ( h_Res_CS2	)reseta_cs2	     = h_Res_CS2	 ->GetBinContent(ibin) ;      sprintf(m_reseta_cs2	 ,    "%f ", reseta_cs2        ) ;   m_reseta_cs2	[5]   =0;
-	      if ( h_Res_CS2	)errreseta_cs2       = h_Res_CS2	 ->GetBinError  (ibin) ;      sprintf(m_errreseta_cs2	 ,    "%f ", errreseta_cs2     ) ;   m_errreseta_cs2	[5]   =0;
-              if ( h_Res_CSmore2)reseta_csother      = h_Res_CSmore2	 ->GetBinContent(ibin) ;      sprintf(m_reseta_csother   ,    "%f ", reseta_csother    ) ;   m_reseta_csother	[5]   =0;
-	      if ( h_Res_CSmore2)errreseta_csother   = h_Res_CSmore2	 ->GetBinError  (ibin) ;      sprintf(m_errreseta_csother,    "%f ", errreseta_csother ) ;   m_errreseta_csother[5]   =0;
-	      if ( h_Time	)timeeta	     = h_Time		 ->GetBinContent(ibin) ;      sprintf(m_timeeta 	 ,    "%f ", timeeta	       ) ;   m_timeeta  	[5]   =0;
-	      if ( h_Time	)errtimeeta	     = h_Time		 ->GetBinError  (ibin) ;      sprintf(m_errtimeeta	 ,    "%f ", errtimeeta        ) ;   m_errtimeeta	[5]   =0;
-	      if ( h_NoiseTot	)noiseeta	     = h_NoiseTot	 ->GetBinContent(ibin) ;      sprintf(m_noiseeta	 ,    "%f ", noiseeta	       ) ;   m_noiseeta 	[5]   =0;
-	      if ( h_NoiseTot	)errnoiseeta	     = h_NoiseTot	 ->GetBinError  (ibin) ;      sprintf(m_errnoiseeta	 ,    "%f ", errnoiseeta       ) ;   m_errnoiseeta	[5]   =0;
-	      if ( h_NoiseCorr  )noiseeta_cor	     = h_NoiseCorr	 ->GetBinContent(ibin) ;      sprintf(m_noiseeta_cor	 ,    "%f ", noiseeta_cor      ) ;   m_noiseeta_cor	[5]   =0;
-	      if ( h_NoiseCorr  )errnoiseeta_cor     = h_NoiseCorr	 ->GetBinError  (ibin) ;      sprintf(m_errnoiseeta_cor  ,    "%f ", errnoiseeta_cor   ) ;   m_errnoiseeta_cor  [5]   =0;
-	      if ( h_CS 	)cl_sizeeta	     = h_CS		 ->GetBinContent(ibin) ;      sprintf(m_cl_sizeeta	 ,    "%f ", cl_sizeeta        ) ;   m_cl_sizeeta	[5]   =0;
-	      if ( h_CS 	)errcl_sizeeta       = h_CS		 ->GetBinError  (ibin) ;      sprintf(m_errcl_sizeeta	 ,    "%f ", errcl_sizeeta     ) ;   m_errcl_sizeeta	[5]   =0;	     
+ 	      if ( h_Eff	)effeta 	     = h_Eff		 ->GetBinContent(ibin) ;
+              sprintf(arr_effeta  	 ,    "%f ", effeta	       ) ;   arr_effeta		[5]   =0;
+	      if ( h_Eff	)erreffeta	     = h_Eff		 ->GetBinError  (ibin) ;
+              sprintf(arr_erreffeta	 ,    "%f ", erreffeta         ) ;   arr_erreffeta	[5]   =0;
+	      if ( h_Res_CS1	)reseta_cs1	     = h_Res_CS1	 ->GetBinContent(ibin) ;
+              sprintf(arr_reseta_cs1	 ,    "%f ", reseta_cs1        ) ;   arr_reseta_cs1	[5]   =0;
+	      if ( h_Res_CS1	)errreseta_cs1       = h_Res_CS1	 ->GetBinError  (ibin) ;
+              sprintf(arr_errreseta_cs1	 ,    "%f ", errreseta_cs1     ) ;   arr_errreseta_cs1	[5]   =0;
+	      if ( h_Res_CS2	)reseta_cs2	     = h_Res_CS2	 ->GetBinContent(ibin) ;
+              sprintf(arr_reseta_cs2	 ,    "%f ", reseta_cs2        ) ;   arr_reseta_cs2	[5]   =0;
+	      if ( h_Res_CS2	)errreseta_cs2       = h_Res_CS2	 ->GetBinError  (ibin) ;
+              sprintf(arr_errreseta_cs2	 ,    "%f ", errreseta_cs2     ) ;   arr_errreseta_cs2	[5]   =0;
+              if ( h_Res_CSmore2)reseta_csother      = h_Res_CSmore2	 ->GetBinContent(ibin) ;
+              sprintf(arr_reseta_csother   ,    "%f ", reseta_csother    ) ;   arr_reseta_csother	[5]   =0;
+	      if ( h_Res_CSmore2)errreseta_csother   = h_Res_CSmore2	 ->GetBinError  (ibin) ;
+              sprintf(arr_errreseta_csother,    "%f ", errreseta_csother ) ;   arr_errreseta_csother[5]   =0;
+	      if ( h_Time	)timeeta	     = h_Time		 ->GetBinContent(ibin) ;
+              sprintf(arr_timeeta 	 ,    "%f ", timeeta	       ) ;   arr_timeeta  	[5]   =0;
+	      if ( h_Time	)errtimeeta	     = h_Time		 ->GetBinError  (ibin) ;
+              sprintf(arr_errtimeeta	 ,    "%f ", errtimeeta        ) ;   arr_errtimeeta	[5]   =0;
+	      if ( h_NoiseTot	)noiseeta	     = h_NoiseTot	 ->GetBinContent(ibin) ;
+              sprintf(arr_noiseeta	 ,    "%f ", noiseeta	       ) ;   arr_noiseeta 	[5]   =0;
+	      if ( h_NoiseTot	)errnoiseeta	     = h_NoiseTot	 ->GetBinError  (ibin) ;
+              sprintf(arr_errnoiseeta	 ,    "%f ", errnoiseeta       ) ;   arr_errnoiseeta	[5]   =0;
+	      if ( h_NoiseCorr  )noiseeta_cor	     = h_NoiseCorr	 ->GetBinContent(ibin) ;
+              sprintf(arr_noiseeta_cor	 ,    "%f ", noiseeta_cor      ) ;   arr_noiseeta_cor	[5]   =0;
+	      if ( h_NoiseCorr  )errnoiseeta_cor     = h_NoiseCorr	 ->GetBinError  (ibin) ;
+              sprintf(arr_errnoiseeta_cor  ,    "%f ", errnoiseeta_cor   ) ;   arr_errnoiseeta_cor  [5]   =0;
+	      if ( h_CS 	)cl_sizeeta	     = h_CS		 ->GetBinContent(ibin) ;
+              sprintf(arr_cl_sizeeta	 ,    "%f ", cl_sizeeta        ) ;   arr_cl_sizeeta	[5]   =0;
+	      if ( h_CS 	)errcl_sizeeta       = h_CS		 ->GetBinError  (ibin) ;
+              sprintf(arr_errcl_sizeeta	 ,    "%f ", errcl_sizeeta     ) ;   arr_errcl_sizeeta	[5]   =0;	     
 	     
 	    
               //std::cout<<"PanelCode  "<<PanelCode<<" etaprimo "<<"\n";
@@ -1171,11 +1203,11 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
  	      char recPhi2  [4000]; //eff_phi, res_cs1, res_cs2, res_csother, time, only rms
 	      char detPhi1  [4000]; //noise, noise_corr, cs, mean and rms
 	      char detPhi2  [4000];
-	      sprintf(recEta,  "%5d %5d %5d %5d %s %s %s %s %s %s %s %s %s %s ", TableVersion,  n_tr_peta, NumberOfInfo, StripCluster, m_effeta, m_erreffeta, m_reseta_cs1, m_errreseta_cs1, m_reseta_cs2, m_errreseta_cs2, m_reseta_csother, m_errreseta_csother, m_timeeta, m_errtimeeta) ;  
-	      sprintf(detEta,  "%s %s %s %s %s %s ", m_noiseeta, m_errnoiseeta, m_noiseeta_cor, m_errnoiseeta_cor, m_cl_sizeeta, m_errcl_sizeeta) ;  
-	      sprintf(recPhi1, "%5d %5d %5d %s %s %s %s %s ", n_tr_pphi, NumberOfInfo, StripCluster, m_effphi, m_resphi_cs1, m_resphi_cs2, m_resphi_csother, m_timephi) ;  
-	      sprintf(recPhi2, "%s %s %s %s %s ", m_erreffphi, m_errresphi_cs1, m_errresphi_cs2, m_errresphi_csother, m_errtimephi) ;  
-	      sprintf(detPhi1, "%s %s %s %s %s %s ", m_noisephi, m_errnoisephi, m_noisephi_cor, m_errnoisephi_cor, m_cl_sizephi, m_errcl_sizephi) ;  
+	      sprintf(recEta,  "%5d %5d %5d %5d %s %s %s %s %s %s %s %s %s %s ", TableVersion,  n_tr_peta, NumberOfInfo, StripCluster, arr_effeta, arr_erreffeta, arr_reseta_cs1, arr_errreseta_cs1, arr_reseta_cs2, arr_errreseta_cs2, arr_reseta_csother, arr_errreseta_csother, arr_timeeta, arr_errtimeeta) ;  
+	      sprintf(detEta,  "%s %s %s %s %s %s ", arr_noiseeta, arr_errnoiseeta, arr_noiseeta_cor, arr_errnoiseeta_cor, arr_cl_sizeeta, arr_errcl_sizeeta) ;  
+	      sprintf(recPhi1, "%5d %5d %5d %s %s %s %s %s ", n_tr_pphi, NumberOfInfo, StripCluster, arr_effphi, arr_resphi_cs1, arr_resphi_cs2, arr_resphi_csother, arr_timephi) ;  
+	      sprintf(recPhi2, "%s %s %s %s %s ", arr_erreffphi, arr_errresphi_cs1, arr_errresphi_cs2, arr_errresphi_csother, arr_errtimephi) ;  
+	      sprintf(detPhi1, "%s %s %s %s %s %s ", arr_noisephi, arr_errnoisephi, arr_noisephi_cor, arr_errnoisephi_cor, arr_cl_sizephi, arr_errcl_sizephi) ;  
 	      sprintf(detPhi2, "0 ") ;  
  	      std::string cool_tag="Reco";		        
               coolrpc.setSince(0U,0U);		
@@ -1188,10 +1220,10 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 	   
             int   TableVersionCondDB  = 2 ;         //RPC conditionDB table versioning
-	    float effeleeta           = -9999;	       char m_effeleeta 	 [10];  	   
-            float erreffeleeta        = -1;	       char m_erreffeleeta	 [10];  	   
-            float effelephi	      = -9999;	       char m_effelephi 	 [10];
-	    float erreffelephi        = -1;            char m_erreffelephi	 [10];
+	    float effeleeta           = -9999;	       char arr_effeleeta 	 [10];  	   
+            float erreffeleeta        = -1;	       char arr_erreffeleeta	 [10];  	   
+            float effelephi	      = -9999;	       char arr_effelephi 	 [10];
+	    float erreffelephi        = -1;            char arr_erreffelephi	 [10];
 	    float gapeff              = -9999;			    
             float errgapeff           = -1;
 	    float entriesCSeta        = -1;
@@ -1200,12 +1232,12 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 	    float entriesCSphi        = -1;
 	    int   entriesCS1phi	      = -1;
 	    int   entriesCS2phi	      = -1;
-            float rateCS1eta	      = -1;	       char m_rateCS1eta	 [10]; 
-            float rateCS2eta	      = -1;	       char m_rateCS2eta	 [10]; 
-            float rateCSmore2eta      = -1;	       char m_rateCSmore2eta	 [10]; 
-            float rateCS1phi	      = -1;	       char m_rateCS1phi	 [10]; 
-            float rateCS2phi	      = -1;	       char m_rateCS2phi	 [10]; 
-            float rateCSmore2phi      = -1;	       char m_rateCSmore2phi	 [10]; 
+            float rateCS1eta	      = -1;	       char arr_rateCS1eta	 [10]; 
+            float rateCS2eta	      = -1;	       char arr_rateCS2eta	 [10]; 
+            float rateCSmore2eta      = -1;	       char arr_rateCSmore2eta	 [10]; 
+            float rateCS1phi	      = -1;	       char arr_rateCS1phi	 [10]; 
+            float rateCS2phi	      = -1;	       char arr_rateCS2phi	 [10]; 
+            float rateCSmore2phi      = -1;	       char arr_rateCSmore2phi	 [10]; 
 
  	    coolrpc.coolDbFolder("sqlite://;schema=RPCConditionDB.db;dbname=RPC_DQA","/OFFLINE/FINAL");
   	    std::string dir_cool_raw = run_dir + "/Muon/MuonRawDataMonitoring/RPC/CoolDB/";
@@ -1316,30 +1348,30 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
 			    	}
         		        //std::cout << " effeleeta " << effeleeta <<"  erreffeleeta  "<<erreffeleeta<<"  erreffeta  "<<erreffeta << "  effeta  "<<effeta <<"  errgapeff  "<<errgapeff << "  gapeff  "<<gapeff <<" rateCS1eta  "<<  rateCS1eta << " rateCS2eta " << rateCS2eta <<std::endl;
 	
-			    	sprintf(m_effeta	   ,	"%f ", effeta		 ) ;   m_effeta 	  [5]	=0;
-			    	sprintf(m_erreffeta	   ,	"%f ", erreffeta	 ) ;   m_erreffeta	  [5]	=0;
-			    	sprintf(m_effeleeta	   ,	"%f ", effeleeta	 ) ;   m_effeleeta	  [5]	=0;
-			    	sprintf(m_erreffeleeta     ,	"%f ", erreffeleeta	 ) ;   m_erreffeleeta	  [5]	=0;
-			    	sprintf(m_reseta_cs1	   ,	"%f ", reseta_cs1	 ) ;   m_reseta_cs1	  [5]	=0;
-			    	sprintf(m_errreseta_cs1    ,	"%f ", errreseta_cs1	 ) ;   m_errreseta_cs1    [5]	=0;
-			    	sprintf(m_reseta_cs2	   ,	"%f ", reseta_cs2	 ) ;   m_reseta_cs2	  [5]	=0;
-			    	sprintf(m_errreseta_cs2    ,	"%f ", errreseta_cs2	 ) ;   m_errreseta_cs2    [5]	=0;
-			    	sprintf(m_reseta_csother   ,	"%f ", reseta_csother	 ) ;   m_reseta_csother   [5]	=0;
-			    	sprintf(m_errreseta_csother,	"%f ", errreseta_csother ) ;   m_errreseta_csother[5]	=0;
-			    	sprintf(m_noiseeta	   ,	"%f ", noiseeta 	 ) ;   m_noiseeta	  [5]	=0;
-			    	sprintf(m_errnoiseeta	   ,	"%f ", errnoiseeta	 ) ;   m_errnoiseeta	  [5]	=0;
-				sprintf(m_noiseeta_cor	   ,    "%f ", noiseeta_cor      ) ;   m_noiseeta_cor	  [5]   =0;
-                                sprintf(m_errnoiseeta_cor  ,    "%f ", errnoiseeta_cor   ) ;   m_errnoiseeta_cor  [5]   =0;
-			    	sprintf(m_cl_sizeeta	   ,	"%f ", cl_sizeeta	 ) ;   m_cl_sizeeta	  [5]	=0;
-			    	sprintf(m_errcl_sizeeta    ,	"%f ", errcl_sizeeta	 ) ;   m_errcl_sizeeta    [5]	=0;
-			    	sprintf(m_rateCS1eta       ,	"%f ", rateCS1eta	 ) ;   m_rateCS1eta       [5]	=0;
-			    	sprintf(m_rateCS2eta       ,	"%f ", rateCS2eta	 ) ;   m_rateCS2eta       [5]	=0;
-			    	sprintf(m_rateCSmore2eta   ,	"%f ", rateCSmore2eta	 ) ;   m_rateCSmore2eta   [5]	=0;
+			    	sprintf(arr_effeta	   ,	"%f ", effeta		 ) ;   arr_effeta 	  [5]	=0;
+			    	sprintf(arr_erreffeta	   ,	"%f ", erreffeta	 ) ;   arr_erreffeta	  [5]	=0;
+			    	sprintf(arr_effeleeta	   ,	"%f ", effeleeta	 ) ;   arr_effeleeta	  [5]	=0;
+			    	sprintf(arr_erreffeleeta     ,	"%f ", erreffeleeta	 ) ;   arr_erreffeleeta	  [5]	=0;
+			    	sprintf(arr_reseta_cs1	   ,	"%f ", reseta_cs1	 ) ;   arr_reseta_cs1	  [5]	=0;
+			    	sprintf(arr_errreseta_cs1    ,	"%f ", errreseta_cs1	 ) ;   arr_errreseta_cs1    [5]	=0;
+			    	sprintf(arr_reseta_cs2	   ,	"%f ", reseta_cs2	 ) ;   arr_reseta_cs2	  [5]	=0;
+			    	sprintf(arr_errreseta_cs2    ,	"%f ", errreseta_cs2	 ) ;   arr_errreseta_cs2    [5]	=0;
+			    	sprintf(arr_reseta_csother   ,	"%f ", reseta_csother	 ) ;   arr_reseta_csother   [5]	=0;
+			    	sprintf(arr_errreseta_csother,	"%f ", errreseta_csother ) ;   arr_errreseta_csother[5]	=0;
+			    	sprintf(arr_noiseeta	   ,	"%f ", noiseeta 	 ) ;   arr_noiseeta	  [5]	=0;
+			    	sprintf(arr_errnoiseeta	   ,	"%f ", errnoiseeta	 ) ;   arr_errnoiseeta	  [5]	=0;
+				sprintf(arr_noiseeta_cor	   ,    "%f ", noiseeta_cor      ) ;   arr_noiseeta_cor	  [5]   =0;
+                                sprintf(arr_errnoiseeta_cor  ,    "%f ", errnoiseeta_cor   ) ;   arr_errnoiseeta_cor  [5]   =0;
+			    	sprintf(arr_cl_sizeeta	   ,	"%f ", cl_sizeeta	 ) ;   arr_cl_sizeeta	  [5]	=0;
+			    	sprintf(arr_errcl_sizeeta    ,	"%f ", errcl_sizeeta	 ) ;   arr_errcl_sizeeta    [5]	=0;
+			    	sprintf(arr_rateCS1eta       ,	"%f ", rateCS1eta	 ) ;   arr_rateCS1eta       [5]	=0;
+			    	sprintf(arr_rateCS2eta       ,	"%f ", rateCS2eta	 ) ;   arr_rateCS2eta       [5]	=0;
+			    	sprintf(arr_rateCSmore2eta   ,	"%f ", rateCSmore2eta	 ) ;   arr_rateCSmore2eta   [5]	=0;
 	
 			        char PanelRes   [255]; //eff_eta, res_cs1, res_cs2, res_csother, time, mean and rms
 			        char StripStatus   [4096]; //strips status 0 to 9 for dead noisy strips
 				
- 			        sprintf(PanelRes,  "%d %d %d %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s", TableVersionCondDB,  n_tr_peta, StripsOnPanel,  m_effeta, m_erreffeta,  m_effeleeta, m_erreffeleeta, m_reseta_cs1, m_errreseta_cs1, m_reseta_cs2, m_errreseta_cs2, m_reseta_csother, m_errreseta_csother, m_noiseeta, m_errnoiseeta, m_noiseeta_cor, m_errnoiseeta_cor, m_cl_sizeeta, m_errcl_sizeeta, m_rateCS1eta, m_rateCS2eta, m_rateCSmore2eta) ;
+ 			        sprintf(PanelRes,  "%d %d %d %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s", TableVersionCondDB,  n_tr_peta, StripsOnPanel,  arr_effeta, arr_erreffeta,  arr_effeleeta, arr_erreffeleeta, arr_reseta_cs1, arr_errreseta_cs1, arr_reseta_cs2, arr_errreseta_cs2, arr_reseta_csother, arr_errreseta_csother, arr_noiseeta, arr_errnoiseeta, arr_noiseeta_cor, arr_errnoiseeta_cor, arr_cl_sizeeta, arr_errcl_sizeeta, arr_rateCS1eta, arr_rateCS2eta, arr_rateCSmore2eta) ;
  			        sprintf(StripStatus, "%s", PanelStripsStatus.c_str()) ;
 				std::string cool_tagCondDB="RecoCondDB";		        
                                 coolrpc.setSince(0U,0U);		
@@ -1394,29 +1426,29 @@ MonitoringFile::RPCPostProcess( std::string inFilename, bool /* isIncremental */
         		     //std::cout << " effelephi " << effelephi <<"  erreffelephi  "<<erreffelephi<<"  erreffphi  "<<erreffphi << "  effphi  "<<effphi <<"  errgapeff  "<<errgapeff << "  gapeff  "<<gapeff << "  rateCS1phi  "<<rateCS1phi<< " rateCS2phi   "<<rateCS2phi<<std::endl;
 			     
 			     
-			     sprintf(m_effphi		,    "%f ", effphi	      ) ;   m_effphi	       [5]   =0;
-			     sprintf(m_erreffphi	,    "%f ", erreffphi	      ) ;   m_erreffphi        [5]   =0;
- 			     sprintf(m_effelephi	,    "%f ", effelephi	      ) ;   m_effelephi        [5]   =0;
-			     sprintf(m_erreffelephi	,    "%f ", erreffelephi      ) ;   m_erreffelephi     [5]   =0;
-			     sprintf(m_resphi_cs1	,    "%f ", resphi_cs1        ) ;   m_resphi_cs1       [5]   =0;
-			     sprintf(m_errresphi_cs1	,    "%f ", errresphi_cs1     ) ;   m_errresphi_cs1    [5]   =0;
-			     sprintf(m_resphi_cs2	,    "%f ", resphi_cs2        ) ;   m_resphi_cs2       [5]   =0;
-			     sprintf(m_errresphi_cs2	,    "%f ", errresphi_cs2     ) ;   m_errresphi_cs2    [5]   =0;
-			     sprintf(m_resphi_csother	,    "%f ", resphi_csother    ) ;   m_resphi_csother   [5]   =0;
-			     sprintf(m_errresphi_csother,    "%f ", errresphi_csother ) ;   m_errresphi_csother[5]   =0;
-			     sprintf(m_noisephi 	,    "%f ", noisephi	      ) ;   m_noisephi         [5]   =0;
-			     sprintf(m_errnoisephi	,    "%f ", errnoisephi       ) ;   m_errnoisephi      [5]   =0;
-			     sprintf(m_noisephi_cor     ,    "%f ", noisephi_cor      ) ;   m_noisephi_cor     [5]   =0;
-                             sprintf(m_errnoisephi_cor  ,    "%f ", errnoisephi_cor   ) ;   m_errnoisephi_cor  [5]   =0;
-			     sprintf(m_cl_sizephi	,    "%f ", cl_sizephi        ) ;   m_cl_sizephi       [5]   =0;
-			     sprintf(m_errcl_sizephi	,    "%f ", errcl_sizephi     ) ;   m_errcl_sizephi    [5]   =0;
-			     sprintf(m_rateCS1phi	,    "%f ", rateCS1phi        ) ;   m_rateCS1phi       [5]   =0;
-			     sprintf(m_rateCS2phi	,    "%f ", rateCS2phi        ) ;   m_rateCS2phi       [5]   =0;
-			     sprintf(m_rateCSmore2phi	,    "%f ", rateCSmore2phi    ) ;   m_rateCSmore2phi   [5]   =0;
+			     sprintf(arr_effphi		,    "%f ", effphi	      ) ;   arr_effphi	       [5]   =0;
+			     sprintf(arr_erreffphi	,    "%f ", erreffphi	      ) ;   arr_erreffphi        [5]   =0;
+ 			     sprintf(arr_effelephi	,    "%f ", effelephi	      ) ;   arr_effelephi        [5]   =0;
+			     sprintf(arr_erreffelephi	,    "%f ", erreffelephi      ) ;   arr_erreffelephi     [5]   =0;
+			     sprintf(arr_resphi_cs1	,    "%f ", resphi_cs1        ) ;   arr_resphi_cs1       [5]   =0;
+			     sprintf(arr_errresphi_cs1	,    "%f ", errresphi_cs1     ) ;   arr_errresphi_cs1    [5]   =0;
+			     sprintf(arr_resphi_cs2	,    "%f ", resphi_cs2        ) ;   arr_resphi_cs2       [5]   =0;
+			     sprintf(arr_errresphi_cs2	,    "%f ", errresphi_cs2     ) ;   arr_errresphi_cs2    [5]   =0;
+			     sprintf(arr_resphi_csother	,    "%f ", resphi_csother    ) ;   arr_resphi_csother   [5]   =0;
+			     sprintf(arr_errresphi_csother,    "%f ", errresphi_csother ) ;   arr_errresphi_csother[5]   =0;
+			     sprintf(arr_noisephi 	,    "%f ", noisephi	      ) ;   arr_noisephi         [5]   =0;
+			     sprintf(arr_errnoisephi	,    "%f ", errnoisephi       ) ;   arr_errnoisephi      [5]   =0;
+			     sprintf(arr_noisephi_cor     ,    "%f ", noisephi_cor      ) ;   arr_noisephi_cor     [5]   =0;
+                             sprintf(arr_errnoisephi_cor  ,    "%f ", errnoisephi_cor   ) ;   arr_errnoisephi_cor  [5]   =0;
+			     sprintf(arr_cl_sizephi	,    "%f ", cl_sizephi        ) ;   arr_cl_sizephi       [5]   =0;
+			     sprintf(arr_errcl_sizephi	,    "%f ", errcl_sizephi     ) ;   arr_errcl_sizephi    [5]   =0;
+			     sprintf(arr_rateCS1phi	,    "%f ", rateCS1phi        ) ;   arr_rateCS1phi       [5]   =0;
+			     sprintf(arr_rateCS2phi	,    "%f ", rateCS2phi        ) ;   arr_rateCS2phi       [5]   =0;
+			     sprintf(arr_rateCSmore2phi	,    "%f ", rateCSmore2phi    ) ;   arr_rateCSmore2phi   [5]   =0;
 			    		
 			     char PanelRes   [255]; //eff_eta, res_cs1, res_cs2, res_csother, time, mean and rms
 			     char StripStatus   [4096]; //strips status 0 to 9 for dead noisy strips
- 			     sprintf(PanelRes,  "%d %d %d %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s", TableVersionCondDB,  n_tr_pphi, StripsOnPanel,  m_effphi, m_erreffphi,  m_effelephi, m_erreffelephi, m_resphi_cs1, m_errresphi_cs1, m_resphi_cs2, m_errresphi_cs2, m_resphi_csother, m_errresphi_csother, m_noisephi, m_errnoisephi, m_noisephi_cor, m_errnoisephi_cor, m_cl_sizephi, m_errcl_sizephi, m_rateCS1phi, m_rateCS2phi, m_rateCSmore2phi) ;
+ 			     sprintf(PanelRes,  "%d %d %d %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s", TableVersionCondDB,  n_tr_pphi, StripsOnPanel,  arr_effphi, arr_erreffphi,  arr_effelephi, arr_erreffelephi, arr_resphi_cs1, arr_errresphi_cs1, arr_resphi_cs2, arr_errresphi_cs2, arr_resphi_csother, arr_errresphi_csother, arr_noisephi, arr_errnoisephi, arr_noisephi_cor, arr_errnoisephi_cor, arr_cl_sizephi, arr_errcl_sizephi, arr_rateCS1phi, arr_rateCS2phi, arr_rateCSmore2phi) ;
  			     sprintf(StripStatus, "%s", PanelStripsStatus.c_str()) ;
  			     std::string cool_tag="RecoCondDB";		        
                              coolrpc.setSince(0U,0U);		

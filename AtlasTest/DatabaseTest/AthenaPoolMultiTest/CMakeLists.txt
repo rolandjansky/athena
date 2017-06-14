@@ -88,8 +88,8 @@ athenapoolmultitest_run_test( AthenaPoolMultiTestCheckOutput CheckImplicit_jo
                               post_check_co
                               DEPENDS AthenaPoolMultiTestEventSplit )
 
-athenapoolmultitest_run_test( AthenaPoolMultiTestBSMetaWrite BSMetaWrite
-                              post_check_bs )
-athenapoolmultitest_run_test( AthenaPoolMultiTestBSMetaWriteNone BSMetaWriteNone
-                              post_check_bs
-                              DEPENDS AthenaPoolMultiTestBSMetaWrite )
+#athenapoolmultitest_run_test( AthenaPoolMultiTestBSMetaWrite BSMetaWrite
+#                              post_check_bs )
+#athenapoolmultitest_run_test( AthenaPoolMultiTestBSMetaWriteNone BSMetaWriteNone
+#                              post_check_bs
+#                              DEPENDS AthenaPoolMultiTestBSMetaWrite )

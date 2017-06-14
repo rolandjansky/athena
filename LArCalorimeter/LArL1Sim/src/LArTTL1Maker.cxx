@@ -17,7 +17,7 @@
 //
 #include <math.h>
 #include <fstream>
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/ServiceHandle.h"

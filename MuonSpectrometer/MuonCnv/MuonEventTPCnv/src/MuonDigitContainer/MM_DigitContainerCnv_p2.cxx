@@ -22,7 +22,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include <limits>       // std::numeric_limits
 
-//#include "DataModel/DataPool.h"
 
 StatusCode Muon::MM_DigitContainerCnv_p2::initialize(MsgStream &log) {
    // Do not initialize again:

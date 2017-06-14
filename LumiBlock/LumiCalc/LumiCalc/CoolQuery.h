@@ -72,8 +72,8 @@ class IOVData {
 
   void clear() {
     data.clear();
-    last = data.begin();
-    lastData = false;
+    m_last = data.begin();
+    m_lastData = false;
   }
 
   // Main access function, returns value at specific time
@@ -89,18 +89,18 @@ class IOVData {
   typename std::list<std::pair<IOVRange, T > > data;
 
  private:
-  bool lastData;
+  bool m_lastData;
 
   // Cant use a map as IOVRange objects have no order
-  typename std::list<std::pair<IOVRange, T > >::iterator last;
+  typename std::list<std::pair<IOVRange, T > >::iterator m_last;
 
 };
 
 template <class T> 
 void IOVData<T>::add(IOVRange range, T val) {
   data.push_back(std::pair<IOVRange, T>(range, val));
-  last = data.begin();
-  lastData = false;
+  m_last = data.begin();
+  m_lastData = false;
 }
 
 template <class T> 
@@ -119,59 +119,59 @@ T IOVData<T>::getValue(IOVTime time) {
   // if (verbose) {
   //   for (it = data.begin(); it != data.end(); it++)
   //     cout << "(" << it->first << ", " << it->second << ")" << endl;
-  //   cout << "Last is valid - " << lastData << endl;
+  //   cout << "Last is valid - " << m_lastData << endl;
   // }
 
   // Check if previous value is still good
-  if (lastData) {
+  if (m_lastData) {
     // if (verbose) {
-    //   cout << "Check previous " << last->first << endl;
+    //   cout << "Check previous " << m_last->first << endl;
     // }
 
-    if ((last->first).isInRange(time)) return last->second;
+    if ((m_last->first).isInRange(time)) return m_last->second;
 
     // Previous not good, try next as best guess
-    if (++(last) != data.end()) {
-      // if (verbose) cout << "Check next " << last->first << endl;
-      if ((last->first).isInRange(time)) return last->second;
+    if (++(m_last) != data.end()) {
+      // if (verbose) cout << "Check next " << m_last->first << endl;
+      if ((m_last->first).isInRange(time)) return m_last->second;
     }
   } else {
-    last = data.begin();
+    m_last = data.begin();
   }
 
-  lastData = false;
+  m_lastData = false;
 
   // OK, suck it up and find the best value by stepping through entire list
   // Make sure we start on a valid value
-  if ( last == data.end() ) last--;
+  if ( m_last == data.end() ) m_last--;
 
   // Step forward looking for a match
-  if (last->first.stop() <= time) {
+  if (m_last->first.stop() <= time) {
 
     // if (verbose) cout << "Search upwards" << endl;
-    for (++last; last != data.end(); last++) {
-      // if (verbose) cout << last->first << endl;
-      if ((lastData = (last->first).isInRange(time))) return last->second;
+    for (++m_last; m_last != data.end(); m_last++) {
+      // if (verbose) cout << m_last->first << endl;
+      if ((m_lastData = (m_last->first).isInRange(time))) return m_last->second;
     }
 
-  } else if ( last != data.begin() && last->first.start() > time) {
+  } else if ( m_last != data.begin() && m_last->first.start() > time) {
 
     // if (verbose) cout << "Search downwards" << endl;
     do {
-      --last;
-      // if (verbose) cout << last->first << endl;
-      if ((lastData = (last->first).isInRange(time))) return last->second;
-    } while (last != data.begin());
+      --m_last;
+      // if (verbose) cout << m_last->first << endl;
+      if ((m_lastData = (m_last->first).isInRange(time))) return m_last->second;
+    } while (m_last != data.begin());
 
   } else {
 
-    if ((lastData = last->first.isInRange(time))) return last->second;
+    if ((m_lastData = m_last->first.isInRange(time))) return m_last->second;
 
   } 
 
   // Set to valid data if we didn't find anything
-  last = data.begin();
-  lastData = false;
+  m_last = data.begin();
+  m_lastData = false;
 
   // If we got to here, we didn't find it
   return T(-1);
@@ -187,7 +187,7 @@ std::list<std::pair<IOVRange, T> > IOVData<T>::getOverlap(IOVRange range) {
   IOVTime firsttime = range.start();
   IOVTime lasttime = range.stop();
 
-  // Use this to efficiently set the 'last' pointer
+  // Use this to efficiently set the 'm_last' pointer
   getValue(firsttime);
 
   // Pointer to found element
@@ -196,7 +196,7 @@ std::list<std::pair<IOVRange, T> > IOVData<T>::getOverlap(IOVRange range) {
   std::pair<IOVRange, T> val;
 
   // Loop over elements
-  for (elem = last; elem != data.end(); elem++) {
+  for (elem = m_last; elem != data.end(); elem++) {
 
     val = *elem;
 

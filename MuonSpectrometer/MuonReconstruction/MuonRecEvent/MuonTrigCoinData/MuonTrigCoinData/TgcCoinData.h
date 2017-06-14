@@ -20,7 +20,7 @@
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "TrkSurfaces/Surface.h"
 
-#include "DataModel/tools/IdentContIndex.h"
+#include "AthLinks/tools/IdentContIndex.h"
 
 #include <inttypes.h>
 #include "GaudiKernel/MsgStream.h"
@@ -173,9 +173,11 @@ namespace Muon
 
       /** return Local position of track on TGC1(HIPT) or TGC2(TRACKLET) */
       const Amg::Vector2D &posIn() const;
+      const Amg::Vector2D *posInPtr() const;
 
       /** return Local position of track on TGC3 */
       const Amg::Vector2D &posOut() const;
+      const Amg::Vector2D *posOutPtr() const;
 
       /** Test to see if the error matrix is present. */
       bool hasErrMat() const;
@@ -312,8 +314,10 @@ namespace Muon
   inline int TgcCoinData::trackletIdStrip() const{ return m_trackletIdStrip; }
 
   inline const Amg::Vector2D& TgcCoinData::posIn() const{ return *m_posIn; }
+  inline const Amg::Vector2D* TgcCoinData::posInPtr() const{ return m_posIn; }
 
   inline const Amg::Vector2D& TgcCoinData::posOut() const{ return *m_posOut; }
+  inline const Amg::Vector2D* TgcCoinData::posOutPtr() const{ return m_posOut; }
 
   inline bool TgcCoinData::hasErrMat() const{ return m_errMat != nullptr; }
   

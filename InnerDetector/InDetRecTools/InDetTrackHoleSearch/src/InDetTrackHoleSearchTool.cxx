@@ -21,12 +21,16 @@
 #include "TrkDetDescrUtils/SharedObject.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "Identifier/Identifier.h"
+#include "InDetIdentifier/SCT_ID.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
+#include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
+#include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetRecToolInterfaces/IInDetTestPixelLayerTool.h"
 #include "TrkVolumes/Volume.h"
 #include "TrkVolumes/CylinderVolumeBounds.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include <set>
 
 //================ Constructor =================================================
@@ -38,21 +42,30 @@ InDet::InDetTrackHoleSearchTool::InDetTrackHoleSearchTool(const std::string& t,
   m_pixelCondSummarySvc("PixelConditionsSummarySvc",n),
   m_sctCondSummarySvc  ("SCT_ConditionsSummarySvc",n),
   m_pixelLayerTool("InDet::InDetTestPixelLayerTool"),
+  m_sctConfCondSvc("SCT_ConfigurationConditionsSvc", n),
+  m_sctBsErrSvc("SCT_ByteStreamErrorsSvc", n),
+  m_geoModelSvc("GeoModelSvc", n),
+  m_sct_id(nullptr),
   m_extendedListOfHoles(false),
   m_cosmic(false),
   m_usepix(true),
   m_usesct(true),
+  m_checkBadSCTChip(true),
   m_warning(0)
 {
   declareInterface<ITrackHoleSearchTool>(this);
   declareProperty("Extrapolator"         , m_extrapolator);
   declareProperty("PixelSummarySvc"      , m_pixelCondSummarySvc);
   declareProperty("SctSummarySvc"        , m_sctCondSummarySvc);
+  declareProperty("SctConfCondSvc"       , m_sctConfCondSvc);
+  declareProperty("SctBsErrSvc"          , m_sctBsErrSvc);
   declareProperty("PixelLayerTool"       , m_pixelLayerTool);
+  declareProperty("GeoModelService"      , m_geoModelSvc);
   declareProperty("ExtendedListOfHoles"  , m_extendedListOfHoles = false);
   declareProperty("Cosmics"              , m_cosmic);
   declareProperty("usePixel"             , m_usepix);
   declareProperty("useSCT"               , m_usesct);
+  declareProperty("checkBadSCTChip"      , m_checkBadSCTChip);
   declareProperty("minSiHits"            , m_minSiHits = 3);  
   declareProperty("CountDeadModulesAfterLastHit", m_countDeadModulesAfterLastHit = true);  
   declareProperty("phitol"               , m_phitol = 3.);
@@ -105,10 +118,42 @@ StatusCode InDet::InDetTrackHoleSearchTool::initialize()
   if (m_usesct) {
     // Get SctConditionsSummarySvc
     if ( m_sctCondSummarySvc.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_sctCondSummarySvc << endmsg;
+      msg(MSG::FATAL) << "Failed to retrieve service " << m_sctCondSummarySvc << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_sctCondSummarySvc << endmsg;
+      msg(MSG::INFO) << "Retrieved service " << m_sctCondSummarySvc << endmsg;
+    }
+    // Get SctConditionsSummarySvc
+    if ( m_sctConfCondSvc.retrieve().isFailure() ) {
+      msg(MSG::FATAL) << "Failed to retrieve service " << m_sctConfCondSvc << endmsg;
+      return StatusCode::FAILURE;
+    } else {
+      msg(MSG::INFO) << "Retrieved service " << m_sctConfCondSvc << endmsg;
+    }
+    // Get SCT_ByteStreamErrorsSvc
+    if ( m_sctBsErrSvc.retrieve().isFailure() ) {
+      msg(MSG::FATAL) << "Failed to retrieve service " << m_sctBsErrSvc << endmsg;
+      return StatusCode::FAILURE;
+    } else {
+      msg(MSG::INFO) << "Retrieved service " << m_sctBsErrSvc << endmsg;
+    }
+    // Get SCT_ID helper
+    if( detStore()->retrieve(m_sct_id, "SCT_ID").isFailure() ) {
+      msg(MSG::FATAL) << "Cannot retrieve SCT ID helper!"  << endmsg;
+      return StatusCode::FAILURE;
+    }
+  }
+
+  if(m_checkBadSCTChip) {
+    // Check if ITk Strip is used because isBadSCTChip method is valid only for SCT.
+    if(m_geoModelSvc.retrieve().isFailure()) {
+      ATH_MSG_FATAL("Could not locate GeoModelSvc");
+      return StatusCode::FAILURE;
+    }
+    if(m_geoModelSvc->geoConfig()==GeoModel::GEO_RUN4 or
+       m_geoModelSvc->geoConfig()==GeoModel::GEO_ITk) {
+      ATH_MSG_WARNING("Since ITk Strip is used, m_checkBadSCTChip is turned off.");
+      m_checkBadSCTChip = false;
     }
   }
 
@@ -915,6 +960,13 @@ bool InDet::InDetTrackHoleSearchTool::isSensitive(const Trk::TrackParameters* pa
 	// this detElement is only cosidered as hole if the extrapolation of
 	// the track plus its error hits the active material
 	if (isActiveElement) {
+
+	  if(m_checkBadSCTChip and isBadSCTChip(id, *parameters, *siElement)) {
+	    ATH_MSG_VERBOSE ("Track is hiting a bad SCT chip, this is not a hole candidate!");
+	    isgood = false;
+	    return false;
+	  }
+
 	  ATH_MSG_VERBOSE ("SCT module is good, this is a hole candidate !");
 	  return true;
 	}
@@ -1003,3 +1055,85 @@ const Trk::Track*  InDet::InDetTrackHoleSearchTool::addHolesToTrack(const Trk::T
   return newTrack;
 }
 
+// ====================================================================================================================
+bool InDet::InDetTrackHoleSearchTool::isBadSCTChip(const Identifier& waferId, 
+						   const Trk::TrackParameters& parameters,
+						   const InDetDD::SiDetectorElement& siElement) const {
+  // Check if the track passes through a bad SCT ABCD chip
+  // A chip is determined by the extrapolated position.
+  // Algorithm is based on InnerDetector/InDetMonitoring/SCT_Monitoring/src/SCTHitEffMonTool.cxx
+
+  // Check the input
+  if(not m_atlasId->is_sct(waferId)) {
+    ATH_MSG_WARNING(waferId << " is not an SCT Identifier");
+    return true;
+  }
+
+  // wafer id -> module id
+  const Identifier moduleId(m_sct_id->module_id(waferId));
+  // badChips word for the module from SCT_ConfigurationConditionsSvc
+  // tempMaskedChips word for the module from SCT_ByteStreamErrorSvc should also be added.
+  // https://its.cern.ch/jira/browse/ATLASRECTS-4011
+  unsigned int badChips(m_sctConfCondSvc->badChips(moduleId));
+  // badChips holds 12 bits. 
+  // bit 0 (LSB) is chip 0 for side 0.
+  // bit 5 is chip 5 for side 0.
+  // bit 6 is chip 6 for side 1.
+  // bit 11 is chip 11 for side 1.
+  // Temporarily masked chip information from SCT_ByteStreamErrorsSvc
+  const unsigned int tempMaskedChips(m_sctBsErrSvc->tempMaskedChips(moduleId));
+  // Information of chips with ABCD errors from SCT_ByteStreamErrorsSvc
+  const unsigned int abcdErrorChips(m_sctBsErrSvc->abcdErrorChips(moduleId));
+  // Take 'OR' of badChips, tempMaskedChips and abcdErrorChips
+  badChips |= tempMaskedChips;
+  badChips |= abcdErrorChips;
+
+  // If there is no bad chip, this check is done.
+  if(badChips==0) return false;
+
+  const int side(m_sct_id->side(waferId));
+  // Check the six chips on the side
+  // 0x3F  = 0000 0011 1111
+  // 0xFC0 = 1111 1100 0000
+  // If there is no bad chip on the side, this check is done.
+  if((side==0 and (badChips & 0x3F)==0) or (side==1 and (badChips & 0xFC0)==0)) return false;
+  
+  // There is at least one bad chip on the side.
+  // Get strip id from local position
+  const Amg::Vector2D localPos(parameters.localPosition());
+  const Identifier stripIdentifier(siElement.identifierOfPosition(localPos));
+  if(not m_atlasId->is_sct(stripIdentifier)) {
+    ATH_MSG_WARNING(stripIdentifier << " is not an SCT Identifier");
+    return true;
+  }
+  
+  // Get strip number from strip id
+  const int strip(m_sct_id->strip(stripIdentifier));
+  if(strip<0 or strip>=768) {
+    ATH_MSG_WARNING("strip number is invalid: " << strip);
+    return true;
+  }
+
+  // Conversion from strip to chip (specific for present SCT)
+  int chip(strip/128); // One ABCD chip reads 128 strips
+  // Relation between chip and offline strip is determined by the swapPhiReadoutDirection method.
+  // If swap is false
+  //  offline strip:   0            767
+  //  chip on side 0:  0  1  2  3  4  5
+  //  chip on side 1: 11 10  9  8  7  6
+  // If swap is true
+  //  offline strip:   0            767
+  //  chip on side 0:  5  4  3  2  1  0
+  //  chip on side 1:  6  7  8  9 10 11
+  const bool swap(siElement.swapPhiReadoutDirection());
+  if(side==0) {
+    chip = swap ?  5 - chip :     chip;
+  } else {
+    chip = swap ? 11 - chip : 6 + chip;
+  }
+  
+  // Check if the chip is bad
+  const bool badChip(badChips & (1<<chip));
+
+  return badChip;
+}

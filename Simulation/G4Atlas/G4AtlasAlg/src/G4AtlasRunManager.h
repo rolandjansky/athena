@@ -22,7 +22,7 @@
 /// ATLAS custom singleton run manager.
 ///
 /// This is the run manager used for serial (not-MT) jobs.
-/// @TODO sync and reduce code duplication with MT run managers.
+/// @todo sync and reduce code duplication with MT run managers.
 ///
 class G4AtlasRunManager: public G4RunManager {
 
@@ -41,7 +41,7 @@ public:
   G4Event* GenerateEvent(G4int i_event) override final;
 
   /// Run the simulation for one event.
-  /// @TODO rename method.
+  /// @todo rename method.
   bool SimulateFADSEvent();
 
   void RunTermination() override final;

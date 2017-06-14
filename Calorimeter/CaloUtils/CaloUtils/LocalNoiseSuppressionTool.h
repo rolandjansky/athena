@@ -79,10 +79,6 @@ class LocalNoiseSuppressionTool : public AthAlgTool, virtual public ICellWeightT
   virtual double getTestStatistic(const CaloCellContainer*, const CaloCell*,
                                   int& nNeighbors); 
 
-  /** Callback added to handle Data-driven GeoModel initialisation
-   */
-  virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
  private:
 
   // properties

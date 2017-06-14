@@ -29,7 +29,7 @@ namespace Trig
     ~ReadLumiBlock();
     
     void updateLumiBlocks(unsigned run);
-    float getLumiBlockLength(unsigned _lb);
+    float getLumiBlockLength(unsigned lb);
 
     void setConnectionCOOL(const std::string &id) { m_cool_id = id; }
     bool getTriedSetup() { return m_triedSetup; }

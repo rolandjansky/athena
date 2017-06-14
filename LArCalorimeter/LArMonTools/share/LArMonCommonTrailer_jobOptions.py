@@ -27,7 +27,3 @@ if not online:
     theAuditorSvc += getConfigurable("NameAuditor")()
     theApp.EvtMax = EvtNo
 
- 
-include ("RDBAccessSvc/RDBAccessSvcPdb_jobOptions.py") 
-RDBAccessSvc = Service( "RDBAccessSvc" ) 
-RDBAccessSvc.HostName     = "atlas_dd" 

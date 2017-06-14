@@ -47,9 +47,6 @@ public:
   virtual Amg::Vector2D correctSimulation(IdentifierHash id, double xhit, double yhit, double cEta, double cPhi, double cDep ) const = 0; 
   /// Get just the correction
   virtual Amg::Vector2D correction(IdentifierHash id, const Amg::Vector2D & locpos, const Amg::Vector3D & direction) const = 0;   
-  /// Call back to load distortions from database
-  //virtual StatusCode fillDataCallBack(IOVSVC_CALLBACK_ARGS) = 0;
-
 
 };
 

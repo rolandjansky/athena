@@ -53,7 +53,6 @@
 #include "GaudiKernel/IToolSvc.h"
 
 // Gaudi includes
-#include "GaudiKernel/PropertyMgr.h"
 #include "GaudiKernel/SmartDataPtr.h"
 
 #include <set>
@@ -68,7 +67,7 @@
 static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>::max());
 //Barcodes at the HepMC level are int
 
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 //AJB Temporary for debugging and development
 //#include "driftCircle.h"

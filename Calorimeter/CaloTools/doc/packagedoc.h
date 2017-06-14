@@ -9,7 +9,7 @@
 This package provides some tools used in the calorimeter reconstruction.
 
 @author David Rousseau rousseau@lal.in2p3.fr
-@authour Sven Menke Sven.Menke@cern.ch
+@author Sven Menke Sven.Menke@cern.ch
 
 
 */

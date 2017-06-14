@@ -72,14 +72,6 @@ class McAodSymLinkTests : public AthAlgorithm
   // Private data: 
   /////////////////////////////////////////////////////////////////// 
  private: 
-
-  typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-  /// Pointer to StoreGate
-  StoreGateSvc_t m_storeGate;
-
-  /// MsgStream instance (a std::cout like with print-out levels)
-  MsgStream m_msg;
-
   // Containers
 
   /// Input location of the @c TruthParticleContainer

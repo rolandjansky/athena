@@ -33,7 +33,7 @@ class TrigT2Tower{
    public:
       /** Default Constructor */
       TrigT2Tower();
-      TrigT2Tower(Trig3Momentum newCell, MsgStream& log, double etaShift=0.0);
+      TrigT2Tower(const Trig3Momentum& newCell, MsgStream& log, double etaShift=0.0);
 
       // Get methods
       /** Get the energy */
@@ -45,7 +45,7 @@ class TrigT2Tower{
       /** Return if tower consists of 3 cells */
       bool isComplete() const {return m_full;  }
       /** Check if newCell belongs to this tower */
-      bool isMember(Trig3Momentum newCell, MsgStream& log, double etaShift=0.0);
+      bool isMember(const Trig3Momentum& newCell, MsgStream& log, double etaShift=0.0) const;
       Trig3Momentum cell(int i) const {return m_cells[i];   }
 
       // Set methods
@@ -58,10 +58,10 @@ class TrigT2Tower{
       /** Flag if tower is full */
       void setComplete(bool isComplete)    {m_full = isComplete;}
       /** Insert cell */
-      bool insertCell(Trig3Momentum newCell, MsgStream& log);
+      bool insertCell(const Trig3Momentum& newCell, MsgStream& log);
 
       // debugging
-      void print(MsgStream& log, MSG::Level level);
+      void print(MsgStream& log, MSG::Level level) const;
 
    private:
       /** Energy */

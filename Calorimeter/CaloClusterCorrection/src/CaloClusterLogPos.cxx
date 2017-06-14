@@ -8,7 +8,6 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "GaudiKernel/MsgStream.h"
 #include <CLHEP/Units/SystemOfUnits.h>
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/StoreGate.h"
 
@@ -28,40 +27,6 @@ CaloClusterLogPos::CaloClusterLogPos(const std::string& type,
 
 
 StatusCode CaloClusterLogPos::initialize() {
-
-  const IGeoModelSvc *geoModel=0;
-  StatusCode sc = service("GeoModelSvc", geoModel);
-  if(sc.isFailure())
-  {
-    msg( MSG::ERROR )  << "Could not locate GeoModelSvc" << endmsg;
-    return sc;
-  }
-
-  // dummy parameters for the callback:
-  int dummyInt=0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized())
-  {
-    return geoInit(dummyInt,dummyList);
-  }
-  else
-  {
-    sc = detStore()->regFcn(&IGeoModelSvc::geoInit,
-			  geoModel,
-			  &CaloClusterLogPos::geoInit,this);
-    if(sc.isFailure())
-    {
-      msg(  MSG::ERROR ) << "Could not register geoInit callback" << endmsg;
-      return sc;
-    }
-  }
-  return sc;
-}
-
-StatusCode
-CaloClusterLogPos::geoInit(IOVSVC_CALLBACK_ARGS)
-{
 
   ATH_MSG_DEBUG("Initializing " << name() << endmsg ) ;
 

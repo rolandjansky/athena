@@ -40,16 +40,16 @@ FTKPatternCoverageMap_t;
 class FTKPatternOrderByCoverage {
 public:
    explicit FTKPatternOrderByCoverage(int minCoverage)
-      : fMinCoverage(minCoverage) { }
+      : m_minCoverage(minCoverage) { }
    virtual bool operator()(FTKPatternCoverageMap_t::const_iterator const &a,
                            FTKPatternCoverageMap_t::const_iterator const &b)
       const;
    bool IsSelected(FTKPatternCoverageMap_t::const_iterator const &a) const {
-      return (*a).second>=fMinCoverage;
+      return (*a).second>=m_minCoverage;
    }
 protected:
-   FTKHitPatternCompare fHitPatternCompare;
-   int fMinCoverage;
+   FTKHitPatternCompare m_hitPatternCompare;
+   int m_minCoverage;
 };
 
 class FTKPatternOneSectorOrdered {
@@ -59,40 +59,40 @@ public:
    typedef std::set<FTKPatternCoverageMap_t::const_iterator,
                     FTKPatternOrderByCoverage> OrderedPatternSet_t;
    typedef OrderedPatternSet_t::const_iterator Ptr_t;
-   inline Ptr_t Begin(void) const { return fPatterns.begin(); }
-   inline Ptr_t End(void) const { return fPatterns.end(); }
+   inline Ptr_t Begin(void) const { return m_patterns.begin(); }
+   inline Ptr_t End(void) const { return m_patterns.end(); }
    inline FTKHitPattern const &GetHitPattern(Ptr_t const &p) const {\
       return (**p).first;
    }
    inline int GetCoverage(Ptr_t const &p) const { return (**p).second; }
-   inline int GetNumberOfPatterns(void) const { return fPatterns.size(); }
+   inline int GetNumberOfPatterns(void) const { return m_patterns.size(); }
    int GetSummedCoverage(void) const;
 protected:
-   OrderedPatternSet_t fPatterns;
+   OrderedPatternSet_t m_patterns;
 };
 
 class FTKPatternOneSector {
 public:
-   explicit FTKPatternOneSector(int sector) : fSector(sector) { }  // create new empty sector
+   explicit FTKPatternOneSector(int sector) : m_sector(sector) { }  // create new empty sector
    void AddPattern(FTKPatternWithCoverage const &p);
 
-   inline int GetSector(void) const { return fSector; } // get sector number
-   inline int GetNumberOfPatterns(void) const { return fPatterns.size(); }
+   inline int GetSector(void) const { return m_sector; } // get sector number
+   inline int GetNumberOfPatterns(void) const { return m_patterns.size(); }
 
    FTKPatternOneSectorOrdered *OrderPatterns
    (FTKPatternOrderByCoverage const &compare) const;
 
    typedef FTKPatternCoverageMap_t::const_iterator Ptr_t;
-   inline Ptr_t Begin(void) const { return fPatterns.begin(); }
-   inline Ptr_t End(void) const { return fPatterns.end(); }
+   inline Ptr_t Begin(void) const { return m_patterns.begin(); }
+   inline Ptr_t End(void) const { return m_patterns.end(); }
    inline FTKHitPattern const &GetHitPattern(Ptr_t const &p) const {\
       return (*p).first;
    }
    inline int GetCoverage(Ptr_t const &p) const { return (*p).second; }
 
  protected:
-   int fSector;
-   FTKPatternCoverageMap_t fPatterns;
+   int m_sector;
+   FTKPatternCoverageMap_t m_patterns;
 };
 
 #endif

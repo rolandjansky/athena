@@ -12,7 +12,7 @@
  * Last Update  : 09 May 2005
  ***************************************************************************/
 
-/** <<class description should come here>> */
+/** \<\<class description should come here\>\> */
 
 #ifndef MUONCALIBIDENTIFIER_HASHMAKER_H
 # define MUONCALIBIDENTIFIER_HASHMAKER_H

@@ -67,7 +67,7 @@ namespace xAODMaker {
       // Overwrite the matrix with the compressed value:
       tp.setDefiningParametersCovMatrix( covMatrix );
 
-      // Retrun gracefully:
+      // Return gracefully:
       return StatusCode::SUCCESS;
    }
 

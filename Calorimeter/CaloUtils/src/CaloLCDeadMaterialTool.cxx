@@ -14,7 +14,6 @@
 #include "CaloEvent/CaloPrefetch.h"
 #include "CaloEvent/CaloRecoStatus.h"
 #include "CaloConditions/CaloLocalHadDefs.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "CxxUtils/prefetch.h"
 
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
@@ -93,10 +92,6 @@ CaloLCDeadMaterialTool::~CaloLCDeadMaterialTool()
 **************************************************************************** */
 StatusCode CaloLCDeadMaterialTool::initialize()
 {
-
-  const IGeoModelSvc *geoModel=0;
-  ATH_CHECK(  service("GeoModelSvc", geoModel) );
-
   if(m_interpolate) {
     msg(MSG::INFO) << "Interpolation is ON, dimensions: ";
     for(std::map<std::string, std::vector<std::string> >::iterator it=m_interpolateDimensionNames.begin(); it!=m_interpolateDimensionNames.end(); it++){
@@ -130,26 +125,6 @@ StatusCode CaloLCDeadMaterialTool::initialize()
     }
   } // m_interpolate
 
-  // dummy parameters for the callback:
-  int dummyInt=0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized())
-  {
-    return geoInit(dummyInt,dummyList);
-  }
-  else
-  {
-    ATH_CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit,
-                                  geoModel,
-                                  &CaloLCDeadMaterialTool::geoInit,this) );
-  }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-CaloLCDeadMaterialTool::geoInit(IOVSVC_CALLBACK_ARGS)
-{
   ATH_MSG_INFO( "Initializing " << name()  );
 
 

@@ -504,6 +504,10 @@ Muon::MooSegmentCombinationFinder::extractSegmentCollection( const MuonSegmentCo
     bool ignoreHoles = false;
     int quality = 1;
 
+    //chamber status for csc
+    bool useEta=combi.useStripsInSegment(1);
+    bool usePhi=combi.useStripsInSegment(0);
+
     // loop over chambers in combi and extract segments
     for(unsigned int i=0; i<nstations; ++i){
 
@@ -527,9 +531,9 @@ Muon::MooSegmentCombinationFinder::extractSegmentCollection( const MuonSegmentCo
 	for( ; sit!=sit_end;++sit){
 	  
 	  // remove bad segments
-	  if( !m_segmentSelector->select( **sit, ignoreHoles, quality ) ){
+	  if( !m_segmentSelector->select( **sit, ignoreHoles, quality, useEta, usePhi ) ){
 	    if( msgLvl(MSG::VERBOSE) ) {
-	      int q = m_segmentSelector->quality(**sit,ignoreHoles);
+	      int q = m_segmentSelector->quality(**sit,ignoreHoles,useEta,usePhi);
 	      msg(MSG::VERBOSE) << " bad segment " << m_edmPrinter->print(**sit) << " quality " << q << endmsg;
 	    }
 	    ++nremovedBadSegments;
@@ -546,9 +550,9 @@ Muon::MooSegmentCombinationFinder::extractSegmentCollection( const MuonSegmentCo
 	for( ; sit!=sit_end;++sit){
 	  
 	  // remove bad segments
-	  if( !m_segmentSelector->select( **sit, ignoreHoles, quality ) ){
+	  if( !m_segmentSelector->select( **sit, ignoreHoles, quality,useEta,usePhi ) ){
 	    if( msgLvl(MSG::VERBOSE) ) {
-	      int q = m_segmentSelector->quality(**sit,ignoreHoles);
+	      int q = m_segmentSelector->quality(**sit,ignoreHoles,useEta,usePhi);
 	      msg(MSG::VERBOSE) << " bad segment " << m_edmPrinter->print(**sit) << " quality " << q << endmsg;
 	    }
 	    ++nremovedBadSegments;

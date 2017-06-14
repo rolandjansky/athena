@@ -7,7 +7,8 @@ use AtlasPolicy 	AtlasPolicy-*
 
 ## For Gaudi tools, services and objects
 use CLIDSvc		CLIDSvc-*		Control
-use DataModel		DataModel-*		Control
+use AthAllocators	AthAllocators-*		Control
+use AthContainers	AthContainers-*		Control
 use AthenaPython	AthenaPython-*		Control -no_auto_imports
 
 private

@@ -673,7 +673,7 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::computePhi(const LVL1::RecMuonRoI* p_
 	  double InnerZ  = (mm)? (InnerR-muonRoad.bw[barrel_inner][i_sector])/mm  : muonRoad.bw[barrel_inner][i_sector];
 	  double DzInner = fabs(InnerZ-MiddleZ);
 	  dz = -sqrt((InnerR-MiddleR)*(InnerR-MiddleR) + DzInner*DzInner);
-	  dz = - fabsf(InnerR-MiddleR);
+	  dz = - std::abs(InnerR-MiddleR);
 	  
 	}
         
@@ -749,7 +749,7 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::computePhi(const LVL1::RecMuonRoI* p_
 	  double InnerR  = InnerZ*muonRoad.aw[endcap_inner][i_sector] + muonRoad.bw[endcap_inner][i_sector];
 	  double DrInner = fabs(InnerR-MiddleR);
 	  dz = -sqrt((InnerZ-MiddleZ)*(InnerZ-MiddleZ) + DrInner*DrInner);
-	  dz = -fabsf(InnerZ-MiddleZ);
+	  dz = -std::abs(InnerZ-MiddleZ);
 	}
         
 	muonRoad.phi[chamber][i_sector] = (dz)* tgcFitResult.dPhidZ + tgcFitResult.phi;

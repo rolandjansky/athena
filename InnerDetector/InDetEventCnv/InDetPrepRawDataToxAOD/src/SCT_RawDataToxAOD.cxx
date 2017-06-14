@@ -10,14 +10,12 @@
 #include "SCT_RawDataToxAOD.h"
 
 #include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 
 #include "InDetIdentifier/SCT_ID.h"
 
-// SCT ntuple container type
-#include "InDetRawData/SCT_RDO_Container.h"
-
 // xAOD container type
-#include "xAODTracking/SCTRawHitValidationContainer.h"
 #include "xAODTracking/SCTRawHitValidationAuxContainer.h"
 
 SCT_RawDataToxAOD::SCT_RawDataToxAOD(const std::string &name,
@@ -25,11 +23,14 @@ SCT_RawDataToxAOD::SCT_RawDataToxAOD(const std::string &name,
   : AthAlgorithm(name, pSvcLocator),
     m_SCTHelper(0)
 {
-  declareProperty("SiClusterContainer",  m_clustercontainer = "SCT_RawHits");
+  declareProperty("SctRdoContainer", m_rdoContainerName = std::string("SCT_RDOs"));
+  declareProperty("SctxAodRawHitContainer", m_xAodRawHitContainerName = std::string("SCT_RawHits"));
 }
 
 StatusCode SCT_RawDataToxAOD::initialize() {
   CHECK(detStore()->retrieve(m_SCTHelper, "SCT_ID"));
+  ATH_CHECK(m_rdoContainerName.initialize());
+  ATH_CHECK(m_xAodRawHitContainerName.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -42,15 +43,12 @@ static SG::AuxElement::Accessor<int> eta_module_acc("eta_module");
 static SG::AuxElement::Accessor<int> side_acc("side");
 
 StatusCode SCT_RawDataToxAOD::execute() {
-  const SCT_RDO_Container* rdoContainer = 0;
-  CHECK(evtStore()->retrieve(rdoContainer, "SCT_RDOs"));
+  SG::ReadHandle<SCT_RDO_Container> rdoContainer(m_rdoContainerName);
 
   // Create the output xAOD container and its auxiliary store:
-  xAOD::SCTRawHitValidationContainer* xaod = new xAOD::SCTRawHitValidationContainer();
-  CHECK(evtStore()->record(xaod, m_clustercontainer));
-  xAOD::SCTRawHitValidationAuxContainer* aux = new xAOD::SCTRawHitValidationAuxContainer();
-  CHECK(evtStore()->record(aux, m_clustercontainer + "Aux."));
-  xaod->setStore(aux);
+  SG::WriteHandle<xAOD::SCTRawHitValidationContainer> xaod(m_xAodRawHitContainerName);
+  ATH_CHECK( xaod.record(std::make_unique<xAOD::SCTRawHitValidationContainer>(), 
+			 std::make_unique<xAOD::SCTRawHitValidationAuxContainer>()) );
 
   /// loop over input RDOs
   for (const SCT_RDO_Collection* collection : *rdoContainer) {

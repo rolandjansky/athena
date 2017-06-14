@@ -11,7 +11,7 @@
 # all MuonSpectrometer sub-detectors.
 #
 # This job option should be added via the postInclude
-# command line argument. 
+# command line argument.
 #
 #########################################################
 
@@ -29,7 +29,7 @@ if DetFlags.digitize.CSC_on():
         cscxingFolder = ServiceMgr.PileUpMergeSvc.Intervals['CscRange']
         cscxingFolder.FirstXing = -800
         cscxingFolder.LastXing = 800
-        
+
 if DetFlags.digitize.MDT_on():
     if DetFlags.pileup.MDT_on():
         #changing the range of the MDT
@@ -38,7 +38,7 @@ if DetFlags.digitize.MDT_on():
         MDTxingFolder = ServiceMgr.PileUpMergeSvc.Intervals['MdtRange']
         MDTxingFolder.FirstXing = -800
         MDTxingFolder.LastXing = 800
-        
+
 if DetFlags.digitize.RPC_on():
     if DetFlags.pileup.RPC_on():
         #changing the range of the RPC
@@ -47,7 +47,7 @@ if DetFlags.digitize.RPC_on():
         rpcxingFolder = ServiceMgr.PileUpMergeSvc.Intervals['RpcRange']
         rpcxingFolder.FirstXing = -800
         rpcxingFolder.LastXing = 800
-        
+
 if DetFlags.digitize.TGC_on():
     if DetFlags.pileup.TGC_on():
         #changing the range of the TGC

@@ -140,10 +140,10 @@ namespace LArG4 {
       ATH_MSG_INFO("Constructing local HEC geometry helper ");
       ATH_MSG_DEBUG(" detectorKey: "<<detectorKey<<" detectorNode: "<<detectorNode);
 
-      const IRDBRecordset *hecPad = m_AccessSvc->getRecordset("HecPad",detectorKey, detectorNode);
+      IRDBRecordset_ptr hecPad = m_AccessSvc->getRecordsetPtr("HecPad",detectorKey, detectorNode);
       if (hecPad->size()==0)
         {
-          hecPad    = m_AccessSvc->getRecordset("HecPad","HecPad-00", "HecPad");
+          hecPad    = m_AccessSvc->getRecordsetPtr("HecPad","HecPad-00", "HecPad");
         }
       if (hecPad->size()==0)
         {
@@ -160,7 +160,7 @@ namespace LArG4 {
             }
         }
 
-      const IRDBRecordset *hecLongitudinalBlock = m_AccessSvc->getRecordset("HecLongitudinalBlock",detectorKey,detectorNode);
+      IRDBRecordset_ptr hecLongitudinalBlock = m_AccessSvc->getRecordsetPtr("HecLongitudinalBlock",detectorKey,detectorNode);
       if (hecLongitudinalBlock->size()==0)
         {
           ATH_MSG_ERROR("Cannot find the HecLongitinalBlock Table");
@@ -172,7 +172,7 @@ namespace LArG4 {
           m_firstAbsorber[indexloop]= (*hecLongitudinalBlock)[indexloop]->getDouble("PLATE0")*Units::cm;
         }
 
-      const IRDBRecordset *hadronicEndcap = m_AccessSvc->getRecordset("HadronicEndcap",detectorKey,detectorNode);
+      IRDBRecordset_ptr hadronicEndcap = m_AccessSvc->getRecordsetPtr("HadronicEndcap",detectorKey,detectorNode);
       if (hadronicEndcap->size()==0)
         {
           ATH_MSG_ERROR("Cannot find the HadronicEndcap Table");

@@ -30,7 +30,7 @@ TCS::ClusterSortingAlg::ClusterSortingAlg(const std::string & name) : SortingAlg
 {
    defineParameter( "NumberOfClusters", 0 );
    defineParameter( "ReverseOrder", 0 );
-};
+}
 
 
 TCS::StatusCode

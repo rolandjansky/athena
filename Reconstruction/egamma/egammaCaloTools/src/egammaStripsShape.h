@@ -163,7 +163,7 @@ class egammaStripsShape : public AthAlgTool, virtual public IegammaStripsShape {
   const CaloCellContainer* m_cellContainer;
   /** Tool to calculate correction for the eta width modulation in strips */
   ToolHandle<Iegammaqweta1c> m_egammaqweta1c;
-  /** @bried tool to calculate sum of energy in all samples */
+  /** @brief tool to calculate sum of energy in all samples */
   ToolHandle<IegammaEnergyPositionAllSamples>  m_egammaEnergyPositionAllSamples;
   double m_neta;
   double m_nphi;

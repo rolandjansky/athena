@@ -34,7 +34,7 @@ Modified: V.Dao      (Oct 2009) - changed constructor back to fill the deltaEta,
 #include "Navigation/Navigable.h"
 #include "EventKernel/INavigable4Momentum.h"
 
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 #include "TrigCaloEvent/TrigEMClusterContainer.h"
 

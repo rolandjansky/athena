@@ -13,7 +13,7 @@
 #include "ALFA_RawEv/ALFA_ODDigitCollection.h"
 
 #include "CLHEP/Random/RandFlat.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandPoissonQ.h"
 
 #include <algorithm>

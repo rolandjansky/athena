@@ -653,15 +653,15 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
      
      double dphi  = 0;
      double cphi  = muonRoad.phi[chamber][0];
-     if( cPhip*cphi>0 ) dphi = fabsf(cPhip - cphi);
+     if( cPhip*cphi>0 ) dphi = std::abs(cPhip - cphi);
      else {
        if(fabs(cphi) > CLHEP::pi/2.) {
 	 double phi1 = (cPhip>0.)? cPhip-CLHEP::pi : cPhip+CLHEP::pi;
 	 double phi2 = (cphi >0.)? cphi -CLHEP::pi : cphi +CLHEP::pi;
-	 dphi = fabsf(phi1) + fabsf(phi2); 
+	 dphi = std::abs(phi1) + std::abs(phi2); 
        }
        else {
-	 dphi = fabsf(cPhip) + fabsf(cphi);
+	 dphi = std::abs(cPhip) + std::abs(cphi);
        }
      }
      
@@ -672,7 +672,7 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
        Amg::Hep3VectorToEigen( m_muonStation->getBlineFixedPointInAmdbLRS() );	    
      double Rmin =(trans*OrigOfMdtInAmdbFrame).perp();	
 
-     float cInCo = 1./cos(fabsf(atan(OrtoRadialPos/Rmin)));
+     float cInCo = 1./cos(std::abs(atan(OrtoRadialPos/Rmin)));
      float cPhi0 = cPhip - atan(OrtoRadialPos/Rmin);
      if(cPhi0 > CLHEP::pi) cPhip -= 2*CLHEP::pi;
      if(cPhip<0. && (fabs(CLHEP::pi+cPhip) < 0.05) ) cPhip = acos(0.)*2.;
@@ -793,7 +793,7 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesBarrel(const TrigL2MuonSA::M
        << etaMaxChamber[chamber] << "/"
        << phiMinChamber[chamber] << "/"
        << phiMaxChamber[chamber] );
-     TrigRoiDescriptor _roi( 0.5*(etaMinChamber[chamber]+etaMaxChamber[chamber]),
+     TrigRoiDescriptor roi2( 0.5*(etaMinChamber[chamber]+etaMaxChamber[chamber]),
                              etaMinChamber[chamber], etaMaxChamber[chamber],
                              HLT::phiMean(phiMinChamber[chamber],phiMaxChamber[chamber]),
                              phiMinChamber[chamber], phiMaxChamber[chamber] );
@@ -802,7 +802,7 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesBarrel(const TrigL2MuonSA::M
          idList.clear();
          ATH_MSG_DEBUG( "chamber/sector=" << chamber << "/" << i_sector );
 	 m_regionSelector->DetHashIDList(MDT,static_cast<TYPEID>(mdtRegion.chamberType[chamber][i_sector][i_type]),
-					 _roi, idList);
+					 roi2, idList);
 	 ATH_MSG_DEBUG( "...chamberType=" << mdtRegion.chamberType[chamber][i_sector][i_type] );
 	 ATH_MSG_DEBUG( "...size IDlist=" << idList.size() );
 	 std::vector<IdentifierHash>::const_iterator it = idList.begin();
@@ -863,7 +863,7 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesEndcap(const TrigL2MuonSA::M
        << etaMaxChamber[chamber] << "/"
        << phiMinChamber[chamber] << "/"
        << phiMaxChamber[chamber] );
-     TrigRoiDescriptor _roi( 0.5*(etaMinChamber[chamber]+etaMaxChamber[chamber]),
+     TrigRoiDescriptor roi2( 0.5*(etaMinChamber[chamber]+etaMaxChamber[chamber]),
                              etaMinChamber[chamber], etaMaxChamber[chamber],
                              HLT::phiMean(phiMinChamber[chamber],phiMaxChamber[chamber]),
                              phiMinChamber[chamber], phiMaxChamber[chamber] );
@@ -873,7 +873,7 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesEndcap(const TrigL2MuonSA::M
 	 ATH_MSG_DEBUG( "chamber/sector=" << chamber << "/" << i_sector );
 	 
 	 m_regionSelector->DetHashIDList(MDT,static_cast<TYPEID>(mdtRegion.chamberType[chamber][i_sector][i_type]),
-					 _roi, idList);
+					 roi2, idList);
 	 ATH_MSG_DEBUG( "...chamberType=" << mdtRegion.chamberType[chamber][i_sector][i_type] );
 	 ATH_MSG_DEBUG( "...size IDlist=" << idList.size() );
 	 std::vector<IdentifierHash>::const_iterator it = idList.begin();
@@ -1032,15 +1032,15 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
       double dphi  = 0;
       double cphi  = muonRoad.phi[chamber][0];
       if( cPhip*cphi>0 ) {
-	dphi = fabsf(cPhip - cphi);
+	dphi = std::abs(cPhip - cphi);
       } else {
 	if(fabs(cphi) > CLHEP::pi/2.) {
 	  double phi1 = (cPhip>0.)? cPhip-CLHEP::pi : cPhip+CLHEP::pi;
 	  double phi2 = (cphi >0.)? cphi -CLHEP::pi : cphi +CLHEP::pi;
-	  dphi = fabsf(phi1) + fabsf(phi2); 
+	  dphi = std::abs(phi1) + std::abs(phi2); 
 	}
 	else {
-	  dphi = fabsf(cPhip) + fabsf(cphi);
+	  dphi = std::abs(cPhip) + std::abs(cphi);
 	}
       }
       
@@ -1051,7 +1051,7 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
 	Amg::Hep3VectorToEigen( m_muonStation->getBlineFixedPointInAmdbLRS() );      
       double Rmin =(trans*OrigOfMdtInAmdbFrame).perp();  
       
-      float cInCo = 1./cos(fabsf(atan(OrtoRadialPos/Rmin)));
+      float cInCo = 1./cos(std::abs(atan(OrtoRadialPos/Rmin)));
       float cPhi0 = cPhip - atan(OrtoRadialPos/Rmin);
       if(cPhi0 > CLHEP::pi) cPhip -= 2*CLHEP::pi;
       if(cPhip<0. && (fabs(CLHEP::pi+cPhip) < 0.05) ) cPhip = acos(0.)*2.;

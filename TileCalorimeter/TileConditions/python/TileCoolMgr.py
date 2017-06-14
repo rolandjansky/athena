@@ -54,17 +54,12 @@ class TileCoolMgr:
             return None
         elif idInfo[5] != "": return idInfo[5]
         elif len(self.getTag(condId)):   return self.getTag(condId)
-        elif self.isOfflineOnly(condId): return self.getFolder(condId)
-        elif self.isSplitOnline(condId): 
-            if self.isOnline() and not self.isMC(): return self.getFolder(condId)
-            else:                                   return self.getFolderTwo(condId)
-        elif self.isSplitMC(condId):
-            if self.isMC(): return self.getFolderTwo(condId)
-            else:           return self.getFolder(condId)
-        elif self.isSqlite(condId): return self.getFolder(condId)
-        else: 
-            self.__log.error("Cannot find out key for  \'%s\'!" % condId)
-            return None
+        else:
+            folder = self.getActualFolder(condId)
+            if folder: return folder
+            else:
+                self.__log.error("Cannot find out key for  \'%s\'!" % condId)
+                return None
 
     #_______________________________________________________________
     def getFolderTwo(self, condId):
@@ -124,6 +119,7 @@ class TileCoolMgr:
         else:
             self.__log.info("Setting folder for condId \'%s\' to \'%s\'" % (condId,folder))
             idInfo[0] = folder
+            idInfo[3] = folder
 
     #_______________________________________________________________
     def setDbConn(self, condId, dbConn):
@@ -152,8 +148,9 @@ class TileCoolMgr:
         if not idInfo:
             self.__log.error("CondId \'%s\' not recognized!" % condId)
         else:
-            if len(tag)>0:
-                tag = self.getTagPrefix(idInfo[0]) + tag
+            if len(tag) > 0:
+                if not tag.startswith('Tile'):
+                    tag = self.getTagPrefix(self.getActualFolder(condId)) + tag
             self.__log.info("Setting tag for condId \'%s\' to \'%s\'" % (condId,tag))
             idInfo[2] = tag
 
@@ -207,6 +204,18 @@ class TileCoolMgr:
         return source in  self.__idDict
 
 
+    def getActualFolder(self, condId):
+        if self.isOfflineOnly(condId): return self.getFolder(condId)
+        elif self.isSplitOnline(condId): 
+            if self.isOnline() and not self.isMC(): return self.getFolder(condId)
+            else:                                   return self.getFolderTwo(condId)
+        elif self.isSplitMC(condId):
+            if self.isMC(): return self.getFolderTwo(condId)
+            else:           return self.getFolder(condId)
+        elif self.isSqlite(condId): return self.getFolder(condId)
+        else: return None
+
+
 #--------------------------------------------------------------------------------------------------------
 #=== create object of the user 
 #--------------------------------------------------------------------------------------------------------
@@ -239,27 +248,34 @@ tileCoolMgr.addSource('onlNoise1gOfni', '/TILE/ONL01/NOISE/OFNI', defConnStr, ""
 tileCoolMgr.addSource('onlStatAdc', '/TILE/ONL01/STATUS/ADC', defConnStr, "", '/TILE/ONL01/STATUS/ADC', 'SplitMC')
 
 #--- OFCs OF2
-tileCoolMgr.addSource('onlOfcOf2Phy',      '/TILE/ONL01/FILTER/OF2/PHY', defConnStr, "", '/TILE/ONL01/FILTER/OF2/PHY', 'SplitMC')
-tileCoolMgr.addSource('onlOfcOf2CisPl100', '/TILE/ONL01/FILTER/OF2/CIS', defConnStr, "", '/TILE/ONL01/FILTER/OF2/CIS', 'SplitMC')
-tileCoolMgr.addSource('onlOfcOf2CisPl5p2', '/TILE/ONL01/FILTER/OF2/CIS', defConnStr, "", '/TILE/ONL01/FILTER/OF2/CIS', 'SplitMC')
-tileCoolMgr.addSource('onlOfcOf2Las',      '/TILE/ONL01/FILTER/OF2/LAS', defConnStr, "", '/TILE/ONL01/FILTER/OF2/LAS', 'SplitMC')
+tileCoolMgr.addSource('OfcOf2CisPl100', '/TILE/ONL01/FILTER/OF2/CIS', defConnStr, "", '/TILE/ONL01/FILTER/OF2/CIS', 'SplitMC')
+tileCoolMgr.addSource('OfcOf2CisPl5p2', '/TILE/ONL01/FILTER/OF2/CIS', defConnStr, "", '/TILE/ONL01/FILTER/OF2/CIS', 'SplitMC')
+tileCoolMgr.addSource('OfcOf2Las',      '/TILE/ONL01/FILTER/OF2/LAS', defConnStr, "", '/TILE/ONL01/FILTER/OF2/LAS', 'SplitMC')
 
 #--- OFCs OF1
-tileCoolMgr.addSource('onlOfcOf1Phy',      '/TILE/ONL01/FILTER/OF1/PHY', defConnStr, "", '/TILE/ONL01/FILTER/OF1/PHY', 'SplitMC')
-tileCoolMgr.addSource('onlOfcOf1CisPl100', '/TILE/ONL01/FILTER/OF1/CIS', defConnStr, "", '/TILE/ONL01/FILTER/OF1/CIS', 'SplitMC')
-tileCoolMgr.addSource('onlOfcOf1CisPl5p2', '/TILE/ONL01/FILTER/OF1/CIS', defConnStr, "", '/TILE/ONL01/FILTER/OF1/CIS', 'SplitMC')
-tileCoolMgr.addSource('onlOfcOf1Las',      '/TILE/ONL01/FILTER/OF1/LAS', defConnStr, "", '/TILE/ONL01/FILTER/OF1/LAS', 'SplitMC')
+tileCoolMgr.addSource('OfcOf1CisPl100', '/TILE/ONL01/FILTER/OF1/CIS', defConnStr, "", '/TILE/ONL01/FILTER/OF1/CIS', 'SplitMC')
+tileCoolMgr.addSource('OfcOf1CisPl5p2', '/TILE/ONL01/FILTER/OF1/CIS', defConnStr, "", '/TILE/ONL01/FILTER/OF1/CIS', 'SplitMC')
+tileCoolMgr.addSource('OfcOf1Las',      '/TILE/ONL01/FILTER/OF1/LAS', defConnStr, "", '/TILE/ONL01/FILTER/OF1/LAS', 'SplitMC')
 
 def GetTileOfcCoolSource(ofcType, runType = 'PHY'):
-    return 'onlOfc' + string.capwords(ofcType,'/').replace('/','') + runType.lower().capitalize()
+    return 'Ofc' + string.capwords(ofcType,'/').replace('/','') + runType.lower().capitalize()
 
-def AddTileOfcCoolSource(ofcType, runType = 'PHY'):
+def AddTileOfcCoolSource(ofcType, runType = 'PHY', splitOnline = False):
     ofcSource = GetTileOfcCoolSource(ofcType, runType)
-    ofcFolder = '/TILE/ONL01/FILTER/' + ofcType.upper() + '/' + runType.upper();
-    tileCoolMgr.addSource(ofcSource, ofcFolder, defConnStr, "", ofcFolder, 'SplitMC')
+    ofcFullType = ofcType.upper() + '/' + runType.upper()
+    ofcFolder = '/TILE/ONL01/FILTER/' + ofcFullType
+    if splitOnline:
+        ofcOfflineFolder = '/TILE/OFL02/FILTER/' + ofcFullType
+        tileCoolMgr.addSource(ofcSource, ofcFolder, defConnStr, "", ofcOfflineFolder, 'SplitOnline')
+    else:
+        tileCoolMgr.addSource(ofcSource, ofcFolder, defConnStr, "", ofcFolder, 'SplitMC')
 
 from IOVDbSvc.CondDB import conddb
 if conddb.GetInstance() == 'CONDBR2':
+    
+    #--- OFCs
+    tileCoolMgr.addSource('OfcOf2Phy',    '/TILE/ONL01/FILTER/OF2/PHY',  defConnStr, "", '/TILE/OFL02/FILTER/OF2/PHY', 'SplitOnline')
+    tileCoolMgr.addSource('OfcOf1Phy',    '/TILE/ONL01/FILTER/OF1/PHY',  defConnStr, "", '/TILE/OFL02/FILTER/OF1/PHY', 'SplitOnline')
 
     #--- energy calibration
     tileCoolMgr.addSource('oflCisFitLin', '/TILE/ONL01/CALIB/CIS/LIN',   defConnStr, "", '/TILE/OFL02/CALIB/CIS/LIN', 'SplitOnline')
@@ -317,6 +333,10 @@ if conddb.GetInstance() == 'CONDBR2':
 
     
 else:
+
+    #--- OFCs
+    tileCoolMgr.addSource('OfcOf2Phy',      '/TILE/ONL01/FILTER/OF2/PHY', defConnStr, "", '/TILE/ONL01/FILTER/OF2/PHY', 'SplitMC')
+    tileCoolMgr.addSource('OfcOf1Phy',      '/TILE/ONL01/FILTER/OF1/PHY', defConnStr, "", '/TILE/ONL01/FILTER/OF1/PHY', 'SplitMC')
 
     #--- energy calibration
     tileCoolMgr.addSource('oflCisFitLin', '/TILE/ONL01/CALIB/CIS/LIN', defConnStr, "", '/TILE/OFL02/CALIB/CIS/FIT/LIN', 'SplitOnline')

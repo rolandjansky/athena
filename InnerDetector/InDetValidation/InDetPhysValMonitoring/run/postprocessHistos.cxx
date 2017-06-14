@@ -2,25 +2,28 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/*
-  ____________________________________________________________________________
-  @file postprocessHistos_updt.cxx
-  @author: Liza Mijovic, Soeren Prell
-
-  Goal: merge root files from several (grid) runs
-  Why needed: dedicated treatment of some of the profiles 
-              to set mean, width and their uncertainties
-  Notes: tools to set these correspond to InDetPVM GetMeanWidth class tools
-         For the script to work correctly, you need to update it if:
-         GetMeanWidth tools or call parameters in InDetPVM code change.
-   ____________________________________________________________________________
+/**
+*  ____________________________________________________________________________
+*  @file postprocessHistos_updt.cxx
+*  @author: Liza Mijovic, Soeren Prell
+*
+*  Goal: merge root files from several (grid) runs
+*  Why needed: dedicated treatment of some of the profiles 
+*              to set mean, width and their uncertainties
+*  Notes: tools to set these correspond to InDetPVM GetMeanWidth class tools
+*         For the script to work correctly, you need to update it if:
+*         GetMeanWidth tools or call parameters in InDetPVM code change.
+*   ____________________________________________________________________________
 */
 
-// 0..4 in increasing verbosity
-#define PRINTDBG 1
+// 0..4 in increasing verbosity: 0=none,error,warning,info,4=debug
+define PRINTDBG 2
 
 #include <iostream>
 #include <iterator>
+#include <utility>
+#include <algorithm>
+#include <sstream>
 #include <utility>
 
 #include <boost/algorithm/string.hpp>
@@ -98,25 +101,25 @@ TObject* get_zip(string p_name,vector<string> p_names, vector<TObject*> p_objs) 
 
 //____________________________________________________________________________________
 // postprocessing  helpers
-// base from which tool-specific postprocessing should inherit
+/** base from which tool-specific postprocessing should inherit */
 class IDPVM_pproc {
 public:
   IDPVM_pproc(){};
   ~IDPVM_pproc(){};  
-  // fetching and book-keeping of objects needed for postprocessing
+  /// fetching and book-keeping of objects needed for postprocessing
   virtual void initializePlots(){};
-  // function implementing/calling the actual posprocessing 
+  /// function implementing/calling the actual posprocessing 
   virtual void finalizePlots(){};
-  // wraper to get all that postprocessing requires in one go
+  /// wraper to get all that postprocessing requires in one go
   virtual int postprocess_dir(TDirectory* p_dir){return 0;};
-  // set keys of histograms to postprocess  
+  /// set keys of histograms to postprocess  
   virtual void set_pproc_targnames(){};
-  // set list of histograms needed as inputs to postprocessing
+  /// set list of histograms needed as inputs to postprocessing
   virtual void set_pproc_srcnames(){};
-  // conventions to get a source name for a target object to postprocess
+  /// conventions to get a source name for a target object to postprocess
   virtual string get_srcname_for(string p_name){return "";};
-  // common (not tool-specific) helpers:
-  // check if all targets and sources are available
+  /// common (not tool-specific) helpers:
+  /// check if all targets and sources are available
   bool check_hasall_targs_srcs(const TDirectory* p_dir);
   vector<string> get_pproc_targnames(){return m_pproc_targnames;};
   vector<string> get_pproc_srcnames(){return m_pproc_srcnames;};
@@ -137,12 +140,12 @@ bool IDPVM_pproc::check_hasall_targs_srcs(const TDirectory* p_dir) {
     for (auto check : checks) {
       if (!p_dir->GetKey(check.c_str())) {
 	if (0<PRINTDBG) {
-	  cout <<"no postprocessing."<<std::endl;
-	  if (1<PRINTDBG) {
-	    cout << __FILE__ << "\t\tNo key " << check <<" found." << endl;
+	  cout <<" no postprocessing."<<std::endl;
+	  if (2<PRINTDBG) {
+	    cout << __FILE__ << "\tNo key " << check <<" found." << endl;
 	    if (0 < nfound) {
-	      cout << __FILE__ << "\t\t.... NB this directory contains >= " << nfound << " keys required for postprocessing.\n";
-	      cout << __FILE__ << "\t\t.... Is your postprocessing script consistent with InDetPVM tag used for producing the file ?" << endl;
+	      cout << __FILE__ << "\t.... NB this directory contains >= " << nfound << " keys required for postprocessing.\n";
+	      cout << __FILE__ << "\t.... Is your postprocessing script consistent with InDetPVM tag used for producing the file ?" << endl;
 	    }
 	  }
 	}
@@ -152,9 +155,9 @@ bool IDPVM_pproc::check_hasall_targs_srcs(const TDirectory* p_dir) {
     }
   }
   if (0<PRINTDBG) {
-    cout << "run postprocessing."<<endl;
-    if (1<PRINTDBG) {
-      cout << __FILE__ << "\t\tfound all targets and sources "<< endl;       
+    cout << " run postprocessing."<<endl;
+    if (2<PRINTDBG) {
+      cout << __FILE__ << "\tfound all targets and sources "<< endl;       
     }
   }
   
@@ -164,34 +167,35 @@ bool IDPVM_pproc::check_hasall_targs_srcs(const TDirectory* p_dir) {
 TObject* IDPVM_pproc::get_target(string p_name) {
   TObject* ret_obj = get_zip(p_name,m_pproc_targnames,m_pproc_targets);
   if (NULL==ret_obj && 0<PRINTDBG)
-    cout << __FILE__ << "\t\t\terror: could not fetch target "<< p_name << endl;
+    cout << __FILE__ << "\t\terror: could not fetch target "<< p_name << endl;
   return ret_obj;
 }
 
 TObject* IDPVM_pproc::get_source(string p_name) {
   TObject* ret_obj = get_zip(p_name,m_pproc_srcnames,m_pproc_sources);
   if (NULL==ret_obj && 0<PRINTDBG)
-    cout << __FILE__ << "\t\t\terror: could not fetch source "<< p_name << endl;
+    cout << __FILE__ << "\t\terror: could not fetch source "<< p_name << endl;
   return ret_obj;
 }
 
 int IDPVM_pproc::write_targets() {
   for (auto targ : m_pproc_targets) {
     targ->Write(targ->GetName(),TObject::kOverwrite);
-    if (PRINTDBG>1) {
-      cout << __FILE__<< "\t\tupdated target histogram: "<<targ->GetName()<<endl;
+    if (PRINTDBG>2) {
+      cout << __FILE__<< "\tupdated target histogram: "<<targ->GetName()<<endl;
     }
   }
   return 0;
 }
 
 
-//------------------------------------------------------------------------------------
-// GetMeanWidth tool
-// this code is copy-pasted from the corresponding src/.cxx and .h classes
-// requires manual update when those are updated 
+/** ------------------------------------------------------------------------------------
+ * GetMeanWidth tool
+ * this code is copy-pasted from the corresponding src/.cxx and .h classes
+ * requires manual update when those are updated 
+ */
 //....................................................................................
-// GetMeanWidth.h
+// ------------  start of carbon-copy from src/ GetMeanWidth.h
 namespace IDPVM {
   
   class GetMeanWidth {
@@ -201,50 +205,69 @@ namespace IDPVM {
       // nop
     };
     
-    // methods acc to which mean&RMS can be evaluated
+    /// methods acc to which mean&RMS can be evaluated
     enum methods { iterRMS_convergence, Gauss_fit, fusion_iterRMS_Gaussfit };
     
-    // wrapper to set mean,rms,and fraction of events in tails
-    // nb: some of the methods are allowed to modify input histogram
+    /// wrapper to set mean,rms,and fraction of events in tails
+    /// nb: some of the methods are allowed to modify input histogram
     void setResults(TH1* p_input_hist, methods p_method);
 
-    // results getters
+    /// results getters
     double getMean() { return m_mean; };
     double getMeanError() { return m_meanError; };
     double getRMS() { return m_RMS; };
     double getRMSError() { return m_RMSError; };
+    /// fraction of events that is within the range of input histogram,
+    /// but goes out-of range during width and mean evaluation
+    /// if this is large, you should refine the method for width and mean evaluation
+    /// can be done during post-processing, does not require new InDetPVM run
     double getFracOut() { return m_FracOut; };
     double getFracOutUnc() { return m_FracOutUnc; };
-    // return and clear accumulated warnings and errors
+    /// fraction of events in under- and over-flow bins of input histogram
+    /// if this is large, the input histogram range needs to be increased
+    /// requires InDetPVM code-change and re-run
+    double getFracUOflow() { return m_FracUOflow; };
+    /// helper to report bin and fraction of under-/over- flow events,
+    /// as accumulated by top-level pull or resolution histogram
+    string reportUOBinVal(string p_histName, vector< std::pair<unsigned int,double> > p_vecBinVal);
+    /// return accumulated messages
+    vector<string> getDebugs() { return m_debugs; };
     vector<string> getInfos() { return m_infos; };
     vector<string> getWarnings() { return m_warnings; };
     vector<string> getErrors() { return m_errors; };
     
   private:
-    // use gaussian fit, return 0 in case of successful fit
+    /// use gaussian fit, return 0 in case of successful fit
     int setGaussFit(TH1* p_input_hist);
-    // iteratively change histogram range, until convergence
-    // return # remaining iterations before hitting the max. allowed
+    /// iteratively change histogram range, until convergence
+    /// return # remaining iterations before hitting the max. allowed
     int setIterativeConvergence(TH1* p_input_hist);
-    // evaluate the fraction of evens out of signal region and its uncertainty
-    void setFout(double p_nsig,double p_ntot);
-    // helper to fill-in starting values of the results vector
+    /// evaluate the fraction of evens out of signal region and its uncertainty
+    void setFout(double p_nsig,double p_ntot);    
+    /// set large mean and RMS errors in case we eg. exclude too many events during evaluation
+    void setLargeError();   
+    /// helper to fill-in starting values of the results vector
     bool initialize(TH1* p_input_hist);
-
-
-    // results/outputs:
-    double m_mean,m_meanError,m_RMS,m_RMSError,m_FracOut,m_FracOutUnc;  
+    
+    /// results/outputs:
+    double m_mean,m_meanError,m_RMS,m_RMSError,m_FracOut,m_FracOutUnc,m_FracUOflow;
+    vector<string> m_debugs;
     vector<string> m_infos;
     vector<string> m_warnings;
     vector<string> m_errors;
     
-    //helpers 
-    string m_inHistName;   
+    /// helpers 
+    string m_inHistName;
+    /// increase mean and RMS errors by this factor in case of ambiguous evaluation
+    /// ... eg in case we eg. exclude too many events during evaluation
+    double m_largeErrorFact;
+    /// maximum fraction of Under- and Overflow events we tolerate
+    double m_maxUOflowFrac;
   };
 } // end of namespace
-// end of GetMeanWidth.h
+// ------------  end of carbon-copy from src/GetMeanWidth.h
 //....................................................................................
-// GetMeanWidth.cxx 
+// ------------  start of carbon-copy from src/GetMeanWidth.cxx : 
 namespace IDPVM {
   
   GetMeanWidth::GetMeanWidth() :
@@ -254,12 +277,17 @@ namespace IDPVM {
     m_RMSError(0.),
     m_FracOut(0.),
     m_FracOutUnc(0.),
-    m_inHistName("") {
+    m_FracUOflow(0.),
+    m_inHistName(""),
+    m_largeErrorFact(10.),
+    m_maxUOflowFrac(0.001) {
     //nop
   }
   
   bool GetMeanWidth::initialize(TH1* p_input_hist) {
 
+    if ( !m_debugs.empty())
+      m_debugs.clear();     
     if ( !m_infos.empty())
       m_infos.clear();      
     if ( !m_warnings.empty())
@@ -276,7 +304,7 @@ namespace IDPVM {
     m_inHistName = p_input_hist->GetName();
     
     if ( 0==p_input_hist->GetEntries() ) {
-      m_infos.push_back("GetMeanWidth::initialize: got input histogram with 0 entries: "+ m_inHistName);
+      m_debugs.push_back("GetMeanWidth::initialize: got input histogram with 0 entries: "+ m_inHistName);
       m_mean=m_meanError=m_RMS=m_RMSError=m_FracOut=m_FracOutUnc=0.;
       return false;
     }
@@ -287,8 +315,32 @@ namespace IDPVM {
     m_meanError = p_input_hist->GetMeanError();   
     m_FracOut = 0.;
     m_FracOutUnc = 0.;
+    double nExclUOflow = p_input_hist->Integral(1,p_input_hist->GetNbinsX());
+    double nInclUOflow = p_input_hist->Integral(0,p_input_hist->GetNbinsX()+1);
+    double fUOflow = (nExclUOflow>0.) ? (nInclUOflow-nExclUOflow)/nExclUOflow : -1.;
+    m_FracUOflow = (fUOflow>m_maxUOflowFrac) ? fUOflow : -1;
     
     return true;
+  }
+
+  void GetMeanWidth::setLargeError() {
+    std::ostringstream debugl;
+    debugl << __FILE__ << "\t\t" << m_inHistName
+	   << ": scaling mean and RMS errors by factor: " << m_largeErrorFact;
+    m_debugs.push_back(debugl.str());
+    m_meanError*=m_largeErrorFact;
+    m_RMSError*=m_largeErrorFact;
+  }
+
+  string GetMeanWidth::reportUOBinVal(string p_histName, vector< std::pair<unsigned int,double> > p_vecBinVal) {
+    std::ostringstream reportl;
+    if (!p_vecBinVal.empty())  {
+      reportl << "Errors scaled up for resol. hist. with large % of events in over- and under-flow: "
+	      << p_histName<<": ";
+      for ( auto it : p_vecBinVal )
+	reportl << "bin"<<it.first << ": " << std::setprecision(2) << it.second*100. << "%, ";
+    }
+    return reportl.str();
   }
   
   void GetMeanWidth::setFout(double p_nsig,double p_ntot) {
@@ -325,7 +377,7 @@ namespace IDPVM {
     // get fraction of events outside 3*RMS + its ~ uncertainty
     double nSig = p_input_hist->Integral(p_input_hist->GetXaxis()->FindBin(-3.0 * m_RMS),
 					 p_input_hist->GetXaxis()->FindBin(3.0 * m_RMS));
-    double nTot = p_input_hist->Integral();
+    double nTot = p_input_hist->Integral(1,p_input_hist->GetNbinsX());
     setFout(nSig,nTot);
 
     // return fit status
@@ -347,8 +399,8 @@ namespace IDPVM {
     
     // iteration counters and helpers: 
     // min and max range of the histogram:
-    double min=0.;
-    double max=0.;
+    double xmin=0.;
+    double xmax=0.;
     // min and max bins of the histogram in previous iteration
     // 0-th iteration: range of the original histogram
     int binmin_was = 1;
@@ -363,11 +415,12 @@ namespace IDPVM {
       ++ntries;
       RMS = p_input_hist->GetRMS();
       mean = p_input_hist->GetMean();
-      min = -1.0*nRMS_width*RMS + mean;
-      max = nRMS_width*RMS + mean;     
-      // find bins corresponding to new range
-      int binmin=p_input_hist->GetXaxis()->FindFixBin(min);
-      int binmax=p_input_hist->GetXaxis()->FindFixBin(max);
+      xmin = -1.0*nRMS_width*RMS + mean;
+      xmax = nRMS_width*RMS + mean;
+      // find bins corresponding to new range, disregard underflow
+      int binmin=std::max(1,p_input_hist->GetXaxis()->FindFixBin(xmin));
+      // find bins corresponding to new range, disregard overflow
+      int binmax=std::min(p_input_hist->GetNbinsX(),p_input_hist->GetXaxis()->FindFixBin(xmax));
       // end iteration if these are same bins as in prev. iteration
       if ( binmin_was==binmin && binmax_was==binmax ) {
 	break;
@@ -387,8 +440,9 @@ namespace IDPVM {
     m_meanError=p_input_hist->GetMeanError();
     
     // get fraction of excluded events + its ~ uncertainty
-    double nSig = p_input_hist->Integral(p_input_hist->GetXaxis()->FindBin(min),
-					 p_input_hist->GetXaxis()->FindBin(max));
+    double nSig = p_input_hist->Integral(p_input_hist->GetXaxis()->FindBin(xmin),
+					 p_input_hist->GetXaxis()->FindBin(xmax));
+    // disregard under- and over- flow
     double nTot = p_input_hist->Integral(1,p_input_hist->GetNbinsX());
     setFout(nSig,nTot);
     
@@ -408,21 +462,32 @@ namespace IDPVM {
     
     if (iterRMS_convergence == p_method) {
       if ( !setIterativeConvergence(p_input_hist) ) 
-	m_warnings.push_back("GetMeanWidth::setIterativeConvergence did not converge for "+ m_inHistName);
+	m_warnings.push_back("\t\t\t* GetMeanWidth::setIterativeConvergence did not converge for "+ m_inHistName);
     }
     else if (Gauss_fit == p_method) {
       if ( !setGaussFit(p_input_hist) ) 
-	m_warnings.push_back("GetMeanWidth::setGaussFit: fit failed for "+ m_inHistName);
+	m_warnings.push_back("\t\t\t* GetMeanWidth::setGaussFit: fit failed for "+ m_inHistName);
     }
     else if (fusion_iterRMS_Gaussfit == p_method) {
       if ( !setIterativeConvergence(p_input_hist) &&
 	   !setGaussFit(p_input_hist) ) 
-	m_warnings.push_back("GetMeanWidth::fusion_iterRMS_Gaussfit both methods failed for "+ m_inHistName);
+	m_warnings.push_back("\t\t\t* GetMeanWidth::fusion_iterRMS_Gaussfit both methods failed for "+ m_inHistName);
     }
     else {
-      m_errors.push_back("GetMeanWidth::setResults: method not supported. No evaluation for "+ m_inHistName);
+      m_errors.push_back("\t\t\t* GetMeanWidth::setResults: method not supported. No evaluation for "+ m_inHistName);
     }
-    
+
+    // check if large fraction of events was in over- and under-flow
+    if ( m_FracUOflow > 0. ) {
+      std::ostringstream debugl;
+      debugl << "\tGetMeanWidth::setResults: too large fraction of out-of-range events for histogram ";
+      debugl << m_inHistName << ": " << m_FracUOflow << " > " << m_maxUOflowFrac;
+      m_debugs.push_back(debugl.str());      
+      setLargeError();
+      m_debugs.push_back("\t\t\t* GetMeanWidth::setResults: scaling errors up for "
+			 +m_inHistName+". Too many under- and over- flows.");
+    }
+
     // reset range metadata to state prior to iteration
     // this gets changed in iterative or fusion)
     p_input_hist->GetXaxis()->SetRange(1,p_input_hist->GetNbinsX());
@@ -431,21 +496,23 @@ namespace IDPVM {
   }
 
 }//end of namespace
-// end of GetMeanWidth.cxx 
+// ---------------- end of carbon-copy from GetMeanWidth.cxx 
 //....................................................................................
 
 //------------------------------------------------------------------------------------
-// postprocessing for InDetPerfPlot_res tool
+/** postprocessing for InDetPerfPlot_res tool
+ * code assembled from InDetPerfPlot_res, but not copied from there directly
+ */
 class InDetPerfPlot_res_pproc : public IDPVM_pproc {
 public:
   InDetPerfPlot_res_pproc();
   ~InDetPerfPlot_res_pproc(){};
   void initializePlots();
-  // todo: smarter  imple
+  /// todo: smarter  imple
   int postprocess_dir(TDirectory* p_dir);
-  // requieres manual synch with Athena source
+  /// requieres manual synch with Athena source
   void finalizePlots();
-   // ditto
+   /// ditto
   void Refinement(TH1D* temp, IDPVM::GetMeanWidth::methods p_method,
 		  int var, int j, const std::vector<TH1*>& tvec,
 		  const std::vector<TH1*>& rvec);
@@ -453,27 +520,27 @@ public:
   void set_pproc_srcnames();
   string get_srcname_for(string p_name);
 private:  
-  // source and target histograms used in postprocessing
-  // resolution
-  // * vs eta
-  vector<TH2*> m_meanbasePlots; // res vs param vs eta
-  vector<TH1*> m_meanPlots; // resmean vs param vs eta
-  vector<TH1*> m_resoPlots; // reswidth vs param vs eta
-  // * vs pt
-  vector<TH2*> m_mean_vs_ptbasePlots; // res vs param vs pt
-  vector<TH1*> m_mean_vs_ptPlots; // resmean vs param vs pt
-  vector<TH1*> m_resptPlots;// reswidth vs param vs pt
-  // pulls <-- we do these only vs pt
-  vector<TH2*> m_pullbasePlots; // pull vs param vs eta
-  vector<TH1*> m_pullmeanPlots; // pullmean vs param vs eta
-  vector<TH1*> m_pullwidthPlots; // pullwidth vs param vs eta
-  // helpers and quantities used by the postprocessing code
+  /// source and target histograms used in postprocessing
+  /// resolution
+  /// * vs eta
+  vector<TH2*> m_meanbasePlots; /// res vs param vs eta
+  vector<TH1*> m_meanPlots; /// resmean vs param vs eta
+  vector<TH1*> m_resoPlots; /// reswidth vs param vs eta
+  /// * vs pt
+  vector<TH2*> m_mean_vs_ptbasePlots; /// res vs param vs pt
+  vector<TH1*> m_mean_vs_ptPlots; /// resmean vs param vs pt
+  vector<TH1*> m_resptPlots;/// reswidth vs param vs pt
+  /// pulls <-- we do these only vs pt
+  vector<TH2*> m_pullbasePlots; /// pull vs param vs eta
+  vector<TH1*> m_pullmeanPlots; /// pullmean vs param vs eta
+  vector<TH1*> m_pullwidthPlots; /// pullwidth vs param vs eta
+  /// helpers and quantities used by the postprocessing code
   vector<string> m_paramNames {"d0", "z0", "phi", "theta", "z0*sin(theta)", "qopt"};
   vector<string> m_quantnames {"width","mean"};
   enum Param {
     D0, Z0, PHI, THETA, Z0SIN_THETA, QOPT, NPARAMS
   };
-  // class and methods for evaluating mean and width of distributions
+  /// class and methods for evaluating mean and width of distributions
   IDPVM::GetMeanWidth m_getMeanWidth;
   IDPVM::GetMeanWidth::methods m_meanWidthMethod;
 };
@@ -542,8 +609,11 @@ void InDetPerfPlot_res_pproc::initializePlots(){
 }
 
 //.....................................................................................
+// ----- carbon-copy of src/InDetPerfPlot_res.cxx's finalizePlots() + replace ATHENA_MSG with std::cout
+// also copy over any functions InDetPerfPlot_res.cxx's finalizePlots() calls
+// needs to be kept in synch with InDetPerfPlot_res.cxx's finalizePlots() manually
 void InDetPerfPlot_res_pproc::finalizePlots() {
-  unsigned int ptBins(0);
+unsigned int ptBins(0);
   if (m_mean_vs_ptbasePlots[0]) {
     ptBins = m_mean_vs_ptPlots[0]->GetNbinsX();
   } else {
@@ -552,6 +622,11 @@ void InDetPerfPlot_res_pproc::finalizePlots() {
   }
   for (unsigned int var(0); var != NPARAMS; ++var) {
     if (m_meanPlots[var]) {
+      // warnings in case input histograms have large % events in under- and over- flow bins
+      vector< std::pair<unsigned int,double> > warnUOBinEtaRes;
+      vector< std::pair<unsigned int,double> > warnUOBinEtaPull;
+      vector< std::pair<unsigned int,double> > warnUOBinPtRes;
+      
       unsigned int etaBins = m_meanPlots[var]->GetNbinsX();
       auto& meanbasePlot = m_meanbasePlots[var];
       auto& pullbasePlot = m_pullbasePlots[var];
@@ -560,18 +635,44 @@ void InDetPerfPlot_res_pproc::finalizePlots() {
         TH1D* temp = meanbasePlot->ProjectionY(Form("%s_projy_bin%d", "Big_Histo", j), j, j);	 
         TH1D* temp_pull = pullbasePlot->ProjectionY(Form("%s_projy_bin%d", "Pull_Histo", j), j, j);
         Refinement(temp, m_meanWidthMethod, var, j, m_meanPlots, m_resoPlots);
+	if (m_getMeanWidth.getFracUOflow()>0.)
+	  warnUOBinEtaRes.push_back(std::make_pair(j,m_getMeanWidth.getFracUOflow()));
 	Refinement(temp_pull, m_meanWidthMethod, var, j, m_pullmeanPlots, m_pullwidthPlots);
+	if (m_getMeanWidth.getFracUOflow()>0.)
+	  warnUOBinEtaPull.push_back(std::make_pair(j,m_getMeanWidth.getFracUOflow()));
       }
+      // print warnings in case of under- and over- flows
+      if (PRINTDBG>1 && !warnUOBinEtaRes.empty()) {
+	std::cout << __FILE__ << "\t\t WARNING: "
+		  << m_getMeanWidth.reportUOBinVal(m_meanPlots[var]->GetName(),warnUOBinEtaRes) << std::endl;
+	std::cout << __FILE__ << "\t\t WARNING: "
+		  << m_getMeanWidth.reportUOBinVal(m_resoPlots[var]->GetName(),warnUOBinEtaRes) << std::endl;
+      }
+      if (PRINTDBG>1 && !warnUOBinEtaPull.empty()) { 
+	std::cout << __FILE__ << "\t\t WARNING: "
+		  << m_getMeanWidth.reportUOBinVal(m_pullmeanPlots[var]->GetName(),warnUOBinEtaPull) << std::endl;
+	std::cout << __FILE__ << "\t\t WARNING: "
+		  << m_getMeanWidth.reportUOBinVal(m_pullwidthPlots[var]->GetName(),warnUOBinEtaPull) << std::endl;
+      }
+      
       auto& mean_vs_ptbasePlot = m_mean_vs_ptbasePlots[var];
       for (unsigned int i = 1; i <= ptBins; i++) {
         TH1D* temp = mean_vs_ptbasePlot->ProjectionY(Form("%s_projy_bin%d", "Big_Histo", i), i, i);
         Refinement(temp, m_meanWidthMethod, var, i, m_mean_vs_ptPlots, m_resptPlots);
+	if (m_getMeanWidth.getFracUOflow()>0.)
+	  warnUOBinPtRes.push_back(std::make_pair(i,m_getMeanWidth.getFracUOflow()));
+      }
+      // print warnings in case of under- and over- flows
+      if (PRINTDBG>1 && !warnUOBinPtRes.empty()) {
+	std::cout << __FILE__ << "\t\t WARNING: "
+		  << m_getMeanWidth.reportUOBinVal(m_mean_vs_ptPlots[var]->GetName(),warnUOBinPtRes) << std::endl;
+	std::cout << __FILE__ << "\t\t WARNING: "
+		  << m_getMeanWidth.reportUOBinVal(m_resptPlots[var]->GetName(),warnUOBinPtRes) << std::endl;
       }
     }
   }
-
-  return;
-}// end of InDetPerfPlot_res_pproc::finalizePlots()
+} // end of InDetPerfPlot_res::finalizePlots()
+// end of InDetPerfPlot_res_pproc::finalizePlots()
 //.....................................................................................
 
 //.....................................................................................
@@ -586,7 +687,11 @@ InDetPerfPlot_res_pproc::Refinement(TH1D* temp, IDPVM::GetMeanWidth::methods p_m
   }
   
   m_getMeanWidth.setResults(temp, p_method);
-  // print out any warnings and errors
+  // print out any messages
+  if (PRINTDBG>3) {
+    for (auto _it : m_getMeanWidth.getDebugs())
+      std::cout << _it << std::endl;
+  }  
   if (PRINTDBG>2) {
     for (auto _it : m_getMeanWidth.getInfos())
       std::cout << _it << std::endl;
@@ -601,7 +706,7 @@ InDetPerfPlot_res_pproc::Refinement(TH1D* temp, IDPVM::GetMeanWidth::methods p_m
   }
   // RMS and RMSerror
   (rvec[var])->SetBinContent(j, m_getMeanWidth.getRMS());
-  (rvec[var])->SetBinError(j, m_getMeanWidth.getRMSError());
+  (rvec[var])->SetBinError(j, m_getMeanWidth.getRMSError());  
   // mean and meanerror
   (tvec[var])->SetBinContent(j, m_getMeanWidth.getMean());
   (tvec[var])->SetBinError(j, m_getMeanWidth.getMeanError());
@@ -613,15 +718,15 @@ InDetPerfPlot_res_pproc::Refinement(TH1D* temp, IDPVM::GetMeanWidth::methods p_m
 //------------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------------
-// postprocessing for InDetPerfPlot_resITk tool
+/** postprocessing for InDetPerfPlot_resITk tool */
 class InDetPerfPlot_resITk_pproc : public IDPVM_pproc {
 public:
   InDetPerfPlot_resITk_pproc();
   ~InDetPerfPlot_resITk_pproc(){};
   void initializePlots();
-  // todo: smarter  imple
+  /// todo: smarter  imple
   int postprocess_dir(TDirectory* p_dir);
-  // requieres manual synch with Athena source
+  /// requieres manual synch with Athena source
   void finalizePlots();
   void set_pproc_targnames();
   void set_pproc_srcnames();
@@ -651,8 +756,8 @@ private:
   };
   pCfg m_paramProp[NPARAMS];
   
-  // source and target histograms used in postprocessing
-  // ---------------------------
+  /// source and target histograms used in postprocessing
+  /// ---------------------------
   TH2* m_resITk_resHelpereta[NPARAMS];
   TH1* m_resITk_Resolution_vs_eta[NPARAMS][m_nResHist];
   TH1* m_resITk_ResProjections_vs_eta[NPARAMS][m_nEtaBins];
@@ -671,8 +776,8 @@ private:
   TH2* m_resITk_resHelperpt_neg[NPARAMS];
   TH1* m_resITk_Resolution_vs_pt_neg[NPARAMS][m_nResHist];
 
-  TH2* m_resITk_pullHelperpt[NPARAMS]; // pull width as a function of pT
-  TH2* m_resITk_pullHelpereta[NPARAMS]; // pull width as a function of pT
+  TH2* m_resITk_pullHelperpt[NPARAMS]; /// pull width as a function of pT
+  TH2* m_resITk_pullHelpereta[NPARAMS]; /// pull width as a function of pT
 
   TH1* m_resITk_pullResolution_vs_pt[NPARAMS][m_nResHist];
   TH1* m_resITk_pullResolution_vs_eta[NPARAMS][m_nResHist];
@@ -682,23 +787,14 @@ private:
 
   TH1* m_resITk_Resolution_vs_pt_EtaBin[NPARAMS][4][m_nResHist];
   TH1* m_resITk_Resolution_vs_eta_PtBin[NPARAMS][4][m_nResHist];
-  // ---------------------------
-  // significance histo sources
+  /// ---------------------------
+  /// significance histo sources
   TH2* m_significance_d0;
   TH2* m_significance_z0;
-  // significance histo targets
+  /// significance histo targets
   TH1* m_significance_d0_vs_eta;
   TH1* m_significance_z0_vs_eta;
-  // --------------------------- 
-  // fix histogram sources 
-  TH1* m_fix_qoverpt_res[m_nEtaBins];
-  TH1* m_fix_d0_res[m_nEtaBins];
-  TH1* m_fix_z0_res[m_nEtaBins];
-  // fix histogram targets 
-  TH1* m_fix_qoverptresolutionRMS_vs_eta;
-  TH1* m_fix_d0resolutionRMS_vs_eta;
-  TH1* m_fix_z0resolutionRMS_vs_eta;
-  // --------------------------- 
+  /// --------------------------- 
   std::string m_resHisto[m_nResHist] = {
     "resolutionRMS", "meanRMS", "resolutionGAUS", "meanGAUS"
   };
@@ -715,42 +811,33 @@ private:
   void cloneHistogram(TH1D* h, TH1* hcopy);
   
 
-  // target and source getter helpers:
-  // makeResolutions histograms:
-  // struct holding target and source names for eta pulls & resolutions
+  /// target and source getter helpers:
+  /// makeResolutions histograms:
+  /// struct holding target and source names for eta pulls & resolutions
   struct pullreso_eta {
     string targnames[NPARAMS][m_nResHist] = { {""} };
     string srcnames_1D[NPARAMS][m_nEtaBins] = { { ""} };
     string srcnames_2D[NPARAMS] = {""};
   };
-  // struct holding target and source names for pt pulls & resolutions
+  /// struct holding target and source names for pt pulls & resolutions
   struct pullreso_pt {
     string targnames[NPARAMS][m_nResHist] = { {""} };
     string srcnames_1D[NPARAMS][m_nPtBins] = { {""} };
     string srcnames_2D[NPARAMS] = {""};
   };
-  // we'll make the following:
-  // eta resolutions: inclusive + split to pos and neg charge
+  /// we'll make the following:
+  /// eta resolutions: inclusive + split to pos and neg charge
   pullreso_eta m_res_eta;
   pullreso_eta m_res_eta_pos;
   pullreso_eta m_res_eta_neg;
-  // pt resolutions: inclusive + split to pos and neg charge
+  /// pt resolutions: inclusive + split to pos and neg charge
   pullreso_pt m_res_pt;
   pullreso_pt m_res_pt_pos;
   pullreso_pt m_res_pt_neg;
-  // pulls vs pt and eta
+  /// pulls vs pt and eta
   pullreso_eta m_pull_eta;
   pullreso_eta m_pull_pt;
-  void set_makeResolutions_targ_src_names();  
-  // histograms with manual fixes:
-  // one string per histo for making  target and source names & fetching
-  const vector<string> m_fixes {"fix_qoverpt", "fix_d0", "fix_z0" };
-  // one target per histo
-  vector<string> m_fix_targnames;
-  // a number (m_nbins_fixes) of source per histo
-  static const unsigned int m_nbins_fixes = 16;
-  vector< vector<string> > m_fix_srcnames;
-  void set_fix_targnames_srcnames();
+  void set_makeResolutions_targ_src_names();
 }; 
 
 InDetPerfPlot_resITk_pproc::InDetPerfPlot_resITk_pproc() :
@@ -771,8 +858,6 @@ InDetPerfPlot_resITk_pproc::InDetPerfPlot_resITk_pproc() :
   // set helpers for filling source and target names:
   // ... makeResolutions histograms
   set_makeResolutions_targ_src_names();
-  // .... fixed histograms:
-  set_fix_targnames_srcnames();
   // generic target and src setters 
   set_pproc_targnames();
   set_pproc_srcnames();
@@ -785,25 +870,6 @@ int InDetPerfPlot_resITk_pproc::postprocess_dir(TDirectory* p_dir) {
   initializePlots();
   finalizePlots();
   return write_targets();
-}
-
-void InDetPerfPlot_resITk_pproc::set_fix_targnames_srcnames() {
-  // sets names for targets and sources needed for fix histograms
-  if (!m_fix_targnames.empty()) 
-    m_fix_targnames.clear();
-  if (!m_fix_srcnames.empty()) 
-    m_fix_srcnames.clear();
-  for (auto fix : m_fixes) {
-    string fix_targname = fix+m_resHisto[0]+"_vs_eta";
-    m_fix_targnames.push_back(fix_targname);
-    vector<string> thisfix_srcnames;
-    for (unsigned int i=0; i<m_nbins_fixes; ++i) {
-      string fix_srcname = fix+"_res"+std::to_string(i+1);
-      thisfix_srcnames.push_back(fix_srcname);
-    }
-    m_fix_srcnames.push_back(thisfix_srcnames);
-  }
-  return;
 }
 
 void InDetPerfPlot_resITk_pproc::set_makeResolutions_targ_src_names() {
@@ -906,10 +972,6 @@ void InDetPerfPlot_resITk_pproc::set_pproc_targnames() {
     }
   }
   //............................................................................
-  
-  // fix histos
-  for (auto tn : m_fix_targnames) 
-    m_pproc_targnames.push_back(tn);
 
   // significance histos:
   m_pproc_targnames.push_back("significance_d0_vs_eta");
@@ -959,13 +1021,6 @@ void InDetPerfPlot_resITk_pproc::set_pproc_srcnames() {
      m_pproc_srcnames.push_back(m_pull_pt.srcnames_2D[iparam]);
    }
    //............................................................................
-
-  // fix histograms
-  for (auto sns : m_fix_srcnames) {
-    for (auto sn : sns) {
-      m_pproc_srcnames.push_back(sn);
-    }
-  }
 
   // significance histograms:
   m_pproc_srcnames.push_back("significance_d0");
@@ -1064,38 +1119,6 @@ void InDetPerfPlot_resITk_pproc::initializePlots(){
   }  
   // end of pulls 
   //............................................................................ 
-    
-  //............................................................................
-  // fix targets:
-  int ifix=0;
-  for (auto fix : m_fixes) {
-    string fix_targname=m_fix_targnames[ifix];
-    TH1* targ_hist = dynamic_cast<TH1*>(get_target(fix_targname));
-    if ("fix_qoverpt"==fix)
-      m_fix_qoverptresolutionRMS_vs_eta = targ_hist;
-    else if ("fix_d0"==fix)
-      m_fix_d0resolutionRMS_vs_eta = targ_hist;
-    else if ("fix_z0"==fix)
-      m_fix_z0resolutionRMS_vs_eta = targ_hist;
-    ++ifix;
-  }
-  // fix sources:
-  ifix=0;
-  for (auto fix : m_fixes) {
-    for (unsigned int ibin=0; ibin<m_nbins_fixes; ++ibin) {
-      string fix_srcname=m_fix_srcnames[ifix][ibin];
-      TH1* src_hist = dynamic_cast<TH1*>(get_source(fix_srcname));
-      if ("fix_qoverpt"==fix)
-	m_fix_qoverpt_res[ibin]=src_hist;
-      else if ("fix_d0"==fix)
-	m_fix_d0_res[ibin]=src_hist;
-      else if ("fix_z0"==fix)
-	m_fix_z0_res[ibin]=src_hist;
-    }
-    ++ifix;
-  }
-  // end of fix histograms
-  //............................................................................
   
   // significance histograms:
   m_significance_d0 = dynamic_cast<TH2*>(get_source("significance_d0"));
@@ -1119,13 +1142,27 @@ InDetPerfPlot_resITk_pproc::getMeanWidthResultsModUnits(TH1* p_input_hist, vecto
   }
 
   m_getMeanWidth.setResults(p_input_hist, p_method);
+  // print out any warnings and errors
+  if (PRINTDBG>3)
+    for (auto _it : m_getMeanWidth.getDebugs())
+      std::cout << _it << std::endl;
+  if (PRINTDBG>2) 
+    for (auto _it : m_getMeanWidth.getInfos())
+      std::cout << _it << std::endl;
+  if (PRINTDBG>1)
+    for (auto _it : m_getMeanWidth.getWarnings())
+      std::cout <<_it << std::endl;
+  if (PRINTDBG>0)
+    for (auto _it : m_getMeanWidth.getErrors())
+      std::cout << _it << std::endl;
   p_result.push_back(m_getMeanWidth.getRMS());
   p_result.push_back(m_getMeanWidth.getRMSError());
   p_result.push_back(m_getMeanWidth.getMean());
   p_result.push_back(m_getMeanWidth.getMeanError());
   p_result.push_back(m_getMeanWidth.getFracOut());
   p_result.push_back(m_getMeanWidth.getFracOutUnc());
-
+  p_result.push_back(m_getMeanWidth.getFracUOflow());
+  
   TString vari = p_input_hist->GetName();
   if ( !vari.Contains("pull") &&
        (vari.Contains("d0") || vari.Contains("z0")) ) {
@@ -1136,16 +1173,6 @@ InDetPerfPlot_resITk_pproc::getMeanWidthResultsModUnits(TH1* p_input_hist, vecto
     p_result[2]*= mm2um;
     p_result[3]*= mm2um;
   }
-
-  /*
-  // print out any warnings and errors
-  // <-- LM need to figure out what to do to get
-  //     ATH_MSG not working in this class
-  for (auto _it : m_getMeanWidth.getWarnings())
-    ATH_MSG_WARNING(_it);
-  for (auto _it : m_getMeanWidth.getErrors())
-    ATH_MSG_ERROR(_it); 
-  */
 }
 // end of InDetPerfPlot_resITk_pproc::getMeanWidthResultsModUnits
 //.....................................................................................
@@ -1155,7 +1182,9 @@ InDetPerfPlot_resITk_pproc::makeResolutions(TH2* h, TH1* hres[4]) {
 
   // Should fix this in a better way
   TString hname = h->GetName();
-
+  // warnings in case input histograms have large % events in under- and over- flow bins 
+  vector< std::pair<unsigned int,double> > warnUOBinFrac;
+   
   if (hname.Contains("Helpereta")) {
     for (unsigned int ieta = 0; ieta < m_nEtaBins; ieta++) {
       std::string tmpName = h->GetName() + std::string("py_bin") + std::to_string(ieta + 1);
@@ -1170,6 +1199,8 @@ InDetPerfPlot_resITk_pproc::makeResolutions(TH2* h, TH1* hres[4]) {
       hres[0]->SetBinError(ieta + 1, result.at(1));
       hres[1]->SetBinContent(ieta + 1, result.at(2));
       hres[1]->SetBinError(ieta + 1, result.at(3));
+      if (result.size()>6 && result.at(6)>0.)
+	warnUOBinFrac.push_back(std::make_pair(ieta + 1,result.at(6)));
       result.clear();
       /*	  
 	      std::vector<float> result;
@@ -1180,8 +1211,15 @@ InDetPerfPlot_resITk_pproc::makeResolutions(TH2* h, TH1* hres[4]) {
               hres[3]->SetBinContent(ieta+1,result.at(2));
               hres[3]->SetBinError(ieta+1,result.at(3));*/
       delete tmp;
+    }    
+    if (PRINTDBG>1 && !warnUOBinFrac.empty()) {
+      std::cout << __FILE__ << "\t\t WARNING: " << m_getMeanWidth.reportUOBinVal(hres[0]->GetName(),warnUOBinFrac) << std::endl;
+      std::cout << __FILE__ << "\t\t WARNING: " << m_getMeanWidth.reportUOBinVal(hres[1]->GetName(),warnUOBinFrac) << std::endl;
     }
-  } else if (hname.Contains("Helperpt")) {
+  }
+  else if (hname.Contains("Helperpt")) {
+    if (!warnUOBinFrac.empty())
+      warnUOBinFrac.clear();
     for (unsigned int ipt = 0; ipt < m_nPtBins; ipt++) {
       std::string tmpName = h->GetName() + std::string("py_bin") + std::to_string(ipt + 1);
       TH1D* tmp = (TH1D*) h->ProjectionY(tmpName.c_str(), h->GetXaxis()->FindBin(m_PtBins[ipt]),
@@ -1195,6 +1233,8 @@ InDetPerfPlot_resITk_pproc::makeResolutions(TH2* h, TH1* hres[4]) {
       hres[0]->SetBinError(ipt + 1, result.at(1));
       hres[1]->SetBinContent(ipt + 1, result.at(2));
       hres[1]->SetBinError(ipt + 1, result.at(3));
+      if (result.size()>6 && result.at(6)>0.) 
+	warnUOBinFrac.push_back(std::make_pair(ipt + 1,result.at(6)));
       result.clear();
       
 /*		  
@@ -1207,13 +1247,19 @@ InDetPerfPlot_resITk_pproc::makeResolutions(TH2* h, TH1* hres[4]) {
             hres[3]->SetBinError(ipt+1,result.at(3));*/
       delete tmp;
     }
+    if (PRINTDBG>1 && !warnUOBinFrac.empty()) {
+      std::cout << __FILE__ << "\t\t WARNING: " << m_getMeanWidth.reportUOBinVal(hres[0]->GetName(),warnUOBinFrac) << std::endl;
+      std::cout << __FILE__ << "\t\t WARNING: " << m_getMeanWidth.reportUOBinVal(hres[1]->GetName(),warnUOBinFrac) << std::endl;
+    }
   }
 }
 
 void
 InDetPerfPlot_resITk_pproc::makeResolutions(TH2* h, TH1* hres[4], TH1* hproj[m_nEtaBins], bool save) {
   TString hname = h->GetName();
-
+  // warnings in case input histograms have large % events in under- and over- flow bins 
+  vector< std::pair<unsigned int,double> > warnUOBinFrac;
+  
   if (hname.Contains("Helpereta")) {
     for (unsigned int ieta = 0; ieta < m_nEtaBins; ieta++) {
       std::string tmpName = h->GetName() + std::string("py_bin") + std::to_string(ieta + 1);
@@ -1231,6 +1277,8 @@ InDetPerfPlot_resITk_pproc::makeResolutions(TH2* h, TH1* hres[4], TH1* hproj[m_n
       hres[0]->SetBinError(ieta + 1, result.at(1));
       hres[1]->SetBinContent(ieta + 1, result.at(2));
       hres[1]->SetBinError(ieta + 1, result.at(3));
+      if (result.size()>6 && result.at(6)>0.) 
+	warnUOBinFrac.push_back(std::make_pair(ieta + 1,result.at(6)));      
       result.clear();
       /*	  
 	      std::vector<float> result;
@@ -1242,7 +1290,13 @@ InDetPerfPlot_resITk_pproc::makeResolutions(TH2* h, TH1* hres[4], TH1* hproj[m_n
               hres[3]->SetBinError(ieta+1,result.at(3));*/
       delete tmp;
     }
+    if (PRINTDBG>1 && !warnUOBinFrac.empty()) {
+      std::cout << __FILE__ << "\t\t WARNING: " << m_getMeanWidth.reportUOBinVal(hres[0]->GetName(),warnUOBinFrac) << std::endl;
+      std::cout << __FILE__ << "\t\t WARNING: " << m_getMeanWidth.reportUOBinVal(hres[1]->GetName(),warnUOBinFrac) << std::endl;
+    }
   } else if (hname.Contains("Helperpt")) {
+    if (!warnUOBinFrac.empty())
+      warnUOBinFrac.clear();
     for (unsigned int ipt = 0; ipt < m_nPtBins; ipt++) {
       std::string tmpName = h->GetName() + std::string("py_bin") + std::to_string(ipt + 1);
       TH1D* tmp = (TH1D*) h->ProjectionY(tmpName.c_str(), h->GetXaxis()->FindBin(m_PtBins[ipt]),
@@ -1259,6 +1313,8 @@ InDetPerfPlot_resITk_pproc::makeResolutions(TH2* h, TH1* hres[4], TH1* hproj[m_n
       hres[0]->SetBinError(ipt + 1, result.at(1));
       hres[1]->SetBinContent(ipt + 1, result.at(2));
       hres[1]->SetBinError(ipt + 1, result.at(3));
+      if (result.size()>6 && result.at(6)>0.)
+	warnUOBinFrac.push_back(std::make_pair(ipt + 1,result.at(6)));
       result.clear();
       /*  std::vector<float> result;
           IDPVM::GetMeanWidth::methods altMeanWidthMethod = Gauss_fit;
@@ -1268,6 +1324,10 @@ InDetPerfPlot_resITk_pproc::makeResolutions(TH2* h, TH1* hres[4], TH1* hproj[m_n
           hres[3]->SetBinContent(ipt+1,result.at(2));
           hres[3]->SetBinError(ipt+1,result.at(3));*/
       delete tmp;
+    }
+    if (PRINTDBG>1 && !warnUOBinFrac.empty()) {
+      std::cout << __FILE__ << "\t\t WARNING: " << m_getMeanWidth.reportUOBinVal(hres[0]->GetName(),warnUOBinFrac) << std::endl;
+      std::cout << __FILE__ << "\t\t WARNING: " << m_getMeanWidth.reportUOBinVal(hres[1]->GetName(),warnUOBinFrac) << std::endl;
     }
   }
 }
@@ -1286,7 +1346,10 @@ InDetPerfPlot_resITk_pproc::cloneHistogram(TH1D* h, TH1* hcopy) {
 
 void
 InDetPerfPlot_resITk_pproc::makeResolutions(TH3* h, TH1* hres_eta[4][4], TH1* hres_pt[4][4]) {
- 
+
+  // warnings in case input histograms have large % events in under- and over- flow bins
+  vector< std::pair<unsigned int,double> > warnUOBinFrac;
+  
   float BinEta[5] = {
     0.0, 1.0, 1.5, 2.7, 5.0
   };
@@ -1318,12 +1381,20 @@ InDetPerfPlot_resITk_pproc::makeResolutions(TH3* h, TH1* hres_eta[4][4], TH1* hr
       hres_eta[ieta][0]->SetBinError(ipt + 1, result.at(1));
       hres_eta[ieta][1]->SetBinContent(ipt + 1, result.at(2));
       hres_eta[ieta][1]->SetBinError(ipt + 1, result.at(3));
+      if (result.size()>6 && result.at(6)>0.)
+	warnUOBinFrac.push_back(std::make_pair(ieta + 1,result.at(6)));
       delete tmp1;
       delete tmp2;
+    }
+    if (PRINTDBG>1 && !warnUOBinFrac.empty()) {
+      std::cout << __FILE__ << "\t\t WARNING: " << m_getMeanWidth.reportUOBinVal(hres_eta[ieta][0]->GetName(),warnUOBinFrac) << std::endl;
+      std::cout << __FILE__ << "\t\t WARNING: " << m_getMeanWidth.reportUOBinVal(hres_eta[ieta][1]->GetName(),warnUOBinFrac) << std::endl;
     }
   }
 
   for (unsigned int ipt = 0; ipt < 4; ipt++) {
+    if (!warnUOBinFrac.empty())
+      warnUOBinFrac.clear();
     for (unsigned int ieta = 0; ieta < m_nEtaBins; ieta++) {
       std::string tmpName = h->GetName() + std::string("pz_binPt") + std::to_string(ipt + 1) +
                             std::string("pz_binEta") + std::to_string(ieta + 1);
@@ -1340,12 +1411,22 @@ InDetPerfPlot_resITk_pproc::makeResolutions(TH3* h, TH1* hres_eta[4][4], TH1* hr
       hres_pt[ipt][0]->SetBinError(ieta + 1, result.at(1));
       hres_pt[ipt][1]->SetBinContent(ieta + 1, result.at(2));
       hres_pt[ipt][1]->SetBinError(ieta + 1, result.at(3));
+      if (result.size()>6 && result.at(6)>0.)
+	warnUOBinFrac.push_back(std::make_pair(ieta + 1,result.at(6)));
       delete tmp;
+    }
+    if (PRINTDBG>1 && !warnUOBinFrac.empty()) {
+      std::cout << __FILE__ << "\t\t WARNING: " << m_getMeanWidth.reportUOBinVal(hres_pt[ipt][0]->GetName(),warnUOBinFrac) << std::endl;
+      std::cout << __FILE__ << "\t\t WARNING: " << m_getMeanWidth.reportUOBinVal(hres_pt[ipt][1]->GetName(),warnUOBinFrac) << std::endl;
     }
   }
 }
 // end of InDetPerfPlot_resITk_pproc::makeResolutions
 ///.....................................................................................
+//.....................................................................................
+// ----- carbon-copy of src/InDetPerfPlot_resITk.cxx's finalizePlots() + replace ATHENA_MSG with std::cout
+// also copy over any functions InDetPerfPlot_resITk.cxx's finalizePlots() calls
+// needs to be kept in synch with InDetPerfPlot_resITk.cxx's finalizePlots() manually
 void InDetPerfPlot_resITk_pproc::finalizePlots() {
 
   for (unsigned int iparam = 0; iparam < NPARAMS; iparam++) {
@@ -1389,26 +1470,7 @@ void InDetPerfPlot_resITk_pproc::finalizePlots() {
     m_significance_z0_vs_eta->SetBinContent(ieta + 1, tmp->GetRMS());
     m_significance_z0_vs_eta->SetBinError(ieta + 1, tmp->GetRMSError());
   }
-  
-  for (int ieta = 0; ieta < m_nEtaBins; ieta++) {
-    std::vector<float> result;
-    getMeanWidthResultsModUnits(m_fix_qoverpt_res[ieta], result, m_meanWidthMethod);
-    m_fix_qoverptresolutionRMS_vs_eta->SetBinContent(ieta + 1, result.at(0));
-    m_fix_qoverptresolutionRMS_vs_eta->SetBinError(ieta + 1, result.at(1));
-  }
-  
-  for (int ieta = 0; ieta < m_nEtaBins; ieta++) {
-    std::vector<float> result;
-    getMeanWidthResultsModUnits(m_fix_d0_res[ieta], result, m_meanWidthMethod);
-    m_fix_d0resolutionRMS_vs_eta->SetBinContent(ieta + 1, result.at(0));
-    m_fix_d0resolutionRMS_vs_eta->SetBinError(ieta + 1, result.at(1));
-  }
-  for (int ieta = 0; ieta < m_nEtaBins; ieta++) {
-    std::vector<float> result;
-    getMeanWidthResultsModUnits(m_fix_z0_res[ieta], result, m_meanWidthMethod);
-    m_fix_z0resolutionRMS_vs_eta->SetBinContent(ieta + 1, result.at(0));
-    m_fix_z0resolutionRMS_vs_eta->SetBinError(ieta + 1, result.at(1));
-  }
+
   return;
 } // end of InDetPerfPlot_resITk_pproc::finalizePlots()
 //....................................................................................

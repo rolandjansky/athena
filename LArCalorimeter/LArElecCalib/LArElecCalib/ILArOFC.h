@@ -65,5 +65,11 @@ class ILArOFC {
 
 CLASS_DEF( ILArOFC, 204091343, 1) 
 
-#endif 
 
+//ConditionsContainer clid for athenaMT"
+#include "AthenaKernel/CondCont.h"
+CLASS_DEF( CondCont<ILArOFC> , 136784899 , 1 )
+#include "SGTools/BaseInfo.h"
+SG_BASE( CondCont<ILArOFC>, CondContBase );
+
+#endif 

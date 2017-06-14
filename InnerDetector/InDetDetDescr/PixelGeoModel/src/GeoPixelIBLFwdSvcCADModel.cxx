@@ -31,8 +31,7 @@
 #include <iomanip> 
 using std::max;
 
-GeoPixelIBLFwdSvcCADModel::GeoPixelIBLFwdSvcCADModel(int section): 
-  m_section(section),
+GeoPixelIBLFwdSvcCADModel::GeoPixelIBLFwdSvcCADModel(int /*section*/): 
   m_supportPhysA(0),
   m_supportPhysC(0),
   m_xformSupportA(0),
@@ -43,24 +42,24 @@ GeoPixelIBLFwdSvcCADModel::GeoPixelIBLFwdSvcCADModel(int section):
 GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
 {
 
-  gmt_mgr->msg(MSG::INFO) <<"Build IBL fwd services - CAD tool design - Build()"<<endmsg;
+  m_gmt_mgr->msg(MSG::INFO) <<"Build IBL fwd services - CAD tool design - Build()"<<endmsg;
   
 #if !defined(GEOTORUS) || GEOTORUS==0
 
-  gmt_mgr->msg(MSG::INFO) <<"Build IBL fwd services - CAD tool design - Torus object is not defined "<<GEOTORUS<<endmsg;
+  m_gmt_mgr->msg(MSG::INFO) <<"Build IBL fwd services - CAD tool design - Torus object is not defined "<<GEOTORUS<<endmsg;
   return 0;
 
 #else
 
-  gmt_mgr->msg(MSG::INFO) <<"Build IBL fwd services - CAD tool design - Torus object is defined"<<endmsg;
+  m_gmt_mgr->msg(MSG::INFO) <<"Build IBL fwd services - CAD tool design - Torus object is defined"<<endmsg;
 
   //  double safety = 0.01*CLHEP::mm;
 
   // IBL layer shift ( 2mm shift issue )
-  double layerZshift = gmt_mgr->PixelLayerGlobalShift();
-  int nSectors = gmt_mgr->NPixelSectors();
-  double phiOfModuleZero =  gmt_mgr->PhiOfModuleZero();  
-  double layerRadius = gmt_mgr->PixelLayerRadius();
+  double layerZshift = m_gmt_mgr->PixelLayerGlobalShift();
+  int nSectors = m_gmt_mgr->NPixelSectors();
+  double phiOfModuleZero =  m_gmt_mgr->PhiOfModuleZero();  
+  double layerRadius = m_gmt_mgr->PixelLayerRadius();
 
   // check if sectors are properly defined
   if(nSectors==0) return 0;
@@ -85,7 +84,7 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
   // Build encompassing volume for both A and C sides (assemblies)
   const GeoTube* supportShapeA = new GeoTube(innerRadius,outerRadius,halfLength);
   const GeoTube* supportShapeC = new GeoTube(innerRadius,outerRadius,halfLength);
-  const GeoMaterial* ether = mat_mgr->getMaterial("special::Ether");  
+  const GeoMaterial* ether = m_mat_mgr->getMaterial("special::Ether");  
   GeoLogVol* supportLogVol_A = new GeoLogVol(lnameA.str(),supportShapeA,ether);
   GeoLogVol* supportLogVol_C = new GeoLogVol(lnameA.str(),supportShapeC,ether);
 
@@ -183,11 +182,11 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
 
 
   // Material (material budget computed based on the detailed description of a cable bundle and cooling pipe
-  const GeoMaterial* cableMat = mat_mgr->getMaterialForVolume("pix::IBL_Fwd02_Cable_Wvy",surfCable*devTotalLength);
+  const GeoMaterial* cableMat = m_mat_mgr->getMaterialForVolume("pix::IBL_Fwd02_Cable_Wvy",surfCable*devTotalLength);
   GeoLogVol * cable_logA = new GeoLogVol("IBL_Fwd02_Cable_A",gblShapeCableA,cableMat);
   GeoLogVol * cable_logC = new GeoLogVol("IBL_Fwd02_Cable_C",gblShapeCableC,cableMat);
 
-  const GeoMaterial* coolingMat = mat_mgr->getMaterialForVolume("pix::IBL_Fwd02_Cooling_Wvy",surfCooling*devTotalLength);
+  const GeoMaterial* coolingMat = m_mat_mgr->getMaterialForVolume("pix::IBL_Fwd02_Cooling_Wvy",surfCooling*devTotalLength);
   GeoLogVol * cooling_logA = new GeoLogVol("IBL_Fwd02_Cooling_A",gblShapeCoolingA,coolingMat);
   GeoLogVol * cooling_logC = new GeoLogVol("IBL_Fwd02_Cooling_C",gblShapeCoolingC,coolingMat);
 
@@ -199,7 +198,7 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
   double cooling_radius = 35.1;
   double cooling_angle = -2.154*CLHEP::deg;
 
-  if(gmt_mgr->PixelStaveAxe()==1)   
+  if(m_gmt_mgr->PixelStaveAxe()==1)   
     {
       cooling_radius = 34.7 + layerRadius-33.25;
       cooling_angle = -.1*CLHEP::deg;
@@ -216,7 +215,7 @@ GeoVPhysVol* GeoPixelIBLFwdSvcCADModel::Build()
   // Loop over the sectors to place the 14 bundles and cooling pipes
   for(int ii=0; ii<nSectors; ii++)
     {
-      gmt_mgr->SetPhi(ii);    
+      m_gmt_mgr->SetPhi(ii);    
       
       // cooling transform 
       double phiOfCooling = phiOfModuleZero+ cooling_angle + ii*angle;

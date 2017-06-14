@@ -4,7 +4,7 @@
 
 /*! \file Chi2Test_2D.cxx does Chi2Test on a 2D histogram, and also returns the positions of the highest outlying bins; returns dqm_core::Result
  //result is based on the number of outlying bins above NSigma, not on the chisq/ndf value
- \Written by Ian Moult
+ @author Ian Moult
  */
 
 #include <dqm_core/AlgorithmConfig.h>

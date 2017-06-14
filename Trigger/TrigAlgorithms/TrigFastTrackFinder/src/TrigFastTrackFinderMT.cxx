@@ -154,6 +154,8 @@ TrigFastTrackFinderMT::TrigFastTrackFinderMT(const std::string& name, ISvcLocato
   declareProperty("TracksName", 
                   m_outputTracksKey = std::string("TrigFastTrackFinder_Tracks"),
                   "TrackCollection name");
+
+  declareProperty("RoIs", m_roiCollectionKey = std::string("OutputRoIs"), "RoIs to read in");
  
   declareProperty( "UseBeamSpot",           m_useBeamSpot = true);
   declareProperty( "FreeClustersCut"   ,m_nfreeCut      );
@@ -261,38 +263,16 @@ TrigFastTrackFinderMT::~TrigFastTrackFinderMT() {}
 //
 
 
-
-StatusCode TrigFastTrackFinderMT::initialize() {
-  HLT::ErrorCode code = hltInitialize();
-  if (code != HLT::OK) {
-    return StatusCode::FAILURE;
-  }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TrigFastTrackFinderMT::beginRun() {
-  HLT::ErrorCode code = hltBeginRun();
-  if (code != HLT::OK) {
-    return StatusCode::FAILURE;
-  }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TrigFastTrackFinderMT::finalize() {
-  HLT::ErrorCode code = hltFinalize();
-  if (code != HLT::OK) {
-    return StatusCode::FAILURE;
-  }
-  return StatusCode::SUCCESS;
-}
-
-
-
 //-------------------------------------------------------------------------
 
 HLT::ErrorCode TrigFastTrackFinderMT::hltInitialize() {
 
-  ATH_MSG_DEBUG("TrigFastTrackFinderMT::initialize() "  << PACKAGE_VERSION);
+  if (m_roiCollectionKey.initialize().isFailure() ) {
+    return HLT::BAD_JOB_SETUP;
+  }
+  if (m_outputTracksKey.initialize().isFailure() ) {
+    return HLT::BAD_JOB_SETUP;
+  }
 
   if ( timerSvc() ) {
     m_SpacePointConversionTimer = addTimer("SpacePointConversion"); 
@@ -462,6 +442,7 @@ StatusCode TrigFastTrackFinderMT::execute() {
   internalRoI.manageConstituents(false);//Don't try to delete RoIs at the end
   m_currentStage = 1;
   m_countTotalRoI++;
+  m_tcs.roiDescriptor = &internalRoI;
 
   m_outputTracksKey = m_attachedFeatureName;
   SG::WriteHandle<TrackCollection> outputTracks(m_outputTracksKey);
@@ -476,6 +457,7 @@ HLT::ErrorCode TrigFastTrackFinderMT::hltExecute(const HLT::TriggerElement* /*in
     HLT::TriggerElement* outputTE) {
   const IRoiDescriptor* internalRoI;
   HLT::ErrorCode ec = getRoI(outputTE, internalRoI);
+  m_tcs.roiDescriptor = internalRoI;
   if(ec != HLT::OK) {
     return ec;
   }

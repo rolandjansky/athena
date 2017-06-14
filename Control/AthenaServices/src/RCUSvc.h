@@ -44,7 +44,7 @@ public:
   /**
    * @brief Standard Gaudi constructor.
    * @param name Service name.
-   * @svc Service locator.
+   * @param svc Service locator.
    */
   RCUSvc (const std::string& name, ISvcLocator* svc);
 

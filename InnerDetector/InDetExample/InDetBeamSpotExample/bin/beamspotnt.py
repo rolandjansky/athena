@@ -5,7 +5,7 @@
 beamspotnt is a command line utility for beam spot ntuples.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: beamspotnt.py 780766 2016-10-27 14:03:02Z amorley $'
+__version__ = 'beamspotnt.py atlas/athena'
 __usage__   = '''%prog [options] command [args ...]
 
 Commands are:

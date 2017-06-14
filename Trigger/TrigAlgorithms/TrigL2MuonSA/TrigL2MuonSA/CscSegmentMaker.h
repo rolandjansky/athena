@@ -101,7 +101,6 @@ class CscSegment;
   CscSegment segmentAtFirstLayer(int mod_hash, TrigL2MuonSA::CscSegment *mu_seg);
   
  private:
-  IMessageSvc* m_msgSvc;
   IntegerProperty m_msglevel;
   UtilTools *m_util;
   ToolHandle<CscRegDict> m_cscregdict;

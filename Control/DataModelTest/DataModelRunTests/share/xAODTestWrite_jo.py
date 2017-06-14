@@ -37,19 +37,24 @@ theApp.EvtMax = 20
 # Set up the algorithm.
 #--------------------------------------------------------------
 
+from DataModelTestDataCommon.DataModelTestDataCommonConf import \
+     DMTest__xAODTestDecor
 from DataModelTestDataWrite.DataModelTestDataWriteConf import \
      DMTest__xAODTestWriteCVec, \
      DMTest__xAODTestWriteHVec, \
      DMTest__xAODTestWriteCView, \
      DMTest__xAODTestWriteCInfo, \
      DMTest__xAODTestWriteCVecConst, \
-     DMTest__xAODTestWrite
+     DMTest__xAODTestWrite, \
+     DMTest__xAODTestWriteSymlinks
 topSequence += DMTest__xAODTestWriteCVec ("xAODTestWriteCVec")
 topSequence += DMTest__xAODTestWriteHVec ("xAODTestWriteHVec")
 topSequence += DMTest__xAODTestWriteCView ("xAODTestWriteCView")
 topSequence += DMTest__xAODTestWriteCInfo ("xAODTestWriteCInfo")
 topSequence += DMTest__xAODTestWrite ("xAODTestWrite")
 topSequence += DMTest__xAODTestWriteCVecConst ("xAODTestWriteCVecConst")
+topSequence += DMTest__xAODTestDecor ("xAODTestDecor")
+topSequence += DMTest__xAODTestWriteSymlinks ("xAODTestWriteSymlinks")
 
 
 #--------------------------------------------------------------
@@ -80,6 +85,7 @@ fullItemList+=["DMTest::CInfoAuxContainer#cinfoAux."]
 fullItemList+=["DMTest::HVec#hvec"]
 fullItemList+=["DMTest::HAuxContainer#hvecAux."]
 fullItemList+=["DMTest::HView#hview"]
+fullItemList+=["DMTest::S2#S2"]
 
 from xAODEventFormatCnv.xAODEventFormatCnvConf import xAODMaker__EventFormatSvc
 fmtsvc = xAODMaker__EventFormatSvc (FormatNames = 
@@ -102,7 +108,7 @@ ServiceMgr += fmtsvc
 
 # Stream's output file
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-Stream1_Augmented = MSMgr.NewPoolStream ('Stream1', 'xaoddata.root', asAlg=True)
+Stream1_Augmented = MSMgr.NewPoolStream ('Stream1', 'xaoddata.root', asAlg=True, noTag=True)
 Stream1_Augmented.AddMetaDataItem ('xAOD::EventFormat#EventFormat')
 Stream1 = Stream1_Augmented.GetEventStream()
 Stream1.WritingTool.SubLevelBranchName = '<key>'

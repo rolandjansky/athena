@@ -67,6 +67,8 @@ private:
   int m_DuplicateGanged; // duplicate ganged pixels to remove efficiency loss
   int m_GangedPatternRecognition;  // pattern recognition to remove duplicates
   int m_SctClustering;       // SCT clustering: 0 disabled, 1 enabled
+  bool m_read_clusters; //Read Clusters from FTKIP File? Default is false
+  bool m_clustering; //Perform clustering? Default is true
 
   bool m_SCTTrkMode;
   std::string m_scttrk_tracklist;
@@ -114,6 +116,9 @@ private:
   // store all ss not just in roads
   bool m_StoreAllSS; 
 
+  // read FTKHits directly from file
+  bool m_read_FTKhits_directly;
+
   // Plane map pointer, to be set during the initialization
   FTKPlaneMap *m_pmap;
   FTKPlaneMap *m_pmap_unused;
@@ -127,9 +132,6 @@ private:
   FTKSSMap *m_ssmap_tsp;
   // require presence of first layer (pixel B-layer)
   bool m_require_first;
-  // lists containing output of 8L run
-  std::string scttrk_tracklist;
-  std::string scttrk_roadlist;
   // 4L,8L -> 11L lookup map
   FTKSectorMap *m_scttrk_sectormap;
   

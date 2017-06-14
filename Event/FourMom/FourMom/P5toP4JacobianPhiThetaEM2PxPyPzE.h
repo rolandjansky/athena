@@ -5,10 +5,9 @@
 #ifndef FOURMOM_P5TOP4JACOBIANPHITHETAEM2PXPYPZE_H
 #define FOURMOM_P5TOP4JACOBIANPHITHETAEM2PXPYPZE_H
 /**
- * @author Tulay Cuhadar Donszelmann
- * @tcuhadar@cern.ch
+ * @author Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>
  * @date March 2009
- * @Package offline/Event/FourMom/
+ * @package <offline/Event/FourMom/>
  * @class P5toP4JacobianPhiThetaEM2PxPyPzE
  * @brief Jacobian to transfrom trk perigee parameters (d0,z0,phi,theta,E) to (px,py,pz,E)
  */

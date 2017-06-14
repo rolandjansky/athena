@@ -1245,7 +1245,7 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
         groupDir->cd();
       }
       if( hRefs.size() > 0 ){
-        legend = new TLegend(0.70,0.77,0.95,0.87);
+        legend = new TLegend(0.55,0.77,0.87,0.87);
         legend->SetTextFont(62);
         legend->SetMargin(0.15);
         legend->SetFillStyle(0);
@@ -1366,7 +1366,12 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
 	    }
 	    hRef->Draw(("SAME"+drawrefopt).c_str());
 	  }
-	  legend->AddEntry(hRef, WasCollectionReference ? hRef->GetName() : "Reference");
+	  if (WasCollectionReference) {
+	    legend->AddEntry(hRef, hRef->GetName());
+	  } else {
+	    std::string refInfo = getStringName(pathname + "/"+ nameHis+"_/Config/annotations/refInfo");
+	    legend->AddEntry(hRef, refInfo != "Undefined" ? refInfo.c_str() : "Reference");
+	  }
 	}
 	h->Draw(("SAME"+drawopt).c_str());
         legend->Draw();
@@ -1572,7 +1577,7 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
       if(!drawH1(myC,h,hRef,tmpdraw,display,AlgoName))return false;
       tmpdraw+="same";
       if(!drawH1(myC,hist2,0,tmpdraw,display,AlgoName))return false;
-      legend = new TLegend(0.70,0.77,0.95,0.87);
+      legend = new TLegend(0.55,0.77,0.87,0.87);
       legend->SetTextFont(62);
       legend->SetMargin(0.15);
       legend->SetFillStyle(0);

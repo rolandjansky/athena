@@ -77,15 +77,9 @@ RecoMuonPlotOrganizer::~RecoMuonPlotOrganizer()
   m_allPlots.clear();
 }
   
-void RecoMuonPlotOrganizer::fill(const xAOD::Muon& mu) {
+  void RecoMuonPlotOrganizer::fill(const xAOD::Muon& mu) {
   if (m_oIDHitPlots && (mu.inDetTrackParticleLink().isValid())) m_oIDHitPlots->fill(*mu.trackParticle(xAOD::Muon::InnerDetectorTrackParticle));
-  if (m_oTrkParamPlots) {
-    if (mu.muonType()==xAOD::Muon::SiliconAssociatedForwardMuon) {
-      if (mu.combinedTrackParticleLink().isValid()) { 
-	m_oTrkParamPlots->fill(*mu.trackParticle(xAOD::Muon::CombinedTrackParticle));
-      }
-    } else m_oTrkParamPlots->fill(mu);
-  }
+  if (m_oTrkParamPlots) m_oTrkParamPlots->fill(mu);
   if (m_oMuonParamPlots) m_oMuonParamPlots->fill(mu);
   if (m_oMuRecoInfoPlots) m_oMuRecoInfoPlots->fill(mu);
   if (m_oMomentumPullPlots) m_oMomentumPullPlots->fill(mu);

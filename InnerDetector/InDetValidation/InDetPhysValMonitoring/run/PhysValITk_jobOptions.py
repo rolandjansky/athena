@@ -18,10 +18,10 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 # FNAME=[ "IDTRKVALDAOD.pool.root" ]
 # runDAOD = True # set to False for AOD/ESD and True for IDTRKVALDAOD
 #.......................................................................
-# uncomment this for testing: step 1.6, mu=200 file:
-FNAME=[ "root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_14TeV/52/34/AOD.10041692._000001.pool.root.1",
-        "root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_14TeV/45/38/AOD.10041692._000002.pool.root.1" ]
-runDAOD = False # these are AOD-s
+# uncomment this for testing: step 1.7, mu=0 single muon with pt=1GeV samples:
+FNAME=[ "root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_14TeV/33/e7/DAOD_IDTRKVALID.10847851._000001.pool.root.1",
+        "root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_14TeV/51/39/DAOD_IDTRKVALID.10847851._000002.pool.root.1" ]
+runDAOD = True # these are DAOD-s
 #.......................................................................
 # uncomment to read multiple files:
 #import glob
@@ -195,6 +195,10 @@ TrackTruthSelectionTool.pdgId      = -1
 TrackTruthSelectionTool.requireCharged = True
 TrackTruthSelectionTool.requireStatus1 = True
 TrackTruthSelectionTool.maxProdVertRadius = 260. #max prod. vertex radius of secondaries [mm]
+# to select particle within BCL acceptance
+#TrackTruthSelectionTool.radiusCylinder = 857 #BCL approximate radius
+#TrackTruthSelectionTool.minZCylinder = 1167 #BCL min z
+#TrackTruthSelectionTool.maxZCylinder = 1361 #BCL min z
 TrackTruthSelectionTool.OutputLevel = INFO
 ToolSvc += TrackTruthSelectionTool
 
@@ -225,7 +229,7 @@ ServiceMgr.MessageSvc.OutputLevel = WARNING
 ServiceMgr.MessageSvc.defaultLimit = 10000
 
 # max. number of events to process
-theApp.EvtMax = 5
+theApp.EvtMax = -1
 
 # dump configuration
 from AthenaCommon.ConfigurationShelve import saveToAscii

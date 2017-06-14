@@ -25,7 +25,7 @@
 
 
 
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 StatusCode Muon::RpcPrepDataContainerCnv_p2::initialize(MsgStream &log) {
    // Do not initialize again:

@@ -10,7 +10,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloEvent
                           Calorimeter/CaloIdentifier
                           Control/CLIDSvc
-                          Control/DataModel
+                          Control/AthContainers
+                          Control/AthLinks
                           Control/SGTools
                           Event/FourMom
                           Event/NavFourMom
@@ -34,14 +35,14 @@ atlas_add_library( muonEvent
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloEvent CaloIdentifier DataModel SGTools FourMom NavFourMom ParticleEvent Particle TrkMaterialOnTrack TrkSegment
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloEvent CaloIdentifier AthContainers AthLinks SGTools FourMom NavFourMom ParticleEvent Particle TrkMaterialOnTrack TrkSegment
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} Navigation GaudiKernel VxVertex )
 
 atlas_add_dictionary( muonEventDict
                       muonEvent/muonEventDict.h
                       muonEvent/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent CaloIdentifier DataModel SGTools FourMom NavFourMom ParticleEvent Particle TrkMaterialOnTrack TrkSegment Navigation GaudiKernel VxVertex muonEvent
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent CaloIdentifier AthContainers AthLinks SGTools FourMom NavFourMom ParticleEvent Particle TrkMaterialOnTrack TrkSegment Navigation GaudiKernel VxVertex muonEvent
                       NAVIGABLES Analysis::MuonContainer 
                       ELEMENT_LINKS MuonCaloEnergyContainer )
 

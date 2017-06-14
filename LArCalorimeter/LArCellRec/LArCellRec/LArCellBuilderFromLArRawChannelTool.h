@@ -94,11 +94,6 @@ public:
    */
   virtual StatusCode missingFEB_CB (IOVSVC_CALLBACK_ARGS);
 
-  /** Callback added to handle Data-driven GeoModel initialisation
-   */
-  virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
-
 private: 
   /**
    * @brief Initializes @c m_hwHashToCaloDDEmap

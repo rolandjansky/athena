@@ -74,7 +74,7 @@ Trk::MaterialProperties& Trk::MaterialProperties::operator *=( float scale )
 
 void Trk::MaterialProperties::addMaterial(const Trk::Material& mat, float dInX0) const {
   
-      //!< @TODO update ?
+      //!< @todo update ?
       // averaging factors based on thickness
       float fnew = dInX0*mat.X0/(m_dInX0*m_material.X0+dInX0*mat.X0);
       float fold = 1.-fnew;

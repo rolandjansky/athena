@@ -25,7 +25,7 @@ class GeoPixelSiCrystal : public GeoVPixelFactory {
  private:
   InDetDD::PixelDiodeMatrix * makeMatrix(double phiPitch, double etaPitch, double etaPitchLong, double etaPitchLongEnd,
 					 int circuitsPhi, int circuitsEta, int diodeRowPerCirc, int diodeColPerCirc);
-  Identifier _id;
+  Identifier m_id;
   InDetDD::SiDetectorDesign* m_design;
   bool m_isBLayer;
   bool m_isModule3D;
@@ -35,5 +35,5 @@ class GeoPixelSiCrystal : public GeoVPixelFactory {
 // Add this method to store the ID in the factory. This is used by the
 // module factory to pass it to the alignement class.
 //
-Identifier GeoPixelSiCrystal::getID() {return _id;}
+Identifier GeoPixelSiCrystal::getID() {return m_id;}
 #endif

@@ -1,3 +1,7 @@
+#
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
 # an example of minimal jO based on RecExCommon configuration running the FastTrackFinder 
 # to find tracks in predefined RoIs
 # 20/2/2017 Jiri.Masik@manchester.ac.uk
@@ -13,28 +17,27 @@
 # source/Trigger/TrigAlgorithms/TrigFastTrackFinder
 # with the mods to the configuration of the TrigOnlineSpacePointTool
  
-from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-# svcMgr += ForwardSchedulerSvc()
-svcMgr.ForwardSchedulerSvc.CheckDependencies = True
-svcMgr.ForwardSchedulerSvc.OutputLevel=VERBOSE
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.CheckDependencies( True )
+AlgScheduler.OutputLevel( VERBOSE )
+AlgScheduler.ShowDataDependencies( True )
+AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
+
 
 ## get a handle on the ServiceManager
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 from SGComps.SGCompsConf import SGInputLoader
-#topSequence += SGInputLoader( OutputLevel=INFO, ShowEventDump=False )
 topSequence += SGInputLoader( )
-topSequence.SGInputLoader.Load = [ ('PixelRDO_Container','PixelRDOs'),
-                                   #('TRT_RDO_Container','TRT_RDOs'),
-                                   ('SCT_RDO_Container','SCT_RDOs'),
-#                                  # ('Trk::SegmentCollection','TRTSegments'),
-                                 ]
 
 
 from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc
+from TrigConfigSvc.TrigConfigSvcConfig import findFileInXMLPATH
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+
 l1svc = TrigConf__LVL1ConfigSvc("LVL1ConfigSvc")
-l1svc.XMLMenuFile = "LVL1config_Physics_pp_v7.xml"
+l1svc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
 svcMgr += l1svc
 
 
@@ -57,17 +60,17 @@ def getOutput(obj, prop):
         return obj.getDefaultProperty(prop)
     raise "Error in reading property " + prop + " from " + obj
  
-def genMenuAlg(name, inputHypos, inputChains):
-    assert inputHypos != None, 'Alg to take hypo putput from is missing'
-    assert inputChains != None, 'Alg to take chain decisions from is missing'
-    log.info(inputChains, inputHypos)
-    from ViewAlgs.ViewAlgsConf import MenuAlg
-    menuAlg = MenuAlg(name)
-    menuAlg.HypoDecisions = getOutput(inputHypos, "OutputDecisions")
-    menuAlg.InputChainDecisions = getOutput(inputChains,"OutputChainDecisions")
-    setOutput(menuAlg, "OutputDecisions", name+"RoIs")
-    setOutput(menuAlg, "OutputChainDecisions", name+"Chains")
-    return menuAlg
+# def genMenuAlg(name, inputHypos, inputChains):
+#     assert inputHypos != None, 'Alg to take hypo putput from is missing'
+#     assert inputChains != None, 'Alg to take chain decisions from is missing'
+#     log.info(inputChains, inputHypos)
+#     from ViewAlgs.ViewAlgsConf import MenuAlg
+#     menuAlg = MenuAlg(name)
+#     menuAlg.HypoDecisions = getOutput(inputHypos, "OutputDecisions")
+#     menuAlg.InputChainDecisions = getOutput(inputChains,"OutputChainDecisions")
+#     setOutput(menuAlg, "OutputDecisions", name+"RoIs")
+#     setOutput(menuAlg, "OutputChainDecisions", name+"Chains")
+#     return menuAlg
 
 
 
@@ -129,13 +132,28 @@ for i in topSequence:
 
 
 #Run Fake RoI
-from L1Decoder.L1DecoderConf import FakeRoI
-fakeRoI = FakeRoI("fakeRoI")
-fakeRoI.InputFilename="caloRoIData.dat"
-setOutput(fakeRoI, "OutputDecisions", "OutputRoIs")
-fakeRoI.OutputLevel=DEBUG
+# from L1Decoder.L1DecoderConf import FakeRoI
+# fakeRoI = FakeRoI("fakeRoI")
+# fakeRoI.InputFilename="caloRoIData.dat"
+# setOutput(fakeRoI, "OutputDecisions", "OutputRoIs")
+# fakeRoI.OutputLevel=DEBUG
 
-topSequence += fakeRoI
+# topSequence += fakeRoI
+
+# once L1 re-simulation works this has to change from emulation to real unpacking
+include("TrigUpgradeTest/L1CF.py")
+
+data['l1emroi'] = ['1.3,2.9,2704088841,EM3,EM7,EM10,EM20;',
+                   '1.2,3.1,2972524297,EM3,EM7,EM10,EM20;']
+
+data['l1muroi'] = [';',
+                   ';'] # required by L1CF
+
+data['ctp'] = ['HLT_e20',
+               'HLT_e20']
+from TrigUpgradeTest.TestUtils import writeEmulationFiles
+writeEmulationFiles(data)
+
 
 theApp.EvtMax = 10
 svcMgr.DetectorStore.Dump=True
@@ -172,9 +190,9 @@ InDetPixelClusterization = InDet__PixelClusterization(name                    = 
                                                       gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
                                                       DetectorManagerName     = InDetKeys.PixelManager(), 
                                                       DataObjectName          = InDetKeys.PixelRDOs(),
-                                                      ClustersName            = InDetKeys.PixelClusters(),
+                                                      ClustersName            = "PixelTrigClusters",
                                                       isRoI_Seeded = True,
-                                                      RoIs = "OutputRoIs",
+                                                      RoIs = "L1EMRoIs",
                                                       )
 topSequence += InDetPixelClusterization
 
@@ -196,11 +214,11 @@ InDetSCT_Clusterization = InDet__SCT_Clusterization(name                    = "I
                                                     # ChannelStatus         = InDetSCT_ChannelStatusAlg,
                                                     DetectorManagerName     = InDetKeys.SCT_Manager(), 
                                                     DataObjectName          = InDetKeys.SCT_RDOs(),
-                                                    ClustersName            = InDetKeys.SCT_Clusters(),
+                                                    ClustersName            = "SCT_TrigClusters",
                                                     conditionsService       = InDetSCT_ConditionsSummarySvc,
                                                     FlaggedConditionService = InDetSCT_FlaggedConditionSvc,
                                                     isRoI_Seeded = True,
-                                                    RoIs = "OutputRoIs",
+                                                    RoIs = "L1EMRoIs",
                                                     )
 topSequence += InDetSCT_Clusterization
 
@@ -211,10 +229,10 @@ ToolSvc += InDetSiSpacePointMakerTool
 from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiTrackerSpacePointFinder
 InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name                   = "InDetSiTrackerSpacePointFinder",
                                                                   SiSpacePointMakerTool  = InDetSiSpacePointMakerTool,
-                                                                  PixelsClustersName     = InDetKeys.PixelClusters(),
-                                                                  SCT_ClustersName       = InDetKeys.SCT_Clusters(),
-                                                                  SpacePointsPixelName   = 'PixelTrigSpacePoints',
-                                                                  SpacePointsSCTName     = 'SCT_TrigSpacePoints',
+                                                                  PixelsClustersName     = "PixelTrigClusters",
+                                                                  SCT_ClustersName       = "SCT_TrigClusters",
+                                                                  SpacePointsPixelName   = "PixelTrigSpacePoints",
+                                                                  SpacePointsSCTName     = "SCT_TrigSpacePoints",
                                                                   SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
                                                                   ProcessPixels          = DetFlags.haveRIO.pixel_on(),
                                                                   ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
@@ -222,11 +240,12 @@ InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name          
 topSequence += InDetSiTrackerSpacePointFinder
 
 
-from TrigFastTrackFinder.TrigFastTrackFinderMT_Config import TrigFastTrackFinderMT_eGamma
-theFTFMT = TrigFastTrackFinderMT_eGamma()
+from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma
+theFTF = TrigFastTrackFinder_eGamma()
+theFTF.RoIs="L1EMRoIs"
 
-#topSequence += theFTFMT
-log.info(theFTFMT)
+topSequence += theFTF
+log.info(theFTF)
 
 #probably initialized only in trigger=True?
 from RegionSelector.RegSelSvcDefault import RegSelSvcDefault

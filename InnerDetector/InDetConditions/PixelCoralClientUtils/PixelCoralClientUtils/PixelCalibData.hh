@@ -267,9 +267,11 @@ inline void PixelCalibData::PixelChipSummaryData::setTotRes(float p1, float p2){
   // careful with rounding -- A.X.
   using std::abs;
   int p1x = (int)roundf(p1*100); 
-  if(abs(p1x)>127)p1x = 127*p1x/abs(p1x);
+  if (p1x > 127) p1x = 127;
+  else if (p1x < -127) p1x = -127;
   int p2x = (int)roundf(p2*1000); 
-  if(abs(p2x)>127)p2x = 127*p2x/abs(p2x); 
+  if (p2x > 127) p2x = 127;
+  else if (p2x < -127) p2x = -127;
 
   m_totres[0] = (char)p1x; 
   m_totres[1] = (char)p2x; 

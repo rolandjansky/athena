@@ -80,6 +80,7 @@ L1TopoSimulation::L1TopoSimulation(const std::string &name, ISvcLocator *pSvcLoc
    declareProperty( "UseBitwise", m_enableBitwise, "Boolean to enable the bitwise version of software algorithms");
    declareProperty( "InputDumpFile", m_inputDumpFile, "File name for dumping input data");
    declareProperty( "TopoCTPLocation", m_topoCTPLocation = LVL1::DEFAULT_L1TopoCTPLocation, "StoreGate key of topo decision output for CTP" );
+   declareProperty( "TopoOverflowCTPLocation", m_topoOverflowCTPLocation = LVL1::DEFAULT_L1TopoOverflowCTPLocation, "StoreGate key of topo overflow output for CTP" );
    declareProperty( "TopoOutputLevel", m_topoOutputLevel, "OutputLevel for L1Topo algorithms" );
    declareProperty( "TopoSteeringOutputLevel", m_topoSteeringOutputLevel, "OutputLevel for L1Topo steering" );
    declareProperty("Prescale", m_prescale = 1, "Internal prescale factor for this algorithm, implemented with a periodic scaler: so 1 means run every time, N means run every 1 in N times it is called; the other times it will exit without doing anything");
@@ -126,7 +127,8 @@ L1TopoSimulation::initialize() {
    CHECK( m_muonInputProvider.retrieve() );
 
    ATH_MSG_DEBUG("Prescale factor set to " << m_prescale);
-   ATH_MSG_DEBUG("Output key property " << m_topoCTPLocation);
+   ATH_MSG_DEBUG("Output trigger key property " << m_topoCTPLocation);
+   ATH_MSG_DEBUG("Output overflow key property " << m_topoOverflowCTPLocation);
 
    const TXC::L1TopoMenu* menu = m_l1topoConfigSvc->menu();
    if(menu == nullptr) {
@@ -268,14 +270,18 @@ L1TopoSimulation::execute() {
     */
 
    const TCS::GlobalDecision & dec = m_topoSteering->simulationResult().globalDecision();
-   LVL1::FrontPanelCTP * topo2CTP = new LVL1::FrontPanelCTP();
+   LVL1::FrontPanelCTP * topoDecision2CTP = new LVL1::FrontPanelCTP();
+   LVL1::FrontPanelCTP * topoOverflow2CTP = new LVL1::FrontPanelCTP();
    for(unsigned int clock=0; clock<2; ++clock) {
-      topo2CTP->setCableWord0( clock, 0 ); // ALFA
-      topo2CTP->setCableWord1( clock, dec.decision( 0, clock) );  // TOPO 0
-      topo2CTP->setCableWord2( clock, dec.decision( 1, clock) );  // TOPO 1
+      topoDecision2CTP->setCableWord0( clock, 0 ); // ALFA
+      topoDecision2CTP->setCableWord1( clock, dec.decision( 0, clock) );  // TOPO 0
+      topoDecision2CTP->setCableWord2( clock, dec.decision( 1, clock) );  // TOPO 1
+      topoOverflow2CTP->setCableWord0( clock, 0 ); // ALFA
+      topoOverflow2CTP->setCableWord1( clock, dec.overflow( 0, clock) );  // TOPO 0
+      topoOverflow2CTP->setCableWord2( clock, dec.overflow( 1, clock) );  // TOPO 1
    } 
-   CHECK(evtStore()->record( topo2CTP, m_topoCTPLocation ));
-
+   CHECK(evtStore()->record( topoDecision2CTP, m_topoCTPLocation ));
+   CHECK(evtStore()->record( topoOverflow2CTP, m_topoOverflowCTPLocation ));
 
    // TODO: get the output combination data and put into SG
 

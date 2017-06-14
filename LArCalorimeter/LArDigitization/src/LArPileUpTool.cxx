@@ -15,7 +15,7 @@
 
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/ITriggerTime.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CaloIdentifier/LArID.h"
 #include "CaloIdentifier/LArID_Exception.h"
 #include "CaloIdentifier/LArNeighbours.h"
@@ -92,6 +92,8 @@ LArPileUpTool::LArPileUpTool(const std::string& type, const std::string& name, c
   m_HighGainThresh[HEC]  = 0;//-> high-gain never used for HEC
   m_LowGainThresh[FCAL]  = 2000.;//ADC counts in Medium Gain
   m_HighGainThresh[FCAL] = 1100.;//ADCcounts in MediumGain
+  m_LowGainThresh[EMIW]    = 3900;//ADC counts in MediumGain
+  m_HighGainThresh[EMIW]   = 1300;//ADC counts in MediumGain
   m_EnergyThresh      = -99.;
   m_PileUp            = false;
   m_Windows           = false;
@@ -148,6 +150,8 @@ LArPileUpTool::LArPileUpTool(const std::string& type, const std::string& name, c
   declareProperty("HighGainThreshHEC",m_HighGainThresh[HEC],"Medium/High gain transition in HEC");
   declareProperty("LowGainThreshFCAL",m_LowGainThresh[FCAL],"Medium/Low gain transition in FCAL");
   declareProperty("HighGainThreshFCAL",m_HighGainThresh[FCAL],"Medium/High gain transition in FCAL");
+  declareProperty("LowGainThreshEMECIW",m_LowGainThresh[EMIW],"Medium/Low gain transition in EMEC IW");
+  declareProperty("HighGainThreshEMECIW",m_HighGainThresh[EMIW],"Medium/High gain transition in EMEC IW");
   declareProperty("EnergyThresh",m_EnergyThresh,"Hit energy threshold (default=-99)");
   declareProperty("PileUp",m_PileUp,"Pileup mode (default=false)");
   declareProperty("Windows",m_Windows,"Window mode (produce digits only around true e/photon) (default=false)");
@@ -1814,7 +1818,10 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
 
 
   int iCalo=0;
-  if(m_larem_id->is_lar_em(cellId))   iCalo=EM;
+  if(m_larem_id->is_lar_em(cellId)) {
+     if (m_larem_id->is_em_endcap_inner(cellId)) iCalo=EMIW;
+     else iCalo=EM;
+  }
   if(m_larem_id->is_lar_hec(cellId))  iCalo=HEC;
   if(m_larem_id->is_lar_fcal(cellId)) iCalo=FCAL;
 
@@ -1973,7 +1980,7 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
 //
 
   int BvsEC=0;
-  if(iCalo==EM) BvsEC=abs(m_larem_id->barrel_ec(cellId));
+  if(iCalo==EM || iCalo==EMIW) BvsEC=abs(m_larem_id->barrel_ec(cellId));
 
   if(    m_NoiseOnOff
       && (    (BvsEC==1 && m_NoiseInEMB)

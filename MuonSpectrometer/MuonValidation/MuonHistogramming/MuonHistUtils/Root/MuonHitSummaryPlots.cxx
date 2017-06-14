@@ -88,21 +88,21 @@ void MuonHitSummaryPlots::fill(const xAOD::Muon& muon){
   fillPlot(extendedSmallHoles, xAOD::extendedSmallHoles, muon);
   fillPlot(extendedLargeHoles, xAOD::extendedLargeHoles, muon);
 
-  // int netaholes=0, nphiholes=0;
-  // uint8_t hitval = 0;
-  // if (muon.summaryValue(hitval,xAOD::etaLayer1Holes)) netaholes+=(int)hitval;
-  // if (muon.summaryValue(hitval,xAOD::etaLayer2Holes)) netaholes+=(int)hitval;
-  // if (muon.summaryValue(hitval,xAOD::etaLayer3Holes)) netaholes+=(int)hitval;
-  // if (muon.summaryValue(hitval,xAOD::etaLayer4Holes)) netaholes+=(int)hitval;
+  int netaholes=0, nphiholes=0;
+  uint8_t hitval = 0;
+  if (muon.summaryValue(hitval,xAOD::etaLayer1Holes)) netaholes+=(int)hitval;
+  if (muon.summaryValue(hitval,xAOD::etaLayer2Holes)) netaholes+=(int)hitval;
+  if (muon.summaryValue(hitval,xAOD::etaLayer3Holes)) netaholes+=(int)hitval;
+  if (muon.summaryValue(hitval,xAOD::etaLayer4Holes)) netaholes+=(int)hitval;
 
-  // if (muon.summaryValue(hitval,xAOD::phiLayer1Holes)) nphiholes+=(int)hitval;
-  // if (muon.summaryValue(hitval,xAOD::phiLayer2Holes)) nphiholes+=(int)hitval;
-  // if (muon.summaryValue(hitval,xAOD::phiLayer3Holes)) nphiholes+=(int)hitval;
-  // if (muon.summaryValue(hitval,xAOD::phiLayer4Holes)) nphiholes+=(int)hitval;
+  if (muon.summaryValue(hitval,xAOD::phiLayer1Holes)) nphiholes+=(int)hitval;
+  if (muon.summaryValue(hitval,xAOD::phiLayer2Holes)) nphiholes+=(int)hitval;
+  if (muon.summaryValue(hitval,xAOD::phiLayer3Holes)) nphiholes+=(int)hitval;
+  if (muon.summaryValue(hitval,xAOD::phiLayer4Holes)) nphiholes+=(int)hitval;
 
-  // etaHoles.fill(netaholes, muon.eta(), muon.phi());
-  // phiHoles.fill(nphiholes, muon.eta(), muon.phi());
-  // etaphiHoles.fill(netaholes+nphiholes, muon.eta(), muon.phi());    
+  etaHoles.fill(netaholes, muon.eta(), muon.phi());
+  phiHoles.fill(nphiholes, muon.eta(), muon.phi());
+  etaphiHoles.fill(netaholes+nphiholes, muon.eta(), muon.phi());    
 
   // fillPlot(phiLayer1Holes, xAOD::phiLayer1Holes, muon);
   // fillPlot(phiLayer2Holes, xAOD::phiLayer2Holes, muon);

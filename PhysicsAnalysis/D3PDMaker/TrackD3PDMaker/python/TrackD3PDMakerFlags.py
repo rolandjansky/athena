@@ -2,7 +2,7 @@
 
 # 
 ## @file TrackD3PDMaker/python/TrackD3PDMakerFlags.py
-## @purpose Python module to hold common flags to configure TrackD3PDMaker JobOptions
+## @brief Python module to hold common flags to configure TrackD3PDMaker JobOptions
 ##
 
 

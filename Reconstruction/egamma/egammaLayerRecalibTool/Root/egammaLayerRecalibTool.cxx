@@ -663,7 +663,7 @@ void egammaLayerRecalibTool::add_scale(const std::string& tuneIn)
   else if ("ps_2012_v3" == tune) {
     const std::string file = PathResolverFindCalibFile("egammaLayerRecalibTool/v1/egammaLayerRecalibTunes.root");
     TFile f(file.c_str());
-    TH1F* histo_ps_tot_error = static_cast<TH1F*>(f.Get("hPS_2012"));
+    TH1D* histo_ps_tot_error = static_cast<TH1D*>(f.Get("hPS_2012"));
     assert(histo_ps_tot_error);
     add_scale(new ScaleE0(InputModifier::ONEBASED_ALPHA),
 	      new GetAmountHisto1D(*histo_ps_tot_error));

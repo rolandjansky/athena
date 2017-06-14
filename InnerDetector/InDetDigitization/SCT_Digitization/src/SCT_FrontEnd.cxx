@@ -985,11 +985,6 @@ StatusCode SCT_FrontEnd::doSignalChargeForHits(
                 const list_t &ChargesOnStrip =
                     diode.totalCharge().chargeComposition();
 
-                // Accumulate averages !!!
-                if (m_PulseAveragingFlag) {
-                    m_sct_amplifier->AccumulateAverages(ChargesOnStrip);
-                }
-
                 if (m_data_compression_mode == 1 and m_data_readout_mode == 0) { //
                                                                                  // level
                                                                                  // mode

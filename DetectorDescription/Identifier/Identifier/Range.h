@@ -229,15 +229,15 @@ public:
    *  The syntax is : 
    * 
    * range : 
-   *      <value-range> [ "/" <value-range> ... ] 
+   *      \<value-range\> [ "/" \<value-range\> ... ] 
    * 
    * value-range : 
    *      "*" 
-   *    | <value> 
-   *    | ":" <max> 
-   *    | <min> ":" 
-   *    | <min> ":" <max> 
-   *    | <value> "," <value> "," ... "," <value> 
+   *    | \<value\> 
+   *    | ":" \<max\> 
+   *    | \<min\> ":" 
+   *    | \<min\> ":" \<max\> 
+   *    | \<value\> "," \<value\> "," ... "," \<value\> 
    * 
    */ 
 //  explicit Range (const std::string& text); 

@@ -108,12 +108,12 @@ MagicWriteTag.Magic = 24
 topSequence += MagicWriteTag
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-Stream1 = AthenaPoolOutputStream( "Stream1" , "SimplePoolFile1.root" , True )
+Stream1 = AthenaPoolOutputStream( "Stream1" , "SimplePoolFile1.root" , True, noTag=True )
 Stream1.ItemList += [ "ExampleHitContainer#MyHits" ]
 Stream1.ItemList += [ "ExampleHitContainer#PetersHits" ]
 Stream1.WritingTool.AttributeListKey = MagicWriteTag.Key
 
-Stream2 = AthenaPoolOutputStream( "Stream2" , "SimplePoolFileA.root" , True )
+Stream2 = AthenaPoolOutputStream( "Stream2" , "SimplePoolFileA.root" , True, noTag=True )
 Stream2.ItemList += [ "ExampleHitContainer#*" ]
 Stream2.ExcludeList += [ "ExampleHitContainer#MyHits" ]
 Stream2.WritingTool.AttributeListKey = "RunEventTag"
@@ -121,7 +121,7 @@ Stream2.WritingTool.AttributeListKey = "RunEventTag"
 from AthenaPoolExampleAlgorithms.AthenaPoolExampleAlgorithmsConf import AthPoolEx__PassNoneFilter
 topSequence += AthPoolEx__PassNoneFilter( "PassNoneFilter" )
 
-Stream3 = AthenaPoolOutputStream( "Stream3" , "EmptyPoolFile.root" , True )
+Stream3 = AthenaPoolOutputStream( "Stream3" , "EmptyPoolFile.root" , True, noTag=True )
 Stream3.RequireAlgs = [ "PassNoneFilter" ]
 
 #--------------------------------------------------------------

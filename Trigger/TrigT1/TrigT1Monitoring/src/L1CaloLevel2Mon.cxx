@@ -127,9 +127,9 @@ StatusCode L1CaloLevel2Mon::bookHistogramsRecurrent()
     // book histograms that are only relevant for cosmics data...
   }
 
-  if( newLumiBlock ) { }
+  //if( newLumiBlockFlag() ) { }
   
-  if( newRun ) {	
+  if( newRunFlag() ) {	
 
     MgmtAttr_t attr = ATTRIB_UNMANAGED;
     MonGroup L1CaloLevel2( this, m_PathInRootFile, run, attr );
@@ -575,9 +575,9 @@ StatusCode L1CaloLevel2Mon::fillHistograms()
 StatusCode L1CaloLevel2Mon::procHistograms()
 /*---------------------------------------------------------*/
 {
-  if( endOfLumiBlock ) { }
+  //if( endOfLumiBlockFlag() ) { }
 	
-  if( endOfRun ) { }
+  //if( endOfRunFlag ) { }
   
   return StatusCode::SUCCESS;
 }

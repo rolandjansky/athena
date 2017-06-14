@@ -48,7 +48,7 @@ namespace HLT {
       uint32_t mask;       //!< bit position of this LVL1 threshold in the RoI word
    };
 
-   /** @struct
+   /** @struct ConfigJetEThreshold
        modifed ConfigThreshold to incorporate the JetEnergy type
    */
    struct ConfigJetEThreshold : public ConfigThreshold {
@@ -57,7 +57,7 @@ namespace HLT {
       JetRoIType type; //!< JetEnergy type, see JetRoIType enumeration
    };
 
-   /** @class
+   /** @class HLTRoI
        Generic (templated) class for the RoI classes,
        it contains a vector of the configured ConfigThresholds.
    */
@@ -82,7 +82,7 @@ namespace HLT {
    };
 
 
-   /** @class
+   /** @class MuonRoI
        Concrete MuonRoI class (from templated HLRoI class).
    */
    class MuonRoI : public HLTRoI<ROIB::MuCTPIRoI> {
@@ -93,7 +93,7 @@ namespace HLT {
       friend class Lvl1ResultAccessTool; //!< Lvl1ResultAccessTool is a friend to this class -> cann call addThreshold(..)
    };
 
-   /** @class
+   /** @class EMTauRoI
        Concrete EMTau class (from templated HLRoI class).
    */
    class EMTauRoI : public HLTRoI<ROIB::EMTauRoI> {
@@ -105,7 +105,7 @@ namespace HLT {
       friend class Lvl1ResultAccessTool; //!< Lvl1ResultAccessTool is a friend to this class -> cann call addThreshold(..)
    };
 
-   /** @class
+   /** @class JetEnergyRoI
        Concrete JetEnergy class (from templated HLRoI class).
    */
    class JetEnergyRoI : public HLTRoI<ROIB::JetEnergyRoI> {

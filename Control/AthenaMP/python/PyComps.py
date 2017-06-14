@@ -93,6 +93,7 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
             else:
                 from AthenaMPTools.AthenaMPToolsConf import SharedEvtQueueConsumer
                 self.Tools += [ SharedEvtQueueConsumer(UseSharedReader=use_shared_reader,
+                                                       UseSharedWriter=use_shared_writer,
                                                        IsPileup=pileup,
                                                        IsRoundRobin=(strategy=='RoundRobin'),
                                                        EventsBeforeFork=events_before_fork,

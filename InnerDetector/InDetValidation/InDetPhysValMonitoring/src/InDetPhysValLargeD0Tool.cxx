@@ -365,6 +365,13 @@ InDetPhysValLargeD0Tool::bookHistograms() {
   for (auto hist : hists) {
     ATH_CHECK(regHist(hist.first, hist.second, all)); // ??
   }
+  // do the same for Efficiencies, but there's a twist:
+  std::vector<EfficiencyData> effs = m_LargeD0Plots->retrieveBookedEfficiencies();
+  for (auto& eff : effs) {
+    // reg**** in the monitoring baseclass doesnt have a TEff version, but TGraph *
+    // pointers just get passed through, so we use that method after an ugly cast
+    ATH_CHECK(regGraph(reinterpret_cast<TGraph*>(eff.first), eff.second, all)); // ??
+  }
   return StatusCode::SUCCESS;
 }
 

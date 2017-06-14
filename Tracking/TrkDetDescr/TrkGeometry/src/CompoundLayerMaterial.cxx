@@ -94,7 +94,7 @@ Trk::CompoundLayerMaterial* Trk::CompoundLayerMaterial::clone() const
 Trk::CompoundLayerMaterial& Trk::CompoundLayerMaterial::operator*=(double)
 {
 
-    //!< TODO  implement
+    //!< @todo implement
     // scale the reference material
     return (*this);
 
@@ -122,7 +122,7 @@ const Trk::MaterialProperties* Trk::CompoundLayerMaterial::material(size_t bin0,
     double rho  = 0.;
     // the full composition calculation 
     if (m_fullComposition && m_elementTable.getPtr()){
-        //!< @TODO measure if this is slow
+        //!< @todo measure if this is slow
         for ( auto& eFraction : m_composition[bin1][bin0] ){
             double fraction = eFraction.fraction();
             const Trk::Material* material = m_elementTable->element(eFraction.element());
@@ -149,7 +149,7 @@ const Trk::MaterialProperties* Trk::CompoundLayerMaterial::material(size_t bin0,
     	return nullptr;
     }
     // set it and return 
-    //!< @TODO measure if this is slow
+    //!< @todo measure if this is slow
     m_materialProperties->setMaterial(Trk::Material(x0,l0,a,z,rho,0.,mComposition),thickness);
     return m_materialProperties;
 }

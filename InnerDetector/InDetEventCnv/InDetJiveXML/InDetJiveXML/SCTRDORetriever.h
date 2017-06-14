@@ -8,6 +8,8 @@
 #include "JiveXML/IDataRetriever.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetJiveXML/IInDetGeoModelTool.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "InDetRawData/SCT_RDO_Container.h"
 
 namespace JiveXML {
 
@@ -42,7 +44,7 @@ namespace JiveXML {
     virtual std::string dataTypeName() const { return typeName; };
     
     /// Only retrieve geo tool in initialize
-    virtual StatusCode initialize() { return geo.retrieve(); };
+    virtual StatusCode initialize();
     
   private:
     
@@ -53,7 +55,7 @@ namespace JiveXML {
     const ToolHandle<IInDetGeoModelTool> geo;
 
     /// The StoreGate key for the SCTRDO container
-    std::string m_SCTRDOContainerName;
+    SG::ReadHandleKey<SCT_RDO_Container> m_SCTRDOContainerName;
   };
 }
 #endif

@@ -53,9 +53,9 @@ PixelCalibDbTool::PixelCalibDbTool(const std::string& type, const std::string& n
   m_IOVSvc(nullptr),
   m_pixid(nullptr),
   m_pixman(nullptr),
-  par_calibfolder("/PIXEL/PixCalib"),
-  par_caliblocation("PixCalibKey"),
-  par_writedb(false),
+  m_par_calibfolder("/PIXEL/PixCalib"),
+  m_par_caliblocation("PixCalibKey"),
+  m_par_writedb(false),
   // added -- A.X.
   m_useCoral(0),
   m_connString(""),
@@ -68,9 +68,9 @@ PixelCalibDbTool::PixelCalibDbTool(const std::string& type, const std::string& n
   declareInterface< IPixelCalibDbTool >(this); 
 
   //  template for property decalration
-  declareProperty("CalibFolder", par_calibfolder); 
-  declareProperty("CalibLocation", par_caliblocation); 
-  declareProperty("WriteDB",par_writedb);
+  declareProperty("CalibFolder", m_par_calibfolder); 
+  declareProperty("CalibLocation", m_par_caliblocation); 
+  declareProperty("WriteDB",m_par_writedb);
   // added -- A.X.
   declareProperty("useCoral",m_useCoral);
   declareProperty("connString",m_connString);
@@ -86,7 +86,7 @@ StatusCode PixelCalibDbTool::updateAddress(StoreID::type /*storeID*/,SG::Transie
 { 
   CLID clid = tad->clID(); 
   std::string key = tad->name(); 
-  if(146316417 == clid && par_caliblocation == key)
+  if(146316417 == clid && m_par_caliblocation == key)
     { 
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<" OK with PixelCalibDataColl "<<endmsg; 
       return StatusCode::SUCCESS; 
@@ -162,17 +162,17 @@ StatusCode  PixelCalibDbTool::initialize()
 
   //std::sort(m_calibobjs.begin(), m_calibobjs.end());
   
-  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" m_calibobjs size "<< m_calibobjs.size()<<" writedb ?" <<par_writedb<<endmsg; 
+  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" m_calibobjs size "<< m_calibobjs.size()<<" writedb ?" <<m_par_writedb<<endmsg; 
 
   // if the folder exists, register a callback, if we read from textfile and 
   // the folder already exists, read the textfile in the callback. If the folder does not 
   // yet exist, create and record it. 
 
     // register the callback--fix later
-  if(!par_writedb){
+  if(!m_par_writedb){
     const DataHandle<CondAttrListCollection> calibData;
-    if( (detStore()->regFcn(&IPixelCalibDbTool::IOVCallBack, dynamic_cast<IPixelCalibDbTool*>(this), calibData, par_calibfolder)).isFailure()){ 
-      if(msgLvl(MSG::FATAL))msg(MSG::FATAL) << " PixelCalibDbTool: cannot register callback for folder " <<par_calibfolder << endmsg; 
+    if( (detStore()->regFcn(&IPixelCalibDbTool::IOVCallBack, dynamic_cast<IPixelCalibDbTool*>(this), calibData, m_par_calibfolder)).isFailure()){ 
+      if(msgLvl(MSG::FATAL))msg(MSG::FATAL) << " PixelCalibDbTool: cannot register callback for folder " <<m_par_calibfolder << endmsg; 
       return StatusCode::FAILURE; 
     } 
     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " PixelCalibDbTool: The Pixel/Calib keys and chips are: "<<m_calibobjs.size()<<endmsg;
@@ -200,7 +200,7 @@ StatusCode PixelCalibDbTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
     if(msgLvl(MSG::INFO))msg(MSG::INFO)<< "IOVCALLBACK for key "<< *itr << " number " << I << endmsg; 
 
   for(itr=keys.begin(); itr !=keys.end(); ++itr){ 
-    if(*itr ==par_calibfolder){ 
+    if(*itr ==m_par_calibfolder){ 
       if(msgLvl(MSG::INFO))msg(MSG::INFO) <<" Load PixelCalibData from DB" <<endmsg; 
       // reintialize the PixelCalibDataColl 
       sc = createPixelCalibObjects(); 
@@ -215,10 +215,10 @@ StatusCode PixelCalibDbTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
       // retrieve the collection of strings read out from the DB 
 
       const CondAttrListCollection* atrc; 
-      sc = detStore()->retrieve(atrc, par_calibfolder); 
+      sc = detStore()->retrieve(atrc, m_par_calibfolder); 
 
       if(sc.isFailure()) { 
-	if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<<"could not retreive CondAttrListCollection from DB folder "<<par_calibfolder<<endmsg; 
+	if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<<"could not retreive CondAttrListCollection from DB folder "<<m_par_calibfolder<<endmsg; 
 	return sc; 
       }
 
@@ -436,20 +436,20 @@ StatusCode PixelCalibDbTool::writePixelCalibTextFiletoDB(std::string file) const
 
   CondAttrListCollection* atrc=0; 
   // check if collection ready exits 
-  if(!detStore()->contains<CondAttrListCollection>(par_calibfolder)) { 
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< " Creating new CondAttrListCollection for folder "<<par_calibfolder <<endmsg; 
+  if(!detStore()->contains<CondAttrListCollection>(m_par_calibfolder)) { 
+    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< " Creating new CondAttrListCollection for folder "<<m_par_calibfolder <<endmsg; 
     CondAttrListCollection* atrc = new CondAttrListCollection(true); 
 
-    if(StatusCode::SUCCESS !=detStore()->record(atrc,par_calibfolder)){ 
-      if(msgLvl(MSG::ERROR))msg(MSG::ERROR) <<" Could not create CondAttrListCollection "<<par_calibfolder<<endmsg; 
+    if(StatusCode::SUCCESS !=detStore()->record(atrc,m_par_calibfolder)){ 
+      if(msgLvl(MSG::ERROR))msg(MSG::ERROR) <<" Could not create CondAttrListCollection "<<m_par_calibfolder<<endmsg; 
       return StatusCode::FAILURE; 
     }
   }
   //do const cast here so we can add to already existing collections 
   const CondAttrListCollection* catrc = 0; 
   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< " Attempting to retrieve collection (const) "<<endmsg; 
-  if(StatusCode::SUCCESS !=detStore()->retrieve(catrc, par_calibfolder)){ 
-    if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<<" Could not retrieve CondAttrListCollection "<<par_calibfolder<<endmsg; 
+  if(StatusCode::SUCCESS !=detStore()->retrieve(catrc, m_par_calibfolder)){ 
+    if(msgLvl(MSG::ERROR))msg(MSG::ERROR)<<" Could not retrieve CondAttrListCollection "<<m_par_calibfolder<<endmsg; 
     return StatusCode::FAILURE; 
   }
   atrc = const_cast<CondAttrListCollection*>(catrc); 

@@ -24,7 +24,7 @@ namespace ISF {
   /**
    @class ITruthStrategy
       
-   @TODO: class description
+   @todo : class description
        
    @author Elmar.Ritsch -at- cern.ch
    */

@@ -100,7 +100,7 @@ namespace TrigCostRootAnalysis {
   /**
    * Look at myself and classify if I am a random seeded L1 or HLT
    * If RANDOM and L1, then the rate is independent of lumi. This item gets a lumi extrap. factor of 1
-   * If RANDOM and HLT, then the L1 rate is fixed, and the only lumi extrapolation comes from the increase in <mu>
+   * If RANDOM and HLT, then the L1 rate is fixed, and the only lumi extrapolation comes from the increase in \<mu\>
    * If NOT RANDOM, then simple linear extrapolation holds.
    */
   void RatesChainItem::classifyLumiAndRandom() {

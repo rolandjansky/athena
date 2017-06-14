@@ -101,9 +101,9 @@ AthService(name, pSvcLocator),
   m_storeGateSvc("StoreGateSvc", name),
   m_detStoreSvc("DetectorStore", name),
   m_IOVDbSvc("IOVDbSvc", name),
-  m_SCTdetMgr(0),
-  m_attrListColl(0),
-  m_id_sct(0),
+  m_SCTdetMgr{nullptr},
+  m_attrListColl{nullptr},
+  m_id_sct{nullptr},
   m_dataFilled(false),
   m_printCalibDataMaps(false)
 {

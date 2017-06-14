@@ -152,6 +152,7 @@ namespace TrigCostRootAnalysis {
     IntIntMap_t m_totalEventsPerLB; //!< Map of how many events there were online per LB (from COOL, stored in XML)
     Int_PairStringInt_Map_t m_bunchGroupXML; //!< Bunchgroup config, loaded from XML
     Bool_t m_parsedRunXML; //!< If we managed to read the run XML
+    Bool_t m_ignoreGRL; //!< Cache this setting if GRL is to be ignored in enhanced bias data 
     std::set<Int_t>         m_badLumiBlocks; //!< LBs flagged as bad by rate experts in the run XML
     Int_t m_minLB; //!< Lower lumi block with information in the run XML
     Int_t m_maxLB; //!< Upper lumi block with information in the run XML
@@ -170,7 +171,7 @@ namespace TrigCostRootAnalysis {
     // Maps which hold all the extrapolation data per lumi block
   public:
     IntFloatMap_t m_lumiPerLB; //!< Map of lumi block number to the inst. lumi
-    IntFloatMap_t m_muPerLB; //!< Map of lumi block to the inst. <mu>
+    IntFloatMap_t m_muPerLB; //!< Map of lumi block to the inst. \<mu\>
     IntFloatMap_t m_deadtimePerLB; //!< Map of lumi block the deadtime (only changes for Multi Run)
     IntIntMap_t m_pairedBunchesPerLB; //!< Map of lumi block to number of paired colliding bunches (only changes for
                                       // Multi Run)

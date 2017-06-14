@@ -14,11 +14,7 @@
 #include "AthenaMonitoring/ManagedMonitorToolTest.h"
 #include "AnalysisUtils/AnalysisMisc.h"
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/IToolSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "EventInfo/TriggerInfo.h"
 #include "TrigSteeringEvent/HLTResult.h"
@@ -340,7 +336,7 @@ StatusCode HLTTauMonTool::fill() {
     // good reco taus
     m_taus.clear();
     m_tauCont = 0;
-	sc = m_storeGate->retrieve(m_tauCont, "TauJets");
+    sc = evtStore()->retrieve(m_tauCont, "TauJets");
     if( !sc.isSuccess()  ){
 		ATH_MSG_WARNING("Failed to retrieve TauJets container. Exiting!");
 		//return StatusCode::FAILURE;
@@ -521,7 +517,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
 
 	const xAOD::EmTauRoIContainer* l1Tau_cont = 0;
 
-        if ( !m_storeGate->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isSuccess() ){ // retrieve arguments: container type, container key
+        if ( !evtStore()->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isSuccess() ){ // retrieve arguments: container type, container key
           ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoI container. Exiting.");
           return StatusCode::FAILURE;
         } else{
@@ -592,7 +588,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
        std::vector< float > jet_roi_phi;
 
        const xAOD::EmTauRoIContainer* l1Tau_cont = 0;
-       if ( !m_storeGate->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isSuccess() ){ // retrieve arguments: container type, container key
+       if ( !evtStore()->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isSuccess() ){ // retrieve arguments: container type, container key
            ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoI container. Exiting.");
        } else {
            ATH_MSG_DEBUG("found LVL1EmTauRoI in SG");
@@ -637,7 +633,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
 //	if(trig_item_EF=="HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo"){
 //
 //       		const xAOD::JetRoIContainer *l1jets = 0;
-//       		if ( m_storeGate->retrieve( l1jets, "LVL1JetRoIs").isFailure() ){
+//       		if ( evtStore()->retrieve( l1jets, "LVL1JetRoIs").isFailure() ){
 //                	ATH_MSG_WARNING("Failed to retrieve LVL1JetRoIs container. Exiting.");
 //
 //       		} else {
@@ -876,7 +872,7 @@ StatusCode HLTTauMonTool::fillL1Tau(const xAOD::EmTauRoI * aL1Tau){
   hist2("hL1EtVsEta")->Fill(aL1Tau->tauClus()/CLHEP::GeV,aL1Tau->eta());
 
   const xAOD::JetRoIContainer *l1jets = 0;
-  if ( !m_storeGate->retrieve( l1jets, "LVL1JetRoIs").isSuccess() ){
+  if ( !evtStore()->retrieve( l1jets, "LVL1JetRoIs").isSuccess() ){
     ATH_MSG_WARNING("Failed to retrieve LVL1JetRoIs container. Exiting.");
     return StatusCode::FAILURE;
   } else{
@@ -1758,7 +1754,7 @@ void HLTTauMonTool::testL1TopoNavigation(const std::string & trigItem){
                 }
 
                 const xAOD::EmTauRoIContainer* l1Tau_cont = 0;
-                if ( !m_storeGate->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isSuccess() ){
+                if ( !evtStore()->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isSuccess() ){
                                 ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoI container");
                 } else {
                                 ATH_MSG_DEBUG("found LVL1EmTauRoI in SG");
@@ -1832,7 +1828,7 @@ void  HLTTauMonTool::testClusterNavigation(const xAOD::TauJet *aEFTau){
 const xAOD::EmTauRoI * HLTTauMonTool::findLVL1_ROI(const TrigRoiDescriptor * roiDesc){
     
     const xAOD::EmTauRoIContainer*  l1Tau_cont = 0;
-    if ( !m_storeGate->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isSuccess() ){ // retrieve arguments: container type, container key
+    if ( !evtStore()->retrieve( l1Tau_cont, "LVL1EmTauRoIs").isSuccess() ){ // retrieve arguments: container type, container key
         ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoI container. Exiting.");
         return 0;
     } else{
@@ -2569,7 +2565,7 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
 //
 // // get offline met
 // const xAOD::MissingETContainer *m_off_met_cont = 0;
-// StatusCode sc = m_storeGate->retrieve(m_off_met_cont, "MET_Reference_AntiKt4LCTopo");
+// StatusCode sc = evtStore()->retrieve(m_off_met_cont, "MET_Reference_AntiKt4LCTopo");
 // if (sc.isFailure() || !m_off_met_cont) 
 //   {
 //     ATH_MSG_WARNING("Could not retrieve Reconstructed MET term with Key MET_Reference_AntiKt4LCTopo : m_off_met_cont = 0");

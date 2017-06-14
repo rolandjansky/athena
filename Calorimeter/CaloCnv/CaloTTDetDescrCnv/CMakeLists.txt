@@ -15,10 +15,10 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloTriggerTool
                           Control/StoreGate
                           DetectorDescription/DetDescrCnvSvc
-                          LArCalorimeter/LArTools )
+                          LArCalorimeter/LArCabling )
 
 # Component(s) in the package:
 atlas_add_component( CaloTTDetDescrCnv
                      src/*.cxx
-                     LINK_LIBRARIES GaudiKernel CaloDetDescrLib CaloIdentifier CaloTTDetDescr CaloTriggerToolLib StoreGateLib SGtests DetDescrCnvSvcLib LArToolsLib )
+                     LINK_LIBRARIES GaudiKernel CaloDetDescrLib CaloIdentifier CaloTTDetDescr CaloTriggerToolLib StoreGateLib SGtests DetDescrCnvSvcLib LArCablingLib )
 

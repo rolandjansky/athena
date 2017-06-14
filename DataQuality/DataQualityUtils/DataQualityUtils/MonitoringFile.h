@@ -74,7 +74,7 @@ namespace dqutils {
     protected:
       void copyString(char* to, const std::string& from);
       void adjustAddresses(const char* branchName, void* ptr, const char* branchstr);
-      const int charArrSize;
+      const int m_charArrSize;
       TTree* m_metadata;
       char* m_nameData;
       char* m_intervalData;

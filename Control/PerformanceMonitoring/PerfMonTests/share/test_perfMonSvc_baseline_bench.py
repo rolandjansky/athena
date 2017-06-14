@@ -62,7 +62,7 @@ topSequence += AthExThinning__CreateData(
 # Pool Persistency
 #---------------------------------------------------------------
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-outStream = AthenaPoolOutputStream("OutStream")
+outStream = AthenaPoolOutputStream("OutStream", noTag=True)
 outStream.ItemList  = [ "EventInfo#McEventInfo"]
 outStream.ItemList += [ "AthExParticles#Particles" ]
 outStream.ItemList += [ "AthExDecay#TwoBodyDecay" ]

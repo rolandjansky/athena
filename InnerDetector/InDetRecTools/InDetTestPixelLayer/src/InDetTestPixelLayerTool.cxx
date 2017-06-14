@@ -46,6 +46,7 @@ namespace InDet {
     declareProperty("ResidualPullCalculator",m_residualPullCalculator);
     declareProperty("CheckActiveAreas", m_checkActiveAreas = false);
     declareProperty("CheckDeadRegions", m_checkDeadRegions = false);
+    declareProperty("CheckDisabledFEs", m_checkDisabledFEs = false);
     declareProperty("PhiRegionSize", m_phiRegionSize = 3.);
     declareProperty("EtaRegionSize", m_etaRegionSize = 3.);
     declareProperty("GoodFracCut", m_goodFracCut = 0.5);
@@ -659,7 +660,8 @@ namespace InDet {
 	design->distanceToDetectorEdge(locPos, etaDist, phiDist); //// implicite cast from Amg::Vector2D to SiLocalPosition
       }
       else{
-	ATH_MSG_WARNING (  "could not get pixel module design for  " <<   m_idHelper->show_to_string(id)  );
+	ATH_MSG_WARNING (  "could not get pixel module design for  " <<   m_idHelper->show_to_string(id)  << ", returning false for getTrackStateOnPixelLayerInfo" );
+	return false;
       }
       pixelLayerInfo.distToModuleEdgePhi(phiDist);
       pixelLayerInfo.distToModuleEdgeEta(etaDist);
@@ -820,14 +822,21 @@ namespace InDet {
       return false;
     }
 
+
     const InDetDD::PixelModuleDesign* design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&sielem->design());
     if(design){
       phitol = std::max(phitol, design->phiPitch()+1e-6);
       etatol = std::max(etatol, design->etaPitch()+1e-6);
     }
     else{
-      ATH_MSG_WARNING (  "could not get pixel module design "  );
+      ATH_MSG_WARNING (  "could not get pixel module design, returning 0 for getFracGood"  );
+      return 0.;
     }
+    
+     
+    
+    
+    Amg::Vector2D LocPos(locx,locy);
 
     double startLocX = locx - phitol;
     double startLocY = locy - etatol;
@@ -840,13 +849,32 @@ namespace InDet {
 
     double etaDist = -9999;
     double phiDist = -9999;
+    
+
     if(design){
+      design->distanceToDetectorEdge(LocPos, etaDist, phiDist); 
+      if(phiDist<0) locx += (fabs(phiDist)+1e-6);/// not exactly on the edge
+      if(etaDist<0) locy += (fabs(etaDist)+1e-6);
       design->distanceToDetectorEdge(startLocPostmp, etaDist, phiDist); 
       if(phiDist<0)startLocX += (fabs(phiDist)+1e-6);/// not exactly on the edge
       if(etaDist<0)startLocY += (fabs(etaDist)+1e-6);
       design->distanceToDetectorEdge(endLocPostmp, etaDist, phiDist); 
       if(phiDist<0)endLocX-=(fabs(phiDist)+1e-6);
       if(etaDist<0)endLocY-=(fabs(etaDist)+1e-6);
+    }
+
+    LocPos = Amg::Vector2D(locx,locy);
+
+    
+   
+    if(m_checkDisabledFEs){
+      const InDetConditions::Hierarchy context = InDetConditions::PIXEL_CHIP;
+      Identifier centreId = sielem->identifierOfPosition(LocPos);
+      if(centreId.is_valid()){
+	if( !m_pixelCondSummarySvc->isGood(centreId, context) ) return 0.;
+      }
+      
+      else ATH_MSG_WARNING (  "Invalid Identifier, skipping check of FE..."  );
     }
 
     Amg::Vector2D startLocPos(startLocX,startLocY);

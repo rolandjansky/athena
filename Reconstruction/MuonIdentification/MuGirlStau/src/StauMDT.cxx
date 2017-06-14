@@ -7,7 +7,7 @@
 #include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuGirlStau/IStauBetaTofTool.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TriggerMenuNtupleDict_h__
-#define __TriggerMenuNtupleDict_h__
+#ifndef TRIGGERMENUNTUPLE_TRIGGERMENUNTUPLEDICT_H
+#define TRIGGERMENUNTUPLE_TRIGGERMENUNTUPLEDICT_H
 /*
   TriggerMenuNtupleDict.h
 */
@@ -38,31 +38,31 @@
 #include "TriggerMenuNtuple/L2IDTrack.h"
 
 class TriggerMenuNtupleDict_dummy {
-  std::vector<ChainEntry> ddd;
-  std::vector<TrigStatus> ff;
-  std::vector<FeatureIndex> ii;
-  std::map<int,FeatureIndex> ii2;
-  std::map<int,std::vector<FeatureIndex> > ii3;
-  TMNUtil u;
+  std::vector<ChainEntry> m_ddd;
+  std::vector<TrigStatus> m_ff;
+  std::vector<FeatureIndex> m_ii;
+  std::map<int,FeatureIndex> m_ii2;
+  std::map<int,std::vector<FeatureIndex> > m_ii3;
+  TMNUtil m_u;
 
-  std::vector<CombLinks> x0;
-  std::vector<MuonRoILinks> x1;
-  std::vector<ElectronRoILinks> x2;
+  std::vector<CombLinks> m_x0;
+  std::vector<MuonRoILinks> m_x1;
+  std::vector<ElectronRoILinks> m_x2;
 
-  std::vector<RoIData_Muon> a1;
-  std::vector<RoIData_Jet> a2;
-  std::vector<RoIData_Electron> a3;
-  std::vector<RoIData_Tau> a4;
-  std::vector<RoIData_MissingET> a5;
-  std::vector<RoIData_TileMu> a6;
+  std::vector<RoIData_Muon> m_a1;
+  std::vector<RoIData_Jet> m_a2;
+  std::vector<RoIData_Electron> m_a3;
+  std::vector<RoIData_Tau> m_a4;
+  std::vector<RoIData_MissingET> m_a5;
+  std::vector<RoIData_TileMu> m_a6;
 
-  TrigEventInfo a7;
-  std::vector<TgcHpt> a8;
-  std::vector<MSMuon> a9;
-  std::vector<CBMuon> a10;
-  std::vector<TileL2Muon> a11;
-  std::vector<TileMuon> a12;
-  std::vector<L2IDTrack> a13;
+  TrigEventInfo m_a7;
+  std::vector<TgcHpt> m_a8;
+  std::vector<MSMuon> m_a9;
+  std::vector<CBMuon> m_a10;
+  std::vector<TileL2Muon> m_a11;
+  std::vector<TileMuon> m_a12;
+  std::vector<L2IDTrack> m_a13;
 };
 
-#endif // __TriggerMenuNtupleDict_h__
+#endif // TRIGGERMENUNTUPLE_TRIGGERMENUNTUPLEDICT_H

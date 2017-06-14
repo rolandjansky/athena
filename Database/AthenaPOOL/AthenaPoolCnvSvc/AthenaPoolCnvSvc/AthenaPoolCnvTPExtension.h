@@ -6,8 +6,8 @@
 #define ATHENAPOOLCNVSVC_ATHENAPOOLCNV_TP_EXT_H
 
 #include "TPTools/AthenaConverterTLPExtension.h"
+#include "TPTools/TopLevelTPCnvBase.h"
 #include "GaudiKernel/IConverter.h"
-class AthenaPoolTopLevelTPCnvBase;
 
 #include <stdexcept>
 
@@ -28,7 +28,7 @@ public:
      return AthenaConverterTLPExtension::registerExtendingCnv( extending_converter );
   }
 
-  void usingTPCnvForReading( AthenaPoolTopLevelTPCnvBase &baseTLPcnv ) {
+  void usingTPCnvForReading( TopLevelTPCnvBase &baseTLPcnv ) {
      AthenaConverterTLPExtension::usingTPCnvForReading( (void*)&baseTLPcnv );
   }
 

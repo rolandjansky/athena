@@ -348,7 +348,7 @@ void xAOD::MissingETAssociationMap_v1::resetObjSelectionFlags() const
   }
 }
 
-void xAOD::MissingETAssociationMap_v1::resetAssocCache() const
+void xAOD::MissingETAssociationMap_v1::resetAssocCache()
 {
   for(const auto& assoc : *this) {
     assoc->resetCache();

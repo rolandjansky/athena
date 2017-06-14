@@ -26,6 +26,7 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   m_tfpobj(0x0),
   m_roadMarketTool("FTK_RoadMarketTool/FTK_RoadMarketTool"),
   m_trackOutputTool("FTK_SGTrackOutput/FTK_SGTrackOutput"),
+  m_trackOutputTool_pre_hw("FTK_SGTrackOutput/FTK_SGTrackOutput_pre_hw"),
   m_SecondStageFit(false),
   m_IBLMode(0), m_fixEndcapL0(false),
   m_ITkMode(false),
@@ -66,7 +67,8 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   m_ssmap(0x0), m_ssmap_unused(0x0), 
   m_rmap_path(), m_ssmap_path(), m_ssmapunused_path(),
   m_AutoDisable(false),
-  m_PrintSSBConstants(false)
+  m_PrintSSBConstants(false),
+  m_dTIBL(-999999)
 {
   declareProperty("SecondStageFit",m_SecondStageFit,"Enable the second-stage fitter code");
   declareProperty("IBLMode",m_IBLMode,"Switch on the IBL layer");
@@ -116,6 +118,7 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   declareProperty("SSFTRMinEta",m_SSF_TR_min_eta);
   declareProperty("SSFTRMaxEta",m_SSF_TR_max_eta);
   declareProperty("PrintSSBConstants",m_PrintSSBConstants,"Enable SSB constants printing");
+  declareProperty("dTIBL",m_dTIBL);
 }
 
 FTKTrackFitterAlgo::~FTKTrackFitterAlgo()
@@ -271,11 +274,23 @@ StatusCode FTKTrackFitterAlgo::initialize(){
     log << MSG::INFO << "Write the TF simulation results in an external file: " << m_trackfilename.c_str() << endmsg;
     log << MSG::INFO << "Output Directory :" << m_trackfilepath.c_str() << endmsg; // should be impremented -> each region output 0/xxx0.root ,1/xxx1.root,2,3...
     FTKTrackFileOutput *ftkouttrackmodule = new FTKTrackFileOutput();
+    ///    FTKTrackFileOutput *ftkouttrackmodule_pre_hw = new FTKTrackFileOutput();
     ftkouttrackmodule->setMultiOut(false);
     ftkouttrackmodule->setOutDir(m_trackfilepath.c_str());
     ftkouttrackmodule->setFileName(m_trackfilename.c_str());
     ftkouttrackmodule->setBranchFormat("FTKTracksStream%d.");
+    
+
+    // std::size_t replace_index = m_trackfilename.find(".root");
+    // string pre_hw_trackfilename = m_trackfilename;
+    // if (replace_index != std::string::npos) pre_hw_trackfilename.insert(replace_index, "_pre_hw");  
+    // ftkouttrackmodule_pre_hw->setMultiOut(false);
+    // ftkouttrackmodule_pre_hw->setOutDir(m_trackfilepath.c_str());
+    // ftkouttrackmodule_pre_hw->setFileName(pre_hw_trackfilename.c_str());
+    // ftkouttrackmodule_pre_hw->setBranchFormat("FTKTracksStream%d.");
+    
     m_tfpobj->setTrackOutputModule(ftkouttrackmodule);
+    //    m_tfpobj->setTrackOutputModulePreHW(ftkouttrackmodule_pre_hw);
   }
   else {
     StatusCode sc = m_trackOutputTool.retrieve();
@@ -288,8 +303,19 @@ StatusCode FTKTrackFitterAlgo::initialize(){
     }
 
     m_tfpobj->setTrackOutputModule(m_trackOutputTool->reference());
-  }
+    
+    // sc = m_trackOutputTool_pre_hw.retrieve();
+    // if (sc.isFailure()) {
+    //   log << MSG::FATAL << "Could not retrieve FTK_SGTrackOutput_pre_hw tool" << endmsg;
+    //   return StatusCode::FAILURE;
+    // }
+    // else {
+    //   log << MSG::INFO << "Setting FTK_SGTrackOutput_pre_hw tool" << endmsg;
+    // }
   
+    //    m_tfpobj->setTrackOutputModulePreHW(m_trackOutputTool_pre_hw->reference());
+  }
+
 
 
   // set path Hit Warrior configulation 
@@ -436,6 +462,7 @@ StatusCode FTKTrackFitterAlgo::initialize(){
       FTKConstantBank* bank11 = new FTKConstantBank(dynamic_cast<TrackFitter711*>(m_tfpobj)->getNCoordsComplete(),bankpath11L.c_str());
       FTKSector711DB * sector= new FTKSector711DB(bank8->getNSectors(),m_pmap_complete->getNPlanes()-m_pmap->getNPlanes(),sectorpath_s.c_str());
       dynamic_cast<TrackFitter711*>(m_tfpobj)->setBank(ir,is,bank11,bank8, sector);
+      bank11->setdTIBL(m_dTIBL);
 
       if(m_PrintSSBConstants){
 
@@ -533,6 +560,9 @@ StatusCode FTKTrackFitterAlgo::initialize(){
     log << MSG::INFO << "The FTK roads will be added" << endmsg;
     FTKTrackFileOutput *ftkouttrackmodule = dynamic_cast<FTKTrackFileOutput*>(m_tfpobj->getTrackOutputModule());    
     m_roadMarketTool->ConnectRoads(ftkouttrackmodule->getTree(),"FTKRoadsStream%d.",m_bankregion);
+   
+    // FTKTrackFileOutput *ftkouttrackmodule_pre_hw = dynamic_cast<FTKTrackFileOutput*>(m_tfpobj->getTrackOutputModulePreHW());    
+    // m_roadMarketTool->ConnectRoads(ftkouttrackmodule_pre_hw->getTree(),"FTKRoadsStream%d.",m_bankregion);
     
   }
 
@@ -574,6 +604,7 @@ StatusCode FTKTrackFitterAlgo::finalize() {
 
     // if the external custom track file is created this has to deleted
     m_tfpobj->getTrackOutputModule()->endFile();
+    //    m_tfpobj->getTrackOutputModulePreHW()->endFile();
 
     return StatusCode::SUCCESS;
 }

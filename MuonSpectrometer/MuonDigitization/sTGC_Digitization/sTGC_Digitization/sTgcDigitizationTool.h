@@ -20,7 +20,7 @@
 #include "PileUpTools/PileUpToolBase.h"
 
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "HitManagement/TimedHitCollection.h"
 #include "Identifier/Identifier.h"
 #include "MuonSimEvent/GenericMuonSimHitCollection.h"

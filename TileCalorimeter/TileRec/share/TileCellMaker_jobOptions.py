@@ -43,13 +43,8 @@ if n3 == 100:
     ToolSvc += theTileCellNoiseFilter
     theCaloCellMaker.CaloCellMakerToolNames += [ ToolSvc.TileCellNoiseFilter.getFullName() ]
 
-if not hasattr( ToolSvc, "CaloCellContainerFinalizerTool" ):
-    from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool
-    theCaloCellContainerFinalizerTool=CaloCellContainerFinalizerTool()
-    ToolSvc += theCaloCellContainerFinalizerTool
-    theCaloCellMaker.CaloCellMakerToolNames += [theCaloCellContainerFinalizerTool ]
-else:
-    theCaloCellMaker.CaloCellMakerToolNames += ["CaloCellContainerFinalizerTool"]
+from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool
+theCaloCellMaker.CaloCellMakerToolNames += [ CaloCellContainerFinalizerTool() ]
 
 if ('doCaloNeighborsCorr' in dir()) and doCaloNeighborsCorr:
     if not hasattr( ToolSvc, "CaloCellNeighborsAverageCorr" ):
@@ -63,13 +58,8 @@ if ('doCaloNeighborsCorr' in dir()) and doCaloNeighborsCorr:
 else:
     doCaloNeighborsCorr=False
 
-if not hasattr( ToolSvc, "CaloCellContainerCheckerTool" ):
-    from CaloRec.CaloRecConf import CaloCellContainerCheckerTool
-    theCaloCellContainerCheckerTool=CaloCellContainerCheckerTool()
-    ToolSvc += theCaloCellContainerCheckerTool
-    theCaloCellMaker.CaloCellMakerToolNames += [theCaloCellContainerCheckerTool]
-else:
-    theCaloCellMaker.CaloCellMakerToolNames += ["CaloCellContainerCheckerTool"]
+from CaloRec.CaloRecConf import CaloCellContainerCheckerTool
+theCaloCellMaker.CaloCellMakerToolNames += [CaloCellContainerCheckerTool()]
 
 
 print theCaloCellMaker

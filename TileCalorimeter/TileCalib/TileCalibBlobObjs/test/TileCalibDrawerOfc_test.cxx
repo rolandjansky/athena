@@ -26,7 +26,7 @@ const std::vector<float> phases = {-2.0, 0.0, 0.1, 0.2, 0.5, 1.0};
 const int nPhases = phases.size();
 
 static const unsigned int OBJVERSION(3);
-static const int NCHANNELS(1);
+static const int NCHANNELS(2);
 static const int NGAINS(1);
 static const unsigned int NSAMPLES(1);
 
@@ -47,12 +47,12 @@ void test1() {
     for (unsigned int gain = 0; gain < NGAINS; ++gain) {
       for (float phase : phases) {
         for (unsigned int isam = 0; isam < NSAMPLES; ++isam) {
-          drawerOfc->setOfc(TileCalibDrawerOfc::FieldA, channel, gain, phase, isam, phase + 10.0F);
-          drawerOfc->setOfc(TileCalibDrawerOfc::FieldB, channel, gain, phase, isam, phase + 20.0F);
-          drawerOfc->setOfc(TileCalibDrawerOfc::FieldG, channel, gain, phase, isam, phase + 30.0F);
+          drawerOfc->setOfc(TileCalibDrawerOfc::FieldA, channel, gain, phase, isam, phase + 100 * channel + 10.0F);
+          drawerOfc->setOfc(TileCalibDrawerOfc::FieldB, channel, gain, phase, isam, phase + 100 * channel + 20.0F);
+          drawerOfc->setOfc(TileCalibDrawerOfc::FieldG, channel, gain, phase, isam, phase + 100 * channel + 30.0F);
           if (OBJVERSION == 3) {
-            drawerOfc->setOfc(TileCalibDrawerOfc::FieldC, channel, gain, phase, isam, phase + 40.0F);
-            drawerOfc->setOfc(TileCalibDrawerOfc::FieldDG, channel, gain, phase, isam, phase + 50.0F);
+            drawerOfc->setOfc(TileCalibDrawerOfc::FieldC, channel, gain, phase, isam, phase + 100 * channel + 40.0F);
+            drawerOfc->setOfc(TileCalibDrawerOfc::FieldDG, channel, gain, phase, isam, phase + 100 * channel + 50.0F);
           }
         }
       }
@@ -126,6 +126,40 @@ void test1() {
   drawerOfc->fillOfc(channel, gain, phase, a, b, c, g, dg);
   assert(Athena_test::isEqual(a[0], 8.0));
   assert(Athena_test::isEqual(phase, -2.0));
+
+
+  phase = 0.0;
+  channel = 1;
+
+  drawerOfc->fillOfc(channel, gain, phase, a, b, c, g, dg);
+  assert(Athena_test::isEqual(a[0], 110.0));
+  assert(Athena_test::isEqual(b[0], 120.0));
+  assert(Athena_test::isEqual(g[0], 130.0));
+  assert(Athena_test::isEqual(c[0], 140.0));
+  assert(Athena_test::isEqual(dg[0], 150.0));
+  assert(Athena_test::isEqual(phase, 0.0));
+
+  // Test default policy (should return for channel 0)
+  channel = 20;
+
+  drawerOfc->fillOfc(channel, gain, phase, a, b, c, g, dg);
+  assert(Athena_test::isEqual(a[0], 10.0));
+  assert(Athena_test::isEqual(b[0], 20.0));
+  assert(Athena_test::isEqual(g[0], 30.0));
+  assert(Athena_test::isEqual(c[0], 40.0));
+  assert(Athena_test::isEqual(dg[0], 50.0));
+  assert(Athena_test::isEqual(phase, 0.0));
+
+  // Test default policy (shoud return for channel (97 % 48) == 1)
+  channel = 97;
+
+  drawerOfc->fillOfc(channel, gain, phase, a, b, c, g, dg);
+  assert(Athena_test::isEqual(a[0], 110.0));
+  assert(Athena_test::isEqual(b[0], 120.0));
+  assert(Athena_test::isEqual(g[0], 130.0));
+  assert(Athena_test::isEqual(c[0], 140.0));
+  assert(Athena_test::isEqual(dg[0], 150.0));
+  assert(Athena_test::isEqual(phase, 0.0));
 
 
   delete drawerOfc;

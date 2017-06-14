@@ -15,7 +15,6 @@
 //#include "GaudiKernel/ListItem.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandGauss.h"
 
@@ -114,29 +113,6 @@ CaloNoiseTool::CaloNoiseTool(const std::string& type,
 
 StatusCode 
 CaloNoiseTool::initialize()
-{
-  const IGeoModelSvc *geoModel=nullptr;
-  ATH_CHECK(  service("GeoModelSvc", geoModel) );
-
-  // dummy parameters for the callback:
-  int dummyInt=0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized())
-  {
-    return geoInit(dummyInt,dummyList);
-  }
-  else
-  {
-    ATH_CHECK(  detStore()->regFcn(&IGeoModelSvc::geoInit,
-                                   geoModel,
-                                   &CaloNoiseTool::geoInit,this) );
-  }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-CaloNoiseTool::geoInit(IOVSVC_CALLBACK_ARGS)
 {
   ATH_MSG_INFO( "CaloNoiseTool called " << this->name() << " initialize() begin" );
   

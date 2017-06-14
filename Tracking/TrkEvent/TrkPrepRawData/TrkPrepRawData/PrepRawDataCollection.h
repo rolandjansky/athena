@@ -22,7 +22,7 @@
 #include "Identifier/Identifiable.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 
 // Needed class

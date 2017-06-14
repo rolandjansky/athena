@@ -1312,7 +1312,7 @@ StatusCode TrigEDMChecker::dumpTrigMuonEFInfoContainer() {
 
       ATH_MSG_INFO("REGTEST Looking at TrigMuonEFInfo " << j);
 
-      TrigMuonEFInfo* muonInfo = (*MuonItr);
+      const TrigMuonEFInfo* muonInfo = (*MuonItr);
 
       ATH_MSG_INFO("REGTEST Test self equality ");
       if (*muonInfo == *muonInfo) {
@@ -1332,7 +1332,7 @@ StatusCode TrigEDMChecker::dumpTrigMuonEFInfoContainer() {
 
         for (TrigMuonEFInfoTrackContainer::const_iterator TrackItr = tc->begin() ; TrackItr!=tc->end(); ++TrackItr) {
 
-          TrigMuonEFInfoTrack* muonInfo = (*TrackItr);
+          const TrigMuonEFInfoTrack* muonInfo = (*TrackItr);
           ATH_MSG_INFO("REGTEST MuonType(): ");
 
           TrigMuonEFTrack* muonTrack = muonInfo->SpectrometerTrack();
@@ -1366,29 +1366,6 @@ StatusCode TrigEDMChecker::dumpTrigMuonEFInfoContainer() {
         return StatusCode::SUCCESS;
       }
       ATH_MSG_INFO("REGTEST TrigMuonEFInfo->RoINum() returns " << muonInfo->RoINum());
-      ATH_MSG_INFO("REGTEST Test the backwards compatibility ");
-      TrigMuonEFTrack* muonTrack = muonInfo->SpectrometerTrack();
-      if (muonTrack) {
-        printMuonTrk(muonTrack);
-      } else {
-        ATH_MSG_INFO("REGTEST no SpectrometerTrack track found");
-      }
-
-      ATH_MSG_INFO("REGTEST old Looking at TrigMuonEFTrack ExtrapolatedTrack()");
-      muonTrack = muonInfo->ExtrapolatedTrack();
-      if (muonTrack) {
-        printMuonTrk(muonTrack);
-      } else {
-        ATH_MSG_INFO("REGTEST old no ExtrapolatedTrack track found");
-      }
-
-      ATH_MSG_INFO("REGTEST old Looking at TrigMuonEFTrack CombinedTrack()");
-      TrigMuonEFCbTrack* muonCbTrack = muonInfo->CombinedTrack();
-      if (muonCbTrack) {
-        printMuonTrk(muonCbTrack);
-      } else {
-        ATH_MSG_INFO("REGTEST old no CombinedTrack track found");
-      }
     }
   }
 
@@ -1428,7 +1405,7 @@ StatusCode TrigEDMChecker::dumpTrigMuonEFIsolationContainer() {
 
       ATH_MSG_INFO("REGTEST Looking at TrigMuonEFIsolation " << j);
 
-      TrigMuonEFIsolation* muonIsolation = (*MuonItr);
+      const TrigMuonEFIsolation* muonIsolation = (*MuonItr);
 
       ATH_MSG_INFO("REGTEST Test self equality ");
       if (*muonIsolation == *muonIsolation) {

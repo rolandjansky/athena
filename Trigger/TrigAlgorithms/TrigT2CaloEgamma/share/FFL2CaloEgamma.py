@@ -1,6 +1,12 @@
 #
-# get_files LVL1config_Physics_pp_v7.xml
-# 
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.CheckDependencies( True )
+AlgScheduler.OutputLevel( VERBOSE )
+AlgScheduler.ShowDataDependencies( True )
 
 from AthenaCommon.GlobalFlags import globalflags;
 globalflags.DataSource.set_Value_and_Lock("data");
@@ -20,6 +26,7 @@ rec.doAOD=False
 rec.doWriteAOD=False # uncomment if do not write AOD
 rec.doWriteTAG=False # uncomment if do not write TAG
 rec.doESD=False
+rec.doWritexAOD=False
 
 from RecExConfig.RecFlags import rec
 rec.doForwardDet=False
@@ -31,7 +38,20 @@ rec.doMuonCombined=False
 rec.doJetMissingETTag=False
 rec.doTau=False
 rec.doCaloRinger=False
+rec.doPerfMon=False
 #rec.readRDO=False
+
+from PerfMonComps.PerfMonFlags import jobproperties
+jobproperties.PerfMonFlags.doDsoMonitoring.set_Value_and_Lock(False)
+jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock(False)
+jobproperties.PerfMonFlags.doPersistencyMonitoring.set_Value_and_Lock(False)
+
+from LArROD.LArRODFlags import larRODFlags
+larRODFlags.doLArFebErrorSummary.set_Value_and_Lock(False)
+#from AthenaCommon.DetFlags import DetFlags
+#DetFlags.makeRIO.Calo_setOff()
+#DetFlags.detdescr.Calo_setOn()
+#DetFlags.Print()
 
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
@@ -66,10 +86,9 @@ nThreads = jp.ConcurrencyFlags.NumThreads()
 print ' nThreads : ',nThreads
 
 if nThreads >= 1:
-  ## get a handle on the ForwardScheduler
-  from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
-  svcMgr += ForwardSchedulerSvc()
-  svcMgr.ForwardSchedulerSvc.CheckDependencies = True
+  ## get a handle on the Scheduler
+  from AthenaCommon.AlgScheduler import AlgScheduler
+  AlgScheduler.CheckDependencies( True )
 
 # Use McEventSelector so we can run with AthenaMP
 #import AthenaCommon.AtlasUnixGeneratorJob
@@ -91,8 +110,11 @@ if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
 
 
 from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc
+from TrigConfigSvc.TrigConfigSvcConfig import findFileInXMLPATH
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+
 l1svc = TrigConf__LVL1ConfigSvc("LVL1ConfigSvc")
-l1svc.XMLMenuFile = "LVL1config_Physics_pp_v7.xml"
+l1svc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
 svcMgr += l1svc
 
 
@@ -152,6 +174,18 @@ svcMgr.AthDictLoaderSvc.OutputLevel = INFO
 svcMgr.EventPersistencySvc.OutputLevel = INFO
 svcMgr.ROBDataProviderSvc.OutputLevel = INFO
 
+from LArROD.LArRODConf import LArRawChannelBuilderDriver
+topSequence.remove(LArRawChannelBuilderDriver('LArRawChannelBuilder'))
+from LArROD.LArDigits import DefaultLArDigitThinner
+topSequence.remove(DefaultLArDigitThinner('LArDigitThinner'))
+from TileRecUtils.TileRecUtilsConf import TileRawChannelMaker
+topSequence.remove(TileRawChannelMaker('TileRChMaker'))
+from TileRecAlgs.TileRecAlgsConf import TileDigitsFilter
+topSequence.remove(TileDigitsFilter('TileDigitsFilter'))
+from CaloRec.CaloRecConf import CaloCellMaker 
+topSequence.remove(CaloCellMaker('CaloCellMaker'))
+from xAODCaloEventCnv.xAODCaloEventCnvConf import ClusterCreator
+topSequence.remove(ClusterCreator('CaloCluster2xAOD'))
 
 
 theApp.EvtMax = 100
@@ -161,4 +195,5 @@ theApp.EvtMax = 100
 # End of job options file
 #
 ###############################################################
+
 

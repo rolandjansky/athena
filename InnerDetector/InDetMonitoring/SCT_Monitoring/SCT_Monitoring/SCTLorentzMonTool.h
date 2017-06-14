@@ -35,6 +35,9 @@
 //for vertexTool
 #include "ITrackToVertex/ITrackToVertex.h" //for  m_trackToVertexTool
 
+#include "StoreGate/ReadHandle.h"
+#include "TrkTrack/TrackCollection.h"
+
 // Forward declarations
 class IInterface;
 class TH1I;
@@ -50,6 +53,8 @@ class SCTLorentzMonTool : public SCTMotherTrigMonTool{
  public:
   SCTLorentzMonTool(const std::string & type, const std::string & name, const IInterface* parent);
   virtual ~SCTLorentzMonTool();
+  //initialize
+  virtual StatusCode initialize() final;
    /**    @name Book, fill & check (reimplemented from baseclass) */
 //@{
   ///Book histograms in initialization
@@ -95,7 +100,7 @@ private:
   std::string m_path;
   //@}
   /// Name of the Track collection to use
-  std::string m_tracksName;
+  SG::ReadHandleKey<TrackCollection> m_tracksName;
 
 
   //@name Service members

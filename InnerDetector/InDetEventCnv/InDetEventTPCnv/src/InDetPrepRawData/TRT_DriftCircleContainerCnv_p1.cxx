@@ -26,7 +26,7 @@
 
 
 
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 void InDet::TRT_DriftCircleContainerCnv_p1::transToPers(const InDet::TRT_DriftCircleContainer* transCont,  InDet::InDetPRD_Container_p1* persCont, MsgStream &log) 
 {

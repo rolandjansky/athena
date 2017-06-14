@@ -87,9 +87,9 @@ StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::convertAllBCto3BC()
 
 
   // convert
-  auto m_3BCHandles = m_3BCKeys.makeHandles();
+  auto tgc3BCHandles = m_3BCKeys.makeHandles();
   for (int ibc = 0; ibc < BC_ALL; ibc++){
-      m_3BCHandles.at(ibc) = std::unique_ptr<TgcPrepDataContainer>( new TgcPrepDataContainer(m_tgcHelper->module_hash_max()) );
+      tgc3BCHandles.at(ibc) = std::unique_ptr<TgcPrepDataContainer>( new TgcPrepDataContainer(m_tgcHelper->module_hash_max()) );
   }
 
   Muon::TgcPrepDataContainer::const_iterator tgcAllItr   = tgcAll->begin();
@@ -115,7 +115,7 @@ StatusCode Muon::TgcPrepDataReplicationToolAllBCto3BC::convertAllBCto3BC()
       std::array<Muon::TgcPrepDataCollection*, BC_ALL> collections;
       for (int ibc = 0; ibc < BC_ALL; ibc++) {
         collections[ibc] = Muon::IDC_Helper::getCollection<TgcPrepDataContainer, TgcIdHelper>
-                            (elementId, m_3BCHandles[ibc].ptr(), m_tgcHelper, msg());
+                            (elementId, tgc3BCHandles[ibc].ptr(), m_tgcHelper, msg());
      
         if (!hasBC[ibc]) continue;
         Muon::TgcPrepData* newPrepData = makeTgcPrepData(tgcAllColItr, hasBC[ibc]);

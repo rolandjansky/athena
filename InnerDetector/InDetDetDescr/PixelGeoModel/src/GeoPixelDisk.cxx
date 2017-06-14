@@ -33,9 +33,9 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
   double rmin = RMin();
   double rmax = RMax();
   double halflength = Thickness()/2.;
-  const GeoMaterial* air = mat_mgr->getMaterial("std::Air");
+  const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoTube* diskTube = new GeoTube(rmin,rmax,halflength);
-  std::ostringstream ostr; ostr << gmt_mgr->GetLD();
+  std::ostringstream ostr; ostr << m_gmt_mgr->GetLD();
   const GeoLogVol* theDisk = new GeoLogVol("Disk"+ostr.str(),diskTube,air);
 
   //
@@ -46,26 +46,26 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
   // Place the disk sectors (on both sides):
   //
   // Need to specify some eta. Assume all module the same
-  gmt_mgr->SetEta(0);
+  m_gmt_mgr->SetEta(0);
   GeoPixelModule psd(theSensor);
-  double zpos = gmt_mgr->PixelECSiDz1()/2.;
+  double zpos = m_gmt_mgr->PixelECSiDz1()/2.;
 
   // angle between two adjacent modules on one side of the disk
   // it is 360 deg / 24 modules = 15 deg	 	
-  int nbECSector = gmt_mgr->PixelECNSectors1();
+  int nbECSector = m_gmt_mgr->PixelECNSectors1();
   if(nbECSector==0) return 0;
   double deltaPhi = 360.*CLHEP::deg/ (float) nbECSector;
  
   // This is the start angle of the even modules (3.75 deg):
   double startAngle = deltaPhi/4.;
   // Start angle could eventually come from the database...
-  // double startAngle = gmt_mgr->PixelECStartPhi();
+  // double startAngle = m_gmt_mgr->PixelECStartPhi();
 
   // This is the radius of the center of the active sensor (also center of the module)
-  double moduleRadius = gmt_mgr->PixelDiskRMin() + 0.5*gmt_mgr->PixelBoardActiveLength();
+  double moduleRadius = m_gmt_mgr->PixelDiskRMin() + 0.5*m_gmt_mgr->PixelBoardActiveLength();
 
   // for compatibility with older geometries we have to incorrectly rotate modules in endcap C
-  bool oldGeometry = (gmt_mgr->dbVersion() < 1);
+  bool oldGeometry = (m_gmt_mgr->dbVersion() < 1);
 
   // In Global coordinate system (X,Y,Z):
   //--------------------------------------
@@ -113,13 +113,13 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
   //
 
   // Set numerology
-  gmt_mgr->SetEta(0);
-  DDmgr->numerology().setNumRingsForDisk(gmt_mgr->GetLD(),1);
-  DDmgr->numerology().setNumPhiModulesForDiskRing(gmt_mgr->GetLD(),0,gmt_mgr->PixelECNSectors1()*2);
+  m_gmt_mgr->SetEta(0);
+  m_DDmgr->numerology().setNumRingsForDisk(m_gmt_mgr->GetLD(),1);
+  m_DDmgr->numerology().setNumPhiModulesForDiskRing(m_gmt_mgr->GetLD(),0,m_gmt_mgr->PixelECNSectors1()*2);
 
   // Even modules (front of disk, delta z < 0)
   // and Odd modules (back of disk, delta z > 0)
-  int pixelECNSectors1 = gmt_mgr->PixelECNSectors1();
+  int pixelECNSectors1 = m_gmt_mgr->PixelECNSectors1();
   for (int ii = 0; ii <  pixelECNSectors1*2; ii++) {
 
     // Build both endcaps the same but re-number phiId in endcap C to get correct offline numbering.
@@ -128,16 +128,16 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
 
     // Add a test to get rid off division by zero coverity error
     int phiId = 0;
-    if(pixelECNSectors1>0) phiId = (gmt_mgr->GetSide()>0) ? ii : (3*pixelECNSectors1-ii-1)%(pixelECNSectors1*2);
+    if(pixelECNSectors1>0) phiId = (m_gmt_mgr->GetSide()>0) ? ii : (3*pixelECNSectors1-ii-1)%(pixelECNSectors1*2);
 
-    gmt_mgr->SetPhi(phiId);
+    m_gmt_mgr->SetPhi(phiId);
 
     double angle = ii*0.5*deltaPhi+startAngle;
-    //if ( gmt_mgr->GetSide()<0 ) angle = 360*CLHEP::deg-(ii*deltaPhi+startAngle);
+    //if ( m_gmt_mgr->GetSide()<0 ) angle = 360*CLHEP::deg-(ii*deltaPhi+startAngle);
     int diskSide = (ii%2) ? +1 : -1; // even: -1, odd +1
     CLHEP::HepRotation rm;
     rm.rotateY(90*CLHEP::deg);
-    if (oldGeometry && gmt_mgr->GetSide()<0) {
+    if (oldGeometry && m_gmt_mgr->GetSide()<0) {
       if (diskSide > 0) rm.rotateX(180.*CLHEP::deg); // This is for compatibilty with older geomtries.
     } else {
       if (diskSide < 0) rm.rotateX(180.*CLHEP::deg); // depth axis points towards disk.
@@ -157,7 +157,7 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
 
     // Now store the xform by identifier:
     Identifier id = theSensor.getID();
-    DDmgr->addAlignableTransform(0,id,xform,modulePhys);
+    m_DDmgr->addAlignableTransform(0,id,xform,modulePhys);
   }
 
   //
@@ -173,12 +173,12 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
 
 
   // Extra Material 
-  InDetDD::ExtraMaterial xMat(gmt_mgr->distortedMatManager());
+  InDetDD::ExtraMaterial xMat(m_gmt_mgr->distortedMatManager());
   xMat.add(diskPhys,"PixelDisc");
   //Defined above as:
-  // std::ostringstream ostr; ostr << gmt_mgr->GetLD();
+  // std::ostringstream ostr; ostr << m_gmt_mgr->GetLD();
   xMat.add(diskPhys,"PixelDisc"+ostr.str());
-  if (gmt_mgr->GetSide()>0) { // EndcapA
+  if (m_gmt_mgr->GetSide()>0) { // EndcapA
     xMat.add(diskPhys,"PixelDiscA");
     xMat.add(diskPhys,"PixelDiscA"+ostr.str());
   } else {                   // EndcapC
@@ -191,11 +191,11 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
 }
 
 double GeoPixelDisk::RMin() {
-  return gmt_mgr->PixelECCarbonRMin("Inner");
+  return m_gmt_mgr->PixelECCarbonRMin("Inner");
 }
 
 double GeoPixelDisk::RMax() {
-  return gmt_mgr->PixelECCarbonRMax("Outer");
+  return m_gmt_mgr->PixelECCarbonRMax("Outer");
 }
 
 double GeoPixelDisk::Thickness() {
@@ -212,11 +212,11 @@ double GeoPixelDisk::Thickness() {
   // ensure consistency.
   double safety = 0.01* CLHEP::mm; // This is the safety added to the module.
   double zClearance = 0.5 * CLHEP::mm; // Clearance for misalignments
-  double tck = 2*(safety + 0.5*gmt_mgr->PixelBoardThickness()
-                  + std::max(gmt_mgr->PixelHybridThickness(),
-			     gmt_mgr->PixelChipThickness()+gmt_mgr->PixelChipGap())
+  double tck = 2*(safety + 0.5*m_gmt_mgr->PixelBoardThickness()
+                  + std::max(m_gmt_mgr->PixelHybridThickness(),
+			     m_gmt_mgr->PixelChipThickness()+m_gmt_mgr->PixelChipGap())
 		  );
-  tck += std::max(gmt_mgr->PixelECSiDz1(),gmt_mgr->PixelECSiDz2());
+  tck += std::max(m_gmt_mgr->PixelECSiDz1(),m_gmt_mgr->PixelECSiDz2());
   tck += 2.*zClearance;
   // TO DO: Add some safety (N.B. I think the module is slightly bigger because of some safety added there)
   return tck;

@@ -2,7 +2,7 @@
 
 # 
 ## @file TrackD3PDMaker/python/TrackD3PDMakerPixelFlags.py
-## @purpose Python module to hold common flags to configure TrackD3PDMaker PixelNtuple JobOptions
+## @brief Python module to hold common flags to configure TrackD3PDMaker PixelNtuple JobOptions
 ##
 
 

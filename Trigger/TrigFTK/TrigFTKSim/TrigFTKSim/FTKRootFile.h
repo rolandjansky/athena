@@ -38,17 +38,17 @@ public:
 protected:
    FTKRootFile(void);
 private:
-   static FTKRootFile *sTheFileAccess;
+   static FTKRootFile *s_theFileAccess;
 };
 
 class FTKRootFileChain : public FTKLogging {
 public:
-   explicit inline FTKRootFileChain(int maxOpen=50) :  FTKLogging("FTKRootFileChain"), fMaxOpenFiles(maxOpen) {
+   explicit inline FTKRootFileChain(int maxOpen=50) :  FTKLogging("FTKRootFileChain"), m_maxOpenFiles(maxOpen) {
    }
    ~FTKRootFileChain();
    void AddFile(char const *fileName);
-   inline int GetLength(void) const { return fFileNames.size(); }
-   inline std::string const & operator[](int i) { return fFileNames[i]; }
+   inline int GetLength(void) const { return m_fileNames.size(); }
+   inline std::string const & operator[](int i) { return m_fileNames[i]; }
    // returns true if the directory was changed
    bool Open(std::string const &fileName);
    // return the directory selected in the last call to Open
@@ -56,10 +56,10 @@ public:
    //virtual TDirectory *OpenRootFileReadonly(char const *fileName);
    TDirectory *OpenRootFileReadonly(char const *fileName);
 protected:
-   int fMaxOpenFiles;
-   std::vector<std::string> fFileNames;
-   std::map<std::string,TDirectory *> fOpenDirectories;
-   std::string fLastFileName;
+   int m_maxOpenFiles;
+   std::vector<std::string> m_fileNames;
+   std::map<std::string,TDirectory *> m_openDirectories;
+   std::string m_lastFileName;
 };
 
 #endif

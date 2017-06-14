@@ -22,6 +22,8 @@ public:
   void val(int i) { m_val = i; }
   int val() const { return m_val; }
 
+  typedef std::true_type thread_safe;
+
 private:
   int m_val;
 };

@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #include "MuonEfficiencyCorrections/fineEtaPhiBinning.h"
 
@@ -32,7 +32,7 @@ int fineEtaPhiBinning::getECSector(double phi) const {
     for (size_t sector = 0; sector < m_phi_lower_EC.size(); ++sector) {
         upper = m_phi_upper_EC.at(sector);
         lower = m_phi_lower_EC.at(sector);
-        if (upper < lower) {   // for closing around pi
+        if (upper < lower) { // for closing around pi
             if (phi > lower || phi <= upper) return sector + 1;
         }
         if (phi > lower && phi <= upper) return sector + 1;
@@ -80,7 +80,7 @@ TH2Poly* fineEtaPhiBinning::getPolyHist(const std::string& name, const std::stri
             double phiE = m_phi_lower_EC.at(l);
             double phiEnext = m_phi_upper_EC.at(l);
 
-            if (phiB > phiBnext) {             // the -pi / pi bin!
+            if (phiB > phiBnext) { // the -pi / pi bin!
                 double phiedgePlus = ((eta < -m_barrel_endcap_transition || eta >= m_barrel_endcap_transition) ? phiE : phiB);
                 double phiedgerPlus = ((etanext <= -m_barrel_endcap_transition || etanext > m_barrel_endcap_transition) ? phiE : phiB);
                 double phiedgeMinus = ((eta < -m_barrel_endcap_transition || eta >= m_barrel_endcap_transition) ? phiEnext : phiBnext);
@@ -136,9 +136,9 @@ TH2Poly* fineEtaPhiBinning::getPolyHist(const std::string& name, const std::stri
 
                     h->AddBin(8, xe5, ye5);
                 }
-            } else {   // normal case
+            } else { // normal case
                 // if we pass the threshold, different treatment
-                if (eta < -m_barrel_endcap_transition && etanext > -m_barrel_endcap_transition) {                //            first threshold passage
+                if (eta < -m_barrel_endcap_transition && etanext > -m_barrel_endcap_transition) { //            first threshold passage
                 /*
                  *
                  *      here, we do:
@@ -152,7 +152,7 @@ TH2Poly* fineEtaPhiBinning::getPolyHist(const std::string& name, const std::stri
                     double x[] = { eta, -m_barrel_endcap_transition, -m_barrel_endcap_transition, etanext, etanext, -m_barrel_endcap_transition, -m_barrel_endcap_transition, eta };
                     double y[] = { phiEnext, phiEnext, phiBnext, phiBnext, phiB, phiB, phiE, phiE };
                     h->AddBin(8, x, y);
-                } else if (eta < m_barrel_endcap_transition && etanext > m_barrel_endcap_transition) {                //            second threshold passage
+                } else if (eta < m_barrel_endcap_transition && etanext > m_barrel_endcap_transition) { //            second threshold passage
                 /*
                  *
                  *      here, we do:
@@ -165,7 +165,7 @@ TH2Poly* fineEtaPhiBinning::getPolyHist(const std::string& name, const std::stri
                     double x[] = { eta, m_barrel_endcap_transition, m_barrel_endcap_transition, etanext, etanext, m_barrel_endcap_transition, m_barrel_endcap_transition, eta };
                     double y[] = { phiBnext, phiBnext, phiEnext, phiEnext, phiE, phiE, phiB, phiB };
                     h->AddBin(8, x, y);
-                } else {          // normal case
+                } else { // normal case
                     /*
                      *
                      *      here, we do:
@@ -175,8 +175,8 @@ TH2Poly* fineEtaPhiBinning::getPolyHist(const std::string& name, const std::stri
                      *        4     3
                      */
 
-                    double phi = ((etanext <= -m_barrel_endcap_transition || eta >= m_barrel_endcap_transition) ? phiE : phiB);                 //EC
-                    double phinext = ((etanext <= -m_barrel_endcap_transition || eta >= m_barrel_endcap_transition) ? phiEnext : phiBnext);     //Barrel
+                    double phi = ((etanext <= -m_barrel_endcap_transition || eta >= m_barrel_endcap_transition) ? phiE : phiB); //EC
+                    double phinext = ((etanext <= -m_barrel_endcap_transition || eta >= m_barrel_endcap_transition) ? phiEnext : phiBnext); //Barrel
                     double x[] = { eta, etanext, etanext, eta };
                     double y[] = { phinext, phinext, phi, phi };
                     h->AddBin(4, x, y);
@@ -197,7 +197,7 @@ int fineEtaPhiBinning::getSector(double phi) const {
     for (size_t sector = 0; sector < m_phi_lower_BAR.size(); ++sector) {
         upper = m_phi_upper_BAR.at(sector);
         lower = m_phi_lower_BAR.at(sector);
-        if (upper < lower) {   // for closing around pi
+        if (upper < lower) { // for closing around pi
             if (phi > lower || phi <= upper) return sector + 1;
         }
         if (phi > lower && phi <= upper) return sector + 1;

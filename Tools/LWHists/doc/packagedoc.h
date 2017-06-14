@@ -25,7 +25,7 @@ out an actual ROOT histogram instance into an output file.
 
 @section LWHists_optimisationsLWHists Optimisations used internally
 
-@Todo: Write this section
+@todo : Write this section
 
 @section LWHists_testingLWHists Testing
 

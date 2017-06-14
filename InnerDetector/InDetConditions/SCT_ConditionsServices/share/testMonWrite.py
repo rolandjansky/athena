@@ -58,8 +58,13 @@ job = AlgSequence()
 #------------------------------------------------------------
 # Local stuff
 #------------------------------------------------------------
+
+eventInfoKey = "ByteStreamEventInfo"
+if GlobalFlags.DataSource()=="geant4":
+    eventInfoKey = "McEventInfo"
+
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MonitorConditionsSvc
-ServiceMgr +=SCT_MonitorConditionsSvc()
+ServiceMgr +=SCT_MonitorConditionsSvc(EventInfoKey=eventInfoKey)
 
 SCT_MonitorConditions=ServiceMgr.SCT_MonitorConditionsSvc
 #SCT_MonitorConditions.BadModuleIdentifiers=["1","2"]

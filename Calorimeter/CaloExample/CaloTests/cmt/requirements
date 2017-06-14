@@ -32,7 +32,7 @@ use LArIdentifier    LArIdentifier-*       LArCalorimeter
 use LArRawEvent      LArRawEvent-*         LArCalorimeter
 use LArRawUtils      LArRawUtils-*         LArCalorimeter
 use LArSimEvent      LArSimEvent-*         LArCalorimeter
-use LArTools         LArTools-*            LArCalorimeter
+use LArCabling       LArCabling-*          LArCalorimeter
 end_private
 
 

@@ -8,13 +8,16 @@
 #include "AthContainers/AuxStoreInternal.h" 
 
 #include <string>
+#include <mutex>
 
 class RootAuxDynReader;
 
 class RootAuxDynStore : public SG::AuxStoreInternal
 {
 public:
-  RootAuxDynStore(RootAuxDynReader& reader, long long entry, bool standalone);
+  RootAuxDynStore(RootAuxDynReader& reader, long long entry, bool standalone,
+                  std::mutex* iomtx = nullptr);
+  
   virtual ~RootAuxDynStore() {}
 
   /// implementation of the IAuxStore interface
@@ -49,6 +52,9 @@ private:
   typedef AthContainers_detail::mutex mutex_t;
   typedef AthContainers_detail::lock_guard<mutex_t> guard_t;
   mutable mutex_t m_mutex;
+
+  /// Optional mutex used to serialize I/O with RootStorageSvc (not owned)
+  std::mutex       *m_iomutex;
 };
 
   

@@ -48,11 +48,7 @@ namespace Muon {
       m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
       m_magFieldProperties(Trk::NoField),
       m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-      m_mdtPrdContainer(0),
-      m_rpcPrdContainer(0),
-      m_tgcPrdContainer(0),
-      m_cscPrdContainer(0)
+      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
   {
     declareInterface<IMuonSeededSegmentFinder>(this);
 
@@ -108,6 +104,11 @@ namespace Muon {
       ATH_MSG_ERROR("Could not retrieve "<<m_idHelper<<". Exiting.");
       return StatusCode::FAILURE;
     }
+
+    ATH_CHECK(m_key_mdt.initialize());
+    ATH_CHECK(m_key_csc.initialize());
+    ATH_CHECK(m_key_rpc.initialize());
+    ATH_CHECK(m_key_tgc.initialize());
     
     return StatusCode::SUCCESS;
   }
@@ -228,8 +229,13 @@ namespace Muon {
   
   std::vector<const MdtPrepData*> MuonSeededSegmentFinder::extractPrds( const std::set<IdentifierHash>& chIdHs ) const {
 
-    if (evtStore()->retrieve(m_mdtPrdContainer,m_key_mdt).isFailure()) {
-      ATH_MSG_WARNING("Cannot retrieve mdtPrepDataContainer " << m_key_mdt);
+    SG::ReadHandle<Muon::MdtPrepDataContainer> h_mdtPrdCont(m_key_mdt);
+    const Muon::MdtPrepDataContainer *mdtPrdContainer;
+    if (h_mdtPrdCont.isValid()) {
+      mdtPrdContainer = h_mdtPrdCont.cptr();
+    }
+    else{
+      ATH_MSG_WARNING("Cannot retrieve mdtPrepDataContainer " << m_key_mdt.key());
       return std::vector<const MdtPrepData*>();
     }
       
@@ -240,8 +246,8 @@ namespace Muon {
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
     std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
     for( ;chit!=chit_end;++chit ){
-      MdtPrepDataContainer::const_iterator colIt = m_mdtPrdContainer->indexFind(*chit);
-      if( colIt == m_mdtPrdContainer->end() ){
+      MdtPrepDataContainer::const_iterator colIt = mdtPrdContainer->indexFind(*chit);
+      if( colIt == mdtPrdContainer->end() ){
 	//ATH_MSG_DEBUG(" MdtPrepDataCollection for:   " 
 	//	     << m_idHelper->toStringChamber(*chit) << "  not found in container ");
 	continue;
@@ -257,19 +263,23 @@ namespace Muon {
   void MuonSeededSegmentFinder::extractMdtPrdCols( const std::set<IdentifierHash>& chIdHs, 
 						   std::vector<const MdtPrepDataCollection*>& target ) const {
 
-    if( evtStore()->contains<Muon::MdtPrepDataContainer>(m_key_mdt) ) {
-      if (evtStore()->retrieve(m_mdtPrdContainer,m_key_mdt).isFailure()) {
-        ATH_MSG_WARNING("Cannot retrieve mdtPrepDataContainer " << m_key_mdt);
-        return;
-      }
-    }else return;
+    SG::ReadHandle<Muon::MdtPrepDataContainer> h_mdtPrdCont(m_key_mdt);
+    const Muon::MdtPrepDataContainer *mdtPrdContainer;
+    if (h_mdtPrdCont.isValid()) {
+      mdtPrdContainer = h_mdtPrdCont.cptr();
+    }
+    else{
+      ATH_MSG_WARNING("Cannot retrieve mdtPrepDataContainer " << m_key_mdt.key());
+      return;
+    }
+
 
     // loop over chambers and get collections
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
     std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
     for( ;chit!=chit_end;++chit ){
-      MdtPrepDataContainer::const_iterator colIt = m_mdtPrdContainer->indexFind(*chit);
-      if( colIt == m_mdtPrdContainer->end() || (*colIt)->empty() ){
+      MdtPrepDataContainer::const_iterator colIt = mdtPrdContainer->indexFind(*chit);
+      if( colIt == mdtPrdContainer->end() || (*colIt)->empty() ){
 	continue;
       }
       ATH_MSG_DEBUG(" Adding for:   " 
@@ -284,20 +294,23 @@ namespace Muon {
   void MuonSeededSegmentFinder::extractRpcPrdCols( const std::set<IdentifierHash>& chIdHs, 
 						   std::vector<const RpcPrepDataCollection*>& target ) const {
 
-    if( evtStore()->contains<Muon::RpcPrepDataContainer>(m_key_rpc) ) {
-      if (evtStore()->retrieve(m_rpcPrdContainer,m_key_rpc).isFailure()) {
-        ATH_MSG_WARNING("Cannot retrieve rpcPrepDataContainer " << m_key_rpc);
-        return;
-      }
-    }else return;
+    SG::ReadHandle<Muon::RpcPrepDataContainer> h_rpcPrdCont(m_key_rpc);
+    const Muon::RpcPrepDataContainer *rpcPrdContainer;
+    if (h_rpcPrdCont.isValid()){
+      rpcPrdContainer = h_rpcPrdCont.cptr();
+    }
+    else{
+      ATH_MSG_WARNING("Cannot retrieve rpcPrepDataContainer " << m_key_rpc.key());
+      return;
+    }
 
       
     // loop over chambers and get collections
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
     std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
     for( ;chit!=chit_end;++chit ){
-      RpcPrepDataContainer::const_iterator colIt = m_rpcPrdContainer->indexFind(*chit);
-      if( colIt == m_rpcPrdContainer->end() || (*colIt)->empty() ){
+      RpcPrepDataContainer::const_iterator colIt = rpcPrdContainer->indexFind(*chit);
+      if( colIt == rpcPrdContainer->end() || (*colIt)->empty() ){
 	//ATH_MSG_DEBUG(" RpcPrepDataCollection for:   " 
 	//	     << m_idHelper->toStringChamber(*chit) << "  not found in container ");
 	continue;
@@ -314,19 +327,23 @@ namespace Muon {
   void MuonSeededSegmentFinder::extractTgcPrdCols( const std::set<IdentifierHash>& chIdHs, 
 						   std::vector<const TgcPrepDataCollection*>& target ) const {
 
-    if( evtStore()->contains<Muon::TgcPrepDataContainer>(m_key_tgc) ) {
-      if (evtStore()->retrieve(m_tgcPrdContainer,m_key_tgc).isFailure()) {
-        ATH_MSG_WARNING("Cannot retrieve tgcPrepDataContainer " << m_key_tgc);
-        return;
-      }
-    }else return;
+    SG::ReadHandle<Muon::TgcPrepDataContainer> h_tgcPrdCont(m_key_tgc);
+    const Muon::TgcPrepDataContainer *tgcPrdContainer;
+    if(h_tgcPrdCont.isValid()) {
+      tgcPrdContainer = h_tgcPrdCont.cptr();
+    }
+    else{
+      ATH_MSG_WARNING("Cannot retrieve tgcPrepDataContainer " << m_key_tgc.key());
+      return;
+    }
+
 
     // loop over chambers and get collections
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
     std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
     for( ;chit!=chit_end;++chit ){
-      TgcPrepDataContainer::const_iterator colIt = m_tgcPrdContainer->indexFind(*chit);
-      if( colIt == m_tgcPrdContainer->end() || (*colIt)->empty() ){
+      TgcPrepDataContainer::const_iterator colIt = tgcPrdContainer->indexFind(*chit);
+      if( colIt == tgcPrdContainer->end() || (*colIt)->empty() ){
 	//ATH_MSG_DEBUG(" TgcPrepDataCollection for:   " 
 	//	     << m_idHelper->toStringChamber(*chit) << "  not found in container ");
 	continue;
@@ -343,19 +360,23 @@ namespace Muon {
   void MuonSeededSegmentFinder::extractCscPrdCols( const std::set<IdentifierHash>& chIdHs,
 						   std::vector<const CscPrepDataCollection*>& target ) const {
 
-    if( evtStore()->contains<Muon::CscPrepDataContainer>(m_key_csc) ) {
-      if ( evtStore()->retrieve(m_cscPrdContainer,m_key_csc).isFailure()) {
-	ATH_MSG_WARNING("Cannot retrieve cscPrepDataContainer " << m_key_csc);
-	return;
-      }
-    }else return;
+    SG::ReadHandle<Muon::CscPrepDataContainer> h_cscPrdCont(m_key_csc);
+    const Muon::CscPrepDataContainer *cscPrdContainer;
+    if(h_cscPrdCont.isValid()) {
+      cscPrdContainer = h_cscPrdCont.cptr();
+    }
+    else{
+      ATH_MSG_WARNING("Cannot retrieve cscPrepDataContainer " << m_key_csc.key());
+      return;
+    }
+
 
     // loop over chambers and get collections
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
     std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
     for( ;chit!=chit_end;++chit ){
-      CscPrepDataContainer::const_iterator colIt = m_cscPrdContainer->indexFind(*chit);
-      if( colIt == m_cscPrdContainer->end() || (*colIt)->empty() ){
+      CscPrepDataContainer::const_iterator colIt = cscPrdContainer->indexFind(*chit);
+      if( colIt == cscPrdContainer->end() || (*colIt)->empty() ){
 	//ATH_MSG_DEBUG(" CscPrepDataCollection for:   " 
 	//	     << m_idHelper->toStringChamber(*chit) << "  not found in container ");
 	continue;

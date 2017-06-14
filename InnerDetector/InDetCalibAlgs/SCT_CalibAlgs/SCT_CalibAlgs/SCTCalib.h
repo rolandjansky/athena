@@ -5,7 +5,7 @@
 /**
 * @file SCTCalib.h
 *
-* @Header file for the SCTCalib class
+* Header file for the SCTCalib class
 *
 * @author Jose E. Garcia, jose.enrique.garcia@cern.ch
 * @author Peter Vankov,   peter.vankov@cern.ch

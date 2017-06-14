@@ -31,20 +31,29 @@ ArenaHandleBaseT<T, ALLOC>::ArenaHandleBaseT (ArenaHeader* header,
 
 
 /**
- * @brief Constructor, passing in a creator instance.
+ * @brief Constructor, passing in an index, for a specific event slot.
  * @param header The group of Arenas which this Handle may reference.
  *               May be null to select the global default.
- * @param creator A @c Creator instance that will create an instance
- *                of the Allocator we use.
- *
- * We'll try looking up the allocator name (from @c creator) in the
- * registry to find the proper index.  If it's not found, we'll
- * register @c creator.
+ * @param ctx Event context identifying the event slot.
+ * @param index The index of this Handle's Allocator type.
  */
 template <typename T, typename ALLOC>
 ArenaHandleBaseT<T, ALLOC>::ArenaHandleBaseT (ArenaHeader* header,
-                                           const Creator& creator)
-  : Base (header, creator)
+                                              const EventContext& ctx,
+                                              size_t index)
+  : Base (header, ctx, index)
+{
+}
+
+
+/**
+ * @brief Constructor, passing in an index, for a specific Arena.
+ * @param arena The Arena in which to find the allocator.
+ * @param index The index of this Handle's Allocator type.
+ */
+template <typename T, typename ALLOC>
+ArenaHandleBaseT<T, ALLOC>::ArenaHandleBaseT (ArenaBase* arena, size_t index)
+  : Base (arena, index)
 {
 }
 
@@ -140,7 +149,7 @@ template <class T, class ALLOC>
 typename ArenaHandleBaseT<T, ALLOC>::const_iterator
 ArenaHandleBaseT<T, ALLOC>::begin() const
 {
-  return const_cast<const ALLOC*>(this->allocator())->begin();
+  return this->allocator()->begin();
 }
 
 
@@ -154,7 +163,7 @@ template <class T, class ALLOC>
 typename ArenaHandleBaseT<T, ALLOC>::iterator
 ArenaHandleBaseT<T, ALLOC>::end()
 {
-  return const_cast<ALLOC*>(this->allocator())->end();
+  return this->allocator()->end();
 }
 
 

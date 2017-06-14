@@ -12,7 +12,6 @@
 #include "CaloTools/SimpleNoiseToolFromTextFile.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 
 #include <iomanip>
 #include <iostream>
@@ -45,29 +44,6 @@ SimpleNoiseToolFromTextFile::~SimpleNoiseToolFromTextFile()
 { }
 
 StatusCode SimpleNoiseToolFromTextFile::initialize()
-{
-  const IGeoModelSvc *geoModel=nullptr;
-  ATH_CHECK( service("GeoModelSvc", geoModel) );
-
-  // dummy parameters for the callback:
-  int dummyInt=0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized())
-  {
-    return geoInit(dummyInt,dummyList);
-  }
-  else
-  {
-    ATH_CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit,
-                                  geoModel,
-                                  &SimpleNoiseToolFromTextFile::geoInit,this) );
-  }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-SimpleNoiseToolFromTextFile::geoInit(IOVSVC_CALLBACK_ARGS)
 {
   ATH_MSG_INFO( "SimpleNoiseToolFromTextFile initialize()" );
   

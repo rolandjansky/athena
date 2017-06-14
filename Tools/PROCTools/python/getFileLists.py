@@ -13,7 +13,7 @@ def tctPath(build,rel):
     arch = os.environ['CMTCONFIG']
     if build.startswith("17.") or build.startswith("18."):
         arch = "i686-slc5-gcc43-opt"
-    return "/afs/cern.ch/atlas/project/RTT/prod/Results/tct/"+rel+"/"+build+"/build/"+arch+"/offline/Tier0ChainTests/"
+    return "/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/"+rel+"/"+build+"/build/"+arch+"/Athena/Tier0ChainTests/"
 
 class TCTChainInfo:
     def __init__(self,dir,log,runEventIn=()):

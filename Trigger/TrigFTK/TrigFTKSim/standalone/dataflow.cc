@@ -6,6 +6,7 @@
 #include "boost/program_options.hpp"
 #include "boost/filesystem.hpp"
 #include <iomanip>
+#include <cmath>
 #include <TFile.h>
 
 int SIGDIGITS=2;
@@ -47,15 +48,17 @@ int main(int argc, char **argv) {
       std::cerr << "ERROR: " << e.what() << std::endl << std::endl;
       return 1;
     }
+  
+    Init(); 
 
-    Init();
     if(ch) {
        for (unsigned int ientry = 0; ientry < nloop; ++ientry) {
           Process(ientry);
        }
     } else {
-       // loop over indifidual files (towers spread over files
+       // loop over individual files (towers spread over files)
        vector<unsigned> processed(ntower);
+       processedTower.resize(ntower);
        for (size_t ifile=0; ifile < files.size(); ++ifile) {
           unsigned requiredEvents=0;
           for(int itower=0;itower<ntower;itower++) {
@@ -89,6 +92,7 @@ int main(int argc, char **argv) {
                       // disable this tower
                       if(processed[itower]>=nloop) {
                          activeTower[itower]=false;
+			 processedTower.at(itower)=true;
                       }
                    }
                 }
@@ -98,7 +102,7 @@ int main(int argc, char **argv) {
           }
        }
     }
-
+  
     Terminate();
 
   } // end try
@@ -126,8 +130,15 @@ void Init() {
    outputHistMax=new TH2D("hist_dataflow_max",";tower;entries",
                           MAXTOWER,-0.5,MAXTOWER-0.5,
                           HIST_MAXBINS,-0.5,HIST_MAXBINS-0.5);
-   outputHistMax->Sumw2();
-
+   outputHistMax->Sumw2();   
+   outputHistFirstDecile=new TH2D("hist_dataflow_first_decile",";tower;entries",
+                          MAXTOWER,-0.5,MAXTOWER-0.5,
+                          2,0.5,2.5);
+   outputHistFirstDecile->Sumw2();
+   outputHistLastDecile=new TH2D("hist_dataflow_last_decile",";tower;entries",
+                          MAXTOWER,-0.5,MAXTOWER-0.5,
+                          2,0.5,2.5);
+   outputHistLastDecile->Sumw2();
   myfile.open (output);
   myfileTeX.open (outputTeX);
   std::cout.precision (1) ;
@@ -168,10 +179,10 @@ void Init() {
     nFitI[i] = 0;
     nTrackI[i] = 0;
     nTrackBeforeHW[i] = 0;
-    for (int k=0; k<8; k++) { nCluster[k][i]=0; nSSID[k][i] = 0;}
+    for (int k=0; k<8; k++) { nCluster[k][i]=0; nSSID[k][i] = 0;nCluster_road[k][i]=0; }
   }
   
-  ch = new TChain(TTREE_NAME);
+   ch = new TChain(TTREE_NAME);
 
   // add the input files
   std::vector<std::string>::const_iterator files_it = files.begin();
@@ -185,7 +196,7 @@ void Init() {
   }
   if (events > ch->GetEntries()) {
     nloop = ch->GetEntries();
-  }
+  } 
 
   int error=0;
   activeTower.resize(ntower);
@@ -250,10 +261,16 @@ void Init() {
            nloop=neventPerTower[itower];
         }
      }
-     cout<<"nloop="<<nloop<<"\n";
+     cout<<"nloop="<<nloop<<"\n"; 
+  
+  } else {
+     cout<<"Merged file with "<<ntower<<" towers\n";
   }
   divide = 1./nloop;
-
+  for(int i=0;i<ntower;i++) {
+     nRoad_tow_evt[i].reserve(nloop);
+     nFitI_tow_evt[i].reserve(nloop);
+  }
 }
 
 void Process(unsigned int ientry) {
@@ -266,7 +283,10 @@ void Process(unsigned int ientry) {
      thisevt = stream[itower]->eventNumber();
      break;
   }
-  if (ientry % 50 == 0) cerr << "ientry = " << ientry << " and run = " << thisrun << " and event = " << thisevt << endl;
+  if (ientry % 50 == 0)
+     cerr << "ientry = " << ientry << " and run = " << thisrun
+          << " and event = " << thisevt
+          << endl;
 
   static int first=true;
 
@@ -279,7 +299,9 @@ void Process(unsigned int ientry) {
     outputHistMin->SetBinContent(itower+1,ibin,x);                      \
   if(first) { outputHistAvg->GetYaxis()->SetBinLabel(ibin,name);        \
               outputHistMin->GetYaxis()->SetBinLabel(ibin,name);        \
-              outputHistMax->GetYaxis()->SetBinLabel(ibin,name); }
+              outputHistMax->GetYaxis()->SetBinLabel(ibin,name);        \
+              cout<<"fill "<<name<<" at "<<ibin<<" val="<<x<<"\n";      \
+  }
 
   for (int itower = 0; itower < ntower; itower++) {
      if(!activeTower[itower]) continue;
@@ -287,18 +309,25 @@ void Process(unsigned int ientry) {
     if (stream[itower] == 0) { cerr << "ERROR: Road stream " << itower << " = 0 " << std::endl; return;}
 
     int ibin=0;
+    int nRoads=stream[itower]->naoGetNroadsAM();
+    if(!nRoads) nRoads=stream[itower]->getNRoads();
     ADD_TO_HIST(1,"nevent");
-    ADD_TO_HIST( stream[itower]->naoGetNroadsAM(),"nRoad");
+    ADD_TO_HIST( nRoads,"nRoad");
     ADD_TO_HIST( trackstream[itower]->getNFits(),"nFit");
     ADD_TO_HIST( trackstream[itower]->getNFitsI(),"nFitI");
     ADD_TO_HIST( trackstream[itower]->getNTracks(),"nTrack");
     ADD_TO_HIST( trackstream[itower]->getNTracks(),"nTrackI");
     
-      nRoad[itower] += stream[itower]->naoGetNroadsAM()*divide;
+      nRoad[itower] += nRoads*divide;
       nFit[itower] += trackstream[itower]->getNFits()*divide;
       nFitI[itower] += trackstream[itower]->getNFitsI()*divide;
       nTrack[itower] += trackstream[itower]->getNTracks()*divide;
       nTrackI[itower] += trackstream[itower]->getNTracksI()*divide;
+
+      nRoad_tow_evt[itower].push_back(nRoads);
+      nFitI_tow_evt[itower].push_back(trackstream[itower]->getNFitsI());
+
+    // for each tower and each entry register the value to extract later the deciles
 
       Int_t ntrackBeforeHW = trackstream[itower]->getNTracks() + trackstream[itower]->getNFitsHWRejected();
 
@@ -337,7 +366,8 @@ void Process(unsigned int ientry) {
 
       for (int il = 0; il < 8; il++) {
          nCluster[il][itower] += stream[itower]->naoGetNclus(il)*divide;
-         nSSID[il][itower] += stream[itower]->naoGetNss(il)*divide;
+         nCluster_road[il][itower] += stream[itower]->naoGetNclus_road(il)*divide;
+         //SSID[il][itower] += stream[itower]->naoGetNss(il)*divide;
       }
    ADD_TO_HIST( stream[itower]->naoGetNclus(0),"nCluster0");
    ADD_TO_HIST( stream[itower]->naoGetNclus(1),"nCluster1");
@@ -348,32 +378,44 @@ void Process(unsigned int ientry) {
    ADD_TO_HIST( stream[itower]->naoGetNclus(6),"nCluster6");
    ADD_TO_HIST( stream[itower]->naoGetNclus(7),"nCluster7");
 
-   ADD_TO_HIST( stream[itower]->naoGetNss(0),"nSSID0");
+
+   ADD_TO_HIST( stream[itower]->naoGetNclus_road(0),"nCluster(road0)");
+   ADD_TO_HIST( stream[itower]->naoGetNclus_road(1),"nCluster(road1)");
+   ADD_TO_HIST( stream[itower]->naoGetNclus_road(2),"nCluster(road2)");
+   ADD_TO_HIST( stream[itower]->naoGetNclus_road(3),"nCluster(road3)");
+   ADD_TO_HIST( stream[itower]->naoGetNclus_road(4),"nCluster(road4)");
+   ADD_TO_HIST( stream[itower]->naoGetNclus_road(5),"nCluster(road5)");
+   ADD_TO_HIST( stream[itower]->naoGetNclus_road(6),"nCluster(road6)");
+   ADD_TO_HIST( stream[itower]->naoGetNclus_road(7),"nCluster(road7)");
+
+
+   /* ADD_TO_HIST( stream[itower]->naoGetNss(0),"nSSID0");
    ADD_TO_HIST( stream[itower]->naoGetNss(1),"nSSID1");
    ADD_TO_HIST( stream[itower]->naoGetNss(2),"nSSID2");
    ADD_TO_HIST( stream[itower]->naoGetNss(3),"nSSID3");
    ADD_TO_HIST( stream[itower]->naoGetNss(4),"nSSID4");
    ADD_TO_HIST( stream[itower]->naoGetNss(5),"nSSID5");
    ADD_TO_HIST( stream[itower]->naoGetNss(6),"nSSID6");
-   ADD_TO_HIST( stream[itower]->naoGetNss(7),"nSSID7");
+   ADD_TO_HIST( stream[itower]->naoGetNss(7),"nSSID7");  */
 
   }
+
   first=false;
 }
 
 void Terminate() {
-
   myfile << "Type\t\tbarrelmean\t\tbarrelmax\t\tendcapmean\t\tendcapmax" << endl;
   myfile << "--------------" << endl;
-
   // kludge, can do this better but works for now
-  float temp[MAXTOWER], temp2[MAXTOWER];
+  float temp[MAXTOWER], temp2[MAXTOWER], temp3[MAXTOWER];
   for (int i = 0; i < 8; i++) {
     for (int j = 0; j < MAXTOWER; j++) {
       temp[j] = nCluster[i][j];
+      temp3[j] = nCluster_road[i][j];
       temp2[j] = nSSID[i][j];
     }
     printinfo (temp, Form("NClusterL%d",i));
+    printinfo (temp3, Form("NCluster(road)L%d",i));
     printinfo (temp2, Form("NSSIDL%d",i));
   }
   AddBreak();
@@ -397,6 +439,64 @@ void Terminate() {
   printinfo (nFitMajority, "NFitSSB Majority");
   printinfo (nFitMajoritySCT, "NFitSSB Majority missing SCT");
   printinfo (nFitMajorityPix, "NFitSSB Majority missing Pix");
+
+  for (int itower = 0; itower < ntower; itower++) {
+     if(!processedTower[itower]) continue;
+     int first_decile_nRoad=0;
+     int last_decile_nRoad=0;
+     int first_decile_pos_nRoad=nRoad_tow_evt[itower].size()/10;
+     int last_decile_pos_nRoad=nRoad_tow_evt[itower].size()*9/10;
+     if(nRoad_tow_evt[itower].size()) {
+        vector<float>::iterator nth;
+        nth=nRoad_tow_evt[itower].begin()+first_decile_pos_nRoad;
+        nth_element(nRoad_tow_evt[itower].begin(),nth,
+                    nRoad_tow_evt[itower].end());
+        first_decile_nRoad=(*nth);
+        nth=nRoad_tow_evt[itower].begin()+last_decile_pos_nRoad;
+        nth_element(nRoad_tow_evt[itower].begin(),nth,
+                    nRoad_tow_evt[itower].end());
+        last_decile_nRoad=(*nth);
+     }
+     int first_decile_nFitI=0;
+     int last_decile_nFitI=0;
+     int first_decile_pos_nFitI=nFitI_tow_evt[itower].size()/10;
+     int last_decile_pos_nFitI=nFitI_tow_evt[itower].size()*9/10;
+     if(nFitI_tow_evt[itower].size()) {
+        vector<float>::iterator nth;
+        nth=nFitI_tow_evt[itower].begin()+
+           nFitI_tow_evt[itower].size()/10;
+        nth_element(nFitI_tow_evt[itower].begin(),nth,
+                    nFitI_tow_evt[itower].end());
+        first_decile_nFitI=(*nth);
+        nth=nFitI_tow_evt[itower].begin()+
+           nFitI_tow_evt[itower].size()*9/10;
+        nth_element(nFitI_tow_evt[itower].begin(),nth,
+                    nFitI_tow_evt[itower].end());
+        last_decile_nFitI=(*nth);
+     }
+     AddBreak();
+     AddBreak();
+     myfile << " nRoad first decile position is " << first_decile_pos_nRoad
+            << " for a value of " << first_decile_nRoad << endl;
+
+     myfile << "nRoad  last decile position is " << last_decile_pos_nRoad
+            << " for a value of " << last_decile_nRoad << endl;  
+    
+     myfile << " nFitI first decile position is " << first_decile_pos_nFitI
+            << " for a value of " << first_decile_nFitI << endl;
+
+     myfile << " nFitI last decile position is " << last_decile_pos_nFitI
+            << " for a value of " << last_decile_nFitI << endl;  
+ 
+     //fill out histo with values
+     outputHistFirstDecile->SetBinContent(itower+1, 1, first_decile_nRoad);
+     outputHistLastDecile->SetBinContent(itower+1, 1, last_decile_nRoad);
+     outputHistFirstDecile->SetBinContent(itower+1, 2, first_decile_nFitI);
+     outputHistLastDecile->SetBinContent(itower+1, 2, last_decile_nFitI);
+  } 
+
+   //myfile << " first decile position is cool " << endl;
+
   myfile.close();
 
   myfileTeX << "\\hline" << std::endl;
@@ -405,47 +505,55 @@ void Terminate() {
   myfileTeX << "\\end{table}" << std::endl;
   myfileTeX << "\\end{document}" << std::endl;
   myfileTeX.close();
-
+   
+  outputHistFirstDecile->GetYaxis()->SetBinLabel(1,"nRoad");
+  outputHistLastDecile->GetYaxis()->SetBinLabel(1,"nRoad");
+  outputHistFirstDecile->GetYaxis()->SetBinLabel(2,"nFitI");
+  outputHistLastDecile->GetYaxis()->SetBinLabel(2,"nFitI");
   outputRootFile->cd();
   outputHistAvg->Write();
   outputHistMin->Write();
   outputHistMax->Write();
+  outputHistFirstDecile->Write();
+  outputHistLastDecile->Write();
   delete outputRootFile;
   outputRootFile=0;
 }
 
+double roundTo(double x,int precision) {
+   int significantDigit=0;
+   if(x!=0) significantDigit=trunc(log10(fabs(x)));
+   if(precision>=1) {
+      double factor=pow(10.,precision-1-significantDigit);
+      return round(x*factor)/factor;
+   }
+   return x;
+}
 
 void printinfo(float towers[MAXTOWER], TString text) {
 
+   int barrelN=0,endcapN=0;
   float barrelmean(0), endcapmean(0), barrelmax(0), endcapmax(0);
   for (int i = 0; i<ntower; i++) {
+     if(!processedTower[i]) continue;
     if (i < (ntower/4) || i >= 3*(ntower/4.)) { // kludge not always (?) guaranteed to work
       if (towers[i] > endcapmax) endcapmax = towers[i];
-      endcapmean += towers[i]/(ntower/2.);
+      endcapmean += towers[i];
+      endcapN++;
     }
     else {
       if (towers[i] > barrelmax) barrelmax = towers[i];
-      barrelmean += towers[i]/(ntower/2.);
+      barrelmean += towers[i];
+      barrelN++;
     }
   }
+  if(barrelN) barrelmean/=  barrelN;
+  if(endcapN) endcapmean /=  endcapN;
 
-  barrelmean = ([barrelmean](int SIGDIGITS)->double{
-      std::stringstream lStream;
-      lStream << std::setprecision(SIGDIGITS) << barrelmean; return std::stod(lStream.str());
-    })(SIGDIGITS);
-  barrelmax = ([barrelmax](int SIGDIGITS)->double{
-      std::stringstream lStream;
-      lStream << std::setprecision(SIGDIGITS) << barrelmax; return std::stod(lStream.str());
-    })(SIGDIGITS);
-  endcapmean = ([endcapmean](int SIGDIGITS)->double{
-      std::stringstream lStream;
-      lStream << std::setprecision(SIGDIGITS) << endcapmean; return std::stod(lStream.str());
-    })(SIGDIGITS);
-  endcapmax = ([endcapmax](int SIGDIGITS)->double{
-      std::stringstream lStream;
-      lStream << std::setprecision(SIGDIGITS) << endcapmax; return std::stod(lStream.str());
-    })(SIGDIGITS);
-
+  barrelmean = roundTo(barrelmean,SIGDIGITS);
+  barrelmax = roundTo(barrelmax,SIGDIGITS);
+  endcapmean = roundTo(endcapmean,SIGDIGITS);
+  endcapmax = roundTo(endcapmax,SIGDIGITS);
 
   myfile << text << "\t\t" << barrelmean << "\t\t" << barrelmax << "\t\t" << endcapmean << "\t\t" << endcapmax << endl;
   myfileTeX << text << "&" << barrelmean << "&" << barrelmax << "&" << endcapmean << "&" << endcapmax << " \\\\" << endl;
@@ -457,3 +565,4 @@ void AddBreak(int n) {
     myfileTeX << "\\hline" << std::endl;
   }
 }
+

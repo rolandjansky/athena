@@ -8,7 +8,8 @@
 # Ignore the Projects directory:
 - Projects/.*
 
-# Remove HLT packages
+# Remove most HLT packages
++ HLT/Trigger/TrigTransforms/TrigTransform
 - HLT/.*
 - Trigger/TrigValidation/TrigP1Test
 
@@ -44,3 +45,4 @@
 - Reconstruction/Jet/JetAnalysisTools/JetTileCorrection
 - Trigger/TrigAnalysis/TrigMuonEfficiency
 - Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
+- Trigger/TrigFTK/FTKStandaloneMonitoring

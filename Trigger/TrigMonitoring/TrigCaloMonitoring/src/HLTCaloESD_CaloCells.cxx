@@ -10,10 +10,7 @@
 
 
 HLTCaloESD_CaloCells::HLTCaloESD_CaloCells(const std::string & type, const std::string & name, const IInterface* parent): 
-  IHLTMonTool(type, name, parent),
-  m_do_subcalo(false),
-  m_do_layers (false),
-  m_max_delta_energy(0.0)
+  IHLTMonTool(type, name, parent)
 {
   declareProperty("HLTContainer", m_HLT_cont_name = "HLT_CaloCellContainer_TrigCaloCellMaker");
   declareProperty("OFFContainer", m_OFF_cont_name = "AllCalo");
@@ -21,9 +18,6 @@ HLTCaloESD_CaloCells::HLTCaloESD_CaloCells(const std::string & type, const std::
   
   declareProperty("HLTMinET",     m_HLT_min_et =  -1.0);
   declareProperty("OFFMinET",     m_OFF_min_et =  -1.0);
-  //declareProperty("DoSubCalo",      m_do_subcalo       =  true);
-  //declareProperty("DoLayers",       m_do_layers        = false);
-  //declareProperty("MaxDeltaEnergy", m_max_delta_energy =   5.0); 
 }
 
 
@@ -184,7 +178,7 @@ StatusCode HLTCaloESD_CaloCells::fill()
 
   for(; HLT_itr != HLT_end; ++HLT_itr) {
     
-    CaloCell* HLT_cell = (*HLT_itr);
+    const CaloCell* HLT_cell = (*HLT_itr);
     if(!HLT_cell || !HLT_cell->caloDDE()) {
       continue;
     }

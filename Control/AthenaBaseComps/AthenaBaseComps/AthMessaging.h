@@ -54,7 +54,7 @@ class AthMessaging
 
   /** @brief Test the output level
    *  @param lvl The message level to test against
-   *  @return boolean Indicting if messages at given level will be printed
+   *  @return boolean Indicating if messages at given level will be printed
    *  @retval true Messages at level "lvl" will be printed
    */
   bool 

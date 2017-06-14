@@ -22,10 +22,10 @@ private:
 
   int m_NLeptonsH;
   int m_NLeptonsT;
-  int H_WPlus_e, H_WMinus_e;
-  int H_WPlus_m, H_WMinus_m;
-  int T_WPlus_e, T_WMinus_e;
-  int T_WPlus_m, T_WMinus_m;
+  int m_H_WPlus_e, m_H_WMinus_e;
+  int m_H_WPlus_m, m_H_WMinus_m;
+  int m_T_WPlus_e, m_T_WMinus_e;
+  int m_T_WPlus_m, m_T_WMinus_m;
 
 };
 

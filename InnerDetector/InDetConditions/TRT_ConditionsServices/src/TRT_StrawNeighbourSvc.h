@@ -6,8 +6,8 @@
 #define TRT_STRAWNEIGHBOURSVC_H
 
 /** @file TRT_StrawNeighbourSvc.h
- *  @Service to information on straws electronic grouping
- *  Develuped for the study of noise correlations between straws
+ *  @brief Service to information on straws electronic grouping
+ *  Developed for the study of noise correlations between straws
  *  @author Esben Klinkby <>
  **/
 

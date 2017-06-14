@@ -17,8 +17,7 @@
 
 #include "GaudiKernel/IInterface.h"
 #include <string>
-
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
@@ -26,7 +25,7 @@
 class IRDBRecordset;
 class IRDBQuery;
 
-typedef boost::shared_ptr<IRDBRecordset> IRDBRecordset_ptr;
+typedef std::shared_ptr<IRDBRecordset> IRDBRecordset_ptr;
 
 typedef coral::AttributeList RDBTagDetails;
 
@@ -71,12 +70,6 @@ class IRDBAccessSvc : virtual public IInterface
   /// tag of the HVS branch node specified by tag2node otherwise
   /// @param tag2node [IN] some parent of the HVS leaf node specified by node parameter
   /// @return pointer to the recordset object
-  virtual const IRDBRecordset* getRecordset(const std::string& node,
-					    const std::string& tag,
-					    const std::string& tag2node="",
-					    const std::string& connName = "ATLASDD") = 0;
-
-
   virtual IRDBRecordset_ptr getRecordsetPtr(const std::string& node,
 					    const std::string& tag,
 					    const std::string& tag2node="",

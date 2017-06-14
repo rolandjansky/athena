@@ -57,7 +57,7 @@ public:  // Interface methods
   get2dMuonSegmentCombination( Identifier eta_id, Identifier phi_id,
                                ICscSegmentFinder::ChamberTrkClusters& eta_clus,
                                ICscSegmentFinder::ChamberTrkClusters& phi_clus,
-                               const Amg::Vector3D& lpos000, bool use2Lay=false, int badLay1=-1, int badLay2=-1 ) const=0;
+                               const Amg::Vector3D& lpos000, int etaStat=0, int phiStat=0 ) const=0;
 
   virtual Muon::MuonSegmentCombination*
   get4dMuonSegmentCombination(Identifier eta_id, Identifier phi_id,

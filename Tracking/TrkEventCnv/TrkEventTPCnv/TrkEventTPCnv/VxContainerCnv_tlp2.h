@@ -53,7 +53,7 @@
 // Element Link for track collection
 //-----------------------------------------------------------------------------
 #include "DataModelAthenaPool/ElementLinkCnv_p1.h"
-#include "DataModel/ElementLink.h" 
+#include "AthLinks/ElementLink.h" 
 #include "TrkTrack/TrackCollection.h"
 
 class VxContainerCnv_tlp2 : public AthenaPoolTopLevelTPConverter< VxContainerCnv_p1, Trk::VxContainer_tlp2 >

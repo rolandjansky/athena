@@ -262,7 +262,7 @@ def getPANDAClient():
     return cur
 
 ## @brief Un-escape information from PANDA
-#  @detail Provided by Pavel.
+#  @details Provided by Pavel.
 def ReadablePANDA(s):
     return s.replace('%0B',' ').replace('%9B','; ').replace('%8B','"').replace('%3B',';').replace('%2C',',').replace('%2B','+')
 

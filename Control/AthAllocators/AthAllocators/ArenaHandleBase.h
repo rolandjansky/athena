@@ -20,6 +20,7 @@
 
 #include "AthAllocators/ArenaHeader.h"
 #include "AthAllocators/ArenaAllocatorBase.h"
+#include "AthAllocators/LockedAllocator.h"
 #include <cstdlib>
 
 
@@ -39,6 +40,11 @@ namespace SG {
  * a Handle should not be passed between threads, and Handle objects
  * should not exist across any point where the current store/Arena
  * may be changed.
+ *
+ * A Handle also holds a lock on its associated allocator.
+ * Therefore, if you try to create two handle instances referencing the
+ * same allocator (i.e, same type and same thread), you'll get a deadlock.
+ *
  * Multiple Handle implementations may be available, implementing
  * different strategies for initializing the elements.
  *
@@ -59,6 +65,24 @@ public:
    * @param index The index of this Handle's Allocator type.
    */
   ArenaHandleBase (ArenaHeader* header, size_t index);
+
+
+  /**
+   * @brief Constructor.
+   * @param header The group of Arenas which this Handle may reference.
+   *               May be null to select the global default.
+   * @param ctx Event context to select the Arena for the proper event slot.
+   * @param index The index of this Handle's Allocator type.
+   */
+  ArenaHandleBase (ArenaHeader* header, const EventContext& ctx, size_t index);
+
+
+  /**
+   * @brief Constructor.
+   * @parma arena The particular Arena to use.
+   * @param index The index of this Handle's Allocator type.
+   */
+  ArenaHandleBase (ArenaBase* arena, size_t index);
 
 
   /**
@@ -111,7 +135,7 @@ public:
    * @brief Return the statistics block for this allocator,
    * for the current Arena.
    */
-  const ArenaAllocatorBase::Stats& stats() const;
+  ArenaAllocatorBase::Stats stats() const;
 
 
 protected:
@@ -120,12 +144,20 @@ protected:
    *
    * This may cause a new Allocator to be created.
    */
-  ArenaAllocatorBase* baseAllocator() const;
+  ArenaAllocatorBase* baseAllocator();
+
+
+  /**
+   * @brief Return the current Allocator which we are referencing.
+   *
+   * This may cause a new Allocator to be created.
+   */
+  const ArenaAllocatorBase* baseAllocator() const;
 
 
 private:
   /// The associated allocator object.
-  ArenaAllocatorBase* m_allocator;
+  LockedAllocator m_allocator;
 };
 
 

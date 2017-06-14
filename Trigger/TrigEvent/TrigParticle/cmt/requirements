@@ -5,7 +5,8 @@ author Ricardo Goncalo <r.goncalo@rhul.ac.uk>
 # general stuff:
 use AtlasPolicy	 	AtlasPolicy-*
 use CLIDSvc		CLIDSvc-* 		Control
-use DataModel 		DataModel-* 		Control
+use AthContainers 	AthContainers-*      Control
+use AthLinks 	        AthLinks-*           Control
 use Navigation          Navigation-*         Control
 use EventKernel         EventKernel-*        Event
 use FourMom             FourMom-*            Event

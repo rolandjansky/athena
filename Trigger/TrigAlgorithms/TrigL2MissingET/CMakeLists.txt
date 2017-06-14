@@ -13,7 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           LArCalorimeter/LArIdentifier
                           LArCalorimeter/LArRecEvent
-                          LArCalorimeter/LArTools
+                          LArCalorimeter/LArCabling
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigSteer/TrigInterfaces
                           PRIVATE
@@ -36,13 +36,13 @@ atlas_add_library( TrigL2MissingETLib
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CaloIdentifier IRegionSelector xAODTrigMissingET GaudiKernel LArIdentifier LArRecEvent TrigSteeringEvent LArToolsLib TrigInterfacesLib TrigT2CaloCommonLib TrigNavigationLib
+                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CaloIdentifier IRegionSelector xAODTrigMissingET GaudiKernel LArIdentifier LArRecEvent TrigSteeringEvent LArCablingLib TrigInterfacesLib TrigT2CaloCommonLib TrigNavigationLib
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} CxxUtils xAODEventInfo TrigCaloEvent TrigMissingEtEvent TrigT1Interfaces )
 
 atlas_add_component( TrigL2MissingET
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} CaloIdentifier IRegionSelector xAODTrigMissingET GaudiKernel LArIdentifier LArRecEvent LArToolsLib TrigSteeringEvent TrigInterfacesLib CxxUtils xAODEventInfo TrigT2CaloCommonLib TrigCaloEvent TrigMissingEtEvent TrigNavigationLib TrigT1Interfaces TrigL2MissingETLib )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} CaloIdentifier IRegionSelector xAODTrigMissingET GaudiKernel LArIdentifier LArRecEvent LArCablingLib TrigSteeringEvent TrigInterfacesLib CxxUtils xAODEventInfo TrigT2CaloCommonLib TrigCaloEvent TrigMissingEtEvent TrigNavigationLib TrigT1Interfaces TrigL2MissingETLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

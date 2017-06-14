@@ -7,7 +7,7 @@
 #define ANALYSISUTILS_ISELECTORCORE_H 
 
 /**
-   @Project: AnalysisUtils
+   @package: AnalysisUtils
    
    @class ISelectorCore
    

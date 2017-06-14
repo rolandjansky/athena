@@ -355,11 +355,11 @@ StatusCode PixelDigitizationTool::mergeEvent() {
   // Digitize hits
   CHECK(digitizeEvent());
 
-  for (std::vector<SiHitCollection*>::iterator it = hitCollPtrs.begin();it!=hitCollPtrs.end();it++) {
+  for (std::vector<SiHitCollection*>::iterator it = m_hitCollPtrs.begin();it!=m_hitCollPtrs.end();it++) {
     (*it)->Clear();
     delete(*it);
   }
-  hitCollPtrs.clear();
+  m_hitCollPtrs.clear();
 
   return StatusCode::SUCCESS;
 }
@@ -388,7 +388,7 @@ StatusCode PixelDigitizationTool::processBunchXing(int bunchXing, SubEventIterat
     PileUpTimeEventIndex timeIndex(iEvt->time(),iEvt->index());
     SiHitCollection *hitCollPtr = new SiHitCollection(*seHitColl);
     m_timedHits->insert(timeIndex,hitCollPtr);
-    hitCollPtrs.push_back(hitCollPtr);
+    m_hitCollPtrs.push_back(hitCollPtr);
   }
 
   return StatusCode::SUCCESS;

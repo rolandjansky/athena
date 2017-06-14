@@ -43,7 +43,7 @@ JetForwardFilter::JetForwardFilter(const std::string& name, ISvcLocator* pSvcLoc
 
   declareProperty("SuppressionFactor", m_suppressionFactor = 1.0);
 
-  myRandGen = 0;
+  m_myRandGen = 0;
 }
 
 
@@ -77,15 +77,15 @@ StatusCode JetForwardFilter::filterInitialize() {
   ATH_MSG_INFO("  Suppression factor = " << m_suppressionFactor);
 
   // Setup the random number generator for weighting
-  myRandGen = new TRandom3();
-  myRandGen->SetSeed(0); // completely random!
+  m_myRandGen = new TRandom3();
+  m_myRandGen->SetSeed(0); // completely random!
 
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode JetForwardFilter::filterFinalize() {
-  delete myRandGen;
+  delete m_myRandGen;
   return StatusCode::SUCCESS;
 }
 
@@ -139,9 +139,9 @@ StatusCode JetForwardFilter::filterEvent() {
   double weighting = 1.0;
   int flagW = -1;
   if (intervalSize > 0.0 && jetPt1 > 0.0) {
-    weighting = m_calculateProbToKeep(intervalSize, jetPt1);
+    weighting = calculateProbToKeep(intervalSize, jetPt1);
     flagW = 0;
-    if (weighting > myRandGen->Rndm()) flagW = 1;
+    if (weighting > m_myRandGen->Rndm()) flagW = 1;
   }
 
   ATH_MSG_INFO("NJets  OK? : " << flagNJets);
@@ -168,7 +168,7 @@ StatusCode JetForwardFilter::filterEvent() {
 }
 
 
-double JetForwardFilter::m_evaluatePDF(double x, double y, int gausIndex) {
+double JetForwardFilter::evaluatePDF(double x, double y, int gausIndex) {
   double muX = m_muXs[gausIndex];
   double muY = m_muYs[gausIndex];
   double sigmaX = m_sigmaXs[gausIndex];
@@ -187,11 +187,11 @@ double JetForwardFilter::m_evaluatePDF(double x, double y, int gausIndex) {
 }
 
 
-double JetForwardFilter::m_calculateProbToKeep(double absoluteDeltaY, double leadJetPt) {
+double JetForwardFilter::calculateProbToKeep(double absoluteDeltaY, double leadJetPt) {
   // Sum up the pdf for each gaussian distribution
   double pdfSum = 0.0;
   for (size_t g = 0; g < m_muXs.size(); g++) {
-    pdfSum += m_weights[g]*m_evaluatePDF(leadJetPt, absoluteDeltaY, g);
+    pdfSum += m_weights[g]*evaluatePDF(leadJetPt, absoluteDeltaY, g);
   }
 
   // Return the ratio to suppression point to define the event weight

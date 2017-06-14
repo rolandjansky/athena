@@ -4,7 +4,7 @@
 
 /**
  * @file D3PDMaker/TrackD3PDMaker/src/SCTTrackParticleToMuonAssociationTool.cxx
- * @contact <laura.rehnisch@cern.ch>
+ * @author <laura.rehnisch@cern.ch>
  * @date Nov, 2012
  * @brief setting up an association of trackparticles
  *        and muons.

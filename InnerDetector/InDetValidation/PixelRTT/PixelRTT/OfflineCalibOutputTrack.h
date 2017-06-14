@@ -41,7 +41,7 @@ private:
 	// My variables
 	PixelCalib::PixelChargeInterpolationCalibration *m_Calibration;
 	PixelCalib::PixelChargeInterpolationValidation *m_Validation;
-	ResPullValidation *ResPhiValid, *ResEtaValid, *PullPhiValid, *PullEtaValid;
+	ResPullValidation *m_ResPhiValid, *m_ResEtaValid, *m_PullPhiValid, *m_PullEtaValid;
    
 };
 

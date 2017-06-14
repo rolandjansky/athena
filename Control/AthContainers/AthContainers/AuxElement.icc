@@ -590,10 +590,6 @@ void AuxElement::Decorator<T>::set (const AuxElement& e,
 /**
  * @brief Get a pointer to the start of the auxiliary data array.
  * @param container The container from which to fetch the variable.
- *
- * If the container is locked, this will allow fetching only variables
- * that do not yet exist (in which case they will be marked as decorations)
- * or variables already marked as decorations.
  */
 template <class T>
 inline
@@ -604,6 +600,23 @@ AuxElement::Decorator<T>::getDataArray (const AuxVectorData& container) const
     (container.getDataArray (m_auxid));
 }
 
+
+/**
+ * @brief Get a pointer to the start of the auxiliary data array.
+ * @param container The container from which to fetch the variable.
+ *
+ * If the container is locked, this will allow fetching only variables
+ * that do not yet exist (in which case they will be marked as decorations)
+ * or variables already marked as decorations.
+ */
+template <class T>
+inline
+typename AuxElement::Decorator<T>::container_pointer_type
+AuxElement::Decorator<T>::getDecorationArray (const AuxVectorData& container) const
+{
+  return reinterpret_cast<container_pointer_type>
+    (container.getDecorationArray (m_auxid));
+}
 
 
 /**

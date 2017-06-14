@@ -9,7 +9,8 @@ atlas_subdir( MuonEventTPCnv )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
-   Control/DataModel
+   Control/AthAllocators
+   Control/AthLinks
    Control/DataModelAthenaPool
    Database/AthenaPOOL/AthenaPoolCnvSvc
    Database/AthenaPOOL/AthenaPoolUtilities
@@ -63,7 +64,7 @@ atlas_add_tpcnv_library( MuonEventTPCnv
    MuonEventTPCnv/MuonChamberT0s/*.h src/MuonChamberT0s/*.cxx
    MuonEventTPCnv/MuonDigitContainer/*.h src/MuonDigitContainer/*.cxx
    PUBLIC_HEADERS MuonEventTPCnv
-   LINK_LIBRARIES DataModel DataModelAthenaPoolLib AthenaPoolCnvSvcLib
+   LINK_LIBRARIES AthAllocators AthLinks DataModelAthenaPoolLib AthenaPoolCnvSvcLib
    AthenaPoolUtilities Identifier GaudiKernel GeneratorObjectsTPCnv
    MuonDigitContainer MuonChamberT0s MuonCompetingRIOsOnTrack MuonPrepRawData
    MuonRIO_OnTrack MuonSegment MuonTrigCoinData MuonSimData TrkSurfaces

@@ -71,6 +71,11 @@
  *     a Handle should not be passed between threads, and Handle objects
  *     should not exist across any point where the current store/Arena
  *     may be changed.
+ *
+ *     A Handle also holds a lock on its associated allocator.
+ *     Therefore, if you try to create two handle instances referencing the
+ *     same allocator (i.e, same type and same thread), you'll get a deadlock.
+ *     
  *     Multiple Handle implementations may be available, implementing
  *     different strategies for initializing the elements.
  *
@@ -249,48 +254,16 @@ public:
 
 
   /**
-   * @brief reset all contained allocators.  All elements will be freed.
-   */
-  void reset();
-
-
-  /**
-   * @brief erase all contained allocators.  All elements will be freed,
-   *        and the memory returned to the system.
-   */
-  void erase();
-
-
-  /**
-   * @brief Generate a report of the memory in use by this @c Arena.
-   * @param os The stream to which to write the report.
-   */
-  virtual void report (std::ostream& os) const;
-
-
-  /**
-   * @brief Return statistics summed over all allocators in this @c Arena.
-   */
-  const ArenaAllocatorBase::Stats& stats() const;
-
-
-  /**
    * @brief Return the @c ArenaHeader with which this @c Arena is associated.
    */
-  ArenaHeader* header() const;
-
-
-  /**
-   * @brief Return this @c Arena's name.
-   */
-  virtual const std::string& name() const;
+  ArenaHeader* header();
 
 
   /**
    * @brief Make this @c Arena the current one for its @c ArenaHeader.
-   * @returns The previously current allocator vector.
+   * @returns The previously current Arena.
    */
-  ArenaHeader::ArenaAllocVec_t* makeCurrent();
+  ArenaBase* makeCurrent();
 
 
   /**
@@ -318,23 +291,14 @@ public:
     /// The @c ArenaHeader for the stack we're managing.
     ArenaHeader* m_header;
 
-    /// The previously-current allocator vector.
-    ArenaHeader::ArenaAllocVec_t* m_allocs;
+    /// The previously-current arena.
+    ArenaBase* m_prev;
   };
 
 
 private:
   /// The @c ArenaHeader with which we're associated.
   ArenaHeader* m_header;
-
-  /// Our allocator vector.
-  ArenaHeader::ArenaAllocVec_t m_allocs;
-
-  /// Our summed statistics block.
-  mutable ArenaAllocatorBase::Stats m_stats;
-
-  /// Our name.
-  std::string m_name;
 };
 
 

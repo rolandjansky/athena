@@ -7,7 +7,7 @@
             <group>TrigInDetValidation</group>
             <queue>long</queue>
 	   
-#          include "samples/TrigInDetValidation_ttbar_sample1.xml"
+#          include "samples/TrigInDetValidation_ttbar_sample2.xml"
 
             <action position="01">
                 <modulename>RttLibraryTools</modulename>
@@ -71,7 +71,7 @@
 #           include "TrigInDetValidation_aux.xml"
 
    
-         <athenaCommonFlags /> 
+         <athenaCommonFlags /><alwaysRunPostProc /> 
          </athena>
 
 

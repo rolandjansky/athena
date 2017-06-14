@@ -14,7 +14,7 @@
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 
 #include "CLHEP/Random/RandLandau.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 // static partilce masses
 Trk::ParticleMasses iFatras::McEnergyLossUpdator::s_particleMasses;

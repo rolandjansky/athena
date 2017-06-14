@@ -27,6 +27,7 @@
 //#pragma link C++ class std::pair<long int,long int>+;
 #pragma link C++ class std::vector<TBits>+;
 #pragma link C++ class std::vector<FTKHit>+; 
+#pragma link C++ class std::vector<FTKHit*>+; 
 #pragma link C++ class std::vector<FTKRawHit>+; 
 #pragma link C++ class std::vector<FTKSS>+; 
 #pragma link C++ class FTKRoadStream+;

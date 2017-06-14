@@ -22,7 +22,11 @@
 // Need Cosh
 #include <math.h>
 
-const CaloSampling::CaloSample m_samps[2][4] =
+
+namespace {
+
+
+const CaloSampling::CaloSample samps[2][4] =
 { { CaloSampling::PreSamplerB,
     CaloSampling::EMB1,
     CaloSampling::EMB2,
@@ -32,6 +36,9 @@ const CaloSampling::CaloSample m_samps[2][4] =
     CaloSampling::EME2,
     CaloSampling::EME3 }
 };
+
+
+} // anonymous namespace
 
 StatusCode EgammaTransitionRegions::initialize(){
 
@@ -124,8 +131,8 @@ void EgammaTransitionRegions::makeCorrection(xAOD::TrigEMCluster* clus,
   // update sampling energies
   for (int sampling=1; sampling<=3; sampling++){
       if (the_aeta < 1.37 )
-        clus->setEnergy (m_samps[0][sampling],
-                            clus->energy(m_samps[0][sampling]) / corr );
+        clus->setEnergy (samps[0][sampling],
+                            clus->energy(samps[0][sampling]) / corr );
   }
  
     clus->setEnergy(clus->energy()/corr);

@@ -120,7 +120,7 @@ namespace Trk
     virtual const S& associatedSurface() const override {return *m_surface;}    
   
     /** Test to see if there's a surface there. */
-    bool hasSurface() const { return m_surface != nullptr; }
+    virtual bool hasSurface() const { return m_surface != nullptr; }
 
     /** Access method for the position */
     virtual const Amg::Vector3D& position() const final {return m_position;}

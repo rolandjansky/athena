@@ -122,7 +122,7 @@ namespace LVL1 {
     
     };
 
-    typedef std::map<int, JetElement*> JetElementMap_t;
+    typedef std::map<int, const JetElement*> JetElementMap_t;
   } // end of namespace
 
 #ifndef JetElement_ClassDEF_H

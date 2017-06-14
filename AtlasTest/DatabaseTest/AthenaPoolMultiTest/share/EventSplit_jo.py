@@ -137,15 +137,15 @@ ToolSvc = Service( "ToolSvc" )
 
 # We use 5 test output streams
 # Define them
-Stream2 = AthenaPoolOutputStream( "Stream2", "AthenaPoolMultiTest_Split2.root", True )
+Stream2 = AthenaPoolOutputStream( "Stream2", "AthenaPoolMultiTest_Split2.root", True, noTag=True )
 Stream2.CheckNumberOfWrites = False
-Stream1 = AthenaPoolOutputStream( "Stream1", "AthenaPoolMultiTest_Split1.root", True )
+Stream1 = AthenaPoolOutputStream( "Stream1", "AthenaPoolMultiTest_Split1.root", True, noTag=True )
 Stream1.CheckNumberOfWrites = False
-Stream3 = AthenaPoolOutputStream( "Stream3", "AthenaPoolMultiTest_Split2.root", True )
+Stream3 = AthenaPoolOutputStream( "Stream3", "AthenaPoolMultiTest_Split2.root", True, noTag=True )
 Stream3.CheckNumberOfWrites = False
-Others  = AthenaPoolOutputStream( "Others", "AthenaPoolMultiTest_Missed.root", True )
+Others  = AthenaPoolOutputStream( "Others", "AthenaPoolMultiTest_Missed.root", True, noTag=True )
 Others.CheckNumberOfWrites = False
-Bad     = AthenaPoolOutputStream( "Bad", "AthenaPoolMultiTest_Missed.root", True )
+Bad     = AthenaPoolOutputStream( "Bad", "AthenaPoolMultiTest_Missed.root", True, noTag=True )
 Bad.CheckNumberOfWrites = False
 
 # Configure them using filter methods and itemlist

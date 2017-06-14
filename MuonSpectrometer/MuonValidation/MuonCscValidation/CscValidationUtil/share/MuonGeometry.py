@@ -138,7 +138,6 @@ elif gopt == 2:
   DetDescrCnvSvc = Service( "DetDescrCnvSvc" )
   DetDescrCnvSvc.IdDictFromRDB = True
   include ( "AtlasGeoModel/SetGeometryVersion.py" )
-  include ("RDBAccessSvc/RDBAccessSvcPdb_jobOptions.py")
   theApp.Dlls += [ "GeoModelSvc" ]
   theApp.CreateSvc += [ "GeoModelSvc"]
   include( "AtlasGeoModel/MuonGeoModel.py" )

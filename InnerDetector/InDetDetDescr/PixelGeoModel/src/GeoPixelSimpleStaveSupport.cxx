@@ -23,16 +23,16 @@ GeoPixelSimpleStaveSupport::GeoPixelSimpleStaveSupport()
 
 GeoVPhysVol* GeoPixelSimpleStaveSupport::Build() {
   
-  double thickness = gmt_mgr->PixelLadderSupportThickness();
-  double width     = gmt_mgr->PixelLadderSupportWidth();
-  double length    = gmt_mgr->PixelLadderSupportLength();
-  double xOffset   = gmt_mgr->PixelLadderServicesX();
-  double yOffset   = gmt_mgr->PixelLadderServicesY();
-  int staveIndex   = gmt_mgr->PixelStaveIndex(gmt_mgr->GetLD());
+  double thickness = m_gmt_mgr->PixelLadderSupportThickness();
+  double width     = m_gmt_mgr->PixelLadderSupportWidth();
+  double length    = m_gmt_mgr->PixelLadderSupportLength();
+  double xOffset   = m_gmt_mgr->PixelLadderServicesX();
+  double yOffset   = m_gmt_mgr->PixelLadderServicesY();
+  int staveIndex   = m_gmt_mgr->PixelStaveIndex(m_gmt_mgr->GetLD());
 
   GeoBox * shape = new GeoBox(0.5*thickness, 0.5*width, 0.5*length);
-  std::string matName = gmt_mgr->getMaterialName("StaveSupport", gmt_mgr->GetLD(), staveIndex);
-  const GeoMaterial* material = mat_mgr->getMaterialForVolume(matName,shape->volume());
+  std::string matName = m_gmt_mgr->getMaterialName("StaveSupport", m_gmt_mgr->GetLD(), staveIndex);
+  const GeoMaterial* material = m_mat_mgr->getMaterialForVolume(matName,shape->volume());
   GeoLogVol* logVol = new GeoLogVol("StaveSupport",shape,material);
 
   m_transform = HepGeom::Translate3D(xOffset,yOffset,0);

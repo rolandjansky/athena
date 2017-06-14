@@ -6,7 +6,7 @@
 #define TRT_CONDITIONSTESTSVC_H
 
 /** @file TRT_ConditionsTestSvc.h
- *  @Service for example and test of TRT_ConditionsSummarySvc
+ *  @brief Service for example and test of TRT_ConditionsSummarySvc
  *  Inherits from ITRT_ConditionsSvc base class and returns InDet::TRT_GOOD.
  */
 

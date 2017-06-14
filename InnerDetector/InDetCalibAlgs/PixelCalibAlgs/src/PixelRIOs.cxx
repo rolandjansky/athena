@@ -70,7 +70,7 @@ PixelRIOs::PixelRIOs(std::string starting_tag,
 	m_timer->Start();
 
 	std::string constantsfile = starting_tag;
-	if(ifstream(constantsfile.c_str()).fail()){
+	if(std::ifstream(constantsfile.c_str()).fail()){
 		std::cout << "Failing to open " << constantsfile <<
 			" for initialization..." << std::endl;
 		abort();
@@ -98,7 +98,7 @@ PixelRIOs::PixelRIOs(std::string starting_tag,
 				abort();
 			}
 		}else{
-			ifstream myfile(input.c_str());
+                        std::ifstream myfile(input.c_str());
 			if (myfile.is_open()){
 				for(;;){
 					getline(myfile,input);

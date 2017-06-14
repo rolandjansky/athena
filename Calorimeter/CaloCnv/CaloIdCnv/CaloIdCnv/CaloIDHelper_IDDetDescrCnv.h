@@ -110,7 +110,7 @@ StatusCode make_CaloIDHelper (ISvcLocator* svcloc,
  * @brief Class for calo ID helper converters.
  *
  * This class implements a calo ID helper converter for the helper
- * type @T, using the @c CaloIDHelper_IDDetDescrCnv base class
+ * type @c T, using the @c CaloIDHelper_IDDetDescrCnv base class
  * defined above.  It uses @c make_CaloIDHelper to actually create
  * the helper instance.
  */

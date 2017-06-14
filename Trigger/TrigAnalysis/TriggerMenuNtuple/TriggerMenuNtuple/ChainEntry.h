@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __ChainEntry_h__
-#define __ChainEntry_h__
+#ifndef TRIGGERMENUNTUPLE_CHAINENTRY_H
+#define TRIGGERMENUNTUPLE_CHAINENTRY_H
 /*
   ChainEntry.h
 */
@@ -51,7 +51,7 @@ public:
   static void addChain(const std::string& chain_name, int id=-1);
 
 private:
-  static std::map<int, std::string> sChainIdMap;
+  static std::map<int, std::string> s_ChainIdMap;
   //  friend class RoILinksCnvTool;
 
 public:
@@ -59,20 +59,20 @@ public:
   ~ChainEntry();
 
   void addRoI(int type, int index);
-  const std::string& getName() const { return Name; }
-  int getCounter() const { return Counter; }
-  const std::vector<int>& getRoITypes() const { return RoITypes; }
-  const std::vector<int>& getRoIIndices() const { return RoIIndices; }
+  const std::string& getName() const { return m_Name; }
+  int getCounter() const { return m_Counter; }
+  const std::vector<int>& getRoITypes() const { return m_RoITypes; }
+  const std::vector<int>& getRoIIndices() const { return m_RoIIndices; }
 
   void dump() const;
 
 private:
-  std::string Name;                 // chain name
-  int Counter;                      // = chain counter
-  std::vector<int> RoITypes;        // Type of RoI
-  std::vector<int> RoIIndices;      // index of RoILinks
+  std::string m_Name;                 // chain name
+  int m_Counter;                      // = chain counter
+  std::vector<int> m_RoITypes;        // Type of RoI
+  std::vector<int> m_RoIIndices;      // index of RoILinks
 };
 
 std::ostream& operator<<(std::ostream& o, const ChainEntry& x);
 
-#endif // __ChainEntry_h__
+#endif // TRIGGERMENUNTUPLE_CHAINENTRY_H

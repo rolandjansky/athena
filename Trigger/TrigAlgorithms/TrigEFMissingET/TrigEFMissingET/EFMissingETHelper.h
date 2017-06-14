@@ -95,11 +95,10 @@ class TrigEFMissingEtHelper {
 
   private:
     // (the following 2 integer attributes should be packed into a single word)
-    int m_status;        //<! global status flag
-    unsigned char m_elements; //<! length of the vector of components
-    float m_ex, m_ey, m_ez, m_sumEt, m_sumE; //<! global information
+    int           m_status;                                  //<! global status flag
+    unsigned char m_elements;                                //<! length of the vector of components
+    float         m_ex, m_ey, m_ez, m_sumEt, m_sumE; //<! global information
     std::vector<TrigEFMissingEtComponent> m_vecOfComponents; //<! local info
-
 };
 
 

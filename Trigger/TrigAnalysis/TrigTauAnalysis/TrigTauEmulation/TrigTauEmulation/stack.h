@@ -40,27 +40,27 @@ class Stack {
     typedef typename std::remove_pointer<T>::type X;
     typedef Stack Container;
   private:
-    mutable T value;
+    mutable T m_value;
   public:
-    inline Stack(std::initializer_list<T> l) : value(nullptr) {
+    inline Stack(std::initializer_list<T> l) : m_value(nullptr) {
         for (auto e : l)
             push(e);
     }
-    inline Stack() : value(nullptr) {
+    inline Stack() : m_value(nullptr) {
     }
     inline ~Stack() {
         clear();
     }
-    inline Stack(Stack&& c) : value(std::move(c.value)) {
-        c.value = nullptr;
+    inline Stack(Stack&& c) : m_value(std::move(c.m_value)) {
+        c.m_value = nullptr;
     }
     Stack& operator=(Stack&& s) {
-        value = std::move(s.value);
-        s.value = nullptr;
+        m_value = std::move(s.m_value);
+        s.m_value = nullptr;
         return *this;
     }
     void clear() {
-        value = nullptr;
+        m_value = nullptr;
     }
 
     inline void push(const T& e) {
@@ -78,23 +78,23 @@ class Stack {
     inline void push_back(const T& e) {
         if (e) {
             assert(e->*ptr == nullptr);
-            e->*ptr = std::move(value);
-            value = e;
+            e->*ptr = std::move(m_value);
+            m_value = e;
         }
     }
 
     inline void push_back(T&& e) {
         if (e) {
             assert(e->*ptr == nullptr);
-            e->*ptr = std::move(value);
-            value = std::move(e);
+            e->*ptr = std::move(m_value);
+            m_value = std::move(e);
         }
     }
 
     inline T pop_back() {
-        T e = std::move(value);
+        T e = std::move(m_value);
         if (e) {
-            value = std::move((T)e->*ptr);
+            m_value = std::move((T)e->*ptr);
             e->*ptr = nullptr;
         }
         return e;
@@ -105,42 +105,42 @@ class Stack {
     }
 
     inline T back() {
-        return value;
+        return m_value;
     }
 
     inline const T back() const {
-        return value;
+        return m_value;
     }
     /*
         inline bool push_back(Stack& c) {
             if (&c == this || c.empty())
                 return false;
             if (!empty()) {
-                T last = c.value;
+                T last = c.m_value;
                 while (last && last->*ptr) {
                     last = last->*ptr;
                 }
                 if (last)
-                    last->*ptr = value;
+                    last->*ptr = m_value;
             }
-            value = std::move(c.value);
-            c.value = nullptr;
+            m_value = std::move(c.m_value);
+            c.m_value = nullptr;
             return true;
         }
     */
     inline bool push_back(T&& first, T&& last) {
-        if (value == first || !first || !last)
+        if (m_value == first || !first || !last)
             return false;
-        last->*ptr = std::move(value);
-        value = std::move(first);
+        last->*ptr = std::move(m_value);
+        m_value = std::move(first);
         return true;
     }
     /*
     inline bool push_back(const T& first, const T& last) {
-        if (value == first || !first || !last)
+        if (m_value == first || !first || !last)
             return false;
-        last->*ptr = std::move(value);
-        value = first;
+        last->*ptr = std::move(m_value);
+        m_value = first;
         return true;
     }
     */
@@ -153,12 +153,12 @@ class Stack {
     inline void erase(const T& e) {
         if (!e || empty())
             return;
-        if (value == e) {
+        if (m_value == e) {
             pop();
             return;
         }
         // it is not the first item, and there are items
-        T current = value;
+        T current = m_value;
         while (current->*ptr && current->*ptr != e) {
             current = current->*ptr;
         }
@@ -169,38 +169,38 @@ class Stack {
     }
 
     inline bool empty() const {
-        return !value;
+        return !m_value;
     }
 
     class const_iterator : public std::iterator<std::forward_iterator_tag, T, unsigned int> {
       protected:
-        T* value;
+        T* m_value;
       public:
-        const_iterator(T* value) : value(value) {
+        const_iterator(T* value) : m_value(value) {
         }
-        const_iterator(const const_iterator& a) : value(a.value) {
+        const_iterator(const const_iterator& a) : m_value(a.m_value) {
         }
-        const_iterator(const_iterator&& a) : value(nullptr) {
-            std::swap(a.value, value);
+        const_iterator(const_iterator&& a) : m_value(nullptr) {
+            std::swap(a.m_value, m_value);
         }
         const_iterator& operator=(const_iterator& a) {
-            a.value = value;
+            a.m_value = m_value;
             return *this;
         }
         const_iterator& operator=(const_iterator&& a) {
-            std::swap(a.value, value);
+            std::swap(a.m_value, m_value);
             return *this;
         }
         ~const_iterator() {
         }
         inline T operator*() const {
-            return value ? *value : nullptr;
+            return m_value ? *m_value : nullptr;
         }
         inline T operator->() const {
-            return value ? *value : nullptr;
+            return m_value ? *m_value : nullptr;
         }
         inline void operator++() {
-            value = value && *value ? &((*value)->*ptr) : nullptr;
+            m_value = m_value && *m_value ? &((*m_value)->*ptr) : nullptr;
         }
         inline const_iterator operator+(int i) {
             const_iterator retval = *this;
@@ -212,14 +212,14 @@ class Stack {
             return !(*this == b);
         }
         inline bool operator==(const const_iterator& b) const {
-            if (value == b.value)
+            if (m_value == b.m_value)
                 return true;
-            X* thisPointsTo = value && *value ? &** value : nullptr;
-            X* bPointsTo = b.value && *b.value ? &** b.value : nullptr;
+            X* thisPointsTo = m_value && *m_value ? &** m_value : nullptr;
+            X* bPointsTo = b.m_value && *b.m_value ? &** b.m_value : nullptr;
             return thisPointsTo == bPointsTo;
         }
         inline operator bool() const {
-            return value && *value;
+            return m_value && *m_value;
         }
     };
 
@@ -230,15 +230,15 @@ class Stack {
         iterator(const_iterator&& value) : const_iterator(std::move(value)) {
         }
         inline T erase() {
-            T retval = std::move(*this->value);
-            *this->value = std::move(bool(retval) ? retval->*ptr : nullptr);
+            T retval = std::move(*this->m_value);
+            *this->m_value = std::move(bool(retval) ? retval->*ptr : nullptr);
             return retval;
         }
         inline void insert(const T& a) {
-            if (!this->value || !*this->value)
+            if (!this->m_value || !*this->m_value)
                 return;
-            a->*ptr = std::move(*this->value);
-            *this->value = a;
+            a->*ptr = std::move(*this->m_value);
+            *this->m_value = a;
         }
         inline iterator operator+(int i) {
             return {const_iterator::operator+(i)};
@@ -247,14 +247,14 @@ class Stack {
 
 
     inline iterator begin() {
-        return {&value};
+        return {&m_value};
     }
     inline iterator end() {
         return {nullptr};
     }
 
     inline const_iterator begin() const {
-        return {&value};
+        return {&m_value};
     }
     inline const_iterator end() const {
         return {nullptr};
@@ -302,7 +302,7 @@ class Stack {
 namespace std {
     template <class T, class PtrContainer, T PtrContainer::*nextPtr>
     void swap(bitpowder::lib::Stack<T, PtrContainer, nextPtr>& lhs, bitpowder::lib::Stack<T, PtrContainer, nextPtr>& rhs) {
-        std::swap(lhs.value, rhs.value);
+        std::swap(lhs.m_value, rhs.m_value);
     }
 }
 #endif

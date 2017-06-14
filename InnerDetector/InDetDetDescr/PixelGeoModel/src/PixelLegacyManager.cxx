@@ -27,140 +27,140 @@ PixelLegacyManager::PixelLegacyManager(IRDBAccessSvc * rdbSvc,
 {
 
   // These are for the new description of the Pixel Frame
-  pfba = rdbSvc->getRecordsetPtr("PFBA",     detectorKey, detectorNode);
-  pbba = rdbSvc->getRecordsetPtr("PBBA",     detectorKey, detectorNode);
-  ptba = rdbSvc->getRecordsetPtr("PTBA",     detectorKey, detectorNode);
-  pfec = rdbSvc->getRecordsetPtr("PFEC",     detectorKey, detectorNode);
-  pbec = rdbSvc->getRecordsetPtr("PBEC",     detectorKey, detectorNode);
-  ptec = rdbSvc->getRecordsetPtr("PTEC",     detectorKey, detectorNode);
-  pecn = rdbSvc->getRecordsetPtr("PECN",     detectorKey, detectorNode);
-  pecf = rdbSvc->getRecordsetPtr("PECF",     detectorKey, detectorNode);
-  pecb = rdbSvc->getRecordsetPtr("PECB",     detectorKey, detectorNode);
-  pect = rdbSvc->getRecordsetPtr("PECT",     detectorKey, detectorNode);
+  m_pfba = rdbSvc->getRecordsetPtr("PFBA",     detectorKey, detectorNode);
+  m_pbba = rdbSvc->getRecordsetPtr("PBBA",     detectorKey, detectorNode);
+  m_ptba = rdbSvc->getRecordsetPtr("PTBA",     detectorKey, detectorNode);
+  m_pfec = rdbSvc->getRecordsetPtr("PFEC",     detectorKey, detectorNode);
+  m_pbec = rdbSvc->getRecordsetPtr("PBEC",     detectorKey, detectorNode);
+  m_ptec = rdbSvc->getRecordsetPtr("PTEC",     detectorKey, detectorNode);
+  m_pecn = rdbSvc->getRecordsetPtr("PECN",     detectorKey, detectorNode);
+  m_pecf = rdbSvc->getRecordsetPtr("PECF",     detectorKey, detectorNode);
+  m_pecb = rdbSvc->getRecordsetPtr("PECB",     detectorKey, detectorNode);
+  m_pect = rdbSvc->getRecordsetPtr("PECT",     detectorKey, detectorNode);
 
   // These are for the design
-  pxbi = rdbSvc->getRecordsetPtr("PXBI",     detectorKey, detectorNode);
-  pdch = rdbSvc->getRecordsetPtr("PDCH",     detectorKey, detectorNode);
-  pxbd = rdbSvc->getRecordsetPtr("PXBD",     detectorKey, detectorNode);
+  m_pxbi = rdbSvc->getRecordsetPtr("PXBI",     detectorKey, detectorNode);
+  m_pdch = rdbSvc->getRecordsetPtr("PDCH",     detectorKey, detectorNode);
+  m_pxbd = rdbSvc->getRecordsetPtr("PXBD",     detectorKey, detectorNode);
 
   // These are for a detailed description of the ladders and services on ladder
-  ptla = rdbSvc->getRecordsetPtr("PTLA",     detectorKey, detectorNode);
-  pctr = rdbSvc->getRecordsetPtr("PCTR",     detectorKey, detectorNode);
-  pftr = rdbSvc->getRecordsetPtr("PFTR",     detectorKey, detectorNode);
-  pttr = rdbSvc->getRecordsetPtr("PTTR",     detectorKey, detectorNode);
-  pome = rdbSvc->getRecordsetPtr("POME",     detectorKey, detectorNode);
-  poti = rdbSvc->getRecordsetPtr("POTI",     detectorKey, detectorNode);
-  pobi = rdbSvc->getRecordsetPtr("POBI",     detectorKey, detectorNode);
-  poai = rdbSvc->getRecordsetPtr("POAI",     detectorKey, detectorNode);
-  poci = rdbSvc->getRecordsetPtr("POCI",     detectorKey, detectorNode);
-  posi = rdbSvc->getRecordsetPtr("POSI",     detectorKey, detectorNode);
-  pccf = rdbSvc->getRecordsetPtr("PCCF",     detectorKey, detectorNode);
-  pcff = rdbSvc->getRecordsetPtr("PCFF",     detectorKey, detectorNode);
+  m_ptla = rdbSvc->getRecordsetPtr("PTLA",     detectorKey, detectorNode);
+  m_pctr = rdbSvc->getRecordsetPtr("PCTR",     detectorKey, detectorNode);
+  m_pftr = rdbSvc->getRecordsetPtr("PFTR",     detectorKey, detectorNode);
+  m_pttr = rdbSvc->getRecordsetPtr("PTTR",     detectorKey, detectorNode);
+  m_pome = rdbSvc->getRecordsetPtr("POME",     detectorKey, detectorNode);
+  m_poti = rdbSvc->getRecordsetPtr("POTI",     detectorKey, detectorNode);
+  m_pobi = rdbSvc->getRecordsetPtr("POBI",     detectorKey, detectorNode);
+  m_poai = rdbSvc->getRecordsetPtr("POAI",     detectorKey, detectorNode);
+  m_poci = rdbSvc->getRecordsetPtr("POCI",     detectorKey, detectorNode);
+  m_posi = rdbSvc->getRecordsetPtr("POSI",     detectorKey, detectorNode);
+  m_pccf = rdbSvc->getRecordsetPtr("PCCF",     detectorKey, detectorNode);
+  m_pcff = rdbSvc->getRecordsetPtr("PCFF",     detectorKey, detectorNode);
 
 }
 
 
 bool PixelLegacyManager::oldFrame()
 {
-  // if pfba exists we are using the old frame.
-  return (pfba->size());
+  // if m_pfba exists we are using the old frame.
+  return (m_pfba->size());
 } 
 
 // PixelBarrelFrame 
 int PixelLegacyManager::PixelBarrelNBFrame() 
 {
   if (m_BarrelInSFrame) {
-    return (*pfba)[0]->getInt("NBOXI");
+    return (*m_pfba)[0]->getInt("NBOXI");
   } else {
-    return (*pfec)[0]->getInt("NBOXI");
+    return (*m_pfec)[0]->getInt("NBOXI");
   }
 }
 
 int PixelLegacyManager::PixelBarrelNTFrame() 
 {
   if (m_BarrelInSFrame) {
-    return (*pfba)[0]->getInt("NTRDI");
+    return (*m_pfba)[0]->getInt("NTRDI");
   } else {
-    return (*pfec)[0]->getInt("NTRDI");
+    return (*m_pfec)[0]->getInt("NTRDI");
   }
 }
 
 double PixelLegacyManager::PixelBarrelBFrameWidth() 
 {
   if (m_BarrelInSFrame) {
-    return (*pfba)[0]->getDouble("WIDTH1")*CLHEP::cm;
+    return (*m_pfba)[0]->getDouble("WIDTH1")*CLHEP::cm;
   } else {
-    return (*pfec)[0]->getDouble("WIDTH1")*CLHEP::cm;
+    return (*m_pfec)[0]->getDouble("WIDTH1")*CLHEP::cm;
   }
 }
 
 double PixelLegacyManager::PixelBarrelTFrameWidth() 
 {
   if (m_BarrelInSFrame) {
-    return (*pfba)[0]->getDouble("WIDTH2")*CLHEP::cm;
+    return (*m_pfba)[0]->getDouble("WIDTH2")*CLHEP::cm;
   } else {
-    return (*pfec)[0]->getDouble("WIDTH2")*CLHEP::cm;
+    return (*m_pfec)[0]->getDouble("WIDTH2")*CLHEP::cm;
   }
 }
 
 double PixelLegacyManager::PixelBarrelFrameLength() 
 {
   if (m_BarrelInSFrame) {
-    return (*pfba)[0]->getDouble("LENGTH")*CLHEP::cm;
+    return (*m_pfba)[0]->getDouble("LENGTH")*CLHEP::cm;
   } else {
-    return (*pfec)[0]->getDouble("LENGTH")*CLHEP::cm;
+    return (*m_pfec)[0]->getDouble("LENGTH")*CLHEP::cm;
   }
 }
 
 double PixelLegacyManager::PixelBarrelFrameOffset() 
 {
   if (m_BarrelInSFrame) {
-    return (*pfba)[0]->getDouble("OFFSET")*CLHEP::cm;
+    return (*m_pfba)[0]->getDouble("OFFSET")*CLHEP::cm;
   } else {
-    return (*pfec)[0]->getDouble("OFFSET")*CLHEP::cm;
+    return (*m_pfec)[0]->getDouble("OFFSET")*CLHEP::cm;
   }
 }
 
 // PixelEndcapFrame 
 int PixelLegacyManager::PixelEndcapNBFrame() 
 {
-  return (*pecf)[0]->getInt("NBOXI");
+  return (*m_pecf)[0]->getInt("NBOXI");
 }
 
 int PixelLegacyManager::PixelEndcapNTFrame()
 {
-  return (*pecf)[0]->getInt("NTRDI");
+  return (*m_pecf)[0]->getInt("NTRDI");
 }
 
 double PixelLegacyManager::PixelEndcapBFrameWidth()
 {
-  return (*pecf)[0]->getDouble("WIDTH1")*CLHEP::cm;
+  return (*m_pecf)[0]->getDouble("WIDTH1")*CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelEndcapTFrameWidth() 
 {
-  return (*pecf)[0]->getDouble("WIDTH2")*CLHEP::cm;
+  return (*m_pecf)[0]->getDouble("WIDTH2")*CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelEndcapFrameLength() 
 {
-  return (*pecf)[0]->getDouble("LENGTH")*CLHEP::cm;
+  return (*m_pecf)[0]->getDouble("LENGTH")*CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelEndcapFrameOffset() 
 {
-  return (*pecf)[0]->getDouble("OFFSET")*CLHEP::cm;
+  return (*m_pecf)[0]->getDouble("OFFSET")*CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelBFrameHalfLength() 
 {
   if (m_BarrelInSFrame) {
-    return (*pbba)[0]->getDouble("DZ")*CLHEP::cm;
+    return (*m_pbba)[0]->getDouble("DZ")*CLHEP::cm;
   } else {
     if (m_EndcapInSFrame) {
-      return (*pecb)[0]->getDouble("DZ")*CLHEP::cm;
+      return (*m_pecb)[0]->getDouble("DZ")*CLHEP::cm;
     } else {
-      return (*pbec)[0]->getDouble("DZ")*CLHEP::cm;
+      return (*m_pbec)[0]->getDouble("DZ")*CLHEP::cm;
     }
   }
 }
@@ -168,12 +168,12 @@ double PixelLegacyManager::PixelBFrameHalfLength()
 double PixelLegacyManager::PixelBFrameHalfWidth() 
 {
   if (m_BarrelInSFrame) {
-    return (*pbba)[0]->getDouble("DY")*CLHEP::cm;
+    return (*m_pbba)[0]->getDouble("DY")*CLHEP::cm;
   } else {
     if (m_EndcapInSFrame) {
-      return (*pecb)[0]->getDouble("DY")*CLHEP::cm;
+      return (*m_pecb)[0]->getDouble("DY")*CLHEP::cm;
     } else {
-      return (*pbec)[0]->getDouble("DY")*CLHEP::cm;
+      return (*m_pbec)[0]->getDouble("DY")*CLHEP::cm;
     }
   }
 }
@@ -181,12 +181,12 @@ double PixelLegacyManager::PixelBFrameHalfWidth()
 double PixelLegacyManager::PixelBFrameHalfThickness() 
 {
   if (m_BarrelInSFrame) {
-    return (*pbba)[0]->getDouble("DX")*CLHEP::cm;
+    return (*m_pbba)[0]->getDouble("DX")*CLHEP::cm;
   } else {
     if (m_EndcapInSFrame) {
-      return (*pecb)[0]->getDouble("DX")*CLHEP::cm;
+      return (*m_pecb)[0]->getDouble("DX")*CLHEP::cm;
     } else {
-      return (*pbec)[0]->getDouble("DX")*CLHEP::cm;
+      return (*m_pbec)[0]->getDouble("DX")*CLHEP::cm;
     }
   }
 }
@@ -194,15 +194,15 @@ double PixelLegacyManager::PixelBFrameHalfThickness()
 double PixelLegacyManager::PixelTFrameHalfLength() 
 {
   if (m_BarrelInSFrame) {
-    return (*ptba)[0]->getDouble("DZ")*CLHEP::cm;
+    return (*m_ptba)[0]->getDouble("DZ")*CLHEP::cm;
   } else {
     if (m_EndcapInSFrame) {
-      return (*pect)[0]->getDouble("DZ")*CLHEP::cm;
+      return (*m_pect)[0]->getDouble("DZ")*CLHEP::cm;
     } else {
       if (m_EndConeSFrame) {
-        return (*pecn)[0]->getDouble("DZ")*CLHEP::cm;
+        return (*m_pecn)[0]->getDouble("DZ")*CLHEP::cm;
       } else {
-        return (*ptec)[0]->getDouble("DZ")*CLHEP::cm;
+        return (*m_ptec)[0]->getDouble("DZ")*CLHEP::cm;
       } 
     }
   }
@@ -211,15 +211,15 @@ double PixelLegacyManager::PixelTFrameHalfLength()
 double PixelLegacyManager::PixelTFrameHalfWidthY() 
 {
   if (m_BarrelInSFrame) {
-    return (*ptba)[0]->getDouble("DY")*CLHEP::cm;
+    return (*m_ptba)[0]->getDouble("DY")*CLHEP::cm;
   } else {
     if (m_EndcapInSFrame) {
-      return (*pect)[0]->getDouble("DY")*CLHEP::cm;
+      return (*m_pect)[0]->getDouble("DY")*CLHEP::cm;
     } else {
       if (m_EndConeSFrame) {
-        return (*pecn)[0]->getDouble("DY")*CLHEP::cm;
+        return (*m_pecn)[0]->getDouble("DY")*CLHEP::cm;
       } else {
-        return (*ptec)[0]->getDouble("DY")*CLHEP::cm;
+        return (*m_ptec)[0]->getDouble("DY")*CLHEP::cm;
       } 
     }
   }
@@ -228,15 +228,15 @@ double PixelLegacyManager::PixelTFrameHalfWidthY()
 double PixelLegacyManager::PixelTFrameHalfWidthXzn() 
 {
   if (m_BarrelInSFrame) {
-    return (*ptba)[0]->getDouble("DX1")*CLHEP::cm;
+    return (*m_ptba)[0]->getDouble("DX1")*CLHEP::cm;
   } else {
     if (m_EndcapInSFrame) {
-      return (*pect)[0]->getDouble("DX1")*CLHEP::cm;
+      return (*m_pect)[0]->getDouble("DX1")*CLHEP::cm;
     } else {    
       if (m_EndConeSFrame) {
-        return (*pecn)[0]->getDouble("DX1")*CLHEP::cm;
+        return (*m_pecn)[0]->getDouble("DX1")*CLHEP::cm;
       } else {
-        return (*ptec)[0]->getDouble("DX1")*CLHEP::cm;
+        return (*m_ptec)[0]->getDouble("DX1")*CLHEP::cm;
       } 
     }
   }
@@ -245,15 +245,15 @@ double PixelLegacyManager::PixelTFrameHalfWidthXzn()
 double PixelLegacyManager::PixelTFrameHalfWidthXzp() 
 {
   if (m_BarrelInSFrame) {
-    return (*ptba)[0]->getDouble("DX2")*CLHEP::cm;
+    return (*m_ptba)[0]->getDouble("DX2")*CLHEP::cm;
   } else {
     if (m_EndcapInSFrame) {
-      return (*pect)[0]->getDouble("DX2")*CLHEP::cm;
+      return (*m_pect)[0]->getDouble("DX2")*CLHEP::cm;
     } else {
       if (m_EndConeSFrame) {
-        return (*pecn)[0]->getDouble("DX2")*CLHEP::cm;
+        return (*m_pecn)[0]->getDouble("DX2")*CLHEP::cm;
       } else {
-        return (*ptec)[0]->getDouble("DX2")*CLHEP::cm;
+        return (*m_ptec)[0]->getDouble("DX2")*CLHEP::cm;
       } 
     }
   }
@@ -262,15 +262,15 @@ double PixelLegacyManager::PixelTFrameHalfWidthXzp()
 double PixelLegacyManager::PixelTFrameDzDr()
 {
   if (m_BarrelInSFrame) {
-    return (*ptba)[0]->getDouble("DZDR")*CLHEP::deg;
+    return (*m_ptba)[0]->getDouble("DZDR")*CLHEP::deg;
   } else {
     if (m_EndcapInSFrame) {
-      return (*pect)[0]->getDouble("DZDR")*CLHEP::cm;
+      return (*m_pect)[0]->getDouble("DZDR")*CLHEP::cm;
     } else {
       if (m_EndConeSFrame) {
-        return (*pecn)[0]->getDouble("DZDR")*CLHEP::deg;
+        return (*m_pecn)[0]->getDouble("DZDR")*CLHEP::deg;
       } else {
-        return (*ptec)[0]->getDouble("DZDR")*CLHEP::deg;
+        return (*m_ptec)[0]->getDouble("DZDR")*CLHEP::deg;
       } 
     }
   }
@@ -278,22 +278,22 @@ double PixelLegacyManager::PixelTFrameDzDr()
 
 double PixelLegacyManager::PixelBarrelFrameECRadius()
 {
-  return (*pecn)[0]->getDouble("RADIUS")*CLHEP::cm;
+  return (*m_pecn)[0]->getDouble("RADIUS")*CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelBarrelFrameECZPos() 
 {
-  return (*pecn)[0]->getDouble("Z")*CLHEP::cm;
+  return (*m_pecn)[0]->getDouble("Z")*CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelBarrelFrameECAlphaX() 
 {
-  return (*pecn)[0]->getDouble("ANGLEX")*CLHEP::deg;
+  return (*m_pecn)[0]->getDouble("ANGLEX")*CLHEP::deg;
 }
 
 double PixelLegacyManager::PixelBarrelFrameECAlphaY() 
 {
-  return (*pecn)[0]->getDouble("ANGLEY")*CLHEP::deg;
+  return (*m_pecn)[0]->getDouble("ANGLEY")*CLHEP::deg;
 }
 
 
@@ -304,7 +304,7 @@ double PixelLegacyManager::PixelLadderThickness()
 
 double PixelLegacyManager::PixelLadderLength() 
 {
-  return 2 * (*pxbi)[0]->getDouble("DZLADDER")*CLHEP::cm;
+  return 2 * (*m_pxbi)[0]->getDouble("DZLADDER")*CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelLadderServicesX() 
@@ -345,7 +345,7 @@ double PixelLegacyManager::PixelLadderPigtailOffsetY()
 int 
 PixelLegacyManager::PixelCableElements()
 {
-  return (*pome)[0]->getInt("NPOCI");  
+  return (*m_pome)[0]->getInt("NPOCI");  
 }
 
 double 
@@ -353,7 +353,7 @@ PixelLegacyManager::PixelCableZStart(int index)
 {
   // In old code two cables were connected to middle. Correction stops them touching.
   double correction = (index == 7) ? 0.000001*CLHEP::cm : 0;
-  return ((*poci)[index]->getDouble("Z")  -  (*poci)[index]->getDouble("DZ")) * CLHEP::cm + correction;
+  return ((*m_poci)[index]->getDouble("Z")  -  (*m_poci)[index]->getDouble("DZ")) * CLHEP::cm + correction;
 }
 
 double 
@@ -361,32 +361,32 @@ PixelLegacyManager::PixelCableZEnd(int index)
 {
   // In old code two cables were connected to middle. Correction stops them touching.
   double correction = (index == 7) ? 0.000001*CLHEP::cm : 0;
-  return ((*poci)[index]->getDouble("Z") +  (*poci)[index]->getDouble("DZ")) * CLHEP::cm + correction;
+  return ((*m_poci)[index]->getDouble("Z") +  (*m_poci)[index]->getDouble("DZ")) * CLHEP::cm + correction;
 }
 
 double 
 PixelLegacyManager::PixelCableWidth(int index)
 {
-  return (*poci)[index]->getDouble("DY") * CLHEP::cm;
+  return (*m_poci)[index]->getDouble("DY") * CLHEP::cm;
 }
 
 double 
 PixelLegacyManager::PixelCableThickness(int index)
 {
-  return (*poci)[index]->getDouble("DX")*CLHEP::cm;
+  return (*m_poci)[index]->getDouble("DX")*CLHEP::cm;
 }
 
 double 
 PixelLegacyManager::PixelCableStackOffset(int index)
 {
-  return (*poci)[index]->getDouble("X")*CLHEP::cm;
+  return (*m_poci)[index]->getDouble("X")*CLHEP::cm;
 }
 
 
 std::string
 PixelLegacyManager::PixelCableLabel(int index)
 {
-  int label = (int)(*poci)[index]->getDouble("IBOX");
+  int label = (int)(*m_poci)[index]->getDouble("IBOX");
   std::ostringstream o;
   o << label;
   return o.str();
@@ -398,19 +398,19 @@ PixelLegacyManager::PixelCableLabel(int index)
 //
 int PixelLegacyManager::PixelTMTNumParts()
 {
-  return (*ptla)[0]->getInt("NCENT") + (*ptla)[0]->getInt("NEND") + (*ptla)[0]->getInt("NTRAP");
+  return (*m_ptla)[0]->getInt("NCENT") + (*m_ptla)[0]->getInt("NEND") + (*m_ptla)[0]->getInt("NTRAP");
 }
 
 double PixelLegacyManager::PixelTMTVariable(int iPart, const std::string & varName)
 {
-  int ncent = (*ptla)[0]->getInt("NCENT");
-  int nend  = (*ptla)[0]->getInt("NEND");
+  int ncent = (*m_ptla)[0]->getInt("NCENT");
+  int nend  = (*m_ptla)[0]->getInt("NEND");
   if (iPart < ncent) {
-    return (*pctr)[iPart]->getDouble(varName);
+    return (*m_pctr)[iPart]->getDouble(varName);
   } else if (iPart < nend+ncent) {
-    return (*pftr)[iPart-ncent]->getDouble(varName);
+    return (*m_pftr)[iPart-ncent]->getDouble(varName);
   } else {
-    return (*pttr)[iPart-ncent-nend]->getDouble(varName);
+    return (*m_pttr)[iPart-ncent-nend]->getDouble(varName);
   }
 }
 
@@ -487,8 +487,8 @@ double PixelLegacyManager::PixelTMTPosZ2(int iPart)
 
 bool PixelLegacyManager::PixelTMTPerModule(int iPart)
 { 
-  int ncent =  (*ptla)[0]->getInt("NCENT");
-  int nend =  (*ptla)[0]->getInt("NEND");
+  int ncent =  (*m_ptla)[0]->getInt("NCENT");
+  int nend =  (*m_ptla)[0]->getInt("NEND");
   return (iPart >= ncent+nend);
 }
 
@@ -497,52 +497,52 @@ bool PixelLegacyManager::PixelTMTPerModule(int iPart)
 //
 double PixelLegacyManager::PixelOmegaUpperBendX()
 {
-  return (*poti)[2]->getDouble("X") * CLHEP::cm;
+  return (*m_poti)[2]->getDouble("X") * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelOmegaUpperBendY()
 {
-  return (*poti)[2]->getDouble("Y") * CLHEP::cm;
+  return (*m_poti)[2]->getDouble("Y") * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelOmegaUpperBendRadius()
 {
-  return (*poti)[2]->getDouble("RMAX") * CLHEP::cm;
+  return (*m_poti)[2]->getDouble("RMAX") * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelOmegaLowerBendX()
 {
-  return (*poti)[0]->getDouble("X") * CLHEP::cm;
+  return (*m_poti)[0]->getDouble("X") * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelOmegaLowerBendY()
 {
-  return (*poti)[0]->getDouble("Y") * CLHEP::cm;
+  return (*m_poti)[0]->getDouble("Y") * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelOmegaLowerBendRadius()
 {
-  return (*poti)[0]->getDouble("RMAX") * CLHEP::cm;
+  return (*m_poti)[0]->getDouble("RMAX") * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelOmegaWallThickness()
 {
-  return ((*poti)[0]->getDouble("RMAX") - (*poti)[0]->getDouble("RMIN")) * CLHEP::cm;
+  return ((*m_poti)[0]->getDouble("RMAX") - (*m_poti)[0]->getDouble("RMIN")) * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelOmegaLength()
 {
-  return 2. * (*poti)[0]->getDouble("DZ") * CLHEP::cm;
+  return 2. * (*m_poti)[0]->getDouble("DZ") * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelOmegaStartY()
 {
-  return ((*posi)[0]->getDouble("Y") + 0.5*(*posi)[0]->getDouble("DY")) * CLHEP::cm;
+  return ((*m_posi)[0]->getDouble("Y") + 0.5*(*m_posi)[0]->getDouble("DY")) * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelOmegaEndY()
 {
-  return ((*posi)[1]->getDouble("Y") - 0.5*(*posi)[1]->getDouble("DY")) * CLHEP::cm;
+  return ((*m_posi)[1]->getDouble("Y") - 0.5*(*m_posi)[1]->getDouble("DY")) * CLHEP::cm;
 }
 
 //
@@ -551,42 +551,42 @@ double PixelLegacyManager::PixelOmegaEndY()
 
 double PixelLegacyManager::PixelAlTubeUpperBendX()
 {
-  return (*poti)[5]->getDouble("X") * CLHEP::cm;
+  return (*m_poti)[5]->getDouble("X") * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelAlTubeUpperBendY()
 {
-  return (*poti)[5]->getDouble("Y") * CLHEP::cm;
+  return (*m_poti)[5]->getDouble("Y") * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelAlTubeUpperBendRadius()
 {
-  return (*poti)[5]->getDouble("RMAX") * CLHEP::cm;
+  return (*m_poti)[5]->getDouble("RMAX") * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelAlTubeLowerBendX()
 {
-  return (*poti)[3]->getDouble("X") * CLHEP::cm;
+  return (*m_poti)[3]->getDouble("X") * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelAlTubeLowerBendY()
 {
-  return (*poti)[3]->getDouble("Y") * CLHEP::cm;
+  return (*m_poti)[3]->getDouble("Y") * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelAlTubeLowerBendRadius()
 {
-  return (*poti)[3]->getDouble("RMAX") * CLHEP::cm;
+  return (*m_poti)[3]->getDouble("RMAX") * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelAlTubeWallThickness()
 {
-  return ((*poti)[3]->getDouble("RMAX") - (*poti)[3]->getDouble("RMIN")) * CLHEP::cm;
+  return ((*m_poti)[3]->getDouble("RMAX") - (*m_poti)[3]->getDouble("RMIN")) * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelAlTubeLength()
 {
-  return 2 * (*poti)[3]->getDouble("DZ") * CLHEP::cm;
+  return 2 * (*m_poti)[3]->getDouble("DZ") * CLHEP::cm;
 }
 
 //
@@ -600,32 +600,32 @@ int PixelLegacyManager::PixelNumOmegaGlueElements()
 
 double PixelLegacyManager::PixelOmegaGlueStartX(int index)
 {
-  return ((*posi)[index+2]->getDouble("X") - 0.5*(*posi)[index+2]->getDouble("DX")) * CLHEP::cm;
+  return ((*m_posi)[index+2]->getDouble("X") - 0.5*(*m_posi)[index+2]->getDouble("DX")) * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelOmegaGlueThickness(int index)
 {
-  return (*posi)[index+2]->getDouble("DX") * CLHEP::cm;
+  return (*m_posi)[index+2]->getDouble("DX") * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelOmegaGlueStartY(int index)
 {
-  return ((*posi)[index+2]->getDouble("Y") - 0.5*(*posi)[index+2]->getDouble("DY")) * CLHEP::cm;
+  return ((*m_posi)[index+2]->getDouble("Y") - 0.5*(*m_posi)[index+2]->getDouble("DY")) * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelOmegaGlueEndY(int index)
 {
-  return ((*posi)[index+2]->getDouble("Y") + 0.5*(*posi)[index+2]->getDouble("DY")) * CLHEP::cm;
+  return ((*m_posi)[index+2]->getDouble("Y") + 0.5*(*m_posi)[index+2]->getDouble("DY")) * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelOmegaGlueLength(int index)
 {
-  return 2 * (*posi)[index+2]->getDouble("DZ") * CLHEP::cm;
+  return 2 * (*m_posi)[index+2]->getDouble("DZ") * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelOmegaGluePosZ(int index)
 {
-  return (*posi)[index+2]->getDouble("Z") * CLHEP::cm;
+  return (*m_posi)[index+2]->getDouble("Z") * CLHEP::cm;
 }
 
 int PixelLegacyManager::PixelOmegaGlueTypeNum(int index)
@@ -639,24 +639,24 @@ int PixelLegacyManager::PixelOmegaGlueTypeNum(int index)
 
 double PixelLegacyManager::PixelFluidZ1(int index)
 {
-  double dz = (*pcff)[index%2]->getDouble("DZ")*CLHEP::cm;
-  double posz = (*pcff)[index%2]->getDouble("Z")*CLHEP::cm;
+  double dz = (*m_pcff)[index%2]->getDouble("DZ")*CLHEP::cm;
+  double posz = (*m_pcff)[index%2]->getDouble("Z")*CLHEP::cm;
   return posz-dz;
 }
 
 double PixelLegacyManager::PixelFluidZ2(int index)
 {
-  double dz = (*pcff)[index%2]->getDouble("DZ")*CLHEP::cm;
-  double posz = (*pcff)[index%2]->getDouble("Z")*CLHEP::cm;
+  double dz = (*m_pcff)[index%2]->getDouble("DZ")*CLHEP::cm;
+  double posz = (*m_pcff)[index%2]->getDouble("Z")*CLHEP::cm;
   return posz+dz;
 }
 
 double PixelLegacyManager::PixelFluidThick1(int index)
 {
   if (index < 2) {
-    return 2*(*pcff)[index%2]->getDouble("DX1")*CLHEP::cm;
+    return 2*(*m_pcff)[index%2]->getDouble("DX1")*CLHEP::cm;
   } else {
-    return 2*(*pcff)[index%2]->getDouble("DX2")*CLHEP::cm;
+    return 2*(*m_pcff)[index%2]->getDouble("DX2")*CLHEP::cm;
   }
 }
 
@@ -664,26 +664,26 @@ double PixelLegacyManager::PixelFluidThick1(int index)
 double PixelLegacyManager::PixelFluidThick2(int index)
 {
   if (index < 2) {
-    return 2*(*pcff)[index%2]->getDouble("DX2")*CLHEP::cm;
+    return 2*(*m_pcff)[index%2]->getDouble("DX2")*CLHEP::cm;
   } else {
-    return 2*(*pcff)[index%2]->getDouble("DX1")*CLHEP::cm;
+    return 2*(*m_pcff)[index%2]->getDouble("DX1")*CLHEP::cm;
   }
 }
 
 double PixelLegacyManager::PixelFluidWidth(int index)
 {
-  return 2*(*pcff)[index%2]->getDouble("DY")*CLHEP::cm;
+  return 2*(*m_pcff)[index%2]->getDouble("DY")*CLHEP::cm;
 }
 
 
 double PixelLegacyManager::PixelFluidX(int index)
 {
-  return (*pcff)[index%2]->getDouble("X")*CLHEP::cm;
+  return (*m_pcff)[index%2]->getDouble("X")*CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelFluidY(int index)
 {
-  return (*pcff)[index%2]->getDouble("Y")*CLHEP::cm;
+  return (*m_pcff)[index%2]->getDouble("Y")*CLHEP::cm;
 }
 
 int PixelLegacyManager::PixelFluidType(int index)
@@ -697,7 +697,7 @@ int PixelLegacyManager::PixelFluidNumTypes()
 }
 
 int PixelLegacyManager::PixelFluidMatType(int index) {
-  return (int)(*pcff)[index%2]->getDouble("MAT");
+  return (int)(*m_pcff)[index%2]->getDouble("MAT");
 }
 
 int PixelLegacyManager::PixelFluidOrient(int layer, int phi) 
@@ -706,7 +706,7 @@ int PixelLegacyManager::PixelFluidOrient(int layer, int phi)
   std::ostringstream o;
   o << phi;
   var = var+o.str();
-  return (int)(*pccf)[layer]->getInt(var) - 1;
+  return (int)(*m_pccf)[layer]->getInt(var) - 1;
 }
 
 
@@ -715,17 +715,17 @@ int PixelLegacyManager::PixelFluidOrient(int layer, int phi)
 //
 double PixelLegacyManager::PixelPigtailThickness()
 {
-  return (*poai)[0]->getDouble("DX") * CLHEP::cm;
+  return (*m_poai)[0]->getDouble("DX") * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelPigtailStartY()
 {
-  return -0.5*(*poai)[0]->getDouble("DY") * CLHEP::cm;
+  return -0.5*(*m_poai)[0]->getDouble("DY") * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelPigtailEndY()
 {
-  return  0.5*(*poai)[0]->getDouble("DY") * CLHEP::cm;
+  return  0.5*(*m_poai)[0]->getDouble("DY") * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelPigtailFlatWidthZ()
@@ -733,59 +733,59 @@ double PixelLegacyManager::PixelPigtailFlatWidthZ()
   // Assume its actually the full width but in old geometry it was interpreted as a half width so we
   // multiply by 2. This gives the flat section twice the width of the curved section which I don't think was the 
   // intention.
-  return 2*(*poai)[0]->getDouble("DZ") * CLHEP::cm;
+  return 2*(*m_poai)[0]->getDouble("DZ") * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelPigtailWidthZ()
 {
-  return 2*(*pobi)[0]->getDouble("DZ") * CLHEP::cm;
+  return 2*(*m_pobi)[0]->getDouble("DZ") * CLHEP::cm;
 }
 
 // FIXME some weird offset
 double PixelLegacyManager::PixelPigtailPosX()
 {
-  return (*poai)[0]->getDouble("X") * CLHEP::cm + PixelLadderConnectorOffsetX();
+  return (*m_poai)[0]->getDouble("X") * CLHEP::cm + PixelLadderConnectorOffsetX();
 }
 
 double PixelLegacyManager::PixelPigtailPosZ()
 {
-  return (*poai)[0]->getDouble("Z") * CLHEP::cm;
+  return (*m_poai)[0]->getDouble("Z") * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelPigtailBendX()
 {
-  return (*pobi)[0]->getDouble("X") * CLHEP::cm + PixelLadderConnectorOffsetX();
+  return (*m_pobi)[0]->getDouble("X") * CLHEP::cm + PixelLadderConnectorOffsetX();
 }
 
 double PixelLegacyManager::PixelPigtailBendY()
 {
-  return (*pobi)[0]->getDouble("Y") * CLHEP::cm + PixelLadderPigtailOffsetY();
+  return (*m_pobi)[0]->getDouble("Y") * CLHEP::cm + PixelLadderPigtailOffsetY();
 }
 
 double PixelLegacyManager::PixelPigtailBendRMin()
 {
-  return (*pobi)[0]->getDouble("RMIN") * CLHEP::cm;
+  return (*m_pobi)[0]->getDouble("RMIN") * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelPigtailBendRMax()
 {
-  return (*pobi)[0]->getDouble("RMAX") * CLHEP::cm;
+  return (*m_pobi)[0]->getDouble("RMAX") * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelPigtailBendPhiMin()
 {
-  return (*pobi)[0]->getDouble("PHI1") * CLHEP::deg;
+  return (*m_pobi)[0]->getDouble("PHI1") * CLHEP::deg;
 }
 
 double PixelLegacyManager::PixelPigtailBendPhiMax()
 {
-  return (*pobi)[0]->getDouble("PHI2") * CLHEP::deg;
+  return (*m_pobi)[0]->getDouble("PHI2") * CLHEP::deg;
 }
 
 double PixelLegacyManager::PixelPigtailEnvelopeLength()
 {
   // FIXME Check
-  return 2*(*posi)[9]->getDouble("DZ") * CLHEP::cm;
+  return 2*(*m_posi)[9]->getDouble("DZ") * CLHEP::cm;
 }
 
 //
@@ -793,27 +793,27 @@ double PixelLegacyManager::PixelPigtailEnvelopeLength()
 //
 int PixelLegacyManager::PixelNumConnectorElements()
 {
-  return (*pome)[0]->getInt("NPOAI") - 1;
+  return (*m_pome)[0]->getInt("NPOAI") - 1;
 }
 
 double PixelLegacyManager::PixelConnectorWidthX(int index)
 {
-  return (*poai)[index+1]->getDouble("DX") * CLHEP::cm;
+  return (*m_poai)[index+1]->getDouble("DX") * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelConnectorWidthY(int index)
 {
-  return (*poai)[index+1]->getDouble("DY") * CLHEP::cm;
+  return (*m_poai)[index+1]->getDouble("DY") * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelConnectorWidthZ(int index)
 {
-  return 2*(*poai)[index+1]->getDouble("DZ") * CLHEP::cm;
+  return 2*(*m_poai)[index+1]->getDouble("DZ") * CLHEP::cm;
 }
 
 double PixelLegacyManager::PixelConnectorPosX(int index)
 {
-  return (*poai)[index+1]->getDouble("X") * CLHEP::cm + PixelLadderConnectorOffsetX();
+  return (*m_poai)[index+1]->getDouble("X") * CLHEP::cm + PixelLadderConnectorOffsetX();
 }
 
 double PixelLegacyManager::PixelConnectorPosY(int)
@@ -823,8 +823,8 @@ double PixelLegacyManager::PixelConnectorPosY(int)
 
 double PixelLegacyManager::PixelConnectorPosZ(int index)
 {
-  // same as  (*pobi)[0]->getDouble("Z") * CLHEP::cm;
-  return (*poai)[index+1]->getDouble("Z") * CLHEP::cm;
+  // same as  (*m_pobi)[0]->getDouble("Z") * CLHEP::cm;
+  return (*m_poai)[index+1]->getDouble("Z") * CLHEP::cm;
 }
 
 
@@ -839,12 +839,12 @@ int  PixelLegacyManager::designType(bool isBlayer)
 
 int PixelLegacyManager::DesignNumChipsPhi()
 {
-  return  (*pdch)[0]->getInt("NRPCHIP");
+  return  (*m_pdch)[0]->getInt("NRPCHIP");
 }    
 
 
 int PixelLegacyManager::DesignNumChipsEta() {
-  return  (*pdch)[0]->getInt("NZCHIP");
+  return  (*m_pdch)[0]->getInt("NZCHIP");
 }
 
 int PixelLegacyManager::DesignNumRowsPerChip(bool isBLayer) {
@@ -881,13 +881,13 @@ int PixelLegacyManager::DesignDiodesEtaTotal(bool isBLayer)
 
 int  PixelLegacyManager::DesignNumEmptyRowsInGap()
 {
-  return static_cast<int>((*pdch)[0]->getInt("NYCONNEC"));
+  return static_cast<int>((*m_pdch)[0]->getInt("NYCONNEC"));
 }
 
 // Ganged Pixels
 int PixelLegacyManager::NumberOfEmptyRows()
 {
-  return static_cast<int>((*pdch)[0]->getInt("NYCONNEC"));
+  return static_cast<int>((*m_pdch)[0]->getInt("NYCONNEC"));
 
 }
 
@@ -895,31 +895,31 @@ int PixelLegacyManager::EmptyRows(int index)
 {
   std::ostringstream A;
   A << "_" << index;
-  return static_cast<int>((*pdch)[0]->getInt("JYEMPTY"+A.str())) - 1;
+  return static_cast<int>((*m_pdch)[0]->getInt("JYEMPTY"+A.str())) - 1;
 }
 
 int PixelLegacyManager::EmptyRowConnections(int index)
 {
   std::ostringstream A;
   A << "_" << index;
-  return static_cast<int>((*pdch)[0]->getInt("JYCONNEC"+A.str())) - 1;
+  return static_cast<int>((*m_pdch)[0]->getInt("JYCONNEC"+A.str())) - 1;
 }
 
 double PixelLegacyManager::DesignRPActiveArea()
 {
-  return (*pxbi)[0]->getDouble("DYACTIVE")*CLHEP::cm;
+  return (*m_pxbi)[0]->getDouble("DYACTIVE")*CLHEP::cm;
 
 }
 
 double PixelLegacyManager::DesignZActiveArea()
 {
-  return (*pxbi)[0]->getDouble("DZELEB")*CLHEP::cm;
+  return (*m_pxbi)[0]->getDouble("DZELEB")*CLHEP::cm;
 }
     
 double PixelLegacyManager::DesignPitchRP(bool isBLayer)
 {
   int type = designType(isBLayer);
-  return (*pxbd)[type]->getDouble("PITCHRP")*CLHEP::cm;
+  return (*m_pxbd)[type]->getDouble("PITCHRP")*CLHEP::cm;
 }
 
 // FIXME m_dc1Geometry
@@ -931,7 +931,7 @@ double PixelLegacyManager::DesignPitchZ(bool isBLayer)
     // Override NOVA 
     pitchZ = 300 * CLHEP::micrometer; 
   } else {
-    pitchZ = (*pxbd)[type]->getDouble("PITCHZ") * CLHEP::cm;
+    pitchZ = (*m_pxbd)[type]->getDouble("PITCHZ") * CLHEP::cm;
   }
   return pitchZ;
 }
@@ -944,12 +944,12 @@ double PixelLegacyManager::DesignPitchZLong(bool isBLayer)
 
 double PixelLegacyManager::DesignGapRP()
 {
-  return (*pdch)[0]->getDouble("GAPRP")*CLHEP::cm;
+  return (*m_pdch)[0]->getDouble("GAPRP")*CLHEP::cm;
 }
 
 double PixelLegacyManager::DesignGapZ()
 {
-  return (*pdch)[0]->getDouble("GAPZ")*CLHEP::cm;
+  return (*m_pdch)[0]->getDouble("GAPZ")*CLHEP::cm;
 }
 
 int PixelLegacyManager::DesignCircuitsEta()

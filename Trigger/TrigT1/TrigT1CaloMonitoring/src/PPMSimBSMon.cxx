@@ -135,7 +135,7 @@ StatusCode PPMSimBSMon::bookHistogramsRecurrent()
 
   //if ( newLumiBlock ) { }
 
-  if ( newRun ) {
+  if ( newRunFlag() ) {
 
     MgmtAttr_t attr = ATTRIB_UNMANAGED;
     std::string dir(m_rootDir + "/PPM/Errors/Data_Simulation");

@@ -12,6 +12,7 @@ class StoreGateSvc;
 
 #include "TrigHLTMonitoring/IHLTMonTool.h"
 #include "TMath.h"
+#include <cmath>
 
 class HLTCaloClusterTool : public IHLTMonTool {
 
@@ -48,9 +49,9 @@ private:
 	  return sqrt((Eta1-Eta2)*(Eta1-Eta2)+dphi*dphi);
 	}
         inline float deltaPhi( const float PhiA, const float PhiB){
-	  float deltaphi=fabsf(PhiA-PhiB);
-          deltaphi=fabsf(TMath::Pi()-deltaphi);
-          return fabsf(TMath::Pi()-deltaphi);
+	  float deltaphi=std::abs(PhiA-PhiB);
+          deltaphi=std::abs(TMath::Pi()-deltaphi);
+          return std::abs(TMath::Pi()-deltaphi);
 	}
 
 };

@@ -110,7 +110,7 @@ public:
   /**
    * @brief Return the statistics block for this allocator.
    */
-  virtual const Stats& stats() const;
+  virtual Stats stats() const;
 
 
   /**
@@ -142,7 +142,7 @@ protected:
   ArenaBlock* m_freeblocks;
 
   /// The statistics structure.
-  mutable ArenaAllocatorBase::Stats m_stats;
+  ArenaAllocatorBase::Stats m_stats;
 };
 
 

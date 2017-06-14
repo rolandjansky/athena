@@ -32,7 +32,6 @@
 #include "CaloEvent/CaloPrefetch.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "AthAllocators/ArenaPoolAllocator.h"
 #include "AthAllocators/ArenaHandle.h"
 #include "GaudiKernel/StatusCode.h"
@@ -175,33 +174,6 @@ StatusCode CaloTopoClusterMaker::initialize()
   ATH_MSG_INFO( "Two-Gaussian noise for Tile set to " << ((m_twogaussiannoise) ? "true" : "false")  );
   ATH_CHECK( m_cellsKey.initialize() );
   getClusterSize();
-
-  const IGeoModelSvc *geoModel=nullptr;
-  ATH_CHECK(  service("GeoModelSvc", geoModel) );
-
-  // dummy parameters for the callback:
-  int dummyInt=0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized())
-  {
-    return geoInit(dummyInt,dummyList);
-  }
-  else
-  {
-    ATH_CHECK(  detStore()->regFcn(&IGeoModelSvc::geoInit,
-                                   geoModel,
-                                   &CaloTopoClusterMaker::geoInit,this) );
-  }
-  
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-CaloTopoClusterMaker::geoInit(IOVSVC_CALLBACK_ARGS)
-{
-
-  //MsgStream log(msgSvc(), name());
 
   // pointer to detector manager:
   m_calo_dd_man  = CaloDetDescrManager::instance(); 

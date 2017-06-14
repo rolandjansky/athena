@@ -14,9 +14,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/IToolSvc.h"
-
 #include "MuonIdHelpers/RpcIdHelper.h"
 
 

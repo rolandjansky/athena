@@ -5,8 +5,6 @@
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IRegistry.h"
-
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 #include "ByteStreamData/RawEvent.h"
 #include "ByteStreamData/ROBData.h"
@@ -62,35 +60,22 @@ StatusCode RecCTPByteStreamCnv::initialize() {
   //
   // Initialise the base class:
   //
-  StatusCode sc = Converter::initialize();
-  if( sc.isFailure() ) {
-    return sc;
-  }
+  ATH_CHECK( Converter::initialize() );
 
-  MsgStream log( messageService(), "RecCTPByteStreamCnv" );
+  MsgStream log( msgSvc(), "RecCTPByteStreamCnv" );
   log << MSG::DEBUG << "RecCTPByteStreamCnv in initialize()" << endmsg;
 
   //
   // Get RecCTPByteStreamTool:
   //
-  sc = m_tool.retrieve();
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << "Can't get RecCTPByteStreamTool" << endmsg;
-    return sc;
-  } else {
-    log << MSG::DEBUG << "Connected to RecCTPByteStreamTool" << endmsg;
-  }
+  ATH_CHECK(  m_tool.retrieve() );
+  log << MSG::DEBUG << "Connected to RecCTPByteStreamTool" << endmsg;
 
   //
   // Get ROBDataProvider:
   //
-  sc = m_robDataProvider.retrieve();
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << "Can't get ROBDataProviderSvc" << endmsg;
-    return sc;
-  } else {
-    log << MSG::DEBUG << "Connected to ROBDataProviderSvc" << endmsg;
-  }
+  ATH_CHECK( m_robDataProvider.retrieve() );
+  log << MSG::DEBUG << "Connected to ROBDataProviderSvc" << endmsg;
 
   //
   // Create CTPSrcIdMap:
@@ -107,8 +92,7 @@ StatusCode RecCTPByteStreamCnv::initialize() {
  */
 StatusCode RecCTPByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& pObj ) {
 
-  MsgStream log( messageService(), "RecCTPByteStreamCnv" );
-
+  MsgStream log( msgSvc(), "RecCTPByteStreamCnv" );
   log << MSG::DEBUG << "RecCTPByteStreamCnv::createObj() called" << endmsg;
 
   ByteStreamAddress *pBS_Addr;
@@ -148,12 +132,8 @@ StatusCode RecCTPByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& p
   IROBDataProviderSvc::VROBFRAG::const_iterator it = robFrags.begin();
   CTP_RIO * result = 0;
 
-  StatusCode sc = m_tool->convert( ROBData( *it ).getROBFragment(), result );
-  if ( sc.isFailure() ) {
-    log << MSG::ERROR << " Failed to create Objects: " << *( pBS_Addr->par() ) << endmsg;
-    return sc;
-  }
+  ATH_CHECK(  m_tool->convert( ROBData( *it ).getROBFragment(), result ) );
   pObj = SG::asStorable( result );
 
-  return sc;
+  return StatusCode::SUCCESS;
 }

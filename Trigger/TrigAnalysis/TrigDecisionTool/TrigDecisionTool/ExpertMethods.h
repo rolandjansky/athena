@@ -65,25 +65,25 @@ namespace Trig {
 
     /**
      * @brief return TrigConf::TriggerItem
-     * @parm chain: name of the item
+     * @param chain: name of the item
      **/
     const TrigConf::TriggerItem* getItemConfigurationDetails(const std::string& chain);
 
     /**
      * @brief return TrigConf::HLTChain
-     * @parm chain: name of the chain
+     * @param chain: name of the chain
      **/
     const TrigConf::HLTChain* getChainConfigurationDetails(const std::string& chain);
 
     /**
      * @brief return LVL1CTP::Lvl1Item
-     * @parm chain: name of the item
+     * @param chain: name of the item
      **/
     const LVL1CTP::Lvl1Item* getItemDetails(const std::string& chain) const;
 
     /**
      * @brief return HLT::Chain
-     * @parm chain: name of the chain
+     * @param chain: name of the chain
      **/
     const HLT::Chain* getChainDetails(const std::string& chain) const;
 

@@ -24,11 +24,6 @@ namespace fastjet{
   class PseudoJet;
 }
 
-using jet::LabelIndex;
-using fastjet::PseudoJet;
-using jet::IConstituentUserInfo;
-using jet::IndexedConstituentUserInfo;
-
 template<class T>
 class AnyToPseudoJet {
  public:
@@ -36,22 +31,22 @@ class AnyToPseudoJet {
   /* No special assigment operator for copy constructor, or destructor
    as the LableIndex is deleted by the caller */
   
- AnyToPseudoJet(LabelIndex* index_map):m_indexMap(index_map){}
+ AnyToPseudoJet(jet::LabelIndex* index_map):m_indexMap(index_map){}
   
   // T is decided by the caller.When using a DataVector<T> dv  and 
   // AnyToPSeudoJet  is used in an STL Algorithm, set T to dv::const_value_type
 
-  PseudoJet operator() (T cluster) const {
-    PseudoJet psj(cluster->p4());
-    IConstituentUserInfo* pcui = new IndexedConstituentUserInfo(*cluster,
-                                                                1,
-                                                                m_indexMap);
+  fastjet::PseudoJet operator() (T cluster) const {
+    fastjet::PseudoJet psj(cluster->p4());
+    jet::IConstituentUserInfo* pcui = new jet::IndexedConstituentUserInfo(*cluster,
+                                                                     1,
+                                                                     m_indexMap);
     psj.set_user_info(pcui);
     return psj;
   }
   
  private:
   
-  LabelIndex* m_indexMap;
+  jet::LabelIndex* m_indexMap;
 };
 #endif

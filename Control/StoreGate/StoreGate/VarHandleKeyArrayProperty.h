@@ -33,7 +33,7 @@ namespace Gaudi {
 namespace SG {
 
   class GAUDI_API VarHandleKeyArrayProperty
-    : public ::PropertyWithHandlers 
+    : public ::PropertyWithHandlers <>
   {
   public:
  

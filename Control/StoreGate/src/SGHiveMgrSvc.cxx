@@ -187,7 +187,7 @@ StatusCode HiveMgrSvc::finalize() {
          << " - package version " << PACKAGE_VERSION << endmsg ;
 
   for (SG::HiveEventSlot& s : m_slots) {
-    // The impl services are not set to active, so ServiceMananger
+    // The impl services are not set to active, so ServiceManager
     // won't finalize them.
     CHECK( s.pEvtStore->finalize() );
     s.pEvtStore->release();

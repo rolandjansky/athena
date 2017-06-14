@@ -188,7 +188,7 @@ def iovFromRunLumi(runNum, lbkNum):
 #______________________________________________________________________
 def decodeTimeString(timeString):
     """
-    Retruns UNIX time stamp given an input time string
+    Returns UNIX time stamp given an input time string
     """
     return int(time.mktime(time.strptime(timeString,"%Y-%m-%d %H:%M:%S")))
 

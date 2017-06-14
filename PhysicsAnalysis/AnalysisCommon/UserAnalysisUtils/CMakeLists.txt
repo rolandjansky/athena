@@ -11,6 +11,7 @@ atlas_depends_on_subdirs(
    PUBLIC
    Calorimeter/CaloEvent
    Control/AthenaBaseComps
+   Control/AthContainers
    Event/NavFourMom
    GaudiKernel
    PhysicsAnalysis/AnalysisCommon/AnalysisTools

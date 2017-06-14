@@ -11,10 +11,6 @@
 #include "SCT_ReadCalibDataTestAlg.h"
 #include "SCT_ConditionsServices/ISCT_ReadCalibDataSvc.h"
 
-// Include Event Info 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 // Include Athena stuff
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
@@ -23,6 +19,9 @@
 
 // Include Gaudi stuff
 #include "GaudiKernel/StatusCode.h"
+
+// Include Read Handle
+#include "StoreGate/ReadHandle.h"
 
 // Include STL stuff
 #include <vector>
@@ -33,8 +32,8 @@ using namespace std;
 SCT_ReadCalibDataTestAlg::SCT_ReadCalibDataTestAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_sc(0),
-  m_id_sct(0),
-  m_currentEvent(0),
+  m_id_sct{nullptr},
+  m_currentEventKey(std::string("EventInfo")),
   m_moduleId(0),
   m_waferId(0),
   m_stripId(0),
@@ -103,6 +102,8 @@ StatusCode SCT_ReadCalibDataTestAlg::initialize()
     return StatusCode::FAILURE;
   }
 
+  ATH_CHECK( m_currentEventKey.initialize() );
+
   return StatusCode::SUCCESS;
 } // SCT_ReadCalibDataTestAlg::initialize()
 
@@ -155,15 +156,15 @@ StatusCode SCT_ReadCalibDataTestAlg::execute()
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in execute()" << endmsg;
   
   // Get the current event
-  m_sc = evtStore()->retrieve(m_currentEvent);
-  if ( m_sc.isFailure() ) {
+  SG::ReadHandle<xAOD::EventInfo> currentEvent(m_currentEventKey);
+  if ( not currentEvent.isValid() ) {
     msg(MSG::ERROR) << "Could not get event info" << endmsg;
     return StatusCode::FAILURE;
   }
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Current Run.Event,Time: "
-      << "[" << m_currentEvent->event_ID()->run_number()
-      << "." << m_currentEvent->event_ID()->event_number()
-      << "," << m_currentEvent->event_ID()->time_stamp()
+      << "[" << currentEvent->runNumber()
+      << "." << currentEvent->eventNumber()
+      << "," << currentEvent->timeStamp()
       << "]" << endmsg;
   
   //Make sure data was filled

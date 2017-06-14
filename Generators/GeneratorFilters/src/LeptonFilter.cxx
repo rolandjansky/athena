@@ -42,7 +42,7 @@ StatusCode LeptonFilter::filterEvent() {
 
       // We are specifically looking for electrons (+-11) and muons (+-13)
       const long pid = (*pitr)->pdg_id();
-      const long apid = abs(pid);
+      const long apid = std::abs(pid);
       if (apid == 11 || apid == 13) {
         const double pT = (*pitr)->momentum().perp();
         const double eta = (*pitr)->momentum().pseudoRapidity();

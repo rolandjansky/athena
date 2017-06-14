@@ -121,7 +121,7 @@ Trk::DummyMaterialEffectsUpdator::preUpdate(const TrackParameters *parm,
     const Trk::TrackingVolume *tvol = lay.enclosingTrackingVolume();
     // the preFactor
     double preFactor = lay.preUpdateMaterialFactor(*parm, dir);
-    // retrun if the preFactor is too small
+    // return if the preFactor is too small
     if (preFactor < 0.1) {
       return(parm);
     }

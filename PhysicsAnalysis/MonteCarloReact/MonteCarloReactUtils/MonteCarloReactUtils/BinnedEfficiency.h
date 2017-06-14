@@ -142,7 +142,7 @@ namespace MonteCarloReact {
     
   protected:
     /* Read in Line of the efficiency file */
-    bool m_parseInputLine( const std::string &key, const std::vector< std::string > & line);
+    bool parseInputLine( const std::string &key, const std::vector< std::string > & line);
     
   private:
 
@@ -152,10 +152,10 @@ namespace MonteCarloReact {
     mutable Mode m_flowMode ;
 
     /* write efficiency information to the output stream */
-    void m_stream( std::ostream &) const;
+    void stream( std::ostream &) const;
 
     /* initialize efficiencies */
-    void m_initEff() ;
+    void initEff() ;
   };
 }
 #endif

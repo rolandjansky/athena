@@ -1,8 +1,8 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging  # loads logger 
-from AthenaCommon.SystemOfUnits import * #gives us access to deg
-from AthenaCommon.Constants import * #gives us access to INFO
+from AthenaCommon.SystemOfUnits import deg
+from AthenaCommon.Constants import INFO
 
 from eflowRec.eflowRecConf import eflowMomentCalculatorTool
 
@@ -23,7 +23,19 @@ class eflowMomentCalculatorToolDefault(eflowMomentCalculatorTool) :
             print traceback.format_exc()
             return False
 
-        ClusterMomentsMaker.MaxAxisAngle = 30*deg
+        from CaloRec.CaloTopoClusterFlags import jobproperties
+
+        from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
+        theCaloNoiseTool = CaloNoiseToolDefault()
+        from AthenaCommon.AppMgr import ToolSvc
+        ToolSvc += theCaloNoiseTool
+
+        ClusterMomentsMaker.MaxAxisAngle = 20*deg
+        ClusterMomentsMaker.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute() 
+        ClusterMomentsMaker.MinBadLArQuality = 4000
+        ClusterMomentsMaker.CaloNoiseTool = theCaloNoiseTool
+        ClusterMomentsMaker.UsePileUpNoise = True
+        ClusterMomentsMaker.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
         ClusterMomentsMaker.OutputLevel = INFO
         ClusterMomentsMaker.MomentsNames = [
             "FIRST_PHI" 
@@ -47,17 +59,16 @@ class eflowMomentCalculatorToolDefault(eflowMomentCalculatorTool) :
             ,"FIRST_ENG_DENS" 
             ,"SECOND_ENG_DENS"
             ,"ISOLATION"
+            ,"EM_PROBABILITY"
+            ,"ENG_POS"
+            ,"ENG_BAD_CELLS"
+            ,"N_BAD_CELLS"
+            ,"BADLARQ_FRAC"
+            ,"AVG_LAR_Q"
+            ,"AVG_TILE_Q"
+            ,"SIGNIFICANCE"
             ]
 
-        #ClusterMomentsMaker.AODMomentsNames = [
-        #    "LATERAL"
-        #    ,"LONGITUDINAL"
-        #    ,"SECOND_R"
-        #    ,"SECOND_LAMBDA"
-        #    ,"CENTER_LAMBDA"
-        ##    ,"FIRST_ENG_DENS"
-        #    ,"ENG_FRAC_MAX"
-        #    ,"ISOLATION"]   
 
         self.CaloClusterMomentsMaker=ClusterMomentsMaker
 

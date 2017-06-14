@@ -151,7 +151,7 @@ public:
   
     };
 
-    typedef std::map<int, TriggerTower*> TriggerTowerMap_t;
+    typedef std::map<int, const TriggerTower*> TriggerTowerMap_t;
   } // end of namespace
 
 #ifndef TriggerTower_ClassDEF_H

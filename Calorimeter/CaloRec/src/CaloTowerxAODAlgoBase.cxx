@@ -12,9 +12,6 @@
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 
-#include "GeoModelInterfaces/IGeoModelSvc.h"
-
-
 CaloTowerxAODAlgoBase::CaloTowerxAODAlgoBase(const std::string& name,ISvcLocator* pSvcLocator)
     : AthReentrantAlgorithm(name,pSvcLocator),
     m_caloTowerContainerKey("CmbTowers") {
@@ -33,25 +30,6 @@ CaloTowerxAODAlgoBase::~CaloTowerxAODAlgoBase()
 StatusCode CaloTowerxAODAlgoBase::initBase() {
   ATH_CHECK( m_caloTowerContainerKey.initialize() );
   
-  ServiceHandle<IGeoModelSvc> geoModel ("GeoModelSvc", "CaloTowerxAODAlgoBase");
-  ATH_CHECK( geoModel.retrieve() );
-  
-  // dummy parameters for the callback:
-  int dummyInt=0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized()) {
-    return geoInit(dummyInt,dummyList);
-  }
-  else {
-    ATH_CHECK(detStore()->regFcn(&IGeoModelSvc::geoInit,
-				 &*geoModel,
-				 &CaloTowerxAODAlgoBase::geoInit,this));
-  }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode CaloTowerxAODAlgoBase::geoInit(IOVSVC_CALLBACK_ARGS) {
   return fillIndexCache();
 }
 

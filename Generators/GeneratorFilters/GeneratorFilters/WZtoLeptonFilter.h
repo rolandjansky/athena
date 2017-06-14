@@ -38,8 +38,8 @@ private:
 
   int m_AthenaCalls ;
   double m_tot_wghts, m_wPass ;
-  double catevti[45] ;
-  double catevtf[45];
+  double m_catevti[45] ;
+  double m_catevtf[45];
 
 };
 

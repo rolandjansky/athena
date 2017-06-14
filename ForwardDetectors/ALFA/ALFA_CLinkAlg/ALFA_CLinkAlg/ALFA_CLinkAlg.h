@@ -7,7 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/MsgStream.h"
-#include "DataModel/DataLink.h"
+#include "AthLinks/DataLink.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/IIOVSvc.h"
@@ -43,7 +43,6 @@
 #define MAXPILEUP 500
 
 #include  <string>
-using namespace std;
 
 enum eRecType { ERC_LOCUNCORRECTED, ERC_LOCCORRECTED, ERC_GLOBAL };
 
@@ -70,7 +69,7 @@ public:
 	StatusCode LoadAllEventData(ALFA_CLinkEvent* pDataEvent);
 private:
 	StatusCode COOLUpdate(IOVSVC_CALLBACK_ARGS_P(I, keys));
-	StatusCode AddCOOLFolderCallback(const string& szFolder);
+	StatusCode AddCOOLFolderCallback(const std::string& szFolder);
 	unsigned long long CalcDCSId(eDCSItem eItem);
 	StatusCode CalcAllDCSIds(PDCSID pDCSIds);
 
@@ -84,45 +83,45 @@ private:
 private:
 	//xAOD variables: LocRecEvCollection & LocRecODEvCollection
 	int m_nMaxTrackCnt;
-	vector<float> m_vecXDetCS;
-	vector<float> m_vecYDetCS;
-	vector<int> m_vecDetectorPartID;
-	vector<float> m_vecOverU;
-	vector<float> m_vecOverV;
-	vector<float> m_vecOverY;
-	vector<int> m_vecNumU;
-	vector<int> m_vecNumV;
-	vector<int> m_vecNumY;
-	vector<int> m_vecMDFibSel;
-	vector<int> m_vecODFibSel;
+	std::vector<float> m_vecXDetCS;
+	std::vector<float> m_vecYDetCS;
+	std::vector<int> m_vecDetectorPartID;
+	std::vector<float> m_vecOverU;
+	std::vector<float> m_vecOverV;
+	std::vector<float> m_vecOverY;
+	std::vector<int> m_vecNumU;
+	std::vector<int> m_vecNumV;
+	std::vector<int> m_vecNumY;
+	std::vector<int> m_vecMDFibSel;
+	std::vector<int> m_vecODFibSel;
 
 	//xAOD variables: LocRecCorrEvCollection & LocRecCorrODEvCollection
-	vector<float> m_vecXLhcCS;
-	vector<float> m_vecYLhcCS;
-	vector<float> m_vecZLhcCS;
-	vector<float> m_vecXRPotCS;
-	vector<float> m_vecYRPotCS;
-	vector<float> m_vecXStatCS;
-	vector<float> m_vecYStatCS;
-	vector<float> m_vecXBeamCS;
-	vector<float> m_vecYBeamCS;
+	std::vector<float> m_vecXLhcCS;
+	std::vector<float> m_vecYLhcCS;
+	std::vector<float> m_vecZLhcCS;
+	std::vector<float> m_vecXRPotCS;
+	std::vector<float> m_vecYRPotCS;
+	std::vector<float> m_vecXStatCS;
+	std::vector<float> m_vecYStatCS;
+	std::vector<float> m_vecXBeamCS;
+	std::vector<float> m_vecYBeamCS;
 
 	//RawDataContainer
-	vector<int> m_vecScaler;
+	std::vector<int> m_vecScaler;
 	//int m_nBCId;
 	//int m_nTimeStamp;
 	//int m_nTimeStamp_ns;
-	vector<int> m_vecTrigPat;
+	std::vector<int> m_vecTrigPat;
 
 	//DigitCollection
-	vector<int> m_vecMDFiberHits;
-	vector<int> m_vecMDMultiplicity;
+	std::vector<int> m_vecMDFiberHits;
+	std::vector<int> m_vecMDMultiplicity;
 
 	//ODDigitCollection
-	vector<int> m_vecODFiberHitsPos;
-	vector<int> m_vecODFiberHitsNeg;
-	vector<int> m_vecODMultiplicityPos;
-	vector<int> m_vecODMultiplicityNeg;
+	std::vector<int> m_vecODFiberHitsPos;
+	std::vector<int> m_vecODFiberHitsNeg;
+	std::vector<int> m_vecODMultiplicityPos;
+	std::vector<int> m_vecODMultiplicityNeg;
 };
 
 #endif // ALFA_CLINKALG_H

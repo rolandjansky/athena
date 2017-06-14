@@ -86,9 +86,9 @@ namespace LArG4 {
       
       pAccessSvc->connect();
       // Note Presampler Lives In DB under "cryostats"..
-      const IRDBRecordset *presamplerPosition = pAccessSvc->getRecordset("PresamplerPosition",AtlasVersion,"ATLAS");
+      IRDBRecordset_ptr presamplerPosition = pAccessSvc->getRecordsetPtr("PresamplerPosition",AtlasVersion,"ATLAS");
       if (presamplerPosition->size()==0) {
-	presamplerPosition = pAccessSvc->getRecordset("PresamplerPosition","PresamplerPosition-00");
+	presamplerPosition = pAccessSvc->getRecordsetPtr("PresamplerPosition","PresamplerPosition-00");
 	if (presamplerPosition->size()==0) {
 	  throw std::runtime_error("Cannot find the PresamplerPosition Table");
 	}

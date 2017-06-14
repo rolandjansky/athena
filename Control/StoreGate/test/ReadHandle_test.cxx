@@ -261,6 +261,48 @@ void test4()
 }
 
 
+// alias.
+void test5()
+{
+  std::cout << "test5\n";
+
+  SGTest::TestStore testStore;
+
+  SG::ReadHandle<MyObj> h1 ("foo1", "FooSvc");
+  assert (h1.setProxyDict (&testStore).isSuccess());
+
+  MyObj* fooptr = new MyObj(20);
+  testStore.record (fooptr, "foo1");
+  SG::DataProxy* prox1 = testStore.proxy (MyCLID, "foo1");
+  //assert (foo_proxy->refCount() == 1);
+
+#if 0
+  assert (h1.record (std::make_unique<MyObj>(20)).isSuccess());
+  assert (h1.isValid());
+  assert (h1->x == 20);
+  SG::DataProxy* prox1 = testStore.proxy (ClassID_traits<MyObj>::ID(), "foo1");
+  #endif
+
+  // Making alias.
+  SG::WriteHandleKey<MyObj> h2 ("foo3", "FooSvc");
+  assert (h1.alias (h2).isSuccess());
+  assert (testStore.proxy (MyCLID, "foo3") == prox1);
+  assert (prox1->transientAddress()->alias().count ("foo3") == 1);
+  #if 0
+
+  // Making symlink.
+  SG::WriteHandleKey<MyObj2> h3 ("foo1", "FooSvc");
+  assert (h1.symLink (h3).isSuccess());
+  assert (testStore.proxy (ClassID_traits<MyObj2>::ID(), "foo1") == prox1);
+  assert (prox1->transientAddress()->transientID (ClassID_traits<MyObj2>::ID()));
+
+  // Should give an error.
+  SG::WriteHandleKey<MyObj2> h4 ("foo3", "FooSvc");
+  assert (h1.symLink (h4).isFailure());
+  #endif
+}
+
+
 int main()
 {
   errorcheck::ReportMessage::hideErrorLocus();
@@ -271,5 +313,6 @@ int main()
   test2();
   test3();
   test4();
+  test5();
   return 0;
 }

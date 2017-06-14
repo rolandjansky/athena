@@ -397,10 +397,3 @@ const CaloCell2ClusterMap* CaloTopoTowerBuilderTool::CreateCaloCell2ClusterMap(c
 
 
 
-
-StatusCode CaloTopoTowerBuilderTool::geoInit(IOVSVC_CALLBACK_ARGS) {
-  // pointer to detector manager:
-  m_calo_dd_man  = CaloDetDescrManager::instance(); 
-  m_calo_id   = m_calo_dd_man->getCaloCell_ID();
-  return StatusCode::SUCCESS;
-}

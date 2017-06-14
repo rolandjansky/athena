@@ -23,10 +23,8 @@
 //using CLHEP::GeV;
 
 /********************************************************************/
-TauWPDecorator::TauWPDecorator(const std::string& name) :
-  TauRecToolBase(name),
-  m_acc_score(0),
-  m_acc_newScore(0)
+TauWPDecorator::TauWPDecorator(const std::string& name)
+  : TauRecToolBase(name)
 {
   declareProperty("flatteningFile1Prong", m_file1P = "fitted.pileup_1prong_hlt.root");
   declareProperty("flatteningFile3Prong", m_file3P = "fitted.pileup_multiprongs_hlt.root");
@@ -133,12 +131,6 @@ StatusCode TauWPDecorator::initialize() {
   // Store limits for 1P and 3P
   ATH_CHECK( storeLimits(1) );
   ATH_CHECK( storeLimits(3) );
-  
-  std::string scoreName = m_scoreName;
-  std::string newScoreName = m_newScoreName;
-
-  m_acc_score = new SG::AuxElement::ConstAccessor<float>(scoreName);
-  m_acc_newScore = new SG::AuxElement::Accessor<float>(newScoreName);
 
   return StatusCode::SUCCESS;
 }
@@ -149,10 +141,12 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
 
   // Accessors
   //static SG::AuxElement::ConstAccessor<int> acc_nVertex("NUMVERTICES");
-  static SG::AuxElement::ConstAccessor<float> acc_mu("MU");
-  static SG::AuxElement::ConstAccessor<float> acc_pt("pt");
-  static SG::AuxElement::ConstAccessor<int> acc_numTrack("NUMTRACK");
-  static SG::AuxElement::ConstAccessor<float> acc_absEta("ABS_ETA_LEAD_TRACK");
+  static const SG::AuxElement::ConstAccessor<float> acc_mu("MU");
+  static const SG::AuxElement::ConstAccessor<float> acc_pt("pt");
+  static const SG::AuxElement::ConstAccessor<int> acc_numTrack("NUMTRACK");
+  static const SG::AuxElement::ConstAccessor<float> acc_absEta("ABS_ETA_LEAD_TRACK");
+  SG::AuxElement::ConstAccessor<float> acc_score(m_scoreName);
+  SG::AuxElement::Accessor<float> acc_newScore(m_newScoreName);
 
   // histograms
   std::vector<m_pair_t> *histArray;
@@ -160,7 +154,7 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
 
   // Retrieve tau properties
   int nProng = (acc_numTrack(pTau) == 1) ? 1 : 3;
-  double score = (*m_acc_score)(pTau);
+  double score = (acc_score)(pTau);
   double pt = acc_pt(pTau);
   //  double mu = acc_mu(pTau);
 
@@ -250,7 +244,7 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
   else {
     newscore = transformScore(score, cuts[0], effs[0], cuts[1], effs[1]);
   }
-  (*m_acc_newScore)(pTau) = newscore;
+  (acc_newScore)(pTau) = newscore;
   
   if(m_defineWP) {
     for (u_int Nwp=0; Nwp < m_cut_bits.size(); Nwp++){

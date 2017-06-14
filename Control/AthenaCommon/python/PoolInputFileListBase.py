@@ -2,7 +2,7 @@
 
 ##
 ## @file AthenaCommon/python/PoolInputFileListBase.py
-## @purpose base class for POOL input file list properties
+## @brief base class for POOL input file list properties
 ##
 from JobProperties import JobProperty
 class PoolInputFileListBase(JobProperty):

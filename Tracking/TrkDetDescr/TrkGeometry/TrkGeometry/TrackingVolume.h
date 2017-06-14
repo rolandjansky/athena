@@ -580,7 +580,7 @@ namespace Trk {
       return lIntersections;
   }
 
-  /** Returns the boundary surfaces ordered in probability to hit them based on straight line intersection @TODO change hard-coded default */
+  /** Returns the boundary surfaces ordered in probability to hit them based on straight line intersection @todo change hard-coded default */
   template <class T > std::vector< BoundaryIntersection<T> > 
                       TrackingVolume::boundarySurfacesOrdered(const T& pars, 
                                                               PropDirection pDir,

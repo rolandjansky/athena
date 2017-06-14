@@ -19,12 +19,17 @@
 #define ATLALLOCATORS_ARENAHEADER_H
 
 
+#include "AthAllocators/ArenaBase.h"
+#include "GaudiKernel/EventContext.h"
 #include <vector>
 #include <cstdlib>
 #include <string>
 #include <iosfwd>
 #include <mutex>
 #include "boost/thread/tss.hpp"
+
+
+class EventContext;
 
 
 namespace SG {
@@ -42,18 +47,12 @@ class ArenaBase;
  * in which memory operations will take place.  We can also generate
  * a report of memory usage from all the Arenas in the group.
  *
- * This is also where we handle the mapping from indices to Allocator
- * instances.  This is done simply with a vector of Allocator pointers.
- * Each Arena has such a vector.  We keep a pointer to one of these;
- * that's what defines the notion of the current Arena.
+ * We keep a thread-specific pointer to the current Arena, which is
+ * used to handle the mapping from indices to Allocator instances.
  */
 class ArenaHeader
 {
 public:
-  /// Vector of pointers to Allocator instances.
-  typedef std::vector<ArenaAllocatorBase*> ArenaAllocVec_t;
-
-
   /**
    * @brief Constructor.
    */
@@ -69,22 +68,32 @@ public:
 
 
   /**
-   * @brief Translate an integer index to an Allocator index.
+   * @brief Translate an integer index to an Allocator pointer.
+   * @param i The index to look up.
+   *
+   * The default Arena will be used.
+   *
+   * If the index isn't valid, an assertion will be tripped.
+   */
+  LockedAllocator allocator (size_t i);
+
+
+  /**
+   * @brief Translate an integer index to an Allocator pointer.
+   * @param ctx Use the Arena associated with this event context.
    * @param i The index to look up.
    *
    * If the index isn't valid, an assertion will be tripped.
    */
-  ArenaAllocatorBase* allocator (size_t i);
+  LockedAllocator allocator (const EventContext& ctx, size_t i);
 
 
   /**
-   * @brief Set the current Arena.
-   * @param allocvec New vector of Allocator instances.
-   * @return The previous vector.
-   *
-   * This sets the notion of the current Arena.
+   * @brief Set the current Arena for the current thread.
+   * @param arena New current Arena.
+   * @return The previous Arena.
    */
-  ArenaAllocVec_t* setAllocVec (ArenaAllocVec_t* allocvec);
+  ArenaBase* setArena (ArenaBase* arena);
 
 
   /**
@@ -92,6 +101,14 @@ public:
    * @param a The Arena to add.
    */
   void addArena (ArenaBase* a);
+
+
+  /**
+   * @brief Record the arena associated with an event slot.
+   * @param slot The slot number.
+   * @param a The Arena instance.
+   */
+  void setArenaForSlot (int slot, ArenaBase* a);
 
 
   /**
@@ -138,28 +155,19 @@ public:
 
 
 private:
-  /**
-   * @brief Make a new Allocator for index i.
-   * @param i The index of the Allocator.
-   *
-   * The Allocator vector was empty for index @c i.  Make an appropriate
-   * new Allocator, store it in the vector, and return it.  Will trip
-   * an assertion if the index is not valid.
-   */
-  ArenaAllocatorBase* makeAllocator (size_t i);
+  /// Current Arena.
+  boost::thread_specific_ptr<ArenaBase> m_arena;
 
-
-  /// Current vector of Allocators.
-  boost::thread_specific_ptr<ArenaAllocVec_t> m_allocvec;
-
-  /// Vector of Allocators which are owned by this object.
-  /// This constitutes the default Arena.
-  ArenaAllocVec_t* m_ownedAllocvec;
+  /// The default Arena.
+  ArenaBase m_defaultArena;
 
   /// List of all Arenas in our group.
   std::vector<ArenaBase*>  m_arenas;
 
-  /// Mutex to protect access to m_ownedAllocvec and m_arenas.
+  /// Arenas indexed by event slot.
+  std::vector<ArenaBase*> m_slots;
+
+  /// Mutex to protect access to m_defaultArena, m_arenas, and m_slots.
   mutable std::mutex m_mutex;
 };
 

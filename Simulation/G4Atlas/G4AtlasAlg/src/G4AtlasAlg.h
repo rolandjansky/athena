@@ -43,6 +43,9 @@ public:
   /// Virtual destructor
   virtual ~G4AtlasAlg() {  };
 
+  /// this Alg is Clonable (for AthenaMT)
+  bool isClonable() const override { return true; }
+
   /// @brief Initialize the algorithm.
   ///
   /// Here we setup several things for simulation, including:

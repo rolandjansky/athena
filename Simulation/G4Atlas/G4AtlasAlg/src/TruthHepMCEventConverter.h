@@ -31,7 +31,7 @@ private:
   void TransformHepMCVertex(HepMC::GenVertex*,G4PrimaryVertex*) const;
   void ModifyVertex(G4PrimaryParticle *pp, HepMC::GenVertex *v) const;
   bool ValidHepMCVertex(HepMC::GenVertex*) const;
-  int printLev;
+  int m_printLev;
   std::vector<int> *m_modded;
 };
 

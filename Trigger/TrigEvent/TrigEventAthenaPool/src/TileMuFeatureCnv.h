@@ -3,8 +3,7 @@
 */
 
 /** 
- * @Project: Trigger
- * @Package: TrigEventAthenaPool
+ * @package: TrigEventAthenaPool
  * @class  : TileMuFeatureCnv 
  *
  * @brief transient persistent converter for TileMuFeatureCnv

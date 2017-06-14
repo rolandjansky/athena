@@ -7,7 +7,7 @@
 #define TRACKTRUTHKEY_H
 
 #include "TrkTrack/TrackCollection.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 namespace Trk {
 

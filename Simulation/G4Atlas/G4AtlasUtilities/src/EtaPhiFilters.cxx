@@ -10,12 +10,12 @@ using namespace std;
 
 // See https://twiki.cern.ch/twiki/bin/viewauth/Atlas/AtlasG4EventFilters for more details.
 bool EtaPhiFilters::EditParticle(G4PrimaryParticle* p) {
-  if (!onSwitch) return true;
+  if (!m_onSwitch) return true;
   const G4ThreeVector& vec(p->GetMomentum());
   const double phi_tmp(vec.phi());
   const double phi(phi_tmp + ((phi_tmp < 0) ? 2*M_PI : 0.0));
   const double eta(vec.eta());
-  if (verboseLevel > 0) {
+  if (m_verboseLevel > 0) {
     cout << "EtaPhiFilters::EditParticle: particle with eta,phi: " << eta << " " << phi << endl;
     cout << "EtaPhiFilters::EditParticle: number of Eta not-default intervals to check " << m_eLimits.size() << endl;
     cout << "EtaPhiFilters::EditParticle: number of Phi not-default intervals to check " << m_pLimits.size() << endl;
@@ -25,7 +25,7 @@ bool EtaPhiFilters::EditParticle(G4PrimaryParticle* p) {
   if (m_eLimits.size()) {
     bool passedEta(false);
     for (size_t i(0); i < m_eLimits.size(); ++i) {
-      if (verboseLevel > 0) {
+      if (m_verboseLevel > 0) {
         cout << "EtaPhiFilters::EditParticle: check particle with eta " << eta << " vs. limits [" 
 	     << m_eLimits[i].first << ", " << m_eLimits[i].second << "]" << endl;
       }
@@ -35,7 +35,7 @@ bool EtaPhiFilters::EditParticle(G4PrimaryParticle* p) {
       }
     }
     if (!passedEta) {
-      if (verboseLevel > 0) cout << "EtaPhiFilters::EditParticle: particle rejected with eta = " << eta << endl;
+      if (m_verboseLevel > 0) cout << "EtaPhiFilters::EditParticle: particle rejected with eta = " << eta << endl;
       return false;
     }
   }
@@ -44,7 +44,7 @@ bool EtaPhiFilters::EditParticle(G4PrimaryParticle* p) {
   if (m_pLimits.size()) {
     bool passedPhi(false);
     for (size_t i(0); i < m_pLimits.size(); ++i) {
-      if (verboseLevel > 0) {
+      if (m_verboseLevel > 0) {
         cout << "EtaPhiFilters::EditParticle: check particle with phi " << phi << " vs. limits [" 
 	     << m_pLimits[i].first << ", " << m_pLimits[i].second << "]" << endl;
       }
@@ -54,13 +54,13 @@ bool EtaPhiFilters::EditParticle(G4PrimaryParticle* p) {
       }
     }
     if (!passedPhi) {
-      if (verboseLevel > 0) cout << "EtaPhiFilters::EditParticle: particle rejected with phi = " << phi << endl;
+      if (m_verboseLevel > 0) cout << "EtaPhiFilters::EditParticle: particle rejected with phi = " << phi << endl;
       return false;
     }
   }
 
   // Success!
-  if (verboseLevel > 0) {
+  if (m_verboseLevel > 0) {
     cout << "EtaPhiFilters::EditParticle: particle accepted with eta, phi: " << eta << ", " << phi << endl;
   }
   return true;

@@ -22,7 +22,7 @@ use EventInfo               EventInfo-*            Event
 use LArElecCalib            LArElecCalib-*         LArCalorimeter 
 use LArHV                   LArHV-*                LArCalorimeter/LArGeoModel
 use LArRecConditions        LArRecConditions-*     LArCalorimeter
-use LArTools                LArTools-*             LArCalorimeter
+use LArCabling              LArCabling-*           LArCalorimeter
 use CaloGeoHelpers          CaloGeoHelpers-*       Calorimeter
 end_private
 

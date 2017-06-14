@@ -1,5 +1,5 @@
 ## @file PyAthenaTests/share/pyfilter_stream_jobOptions.py
-## @purpose read a POOL file and dump/print out run and event numbers and filter
+## @brief read a POOL file and dump/print out run and event numbers and filter
 ##          out one event out of 2
 
 ###########################

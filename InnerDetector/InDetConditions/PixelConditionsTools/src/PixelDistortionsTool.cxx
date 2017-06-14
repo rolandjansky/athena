@@ -12,7 +12,7 @@
 #include "DetDescrConditions/DetCondCFloat.h"
 #include "PathResolver/PathResolver.h"
 
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include <cmath>

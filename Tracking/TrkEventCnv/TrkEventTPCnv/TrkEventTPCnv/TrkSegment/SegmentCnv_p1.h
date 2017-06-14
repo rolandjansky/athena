@@ -21,7 +21,7 @@
 
 #include "TrkMeasurementBase/MeasurementBase.h"
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 class MsgStream;
 

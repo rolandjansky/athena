@@ -2,7 +2,7 @@
 
 ##
 ## @file Trigger/TrigAlgorithms/TrigMinBias/python/TrigMinBiasProperties.py
-## @purpose Python module to hold TrigHisto1D and TrigHisto2D histogram dimensions.  The dimensions are used to initialise the TrigMinBias algorithms and the associated monitoring.
+## @brief Python module to hold TrigHisto1D and TrigHisto2D histogram dimensions.  The dimensions are used to initialise the TrigMinBias algorithms and the associated monitoring.
 ##
 ## Adapted from AthenaCommonFlags.py
 ##

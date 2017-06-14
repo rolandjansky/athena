@@ -23,9 +23,6 @@ PURPOSE: Performs Local Noise Suppression CaloCell objects Inherits
 #include "CaloEvent/CaloCell.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
-// Event Header Files:
-#include "GeoModelInterfaces/IGeoModelSvc.h"
-
 // For Gaudi
 #include "GaudiKernel/ListItem.h"
 #include "GaudiKernel/IService.h"
@@ -86,29 +83,6 @@ LocalNoiseSuppressionTool::~LocalNoiseSuppressionTool()
 
 StatusCode LocalNoiseSuppressionTool::initialize() {
 
-  const IGeoModelSvc *geoModel=0;
-  ATH_CHECK( service("GeoModelSvc", geoModel) );
-
-  // dummy parameters for the callback:
-  int dummyInt=0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized())
-  {
-    return geoInit(dummyInt,dummyList);
-  }
-  else
-  {
-    ATH_CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit,
-                                  geoModel,
-                                  &LocalNoiseSuppressionTool::geoInit,this) );
-  }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-LocalNoiseSuppressionTool::geoInit(IOVSVC_CALLBACK_ARGS)
-{
 //---- retrieve the noisetool ----------------
 
   ATH_CHECK( m_noiseTool.retrieve() );

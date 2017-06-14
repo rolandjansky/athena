@@ -153,27 +153,25 @@ StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool 
 
   msg(MSG::INFO) << "TrigTestMonToolAC::book() " << gDirectory->GetName() << endmsg;
 
-#ifdef ManagedMonitorToolBase_Uses_API_201401
-#if 0
+#ifdef  ManagedMonitorToolBase_Uses_API_201704
   bool newEventsBlock = newEventsBlockFlag();
   bool newLumiBlock   = newLumiBlockFlag();
   bool newRun         = newRunFlag();
 #endif
-#endif
 
   msg(MSG::DEBUG) << "TrigTestMonToolAC::book() SUTT buildNtuple " << m_buildNtuple 
 		  << "\tNewEventBlock " << newEventsBlock 
-		  << "\tNewLumiBlock "  << newLumiBlock 
+		  << "\tNewLumiBlock "  << newLumiBlock
 		  << "\tNewRun "        << newRun  <<  std::endl;
 
 
   /// create sequences if need be ...
 
-  static bool _first = true;
+  static bool first = true;
 
-  if ( _first ) { 
+  if ( first ) { 
 
-    _first = false;
+    first = false;
 
     // track filters 
     // reference (offline) tracks...
@@ -331,10 +329,8 @@ StatusCode TrigTestMonToolAC::proc() {
 StatusCode TrigTestMonToolAC::proc(bool /* endOfEventsBlock*/, bool /* endOfLumiBlock*/, bool endOfRun) {
 #endif
 
-#ifdef ManagedMonitorToolBase_Uses_API_201401
-#if 0
+#ifdef  ManagedMonitorToolBase_Uses_API_201704
   bool endOfRun       = endOfRunFlag();
-#endif
 #endif
 
   msg(MSG::DEBUG) << " ----- enter proc() ----- " << endmsg;

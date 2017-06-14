@@ -22,7 +22,7 @@
 #include "InDetSimData/InDetSimDataCollection.h"
 
 // Random numbers
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandLandau.h"

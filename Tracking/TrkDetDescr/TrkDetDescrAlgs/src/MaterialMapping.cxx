@@ -25,7 +25,6 @@
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/MaterialStep.h"
-#include "TrkGeometry/MaterialStepCollection.h"
 #include "TrkGeometry/MaterialProperties.h"
 #include "TrkGeometry/AssociatedMaterial.h"
 #include "TrkGeometry/LayerMaterialMap.h"
@@ -128,6 +127,9 @@ StatusCode Trk::MaterialMapping::initialize()
 
     if ( m_layerMaterialAnalysers.size() && m_layerMaterialAnalysers.retrieve().isFailure() )        
         ATH_MSG_WARNING("Could not retrieve any LayerMaterialAnalysers");
+
+    ATH_CHECK( m_inputMaterialStepCollection.initialize() );
+    ATH_CHECK(  m_inputEventElementTable.initialize() );
         
     return StatusCode::SUCCESS;
 }
@@ -146,23 +148,16 @@ StatusCode Trk::MaterialMapping::execute()
         }
     } 
     if (m_trackingGeometry)
-        ATH_MSG_VERBOSE("TrackingGeometry sucessfully retrieved");  
-
-    // get the material step vector
-    const MaterialStepCollection* materialStepCollection = 0;
-    StatusCode retrieveCode = evtStore()->retrieve(materialStepCollection,m_inputMaterialStepCollection);
-    if (retrieveCode.isFailure()) {
-        ATH_MSG_WARNING("[!] Could not retrieve the step vector!");
-        return retrieveCode;
-    } else {   // successful retrieval
+      ATH_MSG_VERBOSE("TrackingGeometry sucessfully retrieved");  
+    
+    SG::ReadHandle<MaterialStepCollection> materialStepCollection(m_inputMaterialStepCollection);
 
         // --------- prepare the element table ---------------------------------------------------
-        const Trk::ElementTable* eTableEvent = 0;
-        if (evtStore()->contains<Trk::ElementTable>(m_inputEventElementTable) && evtStore()->retrieve(eTableEvent,m_inputEventElementTable).isFailure()){
-            ATH_MSG_WARNING("[!] No ElementTable coud be retrieved. Switching composition recording off.");
-        } else if (eTableEvent)
-            (*m_elementTable) += (*eTableEvent);  // accummulate the table 
-        m_mapComposition = eTableEvent ? true : false;
+
+    SG::ReadHandle<Trk::ElementTable> eTableEvent(m_inputEventElementTable);	  
+    
+    (*m_elementTable) += (*eTableEvent);  // accummulate the table 
+    m_mapComposition = eTableEvent.isValid() ? true : false;
         
         
         // event parameters - associated asteps, and layers hit per event
@@ -171,7 +166,7 @@ StatusCode Trk::MaterialMapping::execute()
         m_accumulatedRhoS        = 0.;
         m_layersRecordedPerEvent.clear();
         // clearing the recorded layers per event
-        if (materialStepCollection && materialStepCollection->size()){
+        if (materialStepCollection.isValid() && materialStepCollection->size()){
 
            // get the number of material steps 
            size_t materialSteps = materialStepCollection->size();
@@ -329,7 +324,6 @@ StatusCode Trk::MaterialMapping::execute()
          
          } // material steps existed
          
-    }// retrieval of collection worked
 
     return StatusCode::SUCCESS;
 }

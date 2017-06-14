@@ -172,12 +172,12 @@ const SCT_ID& make_dd()
   sct_id->initialize_from_dictionary (idd);
 
   ISvcLocator* svcLoc = Gaudi::svcLocator();
-  StoreGateSvc* sg = 0;
-  assert ( svcLoc->service("DetectorStore", sg).isSuccess() );
-  assert ( sg->record (std::move (sct_id), "SCT_ID") );
+  StoreGateSvc* detStore = 0;
+  assert ( svcLoc->service("DetectorStore", detStore).isSuccess() );
+  assert ( detStore->record (std::move (sct_id), "SCT_ID") );
 
-  auto sct_dd = CxxUtils::make_unique<InDetDD::SCT_DetectorManager>(sg);
-  assert ( sg->record (std::move (sct_dd), "SCT_DetectorDescription") );
+  auto sct_dd = CxxUtils::make_unique<InDetDD::SCT_DetectorManager>(detStore);
+  assert ( detStore->record (std::move (sct_dd), "SCT_DetectorDescription") );
   return ret;
 }
 

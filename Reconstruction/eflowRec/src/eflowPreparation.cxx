@@ -226,7 +226,7 @@ void eflowPreparation::retrieveLCCalCellWeight(double energy, unsigned index, st
   /* Note the read handle has been tested to be valid prior to the call of this function */
   const xAOD::CaloCluster* matchedCalCluster = m_caloCalClusterReadHandle->at(index);
   if (!(fabs(energy - matchedCalCluster->rawE()) < 0.001)) {
-    matchedCalCluster = 0;
+    matchedCalCluster = nullptr;
     for (unsigned iCalCalCluster = 0; iCalCalCluster < m_caloCalClusterReadHandle->size();
         ++iCalCalCluster) {
       matchedCalCluster = m_caloCalClusterReadHandle->at(iCalCalCluster);

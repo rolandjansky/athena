@@ -242,8 +242,8 @@
  * ==================================
  *
  * Sometimes it is necessary to reference a specialization @c DataVector<T>
- * where @c isn't completely defined  (this can happen for example if a class
- * has an @c ElementLink its own container type).  The @c DATAVECTOR_BASE
+ * where @c T isn't completely defined  (this can happen for example if a class
+ * has an @c ElementLink to its own container type).  The @c DATAVECTOR_BASE
  * macro needs to come before the first reference to the specialization,
  * but it also needs to have a complete declaration for @c T.
  *
@@ -255,7 +255,7 @@
  *  DATAVECTOR_BASE_FWD(T, B);
  @endcode
  *
- * where here @c does not need to be completely defined.  Then, where
+ * where here @c T does not need to be completely defined.  Then, where
  * you would normally have @c DATAVECTOR_BASE, write instead
  * @c DATAVECTOR_BASE_FIN.
  *
@@ -318,7 +318,7 @@
  * --------------
  *
  * A type which may have associated auxiliary data must derive from the base
- * class @c SG::AuxElement.  This does a several things.
+ * class @c SG::AuxElement.  This does several things.
  *
  * First, in order to be able to find auxiliary data from a pointer to
  * a container element, the element must be able to know both the container
@@ -405,7 +405,7 @@
  * Calling @c clearDecorations will erase all variables marked as decorations,
  * restoring the state back to where it was when @c lock was called.
  *
- * An @c auxdecor method is also available, analogous to @x auxdata.
+ * An @c auxdecor method is also available, analogous to @c auxdata.
  *
  *
  * Index tracking
@@ -1737,7 +1737,7 @@ public:
   /**
    * @brief Convert to @c AuxVectorBase.
    *
-   * Needed to get @x AuxVectorBase from a @c ConstDataVector.
+   * Needed to get @c AuxVectorBase from a @c ConstDataVector.
    * Present in @c DataVector as well for consistency.
    * We only really need it in the base class; however, root6 fails
    * constructing a @c TMethodCall for this if there is virtual

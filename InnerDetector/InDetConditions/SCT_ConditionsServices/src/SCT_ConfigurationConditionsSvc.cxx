@@ -43,19 +43,19 @@ static const int invalidChipNumber(-1);
 // Constructor
 SCT_ConfigurationConditionsSvc::SCT_ConfigurationConditionsSvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator),
-  m_badChannelIds(0),
-  m_badModuleIds(0),
-  m_badWaferIds(0),
-  m_badLinks(0),
-  m_badChips(0),
+  m_badChannelIds{nullptr},
+  m_badModuleIds{nullptr},
+  m_badWaferIds{nullptr},
+  m_badLinks{nullptr},
+  m_badChips{nullptr},
   m_filled(false),
   m_detStore("DetectorStore", name),
   m_IOVSvc("IOVSvc", name),
   m_IOVDbSvc("IOVDbSvc", name),
-  m_pHelper(0),
+  m_pHelper{nullptr},
   m_cablingSvc("SCT_CablingSvc", name),
   m_readoutTool("SCT_ReadoutTool", this),
-  m_pManager(0),
+  m_pManager{nullptr},
   m_checkStripsInsideModules(true) 
 { 
   declareProperty("checkStripsInsideModule" , m_checkStripsInsideModules);

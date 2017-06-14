@@ -8,6 +8,7 @@ atlas_subdir( InDetPerformanceRTT )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaMonitoring
+                          Control/StoreGate
                           DetectorDescription/AtlasDetDescr
                           Event/EventInfo
                           GaudiKernel
@@ -18,7 +19,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkTools/TrkToolInterfaces
                           PRIVATE
-                          Control/StoreGate
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/IdDictDetDescr
                           Event/EventPrimitives
@@ -41,7 +41,7 @@ atlas_add_component( InDetPerformanceRTT
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${EIGEN_LIBRARIES} ${HEPMC_LIBRARIES} AthenaMonitoringLib AtlasDetDescr EventInfo GaudiKernel GeneratorObjects InDetIdentifier InDetReadoutGeometry TrkTrack TrkToolInterfaces StoreGateLib SGtests GeoPrimitives IdDictDetDescr EventPrimitives InDetPrepRawData InDetRIO_OnTrack JetEvent TrkEventPrimitives TrkTrackSummary TrkTruthData )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${EIGEN_LIBRARIES} ${HEPMC_LIBRARIES} AthenaMonitoringLib StoreGateLib AtlasDetDescr EventInfo GaudiKernel GeneratorObjects InDetIdentifier InDetReadoutGeometry TrkTrack TrkToolInterfaces SGtests GeoPrimitives IdDictDetDescr EventPrimitives InDetPrepRawData InDetRIO_OnTrack JetEvent TrkEventPrimitives TrkTrackSummary TrkTruthData )
 
 # Install files from the package:
 atlas_install_headers( InDetPerformanceRTT )

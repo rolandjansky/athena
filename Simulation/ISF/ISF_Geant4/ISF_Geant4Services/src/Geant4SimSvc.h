@@ -22,7 +22,6 @@
 #include "ISF_Interfaces/BaseSimulationSvc.h"
 
 class IDetectorGeometrySvc;
-class IGeoModelSvc;
 class G4Timer;
 
 namespace ISF {
@@ -58,10 +57,6 @@ namespace iGeant4 {
     /** Simulation Call for vector of ISF particles */
     StatusCode simulateVector(const ISF::ConstISFParticleVector& particles);
 
-    /** callback after geometry initialization,
-        needs to be registered in ::initialize() */
-    StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
     /** Setup Event chain - in case of a begin-of event action is needed */
     StatusCode setupEvent();
 
@@ -72,8 +67,6 @@ namespace iGeant4 {
     /** Default constructor */
     Geant4SimSvc();
 
-    /** GeoModelSvc for callback */
-    ServiceHandle<IGeoModelSvc>         m_geoModelSvc;
     ServiceHandle<IDetectorGeometrySvc> m_detGeoSvc;
 
     /** Track Creation & transport */

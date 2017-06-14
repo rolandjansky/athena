@@ -10,6 +10,7 @@
  * @brief Branch to run T/P conversions.
  */
 
+#include "AthenaPoolUtilities/TPCnvTokenList_p1.h"
 #include "AthenaROOTAccess/TBranchTPConvert.h"
 #include "AthenaROOTAccess/TTreeBranchMap.h"
 #include "AthenaROOTAccess/ProxyMap.h"
@@ -19,12 +20,12 @@
 #include "AthenaROOTAccess/tpcnvLoad.h"
 #include "AuxStoreARA.h"
 #include "AthenaKernel/ITPCnvBase.h"
-#include "AthenaPoolCnvSvc/AthenaPoolTopLevelTPCnvBase.h"
 #include "AthContainersInterfaces/IAuxStoreHolder.h"
 #include "AthAllocators/Arena.h"
 #include "SGTools/DataProxy.h"
 #include "SGTools/TransientAddress.h"
 #include "RootUtils/TBranchElementClang.h"
+#include "CxxUtils/no_sanitize_undefined.h"
 #include "TROOT.h"
 #include "TTree.h"
 #include "TClass.h"
@@ -669,9 +670,11 @@ namespace {
  * and register its address with the appropriate converter (which we
  * get from the `top-level' converter).
  */
-bool TBranchTPConvert::handleTopLevel (AthenaPoolTopLevelTPCnvBase* cnv,
-                                       void* pers,
-                                       Int_t /*getall*/)
+// Disable ubsan due to ExtHack.
+bool TBranchTPConvert::handleTopLevel NO_SANITIZE_UNDEFINED
+   (AthenaPoolTopLevelTPCnvBase* cnv,
+    void* pers,
+    Int_t /*getall*/)
 {
   // Get the token list from the object.  If it's empty, there's nothing to do.
   TPCnvTokenList_p1* tokens = cnv->getTokenListVarFrom (pers);

@@ -33,7 +33,7 @@ class TriggerPseudoJetGetter: public PseudoJetGetter,
 
   virtual ~TriggerPseudoJetGetter();
 
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   // Stores a vector of pseudo jets to be used in get()
   void prime(const PseudoJetVector* ) override;

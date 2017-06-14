@@ -44,10 +44,6 @@ public:
   /// Shorthand for our base class.
   typedef ArenaHandleBaseAllocT<ALLOC> Base;
 
-  /// @c AllocatorCreatorBase concrete derived class for creating
-  /// our Allocator.
-  typedef typename Base::Creator Creator;
-
 
   /**
    * @brief Constructor, passing in an index.
@@ -59,17 +55,23 @@ public:
 
 
   /**
-   * @brief Constructor, passing in a creator instance.
+   * @brief Constructor, passing in an index, for a specific event slot.
    * @param header The group of Arenas which this Handle may reference.
    *               May be null to select the global default.
-   * @param creator A @c Creator instance that will create an instance
-   *                of the Allocator we use.
-   *
-   * We'll try looking up the allocator name (from @c creator) in the
-   * registry to find the proper index.  If it's not found, we'll
-   * register @c creator.
+   * @param ctx Event context identifying the event slot.
+   * @param index The index of this Handle's Allocator type.
    */
-  ArenaHandleBaseT (ArenaHeader* header, const Creator& creator);
+  ArenaHandleBaseT (ArenaHeader* header,
+                    const EventContext& ctx,
+                    size_t index);
+
+
+  /**
+   * @brief Constructor, passing in an index, for a specific Arena.
+   * @param arena The Arena in which to find the allocator.
+   * @param index The index of this Handle's Allocator type.
+   */
+  ArenaHandleBaseT (ArenaBase* arena, size_t index);
 
 
   // Forward declaration.

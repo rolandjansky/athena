@@ -30,9 +30,6 @@ ByteStreamInputSvc.inputFiles    = ["/afs/cern.ch/atlas/offline/data/testfile/ru
 ToolSvc.TBByteStreamCnvTool.Dump = TRUE
 ToolSvc.TBByteStreamCnvTool.SummaryPath = "lastrun.txt"
 
-theApp.Dlls += ["LArRawUtils"]
-theApp.Dlls += ["LArTools"]
-
 # --- TBRec --------------
 theApp.Dlls += [ "TBRec" ]
 

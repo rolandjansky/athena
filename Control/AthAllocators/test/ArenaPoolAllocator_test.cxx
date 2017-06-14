@@ -13,12 +13,16 @@
 #undef NDEBUG
 #include "AthAllocators/ArenaPoolAllocator.h"
 #include "AthAllocators/ArenaBlock.h"
+#include "CxxUtils/checker_macros.h"
 #include <vector>
 #include <cassert>
 #include <algorithm>
 #include <iostream>
+#include <atomic>
+
 
 //==========================================================================
+
 
 struct Payload
 {
@@ -29,8 +33,8 @@ struct Payload
 
   int x;
   int y;
-  static int n;
-  static std::vector<int> v;
+  static std::atomic<int> n;
+  static std::vector<int> v ATLAS_THREAD_SAFE;
 };
 
 Payload::Payload()
@@ -50,7 +54,7 @@ void Payload::clear ()
   y = 0;
 }
 
-int Payload::n = 0;
+std::atomic<int> Payload::n;
 std::vector<int> Payload::v;
 
 //==========================================================================

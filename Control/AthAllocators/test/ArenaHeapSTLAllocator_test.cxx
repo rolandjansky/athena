@@ -13,14 +13,12 @@
 
 #undef NDEBUG
 #include "AthAllocators/ArenaHeapSTLAllocator.h"
-#include "boost/assign/list_of.hpp"
+#include "CxxUtils/checker_macros.h"
 #include <list>
 #include <vector>
 #include <cassert>
 #include <iostream>
-
-using boost::assign::list_of;
-
+#include <atomic>
 
 
 //==========================================================================
@@ -35,8 +33,8 @@ struct Payload
 
   int x;
   int y;
-  static int n;
-  static std::vector<int> v;
+  static std::atomic<int> n;
+  static std::vector<int> v ATLAS_THREAD_SAFE;
 };
 
 Payload::Payload(int the_y)
@@ -64,8 +62,19 @@ void Payload::clear ()
   y = 0;
 }
 
-int Payload::n = 0;
+std::atomic<int> Payload::n;
 std::vector<int> Payload::v;
+
+
+struct CTest
+{
+  typedef SG::ArenaHeapSTLAllocator<int> allocator_type;
+  CTest (allocator_type& a) : m_alloc(a) {}
+  allocator_type get_allocator() const { return m_alloc; }
+
+  allocator_type& m_alloc;
+};
+
 
 //==========================================================================
 
@@ -118,7 +127,7 @@ void test1()
   a4.destroy (pv[0]);
 
   assert (Payload::n == 2);
-  std::vector<int> exp1 = list_of(1)(1)(-1)(-1);
+  std::vector<int> exp1 {1, 1, -1, -1};
   assert (Payload::v == exp1);
   Payload::v.clear();
 
@@ -166,9 +175,11 @@ void test2()
   assert (a2.name() == "a2");
   assert (a2.poolptr() == nullptr);
 
-  a2.reset();
-  a2.erase();
-  a2.reserve(10);
+  CTest c2 (a2);
+  auto a2_nc = SG::ArenaHeapSTLAllocator<int>::get_allocator (c2);
+  a2_nc.reset();
+  a2_nc.erase();
+  a2_nc.reserve(10);
   assert (a2.stats().elts.total == 0);
 
   SG::ArenaHeapSTLAllocator<Payload, int> a3 (500, "a3");
@@ -184,17 +195,18 @@ void test2()
 
   assert (a4.stats().elts.inuse == 1);
   assert (a4.stats().elts.total == 1000);
-  assert (&a3.stats() == &a4.stats());
 
-  a4.reset();
+  CTest c4 (a4);
+  auto a4_nc = SG::ArenaHeapSTLAllocator<int>::get_allocator (c4);
+  a4_nc.reset();
   assert (a4.stats().elts.inuse == 0);
   assert (a4.stats().elts.total == 1000);
 
-  a4.erase();
+  a4_nc.erase();
   assert (a4.stats().elts.inuse == 0);
   assert (a4.stats().elts.total == 0);
 
-  a4.reserve(1000);
+  a4_nc.reserve(1000);
   assert (a4.stats().elts.inuse == 0);
   assert (a4.stats().elts.total == 1000);
 
@@ -282,7 +294,8 @@ void test4()
 
   std::cout << "test3\n";
 
-  typedef std::list<int, SG::ArenaHeapSTLAllocator<int> > list_t;
+  typedef SG::ArenaHeapSTLAllocator<int> allocator_t;
+  typedef std::list<int,  allocator_t> list_t;
 
   list_t::allocator_type allo (500, "allo");
   list_t list (allo);
@@ -311,7 +324,7 @@ void test4()
   assert (list.get_allocator().stats().elts.total == 500);
   assert (list.get_allocator().stats().elts.inuse == 0);
 
-  list.get_allocator().reset();
+  allocator_t::get_allocator(list).reset();
   assert (list.get_allocator().stats().elts.total == 500);
   assert (list.get_allocator().stats().elts.inuse == 0);
 

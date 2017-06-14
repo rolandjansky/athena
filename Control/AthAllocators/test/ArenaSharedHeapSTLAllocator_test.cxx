@@ -13,13 +13,16 @@
 
 #undef NDEBUG
 #include "AthAllocators/ArenaSharedHeapSTLAllocator.h"
+#include "AthAllocators/ArenaAllocatorCreator.h"
 #include "AthAllocators/ArenaBlock.h"
 #include "AthAllocators/exceptions.h"
 #include "TestTools/expect_exception.h"
+#include "CxxUtils/checker_macros.h"
 #include <list>
 #include <vector>
 #include <cassert>
 #include <iostream>
+#include <atomic>
 
 
 //==========================================================================
@@ -34,8 +37,8 @@ struct Payload
 
   int x;
   int y;
-  static int n;
-  static std::vector<int> v;
+  static std::atomic<int> n;
+  static std::vector<int> v ATLAS_THREAD_SAFE;
 };
 
 Payload::Payload(int the_y)
@@ -63,7 +66,7 @@ void Payload::clear ()
   y = 0;
 }
 
-int Payload::n = 0;
+std::atomic<int> Payload::n;
 std::vector<int> Payload::v;
 
 
@@ -85,11 +88,11 @@ void test1()
 
   SG::ArenaSharedHeapSTLAllocator<Payload> a1;
   assert (a1.nblock() == 1000);
-  assert (a1.name() == "::ArenaSharedHeapSTLAllocator<Payload>");
+  assert (a1.name() == "ArenaSharedHeapSTLAllocator<Payload>");
 
-  SG::ArenaSharedHeapSTLAllocator<Payload> a2 (100, "a2");
+  SG::ArenaSharedHeapSTLAllocator<Payload> a2 (100);
   assert (a2.nblock() == 100);
-  assert (a2.name() == "a2::ArenaSharedHeapSTLAllocator<Payload>");
+  assert (a2.name() == "ArenaSharedHeapSTLAllocator<Payload>");
 
   {
     Payload p;
@@ -145,7 +148,7 @@ void test1()
 
   SG::ArenaSharedHeapSTLAllocator<Payload> a3 (a2);
   assert (a2.nblock() == 100);
-  assert (a2.name() == "a2::ArenaSharedHeapSTLAllocator<Payload>");
+  assert (a2.name() == "ArenaSharedHeapSTLAllocator<Payload>");
 
   Payload* p1 = a2.allocate (1);
   assert (a2.stats().elts.inuse == 1);
@@ -157,7 +160,7 @@ void test1()
 
   SG::ArenaSharedHeapSTLAllocator<int> a4 (a2);
   assert (a4.nblock() == 100);
-  assert (a4.name() == "a2::ArenaSharedHeapSTLAllocator<int>");
+  assert (a4.name() == "ArenaSharedHeapSTLAllocator<int>");
 
   int* p3 = a4.allocate(1);
   assert (a3.stats().elts.inuse == 2);
@@ -199,9 +202,9 @@ void test3()
   Payload::v.clear();
   Payload::n = 0;
 
-  SG::ArenaSharedHeapSTLAllocator<Payload> b1 (100, "b1");
+  SG::ArenaSharedHeapSTLAllocator<Payload> b1 (100);
   assert (b1.nblock() == 100);
-  assert (b1.name() == "b1::ArenaSharedHeapSTLAllocator<Payload>");
+  assert (b1.name() == "ArenaSharedHeapSTLAllocator<Payload>");
 
   Payload* pp[10];
   pp[0] = b1.allocate(1);
@@ -210,7 +213,7 @@ void test3()
 
   SG::ArenaSharedHeapSTLAllocator<Payload> b2 (b1);
   assert (b2.nblock() == 100);
-  assert (b2.name() == "b1::ArenaSharedHeapSTLAllocator<Payload>");
+  assert (b2.name() == "ArenaSharedHeapSTLAllocator<Payload>");
   pp[1] = b2.allocate(1);
   assert (b1.stats().elts.inuse == 2);
   assert (b1.stats().elts.total == 100);
@@ -219,20 +222,20 @@ void test3()
 
   b1 = b2;
   assert (b1.nblock() == 100);
-  assert (b1.name() == "b1::ArenaSharedHeapSTLAllocator<Payload>");
+  assert (b1.name() == "ArenaSharedHeapSTLAllocator<Payload>");
   assert (b1.stats().elts.inuse == 2);
   assert (b1.stats().elts.total == 100);
   assert (b2.stats().elts.inuse == 2);
   assert (b2.stats().elts.total == 100);
 
-  SG::ArenaSharedHeapSTLAllocator<Payload> b3 (100, "b3");
+  SG::ArenaSharedHeapSTLAllocator<Payload> b3 (100);
   EXPECT_EXCEPTION (SG::ExcDifferentArenas, b3 = b2);
 
   SG::ArenaSharedHeapSTLAllocator<Payload> b4 (std::move (b1));
   assert (b1.nblock() == 100);
-  assert (b1.name() == "b1::ArenaSharedHeapSTLAllocator<Payload>");
+  assert (b1.name() == "ArenaSharedHeapSTLAllocator<Payload>");
   assert (b4.nblock() == 100);
-  assert (b4.name() == "b1::ArenaSharedHeapSTLAllocator<Payload>");
+  assert (b4.name() == "ArenaSharedHeapSTLAllocator<Payload>");
   assert (b1.stats().elts.inuse == 2);
   assert (b1.stats().elts.total == 100);
   assert (b4.stats().elts.inuse == 2);
@@ -247,9 +250,9 @@ void test3()
 
   b1 = std::move(b4);
   assert (b1.nblock() == 100);
-  assert (b1.name() == "b1::ArenaSharedHeapSTLAllocator<Payload>");
+  assert (b1.name() == "ArenaSharedHeapSTLAllocator<Payload>");
   assert (b4.nblock() == 100);
-  assert (b4.name() == "b1::ArenaSharedHeapSTLAllocator<Payload>");
+  assert (b4.name() == "ArenaSharedHeapSTLAllocator<Payload>");
   assert (b4.stats().elts.inuse == 3);
   assert (b4.stats().elts.total == 100);
   assert (b1.stats().elts.inuse == 3);
@@ -264,9 +267,9 @@ void test3()
 
   b1.swap(b4);
   assert (b1.nblock() == 100);
-  assert (b1.name() == "b1::ArenaSharedHeapSTLAllocator<Payload>");
+  assert (b1.name() == "ArenaSharedHeapSTLAllocator<Payload>");
   assert (b4.nblock() == 100);
-  assert (b4.name() == "b1::ArenaSharedHeapSTLAllocator<Payload>");
+  assert (b4.name() == "ArenaSharedHeapSTLAllocator<Payload>");
   assert (b1.stats().elts.inuse == 4);
   assert (b1.stats().elts.total == 100);
   assert (b4.stats().elts.inuse == 4);
@@ -274,9 +277,9 @@ void test3()
 
   b4.swap (b3);
   assert (b4.nblock() == 100);
-  assert (b4.name() == "b3::ArenaSharedHeapSTLAllocator<Payload>");
+  assert (b4.name() == "ArenaSharedHeapSTLAllocator<Payload>");
   assert (b3.nblock() == 100);
-  assert (b3.name() == "b1::ArenaSharedHeapSTLAllocator<Payload>");
+  assert (b3.name() == "ArenaSharedHeapSTLAllocator<Payload>");
   assert (b3.stats().elts.inuse == 4);
   assert (b3.stats().elts.total == 100);
 
@@ -297,7 +300,7 @@ void test4()
 
   typedef std::list<int, SG::ArenaSharedHeapSTLAllocator<int> > list_t;
 
-  list_t::allocator_type allo (500, "allo");
+  list_t::allocator_type allo (500);
   list_t list (allo);
 
   for (int i = 0; i < 10; i++)
@@ -376,7 +379,7 @@ void test5()
 
   typedef std::list<int, SG::ArenaSharedHeapSTLAllocator<int> > list_t;
 
-  list_t::allocator_type allo (500, "allo");
+  list_t::allocator_type allo (500);
   list_t list (allo);
 
   for (int i = 0; i < 10; i++)

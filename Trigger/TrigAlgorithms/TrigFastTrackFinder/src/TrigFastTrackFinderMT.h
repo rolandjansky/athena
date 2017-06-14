@@ -71,9 +71,6 @@ class TrigFastTrackFinderMT : public HLT::FexAlgo {
   
   TrigFastTrackFinderMT(const std::string& name, ISvcLocator* pSvcLocator);
   ~TrigFastTrackFinderMT();
-  StatusCode initialize();
-  StatusCode finalize();
-  StatusCode beginRun();
 
   StatusCode execute();
   HLT::ErrorCode hltInitialize();

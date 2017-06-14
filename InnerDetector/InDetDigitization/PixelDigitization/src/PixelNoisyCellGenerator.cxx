@@ -13,6 +13,7 @@
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "InDetReadoutGeometry/SiReadoutCellId.h"
 
+#include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoisson.h"
 
 #include<fstream>
@@ -23,15 +24,16 @@
 
 PixelNoisyCellGenerator::PixelNoisyCellGenerator(const std::string& type, const std::string& name,const IInterface* parent):
   PixelProcessorTool(type,name,parent),
-  m_TimeSvc("TimeSvc",name),
   m_pixelCalibSvc("PixelCalibSvc", name),
+  m_timeBCN(1),
   m_mergeCharge(false),
   m_pixelID(0),
   m_rndNoiseProb(5e-8)
 {
-  declareProperty("NoiseShape",m_noiseShape,"Vector containing noise ToT shape");
-  declareProperty("MergeCharge",     m_mergeCharge,      "");
-  declareProperty("RndNoiseProb",       m_rndNoiseProb,         "Random noisy pixels, amplitude from calib. - NOT special pixels!"); 
+	declareProperty("TimeBCN",      m_timeBCN,      "Number of BCID");	
+  declareProperty("NoiseShape",   m_noiseShape,   "Vector containing noise ToT shape");
+  declareProperty("MergeCharge",  m_mergeCharge,  "");
+  declareProperty("RndNoiseProb", m_rndNoiseProb, "Random noisy pixels, amplitude from calib. - NOT special pixels!"); 
 }
 
 PixelNoisyCellGenerator::~PixelNoisyCellGenerator() {}
@@ -39,8 +41,6 @@ PixelNoisyCellGenerator::~PixelNoisyCellGenerator() {}
 StatusCode PixelNoisyCellGenerator::initialize() {
   CHECK(PixelProcessorTool::initialize());
  
-  CHECK(m_TimeSvc.retrieve());
-
   CHECK(m_pixelCalibSvc.retrieve());
   ATH_MSG_DEBUG("Retrieved PixelCalibSvc");
 
@@ -71,9 +71,6 @@ void PixelNoisyCellGenerator::process(SiChargedDiodeCollection &collection) {
 
 void PixelNoisyCellGenerator::addRandomNoise(SiChargedDiodeCollection &collection, double occupancy) const {
  
-  // number of bunch crossings
-  int bcn = m_TimeSvc->getTimeBCN();
-
   // get pixel module design and check it
   const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign *>(&(collection.design()));
 
@@ -85,7 +82,7 @@ void PixelNoisyCellGenerator::addRandomNoise(SiChargedDiodeCollection &collectio
       *p_design->columnsPerCircuit()  // =18
       *p_design->rowsPerCircuit()     // =320
       *occupancy
-      *static_cast<double>(bcn));
+      *static_cast<double>(m_timeBCN));
 
   for (int i=0; i<number_rndm; i++) {
     int circuit = CLHEP::RandFlat::shootInt(m_rndmEngine,p_design->numberOfCircuits());

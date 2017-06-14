@@ -11,7 +11,9 @@
 #include "MuonHistUtils/MuonHitDiffSummaryPlots.h"
 #include "MuonHistUtils/MuonResolutionPlots.h"
 #include "MuonHistUtils/MomentumTruthPullPlots.h"
+#include "MuonHistUtils/MuonParamElossPlots.h"
 #include "MuonHistUtils/MuonTree.h"
+#include "MuonHistUtils/MuonTruthHitPlots.h"
 #include "TrkValHistUtils/DefParamPullPlots.h"
 
 #include "xAODMuon/Muon.h"
@@ -20,7 +22,7 @@
 
 namespace Muon
 {
-  enum TRUTHRELATEDPLOTCLASS {TRK_MATCHEDTRUE,TRK_MATCHEDRECO,TRK_MSHITDIFF,MUON_HITDIFF,MUON_RESOL,TRK_DEFPARAMPULLS,MUON_PULLSTAIL,MUON_PULLSNOTAIL,MAX_TRUTHRELATEDPLOTCLASS};
+  enum TRUTHRELATEDPLOTCLASS {TRK_MATCHEDTRUE,TRK_MATCHEDRECO,TRK_MSHITDIFF,MUON_HITDIFF,MUON_TRUTHHIT,MUON_RESOL,TRK_DEFPARAMPULLS,MUON_PULLSTAIL,MUON_PULLSNOTAIL,MUON_PARAMELOSS,MAX_TRUTHRELATEDPLOTCLASS};
   
   class TruthRelatedMuonPlotOrganizer:public PlotBase {
   public:
@@ -39,10 +41,12 @@ namespace Muon
     Trk::ParamPlots                 *m_oMatchedRecoPlots;
     Trk::MSHitDiffPlots             *m_oMSHitDiffPlots;
     Muon::MuonHitDiffSummaryPlots   *m_oMuonHitDiffSummaryPlots;
+    Muon::MuonTruthHitPlots         *m_oMuonTruthHitPlots;
     Muon::MuonResolutionPlots       *m_oMuonResolutionPlots;
     Trk::DefParamPullPlots          *m_oDefParamPullPlots;
     Muon::MomentumTruthPullPlots    *m_oMomentumTruthPullPlots_Tail;
     Muon::MomentumTruthPullPlots    *m_oMomentumTruthPullPlots_NoTail;
+    Muon::MuonParamElossPlots       *m_oMatchedRecoElossPlots;
 
   };
  

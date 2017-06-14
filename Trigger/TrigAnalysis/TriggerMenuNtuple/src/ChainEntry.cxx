@@ -14,20 +14,20 @@ using namespace std;
 void ChainEntry::addChain(const std::string& chain_name, int id) {
   std::map<int, std::string>::const_iterator p;
   bool foundit=false;
-  for (p=sChainIdMap.begin(); p!=sChainIdMap.end(); ++p) {
+  for (p=s_ChainIdMap.begin(); p!=s_ChainIdMap.end(); ++p) {
     if (p->second == chain_name) {
       foundit = true;
       break;
     }
   }
-  int i = static_cast<int>(sChainIdMap.size());
+  int i = static_cast<int>(s_ChainIdMap.size());
   if (id >= 0) i = id;
-  if (!foundit) sChainIdMap[i] = chain_name;
+  if (!foundit) s_ChainIdMap[i] = chain_name;
 }
 
 const std::string ChainEntry::chainName(int id) {
   std::map<int, std::string>::const_iterator p;
-  if ( (p=sChainIdMap.find(id)) != sChainIdMap.end()) {
+  if ( (p=s_ChainIdMap.find(id)) != s_ChainIdMap.end()) {
     return p->second;
   } else {
     return "";
@@ -36,7 +36,7 @@ const std::string ChainEntry::chainName(int id) {
 
 int ChainEntry::chainId(const std::string& chain_name) {
   std::map<int, std::string>::const_iterator p;
-  for (p=sChainIdMap.begin(); p!=sChainIdMap.end(); ++p) {
+  for (p=s_ChainIdMap.begin(); p!=s_ChainIdMap.end(); ++p) {
     if (p->second == chain_name) {
       return p->first;
     }
@@ -45,15 +45,15 @@ int ChainEntry::chainId(const std::string& chain_name) {
 }
 
 const std::map<int, std::string>& ChainEntry::chainIdMap() {
-  return sChainIdMap;
+  return s_ChainIdMap;
 }
 
-std::map<int, std::string> ChainEntry::sChainIdMap;
+std::map<int, std::string> ChainEntry::s_ChainIdMap;
 
 
 ChainEntry::ChainEntry(const std::string& chain_name, int chain_counter){
-  Name = chain_name;
-  Counter = chain_counter;
+  m_Name = chain_name;
+  m_Counter = chain_counter;
 }
 
 ChainEntry::~ChainEntry(){
@@ -61,15 +61,15 @@ ChainEntry::~ChainEntry(){
 
 void ChainEntry::addRoI(int type, int index){
   bool foundit = false;
-  for (unsigned i=0; i<RoITypes.size(); ++i) {
-    if (RoITypes[i] == type && RoIIndices[i] == index) {
+  for (unsigned i=0; i<m_RoITypes.size(); ++i) {
+    if (m_RoITypes[i] == type && m_RoIIndices[i] == index) {
       foundit = true;
       break;
     }
   }
   if (!foundit) {
-    RoITypes.push_back(type);
-    RoIIndices.push_back(index);
+    m_RoITypes.push_back(type);
+    m_RoIIndices.push_back(index);
   }
 }
 

@@ -2,7 +2,7 @@
 
 ##
 ## @file MuonCombinedRecExample/python/MuonCombinedKeys.py
-## @purpose Python module to hold uniform collection names for muon combined reconstruction
+## @brief Python module to hold uniform collection names for muon combined reconstruction
 ##
 
 """ MuonCombinedContainerKeys

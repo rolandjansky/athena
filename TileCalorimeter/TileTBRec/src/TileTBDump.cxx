@@ -1806,7 +1806,7 @@ void dump_it(unsigned int nw, unsigned int * data) {
 
 /* ------------------------------------------------------------------------ */
 
-void TileTBDump::find_frag(const uint32_t* data, unsigned int size, unsigned int version
+void TileTBDump::find_frag(const uint32_t* data, unsigned int size, unsigned int /* version */
                            , int /* verbosity */, T_RodDataFrag** frag, int* nfrag) {
   unsigned int offset = 0;
   *nfrag = 0;
@@ -1868,7 +1868,7 @@ void TileTBDump::find_frag(const uint32_t* data, unsigned int size, unsigned int
 
     } else {
       offset += frag[*nfrag]->size;
-      if (version == 0x1 && offset < size) offset += 7; // skip extra header
+      // if (version == 0x1 && offset < size) offset += 7; // skip extra header - was needed for 2001-2003 TB data only
       ++(*nfrag);
     }
   }

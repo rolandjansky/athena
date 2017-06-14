@@ -14,8 +14,8 @@ class FTK_RoadMarketInput : public FTKRoadInput {
 private:
   FTK_RoadMarketTool *m_market; // real object if the stream
 
-  FTKRoad **cur_road;
-  int *cur_iroad;
+  FTKRoad **m_cur_road;
+  int *m_cur_iroad;
 
   void notValid(const char *);
 public:
@@ -87,6 +87,8 @@ public:
   virtual void naoSetNhitsTot(int, int);
   virtual void naoSetNclusTot(int, int);
   virtual void naoSetNclus(int, const std::vector<int>&);
+  virtual void naoSetNclus_road(int, const std::vector<int>&);
+  virtual void naoAddNclus_road(int, const std::vector<int>&);
   virtual void naoSetNss(int, const std::vector<int>&);
   virtual void naoSetNroadsAM(int, int);
   virtual void naoSetNroadsAMComplete(int, int);

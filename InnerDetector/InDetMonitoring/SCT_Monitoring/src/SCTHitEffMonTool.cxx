@@ -29,8 +29,7 @@
 #include "AthenaKernel/errorcheck.h"
 #include "Identifier/IdentifierHash.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
 
@@ -51,7 +50,6 @@
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkParameters/TrackParameters.h"
 
-#include "CommissionEvent/ComTime.h"
 #include "TrkTrackSummary/TrackSummary.h"
 
 // SCT
@@ -135,7 +133,7 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string &type, const string &name, const
   mgr(nullptr),
   m_pSCTHelper(0),
   m_pManager(0),
-  m_TrackName("ResolvedSCTTracks"),// original track collection
+  m_TrackName(std::string("ResolvedSCTTracks")),// original track collection
   m_chrono(nullptr),
   m_tracks(nullptr),// original tracks
   m_TrackSum(nullptr),
@@ -201,7 +199,9 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string &type, const string &name, const
   m_badChipMap(nullptr),
   m_pixelId(nullptr),
   m_sctId(nullptr),
-  m_trtId(nullptr) {
+  m_trtId(nullptr),
+  m_comTimeName(std::string("TRT_Phase")),
+  m_eventInfoKey(std::string("EventInfo")){
   declareProperty("TrackName", m_TrackName);
   declareProperty("IsCosmic", m_isCosmic);
   declareProperty("IsSim", m_isSim);
@@ -231,7 +231,7 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string &type, const string &name, const
   declareProperty("RunningMode", m_RunningMode);
   declareProperty("effDistanceCut", m_effdistcut);
   declareProperty("ChronoTime", m_chronotime);
-  declareProperty("SCT_ClusterContainer", m_sctContainerName = "SCT_ClusterCollection");
+  declareProperty("SCT_ClusterContainer", m_sctContainerName = std::string("SCT_Clusters"));
   declareProperty("ROTCreator", m_rotcreator);
   declareProperty("HoleSearch", m_holeSearchTool);
   declareProperty("ResPullCalc", m_residualPullCalculator);
@@ -387,6 +387,11 @@ SCTHitEffMonTool::initialize() {
       m_minOtherHits = 3;
     }
   }
+
+  ATH_CHECK( m_comTimeName.initialize(m_useTRTPhase or m_isCosmic) );
+  ATH_CHECK( m_eventInfoKey.initialize() );
+  ATH_CHECK( m_TrackName.initialize() );
+  ATH_CHECK( m_sctContainerName.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -1102,32 +1107,28 @@ SCTHitEffMonTool::fillHistograms() {
   errorcheck::ReportMessage::hideErrorLocus(true);
 
   VERBOSE("SCTHitEffMonTool::fillHistograms()");
-  string m_comTimeName("TRT_Phase");
   Double_t timecor(-20.);
-  const ComTime *theComTime;
   if (m_useTRTPhase or m_isCosmic) {
-    if (evtStore()->contains<ComTime>(m_comTimeName)) {
-      if (StatusCode::SUCCESS == evtStore()->retrieve(theComTime, m_comTimeName)) {
+    if (evtStore()->contains<ComTime>(m_comTimeName.key())) {
+      SG::ReadHandle<ComTime> theComTime(m_comTimeName);
+      if (theComTime.isValid()) {
         timecor = theComTime->getTime();
-        VERBOSE("Retrieved ComTime object with name " << m_comTimeName << " found: Time = " << timecor);
+        VERBOSE("Retrieved ComTime object with name " << m_comTimeName.key() << " found: Time = " << timecor);
       } else {
         timecor = -18.;
-        WARNING("ComTime object not found with name " << m_comTimeName);
+        WARNING("ComTime object not found with name " << m_comTimeName.key());
       }
     } else {
       timecor = -16.;
-      ERROR("ComTime object not in store  with name " << m_comTimeName);
+      ERROR("ComTime object not in store  with name " << m_comTimeName.key());
     }
   }
   // If we are going to use TRT phase in anger, need run-dependent corrections.
-  EventID *eventID;
-  const EventInfo *pEvent(0);
-  CHECK(evtStore()->retrieve(pEvent));
-  if (not pEvent) {
-    return ERROR("Could not find event pointer"), StatusCode::FAILURE;
+  SG::ReadHandle<xAOD::EventInfo> pEvent(m_eventInfoKey);
+  if (not pEvent.isValid()) {
+    return ERROR("Could not find EventInfo"), StatusCode::FAILURE;
   }
-  eventID = pEvent->event_ID();
-  unsigned BCID = eventID->bunch_crossing_id();
+  unsigned BCID = pEvent->bcid();
   int BCIDpos = m_bunchCrossingTool->distanceFromFront(BCID);
   bool InTrain = m_bunchCrossingTool->isInTrain(BCID);
 
@@ -1138,28 +1139,28 @@ SCTHitEffMonTool::fillHistograms() {
   }
 
   // ---- First try if m_tracksName is a TrackCollection
-  const TrackCollection *m_tracks(0);
-  if (evtStore()->contains<TrackCollection> (m_TrackName)) {
-    if (evtStore()->retrieve(m_tracks, m_TrackName).isFailure()) {
-      WARNING("Tracks not found: " << m_tracks << " / " << m_TrackName);
+  SG::ReadHandle<TrackCollection>m_tracks(m_TrackName);
+  if (evtStore()->contains<TrackCollection> (m_TrackName.key())) {
+    if (not m_tracks.isValid()) {
+      WARNING("Tracks not found: " << m_tracks << " / " << m_TrackName.key());
       if (m_chronotime) {
         m_chrono->chronoStop("SCTHitEff");
       }
       return StatusCode::SUCCESS;
     }else {
-      VERBOSE("Successfully retrieved " << m_TrackName << " : " << m_tracks->size() << " items");
+      VERBOSE("Successfully retrieved " << m_TrackName.key() << " : " << m_tracks->size() << " items");
     }
   } else {
-    WARNING("Collection " << m_TrackName << " not found");
+    WARNING("Collection " << m_TrackName.key() << " not found");
     if (m_chronotime) {
       m_chrono->chronoStop("SCTHitEff");
     }
     return StatusCode::SUCCESS;
   }
 
-  const InDet::SCT_ClusterContainer *p_sctclcontainer;
-  if (evtStore()->retrieve(p_sctclcontainer, "SCT_Clusters").isFailure()) {
-    WARNING("SCT clusters container not found: " << p_sctclcontainer);
+  SG::ReadHandle<InDet::SCT_ClusterContainer> p_sctclcontainer(m_sctContainerName);
+  if (not p_sctclcontainer.isValid()) {
+    WARNING("SCT clusters container not found: " << m_sctContainerName.key());
     if (m_chronotime) {
       m_chrono->chronoStop("SCTHitEff");
     }
@@ -1307,7 +1308,7 @@ SCTHitEffMonTool::fillHistograms() {
         }
         if (m_sctId->is_sct(surfaceID)) {
           m_NHits[bec2Index(m_sctId->barrel_ec(surfaceID))]++;
-          mapOfTrackHitResiduals[surfaceID] = getResidual(surfaceID, (*TSOSItr)->trackParameters(), p_sctclcontainer);
+          mapOfTrackHitResiduals[surfaceID] = getResidual(surfaceID, (*TSOSItr)->trackParameters(), &*p_sctclcontainer);
         }
       }
 
@@ -1374,7 +1375,7 @@ SCTHitEffMonTool::fillHistograms() {
       Float_t layerPlusHalfSide(float(layer) + float(side) * 0.5);
       Float_t dedicated_layerPlusHalfSide(float(layer) + float((side + 1) % 2) * 0.5);
       const Trk::TrackParameters *trkParamOnSurface((*TSOSItr)->trackParameters());
-      Double_t trackHitResidual(getResidual(surfaceID, trkParamOnSurface, p_sctclcontainer));
+      Double_t trackHitResidual(getResidual(surfaceID, trkParamOnSurface, &*p_sctclcontainer));
 
 
       Float_t distCut(m_effdistcut);
@@ -1461,17 +1462,17 @@ SCTHitEffMonTool::fillHistograms() {
         }
         Double_t tmin(1.);
         Double_t tmax(40.);
-        if (eventID->run_number() > 96000) {
+        if (pEvent->runNumber() > 96000) {
           /// Guess that all this set are the same timing.
           tmin = -5;
           tmax = 20;
         }
-        if (eventID->run_number() > 110000) {
+        if (pEvent->runNumber() > 110000) {
           /// Guess that all this set are the same timing.
           tmin = -15;
           tmax = 10;
         }
-        switch (eventID->run_number()) {
+        switch (pEvent->runNumber()) {
         case  91885: tmin = 1;
           tmax = 40;
           break;
@@ -1712,16 +1713,16 @@ SCTHitEffMonTool::fillHistograms() {
       m_Eff_summaryHisto_old[isub]->Fill(layerPlusHalfSide, m_eff); // in order to calculate m_EffsummaryIncBadMod
       m_Eff_summaryHisto[isub]->Fill(dedicated_layerPlusHalfSide, m_eff); // adjustment for dedicated_title()
       m_Eff_hashCodeHisto->Fill(Double_t(sideHash), m_eff);// 15.12.2014
-      m_Eff_LumiBlockHisto[isub]->Fill(eventID->lumi_block(), m_eff);// 20.01.2015
-      m_Eff_LumiBlockHisto_Total->Fill(eventID->lumi_block(), m_eff);// 02.09.2016
+      m_Eff_LumiBlockHisto[isub]->Fill(pEvent->lumiBlock(), m_eff);// 20.01.2015
+      m_Eff_LumiBlockHisto_Total->Fill(pEvent->lumiBlock(), m_eff);// 02.09.2016
       if (BCIDpos == 0 && InTrain) {
         m_Eff_summaryHistoFirstBCID[isub]->Fill(dedicated_layerPlusHalfSide, m_eff); // adjustment for dedicated_title()
       }
       if (m_detailed) {
         m_SelectionHisto[isub]->Fill(9.); // Past bad chip
         m_Eff_SelectionHisto[isub]->Fill(9., m_eff); // Past bad chip
-        m_EventHisto[isub]->Fill(eventID->event_number());
-        m_Eff_EventHisto[isub]->Fill(eventID->event_number(), m_eff);
+        m_EventHisto[isub]->Fill(pEvent->eventNumber());
+        m_Eff_EventHisto[isub]->Fill(pEvent->eventNumber(), m_eff);
         m_hashCodeHisto->Fill(Double_t(sideHash));
         m_Unas_summaryHisto[isub]->Fill(layerPlusHalfSide, m_unas);
         m_Eff_etaHisto[isub]->Fill(eta, m_eff);
@@ -1741,7 +1742,7 @@ SCTHitEffMonTool::fillHistograms() {
         m_Eff_nGoodTrk[isub]->Fill(nTrkGood, m_eff);
       }
       if (m_superDetailed) {
-        // m_Eff_LumiBlockHisto[isub]->Fill(eventID->lumi_block(), m_eff);//20.01.2015
+        // m_Eff_LumiBlockHisto[isub]->Fill(pEvent->lumiBlock(), m_eff);//20.01.2015
         chipPos = (side == 1) ? 11 - chipPos : chipPos;
         m_inEffChip[isub]->Fill(sideHash, chipPos, int(m_eff == 0));
         m_inEffStrip[isub]->Fill(sideHash, xl / 79.95e-3 + 768. / 2., int(m_eff == 0));
@@ -1774,7 +1775,7 @@ SCTHitEffMonTool::fillHistograms() {
       const int ieta(m_sctId->eta_module(surfaceID));
       const int iphi(m_sctId->phi_module(surfaceID));
       m_effMap[histnumber][side]->Fill(ieta, iphi, m_eff);
-      m_effLumiBlock[histnumber][side]->Fill(eventID->lumi_block(), m_eff);// 23.01.2015
+      m_effLumiBlock[histnumber][side]->Fill(pEvent->lumiBlock(), m_eff);// 23.01.2015
 
       if (testOffline) {
         m_ineffMap[histnumber][side]->Fill(ieta, iphi, 1); // dummyfill for testing
@@ -1828,7 +1829,7 @@ SCTHitEffMonTool::fillHistograms() {
     m_nTrkGoodHisto->Fill(nTrkGood);
   }
   if (m_superDetailed) {
-    m_LumiBlock->Fill(eventID->lumi_block());
+    m_LumiBlock->Fill(pEvent->lumiBlock());
   }
   m_countEvent++;
   if (m_chronotime) {

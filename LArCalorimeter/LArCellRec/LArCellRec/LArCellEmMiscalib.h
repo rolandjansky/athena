@@ -47,10 +47,6 @@ class LArCellEmMiscalib :  public CaloCellCorrection
   virtual StatusCode initialize() ; 
   
   void MakeCorrection(CaloCell* theCell);
-
-  /** Callback added to handle Data-driven GeoModel initialisation
-   */
-  virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
   
  private:
 

@@ -14,7 +14,7 @@
 // STL includes
 #include <string>
 
-// FrameWork includes
+// Framework includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaBaseComps/AthHistogramming.h"
 #include "GaudiKernel/ServiceHandle.h"

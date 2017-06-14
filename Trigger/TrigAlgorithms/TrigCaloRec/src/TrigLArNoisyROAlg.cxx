@@ -36,8 +36,6 @@
 //
 #include "LArIdentifier/LArOnlineID.h" 
 #include "LArCabling/LArCablingService.h"
-//#include "GeoModelSvc/IGeoModelSvc.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 //#include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "xAODTrigCalo/CaloClusterTrigAuxContainer.h"
 
@@ -84,31 +82,13 @@ HLT::ErrorCode TrigLArNoisyROAlg::hltInitialize()
 	  << "Initialization of TrigLArNoisyROAlg completed successfully"
 	  << endmsg;
 
-  const IGeoModelSvc *geoModel=0;
-  if ( (service("GeoModelSvc", geoModel)).isFailure() ){
-	msg() << MSG::ERROR << "Could not get geoModel" << endmsg;
-	return HLT::BAD_JOB_SETUP;
-  }
-  int dummyInt=0;
-  std::list<std::string> dummyList;
-  if (geoModel->geoInitialized()) { if ( geoInit(dummyInt,dummyList).isFailure() ) return HLT::BAD_JOB_SETUP; }
-  else {
-	StoreGateSvc* detStore(0);
-        if ( service("DetectorStore", detStore).isFailure() ){
-	   msg(MSG::ERROR) << "Unable to retrieve detStore " << endmsg;
-           return StatusCode::FAILURE;
-	}
-	if ( (detStore->regFcn(&IGeoModelSvc::geoInit, geoModel,
-		 &TrigLArNoisyROAlg::geoInit,this) ).isFailure() ) {
-		msg() << MSG::ERROR << "Could not register callback" << endmsg;
-		return HLT::BAD_JOB_SETUP;
-	}
-  }
+  if ( geoInit().isFailure() ) 
+    return HLT::BAD_JOB_SETUP; 
 
   return HLT::OK;
 }
 
-StatusCode TrigLArNoisyROAlg::geoInit(IOVSVC_CALLBACK_ARGS){
+StatusCode TrigLArNoisyROAlg::geoInit(){
 /*
 	const  CaloIdManager* caloIdMgr;
 	if ( (detStore()->retrieve(caloIdMgr)).isFailure() ){

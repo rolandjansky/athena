@@ -56,7 +56,7 @@ topSequence += PyReadNonThinnedData(
 # POOL Persistency
 #--------------------------------------------------------------
 import AthenaPoolCnvSvc.WriteAthenaPool as wap
-outStream = wap.AthenaPoolOutputStream("StreamUSR")
+outStream = wap.AthenaPoolOutputStream("StreamUSR", noTag=True)
 
 if 'OUTPUT' not in dir():
    OUTPUT = "reaccessed.%s" % INPUT[0]

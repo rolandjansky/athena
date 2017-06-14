@@ -55,7 +55,7 @@ StatusCode FTK::TrigFTKByteStreamCnv::initialize()
     return sc;
    }
 
-   m_log = new MsgStream(messageService(), "TrigFTKByteStreamCnv");
+   m_log = new MsgStream(msgSvc(), "TrigFTKByteStreamCnv");
    (*m_log) << MSG::DEBUG << "TrigFTKByteStreamCnv in initialize() " <<endmsg;
 
    //Get ByteStreamCnvSvc

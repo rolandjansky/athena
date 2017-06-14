@@ -2,7 +2,7 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 ## @file PyUtils/bin/merge-poolfiles.py
-## @purpose take a bunch of input pool files and produce a single one
+## @brief take a bunch of input pool files and produce a single one
 ##          autoconfiguration is (attempted to be) performed
 ## @author Sebastien Binet <binet@cern.ch>
 

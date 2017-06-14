@@ -19,7 +19,8 @@ use AthenaBaseComps             AthenaBaseComps-*       Control
 use Navigation                  Navigation-*            Control
 use SGTools                     SGTools-*               Control
 use StoreGate                   StoreGate-*             Control
-use DataModel                   DataModel-*             Control 
+use AthContainers               AthContainers-*         Control 
+use AthLinks                    AthLinks-*              Control 
 use AthenaKernel                AthenaKernel-*          Control
 use CLIDSvc                     CLIDSvc-*               Control
 

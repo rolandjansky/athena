@@ -51,10 +51,6 @@ public:
   */
   virtual StatusCode process( CaloCellContainer * theCellContainer) ;
 
-  /** Callback added to handle Data-driven GeoModel initialisation
-   */
-  virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
 
 
  private:

@@ -20,8 +20,8 @@ CREATED:  22nd November, 2004
 #include "eflowRec/eflowEEtaBinnedParameters.h"
 #include "eflowRec/eflowRingSubtractionManager.h"
 
-xAOD::CaloClusterContainer* eflowCaloObject::m_clusterContainerPtr = 0;
-xAOD::CaloClusterAuxContainer* eflowCaloObject::m_clusterAuxContainerPtr = 0;
+xAOD::CaloClusterContainer* eflowCaloObject::m_clusterContainerPtr = nullptr;
+xAOD::CaloClusterAuxContainer* eflowCaloObject::m_clusterAuxContainerPtr = nullptr;
 
 eflowCaloObject::~eflowCaloObject() { }
 
@@ -76,6 +76,9 @@ void eflowCaloObject::simulateShower(eflowLayerIntegrator *integrator, eflowEEta
     /* Determine the LFI */
     integrator->measureNewClus(matchedClusters, thisEfRecTrack);
     eflowFirstIntENUM j1st = integrator->getFirstIntLayer();
+    
+    /*Save j1st info */
+    thisEfRecTrack->setLayerHED(j1st);
 
     /* Get parameters for j1st */
     eflowRingSubtractionManager& cellSubtractionManager = thisEfRecTrack->getCellSubtractionManager();

@@ -108,7 +108,7 @@ void TrigL2MuonSA::MuFastPatternFinder::doMdtCalibration(TrigL2MuonSA::MdtHitDat
 
    double R    = mdtHit.R;
    //   double InCo = mdtHit.cInCo;
-   double InCo = cos(fabsf(track_phi - phi0))!=0 ? 1./(cos(fabsf(track_phi - phi0))): 0; 
+   double InCo = cos(std::abs(track_phi - phi0))!=0 ? 1./(cos(std::abs(track_phi - phi0))): 0; 
    double X    = (isEndcap)? R*cos(track_phi): R*InCo*cos(track_phi);
    double Y    = (isEndcap)? R*sin(track_phi): R*InCo*sin(track_phi);
    double Z    = mdtHit.Z;

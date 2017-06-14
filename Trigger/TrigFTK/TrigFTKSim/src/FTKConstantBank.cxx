@@ -19,6 +19,7 @@
 #include <cstdio>
 #include <cmath>
 #include <bitset>
+#include <ieee754.h>
 using namespace std;
 
 //#define SIMPLEMJ // ibl undefined simple majority to see if we can get majority for ibl
@@ -38,7 +39,8 @@ FTKConstantBank::FTKConstantBank() :
   m_kaverage_aux(0),
   m_maj_invkk_aux(0),
   m_maj_invkk_hw(0),
-  m_maj_invkk_pow(0), m_maj_invkk_pow_hw(0)
+  m_maj_invkk_pow(0), m_maj_invkk_pow_hw(0),
+  m_dTIBL(-999999)
 {
   // nothing to do
 }
@@ -55,7 +57,8 @@ FTKConstantBank::FTKConstantBank(int ncoords, const char *fname) :
   m_maj_invkk_aux(0),
   m_maj_invkk_hw(0),
   m_maj_invkk_pow(0),
-  m_maj_invkk_pow_hw(0)
+  m_maj_invkk_pow_hw(0),
+  m_dTIBL(-999999)
 {
   //TODO: make possible to read constants in different formats
   m_ncoords = ncoords;
@@ -484,7 +487,22 @@ void FTKConstantBank::linfit_chisq(int secid, FTKTrack &trk) const {
     {
       double s = m_kaverage[secid][i];
       for(int j=0;j<m_ncoords;++j) {
-	s += m_kernel[secid][i][j]*trk.getCoords()[j];
+	// JAA: This is a bit of a kludge, but it works - if the temperature difference is more than 10,000 kelvin, we probably have other troubles
+	// It is one-sided (so we do allow such ridiculous positive variations), but that is ok
+	if (j == 0 && m_ncoords == 16 && (trk.getFTKHit(0).getIsBarrel() == 1) && m_dTIBL > -9999) { // SSB, IBL and row coordinate - make temperature correction
+	  int etamodule = trk.getFTKHit(0).getEtaModule(); // this counts from 0, not from -10
+	  double coord = trk.getCoords()[0];
+	  if (etamodule >= 0 && etamodule < 20) {
+	    //	    double dx = dxdtIBL*m_dTIBL*(z*z-z0IBL*z0IBL)/(z0IBL*z0IBL);
+	    double dx = dxdtIBL*m_dTIBL*(zIBL_squared[etamodule]-z0IBL_squared)*z0IBL_squared_inv;	    
+
+	    // convert from 6.25 micron units. But we seem to be missing a factor of 10 still, for now this works - unclear why
+	    coord = coord - dx*0.016;
+	  }
+	  s += m_kernel[secid][i][j]*coord;
+	}
+	else 
+	  s += m_kernel[secid][i][j]*trk.getCoords()[j];
       }
       chi2 += s*s;
     }
@@ -506,7 +524,22 @@ void FTKConstantBank::linfit_pars_eval(int secid, FTKTrack &trk) const
   for (int ip=0;ip<m_npars;++ip) { // parameter loop
     pars[ip] = m_fit_const[secid][ip];
     for(int j=0;j<m_ncoords;++j)  { // scalar product
-      pars[ip] += m_fit_pars[secid][ip][j]*trk.getCoords()[j];
+      // JAA: This is a bit of a kludge, but it works - if the temperature difference is more than 10,000 kelvin, we probably have other troubles
+      // It is one-sided (so we do allow such ridiculous positive variations), but that is ok
+      if (j == 0 && m_ncoords == 16 && (trk.getFTKHit(0).getIsBarrel() == 1) && m_dTIBL > -9999) { // SSB, IBL and row coordinate - make temperature correction
+	  int etamodule = trk.getFTKHit(0).getEtaModule(); // this counts from 0, not from -10
+	  double coord = trk.getCoords()[0];
+	  if (etamodule >= 0 && etamodule < 20) {
+	    //	    double dx = dxdtIBL*m_dTIBL*(z*z-z0IBL*z0IBL)/(z0IBL*z0IBL);
+	    double dx = dxdtIBL*m_dTIBL*(zIBL_squared[etamodule]-z0IBL_squared)*z0IBL_squared_inv;	    
+
+	    // convert from 6.25 micron units. But we seem to be missing a factor of 10 still, for now this works - unclear why
+	    coord = coord - dx*0.016;
+	  }
+	pars[ip] += m_fit_pars[secid][ip][j]*coord;
+      }      
+      else 
+	pars[ip] += m_fit_pars[secid][ip][j]*trk.getCoords()[j];
     }
   } // end parameter loop
 
@@ -724,10 +757,11 @@ int FTKConstantBank::missing_point_guess(FTKTrack &track, int secid, float *newc
 
 unsigned int FTKConstantBank::floatToReg27(float f) {
 
-  int f_f = (*(int*)&f);
-  int f_sign = (f_f >> 31) & 0x1;
-  int f_exp = (f_f >> 23) & 0xFF;
-  int f_frac = f_f & 0x007FFFFF;
+  ieee754_float f_f;
+  f_f.f = f;
+  int f_sign = f_f.ieee.negative;
+  int f_exp = f_f.ieee.exponent;
+  int f_frac = f_f.ieee.mantissa;
   int r_sign;
   int r_exp;
   int r_frac;
@@ -1684,10 +1718,10 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
   }
 
   // keep track of which hits are missing.
-  int nmissing = 0; int m_missid[2] = {-1, -1};
+  int nmissing = 0; int missid[2] = {-1, -1};
   for( int j = 0 ; j < m_ncoords ; ++j ) {
     if (!m_coordsmask[j]) {
-      m_missid[nmissing] = j;
+      missid[nmissing] = j;
       nmissing++;
     } 
   }
@@ -1699,13 +1733,13 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
     return 0;
   }
   if (nmissing == 2) { // 2 missing, must be consecutive pixel hits.
-    if (m_missid[0] >= npixcy || m_missid[0]+1 != m_missid[1]) {
-      // FTKSetup::PrintMessageFmt(ftk::warn, "Two guessed coordinates must be from the same pix hit: missing %d, %d.\n", m_missid[0], m_missid[1]);
+    if (missid[0] >= npixcy || missid[0]+1 != missid[1]) {
+      // FTKSetup::PrintMessageFmt(ftk::warn, "Two guessed coordinates must be from the same pix hit: missing %d, %d.\n", missid[0], missid[1]);
       return 0;
     }
   }
   if (nmissing == 1) { // can't imagine how this would happen...
-    if (m_missid[0] < npixcy) {
+    if (missid[0] < npixcy) {
       // FTKSetup::PrintMessage(ftk::warn, "Single miss/drop must be in SCT - returning.\n");
       return 0;
     }
@@ -1714,13 +1748,13 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
 
   // calculate the chi partials
   // long double* m_partials = new long double [m_ncoords];
-  long long*   m_partialsLL = new long long [m_ncoords];
-  long long*   m_partialsHW = new long long [m_ncoords];
+  long long*   partialsLL = new long long [m_ncoords];
+  long long*   partialsHW = new long long [m_ncoords];
   for (int i = 0; i < m_nconstr; ++i) {
 
     // m_partials[i]   = m_kaverage[secid][i]; 
-    m_partialsLL[i] = aux_asr(m_kaverage_aux[secid][i], 10, 30, ofl); // 30
-    m_partialsHW[i] = aux_asr(m_kaverage_aux[secid][i], 10, 30, ofl); // 30
+    partialsLL[i] = aux_asr(m_kaverage_aux[secid][i], 10, 30, ofl); // 30
+    partialsHW[i] = aux_asr(m_kaverage_aux[secid][i], 10, 30, ofl); // 30
 
     for (int j = 0 ; j < m_ncoords ; ++j ) {
       if (m_coordsmask[j]) {
@@ -1728,16 +1762,16 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
         int p = const_plane_map[j]; int c = const_coord_map[j]; 
 
         // m_partials[i]   += m_kernel[secid][i][j] * track.getCoord(j);
-        m_partialsLL[i] += m_kernel_aux[secid][i][j] * track.getAUXCoord(j); 
-        m_partialsHW[i] += m_kernel_hw[secid][i][j]  * track.getHwCoord(p, c); 
+        partialsLL[i] += m_kernel_aux[secid][i][j] * track.getAUXCoord(j); 
+        partialsHW[i] += m_kernel_hw[secid][i][j]  * track.getHwCoord(p, c); 
       }
     }
   }  
 
   if (ofl) {
     FTKSetup::PrintMessage(ftk::warn, "AUX-style partials calculation had an overflow!!!\n");
-    delete [] m_partialsLL;
-    delete [] m_partialsHW;
+    delete [] partialsLL;
+    delete [] partialsHW;
     return 0; 
   }
 
@@ -1747,18 +1781,18 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
   long long tHW[2] = {0, 0};
   for (int j = 0; j < nmissing; ++j) {
     for (int i = 0; i < m_nconstr; ++i ) {
-      // t[j] -= m_kernel[secid][i][m_missid[j]] * m_partials[i];
-      tLL[j] -= m_kernel_aux[secid][i][m_missid[j]] * m_partialsLL[i];
-      tHW[j] -= m_kernel_hw[secid][i][m_missid[j]]  * m_partialsHW[i];
+      // t[j] -= m_kernel[secid][i][missid[j]] * m_partials[i];
+      tLL[j] -= m_kernel_aux[secid][i][missid[j]] * partialsLL[i];
+      tHW[j] -= m_kernel_hw[secid][i][missid[j]]  * partialsHW[i];
     }
 
     tLL[j] = aux_asr(tLL[j], 0, 50, ofl); // 50
     tHW[j] = aux_asr(tHW[j], 0, 50, ofl); // 50
-    // cerr << "JS: " << j << " ofl=" << ofl << "  tHW[j]/tLL[j]=" << (1./const_scale_map[m_missid[j]])*tHW[j]/tLL[j] << endl;
+    // cerr << "JS: " << j << " ofl=" << ofl << "  tHW[j]/tLL[j]=" << (1./const_scale_map[missid[j]])*tHW[j]/tLL[j] << endl;
   }
   // delete [] m_partials;
-  delete [] m_partialsLL;
-  delete [] m_partialsHW;
+  delete [] partialsLL;
+  delete [] partialsHW;
 
   if (ofl) FTKSetup::PrintMessage(ftk::warn, "AUX-style t-vector calculation had an overflow!!!\n");
 
@@ -1768,7 +1802,7 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
   // for (int ix = 0; ix < nmissing; ++ix) // 1st coordinate loop    
   //   for (int jx=0; jx < nmissing; ++jx) // 2nd coordinate loop
   //     for (int row=0;row!=m_nconstr;++row) 
-  //       coef[ix][jx] += m_kernel[secid][row][m_missid[ix]] * m_kernel[secid][row][m_missid[jx]];
+  //       coef[ix][jx] += m_kernel[secid][row][missid[ix]] * m_kernel[secid][row][missid[jx]];
   // coef.Invert();
   // TVectorD newcoord = coef * t;
   // fstream outfs;
@@ -1780,85 +1814,85 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
   float *coords = track.getCoords();
   if (nmissing == 1) {
 
-    coords[m_missid[0]] = tLL[0] * m_maj_invkk_aux[secid][m_missid[0]][m_missid[0]]
-                          / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][m_missid[0]][m_missid[0]] - 1);
+    coords[missid[0]] = tLL[0] * m_maj_invkk_aux[secid][missid[0]][missid[0]]
+                          / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][missid[0]][missid[0]] - 1);
 
-    cHW[0] = tHW[0] * m_maj_invkk_hw[secid][m_missid[0]][m_missid[0]]
-             / pow(2., EFF_SHIFT_HW + KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][m_missid[0]][m_missid[0]] - 1);
+    cHW[0] = tHW[0] * m_maj_invkk_hw[secid][missid[0]][missid[0]]
+             / pow(2., EFF_SHIFT_HW + KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][missid[0]][missid[0]] - 1);
 
     FTKHit newhit(1);
     newhit.setHwCoord(0, cHW[0]);
-    track.setFTKHit(const_plane_map[m_missid[0]], newhit);
+    track.setFTKHit(const_plane_map[missid[0]], newhit);
 
 
-    ///  cout << __LINE__ << "  JS: pow  aux=" << m_maj_invkk_pow[secid][m_missid[0]][m_missid[0]] << "   hw=" << m_maj_invkk_pow_hw[secid][m_missid[0]][m_missid[0]] << endl;
-    ///  cout << __LINE__ << "  JS: aux=" << tLL[0] * m_maj_invkk_aux[secid][m_missid[0]][m_missid[0]] 
-    ///                                      / pow(2., KERN_SHIFT + m_maj_invkk_pow[secid][m_missid[0]][m_missid[0]] - 1) 
-    ///                   << "      hw="  << tHW[0] * m_maj_invkk_hw[secid][m_missid[0]][m_missid[0]] 
-    ///                                      / pow(2., KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][m_missid[0]][m_missid[0]] - 1) << endl;
+    ///  cout << __LINE__ << "  JS: pow  aux=" << m_maj_invkk_pow[secid][missid[0]][missid[0]] << "   hw=" << m_maj_invkk_pow_hw[secid][missid[0]][missid[0]] << endl;
+    ///  cout << __LINE__ << "  JS: aux=" << tLL[0] * m_maj_invkk_aux[secid][missid[0]][missid[0]] 
+    ///                                      / pow(2., KERN_SHIFT + m_maj_invkk_pow[secid][missid[0]][missid[0]] - 1) 
+    ///                   << "      hw="  << tHW[0] * m_maj_invkk_hw[secid][missid[0]][missid[0]] 
+    ///                                      / pow(2., KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][missid[0]][missid[0]] - 1) << endl;
 
-    ///  cout << __LINE__ << "  JS:  " << m_missid[0] << "    C=" << track.getCoord(m_missid[0]) 
-    ///                                               << "    A=" << 1.*track.getAUXCoord(m_missid[0]) / const_scale_map[m_missid[0]]
-    ///                                               << "    H=" << track.getHwCoord(const_plane_map[m_missid[0]], 0) << endl;
-    ///  cout << __LINE__ << "  JS:  " << m_missid[0] << "  A/C=" << 0.125 * track.getAUXCoord(const_plane_map[m_missid[0]])   / track.getCoord(m_missid[0]) 
-    ///                                               << "  H/C=" << 1. * track.getHwCoord(const_plane_map[m_missid[0]], 0) / track.getCoord(m_missid[0])
-    ///                                               << "  H/A=" << 1. * track.getHwCoord(const_plane_map[m_missid[0]], 0) * const_scale_map[m_missid[0]] / track.getAUXCoord(m_missid[0]) 
-    ///                                               << "  set/ret=" << 1. * cHW[0] / track.getHwCoord(const_plane_map[m_missid[0]], 0) << endl;
+    ///  cout << __LINE__ << "  JS:  " << missid[0] << "    C=" << track.getCoord(missid[0]) 
+    ///                                               << "    A=" << 1.*track.getAUXCoord(missid[0]) / const_scale_map[missid[0]]
+    ///                                               << "    H=" << track.getHwCoord(const_plane_map[missid[0]], 0) << endl;
+    ///  cout << __LINE__ << "  JS:  " << missid[0] << "  A/C=" << 0.125 * track.getAUXCoord(const_plane_map[missid[0]])   / track.getCoord(missid[0]) 
+    ///                                               << "  H/C=" << 1. * track.getHwCoord(const_plane_map[missid[0]], 0) / track.getCoord(missid[0])
+    ///                                               << "  H/A=" << 1. * track.getHwCoord(const_plane_map[missid[0]], 0) * const_scale_map[missid[0]] / track.getAUXCoord(missid[0]) 
+    ///                                               << "  set/ret=" << 1. * cHW[0] / track.getHwCoord(const_plane_map[missid[0]], 0) << endl;
 
 
 
   } else if (nmissing == 2) {
 
-    coords[m_missid[0]] =   tLL[0] * m_maj_invkk_aux[secid][m_missid[0]][m_missid[0]]
-                            / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][m_missid[0]][m_missid[0]])
-                          + tLL[1] * m_maj_invkk_aux[secid][m_missid[0]][m_missid[1]]
-                            / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][m_missid[0]][m_missid[1]]);
+    coords[missid[0]] =   tLL[0] * m_maj_invkk_aux[secid][missid[0]][missid[0]]
+                            / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][missid[0]][missid[0]])
+                          + tLL[1] * m_maj_invkk_aux[secid][missid[0]][missid[1]]
+                            / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][missid[0]][missid[1]]);
 
-    coords[m_missid[1]] =   tLL[0] * m_maj_invkk_aux[secid][m_missid[1]][m_missid[0]]
-                            / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][m_missid[1]][m_missid[0]])
-                          + tLL[1] * m_maj_invkk_aux[secid][m_missid[1]][m_missid[1]]
-                            / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][m_missid[1]][m_missid[1]]);
+    coords[missid[1]] =   tLL[0] * m_maj_invkk_aux[secid][missid[1]][missid[0]]
+                            / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][missid[1]][missid[0]])
+                          + tLL[1] * m_maj_invkk_aux[secid][missid[1]][missid[1]]
+                            / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][missid[1]][missid[1]]);
 
 
-    cHW[0] =   tHW[0] * m_maj_invkk_hw[secid][m_missid[0]][m_missid[0]]
-                / pow(2., EFF_SHIFT_HW + KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][m_missid[0]][m_missid[0]])
-             + tHW[1] * m_maj_invkk_hw[secid][m_missid[0]][m_missid[1]]
-                / pow(2., EFF_SHIFT_HW + KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][m_missid[0]][m_missid[1]]);
+    cHW[0] =   tHW[0] * m_maj_invkk_hw[secid][missid[0]][missid[0]]
+                / pow(2., EFF_SHIFT_HW + KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][missid[0]][missid[0]])
+             + tHW[1] * m_maj_invkk_hw[secid][missid[0]][missid[1]]
+                / pow(2., EFF_SHIFT_HW + KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][missid[0]][missid[1]]);
 
-    cHW[1] =   tHW[0] * m_maj_invkk_hw[secid][m_missid[1]][m_missid[0]]
-                / pow(2., EFF_SHIFT_HW + KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][m_missid[1]][m_missid[0]])
-             + tHW[1] * m_maj_invkk_hw[secid][m_missid[1]][m_missid[1]]
-                / pow(2., EFF_SHIFT_HW + KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][m_missid[1]][m_missid[1]]);
+    cHW[1] =   tHW[0] * m_maj_invkk_hw[secid][missid[1]][missid[0]]
+                / pow(2., EFF_SHIFT_HW + KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][missid[1]][missid[0]])
+             + tHW[1] * m_maj_invkk_hw[secid][missid[1]][missid[1]]
+                / pow(2., EFF_SHIFT_HW + KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][missid[1]][missid[1]]);
 
     FTKHit newhit(2);
     newhit.setHwCoord(0, cHW[0]);
     newhit.setHwCoord(1, cHW[1]);
-    track.setFTKHit(const_plane_map[m_missid[0]], newhit);
+    track.setFTKHit(const_plane_map[missid[0]], newhit);
 
 
-    ////  cout << __LINE__ << "  JS: pow  aux=" << m_maj_invkk_pow[secid][m_missid[0]][m_missid[0]] << "   hw=" << m_maj_invkk_pow_hw[secid][m_missid[0]][m_missid[0]] << endl;
-    ////  cout << __LINE__ << "  JS: aux=" << tLL[0] * m_maj_invkk_aux[secid][m_missid[0]][m_missid[0]] 
-    ////                                      / pow(2., KERN_SHIFT + m_maj_invkk_pow[secid][m_missid[0]][m_missid[0]] - 1) 
-    ////                   << "      hw="  << tHW[0] * m_maj_invkk_hw[secid][m_missid[0]][m_missid[0]] 
-    ////                                      / pow(2., KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][m_missid[0]][m_missid[0]] - 1) << endl;
+    ////  cout << __LINE__ << "  JS: pow  aux=" << m_maj_invkk_pow[secid][missid[0]][missid[0]] << "   hw=" << m_maj_invkk_pow_hw[secid][missid[0]][missid[0]] << endl;
+    ////  cout << __LINE__ << "  JS: aux=" << tLL[0] * m_maj_invkk_aux[secid][missid[0]][missid[0]] 
+    ////                                      / pow(2., KERN_SHIFT + m_maj_invkk_pow[secid][missid[0]][missid[0]] - 1) 
+    ////                   << "      hw="  << tHW[0] * m_maj_invkk_hw[secid][missid[0]][missid[0]] 
+    ////                                      / pow(2., KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][missid[0]][missid[0]] - 1) << endl;
 
 
-    ////  cout << __LINE__ << "  JS:  " << m_missid[0] << "   C=" << track.getCoord(m_missid[0]) 
-    ////                                               << "   A=" << track.getAUXCoord(m_missid[0]) 
-    ////                                               << "   H=" << track.getHwCoord(const_plane_map[m_missid[0]], 0) << endl;
-    ////  cout << __LINE__ << "  JS:  " << m_missid[0] << " A/C=" << 1. * track.getAUXCoord(const_plane_map[m_missid[0]])   / track.getCoord(m_missid[0]) 
-    ////                                               << " H/C=" << 1. * track.getHwCoord(const_plane_map[m_missid[0]], 0) / track.getCoord(m_missid[0])
-    ////                                               << " H/A=" << 1. * track.getHwCoord(const_plane_map[m_missid[0]], 0) * const_scale_map[m_missid[0]] / track.getAUXCoord(m_missid[0]) 
-    ////                                               << "  set/ret=" << 1. * cHW[0] / track.getHwCoord(const_plane_map[m_missid[0]], 0) << endl;
+    ////  cout << __LINE__ << "  JS:  " << missid[0] << "   C=" << track.getCoord(missid[0]) 
+    ////                                               << "   A=" << track.getAUXCoord(missid[0]) 
+    ////                                               << "   H=" << track.getHwCoord(const_plane_map[missid[0]], 0) << endl;
+    ////  cout << __LINE__ << "  JS:  " << missid[0] << " A/C=" << 1. * track.getAUXCoord(const_plane_map[missid[0]])   / track.getCoord(missid[0]) 
+    ////                                               << " H/C=" << 1. * track.getHwCoord(const_plane_map[missid[0]], 0) / track.getCoord(missid[0])
+    ////                                               << " H/A=" << 1. * track.getHwCoord(const_plane_map[missid[0]], 0) * const_scale_map[missid[0]] / track.getAUXCoord(missid[0]) 
+    ////                                               << "  set/ret=" << 1. * cHW[0] / track.getHwCoord(const_plane_map[missid[0]], 0) << endl;
 
 
-    ////  cout << __LINE__ << "  JS:  " << m_missid[1] << "   C=" << track.getCoord(m_missid[1]) 
-    ////                                               << "   A=" << track.getAUXCoord(m_missid[1]) 
-    ////                                               << "   H=" << track.getHwCoord(const_plane_map[m_missid[1]], 1) << endl;
-    ////  cout << __LINE__ << "  JS:  " << m_missid[1] << " A/C=" << 1. * track.getAUXCoord(const_plane_map[m_missid[1]])   / track.getCoord(m_missid[1]) 
-    ////                                               << " H/C=" << 1. * track.getHwCoord(const_plane_map[m_missid[1]], 1) / track.getCoord(m_missid[1]) 
-    ////                                               << " H/A=" << 1. * track.getHwCoord(const_plane_map[m_missid[1]], 1) * const_scale_map[m_missid[1]] / track.getAUXCoord(m_missid[1])
-    ////                                               << "  set/ret=" << 1. * cHW[1] / track.getHwCoord(const_plane_map[m_missid[1]], 1) << endl;
+    ////  cout << __LINE__ << "  JS:  " << missid[1] << "   C=" << track.getCoord(missid[1]) 
+    ////                                               << "   A=" << track.getAUXCoord(missid[1]) 
+    ////                                               << "   H=" << track.getHwCoord(const_plane_map[missid[1]], 1) << endl;
+    ////  cout << __LINE__ << "  JS:  " << missid[1] << " A/C=" << 1. * track.getAUXCoord(const_plane_map[missid[1]])   / track.getCoord(missid[1]) 
+    ////                                               << " H/C=" << 1. * track.getHwCoord(const_plane_map[missid[1]], 1) / track.getCoord(missid[1]) 
+    ////                                               << " H/A=" << 1. * track.getHwCoord(const_plane_map[missid[1]], 1) * const_scale_map[missid[1]] / track.getAUXCoord(missid[1])
+    ////                                               << "  set/ret=" << 1. * cHW[1] / track.getHwCoord(const_plane_map[missid[1]], 1) << endl;
 
   } 
 

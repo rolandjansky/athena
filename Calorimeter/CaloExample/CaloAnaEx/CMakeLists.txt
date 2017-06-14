@@ -11,5 +11,5 @@ atlas_depends_on_subdirs( PRIVATE
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
-atlas_install_runtime( test/CaloAnaEx_TestConfiguration.xml share/*.C share/rtt.css share/HistoComparison.txt share/*Checks.py )
+atlas_install_runtime( test/CaloAnaEx_TestConfiguration.xml share/*.C share/*.css share/HistoComparison.txt share/*Checks.py )
 

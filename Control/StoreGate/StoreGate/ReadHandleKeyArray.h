@@ -42,7 +42,7 @@ namespace SG {
 
     /**
      * @brief Constructor from a ReadHandleKeyArray that takes a vector
-     * of ReaDHandleKeys
+     * of ReadHandleKeys
      * @param v vector of ReadHandleKey
      */
     ReadHandleKeyArray( const std::vector<ReadHandleKey<T>>& v ):

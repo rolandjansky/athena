@@ -128,8 +128,8 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
   std::string detectorKey  =larVersionKey.tag();
   std::string detectorNode = larVersionKey.node();
 
-  const IRDBRecordset *hadronicEndcap       = pAccessSvc->getRecordset("HadronicEndcap",detectorKey, detectorNode); 
-  const IRDBRecordset *hecLongitudinalBlock = pAccessSvc->getRecordset("HecLongitudinalBlock",detectorKey, detectorNode); 
+  IRDBRecordset_ptr hadronicEndcap       = pAccessSvc->getRecordsetPtr("HadronicEndcap",detectorKey, detectorNode); 
+  IRDBRecordset_ptr hecLongitudinalBlock = pAccessSvc->getRecordsetPtr("HecLongitudinalBlock",detectorKey, detectorNode); 
   if(!hadronicEndcap) throw std::runtime_error("Error in HECConstruction:  hadronicEendcap not found");
   if(!hecLongitudinalBlock) throw std::runtime_error("Error in HECConstruction:  hecLongitudinalBlock not found");
   

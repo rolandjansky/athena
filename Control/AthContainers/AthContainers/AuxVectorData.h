@@ -542,18 +542,6 @@ public:
   const void* getDataArrayAllowMissing (SG::auxid_t auxid) const;
 
 
-protected:
-  /**
-   * @brief Return a pointer to the start of an aux data vector.
-   * @param auxid The desired aux data item.
-   *
-   * This will return a pointer to the start of the data for aux
-   * data item @c auxid.  If the item doesn't exist, it will be created.
-   * Errors are signaled by raising an exception.
-   */
-  void* getDataArray (SG::auxid_t auxid);
-
-
   /**
    * @brief Return a pointer to the start of an aux data vector for a decoration.
    * @param auxid The desired aux data item.
@@ -569,6 +557,18 @@ protected:
    * as a decoration.
    */
   void* getDecorationArray (SG::auxid_t auxid) const;
+
+
+protected:
+  /**
+   * @brief Return a pointer to the start of an aux data vector.
+   * @param auxid The desired aux data item.
+   *
+   * This will return a pointer to the start of the data for aux
+   * data item @c auxid.  If the item doesn't exist, it will be created.
+   * Errors are signaled by raising an exception.
+   */
+  void* getDataArray (SG::auxid_t auxid);
 
 
   /// Minimum length to use for the cache vector.

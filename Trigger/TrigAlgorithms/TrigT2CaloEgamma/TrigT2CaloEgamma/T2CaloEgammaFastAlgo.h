@@ -105,7 +105,7 @@ class T2CaloEgammaFastAlgo: public AthAlgorithm {
     ToolHandle<ITrigDataAccess>     m_data;
     SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
     SG::WriteHandleKey<xAOD::TrigEMClusterContainer> m_clusterContainerKey;
-    SG::ReadHandle<TrigRoiDescriptorCollection> mroiCollection;
+    SG::ReadHandle<TrigRoiDescriptorCollection> m_roiCollection;
     SG::WriteHandle<xAOD::TrigEMClusterContainer> m_trigEmClusterCollection;
     SG::WriteHandle<xAOD::TrigEMClusterAuxContainer> m_trigEmClusterAuxCollection;
     ServiceHandle<IRegSelSvc>     m_regionSelector; 

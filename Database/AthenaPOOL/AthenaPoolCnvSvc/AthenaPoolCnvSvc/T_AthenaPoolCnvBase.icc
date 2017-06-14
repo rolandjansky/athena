@@ -23,7 +23,9 @@
 
 //__________________________________________________________________________
 template <class T>
-T_AthenaPoolCnvBase<T>::T_AthenaPoolCnvBase(ISvcLocator* svcloc) : AthenaPoolConverter(classID(), svcloc) {
+T_AthenaPoolCnvBase<T>::T_AthenaPoolCnvBase(ISvcLocator* svcloc,
+                                            const char* name /*= nullptr*/)
+  : AthenaPoolConverter(classID(), svcloc, name) {
 }
 //______________________________________________________________________________
 template <class T>

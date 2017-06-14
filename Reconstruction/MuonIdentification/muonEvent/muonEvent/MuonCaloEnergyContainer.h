@@ -5,7 +5,7 @@
 #ifndef MUONEVENT_MUONCALOENERGYCONTAINER_H
 #define MUONEVENT_MUONCALOENERGYCONTAINER_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "CLIDSvc/CLASS_DEF.h"
 #include "muonEvent/CaloEnergy.h"
 

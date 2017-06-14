@@ -14,25 +14,33 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigger
                           GaudiKernel
                           PRIVATE
+                          Event/EventInfo
                           Control/AthLinks
+                          Control/StoreGate
+                          Control/AthenaBaseComps
                           Trigger/TrigDataAccess/TrigSerializeCnvSvc )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
-atlas_add_library( DataModelTestDataCommon
+atlas_add_library( DataModelTestDataCommonLib
                    src/*.cxx
                    PUBLIC_HEADERS DataModelTestDataCommon
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthContainers SGTools xAODCore xAODTrigger GaudiKernel
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks )
+                   LINK_LIBRARIES AthContainers SGTools xAODCore xAODTrigger EventInfo GaudiKernel
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks StoreGateLib AthenaBaseComps )
+
+atlas_add_component( DataModelTestDataCommon
+                     src/components/*.cxx
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks DataModelAthenaPoolLib SGTools xAODCore GaudiKernel AthenaBaseComps AthenaKernel CxxUtils StoreGateLib SGtests TrigSteeringEvent DataModelTestDataCommonLib )
 
 atlas_add_dictionary( DataModelTestDataCommonDict
                       DataModelTestDataCommon/DataModelTestDataCommonDict.h
                       DataModelTestDataCommon/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers SGTools xAODCore xAODTrigger GaudiKernel AthLinks DataModelTestDataCommon
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers SGTools xAODCore xAODTrigger GaudiKernel AthLinks DataModelTestDataCommonLib
                       NO_ROOTMAP_MERGE
                       EXTRA_FILES src/dict/*.cxx
                       ELEMENT_LINKS DMTest::BAuxVec DMTest::CVec_v1 )
@@ -42,4 +50,4 @@ atlas_add_sercnv_library ( DataModelTestDataCommonSerCnv
   FILES DataModelTestDataCommon/CVec.h DataModelTestDataCommon/CView.h DataModelTestDataCommon/CAuxContainer.h
   TYPES_WITH_NAMESPACE DMTest::CVec DMTest::CView DMTest::CAuxContainer
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
-  LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers SGTools xAODCore xAODTrigger GaudiKernel AthLinks TrigSerializeCnvSvcLib DataModelTestDataCommon )
+  LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers SGTools xAODCore xAODTrigger GaudiKernel AthLinks TrigSerializeCnvSvcLib DataModelTestDataCommonLib )

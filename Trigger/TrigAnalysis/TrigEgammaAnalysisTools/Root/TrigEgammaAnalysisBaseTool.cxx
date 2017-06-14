@@ -539,15 +539,33 @@ void TrigEgammaAnalysisBaseTool::setAccept(const HLT::TriggerElement *te,const T
     bool passedEF=false;
     
     passedL1Calo = ancestorPassed<xAOD::EmTauRoI>(te);
+    bool hasRnn = false;
+    if(getFeature<xAOD::TrigRNNOutput>(te)){
+        hasRnn=true;
+    }
+
     if(!info.trigL1){ // HLT item get full decision
-        passedL2Calo = ancestorPassed<xAOD::TrigEMCluster>(te);
+        ATH_MSG_DEBUG("Check for active features: TrigEMCluster,CaloClusterContainer");
+        ATH_MSG_DEBUG("Check for active RNN feature: " << hasRnn);
+       
+        // Added Ringer step in electron sequence
+        // If feature attached, check if TE active
+        if(hasRnn){
+            passedL2Calo=ancestorPassed<xAOD::TrigRNNOutput>(te);
+        }
+        else {
+            passedL2Calo = ancestorPassed<xAOD::TrigEMCluster>(te);  
+        }
+
         passedEFCalo = ancestorPassed<xAOD::CaloClusterContainer>(te,"TrigEFCaloCalibFex");
         if(info.trigType == "electron"){
+            ATH_MSG_DEBUG("Check for active features: TrigElectron, ElectronContainer, TrackParticleContainer");
             passedL2=ancestorPassed<xAOD::TrigElectronContainer>(te);
             passedEF = ancestorPassed<xAOD::ElectronContainer>(te);
             passedEFTrk = ancestorPassed<xAOD::TrackParticleContainer>(te,"InDetTrigTrackingxAODCnv_Electron_IDTrig");
         }
         else if(info.trigType == "photon"){
+            ATH_MSG_DEBUG("Check for active features: TrigPhoton, PhotonContainer");
             passedL2=ancestorPassed<xAOD::TrigPhotonContainer>(te);
             passedEF = ancestorPassed<xAOD::PhotonContainer>(te);
             passedEFTrk=true;// Assume true for photons
@@ -560,6 +578,13 @@ void TrigEgammaAnalysisBaseTool::setAccept(const HLT::TriggerElement *te,const T
     m_accept.setCutResult("EFCalo",passedEFCalo);
     m_accept.setCutResult("EFTrack",passedEFTrk);
     m_accept.setCutResult("HLT",passedEF);
+    ATH_MSG_DEBUG("Accept results:");
+    ATH_MSG_DEBUG("L1: "<< passedL1Calo);
+    ATH_MSG_DEBUG("L2Calo: " << passedL2Calo);
+    ATH_MSG_DEBUG("L2: "<< passedL2);
+    ATH_MSG_DEBUG("EFCalo: "<< passedEFCalo);
+    ATH_MSG_DEBUG("HLT: "<<passedEF);
+
 }
 
 float TrigEgammaAnalysisBaseTool::dR(const float eta1, const float phi1, const float eta2, const float phi2){
@@ -877,21 +902,22 @@ GETTER(deltaPhiRescaled3)
 #undef GETTER    
 
     std::string TrigEgammaAnalysisBaseTool::getProbePid(const std::string pidtype){
-    static std::map<std::string,std::string> m_PidMap; //no longer class member but static
-    if(m_PidMap.empty()){
-        m_PidMap["vloose"]="VLoose";
-        m_PidMap["loose"]="Loose";
-        m_PidMap["medium"]="Medium";
-        m_PidMap["tight"]="Tight";
-        m_PidMap["loose1"]="Loose";
-        m_PidMap["medium1"]="Medium";
-        m_PidMap["tight1"]="Tight";
-        m_PidMap["lhvloose"]="LHVLoose";
-        m_PidMap["lhloose"]="LHLoose";
-        m_PidMap["lhmedium"]="LHMedium";
-        m_PidMap["lhtight"]="LHTight";
+    static std::map<std::string,std::string> PidMap; //no longer class member but static
+    // Note vloose/lhvloose trigger mapped to Loose/LHLoose offline PID
+    if(PidMap.empty()){
+        PidMap["vloose"]="Loose";
+        PidMap["loose"]="Loose";
+        PidMap["medium"]="Medium";
+        PidMap["tight"]="Tight";
+        PidMap["loose1"]="Loose";
+        PidMap["medium1"]="Medium";
+        PidMap["tight1"]="Tight";
+        PidMap["lhvloose"]="LHLoose";
+        PidMap["lhloose"]="LHLoose";
+        PidMap["lhmedium"]="LHMedium";
+        PidMap["lhtight"]="LHTight";
     }
-    return m_PidMap[pidtype];
+    return PidMap[pidtype];
 }
 
 std::string TrigEgammaAnalysisBaseTool::getL1Item(std::string trigger){

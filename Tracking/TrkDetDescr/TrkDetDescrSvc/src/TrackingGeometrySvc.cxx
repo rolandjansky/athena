@@ -21,7 +21,6 @@
 #include "StoreGate/StoreGateSvc.h"
 // needed for callback function
 #include "EventInfo/TagInfo.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 
 // monitor memory usage
 #ifdef TRKDETDESCR_MEMUSAGE   
@@ -102,19 +101,6 @@ StatusCode Trk::TrackingGeometrySvc::initialize()
         dynamic_cast<ITrackingGeometrySvc*>(this),tagInfoH,m_callbackString)).isFailure() ){
       ATH_MSG_WARNING( "Unable to register regFcn callback from DetectorStore" );
     } 
-
-    // If GeoModelSvc has been configured to pick up geometry version automatically 
-    // we just need to make sure that trackingGeometryInit gets called after IGeoModelSvc::geoInit
-    const IGeoModelSvc *geoModel=0;
-    if(service("GeoModelSvc", geoModel).isFailure()) {
-      ATH_MSG_ERROR( "Could not locate GeoModelSvc" );
-      return StatusCode::FAILURE;
-    }
-    if (!geoModel->geoInitialized() && 
-       (m_pDetStore->regFcn(&IGeoModelSvc::geoInit, geoModel, &ITrackingGeometrySvc::trackingGeometryInit,
-                           dynamic_cast<ITrackingGeometrySvc*>(this))).isFailure()){
-      ATH_MSG_WARNING( "Unable to register trackingGeometryInit callback after IGeoModelSvc::geoInit" );
-    }
   } else {
     ATH_MSG_INFO( "Building Geometry at initialisation time." );
     // call with dummy parameters

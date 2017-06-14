@@ -32,6 +32,7 @@ void AthenaHepMCInterface::Initialize()
 {}
 void AthenaHepMCInterface::Terminate()
 {}
+const
 HepMC::GenEvent* AthenaHepMCInterface::GenerateAnEvent()
 {
   SG::ReadHandle<McEventCollection> mcCollptr("BeamTruthEvent");//"GEN_EVENT");
@@ -47,6 +48,6 @@ HepMC::GenEvent* AthenaHepMCInterface::GenerateAnEvent()
     }
   McEventCollection::const_iterator it = mcCollptr->begin();
   // getting only the first event here.
-  HepMC::GenEvent *p_evt = (*it);
+  const HepMC::GenEvent *p_evt = (*it);
   return p_evt;
 }

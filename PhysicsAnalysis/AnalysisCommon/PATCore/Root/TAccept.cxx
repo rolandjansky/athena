@@ -93,7 +93,7 @@ Root::TAccept::~TAccept()
 int Root::TAccept::addCut( const TString& cutName, const TString& cutDescription )
 {
   // Make sure that this new cuts doesn't exceed the number of bits available
-  if ( m_cutMap.size() >= m_nBits )
+  if ( m_cutMap.size() >= NBITS )
     {
       return -1;
     }

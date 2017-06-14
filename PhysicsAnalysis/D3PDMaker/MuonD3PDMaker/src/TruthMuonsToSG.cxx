@@ -14,7 +14,7 @@
 
 #include "xAODTruth/TruthParticleContainer.h"
 #include "EventKernel/PdtPdg.h"
-#include "DataModel/ConstDataVector.h"
+#include "AthContainers/ConstDataVector.h"
 #include "AthenaKernel/errorcheck.h"
 
 

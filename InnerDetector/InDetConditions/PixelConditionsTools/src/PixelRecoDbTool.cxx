@@ -44,10 +44,7 @@ PixelRecoDbTool::PixelRecoDbTool(const std::string& type,
   AthAlgTool(type, name, parent),
   m_toolsvc(nullptr),
   m_IOVSvc(nullptr),
-  par_caliblocation("PixRecoKey"),
-  m_PixelClusterErrorDataVersion(0),
-  m_PixelClusterOnTrackErrorDataVersion(0),
-  m_PixelChargeInterpolationDataVersion(0),
+  m_par_caliblocation("PixRecoKey"),
   m_calibData(0),
   m_calibDataKey("PixelOfflineCalibData")
 {
@@ -67,8 +64,8 @@ PixelRecoDbTool::PixelRecoDbTool(const std::string& type,
   //declareProperty("PixelChargeInterpolationDataVersion",
   //              m_PixelClusterOnTrackErrorDataVersion=1,"PixelChargeInterpolationData.txt","Read constants from this file"); 
 
-  declareProperty("CalibFolder", par_calibfolder="/PIXEL/PixReco","Folder name. Should not be changed.");
-  declareProperty("CalibLocation", par_caliblocation);
+  declareProperty("CalibFolder", m_par_calibfolder="/PIXEL/PixReco","Folder name. Should not be changed.");
+  declareProperty("CalibLocation", m_par_caliblocation);
   declareProperty("DumpConstants", m_dump=0, "Dump constants to text file"); 
   declareProperty("CalibDataKey", m_calibDataKey);
 }
@@ -79,7 +76,7 @@ StatusCode PixelRecoDbTool::updateAddress(StoreID::type, SG::TransientAddress* t
 { 
   CLID clid = tad->clID(); 
   std::string key = tad->name(); 
-  if(146316417 == clid && par_caliblocation == key)
+  if(146316417 == clid && m_par_caliblocation == key)
     { 
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<" OK with PixelRecoDataColl "<<endmsg; 
       return StatusCode::SUCCESS; 
@@ -315,23 +312,23 @@ StatusCode PixelRecoDbTool::writePixelCalibTextFiletoDB() const{
   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Number of offline constants: " << datasize <<endmsg; 
 
   // check if collection already exits
-  if(!detStore()->contains<DetCondCFloat>(par_calibfolder)) { 
-    DetCondCFloat *const1 = new DetCondCFloat(datasize,par_calibfolder); 
+  if(!detStore()->contains<DetCondCFloat>(m_par_calibfolder)) { 
+    DetCondCFloat *const1 = new DetCondCFloat(datasize,m_par_calibfolder); 
     if(msgLvl(MSG::VERBOSE))msg(MSG::VERBOSE) << "Adding constants to the DetCondCFloat object " 
 					      <<endmsg;
     const1->add(Identifier(1),constants); 
     if(msgLvl(MSG::VERBOSE))msg(MSG::VERBOSE) << "That's it. " <<endmsg;
 
   // check if collection already exits 
-  //if(!detStore()->contains<DetCondCFloat>(par_calibfolder)) { 
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< " Creating new DetCondCFloat for folder "<<par_calibfolder <<endmsg; 
-    if(StatusCode::SUCCESS !=detStore()->record(const1,par_calibfolder)){ 
-      if(msgLvl(MSG::ERROR))msg(MSG::ERROR) <<" Could not create DetCondCFloat "<<par_calibfolder 
+  //if(!detStore()->contains<DetCondCFloat>(m_par_calibfolder)) { 
+    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< " Creating new DetCondCFloat for folder "<<m_par_calibfolder <<endmsg; 
+    if(StatusCode::SUCCESS !=detStore()->record(const1,m_par_calibfolder)){ 
+      if(msgLvl(MSG::ERROR))msg(MSG::ERROR) <<" Could not create DetCondCFloat "<<m_par_calibfolder 
 					    << "with offline parameters" << endmsg; 
       delete const1;
     }
     else{
-      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Created DetCondCFloat "<<par_calibfolder 
+      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Created DetCondCFloat "<<m_par_calibfolder 
 					    << " with offline parameters" << endmsg; 
     }
   }  

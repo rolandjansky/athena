@@ -7,7 +7,8 @@
 
 #include <vector>
 
-struct TrigMuonEFSegmentMonVars {
+class TrigMuonEFSegmentMonVars {
+public:
   std::vector<int>   numberOfStations;
   std::vector<int>   numberOfSegComb;
   std::vector<int>   numberOfSegs;
@@ -36,7 +37,8 @@ struct TrigMuonEFSegmentMonVars {
 };
 
 
-struct TrigMuonEFMSMonVars {
+class TrigMuonEFMSMonVars {
+public:
   std::vector<int>   numberOfTracks;
   std::vector<float> charge;
   std::vector<float> chi2;
@@ -57,7 +59,8 @@ struct TrigMuonEFMSMonVars {
   int wasCached;
 };
 
-struct TrigMuonEFSAMonVars : public TrigMuonEFMSMonVars {
+class TrigMuonEFSAMonVars : public TrigMuonEFMSMonVars {
+public:
   // no additional items for now. May change in the future
 };
 
@@ -74,7 +77,8 @@ struct TrigMuonEFCBMonVars : public TrigMuonEFSAMonVars {
   std::vector<float> IDTrk_pT;
 };
 
-struct TrigMuonEFMonVars {
+class TrigMuonEFMonVars {
+public:
   TrigMuonEFSegmentMonVars segs; // Segment finding
   TrigMuonEFMSMonVars MS; // Muon Spectrometer
   TrigMuonEFSAMonVars SA; // Standalone, i.e. extrapolated to IP
@@ -98,7 +102,8 @@ struct TrigMuonCaloTagMonVars {
   std::vector<float> IDTrk_CaloLH;
 };
 
-struct TrigMuGirlMonVars : public TrigMuonEFMSMonVars {
+class TrigMuGirlMonVars : public TrigMuonEFMSMonVars {
+public:
   std::vector<float> cotTh;
   std::vector<int> nTgcRpcPhi;
   std::vector<int> nTgcRpcEta;

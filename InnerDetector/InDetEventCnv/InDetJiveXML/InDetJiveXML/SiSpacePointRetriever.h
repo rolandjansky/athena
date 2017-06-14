@@ -8,6 +8,9 @@
 #include "JiveXML/IDataRetriever.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetJiveXML/IInDetGeoModelTool.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "TrkSpacePoint/SpacePointContainer.h"
+#include "TrkTruthData/PRD_MultiTruthCollection.h"
 
 namespace JiveXML{
 
@@ -44,7 +47,7 @@ namespace JiveXML{
       virtual std::string dataTypeName() const { return typeName; };
 
       /// Only retrieve geo tool in initialize
-      virtual StatusCode initialize() { return geo.retrieve(); };
+      virtual StatusCode initialize();
     
     private:
       
@@ -55,13 +58,13 @@ namespace JiveXML{
       const ToolHandle<IInDetGeoModelTool> geo;
      
       /** StoreGate key for Pixel space points*/
-      std::string m_PixelSPContainerName;
+      SG::ReadHandleKey<SpacePointContainer> m_PixelSPContainerName;
       /** StoreGate key for SCT space points*/
-      std::string m_SCTSPContainerName;
+      SG::ReadHandleKey<SpacePointContainer> m_SCTSPContainerName;
       /** StoreGate key for pixel PRD_MultiTruth*/
-      std::string m_PixelPRDTruthName;
+      SG::ReadHandleKey<PRD_MultiTruthCollection> m_PixelPRDTruthName;
       /** StoreGate key for SCT PRD_MultiTruth*/
-      std::string m_SCTPRDTruthName;
+      SG::ReadHandleKey<PRD_MultiTruthCollection> m_SCTPRDTruthName;
   };
 
 }

@@ -73,10 +73,10 @@ GapJetFilter::GapJetFilter(const std::string & name,
   declareProperty("c7", m_c7 = 0.); 
   declareProperty("gapf", m_gapf = 0.);  
 
-  xsgapf = 0.;
+  m_xsgapf = 0.;
 
   m_storeGate = 0;
-  myRandGen = 0;
+  m_myRandGen = 0;
 }
 
 //--------------------------------------------------------------------------
@@ -122,11 +122,11 @@ GapJetFilter::filterInitialize()
   msg(MSG::INFO) << "Fit param. c7 = " << m_c7 << endmsg;
   msg(MSG::INFO) << "Max. weighted gap = " << m_gapf << endmsg;
 
-  xsgapf = m_c0*exp(m_c1+m_c2*m_gapf)+m_c3*exp(m_c4+m_c5*m_gapf)+m_c6*pow(m_gapf,m_c7);
+  m_xsgapf = m_c0*exp(m_c1+m_c2*m_gapf)+m_c3*exp(m_c4+m_c5*m_gapf)+m_c6*pow(m_gapf,m_c7);
 
   //Setup the random number generator for weighting
-  myRandGen = new TRandom3();
-  myRandGen->SetSeed(0); //completely random!
+  m_myRandGen = new TRandom3();
+  m_myRandGen->SetSeed(0); //completely random!
 
   return StatusCode::SUCCESS;
 }
@@ -137,7 +137,7 @@ GapJetFilter::filterFinalize()
 {
   //---------------------------------------------------------------------------
   //Get rid of the random number generator
-  delete myRandGen;
+  delete m_myRandGen;
 
   return StatusCode::SUCCESS;
 }
@@ -277,10 +277,10 @@ GapJetFilter::filterEvent()
 
    double xsgap = m_c0*exp(m_c1+m_c2*rapgap_cl)+m_c3*exp(m_c4+m_c5*rapgap_cl)+m_c6*pow(rapgap_cl,m_c7);
 
-   //cout<<"xsgapf2 = "<<std::setprecision(10) <<xsgapf<<endl;
+   //cout<<"xsgapf2 = "<<std::setprecision(10) <<m_xsgapf<<endl;
 
-   double weighting = xsgapf/xsgap;
-   double rand = myRandGen->Rndm();
+   double weighting = m_xsgapf/xsgap;
+   double rand = m_myRandGen->Rndm();
 
    double w = 0.0;
    if (rapgap_cl>m_gapf) {

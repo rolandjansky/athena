@@ -20,6 +20,7 @@
 //C++ includes
 #include <math.h>
 #include <string.h>
+#include <CxxUtils/make_unique.h>
 
 //_____________________________________________________________________________
 CombinedP4FromRecoTaus::CombinedP4FromRecoTaus(const std::string& name) : 

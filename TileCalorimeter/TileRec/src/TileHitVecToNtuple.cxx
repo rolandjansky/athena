@@ -94,6 +94,11 @@ StatusCode TileHitVecToNtuple::initialize()
   
   CHECK( m_ntuplePtr->addItem("TileHit/nhit",m_nchan,0,m_maxLength) );
   CHECK( m_ntuplePtr->addItem("TileHit/totalE",m_tolE) );
+  CHECK( m_ntuplePtr->addItem("TileHit/totalE05",m_tolE0) );
+  CHECK( m_ntuplePtr->addItem("TileHit/totalE5",m_tolE1) );
+  CHECK( m_ntuplePtr->addItem("TileHit/totalE10",m_tolE2) );
+  CHECK( m_ntuplePtr->addItem("TileHit/totalE25",m_tolE3) );
+  CHECK( m_ntuplePtr->addItem("TileHit/totalE50",m_tolE4) );
 
   CHECK( m_ntuplePtr->addItem("TileHit/energy",m_nchan,m_energy) );
   CHECK( m_ntuplePtr->addItem("TileHit/time",m_nchan,m_time) );
@@ -126,6 +131,11 @@ StatusCode TileHitVecToNtuple::execute()
   
   m_nchan = 0;
   m_tolE = 0.0;
+  m_tolE0 = 0.0;
+  m_tolE1 = 0.0;
+  m_tolE2 = 0.0;
+  m_tolE3 = 0.0;
+  m_tolE4 = 0.0;
   int n_hit = 0;
   for (; it != end; ++it) {
 
@@ -134,7 +144,24 @@ StatusCode TileHitVecToNtuple::execute()
 
     int size = cinp->size();
     for (int i = 0; i < size; ++i) {
-      m_tolE += cinp->energy(i);
+      float time=cinp->time(i);
+      double ene=cinp->energy(i);
+      m_tolE += ene;
+      if (time<49.99) {
+	m_tolE4 += ene;
+	if (time<24.99) {
+	  m_tolE3 += ene;
+	  if (time<9.99) {
+	    m_tolE2 += ene;
+	    if (time<4.99) {
+	      m_tolE1 += ene;
+	      if (time>0.01) {
+		m_tolE0 += ene;
+	      }
+	    }
+	  }
+	}
+      }
       m_energy[m_nchan] = cinp->energy(i);
       m_time[m_nchan] = cinp->time(i);
 

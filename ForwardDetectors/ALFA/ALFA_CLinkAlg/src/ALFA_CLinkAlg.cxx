@@ -11,6 +11,8 @@
 #include "xAODForward/ALFADataAuxContainer.h"
 #include "ALFA_CLinkAlg/ALFA_CLinkAlg.h"
 
+using namespace std;
+
 ALFA_CLinkAlg::ALFA_CLinkAlg(const std::string& name, ISvcLocator* pSvcLocator)
 	: AthAlgorithm(name, pSvcLocator), m_iovSvc( "IOVDbSvc", name )//, m_incidentSvc( "IncidentSvc", name )
 {

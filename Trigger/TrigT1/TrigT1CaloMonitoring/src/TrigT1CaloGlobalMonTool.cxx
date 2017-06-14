@@ -134,7 +134,7 @@ StatusCode TrigT1CaloGlobalMonTool::bookHistogramsRecurrent()
   bool online = (m_onlineTest || m_environment == AthenaMonManager::online);
   MgmtAttr_t attr = ATTRIB_UNMANAGED;
  
-  if ( newRun || newLumiBlock ) {
+  if ( newRunFlag() || newLumiBlockFlag() ) {
 
     // Get lumiblock number
 
@@ -146,11 +146,11 @@ StatusCode TrigT1CaloGlobalMonTool::bookHistogramsRecurrent()
     }
   }
 
-  if ((newLumiBlock && !online) || newRun ) {
+  if ((newLumiBlockFlag() && !online) || newRunFlag() ) {
 
     std::string dir(m_rootDir + "/Overview/Errors");
     MonGroup monGlobal( this, dir,
-             ((newLumiBlock && !online) ? lumiBlock : run), attr );
+                        ((newLumiBlockFlag() && !online) ? lumiBlock : run), attr );
 
     // Global Error Overview
 
@@ -200,7 +200,7 @@ StatusCode TrigT1CaloGlobalMonTool::bookHistogramsRecurrent()
       m_lumipos = 0;
       m_luminumbers[m_lumipos] = m_lumiNo;
     }
-  } else if (newLumiBlock && online) {
+  } else if (newLumiBlockFlag() && online) {
 
     // Update last few lumiblocks plots
 
@@ -227,13 +227,13 @@ StatusCode TrigT1CaloGlobalMonTool::bookHistogramsRecurrent()
 
   } // end if ((newLumiBlock && ...
 
-  if ( newRun || newLumiBlock ) {
+  if ( newRunFlag() || newLumiBlockFlag() ) {
 
     // Errors by lumiblock/time plots
     // On Tier0 only kept if non-empty
 
     if( m_lumiNo ) {
-      if (newRun) {
+      if (newRunFlag()) {
         std::string dir(m_rootDir + "/Overview/Errors");
 	MonGroup monLumi( this, dir, run, attr);
         if (online) m_histTool->setMonGroup(&monLumi);
@@ -306,7 +306,7 @@ StatusCode TrigT1CaloGlobalMonTool::bookHistogramsRecurrent()
 
   // Total events processed and total rejected as corrupt
 
-  if ( newRun ) {
+  if ( newRunFlag() ) {
     std::string dir(m_rootDir + "/Overview");
     MonGroup monEvents( this, dir, run, attr);
     m_histTool->setMonGroup(&monEvents);
@@ -642,7 +642,7 @@ StatusCode TrigT1CaloGlobalMonTool::procHistograms()
   //}
 
   bool online = (m_onlineTest || m_environment == AthenaMonManager::online);
-  if (endOfRun && !online) {
+  if (endOfRunFlag() && !online) {
     if (m_h_l1calo_1d_ErrorsByLumiblock && m_h_l1calo_1d_ErrorsByLumiblock->GetEntries() == 0.) {
       delete m_h_l1calo_1d_ErrorsByLumiblock;
       m_h_l1calo_1d_ErrorsByLumiblock = 0;

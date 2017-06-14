@@ -57,7 +57,7 @@ namespace offline_eformat { namespace v40 {
     FullEventFragment (const FullEventFragment& other);
 
     /**
-     * Constructor that only works with T=<real pointer>. This constructor is
+     * Constructor that only works with T=\<real pointer\>. This constructor is
      * pretty much like the one with the pointer, but it will fetch the pointer
      * from the u32 blob. It is only used in the python bindings.
      *
@@ -67,7 +67,7 @@ namespace offline_eformat { namespace v40 {
     FullEventFragment (const eformat::helper::u32list& blob);
 
     /**
-     * Constructor that only works with T=<real pointer>. This constructor is
+     * Constructor that only works with T=\<real pointer\>. This constructor is
      * pretty much like the one with the pointer, but it will fetch the pointer
      * from the u32 blob. It is only used in the python bindings.
      *

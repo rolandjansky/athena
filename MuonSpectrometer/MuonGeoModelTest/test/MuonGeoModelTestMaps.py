@@ -11,7 +11,6 @@ MessageSvc.OutputLevel = 3
 #----
 #DetDescrVersion = "Rome-Final"
 include ( "AtlasGeoModel/SetGeometryVersion.py" )
-include ("RDBAccessSvc/RDBAccessSvcPdb_jobOptions.py")
 theApp.Dlls += [ "GeoModelSvc" ]
 theApp.ExtSvc += [ "GeoModelSvc"]
 include( "AtlasGeoModel/MuonGeoModel.py" )

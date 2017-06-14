@@ -241,7 +241,7 @@ StatusCode DetDescrDBEnvelopeSvc::retrieveRZBoundary( std::string  &node,
   //              << parentVersionTag << " / " << envVersionTag );
 
   // get a handle on the DB entries (don't delete, handeled internally)
-  const IRDBRecordset *envelopeRec = m_dbAccess->getRecordset( node,
+  IRDBRecordset_ptr envelopeRec = m_dbAccess->getRecordsetPtr( node,
                                                                m_atlasVersionTag,
                                                                m_atlasNode );
 

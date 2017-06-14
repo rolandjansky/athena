@@ -16,7 +16,7 @@
 #include <string>
 #include <map>
 
-// FrameWork includes
+// Framework includes
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ITHistSvc.h"
 

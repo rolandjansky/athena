@@ -20,8 +20,8 @@
  * \param AcceptPattern   - list of named bits required for acceptance
  * \param RejectPattern   - list of named bits required for rejection
  *
- * \Author Peter Loch
- * \Date   June 20, 2004 - first implementation
+ * \author Peter Loch
+ * \date   June 20, 2004 - first implementation
  */
 
 #include "TBRec/TBEventStreamerTool.h"

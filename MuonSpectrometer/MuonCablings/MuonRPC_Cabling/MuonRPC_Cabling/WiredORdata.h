@@ -25,7 +25,7 @@ class WiredORdata : BaseObject
     int m_start;
     int m_stop;
 
-    WORlist wor;
+    WORlist m_wor;
 
 
     void reset_data(void);

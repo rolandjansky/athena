@@ -54,35 +54,22 @@ StatusCode RoIBResultByteStreamCnv< ROBF >::initialize() {
   //
   // Initialise the base class:
   //
-  StatusCode sc = Converter::initialize();
-  if( sc.isFailure() ) {
-    return sc;
-  }
+  ATH_CHECK( Converter::initialize() );
 
-  MsgStream log( messageService(), "RoIBResultByteStreamCnv" );
+  MsgStream log( msgSvc(), "RoIBResultByteStreamCnv" );
   log << MSG::DEBUG << "In initialize()" << endmsg;
 
   //
   // Get ByteStreamCnvSvc:
   //
-  sc = m_ByteStreamCnvSvc.retrieve();
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << "Can't get ByteStreamCnvSvc" << endmsg;
-    return sc;
-  } else {
-    log << MSG::DEBUG << "Connected to ByteStreamCnvSvc" << endmsg;
-  }
+  ATH_CHECK( m_ByteStreamCnvSvc.retrieve() );
+  log << MSG::DEBUG << "Connected to ByteStreamCnvSvc" << endmsg;
 
   //
   // Get RoIBResultByteStreamTool:
   //
-  sc = m_tool.retrieve();
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << "Can't get RoIBResultByteStreamTool" << endmsg;
-    return sc;
-  } else {
-    log << MSG::DEBUG << "Connected to RoIBResultByteStreamTool" << endmsg;
-  }
+  ATH_CHECK( m_tool.retrieve() );
+  log << MSG::DEBUG << "Connected to RoIBResultByteStreamTool" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -95,7 +82,7 @@ StatusCode RoIBResultByteStreamCnv< ROBF >::initialize() {
 template< class ROBF >
 StatusCode RoIBResultByteStreamCnv< ROBF >::createObj( IOpaqueAddress* pAddr, DataObject*& pObj ) {
 
-  MsgStream log( messageService(), "RoIBResultByteStreamCnv" );
+  MsgStream log( msgSvc(), "RoIBResultByteStreamCnv" );
   log << MSG::DEBUG << "createObj() called" << endmsg;
 
   ByteStreamAddressL1R *pAddrL1;
@@ -110,11 +97,7 @@ StatusCode RoIBResultByteStreamCnv< ROBF >::createObj( IOpaqueAddress* pAddr, Da
   const std::vector< ROBF >& robs = pAddrL1->getPointers();
 
   // Convert to Object
-  StatusCode sc = m_tool->convert( robs, result );
-  if( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't convert the robs into RoIBResult" << endmsg;
-    return sc;
-  }
+  ATH_CHECK( m_tool->convert( robs, result ) );
 
   log << MSG::DEBUG << " Created Objects: " << *( pAddrL1->par() ) <<endmsg;
 
@@ -131,7 +114,7 @@ StatusCode RoIBResultByteStreamCnv< ROBF >::createObj( IOpaqueAddress* pAddr, Da
 template< class ROBF >
 StatusCode RoIBResultByteStreamCnv< ROBF >::createRep( DataObject* pObj, IOpaqueAddress*& pAddr ) {
 
-  MsgStream log( messageService(), "RoIBResultByteStreamCnv" );
+  MsgStream log( msgSvc(), "RoIBResultByteStreamCnv" );
   log << MSG::DEBUG << "createRep() called" << endmsg;
 
   RawEventWrite* re = m_ByteStreamCnvSvc->getRawEvent();

@@ -17,7 +17,7 @@ CompareModulesTDAQandBytestream::CompareModulesTDAQandBytestream(const std::stri
   AthAlgorithm(name, pSvcLocator),
   m_bsSvc("PixelByteStreamErrorsSvc", name),
   m_tdaqSvc("PixelTDAQSvc", name),
-  n_lumi_blocks(0),
+  m_n_lumi_blocks(0),
   m_pixelID(0)
 {
 }
@@ -66,7 +66,7 @@ StatusCode CompareModulesTDAQandBytestream::execute(){
 
   //chek if this lumi block was already prozessed
   std::pair<std::map<unsigned int, unsigned int>::iterator, bool> lb
-    = runs_and_lumi_blocks.insert(std::make_pair(my_hash, 0));
+    = m_runs_and_lumi_blocks.insert(std::make_pair(my_hash, 0));
   if(!lb.second)
     return StatusCode::SUCCESS;
 
@@ -111,9 +111,9 @@ StatusCode CompareModulesTDAQandBytestream::execute(){
     }
   }
   if(n_differences > 0){
-    ++n_lumi_blocks;
+    ++m_n_lumi_blocks;
     lb.first->second = n_differences;
-    disabled_modules[my_hash] = disabled_modules_lb;
+    m_disabled_modules[my_hash] = disabled_modules_lb;
   }
 
   return StatusCode::SUCCESS;
@@ -125,19 +125,19 @@ StatusCode CompareModulesTDAQandBytestream::finalize(){
 
   std::string line(80, '-');
     ATH_MSG_INFO(line);
-  if(n_lumi_blocks > 0){
+  if(m_n_lumi_blocks > 0){
     ATH_MSG_WARNING("Disagreement between bytestream and tdaq in "
-                 << n_lumi_blocks << " lumi blocks");
+                 << m_n_lumi_blocks << " lumi blocks");
       ATH_MSG_WARNING(" |   run\tlumi block \tdisagreement in # modules");
     for(std::map<unsigned int, unsigned int>::const_iterator i
-          = runs_and_lumi_blocks.begin(); i != runs_and_lumi_blocks.end(); ++i){
+          = m_runs_and_lumi_blocks.begin(); i != m_runs_and_lumi_blocks.end(); ++i){
       if(i->second > 0){
         ATH_MSG_WARNING(" |  " << i->first / 10000
                         << "\t   " << i->first % 10000
                         << "\t\t\t" << i->second
                         << "\t\tbytestream\t   tdaq");
-        for(unsigned int j=0; j<disabled_modules[i->first].size(); ++j)
-          ATH_MSG_WARNING(" |\t\t\t\t" << disabled_modules[i->first][j]);
+        for(unsigned int j=0; j<m_disabled_modules[i->first].size(); ++j)
+          ATH_MSG_WARNING(" |\t\t\t\t" << m_disabled_modules[i->first][j]);
       }
     }
   }

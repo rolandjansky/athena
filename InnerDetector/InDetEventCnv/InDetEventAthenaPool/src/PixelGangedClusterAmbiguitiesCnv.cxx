@@ -11,14 +11,9 @@
 #include "PixelGangedClusterAmbiguitiesCnv.h"
 #include "InDetEventTPCnv/InDetPrepRawData/PixelGangedClusterAmbiguities_p1.h"
 #include "InDetEventTPCnv/InDetPrepRawData/PixelGangedClusterAmbiguitiesCnv_p1.h"
-#include "MsgUtil.h"
-
 static PixelGangedClusterAmbiguitiesCnv_p1   TPconverter;
 
 PixelGangedClusterAmbiguities_PERS* PixelGangedClusterAmbiguitiesCnv::createPersistent(InDet::PixelGangedClusterAmbiguities* transObj) {
-    //repeated twice, should really be in an initialize method
-    IDEvtAthPool::setMsgName(this,"PixelGangedClusterAmbiguitiesConverter");//So msg() won't use name "AthenaPoolConverter" 
-
     ATH_MSG_DEBUG("PixelGangedClusterAmbiguities write");
     PixelGangedClusterAmbiguities_PERS *persObj = TPconverter.createPersistent( transObj, msg() );
     ATH_MSG_DEBUG("Success");
@@ -26,9 +21,6 @@ PixelGangedClusterAmbiguities_PERS* PixelGangedClusterAmbiguitiesCnv::createPers
 }
     
 InDet::PixelGangedClusterAmbiguities* PixelGangedClusterAmbiguitiesCnv::createTransient() {
-    //repeated twice, should really be in an initialize method
-    IDEvtAthPool::setMsgName(this,"PixelGangedClusterAmbiguitiesConverter");//So msg() won't use name "AthenaPoolConverter" 
-
     static pool::Guid   p1_guid("FE36CE7E-EADF-481F-A55A-26DA0030DFAA");
 //     static pool::Guid   p0_guid("380D8BB9-B34F-470F-92CC-06C3D60F7BE4");
     if( compareClassGuid(p1_guid) ) {

@@ -22,7 +22,7 @@
 INav4MomLinkContainer_PERS* INav4MomLinkContainerCnv::createPersistent( INav4MomLinkContainer* transCont )
 {
   // Create the message service for this class
-  MsgStream log( messageService(), "INav4MomLinkContainerConverter" );
+  MsgStream log( msgSvc(), "INav4MomLinkContainerConverter" );
 
   // Do the actual creation of the persistent object
   INav4MomLinkContainer_PERS *persObj = m_TPConverter.createPersistent( transCont, log );
@@ -38,7 +38,7 @@ INav4MomLinkContainer_PERS* INav4MomLinkContainerCnv::createPersistent( INav4Mom
 INav4MomLinkContainer* INav4MomLinkContainerCnv::createTransient()
 {
   // Create the message service for this class
-  MsgStream log( messageService(), "INav4MomLinkContainerConverter" );
+  MsgStream log( msgSvc(), "INav4MomLinkContainerConverter" );
 
   // Define the pool IDs
   static pool::Guid  p1_guid("A7F0A4C5-F343-4724-B317-FB5A890355FA");

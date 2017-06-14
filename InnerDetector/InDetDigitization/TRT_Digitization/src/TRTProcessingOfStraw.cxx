@@ -38,8 +38,8 @@
 #include "CLHEP/Random/RandPoisson.h"//randpoissonq? (fixme)
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandBinomial.h"
-#include "AtlasCLHEP_RandomGenerators/RandExpZiggurat.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandExpZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include <cmath>
 #include <cstdlib> //Always include this when including cmath!
 

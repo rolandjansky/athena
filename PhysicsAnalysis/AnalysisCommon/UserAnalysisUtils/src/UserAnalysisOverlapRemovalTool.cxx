@@ -73,7 +73,6 @@ UserAnalysisOverlapRemovalTool::UserAnalysisOverlapRemovalTool( const std::strin
   m_numLightJets      = std::make_pair(0,0);
   m_numTrackParticles = std::make_pair(0,0);
   m_numCaloClusters   = std::make_pair(0,0);
-  
 }
 
 //------------------------------------------------------------------------------
@@ -122,36 +121,37 @@ StatusCode UserAnalysisOverlapRemovalTool::execute() {
   }
 
   /** prepare the container for selection and overlap removal */
-  StatusCode sc = this->prepareContainers();
+  Vectors v;
+  StatusCode sc = this->prepareContainers(v);
   if ( sc.isFailure() ) return sc;
  
   /** now object preparation with overlap removal */
   for ( unsigned int i=0; i<m_inputContainerKeys.size(); ++i ) {
 
     string::size_type loc = m_inputContainerKeys[i].find( "Electron", 0);
-    if( loc != string::npos ) sc = this->electronPreparation( m_inputContainerKeys[i] );
+    if( loc != string::npos ) sc = this->electronPreparation( v, m_inputContainerKeys[i] );
 
     loc = m_inputContainerKeys[i].find( "Photon", 0);
-    if( loc != string::npos ) sc = this->photonPreparation( m_inputContainerKeys[i] );
+    if( loc != string::npos ) sc = this->photonPreparation( v, m_inputContainerKeys[i] );
 
     loc = m_inputContainerKeys[i].find( "Muon", 0);
-    if( loc != string::npos ) sc = this->muonPreparation( m_inputContainerKeys[i] );
+    if( loc != string::npos ) sc = this->muonPreparation( v, m_inputContainerKeys[i] );
 
     std::string tau = "Tau";
     if ( m_isAtlfast ) tau = "TauJet";
     loc = m_inputContainerKeys[i].find( tau, 0);
-    if( loc != string::npos ) sc = this->tauJetPreparation( m_inputContainerKeys[i] );
+    if( loc != string::npos ) sc = this->tauJetPreparation( v, m_inputContainerKeys[i] );
 
     std::string jet = "Jets";
     if ( m_isAtlfast ) jet = "Jet";
     loc = m_inputContainerKeys[i].find( jet, 0);
-    if( loc != string::npos ) sc = this->jetPreparation( m_inputContainerKeys[i] );
+    if( loc != string::npos ) sc = this->jetPreparation( v, m_inputContainerKeys[i] );
 
     loc = m_inputContainerKeys[i].find( "Track", 0);
-    if( loc != string::npos ) sc = this->trackParticlePreparation( m_inputContainerKeys[i] );
+    if( loc != string::npos ) sc = this->trackParticlePreparation( v, m_inputContainerKeys[i] );
 
     loc = m_inputContainerKeys[i].find( "Cluster", 0);
-    if( loc != string::npos ) sc = this->caloClusterPreparation( m_inputContainerKeys[i] );
+    if( loc != string::npos ) sc = this->caloClusterPreparation( v, m_inputContainerKeys[i] );
 
     if ( sc.isFailure() ) return sc;
 
@@ -267,18 +267,9 @@ const CaloClusterContainer * UserAnalysisOverlapRemovalTool::finalStateCaloClust
 }
 
   /** container preparation */
-StatusCode UserAnalysisOverlapRemovalTool::electronPreparation( std::string key ) {
+StatusCode UserAnalysisOverlapRemovalTool::electronPreparation( Vectors& v, std::string key ) {
   ATH_MSG_DEBUG("in electronPreparation() " );
   StatusCode sc = StatusCode::SUCCESS;
-
-  INavigable4MomentumCollection * particles = this->allParticles();
-  if ( !particles ) return sc;
-
-  INavigable4MomentumCollection * leptons = this->allLeptons();
-  if ( !leptons ) return sc;
-
-  ElectronContainer * electrons = this->allElectrons();
-  if ( !electrons ) return sc;
 
   const ElectronContainer * aod_electrons = 0;
   sc = evtStore()->retrieve( aod_electrons, key );
@@ -296,21 +287,16 @@ StatusCode UserAnalysisOverlapRemovalTool::electronPreparation( std::string key 
   for (; elecItr != elecItrE; ++elecItr) {
 
     /** if this is the first particle, just put it in */ 
-    if ( particles->size() == 0 ) {
-      //       particles->push_back( *elecItr );
-      //       leptons->push_back( *elecItr );
-      //       electrons->push_back( *elecItr );
-      // FIXME: cast needed for copying between containers
-      Electron* el = const_cast<Electron*> (*elecItr);
-      particles->push_back( el );
-      leptons->push_back( el );
-      electrons->push_back( el );
+    if ( v.m_outputParticles->size() == 0 ) {
+      v.m_outputParticles->push_back( *elecItr );
+      v.m_outputLeptons->push_back( *elecItr );
+      v.m_outputElectrons->push_back( *elecItr );
  
     }   
     /** check for the overlap and save non overlapping ones */
     else {
-      INavigable4MomentumCollection::const_iterator nav4MomItr  = particles->begin();
-      INavigable4MomentumCollection::const_iterator nav4MomItrE = particles->end();
+      ConstDataVector<INavigable4MomentumCollection>::const_iterator nav4MomItr  = v.m_outputParticles->begin();
+      ConstDataVector<INavigable4MomentumCollection>::const_iterator nav4MomItrE = v.m_outputParticles->end();
       bool overlap = false;
       for (; nav4MomItr != nav4MomItrE; ++nav4MomItr) {
           /** overlap checking */
@@ -324,33 +310,22 @@ StatusCode UserAnalysisOverlapRemovalTool::electronPreparation( std::string key 
 
       /** if no overlap then save */  
       if ( !overlap ) { 
-	//   particles->push_back( *elecItr ); 
-	//   leptons->push_back( *elecItr ); 
-	//  electrons->push_back( *elecItr );
-        // FIXME: cast needed for copying between containers
-        Electron* el = const_cast<Electron*> (*elecItr);
-        particles->push_back( el ); 
-        leptons->push_back( el ); 
-        electrons->push_back( el );
+        v.m_outputParticles->push_back( *elecItr ); 
+        v.m_outputLeptons->push_back( *elecItr ); 
+        v.m_outputElectrons->push_back( *elecItr );
  
       }
     }
   }
 
-  m_numElectrons.second += electrons->size();
+  m_numElectrons.second += v.m_outputElectrons->size();
 
   return sc;
 }
 
-StatusCode UserAnalysisOverlapRemovalTool::photonPreparation( std::string key ) {
+StatusCode UserAnalysisOverlapRemovalTool::photonPreparation( Vectors& v, std::string key ) {
   ATH_MSG_DEBUG("in photonPreparation() " );
   StatusCode sc = StatusCode::SUCCESS;
-
-  INavigable4MomentumCollection * particles = this->allParticles();
-  if ( !particles ) return sc;
-
-  PhotonContainer * photons = this->allPhotons();
-  if ( !photons ) return sc;
 
   const PhotonContainer * aod_photons = 0;
   sc = evtStore()->retrieve( aod_photons, key );
@@ -368,18 +343,14 @@ StatusCode UserAnalysisOverlapRemovalTool::photonPreparation( std::string key ) 
   for (; photItr != photItrE; ++photItr) {
 
     /** if this is the first particle, just put it in */ 
-    if ( particles->size() == 0 ) {
-      //       particles->push_back( *photItr );
-      //       photons->push_back( *photItr );
-      // FIXME: cast needed for copying between containers
-      Photon * photon = const_cast<Photon*>(*photItr);
-      particles->push_back( photon );
-      photons->push_back( photon );
+    if ( v.m_outputParticles->size() == 0 ) {
+      v.m_outputParticles->push_back( *photItr );
+      v.m_outputPhotons->push_back( *photItr );
      }   
     /** check for the overlap and save non overlapping ones */
     else {
-      INavigable4MomentumCollection::const_iterator nav4MomItr  = particles->begin();
-      INavigable4MomentumCollection::const_iterator nav4MomItrE = particles->end();
+      INavigable4MomentumCollection::const_iterator nav4MomItr  = v.m_outputParticles->begin();
+      INavigable4MomentumCollection::const_iterator nav4MomItrE = v.m_outputParticles->end();
       bool overlap = false;
       for (; nav4MomItr != nav4MomItrE; ++nav4MomItr) {
           /** overlap checking */
@@ -393,30 +364,20 @@ StatusCode UserAnalysisOverlapRemovalTool::photonPreparation( std::string key ) 
 
       /** if no overlap then save */  
       if ( !overlap ) { 
-	//         particles->push_back( *photItr );  
-	//         photons->push_back( *photItr );
-      // FIXME: cast needed for copying between containers
-      Photon * photon = const_cast<Photon*>(*photItr);
-      particles->push_back( photon );
-      photons->push_back( photon );
+        v.m_outputParticles->push_back( *photItr );
+        v.m_outputPhotons->push_back( *photItr );
       }
     }
   }
 
-  m_numPhotons.second += photons->size();
+  m_numPhotons.second += v.m_outputPhotons->size();
 
   return sc;
 }
 
-StatusCode UserAnalysisOverlapRemovalTool::muonPreparation( std:: string key ) {
+StatusCode UserAnalysisOverlapRemovalTool::muonPreparation( Vectors& v, std:: string key ) {
   ATH_MSG_DEBUG("in muonPreparation() " );
   StatusCode sc = StatusCode::SUCCESS;
-
-  INavigable4MomentumCollection * particles = this->allParticles();
-  if ( !particles ) return sc;
-
-  MuonContainer * muons = this->allMuons();
-  if ( !muons ) return sc;
 
   const MuonContainer * aod_muons = 0;
   sc = evtStore()->retrieve( aod_muons, key );
@@ -434,19 +395,15 @@ StatusCode UserAnalysisOverlapRemovalTool::muonPreparation( std:: string key ) {
   for (; muonItr != muonItrE; ++muonItr) {
 
     /** if this is the first particle, just put it in */ 
-    if ( particles->size() == 0 ) {
-      //      particles->push_back( *muonItr );
-      //       muons->push_back( *muonItr );
-      // FIXME: cast needed for copying between containers.
-      Analysis::Muon* mu = const_cast<Analysis::Muon*> (*muonItr);
-      particles->push_back( mu );
-      muons->push_back( mu );
+    if ( v.m_outputParticles->size() == 0 ) {
+      v.m_outputParticles->push_back( *muonItr );
+      v.m_outputMuons->push_back( *muonItr );
  
     }   
     /** check for the overlap and save non overlapping ones */
     else {
-      INavigable4MomentumCollection::const_iterator nav4MomItr  = particles->begin();
-      INavigable4MomentumCollection::const_iterator nav4MomItrE = particles->end();
+      INavigable4MomentumCollection::const_iterator nav4MomItr  = v.m_outputParticles->begin();
+      INavigable4MomentumCollection::const_iterator nav4MomItrE = v.m_outputParticles->end();
       bool overlap = false;
       for (; nav4MomItr != nav4MomItrE; ++nav4MomItr) {
           /** overlap checking */
@@ -460,26 +417,20 @@ StatusCode UserAnalysisOverlapRemovalTool::muonPreparation( std:: string key ) {
 
       /** if no overlap then save */  
       if ( !overlap ) { 
-	//         particles->push_back( *muonItr ); 
-	//         muons->push_back( *muonItr );
-        Analysis::Muon* mu = const_cast<Analysis::Muon*> (*muonItr);
-        particles->push_back( mu );
-        muons->push_back( mu );
+        v.m_outputParticles->push_back( *muonItr );
+        v.m_outputMuons->push_back( *muonItr );
       }
     }
   }
 
-  m_numMuons.second += muons->size();
+  m_numMuons.second += v.m_outputMuons->size();
 
   return sc;
 }
 
-StatusCode UserAnalysisOverlapRemovalTool::tauJetPreparation( std::string key ) {
+StatusCode UserAnalysisOverlapRemovalTool::tauJetPreparation( Vectors& v, std::string key ) {
   ATH_MSG_DEBUG("in tauJetPreparation() " );
   StatusCode sc = StatusCode::SUCCESS;
-
-  INavigable4MomentumCollection * particles = this->allParticles();
-  if ( !particles ) return sc;
 
   TauJetContainer * tauJets = this->allTauJets();
   if ( !tauJets ) return sc;
@@ -500,18 +451,14 @@ StatusCode UserAnalysisOverlapRemovalTool::tauJetPreparation( std::string key ) 
   for (; tauJetItr != tauJetItrE; ++tauJetItr) {
 
     /** if this is the first particle, just put it in */ 
-    if ( particles->size() == 0 ) {
-      //      particles->push_back( *tauJetItr );
-      //       tauJets->push_back( *tauJetItr );
-      // FIXME: cast needed for copying between containers.
-      Analysis::TauJet* tau = const_cast<Analysis::TauJet*> (*tauJetItr);
-      particles->push_back( tau );
-      tauJets->push_back( tau );
+    if ( v.m_outputParticles->size() == 0 ) {
+      v.m_outputParticles->push_back( *tauJetItr );
+      v.m_outputTauJets->push_back( *tauJetItr );
      }   
     /** check for the overlap and save non overlapping ones */
     else {
-      INavigable4MomentumCollection::const_iterator nav4MomItr  = particles->begin();
-      INavigable4MomentumCollection::const_iterator nav4MomItrE = particles->end();
+      INavigable4MomentumCollection::const_iterator nav4MomItr  = v.m_outputParticles->begin();
+      INavigable4MomentumCollection::const_iterator nav4MomItrE = v.m_outputParticles->end();
       bool overlap = false;
       for (; nav4MomItr != nav4MomItrE; ++nav4MomItr) {
           /** overlap checking */
@@ -525,36 +472,20 @@ StatusCode UserAnalysisOverlapRemovalTool::tauJetPreparation( std::string key ) 
 
       /** if no overlap then save */  
       if ( !overlap ) { 
-	//         particles->push_back( *tauJetItr ); 
-	//         tauJets->push_back( *tauJetItr );
-      // FIXME: cast needed for copying between containers.
-      Analysis::TauJet* tau = const_cast<Analysis::TauJet*> (*tauJetItr);
-      particles->push_back( tau );
-      tauJets->push_back( tau );
+        v.m_outputParticles->push_back( *tauJetItr );
+        v.m_outputTauJets->push_back( *tauJetItr );
       }
     }
   }
 
-  m_numTauJets.second += tauJets->size();
+  m_numTauJets.second += v.m_outputTauJets->size();
 
   return sc;
 }
 
-StatusCode UserAnalysisOverlapRemovalTool::jetPreparation( std::string key ) {
+StatusCode UserAnalysisOverlapRemovalTool::jetPreparation( Vectors& v, std::string key ) {
   ATH_MSG_DEBUG("in jetPreparation() " );
   StatusCode sc = StatusCode::SUCCESS;
-
-  INavigable4MomentumCollection * particles = this->allParticles();
-  if ( !particles ) return sc;
-
-  JetCollection * jets = this->allJets();
-  if ( !jets ) return sc;
-
-  JetCollection * bJets = this->allBJets();
-  if ( !bJets ) return sc;
-
-  JetCollection * lightJets = this->allLightJets();
-  if ( !lightJets ) return sc;
 
   const JetCollection * aod_jets = 0;
   sc = evtStore()->retrieve( aod_jets, key );
@@ -574,25 +505,17 @@ StatusCode UserAnalysisOverlapRemovalTool::jetPreparation( std::string key ) {
   for (; jetItr != jetItrE; ++jetItr) {
     /** check if this jet passes pre-selection */
     /** if this is the first particle, just put it in */ 
-    if ( particles->size() == 0 ) {
-      /*
-       particles->push_back( *jetItr );
-       jets->push_back( *jetItr );
-       if ( m_userSelectionTool->isBJet( *jetItr ) ) bJets->push_back( *jetItr);
-       else lightJets->push_back( *jetItr );
-      */
-      // FIXME: cast needed for copying between containers.
-      Jet* jet = const_cast<Jet*> (*jetItr);
-      particles->push_back( jet );
-      jets->push_back( jet );
-      if ( m_userSelectionTool->isBJet( *jetItr ) ) bJets->push_back( jet);
-      else lightJets->push_back( jet );
+    if ( v.m_outputParticles->size() == 0 ) {
+      v.m_outputParticles->push_back( *jetItr );
+      v.m_outputJets->push_back( *jetItr );
+      if ( m_userSelectionTool->isBJet( *jetItr ) ) v.m_outputBJets->push_back( *jetItr);
+      else v.m_outputLightJets->push_back( *jetItr );
  
     }   
     /** check for the overlap and save non overlapping ones */
     else {
-      INavigable4MomentumCollection::const_iterator nav4MomItr  = particles->begin();
-      INavigable4MomentumCollection::const_iterator nav4MomItrE = particles->end();
+      INavigable4MomentumCollection::const_iterator nav4MomItr  = v.m_outputParticles->begin();
+      INavigable4MomentumCollection::const_iterator nav4MomItrE = v.m_outputParticles->end();
       bool overlap = false;
       for (; nav4MomItr != nav4MomItrE; ++nav4MomItr) {
           /** overlap checking */
@@ -605,39 +528,25 @@ StatusCode UserAnalysisOverlapRemovalTool::jetPreparation( std::string key ) {
 
       /** if no overlap then save */  
       if ( !overlap ) { 
-	/*
-	particles->push_back( *jetItr );
-	jets->push_back( *jetItr );
-	if ( m_userSelectionTool->isBJet( *jetItr ) ) bJets->push_back( *jetItr);
-	else lightJets->push_back( *jetItr );
-	*/
-        // FIXME: cast needed for copying between containers.
-        Jet* jet = const_cast<Jet*> (*jetItr);
-	particles->push_back( jet );
-	jets->push_back( jet );
-	if ( m_userSelectionTool->isBJet( *jetItr ) ) bJets->push_back( jet);
-	else lightJets->push_back( jet );
+	v.m_outputParticles->push_back( *jetItr );
+	v.m_outputJets->push_back( *jetItr );
+	if ( m_userSelectionTool->isBJet( *jetItr ) ) v.m_outputBJets->push_back( *jetItr);
+	else v.m_outputLightJets->push_back( *jetItr );
  
       }
     }
   }
 
-  m_numJets.second      += jets->size();
-  m_numBJets.second     += bJets->size();
-  m_numLightJets.second += lightJets->size();
+  m_numJets.second      += v.m_outputJets->size();
+  m_numBJets.second     += v.m_outputBJets->size();
+  m_numLightJets.second += v.m_outputLightJets->size();
 
   return sc;
 }
 
-StatusCode UserAnalysisOverlapRemovalTool::trackParticlePreparation( std::string key ) {
+StatusCode UserAnalysisOverlapRemovalTool::trackParticlePreparation( Vectors& v, std::string key ) {
   ATH_MSG_DEBUG("in trackParticlePreparation() " );
   StatusCode sc = StatusCode::SUCCESS;
-
-  INavigable4MomentumCollection * particles = this->allParticles();
-  if ( !particles ) return sc;
-
-  TrackParticleContainer * trackParticles = this->allTrackParticles();
-  if ( !trackParticles ) return sc;
 
   const TrackParticleContainer * aod_trackParticles = 0;
   sc = evtStore()->retrieve( aod_trackParticles, key );
@@ -654,19 +563,15 @@ StatusCode UserAnalysisOverlapRemovalTool::trackParticlePreparation( std::string
 
   for (; trackParticleItr != trackParticleItrE; ++trackParticleItr) {
     /** if this is the first particle, just put it in */ 
-    if ( particles->size() == 0 ) {
-      //      particles->push_back( *trackParticleItr );
-      //       trackParticles->push_back( *trackParticleItr );
-      // FIXME: cast needed for copying between containers
-      Rec::TrackParticle* tp = const_cast<Rec::TrackParticle*> (*trackParticleItr);
-      particles->push_back( tp );
-      trackParticles->push_back( tp );
+    if ( v.m_outputParticles->size() == 0 ) {
+      v.m_outputParticles->push_back( *trackParticleItr );
+      v.m_outputTrackParticles->push_back( *trackParticleItr );
  
     }   
     /** check for the overlap and save non overlapping ones */
     else {
-      INavigable4MomentumCollection::const_iterator nav4MomItr  = particles->begin();
-      INavigable4MomentumCollection::const_iterator nav4MomItrE = particles->end();
+      INavigable4MomentumCollection::const_iterator nav4MomItr  = v.m_outputParticles->begin();
+      INavigable4MomentumCollection::const_iterator nav4MomItrE = v.m_outputParticles->end();
       bool overlap = false; 
       for (; nav4MomItr != nav4MomItrE; ++nav4MomItr) {
           /** overlap checking */
@@ -679,30 +584,20 @@ StatusCode UserAnalysisOverlapRemovalTool::trackParticlePreparation( std::string
 
       /** if no overlap then save */  
       if ( !overlap ) { 
-	//         particles->push_back( *trackParticleItr ); 
-	//         trackParticles->push_back( *trackParticleItr );
-        // FIXME: cast needed for copying between containers
-        Rec::TrackParticle* tp = const_cast<Rec::TrackParticle*> (*trackParticleItr);
-        particles->push_back( tp ); 
-        trackParticles->push_back( tp );
+        v.m_outputParticles->push_back( *trackParticleItr ); 
+        v.m_outputTrackParticles->push_back( *trackParticleItr );
        }
     }
   }
   
-  m_numTrackParticles.second += trackParticles->size();
+  m_numTrackParticles.second += v.m_outputTrackParticles->size();
 
   return sc;
 }
 
-StatusCode UserAnalysisOverlapRemovalTool::caloClusterPreparation( std::string key ) {
+StatusCode UserAnalysisOverlapRemovalTool::caloClusterPreparation( Vectors& v, std::string key ) {
   ATH_MSG_DEBUG("in caloClusterPreparation() " );
   StatusCode sc = StatusCode::SUCCESS;
-
-  INavigable4MomentumCollection * particles = this->allParticles();
-  if ( !particles ) return sc;
-
-  CaloClusterContainer * caloClusters = this->allCaloClusters();
-  if ( !caloClusters ) return sc;
 
   const CaloClusterContainer * aod_caloClusters = 0;
   sc = evtStore()->retrieve( aod_caloClusters, key );
@@ -722,19 +617,15 @@ StatusCode UserAnalysisOverlapRemovalTool::caloClusterPreparation( std::string k
     if ( !m_userSelectionTool->isSelected( *caloClusterItr ) ) continue;
 
     /** if this is the first particle, just put it in */ 
-    if ( particles->size() == 0 ) {
-      //      particles->push_back( *caloClusterItr );
-      //       caloClusters->push_back( *caloClusterItr );
-      // FIXME: cast needed for copying between containers.
-      CaloCluster* cl = const_cast<CaloCluster*> (*caloClusterItr);
-      particles->push_back( cl ); 
-      caloClusters->push_back( cl );
+    if ( v.m_outputParticles->size() == 0 ) {
+      v.m_outputParticles->push_back( *caloClusterItr ); 
+      v.m_outputCaloClusters->push_back( *caloClusterItr );
  
     }   
     /** check for the overlap and save non overlapping ones */
     else {
-      INavigable4MomentumCollection::const_iterator nav4MomItr  = particles->begin();
-      INavigable4MomentumCollection::const_iterator nav4MomItrE = particles->end();
+      INavigable4MomentumCollection::const_iterator nav4MomItr  = v.m_outputParticles->begin();
+      INavigable4MomentumCollection::const_iterator nav4MomItrE = v.m_outputParticles->end();
       bool overlap = false;
       for (; nav4MomItr != nav4MomItrE; ++nav4MomItr) {
           /** overlap checking */
@@ -747,18 +638,14 @@ StatusCode UserAnalysisOverlapRemovalTool::caloClusterPreparation( std::string k
 
       /** if no overlap then save */  
       if ( !overlap ) { 
-	//         particles->push_back( *caloClusterItr ); 
-	//         caloClusters->push_back( *caloClusterItr );
-        // FIXME: cast needed for copying between containers.
-        CaloCluster* cl = const_cast<CaloCluster*> (*caloClusterItr);
-        particles->push_back( cl );
-        caloClusters->push_back( cl );
+        v.m_outputParticles->push_back( *caloClusterItr );
+        v.m_outputCaloClusters->push_back( *caloClusterItr );
  
       } 
     }
   }
 
-  m_numCaloClusters.second += caloClusters->size();
+  m_numCaloClusters.second += v.m_outputCaloClusters->size();
 
   return sc;
 }
@@ -864,96 +751,118 @@ CaloClusterContainer * UserAnalysisOverlapRemovalTool::allCaloClusters() {
 }
 
 //-------------------------------------------------------------------------------
-StatusCode UserAnalysisOverlapRemovalTool::prepareContainers() {
+StatusCode UserAnalysisOverlapRemovalTool::prepareContainers(Vectors& v) {
   ATH_MSG_DEBUG("in prepareContainers()" );
 
   /** create an empty container of all particles and record it */
-  CaloClusterContainer * caloClusters = new CaloClusterContainer( SG::VIEW_ELEMENTS );
+  ConstDataVector<CaloClusterContainer> * caloClusters =
+    new ConstDataVector<CaloClusterContainer>( SG::VIEW_ELEMENTS );
   StatusCode sc = evtStore()->record ( caloClusters, m_outputCaloClusterKey);
   if ( sc.isFailure() ) {
     ATH_MSG_WARNING("Not able to create a collection of CaloClusters in StoreGate: key= " << m_outputCaloClusterKey );
      return sc;
   }
+  v.m_outputCaloClusters = caloClusters;
 
   /** create an empty container of TrackParticles and record it */
-  TrackParticleContainer * trackParticles = new TrackParticleContainer( SG::VIEW_ELEMENTS );
+  ConstDataVector<TrackParticleContainer> * trackParticles =
+    new ConstDataVector<TrackParticleContainer>( SG::VIEW_ELEMENTS );
   sc = evtStore()->record ( trackParticles, m_outputTrackParticleKey);
   if ( sc.isFailure() ) {
     ATH_MSG_WARNING("Not able to create a collection of TrackParticles in StoreGate: key= " << m_outputTrackParticleKey );
      return sc;
   }
+  v.m_outputTrackParticles = trackParticles;
 
   /** create an empty container of all particles and record it */
-  INavigable4MomentumCollection * particles = new INavigable4MomentumCollection( SG::VIEW_ELEMENTS );
+  ConstDataVector<INavigable4MomentumCollection> * particles =
+    new ConstDataVector<INavigable4MomentumCollection>( SG::VIEW_ELEMENTS );
   sc = evtStore()->record ( particles, m_outputObjectKey);
   if ( sc.isFailure() ) {
     ATH_MSG_WARNING("Not able to create a collection of particles in StoreGate: key=  " << m_outputObjectKey );
      return sc; 
   }
+  v.m_outputParticles = particles;
   
   /** create an empty container of all leptons and record it */
-  INavigable4MomentumCollection * leptons = new INavigable4MomentumCollection( SG::VIEW_ELEMENTS );
+  ConstDataVector<INavigable4MomentumCollection> * leptons =
+    new ConstDataVector<INavigable4MomentumCollection>( SG::VIEW_ELEMENTS );
   sc = evtStore()->record ( leptons, m_outputLeptonKey);
   if ( sc.isFailure() ) {
     ATH_MSG_WARNING("Not able to create a collection of leptons in StoreGate: key= " << m_outputLeptonKey );
      return sc;
   }
+  v.m_outputLeptons = leptons;
 
   /** create an empty container of all electrons and record it */
-  ElectronContainer * electrons = new ElectronContainer( SG::VIEW_ELEMENTS );
+  ConstDataVector<ElectronContainer> * electrons =
+    new ConstDataVector<ElectronContainer>( SG::VIEW_ELEMENTS );
   sc = evtStore()->record ( electrons, m_outputElectronKey);
   if ( sc.isFailure() ) {
     ATH_MSG_WARNING("Not able to create a collection of electrons in StoreGate: key= " << m_outputElectronKey );
      return sc;
   }
+  v.m_outputElectrons = electrons;
 
   /** create an empty container of all photons and record it */
-  PhotonContainer * photons = new PhotonContainer( SG::VIEW_ELEMENTS );
+  ConstDataVector<PhotonContainer> * photons =
+    new ConstDataVector<PhotonContainer>( SG::VIEW_ELEMENTS );
   sc = evtStore()->record ( photons, m_outputPhotonKey);
   if ( sc.isFailure() ) {
     ATH_MSG_WARNING("Not able to create a collection of photons in StoreGate: key= " << m_outputPhotonKey );
      return sc;
   }
+  v.m_outputPhotons = photons;
 
   /** create an empty container of all muons and record it */
-  MuonContainer * muons = new MuonContainer( SG::VIEW_ELEMENTS );
+  ConstDataVector<MuonContainer> * muons =
+    new ConstDataVector<MuonContainer>( SG::VIEW_ELEMENTS );
   sc = evtStore()->record ( muons, m_outputMuonKey);
   if ( sc.isFailure() ) {
     ATH_MSG_WARNING("Not able to create a collection of muons in StoreGate: key= " << m_outputMuonKey );
      return sc;
   }
+  v.m_outputMuons = muons;
 
   /** create an empty container of all tauJets and record it */
-  TauJetContainer * tauJets = new TauJetContainer( SG::VIEW_ELEMENTS );
+  ConstDataVector<TauJetContainer> * tauJets =
+    new ConstDataVector<TauJetContainer>( SG::VIEW_ELEMENTS );
   sc = evtStore()->record ( tauJets, m_outputTauJetKey);
   if ( sc.isFailure() ) {
     ATH_MSG_WARNING("Not able to create a collection of tau jets in StoreGate: key= " << m_outputTauJetKey );
      return sc;
   }
+  v.m_outputTauJets = tauJets;
 
   /** create an empty container of all jets and record it */
-  JetCollection * jets = new JetCollection( SG::VIEW_ELEMENTS );
+  ConstDataVector<JetCollection> * jets =
+    new ConstDataVector<JetCollection>( SG::VIEW_ELEMENTS );
   sc = evtStore()->record ( jets, m_outputJetKey);
   if ( sc.isFailure() ) {
     ATH_MSG_WARNING("Not able to create a collection of jets in StoreGate: key= " << m_outputJetKey );
      return sc;
   }
+  v.m_outputJets = jets;
 
   /** create an empty container of b-jets and record it */
-  JetCollection * bjets = new JetCollection( SG::VIEW_ELEMENTS );
+  ConstDataVector<JetCollection> * bjets =
+    new ConstDataVector<JetCollection>( SG::VIEW_ELEMENTS );
   sc = evtStore()->record ( bjets, m_outputBJetKey);
   if ( sc.isFailure() ) {
     ATH_MSG_WARNING("Not able to create a collection of b-jets in StoreGate: key= " << m_outputBJetKey );
      return sc;
   }
+  v.m_outputBJets = bjets;
 
   /** create an empty container of light (non b-jet) jets and record it */
-  JetCollection * lightJets = new JetCollection( SG::VIEW_ELEMENTS );
+  ConstDataVector<JetCollection> * lightJets =
+    new ConstDataVector<JetCollection>( SG::VIEW_ELEMENTS );
   sc = evtStore()->record ( lightJets, m_outputLightJetKey);
   if ( sc.isFailure() ) {
     ATH_MSG_WARNING("Not able to create a collection of lightJets in StoreGate: key= " << m_outputLightJetKey );
      return sc;
   }
+  v.m_outputLightJets = lightJets;
 
   return StatusCode::SUCCESS;
 }
@@ -1080,4 +989,3 @@ bool UserAnalysisOverlapRemovalTool::isExecuted() {
   ATH_MSG_DEBUG("in isExecuted() " );
   return evtStore()->contains<INavigable4MomentumCollection>( m_outputObjectKey );
 }
-

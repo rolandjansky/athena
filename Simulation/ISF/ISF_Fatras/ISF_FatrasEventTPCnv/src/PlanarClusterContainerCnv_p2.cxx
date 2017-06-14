@@ -13,7 +13,7 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "ISF_FatrasEventTPCnv/ISF_FatrasEvent/PlanarClusterCnv_p2.h"
 #include "ISF_FatrasEventTPCnv/PlanarClusterContainerCnv_p2.h"
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"

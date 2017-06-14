@@ -20,8 +20,8 @@ public TrigHLTJetRecBase<xAOD::CaloClusterContainer>{
  protected:
 
   HLT::ErrorCode getPseudoJets(const xAOD::CaloClusterContainer*,
-                               LabelIndex* indexMap,
-                               PseudoJetVector& pjv) override;
+                               jet::LabelIndex* indexMap,
+                               jet::PseudoJetVector& pjv) override;
 
 
   const xAOD::JetContainer* build() const override; 

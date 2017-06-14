@@ -47,10 +47,10 @@ Muon::MuonTGHitNtuple::MuonTGHitNtuple(const std::string &name, ISvcLocator *pSv
   m_rpcIdHelper(0),
   m_tgcIdHelper(0),
   m_cscIdHelper(0),
-  mdtHelper(0),
-  rpcHelper(0),
-  cscHelper(0),
-  tgcHelper(0),
+  m_mdtHelper(0),
+  m_rpcHelper(0),
+  m_cscHelper(0),
+  m_tgcHelper(0),
   m_muonMgr(0),
   m_holesTool("Muon::MuonHolesOnTrackTool/MuonHolesOnTrackTool"),
   m_measTool("Muon::MuonTGMeasurementTool/MuonTGMeasurementTool"),
@@ -69,7 +69,6 @@ Muon::MuonTGHitNtuple::MuonTGHitNtuple(const std::string &name, ISvcLocator *pSv
   m_processHoles(false),
   m_identifyHoles(false),
   m_processFatras(true),
-  m_outFile(0),
   m_ptree(0),
   m_THistSvc(0),
   m_treeLocation("/tree/hits")
@@ -206,7 +205,7 @@ StatusCode Muon::MuonTGHitNtuple::initialize()
       return sc;
     }
   //simulation identifier helper
-  mdtHelper = MdtHitIdHelper::GetHelper();
+  m_mdtHelper = MdtHitIdHelper::GetHelper();
 
   // retrieve the id helper
   sc = m_detStore->retrieve(m_rpcIdHelper,"RPCIDHELPER");
@@ -216,9 +215,9 @@ StatusCode Muon::MuonTGHitNtuple::initialize()
       return sc;
     }
   //simulation identifier helper
-  rpcHelper = RpcHitIdHelper::GetHelper();
-  cscHelper = CscHitIdHelper::GetHelper();
-  tgcHelper = TgcHitIdHelper::GetHelper();
+  m_rpcHelper = RpcHitIdHelper::GetHelper();
+  m_cscHelper = CscHitIdHelper::GetHelper();
+  m_tgcHelper = TgcHitIdHelper::GetHelper();
 
   // retrieve the id helper
   sc = m_detStore->retrieve(m_tgcIdHelper,"TGCIDHELPER");
@@ -389,12 +388,12 @@ void Muon::MuonTGHitNtuple::fillFatras() const
     ATH_MSG_INFO("MDT Fatras Hits Container retrieved " << ce-ci );
     for (; ci != ce; ci++) {
       const int id = ci->MDTid();
-      std::string stationName = mdtHelper->GetStationName(id);
-      int stationEta = mdtHelper->GetZSector(id);
-      int stationPhi  = mdtHelper->GetPhiSector(id);
-      int multilayer = mdtHelper->GetMultiLayer(id);
-      int layer = mdtHelper->GetLayer(id);
-      int tube = mdtHelper->GetTube(id);
+      std::string stationName = m_mdtHelper->GetStationName(id);
+      int stationEta = m_mdtHelper->GetZSector(id);
+      int stationPhi  = m_mdtHelper->GetPhiSector(id);
+      int multilayer = m_mdtHelper->GetMultiLayer(id);
+      int layer = m_mdtHelper->GetLayer(id);
+      int tube = m_mdtHelper->GetTube(id);
       
       Identifier iMdt = m_mdtIdHelper->channelID(stationName, stationEta,
 						 stationPhi, multilayer, layer, tube);
@@ -805,12 +804,12 @@ void Muon::MuonTGHitNtuple::fillSimNtuple() const
     ATH_MSG_INFO(" MDT Hits Container retrieved " << ce-ci<<"," << muon_map.size() );
     for (; ci != ce; ci++) {
       const int id = ci->MDTid();
-      std::string stationName = mdtHelper->GetStationName(id);
-      int stationEta = mdtHelper->GetZSector(id);
-      int stationPhi  = mdtHelper->GetPhiSector(id);
-      int multilayer = mdtHelper->GetMultiLayer(id);
-      int layer = mdtHelper->GetLayer(id);
-      int tube = mdtHelper->GetTube(id);
+      std::string stationName = m_mdtHelper->GetStationName(id);
+      int stationEta = m_mdtHelper->GetZSector(id);
+      int stationPhi  = m_mdtHelper->GetPhiSector(id);
+      int multilayer = m_mdtHelper->GetMultiLayer(id);
+      int layer = m_mdtHelper->GetLayer(id);
+      int tube = m_mdtHelper->GetTube(id);
       
       Identifier iMdt = m_mdtIdHelper->channelID(stationName, stationEta,
 						 stationPhi, multilayer, layer, tube);
@@ -1060,7 +1059,7 @@ void Muon::MuonTGHitNtuple::fillHoles(const TrackCollection* tracks) const
 
   if (!tracks) return;
 
-  TrackCollection* m_looseEnds = new TrackCollection;
+  TrackCollection* looseEndsColl = new TrackCollection;
 
   m_nHole = 0;
   int unmatched_hole = 0;
@@ -1111,7 +1110,7 @@ void Muon::MuonTGHitNtuple::fillHoles(const TrackCollection* tracks) const
 	}
       */
       Trk::Track* unmatched = new Trk::Track((*itr)->info(),looseEnds, new Trk::FitQuality());   
-      m_looseEnds->push_back(unmatched);
+      looseEndsColl->push_back(unmatched);
     }
   }
 
@@ -1119,7 +1118,7 @@ void Muon::MuonTGHitNtuple::fillHoles(const TrackCollection* tracks) const
   ATH_MSG_DEBUG("fillHoles: number of unmatched holes, in this event:" << unmatched_hole );
 
   // record the new track collection
-  StatusCode sc = m_StoreGate->record(m_looseEnds,"LooseEnds");
+  StatusCode sc = m_StoreGate->record(looseEndsColl,"LooseEnds");
   if (sc.isFailure()){
     ATH_MSG_ERROR("New Track Container could not be recorded in StoreGate !");   
   } else {
@@ -1129,13 +1128,13 @@ void Muon::MuonTGHitNtuple::fillHoles(const TrackCollection* tracks) const
   // alternative way of generating holes : create new track with holes
   // create new collection of tracks to write in storegate
  
-  TrackCollection* m_newTracks = new TrackCollection;
+  TrackCollection* newTracks = new TrackCollection;
   for (TrackCollection::const_iterator itr  = (*tracks).begin(); itr < (*tracks).end(); itr++){
     const Trk::Track* new_track = m_holesTool->getTrackWithHoles(**itr,Trk::muon);
-    if (new_track) m_newTracks->push_back(new Trk::Track(*new_track));
+    if (new_track) newTracks->push_back(new Trk::Track(*new_track));
   }
   // record the new track collection
-  sc = m_StoreGate->record(m_newTracks,"TracksWithHoles");
+  sc = m_StoreGate->record(newTracks,"TracksWithHoles");
   if (sc.isFailure()){
     ATH_MSG_ERROR("New Track Container could not be recorded in StoreGate !");   
   } else {
@@ -1143,7 +1142,7 @@ void Muon::MuonTGHitNtuple::fillHoles(const TrackCollection* tracks) const
   }
 
   // loop over the collection to check hole parameters
-  for (TrackCollection::const_iterator itr  = (*m_newTracks).begin(); itr < (*m_newTracks).end(); itr++){
+  for (TrackCollection::const_iterator itr  = (*newTracks).begin(); itr < (*newTracks).end(); itr++){
     const DataVector<const Trk::TrackStateOnSurface>* recTSOS = (*itr)->trackStateOnSurfaces(); 
     DataVector<const Trk::TrackStateOnSurface>::const_iterator iter = recTSOS->begin(); 
     for ( ;iter!= recTSOS->end(); iter++) {
@@ -1425,14 +1424,14 @@ const std::vector<std::pair<const Trk::Layer*,std::vector<Identifier> > >* Muon:
 Identifier Muon::MuonTGHitNtuple::getRpcId(const RPCSimHit* hit) const
 {
   const int id = hit->RPCid();
-  std::string stationName =rpcHelper->GetStationName(id);
-  int stationEta = rpcHelper->GetZSector(id);
-  int stationPhi  = rpcHelper->GetPhiSector(id);
-  int doubletR = rpcHelper->GetDoubletR(id);
-  int doubletZ = rpcHelper->GetDoubletZ(id);
-  int doubletPhi = rpcHelper->GetDoubletPhi(id);
-  int gasGap = rpcHelper->GetGasGapLayer(id);
-  int measPhi = rpcHelper->GetMeasuresPhi(id);
+  std::string stationName =m_rpcHelper->GetStationName(id);
+  int stationEta = m_rpcHelper->GetZSector(id);
+  int stationPhi  = m_rpcHelper->GetPhiSector(id);
+  int doubletR = m_rpcHelper->GetDoubletR(id);
+  int doubletZ = m_rpcHelper->GetDoubletZ(id);
+  int doubletPhi = m_rpcHelper->GetDoubletPhi(id);
+  int gasGap = m_rpcHelper->GetGasGapLayer(id);
+  int measPhi = m_rpcHelper->GetMeasuresPhi(id);
 
   const Identifier id1 = m_rpcIdHelper->channelID(stationName, stationEta, stationPhi, doubletR,
                                                         doubletZ, doubletPhi,gasGap, measPhi, 1);
@@ -1466,11 +1465,11 @@ Identifier Muon::MuonTGHitNtuple::getRpcId(const RPCSimHit* hit) const
 Identifier Muon::MuonTGHitNtuple::getCscId( const CSCSimHit* hit) const
 {
   const int id = hit->CSCid();
-  std::string stationName =cscHelper->GetStationName(id);
-  int stationEta = cscHelper->GetZSector(id);
-  int stationPhi  = cscHelper->GetPhiSector(id);
-  int chamberLayer = cscHelper->GetChamberLayer(id);
-  int wireLayer = cscHelper->GetWireLayer(id);
+  std::string stationName =m_cscHelper->GetStationName(id);
+  int stationEta = m_cscHelper->GetZSector(id);
+  int stationPhi  = m_cscHelper->GetPhiSector(id);
+  int chamberLayer = m_cscHelper->GetChamberLayer(id);
+  int wireLayer = m_cscHelper->GetWireLayer(id);
 
   const Identifier idr = m_cscIdHelper->channelID(stationName, stationEta, stationPhi, chamberLayer,
                                                  wireLayer,0, 1);
@@ -1481,10 +1480,10 @@ Identifier Muon::MuonTGHitNtuple::getCscId( const CSCSimHit* hit) const
 Identifier Muon::MuonTGHitNtuple::getTgcId( const TGCSimHit* hit) const
 {
   const int id = hit->TGCid();
-  std::string stationName =tgcHelper->GetStationName(id);
-  int stationEta = tgcHelper->GetStationEta(id);
-  int stationPhi  = tgcHelper->GetStationPhi(id);
-  int gasGap = tgcHelper->GetGasGap(id);
+  std::string stationName =m_tgcHelper->GetStationName(id);
+  int stationEta = m_tgcHelper->GetStationEta(id);
+  int stationPhi  = m_tgcHelper->GetStationPhi(id);
+  int gasGap = m_tgcHelper->GetGasGap(id);
 
   const Identifier idr = m_tgcIdHelper->channelID(stationName, stationEta, stationPhi, gasGap, 0, 1);
   // this id is sufficient to define surface (for extrapolation et cet.)

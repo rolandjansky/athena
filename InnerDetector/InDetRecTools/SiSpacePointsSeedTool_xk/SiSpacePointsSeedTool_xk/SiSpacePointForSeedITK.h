@@ -30,14 +30,14 @@ namespace InDet {
   public:
     
     SiSpacePointForSeedITK();
-    SiSpacePointForSeedITK(Trk::SpacePoint*const&,const float*);
-    SiSpacePointForSeedITK(Trk::SpacePoint*const&,const float*,const float*);
+    SiSpacePointForSeedITK(const Trk::SpacePoint*const&,const float*);
+    SiSpacePointForSeedITK(const Trk::SpacePoint*const&,const float*,const float*);
     SiSpacePointForSeedITK(const SiSpacePointForSeedITK&);
     virtual ~SiSpacePointForSeedITK()                 ;
     SiSpacePointForSeedITK& operator  = (const SiSpacePointForSeedITK&);
 
-    void set(Trk::SpacePoint*const&,const float*)  ;
-    void set(Trk::SpacePoint*const&,const float*,const float*);
+    void set(const Trk::SpacePoint*const&,const float*)  ;
+    void set(const Trk::SpacePoint*const&,const float*,const float*);
     void setQuality(float);
     void setParam(const float&);
 
@@ -120,13 +120,13 @@ namespace InDet {
     }
  
   inline SiSpacePointForSeedITK::SiSpacePointForSeedITK
-    (Trk::SpacePoint*const& sp,const float* r) 
+    (const Trk::SpacePoint*const& sp,const float* r) 
     {
       set(sp,r); m_param = 0.;
     }
 
   inline SiSpacePointForSeedITK::SiSpacePointForSeedITK
-    (Trk::SpacePoint*const& sp,const float* r,const float* sc) 
+    (const Trk::SpacePoint*const& sp,const float* r,const float* sc) 
     {
       set(sp,r,sc); m_param = 0.;
     }
@@ -153,7 +153,7 @@ namespace InDet {
   /////////////////////////////////////////////////////////////////////////////////
 
   inline void SiSpacePointForSeedITK::set
-    (Trk::SpacePoint*const& sp,const float* r)
+    (const Trk::SpacePoint*const& sp,const float* r)
     {
       spacepoint = sp  ;
       m_x        = r[0];
@@ -198,7 +198,7 @@ namespace InDet {
   /////////////////////////////////////////////////////////////////////////////////
 
   inline void SiSpacePointForSeedITK::set
-    (Trk::SpacePoint*const& sp,const float* r,const float* sc)
+    (const Trk::SpacePoint*const& sp,const float* r,const float* sc)
     {
       spacepoint = sp  ;
       m_x        = r[0];

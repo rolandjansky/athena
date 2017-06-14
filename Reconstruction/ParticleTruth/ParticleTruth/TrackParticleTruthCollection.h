@@ -9,7 +9,7 @@
 #include "ParticleTruth/TrackParticleTruth.h"
 #include "Particle/TrackParticleContainer.h"
 #include "ParticleTruth/TrackParticleTruthKey.h"
-#include "DataModel/DataLink.h"
+#include "AthLinks/DataLink.h"
 #include <map>
 
 class TrackParticleTruthCollectionAccessor;

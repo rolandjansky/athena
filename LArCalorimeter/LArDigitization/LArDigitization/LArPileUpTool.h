@@ -160,9 +160,9 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   float m_WindowsPhiSize;
   float m_WindowsPtCut;
 //
-  enum CaloNum{EM,HEC,FCAL};
-  double m_LowGainThresh[3];       // energy thresholds for the low gain
-  double m_HighGainThresh[3];      // energy thresholds for the high gain
+  enum CaloNum{EM,HEC,FCAL,EMIW};
+  double m_LowGainThresh[4];       // energy thresholds for the low gain
+  double m_HighGainThresh[4];      // energy thresholds for the high gain
   double m_EnergyThresh;           // Zero suppression energy threshold
   //double m_AdcPerGeV;              // adc = UnCalibretedEnergy*Gain/m_AdcPerGeV + Pedestal
   int    m_NSamples;               // number of samples in Digit

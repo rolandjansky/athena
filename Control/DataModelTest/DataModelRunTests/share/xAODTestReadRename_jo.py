@@ -35,6 +35,11 @@ AddressRemappingSvc.addInputRename ('DMTest::CVec', 'cvec', 'cvec_renamed')
 AddressRemappingSvc.addInputRename ('DMTest::CAuxContainer',
                                     'cvecAux.', 'cvec_renamedAux.')
 
+AddressRemappingSvc.addInputRename ('DMTest::CVec', 'cvec.dInt1',
+                                    'cvec_renamed.dInt1_renamed')
+AddressRemappingSvc.addInputRename ('DMTest::C', 'cinfo.dInt1',
+                                    'cinfo.dInt1_renamed')
+
 #--------------------------------------------------------------
 # Event related parameters
 #--------------------------------------------------------------
@@ -44,12 +49,17 @@ theApp.EvtMax = 20
 # Application:
 #--------------------------------------------------------------
 
+from DataModelTestDataCommon.DataModelTestDataCommonConf import \
+     DMTest__xAODTestReadDecor
 from DataModelTestDataRead.DataModelTestDataReadConf import \
      DMTest__xAODTestReadCVec
 
 
 topSequence += DMTest__xAODTestReadCVec ('xAODTestReadCVec',
                                          CVecKey = 'cvec_renamed')
+topSequence += DMTest__xAODTestReadDecor ('xAODTestReadDecor',
+                                          CVecName = 'cvec_renamed',
+                                          DecorName = 'dInt1_renamed')
 
 
 # Note: can't autoload these.
