@@ -256,6 +256,7 @@ else:           # More data modifiers
                                 #'ignoreL1Vetos',  #also run L2 prescaled and disabled L1 items
                                 #'disablePixels',
                                 #'disableSCTBarrel',
+                                'useDynamicAlignFolders',
     ]
 
 #make some more common trig cost operations easier to setup
