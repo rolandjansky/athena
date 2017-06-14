@@ -1770,9 +1770,24 @@ def setupMenu():
         
 			 ]
 
+    if TriggerFlags.doFTK():
+            TriggerFlags.TauSlice.signatures = TriggerFlags.TauSlice.signatures() + [
+                ['tau12_idperf_FTK',              'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                ['tau12_perf_FTK',                'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                ['tau12_perf0_FTK',               'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                ['tau12_perf_FTKNoPrec',          'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                ['tau12_perf0_FTKNoPrec',         'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                ['tau12_medium0_FTK',             'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                ['tau12_medium1_FTK',             'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                ['tau12_medium0_FTKNoPrec',       'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                ['tau12_medium1_FTKNoPrec',       'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
 
+                # standard single tau chains seeded from L1 FTK tau seeds for monitoring in CPS
+                ['tau25_idperf_tracktwo_L1TAU12IM_FTK',              'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                ['tau25_perf_tracktwo_L1TAU12IM_FTK',                'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+                ['tau25_medium1_tracktwo_L1TAU12IM_FTK',             'L1_TAU12IM_FTK', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
 
-
+                           ]
 
     TriggerFlags.EgammaSlice.signatures = [
 
@@ -3425,6 +3440,26 @@ def setupMenu():
         ['mu20_mu8noL1_e9_lhvloose_nod0_L1EM7_MU11',    'L1_EM7_MU11',  ['L1_MU11','','L1_EM7'],   [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1,['serial',-1,['mu20','mu8noL1','e9_lhvloose_nod0'] ]],
         
 			 ]
+
+
+    if TriggerFlags.doFTK():
+            TriggerFlags.CombinedSlice.signatures = TriggerFlags.CombinedSlice.signatures() + [
+
+        # muon +tau FTK chains for T&P performance measurement
+        ['mu26_ivarmedium_tau12_idperf_FTK',             'L1_MU20MU21_TAU12IM_FTK',['L1_MU20_FTK','L1_TAU12IM_FTK'], [PhysicsStream], ['RATE:MuonTau', 'BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu26_ivarmedium","tau12_idperf_FTK"]]],
+        ['mu26_ivarmedium_tau12_perf0_FTK',              'L1_MU21MU21_TAU12IM_FTK',['L1_MU20_FTK','L1_TAU12IM_FTK'], [PhysicsStream], ['RATE:MuonTau', 'BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu26_ivarmedium","tau12_perf0_FTK"]]],
+        ['mu26_ivarmedium_tau12_perf_FTK',               'L1_MU20MU21_TAU12IM_FTK',['L1_MU20_FTK','L1_TAU12IM_FTK'], [PhysicsStream], ['RATE:MuonTau', 'BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu26_ivarmedium","tau12_perf_FTK"]]],
+        ['mu26_ivarmedium_tau12_medium0_FTK',            'L1_MU20MU21_TAU12IM_FTK',['L1_MU20_FTK','L1_TAU12IM_FTK'], [PhysicsStream], ['RATE:MuonTau', 'BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu26_ivarmedium","tau12_medium0_FTK"]]],
+        ['mu26_ivarmedium_tau12_medium1_FTK',            'L1_MU20MU21_TAU12IM_FTK',['L1_MU20_FTK','L1_TAU12IM_FTK'], [PhysicsStream], ['RATE:MuonTau', 'BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu26_ivarmedium","tau12_medium1_FTK"]]],
+        ['mu26_ivarmedium_tau12_perf0_FTKNoPrec',        'L1_MU20MU21_TAU12IM_FTK',['L1_MU20_FTK','L1_TAU12IM_FTK'], [PhysicsStream], ['RATE:MuonTau', 'BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu26_ivarmedium","tau12_perf0_FTKNoPrec"]]],
+        ['mu26_ivarmedium_tau12_perf_FTKNoPrec',         'L1_MU20MU21_TAU12IM_FTK',['L1_MU20_FTK','L1_TAU12IM_FTK'], [PhysicsStream], ['RATE:MuonTau', 'BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu26_ivarmedium","tau12_perf_FTKNoPrec"]]],
+        ['mu26_ivarmedium_tau12_medium0_FTKNoPrec',      'L1_MU20MU21_TAU12IM_FTK',['L1_MU20_FTK','L1_TAU12IM_FTK'], [PhysicsStream], ['RATE:MuonTau', 'BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu26_ivarmedium","tau12_medium0_FTKNoPrec"]]],
+        ['mu26_ivarmedium_tau12_medium1_FTKNoPrec',      'L1_MU20MU21_TAU12IM_FTK',['L1_MU20_FTK','L1_TAU12IM_FTK'], [PhysicsStream], ['RATE:MuonTau', 'BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu26_ivarmedium","tau12_medium1_FTKNoPrec"]]],
+        ['mu26_ivarmedium_tau25_idperf_tracktwo_L1TAU12IM_FTK_L1MU20MU21_TAU12IM_FTK',    'L1_MU20MU21_TAU12IM_FTK',['L1_MU20_FTK','L1_TAU12IM_FTK'], [PhysicsStream], ['RATE:MuonTau', 'BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu26_ivarmedium","tau25_idperf_tracktwo_L1TAU12IM_FTK"]]],
+        ['mu26_ivarmedium_tau25_perf_tracktwo_L1TAU12IM_FTK_L1MU20MU21_TAU12IM_FTK',          'L1_MU20MU21_TAU12IM_FTK',['L1_MU20_FTK','L1_TAU12IM_FTK'], [PhysicsStream], ['RATE:MuonTau', 'BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu26_ivarmedium","tau25_perf_tracktwo_L1TAU12IM_FTK"]]],
+        ['mu26_ivarmedium_tau25_medium1_tracktwo_L1TAU12IM_FTK_L1MU20MU21_TAU12IM_FTK',       'L1_MU20MU21_TAU12IM_FTK',['L1_MU20_FTK','L1_TAU12IM_FTK'], [PhysicsStream], ['RATE:MuonTau', 'BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu26_ivarmedium","tau25_medium1_tracktwo_L1TAU12IM_FTK"]]],
+
+             ]
 
 
     TriggerFlags.HeavyIonSlice.signatures = [
