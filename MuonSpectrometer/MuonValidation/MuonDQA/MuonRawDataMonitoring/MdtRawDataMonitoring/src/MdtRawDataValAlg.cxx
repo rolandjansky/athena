@@ -532,13 +532,15 @@ StatusCode MdtRawDataValAlg::fillHistograms()
         for (Muon::MdtPrepDataCollection::const_iterator mdtCollection=(*containerIt)->begin(); mdtCollection!=(*containerIt)->end(); ++mdtCollection ) 
         {
           m_nPrd++;
-          if( (*mdtCollection)->adc()>m_ADCCut ) 
+          hardware_name = getChamberName(*mdtCollection);
+          float adc = (*mdtCollection)->adc();
+          if(hardware_name.substr(0,3) == "BMG") adc /= 4.;
+          if( adc > m_ADCCut ) 
           {
             m_nPrdcut++;
             isHit_above_ADCCut = true;
           }
           //      Identifier digcoll_id = (*mdtCollection)->identify();
-          hardware_name = getChamberName(*mdtCollection);
 
 
           //Relic from cosmic days nolonger relevant      
@@ -584,7 +586,7 @@ StatusCode MdtRawDataValAlg::fillHistograms()
           }     
 
           
-          if( (*mdtCollection)->adc()>m_ADCCut) {
+          if( adc >m_ADCCut) {
             map<string,float>::iterator iter_hitsperchamber = hitsperchamber_map.find(hardware_name);
             if ( iter_hitsperchamber == hitsperchamber_map.end() ) { 
               hitsperchamber_map.insert( make_pair( hardware_name, 1 ) );
@@ -1721,6 +1723,7 @@ StatusCode MdtRawDataValAlg::fillMDTHistograms( const Muon::MdtPrepData* mdtColl
   // Note: the BMG is digitized with 200ps which is not same as other MDT chambers with 25/32=781.25ps
   if(hardware_name.substr(0,3)=="BMG") tdc = mdtCollection->tdc() * 0.2;
   float adc = mdtCollection->adc();
+  if(hardware_name.substr(0,3) == "BMG") adc /= 4.;
 
   if (chamber->mdttdc) {
     chamber->mdttdc->Fill(tdc); 
@@ -1743,9 +1746,9 @@ StatusCode MdtRawDataValAlg::fillMDTHistograms( const Muon::MdtPrepData* mdtColl
 
   if (chamber->mdttdcadc && adc > 0) { chamber->mdttdcadc->Fill(tdc, adc); }
 
-  if (chamber->mdtlayer) { if((mdtCollection->adc()>m_ADCCut && !isNoisy)) chamber->mdtlayer->Fill(m_mdtlayer); }
+  if (chamber->mdtlayer) { if((adc >m_ADCCut && !isNoisy)) chamber->mdtlayer->Fill(m_mdtlayer); }
 
-  if (chamber->mdttube) { if((mdtCollection->adc()>m_ADCCut) ) chamber->mdttube->Fill(m_mdttube); }
+  if (chamber->mdttube) { if((adc >m_ADCCut) ) chamber->mdttube->Fill(m_mdttube); }
 /*
   if (chamber->mdttube_bkgrd ) { 
     if(adc > m_ADCCut_Bkgrd && tdc < m_TDCCut_Bkgrd) chamber->mdttube_bkgrd->Fill(m_mdttube); 
@@ -1785,7 +1788,7 @@ StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
   // Note: the BMG is digitized with 200ps which is not same as other MDT chambers with 25/32=781.25ps
   if(chambername.substr(0,3)=="BMG") tdc = mdtCollection->tdc() * 0.2;
   float adc = mdtCollection->adc();
-
+  if(chambername.substr(0,3) == "BMG") adc /= 4.;
 
   if( mdtChamberHits[iregion][ilayer][stationPhi] && adc > m_ADCCut )
     mdtChamberHits[iregion][ilayer][stationPhi]->Fill(std::abs(stationEta));
@@ -1869,6 +1872,7 @@ StatusCode MdtRawDataValAlg::fillMDTOverviewHistograms( const Muon::MdtPrepData*
   // Note: the BMG is digitized with 200ps which is not same as other MDT chambers with 25/32=781.25ps
   if(hardware_name.substr(0,3)=="BMG") tdc = mdtCollection->tdc() * 0.2;
   float adc = mdtCollection->adc();
+  if(hardware_name.substr(0,3) == "BMG") adc /= 4.;
 
   //Barrel -->Fill MDT Global RZ and YX
   if( adc>m_ADCCut ) {
@@ -1964,7 +1968,9 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
         m_mdtIdHelper->get_module_hash( tmpid, idHash );  
         sc = getChamber(idHash, chamber);
         std::string chambername = chamber->getName();
-        if(overalladc_segm_Lumi) overalladc_segm_Lumi->Fill(mrot->prepRawData()->adc());
+        float adc = mrot->prepRawData()->adc();
+        if(chambername.substr(0,3)=="BMG") adc /= 4. ;
+        if(overalladc_segm_Lumi) overalladc_segm_Lumi->Fill(adc);
         if( store_ROTs.find(tmpid) == store_ROTs.end() ) { // Let's not double-count hits belonging to multiple segments
           store_ROTs.insert(tmpid);   
 
@@ -1972,14 +1978,13 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
           // Note: the BMG is digitized with 200ps which is not same as other MDT chambers with 25/32=781.25ps
           if(chambername.substr(0,3)=="BMG") tdc = mrot->prepRawData()->tdc() * 0.2;
               //      double tdc = mrot->driftTime()+500;
-
               int iregion = chamber->GetRegionEnum();
               int ilayer = chamber->GetLayerEnum();
               int statphi = chamber->GetStationPhi();
               int ibarrel_endcap = chamber->GetBarrelEndcapEnum();
-              if(overalladc_segm_PR_Lumi[iregion]) overalladc_segm_PR_Lumi[iregion]->Fill(mrot->prepRawData()->adc());        
+              if(overalladc_segm_PR_Lumi[iregion]) overalladc_segm_PR_Lumi[iregion]->Fill(adc);        
 
-              if(mrot->prepRawData()->adc()>m_ADCCut) { // This is somewhat redundant because this is usual cut for segment-reconstruction, but that's OK
+              if(adc > m_ADCCut) { // This is somewhat redundant because this is usual cut for segment-reconstruction, but that's OK
                 if(statphi > 15) {
                   ATH_MSG_ERROR( "MDT StationPhi: " << statphi << " Is too high.  Chamber name: " << chamber->getName() );
                   continue;
@@ -1998,12 +2003,12 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
           int m_mdtMultLayer = m_mdtIdHelper->multilayer(tmpid);
           //chamber->mdtadc_onSegm->Fill(mrot->prepRawData()->adc());
   	  if(chamber->mdtadc_onSegm_ML1 && m_mdtMultLayer == 1){
-        	  chamber->mdtadc_onSegm_ML1->Fill(mrot->prepRawData()->adc()); 
+        	  chamber->mdtadc_onSegm_ML1->Fill(adc); 
           	  //sumADC_ML1 += mrot->prepRawData()->adc();
 	  	 // numHits_ML1++;
 	  }
           if(chamber->mdtadc_onSegm_ML2&& m_mdtMultLayer == 2){
-        	  chamber->mdtadc_onSegm_ML2->Fill(mrot->prepRawData()->adc());       	  
+        	  chamber->mdtadc_onSegm_ML2->Fill(adc);       	  
      		 // sumADC_ML2 += mrot->prepRawData()->adc();
 		 // numHits_ML2++;
  	     }

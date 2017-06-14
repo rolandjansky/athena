@@ -237,8 +237,9 @@ for ibin in xrange(1, int(lbmax-lbmin)+1):
             o_zlumi_rb[0] = num_m/denom*ZPURITYFACTOR/l_zatimesc/ZXSEC
             o_zlumistat_rb[0] = num_m**.5/denom*ZPURITYFACTOR/l_zatimesc/ZXSEC
             o_offlumi_rb[0] = lum/denom
-            lumiplot_m_ratio.SetBinContent(ribin, o_zlumi_rb[0]/o_offlumi_rb[0])
-            lumiplot_m_ratio.SetBinError(ribin, o_zlumistat_rb[0]/o_offlumi_rb[0])
+            if o_offlumi_rb[0] > 0:
+                lumiplot_m_ratio.SetBinContent(ribin, o_zlumi_rb[0]/o_offlumi_rb[0])
+                lumiplot_m_ratio.SetBinError(ribin, o_zlumistat_rb[0]/o_offlumi_rb[0])
         else:
             o_zlumi_rb[0] = 0.
             o_zlumistat_rb[0] = 0.

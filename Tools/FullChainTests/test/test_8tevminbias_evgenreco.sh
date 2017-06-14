@@ -1,8 +1,8 @@
 #!/bin/sh
 #
-#art-description: evgen
-#art-queue: long
-#
+# art-description: evgen
+# art-type: grid
+
 export JODIR=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest;export JOBOPTSEARCHPATH=$JODIR/share/tests:$JOBOPTSEARCHPATH;Generate_tf.py --ecmEnergy=8000. --runNumber=108351 --firstEvent=1 --maxEvents=5000 --randomSeed=54298752 --jobConfig=MC14.108351.Pythia8_A2CTEQ6L1_minbias_inelastic.py --outputEVNTFile=MC14.108351.pythia_minbias.8TeV.EVNT.pool.root
 
 #

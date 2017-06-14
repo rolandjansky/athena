@@ -179,6 +179,7 @@ public:
 
    void *Construct() const ;
    void *Construct(void *place) const;
+   void  Destruct(void *place) const;
 
    const std::type_info& TypeInfo() const;
    TPropertyListAdapter Properties() const;

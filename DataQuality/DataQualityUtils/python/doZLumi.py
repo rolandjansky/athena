@@ -23,8 +23,9 @@ def copyPlot(infname, outfname):
     for objname in ['z_lumi']:
         obj = fin.Get(objname)
         if obj:
-            d = fout.Get('run_%d/GLOBAL/DQTGlobalWZFinder')
-            d.WriteTOjbect(obj)
+            d = fout.Get('run_%d/GLOBAL/DQTGlobalWZFinder' % run)
+            if d:
+                d.WriteTObject(obj)
     fin.Close(); fout.Close()
             
 
