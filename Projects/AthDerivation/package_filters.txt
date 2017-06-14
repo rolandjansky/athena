@@ -323,6 +323,7 @@
 + Trigger/TrigAnalysis/TrigAnalysisInterfaces
 + Trigger/TrigAnalysis/TrigBunchCrossingTool
 + Trigger/TrigAnalysis/TrigDecisionTool
++ Trigger/TrigAnalysis/TriggerMatchingTool
 + Trigger/TrigAnalysis/TrigMuonMatching
 + Trigger/TrigConfiguration/.*
 + Trigger/TriggerCommon/TrigEDMConfig

@@ -30,7 +30,7 @@ from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import Derivation
 
 truthmuonexpression = "(abs(TruthParticles.pdgId) == 13) && (TruthParticles.status ==1) && (TruthParticles.barcode < 200000)"
 STDMMuonTool = DerivationFramework__TruthCollectionMaker(name                   = "STDMMuonTool",
-                                                         NewCollectionName       = "TruthMuons",
+                                                         NewCollectionName       = "STDMTruthMuons",
                                                          ParticleSelectionString = truthmuonexpression,
                                                          )
 ToolSvc += STDMMuonTool
@@ -38,7 +38,7 @@ STDMAugmentationTools.append(STDMMuonTool)
 
 truthelecexpression = "(abs(TruthParticles.pdgId) == 11) && (TruthParticles.status ==1) && (TruthParticles.barcode < 200000)"
 STDMElectronTool = DerivationFramework__TruthCollectionMaker(name               = "STDMElectronTool",
-                                                             NewCollectionName       = "TruthElectrons",
+                                                             NewCollectionName       = "STDMTruthElectrons",
                                                              ParticleSelectionString = truthelecexpression,
 #                                                             MCTruthClassifier       = STDMClassifier,
                                                              )
@@ -48,7 +48,7 @@ STDMAugmentationTools.append(STDMElectronTool)
 
 truthphotexpression = "(abs(TruthParticles.pdgId) == 22) && (TruthParticles.status ==1) && (TruthParticles.barcode < 200000)"
 STDMPhotonTool = DerivationFramework__TruthCollectionMaker(name                 = "STDMPhotonTool",
-                                                            NewCollectionName       = "TruthPhotons",
+                                                            NewCollectionName       = "STDMTruthPhotons",
                                                             ParticleSelectionString = truthphotexpression,
 #                                                            MCTruthClassifier       = STDMClassifier,
                                                             )
@@ -57,7 +57,7 @@ ToolSvc += STDMPhotonTool
 STDMAugmentationTools.append(STDMPhotonTool)
 
 STDMTauTool = DerivationFramework__TruthCollectionMaker(name                    = "STDMTauTool",
-                                                        NewCollectionName       = "TruthTaus",
+                                                        NewCollectionName       = "STDMTruthTaus",
                                                         ParticleSelectionString = "abs(TruthParticles.pdgId) == 15",
 #                                                        MCTruthClassifier       = STDMClassifier,
                                                         )
@@ -67,7 +67,7 @@ STDMAugmentationTools.append(STDMTauTool)
 
 neutrinoexpression = "(abs(TruthParticles.pdgId) == 12 || abs(TruthParticles.pdgId) == 14 || abs(TruthParticles.pdgId) == 16) && (TruthParticles.status == 1)"
 STDMNeutrinoTool = DerivationFramework__TruthCollectionMaker(name                 = "STDMNeutrinoTool",
-                                                             NewCollectionName       = "TruthNeutrinos",
+                                                             NewCollectionName       = "STDMTruthNeutrinos",
                                                              ParticleSelectionString = neutrinoexpression,
 #                                                             MCTruthClassifier       = STDMClassifier,
                                                              )
@@ -82,7 +82,7 @@ STDMAugmentationTools.append(STDMNeutrinoTool)
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthDressingTool
 
 STDMElectronDressingTool = DerivationFramework__TruthDressingTool(name = "STDMElectronDressingTool",
-                                                                    dressParticlesKey = "TruthElectrons",
+                                                                    dressParticlesKey = "STDMTruthElectrons",
                                                                     usePhotonsFromHadrons         = False,
                                                                     dressingConeSize = 0.1,
                                                                     particleIDsToDress = [11]
@@ -92,7 +92,7 @@ STDMAugmentationTools.append(STDMElectronDressingTool)
 
 
 STDMMuonDressingTool = DerivationFramework__TruthDressingTool(name = "STDMMuonDressingTool",
-                                                               dressParticlesKey = "TruthMuons",
+                                                               dressParticlesKey = "STDMTruthMuons",
                                                                usePhotonsFromHadrons         = False,
                                                                dressingConeSize = 0.1,
                                                                particleIDsToDress = [13]
@@ -126,3 +126,5 @@ STDMAugmentationTools.append(STDMMuonDressingTool2)
 #==============================================================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
 DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("STDMAugmentationKernel", AugmentationTools = STDMAugmentationTools)
+
+STDMphotonthinningexpr = "(STDMTruthPhotons.classifierParticleOrigin != 42) && !(STDMTruthPhotons.classifierParticleOrigin >= 23 && STDMTruthPhotons.classifierParticleOrigin <= 35)"

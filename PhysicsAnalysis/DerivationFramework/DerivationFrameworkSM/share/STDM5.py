@@ -9,7 +9,12 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
+from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkEGamma.EGammaCommon import *
+from DerivationFrameworkSM import STDMTriggers
+
+# Add sumOfWeights metadata for LHE3 multiweights =======
+from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 
 #====================================================================                                               
@@ -21,6 +26,7 @@ fileName   = buildFileName( derivationFlags.WriteDAOD_STDM5Stream )
 STDM5Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 STDM5Stream.AcceptAlgs(["STDM5Kernel"])
 
+isMC = globalflags.DataSource()=='geant4'
 
 #====================================================================                                               
 # THINNING TOOLS
@@ -83,10 +89,15 @@ STDM5TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name    
 ToolSvc += STDM5TauTPThinningTool
 
 
+STDM5PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "STDM5PhotonTPThinningTool",
+                                                                        ThinningService         = STDM5ThinningHelper.ThinningSvc(),
+                                                                        SGKey                   = "Photons",
+                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += STDM5PhotonTPThinningTool
 
-thinningTools= [STDM5JetTPThinningTool,STDM5MuonTPThinningTool,STDM5ElectronTPThinningTool,STDM5TauTPThinningTool]
+thinningTools= [STDM5JetTPThinningTool,STDM5MuonTPThinningTool,STDM5ElectronTPThinningTool,STDM5TauTPThinningTool, STDM5PhotonTPThinningTool]
 
-if globalflags.DataSource()=='geant4':
+if isMC:
     from DerivationFrameworkSM.STDMCommonTruthTools import *
 
     #TruthThinning
@@ -94,7 +105,6 @@ if globalflags.DataSource()=='geant4':
 
     truth_cond_boson = "((abs(TruthParticles.pdgId) == 23) || (abs(TruthParticles.pdgId) == 24))"
     truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 14) &&(TruthParticles.pt > 1*GeV) && (TruthParticles.status ==1) && (TruthParticles.barcode<200000))"
-    photonthinningexpr = "(TruthPhotons.classifierParticleOrigin != 42) && !(TruthPhotons.classifierParticleOrigin >= 23 && TruthPhotons.classifierParticleOrigin <= 35)"
 
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     STDM5TruthLepTool = DerivationFramework__GenericTruthThinning(name                         = "STDM5TruthLepTool", 
@@ -106,8 +116,8 @@ if globalflags.DataSource()=='geant4':
     
     STDM5PhotonThinning = DerivationFramework__GenericTruthThinning(name                    = "STDM5PhotonThinning",
                                                                     ThinningService         = STDM5ThinningHelper.ThinningSvc(),
-                                                                    ParticlesKey            = "TruthPhotons", 
-                                                                    ParticleSelectionString = photonthinningexpr)
+                                                                    ParticlesKey            = "STDMTruthPhotons", 
+                                                                    ParticleSelectionString = STDMphotonthinningexpr)
     
     STDM5TruthBosTool = DerivationFramework__GenericTruthThinning(name                         = "STDM5TruthBosTool",
                                                                   ThinningService              = STDM5ThinningHelper.ThinningSvc(),
@@ -115,11 +125,36 @@ if globalflags.DataSource()=='geant4':
                                                                   PreserveDescendants          = False,
                                                                   PreserveGeneratorDescendants = True,
                                                                   PreserveAncestors            = False)
-
+    
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
+    STDM5TruthThinning = DerivationFramework__MenuTruthThinning(name                       = "STDM5TruthThinning",
+                                                                ThinningService            = STDM5ThinningHelper.ThinningSvc(),
+                                                                WritePartons               = False,
+                                                                WriteHadrons               = False,
+                                                                WriteBHadrons              = True,
+                                                                WriteCHadrons              = True,
+                                                                WritettHFHadrons           = True,
+                                                                WriteGeant                 = False,
+                                                                GeantPhotonPtThresh        = -1.0,
+                                                                WriteTauHad                = True,
+                                                                PartonPtThresh             = -1.0,
+                                                                WriteBSM                   = True,
+                                                                WriteBosons                = True,
+                                                                WriteBSMProducts           = True,
+                                                                WriteBosonProducts         = True,
+                                                                WriteTopAndDecays          = True,
+                                                                WriteEverything            = False,
+                                                                WriteAllLeptons            = True,
+                                                                WriteStatus3               = True,
+                                                                PreserveDescendants        = False, 
+                                                                PreserveGeneratorDescendants = False,
+                                                                PreserveAncestors          = True,
+                                                                WriteFirstN                = 10)
 
     ToolSvc += STDM5TruthLepTool
     ToolSvc += STDM5TruthBosTool
     ToolSvc += STDM5PhotonThinning
+    ToolSvc += STDM5TruthThinning
     thinningTools.append(STDM5TruthLepTool)
     thinningTools.append(STDM5TruthBosTool)
     thinningTools.append(STDM5PhotonThinning)
@@ -131,8 +166,8 @@ if globalflags.DataSource()=='geant4':
 # SKIMMING TOOL 
 #====================================================================
 
-muonsRequirements = '(Muons.pt >= 6*GeV && Muons.DFCommonGoodMuon && Muons.DFCommonMuonsLoose)'
-electronsRequirements = '((Electrons.pt > 6*GeV) && ((Electrons.DFCommonElectronsIsEMLoose) || (Electrons.DFCommonElectronsLHLoose) || (Electrons.DFCommonElectronsML)))'
+muonsRequirements = '(Muons.pt >= 6*GeV && Muons.DFCommonGoodMuon && Muons.DFCommonMuonsPreselection)'
+electronsRequirements = '((Electrons.pt > 6*GeV) && (Electrons.DFCommonElectronsLHLoose))'
 muonOnlySelection = '(count('+muonsRequirements+') >= 3)'
 electronOnlySelection = '(count('+electronsRequirements+') >= 3)'
 twoMuonsOneElectron = '((count('+muonsRequirements+') >= 2) && (count('+electronsRequirements+')>=1))'
@@ -170,8 +205,17 @@ STDM5Sequence = CfgMgr.AthSequencer("STDM5Sequence")
 STDM5Sequence += CfgMgr.DerivationFramework__DerivationKernel("STDM5Kernel",
                                                                  SkimmingTools = [STDM5SkimmingTool],
                                                                  ThinningTools = thinningTools)
+
+# JET REBUILDING
+from DerivationFrameworkSM import STDMHelpers
+if not "STDM5Jets" in OutputJets.keys():
+    OutputJets["STDM5Jets"] = STDMHelpers.STDMRecalcJets(STDM5Sequence, "STDM5", isMC)
+
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+STDM5Sequence += JetTagConfig.GetDecoratePromptLeptonAlgs()
+
 # FIX TRUTH JETS
-if globalflags.DataSource()=='geant4':
+if isMC:
     replaceBuggyAntiKt4TruthWZJets(STDM5Sequence,"STDM5")
 
 # ADD SEQUENCE TO JOB  
@@ -206,7 +250,6 @@ STDM5SlimmingHelper.SmartCollections = ["Electrons",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4LCTopoJets",
                                         "AntiKt4EMTopoJets",
-                                        "BTagging_AntiKt4LCTopo",
                                         "BTagging_AntiKt4EMTopo",
                                         "InDetTrackParticles",
                                         "PrimaryVertices"  ]
@@ -216,27 +259,16 @@ STDM5SlimmingHelper.IncludeMuonTriggerContent = True
 
 
 STDM5SlimmingHelper.ExtraVariables = ExtraContentAll
+STDM5SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
+
 STDM5SlimmingHelper.AllVariables = ExtraContainersAll
-if globalflags.DataSource()=='geant4':
+if isMC:
     STDM5SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     STDM5SlimmingHelper.AllVariables += ExtraContainersTruth
-    
-STDM5SlimmingHelper.AppendContentToStream(STDM5Stream)
-STDM5Stream.AddItem("xAOD::EventShape#*")
-STDM5Stream.AddItem("xAOD::EventShapeAuxInfo#*")
-#STDM5Stream.AddItem("xAOD::TrigNavigation#*")
-#STDM5Stream.AddItem("xAOD::TrigNavigationAuxInfo#*")
+    STDM5SlimmingHelper.AppendToDictionary = ExtraDictionary
 
-if globalflags.DataSource()=='geant4':
-    STDM5Stream.AddItem( "xAOD::TruthParticleContainer#TruthMuons" )
-    STDM5Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthMuonsAux." )
-    STDM5Stream.AddItem( "xAOD::TruthParticleContainer#TruthElectrons" )
-    STDM5Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthElectronsAux." )
-    STDM5Stream.AddItem( "xAOD::TruthParticleContainer#TruthPhotons" )
-    STDM5Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthPhotonsAux." )
-    STDM5Stream.AddItem( "xAOD::TruthParticleContainer#TruthNeutrinos" )
-    STDM5Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthNeutrinosAux." )
-    STDM5Stream.AddItem( "xAOD::TruthParticleContainer#TruthTaus" )
-    STDM5Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthTausAux." )
+addJetOutputs(STDM5SlimmingHelper,["STDM5","STDM5Jets"])
+
+STDM5SlimmingHelper.AppendContentToStream(STDM5Stream)
 
 

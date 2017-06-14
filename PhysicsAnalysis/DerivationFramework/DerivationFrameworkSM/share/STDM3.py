@@ -1,16 +1,23 @@
 #********************************************************************
 # STDM3.py 
 # reductionConf flag STDM3 in Reco_tf.py   
+# 
+# multi-purpose derivation
+# skimming on two leptons
+# 
 #********************************************************************
-
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
+from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkEGamma.EGammaCommon import *
+from DerivationFrameworkSM import STDMTriggers
 
+# Add sumOfWeights metadata for LHE3 multiweights =======
+from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 
 #====================================================================
@@ -22,6 +29,7 @@ fileName   = buildFileName( derivationFlags.WriteDAOD_STDM3Stream )
 STDM3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 STDM3Stream.AcceptAlgs(["STDM3Kernel"])
 
+isMC = globalflags.DataSource()=='geant4'
 
 #====================================================================
 # THINNING TOOLS
@@ -41,7 +49,6 @@ STDM3ThinningHelper = ThinningHelper( "STDM3ThinningHelper" )
 #trigger navigation content
 STDM3ThinningHelper.TriggerChains = 'HLT_e.*|HLT_2e.*|HLT_mu.*|HLT_2mu.*'
 STDM3ThinningHelper.AppendToStream( STDM3Stream )
-
 
 #===================== 
 # TRACK  THINNING
@@ -88,15 +95,22 @@ ToolSvc += STDM3TauTPThinningTool
 thinningTools.append(STDM3TauTPThinningTool)
 
 
+STDM3PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "STDM3PhotonTPThinningTool",
+                                                                        ThinningService         = STDM3ThinningHelper.ThinningSvc(),
+                                                                        SGKey                   = "Photons",
+                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += STDM3PhotonTPThinningTool
+thinningTools.append(STDM3PhotonTPThinningTool)
+
 # Truth leptons and their ancestors and descendants
 truth_cond_boson = "((abs(TruthParticles.pdgId) == 23) || (abs(TruthParticles.pdgId) == 24))"
 truth_cond_lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 14) &&(TruthParticles.pt > 1*GeV) && (TruthParticles.status ==1) && (TruthParticles.barcode<200000))"
-photonthinningexpr = "(TruthPhotons.classifierParticleOrigin != 42) && !(TruthPhotons.classifierParticleOrigin >= 23 && TruthPhotons.classifierParticleOrigin <= 35)"
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 
+isMC = globalflags.DataSource()=='geant4'
 
-if globalflags.DataSource()=='geant4':
+if isMC:
     from DerivationFrameworkSM.STDMCommonTruthTools import *
     
     STDM3TruthLepTool = DerivationFramework__GenericTruthThinning(name                         = "STDM3TruthLepTool",
@@ -113,32 +127,69 @@ if globalflags.DataSource()=='geant4':
                                                                   PreserveGeneratorDescendants = True,
                                                                   PreserveAncestors            = False)
     
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
+    STDM3TruthThinning = DerivationFramework__MenuTruthThinning(name                       = "STDM3TruthThinning",
+                                                                ThinningService            = STDM3ThinningHelper.ThinningSvc(),
+                                                                WritePartons               = False,
+                                                                WriteHadrons               = False,
+                                                                WriteBHadrons              = True,
+                                                                WriteCHadrons              = True,
+                                                                WritettHFHadrons           = True,
+                                                                WriteGeant                 = False,
+                                                                GeantPhotonPtThresh        = -1.0,
+                                                                WriteTauHad                = True,
+                                                                PartonPtThresh             = -1.0,
+                                                                WriteBSM                   = True,
+                                                                WriteBosons                = True,
+                                                                WriteBSMProducts           = True,
+                                                                WriteBosonProducts         = True,
+                                                                WriteTopAndDecays          = True,
+                                                                WriteEverything            = False,
+                                                                WriteAllLeptons            = True,
+                                                                WriteStatus3               = True,
+                                                                PreserveDescendants        = False, 
+                                                                PreserveGeneratorDescendants = False,
+                                                                PreserveAncestors          = True,
+                                                                WriteFirstN                = 10)
+
     STDM3PhotonThinning = DerivationFramework__GenericTruthThinning(name                    = "STDM3PhotonThinning",
                                                                     ThinningService         = STDM3ThinningHelper.ThinningSvc(),
-                                                                    ParticlesKey            = "TruthPhotons",
-                                                                    ParticleSelectionString = photonthinningexpr)
+                                                                    ParticlesKey            = "STDMTruthPhotons",
+                                                                    ParticleSelectionString = STDMphotonthinningexpr)
 
     
     ToolSvc += STDM3TruthLepTool
     ToolSvc += STDM3TruthBosTool
+    ToolSvc += STDM3TruthThinning
     ToolSvc += STDM3PhotonThinning
     thinningTools.append(STDM3TruthLepTool)
     thinningTools.append(STDM3TruthBosTool)
+    thinningTools.append(STDM3TruthThinning)
     thinningTools.append(STDM3PhotonThinning)
     
 #====================================================================
 # SKIMMING TOOL 
 #====================================================================
 
-muonsRequirements = '(Muons.pt >= 15*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DFCommonGoodMuon)'
-electronsRequirements = '(Electrons.pt > 15*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.DFCommonElectronsIsEMLoose) || (Electrons.DFCommonElectronsLHLoose))'
-muonOnlySelection = 'count('+muonsRequirements+') >=2'
-electronOnlySelection = 'count('+electronsRequirements+') >= 2'
-electronMuonSelection = '(count('+electronsRequirements+') + count('+muonsRequirements+')) >= 2'
-offlineexpression = muonOnlySelection+' || '+electronOnlySelection+' || '+electronMuonSelection
+muonsRequirements = '(Muons.pt >= 15*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DFCommonGoodMuon && Muons.DFCommonMuonsPreselection)'
+electronsRequirements = '(Electrons.pt > 15*GeV) && (abs(Electrons.eta) < 2.6) && (Electrons.DFCommonElectronsLHLoose)'
+loose_electronsRequirements='(Electrons.pt > 20*GeV) && (Electrons.DFCommonElectronsLHVeryLoose)'
+loose_muonsRequirements = '(Muons.pt >= 20*GeV) && (Muons.DFCommonGoodMuon && Muons.DFCommonMuonsPreselection)'
 
-diElectronTriggerRequirement = '( HLT_2e12_loose_L12EM10VH || HLT_2e15_loose_L12EM13VH || HLT_2e17_loose || HLT_2e17_loose_L12EM15 || HLT_2e12_lhloose_L12EM10VH || HLT_2e15_lhloose_L12EM13VH || HLT_2e17_lhloose || HLT_2e17_lhloose_L12EM15 )'
-diMuonTriggerRequirement='(HLT_2mu10 || HLT_2mu14 || HLT_mu24_mu8noL1)'
+muonOnlySelection = 'count('+muonsRequirements+') >=2'
+loose_muonOnlySelection = 'count('+loose_muonsRequirements+') >=2'
+
+electronOnlySelection = 'count('+electronsRequirements+') >= 2'
+loose_electronOnlySelection = 'count('+loose_electronsRequirements+') >= 2'
+
+electronMuonSelection = '(count('+electronsRequirements+') + count('+muonsRequirements+')) >= 2'
+loose_electronMuonSelection = '(count('+loose_electronsRequirements+') + count('+loose_muonsRequirements+')) >= 2'
+
+offlineexpression = " || ".join([muonOnlySelection,electronOnlySelection,electronMuonSelection,
+                               loose_muonOnlySelection,loose_electronOnlySelection,loose_electronMuonSelection])
+
+diElectronTriggerRequirement = '( HLT_2e12_loose_L12EM10VH || HLT_2e15_loose_L12EM13VH || HLT_2e17_loose || HLT_2e17_loose_L12EM15 || HLT_2e12_lhloose_L12EM10VH || HLT_2e15_lhloose_L12EM13VH || HLT_2e17_lhloose || HLT_2e17_lhloose_L12EM15 || HLT_2e12_lhvloose_L12EM10VH || HLT_2e17_lhvloose_nod0)'
+diMuonTriggerRequirement='(HLT_2mu10 || HLT_2mu14 || HLT_mu24_mu8noL1 || HLT_mu22_mu8noL1 || HLT_mu20_mu8noL1)'
 triggerRequirement='('+diElectronTriggerRequirement+'||'+diMuonTriggerRequirement+')'
 
 expression = triggerRequirement+' || '+offlineexpression
@@ -159,13 +210,24 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 # CREATE THE PRIVATE SEQUENCE
 STDM3Sequence = CfgMgr.AthSequencer("STDM3Sequence")
 
+
 # ADD KERNEL
 STDM3Sequence += CfgMgr.DerivationFramework__DerivationKernel("STDM3Kernel",
                                                               SkimmingTools = [STDM3SkimmingTool],
                                                               ThinningTools = thinningTools)
+
+# JET REBUILDING
+from DerivationFrameworkSM import STDMHelpers
+if not "STDM3Jets" in OutputJets.keys():
+    OutputJets["STDM3Jets"] = STDMHelpers.STDMRecalcJets(STDM3Sequence, "STDM3", isMC)
+
 # FIX TRUTH JETS
-if globalflags.DataSource()=='geant4':
-    replaceBuggyAntiKt4TruthWZJets(STDM3Sequence,"STDM3")  
+if isMC:
+    replaceBuggyAntiKt4TruthWZJets(STDM3Sequence,"STDM3")
+
+# FAKE LEPTON TAGGER
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+STDM3Sequence += JetTagConfig.GetDecoratePromptLeptonAlgs()
 
 # ADD SEQUENCE TO JOB
 DerivationFrameworkJob += STDM3Sequence
@@ -198,6 +260,7 @@ STDM3SlimmingHelper.SmartCollections = ["Electrons",
                                         "TauJets",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4EMTopoJets",
+                                        "AntiKt4LCTopoJets",
                                         "BTagging_AntiKt4EMTopo",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
@@ -208,28 +271,15 @@ STDM3SlimmingHelper.IncludeMuonTriggerContent = True
 
 STDM3SlimmingHelper.ExtraVariables = ExtraContentAll
 STDM3SlimmingHelper.ExtraVariables += ["AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m"]
-
+STDM3SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 
 STDM3SlimmingHelper.AllVariables = ExtraContainersAll
 
-
-if globalflags.DataSource()=='geant4':
+if isMC:
     STDM3SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     STDM3SlimmingHelper.AllVariables += ExtraContainersTruth
+    STDM3SlimmingHelper.AppendToDictionary = ExtraDictionary
 
-    
+addJetOutputs(STDM3SlimmingHelper,["STDM3","STDM3Jets"])
+
 STDM3SlimmingHelper.AppendContentToStream(STDM3Stream)
-STDM3Stream.AddItem("xAOD::EventShape#*")
-STDM3Stream.AddItem("xAOD::EventShapeAuxInfo#*")
-
-if globalflags.DataSource()=='geant4':
-    STDM3Stream.AddItem( "xAOD::TruthParticleContainer#TruthMuons" )
-    STDM3Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthMuonsAux." )
-    STDM3Stream.AddItem( "xAOD::TruthParticleContainer#TruthElectrons" )
-    STDM3Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthElectronsAux." )
-    STDM3Stream.AddItem( "xAOD::TruthParticleContainer#TruthPhotons" )
-    STDM3Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthPhotonsAux." )
-    STDM3Stream.AddItem( "xAOD::TruthParticleContainer#TruthNeutrinos" )
-    STDM3Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthNeutrinosAux." )
-    STDM3Stream.AddItem( "xAOD::TruthParticleContainer#TruthTaus" )
-    STDM3Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthTausAux." )

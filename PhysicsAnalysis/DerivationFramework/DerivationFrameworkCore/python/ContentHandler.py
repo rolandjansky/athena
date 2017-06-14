@@ -5,13 +5,14 @@ from AthenaCommon.AlgSequence import AlgSequence
 import PyUtils.Logging as L
 msg = L.logging.getLogger('DerivationFramework__ContentHandler')
 msg.setLevel(L.logging.INFO)
-
+from DerivationFrameworkCore.ContainersForExpansion import ContainersForExpansion
 
 class ContentHandler:
 	def __init__(self,inputName,namesAndTypes):
 		self.name = inputName
 		self.AppendToDictionary = {}
 		self.NamesAndTypes = namesAndTypes
+		self.ContainersForExpansion = ContainersForExpansion
 	
 	def mainContainerLine(self,containerName):
 		theDictionary = dict(self.NamesAndTypes.items() + self.AppendToDictionary.items())
@@ -54,9 +55,8 @@ class ContentHandler:
 				if (mainItem not in mainOutput):
 					mainOutput.append(mainItem)
 			if len(components)>1:
-				# Deal with Aux containers
-				if ((mainItem.split('#')[0]!='xAOD::JetAuxContainer') and (mainItem.split('#')[0]!='xAOD::ShallowAuxContainer') and (mainItem.split('#')[0]!='xAOD::MissingETAuxAssociationMap') ):
-					# expand to dynamic, not needed for jets as dynamic already
+				# Deal with the (few) containers that still need expanding
+				if (mainItem.split('#')[0] in self.ContainersForExpansion):
 					self.expandAuxStore(components[0])
 				if (components[0]+"." in wholeContentList):
 					if (components[0] not in auxOutput.keys()):

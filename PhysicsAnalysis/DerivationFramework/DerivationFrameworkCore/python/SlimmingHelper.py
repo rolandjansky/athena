@@ -36,6 +36,8 @@
 
 from DerivationFrameworkCore.CompulsoryContent import *
 from DerivationFrameworkCore.ContentHandler import *
+from DerivationFrameworkCore.ContainersForExpansion import ContainersForExpansion
+from DerivationFrameworkCore.ContainersOnTheFly import ContainersOnTheFly
 from AthenaCommon.BeamFlags import jobproperties
 from AthenaCommon.GlobalFlags  import globalflags
 import PyUtils.Logging as L
@@ -76,7 +78,7 @@ def buildNamesAndTypes():
                         namesAndTypes[item[1].strip('.')] = item[0]
         else:
                 from DerivationFrameworkCore.StaticNamesAndTypes import StaticNamesAndTypes
-                StaticNamesAndTypes = namesAndTypes
+                namesAndTypes = StaticNamesAndTypes
         return namesAndTypes    
 
 class SlimmingHelper:
@@ -133,7 +135,6 @@ class SlimmingHelper:
                 # All variables list: where all variables are requested, no variable lists are needed
                 # This list ensures that variables are not added individually in such cases
                 allVariablesList = []          
- 
                 # Add all-variable collections
                 if len(self.AllVariables)>0:
                         for item in self.AllVariables:
@@ -196,21 +197,11 @@ class SlimmingHelper:
                         for item in self.ExtraVariables:
                                 masterItemList.extend(self.GetExtraItems(item))
                 
-                #Add extra dictionaries need by the newly built Truth Content
-                for _cont,_type in [
-                        ["TruthMuons","xAOD::TruthParticleContainer"],
-                        ["TruthMuonsAux","xAOD::TruthParticleAuxContainer"],
-                        ["TruthElectrons","xAOD::TruthParticleContainer"],
-                        ["TruthElectronsAux","xAOD::TruthParticleAuxContainer"],
-                        ["TruthPhotons","xAOD::TruthParticleContainer"],
-                        ["TruthPhotonsAux","xAOD::TruthParticleAuxContainer"],
-                        ["TruthNeutrinos","xAOD::TruthParticleContainer"],
-                        ["TruthNeutrinosAux","xAOD::TruthParticleAuxContainer"], 
-                        ["TruthTaus","xAOD::TruthParticleContainer"],
-                        ["TruthTausAux","xAOD::TruthParticleAuxContainer"]
-			]:
+                #Add on-the-fly containers to the dictionary
+                for _cont,_type in ContainersOnTheFly:
                         if not self.AppendToDictionary.has_key(_cont):
                                 self.AppendToDictionary[_cont]=_type
+
                 # Process the master list...
                                                                        
                 # Main containers (this is a simple list of lines, one per container X collection)
@@ -221,6 +212,9 @@ class SlimmingHelper:
                 mainEntries,auxEntries = self.theHandler.GetContent(masterItemList,allVariablesList)
                 
                 # Add processed items to the stream
+                excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation" #  From https://svnweb.cern.ch/trac/atlasoff/browser/InnerDetector/InDetExample/InDetRecExample/trunk/share/WriteInDetAOD.py#L41
+                excludedAuxEntries= [entry.strip("-") for entry in excludedAuxData.split(".")]
+
                 for item in mainEntries:
                         Stream.AddItem(item)
                 for item in auxEntries.keys():
@@ -234,18 +228,28 @@ class SlimmingHelper:
                                         entry = "xAOD::AuxInfoBase#"+item+"."
                                 elif (theDictionary[item]=='xAOD::MissingETAuxAssociationMap'):
                                         entry = "xAOD::MissingETAuxAssociationMap#"+item+"."
+                                elif (theDictionary[item]=='xAOD::EventInfo'):
+                                        entry = "xAOD::AuxInfoBase!#"+item+"."
+                                elif (theDictionary[item]=='xAOD::EventShape'):
+                                        entry = "xAOD::AuxInfoBase!#"+item+"." 
+                                # Next two lines - remaining containers 
+                                # that still need to be expanded with AuxStoreWrapper
+                                elif (theDictionary[item] in ContainersForExpansion):
+                                        entry = "xAOD::AuxContainerBase#"+item+"."
                                 else:
-                                        entry = "xAOD::AuxContainerBase#"+item+"."   
+                                        entry = "xAOD::AuxContainerBase!#"+item+"."   
                                 for element in auxEntries[item]:
+                                        if (theDictionary[item.replace("Aux","")]=='xAOD::TrackParticleContainer') and element in excludedAuxEntries:continue #Skip anything that shouldn't be written out to a DAOD for tracks
                                         length = len(auxEntries[item])
                                         if (element==(auxEntries[item])[length-1]):
                                                 entry += element
                                         else: 
-                                                entry += element+"." 
+                                                entry += element+"."
+                                if theDictionary[item.replace("Aux","")]=='xAOD::TrackParticleContainer' and auxEntries[item]=="":
+                                        entry+=excludedAuxData
                                 Stream.AddItem(entry)   
-        
-                # Add compulsory items (not covered by smart slimming so no expansion)
-                
+
+                # Add compulsory items not covered by smart slimming (so no expansion)
                 for item in CompulsoryContent:
                         Stream.AddItem(item)
 
@@ -266,7 +270,7 @@ class SlimmingHelper:
                 # Same issue for BJetTrigger
                 #if (self.IncludeBJetTriggerContent == True):
                 #       triggerContent = True
-                #       from DerivationFrameworkCore.BJetTriggerContent import BJetTriggerContent
+                #       from DerivationFrameworkFlavourTag.BJetTriggerContent import BJetTriggerContent
                 #       for item in BJetTriggerContent:
                 #       Stream.AddItem(item)
 
@@ -277,8 +281,7 @@ class SlimmingHelper:
                                 Stream.AddItem(item)
                                 
                 if (triggerContent):
-                        from DerivationFrameworkCore.CompulsoryTriggerContent import CompulsoryTriggerContent
-                        for item in CompulsoryTriggerContent:
+                        for item in CompulsoryTriggerNavigation:
                                 Stream.AddItem(item)
                                 
                 # Add non-xAOD and on-the-fly content (not covered by smart slimming so no expansion)
@@ -301,7 +304,7 @@ class SlimmingHelper:
                         raise RuntimeError("Static content list contains xAOD collections")             
                 #Prevent any more modifications As they will be completely ignored, and hard to debug
                 print self.ExtraVariables,dir(self.ExtraVariables)
-
+               
                 self.StaticContent.lock()
                 self.ExtraVariables.lock()
                 self.SmartCollections.lock()
@@ -321,12 +324,12 @@ class SlimmingHelper:
                 # Look up what is needed for this container type
                 items = []
                 if collectionName=="Electrons":
-                        #from DerivationFrameworkEGamma.ElectronsCPContent import ElectronsCPContent
-                        from DerivationFrameworkCore.ElectronsCPContent import ElectronsCPContent
+                        from DerivationFrameworkEGamma.ElectronsCPContent import ElectronsCPContent
+                        #from DerivationFrameworkCore.ElectronsCPContent import ElectronsCPContent
                         items.extend(ElectronsCPContent)
                 elif collectionName=="Photons":
-                        #from DerivationFrameworkEGamma.PhotonsCPContent import PhotonsCPContent
-                        from DerivationFrameworkCore.PhotonsCPContent import PhotonsCPContent
+                        from DerivationFrameworkEGamma.PhotonsCPContent import PhotonsCPContent
+                        #from DerivationFrameworkCore.PhotonsCPContent import PhotonsCPContent
                         items.extend(PhotonsCPContent)
                 elif collectionName=="Muons":
                         from DerivationFrameworkMuons.MuonsCPContent import MuonsCPContent
@@ -372,20 +375,19 @@ class SlimmingHelper:
                         #from DerivationFrameworkCore.AntiKt4EMPFlowJetsCPContent import AntiKt4EMPFlowJetsCPContent
                         items.extend(AntiKt4EMPFlowJetsCPContent)
                 elif collectionName=="BTagging_AntiKt4LCTopo":
-                        #from DerivationFrameworkFlavourTag.BTagging_AntiKt4LCTopoCPContent import BTagging_AntiKt4LCTopoCPContent
-                        from DerivationFrameworkCore.BTagging_AntiKt4LCTopoCPContent import BTagging_AntiKt4LCTopoCPContent
+                        from DerivationFrameworkFlavourTag.BTagging_AntiKt4LCTopoCPContent import BTagging_AntiKt4LCTopoCPContent
                         items.extend(BTagging_AntiKt4LCTopoCPContent)
                 elif collectionName=="BTagging_AntiKt4EMTopo":
-                        from DerivationFrameworkCore.BTagging_AntiKt4EMTopoCPContent import BTagging_AntiKt4EMTopoCPContent
+                        from DerivationFrameworkFlavourTag.BTagging_AntiKt4EMTopoCPContent import BTagging_AntiKt4EMTopoCPContent
                         items.extend(BTagging_AntiKt4EMTopoCPContent)
                 elif collectionName=="BTagging_AntiKt2Track":
-                        from DerivationFrameworkCore.BTagging_AntiKt2TrackCPContent import BTagging_AntiKt2TrackCPContent
+                        from DerivationFrameworkFlavourTag.BTagging_AntiKt2TrackCPContent import BTagging_AntiKt2TrackCPContent
                         items.extend(BTagging_AntiKt2TrackCPContent)
                 elif collectionName=="BTagging_AntiKt3Track":
-                        from DerivationFrameworkCore.BTagging_AntiKt3TrackCPContent import BTagging_AntiKt3TrackCPContent
+                        from DerivationFrameworkFlavourTag.BTagging_AntiKt3TrackCPContent import BTagging_AntiKt3TrackCPContent
                         items.extend(BTagging_AntiKt3TrackCPContent)
                 elif collectionName=="BTagging_AntiKt4Track":
-                        from DerivationFrameworkCore.BTagging_AntiKt4TrackCPContent import BTagging_AntiKt4TrackCPContent
+                        from DerivationFrameworkFlavourTag.BTagging_AntiKt4TrackCPContent import BTagging_AntiKt4TrackCPContent
                         items.extend(BTagging_AntiKt4TrackCPContent)
                 elif collectionName=="InDetTrackParticles":
                         #from DerivationFrameworkInDet.InDetTrackParticlesCPContent import InDetTrackParticlesCPContent
@@ -396,7 +398,7 @@ class SlimmingHelper:
                         from DerivationFrameworkCore.PrimaryVerticesCPContent import PrimaryVerticesCPContent
                         items.extend(PrimaryVerticesCPContent)
                 elif collectionName=="HLT_xAOD__MuonContainer_MuonEFInfo":
-                        from DerivationFrameworkCore.MuonTriggerContent import MuonTriggerContent
+                        from DerivationFrameworkMuons.MuonTriggerContent import MuonTriggerContent
                         items.extend(MuonTriggerContent)
                 elif collectionName=="HLT_xAOD__PhotonContainer_egamma_Photons":
                         from DerivationFrameworkCore.EGammaTriggerContent import EGammaTriggerContent
@@ -411,7 +413,7 @@ class SlimmingHelper:
                         from DerivationFrameworkCore.TauTriggerContent import TauTriggerContent 
                         items.extend(TauTriggerContent)
                 elif collectionName=="HLT_xAOD__BTaggingContainer_HLTBjetFex":
-                        from DerivationFrameworkCore.BJetTriggerContent import BJetTriggerContent
+                        from DerivationFrameworkFlavourTag.BJetTriggerContent import BJetTriggerContent
                         items.extend(BJetTriggerContent)
                 elif collectionName=="HLT_xAOD__TrigBphysContainer_EFBMuMuFex":
                         from DerivationFrameworkCore.BPhysTriggerContent import BPhysTriggerContent 

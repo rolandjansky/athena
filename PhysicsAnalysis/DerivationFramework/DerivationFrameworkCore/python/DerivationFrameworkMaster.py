@@ -39,16 +39,16 @@ AuxStoreWrapperSequence = CfgMgr.AthSequencer("AuxStoreWrapperSequence")
 
 # DerivationJob is COMMON TO ALL DERIVATIONS
 DerivationFrameworkJob = AlgSequence()
+
+# Aux store wrapper for expansion-to-dynamic. This is only used now for
+# a handful of container types, defined in ContainersForExpansion.py 
 DerivationFrameworkJob += AuxStoreWrapperSequence
 
 # Special sequence run after the algsequence
 # Being used here to reset ElementLinks
-
-# Commenting out for branch at 00-03-56
-#if AODFix_willDoAODFix():
-#if True: # Temporary replacment for above line, while this function makes it into release 20.7
-#	athOutSeq = CfgMgr.AthSequencer("AthOutSeq")
-#	athOutSeq += CfgMgr.xAODMaker__ElementLinkResetAlg( "ELReset" )
+#if AODFix_willDoAODFix(): This flag doesn't work so commented for now
+athOutSeq = CfgMgr.AthSequencer("AthOutSeq")
+athOutSeq += CfgMgr.xAODMaker__ElementLinkResetAlg( "ELReset" )
 
 from RecExConfig.InputFilePeeker import inputFileSummary
 if inputFileSummary is not None:

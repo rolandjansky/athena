@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxStoreWrapper.cxx 695881 2015-09-21 08:47:05Z will $
+// $Id: AuxStoreWrapper.cxx 773553 2016-09-16 09:48:51Z krasznaa $
 
 // Gaudi/Athena include(s):
 #include "SGTools/DataProxy.h"
@@ -42,6 +42,7 @@ namespace {
       return out;
    }
 
+#if 0
    /// Helper function for deep copying the payload of auxiliary stores
    void copyAuxStore( const SG::IConstAuxStore& orig,
                       SG::IAuxStore& copy ) {
@@ -76,6 +77,7 @@ namespace {
 
       return;
    }
+#endif
 
 } // private namespace
 

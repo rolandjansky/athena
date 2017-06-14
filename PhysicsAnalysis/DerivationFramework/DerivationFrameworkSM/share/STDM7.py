@@ -9,9 +9,12 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
+from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 import AthenaCommon.SystemOfUnits as Units
 
+# Add sumOfWeights metadata for LHE3 multiweights =======
+from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 
 #====================================================================
@@ -55,7 +58,6 @@ STDM7ThinningHelper.AppendToStream( STDM7Stream )
 # Truth leptons and their ancestors and descendants + final-state hadrons
 truth_cond_boson = "((abs(TruthParticles.pdgId) == 23) || (abs(TruthParticles.pdgId) == 24))"
 truth_cond_lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 14) &&(TruthParticles.pt > 1*GeV) && (TruthParticles.status ==1) && (TruthParticles.barcode<200000))"
-photonthinningexpr = "(TruthPhotons.classifierParticleOrigin != 42) && !(TruthPhotons.classifierParticleOrigin >= 23 && TruthPhotons.classifierParticleOrigin <= 35)"
 # Truth hadrons for UE analysis
 truth_cond_hadrons = "( (TruthParticles.status ==1) && (TruthParticles.barcode<200000) )"
 
@@ -81,8 +83,8 @@ if globalflags.DataSource()=='geant4':
    
     STDM7PhotonThinning = DerivationFramework__GenericTruthThinning(name                    = "STDM7PhotonThinning",
                                                                     ThinningService         = STDM7ThinningHelper.ThinningSvc(),
-                                                                    ParticlesKey            = "TruthPhotons",
-                                                                    ParticleSelectionString = photonthinningexpr)
+                                                                    ParticlesKey            = "STDMTruthPhotons",
+                                                                    ParticleSelectionString = STDMphotonthinningexpr)
 
     STDM7TruthHadTool = DerivationFramework__GenericTruthThinning(name                         = "STDM7TruthHadTool",
                                                                   ThinningService              = STDM7ThinningHelper.ThinningSvc(),
@@ -105,20 +107,20 @@ if globalflags.DataSource()=='geant4':
 # SKIMMING TOOL 
 #====================================================================
 
-muonsRequirements = '(Muons.pt >= 4*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DFCommonGoodMuon)'
+muonsRequirements = '(Muons.pt >= 4*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DFCommonMuonsPreselection) && (Muons.DFCommonGoodMuon)'
 electronsRequirements = '(Electrons.pt > 11*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.DFCommonElectronsIsEMLoose) || (Electrons.DFCommonElectronsLHLoose))'
 muonOnlySelection = 'count('+muonsRequirements+') >=2'
 electronOnlySelection = 'count('+electronsRequirements+') >= 2'
 electronMuonSelection = '(count('+electronsRequirements+') + count('+muonsRequirements+')) >= 2'
 offlineexpression = '('+muonOnlySelection+' || '+electronOnlySelection+' || '+electronMuonSelection+')'
 
-ElectronTriggerRequirement = '( HLT_2e12_loose_L12EM10VH || HLT_2e15_loose_L12EM13VH || HLT_2e17_loose || HLT_2e17_loose_L12EM15 || HLT_2e12_lhloose_L12EM10VH || HLT_2e12_lhvloose_L12EM10VH || HLT_2e15_lhloose_L12EM13VH || HLT_2e17_lhloose || HLT_2e17_lhloose_L12EM15 )'
-MuonTriggerRequirement='( HLT_2mu10 || HLT_2mu14 ||  HLT_2mu6_10invm30_pt2_z10  || HLT_mu4_iloose_mu4_11invm60_noos || HLT_mu4_iloose_mu4_11invm60_noos_novtx || HLT_mu4_iloose_mu4_7invm9_noos || HLT_mu4_iloose_mu4_7invm9_noos_novtx || HLT_mu6_iloose_mu6_11invm24_noos || HLT_mu6_iloose_mu6_11invm24_noos_novtx || HLT_mu6_iloose_mu6_24invm60_noos || HLT_mu6_iloose_mu6_24invm60_noos_novtx || HLT_mu18_mu8noL1 )'
-ElectronMuonTriggerRequirement='( HLT_e17_loose_mu14 || HLT_e24_lhmedium_L1EM20VHI_mu8noL1 )'
+ElectronTriggerRequirement = '( HLT_2e12_loose_L12EM10VH || HLT_2e15_loose_L12EM13VH || HLT_2e17_loose || HLT_2e17_loose_L12EM15 || HLT_2e12_lhloose_L12EM10VH || HLT_2e12_lhvloose_L12EM10VH || HLT_2e15_lhloose_L12EM13VH || HLT_2e17_lhloose || HLT_2e17_lhloose_L12EM15 || HLT_e24_lhtight_nod0_ivarloose || HLT_e24_lhmedium_nod0_L1EM20VH || HLT_e60_lhmedium_nod0 || HLT_e26_lhtight_nod0_ivarloose || HLT_2e15_lhvloose_nod0_L12EM13VH || HLT_2e17_lhvloose_nod0 )'
+MuonTriggerRequirement='( HLT_2mu10 || HLT_2mu14 ||  HLT_2mu6_10invm30_pt2_z10  || HLT_mu4_iloose_mu4_11invm60_noos || HLT_mu4_iloose_mu4_11invm60_noos_novtx || HLT_mu4_iloose_mu4_7invm9_noos || HLT_mu4_iloose_mu4_7invm9_noos_novtx || HLT_mu6_iloose_mu6_11invm24_noos || HLT_mu6_iloose_mu6_11invm24_noos_novtx || HLT_mu6_iloose_mu6_24invm60_noos || HLT_mu6_iloose_mu6_24invm60_noos_novtx || HLT_mu18_mu8noL1 || HLT_mu20_iloose_L1MU15 || HLT_2mu6_bBmumu || HLT_mu6_mu4_bBmumu ||  HLT_2mu4_bUpsimumu ||  HLT_mu6_mu4_bUpsimumu || HLT_2mu6_bUpsimumu || HLT_mu4_iloose_mu4_11invm60_noos_L1_MU6_2MU4 || HLT_mu4_iloose_mu4_11invm60_noos_novtx_L1_MU6_2MU4 || HLT_mu4_iloose_mu4_7invm9_noos_L1_MU6_2MU4 || HLT_mu4_iloose_mu4_7invm9_noos_novtx_L1_MU6_2MU4 || HLT_mu24_imedium || HLT_mu26_ivarmedium || HLT_mu50 || HLT_mu24_iloose || HLT_mu24_iloose_L1MU15 )'
+ElectronMuonTriggerRequirement='( HLT_e17_loose_mu14 || HLT_e24_lhmedium_L1EM20VHI_mu8noL1 || HLT_e17_lhloose_nod0_mu14 || HLT_e7_lhmedium_nod0_mu24  )'
 triggerRequirement='('+ElectronTriggerRequirement+'||'+MuonTriggerRequirement+'||'+ElectronMuonTriggerRequirement+')'
 
 expression = triggerRequirement+' && '+offlineexpression
-
+print "STDM7 skimming expression: ",expression
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 STDM7SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "STDM7SkimmingTool",
@@ -187,26 +189,14 @@ STDM7SlimmingHelper.ExtraVariables += ["AntiKt4EMTopoJets.JetEMScaleMomentum_pt.
 
 
 STDM7SlimmingHelper.AllVariables = ExtraContainersAll
-
+STDM7SlimmingHelper.AllVariables += ["Electrons"]
 
 if globalflags.DataSource()=='geant4':
     STDM7SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     STDM7SlimmingHelper.AllVariables += ExtraContainersTruth
+    STDM7SlimmingHelper.AppendToDictionary = ExtraDictionary
 
     
 STDM7SlimmingHelper.AppendContentToStream(STDM7Stream)
-STDM7Stream.AddItem("xAOD::EventShape#*")
-STDM7Stream.AddItem("xAOD::EventShapeAuxInfo#*")
 
-if globalflags.DataSource()=='geant4':
-    STDM7Stream.AddItem( "xAOD::TruthParticleContainer#TruthMuons" )
-    STDM7Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthMuonsAux." )
-    STDM7Stream.AddItem( "xAOD::TruthParticleContainer#TruthElectrons" )
-    STDM7Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthElectronsAux." )
-    STDM7Stream.AddItem( "xAOD::TruthParticleContainer#TruthPhotons" )
-    STDM7Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthPhotonsAux." )
-    STDM7Stream.AddItem( "xAOD::TruthParticleContainer#TruthNeutrinos" )
-    STDM7Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthNeutrinosAux." )
-    STDM7Stream.AddItem( "xAOD::TruthParticleContainer#TruthTaus" )
-    STDM7Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthTausAux." )
 

@@ -147,8 +147,6 @@ from DerivationFrameworkSM.STDMExtraContent import *
 STDM1SlimmingHelper = SlimmingHelper("STDM1SlimmingHelper")
 STDM1SlimmingHelper.SmartCollections =["AntiKt4EMTopoJets",
                                        "AntiKt4LCTopoJets",
-                                       #"BTagging_AntiKt4LCTopo",
-                                       #"BTagging_AntiKt4EMTopo",
                                        "PrimaryVertices" ]
 
 
@@ -165,5 +163,3 @@ if globalflags.DataSource()=='geant4':
 addJetOutputs(STDM1SlimmingHelper,["STDM1"])
 
 STDM1SlimmingHelper.AppendContentToStream(STDM1Stream)
-STDM1Stream.AddItem("xAOD::EventShape#*")
-STDM1Stream.AddItem("xAOD::EventShapeAuxInfo#*")    

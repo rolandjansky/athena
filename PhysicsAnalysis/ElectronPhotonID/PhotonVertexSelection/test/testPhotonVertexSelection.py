@@ -1,13 +1,13 @@
-#!/usr/bin/env python
-
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Script / jobOptions to test PhotonVertexSelectionTool using an AOD from
 mc15_13TeV:mc15_13TeV.341000.PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_gamgam.merge.AOD.e3806_s2608_r7772_r7676"""
 __author__ = "Bruno Lenzi"
 
-defaultFile = "$ASG_TEST_FILE_MC"
-defaultNevents = 10
+#defaultFile = "root://atlas-xrd-eos-rucio.cern.ch:1094//atlas/rucio/mc15_13TeV:AOD.08220710._000220.pool.root.1"
+defaultFile = "/afs/cern.ch/work/c/cjmeyer/atlas/ds/mc15_13TeV.341000.PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_gamgam.merge.AOD.e3806_s2766_r8295_r7676/AOD.09189032._000001.pool.root.1"
+
+defaultNevents = 100
 
 def printMethod(x):
   print x
@@ -18,12 +18,12 @@ def getViewContainer(container):
   import ROOT
   def filterAuthor(x):
     return x.author() not in [ROOT.xAOD.EgammaParameters.AuthorCaloTopo35, ROOT.xAOD.EgammaParameters.AuthorFwdElectron]
-
+  
   egammas = container.__class__(ROOT.SG.VIEW_ELEMENTS)
   for eg in filter(filterAuthor, container)[:2]:
     egammas.push_back( eg )
   return egammas
-
+  
 def printOutput(container, tool, printMethod = printMethod):
   "printOutput(egammas, tool) -> print case and MVA output"
   # TODO: pointing, HPV, zcommon
@@ -61,7 +61,7 @@ def setupAthenaJob(algoClass, inputfile = defaultFile, EvtMax = None):
   # Configure the test algorithm and add it to topSequence
   testAlg = AlgFactory(algoClass,
     PhotonVertexSelectionTool = PhotonVertexSelectionTool)()
-
+  
   # Maximum events
   if EvtMax:
     from Configurables import StopperAlg
@@ -71,15 +71,15 @@ def setupAthenaJob(algoClass, inputfile = defaultFile, EvtMax = None):
 # Athena algorithm and setup
 # --------------------------------
 import os
-if not 'ROOTCOREBIN' in os.environ:
+if 'AtlasVersion' in os.environ:
   from AthenaPython import PyAthena
   from AthenaPython.PyAthena import StatusCode
-
+  
   class TestPhotonVertexSelection( PyAthena.Alg ):
     def __init__(self, name = 'TestPhotonVertexSelection',
                        containerName = 'Photons', **kw):
       super(TestPhotonVertexSelection,self).__init__(name = name, containerName = containerName, **kw)
-
+    
     def initialize(self):
       self.msg.info("initializing [%s]", self.name())
       self.vertexTool = PyAthena.py_tool(self.PhotonVertexSelectionTool.getFullName(),
@@ -89,15 +89,15 @@ if not 'ROOTCOREBIN' in os.environ:
           return PyAthena.StatusCode.Failure
 
       return StatusCode.Success
-
+  
     def execute(self):
       viewContainer = getViewContainer( self.evtStore[self.containerName] )
       printOutput(viewContainer, self.vertexTool, self.msg.info)
       return StatusCode.Success
-
+  
     def finalize(self):
       return StatusCode.Success
-
+    
   setupAthenaJob( TestPhotonVertexSelection,
                   locals().get('inputfile', defaultFile),
                   locals().get('EvtMax', defaultNevents ) )
@@ -117,32 +117,29 @@ else:
   parser.add_option("-c", "--container", help="Container to use (default: %default)",
     default='Photons')
   parser.epilog = "\n"
-
+    
   (options, _ ) = parser.parse_args()
   if len( _ ):
     raise ValueError('Only named options are allowed, got %s' % _ )
   print 'Analysing %s from %s' % (options.container, options.inputfile)
-
+  
   import ROOT
   ROOT.gROOT.Macro( '$ROOTCOREDIR/scripts/load_packages.C' )
-
+  
   # Initialize the xAOD infrastructure: 
-  ROOT.xAOD.Init().ignore()
-
+  ROOT.xAOD.Init()
+  
   # Setup the tools
   vertexTool = ROOT.CP.PhotonVertexSelectionTool("PhotonVertexSelectionTool")
-
+  
   # Create transient tree: has to be done before initialising the pointing tool
-  f = ROOT.TFile.Open( options.inputfile, "READ" )
+  f = ROOT.TFile.Open(options.inputfile)
   t = ROOT.xAOD.MakeTransientTree( f, "CollectionTree", ROOT.xAOD.TEvent.kAthenaAccess )
   import xAODRootAccess.GenerateDVIterators
-
+  
   # Initialise tools
-  if not vertexTool.initialize().isSuccess():
-    print( "Couldn't initialise the vertex tool" )
-    sys.exit( 1 )
-    pass
-
+  vertexTool.initialize()
+  
   for entry in xrange(options.nEvents):
     print '*** Analysing entry %s ***' % entry
     _ = t.GetEntry(entry)
@@ -150,3 +147,5 @@ else:
     viewContainer = getViewContainer( container )
     printOutput(viewContainer, vertexTool)
     print ''
+
+
