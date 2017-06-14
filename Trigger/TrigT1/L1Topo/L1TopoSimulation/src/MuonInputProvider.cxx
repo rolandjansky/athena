@@ -43,7 +43,7 @@ MuonInputProvider::MuonInputProvider( const std::string& type, const std::string
    m_MuctpiSimTool("LVL1MUCTPI::L1MuctpiTool/LVL1MUCTPI__L1MuctpiTool"),
    m_muonROILocation( LVL1MUCTPI::DEFAULT_MuonRoIBLocation ),
    m_MuonEncoding(0),
-   m_MuCTPItoL1TopoLocation ("/Run/L1MuCTPItoL1TopoLocation")
+   m_MuCTPItoL1TopoLocation ()
 {
    declareInterface<LVL1::IInputTOBConverter>( this );
    declareProperty( "ROIBResultLocation", m_roibLocation, "Storegate key for the reading the ROIBResult" );
@@ -53,7 +53,7 @@ MuonInputProvider::MuonInputProvider( const std::string& type, const std::string
    declareProperty( "MuonROILocation", m_muonROILocation, "Storegate key for the Muon ROIs" );
 
    declareProperty( "MuonEncoding", m_MuonEncoding = 0, "0=full granularity Mu ROIs, 1=MuCTPiToTopo granularity");
-   declareProperty( "locationMuCTPItoL1Topo", m_MuCTPItoL1TopoLocation = "/Run/L1MuCTPItoL1TopoLocation", "Storegate key for MuCTPItoL1Topo ");
+   declareProperty( "locationMuCTPItoL1Topo", m_MuCTPItoL1TopoLocation = LVL1MUCTPI::DEFAULT_MuonL1TopoLocation, "Storegate key for MuCTPItoL1Topo ");
    declareProperty( "MuctpiSimTool", m_MuctpiSimTool,"Tool for MUCTPIsimulation");
 }
 
@@ -182,12 +182,12 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 
     const L1MUINT::MuCTPIToRoIBSLink* muctpi_slink {nullptr};
 
-    if( evtStore()->contains<L1MUINT::MuCTPIToRoIBSLink>("/Run/L1MuCTPItoRoIBLocation") ) {
-      CHECK( evtStore()->retrieve( muctpi_slink, "/Run/L1MuCTPItoRoIBLocation" ) );
+    if( evtStore()->contains<L1MUINT::MuCTPIToRoIBSLink>(LVL1MUCTPI::DEFAULT_MuonRoIBLocation) ) {
+      CHECK( evtStore()->retrieve( muctpi_slink, LVL1MUCTPI::DEFAULT_MuonRoIBLocation ) );
     } else if( evtStore()->contains<ROIB::RoIBResult>(m_roibLocation) ) {
       CHECK( evtStore()->retrieve(roibResult, m_roibLocation) );
     } else {
-      ATH_MSG_WARNING("Neither a MuCTPIToRoIBSLink with SG key '/Run/L1MuCTPItoRoIBLocation' nor a an RoIBResult were found in the event. No muon input for the L1Topo simulation.");
+      ATH_MSG_WARNING("Neither a MuCTPIToRoIBSLink with SG key " << LVL1MUCTPI::DEFAULT_MuonRoIBLocation << " nor an RoIBResult were found in the event. No muon input for the L1Topo simulation.");
       return StatusCode::RECOVERABLE;
     }
 
