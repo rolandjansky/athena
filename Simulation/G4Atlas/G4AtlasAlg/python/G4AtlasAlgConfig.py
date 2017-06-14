@@ -6,7 +6,8 @@ def getAthenaStackingActionTool(name='G4UA::AthenaStackingActionTool', **kwargs)
     from G4AtlasApps.SimFlags import simFlags
     if "ATLAS" in simFlags.SimLayout():
         kwargs.setdefault('KillAllNeutrinos',  True)
-    return CfgMgr.G4UA__AthenaStackingActionTool(name, **kwargs)
+    kwargs.setdefault('IsISFJob', simFlags.ISFRun())
+    return CfgMgr.G4UA__AthenaStackingActionTool(name,**kwargs)
 
 def getAthenaTrackingActionTool(name='G4UA::AthenaTrackingActionTool', **kwargs):
     kwargs.setdefault('SecondarySavingLevel', 2)
