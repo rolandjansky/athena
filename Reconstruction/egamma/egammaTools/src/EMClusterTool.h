@@ -22,6 +22,7 @@ class IegammaSwTool;
 class IegammaMVATool;
 class StoreGateSvc;
 class CaloCellDetPos;
+class CaloClusterCellLink;
 
 /**
    @class EMClusterTool
@@ -94,9 +95,14 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
 
   /** @brief Key of the output cluster container **/
   SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputClusterContainerKey;
+  /** @brief Key of the output cluster container cell links: name taken from containter name **/
+  SG::WriteHandleKey<CaloClusterCellLinkContainer> m_outputClusterContainerCellLinkKey;
 
   /** @brief Key of the output cluster container for topo-seeded clusters **/
   SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputTopoSeededClusterContainerKey;
+  /** @brief Key of the output cluster container cell links for topo-seeded clusters: 
+    * name taken from containter name */
+  SG::WriteHandleKey<CaloClusterCellLinkContainer> m_outputTopoSeededClusterContainerCellLinkKey;
 
   /** Handle to the MVA calibration Tool **/
   ToolHandle<IegammaMVATool>  m_MVACalibTool;  

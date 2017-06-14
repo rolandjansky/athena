@@ -10,6 +10,7 @@
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "CaloEvent/CaloClusterCellLink.h"
 
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
@@ -17,6 +18,7 @@
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "CaloUtils/CaloCellDetPos.h"
 #include "StoreGate/WriteHandle.h"
+
 
 
 // =============================================================
@@ -54,10 +56,13 @@ StatusCode EMClusterTool::initialize() {
   ATH_MSG_DEBUG("Initializing " << name() << "...");
 
   ATH_CHECK(m_outputClusterContainerKey.initialize());
+  m_outputClusterContainerCellLinkKey = m_outputClusterContainerKey.key() + "_links";
+  ATH_CHECK(m_outputClusterContainerCellLinkKey.initialize());
 
   m_doTopoSeededContainer = (m_outputTopoSeededClusterContainerKey.key() != m_outputClusterContainerKey.key() && !m_doSuperClusters);
-
   ATH_CHECK(m_outputTopoSeededClusterContainerKey.initialize(m_doTopoSeededContainer));
+  m_outputTopoSeededClusterContainerCellLinkKey = m_outputTopoSeededClusterContainerKey.key() + "_links";
+  ATH_CHECK(m_outputTopoSeededClusterContainerCellLinkKey.initialize(m_doTopoSeededContainer));
 
   // Get the cluster correction tool
   m_clusterCorrectionTool = ToolHandle<IegammaSwTool>(m_ClusterCorrectionToolName);
@@ -97,15 +102,20 @@ StatusCode EMClusterTool::contExecute(xAOD::ElectronContainer *electronContainer
   SG::WriteHandle<xAOD::CaloClusterContainer> outputClusterContainer(m_outputClusterContainerKey);
   ATH_CHECK(outputClusterContainer.record(std::make_unique<xAOD::CaloClusterContainer>(),
 					  std::make_unique<xAOD::CaloClusterAuxContainer>()));
+  SG::WriteHandle<CaloClusterCellLinkContainer> outputClusterContainerCellLink(m_outputClusterContainerCellLinkKey);
+  ATH_CHECK(outputClusterContainerCellLink.record(std::make_unique<CaloClusterCellLinkContainer>()));
 
   // Create output cluster container for topo-seeded clusters and register in StoreGate
   // Only if they differ from the main output cluster container
   // and if we do not do supercluster
   SG::WriteHandle<xAOD::CaloClusterContainer> outputTopoSeededClusterContainer;
+  SG::WriteHandle<CaloClusterCellLinkContainer> outputTopoSeededClusterContainerCellLink;
   if (m_doTopoSeededContainer) {
     outputTopoSeededClusterContainer = SG::WriteHandle<xAOD::CaloClusterContainer>(m_outputTopoSeededClusterContainerKey);
     ATH_CHECK(outputTopoSeededClusterContainer.record(std::make_unique<xAOD::CaloClusterContainer>(),
 						      std::make_unique<xAOD::CaloClusterAuxContainer>()));
+    outputTopoSeededClusterContainerCellLink = SG::WriteHandle<CaloClusterCellLinkContainer>(m_outputTopoSeededClusterContainerCellLinkKey);
+    ATH_CHECK(outputTopoSeededClusterContainerCellLink.record(std::make_unique<CaloClusterCellLinkContainer>()));
   }
   
   // Loop over electrons and create new clusters
@@ -127,6 +137,22 @@ StatusCode EMClusterTool::contExecute(xAOD::ElectronContainer *electronContainer
       setNewCluster(photon, outputTopoSeededClusterContainer.ptr(), egType);
     }
   }
+
+  // Now finalize the cluster: based on code in CaloClusterStoreHelper::finalizeClusters
+  // Note: I don't specifically set the IProxyDict, since I also don't set it when I create
+  //    data handles, either. 
+  auto sg = outputClusterContainer.storeHandle().get();
+  for (xAOD::CaloCluster* cl : *outputClusterContainer) {
+    cl->setLink(outputClusterContainerCellLink.ptr(), sg);
+  }
+
+  if (m_doTopoSeededContainer) {
+    auto tssg = outputTopoSeededClusterContainer.storeHandle().get();
+    for (xAOD::CaloCluster* cl : *outputTopoSeededClusterContainer) {
+      cl->setLink(outputTopoSeededClusterContainerCellLink.ptr(), tssg);
+    }
+  }
+
   return StatusCode::SUCCESS;
 }
 
