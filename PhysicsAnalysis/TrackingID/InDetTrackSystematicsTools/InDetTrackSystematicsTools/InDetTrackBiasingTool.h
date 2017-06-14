@@ -3,7 +3,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#pragma once
+#ifndef INDETTRACKSYSTEMATICSTOOLS_INDETTRACKBIASINGTOOL_H
+#define INDETTRACKSYSTEMATICSTOOLS_INDETTRACKBIASINGTOOL_H
 
 #include "InDetTrackSystematicsTools/IInDetTrackBiasingTool.h"
 #include "AsgTools/AsgTool.h"
@@ -94,3 +95,5 @@ namespace InDet {
   }; // class InDetTrackBiasingTool
 
 } // namespace InDet
+
+#endif

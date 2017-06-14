@@ -3,7 +3,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#pragma once
+#ifndef INDETTRACKSYSTEMATICSTOOLS_IINDETTRACKSMEARINGTOOL_H
+#define INDETTRACKSYSTEMATICSTOOLS_IINDETTRACKSMEARINGTOOL_H
 
 // Framework include(s):
 #include "AsgTools/IAsgTool.h"
@@ -58,3 +59,5 @@ namespace InDet {
   };/// class IInDetTrackSmearingTool
 
 } /// namespace InDet
+
+#endif
