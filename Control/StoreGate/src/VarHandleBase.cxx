@@ -25,6 +25,7 @@
 #include "AthenaKernel/IHiveStore.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
 #include <algorithm>
@@ -877,10 +878,16 @@ namespace SG {
   IProxyDict* VarHandleBase::storeFromHandle (const EventContext* ctx) const
   {
     if (this->storeHandle().name() == "StoreGateSvc") {
-      if (ctx)
-        return ctx->proxy();
+      if (ctx) {
+        const Atlas::ExtendedEventContext *eec =
+          ctx->getExtension<Atlas::ExtendedEventContext>();
+        return ( (eec==0) ? nullptr : eec->proxy() );
+      }
       if (m_storeWasSet && m_store) return m_store;
-      return Gaudi::Hive::currentContext().proxy();
+      const Atlas::ExtendedEventContext *eec =
+        Gaudi::Hive::currentContext().getExtension<Atlas::ExtendedEventContext>();
+
+      return ( (eec==0) ? nullptr : eec->proxy() );
     }
 
     if (m_storeWasSet && m_store) return m_store;
@@ -903,7 +910,13 @@ namespace SG {
   {
     CHECK( VarHandleKey::initialize() );
     m_store = storeFromHandle (ctx);
-    m_storeWasSet = (ctx && m_store == ctx->proxy());
+    if (ctx) {
+      const Atlas::ExtendedEventContext *eec =
+        ctx->getExtension<Atlas::ExtendedEventContext>();
+      m_storeWasSet = (eec && m_store == eec->proxy());
+    } else {
+      m_storeWasSet = false;
+    }
     return StatusCode::SUCCESS;
   }
 

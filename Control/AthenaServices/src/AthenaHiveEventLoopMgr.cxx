@@ -13,6 +13,7 @@
 #include "AthenaKernel/ITimeKeeper.h"
 #include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 
 #include "GaudiKernel/IAlgorithm.h"
 #include "GaudiKernel/SmartIF.h"
@@ -1170,6 +1171,8 @@ StatusCode  AthenaHiveEventLoopMgr::createEventContext(EventContext*& evtContext
     warning() << "Slot " << evtContext->slot()
               << " could not be selected for the WhiteBoard" << endmsg;
   } else {
+    evtContext->setExtension( Atlas::ExtendedEventContext( eventStore()->hiveProxyDict() ) );
+
     debug() << "created EventContext, num: " << evtContext->evt()  << "  in slot: " 
 	    << evtContext->slot() << endmsg;
   }

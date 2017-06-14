@@ -12,6 +12,7 @@
 
 
 #undef NDEBUG
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandle.h"
@@ -115,7 +116,7 @@ void test1 (ISvcLocator* svcLoc)
   IProxyDict* xdict = &*alg.evtStore();
   xdict = alg.evtStore()->hiveProxyDict();
   EventContext ctx;
-  ctx.setProxy (xdict);
+  ctx.setExtension( Atlas::ExtendedEventContext(xdict) );
   Gaudi::Hive::setCurrentContext (ctx);
 
   assert (alg.execute().isSuccess());

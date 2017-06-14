@@ -10,6 +10,7 @@
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/StatusCode.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadHandle.h"
 #include "AthViews/View.h"
@@ -103,7 +104,7 @@ namespace ViewHelper
 		{
 			//Make a context with the view attached
 			EventContext * viewContext = new EventContext( InputContext );
-			viewContext->setProxy( inputView );
+                        viewContext->setExtension( Atlas::ExtendedEventContext( inputView) );
 
 			//Make the task
 			tbb::task * viewTask = new( tbb::task::allocate_root() )GraphExecutionTask( AlgorithmNames, viewContext, AlgPool );
