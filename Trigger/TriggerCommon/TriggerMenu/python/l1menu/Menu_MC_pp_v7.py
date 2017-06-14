@@ -829,7 +829,7 @@ def defineMenu():
         ### ATR-15062
         'L1_EM18VHI_MJJ-300',
 
-        'L1_LATE-MU10_XE50', 'L1_LATE-MU10_J50',
+        'L1_LATE-MU10_XE50','L1_LATE-MU10_XE40', 'L1_LATE-MU10_J50',
 
         'L1_TAU60_DR-TAU20ITAU12I',
 
@@ -906,8 +906,8 @@ def defineMenu():
     
 
 #CTP IDs are taken from this mapping. Every L1 item needs a unique ctpid.
-#Free CTP IDs (2017-05-15) are: 466, 470-479, 481, 486, 487, 488
-# 463-464 are reserved for L1_RD2_BGRP14 and L1_RD3_BGRP15 (in MC_PhyRD2sics_pp_v7)
+#Free CTP IDs (2017-05-15) are: 470-479, 481, 486, 487, 488
+# 463-464 are reserved for L1_RD2_BGRP14 and L1_RD3_BGRP15 (in MC_Physics_pp_v7)
 # 509-511 are reserved for CALREQ
 
     Lvl1Flags.CtpIdMap = {
@@ -1454,6 +1454,7 @@ def defineMenu():
         'L1_LAR-J' : 352,
         'L1_DR-EM15TAU12I' : 353,        
         'L1_LATE-MU10_XE50': 354,
+        'L1_LATE-MU10_XE40': 466,
         'L1_LATE-MU10_J50' : 355,
         'L1_SC111-CJ15' : 356,
         'L1_SC85-CJ15' : 357,

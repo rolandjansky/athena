@@ -275,6 +275,13 @@ def setupMenu():
         ['mu4_L1MU4_AFP_A_OR_C',                        'L1_MU4_AFP_A_OR_C',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
         ['mu4_L1MU4',                        'L1_MU4',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
 
+
+        ['mu10_mgonly_L1LATE-MU10_J50',          'L1_LATE-MU10_J50',           [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        ['mu10_mgonly_L1LATE-MU10_XE50',         'L1_LATE-MU10_XE50',          [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        ['mu10_mgonly_L1LATE-MU10_XE40',         'L1_LATE-MU10_XE40',          [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+	['mu50_mgonly_inTimeRoI',                'L1_MU20MU21',       ['L1_MU20'], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        ['mu60_mgonly_inTimeRoI',                'L1_MU20MU21',       ['L1_MU20'], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+
         ]
 
 
