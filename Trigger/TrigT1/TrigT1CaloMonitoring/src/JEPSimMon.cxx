@@ -110,7 +110,10 @@ std::string hitsSourceComponent(uint8_t source)
         return std::to_string(source);
     }
 }
-}
+
+
+
+} // end of namespace
 
 std::ostream &operator<<(std::ostream &os, const xAOD::CMXEtSums &el)
 {
@@ -926,18 +929,8 @@ StatusCode JEPSimMon::fillHistograms()
     compare(cmxLocalSimMap, chMap, errorsCMX,
             xAOD::CMXJetHits::Sources::LOCAL_MAIN);
     
-    if (m_debug) {
-      ATH_MSG_DEBUG("Compare Local sums simulated from CMX TOBs with Local sums from data");
-      for(auto p: chMap){
-          auto key = p.first;
-          auto v = p.second;
-          ATH_MSG_DEBUG(" DAT " << *v);
-          if (cmxLocalSimMap.find(key) != cmxLocalSimMap.end()){
-              ATH_MSG_DEBUG(" SIM " << *cmxLocalSimMap[key] << std::endl);
-          }
-      }
-      ATH_MSG_DEBUG("End Compare");
-    }
+    dumpDataAndSim("Compare Local sums simulated from CMX TOBs with Local sums from data",
+        chMap, cmxLocalSimMap);
 
     cmxLocalSimMap.clear();
     delete cmxLocalSIM;
@@ -1026,19 +1019,11 @@ StatusCode JEPSimMon::fillHistograms()
     setupMap(cmxEtLocalSIM, cmxEtLocalSimMap);
     compare(cmxEtLocalSimMap, csMap, errorsCMX,
             xAOD::CMXEtSums::Sources::LOCAL_STANDARD);
-    
-    if (m_debug) {
-      ATH_MSG_DEBUG("Compare Local sums simulated from CMXEtSums with Local sums from data");
-      for(auto p: csMap){
-          auto key = p.first;
-          auto v = p.second;
-          ATH_MSG_DEBUG(" DAT " << *v);
-          if (cmxEtLocalSimMap.find(key) != cmxEtLocalSimMap.end()){
-              ATH_MSG_DEBUG(" SIM " << *cmxEtLocalSimMap[key] << std::endl);
-          }
-      }
-      ATH_MSG_DEBUG("End Compare");
-    }
+
+    dumpDataAndSim(
+        "Compare Local sums simulated from CMXEtSums with Local sums from data",
+        csMap, cmxEtLocalSimMap);
+
     cmxEtLocalSimMap.clear();
     delete cmxEtLocalSIM;
     delete cmxEtLocalSIMAux;
@@ -1065,19 +1050,10 @@ StatusCode JEPSimMon::fillHistograms()
     compare(cmxEtTotalSimMap, csMap, errorsCMX,
             xAOD::CMXEtSums::Sources::TOTAL_STANDARD);
     
-    if (m_debug)
-    {
-      ATH_MSG_DEBUG("Compare Total sums simulated from Remote sums with Total sums from data");
-      for(auto p: csMap){
-          auto key = p.first;
-          auto v = p.second;
-          ATH_MSG_DEBUG(" DAT " << *v);
-          if (cmxEtTotalSimMap.find(key) != cmxEtTotalSimMap.end()){
-              ATH_MSG_DEBUG(" SIM " << *cmxEtTotalSimMap[key] << std::endl);
-          }
-      }
-      ATH_MSG_DEBUG("End compare");
-    }
+    dumpDataAndSim(
+      "Compare Total sums simulated from Remote sums with Total sums from data",
+       csMap, cmxEtTotalSimMap
+    );
 
     cmxEtTotalSimMap.clear();
     delete cmxEtTotalSIM;
@@ -1102,20 +1078,11 @@ StatusCode JEPSimMon::fillHistograms()
     compare(cmxSumEtSimMap, csMap, errorsCMX,
               xAOD::CMXEtSums::Sources::SUM_ET_STANDARD);
     
-    if (m_debug)
-    {
-      ATH_MSG_DEBUG("Compare Et Maps (sumEt/missingEt/missingEtSig) simulated from Total sums");
-      ATH_MSG_DEBUG("with Et Maps from data");
-      for(auto p: csMap){
-          auto key = p.first;
-          auto v = p.second;
-          ATH_MSG_DEBUG(" DAT " << *v);
-          if (cmxSumEtSimMap.find(key) != cmxSumEtSimMap.end()){
-              ATH_MSG_DEBUG(" SIM " << *cmxSumEtSimMap[key] << std::endl);
-          }
-      }
-      ATH_MSG_DEBUG("End compare");
-    }
+    dumpDataAndSim(
+      "Compare Et Maps (sumEt/missingEt/missingEtSig) simulated from Total sums",
+      csMap, cmxSumEtSimMap
+    );
+    
 
     cmxSumEtSimMap.clear();
     delete cmxSumEtSIM;
