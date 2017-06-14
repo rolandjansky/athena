@@ -902,7 +902,6 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
             link_start = false;   // resetting link (module) header found flag
             are_4condensed_words = false;
             m_errors->setModuleFragmentSize(offlineIdHash, nwords_in_module_fragment);
-            //ATH_MSG_INFO("Module fragment size = " << nwords_in_module_fragment);
 
             // Trailer decoding and error handling
             if (m_is_ibl_module || m_is_dbm_module) { // decode IBL/DBM Trailer word: 010nnnnnECPplbzhvMMMMMMMMMMxxxxx
@@ -947,17 +946,13 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                 // Write the error word to the service
                 if (offlineIdHash != 0xffffffff && errorcode) {
                    m_errors->setFeErrorCode(offlineIdHash, (mLink & 0x1), errorcode);
-                   //ATH_MSG_INFO("Setting IBL FE error code: 0x" << std::hex << errorcode << ", link 0x" << (mLink & 0x1) << ", offlineIdHash 0x" << offlineIdHash << std::dec);
-                  
+
                    // Check if error code is already set for this wafer
                    uint32_t existing_code = m_errors->getModuleErrors(offlineIdHash);
                    if (existing_code) {
-                       //ATH_MSG_INFO("Found existing error code: 0x" << std::hex << existing_code << ", or\'ing with 0x" << errorcode << std::dec);
                        errorcode = existing_code | errorcode;
-                       //ATH_MSG_INFO("Storing code 0x" << std::hex << errorcode << std::dec);
                    }
                    m_errors->setModuleErrors(offlineIdHash, errorcode);
-                       //ATH_MSG_INFO("Setting IBL module error code: 0x" << std::hex << errorcode << ", link 0x" << (mLink & 0x1) << ", offlineIdHash 0x" << offlineIdHash << std::dec);
                }
 
 
@@ -1102,7 +1097,6 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                     if (FEFlags & (1 << 0))
                         m_errors->addFlaggedError();
                     m_errors->setFeErrorCode(offlineIdHash, fe_number, errorcode);
-                    //ATH_MSG_INFO("Setting pixel FE error code: 0x" << std::hex << errorcode << ", FE 0x" << fe_number << ", offlineIdHash 0x" << offlineIdHash);
 
                 } else {
                     m_errors->addDisabledFEError();
