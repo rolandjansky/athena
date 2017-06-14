@@ -539,14 +539,24 @@ class TileROD_Decoder: public AthAlgTool {
       } else if (size > max_allowed_size) {
         if (rob->rod_source_id() > 0x50ffff) m_error |= 0x10000; // indicate error in frag size, but ignore error in laser ROD
 
-        if (size - rob->rod_trailer_size_word() <= max_allowed_size) {
+        if (size - rob->rod_trailer_size_word() < max_allowed_size) {
           if ((m_ErrorCounter++) < m_maxErrorPrint) {
             ATH_MSG_ERROR("ROB " << MSG::hex << rob->source_id()
                           << " ROD " << rob->rod_source_id() << MSG::dec
-                          << " size " << size << " is longer than allowed size " << max_allowed_size
-                          << " - assuming that ROB trailer is shorter: "
+                          << " data size " << size << " is longer than allowed size " << max_allowed_size
+                          << " - assuming that ROD trailer is shorter: "
                           << rob->rod_trailer_size_word()-(size-max_allowed_size)
                           << " words instead of " << rob->rod_trailer_size_word());
+          }
+          max_allowed_size = size;
+        } else if (size - rob->rod_trailer_size_word() == max_allowed_size) {
+          if ((m_ErrorCounter++) < m_maxErrorPrint) {
+            ATH_MSG_ERROR("ROB " << MSG::hex << rob->source_id()
+                          << " ROD " << rob->rod_source_id() << MSG::dec
+                          << " data size " << size << " is longer than allowed size " << max_allowed_size
+                          << " - assuming that ROD trailer ("
+                          << rob->rod_trailer_size_word()
+                          << " words) is absent");
           }
           max_allowed_size = size;
         } else {
@@ -555,7 +565,7 @@ class TileROD_Decoder: public AthAlgTool {
             ATH_MSG_ERROR("ROB " << MSG::hex << rob->source_id()
                           << " ROD " << rob->rod_source_id() << MSG::dec
                           << " has unexpected data size: " << size
-                          << " - assuming size = " << max_allowed_size << " words and no trailer at all" );
+                          << " - assuming data size = " << max_allowed_size << " words and no ROD trailer at all" );
           }
         }
         return max_allowed_size;
