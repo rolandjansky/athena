@@ -10,7 +10,7 @@
 #define TRKREFITALG_REFITTRACK_H
 
 // Base class
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/MsgStream.h"
@@ -19,8 +19,11 @@
 #include "TrkTrack/TrackCollection.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventUtils/TrkParametersComparisonFunction.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 class IBeamCondSvc;
+class VxContainer;
 
 namespace Trk{
 
@@ -40,7 +43,7 @@ class IPRD_AssociationTool;
      @author Maria.Jose.Costa@cern.ch, Andreas.Salzburger@cern.ch
      */
  
-class ReFitTrack : public AthAlgorithm  {
+class ReFitTrack : public AthReentrantAlgorithm  {
 
 public:
 
@@ -50,7 +53,7 @@ public:
   ReFitTrack(const std::string &name,ISvcLocator *pSvcLocator);
 
   virtual StatusCode initialize();
-  virtual StatusCode execute();
+  virtual StatusCode execute_r(const EventContext& ctx) const;
   virtual StatusCode finalize();
 
 private:
@@ -60,9 +63,9 @@ private:
   
 
   // --- job options
-  std::string m_TrackName;                                 //!< Name of the input Trackcollection
-  std::string m_NewTrackName;                              //!< Name of the output Trackcollection
-  
+  SG::ReadHandleKey<TrackCollection> m_TrackName;
+  SG::WriteHandleKey<TrackCollection> m_NewTrackName;
+
   // --- fitter steering
   Trk::RunOutlierRemoval          m_runOutlier;             //!< switch whether to run outlier logics or not
   int                             m_matEffects;             //!< type of material interaction in extrapolation
@@ -78,14 +81,13 @@ private:
   ToolHandle<Trk::IPRD_AssociationTool>  m_assoTool;         //!< association tool for PRDs
   ToolHandle<Trk::ITrackSelectorTool> m_trkSelectorTool;     //!< the track selector tool
                                                             
-  TrackCollection                 *m_newtracks;              //!< output of refitted tracks
-                                                            
   unsigned int                     m_constrainFitMode;       //!< 0 - not constraint, 1 - vertex, 2 - beamspot
-  std::string                      m_vxContainerName;        //!< constrain the fit with
+  SG::ReadHandleKey<VxContainer>  m_vxContainerName;   
   ServiceHandle<IBeamCondSvc>      m_iBeamCondSvc;           //!< the beam conditions service
   ToolHandle<Trk::IExtrapolator>   m_extrapolator;           //!< the extrapoaltor for the consistent measurement frame
   
   bool m_usetrackhypo;                                       //!< Fit using particle hypothesis from input track    
+
   
 };
 
