@@ -10,7 +10,9 @@
 #include "G4EventManager.hh"
 
 #include "MCTruth/EventInformation.h"
+#include "MCTruth/PrimaryParticleInformation.h"
 #include "MCTruth/TrackHelper.h"
+#include "MCTruth/TrackInformation.h"
 #include "MCTruthBase/AtlasTrajectory.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
