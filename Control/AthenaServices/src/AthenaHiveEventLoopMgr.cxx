@@ -1170,6 +1170,7 @@ StatusCode  AthenaHiveEventLoopMgr::createEventContext(EventContext*& evtContext
     warning() << "Slot " << evtContext->slot()
               << " could not be selected for the WhiteBoard" << endmsg;
   } else {
+    evtContext->setProxy( eventStore()->hiveProxyDict() );
     debug() << "created EventContext, num: " << evtContext->evt()  << "  in slot: " 
 	    << evtContext->slot() << endmsg;
   }
