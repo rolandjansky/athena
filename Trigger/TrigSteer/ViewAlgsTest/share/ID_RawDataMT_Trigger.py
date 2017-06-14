@@ -15,6 +15,7 @@ AlgScheduler.OutputLevel( INFO )
 AlgScheduler.CheckDependencies( True )
 AlgScheduler.ShowControlFlow( True )
 AlgScheduler.ShowDataDependencies( True )
+AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
  
 from AthenaCommon.JobProperties import jobproperties
 jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-03-01-00"
@@ -56,6 +57,8 @@ from AtlasGeoModel import GeoModelInit
 
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()
+from SGComps.SGCompsConf import SGInputLoader
+topSequence += SGInputLoader( )
 
 # -------------------- Condition Data Access --------------------------------
 # Conditions Service for reading conditions data in serial and MT Athena
@@ -92,13 +95,6 @@ if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
 svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
     "ROIB::RoIBResult/RoIBResult" ]
 
-from AthenaCommon.ConcurrencyFlags import jobproperties as jp
-nThreads = jp.ConcurrencyFlags.NumThreads()
-if nThreads >= 1:
-  #Retrieve input data
-  from SGComps.SGCompsConf import SGInputLoader
-  topSequence += SGInputLoader( OutputLevel=INFO, ShowEventDump=False )
-  topSequence.SGInputLoader.Load = [ ('ROIB::RoIBResult','RoIBResult') ]
 
 from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ROBDataProviderSvc
 ServiceMgr += ROBDataProviderSvc()

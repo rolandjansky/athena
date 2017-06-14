@@ -7,6 +7,14 @@ from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.CheckDependencies( True )
 AlgScheduler.OutputLevel( VERBOSE )
 AlgScheduler.ShowDataDependencies( True )
+AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
+
+
+## get a handle on the ServiceManager
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+from SGComps.SGCompsConf import SGInputLoader
+topSequence += SGInputLoader( )
 
 from AthenaCommon.GlobalFlags import globalflags;
 globalflags.DataSource.set_Value_and_Lock("data");
@@ -126,14 +134,6 @@ svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
 # Private Application Configuration options
 #--------------------------------------------------------------
 # Load "user algorithm" top algorithms to be run, and the libraries that house them
-
-
-if nThreads >= 1:
-  #Retrieve input data
-  from SGComps.SGCompsConf import SGInputLoader
-  topSequence += SGInputLoader( OutputLevel=INFO, ShowEventDump=False )
-  topSequence.SGInputLoader.Load = [ ('ROIB::RoIBResult','RoIBResult') ]
-
 
 #Run calo decoder
 from L1Decoder.L1DecoderConf import L1CaloDecoder
