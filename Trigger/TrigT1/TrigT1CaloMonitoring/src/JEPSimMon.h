@@ -469,18 +469,18 @@ private:
 template <typename T> inline
 void JEPSimMon::dumpDataAndSim(const std::string& msg, const std::map<int, T*>& data,
                     const std::map<int, T*>& sim) {
-  if (m_debug) {
-    ATH_MSG_DEBUG(msg);
-    for (const auto& p : data) {
-      ATH_MSG_DEBUG(" DAT " << *p.second);
-      auto itSim =  sim.find(p.first);
-      if (itSim != sim.end()) {
-        ATH_MSG_DEBUG(" SIM " << *itSim->second << std::endl);
-      }
+  if (!m_debug) return;
+
+  ATH_MSG_DEBUG(msg);
+  for (const auto& p : data) {
+    ATH_MSG_DEBUG(" DAT " << *p.second);
+    auto itSim =  sim.find(p.first);
+    if (itSim != sim.end()) {
+      ATH_MSG_DEBUG(" SIM " << *itSim->second << std::endl);
     }
-    ATH_MSG_DEBUG("End Compare");
   }
-}
+  ATH_MSG_DEBUG("End Compare");
+  }
 
 } // end namespace
 
