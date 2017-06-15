@@ -38,7 +38,7 @@ int main ()
   UnitTest ut ("direct");
   ut.outputDisk = new SH::DiskOutputXRD ("root://hep-head1.physics.iastate.edu:1094//local/xrootd/a/nils/test1/");
   ut.cleanup = false;
-  ut.location = "$HOME/unit-test.$$";
+  // ut.location = "$HOME/unit-test.$$";
   RCU::Shell::exec ("rm -rf /mnt/nils/test1");
   return ut.run (driver);
 }

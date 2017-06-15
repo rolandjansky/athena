@@ -55,11 +55,6 @@ function( _add_gtest cxx_name )
       SampleHandler EventLoop )
 endfunction( _add_gtest )
 
-file( GLOB _gtests test/gt_*.cxx )
-foreach( gtest ${_gtests} )
-   _add_gtest( ${gtest} )
-endforeach()
-
 function( _add_test cxx_name )
    get_filename_component( test_name ${cxx_name} NAME_WE )
    atlas_add_test( ${test_name}
@@ -68,15 +63,22 @@ function( _add_test cxx_name )
       LINK_LIBRARIES ${ROOT_LIBRARIES} RootCoreUtils SampleHandler EventLoop )
 endfunction( _add_test )
 
-file( GLOB _tests test/ut_*.cxx )
-foreach( test ${_tests} )
-   _add_gtest( ${test} )
+set (MANUAL_TESTS test/gt_LSFDriver_EOS.cxx test/ut_background_driver.cxx test/ut_driver_condor.cxx test/ut_driver_ll.cxx test/ut_driver_lsf.cxx test/ut_driver_proof_farm.cxx test/ut_driver_torque.cxx test/ut_xrootd_output.cxx)
+
+file( GLOB _tests RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/test/[a-z]*.cxx" )
+foreach( source ${_tests} )
+  string (REGEX REPLACE "test/(.*).cxx" "\\1" util ${source})
+  list (FIND MANUAL_TESTS "${source}" _index)
+  if (${_index} GREATER -1)
+    atlas_add_executable ("EventLoop_${util}" ${source} LINK_LIBRARIES EventLoop)
+  else (${_index} GREATER -1)
+    _add_gtest( test/${util}.cxx )
+  endif (${_index} GREATER -1)
 endforeach()
 
 file (GLOB util_sources RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/util/[a-zA-Z0-9]*.cxx")
 foreach (source ${util_sources})
   string (REGEX REPLACE "util/(.*).cxx" "\\1" util ${source})
-  message (${util} ${source} LINK_LIBRARIES EventLoop)
   atlas_add_executable (${util} ${source} LINK_LIBRARIES EventLoop)
 endforeach (source ${util_sources})
 
