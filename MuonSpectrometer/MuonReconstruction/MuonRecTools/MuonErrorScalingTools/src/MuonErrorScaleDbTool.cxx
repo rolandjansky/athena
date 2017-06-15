@@ -169,7 +169,8 @@ Muon::MuonErrorScaleDbTool::makeInfoString(const std::string& sdet,
   s1.append("* err (+) ");
   sprintf(s2,"%6.3g ",errscaler[1]);s1.append(s2);
   int n = nformat-s1.size();
-  for(int i=0; i<n; ++i) s1.append(" "); s1.append("|");
+  for(int i=0; i<n; ++i) s1.append(" "); 
+  s1.append("|");
   return s1;
 }
 
