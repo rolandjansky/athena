@@ -78,11 +78,11 @@ public:
 private:
 
   /// Properties for the jobOptions
-  std::string libList;
-  std::string physList;
-  std::string generator;
-  std::string fieldMap;
-  std::string rndmGen;
+  std::string m_libList;
+  std::string m_physList;
+  std::string m_generator;
+  std::string m_fieldMap;
+  std::string m_rndmGen;
   bool m_releaseGeoModel;
   bool m_recordFlux;
   bool m_IncludeParentsInG4Event;

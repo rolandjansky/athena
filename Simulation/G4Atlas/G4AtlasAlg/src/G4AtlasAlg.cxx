@@ -51,11 +51,11 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
 {
   ATH_MSG_DEBUG(std::endl << std::endl << std::endl);
   ATH_MSG_INFO("++++++++++++  G4AtlasAlg created  ++++++++++++" << std::endl << std::endl);
-  declareProperty( "Dll", libList="");
-  declareProperty( "Physics", physList="");
-  declareProperty( "Generator", generator="");
-  declareProperty( "FieldMap", fieldMap="");
-  declareProperty( "RandomGenerator", rndmGen="athena");
+  declareProperty( "Dll", m_libList="");
+  declareProperty( "Physics", m_physList="");
+  declareProperty( "Generator", m_generator="");
+  declareProperty( "FieldMap", m_fieldMap="");
+  declareProperty( "RandomGenerator", m_rndmGen="athena");
   declareProperty( "ReleaseGeoModel", m_releaseGeoModel=true);
   declareProperty( "RecordFlux", m_recordFlux=false);
   declareProperty( "IncludeParentsInG4Event", m_IncludeParentsInG4Event=false);
@@ -156,39 +156,39 @@ void G4AtlasAlg::initializeOnce()
   G4UImanager *ui = G4UImanager::GetUIpointer();
 
   // Load custom libraries
-  if (!libList.empty()) {
+  if (!m_libList.empty()) {
     ATH_MSG_INFO("G4AtlasAlg specific libraries requested ") ;
-    std::string temp="/load "+libList;
+    std::string temp="/load "+m_libList;
     ui->ApplyCommand(temp);
   }
   // Load custom physics
-  if (!physList.empty()) {
-    ATH_MSG_INFO("requesting a specific physics list "<< physList) ;
-    std::string temp="/Physics/GetPhysicsList "+physList;
+  if (!m_physList.empty()) {
+    ATH_MSG_INFO("requesting a specific physics list "<< m_physList) ;
+    std::string temp="/Physics/GetPhysicsList "+m_physList;
     ui->ApplyCommand(temp);
   }
   // Setup generator
   FADS::GeneratorCenter* gc = FADS::GeneratorCenter::GetGeneratorCenter();
   gc->SetIncludeParentsInG4Event( m_IncludeParentsInG4Event );
-  if (!generator.empty()) {
-    ATH_MSG_INFO("requesting a specific generator "<< generator) ;
-    gc->SelectGenerator(generator);
+  if (!m_generator.empty()) {
+    ATH_MSG_INFO("requesting a specific generator "<< m_generator) ;
+    gc->SelectGenerator(m_generator);
   } else {
     // make sure that there is a default generator (i.e. HepMC interface)
     gc->SelectGenerator("AthenaHepMCInterface");
   }
   // Load custom magnetic field
-  if (!fieldMap.empty()) {
-    ATH_MSG_INFO("requesting a specific field map "<< fieldMap) ;
+  if (!m_fieldMap.empty()) {
+    ATH_MSG_INFO("requesting a specific field map "<< m_fieldMap) ;
     ATH_MSG_INFO("the field is initialized straight away") ;
-    std::string temp="/MagneticField/Select "+fieldMap;
+    std::string temp="/MagneticField/Select "+m_fieldMap;
     ui->ApplyCommand(temp);
     ui->ApplyCommand("/MagneticField/Initialize");
   }
 
   ui->ApplyCommand("/geometry/navigator/check_mode true");
 
-  if (rndmGen=="athena" || rndmGen=="ranecu")	{
+  if (m_rndmGen=="athena" || m_rndmGen=="ranecu")	{
     // Set the random number generator to AtRndmGen
     if (m_rndmGenSvc.retrieve().isFailure()) {
       // We can only return void from here. Let's assume that eventually
@@ -200,7 +200,7 @@ void G4AtlasAlg::initializeOnce()
     CLHEP::HepRandom::setTheEngine(engine);
     ATH_MSG_INFO("Random nr. generator is set to Athena");
   }
-  else if (rndmGen=="geant4" || rndmGen.empty()) {
+  else if (m_rndmGen=="geant4" || m_rndmGen.empty()) {
     ATH_MSG_INFO("Random nr. generator is set to Geant4");
   }
 
