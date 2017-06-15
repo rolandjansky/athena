@@ -43,24 +43,32 @@ static std::once_flag finalizeOnceFlag;
 
 G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
-    m_rndmGenSvc("AtDSFMTGenSvc", name),
-    m_userActionSvc("G4UA::UserActionSvc", name), // new user action design
-    m_physListTool("PhysicsListToolBase"),
-    m_truthRecordSvc("ISF_TruthRecordSvc", name),
-    m_geoIDSvc("ISF_GeoIDSvc", name)
+  , m_libList("")
+  , m_physList("")
+  , m_generator("")
+  , m_fieldMap("")
+  , m_rndmGen("athena")
+  , m_releaseGeoModel(true)
+  , m_recordFlux(false)
+  , m_IncludeParentsInG4Event(false)
+  , m_killAbortedEvents(true)
+  , m_flagAbortedEvents(false)
+  , m_rndmGenSvc("AtDSFMTGenSvc", name)
+  , m_userActionSvc("G4UA::UserActionSvc", name) // new user action design
+  , m_physListTool("PhysicsListToolBase")
+  , m_truthRecordSvc("ISF_TruthRecordSvc", name)
+  , m_geoIDSvc("ISF_GeoIDSvc", name)
 {
-  ATH_MSG_DEBUG(std::endl << std::endl << std::endl);
-  ATH_MSG_INFO("++++++++++++  G4AtlasAlg created  ++++++++++++" << std::endl << std::endl);
-  declareProperty( "Dll", m_libList="");
-  declareProperty( "Physics", m_physList="");
-  declareProperty( "Generator", m_generator="");
-  declareProperty( "FieldMap", m_fieldMap="");
-  declareProperty( "RandomGenerator", m_rndmGen="athena");
-  declareProperty( "ReleaseGeoModel", m_releaseGeoModel=true);
-  declareProperty( "RecordFlux", m_recordFlux=false);
-  declareProperty( "IncludeParentsInG4Event", m_IncludeParentsInG4Event=false);
-  declareProperty( "KillAbortedEvents", m_killAbortedEvents=true);
-  declareProperty( "FlagAbortedEvents", m_flagAbortedEvents=false);
+  declareProperty( "Dll", m_libList);
+  declareProperty( "Physics", m_physList);
+  declareProperty( "Generator", m_generator);
+  declareProperty( "FieldMap", m_fieldMap);
+  declareProperty( "RandomGenerator", m_rndmGen);
+  declareProperty( "ReleaseGeoModel", m_releaseGeoModel);
+  declareProperty( "RecordFlux", m_recordFlux);
+  declareProperty( "IncludeParentsInG4Event", m_IncludeParentsInG4Event);
+  declareProperty( "KillAbortedEvents", m_killAbortedEvents);
+  declareProperty( "FlagAbortedEvents", m_flagAbortedEvents);
 
   // Service instantiation
   declareProperty("AtRndmGenSvc", m_rndmGenSvc);
@@ -68,7 +76,7 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("PhysicsListTool", m_physListTool);
   declareProperty("TruthRecordService", m_truthRecordSvc);
   declareProperty("GeoIDSvc", m_geoIDSvc);
-  
+
   // Verbosities
   declareProperty("Verbosities", m_verbosities);
 
@@ -82,8 +90,8 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode G4AtlasAlg::initialize()
-{
+StatusCode G4AtlasAlg::initialize() {
+  ATH_MSG_DEBUG("Start of initialize()");
   // Create the scoring manager if requested
   if (m_recordFlux) G4ScoringManager::GetScoringManager();
 
@@ -117,16 +125,14 @@ StatusCode G4AtlasAlg::initialize()
   sManager->SetISFTruthSvc( &(*m_truthRecordSvc) );
   sManager->SetISFGeoIDSvc( &(*m_geoIDSvc) );
 
-  ATH_MSG_INFO("++++++++++++  G4AtlasAlg initialized  ++++++++++++" << std::endl << std::endl);
+  ATH_MSG_DEBUG("End of initialize()");
   return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-void G4AtlasAlg::initializeOnce()
-{
+void G4AtlasAlg::initializeOnce() {
   // Assign physics list
-  if(m_physListTool.retrieve().isFailure())
-    {
+  if(m_physListTool.retrieve().isFailure()) {
       throw std::runtime_error("Could not initialize ATLAS PhysicsListTool!");
     }
 
@@ -157,13 +163,13 @@ void G4AtlasAlg::initializeOnce()
 
   // Load custom libraries
   if (!m_libList.empty()) {
-    ATH_MSG_INFO("G4AtlasAlg specific libraries requested ") ;
+    ATH_MSG_INFO("G4AtlasAlg specific libraries requested ");
     std::string temp="/load "+m_libList;
     ui->ApplyCommand(temp);
   }
   // Load custom physics
   if (!m_physList.empty()) {
-    ATH_MSG_INFO("requesting a specific physics list "<< m_physList) ;
+    ATH_MSG_INFO("requesting a specific physics list "<< m_physList);
     std::string temp="/Physics/GetPhysicsList "+m_physList;
     ui->ApplyCommand(temp);
   }
@@ -171,7 +177,7 @@ void G4AtlasAlg::initializeOnce()
   FADS::GeneratorCenter* gc = FADS::GeneratorCenter::GetGeneratorCenter();
   gc->SetIncludeParentsInG4Event( m_IncludeParentsInG4Event );
   if (!m_generator.empty()) {
-    ATH_MSG_INFO("requesting a specific generator "<< m_generator) ;
+    ATH_MSG_INFO("requesting a specific generator "<< m_generator);
     gc->SelectGenerator(m_generator);
   } else {
     // make sure that there is a default generator (i.e. HepMC interface)
@@ -179,8 +185,8 @@ void G4AtlasAlg::initializeOnce()
   }
   // Load custom magnetic field
   if (!m_fieldMap.empty()) {
-    ATH_MSG_INFO("requesting a specific field map "<< m_fieldMap) ;
-    ATH_MSG_INFO("the field is initialized straight away") ;
+    ATH_MSG_INFO("requesting a specific field map "<< m_fieldMap);
+    ATH_MSG_INFO("the field is initialized straight away");
     std::string temp="/MagneticField/Select "+m_fieldMap;
     ui->ApplyCommand(temp);
     ui->ApplyCommand("/MagneticField/Initialize");
@@ -188,7 +194,7 @@ void G4AtlasAlg::initializeOnce()
 
   ui->ApplyCommand("/geometry/navigator/check_mode true");
 
-  if (m_rndmGen=="athena" || m_rndmGen=="ranecu")	{
+  if (m_rndmGen=="athena" || m_rndmGen=="ranecu") {
     // Set the random number generator to AtRndmGen
     if (m_rndmGenSvc.retrieve().isFailure()) {
       // We can only return void from here. Let's assume that eventually
@@ -205,7 +211,7 @@ void G4AtlasAlg::initializeOnce()
   }
 
   // Send UI commands
-  for (auto g4command : m_g4commands){
+  for (auto g4command : m_g4commands) {
     ui->ApplyCommand( g4command );
   }
 
@@ -215,10 +221,9 @@ void G4AtlasAlg::initializeOnce()
   //initializeG4();
 }
 
-void G4AtlasAlg::initializeG4()
-{
+void G4AtlasAlg::initializeG4() {
 
-  if (m_verbosities.size()>0){
+  if (m_verbosities.size()>0) {
     G4TransportationManager *tm = G4TransportationManager::GetTransportationManager();
     G4RunManagerKernel *rmk = G4RunManagerKernel::GetRunManagerKernel();
     G4EventManager *em = G4EventManager::GetEventManager();
@@ -275,11 +280,9 @@ void G4AtlasAlg::finalizeOnce() {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode G4AtlasAlg::execute()
-{
+StatusCode G4AtlasAlg::execute() {
   static int n_Event=0;
-  ATH_MSG_DEBUG(std::endl<<std::endl<<std::endl);
-  ATH_MSG_INFO("++++++++++++  G4AtlasAlg execute  ++++++++++++" <<std::endl<<std::endl);
+  ATH_MSG_DEBUG("++++++++++++  G4AtlasAlg execute  ++++++++++++");
 
 
   n_Event += 1;
@@ -320,12 +323,13 @@ StatusCode G4AtlasAlg::execute()
       ATH_MSG_WARNING("setFilterPassed is now False");
       setFilterPassed(false);
     }
-    if (m_flagAbortedEvents){
+    if (m_flagAbortedEvents) {
       // TODO: update to VarHandle
       const DataHandle<EventInfo> eic = 0;
-      if ( sgSvc()->retrieve( eic ).isFailure() || !eic ){
+      if ( sgSvc()->retrieve( eic ).isFailure() || !eic ) {
         ATH_MSG_WARNING( "Failed to retrieve EventInfo" );
-      } else {
+      }
+      else {
         // Gotta cast away the const... sadface
         EventInfo *ei = const_cast< EventInfo * > (&(*eic));
         ei->setErrorState(EventInfo::Core,EventInfo::Error);

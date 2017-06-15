@@ -104,7 +104,7 @@ private:
   ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;
   /// Physics List Tool
   ToolHandle<IPhysicsListTool> m_physListTool;
-  
+
   /** Central truth service */
   ServiceHandle<ISF::ITruthSvc> m_truthRecordSvc;
   ServiceHandle<ISF::IGeoIDSvc> m_geoIDSvc;
