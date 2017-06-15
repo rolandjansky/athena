@@ -499,8 +499,6 @@ class forceTileRODMap(_modifier):
         if not hasattr(svcMgr.ToolSvc,"TileROD_Decoder"):
            from TileByteStream.TileByteStreamConf import TileROD_Decoder
            svcMgr.ToolSvc+=TileROD_Decoder()
-        print 'checking modifier'
-        print _run_number
         if _run_number<318000:  # use old readout scheme (default is new one)
             log.info('Reverting to pre-2017 Tile ROD map')
             #ToolSvc.TrigDataAccess.fullTileMode=False
