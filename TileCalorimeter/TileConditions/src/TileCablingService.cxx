@@ -136,6 +136,11 @@ TileCablingService::setCablingType(TileCablingService::TileCablingType type)
 //   2 new configuration with MBTS instead of crack scintillators
 //   3 new configuration with MBTS in spare channels
   m_cablingType = type;
+
+  m_maxGains = std::round(((double) m_tileID->adc_hash_max()) / m_tileID->pmt_hash_max());
+
+  ATH_MSG_INFO("Detected maximum number of gains: " << m_maxGains);
+
   if (TileCablingService::TestBeam == type || TileCablingService::OldSim == type) {
     // old cabling for simulation - no special EB modules, wrong numbers for E1-E4
     m_EBAspec = -1;
