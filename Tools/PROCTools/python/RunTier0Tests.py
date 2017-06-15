@@ -11,6 +11,7 @@ import threading
 import time
 import uuid
 import logging
+import glob
 
 ### Setup global logging
 logging.basicConfig(level=logging.INFO,
@@ -86,9 +87,9 @@ def GetReleaseSetup():
     release_head=os.environ['Athena_VERSION']
     platform=os.environ['Athena_PLATFORM']
     project=os.environ['AtlasProject']
-    builds_dir='/cvmfs/atlas-nightlies.cern.ch/repo/sw/'+release_base+'/*/'+project+'/'+release_head
-
-    latest_nightly  = subprocess.Popen(['/bin/bash', '-c',"ls -ltr "+builds_dir+" | grep "+release_head], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0].split('/')[-3]
+    builds_dir_searchStr='/cvmfs/atlas-nightlies.cern.ch/repo/sw/'+release_base+'/[!latest_]*/'+project+'/'+release_head
+    # finds all directories matching above search pattern, and sorts by modification time
+    latest_nightly = sorted(glob.glob(builds_dir_searchStr), key=os.path.getmtime)[-1].split('/')[-3]
 
     if current_nightly != latest_nightly:
         logging.info("Please be aware that you are not testing your tags in the latest available nightly, which is "+latest_nightly )
