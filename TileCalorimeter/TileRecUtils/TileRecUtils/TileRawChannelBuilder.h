@@ -91,7 +91,7 @@ class TileRawChannelBuilder: public AthAlgTool {
     }
 
     // find all bad patterns in a drawer and fill internal static arrays
-    void fill_drawer_errors(const TileDigitsCollection* collection);
+    virtual void fill_drawer_errors(const TileDigitsCollection* collection);
 
     // process all digits from one collection and store results in internal container
     void build(const TileDigitsCollection* collection);
