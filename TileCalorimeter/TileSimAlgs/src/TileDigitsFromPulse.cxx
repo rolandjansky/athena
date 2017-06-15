@@ -19,29 +19,21 @@
 
 #include "TileEvent/TileDigits.h"
 
-#ifndef ATHENAHIVE
-#define USE_TILEDIGITS_DATAPOOL
-#endif
-
-#ifdef USE_TILEDIGITS_DATAPOOL
-#define NEWTILEDIGITS  tileDigitsPool.nextElementPtr
-#else
-#define NEWTILEDIGITS new TileDigits
-#endif
-
 #include "AthAllocators/DataPool.h"
 #include "PathResolver/PathResolver.h"
 
 // Tile includes
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileInfo.h"
+#include "TileConditions/TileCondToolNoiseSample.h"
+#include "TileConditions/TileCondToolPulseShape.h"
+#include "TileConditions/TileCablingService.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileSimAlgs/TileDigitsFromPulse.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 
 //C++ STL includes
-#include <vector>
 
 //Simulator includes
 #include "TilePulseSimulator/TileSampleGenerator.h"
@@ -70,8 +62,13 @@ TileDigitsFromPulse::TileDigitsFromPulse(std::string name, ISvcLocator* pSvcLoca
   AthAlgorithm(name, pSvcLocator), 
   m_tileHWID(0), 
   m_tileInfo(0), 
+  m_tileToolNoiseSample("TileCondToolNoiseSample"),
+  m_tileToolPulseShape("TileCondToolPulseShape"),
   m_pHRengine(0), 
-  m_rndmSvc("AtRndmGenSvc", name)
+  m_rndmSvc("AtRndmGenSvc", name),
+  m_nSamples(7),
+  m_nPul(21),
+  m_useOffsetHisto(false)
 
 {
   m_rChUnit = TileRawChannelUnit::ADCcounts;
@@ -106,29 +103,13 @@ TileDigitsFromPulse::TileDigitsFromPulse(std::string name, ISvcLocator* pSvcLoca
   declareProperty("RandomSeed", m_seed = 4357);
   declareProperty("BunchSpacing", m_BunchSpacing = 25.); // 25, 50 or 75
   declareProperty("SimulateQIE", m_simQIE = kFALSE);
-  
+
+  //Number of samples and pileup, currently hard-coded  
   //   declareProperty("nSamples", nSamp = 7); //TBD
   //   declareProperty("nPulses", nPul = 21);  //TBD
-  
-  //Number of samples and pileup, currently hard-coded
-  m_nSamples = 7;
-  m_nPul = 21;
-  
-  //Initialisations
-  m_ps[0] = new TilePulseShape(msgSvc(), "TilePulseShapeLo"); //Low Gain
-  m_ps[1] = new TilePulseShape(msgSvc(), "TilePulseShapeHi"); //High Gain
-  
-  m_buf = new TileSampleBuffer(m_nSamples, -75., 25.);
-  m_tsg = new TileSampleGenerator(m_ps[0], m_buf, false); //Set third parameter to true for debug of the sum of pulses
-  
-  m_itFile = new TFile();
-  m_itDist = new TH1F();
-  m_ootFile = new TFile();
-  m_ootDist = new TH1F();
-  m_ootOffsetDist = new TH1F();
-  m_ootOffsetFile = new TFile();
-  
-  m_useOffsetHisto = kFALSE;
+
+  declareProperty("TileCondToolNoiseSample", m_tileToolNoiseSample);
+  declareProperty("TileCondToolPulseShape", m_tileToolPulseShape);
   
   m_nPul_eff = (m_nPul - 1) / 2; //Used for symetrization of PU in computation
   
@@ -136,13 +117,6 @@ TileDigitsFromPulse::TileDigitsFromPulse(std::string name, ISvcLocator* pSvcLoca
 
 TileDigitsFromPulse::~TileDigitsFromPulse() {
   
-  delete m_ootOffsetFile;
-  delete m_ootFile;
-  delete m_itFile;
-  delete m_tsg;
-  delete m_buf;
-  delete m_ps[0];
-  delete m_ps[1];
 }
 
 //
@@ -155,10 +129,11 @@ StatusCode TileDigitsFromPulse::initialize() {
   CHECK(detStore()->retrieve(m_tileInfo, "TileInfo"));
   
   ATH_MSG_INFO("output container: " << m_outputContainer);
-  
-  //Build pulse shapes
-  m_ps[0]->setPulseShape(m_tileInfo->digitsFullShapeLo());
-  m_ps[1]->setPulseShape(m_tileInfo->digitsFullShapeHi());
+
+
+  m_sampleBuffer = std::make_unique<TileSampleBuffer>(m_nSamples, -75., 25.);
+ //Set third parameter to true for debug of the sum of pulses
+  m_sampleGenerator = std::make_unique<TileSampleGenerator>(nullptr, m_sampleBuffer.get(), false);
   
   //Initialise distribution histograms if in use
   if (m_useItADist) {
@@ -169,12 +144,12 @@ StatusCode TileDigitsFromPulse::initialize() {
         return StatusCode::FAILURE;
       }
     }
-    if (makeDist(m_itFile, m_itDist, m_itADistFileName, m_itADistHistName) == kFALSE)
+    if (!makeDist(m_itDist, m_itADistFileName, m_itADistHistName))
       return StatusCode::FAILURE;
     ATH_MSG_DEBUG("Made in-time distribution");
-  } else
-    delete m_itDist;
-  if (m_useOotADist) {
+  }
+
+ if (m_useOotADist) {
     if (m_ootADistFileName.size() == 0) {
       m_ootADistFileName = PathResolver::find_file("Distributions_small_h2000_177531_ZeroBias.root", "DATAPATH");
       if (m_ootADistFileName.size() == 0) {
@@ -182,38 +157,58 @@ StatusCode TileDigitsFromPulse::initialize() {
         return StatusCode::FAILURE;
       }
     }
-    if (makeDist(m_ootFile, m_ootDist, m_ootADistFileName, m_ootADistHistName) == kFALSE)
+    if (!makeDist(m_ootDist, m_ootADistFileName, m_ootADistHistName))
       return StatusCode::FAILURE;
     ATH_MSG_DEBUG("Made Oot distribution");
-  } else
-    delete m_ootDist;
+  }
   
   //Initialise timing offset distribution. If filename is empty, use static offset
   if (m_ootOffsetFileName.size() != 0) {
-    m_ootOffsetFile = TFile::Open(m_ootOffsetFileName.c_str());
-    if (m_ootOffsetFile->IsZombie()) {
+
+    TFile ootOffsetFile(m_ootOffsetFileName.c_str());
+    if (ootOffsetFile.IsZombie()) {
       ATH_MSG_WARNING("Error reading offset timing distribution from " << m_ootOffsetFileName << ". Using static timing offset.");
     } else {
-      TKey *key = m_ootOffsetFile->FindKey(m_ootOffsetHistName.c_str());
-      if (key == 0) {
-        ATH_MSG_WARNING("Histogram " << m_ootOffsetHistName << " not found in file " << m_ootOffsetFileName << ". Using static timing offset.");
+
+      TH1F* ootOffsetDist(nullptr);
+      ootOffsetFile.GetObject(m_ootOffsetHistName.c_str(), ootOffsetDist);
+
+      if (ootOffsetDist) {
+        ootOffsetDist->SetDirectory(0);
+        m_ootOffsetDist = std::unique_ptr<TH1F>(ootOffsetDist);
+        m_useOffsetHisto = false;
       } else {
-        m_ootOffsetDist = (TH1F*) m_ootOffsetFile->Get(m_ootOffsetHistName.c_str());
-        m_useOffsetHisto = kTRUE;
+        ATH_MSG_WARNING("Histogram " << m_ootOffsetHistName << " not found in file " << m_ootOffsetFileName << ". Using static timing offset.");
       }
+
     }
   }
   
   //Start the random number service used to create channel specific noise
-  if (!m_rndmSvc.retrieve().isSuccess()) {
-    ATH_MSG_FATAL("Could not initialize find Random Number Service.");
-    return StatusCode::FAILURE;
-  } else {
-    m_pHRengine = m_rndmSvc->GetEngine("Tile_DigitsMaker");
-  }
+  CHECK( m_rndmSvc.retrieve() );
+  m_pHRengine = m_rndmSvc->GetEngine("Tile_DigitsMaker");
+
   if (m_chanNoise)
     m_gaussNoise = kFALSE; //Make sure channel noise overrides gaussian noise.
+
+  //=== Get TileCondToolNoiseSample
+  CHECK( m_tileToolNoiseSample.retrieve() );
+
+  //=== Get TileCondToolPulseShape
+  CHECK( m_tileToolPulseShape.retrieve() );
+
+  m_maxGains = TileCablingService::getInstance()->getMaxGains();
   
+  m_random = std::make_unique<TRandom3>(m_seed); //Randomizer for pulse-shape imperfection
+
+  if (!m_simQIE) {
+    //Noise pdf for general noise. Maybe use as a member and put in init.
+    //pdf = new TF1("pdf", "[0] * (Gaus(x,0,[1]) + [2] * Gaus(x,0,[3]))", -100., 100.); //Root goes not like "Gaus"
+    m_pdf = std::make_unique<TF1>("pdf", "[0] * (exp(-0.5*(x/[1])**2)/(sqrt(2*pi)*[1]) + [2] *exp(-0.5*(x/[3])**2)/(sqrt(2*pi)*[3]))", -100., 100.);
+    m_pdf->SetParameters(m_GNAmpOne, m_GNSigmaOne, m_GNAmpTwo, m_GNSigmaTwo);
+  }
+
+
   ATH_MSG_DEBUG("initialize() successful");
   
   return StatusCode::SUCCESS;
@@ -225,32 +220,54 @@ StatusCode TileDigitsFromPulse::initialize() {
 StatusCode TileDigitsFromPulse::execute() {
   
   ATH_MSG_DEBUG("in execute()");
+
+
+  if (m_pulseShape.empty()) {
+    
+    unsigned int drawerIdx(0);
+    unsigned int channel(0);
+
+    float y;
+    float dy;
+    std::vector<double> shape;
+
+    std::vector<std::string> gainNames;
+    if (m_maxGains < 3) {
+      gainNames.assign({"Lo", "Hi"});
+    } else if (m_maxGains == 3) {
+      gainNames.assign({"Lo", "Me", "Hi"});
+    } else {
+      ATH_MSG_WARNING("Unknown names of all gains!");
+      gainNames.resize(m_maxGains, "Unknown");
+    }
+
+    for (int gain = 0; gain < m_maxGains; ++gain) {
+
+      m_pulseShape.push_back(std::make_unique<TilePulseShape>(msgSvc(), "TilePulseShape" + gainNames[gain]));
+
+      shape.clear();
+      for (float phase = -75.5F; phase < 130.0F; phase += 0.5F) {
+        m_tileToolPulseShape->getPulseShapeYDY(drawerIdx, channel, gain, phase, y, dy);
+        shape.push_back(y);
+      }
+      
+      m_pulseShape.back()->setPulseShape(shape);
+    }
+
+  }
+
   
   // Create new container for digits
-  TileDigitsContainer* outputCont = new TileDigitsContainer(true, SG::VIEW_ELEMENTS);
+  TileDigitsContainer* outputCont = new TileDigitsContainer(true);
   if (!outputCont) {
     ATH_MSG_FATAL("Could not create a new TileDigitsContainer");
     return StatusCode::FAILURE;
   }
   
   //Create RawChannel for truth values.
-  TileRawChannel * pRawChannel;
-  TileRawChannelContainer * pRawChannelContainer;
-  pRawChannelContainer = new TileRawChannelContainer(true, m_rChType, m_rChUnit);
-#ifdef USE_TILEDIGITS_DATAPOOL
-  DataPool < TileDigits > tileDigitsPool(m_tileHWID->adc_hash_max());
-#endif
+  TileRawChannelContainer* pRawChannelContainer = new TileRawChannelContainer(true, m_rChType, m_rChUnit);
   
-  TRandom3 *random = new TRandom3(m_seed); //Randomizer for pulse-shape imperfection
   double tFit = 0, ped = 50.; //Settings for simulation
-  
-  TF1 *pdf = new TF1();
-  if (!m_simQIE) {
-    //Noise pdf for general noise. Maybe use as a member and put in init.
-    //pdf = new TF1("pdf", "[0] * (Gaus(x,0,[1]) + [2] * Gaus(x,0,[3]))", -100., 100.); //Root goes not like "Gaus"
-    pdf = new TF1("pdf", "[0] * (exp(-0.5*(x/[1])**2)/(sqrt(2*pi)*[1]) + [2] *exp(-0.5*(x/[3])**2)/(sqrt(2*pi)*[3]))", -100., 100.);
-    pdf->SetParameters(m_GNAmpOne, m_GNSigmaOne, m_GNAmpTwo, m_GNSigmaTwo);
-  }
   
   std::vector<float> samples(m_nSamples);
   
@@ -277,11 +294,11 @@ StatusCode TileDigitsFromPulse::execute() {
               n_inTimeAmp = m_useItADist ? m_itDist->GetRandom() : m_inTimeAmp;
               if (m_chanPed)
                 ped = m_tileToolNoiseSample->getPed(drawerIdx, channel, gain);
-              if (random->Rndm() >= m_pileUpFraction)
+              if (m_random->Rndm() >= m_pileUpFraction)
                 m_ootAmp = 0; //Set oot amplitude to 0 if no pile-up.
-              tFit = random->Gaus(0., m_gausC2C); //C2C phase variation
-              double deformatedTime = random->Gaus(m_imperfectionMean, m_imperfectionRms); //Widening of pulseshape
-              m_ps[gain]->scalePulse(deformatedTime, deformatedTime); // Deformation of pulse shape by changing its width
+              tFit = m_random->Gaus(0., m_gausC2C); //C2C phase variation
+              double deformatedTime = m_random->Gaus(m_imperfectionMean, m_imperfectionRms); //Widening of pulseshape
+              m_pulseShape[gain]->scalePulse(deformatedTime, deformatedTime); // Deformation of pulse shape by changing its width
               //if(m_useOffsetHisto) m_ootOffset = m_ootOffsetDist->GetRandom();  //OLD Remove for 7 samples -> BunchSpacing
               
               //Pileup samples
@@ -301,8 +318,8 @@ StatusCode TileDigitsFromPulse::execute() {
             } else {
               if (m_chanPed)
                 ped = m_tileToolNoiseSample->getPed(drawerIdx, channel, gain);
-              double deformatedTime = random->Gaus(m_imperfectionMean, m_imperfectionRms); //Widening of pulseshape
-              m_ps[gain]->scalePulse(deformatedTime, deformatedTime); // Deformation of pulse shape by changing its width
+              double deformatedTime = m_random->Gaus(m_imperfectionMean, m_imperfectionRms); //Widening of pulseshape
+              m_pulseShape[gain]->scalePulse(deformatedTime, deformatedTime); // Deformation of pulse shape by changing its width
               if (m_chanPed)
                 ped = m_tileToolNoiseSample->getPed(drawerIdx, channel, gain);
               
@@ -313,13 +330,13 @@ StatusCode TileDigitsFromPulse::execute() {
               }
             }
             
-            m_tsg->setPulseShape(m_ps[gain]);
-            m_tsg->fill7Samples(tFit, ped, n_inTimeAmp, m_PUAmp, pdf, m_gaussNoise, m_itOffset); // Sum of Intime + PU pulses
-            //m_tsg->fillSamples(tFit,ped,n_inTimeAmp,m_ootAmp,pdf,m_gaussNoise, m_itOffset, m_ootOffset);   //OLD Generation of pulse
+            m_sampleGenerator->setPulseShape(m_pulseShape[gain].get());
+            m_sampleGenerator->fill7Samples(tFit, ped, n_inTimeAmp, m_PUAmp, m_pdf.get(), m_gaussNoise, m_itOffset); // Sum of Intime + PU pulses
+            //m_sampleGenerator->fillSamples(tFit,ped,n_inTimeAmp,m_ootAmp,m_pdf,m_gaussNoise, m_itOffset, m_ootOffset);   //OLD Generation of pulse
             
             samples.clear();
             samples.resize(m_nSamples);
-            m_buf->getValueVector(samples);
+            m_sampleBuffer->getValueVector(samples);
             
             if (m_chanNoise) {
               double Hfn1 = m_tileToolNoiseSample->getHfn1(drawerIdx, channel, gain);
@@ -351,9 +368,9 @@ StatusCode TileDigitsFromPulse::execute() {
           
           gain = 1; //This is just a place holder. The gain is not used in QIE.
           n_inTimeAmp = m_useItADist ? m_itDist->GetRandom() : m_inTimeAmp;
-          //if (random->Rndm() >= m_pileUpFraction) //m_pileUpFraction is 1 by default
+          //if (m_random->Rndm() >= m_pileUpFraction) //m_pileUpFraction is 1 by default
           m_ootAmp = 0; //Set oot amplitude to 0 if no pile-up.
-          tFit = 0; //TODO: Introduce jitter of the PMT pulse; random->Gaus(0., m_gausC2C); //C2C phase variation
+          tFit = 0; //TODO: Introduce jitter of the PMT pulse; m_random->Gaus(0., m_gausC2C); //C2C phase variation
           
           //Pileup samples
           //m_PUAmp.clear();
@@ -372,22 +389,20 @@ StatusCode TileDigitsFromPulse::execute() {
             }
           
           //fill7SamplesQIE(float t0, float amp_it, float *amp_pu, bool addNoise);
-          m_tsg->fill7SamplesQIE((float) n_inTimeAmp, my_PUAmp); // Sum of In time + out-of-time PU pulses
+          m_sampleGenerator->fill7SamplesQIE((float) n_inTimeAmp, my_PUAmp); // Sum of In time + out-of-time PU pulses
           
           samples.clear();
           samples.resize(m_nSamples);
-          m_buf->getValueVector(samples);
+          m_sampleBuffer->getValueVector(samples);
           
         }
         
         ATH_MSG_VERBOSE("New ADC " << ros << "/" << drawer << "/" << channel << "/   saving gain  " << gain);
         
-        TileDigits * digit = NEWTILEDIGITS();
-        *digit = TileDigits (m_tileHWID->adc_id(ros, drawer, channel, gain),
-                             std::move(samples));
+        TileDigits* digit = new TileDigits(m_tileHWID->adc_id(ros, drawer, channel, gain), std::move(samples));
         outputCont->push_back(digit);
         
-        pRawChannel = new TileRawChannel(digit->adc_HWID(), n_inTimeAmp, tFit, m_ootAmp, m_ootOffset);
+        TileRawChannel* pRawChannel = new TileRawChannel(digit->adc_HWID(), n_inTimeAmp, tFit, m_ootAmp, m_ootOffset);
         pRawChannelContainer->push_back(pRawChannel);
       }
     }
@@ -405,11 +420,6 @@ StatusCode TileDigitsFromPulse::execute() {
     delete outputCont;
   }
   
-  if (!m_simQIE) {
-    delete pdf;
-  }
-  delete random;
-  
   ATH_MSG_DEBUG("Execution completed");
   
   return StatusCode::SUCCESS;
@@ -417,28 +427,30 @@ StatusCode TileDigitsFromPulse::execute() {
 
 StatusCode TileDigitsFromPulse::finalize() {
   ATH_MSG_DEBUG("in finalize()");
-  if (m_useItADist)
-    m_itFile->Close();
-  if (m_useOotADist)
-    m_ootFile->Close();
   
   return StatusCode::SUCCESS;
 }
 
-bool TileDigitsFromPulse::makeDist(TFile*& file, TH1F*& hist, std::string fileName, std::string histName) {
-  file = new TFile(fileName.c_str());
-  if (file->IsZombie()) {
+bool TileDigitsFromPulse::makeDist(std::unique_ptr<TH1F>& hist, std::string fileName, std::string histName) {
+
+  TFile file(fileName.c_str());
+  if (file.IsZombie()) {
     ATH_MSG_FATAL("Error reading amplitude distribution from " << fileName << ".");
-    return kFALSE;
+    return false;
   }
-  TKey *key = file->FindKey(histName.c_str());
-  if (key == 0) {
+
+  TH1F* histogram(nullptr);
+  file.GetObject(histName.c_str(), histogram);
+  if (histogram) {
+    histogram->SetDirectory(0);
+    hist = std::unique_ptr<TH1F>(histogram);
+    for (int i = 0; i < m_AmpDistLowLim; i++)
+      hist->SetBinContent(i, 0.); // Puts a cut on the amplitude distribution.
+    return true;
+
+  } else {
     ATH_MSG_FATAL("Could not find histogram " << histName << " in file " << fileName << ".");
-    return kFALSE;
+    return false;
   }
-  hist = (TH1F*) file->Get(histName.c_str());
-  for (int i = 0; i < m_AmpDistLowLim; i++)
-    hist->SetBinContent(i, 0.); // Puts a cut on the amplitude distribution.
-  return kTRUE;
   
 }

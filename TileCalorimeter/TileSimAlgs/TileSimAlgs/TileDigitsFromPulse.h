@@ -64,10 +64,16 @@ class TilePulseShape;
 
 class TileHWID;
 class TileInfo;
+class TileCondToolPulseShape;
 class IAtRndmGenSvc;
 
 class TH1F;
 class TFile;
+class TRandom3;
+class TF1;
+
+#include <vector>
+#include <memory>
 
 /** 
 @class TileDigitsFromPulse
@@ -96,6 +102,7 @@ private:
     TileFragHash::TYPE m_rChType; //!< Type of TileRawChannels (Digitizar, OF1, OF2, Fit, etc.)(see TileFragHash.h)
     
     ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample;
+    ToolHandle<TileCondToolPulseShape> m_tileToolPulseShape;
     
     CLHEP::HepRandomEngine * m_pHRengine; //!< Random number generator engine to use
     ServiceHandle <IAtRndmGenSvc> m_rndmSvc;  //!< Random number service to use
@@ -137,22 +144,22 @@ private:
     std::vector<float> m_PUAmp;
     
     //Members for simulator
-    TilePulseShape*      m_ps[2]; //!< Class for defining pulse. One element for lo gain and one for hi.
-    TileSampleBuffer*    m_buf; //!< Buffer class to hold generated pulses
-    TileSampleGenerator* m_tsg; //!< Pulse generating class
+    std::vector<std::unique_ptr<TilePulseShape> > m_pulseShape; //!< Class for defining pulse. One element for lo gain and one for hi.
+    std::unique_ptr<TileSampleBuffer> m_sampleBuffer; //!< Buffer class to hold generated pulses
+    std::unique_ptr<TileSampleGenerator> m_sampleGenerator; //!< Pulse generating class
     
     //Histograms for distribution
-    TH1F* m_ootDist; //!< Histogram to hold the distribution of out-of-time amplitudes.
-    TH1F* m_itDist; //!< Histogram to hold the distribution of in-time amplitudes.
-    TFile* m_itFile; //!< File that holds the distribution of in-time amplitudes.
-    TFile* m_ootFile; //!< File that holds the distribution of out-of-time amplitudes.
-    TH1F* m_ootOffsetDist; //!< Histogram to hold the distribution of out-of-time timing offsets
-    TFile* m_ootOffsetFile; //!< File that holds the distribution of out-of-time timing offsets
+    std::unique_ptr<TH1F> m_ootDist; //!< Histogram to hold the distribution of out-of-time amplitudes.
+    std::unique_ptr<TH1F> m_itDist; //!< Histogram to hold the distribution of in-time amplitudes.
+    std::unique_ptr<TH1F> m_ootOffsetDist; //!< Histogram to hold the distribution of out-of-time timing offsets
     bool m_useOffsetHisto; //!< Internally used to keep track of wether a histogram has been opened or not
     
     //Internal methods
-    bool makeDist(TFile*& file, TH1F*& hist, std::string fileName, std::string histName="h_Eopt_hi"); //!< Method to read distribution from file
-
+    //!< Method to read distribution from file
+    bool makeDist(std::unique_ptr<TH1F>& hist, std::string fileName, std::string histName="h_Eopt_hi");
+    int m_maxGains;
+    std::unique_ptr<TRandom3> m_random;
+    std::unique_ptr<TF1> m_pdf;
 };
 
 #endif // TILESIMALGS_TILEDIGITSFROMPULSE_H

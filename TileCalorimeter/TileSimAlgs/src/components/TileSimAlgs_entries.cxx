@@ -6,6 +6,7 @@
 #include "TileSimAlgs/TileHitToTTL1.h"
 #include "TileSimAlgs/TileTBHitToBeamElem.h"
 #include "TileSimAlgs/TileDigitsMaker.h"
+#include "TileSimAlgs/TileDigitsMakerQIE.h"
 #include "TileSimAlgs/TileDigitsFromPulse.h"
 #include "TileSimAlgs/TilePulseForTileMuonReceiver.h"
 #include "TileSimAlgs/TileMuonReceiverDecision.h"
@@ -17,6 +18,7 @@ DECLARE_ALGORITHM_FACTORY( TileHitToCell )
 DECLARE_ALGORITHM_FACTORY( TileHitToTTL1 )
 DECLARE_ALGORITHM_FACTORY( TileTBHitToBeamElem )
 DECLARE_ALGORITHM_FACTORY( TileDigitsMaker )
+DECLARE_ALGORITHM_FACTORY( TileDigitsMakerQIE )
 DECLARE_ALGORITHM_FACTORY( TileDigitsFromPulse )
 DECLARE_ALGORITHM_FACTORY( TilePulseForTileMuonReceiver )
 DECLARE_ALGORITHM_FACTORY( TileMuonReceiverDecision )
@@ -29,6 +31,7 @@ DECLARE_FACTORY_ENTRIES(TileSimAlgs) {
   DECLARE_ALGORITHM( TileHitToTTL1 )
   DECLARE_ALGORITHM( TileTBHitToBeamElem )
   DECLARE_ALGORITHM( TileDigitsMaker )
+  DECLARE_ALGORITHM( TileDigitsMakerQIE )
   DECLARE_ALGORITHM( TileDigitsFromPulse )
   DECLARE_ALGORITHM( TilePulseForTileMuonReceiver )
   DECLARE_ALGORITHM( TileMuonReceiverDecision )
