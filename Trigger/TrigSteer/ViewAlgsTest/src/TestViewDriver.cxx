@@ -4,6 +4,7 @@
 
 #include <sstream>
 #include "CxxUtils/make_unique.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "AthContainers/ConstDataVector.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "AthViews/ViewHelper.h"
@@ -56,7 +57,7 @@ StatusCode TestViewDriver::execute( ) {
 
     contexts.push_back( getContext( ) );    
     viewVector->push_back( ViewHelper::makeView( name( )+"_view", viewCounter++ ) );
-    contexts.back( ).setProxy( viewVector->back( ) );
+    contexts.back( ).setExtension( Atlas::ExtendedEventContext( viewVector->back( ) ));
 
     
     auto oneRoIColl = std::make_unique< ConstDataVector<TrigRoiDescriptorCollection> >( );    
