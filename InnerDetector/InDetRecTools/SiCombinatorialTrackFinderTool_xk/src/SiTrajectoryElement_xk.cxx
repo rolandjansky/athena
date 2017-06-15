@@ -138,16 +138,24 @@ bool InDet::SiTrajectoryElement_xk::firstTrajectorElement
 
   // Track propagation if need
   //
-  if(m_surface==pl) m_parametersPF = Tp;
+  if(m_surface==pl) {
+    double Sf,Cf,Ce,Se; sincos(Tp.par()[2],&Sf,&Cf); sincos(Tp.par()[3],&Se,&Ce);
+    m_A[0] = Cf*Se; 
+    m_A[1] = Sf*Se;
+    m_A[2] =    Ce; 
+    m_parametersPF = Tp;
+  }
   else  if(!propagate(Tp,m_parametersPF,m_step)) return false;
 
   // Initiate track parameters without initial covariance
   //
+  // BEST FOR SSS
   double cv[15]={ 1. ,
 		  0. , 1.,
-		  0. , 0.,.001,
-		  0. , 0.,  0.,.001,
+		  0. , 0.,.01,
+		  0. , 0.,  0.,.01,
 		  0. , 0.,  0.,  0.,.00001};
+  if(m_ndf==2) {cv[5] = .1; cv[9] = .1;}
 
   if(m_detelement->isDBM()) {
 
@@ -158,8 +166,10 @@ bool InDet::SiTrajectoryElement_xk::firstTrajectorElement
 
   m_parametersPF.setCovariance(cv);
   initiateState(m_parametersPF,m_parametersUF);
-
+ 
+  double radl = m_radlength;  m_radlength= 1.;
   noiseProduction(1,m_parametersUF);
+  m_radlength    = radl ;
 
   m_dist         = -10. ;
   m_step         =  0.  ;
@@ -822,10 +832,10 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoPIX
   const InDet::SiCluster* cl = 0;
 
   InDet::SiClusterCollection::const_iterator p =  m_sibegin;
-
+  /*
   bool BA =  m_useITKclusterSizeCuts && m_detelement->isBarrel();
   double tanTheta = 0.,eta = 0.; if(BA) {tanTheta = 1.0/(Tp.cotTheta()); eta = Tp.eta();}
-
+  */
   for(; p!=m_siend; ++p) {
     
     const InDet::SiCluster*  c  = (*p); 
@@ -846,7 +856,7 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoPIX
     if(x>Xc) continue;
 
     //---------- ITK: check compatibility of cluster size with track direction
-    if(BA && !isGoodPixelCluster(c,tanTheta,eta)) continue;
+    //if(BA && !isGoodPixelCluster(c,tanTheta,eta)) continue;
 
     if(x < Xm) {
       InDet::SiClusterLink_xk l(c,x);
@@ -996,10 +1006,10 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssPIX
   const InDet::SiCluster* cl = 0;
 
   InDet::SiClusterCollection::const_iterator p =  m_sibegin;
-
+  /*
   bool BA =  m_useITKclusterSizeCuts && m_detelement->isBarrel();
   double tanTheta = 0.,eta = 0.; if(BA) {tanTheta = 1.0/(Tp.cotTheta()); eta = Tp.eta();}
-
+  */
   for(; p!=m_siend; ++p) {
     
     const InDet::SiCluster*  c  = (*p);  
@@ -1021,7 +1031,7 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssPIX
     if(x>Xc) continue;
 
     //---------- ITK: check compatibility of cluster size with track direction
-    if(BA && !isGoodPixelCluster(c,tanTheta,eta)) continue;
+    //if(BA && !isGoodPixelCluster(c,tanTheta,eta)) continue;
 
     if(x < Xm) {
       InDet::SiClusterLink_xk l(c,x);
@@ -1714,9 +1724,9 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
 
     double A00 = A[0], A11=A[1], A22=A[2];
 
-    R[0]+=(A2+A3+A4)*S3; A[0] = ((A0+2.*A3)+(A5+A6))*(1./3.);
-    R[1]+=(B2+B3+B4)*S3; A[1] = ((B0+2.*B3)+(B5+B6))*(1./3.);
-    R[2]+=(C2+C3+C4)*S3; A[2] = ((C0+2.*C3)+(C5+C6))*(1./3.);
+    R[0]+=(A2+A3+A4)*S3; A[0] = (A0+2.*A3)+(A5+A6);
+    R[1]+=(B2+B3+B4)*S3; A[1] = (B0+2.*B3)+(B5+B6);
+    R[2]+=(C2+C3+C4)*S3; A[2] = (C0+2.*C3)+(C5+C6);
 	
     double D   = 1./sqrt(A[0]*A[0]+A[1]*A[1]+A[2]*A[2]);
     A[0]*=D; A[1]*=D; A[2]*=D;

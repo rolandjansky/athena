@@ -996,7 +996,7 @@ void  InDet::SiCombinatorialTrackFinder_xk::getTrackQualityCuts
   if(!Cuts.getDoubleCut("ITKNsigmaClusterSizeZcut",m_Nsigma_clSizeZcut)) {m_Nsigma_clSizeZcut=5.0;}
   clusterSizeCuts ? m_useITKclusterSizeCuts = true : m_useITKclusterSizeCuts = false;
 
-  simpletrack ? m_simpleTrack = true :  m_simpleTrack = false;
+  simpletrack ? m_simpleTrack = true :  m_simpleTrack = false; 
 
   if(!m_cosmicTrack) {
 

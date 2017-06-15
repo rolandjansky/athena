@@ -438,8 +438,11 @@ namespace InDet{
       m_fieldMode   = false;
       m_useassoTool = false;
 
+      m_covariance(0); 
       m_tsos[0]=m_tsos[1]=m_tsos[2]=0; 
-
+      m_A   [0]=m_A   [1]=m_A   [2]=0;
+      for(int i=0; i!=13; ++i) m_Tr[i] = 0;
+    
   ///////////////////////////////////////////////////////////////////
   // Switches and cuts for ITK extended barrel: all turned OFF by default
   ///////////////////////////////////////////////////////////////////
@@ -527,6 +530,8 @@ namespace InDet{
       for(int i=0; i!=m_nlinksB; ++i) {m_linkB[i]=E.m_linkB[i];}
       for(int i=0; i!=m_ntsos  ; ++i) {m_tsos [i]=E.m_tsos [i];}
       for(int i=0; i!=m_ntsos  ; ++i) {m_utsos[i]=E.m_utsos [i];}
+      for(int i=0; i!=3        ; ++i) m_A [i]=E.m_A [i];
+      for(int i=0; i!=13       ; ++i) m_Tr[i]=E.m_Tr[i];
       return(*this);
     }
 
