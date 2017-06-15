@@ -26,6 +26,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetDetDescr/SCT_Cabling
                           InnerDetector/InDetRecEvent/InDetPrepRawData
 			  InnerDetector/InDetRecEvent/InDetRIO_OnTrack
+                          InnerDetector/InDetRecTools/TRT_ToT_Tools
                           PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/VxVertex
@@ -39,6 +40,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTruth
                           GaudiKernel
                           InnerDetector/InDetConditions/TRT_ConditionsServices
+			  InnerDetector/InDetRecEvent/InDetRIO_OnTrack
+			  InnerDetector/InDetRecTools/InDetAssociationTools
                           InnerDetector/InDetValidation/InDetPhysValMonitoring
                           LArCalorimeter/LArRecEvent
                           PhysicsAnalysis/CommonTools/ExpressionEvaluation
@@ -74,4 +77,3 @@ atlas_add_component( DerivationFrameworkInDet
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-
