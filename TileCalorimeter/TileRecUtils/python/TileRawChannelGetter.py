@@ -139,46 +139,6 @@ class TileRawChannelGetter ( Configured)  :
         # run optimal filter only if readDigits is set
         if jobproperties.TileRecFlags.readDigits():
 
-            if jobproperties.TileRecFlags.doTileQIE():
-                try:
-                    from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderQIEFilter
-                    theTileRawChannelBuilderQIEFilter= TileRawChannelBuilderQIEFilter()
-                except:
-                    mlog.error("could not get handle to TileRawChannelBuilderQIEFilter Quit")
-                    print traceback.format_exc()
-                    return False
-                
-                ## setup COOL to get OFCs
-                #if jobproperties.TileRecFlags.OfcFromCOOL():
-                #    from TileConditions.TileInfoConfigurator import TileInfoConfigurator
-                #    tileInfoConfigurator = TileInfoConfigurator()
-                #    tileInfoConfigurator.setupCOOLOFC()
-                #else:
-                #    from TileConditions.TileInfoConfigurator import TileInfoConfigurator
-                #    tileInfoConfigurator = TileInfoConfigurator()
-                #    tileInfoConfigurator.setupCOOLPHYPULSE()
-                #    tileInfoConfigurator.setupCOOLAutoCr()
-                    
-                #TileRawChannelBuilderQIEFilter Options:
-                jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelQIE"
-                theTileRawChannelBuilderQIEFilter.TileRawChannelContainer = "TileRawChannelQIE"
-                theTileRawChannelBuilderQIEFilter.RunType = jobproperties.TileRecFlags.TileRunType()
-                theTileRawChannelBuilderQIEFilter.calibrateEnergy = jobproperties.TileRecFlags.calibrateEnergy()
-                theTileRawChannelBuilderQIEFilter.correctTime     = jobproperties.TileRecFlags.correctTime()
-                theTileRawChannelBuilderQIEFilter.NoiseFilterTools= NoiseFilterTools
-                ##theTileRawChannelBuilderQIEFilter.BestPhase       = False; # no point to use best phase with interations
-                theTileRawChannelBuilderQIEFilter.PedestalMode = 1
-                ##theTileRawChannelBuilderQIEFilter.MaxIterations = 5
-                ##theTileRawChannelBuilderQIEFilter.Minus1Iteration = True
-                ##theTileRawChannelBuilderQIEFilter.AmplitudeCorrection = False; # don't need correction after iterations
-                #from TileConditions.TileCondToolConf import getTileCondToolPulseShape
-                #ToolSvc.TileCondToolOfc.TileCondToolPulseShape = getTileCondToolPulseShape('COOL','PHY')
-      
-                mlog.info(" adding now TileRawChannelBuilderQIEFilter to ToolSvc")   
-                ToolSvc += theTileRawChannelBuilderQIEFilter
-      
-                theTileRawChannelMaker.TileRawChannelBuilder += [ToolSvc.TileRawChannelBuilderQIEFilter]
-            
             # fit with several amplitudes 
             if jobproperties.TileRecFlags.doTileManyAmps():
       
