@@ -116,6 +116,8 @@ class L1EnergyCMXTools : virtual public IL1EnergyCMXTools, public AthAlgTool
     void etMapsToEtSums(const MultiSliceSystemEnergy &systemVec,
                         xAOD::CMXEtSumsContainer *cmxEtSumsVec, int peak) const;
     void findRestrictedEta(float &etaTruncXE, float &etaTruncTE) const;
+
+    void dumpCrateEnergies(const std::string& msg, const MultiSliceCrateEnergy& crates) const;
     /** trigger configuration service */
     ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
     /** Tool for JetElement map */
