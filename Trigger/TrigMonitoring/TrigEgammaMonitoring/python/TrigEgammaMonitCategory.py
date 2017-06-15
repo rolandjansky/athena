@@ -21,9 +21,6 @@ primary_double_ele = ['HLT_2e17_lhvloose_nod0_L1EM15VHI','HLT_2e24_lhvloose_nod0
 monitoring_ele_idperf = ['HLT_e28_lhtight_idperf']
 primary_double_pho = ['HLT_g35_medium_g25_medium_L12EM20VH','HLT_2g20_tight_icalovloose_L12EM15VHI','HLT_2g20_tight_icalotight_L12EM15VHI']
 
-# primary_double_ele = ['HLT_2e17_lhvloose_nod0','HLT_2e19_lhvloose_nod0']
-# monitoring_ele_idperf = ['HLT_e26_lhtight_idperf']
-# primary_double_pho = ['HLT_g35_loose_g25_loose','HLT_g35_medium_g25_medium','HLT_2g20_tight','HLT_2g22_tight']
 
 #Old categories
 primary_single_ele_cutbased = []
@@ -61,34 +58,27 @@ monitoring_jpsitags = [
     'HLT_e5_lhtight_nod0_e14_etcut_Jpsiee'
     ]
 
-# monitoring_jpsitags = ['HLT_e5_lhtight_nod0_e4_etcut','HLT_e9_lhtight_nod0_e4_etcut',
-#     'HLT_e14_lhtight_nod0_e4_etcut',
-#     'HLT_e5_lhtight_nod0_e4_etcut_Jpsiee',
-#     'HLT_e9_lhtight_nod0_e4_etcut_Jpsiee']
 
 # pp 'collisions' monitoring configuration, default
 # L1 trigger items to monitor from inclusive offline electrons
 #monitoring_L1Calo = ['L1_EM22VHI','L1_EM24VHI']
 monitoring_L1Calo = []
 # Startup and high-pt electrons to monitor from inclusive electrons
-commission_electron = ['HLT_e60_lhmedium_nod0_ringer',
-                       'HLT_e140_lhloose_nod0_ringer']
-monitoring_electron = ['HLT_e60_lhmedium_nod0',
-                       'HLT_e140_lhloose_nod0']
+commission_electron = [ 'HLT_e60_lhmedium_nod0_ringer_L1EM24VHI',
+                       'HLT_e140_lhloose_nod0_ringer_L1EM24VHI']
+monitoring_electron = ['HLT_e60_lhmedium_nod0_L1EM24VHI',
+                       'HLT_e140_lhloose_nod0_L1EM24VHI']
 monitoring_electron += commission_electron
 
 # 2017 single electrons triggers to monitor from Zee TP, includes rerun
 
 commissionTP_electron = ['HLT_e17_lhvloose_nod0_ringer_L1EM15VHI',
-                         'HLT_e24_lhvloose_nod0',
+                         'HLT_e24_lhvloose_nod0_L1EM20VH',
                          'HLT_e26_lhtight_nod0_ringer_ivarloose',
                          'HLT_e26_lhtight_cutd0dphideta_ivarloose',
                          'HLT_e28_lhtight_nod0_ringer_ivarloose',
-                         #'HLT_e26_lhtight_cutd0detadphi_ivarloose',
                          'HLT_e26_lhtight_nod0_ivarloose_L1EM22VHIM',
                          'HLT_e28_lhtight_nod0_ivarloose_L1EM24VHIM',
-                         #'HLT_e26_lhmedium_nod0_ringer_ivarmedium_icalomedium',
-                         #'HLT_e26_lhmedium_nod0_ivarmedium_icalomedium' 
                          ]
 monitoringTP_electron = [ 'HLT_e17_lhvloose_nod0_L1EM15VHI',
                           'HLT_e26_lhtight_nod0_ivarloose',
@@ -97,23 +87,16 @@ monitoringTP_electron += commissionTP_electron
 
 monitoringTP_Jpsiee = ["HLT_e5_lhtight_nod0"]    
 monitoring_photon = [ 'HLT_g25_medium_L1EM20VH',
-                      #'HLT_g25_medium',
                       'HLT_g200_loose',
-                      #'HLT_g140_loose',
                       'HLT_g22_tight' ,
                       'HLT_g22_tight_icalovloose_L1EM15VHI' ,
-                      #'HLT_g20_tight_icalovloose_L1EM15VHI',
                       'HLT_g22_tight_L1EM15VHI',
-                      #'HLT_g20_tight_L1EM15VHI'
                       ]
 #Add the Menu-Aware monitoring; maps a trigger to a category
-monitoring_mam = {'primary_single_ele_iso':'HLT_e26_lhtight_nod0_ivarloose',
+monitoring_mam = {'primary_single_ele_iso':'HLT_e28_lhtight_nod0_ivarloose',
                   'primary_double_pho':'HLT_g25_medium_L1EM20VH',
                   'primary_single_pho':'HLT_g200_loose',
-                  # 'primary_double_pho':'HLT_g25_medium',
-                  # 'primary_single_pho':'HLT_g140_loose',
-                  'monitoring_Jpsiee' : 'HLT_e5_lhtight_nod0'}
-    #'monitoring_Zee':'HLT_e26_lhtight_nod0_e15_etcut_Zee',
+                  'monitoring_Jpsiee' :'HLT_e5_lhtight_nod0_e4_etcut_Jpsiee'}
 
 # Cosmic items
 monitoring_electron_cosmic=['HLT_e0_perf_L1EM3_EMPTY']
@@ -123,11 +106,9 @@ monitoring_mam_cosmic = {'primary_single_ele':'HLT_e0_perf_L1EM3_EMPTY',
 
 # Validation Items for MC
 validation_electron=[
-    #'HLT_e60_lhmedium',
     'HLT_e60_lhmedium_nod0',
     'HLT_e60_lhmedium_nod0_L1EM24VHI',
     'HLT_e140_lhloose_nod0',
-    #'HLT_e120_lhloose',
     'HLT_e140_lhloose_nod0_L1EM24VHI',
     'HLT_e60_lhmedium_nod0_ringer_L1EM24VHI',
     'HLT_e140_lhloose_nod0_ringer_L1EM24VHI',
@@ -143,6 +124,7 @@ validationTP_electron = [
     'HLT_e12_lhloose_nod0',
     'HLT_e12_lhmedium_nod0',
     'HLT_e17_lhloose_nod0',
+    'HLT_e17_lhvloose_nod0',
     'HLT_e19_lhvloose_nod0',
     'HLT_e19_lhvloose_nod0_ringer',
     'HLT_e24_lhmedium_nod0_L1EM20VH',
@@ -161,36 +143,6 @@ validationTP_electron = [
     'HLT_e28_lhtight_nod0',
     'HLT_e28_lhtight_idperf'
     ]
-# validationTP_electron = ['HLT_e0_perf_L1EM15',
-#                          'HLT_e26_lhmedium_nod0_ringer_ivarmedium_icalomedium',
-#                          'HLT_e26_lhmedium_nod0_ivarmedium_icalomedium',
-#                          'HLT_e28_lhmedium_nod0_ringer_ivarmedium_icalomedium',
-#                          'HLT_e28_lhmedium_nod0_ivarmedium_icalomedium',
-#                          'HLT_e26_lhloose_nod0_ringer',
-#                          'HLT_e26_lhmedium_nod0_ringer',
-#                          'HLT_e26_lhtight_nod0_ringer',
-#                          'HLT_e26_lhloose_nod0',
-#                          'HLT_e26_lhmedium_nod0',
-#                          'HLT_e26_lhtight_nod0',
-#                          'HLT_e24_lhmedium_L1EM20VH','HLT_e24_lhtight_idperf_L1EM20VH',
-#                          'HLT_e26_lhtight_idperf','HLT_e28_lhtight_idperf',
-#                          'HLT_e17_lhvloose_nod0_ringer',
-#                          'HLT_e26_lhtight_nod0','HLT_e28_lhtight_nod0',
-#                          'HLT_e12_lhloose_L1EM10VH',
-#                          'HLT_e17_lhvloose_nod0',
-#                          'HLT_e17_lhloose',
-#                          'HLT_e17_lhloose_nod0',
-#                          'HLT_e9_lhloose',
-#                          'HLT_e9_lhloose_nod0',
-#                          'HLT_e7_lhmedium',
-#                          'HLT_e7_lhmedium_nod0',
-#                          'HLT_e12_lhloose',
-#                          'HLT_e12_lhloose_nod0',
-#                          'HLT_e24_lhmedium_L1EM20VHI',
-#                          'HLT_e26_lhmedium_nod0_L1EM22VHI',
-#                          'HLT_e28_lhmedium_nod0_L1EM24VHI',
-#                          'HLT_e20_lhmedium',
-#                          'HLT_e20_lhmedium_nod0']
 validationTP_electron.extend(monitoringTP_electron)
 validation_photon = [
     'HLT_g0_perf_L1EM15',
@@ -221,26 +173,6 @@ validation_photon = [
     'HLT_g140_tight',
     'HLT_g200_loose'
     ]
-# validation_photon = ['HLT_g0_perf_L1EM15',
-#                      'HLT_g35_medium',
-#                      'HLT_g25_loose',
-#                      'HLT_g35_loose',
-#                      'HLT_g45_tight',
-#                      'HLT_g120_loose',
-#                      'HLT_g140_tight',
-#                      'HLT_g15_loose',
-#                      'HLT_g20_loose',
-#                      'HLT_g20_tight',
-#                      'HLT_g22_tight',
-#                      'HLT_g22_tight_ivloose',
-#                      'HLT_g22_tight_iloose',
-#                      'HLT_g22_tight_itight',
-#                      'HLT_g25_loose',
-#                      'HLT_g25_medium',
-#                      'HLT_g35_loose',
-#                      'HLT_g35_medium',
-#                      'HLT_g50_loose',
-#                      ]
 validation_photon.extend(monitoring_photon)
 validation_mam=monitoring_mam
 

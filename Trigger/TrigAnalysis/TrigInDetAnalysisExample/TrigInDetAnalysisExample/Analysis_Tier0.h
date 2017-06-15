@@ -118,6 +118,8 @@ class Analysis_Tier0 : public TrackAnalysis {
   TProfile* h_nsihits_lb_rec;
 
   TProfile* h_d0vsphi;
+  TProfile* h_d0vsphi_rec;
+
   TH2F*     h2d_d0vsphi;
   TH2F*     h2d_d0vsphi_rec;
 

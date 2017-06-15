@@ -9,12 +9,14 @@
 
 #include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/IEventShare.h"
+#include "AthenaKernel/IDataShare.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/IFileMgr.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/IConversionSvc.h"
 
 #include <boost/filesystem.hpp>
 
@@ -32,6 +34,7 @@ SharedEvtQueueConsumer::SharedEvtQueueConsumer(const std::string& type
 					       , const IInterface* parent)
   : AthenaMPToolBase(type,name,parent)
   , m_useSharedReader(false)
+  , m_useSharedWriter(false)
   , m_isPileup(false)
   , m_isRoundRobin(false)
   , m_nEventsBeforeFork(0)
@@ -40,6 +43,7 @@ SharedEvtQueueConsumer::SharedEvtQueueConsumer(const std::string& type
   , m_chronoStatSvc("ChronoStatSvc", name)
   , m_evtSeek(0)
   , m_evtShare(0)
+  , m_dataShare(0)
   , m_sharedEventQueue(0)
   , m_sharedRankQueue(0)
   , m_readEventOrders(false)
@@ -49,6 +53,7 @@ SharedEvtQueueConsumer::SharedEvtQueueConsumer(const std::string& type
   declareInterface<IAthenaMPTool>(this);
 
   declareProperty("UseSharedReader",m_useSharedReader);
+  declareProperty("UseSharedWriter",m_useSharedWriter);
   declareProperty("IsPileup",m_isPileup);
   declareProperty("IsRoundRobin",m_isRoundRobin);
   declareProperty("EventsBeforeFork",m_nEventsBeforeFork);
@@ -95,10 +100,21 @@ StatusCode SharedEvtQueueConsumer::initialize()
     }
   }
 
-  if(m_useSharedReader) {
-    sc = serviceLocator()->service(m_evtSelName,m_evtShare);
-    if(sc.isFailure() || m_evtShare==0) {
+  sc = serviceLocator()->service(m_evtSelName,m_evtShare);
+  if(sc.isFailure() || m_evtShare==0) {
+    if(m_useSharedReader) {
       ATH_MSG_ERROR("Error retrieving IEventShare");
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_INFO("Could not retrieve IEventShare");
+  }
+  //FIXME: AthenaPool dependent for now
+  IConversionSvc* cnvSvc = 0;
+  sc = serviceLocator()->service("AthenaPoolCnvSvc",cnvSvc);
+  m_dataShare = dynamic_cast<IDataShare*>(cnvSvc);
+  if(sc.isFailure() || m_dataShare==0) {
+    if(m_useSharedWriter) {
+      ATH_MSG_ERROR("Error retrieving AthenaPoolCnvSvc " << cnvSvc);
       return StatusCode::FAILURE;
     }
   }
@@ -345,14 +361,22 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::boots
   ATH_MSG_INFO("File descriptors re-opened in the AthenaMP event worker PID=" << getpid());
 
   
-  // ________________________ Make Shared RAW Reader Client ________________________
-  if(m_useSharedReader) {
+  // ________________________ Make Shared Reader/Writer Client ________________________
+  if(m_useSharedReader && m_evtShare) {
     if(!m_evtShare->makeClient(m_rankId).isSuccess()) {
       ATH_MSG_ERROR("Failed to make the event selector a share client");
       return outwork;
     }
     else {
       ATH_MSG_DEBUG("Successfully made the event selector a share client");
+    }
+  }
+  if(m_useSharedWriter && m_dataShare) {
+    if(!m_dataShare->makeClient(m_rankId + 1).isSuccess()) {
+      ATH_MSG_ERROR("Failed to make the conversion service a share client");
+      return outwork;
+    } else {
+      ATH_MSG_DEBUG("Successfully made the conversion service a share client");
     }
   }
 

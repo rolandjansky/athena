@@ -92,8 +92,8 @@ int usage(const std::string& name, int status) {
   s << "         --deleteref          \t delete unused reference histograms\n";
   s << "    -xo, --xoffset            \t relative x offset for the key\n"; 
   s << "    -yp, --ypos               \t relative yposition for the key\n"; 
+  s << "    -ac, --addchains          \t if possible, add chain names histogram labels \n";   
   s << "    -xe, --xerror value       \t size of the x error tick marks\n"; 
-  //  s << "         --fe,            \t relative x offset for the key\n"; 
   s << "    -h,  --help              \t this help\n";
   //  s << "\nSee " << PACKAGE_URL << " for more details\n"; 
   //  s << "\nReport bugs to <" << PACKAGE_BUGREPORT << ">";
@@ -127,12 +127,6 @@ std::string fullreplace( std::string s, const std::string& s2, const std::string
   return s;
 } 
 
-
-
-// std::string replace( std::string s, const std::string& pattern, const std::string& regex ) { 
-//  if ( pattern!="" && regex!="" && s.find(pattern)!=std::string::npos ) s.replace( s.find(pattern), pattern.size(), regex );
-//  return s;
-// }
 
 
 /// zero the contents of a 2d histogram 
@@ -220,7 +214,9 @@ int main(int argc, char** argv) {
   bool normref     = false;
   bool scalepix    = true;
   bool oldrms      = false;
-  
+  bool addchains   = false;
+
+
   double xerror    = 0;
 
   std::string atlaslabel = "Internal";
@@ -291,6 +287,9 @@ int main(int argc, char** argv) {
     }
     else if ( arg=="--unscalepix" ) { 
       scalepix = false;
+    }
+    else if ( arg=="-ac" || arg=="--addchains" ) { 
+      addchains = true;
     }
     else if ( arg=="-yrange" ) { 
       effset = true;
@@ -1098,6 +1097,22 @@ int main(int argc, char** argv) {
 
     for ( unsigned int j=0; j<chains.size(); j++)  {
 
+      /// get the actual chain name and track collection from 
+      /// the Chain histogram if present
+      
+      std::string chain_name = "";
+
+      if ( addchains && ( contains(chains[j],"Shifter") || !contains(chains[j],"HLT_") ) ) { 
+	TH1F* hchain = (TH1F*)ftest.Get((chains[j]+"/Chain").c_str()) ;
+	if ( hchain ) { 
+	  std::string name = hchain->GetTitle();
+	  while ( contains( name, "HLT_" ) ) name = name.erase( name.find("HLT_"), 4 );
+	  if ( contains( name, ":" ) )  chain_name = name.substr( 0, name.find(":") ) + " : ";
+	  else                          chain_name = name;
+	}
+      }
+      
+
       noreftmp = noref;
       Plotter::setplotref(!noreftmp);
 
@@ -1496,8 +1511,8 @@ int main(int argc, char** argv) {
       //      std::cout << "adding plot " << histos[i] << " " << htest->GetName() << std::endl;
 
       if ( fulldbg ) std::cout << __LINE__ << std::endl;
-
-      if ( uselabels )  plots.push_back( Plotter( htest, href, usrlabels[j], tgtest ) );
+      
+      if ( uselabels )  plots.push_back( Plotter( htest, href, chain_name+usrlabels[j], tgtest ) );
       else              plots.push_back( Plotter( htest, href, c, tgtest ) );
 
       if ( fulldbg ) std::cout << __LINE__ << std::endl;
@@ -1683,14 +1698,22 @@ int main(int argc, char** argv) {
 	  rmax = plots.realmax();
 	}
 	
-	if ( yinfo.log() && rmin!=0 && rmax!=0 ) { 
+	int csize = chains.size() + taglabels.size() + ( atlasstyle ? 1 : 0 );
 
+	if ( yinfo.log() && rmin>0 && rmax>0 ) { 
+
+	  /// calculate the log range
 	  double delta = std::log10(rmax)-std::log10(rmin);
 
-	  if ( atlasstyle ) ymaxset =  rmax*std::pow(10,delta*0.15*(chains.size()+taglabels.size()+1));
-	  else              ymaxset =  rmax*std::pow(10,delta*0.15*(chains.size()+taglabels.size())); 
+	  /// keep the original equation by way of documentation ...
+	  //    ymaxset =  rmax*std::pow(10,delta*0.15*csize); 
 
 	  yminset =  rmin*std::pow(10,-delta*0.1);
+
+	  double newdelta = std::log10(rmax) - std::log10(yminset) + 0.05*delta;
+
+	  if ( csize<10 ) ymaxset =  rmin*std::pow(10,newdelta/(1-0.07*csize));
+	  else            ymaxset =  rmin*std::pow(10,newdelta*2);
 
 	  if ( yminset!=yminset ) { 
 	    std::cerr << " range error " << delta << " " << yminset << " " << ymaxset << "\t(" << rmin << " " << rmax << ")" << std::endl;
@@ -1699,9 +1722,36 @@ int main(int argc, char** argv) {
 
 	}
 	else { 
-	  double delta = rmax-rmin;
-	  ymaxset = rmax+delta*0.1*chains.size();
-	  yminset = rmin-delta*0.1;
+
+	  /// calculate the required range such that the histogram labels 
+	  /// won't crowd the points
+
+	  if ( ypos>0.5 ) { 
+	    double delta = rmax-rmin;
+	    
+	    yminset = rmin-0.1*delta;
+	    
+	    if ( rmin>=0 && yminset<=0 ) yminset = 0;
+	    
+	    double newdelta = rmax - yminset + 0.05*delta;
+	    
+	    if ( csize<10 ) ymaxset = yminset + newdelta/(1-0.09*csize);
+	    else            ymaxset = yminset + newdelta*2;
+	  }
+	  else { 
+	    double delta = rmax-rmin;
+  
+	    ymaxset = rmax+0.1*delta;
+	    	    
+	    double newdelta = ymaxset - rmin - 0.05*delta;
+	    
+	    if ( csize<10 ) yminset = ymaxset - newdelta/(1-0.09*csize);
+	    else            yminset = ymaxset - newdelta*2;
+
+	    if ( rmin>=0 && yminset<=0 ) yminset = 0;
+
+	  }
+
 	}
 	
       }

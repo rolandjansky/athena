@@ -107,7 +107,7 @@ namespace dqutils {
       }
 
       const static int nlayer = 8;
-      float nevents = h_norm->Integral();
+      float nevents = h_norm->Integral(0,h_norm->GetNbinsX()+1);
       TString layerName[nlayer] = {"IBL", "B0", "B1", "B2", "ECA", "ECC", "IBL2D", "IBL3D"};
       float npixel[nlayer] = {26880, 46080, 46080, 46080, 46080, 46080, 26880, 26880};
       float nmodule[nlayer] = {280., 286., 494., 676., 144., 144., 168., 112.};

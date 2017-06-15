@@ -291,8 +291,6 @@ StatusCode HLTMETMonTool::book() {
 
   addHistogram(new TH1F("L1_METx_log", "L1 Missing E_{x};sgn(E_{x}) log_{10}(E_{x}/GeV)", 55, -4.125, 4.125));
   addHistogram(new TH1F("L1_METy_log", "L1 Missing E_{y};sgn(E_{y}) log_{10}(E_{y}/GeV)", 55, -4.125, 4.125));
-  //addHistogram(new TH1F("L1_MET", "L1 MET (GeV);MET (GeV)", m_et_bins, m_et_min, m_et_max));
-  //addHistogram(new TH1F("L1_MET_phi", "L1 MET #phi (rad);MET #phi (rad)", m_phi_bins, m_phi_min, m_phi_max));
 
 
   /// With trigger rquirement:  L1_XE50 etc.
@@ -326,7 +324,6 @@ StatusCode HLTMETMonTool::book() {
   addHistogram(new TH1F("HLT_MEx_log", "HLT Missing E_{x};sgn(E_{x}) log_{10}(E_{x}/GeV)", 27, -4.125, 4.125));
   addHistogram(new TH1F("HLT_MEy_log", "HLT Missing E_{y};sgn(E_{y}) log_{10}(E_{y}/GeV)", 27, -4.125, 4.125));
   addHistogram(new TH1F("HLT_MET_lin1", "HLT |Missing E_{T}| (0-10 GeV);ME_{T} (GeV)", 110, -0.5, 10.5));
-  //addHistogram(new TH1F("HLT_MET_phi_etweight", "HLT MET #phi(|Missing E_{T}|);#phi (rad)", m_phi_bins, m_phi_min, m_phi_max));
   addHistogram(new TH1F("HLT_MEz_log", "HLT Missing E_{z};sgn(ME_{z}) log_{10}(ME_{z}/GeV)",27, -4.125, 4.125));
   addHistogram(new TH1F("HLT_SumE_log",   "HLT Sum |E|;log_{10}(SumE/GeV)",40, -1.875, 6.125));
   addHistogram(new TH1F("HLT_XS", "HLT MET Significance;Significance (XS/GeV^{1/2})", 40, -0.025,  20.025));
@@ -525,29 +522,29 @@ void HLTMETMonTool::addHLTCompHistograms() {
   int etabins = 24; double etamin = -4.8;   double etamax =  4.8;
 
   for (unsigned int j = 0; j < m_compNames.size(); j++) {
-    std::string name = Form("compN_EtaPhi_%02d", j);
+    std::string name = Form("compEt_lin_EtaPhi_%02d", j);
     std::string title = m_compNames[j];
-    title += ": N(#eta, #phi);#eta;#phi [rad];";
+    title += ": MissingE_{T}(#eta, #phi); #eta; #phi [rad];ME_{T}/GeV";
     TH2F* h = new TH2F(name.c_str(), title.c_str(), etabins, etamin, etamax, phibins, phimin, phimax);
     addHistogram(h);
 
-    name = Form("compEt_lin_EtaPhi_%02d", j);
-    title = m_compNames[j];
-    title += ": MissingE_{T}(#eta, #phi); #eta; #phi [rad];ME_{T}/GeV";
-    h = new TH2F(name.c_str(), title.c_str(), etabins, etamin, etamax, phibins, phimin, phimax);
-    addHistogram(h);
+    //name = Form("compN_EtaPhi_%02d", j);
+    //title = m_compNames[j];
+    //title += ": N(#eta, #phi);#eta;#phi [rad];";
+    //h = new TH2F(name.c_str(), title.c_str(), etabins, etamin, etamax, phibins, phimin, phimax);
+    //addHistogram(h);
     
-    name = Form("compSumEt_lin_EtaPhi_%02d", j);
-    title = m_compNames[j];
-    title += ": Sum |E_{T}|(#eta, #phi); #eta; #phi [rad];Sum|E_{T}|/GeV";
-    h = new TH2F(name.c_str(), title.c_str(), etabins, etamin, etamax, phibins, phimin, phimax);
-    addHistogram(h);
+    //name = Form("compSumEt_lin_EtaPhi_%02d", j);
+    //title = m_compNames[j];
+    //title += ": Sum |E_{T}|(#eta, #phi); #eta; #phi [rad];Sum|E_{T}|/GeV";
+    //h = new TH2F(name.c_str(), title.c_str(), etabins, etamin, etamax, phibins, phimin, phimax);
+    //addHistogram(h);
     
-    name = Form("compSumE_lin_EtaPhi_%02d", j);
-    title = m_compNames[j];
-    title += ": Sum |E|(#eta, #phi); #eta; #phi [rad];Sum|E|/GeV";
-    h = new TH2F(name.c_str(), title.c_str(), etabins, etamin, etamax, phibins, phimin, phimax);
-    addHistogram(h);
+    //name = Form("compSumE_lin_EtaPhi_%02d", j);
+    //title = m_compNames[j];
+    //title += ": Sum |E|(#eta, #phi); #eta; #phi [rad];Sum|E|/GeV";
+    //h = new TH2F(name.c_str(), title.c_str(), etabins, etamin, etamax, phibins, phimin, phimax);
+    //addHistogram(h);
     
   }
 
@@ -1225,8 +1222,6 @@ StatusCode HLTMETMonTool::fillMETHist() {
   if (l1_met > epsilon_l1met) {
     if ((h = hist("L1_METx_log")))  h->Fill(l1_mex_log);
     if ((h = hist("L1_METy_log")))  h->Fill(l1_mey_log);
-    //if ((h = hist("L1_MET")))       h->Fill(l1_met);
-    //if ((h = hist("L1_MET_phi")))   h->Fill(l1_phi);
   }
 
   //////////////////////////
@@ -1264,11 +1259,10 @@ StatusCode HLTMETMonTool::fillMETHist() {
   //////////////////////////
   // fill HLT histograms without trigger requirement
   setCurrentMonGroup(m_expert_path+"/HLT");
-  if (m_hlt_met) {
+  if (hlt_met > -1) {
     if ((h = hist("HLT_MEx_log"))) h->Fill(hlt_ex_log);
     if ((h = hist("HLT_MEy_log"))) h->Fill(hlt_ey_log);
     if ((h = hist("HLT_MET_lin1"))) h->Fill(hlt_met);
-    //if ((h = hist("HLT_MET_phi_etweight")) && hlt_met>0) h->Fill(hlt_phi, hlt_met);
     if ((h = hist("HLT_MEz_log")))  h->Fill(hlt_ez_log);
     if ((h = hist("HLT_SumE_log"))) h->Fill(hlt_sume_log);
     if ((h = hist("HLT_XS"))) h->Fill(hlt_significance);
@@ -1320,7 +1314,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
            float m_comp_sum_et_log = -9e9;
            float m_comp_sum_e_log = -9e9;
            float m_comp_sum_et_lin = -9e9;
-           float m_comp_sum_e_lin = -9e9;
+           //float m_comp_sum_e_lin = -9e9;
            float m_comp_et_lin = -9e9;
 
            if (fabsf(ex)>epsilon)
@@ -1345,7 +1339,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
              m_comp_et_log = -100; // underflow
 
            m_comp_sum_et_lin = sumEt;
-           m_comp_sum_e_lin = sumE;
+           //m_comp_sum_e_lin = sumE;
           
            if (fabsf(sumEt)>epsilon)
              m_comp_sum_et_log = copysign(log10f(fabsf(sumEt)), sumEt);
@@ -1364,6 +1358,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
            if((h2 = hist2("compN_compSumE")))      h2->Fill(i,m_comp_sum_e_log);
            if((h2 = hist2("compN_compEt_lin")))      h2->Fill(i,m_comp_et_lin);
            if((h2 = hist2("compN_compSumEt_lin")))      h2->Fill(i,m_comp_sum_et_lin);
+           //if((h2 = hist2("compN_compSumE_lin")))      h2->Fill(i,m_comp_sum_e_lin);
           
            bool m_fill_stat = false;
            if((h2 = hist2("compN_HLT_MET_status"))) m_fill_stat = true;
@@ -1384,10 +1379,10 @@ StatusCode HLTMETMonTool::fillMETHist() {
            double eta = v.eta();
            double phi = v.phi();
 
-           if((h2 = hist2(Form("compN_EtaPhi_%02d", i))))      h2->Fill(eta, phi);
+           //if((h2 = hist2(Form("compN_EtaPhi_%02d", i))))      h2->Fill(eta, phi);
            if((h2 = hist2(Form("compEt_lin_EtaPhi_%02d", i))))      h2->Fill(eta, phi, m_comp_et_lin);
-           if((h2 = hist2(Form("compSumEt_lin_EtaPhi_%02d", i))))      h2->Fill(eta, phi, m_comp_sum_et_lin);
-           if((h2 = hist2(Form("compSumE_lin_EtaPhi_%02d", i))))      h2->Fill(eta, phi, m_comp_sum_e_lin);
+           //if((h2 = hist2(Form("compSumEt_lin_EtaPhi_%02d", i))))      h2->Fill(eta, phi, m_comp_sum_et_lin);
+           //if((h2 = hist2(Form("compSumE_lin_EtaPhi_%02d", i))))      h2->Fill(eta, phi, m_comp_sum_e_lin);
         }
       }
   }
