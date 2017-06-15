@@ -28,6 +28,7 @@
 #include "TrigSteeringEvent/HLTResult.h"
 
 #include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "GaudiKernel/Algorithm.h"
@@ -491,8 +492,8 @@ namespace TrigSim {
 
             m_eventContext.setEventID( *((EventIDBase*) pPrimEvt->event_ID()) );
             m_eventContext.set(m_nEvt,0);
+            m_eventContext.setExtension( Atlas::ExtendedEventContext( m_primEvtStore->hiveProxyDict() ) );
 
-            m_eventContext.setProxy( m_primEvtStore->hiveProxyDict() );
             Gaudi::Hive::setCurrentContext( m_eventContext );
 
             m_aess->reset(m_eventContext);
