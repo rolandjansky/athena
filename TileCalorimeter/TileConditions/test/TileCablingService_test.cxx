@@ -25,6 +25,7 @@ void test1() {
 
 
   std::cout << "SW MAX CELLS: " << tileID->cell_hash_max() << std::endl;
+  std::cout << "SW MAX PMT: " << tileID->pmt_hash_max() << std::endl;
 
   IdContext adcContext = tileID->adc_context();
   unsigned int maxAdcHash = tileID->adc_hash_max();
@@ -81,6 +82,7 @@ void test1() {
   adcContext = tileHWID->adc_context();
   maxAdcHash = tileHWID->adc_hash_max();
 
+  std::cout << "HW MAX CHANNELS: " << tileHWID->channel_hash_max() << std::endl;
   std::cout << "HW MAX ADC: " << maxAdcHash << std::endl;
 
   for (IdentifierHash adcHash = 0; adcHash < maxAdcHash; adcHash += 1) {
@@ -109,7 +111,7 @@ void test1() {
   int maxChannels = cabling->getMaxChannels();
   int maxGains = cabling->getMaxGains();
 
-  std::cout << "MAX CHANNELS: " << maxChannels << std::endl;
+  std::cout << "MAX CHANNELS (in a drawer): " << maxChannels << std::endl;
   std::cout << "MAX GAINS: " << maxGains << std::endl;
 
   for (int ros = 1; ros < 5; ++ros) {
