@@ -42,7 +42,7 @@ static std::once_flag finalizeOnceFlag;
 
 
 G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator),
+  : AthAlgorithm(name, pSvcLocator)
   , m_libList("")
   , m_physList("")
   , m_generator("")
