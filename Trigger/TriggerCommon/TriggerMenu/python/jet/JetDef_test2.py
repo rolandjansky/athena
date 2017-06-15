@@ -1,17 +1,8 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-import sys
 import os
-from cStringIO import StringIO
-import copy
 import unittest
-from mock import MagicMock
-from JetDef import generateHLTChainDef, usage
 from test_functions import run_test_dicts
-
-from ChainConfigMaker import JetAttributes
-
-from MC_pp_V5_dicts import MC_pp_V5_dicts
 
 class TestJetDef2(unittest.TestCase):
 

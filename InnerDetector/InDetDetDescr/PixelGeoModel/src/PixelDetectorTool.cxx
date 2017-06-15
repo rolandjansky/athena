@@ -42,6 +42,7 @@ PixelDetectorTool::PixelDetectorTool( const std::string& type, const std::string
     m_detectorName("PixelDetector"),
     m_IBLParameterSvc("IBLParameterSvc",name),
     m_buildDBM(0),
+    m_useDynamicAlignFolders(false),
     m_bcmTool(""),
     m_blmTool(""),
     m_serviceBuilderTool(""),
@@ -67,6 +68,7 @@ PixelDetectorTool::PixelDetectorTool( const std::string& type, const std::string
   declareProperty("GeoModelSvc", m_geoModelSvc);
   declareProperty("LorentzAngleSvc", m_lorentzAngleSvc);
   declareProperty("OverrideVersionName", m_overrideVersionName);
+  declareProperty("useDynamicAlignFolders", m_useDynamicAlignFolders);
 }
 /**
  ** Destructor
@@ -198,6 +200,7 @@ StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
     if (versionName == "SLHC") switches.setSLHC();
     if (versionName == "IBL") switches.setIBL();
     switches.setDBM(m_buildDBM); //DBM flag
+    switches.setDynamicAlignFolders(m_useDynamicAlignFolders);
 
     //JBdV
     switches.setServicesOnLadder(m_servicesOnLadder);
@@ -383,7 +386,7 @@ PixelDetectorTool::registerCallback( StoreGateSvc* detStore)
   StatusCode sc = StatusCode::FAILURE;
   if (m_alignable) {
 
-    {  
+    if (m_useDynamicAlignFolders) {  
       std::string folderName = "/Indet/AlignL1/ID";
       if (detStore->contains<CondAttrListCollection>(folderName)) {
 	msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endmsg;
@@ -435,7 +438,7 @@ PixelDetectorTool::registerCallback( StoreGateSvc* detStore)
     }
 
     
-    {
+    else {
       std::string folderName = "/Indet/Align";
       if (detStore->contains<AlignableTransformContainer>(folderName)) {
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endmsg;

@@ -4,7 +4,6 @@
 #------------------------------------------------------------------------#
 def setupMenu():
     
-    from TriggerMenu.menu.TriggerPythonConfig import TriggerPythonConfig
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
     from AthenaCommon.Logging                 import logging
     log = logging.getLogger( 'TriggerMenu.menu.Physics_HI_v3.py' )
@@ -32,6 +31,8 @@ def setupMenu():
     TriggerFlags.Slices_all_setOff()
 
     TriggerFlags.TestSlice.signatures = [] 
+
+    TriggerFlags.AFPSlice.signatures = []
     
     TriggerFlags.MuonSlice.signatures = [
 	#ID tracking performance

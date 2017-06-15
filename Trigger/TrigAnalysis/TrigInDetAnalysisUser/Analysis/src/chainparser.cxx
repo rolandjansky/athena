@@ -15,6 +15,9 @@
 #include <cstdlib> 
 #include <cstdio> 
 #include <map> 
+#include <regex>
+
+
 
 #include <cmath>
 
@@ -29,8 +32,12 @@ std::ostream& operator<<( std::ostream& s, std::vector<T>& v ) {
 }
 
 
-bool contains( const std::string& s, const std::string& regex ) { 
-  return s.find( regex )!=std::string::npos;
+bool contains( const std::string& s, const std::string& regx ) { 
+  return s.find( regx )!=std::string::npos;
+}
+
+bool contains_end( const std::string& s, const std::string& regx ) { 
+  return std::regex_match( s, std::regex(regx+"$") ); 
 }
 
 
@@ -214,6 +221,11 @@ int main( int argc, char** argv ) {
   chains.insert( chain_map::value_type( "Tau",      "_tau" ) );
   chains.insert( chain_map::value_type( "Bjet",     "_j" ) );
 
+  chains.insert( chain_map::value_type( "EgammaPurity",   "_e" ) );
+  chains.insert( chain_map::value_type( "MuonPurity",     "_mu" ) );
+  chains.insert( chain_map::value_type( "TauPurity",      "_tau" ) );
+  chains.insert( chain_map::value_type( "BjetPurity",     "_j" ) );
+
   chain_map::const_iterator itr = chains.find( rawslice );
 
   if ( itr==chains.end() ) { 
@@ -230,6 +242,8 @@ int main( int argc, char** argv ) {
 
   /// read through and parse chain list file
 
+  bool purity = contains( slice, "Purity" );
+
   while( getline( file, line ) && !file.fail() ) {
 
     if ( !contains( line, slice ) ) continue;
@@ -244,8 +258,8 @@ int main( int argc, char** argv ) {
 
     if      ( expl[2] == "IDMon" ) expected_size = 6;
     else if ( expl[2] == "TRIDT" ) { 
-      if      ( expl[4] == "Expert"  ) expected_size = 7;
-      else if ( expl[4] == "Shifter" ) expected_size = 6;
+      if      ( expl[4] == "Expert"  && !purity ) expected_size = 7;
+      else if ( expl[4] == "Shifter" ||  purity ) expected_size = 6;
       else { 
 	std::cerr << "unknown HIST type" << std::endl;
 	return 1;

@@ -33,7 +33,7 @@ def addTrigFTKSimOptions(parser,nsubregions=4):
     parser.add_argument('--UseCompressedBank', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='use compressed bank algorithm', group='TrigFTKSim')
 
-    parser.add_argument('--ReadFTKHits', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg= True),
+    parser.add_argument('--ReadFTKHits', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                             help='Read FTKHits directly', group='TrigFTKSim')
 
     # Cannot take maxEvents as an argument from addAthenaArguments() as it will have the wrong

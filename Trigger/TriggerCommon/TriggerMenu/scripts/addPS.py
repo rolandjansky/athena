@@ -4,7 +4,6 @@
 import os, sys
 import xml.etree.cElementTree as ET
 import logging
-import math
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(levelname)s %(message)s')
@@ -148,7 +147,7 @@ class PSRule:
             if target_lumi > self.scd_min_lumi:
                 #make this completely independent
                 #get PS at snd_min_lumi
-                scd_ps = self.scd_min_lumi/current_lumi*self.factor
+                #scd_ps = self.scd_min_lumi/current_lumi*self.factor
                 if (self.scd_factor==0):
                     ret_prescale = self.scd_value
                 else:

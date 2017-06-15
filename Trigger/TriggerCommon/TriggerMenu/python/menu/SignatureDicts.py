@@ -18,6 +18,7 @@ SliceIDDict = {
     'MET'     : 'xe',
     'XS'      : 'xs',
     'TE'      : 'te',
+    'AFP'     : 'afp',
     'MinBias' : 'mb',
     'HeavyIon' : 'hi',
     'Cosmic'  : 'cosmic',
@@ -204,14 +205,14 @@ MuonChainParts = {
     'IDinfo'         : [],
     'isoInfo'        : ['iloose', 'imedium', 'itight', 'ivarloose', 'ivarmedium','icalo','iloosecalo','imediumcalo','iloosems', 'ivarloosecalo', 'ivarmediumcalo'],
     'reccalibInfo'   : ['msonly', 'l2msonly', 'l2idonly', 'nomucomb', 'idperf','muoncalib', 'mucombTag','muL2', 'mgonly'],
-    'trkInfo'        : ['fasttr', 'hlttr', 'ftk', 'IDT'],
+    'trkInfo'        : ['fasttr', 'hlttr', 'IDT'],
     'hypoInfo'       : [],
-    'FSinfo'         : ['ftkFS', 'nscan03', 'l2nscan03', 'nscan05', 'l2nscan05', 'JpsimumuFS', 'JpsimumuL2','calotag'],
+    'FSinfo'         : ['FTKFS', 'nscan03', 'l2nscan03', 'nscan05', 'l2nscan05', 'JpsimumuFS', 'JpsimumuL2','calotag'],
     'L2IDAlg'        : ['L2Star','IdScan','FTK','FTKRefit'],
     'L2SAAlg'        : ['muFast', 'l2muonSA',],
     'L2CBAlg'        : ['muComb',],
     'EFAlg'          : ['SuperEF'],
-    'addInfo'        : ['cosmicEF', 'cosmic','IdTest','fsperf', 'ds1', 'ds2','ds3', 'r1extr', 'perf', 'noEF','10invm30','pt2','z10','llns','noComb','zROItest','invm1'],
+    'addInfo'        : ['cosmicEF', 'cosmic','IdTest','fsperf', 'ds1', 'ds2','ds3', 'r1extr', 'perf', 'noEF','10invm30','pt2','z10','llns','noComb','zROItest','invm1','inTimeRoI','dRl1'],
     'overlapRemoval' : ['wOvlpRm', 'noOvlpRm', 'noMuCombOvlpRm'],
     'topo'           : AllowedTopos_mu,
     'flavour'        : ['hf'],
@@ -492,6 +493,33 @@ CombinedChainParts_Default['signature'] = ['Photon','Muon']
 CombinedChainParts_Default['chainParts'] = ['g','mu'],
 CombinedChainParts_Default['trigType'] =['g','mu']
 CombinedChainParts_Default['topo'] = []
+
+#==========================================================
+# AFP
+#==========================================================
+# ---- AFP Dictinary of all allowed Values ----
+AFPChainParts = {
+    'signature'      : ['AFP'],
+    'L1item'         : '',
+    'chainPartName'  : '',
+    'multiplicity'   : '',
+    'trigType'       : ['afp'],
+    'threshold'      : '',
+    'extra'          : [],
+    'addInfo'        : []
+    }
+# ---- AFPDictinary of default Values ----
+AFPChainParts_Default = {
+    'signature'      : ['AFP'],
+    'L1item'         : '',
+    'chainPartName'  : '',
+    'multiplicity'   : '',
+    'trigType'       : ['afp'],
+    'threshold'      : '',
+    'extra'          : '',
+    'addInfo'        : []
+    }
+
 
 #==========================================================
 # MinBias chains
@@ -877,6 +905,8 @@ def getSignatureInformation(signature):
         return [XSChainParts_Default, XSChainParts]
     if signature == "TE":
         return [TEChainParts_Default, TEChainParts]
+    if signature == "AFP":
+        return [AFPChainParts_Default, AFPChainParts]
     if signature == "MinBias":
         return [MinBiasChainParts_Default, MinBiasChainParts]
     if signature == "HeavyIon":
@@ -901,7 +931,6 @@ def getSignatureInformation(signature):
 
 def getBasePattern():
     import re
-    import itertools
     # possibleTT = '|'.join(allowedSignaturePropertiesAndValues['trigType'])
     #print 'SignatureDicts.py: Allowed values for triType in base pattern', SliceIDDict.values()
     allTrigTypes = SliceIDDict.values()

@@ -94,8 +94,11 @@ class TrigGSCFex: public HLT::FexAlgo {
   // 
 
   /** @brief Run-2 monitored variables. */
-
-  //float m_mon_sv_mass;
+  int   m_mon_gsc_ntrk;
+  float m_mon_gsc_width;
+  float m_mon_gsc_ptsum;
+  float m_mon_gsc_ptdiff;
+  float m_mon_gsc_ptratio;
 
   std::string m_trackKey;
   std::string m_jetKey;

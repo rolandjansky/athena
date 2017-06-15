@@ -184,4 +184,4 @@ if hasattr(runArgs,"useDB"):
                 if prop == "TrigConfigTool":
                     log.info("Set TrigConfigTool %s",tool.getName())
                     tool.TrigConfigTool="TrigConf::xAODConfigTool"
-        
+

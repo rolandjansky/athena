@@ -1719,6 +1719,19 @@ int main(int argc, char** argv) {
       double  yminset = 0;
       double  ymaxset = 0;
 
+      double rmin = 0;
+      double rmax = 0;
+      
+      if ( xinfo.rangeset() ) { 
+	rmin = plots.realmin( plots.lo(), plots.hi() );
+	rmax = plots.realmax( plots.lo(), plots.hi() );
+      }
+      else {
+	rmin = plots.realmin();
+	rmax = plots.realmax();
+      }
+      
+
       if ( yinfo.autoset() ) { 
 	
 	double rmin = 0;
@@ -1832,9 +1845,12 @@ int main(int argc, char** argv) {
 
       if ( fulldbg ) std::cout << __LINE__ << std::endl;
 
-      if ( yminset>0 ) plots.SetLogy(yinfo.log());
-      else             plots.SetLogy(false);
-   
+      if ( yminset!=0 || ymaxset!=0 ) { 
+	if ( yminset>0 ) plots.SetLogy(yinfo.log());
+	else             plots.SetLogy(false);
+      }	
+      else plots.SetLogy(yinfo.log());
+
       //      plots.SetLogy(false);
 
       if ( fulldbg ) std::cout << __LINE__ << std::endl;

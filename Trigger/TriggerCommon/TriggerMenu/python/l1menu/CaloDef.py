@@ -9,12 +9,6 @@ class CaloDef:
 
         
         from TriggerMenu.l1.CaloInfo import MinimumTOBPt, CaloInfo
-        from TriggerMenu.l1.Limits import CaloLimits, Limits
-        from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
-
-
-        run1 = Lvl1Flags.CTPVersion()<=3
-
 
         caloInfo = tc.menu.CaloInfo
         menuName = tc.menuName

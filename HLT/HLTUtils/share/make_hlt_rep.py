@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 import optparse
 import os
@@ -42,22 +43,24 @@ else:
     # numbered releases
     atlas_version = os.environ.get('AtlasVersion')
 
+platform = hltOksUtils.platform()
+
 swvars = [
-    dal.SW_PackageVariable('XMLPATH%s' % modifier,
+    dal.SW_PackageVariable('XMLPATH',
                            Name='XMLPATH',
-                           Suffix="XML"),
-    dal.SW_PackageVariable('DATAPATH%s' % modifier,
+                           Suffix=os.path.join(platform,"XML")),
+    dal.SW_PackageVariable('DATAPATH',
                            Name='DATAPATH',
-                           Suffix="share"),
-    dal.SW_PackageVariable('CALIBPATH%s' % modifier,
+                           Suffix=os.path.join(platform,"share")),
+    dal.SW_PackageVariable('CALIBPATH',
                            Name='CALIBPATH',
-                           Suffix="share"),                           
-    dal.SW_PackageVariable('JOBOPTSEARCHPATH%s' % modifier,
+                           Suffix=os.path.join(platform,"share")),                           
+    dal.SW_PackageVariable('JOBOPTSEARCHPATH',
                            Name='JOBOPTSEARCHPATH',
-                           Suffix="jobOptions"),
-    dal.SW_PackageVariable('PYTHONPATH%s' % modifier,
+                           Suffix=os.path.join(platform,"jobOptions")),
+    dal.SW_PackageVariable('PYTHONPATH',
                            Name='PYTHONPATH',
-                           Suffix="python")
+                           Suffix=os.path.join(platform,"python"))
 ]
 
 puvars = [
@@ -92,7 +95,7 @@ pars = dal.VariableSet('%s-Parameters' % prefix,
                                                  Description='%s release version' % prefix) ])
 
 apps = [
-    dal.Script('HLTMPPU_asetup',
+    dal.Binary('HLTMPPU_asetup',
                BinaryName='asetup_wrapper',
                Description='HLTMPPU_main with asetup environment',
                DefaultParameters='HLTMPPU_main',
@@ -104,8 +107,8 @@ hltRep = dal.SW_Repository('%s-Repository' % prefix,
                            Name=('%s-Repository' % prefix),
                            InstallationPath="%s/InstallArea" % os.environ.get('AtlasArea'),
                            SW_Objects=apps,
-                           Tags=hltOksUtils.defaultTags(),
-                           ISInfoDescriptionFiles=['share/data/daq/schema/is_trigconf_hlt.schema.xml'],
+                           Tags=[pm.common.tdaqRepository.getObject('Tag',hltOksUtils.platform())],
+                           ISInfoDescriptionFiles=[os.path.join(platform,'share/data/daq/schema/is_trigconf_hlt.schema.xml')],
                            AddProcessEnvironment = swvars
                            )
 
