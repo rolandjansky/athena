@@ -150,9 +150,9 @@ TileRegionSelectorTable::fillMaps()
 
   //double dphi=0.09817477;
 
-  float etamin[4];
+  float etamin[ TileCalibUtils::MAX_ROS ];
   etamin[1]=-1.0; etamin[0]=-0.1; etamin[3]=-1.60943;  etamin[2]=+0.708779;
-  float etamax[4];
+  float etamax[ TileCalibUtils::MAX_ROS ];
   etamax[1]=+0.1; etamax[0]=+1.0; etamax[3]=-0.708779; etamax[2]=+1.60943;
 
 
@@ -173,9 +173,9 @@ TileRegionSelectorTable::fillMaps()
       Identifier cell_id;
       int index, pmt;
       for (int ch=0; ch<10; ch++){
-      HWIdentifier channelID = tileHWID->channel_id(ros,drawer,ch);
-      cell_id = cabling->h2s_cell_id_index(channelID,index,pmt);
-      if ( index >= 0 ) break; // found a normal cell
+         HWIdentifier channelID = tileHWID->channel_id(ros,drawer,ch);
+         cell_id = cabling->h2s_cell_id_index(channelID,index,pmt);
+         if ( index >= 0 ) break; // found a normal cell
       }
       int cell_hash = tileID->cell_hash(cell_id);
       CaloDetDescrElement* DDE = tileMgr->get_cell_element((IdentifierHash) cell_hash);
@@ -185,7 +185,7 @@ TileRegionSelectorTable::fillMaps()
       phimin -= DDE->dphi()/2.0;
       phimax += DDE->dphi()/2.0;
 
-      if (m_printTable)
+      if (m_printTable){
         *ttmap << std::setw(7)  << std::hex << rod  << " "
                << std::setw(6)  << std::hex << coll << " "
                << std::setw(7)  << std::hex << hash << " "
@@ -193,6 +193,7 @@ TileRegionSelectorTable::fillMaps()
                << std::ios::fixed << std::setw(12) << etama  << " "
                << std::ios::fixed << std::setw(12) << phimin << " "
                << std::ios::fixed << std::setw(12) << phimax << std::endl;
+      }
 
       ttLut->additem(etami,etama,phimin,phimax,sam,layer,hash,rod);
 

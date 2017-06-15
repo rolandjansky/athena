@@ -118,6 +118,7 @@ TileROD_Decoder::~TileROD_Decoder() {
     delete m_rawchannelMetaData[i];
   }
   if (m_hid2re) delete m_hid2re;
+  if (m_hid2reHLT) delete m_hid2reHLT;
   
   for (unsigned int id = 0; id < 4 * TileCalibUtils::MAX_DRAWERIDX; ++id)
     if (m_OFWeights[id]) delete m_OFWeights[id];
