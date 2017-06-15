@@ -106,6 +106,7 @@ print AlgSequence
 print ServiceMgr
 
 # Tempory - 24/05/17
-from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigDataAccess;
-ToolSvc+=TrigDataAccess();ToolSvc.TrigDataAccess.fullTileMode=False;
-ToolSvc.TileRegionSelectorTable.FullRODs=False;
+#from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigDataAccess;
+#ToolSvc+=TrigDataAccess();ToolSvc.TrigDataAccess.fullTileMode=False;
+#ToolSvc.TileRegionSelectorTable.FullRODs=False;
+ToolSvc.TileROD_Decoder.fullTileMode=0
