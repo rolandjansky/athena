@@ -112,7 +112,7 @@ namespace CP {
         }
     }
 
-    CorrectionCode IsolationCloseByCorrectionTool::getCloseByIsoCorrection(xAOD::ElectronContainer* Electrons, xAOD::MuonContainer* Muons, xAOD::PhotonContainer* Photons) const {
+    CorrectionCode IsolationCloseByCorrectionTool::getCloseByIsoCorrection(xAOD::ElectronContainer* Electrons, xAOD::MuonContainer* Muons, xAOD::PhotonContainer* Photons, int topoetconeModel) const {
         if (!m_isInitialised) {
             ATH_MSG_ERROR("The IsolationCloseByCorrectionTool was not initialised!!!");
             return CorrectionCode::Error;
@@ -129,12 +129,18 @@ namespace CP {
         GetTrackCandidates(Photons, Vtx, Tracks);
         //Now grep every cluster with dR< m_CoreCone to the object
         ClusterCollection Clusters;
-        GetClusterCandidates(Electrons, Clusters);
-        GetClusterCandidates(Muons, Clusters);
-        GetClusterCandidates(Photons, Clusters);
+        if (topoetconeModel == TopoConeCorrectionModel::DirectCaloClusters) {
+            GetClusterCandidates(Electrons, Clusters);
+            GetClusterCandidates(Muons, Clusters);
+            GetClusterCandidates(Photons, Clusters);
+        }
         if (performCloseByCorrection(Electrons, Tracks, Clusters) == CorrectionCode::Error) return CorrectionCode::Error;
         else if (performCloseByCorrection(Muons, Tracks, Clusters) == CorrectionCode::Error) return CorrectionCode::Error;
         else if (performCloseByCorrection(Photons, Tracks, Clusters) == CorrectionCode::Error) return CorrectionCode::Error;
+        //get the other way
+        if (topoetconeModel != TopoConeCorrectionModel::DirectCaloClusters || Clusters.empty()){
+
+        }
         return CorrectionCode::Ok;
     }
     CP::CorrectionCode IsolationCloseByCorrectionTool::performCloseByCorrection(xAOD::IParticleContainer* Container, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters) const {
@@ -152,8 +158,8 @@ namespace CP {
                 ATH_MSG_ERROR("Failed to correct the isolation of particle with pt: " << Particle->pt() / 1.e3 << " GeV" << " eta: " << Particle->eta() << " phi: " << Particle->phi());
                 return CorrectionCode::Error;
             }
+            if  (m_dec_isoselection) m_dec_isoselection->operator()(*Particle) = m_selectorTool->accept(*Particle);
         }
-
         return CorrectionCode::Ok;
     }
     const IsoVector* IsolationCloseByCorrectionTool::getIsolationTypes(const xAOD::IParticle* P) const {
@@ -164,6 +170,13 @@ namespace CP {
 
         return nullptr;
 
+    }
+    CP::CorrectionCode IsolationCloseByCorrectionTool::performCloseByCaloCorrection(xAOD::IParticleContainer* Cont1, xAOD::IParticleContainer*  Cont2) const{
+        if (!Cont1 || !Cont2){
+            ATH_MSG_DEBUG("One of the containers is empty");
+            return CorrectionCode::Ok;
+        }
+        return  CorrectionCode::Ok;
     }
 
     CP::CorrectionCode IsolationCloseByCorrectionTool::subtractCloseByContribution(xAOD::IParticle* par, const IsoVector& types, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters) const {
@@ -204,30 +217,52 @@ namespace CP {
         if (topoetconeModel == TopoConeCorrectionModel::DirectCaloClusters) GetClusterCandidates(&Container, Clusters);
         std::vector<float>::iterator Cone = corrections.begin();
         for (auto& t : types) {
-            float OrigCone = 0;
             if (IsTrackIso(t) && !Tracks.empty()) {
-                if (getCloseByCorrectionTrackIso((*Cone), &par, t, Tracks) == CorrectionCode::Error || m_isohelpers.at(t)->GetOrignalIsolation(&par, OrigCone) == CorrectionCode::Error) {
+                if (getCloseByCorrectionTrackIso((*Cone), &par, t, Tracks) == CorrectionCode::Error) {
                     ATH_MSG_ERROR("Failed to apply track correction");
                     return CorrectionCode::Error;
                 }
-
             }
             if (IsTopoEtIso(t)) {
                 if (!Clusters.empty()) {
-                    if (getCloseByCorrectionTopoIso((*Cone), &par, t, Clusters) == CorrectionCode::Error || m_isohelpers.at(t)->GetOrignalIsolation(&par, OrigCone) == CorrectionCode::Error) {
+                    if (getCloseByCorrectionTopoIso((*Cone), &par, t, Clusters) == CorrectionCode::Error) {
                         ATH_MSG_ERROR("Failed to apply track correction");
                         return CorrectionCode::Error;
                     }
                 } else topoetconeModel = TopoConeCorrectionModel::ParticleCaloCorrection;
-
+                if (topoetconeModel != TopoConeCorrectionModel::DirectCaloClusters && getCloseByCaloCorrection((*Cone), &par, &Container, t, topoetconeModel) == CorrectionCode::Error) return CorrectionCode::Error;
             }
-            //The old system  still uses  the corrections.
-            (*Cone) = OrigCone - (*Cone);
             ++Cone;
         }
         return CP::CorrectionCode::Ok;
 
     }
+    CP::CorrectionCode IsolationCloseByCorrectionTool::getCloseByCaloCorrection(float& correction, const xAOD::IParticle* par, const xAOD::IParticleContainer* CloseByPars, IsoType type, int Model) const {
+
+        if (!CloseByPars) {
+            ATH_MSG_DEBUG("No container given for getCloseByCaloCorrection");
+            return CorrectionCode::Ok;
+        }
+        if (!m_isInitialised) {
+            ATH_MSG_WARNING("The IsolationCloseByCorrectionTool was not initialised!!!");
+        } else if (!IsTopoEtIso(type)) {
+            ATH_MSG_ERROR("Invalid isolation type");
+            return CP::CorrectionCode::Error;
+        }
+        IsoHelperMap::const_iterator Itr = m_isohelpers.find(type);
+        if (Itr == m_isohelpers.end() || Itr->second->BackupIsolation(par) == CorrectionCode::Error || Itr->second->GetOrignalIsolation(par, correction) == CorrectionCode::Error) {
+            ATH_MSG_WARNING("Could not retrieve the isolation variable.");
+            return CP::CorrectionCode::Error;
+        }
+        //else if (correction <= 0.0) return CP::CorrectionCode::Ok;
+        float cone = ConeSize(par, type);
+        for (const auto closeBy : *CloseByPars) {
+            if (ConsiderForCorrection(closeBy)) correction -= CaloCorrectionFromDecorator(par, closeBy, cone, Model);
+        }
+
+        return CorrectionCode::Ok;
+    }
+
     TrackCollection IsolationCloseByCorrectionTool::GetAssociatedTracks(const xAOD::IParticle* P) const {
         if (P->type() == xAOD::Type::Muon || P->type() == xAOD::Type::TrackParticle) {
             TrackCollection { getTrackParticle(P) };
@@ -291,7 +326,8 @@ namespace CP {
         if (Itr == m_isohelpers.end() || Itr->second->BackupIsolation(par) == CorrectionCode::Error || Itr->second->GetOrignalIsolation(par, correction) == CorrectionCode::Error) {
             ATH_MSG_WARNING("Could not retrieve the isolation variable.");
             return CP::CorrectionCode::Error;
-        } else if (correction <= 0.0) return CP::CorrectionCode::Ok;
+        }
+        //else if (correction <= 0.0) return CP::CorrectionCode::Ok;
 
         double MaxDR = ConeSize(par, type);
         TrackCollection ToExclude = GetAssociatedTracks(par);
@@ -314,7 +350,9 @@ namespace CP {
         if (Itr == m_isohelpers.end() || Itr->second->BackupIsolation(par) == CorrectionCode::Error || Itr->second->GetOrignalIsolation(par, correction) == CorrectionCode::Error) {
             ATH_MSG_WARNING("Could not retrieve the isolation variable.");
             return CP::CorrectionCode::Error;
-        } else if (correction <= 0.0) return CP::CorrectionCode::Ok;
+        }
+
+        //else if (correction <= 0.0) return CP::CorrectionCode::Ok;
 
         ATH_MSG_DEBUG("Isolation variable of particle with pt " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << " ,phi: " << par->phi() << " before correction: " << correction / 1.e3 << " GeV");
         double MaxDR = ConeSize(par, type);
@@ -437,10 +475,12 @@ namespace CP {
         for (unsigned int i = 0; i < getIsolationTypes(&x)->size(); i++) {
             SG::AuxElement::Accessor<float> *acc = xAOD::getIsolationAccessor(getIsolationTypes(&x)->at(i));
             float old = (*acc)(x);
-            ATH_MSG_DEBUG("Correcting " << xAOD::Iso::toString(getIsolationTypes(&x)->at(i)) << " from " << old << " to " << old - corrections.at(i));
-            strPar.isolationValues[getIsolationTypes(&x)->at(i)] = old - corrections.at(i);
+            ATH_MSG_DEBUG("Correcting " << xAOD::Iso::toString(getIsolationTypes(&x)->at(i)) << " from " << old << " to " << corrections.at(i));
+            strPar.isolationValues[getIsolationTypes(&x)->at(i)] = corrections.at(i);
         }
         m_accept = m_selectorTool->accept(strPar);
+        if  (m_dec_isoselection) m_dec_isoselection->operator()(x) = m_accept;
+
         return m_accept;
     }
     const xAOD::Vertex* IsolationCloseByCorrectionTool::retrieveIDBestPrimaryVertex() const {
