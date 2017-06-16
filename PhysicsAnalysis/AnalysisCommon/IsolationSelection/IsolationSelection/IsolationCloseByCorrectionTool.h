@@ -39,11 +39,9 @@ namespace CP {
     typedef std::unique_ptr<CharAccessor> SelectionAccessor;
     typedef std::unique_ptr<CharDecorator> SelectionDecorator;
 
-
     typedef std::unique_ptr<IsoVariableHelper> IsoHelperPtr;
     typedef std::map<xAOD::Iso::IsolationType, IsoHelperPtr> IsoHelperMap;
     typedef std::pair<xAOD::Iso::IsolationType, IsoHelperPtr> IsoHelperPair;
-
 
     class IsolationCloseByCorrectionTool: public asg::AsgTool, public virtual IIsolationCloseByCorrectionTool {
 
@@ -70,15 +68,13 @@ namespace CP {
             //Helper function to check whether an element is in the vector
             template<typename T> bool IsElementInList(const std::vector<T> &List, const T& Element) const;
 
-            CP::CorrectionCode performCloseByCorrection(xAOD::IParticleContainer* Particles, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters)const;
+            CP::CorrectionCode performCloseByCorrection(xAOD::IParticleContainer* Particles, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters) const;
             CP::CorrectionCode subtractCloseByContribution(xAOD::IParticle* P, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters) const;
             CP::CorrectionCode subtractCloseByContribution(xAOD::IParticle* P, const IsoVector& types, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters) const;
 
             CP::CorrectionCode getCloseByCorrectionTrackIso(float& correction, const xAOD::IParticle* par, xAOD::Iso::IsolationType type, const TrackCollection& tracks) const;
             CP::CorrectionCode getCloseByCorrectionTopoIso(float& correction, const xAOD::IParticle* par, xAOD::Iso::IsolationType type, const ClusterCollection& clusters) const;
 
-            const CP::CorrectionCode getCloseByCorrectionTrackIso(float& correction, const xAOD::IParticle& par, xAOD::Iso::IsolationType type, const std::vector<const xAOD::IParticle*>& closePar) const;
-            const CP::CorrectionCode getCloseByCorrectionTopoetcone(float& correction, const xAOD::IParticle& par, xAOD::Iso::IsolationType type, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel = -1) const;
             //Retrieve the primary vertex
             const xAOD::Vertex* retrieveIDBestPrimaryVertex() const;
 
@@ -93,6 +89,9 @@ namespace CP {
             bool IsSame(const xAOD::IParticle* P, const xAOD::IParticle* P1) const;
             bool Overlap(const xAOD::IParticle* P, const xAOD::IParticle* P1, double dR) const;
             double DeltaR2(const xAOD::IParticle* P, const xAOD::IParticle* P1, bool AvgCalo = false) const;
+
+            float CaloCorrectionFraction(const xAOD::IParticle* P, const xAOD::IParticle* P1, float ConeSize, IsolationCloseByCorrectionTool::TopoConeCorrectionModel Model) const;
+            float CaloCorrectionFromDecorator(const xAOD::IParticle* ToCorrect, const xAOD::IParticle* CloseBy,float ConeSize, IsolationCloseByCorrectionTool::TopoConeCorrectionModel Model) const;
 
             bool IsFixedTrackIso(xAOD::Iso::IsolationType Iso) const;
             bool IsVarTrackIso(xAOD::Iso::IsolationType Iso) const;
@@ -139,9 +138,7 @@ namespace CP {
             asg::AnaToolHandle<InDet::IInDetTrackSelectionTool> m_trkselTool;
             IsoHelperMap m_isohelpers;
 
-
     };
-
 
     class IsoVariableHelper {
         public:
@@ -149,7 +146,7 @@ namespace CP {
             CorrectionCode GetIsolation(const xAOD::IParticle* P, float& Value) const;
             CorrectionCode BackupIsolation(const xAOD::IParticle* P) const;
             CorrectionCode SetIsolation(xAOD::IParticle* P, float Value) const;
-            xAOD::Iso::IsolationType IsoType()const;
+            xAOD::Iso::IsolationType IsoType() const;
 
             IsoVariableHelper(xAOD::Iso::IsolationType type, const std::string& BackupPreFix);
 
