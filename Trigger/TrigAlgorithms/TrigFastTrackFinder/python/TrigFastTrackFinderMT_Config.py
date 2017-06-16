@@ -56,7 +56,6 @@ class TrigFastTrackFinderMTBase(TrigFastTrackFinderMT):
           if remapped_type=='cosmics':
             self.TrackInitialD0Max = 1000.
             self.TrackZ0Max   = 1000.
-
           self.TripletDoPSS   = False
           self.pTmin = InDetTrigSliceSettings[('pTmin',remapped_type)]
           self.DoubletDR_Max = InDetTrigSliceSettings[('dRdoubletMax',remapped_type)]
