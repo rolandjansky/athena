@@ -58,14 +58,24 @@ TEvent::TEvent(EReadMode mode, const std::string& name) :
 
    Gaudi::Init();
 
+   //SEEMS TO CAUSE INITIALIZE LOOP if(name=="StoreGateSvc") m_evtSelect.setName("EventSelector"); //use default selector name if we use default storegate
+
    //FIXME: Should protect against attempt to mix POOL with nonPOOL
    if(mode==kPOOLAccess) {
-    //add the AthenaPoolAddressProviderSvc to ProxyProviderSvc
+     //add AthenaPoolCnvSvc to the EventPersistencySvc (ideally the selector should add this itself!!)
+     ServiceHandle<IService> epSvc("EventPersistencySvc","TEvent"+name);
+     AAH::setProperty( epSvc , "CnvServices" , "['AthenaPoolCnvSvc']" ); //FIXME: perhaps should append rather than overwrite
+     //add the AthenaPoolAddressProviderSvc to ProxyProviderSvc
      ServiceHandle<IService> ppSvc("ProxyProviderSvc","TEvent"+name);
      AAH::setProperty( ppSvc , "ProviderNames", "['MetaDataSvc', 'AthenaPoolAddressProviderSvc']" );
+   } else if(mode==kTreeAccess) {
+     //switch selector type to Athena::RootNtupleEventSelector
+     m_evtSelect.setTypeAndName("Athena::RootNtupleEventSelector/"+m_evtSelect.name());
+     //also default to 'CollectionTree' as the tree to read
+     this->setEvtSelProperty("TupleName","CollectionTree");
    } else {
      //switch selector type to xAODEventSelector:
-     m_evtSelect.setTypeAndName("Athena::xAODEventSelector/"+name+"_EventSelector");
+     m_evtSelect.setTypeAndName("Athena::xAODEventSelector/"+m_evtSelect.name());
    }
 
    //check if a SelectorType has been specified in the joSvc 
@@ -73,7 +83,7 @@ TEvent::TEvent(EReadMode mode, const std::string& name) :
    auto properties = m_joSvc->getProperties("TEvent");
    if(properties) {
       for(auto prop : *properties) {
-         if(prop->name()=="EventSelectorType") m_evtSelect.setTypeAndName(prop->toString() + "/" + name+"_EventSelector");
+	if(prop->name()=="EventSelectorType") m_evtSelect.setTypeAndName(prop->toString() + "/" + m_evtSelect.name());
       }
    }
 
@@ -85,12 +95,16 @@ TEvent::TEvent(EReadMode mode, const std::string& name) :
    if(m_evtSelect.type()=="Athena::xAODEventSelector") {
      AAH::setProperty( m_evtSelect , "ReadMetaDataWithPool" , true); //uses hybrid xAOD reading by default
      AAH::setProperty( m_evtSelect , "AccessMode" , int(mode) ); //sets the mode
+     AAH::setProperty( m_evtSelect , "EvtStore" , m_evtStore.typeAndName() );
+     //FIXME ... cant get dual event stores working :-(
+     //AAH::setProperty( m_evtSelect , "ProxyProviderSvc" , "ProxyProviderSvc/" + name + "_ProxyProviderSvc" );
+     //AAH::setProperty( m_evtStore , "ProxyProviderSvc", "ProxyProviderSvc/" + name + "_ProxyProviderSvc" );
    }
 
    //set outputlevels to WARNING 
    AAH::setProperty( m_evtLoop, "OutputLevel", 4 );
    AAH::setProperty( m_evtSelect, "OutputLevel", 4 );
-   AAH::setProperty( m_evtStore, "OutputLevel", 4 );
+   //AAH::setProperty( m_evtStore, "OutputLevel", 4 );
    AAH::setProperty( m_activeStoreSvc, "OutputLevel", 4 );
 
    //suppress messages below WARNING too
@@ -181,6 +195,10 @@ int TEvent::getEntry( long entry ) {
    return (out.isSuccess()) ? 0 : -1;
 }
 
+std::string TEvent::retrieveIOVMetadata(const std::string& folder, const std::string& key) {
+  if(!m_evtLoop.isSet()) { if(m_evtLoop.retrieve().isFailure()) return ""; }
+  return AAH::retrieveMetadata(folder,key,inputMetaStore());
+}
 
   //python bindings
 
@@ -196,6 +214,7 @@ int TEvent::getEntry( long entry ) {
     return AthenaInternal::py_sg_contains( &*evtStore() , tp,  pykey );
   }
   PyObject* TEvent::retrieveMetaInput(PyObject* tp, PyObject* pykey) {
+    if(!m_evtLoop.isSet()) { if(m_evtLoop.retrieve().isFailure()) return 0; }
     return AthenaInternal::retrieveObjectFromStore( &*inputMetaStore() , tp, pykey );
   }
   PyObject* TEvent::record  (PyObject* obj, PyObject* pykey,bool allowMods,bool resetOnly,bool noHist) {
