@@ -71,7 +71,7 @@ class CaloGeoDetDescrElement
   /** @brief cell dr
    */
   float dr() const;
-    
+
   /** @brief cell x
    */
   float x() const;
@@ -99,22 +99,23 @@ class CaloGeoDetDescrElement
   /** @brief cell dz
    */
   float dz() const;
-  
+
   /** @brief cell identifier
    */
   Identifier identify() const;
-  
+
   unsigned long long calo_hash() const;
 
   int getSampling() const ;
 
- //ACH protected:  
+ private:
+ //ACH protected:
  //
   long long m_identify;
   long long m_hash_id;
-  
+
   int m_calosample;
-   
+
   /** @brief cylindric coordinates : eta
    */
   float m_eta;
@@ -124,8 +125,8 @@ class CaloGeoDetDescrElement
 
  /** @brief this one is cached for algorithm working in transverse Energy
     */
-  float m_sinTh; 
-   /** @brief this one is cached for algorithm working in transverse Energy   
+  float m_sinTh;
+   /** @brief this one is cached for algorithm working in transverse Energy
    */
   float m_cosTh;
 
@@ -138,9 +139,9 @@ class CaloGeoDetDescrElement
 
   /** @brief cylindric coordinates : r
    */
-   
-  float m_volume;    
-  
+
+  float m_volume;
+
   /** @brief cache to allow fast px py pz computation
    */
   float m_sinPhi;
@@ -164,7 +165,7 @@ class CaloGeoDetDescrElement
   /** @brief cylindric coordinates : delta r
    */
   float m_dr;
-  
+
   /** @brief cartesian coordinates : X
    */
   float m_x;
@@ -192,13 +193,13 @@ class CaloGeoDetDescrElement
   /** @brief cartesian coordinates : delta Z
    */
   float m_dz;
-  
+
 };
 
 inline Identifier CaloGeoDetDescrElement::identify() const
-{ 
+{
 	Identifier id((unsigned long long) m_identify);
-	return id;	
+	return id;
 }
 
 inline unsigned long long CaloGeoDetDescrElement::calo_hash() const
