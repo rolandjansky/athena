@@ -22,6 +22,10 @@ find_package( AtlasCMake QUIET )
 find_package( AthAnalysisExternals REQUIRED )
 find_package( Gaudi REQUIRED )
 
+# additional externals
+find_package( Xrootd )
+
+
 # Conditional compile flags:
 add_definitions( -DXAOD_ANALYSIS )
 add_definitions( -DROOTCORE_RELEASE_SERIES=25 )
