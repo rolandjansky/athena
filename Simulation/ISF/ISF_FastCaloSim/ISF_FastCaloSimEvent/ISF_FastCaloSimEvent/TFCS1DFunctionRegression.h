@@ -15,27 +15,23 @@ using namespace std;
 class TFCS1DFunctionRegression:public TFCS1DFunction
 {
   public:
-  	
+
     TFCS1DFunctionRegression() {};
     ~TFCS1DFunctionRegression() {};
-    
+
     virtual double rnd_to_fct(double rnd);
     double  regression_value(double uniform);
     void    set_weights(vector<vector<double> > fWeightMatrix0to1, vector<vector<double> > fWeightMatrix1to2);
     double  sigmoid(double);
-  
+
   private:
-    
+
     vector<vector<double> > m_fWeightMatrix0to1;
     vector<vector<double> > m_fWeightMatrix1to2;
-    
-		  
-  ClassDef(TFCS1DFunctionRegression,1)  //TFCS1DFunctionRegression
-  
-};
 
-#if defined(__MAKECINT__)
-#pragma link C++ class TFCS1DFunctionRegression+;
-#endif
+
+  ClassDef(TFCS1DFunctionRegression,1)  //TFCS1DFunctionRegression
+
+};
 
 #endif

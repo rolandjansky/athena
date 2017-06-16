@@ -21,8 +21,4 @@ private:
    ClassDef( IntArray, 1 )
 };
 
-#if defined(__MAKECINT__)
-#pragma link C++ class IntArray+;
-#endif
-
 #endif

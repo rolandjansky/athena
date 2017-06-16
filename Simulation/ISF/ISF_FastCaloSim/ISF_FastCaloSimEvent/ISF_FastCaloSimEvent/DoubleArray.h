@@ -21,8 +21,4 @@ private:
    ClassDef( DoubleArray, 1 )
 };
 
-#if defined(__MAKECINT__)
-#pragma link C++ class DoubleArray+;
-#endif
-
 #endif

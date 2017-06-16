@@ -14,7 +14,7 @@
 class TFCSParametrizationBase:public TNamed {
 public:
   TFCSParametrizationBase(const char* name=0, const char* title=0);
-  
+
   virtual bool is_match_pdgid(int /*id*/) const {return false;};
   virtual bool is_match_Ekin(float /*Ekin*/) const {return false;};
   virtual bool is_match_eta(float /*eta*/) const {return false;};
@@ -41,9 +41,5 @@ private:
 
   ClassDef(TFCSParametrizationBase,1)  //TFCSParametrizationBase
 };
-
-#if defined(__MAKECINT__)
-#pragma link C++ class TFCSParametrizationBase+;
-#endif
 
 #endif
