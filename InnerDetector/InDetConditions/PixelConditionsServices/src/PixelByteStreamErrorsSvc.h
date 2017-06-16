@@ -58,7 +58,7 @@ public:
   virtual unsigned int getModuleErrors(IdentifierHash hashID) {return m_module_errors[(int) hashID];}
 
   // Get full map of FE errors
-  virtual std::map<IdentifierHash, std::map<unsigned int, unsigned int> > getAllFeErrors() {
+  virtual const std::map<IdentifierHash, std::map<unsigned int, unsigned int> > & getAllFeErrors() {
     return m_all_FE_errors;
   }
 

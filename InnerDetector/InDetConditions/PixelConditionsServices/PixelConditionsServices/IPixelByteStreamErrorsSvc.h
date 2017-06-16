@@ -58,7 +58,7 @@ public:
   virtual void setModuleErrors(IdentifierHash hashID, unsigned int errorcode)=0;
   virtual void setModuleRODErrors(IdentifierHash hashID, unsigned int errorcode)=0;
   
-  virtual std::map<IdentifierHash, std::map<unsigned int, unsigned int> > getAllFeErrors() = 0;
+  virtual const std::map<IdentifierHash, std::map<unsigned int, unsigned int> > & getAllFeErrors() = 0;
   virtual unsigned int getFeErrorCode(IdentifierHash module, unsigned int fe_number) = 0;
   virtual void setFeErrorCode(IdentifierHash module, unsigned int fe_number, unsigned int errorcode) = 0;
 
