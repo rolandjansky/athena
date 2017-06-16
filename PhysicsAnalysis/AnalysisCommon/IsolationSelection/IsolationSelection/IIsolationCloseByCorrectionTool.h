@@ -11,6 +11,10 @@
 #include "PATCore/TAccept.h"
 #include "IsolationSelection/IsolationSelectionTool.h"
 
+#include<xAODEgamma/ElectronContainer.h>
+#include<xAODEgamma/PhotonContainer.h>
+#include<xAODMuon/MuonContainer.h>
+
 namespace CP {
 
     class IIsolationCloseByCorrectionTool: public virtual asg::IAsgTool {
