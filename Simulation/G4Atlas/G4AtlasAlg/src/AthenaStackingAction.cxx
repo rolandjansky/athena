@@ -4,6 +4,7 @@
 
 // System includes
 #include <iostream>
+#include <memory>
 #include <string>
 
 // Local includes
@@ -75,18 +76,17 @@ namespace G4UA
           const HepMC::GenParticle* part = ppi->GetHepMCParticle();
           if(part) {
             // OK, we got back to HepMC
-            TrackInformation* ti = new TrackInformation(part); // Hmm, who owns this?
+            std::unique_ptr<TrackInformation> ti(new TrackInformation(part));
             ti->SetRegenerationNr(0);
-            // regNr=0 and classify=Primary are default values anyway
-            mutableTrack->SetUserInformation(ti);
             ti->SetClassification(Primary);
+            // regNr=0 and classify=Primary are default values anyway
+            mutableTrack->SetUserInformation(ti.release()); /// Pass ownership to mutableTrack
           }
           // What does this condition mean?
           else if(ppi->GetParticleBarcode() >= 0) {
             // PrimaryParticleInformation should at least provide a barcode
-            TrackBarcodeInfo* bi =
-              new TrackBarcodeInfo( ppi->GetParticleBarcode() );
-            mutableTrack->SetUserInformation(bi);
+            std::unique_ptr<TrackBarcodeInfo> bi(new TrackBarcodeInfo(ppi->GetParticleBarcode()));
+            mutableTrack->SetUserInformation(bi.release()); /// Pass ownership to mutableTrack
           }
         } // no ISFParticle attached
       } // has PrimaryParticleInformation
