@@ -88,8 +88,6 @@ eflowCellLevelSubtractionTool::eflowCellLevelSubtractionTool(const std::string& 
 }
 
 eflowCellLevelSubtractionTool::~eflowCellLevelSubtractionTool() {
-  delete m_integrator;
-  delete m_binnedParameters;
 }
 
 StatusCode eflowCellLevelSubtractionTool::initialize(){
@@ -111,10 +109,10 @@ StatusCode eflowCellLevelSubtractionTool::initialize(){
     msg(MSG::WARNING) << "Cannot find PFTrackClusterMatchingTool_2" << endmsg;
   }
 
-  m_integrator = new eflowLayerIntegrator(0.032, 1.0e-3, 3.0);
-  m_binnedParameters = new eflowEEtaBinnedParameters();
-
-  sc = m_theEOverPTool->execute(m_binnedParameters);
+  m_integrator = std::make_unique<eflowLayerIntegrator>(0.032, 1.0e-3, 3.0);
+  m_binnedParameters = std::make_unique<eflowEEtaBinnedParameters>();
+  
+  sc = m_theEOverPTool->execute(m_binnedParameters.get());
 
   if (sc.isFailure()) {
     msg(MSG::WARNING) << "Could not execute eflowCellEOverPTool " << endmsg;
@@ -195,7 +193,7 @@ int eflowCellLevelSubtractionTool::matchAndCreateEflowCaloObj(int n) {
   for (unsigned int iCalo=0; iCalo<m_eflowCaloObjectContainer->size(); ++iCalo) {
     eflowCaloObject *thisEflowCaloObject = static_cast<eflowCaloObject*>(m_eflowCaloObjectContainer->at(iCalo));
 
-    thisEflowCaloObject->simulateShower(m_integrator, m_binnedParameters, m_useUpdated2015ChargedShowerSubtraction);
+    thisEflowCaloObject->simulateShower(m_integrator.get(), m_binnedParameters.get(), m_useUpdated2015ChargedShowerSubtraction);
   }
 
   return nMatches;
