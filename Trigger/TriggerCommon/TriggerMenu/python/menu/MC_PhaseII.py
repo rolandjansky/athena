@@ -125,6 +125,16 @@ def setupMenu():
         ['j225_gsc275_bmv2c2077_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'RATE:UpgradeBJet', 'RATE:UpgradeAll', 'BW:BJet'], -1],
         ['j225_gsc275_bmv2c2085_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'RATE:UpgradeBJet', 'RATE:UpgradeAll', 'BW:BJet'], -1],
 
+        ['j175_bmv2c2040_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'RATE:UpgradeBJet', 'RATE:UpgradeAll', 'BW:BJet'], -1],
+        ['j175_bmv2c2070_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'RATE:UpgradeBJet', 'RATE:UpgradeAll', 'BW:BJet'], -1],
+        ['j175_bmv2c2085_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'RATE:UpgradeBJet', 'RATE:UpgradeAll', 'BW:BJet'], -1],
+
+        ['j225_bmv2c2060_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'RATE:UpgradeBJet', 'RATE:UpgradeAll', 'BW:BJet'], -1],
+        ['j225_bmv2c2070_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'RATE:UpgradeBJet', 'RATE:UpgradeAll', 'BW:BJet'], -1],
+        ['j225_bmv2c2077_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'RATE:UpgradeBJet', 'RATE:UpgradeAll', 'BW:BJet'], -1],
+        ['j225_bmv2c2085_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'RATE:UpgradeBJet', 'RATE:UpgradeAll', 'BW:BJet'], -1],
+
+
         ['j55_gsc75_bmv2c1040_split_3j55_gsc75_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'RATE:UpgradeBJet', 'RATE:UpgradeAll', 'BW:BJet'], -1],
         ['j55_gsc75_bmv2c1050_split_3j55_gsc75_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'RATE:UpgradeBJet', 'RATE:UpgradeAll', 'BW:BJet'], -1],
         ['j55_gsc75_bmv2c1060_split_3j55_gsc75_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'RATE:UpgradeBJet', 'RATE:UpgradeAll', 'BW:BJet'], -1],
