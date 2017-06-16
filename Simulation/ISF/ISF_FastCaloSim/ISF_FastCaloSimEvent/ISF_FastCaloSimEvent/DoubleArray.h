@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef DoubleArray_h
-#define DoubleArray_h
+#ifndef ISF_FASTCALOSIMEVENT_DoubleArray_h
+#define ISF_FASTCALOSIMEVENT_DoubleArray_h
 
 #include "TArrayD.h"
 #include "TObject.h"

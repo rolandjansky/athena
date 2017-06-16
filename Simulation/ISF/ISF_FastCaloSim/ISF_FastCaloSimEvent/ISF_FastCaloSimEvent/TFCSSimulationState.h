@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TFCSSimulationState_h
-#define TFCSSimulationState_h
+#ifndef ISF_FASTCALOSIMEVENT_TFCSSimulationState_h
+#define ISF_FASTCALOSIMEVENT_TFCSSimulationState_h
 
 #include <TObject.h>
 #include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"

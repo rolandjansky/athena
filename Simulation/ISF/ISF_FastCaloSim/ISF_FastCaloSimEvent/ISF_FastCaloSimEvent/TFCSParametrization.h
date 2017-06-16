@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TFCSParametrization_h
-#define TFCSParametrization_h
+#ifndef ISF_FASTCALOSIMEVENT_TFCSParametrization_h
+#define ISF_FASTCALOSIMEVENT_TFCSParametrization_h
 
 #include "ISF_FastCaloSimEvent/TFCSParametrizationBase.h"
 

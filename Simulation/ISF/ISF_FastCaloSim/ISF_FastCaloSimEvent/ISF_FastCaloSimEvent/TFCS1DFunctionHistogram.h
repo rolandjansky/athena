@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TFCS1DFunctionHistogram_h
-#define TFCS1DFunctionHistogram_h
+#ifndef ISF_FASTCALOSIMEVENT_TFCS1DFunctionHistogram_h
+#define ISF_FASTCALOSIMEVENT_TFCS1DFunctionHistogram_h
 
 #include "ISF_FastCaloSimEvent/TFCS1DFunction.h"
 #include "TH1.h"

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TFCS1DFunction_h
-#define TFCS1DFunction_h
+#ifndef ISF_FASTCALOSIMEVENT_TFCS1DFunction_h
+#define ISF_FASTCALOSIMEVENT_TFCS1DFunction_h
 
 // STL includes
 #include <string>

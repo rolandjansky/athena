@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TFCS1DFunctionRegression_h
-#define TFCS1DFunctionRegression_h
+#ifndef ISF_FASTCALOSIMEVENT_TFCS1DFunctionRegression_h
+#define ISF_FASTCALOSIMEVENT_TFCS1DFunctionRegression_h
 
 #include "ISF_FastCaloSimEvent/TFCS1DFunction.h"
 #include "TTree.h"

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TFCSTruthState_h
-#define TFCSTruthState_h
+#ifndef ISF_FASTCALOSIMEVENT_TFCSTruthState_h
+#define ISF_FASTCALOSIMEVENT_TFCSTruthState_h
 
 #include <TLorentzVector.h>
 
