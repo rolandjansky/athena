@@ -26,10 +26,14 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "EventKernel/IParticle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
+#include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
 
 #include "xAODEgamma/Egamma.h"
+#include "xAODEgamma/ElectronContainer.h"
 
 #include <string>
 
@@ -40,6 +44,7 @@ class IEMFourMomBuilder;
 class IAsgSelectionTool;
 class IAsgForwardElectronIsEMSelector;
 class ILumiBlockMuTool;
+class CaloClusterCellLink;
 
 
 class egammaForwardBuilder : public AthAlgorithm
@@ -77,13 +82,15 @@ class egammaForwardBuilder : public AthAlgorithm
   ToolHandle<IEMFourMomBuilder> m_fourMomBuilder;
 
   /** @brief input topo cluster type */
-  std::string m_topoClusterName;
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_topoClusterKey;
 
   /** @brief output electron container */
-  std::string m_electronOutputName;
+  SG::WriteHandleKey<xAOD::ElectronContainer>  m_electronOutputKey;
   
   /** @brief output cluster container */
-  std::string m_outClusterContainerName;
+  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outClusterContainerKey;
+  /** @brief output cluster container cell links: name taken from containter name **/
+  SG::WriteHandleKey<CaloClusterCellLinkContainer> m_outClusterContainerCellLinkKey;
 
   /** @brief  ET cut */
   double m_ETcut;

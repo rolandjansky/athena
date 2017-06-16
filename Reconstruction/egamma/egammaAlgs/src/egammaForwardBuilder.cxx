@@ -40,12 +40,12 @@ egammaForwardBuilder::egammaForwardBuilder(const std::string& name, ISvcLocator*
 { 
   // Name of Electron Container to be created
   declareProperty("ElectronOutputName",
-		  m_electronOutputName="",
+		  m_electronOutputKey="",
 		  "Name of Electron Container to be created");
 
   // Name of the input cluster collection
   declareProperty("TopoClusterName",
-		  m_topoClusterName="",
+		  m_topoClusterKey="",
 		  "Name of the input cluster collection");
 
   // Value of the ET cut
@@ -61,7 +61,7 @@ egammaForwardBuilder::egammaForwardBuilder(const std::string& name, ISvcLocator*
  
   // Name of the output EM cluster container
   declareProperty("ClusterContainerName",
-		  m_outClusterContainerName="",
+		  m_outClusterContainerKey="",
 		  "Name of the output EM cluster container");
 
   // Selector definition
@@ -100,6 +100,13 @@ StatusCode egammaForwardBuilder::initialize()
 
   ATH_MSG_DEBUG(" Initializing egammaForwardBuilder ");
   
+  // the data handle keys
+  ATH_CHECK(m_topoClusterKey.initialize());
+  ATH_CHECK(m_electronOutputKey.initialize());
+  ATH_CHECK(m_outClusterContainerKey.initialize());
+  m_outClusterContainerCellLinkKey = m_outClusterContainerKey.key() + "_links";
+  ATH_CHECK(m_outClusterContainerCellLinkKey.initialize());
+
   // retrieve object quality tool 
   RetrieveObjectQualityTool();
 
@@ -193,27 +200,26 @@ StatusCode egammaForwardBuilder::execute()
   ATH_MSG_DEBUG("Executing egammaForwardBuilder ");
 
   // create an egamma container and register it
-  xAOD::ElectronContainer* xaodFrwd = new xAOD::ElectronContainer();
-  CHECK( evtStore()->record( xaodFrwd, m_electronOutputName ) );
-  xAOD::ElectronAuxContainer* auxFrwd = new xAOD::ElectronAuxContainer();
-  CHECK( evtStore()->record( auxFrwd, m_electronOutputName + "Aux." ) );
-  xaodFrwd->setStore( auxFrwd );
-  ATH_MSG_DEBUG( "Recorded Electrons with key: " << m_electronOutputName );
+  SG::WriteHandle<xAOD::ElectronContainer> xaodFrwd(m_electronOutputKey);
+  ATH_CHECK(xaodFrwd.record(std::make_unique<xAOD::ElectronContainer>(),
+			    std::make_unique<xAOD::ElectronAuxContainer>()));
+
+  ATH_MSG_DEBUG( "Recorded Electrons with key: " << m_electronOutputKey.key() );
 
 
   //cluster
-  xAOD::CaloClusterContainer* outClusterContainer = new xAOD::CaloClusterContainer();
-  CHECK( evtStore()->record( outClusterContainer, m_outClusterContainerName ) );
-  xAOD::CaloClusterAuxContainer* auxCaloCluster = new xAOD::CaloClusterAuxContainer();
-  CHECK( evtStore()->record( auxCaloCluster, m_outClusterContainerName + "Aux." ) );
-  outClusterContainer->setStore( auxCaloCluster );
-
-
+  SG::WriteHandle<xAOD::CaloClusterContainer> outClusterContainer(m_outClusterContainerKey);
+  ATH_CHECK(outClusterContainer.record(std::make_unique<xAOD::CaloClusterContainer>(),
+					  std::make_unique<xAOD::CaloClusterAuxContainer>()));
+  SG::WriteHandle<CaloClusterCellLinkContainer> outClusterContainerCellLink(m_outClusterContainerCellLinkKey);
+  ATH_CHECK(outClusterContainerCellLink.record(std::make_unique<CaloClusterCellLinkContainer>()));
 
   //Topo cluster Container
-  const xAOD::CaloClusterContainer* cluster;
-  StatusCode sc = evtStore()->retrieve(cluster, m_topoClusterName);
-  if(sc.isFailure()) {
+  SG::ReadHandle<xAOD::CaloClusterContainer> cluster(m_topoClusterKey);
+
+  // check is only used for serial running; remove when MT scheduler used 
+  // (also then it would be a failure, not just a warning)
+  if(!cluster.isValid()) {
     ATH_MSG_WARNING("egammaForwardBuilder::Could not retrieve Cluster container"); 
     return StatusCode::SUCCESS;
   }
@@ -270,6 +276,15 @@ StatusCode egammaForwardBuilder::execute()
     }
   }
   
+
+  // Now finalize the cluster: based on code in CaloClusterStoreHelper::finalizeClusters
+  // Note: I don't specifically set the IProxyDict, since I also don't set it when I create
+  //    data handles, either. 
+  auto sg = outClusterContainer.storeHandle().get();
+  for (xAOD::CaloCluster* cl : *outClusterContainer) {
+    cl->setLink(outClusterContainerCellLink.ptr(), sg);
+  }
+
   ATH_MSG_VERBOSE("egammaForward execute completed successfully");
   
   return StatusCode::SUCCESS;
