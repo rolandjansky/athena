@@ -10,10 +10,10 @@
 #include <memory>
 #include <vector>
 #include <map>
-#include "xAODPrimitives/IsolationType.h"
+#include <xAODPrimitives/IsolationType.h>
 #include <xAODPrimitives/tools/getIsolationAccessor.h>
 #include "AthContainers/AuxElement.h"
-#include "xAODBase/IParticle.h"
+#include <xAODBase/IParticle.h>
 
 // Forward Declaration(s)
 class TF1;
@@ -29,39 +29,19 @@ struct strObj {
 namespace CP {
     class IsolationCondition {
         public:
-            IsolationCondition(std::string name, xAOD::Iso::IsolationType isoType) :
-                        m_name(name),
-                        m_isolationType(isoType),
-                        m_cutValue(-999.) {
-                m_acc = xAOD::getIsolationAccessor(m_isolationType);
-            }
-            ;
-            virtual ~IsolationCondition() {
-            }
-
-//       IsolationCondition() = delete;
-            IsolationCondition() :
-                        m_name(""),
-                        m_isolationType(xAOD::Iso::numIsolationTypes),
-                        m_acc(0),
-                        m_cutValue(-999) {
-            }
-            ;
-            void setName(std::string name) {
-                m_name = name;
-            }
-            void setCut(xAOD::Iso::IsolationType isoType) {
-                m_isolationType = isoType;
-                m_acc = xAOD::getIsolationAccessor(m_isolationType);
-            }
-            ;
-
+            IsolationCondition(std::string name, xAOD::Iso::IsolationType isoType);
             IsolationCondition(const IsolationCondition& rhs) = delete;
             IsolationCondition& operator=(const IsolationCondition& rhs) = delete;
 
-            std::string name() {
-                return m_name;
-            }
+            virtual ~IsolationCondition();
+            IsolationCondition();
+            void setName(const std::string &name);
+            void setCut(xAOD::Iso::IsolationType isoType);
+
+            std::string name() const;
+            xAOD::Iso::IsolationType  type() const;
+            SG::AuxElement::Accessor<float>* accessor() const;
+
             virtual bool accept(const xAOD::IParticle& x, std::map<xAOD::Iso::IsolationType, float>* cutValues = 0) = 0;
             virtual bool accept(const strObj& x, std::map<xAOD::Iso::IsolationType, float>* cutValues = 0) = 0;
 

@@ -10,10 +10,8 @@
 #include <memory>
 #include <vector>
 #include <map>
-// #include "xAODPrimitives/IsolationType.h"
-// #include "AthContainers/AuxElement.h"
-// #include "xAODBase/IParticle.h"
-#include "IsolationCondition.h"
+
+#include "IsolationSelection/IsolationCondition.h"
 
 // Forward Declaration(s)
 class TF1;
@@ -28,14 +26,10 @@ namespace CP {
             virtual ~IsolationConditionHist() {
             }
 
-//       IsolationConditionHist() = delete;
             IsolationConditionHist(const IsolationConditionHist& rhs) = delete;
             IsolationConditionHist& operator=(const IsolationConditionHist& rhs) = delete;
             void setCut(xAOD::Iso::IsolationType isoType, const std::string& isolationFunction, const std::shared_ptr<TH3F> efficiencyHisto3D = nullptr);
 
-            std::string name() {
-                return m_name;
-            }
             bool accept(const xAOD::IParticle& x, std::map<xAOD::Iso::IsolationType, float>* cutValues = 0);
             bool accept(const strObj& x, std::map<xAOD::Iso::IsolationType, float>* cutValues = 0);
             void getCutValue(const float pt, const float eta);
@@ -43,7 +37,7 @@ namespace CP {
             void setInterp(Interp3D* interp) {
                 m_interp = interp;
             }
-            ;
+
 
         private:
             std::shared_ptr<TH3F> m_efficiencyHisto3D;

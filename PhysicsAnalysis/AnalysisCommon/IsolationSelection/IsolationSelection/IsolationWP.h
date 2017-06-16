@@ -13,34 +13,28 @@
 namespace CP {
     class IsolationWP {
         public:
-            IsolationWP(std::string name) :
-                        m_name(name),
-                        m_cutValues(nullptr) {
-            }
-            ;
+            IsolationWP(const std::string &name);
             ~IsolationWP();
-            std::string name() {
-                return m_name;
-            }
-            void name(std::string name) {
-                m_name = name;
-            }
+            std::string name() const;
+            void name(const std::string &name);
+
 
             const Root::TAccept& accept(const xAOD::IParticle& p) const;
             const Root::TAccept& accept(const strObj& p) const;
             void addCut(IsolationCondition* cut);
-            const Root::TAccept& getAccept() {
-                return m_accept;
-            }
-            void saveCutValues(bool yes = true) {
-                if (yes && (!m_cutValues)) m_cutValues = new std::map<xAOD::Iso::IsolationType, float>();
-                else if ((!yes) && m_cutValues) {
-                    delete m_cutValues;
-                }
-            }
-            std::map<xAOD::Iso::IsolationType, float>* cutValues() {
-                return m_cutValues;
-            }
+            const Root::TAccept& getAccept() const;
+            const std::vector<IsolationCondition*>& conditions() const;
+
+
+//            void saveCutValues(bool yes = true) {
+//                if (yes && (!m_cutValues)) m_cutValues = new std::map<xAOD::Iso::IsolationType, float>();
+//                else if ((!yes) && m_cutValues) {
+//                    delete m_cutValues;
+//                }
+//            }
+//            std::map<xAOD::Iso::IsolationType, float>* cutValues() {
+//                return m_cutValues;
+//            }
 
         private:
             std::string m_name;

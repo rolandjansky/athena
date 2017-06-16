@@ -64,6 +64,11 @@ namespace CP {
             virtual const Root::TAccept& getMuonTAccept() const;
             virtual const Root::TAccept& getObjTAccept() const;
 
+            virtual const std::vector<IsolationWP*>& getMuonWPs() const;
+            virtual const std::vector<IsolationWP*>& getElectronWPs() const;
+            virtual const std::vector<IsolationWP*>& getPhotonWPs() const;
+            virtual const std::vector<IsolationWP*>& getObjWPs() const;
+
             StatusCode addWP(std::string WP, xAOD::Type::ObjectType type);
             StatusCode addWP(IsolationWP* wp, xAOD::Type::ObjectType type);
             StatusCode addMuonWP(std::string wpname);
@@ -72,31 +77,16 @@ namespace CP {
             StatusCode addUserDefinedWP(std::string WPname, xAOD::Type::ObjectType ObjType, std::vector<std::pair<xAOD::Iso::IsolationType, std::string> >& cuts, std::string key = "", IsoWPType type = Efficiency);
             StatusCode setIParticleCutsFrom(xAOD::Type::ObjectType ObjType);
             void addCutToWP(IsolationWP* wp, std::string key, const xAOD::Iso::IsolationType t, const std::string expression);
-            std::vector<IsolationWP*>& getMuonWPs() {
-                return m_muWPs;
-            }
-            std::vector<IsolationWP*>& getElectronWPs() {
-                return m_elWPs;
-            }
-            std::vector<IsolationWP*>& getPhotonWPs() {
-                return m_phWPs;
-            }
-            std::vector<IsolationWP*>& getObjWPs() {
-                return m_objWPs;
-            }
 
             // Clearing, for very special use
-            void clearPhotonWPs() {
-                m_phWPs.clear();
-            }
-            void clearElectronWPs() {
-                m_elWPs.clear();
-            }
-            void clearMuonWPs() {
-                m_muWPs.clear();
-            }
+            void clearPhotonWPs();
+            void clearElectronWPs();
+            void clearMuonWPs();
+            void clearObjWPs();
 
         private:
+            void clearWPs(std::vector<IsolationWP*>& WP);
+
             // Stupid ROOT
             TDirectory* getTemporaryDirectory(void) const;
 

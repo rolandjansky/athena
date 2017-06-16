@@ -15,38 +15,74 @@
 
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticle.h"
-#include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
 
+namespace InDet {
+    class IInDetTrackSelectionTool;
+}
 namespace CP {
+    class IsolationWP;
+    class IsoVariableHelper;
+
+    typedef std::set<const xAOD::TrackParticle*> TrackCollection;
+    typedef std::set<const xAOD::CaloCluster*> ClusterCollection;
+
+    typedef std::vector<xAOD::Iso::IsolationType> IsoVector;
+    typedef SG::AuxElement::ConstAccessor<char> CharAccessor;
+    typedef SG::AuxElement::ConstAccessor<float> FloatAccessor;
+
+    typedef SG::AuxElement::Decorator<char> CharDecorator;
+    typedef SG::AuxElement::Decorator<float> FloatDecorator;
+
+    typedef std::unique_ptr<CharAccessor> SelectionAccessor;
+    typedef std::unique_ptr<CharDecorator> SelectionDecorator;
+
+
+    typedef std::unique_ptr<IsoVariableHelper> IsoHelperPtr;
+    typedef std::map<xAOD::Iso::IsolationType, IsoHelperPtr> IsoHelperMap;
+    typedef std::pair<xAOD::Iso::IsolationType, IsoHelperPtr> IsoHelperPair;
+
 
     class IsolationCloseByCorrectionTool: public asg::AsgTool, public virtual IIsolationCloseByCorrectionTool {
 
-            ASG_TOOL_CLASS(IsolationCloseByCorrectionTool, IIsolationCloseByCorrectionTool)
-
-            public:
-            IsolationCloseByCorrectionTool (const std::string& name);
-            virtual ~IsolationCloseByCorrectionTool() {
-            }
-
+        public:
+            IsolationCloseByCorrectionTool(const std::string& name);ASG_TOOL_CLASS(IsolationCloseByCorrectionTool, IIsolationCloseByCorrectionTool)
 
             virtual StatusCode initialize();
-            virtual StatusCode finalize();
 
             virtual const CP::CorrectionCode getCloseByCorrection(std::vector<float>& corrections, const xAOD::IParticle& par, const std::vector<xAOD::Iso::IsolationType>& types, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel = -1) const;
 
             virtual const Root::TAccept& acceptCorrected(const xAOD::IParticle& x, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel = -1) const;
 
+            virtual CP::CorrectionCode getCloseByIsoCorrection(xAOD::ElectronContainer* Electrons = nullptr, xAOD::MuonContainer* Muons = nullptr, xAOD::PhotonContainer* Photons = nullptr) const;
+
+//            virtual const Root::TAccept& acceptCorrected(const xAOD::IParticle& x, xAOD::IParticleContainer* closePar, int topoetconeModel = -1 ) const;
+//            virtual const Root::TAccept& acceptCorrected(const xAOD::IParticle& x, xAOD::ElectronContainer* closeElectrons, xAOD::MuonContainer* closeMuons, int topoetconeModel = -1 ) const;
+//            virtual const Root::TAccept& acceptCorrected(const xAOD::IParticle& x, xAOD::ElectronContainer* closeElectrons, xAOD::MuonContainer* closeMuons, xAOD::PhotonContainer* closePhotons, int topoetconeModel = -1 ) const;
+
+            virtual float GetOriginalIsolation(const xAOD::IParticle* P, xAOD::Iso::IsolationType) const;
+
         private:
-            CP::CorrectionCode getCloseByCorrectionTrackIso(float& correction, const xAOD::IParticle* par, xAOD::Iso::IsolationType type, const std::set<const xAOD::TrackParticle*>& closePar) const;
+
+            void GetIsolationTypes(const std::vector<IsolationWP*> &WP, IsoVector & types);
+            //Helper function to check whether an element is in the vector
+            template<typename T> bool IsElementInList(const std::vector<T> &List, const T& Element) const;
+
+            CP::CorrectionCode performCloseByCorrection(xAOD::IParticleContainer* Particles, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters)const;
+            CP::CorrectionCode subtractCloseByContribution(xAOD::IParticle* P, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters) const;
+            CP::CorrectionCode subtractCloseByContribution(xAOD::IParticle* P, const IsoVector& types, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters) const;
+
+            CP::CorrectionCode getCloseByCorrectionTrackIso(float& correction, const xAOD::IParticle* par, xAOD::Iso::IsolationType type, const TrackCollection& tracks) const;
+            CP::CorrectionCode getCloseByCorrectionTopoIso(float& correction, const xAOD::IParticle* par, xAOD::Iso::IsolationType type, const ClusterCollection& clusters) const;
 
             const CP::CorrectionCode getCloseByCorrectionTrackIso(float& correction, const xAOD::IParticle& par, xAOD::Iso::IsolationType type, const std::vector<const xAOD::IParticle*>& closePar) const;
             const CP::CorrectionCode getCloseByCorrectionTopoetcone(float& correction, const xAOD::IParticle& par, xAOD::Iso::IsolationType type, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel = -1) const;
+            //Retrieve the primary vertex
             const xAOD::Vertex* retrieveIDBestPrimaryVertex() const;
 
-            const CP::CorrectionCode getExtrapEtaPhi(const xAOD::IParticle& par, float& eta, float& phi) const;
-            xAOD::Iso::IsolationType getIsolationTypeFromString(const TString& isoTypeString, xAOD::Type::ObjectType particleType) const;
-
-            //New Functions added by jojungge
+            void getExtrapEtaPhi(const xAOD::IParticle* par, float& eta, float& phi) const;
 
             //Returns the Size of the Isolation cone
             double ConeSize(const xAOD::IParticle* P, xAOD::Iso::IsolationType Cone) const;
@@ -56,23 +92,24 @@ namespace CP {
             //Some helper functions for Overlap and DeltaR
             bool IsSame(const xAOD::IParticle* P, const xAOD::IParticle* P1) const;
             bool Overlap(const xAOD::IParticle* P, const xAOD::IParticle* P1, double dR) const;
-            double DeltaR2(const xAOD::IParticle* P, const xAOD::IParticle* P1) const;
-
+            double DeltaR2(const xAOD::IParticle* P, const xAOD::IParticle* P1, bool AvgCalo = false) const;
 
             bool IsFixedTrackIso(xAOD::Iso::IsolationType Iso) const;
             bool IsVarTrackIso(xAOD::Iso::IsolationType Iso) const;
             bool IsTrackIso(xAOD::Iso::IsolationType Iso) const;
+            bool IsTopoEtIso(xAOD::Iso::IsolationType Iso) const;
 
             const xAOD::TrackParticle* getTrackParticle(const xAOD::IParticle* par) const;
             const xAOD::IParticle* TrackIsoRefPart(const xAOD::IParticle* P) const;
 
+            TrackCollection GetAssociatedTracks(const xAOD::IParticle* P) const;
+            void GetTrackCandidates(const xAOD::IParticleContainer* Container, const xAOD::Vertex* Vtx, TrackCollection &Tracks) const;
 
-            std::set<const xAOD::TrackParticle*> GetAssociatedTracks(const xAOD::IParticle* P) const;
-            void GetTrackCandidates(const xAOD::IParticleContainer* Container, const xAOD::Vertex* Vtx, std::set<const xAOD::TrackParticle*> &Tracks);
+            ClusterCollection GetAssociatedClusters(const xAOD::IParticle* P) const;
+            void GetClusterCandidates(const xAOD::IParticleContainer* Container, ClusterCollection& Clusters) const;
 
-            void GetTrackCandidates(const xAOD::IParticle* P, const xAOD::IParticleContainer* CloseByPar, std::set<const xAOD::TrackParticle*> &Tracks);
+            float ClusterEtMinusTile(const xAOD::CaloCluster* C) const;
             bool ConsiderForCorrection(const xAOD::IParticle* P) const;
-
 
             ToolHandle<CP::IIsolationSelectionTool> m_selectorTool;
             float m_coreCone;
@@ -82,11 +119,52 @@ namespace CP {
             bool m_isCoreSubtracted;
             std::string m_indetTrackParticleLocation;
             std::string m_VertexContainerName;
-            std::vector<xAOD::Iso::IsolationType> m_muon_isoTypes;
-            std::vector<xAOD::Iso::IsolationType> m_electron_isoTypes;
-            std::vector<xAOD::Iso::IsolationType> m_photon_isoTypes;
+            std::string m_CaloClusterContainerName;
+
+            IsoVector m_muon_isoTypes;
+            IsoVector m_electron_isoTypes;
+            IsoVector m_photon_isoTypes;
+
+            std::string m_quality_name;
+            std::string m_passOR_name;
+            std::string m_isoSelection_name;
+            SelectionAccessor m_acc_quality;
+            SelectionAccessor m_acc_passOR;
+
+            SelectionDecorator m_dec_isoselection;
+
+            //Functionallity to backup the original cone variables if needed
+            std::string m_backup_prefix;
 
             asg::AnaToolHandle<InDet::IInDetTrackSelectionTool> m_trkselTool;
+            IsoHelperMap m_isohelpers;
+
+
+    };
+
+
+    class IsoVariableHelper {
+        public:
+            CorrectionCode GetOrignalIsolation(const xAOD::IParticle* P, float& Value) const;
+            CorrectionCode GetIsolation(const xAOD::IParticle* P, float& Value) const;
+            CorrectionCode BackupIsolation(const xAOD::IParticle* P) const;
+            CorrectionCode SetIsolation(xAOD::IParticle* P, float Value) const;
+            xAOD::Iso::IsolationType IsoType()const;
+
+            IsoVariableHelper(xAOD::Iso::IsolationType type, const std::string& BackupPreFix);
+
+        private:
+
+            xAOD::Iso::IsolationType m_IsoType;
+            bool m_BackupIso;
+            CharDecorator m_dec_IsoIsBackup;
+            CharAccessor m_acc_IsoIsBackup;
+
+            FloatAccessor m_acc_iso_variable;
+            FloatDecorator m_dec_iso_variable;
+
+            FloatAccessor m_acc_iso_backup;
+            FloatDecorator m_dec_iso_backup;
 
     };
 }

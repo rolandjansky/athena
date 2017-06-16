@@ -39,24 +39,42 @@ namespace CP {
         declareProperty("doCutInterpolationMuon", m_doInterpM = false, "flag to perform cut interpolation, muon");
         declareProperty("doCutInterpolationElec", m_doInterpE = true, "flag to perform cut interpolation, electron");
     }
+    void IsolationSelectionTool::clearWPs(std::vector<IsolationWP*>& WP) {
+        for (auto& c : WP) {
+            if (c) delete c;
+        }
+        WP.clear();
+    }
 
+    void IsolationSelectionTool::clearPhotonWPs() {
+        clearWPs(m_phWPs);
+    }
+    void IsolationSelectionTool::clearElectronWPs() {
+        clearWPs(m_elWPs);
+    }
+    void IsolationSelectionTool::clearMuonWPs() {
+        clearWPs(m_muWPs);
+    }
+    void IsolationSelectionTool::clearObjWPs() {
+        clearWPs(m_objWPs);
+    }
+    const std::vector<IsolationWP*>& IsolationSelectionTool::getMuonWPs() const {
+        return m_muWPs;
+    }
+    const std::vector<IsolationWP*>& IsolationSelectionTool::getElectronWPs() const {
+        return m_elWPs;
+    }
+    const std::vector<IsolationWP*>& IsolationSelectionTool::getPhotonWPs() const {
+        return m_phWPs;
+    }
+    const std::vector<IsolationWP*>& IsolationSelectionTool::getObjWPs() const {
+        return m_objWPs;
+    }
     IsolationSelectionTool::~IsolationSelectionTool() {
-        /// need a fix? Some wp might be create by external code..
-        for (auto c : m_muWPs)
-            if (c) {
-                delete c;
-                c = nullptr;
-            }
-        for (auto c : m_elWPs)
-            if (c) {
-                delete c;
-                c = nullptr;
-            }
-        for (auto c : m_phWPs)
-            if (c) {
-                delete c;
-                c = nullptr;
-            }
+        clearMuonWPs();
+        clearPhotonWPs();
+        clearElectronWPs();
+        clearObjWPs();
     }
 
     StatusCode IsolationSelectionTool::initialize() {
@@ -141,7 +159,7 @@ namespace CP {
     }
 
     StatusCode IsolationSelectionTool::addMuonWP(std::string muWPname) {
-        auto wp = new IsolationWP(muWPname);
+        IsolationWP* wp = new IsolationWP(muWPname);
         // For flat efficiency in (pT,eta)
         if (muWPname == "LooseTrackOnly") {
             addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30, "99");
@@ -178,10 +196,8 @@ namespace CP {
             delete wp;
             return StatusCode::FAILURE;
         }
-
         m_muWPs.push_back(wp);
         m_muonAccept.addCut(wp->name(), wp->name());
-
         return StatusCode::SUCCESS;
     }
 

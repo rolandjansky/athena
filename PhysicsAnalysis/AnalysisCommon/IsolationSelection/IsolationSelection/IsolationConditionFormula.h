@@ -8,12 +8,7 @@
 #define ISOLATIONSELECTION_ISOLATIONCONDITIONFORMULA_H
 
 #include <memory>
-#include <vector>
-#include <map>
-// #include "xAODPrimitives/IsolationType.h"
-// #include "AthContainers/AuxElement.h"
-// #include "xAODBase/IParticle.h"
-#include "IsolationCondition.h"
+#include "IsolationSelection/IsolationCondition.h"
 
 // Forward Declaration(s)
 class TF1;
@@ -26,7 +21,6 @@ namespace CP {
             virtual ~IsolationConditionFormula() {
             }
 
-//       IsolationConditionFormula() = delete;
             IsolationConditionFormula(const IsolationConditionFormula& rhs) = delete;
             IsolationConditionFormula& operator=(const IsolationConditionFormula& rhs) = delete;
             void setCut(xAOD::Iso::IsolationType isoType, const std::string& cutFunction);

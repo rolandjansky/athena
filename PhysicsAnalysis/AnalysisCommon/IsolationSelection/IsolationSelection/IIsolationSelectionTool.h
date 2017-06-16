@@ -36,6 +36,7 @@
 struct strObj;
 
 namespace CP {
+    class IsolationWP;
     class IIsolationSelectionTool: virtual public asg::IAsgTool {
 
             /// Declare the interface that the class provides
@@ -54,6 +55,11 @@ namespace CP {
             virtual const Root::TAccept& getElectronTAccept() const = 0;
             virtual const Root::TAccept& getMuonTAccept() const = 0;
             virtual const Root::TAccept& getObjTAccept() const = 0;
+
+            virtual const std::vector<IsolationWP*>& getMuonWPs() const=0;
+            virtual const std::vector<IsolationWP*>& getElectronWPs() const=0;
+            virtual const std::vector<IsolationWP*>& getPhotonWPs() const=0;
+            virtual const std::vector<IsolationWP*>& getObjWPs() const=0;
 
     };
 } // end namespace
