@@ -881,7 +881,8 @@ namespace SG {
       if (ctx)
         return ctx->getExtension<Atlas::ExtendedEventContext>()->proxy();
       if (m_storeWasSet && m_store) return m_store;
-      return Gaudi::Hive::currentContext().getExtension<Atlas::ExtendedEventContext>()->proxy();
+      const Atlas::ExtendedEventContext *eec = Gaudi::Hive::currentContext().getExtension<Atlas::ExtendedEventContext>();
+      return ( (eec == nullptr) ? nullptr : eec->proxy() );
     }
 
     if (m_storeWasSet && m_store) return m_store;
