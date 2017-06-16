@@ -25,7 +25,7 @@
   <class name="pool::DbString" id="DA8F479C-09BC-49D4-94BC-99D025A23A3B"/> 
   
   <class name="CharDbArray"    id="42A3E929-5016-4D97-932A-15D21E2D17A9" />
-  <class name="UCharDbArray"   id="B798D007-C1B2-41AD-8BEC-ABC6F0E342E8" />
+  <class name="UCharDbArrayAthena"   id="B798D007-C1B2-41AD-8BEC-ABC6F0E342E8" />
   <class name="ShortDbArray"   id="35A281C2-8A14-430A-BEDC-FC8CA5C88B4B" />
   <class name="UShortDbArray"  id="A26688E9-C6A2-4F31-B954-F7B992A3C638" />
   <class name="IntDbArray"     id="2C02D4FD-3AC8-4241-A6A2-63CD2C86478C" />
