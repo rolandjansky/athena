@@ -26,20 +26,23 @@ namespace CP {
     class IsolationWP;
     class IsoVariableHelper;
 
-    typedef std::set<const xAOD::TrackParticle*> TrackCollection;
-    typedef std::set<const xAOD::CaloCluster*> ClusterCollection;
-
-    typedef std::vector<xAOD::Iso::IsolationType> IsoVector;
     typedef SG::AuxElement::ConstAccessor<char> CharAccessor;
     typedef SG::AuxElement::ConstAccessor<float> FloatAccessor;
 
     typedef SG::AuxElement::Decorator<char> CharDecorator;
     typedef SG::AuxElement::Decorator<float> FloatDecorator;
+    typedef xAOD::Iso::IsolationType IsoType;
+
+    typedef std::set<const xAOD::TrackParticle*> TrackCollection;
+    typedef std::set<const xAOD::CaloCluster*> ClusterCollection;
+
+    typedef std::vector<IsoType> IsoVector;
 
     typedef std::unique_ptr<CharAccessor> SelectionAccessor;
     typedef std::unique_ptr<CharDecorator> SelectionDecorator;
 
     typedef std::unique_ptr<IsoVariableHelper> IsoHelperPtr;
+
     typedef std::map<xAOD::Iso::IsolationType, IsoHelperPtr> IsoHelperMap;
     typedef std::pair<xAOD::Iso::IsolationType, IsoHelperPtr> IsoHelperPair;
 
@@ -56,11 +59,7 @@ namespace CP {
 
             virtual CP::CorrectionCode getCloseByIsoCorrection(xAOD::ElectronContainer* Electrons = nullptr, xAOD::MuonContainer* Muons = nullptr, xAOD::PhotonContainer* Photons = nullptr) const;
 
-//            virtual const Root::TAccept& acceptCorrected(const xAOD::IParticle& x, xAOD::IParticleContainer* closePar, int topoetconeModel = -1 ) const;
-//            virtual const Root::TAccept& acceptCorrected(const xAOD::IParticle& x, xAOD::ElectronContainer* closeElectrons, xAOD::MuonContainer* closeMuons, int topoetconeModel = -1 ) const;
-//            virtual const Root::TAccept& acceptCorrected(const xAOD::IParticle& x, xAOD::ElectronContainer* closeElectrons, xAOD::MuonContainer* closeMuons, xAOD::PhotonContainer* closePhotons, int topoetconeModel = -1 ) const;
-
-            virtual float GetOriginalIsolation(const xAOD::IParticle* P, xAOD::Iso::IsolationType) const;
+            virtual float GetOriginalIsolation(const xAOD::IParticle* P, IsoType) const;
 
         private:
 
@@ -69,11 +68,15 @@ namespace CP {
             template<typename T> bool IsElementInList(const std::vector<T> &List, const T& Element) const;
 
             CP::CorrectionCode performCloseByCorrection(xAOD::IParticleContainer* Particles, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters) const;
-            CP::CorrectionCode subtractCloseByContribution(xAOD::IParticle* P, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters) const;
+
+            const IsoVector* getIsolationTypes(const xAOD::IParticle* P) const;
+
             CP::CorrectionCode subtractCloseByContribution(xAOD::IParticle* P, const IsoVector& types, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters) const;
 
-            CP::CorrectionCode getCloseByCorrectionTrackIso(float& correction, const xAOD::IParticle* par, xAOD::Iso::IsolationType type, const TrackCollection& tracks) const;
-            CP::CorrectionCode getCloseByCorrectionTopoIso(float& correction, const xAOD::IParticle* par, xAOD::Iso::IsolationType type, const ClusterCollection& clusters) const;
+            CP::CorrectionCode getCloseByCorrectionTrackIso(float& correction, const xAOD::IParticle* par, IsoType type, const TrackCollection& tracks) const;
+
+            CP::CorrectionCode getCloseByCorrectionTopoIso(float& correction, const xAOD::IParticle* par, IsoType type, const ClusterCollection& clusters) const;
+            CP::CorrectionCode getCloseByCaloCorrection(float& correction, const xAOD::IParticle* par, const xAOD::IParticleContainer* CloseByPars, float ConeSize, int Model) const;
 
             //Retrieve the primary vertex
             const xAOD::Vertex* retrieveIDBestPrimaryVertex() const;
@@ -81,7 +84,7 @@ namespace CP {
             void getExtrapEtaPhi(const xAOD::IParticle* par, float& eta, float& phi) const;
 
             //Returns the Size of the Isolation cone
-            double ConeSize(const xAOD::IParticle* P, xAOD::Iso::IsolationType Cone) const;
+            double ConeSize(const xAOD::IParticle* P, IsoType Cone) const;
             //Retrieves the uncalibrated pt from the particle
             double UnCalibPt(const xAOD::IParticle* P) const;
 
@@ -90,8 +93,8 @@ namespace CP {
             bool Overlap(const xAOD::IParticle* P, const xAOD::IParticle* P1, double dR) const;
             double DeltaR2(const xAOD::IParticle* P, const xAOD::IParticle* P1, bool AvgCalo = false) const;
 
-            float CaloCorrectionFraction(const xAOD::IParticle* P, const xAOD::IParticle* P1, float ConeSize, IsolationCloseByCorrectionTool::TopoConeCorrectionModel Model) const;
-            float CaloCorrectionFromDecorator(const xAOD::IParticle* ToCorrect, const xAOD::IParticle* CloseBy,float ConeSize, IsolationCloseByCorrectionTool::TopoConeCorrectionModel Model) const;
+            float CaloCorrectionFraction(const xAOD::IParticle* P, const xAOD::IParticle* P1, float ConeSize, int Model) const;
+            float CaloCorrectionFromDecorator(const xAOD::IParticle* ToCorrect, const xAOD::IParticle* CloseBy, float ConeSize, int Model) const;
 
             bool IsFixedTrackIso(xAOD::Iso::IsolationType Iso) const;
             bool IsVarTrackIso(xAOD::Iso::IsolationType Iso) const;
@@ -146,13 +149,13 @@ namespace CP {
             CorrectionCode GetIsolation(const xAOD::IParticle* P, float& Value) const;
             CorrectionCode BackupIsolation(const xAOD::IParticle* P) const;
             CorrectionCode SetIsolation(xAOD::IParticle* P, float Value) const;
-            xAOD::Iso::IsolationType IsoType() const;
+            IsoType isotype() const;
 
-            IsoVariableHelper(xAOD::Iso::IsolationType type, const std::string& BackupPreFix);
+            IsoVariableHelper(IsoType type, const std::string& BackupPreFix);
 
         private:
 
-            xAOD::Iso::IsolationType m_IsoType;
+            IsoType m_IsoType;
             bool m_BackupIso;
             CharDecorator m_dec_IsoIsBackup;
             CharAccessor m_acc_IsoIsBackup;
