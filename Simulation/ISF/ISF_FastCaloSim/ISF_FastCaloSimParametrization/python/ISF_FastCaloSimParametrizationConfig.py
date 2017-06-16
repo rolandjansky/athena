@@ -5,8 +5,6 @@
 Tools configurations for ISF_FastCaloSimParametrization
 """
 from AthenaCommon import CfgMgr
-from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,getService,getServiceClone,getAlgorithm,getAlgorithmClone
-
 from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 from AthenaCommon.SystemOfUnits import *
 from AthenaCommon.DetFlags import DetFlags
@@ -21,7 +19,7 @@ def getFastCaloSimCaloExtrapolation(name="FastCaloSimCaloExtrapolation", **kwarg
     kwargs.setdefault("CaloSurfaceHelper"         , "CaloSurfaceHelper" )
     kwargs.setdefault("CaloGeometryHelper"        , "FastCaloSimGeometryHelper" )
     kwargs.setdefault("CaloEntrance"              , "InDet::Containers::InnerDetector"     )
-    
+
     return CfgMgr.FastCaloSimCaloExtrapolation(name, **kwargs)
 
 def getFastCaloSimGeometryHelper(name="FastCaloSimGeometryHelper", **kwargs):
