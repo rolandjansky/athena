@@ -219,7 +219,7 @@ inline double P4ImplPxPyPzE::e() const
 inline const I4MomentumError* P4ImplPxPyPzE::errors() const
 {
   // check if the pointer is empty before dereferencing
-  return (m_error ? &(*m_error) : 0);
+  return m_error.get();
 }
 
 inline void P4ImplPxPyPzE::setPx( const double px ) 
