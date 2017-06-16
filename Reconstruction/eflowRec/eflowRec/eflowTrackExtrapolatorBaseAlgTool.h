@@ -24,7 +24,7 @@ class eflowTrackCaloPoints;
 
 class eflowTrackExtrapolatorBaseAlgTool : virtual public IAlgTool {
  public:
-  virtual eflowTrackCaloPoints* execute(const xAOD::TrackParticle* track) const = 0;
+  virtual std::unique_ptr<eflowTrackCaloPoints> execute(const xAOD::TrackParticle* track) const = 0;
 };
 
 #endif

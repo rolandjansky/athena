@@ -64,8 +64,8 @@ class eflowLayerIntegrator {
 
   std::vector<double> m_nUnitCellPerWindowOverCellEtaPhiArea;
 
-  eflowCellIntegrator<0>* m_integrator;
-  eflowCellIntegrator<1>* m_integratorLookup;
+  std::unique_ptr<eflowCellIntegrator<0> > m_integrator;
+  std::unique_ptr<eflowCellIntegrator<1> > m_integratorLookup;
 };
 
 #endif
