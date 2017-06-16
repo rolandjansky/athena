@@ -30,6 +30,8 @@ LArOnOffMappingAlg::~LArOnOffMappingAlg() {}
 
 StatusCode LArOnOffMappingAlg::initialize() {
 
+  ATH_MSG_DEBUG("initializing");
+
   // CondSvc
   ATH_CHECK( m_condSvc.retrieve() );
   // Read Handles
@@ -46,6 +48,9 @@ StatusCode LArOnOffMappingAlg::initialize() {
 
 StatusCode LArOnOffMappingAlg::execute() {
     
+
+  ATH_MSG_DEBUG("executing");
+
   SG::WriteCondHandle<LArOnOffIdMapping> writeHandle{m_writeKey};
   
   if (writeHandle.isValid()) {
