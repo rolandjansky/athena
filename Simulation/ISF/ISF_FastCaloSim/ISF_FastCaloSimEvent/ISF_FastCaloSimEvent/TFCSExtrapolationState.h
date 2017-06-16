@@ -87,8 +87,4 @@ class TFCSExtrapolationState:public TObject {
   ClassDef(TFCSExtrapolationState,1)  //TFCSExtrapolationState
 };
 
-#if defined(__MAKECINT__)
-#pragma link C++ class TFCSExtrapolationState+;
-#endif
-
 #endif
