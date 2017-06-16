@@ -63,7 +63,7 @@ namespace CP {
 
         private:
 
-            void GetIsolationTypes(const std::vector<IsolationWP*> &WP, IsoVector & types);
+            void IsoTypesFromWP(const std::vector<IsolationWP*> &WP, IsoVector & types);
             //Helper function to check whether an element is in the vector
             template<typename T> bool IsElementInList(const std::vector<T> &List, const T& Element) const;
 
@@ -138,7 +138,7 @@ namespace CP {
             std::string m_backup_prefix;
 
             asg::AnaToolHandle<InDet::IInDetTrackSelectionTool> m_trkselTool;
-            IsoHelperMap m_isohelpers;
+            mutable IsoHelperMap m_isohelpers;
 
     };
 
