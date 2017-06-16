@@ -24,11 +24,11 @@ atlas_add_library( DerivationFrameworkTopLib
                    src/*.cxx
                    PUBLIC_HEADERS DerivationFrameworkTop
                    LINK_LIBRARIES AthenaBaseComps xAODTruth GaudiKernel
-                   PRIVATE_LINK_LIBRARIES AthenaKernel ExpressionEvaluation xAODJet xAODEventInfo xAODBTagging xAODTracking )
+                   PRIVATE_LINK_LIBRARIES AthenaKernel ExpressionEvaluationLib xAODJet xAODEventInfo xAODBTagging xAODTracking )
 
 atlas_add_component( DerivationFrameworkTop
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps xAODTruth GaudiKernel AthenaKernel ExpressionEvaluation xAODJet xAODEventInfo xAODBTagging xAODTracking DerivationFrameworkTopLib )
+                     LINK_LIBRARIES AthenaBaseComps xAODTruth GaudiKernel AthenaKernel ExpressionEvaluationLib xAODJet xAODEventInfo xAODBTagging xAODTracking DerivationFrameworkTopLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
