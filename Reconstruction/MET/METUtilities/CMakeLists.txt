@@ -38,6 +38,7 @@ atlas_depends_on_subdirs(
    PRIVATE
    Event/EventPrimitives
    Event/FourMomUtils
+   Event/xAOD/xAODBase
    Event/xAOD/xAODCore
    PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
    PhysicsAnalysis/MuonID/MuonSelectorTools
