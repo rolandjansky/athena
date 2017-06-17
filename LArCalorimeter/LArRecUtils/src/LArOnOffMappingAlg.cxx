@@ -55,7 +55,7 @@ StatusCode LArOnOffMappingAlg::execute() {
   
   if (writeHandle.isValid()) {
     writeHandle.updateStore(); //????
-    msg(MSG::WARNING) << "Found valid write handle" << endmsg;
+    ATH_MSG_WARNING("Found valid write handle");
     return StatusCode::SUCCESS;
   }  
 
@@ -63,7 +63,7 @@ StatusCode LArOnOffMappingAlg::execute() {
   const AthenaAttributeList* attr{*readHandle};
 
   if (attr==nullptr) {
-    msg(MSG::ERROR) << "Failed to retrieve CondAttributeListCollection with key " << m_readKey.key() << endmsg;
+    ATH_MSG_ERROR("Failed to retrieve CondAttributeListCollection with key " << m_readKey.key());
     return StatusCode::FAILURE;
   }
 
@@ -122,9 +122,9 @@ StatusCode LArOnOffMappingAlg::execute() {
     }
   }//end loop over channels
 
-  msg() << MSG::INFO << "Done reading online/offline identifier mapping" << endmsg;
-  msg() << MSG::INFO << "Found " << nChan << " online identifier and " << nConnected << " offline identifier. "
-        << nChan-nConnected << " disconnected channels." << endmsg;
+  ATH_MSG_INFO("Done reading online/offline identifier mapping");
+  ATH_MSG_INFO("Found " << nChan << " online identifier and " << nConnected << " offline identifier. "
+	       << nChan-nConnected << " disconnected channels.");
 
   
   // Define validity of the output cond object and record it

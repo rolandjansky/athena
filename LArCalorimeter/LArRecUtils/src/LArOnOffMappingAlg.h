@@ -4,8 +4,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LARONOFFMAPPINGALG
-#define LARONOFFMAPPINGALG
+#ifndef LARRECCONDITIONS_LARONOFFMAPPINGALG_H
+#define LARRECCONDITIONS_LARONOFFMAPPINGALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -16,7 +16,8 @@
 #include "LArRecConditions/LArOnOffIdMapping.h"
 
 class LArOnOffMappingAlg: public AthAlgorithm {
- public:
+
+public:
 
   LArOnOffMappingAlg(const std::string& name, ISvcLocator* pSvcLocator);
   ~LArOnOffMappingAlg();
