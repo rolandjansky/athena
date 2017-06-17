@@ -18,6 +18,9 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTau/TauJetContainer.h"
 
+#include "xAODCore/ShallowCopy.h"
+#include "xAODBase/IParticleHelpers.h"
+
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
 #include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
@@ -49,11 +52,13 @@ namespace met {
     declareProperty( "METSoftClName",  m_softclname  = "SoftClus"        );
     declareProperty( "METSoftTrkName", m_softtrkname = "PVSoftTrk"       );
 
-    declareProperty( "InputJets",      m_jetColl   = "AntiKt4LCTopoJets" );
+    declareProperty( "InputJets",      m_jetColl   = ""                  );
     declareProperty( "InputElectrons", m_eleColl   = "Electrons"         );
     declareProperty( "InputPhotons",   m_gammaColl = "Photons"           );
     declareProperty( "InputTaus",      m_tauColl   = "TauJets"           );
     declareProperty( "InputMuons",     m_muonColl  = "Muons"             );
+
+    declareProperty( "JetCalibState",  m_jetCalibState = ""              );
 
     declareProperty( "MuonSelectionTool",        m_muonSelTool           );
     declareProperty( "ElectronLHSelectionTool",  m_elecSelLHTool         );
@@ -151,6 +156,22 @@ namespace met {
       return StatusCode::SUCCESS;
     }
     ATH_MSG_DEBUG("Successfully retrieved jet collection");
+
+    if(!m_jetCalibState.empty()) {
+      std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > copyjetsPair = xAOD::shallowCopyContainer( *jetCont );//make a shallow copy to calibrate
+      xAOD::JetContainer *& copyjets = copyjetsPair.first;//create a reference to the first element of the pair (i.e. the JetContainer)
+      xAOD::ShallowAuxContainer *& copyjetsaux = copyjetsPair.second;//create a reference to the first element of the pair (i.e. the JetContainer)
+      if( !xAOD::setOriginalObjectLink(*jetCont, *copyjets) ) {
+	ATH_MSG_ERROR("Failed to set original object links on jet collection " << m_jetColl
+		      <<" while changing jet momentum state");
+      }
+      ATH_CHECK( evtStore()->record(copyjets, m_jetColl+"_CalibFor"+m_outname) );
+      ATH_CHECK( evtStore()->record(copyjetsaux, m_jetColl+"_CalibFor"+m_outname) );
+      for(const auto& jet : *copyjets) {
+	jet->setJetP4(jet->jetP4(m_jetCalibState));
+      }
+      jetCont = copyjets;
+    }
 
     /// Electrons
     const ElectronContainer* elCont(0);

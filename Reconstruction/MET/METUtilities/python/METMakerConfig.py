@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 
-def getMETMakerAlg(suffix,jetSelection="Tier0",jetColl=""):
+def getMETMakerAlg(suffix,jetSelection="Tier0",outmetname="Reference",jetColl="",jetCalibState=""):
     from AthenaCommon import CfgMgr
 
     print "Generate METMaker and METMakerAlg for METAssoc_"+suffix
@@ -38,11 +38,12 @@ def getMETMakerAlg(suffix,jetSelection="Tier0",jetColl=""):
         jetColl = suffix+'Jets'
         if doTruth:
             jetColl = suffix.split('_')[1]+'Jets'
-    makerAlg = CfgMgr.met__METMakerAlg('METMakerAlg_'+suffix,
-                                       METMapName='METAssoc_'+suffix,
-                                       METCoreName='MET_Core_'+suffix,
-                                       METName='MET_Reference_'+suffix,
+    makerAlg = CfgMgr.met__METMakerAlg('METMakerAlg_{0}'.format(suffix),
+                                       METMapName='METAssoc_{0}'.format(suffix),
+                                       METCoreName='MET_Core_{0}'.format(suffix),
+                                       METName='MET_{0}_{1}'.format(outmetname,suffix),
                                        InputJets=jetColl,
+                                       JetCalibState=jetCalibState,
                                        Maker=metMaker,
                                        MuonSelectionTool=muonSel,
                                        ElectronLHSelectionTool=elecSelLH,
