@@ -50,16 +50,20 @@ namespace CP {
 
         public:
             IsolationCloseByCorrectionTool(const std::string& name);
-            ASG_TOOL_CLASS(IsolationCloseByCorrectionTool, IIsolationCloseByCorrectionTool)
+            ASG_TOOL_CLASS(IsolationCloseByCorrectionTool, IIsolationCloseByCorrectionTool);
 
             virtual StatusCode initialize();
 
             virtual const CP::CorrectionCode getCloseByCorrection(std::vector<float>& corrections, const xAOD::IParticle& par, const std::vector<xAOD::Iso::IsolationType>& types, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const;
+
+
             virtual const Root::TAccept& acceptCorrected(const xAOD::IParticle& x, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const;
+//            virtual const Root::TAccept& acceptCorrected(const xAOD::IParticle& x ,const xAOD::IParticleContainer& closePar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const;
 
             virtual CP::CorrectionCode getCloseByIsoCorrection(xAOD::ElectronContainer* Electrons = nullptr, xAOD::MuonContainer* Muons = nullptr, xAOD::PhotonContainer* Photons = nullptr, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters ) const;
 
-            virtual float GetOriginalIsolation(const xAOD::IParticle* P, IsoType) const;
+            virtual float GetOriginalIsolation(const xAOD::IParticle& P, IsoType type) const;
+            virtual float GetOriginalIsolation(const xAOD::IParticle* P, IsoType type) const;
 
         private:
 
@@ -106,6 +110,9 @@ namespace CP {
 
             TrackCollection GetAssociatedTracks(const xAOD::IParticle* P) const;
             void GetTrackCandidates(const xAOD::IParticleContainer* Container, const xAOD::Vertex* Vtx, TrackCollection &Tracks) const;
+
+            const xAOD::IParticle* TopoEtIsoRefPart(const xAOD::IParticle* P) const;
+
 
             ClusterCollection GetAssociatedClusters(const xAOD::IParticle* P) const;
             void GetClusterCandidates(const xAOD::IParticleContainer* Container, ClusterCollection& Clusters) const;

@@ -285,9 +285,10 @@ namespace CP {
             ATH_MSG_DEBUG("The cluster container " << m_CaloClusterContainerName << " is not in the event");
             return clusters;
         }
+        const xAOD::IParticle* Ref = TopoEtIsoRefPart(P);
         for (const auto& cluster : *topoClusters) {
             if (!cluster || fabs(cluster->eta()) > 7.0 || cluster->pt() <= 1.e-3) continue;
-            if (Overlap(cluster, P, m_coreCone)) clusters.insert(cluster);
+            if (IsSame(Ref,cluster) || Overlap(cluster, Ref, m_coreCone)) clusters.insert(cluster);
         }
         return clusters;
     }
@@ -301,7 +302,7 @@ namespace CP {
             TrackCollection AssocCloseTrks = GetAssociatedTracks(P);
             for (const auto& T : AssocCloseTrks) {
                 if (!T || !m_trkselTool->accept(*T, Vtx)) continue;
-                ATH_MSG_DEBUG("Found ID-track with pt:"<<T->pt()/1.e3<<", eta: "<<T->eta()<<", phi: "<<T->phi()<<" associated with "<<particleName(P)<<" having pt: "<<P->pt()/1.e3<<" eta: "<<P->eta()<<" phi: "<<P->phi());
+                ATH_MSG_DEBUG("Found ID-track with pt:" << T->pt() / 1.e3 << ", eta: " << T->eta() << ", phi: " << T->phi() << " associated with " << particleName(P) << " having pt: " << P->pt() / 1.e3 << " eta: " << P->eta() << " phi: " << P->phi());
                 Tracks.insert(T);
             }
         }
@@ -345,17 +346,17 @@ namespace CP {
 
         double MaxDR = ConeSize(par, type);
         TrackCollection ToExclude = GetAssociatedTracks(par);
-        
+
         const xAOD::IParticle* Ref = TrackIsoRefPart(par);
-        ATH_MSG_DEBUG(xAOD::Iso::toString(type) << " of "<<particleName(par)<< " with pt: " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " before correction: " << correction / 1.e3 << " GeV");
+        ATH_MSG_DEBUG(xAOD::Iso::toString(type) << " of " << particleName(par) << " with pt: " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " before correction: " << correction / 1.e3 << " GeV");
 
         for (auto& T : tracks) {
-            if (Overlap(Ref, T, MaxDR) && !IsElementInList(ToExclude,T) ) {
-                ATH_MSG_DEBUG("Subtract track with " << T->pt() / 1.e3 << " GeV, eta: "<<T->eta()<<", phi: "<<T->phi()<< " with dR: "<<sqrt(DeltaR2(Ref,T))<<" from the isolation cone " << xAOD::Iso::toString(type) << " " << (correction / 1.e3) << " GeV.");
+            if (Overlap(Ref, T, MaxDR) && !IsElementInList(ToExclude, T)) {
+                ATH_MSG_DEBUG("Subtract track with " << T->pt() / 1.e3 << " GeV, eta: " << T->eta() << ", phi: " << T->phi() << " with dR: " << sqrt(DeltaR2(Ref, T)) << " from the isolation cone " << xAOD::Iso::toString(type) << " " << (correction / 1.e3) << " GeV.");
                 correction -= T->pt();
             }
         }
-        ATH_MSG_DEBUG(xAOD::Iso::toString(type) << " of "<<particleName(par)<< " with pt: "<< par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " after correction: " << correction / 1.e3 << " GeV");
+        ATH_MSG_DEBUG(xAOD::Iso::toString(type) << " of " << particleName(par) << " with pt: " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " after correction: " << correction / 1.e3 << " GeV");
 
         return CP::CorrectionCode::Ok;
     }
@@ -374,15 +375,15 @@ namespace CP {
 
         //else if (correction <= 0.0) return CP::CorrectionCode::Ok;
 
-        ATH_MSG_DEBUG(xAOD::Iso::toString(type) << " of "<<particleName(par)<< " with pt " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " before correction: " << correction / 1.e3 << " GeV");
+        ATH_MSG_DEBUG(xAOD::Iso::toString(type) << " of " << particleName(par) << " with pt " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " before correction: " << correction / 1.e3 << " GeV");
         double MaxDR = ConeSize(par, type);
         for (auto& cluster : clusters) {
-            ATH_MSG_INFO( particleName(cluster)<<" with pt:" << cluster->pt() / 1.e3 << " GeV, eta: " << cluster->eta() << ", phi: " << cluster->phi() << " dR: " << sqrt(DeltaR2(cluster, par)));
+            ATH_MSG_INFO(particleName(cluster) << " with pt:" << cluster->pt() / 1.e3 << " GeV, eta: " << cluster->eta() << ", phi: " << cluster->phi() << " dR: " << sqrt(DeltaR2(cluster, par)));
             if (Overlap(cluster, par, MaxDR) && !Overlap(cluster, par, m_coreCone)) {
                 correction -= ClusterEtMinusTile(cluster);
             }
         }
-        ATH_MSG_DEBUG(xAOD::Iso::toString(type) << " of "<<particleName(par)<< " with pt " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " after correction: " << correction / 1.e3 << " GeV");
+        ATH_MSG_DEBUG(xAOD::Iso::toString(type) << " of " << particleName(par) << " with pt " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " after correction: " << correction / 1.e3 << " GeV");
         return CP::CorrectionCode::Ok;
     }
     float IsolationCloseByCorrectionTool::CaloCorrectionFraction(const xAOD::IParticle* P, const xAOD::IParticle* P1, float coneSize, int Model) const {
@@ -458,6 +459,9 @@ namespace CP {
         }
 
     }
+//    const Root::TAccept& IsolationCloseByCorrectionTool::acceptCorrected(const xAOD::IParticle& x ,const xAOD::IParticleContainer& closePar, int topoetconeModel) const{
+//
+//    }
 
     const Root::TAccept& IsolationCloseByCorrectionTool::acceptCorrected(const xAOD::IParticle& x, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel) const {
 
@@ -584,15 +588,15 @@ namespace CP {
         }
         if (IsSame(P, P1)) return 0.;
         //Check if one of the things is a CalCluser or the Averaging over the clusters is requested.
-        if (AvgCalo || (P->type() != P1->type() && (P->type() == xAOD::Type::ObjectType::CaloCluster || P1->type() == xAOD::Type::ObjectType::CaloCluster))) {
-            float phi1(0), eta1(0), eta2(0), phi2(0);
-            getExtrapEtaPhi(P, eta1, phi1);
-            getExtrapEtaPhi(P1, eta2, phi2);
-            double dPhi = xAOD::P4Helpers::deltaPhi(phi1, phi2);
-            double dEta = eta1 - eta2;
-            return dEta * dEta + dPhi * dPhi;
-
-        }
+//        if (AvgCalo || (P->type() != P1->type() && (P->type() == xAOD::Type::ObjectType::CaloCluster || P1->type() == xAOD::Type::ObjectType::CaloCluster))) {
+//            float phi1(0), eta1(0), eta2(0), phi2(0);
+//            getExtrapEtaPhi(P, eta1, phi1);
+//            getExtrapEtaPhi(P1, eta2, phi2);
+//            double dPhi = xAOD::P4Helpers::deltaPhi(phi1, phi2);
+//            double dEta = eta1 - eta2;
+//            return dEta * dEta + dPhi * dPhi;
+//
+//        }
         double dPhi = xAOD::P4Helpers::deltaPhi(P, P1);
         double dEta = P->eta() - P1->eta();
         return dEta * dEta + dPhi * dPhi;
@@ -622,6 +626,11 @@ namespace CP {
         }
         return IsoValue;
     }
+
+    float IsolationCloseByCorrectionTool::GetOriginalIsolation(const xAOD::IParticle& P, IsoType type) const {
+        return GetOriginalIsolation(&P, type);
+    }
+
     float IsolationCloseByCorrectionTool::ClusterEtMinusTile(const xAOD::CaloCluster* C) const {
         float Et = 0.;
         if (C != nullptr) {
@@ -647,15 +656,26 @@ namespace CP {
         }
         return false;
     }
-    std::string IsolationCloseByCorrectionTool::particleName(const xAOD::IParticle* C) const{
-        if (C->type()== xAOD::Type::ObjectType::Electron) return "Electron";
-        if (C->type()== xAOD::Type::ObjectType::Photon) return "Photon";
-        if (C->type()== xAOD::Type::ObjectType::Muon) return "Muon";
-        if (C->type()== xAOD::Type::ObjectType::TrackParticle) return "Track";
-        if (C->type()== xAOD::Type::ObjectType::CaloCluster) return "Cluster";
+    std::string IsolationCloseByCorrectionTool::particleName(const xAOD::IParticle* C) const {
+        if (C->type() == xAOD::Type::ObjectType::Electron) return "Electron";
+        if (C->type() == xAOD::Type::ObjectType::Photon) return "Photon";
+        if (C->type() == xAOD::Type::ObjectType::Muon) return "Muon";
+        if (C->type() == xAOD::Type::ObjectType::TrackParticle) return "Track";
+        if (C->type() == xAOD::Type::ObjectType::CaloCluster) return "Cluster";
         return "Unknown";
     }
-
+    const xAOD::IParticle* IsolationCloseByCorrectionTool::TopoEtIsoRefPart(const xAOD::IParticle* P) const {
+        if (P == nullptr) {
+            ATH_MSG_WARNING("TopoEtIsoRefPart(): Nullptr given");
+            return nullptr;
+        }
+        if (P->type() == xAOD::Type::ObjectType::Muon) return getTrackParticle(P);
+        if (P->type() == xAOD::Type::ObjectType::Electron || P->type() == xAOD::Type::ObjectType::Photon ){
+           const xAOD::Egamma* EG = dynamic_cast<const xAOD::Egamma*>(P);
+           return EG->caloCluster();
+        }
+        return P;
+    }
 
     //######################################################################################################
     //                                      IsoVariableHelper
