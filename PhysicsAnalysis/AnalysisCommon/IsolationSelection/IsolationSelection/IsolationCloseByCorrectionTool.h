@@ -66,6 +66,7 @@ namespace CP {
             void IsoTypesFromWP(const std::vector<IsolationWP*> &WP, IsoVector & types);
             //Helper function to check whether an element is in the vector
             template<typename T> bool IsElementInList(const std::vector<T> &List, const T& Element) const;
+            template<typename T> bool IsElementInList(const std::set<T> &List, const T& Element) const;
 
             CP::CorrectionCode performCloseByCorrection(xAOD::IParticleContainer* Particles, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters) const;
             CP::CorrectionCode performCloseByCaloCorrection(xAOD::IParticleContainer* Cont1, xAOD::IParticleContainer*  Cont2) const;
@@ -111,6 +112,9 @@ namespace CP {
 
             float ClusterEtMinusTile(const xAOD::CaloCluster* C) const;
             bool ConsiderForCorrection(const xAOD::IParticle* P) const;
+
+            std::string particleName(const xAOD::IParticle* C) const;
+
 
             ToolHandle<CP::IIsolationSelectionTool> m_selectorTool;
             float m_coreCone;
