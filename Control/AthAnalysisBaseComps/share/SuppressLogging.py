@@ -20,9 +20,11 @@ MessageSvc.setWarning += {"ClassIDSvc",
                           "AthRegSeq"};
 
 #also silence storegates if not dumping
-if not hasattr(StoreGateSvc,"Dump") or StoreGateSvc.Dump: MessageSvc.setWarning += ["StoreGateSvc"]
+if not hasattr(StoreGateSvc,"Dump") or not StoreGateSvc.Dump: MessageSvc.setWarning += ["StoreGateSvc"]
 if hasattr(svcMgr,"InputMetaDataStore"):
-    if not hasattr(svcMgr.InputMetaDataStore,"Dump") or svcMgr.InputMetaDataStore.Dump: MessageSvc.setWarning += ["InputMetaDataStore"]
+    if not hasattr(svcMgr.InputMetaDataStore,"Dump") or not svcMgr.InputMetaDataStore.Dump: MessageSvc.setWarning += ["InputMetaDataStore"]
+else:
+    MessageSvc.setWarning += ["InputMetaDataStore"]
 
 MessageSvc.setError += ["HistogramPersistencySvc"] #even stricter for HistogramPersistencySvc too .. gives a silly/harmless warning otherwise
 
