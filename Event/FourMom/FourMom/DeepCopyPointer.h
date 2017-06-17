@@ -35,6 +35,9 @@ public:
     return *this;
   }
 
+        T* get()       { return m_theData; }
+  const T* get() const { return m_theData; }
+
   T&       operator*()       { return *m_theData;}
   const T& operator*() const { return *m_theData;}
 
