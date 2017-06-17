@@ -11,6 +11,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('infile', type=str, help='input HIST file')
 parser.add_argument('--out', type=str, help='output ROOT file')
+parser.add_argument('--debug', action='store_true', help='Be verbose in output')
 
 args = parser.parse_args()
 
@@ -114,11 +115,12 @@ for lb in sorted(lbdirs):
     matchss, matchsserr = extract(hms)
     nomatchos, nomatchoserr = extract(hno)
     nomatchss, nomatchsserr = extract(hns)
-    print lb
-    print ' ->', matchos, matchoserr
-    print ' ->', matchss, matchsserr
-    print ' ->', nomatchos, nomatchoserr
-    print ' ->', nomatchss, nomatchsserr
+    if args.debug:
+        print lb
+        print ' ->', matchos, matchoserr
+        print ' ->', matchss, matchsserr
+        print ' ->', nomatchos, nomatchoserr
+        print ' ->', nomatchss, nomatchsserr
     A = float(matchos-matchss)
     Aerr = (matchoserr**2+matchsserr**2)**.5
     B = float(nomatchos-nomatchss)

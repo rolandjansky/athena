@@ -121,6 +121,11 @@ for entry, entryval in sorted(entrydict.items()):
         if o_zlumi[0] < 4 or o_zlumi[0] > 15:
             print o_lb[0], o_zlumi[0], entryval['zcount'], eff, entryval['livetime']
         t.Fill()
-t.Write()
+#t.Write()
+newrzt = recoztree.CloneTree()
+newrzt.SetName("recolumitree")
+newezt = effztree.CloneTree()
+newezt.SetName("efflumitree")
+fout.Write()
 fout.Close()
         
