@@ -46,7 +46,7 @@ class JetRecCalibrationFinder:
     
   # Dictionary for calibration configurations.
   configDict = {
-    "reco"            : "JES_MC15cRecommendation_May2016_rel21.config",
+    "reco"            : "JES_data2016_data2015_Recommendation_Dec2016_rel21.config",
     "trigger"         : "JES_Full2012dataset_Preliminary_Trigger.config",
     "triggerNoPileup" : "JES_Full2012dataset_Preliminary_Trigger_NoPileup.config",
     "trigger2016"     : "JES_MC15cRecommendation_May2016_Trigger.config",
