@@ -62,7 +62,6 @@ use MuonEfficiencyCorrections MuonEfficiencyCorrections-* PhysicsAnalysis/MuonID
 
 #Jets
 use JetInterface JetInterface-* Reconstruction/Jet
-use JetJvtEfficiency JetJvtEfficiency-* Reconstruction/Jet
 use JetCalibTools JetCalibTools-* Reconstruction/Jet
 
 use AthAnalysisBaseComps AthAnalysisBaseComps-* Control

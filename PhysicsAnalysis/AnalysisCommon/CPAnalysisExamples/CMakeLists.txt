@@ -50,7 +50,6 @@ atlas_depends_on_subdirs(
    Reconstruction/Jet/JetUncertainties
    Reconstruction/Jet/JetCalibTools
    Reconstruction/Jet/JetInterface
-   Reconstruction/Jet/JetJvtEfficiency
    Reconstruction/MET/METInterface
    Reconstruction/MET/METUtilities
    Trigger/TrigAnalysis/TrigDecisionTool
@@ -84,7 +83,7 @@ atlas_add_library( CPAnalysisExamplesLib
    JetSelectorToolsLib xAODBTaggingEfficiencyLib MuonEfficiencyCorrectionsLib
    MuonMomentumCorrectionsLib MuonSelectorToolsLib TauAnalysisToolsLib
    JetResolutionLib JetUncertaintiesLib JetCalibToolsLib JetInterface
-   JetJvtEfficiencyLib METInterface METUtilitiesLib TrigDecisionToolLib
+   METInterface METUtilitiesLib TrigDecisionToolLib
    TriggerMatchingToolLib ${extra_libs}
    PRIVATE_LINK_LIBRARIES xAODBase xAODMetaData )
 
@@ -165,6 +164,7 @@ else()
    atlas_add_test( ut_ath_checkTrigger_test
       SOURCES test/ut_ath_checkTrigger_test.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      PROPERTIES TIMEOUT 300
       LINK_LIBRARIES ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib POOLRootAccess
       GaudiKernel AsgTools TrigDecisionToolLib )
 endif()

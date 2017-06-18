@@ -34,7 +34,6 @@
 ///Jets
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
-#include "JetJvtEfficiency/IJetJvtEfficiency.h"
 #include "JetInterface/IJetSelector.h"
 
 
@@ -82,7 +81,6 @@ class ToolExamplesAlg: public ::AthAnalysisAlgorithm {
   ///Jets
    ToolHandle<IJetCalibrationTool> m_jetCalib;
    ToolHandle<IJetSelector> m_jetCleaning;
-   ToolHandle<CP::IJetJvtEfficiency> m_jvt;
 
 
 }; 
