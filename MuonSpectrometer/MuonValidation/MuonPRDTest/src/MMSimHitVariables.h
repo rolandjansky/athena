@@ -72,7 +72,7 @@ class MMSimHitVariables : public ValAlgVariables
   {
     if( (this->deleteVariables()).isFailure() ){
       ATH_MSG_ERROR("Failing to delete MMSimHitVariables.");
-      throw;
+      std::terminate();
     }
   }
 
