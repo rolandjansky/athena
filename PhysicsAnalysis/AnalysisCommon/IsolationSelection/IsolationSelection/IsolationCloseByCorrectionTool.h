@@ -35,8 +35,6 @@ namespace CP {
     typedef std::set<const xAOD::TrackParticle*> TrackCollection;
     typedef std::set<const xAOD::CaloCluster*> ClusterCollection;
 
-    typedef xAOD::Iso::IsolationType IsoType;
-    typedef std::vector<IsoType> IsoVector;
 
     typedef std::unique_ptr<CharAccessor> SelectionAccessor;
     typedef std::unique_ptr<CharDecorator> SelectionDecorator;
