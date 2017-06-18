@@ -20,7 +20,6 @@ endif()
 atlas_depends_on_subdirs(
    PUBLIC
    Control/AthToolSupport/AsgTools
-   DataQuality/GoodRunsLists
    Event/xAOD/xAODMuon
    Event/xAOD/xAODJet
    Event/xAOD/xAODBTagging
@@ -37,6 +36,7 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/AnalysisCommon/PATCore
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/AnalysisCommon/PileupReweighting
+   PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
    PhysicsAnalysis/ElectronPhotonID/ElectronEfficiencyCorrection
    PhysicsAnalysis/ElectronPhotonID/ElectronPhotonFourMomentumCorrection
    PhysicsAnalysis/ElectronPhotonID/IsolationCorrections
@@ -74,7 +74,7 @@ atlas_add_library( CPAnalysisExamplesLib
    CPAnalysisExamples/*.h Root/*.cxx ${CPAnalysisExamplesLibCintSource}
    PUBLIC_HEADERS CPAnalysisExamples
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools GoodRunsListsLib
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools 
    xAODMuon xAODJet xAODBTagging xAODCore xAODEgamma xAODMissingET
    xAODPrimitives xAODTau xAODTracking xAODTruth xAODEventInfo
    AssociationUtilsLib IsolationSelectionLib PATCoreLib PATInterfaces
