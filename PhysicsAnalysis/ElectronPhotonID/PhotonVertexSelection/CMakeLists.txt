@@ -5,39 +5,51 @@
 # Declare the package name:
 atlas_subdir( PhotonVertexSelection )
 
+# Extra dependencies, based on the build environment:
+set( extra_deps )
+if( NOT XAOD_STANDALONE )
+   set( extra_deps Control/AthenaBaseComps GaudiKernel )
+endif()
+
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthToolSupport/AsgTools
-                          Event/xAOD/xAODEgamma
-                          Event/xAOD/xAODEventInfo
-                          Event/xAOD/xAODTracking
-                          PRIVATE
-                          Control/AthContainers
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          PhysicsAnalysis/ElectronPhotonID/IsolationCorrections
-                          Tools/PathResolver )
+atlas_depends_on_subdirs(
+   PUBLIC
+   Control/AthToolSupport/AsgTools
+   Event/xAOD/xAODEgamma
+   Event/xAOD/xAODEventInfo
+   Event/xAOD/xAODTracking
+   PRIVATE
+   Control/AthContainers
+   PhysicsAnalysis/ElectronPhotonID/IsolationCorrections
+   Tools/PathResolver
+   ${extra_deps} )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread TMVA )
+find_package( ROOT COMPONENTS Core Hist RIO Physics TMVA )
 
-# Component(s) in the package:
+# Libraries in the package:
 atlas_add_library( PhotonVertexSelectionLib
-                   src/*.cxx
-                   Root/*.cxx
-                   PUBLIC_HEADERS PhotonVertexSelection
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODEventInfo xAODTracking IsolationCorrectionsLib
-                   PRIVATE_LINK_LIBRARIES AthContainers AthenaBaseComps GaudiKernel PathResolver )
+   PhotonVertexSelection/*.h Root/*.cxx
+   PUBLIC_HEADERS PhotonVertexSelection
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODEventInfo
+   xAODTracking
+   PRIVATE_LINK_LIBRARIES IsolationCorrectionsLib PathResolver )
 
-atlas_add_component( PhotonVertexSelection
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODEventInfo xAODTracking AthContainers AthenaBaseComps GaudiKernel IsolationCorrectionsLib PathResolver PhotonVertexSelectionLib )
+if( NOT XAOD_STANDALONE )
+   atlas_add_component( PhotonVertexSelection
+      src/*.h src/*.cxx src/components/*.cxx
+      LINK_LIBRARIES xAODEgamma xAODTracking AthContainers AthenaBaseComps
+      GaudiKernel PhotonVertexSelectionLib )
+endif()
 
 atlas_add_dictionary( PhotonVertexSelectionDict
-                      PhotonVertexSelection/PhotonVertexSelectionDict.h
-                      PhotonVertexSelection/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODEventInfo xAODTracking AthContainers AthenaBaseComps GaudiKernel IsolationCorrectionsLib PathResolver PhotonVertexSelectionLib )
+   PhotonVertexSelection/PhotonVertexSelectionDict.h
+   PhotonVertexSelection/selection.xml
+   LINK_LIBRARIES PhotonVertexSelectionLib )
 
+# Test(s) in the package:
+if( XAOD_STANDALONE )
+   atlas_add_test( PhotonVertexSelection_test
+      SCRIPT test/testPhotonVertexSelection.py )
+endif()
