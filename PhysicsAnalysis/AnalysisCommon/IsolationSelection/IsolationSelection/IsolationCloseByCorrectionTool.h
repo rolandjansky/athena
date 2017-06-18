@@ -31,18 +31,17 @@ namespace CP {
 
     typedef SG::AuxElement::Decorator<char> CharDecorator;
     typedef SG::AuxElement::Decorator<float> FloatDecorator;
-    typedef xAOD::Iso::IsolationType IsoType;
 
     typedef std::set<const xAOD::TrackParticle*> TrackCollection;
     typedef std::set<const xAOD::CaloCluster*> ClusterCollection;
 
+    typedef xAOD::Iso::IsolationType IsoType;
     typedef std::vector<IsoType> IsoVector;
 
     typedef std::unique_ptr<CharAccessor> SelectionAccessor;
     typedef std::unique_ptr<CharDecorator> SelectionDecorator;
 
     typedef std::unique_ptr<IsoVariableHelper> IsoHelperPtr;
-
     typedef std::map<IsoType, IsoHelperPtr> IsoHelperMap;
     typedef std::pair<IsoType, IsoHelperPtr> IsoHelperPair;
 
@@ -62,6 +61,7 @@ namespace CP {
             virtual const Root::TAccept& acceptCorrected(const xAOD::IParticle& x, const xAOD::IParticleContainer& closePar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const;
 
             virtual CP::CorrectionCode getCloseByIsoCorrection(xAOD::ElectronContainer* Electrons = nullptr, xAOD::MuonContainer* Muons = nullptr, xAOD::PhotonContainer* Photons = nullptr, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const;
+            virtual CP::CorrectionCode subtractCloseByContribution(xAOD::IParticle& x, const xAOD::IParticleContainer& closebyPar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters ) const;
 
             virtual float GetOriginalIsolation(const xAOD::IParticle& P, IsoType type) const;
             virtual float GetOriginalIsolation(const xAOD::IParticle* P, IsoType type) const;
