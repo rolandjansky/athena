@@ -18,6 +18,7 @@
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/ITileBadChanTool.h"
 #include "TileConditions/TileCablingService.h"
+#include "TileByteStream/TileROD_Decoder.h"
 
 #include <map> 
 #include <stdint.h>
@@ -57,7 +58,16 @@ StatusCode TileRawChannelContByteStreamTool::initialize() {
   CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
 
   // rodid 4 modules/rod
-  m_hid2re.setTileHWID(m_tileHWID);
+  //m_hid2re->setTileHWID(m_tileHWID);
+  ToolHandle<TileROD_Decoder> dec("TileROD_Decoder/TileROD_Decoder");
+  if((dec.retrieve()).isFailure()){
+       ATH_MSG_FATAL("Could not find TileRodDecoder");
+  }
+
+  m_hid2re = dec->getHid2reHLT();
+  if ( !m_hid2re ) {
+       ATH_MSG_FATAL("Could not find TileHid2Re");
+  }
   m_fea.idMap().setTileHWID(m_tileHWID);
 
   // rodid 8 modules/rod
@@ -108,7 +118,7 @@ StatusCode TileRawChannelContByteStreamTool::convert(CONTAINER* rawChannelContai
     TileRawChannelCollection::ID frag_id = rawChannelCollection->identify();
 
     if (isTMDB) reid = m_TileMuRcv_hid2re.getRodTileMuRcvID(frag_id);
-    else reid = m_hid2re.getRodID(frag_id);
+    else reid = m_hid2re->getRodID(frag_id);
 
     mapEncoder[reid].setTileHWID(m_tileHWID, m_verbose, 4);
     mapEncoder[reid].setTypeAndUnit(contType, outputUnit);

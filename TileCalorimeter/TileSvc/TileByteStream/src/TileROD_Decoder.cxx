@@ -46,7 +46,9 @@ TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& nam
   , m_tileCondToolOfcCool("TileCondToolOfcCool")
   , m_tileToolEmscale("TileCondToolEmscale")
   , m_hid2re(0)
+  , m_hid2reHLT(0)
   , m_maxChannels(TileCalibUtils::MAX_CHAN)
+  , m_fullTileRODs(320000) // default 2017 full mode
 {
   declareInterface<TileROD_Decoder>(this);
   
@@ -72,6 +74,7 @@ TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& nam
 
   declareProperty("AllowedTimeMin", m_allowedTimeMin = -50.); // set amp to zero if time is below allowed time min
   declareProperty("AllowedTimeMax", m_allowedTimeMax =  50.); // set amp to zero if time is above allowed time max
+  declareProperty("fullTileMode", m_fullTileRODs); // run from which to take the cabling (for the moment, either 320000 - full 2017 mode - or 0 - 2016 mode)
 
   m_correctAmplitude = false;
   updateAmpThreshold(15.);
@@ -115,6 +118,7 @@ TileROD_Decoder::~TileROD_Decoder() {
     delete m_rawchannelMetaData[i];
   }
   if (m_hid2re) delete m_hid2re;
+  if (m_hid2reHLT) delete m_hid2reHLT;
   
   for (unsigned int id = 0; id < 4 * TileCalibUtils::MAX_DRAWERIDX; ++id)
     if (m_OFWeights[id]) delete m_OFWeights[id];
@@ -3888,6 +3892,17 @@ void TileROD_Decoder::initHid2re() {
     }
   }
 }
+
+void TileROD_Decoder::initHid2reHLT() {
+  if (m_hid2reHLT) return;
+
+  m_hid2reHLT = new TileHid2RESrcID();
+  m_hid2reHLT->setTileHWID(m_tileHWID);// setting a frag2RODmap
+  m_hid2reHLT->initialize(m_fullTileRODs);
+
+
+}
+
 
 void TileROD_Decoder::initTileMuRcvHid2re() {
   if (m_hid2re) return;

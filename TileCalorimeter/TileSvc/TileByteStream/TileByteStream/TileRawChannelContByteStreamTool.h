@@ -58,7 +58,7 @@ class TileRawChannelContByteStreamTool: public AthAlgTool {
 
     const TileHWID* m_tileHWID;
 
-    TileHid2RESrcID m_hid2re;
+    const TileHid2RESrcID* m_hid2re;
     TileHid2RESrcID m_TileMuRcv_hid2re;
 
     bool m_verbose;
