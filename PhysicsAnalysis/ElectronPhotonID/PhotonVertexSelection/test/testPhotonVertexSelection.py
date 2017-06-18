@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 __doc__ = """Script / jobOptions to test PhotonVertexSelectionTool using an AOD from
 mc15_13TeV:mc15_13TeV.341000.PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_gamgam.merge.AOD.e3806_s2608_r7772_r7676"""
 __author__ = "Bruno Lenzi"
