@@ -113,7 +113,6 @@ class CscRdoValAlg: public ManagedMonitorToolBase
   
   TH2F *m_h2csc_rdo_eta_vs_phi_cluswidth;
   TH2F *m_h2csc_rdo_eta_vs_phi_cluswidth_signal;
-  TH2F *m_h2csc_rdo_eta_vs_phi_cluswidth_noise;
 
   std::vector<TH1 *>    m_regHShift   ,
                         m_regHExpert  ,
