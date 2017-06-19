@@ -31,6 +31,7 @@ PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title, const Pi
    std::string etatext = ";eta index of module";
    std::string phitext = ";phi index of module";
    std::string disktext = ";disk number";
+   std::string layertext = ";layer number";
 
    if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kIBL2D)) {
       IBL3D = TH2F_LW::create((name+"_IBL3D").c_str(), (title + ", IBL 3D modules " + etatext + phitext).c_str(),8,-.5,7.5,14,-0.5,13.5);
@@ -57,10 +58,10 @@ PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title, const Pi
      C  = TH2F_LW::create((name+"_ECC" ).c_str(),     (title + ", ECC " + disktext + phitext).c_str(),3,-0.5,2.5,48,-0.5,47.5);
    }
    if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kDBMA)) {
-     DBMA = TH2F_LW::create((name+"_DBMA" ).c_str(),  (title + ", DBMA " + disktext + phitext).c_str(),3,-0.5,2.5,4,-0.5,3.5);
+     DBMA = TH2F_LW::create((name+"_DBMA" ).c_str(),  (title + ", DBMA " + layertext + phitext).c_str(),3,-0.5,2.5,4,-0.5,3.5);
    }
    if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kDBMC)) {
-     DBMC = TH2F_LW::create((name+"_DBMC" ).c_str(),  (title + ", DBMC " + disktext + phitext).c_str(),3,-0.5,2.5,4,-0.5,3.5);
+     DBMC = TH2F_LW::create((name+"_DBMC" ).c_str(),  (title + ", DBMC " + layertext + phitext).c_str(),3,-0.5,2.5,4,-0.5,3.5);
    }
 
    formatHist();
@@ -249,7 +250,8 @@ void PixelMon2DMapsLW::formatHist()
    const int nphi  = 48;
    const int nphi_dbm  = 4;
    const char *disk[ndisk] = { "Disk 1", "Disk 2", "Disk 3" };
-   const char *phi_dbm[nphi_dbm] = { "M1","M2","M3","M4"};
+   const char *layer_dbm[ndisk] = {"Layer 0", "Layer 1", "Layer 2"};
+   const char *phi_dbm[nphi_dbm] = {"M3", "M4", "M1", "M2"};
    const int nmod = 13;
    const int nmodIBL2D = 12;
    const int nmodIBL3D = 8;
@@ -330,8 +332,8 @@ void PixelMon2DMapsLW::formatHist()
          DBMC->GetYaxis()->SetBinLabel(i + 1, phi_dbm[i]);
       }
       for (int i = 0; i < ndisk; i++) {
-         DBMA->GetXaxis()->SetBinLabel(i + 1, disk[i]);
-         DBMC->GetXaxis()->SetBinLabel(i + 1, disk[i]);
+         DBMA->GetXaxis()->SetBinLabel(i + 1, layer_dbm[i]);
+         DBMC->GetXaxis()->SetBinLabel(i + 1, layer_dbm[i]);
       }
    }
    if (B0 && B1 && B2) {
@@ -389,8 +391,8 @@ void PixelMon2DMapsLW::formatHist()
    }
 
    if (DBMA && DBMC) {
-      DBMA->GetYaxis()->SetLabelSize(0.02);
-      DBMC->GetYaxis()->SetLabelSize(0.02);
+      DBMA->GetYaxis()->SetLabelSize(0.03);
+      DBMC->GetYaxis()->SetLabelSize(0.03);
       DBMA->SetOption("colz");
       DBMC->SetOption("colz");
       DBMA->SetMinimum(0.);
