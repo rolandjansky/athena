@@ -18,7 +18,7 @@
   *   It is very light weight and is used to make top::Event objects
   * 
   * $Revision: 692539 $
-  * $Date: 2015-09-02 02:20:52 +0200 (Wed, 02 Sep 2015) $
+  * $Date: 2015-09-02 01:20:52 +0100 (Wed, 02 Sep 2015) $
   * 
   **/ 
 
