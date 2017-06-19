@@ -58,9 +58,6 @@
 
 using namespace std;
 
-static const int maxColl =   1200;
-static const int maxPrd  =   50000;
-static const int maxClus =   1000;
 float parESD1, parESD2, parESD3, parESD4;
 
 enum {enumBarrelA, enumBarrelC, enumEndCapA, enumEndCapC};
