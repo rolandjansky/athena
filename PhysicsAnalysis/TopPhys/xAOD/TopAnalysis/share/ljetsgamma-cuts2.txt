@@ -48,9 +48,10 @@ MuonQualityLoose Medium
 MuonIsolation Gradient
 MuonIsolationLoose None
 
-FakesControlRegionDoLooseMC False
-OverlapRemovalLeptonDef Tight
-ApplyElectronInJetSubtraction False
+# DoTight/DoLoose to activate the loose and tight trees
+# each should be one in: Data, MC, Both, False
+DoTight Both
+DoLoose Data
 
 UseAodMetaData False
 IsAFII False

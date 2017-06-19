@@ -17,6 +17,8 @@
 #include "TopObjectSelectionTools/TrackJetMC15.h"
 #include "TopObjectSelectionTools/PhotonMC15.h"
 #include "TopObjectSelectionTools/OverlapRemovalASG.h"
+// R21 specific
+#include "TopObjectSelectionTools/PhotonMC16.h"
 
 namespace top {
 
@@ -31,13 +33,25 @@ namespace top {
 
     ///-- Photons --//
     if(topConfig->usePhotons()) {
-      objectSelection->photonSelection(new top::PhotonMC15(topConfig->photonPtcut(),
-							   topConfig->photonEtacut(),
-							   topConfig->photonIdentification(),
-							   topConfig->photonIdentificationLoose(),
-							   new top::StandardIsolation(
-							     topConfig->photonIsolation(),
-							     topConfig->photonIsolationLoose() )) );
+      if(topConfig->getReleaseSeries() == 25){
+	std::cout << "top::ObjectLoaderStandardCuts::init - Using new photon object for Release 21 - PhotonMC16" << std::endl;
+	objectSelection->photonSelection(new top::PhotonMC16(topConfig->photonPtcut(),
+							     topConfig->photonEtacut(),
+							     topConfig->photonIdentification(),
+							     topConfig->photonIdentificationLoose(),
+							     new top::StandardIsolation(
+							      topConfig->photonIsolation(),
+							      topConfig->photonIsolationLoose() )) );
+      }
+      else{
+	objectSelection->photonSelection(new top::PhotonMC15(topConfig->photonPtcut(),
+							     topConfig->photonEtacut(),
+							     topConfig->photonIdentification(),
+							     topConfig->photonIdentificationLoose(),
+							     new top::StandardIsolation(
+							      topConfig->photonIsolation(),
+							      topConfig->photonIsolationLoose() )) );
+      }
     }
 
     ///-- Electrons --///

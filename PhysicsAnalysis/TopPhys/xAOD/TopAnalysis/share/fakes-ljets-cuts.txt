@@ -17,16 +17,13 @@ PRWLumiCalcFiles GoodRunsLists/data15_13TeV/20160720/physics_25ns_20.7.lumicalc.
 ElectronCollectionName Electrons
 MuonCollectionName Muons
 JetCollectionName AntiKt4EMTopoJets
-LargeJetCollectionName AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
-LargeRJetPt 200000
-LargeRJetEta 2
+LargeJetCollectionName None
 LargeJetSubstructure None
-TauCollectionName TauJets
-PhotonCollectionName Photons
+TauCollectionName None
+PhotonCollectionName None
 
 TruthCollectionName TruthParticles
 TruthJetCollectionName AntiKt4TruthWZJets
-TruthLargeRJetCollectionName AntiKt10TruthTrimmedPtFrac5SmallR20Jets
 TopPartonHistory ttbar
 TopParticleLevel True
 TruthBlockInfo False
@@ -38,48 +35,35 @@ OutputEvents SelectedEvents
 OutputFilename output.root
 PerfStats No
 
-Systematics Nominal
+Systematics All
 JetUncertainties_NPModel 21NP
 JetUncertainties_BunchSpacing 25ns
-LargeRJESUncertaintyConfig Split23,Tau32WTA
 
 ElectronID TightLH
 ElectronIDLoose MediumLH
 ElectronIsolation Gradient
 ElectronIsolationLoose None
 
-PhotonPt 25000
-PhotonEta 2.5
-PhotonID Tight
-PhotonIDLoose Loose
-PhotonIsolation FixedCutTight
-PhotonIsolationLoose FixedCutLoose
-PhotonUseRadiativeZ False
-
 MuonQuality Medium
 MuonQualityLoose Medium
 MuonIsolation Gradient
 MuonIsolationLoose None
-
-TauPt 25000
-TauJetIDWP Medium
-TauJetIDWPLoose Medium
-TauEleBDTWP Loose
-TauEleBDTWPLoose Loose
-TauEleOLR False
-TauEleOLRLoose False
 
 # DoTight/DoLoose to activate the loose and tight trees
 # each should be one in: Data, MC, Both, False
 DoTight Both
 DoLoose Data
 
+# for the moment: just dumps the pre-scale values of all trigger menus
+FakesMMWeights True
+
 UseAodMetaData False
 IsAFII False
 
 BTaggingWP FixedCutBEff_77
 
-#NEvents 500
+
+
 
 ########################
 ### basic selection with mandatory cuts for reco level
@@ -116,7 +100,10 @@ EL_N 25000 >= 1
 SUB EL_2016
 . BASIC
 . period_2016
-TRIGDEC HLT_e26_lhtight_nod0_ivarloose HLT_e60_lhmedium_nod0 HLT_e140_lhloose_nod0
+# TRIGDEC_LOOSE only applied on _Loose trees
+# TRIGDEC_TIGHT only applied on non-_Loose trees
+TRIGDEC_LOOSE HLT_e24_lhmedium_nod0_L1EM18VH HLT_e26_lhvloose_nod0_L1EM20VH HLT_e26_lhvloose_nod0_L1EM20VH_3j20noL1 HLT_e26_lhvloose_nod0_L1EM20VH_4j20noL1 HLT_e26_lhvloose_nod0_L1EM20VH_5j15noL1 HLT_e26_lhvloose_nod0_L1EM20VH_6j15noL1
+TRIGDEC_TIGHT HLT_e26_lhtight_nod0_ivarloose HLT_e60_lhmedium_nod0 HLT_e140_lhloose_nod0
 EL_N 27000 >= 1
 
 SUB MU_2015
@@ -128,20 +115,11 @@ MU_N 25000 >= 1
 SUB MU_2016
 . BASIC
 . period_2016
-TRIGDEC HLT_mu26_ivarmedium HLT_mu50
+# TRIGDEC_LOOSE only applied on _Loose trees
+# TRIGDEC_TIGHT only applied on non-_Loose trees
+TRIGDEC_LOOSE HLT_mu24
+TRIGDEC_TIGHT HLT_mu26_ivarmedium HLT_mu50
 MU_N 27000 >= 1
-
-SUB EM_2015
-. BASIC
-. period_2015
-TRIGDEC HLT_e24_lhmedium_L1EM20VH HLT_e60_lhmedium HLT_e120_lhloose HLT_mu20_iloose_L1MU15 HLT_mu50
-EL_N_OR_MU_N 25000 >= 1
-
-SUB EM_2016
-. BASIC
-. period_2016
-TRIGDEC HLT_e26_lhtight_nod0_ivarloose HLT_e60_lhmedium_nod0 HLT_e140_lhloose_nod0 HLT_mu26_ivarmedium HLT_mu50
-EL_N_OR_MU_N 27000 >= 1
 
 ########################
 ### e+jets selections
@@ -220,122 +198,4 @@ PRIVTX
 PARTICLE_LEVEL
 MU_N 27000 >= 1
 . mujets_basic
-SAVE
-
-########################
-### emu selections
-########################
-
-SUB emu_basic
-EL_N 25000 >= 1
-MU_N 25000 >= 1
-TRIGMATCH
-#EMU_OVERLAP
-JETCLEAN LooseBad
-HT > 120000
-JET_N 25000 >= 1
-JET_N 25000 >= 2
-EL_N 25000 == 1
-MU_N 25000 == 1
-OS
-MLL > 15000
-#TRUTH_MATCH
-#JET_N_BTAG FixedCutBEff_77 >= 1
-EXAMPLEPLOTS
-NOBADMUON
-
-SELECTION emu_2015
-. EM_2015
-. emu_basic
-SAVE
-
-SELECTION emu_2016
-. EM_2016
-. emu_basic
-SAVE
-
-SELECTION emu_particle
-PRIVTX
-PARTICLE_LEVEL
-EL_N_OR_MU_N 27000 >= 1
-. emu_basic
-SAVE
-
-########################
-### ee selections
-########################
-
-SUB ee_basic
-EL_N 25000 >= 2
-TRIGMATCH
-JETCLEAN LooseBad
-MET > 60000
-JET_N 25000 >= 1
-JET_N 25000 >= 2
-EL_N 25000 == 2
-MU_N 25000 == 0
-OS
-MLL > 15000
-MLLWIN 80000 100000
-#TRUTH_MATCH
-#JET_N_BTAG FixedCutBEff_77 >= 1
-EXAMPLEPLOTS
-#JET_N_BTAG FixedCutBEff_77 > 1
-NOBADMUON
-
-SELECTION ee_2015
-. EL_2015
-. ee_basic
-SAVE
-
-SELECTION ee_2016
-. EL_2016
-. ee_basic
-SAVE
-
-SELECTION ee_particle
-PRIVTX
-PARTICLE_LEVEL
-EL_N 27000 >= 1
-. ee_basic
-SAVE
-
-########################
-### mumu selections
-########################
-
-SUB mumu_basic
-MU_N 25000 >= 2
-TRIGMATCH
-#EMU_OVERLAP
-JETCLEAN LooseBad
-MET > 60000
-JET_N 25000 >= 1
-JET_N 25000 >= 2
-MU_N 25000 == 2
-EL_N 25000 == 0
-OS
-MLL > 15000
-MLLWIN 80000 100000
-#TRUTH_MATCH
-#JET_N_BTAG FixedCutBEff_77 >= 1
-EXAMPLEPLOTS
-#JET_N_BTAG FixedCutBEff_77 > 1
-NOBADMUON
-
-SELECTION mumu_2015
-. MU_2015
-. mumu_basic
-SAVE
-
-SELECTION mumu_2016
-. MU_2016
-. mumu_basic
-SAVE
-
-SELECTION mumu_particle
-PRIVTX
-PARTICLE_LEVEL
-MU_N 27000 >= 1
-. mumu_basic
 SAVE
