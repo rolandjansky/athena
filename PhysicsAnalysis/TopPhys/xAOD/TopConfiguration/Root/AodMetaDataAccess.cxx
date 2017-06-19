@@ -13,7 +13,6 @@
 #include <string>
 #include <unistd.h>
 #include <utility>
-#include <vector>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/iostreams/device/file_descriptor.hpp>

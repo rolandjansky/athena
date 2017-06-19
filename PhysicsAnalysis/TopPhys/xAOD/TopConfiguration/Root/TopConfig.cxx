@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TopConfig.cxx 803103 2017-04-18 17:30:51Z tpelzer $
+// $Id: TopConfig.cxx 806279 2017-06-08 15:46:45Z iconnell $
 #include "TopConfiguration/TopConfig.h"
 #include "TopConfiguration/AodMetaDataAccess.h"
 #include "TopConfiguration/ConfigurationSettings.h"
@@ -65,8 +65,6 @@ namespace top{
     m_isTruthDxAOD(false),
     // Derivation name
     m_derivationStream("SetMe"),
-    // Do loose events
-    m_doLooseEvents(false),
     // Do fakes MM weights calculation
     m_doFakesMMWeights(false),
     // Directory of efficiency files for MM fake estimate
@@ -78,8 +76,10 @@ namespace top{
     // do overlap removal also with large-R jets
     // (using whatever procedure is used in the official tools)
     m_doLargeJetOverlapRemoval(false),
-    // Only dumps the *_Loose trees - also on MC
-    m_doLooseTreeOnly(false),
+    // Dumps the normal non-"*_Loose" trees
+    m_doTightEvents(true),
+    // Runs Loose selection and dumps the "*_Loose" trees
+    m_doLooseEvents(false),
     // In the *_Loose trees, lepton SFs are calculated considering
     // tight ID and isolation instead of loose
     // Only tight leptons are considered in the event SF calculation
@@ -216,10 +216,14 @@ namespace top{
     // Selections
     m_allSelectionNames(nullptr),
     // Trigger
-    m_allTriggers(nullptr),
-    m_electronTriggers(nullptr),
-    m_muonTriggers(nullptr),
-    m_tauTriggers(nullptr),
+    m_allTriggers_Tight(nullptr),
+    m_electronTriggers_Tight(nullptr),
+    m_muonTriggers_Tight(nullptr),
+    m_tauTriggers_Tight(nullptr),
+    m_allTriggers_Loose(nullptr),
+    m_electronTriggers_Loose(nullptr),
+    m_muonTriggers_Loose(nullptr),
+    m_tauTriggers_Loose(nullptr),
 
     // Where the sum of event weights
     // before derivation framework is kept
@@ -445,6 +449,9 @@ namespace top{
     this->sgKeyTrackJets( settings->value("TrackJetCollectionName") );
     this->jetSubstructureName( settings->value("LargeJetSubstructure") );
     this->decoKeyJetGhostTrack( settings->value("JetGhostTrackDecoName") );
+    
+    // ROOTCORE/Analysis release series
+    this->setReleaseSeries();
 
     if(settings->value("applyTTVACut") == "False")
       this->m_applyTTVACut = false;
@@ -523,7 +530,6 @@ namespace top{
           }
       }
 
-
       // check if you are running over AFII samples
       // only check the configuration file if the AodMetaData is not instatiated
       if(m_aodMetaData->valid()){
@@ -542,25 +548,25 @@ namespace top{
       else{
 	this->ReadIsAFII(settings);
       }
-      // Special mode to run Loose events on MC for the purposes
-      // of determining the Fakes control regions
-      // Not for regular analysis users
-      // If you use this option, and are not part of the Fakes sub-group, you just joined!
-      // Please report your studies in the top-fakes meetings!
-      if (settings->value("FakesControlRegionDoLooseMC") == "True")
-	this->FakesControlRegionDetermination_setDoLooseEventsOnMC_notForRegularUsers();
     }
 
-    if (!this->isMC()) {
-      m_doLooseEvents = true;
-      if (settings->value("FakesMMWeights") == "True") {
-	this->setFakesMMWeightsCalculation();
-	std::string dir = settings->value("FakesMMDir");
-	if (dir != "")
-	  this->setFakesMMDir(dir);
-	if (settings->value("FakesMMDebug") == "True")
-	  this->setFakesMMDebug();
+    if (this->isMC()) {
+      m_doLooseEvents = (settings->value("DoLoose") == "MC" || settings->value("DoLoose") == "Both");
+      m_doTightEvents = (settings->value("DoTight") == "MC" || settings->value("DoTight") == "Both");
+    }
+    else {
+      m_doLooseEvents = (settings->value("DoLoose") == "Data" || settings->value("DoLoose") == "Both");
+      if (m_doLooseEvents) {
+        if (settings->value("FakesMMWeights") == "True") {
+          this->setFakesMMWeightsCalculation();
+          std::string dir = settings->value("FakesMMDir");
+          if (dir != "")
+            this->setFakesMMDir(dir);
+          if (settings->value("FakesMMDebug") == "True")
+            this->setFakesMMDebug();
+        }
       }
+      m_doTightEvents = (settings->value("DoTight") == "Data" || settings->value("DoTight") == "Both");
     }
 
     // Object Selection Name
@@ -686,21 +692,12 @@ namespace top{
         this->setLargeJetOverlapRemoval();// only usefull in case of MC
     }
 
-    // Only dumps the *_Loose trees - also on MC
-    // Usefull if you want your tight selection to be a subset of loose
-    if (settings->value("DoLooseTreeOnly") == "True") {
-      this->setLooseTreeOnly();
-      if (this->isMC())// in case of MC *_Loose trees have to be activated
-        this->FakesControlRegionDetermination_setDoLooseEventsOnMC_notForRegularUsers();
-    }
-
     // In the *_Loose trees, lepton SFs are calculated considering
     // tight ID and isolation instead of loose
     // Only tight leptons are considered in the event SF calculation
-    if (settings->value("ApplyTightSFsInLooseTree") == "True") {
-      if (this->isMC())
-        this->setApplyTightSFsInLooseTree();// only usefull in case of MC
-    }
+    // only usefull in case of MC
+    if (settings->value("ApplyTightSFsInLooseTree") == "True" && this->isMC())
+      this->setApplyTightSFsInLooseTree();
 
     // Apply Electron In Jet Subtraction - boosted analysis
     if (settings->value("ApplyElectronInJetSubtraction") == "True")
@@ -1601,12 +1598,12 @@ namespace top{
     // KLFitter from TTree names
 
     for (Itr2 i=m_systAllTTreeNames->begin();i!=m_systAllTTreeNames->end();++i) {
-      if (!m_doLooseTreeOnly)
+      if (m_doTightEvents)
         m_systSgKeyMapMissingET->insert( std::make_pair( (*i).first , m_sgKeyMissingEt + "_" + (*i).second ) );
       if (m_doLooseEvents)
         m_systSgKeyMapMissingETLoose->insert( std::make_pair( (*i).first , m_sgKeyMissingEt + "_Loose_" + (*i).second ) );
 
-      if (!m_doLooseTreeOnly)
+      if (m_doTightEvents)
         m_systSgKeyMapKLFitter->insert( std::make_pair( (*i).first , m_sgKeyKLFitter + "_" + (*i).second ) );
       if (m_doLooseEvents)
         m_systSgKeyMapKLFitterLoose->insert( std::make_pair( (*i).first , m_sgKeyKLFitter + "_Loose_" + (*i).second ) );
@@ -1618,7 +1615,7 @@ namespace top{
 
     // TTree index
     unsigned int TTreeIndex(0);
-    if (!m_doLooseTreeOnly) {
+    if (m_doTightEvents) {
       for (Itr2 i=m_systAllTTreeNames->begin();i!=m_systAllTTreeNames->end();++i) {
         m_systAllTTreeIndex->insert( std::make_pair( (*i).first , TTreeIndex ) );
         ++TTreeIndex;
@@ -2040,37 +2037,73 @@ namespace top{
     return index;
   }
 
-  const std::vector<std::string>& TopConfig::allTriggers(const std::string& selection) const
+  const std::vector<std::string>& TopConfig::allTriggers_Tight(const std::string& selection) const
   {
-    std::unordered_map<std::string,std::vector<std::string>>::const_iterator key = m_allTriggers->find( selection );
-    if (key != m_allTriggers->end()) {
+    std::unordered_map<std::string,std::vector<std::string>>::const_iterator key = m_allTriggers_Tight->find( selection );
+    if (key != m_allTriggers_Tight->end()) {
       return (*key).second;
     }
     return m_dummyTrigger;
   }
 
-  const std::vector<std::string>& TopConfig::electronTriggers(const std::string& selection) const
+  const std::vector<std::string>& TopConfig::electronTriggers_Tight(const std::string& selection) const
   {
-    std::unordered_map<std::string,std::vector<std::string>>::const_iterator key = m_electronTriggers->find( selection );
-    if (key != m_electronTriggers->end()) {
+    std::unordered_map<std::string,std::vector<std::string>>::const_iterator key = m_electronTriggers_Tight->find( selection );
+    if (key != m_electronTriggers_Tight->end()) {
       return (*key).second;
     }
     return m_dummyTrigger;
   }
 
-  const std::vector<std::string>& TopConfig::muonTriggers(const std::string& selection) const
+  const std::vector<std::string>& TopConfig::muonTriggers_Tight(const std::string& selection) const
   {
-    std::unordered_map<std::string,std::vector<std::string>>::const_iterator key = m_muonTriggers->find( selection );
-    if (key != m_muonTriggers->end()) {
+    std::unordered_map<std::string,std::vector<std::string>>::const_iterator key = m_muonTriggers_Tight->find( selection );
+    if (key != m_muonTriggers_Tight->end()) {
       return (*key).second;
     }
     return m_dummyTrigger;
   }
 
-  const std::vector<std::string>& TopConfig::tauTriggers(const std::string& selection) const
+  const std::vector<std::string>& TopConfig::tauTriggers_Tight(const std::string& selection) const
   {
-    std::unordered_map<std::string,std::vector<std::string>>::const_iterator key = m_tauTriggers->find( selection );
-    if (key != m_tauTriggers->end()) {
+    std::unordered_map<std::string,std::vector<std::string>>::const_iterator key = m_tauTriggers_Tight->find( selection );
+    if (key != m_tauTriggers_Tight->end()) {
+      return (*key).second;
+    }
+    return m_dummyTrigger;
+  }
+
+  const std::vector<std::string>& TopConfig::allTriggers_Loose(const std::string& selection) const
+  {
+    std::unordered_map<std::string,std::vector<std::string>>::const_iterator key = m_allTriggers_Loose->find( selection );
+    if (key != m_allTriggers_Loose->end()) {
+      return (*key).second;
+    }
+    return m_dummyTrigger;
+  }
+
+  const std::vector<std::string>& TopConfig::electronTriggers_Loose(const std::string& selection) const
+  {
+    std::unordered_map<std::string,std::vector<std::string>>::const_iterator key = m_electronTriggers_Loose->find( selection );
+    if (key != m_electronTriggers_Loose->end()) {
+      return (*key).second;
+    }
+    return m_dummyTrigger;
+  }
+
+  const std::vector<std::string>& TopConfig::muonTriggers_Loose(const std::string& selection) const
+  {
+    std::unordered_map<std::string,std::vector<std::string>>::const_iterator key = m_muonTriggers_Loose->find( selection );
+    if (key != m_muonTriggers_Loose->end()) {
+      return (*key).second;
+    }
+    return m_dummyTrigger;
+  }
+
+  const std::vector<std::string>& TopConfig::tauTriggers_Loose(const std::string& selection) const
+  {
+    std::unordered_map<std::string,std::vector<std::string>>::const_iterator key = m_tauTriggers_Loose->find( selection );
+    if (key != m_tauTriggers_Loose->end()) {
       return (*key).second;
     }
     return m_dummyTrigger;
@@ -2178,14 +2211,27 @@ namespace top{
     for (std::vector<std::string>::const_iterator i=m_allSelectionNames->begin();i!=m_allSelectionNames->end();++i)
         out->m_allSelectionNames.push_back( *i );
 
-    for (auto i : *m_allTriggers) {
-      out->m_allTriggers.insert(i);
+    for (auto i : *m_allTriggers_Tight) {
+      out->m_allTriggers_Tight.insert(i);
     }
-    for (auto i : *m_electronTriggers) {
-      out->m_electronTriggers.insert(i);
+    for (auto i : *m_electronTriggers_Tight) {
+      out->m_electronTriggers_Tight.insert(i);
     }
-    for (auto i : *m_muonTriggers) {
-      out->m_muonTriggers.insert(i);
+    for (auto i : *m_muonTriggers_Tight) {
+      out->m_tauTriggers_Tight.insert(i);
+    }
+
+    for (auto i : *m_allTriggers_Loose) {
+      out->m_allTriggers_Loose.insert(i);
+    }
+    for (auto i : *m_electronTriggers_Loose) {
+      out->m_electronTriggers_Loose.insert(i);
+    }
+    for (auto i : *m_muonTriggers_Loose) {
+      out->m_muonTriggers_Loose.insert(i);
+    }
+    for (auto i : *m_tauTriggers_Loose) {
+      out->m_tauTriggers_Loose.insert(i);
     }
 
     return out;
@@ -2293,18 +2339,40 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
     for (std::vector<std::string>::const_iterator i=settings->m_allSelectionNames.begin();i!=settings->m_allSelectionNames.end();++i)
         m_allSelectionNames->push_back( *i );
 
-    m_allTriggers = std::make_shared<std::unordered_map<std::string, std::vector<std::string> >>();
-    m_electronTriggers = std::make_shared<std::unordered_map<std::string, std::vector<std::string> >>();
-    m_muonTriggers = std::make_shared<std::unordered_map<std::string, std::vector<std::string> >>();
-    
-    for (auto i : settings->m_allTriggers) {
-      m_allTriggers->insert(i);
+    m_allTriggers_Tight = std::make_shared<std::unordered_map<std::string, std::vector<std::string> >>();
+    m_electronTriggers_Tight = std::make_shared<std::unordered_map<std::string, std::vector<std::string> >>();
+    m_muonTriggers_Tight = std::make_shared<std::unordered_map<std::string, std::vector<std::string> >>();
+    m_tauTriggers_Tight = std::make_shared<std::unordered_map<std::string, std::vector<std::string> >>();
+
+    m_allTriggers_Loose = std::make_shared<std::unordered_map<std::string, std::vector<std::string> >>();
+    m_electronTriggers_Loose = std::make_shared<std::unordered_map<std::string, std::vector<std::string> >>();
+    m_muonTriggers_Loose = std::make_shared<std::unordered_map<std::string, std::vector<std::string> >>();
+    m_tauTriggers_Loose = std::make_shared<std::unordered_map<std::string, std::vector<std::string> >>();
+
+    for (auto i : settings->m_allTriggers_Tight) {
+      m_allTriggers_Tight->insert(i);
     }
-    for (auto i : settings->m_electronTriggers) {
-      m_electronTriggers->insert(i);
+    for (auto i : settings->m_electronTriggers_Tight) {
+      m_electronTriggers_Tight->insert(i);
     }
-    for (auto i : settings->m_muonTriggers) {
-      m_muonTriggers->insert(i);
+    for (auto i : settings->m_muonTriggers_Tight) {
+      m_muonTriggers_Tight->insert(i);
+    }
+    for (auto i : settings->m_tauTriggers_Tight) {
+      m_tauTriggers_Tight->insert(i);
+    }
+
+    for (auto i : settings->m_allTriggers_Loose) {
+      m_allTriggers_Loose->insert(i);
+    }
+    for (auto i : settings->m_electronTriggers_Loose) {
+      m_electronTriggers_Loose->insert(i);
+    }
+    for (auto i : settings->m_muonTriggers_Loose) {
+      m_muonTriggers_Loose->insert(i);
+    }
+    for (auto i : settings->m_tauTriggers_Loose) {
+      m_tauTriggers_Loose->insert(i);
     }
 
     fixConfiguration();
@@ -2327,6 +2395,31 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
       throw std::runtime_error("TopConfig: option IsAFII not set");
   }
 
+  // Function to set the release series (this method may change so refactor)
+  void TopConfig::setReleaseSeries(){
+    // Method taken from TopCPTools
+    std::string release_series = "";
+    const char* rel_temp = std::getenv("ROOTCORE_RELEASE_SERIES");
+    if (rel_temp) {
+      release_series = std::string(rel_temp);
+    } else {
+      release_series = "";
+    }
+
+    if (release_series == "23") {
+      m_release_series = 23; // 2.3
+    } else if (release_series == "24") {
+      m_release_series = 24; // 2.4 R20.7
+    } else if (release_series == "25" ){
+      m_release_series = 25; // 2.6 R21
+    }
+    else{
+      // Default to R21 because this build has moved away from ROOTCORE
+      m_release_series = 25;
+    }
+    return;
+  }
+
 }
 
 std::ostream& operator<<(std::ostream& os, const top::TopConfig& config)
@@ -2341,6 +2434,7 @@ std::ostream& operator<<(std::ostream& os, const top::TopConfig& config)
   }
 
   os << "\n";
+  os << "top::TopConfig has identified the following analysis release series : " << config.getReleaseSeries() << "\n";
   os << "top::TopConfig will evaluate the following systematics (saved as TTrees in your ntuple) \n";
   os << "A blank systematic means \"Nominal\" in xAOD. All Nominal calibrations go into the Nominal TTree. \n";
   os << "\n";

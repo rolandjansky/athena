@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TopConfig.h 803103 2017-04-18 17:30:51Z tpelzer $
+// $Id: TopConfig.h 806047 2017-06-07 00:30:47Z tpelzer $
 #ifndef ANALYSISTOP_TOPCONFIGURATION_TOPCONFIG_H
 #define ANALYSISTOP_TOPCONFIGURATION_TOPCONFIG_H
 
@@ -12,8 +12,8 @@
  * @brief TopConfig
  *   A simple configuration that is NOT a singleton
  *
- * $Revision: 803103 $
- * $Date: 2017-04-18 19:30:51 +0200 (Tue, 18 Apr 2017) $
+ * $Revision: 806047 $
+ * $Date: 2017-06-07 01:30:47 +0100 (Wed, 07 Jun 2017) $
  *
  *
  **/
@@ -142,9 +142,11 @@ class TopConfig final {
   inline unsigned int getMapIndex() const {return m_MapIndex;}
   inline void setMapIndex(unsigned int value) {m_MapIndex = value;}
 
-  // Do Loose analysis for fakes
-  // For analysis this should only be run on data, not for MC
-  // By default you will get a Loose TTree for data and not for MC
+  // Run normal (Tight) selection and dumps the non-Loose trees
+  // Default is true for both Data and MC
+  inline bool doTightEvents() const {return m_doTightEvents;}
+  // Run Loose selection and dumps the Loose trees
+  // Default is true for Data and false for MC
   inline bool doLooseEvents() const {return m_doLooseEvents;}
 
   // Do fakes MM weight calculation
@@ -155,18 +157,6 @@ class TopConfig final {
 
   // DDebug mode for MM fake estimate
   inline bool FakesMMDebug() const {return m_doFakesMMDebug;}
-
-  // Special mode to run Loose events on MC for the purposes
-  // of determining the Fakes control regions
-  // This is not for regular users, it is for the Fakes sub-group
-  // or for determining your own control regions
-  //
-  // If you are determining your own control regions, you have just joined
-  // the fakes sub-group, please report your finding in the Fakes meetings
-  //
-  // The function name is long and convoluted on purpose, I hope you don't call it by mistake
-  inline void FakesControlRegionDetermination_setDoLooseEventsOnMC_notForRegularUsers()
-  {if(!m_configFixed){m_doLooseEvents = true;}}
 
   // enables calculation of MM weights
   // only possible for data loose
@@ -193,12 +183,6 @@ class TopConfig final {
   inline void setLargeJetOverlapRemoval()
   {if(!m_configFixed){m_doLargeJetOverlapRemoval = true;}}
   inline bool doLargeJetOverlapRemoval() const {return m_doLargeJetOverlapRemoval;}
-
-  // Only dumps the *_Loose trees - also on MC
-  // Usefull if you want your tight selection to be a subset of loose
-  inline void setLooseTreeOnly()
-  {if(!m_configFixed){m_doLooseTreeOnly = true;}}
-  inline bool doLooseTreeOnly() const {return m_doLooseTreeOnly;}
   
   // In the *_Loose trees, lepton SFs are calculated considering
   // tight ID and isolation instead of loose
@@ -277,23 +261,40 @@ class TopConfig final {
   inline void setPseudoTop(){if(!m_configFixed){m_doPseudoTop = true;}}
 
   // Triggers
-  inline virtual void allTriggers(std::shared_ptr<std::unordered_map<std::string,std::vector<std::string>>> triggers)
-  {if(!m_configFixed){m_allTriggers = triggers;}}
+  inline virtual void allTriggers_Tight(std::shared_ptr<std::unordered_map<std::string,std::vector<std::string>>> triggers)
+  {if(!m_configFixed){m_allTriggers_Tight = triggers;}}
 
-  inline virtual void electronTriggers(std::shared_ptr<std::unordered_map<std::string,std::vector<std::string>>> triggers)
-  {if(!m_configFixed){m_electronTriggers = triggers;}}
+  inline virtual void electronTriggers_Tight(std::shared_ptr<std::unordered_map<std::string,std::vector<std::string>>> triggers)
+  {if(!m_configFixed){m_electronTriggers_Tight = triggers;}}
 
-  inline virtual void muonTriggers(std::shared_ptr<std::unordered_map<std::string,std::vector<std::string>>> triggers)
-  {if(!m_configFixed){m_muonTriggers = triggers;}}
+  inline virtual void muonTriggers_Tight(std::shared_ptr<std::unordered_map<std::string,std::vector<std::string>>> triggers)
+  {if(!m_configFixed){m_muonTriggers_Tight = triggers;}}
 
-  inline virtual void tauTriggers(std::shared_ptr<std::unordered_map<std::string,std::vector<std::string>>> triggers)
-  {if(!m_configFixed){m_tauTriggers = triggers;}}
+  inline virtual void tauTriggers_Tight(std::shared_ptr<std::unordered_map<std::string,std::vector<std::string>>> triggers)
+  {if(!m_configFixed){m_tauTriggers_Tight = triggers;}}
+
+  inline virtual void allTriggers_Loose(std::shared_ptr<std::unordered_map<std::string,std::vector<std::string>>> triggers)
+  {if(!m_configFixed){m_allTriggers_Loose = triggers;}}
+
+  inline virtual void electronTriggers_Loose(std::shared_ptr<std::unordered_map<std::string,std::vector<std::string>>> triggers)
+  {if(!m_configFixed){m_electronTriggers_Loose = triggers;}}
+
+  inline virtual void muonTriggers_Loose(std::shared_ptr<std::unordered_map<std::string,std::vector<std::string>>> triggers)
+  {if(!m_configFixed){m_muonTriggers_Loose = triggers;}}
+
+  inline virtual void tauTriggers_Loose(std::shared_ptr<std::unordered_map<std::string,std::vector<std::string>>> triggers)
+  {if(!m_configFixed){m_tauTriggers_Loose = triggers;}}
 
   inline std::shared_ptr<std::vector<std::string>> allSelectionNames() const {return m_allSelectionNames;}
-  virtual const std::vector<std::string>& allTriggers(const std::string& selection) const;
-  virtual const std::vector<std::string>& electronTriggers(const std::string& selection) const;
-  virtual const std::vector<std::string>& muonTriggers(const std::string& selection) const;
-  virtual const std::vector<std::string>& tauTriggers(const std::string& selection) const;
+  virtual const std::vector<std::string>& allTriggers_Tight(const std::string& selection) const;
+  virtual const std::vector<std::string>& electronTriggers_Tight(const std::string& selection) const;
+  virtual const std::vector<std::string>& muonTriggers_Tight(const std::string& selection) const;
+  virtual const std::vector<std::string>& tauTriggers_Tight(const std::string& selection) const;
+
+  virtual const std::vector<std::string>& allTriggers_Loose(const std::string& selection) const;
+  virtual const std::vector<std::string>& electronTriggers_Loose(const std::string& selection) const;
+  virtual const std::vector<std::string>& muonTriggers_Loose(const std::string& selection) const;
+  virtual const std::vector<std::string>& tauTriggers_Loose(const std::string& selection) const;
 
   // StoreGate Keys
   virtual void sgKeyMCParticle      ( const std::string& s );
@@ -825,6 +826,10 @@ class TopConfig final {
   AodMetaDataAccess & aodMetaData();
   AodMetaDataAccess const & aodMetaData() const { return *m_aodMetaData; }
 
+  // Function to handle release series such that it can be cleaner to update in the future
+  void setReleaseSeries();
+  inline int getReleaseSeries() const { return m_release_series; }
+
  private:
   // Prevent any more configuration
   bool m_configFixed;
@@ -886,9 +891,6 @@ class TopConfig final {
   bool m_isTruthDxAOD = false;
   std::string m_derivationStream;
 
-  // Do loose events? - default for data, MC is special case
-  bool m_doLooseEvents;
-
   // Do fakes MM weights calculation? - only for data loose
   bool m_doFakesMMWeights;
   // Directory of efficiency files for MM fake estimate
@@ -913,9 +915,10 @@ class TopConfig final {
   // (using whatever procedure is used in the official tools)
   bool m_doLargeJetOverlapRemoval;
 
-  // Only dumps the *_Loose trees - also on MC
-  // Usefull if you want your tight selection to be a subset of loose
-  bool m_doLooseTreeOnly;
+  // Dumps the normal, non-"*_Loose" trees (on demand)
+  bool m_doTightEvents;
+  // Dumps the "*_Loose trees (on demand)
+  bool m_doLooseEvents;
 
   // In the *_Loose trees, lepton SFs are calculated considering
   // tight ID and isolation instead of loose
@@ -1230,10 +1233,14 @@ class TopConfig final {
   std::shared_ptr<std::vector<std::string>> m_allSelectionNames;
   // Trigger configuration
   // First string is the selection name, second string is the trigger
-  std::shared_ptr<std::unordered_map<std::string,std::vector<std::string>>> m_allTriggers;
-  std::shared_ptr<std::unordered_map<std::string,std::vector<std::string>>> m_electronTriggers;
-  std::shared_ptr<std::unordered_map<std::string,std::vector<std::string>>> m_muonTriggers;
-  std::shared_ptr<std::unordered_map<std::string,std::vector<std::string>>> m_tauTriggers;
+  std::shared_ptr<std::unordered_map<std::string,std::vector<std::string>>> m_allTriggers_Tight;
+  std::shared_ptr<std::unordered_map<std::string,std::vector<std::string>>> m_electronTriggers_Tight;
+  std::shared_ptr<std::unordered_map<std::string,std::vector<std::string>>> m_muonTriggers_Tight;
+  std::shared_ptr<std::unordered_map<std::string,std::vector<std::string>>> m_tauTriggers_Tight;
+  std::shared_ptr<std::unordered_map<std::string,std::vector<std::string>>> m_allTriggers_Loose;
+  std::shared_ptr<std::unordered_map<std::string,std::vector<std::string>>> m_electronTriggers_Loose;
+  std::shared_ptr<std::unordered_map<std::string,std::vector<std::string>>> m_muonTriggers_Loose;
+  std::shared_ptr<std::unordered_map<std::string,std::vector<std::string>>> m_tauTriggers_Loose;
   std::vector<std::string> m_dummyTrigger;
 
   // Where the sum of event weights
@@ -1360,6 +1367,8 @@ class TopConfig final {
   // Private function only to simplify the setting of AFII values
   void ReadIsAFII(top::ConfigurationSettings* const& settings);
 
+  // Int holding the release series value
+  int m_release_series;
 
 };
 }  // namespace top

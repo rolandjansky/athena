@@ -60,10 +60,14 @@ namespace top{
     m_list_systHashAll(),
     m_list_systHash_electronInJetSubtraction(),
 
-    m_allSelectionNames(),
-    m_allTriggers(),
-    m_electronTriggers(),
-    m_muonTriggers(),
-    m_tauTriggers()
+    m_allTriggers_Tight(),
+    m_electronTriggers_Tight(),
+    m_muonTriggers_Tight(),
+    m_tauTriggers_Tight(),
+
+    m_allTriggers_Loose(),
+    m_electronTriggers_Loose(),
+    m_muonTriggers_Loose(),
+    m_tauTriggers_Loose()
   {}
 }
