@@ -96,7 +96,7 @@ MdtVsTgcRawDataValAlg::numberOfSL(const Muon::TgcCoinDataContainer* tgctrgcontai
        ++it){
   
 
-    if (m_debuglevel) m_log<<MSG::DEBUG<< "size of tgc collection is " << (*it) -> size() << endmsg;
+    ATH_MSG_DEBUG( "size of tgc collection is " << (*it) -> size()  );
 
     //loop over TGC RoI collection
     Muon::TgcCoinDataCollection::const_iterator itc_end=(*it)->end();
@@ -107,7 +107,7 @@ MdtVsTgcRawDataValAlg::numberOfSL(const Muon::TgcCoinDataContainer* tgctrgcontai
       const Muon::TgcCoinData* tcd=*itc;
 
       if( tcd->type() != Muon::TgcCoinData::TYPE_SL )continue;
-      m_log<<MSG::DEBUG<<"pt"<<tcd->pt()<<endmsg;
+      ATH_MSG_DEBUG("pt"<<tcd->pt() );
       nSL++;
     }
   }

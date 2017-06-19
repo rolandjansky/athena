@@ -95,13 +95,8 @@ public:
 
   MuonDQAHistMap m_stationHists;
 
-  StoreGateSvc* m_eventStore;
-  
   ActiveStoreSvc* m_activeStore;
 
-  mutable MsgStream      m_log;                  //!< Gaudi message stream - msgstream as private member (-> speed)
-  bool                   m_debuglevel;           //!< private member to control debug messages  
- 
   const MuonGM::MuonDetectorManager* m_muonMgr;
 
   const MdtIdHelper* m_mdtIdHelper;

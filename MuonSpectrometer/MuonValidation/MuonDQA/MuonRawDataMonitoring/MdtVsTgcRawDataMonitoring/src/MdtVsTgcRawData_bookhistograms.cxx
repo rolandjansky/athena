@@ -26,7 +26,6 @@
 StatusCode
 MdtVsTgcRawDataValAlg::bookmaphists(MonGroup &mdtvstgclv1_expert_a,
                                     MonGroup &mdtvstgclv1_expert_c){
-  StatusCode sc = StatusCode::SUCCESS; 
   
   std::stringstream sst;
   std::string AC[2]=          {"A","C"};
@@ -44,17 +43,14 @@ MdtVsTgcRawDataValAlg::bookmaphists(MonGroup &mdtvstgclv1_expert_a,
   for(int i=0;i<2;i++){// AC
     // nEvents passing cut criteria
     sst<<"EffCheck_CutsPassed_"<<AC[i];
-    m_log<<MSG::DEBUG<<"EffCheck_CutsPassed "<<i<<" "<<sst.str().c_str()<<std::endl;
+    ATH_MSG_DEBUG("EffCheck_CutsPassed "<<i<<" "<<sst.str().c_str() );
     m_mvt_cutspassed[i] =new TH1I(sst.str().c_str(), sst.str().c_str(), 14, 1, 15);
     if(i==0){
-      sc=mdtvstgclv1_expert_a.regHist(m_mvt_cutspassed[i]);
+      ATH_CHECK( mdtvstgclv1_expert_a.regHist(m_mvt_cutspassed[i]) );
     }else{
-      sc=mdtvstgclv1_expert_c.regHist(m_mvt_cutspassed[i]);
+      ATH_CHECK( mdtvstgclv1_expert_c.regHist(m_mvt_cutspassed[i]) );
     }
-    if(sc.isFailure()){
-      m_log << MSG::FATAL << "m_mvt_cutspassed["<<i<<"] Failed to register histogram " << endmsg;
-      return sc;
-    }
+
     m_mvt_cutspassed[i]->GetYaxis()->SetTitle("nEvents");
     m_mvt_cutspassed[i]->GetXaxis()->SetBinLabel(1, "Events");
     m_mvt_cutspassed[i]->GetXaxis()->SetBinLabel(2, "matchedSegm=0");
@@ -84,29 +80,25 @@ MdtVsTgcRawDataValAlg::bookmaphists(MonGroup &mdtvstgclv1_expert_a,
       // MDT Segm Eta vs Phi
       sst<<"MDT_SegmMap_MDT"<<jMDT+1;
       sst<<"_"<<AC[i];
-      m_log<<MSG::DEBUG<<"MDT_SegmMap "<<i<<" "<<jMDT<<" "<<sst.str().c_str()<<std::endl;
+      ATH_MSG_DEBUG("MDT_SegmMap "<<i<<" "<<jMDT<<" "<<sst.str().c_str() );
       m_mdt_segmmap[i][jMDT] =new TH2F(sst.str().c_str(),sst.str().c_str(), nbins3D_1[2], fGlobalCoords3Dlo[2], fGlobalCoords3Dup[2], nbins3D_1[1], fGlobalCoords3Dlo[1], fGlobalCoords3Dup[1]);
       if(i==0){
-        sc=mdtvstgclv1_expert_a.regHist(m_mdt_segmmap[i][jMDT]);
+        ATH_CHECK( mdtvstgclv1_expert_a.regHist(m_mdt_segmmap[i][jMDT]) );
       }else{
-        sc=mdtvstgclv1_expert_c.regHist(m_mdt_segmmap[i][jMDT]);
+        ATH_CHECK( mdtvstgclv1_expert_c.regHist(m_mdt_segmmap[i][jMDT]) );
       }
-      if(sc.isFailure()){
-        m_log << MSG::FATAL << "m_mdt_segmmap["<<i<<"]["<<jMDT<<"] Failed to register histogram " << endmsg;
-        return sc;
-      }
+
       m_mdt_segmmap[i][jMDT]->GetXaxis()->SetTitle("MDT Phi");
       m_mdt_segmmap[i][jMDT]->GetYaxis()->SetTitle("MDT Eta");
       sst.str("");
     }// MDT Station
   }// AC
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode
 MdtVsTgcRawDataValAlg::bookeffhists(MonGroup &mdtvstgclv1_expert_a,
                                     MonGroup &mdtvstgclv1_expert_c){
-  StatusCode sc = StatusCode::SUCCESS; 
   
   std::stringstream sst;
   std::string AC[2]=          {"A","C"};
@@ -134,17 +126,14 @@ MdtVsTgcRawDataValAlg::bookeffhists(MonGroup &mdtvstgclv1_expert_a,
         sst<<"_EfficiencyAgainstMDT";
         sst<<"_MapSegmTrack"<<EffNumDenom[e];
         sst<<"_"<<AC[i];
-        m_log<<MSG::DEBUG<<"Eff_StationMapBase "<<i<<" "<<k<<" "<<e<<sst.str().c_str()<<std::endl;
+        ATH_MSG_DEBUG("Eff_StationMapBase "<<i<<" "<<k<<" "<<e<<sst.str().c_str() );
         m_eff_stationmapbase[i][k][e]=new TH2F( sst.str().c_str(), sst.str().c_str(),43, 0, 43, 48, 0, 48 );
         if(i==0){
-          sc=mdtvstgclv1_expert_a.regHist(m_eff_stationmapbase[i][k][e]);
+          ATH_CHECK( mdtvstgclv1_expert_a.regHist(m_eff_stationmapbase[i][k][e]) );
         }else{
-          sc=mdtvstgclv1_expert_c.regHist(m_eff_stationmapbase[i][k][e]);
+          ATH_CHECK( mdtvstgclv1_expert_c.regHist(m_eff_stationmapbase[i][k][e]) );
         }
-        if(sc.isFailure()){
-          m_log << MSG::FATAL << "m_eff_stationmapbase["<<i<<"]["<<k<<"]["<<e<<"] Failed to register histogram " << endmsg;
-          return sc;
-        }
+
         labelStationMap(m_eff_stationmapbase[i][k][e], i,k);
         sst.str("");
         
@@ -153,17 +142,14 @@ MdtVsTgcRawDataValAlg::bookeffhists(MonGroup &mdtvstgclv1_expert_a,
         sst<<"_EfficiencyAgainstMDT";
         sst<<"_MapMidOnly"<<EffNumDenom[e];
         sst<<"_"<<AC[i];
-        m_log<<MSG::DEBUG<<"Eff_StationMapMid "<<i<<" "<<k<<" "<<e<<sst.str().c_str()<<std::endl;
+        ATH_MSG_DEBUG("Eff_StationMapMid "<<i<<" "<<k<<" "<<e<<sst.str().c_str() );
         m_eff_stationmapmid[i][k][e]=new TH2F( sst.str().c_str(), sst.str().c_str(),43, 0, 43, 48, 0, 48 );
         if(i==0){
-          sc=mdtvstgclv1_expert_a.regHist(m_eff_stationmapmid[i][k][e]);
+          ATH_CHECK( mdtvstgclv1_expert_a.regHist(m_eff_stationmapmid[i][k][e]) );
         }else{
-          sc=mdtvstgclv1_expert_c.regHist(m_eff_stationmapmid[i][k][e]);
+          ATH_CHECK( mdtvstgclv1_expert_c.regHist(m_eff_stationmapmid[i][k][e]) );
         }
-        if(sc.isFailure()){
-          m_log << MSG::FATAL << "m_eff_stationmapmid["<<i<<"]["<<k<<"]["<<e<<"] Failed to register histogram " << endmsg;
-          return sc;
-        }
+
         labelStationMap(m_eff_stationmapmid[i][k][e], i,k);
         sst.str("");
         
@@ -172,17 +158,14 @@ MdtVsTgcRawDataValAlg::bookeffhists(MonGroup &mdtvstgclv1_expert_a,
         sst<<"_EfficiencyAgainstMDT";
         sst<<"_Map"<<EffNumDenom[e];
         sst<<"_"<<AC[i];
-        m_log<<MSG::DEBUG<<"Eff_StationMap "<<i<<" "<<k<<" "<<e<<sst.str().c_str()<<std::endl;
+        ATH_MSG_DEBUG("Eff_StationMap "<<i<<" "<<k<<" "<<e<<sst.str().c_str() );
         m_eff_stationmap[i][k][e]=new TH2F( sst.str().c_str(), sst.str().c_str(),43, 0, 43, 48, 0, 48 );
         if(i==0){
-          sc=mdtvstgclv1_expert_a.regHist(m_eff_stationmap[i][k][e]);
+          ATH_CHECK( mdtvstgclv1_expert_a.regHist(m_eff_stationmap[i][k][e]) );
         }else{
-          sc=mdtvstgclv1_expert_c.regHist(m_eff_stationmap[i][k][e]);
+          ATH_CHECK( mdtvstgclv1_expert_c.regHist(m_eff_stationmap[i][k][e]) );
         }
-        if(sc.isFailure()){
-          m_log << MSG::FATAL << "m_eff_stationmap["<<i<<"]["<<k<<"]["<<e<<"] Failed to register histogram " << endmsg;
-          return sc;
-        }
+
         labelStationMap(m_eff_stationmap[i][k][e], i,k);
         sst.str("");
       }// EffNumDenom
@@ -208,17 +191,14 @@ MdtVsTgcRawDataValAlg::bookeffhists(MonGroup &mdtvstgclv1_expert_a,
               sst<<FE[f];
               sst<<WireStrip[k];
               sst<<"_"<<AC[i];
-              m_log<<MSG::DEBUG<<"TGC_Sagitta "<<i<<" "<<jTGC<<" "<<f<<" "<<k<<" "<<x<<" "<<sst.str().c_str()<<std::endl;
+              ATH_MSG_DEBUG("TGC_Sagitta "<<i<<" "<<jTGC<<" "<<f<<" "<<k<<" "<<x<<" "<<sst.str().c_str() );
               m_mvt_extrprdsag[i][jTGC][f][k][x] =new TH1F(sst.str().c_str(), sst.str().c_str(), nbins3D_1[x],fGlobalCoords3Dlo[x],fGlobalCoords3Dup[x]);
               if(i==0){
-                sc=mdtvstgclv1_expert_a.regHist(m_mvt_extrprdsag[i][jTGC][f][k][x]);
+                ATH_CHECK( mdtvstgclv1_expert_a.regHist(m_mvt_extrprdsag[i][jTGC][f][k][x]) );
               }else{
-                sc=mdtvstgclv1_expert_c.regHist(m_mvt_extrprdsag[i][jTGC][f][k][x]);
+                ATH_CHECK( mdtvstgclv1_expert_c.regHist(m_mvt_extrprdsag[i][jTGC][f][k][x]) );
               }
-              if(sc.isFailure()){
-                m_log << MSG::FATAL << "m_mvt_extrprdsag["<<i<<"]["<<jTGC<<"]["<<f<<"]["<<k<<"]["<<x<<"] Failed to register histogram " << endmsg;
-                return sc;
-              }
+
               m_mvt_extrprdsag[i][jTGC][f][k][x]->GetXaxis()->SetTitle(RhoEtaPhiZ[x].c_str());
               sst.str("");
             
@@ -228,17 +208,14 @@ MdtVsTgcRawDataValAlg::bookeffhists(MonGroup &mdtvstgclv1_expert_a,
               sst<<FE[f];
               sst<<WireStrip[k];
               sst<<"_"<<AC[i];
-              m_log<<MSG::DEBUG<<"TGC_Sagitta "<<i<<" "<<jTGC<<" "<<f<<" "<<k<<" "<<x<<" "<<sst.str().c_str()<<std::endl;
+              ATH_MSG_DEBUG("TGC_Sagitta "<<i<<" "<<jTGC<<" "<<f<<" "<<k<<" "<<x<<" "<<sst.str().c_str() );
               m_mvt_extrprdsag2[i][jTGC][f][k][x] =new TH1F(sst.str().c_str(), sst.str().c_str(), nbins3D_1[x],fGlobalCoords3Dlo[x],fGlobalCoords3Dup[x]);
               if(i==0){
-                sc=mdtvstgclv1_expert_a.regHist(m_mvt_extrprdsag2[i][jTGC][f][k][x]);
+                ATH_CHECK( mdtvstgclv1_expert_a.regHist(m_mvt_extrprdsag2[i][jTGC][f][k][x]) );
               }else{
-                sc=mdtvstgclv1_expert_c.regHist(m_mvt_extrprdsag2[i][jTGC][f][k][x]);
+                ATH_CHECK( mdtvstgclv1_expert_c.regHist(m_mvt_extrprdsag2[i][jTGC][f][k][x]) );
               }
-              if(sc.isFailure()){
-                m_log << MSG::FATAL << "m_mvt_extrprdsag2["<<i<<"]["<<jTGC<<"]["<<f<<"]["<<k<<"]["<<x<<"] Failed to register histogram " << endmsg;
-                return sc;
-              }
+
               m_mvt_extrprdsag2[i][jTGC][f][k][x]->GetXaxis()->SetTitle(RhoEtaPhiZ[x].c_str());
               sst.str("");
             }
@@ -267,17 +244,14 @@ MdtVsTgcRawDataValAlg::bookeffhists(MonGroup &mdtvstgclv1_expert_a,
           sst<<"TGC_MidStationPRD_"<<RhoEtaPhiZ[x];
           sst<<"Sagitta_"<<WireStrip[k];
           sst<<"_"<<AC[i];
-          m_log<<MSG::DEBUG<<"TGC_PRDonly_Sagitta "<<i<<" "<<" "<<k<<" "<<x<<" "<<sst.str().c_str()<<std::endl;
+          ATH_MSG_DEBUG("TGC_PRDonly_Sagitta "<<i<<" "<<" "<<k<<" "<<x<<" "<<sst.str().c_str() );
           m_tgc_prdcompsag[i][k][x] =new TH1F(sst.str().c_str(), sst.str().c_str(), nbins3D_1[x],fGlobalCoords3Dlo[x],fGlobalCoords3Dup[x]);
           if(i==0){
-            sc=mdtvstgclv1_expert_a.regHist(m_tgc_prdcompsag[i][k][x]);
+            ATH_CHECK( mdtvstgclv1_expert_a.regHist(m_tgc_prdcompsag[i][k][x]) );
           }else{
-            sc=mdtvstgclv1_expert_c.regHist(m_tgc_prdcompsag[i][k][x]);
+            ATH_CHECK( mdtvstgclv1_expert_c.regHist(m_tgc_prdcompsag[i][k][x]) );
           }
-          if(sc.isFailure()){
-            m_log << MSG::FATAL << "m_tgc_prdcompsag["<<i<<"]["<<k<<"]["<<x<<"] Failed to register histogram " << endmsg;
-            return sc;
-          }
+
           m_tgc_prdcompsag[i][k][x]->GetXaxis()->SetTitle(RhoEtaPhiZ[x].c_str());
           sst.str("");
         }
@@ -311,17 +285,14 @@ MdtVsTgcRawDataValAlg::bookeffhists(MonGroup &mdtvstgclv1_expert_a,
             sst<<"Sagitta_MDT"<<jMDT1+1;
             sst<<"vsMDT"<<jMDT2+1;
             sst<<"_"<<AC[i];
-            m_log<<MSG::DEBUG<<"MDT_MatchingSagitta "<<i<<" "<<jMDT1<<" "<<jMDT2<<" "<<x<<" "<<sst.str().c_str()<<std::endl;
+            ATH_MSG_DEBUG("MDT_MatchingSagitta "<<i<<" "<<jMDT1<<" "<<jMDT2<<" "<<x<<" "<<sst.str().c_str() );
             m_mdt_segmmatchsag[i][jMDT1][jMDT2][x] =new TH1F(sst.str().c_str(),sst.str().c_str(),  nbins3D_1[x], fGlobalCoords3Dlo[x], fGlobalCoords3Dup[x]);
             if(i==0){
-              sc=mdtvstgclv1_expert_a.regHist(m_mdt_segmmatchsag[i][jMDT1][jMDT2][x]);
+              ATH_CHECK( mdtvstgclv1_expert_a.regHist(m_mdt_segmmatchsag[i][jMDT1][jMDT2][x]) );
             }else{
-              sc=mdtvstgclv1_expert_c.regHist(m_mdt_segmmatchsag[i][jMDT1][jMDT2][x]);
+              ATH_CHECK( mdtvstgclv1_expert_c.regHist(m_mdt_segmmatchsag[i][jMDT1][jMDT2][x]) );
             }
-            if(sc.isFailure()){
-              m_log << MSG::FATAL << "m_mdt_segmmatchsag["<<i<<"]["<<jMDT1<<"]["<<jMDT2<<"]["<<x<<"] Failed to register histogram " << endmsg;
-              return sc;
-            }
+
             m_mdt_segmmatchsag[i][jMDT1][jMDT2][x]->GetXaxis()->SetTitle(RhoEtaPhiThe[x].c_str());
             sst.str("");
           }
@@ -360,16 +331,12 @@ MdtVsTgcRawDataValAlg::bookeffhists(MonGroup &mdtvstgclv1_expert_a,
           sst<<"MDT_PosDir_"<<RhoEtaPhiThe[x];
           sst<<"Sagitta_MDT"<<jMDT1+1;
           sst<<"_"<<AC[i];
-          m_log<<MSG::DEBUG<<"MDT_PosDirSagitta "<<i<<" "<<jMDT1<<" "<<x<<" "<<sst.str().c_str()<<std::endl;
+          ATH_MSG_DEBUG("MDT_PosDirSagitta "<<i<<" "<<jMDT1<<" "<<x<<" "<<sst.str().c_str() );
           m_mdt_segmposdirsag[i][jMDT1][x] =new TH1F(sst.str().c_str(),sst.str().c_str(), nbins3D_1[x], fGlobalCoords3Dlo[x], fGlobalCoords3Dup[x]);
           if(i==0){
-            sc=mdtvstgclv1_expert_a.regHist(m_mdt_segmposdirsag[i][jMDT1][x]);
+            ATH_CHECK( mdtvstgclv1_expert_a.regHist(m_mdt_segmposdirsag[i][jMDT1][x]) );
           }else{
-            sc=mdtvstgclv1_expert_c.regHist(m_mdt_segmposdirsag[i][jMDT1][x]);
-          }
-          if(sc.isFailure()){
-            m_log << MSG::FATAL << "m_mdt_segmposdirsag["<<i<<"]["<<jMDT1<<"]["<<x<<"] Failed to register histogram " << endmsg;
-            return sc;
+            ATH_CHECK( mdtvstgclv1_expert_c.regHist(m_mdt_segmposdirsag[i][jMDT1][x]) );
           }
           m_mdt_segmposdirsag[i][jMDT1][x]->GetXaxis()->SetTitle(RhoEtaPhiThe[x].c_str());
           sst.str("");
@@ -385,17 +352,14 @@ MdtVsTgcRawDataValAlg::bookeffhists(MonGroup &mdtvstgclv1_expert_a,
             sst<<"Sagitta_MDT"<<jMDT1+1;
             sst<<"vsMDT"<<jMDT2+1;
             sst<<"_"<<AC[i];
-            m_log<<MSG::DEBUG<<"MDT_DirDirSagitta "<<i<<" "<<jMDT1<<" "<<jMDT2<<" "<<x<<" "<<sst.str().c_str()<<std::endl;
+            ATH_MSG_DEBUG("MDT_DirDirSagitta "<<i<<" "<<jMDT1<<" "<<jMDT2<<" "<<x<<" "<<sst.str().c_str() );
             m_mdt_trackdirdirsag[i][jMDT1][jMDT2][x] =new TH1F(sst.str().c_str(),sst.str().c_str(),  nbins3D_1[x], fGlobalCoords3Dlo[x], fGlobalCoords3Dup[x]);
             if(i==0){
-              sc=mdtvstgclv1_expert_a.regHist(m_mdt_trackdirdirsag[i][jMDT1][jMDT2][x]);
+              ATH_CHECK( mdtvstgclv1_expert_a.regHist(m_mdt_trackdirdirsag[i][jMDT1][jMDT2][x]) );
             }else{
-              sc=mdtvstgclv1_expert_c.regHist(m_mdt_trackdirdirsag[i][jMDT1][jMDT2][x]);
+              ATH_CHECK( mdtvstgclv1_expert_c.regHist(m_mdt_trackdirdirsag[i][jMDT1][jMDT2][x]) );
             }
-            if(sc.isFailure()){
-              m_log << MSG::FATAL << "m_mdt_trackdirdirsag["<<i<<"]["<<jMDT1<<"]["<<jMDT2<<"]["<<x<<"] Failed to register histogram " << endmsg;
-              return sc;
-            }
+
             m_mdt_trackdirdirsag[i][jMDT1][jMDT2][x]->GetXaxis()->SetTitle(RhoEtaPhiThe[x].c_str());
             sst.str("");
               
@@ -409,16 +373,12 @@ MdtVsTgcRawDataValAlg::bookeffhists(MonGroup &mdtvstgclv1_expert_a,
               if(v==0)sst<<jMDT1+1;
               else    sst<<jMDT2+1;
               sst<<"_"<<AC[i];
-              m_log<<MSG::DEBUG<<"MDT_TrackCheckSagitta "<<i<<" "<<jMDT1<<" "<<jMDT2<<" "<<x<<" "<<sst.str().c_str()<<std::endl;
+              ATH_MSG_DEBUG("MDT_TrackCheckSagitta "<<i<<" "<<jMDT1<<" "<<jMDT2<<" "<<x<<" "<<sst.str().c_str() );
               m_mdt_trackchecksag[i][jMDT1][jMDT2][x][v] =new TH1F(sst.str().c_str(),sst.str().c_str(),  nbins3D_1[x], fGlobalCoords3Dlo[x], fGlobalCoords3Dup[x]);
               if(i==0){
-                sc=mdtvstgclv1_expert_a.regHist(m_mdt_trackchecksag[i][jMDT1][jMDT2][x][v]);
+                ATH_CHECK( mdtvstgclv1_expert_a.regHist(m_mdt_trackchecksag[i][jMDT1][jMDT2][x][v]) );
               }else{
-                sc=mdtvstgclv1_expert_c.regHist(m_mdt_trackchecksag[i][jMDT1][jMDT2][x][v]);
-              }
-              if(sc.isFailure()){
-                m_log << MSG::FATAL << "m_mdt_segmmatchsag["<<i<<"]["<<jMDT1<<"]["<<jMDT2<<"]["<<x<<"]["<<v<<"] Failed to register histogram " << endmsg;
-                return sc;
+                ATH_CHECK( mdtvstgclv1_expert_c.regHist(m_mdt_trackchecksag[i][jMDT1][jMDT2][x][v]) );
               }
               m_mdt_trackchecksag[i][jMDT1][jMDT2][x][v]->GetXaxis()->SetTitle(RhoEtaPhiThe[x].c_str());
               sst.str("");
@@ -429,7 +389,7 @@ MdtVsTgcRawDataValAlg::bookeffhists(MonGroup &mdtvstgclv1_expert_a,
     }// MDT Station1
   }// AC
   
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 // Apply labels to StationMap histogram's axis
