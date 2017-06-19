@@ -9,10 +9,10 @@
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "DecisionHandling/HLTIdentifier.h"
 
+
 namespace ROIB {
   class RoIBResult;
 }
-
 
 static const InterfaceID IID_IRoIsUnpackingTool("IRoIsUnpackingTool", 1, 0);
 
@@ -21,6 +21,8 @@ class IRoIsUnpackingTool
 { 
 
  public: 
+
+
   /** Destructor: 
    */
   virtual ~IRoIsUnpackingTool();
@@ -52,7 +54,6 @@ protected:
   std::vector<std::string>              m_thresholdToChainProperty;
   std::map<HLT::Identifier, HLT::IDVec> m_thresholdToChainMapping;
 
-  //  ToolHandle<GenericMonitoringTool> m_monTool;
 
   StatusCode decodeMapping();
   void addChainsToDecision( HLT::Identifier thresholdId,

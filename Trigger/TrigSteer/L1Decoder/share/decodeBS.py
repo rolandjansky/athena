@@ -101,9 +101,11 @@ l1Decoder.ctpUnpacker.CTPToChainMapping = ["0:HLT_e3",  "0:HLT_g5", "1:HLT_e7", 
 
 emUnpacker = EMRoIsUnpackingTool( OutputLevel=DEBUG )
 emUnpacker.ThresholdToChainMapping = ["EM3 : HLT_e3", "EM3 : HLT_g5",  "EM7 : HLT_e7", "EM15 : HLT_e15mu4" ]
+emUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 )
 
 muUnpacker = MURoIsUnpackingTool( OutputLevel=DEBUG )
 muUnpacker.ThresholdToChainMapping = ["MU6 : HLT_mu6", "MU6 : HLT_mu6idperf", "MU4 : HLT_e15mu4"] 
+muUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 )
 # do not know yet how to configure the services for it
 
 l1Decoder.roiUnpackers = [emUnpacker]
