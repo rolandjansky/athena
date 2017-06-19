@@ -65,13 +65,22 @@ StatusCode MuonCPTools::setupCalibration() {
   using IMuCalibSmearTool = CP::IMuonCalibrationAndSmearingTool;
   const std::string mu_calib_smearing_name = "CP::MuonCalibrationAndSmearingTool";
   if (asg::ToolStore::contains<IMuCalibSmearTool>(mu_calib_smearing_name)) {
-    m_muonCalibrationAndSmearingTool
-      = asg::ToolStore::get<IMuCalibSmearTool>(mu_calib_smearing_name);
-  } else {
-    IMuCalibSmearTool* muonCalibrationAndSmearingTool
-      = new CP::MuonCalibrationAndSmearingTool(mu_calib_smearing_name);
+    m_muonCalibrationAndSmearingTool = asg::ToolStore::get<IMuCalibSmearTool>(mu_calib_smearing_name);
+  } 
+  else {
+    IMuCalibSmearTool* muonCalibrationAndSmearingTool = new CP::MuonCalibrationAndSmearingTool(mu_calib_smearing_name);
+    
+    // Adding Release 21 scrutiny settings (https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AtlasRelease21Scrutiny#Temporary_Recommendations_for_Co)
+    if(m_release_series == 25){
+      ATH_MSG_INFO( "CP::MuonCalibrationAndSmearingTool will be configured for Rel21 scrutiny exercise" );
+      ATH_MSG_INFO( "Setting CP::MuonCalibrationAndSmearingTool -> StatComb to false" );
+      top::check(asg::setProperty(muonCalibrationAndSmearingTool, "StatComb", false),
+                 "Unable to change StatComb property in " + mu_calib_smearing_name);
+    }
+    
     top::check(muonCalibrationAndSmearingTool->initialize(),
-                "Failed to initialize " + mu_calib_smearing_name);
+	       "Failed to initialize " + mu_calib_smearing_name);
+    
     m_muonCalibrationAndSmearingTool = muonCalibrationAndSmearingTool;
   }
 

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TopToolStore.cxx 803886 2017-04-27 21:27:58Z iconnell $
+// $Id: TopToolStore.cxx 806390 2017-06-09 15:01:07Z iconnell $
 #include "TopCPTools/TopToolStore.h"
 
 #include <vector>
@@ -27,29 +27,22 @@ TopToolStore::TopToolStore( const std::string& name ) :
 StatusCode TopToolStore::initialize() {
   ATH_MSG_INFO("top::TopToolStore initialize...");
 
-  std::string release_series = "";
-  const char* rel_temp = std::getenv("ROOTCORE_RELEASE_SERIES");
-  if (rel_temp) {
-    release_series = std::string(rel_temp);
-  } else {
-    ATH_MSG_WARNING("Can not access ROOTCORE_RELEASE_SERIES");
-  }
+  // Pull the release series directly from TopConfig
+  ATH_MSG_INFO( "Retrieving analysis release series from TopConfig" );
+  m_release_series = m_config->getReleaseSeries();
 
-  ATH_MSG_INFO( "Release variable : "+release_series );
-
-  if (release_series == "23") {
-    ATH_MSG_INFO("Setting release series to 2.3");
-    m_release_series = 23;
-  } else if (release_series == "24") {
-    m_release_series = 24;
-    ATH_MSG_INFO("Setting release series to 2.4");
-  } else if (release_series == "25" ){
-    m_release_series = 25;
-    ATH_MSG_INFO("Setting release series to 2.6");
-  } else {
-    m_release_series = 24;
-    ATH_MSG_WARNING("Unknown release series, assuming 2.4");
-  }
+  if(m_release_series == 23)
+    ATH_MSG_INFO( "Setting release series to 2.3" );
+  else if(m_release_series == 24)
+    ATH_MSG_INFO( "Setting release series to 2.4" );
+  else if(m_release_series == 25)
+    ATH_MSG_INFO( "Setting release series to 2.6" );  
+  else
+    {
+      m_release_series = 24;
+      ATH_MSG_WARNING( "Error occured reading release series from TopConfig -> Setting release series to 2.4" );
+    }
+    
 
   m_trigger_CP_tools = std::make_unique<top::TriggerCPTools>("top::TriggerCPTools");
   top::check(m_trigger_CP_tools->setProperty("config", m_config),

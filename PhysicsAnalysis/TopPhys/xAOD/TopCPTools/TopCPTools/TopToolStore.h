@@ -15,7 +15,7 @@
   *   This means that we can share tools and only configure them once
   *
   * $Revision: 802731 $
-  * $Date: 2017-04-11 18:35:41 +0200 (Tue, 11 Apr 2017) $
+  * $Date: 2017-04-11 17:35:41 +0100 (Tue, 11 Apr 2017) $
   *
   **/
 
