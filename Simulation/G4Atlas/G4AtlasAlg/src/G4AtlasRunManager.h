@@ -60,7 +60,17 @@ private:
 
   /// Private constructor
   G4AtlasRunManager();
+
   void EndEvent();
+  /// @name Methods related to flux recording
+  /// @{
+  /// Initialize flux recording
+  void InitializeFluxRecording();
+  /// Record fluxes from current event
+  void RecordFlux();
+  /// Dump flux information to text files
+  void WriteFluxInformation();
+  /// @}
 
   /// Configure the user action service handle
   void SetUserActionSvc(const std::string& typeAndName) {
