@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TopEventSelectionTools/TrigDecisionSelector.h"
+#include "TopEventSelectionTools/TrigDecisionLooseSelector.h"
 #include "TopEvent/Event.h"
 #include "TopConfiguration/TopConfig.h"
 
@@ -11,21 +11,22 @@
 
 namespace top {
 
-  TrigDecisionSelector::TrigDecisionSelector(const std::string& selectorName,std::shared_ptr<top::TopConfig> config)
+  TrigDecisionLooseSelector::TrigDecisionLooseSelector(const std::string& selectorName,std::shared_ptr<top::TopConfig> config)
   {
-    m_triggers = config->allTriggers_Tight(selectorName);
-    for (auto s: config->allTriggers_Loose(selectorName))
-      if (std::find(m_triggers.begin(), m_triggers.end(),s)==m_triggers.end()) m_triggers.push_back(s);
+    m_triggers = config->allTriggers_Loose(selectorName);
 
-    std::cout<<"Triggers for selector = "<<selectorName<<std::endl;
+    std::cout<<"Loose Triggers for selector = "<<selectorName<<std::endl;
     for (auto s : m_triggers) {
       std::cout << "--" << s << "--" << std::endl;
     }
 
   }
 
-  bool TrigDecisionSelector::apply(const top::Event& event) const 
+  bool TrigDecisionLooseSelector::apply(const top::Event& event) const 
   {
+    // this selector does nothing for non-loose events
+    bool loose = event.m_isLoose;
+    if (!loose) return true;
 
     bool orOfAllTriggers(false);
     for (const auto& trigger : m_triggers){
@@ -42,8 +43,8 @@ namespace top {
     return orOfAllTriggers;
   }
 
-  std::string TrigDecisionSelector::name() const {
-    std::string name = "TRIGDEC ";
+  std::string TrigDecisionLooseSelector::name() const {
+    std::string name = "TRIGDEC_LOOSE ";
     for (auto trigger : m_triggers)
         name += " " + trigger;
 

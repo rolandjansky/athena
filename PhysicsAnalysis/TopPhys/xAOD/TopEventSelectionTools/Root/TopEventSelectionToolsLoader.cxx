@@ -46,6 +46,8 @@
 #include "TopEventSelectionTools/SSLeptonTightSelector.h"
 #include "TopEventSelectionTools/SaveEventSelector.h"
 #include "TopEventSelectionTools/TrigDecisionSelector.h"
+#include "TopEventSelectionTools/TrigDecisionLooseSelector.h"
+#include "TopEventSelectionTools/TrigDecisionTightSelector.h"
 #include "TopEventSelectionTools/TrigMatchSelector.h"
 #include "TopEventSelectionTools/RunNumberSelector.h"
 #include "TopEventSelectionTools/NLargeJetSelector.h"
@@ -137,6 +139,10 @@ namespace top {
         return new top::GRLSelector();
     else if (toolname == "TRIGDEC")
         return new top::TrigDecisionSelector(name,config);
+    else if (toolname == "TRIGDEC_LOOSE")
+        return new top::TrigDecisionLooseSelector(name,config);
+    else if (toolname == "TRIGDEC_TIGHT")
+        return new top::TrigDecisionTightSelector(name,config);
     else if (toolname == "TRIGMATCH")
         return new top::TrigMatchSelector(name,config);
     else if (toolname == "JETCLEAN")
