@@ -36,12 +36,12 @@ using namespace std;
 
 // New Sort Segments in the MDT Endcap into Sides and MDT Stations
 void
-MdtVsTgcRawDataValAlg::SortMDTSegments(const xAOD::MuonSegmentContainer *m_newsegment,
+MdtVsTgcRawDataValAlg::SortMDTSegments(const xAOD::MuonSegmentContainer *newsegment,
                                        vector<const Muon::MuonSegment*> (&sortedSegments)[2][4]){
     
   // Loop over all segments in event
-  xAOD::MuonSegmentContainer::const_iterator mdtseg_itr = m_newsegment->begin();
-  xAOD::MuonSegmentContainer::const_iterator mdtseg_end = m_newsegment->end();
+  xAOD::MuonSegmentContainer::const_iterator mdtseg_itr = newsegment->begin();
+  xAOD::MuonSegmentContainer::const_iterator mdtseg_end = newsegment->end();
   for(; mdtseg_itr!=mdtseg_end; ++mdtseg_itr){
     if(!(*mdtseg_itr)->muonSegment().isValid())continue;
     // Get segm
@@ -103,15 +103,15 @@ MdtVsTgcRawDataValAlg::SortMDTSegments(const xAOD::MuonSegmentContainer *m_newse
 
 // Old Sort Segments in the MDT Endcap into Sides and MDT Stations
 void
-MdtVsTgcRawDataValAlg::SortMDTSegments(const Trk::SegmentCollection *m_segmcollection,
+MdtVsTgcRawDataValAlg::SortMDTSegments(const Trk::SegmentCollection *segmcollection,
                                        vector<const Muon::MuonSegment*> (&sortedSegments)[2][4]){
   // Flags for whether event has segments from sides and stations
   //bool HasStationSegm[2][4] = {{false,false,false,false},
   //                             {false,false,false,false}};
   
   // Loop over all segments in event
-  for(Trk::SegmentCollection::const_iterator s = m_segmcollection->begin();
-      s!=m_segmcollection->end();
+  for(Trk::SegmentCollection::const_iterator s = segmcollection->begin();
+      s!=segmcollection->end();
       ++s){
     // Get segm
     const Muon::MuonSegment *segm=dynamic_cast<const Muon::MuonSegment*>(*s);

@@ -253,8 +253,8 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
         for(int stationeta=1; stationeta<=8; stationeta++){// AbsStationEta
           for(int stationphi=1; stationphi<=48; stationphi++){// StationPhi
             // Cut Station EtaPhi combinations with no TGC element
-            if(TREarray[stationnameindex][i][stationeta][stationphi]==0)continue;
-            const MuonGM::TgcReadoutElement *tre=TREarray[stationnameindex][i][stationeta][stationphi];
+            if(m_TREarray[stationnameindex][i][stationeta][stationphi]==0)continue;
+            const MuonGM::TgcReadoutElement *tre=m_TREarray[stationnameindex][i][stationeta][stationphi];
             
             // Extrapolate position from nearest Station's Segment to Sector's Z
             float sectorZ=tre->globalPosition().z();
@@ -373,8 +373,8 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
           // Pass through loose phi cut to eliminate some noise
           if(abs(dPhi)<dPhiCut_Loose){
             // Fill PRD sagitta histograms
-            if(mvt_extrprdsag2[i][stationIndex][tgcFE][tgcWS][0]) mvt_extrprdsag2[i][stationIndex][tgcFE][tgcWS][0]->Fill(dRho);
-            if(mvt_extrprdsag2[i][stationIndex][tgcFE][tgcWS][2]) mvt_extrprdsag2[i][stationIndex][tgcFE][tgcWS][2]->Fill(dPhi);
+            if(m_mvt_extrprdsag2[i][stationIndex][tgcFE][tgcWS][0]) m_mvt_extrprdsag2[i][stationIndex][tgcFE][tgcWS][0]->Fill(dRho);
+            if(m_mvt_extrprdsag2[i][stationIndex][tgcFE][tgcWS][2]) m_mvt_extrprdsag2[i][stationIndex][tgcFE][tgcWS][2]->Fill(dPhi);
             
             // Do Global check
             if(canCheckGlobal[stationIndex]){
@@ -481,8 +481,8 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
             if(dPhi> M_PI)dPhi-=2*M_PI;
             
             // Fill PRD comparison sagitta histograms
-            if(tgc_prdcompsag[i][k][0]) tgc_prdcompsag[i][k][0]->Fill(dRho);
-            if(tgc_prdcompsag[i][k][2]) tgc_prdcompsag[i][k][2]->Fill(dPhi);
+            if(m_tgc_prdcompsag[i][k][0]) m_tgc_prdcompsag[i][k][0]->Fill(dRho);
+            if(m_tgc_prdcompsag[i][k][2]) m_tgc_prdcompsag[i][k][2]->Fill(dPhi);
             
             // Do check
             if(abs(dPhi)<dPhiCutTPD[k] && abs(dRho)<dRhoCutTPD[k]){
@@ -593,9 +593,9 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
             
             // Fill Sector efficiency histograms
             if(sectorhitregisteredFill[l][k]){// Hit in Sector matches extrapolated track
-              eff_stationmapmid[i][k][1]->Fill(stationMap_EtaIndex, stationMap_PhiIndex);
+              m_eff_stationmapmid[i][k][1]->Fill(stationMap_EtaIndex, stationMap_PhiIndex);
             }
-            eff_stationmapmid[i][k][2]->Fill(stationMap_EtaIndex, stationMap_PhiIndex);
+            m_eff_stationmapmid[i][k][2]->Fill(stationMap_EtaIndex, stationMap_PhiIndex);
           }
         }// WireStrip
       }// layer
