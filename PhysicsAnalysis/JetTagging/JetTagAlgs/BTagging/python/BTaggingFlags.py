@@ -385,7 +385,7 @@ class _BTaggingFlags:
 
 
       #defaultJetCollections = ['AntiKt4LCTopo','AntiKt6LCTopo','AntiKt4TopoEM','AntiKt6TopoEM']
-      defaultJetCollections = ['AntiKt4LCTopo','AntiKt4EMTopo']
+      defaultJetCollections = ['AntiKt4EMTopo']
 
       for attr in self._Jets:
         setattr(self, attr, defaultJetCollections[:])
