@@ -261,7 +261,7 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(vector<SegmTrack> (&matchedSegments)[2],
            prepitc!= prepitc_end;
            ++prepitc){
         // Get PRD and variables
-        Muon::TgcPrepData* tpd=*prepitc;
+        const Muon::TgcPrepData* tpd=*prepitc;
         const MuonGM::TgcReadoutElement *tre = tpd->detectorElement();
         const std::string stationType = tre->getStationType();
         

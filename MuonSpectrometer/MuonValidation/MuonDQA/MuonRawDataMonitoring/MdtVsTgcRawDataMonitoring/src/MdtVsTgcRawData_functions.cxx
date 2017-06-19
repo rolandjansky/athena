@@ -30,7 +30,7 @@ using namespace std;
 
 
 void
-MdtVsTgcRawDataValAlg::roi2etaphi(Muon::TgcCoinData& cd, int& eta, int& phi){
+MdtVsTgcRawDataValAlg::roi2etaphi(const Muon::TgcCoinData& cd, int& eta, int& phi){
   
   int roiphi=cd.phi();//phi in 1/48(24) sector for endcap(forward)
   int roi=cd.roi();//0-147(0-63)
@@ -104,7 +104,7 @@ MdtVsTgcRawDataValAlg::numberOfSL(const Muon::TgcCoinDataContainer* tgctrgcontai
          itc!= itc_end;
          ++itc){
 
-      Muon::TgcCoinData* tcd=*itc;
+      const Muon::TgcCoinData* tcd=*itc;
 
       if( tcd->type() != Muon::TgcCoinData::TYPE_SL )continue;
       m_log<<MSG::DEBUG<<"pt"<<tcd->pt()<<endmsg;

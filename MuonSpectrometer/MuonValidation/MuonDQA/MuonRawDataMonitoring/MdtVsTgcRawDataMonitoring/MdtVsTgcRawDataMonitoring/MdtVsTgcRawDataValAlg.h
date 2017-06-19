@@ -87,7 +87,7 @@ public:
   int numberOfSL(const Muon::TgcCoinDataContainer* tgctrgcontainer);
 
   // private function to convert local roi numbering to global eta, phi numbering
-  void roi2etaphi(Muon::TgcCoinData& cd, //input
+  void roi2etaphi(const Muon::TgcCoinData& cd, //input
                   int& eta, int& phi);//output
   int phi2sector(int phi,int ef);
   int roiphi2mdtSector(int roiphi,int ef);
@@ -138,7 +138,7 @@ public:
   int m_MdtAdcCut;
   int m_MdtTdcCut;
 
-  Muon::TgcCoinData* theSL;
+  const Muon::TgcCoinData* theSL;
   double SLr;
   double SLz;
   double SLeta;
