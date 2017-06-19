@@ -20,6 +20,8 @@ PixelMon2DLumiMaps::PixelMon2DLumiMaps(std::string name, std::string title, std:
       B2lbm(nullptr),
       Albm(nullptr),
       Clbm(nullptr),
+      DBMAlbm(nullptr),
+      DBMClbm(nullptr),
       m_config(config)
 {
    const int lbRange = 3000;
@@ -41,6 +43,12 @@ PixelMon2DLumiMaps::PixelMon2DLumiMaps(std::string name, std::string title, std:
    if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kECC)) {
       Clbm  = TH2F_LW::create((name+"_2D_Map_ECC" ).c_str(),(title + ", ECC " + " (Map);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5 + (float)lbRange,144,-0.5,143.5);
    }
+   if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kDBMA)) {
+      DBMAlbm = TH2F_LW::create((name+"_2D_Map_DBMA").c_str(),(title + ", DBMA " + " (Map);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5 + (float)lbRange,12,-0.5,11.5);
+   }
+   if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kDBMC)) {
+      DBMClbm = TH2F_LW::create((name+"_2D_Map_DBMC").c_str(),(title + ", DBMC " + " (Map);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5 + (float)lbRange,12,-0.5,11.5);
+   }
 
    formatHist();
 }
@@ -53,6 +61,8 @@ PixelMon2DLumiMaps::~PixelMon2DLumiMaps()
    if (B2lbm) LWHist::safeDelete(B2lbm);
    if (Albm) LWHist::safeDelete(Albm);
    if (Clbm) LWHist::safeDelete(Clbm);
+   if (DBMAlbm) LWHist::safeDelete(DBMAlbm);
+   if (DBMClbm) LWHist::safeDelete(DBMClbm);
 }
 
 void PixelMon2DLumiMaps::Fill(double LB,Identifier &id, const PixelID* pixID,double weight)
@@ -65,6 +75,10 @@ void PixelMon2DLumiMaps::Fill(double LB,Identifier &id, const PixelID* pixID,dou
       Albm->Fill(LB, ld * 48 + pm, weight);
    } else if (bec == -2 && Clbm) {
       Clbm->Fill(LB, ld * 48 + pm, weight);
+   } else if (bec == 4 && DBMAlbm) {
+      DBMAlbm->Fill(LB, ld * 4 + pm, weight);
+   } else if (bec == -4 && DBMClbm) {
+      DBMClbm->Fill(LB, ld * 4 + pm, weight);
    } else if (bec == 0) {
       if (m_doIBL) ld--;
       const int em  = pixID->eta_module(id) + 6;
@@ -84,7 +98,10 @@ void PixelMon2DLumiMaps::formatHist()
 {
    const int ndisk = 3;
    const int nphi  = 48;
+   const int nphi_dbm = 4;
    const char *disk[ndisk] = { "D1", "D2", "D3" };
+   const char *layer_dbm[ndisk] = {"L0", "L1", "L2"};
+   const char *phi_dbm[nphi_dbm] = {"M3", "M4", "M1", "M2"};
    const int nmod = 13;
    const int nmodIBL = 20;
    const char *mod[nmod] = { "M6C", "M5C", "M4C", "M3C", "M2C", "M1C", "M0", "M1A", "M2A", "M3A", "M4A", "M5A", "M6A" };
@@ -154,6 +171,18 @@ void PixelMon2DLumiMaps::formatHist()
       }
       count = 1;
    }
+   if (DBMAlbm && DBMClbm) {
+      for (int j = 0; j < ndisk; j++) {
+         for (int i = 0; i < nphi_dbm; i++) {
+            sprintf(label, "%sA_%s", layer_dbm[j], phi_dbm[i]);
+            DBMAlbm->GetYaxis()->SetBinLabel(count, label);
+            sprintf(label, "%sC_%s", layer_dbm[j], phi_dbm[i]);
+            DBMClbm->GetYaxis()->SetBinLabel(count, label);
+            count++;
+         }
+      }
+      count = 1;
+   }
    if (B0lbm && B1lbm && B2lbm) {
       for (int i = 0; i < nstave0; i++) {
          for (int j = 0; j < nmod; j++) {
@@ -197,6 +226,12 @@ void PixelMon2DLumiMaps::formatHist()
       Albm->SetOption("colz");
       Clbm->SetOption("colz");
    }
+   if (DBMAlbm && DBMClbm) {
+      DBMAlbm->GetYaxis()->SetLabelSize(0.04);
+      DBMClbm->GetYaxis()->SetLabelSize(0.04);
+      DBMAlbm->SetOption("colz");
+      DBMClbm->SetOption("colz");
+   }
    if (B0lbm && B1lbm && B2lbm) {
       B0lbm->GetYaxis()->SetLabelSize(0.04);
       B1lbm->GetYaxis()->SetLabelSize(0.04);
@@ -220,6 +255,8 @@ StatusCode PixelMon2DLumiMaps::regHist(ManagedMonitorToolBase::MonGroup &group)
    if (B2lbm && group.regHist(B2lbm).isFailure()) sc = StatusCode::FAILURE;
    if (Albm && group.regHist(Albm).isFailure()) sc = StatusCode::FAILURE;
    if (Clbm && group.regHist(Clbm).isFailure()) sc = StatusCode::FAILURE;
+   if (DBMAlbm && group.regHist(DBMAlbm).isFailure()) sc = StatusCode::FAILURE;
+   if (DBMClbm && group.regHist(DBMClbm).isFailure()) sc = StatusCode::FAILURE;
 
    return sc;
 }

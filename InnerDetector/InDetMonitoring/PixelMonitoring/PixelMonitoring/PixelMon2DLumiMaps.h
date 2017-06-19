@@ -38,6 +38,8 @@ class PixelMon2DLumiMaps
       TH2F_LW* B2lbm;
       TH2F_LW* Albm;
       TH2F_LW* Clbm;
+      TH2F_LW* DBMAlbm;
+      TH2F_LW* DBMClbm;
       void Fill(double LB,Identifier &id, const PixelID* pixID, double weight = 1);
       StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
 private:
