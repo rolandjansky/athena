@@ -69,8 +69,7 @@ private:
   bool m_debug;
   static const unsigned int m_sumBitsTC=15;
   static const unsigned int m_sumBits=14;
-  static const unsigned int m_jemEtSaturation=4032;
-
+  static const unsigned int m_jemEtSaturation= 0x3fff; // was 4032
 private:
   unsigned int encodeTC(int input);
   int decodeTC(unsigned int input);
