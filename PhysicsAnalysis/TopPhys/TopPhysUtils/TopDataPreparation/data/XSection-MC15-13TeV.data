@@ -130,10 +130,21 @@
 410250   158.94    1.1484   sherpa
 410251   158.99    1.1484   sherpa
 410252   76.317    1.1484   sherpa
+# new Sherpa 2.2.1 samples - b-filtered
+### Xsections to be doulbe-checked
+410281   12.8    1.1484   sherpa
+410282   12.8    1.1484   sherpa
+410283   5.95    1.1484   sherpa
 
 # Sherpa ttbar+bbbar
-### warning: dummy cross-sections!!
+### WARNING: cross-sections are unclear!!
 410051  0.31505      1.10      sherpa21
+
+# New Sherpa ttbar+bbbar
+### WARNING: cross-sections are just taken from AMI, no K-factor
+410323  5.7314    1.0       sherpa
+410324  5.7283    1.0       sherpa
+410325  2.7549    1.0       sherpa
 
 # b-filter
 410120 	 24.1063   1.1949   pythia
@@ -190,12 +201,28 @@
 
 
 # ttV aMcatNLO+Pythia8 - in agreement with YR4 https://twiki.cern.ch/twiki/bin/view/AtlasProtected/CrossSectionNLOttV
-410155   0.54830      1.10      pythia8
-410156   0.15499      1.11      pythia8
-410157   0.52771      1.11      pythia8
-410218   0.036888     1.12      pythia8
-410219   0.036895     1.12      pythia8
-410220   0.036599     1.12      pythia8
+410155   0.54830      1.10      pythia8 # ttW
+410156   0.15499      1.11      pythia8 # ttZnunu
+410157   0.52771      1.11      pythia8 # ttZqq
+410218   0.036888     1.12      pythia8 # ttee
+410219   0.036895     1.12      pythia8 # ttmumu
+410220   0.036599     1.12      pythia8 # tttautau
+
+# ttV aMcatNLO+Pythia8 - A14 variations
+### WARNING: Xsections to be checked - using the same as nominal A14 above
+410376   0.54830      1.10      pythia8 # ttW
+410377   0.54830      1.10      pythia8 # ttW
+410378   0.15499      1.11      pythia8 # ttZnunu
+410379   0.15499      1.11      pythia8 # ttZnunu
+410380   0.52771      1.11      pythia8 # ttZqq
+410381   0.52771      1.11      pythia8 # ttZqq
+410370   0.036888     1.12      pythia8 # ttee
+410371   0.036888     1.12      pythia8 # ttee
+410372   0.036895     1.12      pythia8 # ttmumu
+410373   0.036895     1.12      pythia8 # ttmumu
+410374   0.036599     1.12      pythia8 # tttautau
+410375   0.036599     1.12      pythia8 # tttautau
+
 
 # 4 tops, 3 tops SM
 410080   0.0091622    1.0042  pythia8
@@ -1407,16 +1434,16 @@
 361097   4.6417833 0.91  sherpa21
 
 # Sherpa 2.1 diboson HF filters
-344422 0.056385 0.91  sherpa21
-344423 0.833454 0.91  sherpa21
-344424 0.023276 0.91  sherpa21
-344425 0.43897  0.91  sherpa21
-344426 0.046242 0.91  sherpa21
-344427 0.870711 0.91  sherpa21
-344428 0.035488 0.91  sherpa21
-344429 0.638374 0.91  sherpa21
-344431 1.313295 0.91  sherpa21
-344430 0.072535 0.91  sherpa21
+344422 0.056385 1.13  sherpa21
+344423 0.833454 1.13  sherpa21
+344424 0.023276 1.33  sherpa21
+344425 0.43897  1.33  sherpa21
+344426 0.046242 1.33  sherpa21
+344427 0.870711 1.33  sherpa21
+344428 0.035488 1.31  sherpa21
+344429 0.638374 1.31  sherpa21
+344430 0.072535 1.31  sherpa21
+344431 1.313295 1.31  sherpa21
 
 # Triboson Sherpa 2.1 systematics samples
 ### warning: dummy cross-sections!!
@@ -1550,7 +1577,7 @@
 187166	0.2595	1.0   pythia8
 187167  0.2164	1.0   pythia8
 187168  0.0126	1.0   pythia8
-		 	 
+
 187170	0.6393	1.0   pythia8
 187171	0.5078	1.0   pythia8
 187172	0.0513	1.0   pythia8
@@ -1560,7 +1587,7 @@
 187176	0.3268	1.0   pythia8
 187177	0.2713	1.0   pythia8
 187178	0.0186	1.0   pythia8
-			 	
+
 187180	0.1217	1.0   pythia8
 187181	0.2514	1.0   pythia8
 187182	0.1804	1.0   pythia8
@@ -1601,35 +1628,34 @@
 361062   2.5431e-09   0.14831   sherpa21
 
 ################################################################################################################   0    
-# Pythia8 dijet
-
-361000   76508904600   1.   pythia8 
-361001   1946305980   1.   pythia8 
-361002   24431336   1.   pythia8 
-361003   312104   1.   pythia8 
-361004   3422.36   1.   pythia8 
-361005   66.3778   1.   pythia8 
-361006   2.57984   1.   pythia8 
-361007   0.1803   1.   pythia8 
-361008   0.00645739   1.   pythia8 
-361009   0.00023784   1.   pythia8 
-361010   7.04754e-06   1.   pythia8 
-361011   1.13058e-07   1.   pythia8 
-361012   4.40618e-10   1.   pythia8 
-
-361020   80302080000   1.   pythia8 
-361021   5.26967e+07   1.   pythia8 
-361022   809380   1.   pythia8 
-361023   8452.85   1.   pythia8 
-361024   134.977   1.   pythia8 
-361025   4.20402   1.   pythia8 
-361026   0.242119   1.   pythia8 
-361027   0.00636958   1.   pythia8 
-361028   0.00635145   1.   pythia8 
-361029   0.000236729   1.   pythia8 
-361030   7.0498e-06   1.   pythia8 
-361031   1.1416e-07   1.   pythia8 
-361032   4.40618e-10   1.   pythia8 
+# Pythia8 dijet - JZX filtered samples
+361000   76508904600   1.   pythia8
+361001   1946305980   1.   pythia8
+361002   24431336   1.   pythia8
+361003   312104   1.   pythia8
+361004   3422.36   1.   pythia8
+361005   66.3778   1.   pythia8
+361006   2.57984   1.   pythia8
+361007   0.1803   1.   pythia8
+361008   0.00645739   1.   pythia8
+361009   0.00023784   1.   pythia8
+361010   7.04754e-06   1.   pythia8
+361011   1.13058e-07   1.   pythia8
+361012   4.40618e-10   1.   pythia8
+# Pythia8 dijet - JZXW filtered samples - numbers from https://twiki.cern.ch/twiki/bin/view/AtlasProtected/XsecSummaryMultijet
+361020   76955114400.0 1.0   pythia8
+361021   52600215.0    1.0   pythia8
+361022   811423.536    1.0   pythia8
+361023   8453.64024    1.0   pythia8
+361024   134.9920945   1.0   pythia8
+361025   4.19814486    1.0   pythia8
+361026   0.241941709   1.0   pythia8
+361027   0.006358874   1.0   pythia8
+361028   0.006354782   1.0   pythia8
+361029   0.000236819   1.0   pythia8
+361030   7.054e-06     1.0   pythia8
+361031   1.13e-07      1.0   pythia8
+361032   4.405975e-10  1.0   pythia8
 
 ################################################################################################################   0    
 # PowhegPythia8 dijet
@@ -1686,9 +1712,17 @@
 342299   0.5071          1.0   herwigpp
 ## ttH samples aMCatNLOPythia8 - YR4 values
 # ttH H->all, different ttbar decays
-343365   0.05343     1.0   pythia8
-343366   0.22276     1.0   pythia8
-343367   0.23082     1.0   pythia8
+343365   0.05343     1.0   pythia8 # ttbar->dilepton
+343366   0.22276     1.0   pythia8 # ttbar->semilept
+343367   0.23082     1.0   pythia8 # ttbar->allhad
+# the A14 variations
+### WARNING: using same Xections as nominal 343365-7 above
+343638   0.05343     1.0   pythia8 # ttbar->dilepton
+343639   0.05343     1.0   pythia8 # ttbar->dilepton
+343640   0.22276     1.0   pythia8 # ttbar->semilept
+343641   0.22276     1.0   pythia8 # ttbar->semilept
+343642   0.23082     1.0   pythia8 # ttbar->allhad
+343643   0.23082     1.0   pythia8 # ttbar->allhad
 # ttH H -> gamgam - see ANALYSISTO-136, ANALYSISTO-276
 343436  0.0010405    1.0   pythia8
 # ttH H -> 4l - see ANALYSISTO-298
@@ -1895,16 +1929,24 @@
 302480   0.0117    1.0   pythia8
 302481   0.00634   1.0   pythia8
 302482   0.00350   1.0   pythia8
+# Additional mass points (https://cds.cern.ch/record/1662536/files/ATL-COM-PHYS-2014-112.pdf?version=10)
+308294   0.00197   1.0   pythia8
+308295   0.00112   1.0   pythia8
+308296   0.00065   1.0   pythia8
+308297   0.00038   1.0   pythia8
+308298   0.00022   1.0   pythia8
+308299   0.000132  1.0   pythia8
 #TTD
-302483 0.455  1   pythia8
-302484 0.0624 1   pythia8
-302485 0.0117 1   pythia8
+302483   0.455     1.0   pythia8
+302484   0.0624    1.0   pythia8
+302485   0.0117    1.0   pythia8
+
 
 ################################################################################################################   0
 
 ## BBS samples: taken from https://cds.cern.ch/record/1662536/files/ATL-COM-PHYS-2014-112.pdf?
 302486   3.38      1.0   pythia8
-302487	  1.16      1.0   pythia8
+302487   1.16      1.0   pythia8
 302488   0.455     1.0   pythia8
 302489   0.295     1.0   pythia8
 302490   0.195     1.0   pythia8
@@ -1918,10 +1960,15 @@
 302498   0.0117    1.0   pythia8
 302499   0.00634   1.0   pythia8
 302500   0.00350   1.0   pythia8
+# Additional mass points (https://cds.cern.ch/record/1662536/files/ATL-COM-PHYS-2014-112.pdf?version=10)
+308303   0.00197   1.0   pythia8
+308304   0.00112   1.0   pythia8
+308305   0.00065   1.0   pythia8
+308306   0.00038   1.0   pythia8
 #BBD
-302501 0.455  1   pythia8 
-302502 0.0624 1   pythia8
-302503 0.0117 1   pythia8
+302501   0.455     1.0    pythia8 
+302502   0.0624    1.0    pythia8
+302503   0.0117    1.0    pythia8
 
 
 ################################################################################################################   0
@@ -2047,17 +2094,19 @@
 301335 0.00033079  1.3   pythia8
 
 #KK gluon to ttbar
-307522	1187        1     pythia8
-307523	157.6       1     pythia8
-307524	25.59       1     pythia8
-307525	4.196       1     pythia8
-307526	5.534       1     pythia8
-307527	6.918       1     pythia8
-307528	2.360       1     pythia8
-307529	9.530e-01   1	  pythia8
-307530	4.383e-01   1	  pythia8
-307531	1.431e-01   1	  pythia8
-307532	9.182e-02   1	  pythia8
+307522	1187        1     pythia8 #500GeV
+307523	157.6       1     pythia8 #1000GeV
+307524	25.59       1     pythia8 #1500GeV
+307525	4.196       1     pythia8 #2000GeV Width10
+307526	5.534       1     pythia8 #2000GeV Width20
+307527	6.918       1     pythia8 #2000GeV
+307528	2.360       1     pythia8 #2500GeV
+307529	9.530e-01   1	  pythia8 #3000GeV
+307530	4.383e-01   1	  pythia8 #3500GeV
+307531	2.383e-01   1	  pythia8 #4000GeV
+307532	1.431e-01   1	  pythia8 #4500GeV
+307533	9.182e-02   1	  pythia8 #5000GeV
+
 
 # VVV
 301535   52.706  	1    sherpa21
