@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 """TBD."""
+
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
 
 import fnmatch
 import inspect
 import os
-import re
 import sys
 import yaml
 
 from art_misc import check, run_command
+from art_header import ArtHeader
 
 
 class ArtBase(object):
@@ -48,13 +49,14 @@ class ArtBase(object):
         """TBD."""
         self.not_implemented()
 
-    def included(self):
+    def validate(self, script_directory):
         """TBD."""
-        self.not_implemented()
-
-    def wait_for(self):
-        """TBD."""
-        self.not_implemented()
+        directories = self.get_test_directories(script_directory)
+        for directory in directories.itervalues():
+            files = self.get_files(directory)
+            for fname in files:
+                ArtHeader(os.path.join(directory, fname)).validate()
+        return 0
 
     #
     # Default implementations
@@ -64,6 +66,7 @@ class ArtBase(object):
         out = check(run_command("acmd.py diff-root " + file_name + " " + ref_file + " --error-mode resilient --ignore-leaves RecoTimingObj_p1_HITStoRDO_timings RecoTimingObj_p1_RAWtoESD_mems RecoTimingObj_p1_RAWtoESD_timings RAWtoESD_mems RAWtoESD_timings ESDtoAOD_mems ESDtoAOD_timings HITStoRDO_timings RAWtoALL_mems RAWtoALL_timings RecoTimingObj_p1_RAWtoALL_mems RecoTimingObj_p1_RAWtoALL_timings --entries " + str(entries)))
         print out
         sys.stdout.flush()
+        return 0
 
     #
     # Protected Methods
@@ -75,32 +78,25 @@ class ArtBase(object):
         config_file.close()
         return config
 
-    def get_art_headers(self, filename):
-        """Return dictionary with art headers."""
-        result = {}
-        for line in open(filename, "r"):
-            line_match = re.match(r'#\s*art-(\w+):\s+(.+)$', line)
-            if line_match:
-                result[line_match.group(1)] = line_match.group(2)
-        return result
+    def get_files(self, directory, type=None):
+        """
+        Return a list of all test files matching 'test_*.sh' of given 'type'.
 
-    def get_files(self, directory, type):
-        """Return a list of all test files matching 'test_*.sh' of given 'queue'."""
+        If type is None, all files are returned. Only the filenames are returned.
+        """
         result = []
         if directory is not None:
             files = os.listdir(directory)
             files.sort()
             for fname in files:
                 if fnmatch.fnmatch(fname, 'test_*.sh') or fnmatch.fnmatch(fname, 'test_*.py'):
-                    headers = self.get_art_headers(os.path.join(directory, fname))
-                    if 'type' in headers and headers['type'] == type:
+                    if type is None or ArtHeader(os.path.join(directory, fname)).get('art-type') == type:
                         result.append(fname)
         return result
 
     def get_type(self, directory, test_name):
         """Return the 'type' of a test."""
-        headers = self.get_art_headers(os.path.join(directory, test_name))
-        return None if 'type' not in headers else headers['type']
+        return ArtHeader(os.path.join(directory, test_name)).get('art-type')
 
     def get_test_directories(self, directory):
         """
