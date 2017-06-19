@@ -20,7 +20,7 @@
   *   (2.a , 3.a) Re-calculate the JVT for each jet
   * 
   * $Revision: 794215 $
-  * $Date: 2017-01-27 16:12:13 +0100 (Fri, 27 Jan 2017) $
+  * $Date: 2017-01-27 15:12:13 +0000 (Fri, 27 Jan 2017) $
   * 
   **/ 
 

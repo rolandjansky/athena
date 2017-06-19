@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ElectronInJetSubtractionCollectionMaker.cxx 680332 2015-07-04 01:25:47Z morrisj $
+// $Id: ElectronInJetSubtractionCollectionMaker.cxx 806051 2017-06-07 00:32:41Z tpelzer $
 #include "TopSystematicObjectMaker/ElectronInJetSubtractionCollectionMaker.h"
 #include "TopConfiguration/TopConfig.h"
 #include "TopEvent/EventTools.h"
@@ -30,9 +30,9 @@ namespace top{
         m_doLooseCuts = true;
     
     if (m_config->doLooseEvents())
-        m_doLooseCuts = true;    
+        m_doLooseCuts = true;
     
-    return StatusCode::SUCCESS;    
+    return StatusCode::SUCCESS;
   }
   
   StatusCode ElectronInJetSubtractionCollectionMaker::execute()
@@ -72,8 +72,8 @@ namespace top{
       xAOD::TReturnCode saveElectronsAux = evtStore()->tds()->record( shallow_electrons.second , outputElectronsSGKeyAux );
       if( !saveElectrons || !saveElectronsAux ){
         return StatusCode::FAILURE;
-      }      
-           
+      }
+      
       // Save the modified jets to TStore
       std::string outputJetsSGKey = m_config->sgKeyJets( currentSystematic , false );
       std::string outputJetsSGKeyAux = outputJetsSGKey + "Aux.";
