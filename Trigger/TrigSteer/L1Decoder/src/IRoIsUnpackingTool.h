@@ -52,6 +52,8 @@ protected:
   std::vector<std::string>              m_thresholdToChainProperty;
   std::map<HLT::Identifier, HLT::IDVec> m_thresholdToChainMapping;
 
+  //  ToolHandle<GenericMonitoringTool> m_monTool;
+
   StatusCode decodeMapping();
   void addChainsToDecision( HLT::Identifier thresholdId,
 			    TrigCompositeUtils::Decision* d,
