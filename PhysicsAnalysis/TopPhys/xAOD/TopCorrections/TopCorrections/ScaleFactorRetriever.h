@@ -54,10 +54,15 @@ enum topSFSyst{nominal = 0,
                // Muon TTVA SFs
                MU_SF_TTVA_STAT_UP, MU_SF_TTVA_STAT_DOWN,
                MU_SF_TTVA_SYST_UP, MU_SF_TTVA_SYST_DOWN,
-               // Tau SFs
+               // Tau EleOLR SFs
                TAU_SF_ELEOLR_TOTAL_UP, TAU_SF_ELEOLR_TOTAL_DOWN,
+               TAU_SF_TRUEELECTRON_ELEOLR_TOTAL_UP, TAU_SF_TRUEELECTRON_ELEOLR_TOTAL_DOWN,
+               // Tau JetID SFs
                TAU_SF_JETID_TOTAL_UP, TAU_SF_JETID_TOTAL_DOWN,
+               TAU_SF_JETID_HIGHPT_UP, TAU_SF_JETID_HIGHPT_DOWN,
+               // Tau Reconstruction SFs
                TAU_SF_RECO_TOTAL_UP, TAU_SF_RECO_TOTAL_DOWN,
+               TAU_SF_RECO_HIGHPT_UP, TAU_SF_RECO_HIGHPT_DOWN,
                // Photon SFs
                PHOTON_IDSF_UP, PHOTON_IDSF_DOWN, PHOTON_EFF_ISO,
                PHOTON_EFF_LOWPTISO_UP, PHOTON_EFF_TRKISO_UP,
@@ -151,7 +156,6 @@ class ScaleFactorRetriever final {
    **/
   float jvtSF(const top::Event& event,
               const top::topSFSyst SFsyst) const;
-              
 
   /**
    * @brief Print all the SF values to cout
@@ -268,12 +272,12 @@ class ScaleFactorRetriever final {
                     const std::string& iso,
                     const top::topSFSyst SFSyst) const;
 
-  float m_event_el_trigger;
-
   // List of triggers to 'or' together for each event.
   // If any one passes, the event passes
-  std::vector<std::string> m_electronTriggers;
-  std::vector<std::string> m_muonTriggers;
+  std::vector<std::string> m_electronTriggers_Tight;
+  std::vector<std::string> m_muonTriggers_Tight;
+  std::vector<std::string> m_electronTriggers_Loose;
+  std::vector<std::string> m_muonTriggers_Loose;
   // Do we need to add tau triggers?
 
   // Configuration

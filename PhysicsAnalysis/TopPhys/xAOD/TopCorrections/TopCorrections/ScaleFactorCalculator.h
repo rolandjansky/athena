@@ -12,7 +12,7 @@
   *   Scale factors for all objects
   * 
   * $Revision: 766520 $
-  * $Date: 2016-08-04 18:39:21 +0200 (Thu, 04 Aug 2016) $
+  * $Date: 2016-08-04 17:39:21 +0100 (Thu, 04 Aug 2016) $
   * 
   **/ 
 

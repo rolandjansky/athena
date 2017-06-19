@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauScaleFactorCalculator.cxx 712396 2015-12-03 16:25:25Z tneep $
+// $Id: TauScaleFactorCalculator.cxx 805414 2017-05-24 12:21:29Z yili $
 #include <string>
 
 #include "TopCorrections/TauScaleFactorCalculator.h"
@@ -30,28 +30,53 @@ StatusCode TauScaleFactorCalculator::initialize() {
               "Failed to retrieve tau efficiency corrections tool");
 
   // How to get the recommended/affecting systematics...
-  // CP::SystematicSet m_syst_rec = m_tauEffCorrTool->recommendedSystematics();
-  // CP::SystematicSet m_syst_aff = m_tauEffCorrTool->affectingSystematics();
-
-  const std::string tauSysPrefix = "TAUS_TRUEHADTAU_EFF_";
+  //CP::SystematicSet m_syst_rec = m_tauEffCorrTool->recommendedSystematics();
+  //for (auto sysname : m_syst_rec.getBaseNames() ) std::cout<<"recommended "<<sysname<<std::endl;
+  //CP::SystematicSet m_syst_aff = m_tauEffCorrTool->affectingSystematics();
+  //for (auto sysname : m_syst_aff.getBaseNames() )  std::cout<<"affecting "<<sysname<<std::endl;
+  
+  const std::string trueTauHadSysPrefix = "TAUS_TRUEHADTAU_EFF_";
+  const std::string trueElectronSysPrefix = "TAUS_TRUEELECTRON_EFF_";
   // Should be empty- but lets be sure
   m_syst_map.clear();
   // Add all recommended systematics to be clear
-  // Tau-electron overlap removal up/down
+
+  // Tau-electron overlap removal up/down, true hadtau
   m_syst_map["tauSF_eleolr_total_down"]
-    = CP::SystematicSet(tauSysPrefix+"ELEOLR_TOTAL__1down");
+    = CP::SystematicSet(trueTauHadSysPrefix+"ELEOLR_TOTAL__1down");
   m_syst_map["tauSF_eleolr_total_up"]
-    = CP::SystematicSet(tauSysPrefix+"ELEOLR_TOTAL__1up");
+    = CP::SystematicSet(trueTauHadSysPrefix+"ELEOLR_TOTAL__1up");
+
+  // Tau-electron overlap removal up/down, true elec
+  m_syst_map["tauSF_trueelectron_eleolr_total_down"]
+    = CP::SystematicSet(trueElectronSysPrefix+"ELEOLR_TOTAL__1down");
+  m_syst_map["tauSF_trueelectron_eleolr_total_up"]
+    = CP::SystematicSet(trueElectronSysPrefix+"ELEOLR_TOTAL__1up");
+  
   // Tau Jet ID WP up/down
   m_syst_map["tauSF_jetid_total_down"]
-    = CP::SystematicSet(tauSysPrefix+"JETID_TOTAL__1down");
+    = CP::SystematicSet(trueTauHadSysPrefix+"JETID_TOTAL__1down");
   m_syst_map["tauSF_jetid_total_up"]
-    = CP::SystematicSet(tauSysPrefix+"JETID_TOTAL__1up");
+    = CP::SystematicSet(trueTauHadSysPrefix+"JETID_TOTAL__1up");
+
+  // Tau Jet ID WP highpt up/down
+  m_syst_map["tauSF_jetid_highpt_down"]
+    = CP::SystematicSet(trueTauHadSysPrefix+"JETID_HIGHPT__1down");
+  m_syst_map["tauSF_jetid_highpt_up"]
+    = CP::SystematicSet(trueTauHadSysPrefix+"JETID_HIGHPT__1up");
+
   // Tau reconstruction up/down
   m_syst_map["tauSF_reco_total_down"]
-    = CP::SystematicSet(tauSysPrefix+"RECO_TOTAL__1down");
+    = CP::SystematicSet(trueTauHadSysPrefix+"RECO_TOTAL__1down");
   m_syst_map["tauSF_reco_total_up"]
-    = CP::SystematicSet(tauSysPrefix+"RECO_TOTAL__1up");
+    = CP::SystematicSet(trueTauHadSysPrefix+"RECO_TOTAL__1up");
+
+  // Tau reconstruction highpt up/down
+  m_syst_map["tauSF_reco_highpt_down"]
+    = CP::SystematicSet(trueTauHadSysPrefix+"RECO_HIGHPT__1down");
+  m_syst_map["tauSF_reco_highpt_up"]
+    = CP::SystematicSet(trueTauHadSysPrefix+"RECO_HIGHPT__1up");
+  
 
   return StatusCode::SUCCESS;
 }

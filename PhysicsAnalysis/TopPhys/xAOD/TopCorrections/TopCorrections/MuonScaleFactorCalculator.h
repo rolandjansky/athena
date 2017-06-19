@@ -13,7 +13,7 @@
   *   Calculate all muon scale factors and decorate
   *
   * $Revision: 786766 $
-  * $Date: 2016-11-28 04:21:13 +0100 (Mon, 28 Nov 2016) $
+  * $Date: 2016-11-28 03:21:13 +0000 (Mon, 28 Nov 2016) $
   *
   **/
 

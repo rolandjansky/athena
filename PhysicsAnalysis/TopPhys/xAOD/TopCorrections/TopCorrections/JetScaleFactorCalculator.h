@@ -13,7 +13,7 @@
   *   Calculate all jet scale factors and decorate
   *
   * $Revision: 724681 $
-  * $Date: 2016-02-17 19:20:27 +0100 (Wed, 17 Feb 2016) $
+  * $Date: 2016-02-17 18:20:27 +0000 (Wed, 17 Feb 2016) $
   *
   **/
 

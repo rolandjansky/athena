@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BTagScaleFactorCalculator.cxx 802983 2017-04-16 18:31:29Z tpelzer $
+// $Id: BTagScaleFactorCalculator.cxx 806282 2017-06-08 15:48:40Z iconnell $
 #include "TopCorrections/BTagScaleFactorCalculator.h"
 #include "TopConfiguration/TopConfig.h"
 #include "TopEvent/EventTools.h"
@@ -11,6 +11,13 @@
 #include <cmath>
 #include <algorithm>
 #include <functional>
+
+// For debug function
+#include "PATInterfaces/SystematicCode.h"
+#include "PATInterfaces/SystematicSet.h"
+#include "PATInterfaces/SystematicVariation.h"
+#include "CalibrationDataInterface/CalibrationDataInterfaceROOT.h"
+#include "PathResolver/PathResolver.h"
 
 namespace top{
 
@@ -198,5 +205,60 @@ namespace top{
 
     return StatusCode::SUCCESS;
   }
+
+  StatusCode BTagScaleFactorCalculator::debug(){
+    ATH_MSG_INFO("BTagScaleFactorCalculator::debug function");
+    // Use after package is initialised otherwise vectors will be empty
+    for( auto& tagWP :  m_config->bTagWP_available() ){
+      ATH_MSG_INFO( "Tagger working point : " << tagWP );
+      ToolHandle<IBTaggingEfficiencyTool>& btageff = m_btagEffTools[tagWP];
+      // Retrieve tool
+      top::check(btageff.retrieve(),"Failed to retrieve tool");
+      // Retrieve list of systematics included
+      CP::SystematicSet systs    = btageff->affectingSystematics();
+      CP::SystematicSet recsysts = btageff->recommendedSystematics();
+
+      ATH_MSG_INFO("-----------------------------------------------------------------------");
+
+      const std::map<CP::SystematicVariation, std::vector<std::string> > allowed_variations = btageff->listSystematics();
+      
+      ATH_MSG_INFO("Allowed systematics variations for tool " << btageff->name() );
+      for (auto var : allowed_variations) {
+	std::string flvs = "";
+	for (auto flv : var.second) flvs += flv;
+	ATH_MSG_INFO(" ("<< flvs << ") - " << var.first);
+      }
+
+      // Now use the new functions added into xAODBTaggingEfficiency-00-00-39
+      // std::map<std::string, std::vector<std::string> >      
+      ATH_MSG_INFO("-----------------------------------------------------------------------");
+      ATH_MSG_INFO("List of b-tagging scale factor systematics");
+      std::map<std::string, std::vector<std::string> >  listOfScaleFactorSystematics = btageff->listScaleFactorSystematics(false);
+      for(auto var : listOfScaleFactorSystematics){
+	ATH_MSG_INFO("Jet flavour : " << var.first);
+	std::vector<std::string> systs = var.second;
+	std::sort(systs.begin(), systs.end());
+	for ( auto sys : systs ){
+	  ATH_MSG_INFO(" (" << var.first << ") - " << sys);
+	}
+	ATH_MSG_INFO(" ");
+      }
+
+      ATH_MSG_INFO("List of (named) b-tagging scale factor systematics");
+      listOfScaleFactorSystematics = btageff->listScaleFactorSystematics(true);
+      for(auto var : listOfScaleFactorSystematics){
+        ATH_MSG_INFO("Jet flavour : " << var.first);
+	std::vector<std::string> systs = var.second;
+	std::sort(systs.begin(), systs.end());
+        for ( auto sys : systs ){
+          ATH_MSG_INFO(" (" << var.first << ") - " << sys);
+        }
+	ATH_MSG_INFO(" ");
+      }
+      ATH_MSG_INFO("-----------------------------------------------------------------------");
+    }
+    return StatusCode::SUCCESS;
+  }
+
 
 }
