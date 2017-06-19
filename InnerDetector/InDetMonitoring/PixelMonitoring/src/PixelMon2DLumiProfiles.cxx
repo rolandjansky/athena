@@ -20,6 +20,8 @@ PixelMon2DLumiProfiles::PixelMon2DLumiProfiles(std::string name, std::string tit
       B2lbp(nullptr),
       Albp(nullptr),
       Clbp(nullptr),
+      DBMAlbp(nullptr),
+      DBMClbp(nullptr),
       m_config(config)
 {
    const int lbRange = 3000;
@@ -42,6 +44,12 @@ PixelMon2DLumiProfiles::PixelMon2DLumiProfiles(std::string name, std::string tit
    if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kECC)) {
       Clbp  = TProfile2D_LW::create((name+"_2D_Profile_ECC" ).c_str(),(title + ", ECC " + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+(float)lbRange,144,-0.5,143.5);
    }
+   if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kDBMA)) {
+      DBMAlbp = TProfile2D_LW::create((name+"_2D_Profile_DBMA" ).c_str(),(title + ", DBMA " + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+(float)lbRange,12,-0.5,11.5);
+   }
+   if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kDBMC)) {
+      DBMClbp = TProfile2D_LW::create((name+"_2D_Profile_DBMC" ).c_str(),(title + ", DBMC " + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+(float)lbRange,12,-0.5,11.5);
+   }
 
    formatHist();
 }
@@ -54,6 +62,8 @@ PixelMon2DLumiProfiles::~PixelMon2DLumiProfiles()
    if (B2lbp) LWHist::safeDelete(B2lbp);
    if (Albp) LWHist::safeDelete(Albp);
    if (Clbp) LWHist::safeDelete(Clbp);
+   if (DBMAlbp) LWHist::safeDelete(DBMAlbp);
+   if (DBMClbp) LWHist::safeDelete(DBMClbp);
 }
 
 void PixelMon2DLumiProfiles::Fill(double LB,Identifier &id, const PixelID* pixID, double weight)
@@ -66,6 +76,10 @@ void PixelMon2DLumiProfiles::Fill(double LB,Identifier &id, const PixelID* pixID
       Albp->Fill(LB, ld * 48 + pm, weight);
    } else if (bec == -2 && Clbp) {
       Clbp->Fill(LB, ld * 48 + pm, weight);
+   } else if (bec == 4 && DBMAlbp) {
+      DBMAlbp->Fill(LB, ld * 4 + pm, weight);
+   } else if (bec == -4 && DBMClbp) {
+      DBMClbp->Fill(LB, ld * 4 + pm, weight);
    } else if (bec == 0) {
       if (m_doIBL) ld--;
       const int em = pixID->eta_module(id) + 6;
@@ -86,7 +100,10 @@ void PixelMon2DLumiProfiles::formatHist()
 {
    const int ndisk = 3;
    const int nphi  = 48;
+   const int nphi_dbm = 4;
    const char *disk[ndisk] = { "D1", "D2", "D3" };
+   const char *layer_dbm[ndisk] = {"L0", "L1", "L2"};
+   const char *phi_dbm[nphi_dbm] = {"M3", "M4", "M1", "M2"};
    const int nmod = 13;
    const int nmodIBL = 20;
    const char *mod[nmod] = { "M6C", "M5C", "M4C", "M3C", "M2C", "M1C", "M0", "M1A", "M2A", "M3A", "M4A", "M5A", "M6A" } ;
@@ -157,6 +174,18 @@ void PixelMon2DLumiProfiles::formatHist()
       }
       count = 1;
    }
+   if (DBMAlbp && DBMClbp) {
+      for (int j = 0; j < ndisk; j++) {
+         for (int i = 0; i < nphi_dbm; i++) {
+            sprintf(label, "%sA_%s", layer_dbm[j], phi_dbm[i]);
+            DBMAlbp->GetYaxis()->SetBinLabel(count, label);
+            sprintf(label, "%sC_%s", layer_dbm[j], phi_dbm[i]);
+            DBMClbp->GetYaxis()->SetBinLabel(count, label);
+            count++;
+         }
+      }
+      count = 1;
+   }
    if (B0lbp && B1lbp && B2lbp) {
       for (int i = 0; i < nstave0; i++) {
          for (int j = 0; j < nmod; j++) {
@@ -199,6 +228,12 @@ void PixelMon2DLumiProfiles::formatHist()
       Albp->SetOption("colz");
       Clbp->SetOption("colz");
    }
+   if (DBMAlbp && DBMClbp) {
+      DBMAlbp->GetYaxis()->SetLabelSize(0.03);
+      DBMClbp->GetYaxis()->SetLabelSize(0.03);
+      DBMAlbp->SetOption("colz");
+      DBMClbp->SetOption("colz");
+   }
    if (B0lbp && B1lbp && B2lbp) {
       B0lbp->GetYaxis()->SetLabelSize(0.03);
       B1lbp->GetYaxis()->SetLabelSize(0.03);
@@ -222,6 +257,8 @@ StatusCode PixelMon2DLumiProfiles::regHist(ManagedMonitorToolBase::MonGroup &gro
    if (B2lbp && group.regHist(B2lbp).isFailure()) sc = StatusCode::FAILURE;
    if (Albp && group.regHist(Albp).isFailure()) sc = StatusCode::FAILURE;
    if (Clbp && group.regHist(Clbp).isFailure()) sc = StatusCode::FAILURE;
+   if (DBMAlbp && group.regHist(DBMAlbp).isFailure()) sc = StatusCode::FAILURE;
+   if (DBMClbp && group.regHist(DBMClbp).isFailure()) sc = StatusCode::FAILURE;
    
    return sc;
 }
