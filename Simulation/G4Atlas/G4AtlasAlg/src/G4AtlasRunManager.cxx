@@ -187,7 +187,14 @@ void G4AtlasRunManager::InitializePhysics()
       abort(); // to keep Coverity happy
     }
 
-  if (m_recordFlux){
+  if (m_recordFlux) {
+    this->InitializeFluxRecording();
+  }
+
+  return;
+}
+
+void G4AtlasRunManager::InitializeFluxRecording() {
     // @TODO move this block into a separate function.
     G4UImanager *ui = G4UImanager::GetUIpointer();
     ui->ApplyCommand("/run/setCutForAGivenParticle proton 0 mm");
@@ -259,7 +266,7 @@ void G4AtlasRunManager::InitializePhysics()
 
         mesh->Construct(pWorld);
       }
-  } //if (m_recordFlux)
+  }
   return;
 }
 
@@ -353,21 +360,10 @@ bool G4AtlasRunManager::SimulateFADSEvent()
       return true;
     }
 
-  if (m_recordFlux){
-    G4ScoringManager* ScM = G4ScoringManager::GetScoringManagerIfExist();
-    if(ScM){
-      G4int nPar = ScM->GetNumberOfMesh();
-      G4HCofThisEvent* HCE = currentEvent->GetHCofThisEvent();
-      if(HCE && nPar>0){;
-        G4int nColl = HCE->GetCapacity();
-        for(G4int i=0;i<nColl;i++)
-          {
-            G4VHitsCollection* HC = HCE->GetHC(i);
-            if(HC) ScM->Accumulate(HC);
-          }
-      }
-    }
+  if (m_recordFlux) {
+    this->RecordFlux();
   }
+
   //      stateManager->SetNewState(G4State_GeomClosed);
   // Register all of the collections if there are any new-style SDs
   if (m_senDetTool)
@@ -397,16 +393,26 @@ bool G4AtlasRunManager::SimulateFADSEvent()
   return abort;
 }
 
+void G4AtlasRunManager::RecordFlux() {
+  G4ScoringManager* ScM = G4ScoringManager::GetScoringManagerIfExist();
+  if(ScM) {
+    G4int nPar = ScM->GetNumberOfMesh();
+    G4HCofThisEvent* HCE = currentEvent->GetHCofThisEvent();
+    if(HCE && nPar>0) {
+      G4int nColl = HCE->GetCapacity();
+      for(G4int i=0;i<nColl;i++) {
+        G4VHitsCollection* HC = HCE->GetHC(i);
+        if(HC) { ScM->Accumulate(HC); }
+      }
+    }
+  }
+  return;
+}
 
 void  G4AtlasRunManager::RunTermination()
 {
-  if (m_recordFlux){
-    G4UImanager *ui=G4UImanager::GetUIpointer();
-    ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 eDep edep.txt");
-    ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_neutron neutron.txt");
-    ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_HEneutron HEneutron.txt");
-    ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_photon photon.txt");
-    ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 dose dose.txt");
+  if (m_recordFlux) {
+    this->WriteFluxInformation();
   }
   // std::cout<<" this is G4AtlasRunManager::RunTermination() "<<std::endl;
 #if G4VERSION_NUMBER < 1010
@@ -450,6 +456,16 @@ void  G4AtlasRunManager::RunTermination()
   userPrimaryGeneratorAction=0;
 
   // std::cout<<" this is G4AtlasRunManager::RunTermination(): done "<<std::endl;
+}
+
+void G4AtlasRunManager::WriteFluxInformation() {
+  G4UImanager *ui=G4UImanager::GetUIpointer();
+  ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 eDep edep.txt");
+  ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_neutron neutron.txt");
+  ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_HEneutron HEneutron.txt");
+  ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_photon photon.txt");
+  ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 dose dose.txt");
+  return;
 }
 
 void G4AtlasRunManager::SetCurrentG4Event(int iEvent)
