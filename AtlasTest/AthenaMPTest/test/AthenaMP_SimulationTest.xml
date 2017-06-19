@@ -29,7 +29,7 @@
    <TEST name="AtlasG4_tfMP-SharedReader" type="script" suite="AthenaMPSimSharedReader">
       <package_atn>AtlasTest/AthenaMPTest</package_atn>
       <doc>Tests MP simulation in TF with the Shared Reader process</doc>
-      <options_atn>TRF_ECHO=1 ATHENA_PROC_NUMBER=2 AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root' --outputHITSFile 'HITSMPSimSharedReader.pool.root' --maxEvents '4' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'FTFP_BERT' --postInclude 'PyJobTransforms/UseFrontier.py' 'AtlasG4Tf:G4AtlasTests/postInclude.DCubeTest.py' --preExec 'AtlasG4Tf:simFlags.ReleaseGeoModel=False;from AthenaMP.AthenaMPFlags import jobproperties as jps;jps.AthenaMPFlags.Strategy="SharedReader"'</options_atn>
+      <options_atn>TRF_ECHO=1 ATHENA_PROC_NUMBER=2 AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root' --outputHITSFile 'HITSMPSimSharedReader.pool.root' --maxEvents '4' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'FTFP_BERT' --postInclude 'PyJobTransforms/UseFrontier.py' 'AtlasG4Tf:G4AtlasTests/postInclude.DCubeTest.py' --preExec 'AtlasG4Tf:simFlags.ReleaseGeoModel=False;from AthenaMP.AthenaMPFlags import jobproperties as jps;jps.AthenaMPFlags.UseSharedReader=True'</options_atn>
       <timelimit>30</timelimit>
       <author>Vakho Tsulaia</author>
       <mailto>tsulaia@cern.ch</mailto>

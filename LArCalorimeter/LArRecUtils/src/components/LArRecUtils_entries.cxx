@@ -18,6 +18,7 @@
 #include "../LArFCalTowerBuilderToolTestAlg.h"
 #include "../LArHVScaleRetriever.h"
 #include "../LArFlatConditionsAlg.h"
+#include "../LArOnOffMappingAlg.h"
 
 DECLARE_TOOL_FACTORY( LArADC2MeVTool )
 DECLARE_TOOL_FACTORY( LArAutoCorrNoiseTool )
@@ -55,7 +56,7 @@ DECLARE_ALGORITHM_FACTORY( LArCondAlgShapeSC)
 DECLARE_ALGORITHM_FACTORY( LArCondAlgfSamplSC)
 DECLARE_ALGORITHM_FACTORY( LArCondAlguA2MeVFlat)
 DECLARE_ALGORITHM_FACTORY( LArCondAlguA2MeVSC)
-
+DECLARE_ALGORITHM_FACTORY( LArOnOffMappingAlg)
 
 
 

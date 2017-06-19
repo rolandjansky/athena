@@ -12,6 +12,7 @@
 
 
 #undef NDEBUG
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "StoreGate/WriteDecorHandle.h"
 #include "AthContainers/DataVector.h"
 #include "AthContainers/AuxElement.h"
@@ -61,7 +62,8 @@ void test1()
 
   SGTest::TestStore dumstore;
   EventContext ctx5;
-  ctx5.setProxy (&dumstore);
+  ctx5.setExtension( Atlas::ExtendedEventContext(&dumstore) );
+
   SG::WriteDecorHandle<MyObj, int> h5 (k3, ctx5);
   assert (h5.clid() == MyCLID);
   assert (h5.key() == "asd.aaa");
@@ -274,7 +276,7 @@ void test5()
 
   SGTest::TestStore dumstore;
   EventContext ctx;
-  ctx.setProxy (&dumstore);
+  ctx.setExtension( Atlas::ExtendedEventContext(&dumstore) );
   auto h2 = SG::makeHandle<int> (k1, ctx);
   assert (h2.clid() == MyCLID);
   assert (h2.key() == "asd.aaa");

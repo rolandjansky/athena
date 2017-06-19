@@ -129,10 +129,9 @@ private:
 
   std::vector<double> m_caloDepthArray;
 
-
 //create new class -- link from here, e.g.
 // eflowCellOrderingParameters* m_cellOrderingParameters;
-  eflowTrackCaloPoints* m_trackCaloPoints;
+  std::unique_ptr<eflowTrackCaloPoints> m_trackCaloPoints;
   eflowRingSubtractionManager m_ringSubtractionManager;
   std::vector<eflowTrackClusterLink*> m_clusterMatches;
   std::map<std::string,std::vector<eflowTrackClusterLink*> > m_alternativeClusterMatches;
