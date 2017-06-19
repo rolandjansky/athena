@@ -21,7 +21,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/NTuple.h"
-#include "DataModel/DataLink.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "AthenaMonitoring/AthenaMonManager.h"
