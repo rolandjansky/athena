@@ -258,9 +258,7 @@ StatusCode MdtVsTgcRawDataValAlg::bookHistogramsRecurrent(){
   MonGroup mdtvstgclv1_expert_a( this, generic_path_mdtvstgclv1+"/TGCEA", run, ATTRIB_UNMANAGED );
   MonGroup mdtvstgclv1_expert_c( this, generic_path_mdtvstgclv1+"/TGCEC", run, ATTRIB_UNMANAGED );
   
-  if(newEventsBlock){}
-  if(newLumiBlock){}
-  if(newRun){
+  if(newRunFlag()){
     m_log << MSG::INFO << "MdtVsTgc RawData Monitoring : begin of run" << endmsg;
     
     sc = bookmaphists(mdtvstgclv1_expert_a,
@@ -355,9 +353,7 @@ StatusCode MdtVsTgcRawDataValAlg::procHistograms(){
 /*----------------------------------------------------------------------------------*/
  
   if (m_debuglevel) m_log << MSG::DEBUG << "MdtVsTgcRawDataValAlg finalize()" << endmsg;
-  if(endOfEventsBlock){}
-  if(endOfLumiBlock){}
-  if(endOfRun){
+  if(endOfRunFlag()){
     tgceffcalcfinalize();
     maphistsfinalize();
   }
