@@ -724,9 +724,7 @@ StatusCode CscPrdValAlg::fillHistograms()  {
 StatusCode CscPrdValAlg::procHistograms() {
   StatusCode sc = StatusCode::SUCCESS;
   ATH_MSG_DEBUG( "CscPrdValAlg: in procHistograms" );
-  if(endOfEventsBlock){}
-  if(endOfLumiBlock){}
-  if(endOfRun){
+  if(endOfRunFlag()){
     /*
        std::string m_cscGenPath = m_cscPRDPath.substr(0,m_cscPRDPath.find("CSC"));
     //MonGroup m_cscprd_oviewEC( this, m_cscGenPath+"CSC/Overview/CSCEC", shift, run );

@@ -1260,9 +1260,6 @@ bool CscClusterValAlg::evtSelTriggersPassed() {
 StatusCode CscClusterValAlg::procHistograms() {
 
   StatusCode sc = StatusCode::SUCCESS;
-  if(endOfEventsBlock){}
-  if(endOfLumiBlock){}
-  if(endOfRun){}
 
   /* book these only at the end of run
   if(isEndOfRun){
