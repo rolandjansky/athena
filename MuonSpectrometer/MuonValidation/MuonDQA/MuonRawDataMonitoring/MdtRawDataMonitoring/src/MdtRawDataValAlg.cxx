@@ -1937,7 +1937,7 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
 
   // LOOP OVER SEGMENTS  
   for (Trk::SegmentCollection::const_iterator s = segms->begin(); s != segms->end(); ++s) {
-    Muon::MuonSegment* segment = dynamic_cast<Muon::MuonSegment*>(*s);
+    const Muon::MuonSegment* segment = dynamic_cast<const Muon::MuonSegment*>(*s);
     if (segment == 0) {
       ATH_MSG_DEBUG("no pointer to segment!!!");
       break;
