@@ -348,9 +348,6 @@ def getSpecificL1Seeds(l1seedname, l1itemobject):
     elif (l1seedname == 'L1_MU20MU21_FTK'):
         L1Seed = 'L1_MU20_FTK,L1_MU21_FTK'
 
-    elif (l1seedname == 'L1_MU20MU21_TAU12IM_FTK'):
-        L1Seed = 'L1_MU20_FTK,L1_MU21_FTK,L1_TAU12IM_FTK'
-
     elif (l1seedname == 'L1_TAU'):
         L1Seed = getL1TauSeed(l1items)
 
