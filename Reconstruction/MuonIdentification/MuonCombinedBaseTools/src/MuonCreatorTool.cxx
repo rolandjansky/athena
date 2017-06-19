@@ -1389,7 +1389,7 @@ namespace MuonCombined {
       }
       */
     }else{
-      ATH_MSG_ERROR("No primary track particle set, deleting muon");
+      ATH_MSG_DEBUG("No primary track particle set, deleting muon");
       return false;
     }
 
