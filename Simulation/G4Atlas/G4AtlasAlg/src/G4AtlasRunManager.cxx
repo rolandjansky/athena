@@ -58,7 +58,7 @@ G4AtlasRunManager::G4AtlasRunManager()
 
 G4AtlasRunManager* G4AtlasRunManager::GetG4AtlasRunManager()
 {
-  static G4AtlasRunManager* thisManager=0;
+  static G4AtlasRunManager* thisManager = nullptr;
   if (!thisManager)
     {
       thisManager=new G4AtlasRunManager; // Leaked
@@ -302,7 +302,7 @@ bool G4AtlasRunManager::SimulateFADSEvent()
           abort(); // to keep Coverity happy
         }
 
-      IGeoModelSvc* geoModel = 0;
+      IGeoModelSvc* geoModel = nullptr;
       if(svcLocator->service("GeoModelSvc",geoModel).isFailure())
         {
           ATH_MSG_WARNING( " ----> Unable to retrieve GeoModelSvc" );
@@ -336,7 +336,7 @@ bool G4AtlasRunManager::SimulateFADSEvent()
   if (currentEvent->IsAborted())
     {
       ATH_MSG_WARNING( "G4AtlasRunManager::SimulateFADSEvent: Event Aborted at Generator level" );
-      currentEvent=0;
+      currentEvent = nullptr;
       return true;
     }
 
@@ -344,7 +344,7 @@ bool G4AtlasRunManager::SimulateFADSEvent()
   if (currentEvent->IsAborted())
     {
       ATH_MSG_WARNING( "G4AtlasRunManager::SimulateFADSEvent: Event Aborted at Detector Simulation level" );
-      currentEvent=0;
+      currentEvent = nullptr;
       return true;
     }
 
@@ -352,7 +352,7 @@ bool G4AtlasRunManager::SimulateFADSEvent()
   if (currentEvent->IsAborted())
     {
       ATH_MSG_WARNING( "G4AtlasRunManager::SimulateFADSEvent: Event Aborted at Analysis level" );
-      currentEvent=0;
+      currentEvent = nullptr;
       return true;
     }
 
@@ -384,7 +384,7 @@ bool G4AtlasRunManager::SimulateFADSEvent()
     }
   StackPreviousEvent(currentEvent);
   bool abort=currentEvent->IsAborted();
-  currentEvent = 0;
+  currentEvent = nullptr;
   // std::cout<<" SimulateFADSEvent : done simulating one event "<<std::endl;
   return abort;
 }
@@ -427,7 +427,7 @@ void  G4AtlasRunManager::RunTermination()
     }
 
   delete currentRun;
-  currentRun = 0;
+  currentRun = nullptr;
   runIDCounter++;
 
   ATH_MSG_INFO( "Changing the state..." );
@@ -441,15 +441,15 @@ void  G4AtlasRunManager::RunTermination()
   kernel->RunTermination();
   ATH_MSG_INFO( "All done..." );
 
-  // std::cout<<" setting all pointers in G4AtlasRunManager to 0"<<std::endl;
-  userRunAction=0;
-  userEventAction=0;
-  userSteppingAction=0;
-  userStackingAction=0;
-  userTrackingAction=0;
-  // physicsList=0;
-  userDetector=0;
-  userPrimaryGeneratorAction=0;
+  // std::cout<<" setting all pointers in G4AtlasRunManager to nullptr"<<std::endl;
+  userRunAction=nullptr;
+  userEventAction=nullptr;
+  userSteppingAction=nullptr;
+  userStackingAction=nullptr;
+  userTrackingAction=nullptr;
+  // physicsList=nullptr;
+  userDetector=nullptr;
+  userPrimaryGeneratorAction=nullptr;
 
   // std::cout<<" this is G4AtlasRunManager::RunTermination(): done "<<std::endl;
 }
