@@ -51,7 +51,7 @@ namespace top {
     m_operatingPointLoose    = operatingPointLoose;
 
     // currently implemented only for this working point
-    if (m_operatingPoint == "MediumLH" && m_isolation->tightLeptonIsolation() == "FixedCutTight")
+    if (m_operatingPoint == "MediumLH" && (m_isolation->tightLeptonIsolation() == "FixedCutTight" || m_isolation->looseLeptonIsolation() == "FixedCutTight"))
       m_applyChargeIDCut = true;
   }
 
@@ -136,7 +136,7 @@ namespace top {
 bool ElectronLikelihoodMC15::passBLayerCuts(const xAOD::Electron& el) const
 {
   
-  // this is taken from ElectronPhotonSelectorTools/Root/AsgElectronLikelihoodTool.cxx                                                                                                                       
+  // this is taken from ElectronPhotonSelectorTools/Root/AsgElectronLikelihoodTool.cxx
   const xAOD::TrackParticle* t = el.trackParticle();
 
   if (!t) return false;
@@ -158,7 +158,7 @@ bool ElectronLikelihoodMC15::passTTVACuts(const xAOD::Electron& el) const
 {
 
   // TTVA:
-  // see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TrackingCPEOYE2015#Track_to_Vertex_Association    
+  // see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TrackingCPEOYE2015#Track_to_Vertex_Association
   if( !el.isAvailable<float>("d0sig") ){
     std::cout << "d0 significance not found for electron. "
 	      << "Maybe no primary vertex? Won't accept." << std::endl;
@@ -178,9 +178,8 @@ bool ElectronLikelihoodMC15::passTTVACuts(const xAOD::Electron& el) const
   float delta_z0_sintheta = el.auxdataConst<float>("delta_z0_sintheta");
   if( std::abs(delta_z0_sintheta) >= 0.5 )
     return false;
-  
+
   return true;
-  
 }
 
 bool ElectronLikelihoodMC15::passChargeIDCut(const xAOD::Electron& el) const

@@ -13,7 +13,7 @@
   *   Do overlap removal based on selected indices
   * 
   * $Revision: 661110 $
-  * $Date: 2015-04-17 02:03:39 +0200 (Fri, 17 Apr 2015) $
+  * $Date: 2015-04-17 01:03:39 +0100 (Fri, 17 Apr 2015) $
   * 
   **/ 
 

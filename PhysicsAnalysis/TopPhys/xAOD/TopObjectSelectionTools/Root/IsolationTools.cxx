@@ -116,6 +116,8 @@ void ApproxPTVarCone::print(std::ostream& os) const {
 StandardIsolation::StandardIsolation(const std::string& tightLeptonIsolation,const std::string& looseLeptonIsolation) :
   m_tightLeptonDecoration("AnalysisTop_Isol_"+tightLeptonIsolation),
   m_looseLeptonDecoration("AnalysisTop_Isol_"+looseLeptonIsolation),
+  m_tightLeptonIsolation(tightLeptonIsolation),
+  m_looseLeptonIsolation(looseLeptonIsolation),
   m_doTightIsolation(true),
   m_doLooseIsolation(true)
 {
@@ -124,6 +126,7 @@ StandardIsolation::StandardIsolation(const std::string& tightLeptonIsolation,con
   
   if (looseLeptonIsolation == "None")
       m_doLooseIsolation = false;
+  
 }
 
 bool StandardIsolation::passSelection(const xAOD::IParticle& p) const 
