@@ -44,15 +44,15 @@
 
 
 G4AtlasRunManager::G4AtlasRunManager()
-  : G4RunManager(),
-    m_msg("G4AtlasRunManager"),
-    m_releaseGeo(false),
-    m_recordFlux(false),
+  : G4RunManager()
+  , m_msg("G4AtlasRunManager")
+  , m_releaseGeo(false)
+  , m_recordFlux(false)
     // FIXME: these should all be configured by a component (e.g. G4AtlasAlg)
-    m_senDetTool("SensitiveDetectorMasterTool"),
-    m_fastSimTool("FastSimulationMasterTool"),
-    m_physListTool("PhysicsListToolBase"),
-    m_userActionSvc("G4UA::UserActionSvc", "G4AtlasRunManager")
+  , m_senDetTool("SensitiveDetectorMasterTool")
+  , m_fastSimTool("FastSimulationMasterTool")
+  , m_physListTool("PhysicsListToolBase")
+  , m_userActionSvc("G4UA::UserActionSvc", "G4AtlasRunManager")
 {  }
 
 
@@ -195,77 +195,73 @@ void G4AtlasRunManager::InitializePhysics()
 }
 
 void G4AtlasRunManager::InitializeFluxRecording() {
-    // @TODO move this block into a separate function.
-    G4UImanager *ui = G4UImanager::GetUIpointer();
-    ui->ApplyCommand("/run/setCutForAGivenParticle proton 0 mm");
+  // @TODO move this block into a separate function.
+  G4UImanager *ui = G4UImanager::GetUIpointer();
+  ui->ApplyCommand("/run/setCutForAGivenParticle proton 0 mm");
 
-    G4ScoringManager* ScM = G4ScoringManager::GetScoringManagerIfExist();
+  G4ScoringManager* ScM = G4ScoringManager::GetScoringManagerIfExist();
 
-    if(!ScM) return;
+  if(!ScM) return;
 
-    ui->ApplyCommand("/score/create/cylinderMesh cylMesh_1");
-    //                        R  Z(-24 to 24)
-    ui->ApplyCommand("/score/mesh/cylinderSize 12. 24. m");
-    //                iR iZ
-    //ui->ApplyCommand("/score/mesh/nBin 1 1 1");
-    ui->ApplyCommand("/score/mesh/nBin 120 480 1");
+  ui->ApplyCommand("/score/create/cylinderMesh cylMesh_1");
+  //                        R  Z(-24 to 24)
+  ui->ApplyCommand("/score/mesh/cylinderSize 12. 24. m");
+  //                iR iZ
+  //ui->ApplyCommand("/score/mesh/nBin 1 1 1");
+  ui->ApplyCommand("/score/mesh/nBin 120 480 1");
 
-    ui->ApplyCommand("/score/quantity/energyDeposit eDep");
+  ui->ApplyCommand("/score/quantity/energyDeposit eDep");
 
-    ui->ApplyCommand("/score/quantity/cellFlux CF_photon");
-    ui->ApplyCommand("/score/filter/particle photonFilter gamma");
-    // above 2 line crete tally for cell flux for gamma
+  ui->ApplyCommand("/score/quantity/cellFlux CF_photon");
+  ui->ApplyCommand("/score/filter/particle photonFilter gamma");
+  // above 2 line crete tally for cell flux for gamma
 
-    ui->ApplyCommand("/score/quantity/cellFlux CF_neutron");
-    ui->ApplyCommand("/score/filter/particle neutronFilter neutron");
+  ui->ApplyCommand("/score/quantity/cellFlux CF_neutron");
+  ui->ApplyCommand("/score/filter/particle neutronFilter neutron");
 
-    ui->ApplyCommand("/score/quantity/cellFlux CF_HEneutron");
-    ui->ApplyCommand("/score/filter/particleWithKineticEnergy HEneutronFilter 20 7000000 MeV neutron");
+  ui->ApplyCommand("/score/quantity/cellFlux CF_HEneutron");
+  ui->ApplyCommand("/score/filter/particleWithKineticEnergy HEneutronFilter 20 7000000 MeV neutron");
 
-    ui->ApplyCommand("/score/quantity/doseDeposit dose");
+  ui->ApplyCommand("/score/quantity/doseDeposit dose");
 
-    ui->ApplyCommand("/score/close");
-    ui->ApplyCommand("/score/list");
+  ui->ApplyCommand("/score/close");
+  ui->ApplyCommand("/score/list");
 
-    G4int nPar = ScM->GetNumberOfMesh();
+  G4int nPar = ScM->GetNumberOfMesh();
 
-    if(nPar<1) return;
+  if(nPar<1) return;
 
-    G4ParticleTable::G4PTblDicIterator* particleIterator
-      = G4ParticleTable::GetParticleTable()->GetIterator();
+  G4ParticleTable::G4PTblDicIterator* particleIterator
+    = G4ParticleTable::GetParticleTable()->GetIterator();
 
-    for(G4int iw=0;iw<nPar;iw++)
-      {
-        G4VScoringMesh* mesh = ScM->GetMesh(iw);
-        G4VPhysicalVolume* pWorld
-          = G4TransportationManager::GetTransportationManager()
-          ->IsWorldExisting(ScM->GetWorldName(iw));
-        if(!pWorld)
-          {
-            pWorld = G4TransportationManager::GetTransportationManager()
-              ->GetParallelWorld(ScM->GetWorldName(iw));
-            pWorld->SetName(ScM->GetWorldName(iw));
+  for(G4int iw=0;iw<nPar;iw++) {
+    G4VScoringMesh* mesh = ScM->GetMesh(iw);
+    G4VPhysicalVolume* pWorld
+      = G4TransportationManager::GetTransportationManager()
+      ->IsWorldExisting(ScM->GetWorldName(iw));
+    if(!pWorld) {
+      pWorld = G4TransportationManager::GetTransportationManager()
+        ->GetParallelWorld(ScM->GetWorldName(iw));
+      pWorld->SetName(ScM->GetWorldName(iw));
 
-            G4ParallelWorldScoringProcess* theParallelWorldScoringProcess
-              = new G4ParallelWorldScoringProcess(ScM->GetWorldName(iw));
-            theParallelWorldScoringProcess->SetParallelWorld(ScM->GetWorldName(iw));
+      G4ParallelWorldScoringProcess* theParallelWorldScoringProcess
+        = new G4ParallelWorldScoringProcess(ScM->GetWorldName(iw));
+      theParallelWorldScoringProcess->SetParallelWorld(ScM->GetWorldName(iw));
 
-            particleIterator->reset();
-            while( (*particleIterator)() ){
-              G4ParticleDefinition* particle = particleIterator->value();
-              G4ProcessManager* pmanager = particle->GetProcessManager();
-              if(pmanager)
-                {
-                  pmanager->AddProcess(theParallelWorldScoringProcess);
-                  pmanager->SetProcessOrderingToLast(theParallelWorldScoringProcess, idxAtRest);
-                  pmanager->SetProcessOrderingToSecond(theParallelWorldScoringProcess, idxAlongStep);
-                  pmanager->SetProcessOrderingToLast(theParallelWorldScoringProcess, idxPostStep);
-                }
-            }
-          }
-
-        mesh->Construct(pWorld);
+      particleIterator->reset();
+      while( (*particleIterator)() ) {
+        G4ParticleDefinition* particle = particleIterator->value();
+        G4ProcessManager* pmanager = particle->GetProcessManager();
+        if(pmanager) {
+          pmanager->AddProcess(theParallelWorldScoringProcess);
+          pmanager->SetProcessOrderingToLast(theParallelWorldScoringProcess, idxAtRest);
+          pmanager->SetProcessOrderingToSecond(theParallelWorldScoringProcess, idxAlongStep);
+          pmanager->SetProcessOrderingToLast(theParallelWorldScoringProcess, idxPostStep);
+        }
       }
+    }
+
+    mesh->Construct(pWorld);
   }
   return;
 }
