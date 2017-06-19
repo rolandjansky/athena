@@ -12,7 +12,7 @@
  * @brief MakeTopConfig - it makes a top::TopConfig from the metadata
  *
  * $Revision: 681944 $
- * $Date: 2015-07-09 23:59:27 +0200 (Thu, 09 Jul 2015) $
+ * $Date: 2015-07-09 22:59:27 +0100 (Thu, 09 Jul 2015) $
  *
  *
  **/

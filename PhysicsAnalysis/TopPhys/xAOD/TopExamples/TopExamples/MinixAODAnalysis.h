@@ -12,7 +12,7 @@
  * @brief MinixAODAnalysis
  *
  * $Revision: 683667 $
- * $Date: 2015-07-17 04:24:59 +0200 (Fri, 17 Jul 2015) $
+ * $Date: 2015-07-17 03:24:59 +0100 (Fri, 17 Jul 2015) $
  *
  *
  **/
