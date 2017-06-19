@@ -14,7 +14,7 @@
   *   Class derived from CalcTopPartonHistory, used to store tbbar variables
   * 
   * $Revision: 777122 $
-  * $Date: 2016-10-07 15:57:57 +0200 (Fri, 07 Oct 2016) $
+  * $Date: 2016-10-07 14:57:57 +0100 (Fri, 07 Oct 2016) $
   * 
   **/ 
 

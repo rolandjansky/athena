@@ -15,7 +15,7 @@
   *   Determine the history of the top partons
   * 
   * $Revision: 800464 $
-  * $Date: 2017-03-13 19:06:24 +0100 (Mon, 13 Mar 2017) $
+  * $Date: 2017-03-13 18:06:24 +0000 (Mon, 13 Mar 2017) $
   * 
   **/ 
 
