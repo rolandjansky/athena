@@ -10,17 +10,17 @@ import re
 import shutil
 import sys
 import tarfile
-import time
 
 from art_base import ArtBase
-from art_misc import mkdir_p, make_executable, check, run_command, count_string_occurrence
+from art_misc import mkdir_p, make_executable, check, run_command
 
 
 class ArtGrid(ArtBase):
     """TBD."""
 
-    def __init__(self, nightly_release, project, platform, nightly_tag):
+    def __init__(self, art_directory, nightly_release, project, platform, nightly_tag):
         """TBD."""
+        self.art_directory = art_directory
         self.nightly_release = nightly_release
         self.project = project
         self.platform = platform
@@ -39,9 +39,6 @@ class ArtGrid(ArtBase):
 
     def task_list(self, type, sequence_tag):
         """TBD."""
-        # get the path of the art.py script
-        art_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
-
         # job will be submitted from tmp directory
         submit_directory = 'tmp'
 
@@ -82,37 +79,41 @@ class ArtGrid(ArtBase):
                     sys.stdout.flush()
                     submit_dir = os.path.join(submit_directory, package)
                     run = os.path.join(submit_dir, "run")
-                    mkdir_p(run)
+                    ART = os.path.join(run, "ART")
+                    mkdir_p(ART)
 
-                    shutil.copy(os.path.join(art_dir, 'art.py'), run)
-                    shutil.copy(os.path.join(art_dir, 'art-internal.py'), run)
-                    shutil.copy(os.path.join(art_dir, 'art_base.py'), run)
-                    shutil.copy(os.path.join(art_dir, 'art_local.py'), run)
-                    shutil.copy(os.path.join(art_dir, 'art_grid.py'), run)
-                    shutil.copy(os.path.join(art_dir, 'art_batch.py'), run)
-                    shutil.copy(os.path.join(art_dir, 'art_misc.py'), run)
-                    shutil.copy(os.path.join(art_dir, 'serialScheduler.py'), run)
-                    shutil.copy(os.path.join(art_dir, 'parallelScheduler.py'), run)
-                    shutil.copy(os.path.join(art_dir, 'docopt.py'), run)
-                    shutil.copy(os.path.join(art_dir, 'docopt_dispatch.py'), run)
+                    # get the path of the python classes and support scripts
+                    art_python_directory = os.path.join(self.art_directory, '..', 'python', 'ART')
+
+                    # FIXME we need to know where all those files went in the Athena install
+                    shutil.copy(os.path.join(self.art_directory, 'art.py'), run)
+                    shutil.copy(os.path.join(self.art_directory, 'art-internal.py'), run)
+                    shutil.copy(os.path.join(art_python_directory, '__init__.py'), ART)
+                    shutil.copy(os.path.join(art_python_directory, 'art_base.py'), ART)
+                    shutil.copy(os.path.join(art_python_directory, 'art_build.py'), ART)
+                    shutil.copy(os.path.join(art_python_directory, 'art_grid.py'), ART)
+                    shutil.copy(os.path.join(art_python_directory, 'art_header.py'), ART)
+                    shutil.copy(os.path.join(art_python_directory, 'art_misc.py'), ART)
+                    shutil.copy(os.path.join(art_python_directory, 'docopt.py'), ART)
+                    shutil.copy(os.path.join(art_python_directory, 'docopt_dispatch.py'), ART)
+                    shutil.copy(os.path.join(art_python_directory, 'parallelScheduler.py'), ART)
+                    shutil.copy(os.path.join(art_python_directory, 'serialScheduler.py'), ART)
 
                     make_executable(os.path.join(run, 'art.py'))
                     make_executable(os.path.join(run, 'art-internal.py'))
 
-                    command = os.path.join(art_dir, 'art-internal.py') + ' task grid ' + package + ' ' + type + ' ' + sequence_tag + ' ' + self.nightly_release + ' ' + self.project + ' ' + self.platform + ' ' + self.nightly_tag
+                    command = os.path.join(self.art_directory, 'art-internal.py') + ' task grid ' + package + ' ' + type + ' ' + sequence_tag + ' ' + self.nightly_release + ' ' + self.project + ' ' + self.platform + ' ' + self.nightly_tag
                     print command
                     sys.stdout.flush()
                     out = check(run_command(command))
                     print out
                     sys.stdout.flush()
+        return 0
 
     def task(self, package, type, sequence_tag):
         """TBD."""
         print 'Running art task'
         sys.stdout.flush()
-
-        # get the path of the art.py script
-        art_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
 
         number_of_tests = len(self.get_list(self.get_script_directory(), package, type))
 
@@ -121,9 +122,10 @@ class ArtGrid(ArtBase):
 
         # run task from Bash Script as is needed in ATLAS setup
         # FIXME we need to parse the output
-        out = check(run_command(os.path.join(art_dir, 'art-task-grid.sh') + " " + package + " " + type + " " + sequence_tag + " " + str(number_of_tests) + " " + self.nightly_release + " " + self.project + " " + self.platform + " " + self.nightly_tag))
+        out = check(run_command(os.path.join(self.art_directory, 'art-task-grid.sh') + " " + package + " " + type + " " + sequence_tag + " " + str(number_of_tests) + " " + self.nightly_release + " " + self.project + " " + self.platform + " " + self.nightly_tag))
         print out
         sys.stdout.flush()
+        return 0
 
     def job(self, package, type, sequence_tag, index, out):
         """TBD."""
@@ -164,6 +166,7 @@ class ArtGrid(ArtBase):
                         if os.path.exists(out_name[0]):
                             tar_file.add(out_name[0])
         tar_file.close()
+        return 0
 
     def list(self, package, type):
         """TBD."""
@@ -173,6 +176,7 @@ class ArtGrid(ArtBase):
             print str(i) + ' ' + job
             sys.stdout.flush()
             i += 1
+        return 0
 
     def log(self, package, test_name):
         """TBD."""
@@ -185,6 +189,7 @@ class ArtGrid(ArtBase):
                 print content
                 break
         tar.close()
+        return 0
 
     def output(self, package, test_name, file_name):
         """TBD."""
@@ -195,46 +200,6 @@ class ArtGrid(ArtBase):
                 tar.extractall(path='.', members=[member])
                 break
         tar.close()
-
-    def included(self):
-        """TBD."""
-        package_name = "__name_never_used__"
-
-        if self.excluded(self.get_config(), package_name):
-            print 'Excluding ' + 'all' + ' for ' + self.nightly_release + ' project ' + self.project + ' on ' + self.platform
-            print 'art-status: excluded'
-            sys.stdout.flush()
-            return 1
-        else:
-            print 'art-status: included'
-            return 0
-
-    def wait_for(self):
-        """TBD."""
-        directory = os.path.join(self.cvmfs_directory, self.nightly_release, self.nightly_tag)
-        path = os.path.join(directory, self.nightly_release + "__" + self.project + "__" + self.platform + "*" + self.nightly_tag + "__*.ayum.log")
-
-        count = 0
-        needed = 1
-        value = count_string_occurrence(path, "Install looks to have been successful")
-        print "art-status: waiting"
-        print path
-        print "count: " + str(value) + " mins: " + str(count)
-        sys.stdout.flush()
-        while (value < needed) and (count < 30):
-            time.sleep(60)
-            count += 1
-            value = count_string_occurrence(path, "Install looks to have been successful")
-            print "count: " + str(value) + " mins: " + str(count)
-            sys.stdout.flush()
-
-        if value < needed:
-            print "art-status: no release"
-            sys.stdout.flush()
-            return -2
-
-        print "art-status: setup"
-        sys.stdout.flush()
         return 0
 
     def compare(self, package, test_name, days, file_names):
@@ -255,6 +220,7 @@ class ArtGrid(ArtBase):
             ref_file = os.path.join(ref_dir, file_name)
 
             self.compare_ref(file_name, ref_file, 10)
+        return 0
 
     #
     # Protected Methods
