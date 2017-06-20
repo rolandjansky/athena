@@ -13,7 +13,7 @@ def getMinBiasScintillatorSD(name="MinBiasScintillatorSD", **kwargs):
                                                               mergeable_collection_suffix,
                                                               merger_input_property)
     kwargs.setdefault("LogicalVolumeNames", ["LArMgr::MBTS1", "LArMgr::MBTS2"])
-    kwargs.setdefault("OutputCollectionNames", [bare_collection_name])
+    kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
     from G4AtlasApps.SimFlags import simFlags
     from AthenaCommon.BeamFlags import jobproperties
     if jobproperties.Beam.beamType() == 'cosmics' or (hasattr(simFlags, "ReadTR") and simFlags.ReadTR.statusOn):
