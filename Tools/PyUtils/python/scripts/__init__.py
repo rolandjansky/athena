@@ -31,6 +31,7 @@ acmdlib.register('cmt.new-pyalg', 'PyUtils.scripts.cmt_newpyalg:main')
 acmdlib.register('cmt.new-jobo', 'PyUtils.scripts.cmt_newjobo:main')
 acmdlib.register('cmt.new-analysisapp', 'PyUtils.scripts.cmt_newanalysisapp:main')
 
+acmdlib.register('cmake.new-skeleton', 'PyUtils.scripts.cmake_newskeleton:main')
 acmdlib.register('cmake.new-pkg', 'PyUtils.scripts.cmake_newpkg:main')
 acmdlib.register('cmake.new-analysisalg', 'PyUtils.scripts.cmake_newanalysisalg:main')
 
