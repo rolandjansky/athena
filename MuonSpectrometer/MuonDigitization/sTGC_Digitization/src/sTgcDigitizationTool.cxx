@@ -583,12 +583,15 @@ StatusCode sTgcDigitizationTool::doDigitization() {
           }
 		  sTgcSimIdToOfflineId simToOffline(*m_idHelper);
 		  const int idHit = hit.GenericId();
+          ATH_MSG_VERBOSE("Hit ID " << idHit );
 		  Identifier layid = simToOffline.convert(idHit);
+          ATH_MSG_VERBOSE("Layer ID[" << layid.getString() << "]");
           int eventId = phit.eventId();
           std::string stationName= m_idHelper->stationNameString(m_idHelper->stationName(layid));
 		  int isSmall = stationName[2] == 'S';
 //		  int multiPlet = m_idHelper->multilayer(layid);
 		  int gasGap = m_idHelper->gasGap(layid);
+          ATH_MSG_VERBOSE("Gas Gap " << gasGap );
 
 		  const MuonGM::sTgcReadoutElement* detEL = m_mdManager->getsTgcReadoutElement(layid);  //retreiving the sTGC this hit is located in
 		  if( !detEL ){
@@ -604,13 +607,23 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 		  const Amg::Vector3D GLOBAL_Z(0., 0., 1.);
 		  const Amg::Vector3D GLODIRE(hit.globalDirection().x(), hit.globalDirection().y(), hit.globalDirection().z());
 
-		  int surfHash_wire =  detEL->surfaceHash(gasGap, 2);
+          ATH_MSG_VERBOSE("Global Z " << GLOBAL_Z );
+          ATH_MSG_VERBOSE("Global Direction " << GLODIRE );
+          ATH_MSG_VERBOSE("Global Position " << HPOS );
+          
+          int surfHash_wire =  detEL->surfaceHash(gasGap, 2);
+          ATH_MSG_VERBOSE("Surface Hash for wire plane" << surfHash_wire );
 		  const Trk::PlaneSurface&  SURF_WIRE = detEL->surface(surfHash_wire);  //Plane of the wire surface in this gasGap
+          ATH_MSG_VERBOSE("Wire Surface Defined " << SURF_WIRE.center() );
 
 		  Amg::Vector3D LOCAL_Z = SURF_WIRE.transform().inverse()*GLOBAL_Z - SURF_WIRE.transform().inverse()*GLOBAL_ORIG;
 		  Amg::Vector3D LOCDIRE = SURF_WIRE.transform().inverse()*GLODIRE - SURF_WIRE.transform().inverse()*GLOBAL_ORIG;
 
-		  Amg::Vector3D LPOS = SURF_WIRE.transform().inverse() * HPOS;  //Position of the hit on the wire place in local coordinates
+		  Amg::Vector3D LPOS = SURF_WIRE.transform().inverse() * HPOS;  //Position of the hit on the wire plane in local coordinates
+          
+          ATH_MSG_VERBOSE("Local Z " << LOCAL_Z );
+          ATH_MSG_VERBOSE("Local Direction " << LOCDIRE );
+          ATH_MSG_VERBOSE("Local Position " << LPOS );
 
 		  double e = 1e-5;
 
@@ -629,17 +642,20 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 		  if(X_s && Y_s && Z_1)
 			  scale = -LPOS.z() / LOCDIRE.z();
 		  else
-			  msg(MSG::ERROR) << " Wrong scale! " << endmsg;
+			  ATH_MSG_ERROR(" Wrong scale! ");
 
 		  Amg::Vector3D HITONSURFACE_WIRE = LPOS + scale * LOCDIRE;  //Hit on the wire surface attached to the closest wire in local coordinates
 		  Amg::Vector3D G_HITONSURFACE_WIRE = SURF_WIRE.transform() * HITONSURFACE_WIRE;  //The hit on the wire in Global coordinates
           
+          ATH_MSG_VERBOSE("Local Hit on Wire Surface " << HITONSURFACE_WIRE );
+          ATH_MSG_VERBOSE("Global Hit on Wire Surface " << G_HITONSURFACE_WIRE );
+          
           GenericMuonSimHit* wireHit = new GenericMuonSimHit(idHit, (hit.globalTime() + eventTime), eventTime, G_HITONSURFACE_WIRE, HITONSURFACE_WIRE, hit.globalPrePosition(), hit.localPrePosition(), hit.particleEncoding(), hit.kineticEnergy(), hit.globalDirection(), hit.depositEnergy(), hit.StepLength(), hit.trackNumber() );
           SimHits[wireHit] = eventId;  //Associate the sub event the hit came from
-          ATH_MSG_VERBOSE("Put hit number " << nhits+1 << " into the map with eventID " << eventId );
+          ATH_MSG_VERBOSE("Put hit number " << nhits << " into the map with eventID " << eventId );
 	  } // end of while(i != e)
 
- 
+    
 	  ATH_MSG_DEBUG("sTgcDigitizationTool::doDigitization hits mapped");
     
     // Loop over the hits:
@@ -755,6 +771,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
         * previous digits.  This can be done in one pass because there is no interaction between pads.
         */
    ATH_MSG_VERBOSE("Processing Pad Digits");
+   int nPadDigits = 0;
    for (std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > >::iterator it_DETEL = unmergedPadDigits.begin(); it_DETEL!= unmergedPadDigits.end(); ++it_DETEL) {
    for (std::map< Identifier, std::vector<sTgcDigit> >::iterator it_REID = it_DETEL->second.begin(); it_REID != it_DETEL->second.end(); ++it_REID) {  //loop on Pads
        sort(it_REID->second.begin(), it_REID->second.end(), sort_digitsEarlyToLate);  //Sort digits on this RE in time
@@ -794,8 +811,10 @@ StatusCode sTgcDigitizationTool::doDigitization() {
        
        sTgcVMMSim* theVMM = new sTgcVMMSim(it_REID->second, vmmStartTime, m_deadtimePad, m_readtimePad, m_produceDeadDigits, 0);  // object to simulate the VMM response
        theVMM->setMessageLevel(static_cast<MSG::Level>(outputLevel()));
+       theVMM->initialReport();
        
        bool vmmControl = true;
+       
        
        while(vmmControl)
        {
@@ -808,6 +827,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
                sTgcDigit* flushedDigit = theVMM->flush(); // Flush the digit buffer
                if(flushedDigit) {
                    outputDigits[it_DETEL->first][it_REID->first].push_back(*flushedDigit);  // If a digit was in the buffer: store it to the RDO
+                   nPadDigits++;
                    ATH_MSG_VERBOSE("Flushed Digit") ;
                    ATH_MSG_VERBOSE(" BC tag = "    << flushedDigit->bcTag()) ;
                    ATH_MSG_VERBOSE(" digitTime = " << flushedDigit->time()) ;
@@ -818,6 +838,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
        }
    }
    }
+   ATH_MSG_VERBOSE("There are " << nPadDigits << " flushed pad digits in this event.");
    
        /***********************
        * Process Strip Digits *
@@ -835,6 +856,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
         */
    ATH_MSG_VERBOSE("Processing Strip Digits");
    std::map< IdentifierHash, std::map< Identifier, std::pair <bool, sTgcVMMSim* > > > vmmArray; // map holding the VMMSim objects and a bool indicating if the channel is done processing
+   int nStripDigits = 0;
     for (std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > >::iterator it_DETEL = unmergedStripDigits.begin(); it_DETEL!= unmergedStripDigits.end(); ++it_DETEL) {
     for (std::map< Identifier, std::vector<sTgcDigit> >::iterator it_REID = it_DETEL->second.begin(); it_REID != it_DETEL->second.end(); ++it_REID) {  //loop on Pads
        sort(it_REID->second.begin(), it_REID->second.end(), sort_digitsEarlyToLate);  //Sort digits on this RE in time
@@ -920,11 +942,15 @@ StatusCode sTgcDigitizationTool::doDigitization() {
        
        for (std::map< Identifier, std::pair <bool, sTgcVMMSim* > >::iterator it_VMM = it_DETEL->second.begin(); it_VMM != it_DETEL->second.end(); ++it_VMM) { // Loop over VMM flushes
           sTgcDigit* flushedDigit = it_VMM->second.second->flush();  //Readout the digit buffer
-          if(flushedDigit) outputDigits[it_DETEL->first][it_VMM->first].push_back(*flushedDigit);  // If a digit was in the buffer: store it to the RDO
+          if(flushedDigit) {
+              outputDigits[it_DETEL->first][it_VMM->first].push_back(*flushedDigit);  // If a digit was in the buffer: store it to the RDO
+              nStripDigits++;
+          }
           else ATH_MSG_VERBOSE("No digit for this timestep on Strip REID[" << it_VMM->first.getString() << "]");
        }
    }
    }
+   ATH_MSG_VERBOSE("There are " << nStripDigits << " flushed strip digits in this event.");
    
    /**********************************
     * WIRE DIGIT CODE SHOULD GO HERE *
