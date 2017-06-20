@@ -380,8 +380,10 @@ double PixelConditionsSummarySvc::activeFraction(const IdentifierHash & elementH
 
 bool PixelConditionsSummarySvc::isGood(const Identifier & elementId, const InDetConditions::Hierarchy h){
 
+
   Identifier moduleID       = m_pixelID->wafer_id(elementId);
-  IdentifierHash moduleHash = m_pixelID->wafer_hash(elementId);
+  //IdentifierHash moduleHash = m_pixelID->wafer_hash(elementId);
+  IdentifierHash moduleHash = m_pixelID->wafer_hash(moduleID);
 
   if(m_useBS && !m_pixelBSErrorsSvc->isGood(moduleHash)) return false;
 
@@ -411,9 +413,10 @@ bool PixelConditionsSummarySvc::isGood(const Identifier & elementId, const InDet
   // (granularity at the pixel level) and must be checked last.
   if(m_useSpecialPixelMap){
 
+    
     unsigned int pixel = 0;
-    unsigned int mchips = m_specialPixelMap->module(moduleHash)->chipsPerModule();
-    unsigned int mtype = m_specialPixelMap->module(moduleHash)->chipType();
+    unsigned int mchips =  m_specialPixelMap->module(moduleHash)->chipsPerModule();
+    unsigned int mtype =  m_specialPixelMap->module(moduleHash)->chipType();
     mtype +=mchips*10; // mchips*10+mtype for encodePixelID
 
     switch (h) {
@@ -459,7 +462,6 @@ bool PixelConditionsSummarySvc::isGood(const IdentifierHash & elementHash){
 
    if(m_useDCS){
 
-
     bool isDCSActive = false;
     std::string dcsState = m_pixelDCSSvc->getFSMState(elementHash);
     bool isDCSGood = false;
@@ -472,9 +474,10 @@ bool PixelConditionsSummarySvc::isGood(const IdentifierHash & elementHash){
       if(m_isActiveStatus[istatus] == dcsStatus) isDCSGood = true;
     }
 
+
     if( !(isDCSActive && isDCSGood) ) return false;
 
-  }
+   }
 
   if(m_useTDAQ && !(m_pixelTDAQSvc->tdaq_module_enabled(elementHash)) )
     return false;
@@ -509,7 +512,7 @@ bool PixelConditionsSummarySvc::isGood(const IdentifierHash & elementHash, const
     }
 
     if( !(isDCSActive && isDCSGood) ) return false;
-  }
+   }
 
   if(m_useTDAQ && !(m_pixelTDAQSvc->tdaq_module_enabled(elementHash)) )
     return false;

@@ -1,16 +1,16 @@
-q#from AthenaCommon.AppMgr import ToolSvc
+#from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AppMgr import ServiceMgr
 import AthenaPoolCnvSvc.ReadAthenaPool
 
 from PartPropSvc.PartPropSvcConf import PartPropSvc
 
-include( "ParticleBuilderOptions/McAOD_PoolCnv_jobOptions.py")
-include( "EventAthenaPool/EventAthenaPool_joboptions.py" )
+include("ParticleBuilderOptions/McAOD_PoolCnv_jobOptions.py")
+include("EventAthenaPool/EventAthenaPool_joboptions.py" )
 
 import os
 from glob import glob
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
-athenaCommonFlags.FilesInput = glob( "/tmp/"+os.environ['USER']+"HITS*root*" )
+athenaCommonFlags.FilesInput = glob( "/tmp/" + os.environ['USER'] + "/" + "HITS*root*" )
 ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput() # This is stupid and redundant, but necessary
 
 from AthenaCommon.AlgSequence import AlgSequence
@@ -19,6 +19,7 @@ topSequence = AlgSequence()
 from HitAnalysis.HitAnalysisConf import CSCHitAnalysis
 topSequence += CSCHitAnalysis() 
 CSCHitAnalysis = CSCHitAnalysis()
+CSCHitAnalysis.NtupleFileName = '/CSCHitAnalysis/'
 CSCHitAnalysis.HistPath = '/CSCHitAnalysis/'
 
 from GaudiSvc.GaudiSvcConf import THistSvc
@@ -40,4 +41,3 @@ from RecExConfig.AutoConfiguration import *
 ConfigureFieldAndGeo() # Configure the settings for the geometry
 include("RecExCond/AllDet_detDescr.py") # Actually load the geometry
 #include("TrkDetDescrSvc/AtlasTrackingGeometrySvc.py") # Tracking geometry, handy for ID work
-

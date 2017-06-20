@@ -10,7 +10,11 @@ import commands
 #
 ###########################################################################
 
-include("LArCalibProcessing/LArCalib_Flags.py")
+if not "SuperCells" in dir():
+   SuperCells=False
+   
+if not SuperCells: include("LArCalibProcessing/LArCalib_Flags.py")
+if SuperCells:     include("LArCalibProcessing/LArCalib_FlagsSC.py")
 #include("RecExCommission/GetInputFiles.py")
 include("LArCalibProcessing/GetInputFiles.py")
 
@@ -107,6 +111,9 @@ if not 'StripsXtalkCorr' in dir():
 
 if not "ADCSaturation" in dir():
    ADCsaturation = 4090 # Set to 0 if you want to keep saturating pulses
+
+if not "RampRangeValue" in dir():
+   RampRangeValue = 3600 # Check on the raw data ADC sample before ped subtraction and pulse reconstruction to include point in fit
    
 if not 'KeyOutput' in dir():  
    KeyOutput = "LArRamp" # Key of LArRampComplete object in DetStore
@@ -306,6 +313,8 @@ RampLog.info( " OutputObjectSpecTagRamp            = "+OutputObjectSpecTagRamp )
 RampLog.info( " IOVBegin                           = "+str(IOVBegin) )
 RampLog.info( " IOVEnd                             = "+str(IOVEnd) )
 RampLog.info( " LArCalibOutputDB                   = "+OutputDB )
+for i in range(len(GainList)):
+   RampLog.info( " GainList                       = "+GainList[i] )
 RampLog.info( " ======================================================== " )
 #######################################################################################
 
@@ -354,8 +363,9 @@ theByteStreamInputSvc.MaxBadEvents=0
 ## All three are vectors of integers
 #################################################################
 
-from LArByteStream.LArByteStreamConf import LArRodDecoder
-svcMgr.ToolSvc += LArRodDecoder()
+if not SuperCells:
+   from LArByteStream.LArByteStreamConf import LArRodDecoder
+   svcMgr.ToolSvc += LArRodDecoder()
 
 #ToolSvc.LArRodDecoder.BEPreselection     = [0]                                                   ## : [Barrel=0,Endcap=1]
 #ToolSvc.LArRodDecoder.PosNegPreselection = [1]                                                   ## : [C-side (negative eta)=0, A-side (positive eta)=1]
@@ -379,6 +389,8 @@ if ( runAccumulator ) :
    # can be used as a skeleton if needed but                                                     #
    # need to be updated for the barrel and the patterns for EMEC, HEC and FCAL need to be added   #
    #include("LArCalibProcessing/LArCalib_CalibrationPatterns.py")
+   if SuperCells:
+      ByteStreamAddressProviderSvc =svcMgr.ByteStreamAddressProviderSvc
    include("./LArCalib_CalibrationPatterns.py")
 
 else :
@@ -431,6 +443,9 @@ if 'MissingFEBsLArCalibFolderTag' in dir() :
    conddb.addFolder("",MissingFEBsFolder+"<tag>"+MissingFEBsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
 else :
    conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   
+if SuperCells:
+   conddb.addFolder("","/LAR/IdentifierOfl/OnOffIdMap_SC<db>COOLOFL_LAR/OFLP200</db><tag>LARIdentifierOflOnOffIdMap_SC-000</tag>") 
 
 ## define the DB Gobal Tag :
 svcMgr.IOVDbSvc.GlobalTag   = LArCalib_Flags.globalFlagDB   
@@ -440,25 +455,25 @@ except:
    pass
 
 # Temperature folder
-conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
-svcMgr.EventSelector.InitialTimeStamp = 1284030331
-import cx_Oracle
-import time
-import datetime
-try:
-   connection=cx_Oracle.connect("ATLAS_SFO_T0_R/readmesfotz2008@atlr")
-   cursor=connection.cursor()
-   sRequest=("SELECT RUNNR,CREATION_TIME FROM SFO_TZ_RUN WHERE RUNNR='%s'")%(RunNumberList[0])
-   cursor.execute(sRequest)
-   times= cursor.fetchall()
-   d=times[0][1]
-   iovtemp=int(time.mktime(d.timetuple()))
-except:
-   iovtemp=1283145454
+#conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
+#svcMgr.EventSelector.InitialTimeStamp = 1284030331
+#import cx_Oracle
+#import time
+#import datetime
+#try:
+#   connection=cx_Oracle.connect("ATLAS_SFO_T0_R/readmesfotz2008@atlr")
+#   cursor=connection.cursor()
+#   sRequest=("SELECT RUNNR,CREATION_TIME FROM SFO_TZ_RUN WHERE RUNNR='%s'")%(RunNumberList[0])
+#   cursor.execute(sRequest)
+#   times= cursor.fetchall()
+#   d=times[0][1]
+#   iovtemp=int(time.mktime(d.timetuple()))
+#except:
+#   iovtemp=1283145454
 
 #print "Setting timestamp for run ",RunNumberList[0]," to ",iovtemp
 #svcMgr.IOVDbSvc.forceTimestamp = 1283145454
-svcMgr.IOVDbSvc.forceTimestamp = iovtemp
+#svcMgr.IOVDbSvc.forceTimestamp = iovtemp
 
 
 from LArCalibProcessing.LArCalibCatalogs import larCalibCatalogs
@@ -597,8 +612,8 @@ theLArRampBuilder.DAC0         = -1
 theLArRampBuilder.StoreRawRamp = SaveRawRamp
 theLArRampBuilder.StoreRecRamp = True
 theLArRampBuilder.Polynom      = 1    
-theLArRampBuilder.RampRange    = 3600 # Check on the raw data ADC sample before ped subtraction
-                                      # and pulse reconstruction to include point in fit
+theLArRampBuilder.RampRange    = RampRangeValue # Check on the raw data ADC sample before ped subtraction
+                                                # and pulse reconstruction to include point in fit
 theLArRampBuilder.correctBias  = CorrectBias
 theLArRampBuilder.ConsecutiveADCs = 0;
 theLArRampBuilder.minDAC = 10      # minimum DAC value to use in fit
@@ -607,6 +622,8 @@ theLArRampBuilder.DeadChannelCut = -9999
 theLArRampBuilder.GroupingType = GroupingType
 
 theLArRampBuilder.LongNtuple = SaveAllSamples
+
+theLArRampBuilder.isSC = SuperCells
 
 if ( isHEC ) :
    theLArRampBuilder.isHEC = isHEC
@@ -643,16 +660,22 @@ if ( ApplyAdHocCorrection ):
       if ( len(ChannelsToBePatchedHG) and len(ChannelsToBePatchedHG)==len(PatchesToBeAppliedHG) ):
          LArRampAdHocPatchingAlg.ChannelsToBePatchedHG = ChannelsToBePatchedHG
          LArRampAdHocPatchingAlg.PatchesToBeAppliedHG  = PatchesToBeAppliedHG
+         if 'ValuesToBePatchedHG' in dir():
+               LArRampAdHocPatchingAlg.ValuesToBeAppliedHG = ValuesToBePatchedHG
 
    if ( 'ChannelsToBePatchedMG' in dir() and 'PatchesToBeAppliedMG' in dir() ):
       if ( len(ChannelsToBePatchedMG) and len(ChannelsToBePatchedMG)==len(PatchesToBeAppliedMG) ):
          LArRampAdHocPatchingAlg.ChannelsToBePatchedMG = ChannelsToBePatchedMG
          LArRampAdHocPatchingAlg.PatchesToBeAppliedMG  = PatchesToBeAppliedMG
+         if 'ValuesToBePatchedMG' in dir():
+               LArRampAdHocPatchingAlg.ValuesToBeAppliedMG = ValuesToBePatchedMG
 
    if ( 'ChannelsToBePatchedLG' in dir() and 'PatchesToBeAppliedLG' in dir() ):
       if ( len(ChannelsToBePatchedLG) and len(ChannelsToBePatchedLG)==len(PatchesToBeAppliedLG) ):
          LArRampAdHocPatchingAlg.ChannelsToBePatchedLG = ChannelsToBePatchedLG
          LArRampAdHocPatchingAlg.PatchesToBeAppliedLG  = PatchesToBeAppliedLG
+         if 'ValuesToBePatchedLG' in dir():
+               LArRampAdHocPatchingAlg.ValuesToBeAppliedLG = ValuesToBePatchedLG
  
    topSequence+=LArRampAdHocPatchingAlg
 
@@ -780,12 +803,14 @@ if (WriteNtuple):
    klist=[]
    for i in GainList:
       klist+=["LArRamp"+i]
-   LArRamps2Ntuple.ContainerKey = klist #Only for raw ramp
+   if not SuperCells: LArRamps2Ntuple.ContainerKey = klist #Only for raw ramp
+   if SuperCells: LArRamps2Ntuple.ContainerKey = ["LArRampHIGH"]     # Modification to avoid problems in LArRampBuilder
    LArRamps2Ntuple.NtupleName = "RAMPS"
    LArRamps2Ntuple.RawRamp = SaveRawRamp
    LArRamps2Ntuple.SaveAllSamples = SaveAllSamples
    LArRamps2Ntuple.ApplyCorr = ApplyCorr
    LArRamps2Ntuple.AddFEBTempInfo = False
+   LArRamps2Ntuple.isSC = SuperCells
    
    topSequence+= LArRamps2Ntuple
       
@@ -793,17 +818,25 @@ if (WriteNtuple):
       # Ramp points ntuple(s)
       from LArCalibTools.LArCalibToolsConf import LArAverages2Ntuple
       
-      LArAverages2NtupleHIGH=LArAverages2Ntuple("LArAverages2NtupleHIGH")
-      LArAverages2NtupleHIGH.ContainerKey = "HIGH"
-      topSequence+= LArAverages2NtupleHIGH
-      
-      LArAverages2NtupleMEDIUM=LArAverages2Ntuple("LArAverages2NtupleMEDIUM")
-      LArAverages2NtupleMEDIUM.ContainerKey = "MEDIUM"
-      topSequence+= LArAverages2NtupleMEDIUM
+      if not SuperCells:
+         LArAverages2NtupleHIGH=LArAverages2Ntuple("LArAverages2NtupleHIGH")
+         LArAverages2NtupleHIGH.ContainerKey = "HIGH"
+         topSequence+= LArAverages2NtupleHIGH
+         
+         LArAverages2NtupleMEDIUM=LArAverages2Ntuple("LArAverages2NtupleMEDIUM")
+         LArAverages2NtupleMEDIUM.ContainerKey = "MEDIUM"
+         topSequence+= LArAverages2NtupleMEDIUM
 
-      LArAverages2NtupleLOW=LArAverages2Ntuple("LArAverages2NtupleLOW")
-      LArAverages2NtupleLOW.ContainerKey = "LOW"
-      topSequence+= LArAverages2NtupleLOW
+         LArAverages2NtupleLOW=LArAverages2Ntuple("LArAverages2NtupleLOW")
+         LArAverages2NtupleLOW.ContainerKey = "LOW"
+         topSequence+= LArAverages2NtupleLOW
+      
+      if SuperCells:
+         LArAverages2NtupleSC=LArAverages2Ntuple("LArAverages2NtupleSC")
+         LArAverages2NtupleSC.ContainerKey = "SC"
+         LArAverages2NtupleSC.NSamples = 50
+         LArAverages2NtupleSC.isSC = SuperCells
+         topSequence+= LArAverages2NtupleSC
   
 ###########################################################################	
 	

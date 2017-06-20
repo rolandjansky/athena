@@ -29,20 +29,6 @@ class doMaM(JobProperty):
 	StoredValue=True
 list+=[doMaM]
 
-class doMaM_ExtractAndDumpConfigs(JobProperty):
-	""" Switch for menu-aware monitoring: exctraction of tool configurations, and output to a json file """
-	statusOn=True
-	allowedTypes=['bool']
-	StoredValue=False
-list+=[doMaM_ExtractAndDumpConfigs]
-
-class MaM_OutputJSON(JobProperty):
-	""" Output json file for dumping monitoring tool configurations, for menu-aware monitoring """
-	statusOn=True
-	allowedTypes=['str']
-	StoredValue='mam_configs.json'
-list+=[MaM_OutputJSON]
-
 class doMaM_ApplyMCK(JobProperty):
 	""" Switch for menu-aware monitoring: applying configurations defined by an MCK """
 	statusOn=True
@@ -56,6 +42,27 @@ class MCK(JobProperty):
 	allowedTypes=['int']
 	StoredValue=-1
 list+=[MCK]
+
+class doMaM_UseReproDB(JobProperty):
+	""" Switch for menu-aware monitoring: use MCKs in TRIGGERDBREPR, don't query COOL """
+	statusOn=True
+	allowedTypes=['bool']
+	StoredValue=False
+list+=[doMaM_UseReproDB]
+
+class doMaM_ExtractAndDumpConfigs(JobProperty):
+	""" Switch for menu-aware monitoring: extraction of tool configurations, and output to a json file """
+	statusOn=True
+	allowedTypes=['bool']
+	StoredValue=False
+list+=[doMaM_ExtractAndDumpConfigs]
+
+class MaM_OutputJSON(JobProperty):
+	""" Output json file for dumping monitoring tool configurations, for menu-aware monitoring """
+	statusOn=True
+	allowedTypes=['str']
+	StoredValue='mam_configs.json'
+list+=[MaM_OutputJSON]
 
 class doEgamma(JobProperty):
 	""" Egamma switch for monitoring """

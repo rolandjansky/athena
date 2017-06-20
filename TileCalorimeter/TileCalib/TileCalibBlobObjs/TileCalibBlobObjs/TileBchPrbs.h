@@ -44,6 +44,7 @@ class TileBchPrbs
     LargeLfNoise               = 1102,
     NoCis                      = 1103,
     BadCis                     = 1104,
+    IgnoredByDQV               = 1105,
 
     //=============================
     //=== Channel

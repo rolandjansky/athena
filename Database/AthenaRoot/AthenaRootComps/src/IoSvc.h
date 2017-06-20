@@ -13,9 +13,7 @@
 
 // STL includes
 #include <string>
-
-// CxxUtils
-#include "CxxUtils/unordered_map.h"
+#include <unordered_map>
 
 // FrameWork includes
 #include "AthenaBaseComps/AthService.h"
@@ -104,7 +102,7 @@ class IoSvc
     IIoSvc::IoType mode;
   };
 
-  typedef SG::unordered_map<Fd, FdInfos> FdMap_t;
+  typedef std::unordered_map<Fd, FdInfos> FdMap_t;
 
   /// map of fd->fdinfos
   FdMap_t m_fds;

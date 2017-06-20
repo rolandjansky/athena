@@ -105,6 +105,25 @@
               <alwaysRunPostProc /> 
             </jobTransform>     
            </chainElement>
+
+             <chainElement>   
+          <jobTransform userJobId="ohp_hispathcheck">
+             <doc>ohp_hispathcheck</doc>
+             <jobTransformJobName>ohp_hispathcheck</jobTransformJobName>
+             <jobTransformCmd>
+             athena.py RecExOnline/Rtt_histogram.py 
+             </jobTransformCmd>
+             <group>RecExOnline_Test</group>
+           
+             <testToRemove>
+              <jobGroupName>AthenaRecExOnline_Test</jobGroupName>
+              <testidentifier>FileGrepperprocessed</testidentifier>
+             </testToRemove>
+          
+              <alwaysRunPostProc /> 
+            </jobTransform>     
+           </chainElement>
+
           </sequential>
          </chain>
 

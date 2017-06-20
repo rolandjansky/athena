@@ -79,6 +79,8 @@ public:
   double m_unphysicalHitRadiusUpperBound;
   double m_unphysicalHitRadiusLowerBound;
   double m_resTwin;
+  bool m_BMGpresent;
+  int m_BMGid;
 };
 
 MdtCalibrationSvc::Imp::Imp(std::string name) :
@@ -93,7 +95,9 @@ MdtCalibrationSvc::Imp::Imp(std::string name) :
   m_dbSvc("MdtCalibrationDbSvc", name),
   m_unphysicalHitRadiusUpperBound(-1.),
   m_unphysicalHitRadiusLowerBound(-1.),
-  m_resTwin(-1.)
+  m_resTwin(-1.),
+  m_BMGpresent(false),
+  m_BMGid(-1)
 {}
 
 MdtCalibrationSvc::MdtCalibrationSvc(const std::string &name,ISvcLocator *sl)
@@ -146,6 +150,12 @@ StatusCode MdtCalibrationSvc::initialize() {
   if ( detStore->retrieve(m_imp->m_mdtIdHelper, "MDTIDHELPER" ).isFailure() ) {
     ATH_MSG_FATAL( "Can't retrieve MdtIdHelper" );
     return StatusCode::FAILURE;
+  }
+  // assign BMG identifier
+  m_imp->m_BMGpresent = m_imp->m_mdtIdHelper->stationNameIndex("BMG") != -1;
+  if(m_imp->m_BMGpresent){
+    ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
+    m_imp->m_BMGid = m_imp->m_mdtIdHelper->stationNameIndex("BMG");
   }
   // initialise MuonGeoModel access
   if ( detStore->retrieve( m_imp->m_muonGeoManager ).isFailure() ) {
@@ -666,8 +676,10 @@ double MdtCalibrationSvc::tdcBinSize(const Identifier &id) {
   //if( m_imp->m_mdtIdHelper->stationName(id) == 54 )  //BMG
     //return 0.2;    
 // Alternative method if you don't like hardcoding BMG stationName (54)
-  if( m_imp->m_mdtIdHelper->stationNameString( m_imp->m_mdtIdHelper->stationName(id) ) == "BMG" ) 
-    return 0.2;
+ // don't do string comparisons!
+ //if( m_imp->m_mdtIdHelper->stationNameString( m_imp->m_mdtIdHelper->stationName(id) ) == "BMG" )
+  if( m_imp->m_mdtIdHelper->stationName(id) == m_imp->m_BMGid && m_imp->m_BMGpresent)
+    return 0.1953125; // 25/128
   return 0.78125;  //25/32; exact number: (1000.0/40.079)/32.0 
 }
 

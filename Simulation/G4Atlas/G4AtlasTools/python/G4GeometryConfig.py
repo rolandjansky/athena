@@ -90,12 +90,21 @@ def getIDETEnvelope(name="IDET", **kwargs):
 
 def getCALOEnvelope(name="CALO", **kwargs):
     kwargs.setdefault("DetectorName", "CALO")
-    kwargs.setdefault("NSurfaces", 18)
-    kwargs.setdefault("InnerRadii", [41.,41.,41.,41.,41.,41.,120.,120.,1148.,1148.,120.,120.,41.,41.,41.,41.,41.,41.]) #FIXME Units?
-    kwargs.setdefault("OuterRadii", [415.,415,3795.,3795.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,3795.,3795.,415.,415.]) #FIXME Units?
-    kwargs.setdefault("ZSurfaces", [-6781.,-6735.,-6735.,-6530.,-6530.,-4587.,-4587.,-3475.,-3475.,3475.,3475.,4587.,4587.,6530.,6530.,6735.,6735.,6781.]) #FIXME Units?
-    SubDetectorList=[]
+    nSurfaces = 18
+    innerRadii = [41.,41.,41.,41.,41.,41.,120.,120.,1148.,1148.,120.,120.,41.,41.,41.,41.,41.,41.] #FIXME Units?
+    outerRadii = [415.,415,3795.,3795.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,3795.,3795.,415.,415.] #FIXME Units?
+    zSurfaces  = [-6781.,-6735.,-6735.,-6530.,-6530.,-4587.,-4587.,-3475.,-3475.,3475.,3475.,4587.,4587.,6530.,6530.,6735.,6735.,6781.] #FIXME Units?
     from AthenaCommon.DetFlags import DetFlags
+    if hasattr(DetFlags.simulate, 'HGTD_on') and DetFlags.simulate.HGTD_on():
+        nSurfaces = 22
+        innerRadii = [41.,41.,41.,41.,41.,41.,120.,120.,47.,47.,1148.,1148.,47.,47.,120.,120.,41.,41.,41.,41.,41.,41.] #FIXME Units?
+        outerRadii = [415.,415.,3795.,3795.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,3795.,3795.,415.,415.] #FIXME Units?
+        zSurfaces  = [-6781.,-6735.,-6735.,-6530.,-6530.,-4587.,-4587.,-3535.,-3535.,-3475.,-3475., 3475., 3475., 3535, 3535,4587.,4587.,6530.,6530.,6735.,6735.,6781.] #FIXME Units?
+    kwargs.setdefault("NSurfaces", nSurfaces)
+    kwargs.setdefault("InnerRadii", innerRadii)
+    kwargs.setdefault("OuterRadii", outerRadii)
+    kwargs.setdefault("ZSurfaces", zSurfaces)
+    SubDetectorList=[]
     if DetFlags.geometry.LAr_on():
         SubDetectorList += ['LArMgr']
     if DetFlags.geometry.Tile_on():

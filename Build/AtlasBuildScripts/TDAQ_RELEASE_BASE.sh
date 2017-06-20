@@ -10,10 +10,13 @@
 
 if [ -z "${TDAQ_RELEASE_BASE}" ]; then
 
-    if [ -d /afs/cern.ch/atlas/project/tdaq/prod ]; then
+    if [ -d /cvmfs/atlas.cern.ch/repo/sw/tdaq ]; then
+        export TDAQ_RELEASE_BASE=/cvmfs/atlas.cern.ch/repo/sw/tdaq
+    elif [ -d /afs/cern.ch/atlas/project/tdaq/prod ]; then
         export TDAQ_RELEASE_BASE=/afs/cern.ch/atlas/project/tdaq/prod
-    elif [ -d /cvmfs/atlas.cern.ch/repo/sw/software/21.0 ]; then
-        export TDAQ_RELEASE_BASE=/cvmfs/atlas.cern.ch/repo/sw/software/21.0
+    else
+        echo "Error: Cannot find TDAQ software installation"
+        return 1
     fi
     echo "Set TDAQ_RELEASE_BASE = ${TDAQ_RELEASE_BASE}"
 

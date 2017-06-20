@@ -56,7 +56,11 @@ StatusCode HLTCaloClusterTool::book(bool newEventsBlock, bool newLumiBlock, bool
    addMonGroup( new MonGroup(this,MainPath.c_str(),run) );
 
    setCurrentMonGroup(MainPath);
+#ifdef ManagedMonitorToolBase_Uses_API_201401
+   if ( newRunFlag() ) {
+#else
    if ( newRun ) {
+#endif
       std::vector<std::string> clustertypes;
       clustertypes.push_back("EgammaL2");	
       clustertypes.push_back("EgammaEF");
@@ -114,7 +118,11 @@ StatusCode HLTCaloClusterTool::book(bool newEventsBlock, bool newLumiBlock, bool
       if ( m_ntuple ) 
          addTree( new TNtuple("Details","Details","et:eta:phi:tet:teta:tphi") );
 
+#ifdef ManagedMonitorToolBase_Uses_API_201401
+   }else if ( newEventsBlockFlag() || newLumiBlockFlag() ){
+#else
    }else if ( newEventsBlock || newLumiBlock ){
+#endif
      return StatusCode::SUCCESS;
    }
    msg(MSG::DEBUG)<< "End of book" << endmsg;

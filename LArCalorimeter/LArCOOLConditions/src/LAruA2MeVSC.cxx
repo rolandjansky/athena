@@ -18,7 +18,7 @@ LAruA2MeVSC::LAruA2MeVSC(const CondAttrListCollection* attrList) {
   readBlob(attrList,"uA2MeV",*m_log);
 
   if (m_pValues.size()!=1) {
-    (*m_log) << MSG::ERROR << "Found unexpected number of gains (" << m_pValues.size() <<"). Expected exactly one gain." << endreq;
+    (*m_log) << MSG::ERROR << "Found unexpected number of gains (" << m_pValues.size() <<"). Expected exactly one gain." << endmsg;
   }
 
   return;

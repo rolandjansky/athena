@@ -1,30 +1,40 @@
 utils
 -----
 
-contains makefile and src to build the hc executable, for 
+contains makefile and src to build the hcg executable, for 
 writing tamplate han config files from input root files ...
 
-% hc
-Usage: hanconfig [OPTIONS] input1.root ... inputN.root
+Usage: hcg [OPTIONS] input1.root ... inputN.root
 
-    -o           FILENAME	name of output (filename required)
-    -b,   --base DIR     	use directory DIR as the base for the han config
-    -d,   --dir  DIR     	only directories below DIR where DIR is a structure such as HLT/TRIDT etc
-    -x,          DIR     	exclude directory DIR
-    -r           SRC DST 	remap directory SRC to directory DST
-    -ds,  --desc DESCRIP 	use DESCRIP as the description
-    -t,   --tag  VALUE   	add the VALUE to the list of command per histogram
-    -wc,  --wildcard     	print use hist * rather than a separate entry for each histogram
-    -dr,  --deleteref    	delete unselected histograms
-    -rh,  --relocate     	relocate selected histograms
-    -v,   --verbose      	print verbose output
-    -h,   --help         	display this help
+    -o                FILENAME  	name of output (filename required)
+    -b,   --base      DIR       	use directory DIR as the base for the han config
+    -d,   --dir       DIR       	only directories below DIR where DIR is a structure such as HLT/TRIDT etc
+    -x,   --exclude   DIR       	exclude directory DIR
+    -s,   --slice     SLICE     	trigger signature name (for comments)
+    -r,   --remap     SRC DST   	remap directory SRC to directory DST
+    -a,   --algorithm VALUE     	use VALUE as the execution algorithm for each histogram
+    -af,  --algfile   FILENAME  	read algorithm information from FILENAME
+    -ds,  --desc      DESCRIP   	use DESCRIP as the description
+    -df,  --descfile  FILENAME  	read descriptions from FILENAME
+    -dp,  --dispfile  FILENAME  	read display information from FILENAME
+    -t,   --tag       VALUE     	add the VALUE to the list of command per histogram
+    -wc,  --wildcard            	print use hist * rather than a separate entry for each histogram
+    -wf,  --wcfile    FILENAME  	read list of directories to wildcard from a file
+    -wd,  --wcdir     DIR=ALG   	add wildcard for DIRECTORY using ALG for the algorithm
+    -dr,  --deleteref           	delete unselected histograms
+    -or,  --outref   FILENAME   	file to write reduced output to (overwrites input otherwise) 
+    -rh,  --relocate            	relocate selected histograms
+    -ref, --reference TAG FILE  	add FILE as a reference file with tag TAG
+    -rc,  --refconf       FILE  	add FILE to the config as a reference block
+    -v,   --verbose             	print verbose output
+    -h,   --help                	display this help
+
 
 
 
 for instance ...
 
- hc hid_shifter.root -d HLT/TRIDT -x TestMon > hc.config
+%  hcg  hid_shifter.root  -d HLT/TRIDT -x TestMon -o  hc.config
 
 will take the directory structure in file eg
 
@@ -57,9 +67,124 @@ provided configuration before using this option. It does save the
 original file in FILEMAN.bak however for emergencies
 
 
+There are options to be able to specify algorithms, and descriptions 
+for specific histograms from a file. Using a c++ like format file 
+with options such as 
+
+SomeHistogram = SomeAlgorithm&GetherData ;
+
+Comments starting with // are allowed.
+The layout can be free formatted.
+
 ** NB: If a config output file in not given in the command line it writes **
 **     the config to stdout, and all other documentation and debugging    **
-**     information is written to stderr                          **
+**     information is written to stderr                                     **
 
-12-05-2016
+Adding custom algorithms, descriptions or display options
+-----------------------------------------------------------
+
+If one has for instance some histogram that require a custom or specific 
+algorithm, description of display option, eg ...
+
+   dir HLT_j110_gsc150_boffperf_split {
+
+	   dir InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi {
+
+		  hist Chain {
+
+			    algorithm   	= HLT_SomeAlgorithm
+
+			    description 	= https://twiki.cern.ch/twiki/bin/view/Atlas/HltTrackingDataQualityMonitoring#Tier0
+
+			    output      	= HLT/TRIDT/Bjet/Expert/HLT_j110_gsc150_boffperf_split/InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi
+
+			    display     	= StatBox
+
+                  }
+           }
+   }
+
+Then specifying a file, algfile.txt, containing eg
+
+  Chain = HLT_someAlgorithm;
+
+and then running
+
+% hcg HIST.root  ...  --algfile algfile.txt  ...
+
+would substitue the relevant algorithm for all histograms named "Chain".
+
+The histgram configuration can have as many sub directories, as required  such as
+
+  HLT_j110_gsc150_boffperf_split/InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi/Chain = some_algorithm ;
+
+for very fine grained replacement.
+
+In addition, wildcarding in the histogram specification is allowed, for instance ...
+
+  HLT_j.*/.*_FTF_SuperRoi/Chain = some_algorithm ;
+
+but exquisite care need be taken if using this feature, since if multiple patterns 
+in the alg file match a given histogram, it is not well definied which pattern would 
+end up being used.
+
+Generally the pattern matching proceeds from the histogram, to the next directory
+up, then the next etc.
+
+It does however, first check against any exact matches which *do not* contain 
+any wildcards before looking for a pattern match so that a pattern match will not 
+override the configuration for a specifically identifed histogram.
+
+This exact same approach also works for the different "display" options for a 
+histogram using the --dispfile option, and also for the "description" files, 
+using the --descfile option.
+
+With the --descfile option, the provided descriptions must be in quotes, "", eg
+
+  HLT_j.*/.*_FTF_SuperRoi/Chain = "This is the FTF processing for a superRoi chain" ;
+
+These configuration files can be freely formatted and comments are allowed of the form
+
+   // a comment on specific histogram description
+   Histogram = "some description" ; // yes, this is also a comment
+
+Lines must be terminated with a semi-colon: ;
+
+
+Wildcarding of histogram names
+-------------------------------
+
+The command line option 
+
+  -wc
+
+will wildcard all the histograms in all directories.
+
+For more fine grained control, the option
+
+    -wd,  --wcdir   DIR=ALG   add wildcard for DIRECTORY using ALG for the algorithm
+
+such the eg 
+
+% hcg ... -wd "Bjet.*Shift.* = Bjet_shifter_algorithm" 
+
+will set "all_in_dir" for all directories that match Bjet.*Shift.* and will additionally
+set the algorithm for these to be Bjet_shifter_algorithm.
+
+As many instances of -wd as required can be used on the command line, but to 
+ease the case where a large number of such directories are require, there is also 
+the option 
+   
+ -wf,  --wcfile    FILENAME  	read list of directories to wildcard from a file
+
+which will read the patterns from a file.
+
+This file has the same format as the algorithm files, ie it can be free formatted, 
+contain comments etc.
+
+
+
+19-05-2017
+
+
 

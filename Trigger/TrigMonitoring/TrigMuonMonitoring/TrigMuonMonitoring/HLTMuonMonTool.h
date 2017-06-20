@@ -49,7 +49,7 @@ class HLTMuonMonTool : public IHLTMonTool
   std::vector<std::string> getESbits();
   bool isPassedES(std::vector<std::string>&, std::string&);
 
-  //==public functions for muFast
+  //==public functions for L2MuonSA
 
   //==public functions for muComb
 
@@ -71,7 +71,7 @@ class HLTMuonMonTool : public IHLTMonTool
   Trig::ExpertMethods* m_ExpertMethods;
 
   //init() for each HLT Algorithm
-  StatusCode initMuFastDQA();
+  StatusCode initL2MuonSADQA();
   StatusCode initMuCombDQA();
   StatusCode initMuIsoDQA();
   StatusCode initTileMuDQA();
@@ -100,7 +100,7 @@ class HLTMuonMonTool : public IHLTMonTool
   StatusCode bookChainDQA_MSonly(const std::string& chainName );
   StatusCode bookChainDQA_standard(const std::string& chainName );
   StatusCode bookChainDQA_generic(const std::string& chainName, bool isdIsoOffline);
-  StatusCode bookMuFastDQA();
+  StatusCode bookL2MuonSADQA();
   StatusCode bookMuCombDQA();
   StatusCode bookMuIsoDQA();
   StatusCode bookTileMuDQA();
@@ -114,7 +114,7 @@ class HLTMuonMonTool : public IHLTMonTool
   StatusCode fillChainDQA_MSonly(const std::string& chainName, const std::string & histcName);
   StatusCode fillChainDQA_standard(const std::string& chainName, const std::string & histcName);
   StatusCode fillChainDQA_generic(const std::string& chainName, const std::string & histcName,  bool isIsolOffline);
-  StatusCode fillMuFastDQA();
+  StatusCode fillL2MuonSADQA();
   StatusCode fillMuCombDQA();
   StatusCode fillMuIsoDQA();
   StatusCode fillTileMuDQA();
@@ -129,7 +129,7 @@ class HLTMuonMonTool : public IHLTMonTool
   StatusCode procChainDQA_standard( const std::string& chainName );
   StatusCode procChainDQA_generic( const std::string& chainName );
   StatusCode procChainDQA_HighPt();
-  StatusCode procMuFastDQA();
+  StatusCode procL2MuonSADQA();
   StatusCode procMuCombDQA();
   StatusCode procMuIsoDQA();
   StatusCode procTileMuDQA();
@@ -234,7 +234,7 @@ class HLTMuonMonTool : public IHLTMonTool
   // add by Yuan
   TRandom3   m_random3;
 
-  //private parameters/functions for muFast
+  //private parameters/functions for L2MuonSA
   double calc_dR(double,double,double,double);    
   double calc_dphi(double,double);
   bool checkOfflineSAdR();
@@ -343,7 +343,7 @@ class HLTMuonMonTool : public IHLTMonTool
   //private parameters/functions for MuGirl
 
   //histogram vectors
-  std::vector<TH1F *> m_HistoVectorMuonmuFast;
+  std::vector<TH1F *> m_HistoVectorMuonL2MuonSA;
   std::vector<TH1F *> m_HistoVectorMuonmuComb;
   std::vector<TH1F *> m_HistoVectorMuonTileMu;
   std::vector<TH1F *> m_HistoVectorMuonmuIso;
@@ -365,10 +365,10 @@ class HLTMuonMonTool : public IHLTMonTool
   //  ToolHandle<Rec::IMuonCombinedSelectorTool> m_muonSelectorTool;  // removed for the moment
 
   // YY added:
-  enum ieffStdAlgo { iMuFast = 0, iMuComb = 1, iEFCB = 2, iMuGirl = 3 };
+  enum ieffStdAlgo { iL2MuonSA = 0, iMuComb = 1, iEFCB = 2, iMuGirl = 3 };
   enum ieffMSAlgo { iEFSA = 1 };
 
-  float m_fMuFast, m_fMuComb, m_fEFCB, m_fMuGirl;
+  float m_fL2MuonSA, m_fMuComb, m_fEFCB, m_fMuGirl;
   float m_fEFSA;
 
   int m_iSTDL, m_iSTDH;

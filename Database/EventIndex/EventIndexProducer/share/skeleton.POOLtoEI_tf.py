@@ -1,5 +1,7 @@
 ###############################################################
 #
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 #==============================================================
 
 
@@ -55,6 +57,16 @@ if hasattr(runArgs,"eidsname"):
     EiDsName = runArgs.eidsname
 else:
     EiDsName = None
+
+if hasattr(runArgs,"testbrk"):
+    TestBrk = runArgs.testbrk
+else:
+    TestBrk = False
+
+if hasattr(runArgs,"eifmt"):
+    EiFmt = runArgs.eifmt
+else:
+    EiFmt = 0
 
 # Tier0 job identification
 if hasattr(runArgs,"_taskid"):

@@ -176,11 +176,11 @@ class AlgFactory(object):
         # add factory to instance label to facilitate log file searches
         trkstr = self.menu_data.trkopt
         if 'ftk' in self.menu_data.trkopt:
-                name = '"%s_%s%s"' %(factory, self.fex_params.fex_label, trkstr)	
-                outputcollectionlabel = "'%s%s'" % (self.fex_params.fex_label, trkstr)
+            name = '"%s_%s%s"' %(factory, self.fex_params.fex_label, trkstr)	
+            outputcollectionlabel = "'%s%s'" % (self.fex_params.fex_label, trkstr)
         else:
-                name = '"%s_%s"' %(factory, self.fex_params.fex_label)
-                outputcollectionlabel = "'%s'" % (self.fex_params.fex_label)
+            name = '"%s_%s"' %(factory, self.fex_params.fex_label)
+            outputcollectionlabel = "'%s'" % (self.fex_params.fex_label)
 
         kwds = {
             'name': name,  # instance label

@@ -10,7 +10,11 @@ import commands
 #
 ###########################################################################
 
-include("LArCalibProcessing/LArCalib_Flags.py")
+if not "SuperCells" in dir():
+   SuperCells=False
+   
+if not SuperCells: include("LArCalibProcessing/LArCalib_Flags.py")
+if SuperCells:     include("LArCalibProcessing/LArCalib_FlagsSC.py")
 
 ###########################################################################
 #                   Input selection (CaliWave)
@@ -104,10 +108,12 @@ if not 'DBConnectionCOOL' in dir():
    DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_LAR;dbname=CONDBR2;"
 
 if not 'InputCaliPulseParamsFolder' in dir():
-   InputCaliPulseParamsFolder = "/LAR/ElecCalibOfl/CaliPulseParams/RTM"
+   if not SuperCells: InputCaliPulseParamsFolder = "/LAR/ElecCalibOfl/CaliPulseParams/RTM"
+   if SuperCells:     InputCaliPulseParamsFolder = "/LAR/ElecCalibOflSC/CaliPulseParams/RTM"
    
 if not 'InputDetCellParamsFolder' in dir():
-   InputDetCellParamsFolder = "/LAR/ElecCalibOfl/DetCellParams/RTM"   
+   if not SuperCells: InputDetCellParamsFolder = "/LAR/ElecCalibOfl/DetCellParams/RTM"   
+   if SuperCells:     InputDetCellParamsFolder = "/LAR/ElecCalibOflSC/DetCellParams/RTM"   
 
 ## HEC PhysWave
 if ( ReadHECPhysWaveFromCOOL ):
@@ -424,6 +430,9 @@ if 'MissingFEBsLArCalibFolderTag' in dir() :
    conddb.addFolder("",MissingFEBsFolder+"<tag>"+MissingFEBsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
 else :
    conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   
+if SuperCells:
+   conddb.addFolder("","/LAR/IdentifierOfl/OnOffIdMap_SC<db>COOLOFL_LAR/OFLP200</db><tag>LARIdentifierOflOnOffIdMap_SC-000</tag>") 
 
 ## define the DB Gobal Tag :
 svcMgr.IOVDbSvc.GlobalTag   = LArCalib_Flags.globalFlagDB   
@@ -561,6 +570,7 @@ ToolSvc+=theMask
 LArPhysWavePredictor = LArPhysWavePredictor( "LArPhysWavePredictor" )
 LArPhysWavePredictor.MaskingTool              = theMask
 LArPhysWavePredictor.TestMode	              = doTest
+LArPhysWavePredictor.isSC                     = SuperCells
 LArPhysWavePredictor.KeyCaliList              = KeyCaliList
 LArPhysWavePredictor.UseCaliPulseParamsFromJO = UseCaliPulseParamsFromJO
 LArPhysWavePredictor.UseDetCellParamsFromJO   = UseDetCellParamsFromJO
@@ -658,6 +668,7 @@ if ( WriteNtuple ) :
       LArPhysWaves2Ntuple.NtupleName   = "PHYSWAVE" 
       LArPhysWaves2Ntuple.AddFEBTempInfo   = False  
       LArPhysWaves2Ntuple.KeyList      = [ OutputKey  ]
+      LArPhysWaves2Ntuple.isSC = SuperCells
       
       topSequence += LArPhysWaves2Ntuple
       
@@ -667,6 +678,7 @@ if ( WriteNtuple ) :
       LArCaliWaves2Ntuple.NtupleName   = "CALIWAVE"
       LArCaliWaves2Ntuple.AddFEBTempInfo   = False
       LArCaliWaves2Ntuple.KeyList      = KeyCaliList
+      LArCaliWaves2Ntuple.isSC = SuperCells
       
       topSequence += LArCaliWaves2Ntuple
       
@@ -675,6 +687,7 @@ if ( WriteNtuple ) :
       LArMphysOverMcal2Ntuple                = LArMphysOverMcal2Ntuple( "LArMphysOverMcal2Ntuple" )
       LArMphysOverMcal2Ntuple.ContainerKey   = "LArMphysOverMcal"
       LArMphysOverMcal2Ntuple.AddFEBTempInfo   = False
+      LArMphysOverMcal2Ntuple.isSC = SuperCells
    
       topSequence += LArMphysOverMcal2Ntuple
    

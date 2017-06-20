@@ -50,6 +50,13 @@ namespace LVL1 {
 
      //setter to set second candidate in Mioct pt to 3 (i.e. 11) in case of > 2 candidates (OverFlow)
      void setptL1TopoCodeToOvFl() { m_ptL1TopoCode=3; }
+     /**
+        @brief whether there was an overflow
+
+        In the current encoding, the pt bits set to '11' are used to indicate >2 candidates in the Mioct
+        https://twiki.cern.ch/twiki/bin/view/Atlas/LevelOneCentralTriggerUpgradePhase0Mioct#Close_to_final_format
+      */
+     bool moreThan2CandidatesOverflow() const { return m_ptL1TopoCode==3; }
 
      // getter functions
      std::string  getSectorName() const { return m_sectorName; }

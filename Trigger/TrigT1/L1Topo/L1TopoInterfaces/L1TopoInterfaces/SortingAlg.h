@@ -17,18 +17,27 @@ namespace TCS {
    public:
       
       SortingAlg(const  std::string & name) :
-         ConfigurableAlg(name, SORT)
+      ConfigurableAlg(name, SORT),
+      m_overflow(false)
       {};
 
       virtual ~SortingAlg();
 
       virtual TCS::StatusCode sort(const InputTOBArray & input, TOBArray & output) = 0;
       virtual TCS::StatusCode sortBitCorrect(const InputTOBArray & input, TOBArray & output);
+      /**
+         @brief whether an overlflow occurred
+
+         In practice propagate the overflow bits from the input collections
+       */
+      bool overflow() const { return m_overflow; }
+      /// setter, to propagate bit from input event
+      SortingAlg& setOverflow(const bool v) { m_overflow = v; return *this; }
 
    protected:
 
       virtual StatusCode doReset();
-      
+      bool m_overflow; ///< whether an overflow occurred during the current execution.
    };
 
 }

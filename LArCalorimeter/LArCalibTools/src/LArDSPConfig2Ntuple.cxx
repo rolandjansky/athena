@@ -35,9 +35,21 @@ StatusCode LArDSPConfig2Ntuple::initialize() {
      return StatusCode::FAILURE;
    }
    
+   sc=m_nt->addItem("useHGIntercept",m_useHgIntercept);
+   if (sc!=StatusCode::SUCCESS) {
+     msg(MSG::ERROR) << "addItem useHGIntercept failed" << endreq;
+     return StatusCode::FAILURE;
+   }
+   
    sc=m_nt->addItem("useMGIntercept",m_useMgIntercept);
    if (sc!=StatusCode::SUCCESS) {
      msg(MSG::ERROR) << "addItem useMGIntercept failed" << endreq;
+     return StatusCode::FAILURE;
+   }
+   
+   sc=m_nt->addItem("useLGIntercept",m_useLgIntercept);
+   if (sc!=StatusCode::SUCCESS) {
+     msg(MSG::ERROR) << "addItem useLGIntercept failed" << endreq;
      return StatusCode::FAILURE;
    }
    
@@ -68,9 +80,12 @@ StatusCode LArDSPConfig2Ntuple::stop() {
    for(; itOnId!=itOnIdEnd;++itOnId){
      const HWIdentifier hwid = *itOnId;
      m_peakSample=larDSPConfig.peakSample(hwid);
+     msg(MSG::DEBUG)<<"hwid: "<<hwid.getString()<<" "<<m_peakSample<<endmsg;
      m_useMgIntercept=larDSPConfig.useMGRampIntercept(hwid);
+     m_useHgIntercept=larDSPConfig.useHGRampIntercept(hwid);
+     m_useLgIntercept=larDSPConfig.useLGRampIntercept(hwid);
+     msg(MSG::DEBUG)<<"hwid: "<<hwid.getString()<<" "<<m_useHgIntercept<<" "<<m_useMgIntercept<<" "<<m_useLgIntercept<<endmsg;
      fillFromIdentifier(hwid);
-     //msg(MSG::INFO)<<"hwid: "<<hwid.getString()<<" "<<tQThr<<" : "<<samplesThr<<" : "<<trigThr<<endreq;
      
      sc=ntupleSvc()->writeRecord(m_nt);      
      if (sc!=StatusCode::SUCCESS) {

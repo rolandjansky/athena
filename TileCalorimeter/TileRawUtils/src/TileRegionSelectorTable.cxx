@@ -33,12 +33,14 @@ TileRegionSelectorTable::TileRegionSelectorTable (const std::string& type,
      m_tileLUT(nullptr),
      m_printTable(false),
      m_testTable(false),
+     m_2017RODs(true),
      m_roiFileNameTile("TileMapIdAndHash.txt")
 {
   declareInterface<IRegionLUT_Creator>(this);
   declareProperty("OutputFileTile", m_roiFileNameTile);
   declareProperty("PrintTable", m_printTable);
   declareProperty("TestTable", m_testTable);
+  declareProperty("FullRODs", m_2017RODs );
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -137,8 +139,15 @@ TileRegionSelectorTable::fillMaps()
       //unsigned int rod=ROD[i]+j/4;
       //unsigned int coll=(i+1)*256+j;
       //unsigned int hash=i*64+j;
+      int rod;
+      if ( m_2017RODs ) {
+      int new_j=0;
+      if ( (j%2)==1 ) new_j=1;
+      rod=ROD[i]+2*(j/4)+new_j;
+      } else {
+      rod=ROD[i]+j/4;
+      }
 
-      int rod=ROD[i]+j/4;
       int coll=(i+1)*256+j;
       int hash=i*64+j;
 

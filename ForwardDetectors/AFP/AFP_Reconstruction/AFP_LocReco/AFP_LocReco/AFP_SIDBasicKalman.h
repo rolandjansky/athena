@@ -60,15 +60,6 @@ class AFP_SIDBasicKalman
 		Float_t fyMapSID[SIDSTATIONID][SIDCNT][336][80];
 		Float_t fzMapSID[SIDSTATIONID][SIDCNT][336][80];
 		
-		void HistInitialize();
-		void HistFinalize();		
-		
-		TFile *MyFile;
-		TH2F* histS1_PixMap;
-		TH2F* histS2_PixMap;
-		TH2F* histS3_PixMap;
-		TH2F* histS4_PixMap;
-		
 	private:
 		vector<SIDHITSEED> pTrkSeeds;
 		CLHEP::HepMatrix Hk, Qk, Vk, C0;

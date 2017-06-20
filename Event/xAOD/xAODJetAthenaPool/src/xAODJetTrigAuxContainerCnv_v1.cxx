@@ -3,7 +3,7 @@
 */
 
 // $Id: xAODJetTrigAuxContainerCnv_v1.cxx 800408 2017-03-13 09:28:39Z sschramm $
-
+#ifndef SIMULATIONBASE
 // System include(s):
 #include <stdexcept>
 
@@ -94,3 +94,4 @@ transToPers( const xAOD::JetTrigAuxContainer*,
 
    return;
 }
+#endif //ifndef SIMULATIONBASE

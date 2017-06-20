@@ -15,8 +15,9 @@ LArG4H6WarmTCSDTool::LArG4H6WarmTCSDTool(const std::string& type, const std::str
 
 G4VSensitiveDetector* LArG4H6WarmTCSDTool::makeSD()
 {
-  ATH_MSG_DEBUG( "Initializing SD" );   
-    
+  ATH_MSG_DEBUG( "Initializing SD" );
+  //FIXME use configurable properties here
+
   // be smart, and take only last part of the name
   G4String colname = "";
   if(name().find("::Abs")!=std::string::npos){

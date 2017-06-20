@@ -9,7 +9,7 @@ using namespace std;
 using namespace TCS;
 
 InputConnector::InputConnector(const string & name) :
-   Connector(name, INPUT)
+    Connector(name, INPUT)
 {
    m_inputTOBType = inputType(name);
 }

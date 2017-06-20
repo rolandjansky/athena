@@ -44,7 +44,6 @@ namespace G4UA
     private:
 
       FastIDKiller::Config m_config;
-      //FastIDKiller::Report m_report;
 
   }; // class FastIDKillerTool
 

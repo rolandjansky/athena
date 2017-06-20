@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TILECABLINGSERVICE_H
-#define TILECABLINGSERVICE_H
+#ifndef TILECONDITIONS_TILECABLINGSERVICE_H
+#define TILECONDITIONS_TILECABLINGSERVICE_H
 
 // This class provides conversion between logical and hardware ID
 // Implemented as a singleton
@@ -15,6 +15,9 @@
 #include "TileIdentifier/TileHWID.h" 
 #include "CaloIdentifier/TileTBID.h" 
 #include "CaloIdentifier/CaloLVL1_ID.h" 
+
+#include "AthenaKernel/MsgStreamMember.h"
+
 #include <vector>
 
 class TileCablingService
@@ -88,10 +91,22 @@ public:
                            MBTSOnly  = 2,
                            CrackAndMBTS = 3,
                            RUN2Cabling = 4,
+                           UpgradeA = 10,
+                           UpgradeBC = 11,
+                           UpgradeABC = 12,
                            UnknownCabling };
 
     bool is_MBTS_merged_run2(int module) const;
     int E1_merged_with_run2(int ros, int module) const;
+
+    int getMaxChannels(void) const { return m_maxChannels; };
+    int getMaxGains(void) const { return m_maxGains; };
+
+
+    /// Log a message using the Athena controlled logging system
+    MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
+    /// Check whether the logging system is active at the provided verbosity level
+    bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
 
 protected:
     
@@ -109,12 +124,21 @@ private:
            int          hwid2side               ( int ros, int channel ) const;
     static int          hwid2module             ( int drawer );
            int          hwid2tower              ( int ros, int channel ) const;
+
     static int          hwid2sample             ( int ros, int channel );
            int          hwid2pmt                ( int ros, int channel ) const;
 
            int          swid2ros                ( int section, int side ) const;
     static int          swid2drawer             ( int module );
            int          swid2channel            ( int section, int side, 
+                                                  int tower, int sample, 
+                                                  int pmt ) const;
+
+           int          hwid2tower_upgradeABC   ( int ros, int channel ) const;
+           int          hwid2sample_upgradeABC  ( int ros, int channel ) const;
+           int          hwid2pmt_upgradeABC     ( int ros, int channel ) const;
+
+           int          swid2channel_upgradeABC ( int section, int side, 
                                                   int tower, int sample, 
                                                   int pmt ) const;
 
@@ -231,8 +255,21 @@ private:
 
    void setConnected (int ros, int drawer, bool yes) { m_connected[ros][drawer] = yes; }
 
+   bool isChannelFromOppositeSide(int channel) const {return channel == m_maxChannels;};
+
    std::vector<bool> m_MBTSmergedRun2;
    std::vector<int> m_E1mergedRun2;
+
+   std::vector<int> m_ch2pmtUpgradeABC;
+   std::vector<int> m_ch2sampleUpgradeABC;
+   std::vector<int> m_ch2towerUpgradeABC;
+
+   bool m_run2;
+
+   int m_maxChannels;
+   int m_maxGains;
+
+   mutable Athena::MsgStreamMember m_msg;
 
 public:
 
@@ -246,5 +283,5 @@ public:
 
 };
 
-#endif //TILECABLINGSERVICE_H
+#endif // TILECONDITIONS_TILECABLINGSERVICE_H
 

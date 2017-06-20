@@ -80,7 +80,42 @@ class EFMultiMuHypo_DiMu_noVtx (EFMultiMuHypo_DiMu):
     def __init__(self, name = "EFMultiMuHypo_DiMu_noVtx"):
         super( EFMultiMuHypo_DiMu_noVtx, self ).__init__( name )
         self.ApplyChi2Cut      = False
+        self.ApplyUpperMassCut = False
+        
+class EFMultiMuHypo_Vtx20 (TrigEFMultiMuHypo):
+    __slots__ = []
+    def __init__(self, name = "EFMultiMuHypo_Vtx20"):
+        super( EFMultiMuHypo_Vtx20, self ).__init__( name )
+        
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll = False
+        self.LowerMassCut      = -1.
+        self.UpperMassCut     = 1e+10
+        self.ApplyUpperMassCut     = False
+        self.ApplyChi2Cut      = True
+        self.Chi2VtxCut       =   20.
 	
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("Time")
+	
+        validation = TrigEFMultiMuHypoValidationMonitoring()
+        online = TrigEFMultiMuHypoOnlineMonitoring()
+        self.AthenaMonTools = [ validation, online, time ]
+
+class EFMultiMuHypo_Vtx60 (EFMultiMuHypo_Vtx20):
+    __slots__ = []
+    def __init__(self, name = "EFMultiMuHypo_Vtx60"):
+        super( EFMultiMuHypo_Vtx60, self ).__init__( name )
+        self.ApplyChi2Cut      = True
+        self.Chi2VtxCut       =   60.
+
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("Time")
+	
+        validation = TrigEFMultiMuHypoValidationMonitoring()
+        online = TrigEFMultiMuHypoOnlineMonitoring()
+        self.AthenaMonTools = [ validation, online, time ]
+        
 
 class EFMultiMuHypo_BMeson (TrigEFMultiMuHypo):
     __slots__ = []

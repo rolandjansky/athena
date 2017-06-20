@@ -31,6 +31,8 @@
 // EDM includes
 #include "EventInfo/EventInfo.h"
 
+#include "MCTruthBase/TruthStrategyManager.h"
+
 // call_once mutexes
 #include <mutex>
 static std::once_flag initializeOnceFlag;
@@ -42,9 +44,10 @@ static std::once_flag finalizeOnceFlag;
 G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_rndmGenSvc("AtDSFMTGenSvc", name),
-    m_UASvc("UserActionSvc", name),           // current user action design
     m_userActionSvc("G4UA::UserActionSvc", name), // new user action design
-    m_physListTool("PhysicsListToolBase")
+    m_physListTool("PhysicsListToolBase"),
+    m_truthRecordSvc("ISF_TruthRecordSvc", name),
+    m_geoIDSvc("ISF_GeoIDSvc", name)
 {
   ATH_MSG_DEBUG(std::endl << std::endl << std::endl);
   ATH_MSG_INFO("++++++++++++  G4AtlasAlg created  ++++++++++++" << std::endl << std::endl);
@@ -61,15 +64,19 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
 
   // Service instantiation
   declareProperty("AtRndmGenSvc", m_rndmGenSvc);
-  declareProperty("UserActionSvc", m_UASvc);
-  declareProperty("UserActionSvcV2", m_userActionSvc);
+  declareProperty("UserActionSvc", m_userActionSvc);
   declareProperty("PhysicsListTool", m_physListTool);
-
+  declareProperty("TruthRecordService", m_truthRecordSvc);
+  declareProperty("GeoIDSvc", m_geoIDSvc);
+  
   // Verbosities
   declareProperty("Verbosities", m_verbosities);
 
   // Multi-threading specific settings
   declareProperty("MultiThreading", m_useMT=false);
+
+  // Commands to send to the G4UI
+  declareProperty("G4Commands", m_g4commands);
 }
 
 
@@ -89,30 +96,7 @@ StatusCode G4AtlasAlg::initialize()
     return StatusCode::FAILURE;
   }
 
-  // For now, we decide which user action service to setup based on which
-  // handle has a non-empty name configured. Then we can steer it from the
-  // configuration layer. This will go away when we drop V1 actions.
-
-  // V1 user action service
-  if( !m_UASvc.name().empty() ) {
-    ATH_CHECK( m_UASvc.retrieve() );
-
-    // Make sure only one user action version is used at a time.
-    if( !m_userActionSvc.name().empty() ) {
-      ATH_MSG_ERROR("Configured to use both V1 and V2 user actions, " <<
-                    "which isn't supported!");
-      return StatusCode::FAILURE;
-    }
-    if(m_useMT) {
-      ATH_MSG_ERROR("Using V1 user action design, which won't work in MT");
-      return StatusCode::FAILURE;
-    }
-  }
-
-  // V2 user action service
-  if( !m_userActionSvc.name().empty() ) {
-    ATH_CHECK( m_userActionSvc.retrieve() );
-  }
+  ATH_CHECK( m_userActionSvc.retrieve() );
 
   if(m_useMT) {
     // Retrieve the python service to trigger its initialization. This is done
@@ -122,11 +106,19 @@ StatusCode G4AtlasAlg::initialize()
     ATH_CHECK( pyG4Svc.retrieve() );
   }
 
+  ATH_CHECK( m_truthRecordSvc.retrieve() );
+  ATH_MSG_INFO( "- Using ISF TruthRecordSvc : " << m_truthRecordSvc.typeAndName() );
+  ATH_CHECK( m_geoIDSvc.retrieve() );
+  ATH_MSG_INFO( "- Using ISF GeoIDSvc       : " << m_geoIDSvc.typeAndName() );
+
   ATH_MSG_DEBUG(std::endl << std::endl << std::endl);
+
+  TruthStrategyManager* sManager = TruthStrategyManager::GetStrategyManager();
+  sManager->SetISFTruthSvc( &(*m_truthRecordSvc) );
+  sManager->SetISFGeoIDSvc( &(*m_geoIDSvc) );
+
   ATH_MSG_INFO("++++++++++++  G4AtlasAlg initialized  ++++++++++++" << std::endl << std::endl);
-
   return StatusCode::SUCCESS;
-
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -214,6 +206,11 @@ void G4AtlasAlg::initializeOnce()
     ATH_MSG_INFO("Random nr. generator is set to Geant4");
   }
 
+  // Send UI commands
+  for (auto g4command : m_g4commands){
+    ui->ApplyCommand( g4command );
+  }
+
   // G4 init moved to PyG4AtlasAlg / G4AtlasEngine
   /// @todo Reinstate or delete?! This can't actually be called from the Py algs
   //ATH_MSG_INFO("Firing initialization of G4!!!");
@@ -291,13 +288,22 @@ StatusCode G4AtlasAlg::execute()
   ATH_MSG_DEBUG(std::endl<<std::endl<<std::endl);
   ATH_MSG_INFO("++++++++++++  G4AtlasAlg execute  ++++++++++++" <<std::endl<<std::endl);
 
+
+  TruthStrategyManager* sManager = TruthStrategyManager::GetStrategyManager();
+  ATH_CHECK( sManager->InitializeWorldVolume() );
+
+
   n_Event += 1;
 
   if (n_Event<=10 || (n_Event%100) == 0) {
     ATH_MSG_ALWAYS("G4AtlasAlg: Event num. "  << n_Event << " start processing");
   }
 
+  // tell TruthService we're starting a new event
+  ATH_CHECK( m_truthRecordSvc->initializeTruthCollection() );
+
   ATH_MSG_DEBUG("Calling SimulateG4Event");
+
 
   // Worker run manager
   // Custom class has custom method call: SimulateFADSEvent.
@@ -338,6 +344,8 @@ StatusCode G4AtlasAlg::execute()
       }
     }
   }
+
+  ATH_CHECK( m_truthRecordSvc->releaseEvent() );
 
   return StatusCode::SUCCESS;
 }

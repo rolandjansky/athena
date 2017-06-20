@@ -633,12 +633,16 @@ StatusCode HLTBjetMonTool::book(){
     if ( !eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION) ) MCflag = false;
     ATH_MSG_DEBUG( " MCflag: " << MCflag );
 
+    /* This sequence contains a now obsolate jetcontainer, namely "AntiKt4TruthJets" so it has to be taken out
+    // Since truthjets may be used later, we leave here the sequence commented out, waiting for another
+    //      container name which will replace "AntiKt4TruthJets" for truthjets
     // Get truth jets
     if (MCflag) {
       const xAOD::JetContainer* truthjets = 0;
       ATH_CHECK( evtStore()->retrieve(truthjets,"AntiKt4TruthJets") );
       ATH_MSG_DEBUG("RETRIEVED TRUTH JETS  - size: " << truthjets->size());
     } // MCflag
+    */
 
     std::string HistDir = "/Offline";
     std::string HistExt = "";

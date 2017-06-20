@@ -39,7 +39,7 @@ streamLogic       = 'Or'
 # When using ATLAS partition
 # Use different streams for "atlas standby" and "atlas ready"
 #
-if (partitionName == 'ATLAS'):
+if (partitionName == 'ATLAS' or partitionName == 'ATLAS_MP1'):
     streamLogic       = 'Or'
     
     import RecExOnline.OnlineISConfiguration
@@ -51,7 +51,7 @@ if (partitionName == 'ATLAS'):
     obj = ispy.ISObject(ispy.IPCPartition(partitionName), 'RunParams.RunParams', 'RunParams')
     obj.checkout()
     ### if ( obj.T0_project_tag == 'data15_comm' or obj.T0_project_tag == 'data15_13TeV'):
-    if ( obj.T0_project_tag == 'data15_comm' or obj.T0_project_tag == 'data15_13TeV' or obj.T0_project_tag == 'data15_5TeV' or obj.T0_project_tag == 'data16_comm' or obj.T0_project_tag == 'data16_13TeV' or obj.T0_project_tag == 'data16_5TeV' or obj.T0_project_tag == 'data16_1beam' or obj.T0_project_tag == 'data16_hip' or obj.T0_project_tag == 'data16_hip5TeV' or obj.T0_project_tag == 'data16_hip8TeV'):
+    if ( obj.T0_project_tag == 'data17_comm' or obj.T0_project_tag == 'data17_13TeV' or obj.T0_project_tag == 'data17_1beam' or obj.T0_project_tag == 'data16_comm' or obj.T0_project_tag == 'data16_13TeV' or obj.T0_project_tag == 'data16_5TeV' or obj.T0_project_tag == 'data16_1beam' or obj.T0_project_tag == 'data16_hip' or obj.T0_project_tag == 'data16_hip5TeV' or obj.T0_project_tag == 'data16_hip8TeV'):
         #streamName        = 'MinBias'
         #streamName        = 'Main' # Switching due to missingg Minbias stream -= 13/06/2015 AK
         try:
@@ -76,11 +76,11 @@ else:
 #
 # When NOT using ATLAS partition
 #
-if (partitionName != 'ATLAS'):
+if (partitionName != 'ATLAS' and partitionName != 'ATLAS_MP1'):
     if isHI_2016:
-       publishName     = 'lshi_hiconf_pp_20_11_2_2_1'
+       publishName     = 'GMTest_hiconf'
     else:
-       publishName     = 'lshi_ppconf_pp_20_11_2_2_1'
+       publishName     = 'GMTest_ppconf'
     isserverName    = 'Histogramming'
 
 
@@ -117,10 +117,10 @@ useAtlantisEmon   = False
 ### evtMax            = -1
 ### evtMax            = 50
 
-if (partitionName == 'ATLAS'):
+if (partitionName == 'ATLAS' or partitionName == 'ATLAS_MP1'):
     evtMax            = -1
 
-if (partitionName != 'ATLAS'):
+if (partitionName != 'ATLAS' and partitionName != 'ATLAS_MP1'):
     # evtMax            = 200
     evtMax            = -1 # lshi: for Gatherer test
 

@@ -5,22 +5,23 @@ author Margret Fincke-Keeler <mgf@uvic.ca>
 # G4 Hit processing for the Mini FCAL
 
 use AtlasPolicy        AtlasPolicy-*
-use LArG4Code          LArG4Code-*              LArCalorimeter/LArG4
 use Geant4             Geant4-*                 External
-use CaloG4Sim          CaloG4Sim-*              Calorimeter
 use GaudiInterface     GaudiInterface-*         External
 use StoreGate          StoreGate-*              Control
 use AtlasCLHEP         AtlasCLHEP-*             External
 
 # Build the library (and export the headers)
 
-library LArG4MiniFCAL *.cc 
+library LArG4MiniFCAL *.cc -s=components *.cxx
 
-apply_pattern installed_library
+apply_pattern component_library
+apply_pattern declare_python_modules files="*.py"
 
 private
 use AthenaKernel       AthenaKernel-*           Control
 use GeoModelInterfaces GeoModelInterfaces-*     DetectorDescription/GeoModel
 use Identifier         Identifier-*             DetectorDescription
 use RDBAccessSvc       RDBAccessSvc-*           Database/AthenaPOOL
-use LArG4RunControl    LArG4RunControl-*        LArCalorimeter/LArG4
+#use LArG4RunControl    LArG4RunControl-*        LArCalorimeter/LArG4
+use LArG4Code          LArG4Code-*              LArCalorimeter/LArG4
+use CaloG4Sim           CaloG4Sim-*             Calorimeter

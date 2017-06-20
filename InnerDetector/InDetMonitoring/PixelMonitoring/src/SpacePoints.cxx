@@ -45,6 +45,7 @@ StatusCode PixelMainMon::BookSpacePointMon(void)
    if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/SpacePointOnTrack");
    if(m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/SpacePointOnPixelTrack");
 
+   StatusCode sc;
    MonGroup spacePointHistos( this, path.c_str(),run,ATTRIB_MANAGED ); //declare a group of histograms
    if(m_doHighOccupancy)
    {
@@ -69,7 +70,7 @@ StatusCode PixelMainMon::BookSpacePointMon(void)
 
 StatusCode PixelMainMon::FillSpacePointMon(void)
 {
-   sc = evtStore()->retrieve(m_Pixel_spcontainer, m_Pixel_SpacePointsName );
+   StatusCode sc = evtStore()->retrieve(m_Pixel_spcontainer, m_Pixel_SpacePointsName );
    if (sc.isFailure() || !m_Pixel_spcontainer)
    {
       if(msgLvl(MSG::INFO)) msg(MSG::INFO)  <<"SpacePoint container for Pixels not found"<< endmsg;

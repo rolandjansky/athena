@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef Geo2G4OpticalSurfaceFactory_h
-#define Geo2G4OpticalSurfaceFactory_h
+#ifndef GEO2G4_Geo2G4OpticalSurfaceFactory_h
+#define GEO2G4_Geo2G4OpticalSurfaceFactory_h
 
 #include <map>
 
@@ -19,7 +19,7 @@ class Geo2G4OpticalSurfaceFactory
 
   G4OpticalSurface* Build(const GeoOpticalSurface*);
  private:
-  Geo2G4OptSurfaceMap definedOptSurfaces;
+  Geo2G4OptSurfaceMap m_definedOptSurfaces;
 };
 
 #endif

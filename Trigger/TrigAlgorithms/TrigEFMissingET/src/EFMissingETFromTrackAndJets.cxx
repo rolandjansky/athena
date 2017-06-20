@@ -157,6 +157,17 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
             ATH_MSG_DEBUG( "Found muon " << "pt = " << muon->pt()/1000. << " eta= " <<
                            muon->eta() << " phi= " << muon->phi() );
 
+	    //check if duplicate muon track 
+            bool find_duplicate(false);
+            for(std::vector<const xAOD::TrackParticle*>::size_type idx=0; idx<vecOfMuonTrk.size(); idx++) {
+                float deltaR_ = idtrk->p4().DeltaR(vecOfMuonTrk[idx]->p4());
+                if(deltaR_<0.01) {
+                    find_duplicate = true;
+                    break;
+                }
+            }
+	    if(find_duplicate) continue;
+
             vecOfMuonTrk.push_back(idtrk);
         }
   }
@@ -281,22 +292,19 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
 
     metComp = metHelper->GetComponent(metHelper->GetElements() - m_methelperposition + i); // fetch Cluster component
 
-    if(i ==0) {
-      for (const xAOD::TrackParticle* track : tracksSeparatedWithJets) {
+    for (const xAOD::TrackParticle* track : tracksSeparatedWithJets) {
         metComp->m_ex -= track->p4().Px();
         metComp->m_ey -= track->p4().Py();
         metComp->m_ez -= track->p4().Pz();
         metComp->m_sumEt += track->pt();
         metComp->m_sumE  += track->e();
-      }
     }
 
     for (const xAOD::Jet* aJet : goodJets) {
 
+      if( fabs(aJet->eta())<2.4 && aJet->pt()/1000 < m_central_ptcut ) continue;
+
       if(i == 0) {
-
-        if( fabs(aJet->eta())<2.4 && aJet->pt()/1000 < m_central_ptcut ) continue;
-
         metComp->m_ex -= aJet->px();
         metComp->m_ey -= aJet->py();
         metComp->m_ez -= aJet->pz();
@@ -304,19 +312,8 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
         metComp->m_sumE  += aJet->e();
         metComp->m_usedChannels += 1;
         metComp->m_sumOfSigns += copysign(1.0, aJet->pt() );
-
       } else if (i > 0) {
-
         float eta = aJet->eta();
-        float ptCut = 0.;
-
-        // Set pT cut depending on region
-        if(i == 1 || i == 2) ptCut = m_central_ptcut;
-        else ptCut = m_forward_ptcut;
-
-        // only sum jets that have a pt above the cut value
-        if(aJet->pt() < ptCut) continue;
-
         if( eta >= lowerlim[i-1] && eta <= upperlim[i-1]) {
           metComp->m_ex -= aJet->px();
           metComp->m_ey -= aJet->py();

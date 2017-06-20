@@ -13,6 +13,7 @@ import sys
 import tarfile
 import time
 import uuid
+import socket
 
 import multiprocessing
 import base64
@@ -1245,7 +1246,7 @@ def ValgrindCommand(
 def calcCpuTime(start, stop):
     cpuTime = None
     if start and stop:
-        cpuTime = int(reduce(lambda x1, x2: x1+x2, map(lambda x1, x2: x2-x1, start[2:4], stop[2:4])) + 0.5)
+        cpuTime = reduce(lambda x1, x2: x1+x2, map(lambda x1, x2: x2-x1, start[2:4], stop[2:4]))
 
     return cpuTime
 
@@ -1253,6 +1254,21 @@ def calcCpuTime(start, stop):
 def calcWallTime(start, stop):
     wallTime = None
     if start and stop:
-        wallTime = int(stop[4] - start[4] + 0.5)
+        wallTime = stop[4] - start[4]
 
     return wallTime
+
+def bind_port(host, port):
+    ret = 0
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        s.bind((host, port))
+    except socket.error as e:
+        if e.errno == 98:
+            print("Port %s is already in use" %port)
+        else:
+            # something else raised the socket.error exception
+            print(e)
+        ret=1
+    s.close()
+    return ret

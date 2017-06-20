@@ -34,7 +34,7 @@
 
 static const unsigned int OBJVERSION(0);
 static const int NCHANNELS(4);
-static const int NGAINS(1);
+//static const int NGAINS(1);
 
 
 /** Class provides dummy algorithm
@@ -80,7 +80,7 @@ class TileCondProxyMock: public AthAlgTool, virtual public ITileCondProxy<T> {
         coral::AttributeListSpecification* spec = new coral::AttributeListSpecification();
         spec->extend("TileCalibBlob", "blob");
         m_lists.push_back( new coral::AttributeList(*spec) );
-        coral::Blob& blob = (*m_lists.back())["TileCalibBlob"].data<coral::Blob>();
+        coral::Blob& blob = (*m_lists.back())["TileCalibBlob"].template data<coral::Blob>();
         std::vector<std::vector<float> > defs(1, def);
         m_drawers.push_back(TileCalibDrawerFlt::getInstance(blob, defs, NCHANNELS, OBJVERSION));
       }

@@ -45,6 +45,7 @@ StatusCode LArCalibDigitMaker::initialize()
 {
   ATH_MSG_DEBUG ( "======== LArCalibDigitMaker Initialize ========" );
   ATH_CHECK( m_larCablingSvc.retrieve() );
+  ATH_CHECK( m_larCablingSvc_SC.retrieve() );
     
 //  std::cout << "Pattern.size()=" << m_vPattern.size() << std::endl;
 //   std::cout << "DAC.size()=" << m_vDAC.size() << std::endl;
@@ -125,7 +126,7 @@ StatusCode LArCalibDigitMaker::execute()
      //Get data members of LArDigit
      const std::vector<short>& samples=(*it)->samples();
      CaloGain::CaloGain gain=(*it)->gain();
-     const std::vector<HWIdentifier>& calibChannelIDs=m_larCablingSvc->calibSlotLine(chid);
+     const std::vector<HWIdentifier>& calibChannelIDs = ((*key_it) == "SC") ? m_larCablingSvc_SC->calibSlotLine(chid) : m_larCablingSvc->calibSlotLine(chid);
      if (calibChannelIDs.size()==0) 
        continue; //Disconnected channel
      //For the time beeing, I assume we are in H8 and have only one calib channel per FEB channel
@@ -137,12 +138,12 @@ StatusCode LArCalibDigitMaker::execute()
      bool ispulsed=calibParams->isPulsed(eventNb,*csl_it);
      //build LArCalibDigit:
      // std::cout << "Event:" << eventNb 
-     // 	     << "Building a LArCalibDigit with DAC=" << dac << ", Delay=" << delay << ", isPulsed=" << ispulsed << std::endl;
+     //        << "Building a LArCalibDigit with DAC=" << dac << ", Delay=" << delay << ", isPulsed=" << ispulsed << std::endl;
      LArCalibDigit* calibDigit=new LArCalibDigit(chid,gain, samples, dac, delay, ispulsed);
      calibDigitContainer->push_back(calibDigit);
    } //End iteration to build calibDigits
    ATH_CHECK( evtStore()->record(calibDigitContainer,*key_it) );
-   //log << MSG::DEBUG << "LArCalibDigitContainer recorded to StoreGate. key=" << m_key << endreq;
+   //log << MSG::DEBUG << "LArCalibDigitContainer recorded to StoreGate. key=" << m_key << endmsg;
  } //End loop key list
  return StatusCode::SUCCESS;
 }

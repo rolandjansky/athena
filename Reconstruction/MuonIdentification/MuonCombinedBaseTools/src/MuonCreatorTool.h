@@ -144,6 +144,7 @@ namespace MuonCombined {
     void addRpcTiming( const xAOD::TrackParticle& track ) const;
     void addRpcTiming( xAOD::Muon& muon ) const;
     void addMSIDScatteringAngles(xAOD::Muon& muon) const;
+    void addMSIDScatteringAngles(const xAOD::TrackParticle& track) const;
     void addSegmentsOnTrack( xAOD::Muon& muon ) const;
     void addAlignmentEffectsOnTrack( xAOD::TrackParticleContainer* trkCont ) const;
 

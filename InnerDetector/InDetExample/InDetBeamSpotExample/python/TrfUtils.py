@@ -5,13 +5,13 @@
 Utilities for writing job transforms for use at T0 and at the CAF Task Management System.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: TrfUtils.py 616574 2014-09-12 20:43:28Z btamadio $'
+__version__ = 'TrfUtils.py atlas/athena'
 
 
 import commands, os, sys, pprint
 import json, yaml
 from InDetBeamSpotExample import JobRunner
-from InDetBeamSpotExample import TaskManager
+from InDetBeamSpotExample.TaskManager import TaskManager
 from optparse import OptionParser
 
 def readJSON(fname):
@@ -255,14 +255,14 @@ class JobRunnerTransform:
     def addTaskToDatabase(self,comment=''):
         if self.prodTaskDb:
             try:
-                taskman = TaskManager.TaskManager(self.prodTaskDb)
-                taskman.addTask(self.dataset,
-                                self.taskname,
-                                self.runner.getParam('joboptionpath'),
-                                self.runner.getParam('release'),
-                                self.runner.getNJobs(),
-                                self.runner.getParam('taskpostprocsteps'),
-                                comment=comment)
+                with TaskManager(self.prodTaskDb) as taskman:
+                    taskman.addTask(self.dataset,
+                                    self.taskname,
+                                    self.runner.getParam('joboptionpath'),
+                                    self.runner.getParam('release'),
+                                    self.runner.getNJobs(),
+                                    self.runner.getParam('taskpostprocsteps'),
+                                    comment=comment)
             except Exception,e:
                 print 'ERROR: Unable to add task to task manager database '+self.prodTaskDb
                 print 'DEBUG: Exception =',e

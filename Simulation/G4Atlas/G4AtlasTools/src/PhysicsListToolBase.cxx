@@ -81,14 +81,14 @@ void PhysicsListToolBase::CreatePhysicsList()
   //   them...
 
   //Register physics options to the G4VModularPhysicsList
-  for (auto itr: m_phys_option)
+  for (auto& physOptTool: m_phys_option)
     {
-      m_physicsList->RegisterPhysics(itr->GetPhysicsOption());
+      m_physicsList->RegisterPhysics(physOptTool->GetPhysicsOption());
     }
   //Register decays to the G4VModularPhysicsList
-  for (auto itr: m_phys_decay)
+  for (auto& physDecayTool: m_phys_decay)
     {
-      m_physicsList->RegisterPhysics(itr->GetPhysicsOption());
+      m_physicsList->RegisterPhysics(physDecayTool->GetPhysicsOption());
     }
 
   //ConstructProcess();

@@ -65,9 +65,6 @@ class TestActionVPTimerTool:
     void TimerPrint(std::pair<VolTree, TestActionVPTimer::volumeData>, 
 		    const double tTotal,
 		    const int depth = 0) const;
-    //  void TimerPrint(std::ofstream&,
-    //		  std::pair<VolTree, volData>, 
-    //		  const int depth = 0) const;		//!< (Modifiable) print function for a map element
     void TreeOut(VolTree, const double tAtlas, int depth = 0);
     
     

@@ -7,39 +7,43 @@
 
 namespace G4UA
 {
-  
-  FastIDKillerTool::FastIDKillerTool(const std::string& type, const std::string& name,const IInterface* parent):
-    ActionToolBaseReport<FastIDKiller>(type, name, parent){
+
+  FastIDKillerTool::FastIDKillerTool(const std::string& type, const std::string& name,const IInterface* parent)
+    : ActionToolBaseReport<FastIDKiller>(type, name, parent)
+  {
     declareProperty("R", m_config.R);
     declareProperty("Z", m_config.Z);
   }
-  
-  std::unique_ptr<FastIDKiller>  FastIDKillerTool::makeAction(){
+
+  std::unique_ptr<FastIDKiller>  FastIDKillerTool::makeAction()
+  {
     ATH_MSG_DEBUG("makeAction");
     auto action = CxxUtils::make_unique<FastIDKiller>(m_config);
     return std::move(action);
   }
-  
-  StatusCode FastIDKillerTool::queryInterface(const InterfaceID& riid, void** ppvIf){
-    
-    if(riid == IBeginRunActionTool::interfaceID()) {
-      *ppvIf = (IBeginRunActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    } if(riid == ISteppingActionTool::interfaceID()) {
-      *ppvIf = (ISteppingActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    } return ActionToolBase<FastIDKiller>::queryInterface(riid, ppvIf);
+
+  StatusCode FastIDKillerTool::queryInterface(const InterfaceID& riid, void** ppvIf)
+  {
+    if(riid == IBeginRunActionTool::interfaceID())
+      {
+        *ppvIf = (IBeginRunActionTool*) this;
+        addRef();
+        return StatusCode::SUCCESS;
+      }
+    if(riid == ISteppingActionTool::interfaceID())
+      {
+        *ppvIf = (ISteppingActionTool*) this;
+        addRef();
+        return StatusCode::SUCCESS;
+      }
+    return ActionToolBase<FastIDKiller>::queryInterface(riid, ppvIf);
   }
 
-  StatusCode FastIDKillerTool::finalize(){
-    mergeReports();
-
+  StatusCode FastIDKillerTool::finalize()
+  {
+    this->mergeReports();
     ATH_MSG_INFO( "Fast Inner Detector Killer killed " << m_report.killCount << " particles during this run." );
     return StatusCode::SUCCESS;
-    
-    return StatusCode::SUCCESS;
   }
 
-} // namespace G4UA 
+} // namespace G4UA

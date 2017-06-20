@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
 echo $PYPATH
-pyflakes `find $PYPATH -name '*.py'`
+flake8 --ignore=E,W `find $PYPATH -name '*.py'`
 
 exit 0

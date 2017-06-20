@@ -533,6 +533,12 @@ StatusCode EfficiencyTool::toolExecute(const std::string basePath,const TrigInfo
         else if(pairObj.first->type()==xAOD::Type::Photon){
             float et = getCluster_et(pairObj.first)/1e3;
             if(et < info.trigThrHLT-5.0) continue; // return StatusCode::SUCCESS;
+            if(boost::contains(info.trigName,"icalovloose")) {
+                if (getIsolation_topoetcone20(pairObj.first)/getCluster_et(pairObj.first) >= 0.065) continue; // pass FixedCutLoose offline isolation
+            }
+            else {
+                if ((getIsolation_topoetcone40(pairObj.first)-2450.0)/getCluster_et(pairObj.first) >= 0.022) continue; // pass FixedCutTightCaloOnly offline isolation
+            }
         } // Offline photon
 
 
@@ -572,8 +578,8 @@ StatusCode EfficiencyTool::toolExecute(const std::string basePath,const TrigInfo
               this->fillEfficiency(dir+"/"+algname+"/L2Calo",getAccept().getCutResult("L2Calo"),etthr,pidword,pairObj.first,m_detailedHists); 
               this->fillEfficiency(dir+"/"+algname+"/L2",getAccept().getCutResult("L2"),etthr,pidword,pairObj.first,m_detailedHists);
               this->fillEfficiency(dir+"/"+algname+"/EFCalo",getAccept().getCutResult("EFCalo"),etthr,pidword,pairObj.first,m_detailedHists);
+              this->fillEfficiency(dir+"/"+algname+"/L1Calo",getAccept().getCutResult("L1Calo"),etthr,pidword,pairObj.first);
               if(m_detailedHists){
-                  this->fillEfficiency(dir+"/"+algname+"/L1Calo",getAccept().getCutResult("L1Calo"),etthr,pidword,pairObj.first);
                   for(const auto pid : m_isemname) {
                       this->fillEfficiency(dir+"/"+algname+"/HLT/"+pid,getAccept().getCutResult("HLT"),etthr,"is"+pid,pairObj.first);
                       if( pairObj.first->auxdecor<bool>("Isolated") ) fillEfficiency(dir+"/"+algname+"/HLT/"+pid+"Iso",

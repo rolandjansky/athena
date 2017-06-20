@@ -5,7 +5,7 @@ ATLAS beam spot web page for displaying details of beam spot jobs.
 """
 
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: JobDetails.py 467432 2011-11-10 16:36:27Z beringer $'
+__version__ = 'JobDetails.py atlas/athena'
 
 from BeamSpotWebPage import BeamSpotWebPage
 from InDetBeamSpotExample.TaskManager import *
@@ -60,8 +60,8 @@ class JobDetails(BeamSpotWebPage):
             return error % ('CONFIGURATION ERROR: No data set name specified')
         if not 't' in args:
             return error % ('CONFIGURATION ERROR: No task name specified')
-        taskman = TaskManager(self.globalConfig['taskDb'])
-        t = taskman.getTaskDict(args['d'],args['t'])
+        with TaskManager(self.globalConfig['taskDb']) as taskman:
+            t = taskman.getTaskDict(args['d'],args['t'])
         if not t:
             return error % ('ERROR: Task %s/%s not found' % (args['d'],args['t']))
 
@@ -105,7 +105,7 @@ class JobDetails(BeamSpotWebPage):
             p += "</tr>\n"
         p += "</tbody></table>\n"
         return p
- 
+
 
 # Code to test or run locally
 if __name__ == '__main__':

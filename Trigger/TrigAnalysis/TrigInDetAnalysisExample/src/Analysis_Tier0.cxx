@@ -1,4 +1,10 @@
-/** @file Analysis_Tier0.cxx */
+//
+//   @file    Analysis_Tier0.cxx        
+//                    
+//   $Id: Analysis_Tier0.cxx   Thu 18 May 2017 15:35:34 CEST sutt $
+//
+//   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+//   Copyright (C) 2017 M Sutton (sutt@cern.ch)    
 
 #include <cmath>
 
@@ -9,7 +15,7 @@
 
 
 Analysis_Tier0::Analysis_Tier0(const std::string& name, double pTCut, double etaCut, double d0Cut, double z0Cut) :
-  TrackAnalysis(name), m_pTCut(pTCut), m_etaCut(etaCut), m_d0Cut(d0Cut), m_z0Cut(z0Cut), m_debug(false) 
+  TrackAnalysis(name), m_pTCut(pTCut), m_etaCut(etaCut), m_d0Cut(d0Cut), m_z0Cut(z0Cut), m_debug(false), m_eventid(0) 
 {  }
 
 
@@ -30,8 +36,14 @@ void Analysis_Tier0::initialise() {
 
   m_debug = false;
 
-  h_chain = new TH1F( "Chain", cname.c_str(), 1, 0, 1 );
+  h_chain = new TH1F( "Chain", cname.c_str(), 5, 0, 5 );
+  h_chain->GetXaxis()->SetBinLabel(1, "Nrois" );
+  h_chain->GetXaxis()->SetBinLabel(2, "Nevents" );
+  h_chain->GetXaxis()->SetBinLabel(3, "N ref tracks" );
+  h_chain->GetXaxis()->SetBinLabel(4, "N matched tracks" );
+  h_chain->GetXaxis()->SetBinLabel(5, "" ); //  spare
 
+ 
   /// archive the chain name
 
   addHistogram(h_chain);
@@ -311,10 +323,14 @@ void Analysis_Tier0::initialise() {
   /// miscelaneous histograms
 
   h_d0vsphi       = new TProfile( "d0_vs_phi_prof", "d0 vs phi_prof",  25, -M_PI, M_PI );
-  h2d_d0vsphi     = 0; // new     TH2D( "d0_vs_phi",      "d0 vs phi",       25, -M_PI, M_PI, 50, -2.6, 2.6 );
-  h2d_d0vsphi_rec = 0; // new     TH2D( "d0_vs_phi_rec",  "d0 vs phi rec",   25, -M_PI, M_PI, 50, -2.6, 2.6 );
+  h_d0vsphi_rec   = new TProfile( "d0_vs_phi_rec_prof", "d0 vs phi_rec_prof",  25, -M_PI, M_PI );
 
   addHistogram( h_d0vsphi ); 
+  addHistogram( h_d0vsphi_rec );
+ 
+  //  h2d_d0vsphi     = 0; // new     TH2D( "d0_vs_phi",      "d0 vs phi",       25, -M_PI, M_PI, 50, -2.6, 2.6 );
+  //  h2d_d0vsphi_rec = 0; // new     TH2D( "d0_vs_phi_rec",  "d0 vs phi rec",   25, -M_PI, M_PI, 50, -2.6, 2.6 );
+
   //  addHistogram( h2d_d0vsphi ); 
   //  addHistogram( h2d_d0vsphi_rec ); 
 
@@ -358,9 +374,16 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
   std::vector<TIDA::Track*>::const_iterator  reference    = referenceTracks.begin();
   std::vector<TIDA::Track*>::const_iterator  referenceEnd = referenceTracks.end();
 
-  /// fill number of times this analysis was called - presumably the number 
-  /// of passed events for this chain 
-  h_chain->Fill( 0.5 ) ;
+  /// fill number of times this analysis was called - presumably 
+  /// the number of passed RoIs for this chain 
+  h_chain->Fill( 0.5 );
+
+  if ( m_eventid != event()->event_number() ) { 
+    /// if the event number has changed, this is a new event
+    /// so update the event counts
+    m_eventid = event()->event_number(); 
+    h_chain->Fill( 1.5 );
+  }
 
   h_ntrk->Fill( referenceTracks.size() );
   h_ntrk_rec->Fill( testTracks.size() );
@@ -427,10 +450,13 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
     h_nsihits_lb->Fill( event()->lumi_block(), (*reference)->siHits() ); 
  
     h_d0vsphi->Fill(referencePhi, referenceD0 );
-    //   h2d_d0vsphi->Fill(referencePhi, referenceD0 );
+ 
+    h_chain->Fill(2.5);
 
 
     if(test){
+
+      h_chain->Fill(3.5);
 
       /// NB: do we want to fill the actual *trigger* quantities, or the 
       /// offline quantities for the *matched* tracks?
@@ -492,8 +518,6 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
       h_trkdd0_residual->Fill( test->da0() - referenceDD0 );
       h_trkdz0_residual->Fill( test->dz0() - referenceDZ0  );
 
-      //      h2d_d0vsphi_rec->Fill( test->phi(), test->a0() );
-
       h_npixvseta_rec->Fill( referenceEta, int((test->pixelHits()+0.5)*0.5) ); 
       h_nsctvseta_rec->Fill( referenceEta, test->sctHits() ); 
 
@@ -514,6 +538,8 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
 
       h_ntrtvseta_rec->Fill( referenceEta, test->strawHits() ); 
       h_ntrtvsphi_rec->Fill( referencePhi, test->strawHits() ); 
+
+      h_d0vsphi_rec->Fill( test->phi(), test->a0() );
 
     }
     //    else { 

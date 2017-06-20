@@ -1,3 +1,4 @@
 sweep-targets:
-  '.*':
-    - 'master'
+  '21.0':
+    '.*':
+      - 'master'

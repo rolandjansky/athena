@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CSC_HIT_ANALYSIS_H
@@ -16,12 +16,11 @@
 #include "TH2.h"
 #include "TTree.h"
 
-
-
 class TH1;
 class TH2;
 class TTree;
- 
+
+
 class CSCHitAnalysis : public AthAlgorithm {
 
  public:
@@ -77,4 +76,3 @@ class CSCHitAnalysis : public AthAlgorithm {
 };
 
 #endif // CSC_HIT_ANALYSIS_H
-

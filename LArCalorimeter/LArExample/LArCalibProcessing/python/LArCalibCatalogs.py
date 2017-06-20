@@ -6,7 +6,7 @@
 larCalibCatalogs=[
     "xmlcatalog_file:/afs/cern.ch/user/l/larcalib/w0/stableConds/PoolCat_stable.xml",
     "xmlcatalog_file:/afs/cern.ch/user/l/larcalib/w0/stableConds/PoolCat_comcond_castor.xml",
-#    "xmlcatalog_file:/afs/cern.ch/atlas/conditions/poolcond/catalogue/poolcond/PoolCat_comcond_castor.xml",
+    "xmlcatalog_file:/afs/cern.ch/atlas/conditions/poolcond/catalogue/poolcond/PoolCat_comcond_castor.xml",
     ]
 
 ## Fragment-Catalogs that we don't need:

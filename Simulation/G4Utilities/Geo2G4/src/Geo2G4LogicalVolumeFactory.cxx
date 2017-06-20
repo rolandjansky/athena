@@ -4,7 +4,7 @@
 
 #include "Geo2G4LogicalVolumeFactory.h"
 #include "Geo2G4SolidFactory.h"
-#include "Geo2G4/Geo2G4MaterialFactory.h"
+#include "GeoMaterial2G4/Geo2G4MaterialFactory.h"
 
 #include "GeoModelKernel/GeoLogVol.h"
 

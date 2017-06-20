@@ -19,6 +19,7 @@ TrigMuonCaloTagHypo::TrigMuonCaloTagHypo(const std::string& name, ISvcLocator* p
   m_lhCut(0.95),
   m_doTight(true),
   m_maxMissedCells(1),
+  m_cbthresh(0),
   m_ctTrackContName("MuonEFInfo_CaloTagTrackParticles")
 {
   declareProperty("AcceptAll", m_acceptAll);
@@ -28,6 +29,7 @@ TrigMuonCaloTagHypo::TrigMuonCaloTagHypo(const std::string& name, ISvcLocator* p
   declareProperty("LHCut",        m_lhCut);
   declareProperty("TightCaloTag", m_doTight);
   declareProperty("MaxMissingCells", m_maxMissedCells);
+  declareProperty("CombinedMuonThreshold",m_cbthresh);
   declareProperty("TrackContainerName", m_ctTrackContName,"MuonEFInfo_CaloTagTrackParticles");
 }
 
@@ -69,45 +71,112 @@ HLT::ErrorCode TrigMuonCaloTagHypo::hltExecute(const HLT::TriggerElement* output
     return HLT::OK;
   }
 
-  //Retrieve tagged track particles
-  const xAOD::TrackParticleContainer* tpCont(0);
+  m_tmp_eta.clear();
+  m_tmp_phi.clear();
+  m_tmp_etaCT.clear();
+  m_tmp_phiCT.clear();
 
-  if (getFeature<xAOD::TrackParticleContainer>(outputTE, tpCont, m_ctTrackContName)!= HLT::OK || tpCont==0) {
-    ATH_MSG_DEBUG("Failed to retrieve xAOD::TrackParticleContainer " << m_ctTrackContName);
+  // Get muonContainer linked to the outputTE
+  const xAOD::MuonContainer* muonContainer=0;
+  if(getFeature(outputTE, muonContainer)!=HLT::OK) {
+    ATH_MSG_DEBUG("no xAOD::MuonContainer Feature found");
     return HLT::MISSING_FEATURE;
-  }
+  } else {
+    if (!muonContainer) {
+      ATH_MSG_DEBUG("null xAOD::MuonContainer Feature found");
+      return HLT::MISSING_FEATURE;
+    }
+    ATH_MSG_DEBUG("xAOD::MuonContainer found with size " << muonContainer->size());
+  } 
 
   //Check whether a particle passes the selection
   unsigned int nPassed = 0;
-  for(const xAOD::TrackParticle* tp : *tpCont) {
-    ATH_MSG_DEBUG("Track Particle: pt, eta, phi, ptcut = " << tp->pt() << ", " << tp->eta() << ", " << tp->phi() << ", " << m_ptThresholds[nPassed]);
+  //first look for combined muons
+  // loop on the muons within the RoI
+  for (unsigned int j=0; j< muonContainer->size(); ++j ) {
+    const xAOD::Muon* muon = muonContainer->at(j);
+    if (!muon) {
+      ATH_MSG_DEBUG("No xAOD::Muon found.");
+      continue;
+    } else {
+      ATH_MSG_DEBUG("muon type: "<<muon->muonType());
+      if (muon->primaryTrackParticle()) { // was there a muon in this RoI ?
 
-    if (tp->pt() < m_ptThresholds[nPassed]) continue;
-    if (fabs(tp->eta()) > m_etaMax) continue;
+	const xAOD::TrackParticle *tr =  muon->trackParticle(xAOD::Muon::CombinedTrackParticle);  // get the TrackContainer
+	if(muon->muonType()!=3){
+	  if (!tr) {
+	    ATH_MSG_DEBUG("No CombinedTrackParticle found.");
+	  } else {
+	    ATH_MSG_DEBUG("Retrieved CombinedTrackParticle with abs pt "<< (*tr).pt()/CLHEP::GeV << "GeV. Charge=" << tr->charge()<<" eta, phi: "<<(*tr).eta()<<" "<<(*tr).phi());
+
+	    // check if muon passes threshold 
+	    if (fabs(tr->pt()) > m_cbthresh){ 
+	      m_tmp_eta.push_back(tr->eta());
+	      m_tmp_phi.push_back(tr->phi());
+
+	    }
+	  }
+	}
+            
     
-    if (m_doLH) {
-      auto lh      = tp->auxdata<double>("CaloTagLH");
-      ATH_MSG_DEBUG("Track Particle: lh, lhcut = " << ", LH: " << lh << ", cut: " << m_lhCut);
-      if (lh < m_lhCut) continue;
-    } 
-    else {
-      auto calotag = tp->auxdata<unsigned short>("CaloTag");
-      ATH_MSG_DEBUG("Track Particle: ct = " << calotag );
-      if (m_doTight){
-        if (calotag < (4 - m_maxMissedCells)*10) continue;
-      }else{
-        if (calotag < (4 - m_maxMissedCells)) continue;
+  
+  
+  
+
+
+	//calo tag muons
+	if(muon->muonType()==3){
+	  const xAOD::TrackParticle* tp = muon->primaryTrackParticle();
+	  ATH_MSG_DEBUG("Track Particle: pt, eta, phi, ptcut = " << tp->pt() << ", " << tp->eta() << ", " << tp->phi() << ", " << m_ptThresholds[nPassed]);
+
+	  if (tp->pt() < m_ptThresholds[nPassed]) continue;
+	  if (fabs(tp->eta()) > m_etaMax) continue;
+    
+	  if (m_doLH) {
+	    auto lh      = tp->auxdata<double>("CaloTagLH");
+	    ATH_MSG_DEBUG("Track Particle: lh, lhcut = " << ", LH: " << lh << ", cut: " << m_lhCut);
+	    if (lh < m_lhCut) continue;
+	  } 
+	  else {
+	    auto calotag = tp->auxdata<unsigned short>("CaloTag");
+	    ATH_MSG_DEBUG("Track Particle: ct = " << calotag );
+	    if (m_doTight){
+	      if (calotag < (4 - m_maxMissedCells)*10) continue;
+	    }else{
+	      if (calotag < (4 - m_maxMissedCells)) continue;
+	    }
+	  }
+
+	  m_tmp_etaCT.push_back(tp->eta());
+	  m_tmp_phiCT.push_back(tp->phi());
+
+	  ++nPassed; 
+	}
       }
     }
+  }
+  
+  //Check that calo tag and combined muons are not the same!
+  float deta,dphi=10;
+  float mindR=1.0;
+  float deltaR=1.0;
+  pass=false;
+  for(unsigned int j=0; j<m_tmp_etaCT.size(); j++){
+    mindR=1.0;
+    for(unsigned int i=0; i<m_tmp_eta.size(); i++){
+      deta = fabs(m_tmp_eta[i]-m_tmp_etaCT[j]);
+      dphi = getdphi(m_tmp_phi[i],m_tmp_phiCT[j]);
+      deltaR=deta*deta+dphi*dphi;
 
-    ++nPassed; 
-    ATH_MSG_DEBUG("Muon passed");
-    //Check if we've found all required muons
-    if (nPassed >= m_ptThresholds.size()) break;
+      if(deltaR<mindR){
+	mindR=deltaR;
+      }
+    }
+    if(mindR<0.001 && nPassed>0) nPassed=nPassed-1;
   }
 
-  pass = (nPassed >= m_ptThresholds.size());
-  ATH_MSG_DEBUG("Found muons: " << nPassed << ", passed = " << pass);
+  if(nPassed >= m_ptThresholds.size()) pass=true;
+  ATH_MSG_DEBUG("Found muons: " << nPassed << ", mindR(calotag,cb) "<<mindR<<", passed = " << pass);
 
   return HLT::OK;
 }
@@ -117,4 +186,11 @@ HLT::ErrorCode TrigMuonCaloTagHypo::hltFinalize()
   ATH_MSG_DEBUG("In finalize");
 
   return HLT::OK;
+}
+
+float TrigMuonCaloTagHypo::getdphi(float phi1, float phi2){
+  float dphi = phi1-phi2;
+  if(dphi > TMath::Pi()) dphi -= TMath::TwoPi();
+  if(dphi < -1*TMath::Pi()) dphi += TMath::TwoPi();
+  return fabs(dphi);
 }

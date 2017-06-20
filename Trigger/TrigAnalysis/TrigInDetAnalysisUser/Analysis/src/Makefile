@@ -19,14 +19,17 @@
 
 
 ifeq ($(AtlasEvent_PLATFORM),)
-  ATLAS_ARCH = $(shell uname)
+  ifeq ($(PLATFORM),)
+    ATLAS_ARCH = $(shell uname)
+  else 
+    ATLAS_ARCH = $(PLATFORM)
+  endif
 else
   ATLAS_ARCH = $(AtlasEvent_PLATFORM)
-# ATLAS_ARCH = $(CMTCONFIG)
 endif
 
 
-ifeq ($(CMTCONFIG),)
+ifeq ($(TestArea),)
     ATLASBASE = $(HOME)/atlas/TIDA
 else
     ATLASBASE = $(TestArea)/Trigger/TrigAnalysis

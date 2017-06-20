@@ -205,6 +205,8 @@ def addTrigFTKSimTFOptions(parser):
                         help="Hit Warrior threshold", group='TrigFTKTrackFitter')
     parser.add_argument('--HitWarrior', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help="Hit Warrior type: 0 none, 1 local, 2 global (def)", group='TrigFTKTrackFitter')
+    parser.add_argument('--HitWarriorMerger', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help="Hit Warrior Merger (merge) type", group='TrigFTKTrackFitter')
 
     parser.add_argument('--SecondStageFit', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="Enables the second stage fitter", group='TrigFTKTrackFitter')

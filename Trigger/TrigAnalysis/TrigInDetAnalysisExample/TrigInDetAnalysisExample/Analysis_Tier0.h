@@ -1,4 +1,11 @@
-/** @file Analysis_Tier0.h */
+// emacs: this is -*- c++ -*-
+//
+//   @file    Analysis_Tier0.h        
+//                    
+//   $Id: Analysis_Tier0.h   Thu 18 May 2017 15:29:53 CEST sutt $
+//
+//   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+//   Copyright (C) 2017 M Sutton (sutt@cern.ch)    
 
 #ifndef TrigInDetAnalysisExample_Analysis_Tier0_H
 #define TrigInDetAnalysisExample_Analysis_Tier0_H
@@ -111,6 +118,8 @@ class Analysis_Tier0 : public TrackAnalysis {
   TProfile* h_nsihits_lb_rec;
 
   TProfile* h_d0vsphi;
+  TProfile* h_d0vsphi_rec;
+
   TH2F*     h2d_d0vsphi;
   TH2F*     h2d_d0vsphi_rec;
 
@@ -172,9 +181,11 @@ class Analysis_Tier0 : public TrackAnalysis {
   double m_d0Cut;
   double m_z0Cut;
 
-  int m_nVtx;
+  int      m_nVtx;
 
-  bool m_debug;
+  bool     m_debug;
+
+  unsigned m_eventid;
 
   VtxAnalysis* m_vtxanal;
 

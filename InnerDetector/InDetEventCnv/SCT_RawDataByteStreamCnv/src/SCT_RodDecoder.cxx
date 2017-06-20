@@ -66,12 +66,12 @@ SCT_RodDecoder::SCT_RodDecoder
      m_truncatedRODNumber(0),
      m_numMissingLinkHeader(0),
      m_numUnknownOfflineId(0),
-     m_bsErrCont(nullptr),
+     m_bsErrContainerName(""),
      m_incidentSvc("IncidentSvc", name)
 {
   declareProperty("CablingSvc",m_cabling);
   declareProperty("ErrorsSvc",m_byteStreamErrSvc);
-  declareProperty("ByteStreamErrContainer",m_bsErrContainerName="SCT_ByteStreamErrs");
+  declareProperty("ByteStreamErrContainer",m_bsErrContainerName=std::string("SCT_ByteStreamErrs"));
   declareProperty("TriggerMode",m_triggerMode=true);
   declareInterface< ISCT_RodDecoder  >( this );
 }
@@ -95,6 +95,8 @@ StatusCode SCT_RodDecoder::initialize() {
 
   ATH_CHECK(m_byteStreamErrSvc.retrieve()) ;
 
+  ATH_CHECK(m_bsErrContainerName.initialize());
+
   IIncidentSvc* incsvc;
   sc = service("IncidentSvc", incsvc);
   int priority = 100;
@@ -110,8 +112,8 @@ StatusCode SCT_RodDecoder::initialize() {
 void
 SCT_RodDecoder::handle(const Incident& inc) {
   if ((inc.type() == "BeginEvent") && (! m_triggerMode) ){
-    m_bsErrCont = new InDetBSErrContainer();
-    StatusCode sc = evtStore()->record(m_bsErrCont,m_bsErrContainerName);
+    m_bsErrCont = SG::makeHandle(m_bsErrContainerName);
+    StatusCode sc = m_bsErrCont.record(std::make_unique<InDetBSErrContainer>());
     if (sc.isFailure() ) msg(MSG::ERROR) << "Failed to record BSErrors to SG"<<endmsg;
   }
   m_byteStreamErrSvc->setCondensedReadout(m_condensedMode);
@@ -202,9 +204,9 @@ SCT_RodDecoder::fillCollection( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* 
 		   */
 
   /** These are for the trigger */
-  IdentifierHash skipHash=0xffffffff, lastHash=0xffffffff;
+  IdentifierHash skipHash, lastHash;
 
-  IdentifierHash currentLinkIdHash = 0xffffffff;
+  IdentifierHash currentLinkIdHash;
 
   memset(saved,0,768*2);
   m_errorHit->clear();
@@ -366,8 +368,7 @@ SCT_RodDecoder::fillCollection( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* 
 	    oldside = side;
 	    groupSize = 0;
 	  }
-     
-	  groupSize = (groupSize>=nStripsInWord ? groupSize : nStripsInWord); // keep maximum groupSize
+	  groupSize+=nStripsInWord ; // Split clusters have the same strip number.
      
 	} else if (m_condensedMode) {
     
@@ -713,38 +714,89 @@ SCT_RodDecoder::fillCollection( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* 
 	  addSingleError(currentLinkIdHash, SCT_ByteStreamErrors::TrailerOverflowError);
 	  sc=StatusCode::RECOVERABLE;
 	}
+	if (d[n] & 0xF) { 
+	  // fisrt temporarily masked chip information
+	  // 0 means no masked chip (always has been 0 until April 2017)
+	  // 
+	  // If Rx redundacy is not used, 
+	  // 1 means chips 0-5 are temporarily masked. 
+	  // 6 means chip 5 is temporarily masked. 
+	  // 7 means chips 6-11 are temporarily masked. 
+	  // 12 means chip 11 is temporarily masked. 
+	  // 
+	  // If Rx redundacy is used and link-1 is not used,
+	  // 1 means chips 0-11 are temporarily masked. 
+	  // 6 means chips 5-11 are temporarily masked. 
+	  // 7 means chips 6-11 are temporarily masked. 
+	  // 12 means chip 11 is temporarily masked. 
+	  // 
+	  // If Rx redundacy is used and link-0 is not used,
+	  // 1 means chips 0-5 are temporarily masked. 
+	  // 6 means chip 5 is temporarily masked. 
+	  // 7 means chips 6-11, 0-5 are temporarily masked. 
+	  // 12 means chips 11, 0-5 are temporarily masked. 
+	  m_byteStreamErrSvc->setFirstTempMaskedChip(currentLinkIdHash, (d[n] & 0xF));
+	}
 	continue; 
       }
       
       ///---------------------------------------------------------------------
       /// FlaggedABCD error
+      /// 000xxxxxxFFFFEEE
+      /// 000: FlaggedABCD error: xxxxxxx not used, FFFF: chip, EEE: error code
       ///---------------------------------------------------------------------
       else if (((d[n]>>13)&0x7) == 0x0){
-        chip = ((d[n]>>3)&0x7) ;
+        chip = ((d[n]>>3)&0xF) ;
         ABCerror = d[n]&0x7; 
         /** no data should appear for that chip but how do we 
          * want to transmit this information ? */
         IdentifierHash flagIdHash(0);
-	if (onlineId == 0) {
-	  addSingleError(currentLinkIdHash, SCT_ByteStreamErrors::ByteStreamParseError);
-	  continue ;
-	} else {
-	  flagIdHash = m_cabling->getHashFromOnlineId(onlineId) ;
-	}
-	ATH_MSG_DEBUG(" xxx Flagged ABCD ERROR in chip "<<chip<<" Error code ABCerror "<<ABCerror<<" Link Nb (or Stream) "<<linkNb) ;
-	m_flag_error_bit++ ;
-	addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError);
-	if(     chip==0) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip0);
-	else if(chip==1) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip1);
-	else if(chip==2) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip2);
-	else if(chip==3) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip3);
-	else if(chip==4) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip4);
-	else if(chip==5) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip5);
-	if(ABCerror & 0x1) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Error1);
-	if(ABCerror & 0x2) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Error2);
-	if(ABCerror & 0x4) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Error4);
-	sc=StatusCode::RECOVERABLE;
-	continue;
+        if (onlineId == 0) {
+          addSingleError(currentLinkIdHash, SCT_ByteStreamErrors::ByteStreamParseError);
+          continue ;
+        } else {
+          flagIdHash = m_cabling->getHashFromOnlineId(onlineId) ;
+        }
+        ATH_MSG_DEBUG(" xxx Flagged ABCD ERROR in chip "<<chip<<" Error code ABCerror "<<ABCerror<<" Link Nb (or Stream) "<<linkNb) ;
+        m_flag_error_bit++ ;
+        // Error code of ABCD error should be 1, 2, 4 or 7.
+        if(ABCerror!=0x1 and ABCerror!=0x2 and ABCerror!=0x4 and ABCerror!=0x7) {
+          ATH_MSG_DEBUG("ABCD error has an invalid error code " << ABCerror <<
+                        " the 16-bit word is 0x" << std::hex << d[n] << std::dec << " for hash " << flagIdHash);
+          addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Invalid);
+        } else {
+          // Chip is 4 bits. The highest bit 3 represents side. Chip 0-5 on side 0 and chip 8-13 on side 1.
+          unsigned int side_ABCDError = static_cast<unsigned int>(chip/8);
+          if(flagIdHash.value()%2!=side_ABCDError) {
+            // If the sides from the ABCD error and online ID are different,
+            // the module is expected to read side 0 via link 1 and side 1 and via link 0.
+            // Hash Id is flipped.
+            ATH_MSG_DEBUG("ABCD error and online ID have different side information for hash " << flagIdHash << ". " <<
+                          side_ABCDError << " from ABCD error and " << flagIdHash.value()%2 << " from online ID");
+            flagIdHash = (flagIdHash.value()/2)*2+side_ABCDError;
+          }
+          // Chip should be 0-5 or 8-13.
+	  if(chip%8>=6) {
+            ATH_MSG_DEBUG("ABCD error has an invalid chip 0x" << std::hex << chip << std::dec <<
+                          " the 16-bit word is 0x" << std::hex << d[n] << std::dec <<
+                          " for hash " << flagIdHash.value());
+            addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Invalid);
+	  } else {
+            if(     ABCerror==0x1) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Error1);
+            else if(ABCerror==0x2) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Error2);
+            else if(ABCerror==0x4) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Error4);
+            else if(ABCerror==0x7) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Error7);
+            if(     chip%8==0) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip0);
+            else if(chip%8==1) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip1);
+            else if(chip%8==2) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip2);
+            else if(chip%8==3) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip3);
+            else if(chip%8==4) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip4);
+            else if(chip%8==5) addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError_Chip5);
+          }
+        }
+        addSingleError(flagIdHash, SCT_ByteStreamErrors::ABCDError);
+        sc=StatusCode::RECOVERABLE;
+        continue;
       } else if (((d[n]>>13)&0x7) == 0x3){
         ///---------------------------------------------------------------------
         /// Raw Data
@@ -806,7 +858,7 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize,int tbin, uint32_t onlineId
   }
   /** get offlineId from the link number and ROB number */
   IdentifierHash idCollHash =  m_cabling->getHashFromOnlineId(onlineId) ;
-  if (idCollHash==0xffffffff) {
+  if (not idCollHash.is_valid()) {
     m_numUnknownOfflineId++;
     ATH_MSG_ERROR("Unknown OfflineId for OnlineId -> cannot create RDO");
     ATH_MSG_WARNING("Unknown OfflineId for OnlineId "<<std::hex<<onlineId <<" -> cannot create RDO"<<std::dec);

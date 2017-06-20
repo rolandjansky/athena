@@ -2,6 +2,9 @@
 ## @purpose: simple joboptions to convert AOD to EI
 ## @date Feb 2014
 ## @author Javier Sanchez <Javier.Sanchez@ific.uv.es>
+#
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 
 __version__ = "$Revision$"
 __author__  = "Javier Sanchez <Javier.Sanchez@ific.uv.es>"
@@ -97,6 +100,22 @@ try:
     job.pool2ei.EiDsName = EiDsName
 except:
     job.pool2ei.EiDsName = None
+
+#--------------------------------------------------------------
+# Test Message Broker. Overrrides value read for job options
+#--------------------------------------------------------------
+try: 
+    job.pool2ei.TestBrk = TestBrk
+except:
+    job.pool2ei.TestBrk = False
+
+#--------------------------------------------------------------
+# EI Format. Overrrides value read for job options
+#--------------------------------------------------------------
+try: 
+    job.pool2ei.EiFmt = EiFmt
+except:
+    job.pool2ei.EiFmt = 0
 
 #--------------------------------------------------------------
 # Tier0 job parameters

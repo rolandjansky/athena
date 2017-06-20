@@ -69,7 +69,7 @@ StatusCode LArTCMFitterTool::initialize()
 //	m_minuit = new TMinuit(8); //initialize TMinuit with a maximum of nparams parameters
 //	static_LArTCMFitterTool_pointer	 = this;
 //	m_minuit->SetFCN(LArTCMFitterTool_fcn_wrapper);
-//	log<<MSG::DEBUG<<"Minuit and FCN initialized"<<endreq;
+//	log<<MSG::DEBUG<<"Minuit and FCN initialized"<<endmsg;
 	
 	//double arglist[10];
 	//int ierflg = 0;

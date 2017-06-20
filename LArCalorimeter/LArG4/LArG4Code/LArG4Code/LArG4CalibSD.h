@@ -22,7 +22,8 @@ class LArHEC_ID;
 class LArMiniFCAL_ID;
 class CaloDM_ID;
 
-namespace LArG4 { class VCalibrationCalculator; }
+class ILArCalibCalculatorSvc; 
+
 class CaloCalibrationHitContainer;
 
 
@@ -37,7 +38,7 @@ class LArG4CalibSD : public G4VSensitiveDetector
 public:
 
   /// Constructor
-  LArG4CalibSD(G4String a_name, LArG4::VCalibrationCalculator* calc, bool doPID=false);
+  LArG4CalibSD(G4String a_name, ILArCalibCalculatorSvc* calc, bool doPID=false);
 
   /// Destructor
   virtual ~LArG4CalibSD();
@@ -72,7 +73,7 @@ protected:
 protected:
 
   /// Member variable - the calculator we'll use
-  LArG4::VCalibrationCalculator * m_calculator;
+  ILArCalibCalculatorSvc * m_calculator;
 
   /// Count the number of invalid hits.
   G4int m_numberInvalidHits;

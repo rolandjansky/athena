@@ -42,6 +42,7 @@ TileBchPrbs::initPrbDesc()
   m_prbNames[TileBchPrbs::LargeLfNoise           ] = "Large LF noise";
   m_prbNames[TileBchPrbs::NoCis                  ] = "No CIS calibration";
   m_prbNames[TileBchPrbs::BadCis                 ] = "Bad CIS calibration";
+  m_prbNames[TileBchPrbs::IgnoredByDQV           ] = "Ignored by DQV";
 
   //=== channel
   m_prbNames[TileBchPrbs::GeneralMaskChannel     ] = "Channel masked (unspecified)";

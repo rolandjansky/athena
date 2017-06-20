@@ -10,18 +10,22 @@ def usage():
     print "Dumps the TileCal cesium from various schemas / folders / tags"
     print ""
     print "-h, --help      shows this help"
-    print "-f, --folder=   specify status folder to use ONL01 or OFL02 full path /TILE/OFL02/CALIB/CES"
+    print "-f, --folder=   specify status folder to use ONL01 or OFL02 or full path /TILE/OFL02/CALIB/CES"
     print "-t, --tag=      specify tag to use, f.i. UPD1 or UPD4 or full suffix like RUN2-HLT-UPD1-01"
     print "-r, --run=      specify run  number, by default uses latest iov"
     print "-l, --lumi=     specify lumi block number, default is 0"
     print "-n, --nval=     specify number of values to output, default is all"
     print "-g, -a, --adc=  specify adc(gain) to print default is 0"
     print "-d, --default   print also default values stored in AUX01-AUX20 "
+    print "-b, --blob      print additional blob info"
+    print "-H, --hex       print frag id instead of module name"
+    print "-P, --pmt       print pmt number in addition to channel number"
+    print "-p, --prefix=   print some prefix on every line "
     print "-s, --schema=   specify schema to use, like 'COOLONL_TILE/CONDBR2' or 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2' or tileSqlite.db"
     print "-D, --dbname=   specify dbname part of schema if schema only contains file name, default is CONDBR2'"
 
-letters = "hr:l:s:t:f:D:n:a:g:d"
-keywords = ["help","run=","lumi=","schema=","tag=","folder=","dbname=","nval=","adc=","gain=","default"]
+letters = "hr:l:s:t:f:D:n:a:g:p:dbHP"
+keywords = ["help","run=","lumi=","schema=","tag=","folder=","dbname=","nval=","adc=","gain=","prefix=","default","blob","hex","pmt"]
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
@@ -40,6 +44,10 @@ tag = "UPD4"
 nval = 0
 nadc = 0
 rosmin = 1
+blob = False
+hexid = False
+pmt = True
+prefix = None
 
 for o, a in opts:
     if o in ("-f","--folder"):
@@ -63,6 +71,14 @@ for o, a in opts:
         lumi = int(a)
     elif o in ("-d","--default"):
         rosmin = 0
+    elif o in ("-b","--blob"):
+        blob = True
+    elif o in ("-H","--hex"):
+        hexid = True
+    elif o in ("-P","--pmt"):
+        pmt = True
+    elif o in ("-p","--prefix"):
+        prefix = a
     elif o in ("-h","--help"):
         usage()
         sys.exit(2)
@@ -74,7 +90,7 @@ from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobObjs.Classes import *
 
 from TileCalibBlobPython.TileCalibLogger import TileCalibLogger, getLogger
-log = getLogger("ReadCs")
+log = getLogger("ReadCsFromCool")
 import logging
 logLevel=logging.DEBUG
 log.setLevel(logLevel)
@@ -134,8 +150,14 @@ if flt:
     mgain=flt.getNGains()
     mval=flt.getObjSizeUint32()
     log.info( "Blob type: %d  Version: %d  Nchannels: %d  Ngains: %d  Nval: %d" % (blobT,blobV,mchan,mgain,mval) )
-if nadc!=0: nadc=1
-gname = ['Low gain','High gain']
+    if nadc>=mgain or nadc<0: nadc=mgain-1
+else:
+    mgain=1
+    if nadc!=0: nadc=1
+gname=[]
+if mgain!=2: 
+    for i in xrange(mgain+1): gname+=[ "g "+str(i) ]
+else: gname = [ 'Low gain','High gain' ]
 log.info( "Using gain %d - %s"%(nadc,gname[nadc]) )
 
 log.info("Comment: %s" % blobReader.getComment((run,lumi)))
@@ -160,31 +182,40 @@ ch2pmt = [ dummy, barrel, barrel, extbar, extbar ]
 cnt=0
 for ros in xrange(rosmin,5):
     for mod in xrange(0, min(64,TileCalibUtils.getMaxDrawer(ros))):
-        modName = TileCalibUtils.getDrawerString(ros,mod)
-        #log.info("ros %d, drawer %s at run %d" % (ros, modName, run))
-        flt = blobReader.getDrawer(ros, mod,(run,lumi), False, False)
-        if flt is None or isinstance(flt, (int)):
-            if rosmin==0:
-                print "%s is missing in DB" % modName
-                cnt+=1
-        elif nadc<flt.getNGains():
-            mval0 = 0
-            if nval<1:
-                mval = flt.getObjSizeUint32()
-                if nval<0 and -nval<mval:
-                    mval=-nval
-                    mval0=mval-1
-            else:
-                mval = nval
-            for chn in xrange(flt.getNChans()):
-                msg = "%s pm %02i ch %02i " % ( modName, abs(ch2pmt[ros][chn]), chn )
-                for val in xrange(mval0,mval):
-                    msg += "  %f" % flt.getData(chn, nadc, val)
-                print msg
-                cnt+=1
+        if hexid:
+            modName = "0x%x" % ((ros<<8)+mod)
         else:
-            print "%s gain %d not found" % (modName,nadc)
-            cnt+=1
+            modName = TileCalibUtils.getDrawerString(ros,mod)
+        if prefix:
+            modName = prefix + " " + modName
+        try:
+            flt = blobReader.getDrawer(ros, mod,(run,lumi), False, False)
+            if flt is None or isinstance(flt, (int)):
+                if rosmin==0:
+                    print "%s is missing in DB" % modName
+                    cnt+=1
+            elif nadc<flt.getNGains():
+                if blob:
+                    print "%s  Blob type: %d  Version: %d  Nchannels: %d  Ngains: %d  Nval: %d" % (modName, flt.getObjType(), flt.getObjVersion(), flt.getNChans(), flt.getNGains(), flt.getObjSizeUint32())
+                mval0 = 0
+                if nval<1:
+                    mval = flt.getObjSizeUint32()
+                    if nval<0 and -nval<mval:
+                        mval=-nval
+                        mval0=mval-1
+                else:
+                    mval = nval
+                for chn in xrange(flt.getNChans()):
+                    msg = "%s pm %02i ch %02i " % ( modName, abs(ch2pmt[ros][chn]), chn )
+                    for val in xrange(mval0,mval):
+                        msg += "  %f" % flt.getData(chn, nadc, val)
+                    print msg
+                    cnt+=1
+            else:
+                print "%s gain %d not found" % (modName,nadc)
+                cnt+=1
+        except Exception, e:
+            print e
 
 if cnt==0:
     print "Nothing to dump"

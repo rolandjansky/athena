@@ -31,6 +31,9 @@ public:
   uint8_t protocol() const;
   uint8_t parity() const;
   uint8_t bcLowBits() const;
+
+  bool isPresent() const { return m_status != 0; }
+
 };
 
 

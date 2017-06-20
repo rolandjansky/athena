@@ -84,7 +84,8 @@ void
 HanConfig::
 AssembleAndSave( std::string infileName, std::string outfileName )
 {
-  TFile* outfile = TFile::Open( outfileName.c_str(), "RECREATE" );
+  std::unique_ptr< TFile > outfile( TFile::Open( outfileName.c_str(),
+                                                 "RECREATE" ) );
   DirMap_t directories;
   
   // Collect reference histograms and copy to config file
@@ -92,7 +93,7 @@ AssembleAndSave( std::string infileName, std::string outfileName )
   refconfig.AddKeyword("reference");
   refconfig.ReadFile(infileName);
   TMap refsourcedata;
-  RefVisitor refvisitor( outfile, directories, &refsourcedata );
+  RefVisitor refvisitor( outfile.get(), directories, &refsourcedata );
   refconfig.SendVisitor( refvisitor );
   
   // Collect threshold definitions
@@ -122,23 +123,23 @@ AssembleAndSave( std::string infileName, std::string outfileName )
   MiniConfig compalgconfig;
   compalgconfig.AddKeyword("compositealgorithm");
   compalgconfig.ReadFile(infileName);
-  CompAlgVisitor compalgvisitor(outfile, compalgconfig);
+  CompAlgVisitor compalgvisitor(outfile.get(), compalgconfig);
   compalgconfig.SendVisitor(compalgvisitor);
   
   MiniConfig metadataconfig;
   metadataconfig.AddKeyword("metadata");
   metadataconfig.ReadFile(infileName);
-  MetadataVisitor metadatavisitor(outfile, metadataconfig);
+  MetadataVisitor metadatavisitor(outfile.get(), metadataconfig);
   metadataconfig.SendVisitor(metadatavisitor);
 
   // Assemble into a hierarchical configuration
   outfile->cd();
-  HanConfigGroup* root = new HanConfigGroup();
-  
-  RegionVisitor regvisitor( root, algconfig, thrconfig, refconfig, directories );
+  std::unique_ptr< HanConfigGroup > root( new HanConfigGroup() );
+
+  RegionVisitor regvisitor( root.get(), algconfig, thrconfig, refconfig, directories );
   regconfig.SendVisitor( regvisitor );
   
-  AssessmentVisitor histvisitor( root, algconfig, thrconfig, refconfig, outfile, 
+  AssessmentVisitor histvisitor( root.get(), algconfig, thrconfig, refconfig, outfile.get(), 
 				 directories, &refsourcedata );  
   histconfig.SendVisitor( histvisitor );
   
@@ -147,7 +148,6 @@ AssembleAndSave( std::string infileName, std::string outfileName )
   root->Write();
   outfile->Write();
   outfile->Close();
-  delete root;
 }
 
 void
