@@ -107,7 +107,7 @@ if jobproperties.egammaRecFlags.doEgammaTruthAssociation() and jobproperties.ega
         egammaTruthAssociationGetter(disable=True)
 
 ####################################################################
-# Lock egamma containers
+# miscallaneous algorithms
 if rec.doESD():
 
     #Decorate cluster with links to Topo clusters (when not superclusters)
@@ -121,13 +121,4 @@ if rec.doESD():
         except:
             treatException("Could not set up ClusterMatching tool! Switched off")
 
-    # #Finalize clusters 
-    # try:
-    #     from egammaAlgs.egammaAlgsConf import egammaFinalizeClusters
-    #     topSequence += egammaFinalizeClusters(name= "egammaFinalizeClusters",
-    #                                          outputClusterKey=egammaKeys.outputClusterKey(),
-    #                                          outputForwardClusterKey=egammaKeys.outputFwdClusterKey(),
-    #                                          outputTopoSeededClusterKey=egammaKeys.outputTopoSeededClusterKey())
-    # except:
-    #     treatException("Could not set up egammaLocker. Switched off !")
 

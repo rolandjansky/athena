@@ -125,9 +125,9 @@ StatusCode EMVertexBuilder::execute()
       momentum += m_EMExtrapolationTool->getMomentumAtVertex(vertex, i);
     }
 
-    const static SG::AuxElement::Accessor<float> accPx("px");
-    const static SG::AuxElement::Accessor<float> accPy("py");
-    const static SG::AuxElement::Accessor<float> accPz("pz");
+    static const SG::AuxElement::Accessor<float> accPx("px");
+    static const SG::AuxElement::Accessor<float> accPy("py");
+    static const SG::AuxElement::Accessor<float> accPz("pz");
     accPx(vertex) = momentum.x();
     accPy(vertex) = momentum.y();
     accPz(vertex) = momentum.z();

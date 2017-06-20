@@ -12,7 +12,16 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthEventContainer.h"
+
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/WriteDecorHandleKey.h"
+#include "StoreGate/WriteDecorHandle.h"
+
 #include <memory>
+#include <array>
 class IMCTruthClassifier;
 
 /**
@@ -25,11 +34,11 @@ class IMCTruthClassifier;
 
 class egammaTruthAssociationAlg : public AthAlgorithm {
 
- public:
-
+public:
+  
   /** @brief constructor */
   egammaTruthAssociationAlg(const std::string& name, ISvcLocator* pSvcLocator);
-
+  
   /** @brief destructor */
   virtual ~egammaTruthAssociationAlg();
 
@@ -40,7 +49,7 @@ class egammaTruthAssociationAlg : public AthAlgorithm {
   /** @brief finalize method */
   virtual StatusCode finalize();
   
- private:
+private:
  
   struct MCTruthInfo_t {
     MCTruthPartClassifier::ParticleType first;
@@ -48,26 +57,38 @@ class egammaTruthAssociationAlg : public AthAlgorithm {
     const xAOD::TruthParticle* genPart;
   };
   
+  /** @brief helper class to contain write docoration handle keys */
+  template<class T> struct writeDecorHandleKeys {
+    StatusCode initializeDecorKeys(const std::string &name); // note, not constructor
+    SG::ReadHandleKey<T> rhKey;
+    std::array<SG::WriteDecorHandleKey<T>, 3> keys;
+  };
+    
+  /** @brief helper class to contain write decoration handles */
+  template<class T> struct writeDecorHandles {
+    writeDecorHandles(const writeDecorHandleKeys<T>& keys); // constructor
+    SG::ReadHandle<T> readHandle;
+    SG::WriteDecorHandle<T, ElementLink<xAOD::TruthParticleContainer> > el;
+    SG::WriteDecorHandle<T, int > type;
+    SG::WriteDecorHandle<T, int > origin;
+  };
+  
+    
   /** @brief Loop over elements in the reco container, decorate them with truth info and
-    * decorate the truth particles with links to the reco ones (reco<typeName>Link) **/
-  template<class T> StatusCode match(std::string containerName, 
-				     const std::string& typeName) ;
-
+   * decorate the truth particles with links to the reco ones (reco<typeName>Link) **/
+  template<class T, class L> StatusCode match(const xAOD::TruthParticleContainer& truthParticles,
+					      const egammaTruthAssociationAlg::writeDecorHandleKeys<T>& hkeys,
+					      const SG::AuxElement::Accessor<L>& linkAccess,
+					      xAOD::TruthParticleContainer& egammaTruthContainer) ;
 
   /** @brief return the result of MCTruthClassifier::particleTruthClassifier
     * or do a second pass for electrons based on the cluster to find true photons **/
   template<class T> MCTruthInfo_t particleTruthClassifier(const T*) ;
-   
-  /** @brief Decorate IParticle (cluster or egamma) object with truth information **/
-  StatusCode decorateWithTruthInfo(xAOD::IParticle*, const MCTruthInfo_t&);
-  
-  /** @brief Decorate truth object with link to reco as recoNameLink **/
-  template<class T> bool decorateWithRecoLink(T* part, const DataVector<T>* container, 
-					      const std::string& name) ;
-  
+     
   /** @brief Create a copy a truth particle, add it to the new container and decorate it
     *  with a link to the original particle **/
-  void getNewTruthParticle(const xAOD::TruthParticle *truth, 
+  void getNewTruthParticle(xAOD::TruthParticleContainer& egammaTruthContainer,
+			   const xAOD::TruthParticle *truth, 
                            const xAOD::TruthParticleContainer *oldContainer) ;
 
   /** @brief Return true if the truth particle is a prompt electron or photon **/  
@@ -75,8 +96,11 @@ class egammaTruthAssociationAlg : public AthAlgorithm {
 
   
   /** @brief Return the truth particle in the egamma truth container that corresponds
-    * to the given truth particle **/ 
-  xAOD::TruthParticle* getEgammaTruthParticle(const xAOD::TruthParticle *truth) const;
+    * to the given truth particle (egammaTruthContainer is non-const reference because 
+    * returning non-const pointer) **/ 
+  xAOD::TruthParticle* getEgammaTruthParticle(const xAOD::TruthParticle *truth, 
+					      xAOD::TruthParticleContainer& egammaTruthContainer) const;
+
   
   /** @brief Create egamma truth container? **/
   bool m_doEgammaTruthContainer;
@@ -89,24 +113,28 @@ class egammaTruthAssociationAlg : public AthAlgorithm {
   
   /** @brief Name of the egamma cluster container **/
   std::string m_clusterContainerName;
+  writeDecorHandleKeys<xAOD::CaloClusterContainer> m_clusterDecKeys;
     
   /** @brief Name of the input electron container **/
   std::string m_electronContainerName;
+  writeDecorHandleKeys<xAOD::ElectronContainer> m_electronDecKeys;  
 
   /** @brief Name of the input electron container **/
   std::string m_fwdElectronContainerName;
-  
+  writeDecorHandleKeys<xAOD::ElectronContainer> m_fwdElectronDecKeys;  
+ 
   /** @brief Name of the input photon container **/
   std::string m_photonContainerName;  
+  writeDecorHandleKeys<xAOD::PhotonContainer> m_photonDecKeys;  
 
   /** @brief Name of the truth event container **/
-  std::string m_truthEventContainerName;
+  SG::ReadHandleKey<xAOD::TruthEventContainer> m_truthEventContainerKey;
 
   /** @brief Name of the truth particle container **/
-  std::string m_truthParticleContainerName;
+  SG::ReadHandleKey<xAOD::TruthParticleContainer>  m_truthParticleContainerKey;
 
   /** @brief Name of the output egamma truth container **/
-  std::string m_egammaTruthParticleContainerName;
+  SG::WriteHandleKey<xAOD::TruthParticleContainer> m_egammaTruthParticleContainerKey;
   
   /** @brief Minimum Pt to enter egamma truth particle container **/
   float m_minPt;
@@ -120,7 +148,8 @@ class egammaTruthAssociationAlg : public AthAlgorithm {
   /** @brief MCTruthClassifier **/
   ToolHandle<IMCTruthClassifier>   m_mcTruthClassifier;
   
-  std::unique_ptr<xAOD::TruthParticleContainer> m_egammaTruthContainer; 
+  // let's try without this
+  //std::unique_ptr<xAOD::TruthParticleContainer> m_egammaTruthContainer; 
   
 };
 
