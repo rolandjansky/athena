@@ -24,6 +24,8 @@ PixelMon2DProfilesLW::PixelMon2DProfilesLW(std::string name, std::string title, 
       B2(nullptr),
       A(nullptr),
       C(nullptr),
+      DBMA(nullptr),
+      DBMC(nullptr),
       m_config(config),
       m_copy2DFEval(copy2DFEval)
 {
@@ -31,6 +33,7 @@ PixelMon2DProfilesLW::PixelMon2DProfilesLW(std::string name, std::string title, 
    std::string etatext = ";eta index of module";
    std::string phitext = ";phi index of module";
    std::string disktext = ";disk number";
+   std::string layertext = ";layer number";
 
    if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kIBL3D)) {
       IBL3D = TProfile2D_LW::create((name+"_IBL3D").c_str(), (title + ", IBL 3D modules " + etatext + phitext).c_str(),8,-.5,7.5,14,-0.5,13.5);
@@ -56,8 +59,12 @@ PixelMon2DProfilesLW::PixelMon2DProfilesLW(std::string name, std::string title, 
    if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kECC)) {
       C  = TProfile2D_LW::create((name+"_ECC" ).c_str(),  (title + ", ECC " + disktext + phitext).c_str(),3,-0.5,2.5,48,-0.5,47.5);
    }
-   //DBMA = TProfile2D_LW::create((name+"_DBMA" ).c_str(),  (title + ", DBMA " + disktext + phitext).c_str(),3,-0.5,2.5,4,-0.5,3.5);
-   //DBMC = TProfile2D_LW::create((name+"_DBMC" ).c_str(),  (title + ", DBMC " + disktext + phitext).c_str(),3,-0.5,2.5,4,-0.5,3.5);
+   if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kDBMA)) {
+      DBMA = TProfile2D_LW::create((name+"_DBMA").c_str(), (title + ", DBMA " + layertext + phitext).c_str(),3,-0.5,2.5,4,-0.5,3.5);
+   }
+   if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kDBMC)) {
+      DBMC = TProfile2D_LW::create((name+"_DBMC").c_str(), (title + ", DBMC " + layertext + phitext).c_str(),3,-0.5,2.5,4,-0.5,3.5);
+   }
    formatHist();
 }
 
@@ -71,8 +78,8 @@ PixelMon2DProfilesLW::~PixelMon2DProfilesLW()
    if (B2) LWHist::safeDelete(B2);
    if (A) LWHist::safeDelete(A);
    if (C) LWHist::safeDelete(C);
-   //LWHist::safeDelete(DBMA);
-   //LWHist::safeDelete(DBMC);
+   if (DBMA) LWHist::safeDelete(DBMA);
+   if (DBMC) LWHist::safeDelete(DBMC);
 }
 
 void PixelMon2DProfilesLW::SetMaxValue(float max)
@@ -85,6 +92,8 @@ void PixelMon2DProfilesLW::SetMaxValue(float max)
    if (B2) B2->SetMaximum(max);
    if (A) A->SetMaximum(max);
    if (C) C->SetMaximum(max);
+   if (DBMA) DBMA->SetMaximum(max);
+   if (DBMC) DBMC->SetMaximum(max);
 }
 
 void PixelMon2DProfilesLW::Reset()
@@ -97,6 +106,8 @@ void PixelMon2DProfilesLW::Reset()
    if (B2) B2->Reset();
    if (A) A->Reset();
    if (C) C->Reset();
+   if (DBMA) DBMA->Reset();
+   if (DBMC) DBMC->Reset();
 }
 
 void PixelMon2DProfilesLW::Fill(Identifier &id, const PixelID* pixID, float weight)
@@ -107,8 +118,8 @@ void PixelMon2DProfilesLW::Fill(Identifier &id, const PixelID* pixID, float weig
 
    if (bec == 2 && A) A->Fill(ld, pm, weight);
    else if (bec == -2 && C) C->Fill(ld, pm, weight);
-   //else if (bec == 4) DBMA->Fill(ld, pm, weight);
-   //else if (bec == -4) DBMC->Fill(ld, pm, weight);
+   else if (bec == 4 && DBMA) DBMA->Fill(ld, pm, weight);
+   else if (bec == -4 && DBMC) DBMC->Fill(ld, pm, weight);
    else if (bec == 0) {
       if (m_doIBL) ld--;
       const int em = pixID->eta_module(id);
@@ -144,9 +155,10 @@ void PixelMon2DProfilesLW::formatHist()
 {
    const int ndisk = 3;
    const int nphi  = 48;
-   // const int nphi_dbm  = 4;
+   const int nphi_dbm = 4;
    const char *disk[ndisk] = { "Disk 1", "Disk 2", "Disk 3" };
-   // const char *phi_dbm[nphi_dbm] = { "M1","M2","M3","M4"};
+   const char *layer_dbm[ndisk] = {"Layer 0", "Layer 1", "Layer 2"};
+   const char *phi_dbm[nphi_dbm] = {"M3", "M4", "M1", "M2"};
    const int nmod = 13;
    const int nmodIBL2D = 12;
    const int nmodIBL3D = 8;
@@ -269,22 +281,22 @@ void PixelMon2DProfilesLW::formatHist()
       C->SetMinimum(0.);
    }
 
-   // for (int i=0; i<nphi_dbm; i++) {
-   //    DBMA->GetYaxis()->SetBinLabel(i + 1, phi_dbm[i]);
-   //    DBMC->GetYaxis()->SetBinLabel(i + 1, phi_dbm[i]);
-   // }
-
-   // for (int i = 0; i < ndisk; i++) {
-   //    DBMA->GetXaxis()->SetBinLabel(i + 1, disk[i]);
-   //    DBMC->GetXaxis()->SetBinLabel(i + 1, disk[i]);
-   // }
-
-   //DBMA->GetYaxis()->SetLabelSize(0.02);
-   //DBMC->GetYaxis()->SetLabelSize(0.02);
-   //DBMA->SetOption("colz");
-   //DBMC->SetOption("colz");
-   //DBMA->SetMinimum(0.);
-   //DBMC->SetMinimum(0.);
+   if (DBMA && DBMC) {
+      for (int i = 0; i < nphi_dbm; i++) {
+         DBMA->GetYaxis()->SetBinLabel(i + 1, phi_dbm[i]);
+         DBMC->GetYaxis()->SetBinLabel(i + 1, phi_dbm[i]);
+      }
+      for (int i = 0; i < ndisk; i++) {
+         DBMA->GetXaxis()->SetBinLabel(i + 1, layer_dbm[i]);
+         DBMC->GetXaxis()->SetBinLabel(i + 1, layer_dbm[i]);
+      }
+      DBMA->GetYaxis()->SetLabelSize(0.02);
+      DBMC->GetYaxis()->SetLabelSize(0.02);
+      DBMA->SetOption("colz");
+      DBMC->SetOption("colz");
+      DBMA->SetMinimum(0.);
+      DBMC->SetMinimum(0.);
+   }
 }
 
 void PixelMon2DProfilesLW::Fill2DMon(PixelMon2DProfilesLW* oldmap)
@@ -353,20 +365,22 @@ void PixelMon2DProfilesLW::Fill2DMon(PixelMon2DProfilesLW* oldmap)
          }
       }
    }
-   //for (int x = 1; x <= DBMA->GetNbinsX(); x++) {
-   //   for (int y = 1; y <= DBMA->GetNbinsY(); y++) {
-   //      float content = oldmap->DBMA->GetBinContent(x, y);
-   //      DBMA->SetBinContent(x, y, content);
-   //      oldmap->DBMA->SetBinContent(x, y, 0);
-   //   }
-   //}
-   //for (int x = 1; x <= DBMC->GetNbinsX(); x++) {
-   //   for (int y = 1; y <= DBMC->GetNbinsY(); y++) {
-   //      float content = oldmap->DBMC->GetBinContent(x, y);
-   //      DBMC->SetBinContent(x, y, content);
-   //      oldmap->DBMC->SetBinContent(x, y, 0);
-   //   }
-   //}
+   if (DBMA && DBMC) {
+      for (unsigned int x = 1; x <= DBMA->GetNbinsX(); x++) {
+        for (unsigned int y = 1; y <= DBMA->GetNbinsY(); y++) {
+           float content = oldmap->DBMA->GetBinContent(x, y);
+           DBMA->SetBinContent(x, y, content);
+           oldmap->DBMA->SetBinContent(x, y, 0);
+        }
+      }
+      for (unsigned int x = 1; x <= DBMC->GetNbinsX(); x++) {
+        for (unsigned int y = 1; y <= DBMC->GetNbinsY(); y++) {
+           float content = oldmap->DBMC->GetBinContent(x, y);
+           DBMC->SetBinContent(x, y, content);
+           oldmap->DBMC->SetBinContent(x, y, 0);
+        }
+      }
+   }
 }
 
 void PixelMon2DProfilesLW::FillFromMap(PixelMon2DMapsLW* inputmap, bool clear_inputmap)
@@ -438,20 +452,22 @@ void PixelMon2DProfilesLW::FillFromMap(PixelMon2DMapsLW* inputmap, bool clear_in
      }
      if (clear_inputmap) inputmap->C->Reset();
   }
-  // for (int x = 1; x <= DBMA->GetNbinsX(); x++) {
-  //    for (int y = 1; y <= DBMA->GetNbinsY(); y++) {
-  //       float content = inputmap->DBMA->GetBinContent(x, y);
-  //       DBMA->Fill(inputmap->DBMA->GetXaxis()->GetBinCenter(x), inputmap->DBMA->GetYaxis()->GetBinCenter(y), content * weightIBL);
-  //    }
-  // }
-  // if (clear_inputmap) inputmap->DBMA->Reset();
-  // for (int x = 1; x <= DBMC->GetNbinsX(); x++) {
-  //    for (int y = 1; y <= DBMC->GetNbinsY(); y++) {
-  //       float content = inputmap->DBMC->GetBinContent(x, y);
-  //       DBMC->Fill(inputmap->DBMC->GetXaxis()->GetBinCenter(x), inputmap->DBMC->GetYaxis()->GetBinCenter(y), content * weightIBL);
-  //    }
-  // }
-  // if (clear_inputmap) inputmap->DBMC->Reset();
+  if (DBMA && DBMC) {
+     for (unsigned int x = 1; x <= DBMA->GetNbinsX(); x++) {
+        for (unsigned int y = 1; y <= DBMA->GetNbinsY(); y++) {
+           float content = inputmap->DBMA->GetBinContent(x, y);
+           DBMA->Fill(inputmap->DBMA->GetXaxis()->GetBinCenter(x), inputmap->DBMA->GetYaxis()->GetBinCenter(y), content * weightIBL);
+        }
+     }
+     if (clear_inputmap) inputmap->DBMA->Reset();
+     for (unsigned int x = 1; x <= DBMC->GetNbinsX(); x++) {
+        for (unsigned int y = 1; y <= DBMC->GetNbinsY(); y++) {
+           float content = inputmap->DBMC->GetBinContent(x, y);
+           DBMC->Fill(inputmap->DBMC->GetXaxis()->GetBinCenter(x), inputmap->DBMC->GetYaxis()->GetBinCenter(y), content * weightIBL);
+        }
+     }
+     if (clear_inputmap) inputmap->DBMC->Reset();
+  }
 }
 
 
@@ -466,8 +482,8 @@ StatusCode PixelMon2DProfilesLW::regHist(ManagedMonitorToolBase::MonGroup &group
    if (B2 && group.regHist(B2).isFailure()) sc = StatusCode::FAILURE;
    if (A && group.regHist(A).isFailure()) sc = StatusCode::FAILURE;
    if (C && group.regHist(C).isFailure()) sc = StatusCode::FAILURE;
-   //sc = group.regHist(DBMA);
-   //sc = group.regHist(DBMC);
+   if (DBMA && group.regHist(DBMA).isFailure()) sc = StatusCode::FAILURE;
+   if (DBMC && group.regHist(DBMC).isFailure()) sc = StatusCode::FAILURE;
   
    return sc;
 }

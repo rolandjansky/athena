@@ -37,8 +37,8 @@ public:
   TProfile2D_LW* B2;
   TProfile2D_LW* A;
   TProfile2D_LW* C;
-  //TProfile2D_LW* DBMA;
-  //TProfile2D_LW* DBMC;
+  TProfile2D_LW* DBMA;
+  TProfile2D_LW* DBMC;
   void Fill(Identifier &id, const PixelID* pixID, float value);
   void Fill2DMon(PixelMon2DProfilesLW* oldmap);
   void FillFromMap(PixelMon2DMapsLW* inputmap, bool clear_inputmap);
