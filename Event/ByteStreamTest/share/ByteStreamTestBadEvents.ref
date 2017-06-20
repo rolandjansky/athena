@@ -1,33 +1,10 @@
 EventSelector       DEBUG Property update for OutputLevel : new value = 2
 EventSelector        INFO reinitialization...
-EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-01-35-00
-ByteStreamInputSvc  DEBUG Property update for OutputLevel : new value = 2
-ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-01-35-00
+EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-00-00-00
+ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-00-00-00
 ByteStreamInputSvcWARNING MaxBadEvents property has been moved to EventSelector, please use svgMgr.EventSelector.MaxBadEvents instead
 EventSelector        INFO Retrieved MaxBadEvents= 'MaxBadEvents':10 from ByteStreamInputSvc
 EventSelector        INFO reinitialization...
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 EventSelector       DEBUG Calling EventSelectorByteStream::start()
-ByteStreamInputSvc  DEBUG Recorded ByteStreamMetadata in InputMetadataStore
-ByteStreamInputSvc  DEBUG  run parameters  =  
-ByteStreamInputSvc  DEBUG Number of Free meta data strings: 0
-ByteStreamInputSvc   INFO Picked valid file: /afs/cern.ch/atlas/maxidisk/d108/cranshaw/nightlies/extractedEvents.data
-EventSelector       DEBUG Opened block/file /afs/cern.ch/atlas/maxidisk/d108/cranshaw/nightlies/extractedEvents.data
-ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
-ByteStreamInputSvc  DEBUG Event Size 2435536
-ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
-ByteStreamInputSvc  DEBUG Format version 400
-ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x158a2000
-ByteStreamInputSvc  DEBUG ByteStream File GUID:02DE9A68-F08E-E111-AA32-003048F0E846
-ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 232
-ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
-ByteStreamInputSvc  DEBUG Event Size 2975576
-ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
-ByteStreamInputSvc  DEBUG Format version 400
-ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x1564e000
-ByteStreamInputSvc  DEBUG ByteStream File GUID:02DE9A68-F08E-E111-AA32-003048F0E846
-ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 2435784
-EventSelector        INFO End of input file list reached
-EventSelector       DEBUG Event source found no more valid files left in input list
 EventSelector       DEBUG Calling EventSelectorByteStream::stop()
-ByteStreamInputSvc  DEBUG Calling ByteStreamInputSvc::stop()
