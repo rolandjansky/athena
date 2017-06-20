@@ -115,7 +115,7 @@ MdtVsTgcRawDataValAlg::maphists(const xAOD::MuonSegmentContainer *m_newsegment,
     for( Muon::TgcPrepDataCollection::const_iterator tgc_itc=(*tgc_it)->begin();
          tgc_itc!= tgc_itc_end;
          ++tgc_itc){
-      Muon::TgcPrepData* tpd=*tgc_itc;
+      const Muon::TgcPrepData* tpd=*tgc_itc;
       
       // Get detector information
       const MuonGM::TgcReadoutElement *tre = tpd->detectorElement();
@@ -263,7 +263,7 @@ MdtVsTgcRawDataValAlg::maphists(const Trk::SegmentCollection *m_segmcollection,
     for( Muon::TgcPrepDataCollection::const_iterator tgc_itc=(*tgc_it)->begin();
          tgc_itc!= tgc_itc_end;
          ++tgc_itc){
-      Muon::TgcPrepData* tpd=*tgc_itc;
+      const Muon::TgcPrepData* tpd=*tgc_itc;
       
       // Get detector information
       const MuonGM::TgcReadoutElement *tre = tpd->detectorElement();

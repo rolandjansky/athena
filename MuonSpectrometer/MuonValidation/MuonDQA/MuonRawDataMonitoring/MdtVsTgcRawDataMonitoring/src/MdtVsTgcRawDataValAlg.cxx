@@ -57,10 +57,6 @@
 
 using namespace std;
 
-static const int maxColl =   1200;
-static const int maxPRD  =   50000;
-static const int maxClus =   1000;
- 
 /////////////////////////////////////////////////////////////////////////////
 
 MdtVsTgcRawDataValAlg::MdtVsTgcRawDataValAlg( const std::string & type, const std::string & name, const IInterface* parent )
