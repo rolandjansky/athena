@@ -8,16 +8,17 @@
 // Base class header
 #include "G4RunManager.hh"
 
+// Gaudi headers
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
 // Athena headers
 #include "AthenaKernel/MsgStreamMember.h"
 #include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
 #include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
 #include "G4AtlasInterfaces/IPhysicsListTool.h"
 #include "G4AtlasInterfaces/IUserActionSvc.h"
-
-// Gaudi headers
-#include "GaudiKernel/ToolHandle.h"
-
+#include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
 
 /// ATLAS custom singleton run manager.
 ///
@@ -72,14 +73,38 @@ private:
   void WriteFluxInformation();
   /// @}
 
+  /// @name Methods to pass configuration in from G4AtlasAlg
+  /// @{
   /// Configure the user action service handle
   void SetUserActionSvc(const std::string& typeAndName) {
     m_userActionSvc.setTypeAndName(typeAndName);
   }
 
+  /// Configure the detector geometry service handle
+  void SetDetGeoSvc(const std::string& typeAndName) {
+    m_detGeoSvc.setTypeAndName(typeAndName);
+  }
+
+  /// Configure the Sensitive Detector Master Tool handle
+  void SetSDMasterTool(const std::string& typeAndName) {
+    m_senDetTool.setTypeAndName(typeAndName);
+  }
+
+  /// Configure the Fast Simulation Master Tool handle
+  void SetFastSimMasterTool(const std::string& typeAndName) {
+    m_fastSimTool.setTypeAndName(typeAndName);
+  }
+
+  /// Configure the Physics List Tool handle
+  void SetPhysListTool(const std::string& typeAndName) {
+    m_physListTool.setTypeAndName(typeAndName);
+  }
+
+
   void SetReleaseGeo(bool b) { m_releaseGeo = b; }
   void SetRecordFlux(bool b) { m_recordFlux = b; }
   void SetLogLevel(int) { /* Not implemented */ }
+  /// @}
 
   /// Log a message using the Athena controlled logging system
   MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
@@ -99,6 +124,7 @@ private:
 
   /// Handle to the user action service
   ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;
+  ServiceHandle<IDetectorGeometrySvc> m_detGeoSvc;
 };
 
 
