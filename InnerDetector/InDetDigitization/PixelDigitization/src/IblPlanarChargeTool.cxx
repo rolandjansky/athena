@@ -30,21 +30,25 @@ IblPlanarChargeTool::IblPlanarChargeTool(const std::string& type, const std::str
 	SubChargesTool(type,name,parent),
 	m_numberOfSteps(50),
 	m_numberOfCharges(10),
-	m_diffusionConstant(.007)
-
+	m_diffusionConstant(.007),
+	m_isCMOS(false),
+	m_depletedFraction(1.0)
+	
 { 
 	declareProperty("numberOfSteps",m_numberOfSteps,"Geant4:number of steps for IblPlanar");
 	declareProperty("numberOfCharges",m_numberOfCharges,"Geant4:number of charges for IblPlanar");
 	declareProperty("diffusionConstant",m_diffusionConstant,"Geant4:Diffusion Constant for IblPlanar");
-
+	declareProperty("isCMOS",m_isCMOS,"Boolean flag to switch on/off CMOS simulation");
+	declareProperty("depletedFraction",m_depletedFraction,"Fraction of depleted region for CMOS sensors");
+  
 }
+
+
 
 class DetCondCFloat;
 
 // Destructor:
-IblPlanarChargeTool::~IblPlanarChargeTool()
-{
-}
+IblPlanarChargeTool::~IblPlanarChargeTool() { }
 
 //----------------------------------------------------------------------
 // Initialize
@@ -75,10 +79,13 @@ StatusCode IblPlanarChargeTool::finalize() {
 //----------------------------------------------------------------------
 // charge
 //----------------------------------------------------------------------
-StatusCode IblPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit,
-		  SiChargedDiodeCollection& chargedDiodes,
-		  const InDetDD::SiDetectorElement &Module)
-{
+StatusCode IblPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, const InDetDD::SiDetectorElement &Module) {
+
+  if (!Module.isBarrel()) { return StatusCode::SUCCESS; }
+  const PixelModuleDesign *p_design= static_cast<const PixelModuleDesign*>(&(Module.design()));
+  if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI3) { return StatusCode::SUCCESS; } // just allowing ITk
+  if (p_design->numberOfCircuits()<2) { return StatusCode::SUCCESS; }
+
   ATH_MSG_DEBUG("Applying IBLPLANAR charge processor");
   const HepMcParticleLink McLink = HepMcParticleLink(phit->trackNumber(),phit.eventId());
   const HepMC::GenParticle* genPart= McLink.cptr(); 
@@ -123,7 +130,7 @@ StatusCode IblPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit,
   double stepPhi = cPhi / nsteps;
   double stepDep = cDep / nsteps; 
 
-  double e1=phit->energyLoss()/static_cast<double>(nsteps*ncharges);
+  double e1=phit->energyLoss()/static_cast<double>(nsteps*ncharges) / m_depletedFraction; 
 
   double coLorentz=sqrt(1+pow(tanLorentz,2));
 
@@ -134,66 +141,66 @@ StatusCode IblPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit,
 
     // Distance between charge and readout side.  p_design->readoutSide() is
     // +1 if readout side is in +ve depth axis direction and visa-versa.
-    double spess = 0.5 * sensorThickness - Module.design().readoutSide() * depD;
-    if (spess<0) spess=0;
-      
-    for(int i=0 ; i<ncharges ; i++) {
+    double spess = 0.5 * sensorThickness*m_depletedFraction - Module.design().readoutSide() * depD; 
   
-      // diffusion sigma
-      double rdif=this->m_diffusionConstant*sqrt(spess*coLorentz/0.3);
-      
-      // position at the surface
-      double xPhiD=xPhi1+spess*tanLorentz+rdif*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
-      double xEtaD=xEta1+rdif*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
 
-// Slim Edge for IBL planar sensors:
-// TODO: Access these from somewhere          
-          if(abs(xEtaD) > 20.440)e1=0.;
-          if(abs(xEtaD)< 20.440 && abs(xEtaD)> 20.200){
-            if(xEtaD>0){
-              e1=e1*(68.13-xEtaD*3.333);            
-              xEtaD = xEtaD - 0.250;
-            }else{  
-              e1=e1*(68.13+xEtaD*3.333);            
-              xEtaD = xEtaD + 0.250;
-            }  
-          }
-          if(abs(xEtaD)< 20.200 && abs(xEtaD)> 20.100){
-            if(xEtaD>0){
-              e1=e1*(41.2-xEtaD*2.);             
-              xEtaD = xEtaD - 0.250;
-            }else{  
-              e1=e1*(41.2+xEtaD*2.);            
-              xEtaD = xEtaD + 0.250;
-            }  
-          }
-          
+    if (spess<0) spess=0;
+    if (!m_isCMOS || fabs(depD) < (sensorThickness*m_depletedFraction)/2)
+      { 
+	for(int i=0 ; i<ncharges ; i++) {
+	  
+	  // diffusion sigma
+	  double rdif=this->m_diffusionConstant*sqrt(spess*coLorentz/0.3);
 
-      // Get the charge position in Reconstruction local coordinates.
-      SiLocalPosition chargePos = Module.hitLocalToLocal(xEtaD, xPhiD);
-      
-      // The parametrization of the sensor efficiency (if needed)
-      double ed=e1*this->electronHolePairsPerEnergy;
-      
-      //The following lines are adapted from SiDigitization's Inserter class
-      SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));
-    
-       SiCellId diode = Module.cellIdOfPosition(scharge.position());
-       
-	 SiCharge charge = scharge.charge();
+	  // position at the surface
+	  double xPhiD=xPhi1+spess*tanLorentz+rdif*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+	  double xEtaD=xEta1+rdif*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+	  
+	  // Slim Edge for IBL planar sensors:
+	  // TODO: Access these from somewhere          
+	  if(std::abs(xEtaD) > 20.440)e1=0.;
+	  if(std::abs(xEtaD)< 20.440 && std::abs(xEtaD)> 20.200){
+	    if(xEtaD>0){
+	      e1=e1*(68.13-xEtaD*3.333);            
+	      xEtaD = xEtaD - 0.250;
+	    }else{  
+	      e1=e1*(68.13+xEtaD*3.333);            
+	      xEtaD = xEtaD + 0.250;
+	    }  
+	  }
+	  if(std::abs(xEtaD)< 20.200 && std::abs(xEtaD)> 20.100){
+	    if(xEtaD>0){
+	      e1=e1*(41.2-xEtaD*2.);             
+	      xEtaD = xEtaD - 0.250;
+	    }else{  
+	      e1=e1*(41.2+xEtaD*2.);            
+	      xEtaD = xEtaD + 0.250;
+	    }  
+	  }
 
-	if (diode.isValid()) {
 
-	chargedDiodes.add(diode,charge);
-
-      }
-     }									
-    }
-	return StatusCode::SUCCESS;
+	  // Get the charge position in Reconstruction local coordinates.
+	  SiLocalPosition chargePos = Module.hitLocalToLocal(xEtaD, xPhiD);
+	  
+	  // The parametrization of the sensor efficiency (if needed)
+	  double ed=e1*this->electronHolePairsPerEnergy;
+	  
+	  //The following lines are adapted from SiDigitization's Inserter class
+	  SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));
+	  
+	  SiCellId diode = Module.cellIdOfPosition(scharge.position());
+	  
+	  SiCharge charge = scharge.charge();
+	  
+	  if (diode.isValid()) chargedDiodes.add(diode,charge);
+	}
+      }									
+  }
+  return StatusCode::SUCCESS;
 }
 
 void IblPlanarChargeTool::simulateBow(const InDetDD::SiDetectorElement * element,
-                                        double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const {
+    double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const {
 
   // The corrections are assumed to be in the reconstruction local frame, so
   // we must convertfrom the hit local frame to the  reconstruction local frame.
@@ -203,21 +210,21 @@ void IblPlanarChargeTool::simulateBow(const InDetDD::SiDetectorElement * element
   // If tool is NONE we apply no correction.
   if (m_pixDistoTool.empty()) return;
   Amg::Vector3D dir(element->hitPhiDirection() * (xf - xi),
-                    element->hitEtaDirection() * (yf - yi),
-                    element->hitDepthDirection() * (zf - zi));
+      element->hitEtaDirection() * (yf - yi),
+      element->hitDepthDirection() * (zf - zi));
 
   Amg::Vector2D locposi = element->hitLocalToLocal(yi, xi);
   Amg::Vector2D locposf = element->hitLocalToLocal(yf, xf);
-   
+
   Amg::Vector2D newLocposi = m_pixDistoTool->correctSimulation(element->identify(), locposi, dir);
   Amg::Vector2D newLocposf = m_pixDistoTool->correctSimulation(element->identify(), locposf, dir);
- 
+
   // Extract new coordinates and convert back to hit frame.
   xi = newLocposi[Trk::x] * element->hitPhiDirection();
   yi = newLocposi[Trk::y] * element->hitEtaDirection();
 
   xf = newLocposf[Trk::x] * element->hitPhiDirection();
   yf = newLocposf[Trk::y] * element->hitEtaDirection();
- 
+
 }
 

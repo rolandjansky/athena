@@ -122,7 +122,7 @@ private:
    CLHEP::HepRandomEngine*           m_rndmEngine;
    std::string                       m_rndmEngineName;         //!< Name of the random number stream
 
-   bool                      m_pathCutOff;
+   double                    m_pathCutOff;
 
  protected:
   const AtlasDetectorID* m_atlasID;

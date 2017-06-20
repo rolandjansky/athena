@@ -212,8 +212,9 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     from AthenaCommon.Resilience import protectedInclude
     from AthenaCommon.Include import include
     from AthenaCommon.AppMgr import ServiceMgr
-    protectedInclude( "PixelConditionsServices/SpecialPixelMapSvc_jobOptions.py" )
-    include.block( "PixelConditionsServices/SpecialPixelMapSvc_jobOptions.py" )
+    if not GeometryFlags.isSLHC():
+        protectedInclude( "PixelConditionsServices/SpecialPixelMapSvc_jobOptions.py" )
+        include.block( "PixelConditionsServices/SpecialPixelMapSvc_jobOptions.py" )
     protectedInclude( "PixelConditionsServices/PixelDCSSvc_jobOptions.py" )
     include.block( "PixelConditionsServices/PixelDCSSvc_jobOptions.py" )
     # HACK For PixelCablingSvc configuration

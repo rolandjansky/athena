@@ -14,6 +14,9 @@
 // -numberOfSteps	Geant4:number of steps for IblPlanar
 // -numberOfCharges	Geant4:number of charges for IblPlanar
 // -diffusionConstant	Geant4:Diffusion Constant for IblPlanar
+// -isCMOS	        flag to switch on/off CMOS simulation
+// -depletedFraction    fraction of depleted region for CMOS simulation
+// -CMOSdepletionDepth  depletion depth for CMOS simulation
 //
 //////////////////////////////////////////////////////////////////
 
@@ -55,9 +58,12 @@ public:
 			    const InDetDD::SiDetectorElement &Module);  
 
   //Constants that can be set by user  
-  int m_numberOfSteps;    //number of steps for particle traveling perpendicular to detector element
+  int m_numberOfSteps;   
   int m_numberOfCharges;  
   double m_diffusionConstant;
+  bool m_isCMOS;
+  double m_depletedFraction;
+  
 
  
   
