@@ -138,8 +138,8 @@ StatusCode G4AtlasAlg::initialize() {
 void G4AtlasAlg::initializeOnce() {
   // Assign physics list
   if(m_physListTool.retrieve().isFailure()) {
-      throw std::runtime_error("Could not initialize ATLAS PhysicsListTool!");
-    }
+    throw std::runtime_error("Could not initialize ATLAS PhysicsListTool!");
+  }
 
   // Create the (master) run manager
   if(m_useMT) {
