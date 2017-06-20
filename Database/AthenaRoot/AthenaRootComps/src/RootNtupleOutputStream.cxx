@@ -113,10 +113,10 @@ RootNtupleOutputStream::initialize()
     ATH_MSG_FATAL("Can not find " << m_helperTools);
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("Found " << m_helperTools << endreq << "Data output: " << m_outputName);
+  ATH_MSG_INFO("Found " << m_helperTools << endmsg << "Data output: " << m_outputName);
 
   bool allgood = true;
-  for (std::vector<ToolHandle<IAthenaOutputTool> >::const_iterator 
+  for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator 
          iter = m_helperTools.begin(),
          iend = m_helperTools.end();
        iter != iend; 
@@ -157,7 +157,7 @@ RootNtupleOutputStream::handle(const Incident& inc)
   if (inc.type() == s_METADATASTOP) {
     // Moved preFinalize of helper tools to stop - want to optimize the
     // output file in finalize RDS 12/2009
-    for (std::vector<ToolHandle<IAthenaOutputTool> >::const_iterator 
+    for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator 
            iter = m_helperTools.begin(),
            iend = m_helperTools.end();
          iter != iend; 
@@ -213,7 +213,7 @@ StatusCode
 RootNtupleOutputStream::execute() 
 {
   bool failed = false;
-  for (std::vector<ToolHandle<IAthenaOutputTool> >::const_iterator 
+  for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator 
          iter = m_helperTools.begin(),
          iend = m_helperTools.end();
        iter != iend; 
@@ -227,7 +227,7 @@ RootNtupleOutputStream::execute()
       failed = true;
     }
   }
-  for (std::vector<ToolHandle<IAthenaOutputTool> >::const_iterator 
+  for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator 
          iter = m_helperTools.begin(),
          iend = m_helperTools.end();
        iter != iend; 

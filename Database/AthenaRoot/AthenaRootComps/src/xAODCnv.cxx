@@ -138,7 +138,7 @@ StatusCode xAODCnv::initialize()
 // {
 //   m_msg << MSG::INFO 
 //      << "Finalizing " << name() << "..." 
-//      << endreq;
+//      << endmsg;
 
 //   return StatusCode::SUCCESS;
 // }
@@ -218,8 +218,8 @@ xAODCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr)
     ATH_MSG_ERROR("::createRep: received null ptr to dobj");
     return StatusCode::FAILURE;
   }
-  msg(MSG::INFO) << " -> clid: [" << pObj->clID() << "]" << endreq
-                 << " -> name: [" << pObj->name() << "]" << endreq;
+  msg(MSG::INFO) << " -> clid: [" << pObj->clID() << "]" << endmsg
+                 << " -> name: [" << pObj->name() << "]" << endmsg;
 
   /*
   Athena::DataBucketBranch *dbb = 0;
