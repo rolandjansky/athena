@@ -174,7 +174,8 @@ class L2EFChain_met(L2EFChainDef):
                 #Muon correction fex
                 theEFMETMuonFex = EFTrigMissingETMuon_Fex_Jets("EFTrigMissingETMuon_Fex_Jets{0}".format(calibCorr) )
                 #mucorr= '_wMu' if EFmuon else ''
-                theEFMETHypo = EFMetHypoJetsXE('EFMetHypo_Jets_xe%s_tc%s%s%s'%(threshold,jetCalib,calibration,mucorr),ef_thr=float(threshold)*GeV)
+                theEFMETHypo = EFMetHypoJetsXE('EFMetHypo_Jets_xe%s_tc%s%s%s'%(threshold,jetCalib,calibration,mucorr),ef_thr=float(threshold)*GeV, extraCalib=calibCorr)
+
 
              ##MET based on trigger jets
             if EFrecoAlg=='trkmht':
