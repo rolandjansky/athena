@@ -8,18 +8,21 @@
 // Base class header
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-// Athena headers
-#include "AthenaKernel/IAtRndmGenSvc.h"
-#include "G4AtlasInterfaces/IUserActionSvc.h"
-#include "G4AtlasInterfaces/IPhysicsListTool.h"
+// STL headers
+#include <map>
+#include <string>
 
 // Gaudi headers
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-// STL headers
-#include <map>
-#include <string>
+// Athena headers
+#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "G4AtlasInterfaces/IUserActionSvc.h"
+#include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
+#include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
+#include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
+#include "G4AtlasInterfaces/IPhysicsListTool.h"
 
 // ISF includes
 #include "ISF_Interfaces/ITruthSvc.h"
@@ -98,16 +101,22 @@ private:
   /// Activate multi-threading configuration
   bool m_useMT;
 
-  /// Random number service
+  /// Random number Service
   ServiceHandle<IAtRndmGenSvc> m_rndmGenSvc;
-  /// user action service
+  /// User Action Service
   ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;
+  /// Detector Geometry Service (builds G4 Geometry)
+  ServiceHandle<IDetectorGeometrySvc> m_detGeoSvc;
+  /// Central Truth Service
+  ServiceHandle<ISF::ITruthSvc> m_truthRecordSvc;
+  /// Geo ID Service
+  ServiceHandle<ISF::IGeoIDSvc> m_geoIDSvc;
   /// Physics List Tool
   ToolHandle<IPhysicsListTool> m_physListTool;
-
-  /** Central truth service */
-  ServiceHandle<ISF::ITruthSvc> m_truthRecordSvc;
-  ServiceHandle<ISF::IGeoIDSvc> m_geoIDSvc;
+  /// Sensitive Detector Master Tool
+  ToolHandle<ISensitiveDetectorMasterTool> m_senDetTool;
+  /// Fast Simulation Master Tool
+  ToolHandle<IFastSimulationMasterTool> m_fastSimTool;
 
 };
 

@@ -55,9 +55,12 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
   , m_flagAbortedEvents(false)
   , m_rndmGenSvc("AtDSFMTGenSvc", name)
   , m_userActionSvc("G4UA::UserActionSvc", name) // new user action design
-  , m_physListTool("PhysicsListToolBase")
+  , m_detGeoSvc("DetectorGeometrySvc", name)
   , m_truthRecordSvc("ISF_TruthRecordSvc", name)
   , m_geoIDSvc("ISF_GeoIDSvc", name)
+  , m_physListTool("PhysicsListToolBase")
+  , m_senDetTool("SensitiveDetectorMasterTool")
+  , m_fastSimTool("FastSimulationMasterTool")
 {
   declareProperty( "Dll", m_libList);
   declareProperty( "Physics", m_physList);
@@ -70,21 +73,23 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty( "KillAbortedEvents", m_killAbortedEvents);
   declareProperty( "FlagAbortedEvents", m_flagAbortedEvents);
 
-  // Service instantiation
-  declareProperty("AtRndmGenSvc", m_rndmGenSvc);
-  declareProperty("UserActionSvc", m_userActionSvc);
-  declareProperty("PhysicsListTool", m_physListTool);
-  declareProperty("TruthRecordService", m_truthRecordSvc);
-  declareProperty("GeoIDSvc", m_geoIDSvc);
-
   // Verbosities
   declareProperty("Verbosities", m_verbosities);
-
-  // Multi-threading specific settings
-  declareProperty("MultiThreading", m_useMT=false);
-
   // Commands to send to the G4UI
   declareProperty("G4Commands", m_g4commands);
+  // Multi-threading specific settings
+  declareProperty("MultiThreading", m_useMT=false);
+  // ServiceHandle properties
+  declareProperty("AtRndmGenSvc", m_rndmGenSvc);
+  declareProperty("UserActionSvc", m_userActionSvc);
+  declareProperty("GeoIDSvc", m_geoIDSvc);
+  declareProperty("TruthRecordService", m_truthRecordSvc);
+  declareProperty("DetGeoSvc", m_detGeoSvc);
+  // ToolHandle properties
+  declareProperty("SenDetMasterTool", m_senDetTool);
+  declareProperty("FastSimMasterTool", m_fastSimTool);
+  declareProperty("PhysicsListTool", m_physListTool);
+
 }
 
 
@@ -156,6 +161,10 @@ void G4AtlasAlg::initializeOnce() {
     runMgr->SetRecordFlux( m_recordFlux );
     runMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
     runMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
+    runMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
+    runMgr->SetSDMasterTool(m_senDetTool.typeAndName() );
+    runMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
+    runMgr->SetPhysListTool(m_physListTool.typeAndName() );
   }
 
   // G4 user interface commands
