@@ -33,8 +33,8 @@ def getCollectionMerger(name="ISF_CollectionMerger", **kwargs):
     kwargs.setdefault( "OutputLArFCALHits",         "LArHitFCAL"          )
     kwargs.setdefault( "OutputLArHECHits",          "LArHitHEC"           )
 
-    kwargs.setdefault( "OutputTileHits",            "MBTSHits"            )
-    kwargs.setdefault( "OutputMBTSHits",            "TileHitVec"          )
+    kwargs.setdefault( "OutputTileHits",            "TileHitVec"          )
+    kwargs.setdefault( "OutputMBTSHits",            "MBTSHits"            )
 
     kwargs.setdefault( "OutputCSCHits",             "CSC_Hits"            )
     kwargs.setdefault( "OutputMDTHits",             "MDT_Hits"            )
