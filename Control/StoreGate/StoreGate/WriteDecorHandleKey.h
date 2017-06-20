@@ -93,7 +93,7 @@ public:
    * the store named by @c storeName is used.
    */
   WriteDecorHandleKey (const std::string& key = "",
-                       const std::string& storeName = "StoreGateSvc");
+                       const std::string& storeName = StoreID::storeName(StoreID::EVENT_STORE));
 
 
   /**

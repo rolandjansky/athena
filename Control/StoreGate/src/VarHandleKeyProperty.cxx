@@ -58,7 +58,7 @@ namespace Utils {
 std::ostream& 
 toStream(const SG::VarHandleKey& v, std::ostream& o)
 {
-  o << "'" << v.storeHandle().name() << "/" << v.objKey() << "'";
+  o << "'" << v.storeHandle().name() << ":" << v.key() << "'";
   return o;
 }
     
