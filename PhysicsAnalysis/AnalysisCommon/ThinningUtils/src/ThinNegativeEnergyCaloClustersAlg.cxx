@@ -111,6 +111,7 @@ StatusCode ThinNegativeEnergyCaloClustersAlg::execute()
         CHECK( evtStore()->retrieve( caloClusters , m_caloClustersKey ) );
     } else {
         ATH_MSG_INFO("No CaloClusterContainer with key "+m_caloClustersKey+" found. Thinning cannot be applied for this container");
+        m_doThinning = false;
         return StatusCode::SUCCESS;
     }
 

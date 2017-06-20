@@ -112,6 +112,7 @@ StatusCode ThinNegativeEnergyNeutralPFOsAlg::execute()
         CHECK( evtStore()->retrieve( neutralPFOs , m_neutralPFOsKey ) );
     } else {
         ATH_MSG_INFO("No PFOContainer with key "+m_neutralPFOsKey+" found. Thinning cannot be applied to this container");
+        m_doThinning = false;
         return StatusCode::SUCCESS;
     }
 
