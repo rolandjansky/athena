@@ -42,7 +42,7 @@ using namespace std;
 
 /// Standard Constuctor
 RootDatabase::RootDatabase(IOODatabase* idb)
-: DbDatabaseImp(idb), m_file(0), 
+: DbDatabaseImp(idb), m_file(nullptr), 
   m_defCompression(1),
   m_defCompressionAlg(1),
   m_defSplitLevel(99),
@@ -51,7 +51,7 @@ RootDatabase::RootDatabase(IOODatabase* idb)
   m_defWritePolicy(TObject::kOverwrite),   // On write create new versions
   m_branchOffsetTabLen(0),
   m_defTreeCacheLearnEvents(100),
-  m_fileMgr(0)
+  m_fileMgr(nullptr)
 {
   m_version = "1.1";
   DbInstanceCount::increment(this);
@@ -129,8 +129,8 @@ DbStatus RootDatabase::open(const DbDomain& domH,const std::string& nam,DbAccess
   TDirectory::TContext dirCtxt(0);
 
 
-  if (m_fileMgr == 0) {
-    IService *is(0);
+  if (m_fileMgr == nullptr) {
+    IService *is(nullptr);
 
     if (Gaudi::svcLocator()->getService("FileMgr",is,true).isFailure()) {
       log << DbPrintLvl::Error
@@ -144,19 +144,19 @@ DbStatus RootDatabase::open(const DbDomain& domH,const std::string& nam,DbAccess
 
 
   // FIXME: hack to avoid issue with setting up RecExCommon links
-  if (m_fileMgr != 0 && m_fileMgr->hasHandler(Io::ROOT).isFailure()) {
+  if (m_fileMgr != nullptr && m_fileMgr->hasHandler(Io::ROOT).isFailure()) {
     log << DbPrintLvl::Info
 	<< "Unable to locate ROOT file handler via FileMgr. "
 	<< "Will use default TFile::Open" 
 	<< DbPrint::endmsg;
-    m_fileMgr = 0;
+    m_fileMgr = nullptr;
   }
 
   if ( mode == pool::READ )   {
-    if (m_fileMgr == 0) {
+    if (m_fileMgr == nullptr) {
       m_file = TFile::Open(fname);
     } else {
-      void *vf(0);
+      void *vf(nullptr);
       int r =  m_fileMgr->open(Io::ROOT,"RootDatabase",fname,Io::READ,vf,"POOL",false);
       if (r < 0) {
 	log << DbPrintLvl::Error << "unable to open \"" << fname 
@@ -168,10 +168,10 @@ DbStatus RootDatabase::open(const DbDomain& domH,const std::string& nam,DbAccess
     }
   }
   else if ( mode&pool::UPDATE && result == kFALSE )    {
-    if (m_fileMgr == 0) {
+    if (m_fileMgr == nullptr) {
       m_file = TFile::Open(fname, "UPDATE", fname);
     } else {
-      void *vf(0);
+      void *vf(nullptr);
       int r =  m_fileMgr->open(Io::ROOT,"RootDatabase",fname,Io::APPEND,vf,"POOL",true);
       if (r < 0) {
 	log << DbPrintLvl::Error << "unable to open \"" << fname 
@@ -181,16 +181,16 @@ DbStatus RootDatabase::open(const DbDomain& domH,const std::string& nam,DbAccess
 	m_file = (TFile*)vf;
       }
     }
-    if (m_file != 0) {
+    if (m_file != nullptr) {
       m_file->SetCompressionLevel(m_defCompression);
       m_file->SetCompressionAlgorithm(m_defCompressionAlg);
     }
   }
   else if ( pool::RECREATE == (mode&pool::RECREATE) )   {
-    if (m_fileMgr == 0) {
+    if (m_fileMgr == nullptr) {
       m_file = TFile::Open(fname, "RECREATE", fname);
     } else {
-      void *vf(0);
+      void *vf(nullptr);
       int r =  m_fileMgr->open(Io::ROOT,"RootDatabase",fname,Io::WRITE|Io::CREATE,vf,"POOL",true);
       if (r < 0) {
 	log << DbPrintLvl::Error << "unable to open \"" << fname 
@@ -200,16 +200,16 @@ DbStatus RootDatabase::open(const DbDomain& domH,const std::string& nam,DbAccess
 	m_file = (TFile*)vf;
       }
     }
-    if (m_file != 0) {
+    if (m_file != nullptr) {
       m_file->SetCompressionLevel(m_defCompression);
       m_file->SetCompressionAlgorithm(m_defCompressionAlg);
     }
   }
   else if ( mode&pool::CREATE && result == kTRUE )   {
-    if (m_fileMgr == 0) {
+    if (m_fileMgr == nullptr) {
       m_file = TFile::Open(fname, "RECREATE", fname);
     } else {
-      void *vf(0);
+      void *vf(nullptr);
       int r =  m_fileMgr->open(Io::ROOT,"RootDatabase",fname,Io::WRITE|Io::CREATE,vf,"POOL",true);
       if (r < 0) {
 	log << DbPrintLvl::Error << "unable to open \"" << fname 
@@ -219,7 +219,7 @@ DbStatus RootDatabase::open(const DbDomain& domH,const std::string& nam,DbAccess
 	m_file = (TFile*)vf;
       }
     }
-    if (m_file != 0) {
+    if (m_file != nullptr) {
       m_file->SetCompressionLevel(m_defCompression);
       m_file->SetCompressionAlgorithm(m_defCompressionAlg);
     }
@@ -250,7 +250,7 @@ DbStatus RootDatabase::open(const DbDomain& domH,const std::string& nam,DbAccess
         << " if it does not exists. " << DbPrint::endmsg;
   }
 
-  return (0 == m_file) ? Error : Success;
+  return (nullptr == m_file) ? Error : Success;
 }
 
 /// Re-open database with changing access permissions
@@ -309,7 +309,7 @@ DbStatus RootDatabase::close(DbAccessMode /* mode */ )  {
         //m_file->ls();
         m_file->ResetErrno();
 
-	if (m_fileMgr == 0) {
+	if (m_fileMgr == nullptr) {
 	  m_file->Close();
 	} else {
 	  n = m_fileMgr->close(m_file,"RootDatabase");
@@ -326,7 +326,7 @@ DbStatus RootDatabase::close(DbAccessMode /* mode */ )  {
           << "I/O WRITE Bytes: " << byteCount(WRITE_COUNTER) << DbPrint::endmsg
           << "I/O OTHER Bytes: " << byteCount(OTHER_COUNTER) << DbPrint::endmsg;
 
-      if (!closed && m_fileMgr != 0) {
+      if (!closed && m_fileMgr != nullptr) {
 	n = m_fileMgr->close(m_file,"RootDatabase");
       }      
     }    
@@ -621,7 +621,7 @@ DbStatus RootDatabase::setOption(const DbOption& opt)  {
              DbPrint log("RootDatabase.setOption");
              if ( m_file->GetListOfKeys()->Contains("CollectionTree") )  {
                 TTree *tree = (TTree*)m_file->Get("CollectionTree");
-                if (tree != 0 && tree->GetAutoFlush() > 0) {
+                if (tree != nullptr && tree->GetAutoFlush() > 0) {
                    if (m_defTreeCacheLearnEvents < tree->GetAutoFlush()) {
                       log << DbPrintLvl::Info << n << ": Overwriting LearnEvents with CollectionTree AutoFlush" << DbPrint::endmsg;
                       m_defTreeCacheLearnEvents = tree->GetAutoFlush();
