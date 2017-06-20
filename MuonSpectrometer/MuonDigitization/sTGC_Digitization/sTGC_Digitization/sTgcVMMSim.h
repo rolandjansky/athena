@@ -172,8 +172,21 @@ public:
     void setMessageLevel(const MSG::Level lvl) const
     {
         m_msg.get().setLevel(lvl);
+        
+        return;
+    }
+    void initialReport() {
         ATH_MSG_VERBOSE(digitsIn.size() << " digits pased to the VMM");
+        for(int i = 0; i<digitsIn.size(); i++){
+            ATH_MSG_VERBOSE("Digit In: " << i+1 );
+            ATH_MSG_VERBOSE(" digitTime = " << digitsIn[i].time()) ;
+            ATH_MSG_VERBOSE(" charge = "    << digitsIn[i].charge()) ;
+        }
         ATH_MSG_VERBOSE(mainThreshold << " mainThreshold");
+        ATH_MSG_VERBOSE("VMMTime initalized to " << vmmTime);
+        ATH_MSG_VERBOSE("Backing up VMM clock by one Half Readout Tick to ensure captureof first digit.");
+        setTime(vmmTime - (readoutTick/2.0));
+        
         return;
     }
 
@@ -219,6 +232,11 @@ private: // data
     void setState(vmmState _state) // Setter for the VMM State
     {
         currentState = _state;
+    }
+    //**********************************************************************
+    void setTime(float _time) // Setter for the VMM Time
+    {
+        vmmTime = _time;
     }
     //**********************************************************************
     void readVMMConfig() // Read config parameters in from the VMM config file
