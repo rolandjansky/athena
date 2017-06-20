@@ -58,9 +58,6 @@
 
 using namespace std;
 
-static const int maxColl =   1200;
-static const int maxPrd  =   50000;
-static const int maxClus =   1000;
 float parESD1, parESD2, parESD3, parESD4;
 
 enum {enumBarrelA, enumBarrelC, enumEndCapA, enumEndCapC};
@@ -1937,7 +1934,7 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
 
   // LOOP OVER SEGMENTS  
   for (Trk::SegmentCollection::const_iterator s = segms->begin(); s != segms->end(); ++s) {
-    Muon::MuonSegment* segment = dynamic_cast<Muon::MuonSegment*>(*s);
+    const Muon::MuonSegment* segment = dynamic_cast<const Muon::MuonSegment*>(*s);
     if (segment == 0) {
       ATH_MSG_DEBUG("no pointer to segment!!!");
       break;

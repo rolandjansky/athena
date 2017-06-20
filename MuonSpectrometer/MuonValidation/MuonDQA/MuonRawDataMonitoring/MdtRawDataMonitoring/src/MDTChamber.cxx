@@ -42,7 +42,6 @@ MDTChamber::MDTChamber(std::string name) :
   mdttubenoise(0),
   mdttdctube(0),
   m_hardware_name(name),
-  m_global_bin_(0),
   m_mdthitsperchamber_InnerMiddleOuterLumi_bin(0),
   m_mdthitspermultilayerLumi_bin_m1(0),
   m_mdthitspermultilayerLumi_bin_m2(0),
