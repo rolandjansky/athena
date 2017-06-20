@@ -30,22 +30,22 @@
 static std::mutex _workerInitMutex;
 
 G4AtlasWorkerRunManager::G4AtlasWorkerRunManager()
-  : G4WorkerRunManager(),
-    m_msg("G4AtlasWorkerRunManager"),
+  : G4WorkerRunManager()
+  , m_msg("G4AtlasWorkerRunManager")
     // TODO: what if we need to make these configurable?
-    m_detGeoSvc("DetectorGeometrySvc", "G4AtlasWorkerRunManager"),
-    m_senDetTool("SensitiveDetectorMasterTool"),
-    m_fastSimTool("FastSimulationMasterTool"),
-    m_userActionSvc("G4UA::UserActionSvc", "G4AtlasWorkerRunManager")
+  , m_detGeoSvc("DetectorGeometrySvc", "G4AtlasWorkerRunManager")
+  , m_senDetTool("SensitiveDetectorMasterTool")
+  , m_fastSimTool("FastSimulationMasterTool")
+  , m_userActionSvc("G4UA::UserActionSvc", "G4AtlasWorkerRunManager")
 {}
 
 
 G4AtlasWorkerRunManager* G4AtlasWorkerRunManager::GetG4AtlasWorkerRunManager()
 {
   // Grab thread-local pointer from base class
-  auto wrm = G4RunManager::GetRunManager();
-  if(wrm) return static_cast<G4AtlasWorkerRunManager*>(wrm);
-  else return new G4AtlasWorkerRunManager;
+  auto* wrm = G4RunManager::GetRunManager();
+  if(wrm) { return static_cast<G4AtlasWorkerRunManager*>(wrm); }
+  else { return new G4AtlasWorkerRunManager; }
 }
 
 
@@ -93,11 +93,11 @@ void G4AtlasWorkerRunManager::InitializeGeometry()
   kernel->SetNumberOfParallelWorld(masterKernel->GetNumberOfParallelWorld());
 
   // Setup the sensitive detectors on each worker.
-  if(m_senDetTool.retrieve().isFailure()){
+  if(m_senDetTool.retrieve().isFailure()) {
     throw GaudiException("Could not retrieve SD master tool",
                          methodName, StatusCode::FAILURE);
   }
-  if(m_senDetTool->initializeSDs().isFailure()){
+  if(m_senDetTool->initializeSDs().isFailure()) {
     throw GaudiException("Failed to initialize SDs for worker thread",
                          methodName, StatusCode::FAILURE);
   }
@@ -128,11 +128,11 @@ void G4AtlasWorkerRunManager::InitializePhysics()
   G4RunManager::InitializePhysics();
 
   // Setup the fast simulations
-  if(m_fastSimTool.retrieve().isFailure()){
+  if(m_fastSimTool.retrieve().isFailure()) {
     throw GaudiException("Could not retrieve FastSims master tool",
                          methodName, StatusCode::FAILURE);
   }
-  if(m_fastSimTool->initializeFastSims().isFailure()){
+  if(m_fastSimTool->initializeFastSims().isFailure()) {
     throw GaudiException("Failed to initialize FastSims for worker thread",
                          methodName, StatusCode::FAILURE);
   }
@@ -165,7 +165,7 @@ bool G4AtlasWorkerRunManager::SimulateFADSEvent()
   if (currentEvent->IsAborted()) {
     ATH_MSG_WARNING( "G4AtlasWorkerRunManager::SimulateFADSEvent: " <<
                      "Event Aborted at Generator level" );
-    currentEvent=0;
+    currentEvent = nullptr;
     return true;
   }
 
@@ -175,7 +175,7 @@ bool G4AtlasWorkerRunManager::SimulateFADSEvent()
   if (currentEvent->IsAborted()) {
     ATH_MSG_WARNING( "G4AtlasWorkerRunManager::SimulateFADSEvent: " <<
                      "Event Aborted at Detector Simulation level" );
-    currentEvent=0;
+    currentEvent = nullptr;
     return true;
   }
 
@@ -183,7 +183,7 @@ bool G4AtlasWorkerRunManager::SimulateFADSEvent()
   if (currentEvent->IsAborted()) {
     ATH_MSG_WARNING( "G4AtlasWorkerRunManager::SimulateFADSEvent: " <<
                      "Event Aborted at Analysis level" );
-    currentEvent=0;
+    currentEvent = nullptr;
     return true;
   }
 
@@ -195,7 +195,7 @@ bool G4AtlasWorkerRunManager::SimulateFADSEvent()
 
   StackPreviousEvent(currentEvent);
   bool abort = currentEvent->IsAborted();
-  currentEvent = 0;
+  currentEvent = nullptr;
   return abort;
 }
 
