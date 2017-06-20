@@ -6,10 +6,8 @@
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "FadsKinematics/GeneratorCenter.h" // FIXME: to remove
+
 #include "GeoModelInterfaces/IGeoModelSvc.h"
-#include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
-#include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
-#include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "GaudiKernel/ISvcLocator.h"
@@ -48,11 +46,11 @@ G4AtlasRunManager::G4AtlasRunManager()
   , m_msg("G4AtlasRunManager")
   , m_releaseGeo(false)
   , m_recordFlux(false)
-    // FIXME: these should all be configured by a component (e.g. G4AtlasAlg)
   , m_senDetTool("SensitiveDetectorMasterTool")
   , m_fastSimTool("FastSimulationMasterTool")
   , m_physListTool("PhysicsListToolBase")
   , m_userActionSvc("G4UA::UserActionSvc", "G4AtlasRunManager")
+  , m_detGeoSvc("DetectorGeometrySvc", "G4AtlasRunManager")
 {  }
 
 
@@ -89,10 +87,7 @@ void G4AtlasRunManager::Initialize()
 
 void G4AtlasRunManager::InitializeGeometry()
 {
-  // FIXME: use a ServiceHandle
-  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
-  IDetectorGeometrySvc *detGeoSvc;
-  if (svcLocator->service("DetectorGeometrySvc",detGeoSvc,true).isFailure())
+  if (m_detGeoSvc.retrieve().isFailure())
     {
       ATH_MSG_ERROR ( "Could not retrieve the DetectorGeometrySvc" );
       G4ExceptionDescription description;
@@ -117,7 +112,7 @@ void G4AtlasRunManager::InitializeGeometry()
     }
 
   // Create/assign detector construction
-  G4RunManager::SetUserInitialization(detGeoSvc->GetDetectorConstruction());
+  G4RunManager::SetUserInitialization(m_detGeoSvc->GetDetectorConstruction());
 
   if (userDetector)
     {
