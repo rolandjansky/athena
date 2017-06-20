@@ -7,12 +7,12 @@
 
 // Gaudi
 #include "GaudiKernel/IAlgTool.h"
- 
+
 class TFCSTruthState;
 class TFCSExtrapolationState;
 
 static const InterfaceID IID_IFastCaloSimCaloExtrapolation("IFastCaloSimCaloExtrapolation", 1, 0);
-   
+
 class IFastCaloSimCaloExtrapolation : virtual public IAlgTool
 {
  public:
@@ -20,9 +20,6 @@ class IFastCaloSimCaloExtrapolation : virtual public IAlgTool
    static const InterfaceID& interfaceID() { return IID_IFastCaloSimCaloExtrapolation; }
 
    virtual void extrapolate(TFCSExtrapolationState& result,const TFCSTruthState* truth) = 0;
-
 };
 
 #endif // IFastCaloSimCaloExtrapolation_H
-
-
