@@ -500,12 +500,14 @@ CombinedChainParts_Default['topo'] = []
 # ---- AFP Dictinary of all allowed Values ----
 AFPChainParts = {
     'signature'      : ['AFP'],
-    'L1item'         : '',
+    'L1item'         : ['AFP_A_AND_C'],
     'chainPartName'  : '',
     'multiplicity'   : '',
+    'calib'        : ['lcw','had','em'],
     'trigType'       : ['afp'],
+    'jetCalib'     : JetChainParts['jetCalib'],
     'threshold'      : '',
-    'extra'          : [],
+    'extra'          : ['jetexc'],
     'addInfo'        : []
     }
 # ---- AFPDictinary of default Values ----
@@ -514,7 +516,9 @@ AFPChainParts_Default = {
     'L1item'         : '',
     'chainPartName'  : '',
     'multiplicity'   : '',
+    'calib'          : 'lcw',
     'trigType'       : ['afp'],
+    'jetCalib'       : JetChainParts_Default['jetCalib'],
     'threshold'      : '',
     'extra'          : '',
     'addInfo'        : []
