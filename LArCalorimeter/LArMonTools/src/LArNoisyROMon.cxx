@@ -667,26 +667,27 @@ StatusCode LArNoisyROMon::fillHistograms()
   }
 
   // event flagged by # of saturated quality cells
+  uint8_t SatTightPartitions = noisyRO->SatTightFlaggedPartitions();
   if ( eventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::TIGHTSATURATEDQ) ) 
   {
     m_h_SaturatedTight->Fill(LBN);
     if ( !burstveto ) m_h_SaturatedTightTimeVeto->Fill(LBN);
-    if ( (LArNoisyROSummary::EMECAMask) != 0 ) 
+    if ( (SatTightPartitions & LArNoisyROSummary::EMECAMask) != 0 ) 
     {
       m_EMECA.h_SaturatedNoisyEvent->Fill(LBN);
       if ( ! burstveto ) m_EMECA.h_SaturatedNoisyEventTimeVeto->Fill(LBN);
     }
-    if ( (LArNoisyROSummary::EMBAMask) != 0 ) 
+    if ( (SatTightPartitions & LArNoisyROSummary::EMBAMask) != 0 ) 
     {
       m_BarrelA.h_SaturatedNoisyEvent->Fill(LBN);
       if ( ! burstveto ) m_BarrelA.h_SaturatedNoisyEventTimeVeto->Fill(LBN);
     }
-    if ( (LArNoisyROSummary::EMBCMask) != 0 )
+    if ( (SatTightPartitions & LArNoisyROSummary::EMBCMask) != 0 )
     { 
       m_BarrelC.h_SaturatedNoisyEvent->Fill(LBN);
       if ( ! burstveto ) m_BarrelC.h_SaturatedNoisyEventTimeVeto->Fill(LBN);
     }
-    if ( (LArNoisyROSummary::EMECCMask) != 0 )
+    if ( (SatTightPartitions & LArNoisyROSummary::EMECCMask) != 0 )
     {
       m_EMECC.h_SaturatedNoisyEvent->Fill(LBN);
       if ( ! burstveto ) m_EMECC.h_SaturatedNoisyEventTimeVeto->Fill(LBN);
