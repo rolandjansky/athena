@@ -54,7 +54,6 @@ class InDetTrigSliceSettingsDB:
     seedradbinwidth = {}
     d0seedmax = {}
     d0seedppsmax = {}
-    d0trackinitialmax = {}
     checkseedredundancy = {}
     dospphifiltering = {}
     dozfinder = {}
@@ -84,7 +83,7 @@ class InDetTrigSliceSettingsDB:
     for i in _slices:
       d0seedmax[i] = 4.0
       d0seedppsmax[i] = 1.7
-      d0trackinitialmax[i] = 20.0
+
     d0seedmax['bphysics'] = 10.0
     d0seedmax['bphysHighPt'] = 10.0
     d0seedmax['muon'] = 10.0
@@ -92,11 +91,9 @@ class InDetTrigSliceSettingsDB:
 
     d0seedmax['cosmics'] = 1000.0
     d0seedppsmax['cosmics'] = 1000.0
-    d0trackinitialmax['cosmics'] = 1000.0
 
     self.db['d0SeedMax']=d0seedmax
     self.db['d0SeedPPSMax']=d0seedppsmax
-    self.db['d0TrackInitialMax']=d0trackinitialmax
 
     for i in _slices:
       dozfinder[i] = False 
