@@ -21,9 +21,9 @@ JPsiTPEventCutFlowPlots::JPsiTPEventCutFlowPlots(PlotBase* pParent, std::string 
     main_cf_steps.push_back("Trigger");
     main_cf_steps.push_back("HaveTag");
     main_cf_steps.push_back("HaveProbe");
-    tp_main_selection = AddCutFlow("MainSelection",main_cf_steps);
+    m_tp_main_selection = AddCutFlow("MainSelection",main_cf_steps);
     for (auto step: main_cf_steps) {
-        tp_main_selection->Fill(step.c_str(), 0);           //  fill once to avoid merging issues
+        m_tp_main_selection->Fill(step.c_str(), 0);           //  fill once to avoid merging issues
     }
 
 
@@ -35,9 +35,9 @@ JPsiTPEventCutFlowPlots::JPsiTPEventCutFlowPlots(PlotBase* pParent, std::string 
     tag_cf_steps.push_back("TagTrigger");
     tag_cf_steps.push_back("TagIP");
     tag_cf_steps.push_back("TagIsolation");
-    tp_tag_selection = AddCutFlow("TagSelection",tag_cf_steps);
+    m_tp_tag_selection = AddCutFlow("TagSelection",tag_cf_steps);
     for (auto step: tag_cf_steps) {
-        tp_tag_selection->Fill(step.c_str(), 0);            //  fill once to avoid merging issues
+        m_tp_tag_selection->Fill(step.c_str(), 0);            //  fill once to avoid merging issues
     }
 
     std::vector<std::string> probe_cf_steps;
@@ -49,9 +49,9 @@ JPsiTPEventCutFlowPlots::JPsiTPEventCutFlowPlots(PlotBase* pParent, std::string 
     probe_cf_steps.push_back("ProbeInvMass");
     probe_cf_steps.push_back("ProbeDeltaPhi");
     probe_cf_steps.push_back("ProbeDeltaEta");
-    tp_probe_selection = AddCutFlow("ProbeSelection",probe_cf_steps);
+    m_tp_probe_selection = AddCutFlow("ProbeSelection",probe_cf_steps);
     for (auto step: probe_cf_steps) {
-        tp_probe_selection->Fill(step.c_str(), 0);          //  fill once to avoid merging issues
+        m_tp_probe_selection->Fill(step.c_str(), 0);          //  fill once to avoid merging issues
     }
 
 }
