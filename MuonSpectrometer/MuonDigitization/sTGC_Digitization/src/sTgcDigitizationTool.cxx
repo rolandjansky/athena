@@ -889,7 +889,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
        ATH_MSG_VERBOSE(it_REID->second.size() << " digits on the channel after merging");
 //       float vmmStartTime = (*(it_REID->second.begin())).time();
        vmmArray[it_DETEL->first][it_REID->first].first = true;
-       vmmArray[it_DETEL->first][it_REID->first].second = new sTgcVMMSim(it_REID->second, (earliestEventTime-25), m_deadtimePad, m_readtimePad, m_produceDeadDigits, 1);  // object to simulate the VMM response
+       vmmArray[it_DETEL->first][it_REID->first].second = new sTgcVMMSim(it_REID->second, (earliestEventTime-25), m_deadtimeStrip, m_readtimeStrip, m_produceDeadDigits, 1);  // object to simulate the VMM response
        vmmArray[it_DETEL->first][it_REID->first].second->setMessageLevel(static_cast<MSG::Level>(outputLevel()));
        ATH_MSG_VERBOSE("VMM instantiated for Strip REID[" << it_REID->first.getString() << "]");
     }
