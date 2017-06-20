@@ -144,7 +144,7 @@ void G4AtlasAlg::initializeOnce() {
   // Create the (master) run manager
   if(m_useMT) {
 #ifdef G4MULTITHREADED
-    auto runMgr = G4AtlasMTRunManager::GetG4AtlasMTRunManager();
+    auto* runMgr = G4AtlasMTRunManager::GetG4AtlasMTRunManager();
     m_physListTool->SetPhysicsList();
     // Worker Thread initialization used to create worker run manager on demand.
     // @TODO use this class to pass any configuration to worker run manager.
@@ -155,7 +155,7 @@ void G4AtlasAlg::initializeOnce() {
   }
   // Single-threaded run manager
   else {
-    auto runMgr = G4AtlasRunManager::GetG4AtlasRunManager();
+    auto* runMgr = G4AtlasRunManager::GetG4AtlasRunManager();
     m_physListTool->SetPhysicsList();
     runMgr->SetReleaseGeo( m_releaseGeoModel );
     runMgr->SetRecordFlux( m_recordFlux );
@@ -313,7 +313,7 @@ StatusCode G4AtlasAlg::execute() {
   bool abort = false;
   if(m_useMT) {
 #ifdef G4MULTITHREADED
-    auto workerRM = G4AtlasWorkerRunManager::GetG4AtlasWorkerRunManager();
+    auto* workerRM = G4AtlasWorkerRunManager::GetG4AtlasWorkerRunManager();
     abort = workerRM->SimulateFADSEvent();
 #else
     ATH_MSG_ERROR("Trying to use multi-threading in non-MT build!");
@@ -321,14 +321,14 @@ StatusCode G4AtlasAlg::execute() {
 #endif
   }
   else {
-    auto workerRM = G4AtlasRunManager::GetG4AtlasRunManager();
+    auto* workerRM = G4AtlasRunManager::GetG4AtlasRunManager();
     abort = workerRM->SimulateFADSEvent();
   }
 
   if (abort) {
     ATH_MSG_WARNING("Event was aborted !! ");
     ATH_MSG_WARNING("Simulation will now go on to the next event ");
-    if (m_killAbortedEvents){
+    if (m_killAbortedEvents) {
       ATH_MSG_WARNING("setFilterPassed is now False");
       setFilterPassed(false);
     }
