@@ -4,14 +4,6 @@
 
 
 /////////////////////////////////////////////////////////
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/PropertyMgr.h"
- 
-#include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/IDataProviderSvc.h"
- 
-/////////////////////////////////////////////////////////
 #include "MuonCondTest/AlignCondAthTest.h"
 #include "MuonCondSvc/MuonAlignmentDbSvc.h"
 
@@ -25,20 +17,8 @@ AlignCondAthTest::AlignCondAthTest(const std::string& name, ISvcLocator* pSvcLoc
 StatusCode AlignCondAthTest::initialize(){
 //
 
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO << "in initialize()" << endmsg;
-   StatusCode sc ;
-//
-
-   sc = service("MuonCalib::MuonAlignmentDbSvc",p_MuonAlignmentDbSvc );
-   if (!sc.isSuccess() || 0 == p_MuonAlignmentDbSvc) {
-     log << MSG::ERROR
-         << "::initialize "
-         << "Could not find MuonAlignmentDbSvc" << endmsg;
-    return( StatusCode::FAILURE );
-   }
-//
-
+  ATH_MSG_INFO( "in initialize()"  );
+  ATH_CHECK( service("MuonCalib::MuonAlignmentDbSvc",p_MuonAlignmentDbSvc ) );
   return StatusCode::SUCCESS;
 //
 }
@@ -46,8 +26,7 @@ StatusCode AlignCondAthTest::initialize(){
 StatusCode AlignCondAthTest::execute() {
 //
 
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO << " AlignCondAthTest in execute()" << endmsg;
+  ATH_MSG_INFO( " AlignCondAthTest in execute()"  );
 
   return StatusCode::SUCCESS;
 //
@@ -56,8 +35,7 @@ StatusCode AlignCondAthTest::execute() {
 StatusCode AlignCondAthTest::finalize() {
 //
 
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO << "in finalize()" << endmsg;
+  ATH_MSG_INFO( "in finalize()"  );
 //
   return StatusCode::SUCCESS;
 //
