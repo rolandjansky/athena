@@ -2435,7 +2435,7 @@ void JEPSimMon::compare(const CmxEtSumsMap &cmxSimMap,
                 source != xAOD::CMXEtSums::Sources::TOTAL_RESTRICTED)
                 continue;
             if (etmaps && source != xAOD::CMXEtSums::Sources::SUM_ET_STANDARD &&
-                /*source != xAOD::CMXEtSums::Sources::SUM_ET_RESTRICTED && */
+                source != xAOD::CMXEtSums::Sources::SUM_ET_RESTRICTED && 
                 source != xAOD::CMXEtSums::Sources::MISSING_ET_STANDARD &&
                 source != xAOD::CMXEtSums::Sources::MISSING_ET_RESTRICTED 
                 /*&& source != xAOD::CMXEtSums::Sources::MISSING_ET_SIG_STANDARD*/)
