@@ -17,6 +17,7 @@ from ISF_Config.ISF_jobProperties import ISF_Flags # IMPORTANT: Flags must be se
 from ISF_FatrasServices.ISF_FatrasJobProperties import ISF_FatrasFlags
 from ISF_FatrasServices.FatrasTuning import FatrasTuningFlags
 from ISF_FatrasServices.FatrasValidation import FatrasValidationFlags
+from ISF_Algorithms.collection_merger_helpers import generate_mergeable_collection_name
 
 #################################################################################
 # Material for the Geometry
@@ -527,16 +528,18 @@ def getFatrasExEngine(name="ISF_FatrasExEngine", **kwargs):
 #   Fatras Hadronic Interaction Processor
 #   hadronic interaction creator
 def getFatrasHitCreatorPixel(name="ISF_FatrasHitCreatorPixel", **kwargs):
-    pixel_hits_collection = 'PixelHits_Fatras'
+    bare_collection_name = "PixelHits"
+    mergeable_collection_suffix = "_Fatras"
+    merger_input_property = "PixelHits"
+    hits_collection_name = generate_mergeable_collection_name(bare_collection_name,
+                                                              mergeable_collection_suffix,
+                                                              merger_input_property)
 
     from G4AtlasApps.SimFlags import SimFlags,simFlags
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
     kwargs.setdefault("IdHelperName"    , 'PixelID')
-    kwargs.setdefault("CollectionName"  , pixel_hits_collection)
-
-    collectionMerger = getAlgorithm('ISF_CollectionMerger')
-    collectionMerger.InputPixelHits += [pixel_hits_collection]
+    kwargs.setdefault("CollectionName"  , hits_collection_name)
 
     from FastCaloSimHit.FastCaloSimHitConf import FastHitConvertTool
     kwargs.setdefault("UseConditionsSvc", False)
@@ -545,31 +548,33 @@ def getFatrasHitCreatorPixel(name="ISF_FatrasHitCreatorPixel", **kwargs):
     return iFatras__HitCreatorSilicon(name, **kwargs )
 
 def getFatrasHitCreatorSCT(name="ISF_FatrasHitCreatorSCT", **kwargs):
-    sct_hits_collection = 'SCT_Hits_Fatras'
-
+    bare_collection_name = "SCT_Hits"
+    mergeable_collection_suffix = "_Fatras"
+    merger_input_property = "SCTHits"
+    hits_collection_name = generate_mergeable_collection_name(bare_collection_name,
+                                                              mergeable_collection_suffix,
+                                                              merger_input_property)
     from G4AtlasApps.SimFlags import SimFlags,simFlags
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
     kwargs.setdefault("IdHelperName"    , 'SCT_ID')
-    kwargs.setdefault("CollectionName"  , sct_hits_collection)
+    kwargs.setdefault("CollectionName"  , hits_collection_name)
     kwargs.setdefault("UseConditionsSvc", False)
-
-    collectionMerger = getAlgorithm('ISF_CollectionMerger')
-    collectionMerger.InputSCTHits += [sct_hits_collection]
 
     from ISF_FatrasToolsID.ISF_FatrasToolsIDConf import iFatras__HitCreatorSilicon
     return iFatras__HitCreatorSilicon(name, **kwargs )
 
 def getFatrasHitCreatorTRT(name="ISF_FatrasHitCreatorTRT", **kwargs):
-    trt_hits_collection = 'TRTUncompressedHits_Fatras'
-
+    bare_collection_name = "TRTUncompressedHits"
+    mergeable_collection_suffix = "_Fatras"
+    merger_input_property = "TRTUncompressedHits"
+    hits_collection_name = generate_mergeable_collection_name(bare_collection_name,
+                                                              mergeable_collection_suffix,
+                                                              merger_input_property)
     from G4AtlasApps.SimFlags import SimFlags,simFlags
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
-    kwargs.setdefault("CollectionName"  , trt_hits_collection)
-
-    collectionMerger = getAlgorithm('ISF_CollectionMerger')
-    collectionMerger.InputTRTUncompressedHits += [trt_hits_collection]
+    kwargs.setdefault("CollectionName"  , hits_collection_name)
 
     from ISF_FatrasToolsID.ISF_FatrasToolsIDConf import iFatras__HitCreatorTRT
     return iFatras__HitCreatorTRT(name, **kwargs )
@@ -605,25 +610,37 @@ def getFatrasPileupSimHitCreatorID(name="ISF_FatrasPileupSimHitCreatorID", **kwa
     return getFatrasSimHitCreatorID(name, **kwargs )
 
 def getFatrasSimHitCreatorMS(name="ISF_FatrasSimHitCreatorMS", **kwargs):
-    mdt_hits_collection = 'MDT_Hits_Fatras'
-    rpc_hits_collection = 'RPC_Hits_Fatras'
-    tgc_hits_collection = 'TGC_Hits_Fatras'
-    csc_hits_collection = 'CSC_Hits_Fatras'
+    mergeable_collection_suffix = "_Fatras"
+
+    mdt_bare_collection_name = "MDT_Hits"
+    mdt_merger_input_property = "MDTHits"
+    mdt_hits_collection_name = generate_mergeable_collection_name(mdt_bare_collection_name,
+                                                                  mergeable_collection_suffix,
+                                                                  mdt_merger_input_property)
+    rpc_bare_collection_name = "RPC_Hits"
+    rpc_merger_input_property = "RPCHits"
+    rpc_hits_collection_name = generate_mergeable_collection_name(rpc_bare_collection_name,
+                                                                  mergeable_collection_suffix,
+                                                                  rpc_merger_input_property)
+    tgc_bare_collection_name = "TGC_Hits"
+    tgc_merger_input_property = "TGCHits"
+    tgc_hits_collection_name = generate_mergeable_collection_name(tgc_bare_collection_name,
+                                                                  mergeable_collection_suffix,
+                                                                  tgc_merger_input_property)
+    csc_bare_collection_name = "CSC_Hits"
+    csc_merger_input_property = "CSCHits"
+    csc_hits_collection_name = generate_mergeable_collection_name(csc_bare_collection_name,
+                                                                  mergeable_collection_suffix,
+                                                                  csc_merger_input_property)
 
     from G4AtlasApps.SimFlags import SimFlags,simFlags
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
     kwargs.setdefault("Extrapolator" , getPublicTool('ISF_FatrasExtrapolator'))
-    kwargs.setdefault("MDTCollectionName", mdt_hits_collection)
-    kwargs.setdefault("RPCCollectionName", rpc_hits_collection)
-    kwargs.setdefault("TGCCollectionName", tgc_hits_collection)
-    kwargs.setdefault("CSCCollectionName", csc_hits_collection)
-
-    collectionMerger = getAlgorithm('ISF_CollectionMerger')
-    collectionMerger.InputMDTHits += [mdt_hits_collection]
-    collectionMerger.InputRPCHits += [rpc_hits_collection]
-    collectionMerger.InputTGCHits += [tgc_hits_collection]
-    collectionMerger.InputCSCHits += [csc_hits_collection]
+    kwargs.setdefault("MDTCollectionName", mdt_hits_collection_name)
+    kwargs.setdefault("RPCCollectionName", rpc_hits_collection_name)
+    kwargs.setdefault("TGCCollectionName", tgc_hits_collection_name)
+    kwargs.setdefault("CSCCollectionName", csc_hits_collection_name)
 
     from ISF_FatrasToolsMS.ISF_FatrasToolsMSConf import iFatras__SimHitCreatorMS
     return iFatras__SimHitCreatorMS(name, **kwargs )
