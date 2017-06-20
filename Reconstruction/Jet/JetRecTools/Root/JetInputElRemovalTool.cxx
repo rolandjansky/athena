@@ -18,29 +18,49 @@
 JetInputElRemovalTool::JetInputElRemovalTool(const std::string& t)
   :AsgTool(t)
    
-  ,m_elInputContainer("Electrons")
+   // ,m_elInputContainer("Electrons")
   ,m_elIDname("DFCommonElectronsLHTight")
   ,m_elPt(25000)
-  ,m_clInputContainer("CaloCalTopoClusters")
-  ,m_clOutputContainer("CaloCalTopoClustersNoEl")
+   // ,m_clInputContainer("CaloCalTopoClusters")
+   // ,m_clOutputContainer("CaloCalTopoClustersNoEl")
   ,m_useOnlyclInJets(false)
-  ,m_jetINputContainer("AntiKt4EMTopoJets")
+   // ,m_jetINputContainer("AntiKt4EMTopoJets")
   ,m_clRemovRadius(0.15)
   ,m_clEMFrac(0.8)
-  ,m_trkInputContainer("InDetTrackParticles")
-  ,m_trkOutputContainer("InDetTrackParticlesNoEl")
+   // ,m_trkInputContainer("InDetTrackParticles")
+   // ,m_trkOutputContainer("InDetTrackParticlesNoEl")
 {
-  declareProperty("ElectronContainerName",m_elInputContainer);
+  // declareProperty("ElectronContainerName",m_elInputContainer);
   declareProperty("ElectronQuality",m_elIDname);
   declareProperty("ElectronMinpT",m_elPt);
-  declareProperty("ClusterContainerName",m_clInputContainer);
-  declareProperty("ClusterNoElName",m_clOutputContainer);
+  // declareProperty("ClusterContainerName",m_clInputContainer);
+  // declareProperty("ClusterNoElName",m_clOutputContainer);
   declareProperty("ClusterRemovRadius",m_clRemovRadius);
   declareProperty("ClusterEMFrac",m_clEMFrac);
   declareProperty("UseOnlyclInJets",m_useOnlyclInJets);
-  declareProperty("JetINputContainer",m_jetINputContainer);
-  declareProperty("TrkInputContainer",m_trkInputContainer);
-  declareProperty("TrkOutputContainer",m_trkOutputContainer);
+  // declareProperty("JetINputContainer",m_jetINputContainer);
+  // declareProperty("TrkInputContainer",m_trkInputContainer);
+  // declareProperty("TrkOutputContainer",m_trkOutputContainer);
+
+  declareProperty("TrkInputContainer",
+                  m_trkInputContainer_key="InDetTrackParticles");
+
+  declareProperty("JetINputContainer",
+                  m_jetInputContainer_key="AntiKt4EMTopoJets");
+
+
+  declareProperty("ClusterContainerName",
+                  m_clInputContainer_key="CaloCalTopoClusters");
+
+  declareProperty("ElectronContainerName",
+                  m_elInputContainer_key="Electrons");
+
+  declareProperty("ClusterNoElName",
+                  m_clOutputContainer_key="CaloCalTopoClustersNoEl");
+
+  declareProperty("TrkOutputContainer",
+                  m_trkOutputContainer_key="InDetTrackParticlesNoEl");
+
   
 }
 
@@ -50,14 +70,25 @@ JetInputElRemovalTool::~JetInputElRemovalTool(){
 
 
 StatusCode JetInputElRemovalTool::initialize(){
-  
+
+  ATH_CHECK(m_trkInputContainer_key.initialize());
+  ATH_CHECK(m_jetInputContainer_key.initialize());
+  ATH_CHECK(m_clInputContainer_key.initialize());
+  ATH_CHECK(m_elInputContainer_key.initialize());
+  ATH_CHECK(m_clOutputContainer_key.initialize()); 
+  ATH_CHECK(m_trkOutputContainer_key.initialize()); 
   
   return StatusCode::SUCCESS;
 }
 
 
 int JetInputElRemovalTool::execute() const{
-  ConstDataVector<xAOD::CaloClusterContainer> *filtered_clusters = new ConstDataVector<xAOD::CaloClusterContainer>(SG::VIEW_ELEMENTS) ;
+
+  // ConstDataVector<xAOD::CaloClusterContainer> *filtered_clusters = 
+  //   new ConstDataVector<xAOD::CaloClusterContainer>(SG::VIEW_ELEMENTS);
+
+  using OutContTypeCl = ConstDataVector<xAOD::CaloClusterContainer>;
+  OutContTypeCl* filtered_clusters = new OutContTypeCl(SG::VIEW_ELEMENTS);
   
   //Select the electrons with given properties
   std::vector<const xAOD::Electron*> el_vector=selectElectron();
@@ -74,28 +105,50 @@ int JetInputElRemovalTool::execute() const{
   }
   
   //Record clusters vector
-  StatusCode sc=evtStore()->record( filtered_clusters ,  m_clOutputContainer );
   
-  if (sc.isFailure()){
-    ATH_MSG_WARNING("Unable to record new clustersvector");
-    return 1;
+
+  {
+    auto handle = makeHandle(m_clOutputContainer_key);
+    if(!handle.record(std::unique_ptr<OutContTypeCl>(filtered_clusters))){
+      ATH_MSG_WARNING("Unable to record new clusters vector");
+      return 1;
+    }
   }
+
+  // PS
+  // StatusCode sc=evtStore()->record( filtered_clusters ,  m_clOutputContainer );
+  
+  // if (sc.isFailure()){
+  //   ATH_MSG_WARNING("Unable to record new clustersvector");
+  //  return 1;
+  // }
   
  
   
-  //Store vector only if not empty
-  if (!m_trkInputContainer.empty()){
-    ConstDataVector<xAOD::TrackParticleContainer> *filtered_tracks = new ConstDataVector<xAOD::TrackParticleContainer>(SG::VIEW_ELEMENTS) ;
+  //Store vector only if data vector name not empty 
+  // (PS is this really what was intended?)
+  if (!m_trkInputContainer_key.key().empty()){
+    // ConstDataVector<xAOD::TrackParticleContainer> *filtered_tracks = new ConstDataVector<xAOD::TrackParticleContainer>(SG::VIEW_ELEMENTS) ;
+
+    using OutContTypeTr = ConstDataVector<xAOD::TrackParticleContainer>;
+ 
+    OutContTypeTr* filtered_tracks = new OutContTypeTr(SG::VIEW_ELEMENTS) ;
+
     fillSelectedTracks(el_vector,*filtered_tracks);
   
-  
-    
-    sc=evtStore()->record( filtered_tracks , m_trkOutputContainer);
-    
-    if (sc.isFailure()){
+    auto handle_out = makeHandle(m_trkOutputContainer_key);
+    if(!handle_out.record(std::unique_ptr<OutContTypeTr>(filtered_tracks))){
       ATH_MSG_WARNING("Unable to record new tracks vector");
       return 1;
     }
+  
+    // PS 
+    // sc=evtStore()->record( filtered_tracks , m_trkOutputContainer);
+    
+    // if (sc.isFailure()){
+    //   ATH_MSG_WARNING("Unable to record new tracks vector");
+    //   return 1;
+    // }
   }
   
   
@@ -114,14 +167,25 @@ StatusCode JetInputElRemovalTool::finalize(){
 
 
 std::vector<const xAOD::Electron*> JetInputElRemovalTool::selectElectron()const{
-  
-  const xAOD::EgammaContainer* electrons = 0;
-  std::vector<const xAOD::Electron*>selected_electrons_v;
-  StatusCode sc =evtStore()->retrieve( electrons, m_elInputContainer);
-  if (sc.isFailure()){
+
+  std::vector<const xAOD::Electron*> selected_electrons_v;  
+
+  auto handle = makeHandle(m_elInputContainer_key);
+  if(!handle.isValid()){
     ATH_MSG_WARNING("Unable to retrieve electrons");
     return selected_electrons_v;
   }
+    
+  auto electrons = handle.cptr();
+
+  // const xAOD::EgammaContainer* electrons = 0;
+
+  // PS 
+  // StatusCode sc =evtStore()->retrieve( electrons, m_elInputContainer);
+  // if (sc.isFailure()){
+  //   ATH_MSG_WARNING("Unable to retrieve electrons");
+  //  return selected_electrons_v;
+  // }
   
   selected_electrons_v.clear();
   bool isTight=false;
@@ -158,20 +222,31 @@ std::vector<const xAOD::Electron*> JetInputElRemovalTool::selectElectron()const{
 
 int JetInputElRemovalTool::fillSelectedClusters(std::vector<const xAOD::Electron*>&selected_el,ConstDataVector<xAOD::CaloClusterContainer> & selected_cl)const{
   
-  //Initialiaze variables
+  //Initialize variables
   
   int countRemoved_clusters=0;
   double propEM=0;
   
   //Get the Topo clusters of the event
-  const xAOD::CaloClusterContainer* clusterContainer;
-  
-  StatusCode sc=evtStore()->retrieve( clusterContainer, m_clInputContainer );
-  
-  if (sc.isFailure()){
+
+  auto handle = makeHandle(m_clInputContainer_key);
+  if(!handle.isValid()){
     ATH_MSG_WARNING("Unable to retrieve clusters");
     return 0;
   }
+    
+  auto clusterContainer = handle.cptr();
+
+
+  // PS
+  // const xAOD::CaloClusterContainer* clusterContainer;
+  //
+  // StatusCode sc=evtStore()->retrieve( clusterContainer, m_clInputContainer );
+  
+  // if (sc.isFailure()){
+  //   ATH_MSG_WARNING("Unable to retrieve clusters");
+  //   return 0;
+  // }
   
   //Loop over all the clusters
   for (const xAOD::CaloCluster* cluster_itr : *clusterContainer){
@@ -243,12 +318,20 @@ int JetInputElRemovalTool::fillSelectedClustersInJets(std::vector<const xAOD::El
   int countRemoved_clusters=0;
   double propEM=0;
   
-  const xAOD::JetContainer* jetsContainer;
-  StatusCode sc=evtStore()->retrieve( jetsContainer, m_jetINputContainer );
-  if (sc.isFailure()){
+  auto handle = makeHandle(m_jetInputContainer_key);
+  if(!handle.isValid()){
     ATH_MSG_WARNING("Unable to retrieve jets");
     return 0;
   }
+
+  auto jetsContainer = handle.cptr();
+
+  // const xAOD::JetContainer* jetsContainer;
+  // StatusCode sc=evtStore()->retrieve( jetsContainer, m_jetINputContainer );
+  // if (sc.isFailure()){
+  //   ATH_MSG_WARNING("Unable to retrieve jets");
+  //   return 0;
+  // }
   
   for (const xAOD::Jet* jet_itr : *jetsContainer){
     
@@ -312,12 +395,21 @@ int JetInputElRemovalTool::fillSelectedTracks(std::vector<const xAOD::Electron*>
   
   int countRemoved_trk=0;
   
-  const xAOD::TrackParticleContainer* tkPrtclContainer;
-  StatusCode sc=evtStore()->retrieve( tkPrtclContainer, m_trkInputContainer );
-  if (sc.isFailure()){
+  auto handle = makeHandle(m_trkInputContainer_key);
+  if(!handle.isValid()){
     ATH_MSG_WARNING("Unable to retrieve jets");
     return 0;
   }
+
+  auto tkPrtclContainer = handle.cptr();
+
+  // PS 
+  // const xAOD::TrackParticleContainer* tkPrtclContainer;
+  // StatusCode sc=evtStore()->retrieve( tkPrtclContainer, m_trkInputContainer );
+  // if (sc.isFailure()){
+  //   ATH_MSG_WARNING("Unable to retrieve jets");
+  //   return 0;
+  // }
   
   //Loop over all the tracks
   for (const xAOD::TrackParticle* trk_itr : *tkPrtclContainer){

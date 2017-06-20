@@ -7,24 +7,57 @@
 SimpleJetTrackSelectionTool::SimpleJetTrackSelectionTool(const std::string &name):
   asg::AsgTool(name) {
   declareProperty("PtMin", m_ptmin =500.0);
-  declareProperty("InputContainer", m_inputContainer);
-  declareProperty("OutputContainer", m_outputContainer);
+
+  // declareProperty("InputContainer", m_inputContainer);
+  // declareProperty("OutputContainer", m_outputContainer);
+
+  declareProperty("InputContainer", m_inputContainer_key);
+  declareProperty("OutputContainer", m_outputContainer_key);
+
 }
 
 StatusCode SimpleJetTrackSelectionTool::initialize() {
+  ATH_CHECK(m_inputContainer_key.initialize());
+  ATH_CHECK(m_outputContainer_key.initialize());
   return StatusCode::SUCCESS;
 }
 
 int SimpleJetTrackSelectionTool::execute() const {
   ATH_MSG_DEBUG(" execute() ... ");
-  const xAOD::TrackParticleContainer* inCont;
-  StatusCode sc = evtStore()->retrieve(inCont,m_inputContainer);
-  if ( sc.isFailure() ) {ATH_MSG_ERROR("Can't retrieve input track container "<< m_inputContainer); return 1;}
-  ConstDataVector<xAOD::TrackParticleContainer> *outCont = new ConstDataVector< xAOD::TrackParticleContainer> (SG::VIEW_ELEMENTS);
+
+  auto handle_in = makeHandle(m_inputContainer_key);
+  if(!handle_in.isValid()){
+    ATH_MSG_ERROR("Can't retrieve input track container "
+                  << m_inputContainer_key.key()); 
+    return 1;
+  }
+
+  auto inCont = handle_in.cptr();
+
+  // PS
+  // const xAOD::TrackParticleContainer* inCont;
+  // StatusCode sc = evtStore()->retrieve(inCont,m_inputContainer);
+  // if ( sc.isFailure() ) {ATH_MSG_ERROR("Can't retrieve input track container "<< m_inputContainer); return 1;}
+
+
+  // ConstDataVector<xAOD::TrackParticleContainer> *outCont = new ConstDataVector< xAOD::TrackParticleContainer> (SG::VIEW_ELEMENTS);
+  using OutContType = ConstDataVector<xAOD::TrackParticleContainer>;
+  OutContType* outCont = new OutContType(SG::VIEW_ELEMENTS);
+
   selectTracks(*inCont, *outCont);
   ATH_MSG_DEBUG(" in size = "<< inCont->size() << " outSize="<< outCont->size());
-  sc = evtStore()->record( outCont, m_outputContainer);
-  if ( sc.isFailure() ) {ATH_MSG_ERROR("Can't record output track container "<< m_outputContainer); return 1;}
+
+  auto handle = makeHandle(m_outputContainer_key);
+  if(!handle.record(std::unique_ptr<OutContType>(outCont))){
+    ATH_MSG_ERROR("Can't record output track container "
+                  << m_outputContainer_key.key());
+    return 1;
+  }
+
+  // PS
+  // sc = evtStore()->record( outCont, m_outputContainer);
+  // if ( sc.isFailure() ) {ATH_MSG_ERROR("Can't record output track container "<< m_outputContainer); return 1;}
+
   return 0;
 }
 

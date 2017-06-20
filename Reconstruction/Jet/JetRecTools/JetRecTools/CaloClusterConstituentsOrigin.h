@@ -30,7 +30,7 @@ class CaloClusterConstituentsOrigin: public JetConstituentModifierBase {
   CaloClusterConstituentsOrigin(const std::string & name); // MEN: constructor 
   StatusCode process(xAOD::IParticleContainer* cont) const; 
   StatusCode process(xAOD::CaloClusterContainer* cont, const xAOD::Vertex *vert) const; // MEN: Might need to rename this process
-  
+  StatusCode initialize();
   
 protected:
 
@@ -38,8 +38,12 @@ protected:
   StatusCode processEM(xAOD::CaloClusterContainer* cont, const xAOD::Vertex *vert) const; // MEN: Might need to rename this process
 
 
-  std::string m_vertexContName = "";
+  // removed with transition to data handles
+  // std::string m_vertexContName = "";
   bool m_useEMScale = false;
+
+private:
+  SG::ReadHandleKey<xAOD::VertexContainer> m_readVertexContainer_key;
   
 };
 

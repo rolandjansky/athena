@@ -19,20 +19,33 @@ CaloClusterConstituentsOrigin::CaloClusterConstituentsOrigin(const std::string &
 #ifdef ASG_TOOL_ATHENA
   declareInterface<IJetConstituentModifier>(this);
 #endif
-  declareProperty("VertexContainer",m_vertexContName="PrimaryVertices");
+  // declareProperty("VertexContainer",m_vertexContName="PrimaryVertices");
+  declareProperty ("VertexContainer",  
+                   m_readVertexContainer_key="PrimaryVertices");
   declareProperty("UseEMScale",m_useEMScale=false);
-  
+
 }
+
+StatusCode CaloClusterConstituentsOrigin::initialize() {
+  ATH_CHECK(m_readVertexContainer_key.initialize());
+  return StatusCode::SUCCESS;
+}
+
 
 StatusCode CaloClusterConstituentsOrigin::process(xAOD::IParticleContainer* cont) const {
    xAOD::CaloClusterContainer* clust = dynamic_cast<xAOD::CaloClusterContainer*> (cont); // Get CaloCluster container
 
    if(clust)
      {
-       const xAOD::VertexContainer* vertexContainer=0;
 
-       //get vertexcontainer from eventstore
-       ATH_CHECK( evtStore()->retrieve(vertexContainer, m_vertexContName) );
+       auto handle = SG::makeHandle(m_readVertexContainer_key);
+       ATH_CHECK(handle.isValid());
+       auto vertexContainer = handle.cptr();
+         
+       // const xAOD::VertexContainer* vertexContainer=0;
+
+       // get vertexcontainer from eventstore
+       // ATH_CHECK( evtStore()->retrieve(vertexContainer, m_vertexContName) );
 
        return process(clust, vertexContainer->at(0)); 
      }
