@@ -10,8 +10,8 @@
 //   $Id: TIDARoi.h, v0.0   Mon  1 Feb 2010 11:34:52 GMT sutt $
 
 
-#ifndef __TRACKROI_H
-#define __TRACKROI_H
+#ifndef TRIGINDETANALYSIS_TRACKROI_H
+#define TRIGINDETANALYSIS_TRACKROI_H
 
 #include <iostream>
 #include <vector>
@@ -103,7 +103,7 @@ inline std::ostream& operator<<( std::ostream& s, const TIDA::Roi& r ) {
 }
 
 
-#endif  // __TRACKROI_H 
+#endif  // TRIGINDETANALYSIS_TRACKROI_H 
 
 
 
