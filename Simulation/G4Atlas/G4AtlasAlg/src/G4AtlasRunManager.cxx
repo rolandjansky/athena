@@ -5,46 +5,24 @@
 #include "G4AtlasRunManager.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "FadsKinematics/GeneratorCenter.h" // FIXME: to remove
 
-#include "GeoModelInterfaces/IGeoModelSvc.h"
-#include "StoreGate/StoreGateSvc.h"
-
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-
-#include "G4Event.hh"
 #include "G4GeometryManager.hh"
-#include "G4ios.hh"
 #include "G4LogicalVolumeStore.hh"
 #include "G4ParallelWorldScoringProcess.hh"
-#include "G4ParticleDefinition.hh"
-#include "G4ParticleTable.hh"
-#include "G4ProcessManager.hh"
-#include "G4ProductionCutsTable.hh"
 #include "G4RegionStore.hh"
 #include "G4Run.hh"
 #include "G4ScoringManager.hh"
 #include "G4StateManager.hh"
 #include "G4TransportationManager.hh"
-#include "G4Timer.hh"
 #include "G4UImanager.hh"
 #include "G4UserRunAction.hh"
 #include "G4Version.hh"
-#include "G4VPhysicalVolume.hh"
-#include "G4VUserDetectorConstruction.hh"
-#include "G4VUserPhysicsList.hh"
-#include "G4VUserPrimaryGeneratorAction.hh"
 
 #include <string>
-#include <vector>
-
-
 
 G4AtlasRunManager::G4AtlasRunManager()
   : G4RunManager()
   , m_msg("G4AtlasRunManager")
-  , m_releaseGeo(false)
   , m_recordFlux(false)
   , m_senDetTool("SensitiveDetectorMasterTool")
   , m_fastSimTool("FastSimulationMasterTool")
@@ -116,7 +94,7 @@ void G4AtlasRunManager::InitializeGeometry()
     ATH_MSG_WARNING( " User Detector not set!!! Geometry NOT initialized!!!" );
   }
 
-  // Geometry has been initialized.  Now get services to add some stuff to the geometry.
+  // Geometry has been initialized.
   if (m_senDetTool.retrieve().isFailure()) { //svcLocator->service("SensitiveDetector",m_senDetSvc).isFailure())
     ATH_MSG_ERROR ( "Could not retrieve the SD master tool" );
     G4ExceptionDescription description;
@@ -179,7 +157,6 @@ void G4AtlasRunManager::InitializePhysics()
 
 void G4AtlasRunManager::InitializeFluxRecording()
 {
-  // @TODO move this block into a separate function.
   G4UImanager *ui = G4UImanager::GetUIpointer();
   ui->ApplyCommand("/run/setCutForAGivenParticle proton 0 mm");
 
@@ -213,7 +190,7 @@ void G4AtlasRunManager::InitializeFluxRecording()
 
   G4int nPar = ScM->GetNumberOfMesh();
 
-  if(nPar<1) return;
+  if(nPar<1) { return; }
 
   G4ParticleTable::G4PTblDicIterator* particleIterator
     = G4ParticleTable::GetParticleTable()->GetIterator();
@@ -250,81 +227,24 @@ void G4AtlasRunManager::InitializeFluxRecording()
   return;
 }
 
-
-G4Event* G4AtlasRunManager::GenerateEvent(G4int i_event)
+bool G4AtlasRunManager::ProcessEvent(G4Event* event)
 {
-  static FADS::GeneratorCenter* generatorCenter=FADS::GeneratorCenter::GetGeneratorCenter();
-
-  SetCurrentG4Event(i_event);
-
-  generatorCenter->GenerateAnEvent(currentEvent);
-
-  return currentEvent;
-}
-
-
-bool G4AtlasRunManager::SimulateFADSEvent()
-{
-
-  // std::cout<<" SimulateFADSEvent : start simulating one event "<<std::endl;
 
   G4StateManager* stateManager = G4StateManager::GetStateManager();
   stateManager->SetNewState(G4State_GeomClosed);
-  // stateManager->SetNewState(G4State_EventProc);
 
-  // Release GeoModel Geometry if necessary
-  if (m_releaseGeo) {
-    ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
-    StoreGateSvc* m_detStore;
-    if (svcLocator->service("DetectorStore",m_detStore).isFailure()) {
-      ATH_MSG_ERROR( "G4AtlasRunManager could not access the detector store - PANIC!!!!" );
-      G4ExceptionDescription description;
-      description << "SimulateFADSEvent: Attempt to access DetectorStore failed.";
-      G4Exception("G4AtlasRunManager", "CouldNotAccessDetStore", FatalException, description);
-      abort(); // to keep Coverity happy
-    }
-
-    IGeoModelSvc* geoModel = nullptr;
-    if(svcLocator->service("GeoModelSvc",geoModel).isFailure()) {
-      ATH_MSG_WARNING( " ----> Unable to retrieve GeoModelSvc" );
-    }
-    else {
-      if(geoModel->clear().isFailure()) {
-        ATH_MSG_WARNING( " ----> GeoModelSvc::clear() failed" );
-      }
-      else {
-        ATH_MSG_INFO( " ----> GeoModelSvc::clear() succeeded " );
-      }
-    }
-    m_releaseGeo=false; // Don't do that again...
-  }
-
-  if (m_senDetTool) {
-    if(m_senDetTool->BeginOfAthenaEvent().isFailure()) {
-      G4ExceptionDescription description;
-      description << "SimulateFADSEvent: Call to ISensitiveDetectorMasterTool::BeginOfAthenaEvent failed.";
-      G4Exception("G4AtlasRunManager", "SDMasterBoAthEvtFailed", FatalException, description);
-      abort(); // to keep Coverity happy
-    }
-  }
-
-  currentEvent = GenerateEvent(1);
-  if (currentEvent->IsAborted()) {
-    ATH_MSG_WARNING( "G4AtlasRunManager::SimulateFADSEvent: Event Aborted at Generator level" );
-    currentEvent = nullptr;
-    return true;
-  }
+  currentEvent = event;
 
   eventManager->ProcessOneEvent(currentEvent);
   if (currentEvent->IsAborted()) {
-    ATH_MSG_WARNING( "G4AtlasRunManager::SimulateFADSEvent: Event Aborted at Detector Simulation level" );
+    ATH_MSG_WARNING( "G4AtlasRunManager::ProcessEvent: Event Aborted at Detector Simulation level" );
     currentEvent = nullptr;
     return true;
   }
 
-  AnalyzeEvent(currentEvent);
+  this->AnalyzeEvent(currentEvent);
   if (currentEvent->IsAborted()) {
-    ATH_MSG_WARNING( "G4AtlasRunManager::SimulateFADSEvent: Event Aborted at Analysis level" );
+    ATH_MSG_WARNING( "G4AtlasRunManager::ProcessEvent: Event Aborted at Analysis level" );
     currentEvent = nullptr;
     return true;
   }
@@ -333,28 +253,10 @@ bool G4AtlasRunManager::SimulateFADSEvent()
     this->RecordFlux();
   }
 
-  //      stateManager->SetNewState(G4State_GeomClosed);
-  /// Register all of the collections if there are any new-style SDs
-  if (m_senDetTool) {
-    if(m_senDetTool->EndOfAthenaEvent().isFailure()) {
-      G4ExceptionDescription description;
-      description << "SimulateFADSEvent: Call to ISensitiveDetectorMasterTool::EndOfAthenaEvent failed.";
-      G4Exception("G4AtlasRunManager", "SDMasterEoAthEvtFailed", FatalException, description);
-      abort(); // to keep Coverity happy
-    }
-  }
-  if (m_fastSimTool) {
-    if(m_fastSimTool->EndOfAthenaEvent().isFailure()) {
-      G4ExceptionDescription description;
-      description << "SimulateFADSEvent: Call to IFastSimulationMasterTool::EndOfAthenaEvent failed.";
-      G4Exception("G4AtlasRunManager", "FSMasterEoAthEvtFailed", FatalException, description);
-      abort(); // to keep Coverity happy
-    }
-  }
-  StackPreviousEvent(currentEvent);
-  bool abort=currentEvent->IsAborted();
+  this->StackPreviousEvent(currentEvent);
+  bool abort = currentEvent->IsAborted();
   currentEvent = nullptr;
-  // std::cout<<" SimulateFADSEvent : done simulating one event "<<std::endl;
+
   return abort;
 }
 
@@ -375,7 +277,7 @@ void G4AtlasRunManager::RecordFlux()
   return;
 }
 
-void  G4AtlasRunManager::RunTermination()
+void G4AtlasRunManager::RunTermination()
 {
   if (m_recordFlux) {
     this->WriteFluxInformation();
@@ -409,15 +311,15 @@ void  G4AtlasRunManager::RunTermination()
   kernel->RunTermination();
   ATH_MSG_INFO( "All done..." );
 
-  // std::cout<<" setting all pointers in G4AtlasRunManager to nullptr"<<std::endl;
-  userRunAction=nullptr;
-  userEventAction=nullptr;
-  userSteppingAction=nullptr;
-  userStackingAction=nullptr;
-  userTrackingAction=nullptr;
-  // physicsList=nullptr;
-  userDetector=nullptr;
-  userPrimaryGeneratorAction=nullptr;
+  // std::cout<<" setting all pointers in G4AtlasRunManager to 0"<<std::endl;
+  userRunAction = nullptr;
+  userEventAction = nullptr;
+  userSteppingAction = nullptr;
+  userStackingAction = nullptr;
+  userTrackingAction = nullptr;
+  // physicsList = nullptr;
+  userDetector = nullptr;
+  userPrimaryGeneratorAction = nullptr;
 
   // std::cout<<" this is G4AtlasRunManager::RunTermination(): done "<<std::endl;
 }
@@ -431,9 +333,4 @@ void G4AtlasRunManager::WriteFluxInformation()
   ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 CF_photon photon.txt");
   ui->ApplyCommand("/score/dumpQuantityToFile cylMesh_1 dose dose.txt");
   return;
-}
-
-void G4AtlasRunManager::SetCurrentG4Event(int iEvent)
-{
-  currentEvent=new G4Event(iEvent);
 }

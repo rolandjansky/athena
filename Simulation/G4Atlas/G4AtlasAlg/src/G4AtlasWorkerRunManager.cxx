@@ -15,8 +15,6 @@
 #include "G4TransportationManager.hh"
 #include "G4VUserDetectorConstruction.hh"
 
-#include "FadsKinematics/GeneratorCenter.h"
-
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
@@ -139,35 +137,13 @@ void G4AtlasWorkerRunManager::InitializePhysics()
 }
 
 
-G4Event* G4AtlasWorkerRunManager::GenerateEvent(G4int iEvent)
+bool G4AtlasWorkerRunManager::ProcessEvent(G4Event* event)
 {
-  static FADS::GeneratorCenter* generatorCenter =
-    FADS::GeneratorCenter::GetGeneratorCenter();
-  currentEvent = new G4Event(iEvent);
-  generatorCenter->GenerateAnEvent(currentEvent);
-  return currentEvent;
-}
 
-
-bool G4AtlasWorkerRunManager::SimulateFADSEvent()
-{
   G4StateManager* stateManager = G4StateManager::GetStateManager();
   stateManager->SetNewState(G4State_GeomClosed);
 
-  // Invoke SDs for any begin-event requirements
-  const std::string methodName = "G4AtlasWorkerRunManager::SimulateFADSEvent";
-  if (m_senDetTool->BeginOfAthenaEvent().isFailure()) {
-    throw GaudiException("Failure in SD BeginOfAthenaEvent",
-                         methodName, StatusCode::FAILURE);
-  }
-
-  GenerateEvent(1);
-  if (currentEvent->IsAborted()) {
-    ATH_MSG_WARNING( "G4AtlasWorkerRunManager::SimulateFADSEvent: " <<
-                     "Event Aborted at Generator level" );
-    currentEvent = nullptr;
-    return true;
-  }
+  currentEvent = event;
 
   //eventManager->SetVerboseLevel(3);
   //eventManager->GetTrackingManager()->SetVerboseLevel(3);
@@ -179,7 +155,7 @@ bool G4AtlasWorkerRunManager::SimulateFADSEvent()
     return true;
   }
 
-  AnalyzeEvent(currentEvent);
+  this->AnalyzeEvent(currentEvent);
   if (currentEvent->IsAborted()) {
     ATH_MSG_WARNING( "G4AtlasWorkerRunManager::SimulateFADSEvent: " <<
                      "Event Aborted at Analysis level" );
@@ -187,15 +163,10 @@ bool G4AtlasWorkerRunManager::SimulateFADSEvent()
     return true;
   }
 
-  // Invoke SDs for end-event requirements, like finalizing hit collections
-  if (m_senDetTool->EndOfAthenaEvent().isFailure()) {
-    throw GaudiException("Failure in SD EndOfAthenaEvent",
-                         methodName, StatusCode::FAILURE);
-  }
-
-  StackPreviousEvent(currentEvent);
+  this->StackPreviousEvent(currentEvent);
   bool abort = currentEvent->IsAborted();
   currentEvent = nullptr;
+
   return abort;
 }
 

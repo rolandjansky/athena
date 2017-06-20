@@ -17,16 +17,20 @@
 #include "GaudiKernel/ToolHandle.h"
 
 // Athena headers
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "G4AtlasInterfaces/IUserActionSvc.h"
 #include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
 #include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
 #include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
 #include "G4AtlasInterfaces/IPhysicsListTool.h"
+#include "GeneratorObjects/McEventCollection.h"
 
 // ISF includes
 #include "ISF_Interfaces/ITruthSvc.h"
 #include "ISF_Interfaces/IGeoIDSvc.h"
+#include "ISF_Interfaces/IInputConverter.h"
 
 /// @class G4AtlasAlg
 /// @brief Primary Athena algorithm for ATLAS simulation.
@@ -80,18 +84,23 @@ public:
 
 private:
 
+  /// Releases the GeoModel geometry from memory once it has been used
+  /// to build the G4 geometry and is no-longer required
+  StatusCode releaseGeoModel();
+
   /// Properties for the jobOptions
   std::string m_libList;
   std::string m_physList;
-  std::string m_generator;
+  std::string m_generator; //@TODO replace FADS code
   std::string m_fieldMap;
   std::string m_rndmGen;
   bool m_releaseGeoModel;
   bool m_recordFlux;
-  bool m_IncludeParentsInG4Event;
+  bool m_IncludeParentsInG4Event; //@TODO replace FADS code
   bool m_killAbortedEvents;
   bool m_flagAbortedEvents;
-
+  SG::ReadHandle<McEventCollection>    m_inputTruthCollection; //!< input hard scatter collection
+  SG::WriteHandle<McEventCollection>   m_outputTruthCollection;//!< output hard scatter truth collection
   /// Verbosity settings for Geant4
   std::map<std::string,std::string> m_verbosities;
 
@@ -107,6 +116,8 @@ private:
   ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;
   /// Detector Geometry Service (builds G4 Geometry)
   ServiceHandle<IDetectorGeometrySvc> m_detGeoSvc;
+  /// Service to convert ISF_Particles into a G4Event
+  ServiceHandle<ISF::IInputConverter> m_inputConverter;
   /// Central Truth Service
   ServiceHandle<ISF::ITruthSvc> m_truthRecordSvc;
   /// Geo ID Service

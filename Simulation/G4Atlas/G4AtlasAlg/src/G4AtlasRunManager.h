@@ -25,12 +25,10 @@
 /// This is the run manager used for serial (not-MT) jobs.
 /// @todo sync and reduce code duplication with MT run managers.
 ///
+
 class G4AtlasRunManager: public G4RunManager {
 
-  // Is this needed?
-  friend class G4AtlasAlg;
-  // Is this needed?
-  friend class SimControl;
+  friend class G4AtlasAlg;   // Is this needed?
 
 public:
 
@@ -39,14 +37,11 @@ public:
   /// Retrieve the singleton instance
   static G4AtlasRunManager* GetG4AtlasRunManager();
 
-  G4Event* GenerateEvent(G4int i_event) override final;
+  /// Does the work of simulating an ATLAS event
+  bool ProcessEvent(G4Event* event);
 
-  /// Run the simulation for one event.
-  /// @todo rename method.
-  bool SimulateFADSEvent();
-
+  /// G4 function called at end of run
   void RunTermination() override final;
-  void SetCurrentG4Event(int);
 
 protected:
 
@@ -59,10 +54,11 @@ protected:
 
 private:
 
-  /// Private constructor
+  /// Pure singleton private constructor
   G4AtlasRunManager();
 
   void EndEvent();
+
   /// @name Methods related to flux recording
   /// @{
   /// Initialize flux recording
@@ -100,8 +96,6 @@ private:
     m_physListTool.setTypeAndName(typeAndName);
   }
 
-
-  void SetReleaseGeo(bool b) { m_releaseGeo = b; }
   void SetRecordFlux(bool b) { m_recordFlux = b; }
   void SetLogLevel(int) { /* Not implemented */ }
   /// @}
@@ -111,11 +105,9 @@ private:
   /// Check whether the logging system is active at the provided verbosity level
   bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
 
-private:
   /// Private message stream member
   mutable Athena::MsgStreamMember m_msg;
 
-  bool m_releaseGeo;
   bool m_recordFlux;
 
   ToolHandle<ISensitiveDetectorMasterTool> m_senDetTool;
@@ -127,6 +119,4 @@ private:
   ServiceHandle<IDetectorGeometrySvc> m_detGeoSvc;
 };
 
-
 #endif // G4ATLASALG_G4AtlasRunManager_h
-
