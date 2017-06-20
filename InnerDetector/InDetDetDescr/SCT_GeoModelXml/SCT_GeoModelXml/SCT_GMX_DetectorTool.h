@@ -32,6 +32,8 @@ public:
     virtual ~SCT_GMX_DetectorTool();
     virtual StatusCode create(StoreGateSvc* detStore);
     virtual StatusCode clear(StoreGateSvc* detStore);
+    virtual StatusCode registerCallback(StoreGateSvc* detStore);
+    virtual StatusCode align(IOVSVC_CALLBACK_ARGS_P(I,keys));
 
 private:
     std::string m_detectorName;
