@@ -186,9 +186,9 @@ def AODFix_Init():
               (metadataOnly or rec.doApplyAODFix.is_locked() or 
                (prevReleaseSplit[0] == '20' and prevReleaseSplit[1] == '7'))):
             _aodFixInstance = AODFix_r207(prevAODFix, isMC, metadataOnly, rec.doApplyAODFix.is_locked())
-        elif (curReleaseSplit[0] == '21' and curReleaseSplit[1] == '0' and 
+        elif (curReleaseSplit[0] == '21' and (curReleaseSplit[1] == '0' or curReleaseSplit[1] == '2') and 
               (metadataOnly or rec.doApplyAODFix.is_locked() or 
-               (prevReleaseSplit[0] == '21' and prevReleaseSplit[1] == '0'))):
+               (prevReleaseSplit[0] == '21' and (prevReleaseSplit[1] == '0' or prevReleaseSplit[1] == '2')))):
             _aodFixInstance = AODFix_r210(prevAODFix, isMC, metadataOnly, rec.doApplyAODFix.is_locked())
         else:
             logAODFix.info("No AODFix scheduled for this release.")
