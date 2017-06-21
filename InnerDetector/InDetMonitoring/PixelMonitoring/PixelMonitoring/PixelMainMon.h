@@ -250,11 +250,6 @@ private:
       "ECC0", "ECC1", "ECC2",
       "B0",   "B1",   "B2", "IBL"
    };
-   std::string m_modLabel_PixLayerDisk[PixLayerDisk::COUNT] = {
-      "ECA0", "ECA1", "ECA2",
-      "ECC0", "ECC1", "ECC2",
-      "B0",   "B1",   "B2", "IBL"
-   };
 
    bool m_doRDO;              //storegate type flags from jobOptions
    bool m_doRODError;
