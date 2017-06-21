@@ -28,7 +28,7 @@ class PixelMon2DMapsLW;
 class PixelMon2DProfilesLW
 {
 public:
-  PixelMon2DProfilesLW(std::string name, std::string title, bool doIBL, bool errorHist, bool copy2DFEval);
+  PixelMon2DProfilesLW(std::string name, std::string title, bool doIBL, bool errorHist = false, bool copy2DFEval = false);
   ~PixelMon2DProfilesLW();
   TProfile2D_LW* IBL;
   TProfile2D_LW* IBL2D;
@@ -46,9 +46,9 @@ public:
   StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
 private:
   void formatHist();
-  bool mDoIBL;
-  bool mDoErrorHist;
-  bool mCopy2DFEval;
+  const bool m_doIBL;
+  const bool m_errorHist;
+  const bool m_copy2DFEval;
 };
 
 #endif

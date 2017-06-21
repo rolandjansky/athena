@@ -155,7 +155,8 @@ StatusCode PixelMainMon::BookHitsMon(void)
       }
    }
    
-   m_hitmap_tmp = new PixelMon2DMaps("HitMap_tmp", ("Hit map for monitoring" + m_histTitleExt).c_str()); sc = m_hitmap_tmp->regHist(rdoShift);
+   m_hitmap_tmp = new PixelMon2DMaps("HitMap_tmp", ("Hit map for monitoring" + m_histTitleExt).c_str(), m_doIBL);
+   sc = m_hitmap_tmp->regHist(rdoShift);
 
    for( int i=0; i<PixLayer::COUNT; i++){
      hname   = makeHistname(("nFEswithHits_"+m_modLabel_PixLayerIBL2D3D[i]), false);
@@ -169,7 +170,8 @@ StatusCode PixelMainMon::BookHitsMon(void)
        sc = rdoShift.regHist(m_occupancy_time2= new TProfile("occupancy_time_1hr",   ("Module hit occupancy as function of time over 1 hour.  36 sec/bin" + m_histTitleExt + ";time;module occupancy").c_str(), 99,0.,1.,"i"));
        sc = rdoShift.regHist(m_occupancy_time3= new TProfile("occupancy_time_6hr",   ("Module hit occupancy as function of time over 6 hours.  3.6 min/bin" + m_histTitleExt + ";time;module occupancy").c_str(), 99,0.,1.,"i"));
        
-       m_hitmap_mon = new PixelMon2DMaps("HitMap_Mon", ("Hit map for monitoring" + m_histTitleExt).c_str()); sc = m_hitmap_mon->regHist(rdoShift);
+       m_hitmap_mon = new PixelMon2DMaps("HitMap_Mon", ("Hit map for monitoring" + m_histTitleExt).c_str(), m_doIBL);
+       sc = m_hitmap_mon->regHist(rdoShift);
        
        for (int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++){
          hname = makeHistname(("Hit_ToT_Mon_"+m_modLabel_PixLayerIBL2D3D[i]), false);
@@ -228,33 +230,33 @@ StatusCode PixelMainMon::BookHitsMon(void)
 
    if (m_do2DMaps)
      {
-       m_occupancy = new PixelMon2DMaps("Occupancy", ("hit map"+ m_histTitleExt).c_str());
+       m_occupancy = new PixelMon2DMaps("Occupancy", ("hit map"+ m_histTitleExt).c_str(), m_doIBL);
        sc = m_occupancy->regHist(rdoShift);
        
-       m_average_pixocc = new PixelMon2DMapsLW("Occupancy_per_pixel", ("#hits / pixel" + m_histTitleExt).c_str(), m_doIBL, false);
-       sc = m_average_pixocc->regHist(rdoShift, m_doIBL, false);
+       m_average_pixocc = new PixelMon2DMapsLW("Occupancy_per_pixel", ("#hits / pixel" + m_histTitleExt).c_str(), m_doIBL);
+       sc = m_average_pixocc->regHist(rdoShift);
        
-       m_occupancy_pix_evt = new PixelMon2DProfilesLW("Occupancy_per_pixel_event", ("#hits / pixel / event" + m_histTitleExt).c_str(), m_doIBL, false, false);
+       m_occupancy_pix_evt = new PixelMon2DProfilesLW("Occupancy_per_pixel_event", ("#hits / pixel / event" + m_histTitleExt).c_str(), m_doIBL);
        sc = m_occupancy_pix_evt->regHist(rdoShift);
              
-       m_Lvl1ID_diff_mod_ATLAS_per_LB = new PixelMon2DLumiProfiles("Lvl1ID_diff_ATLAS_mod_per_LB", ("ATLAS_{Level 1 ID} - Module_{Level 1 ID} per LB" + m_histTitleExt).c_str(),"#Delta Level 1 ID",m_doIBL,false);
-       sc = m_Lvl1ID_diff_mod_ATLAS_per_LB->regHist(timeExpert,m_doIBL,false);
+       m_Lvl1ID_diff_mod_ATLAS_per_LB = new PixelMon2DLumiProfiles("Lvl1ID_diff_ATLAS_mod_per_LB", ("ATLAS_{Level 1 ID} - Module_{Level 1 ID} per LB" + m_histTitleExt).c_str(),"#Delta Level 1 ID",m_doIBL);
+       sc = m_Lvl1ID_diff_mod_ATLAS_per_LB->regHist(timeExpert);
        
-       m_Lvl1ID_absdiff_mod_ATLAS_per_LB = new PixelMon2DLumiProfiles("Lvl1ID_absdiff_ATLAS_mod_per_LB", ("ATLAS_{Level 1 ID} - Module_{Level 1 ID} per LB" + m_histTitleExt).c_str(),"#Delta Level 1 ID",m_doIBL,false);
-       sc = m_Lvl1ID_absdiff_mod_ATLAS_per_LB->regHist(timeExpert,m_doIBL,false);
+       m_Lvl1ID_absdiff_mod_ATLAS_per_LB = new PixelMon2DLumiProfiles("Lvl1ID_absdiff_ATLAS_mod_per_LB", ("ATLAS_{Level 1 ID} - Module_{Level 1 ID} per LB" + m_histTitleExt).c_str(),"#Delta Level 1 ID",m_doIBL);
+       sc = m_Lvl1ID_absdiff_mod_ATLAS_per_LB->regHist(timeExpert);
      }
    
    if (m_doModules)
      {
        m_hit_num_mod = new PixelMonModules1D("Hit_num", ("Number of hits in a module in an event" + m_histTitleExt).c_str(), 15,-0.5,149.5,m_doIBL);
-       sc = m_hit_num_mod->regHist(this,(path+"/Modules_NumberOfHits").c_str(),run, m_doIBL);
+       sc = m_hit_num_mod->regHist(this,(path+"/Modules_NumberOfHits").c_str(),run);
        m_hiteff_mod = new PixelMonModulesProf("Hit_track_eff", ("Proportion of hits on track" + m_histTitleExt).c_str(), 2500,-0.5,2499.5,m_doIBL);
-       sc = m_hiteff_mod->regHist(this,(path+"/Modules_HitEff").c_str(),run, m_doIBL);
+       sc = m_hiteff_mod->regHist(this,(path+"/Modules_HitEff").c_str(),run);
      }
    if (m_doFEChipSummary)
      {
        m_FE_chip_hit_summary = new PixelMonModules1D("FE_Chip_Summary", ("FE Chip Summary" + m_histTitleExt).c_str(), 16,-0.5,15.5,m_doIBL);
-       sc = m_FE_chip_hit_summary->regHist(this,(path+"/Modules_FEChipSummary").c_str(),run, m_doIBL);
+       sc = m_FE_chip_hit_summary->regHist(this,(path+"/Modules_FEChipSummary").c_str(),run);
      }
    if (m_doLowOccupancy || m_doHighOccupancy)
      {
@@ -279,7 +281,7 @@ StatusCode PixelMainMon::BookHitsMon(void)
    if (m_doPixelOccupancy)
      {
        m_pixel_occupancy = new PixelMonModules2D("Pixel_Occupancy", ("Pixel Occupancy" + m_histTitleExt).c_str(), 160, -0.,160.,336,0.,336.,m_doIBL);
-       sc = m_pixel_occupancy->regHist(this,(path+"/PixelOccupancy").c_str(),run, m_doIBL);
+       sc = m_pixel_occupancy->regHist(this,(path+"/PixelOccupancy").c_str(),run);
      }
    if (m_doRodSim)
      {
@@ -368,7 +370,7 @@ StatusCode PixelMainMon::BookHitsLumiBlockMon(void)
       hname = makeHistname("num_Hits_mod_LB", false);
       htitles = makeHisttitle("Number of pixel hits in a module in an event", (atext_hit+atext_nevt), false);
       m_hit_num_mod_LB = new PixelMonModules1D(hname.c_str(), htitles.c_str(), 20, -0.5, 19.5, m_doIBL);
-      sc = m_hit_num_mod_LB->regHist(this, (path+"/Modules_NumberOfHits").c_str(), lowStat, m_doIBL);
+      sc = m_hit_num_mod_LB->regHist(this, (path+"/Modules_NumberOfHits").c_str(), lowStat);
    }
    for( int i=0; i<PixLayer::COUNT; i++){
       hname = makeHistname(("Hit_ToT_LB_"+m_modLabel_PixLayerIBL2D3D[i]), false);
@@ -384,7 +386,7 @@ StatusCode PixelMainMon::BookHitsLumiBlockMon(void)
       sc = lumiBlockHist.regHist(m_Lvl1A_10min_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), 14, -1.5, 12.5));
    }
 
-   m_occupancy_10min = new PixelMon2DMaps("Occupancy_10min", ("hit occupancy" + m_histTitleExt).c_str());
+   m_occupancy_10min = new PixelMon2DMaps("Occupancy_10min", ("hit occupancy" + m_histTitleExt).c_str(), m_doIBL);
    sc = m_occupancy_10min->regHist(lumiBlockHist);
    
    if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endmsg;         
@@ -548,10 +550,10 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	//be sure to check each histo exists before filling it
 	
 	/// Fill Occupancy
-	if ( m_occupancy) m_occupancy->Fill(rdoID, m_pixelid, m_doIBL);
-	if ( m_occupancy_10min && m_doLumiBlock) m_occupancy_10min->Fill(rdoID, m_pixelid, m_doIBL);
-	if ( m_hitmap_tmp ) m_hitmap_tmp->Fill(rdoID, m_pixelid, m_doIBL);
-	if ( m_average_pixocc && nChannels_mod[pixlayeribl2d3d] > 0 ) m_average_pixocc->WeightingFill(rdoID, m_pixelid, m_doIBL, 1.0/( 1.0*nChannels_mod[pixlayeribl2d3d]) );
+	if ( m_occupancy) m_occupancy->Fill(rdoID, m_pixelid);
+	if ( m_occupancy_10min && m_doLumiBlock) m_occupancy_10min->Fill(rdoID, m_pixelid);
+	if ( m_hitmap_tmp ) m_hitmap_tmp->Fill(rdoID, m_pixelid);
+	if ( m_average_pixocc && nChannels_mod[pixlayeribl2d3d] > 0 ) m_average_pixocc->WeightingFill(rdoID, m_pixelid, 1.0/( 1.0*nChannels_mod[pixlayeribl2d3d]) );
 
        
 	/// Fill Lvl1A
@@ -569,8 +571,8 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	int difflvl1id = lvl1idATLAS - lvl1idMOD%32;	  
 	if(pixlayer != 99 && m_Lvl1ID_diff_mod_ATLAS_mod[pixlayer]) m_Lvl1ID_diff_mod_ATLAS_mod[pixlayer]->Fill(difflvl1id);
 	
-	if(m_Lvl1ID_diff_mod_ATLAS_per_LB) m_Lvl1ID_diff_mod_ATLAS_per_LB->Fill(m_manager->lumiBlockNumber(),rdoID,m_pixelid,difflvl1id,m_doIBL,false);
-	if(m_Lvl1ID_absdiff_mod_ATLAS_per_LB) m_Lvl1ID_absdiff_mod_ATLAS_per_LB->Fill(m_manager->lumiBlockNumber(),rdoID,m_pixelid,fabs(difflvl1id),m_doIBL,false);
+	if(m_Lvl1ID_diff_mod_ATLAS_per_LB) m_Lvl1ID_diff_mod_ATLAS_per_LB->Fill(m_manager->lumiBlockNumber(),rdoID,m_pixelid,difflvl1id);
+	if(m_Lvl1ID_absdiff_mod_ATLAS_per_LB) m_Lvl1ID_absdiff_mod_ATLAS_per_LB->Fill(m_manager->lumiBlockNumber(),rdoID,m_pixelid,fabs(difflvl1id));
 	
 	
 	/// Fill BCID
@@ -583,13 +585,13 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	  if (m_RodSim_BCID_minus_ToT) m_RodSim_BCID_minus_ToT->Fill((*p_rdo)->getBCID() - (*p_rdo)->getToT() );
 	}
        
-	if (m_FE_chip_hit_summary) m_FE_chip_hit_summary->Fill(m_pixelCableSvc->getFE(&rdoID,rdoID),rdoID,m_pixelid,m_doIBL);
+	if (m_FE_chip_hit_summary) m_FE_chip_hit_summary->Fill(m_pixelCableSvc->getFE(&rdoID,rdoID),rdoID,m_pixelid);
 	
 	if (m_hiteff_mod) {
 	  if (OnTrack(rdoID,false)) {
-	    m_hiteff_mod->Fill(m_manager->lumiBlockNumber(),1.,rdoID,m_pixelid,m_doIBL);
+	    m_hiteff_mod->Fill(m_manager->lumiBlockNumber(),1.,rdoID,m_pixelid);
 	  } else {
-	    m_hiteff_mod->Fill(m_manager->lumiBlockNumber(),0.,rdoID,m_pixelid,m_doIBL);
+	    m_hiteff_mod->Fill(m_manager->lumiBlockNumber(),0.,rdoID,m_pixelid);
 	  }
 	}
 	    
@@ -621,7 +623,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	  if(m_Details_mod3_ToT && currentID==DetailsMod3) m_Details_mod3_ToT->Fill((*p_rdo)->getToT());     
 	  if(m_Details_mod4_ToT && currentID==DetailsMod4) m_Details_mod4_ToT->Fill((*p_rdo)->getToT());  
 	}
-	if (m_pixel_occupancy) m_pixel_occupancy->Fill(m_pixelid->eta_index(rdoID),m_pixelid->phi_index(rdoID),rdoID, m_pixelid,m_doIBL);
+	if (m_pixel_occupancy) m_pixel_occupancy->Fill(m_pixelid->eta_index(rdoID),m_pixelid->phi_index(rdoID),rdoID, m_pixelid);
 	
 	if (pixlayer != 99) nhits_mod[pixlayer]++;
 	nhits++;
@@ -787,30 +789,30 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	for (; idIt != idItEnd; ++idIt) {
 	  Identifier WaferID = *idIt;
 	  if(m_pixelid->barrel_ec(WaferID)==2 ){
-	    m_hit_num_mod->Fill( HitPerEventArray_disksA[m_pixelid->phi_module(WaferID)][m_pixelid->layer_disk(WaferID)], WaferID, m_pixelid ,m_doIBL);
+	    m_hit_num_mod->Fill( HitPerEventArray_disksA[m_pixelid->phi_module(WaferID)][m_pixelid->layer_disk(WaferID)], WaferID, m_pixelid);
 	  }
-	  if(m_pixelid->barrel_ec(WaferID)==-2) m_hit_num_mod->Fill( HitPerEventArray_disksC[m_pixelid->phi_module(WaferID)][m_pixelid->layer_disk(WaferID)], WaferID, m_pixelid ,m_doIBL);
+	  if(m_pixelid->barrel_ec(WaferID)==-2) m_hit_num_mod->Fill( HitPerEventArray_disksC[m_pixelid->phi_module(WaferID)][m_pixelid->layer_disk(WaferID)], WaferID, m_pixelid);
 	  if(m_pixelid->barrel_ec(WaferID)==0 )
 	    {
 	      if(m_doIBL && m_pixelid->layer_disk(WaferID)==0) {
-		m_hit_num_mod->Fill( HitPerEventArray_lI[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+10], WaferID, m_pixelid ,m_doIBL);
+		m_hit_num_mod->Fill( HitPerEventArray_lI[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+10], WaferID, m_pixelid);
 	      }
 	      if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) {
-		 m_hit_num_mod->Fill( HitPerEventArray_l0[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+6], WaferID, m_pixelid ,m_doIBL);
+		 m_hit_num_mod->Fill( HitPerEventArray_l0[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+6], WaferID, m_pixelid);
 	      }
-	      if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) m_hit_num_mod->Fill( HitPerEventArray_l1[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+6], WaferID, m_pixelid ,m_doIBL);
-	      if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) m_hit_num_mod->Fill( HitPerEventArray_l2[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+6], WaferID, m_pixelid ,m_doIBL);
+	      if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) m_hit_num_mod->Fill( HitPerEventArray_l1[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+6], WaferID, m_pixelid);
+	      if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) m_hit_num_mod->Fill( HitPerEventArray_l2[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+6], WaferID, m_pixelid);
 	    }  
 	  
 	  if (m_doLumiBlock) {
-	    if(m_pixelid->barrel_ec(WaferID)==2 ) m_hit_num_mod_LB->Fill( HitPerEventArray_disksA[m_pixelid->phi_module(WaferID)][m_pixelid->layer_disk(WaferID)], WaferID, m_pixelid ,m_doIBL);
-	    if(m_pixelid->barrel_ec(WaferID)==-2) m_hit_num_mod_LB->Fill( HitPerEventArray_disksC[m_pixelid->phi_module(WaferID)][m_pixelid->layer_disk(WaferID)], WaferID, m_pixelid ,m_doIBL);
+	    if(m_pixelid->barrel_ec(WaferID)==2 ) m_hit_num_mod_LB->Fill( HitPerEventArray_disksA[m_pixelid->phi_module(WaferID)][m_pixelid->layer_disk(WaferID)], WaferID, m_pixelid);
+	    if(m_pixelid->barrel_ec(WaferID)==-2) m_hit_num_mod_LB->Fill( HitPerEventArray_disksC[m_pixelid->phi_module(WaferID)][m_pixelid->layer_disk(WaferID)], WaferID, m_pixelid);
 	    if(m_pixelid->barrel_ec(WaferID)==0 )                                                                                                                                       
 	      {
-		if(m_doIBL && m_pixelid->layer_disk(WaferID)==0) m_hit_num_mod_LB->Fill( HitPerEventArray_lI[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+10], WaferID, m_pixelid ,m_doIBL);
-		if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) m_hit_num_mod_LB->Fill( HitPerEventArray_l0[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+6], WaferID, m_pixelid ,m_doIBL);
-		if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) m_hit_num_mod_LB->Fill( HitPerEventArray_l1[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+6], WaferID, m_pixelid ,m_doIBL);
-		if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) m_hit_num_mod_LB->Fill( HitPerEventArray_l2[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+6], WaferID, m_pixelid ,m_doIBL);
+		if(m_doIBL && m_pixelid->layer_disk(WaferID)==0) m_hit_num_mod_LB->Fill( HitPerEventArray_lI[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+10], WaferID, m_pixelid);
+		if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) m_hit_num_mod_LB->Fill( HitPerEventArray_l0[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+6], WaferID, m_pixelid);
+		if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) m_hit_num_mod_LB->Fill( HitPerEventArray_l1[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+6], WaferID, m_pixelid);
+		if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) m_hit_num_mod_LB->Fill( HitPerEventArray_l2[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+6], WaferID, m_pixelid);
 	      }  
 	  }
 	}
