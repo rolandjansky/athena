@@ -62,6 +62,7 @@ calibStreams = [
                 'zdcCalib',
                 'AFP',
                 'BphysPEB'
+                'RPCNoise',
                 ]
 
 ##NOTE: DataScouting_xx_NAME: 

@@ -4088,6 +4088,7 @@ def setupMenu():
         ['calibAFP_L1AFP_A',                   'L1_AFP_A'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
         ['calibAFP_L1AFP_C',                   'L1_AFP_C'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
 
+        ['rpcpeb_L1RD0_EMPTY', 'L1_RD0_EMPTY', [], ['RPCNoise'], ["BW:Detector", "RATE:Calibration", "RATE:RPCCalibration",], -1],
 
         ]
 

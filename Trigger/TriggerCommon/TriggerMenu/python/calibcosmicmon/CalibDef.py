@@ -137,6 +137,8 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
         self.setupZDCPEBChains()
       elif 'calibAFP' in self.chainPart['purpose']:
         self.setupAFPCalibrationChains()
+      elif 'calibRPC' in self.chainPart['purpose']:
+        self.setupRPCCalibrationChains()
         
       else:
          log.error('Chain %s could not be assembled' % (self.chainPartName))
@@ -298,6 +300,25 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
        }
 
 
+   ###########################################################################
+   # RPC Calibration chains
+   ###########################################################################
+   def setupRPCCalibrationChains(self):
+     
+     from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
+     
+     l2_RPCSubDetListWriter = TrigSubDetListWriter("RPCSubDetListWriter")
+     #l2_RPCSubDetListWriter.SubdetId = ['TDAQ_CTP','TDAQ_HLT'] #To confirm what is needed
+     l2_RPCSubDetListWriter.MaxRoIsPerEvent=1
+     
+     self.robWriter = [l2_RPCSubDetListWriter]            
+     self.L2sequenceList += [['', self.robWriter, 'L2_']]
+     
+     self.L2signatureList += [[['L2_']]]
+     self.TErenamingDict = {
+       'L2_':     'L2_l1RPCcalib',
+       }
+     
    ###########################################################################
    # AFP Calibration chains
    ###########################################################################
