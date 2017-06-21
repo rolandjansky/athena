@@ -3,8 +3,7 @@
 # arguments: RELEASE_BASE, PROJECT, PLATFORM, DATESTAMP
 # author : Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>, Emil Obreshkov <Emil.Obreshkov@cern.ch>
 
-whoami
-date
+echo "Script executed by $(whoami) on $(date)"
 
 RELEASE_BASE=$1
 PROJECT=$2
