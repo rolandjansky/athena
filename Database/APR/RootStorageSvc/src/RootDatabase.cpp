@@ -762,7 +762,7 @@ void RootDatabase::registerBranchContainer(RootTreeContainer* cont)
 DbStatus RootDatabase::transAct(DbTransaction&  refTr )
 {
    // process flush to write file
-   if( refTr.state() == Transaction::TRANSACT_FLUSH ) m_file->Write();
+   if( refTr.state() == Transaction::TRANSACT_FLUSH && m_file != nullptr && m_file->IsWritable() ) m_file->Write();
    // process commits only
    if( refTr.state() != Transaction::TRANSACT_COMMIT )
       return Success;
