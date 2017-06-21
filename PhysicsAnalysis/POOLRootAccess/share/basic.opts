@@ -4,8 +4,11 @@ ApplicationMgr.OutputLevel = 0; //NIL ... so ApplicationMgr is silent
 //MessageSvc.OutputLevel = 5; //ERROR
 ApplicationMgr.EventLoop = "MinimalEventLoopMgr"; //for minimal service creation
 
-EventPersistencySvc.CnvServices = {"Athena::xAODCnvSvc","AthenaPoolCnvSvc"};
-ProxyProviderSvc.ProviderNames = {"MetaDataSvc"};
+//These two lines are now dealt with inside TEvent or the relevant selector
+//EventPersistencySvc.CnvServices = {"AthenaPoolCnvSvc"};
+//ProxyProviderSvc.ProviderNames = {"MetaDataSvc"};
+
+//If someone tries to use the MetaDataSvc, ensure the container name is set
 MetaDataSvc.MetaDataContainer = "MetaDataHdr";
 
 //make the MessageSvc display a bit wider

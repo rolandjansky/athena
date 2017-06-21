@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           GaudiKernel
 			  Control/StoreGateBindings
+			  Control/SGTools
                           PRIVATE
                           Control/xAODRootAccess
 			  Control/AthAnalysisBaseComps
@@ -44,6 +45,11 @@ atlas_add_executable( ut_basicxAODRead_test
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                       LINK_LIBRARIES ${ROOT_LIBRARIES} POOLRootAccess xAODEventInfo )
 
-# Install files from the package:
-atlas_install_joboptions( share/*.opts )
+atlas_add_executable( ut_basicAlg_test
+                      test/ut_basicAlg_test.cxx
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} POOLRootAccess xAODEventInfo )
 
+# Install files from the package:
+atlas_install_joboptions( share/*.opts share/*.py )
+atlas_install_scripts( scripts/*.py )

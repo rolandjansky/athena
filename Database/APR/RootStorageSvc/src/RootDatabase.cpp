@@ -238,7 +238,7 @@ DbStatus RootDatabase::open(const DbDomain& domH,const std::string& nam,DbAccess
         << DbPrint::endmsg;
   }
   if ( m_file )   {
-    log << DbPrintLvl::Always << fname << " File version:" << m_file->GetVersion() << DbPrint::endmsg;
+    log << DbPrintLvl::Info << fname << " File version:" << m_file->GetVersion() << DbPrint::endmsg;
     if ( !m_file->IsOpen() )   {
       log << DbPrintLvl::Error << "Failed to open file:" << nam << DbPrint::endmsg;
       deletePtr(m_file);

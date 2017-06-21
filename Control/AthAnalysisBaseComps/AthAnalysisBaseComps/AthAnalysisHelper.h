@@ -241,12 +241,18 @@ public:
          //just try to retrieve the requested key from the attributelist - we will let it throw the coral::AttributeListException (inherits from std::exception) if it fails
          //if the typeName is std::string, we will try to use the gaudi parsers to parse it
          //otherwise we try to do a straight assignment 
-         const coral::Attribute& attr = cont->payloadContainer()->at(0)->attributeList(cont->payloadContainer()->at(0)->chanNum(0))[key];
-         if(attr.specification().typeName()=="string") {
-            if(Gaudi::Parsers::parse(out,attr.data<std::string>()).isFailure()) return StatusCode::FAILURE;
-         } else { //do a straight conversion, and just hope its ok (FIXME: should probably do a check of typeid(T) vs typeName)
-            out = attr.data<T>();
-         }
+	 try {
+	   const coral::Attribute& attr = cont->payloadContainer()->at(0)->attributeList(cont->payloadContainer()->at(0)->chanNum(0))[key];
+	 
+	   if(attr.specification().typeName()=="string") {
+	     if(Gaudi::Parsers::parse(out,attr.data<std::string>()).isFailure()) return StatusCode::FAILURE;
+	   } else { //do a straight conversion, and just hope its ok (FIXME: should probably do a check of typeid(T) vs typeName)
+	     out = attr.data<T>();
+	   }
+	 } catch(...) {
+	   //anything that goes wrong is taken to be a failure
+	   return StatusCode::FAILURE;
+	 }
    
          return StatusCode::SUCCESS;
       }
@@ -275,11 +281,16 @@ public:
       //just try to retrieve the requested key from the attributelist - we will let it throw the coral::AttributeListException (inherits from std::exception) if it fails
       //if the typeName is std::string, we will try to use the gaudi parsers to parse it
       //otherwise we try to do a straight assignment 
-      const coral::Attribute& attr = attrlist->second[key];
-      if(attr.specification().typeName()=="string") {
-	if(Gaudi::Parsers::parse(out,attr.data<std::string>()).isFailure()) return StatusCode::FAILURE;
-      } else { //do a straight conversion, and just hope its ok (FIXME: should probably do a check of typeid(T) vs typeName)
-        out = attr.data<T>();
+      try {
+	const coral::Attribute& attr = attrlist->second[key];
+	if(attr.specification().typeName()=="string") {
+	  if(Gaudi::Parsers::parse(out,attr.data<std::string>()).isFailure()) return StatusCode::FAILURE;
+	} else { //do a straight conversion, and just hope its ok (FIXME: should probably do a check of typeid(T) vs typeName)
+	  out = attr.data<T>();
+	}
+      }
+      catch(...) {
+	return StatusCode::FAILURE;
       }
    
       return StatusCode::SUCCESS;

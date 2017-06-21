@@ -17,6 +17,12 @@
 
 #include "StoreGateBindings/StoreGatePyExt.h"
 
+//include the CLIDs of simple types so that we don't need to do this ourselves from ROOT prompt
+//when reading in kTreeAccess
+#include "SGTools/BuiltinsClids.h"
+#include "SGTools/StlVectorClids.h"
+#include "SGTools/StlMapClids.h"
+
 class TFile;
 class TChain;
 
@@ -34,6 +40,7 @@ namespace POOL {
    class TEvent {
       public:
          enum EReadMode {
+	   kTreeAccess = -2, //read the TTree directly
            kPOOLAccess = -1, //cannot be used in the same session as the other access modes
            kBranchAccess = 0,
            kClassAccess = 1,
@@ -81,6 +88,9 @@ namespace POOL {
          template<typename T> StatusCode retrieveMetaInput( const T*& obj, const std::string& key ) {
             return inputMetaStore()->retrieve( obj, key );
          }
+
+	 //shortcut for access IOVMetadataContainer metadata
+	 std::string retrieveIOVMetadata(const std::string& folder, const std::string& key);
 
          int getEntry( long entry ); //return -1 if failure. otherwise 0
          long getEntries();

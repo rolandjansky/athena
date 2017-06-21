@@ -128,6 +128,8 @@
 + Tools/PyCmt
 # Need next package to get 'extensions' module for acmd
 + External/AtlasPyFwdBwdPorts
+# Need IOVSvc for, at least, the file peeking (:-()
++ Control/IOVSvc
 
 + PhysicsAnalysis/POOLRootAccess
 
@@ -159,6 +161,9 @@
 
 # Other extras (would very much like to eliminate!) :
 + Event/EventInfo.*
++ Event/EventAthenaPool
++ Event/EventTPCnv
++ Event/EventPTCnv
 + DetectorDescription/Identifier
 # + Calorimeter/CaloIdentifier
 + DetectorDescription/GeoModel/GeoModelInterfaces
