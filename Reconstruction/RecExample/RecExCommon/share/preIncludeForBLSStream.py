@@ -1,7 +1,7 @@
 #This is a preInclude file to be used to run the BLS stream in production.
 #Author: James Walder
 from InDetRecExample.InDetJobProperties import InDetFlags
-InDetFlags.KeepParameters.set_Value_and_Lock(True)
+InDetFlags.KeepFirstParameters.set_Value_and_Lock(True)
 InDetFlags.keepAdditionalHitsOnTrackParticle.set_Value_and_Lock(True)
 InDetFlags.cutLevel.set_Value_and_Lock(13)
 

@@ -4,8 +4,9 @@
 ART - ATLAS Release Tester.
 
 Usage:
-  art.py run             [-v --type=<T> --max-jobs=<N>]  <script_directory> <sequence_tag>
+  art.py run             [-v --type=<T> --max-jobs=<N> --ci]  <script_directory> <sequence_tag>
   art.py submit          [-v --type=<T>]  <sequence_tag> <nightly_release> <project> <platform> <nightly_tag>
+  art.py validate        [-v]  <script_directory>
   art.py compare grid    [-v --days=<D>]  <nightly_release> <project> <platform> <nightly_tag> <package> <test_name> <file_name>...
   art.py compare ref     [-v]  <file_name> <ref_file>
   art.py list grid       [-v]  <package> <job_type> <nightly_release> <project> <platform> <nightly_tag>
@@ -16,13 +17,15 @@ Options:
   -h --help         Show this screen.
   --version         Show version.
   -v, --verbose     Show details.
-  --type=<T>        Type of job (e.g. grid, ci, build)
+  --type=<T>        Type of job (e.g. grid, build)
   --days=<D>        Number of days ago to pick up reference for compare [default: 1]
   --max-jobs=<N>    Maximum number of concurrent jobs to run
+  --ci              Run Continuous Integration tests only (using env: AtlasBuildBranch)
 
 Sub-commands:
-  run               Run tests from a package locally
+  run               Run tests from a package in a local build
   submit            Submit tests to the grid
+  validate          Check headers in tests
   compare           Compare the output of a job
   list              Lists the jobs of a package
   log               Show the log of a job
@@ -40,7 +43,7 @@ Arguments:
   script_directory  Directory containing the packages with tests
   sequence_tag      Sequence tag (e.g. 0 or PIPELINE_ID)
   test_name         Name of the test inside the package (e.g. test_q322.sh)
-  job_type          Type of job (e.g. grid, ci, build)
+  job_type          Type of job (e.g. grid, build)
 """
 
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
@@ -51,57 +54,67 @@ import requests
 import os
 import sys
 
+from ART.docopt_dispatch import dispatch
 
-from docopt_dispatch import dispatch
-from art_base import ArtBase
-from art_local import ArtLocal
-from art_grid import ArtGrid
+from ART import ArtBase, ArtGrid, ArtBuild
 
 
 @dispatch.on('submit')
 def submit_grid(sequence_tag, nightly_release, project, platform, nightly_tag, **kwargs):
     """TBD."""
+    art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
     type = 'grid' if kwargs['type'] is None else kwargs['type']
-    ArtGrid(nightly_release, project, platform, nightly_tag).task_list(type, sequence_tag)
+    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag).task_list(type, sequence_tag))
 
 
 @dispatch.on('run')
 def run(script_directory, sequence_tag, **kwargs):
     """TBD."""
+    art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
     type = 'build' if kwargs['type'] is None else kwargs['type']
-    ArtLocal(script_directory, max_jobs=kwargs['max_jobs']).task_list(type, sequence_tag)
+    exit(ArtBuild(art_directory, script_directory, max_jobs=kwargs['max_jobs'], ci=kwargs['ci']).task_list(type, sequence_tag))
+
+
+@dispatch.on('validate')
+def validate(script_directory, **kwargs):
+    """TBD."""
+    exit(ArtBase().validate(script_directory))
 
 
 @dispatch.on('compare', 'ref')
-def compare_local(file_name, ref_file, **kwargs):
+def compare_ref(file_name, ref_file, **kwargs):
     """TBD."""
-    ArtBase().compare_ref(file_name, ref_file)
+    exit(ArtBase().compare_ref(file_name, ref_file))
 
 
 @dispatch.on('compare', 'grid')
 def compare_grid(package, test_name, nightly_release, project, platform, nightly_tag, **kwargs):
     """TBD."""
+    art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
     days = int(kwargs['days'])
     file_names = kwargs['file_name']
-    ArtGrid(nightly_release, project, platform, nightly_tag).compare(package, test_name, days, file_names)
+    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag).compare(package, test_name, days, file_names))
 
 
 @dispatch.on('list', 'grid')
 def list(package, job_type, nightly_release, project, platform, nightly_tag, **kwargs):
     """TBD."""
-    ArtGrid(nightly_release, project, platform, nightly_tag).list(package, job_type)
+    art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
+    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag).list(package, job_type))
 
 
 @dispatch.on('log', 'grid')
 def log(package, test_name, nightly_release, project, platform, nightly_tag, **kwargs):
     """TBD."""
-    ArtGrid(nightly_release, project, platform, nightly_tag).log(package, test_name)
+    art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
+    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag).log(package, test_name))
 
 
 @dispatch.on('output', 'grid')
 def output(package, test_name, file_name, nightly_release, project, platform, nightly_tag, **kwargs):
     """TBD."""
-    ArtGrid(nightly_release, project, platform, nightly_tag).output(package, test_name, file_name)
+    art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
+    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag).output(package, test_name, file_name))
 
 
 @dispatch.on('retrieve')
@@ -158,4 +171,5 @@ def retrieve(job_id, **kwargs):
 
 
 if __name__ == '__main__':
+    print "ART_PATH", os.path.dirname(os.path.realpath(sys.argv[0]))
     dispatch(__doc__, version=os.path.splitext(os.path.basename(__file__))[0] + ' ' + __version__)
