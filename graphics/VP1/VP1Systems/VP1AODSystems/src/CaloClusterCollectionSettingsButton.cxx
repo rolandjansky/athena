@@ -33,6 +33,8 @@
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QShortcut>
+#include <QMimeData>
+#include <QDrag>
 
 // ATLAS
 #include "GaudiKernel/SystemOfUnits.h"

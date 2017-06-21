@@ -30,6 +30,8 @@
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QShortcut>
+#include <QMimeData>
+#include <QDrag>
 
 // Misc
 #include <iostream>

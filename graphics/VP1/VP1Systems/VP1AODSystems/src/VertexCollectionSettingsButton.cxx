@@ -29,6 +29,8 @@
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QShortcut>
+#include <QMimeData>
+#include <QDrag>
 
 // Misc
 #include <iostream>
@@ -134,6 +136,9 @@ VertexCollectionSettingsButton::VertexCollectionSettingsButton(QWidget * parent,
 //     initEditWindow();
 //   return *(d->editwindow);
 // } 
+
+
+//____________________________________________________________________
 VertexCollectionSettingsButton::~VertexCollectionSettingsButton()
 {
   delete d->editwindow;
@@ -142,6 +147,7 @@ VertexCollectionSettingsButton::~VertexCollectionSettingsButton()
   delete d;
 }
 
+//____________________________________________________________________
 void VertexCollectionSettingsButton::updateButton()
 {
   if (objectName().isEmpty())
@@ -150,6 +156,7 @@ void VertexCollectionSettingsButton::updateButton()
   VP1ColorSelectButton::setColButtonProperties(this,d->matButton->lastAppliedDiffuseColour(),d->dim);
 }
 
+//____________________________________________________________________
 void VertexCollectionSettingsButton::setDimension(int _dim)
 {
   if (d->dim == _dim)
@@ -158,6 +165,7 @@ void VertexCollectionSettingsButton::setDimension(int _dim)
   updateButton();
 }
 
+//____________________________________________________________________
 void VertexCollectionSettingsButton::showEditMaterialDialog()
 {
   if (!d->editwindow)
@@ -169,6 +177,7 @@ void VertexCollectionSettingsButton::showEditMaterialDialog()
     d->editwindow->hide();
 }
 
+//____________________________________________________________________
 bool VertexCollectionSettingsButton::setMaterial(SoMaterial*mat)
 {  
 	// std::cout<<"VertexCollectionSettingsButton::setMaterial with mat="<<mat<<std::endl;
@@ -177,21 +186,25 @@ bool VertexCollectionSettingsButton::setMaterial(SoMaterial*mat)
   return true;
 }
 
+//____________________________________________________________________
 void VertexCollectionSettingsButton::copyValuesFromMaterial(SoMaterial*mat)
 {
   if (!d->matButton) d->initEditWindow();
   d->matButton->setMaterial(mat);
 }
+//____________________________________________________________________
 double VertexCollectionSettingsButton::lastAppliedTransparency() const 
 {
   if (!d->matButton) d->initEditWindow();
   return d->matButton->lastAppliedTransparency();
 }
+//____________________________________________________________________
 double VertexCollectionSettingsButton::lastAppliedShininess() const  
 {
   if (!d->matButton) d->initEditWindow();
   return d->matButton->lastAppliedShininess();
 }
+//____________________________________________________________________
 double VertexCollectionSettingsButton::lastAppliedBrightness() const
 {
   if (!d->matButton) d->initEditWindow();
@@ -199,6 +212,7 @@ double VertexCollectionSettingsButton::lastAppliedBrightness() const
 }
 
 
+//____________________________________________________________________
 void VertexCollectionSettingsButton::updateVertexDrawStyle()
 {
   // double val = VP1QtInventorUtils::getValueLineWidthSlider(d->editwindow_ui.horizontalSlider_vertexSize);
@@ -206,6 +220,7 @@ void VertexCollectionSettingsButton::updateVertexDrawStyle()
   //   d->vertexDrawStyle->lineWidth = val;
 }
 
+//____________________________________________________________________
 void VertexCollectionSettingsButton::updateVertexLightModel(bool base)
 {
   if (d->vertexLightModel->model.getValue()!=(base?SoLightModel::BASE_COLOR:SoLightModel::PHONG)) {
@@ -218,16 +233,19 @@ void VertexCollectionSettingsButton::updateVertexLightModel(bool base)
 }
 
 
+//____________________________________________________________________
 SoDrawStyle * VertexCollectionSettingsButton::vertexDrawStyle() const
 {
   return d->vertexDrawStyle;
 }
 
+//____________________________________________________________________
 SoLightModel * VertexCollectionSettingsButton::vertexLightModel() const
 {
   return d->vertexLightModel;
 }
 
+//____________________________________________________________________
 int VertexCollectionSettingsButton::vertexSize() const
 {
   return d->editwindow_ui.horizontalSlider_vertexSize->value();

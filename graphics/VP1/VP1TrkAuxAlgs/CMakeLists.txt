@@ -23,7 +23,7 @@ find_package( Qt5 COMPONENTS Core REQUIRED )
 
 # Component(s) in the package:
 atlas_add_component( VP1TrkAuxAlgs src/*.cxx src/components/*.cxx
-   LINK_LIBRARIES Qt5::Core AthenaBaseComps GaudiKernel TrkExInterfaces
+   LINK_LIBRARIES Qt5::Core AthenaBaseComps GaudiKernel TrkExInterfaces ${SOQT_LIBRARIES}
    TrkFitterInterfaces VP1Base VP1Utils )
 
 # Install files from the package:

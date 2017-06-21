@@ -20,17 +20,21 @@ atlas_depends_on_subdirs(
 #find_package( Qt4 COMPONENTS QtCore QtGui QtOpenGL )
 #find_package( Qt5 COMPONENTS Core OpenGL Gui REQUIRED HINTS ${QT5_ROOT} )
 #find_package( Qt5 5.6.2 COMPONENTS Core OpenGL Gui REQUIRED HINTS ${QT5_ROOT} )
-find_package( Qt5 5.6 COMPONENTS Core OpenGL Gui PrintSupport REQUIRED )
+#find_package( Qt5 5.6 COMPONENTS Core OpenGL Gui PrintSupport REQUIRED )
+find_package( Qt5 COMPONENTS Core OpenGL Gui PrintSupport REQUIRED )
 
 find_package( SoQt REQUIRED )
 find_package( Coin3D REQUIRED )
 
 # Generate UI files automatically:
+# Note: add the "Widgets" component to "find_package( Qt5 ...)" if you have UI files, otherwise UIC, even if CMAKE_AUTOUIC is set to ON, is not run
 set( CMAKE_AUTOUIC TRUE )
 # Generate MOC files automatically:
 set( CMAKE_AUTOMOC TRUE )
 # Generate resource files automatically:
 set( CMAKE_AUTORCC TRUE )
+
+message("VP1Base - CMAKE_CURRENT_BINARY_DIR: ${CMAKE_CURRENT_BINARY_DIR}")
 
 # Build the library. Remember that the auto-generated UI files are put under
 # CMAKE_CURRENT_BINARY_DIR, so it needs to be added explicitly to the

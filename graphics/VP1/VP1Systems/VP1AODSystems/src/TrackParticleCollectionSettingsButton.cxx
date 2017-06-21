@@ -29,6 +29,8 @@
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QShortcut>
+#include <QMimeData>
+#include <QDrag>
 
 // Misc
 #include <iostream>
@@ -178,7 +180,7 @@ TrackParticleCollectionSettingsButton::TrackParticleCollectionSettingsButton(QWi
   connect(d->editwindow_ui.spinBox_cut_nhits_muon,SIGNAL(valueChanged(int)),this,SLOT(possibleChange_cutRequiredNHits()));
 
   // -> cutOnlyVertexAssocTracks
-  connect(d->editwindow_ui.checkBox_vertexAssociated,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutOnlyVertexAssocTracks()));
+  connect(d->editwindow_ui.checkBox_vertexAssociated,SIGNAL(toggled(bool)),this,SLOT(cutOnlyVertexAssocTracks()));
   
   connect(this,SIGNAL(clicked()),this,SLOT(showEditMaterialDialog()));
   connect(d->editwindow_ui.pushButton_close,SIGNAL(clicked()),this,SLOT(showEditMaterialDialog()));

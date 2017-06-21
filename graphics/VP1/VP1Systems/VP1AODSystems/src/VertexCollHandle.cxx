@@ -144,6 +144,7 @@ void VertexCollHandle::init(VP1MaterialButtonBase*)
   collSwitch()->addChild(d->collSettingsButton->vertexDrawStyle());
 }
 
+//____________________________________________________________________
 void VertexCollHandle::setupSettingsFromControllerSpecific(AODSystemController*) {
   //cuts  
   connect(d->collSettingsButton,SIGNAL(cutAllowedRChanged(const VP1Interval&)),this,SLOT(setCutAllowedR(const VP1Interval&)));
@@ -154,6 +155,7 @@ void VertexCollHandle::setupSettingsFromControllerSpecific(AODSystemController*)
   setVertexSize(d->collSettingsButton->vertexSize());
 }
 
+//____________________________________________________________________
 void VertexCollHandle::resetCachedValuesCuts()
 {
 	// TODO: it is not used so far! Check Other collections and update accordingly
@@ -166,12 +168,32 @@ void VertexCollHandle::resetCachedValuesCuts()
 }
 
 
+//____________________________________________________________________
 const VertexCollectionSettingsButton& VertexCollHandle::collSettingsButton() const {
   if (!d->collSettingsButton){
     messageVerbose("No collSettingsButton set! Can't call init(), so crash is imminent...");
   }
   return *d->collSettingsButton;
 }
+
+
+//____________________________________________________________________
+void VertexCollHandle::rerandomiseRandomVertexColours()
+{
+  messageVerbose("VertexCollHandle::rerandomiseRandomVertexColours() - TO BE IMPLEMENTED!!!");
+
+  /*
+  if (!isLoaded())
+    return;
+  messageVerbose("rerandomiseRandomVertexColours start");
+  largeChangesBegin();
+  foreach(Imp::VertexHandle* vh,d->vertices)
+    vh->rerandomiseRandomMaterial();
+  largeChangesEnd();
+  messageVerbose("rerandomiseRandomVertexColours end");
+  */
+}
+
 
 //____________________________________________________________________
 bool VertexCollHandle::load()

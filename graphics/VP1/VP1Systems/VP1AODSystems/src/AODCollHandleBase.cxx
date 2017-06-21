@@ -530,6 +530,22 @@ void AODCollHandleBase::setExtraWidgetsState(const QByteArray& ba)
   // colourByComboBoxItemChanged();
 }
 
+
+//____________________________________________________________________
+void AODCollHandleBase::colourByComboBoxItemChanged()
+{
+  messageVerbose("AODCollHandleBase::colourByComboBoxItemChanged()");
+  messageVerbose("Collection detail level combo box changed index");
+
+  messageVerbose("TO BE IMPLEMENTED!!!");
+  /*
+    if (d->comboBox_colourby->currentText()==Imp::comboBoxEntry_ColourByRandom())
+      setColourBy(COLOUR_RANDOM);
+    else
+      setColourBy(COLOUR_PERCOLLECTION);
+  */
+}
+
 //____________________________________________________________________
 void AODCollHandleBase::setState(const QByteArray&state)
 {
