@@ -17,6 +17,7 @@ SimpleJetTrackSelectionTool::SimpleJetTrackSelectionTool(const std::string &name
 }
 
 StatusCode SimpleJetTrackSelectionTool::initialize() {
+  ATH_MSG_INFO("Initializing tool " << name() << "...");
   ATH_CHECK(m_inputContainer_key.initialize());
   ATH_CHECK(m_outputContainer_key.initialize());
   return StatusCode::SUCCESS;

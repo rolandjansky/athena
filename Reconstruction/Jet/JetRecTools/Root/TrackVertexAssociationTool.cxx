@@ -31,15 +31,16 @@ TrackVertexAssociationTool::TrackVertexAssociationTool(const std::string& t)
 }
 
 StatusCode TrackVertexAssociationTool::initialize(){
+  ATH_MSG_INFO("Initializing tool " << name() << "...");
   
+  ATH_CHECK(m_trackContainer_key.initialize());
+  ATH_CHECK(m_vertexContainer_key.initialize());
+  ATH_CHECK(m_tva_key.initialize());
+
   if(! m_tvaTool.empty() ) {
     ATH_MSG_INFO("Intialized using ITrackVertexAssociationTool");
     return m_tvaTool.retrieve();
   }
-
-  ATH_CHECK(m_trackContainer_key.initialize());
-  ATH_CHECK(m_vertexContainer_key.initialize());
-  ATH_CHECK(m_tva_key.initialize());
 
   ATH_MSG_INFO("Intialized using custom track-vertex association");
   return StatusCode::SUCCESS;

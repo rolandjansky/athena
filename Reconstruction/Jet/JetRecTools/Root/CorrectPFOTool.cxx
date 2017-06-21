@@ -37,6 +37,8 @@ CorrectPFOTool::CorrectPFOTool(const std::string &name): JetConstituentModifierB
 }
 
 StatusCode CorrectPFOTool::initialize() {
+  ATH_MSG_INFO("Initializing tool " << name() << "...");
+
   ATH_CHECK(m_vertexContainer_key.initialize());
   ATH_CHECK(m_trkVtxAssoc_key.initialize());
   return StatusCode::SUCCESS;

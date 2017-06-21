@@ -32,6 +32,8 @@ JetConstituentModSequence::JetConstituentModSequence(const std::string &name): a
 }
 
 StatusCode JetConstituentModSequence::initialize() {
+  ATH_MSG_INFO("Initializing tool " << name() << "...");
+
   ATH_CHECK( m_modifiers.retrieve() );
   if( m_modifiers.empty() ) {
     ATH_MSG_ERROR(" empty container !!" );

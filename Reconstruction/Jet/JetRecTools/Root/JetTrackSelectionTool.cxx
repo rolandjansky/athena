@@ -15,6 +15,8 @@ JetTrackSelectionTool::JetTrackSelectionTool(const std::string &name):
 }
 
 StatusCode JetTrackSelectionTool::initialize() {
+  ATH_MSG_INFO("Initializing tool " << name() << "...");
+
   StatusCode sc = m_hidselector.retrieve();
   if (sc.isFailure()) {ATH_MSG_ERROR("Can't retrieve ITrackSelectorTool "<< m_hidselector.name() ); return sc;}
 

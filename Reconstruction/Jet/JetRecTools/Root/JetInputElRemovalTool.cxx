@@ -71,6 +71,7 @@ JetInputElRemovalTool::~JetInputElRemovalTool(){
 
 StatusCode JetInputElRemovalTool::initialize(){
 
+  ATH_MSG_INFO("Initializing tool " << name() << "...");
   ATH_CHECK(m_trkInputContainer_key.initialize());
   ATH_CHECK(m_jetInputContainer_key.initialize());
   ATH_CHECK(m_clInputContainer_key.initialize());
@@ -126,7 +127,6 @@ int JetInputElRemovalTool::execute() const{
  
   
   //Store vector only if data vector name not empty 
-  // (PS is this really what was intended?)
   if (!m_trkInputContainer_key.key().empty()){
     // ConstDataVector<xAOD::TrackParticleContainer> *filtered_tracks = new ConstDataVector<xAOD::TrackParticleContainer>(SG::VIEW_ELEMENTS) ;
 
