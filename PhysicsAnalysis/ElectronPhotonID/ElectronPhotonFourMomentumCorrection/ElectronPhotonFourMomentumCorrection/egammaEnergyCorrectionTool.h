@@ -210,6 +210,8 @@ namespace egEnergyCorr {
     es2016PRE,              // as es2015c_summer + temperature extrapolation
     es2017,                 // Moriond 2017
     es2017_summer,          // Summer 2017
+
+    es2017_R21_PRE,         // Pre-recommendations for release 21
     
     UNDEFINED
 

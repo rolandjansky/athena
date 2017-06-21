@@ -62,10 +62,11 @@ std::unique_ptr<egGain::GainTool> gainToolFactory(egEnergyCorr::ESModel model)
     }
     case egEnergyCorr::es2017:
     case egEnergyCorr::es2017_summer: 
+    case egEnergyCorr::es2017_R21_PRE:
       return nullptr;  
     default:
       return nullptr;
-    }
+  }
 }
 
 std::unique_ptr<egammaMVATool> egammaMVAToolFactory(egEnergyCorr::ESModel model)
@@ -96,6 +97,9 @@ std::unique_ptr<egammaMVATool> egammaMVAToolFactory(egEnergyCorr::ESModel model)
         case egEnergyCorr::es2017:
         case egEnergyCorr::es2017_summer:
           folder = "egammaMVACalib/offline/v4.0";
+          break;
+        case egEnergyCorr::es2017_R21_PRE:
+	  folder = "egammaMVACalib/offline/v7";
           break;
         default: folder = "";
     }
@@ -130,8 +134,8 @@ std::unique_ptr<egammaLayerRecalibTool> egammaLayerRecalibToolFactory(egEnergyCo
     case egEnergyCorr::es2015c_summer:
     case egEnergyCorr::es2016PRE:
     case egEnergyCorr::es2017:
+    case egEnergyCorr::es2017_R21_PRE:  
       tune = "2012_alt_with_layer2";
-      break;
     case egEnergyCorr::es2017_summer:
       tune = "es2017_20.7_improved";
       break;
@@ -165,6 +169,7 @@ bool use_intermodule_correction(egEnergyCorr::ESModel model)
     case egEnergyCorr::es2016PRE:
     case egEnergyCorr::es2017:
     case egEnergyCorr::es2017_summer:  
+    case egEnergyCorr::es2017_R21_PRE:
       return true;
     case egEnergyCorr::UNDEFINED:  // TODO: find better logic
       return false;
@@ -201,6 +206,7 @@ bool is_run2(egEnergyCorr::ESModel model)
     case egEnergyCorr::es2016PRE:
     case egEnergyCorr::es2017:
     case egEnergyCorr::es2017_summer:
+    case egEnergyCorr::es2017_R21_PRE:  
       return true;
     case egEnergyCorr::UNDEFINED:  // TODO: find better logic
       return false;
@@ -279,6 +285,7 @@ StatusCode EgammaCalibrationAndSmearingTool::initialize() {
   else if (m_ESModel == "es2016PRE") { m_TESModel = egEnergyCorr::es2016PRE; }
   else if (m_ESModel == "es2016data_mc15c") { m_TESModel = egEnergyCorr::es2017; }
   else if (m_ESModel == "es2016data_mc15c_summer") { m_TESModel = egEnergyCorr::es2017_summer; }
+  else if (m_ESModel == "es2017_R21_PRE") { m_TESModel = egEnergyCorr::es2017_R21_PRE; }
   else if (m_ESModel.empty()) {
     ATH_MSG_ERROR("you must set ESModel property");
     return StatusCode::FAILURE;
@@ -411,16 +418,23 @@ StatusCode EgammaCalibrationAndSmearingTool::initialize() {
   }
 
   // configure layer recalibration tool
-  ATH_MSG_DEBUG("initializing layer recalibration tool (if needed)");
-  if (m_layer_recalibration_tune == "") { // automatically configure layer recalibration tool
-    m_layer_recalibration_tool = egammaLayerRecalibToolFactory(m_TESModel).release();
-    if (!m_layer_recalibration_tool) { ATH_MSG_INFO("not using layer recalibration"); }
+  //For now: layer recalibration only needed before release 21
+  if (m_ESModel == "es2017_R21_PRE"){
+    ATH_MSG_INFO("Layer recalibration already applied at cell level");
+    m_useLayerCorrection = false;
   }
-  else {
-    m_layer_recalibration_tool = new egammaLayerRecalibTool(m_layer_recalibration_tune);
+  else{
+    ATH_MSG_DEBUG("initializing layer recalibration tool (if needed)");
+    if (m_layer_recalibration_tune == "") { // automatically configure layer recalibration tool
+      m_layer_recalibration_tool = egammaLayerRecalibToolFactory(m_TESModel).release();
+      if (!m_layer_recalibration_tool) { ATH_MSG_INFO("not using layer recalibration"); }
+    }
+    else {
+      m_layer_recalibration_tool = new egammaLayerRecalibTool(m_layer_recalibration_tune);
+    }
+    if (m_layer_recalibration_tool) { m_layer_recalibration_tool->msg().setLevel(this->msg().level()); }
   }
-  if (m_layer_recalibration_tool) { m_layer_recalibration_tool->msg().setLevel(this->msg().level()); }
-
+  
   if (m_use_temp_correction201215 != AUTO) m_rootTool->use_temp_correction201215(m_use_temp_correction201215);
   if (m_use_uA2MeV_2015_first2weeks_correction != AUTO) m_rootTool->use_uA2MeV_2015_first2weeks_correction(m_use_uA2MeV_2015_first2weeks_correction);
   if (not m_use_full_statistical_error and m_decorrelation_model_scale == ScaleDecorrelation::FULL) { m_rootTool->useStatErrorScaling(true); }
@@ -443,7 +457,11 @@ StatusCode EgammaCalibrationAndSmearingTool::initialize() {
     ATH_MSG_ERROR("cannot instantiate gain tool for this model (you can only disable the gain tool, but not enable it)");
   }
 
-
+  //No scale correction for release 21
+  if (m_ESModel == "es2017_R21_PRE"){
+    m_doScaleCorrection = 0;
+  }
+  
   ATH_MSG_INFO("ESModel: " << m_ESModel);
   ATH_MSG_INFO("ResolutionType: " << m_ResolutionType);
   ATH_MSG_INFO("layer correction = " << m_useLayerCorrection);
@@ -887,7 +905,7 @@ void EgammaCalibrationAndSmearingTool::setupSystematics() {
     }
 
     // additional systematic for S12 last eta bin run2
-    if (m_TESModel == egEnergyCorr::es2017) {
+    if (m_TESModel == egEnergyCorr::es2017 or m_TESModel == egEnergyCorr::es2017_summer) {
       m_syst_description[CP::SystematicVariation("EG_SCALE_S12EXTRALASTETABINRUN2", +1)] = SysInfo{always, egEnergyCorr::Scale::S12ExtraLastEtaBinRun2Up};
       m_syst_description[CP::SystematicVariation("EG_SCALE_S12EXTRALASTETABINRUN2", -1)] = SysInfo{always, egEnergyCorr::Scale::S12ExtraLastEtaBinRun2Down};
     }
@@ -927,6 +945,13 @@ void EgammaCalibrationAndSmearingTool::setupSystematics() {
         m_syst_description[CP::SystematicVariation(#name, -1)] = SysInfo{always, flagdown};
       #include "ElectronPhotonFourMomentumCorrection/systematics_1NPCOR_PLUS_UNCOR.def"
       #undef SYSMACRO
+
+    // additional systematic for S12 last eta bin run2
+    if (m_TESModel == egEnergyCorr::es2017 or m_TESModel == egEnergyCorr::es2017_summer) {
+      m_syst_description[CP::SystematicVariation("EG_SCALE_S12EXTRALASTETABINRUN2", +1)] = SysInfo{always, egEnergyCorr::Scale::S12ExtraLastEtaBinRun2Up};
+      m_syst_description[CP::SystematicVariation("EG_SCALE_S12EXTRALASTETABINRUN2", -1)] = SysInfo{always, egEnergyCorr::Scale::S12ExtraLastEtaBinRun2Down};
+    }
+
   }
   else if (m_decorrelation_model_scale == ScaleDecorrelation::FULL) {
     typedef std::vector<std::pair<double, double>> pairvector;
