@@ -145,6 +145,14 @@ nsw::vswptrig_t L1stl::buildSingleWedgeTriggers(const vpads_t &pads,
             if(isL3) { assert(l3Idx>-1); padIndices.push_back(l3Idx); }
             if(isL4) { assert(l4Idx>-1); padIndices.push_back(l4Idx); }
             triggers.push_back(SingleWedgePadTrigger(pattern, pads, padIndices));
+            //////////////////////////////////////////////////
+            // ASM-2017-06-21
+            // Don't build more than 5 SingleWedgePadTrigger
+            if (triggers.size()>4) {
+                cout << "STOP building SingleWedgeTriggers after reaching a total of 5 candidates!" << endl;
+                return triggers;
+            }
+            //////////////////////////////////////////////////
           } // end for(il4)
         } // end for(il3)
       } // end for(il2)

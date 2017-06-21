@@ -385,7 +385,7 @@ PadTdsOfflineTool::cStatus PadTdsOfflineTool::fill_pad_cache() {
             //////////////////////////////////////////////////////////////////////////////////////////
         } //for(item)
     } // for(it)
-    std::sort(pad_hits.begin(),pad_hits.end(),order_padHits_with_increasing_time);
+    //std::sort(pad_hits.begin(),pad_hits.end(),order_padHits_with_increasing_time);
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     //// ASM - 01/3/2017 - testing timing 
@@ -610,8 +610,25 @@ bool PadTdsOfflineTool::get_truth_hits_this_pad(const Identifier &pad_id, std::v
 //------------------------------------------------------------------------------
 void PadTdsOfflineTool::store_pads(const std::vector<PadHits> &pad_hits)
 {
-    for (unsigned int i=0; i<pad_hits.size(); i++)
-        m_pad_cache.at(pad_hits[i].t_cache_index).push_back(pad_hits[i].t_pad);
+    for (unsigned int i=0; i<pad_hits.size(); i++) {
+        //m_pad_cache.at(pad_hits[i].t_cache_index).push_back(pad_hits[i].t_pad);
+        ////////////////////
+        // ASM-2017-06-21
+        const std::vector<PadData*>& pad = m_pad_cache.at(pad_hits[i].t_cache_index);
+        bool fill = pad.size() == 0 ? true : false;
+        for(unsigned int p=0; p<pad.size(); p++)  {
+            Identifier Id(pad.at(p)->id());
+            if(Id==pad_hits[i].t_id) {
+                fill = false;
+                ATH_MSG_ERROR( "Pad Hits entered multiple times Discarding!!! Id:" << Id );
+            }
+            else { fill = true; }
+        }
+        if( fill ) {
+            m_pad_cache.at(pad_hits[i].t_cache_index).push_back(pad_hits[i].t_pad);
+        }
+        ////////////////////
+    }
 }
 //------------------------------------------------------------------------------
 void PadTdsOfflineTool::print_digit(const sTgcDigit* digit) const
