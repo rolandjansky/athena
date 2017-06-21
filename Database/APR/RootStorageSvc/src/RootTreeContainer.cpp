@@ -434,11 +434,14 @@ RootTreeContainer::loadObject(DataCallBack* call, Token::OID_t& oid, DbAccessMod
                   dsc.branch->SetAddress(dsc.object);
                   break;
               }
+              // Must move tree entry to correct value
+              if(m_tree) {
+                 if (m_tree->GetReadEntry() > evt_id) m_tree->LoadTree(evt_id);
+              } else if (dsc.branch->GetTree()->GetReadEntry() > evt_id) {
+                 dsc.branch->GetTree()->LoadTree(evt_id);
+              }
               // read the object
               numBytesBranch = dsc.branch->GetEntry(evt_id);
-              // Must move tree entry to correct value
-              if(m_tree) m_tree->LoadTree(evt_id);
-              else dsc.branch->GetTree()->LoadTree(evt_id);
               numBytes += numBytesBranch;
               if ( numBytesBranch >= 0 )     {
 		 hasRead=true;
