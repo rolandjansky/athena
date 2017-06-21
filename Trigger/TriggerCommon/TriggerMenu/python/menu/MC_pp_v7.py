@@ -2064,6 +2064,7 @@ ps_calibmon_list=[
     'satu20em_l1satmon_L1J100_FIRSTEMPTY',
     'sct_noise',
     'tilecalib_laser',
+    'rpcpeb_L1RD0_EMPTY',
     ]    
 ps_eb_list=[
     'eb_high_L1RD2_FILLED',
