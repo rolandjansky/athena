@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 777904 2016-10-11 18:31:19Z krasznaa $
 
 # Declare the name of the package:
 atlas_subdir( InDetTrackSystematicsTools )
@@ -62,3 +63,7 @@ atlas_add_executable( graph_to_function
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
+
+# This will allow us to put files into data/ to test new calibration files
+# Uncomment this line after putting test files into data/, then run "make" again to install.
+# atlas_install_data( data/*.root )

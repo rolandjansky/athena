@@ -1,8 +1,6 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
-// -*- compile-command: "rc compile InDetTrackSmearingTool" -*-
 // utility to take a root file full of TGraph2DErrors and create a root file with TF2s.
 #include <iostream>
 #include <memory>
