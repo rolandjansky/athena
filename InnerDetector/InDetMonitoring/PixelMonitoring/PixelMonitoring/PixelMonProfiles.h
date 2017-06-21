@@ -24,7 +24,7 @@ class StatusCode;
 class PixelMonProfiles
 {
    public:
-      PixelMonProfiles(std::string name, std::string title);
+      PixelMonProfiles(std::string name, std::string title, bool doIBL);
       ~PixelMonProfiles();
       TProfile2D_LW* IBL;
       TProfile2D_LW* IBL2D;
@@ -34,12 +34,13 @@ class PixelMonProfiles
       TProfile2D_LW* B2;
       TProfile2D_LW* A;
       TProfile2D_LW* C;
-      void Fill(Identifier &id, const PixelID* pixID, float Index, bool doIBL);
+      void Fill(Identifier &id, const PixelID* pixID, float Index);
       void SetMaxValue(float max);
       void Reset();
       StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
    private:
       void formatHist();
+      const bool m_doIBL;
 };
 
 #endif
