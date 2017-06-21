@@ -1163,7 +1163,7 @@ namespace TrigCostRootAnalysis {
 
     // See if we have been requested to get the AtlasVersion from Athena and use it in the tag
     if (_outputTagFromAthena == kTRUE) {
-      const Char_t* _env = std::getenv("AtlasVersion");
+      const Char_t* _env = std::getenv("AtlasBuildStamp");
       if (_env != NULL) {
         _outTag = std::string( _env );
       }
