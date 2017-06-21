@@ -1,3 +1,6 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+
 from AthenaCommon.Logging import logging
 from AthenaCommon.Configurable import ConfigurableService,ConfigurableAlgorithm
 import GaudiKernel.GaudiHandles as GaudiHandles
@@ -8,24 +11,30 @@ class ComponentAccumulator(object):
     
     def __init__(self):
         self._msg=logging.getLogger('ComponentAccumulator')
-        self._eventAlgs=[]           #Unordered list of event processing algorithms + their private tools 
-        self._conditionsAlgs=[]      #Unordered list of conditions algorithms + their private tools 
-        self._services=[]            #List of service, not yet sure if the order matters here in the MT age
-        self._conditionsInput=set()  #List of database folder (as string), eventually passed to IOVDbSvc
-        self._eventInputs=set()      #List of items (as strings) to be read from the input (required at least for BS-reading).
-        self._outputPerStream={}     #Dictionary of {streamName,set(items)}, all as strings
+        self._eventAlgs={}     #Unordered list of event processing algorithms per sequence + their private tools 
+        self._conditionsAlgs=[]                #Unordered list of conditions algorithms + their private tools 
+        self._services=[]                      #List of service, not yet sure if the order matters here in the MT age
+        self._conditionsInput=set()            #List of database folder (as string), eventually passed to IOVDbSvc
+        self._eventInputs=set()                #List of items (as strings) to be read from the input (required at least for BS-reading).
+        self._outputPerStream={}               #Dictionary of {streamName,set(items)}, all as strings
         pass
 
 
-    def addEventAlgo(self,algo):
+    def addEventAlgo(self,algo,sequence="AthAlgSeq"):
         if not isinstance(algo, ConfigurableAlgorithm):
             self._msg.error("Attempt to add wrong type as event algorithm")
             #raise exception ..
             pass
-        self._eventAlgs.append(algo)
+
+        if sequence not in self._eventAlgs.keys():
+            self._msg.info("Adding EventAlg sequence %s to the job" % sequence)
+            self._eventAlgs[sequence]=[]
+            pass
+        self._eventAlgs[sequence].append(algo)
         pass
 
-    def getEventAlgo(self,name):
+
+    def getEventAlgo(self,name,sequence="TopSequence"):
         #Fixme, deduplicate here? 
         hits=[a for a in self._eventAlgs if a.getName()==name]
         return hits
@@ -182,12 +191,13 @@ class ComponentAccumulator(object):
 
 
         #EventAlgorithms
-        evtalgseq=[]
-        for alg in  self._eventAlgs:
-            self.appendConfigurable(alg)
-            evtalgseq.append(alg.getFullName())
-        #print "EventAlgs:",evtalgseq
-        self._jocat["AthAlgSeq"]["Members"]=str(evtalgseq)
+        for (seqName,algoList) in self._eventAlgs.iteritems():        
+            evtalgseq=[]
+            for alg in algoList:
+                self.appendConfigurable(alg)
+                evtalgseq.append(alg.getFullName())
+
+            self._jocat[seqName]["Members"]=str(evtalgseq)
 
 
         #Conditions Algorithms:
