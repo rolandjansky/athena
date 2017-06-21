@@ -115,38 +115,38 @@ StatusCode Pixel3DChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiChargedDi
   // determine which readout is used
   // FEI4 : 50 X 250 microns
   double pixel_size_x = Module.width()/p_design->rows();
-  double pixel_size_y = Module.length()/p_design->columns();
+  double pixel_size_y = Module.pathLength()/p_design->columns();
   double module_size_x = Module.width();
-  double module_size_y = Module.length();
+  double module_size_y = Module.pathLength();
   
-  const CLHEP::Hep3Vector pos=phit->localStartPosition();
-  const CLHEP::Hep3Vector cs=phit->localEndPosition();
+  const CLHEP::Hep3Vector startPosition=phit->localStartPosition();
+  const CLHEP::Hep3Vector endPosition=phit->localEndPosition();
   
-  double xEta=pos[SiHit::xEta];
-  double xPhi=pos[SiHit::xPhi];
-  const double xDep=pos[SiHit::xDep];
+  double eta_0=startPosition[SiHit::pos];
+  double phi_0=startPosition[SiHit::pos];
+  const double depth_0=startPosition[SiHit::pos];
   
-  double xEtaf = cs[SiHit::xEta];
-  double xPhif = cs[SiHit::xPhi];
-  const double xDepf = cs[SiHit::xDep];
+  double eta_f = endPosition[SiHit::cs];
+  double phi_f = endPosition[SiHit::cs];
+  const double depth_f = endPosition[SiHit::cs];
   
-  double cEta=xEtaf-xEta;
-  double cPhi=xPhif-xPhi;
-  const double cDep=xDepf-xDep;
+  double dEta=eta_f-eta_0;
+  double dPhi=phi_f-phi_0;
+  const double dDepth=depth_f-depth_0;
  
   // calculate the effective number of steps
-  double length=sqrt(cEta*cEta+cPhi*cPhi+cDep*cDep);
-  const int nsteps=int(length/stepsize)+1;
+  double pathLength=sqrt(dEta*dEta+dPhi*dPhi+dDepth*dDepth);
+  const int nsteps=int(pathLength/stepsize)+1;
   // double es=phit->energyLoss()/static_cast<double>(nsteps);
-  // double stepEta = cEta / nsteps;
-  // double stepPhi = cPhi / nsteps;
-  // double stepDep = cDep / nsteps; 
+  // double stepEta = dEta / nsteps;
+  // double stepPhi = dPhi / nsteps;
+  // double stepDep = dDepth / nsteps; 
 
   //////////////////////////////////////////////////////
   // ***                For Bichsel               *** //
   //////////////////////////////////////////////////////
 
-  double iTotalLength = length*1000.;   // mm -> micrometer
+  double iTotalLength = pathLength*1000.;   // mm -> micrometer
 
   // ultimate feed in to the diffusion (to surface) part
   std::vector<std::pair<double,double> > trfHitRecord; trfHitRecord.clear();
@@ -199,7 +199,7 @@ StatusCode Pixel3DChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiChargedDi
     }
 
     int iParticleType = ParticleType;
-    //double iTotalLength = length*1000.;   // mm -> micrometer
+    //double iTotalLength = pathLength*1000.;   // mm -> micrometer
 
     // begin simulation
     std::vector<std::pair<double,double> > rawHitRecord = m_BichselSimTool->BichselSim(iBetaGamma, iParticleType, iTotalLength, genPart ? (genPart->momentum().e()/CLHEP::MeV) : (phit->energyLoss()/CLHEP::MeV) );
@@ -223,7 +223,7 @@ StatusCode Pixel3DChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiChargedDi
     }
   }
   else{  // same as old digitization method
-    //double iTotalLength = length*1000.;   // mm -> micrometer
+    //double iTotalLength = pathLength*1000.;   // mm -> micrometer
     for(int istep = 0; istep < nsteps; istep++){ // do the same thing as old digitization method
         std::pair<double,double> specialHit;
         specialHit.first = 1.0*iTotalLength/nsteps * (istep + 0.5); specialHit.second = phit->energyLoss()*1.E+6/nsteps;
@@ -240,30 +240,30 @@ StatusCode Pixel3DChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiChargedDi
     std::pair<double,double> iHitRecord = trfHitRecord[istep];
 
     // This will be the position of the deposited charge
-    // double xEta1 = xEta +  stepEta * (istep + 0.5);
-    // double xPhi1 = xPhi +  stepPhi * (istep + 0.5);
-    // double depD  = xDep +  stepDep * (istep + 0.5);
+    // double eta_i = eta_0 +  stepEta * (istep + 0.5);
+    // double phi_i = phi_0 +  stepPhi * (istep + 0.5);
+    // double depth_i  = depth_0 +  stepDep * (istep + 0.5);
 
-    double xEta1 = xEta;
-    double xPhi1 = xPhi;
-    double depD  = xDep;
+    double eta_i = eta_0;
+    double phi_i = phi_0;
+    double depth_i  = depth_0;
     if (iTotalLength) {
-      xEta1 += 1.0*iHitRecord.first/iTotalLength*cEta;
-      xPhi1 += 1.0*iHitRecord.first/iTotalLength*cPhi;
-      depD  += 1.0*iHitRecord.first/iTotalLength*cDep;
+      eta_i += 1.0*iHitRecord.first/iTotalLength*dEta;
+      phi_i += 1.0*iHitRecord.first/iTotalLength*dPhi;
+      depth_i  += 1.0*iHitRecord.first/iTotalLength*dDepth;
     }
 
     double es_current = 1.0*iHitRecord.second/1.E+6;
 
-    double spess = 0.5 * sensorThickness - Module.design().readoutSide() * depD;
-    if (spess<0) spess=0;
+    double dist_electrode = 0.5 * sensorThickness - Module.design().readoutSide() * depth_i;
+    if (dist_electrode<0) dist_electrode=0;
 
     CLHEP::Hep3Vector chargepos;
-    chargepos.setX(xPhi1); chargepos.setY(xEta1);  chargepos.setZ(spess);
+    chargepos.setX(phi_i); chargepos.setY(eta_i);  chargepos.setZ(dist_electrode);
 
     bool coord = Module.isModuleFrame();
 
-    ATH_MSG_DEBUG("ismoduleframe "<<coord << " -- pos (x,y,z) = " << chargepos.x() << ", " << chargepos.y() << ", " << chargepos.z());
+    ATH_MSG_DEBUG("ismoduleframe "<<coord << " -- startPosition (x,y,z) = " << chargepos.x() << ", " << chargepos.y() << ", " << chargepos.z());
 
     // -- change origin of coordinates to the left bottom of module
     double x_new = chargepos.x() + module_size_x/2.;
@@ -315,7 +315,7 @@ StatusCode Pixel3DChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiChargedDi
           double x_mod = x_neighbor + pixel_size_x/2 + pixel_size_x*nPixX -module_size_x/2.;
           double y_mod = y_neighbor + pixel_size_y/2 + pixel_size_y*nPixY -module_size_y/2.;
           SiLocalPosition chargePos = Module.hitLocalToLocal(y_mod,x_mod);
-          //ATH_MSG_INFO(" Si3D charge pos "<<chargePos<<"  ed  "<<ed);
+          //ATH_MSG_INFO(" Si3D charge startPosition "<<chargePos<<"  ed  "<<ed);
 
           SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));
           SiCellId diode = Module.cellIdOfPosition(scharge.position());

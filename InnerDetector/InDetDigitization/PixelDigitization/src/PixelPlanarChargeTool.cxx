@@ -94,37 +94,37 @@ StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharg
 
   double stepsize = sensorThickness/m_numberOfSteps;
   double tanLorentz = Module.getTanLorentzAnglePhi();
-  const CLHEP::Hep3Vector pos=phit->localStartPosition();
-  const CLHEP::Hep3Vector cs=phit->localEndPosition();
+  const CLHEP::Hep3Vector startPosition=phit->localStartPosition();
+  const CLHEP::Hep3Vector endPosition=phit->localEndPosition();
 
-  double xEta=pos[SiHit::xEta];
-  double xPhi=pos[SiHit::xPhi];
-  const double xDep=pos[SiHit::xDep];
+  double eta_0=startPosition[SiHit::pos];
+  double phi_0=startPosition[SiHit::pos];
+  const double depth_0=startPosition[SiHit::pos];
   
-  double xEtaf = cs[SiHit::xEta];
-  double xPhif = cs[SiHit::xPhi];
-  const double xDepf = cs[SiHit::xDep];
+  double eta_f = endPosition[SiHit::cs];
+  double phi_f = endPosition[SiHit::cs];
+  const double depth_f = endPosition[SiHit::cs];
 
-  if (!m_disableDistortions && !delta_hit) simulateBow(&Module,xPhi,xEta,xDep,xPhif,xEtaf,xDepf);
+  if (!m_disableDistortions && !delta_hit) simulateBow(&Module,phi_0,eta_0,depth_0,phi_f,eta_f,depth_f);
   
-  double cEta=xEtaf-xEta;
-  double cPhi=xPhif-xPhi;
-  const double cDep=xDepf-xDep;
+  double dEta=eta_f-eta_0;
+  double dPhi=phi_f-phi_0;
+  const double dDepth=depth_f-depth_0;
 
-  double length=sqrt(cEta*cEta+cPhi*cPhi+cDep*cDep);
-  const int nsteps=int(length/stepsize)+1; 
+  double pathLength=sqrt(dEta*dEta+dPhi*dPhi+dDepth*dDepth);
+  const int nsteps=int(pathLength/stepsize)+1; 
   const int ncharges=this->m_numberOfCharges*this->m_numberOfSteps/nsteps+1; 
  
-  //double stepEta = cEta / nsteps;
-  //double stepPhi = cPhi / nsteps;
-  //double stepDep = cDep / nsteps; 
+  //double stepEta = dEta / nsteps;
+  //double stepPhi = dPhi / nsteps;
+  //double stepDep = dDepth / nsteps; 
 
   double coLorentz=sqrt(1+pow(tanLorentz,2));
 
   //////////////////////////////////////////////////////
   // ***                For Bichsel               *** //
   //////////////////////////////////////////////////////
-  double iTotalLength = length*1000.;   // mm -> micrometer
+  double iTotalLength = pathLength*1000.;   // mm -> micrometer
 
   // ultimate feed in to the diffusion (to surface) part
   std::vector<std::pair<double,double> > trfHitRecord; trfHitRecord.clear();
@@ -177,7 +177,7 @@ StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharg
     }
 
     int iParticleType = ParticleType;
-    //double iTotalLength = length*1000.;   // mm -> micrometer
+    //double iTotalLength = pathLength*1000.;   // mm -> micrometer
 
     // begin simulation
     std::vector<std::pair<double,double> > rawHitRecord = m_BichselSimTool->BichselSim(iBetaGamma, iParticleType, iTotalLength, genPart ? (genPart->momentum().e()/CLHEP::MeV) : (phit->energyLoss()/CLHEP::MeV) );
@@ -189,9 +189,9 @@ StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharg
       trfHitRecord.push_back(specialHit);      
     }
     else if( (rawHitRecord.size() == 1) && (rawHitRecord[0].first == -1.) && (rawHitRecord[0].second == -1.) ){ // special flag returned from BichselSim meaning it FAILs
-      for(int istep = 0; istep < nsteps; istep++){ // do the same thing as old digitization method
+      for(int j = 0; j < nsteps; j++){ // do the same thing as old digitization method
         std::pair<double,double> specialHit;
-        specialHit.first = 1.0*iTotalLength/nsteps * (istep + 0.5); specialHit.second = phit->energyLoss()*1.E+6/nsteps;
+        specialHit.first = 1.0*iTotalLength/nsteps * (j + 0.5); specialHit.second = phit->energyLoss()*1.E+6/nsteps;
         trfHitRecord.push_back(specialHit);
       }
     }
@@ -200,10 +200,10 @@ StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharg
     }
   }
   else{  // same as old digitization method
-    //double iTotalLength = length*1000.;   // mm -> micrometer
-    for(int istep = 0; istep < nsteps; istep++){ // do the same thing as old digitization method
+    //double iTotalLength = pathLength*1000.;   // mm -> micrometer
+    for(int j = 0; j < nsteps; j++){ // do the same thing as old digitization method
       std::pair<double,double> specialHit;
-      specialHit.first = 1.0*iTotalLength/nsteps * (istep + 0.5); specialHit.second = phit->energyLoss()*1.E+6/nsteps;
+      specialHit.first = 1.0*iTotalLength/nsteps * (j + 0.5); specialHit.second = phit->energyLoss()*1.E+6/nsteps;
       trfHitRecord.push_back(specialHit);
     }
   }
@@ -211,68 +211,68 @@ StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharg
   // *** Finsih Bichsel *** //
 
   // *** Now diffuse charges to surface *** //
-  for(unsigned int istep = 0; istep < trfHitRecord.size(); istep++){
-    std::pair<double,double> iHitRecord = trfHitRecord[istep];
+  for(unsigned int j = 0; j < trfHitRecord.size(); j++){
+    std::pair<double,double> iHitRecord = trfHitRecord[j];
 
-    // double xEta1 = xEta +  stepEta * (istep + 0.5);
-    // double xPhi1 = xPhi +  stepPhi * (istep + 0.5);
-    // double depD  = xDep +  stepDep * (istep + 0.5);
+    // double eta_i = eta_0 +  stepEta * (j + 0.5);
+    // double phi_i = phi_0 +  stepPhi * (j + 0.5);
+    // double depth_i  = depth_0 +  stepDep * (j + 0.5);
 
-    double xEta1 = xEta;
-    double xPhi1 = xPhi;
-    double depD  = xDep;
+    double eta_i = eta_0;
+    double phi_i = phi_0;
+    double depth_i  = depth_0;
     if (iTotalLength) {
-      xEta1 += 1.0*iHitRecord.first/iTotalLength*cEta;
-      xPhi1 += 1.0*iHitRecord.first/iTotalLength*cPhi;
-      depD  += 1.0*iHitRecord.first/iTotalLength*cDep;
+      eta_i += 1.0*iHitRecord.first/iTotalLength*dEta;
+      phi_i += 1.0*iHitRecord.first/iTotalLength*dPhi;
+      depth_i  += 1.0*iHitRecord.first/iTotalLength*dDepth;
     }
 
     // Distance between charge and readout side.  p_design->readoutSide() is
     // +1 if readout side is in +ve depth axis direction and visa-versa.
-    double spess = 0.5 * sensorThickness - Module.design().readoutSide() * depD;
-    if (spess<0) spess=0;
+    double dist_electrode = 0.5 * sensorThickness - Module.design().readoutSide() * depth_i;
+    if (dist_electrode<0) dist_electrode=0;
 
-    for(int i=0 ; i<ncharges ; i++) {
+    for(int j=0 ; j<ncharges ; j++) {
 
       // diffusion sigma
-      double rdif=this->m_diffusionConstant*sqrt(spess*coLorentz/0.3);
+      double rdif=this->m_diffusionConstant*sqrt(dist_electrode*coLorentz/0.3);
 
       // position at the surface
-      double xPhiD=xPhi1+spess*tanLorentz+rdif*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
-      double xEtaD=xEta1+rdif*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+      double phi_drifted=phi_i+dist_electrode*tanLorentz+rdif*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+      double eta_drifted=eta_i+rdif*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
 
       // amount of energy to be converted into charges at current step
-      double e1_current = 1.0*iHitRecord.second/1.E+6/ncharges;
+      double energy_per_step = 1.0*iHitRecord.second/1.E+6/ncharges;
 
       // Slim Edge for IBL planar sensors:
       // TODO: Access these from somewhere          
       if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) {
-        if(std::abs(xEtaD) > 20.440)e1_current=0.;
-        if(std::abs(xEtaD)< 20.440 && std::abs(xEtaD)> 20.200){
-          if(xEtaD>0){
-            e1_current=e1_current*(68.13-xEtaD*3.333);            
-            xEtaD = xEtaD - 0.250;
+        if(std::abs(eta_drifted) > 20.440)energy_per_step=0.;
+        if(std::abs(eta_drifted)< 20.440 && std::abs(eta_drifted)> 20.200){
+          if(eta_drifted>0){
+            energy_per_step=energy_per_step*(68.13-eta_drifted*3.333);            
+            eta_drifted = eta_drifted - 0.250;
           }else{  
-            e1_current=e1_current*(68.13+xEtaD*3.333);            
-            xEtaD = xEtaD + 0.250;
+            energy_per_step=energy_per_step*(68.13+eta_drifted*3.333);            
+            eta_drifted = eta_drifted + 0.250;
           }  
         }
-        if(std::abs(xEtaD)< 20.200 && std::abs(xEtaD)> 20.100){
-          if(xEtaD>0){
-            e1_current=e1_current*(41.2-xEtaD*2.);             
-            xEtaD = xEtaD - 0.250;
+        if(std::abs(eta_drifted)< 20.200 && std::abs(eta_drifted)> 20.100){
+          if(eta_drifted>0){
+            energy_per_step=energy_per_step*(41.2-eta_drifted*2.);             
+            eta_drifted = eta_drifted - 0.250;
           }else{  
-            e1_current=e1_current*(41.2+xEtaD*2.);            
-            xEtaD = xEtaD + 0.250;
+            energy_per_step=energy_per_step*(41.2+eta_drifted*2.);            
+            eta_drifted = eta_drifted + 0.250;
           }  
         }
       }
 
       // Get the charge position in Reconstruction local coordinates.
-      SiLocalPosition chargePos = Module.hitLocalToLocal(xEtaD, xPhiD);
+      SiLocalPosition chargePos = Module.hitLocalToLocal(eta_drifted, phi_drifted);
 
       // The parametrization of the sensor efficiency (if needed)
-      double ed=e1_current*eleholePairEnergy;
+      double ed=energy_per_step*eleholePairEnergy;
 
       //The following lines are adapted from SiDigitization's Inserter class
       SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));
