@@ -429,8 +429,7 @@ void AnalysisConfig_Ntuple::loop() {
 	    
 	    
 	    if ( chainName.find("_split")!=std::string::npos ) { 
-	  
-	      //	      Trig::FeatureContainer f = (*m_tdt)->features( chainName, TrigDefs::alsoDeactivateTEs);
+
 	      Trig::FeatureContainer f = (*m_tdt)->features( chainName );
 	      Trig::FeatureContainer::combination_const_iterator comb(f.getCombinations().begin()); 
 	      Trig::FeatureContainer::combination_const_iterator combEnd(f.getCombinations().end());
@@ -1453,7 +1452,10 @@ void AnalysisConfig_Ntuple::loop() {
 			      xAOD::VertexContainer::const_iterator vtxitr = vert->begin();
 			  
 			      for ( ; vtxitr != vert->end(); ++vtxitr) {
-				if ( ( (*vtxitr)->nTrackParticles()>0 && (*vtxitr)->vertexType()!=0 ) || vtx_name=="EFHistoPrmVtx" ) {
+				/// leave this code commented so that we have a record of the change - as soon as we can 
+				/// fix the missing track multiplicity from the vertex this will need to go back  
+				//  if ( ( (*vtxitr)->nTrackParticles()>0 && (*vtxitr)->vertexType()!=0 ) || vtx_name=="EFHistoPrmVtx" ) {
+				if ( (*vtxitr)->vertexType()!=0  || vtx_name=="EFHistoPrmVtx" ) {
 				  tidavertices.push_back( TIDA::Vertex( (*vtxitr)->x(),
 								       (*vtxitr)->y(),
 								       (*vtxitr)->z(),

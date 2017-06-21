@@ -221,6 +221,11 @@ int main( int argc, char** argv ) {
   chains.insert( chain_map::value_type( "Tau",      "_tau" ) );
   chains.insert( chain_map::value_type( "Bjet",     "_j" ) );
 
+  chains.insert( chain_map::value_type( "EgammaPurity",   "_e" ) );
+  chains.insert( chain_map::value_type( "MuonPurity",     "_mu" ) );
+  chains.insert( chain_map::value_type( "TauPurity",      "_tau" ) );
+  chains.insert( chain_map::value_type( "BjetPurity",     "_j" ) );
+
   chain_map::const_iterator itr = chains.find( rawslice );
 
   if ( itr==chains.end() ) { 
@@ -237,6 +242,8 @@ int main( int argc, char** argv ) {
 
   /// read through and parse chain list file
 
+  bool purity = contains( slice, "Purity" );
+
   while( getline( file, line ) && !file.fail() ) {
 
     if ( !contains( line, slice ) ) continue;
@@ -251,8 +258,8 @@ int main( int argc, char** argv ) {
 
     if      ( expl[2] == "IDMon" ) expected_size = 6;
     else if ( expl[2] == "TRIDT" ) { 
-      if      ( expl[4] == "Expert"  ) expected_size = 7;
-      else if ( expl[4] == "Shifter" ) expected_size = 6;
+      if      ( expl[4] == "Expert"  && !purity ) expected_size = 7;
+      else if ( expl[4] == "Shifter" ||  purity ) expected_size = 6;
       else { 
 	std::cerr << "unknown HIST type" << std::endl;
 	return 1;
