@@ -9,6 +9,7 @@
 
 #include "AthenaKernel/IAthRNGSvc.h"
 #include "AthenaBaseComps/AthService.h"
+#include "GaudiKernel/IIncidentListener.h"
 
 namespace ATHRNG {
   class RNGWrapper;
@@ -18,6 +19,7 @@ namespace CLHEP{
 }
 
 class AthRNGSvc : virtual public IAthRNGSvc,
+		  virtual public IIncidentListener,
 		  public AthService
 {
 
@@ -34,11 +36,12 @@ public:
   virtual bool setAllOnDefinedSeeds (uint64_t eventNumber, uint64_t runNumber)override final;
   AthRNGSvc(const std::string& name, ISvcLocator* svc);
   virtual ~AthRNGSvc();
-  
+  virtual void handle( const Incident& incident );  
   virtual void print(const std::string& streamName) override final;
   virtual void print() override final;
   StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
   StatusCode initialize() override final;
+  StatusCode start() override final;
   StatusCode finalize() override final;
 
 private:
@@ -48,6 +51,8 @@ private:
   std::unordered_map<std::string,std::pair<ATHRNG::RNGWrapper*,CLHEP::HepRandomEngine*>> m_wrappers;
   std::mutex m_mutex;
   std::string m_RNGType;
+  std::size_t m_numSlots;
+  bool m_initialized;
   typedef std::function<CLHEP::HepRandomEngine*(void)> factoryFunc;
   factoryFunc m_fact;
 

@@ -5,11 +5,14 @@
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/Ranlux64Engine.h"
 #include "CLHEP/Random/RanecuEngine.h"
-
-
-AthRNGSvc::AthRNGSvc(const std::string& name,ISvcLocator* svc):AthService(name,svc),m_RNGType("dSFMT"){
+#include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/ConcurrencyFlags.h"
+AthRNGSvc::AthRNGSvc(const std::string& name,ISvcLocator* svc):AthService(name,svc),m_RNGType("dSFMT"),
+							       m_numSlots(1),
+							       m_initialized(false){
   declareProperty("EngineType", m_RNGType,
 		  "CLHEP RandomEngine type");
+  
 }
 
 StatusCode AthRNGSvc::initialize(){
@@ -32,6 +35,31 @@ StatusCode AthRNGSvc::initialize(){
     ATH_MSG_FATAL("Generator type \""<<m_RNGType<<"\" is not known. Check Joboptions");
     return StatusCode::FAILURE;
   }
+  ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", name());
+  if ( !incSvc.retrieve().isSuccess() ) {
+    ATH_MSG_WARNING ("Unable to retrieve the IncidentSvc");
+  }
+  else {
+    //incSvc->addListener(this, IncidentType::BeginRun);
+    incSvc->addListener(this, IncidentType::BeginEvent);
+    //incSvc->addListener(this, IncidentType::EndRun);
+    //incSvc->addListener(this, IncidentType::EndEvent);
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode AthRNGSvc::start(){
+  m_initialized=true;
+  auto numSlots=Gaudi::Concurrency::ConcurrencyFlags::numConcurrentEvents();
+  numSlots=(1>numSlots)?1:numSlots;
+  if(numSlots>1000){
+    ATH_MSG_WARNING("Num Slots are greater than 1000. Is this correct? numSlots="<<
+		    numSlots);
+    numSlots=1000;
+    ATH_MSG_WARNING("Setting numSlots to "<<numSlots);
+  }
+  m_numSlots=numSlots;
   return StatusCode::SUCCESS;
 }
 
@@ -40,12 +68,16 @@ StatusCode AthRNGSvc::finalize(){
 }
 
 ATHRNG::RNGWrapper* AthRNGSvc::GetEngine(const std::string& streamName){
+  if(!m_initialized){
+    ATH_MSG_FATAL("RNGService is not initialized yet! number of slots is not known. This will create serious problems!");    
+  }
   std::lock_guard<std::mutex> lock(m_mutex);
   auto it=m_wrappers.find(streamName);
   if(it==m_wrappers.end()){
     ATH_MSG_INFO("Creating engine for "<<streamName);
-    auto eng=m_fact();
-    auto wrp=new ATHRNG::RNGWrapper(eng);
+    //auto eng=m_fact();
+    CLHEP::HepRandomEngine *eng(0);
+    auto wrp=new ATHRNG::RNGWrapper(m_fact,m_numSlots);
     m_wrappers.insert(std::make_pair(streamName,std::make_pair(wrp,eng)));
     return wrp;
   }
@@ -63,6 +95,20 @@ void AthRNGSvc::CreateStream(uint64_t seed1, uint64_t seed2,
   }
   size_t hash=hashCombine(seed1,seed2);
   hash=hashCombine(std::hash<std::string>{}(streamName),hash);
+}
+
+void AthRNGSvc::handle( const Incident& incident ){
+  const auto &currCtx=incident.context();
+  auto currSlot=currCtx.slot();
+  if(currSlot==EventContext::INVALID_CONTEXT_ID)currSlot=0;
+  if(incident.type()==IncidentType::BeginEvent){
+    std::lock_guard<std::mutex> lock(m_mutex);
+    auto evId=currCtx.eventID().event_number();
+    auto run=currCtx.eventID().run_number();
+    for(const auto &w :m_wrappers){
+      w.second.first->setSeed(w.first,currSlot,evId,run);
+    }
+  }
 }
 
 ATHRNG::RNGWrapper* AthRNGSvc::setOnDefinedSeeds(uint64_t theSeed,
@@ -97,9 +143,12 @@ AthRNGSvc::~AthRNGSvc(){
 }
 
 void AthRNGSvc::print(const std::string& streamName){
+  ATH_MSG_WARNING("This is not implemented");
 }
 
 void AthRNGSvc::print(){
+  ATH_MSG_WARNING("This is not implemented");
+
 }
   
 StatusCode AthRNGSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) 
