@@ -10,20 +10,7 @@
    
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/AlgFactory.h"
-
-#include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
-
-#include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/IDataProviderSvc.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/PropertyMgr.h"
-
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/GaudiException.h"
-#include "GaudiKernel/ITHistSvc.h"
 #include "AthenaMonitoring/LogFileMsgStream.h"
  
 #include "TTree.h"
