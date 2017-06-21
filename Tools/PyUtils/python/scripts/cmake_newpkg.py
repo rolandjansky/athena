@@ -66,6 +66,7 @@ def main(args):
         os.makedirs(pkg_path+"/"+pkg_name+"/share")
         os.makedirs(pkg_path+"/"+pkg_name+"/python")
         os.makedirs(pkg_path+"/"+pkg_name+"/data");
+        os.makedirs(pkg_path+"/"+pkg_name+"/util");
     except OSError:
         print "ERROR while making directories for " % (pkg_path+"/"+pkg_name+"/src")
         return -1
@@ -111,8 +112,8 @@ def main(args):
         # )
       
         # if you add an application (exe) to this package
-        # declare it like this
-        # atlas_add_executable( MyApp src/myApp.cxx
+        # declare it like this (note convention that apps live in util dir)
+        # atlas_add_executable( MyApp util/myApp.cxx
         #                       LINK_LIBRARIES %(pkg_name)sLib
         # )
 

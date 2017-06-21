@@ -98,10 +98,11 @@ def main(args):
         )
       
         # if you add an application (exe) to this package
-        # declare it like this
-        # atlas_add_executable( MyApp src/myApp.cxx
+        # declare it like this (note convention that apps go in the util dir)
+        # atlas_add_executable( MyApp util/myApp.cxx
         #                       LINK_LIBRARIES %(pkg_name)sLib
         # )
+
         # Install python modules, joboptions, and share content
         atlas_install_python_modules( python/*.py )
         atlas_install_joboptions( share/*.py )
