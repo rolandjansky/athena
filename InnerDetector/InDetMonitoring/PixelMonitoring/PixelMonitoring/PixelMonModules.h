@@ -26,18 +26,17 @@ class PixelMonModules
    public:
       //PixelMonModules();
       virtual ~PixelMonModules() = 0;
-      virtual void formatHist(std::string) = 0;//pass the bin labels here if needed
+      virtual void formatHist(std::string) = 0;  //pass the bin labels here if needed
       virtual void Reset() = 0;
       virtual StatusCode regHist(ManagedMonitorToolBase* thisptr, std::string path, ManagedMonitorToolBase::Interval_t Run) = 0;
-protected:
+   protected:
       int m_nBins;
       std::string getHistName(int i, bool forPath = false, bool doIBL = false);
-      
 };
 
 class PixelMonModules1D : public PixelMonModules
 {
- public:
+   public:
       PixelMonModules1D(std::string name, std::string title, int nbins, double low, double high, bool doIBL);
       PixelMonModules1D(std::string name, std::string title, int nbins, double *arr, bool doIBL);
       virtual ~PixelMonModules1D();
@@ -61,7 +60,7 @@ class PixelMonModules1D : public PixelMonModules
 
 class PixelMonModulesProf : public PixelMonModules
 {
- public:
+   public:
       PixelMonModulesProf(std::string name, std::string title, int nbins, double low, double high, bool doIBL);
       PixelMonModulesProf(std::string name, std::string title, int nbins, double *arr, bool doIBL);
       virtual ~PixelMonModulesProf();
