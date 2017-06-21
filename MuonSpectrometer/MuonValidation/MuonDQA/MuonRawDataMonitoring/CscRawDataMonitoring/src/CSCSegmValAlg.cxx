@@ -596,7 +596,7 @@ StatusCode CSCSegmValAlg::fillHistograms() {
       for (Trk::SegmentCollection::const_iterator s = m_segms->begin();s != m_segms->end(); ++s) {
 
         // Get segm
-        Muon::MuonSegment *segm=dynamic_cast<Muon::MuonSegment*>(*s);
+        const Muon::MuonSegment *segm=dynamic_cast<const Muon::MuonSegment*>(*s);
 
         if (segm == 0) {
           ATH_MSG_ERROR( "no pointer to segm!!!" );
