@@ -112,7 +112,7 @@ StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
     auto RoIsCount = MonitoredScalar::declare( "count", trigRoIs->size() );
     auto RoIsPhi   = MonitoredCollection::declare( "phi", *trigRoIs.get(), &TrigRoiDescriptor::phi );
     auto RoIsEta   = MonitoredCollection::declare( "eta", *trigRoIs.get(), &TrigRoiDescriptor::eta );
-    auto monitorit = MonitoredScope::declare( m_monTool,  RoIsCount, RoIsEta, RoIsPhi );
+    MonitoredScope::declare( m_monTool,  RoIsCount, RoIsEta, RoIsPhi );
   }
   // recording
   {

@@ -1,12 +1,16 @@
+#
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
 def defineHistogram(varname, type='TH1F', path='EXPERT',
                     title='Unspecified_title_for_the_histogram_is_truly_annoying,_because_this_default_is_long;unspecified_label;unspecified_label',
                     xbins=100, xmin=0, xmax=1,
                     ybins=None, ymin=None, ymax=None, zmin=None, zmax=None, opt='', labels=None):
-    """ Generates the histogram definition string which is digestable by TrigGenericMonitoringTool.
+    """ Generates the histogram definition string which is digestable by GenericMonitoringTool.
 
 
-    Note that defaults are compleetly unreasonable. The tile is intentionally made annoying.
-    For histogras types supported and allowed paths have a look at TrigGenericMonitoringTool documentation.
+    Note that defaults are compleetly unreasonable. The title is made annoying intentionally.
+    For histograms types, paths and all the options have a look at GenericMonitoringTool documentation.
     """
     coded = "%s, %s, %s, %s, %d, %f, %f" % (path, type, varname, title, xbins, xmin, xmax)
     if ybins is not None:
