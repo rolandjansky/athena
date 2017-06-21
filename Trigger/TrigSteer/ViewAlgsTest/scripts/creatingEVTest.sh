@@ -1,1 +1,1 @@
-athena --threads=1 ViewAlgsTest/creatingEVTest.py
+athena --threads=1 ViewAlgsTest/EVTest.py

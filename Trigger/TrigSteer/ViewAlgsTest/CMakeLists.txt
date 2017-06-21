@@ -35,3 +35,4 @@ atlas_install_python_modules( python/*.py )
 atlas_install_xmls( data/*.xml )
 
 atlas_add_test( creatingEVTest SCRIPT scripts/creatingEVTest.sh )
+atlas_add_test( mergingEVTest SCRIPT scripts/mergingEVTest.sh )
