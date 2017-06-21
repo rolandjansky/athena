@@ -308,7 +308,8 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
      
      l2_RPCSubDetListWriter = TrigSubDetListWriter("RPCSubDetListWriter")
-     #l2_RPCSubDetListWriter.SubdetId = ['TDAQ_CTP','TDAQ_HLT'] #To confirm what is needed
+     l2_RPCSubDetListWriter.SubdetId = ['TDAQ_MUON', 'TDAQ_CTP', 'TDAQ_HLT', 'RPC']
+
      l2_RPCSubDetListWriter.MaxRoIsPerEvent=1
      
      self.robWriter = [l2_RPCSubDetListWriter]            
