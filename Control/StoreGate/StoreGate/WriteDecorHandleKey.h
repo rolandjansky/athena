@@ -72,8 +72,8 @@ namespace SG {
  * dependency on the container itself, and a write dependency on the decoration.
  * This class derives from @c WriteHandleKey, which provides the output dependency
  * on the decoration.  We also hold as a member a @c ReadHandleKey for the
- * container.  @c AthAlgorithm and friends need to be aware of this, and
- * add this extra dependency when the property is declared.
+ * container.  This extra depedency is added at initialize time via
+ * registerWriteDecorHandleKey(), which see.
  */
 template <class T>
 class WriteDecorHandleKey
