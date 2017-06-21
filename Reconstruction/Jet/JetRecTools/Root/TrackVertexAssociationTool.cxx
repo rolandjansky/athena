@@ -113,7 +113,7 @@ int TrackVertexAssociationTool::execute() const {
   
   // Store it
 
-  SG::WriteHandle<jet::TrackVertexAssociation> handle_tva(m_tva_key);
+  auto handle_tva = makeHandle(m_tva_key);
   if(!handle_tva.record(std::move(tva))){
     ATH_MSG_ERROR("Unable to write new TrackVertexAssociation to evtStore: "
                   << m_tva_key.key());
