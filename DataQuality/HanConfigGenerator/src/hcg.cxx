@@ -54,7 +54,7 @@ std::vector<std::string> savedhistos;
 std::vector<std::string> mapped;
 
 
-/// get the date *without* the return
+/// get the date *without* the newline
 std::string date() { 
   time_t _t;
   time(&_t);
@@ -387,7 +387,7 @@ protected:
 
 
 
-/// simple error reporting class - should probably throw an exception, 
+/// simple error reporting function - should probably throw an exception, 
 /// only this is simpler
 void error( int i, std::ostream& s ) {  s << std::endl; std::exit(i);  }
 
@@ -542,13 +542,12 @@ std::vector<std::string> read_lines( const std::string& filename ) {
   
   std::vector<std::string> lines;
   
-  std::string buffer;
-  
 
   /// add some padding at the beginning and end, extraxt file 
   /// contents to a more easily managed string 
+
   char c;
-  buffer = " ";
+  std::string buffer = " ";  
   while ( file.get(c) ) buffer += c;
   buffer += " ";
 
@@ -590,12 +589,13 @@ std::vector<std::string> read_lines( const std::string& filename ) {
 
 std::vector<std::string> parse_wc( const std::string& filename ) { 
   
-  std::vector<std::string> _lines = read_lines( filename ); 
+  std::vector<std::string> lines = read_lines( filename ); 
 
   std::vector<std::string> out;
-  
-  for ( unsigned i=0 ; i<_lines.size() ; i++ ) {
-    std::string line = _lines[i];
+  out.reserve( lines.size() );
+
+  for ( unsigned i=0 ; i<lines.size() ; i++ ) {
+    std::string line = lines[i];
     remove( line, " " );  
     std::string val = chopto( line, " ;" );
     if ( val.size() ) out.push_back( val );
@@ -980,18 +980,18 @@ public:
 	if       ( n[i]->type()!=node::HISTOGRAM ) makeass( *n[i], newspacer, path, rawpath, found ) ;
 	else if  ( n[i]->type()==node::HISTOGRAM ) { 
 
-	  std::string allhists = "";
-	  if ( n[i]->parent() ) allhists = find( wildcards, n[i]->parent(), n[i]->parent()->name(), "" ); 
+	  std::string allhst = "";
+	  if ( n[i]->parent() ) allhst = find( wildcards, n[i]->parent(), n[i]->parent()->name(), "" ); 
 
-	  //	  std::cerr << "allhists: " << n[i]->parent()->name() << "\tall: " << allhists << ":" << std::endl;
+	  //	  std::cerr << "allhst: " << n[i]->parent()->name() << "\tall: " << allhst << ":" << std::endl;
 
-	  std::string _algorithm = algorithm;
+	  std::string algorithm_tmp = algorithm;
 
-	  if ( !mallhists || allhists!="" ) { 
+	  if ( !mallhists || allhst!="" ) { 
 	    if ( first_hists ) {
-	      if ( allhists!="" ) _algorithm = allhists; 
+	      if ( allhst!="" ) algorithm_tmp = allhst; 
 	      (*outp) << space << "\t"   << "hist   all_in_dir {\n";
- 	      if ( _algorithm!="NULL" && _algorithm!="0" ) (*outp) << space << "\t\t" << "algorithm   \t= " << _algorithm << "\n";
+ 	      if ( algorithm_tmp!="NULL" && algorithm_tmp!="0" ) (*outp) << space << "\t\t" << "algorithm   \t= " << algorithm_tmp << "\n";
 	      (*outp) << space << "\t\t" << "description \t= " << description << "\n";
 	      (*outp) << space << "\t\t" << "output      \t= " << path << "\n";
 	      (*outp) << space << "\t\t" << "display     \t= StatBox\n";
@@ -1003,15 +1003,15 @@ public:
 	  }
 	  else { 
 	    
-	    std::string _algorithm   = find( algorithms,   n[i], n[i]->name(), algorithm );
-	    std::string _description = find( descriptions, n[i], n[i]->name(), description );
-	    std::string _display     = find( displays,     n[i], n[i]->name(), "StatBox" );
+	    std::string algorithm_tmp   = find( algorithms,   n[i], n[i]->name(), algorithm );
+	    std::string description_tmp = find( descriptions, n[i], n[i]->name(), description );
+	    std::string display_tmp     = find( displays,     n[i], n[i]->name(), "StatBox" );
 
 	    (*outp) << space << "\t"   << "hist " << n[i]->name() << " {\n";
-	    (*outp) << space << "\t\t" << "algorithm   \t= " << _algorithm << "\n";
-	    (*outp) << space << "\t\t" << "description \t= " << _description << "\n";
-	    (*outp) << space << "\t\t" << "output      \t= " << path << "\n";
-	    (*outp) << space << "\t\t" << "display     \t= " << _display << "\n";
+	    (*outp) << space << "\t\t" << "algorithm   \t= " << algorithm_tmp   << "\n";
+	    (*outp) << space << "\t\t" << "description \t= " << description_tmp << "\n";
+	    (*outp) << space << "\t\t" << "output      \t= " << path        << "\n";
+	    (*outp) << space << "\t\t" << "display     \t= " << display_tmp << "\n";
 	    /// extra user specified tags
 	    for ( unsigned it=0 ; it<tags.size() ; it++ ) (*outp) << space << "\t\t" << replace(tags[it],"=","\t=") << "\n";
 	    (*outp) << space << "\t"   << "}\n";
