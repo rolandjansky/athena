@@ -56,7 +56,7 @@ StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const {
   const xAOD::VertexContainer* pvtxs = nullptr;
   const xAOD::Vertex* vtx = nullptr;
   if (m_usevertices){
-    auto handle = makeHandle(m_vertexContainer_key);
+    auto handle = SG::makeHandle(m_vertexContainer_key);
     if (!handle.isValid()){
       ATH_MSG_WARNING(" This event has no primary vertices " );
       return StatusCode::FAILURE;
@@ -131,7 +131,7 @@ StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const {
 
       if (true == m_useTrackToVertexTool && true == m_usevertices){
 
-    auto handle = makeHandle(m_trkVtxAssoc_key);
+        auto handle = SG::makeHandle(m_trkVtxAssoc_key);
     if(!handle.isValid()){
       ATH_MSG_ERROR("Can't retrieve TrackVertexAssociation : "<< m_trkVtxAssoc_key.key()); 
       return StatusCode::FAILURE;

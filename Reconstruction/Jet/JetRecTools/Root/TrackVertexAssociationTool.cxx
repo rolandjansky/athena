@@ -51,7 +51,7 @@ StatusCode TrackVertexAssociationTool::initialize(){
 int TrackVertexAssociationTool::execute() const {
   // Get input track collection
 
-  auto handle_tracks = makeHandle(m_trackContainer_key);
+  auto handle_tracks = SG::makeHandle(m_trackContainer_key);
 
   if(!handle_tracks.isValid()){
     ATH_MSG_ERROR("Error retrieving TrackParticleContainer from evtStore: " 
@@ -75,7 +75,7 @@ int TrackVertexAssociationTool::execute() const {
   }
 
   // Get input vertex collection
-  auto handle_vert = makeHandle(m_vertexContainer_key);
+  auto handle_vert = SG::makeHandle(m_vertexContainer_key);
 
   if(!handle_vert.isValid()){
     ATH_MSG_ERROR("Error retrieving VertexContainer from evtStore: " 
@@ -113,7 +113,7 @@ int TrackVertexAssociationTool::execute() const {
   
   // Store it
 
-  auto handle_tva = makeHandle(m_tva_key);
+  auto handle_tva = SG::makeHandle(m_tva_key);
   if(!handle_tva.record(std::move(tva))){
     ATH_MSG_ERROR("Unable to write new TrackVertexAssociation to evtStore: "
                   << m_tva_key.key());

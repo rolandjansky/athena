@@ -25,7 +25,7 @@ StatusCode SimpleJetTrackSelectionTool::initialize() {
 int SimpleJetTrackSelectionTool::execute() const {
   ATH_MSG_DEBUG(" execute() ... ");
 
-  auto handle_in = makeHandle(m_inputContainer_key);
+  auto handle_in = SG::makeHandle(m_inputContainer_key);
   if(!handle_in.isValid()){
     ATH_MSG_ERROR("Can't retrieve input track container "
                   << m_inputContainer_key.key()); 
@@ -47,7 +47,7 @@ int SimpleJetTrackSelectionTool::execute() const {
   selectTracks(*inCont, *outCont);
   ATH_MSG_DEBUG(" in size = "<< inCont->size() << " outSize="<< outCont->size());
 
-  auto handle = makeHandle(m_outputContainer_key);
+  auto handle = SG::makeHandle(m_outputContainer_key);
   if(!handle.record(std::unique_ptr<OutContType>(outCont))){
     ATH_MSG_ERROR("Can't record output track container "
                   << m_outputContainer_key.key());

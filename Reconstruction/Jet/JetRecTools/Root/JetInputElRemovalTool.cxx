@@ -108,7 +108,7 @@ int JetInputElRemovalTool::execute() const{
   
 
   {
-    auto handle = makeHandle(m_clOutputContainer_key);
+    auto handle = SG::makeHandle(m_clOutputContainer_key);
     if(!handle.record(std::unique_ptr<OutContTypeCl>(filtered_clusters))){
       ATH_MSG_WARNING("Unable to record new clusters vector");
       return 1;
@@ -136,7 +136,7 @@ int JetInputElRemovalTool::execute() const{
 
     fillSelectedTracks(el_vector,*filtered_tracks);
   
-    auto handle_out = makeHandle(m_trkOutputContainer_key);
+    auto handle_out = SG::makeHandle(m_trkOutputContainer_key);
     if(!handle_out.record(std::unique_ptr<OutContTypeTr>(filtered_tracks))){
       ATH_MSG_WARNING("Unable to record new tracks vector");
       return 1;
@@ -170,7 +170,7 @@ std::vector<const xAOD::Electron*> JetInputElRemovalTool::selectElectron()const{
 
   std::vector<const xAOD::Electron*> selected_electrons_v;  
 
-  auto handle = makeHandle(m_elInputContainer_key);
+  auto handle = SG::makeHandle(m_elInputContainer_key);
   if(!handle.isValid()){
     ATH_MSG_WARNING("Unable to retrieve electrons");
     return selected_electrons_v;
@@ -229,7 +229,7 @@ int JetInputElRemovalTool::fillSelectedClusters(std::vector<const xAOD::Electron
   
   //Get the Topo clusters of the event
 
-  auto handle = makeHandle(m_clInputContainer_key);
+  auto handle = SG::makeHandle(m_clInputContainer_key);
   if(!handle.isValid()){
     ATH_MSG_WARNING("Unable to retrieve clusters");
     return 0;
@@ -318,7 +318,7 @@ int JetInputElRemovalTool::fillSelectedClustersInJets(std::vector<const xAOD::El
   int countRemoved_clusters=0;
   double propEM=0;
   
-  auto handle = makeHandle(m_jetInputContainer_key);
+  auto handle = SG::makeHandle(m_jetInputContainer_key);
   if(!handle.isValid()){
     ATH_MSG_WARNING("Unable to retrieve jets");
     return 0;
@@ -395,7 +395,7 @@ int JetInputElRemovalTool::fillSelectedTracks(std::vector<const xAOD::Electron*>
   
   int countRemoved_trk=0;
   
-  auto handle = makeHandle(m_trkInputContainer_key);
+  auto handle = SG::makeHandle(m_trkInputContainer_key);
   if(!handle.isValid()){
     ATH_MSG_WARNING("Unable to retrieve jets");
     return 0;
