@@ -38,7 +38,6 @@ namespace InDet {
 
   /** Computes the tracks origin */
   virtual int getTrackOrigin(const xAOD::TrackParticle* track) const override;
-  virtual int getTrackOrigin(const xAOD::TrackParticle* track, int &parentID) const override;
 
 private:
 
