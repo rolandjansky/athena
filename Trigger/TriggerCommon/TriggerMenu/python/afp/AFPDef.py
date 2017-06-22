@@ -47,8 +47,6 @@ class L2EFChain_afp(L2EFChainDef):
 
         self.L2InputL1Item = self.chainPartL1Item or self.chainL1Item
         if self.L2InputL1Item:
-#            self.L2InputTE = getInputTEfromL1Item(self.L2InputL1Item)
-#        else:
             self.L2InputTE = ''
 
         # Actually configure chains
@@ -90,8 +88,7 @@ class L2EFChain_afp(L2EFChainDef):
         #----------------------------------------------------
         # Obtaining the needed jet TEs from the jet code
         #----------------------------------------------------
-#        from TriggerJobOpts.TriggerFlags import TriggerFlags
-        
+
         jetCalib    = self.chainPart['jetCalib']
         calibration = self.chainPart['calib']
     
