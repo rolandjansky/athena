@@ -38,9 +38,12 @@ def setupMenu():
         ]
 
     TriggerFlags.AFPSlice.signatures = TriggerFlags.AFPSlice.signatures() + [
-        ['afp_L1AFP_A_AND_C_SPECTOF_J50', 'L1_AFP_A_AND_C_SPECTOF_J50', [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
-        ['afp_jetexc_L1AFP_A_AND_C_SPECTOF_J50',                        '',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['afp_jetexc_L1AFP_A_AND_C_SPECTOF_J50',  'L1_AFP_A_AND_C_SPECTOF_J50',  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['afp_jetexc_L1AFP_A_AND_C_SPECTOF_J75',  'L1_AFP_A_AND_C_SPECTOF_J75',  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['afp_jetexc_L1AFP_A_AND_C_SPECTOF_J100',  'L1_AFP_A_AND_C_SPECTOF_J100',  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
         ]
+
+
 
     TriggerFlags.MuonSlice.signatures = TriggerFlags.MuonSlice.signatures() + [
         ['mu20_r1extr',          'L1_MU20MU21',      ['L1_MU20'], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
