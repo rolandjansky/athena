@@ -915,9 +915,8 @@ Bool_t TScopeAdapter::IsClass() const
       return (fClass->Property() & kIsClass) || ! (fClass->Property() & kIsFundamental);
    }
 
-// no class can mean either is no class (i.e. builtin), or no dict but coming in
-// through PyCintex/Reflex ... as a workaround, use TDataTypes that has a full
-// enumeration of builtin types
+   // no class can mean either is no class (i.e. builtin), or no dict or interpreted(?)
+   // as a workaround, use TDataTypes that has a full enumeration of builtin types
    return TDataType( Name( Reflex::FINAL | Reflex::SCOPED ).c_str() ).GetType() == kOther_t;
 }
 
