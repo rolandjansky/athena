@@ -56,8 +56,8 @@ CscCalibMonToolPed::CscCalibMonToolPed(const std::string & type, const std::stri
   m_nEntriesColl(NULL),
   m_tholdDiffColl(NULL),
   m_maxBitCorrColl(NULL),
-  h2_rmsVnoiseEta(NULL),
-  h2_rmsVnoisePhi(NULL)
+  m_h2_rmsVnoiseEta(NULL),
+  m_h2_rmsVnoisePhi(NULL)
 {
   declareProperty("MaxPedDiff",m_pedMaxDiff=2.0);
   declareProperty("MaxNoiseDiff",m_noiseMaxDiff = 5.0);
@@ -550,15 +550,15 @@ StatusCode CscCalibMonToolPed::postProc()
     string geoPath = getGeoPath();
     string path = getFullPath(geoPath, "Misc", "");
 
-    h2_rmsVnoiseEta = new TH2I("rmsVsigma_eta", "RMS versus sigma for #eta strips", 100, 0, 30, 100, 0,30) ;
-    h2_rmsVnoiseEta->GetXaxis()->SetTitle("Sigma");
-    h2_rmsVnoiseEta->GetYaxis()->SetTitle("RMS");
-    regHist(h2_rmsVnoiseEta,path, run, ATTRIB_MANAGED);
+    m_h2_rmsVnoiseEta = new TH2I("rmsVsigma_eta", "RMS versus sigma for #eta strips", 100, 0, 30, 100, 0,30) ;
+    m_h2_rmsVnoiseEta->GetXaxis()->SetTitle("Sigma");
+    m_h2_rmsVnoiseEta->GetYaxis()->SetTitle("RMS");
+    regHist(m_h2_rmsVnoiseEta,path, run, ATTRIB_MANAGED);
 
-    h2_rmsVnoisePhi = new TH2I("rmsVsigma_phi", "RMS versus sigma for #phi strips", 100, 0, 30, 100, 0,30) ;
-    h2_rmsVnoisePhi->GetXaxis()->SetTitle("Sigma");
-    h2_rmsVnoisePhi->GetYaxis()->SetTitle("RMS");
-    regHist(h2_rmsVnoisePhi,path, run, ATTRIB_MANAGED);
+    m_h2_rmsVnoisePhi = new TH2I("rmsVsigma_phi", "RMS versus sigma for #phi strips", 100, 0, 30, 100, 0,30) ;
+    m_h2_rmsVnoisePhi->GetXaxis()->SetTitle("Sigma");
+    m_h2_rmsVnoisePhi->GetYaxis()->SetTitle("RMS");
+    regHist(m_h2_rmsVnoisePhi,path, run, ATTRIB_MANAGED);
 
     std::vector<float> & rmsVec = m_rmsNewColl->data;
     std::vector<float> & noiseVec = m_noiseNewColl->data;
@@ -577,9 +577,9 @@ StatusCode CscCalibMonToolPed::postProc()
 
       if(m_expectedHashIdsAll.count(hashId)) {
         if(measuresPhi)
-          h2_rmsVnoisePhi->Fill(noiseVec[hashId], rmsVec[hashId]);
+          m_h2_rmsVnoisePhi->Fill(noiseVec[hashId], rmsVec[hashId]);
         else
-          h2_rmsVnoiseEta->Fill(noiseVec[hashId], rmsVec[hashId]);
+          m_h2_rmsVnoiseEta->Fill(noiseVec[hashId], rmsVec[hashId]);
       }
     }
     ATH_MSG_DEBUG( "filled rmsVnoise "  );

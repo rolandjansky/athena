@@ -111,7 +111,6 @@ class CscCalibMonToolPed: public CscCalibMonToolBase
         int m_pedBadBin, m_noiseBadBin, m_rmsBadBin, m_f001BadBin, m_nEntriesBadBin, m_chi2BadBin, m_missingBadBin, m_onlTHoldBreachBadBin;
 
         //Error report
-        std::string errorReportName;
         bool m_alwaysPrintErrorReport;
 
         /**Samples*/
@@ -140,7 +139,7 @@ class CscCalibMonToolPed: public CscCalibMonToolBase
 
 
 
-        TH2I * h2_rmsVnoiseEta, * h2_rmsVnoisePhi;
+        TH2I * m_h2_rmsVnoiseEta, * m_h2_rmsVnoisePhi;
 
         bool m_doRmsVNoise;
 };
