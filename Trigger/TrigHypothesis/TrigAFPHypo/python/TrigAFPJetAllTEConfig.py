@@ -6,10 +6,13 @@ from TrigAFPHypo.TrigAFPJetAllTEMonitoring import (
 
 from AthenaCommon.SystemOfUnits import GeV
 
-class TrigAFPJetAllTE(TrigAFPHypoConf.TrigAFPJetAllTE):
+from  TrigAFPHypo.TrigAFPHypoConf import TrigAFPJetAllTE
+
+
+class AFPJetAllTE(TrigAFPJetAllTE):
     __slots__ = []
     def __init__(self,
-            name = "TrigAFPJetAllTE"):
+            name = "AFPJetAllTE"):
 
         super( TrigAFPJetAllTE, self ).__init__( name )
 
@@ -20,7 +23,9 @@ class TrigAFPJetAllTE(TrigAFPHypoConf.TrigAFPJetAllTE):
         time = TrigTimeHistToolConfig("AFPJet_Time")
 
         self.AthenaMonTools = [ time, validation, online ]
-        self.protonTransportParamFileName1="2017_beta0p4_xAngle170_beam1.txt"
-        self.protonTransportParamFileName2="2017_beta0p4_xAngle170_beam2.txt"
-        self.alignmentCorrection_nearA=2.361
-        self.alignmentCorrection_nearC=2.172
+# below is the list of parameters that can be set using python script
+#        self.protonTransportParamFileName1="2017_beta0p4_xAngle170_beam1.txt"
+#        self.protonTransportParamFileName2="2017_beta0p4_xAngle170_beam2.txt"
+        # self.alignmentCorrection_nearA=2.361
+        # self.alignmentCorrection_nearC=2.172
+        self.protonPosShift_y=1.0
