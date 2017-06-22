@@ -60,24 +60,24 @@ cd x86*/bin
 ```
 * At P1
 
-...first setup athena at P1:
+.first setup athena at P1:
 ```
 source /det/ftk/ftk_setup.sh FTK-02-00-01
 export TDAQ_PARTITION=FTK-DQM-HWSWComparison
 alias asetup='. /sw/atlas/AtlasSetup/scripts/asetup.sh'
 asetup 21.1.2,AthenaP1,here
 ```
-...assuming you are in testdir
+.assuming you are in testdir
 ```
 source build/x86*/setup.sh
 cd build/x86*/bin
 ```
 
-...running
+.running
 ```
 ./MonitoringFTKHWSWComparison -f /atlas-home/0/giulini/xTakashiAlex/files/alex.OUT.BS_FTK.root -n /atlas-home/0/giulini/xTakashiAlex/files/alex.OUT.NTUP.root
 ```
-...to be added if you are not running within the partition
+.to be added if you are not running within the partition
 ```
  -p PARTITION_NAME 
 ```
