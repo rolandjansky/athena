@@ -403,8 +403,8 @@ namespace xAODMaker {
             for (const xAOD::TruthEvent* evt : *xTruthEventContainer) {
                 for (const auto& par : evt->truthParticleLinks()) {
                     if ( !par.isValid() ) {
-                        //ATH_MSG_WARNING("Found invalid particle element link in TruthEvent " << evt->eventNumber());
-                        ATH_MSG_WARNING("Found invalid particle element link in TruthEvent"); //< @todo Use HepMC evt number?
+                        // This can happen if particles have been thinned.
+                        ATH_MSG_VERBOSE("Found invalid particle element link in TruthEvent"); //< @todo Use HepMC evt number?
                         continue;
                     }
                     // Create link between HepMC and xAOD truth
