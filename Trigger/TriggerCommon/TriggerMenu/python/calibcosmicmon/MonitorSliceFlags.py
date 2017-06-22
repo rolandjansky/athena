@@ -2,8 +2,8 @@
 
 """ Flags for monitoring chains """
 
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
-from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper, AllowedList
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper
 
 _flags = [] 
 

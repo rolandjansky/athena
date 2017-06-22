@@ -63,37 +63,26 @@ CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<ModuleEnergy>* JEM
     int moduleInQuad = (*it)->module() % 8;
     if ((*it)->crate() == m_crate) {
       int quad = ( (*it)->module() < 8 ? 0 : 1 );
+      
       if (moduleInQuad >= moduleMinTE && moduleInQuad <= moduleMaxTE) {
         eT[quad] += (*it)->et();
         if ( (*it)->et() >= m_jemEtSaturation ) m_overflowT = 1;
       }
+      
+ 
       if (moduleInQuad >= moduleMinXE && moduleInQuad <= moduleMaxXE) {
         eX[quad] += (*it)->ex();
         eY[quad] += (*it)->ey();
+ 
         if ( (*it)->ex() >= m_jemEtSaturation ) m_overflowX = 1;
         if ( (*it)->ey() >= m_jemEtSaturation ) m_overflowY = 1;
+ 
       } 
     }  // Right crate?
   }   // Loop over JEMs
   
   /** Check for overflows then truncate quadrant sums*/
-  unsigned int mask = (1<<m_sumBits) - 1;
-  for (int quad = 0; quad < 2; quad++) {
-    if (eT[quad] >= mask){
-      m_overflowT = 1;
-      eT[quad] = mask;
-    }
-    
-    if (eX[quad] >= mask) {
-      m_overflowX = 1;
-      eX[quad] = mask + 1;
-    }
-    
-    if (eY[quad] >= mask) {
-      m_overflowY = 1;
-      eY[quad] = mask + 1;
-    }
-  }
+  unsigned int mask = (1 << m_sumBits) - 1;
 
   /** Form crate sums */
   /** For total ET we must check for further overflows */
@@ -186,22 +175,7 @@ CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<EnergyCMXData>* JE
   
   /** Check for overflows then truncate quadrant sums*/
   unsigned int mask = (1<<m_sumBits) - 1;
-  for (int quad = 0; quad < 2; quad++) {
-    if (eT[quad] >= mask){
-      m_overflowT = 1;
-      eT[quad] = mask;
-    }
-    
-    if (eX[quad] >= mask) {
-      m_overflowX = 1;
-      eX[quad] = mask + 1;
-    }
-    
-    if (eY[quad] >= mask) {
-      m_overflowY = 1;
-      eY[quad] = mask + 1;
-    }
-  }
+
 
   /** Form crate sums */
   /** For total ET we must check for further overflows */

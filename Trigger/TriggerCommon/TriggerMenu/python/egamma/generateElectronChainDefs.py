@@ -9,14 +9,7 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenu.egamma.generateElectronChainDefs' )
 log.info("Importing %s",__name__)
 
-import traceback
-
 from TriggerMenu.egamma.ElectronDef import L2EFChain_e as L2EFChain_e
-try:
-    from TriggerMenu.egamma.ElectronDefIdTest import L2EFChain_e as L2EFChain_e_IdTest
-except:
-    log.error('generateElectronChainDefs: Problems when importing ElectronDefIdTest.')
-    log.info(traceback.print_exc())
 
 #from TriggerJobOpts.TriggerFlags import TriggerFlags
 from TriggerMenu.menu.MenuUtils import splitChainDict, mergeChainDefs, setupTopoStartFrom
@@ -34,10 +27,7 @@ def generateChainDefs(chainDict):
     for subChainDict in listOfChainDicts:
         electron_seq = EgammaSequence(subChainDict)
         log.debug('Egamma Sequence: %s', electron_seq)
-        if "IdTest" in subChainDict["chainParts"]["addInfo"]:
-            Electron = L2EFChain_e_IdTest(subChainDict)
-        else:
-            Electron = L2EFChain_e(subChainDict,electron_seq)
+        Electron = L2EFChain_e(subChainDict,electron_seq)
             
         listOfChainDefs += [Electron.generateHLTChainDef()]
     if len(listOfChainDefs)>1:

@@ -46,11 +46,8 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
         if signature['listOfTriggerElements'][0][0:2] == "L2":
             maxL2SignatureIndex = max(maxL2SignatureIndex,signatureIndex)
     
-    inputTEsL2 = theChainDef.signatureList[maxL2SignatureIndex]['listOfTriggerElements']
-      
     inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
 
-    L2ChainName = "L2_" + chainDict['chainName']
     EFChainName = "EF_" + chainDict['chainName']
     
     if "Jpsiee" in chainDict["topo"]:

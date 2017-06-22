@@ -138,7 +138,7 @@ class AlgFactory(object):
         """Instantiate a python object for TrigHLTJetRec that will
         use TriggerTower objcts as as input."""
 
-        merge_param_str = str(self.fex_params.merge_param).zfill(2)
+        #merge_param_str = str(self.fex_params.merge_param).zfill(2)
     
         factory = 'TrigHLTJetRecFromTriggerTower'
         # add factory to instance label to facilitate log file searches
@@ -309,10 +309,10 @@ class AlgFactory(object):
         # name = '"%s_%s"' % (algType, self.chain_name_esc)
         hypo = self.menu_data.hypo_params
 
-        eta_mins = [ja.eta_min for ja in hypo.jet_attributes]
-        eta_maxs = [ja.eta_max for ja in hypo.jet_attributes]
-        EtThresholds = [ja.threshold * GeV for ja in hypo.jet_attributes]
-        asymmetrics = [ja.asymmetricEta for ja in hypo.jet_attributes]
+        eta_mins = [jatt.eta_min for jatt in hypo.jet_attributes]
+        eta_maxs = [jatt.eta_max for jatt in hypo.jet_attributes]
+        EtThresholds = [jatt.threshold * GeV for jatt in hypo.jet_attributes]
+        asymmetrics = [jatt.asymmetricEta for jatt in hypo.jet_attributes]
         
         kargs = {
             'name': name,
@@ -462,10 +462,6 @@ class AlgFactory(object):
 
     def superRoIMaker(self):
         factory = 'SeededAlgo'
-
-        params = {'UseRoiSizes':False,
-                  'EtaHalfWidth':0.5,
-                  'PhiHalfWidth':0.5}
 
         name = '"SeededAlgo_%s"' % self.seed
 

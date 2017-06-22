@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenu.l1.Lvl1Thresholds import LVL1Threshold, ThresholdValue
+from TriggerMenu.l1.Lvl1Thresholds import ThresholdValue
 from TriggerMenu.l1.Limits import CaloLimits as CL
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
@@ -295,8 +295,8 @@ class ThresholdDef:
 
         # Beam Splashes
         for thrV in [75]:
-            tc.registerThr('J%iA' % thrV, 'JET').addThrValue(JetOff).addThrValue( thrV, etamin = 16,  etamax = 24, priority=1)
-            tc.registerThr('J%iC' % thrV, 'JET').addThrValue(JetOff).addThrValue( thrV, etamin = -24,  etamax = -16, priority=1)          
+            tc.registerThr('J%iA' % thrV, 'JET').addThrValue(JetOff).addThrValue( thrV, etamin = 15,  etamax = 23, priority=1)
+            tc.registerThr('J%iC' % thrV, 'JET').addThrValue(JetOff).addThrValue( thrV, etamin = -23,  etamax = -15, priority=1)          
         
 
         # Central jet

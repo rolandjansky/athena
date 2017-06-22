@@ -515,6 +515,7 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
         self.maxRpcHits      = 0
         self.maxMdtHits      = 0
         self.doCache = True
+        self.IgnoreMisalginedCSCs = True
 
         self.TrackBuilderTool  = "TMEF_TrackBuilderTool"
         self.TrkSummaryTool = "TMEF_TrackSummaryTool"

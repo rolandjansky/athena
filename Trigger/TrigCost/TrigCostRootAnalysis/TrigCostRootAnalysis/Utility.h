@@ -241,6 +241,7 @@ namespace TrigCostRootAnalysis {
     kDoEBWeighting,
     kDoCPS,
     kIgnoreNonPhysBunchGroups,
+    kIgnoreGRL,
     kNoLBRescaling,
     kPatternsInvert,
     kDirectlyApplyPrescales,

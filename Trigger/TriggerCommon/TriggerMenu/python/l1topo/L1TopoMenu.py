@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from TopoOutput import TopoOutput, TriggerLine
+from TopoOutput import TriggerLine
 from AthenaCommon.Logging import logging
 log = logging.getLogger("TriggerMenu.l1topo.L1TopoMenu")
 

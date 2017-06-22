@@ -16,7 +16,6 @@ log = logging.getLogger( 'MC_HI_v4.py' )
 def setupMenu():
 
     physics_menu.setupMenu()
-    PhysicsStream="Main"
 
 
     # ---------------------------------------------------------------------------------------
@@ -26,7 +25,10 @@ def setupMenu():
 
     TriggerFlags.TestSlice.signatures = TriggerFlags.TestSlice.signatures() + [
         ]
-    
+
+    TriggerFlags.AFPSlice.signatures = TriggerFlags.AFPSlice.signatures() + [
+	]
+
     TriggerFlags.MuonSlice.signatures = TriggerFlags.MuonSlice.signatures() + [
         ]
     

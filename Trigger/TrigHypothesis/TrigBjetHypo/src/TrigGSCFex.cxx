@@ -49,7 +49,11 @@ TrigGSCFex::TrigGSCFex(const std::string& name, ISvcLocator* pSvcLocator) :
 
   // Run-2 monitoring
   
-  //declareMonitoredVariable("sv_mass", m_mon_sv_mass, AutoClear);
+  declareMonitoredVariable("gsc_ntrk",    m_mon_gsc_ntrk,    AutoClear);
+  declareMonitoredVariable("gsc_width",   m_mon_gsc_width,   AutoClear);
+  declareMonitoredVariable("gsc_ptsum",   m_mon_gsc_ptsum,   AutoClear);
+  declareMonitoredVariable("gsc_ptdiff",  m_mon_gsc_ptdiff,  AutoClear);
+  declareMonitoredVariable("gsc_ptratio", m_mon_gsc_ptratio, AutoClear);
 
 
 }
@@ -219,7 +223,6 @@ HLT::ErrorCode TrigGSCFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::T
 //	    << " phi: " << calJet->p4().Phi()
 //	    << " m: "   << calJet->p4().M()
 //	    << std::endl;
-
   
   xAOD::JetTrigAuxContainer trigJetTrigAuxContainer;
   xAOD::JetContainer* jc = new xAOD::JetContainer;
@@ -252,8 +255,13 @@ HLT::ErrorCode TrigGSCFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::T
 
 
   // Fill monitoring variables
-  //trigBTagging->variable<float>("SV1", "masssvx",  m_mon_sv_mass);
-
+  m_mon_gsc_ntrk  = nTrk;
+  m_mon_gsc_width = width;
+  m_mon_gsc_ptsum = ptsum; 
+  m_mon_gsc_ptdiff = jet.p4().Pt() - jc->back()->p4().Pt(); 
+  if( jc->back()->p4().Pt() != 0 ) m_mon_gsc_ptratio = ( m_mon_gsc_ptdiff )/( jc->back()->p4().Pt() ) ; 
+  else m_mon_gsc_ptratio = -999.;
+  
   return HLT::OK;
 }
 

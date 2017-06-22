@@ -134,6 +134,7 @@ namespace TrigCostRootAnalysis {
     static Int_t _upgradeMergeTOBOverlap = kFALSE;
     static Int_t _doExponentialMu = kFALSE;
     static Int_t _invertHighMuRunVeto = kFALSE;
+    static Int_t _ignoreGRL = kFALSE;
 
     // User options
     std::vector< std::string > _inputFiles;
@@ -433,6 +434,9 @@ namespace TrigCostRootAnalysis {
         {
           "doExponentialMu", no_argument, &_doExponentialMu, 1
         },
+        {
+          "ignoreGRL", no_argument, &_ignoreGRL, 1
+        },       
         {
           "invertHighMuRunVeto", no_argument, &_invertHighMuRunVeto, 1
         }, // Hidden option
@@ -780,6 +784,9 @@ namespace TrigCostRootAnalysis {
                     << std::endl;
           std::cout <<
             "--noLBRescaling\t\t\t\t\tFlag to prevent the rescaling of the effective time per LB in EB runs based on the events processed and the known run size."
+                    << std::endl;
+          std::cout <<
+            "--ignoreGRL\t\t\t\tFlag to switch off the exclusion of LB which fail the good run lists in ehnaced bias runs."
                     << std::endl;
           std::cout <<
             "--patternsMonitor patt1 patt2 ...\t\tPatterns to match in names when running. Regex currently NOT supported. Partial matched allowed. Only entries which match will be analysed."
@@ -1815,6 +1822,7 @@ namespace TrigCostRootAnalysis {
     set(kDoExponentialMu, _doExponentialMu, "DoExponentialMu");
     set(kInvertHighMuRunVeto, _invertHighMuRunVeto, "InvertHighMuRunVeto");
     set(kUseOnlyTheseBCIDs, _useOnlyTheseBCIDs, "UseOnlyTheseBCIDs");
+    set(kIgnoreGRL, _ignoreGRL, "IgnoreGRL");
 
     std::stringstream _multiRunss(_multiRun); // Comma separated
     std::string _tempStr;
