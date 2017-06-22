@@ -179,12 +179,6 @@ bool empty( TH1* h ) {
 }
 
 
-bool empty( TH1* h ) { 
-  for ( int i=h->GetNbinsX() ; i>0 ; i-- ) if ( h->GetBinContent(i)!=0 ) return false;
-  return true;
-}
-
-
 std::string tail( std::string s, const std::string& pattern ) { 
   size_t pos = s.find(pattern);
   while ( pos != std::string::npos ) { 
