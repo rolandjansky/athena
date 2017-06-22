@@ -60,26 +60,69 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 class CompareFTKEvents{
   public:
     CompareFTKEvents();
+    /// initialization with the path/namefile string of the HW (BS/RAW) and SW (NTUP_FTK) files
     CompareFTKEvents(const std::string &BSfile, const std::string &NTUP_FTK_file);
+    
+    /// setting up partition
     void SetupPartition(const std::string &partition_name);
+       
+    /// function to read each BS event given the pointer position where it last stopped reading the event
     std::streampos readBSevent(int ievent,std::streampos startbufpos);
+    
+    /// reading the SW NTUP_FTK TTrees which should contain some TTrees: 
+    ///  "evtinfo" containing basic event infos, 
+    ///  "ftkdata" containing a branch of FTKTrackStream objects with name "FTKMergedTracksStream"
     void readNTUP_FTKfile();
+    
+    /// print input files
     void PrintFiles();
+    
+    /// Looping over events of the HW (BS_FTK) and SW (NTUP_FTK files) and collecting track info
     void EventLoop();
+    
+    /// histogram initialization: for the naming convention see CompareFTKEvents.h
     void SetHistos(std::vector<std::string> histo_list);
+    
+    /// change the name of the event info ttree: default is evtinfo
     void SetEvtInfoString(std::string &str_tree_evtinfo){m_str_tree_evtinfo=str_tree_evtinfo;}
+
+    /// change the name of the data ttree: default is ftkdata
     void SetTreeNTUPString(std::string &str_tree_ftkdata){m_str_tree_ftkdata=str_tree_ftkdata;}
+
+    /// change the name of the FTK Stream branch: default is FTKMergedTracksStream
     void SetBranchString(std::string &str_tree_ftkstream){m_str_tree_ftkstream=str_tree_ftkstream;}
+    
+    /// set verbose
     void SetVerbose(){m_verbose=true;}
+
+    /// set maximum number of events
     void SetNEvents(int nevtmax){m_nevtmax=nevtmax;}
+
+    /// reading BS file, starting loop on events and writing histograms
     void Execute();
+
+    /// Get the total number of events in the BS file
     int GetNEventsBS();
+    
+    /// destructor that prints out if the tracks were all matched or differences were found
     ~CompareFTKEvents();
   private:
+
+    /// decoding functions from FTKByteStreamDecoderEncoder of package Trigger/TrigFTK/TrigFTKByteStream
     StatusCode decode(uint32_t nTracks, OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData, FTK_RawTrackContainer* result);
+
+    /// decoding functions from FTKByteStreamDecoderEncoder to get track info from BS
     FTK_RawTrack* unpackFTTrack( OFFLINE_FRAGMENTS_NAMESPACE::PointerType data);
+
+    /// decoding functions from FTKByteStreamDecoderEncoder **never tested** and **never used**
     void unpackPixCluster(OFFLINE_FRAGMENTS_NAMESPACE::PointerType data, FTK_RawPixelCluster& cluster);
-    void unpackSCTCluster(OFFLINE_FRAGMENTS_NAMESPACE::PointerType data, FTK_RawSCT_Cluster& cluster) { cluster.setWord(*data); }
+    
+    /// decoding functions from FTKByteStreamDecoderEncoder **never tested** and **never used**
+    void unpackSCTCluster(OFFLINE_FRAGMENTS_NAMESPACE::PointerType data, FTK_RawSCT_Cluster& cluster) {cluster.setWord(*data);}
+    
+    /// writing histograms into file and/or publishing on OH
+    void WriteHistos();
+
     int m_nevtmax=0;
     const size_t m_TrackBlobSize = 22; // magic number from BS specification
     const size_t m_TrackParamsBlobSize = 6; // --||--
@@ -110,8 +153,6 @@ class CompareFTKEvents{
     std::map<std::string , TH1D * > m_map_histo;
     std::map<std::string , TH2D * > m_map_histo_2D;
     TFile * m_fout;
-    void CreateHistos();
-    void WriteHistos();
     std::string m_str_tree_evtinfo="evtinfo";
     std::string m_str_tree_ftkdata="ftkdata";
     std::string m_str_tree_ftkstream="FTKMergedTracksStream";

@@ -9,7 +9,6 @@ CompareFTKEvents::CompareFTKEvents()
     std::cout<<"Empty constructor"<<std::endl;
 }
 
-// initialization with the path/namefile string of the HW (BS/RAW) and SW (NTUP_FTK) files
 CompareFTKEvents::CompareFTKEvents(const std::string &BSfile, const std::string &NTUP_FTK_file):
    m_BSfile(BSfile),
    m_NTUP_FTK_file(NTUP_FTK_file)
@@ -24,7 +23,6 @@ CompareFTKEvents::CompareFTKEvents(const std::string &BSfile, const std::string 
     }
 }
 
-// setting up partition
 void CompareFTKEvents::SetupPartition(const std::string &partition_name)
 {   
     m_partition_name=partition_name;
@@ -66,7 +64,6 @@ void CompareFTKEvents::SetupPartition(const std::string &partition_name)
     }  
 }
 
-// histogram initialization: for the naming convention see CompareFTKEvents.h
 void CompareFTKEvents::SetHistos(std::vector<std::string> histo_list){
     m_histo_list=histo_list;
     for (auto & istr : m_histo_list){
@@ -123,7 +120,6 @@ void CompareFTKEvents::SetHistos(std::vector<std::string> histo_list){
     }	
 }
 
-// reading BS file, starting loop on events and writing histograms
 void CompareFTKEvents::Execute()
 {
     //Getting BS file event number
@@ -141,9 +137,6 @@ void CompareFTKEvents::Execute()
     WriteHistos();
 }
 
-// reading the SW NTUP_FTK TTrees which should contain some TTrees: 
-//  "evtinfo" containing basic event infos, 
-//  "ftkdata" containing a branch of FTKTrackStream objects with name "FTKMergedTracksStream"
 void CompareFTKEvents::readNTUP_FTKfile()
 {
     std::cout<<"Reading NTUP_FTK file "<<m_NTUP_FTK_file<<std::endl;
@@ -166,7 +159,6 @@ void CompareFTKEvents::readNTUP_FTKfile()
     m_Nevents_NTUPFTK=m_theTree->GetEntries();
 }
 
-// decoding functions from FTKByteStreamDecoderEncoder of package Trigger/TrigFTK/TrigFTKByteStream
 StatusCode CompareFTKEvents::decode(uint32_t nTracks, OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData, FTK_RawTrackContainer* result) {
 
   result->reserve(result->size() + nTracks);
@@ -178,7 +170,6 @@ StatusCode CompareFTKEvents::decode(uint32_t nTracks, OFFLINE_FRAGMENTS_NAMESPAC
   return StatusCode::SUCCESS;
 }
 
-//again decoding functions from FTKByteStreamDecoderEncoder to get track info from BS
 FTK_RawTrack* CompareFTKEvents::unpackFTTrack( OFFLINE_FRAGMENTS_NAMESPACE::PointerType data) {  
   FTK_RawTrack* track = new FTK_RawTrack(data[0], data[1], data[2], data[3], data[4], data[5]); // first six words are track params
   data += m_TrackParamsBlobSize;
@@ -201,13 +192,11 @@ FTK_RawTrack* CompareFTKEvents::unpackFTTrack( OFFLINE_FRAGMENTS_NAMESPACE::Poin
   return track;
 }  
 
-//again decoding functions from FTKByteStreamDecoderEncoder **never tested** and **never used**
 void CompareFTKEvents::unpackPixCluster(OFFLINE_FRAGMENTS_NAMESPACE::PointerType data, FTK_RawPixelCluster& cluster) {
   cluster.setWordA(*data);
   cluster.setWordB(*(data+1));
 }
 
-// Looping over events of the HW (BS_FTK) and SW (NTUP_FTK files) and collecting track info
 void CompareFTKEvents::EventLoop()
 {
     std::cout<<"Starting Loop"<<std::endl;
@@ -348,7 +337,6 @@ void CompareFTKEvents::EventLoop()
      }
 }
 
-// writing histograms into file and/or publishing on OH
 void CompareFTKEvents::WriteHistos(){
     m_fout= new TFile("./out.histo.root","RECREATE");
     m_fout->cd();
@@ -371,7 +359,6 @@ void CompareFTKEvents::WriteHistos(){
     std::cout<<"Histo written into file "<<m_fout->GetName()<<std::endl;
 }
 
-// function to read each BS event given the pointer position where it last stopped reading the event
 std::streampos CompareFTKEvents::readBSevent(int ievent,std::streampos startbufpos)
 {
     if (m_verbose) std::cout<<"Reading BS event"<<std::endl;
@@ -409,7 +396,6 @@ std::streampos CompareFTKEvents::readBSevent(int ievent,std::streampos startbufp
     return lastpos;    
 }
 
-// Get the total number of events in the BS file
 int CompareFTKEvents::GetNEventsBS()
 {
     std::cout<<"Getting N events BS file"<<std::endl;
@@ -437,7 +423,6 @@ void CompareFTKEvents::PrintFiles()
     std::cout<<m_NTUP_FTK_file<<std::endl;    
 }
 
-// destructor
 CompareFTKEvents::~CompareFTKEvents()
 {
     m_myBSfile.close();
