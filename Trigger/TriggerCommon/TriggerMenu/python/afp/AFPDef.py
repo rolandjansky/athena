@@ -90,7 +90,7 @@ class L2EFChain_afp(L2EFChainDef):
         #----------------------------------------------------
         # Obtaining the needed jet TEs from the jet code
         #----------------------------------------------------
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
+#        from TriggerJobOpts.TriggerFlags import TriggerFlags
         
         jetCalib    = self.chainPart['jetCalib']
         calibration = self.chainPart['calib']
