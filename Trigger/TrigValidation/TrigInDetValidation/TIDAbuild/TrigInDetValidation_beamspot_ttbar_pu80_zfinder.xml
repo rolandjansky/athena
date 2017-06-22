@@ -1,7 +1,7 @@
          <athena trendId='all_pu80' userJobId='TrigInDetValidation_beamspot_ttbar_pu80_zfinder'>
-            <doc>BeamSpot slice, ttbar events, pu80</doc>
-            <displayName>BeamSpot slice, ttbar, pu80</displayName>
-	    <commandLineFlags>EventMax=1000;fastZFinder=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
+            <doc>BeamSpot slice, ttbar events, pu80, run2 chains</doc>
+            <displayName>BeamSpot slice, ttbar, pu80, run2 chains</displayName>
+	    <commandLineFlags>EventMax=1000;runMergedChain=True;fastZFinder=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BeamspotSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
