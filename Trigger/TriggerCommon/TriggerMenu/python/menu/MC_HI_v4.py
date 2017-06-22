@@ -16,7 +16,6 @@ log = logging.getLogger( 'MC_HI_v4.py' )
 def setupMenu():
 
     physics_menu.setupMenu()
-    PhysicsStream="Main"
 
 
     # ---------------------------------------------------------------------------------------

@@ -4,9 +4,7 @@
 
 import xml.etree.cElementTree as ET
 import sys
-import string
-import ROOT
-from ROOT import *
+from ROOT import TH1F,TFile
 
 output_file = TFile("L1Summary.root","recreate")
 allItems = TH1F("AllItems", "AllItems", 512, 0, 512)

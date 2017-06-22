@@ -22,12 +22,12 @@ from TriggerMenu.test.TestSliceFlags                   import TestSliceFlags
 from TriggerMenu.menu.TriggerPythonConfig  import TriggerPythonConfig
 from TriggerMenu.menu.CPS                  import addCPS
 from TriggerMenu.menu.Lumi                 import lumi, applyPrescales
-from TriggerMenu.menu.MenuUtil             import checkTriggerGroupAssignment, checkStreamConsistency, getStreamTagForRerunChains,checkGroups
+from TriggerMenu.menu.MenuUtil             import checkStreamConsistency, getStreamTagForRerunChains,checkGroups
 from TriggerMenu.menu.HLTObjects           import HLTChain, HLTSequence
 from TriggerMenu.menu                      import StreamInfo, DictFromChainName
-import TriggerMenu.menu.MenuUtils
+from TriggerMenu.menu.MenuUtils            import splitInterSignatureChainDict,mergeChainDefs
 
-import os, traceback, operator, commands, time
+import os, traceback, operator, commands
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenu.menu.GenerateMenu' )
@@ -93,9 +93,9 @@ class GenerateMenu:
     
 
     def deactivateChains(self,signatureGroupsToDeactivate):
-        for signatureGroupToDeactive in signatureGroupsToDeactivate:
+        for signatureGroupToDeactivate in signatureGroupsToDeactivate:
             try:
-                eval("self.do"+signatureGroupToDeactive+"Chains = False")
+                eval("self.do"+signatureGroupToDeactivate+"Chains = False")
             except:
                 log.error('GenerateMenu: Could not deactivate trigger signature:',signatureGroupToDeactivate)
 
@@ -405,13 +405,13 @@ class GenerateMenu:
 
 
 
-        allowedSignatures = ["jet","egamma","muon", "electron", "photon","met","tau", 
-                             "minbias", "heavyion", "cosmic", "calibration", "streaming", "monitoring", "ht", 'bjet','eb']
+        #allowedSignatures = ["jet","egamma","muon", "electron", "photon","met","tau", 
+        #                     "minbias", "heavyion", "cosmic", "calibration", "streaming", "monitoring", "ht", 'bjet','eb']
         
         listOfChainDefs = []
 
         log.debug("\n chainDicts1 %s ", chainDicts)
-        chainDicts = TriggerMenu.menu.MenuUtils.splitInterSignatureChainDict(chainDicts)        
+        chainDicts = splitInterSignatureChainDict(chainDicts)        
         log.debug("\n chainDicts2 %s", chainDicts)
         
 
@@ -588,7 +588,7 @@ class GenerateMenu:
             return False
         elif len(listOfChainDefs)>1:
             if ("mergingStrategy" in chainDicts[0].keys()):
-                theChainDef = TriggerMenu.menu.MenuUtils.mergeChainDefs(listOfChainDefs,chainDicts[0]["mergingStrategy"],chainDicts[0]["mergingOffset"],preserveL2EFOrder = chainDicts[0]["mergingPreserveL2EFOrder"],doTopo=doTopo,chainDicts=chainDicts)#, noTEreplication = chainDicts[0]["mergingNoTEreplication"])
+                theChainDef = mergeChainDefs(listOfChainDefs,chainDicts[0]["mergingStrategy"],chainDicts[0]["mergingOffset"],preserveL2EFOrder = chainDicts[0]["mergingPreserveL2EFOrder"],doTopo=doTopo,chainDicts=chainDicts)#, noTEreplication = chainDicts[0]["mergingNoTEreplication"])
             else:
                 log.error("No merging strategy specified for combined chain %s" % chainDicts[0]['chainName'])
                 
@@ -719,7 +719,7 @@ class GenerateMenu:
         dumpIt(f, METSliceFlags.signatures(), 'MET')
         dumpIt(f, TauSliceFlags.signatures(), 'Tau')
         dumpIt(f, MinBiasSliceFlags.signatures(), 'MinBias')
-        dumpIt(f, HeavyIonFlagsFlags.signatures(), 'HeavyIon')
+        dumpIt(f, HeavyIonSliceFlags.signatures(), 'HeavyIon')
         dumpIt(f, CosmicSliceFlags.signatures(), 'Cosmic')
         dumpIt(f, CalibSliceFlags.signatures(), 'Calibration')
         dumpIt(f, StreamingSliceFlags.signatures(), 'Streaming')
@@ -911,7 +911,7 @@ class GenerateMenu:
         log.info('checkGroups')
         checkGroups(self.triggerPythonConfig)
 
-        cpsMenus = ['Physics_pp_v5','Physics_pp_v6','Physics_pp_v7']
+        #cpsMenus = ['Physics_pp_v5','Physics_pp_v6','Physics_pp_v7']
         ##if TriggerFlags.triggerMenuSetup() in cpsMenus:
         if TriggerFlags.triggerMenuSetup().find("pp_v")>=0:            
             log.info('Assigning CPS groups now')
@@ -930,7 +930,6 @@ class GenerateMenu:
 
         #dump configuration files
         log.info('generate: dump configuration Files')
-        lvl1_items = [x.name for x in self.trigConfL1.menu.items]
         #self.dumpSignatureList(self.trigConfL1.menu.items.itemNames(),'hltsigs.txt')
         self.triggerPythonConfig.writeConfigFiles()
         if log.isEnabledFor(logging.DEBUG): self.triggerPythonConfig.dot(algs=True)

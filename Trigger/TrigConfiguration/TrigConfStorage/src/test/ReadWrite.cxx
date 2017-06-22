@@ -678,10 +678,14 @@ int main( int argc, char* argv[] ) {
       
       if(ctpc)
          coolWriter->writeL1Payload(runNr, *ctpc);
-      
-      if(hltFrame)
-         coolWriter->writeHLTPayload(runNr, *hltFrame, configSource);
-      
+      try{
+	if(hltFrame)
+	  coolWriter->writeHLTPayload(runNr, *hltFrame, configSource);
+      }   
+      catch(cool::StorageTypeStringTooLong e){
+	log << "FATAL: Unable to write data to COOL";
+	exit(1);
+      }
        if(mck)
          coolWriter->writeMCKPayload(runNr, mck, release, info);
    }

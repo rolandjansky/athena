@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from Lvl1Thresholds import LVL1Thresholds, LVL1Threshold, ThresholdValue
-from Lvl1MenuItems import LVL1MenuItems, LVL1MenuItem
+from Lvl1Thresholds import LVL1Thresholds
+from Lvl1MenuItems import LVL1MenuItems
 from Lvl1MonCounters import Lvl1MonCounters
 from CaloInfo import CaloInfo
 from MuctpiInfo import MuctpiInfo
@@ -128,7 +128,6 @@ class Lvl1Menu:
         All other checks should be implemented in TrigConfStorage/src/CheckConsistency.cxx
         This method is only for quick solutions but should be intermediate
         """
-        from Lvl1Flags import Lvl1Flags
 
         success = True
         

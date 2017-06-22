@@ -121,8 +121,6 @@ class L2EFChain_tau(L2EFChainDef):
     def setup_tauChain(self):
 
         threshold   = self.chainPart['threshold']
-        calibration = self.chainPart['calib']
-        recoAlg     = self.chainPart['recoAlg'] 
         selection   = self.chainPart['selection']
         preselection= self.chainPart['preselection']
         idperf      = "idperf" in self.chainPart['trkInfo']

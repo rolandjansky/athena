@@ -9,17 +9,14 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 
 
-from TriggerMenu.calibcosmicmon.CosmicDef import *
-
-#from TriggerJobOpts.TriggerFlags import TriggerFlags
-from TriggerMenu.menu.MenuUtils import *
+from TriggerMenu.calibcosmicmon.CosmicDef import L2EFChain_CosmicTemplate
+from TriggerMenu.menu.MenuUtils import splitChainDict,mergeChainDefs
 CosmicChains = []
 
 ##########################################################################################
 ##########################################################################################
 
 def generateChainDefs(chainDict):
-    chainParts = chainDict['chainParts']
     
     listOfChainDicts = splitChainDict(chainDict)
     listOfChainDefs = []

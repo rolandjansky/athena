@@ -10,7 +10,6 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger(__name__)
 
-from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigVertexxAODCnv 
 from InDetTrigRecExample.EFInDetConfig import TrigEFIDInsideOut_Tau
 from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMaker_tau, TrigCaloClusterMaker_topo
 from TrigFTK_RecAlgs.TrigFTK_RecAlgs_Config import TrigFTK_VxPrimary_EF
@@ -294,8 +293,6 @@ class L2EFChain_tau(L2EFChainDef):
     def setup_tauChain(self):
 
         threshold   = self.chainPart['threshold']
-        calibration = self.chainPart['calib']
-        recoAlg     = self.chainPart['recoAlg'] 
         selection   = self.chainPart['selection']
         preselection= self.chainPart['preselection']
         idperf      = "idperf" in self.chainPart['trkInfo']
@@ -396,8 +393,6 @@ class L2EFChain_tau(L2EFChainDef):
     def setup_tauChainRunOne(self):
         
         threshold   = self.chainPart['threshold']
-        calibration = self.chainPart['calib']
-        recoAlg     = self.chainPart['recoAlg']
         selection   = self.chainPart['selection']
         preselection= self.chainPart['preselection']
         idperf      = "idperf" in self.chainPart['trkInfo']
@@ -474,8 +469,6 @@ class L2EFChain_tau(L2EFChainDef):
     def setup_tauChainTwoStep(self):
 
         threshold   = self.chainPart['threshold']
-        calibration = self.chainPart['calib']
-        recoAlg     = self.chainPart['recoAlg'] 
         selection   = self.chainPart['selection']
         preselection= self.chainPart['preselection']
         idperf      = "idperf" in self.chainPart['trkInfo']

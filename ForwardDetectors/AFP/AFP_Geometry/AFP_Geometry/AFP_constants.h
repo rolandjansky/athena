@@ -11,15 +11,15 @@
 #define LHCXOFFSET (-97.0*CLHEP::mm)
 
 #define SIDCNT 4
-#define SID_NOMINALSLOPE (13*CLHEP::deg)
-#define SID_NOMINALSPACING (10.0*CLHEP::mm)
+#define SID_NOMINALSLOPE (14*CLHEP::deg)
+#define SID_NOMINALSPACING (9.0*CLHEP::mm)
 #define SID_DISTANCETOFLOOR (0.4*CLHEP::mm)
 #define SID_ZDISTANCEINRPOT (20.0*CLHEP::mm)
 #define SID_CORRZOFFSET (5.0*CLHEP::mm)
 #define SID_SENSORXDIM (18.8*CLHEP::mm)
 #define SID_SENSORYDIM (20.2*CLHEP::mm)
-#define SID_SENSORTHICKNESS (0.250*CLHEP::mm)
-#define SID_MAINPLATEXDIM (75.6*CLHEP::mm)
+#define SID_SENSORTHICKNESS (0.230*CLHEP::mm)
+#define SID_MAINPLATEXDIM (75.6*CLHEP::mm) 
 #define SID_MAINPLATEYDIM (80.0*CLHEP::mm)
 #define SID_PLATETHICKNESS (1.0*CLHEP::mm)
 #define SID_VACUUMSENSORTHICKNESS (0.0001*CLHEP::mm)
@@ -42,12 +42,12 @@
 #define TD_VERTZGAP (0.13*CLHEP::mm)
 #define TD_HORZYGAP (0.13*CLHEP::mm)
 
-#define INNERSTATZDISTANCE (204.500*CLHEP::m)//(204.500*CLHEP::m)
-#define OUTERSTATZDISTANCE (212.675*CLHEP::m)//(212.675*CLHEP::m)
-#define STATIONSHIFTINYAXIS (5.0*CLHEP::mm)
+#define INNERSTATZDISTANCE (205.5*CLHEP::m) // avarage of A and C -205.824 m and 205.217 m
+#define OUTERSTATZDISTANCE (217.6*CLHEP::m) // avarage of A and C -217.909 m and 217.302 m
+#define STATIONSHIFTINYAXIS (0.0*CLHEP::mm)
 #define RPFLOORDISTANCE (1.5*CLHEP::mm)//(-0.6*CLHEP::mm)
 
-#define HBPTHINWINDOWTHICKNESS (0.3*CLHEP::mm) // design window thickness; maximum is 3 mm (wall thickness)
+#define HBPTHINWINDOWTHICKNESS (0.5*CLHEP::mm) // design window thickness; maximum is 3 mm (wall thickness)
 #define HBPWINDOWCUTYSIGN (1) // y axis sign, where thin window should have cutted corner
 
 #endif //AFP_CONSTANTS_H

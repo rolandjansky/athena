@@ -405,7 +405,6 @@ class dbgEventInfo:
 
 
     def root_definitions(self,dbgStep,inputFile):
-        gROOT.Reset()
         gStyle.SetCanvasColor(0)
         gStyle.SetOptStat(000000)
         gROOT.SetStyle("Plain")

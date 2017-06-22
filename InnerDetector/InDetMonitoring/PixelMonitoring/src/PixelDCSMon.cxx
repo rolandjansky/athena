@@ -94,8 +94,9 @@ StatusCode PixelMainMon::BookPixelDCSMon(void)
   TAxis *tyaxis;
   LWHist::LWHistAxis *xaxis;
   LWHist::LWHistAxis *yaxis;
+  StatusCode sc;
   for( int ii = 0; ii < IBLStave::COUNT; ii++){
-    // temprerature
+    // temperature
     sc = dcsExpert.regHist(m_hist_moduleTemperature2Dscatter[ii]
         = TH2F_LW::create(Form("moduleTemperature_ModuleNumber_S%02d",ii + 1), "Module Temprerature vs Module Number; Module Number;"+label_moduleTemp+";Number of LBs",
           nbins_module,min_module,max_module,nbins_temperature,min_temperature,max_temperature));
@@ -628,7 +629,7 @@ StatusCode PixelMainMon::FillPixelDCSMon(void)
        itr!=m_atrcollist.end();++itr) {
     ATH_MSG_DEBUG("execute(): Reading the data from " << *itr );
     //const CondAttrListCollection* atrlistcol;
-    sc = StatusCode::FAILURE;
+    StatusCode sc = StatusCode::FAILURE;
     if(*itr == "/PIXEL/DCS/TEMPERATURE") {
       sc = detStore()->retrieve(atrlistcol_temperature,*itr);
       atrlistcol = atrlistcol_temperature;

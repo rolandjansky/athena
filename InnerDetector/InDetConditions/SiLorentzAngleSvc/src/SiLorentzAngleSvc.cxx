@@ -147,17 +147,17 @@ StatusCode SiLorentzAngleSvc::geoInitialize() {
     const PixelID * idHelper;
     CHECK(m_detStore->retrieve(idHelper,"PixelID"));
     maxHash = idHelper->wafer_hash_max();
+
+    // Check layout
+    if      (maxHash<2000) { ATH_MSG_INFO("Suppose RUN-1 geometry..."); }
+    else if (maxHash<2100) { ATH_MSG_INFO("Suppose RUN-2 geometry..."); }
+    else                   { ATH_MSG_INFO("Suppose RUN-4 geometry..."); }
   } 
   else { // SCT
     const SCT_ID * idHelper;
     CHECK(m_detStore->retrieve(idHelper,"SCT_ID"));
    maxHash = idHelper->wafer_hash_max();
   }
-
-  // Check layout
-  if      (maxHash<2000) { ATH_MSG_INFO("Suppose RUN-1 geometry..."); }
-  else if (maxHash<2100) { ATH_MSG_INFO("Suppose RUN-2 geometry..."); }
-  else                   { ATH_MSG_INFO("Suppose RUN-4 geometry..."); }
 
   // In case geoInitialize is called more than once (not likely in practice) 
   m_cacheValid.clear(); 
