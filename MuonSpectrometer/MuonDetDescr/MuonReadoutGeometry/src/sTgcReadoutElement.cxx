@@ -231,6 +231,8 @@ namespace MuonGM {
 
     // AGDDParameterBagsTGCTech* parameterBagTech = dynamic_cast<AGDDParameterBagsTGCTech*> (AGDDParameterStore::GetParameterStore()->GetParameterBag(stgc->GetName()));
 
+    double stripStagger[4] = {1.6, 3.2, 1.6, 3.2}; // First Strip in sTGC may be staggered. This value corresponds to first strip width
+
     for (int il=0; il<m_nlayers; il++) {
 
       // identifier of the first channel - strip plane - to retrieve max number of strips
@@ -241,6 +243,9 @@ namespace MuonGM {
       m_etaDesign[il].type=0;
 
       m_etaDesign[il].xSize    = length - ysFrame - ylFrame;
+      m_etaDesign[il].xLength  = length;
+      m_etaDesign[il].ysFrame  = ysFrame;
+      m_etaDesign[il].ylFrame  = ylFrame;
       m_etaDesign[il].minYSize = sWidth - 2.0*xFrame;
       m_etaDesign[il].maxYSize = lWidth - 2.0*xFrame;
       
@@ -260,7 +265,7 @@ namespace MuonGM {
       }
 	
       // m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize + 0.5*(parameterBagTech->stripPitch);
-      m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize + 0.5*(3.2);
+      m_etaDesign[il].firstPos = -0.5*length + ysFrame + stripStagger[il]; // First Strip position is start of active region + first strip width
       reLog() << MSG::INFO
 	      << "firstPos: " << m_etaDesign[il].firstPos << endmsg;
       m_etaDesign[il].sAngle = 0.;

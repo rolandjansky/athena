@@ -36,6 +36,9 @@ namespace MuonGM {
     //Amg::Vector2D firstChannelPos;
     double firstPos;
     double xSize;
+    double xLength;
+    double ysFrame;
+    double ylFrame;
     double minYSize;
     double maxYSize;
     double thickness;
@@ -177,6 +180,10 @@ namespace MuonGM {
       if (sAngle==0.) {
 
 	double x = firstPos + inputPitch*(st-1);
+        if (st == nch) { // Strip Staggering: either first strip or last strip is only half-width
+          if (firstPos == -0.5*xLength + ysFrame + inputPitch) // if 1st strip is not staggered
+            x = x - inputPitch*0.5; // stagger first strip
+        }
 	pos[0] = x;
 	pos[1] = 0;
 	return true;
