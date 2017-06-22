@@ -280,24 +280,6 @@ def setupMenu():
         ['mu10_L1MU10',                   'L1_MU10',           [], ['MinBias'], ['RATE:MinBias','BW:MinBias'], -1],
         ['mu11_L1MU10',                   'L1_MU10',           [], ['MinBias'], ['RATE:MinBias','BW:MinBias'], -1],
         ['mu14_L1MU10',                   'L1_MU10',           [], ['MinBias'], ['RATE:MinBias','BW:MinBias'], -1],
-        
-        #HMT + muons        
-        ['mu4_mb_sp600_trk40_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ['RATE:MinBias','BW:MinBias'], 1, ['serial', -1, ['mu4', 'mb_sp600_trk40_hmt'],False]],
-        ['mu4_mb_sp700_trk50_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ['RATE:MinBias','BW:MinBias'], 1, ['serial', -1, ['mu4', 'mb_sp700_trk50_hmt'],False]],
-        ['mu4_mb_sp900_trk60_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ['RATE:MinBias','BW:MinBias'], 1, ['serial', -1, ['mu4', 'mb_sp900_trk60_hmt'],False]],
-        ['mu4_mb_sp1100_trk70_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ['RATE:MinBias','BW:MinBias'], 1, ['serial', -1, ['mu4', 'mb_sp1100_trk70_hmt'],False]],
-        ['mu4_mb_sp1200_trk80_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ['RATE:MinBias','BW:MinBias'], 1, ['serial', -1, ['mu4', 'mb_sp1200_trk80_hmt'],False]],
-        ['mu4_mb_sp1400_trk90_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ['RATE:MinBias','BW:MinBias'], 1, ['serial', -1, ['mu4', 'mb_sp1400_trk90_hmt'],False]],
-        ['mu4_mb_sp1600_trk100_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ['RATE:MinBias','BW:MinBias'], 1, ['serial', -1, ['mu4', 'mb_sp1600_trk100_hmt'],False]],
-
-        ['mu4_mb_sp600_pusup300_trk40_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ['RATE:MinBias','BW:MinBias'], 1, ['serial', -1, ['mu4', 'mb_sp600_pusup300_trk40_hmt'],False]],
-        ['mu4_mb_sp700_pusup350_trk50_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ['RATE:MinBias','BW:MinBias'], 1, ['serial', -1, ['mu4', 'mb_sp700_pusup350_trk50_hmt'],False]],
-        ['mu4_mb_sp900_pusup400_trk60_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ['RATE:MinBias','BW:MinBias'], 1, ['serial', -1, ['mu4', 'mb_sp900_pusup400_trk60_hmt'],False]],
-        ['mu4_mb_sp1100_pusup450_trk70_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ['RATE:MinBias','BW:MinBias'], 1, ['serial', -1, ['mu4', 'mb_sp1100_pusup450_trk70_hmt'],False]],
-        ['mu4_mb_sp1200_pusup500_trk80_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ['RATE:MinBias','BW:MinBias'], 1, ['serial', -1, ['mu4', 'mb_sp1200_pusup500_trk80_hmt'],False]],
-        ['mu4_mb_sp1400_pusup550_trk90_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ['RATE:MinBias','BW:MinBias'], 1, ['serial', -1, ['mu4', 'mb_sp1400_pusup550_trk90_hmt'],False]],
-        ['mu4_mb_sp1600_pusup600_trk100_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ['RATE:MinBias','BW:MinBias'], 1, ['serial', -1, ['mu4', 'mb_sp1600_pusup600_trk100_hmt'],False]],
-        
 
 
         ['mu10_mgonly_L1LATE-MU10_J50',          'L1_LATE-MU10_J50',           [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
@@ -3922,6 +3904,23 @@ def setupMenu():
         ['mb_sp2500_trk140_hmt_L1TE40.0ETA24', 'L1_TE40.0ETA24', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['mb_sp2700_trk150_hmt_L1TE40.0ETA24', 'L1_TE40.0ETA24', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['mb_sp2900_trk160_hmt_L1TE40.0ETA24', 'L1_TE40.0ETA24', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        
+        #HMT + muons        
+        ['mu4_mb_sp600_trk40_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp600_trk40_hmt'],False]],
+        ['mu4_mb_sp700_trk50_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp700_trk50_hmt'],False]],
+        ['mu4_mb_sp900_trk60_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp900_trk60_hmt'],False]],
+        ['mu4_mb_sp1100_trk70_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1100_trk70_hmt'],False]],
+        ['mu4_mb_sp1200_trk80_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1200_trk80_hmt'],False]],
+        ['mu4_mb_sp1400_trk90_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1400_trk90_hmt'],False]],
+        ['mu4_mb_sp1600_trk100_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['mu4', 'mb_sp1600_trk100_hmt'],False]],
+
+        ['mu4_mb_sp600_pusup300_trk40_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp600_pusup300_trk40_hmt'],False]],
+        ['mu4_mb_sp700_pusup350_trk50_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp700_pusup350_trk50_hmt'],False]],
+        ['mu4_mb_sp900_pusup400_trk60_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp900_pusup400_trk60_hmt'],False]],
+        ['mu4_mb_sp1100_pusup450_trk70_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp1100_pusup450_trk70_hmt'],False]],
+        ['mu4_mb_sp1200_pusup500_trk80_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp1200_pusup500_trk80_hmt'],False]],
+        ['mu4_mb_sp1400_pusup550_trk90_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp1400_pusup550_trk90_hmt'],False]],
+        ['mu4_mb_sp1600_pusup600_trk100_hmt_L1MU4_TE10', 'L1_MU4_TE10', ['', ''], ['MinBias'], ["BW:Muon", "RATE:SingleMuon"], 1, ['serial', -1, ['mu4', 'mb_sp1600_pusup600_trk100_hmt'],False]],
         
         #HMT performance
         ['mb_sp800_hmtperf_L1TE5', 'L1_TE5', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
