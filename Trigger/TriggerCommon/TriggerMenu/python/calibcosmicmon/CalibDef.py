@@ -137,7 +137,7 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
         self.setupZDCPEBChains()
       elif 'calibAFP' in self.chainPart['purpose']:
         self.setupAFPCalibrationChains()
-      elif 'calibRPC' in self.chainPart['purpose']:
+      elif 'rpcpeb' in self.chainPart['purpose']:
         self.setupRPCCalibrationChains()
         
       else:
