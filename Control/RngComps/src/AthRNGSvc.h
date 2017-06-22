@@ -3,6 +3,7 @@
 #define _ATHENA_ATHRNGSVC_H
 
 #include <unordered_map>
+#include <vector>
 #include <string>
 #include <mutex>
 #include <functional>
@@ -52,6 +53,7 @@ private:
   std::mutex m_mutex;
   std::string m_RNGType;
   std::size_t m_numSlots;
+  std::vector<std::string> m_seeds;
   bool m_initialized;
   typedef std::function<CLHEP::HepRandomEngine*(void)> factoryFunc;
   factoryFunc m_fact;

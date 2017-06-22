@@ -12,11 +12,16 @@ AthRNGSvc::AthRNGSvc(const std::string& name,ISvcLocator* svc):AthService(name,s
 							       m_initialized(false){
   declareProperty("EngineType", m_RNGType,
 		  "CLHEP RandomEngine type");
+  declareProperty("Seeds", m_seeds,
+		  "Ignored!");
   
 }
 
 StatusCode AthRNGSvc::initialize(){
   ATH_CHECK( AthService::initialize() );
+  if(m_seeds.size()){
+    ATH_MSG_WARNING("Seeds are ignored. A hash composed of event number, run number and stream/algorithm name is used as a seed"); 
+  }
   if(m_RNGType=="dSFMT"){
     m_fact=[](void)->CLHEP::HepRandomEngine*{
       return new CLHEP::dSFMTEngine();
