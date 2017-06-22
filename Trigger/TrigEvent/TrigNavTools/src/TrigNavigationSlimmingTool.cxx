@@ -55,7 +55,6 @@ HLT::TrigNavigationSlimmingTool::TrigNavigationSlimmingTool( const std::string& 
   m_actionsMap["DropEmptyRoIs"] = &HLT::TrigNavigationSlimmingTool::dropEmptyRoIs;
   m_actionsMap["DropFeatureless"] = &HLT::TrigNavigationSlimmingTool::dropFeatureless;
   m_actionsMap["SyncThinning"]     = &HLT::TrigNavigationSlimmingTool::syncThinning;
-  m_actionsMap["DropFeaturelessTerminals"]     = &HLT::TrigNavigationSlimmingTool::dropFeaturelessTerminals;
   m_actionsMap["DropChains"]     = &HLT::TrigNavigationSlimmingTool::dropChains;
 
 
@@ -265,20 +264,6 @@ StatusCode HLT::TrigNavigationSlimmingTool::dropFeatureless() {
 }
 
 
-
-StatusCode HLT::TrigNavigationSlimmingTool::dropFeaturelessTerminals() {
-  auto& allTEs = m_navigation->getAllTEs();
-  // loop from back to front (rbegin, rend) and drop TEs if they have no features and are terminals
-  // inverted direction of the loop enables a recursion as we are guaranteed to see leafs first
-  for ( auto te = allTEs.rbegin(); te != allTEs.rend(); ++te ) {
-    if ( (*te)->getFeatureAccessHelpers().empty() 
-	 and m_navigation->isTerminalNode(*te) 
-	 and not m_navigation->isInitialNode(*te) ) {
-      CHECK( removeTriggerElement(*te) );
-    }
-  }
-  return StatusCode::SUCCESS;
-}
 
 
 StatusCode HLT::TrigNavigationSlimmingTool::dropChains() {
