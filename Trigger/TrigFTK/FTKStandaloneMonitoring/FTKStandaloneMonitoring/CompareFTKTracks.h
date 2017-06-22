@@ -52,6 +52,7 @@ class CompareFTKTracks{
     /// here the matching is done: the criterium is angular distance specified by m_dmax
     void AssociateTracks();
     
+    /// change the maximum distance between two tracks for angular matching: default 0.2
     void SetDRmax(double dmax){m_dmax=dmax;}
     
     /// here a rough printout equivalence between the two vectors of tracks is performed
