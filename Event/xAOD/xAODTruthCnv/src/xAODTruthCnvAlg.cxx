@@ -44,7 +44,7 @@ namespace xAODMaker {
     
     
     xAODTruthCnvAlg::xAODTruthCnvAlg( const string& name, ISvcLocator* svcLoc )
-    : AthAlgorithm( name, svcLoc ), m_metaStore( "MetaDataStore", name ), inputMetaStore( "StoreGateSvc/InputMetaDataStore",name)
+    : AthAlgorithm( name, svcLoc ), m_metaStore( "MetaDataStore", name ), m_inputMetaStore( "StoreGateSvc/InputMetaDataStore",name)
     {
         declareProperty("AODContainerName", m_aodContainerName="GEN_AOD" );
         declareProperty("xAODTruthEventContainerName", m_xaodTruthEventContainerName="TruthEvents" );
@@ -220,7 +220,7 @@ namespace xAODMaker {
                     if (m_writeMetaData) {
                         //The mcChannelNumber is used as a unique identifier for which truth meta data belongs to
                         const EventStreamInfo* esi = nullptr;
-                        CHECK( inputMetaStore->retrieve(esi));
+                        CHECK( m_inputMetaStore->retrieve(esi));
                         uint32_t mcChannelNumber = esi->getEventTypes().begin()->mc_channel_number();
                         
                         //Inserting in a (unordered_)set returns an <iterator, boolean> pair, where the boolean
