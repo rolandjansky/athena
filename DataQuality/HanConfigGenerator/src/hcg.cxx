@@ -31,6 +31,7 @@
 #include "addnode.h"
 #include "spacer.h"
 
+#include "TROOT.h"
 #include "TStyle.h"
 #include "TCanvas.h"
 #include "TKey.h"
@@ -1227,9 +1228,9 @@ void search( TDirectory* td, const std::string& s, std::string cwd, node* n ) {
 
 
 
-std::vector<int> lumiblockrange( TDirectory* tdir, int depth=0 ) {
+std::vector<int> lumiblockrange( TDirectory* idir, int depth=0 ) {
   
-  std::string dir = tdir->GetName();
+  std::string dir = idir->GetName();
   
   if ( depth>1 || ( depth>0 && !contains( dir, "run_" ) ) ) return std::vector<int>(0);
   
@@ -1274,7 +1275,7 @@ std::vector<int> lumiblockrange( TDirectory* tdir, int depth=0 ) {
     }
   }  
 
-  tdir->cd();
+  idir->cd();
   return limits;
 }
 
@@ -1312,6 +1313,13 @@ int cost( std::vector<std::string>& files, node& n, const std::string& directory
     }
   
     fptr[i]->cd();
+
+    TDirectory* cwd = gDirectory;
+    std::vector<int> lbrange = lumiblockrange( gDirectory );
+
+    if ( lbrange.size()>1 ) std::cout << "lumiblockrange: blocks: " << lbrange[0] << "  " << lbrange[1] << std::endl; 
+    cwd->cd();
+
 
     if ( directory!="" ) fptr[i]->cd(directory.c_str());    
 
@@ -1373,10 +1381,9 @@ int cost( std::vector<std::string>& files, node& n, const std::string& directory
 
     std::cerr << "closing files" << std::endl; 
 
-    std::vector<int> lbrange = lumiblockrange( gDirectory );
-
-    if ( lbrange.size()>1 ) std::cout << "lumiblockrange: blocks: " << lbrange[0] << "  " << lbrange[1] << std::endl; 
-        
+    /// why, why, why, why, why-oh-why does root take such a 
+    /// long time to close the file without this ?
+    gROOT->GetListOfFiles()->Remove(fptr[i]);
     fptr[i]->Close();
 
     delete fptr[i];
@@ -1402,6 +1409,7 @@ int cost( std::vector<std::string>& files, node& n, const std::string& directory
 
 int usage(std::ostream& s, int , char** argv, int status=-1) { 
   s << "Usage: " << argv[0] << " [OPTIONS] input1.root ... inputN.root\n\n";
+  s << "Options:\n";
   s << "    -o                FILENAME  \tname of output (filename required)\n";
   s << "    -b,   --base      DIR       \tuse directory DIR as the base for the han config\n";
   s << "    -d,   --dir       DIR       \tonly directories below DIR where DIR is a structure such as HLT/TRIDT etc\n";
