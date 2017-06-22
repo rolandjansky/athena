@@ -1,0 +1,6 @@
+svn+ssh://svn.cern.ch/reps/atlasinst/Institutes/Carleton/HiggsTruthClassifier/BoostExternal/trunk
+svn+ssh://svn.cern.ch/reps/atlasinst/Institutes/Carleton/HiggsTruthClassifier/GSLExternal/trunk
+svn+ssh://svn.cern.ch/reps/atlasinst/Institutes/Carleton/HiggsTruthClassifier/HepMCExternal/trunk
+svn+ssh://svn.cern.ch/reps/atlasinst/Institutes/Carleton/HiggsTruthClassifier/FastJetExternal/trunk
+svn+ssh://svn.cern.ch/reps/atlasinst/Institutes/Carleton/HiggsTruthClassifier/YODAExternal/trunk
+svn+ssh://svn.cern.ch/reps/atlasinst/Institutes/Carleton/HiggsTruthClassifier/RivetExternal/trunk
