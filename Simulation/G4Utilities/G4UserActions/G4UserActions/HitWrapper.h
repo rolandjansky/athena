@@ -5,32 +5,11 @@
 #ifndef G4UserActions_HitWrapper_H
 #define G4UserActions_HitWrapper_H
 
-#include "G4AtlasTools/UserActionBase.h"
-
-
-#include <string>
-
-class HitWrapper final: public UserActionBase {
-
-  public:
-  HitWrapper(const std::string& type, const std::string& name, const IInterface* parent);
-
-  virtual void EndOfEvent(const G4Event*) override;
-
-  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
-
-  private:
-
-  double m_time; //!< Time over which to wrap the hits
-
-
-
-};
 
 #include "G4AtlasInterfaces/IEndEventAction.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include  "AthenaBaseComps/AthMessaging.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 namespace G4UA
 {

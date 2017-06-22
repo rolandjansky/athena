@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
 // **********************************************************************
 // METMonTool.cxx
 // AUTHORS: Michele Consonni
@@ -56,7 +55,7 @@ METMonTool::METMonTool(const std::string& type, const std::string& name, const I
     m_metFinKey("MET_RefFinal"),
     m_metCalKey("MET_LocHadTopo"),
     m_metRegKey(""),
-    m_jetColKey("AntiKt4LCTopoJets"),
+    m_jetColKey("AntiKt4EMTopoJets"),
     m_eleColKey("Electrons"),
     m_muoColKey("Muons"),
     m_met_cut_80(false),
@@ -921,31 +920,6 @@ StatusCode METMonTool::fillHistograms()
 StatusCode METMonTool::fillSourcesHistograms()
 {
 
-    // MET > 80 cut
-  /*
-    const xAOD::MissingETContainer* xMissEt80 = 0;
-
-    if (m_met_cut > 0) {
-        m_met_cut_80 = true;
-    }
-
-    if (m_met_cut_80) {
-        if (evtStore()->contains<xAOD::MissingETContainer>("MET_Reference_AntiKt4LCTopo")) {
-            ATH_CHECK(evtStore()->retrieve(xMissEt80, "MET_Reference_AntiKt4LCTopo"));
-
-            // ATH_MSG_WARNING("MONTOOL DOING 80 GeV Cut!!");
-
-            if (!xMissEt80) {
-                ATH_MSG_DEBUG("Unable to retrieve MissingETContainer: " << "MET_Reference_AntiKt4LCTopo");
-            }
-            else {
-                float sumet = (*xMissEt80)["FinalClus"]->met() / CLHEP::GeV;
-                if (sumet < 80.0) return StatusCode::SUCCESS;
-            }
-        }
-    }
-  */
-
 
 
     //msg_info// ATH_MSG_INFO("METMonTool::880");
@@ -954,16 +928,16 @@ StatusCode METMonTool::fillSourcesHistograms()
 
     ATH_MSG_DEBUG("in fillSourcesHistograms()");
 
-    const xAOD::Jet* xjet = 0;
+
     const xAOD::JetContainer* xJetCollection = 0;
     if (m_jetColKey != "")
     {
 
 
-        ATH_CHECK(evtStore()->retrieve(xJetCollection, "AntiKt4LCTopoJets"));
+      ATH_CHECK(evtStore()->retrieve(xJetCollection, "AntiKt4EMTopoJets"));
         if (!xJetCollection)
         {
-            ATH_MSG_WARNING("Unable to retrieve JetContainer: " << "AntiKt4LCTopoJets");
+            ATH_MSG_WARNING("Unable to retrieve JetContainer: " << "AntiKt4EMTopoJets");
             //return StatusCode::FAILURE;
         }
         else
@@ -1062,10 +1036,11 @@ StatusCode METMonTool::fillSourcesHistograms()
     // const MissingET *missET;
 
     if (m_met_cut_80) {
-      if (evtStore()->contains<xAOD::MissingETContainer>("MET_Reference_AntiKt4LCTopo")) {
+	if (evtStore()->contains<xAOD::MissingETContainer>("MET_Reference_AntiKt4EMTopo")) {
 	const xAOD::MissingETContainer* xMissEt_forCut = 0;
-	ATH_CHECK(evtStore()->retrieve(xMissEt_forCut, "MET_Reference_AntiKt4LCTopo"));
-	float et_RefFinal = (*xMissEt_forCut)["FinalClus"]->met() / CLHEP::GeV;
+	ATH_CHECK(evtStore()->retrieve(xMissEt_forCut, "MET_Reference_AntiKt4EMTopo"));
+	//	float et_RefFinal = (*xMissEt_forCut)["FinalClus"]->met() / CLHEP::GeV;
+	float et_RefFinal = (*xMissEt_forCut)["FinalTrk"]->met() / CLHEP::GeV;
 	if (et_RefFinal < m_met_cut) return StatusCode::SUCCESS;
       }
     }
@@ -1081,6 +1056,8 @@ StatusCode METMonTool::fillSourcesHistograms()
 	      
 	      const xAOD::Jet* xjet = *jetItr;
 	      bool isgoodjet =  m_selTool->keep(*xjet);
+	      //	      std::cout<<"isgoodjet "<<isgoodjet<<std::endl;
+	      //	      std::cout<"cutlevel "<< m_selTool->getCutLevel<<std::endl;
 	      if(! isgoodjet )  return StatusCode::SUCCESS;
 	    }
 	}
@@ -1095,57 +1072,58 @@ StatusCode METMonTool::fillSourcesHistograms()
         std::string xaod_subkey = "";
         if (m_metKeys[i].compare("MET_RefFinal") == 0)
         {
-            xaod_key = "MET_Reference_AntiKt4LCTopo";
-            xaod_subkey = "FinalClus"; // add track
+	    xaod_key = "MET_Reference_AntiKt4EMTopo";
+	    //            xaod_subkey = "FinalClus"; // add track
+            xaod_subkey = "FinalTrk"; // add track
         }
         else if (m_metKeys[i].compare("MET_RefEle") == 0)
         {
-            xaod_key = "MET_Reference_AntiKt4LCTopo";
+            xaod_key = "MET_Reference_AntiKt4EMTopo";
             xaod_subkey = "RefEle";
         }
         else if (m_metKeys[i].compare("MET_RefGamma") == 0)
         {
-            xaod_key = "MET_Reference_AntiKt4LCTopo";
+            xaod_key = "MET_Reference_AntiKt4EMTopo";
             xaod_subkey = "RefGamma";
         }
         else if (m_metKeys[i].compare("MET_RefTau") == 0)
         {
-            xaod_key = "MET_Reference_AntiKt4LCTopo";
+            xaod_key = "MET_Reference_AntiKt4EMTopo";
             xaod_subkey = "RefTau";
         }
 
         else if (m_metKeys[i].compare("MET_SoftClus") == 0)
         {
-            xaod_key = "MET_Reference_AntiKt4LCTopo";
+            xaod_key = "MET_Reference_AntiKt4EMTopo";
             xaod_subkey = "SoftClus";
         }
 
         else if (m_metKeys[i].compare("MET_SoftTrk") == 0)
         {
-            xaod_key = "MET_Reference_AntiKt4LCTopo";
+            xaod_key = "MET_Reference_AntiKt4EMTopo";
             xaod_subkey = "FinalTrk";
         }
 
         else if (m_metKeys[i].compare("MET_PVSoftTrk") == 0)
         {
-            xaod_key = "MET_Reference_AntiKt4LCTopo";
+            xaod_key = "MET_Reference_AntiKt4EMTopo";
             xaod_subkey = "PVSoftTrk";
         }
 
         else if (m_metKeys[i].compare("MET_RefJet_JVFCut") == 0)
         {
-            xaod_key = "MET_Reference_AntiKt4LCTopo";
+            xaod_key = "MET_Reference_AntiKt4EMTopo";
             xaod_subkey = "RefJet"; // RefJet_JVFCut
         }
 
         else if (m_metKeys[i].compare("MET_RefJet") == 0)
         {
-            xaod_key = "MET_Reference_AntiKt4LCTopo";
+            xaod_key = "MET_Reference_AntiKt4EMTopo";
             xaod_subkey = "RefJet";
         }
         else if (m_metKeys[i].compare("MET_Muon") == 0)
         {
-            xaod_key = "MET_Reference_AntiKt4LCTopo";
+            xaod_key = "MET_Reference_AntiKt4EMTopo";
             xaod_subkey = "Muons";
         }
         else if (m_metKeys[i].compare("MET_PFlow_RefFinal") == 0)
@@ -1351,10 +1329,11 @@ StatusCode METMonTool::fillCalosHistograms()
             ATH_MSG_DEBUG("Filling histograms per calorimeter subsystem with key " << m_metCalKey);
 
 	    if (m_met_cut_80) {
-	      if (evtStore()->contains<xAOD::MissingETContainer>("MET_Reference_AntiKt4LCTopo")) {
+	      if (evtStore()->contains<xAOD::MissingETContainer>("MET_Reference_AntiKt4EMTopo")) {
 		const xAOD::MissingETContainer* xMissEt_forCut = 0;
-		ATH_CHECK(evtStore()->retrieve(xMissEt_forCut, "MET_Reference_AntiKt4LCTopo"));
-		float et_RefFinal = (*xMissEt_forCut)["FinalClus"]->met() / CLHEP::GeV;
+		ATH_CHECK(evtStore()->retrieve(xMissEt_forCut, "MET_Reference_AntiKt4EMTopo"));
+		//		float et_RefFinal = (*xMissEt_forCut)["FinalClus"]->met() / CLHEP::GeV;
+		float et_RefFinal = (*xMissEt_forCut)["FinalTrk"]->met() / CLHEP::GeV;
 
 		if (et_RefFinal < m_met_cut) return StatusCode::SUCCESS;
 	      }
@@ -1364,10 +1343,12 @@ StatusCode METMonTool::fillCalosHistograms()
 	    if (m_doJetcleaning && !m_badJets)
 	      {
 		const xAOD::JetContainer* xJetCollection = 0;
-		ATH_CHECK(evtStore()->retrieve(xJetCollection, "AntiKt4LCTopoJets"));
+
+		ATH_CHECK(evtStore()->retrieve(xJetCollection, "AntiKt4EMTopoJets"));
 		if (!xJetCollection)
 		  {
-		    ATH_MSG_WARNING("Unable to retrieve JetContainer: " << "AntiKt4LCTopoJets");
+
+		    ATH_MSG_WARNING("Unable to retrieve JetContainer: " << "AntiKt4EMTopoJets");
 		    //return StatusCode::FAILURE;
 		  }
 		if (xJetCollection->size() > 0){

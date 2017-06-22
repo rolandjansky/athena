@@ -1,6 +1,6 @@
 // emacs: this is -*- c++ -*-
 //
-//   @file    T_AnalysisConfig_Tier0.h        
+//   @file    T_AnalysisConfig_Tier0.h
 //
 //            baseclass template so that we can use in different contexts 
 //            in different ways in the monitoring 
@@ -16,15 +16,14 @@
 //
 // 
 //   Copyright (C) 2014 M.Sutton (sutt@cern.ch)    
+//   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 //
-//   $Id: T_AnalysisConfig_Tier0.h  v0.0   Wed 28 Oct 2014 02:47:05 CET sutt $
+//   $Id: T_AnalysisConfig_Tier0.h  Tue 16 May 2017 09:28:55 CEST sutt $
 
 #ifndef TrigInDetAnalysisExample_T_AnalysisConfig_Tier0_H
 #define TrigInDetAnalysisExample_T_AnalysisConfig_Tier0_H
 
 
-// #include "TrigHLTMonitoring/IHLTMonTool.h"
-// #include "AthenaBaseComps/AthAlgorithm.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
 #include "TrigInDetAnalysis/TIDAEvent.h"
@@ -63,7 +62,6 @@
 #include "TrigInDetAnalysisUtils/Filter_RoiSelector.h"
 #include "TrigInDetAnalysisUtils/Associator_BestMatch.h"
 #include "TrigInDetAnalysisUtils/Filters.h"
-// #include "TrigInDetAnalysisUtils/OfflineObjectSelection.h"
 
 
 #include "VxVertex/VxContainer.h"
@@ -74,7 +72,6 @@
 
 #include "tauEvent/TauJetContainer.h"
 
-//#include "JetEvent/JetCollection.h"
 
 #include "TrigSteeringEvent/HLTResult.h"
 #include "TrigDecisionTool/ExpertMethods.h"
@@ -86,7 +83,10 @@
 // the xAOD::TrackParticle header if it exists
 #include "TrkParticleCreator/TrackParticleCreatorTool.h"
 
-#define endmsg endmsg
+
+
+
+
 
 
 template<typename T>
@@ -106,6 +106,26 @@ void HighestPTOnly( std::vector<T*>& tracks ) {
     
     tracks = tmp_tracks;
   }
+}
+
+
+
+
+
+
+template<typename T>
+void FilterPT( std::vector<T*>& tracks, double pt ) { 
+
+  std::vector<T*> tmp_tracks; 
+  
+  tmp_tracks.reserve( tracks.size() );
+  
+  for ( unsigned i=0 ; i<tracks.size() ; i++ ) { 
+    if ( std::fabs(tracks[i]->pT())>=pt ) tmp_tracks.push_back( tracks[i] );
+  }
+
+  if ( tmp_tracks.size()<tracks.size() ) tracks = tmp_tracks;
+
 }
 
 
@@ -138,6 +158,7 @@ public:
 			 testFilter, referenceFilter,
 			 associator,
 			 analysis ),
+    m_useBeamCondSvc(false),
     m_doOffline(true),
     m_doMuons(false),
     m_doElectrons(false),
@@ -147,7 +168,10 @@ public:
     m_NRois(0),
     m_NRefTracks(0),
     m_NTestTracks(0),
-    m_runPurity(false)
+    m_runPurity(false),
+    m_shifter(false),
+    m_pTthreshold(0),
+    m_first(true)
   {
     m_event = new TIDA::Event();
     m_chainNames.push_back(testChainName);
@@ -162,6 +186,9 @@ public:
     std::cout << "\troi:   " << chain.roi()     << std::endl;
     std::cout << "\tvtx:   " << chain.vtx()     << std::endl;
     std::cout << "\tte:    " << chain.element() << std::endl;
+
+    std::cout << "\tpost:  " << chain.post()          << std::endl; 
+    std::cout << "\tpt:    " << chain.postvalue("pt") << std::endl;
 #endif
     
     m_testType = testType;
@@ -170,6 +197,10 @@ public:
   virtual ~T_AnalysisConfig_Tier0() { delete m_event; }
 
   void setRunPurity( bool b ) { m_runPurity=b; }
+
+  void setShifter( bool b )    { m_shifter=b; }
+
+  void useBeamCondSvc( bool b ) { m_useBeamCondSvc = b; }
 
 public:
 
@@ -225,10 +256,10 @@ protected:
     }
 
 
-    static bool first = true;
+    if ( m_first ) {
 
-    if ( first ) {
-
+      m_first = false;
+      
       m_provider->msg(MSG::INFO) << " using beam position\tx=" << xbeam << "\ty=" << ybeam << endmsg;
 
       if(m_provider->msg().level() <= MSG::VERBOSE) {
@@ -240,10 +271,6 @@ protected:
         }
 
       }
-      
-    
-      // std::vector<std::string> chains;
-      // chains.reserve( m_chainNames.size() );
 
 
       std::vector<ChainString>::iterator chainitr = m_chainNames.begin();
@@ -258,15 +285,7 @@ protected:
         /// get chain
         ChainString& chainName = (*chainitr);
 
-        m_provider->msg(MSG::INFO) << "process chain " << chainName << "\traw: " << chainitr->raw() << endmsg;
-
-        /// check for wildcard ...
-        // if ( chainName.head().find("*")!=std::string::npos ) {
-        //   std::cout << "wildcard chains: " << chainName << std::endl;
-
-        /// delete from vector
-        // m_chainNames.erase(chainitr);
-        // chainitr--;
+        m_provider->msg(MSG::INFO) << "process chain " << chainName << endmsg;
 
         /// get matching chains
         std::vector<std::string> selectChains  = (*(m_tdt))->getListOfTriggers( chainName.head() );
@@ -283,6 +302,7 @@ protected:
           if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
           if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
           if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
+	  if ( chainName.postcount() )   selectChains[iselected] += ":post:"+chainName.post();
 
 #if 0
 	  std::cout << "sorting:: chain specification: " << chainName << "\traw:" << chainName.raw() << std::endl;
@@ -300,10 +320,8 @@ protected:
           if(m_provider->msg().level() <= MSG::VERBOSE) {
             m_provider->msg(MSG::VERBOSE) << "Matching chain " << selectChains[iselected] << " (" << chainName.head() << ")" << endmsg;
 	  }
+
         }
-        // else {
-        //   chains.push_back( *chainitr );
-        // }
 
         chainitr++;
       }
@@ -419,6 +437,8 @@ protected:
     for ( unsigned ichain=0 ; ichain<m_chainNames.size() ; ichain++ ) {
       const std::string& chainname = m_chainNames[ichain].head();
 
+      
+
 
       //Only for trigger chains
       if ( chainname.find("L2")  == std::string::npos &&
@@ -432,7 +452,7 @@ protected:
       }
 
       //      std::cout << "Chain "  << chainname << "\tpass " << (*m_tdt)->isPassed(chainname)
-      //		<< "\tpres " << (*m_tdt)->getPrescale(chainname) << std::endl;
+      //  		<< "\tpres " << (*m_tdt)->getPrescale(chainname) << std::endl;
 
       
       if ( (*(m_tdt))->isPassed(chainname) || (*(m_tdt))->getPrescale(chainname) ) analyse = true;
@@ -440,15 +460,11 @@ protected:
     }
     
 
-    //    std::cout << "here " << __LINE__ << std::endl;
-
-    first = false;
-
     if ( (*m_tdt)->ExperimentalAndExpertMethods()->isHLTTruncated() ) {
       m_provider->msg(MSG::WARNING) << "HLTResult truncated, skipping event" << endmsg;
       return;
     }
-
+    
     if ( !this->m_keepAllEvents && !analyse ) {
       //     m_provider->msg(MSG::VERBOSE) << "No chains passed unprescaled - not processing this event" << endmsg;
       if(m_provider->msg().level() <= MSG::VERBOSE)
@@ -608,6 +624,13 @@ protected:
       const std::string&  vtx_name = m_chainNames[ichain].vtx();
       const std::string&  roi_name = m_chainNames[ichain].roi();
       const std::string&   te_name = m_chainNames[ichain].element();
+
+      m_pTthreshold = 0;  /// why does this need to be a class variable ???
+
+      if ( m_chainNames[ichain].postcount() ) { 
+        std::string ptvalue = m_chainNames[ichain].postvalue("pt");
+	if ( ptvalue!="" ) m_pTthreshold = std::stod(ptvalue);
+      }
 
       //      std::cout << "\tchain " << m_chainNames[ichain] << "\tchainname " << chainname << "\tvtx " << vtx_name << "\troi " << roi_name << std::endl;
 
@@ -1052,11 +1075,10 @@ protected:
 
 
           if ( !(ip>0) ) {
-            if(m_provider->msg().level() <= MSG::VERBOSE)
-              m_provider->msg(MSG::WARNING) << "NO TRUTH PARTICLES - returning" << endmsg;
-            return; /// need to be careful here, if not requiring truth *only* should not return
+            if (m_provider->msg().level() <= MSG::VERBOSE) m_provider->msg(MSG::WARNING) << "NO TRUTH PARTICLES - returning" << endmsg;
+	    return; /// need to be careful here, if not requiring truth *only* should not return
           }
-
+	  
         }
       
         // std::cout << "seeking offline tracks..." << std::endl;
@@ -1066,6 +1088,7 @@ protected:
         // m_provider->msg(MSG::VERBOSE) << " Offline tracks " << endmsg;
 
         if ( m_doOffline ) {
+
 #         ifdef XAODTRACKING_TRACKPARTICLE_H
           if ( m_provider->evtStore()->template contains<xAOD::TrackParticleContainer>("InDetTrackParticles") ) {
             this->template selectTracks<xAOD::TrackParticleContainer>( m_selectorRef, "InDetTrackParticles" );
@@ -1088,8 +1111,6 @@ protected:
 	  
 	  //Noff = m_selectorRef->tracks().size();
           ref_tracks = m_selectorRef->tracks();
-
-	  //	  std::cout << "SUTT ref_tracks" << ref_tracks.size() << std::endl;  
 
           if ( m_provider->msg().level() <= MSG::VERBOSE ) {
             m_provider->msg(MSG::VERBOSE) << "ref tracks.size() " << m_selectorRef->tracks().size() << endmsg;
@@ -1118,16 +1139,14 @@ protected:
 	if ( refbeamspot.size()>0 )  _analysis->setBeamRef(   refbeamspot ); 
 	if ( testbeamspot.size()>0 ) _analysis->setBeamTest( testbeamspot ); 
 
-	if ( first && m_NRois==0 && m_provider->msg().level() <= MSG::INFO) {
-	  m_provider->msg(MSG::INFO) << m_provider->name() << " using highest pt reference track only " << this->getUseHighestPT() << endmsg;
-	}
-
 	/// if we want a purity, we need to swap round which tracks are the 
 	/// reference tracks and which the test tracks
 
 	if ( m_runPurity ) { 
 
 	  if ( this->getUseHighestPT() ) HighestPTOnly( test_tracks );
+
+	  if ( m_pTthreshold>0 ) FilterPT( test_tracks, m_pTthreshold );
 
 	  /// stats book keeping 
 	  m_NRois++;
@@ -1142,7 +1161,14 @@ protected:
 	}
 	else { 
 
+	  /// filter on highest pt track only if required
+
 	  if ( this->getUseHighestPT() ) HighestPTOnly( ref_tracks );
+
+	  /// ignore all tracks belong the specific analysis pt threshold if set
+	  
+	  if ( m_pTthreshold>0 )         FilterPT( ref_tracks, m_pTthreshold );
+
 
 	  /// stats book keeping 
 	  m_NRois++;
@@ -1202,11 +1228,12 @@ protected:
     // get the beam condition services - one for online and one for offline
 
     m_iBeamCondSvc = 0;
-    if ( m_provider->service( "BeamCondSvc", m_iBeamCondSvc ).isFailure() ) {
-      if(m_provider->msg().level() <= MSG::ERROR)
-        m_provider->msg(MSG::ERROR) << " failed to retrieve BeamCondSvc " << endmsg;
+    if ( m_useBeamCondSvc ) { 
+      if ( m_provider->service( "BeamCondSvc", m_iBeamCondSvc ).isFailure() && m_provider->msg().level() <= MSG::ERROR ) {
+	m_provider->msg(MSG::ERROR) << " failed to retrieve BeamCondSvc " << endmsg;
+      }
     }
-
+    
     // get the TriggerDecisionTool
 
     if( m_tdt->retrieve().isFailure() ) {
@@ -1240,6 +1267,7 @@ protected:
 
     std::vector<ChainString> chains;
 
+
     /// handle wildcard chain selection - but only the first time
     /// NB: also check all other chains as well - only set up an
     ///     analysis for configured chains
@@ -1247,17 +1275,6 @@ protected:
 
       /// get chain
       ChainString& chainName = (*chainitr);
-
-      // m_provider->msg(MSG::VERBOSE) << "process chain " << chainName << endmsg;
-
-      /// check for wildcard ...
-      // if ( chainName.head().find("*")!=std::string::npos ) {
-
-      // std::cout << "wildcard chains: " << chainName << std::endl;
-
-      /// delete from vector
-      // m_chainNames.erase(chainitr);
-      // chainitr--;
 
       /// get matching chains
       std::vector<std::string> selectChains  = (*(m_tdt))->getListOfTriggers( chainName.head() );
@@ -1274,6 +1291,8 @@ protected:
         if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
         if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
         if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
+	if ( chainName.postcount() )   selectChains[iselected] += ":post:"+chainName.post();
+
 
         /// replace wildcard with actual matching chains ...
         chains.push_back( selectChains[iselected] );
@@ -1281,10 +1300,8 @@ protected:
         if(m_provider->msg().level() <= MSG::VERBOSE) {
           m_provider->msg(MSG::VERBOSE) << "Matching chain " << selectChains[iselected] << " (" << chainName.head() << endmsg;
 	}
+
       }
-      // else {
-      //   chains.push_back( *chainitr );
-      // }
 
       chainitr++;
     }
@@ -1327,7 +1344,7 @@ protected:
 
 
       
-      if ( name().find("Shifter")!=std::string::npos ) {
+      if ( name().find("Shifter")!=std::string::npos || m_shifter ) {
 	/// shifter histograms - do not encode chain names
 	if      ( m_chainNames.at(ic).tail().find("_FTF") != std::string::npos )              mongroup = folder_name + "/FTF";
 	else if ( m_chainNames.at(ic).tail().find("_IDTrig") != std::string::npos || 
@@ -1339,10 +1356,6 @@ protected:
 	else                                                                                  mongroup = folder_name + "/Unknown";
 
 	if ( m_chainNames.at(ic).vtx()!="" ) mongroup += "/" + m_chainNames.at(ic).vtx();
-
-	//	std::cout << "\n SUTT       " << name() << std::endl;
-	
-	//	std::cout << "\n SUTT chain " << m_chainNames.at(ic) << "\tvtx " << m_chainNames.at(ic).vtx() << "\tmongroup " << mongroup << std::endl;
 
       }
       else { 
@@ -1453,6 +1466,8 @@ protected:
   IBeamCondSvc*  m_iBeamCondSvc;
   IBeamCondSvc*  m_iOnlineBeamCondSvc;
 
+  bool           m_useBeamCondSvc;
+
   TIDA::Event*  m_event;
 
   TFile*    mFile;
@@ -1480,6 +1495,12 @@ protected:
 
   bool m_runPurity;
 
+  bool m_shifter;
+
+  double m_pTthreshold;
+
+  bool   m_first;
+  
 };
 
 

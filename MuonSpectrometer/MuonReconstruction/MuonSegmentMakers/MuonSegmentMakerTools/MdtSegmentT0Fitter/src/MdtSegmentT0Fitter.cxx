@@ -32,9 +32,8 @@
 #include "TMath.h"
 #include "TVirtualFitter.h"
 #include "TMinuit.h"
-
-// tdc count bin size
-#define TDCBINSIZE 0.78125
+// tdc count bin size -- seems to be unused -> commenting for the moment as it would be wrong
+// #define TDCBINSIZE 0.78125   //1tdc=0.78125ns; 1tdc=0.1953125ns for BMG!
 
 // number of fit parameters
 #define NUMPAR 3

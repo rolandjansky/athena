@@ -12,24 +12,23 @@
 #include <string>
 
 /** @class PhantomBarrelTool PhantomBarrelTool.h "PhantomCalorimeter/PhantomBarrelTool.h"
-*
-*  Tool for building the PhantomBarrel detector.
-*/
+ *
+ *  Tool for building the PhantomBarrel detector.
+ */
 
-class PhantomBarrelTool final : public DetectorGeometryBase
-{
-public:
-  // Basic constructor and destructor
-  PhantomBarrelTool(const std::string& type, const std::string& name, const IInterface *parent);
-  ~PhantomBarrelTool();
+class PhantomBarrelTool final : public DetectorGeometryBase {
+  public:
+    // Basic constructor and destructor
+    PhantomBarrelTool(const std::string& type, const std::string& name, const IInterface *parent);
+    ~PhantomBarrelTool();
 
-  /** virtual methods being implemented here */
-  virtual void BuildGeometry() override final;
+    /** virtual methods being implemented here */
+    virtual void BuildGeometry() override final;
 
-private:
-  double m_zLength;
-  double m_rMin;
-  double m_rMax;
+  private:
+    double m_zLength;
+    double m_rMin;
+    double m_rMax;
 };
 
 #endif //PHANTOMCALORIMETER_PHANTOMBARRELTOOL_H

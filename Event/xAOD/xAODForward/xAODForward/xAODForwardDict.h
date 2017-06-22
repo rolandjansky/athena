@@ -34,6 +34,12 @@
 #include "xAODForward/versions/AFPSiHitAuxContainer_v1.h"
 #include "xAODForward/versions/AFPSiHit_v1.h"
 
+#include "xAODForward/AFPSiHitsClusterContainer.h"
+#include "xAODForward/AFPSiHitsClusterAuxContainer.h"
+#include "xAODForward/versions/AFPSiHitsClusterContainer_v1.h"
+#include "xAODForward/versions/AFPSiHitsClusterAuxContainer_v1.h"
+#include "xAODForward/versions/AFPSiHitsCluster_v1.h"
+
 #include "xAODForward/AFPTrackContainer.h"
 #include "xAODForward/AFPTrackAuxContainer.h"
 #include "xAODForward/versions/AFPTrackContainer_v1.h"
@@ -75,6 +81,13 @@ namespace xAOD
     ElementLink<xAOD::AFPSiHitContainer_v1> afpSiHit_l3;
     std::vector<ElementLink<xAOD::AFPSiHitContainer_v1> > afpSiHit_l4;
     std::vector<std::vector<ElementLink<xAOD::AFPSiHitContainer_v1> > > afpSiHit_l5;
+
+    xAOD::AFPSiHitsClusterContainer_v1 afpSiHitsContainer_c1;
+    DataLink<xAOD::AFPSiHitsClusterContainer_v1> afpSiHitsContainer_l1;
+    std::vector<DataLink<xAOD::AFPSiHitsClusterContainer_v1> > afpSiHitsContainer_l2;
+    ElementLink<xAOD::AFPSiHitsClusterContainer_v1> afpSiHitsContainer_l3;
+    std::vector<ElementLink<xAOD::AFPSiHitsClusterContainer_v1> > afpSiHitsContainer_l4;
+    std::vector<std::vector<ElementLink<xAOD::AFPSiHitsClusterContainer_v1> > > afpSiHitsContainer_l5;
 
     xAOD::AFPTrackContainer_v1 afpTrack_c1;
     DataLink<xAOD::AFPTrackContainer_v1> afpTrack_l1;

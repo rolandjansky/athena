@@ -12,89 +12,50 @@
 #define LArG4H6COLDTCMod0Calculator_H
 
 #include "LArG4Code/LArG4Identifier.h"
-#include "LArG4Code/LArVCalculator.h"
-#include "LArG4Code/LArVG4DetectorParameters.h"
-
-
-#include "G4TransportationManager.hh"
-#include "G4Navigator.hh"
-#include "G4ios.hh"
+#include "LArG4Code/LArCalculatorSvcImp.h"
 
 #include "globals.hh"
 
 #include "LArG4H6COLDTCMod0ChannelMap.h"
-#include <stdexcept>
+//#include <stdexcept>
 
-class LArG4H6COLDTCMod0Calculator: public LArVCalculator
+class LArG4H6COLDTCMod0Calculator : public LArCalculatorSvcImp
 {
 public:
 
-  static LArG4H6COLDTCMod0Calculator* GetInstance();
-
+  LArG4H6COLDTCMod0Calculator(const std::string& name, ISvcLocator* pSvcLocator);
+  virtual StatusCode initialize() override final;
   // destructor
   virtual ~LArG4H6COLDTCMod0Calculator() { };
 
   //
-  virtual G4float OOTcut() const { return m_OOTcut; }
-  virtual void SetOutOfTimeCut(G4double c) { m_OOTcut = c; }
+  virtual G4float OOTcut() const override final { return m_OOTcut; }
+  // virtual void SetOutOfTimeCut(G4double c) { m_OOTcut = c; } //FIXME public, but not part of interface
 
-  virtual G4bool Process(const G4Step*);
-  virtual G4bool Process(const G4Step*, std::vector<LArHitData>&);
-  virtual const LArG4Identifier& identifier() const {return m_identifier;}
-  virtual const LArG4Identifier& identifier(int i=0) const {
-    if (i!=0) throw std::range_error("Multiple hits not yet implemented");
-    return m_identifier;
+  virtual G4bool Process(const G4Step*, std::vector<LArHitData>&) const override final;
+
+  virtual G4bool isInTime(G4double hitTime) const override final
+  {
+    return !(hitTime > m_OOTcut);
   }
 
-  virtual G4double time() const      {return m_time;}
-  virtual G4double time(int i=0) const      {
-    if (i!=0) throw std::range_error("Multiple hits not yet implemented");
-    return m_time;
-  }
-  virtual G4double energy() const    {return m_energy;}
-  virtual G4double energy(int i=0) const    {
-    if (i!=0) throw std::range_error("Multiple hits not yet implemented");
-    return m_energy;
-  }
-  virtual G4bool isInTime() const    {return     m_isInTime;}
-  virtual G4bool isInTime(int i=0) const    {
-    if (i!=0) throw std::range_error("Multiple hits not yet implemented");
-    return     m_isInTime;
-  }
-  virtual G4bool isOutOfTime() const { return ( ! m_isInTime );}
-  virtual G4bool isOutOfTime(int i=0) const {
-    if (i!=0) throw std::range_error("Multiple hits not yet implemented");
-    return ( ! m_isInTime );
-  }
+  // // access module parameters  ---> bulk absorber = Cu
+  // virtual G4double GetModulePhiStart() const //FIXME public, but not part of interface
+  //   { return m_phiModuleStart; }
+  // virtual G4double GetModulePhiEnd() const //FIXME public, but not part of interface
+  //   { return m_phiModuleEnd; }
 
-  // access module parameters  ---> bulk absorber = Cu
-  virtual G4double GetModulePhiStart() const
-    { return m_phiModuleStart; }
-  virtual G4double GetModulePhiEnd() const
-    { return m_phiModuleEnd; }
-
-  // access active medium ---> readout gap = LAr
-  virtual G4double GetActiveDepth() const
-    { return m_fullActiveDepth; }
-  virtual G4double GetActiveInnerRadius() const
-    { return m_innerActiveRadius; }
-  virtual G4double GetActiveOuterRadius() const
-    { return m_outerActiveRadius; }
-
-protected:
-
-  LArG4H6COLDTCMod0Calculator();
+  // // access active medium ---> readout gap = LAr
+  // virtual G4double GetActiveDepth() const //FIXME public, but not part of interface
+  //   { return m_fullActiveDepth; }
+  // virtual G4double GetActiveInnerRadius() const //FIXME public, but not part of interface
+  //   { return m_innerActiveRadius; }
+  // virtual G4double GetActiveOuterRadius() const //FIXME public, but not part of interface
+  //   { return m_outerActiveRadius; }
 
 private:
 
-  static LArG4H6COLDTCMod0Calculator* m_instance;
   // private datamember handling the hit
-  G4float m_OOTcut;
-
-  G4double m_time;
-  G4double m_energy;
-  G4bool   m_isInTime;
-  LArG4Identifier m_identifier;
   G4int m_FCalSampling;
 
   // geometry of ColdTC: overall

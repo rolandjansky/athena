@@ -26,7 +26,9 @@ class BjetHypo (TrigBjetHypo):
         
         mlog = logging.getLogger('BjetHypoConfig.py')
         
-        AllowedCuts      = ["loose","medium","tight","offloose","offmedium","offtight","mv2c2040","mv2c2050","mv2c2060","mv2c2070","mv2c2077","mv2c2085","mv2c1040","mv2c1050","mv2c1060","mv2c1070","mv2c1077","mv2c1085" ]
+        AllowedCuts      = ["loose","medium","tight","offloose","offmedium","offtight",
+                            "mv2c2040","mv2c2050","mv2c2060","mv2c2070","mv2c2077","mv2c2085",
+                            "mv2c1040","mv2c1050","mv2c1060","mv2c1070","mv2c1077","mv2c1085" ]
         AllowedVersions  = ["2012", "2015", "2017", "MuJetChain_2012", "MuJetChain_2015"]
         AllowedInstances = ["EF", "MuJetChain"]
         
@@ -69,6 +71,7 @@ class BjetHypo (TrigBjetHypo):
                     self.CutXCOMB = 1.25
                 elif cut=="tight":
                     self.CutXCOMB = 2.65
+
             if version=="2015" :
                 self.MethodTag = "MV2c20"
                 # These are the offline working points
@@ -90,27 +93,28 @@ class BjetHypo (TrigBjetHypo):
                 elif cut=="mv2c2085":
                     # Actually 87% efficient
                     self.CutMV2c20 = -0.938441
+
             if version=="2017" :
                 self.MethodTag = "MV2c10"
                 # These are the offline working points
                 if cut=="mv2c1040":
-                    # Actually XX% efficient
-                    self.CutMV2c10 =  0.75
+                    # Actually ~45% efficient
+                    self.CutMV2c10 =  0.978
                 elif cut=="mv2c1050":
-                    # Actually XX% efficient
-                    self.CutMV2c10 =  0.5
+                    # Actually ~55% efficient
+                    self.CutMV2c10 =  0.948
                 elif cut=="mv2c1060":
-                    # Actually 62% efficient
-                    self.CutMV2c10 = -0.0224729
+                    # Actually ~65% efficient
+                    self.CutMV2c10 = 0.846
                 elif cut=="mv2c1070":
-                    # Actually 72% efficient
-                    self.CutMV2c10 = -0.509032
+                    # Actually ~75% efficient
+                    self.CutMV2c10 = 0.580
                 elif cut=="mv2c1077":
-                    # Actually 79% efficient
-                    self.CutMV2c10 = -0.764668
+                    # Actually ~80% efficient
+                    self.CutMV2c10 = 0.162
                 elif cut=="mv2c1085":
-                    # Actually 87% efficient
-                    self.CutMV2c10 = -0.938441
+                    # Actually ~90% efficient
+                    self.CutMV2c10 = -0.494
  
 
 class BjetHypoNoCut (TrigBjetHypo):
@@ -157,7 +161,9 @@ class BjetHypoSplit (TrigBjetHypo):
         
         mlog = logging.getLogger('BjetHypoConfig.py')
         
-        AllowedCuts      = ["loose","medium","tight","offloose","offmedium","offtight","mv2c2040","mv2c2050","mv2c2060","mv2c2070","mv2c2077","mv2c2085","mv2c1040","mv2c1050","mv2c1060","mv2c1070","mv2c1077","mv2c1085" ]
+        AllowedCuts      = ["loose","medium","tight","offloose","offmedium","offtight",
+                            "mv2c2040","mv2c2050","mv2c2060","mv2c2070","mv2c2077","mv2c2085",
+                            "mv2c1040","mv2c1050","mv2c1060","mv2c1070","mv2c1077","mv2c1085" ]
         AllowedVersions  = ["2012","2015","2017"]
         AllowedInstances = ["EF", "MuJetChain"]
         
@@ -203,6 +209,7 @@ class BjetHypoSplit (TrigBjetHypo):
                     self.CutXCOMB = 1.25
                 elif cut=="tight":
                     self.CutXCOMB = 2.65
+
             if version=="2015" :
                 self.MethodTag = "MV2c20"
                 # These are the offline working points
@@ -224,27 +231,28 @@ class BjetHypoSplit (TrigBjetHypo):
                 elif cut=="mv2c2085":
                     # Actually 87% efficient
                     self.CutMV2c20 = -0.938441
+
             if version=="2017" :
                 self.MethodTag = "MV2c10"
                 # These are the offline working points
                 if cut=="mv2c1040":
-                    # Actually XX% efficient
-                    self.CutMV2c10 =  0.75
+                    # Actually ~45% efficient
+                    self.CutMV2c10 =  0.978
                 elif cut=="mv2c1050":
-                    # Actually XX% efficient
-                    self.CutMV2c10 =  0.5
+                    # Actually ~55% efficient
+                    self.CutMV2c10 =  0.948
                 elif cut=="mv2c1060":
-                    # Actually 62% efficient
-                    self.CutMV2c10 = -0.0224729
+                    # Actually ~65% efficient
+                    self.CutMV2c10 =  0.847
                 elif cut=="mv2c1070":
-                    # Actually 72% efficient
-                    self.CutMV2c10 = -0.509032
+                    # Actually ~75% efficient
+                    self.CutMV2c10 =  0.580
                 elif cut=="mv2c1077":
-                    # Actually 79% efficient
-                    self.CutMV2c10 = -0.764668
+                    # Actually ~80% efficient
+                    self.CutMV2c10 =  0.162
                 elif cut=="mv2c1085":
-                    # Actually 87% efficient
-                    self.CutMV2c10 = -0.938441
+                    # Actually ~90% efficient
+                    self.CutMV2c10 = -0.494
 
                     
 

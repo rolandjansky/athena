@@ -29,8 +29,8 @@ if doAllHits:
 
                                   do2DMaps            = True,       #Turn on/off the sets of 2D module maps                                             
                                   doModules           = doAllHitsModules, #Turn on/off the sets of 1744 module histograms (for dqmf)
-                                  doFEChipSummary     = False,      #Turn on/off the 1744 module FE chip summary histograms (low memory version of doModules)
-                                  doLowOccupancy      = True,       #Turn on/off histograms with binning for cosmics/single beam                        
+                                  doFEChipSummary     = doAllHitsModules, #Turn on/off the 1744 module FE chip summary histograms (low memory version of doModules)
+                                  doLowOccupancy      = False,      #Turn on/off histograms with binning for cosmics/single beam                        
                                   doHighOccupancy     = True,       #Turn on/off histograms with binning for collisions                                 
                                   doRodSim            = False,      #Turn on/off histograms specific for the rod simulator                              
                                   doDetails           = False,      #Turn on/off the set of histograms with detailed info for 4 modules                 
@@ -85,7 +85,7 @@ if doHitsOnTrack:
                                          do2DMaps            = True ,     #Turn on/off the sets of 2D module maps                                          
                                          doModules           = False,     #Turn on/off the sets of 1744 module histograms (for dqmf)                       
                                          doFEChipSummary     = False,     #Turn on/off the 1744 module FE chip summary histograms (low memory version of doModules)
-                                         doLowOccupancy      = True,      #Turn on/off histograms with binning for cosmics/single beam                     
+                                         doLowOccupancy      = False,     #Turn on/off histograms with binning for cosmics/single beam                     
                                          doHighOccupancy     = True,      #Turn on/off histograms with binning for collisions                              
                                          doRodSim            = False,     #Turn on/off histograms specific for the rod simulator                           
                                          doDetails           = False,     #Turn on/off the set of histograms with detailed info for 4 modules              

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef SingleLogicalVolumeFactory_h
-#define SingleLogicalVolumeFactory_h
+#ifndef GEO2G4_SingleLogicalVolumeFactory_h
+#define GEO2G4_SingleLogicalVolumeFactory_h
 
 #include "AthenaKernel/MsgStreamMember.h"
 

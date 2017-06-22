@@ -556,11 +556,14 @@ void TrigEgammaAnalysisBaseTool::setAccept(const HLT::TriggerElement *te,const T
     if(!info.trigL1){ // HLT item get full decision
         ATH_MSG_DEBUG("Check for active features: TrigEMCluster,CaloClusterContainer");
         ATH_MSG_DEBUG("Check for active RNN feature: " << hasRnn);
-        passedL2Calo = ancestorPassed<xAOD::TrigEMCluster>(te); 
+       
         // Added Ringer step in electron sequence
         // If feature attached, check if TE active
         if(hasRnn){
             passedL2Calo=ancestorPassed<xAOD::TrigRNNOutput>(te);
+        }
+        else {
+            passedL2Calo = ancestorPassed<xAOD::TrigEMCluster>(te);  
         }
 
         passedEFCalo = ancestorPassed<xAOD::CaloClusterContainer>(te,"TrigEFCaloCalibFex");

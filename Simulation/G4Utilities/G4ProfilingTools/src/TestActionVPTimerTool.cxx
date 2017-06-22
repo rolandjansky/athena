@@ -16,6 +16,19 @@ using std::pair;        using std::find;        using std::vector;
 
 namespace G4UA{ 
   
+ // Formats print string for timer output
+  
+  inline std::string vPrFmt (double time, double nEv, double tRun, int depth, std::string id)
+  {
+    std::string dprnt = stringify(depth);
+    if (depth == -999) dprnt = "      ";
+    std::ostringstream oss;
+    oss << std::setw(12) << time << std::setw(12) << time/nEv << std::setw(12) << time/tRun
+	<< std::setw(6) << dprnt << "  " << id;
+    return oss.str();
+  }
+  
+
   typedef std::map<VolTree, TestActionVPTimer::volumeData> VolMap;
   typedef VolMap::const_iterator VolIt;
 
@@ -152,18 +165,6 @@ namespace G4UA{
     double tOther = vp.second.tTotal - vp.second.tElectron - vp.second.tPhoton - vp.second.tNeutron - vp.second.tPion;
     ATH_MSG_INFO(vPrFmt(tOther, m_report.nev, m_report.runTime, depth-1, " - other particles") );
     return;
-  }
-  
- // Formats print string for timer output
-  
-  inline std::string vPrFmt (double time, double nEv, double tRun, int depth, std::string id)
-  {
-    std::string dprnt = stringify(depth);
-    if (depth == -999) dprnt = "      ";
-    std::ostringstream oss;
-    oss << std::setw(12) << time << std::setw(12) << time/nEv << std::setw(12) << time/tRun
-	<< std::setw(6) << dprnt << "  " << id;
-    return oss.str();
   }
   
 

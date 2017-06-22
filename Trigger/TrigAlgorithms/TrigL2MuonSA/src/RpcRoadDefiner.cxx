@@ -104,8 +104,8 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   const int N_SECTOR = 2; // 0: normal, 1:overlap
 
   if (m_use_rpc) {
-    double aw[3];
-    double bw[3];
+    double aw[3]={0.,0.,0.};
+    double bw[3]={0.,0.,0.};
     unsigned int rpc_pattern;
     if ( (*rpcPatFinder)->findPatternEta(aw, bw, rpc_pattern) ) {
       rpcFitResult.isSuccess = true;

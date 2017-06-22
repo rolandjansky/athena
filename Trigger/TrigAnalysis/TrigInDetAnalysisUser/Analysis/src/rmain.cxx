@@ -491,11 +491,8 @@ int main(int argc, char** argv)
   std::vector<ChainString> chainConfig;
 
   for ( unsigned ic=0 ; ic<testChains.size() ; ic++ ) { 
-    //    std::cout << "\nchain " << testChains[ic] << std::endl;
     chainConfig.push_back( ChainString( testChains[ic] ) );
-    testChains[ic] = ChainString::chop( testChains[ic], ":post" );
-    //    std::cout << "chain " << chainConfig << std::endl;
-    //    std::cout << "\nchain " << testChains[ic] << std::endl;
+    testChains[ic] =  chainConfig.back().pre(); 
   }
 
 
@@ -896,12 +893,12 @@ int main(int argc, char** argv)
 
     //    std::cout << "chain name " << chainname << "\t:" << chainnames.back() << " : " << chainnames.size() << std::endl;
 
-    ConfAnalysis* analy_conf = new ConfAnalysis(chainnames.back());
+    ConfAnalysis* analy_conf = new ConfAnalysis(chainnames.back(), chainConfig[i] );
     analy_conf->initialiseFirstEvent(initialiseFirstEvent);
     analy_conf->initialise();
     analy_conf->setprint(false);
 
-    std::string vtxTool = chainConfig[i].value("rvtx");
+    std::string vtxTool = chainConfig[i].postvalue("rvtx");
 
     if ( vtxTool!="" ) { 
       ///  don't use the vertex name as the directory, since then we cannot 
@@ -925,8 +922,8 @@ int main(int argc, char** argv)
     /// it is required 
 
     if ( chainConfig[i].values().size()>0 ) { 
-      //      std::cout << "chain:: " << chainname << "\t(" << chainConfig[i] << " " << chainConfig[i].values().size() << ")" << std::endl; 
-      for ( unsigned ik=chainConfig[i].values().size() ; ik-- ; ) { 
+      std::cout << "chain:: " << chainname << "\t(" << chainConfig[i] << " : size " << chainConfig[i].values().size() << ")" << std::endl; 
+      for ( unsigned ik=chainConfig[i].values().size() ; ik-- ; ) {
 	std::cout << "\tchainconfig: " << ik << "\tkey " << chainConfig[i].keys()[ik] << " " << chainConfig[i].values()[ik] << std::endl; 
       }
     }
@@ -1723,6 +1720,26 @@ int main(int argc, char** argv)
 	                                     //       Ordered by order of indices the user has passed
 	                                     //       (which is ideally pT ordered e.g. 0, 1, 3)
 	}
+
+
+	/// remove any tracks below the pt threshold if one is specifed for the analysis
+
+	ConfAnalysis* cf = dynamic_cast<ConfAnalysis*>( analitr->second );
+
+	if ( cf ) { 
+	  std::string ptconfig = cf->config().postvalue("pt");
+	  if ( ptconfig!="" ) { 
+	    double pt = std::atof( ptconfig.c_str() );
+	    if ( pt>0 ) { 
+	      std::vector<TIDA::Track*> reft; reft.reserve(refp_vec.size());
+	      for ( std::vector<TIDA::Track*>::const_iterator itr=refp_vec.begin() ; itr!=refp_vec.end() ; itr++ ) { 
+		if ( std::fabs((*itr)->pT())>=pt ) reft.push_back( *itr );
+	      }
+	      refp_vec = reft;
+	    }
+ 	  }
+	}
+
 	
 	const std::vector<TIDA::Track*>&  refp  =  refp_vec;
 	
@@ -1795,7 +1812,7 @@ int main(int argc, char** argv)
 	    testz.push_back( zpair( lb, beamline_test[2]) );
 	  }
 	}
-	
+
 	_matcher->match( refp, testp);
 	
 	analitr->second->execute( refp, testp, _matcher );

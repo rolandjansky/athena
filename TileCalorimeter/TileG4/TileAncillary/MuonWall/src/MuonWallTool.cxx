@@ -15,7 +15,7 @@
 //Athena headers
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoMaterial.h"
-#include "Geo2G4/Geo2G4MaterialFactory.h"
+#include "GeoMaterial2G4/Geo2G4MaterialFactory.h"
 #include "StoreGate/DataHandle.h"
 
 // Geant4 headers

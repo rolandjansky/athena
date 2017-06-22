@@ -4,7 +4,7 @@
 
 #include "LArG4H62004SD.h"
 
-#include "LArG4Code/LArVCalculator.h"
+#include "LArG4Code/ILArCalculatorSvc.h"
 
 #include "G4Step.hh"
 #include "G4ios.hh"
@@ -13,7 +13,7 @@
 
 #undef DEBUG_ME
 
-LArG4H62004SD::LArG4H62004SD(G4String a_name, LArVCalculator* calc, const std::string& type, const float width)
+LArG4H62004SD::LArG4H62004SD(G4String a_name, ILArCalculatorSvc* calc, const std::string& type, const float width)
   : LArG4SimpleSD(a_name,calc,type,width)
 {
 
@@ -42,7 +42,8 @@ G4bool LArG4H62004SD::ProcessHits(G4Step* a_step,G4TouchableHistory* /*ROhist*/)
   if (edep == 0.) return false;
 
   // Convert the G4Step into (eta,phi,sampling).
-  G4bool valid = m_calculator->Process(a_step);
+  std::vector<LArHitData> hdata;
+  G4bool valid = m_calculator->Process(a_step, hdata);
 
   // Check that hit was valid.  (It might be invalid if, for example,
   // it occurred outside the sensitive region.  If such a thing
@@ -58,15 +59,15 @@ G4bool LArG4H62004SD::ProcessHits(G4Step* a_step,G4TouchableHistory* /*ROhist*/)
   // A calculator can determine that a given energy deposit results
   // in more than one hit in the simulation.  FOr each such hit...
   bool result = true;
-  for(int ihit=0;ihit<m_calculator->getNumHits();ihit++)
+  for(auto larhit : hdata)
     {
-      LArG4Identifier ident = m_calculator->identifier(ihit);
+      LArG4Identifier ident = larhit.id;
       if(ident[0] == 10) { // dead hit, where to put it ?
         // probably skip in the regular container
         continue;
       }
-      G4double time = m_calculator->time(ihit);
-      G4double energy = m_calculator->energy(ihit);
+      G4double time = larhit.time;
+      G4double energy = larhit.energy;
       // Changing the ident to comply with H6 dictionary
       if(ident[1] == 1) { // EMEC module
         ident[6] += 20; // change phi id
@@ -80,11 +81,10 @@ G4bool LArG4H62004SD::ProcessHits(G4Step* a_step,G4TouchableHistory* /*ROhist*/)
           if(ident[3]==1 && ident[5] > 2) ident[5]=2;
         }
       }
-        
+
       result = result && SimpleHit( ident, time, energy );
-        
+
     }// for each hit return by the calculator.
   return result;
 
 }
-

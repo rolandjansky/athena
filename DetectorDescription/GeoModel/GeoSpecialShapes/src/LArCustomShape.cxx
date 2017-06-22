@@ -13,53 +13,53 @@ const std::string LArCustomShape::s_classType = "CustomShape";
 const ShapeType LArCustomShape::s_classTypeID = 500;
 
 const LArCustomShape::ShapeCalc_typemap LArCustomShape::s_calculatorTypes = {
-	{ "LAr::EMEC::InnerWheel::Absorber",		{LArWheelCalculator::InnerAbsorberWheel, 1} },
-	{ "LAr::EMEC::Pos::InnerWheel::Absorber",	{LArWheelCalculator::InnerAbsorberWheel, 1} },
+	{ "LAr::EMEC::InnerWheel::Absorber",		{LArG4::InnerAbsorberWheel, 1} },
+	{ "LAr::EMEC::Pos::InnerWheel::Absorber",	{LArG4::InnerAbsorberWheel, 1} },
 
-	{ "LAr::EMEC::OuterWheel::Absorber",		{LArWheelCalculator::OuterAbsorberWheel, 1} },
-	{ "LAr::EMEC::Pos::OuterWheel::Absorber",	{LArWheelCalculator::OuterAbsorberWheel, 1} },
+	{ "LAr::EMEC::OuterWheel::Absorber",		{LArG4::OuterAbsorberWheel, 1} },
+	{ "LAr::EMEC::Pos::OuterWheel::Absorber",	{LArG4::OuterAbsorberWheel, 1} },
 
-	{ "LAr::EMEC::InnerWheel::Electrode",		{LArWheelCalculator::InnerElectrodWheel, 1} },
-	{ "LAr::EMEC::Pos::InnerWheel::Electrode",	{LArWheelCalculator::InnerElectrodWheel, 1} },
+	{ "LAr::EMEC::InnerWheel::Electrode",		{LArG4::InnerElectrodWheel, 1} },
+	{ "LAr::EMEC::Pos::InnerWheel::Electrode",	{LArG4::InnerElectrodWheel, 1} },
 
-	{ "LAr::EMEC::OuterWheel::Electrode",		{LArWheelCalculator::OuterElectrodWheel, 1} },
-	{ "LAr::EMEC::Pos::OuterWheel::Electrode",	{LArWheelCalculator::OuterElectrodWheel, 1} },
+	{ "LAr::EMEC::OuterWheel::Electrode",		{LArG4::OuterElectrodWheel, 1} },
+	{ "LAr::EMEC::Pos::OuterWheel::Electrode",	{LArG4::OuterElectrodWheel, 1} },
 
-	{ "LAr::EMEC::Neg::InnerWheel::Absorber",	{LArWheelCalculator::InnerAbsorberWheel, -1} },
+	{ "LAr::EMEC::Neg::InnerWheel::Absorber",	{LArG4::InnerAbsorberWheel, -1} },
 
-	{ "LAr::EMEC::Neg::OuterWheel::Absorber",	{LArWheelCalculator::OuterAbsorberWheel, -1} },
+	{ "LAr::EMEC::Neg::OuterWheel::Absorber",	{LArG4::OuterAbsorberWheel, -1} },
 
-	{ "LAr::EMEC::Neg::InnerWheel::Electrode",	{LArWheelCalculator::InnerElectrodWheel, -1} },
+	{ "LAr::EMEC::Neg::InnerWheel::Electrode",	{LArG4::InnerElectrodWheel, -1} },
 
-	{ "LAr::EMEC::Neg::OuterWheel::Electrode",	{LArWheelCalculator::OuterElectrodWheel, -1} },
+	{ "LAr::EMEC::Neg::OuterWheel::Electrode",	{LArG4::OuterElectrodWheel, -1} },
 
-	{ "LAr::EMEC::InnerModule::Absorber",		{LArWheelCalculator::InnerAbsorberModule, 1} },
+	{ "LAr::EMEC::InnerModule::Absorber",		{LArG4::InnerAbsorberModule, 1} },
 
-	{ "LAr::EMEC::OuterModule::Absorber",		{LArWheelCalculator::OuterAbsorberModule, 1} },
+	{ "LAr::EMEC::OuterModule::Absorber",		{LArG4::OuterAbsorberModule, 1} },
 
-	{ "LAr::EMEC::InnerModule::Electrode",		{LArWheelCalculator::InnerElectrodModule, 1} },
+	{ "LAr::EMEC::InnerModule::Electrode",		{LArG4::InnerElectrodModule, 1} },
 
-	{ "LAr::EMEC::OuterModule::Electrode",	{LArWheelCalculator::OuterElectrodModule, 1} },
+	{ "LAr::EMEC::OuterModule::Electrode",	{LArG4::OuterElectrodModule, 1} },
 
-	{ "LAr::EMEC::InnerWheel::Glue",			{LArWheelCalculator::InnerGlueWheel, 1} },
-	{ "LAr::EMEC::Pos::InnerWheel::Glue",		{LArWheelCalculator::InnerGlueWheel, 1} },
+	{ "LAr::EMEC::InnerWheel::Glue",			{LArG4::InnerGlueWheel, 1} },
+	{ "LAr::EMEC::Pos::InnerWheel::Glue",		{LArG4::InnerGlueWheel, 1} },
 
-	{ "LAr::EMEC::InnerWheel::Lead",			{LArWheelCalculator::InnerLeadWheel, 1} },
-	{ "LAr::EMEC::Pos::InnerWheel::Lead",		{LArWheelCalculator::InnerLeadWheel, 1} },
+	{ "LAr::EMEC::InnerWheel::Lead",			{LArG4::InnerLeadWheel, 1} },
+	{ "LAr::EMEC::Pos::InnerWheel::Lead",		{LArG4::InnerLeadWheel, 1} },
 
-	{ "LAr::EMEC::OuterWheel::Glue",			{LArWheelCalculator::OuterGlueWheel, 1} },
-	{ "LAr::EMEC::Pos::OuterWheel::Glue",		{LArWheelCalculator::OuterGlueWheel, 1} },
+	{ "LAr::EMEC::OuterWheel::Glue",			{LArG4::OuterGlueWheel, 1} },
+	{ "LAr::EMEC::Pos::OuterWheel::Glue",		{LArG4::OuterGlueWheel, 1} },
 
-	{ "LAr::EMEC::OuterWheel::Lead",			{LArWheelCalculator::OuterLeadWheel, 1} },
-	{ "LAr::EMEC::Pos::OuterWheel::Lead",		{LArWheelCalculator::OuterLeadWheel, 1} },
+	{ "LAr::EMEC::OuterWheel::Lead",			{LArG4::OuterLeadWheel, 1} },
+	{ "LAr::EMEC::Pos::OuterWheel::Lead",		{LArG4::OuterLeadWheel, 1} },
 
-	{ "LAr::EMEC::Neg::InnerWheel::Glue",		{LArWheelCalculator::InnerGlueWheel, -1} },
+	{ "LAr::EMEC::Neg::InnerWheel::Glue",		{LArG4::InnerGlueWheel, -1} },
 
-	{ "LAr::EMEC::Neg::OuterWheel::Glue",		{LArWheelCalculator::OuterGlueWheel, -1} },
+	{ "LAr::EMEC::Neg::OuterWheel::Glue",		{LArG4::OuterGlueWheel, -1} },
 
-	{ "LAr::EMEC::Neg::InnerWheel::Lead",		{LArWheelCalculator::InnerLeadWheel, -1} },
+	{ "LAr::EMEC::Neg::InnerWheel::Lead",		{LArG4::InnerLeadWheel, -1} },
 
-	{ "LAr::EMEC::Neg::OuterWheel::Lead",		{LArWheelCalculator::OuterLeadWheel, -1} }
+	{ "LAr::EMEC::Neg::OuterWheel::Lead",		{LArG4::OuterLeadWheel, -1} }
 };
 
 LArCustomShape::LArCustomShape(const std::string& a_shapeName)
@@ -69,79 +69,79 @@ LArCustomShape::LArCustomShape(const std::string& a_shapeName)
 {
 //	if(a_shapeName == "LAr::EMEC::InnerWheel::Absorber" || a_shapeName == "LAr::EMEC::Pos::InnerWheel::Absorber"){
 //		m_calculator =
-//			new LArWheelCalculator(LArWheelCalculator::InnerAbsorberWheel, 1);
+//			new LArWheelCalculator(LArG4::InnerAbsorberWheel, 1);
 //	}
 //	else if(a_shapeName == "LAr::EMEC::OuterWheel::Absorber" || a_shapeName == "LAr::EMEC::Pos::OuterWheel::Absorber"){
 //		m_calculator =
-//			new LArWheelCalculator(LArWheelCalculator::OuterAbsorberWheel, 1);
+//			new LArWheelCalculator(LArG4::OuterAbsorberWheel, 1);
 //	}
 //	else if(a_shapeName == "LAr::EMEC::InnerWheel::Electrode" || a_shapeName == "LAr::EMEC::Pos::InnerWheel::Electrode"){
 //		m_calculator =
-//			new LArWheelCalculator(LArWheelCalculator::InnerElectrodWheel, 1);
+//			new LArWheelCalculator(LArG4::InnerElectrodWheel, 1);
 //	}
 //	else if(a_shapeName == "LAr::EMEC::OuterWheel::Electrode"|| a_shapeName == "LAr::EMEC::Pos::OuterWheel::Electrode"){
 //		m_calculator =
-//			new LArWheelCalculator(LArWheelCalculator::OuterElectrodWheel, 1);
+//			new LArWheelCalculator(LArG4::OuterElectrodWheel, 1);
 //	}
 //	else if(a_shapeName == "LAr::EMEC::Neg::InnerWheel::Absorber"){
 //		m_calculator =
-//			new LArWheelCalculator(LArWheelCalculator::InnerAbsorberWheel, -1);
+//			new LArWheelCalculator(LArG4::InnerAbsorberWheel, -1);
 //	}
 //	else if(a_shapeName == "LAr::EMEC::Neg::OuterWheel::Absorber"){
 //		m_calculator =
-//			new LArWheelCalculator(LArWheelCalculator::OuterAbsorberWheel, -1);
+//			new LArWheelCalculator(LArG4::OuterAbsorberWheel, -1);
 //	}
 //	else if(a_shapeName == "LAr::EMEC::Neg::InnerWheel::Electrode"){
 //		m_calculator =
-//			new LArWheelCalculator(LArWheelCalculator::InnerElectrodWheel, -1);
+//			new LArWheelCalculator(LArG4::InnerElectrodWheel, -1);
 //	}
 //	else if(a_shapeName == "LAr::EMEC::Neg::OuterWheel::Electrode"){
 //		m_calculator =
-//			new LArWheelCalculator(LArWheelCalculator::OuterElectrodWheel, -1);
+//			new LArWheelCalculator(LArG4::OuterElectrodWheel, -1);
 //	}
 //	else if(a_shapeName == "LAr::EMEC::InnerModule::Absorber"){
 //		m_calculator =
-//			new LArWheelCalculator(LArWheelCalculator::InnerAbsorberModule, 1);
+//			new LArWheelCalculator(LArG4::InnerAbsorberModule, 1);
 //	}
 //	else if(a_shapeName == "LAr::EMEC::OuterModule::Absorber"){
 //		m_calculator =
-//			new LArWheelCalculator(LArWheelCalculator::OuterAbsorberModule, 1);
+//			new LArWheelCalculator(LArG4::OuterAbsorberModule, 1);
 //	}
 //	else if(a_shapeName == "LAr::EMEC::InnerModule::Electrode"){
 //		m_calculator =
-//			new LArWheelCalculator(LArWheelCalculator::InnerElectrodModule, 1);
+//			new LArWheelCalculator(LArG4::InnerElectrodModule, 1);
 //	}
 //	else if(a_shapeName == "LAr::EMEC::OuterModule::Electrode"){
 //		m_calculator =
-//			new LArWheelCalculator(LArWheelCalculator::OuterElectrodModule, 1);
+//			new LArWheelCalculator(LArG4::OuterElectrodModule, 1);
 //	}
 //	else if(a_shapeName == "LAr::EMEC::InnerWheel::Glue" || a_shapeName == "LAr::EMEC::Pos::InnerWheel::Glue"){
 //		m_calculator =
-//			new LArWheelCalculator(LArWheelCalculator::InnerGlueWheel, 1);
+//			new LArWheelCalculator(LArG4::InnerGlueWheel, 1);
 //	}
 //	else if(a_shapeName == "LAr::EMEC::InnerWheel::Lead" || a_shapeName == "LAr::EMEC::Pos::InnerWheel::Lead"){
 //		m_calculator =
-//			new LArWheelCalculator(LArWheelCalculator::InnerLeadWheel, 1);
+//			new LArWheelCalculator(LArG4::InnerLeadWheel, 1);
 //	}
 //	else if(a_shapeName == "LAr::EMEC::OuterWheel::Glue" || a_shapeName == "LAr::EMEC::Pos::OuterWheel::Glue"){
-//		m_calculator = new LArWheelCalculator(LArWheelCalculator::OuterGlueWheel, 1);
+//		m_calculator = new LArWheelCalculator(LArG4::OuterGlueWheel, 1);
 //	}
 //	else if(a_shapeName == "LAr::EMEC::OuterWheel::Lead" || a_shapeName == "LAr::EMEC::Pos::OuterWheel::Lead"){
-//		m_calculator = new LArWheelCalculator(LArWheelCalculator::OuterLeadWheel, 1);
+//		m_calculator = new LArWheelCalculator(LArG4::OuterLeadWheel, 1);
 //	}
 //	else if(a_shapeName == "LAr::EMEC::Neg::InnerWheel::Glue") {
 //		m_calculator =
-//			new LArWheelCalculator(LArWheelCalculator::InnerGlueWheel, -1);
+//			new LArWheelCalculator(LArG4::InnerGlueWheel, -1);
 //	}
 //	else if(a_shapeName == "LAr::EMEC::Neg::OuterWheel::Glue" ) {
 //		m_calculator =
-//			new LArWheelCalculator(LArWheelCalculator::OuterGlueWheel, -1);
+//			new LArWheelCalculator(LArG4::OuterGlueWheel, -1);
 //	}
 //	else if(a_shapeName == "LAr::EMEC::Neg::InnerWheel::Lead") {
-//		m_calculator = new LArWheelCalculator(LArWheelCalculator::InnerLeadWheel, -1);
+//		m_calculator = new LArWheelCalculator(LArG4::InnerLeadWheel, -1);
 //	}
 //	else if(a_shapeName == "LAr::EMEC::Neg::OuterWheel::Lead") {
-//		m_calculator = new LArWheelCalculator(LArWheelCalculator::OuterLeadWheel, -1);
+//		m_calculator = new LArWheelCalculator(LArG4::OuterLeadWheel, -1);
 //	} else {
 //		std::string error = "Unknown name ";
 //		error += a_shapeName;
@@ -162,8 +162,8 @@ LArCustomShape::~LArCustomShape()
 	//delete m_calculator;
 }
 
-StatusCode LArCustomShape::createCalculator(const CalcDef_t & cdef) { // LArWheelCalculator::LArWheelCalculator_t wheelType, int zside
-	LArWheelCalculator::LArWheelCalculator_t wheelType = cdef.first;
+StatusCode LArCustomShape::createCalculator(const CalcDef_t & cdef) { // LArG4::LArWheelCalculator_t wheelType, int zside
+	LArG4::LArWheelCalculator_t wheelType = cdef.first;
 	int zside = cdef.second;
 	
 	m_calculator = new LArWheelCalculator(wheelType, zside); 

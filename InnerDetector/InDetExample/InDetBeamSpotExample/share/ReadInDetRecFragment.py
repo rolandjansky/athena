@@ -1,5 +1,3 @@
-# $Id: ReadInDetRecFragment.py 780766 2016-10-27 14:03:02Z amorley $
-#
 # Job option fragment for JobRunner templates to setup InDet
 # environment following InDetRecExample/ReadInDet_jobOptions.py
 # (and InDetRecExample/jobOptions.py).
@@ -9,7 +7,7 @@
 #
 # Written by Juerg Beringer in November 2009.
 #
-print "InDetBeamSpotExample INFO Using $Id: ReadInDetRecFragment.py 780766 2016-10-27 14:03:02Z amorley $"
+print "InDetBeamSpotExample INFO Using ReadInDetRecFragment.py atlas/athena"
 
 
 # Default values (please put a default for EACH jobConfig parameter

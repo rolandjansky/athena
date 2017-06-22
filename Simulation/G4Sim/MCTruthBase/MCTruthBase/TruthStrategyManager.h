@@ -12,12 +12,22 @@
 #include "HepMC/GenEvent.h"
 #include "AthenaKernel/MsgStreamMember.h"
 
+// ISF include
+#include "ISF_Interfaces/ITruthSvc.h"
+#include "ISF_Interfaces/IGeoIDSvc.h"
+
+// Truth-related includes
+#include "SimHelpers/SecondaryTracksHelper.h"
+
 /// Forward declarations
 class TruthStrategy;
 class G4Step;
 class G4Track;
 class G4StepPoint;
 class EventInformation;
+
+class G4LogicalVolume;
+class G4VPhysicalVolume;
 
 
 /// @brief Singleton class for some truth stuff (???)
@@ -66,6 +76,14 @@ public:
   /// N.B. using this isn't thread-safe. Migrate to TruthStrategyUtils instead.
   void SaveSecondaryVertex(G4Track*, G4StepPoint*, const std::vector<G4Track*>&) const;
 
+  /// Define which ISF TruthService to use
+  void SetISFTruthSvc(ISF::ITruthSvc *truthSvc);
+
+  /// Define which ISF GeoIDSvc to use
+  void SetISFGeoIDSvc(ISF::IGeoIDSvc *geoIDSvc);
+
+  StatusCode InitializeWorldVolume();
+
 private:
   TruthStrategyManager();
   TruthStrategyManager(const TruthStrategyManager&) = delete;
@@ -92,6 +110,13 @@ private:
   /// Private message stream member
   mutable Athena::MsgStreamMember m_msg;
 
+  /// ISF Services the TruthStrategyManager talks to
+  ISF::ITruthSvc* m_truthSvc;
+  ISF::IGeoIDSvc* m_geoIDSvc;
+  SecondaryTracksHelper m_sHelper; // needed for the Geant4TruthIncident
+
+  /// The level in the G4 volume hierarchy at which can we find the sub-detector name
+  int m_subDetVolLevel;
 };
 
 #endif

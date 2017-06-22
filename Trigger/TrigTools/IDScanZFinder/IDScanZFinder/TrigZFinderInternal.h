@@ -143,6 +143,12 @@ class TrigZFinderInternal
     double m_tripletDK;
     double m_tripletDP;
 
+    int    m_maxLayer;
+
+    double m_minVtxSignificance;
+    double m_percentile;
+
+
     /// to apply a hreshold to the found vertex candidates
 
     double  m_weightThreshold;

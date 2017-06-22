@@ -10,6 +10,7 @@
 #include "GaudiKernel/FileIncident.h"
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/ISvcLocator.h"
+#include "AthenaKernel/IEventShare.h"
 
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
@@ -27,18 +28,21 @@ SharedEvtQueueProvider::SharedEvtQueueProvider(const std::string& type
 					       , const IInterface* parent)
   : AthenaMPToolBase(type,name,parent)
   , m_isPileup(false)
+  , m_useSharedReader(false)
+  , m_nprocesses(-1)
   , m_nEventsBeforeFork(0)
   , m_nChunkSize(1)
   , m_nChunkStart(0)
   , m_nPositionInChunk(0)
   , m_nEvtRequested(-1)
-  , m_skipEvents(0)
   , m_nEvtCounted(0)
   , m_sharedEventQueue(0)
+  , m_evtShare(0)
 {
   declareInterface<IAthenaMPTool>(this);
 
   declareProperty("IsPileup",m_isPileup);
+  declareProperty("UseSharedReader",m_useSharedReader);
   declareProperty("EventsBeforeFork",m_nEventsBeforeFork);
   declareProperty("ChunkSize",m_nChunkSize);
 
@@ -64,23 +68,6 @@ StatusCode SharedEvtQueueProvider::initialize()
   if(!sc.isSuccess())
     return sc;
 
-  // Get SkipEvents property of the event selector and store it locally
-  IProperty* propertyServer = dynamic_cast<IProperty*>(m_evtSelector);
-  if(propertyServer==0) {
-    ATH_MSG_ERROR( "Unable to cast event selector to IProperty" );
-    return StatusCode::FAILURE;
-  }
-  std::string propertyName("SkipEvents");
-  int skipEvents(0);
-  IntegerProperty skipEventsProp(propertyName,skipEvents);
-  sc = propertyServer->getProperty(&skipEventsProp);
-  if(sc.isFailure()) {
-    ATH_MSG_INFO( "Event Selector does not have SkipEvents property" );
-  }
-  else {
-    m_skipEvents = skipEventsProp.value();
-  }
-
   return StatusCode::SUCCESS;
 }
 
@@ -89,7 +76,7 @@ StatusCode SharedEvtQueueProvider::finalize()
   return StatusCode::SUCCESS;
 }
 
-int SharedEvtQueueProvider::makePool(int maxevt, int, const std::string& topdir)
+int SharedEvtQueueProvider::makePool(int maxevt, int nprocs, const std::string& topdir)
 {
   ATH_MSG_DEBUG( "In makePool " << getpid() );
 
@@ -103,7 +90,9 @@ int SharedEvtQueueProvider::makePool(int maxevt, int, const std::string& topdir)
     return -1;
   }
 
+  m_nprocesses = (nprocs==-1?sysconf(_SC_NPROCESSORS_ONLN):nprocs);
   m_nEvtRequested = maxevt;
+  m_nprocs = (nprocs==-1?sysconf(_SC_NPROCESSORS_ONLN):nprocs);
   m_subprocTopDir = topdir;
 
   // Create event queue
@@ -212,6 +201,23 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueProvider::boots
   incsvc->addListener(this,"EndInputFile");
   ATH_MSG_DEBUG( "Added self as listener to EndInputFile" );
 
+  // _______________________ event sharing ________________________________
+  // Use EventSelector as SharedReader (if configured) and enable output streaming
+  if (m_useSharedReader) {
+    m_evtShare  = dynamic_cast<IEventShare*>(m_evtSelector);
+    if(!m_evtShare) {
+      ATH_MSG_ERROR( "Failed to dyncast event selector to IEventShare" );
+      return outwork;
+    } else {
+      if(!m_evtShare->makeServer(m_nprocs).isSuccess()) {
+        ATH_MSG_ERROR("Failed to make the event selector a share server");
+        return outwork;
+      } else {
+        ATH_MSG_DEBUG("Successfully made the event selector a share server");
+      }
+    }
+  }
+
   // ________________________ I/O reinit ________________________
   if(!m_ioMgr->io_reinitialize().isSuccess()) {
     ATH_MSG_ERROR( "Failed to reinitialize I/O" );
@@ -249,28 +255,51 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueProvider::exec_
   ATH_MSG_INFO("Exec function in the AthenaMP Event Counter PID=" << getpid());
 
   bool all_ok(true);
-  IEvtSelector::Context* evtContext(0);
-  StatusCode sc = m_evtSelector->createContext(evtContext);
-  if(sc.isFailure()) {
-    ATH_MSG_ERROR("Failed to create the event selector context");
+
+  // Get SkipEvents property of the event selector
+  int skipEvents(0);
+  IProperty* propertyServer = dynamic_cast<IProperty*>(m_evtSelector);
+  if(propertyServer==0) {
+    ATH_MSG_ERROR( "Unable to cast event selector to IProperty" );
     all_ok=false;
   }
   else {
-    // advance to nEventsBeforeFork
-    for(int i(0); i<m_nEventsBeforeFork;++i) {
-      if(!m_evtSelector->next(*evtContext).isSuccess()) {
-	ATH_MSG_ERROR("Unexpected error: EventsBeforeFork>EventsInInputFiles");
-	all_ok=false;
-	break;
+    std::string propertyName("SkipEvents");
+    IntegerProperty skipEventsProp(propertyName,skipEvents);
+    if(propertyServer->getProperty(&skipEventsProp).isFailure()) {
+      ATH_MSG_INFO( "Event Selector does not have SkipEvents property" );
+    }
+    else {
+      skipEvents = skipEventsProp.value();
+    }
+  }
+
+  IEvtSelector::Context* evtContext(0);
+  if(all_ok) {
+    StatusCode sc = m_evtSelector->createContext(evtContext);
+    if(sc.isFailure()) {
+      ATH_MSG_ERROR("Failed to create the event selector context");
+      all_ok=false;
+    }
+    else {
+      // advance to nEventsBeforeFork
+      for(int i(0); i<m_nEventsBeforeFork;++i) {
+	if(!m_evtSelector->next(*evtContext).isSuccess()) {
+	  ATH_MSG_ERROR("Unexpected error: EventsBeforeFork>EventsInInputFiles");
+	  all_ok=false;
+	  break;
+	}
       }
     }
-
-    if(all_ok) {
-      m_nChunkStart = m_skipEvents+m_nEventsBeforeFork;
+  }
+      
+  if(all_ok) {
+    if(m_nEvtRequested!=0) { // Take into account corner case with evtMax=0
+      m_nChunkStart = skipEvents+m_nEventsBeforeFork;
       m_nEvtCounted = m_nEventsBeforeFork;
       m_nPositionInChunk = m_nChunkStart;      
-      ATH_MSG_VERBOSE("Starting to go through events. Chunk start = " << m_nChunkStart);
-
+      ATH_MSG_VERBOSE("Starting to go through events. Chunk start = " << m_nChunkStart+1);
+      
       // Loop through all remaining events 
       while(m_evtSelector->next(*evtContext).isSuccess()) {
 	m_nPositionInChunk++;
@@ -284,13 +313,26 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueProvider::exec_
 	}
       }
     }
-  }
 
-  if(all_ok) {
-    updateShmem(m_nEvtCounted,true);
+    // We are done. Add -m_nEvtCounted  m_nprocesses-times to the queue
+    long newValueForQueue = (long)(-m_nEvtCounted);
+    for(int i=0;i<m_nprocesses;++i) {
+      while(!m_sharedEventQueue->try_send_basic<long>(newValueForQueue)) {
+	usleep(1000);
+      }
+    }
 
     ATH_MSG_INFO("Done counting events and populating shared queue. Total number of events to be processed: " << std::max(m_nEvtCounted - m_nEventsBeforeFork,0) 
 		 << ", Event Chunk size in the queue is " << m_nChunkSize);
+
+    if(m_useSharedReader && m_evtShare) {
+      if(m_evtShare->readEvent(0).isFailure()) {
+        ATH_MSG_ERROR("Failed to read " << m_nEvtRequested << " events");
+        all_ok=false;
+      } else {
+        ATH_MSG_DEBUG("readEvent succeeded");
+      }
+    }
 
     if(m_appMgr->stop().isFailure()) {
       ATH_MSG_ERROR("Unable to stop AppMgr"); 
@@ -352,24 +394,10 @@ void SharedEvtQueueProvider::addEventsToQueue()
   ATH_MSG_DEBUG("in addEventsToQueue");
   long newValueForQueue = ((long)(m_nPositionInChunk-m_nChunkStart)<<(sizeof(int)*8))|m_nChunkStart;
   while(!m_sharedEventQueue->try_send_basic<long>(newValueForQueue)) {
-    updateShmem(m_nEvtCounted,false);
     usleep(100);
   }
   ATH_MSG_INFO("Sent to the queue 0x" << std::hex << newValueForQueue << std::dec
 	       << " which corresponds to Chunks start " << m_nChunkStart
 	       << " and chunk size " << m_nPositionInChunk-m_nChunkStart);
-}
-
-void SharedEvtQueueProvider::updateShmem(int eventCount, bool countFinal)
-{
-  std::string shmemName("/athmp-shmem-"+m_randStr);
-  boost::interprocess::shared_memory_object shmemSegment(boost::interprocess::open_only
-							 , shmemName.c_str()
-							 , boost::interprocess::read_write);
-  boost::interprocess::mapped_region shmemRegion(shmemSegment,boost::interprocess::read_write);
-  int* shmemCountedEvts = (int*)shmemRegion.get_address();
-  int* shmemCountFinal = shmemCountedEvts+1;
-  *shmemCountedEvts = eventCount;
-  *shmemCountFinal = countFinal;
 }
 

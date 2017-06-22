@@ -12,7 +12,7 @@ class DiLep_FilterFlags(JobProperty):
     allowedTypes  = ['bool']
     StoredValue   = True
     
-    SiPhTriggers  = ["HLT_g140_loose", "HLT_g200_loose", "HLT_g200_loose_L1EM26VHI"]
+    SiPhTriggers  = ["HLT_g140_loose", "HLT_g200_loose", "HLT_g200_loose_L1EM24VHIM"]
     DiPhTriggers  = ["HLT_2g50_loose_L12EM20VH", "HLT_2g60_loose_L12EM20VH"]
     SiMuTriggers  = ["HLT_mu60_0eta105_msonly"]
     
@@ -24,8 +24,8 @@ class DiLep_FilterFlags(JobProperty):
     ElD0Min       = 2.0
     MuD0Min       = 2.0
     
-    SiElPtMin     = 200.
-    SiPhPtMin     = 200.
+    SiElPtMin     = 160.
+    SiPhPtMin     = 160.
     SiPhXPtMin    =  10.
     SiMuPtMin     =  60.
     DiElPtMin     =  60.

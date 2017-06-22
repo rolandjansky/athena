@@ -82,8 +82,9 @@ class InputConverter_test: public ::testing::Test {
 
     m_propMgr = m_appMgr;
     ASSERT_TRUE( m_propMgr.isValid() );
-    ASSERT_TRUE( m_propMgr->setProperty( "EvtSel",         "NONE" ).isSuccess() );
-    ASSERT_TRUE( m_propMgr->setProperty( "JobOptionsType", "NONE" ).isSuccess() );
+    ASSERT_TRUE( m_propMgr->setProperty( "EvtSel", "NONE" ).isSuccess() );
+    ASSERT_TRUE( m_propMgr->setProperty( "JobOptionsType", "FILE" ).isSuccess() );
+    ASSERT_TRUE( m_propMgr->setProperty( "JobOptionsPath", "InputConverter_test.txt" ).isSuccess() );
 
     m_toolSvc = m_svcLoc->service("ToolSvc");
     ASSERT_TRUE( m_toolSvc.isValid() );

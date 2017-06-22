@@ -222,6 +222,17 @@
             </expectations> 
         </TEST> 
         
+        <TEST name="AthenaTrigAOD_TrigHLTMon" type="script" suite="tat_MCSlim"> 
+            <options_atn>trigtest.pl --test AthenaTrigAOD_TrigHLTMon --run AthenaTrigAOD_TrigHLTMon --conf TrigAnalysisTest.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <author>TrigAnalysis validation</author> 
+            <project_exclude>AthAnalysis</project_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
         <TEST name="AthenaTrigAOD_TrigDecTool" type="script" suite="tat_MCSlim"> 
             <options_atn>trigtest.pl --test AthenaTrigAOD_TrigDecTool --run AthenaTrigAOD_TrigDecTool --conf TrigAnalysisTest.conf</options_atn> 
             <timelimit>30</timelimit> 

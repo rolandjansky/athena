@@ -1,11 +1,9 @@
-# $Id: VertexTemplate.py 780766 2016-10-27 14:03:02Z amorley $
-#
 # Top-level job options file to run the vertex-based beamspot algorithm
 # from AOD files using a JobRunner.
 #
 # Written by Juerg Beringer in July 2008.
 #
-print "InDetBeamSpotExample INFO Using $Id: VertexTemplate.py 780766 2016-10-27 14:03:02Z amorley $"
+print "InDetBeamSpotExample INFO Using VertexTemplate.py atlas/athena"
 
 # Default values (please put a default for EACH jobConfig parameter
 # so that the template can be used easily without JobRunner)

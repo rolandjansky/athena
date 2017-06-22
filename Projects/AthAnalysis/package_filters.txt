@@ -8,6 +8,7 @@
 
 # Core xAOD reading:
 + Control/AthContainersInterfaces
++ Control/AthContainersRoot
 + Control/AthContainers
 + Control/AthLinks
 + Control/AthToolSupport/.*

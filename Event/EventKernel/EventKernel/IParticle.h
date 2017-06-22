@@ -20,8 +20,12 @@
 #include "EventKernel/PdtPdg.h"
 #include "DataModel/ElementLink.h"
 
+#ifndef SIMULATIONBASE
+#ifndef XAOD_ANALYSIS
 // VxVertex includes
 #include "VxVertex/VxContainer.h"
+#endif
+#endif
 
 // Forward declarations
 namespace Trk { class RecVertex; }
@@ -50,8 +54,12 @@ class IParticle : public virtual INavigable4Momentum
   /** Return a RecVertex corresponding to particle Origin  */
   virtual const Trk::RecVertex* origin() const = 0;
 
+#ifndef SIMULATIONBASE
+#ifndef XAOD_ANALYSIS
   /** Return an ElementLink corresponding to particle's Origin */
   virtual const ElementLink<VxContainer>& originLink() const = 0;
+#endif
+#endif
 
   /** method to check if charge information is available*/
   virtual bool hasCharge()         const  = 0;

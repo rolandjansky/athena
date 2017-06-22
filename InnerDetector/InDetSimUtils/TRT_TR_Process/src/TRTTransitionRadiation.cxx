@@ -16,7 +16,7 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"//Material Manager
 #include "GeoModelInterfaces/StoredMaterialManager.h"//Material Manager
-#include "Geo2G4/Geo2G4MaterialFactory.h" //Converting GeoMaterial -> G4Material
+#include "GeoMaterial2G4/Geo2G4MaterialFactory.h" //Converting GeoMaterial -> G4Material
 #include "PathResolver/PathResolver.h"
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/StoreGateSvc.h"//Detector Store

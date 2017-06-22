@@ -61,8 +61,8 @@ int PixelMainMon :: GetPixLayerID(int ec, int ld, bool ibl)
 int PixelMainMon :: GetPixLayerIDDBM(int ec, int ld, bool ibl)
 {
    int layer = 99;
-   if(ec==2) layer = PixLayerDBM::kECA0 + ld;
-   else if(ec==-2) layer = PixLayerDBM::kECC0 + ld;
+   if(ec==2) layer = PixLayerDBM::kECA;
+   else if(ec==-2) layer = PixLayerDBM::kECC;
    else if(ec==0) {
       if(ibl && ld==0) layer = PixLayerDBM::kIBL;
       if(ld==0+ibl) layer = PixLayerDBM::kB0;

@@ -44,6 +44,13 @@ addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonPRDSelectionTool", "TMEF_MuonPRDSe
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonLayerSegmentFinderTool", "TMEF_MuonLayerSegmentFinderTool")
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonClusterSegmentFinderTool", "TMEF_MuonClusterSegmentFinderTool")
 
+addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonStauRecoTool", "TMEF_MuonStauRecoTool")
+addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonStauInsideOutRecoTool", "TMEF_MuonStauInsideOutRecoTool")
+addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonStauCandidateTrackBuilderTool", "TMEF_MuonStauCandidateTrackBuilderTool")
+addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_CombinedStauTrackBuilder", "TMEF_CombinedStauTrackBuilder")
+addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonStauSegmentRegionRecoveryTool", "TMEF_MuonStauSegmentRegionRecoveryTool")
+addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_CombinedStauTrackBuilderFit", "TMEF_CombinedStauTrackBuilderFit")
+
 addAlgorithm("TrigMuonEF.TrigMuonEFConfig.TrigMuonEFTrackIsolationConfig", "TrigMuonEFTrackIsolation")
 
 addAlgorithm("TrigMuonEF.TrigMuonEFConfig.TrigMuonEFFSRoiMakerConfig","TrigMuonEFFSRoiMaker")

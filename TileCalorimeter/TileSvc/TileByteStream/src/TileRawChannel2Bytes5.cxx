@@ -289,7 +289,8 @@ void print_ampcorr_lookup() {
   printf("unsigned short ampcorr_lookup[64] = {"); 
   for (time = -32; time < 32; time++) {
     UINT16 ampcorr_coeff = get_ampcorr_coeff(time);
-    if (k % 8 == 0) printf("\n "); k++;
+    if (k % 8 == 0) printf("\n ");
+    k++;
     printf(" 0x%04X,", ampcorr_coeff);
   }
   printf("}\n");

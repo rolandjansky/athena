@@ -17,156 +17,148 @@
 #include "SimHelpers/ServiceAccessor.h"
 #include "G4Step.hh"
 #include "G4TouchableHistory.hh"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/errorcheck.h"
 
-// ADS why not class members?
-static bool has_cryo, has_em, has_hec, has_fcal;
-
-void RadLenNtuple::BeginOfEvent(const G4Event* /*anEvent*/)
+namespace G4UA
 {
-   has_cryo = has_em = has_hec = has_fcal = false;
-//   m_tot_x = m_cryo_x = m_em_x = m_hec_x = m_fcal_x = 0.;
-//   m_tot_ni = m_cryo_ni = m_em_ni = m_hec_ni = m_fcal_ni = 0.;
-//   m_fcal_y = m_em_y = m_hec_y = m_cryo_y = 0.;
-}
+  // ADS why not class members?
+  static bool has_cryo, has_em, has_hec, has_fcal;
 
-void RadLenNtuple::EndOfEvent(const G4Event* /*anEvent*/)
-{
-
-   m_xcoord = -10000.;
-
-   if (m_mcEvtColl.isValid()) {
-     McEventCollection::const_iterator iEvt = m_mcEvtColl->begin();
-     HepMC::GenEvent::particle_const_iterator p = (*iEvt)->particles_begin();
-     m_xcoord = (*p)->production_vertex()->point3d().x();
-   }
-   
-   ntupleSvc()->writeRecord("/NTUPLES/FILE1/RadLenNtuple/radlen");
-
-}
-
-StatusCode  RadLenNtuple::initialize(){
-  
-  NTupleFilePtr file1(ntupleSvc(), "/NTUPLES/FILE1");
-  
-  SmartDataPtr<NTuple::Directory>
-    ntdir(ntupleSvc(),"/NTUPLES/FILE1/RadLenNtuple");
-  if ( !ntdir )
-    {
-      //    otherwise create the directory
-      ntdir = ntupleSvc()->createDirectory(file1,"RadLenNtuple");
-    }
-  if ( ! ntdir )
-    {
-      ATH_MSG_ERROR ( " failed to get ntuple directory" );
-    }
-  
-  NTuplePtr nt(ntupleSvc(), "/NTUPLES/FILE1/RadLenNtuple/radlen");
-  
-  if ( !nt )    {    // Check if already booked
-    
-    nt = ntupleSvc()->book (ntdir.ptr(), "radlen",CLID_ColumnWiseTuple, "Some Description");
-    if ( nt )    {
-      
-      
-      ATH_MSG_DEBUG ( "booked ntuple " );
-      
-      // WARNING!! Force limit to 50k tracks
-      
-      CHECK( nt->addItem ("tot_x", m_tot_x) );
-      CHECK( nt->addItem ("tot_ni", m_tot_ni) );
-      CHECK( nt->addItem ("cryo_x", m_cryo_x) );
-      CHECK( nt->addItem ("cryo_ni", m_cryo_ni) );
-      CHECK( nt->addItem ("em_x", m_em_x) );
-      CHECK( nt->addItem ("em_ni", m_em_ni) );
-      CHECK( nt->addItem ("hec_x", m_hec_x) );
-      CHECK( nt->addItem ("hec_ni", m_hec_ni) );
-      CHECK( nt->addItem ("fcal_x", m_fcal_x) );
-      CHECK( nt->addItem ("fcal_ni", m_fcal_ni) );
-      CHECK( nt->addItem ("cryo_y", m_cryo_y) );
-      CHECK( nt->addItem ("em_y", m_em_y) );
-      CHECK( nt->addItem ("hec_y", m_hec_y) );
-      CHECK( nt->addItem ("fcal_y", m_fcal_y) );
-      CHECK( nt->addItem ("coord_x", m_xcoord) );
-      
-    } else {   // did not manage to book the N tuple....
-      
-      ATH_MSG_ERROR ("Could not book ntuple!! ");
-      
-    }
+  void RadLenNtuple::beginOfEvent(const G4Event* /*anEvent*/)
+  {
+    has_cryo = has_em = has_hec = has_fcal = false;
+    //   m_tot_x = m_cryo_x = m_em_x = m_hec_x = m_fcal_x = 0.;
+    //   m_tot_ni = m_cryo_ni = m_em_ni = m_hec_ni = m_fcal_ni = 0.;
+    //   m_fcal_y = m_em_y = m_hec_y = m_cryo_y = 0.;
   }
 
-  return StatusCode::SUCCESS;
-}
+  void RadLenNtuple::endOfEvent(const G4Event* /*anEvent*/)
+  {
+
+    m_xcoord = -10000.;
+
+    if (m_mcEvtColl.isValid()) {
+      McEventCollection::const_iterator iEvt = m_mcEvtColl->begin();
+      HepMC::GenEvent::particle_const_iterator p = (*iEvt)->particles_begin();
+      m_xcoord = (*p)->production_vertex()->point3d().x();
+    }
+   
+    ntupleSvc()->writeRecord("/NTUPLES/FILE1/RadLenNtuple/radlen");
+
+  }
+
+  StatusCode RadLenNtuple::initialize(){
+  
+    NTupleFilePtr file1(ntupleSvc(), "/NTUPLES/FILE1");
+  
+    SmartDataPtr<NTuple::Directory>
+      ntdir(ntupleSvc(),"/NTUPLES/FILE1/RadLenNtuple");
+    if ( !ntdir )
+      {
+        //    otherwise create the directory
+        ntdir = ntupleSvc()->createDirectory(file1,"RadLenNtuple");
+      }
+    if ( ! ntdir )
+      {
+        std::cout << "RadLenNtuple ERROR  failed to get ntuple directory" << std::endl;
+      }
+  
+    NTuplePtr nt(ntupleSvc(), "/NTUPLES/FILE1/RadLenNtuple/radlen");
+  
+    if ( !nt )    {    // Check if already booked
+    
+      nt = ntupleSvc()->book (ntdir.ptr(), "radlen",CLID_ColumnWiseTuple, "Some Description");
+      if ( nt )    {
+      
+      
+        if(m_verboseLevel>4) { std::cout << "booked ntuple " << std::endl; }
+      
+        // WARNING!! Force limit to 50k tracks
+      
+        CHECK( nt->addItem ("tot_x", m_tot_x) );
+        CHECK( nt->addItem ("tot_ni", m_tot_ni) );
+        CHECK( nt->addItem ("cryo_x", m_cryo_x) );
+        CHECK( nt->addItem ("cryo_ni", m_cryo_ni) );
+        CHECK( nt->addItem ("em_x", m_em_x) );
+        CHECK( nt->addItem ("em_ni", m_em_ni) );
+        CHECK( nt->addItem ("hec_x", m_hec_x) );
+        CHECK( nt->addItem ("hec_ni", m_hec_ni) );
+        CHECK( nt->addItem ("fcal_x", m_fcal_x) );
+        CHECK( nt->addItem ("fcal_ni", m_fcal_ni) );
+        CHECK( nt->addItem ("cryo_y", m_cryo_y) );
+        CHECK( nt->addItem ("em_y", m_em_y) );
+        CHECK( nt->addItem ("hec_y", m_hec_y) );
+        CHECK( nt->addItem ("fcal_y", m_fcal_y) );
+        CHECK( nt->addItem ("coord_x", m_xcoord) );
+      
+      } else {   // did not manage to book the N tuple....
+      
+        std::cout << "RadLenNtuple ERROR Could not book ntuple!! " << std::endl;
+      
+      }
+    }
+
+    return StatusCode::SUCCESS;
+  }
 
 
 
-void RadLenNtuple::Step(const G4Step* aStep)
-{
+  void RadLenNtuple::processStep(const G4Step* aStep)
+  {
 
-   G4StepPoint *preStep=aStep->GetPreStepPoint();
-   G4TouchableHistory* touchHist = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
-   G4LogicalVolume *lv=touchHist->GetVolume()->GetLogicalVolume();
-   std::string volName=lv->GetName();
-   G4Material *mat=lv->GetMaterial();
-   double intl=mat->GetNuclearInterLength();
-   double stepl=aStep->GetStepLength();
-   double thickstep=stepl/intl;
-   double radl=mat->GetRadlen();
-   double radstep=100 * stepl/radl;
-   std::string::size_type npos;
-   m_tot_x += thickstep;
-   m_tot_ni += radstep;
-   if(!has_cryo) {
+    G4StepPoint *preStep=aStep->GetPreStepPoint();
+    G4TouchableHistory* touchHist = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
+    G4LogicalVolume *lv=touchHist->GetVolume()->GetLogicalVolume();
+    std::string volName=lv->GetName();
+    G4Material *mat=lv->GetMaterial();
+    double intl=mat->GetNuclearInterLength();
+    double stepl=aStep->GetStepLength();
+    double thickstep=stepl/intl;
+    double radl=mat->GetRadlen();
+    double radstep=100 * stepl/radl;
+    std::string::size_type npos;
+    m_tot_x += thickstep;
+    m_tot_ni += radstep;
+    if(!has_cryo) {
       m_cryo_x += thickstep;
       m_cryo_ni += radstep;
       npos=volName.find("Cryostat");
       if(npos< volName.size()){
-         has_cryo = true;
-         m_cryo_y = preStep->GetPosition().y();
-         ATH_MSG_DEBUG (" Has cryo: "<<static_cast<float>(m_cryo_y));
+        has_cryo = true;
+        m_cryo_y = preStep->GetPosition().y();
+        if(m_verboseLevel>4) { std::cout <<"RadLenNtuple DEBUG  Has cryo: "<<static_cast<float>(m_cryo_y) << std::endl; }
       }
-   }
-   if(!has_em) {
+    }
+    if(!has_em) {
       m_em_x += thickstep;
       m_em_ni += radstep;
       npos=volName.find("EMEC");
       if(npos< volName.size()){
-         has_em = true;
-         m_em_y = preStep->GetPosition().y();
-         ATH_MSG_DEBUG(" Has EMEC: "<<static_cast<float>(m_em_y));
+        has_em = true;
+        m_em_y = preStep->GetPosition().y();
+        if(m_verboseLevel>4) { std::cout << "RadLenNtuple DEBUG  Has EMEC: "<<static_cast<float>(m_em_y) << std::endl; }
       }
-   }
-   if(!has_hec) {
+    }
+    if(!has_hec) {
       m_hec_x += thickstep;
       m_hec_ni += radstep;
       npos=volName.find("HEC");
       if(npos< volName.size()){
-         has_hec = true;
-         m_hec_y = preStep->GetPosition().y();
-         ATH_MSG_DEBUG (" Has HEC: "<<static_cast<float>(m_hec_y));
+        has_hec = true;
+        m_hec_y = preStep->GetPosition().y();
+        if(m_verboseLevel>4) { std::cout <<"RadLenNtuple DEBUG  Has HEC: "<<static_cast<float>(m_hec_y) << std::endl; }
       }
-   }
-   if(!has_fcal) {
+    }
+    if(!has_fcal) {
       m_fcal_x += thickstep;
       m_fcal_ni += radstep;
       npos=volName.find("FCAL");
       if(npos< volName.size()){
-         has_fcal = true;
-         m_fcal_y = preStep->GetPosition().y();
-         ATH_MSG_DEBUG (" Has FCAL: "<<static_cast<float>(m_fcal_y));
+        has_fcal = true;
+        m_fcal_y = preStep->GetPosition().y();
+        if(m_verboseLevel>4) { std::cout <<"RadLenNtuple DEBUG  Has FCAL: "<<static_cast<float>(m_fcal_y) << std::endl; }
       }
-   }
-}
-
-StatusCode RadLenNtuple::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-  if ( IUserAction::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = dynamic_cast<IUserAction*>(this);
-    addRef();
-  } else {
-    // Interface is not directly available : try out a base class
-    return UserActionBase::queryInterface(riid, ppvInterface);
+    }
   }
-  return StatusCode::SUCCESS;
+
 }

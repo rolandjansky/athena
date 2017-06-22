@@ -26,7 +26,13 @@ def getEnvelopeDefSvc(name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
     # setup fallback BeamPipeEnvelope
     BeamPipe = Volume()
     BeamPipe.addRZ(   34.3,   3475.0 )
-    BeamPipe.addRZ(  120.0,   3475.0 )
+    from AthenaCommon.DetFlags import DetFlags
+    if hasattr(DetFlags.simulate, 'HGTD_on') and DetFlags.simulate.HGTD_on():
+        BeamPipe.addRZ(   47.0,   3475.0 )
+        BeamPipe.addRZ(   47.0,   3535.0 )
+        BeamPipe.addRZ(  120.0,   3535.0 )
+    else:
+        BeamPipe.addRZ(  120.0,   3475.0 )
     BeamPipe.addRZ(  120.0,   4185.0 )
     BeamPipe.addRZ(   41.0,   4185.0 )
     BeamPipe.addRZ(   41.0,   6783.0 )
@@ -55,7 +61,13 @@ def getEnvelopeDefSvc(name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
     # setup fallback CaloEnvelope
     Calo = Volume()
     Calo.addRZ( 1148.0,  3475.0 )
-    Calo.addRZ(  120.0,  3475.0 )
+    from AthenaCommon.DetFlags import DetFlags
+    if hasattr(DetFlags.simulate, 'HGTD_on') and DetFlags.simulate.HGTD_on():
+        Calo.addRZ(   47.0,  3475.0 )
+        Calo.addRZ(   47.0,  3535.0 )
+        Calo.addRZ(  120.0,  3535.0 )
+    else:
+        Calo.addRZ(  120.0,  3475.0 )
     Calo.addRZ(  120.0,  4185.0 )
     Calo.addRZ(   41.0,  4185.0 )
     Calo.addRZ(   41.0,  6783.0 )
@@ -119,8 +131,8 @@ def getEnvelopeDefSvc(name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
     from AthenaCommon.BeamFlags import jobproperties
     if jobproperties.Beam.beamType() != 'cosmics':
       #  -> for collision jobs the 'cavern' envelope is much smaller
-      Cavern.addRZ(      0.0 , 50000.0 ) # z= +50m
-      Cavern.addRZ( 50000.0  , 50000.0 ) # r=  50m
+      Cavern.addRZ(      0.0 , 500000.0 ) # z= +500m
+      Cavern.addRZ( 500000.0  , 500000.0 ) # r=  500m
     else:
       #  -> for cosmics simulation the 'cavern' envelope spans much further
       kwargs.setdefault("DBCavernNode"    , 'CavernEnvelopeNONE'   )

@@ -58,6 +58,8 @@ class TileCellCont : public std::vector<TileCellCollection*>
   
   StatusCode initialize( void ) ;
   StatusCode finalize( void ) ;
+  void forceRunNumber ( unsigned int runNumberToForce )
+	{ m_forceRun = runNumberToForce; }
 
   void eventNumber ( const unsigned int eN) { m_event=eN; };
   bool cached( const unsigned int&rodid ){
@@ -94,6 +96,7 @@ private:
 	std::map<unsigned int, unsigned int> m_mapMBTS;
 	int m_MBTS_channel;
 	std::vector<int> m_masked;
+	unsigned int m_forceRun;
   
 };
 

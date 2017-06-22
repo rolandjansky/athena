@@ -1,165 +1,18 @@
 // emacs: this is -*- c++ -*-
 
-a0=4.;
+#define LARGED0_EL
 
-pT     = 3000;
-eta    = 2.5;
-// npix   = 1;
-// nsct   = 2;
-npix   = -1;
-nsct   = -1;
+#include "TIDAdata_cuts.dat"
 
-pT_rec  = 0;
-eta_rec = 5;
-Rmatch = 0.05;
-
-dumpflag = 1;
-
-a0v = 10.5;
-z0v = 10.5;
+refChain = "Truth";
 //refChain = "Offline";
 //refChain = "Electrons";
 //refChain = "Muons";
 //refChain = "Taus";
 
-/// NB: For the "Truth" chains, need to specify what 
-///     sort of particle (ie which pdgID) is needed
-/// Fixme: should add a flag to enable/disable this
-///        what if we want all final state particles
-///        independent of pdgID?
-refChain = "Truth";
-//pdgId=11; // electron --entered in command line now
-
 MinVertices = 0;
 
-testChains = {
-    //"Offline",
-    //"Muons",
-    //"Electrons",
-    //    "Truth",
-    "Truth",
-
-    
-    "L2_e22vh_medium_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:0",
-    "L2_e22vh_medium_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:1",
-    "L2_e22vh_medium_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:2",
-    "L2_e22vh_medium_IDTrkNoCut:TrigIDSCAN_eGamma",
-    "L2_e22vh_medium_IDTrkNoCut:TrigSiTrack_eGamma",
-    "EF_e22vh_medium_IDTrkNoCut:InDetTrigParticleCreation_Electron_EFID",
-    
-    "L2_mu22_IDTrkNoCut_tight:TrigL2SiTrackFinder_Muon:0",
-    "L2_mu22_IDTrkNoCut_tight:TrigL2SiTrackFinder_Muon:1",
-    "L2_mu22_IDTrkNoCut_tight:TrigL2SiTrackFinder_Muon:2",
-    "EF_mu22_IDTrkNoCut_tight:InDetTrigParticleCreation_Muon_EFID",
-    
-    "L2_tau29_IDTrkNoCut:TrigL2SiTrackFinder_Tau:0",
-    "L2_tau29_IDTrkNoCut:TrigL2SiTrackFinder_Tau:1",
-    "L2_tau29_IDTrkNoCut:TrigL2SiTrackFinder_Tau:2",
-    "EF_tau29_IDTrkNoCut:InDetTrigParticleCreation_Tau_EFID",
-    
-    "L2_b50_NoCut_j50_c4cchad:TrigL2SiTrackFinder_Jet:0",
-    "L2_b50_NoCut_j50_c4cchad:TrigL2SiTrackFinder_Jet:1",
-    "L2_b50_NoCut_j50_c4cchad:TrigL2SiTrackFinder_Jet:2",
-    "EF_b55_NoCut_j55_a4tchad:InDetTrigParticleCreation_Bjet_EFID",
-    
-    "L2_InDetMon_FS:TrigL2SiTrackFinder_FullScan:0",
-    "L2_InDetMon_FS:TrigL2SiTrackFinder_FullScan:1",
-    "L2_InDetMon_FS:TrigL2SiTrackFinder_FullScan:2",
-    "EF_InDetMon_FS:InDetTrigParticleCreation_FullScan_EFID",
-    "L2_InDetMonMergeDP_FS:TrigL2SiTrackFinder_FullScan:0",
-    "L2_InDetMonMergeDP_FS:TrigL2SiTrackFinder_FullScan:1",
-    "L2_InDetMonMergeDP_FS:TrigL2SiTrackFinder_FullScan:2",
-    "EF_InDetMonMerge_FS:InDetTrigParticleCreation_FullScan_EFID",
-    
-    "EF_e24vh_medium1_IDTrkNoCut_IDT:TrigFastTrackFinder_eGamma",
-    "EF_e24vh_medium1_IDTrkNoCut_IDT:InDetTrigParticleCreation_Electron_EFID",
-    "EF_tau29_IDTrkNoCut_IDT:TrigFastTrackFinder_Tau",    
-    "EF_tau29_IDTrkNoCut_IDT:TrigFastTrackFinder_Tau_IDTrig",    
-    "EF_tau29_IDTrkNoCut_IDT:InDetTrigParticleCreation_Tau_EFID",    
-    "EF_mu22_IDTrkNoCut_tight_IDT:TrigFastTrackFinder_Muon",
-    "EF_mu22_IDTrkNoCut_tight_IDT:InDetTrigParticleCreation_Muon_EFID",
-    "EF_b55_NoCut_j55_a4tchad_IDT:TrigFastTrackFinder_Jet",
-    "EF_b55_NoCut_j55_a4tchad_IDT:InDetTrigParticleCreation_Bjet_EFID",
-
-    "HLT_e24_medium_L2Star_idperf:TrigL2SiTrackFinder_eGamma:0",
-    "HLT_e24_medium_L2Star_idperf:TrigL2SiTrackFinder_eGamma:1",
-    "HLT_e24_medium_L2Star_idperf:TrigL2SiTrackFinder_eGamma:2",
-    "HLT_e24_medium_L2Star_idperf:InDetTrigParticleCreation_Electron_EFID",
-    "HLT_e24_medium_L2Star_idperf:InDetTrigTrackingxAODCnv_Electron_EFID",
-
-    "HLT_e5_loose_L2Star_idperf:TrigL2SiTrackFinder_eGamma:0",
-    "HLT_e5_loose_L2Star_idperf:TrigL2SiTrackFinder_eGamma:1",
-    "HLT_e5_loose_L2Star_idperf:TrigL2SiTrackFinder_eGamma:2",
-    "HLT_e5_loose_L2Star_idperf:InDetTrigParticleCreation_Electron_EFID",
-    "HLT_e5_loose_L2Star_idperf:InDetTrigTrackingxAODCnv_Electron_EFID",
-
-    "HLT_e24_medium_idperf:TrigFastTrackFinder_eGamma",
-    "HLT_e24_medium_idperf:InDetTrigParticleCreation_Electron_EFID",
-    "HLT_e24_medium_idperf:InDetTrigTrackingxAODCnv_Electron_EFID",
-    "HLT_e24_medium_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig",
-    "HLT_e24_medium_idperf:InDetTrigTrackingxAODCnv_Electron_FTF",
-
-    "HLT_e5_loose_idperf:TrigFastTrackFinder_eGamma",
-    "HLT_e5_loose_idperf:InDetTrigParticleCreation_Electron_EFID",
-    "HLT_e5_loose_idperf:InDetTrigTrackingxAODCnv_Electron_EFID",
-    "HLT_e5_loose_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig",
-    "HLT_e5_loose_idperf:InDetTrigTrackingxAODCnv_Electron_FTF",
-
-    "HLT_mu24_L2Star_idperf:TrigL2SiTrackFinder_Muon:0",
-    "HLT_mu24_L2Star_idperf:TrigL2SiTrackFinder_Muon:1",
-    "HLT_mu24_L2Star_idperf:TrigL2SiTrackFinder_Muon:2",
-    "HLT_mu24_L2Star_idperf:InDetTrigParticleCreation_Muon_EFID",
-    "HLT_mu24_L2Star_idperf:InDetTrigTrackingxAODCnv_Muon_EFID",
-    "HLT_mu24_idperf:TrigFastTrackFinder_Muon",
-    "HLT_mu24_idperf:InDetTrigParticleCreation_Muon_EFID",
-    "HLT_mu24_idperf:InDetTrigTrackingxAODCnv_Muon_EFID",
-
-    "HLT_mu6_L2Star_idperf:TrigL2SiTrackFinder_Muon:0",
-    "HLT_mu6_L2Star_idperf:TrigL2SiTrackFinder_Muon:1",
-    "HLT_mu6_L2Star_idperf:TrigL2SiTrackFinder_Muon:2",
-    "HLT_mu6_L2Star_idperf:InDetTrigParticleCreation_Muon_EFID",
-    "HLT_mu6_L2Star_idperf:InDetTrigTrackingxAODCnv_Muon_EFID",
-    "HLT_mu6_idperf:TrigFastTrackFinder_Muon",
-    "HLT_mu6_idperf:InDetTrigParticleCreation_Muon_EFID",
-    "HLT_mu6_idperf:InDetTrigTrackingxAODCnv_Muon_EFID",
-
-    "HLT_tau29_idperf_track:TrigFastTrackFinder_Tau",
-    "HLT_tau29_idperf_track:TrigFastTrackFinder_Tau_IDTrig",
-    "HLT_tau29_idperf_track:InDetTrigParticleCreation_Tau_EFID",
-    "HLT_tau29_idperf_track:InDetTrigTrackingxAODCnv_Tau_EFID",
-    "HLT_tau29_idperf_track:InDetTrigTrackingxAODCnv_Tau_IDTrig",
-    "HLT_tau29_idperf_tracktwo:TrigFastTrackFinder_Tau",
-    "HLT_tau29_idperf_tracktwo:TrigFastTrackFinder_Tau_IDTrig",
-    "HLT_tau29_idperf_tracktwo:InDetTrigParticleCreation_Tau_EFID",
-    "HLT_tau29_idperf_tracktwo:InDetTrigTrackingxAODCnv_Tau_EFID",
-    "HLT_tau29_idperf_tracktwo:InDetTrigTrackingxAODCnv_Tau_IDTrig",
-
-    "HLT_tau29_track:TrigFastTrackFinder_Tau",
-    "HLT_tau29_track:TrigFastTrackFinder_Tau_IDTrig",
-    "HLT_tau29_track:InDetTrigParticleCreation_Tau_EFID",
-    "HLT_tau29_track:InDetTrigTrackingxAODCnv_Tau_EFID",
-    "HLT_tau29_track:InDetTrigTrackingxAODCnv_Tau_IDTrig",
-    "HLT_tau29_tracktwo:TrigFastTrackFinder_Tau",
-    "HLT_tau29_tracktwo:TrigFastTrackFinder_Tau_IDTrig",
-    "HLT_tau29_tracktwo:InDetTrigParticleCreation_Tau_EFID",
-    "HLT_tau29_tracktwo:InDetTrigTrackingxAODCnv_Tau_EFID",
-    "HLT_tau29_tracktwo:InDetTrigTrackingxAODCnv_Tau_IDTrig",
-
-    "HLT_tau20_r1_idperf:TrigL2SiTrackFinder_Tau:0",
-    "HLT_tau20_r1_idperf:TrigL2SiTrackFinder_Tau:1",
-    "HLT_tau20_r1_idperf:TrigL2SiTrackFinder_Tau:2",
-    "HLT_tau20_r1_idperf:InDetTrigParticleCreation_Tau_EFID",
-    "HLT_tau20_r1_idperf:InDetTrigTrackingxAODCnv_Tau_EFID",
-
-    "HLT_j55_bperf:TrigFastTrackFinder_Jet",
-    "HLT_j55_bperf:InDetTrigParticleCreation_Bjet_EFID",
-    "HLT_j55_bperf:InDetTrigTrackingxAODCnv_Bjet_EFID",
-
-    "HLT_j55_EFID_bperf:InDetTrigParticleCreation_Bjet_EFID",
-    "HLT_j55_EFID_bperf:InDetTrigTrackingxAODCnv_Bjet_EFID",
-
-    "HLT_id_cosmic:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID"
-}; 
+#include "TIDAdata_chains.dat"
 
 InitialiseFirstEvent = 1;
 

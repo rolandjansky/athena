@@ -14,6 +14,8 @@
 #include "CLHEP/Vector/ThreeVector.h"
 #include "SGTools/CLASS_DEF.h"
 
+#include "GeoSpecialShapes/LArWheelCalculatorEnums.h"
+
 #define LARWC_SINCOS_POLY 5
 #define LARWC_DTNF_NEW
 
@@ -42,33 +44,20 @@ class LArWheelCalculator
 	template <typename SaggingType> friend class LArWheelCalculator_Impl::DistanceToTheNeutralFibre_OfFan;
 
   public:
-	typedef enum {
-		InnerAbsorberWheel,  OuterAbsorberWheel,
-		InnerElectrodWheel,  OuterElectrodWheel,
-		InnerAbsorberModule, OuterAbsorberModule,
-		InnerElectrodModule, OuterElectrodModule,
-		BackInnerBarretteWheel,       BackOuterBarretteWheel,
-		BackInnerBarretteWheelCalib,  BackOuterBarretteWheelCalib,
-		BackInnerBarretteModule,      BackOuterBarretteModule,
-		BackInnerBarretteModuleCalib, BackOuterBarretteModuleCalib,
-		InnerGlueWheel, OuterGlueWheel,
-		InnerLeadWheel, OuterLeadWheel
-	} LArWheelCalculator_t;
-
-	LArWheelCalculator(LArWheelCalculator_t a_wheelType, int zside = 1);
+	LArWheelCalculator(LArG4::LArWheelCalculator_t a_wheelType, int zside = 1);
 	virtual ~LArWheelCalculator();
 
         LArWheelCalculator (const LArWheelCalculator&) = delete;
         LArWheelCalculator& operator= (const LArWheelCalculator&) = delete;
 
-	static const char *LArWheelCalculatorTypeString(LArWheelCalculator_t);
-	static double GetFanHalfThickness(LArWheelCalculator_t);
+	static const char *LArWheelCalculatorTypeString(LArG4::LArWheelCalculator_t);
+	static double GetFanHalfThickness(LArG4::LArWheelCalculator_t);
 
   // "Get constant" methods:
 	double GetWheelThickness(void) const { return m_WheelThickness; }
 	double GetdWRPtoFrontFace(void) const { return m_dWRPtoFrontFace; }
 	double GetStraightStartSection(void) const { return m_StraightStartSection; }
-	virtual LArWheelCalculator_t type() const { return m_type; }
+	virtual LArG4::LArWheelCalculator_t type() const { return m_type; }
   // "zShift" is the z-distance (cm) that the EM endcap is shifted
   // (due to cabling, etc.)
 	int GetAtlasZside() const { return m_AtlasZside; }
@@ -117,7 +106,7 @@ class LArWheelCalculator
 	double AmplitudeOfSurface(const CLHEP::Hep3Vector& P, int side, int fan_number) const;
 
   private:
-	LArWheelCalculator_t m_type;
+        LArG4::LArWheelCalculator_t m_type;
 
 	int m_AtlasZside;
 	bool m_SaggingOn; // !

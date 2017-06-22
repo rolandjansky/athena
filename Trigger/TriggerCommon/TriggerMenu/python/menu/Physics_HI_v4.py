@@ -74,10 +74,9 @@ def setupMenu():
 	['mu15_L1MU10',                'L1_MU10', [], [HardProbesStream, 'express'], ['RATE:SingleMuon','BW:Muon'], -1],
 	['mu18',                'L1_MU15', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
 	['mu20',                'L1_MU20', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
-	['mu20_iloose_L1MU15',                'L1_MU15', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
-	['mu20_L1MU15',                'L1_MU15', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
-
-	#msonly
+        ['mu20_L1MU15',                'L1_MU15', [], [HardProbesStream], ['RATE:SingleMuon','BW:Muon'], -1],
+	
+        #msonly
 	['mu4_msonly',            'L1_MU4',           [], [HardProbesStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
 	['mu6_msonly',            'L1_MU6',           [], [HardProbesStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
 	['mu10_msonly',            'L1_MU10',           [], [HardProbesStream], ['RATE:SingleMuon', 'BW:Muon'], -1],

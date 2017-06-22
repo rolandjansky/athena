@@ -13,19 +13,21 @@ use LArIdentifier    LArIdentifier-*      LArCalorimeter
 use LArRawConditions LArRawConditions-*   LArCalorimeter
 use LArCabling       LArCabling-*         LArCalorimeter
 use LArRecConditions LArRecConditions-*   LArCalorimeter
-   
+use LumiBlockComps       LumiBlockComps-*      LumiBlock   
+use AtlasROOT           AtlasROOT-*          External
+use LArRawEvent         LArRawEvent-*        LArCalorimeter
+use TrigDecisionTool    TrigDecisionTool-*              Trigger/TrigAnalysis
 
 private
 use AthenaKernel        AthenaKernel*        Control
-use AtlasROOT           AtlasROOT-*          External
 use LArCondUtils        LArCondUtils-*       LArCalorimeter
-use LArRawEvent         LArRawEvent-*        LArCalorimeter
 use LArTools         LArTools-*           LArCalorimeter
 use CaloCondBlobObjs    CaloCondBlobObjs-*  Calorimeter
 use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
 use AtlasCORAL   AtlasCORAL-* External
 use LArCOOLConditions LArCOOLConditions-* LArCalorimeter
 use EventInfo           EventInfo-*          Event
+use xAODEventInfo       xAODEventInfo-*          Event/xAOD
 
 apply_tag ROOTMathLibs
 apply_tag  ROOTGraphicsLibs

@@ -1,3 +1,5 @@
+
+
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 import TrigBjetMonitoring.TrigBjetMonitCategory as bjet
@@ -228,6 +230,7 @@ class HLTMonTriggerList:
 
         self.monitoring_tau = tau.monitoring_tau_cosmic
 
+        self.monitoring_singleTau = tau.monitoring_singleTau_cosmic
 
     def set_HLTMonTrigList_mc(self):
         self.monitoring_bjet = bjet.monitoring_bjet_validation

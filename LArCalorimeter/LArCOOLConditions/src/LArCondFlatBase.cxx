@@ -35,10 +35,10 @@ StatusCode LArCondFlatBase::initializeBase(const char* context) {
   else
     sContext=context;
   m_log=new MsgStream(Athena::getMessageSvc(), sContext);
-  (*m_log) << MSG::DEBUG << "initializeBase "<< endreq;
+  (*m_log) << MSG::DEBUG << "initializeBase "<< endmsg;
 
   if (m_isInitialized) {
-    (*m_log) << MSG::DEBUG << "already initialized - returning "<< endreq;
+    (*m_log) << MSG::DEBUG << "already initialized - returning "<< endmsg;
     return (StatusCode::SUCCESS);
   }
   //Get LArOnlineID....
@@ -46,29 +46,29 @@ StatusCode LArCondFlatBase::initializeBase(const char* context) {
   StoreGateSvc* detStore;
   StatusCode sc = svcLoc->service("DetectorStore",detStore);
   if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
+    (*m_log) << MSG::ERROR << "Cannot get DetectorStore!" << endmsg;
     return sc;
   }
   sc = detStore->retrieve(m_onlineHelper,"LArOnlineID");
   if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Cannot get LArOnlineID!" << endreq;
+    (*m_log) << MSG::ERROR << "Cannot get LArOnlineID!" << endmsg;
     return sc;
   }
 
   IToolSvc* toolSvc;
   sc = svcLoc->service( "ToolSvc",toolSvc  );
   if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Cannot get ToolSvc!" << endreq;
+    (*m_log) << MSG::ERROR << "Cannot get ToolSvc!" << endmsg;
     return sc;
   }
 
   sc = toolSvc->retrieveTool("LArCablingService",m_larCablingSvc);
   if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Cannot get LArCablingService!" << endreq;
+    (*m_log) << MSG::ERROR << "Cannot get LArCablingService!" << endmsg;
     return sc;
   }
 
   m_isInitialized = true;
-  (*m_log) << MSG::DEBUG << "end initializeBase " << endreq;
+  (*m_log) << MSG::DEBUG << "end initializeBase " << endmsg;
   return (StatusCode::SUCCESS);
 }

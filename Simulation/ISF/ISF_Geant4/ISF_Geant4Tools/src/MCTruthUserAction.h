@@ -14,7 +14,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "G4AtlasTools/UserActionBase.h"
 #include "ISF_Interfaces/ITruthSvc.h"
 
 // Atlas G4 Helpers
@@ -33,44 +32,6 @@
   m_particleBroker->current()->passport().nextGeo()
   Thus it is defined as a AlgTool, to get these assigned easily via python.
 */
-
-namespace iGeant4 {
-
-  class ITransportTool;
-
-  class MCTruthUserAction : public  UserActionBase {
-
-  public:
-    MCTruthUserAction(const std::string& type,
-                      const std::string& name,
-                      const IInterface* parent);
-    ~MCTruthUserAction();
-
-    StatusCode initialize();
-    StatusCode finalize();
-
-    //void BeginOfEventAction(const G4Event*);
-    //void EndOfEventAction(const G4Event*);
-    //void BeginOfRunAction(const G4Run*);
-    //void EndOfRunAction(const G4Run*);
-    void PreTracking(const G4Track* aTrack);
-    void PostTracking(const G4Track* aTrack);
-
-    virtual StatusCode queryInterface(const InterfaceID&, void**) override;
-
-  private:
-
-    SecondaryTracksHelper m_sHelper;
-
-    /** the ISF truth service */
-    ServiceHandle<ISF::ITruthSvc>    m_truthRecordSvc;
-    ISF::ITruthSvc                  *m_truthRecordSvcQuick; //!< used for faster access
-
-    int m_ilevel;                                // secondary saving level
-
-  };
-
-} // namespace iGeant4
 
 #include "G4AtlasInterfaces/IPreTrackingAction.h"
 #include "G4AtlasInterfaces/IPostTrackingAction.h"

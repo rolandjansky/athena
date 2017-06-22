@@ -76,6 +76,7 @@ namespace Analysis {
 
     // any other arbitrary aux data
     std::vector<std::string> m_arbitrary_aux_data;
+    std::map<std::string, std::string> m_aux_data_name_map;
 
     ToolHandleArray< IMultivariateJetTagger > m_MultivariateTaggerHandleArray;
 

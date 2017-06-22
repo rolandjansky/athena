@@ -81,6 +81,13 @@ class forwardElectronMonTool : public egammaMonToolBase
   std::vector<TH1*> m_hvTightLateral; // lateral moment
   std::vector<TH1*> m_hvTightSecondR; // second R
   std::vector<TH1*> m_hvTightCenterL; // center lambda
+
+  unsigned int m_lumiBlockNumber;
+  unsigned int m_nForwardElectronsInCurrentLB;
+  std::vector<int> m_nForwardElectronsPerLumiBlock;
+  unsigned int m_nForwardElectrons;
+  TH1 *m_hLB_N; // Histogram for number of forward electrons vs LB
+
 };
 
 #endif

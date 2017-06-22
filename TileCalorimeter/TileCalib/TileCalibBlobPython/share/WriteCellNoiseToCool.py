@@ -404,6 +404,12 @@ for iov in iovList:
   blobW.init(defVec,ncell,1)
 
   src = ['Default','DB','File','Scale']
+  FullName=None
+  cell=None
+  gain=None
+  field=None
+  strval=None
+  noise=None
 
   try:
     for cell in xrange(ncell):
@@ -430,8 +436,18 @@ for iov in iovList:
           exist = (exist1 and (field<mval))
           value = GainDefVec[field]
           if field<nF:
-            value = float(noise[field])
-            if value<0 and exist: # negative value means that we don't want to update this field
+            strval=str(noise[field])
+            if strval.startswith("*"):
+              coef=float(strval[1:])
+              value = blobR.getData(cell,gain,field)*coef
+            elif strval.startswith("++") or strval.startswith("+-") :
+              coef=float(strval[1:])
+              value = blobR.getData(cell,gain,field)+coef
+            elif strval=="keep" or strval=="None":
+              value = None
+            else:
+              value = float(strval)
+            if (value is None or value<0) and exist: # negative value means that we don't want to update this field
               value = blobR.getData(cell,gain,field)
             elif exist:
               exist = 2
@@ -460,8 +476,11 @@ for iov in iovList:
           blobW.setData( cell, gain, field, value )
           if rescale or exist>1:
             print "%s hash %4d gain %d field %d value %f Source %s" % (fullName, cell, gain, field, value, src[exist])
-  except:
+  except Exception, e:
     print "Exception on IOV [%d,%d]-[%d,%d)" % (sinceRun, sinceLum, untilRun, untilLum)
+    print FullName,"Cell",cell,"gain",gain,"field",field,"value",strval,"noise vector",noise
+    #e = sys.exc_info()[0]
+    print e
 
   if begin>=0:
       print "IOV in output DB [%d,%d]-[%d,%d)" % (begin, 0, MAXRUN, MAXLBK)

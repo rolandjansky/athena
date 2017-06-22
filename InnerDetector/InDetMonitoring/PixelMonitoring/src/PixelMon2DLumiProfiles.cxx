@@ -210,12 +210,15 @@ void PixelMon2DLumiProfiles::formatHist(bool doIBL,bool errorHist)
 
 StatusCode PixelMon2DLumiProfiles::regHist(ManagedMonitorToolBase::MonGroup &group,bool doIBL,bool errorHist)
 {
-  if(!errorHist && doIBL)sc = group.regHist(IBLlbp);
-   sc = group.regHist(B0lbp);
-   sc = group.regHist(B1lbp);
-   sc = group.regHist(B2lbp);
-   sc = group.regHist(Albp);
-   sc = group.regHist(Clbp);
+  StatusCode sc = StatusCode::SUCCESS;
+  if(!errorHist && doIBL) {
+    if (group.regHist(IBLlbp).isFailure()) sc = StatusCode::FAILURE;
+  }
+  if (group.regHist(B0lbp).isFailure()) sc = StatusCode::FAILURE;
+  if (group.regHist(B1lbp).isFailure()) sc = StatusCode::FAILURE;
+  if (group.regHist(B2lbp).isFailure()) sc = StatusCode::FAILURE;
+  if (group.regHist(Albp).isFailure()) sc = StatusCode::FAILURE;
+  if (group.regHist(Clbp).isFailure()) sc = StatusCode::FAILURE;
    
-   return sc;
+  return sc;
 }

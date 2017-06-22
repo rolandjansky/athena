@@ -12,7 +12,6 @@
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolTest.h"
-
 #include "TrigMuonEvent/CombinedMuonFeatureContainer.h"
 
 #include "TROOT.h"
@@ -49,13 +48,13 @@ StatusCode HLTMuonMonTool::initMuCombDQA()
 StatusCode HLTMuonMonTool::bookMuCombDQA()
 {
   //histograms in each 10LBs 
-  if( newRun || newLowStat){
+  if( newRunFlag() || newLowStatFlag() ){
 
     addHistogram( new TH2F("muComb_eta_vs_phi_in_10LBs",           "muComb eta vs phi in 10LBs; #eta ; #phi",           27, -2.7, 2.7, 16, -CLHEP::pi, CLHEP::pi), m_histdircoverage );
 
   }
 
-  if( newRun ){
+  if( newRunFlag() ){
 
     //  basic EDM
     addHistogram( new TH1F("muComb_pt_all",          "muComb pt (GeV/c); p_{T}[GeV/c]; Entries",                  210, -105., 105.), m_histdirmucomb );
@@ -66,13 +65,13 @@ StatusCode HLTMuonMonTool::bookMuCombDQA()
 	 
 	 addHistogram( new TH2F("muComb_eta_vs_phi_MCmatching_success",  "muComb eta vs phi (MC match success); #eta ; #phi", 108, -2.7, 2.7, 96, -CLHEP::pi, CLHEP::pi), m_histdirmucomb );
 	 addHistogram( new TH2F("muComb_eta_vs_phi_OFFmatching_failure", "muComb eta vs phi (MC match success Off match failure); #eta ; #phi",108, -2.7, 2.7, 96, -CLHEP::pi, CLHEP::pi), m_histdirmucomb );
-	 addHistogram( new TH2F("muFast_eta_vs_phi_MCmatching_failure",  "muFast eta vs phi (MC match failure Off match success); #eta ; #phi",           108, -2.7, 2.7, 96, -CLHEP::pi, CLHEP::pi), m_histdirmucomb );
+	 addHistogram( new TH2F("L2MuonSA_eta_vs_phi_MCmatching_failure",  "L2MuonSA eta vs phi (MC match failure Off match success); #eta ; #phi",           108, -2.7, 2.7, 96, -CLHEP::pi, CLHEP::pi), m_histdirmucomb );
 
-    // comparison muComb vs muFast
-    addHistogram( new TH1F("muComb_ptratio_toMF",    "muComb pt / muFast pt; p_{T} ratio; Entries",          140, -0.5,  3), m_histdirmucomb );
-    addHistogram( new TH1F("muComb_dR_toMF",         "muComb delta R to muFast; #DeltaR; Entries",           100,   0,  0.5), m_histdirmucomb );
-    addHistogram( new TH1F("muComb_deta_toMF",       "muComb delta eta to muFast; #Delta#eta; Entries",      120, -0.2, 0.2), m_histdirmucomb );
-    addHistogram( new TH1F("muComb_dphi_toMF",       "muComb delta phi to muFast; #Delta#phi; Entries",      120, -0.2, 0.2), m_histdirmucomb );
+    // comparison muComb vs L2MuonSA
+    addHistogram( new TH1F("muComb_ptratio_toMF",    "muComb pt / L2MuonSA pt; p_{T} ratio; Entries",          140, -0.5,  3), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_dR_toMF",         "muComb delta R to L2MuonSA; #DeltaR; Entries",           100,   0,  0.5), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_deta_toMF",       "muComb delta eta to L2MuonSA; #Delta#eta; Entries",      120, -0.2, 0.2), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_dphi_toMF",       "muComb delta phi to L2MuonSA; #Delta#phi; Entries",      120, -0.2, 0.2), m_histdirmucomb );
     addHistogram( new TH1F("muComb_MF_error",        "muComb pointer to MuonFeature Error",                  5,0,5),          m_histdirmucomb );
     hist("muComb_MF_error", m_histdirmucomb)->GetXaxis()->SetBinLabel(1,"No error");
     hist("muComb_MF_error", m_histdirmucomb)->GetXaxis()->SetBinLabel(2,"Missing Pointer to MF");
@@ -80,11 +79,11 @@ StatusCode HLTMuonMonTool::bookMuCombDQA()
     hist("muComb_MF_error", m_histdirmucomb)->GetXaxis()->SetBinLabel(4,"CB ContainerSize Error");
     hist("muComb_MF_error", m_histdirmucomb)->GetXaxis()->SetBinLabel(5,"MF ContainerSize Error");
 
-    // comparison IDtrk vs muFast
-    addHistogram( new TH1F("muComb_ptratio_TRKtoMF", "muComb Trk pt / muFast pt; p_{T} ratio; Entries",      140, -0.5, 3), m_histdirmucomb );
-    addHistogram( new TH1F("muComb_dR_TRKtoMF",      "muComb delta R TRK to muFast; #DeltaR; Entries",       100,    0, 0.5), m_histdirmucomb );
-    addHistogram( new TH1F("muComb_deta_TRKtoMF",    "muComb delta eta TRK to muFast; #Delta#eta; Entries",  120, -0.2, 0.2), m_histdirmucomb );
-    addHistogram( new TH1F("muComb_dphi_TRKtoMF",    "muComb delta phi TRK to muFast; #Delta#phi; Entries",  120, -0.2, 0.2), m_histdirmucomb );
+    // comparison IDtrk vs L2MuonSA
+    addHistogram( new TH1F("muComb_ptratio_TRKtoMF", "muComb Trk pt / L2MuonSA pt; p_{T} ratio; Entries",      140, -0.5, 3), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_dR_TRKtoMF",      "muComb delta R TRK to L2MuonSA; #DeltaR; Entries",       100,    0, 0.5), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_deta_TRKtoMF",    "muComb delta eta TRK to L2MuonSA; #Delta#eta; Entries",  120, -0.2, 0.2), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_dphi_TRKtoMF",    "muComb delta phi TRK to L2MuonSA; #Delta#phi; Entries",  120, -0.2, 0.2), m_histdirmucomb );
 
     // ID variables
     addHistogram( new TH1F("muComb_TRKpt",           "muComb Trk pt (GeV/c); p_{T}[GeV/c]; Entries",      210, -105., 105.), m_histdirmucomb );
@@ -94,9 +93,9 @@ StatusCode HLTMuonMonTool::bookMuCombDQA()
     addHistogram( new TH1F("muComb_TRKchi2",         "muComb Trk chi2; #chi^{2}; Entries",           50, 0, 10), m_histdirmucomb );
 
     // in case of failure 
-    addHistogram( new TH1F("muComb_failed_MFpt",     "muFast pt (GeV/c) for muComb fails; p_{T}[GeV/c]; Entries",  210, -105., 105.), m_histdirmucomb );
-    addHistogram( new TH1F("muComb_failed_MFeta",    "muFast eta for muComb fails; #eta; Entries",       108, -2.7,  2.7), m_histdirmucomb );
-    addHistogram( new TH1F("muComb_failed_MFphi",    "muFast phi for muComb fails; #phi[rad]; Entries",   96, -CLHEP::pi, CLHEP::pi), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_failed_MFpt",     "L2MuonSA pt (GeV/c) for muComb fails; p_{T}[GeV/c]; Entries",  210, -105., 105.), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_failed_MFeta",    "L2MuonSA eta for muComb fails; #eta; Entries",       108, -2.7,  2.7), m_histdirmucomb );
+    addHistogram( new TH1F("muComb_failed_MFphi",    "L2MuonSA phi for muComb fails; #phi[rad]; Entries",   96, -CLHEP::pi, CLHEP::pi), m_histdirmucomb );
 
     // Comparison to Offline
     addHistogram( new TH1F("muComb_dR_toOffl",          "dR between muComb and Offline; #DeltaR; Entries",           100,  0,  2), m_histdirmucomb );
@@ -122,7 +121,7 @@ StatusCode HLTMuonMonTool::bookMuCombDQA()
     addHistogram( new TH1F("muComb_effi_toOffl_phi_numer",     "muComb effi phi numer; #phi[rad]; Entries", 32, -CLHEP::pi, CLHEP::pi), m_histdirmucomb );
     addHistogram( new TH1F("muComb_effi_toOffl_phi_denom",     "muComb effi phi denom; #phi[rad]; Entries", 32, -CLHEP::pi, CLHEP::pi), m_histdirmucomb );
 
-  }else if( newLumiBlock ){
+  }else if( newLumiBlockFlag() ){
   }
 
   return StatusCode::SUCCESS;
@@ -165,19 +164,15 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
   // -----------------------------
   // Retrieve L2CombinedMuonContainer
   // -----------------------------
-
-  const DataHandle<xAOD::L2CombinedMuonContainer> combContainer;
-  const DataHandle<xAOD::L2CombinedMuonContainer> lastcombContainer;
+  
+  SG::ConstIterator<xAOD::L2CombinedMuonContainer> combContainer;
+  SG::ConstIterator<xAOD::L2CombinedMuonContainer> lastcombContainer;
   StatusCode sc_comb = m_storeGate->retrieve(combContainer,lastcombContainer);
   if ( sc_comb.isFailure() ) {
     ATH_MSG_WARNING( "Failed to retrieve HLT muComb container" );
     return StatusCode::SUCCESS;    
   }
   
-  if ( !combContainer ) {
-    ATH_MSG_INFO( "CombinedMuonFeatureContainer not found. Truncated?" );
-  }
-
   ATH_MSG_DEBUG( " ====== START HLTMuon muComb MonTool ====== " ); 
    
   // -----------------------------
@@ -186,12 +181,12 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
 
   std::vector<const xAOD::L2CombinedMuon*> vec_combinedMuon;
 
-  for(; combContainer != lastcombContainer; combContainer++) {
-    xAOD::L2CombinedMuonContainer::const_iterator comb     = combContainer->begin();
-    xAOD::L2CombinedMuonContainer::const_iterator lastcomb = combContainer->end();
-	 for(; comb != lastcomb; comb++) {
-      if( (*comb)==0 ) continue;
-      vec_combinedMuon.push_back( *comb );
+  for(auto itr=combContainer; itr != lastcombContainer; itr++) {
+    const xAOD::L2CombinedMuonContainer* comb(nullptr);
+    ATH_CHECK( evtStore()->retrieve(comb, itr.key()));
+    for(auto jtr=comb->begin();jtr!=comb->end();jtr++) {
+      if( (*jtr)==nullptr ) continue;
+      vec_combinedMuon.push_back( *jtr );
     }
   }
 
@@ -211,7 +206,7 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
 
      
     // get MF
-    const xAOD::L2StandAloneMuon* ptr_mf = 0;
+    const xAOD::L2StandAloneMuon* ptr_mf = nullptr;
     if( (*itComb)->muSATrackLink().isValid() ) {
       ptr_mf = (*itComb)->muSATrack();
     }
@@ -225,10 +220,25 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
     }
 
     // get IDTrack
-    const xAOD::TrackParticle *ptr_trk = 0;
-    if( (*itComb)->idTrackLink().isValid() ) {
+    bool ID_con=false;
+    std::string ID_con_name="HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Muon_FTF";
+    const xAOD::TrackParticle *ptr_trk = nullptr;
+    const xAOD::TrackParticleContainer* Idcbtrk = nullptr;
+    StatusCode sc_idcb = m_storeGate->retrieve(Idcbtrk, ID_con_name.c_str());
+    if (!sc_idcb.isFailure()) {
+      ATH_MSG_DEBUG("the container: "<<ID_con_name<<" size:"<<Idcbtrk->size());
+      if( Idcbtrk->size() > 0){
+        ID_con=true;
+      }else{
+        ATH_MSG_DEBUG("HLTMuon: found the container of "<<ID_con_name<<", but the size: zero "); 
+      }
+    }else{
+      ATH_MSG_DEBUG("HLTMuon can not find the container: "<<ID_con_name); 
+    }
+    if( ID_con && (*itComb)->idTrackLink().isValid() ) {
       ptr_trk = (*itComb)->idTrack();
     }
+    
     float trk_pt   = 0.;
     float trk_eta  = 0;
     float trk_phi  = 0;
@@ -325,7 +335,7 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
       hist("muComb_dR_toMF", m_histdirmucomb)->Fill(dR);
     }
 
-    // TRK, TRK vs muFast
+    // TRK, TRK vs L2MuonSA
     hist("muComb_TRKpt", m_histdirmucomb)->Fill(trk_pt_hist);
     if( ptr_trk != 0 ) {
       hist("muComb_TRKeta", m_histdirmucomb)->Fill(trk_eta);
@@ -348,7 +358,6 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
 
      
   } // loop over vecCombinedMuon
-
 
   // -----------------------------
   // Loop for each chain (Domae)
@@ -428,12 +437,11 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
       } 
       if(mf_eta != 0 && mf_phi != 0) {  //tomoe added 10/06/2011
 	      if(!mc_success && off_mf_match){
-		      hist2("muFast_eta_vs_phi_MCmatching_failure", m_histdirmucomb)->Fill(mf_eta,mf_phi);
+		      hist2("L2MuonSA_eta_vs_phi_MCmatching_failure", m_histdirmucomb)->Fill(mf_eta,mf_phi);
 	      } 
       } 
     }
   }
-
 
   //For passHLT chains
   for(unsigned int nchain=0;nchain<m_chainsL2passHLT.size();nchain++) {
@@ -482,7 +490,6 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
 	   else continue;
     }
   }
-  
   
   // -----------------------------
   // Comparision wrt Offline
@@ -562,7 +569,7 @@ StatusCode HLTMuonMonTool::fillMuCombDQA()
 
 StatusCode HLTMuonMonTool::procMuCombDQA()
 {
-  if( endOfRun ){
+  if( endOfRunFlag() ){
 
     hist("muComb_effi_toOffl_pt", m_histdireff)->Sumw2();
     hist("muComb_effi_toOffl_pt", m_histdireff)->Divide( hist("muComb_effi_toOffl_pt_numer", m_histdirmucomb), hist("muComb_effi_toOffl_pt_denom", m_histdirmucomb), 1, 1, "B" );
@@ -579,7 +586,7 @@ StatusCode HLTMuonMonTool::procMuCombDQA()
     hist("muComb_effi_toOffl_phi", m_histdireff)->Sumw2();
     hist("muComb_effi_toOffl_phi", m_histdireff)->Divide( hist("muComb_effi_toOffl_phi_numer", m_histdirmucomb), hist("muComb_effi_toOffl_phi_denom", m_histdirmucomb), 1, 1, "B" );
 
-  }else if( endOfLumiBlock ){
+  }else if( endOfLumiBlockFlag()){
   }
   return StatusCode::SUCCESS;
 }

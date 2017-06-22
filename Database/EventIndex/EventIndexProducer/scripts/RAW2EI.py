@@ -1,11 +1,13 @@
 #!/usr/bin/env python
-
+#
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 
 #import pdb
 import eformat
 import sys
 import os
+import re
 import time
 import logging
 from libpyeformat import FullEventFragment, convert_old
@@ -137,6 +139,7 @@ def processRAW(input_file, eif, nfile, nfirst, evtmax):
     eif['ProjName_{:d}'.format(nfile)] = dr.projectTag()
     eif['TrigStream_{:d}'.format(nfile)] = dr.stream()
     eif['AMITag_{:d}'.format(nfile)] = ""                  # no tag for RAW data
+    eif['GUID_{:d}'.format(nfile)] = GUID
     
     
 
@@ -251,13 +254,33 @@ def options(argv):
     parser.add_argument('-v','--verbose', action='count', help='Verbosity level')
     parser.add_argument("-d","--debug", action='store_true', default=False,help="Debug messages")
     parser.add_argument("-m","--evtmax", type=int,default=0, help="Max events to read")
-    parser.add_argument("input", help="Input RAW file")
-    parser.add_argument("output", help="Output EI file")
-
+    parser.add_argument("--inputRAWFile", nargs='+', default=None, help="Input RAW file")
+    parser.add_argument("--inputBSFile", nargs='+', default=None, help="Input BS file (same as RAW)")
+    parser.add_argument("--outputFile", default="output.ei.pkl", help="Output EI file")
+    parser.add_argument("--eidsname", default=None, help="DatasetName")
+    
     opt=parser.parse_args()
 
-    ifiles = opt.input.split(',')
+    if opt.inputRAWFile is not None and opt.inputBSFile is not None:
+        log.error("Only one of inputRAWFile or inputBSFile has to be specified")
+        sys.exit(1)
+       
+    if opt.inputRAWFile is None and opt.inputBSFile is None:
+        log.error("At least one input file has to be specified")
+        sys.exit(1)
+
+    if opt.inputRAWFile is not None:
+        ifiles = opt.inputRAWFile
+    if opt.inputBSFile is not None:
+        ifiles = opt.inputBSFile
+        
+    itmp = ifiles
+    ifiles=[]
+    for f in itmp:
+        ifiles += f.split(",")
+
     opt.input=ifiles
+    opt.output=opt.outputFile
     
     return opt
 
@@ -287,6 +310,17 @@ def main():
     eif['Version'] = EIrecord().getVersion()
     eif['TaskID'] = os.getenv('TaskID', 0)
     eif['JobID'] = os.getenv('JobID', 0)
+
+    if opt.eidsname is not None:
+        dsname = opt.eidsname
+    else:
+        dsname = os.getenv('INDS',"Unknown.Input.Dataset.Name")
+    dsname = re.sub('_tid[0-9]{8}_[0-9]{2}', '', dsname)
+    dsname = re.sub('_sub[0-9]{10}', '', dsname)
+    dsname = re.sub('\/$', '', dsname)
+
+    eif['InputDsName'] = dsname
+
     
     #processing options
     eif['ProvenanceRef'] = False

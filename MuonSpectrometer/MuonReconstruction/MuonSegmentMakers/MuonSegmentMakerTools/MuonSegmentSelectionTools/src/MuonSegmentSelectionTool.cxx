@@ -73,7 +73,7 @@ namespace Muon {
     return StatusCode::SUCCESS;
   }
 
-  int MuonSegmentSelectionTool::quality( const MuonSegment& seg, bool ignoreHoles ) const {
+  int MuonSegmentSelectionTool::quality( const MuonSegment& seg, bool ignoreHoles, bool useEta, bool usePhi ) const {
     Identifier chid = m_helperTool->chamberId(seg);
     if( !chid.is_valid() ) {
       ATH_MSG_WARNING("Got invalid segment identifier");
@@ -85,7 +85,7 @@ namespace Muon {
     if( m_idHelperTool->isMdt(chid) ) return mdtSegmentQuality(seg,chid,ignoreHoles);
     
     // csc segments
-    if( m_idHelperTool->isCsc(chid) ) return cscSegmentQuality(seg,chid,ignoreHoles);
+    if( m_idHelperTool->isCsc(chid) ) return cscSegmentQuality(seg,chid,ignoreHoles,useEta,usePhi);
 
     // rpc/tgc case
     if( m_idHelperTool->isTgc(chid) || m_idHelperTool->isRpc(chid) ) return 1;
@@ -94,7 +94,7 @@ namespace Muon {
     return nswSegmentQuality(seg,chid,ignoreHoles);
   }
 
-  int MuonSegmentSelectionTool::cscSegmentQuality( const MuonSegment& seg, const Identifier& /*chid*/, bool /*ignoreHoles*/ ) const {
+  int MuonSegmentSelectionTool::cscSegmentQuality( const MuonSegment& seg, const Identifier& /*chid*/, bool /*ignoreHoles*/, bool useEta, bool usePhi ) const {
     
     // get hit counts
     IMuonSegmentHitSummaryTool::HitCounts hitCounts = m_hitSummaryTool->getHitCounts(seg);
@@ -103,7 +103,8 @@ namespace Muon {
     /*       cuts for quality level 0 */
       
     // remove CSC segments with only 3  hits
-    if( hitCounts.ncscHitsPhi + hitCounts.ncscHitsEta < 4 ) return -1;
+    // unless either eta or phi are broken, in that case we accept the segment
+    if( hitCounts.ncscHitsPhi + hitCounts.ncscHitsEta < 4 && useEta && usePhi) return -1;
       
 
     /**********************************/
@@ -285,9 +286,9 @@ namespace Muon {
     return 3;
   }
 
-  bool MuonSegmentSelectionTool::select( const MuonSegment& seg, bool ignoreHoles, int qualityLevel ) const {
+  bool MuonSegmentSelectionTool::select( const MuonSegment& seg, bool ignoreHoles, int qualityLevel, bool useEta, bool usePhi ) const {
     // check quality is better or equal to required level
-    return  quality(seg,ignoreHoles) >= qualityLevel;
+    return  quality(seg,ignoreHoles,useEta,usePhi) >= qualityLevel;
   }
 
 }

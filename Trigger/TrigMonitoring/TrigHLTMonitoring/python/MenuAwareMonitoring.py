@@ -1081,39 +1081,6 @@ class MenuAwareMonitoring:
         return 0
 
 
-    def dump_mck_to_json(self,mck_id,output_json_filename=""):
-        "Dump the contents of an MCK to a json file, including the contents of linked SMCKs"
-
-        if not self.__is_input_an_mck__(mck_id):
-            print "MCK",mck_id,"has not been recognised as a valid MCK."
-            return
-
-        if output_json_filename == "":
-            output_json_filename = "MCK_"+str(mck_id)+".json"
-
-        output_file = open( output_json_filename, "w" )
-
-        mck_info = self.ms.oi.read_mck_info_from_db(mck_id)
-        smck_ids = self.ms.oi.read_mck_links_from_db(mck_id)
-
-        mck_dump_info = {}
-        # datetime.datetime objects are not JSON serializable
-        # seeing as this info is not used later, we replace with the ctime
-        mck_info['MCK_CREATION_DATE'] = mck_info['MCK_CREATION_DATE'].ctime()
-        mck_dump_info['MCK'] = mck_info
-
-        # combine rest of the MCK info in the MONITORING_TOOL_DICT
-        mck_dump_info['MONITORING_TOOL_DICT'] = {}
-        for smck_id in smck_ids:
-            smck_info = self.ms.oi.read_smck_info_from_db(smck_id)
-            smck_info['SMCK_CREATION_DATE'] = smck_info['SMCK_CREATION_DATE'].ctime()
-            tool_type = smck_info['SMCK_TOOL_TYPE']
-            mck_dump_info['MONITORING_TOOL_DICT'][tool_type] = smck_info
-
-        json.dump(mck_dump_info, output_file, ensure_ascii=True, sort_keys=True)
-        output_file.close()
-
-
     def dump_local_config_to_json(self,output_json_filename="mam_configs.json",processing_step="",processing_stream="",comment="",default=""):
         "All locally read-in trigger monitoring tool configurations are output to a file."
 

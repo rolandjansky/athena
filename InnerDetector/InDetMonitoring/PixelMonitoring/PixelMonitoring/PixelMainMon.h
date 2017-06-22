@@ -100,12 +100,12 @@ class IBLStave{
 
 class PixLayerDBM{
    public:
-   enum PixLayerDBMID {kECA0 = 0, kECA1, kECA2, kECC0, kECC1, kECC2, kB0, kB1, kB2, kDBMA, kDBMC, kIBL, COUNT};
+   enum PixLayerDBMID {kECA = 0, kECC, kB0, kB1, kB2, kDBMA, kDBMC, kIBL, COUNT};
 };
 
 class PixLayerIBL2D3DDBM{
    public:
-   enum PixLayerIBL2D3DDBMID {kECA0 = 0, kECA1, kECA2, kECC0, kECC1, kECC2, kB0, kB1, kB2, kDBMA, kDBMC, kIBL, kIBL2D, kIBL3D, COUNT};
+   enum PixLayerIBL2D3DDBMID {kECA = 0, kECC, kB0, kB1, kB2, kDBMA, kDBMC, kIBL, kIBL2D, kIBL3D, COUNT};
 };
 
 class PixelMainMon:public ManagedMonitorToolBase 
@@ -138,7 +138,7 @@ public:
    void FillSummaryHistos(PixelMon2DMaps* occupancy, TH1F_LW* A, TH1F_LW* C, TH1F_LW* IBL, TH1F_LW* B0, TH1F_LW* B1, TH1F_LW* B2);
    int ParseDetailsString(std::string & detailsMod);
    bool OnTrack(Identifier id, bool isCluster);
-   int getErrorCategory(int bit, bool isibl);
+   int getErrorState(int bit, bool isibl);
 	std::string makeHistname(std::string set, bool ontrk);
 	std::string makeHisttitle(std::string set, std::string axis, bool ontrk);
    bool GetFEID( int pixlayer, int phiid, int etaid, int &oufephi, int &outfeeta);
@@ -184,14 +184,11 @@ private:
    ToolHandle<ILuminosityTool> m_lumiTool;
 
    //IPixelByteStreamErrorsSvc* m_ErrorSvc;
-   //ToolHandle<Trk::ITrackSummaryTool> m_trkSummaryTool;
 
    //ActiveStoreSvc* m_activeStore;
    //StoreGateSvc* m_StoreGate;
    //StoreGateSvc* m_detStore;
    const PixelID* m_pixelid; // Pixel ID helper
-   const InDetDD::PixelDetectorManager* pixelmgr;                               
-   StatusCode sc;    
    uint64_t m_event;      
    uint64_t m_event2;
 
@@ -238,11 +235,15 @@ private:
       "ECA", "ECC", "B0", "B1", "B2",
       "IBL", "IBL2D", "IBL3D"
    };
+   std::string m_modLabel_PixLayerDBM[PixLayerDBM::COUNT] = {
+     "ECA", "ECC",
+     "B0",   "B1",   "B2",
+     "DBMA", "DBMC", "IBL"
+   };
    std::string m_modLabel_PixLayerIBL2D3DDBM[PixLayerIBL2D3DDBM::COUNT] = {
-      "ECA0", "ECA1", "ECA2",
-      "ECC0", "ECC1", "ECC2",
-      "B0",   "B1",   "B2",
-      "DBMA", "DBMC", "IBL", "IBL2D", "IBL3D"
+     "ECA", "ECC",
+     "B0",   "B1",   "B2",
+     "DBMA", "DBMC", "IBL", "IBL2D", "IBL3D"
    };
    std::string m_modLabel_PixLayerDisk[PixLayerDisk::COUNT] = {
       "ECA0", "ECA1", "ECA2",
@@ -278,7 +279,7 @@ private:
    bool m_doLumiBlock;   //store module status, error etc for each lumiblock
    bool m_doRefresh;
    bool m_doRefresh5min;
-   bool isFirstBook;
+   bool m_isFirstBook;
    bool m_doDegFactorMap;
    bool m_doOfflineAnalysis;
 
@@ -340,6 +341,7 @@ private:
    TH1F_LW*                m_maxocc_per_bcid_mod[PixLayerIBL2D3D::COUNT];
    PixelMon2DMaps*         m_occupancy;
    PixelMon2DMapsLW*       m_average_pixocc;
+   PixelMon2DProfilesLW*   m_occupancy_pix_evt;
    PixelMon2DMaps*         m_occupancy_10min;
    TProfile*               m_occupancy_time1;
    TProfile*               m_occupancy_time2;
@@ -483,7 +485,7 @@ private:
    TH1F_LW*              m_cluster_row_width;
    TH1F_LW*              m_cluster_col_width_mod[PixLayerIBL2D3D::COUNT];
    TH1F_LW*              m_cluster_row_width_mod[PixLayerIBL2D3D::COUNT];
-   TH1F_LW*              m_cluster_groupsize_mod[PixLayerIBL2D3D::COUNT];
+   TH1F_LW*              m_cluster_groupsize_mod[PixLayerIBL2D3DDBM::COUNT];
    TH1F_LW*              m_cluster_LVL1A;
    TH1F_LW*              m_cluster_LVL1A1d_mod[PixLayer::COUNT];
    TProfile_LW*          m_clusterSize_eta;
@@ -535,32 +537,24 @@ private:
    ///
    static const int      kNumErrorBits{32};
    static const int      kNumErrorStates{16};
-   TProfile_LW*          m_ErrorFraction_per_evt[ErrorCategory::COUNT][PixLayerIBL2D3D::COUNT];
-   TProfile_LW*          m_errors_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-   TProfile_LW*          m_SyncErrors_per_lumi_PIX;
-   TProfile_LW*          m_SyncErrors_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-   TProfile_LW*          m_SyncErrors_Mod_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-   TProfile_LW*          m_SyncErrors_ROD_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-   TProfile_LW*          m_OpticalErrors_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-   TProfile_LW*          m_SEU_Errors_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-   TProfile_LW*          m_TruncationErrors_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-   TProfile_LW*          m_TruncationErrors_Mod_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-   TProfile_LW*          m_TruncationErrors_ROD_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-   TProfile_LW*          m_TimeoutErrors_per_lumi_mod[PixLayerIBL2D3D::COUNT]; 
+   TProfile_LW*          m_errhist_errcat_LB[PixLayerIBL2D3D::COUNT][ErrorCategory::COUNT];
+   TProfile_LW*          m_errhist_errtype_LB[PixLayerIBL2D3D::COUNT][ErrorCategoryMODROD::COUNT - 3];
+   PixelMon2DMapsLW*     m_errhist_errcat_map[ErrorCategory::COUNT];
+   PixelMon2DMapsLW*     m_errhist_errtype_map[ErrorCategoryMODROD::COUNT];
+   TProfile_LW*          m_errhist_errcat_avg[ErrorCategory::COUNT][PixLayerIBL2D3D::COUNT];
+   TProfile_LW*          m_errhist_tot_LB[PixLayerIBL2D3D::COUNT];
+   TProfile2D_LW*        m_errhist_per_bit_LB[PixLayerIBL2D3D::COUNT];
+   TProfile2D_LW*        m_errhist_per_type_LB[PixLayerIBL2D3D::COUNT];
+   TProfile_LW*          m_errhist_syncerr_LB_pix;
    TProfile*             m_error_time1;       
    TProfile*             m_error_time2;       
    TProfile*             m_error_time3;       
    PixelMonModules1D*    m_errors;
-   PixelMon2DMapsLW*     m_ErrorTypeMap[ErrorCategoryMODROD::COUNT];
-   PixelMon2DMapsLW*     m_ErrorCategoryMap[ErrorCategory::COUNT];
-   TProfile2D_LW*        m_ErrorBit_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-   TProfile2D_LW*        m_Error_per_lumi_mod[PixLayerIBL2D3D::COUNT];
 
    // Histograms in 'ErrorsExpert' folder
    PixelMon2DLumiMaps*   m_errhist_expert_LB_maps[kNumErrorStates];
    PixelMon2DMapsLW*     m_errhist_expert_maps[kNumErrorStates];
    TProfile_LW*          m_errhist_expert_LB[PixLayer::COUNT-1][kNumErrorStates];
-   TH1I_LW*              m_errhist_expert_badmod_bits[PixLayer::COUNT];
    TH3F*                 m_errhist_expert_fe_trunc_err_3d[PixLayer::COUNT];
    TH1F_LW*              m_errhist_expert_servrec_ibl_unweighted;
    TH1F_LW*              m_errhist_expert_servrec_ibl_weighted;

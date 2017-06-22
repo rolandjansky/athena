@@ -47,19 +47,23 @@ find_package( CLHEP )
 find_package( Geant4 )
 find_package( HepMC )
 find_package( HepPDT )
-find_package( ROOT COMPONENTS Cint Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint TMVA Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
+find_package( ROOT COMPONENTS TreePlayer Cint Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint TMVA Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 find_package( XercesC )
-
-# tag ROOTTreePlayerLibs was not recognized in automatic conversion in cmt2cmake
 
 # Component(s) in the package:
 atlas_add_root_dictionary( ISF_FastCaloSimParametrizationLib
                            ISF_FastCaloSimParametrizationLibDictSource
-                           ROOT_HEADERS ISF_FastCaloSimParametrization/MeanAndRMS.h ISF_FastCaloSimParametrization/TFCSLateralShapeParametrization.h ISF_FastCaloSimParametrization/TFCSNNLateralShapeParametrization.h ISF_FastCaloSimParametrization/TFCSSimpleLateralShapeParametrization.h ISF_FastCaloSimParametrization/TFCS1DFunctionRegression.h ISF_FastCaloSimParametrization/TFCS1DFunctionHistogram.h ISF_FastCaloSimParametrization/TFCSFunction.h ISF_FastCaloSimParametrization/TreeReader.h ISF_FastCaloSimParametrization/firstPCA.h ISF_FastCaloSimParametrization/secondPCA.h ISF_FastCaloSimParametrization/TFCS2Function.h ISF_FastCaloSimParametrization/TFCS2DFunction.h ISF_FastCaloSimParametrization/DetailedShapeBinning.h ISF_FastCaloSimParametrization/FitDetailedShape.h ISF_FastCaloSimParametrization/TFCS2DFunctionRegression.h  Root/LinkDef.h
+                           ROOT_HEADERS
+                           ISF_FastCaloSimParametrization/MeanAndRMS.h
+                           ISF_FastCaloSimParametrization/TFCSLateralShapeParametrization.h
+                           ISF_FastCaloSimParametrization/TFCSNNLateralShapeParametrization.h
+                           ISF_FastCaloSimParametrization/TFCSSimpleLateralShapeParametrization.h
+                           ISF_FastCaloSimParametrization/TreeReader.h
+                           Root/LinkDef.h
                            EXTERNAL_PACKAGES  ROOT HepPDT XercesC CLHEP HepMC Geant4 )
 
 atlas_add_library( ISF_FastCaloSimParametrizationLib
-                   Root/*.cxx
+                   Root/*.cxx src/CaloGeoGeometry.cxx src/CaloGeometryFromFile.cxx
                    ${ISF_FastCaloSimParametrizationLibDictSource}
                    PUBLIC_HEADERS ISF_FastCaloSimParametrization
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
@@ -77,4 +81,3 @@ atlas_add_component( ISF_FastCaloSimParametrization
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-

@@ -1,7 +1,7 @@
 #!/usr/bin/env physh
 # print command line for logging
 from optparse import OptionParser
-parser = OptionParser(usage = "usage: %prog", version="%prog $Id: LArG4GenerateShowerLib.py 746605 2016-05-12 13:25:40Z disimone $")
+parser = OptionParser(usage = "usage: %prog", version="%prog $Id: LArG4GenerateShowerLib.py 767177 2016-08-10 08:49:45Z disimone $")
 
 parser.add_option("--inputEvtFileList",    dest="inputevt",    action="append",                       help="select the input file name")
 parser.add_option("--inputStructFileList", dest="inputstruct", action="append",                       help="select the output file name")
@@ -79,16 +79,7 @@ simFlags.RandomSeedOffset = randint(1,443921180)
 #add G4 function
 
 from G4AtlasApps.SimFlags import simFlags
-if hasattr(simFlags, 'UseV2UserActions') and simFlags.UseV2UserActions():
-    # V2 user actions, for hive
-    simFlags.OptionalUserActionList.addAction('G4UA::TestActionShowerLibTool',['BeginOfEvent','EndOfEvent','BeginOfRun','EndOfRun','Step'])
-else:
-    # V1 userActions
-    try:
-        from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-    except ImportError:
-        from G4AtlasServices.UserActionStore import UAStore
-    UAStore.addAction('TestActionShowerLib',['BeginOfEvent','EndOfEvent','BeginOfRun','EndOfRun','Step'])
+simFlags.OptionalUserActionList.addAction('G4UA::TestActionShowerLibTool',['BeginOfEvent','EndOfEvent','BeginOfRun','EndOfRun','Step'])
 
 topSeq += PyG4AtlasAlg()
 

@@ -4,7 +4,7 @@
 
 #include "LArG4H6WarmTCCalculator.h"
 #include "LArG4Code/LArG4Identifier.h"
-#include "LArG4Code/LArVG4DetectorParameters.h"
+// #include "LArG4Code/LArVG4DetectorParameters.h"
 
 #include "G4ThreeVector.hh"
 #include "G4StepPoint.hh"
@@ -16,145 +16,122 @@
 #include "AthenaKernel/Units.h"
 
 #include "globals.hh"
-// 03-Jan-2002 WGS: For 'copysign'.
-// #include "LArG4Code/ansi-compliance.h"
 #include <cmath>
 
 
 namespace Units = Athena::Units;
 
 
-LArG4H6WarmTCCalculator::LArG4H6WarmTCCalculator(WTCComp icomp)
-  :m_identifier(),m_addr(0),m_time(0),m_energy(0),m_isInTime(false)
+LArG4H6WarmTCCalculator::LArG4H6WarmTCCalculator(const std::string& name, ISvcLocator* pSvcLocator)
+  : LArCalculatorSvcImp(name, pSvcLocator)
+    //, m_addr(0)
 {
-  // Constructor initializes the geometry.
-
-  m_OOTcut = LArVG4DetectorParameters::GetInstance()->GetValue("LArExpHallOutOfTimeCut");
-
-  switch(icomp) {
-     case WTC_X: { m_isX = true; m_isABS = false; break;}
-     case WTC_Y: { m_isX = false; m_isABS = false; break;}
-     case WTC_ABS: { m_isX = false; m_isABS = true; break;}
-  }
+  declareProperty("isX", m_isX);
+  declareProperty("isABS", m_isABS);
 }
 
-
-G4bool LArG4H6WarmTCCalculator::Process(const G4Step* a_step)
+G4bool LArG4H6WarmTCCalculator::Process(const G4Step* a_step, std::vector<LArHitData>& hdata) const
 {
-
-  // First, get the energy.
-  m_energy = a_step->GetTotalEnergyDeposit();
+  hdata.clear();
+  LArHitData larhit;
+  larhit.energy = a_step->GetTotalEnergyDeposit();
 
   // Find out how long it took the energy to get here.
   G4StepPoint* pre_step_point = a_step->GetPreStepPoint();
   G4StepPoint* post_step_point = a_step->GetPostStepPoint();
-  G4double timeOfFlight = (pre_step_point->GetGlobalTime() + 
+  G4double timeOfFlight = (pre_step_point->GetGlobalTime() +
                            post_step_point->GetGlobalTime()) * 0.5;
   G4ThreeVector startPoint = pre_step_point->GetPosition();
   G4ThreeVector endPoint   = post_step_point->GetPosition();
   G4ThreeVector p = (startPoint + endPoint) * 0.5;
-//  G4cout<<"LArG4H6WarmTCCalculator::Global point: "<<p.x()<<" "<<p.y()<<" "<<p.z()<<std::endl;
-					 
-  //m_time = timeOfFlight/ns - p.mag()/c_light/ns;
-  m_time = timeOfFlight/Units::ns;
-  if (m_time > m_OOTcut)
-    m_isInTime = false;
-  else
-    m_isInTime = true;
+  //  G4cout<<"LArG4H6WarmTCCalculator::Global point: "<<p.x()<<" "<<p.y()<<" "<<p.z()<<std::endl;
+  //larhit.time = timeOfFlight/ns - p.mag()/c_light/ns;
+  larhit.time = timeOfFlight/Units::ns;
 
-//  Get local coordinates of the step, independently of how it was positioned  in World
+  //  Get local coordinates of the step, independently of how it was positioned  in World
   const G4AffineTransform transformation =
-          pre_step_point->GetTouchable()->GetHistory()->GetTopTransform();
+    pre_step_point->GetTouchable()->GetHistory()->GetTopTransform();
   G4ThreeVector startPointinLocal = transformation.TransformPoint(startPoint);
   G4ThreeVector   endPointinLocal = transformation.TransformPoint  (endPoint);
   G4ThreeVector          pinLocal =(startPointinLocal+endPointinLocal)*0.5;
   //
-//  G4cout<<"LArG4H6WarmTCCalculator::Local point: "<<pinLocal.x()<<" "<<pinLocal.y()<<" "<<pinLocal.z()<<std::endl;
+  //  G4cout<<"LArG4H6WarmTCCalculator::Local point: "<<pinLocal.x()<<" "<<pinLocal.y()<<" "<<pinLocal.z()<<std::endl;
 
   G4int zSide;
   G4int sampling;
   G4int region;
-  G4int etaBin; 
-  G4int phiBin; 
- 
-   zSide = 4;
-   if( p.z()<0.) zSide =-4; 
-   region = 0;
+  G4int etaBin;
+  G4int phiBin;
+
+  zSide = 4;
+  if( p.z()<0.) zSide =-4;
+  region = 0;
 
   // We can extract our position from the copy number of depth and module
   // First have touchable
   // G4TouchableHistory* theTouchable = (G4TouchableHistory*) (pre_step_point->GetTouchable());
-  // Volume name 
+  // Volume name
   G4String hitVolume = a_step->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName();
   // And copy number
   G4int copyModule = a_step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo();
 
   G4int gran;
-// Sampling Identifier
+  // Sampling Identifier
   if(m_isABS) { sampling = copyModule; gran = 1; }
   else {
-     switch(copyModule) {
-        case 1:  { 
-		 gran = 1;
-		 if(m_isX)  sampling = copyModule; else sampling = copyModule + 1;
-		 break; 
-	         }
-        case 2: case 3: { 
-	   	    gran = 2; 
-	  	    if(m_isX) sampling = 2*copyModule; else sampling = 2*copyModule - 1; 
-		    break; 
-		        }
-        default: { sampling = -1; gran = 0; break; }
-     }
+    switch(copyModule) {
+    case 1:  {
+      gran = 1;
+      if(m_isX)  sampling = copyModule; else sampling = copyModule + 1;
+      break;
+    }
+    case 2: case 3: {
+      gran = 2;
+      if(m_isX) sampling = 2*copyModule; else sampling = 2*copyModule - 1;
+      break;
+    }
+    default: { sampling = -1; gran = 0; break; }
+    }
   }
-  
-//#include "LArG4TBEndcap/LArTBEndcapWTC.icc"
+  //#include "LArG4TBEndcap/LArTBEndcapWTC.icc"
   // This should go int Db:
   double WTC_sci_x = 190.0*CLHEP::mm;
   double WTC_sci_y = 1160.0*CLHEP::mm;
   double x_x = 6 * WTC_sci_x / 2;
- double x_y = WTC_sci_y / 2;
- 
+  double x_y = WTC_sci_y / 2;
+
   if(m_isX) {
-   etaBin = int((x_y - pinLocal.y()) / (5*gran*WTC_sci_x));
-   phiBin = int((x_x - pinLocal.x()) / (gran*WTC_sci_x));
+    etaBin = int((x_y - pinLocal.y()) / (5*gran*WTC_sci_x));
+    phiBin = int((x_x - pinLocal.x()) / (gran*WTC_sci_x));
   } else {
-   phiBin = int((x_y - pinLocal.y()) / (5*gran*WTC_sci_x));
-   etaBin = int((x_x - pinLocal.x()) / (gran*WTC_sci_x));
+    phiBin = int((x_y - pinLocal.y()) / (5*gran*WTC_sci_x));
+    etaBin = int((x_x - pinLocal.x()) / (gran*WTC_sci_x));
   }
   region = 0;
 
 
 
-  
- /* 
-  if(!m_isABS) {
+
+  /*
+     if(!m_isABS) {
      std::cout<<"LArG4H6WarmTCCalculator: "<<hitVolume<<" "<<copyModule<<" :  "<<pinLocal.x()<<" "<<pinLocal.y()<<std::endl;
      std::cout <<"zSide = "<<zSide<<" , sampling = "<<sampling<<"  ,  region="<<region <<
-            " , phiBin="<<phiBin<< " ,  etaBin="<<etaBin <<std::endl;
+     " , phiBin="<<phiBin<< " ,  etaBin="<<etaBin <<std::endl;
      std::cout<<m_energy<<" "<<m_time<<std::endl;
      std::cout<<m_isInTime<<" "<<m_isX<<" "<<m_isABS<<"   "<<this<<std::endl;
-  }
+     }
   */
-  
-  m_identifier.clear();
-  m_identifier << 10          // LArCalorimeter
-	       << zSide          
-	       << 1
-	       << sampling
-	       << region
-	       << etaBin
-	       << phiBin;	       
 
-  m_addr =  100*sampling+10*etaBin+phiBin;
-  if(m_isABS) m_addr *= -1;
+  larhit.id.clear();
+  larhit.id << 10          // LArCalorimeter
+            << zSide
+            << 1
+            << sampling
+            << region
+            << etaBin
+            << phiBin;
+  hdata.push_back(larhit);
+  // m_addr =  100*sampling+10*etaBin+phiBin;
+  // if(m_isABS) m_addr *= -1;
   return true;
 }
-
-G4bool LArG4H6WarmTCCalculator::Process(const G4Step*, std::vector<LArHitData>&)
-{
-  std::cout << "Not implemented!" << std::endl;
-  throw;
-}
-
-

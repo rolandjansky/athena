@@ -87,7 +87,11 @@ StatusCode HLTCaloTool::book(bool newEventsBlock, bool newLumiBlock, bool newRun
 
   addMonGroup( new MonGroup(this,"HLT/CaloMon",run) );
 
+#ifdef ManagedMonitorToolBase_Uses_API_201401
+  if ( newRunFlag() ) {
+#else
   if ( newRun ) {
+#endif
 
   addHistogram(new TH1F("NCellsLAr","Number of HLT LAr cells; Number of HLT Cells; Number of Events",100,1.0e5,1.85e5) );
   addHistogram(new TH1F("NBadCellsLAr","Number of Bad LAr Cells; Number of Bad Cells; Number of Events",50,0,10000.) );
@@ -106,7 +110,11 @@ StatusCode HLTCaloTool::book(bool newEventsBlock, bool newLumiBlock, bool newRun
   if ( m_ntuple ) 
   addTree( new TNtuple("Details","Details","et:eta:phi:gain:tet:teta:tphi:tgain:lartile") );
   
+#ifdef ManagedMonitorToolBase_Uses_API_201401
+  }else if ( newEventsBlockFlag() || newLumiBlockFlag() ){
+#else
   }else if ( newEventsBlock || newLumiBlock ){
+#endif
     return StatusCode::SUCCESS;
   }
 
@@ -142,16 +150,16 @@ StatusCode HLTCaloTool::fill() {
 	   (*m_log) << MSG::DEBUG << "Tool name : " 
 		<< (*itrtcr).name() << endmsg;
 	}
-	phimin=-M_PI;
-	phimax=M_PI;
+	phimin=-M_PI+0.001;
+	phimax=M_PI-0.001;
 	// Fix for stupid RS problem
 	if ( (*itrtcr).name().find("Tile")!=std::string::npos ){
-		phimin=0;
-		phimax=2*M_PI;
+		phimin=0+0.001;
+		phimax=2*M_PI-0.001;
 	}
 	StatusCode sc;
-	float eta0=(etamax+etamin)/2;
-	float phi0=(phimax+phimin)/2;
+	double eta0=(etamax+etamin)/2;
+	double phi0=(phimax+phimin)/2;
 	if((*itrtcr).name() == "FullCaloCellContMaker") {
 		sc= (*itrtcr)->execute(*pCaloCellContainer);
 	} else {
@@ -211,7 +219,7 @@ StatusCode HLTCaloTool::fill() {
 			if ( (cell->quality()!=0) && (tcell->quality()!=0) )
 				diff_time = fabs(cell->time()-tcell->time());
 			double lartile = 0;
-                        if (  (energy) > 0.2 ){
+                        if (  (cell->et()) > 100 ){
                            diffp = 100*diff/energy;
                         }
                         if ( cell->caloDDE()->is_tile() )hist_PercentDiffTile->Fill(diffp);

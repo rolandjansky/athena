@@ -108,8 +108,6 @@ def MuonEntryLayerTestTool(name="MuonEntry", **kwargs):
 def MuonExitLayerTestTool(name="MuonExit", **kwargs):
     kwargs.setdefault("CollectionName", "MuonExit")
     return CfgMgr.LayerTestTool(name, **kwargs)
-def SteppingValidation(name="SteppingValidation",**kwargs):
-    return CfgMgr.SteppingValidation(name, **kwargs)
 def LucidHitsTestTool(name="LucidHitsTestTool",**kwargs):
     return CfgMgr.LucidHitsTestTool(name, **kwargs)
 

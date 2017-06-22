@@ -489,6 +489,19 @@ class forcePileupNoise(_modifier):
         from IOVDbSvc.CondDB import conddb
         conddb.addMarkup("/CALO/Noise/CellNoise","<forceRunNumber>178540</forceRunNumber>")
 
+
+class forceTileRODMap(_modifier):
+    """
+    Configure Tile ROD map based on run-number (ATR-16290)
+    """
+    def postSetup(self):
+        from AthenaCommon.AppMgr import ToolSvc
+        if _run_number<318000:  # use old readout scheme (default is new one)
+            log.info('Reverting to pre-2017 Tile ROD map')
+            ToolSvc.TrigDataAccess.fullTileMode=False
+            ToolSvc.TileRegionSelectorTable.FullRODs=False
+
+
 class useOnlineLumi(_modifier):
     """
     Use online LuminosityTool

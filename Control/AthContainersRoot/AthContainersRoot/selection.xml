@@ -1,0 +1,11 @@
+<lcgdict>
+
+<class name="AthContainersRootTest::Foo"/>
+<class name="AthContainersRootTest::Bar"/>
+<class name="AthContainersRootTest::Baz"/>
+<class name="std::vector<AthContainersRootTest::Foo>"/>
+<class name="std::vector<AthContainersRootTest::Bar>"/>
+<class name="std::vector<AthContainersRootTest::Baz>"/>
+<class name="SG::AuxTypeVectorFactory<AthContainersRootTest::Foo>"/>
+
+</lcgdict>

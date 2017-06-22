@@ -20,11 +20,13 @@
 #include "SGTools/TestStore.h"
 #include "SGTools/StorableConversions.h"
 #include "TestTools/initGaudi.h"
+#include "CxxUtils/ubsan_suppress.h"
 #include "GaudiKernel/MsgStream.h"
-#include "TSystem.h"
 #include "AthenaPoolCnvSvcTestDict.h"
 #include "TestThinningSvc.icc"
 #include "TestCnvSvcBase.icc"
+#include "TSystem.h"
+#include "TInterpreter.h"
 #include <iostream>
 #include <cassert>
 #include <vector>
@@ -273,6 +275,7 @@ DataVector<Y_v2>& makeVecs()
 
 int main()
 {
+  CxxUtils::ubsan_suppress ([]() {TInterpreter::Instance(); });
   SGTest::initTestStore();
   ISvcLocator* pSvcLoc = nullptr;
   if (!Athena_test::initGaudi("test.txt", pSvcLoc)) {

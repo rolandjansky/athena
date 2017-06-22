@@ -70,8 +70,7 @@ def generateChainDefs(chainDict, thisIsBphysChain=False):
         if "nscan" in  subChainDict["chainParts"]['FSinfo']:
             modifyNscanInputTE = True
         if "calotag" in subChainDict["chainParts"]['FSinfo']:
-            if "0eta010" not in subChainDict["chainParts"]["etaRange"] and '0eta500' not in subChainDict["chainParts"]['etaRange']:
-                modifyCalotagInputTE = True
+            modifyCalotagInputTE = True
 
 
     if len(listOfChainDefs)>1:
@@ -107,11 +106,10 @@ def _modifyTEinChainDef(theChainDef,chainDict):
     for signatureIndex,signature in enumerate(theChainDef.signatureList):
         if signature['listOfTriggerElements'][0][0:2] == "L2":
             maxL2SignatureIndex = max(maxL2SignatureIndex,signatureIndex)            
-    inputTEsL2 = theChainDef.signatureList[maxL2SignatureIndex]['listOfTriggerElements']    
-
+    inputTEsL2 = theChainDef.signatureList[maxL2SignatureIndex+2]['listOfTriggerElements']    
     for index,item in enumerate(theChainDef.sequenceList):
         if (item['input'] == ['placeHolderTE']):
-            theChainDef.sequenceList[index]['input']=inputTEsL2
+            theChainDef.sequenceList[index]['input']=inputTEsL2[0]
 
 
     return theChainDef

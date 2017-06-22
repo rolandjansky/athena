@@ -76,6 +76,7 @@ class TileCablingSvc: public AthService {
     // 16 E3 cells in EBA (disconnected because of MBTS)
     // 20 E3 cells in EBC (16 disconnected because of MBTS and 4 due to other reasons)
 
+    enum MAX_TILE_CELLS{MAX_TILE_CELLS_UPGRADEA = 11200, MAX_TILE_CELLS_UPGRADEBC = 6208, MAX_TILE_CELLS_UPGRADEABC = 12224};
 };
 
 #endif

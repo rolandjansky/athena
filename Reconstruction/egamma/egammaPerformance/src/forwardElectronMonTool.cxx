@@ -99,6 +99,11 @@ forwardElectronMonTool::forwardElectronMonTool(const std::string & type, const s
 {
   // Name of the electron collection
   declareProperty("ForwardElectronContainer", m_ForwardElectronContainer = "egammaForwardCollection", "Name of the forward electron collection" );
+
+  m_lumiBlockNumber = 0;
+  m_nForwardElectronsInCurrentLB = 0;
+  m_nForwardElectronsPerLumiBlock.clear();
+
 }
 
 forwardElectronMonTool::~forwardElectronMonTool()
@@ -117,6 +122,7 @@ StatusCode forwardElectronMonTool::bookHistograms()
   
   // Create sub groups
   MonGroup electronIdGroup       (this,"egamma/forwardElectrons/ID",               run); // to be re-booked every new run
+  MonGroup electronLBGroup       (this,"egamma/forwardElectrons/LBMON",run, ATTRIB_X_VS_LB, "", "merge"); // to be re-booked every new run
 
   // MAIN PANEL
   bookTH1F(m_hN,            electronGroup, "forwardElectronN",           "Number of LOOSE electrons",40, 0.0, 40.0);
@@ -168,6 +174,9 @@ StatusCode forwardElectronMonTool::bookHistograms()
   //bookTH1FperRegion(m_hvTightTopoEtCone40, electronGroup,"forwardElectronTightTopoEtCone40", "TIGHT Forward electron Isolation Energy TopoEtCone40 [MeV]", 64, -10000., 40000.,start,end);
   bookTH1FperRegion(m_hvTightTime, electronGroup,"forwardElectronTightTime", "TIGHT electron time [ns]",90, -30.0, 60.0,start,end);
 
+  // LB MONITORING PANEL
+  bookTH1F(m_hLB_N, electronLBGroup, "forwardElectronNumbervsLB", "Number of Forward Electrons vs LB", 2000, -0.5, 1999.5);
+
   return StatusCode::SUCCESS;
 }
 
@@ -184,9 +193,30 @@ StatusCode forwardElectronMonTool::fillHistograms()
     return StatusCode::RECOVERABLE;
   }
   
+  //--------------------
+  //figure out current LB
+  //--------------------
+  const DataHandle<xAOD::EventInfo> evtInfo;
+  StatusCode sc = m_storeGate->retrieve(evtInfo); 
+  if (sc.isFailure()) {
+    ATH_MSG_ERROR("couldn't retrieve event info");
+    return StatusCode::FAILURE;
+  }
+
+  unsigned int previousLB = m_currentLB;
+  m_currentLB = evtInfo->lumiBlock();
+
+  //deal with the change of LB
+  if (m_currentLB>previousLB) {
+    // update the by LB variables
+    m_nForwardElectronsPerLumiBlock.push_back(m_nForwardElectronsInCurrentLB);
+    // Reset counters
+    m_nForwardElectronsInCurrentLB=0;
+  }
+
   // Get electron container
   const xAOD::ElectronContainer* electron_container=0;
-  StatusCode sc = m_storeGate->retrieve(electron_container, m_ForwardElectronContainer);
+  sc = m_storeGate->retrieve(electron_container, m_ForwardElectronContainer);
   if(sc.isFailure() || !electron_container){
     ATH_MSG_VERBOSE("no electron container found in TDS");
     return StatusCode::FAILURE;
@@ -222,8 +252,10 @@ StatusCode forwardElectronMonTool::fillHistograms()
     int ir = GetForwardRegion(eta);
     //ATH_MSG_DEBUG("electrons et, eta and phi" << et << " " << eta << " " << phi);
   
+    if (et<5000) return StatusCode::SUCCESS;
+
     // Isolation Energy 
-    float topoetcone40 = -999.;
+    //float topoetcone40 = -999.;
     // Shower shape variable details
     double firstENGdens=-999.;
     double lateral=-999.;
@@ -249,6 +281,8 @@ StatusCode forwardElectronMonTool::fillHistograms()
     if(m_hEta)    m_hEta->Fill(eta);
     if(m_hPhi)    m_hPhi->Fill(phi);
     
+    m_hLB_N->Fill(m_currentLB);
+
     fillTH1FperRegion(m_hvEt,ir,et);
     fillTH1FperRegion(m_hvEta,ir,eta);
     fillTH1FperRegion(m_hvPhi,ir,phi);

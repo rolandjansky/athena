@@ -60,8 +60,12 @@ public:
   StatusCode fillCollection(const ROBFragment *robFrag,
                             AFP_RawDataContainer *rdoCont,
                             std::vector<unsigned int> *vecHash = NULL);
-  AFP_RawDataCollection *getCollection(unsigned int MotherBoardId,
-                                       AFP_RawDataContainer *cont);
+
+  AFP_RawDataCollection* getCollection(const unsigned int columnNum, 
+				       const unsigned int robID,
+				       AFP_RawDataContainer *cont);
+
+
   AFP_RawData *getRawData(unsigned int Link, AFP_RawDataCollection *coll);
 
   //  const eformat::FullEventFragment<const uint32_t*>  getEvent();

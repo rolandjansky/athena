@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef CaloGeometry_h
-#define CaloGeometry_h
+#ifndef ISF_FASTCALOSIMPARAMETRIZATION_CALOGEOMETRY_H
+#define ISF_FASTCALOSIMPARAMETRIZATION_CALOGEOMETRY_H
 
 #include <TMath.h>
 
@@ -14,6 +14,7 @@
 #include "ISF_FastCaloSimParametrization/ICaloGeometry.h"
 #include "ISF_FastCaloSimParametrization/MeanAndRMS.h"
 #include "ISF_FastCaloSimParametrization/FSmap.h"
+#include "ISF_FastCaloSimParametrization/FCAL_ChannelMap.h"
 
 class CaloDetDescrElement;
 class TCanvas;
@@ -124,8 +125,10 @@ class CaloGeometry : virtual public ICaloGeometry {
     virtual void Validate();
 
     virtual const CaloDetDescrElement* getDDE(Identifier identify);
+    virtual const CaloDetDescrElement* getDDE(int sampling, Identifier identify);
 
     virtual const CaloDetDescrElement* getDDE(int sampling,float eta,float phi,float* distance=0,int* steps=0);
+    virtual const CaloDetDescrElement* getFCalDDE(int sampling,float eta,float phi,float z);
 
     double deta(int sample,double eta) const;
     void   minmaxeta(int sample,double eta,double& mineta,double& maxeta) const;
@@ -149,6 +152,7 @@ class CaloGeometry : virtual public ICaloGeometry {
     bool DoGraphs() const {return m_dographs;};
 
     TCanvas* DrawGeoForPhi0();
+    FCAL_ChannelMap* GetFCAL_ChannelMap(){return &m_FCal_ChannelMap;}
 
   protected:
     virtual void addcell(const CaloDetDescrElement* cell);
@@ -176,7 +180,7 @@ class CaloGeometry : virtual public ICaloGeometry {
 
     bool m_dographs;
     std::vector< TGraphErrors* > m_graph_layers;
-
+		FCAL_ChannelMap m_FCal_ChannelMap;
     /*
        double  m_min_eta_sample[2][MAX_SAMPLING]; //[side][calosample]
        double  m_max_eta_sample[2][MAX_SAMPLING]; //[side][calosample]
@@ -190,5 +194,3 @@ class CaloGeometry : virtual public ICaloGeometry {
 };
 
 #endif
-
-

@@ -11,62 +11,34 @@
 
 #include <iomanip>
 
-int LArGeoH62004EventAction::m_evnum=0;
-
-LArGeoH62004EventAction::LArGeoH62004EventAction(const std::string& type, const std::string& name, const IInterface* parent)
-  : UserActionBase(type,name,parent)
-  , m_largeoTB2004Options (nullptr)
-  , m_ev("TBEventInfo")
+namespace G4UA
 {
-  ATH_MSG_DEBUG ("LArGeoH62004EventAction::LArGeoH62004EventAction constructor");
-}
+  int LArGeoH62004EventAction::m_evnum=0;
 
-StatusCode LArGeoH62004EventAction::initialize(){
-  
-  StatusCode status = detStore()->retrieve(m_largeoTB2004Options, "LArGeoTB2004Options");
-  if(status.isFailure()) {
-    ATH_MSG_WARNING ( "\tCan't access LArGeoTB2004Options, using default values" );
-    m_largeoTB2004Options = 0;
+  LArGeoH62004EventAction::LArGeoH62004EventAction(const Config& config)
+    : m_ev("TBEventInfo")
+    , m_xpos(config.cryoXposition)
+    , m_ypos(config.yTable)
+  {
+    //ATH_MSG_DEBUG ("LArGeoH62004EventAction::LArGeoH62004EventAction constructor");
   }
-  
-  return StatusCode::SUCCESS;
-}
 
-void LArGeoH62004EventAction::EndOfEvent(const G4Event * /*theEvent*/)
-{ 
+  void LArGeoH62004EventAction::endOfEvent(const G4Event * /*theEvent*/)
+  {
 
-  ATH_MSG_DEBUG ("LArGeoH62004EventAction::EndOfEventAction");
-  StatusCode status;
+    //ATH_MSG_DEBUG ("LArGeoH62004EventAction::EndOfEventAction");
 
-  //float beamm = PG::ParticleManager::GetInstance()->getEnergy(0);
-  float beamm = 0.;
-  //float ypos = PG::KinematicManager::GetManager()->getValue(PG::kTargetY);
-  float ypos,xpos;
-  if(m_largeoTB2004Options) {
-    ypos = m_largeoTB2004Options->TableYPosition();
-    xpos = m_largeoTB2004Options->CryoXPosition();
-  } else {
-    xpos = ypos = 0.;
+    //float beamm = PG::ParticleManager::GetInstance()->getEnergy(0);
+    float beamm = 0.;
+    //float ypos = PG::KinematicManager::GetManager()->getValue(PG::kTargetY);
+    //int pdg = PG::ParticleManager::GetInstance()->getPDG(0);
+    int pdg = 0;
+    int evtype = 1; // Physics !!!!
+
+    //ATH_MSG_DEBUG ( "TBEventInfo: "<<m_evnum<<"/"<<pdg<<"/"<<evtype<<"/"<<0<<"/"<<beamm<<"/"<<""<<"/"<<m_xpos<<"/"<<0<<"/"<<m_ypos);
+
+    m_ev = CxxUtils::make_unique<TBEventInfo>(++m_evnum,pdg,evtype,0,beamm,"",m_xpos,0,m_ypos);
+    return;
   }
-  //int pdg = PG::ParticleManager::GetInstance()->getPDG(0);
-  int pdg = 0;
-  int evtype = 1; // Physics !!!!
-  
-  ATH_MSG_DEBUG ( "TBEventInfo: "<<m_evnum<<"/"<<pdg<<"/"<<evtype<<"/"<<0<<"/"<<beamm<<"/"<<""<<"/"<<xpos<<"/"<<0<<"/"<<ypos);
 
-  m_ev = CxxUtils::make_unique<TBEventInfo>(++m_evnum,pdg,evtype,0,beamm,"",xpos,0,ypos);
-  return;
-}
-
-
-StatusCode LArGeoH62004EventAction::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-  if ( IUserAction::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = dynamic_cast<IUserAction*>(this);
-    addRef();
-  } else {
-    // Interface is not directly available : try out a base class
-    return UserActionBase::queryInterface(riid, ppvInterface);
-  }
-  return StatusCode::SUCCESS;
-}
+} // namespace G4UA

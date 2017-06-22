@@ -46,9 +46,18 @@ primDPDAlignTrigMu=jobproperties.PrimaryDESDMFlags_PerfMSStream
 #=====================================================================
 
 ##=============================================================================
-## Define the content of the Tight Muon output DPD stream
+## Define the content of the DESDM_MCP stream
 ##=============================================================================
 ## General switches
+
+class doAlignmentFormat(JobProperty):
+		"""  Switch between Alignment and Trigger DESDM format. Default is Trigger. """
+		statusOn			= True
+		allowedTypes	= ['bool']
+		StoredValue		= False
+		pass
+jobproperties.PrimaryDESDMFlags_PerfMSStream.add_JobProperty(doAlignmentFormat)
+
 class ApplySkimming(JobProperty):
     """  Apply the skimming (event selection) for muon performance DESDM """
     statusOn     = True

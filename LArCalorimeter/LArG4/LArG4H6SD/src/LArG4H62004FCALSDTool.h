@@ -11,15 +11,19 @@
 
 #include "StoreGate/WriteHandle.h"
 #include "LArSimEvent/LArHitContainer.h"
+#include "LArG4Code/ILArCalculatorSvc.h"
 
 class LArG4SimpleSD;
 
+/// DEPRECATED AND WILL BE REMOVED.
+/// Please see LArG4::H62004FCALSDTool instead.
+///
 class LArG4H62004FCALSDTool : public LArG4SDTool
 {
  public:
   // Constructor
   LArG4H62004FCALSDTool(const std::string& type, const std::string& name, const IInterface *parent);
-    
+
   // Destructor
   virtual ~LArG4H62004FCALSDTool() {}
 
@@ -30,9 +34,14 @@ class LArG4H62004FCALSDTool : public LArG4SDTool
   StatusCode Gather() override final;
 
  private:
+  StatusCode initializeCalculators() override final;
+
   // The actual hit container - here because the base class is for both calib and standard SD tools
   SG::WriteHandle<LArHitContainer> m_HitColl;
 
+  ServiceHandle<ILArCalculatorSvc> m_fcal1calc;
+  ServiceHandle<ILArCalculatorSvc> m_fcal2calc;
+  ServiceHandle<ILArCalculatorSvc> m_fcalcoldcalc;
   // Sensitive detectors and their corresponding volumes
   LArG4SimpleSD* m_fcal1SD;
   LArG4SimpleSD* m_fcal2SD;

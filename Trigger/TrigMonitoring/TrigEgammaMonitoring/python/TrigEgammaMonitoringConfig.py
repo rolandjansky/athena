@@ -31,7 +31,7 @@ from AthenaCommon.Constants import VERBOSE, DEBUG, INFO, ERROR
 from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import TrigEgammaNavAnalysisTool,TrigEgammaNavTPAnalysisTool,TrigEgammaNavTPJpsieeAnalysisTool
 from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConfig import EfficiencyTool, ResolutionTool, DistTool, TrigEgammaPlotTool
 from TrigEgammaAnalysisTools.TrigEgammaAnalysisToolsConf import TrigEgammaMonTool
-from TrigEgammaEmulationTool.TrigEgammaEmulationToolConfig import TrigEgammaEmulationTool
+
 # Move the ProbeList into MonitCategory to keep all configuration in TrigEgammaMonitoring 
 from TrigEgammaMonitoring.TrigEgammaMonitCategory import * 
 
@@ -53,7 +53,7 @@ class TrigEgammaMonToolBuilder:
 
     basePath = 'HLT/Egamma'
     debugLevel = INFO
-    detailLevel = True
+    detailLevel = False
     
     # Add a flag to enable emulation
     __acceptable_keys_list=['derivation','emulation']
@@ -112,6 +112,7 @@ class TrigEgammaMonToolBuilder:
             return False
 
     def setProperties(self):
+        log_trigeg.info("Set Properties")
         self.basePath = 'HLT/Egamma'
         self.debug = INFO
         self.tagItems = monitoring_tags 
@@ -136,7 +137,9 @@ class TrigEgammaMonToolBuilder:
         else:
             log_trigeg.info('No monitoring mode configured, use default')
             self.setDefaultProperties()
-
+        log_trigeg.info('Configuring TP electron chains %s',self.tpList)
+        log_trigeg.info('Configuring electron chains %s',self.electronList)
+        log_trigeg.info('Configuring photon chains %s',self.photonList)
 
     def setDefaultProperties(self):
         self.electronList = monitoring_electron
@@ -167,6 +170,7 @@ class TrigEgammaMonToolBuilder:
 
     def configureTPMonTool(self,plotTool,toolList):    
         if self.emulation == True:
+            from TrigEgammaEmulationTool.TrigEgammaEmulationToolConfig import TrigEgammaEmulationTool
             HLTEgammaEmulationTool=TrigEgammaEmulationTool.copy(name="TrigEgammaEmulationTool",TriggerList=self.tpList)
             TPAnalysis = TrigEgammaNavTPAnalysisTool(name='HLTEgammaTPAnalysis',
                 Analysis='Zee',

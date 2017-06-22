@@ -24,11 +24,10 @@
 #include "GaudiKernel/GaudiException.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-//#include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
 
 #include <mutex>
 
-static std::mutex _workerActionMutex;
+static std::mutex _workerInitMutex;
 
 G4AtlasWorkerRunManager::G4AtlasWorkerRunManager()
   : G4WorkerRunManager(),
@@ -36,7 +35,7 @@ G4AtlasWorkerRunManager::G4AtlasWorkerRunManager()
     // TODO: what if we need to make these configurable?
     m_detGeoSvc("DetectorGeometrySvc", "G4AtlasWorkerRunManager"),
     m_senDetTool("SensitiveDetectorMasterTool"),
-    //m_fastSimTool("FastSimulationMasterTool"),
+    m_fastSimTool("FastSimulationMasterTool"),
     m_userActionSvc("G4UA::UserActionSvc", "G4AtlasWorkerRunManager")
 {}
 
@@ -52,32 +51,34 @@ G4AtlasWorkerRunManager* G4AtlasWorkerRunManager::GetG4AtlasWorkerRunManager()
 
 void G4AtlasWorkerRunManager::Initialize()
 {
-  ATH_MSG_INFO("Initialize");
+  // Locking this initialization to protect currently thread-unsafe services
+  std::lock_guard<std::mutex> lock(_workerInitMutex);
+
+  const std::string methodName = "G4AtlasWorkerRunManager::Initialize";
 
   // Setup the user actions for current worker thread.
-  ATH_MSG_INFO("Initializing user actions for worker thread");
   if(m_userActionSvc.retrieve().isFailure()) {
     throw GaudiException("Could not retrieve UserActionSvc for worker thread",
-                         "CouldNotRetrieveUASvc", StatusCode::FAILURE);
+                         methodName, StatusCode::FAILURE);
   }
   if(m_userActionSvc->initializeActions().isFailure()) {
     throw GaudiException("Failed to initialize actions for worker thread",
-                         "WorkerThreadInitError", StatusCode::FAILURE);
+                         methodName, StatusCode::FAILURE);
   }
 
   // Setup geometry and physics via the base class
   G4RunManager::Initialize();
+
   // Does some extra setup that we need.
   ConstructScoringWorlds();
   // Run initialization in G4RunManager.
   // Normally done in BeamOn.
   RunInitialization();
-  ATH_MSG_INFO("Done initializing");
 }
 
 void G4AtlasWorkerRunManager::InitializeGeometry()
 {
-  ATH_MSG_INFO("InitializeGeometry");
+  const std::string methodName = "G4AtlasWorkerRunManager::InitializeGeometry";
 
   // I don't think this does anything
   if(fGeometryHasBeenDestroyed) {
@@ -92,24 +93,23 @@ void G4AtlasWorkerRunManager::InitializeGeometry()
   kernel->SetNumberOfParallelWorld(masterKernel->GetNumberOfParallelWorld());
 
   // Setup the sensitive detectors on each worker.
-  ATH_MSG_INFO("Initializing the SDs for this thread");
   if(m_senDetTool.retrieve().isFailure()){
     throw GaudiException("Could not retrieve SD master tool",
-                         "CouldNotRetrieveSDMaster", StatusCode::FAILURE);
+                         methodName, StatusCode::FAILURE);
   }
   if(m_senDetTool->initializeSDs().isFailure()){
     throw GaudiException("Failed to initialize SDs for worker thread",
-                         "WorkerThreadInitError", StatusCode::FAILURE);
+                         methodName, StatusCode::FAILURE);
   }
 
   // Set up the detector magnetic field
   if(m_detGeoSvc.retrieve().isFailure()) {
     throw GaudiException("Could not retrieve det geo svc",
-                         "CouldNotRetrieveDetGeoSvc", StatusCode::FAILURE);
+                         methodName, StatusCode::FAILURE);
   }
   if(m_detGeoSvc->initializeFields().isFailure()) {
     throw GaudiException("Failed to initialize mag field for worker thread",
-                         "WorkerThreadInitError", StatusCode::FAILURE);
+                         methodName, StatusCode::FAILURE);
   }
 
   // These currently do nothing because we don't override
@@ -120,10 +120,27 @@ void G4AtlasWorkerRunManager::InitializeGeometry()
   geometryInitialized = true;
 }
 
+void G4AtlasWorkerRunManager::InitializePhysics()
+{
+  const std::string methodName = "G4AtlasWorkerRunManager::InitializePhysics";
+
+  // Call the base class
+  G4RunManager::InitializePhysics();
+
+  // Setup the fast simulations
+  if(m_fastSimTool.retrieve().isFailure()){
+    throw GaudiException("Could not retrieve FastSims master tool",
+                         methodName, StatusCode::FAILURE);
+  }
+  if(m_fastSimTool->initializeFastSims().isFailure()){
+    throw GaudiException("Failed to initialize FastSims for worker thread",
+                         methodName, StatusCode::FAILURE);
+  }
+}
+
 
 G4Event* G4AtlasWorkerRunManager::GenerateEvent(G4int iEvent)
 {
-  ATH_MSG_DEBUG("GenerateEvent");
   static FADS::GeneratorCenter* generatorCenter =
     FADS::GeneratorCenter::GetGeneratorCenter();
   currentEvent = new G4Event(iEvent);
@@ -134,9 +151,15 @@ G4Event* G4AtlasWorkerRunManager::GenerateEvent(G4int iEvent)
 
 bool G4AtlasWorkerRunManager::SimulateFADSEvent()
 {
-  ATH_MSG_INFO("SimulateFADSEvent");
   G4StateManager* stateManager = G4StateManager::GetStateManager();
   stateManager->SetNewState(G4State_GeomClosed);
+
+  // Invoke SDs for any begin-event requirements
+  const std::string methodName = "G4AtlasWorkerRunManager::SimulateFADSEvent";
+  if (m_senDetTool->BeginOfAthenaEvent().isFailure()) {
+    throw GaudiException("Failure in SD BeginOfAthenaEvent",
+                         methodName, StatusCode::FAILURE);
+  }
 
   GenerateEvent(1);
   if (currentEvent->IsAborted()) {
@@ -164,10 +187,11 @@ bool G4AtlasWorkerRunManager::SimulateFADSEvent()
     return true;
   }
 
-  // Register all of the collections if there are any new-style SDs
-  // TODO: re-enable this
-  //if (m_senDetTool) (*m_senDetTool)->EndOfAthenaEvent();
-  //if (m_senDetSvc) m_senDetSvc->EndOfAthenaEvent();
+  // Invoke SDs for end-event requirements, like finalizing hit collections
+  if (m_senDetTool->EndOfAthenaEvent().isFailure()) {
+    throw GaudiException("Failure in SD EndOfAthenaEvent",
+                         methodName, StatusCode::FAILURE);
+  }
 
   StackPreviousEvent(currentEvent);
   bool abort = currentEvent->IsAborted();

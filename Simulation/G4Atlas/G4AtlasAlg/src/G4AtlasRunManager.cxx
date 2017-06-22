@@ -69,16 +69,17 @@ G4AtlasRunManager* G4AtlasRunManager::GetG4AtlasRunManager()
 
 void G4AtlasRunManager::Initialize()
 {
+  const std::string methodName = "G4AtlasRunManager::Initialize";
   // Setup the user actions now.
   if( !m_userActionSvc.name().empty() ) {
     ATH_MSG_INFO("Creating user actions now");
     if(m_userActionSvc.retrieve().isFailure()) {
       throw GaudiException("Could not retrieve UserActionSvc",
-                           "CouldNotRetrieveUASvc", StatusCode::FAILURE);
+                           methodName, StatusCode::FAILURE);
     }
     if(m_userActionSvc->initializeActions().isFailure()) {
       throw GaudiException("Failed to initialize actions",
-                           "UserActionInitError", StatusCode::FAILURE);
+                           methodName, StatusCode::FAILURE);
     }
   }
   // Call the base class

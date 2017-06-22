@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           ForwardDetectors/AFP/AFP_DigiEv
                           ForwardDetectors/AFP/AFP_Geometry
                           ForwardDetectors/AFP/AFP_RecoEv/AFP_LocRecoEv
+                          ForwardDetectors/AFP/AFP_LocRecoInterfaces
                           GaudiKernel
                           Generators/GeneratorObjects
 			  Event/xAOD/xAODForward

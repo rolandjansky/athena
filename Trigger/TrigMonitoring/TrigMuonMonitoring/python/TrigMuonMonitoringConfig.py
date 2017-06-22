@@ -6,7 +6,7 @@ def TrigMuonMonitoringTool():
 	from TrigHLTMonitoring.HLTMonTriggerList import hltmonList  # access to central tool
 	HLTMuonMon = HLTMuonMonTool(name                 = 'HLTMuonMon',
 				    histoPathBase        = "/Trigger/HLT",
-				    ZTPPtCone30RelCut    = 0.1)
+				    ZTPPtCone30RelCut    = 0.5)
 	HLTMuonMon.monitoring_muonNonIso = hltmonList.monitoring_muonNonIso
 	HLTMuonMon.monitoring_muonIso = hltmonList.monitoring_muonIso
 	HLTMuonMon.monitoring_MSonly = hltmonList.monitoring_MSonly
@@ -18,7 +18,6 @@ def TrigMuonMonitoringTool():
 	    HLTMuonMon.HI_pp_mode = False
 	else:
 	    HLTMuonMon.HI_pp_mode = True
-
 	from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool	
 	HLTMuonMon.BCTool = BunchCrossingTool()
 	from AthenaCommon.AppMgr import ToolSvc

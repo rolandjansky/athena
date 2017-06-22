@@ -415,6 +415,8 @@ class CaloCellGetter (Configured)  :
             try:
                 from LArCellRec.LArCellRecConf import LArBadFebMaskingTool
                 theLArBadFebMaskingTool = LArBadFebMaskingTool()
+                if (rec.doExpressProcessing() or athenaCommonFlags.isOnline()): # In online or express processing, EventInfo::LArError is triggered if >=4 FEB with data corrupted
+                    theLArBadFebMaskingTool.minFebInError = 4
             except:
                 mlog.error("could not get handle to LArBadFebMaskingTool Quit")
                 print traceback.format_exc()

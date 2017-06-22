@@ -2,12 +2,11 @@
 
 from AthenaCommon import CfgMgr
 def getCharginosPhysicsTool(name="CharginosPhysicsTool", **kwargs):
-    from G4AtlasApps import AtlasG4Eng
+    from G4AtlasApps.SimFlags import simFlags
     from AthenaCommon.SystemOfUnits import GeV,MeV,eplus,ns
-    # FIXME AtlasG4Eng will soon be obsolete need to do this in a better way.
-    C1Mass = eval(AtlasG4Eng.G4Eng.Dict_SpecialConfiguration["AMSBC1Mass"])
-    N1Mass = eval(AtlasG4Eng.G4Eng.Dict_SpecialConfiguration["AMSBN1Mass"])
-    C1Lifetime = eval(AtlasG4Eng.G4Eng.Dict_SpecialConfiguration["AMSBC1Lifetime"])
+    C1Mass = eval(simFlags.specialConfiguration.get_Value().get("AMSBC1Mass", None))
+    N1Mass = eval(simFlags.specialConfiguration.get_Value().get("AMSBN1Mass", None))
+    C1Lifetime = eval(simFlags.specialConfiguration.get_Value().get("AMSBC1Lifetime", "-1.0"))
 
     kwargs.setdefault("CharginoPlusMass", C1Mass*MeV) # TODO check units
     kwargs.setdefault("CharginoPlusStable",      (C1Lifetime < 0))
@@ -41,4 +40,4 @@ def getCharginosPhysicsTool(name="CharginosPhysicsTool", **kwargs):
     ##kwargs.setdefault("NeutralinoLifetime",      -1)
     ##kwargs.setdefault("NeutralinoShortlived",    False)
 
-    return CfgMgr.CharginosPhysicsToolTool(name, **kwargs)
+    return CfgMgr.CharginosPhysicsTool(name, **kwargs)
