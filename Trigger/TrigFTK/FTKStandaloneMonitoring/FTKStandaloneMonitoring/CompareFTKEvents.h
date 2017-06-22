@@ -2,16 +2,34 @@
 Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-//
-// This class aims to get the event-by-event comparison
-// of two files one containing HW FTK tracks (BS/RAW file)
-// the other containing simulated (SW) FTK tracks (NTUP_FTK file)
-// The comparison output consits of histograms published on OH,
-// if the partition is set-up, or by histograms saved in the 
-// out.histo.root file.
-//
-///////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
+///
+/// This class aims to get the event-by-event comparison
+/// of two files one containing HW FTK tracks (BS/RAW file)
+/// the other containing simulated (SW) FTK tracks (NTUP_FTK file)
+/// The comparison output consits of histograms published on OH,
+/// if the partition is set-up, or by histograms saved in the 
+/// out.histo.root file.
+///
+/// There are 4 types of histograms:
+/// HWSW*: if HW and SW tracks are completely matched, i.e. have the same track parameters within 0.1% of relative error
+/// 	  the distrubutions of the track paramters (like pt, eta, ...) are displayed in the histograms
+/// HWonly*: if HW tracks do not have SW tracks within m_dmax=0.2, 
+/// 	    the distrubutions of these HW track paramters (like pt, eta, ...) are displayed in the histograms
+/// SWonly*: if SW tracks do not have HW tracks within m_dmax=0.2, 
+/// 	    the distrubutions of these SW track paramters (like pt, eta, ...) are displayed in the histograms
+/// HWvsSW: if HW and SW tracks are not completely matched, 
+/// 	    i.e. they are geometrically closed but do not have the same track parameters
+/// 	    these histograms in turn are divided into :
+/// 	    HWvsSWsw*: the distrubutions of the SW track paramters (like pt, eta, ...) are displayed in the histograms
+/// 	    HWvsSWhw*: the distrubutions of the HW track paramters (like pt, eta, ...) are displayed in the histograms
+/// 	    HWvsSWdiff*: the distrubutions of the difference btw the HW and SW track paramters (like pt, eta, ...) 
+/// 			 are displayed in the histograms
+/// other general histos are 
+/// nTrk_SW: number of SW tracks per event
+/// nTrk_HW: number of HW tracks per event
+///
+////////////////////////////////////////////////////////////////////
 
 #ifndef __CompareFTKEvents__
 #define __CompareFTKEvents__

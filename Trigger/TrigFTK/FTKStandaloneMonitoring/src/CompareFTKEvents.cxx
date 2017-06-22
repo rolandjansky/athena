@@ -37,7 +37,7 @@ void CompareFTKEvents::SetupPartition(const std::string &partition_name)
     catch ( daq::rc::Exception & ex ){	    
        ers::warning(ex);  //or throw e; 
        if (m_partition_name!="") std::cout<< "Partition set to the input variable: "<<m_partition_name<<std::endl;
-       else if (std::getenv("TDAQ_PARTITION")!=NULL) {
+       else if (std::getenv("TDAQ_PARTITION")!=nullptr) {
            m_partition_name = std::getenv("TDAQ_PARTITION");
 	   std::cout<< "Partition set to the environment variable TDAQ_PARTITION: "<<m_partition_name<<std::endl;
        }	   
@@ -66,24 +66,7 @@ void CompareFTKEvents::SetupPartition(const std::string &partition_name)
     }  
 }
 
-// histogram initialization
-// there are 4 types o f histograms:
-// HWSW*: if HW and SW tracks are completely matched, i.e. have the same track parameters within 0.1% of relative error
-//       the distrubutions of the track paramters (like pt, eta, ...) are displayed in the histograms
-// HWonly*: if HW tracks do not have SW tracks within m_dmax=0.2, 
-//         the distrubutions of these HW track paramters (like pt, eta, ...) are displayed in the histograms
-// SWonly*: if SW tracks do not have HW tracks within m_dmax=0.2, 
-//         the distrubutions of these SW track paramters (like pt, eta, ...) are displayed in the histograms
-// HWvsSW: if HW and SW tracks are not completely matched, 
-//         i.e. they are geometrically closed but do not have the same track parameters
-//         these histograms in turn are divided into :
-//         HWvsSWsw*: the distrubutions of the SW track paramters (like pt, eta, ...) are displayed in the histograms
-//         HWvsSWhw*: the distrubutions of the HW track paramters (like pt, eta, ...) are displayed in the histograms
-//         HWvsSWdiff*: the distrubutions of the difference btw the HW and SW track paramters (like pt, eta, ...) 
-//         	        are displayed in the histograms
-// other general histos are 
-// nTrk_SW: number of SW tracks per event
-// nTrk_HW: number of HW tracks per event
+// histogram initialization: for the naming convention see CompareFTKEvents.h
 void CompareFTKEvents::SetHistos(std::vector<std::string> histo_list){
     m_histo_list=histo_list;
     for (auto & istr : m_histo_list){
@@ -388,7 +371,7 @@ void CompareFTKEvents::WriteHistos(){
     std::cout<<"Histo written into file "<<m_fout->GetName()<<std::endl;
 }
 
-// funxtion to read each BS event given the pointer position where it last stopped reading the event
+// function to read each BS event given the pointer position where it last stopped reading the event
 std::streampos CompareFTKEvents::readBSevent(int ievent,std::streampos startbufpos)
 {
     if (m_verbose) std::cout<<"Reading BS event"<<std::endl;
