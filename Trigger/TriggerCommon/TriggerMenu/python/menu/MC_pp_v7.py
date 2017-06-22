@@ -38,9 +38,9 @@ def setupMenu():
         ]
 
     TriggerFlags.AFPSlice.signatures = TriggerFlags.AFPSlice.signatures() + [
-        ['afp_jetexc_L1AFP_A_AND_C_SPECTOF_J50',  'L1_AFP_A_AND_C_SPECTOF_J50',  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
-        ['afp_jetexc_L1AFP_A_AND_C_SPECTOF_J75',  'L1_AFP_A_AND_C_SPECTOF_J75',  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
-        ['afp_jetexc_L1AFP_A_AND_C_SPECTOF_J100',  'L1_AFP_A_AND_C_SPECTOF_J100',  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['afp_jetexc_L1AFP_A_AND_C_SPECTOF_J50',  'L1_AFP_A_AND_C_SPECTOF_J50',  [],  [PhysicsStream], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['afp_jetexc_L1AFP_A_AND_C_SPECTOF_J75',  'L1_AFP_A_AND_C_SPECTOF_J75',  [],  [PhysicsStream], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['afp_jetexc_L1AFP_A_AND_C_SPECTOF_J100',  'L1_AFP_A_AND_C_SPECTOF_J100',  [],  [PhysicsStream], [ 'RATE:MinBias','BW:MinBias'], -1],
         ]
 
 
