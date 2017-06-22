@@ -5,8 +5,6 @@
 
 #include "DataModelRoot/RootType.h"
 
-#ifdef ROOT_6
-
 // ROOT  
 #include "TBaseClass.h"
 #include "TClass.h"
@@ -990,13 +988,3 @@ RootObject::CastObject(const RootType &toType) const
       RootObject( toType, m_type.Class()->DynamicCast(toType.Class(), m_object) )
       : RootObject();
 }
-
-
-#else  // ROOT ver
-
-#include "Cintex/Cintex.h"
-void RootType::EnableCintex() {
-   ROOT::Cintex::Cintex::Enable();
-}
-
-#endif // ROOT ver

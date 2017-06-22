@@ -298,13 +298,8 @@ StatusCode PyAthena::queryInterface( PyObject* self,
     const RootType toType( cppBaseName );
     void* objProxy = TPython::ObjectProxy_AsVoidPtr(self);
     const RootObject cppObj( fromType, objProxy );
-#ifdef ROOT_6    
     const RootObject baseObj = cppObj.CastObject(toType);
     *ppvInterface = baseObj.Address();
-#else
-    const RootObject& baseObj = fromType.CastObject( toType, cppObj );
-    *ppvInterface = (void*)baseObj.Address();
-#endif    
     std::cout << "::: [" << cppName << "]: " 
 	      << ( (bool)fromType ? " OK" : "ERR" ) 
 	      << " " << cppObj.Address()

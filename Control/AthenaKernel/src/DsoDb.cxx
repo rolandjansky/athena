@@ -35,8 +35,6 @@
 
 // ROOT includes
 #include "TClassEdit.h"
-#include "TVirtualMutex.h"  // for R__LOCKGUARD2
-#include "TInterpreter.h"   // for gCINTMutex
 
 // fwk includes
 #include "GaudiKernel/System.h"
@@ -244,7 +242,6 @@ namespace Ath {
  */
 DsoDb* DsoDb::instance()
 {
-   RootType::EnableCintex();
    static DsoDb db;
    return &db;
 }
@@ -693,12 +690,6 @@ DsoDb::rflx_type(const std::string& type_name)
     libname = libname.substr(0, libname.size()-SHLIB_SUFFIX.size());
   }
 
-  //MN  hmm, FIX that for ROOT6 ?
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-  // acquire lock: cint-dict loading isn't thread-safe...
-  R__LOCKGUARD2(gCINTMutex);
-#endif
-  
   unsigned long err = System::loadDynamicLib( libname, &handle );
   if ( err != 1 ) {
     std::cerr << "DsoDb **error**: could not load library [" 

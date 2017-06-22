@@ -59,16 +59,9 @@ class DsoDb (_Dso.PyDsoDb):
             except KeyError,err:
                 self.msg.info("could not install alias [%s] -> [%s]", k,v)
         # make sure we'll be able to load dicts
-        import PyCintex
-        PyCintex.Cintex.Enable()
-        # load reflex
-        self._load_dict = PyCintex.loadDict
-        self._load_dict('ReflexRflx')
-        self._rflx = PyCintex.makeNamespace('Reflex')
-        if not self._rflx:
-            self._rflx = PyCintex.makeNamespace('ROOT::Reflex')
-        self._rflx_type = self._rflx.Type.ByName
-        self._gbl = PyCintex.makeNamespace('')
+        import cppyy
+        self._load_dict = cppyy.loadDict
+        self._rflx_type = cppyy.gbl.RootType.ByName  
         return
 
     def has_type (self, typename):
@@ -107,7 +100,7 @@ class DsoDb (_Dso.PyDsoDb):
             return None
         from ctypes import cdll
         _load = cdll.LoadLibrary
-        from PyCintex import loadDict as _load
+        from cppyy import loadDict as _load
         lib = libs[0]
         self.msg.verbose("... %s",lib)
         _load (os.path.basename(lib.strip()))
