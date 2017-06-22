@@ -173,7 +173,7 @@ class TileROD_Decoder: public AthAlgTool {
     void setUseFrag5Raw (bool f) { m_useFrag5Raw = f; }
     void setUseFrag5Reco (bool f) { m_useFrag5Reco = f; }
 
-  enum TileFagStatus {ALL_OK=0, CRC_ERR=1, ALL_FF=0x10, ALL_00=0x20, NO_FRAG=0x40, NO_ROB=0x80};
+  enum TileFragStatus {ALL_OK=0, CRC_ERR=1, ALL_FF=0x10, ALL_00=0x20, NO_FRAG=0x40, NO_ROB=0x80};
 
   private:
     friend class TileHid2RESrcID;
@@ -608,10 +608,15 @@ void TileROD_Decoder::make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVe
   v.setDetEvType(rob->rod_detev_type());
   v.setRODBCID(rob->rod_bc_id());
 
+  uint32_t status = TileFragStatus::ALL_OK;
+  for (size_t j=0; j<m_digitsMetaData[6]->size(); ++j) {
+    status |= (*(m_digitsMetaData[6]))[j];
+  }
+
   if (v.size() > 0) {
     // Set meta data
     v.setFragSize((*(m_digitsMetaData[0]))[0]);
-    v.setFragBCID((*(m_digitsMetaData[0]))[2]);
+    v.setFragBCID((*(m_digitsMetaData[0]))[2] | (status<<16));
 
     v.setFragExtraWords(*(m_digitsMetaData[1]));
 
@@ -624,8 +629,14 @@ void TileROD_Decoder::make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVe
     }
     if (m_verbose) v.printExtra();
   } else if ( m_digitsMetaData[0]->size() == 0 ) {
-    v.setFragBCID(0xDEAD);
+    // no useful digi fragment or no data inside fragment
+    status |= TileFragStatus::NO_FRAG;
+    v.setFragBCID(0xDEAD | (status<<16));
+    v.setFragSize(0);
   }
+
+  if (status!=TileFragStatus::ALL_OK)
+    ATH_MSG_DEBUG( "Status for drawer 0x" << MSG::hex << v.identify() << " in Digi frag is 0x" << status << MSG::dec);
 }
 
 inline
@@ -659,7 +670,7 @@ void TileROD_Decoder::make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVe
     } else {
       ATH_MSG_DEBUG( "data for drawer 0x" << MSG::hex << v.identify() << MSG::dec << " not found in BS" );
     }
-    m_rawchannelMetaData[6]->push_back(TileFagStatus::NO_FRAG);
+    m_rawchannelMetaData[6]->push_back(TileFragStatus::NO_FRAG);
     HWIdentifier drawerID = m_tileHWID->drawer_id(v.identify());
     for (unsigned int ch = 0; ch < m_maxChannels; ++ch) {
       HWIdentifier adcID = m_tileHWID->adc_id(drawerID, ch, 0);
@@ -686,11 +697,11 @@ void TileROD_Decoder::make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVe
     }
   }
 
-  uint32_t status = ((*(m_rawchannelMetaData[0]))[0] & 0x1) ? TileFagStatus::CRC_ERR : TileFagStatus::ALL_OK ;
+  uint32_t status = ((*(m_rawchannelMetaData[0]))[0] & 0x1) ? TileFragStatus::CRC_ERR : TileFragStatus::ALL_OK ;
   for (size_t j=0; j<m_rawchannelMetaData[6]->size(); ++j) {
     status |= (*(m_rawchannelMetaData[6]))[j];
   }
-  if (status>TileFagStatus::CRC_ERR)
+  if (status>TileFragStatus::CRC_ERR)
     ATH_MSG_DEBUG( "Status for drawer 0x" << MSG::hex << v.identify() << " is 0x" << status << MSG::dec);
 
   v.setFragGlobalCRC(status);

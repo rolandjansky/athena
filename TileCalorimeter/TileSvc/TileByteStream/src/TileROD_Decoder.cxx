@@ -250,12 +250,27 @@ void TileROD_Decoder::unpack_frag0(uint32_t version, const uint32_t* p, pDigiVec
   // Position of first data word, ignore 2 frag header words
   data = p + 2;
   
-  // check that fragment is not dummy
-  if (m_suppressDummyFragments) {
-    for (n = 0; n < size; ++n) {
-      if (data[n] != 0 && data[n] != 0xffffffff) break;
+  uint32_t all00 = TileFragStatus::ALL_00;
+  uint32_t allFF = TileFragStatus::ALL_FF;
+
+  for (int i = 0; i < size; ++i) {
+    uint32_t w = data[i];
+    if (allFF && w!=0xFFFFFFFF) {
+      allFF = TileFragStatus::ALL_OK;
+      if (all00 == TileFragStatus::ALL_OK) break;
     }
-    if (n == size) return; // nothing reasonable found
+    if (all00 && w != 0) {
+      all00 = TileFragStatus::ALL_OK;
+      if (allFF == TileFragStatus::ALL_OK) break;
+    }
+  }
+
+  uint32_t status = (all00 | allFF);
+  m_digitsMetaData[6]->push_back( status );
+
+  // check that fragment is not dummy
+  if (m_suppressDummyFragments && status != TileFragStatus::ALL_OK) {
+    return; // nothing reasonable found
   }
   
   // if (msgLvl(MSG::VERBOSE))
@@ -870,18 +885,18 @@ void TileROD_Decoder::unpack_frag4(uint32_t /* version */, const uint32_t* p,
   
   HWIdentifier drawerID = m_tileHWID->drawer_id(frag);
   TileRawChannel* rc;
-  uint32_t all00 = TileFagStatus::ALL_00;
-  uint32_t allFF = TileFagStatus::ALL_FF;
-  
+  uint32_t all00 = TileFragStatus::ALL_00;
+  uint32_t allFF = TileFragStatus::ALL_FF;
+
   for (unsigned int ch = 0; ch < m_maxChannels; ++ch) {
     unsigned int w = (*p);
     
     int gain = m_rc2bytes4.gain(w);
     HWIdentifier adcID = m_tileHWID->adc_id(drawerID, ch, gain);
     
-    if (allFF && w!=0xFFFFFFFF) allFF = TileFagStatus::ALL_OK;
+    if (allFF && w!=0xFFFFFFFF) allFF = TileFragStatus::ALL_OK;
     if (w != 0) { // skip invalid channels
-      if (all00) all00 = TileFagStatus::ALL_OK;
+      if (all00) all00 = TileFragStatus::ALL_OK;
       rc = new TileRawChannel(adcID
                               , m_rc2bytes4.amplitude(w)
                               , m_rc2bytes4.time(w)
@@ -1002,16 +1017,28 @@ void TileROD_Decoder::unpack_frag6(uint32_t /*version*/, const uint32_t* p, pDig
   // pointer to current data word
   const uint32_t* data = p + 2;     // Position of first data word, 
 
+  uint32_t all00 = TileFragStatus::ALL_00;
+  uint32_t allFF = TileFragStatus::ALL_FF;
+
+  for (int i = 0; i < size; ++i) {
+    uint32_t w = data[i];
+    if (allFF && w!=0xFFFFFFFF) {
+      allFF = TileFragStatus::ALL_OK;
+      if (all00 == TileFragStatus::ALL_OK) break;
+    }
+    if (all00 && w != 0) {
+      all00 = TileFragStatus::ALL_OK;
+      if (allFF == TileFragStatus::ALL_OK) break;
+    }
+  }
+
+  uint32_t status = (all00 | allFF);
+  m_digitsMetaData[6]->push_back( status );
+
   // check that fragment is not dummy
-  if (m_suppressDummyFragments) {
-    int n = 0;
-    for (; n < size; ++n) {
-      if (data[n] != 0 && data[n] != 0xffffffff) break;
-    }
-    if (n == size) {// nothing reasonable found
-      ATH_MSG_WARNING("FRAG6: Suppress dummy fragment!!!");
-      return; 
-    }
+  if (m_suppressDummyFragments && status != TileFragStatus::ALL_OK) {
+    ATH_MSG_WARNING("FRAG6: Suppress dummy fragment!!!");
+    return; // nothing reasonable found
   }
 
   unsigned int moduleID[4] = {0};
