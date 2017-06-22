@@ -168,10 +168,9 @@ from ISF_Example.ISF_Metadata import createSimulationParametersMetadata, configu
 createSimulationParametersMetadata()
 configureRunNumberOverrides()
 
-
-collection_merger_alg = getAlgorithm('ISF_CollectionMerger')
-topSequence += collection_merger_alg
-
+if ISF_Flags.HITSMergingRequired():
+    collection_merger_alg = getAlgorithm('ISF_CollectionMerger')
+    topSequence += collection_merger_alg
 
 #--------------------------------------------------------------
 # Post kernel configuration
