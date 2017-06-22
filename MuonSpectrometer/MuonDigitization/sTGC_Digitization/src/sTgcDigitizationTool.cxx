@@ -568,13 +568,18 @@ StatusCode sTgcDigitizationTool::doDigitization() {
       ATH_MSG_VERBOSE("Next Detector Element");
 	  while(i != e){ //loop through the hits on this Detector Element
           ATH_MSG_VERBOSE("Looping over hit " << nhits+1 << " on this Detector Element." );
+          
+          nhits++;
 		  TimedHitPtr<GenericMuonSimHit> phit = *i++;
 		  const GenericMuonSimHit& hit = *phit;
+          ATH_MSG_VERBOSE("Hit Particle ID : " << hit.particleEncoding() );
           float eventTime = phit.eventTime(); 
           if(eventTime < earliestEventTime) earliestEventTime = eventTime;
 		  // 50MeV cut on kineticEnergy of the particle
-		  if(hit.kineticEnergy()<50.) continue;
-		  nhits++;
+		  if(hit.kineticEnergy()<50.) {
+              ATH_MSG_VERBOSE("Hit with Kinetic Energy of " << hit.kineticEnergy() << " less than 50.  Skip this hit." );
+              continue;
+          }
           if(eventTime != 0){
              msg(MSG::DEBUG) << "Updated hit global time to include off set of " << eventTime << " ns from OOT bunch." << endmsg;
           }
@@ -660,8 +665,10 @@ StatusCode sTgcDigitizationTool::doDigitization() {
     
     // Loop over the hits:
     int hitNum = 0;
-    typedef std::map< const GenericMuonSimHit*, int >::iterator it_SimHits; 
-
+    typedef std::map< const GenericMuonSimHit*, int >::iterator it_SimHits;
+ 
+        ATH_MSG_VERBOSE("Digitizing " << SimHits.size() << " hits.");
+        
     for(it_SimHits it_SimHit = SimHits.begin(); it_SimHit!=SimHits.end(); it_SimHit++ ) {
     	hitNum++;
     	double depositEnergy = it_SimHit->first->depositEnergy();
@@ -695,6 +702,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 			continue;
 
 		sTgcDigitCollection::const_iterator it_digiHits;
+        ATH_MSG_VERBOSE("Hit produced " << digiHits->size() << " digits." );
 		for(it_digiHits=digiHits->begin(); it_digiHits!=digiHits->end(); ++it_digiHits) {
 			/*
 			   NOTE:

@@ -82,13 +82,13 @@ public:
         }
 
         vmmTime += readoutTick;                              // Advance the vmmTime by the readout clock tick
-        ATH_MSG_VERBOSE("sTgcVMMSim::tick( ): vmmTime = " << vmmTime);
+        ATH_MSG_VERBOSE("sTgcVMMSim::tick( ): advance vmmTime " << (vmmTime - readoutTick) << " to " << vmmTime);
         if((vmmTime - readoutTick) > digitsIn.back().time()) // This tick could not contain any digits
             return false;                                    // No more digits exist beyond this vmmTime: kill this VMM
         else {
             for(std::vector<sTgcDigit>::iterator it_digit = digitsIn.begin(); it_digit != digitsIn.end(); ++it_digit) {
                 ATH_MSG_VERBOSE("Digit time difference : " << (it_digit->time() - vmmTime) );
-                if((it_digit->time() - vmmTime) <= readoutTick && (it_digit->charge() >= neighborThreshold || channelType != 1)) {
+                if((abs((it_digit->time() - vmmTime)) <= readoutTick) && (it_digit->time() <= vmmTime) && (it_digit->charge() >= neighborThreshold || channelType != 1)) {
                     ATH_MSG_VERBOSE("Buffering Digit at time : " << it_digit->time() << " charge: " << it_digit->charge());
                     digitBuffer.push_back(
                         *it_digit); // buffer digits if they fall inside the tick window and would pass
