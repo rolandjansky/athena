@@ -30,7 +30,7 @@ PixelMonModulesProf::PixelMonModulesProf(std::string name, std::string title, in
    }
    if (m_doIBL == false) {
       for (int i = 1744; i < 2024; i++) {
-         getHist(i) = 0;
+         getHist(i) = nullptr;
       }
    }
    formatHist("");
@@ -45,7 +45,7 @@ PixelMonModulesProf::PixelMonModulesProf(std::string name, std::string title, in
    }
    if (m_doIBL == false) {
       for (int i = 1744; i < 2024; i++) {
-         getHist(i) = 0;
+         getHist(i) = nullptr;
       }
    }
    formatHist("");
@@ -67,7 +67,7 @@ PixelMonModules1D::PixelMonModules1D(std::string name, std::string title, int nb
    }
    if (m_doIBL == false) {
       for (int i = 1744; i < 2024; i++) {
-         getHist(i) = 0;
+         getHist(i) = nullptr;
       }
    }
    formatHist("");
@@ -82,7 +82,7 @@ PixelMonModules1D::PixelMonModules1D(std::string name, std::string title, int nb
    }
    if (m_doIBL == false) {
       for (int i = 1744; i < 2024; i++) {
-         getHist(i) = 0;
+         getHist(i) = nullptr;
       }
    }
    formatHist("");
@@ -104,7 +104,7 @@ PixelMonModules2D::PixelMonModules2D(std::string name, std::string title, int nb
    }
    if (m_doIBL == false) {
       for (int i = 1744; i < 2024; i++) {
-         getHist(i) = 0;
+         getHist(i) = nullptr;
       }
    }
    formatHist("");
