@@ -1,5 +1,6 @@
 from AthenaCommon.CfgGetter import getAlgorithm
 from G4AtlasApps.SimFlags import simFlags
+from ISF_Config.ISF_jobProperties import ISF_Flags
 
 
 def generate_mergeable_collection_name(bare_collection_name,
@@ -16,7 +17,7 @@ def generate_mergeable_collection_name(bare_collection_name,
     :param merger_input_property: name of the Input* property in the
         CollectionMerger algorithm to add the mergeable collection to.
     """
-    if simFlags.ISFRun():
+    if simFlags.ISFRun() and ISF_Flags.HITSMergingRequired():
         mergeable_collection = '{bare}{suffix}'.format(
             bare=bare_collection_name,
             suffix=mergeable_collection_suffix
