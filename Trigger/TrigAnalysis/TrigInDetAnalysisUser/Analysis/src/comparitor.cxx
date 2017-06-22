@@ -1130,7 +1130,7 @@ int main(int argc, char** argv) {
 	TH1F* hchain = (TH1F*)ftest.Get((chains[j]+"/Chain").c_str()) ;
 	if ( hchain ) { 
 	  std::string name = hchain->GetTitle();
-	  if ( usechainref ) { 
+	  if ( usechainref && !contains(chains[j],"Purity") ) { 
 	    chainref = name;
 	    std::string::size_type pos = chainref.find(":for");
             if ( pos!=std::string::npos ) chainref.replace( pos, 4, "_for" );
@@ -1686,6 +1686,9 @@ int main(int argc, char** argv) {
 	Norm( htest );
 	if ( href ) Norm( href );
       }
+      else if ( yinfo.refnormset() ) { 
+      	if ( href ) Norm( href, Entries(htest) );
+      }
 
       if ( yinfo.binwidth() ) { 
 	binwidth( htest );
@@ -1694,9 +1697,11 @@ int main(int argc, char** argv) {
     
 
 
-      if ( !noreftmp && normref && !contains( histos[i], "mean") && !contains( histos[i], "sigma" ) && !contains( histos[i], "eff" ) ) { 
-	double entries = Entries( htest );
-	Norm( href, entries );
+      if ( !noreftmp && normref && 
+           !contains( histos[i], "mean") && !contains( histos[i], "sigma" ) && 
+           !contains( histos[i], "Eff")  && !contains( histos[i], "eff") &&
+           !contains( histos[i], "Res")  && !contains( histos[i], "vs") && !contains( histos[i], "_lb") ) { 
+        Norm( href, Entries( htest ) );
       }
 
     }
