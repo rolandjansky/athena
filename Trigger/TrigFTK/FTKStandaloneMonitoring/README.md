@@ -50,7 +50,7 @@ make
 ```
 #  Setup and Running
 
-..* At lxplus
+* At lxplus
 
 ```
 source x86*/setup.sh
@@ -58,7 +58,7 @@ cd x86*/bin
 
 ./MonitoringFTKHWSWComparison -f /eos/user/a/amaranti/FTK_DQM_tests/21.0.11_lxplus/OUT.BS_FTK.root -n /eos/user/a/amaranti/FTK_DQM_tests/20.11.2.6.2_AtlasP1MON_lxplus/FTKIPtoFTK/OUT.NTUP.root -s -v
 ```
-..* At P1
+* At P1
 
 ...first setup athena at P1:
 ```
