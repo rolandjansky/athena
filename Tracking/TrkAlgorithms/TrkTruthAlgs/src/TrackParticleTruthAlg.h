@@ -27,7 +27,6 @@ public:
   
 private:
 
-  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_particles;  
   SG::WriteDecorHandleKey<xAOD::TrackParticleContainer> m_particlesLinkKey;
   SG::WriteDecorHandleKey<xAOD::TrackParticleContainer> m_particlesTypeKey;
   SG::WriteDecorHandleKey<xAOD::TrackParticleContainer> m_particlesOriginKey;
