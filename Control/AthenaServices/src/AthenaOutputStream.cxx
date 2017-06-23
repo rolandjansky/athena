@@ -459,7 +459,7 @@ StatusCode AthenaOutputStream::write() {
          }
          if (checkCountError) {
             ATH_MSG_FATAL("Check number of writes failed. See messages above "
-                    "to identify which continer is not always written");
+                    "to identify which container is not always written");
             return(StatusCode::FAILURE);
          }
       }
