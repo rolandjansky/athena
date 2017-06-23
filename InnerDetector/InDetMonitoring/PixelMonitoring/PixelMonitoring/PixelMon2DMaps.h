@@ -47,7 +47,6 @@ class PixelMon2DMaps
       void Fill2DMon(PixelMon2DMaps* oldmap);
       StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
 private:
-      StatusCode sc;
       void formatHist();
 };
 

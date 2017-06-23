@@ -42,6 +42,8 @@ public:
   virtual void setEmulationTool(ToolHandle<Trig::ITrigEgammaEmulationTool>)=0;
   virtual void setAvgMu(const float, const float)=0;
   virtual void setPVertex(const float, const float)=0;
+  virtual void setSGContainsRnn(bool)=0;
+  virtual void setSGContainsTrigPhoton(bool)=0; 
   
   virtual StatusCode childInitialize(){return StatusCode::SUCCESS;};
   virtual StatusCode childBook(){return StatusCode::SUCCESS;};

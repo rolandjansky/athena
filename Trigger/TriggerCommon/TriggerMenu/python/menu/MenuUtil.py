@@ -116,7 +116,6 @@ def checkStreamConsistency(triggerPythonConfig):
     """
     menu_name = TriggerFlags.triggerMenuSetup()
     log.info( "Menu: " + menu_name)
-    CheckGroups=False
 
     from TriggerMenu.menu.StreamInfo       import getAllStreams
 

@@ -1599,9 +1599,9 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
                 break;
               }
             }
-            if ((**s).trackParameters()
+            if (s != prefit->trackStateOnSurfaces()->end()
 		&& s != prefit->trackStateOnSurfaces()->begin()
-		&& s != prefit->trackStateOnSurfaces()->end())
+		&& (**s).trackParameters())
 	    {
 		parameters	= (**s).trackParameters()->clone();
 		caloParameters	= parameters;
@@ -1960,6 +1960,12 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
 //
     
     countAEOTs(&combinedTrack," in standalone Refit input combinedTrack ");
+
+    if (!m_magFieldSvc->toroidOn()) {
+      // no standalone refit for Toroid off
+      return 0;
+    }
+
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " StandaloneRefit beam position bs_x " << bs_x << " bs_y " << bs_y << " bs_z " << bs_z << endmsg; 
 
 // vertex will change track by track

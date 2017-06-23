@@ -7,9 +7,7 @@
 __author__  = 'M.Backes, C.Bernius'
 __version__=""
 __doc__="Implementation of beamspot chains "
-from TriggerMenu.menu.HltConfig import *
-from AthenaCommon.Include import include
-from AthenaCommon.SystemOfUnits import GeV
+from TriggerMenu.menu.HltConfig import L2EFChainDef,mergeRemovingOverlap
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
@@ -112,7 +110,6 @@ class L2EFChain_Beamspot(L2EFChainDef):
         TrigL2SiTrackFinder_Config = __import__('TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config', fromlist=[""])      
         my_trk_alg = getattr(TrigL2SiTrackFinder_Config, "TrigL2SiTrackFinder_BeamSpotB") 
         trk_alg = [my_trk_alg()] 
-        teaddition = 'L2StarB'
         
      elif ('trkfast' in self.l2IDAlg):
         if 'trkFS' in self.chainPart['addInfo'] :
@@ -129,7 +126,6 @@ class L2EFChain_Beamspot(L2EFChainDef):
 
         from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
         [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", "FTF").getSequence()
-        teaddition = 'trkfast'
         
      elif ('FTK' in self.l2IDAlg):
         if 'trkFS' in self.chainPart['addInfo'] :
@@ -161,21 +157,20 @@ class L2EFChain_Beamspot(L2EFChainDef):
         else:   
            from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
            [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "").getSequence()
-        teaddition = 'trkFTK'
 
      elif ('FTKRefit' in self.l2IDAlg):
         if 'trkFS' in self.chainPart['addInfo'] :
-           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_FTK
-           theFex = T2VertexBeamSpot_FTK()
+           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_FTKRefit
+           theFex = T2VertexBeamSpot_FTKRefit()
         elif 'activeTE' in self.chainPart['addInfo']:
-           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeTE_FTK
-           theFex = T2VertexBeamSpot_activeTE_FTK()
+           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeTE_FTKRefit
+           theFex = T2VertexBeamSpot_activeTE_FTKRefit()
         elif 'allTE' in self.chainPart['addInfo']:
-           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeAllTE_FTK
-           theFex = T2VertexBeamSpot_activeAllTE_FTK()
+           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeAllTE_FTKRefit
+           theFex = T2VertexBeamSpot_activeAllTE_FTKRefit()
         elif 'idperf' in self.chainPart['addInfo']:
-           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeAllTE_FTK
-           theFex = T2VertexBeamSpot_activeAllTE_FTK()
+           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeAllTE_FTKRefit
+           theFex = T2VertexBeamSpot_activeAllTE_FTKRefit()
            from TrigFTK_Monitoring.FtkHltEfficiencyConfig import FtkHltEfficiencyFex
            moni_alg = FtkHltEfficiencyFex()
         else:
@@ -189,7 +184,6 @@ class L2EFChain_Beamspot(L2EFChainDef):
         else: 
            from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
            [trk_alg] = TrigInDetFTKSequence("BeamSpot", "beamSpot", "refit").getSequence()
-           teaddition = 'trkFTKRefit'
 
      else:
         mlog.error('Cannot assemble chain %s - only configured for L2StarB' % (self.chainPartName))        

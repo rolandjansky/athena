@@ -22,6 +22,8 @@
 #include "L1TopoSimulationUtils/L1TopoDataTypes.h"
 #include "L1TopoSimulationUtils/Trigo.h"
 #include "L1TopoSimulationUtils/Hyperbolic.h"
+#include "L1TopoSimulationUtils/Kinematics.h"
+
 //
 
 REGISTER_ALG_TCS(InvariantMassInclusive1)
@@ -30,38 +32,6 @@ using namespace std;
 
 // not the best solution but we will move to athena where this comes for free
 #define LOG cout << "TCS::InvariantMassInclusive1:     "
-
-
-
-
-namespace {
-   unsigned int
-   calcInvMass(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-      double deta = fabs( tob1->etaDouble() - tob2->etaDouble() );
-      double dphi = fabs( tob1->phiDouble() - tob2->phiDouble() );
-      if(dphi>M_PI)
-         dphi = 2*M_PI - dphi;
-
-      double cosheta = cosh ( deta);
-      double cosphi = cos ( dphi);
-      double invmass2 = 2*tob1->Et()*tob2->Et()*(cosheta - cosphi);
-      return round( invmass2 );
-   }
-
-   unsigned int
-   calcInvMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-      auto bit_cosheta = TSU::L1TopoDataTypes<19,7>(TSU::Hyperbolic::Cosh.at(abs(tob1->eta() - tob2->eta())));
-      auto bit_cosphi = TSU::L1TopoDataTypes<9,7>(TSU::Trigo::Cos.at(abs(tob1->phi() - tob2->phi())));
-      TSU::L1TopoDataTypes<11,0> bit_Et1(tob1->Et());
-      TSU::L1TopoDataTypes<11,0> bit_Et2(tob2->Et());
-      auto bit_invmass2 = 2*bit_Et1*bit_Et2*(bit_cosheta - bit_cosphi);
-      
-      return int(bit_invmass2) ;
-  
-   }
-
-}
-
 
 TCS::InvariantMassInclusive1::InvariantMassInclusive1(const std::string & name) : DecisionAlg(name)
 {
@@ -184,7 +154,7 @@ TCS::InvariantMassInclusive1::processBitCorrect( const std::vector<TCS::TOBArray
                if (p_OneBarrel && parType_t(abs((*tob1)->eta())) > 10 && parType_t(abs((*tob2)->eta())) > 10 ) continue;
                
                // Inv Mass calculation
-               unsigned int invmass2 = calcInvMassBW( *tob1, *tob2 );
+               unsigned int invmass2 = TSU::Kinematics::calcInvMassBW( *tob1, *tob2 );
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
                    bool accept = false;
                    if( parType_t((*tob1)->Et()) <= min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
@@ -201,7 +171,7 @@ TCS::InvariantMassInclusive1::processBitCorrect( const std::vector<TCS::TOBArray
                    }
                    else
                        m_histRejectINV1[i]->Fill(sqrt((float)invmass2));
-                   TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2);
+                   TRG_MSG_INFO("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2);
                }
             }
          }
@@ -243,7 +213,7 @@ TCS::InvariantMassInclusive1::process( const std::vector<TCS::TOBArray const *> 
                
                // Inv Mass calculation
              
-	       unsigned int invmass2 = calcInvMass( *tob1, *tob2 );
+	       unsigned int invmass2 = TSU::Kinematics::calcInvMass( *tob1, *tob2 );
 
 
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
@@ -262,7 +232,7 @@ TCS::InvariantMassInclusive1::process( const std::vector<TCS::TOBArray const *> 
                   }
                   else
                       m_histRejectINV1[i]->Fill(sqrt((float)invmass2));
-                  TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2);
+                  TRG_MSG_INFO("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2);
                }
             }
          }

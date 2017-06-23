@@ -1,10 +1,8 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-import copy
 import unittest
 from mock import MagicMock
 from hypo_factory import (hypo_factory,
-                          HypoAlg,
                           JetStandardHypo,
                           JetSingleEtaRegionHypo,
                           JetMaximumBipartiteHypo,

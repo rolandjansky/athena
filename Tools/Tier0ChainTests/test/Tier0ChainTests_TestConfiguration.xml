@@ -1164,7 +1164,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>LatestRun_Main1</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=1 --trigStream=Main --nfiles=1 --maxEvents=250 --latestrun --castordir=/eos/atlas/atlastier0/rucio/data16_13TeV --AMI=f694 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs
+                                    tct_recotrf.py --jobnum=1 --trigStream=Main --nfiles=1 --maxEvents=250 --latestrun --castordir=/eos/atlas/atlastier0/rucio/data17_13TeV --AMI=f694 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>

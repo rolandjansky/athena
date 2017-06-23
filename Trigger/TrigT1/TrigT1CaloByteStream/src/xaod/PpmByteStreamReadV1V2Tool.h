@@ -137,7 +137,6 @@ private:
                                 std::vector<uint16_t>&& fadc,
                                 std::vector<uint8_t>&& bcidExt);
 
-  void createEmptyTriggerTowers_();
 
   void processSubBlockStatus_(uint8_t crate, uint8_t module, uint32_t word);
 
@@ -178,16 +177,16 @@ private:
   // For RUN1
   std::map<uint8_t, std::vector<uint16_t>> m_ppLuts;
   std::map<uint8_t, std::vector<uint16_t>> m_ppFadcs;
+  size_t m_maxSizeSeen;
 // ==========================================================================
 private:
   xAOD::TriggerTowerContainer* m_triggerTowers;
-  std::unordered_map<uint32_t, std::unique_ptr<xAOD::TriggerTower>> m_coolIdToTriggerTowerMap;
-  std::vector<uint32_t> m_triggerTowersOrder;
 
 private:
    static const uint8_t s_crates   = 8;
    static const uint8_t s_modules  = 16;
    static const uint8_t s_channels = 64;
+   static const uint16_t s_maxtowers = s_crates * s_modules * s_channels;
 };
 
 // ===========================================================================

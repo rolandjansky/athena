@@ -71,9 +71,6 @@ def readL1MenuFromXML(menu="LVL1config_Physics_pp_v6.xml"):
 
 
 def findUnneededRun2():
-    from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
-    from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
-    
     menus = ['Physics_pp_v6']
 
     for menu in menus:
@@ -85,10 +82,8 @@ def findUnneededRun2():
 
 
 def findRequiredItemsFromXML():
-    from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
-    from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
     
-    menus = ['Physics_pp_v7','MC_pp_v7','Physics_pp_v6','MC_pp_v6']
+    menus = ['Physics_pp_v7','MC_pp_v7','Physics_pp_v6','MC_pp_v6', 'MC_PhaseII']
 
     from TriggerMenu.l1.XMLReader import L1MenuXMLReader
 
@@ -136,11 +131,8 @@ def findFreeCTPIDs(menu):
     [menus,allItems,allThrs] = load(f)
 
     TF.triggerMenuSetup = menu
-    tpcl1 = TriggerConfigLVL1( outputFile = TF.outputLVL1configFile() )
 
     print set(Lvl1Flags.CtpIdMap().keys()) - allItems
-
-
     
 def main():
     printCabling = False
@@ -157,6 +149,7 @@ def main():
         generateL1Menu(menu="MC_pp_v7",doFTK=FTKFlag)
         generateL1Menu(menu="Physics_pp_v6",doFTK=FTKFlag)
         generateL1Menu(menu="MC_pp_v6",doFTK=FTKFlag)
+        generateL1Menu(menu="MC_PhaseII",doFTK=FTKFlag)
 #        generateL1Menu(menu="LS1_v1" )
         #generateL1Menu(menu="DC14")
 #        generateL1Menu(menu="Physics_HI_v3")  # currently disabled since not defined in JobProp

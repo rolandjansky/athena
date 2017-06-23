@@ -127,7 +127,6 @@ class TriggerCoolUtil:
                 if runNr>1000000: continue
                 payload = obj.payload()
                 hltpsk  = payload['HltPrescaleKey']
-                if hltpsk>10000: continue
                 firstLB = obj.since() & lbmask
                 lastLB  = (obj.until() & lbmask) -1
                 configKeys.setdefault(runNr,{}).setdefault( "HLTPSK2", [] ).append((hltpsk,firstLB,lastLB))
