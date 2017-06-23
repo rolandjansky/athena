@@ -46,11 +46,13 @@ class AtlasTrackSummaryTool( Trk__TrackSummaryTool ):
         #
         # Loading Configurable HoleSearchTool
         #
+        from InDetRecExample.InDetJobProperties import InDetFlags
         from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
         AtlasHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "AtlasHoleSearchTool",
                                                               Extrapolator = AtlasExtrapolator,
                                                               usePixel      = DetFlags.haveRIO.pixel_on(),
-                                                              useSCT        = DetFlags.haveRIO.SCT_on()
+                                                              useSCT        = DetFlags.haveRIO.SCT_on(),
+                                                              checkBadSCTChip=InDetFlags.checkDeadElementsOnTrack()
                                                               )
         ToolSvc += AtlasHoleSearchTool
         #print      AtlasHoleSearchTool

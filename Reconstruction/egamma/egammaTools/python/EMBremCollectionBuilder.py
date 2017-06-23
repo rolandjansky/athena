@@ -53,6 +53,7 @@ class egammaBremCollectionBuilder ( egammaToolsConf.EMBremCollectionBuilder ) :
                                                                  Extrapolator = GSFBuildInDetExtrapolator,
                                                                  usePixel      = DetFlags.haveRIO.pixel_on(),
                                                                  useSCT        = DetFlags.haveRIO.SCT_on(),
+                                                                 checkBadSCTChip = InDetFlags.checkDeadElementsOnTrack(),
                                                                  CountDeadModulesAfterLastHit = True)
 
         from AthenaCommon.AppMgr import ServiceMgr
