@@ -10,7 +10,8 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ListItem.h"
 
-#include "TrigT1CaloEvent/TriggerTowerCollection.h"
+#include "xAODTrigL1Calo/TriggerTowerContainer.h"
+//#include "TrigT1CaloEvent/TriggerTowerCollection.h"
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloTTIdTools.h"
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloOfflineTriggerTowerTools.h"
 
@@ -19,11 +20,13 @@
 #include "CaloIdentifier/CaloLVL1_ID.h"
 #include "CaloIdentifier/TileID.h"
 
+#include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileBeamElemContainer.h"
 #include "TileConditions/TileCablingService.h"
+#include "TileConditions/TileCondToolEmscale.h"
 //for the extended CISpar
 #include "TileIdentifier/TileTBFrag.h"
 
@@ -53,6 +56,7 @@ TileTriggerDefaultCalibTool::TileTriggerDefaultCalibTool(const std::string& type
   , m_tileHWID(nullptr)
   , m_tileID(nullptr)
   , m_tileCablingService(nullptr)
+  , m_tileToolEmscale("TileCondToolEmscale")
   , m_meanTile()
   , m_rmsTile()
   , m_meanTileDAC()
@@ -85,12 +89,13 @@ TileTriggerDefaultCalibTool::TileTriggerDefaultCalibTool(const std::string& type
   , m_beamElemCnt(nullptr)
 {
   declareInterface<ITileCalibTool>( this );
-  declareProperty("TriggerTowerLocation", m_triggerTowerLocation="TriggerTowers");
+  declareProperty("TriggerTowerLocation", m_triggerTowerLocation="xAODTriggerTowers");
   declareProperty("MaxNTriggerTowers", m_maxNTT=7200);
   declareProperty("rawChannelContainer", m_rawChannelContainerName="TileRawChannelFit");
   declareProperty("NtupleID", m_ntupleID="h3000");
-  declareProperty("NumEventPerPMT", m_nevpmt=200);
+  declareProperty("NumEventPerPMT", m_nevpmt=195); // changed from 200 to 195
   declareProperty("TileBeamElemContainer",m_TileBeamContainerID);
+  declareProperty("TileCondToolEmscale", m_tileToolEmscale);
   //  declareProperty("L1TriggerTowerTool", m_ttTool);
 }
 
@@ -119,6 +124,9 @@ StatusCode TileTriggerDefaultCalibTool::initialize()
 
   m_tileCablingService = TileCablingService::getInstance();
 
+  //=== get TileCondToolEmscale
+  CHECK( m_tileToolEmscale.retrieve() );
+  
   return StatusCode::SUCCESS;  
 }
 
@@ -164,15 +172,27 @@ StatusCode TileTriggerDefaultCalibTool::execute()
 
   ATH_MSG_DEBUG ( "cispar[16] " << cispar[16] << ", cispas[17] " << cispar[17] << ", cispar[18] " << cispar[18] );
   if (cispar[16] == 0x07){
-  	m_charge = cispar[17];
-  	m_ipmt = cispar[18];
-  	//m_itower = cispar[19];
-	//m_idrawer = cispar[20];
+      if (cispar[18]>5) {
+          ATH_MSG_WARNING ( "Bad CISpar detected, using pmt index and charge from previous event: " << m_ipmt << " " << m_charge );
+      } else {
+          m_charge = cispar[17];
+          m_ipmt = cispar[18];
+          //m_itower = cispar[19];
+          //m_idrawer = cispar[20];
+      }
+  }
+  else if (cispar[16] == 0x107){ // bad CISpar
+      ATH_MSG_WARNING ( "Bad CISpar detected, using pmt index and charge from previous event: " << m_ipmt << " " << m_charge );
   }
   else
-     return StatusCode::SUCCESS;
+      return StatusCode::SUCCESS;
   
   ATH_MSG_DEBUG ( "Pattern/ipmt/charge: " << cispar[16] << " " << m_ipmt << " " << m_charge );
+  if (m_charge<1.0e-20) {
+      ATH_MSG_WARNING ( "Bad charge " << m_charge << " - skipping event" );
+      return StatusCode::SUCCESS;
+  }
+  
   if (m_ipmtOld != m_ipmt){
 	if (m_ipmt < m_ipmtOld) return StatusCode::SUCCESS;
 	m_ipmtCount = 1;
@@ -181,7 +201,7 @@ StatusCode TileTriggerDefaultCalibTool::execute()
   else
 	m_ipmtCount += 1;
 		   
-  if (m_ipmtCount > 200) return StatusCode::SUCCESS;  //takes into account only the first 200 events for each pmt
+  if (m_ipmtCount > m_nevpmt) return StatusCode::SUCCESS;  //takes into account only the first m_nevpmt events for each pmt to avoid problem with wrong CISpar
 
   m_DACvalue = m_charge;
   
@@ -189,6 +209,7 @@ StatusCode TileTriggerDefaultCalibTool::execute()
   TileRawChannelContainer::const_iterator itColl = (*container).begin();
   TileRawChannelContainer::const_iterator itCollEnd = (*container).end();
   TileRawChannelCollection::const_iterator it, itEnd;
+  TileRawChannelUnit::UNIT RChUnit = container->get_unit();
 
   //     Go through all TileRawChannelCollections
   for(; itColl != itCollEnd; ++itColl) {
@@ -201,21 +222,28 @@ StatusCode TileTriggerDefaultCalibTool::execute()
   
       // get hardware id to identify adc channel
       HWIdentifier hwid=(*it)->adc_HWID();
+      //ATH_MSG_DEBUG("HWID1: "<< m_tileHWID->to_string(hwid));
       int ros    = m_tileHWID->ros(hwid);    // LBA=1  LBC=2  EBA=3  EBC=4 
       int drawer = m_tileHWID->drawer(hwid); // 0 to 63
       int chan = m_tileHWID->channel(hwid);  // 0 to 47 channel not PMT
-      //   int gain = m_tileHWID->adc(hwid); // low=0 high=1
+      int gain = m_tileHWID->adc(hwid); // low=0 high=1
+      unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
 
       // Get the PMT Id, create on the fly a mapping to the trigger tower id
       // this mapping is to be used below in the loop over all trigger towers
       Identifier tt_id = (*it)->tt_ID();
+      if (!tt_id.is_valid()) continue;
       //Identifier pmt_id = (*it)->pmt_ID();
 
       int pos_neg_z = m_TT_ID->pos_neg_z(tt_id);
       int ieta = m_TT_ID->eta(tt_id);
       int iphi = m_TT_ID->phi(tt_id);
 
-      if((ieta < 0) || (ieta > 14)) continue;
+      if (ros < 3) {
+        if (ieta < 0 || ieta > 8) continue;
+      } else {
+        if (ieta < 9 || ieta > 14) continue;
+      }
 
       if((ros==1) || (ros==2)){ 
 	if (chan != chan_bar[(ieta*6)-1 + m_ipmt+1]) continue;   	// check if the chan is firing
@@ -227,12 +255,15 @@ StatusCode TileTriggerDefaultCalibTool::execute()
 	continue;
 
       float amp = (*it)->amplitude();
-      //log << MSG::DEBUG << "ros " << ros << ", pos_neg_z " << pos_neg_z << ", drawer " << drawer <<" ieta " << ieta <<  ", chan " << chan << ", aplitude " << amp << endreq;
-
-      m_meanTile[ros][drawer][chan] += amp;
-      m_rmsTile[ros][drawer][chan]  += square(amp);
-      m_meanTileDAC[ros][drawer][chan] += amp-m_charge;
-      m_rmsTileDAC[ros][drawer][chan]  += square(amp-m_charge);
+      float amp_pC = m_tileToolEmscale->channelCalib(drawerIdx, chan, gain, amp, RChUnit, TileRawChannelUnit::PicoCoulombs);
+      //float amp_GeV = m_tileToolEmscale->channelCalib(drawerIdx, chan, gain, amp, RChUnit, TileRawChannelUnit::MegaElectronVolts) * 0.001;
+      //float pC2GeV = m_tileToolEmscale->channelCalib(drawerIdx, chan, 0, 1.0, TileRawChannelUnit::PicoCoulombs, TileRawChannelUnit::MegaElectronVolts) * 0.001;
+      //log << MSG::DEBUG << "ros " << ros << ", pos_neg_z " << pos_neg_z << ", drawer " << drawer <<" ieta " << ieta <<  ", chan " << chan << ", amplitude " << amp << endreq;
+      
+      m_meanTile[ros][drawer][chan] += amp_pC;
+      m_rmsTile[ros][drawer][chan]  += square(amp_pC);
+      m_meanTileDAC[ros][drawer][chan] += (amp_pC-m_charge);
+      m_rmsTileDAC[ros][drawer][chan]  += square(amp_pC-m_charge);
       m_ietaTile[ros][drawer][chan]  = ieta;
       m_iphiTile[ros][drawer][chan]  = iphi;
       m_ipmtTile[ros][drawer][chan]  = m_ipmt;
@@ -245,25 +276,20 @@ StatusCode TileTriggerDefaultCalibTool::execute()
   } // end of loop over raw channels for Tile
   
   // loop over all L1Calo trigger channels, calculate the average and RMS
-  const TriggerTowerCollection* ttCollection = 0;
-  if (evtStore()->retrieve(ttCollection, m_triggerTowerLocation).isFailure()) {
-    ATH_MSG_WARNING ( "No TriggerTowerCollectiton found with key: "<< m_triggerTowerLocation );
-    return StatusCode::FAILURE;
-  } else ATH_MSG_DEBUG ("TriggerTowerCollection retrieved from StoreGate with size: "<< ttCollection->size());
+  const xAOD::TriggerTowerContainer* triggerTowers = 0;
+  CHECK(evtStore()->retrieve(triggerTowers, m_triggerTowerLocation));
 
   int ntt = 0;
  
-  TriggerTowerCollection::const_iterator pos = ttCollection->begin();
-  TriggerTowerCollection::const_iterator pos_end = ttCollection->end();
+  for (const xAOD::TriggerTower* triggerTower : *triggerTowers) {
 
-  for(;pos!=pos_end;++pos) {
-  
     if(ntt>m_maxNTT) break;
 
-    const LVL1::TriggerTower* ptt = (*pos);
-    double eta = ptt->eta();
-    double phi = ptt->phi();
-    double tt_ene = 0.;  //ptt->hadEnergy();
+    if (!triggerTower->sampling()) continue; // is not hadronic
+
+    double eta = triggerTower->eta();
+    double phi = triggerTower->phi();
+    double tt_ene = 0.;  //triggerTower->e();
 
     // temporary, compute id out of the tower position
     int pos_neg_z = m_l1CaloTTIdTools->pos_neg_z(eta);
@@ -272,20 +298,21 @@ StatusCode TileTriggerDefaultCalibTool::execute()
     int iphi   = m_l1CaloTTIdTools->phiIndex(eta, phi);
     Identifier tt_id = m_TT_ID->tower_id(pos_neg_z, 1, region, ieta, iphi);
     //Not used, but could be useful, eg. coolId is used to get proper pedestal value
-    //Identifier id = m_ttTool->identifier(ptt->eta(), ptt->phi(), 1); //alternative way to get tt_id
+    //Identifier id = m_ttTool->identifier(triggerTower->eta(), triggerTower->phi(), 1); //alternative way to get tt_id
     //unsigned int coolId = m_ttTool->channelID(tt_id).id();
     
     // check if it is a Tile tower
-    if (m_TT_ID->is_tile(tt_id))	
+    if (tt_id.is_valid() && m_TT_ID->is_tile(tt_id))	
     	++ntt;
     else continue;
 
     //compute L1Calo energy from ADC:
     // - take max ADC value
     // - subtract pedestal (about 32 ADC counts), apply 0.25 conversion factor to GeV 
-    const std::vector <int>& adc = ptt->hadADC();
-    std::vector<int>::const_iterator max = std::max_element(adc.begin(), adc.end()); 
-    tt_ene = (*max-32)*0.25; 
+    const std::vector<uint16_t>& adc = triggerTower->adc();
+    uint16_t max = *(std::max_element(adc.begin(), adc.end()));
+    uint16_t ped = adc.front(); 
+    tt_ene = (max - ped) * 0.25; 
     if (tt_ene < 0.) tt_ene = 0.;
 
     // check boundaries
@@ -294,11 +321,23 @@ StatusCode TileTriggerDefaultCalibTool::execute()
     if (pos_neg_z < 0) pos_neg_z = 0;
     HWIdentifier hwid = chanIds[pos_neg_z][ieta][iphi][m_ipmt];
     int ros    = m_tileHWID->ros(hwid);    // LBA=1  LBC=2  EBA=3  EBC=4 
+    if(ros >= 5 || ros <=0){continue;} // ignoring special channels, like those connected to inner MBTS in EBA/EBC 39-42,55-58 
     int drawer = m_tileHWID->drawer(hwid); // 0 to 63
     int chan = m_tileHWID->channel(hwid);  // 0 to 47 channel not PMT
+    unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
+    float pC2GeV = m_tileToolEmscale->channelCalib(drawerIdx, chan, 0, 1.0, TileRawChannelUnit::PicoCoulombs, TileRawChannelUnit::MegaElectronVolts) * 0.001;
+    double tt_ene_pC = tt_ene / pC2GeV;
 
-    //comparing results from ptt->hadEnergy() and energy computed from ADC (default method)
-    if (ptt->hadEnergy()==0) ATH_MSG_DEBUG ( "Tower partition "<< ros << ", drawer "<< drawer << ", chan: " << chan << ", eta "<< eta << ", phi: " << phi << ", amplitude : "  << tt_ene << ", old " << ptt->hadEnergy() << ", ratio old/new " << ptt->hadEnergy()/tt_ene );
+    //comparing results from triggerTower->e() and energy computed from ADC (default method)
+    if (triggerTower->e() == 0) 
+      ATH_MSG_DEBUG ( "Tower partition " << ros 
+                      << ", drawer "<< drawer 
+                      << ", chan: " << chan 
+                      << ", eta "<< eta 
+                      << ", phi: " << phi 
+                      << ", amplitude : "  << tt_ene 
+                      << ", old " << triggerTower->e() 
+                      << ", ratio old/new " << triggerTower->e() / tt_ene );
 
     if ((ros==1) || (ros==2)){ 
       if (chan != chan_bar[(ieta*6)-1 + m_ipmt+1]) continue;   		// check if the chan is firing    
@@ -308,10 +347,10 @@ StatusCode TileTriggerDefaultCalibTool::execute()
     }
     else continue;
 
-    m_meanL1Calo[ros][drawer][chan] += tt_ene;
-    m_rmsL1Calo[ros][drawer][chan]  += square(tt_ene);
-    m_meanL1CaloDAC[ros][drawer][chan] += tt_ene - m_charge;
-    m_rmsL1CaloDAC[ros][drawer][chan]  += square(tt_ene - m_charge);
+    m_meanL1Calo[ros][drawer][chan] += tt_ene_pC;
+    m_rmsL1Calo[ros][drawer][chan]  += square(tt_ene_pC);
+    m_meanL1CaloDAC[ros][drawer][chan] += tt_ene_pC - m_charge;
+    m_rmsL1CaloDAC[ros][drawer][chan]  += square(tt_ene_pC - m_charge);
     m_ietaL1Calo[ros][drawer][chan]  = ieta;
     m_iphiL1Calo[ros][drawer][chan]  = iphi;
     m_ipmtL1Calo[ros][drawer][chan]  = m_ipmt;
