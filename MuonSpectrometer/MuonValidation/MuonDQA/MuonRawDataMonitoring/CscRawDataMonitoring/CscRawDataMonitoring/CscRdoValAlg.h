@@ -104,7 +104,7 @@ class CscRdoValAlg: public ManagedMonitorToolBase
 
   TH1F *m_h1csc_rdo_maxdiffamp;             // max amplitude per cluster (ADC count)
 
-  MonGroup *cscrdo_oviewEA, *cscrdo_oviewEC;
+  MonGroup *m_cscrdo_oviewEA, *m_cscrdo_oviewEC;
 
   // Correlation plots
   TH2F *m_h2csc_rdo_eta_vs_phi_cluscount;
