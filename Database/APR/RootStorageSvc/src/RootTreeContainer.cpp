@@ -360,7 +360,7 @@ DbStatus RootTreeContainer::fetch(DbSelect& sel)  {
   if ( stmt ) {
     TTreeFormula* selStmt = stmt->m_ptr;
     if ( selStmt )  {
-      std::lock_guard<std::mutex>( m_rootDb->ioMutex() );
+      std::lock_guard<std::mutex>   lock( m_rootDb->ioMutex() );
       Branches::iterator k;
       long long cur  = sel.link().second;
       Long64_t last = m_tree->GetEntries();

@@ -26,7 +26,6 @@ EndBaseLoop
 cls
 TBranchRef
 pmember
-lCintex
 scott
 br
 cmt
@@ -37,7 +36,6 @@ struct
 FX
 snyder
 ssnyder
-cint
 oldobj
 OO
 aa
@@ -106,7 +104,6 @@ fObject
 Marcin
 SX
 TConverterRegistry
-Cintex
 TClassEdit
 startpos
 objectstart
