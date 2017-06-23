@@ -13,13 +13,11 @@ __all__ = [
             'CpuData', 'IoData', 'MemData', #'PersData',
             ]
 
-import ROOT
-import PyCintex
+import cppyy
 
-PyCintex.Cintex.Enable()
-PyCintex.loadDictionary( 'libPerfMonEventDict' )
+cppyy.loadDictionary( 'libPerfMonEventDict' )
 
-PerfMon = PyCintex.makeNamespace( 'PerfMon' )
+PerfMon = cppyy.makeNamespace( 'PerfMon' )
 
 CpuHdr  = PerfMon.CpuHdr
 IoHdr   = PerfMon.IoHdr

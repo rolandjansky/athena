@@ -15,9 +15,6 @@ system).
 
 Here's a brief list of what's here.
 
- - RootUtils::ClearCINTMessageCallback: Work around an issue where importing
-   PyCintex will disable error messages if you're using CINT as a shell.
-
  - RootUtils::DataVectorConvert: Provide backwards compatibility for
    reading DataVector classes for which inheritance relations have changed.
 
