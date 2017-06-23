@@ -1427,7 +1427,6 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doBremRecovery         , False)
        self.checkThenSet(self.doCaloSeededBrem       , False)
        self.checkThenSet(self.doHadCaloSeededSSS     , False)
-       self.checkThenSet(self.checkDeadElementsOnTrack,False)
        # --- turn off TRT
        DetFlags.makeRIO.TRT_setOff()
        DetFlags.TRT_setOff()

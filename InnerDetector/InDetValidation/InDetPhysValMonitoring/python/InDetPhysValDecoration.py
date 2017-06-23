@@ -123,11 +123,13 @@ class InDetHoleSearchTool(object) :
       @checkKWArgs
       def __init__(self, **kwargs) :
           from AthenaCommon.AppMgr import ToolSvc
+          from InDetRecExample.InDetJobProperties import InDetFlags
           super(InDetHoleSearchTool.PhysValMonInDetHoleSearchTool,self).__init__(**_args( kwargs,
                                                                                                  name         = self.__class__.__name__,
                                                                                                  Extrapolator = ToolSvc.InDetExtrapolator,
                                                                                                  usePixel     = True,
                                                                                                  useSCT       = True,
+                                                                                                 checkBadSCTChip = InDetFlags.checkDeadElementsOnTrack(),
                                                                                                  # OutputLevel  = 1,
                                                                                                  CountDeadModulesAfterLastHit = True) )
 

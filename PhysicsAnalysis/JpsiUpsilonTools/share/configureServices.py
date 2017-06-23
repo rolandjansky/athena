@@ -42,11 +42,14 @@ from RecExConfig.RecFlags import rec
 CountDeadModulesAfterLastHit=False
 #rec.Commissioning=False
 
+from InDetRecExample.InDetJobProperties import InDetFlags
+
 from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
 InDetHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetHoleSearchTool",
                                                       Extrapolator = InDetExtrapolator,
                                                       usePixel      = DetFlags.haveRIO.pixel_on(),
                                                       useSCT        = DetFlags.haveRIO.SCT_on(),
+                                                      checkBadSCTChip = InDetFlags.checkDeadElementsOnTrack(),
                                                       #Commissioning = rec.Commissioning())
 						      CountDeadModulesAfterLastHit = CountDeadModulesAfterLastHit)	
 ToolSvc += InDetHoleSearchTool
