@@ -58,8 +58,6 @@ def verify((exitcode, out, err)):
     print "StdOut:", out
     print "StdErr:", err
 
-    # print 'art-status: error'
-
     return exitcode
 
 
