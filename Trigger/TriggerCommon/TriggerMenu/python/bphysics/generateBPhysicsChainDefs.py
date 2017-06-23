@@ -13,7 +13,6 @@ log = logging.getLogger(__name__)
 from TriggerMenu.menu.MenuUtils import setupTopoStartFrom
 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
 
-
 log.bphysTrigWarning = True
 
 
@@ -124,7 +123,7 @@ def getBphysThresholds(chainDict) :
                     thr= dthr * 1000.  # in MeV; 
                     #lower to match EF muon threshols
                     if dthr < 9.5 :
-                        thr = thr - 250. 
+                        thr = thr - 350. 
                     elif dthr < 11.5 :
                         thr = thr - 550. 
                     elif dthr < 21.5  :
@@ -156,8 +155,8 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
     L2Fex = None
     L2Hypo = None
     
-    from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu,TrigMultiTrkFex_DiMu_noCut
-    from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu_noCut,EFMultiMuHypo_DiMu,EFMultiMuHypo_BMeson,EFMultiMuHypo_Jpsi,EFMultiMuHypo_Upsi,EFMultiMuHypo_2700,EFMultiMuHypo_DiMu2700
+    from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu_noCut
+    from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu_noCut,EFMultiMuHypo_2700,EFMultiMuHypo_DiMu2700
     if (mtopo == 'bJpsi'):
         if doL2MultiTrack :
             from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu
@@ -393,7 +392,7 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
     elif (mtopo == 'bUpsi'):
         if doL2MultiTrack :
             from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu
-            from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu
+            from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Upsi
             L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiMu"+fexNameExt)
             L2Fex.setTrackThresholds( trkmuons )            
             L2Hypo = EFMultiMuHypo_Upsi("L2MultiMuTrkHypo_Upsi")  
@@ -405,7 +404,7 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
             L2Hypo = L2MultiMuHypo_Upsi()        
             
         from TrigBphysHypo.TrigEFMultiMuFexConfig import EFMultiMuFex_Upsi
-        from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Upsi
+        from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Upsi 
         EFFex = EFMultiMuFex_Upsi()
         EFHypo = EFMultiMuHypo_Upsi()
     
@@ -430,7 +429,7 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
     elif (mtopo == 'bJpsimumu'):
         if doL2MultiTrack :
             from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu
-            from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu
+            from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Jpsi
             L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiMu"+fexNameExt)
             L2Fex.setTrackThresholds( trkmuons )
             L2Hypo = EFMultiMuHypo_Jpsi("L2MultiMuTrkHypo_Jpsi")  
@@ -449,7 +448,7 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
     elif (mtopo == 'bUpsimumu'):
         if doL2MultiTrack :
             from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu
-            from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu
+            from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Upsi
             L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiMu"+fexNameExt)
             L2Fex.setTrackThresholds( trkmuons )
             L2Hypo = EFMultiMuHypo_Upsi("L2MultiMuTrkHypo_Upsi")
@@ -1171,8 +1170,8 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom, d
         L2TEname = "L2_" + TEname+myTopoString+'_tsf_'+chainDict['L1item']
         topo2StartFrom = L2TEname
 
-    from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu,TrigMultiTrkFex_DiMu_noCut
-    from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu_noCut,EFMultiMuHypo_Bmumux
+    from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu_noCut
+    from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu_noCut
     # replace L2 Te (and EF tsf) with bBmumuxv2 naming
     # same underlying sequence is used
     # Warning if ever switch to v3 implementation -- this should be changed / tested 
