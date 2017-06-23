@@ -109,7 +109,6 @@ MdtVsTgcRawDataValAlg::numberOfSL(const Muon::TgcCoinDataContainer* tgctrgcontai
       if( tcd->type() != Muon::TgcCoinData::TYPE_SL )continue;
       m_log<<MSG::DEBUG<<"pt"<<tcd->pt()<<endmsg;
       nSL++;
-      theSL=tcd;
     }
   }
 
@@ -127,15 +126,6 @@ MdtVsTgcRawDataValAlg::stationGasGap2layer(int station, int GasGap){
     layer = 5+GasGap;
   }
   return layer;
-}
-
-double
-MdtVsTgcRawDataValAlg::MDTz(int ac,
-                            int stationName,
-                            int multiLayer,
-                            int tubeLayer){
-  double z=( ac==0 ? MDTZpos[stationName-17][multiLayer-1][tubeLayer-1] : -MDTZpos[stationName-17][multiLayer-1][tubeLayer-1]);
-  return z;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -168,8 +158,8 @@ MdtVsTgcRawDataValAlg::BlankPhi24(TH2 *h, int binx){
 }
 void
 MdtVsTgcRawDataValAlg::BlankStationMap(TH2 *h, int ws){
-  bool m_rebin=true;
-  if(m_rebin){//use new bin
+  bool rebin=true;
+  if(rebin){//use new bin
       for(int i=33; i<44;i++)BlankPhi24(h,i);
       int x1=h->GetXaxis()->GetBinLowEdge(40);
       int x2=h->GetXaxis()->GetBinUpEdge(40);

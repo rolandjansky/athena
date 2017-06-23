@@ -86,31 +86,26 @@ MdtVsTgcRawDataValAlg::MdtVsTgcRawDataValAlg( const std::string & type, const st
   m_muonMgr = 0;
   m_mdtIdHelper = 0;
   m_tgcIdHelper = 0;
-  theSL = 0;
-  SLr = 0;
-  SLz = 0;
-  SLeta = 0;
-  SLphi = 0;
    
   for(int ac=0; ac<2; ac++){
-	mvt_cutspassed[ac] = 0;
+	m_mvt_cutspassed[ac] = 0;
 	for(int jMDT=0; jMDT<4; jMDT++){
-		mdt_segmmap[ac][jMDT] = 0;
+		m_mdt_segmmap[ac][jMDT] = 0;
 		for(int sMDT=0; sMDT<4; sMDT++){
-			mdt_segmposdirsag[ac][jMDT][sMDT] = 0;
+			m_mdt_segmposdirsag[ac][jMDT][sMDT] = 0;
 			for(int iREPT=0; iREPT<4; iREPT++){
-				mdt_segmmatchsag[ac][jMDT][sMDT][iREPT] = 0;
-				mdt_trackdirdirsag[ac][jMDT][sMDT][iREPT] = 0;
-				mdt_trackchecksag[ac][jMDT][sMDT][iREPT][0] = 0;
-				mdt_trackchecksag[ac][jMDT][sMDT][iREPT][1] = 0;
+				m_mdt_segmmatchsag[ac][jMDT][sMDT][iREPT] = 0;
+				m_mdt_trackdirdirsag[ac][jMDT][sMDT][iREPT] = 0;
+				m_mdt_trackchecksag[ac][jMDT][sMDT][iREPT][0] = 0;
+				m_mdt_trackchecksag[ac][jMDT][sMDT][iREPT][1] = 0;
 			}
 		}
 	}
 	for(int WS=0; WS<2; WS++){
 		for(int EffNDE=0; EffNDE<4; EffNDE++){
-			eff_stationmapbase[ac][WS][EffNDE] = 0;
-			eff_stationmapmid[ac][WS][EffNDE] = 0;
-			eff_stationmap[ac][WS][EffNDE] = 0;
+			m_eff_stationmapbase[ac][WS][EffNDE] = 0;
+			m_eff_stationmapmid[ac][WS][EffNDE] = 0;
+			m_eff_stationmap[ac][WS][EffNDE] = 0;
 		}
 	}
   }
@@ -121,13 +116,13 @@ MdtVsTgcRawDataValAlg::MdtVsTgcRawDataValAlg( const std::string & type, const st
       for(int f=0;f<2;f++)// FE
         for(int k=0;k<2;k++)// WireStrip
           for(int x=0;x<4;x++){
-            mvt_extrprdsag[i][jTGC][f][k][x]=0;
-            mvt_extrprdsag2[i][jTGC][f][k][x]=0;
+            m_mvt_extrprdsag[i][jTGC][f][k][x]=0;
+            m_mvt_extrprdsag2[i][jTGC][f][k][x]=0;
           }
   for(int k=0;k<2;k++)
     for(int i=0;i<2;i++)
       for(int x=0;x<4;x++){
-        tgc_prdcompsag[i][k][x]=0;
+        m_tgc_prdcompsag[i][k][x]=0;
       }
 
 }
@@ -258,10 +253,10 @@ StatusCode MdtVsTgcRawDataValAlg::bookHistogramsRecurrent(){
   StatusCode sc = StatusCode::SUCCESS; 
   
   //declare a group of histograms
-  std::string m_generic_path_mdtvstgclv1 = "Muon/MuonRawDataMonitoring/MDTvsTGC";
-  //MonGroup mdtvstgclv1_expert( this, m_generic_path_mdtvstgclv1+"/Global", expert, run );
-  MonGroup mdtvstgclv1_expert_a( this, m_generic_path_mdtvstgclv1+"/TGCEA", run, ATTRIB_UNMANAGED );
-  MonGroup mdtvstgclv1_expert_c( this, m_generic_path_mdtvstgclv1+"/TGCEC", run, ATTRIB_UNMANAGED );
+  std::string generic_path_mdtvstgclv1 = "Muon/MuonRawDataMonitoring/MDTvsTGC";
+  //MonGroup mdtvstgclv1_expert( this, generic_path_mdtvstgclv1+"/Global", expert, run );
+  MonGroup mdtvstgclv1_expert_a( this, generic_path_mdtvstgclv1+"/TGCEA", run, ATTRIB_UNMANAGED );
+  MonGroup mdtvstgclv1_expert_c( this, generic_path_mdtvstgclv1+"/TGCEC", run, ATTRIB_UNMANAGED );
   
   if(newEventsBlock){}
   if(newLumiBlock){}

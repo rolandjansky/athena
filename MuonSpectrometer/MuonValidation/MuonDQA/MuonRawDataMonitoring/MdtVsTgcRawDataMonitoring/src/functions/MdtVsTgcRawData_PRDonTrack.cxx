@@ -58,10 +58,10 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(vector<SegmTrack> (&matchedSegments)[2],
     unsigned int nTrack=matchedSegments[i].size();
     
     // Fill nEvents histograms
-    mvt_cutspassed[i]->Fill(1);
-    if(nTrack==0)mvt_cutspassed[i]->Fill(2);
-    if(nTrack>1)mvt_cutspassed[i]->Fill(3);
-    if(nTrack==1)mvt_cutspassed[i]->Fill(4);
+    m_mvt_cutspassed[i]->Fill(1);
+    if(nTrack==0)m_mvt_cutspassed[i]->Fill(2);
+    if(nTrack>1)m_mvt_cutspassed[i]->Fill(3);
+    if(nTrack==1)m_mvt_cutspassed[i]->Fill(4);
     
     // Cut events without exactly one set of matched Segments
     if(nTrack!=1)continue;
@@ -140,8 +140,8 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(vector<SegmTrack> (&matchedSegments)[2],
       for(int stationeta=1; stationeta<=8; stationeta++){// AbsStationEta
         for(int stationphi=1; stationphi<=48; stationphi++){// StationPhi
           // Cut Station EtaPhi combinations with no TGC element
-          if(TREarray[stationnameindex][i][stationeta][stationphi]==0)continue;
-          const MuonGM::TgcReadoutElement *tre=TREarray[stationnameindex][i][stationeta][stationphi];
+          if(m_TREarray[stationnameindex][i][stationeta][stationphi]==0)continue;
+          const MuonGM::TgcReadoutElement *tre=m_TREarray[stationnameindex][i][stationeta][stationphi];
           
           // Extrapolate position from nearest Station's Segment to Sector's Z
           float sectorZ=tre->globalPosition().z();
@@ -211,9 +211,9 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(vector<SegmTrack> (&matchedSegments)[2],
 	if(crot) { 
 	  const std::vector<const Muon::MuonClusterOnTrack*> mc_list = crot->containedROTs();
 	  for(unsigned int iROT=0; iROT< mc_list.size(); iROT++){
-	   const Muon::MuonClusterOnTrack * m_rio = mc_list[iROT];
-	   //const Trk::RIO_OnTrack* m_rio = crot->rioOnTrack(iROT);
-	   Identifier id = m_rio->identify();
+	   const Muon::MuonClusterOnTrack * rio = mc_list[iROT];
+	   //const Trk::RIO_OnTrack* rio = crot->rioOnTrack(iROT);
+	   Identifier id = rio->identify();
 	   int stationName = int(m_mdtIdHelper->stationName(id));
            // 41=T1F 42=T1E 43=T2F 44=T2E 45=T3F 46=T3E 47=T4F 48=T4E
            if(m_tgcIdHelper->isStrip(id)){
@@ -324,8 +324,8 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(vector<SegmTrack> (&matchedSegments)[2],
         // Pass through loose phi cut to eliminate some noise
         if(abs(dPhi)<dPhiCut_Loose){
           // Fill PRD sagitta histograms 
-          if(mvt_extrprdsag[i][stationIndex][tgcFE][tgcWS][0]) mvt_extrprdsag[i][stationIndex][tgcFE][tgcWS][0]->Fill(dRho);
-          if(mvt_extrprdsag[i][stationIndex][tgcFE][tgcWS][2]) mvt_extrprdsag[i][stationIndex][tgcFE][tgcWS][2]->Fill(dPhi);
+          if(m_mvt_extrprdsag[i][stationIndex][tgcFE][tgcWS][0]) m_mvt_extrprdsag[i][stationIndex][tgcFE][tgcWS][0]->Fill(dRho);
+          if(m_mvt_extrprdsag[i][stationIndex][tgcFE][tgcWS][2]) m_mvt_extrprdsag[i][stationIndex][tgcFE][tgcWS][2]->Fill(dPhi);
           
           // Global efficiency check
           if(canCheckGlobal[stationIndex]){
@@ -371,32 +371,32 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(vector<SegmTrack> (&matchedSegments)[2],
           int stationMap_PhiIndex=getStationMapIndex(2, l, TGCstation_StationFE[stationIndex], TGCstation_StationEta[stationIndex], TGCstation_StationPhi[stationIndex]);
           // Fill Sector efficiency histograms
           if(sectorhitregistered[l][k]){// Hit in Sector matches extrapolated track
-            eff_stationmapbase[i][k][1]->Fill(stationMap_EtaIndex, stationMap_PhiIndex);
+            m_eff_stationmapbase[i][k][1]->Fill(stationMap_EtaIndex, stationMap_PhiIndex);
           }
-          eff_stationmapbase[i][k][2]->Fill(stationMap_EtaIndex, stationMap_PhiIndex);
+          m_eff_stationmapbase[i][k][2]->Fill(stationMap_EtaIndex, stationMap_PhiIndex);
         }
       }// WireStrip
     }// Layer
     
     // Fill +Has Station bins of histogram
-    if(HasPRD[0]||HasPRD[1]||HasPRD[2])mvt_cutspassed[i]->Fill(7);
-    if(HasPRD[3]||HasPRD[4])mvt_cutspassed[i]->Fill(9);
-    if(HasPRD[5]||HasPRD[6])mvt_cutspassed[i]->Fill(11);
-    if(HasPRD[7]||HasPRD[8])mvt_cutspassed[i]->Fill(5);
+    if(HasPRD[0]||HasPRD[1]||HasPRD[2])m_mvt_cutspassed[i]->Fill(7);
+    if(HasPRD[3]||HasPRD[4])m_mvt_cutspassed[i]->Fill(9);
+    if(HasPRD[5]||HasPRD[6])m_mvt_cutspassed[i]->Fill(11);
+    if(HasPRD[7]||HasPRD[8])m_mvt_cutspassed[i]->Fill(5);
     
     // Fill Match Station bins of histogram
-    if(PRDMatch[0]||PRDMatch[1]||PRDMatch[2])mvt_cutspassed[i]->Fill(8);
-    if(PRDMatch[3]||PRDMatch[4])mvt_cutspassed[i]->Fill(10);
-    if(PRDMatch[5]||PRDMatch[6])mvt_cutspassed[i]->Fill(12);
-    if(PRDMatch[7]||PRDMatch[8])mvt_cutspassed[i]->Fill(6);
+    if(PRDMatch[0]||PRDMatch[1]||PRDMatch[2])m_mvt_cutspassed[i]->Fill(8);
+    if(PRDMatch[3]||PRDMatch[4])m_mvt_cutspassed[i]->Fill(10);
+    if(PRDMatch[5]||PRDMatch[6])m_mvt_cutspassed[i]->Fill(12);
+    if(PRDMatch[7]||PRDMatch[8])m_mvt_cutspassed[i]->Fill(6);
     if((PRDMatch[0]||PRDMatch[1]||PRDMatch[2])&&
        (PRDMatch[3]||PRDMatch[4])&&
        (PRDMatch[5]||PRDMatch[6])&&
-       (PRDMatch[7]||PRDMatch[8]))mvt_cutspassed[i]->Fill(13);
+       (PRDMatch[7]||PRDMatch[8]))m_mvt_cutspassed[i]->Fill(13);
     if((PRDMatch[0]&&PRDMatch[1]&&PRDMatch[2])&&
        (PRDMatch[3]&&PRDMatch[4])&&
        (PRDMatch[5]&&PRDMatch[6])&&
-       (PRDMatch[7]&&PRDMatch[8]))mvt_cutspassed[i]->Fill(14);
+       (PRDMatch[7]&&PRDMatch[8]))m_mvt_cutspassed[i]->Fill(14);
     
     
   }// AC
