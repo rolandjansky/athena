@@ -25,13 +25,13 @@
 ClassImp(dqi::HanApp)
 ///\endcond
 
-namespace {
-
-void dummyMethod()
+void HanApp_dummyMethod()
 {
   TCanvas* dummyCanvas = new TCanvas("dummyCanvas","dummyCanvas", 450, 450 );
   dummyCanvas->cd();
 }
+
+namespace {
 
   void RecursivelyDeleteCollection(TCollection* seq) {
     TIter it(seq);
@@ -85,7 +85,7 @@ Analyze( std::string configName_, std::string inputName_, std::string outputName
   outputName = outputName_;
   
   //dqm_core::InputRootFile	input( inputName_ );
-  HanInputRootFile input( inputName_, path_ );				// HanInputRootFile iherits from dqm_core::InputRootFile
+  HanInputRootFile input( inputName_, path_ );				// HanInputRootFile inherits from dqm_core::InputRootFile
   HanOutput output( outputName_, outputMap, outputList );
   output.setInput(const_cast<TDirectory*>(input.getBasedir()));
   
