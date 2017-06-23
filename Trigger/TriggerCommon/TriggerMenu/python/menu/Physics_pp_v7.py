@@ -2537,6 +2537,8 @@ def setupMenu():
         ## LFV topo based nscan (ATR-14352)
         ['mu11_2mu4noL1_bTau_L1LFV-MU',    'L1_LFV-MU', ['L1_MU10','L2_mu11'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu11','2mu4noL1']]],      
 
+
+        
         ['mu6_2mu4_bTau_L1MU6_3MU4' , 'L1_MU6_3MU4',  ['L1_MU6','L1_2MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
         ['2mu6_mu4_bTau_L12MU6_3MU4', 'L1_2MU6_3MU4', ['L1_2MU6','L1_MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
         
@@ -2665,6 +2667,10 @@ def setupMenu():
         ['mu11_mu6_bDimu_noinvm_novtx_ss', 'L1_MU11_2MU6', ['L1_MU11','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
         ['mu11_mu6_bDimu_novtx_noos',      'L1_MU11_2MU6', ['L1_MU11','L1_MU6'], [BPhysicsStream, 'express'], [RATE_BphysTag,BW_BphysTag], -1],
 
+        # ATR-16314
+        ['mu11_mu6_bTau',                  'L1_MU11_2MU6', ['L1_MU11','L1_MU6'], [BPhysicsStream, 'express'], [RATE_BphysTag,BW_BphysTag], -1],
+
+        
         # support triggers ATR-15851
         ['mu11_mu6_bNocut',                 'L1_MU11_2MU6', ['L1_MU11','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
         ['mu11_mu6noL1_bNocut_L1MU11_2MU6',  'L1_MU11_2MU6', ['L1_MU11','L2_mu6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu11','mu6noL1']]],
