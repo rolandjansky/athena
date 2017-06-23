@@ -31,7 +31,7 @@ theApp.EvtMax = 20
 # Set up the algorithm.
 #--------------------------------------------------------------
 
-bswrite = ['DMTest::CVec#cvec.-dVar2',
+bswrite = ['DMTest::CVec#cvec.-dVar2.-dtest',
            'DMTest::CView#cview',
            'DMTest::HVec#hvec',
            'DMTest::HView#hview',
