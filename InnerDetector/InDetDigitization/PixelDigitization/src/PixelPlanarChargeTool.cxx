@@ -97,13 +97,13 @@ StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharg
   const CLHEP::Hep3Vector startPosition=phit->localStartPosition();
   const CLHEP::Hep3Vector endPosition=phit->localEndPosition();
 
-  double eta_0=startPosition[SiHit::pos];
-  double phi_0=startPosition[SiHit::pos];
-  const double depth_0=startPosition[SiHit::pos];
+  double eta_0=startPosition[SiHit::xEta];
+  double phi_0=startPosition[SiHit::xPhi];
+  const double depth_0=startPosition[SiHit::xDep];
   
-  double eta_f = endPosition[SiHit::cs];
-  double phi_f = endPosition[SiHit::cs];
-  const double depth_f = endPosition[SiHit::cs];
+  double eta_f = endPosition[SiHit::xEta];
+  double phi_f = endPosition[SiHit::xPhi];
+  const double depth_f = endPosition[SiHit::xDep];
 
   if (!m_disableDistortions && !delta_hit) simulateBow(&Module,phi_0,eta_0,depth_0,phi_f,eta_f,depth_f);
   

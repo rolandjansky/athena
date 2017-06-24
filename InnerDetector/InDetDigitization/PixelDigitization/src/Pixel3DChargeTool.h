@@ -33,6 +33,8 @@ class Pixel3DChargeTool : public SubChargesTool {
     bool   m_doPU;                                       // whether we do Bichsel model for PU
     ToolHandle<BichselSimTool> m_BichselSimTool;         // if yes, you need to load related tool here
     ServiceHandle<IChargeCollProbSvc> m_chargeCollSvc;
+    
+    void simulateBow(const InDetDD::SiDetectorElement * element,double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const;
 };
 
 #endif // PIXELDIGITIZATION_Pixel3DChargeTool_H

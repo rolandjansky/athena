@@ -115,20 +115,23 @@ StatusCode Pixel3DChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiChargedDi
   // determine which readout is used
   // FEI4 : 50 X 250 microns
   double pixel_size_x = Module.width()/p_design->rows();
-  double pixel_size_y = Module.pathLength()/p_design->columns();
+  double pixel_size_y = Module.length()/p_design->columns();
   double module_size_x = Module.width();
-  double module_size_y = Module.pathLength();
+  double module_size_y = Module.length();
   
   const CLHEP::Hep3Vector startPosition=phit->localStartPosition();
   const CLHEP::Hep3Vector endPosition=phit->localEndPosition();
   
-  double eta_0=startPosition[SiHit::pos];
-  double phi_0=startPosition[SiHit::pos];
-  const double depth_0=startPosition[SiHit::pos];
+  double eta_0=startPosition[SiHit::xEta];
+  double phi_0=startPosition[SiHit::xPhi];
+  const double depth_0=startPosition[SiHit::xDep];
   
-  double eta_f = endPosition[SiHit::cs];
-  double phi_f = endPosition[SiHit::cs];
-  const double depth_f = endPosition[SiHit::cs];
+  double eta_f = endPosition[SiHit::xEta];
+  double phi_f = endPosition[SiHit::xPhi];
+  const double depth_f = endPosition[SiHit::xDep];
+  
+  //Added 
+  if (!m_disableDistortions && !delta_hit) simulateBow(&Module,phi_0,eta_0,depth_0,phi_f,eta_f,depth_f);
   
   double dEta=eta_f-eta_0;
   double dPhi=phi_f-phi_0;
@@ -331,3 +334,27 @@ StatusCode Pixel3DChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiChargedDi
   return StatusCode::SUCCESS;
 }
 
+void Pixel3DChargeTool::simulateBow(const InDetDD::SiDetectorElement * element, double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const {
+
+  // The corrections are assumed to be in the reconstruction local frame, so
+  // we must convertfrom the hit local frame to the  reconstruction local frame.
+  // In fact the frames are the same for the pixel barrel so these gymnastics are not
+  // really needed but its safer to do it properly.
+
+  // If tool is NONE we apply no correction.
+  if (m_pixDistoTool.empty()) return;
+  Amg::Vector3D dir(element->hitPhiDirection()*(xf-xi), element->hitEtaDirection()*(yf-yi), element->hitDepthDirection()*(zf-zi));
+
+  Amg::Vector2D locposi = element->hitLocalToLocal(yi, xi);
+  Amg::Vector2D locposf = element->hitLocalToLocal(yf, xf);
+
+  Amg::Vector2D newLocposi = m_pixDistoTool->correctSimulation(element->identify(), locposi, dir);
+  Amg::Vector2D newLocposf = m_pixDistoTool->correctSimulation(element->identify(), locposf, dir);
+
+  // Extract new coordinates and convert back to hit frame.
+  xi = newLocposi[Trk::x] * element->hitPhiDirection();
+  yi = newLocposi[Trk::y] * element->hitEtaDirection();
+
+  xf = newLocposf[Trk::x] * element->hitPhiDirection();
+  yf = newLocposf[Trk::y] * element->hitEtaDirection();
+}
