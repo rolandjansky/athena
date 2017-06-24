@@ -27,14 +27,14 @@ class TrigAFPJetAllTEOnlineMonitoring(TrigGenericMonitoringToolConfig):
         super(TrigAFPJetAllTEOnlineMonitoring, self).__init__(name)
         self.defineTarget("Online")
 
-#        self.Histograms =  [ defineHistogram('NJets',       type='TH1F', title="NJets No cut", xbins=10, xmin=0, xmax=10) ]
+        self.Histograms =  [ defineHistogram('NJets',       type='TH1F', title="NJets No cut", xbins=10, xmin=0, xmax=10) ]
 #        self.Histograms +=  [ defineHistogram('Yjj',       type='TH1F', title="Dijet Rapidity No cut", xbins=20, xmin=-5, xmax=5) ]
 #        self.Histograms +=  [ defineHistogram('Mjj',       type='TH1F', title="Dijet Mass No cut", xbins=50, xmin=0, xmax=1000) ]
 #        self.Histograms +=  [ defineHistogram('Etajj',       type='TH1F', title="Dijet Eta No cut", xbins=20, xmin=-5, xmax=5) ]
 #        self.Histograms +=  [ defineHistogram('Diff_pos_A',      type='TH1F', title="Diff position A side No cut", xbins=60, xmin=0, xmax=60) ]
 #        self.Histograms +=  [ defineHistogram('Diff_pos_C',      type='TH1F', title="Diff position C side No cut", xbins=60, xmin=0, xmax=60) ]
-#        self.Histograms +=  [ defineHistogram('N_trk_C',      type='TH1F', title="N tracks C side No cut", xbins=10, xmin=0, xmax=10) ]
-#        self.Histograms +=  [ defineHistogram('N_trk_A',      type='TH1F', title="N tracks A side No cut", xbins=10, xmin=0, xmax=10) ]
+        self.Histograms +=  [ defineHistogram('N_trk_C',      type='TH1F', title="N tracks C side No cut", xbins=10, xmin=0, xmax=10) ]
+        self.Histograms +=  [ defineHistogram('N_trk_A',      type='TH1F', title="N tracks A side No cut", xbins=10, xmin=0, xmax=10) ]
 #        self.Histograms +=  [ defineHistogram('Diff_y_C',      type='TH1F', title="Diff y C side No cut", xbins=48, xmin=-5, xmax=5) ]
 #        self.Histograms +=  [ defineHistogram('Diff_y_A',      type='TH1F', title="Diff y A side No cut", xbins=48, xmin=-5, xmax=5) ]
 #        self.Histograms +=  [ defineHistogram('Diff_x_C',      type='TH1F', title="Diff x C side No cut", xbins=48, xmin=-10, xmax=10) ]
