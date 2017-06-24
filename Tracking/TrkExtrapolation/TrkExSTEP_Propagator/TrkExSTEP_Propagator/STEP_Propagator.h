@@ -134,6 +134,9 @@ namespace Trk {
     // Public methods:
     /////////////////////////////////////////////////////////////////////////////////
   public:
+    using IPropagator::propagate;
+    using IPropagator::propagateT;
+
     STEP_Propagator(const std::string&,const std::string&,const IInterface*);
 
 
