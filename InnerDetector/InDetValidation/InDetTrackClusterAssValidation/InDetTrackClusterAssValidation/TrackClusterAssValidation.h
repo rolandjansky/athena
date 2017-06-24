@@ -121,13 +121,18 @@ namespace InDet {
       bool                               m_useSCT                 ;
       bool                               m_useTRT                 ;
       bool                               m_useOutliers            ;
-      bool                               m_usebarcode             ;
       int                                m_pdg                    ;
       int                                m_outputlevel            ;
       int                                m_nprint                 ;
       int                                m_ncolection             ; 
       int                                m_nspacepoints           ;
       int                                m_nclusters              ;
+      int                                m_nevents                ;
+      int                                m_nclustersPTOT          ;
+      int                                m_nclustersSTOT          ;
+      int                                m_nspacepointsPTOT       ;
+      int                                m_nspacepointsSTOT       ;
+      int                                m_nspacepointsOTOT       ;
       int                                m_nclustersTRT           ;
       int                                m_nqtracks               ;
       int                                m_efficiency   [100][6]  ;
@@ -155,12 +160,10 @@ namespace InDet {
       int                                m_nclustersPosBS         ;
       int                                m_nclustersPosEP         ;
       int                                m_nclustersPosES         ;
-      int                                m_nclustersPosDBM;
       int                                m_nclustersNegBP         ;
       int                                m_nclustersNegBS         ;
       int                                m_nclustersNegEP         ;
       int                                m_nclustersNegES         ;
-      int                                m_nclustersNegDBM;
       unsigned int                       m_clcut                  ;
       unsigned int                       m_clcutTRT               ;
       unsigned int                       m_spcut                  ;
@@ -170,28 +173,30 @@ namespace InDet {
       double                             m_tcut                   ;
       double                             m_rmin                   ;
       double                             m_rmax                   ;
+
+      double                             m_rapTRAN                ;
+      double                             m_rapENDS                ;
+      double                             m_rapENDP                ;
+   
       std::vector<std::string>           m_tracklocation          ; 
-      std::string                        m_spacepointsSCTname     ;
-      std::string                        m_spacepointsPixelname   ;
-      std::string                        m_spacepointsOverlapname ; 
       std::string                        m_clustersSCTname        ;
       std::string                        m_clustersPixelname      ;
       std::string                        m_clustersTRTname        ;
       std::string                        m_truth_locationPixel    ;
       std::string                        m_truth_locationSCT      ;
       std::string                        m_truth_locationTRT      ;
-      const SpacePointContainer        * m_spacepointsSCT         ;
-      const SpacePointContainer        * m_spacepointsPixel       ;
-      const SpacePointOverlapCollection* m_spacepointsOverlap     ;
+
+      SG::ReadHandle<SpacePointContainer>         m_spacepointsSCT    ;
+      SG::ReadHandle<SpacePointContainer>         m_spacepointsPixel  ;
+      SG::ReadHandle<SpacePointOverlapCollection> m_spacepointsOverlap;
+
       const SiClusterContainer         * m_pixcontainer           ;
       const SiClusterContainer         * m_sctcontainer           ;
       const TRT_DriftCircleContainer   * m_trtcontainer           ;
+
       const PRD_MultiTruthCollection   * m_truthPIX               ;
       const PRD_MultiTruthCollection   * m_truthSCT               ;
       const PRD_MultiTruthCollection   * m_truthTRT               ;
-      std::multimap<int,const Trk::PrepRawData*> m_kinecluster    ;
-      std::multimap<int,const Trk::PrepRawData*> m_kineclusterTRT ;
-      std::multimap<int,const Trk::SpacePoint*>  m_kinespacepoint ;
 
       std::multimap<const HepMC::GenParticle*,const Trk::PrepRawData*> m_kineclusterN    ;
       std::multimap<const HepMC::GenParticle*,const Trk::PrepRawData*> m_kineclusterTRTN ;
@@ -212,29 +217,15 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
 
       void newSpacePointsEvent     ();
-      void newSpacePointsEventN    ();
       void newClustersEvent        ();
-      void newClustersEventN       ();
       void tracksComparison        ();
-      void tracksComparisonN       ();
       void efficiencyReconstruction();
-      void efficiencyReconstructionN();
       bool noReconstructedParticles();
-      bool noReconstructedParticlesN();
-      int  QualityTracksSelection();
-      int  QualityTracksSelectionN();
-
-      int kine(const Trk::PrepRawData*,const Trk::PrepRawData*,int*,int);
-      int kine (const Trk::PrepRawData*,int*,int);	
-      int kine0(const Trk::PrepRawData*,int*,int);
+      int  QualityTracksSelection  ();
 
       int kine (const Trk::PrepRawData*,const Trk::PrepRawData*,const HepMC::GenParticle**,int);
       int kine (const Trk::PrepRawData*,const HepMC::GenParticle**,int);
       int kine0(const Trk::PrepRawData*,const HepMC::GenParticle**,int);
-     
-      bool isTheSameDetElement(int,const Trk::PrepRawData*);
-      bool isTheSameDetElement(int,const Trk::SpacePoint* );
-
       bool isTheSameDetElement(const HepMC::GenParticle*,const Trk::PrepRawData*);
       bool isTheSameDetElement(const HepMC::GenParticle*,const Trk::SpacePoint* );
 
