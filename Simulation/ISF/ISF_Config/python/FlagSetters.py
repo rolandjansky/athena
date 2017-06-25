@@ -163,6 +163,13 @@ def configureFlagsG4HS_FastPileup():
     from ISF_Config.ISF_jobProperties import ISF_Flags
     ISF_Flags.UsingGeant4 = True
     return
+  
+def configureFlagsATLFASTIIHS_FastPileup():
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "ATLFASTIIHS_FastPileup"
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    ISF_Flags.UsingGeant4 = True
+    return
 
 def configureFlagsATLFASTIIF_IDOnly():
     configureFlagsATLFASTIIF()
