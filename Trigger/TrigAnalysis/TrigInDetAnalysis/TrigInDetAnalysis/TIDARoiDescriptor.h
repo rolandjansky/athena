@@ -70,7 +70,7 @@ public:
    * @param zed zed of RoI
    * and limits fir each
    */
-  TIDARoiDescriptor(unsigned l1id, int id, 
+  TIDARoiDescriptor(unsigned long long l1id, int id, 
 		    double eta,  double etaMinus,   double etaPlus,
 		    double phi,  double phiMinus,   double phiPlus,
 		    double zed,  double zedMinus,   double zedPlus );
@@ -85,7 +85,7 @@ public:
    * @param zed zed of RoI
    * and limits fir each
    */
-  TIDARoiDescriptor(unsigned roiWord, unsigned l1id, int id, 
+  TIDARoiDescriptor(unsigned roiWord, unsigned long long l1id, int id, 
 		    double eta,  double etaMinus,   double etaPlus,
 		    double phi,  double phiMinus,   double phiPlus,
 		    double zed,  double zedMinus,   double zedPlus );
@@ -106,7 +106,7 @@ public:
   //  void zed(const double zed) { m_zed = zed; } //!< set eta of RoI
 
   void set_roiId(const unsigned int id) { m_roiId=id; }     //!< set roiId
-  void set_l1Id(const unsigned int l1id) { m_l1Id=l1id; }             //!< set event number
+  void set_l1Id(const unsigned long long l1id) { m_l1Id=l1id; }       //!< set event number
   void set_roiWord(const unsigned int roiWord) { m_roiWord=roiWord; } //!< sets RoI word
 
   //  void phiHalfWidth(double x) { m_phiHalfWidth=x; }       //!< sets phi half-width
@@ -137,7 +137,7 @@ public:
 
 
   unsigned roiId()   const { return m_roiId; }
-  unsigned l1Id()    const { return m_l1Id; }
+  unsigned long long l1Id()  const { return m_l1Id; }
   unsigned roiWord() const { return m_roiWord; }
 
   int      version() const { return 4; }  
@@ -247,7 +247,7 @@ protected:
 
   bool         m_fullscan;
 
-  unsigned int m_l1Id;          //< lvl1 event number
+  unsigned long long m_l1Id;    //< lvl1 event number
   unsigned int m_roiId;         //< RoI number
   unsigned int m_roiWord;       //< lvl1 RoI word from which this RoI was initially constructed
 
@@ -256,7 +256,7 @@ protected:
   bool    m_cached;  //! cache flag   - these should be mutable
   double  m_dphi;    //! cached value -  
 
-  ClassDef( TIDARoiDescriptor, 2 ) 
+  ClassDef( TIDARoiDescriptor, 3 ) 
 
 }; 
 
