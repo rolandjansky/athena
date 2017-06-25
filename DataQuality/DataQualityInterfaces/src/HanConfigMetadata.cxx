@@ -15,20 +15,20 @@ namespace dqi {
 HanConfigMetadata::
 HanConfigMetadata()
 {
-  metadata = newTList("metadata");
+  m_metadata = newTList("metadata");
 }
 
 HanConfigMetadata::
 HanConfigMetadata( const HanConfigMetadata& other )
   :TObject(other),
-   name(other.name)
+   m_name(other.m_name)
 {
-  metadata = newTObjArray("metadata", 0, other.metadata->GetEntries());
-  TIter nextParMap( other.metadata );
+  m_metadata = newTObjArray("metadata", 0, other.m_metadata->GetEntries());
+  TIter nextParMap( other.m_metadata );
   HanConfigParMap* otherParMap;
   while( (otherParMap = dynamic_cast<HanConfigParMap*>( nextParMap() )) != 0 ) {
     HanConfigParMap* parMap = new HanConfigParMap( *otherParMap );
-    metadata->Add( parMap );
+    m_metadata->Add( parMap );
   }
 }
 
@@ -37,14 +37,14 @@ HanConfigMetadata::operator=( const HanConfigMetadata& other )
 {
   if (this == &other) return *this;
 
-  name = other.name;
-  metadata->Delete(); delete metadata;
-  metadata = newTObjArray("metadata", 0, other.metadata->GetEntries());
-  TIter nextParMap( other.metadata );
+  m_name = other.m_name;
+  m_metadata->Delete(); delete m_metadata;
+  m_metadata = newTObjArray("metadata", 0, other.m_metadata->GetEntries());
+  TIter nextParMap( other.m_metadata );
   HanConfigParMap* otherParMap;
   while( (otherParMap = dynamic_cast<HanConfigParMap*>( nextParMap() )) != 0 ) {
     HanConfigParMap* parMap = new HanConfigParMap( *otherParMap );
-    metadata->Add( parMap );
+    m_metadata->Add( parMap );
   }
 
   return *this;
@@ -52,22 +52,22 @@ HanConfigMetadata::operator=( const HanConfigMetadata& other )
 
 HanConfigMetadata::
 ~HanConfigMetadata(){
-  metadata->Delete();
-  delete metadata;
+  m_metadata->Delete();
+  delete m_metadata;
 }
 
 void 
 HanConfigMetadata::
 SetName( std::string name_ )
 {
-  name.SetString(name_.c_str());
+  m_name.SetString(name_.c_str());
 }
 
 const char* 
 HanConfigMetadata::
 GetName() const
 {
-  return name.GetName();
+  return m_name.GetName();
 }
 
 void 
@@ -75,14 +75,14 @@ HanConfigMetadata::
 AddKeyVal( const HanConfigParMap& keyval_ )
 {
   HanConfigParMap* parMap = new HanConfigParMap( keyval_ );
-  metadata->Add( parMap );
+  m_metadata->Add( parMap );
 }
 
 HanConfigParMap
 HanConfigMetadata::
 GetKeyVal( std::string name_ ) const
 {
-  HanConfigParMap* parMap = dynamic_cast<HanConfigParMap*>( metadata->FindObject(name_.c_str()) );
+  HanConfigParMap* parMap = dynamic_cast<HanConfigParMap*>( m_metadata->FindObject(name_.c_str()) );
   if( parMap == 0 ) {
     return HanConfigParMap();
   }
@@ -95,7 +95,7 @@ TIter
 HanConfigMetadata::
 GetAllKeyVals() const
 {
-  return TIter( metadata );
+  return TIter( m_metadata );
 }
 
 TSeqCollection *
@@ -104,7 +104,7 @@ GetList( const TDirectory* /* basedir */, std::map<std::string,TSeqCollection*>&
 {
   TSeqCollection* mdList = newTList(GetName());
   mp[mdList->GetName()] = mdList;
-  TIter mdIter(metadata);
+  TIter mdIter(m_metadata);
   HanConfigParMap* parMap(0);
   while ((parMap = dynamic_cast<HanConfigParMap*>(mdIter()))) {
     mdList->Add(parMap->GetList());
@@ -119,8 +119,8 @@ PrintIOStream( std::ostream& o ) const
 {
   o << "\nHanConfigMetadata: " << this->GetName() << "\n";
 
-  if (!( metadata->IsEmpty())) {
-    TIter nextParMap(metadata);
+  if (!( m_metadata->IsEmpty())) {
+    TIter nextParMap(m_metadata);
     HanConfigParMap* parMap;
     while( (parMap = dynamic_cast<HanConfigParMap*>( nextParMap() )) != 0 ) {
       o << "    " << parMap;
