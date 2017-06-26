@@ -271,6 +271,16 @@ std::vector<float> BDT::GetMultiResponse(const std::vector<float*>& pointers,
   return v_out;
 }
 
+std::vector<float> BDT::GetMultiResponse(unsigned int numClasses) const {
+  if (m_pointers.size())
+    return GetMultiResponse(m_pointers, numClasses);
+  else {
+    std::vector<float> err;
+    for (unsigned int i=0; i<numClasses; i++) err.push_back(-9999.);
+    return err;
+  }
+}
+
 /** Return the response of the response of each at index "index"  **/
 float BDT::GetTreeResponse(const std::vector<float>& values, Node::index_t index) const
 {
