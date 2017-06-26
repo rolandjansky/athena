@@ -35,7 +35,6 @@ namespace CP {
     typedef std::set<const xAOD::TrackParticle*> TrackCollection;
     typedef std::set<const xAOD::CaloCluster*> ClusterCollection;
 
-
     typedef std::unique_ptr<CharAccessor> SelectionAccessor;
     typedef std::unique_ptr<CharDecorator> SelectionDecorator;
 
@@ -52,14 +51,14 @@ namespace CP {
 
             virtual StatusCode initialize();
 
-            virtual const CP::CorrectionCode getCloseByCorrection(std::vector<float>& corrections, const xAOD::IParticle& par, const std::vector<xAOD::Iso::IsolationType>& types, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const;
-            virtual const CP::CorrectionCode getCloseByCorrection(std::vector<float>& corrections, const xAOD::IParticle& par, const std::vector<xAOD::Iso::IsolationType>& types, const xAOD::IParticleContainer& closePar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const;
+            virtual CorrectionCode getCloseByCorrection(std::vector<float>& corrections, const xAOD::IParticle& par, const std::vector<xAOD::Iso::IsolationType>& types, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const;
+            virtual CorrectionCode getCloseByCorrection(std::vector<float>& corrections, const xAOD::IParticle& par, const std::vector<xAOD::Iso::IsolationType>& types, const xAOD::IParticleContainer& closePar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const;
 
-            virtual const Root::TAccept& acceptCorrected(const xAOD::IParticle& x, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const;
-            virtual const Root::TAccept& acceptCorrected(const xAOD::IParticle& x, const xAOD::IParticleContainer& closePar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const;
+            virtual Root::TAccept acceptCorrected(const xAOD::IParticle& x, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const;
+            virtual Root::TAccept acceptCorrected(const xAOD::IParticle& x, const xAOD::IParticleContainer& closePar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const;
 
-            virtual CP::CorrectionCode getCloseByIsoCorrection(xAOD::ElectronContainer* Electrons = nullptr, xAOD::MuonContainer* Muons = nullptr, xAOD::PhotonContainer* Photons = nullptr, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const;
-            virtual CP::CorrectionCode subtractCloseByContribution(xAOD::IParticle& x, const xAOD::IParticleContainer& closebyPar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters ) const;
+            virtual CorrectionCode getCloseByIsoCorrection(xAOD::ElectronContainer* Electrons = nullptr, xAOD::MuonContainer* Muons = nullptr, xAOD::PhotonContainer* Photons = nullptr, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const;
+            virtual CorrectionCode subtractCloseByContribution(xAOD::IParticle& x, const xAOD::IParticleContainer& closebyPar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const;
 
             virtual float GetOriginalIsolation(const xAOD::IParticle& P, IsoType type) const;
             virtual float GetOriginalIsolation(const xAOD::IParticle* P, IsoType type) const;
@@ -71,15 +70,15 @@ namespace CP {
             template<typename T> bool IsElementInList(const std::vector<T> &List, const T& Element) const;
             template<typename T> bool IsElementInList(const std::set<T> &List, const T& Element) const;
 
-            CP::CorrectionCode performCloseByCorrection(xAOD::IParticleContainer* Particles, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters) const;
-            CP::CorrectionCode performCloseByCaloCorrection(xAOD::IParticleContainer* Cont1, xAOD::IParticleContainer* Cont2) const;
+            CorrectionCode performCloseByCorrection(xAOD::IParticleContainer* Particles, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters) const;
+            CorrectionCode performCloseByCaloCorrection(xAOD::IParticleContainer* Cont1, xAOD::IParticleContainer* Cont2) const;
 
             const IsoVector* getIsolationTypes(const xAOD::IParticle* P) const;
             //Functions to  perfrom  the isolation correction  directly
-            CP::CorrectionCode subtractCloseByContribution(xAOD::IParticle* P, const IsoVector& types, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters) const;
-            CP::CorrectionCode getCloseByCorrectionTrackIso(float& correction, const xAOD::IParticle* par, IsoType type, const TrackCollection& tracks) const;
-            CP::CorrectionCode getCloseByCorrectionTopoIso(float& correction, const xAOD::IParticle* par, IsoType type, const ClusterCollection& clusters) const;
-            CP::CorrectionCode getCloseByCaloCorrection(float& correction, const xAOD::IParticle* par, const xAOD::IParticleContainer* CloseByPars, IsoType type, int Model) const;
+            CorrectionCode subtractCloseByContribution(xAOD::IParticle* P, const IsoVector& types, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters) const;
+            CorrectionCode getCloseByCorrectionTrackIso(float& correction, const xAOD::IParticle* par, IsoType type, const TrackCollection& tracks) const;
+            CorrectionCode getCloseByCorrectionTopoIso(float& correction, const xAOD::IParticle* par, IsoType type, const ClusterCollection& clusters) const;
+            CorrectionCode getCloseByCaloCorrection(float& correction, const xAOD::IParticle* par, const xAOD::IParticleContainer* CloseByPars, IsoType type, int Model) const;
 
             //Retrieve the primary vertex
             const xAOD::Vertex* retrieveIDBestPrimaryVertex() const;
@@ -123,7 +122,6 @@ namespace CP {
 
             std::string particleName(const xAOD::IParticle* C) const;
 
-
             ToolHandle<CP::IIsolationSelectionTool> m_selectorTool;
 
             float m_coreCone; //The core of the topoEt variables. Clusters within the core shall not be
@@ -137,9 +135,8 @@ namespace CP {
                                      // Only considered if the particle to correct is not an Egamma object. Since the reference
                                      // position is extrapolated from the ID-track into the calorimeter.
                                      // Aim of the game -> Find out whether it might contributed
-           float m_ConeSizeVariation; // Extend - shrink the cone size to account for extrapolation effects
+            float m_ConeSizeVariation; // Extend - shrink the cone size to account for extrapolation effects
 
-//            mutable Root::TAccept m_accept;
             bool m_isInitialised;
             bool m_isCoreSubtracted;
             std::string m_indetTrackParticleLocation;

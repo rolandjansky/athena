@@ -147,7 +147,7 @@ namespace CP {
         }
         return CorrectionCode::Ok;
     }
-    CP::CorrectionCode IsolationCloseByCorrectionTool::performCloseByCorrection(xAOD::IParticleContainer* Container, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters) const {
+    CorrectionCode IsolationCloseByCorrectionTool::performCloseByCorrection(xAOD::IParticleContainer* Container, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters) const {
         if (!m_isInitialised) {
             ATH_MSG_ERROR("The IsolationCloseByCorrectionTool was not initialised!!!");
             return CorrectionCode::Error;
@@ -173,14 +173,14 @@ namespace CP {
         else if (P->type() == xAOD::Type::ObjectType::Photon) return &m_photon_isoTypes;
         return nullptr;
     }
-    CP::CorrectionCode IsolationCloseByCorrectionTool::performCloseByCaloCorrection(xAOD::IParticleContainer* Cont1, xAOD::IParticleContainer* Cont2) const {
+    CorrectionCode IsolationCloseByCorrectionTool::performCloseByCaloCorrection(xAOD::IParticleContainer* Cont1, xAOD::IParticleContainer* Cont2) const {
         if (!Cont1 || !Cont2) {
             ATH_MSG_DEBUG("One of the containers is empty");
             return CorrectionCode::Ok;
         }
         return CorrectionCode::Ok;
     }
-    CP::CorrectionCode IsolationCloseByCorrectionTool::subtractCloseByContribution(xAOD::IParticle& x, const xAOD::IParticleContainer& closebyPar, int topoetconeModel) const {
+    CorrectionCode IsolationCloseByCorrectionTool::subtractCloseByContribution(xAOD::IParticle& x, const xAOD::IParticleContainer& closebyPar, int topoetconeModel) const {
         TrackCollection Tracks;
         ClusterCollection Clusters;
         const xAOD::Vertex* Vtx = retrieveIDBestPrimaryVertex();
@@ -195,7 +195,7 @@ namespace CP {
         return CorrectionCode::Ok;
     }
 
-    CP::CorrectionCode IsolationCloseByCorrectionTool::subtractCloseByContribution(xAOD::IParticle* par, const IsoVector& types, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters) const {
+    CorrectionCode IsolationCloseByCorrectionTool::subtractCloseByContribution(xAOD::IParticle* par, const IsoVector& types, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters) const {
         for (const auto t : types) {
             float Cone = 0.;
 
@@ -214,7 +214,7 @@ namespace CP {
         }
         return CorrectionCode::Ok;
     }
-    const CP::CorrectionCode IsolationCloseByCorrectionTool::getCloseByCorrection(std::vector<float>& corrections, const xAOD::IParticle& par, const std::vector<xAOD::Iso::IsolationType>& types, const xAOD::IParticleContainer& closePar, int topoetconeModel) const {
+    CorrectionCode IsolationCloseByCorrectionTool::getCloseByCorrection(std::vector<float>& corrections, const xAOD::IParticle& par, const std::vector<xAOD::Iso::IsolationType>& types, const xAOD::IParticleContainer& closePar, int topoetconeModel) const {
         if (!m_isInitialised) {
             ATH_MSG_WARNING("The IsolationCloseByCorrectionTool was not initialised!!!");
         }
@@ -240,16 +240,16 @@ namespace CP {
             }
             ++Cone;
         }
-        return CP::CorrectionCode::Ok;
+        return CorrectionCode::Ok;
     }
-    const CP::CorrectionCode IsolationCloseByCorrectionTool::getCloseByCorrection(std::vector<float>& corrections, const xAOD::IParticle& par, const std::vector<xAOD::Iso::IsolationType>& types, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel) const {
+    CorrectionCode IsolationCloseByCorrectionTool::getCloseByCorrection(std::vector<float>& corrections, const xAOD::IParticle& par, const std::vector<xAOD::Iso::IsolationType>& types, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel) const {
         xAOD::IParticleContainer Container(SG::VIEW_ELEMENTS);
         for (auto&P : closePar)
             Container.push_back(const_cast<xAOD::IParticle*>(P));
         return getCloseByCorrection(corrections, par, types, Container, topoetconeModel);
 
     }
-    CP::CorrectionCode IsolationCloseByCorrectionTool::getCloseByCaloCorrection(float& correction, const xAOD::IParticle* par, const xAOD::IParticleContainer* CloseByPars, IsoType type, int Model) const {
+    CorrectionCode IsolationCloseByCorrectionTool::getCloseByCaloCorrection(float& correction, const xAOD::IParticle* par, const xAOD::IParticleContainer* CloseByPars, IsoType type, int Model) const {
         if (!CloseByPars) {
             ATH_MSG_DEBUG("No container given for getCloseByCaloCorrection");
             return CorrectionCode::Ok;
@@ -258,14 +258,14 @@ namespace CP {
             ATH_MSG_WARNING("The IsolationCloseByCorrectionTool was not initialised!!!");
         } else if (!IsTopoEtIso(type)) {
             ATH_MSG_ERROR("Invalid isolation type");
-            return CP::CorrectionCode::Error;
+            return CorrectionCode::Error;
         }
         IsoHelperMap::const_iterator Itr = m_isohelpers.find(type);
         if (Itr == m_isohelpers.end() || Itr->second->BackupIsolation(par) == CorrectionCode::Error || Itr->second->GetOrignalIsolation(par, correction) == CorrectionCode::Error) {
             ATH_MSG_WARNING("Could not retrieve the isolation variable " << xAOD::Iso::toString(type));
-            return CP::CorrectionCode::Error;
+            return CorrectionCode::Error;
         }
-        //else if (correction <= 0.0) return CP::CorrectionCode::Ok;
+        //else if (correction <= 0.0) return CorrectionCode::Ok;
         float cone = ConeSize(par, type);
         for (const auto closeBy : *CloseByPars) {
             if (ConsiderForCorrection(closeBy)) correction -= CaloCorrectionFromDecorator(par, closeBy, cone, Model);
@@ -347,12 +347,12 @@ namespace CP {
         if (m_acc_passOR && (!m_acc_passOR->isAvailable(*P) || !m_acc_passOR->operator()(*P))) return false;
         return true;
     }
-    CP::CorrectionCode IsolationCloseByCorrectionTool::getCloseByCorrectionTrackIso(float& correction, const xAOD::IParticle* par, IsoType type, const TrackCollection& tracks) const {
+    CorrectionCode IsolationCloseByCorrectionTool::getCloseByCorrectionTrackIso(float& correction, const xAOD::IParticle* par, IsoType type, const TrackCollection& tracks) const {
         if (!m_isInitialised) {
             ATH_MSG_WARNING("The IsolationCloseByCorrectionTool was not initialised!!!");
         } else if (!IsTrackIso(type)) {
             ATH_MSG_ERROR("Invalid isolation type " << xAOD::Iso::toString(type));
-            return CP::CorrectionCode::Error;
+            return CorrectionCode::Error;
         }
         IsoHelperMap::const_iterator Itr = m_isohelpers.find(type);
         if (Itr == m_isohelpers.end()) {
@@ -362,8 +362,8 @@ namespace CP {
 
         if (Itr == m_isohelpers.end() || Itr->second->BackupIsolation(par) == CorrectionCode::Error || Itr->second->GetOrignalIsolation(par, correction) == CorrectionCode::Error) {
             ATH_MSG_WARNING("Could not retrieve the isolation variable " << xAOD::Iso::toString(type));
-            return CP::CorrectionCode::Error;
-        } else if (tracks.empty()) return CP::CorrectionCode::Ok;
+            return CorrectionCode::Error;
+        } else if (tracks.empty()) return CorrectionCode::Ok;
 
         double MaxDR = ConeSize(par, type);
         TrackCollection ToExclude = GetAssociatedTracks(par);
@@ -379,31 +379,30 @@ namespace CP {
         }
         ATH_MSG_DEBUG(xAOD::Iso::toString(type) << " of " << particleName(par) << " with pt: " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " after correction: " << correction / 1.e3 << " GeV");
 
-        return CP::CorrectionCode::Ok;
+        return CorrectionCode::Ok;
     }
-    CP::CorrectionCode IsolationCloseByCorrectionTool::getCloseByCorrectionTopoIso(float& correction, const xAOD::IParticle* par, IsoType type, const ClusterCollection& clusters) const {
+    CorrectionCode IsolationCloseByCorrectionTool::getCloseByCorrectionTopoIso(float& correction, const xAOD::IParticle* par, IsoType type, const ClusterCollection& clusters) const {
         if (!m_isInitialised) {
             ATH_MSG_WARNING("The IsolationCloseByCorrectionTool was not initialised!!!");
         } else if (!IsTopoEtIso(type)) {
             ATH_MSG_ERROR("Invalid isolation type");
-            return CP::CorrectionCode::Error;
+            return CorrectionCode::Error;
         }
         IsoHelperMap::const_iterator Itr = m_isohelpers.find(type);
         if (Itr == m_isohelpers.end() || Itr->second->BackupIsolation(par) == CorrectionCode::Error || Itr->second->GetOrignalIsolation(par, correction) == CorrectionCode::Error) {
             ATH_MSG_WARNING("Could not retrieve the isolation variable.");
-            return CP::CorrectionCode::Error;
+            return CorrectionCode::Error;
         } else if (clusters.empty()) return CorrectionCode::Ok;
 
-        //else if (correction <= 0.0) return CP::CorrectionCode::Ok;
+        //else if (correction <= 0.0) return CorrectionCode::Ok;
 
         ATH_MSG_DEBUG(xAOD::Iso::toString(type) << " of " << particleName(par) << " with pt " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " before correction: " << correction / 1.e3 << " GeV");
-
-        double MaxDR = ConeSize(par, type) * (Ref->type() == xAOD::Type::ObjectType::CaloCluster ? 1. : m_ConeSizeVariation);
         const xAOD::IParticle* Ref = TopoEtIsoRefPart(par);
         if (!Ref) {
             ATH_MSG_ERROR("Could not find a reference particle for " << particleName(par) << " with pt " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi());
             return CorrectionCode::Error;
         }
+        double MaxDR = ConeSize(par, type) * (Ref->type() == xAOD::Type::ObjectType::CaloCluster ? 1. : m_ConeSizeVariation);
         for (auto& cluster : clusters) {
             ATH_MSG_DEBUG("Cluster with pt: " << cluster->pt() / 1.e3 << " GeV, eta: " << cluster->eta() << ", phi: " << cluster->phi() << " dR: " << sqrt(DeltaR2(cluster, par)));
             bool Subtract = false;
@@ -420,7 +419,7 @@ namespace CP {
             }
         }
         ATH_MSG_DEBUG(xAOD::Iso::toString(type) << " of " << particleName(par) << " with pt " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " after correction: " << correction / 1.e3 << " GeV");
-        return CP::CorrectionCode::Ok;
+        return CorrectionCode::Ok;
     }
     float IsolationCloseByCorrectionTool::CaloCorrectionFraction(const xAOD::IParticle* P, const xAOD::IParticle* P1, float coneSize, int Model) const {
         if (IsSame(P, P1)) return 0.;
@@ -494,34 +493,37 @@ namespace CP {
             }
         }
     }
-    const Root::TAccept& IsolationCloseByCorrectionTool::acceptCorrected(const xAOD::IParticle& x, const xAOD::IParticleContainer& closePar, int topoetconeModel) const {
-        if (m_selectorTool.empty()) {
-            ATH_MSG_ERROR("Please set the IsolationSelectionTool property with a valid IsolationSelectionTool");
-            m_accept.clear();
-            return m_accept;
-        }
-        if (!getIsolationTypes(&x)) {
-            ATH_MSG_WARNING("Could not cast particle for acceptCorrected. Will return false.");
-            m_accept.setCutResult("castCut", false);
-            return m_accept;
-        }
-
+    Root::TAccept IsolationCloseByCorrectionTool::acceptCorrected(const xAOD::IParticle& x, const xAOD::IParticleContainer& closePar, int topoetconeModel) const {
+        Root::TAccept accept;
         if (!m_isInitialised) {
             ATH_MSG_WARNING("The IsolationCloseByCorrectionTool was not initialised!!!");
         }
+        if (m_selectorTool.empty()) {
+            ATH_MSG_ERROR("Please set the IsolationSelectionTool property with a valid IsolationSelectionTool");
+            accept.clear();
+            if (m_dec_isoselection) m_dec_isoselection->operator()(x) = false;
+            return accept;
+        }
+        if (!getIsolationTypes(&x)) {
+            ATH_MSG_WARNING("Could not cast particle for acceptCorrected. Will return false.");
+            accept.setCutResult("castCut", false);
+            if (m_dec_isoselection) m_dec_isoselection->operator()(x) = false;
+            return accept;
+        }
+
         if (closePar.empty()) return m_selectorTool->accept(x);
 
-        m_accept.clear();
+        accept.clear();
         strObj strPar;
         strPar.isolationValues.resize(xAOD::Iso::numIsolationTypes);
         strPar.pt = x.pt();
         strPar.eta = x.eta();
         strPar.type = x.type();
         std::vector<float> corrections;
-        if (getCloseByCorrection(corrections, x, *getIsolationTypes(&x), closePar, topoetconeModel) == CP::CorrectionCode::Error) {
+        if (getCloseByCorrection(corrections, x, *getIsolationTypes(&x), closePar, topoetconeModel) == CorrectionCode::Error) {
             ATH_MSG_WARNING("Could not calculate the corrections. acceptCorrected(x) is done without the corrections.");
-            m_accept = m_selectorTool->accept(x);
-            return m_accept;
+            if (m_dec_isoselection) m_dec_isoselection->operator()(x) = m_selectorTool->accept(x);
+            return m_selectorTool->accept(x);
         }
         for (unsigned int i = 0; i < getIsolationTypes(&x)->size(); i++) {
             SG::AuxElement::Accessor<float> *acc = xAOD::getIsolationAccessor(getIsolationTypes(&x)->at(i));
@@ -529,12 +531,12 @@ namespace CP {
             ATH_MSG_DEBUG("Correcting " << xAOD::Iso::toString(getIsolationTypes(&x)->at(i)) << " from " << old << " to " << corrections.at(i));
             strPar.isolationValues[getIsolationTypes(&x)->at(i)] = corrections.at(i);
         }
-        m_accept = m_selectorTool->accept(strPar);
-        if (m_dec_isoselection) m_dec_isoselection->operator()(x) = m_accept;
-        return m_accept;
+        accept = m_selectorTool->accept(strPar);
+        if (m_dec_isoselection) m_dec_isoselection->operator()(x) = accept;
+        return accept;
     }
 
-    const Root::TAccept& IsolationCloseByCorrectionTool::acceptCorrected(const xAOD::IParticle& x, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel) const {
+    Root::TAccept IsolationCloseByCorrectionTool::acceptCorrected(const xAOD::IParticle& x, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel) const {
         xAOD::IParticleContainer Container(SG::VIEW_ELEMENTS);
         for (auto&P : closePar)
             Container.push_back(const_cast<xAOD::IParticle*>(P));
@@ -583,7 +585,7 @@ namespace CP {
             ATH_MSG_ERROR("Nullptr given");
             return nullptr;
         }
-//Use for muons the associated ID track. Else the particle itself
+        //Use for muons the associated ID track. Else the particle itself
         if (P->type() == xAOD::Type::ObjectType::Muon) return getTrackParticle(P);
         return P;
     }
@@ -740,7 +742,7 @@ namespace CP {
         }
         if (!m_BackupIso) {
             const xAOD::IParticle* OR = xAOD::getOriginalObject(*P);
-            if (OR && GetIsolation(OR, Value) == CP::CorrectionCode::Error) return CorrectionCode::Error;
+            if (OR && GetIsolation(OR, Value) == CorrectionCode::Error) return CorrectionCode::Error;
             else if (!OR) {
                 Warning("IsoVariableHelper::GetOrignalIsolation()", "No original object was found");
                 return GetIsolation(P, Value);
