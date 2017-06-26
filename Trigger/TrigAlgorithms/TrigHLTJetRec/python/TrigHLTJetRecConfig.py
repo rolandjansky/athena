@@ -125,7 +125,8 @@ def _getTrimmedJetCalibrationModifier(jet_calib,int_merge_param,cluster_calib,rc
 
     alg="AntiKt"
     rad=float(int_merge_param)/10.
-    inp="%sTopoTrimmedPtFrac%sSmallR%s"%(cluster_calib,str(int(ptfrac*100+0.1)),str(int(rclus*100+0.1)))
+    #inp="%sTopoTrimmedPtFrac%sSmallR%s"%(cluster_calib,str(int(ptfrac*100+0.1)),str(int(rclus*100+0.1)))
+    inp="%sTopoTrimmedPtFrac%sSmallR%s"%(cluster_calib,str(int(0.05*100+0.1)),str(int(rclus*100+0.1))) #hardcoded for now due to 0.04 vs 0.05 choice
     seq="jm"
     config="triggerTrim"
     evsprefix="HLTKt4"
