@@ -18,7 +18,7 @@ using xAOD::JetConstituentVector;
 JetPtAssociationTool::JetPtAssociationTool(std::string myname)
 : JetModifierBase(myname) {
   declareProperty("AssociationName", m_aname);
-  declareProperty("InputContainer", m_conname);
+  // declareProperty("InputContainer", m_conname);
 
   declareProperty("InputContainer", m_jetContainer_key);
 
@@ -48,7 +48,9 @@ int JetPtAssociationTool::modifyJet(xAOD::Jet& jet) const {
   // Retrieve the container of jets to be matched.
   auto handle = SG::makeHandle (m_jetContainer_key);
   if (!handle.isValid()){
-    ATH_MSG_WARNING("Matching jet container not found: " << m_conname);
+    ATH_MSG_WARNING("Matching jet container not found: "
+                    << m_jetContainer_key.key()); 
+    // << m_conname);
     return 2;
   }
 

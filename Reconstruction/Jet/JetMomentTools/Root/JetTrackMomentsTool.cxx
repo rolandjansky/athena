@@ -10,20 +10,20 @@
 
 JetTrackMomentsTool::JetTrackMomentsTool(const std::string& name)
     : JetModifierBase(name)
-    , m_vertexContainer("")
+      // , m_vertexContainer("")
     , m_assocTracksName("")
-    , m_tva("")
+      // , m_tva("")
     , m_minTrackPt()
     , m_htsel("")
 {
-    declareProperty("VertexContainer",m_vertexContainer);
-    declareProperty("AssociatedTracks",m_assocTracksName);
-    declareProperty("TrackVertexAssociation",m_tva);
-    declareProperty("TrackMinPtCuts",m_minTrackPt);
-    declareProperty("TrackSelector", m_htsel);
-
-    declareProperty("VertexContainer",m_vertexContainer_key);
-    declareProperty("AssociatedTracks",m_trackVertexAssoc_key);
+  // declareProperty("VertexContainer",m_vertexContainer);
+  declareProperty("AssociatedTracks",m_assocTracksName);
+  // declareProperty("TrackVertexAssociation",m_tva);
+  declareProperty("TrackMinPtCuts",m_minTrackPt);
+  declareProperty("TrackSelector", m_htsel);
+  
+  declareProperty("VertexContainer",m_vertexContainer_key);
+  declareProperty("TrackVertexAssociation",m_tva_key);
 }
 
 
@@ -39,7 +39,7 @@ StatusCode JetTrackMomentsTool::initialize() {
 
 
   ATH_CHECK(m_vertexContainer_key.initialize());
-  ATH_CHECK(m_trackVertexAssoc_key.initialize());
+  ATH_CHECK(m_tva_key.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -53,17 +53,17 @@ int JetTrackMomentsTool::modifyJet(xAOD::Jet& jet) const {
   auto handle_v = SG::makeHandle (m_vertexContainer_key);
   if (!handle_v.isValid()){
     ATH_MSG_ERROR("Could not retrieve the VertexContainer: "
-                  << m_vertexContainer);
+                  << m_vertexContainer_key.key());
     return 1;
   }
 
   auto vertexContainer = handle_v.cptr();
 
   // Get the track-vertex association
-  auto handle_tva = SG::makeHandle (m_trackVertexAssoc_key);
+  auto handle_tva = SG::makeHandle (m_tva_key);
   if (!handle_tva.isValid()){
     ATH_MSG_ERROR("Could not retrieve the TrackVertexAssociation: "
-                  << m_tva);
+                  << m_tva_key.key());
     return 2;
   }
 

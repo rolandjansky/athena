@@ -89,10 +89,10 @@ public:  // methods
 private:  // data
 
   // Configurable parameters
-  std::string m_verticesName;
+  // std::string m_verticesName;
   std::string m_assocTracksName;
-  std::string m_tvaName;
-  std::string m_tracksName;
+  // std::string m_tvaName;
+  // std::string m_tracksName;
   std::string m_sumPtTrkName;
   ToolHandle<IJetTrackSelector> m_htsel;
   std::string m_jvfname;
@@ -103,9 +103,9 @@ private:  // methods
 
   std::vector<float> getEmptyJetVertexFraction(const xAOD::VertexContainer*) const;
   
-  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainer_key;  // m_verticesName
-  SG::ReadHandleKey<jet::TrackVertexAssociation> m_tva_key;  // m_tvaName
-  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_tracksCont_key;  // m_tracksName
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainer_key;
+  SG::ReadHandleKey<jet::TrackVertexAssociation> m_tva_key;
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_tracksCont_key;
 
   // Local method to count the number of pileup tracks in the event
   int getPileupTrackCount(const xAOD::Vertex*,

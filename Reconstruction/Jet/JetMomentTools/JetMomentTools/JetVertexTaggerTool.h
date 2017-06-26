@@ -105,7 +105,7 @@ public:
 private:  // data
 
   // Configurable parameters
-  std::string m_verticesName;
+  // std::string m_verticesName;
   std::string m_assocTracksName;
   std::string m_tvaName;
   std::string m_tracksName;

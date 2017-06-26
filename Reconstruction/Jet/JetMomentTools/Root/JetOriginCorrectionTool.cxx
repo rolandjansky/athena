@@ -15,14 +15,14 @@
 
 JetOriginCorrectionTool::JetOriginCorrectionTool(const std::string& myname)
 : asg::AsgTool(myname) { 
-  declareProperty("VertexContainer", m_vtxContainerName="PrimaryVertices");
+  // declareProperty("VertexContainer", m_vtxContainerName="PrimaryVertices");
   declareProperty("OriginCorrectedName", m_correctionName="JetOriginConstitScaleMomentum");
-  declareProperty("EventInfoName", m_eInfoName="EventInfo");
+  // declareProperty("EventInfoName", m_eInfoName="EventInfo");
 
   declareProperty("OnlyAssignPV", m_onlyAssignPV=false);
 
-  declareProperty("VertexContainer", m_vertexContainer_key);
-  declareProperty("EventInfoName", m_eventInfo_key);
+  declareProperty("VertexContainer", m_vertexContainer_key="PrimaryVertices");
+  declareProperty("EventInfoName", m_eventInfo_key="EventInfo");
 }
 
 
@@ -71,7 +71,8 @@ int JetOriginCorrectionTool::modify(xAOD::JetContainer& jetCont) const {
   // Warn if EventInfo is specified but cannot be retrieved
   // Specifying the PV index is only for special cases
   int PVindex = 0;
-  if (m_eInfoName != "") {
+  //if (m_eventInfoName.key() != "") {
+  if (m_eventInfo_key.key() != "") {
     // retrieve the VertexContainer. if fails, fill the jets with null vector
 
     auto eInfo = SG::makeHandle (m_eventInfo_key);

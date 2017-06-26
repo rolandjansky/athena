@@ -49,9 +49,9 @@ public:
 private:
 
   // Configurable parameters
-  std::string m_vertexContainer;
+  // std::string m_vertexContainer;
   std::string m_assocTracksName;
-  std::string m_tva;
+  // std::string m_tva;
   std::vector<float> m_minTrackPt;
   ToolHandle<IJetTrackSelector> m_htsel;
         
@@ -75,7 +75,7 @@ private:
   const std::string getMomentBaseName(const float minTrackPt) const;
 
   SG::ReadHandleKey< xAOD::VertexContainer> m_vertexContainer_key;
-  SG::ReadHandleKey<jet::TrackVertexAssociation> m_trackVertexAssoc_key;
+  SG::ReadHandleKey<jet::TrackVertexAssociation> m_tva_key;
 
 };
 

@@ -38,7 +38,7 @@ JetBadChanCorrTool::JetBadChanCorrTool(	const std::string& name) :
   // m_calo_id(0),
   //m_calibTool(this),
   //    m_missingCellToolHandle("MissingCellListTool"),
-  m_missingCellMapName(),
+  // m_missingCellMapName(),
   m_forceMissingCellCheck(false),
   m_useClusters(false)
 {
@@ -60,7 +60,7 @@ JetBadChanCorrTool::JetBadChanCorrTool(	const std::string& name) :
   //  declareProperty("CellCalibrator", m_calibTool);
 
   //declareProperty("MissingCellTool", m_missingCellToolHandle);
-  declareProperty("MissingCellMap", m_missingCellMapName= "MissingCaloCellsMap");
+  // declareProperty("MissingCellMap", m_missingCellMapName= "MissingCaloCellsMap");
   declareProperty("ForceMissingCellCheck", m_forceMissingCellCheck=false);
   declareProperty("UseClusters",m_useClusters= false);
 
@@ -181,9 +181,11 @@ int JetBadChanCorrTool::modifyJet( xAOD::Jet& jet) const
     res = correctionFromClustersBadCells( &jet);
   }else{
     
-    auto handle = SG::makeHandle ( m_badCellMap_key);
+    auto handle = SG::makeHandle (m_badCellMap_key);
     if (!handle.isValid()){
-      ATH_MSG_ERROR("Could not retieve bad cell map "<< m_missingCellMapName);
+      ATH_MSG_ERROR("Could not retieve bad cell map "
+                    << m_badCellMap_key.key());
+      // << m_missingCellMapName);
       return 1;
     }
 

@@ -11,13 +11,13 @@
 JetVertexFractionTool::JetVertexFractionTool(const std::string& name)
 : JetModifierBase(name)
 , m_assocTracksName("")
-, m_tvaName("")
-, m_tracksName("")
+  // , m_tvaName("")
+  // , m_tracksName("")
 , m_htsel("") {
-  declareProperty("VertexContainer", m_verticesName);
+  // declareProperty("VertexContainer", m_verticesName);
   declareProperty("AssociatedTracks", m_assocTracksName);
-  declareProperty("TrackVertexAssociation", m_tvaName);
-  declareProperty("TrackParticleContainer",m_tracksName);
+  // declareProperty("TrackVertexAssociation", m_tvaName);
+  // declareProperty("TrackParticleContainer",m_tracksName);
   declareProperty("SumPtTrkName",m_sumPtTrkName="SumPtTrkPt500");
   declareProperty("TrackSelector", m_htsel);
   declareProperty("JVFName", m_jvfname ="JVF");
@@ -59,12 +59,14 @@ int JetVertexFractionTool::modifyJet(xAOD::Jet& jet) const {
 
   auto vertexContainer = SG::makeHandle (m_vertexContainer_key);
   if (!vertexContainer.isValid()){
-    ATH_MSG_WARNING("Invalid  xAOD::VertexContainer datahandle" << m_verticesName);
+    ATH_MSG_WARNING("Invalid  xAOD::VertexContainer datahandle" 
+                    << m_vertexContainer_key.key());
     return 1;
   }
   auto vertices = vertexContainer.cptr();
 
-  ATH_MSG_DEBUG("Successfully retrieved VertexContainer: " << m_verticesName);
+  ATH_MSG_DEBUG("Successfully retrieved VertexContainer: " 
+                << m_vertexContainer_key.key());
 
   // Get the tracks associated to the jet
   // Note that there may be no tracks - this is both normal and an error case
@@ -79,12 +81,16 @@ int JetVertexFractionTool::modifyJet(xAOD::Jet& jet) const {
 
   auto tvaContainer = SG::makeHandle (m_tva_key);
   if (!tvaContainer.isValid()){
-    ATH_MSG_ERROR("Could not retrieve the TrackVertexAssociation: " << m_tvaName);
+    ATH_MSG_ERROR("Could not retrieve the TrackVertexAssociation: " 
+                  << m_tva_key.key());
+                  // << m_tvaName);
     return 3;
   }
   auto tva = tvaContainer.cptr();
 
-  ATH_MSG_DEBUG("Successfully retrieved TrackVertexAssociation: " << m_tvaName);
+  ATH_MSG_DEBUG("Successfully retrieved TrackVertexAssociation: " 
+                << m_tva_key.key());
+  //<< m_tvaName);
 
   // Get and set the JVF vector
   const std::vector<float> jvf = getJetVertexFraction(vertices,tracks,tva);
@@ -107,34 +113,46 @@ int JetVertexFractionTool::modify(xAOD::JetContainer& jetCont) const {
 
   auto vertexContainer = SG::makeHandle (m_vertexContainer_key);
   if (!vertexContainer.isValid()){
-    ATH_MSG_WARNING("Invalid  xAOD::VertexContainer datahandle" << m_verticesName);
+    ATH_MSG_WARNING("Invalid  xAOD::VertexContainer datahandle"
+                    << m_vertexContainer_key.key()); 
+                    // << m_verticesName);
     return 1;
   }
   auto vertices = vertexContainer.cptr();
 
-  ATH_MSG_DEBUG("Successfully retrieved VertexContainer: " << m_verticesName);
+  ATH_MSG_DEBUG("Successfully retrieved VertexContainer: " 
+                << m_vertexContainer_key.key()); 
+  //<< m_verticesName);
 
   // Get the Tracks container
 
   auto tracksContainer = SG::makeHandle (m_tracksCont_key);
   if (!tracksContainer.isValid()){
-    ATH_MSG_ERROR("Could not retrieve the TrackParticleContainer: " << m_tracksName);
+    ATH_MSG_ERROR("Could not retrieve the TrackParticleContainer: " 
+                  << m_tracksCont_key.key());
+    // << m_tracksName);
     return 2;
   }
   auto tracksCont = tracksContainer.cptr();
 
-  ATH_MSG_DEBUG("Successfully retrieved TrackParticleContainer: " << m_tracksName);
+  ATH_MSG_DEBUG("Successfully retrieved TrackParticleContainer: " 
+                << m_tracksCont_key.key());
+  // << m_tracksName);
 
   // Get the TVA object
 
   auto tvaContainer = SG::makeHandle (m_tva_key);
   if (!tvaContainer.isValid()){
-    ATH_MSG_ERROR("Could not retrieve the TrackVertexAssociation: " << m_tvaName);
+    ATH_MSG_ERROR("Could not retrieve the TrackVertexAssociation: " 
+                  << m_tva_key.key());
+    // << m_tvaName);
     return 3;
   }
   auto tva = tvaContainer.cptr();
 
-  ATH_MSG_DEBUG("Successfully retrieved TrackVertexAssociation: " << m_tvaName);
+  ATH_MSG_DEBUG("Successfully retrieved TrackVertexAssociation: " 
+                << m_tva_key.key());
+  // << m_tvaName);
 
   if (vertices->size() == 0 ) {
     ATH_MSG_WARNING("There are no vertices in the container. Exiting");

@@ -32,16 +32,18 @@ JetConstitFourMomTool::JetConstitFourMomTool(std::string myname)
   declareProperty("AltConstitScales", m_altConstitScales );
   // If an existing momentum scale should just be copied
   declareProperty("AltJetScales",     m_altJetScales     );
-
-  // initialize data handles in a handle array from a python list of strings
-  declareProperty("AltJetScales", m_datahandle_keys );
-
 }
 
 //**********************************************************************
 
 StatusCode JetConstitFourMomTool::initialize() {
   // Check configuration consistency
+
+  // initialize data handles in a handle array from a python list of strings
+  for(auto s : m_altJetScales){m_datahandle_keys.emplace_back(s);}
+
+  declareProperty("AltJetScales", m_datahandle_keys );
+
   if( m_jetScaleNames.empty() ||
       (m_jetScaleNames.size() != m_altColls.size()) ||
       (m_jetScaleNames.size() != m_altConstitScales.size()) ||

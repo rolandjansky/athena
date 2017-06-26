@@ -17,20 +17,20 @@ using xAOD::JetFourMom_t;
 
 JetTrackSumMomentsTool::JetTrackSumMomentsTool(const std::string& name)
     : JetModifierBase(name)
-    , m_vertexContainer("")
+      // , m_vertexContainer("")
     , m_assocTracksName("")
-    , m_tva("")
+      // , m_tva("")
     , m_htsel("")
 {
-    declareProperty("VertexContainer",m_vertexContainer);
-    declareProperty("AssociatedTracks",m_assocTracksName);
-    declareProperty("TrackVertexAssociation",m_tva);
-    declareProperty("TrackSelector", m_htsel);
-    declareProperty("RequireTrackPV", m_requireTrackPV = true);
-
-    declareProperty("VertexContainer",m_vertexContainer_key);
-    declareProperty("AssociatedTracks",m_trackVertexAssoc_key);
-
+  // declareProperty("VertexContainer",m_vertexContainer);
+  declareProperty("AssociatedTracks",m_assocTracksName);
+  // declareProperty("TrackVertexAssociation",m_tva);
+  declareProperty("TrackSelector", m_htsel);
+  declareProperty("RequireTrackPV", m_requireTrackPV = true);
+  
+  declareProperty("VertexContainer",m_vertexContainer_key);
+  declareProperty("AssociatedTracks",m_trackVertexAssoc_key);
+  
 }
 
 
@@ -58,20 +58,20 @@ int JetTrackSumMomentsTool::modifyJet(xAOD::Jet& jet) const {
 
   // Get input vertex collection
 
-  auto handle_v = SG::makeHandle (m_vertexContainer_key);
+  auto handle_v = SG::makeHandle(m_vertexContainer_key);
   if (!handle_v.isValid()){
     ATH_MSG_ERROR("Could not retrieve the VertexContainer: "
-                  << m_vertexContainer);
+                  << m_vertexContainer_key.key());
     return 1;
   }
 
   auto vertexContainer = handle_v.cptr();
 
   // Get the track-vertex association
-  auto handle_tva = SG::makeHandle (m_trackVertexAssoc_key);
+  auto handle_tva = SG::makeHandle(m_trackVertexAssoc_key);
   if (!handle_tva.isValid()){
     ATH_MSG_ERROR("Could not retrieve the TrackVertexAssociation: "
-                  << m_tva);
+                  << m_trackVertexAssoc_key.key());
     return 2;
   }
 

@@ -97,7 +97,7 @@ protected:
 
   //ToolHandle<IMissingCellListTool> m_missingCellToolHandle;
   //MissingCellListTool* m_missingCellTool;
-  std::string m_missingCellMapName;
+  // std::string m_missingCellMapName;
 
   bool m_forceMissingCellCheck;
 
