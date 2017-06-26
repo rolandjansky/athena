@@ -123,10 +123,23 @@ namespace CP {
 
             std::string particleName(const xAOD::IParticle* C) const;
 
+
             ToolHandle<CP::IIsolationSelectionTool> m_selectorTool;
-            float m_coreCone;
-            float m_ptvarconeRadius;
-            mutable Root::TAccept m_accept;
+
+            float m_coreCone; //The core of the topoEt variables. Clusters within the core shall not be
+                              //added to the isolation of the object itself. They are defined to be associated with it.
+
+            float m_ptvarconeRadius; //Reference value to calculate the size of the mini-iso variables
+                                     // dR = min (fixed , m_ptvarcone / particle->pt())
+
+            float m_maxTopoPolution; // Upper limit on the energy fraction of the close-by cluster
+                                     // to the isolation variable such that it is still subtracted from the cone.
+                                     // Only considered if the particle to correct is not an Egamma object. Since the reference
+                                     // position is extrapolated from the ID-track into the calorimeter.
+                                     // Aim of the game -> Find out whether it might contributed
+           float m_ConeSizeVariation; // Extend - shrink the cone size to account for extrapolation effects
+
+//            mutable Root::TAccept m_accept;
             bool m_isInitialised;
             bool m_isCoreSubtracted;
             std::string m_indetTrackParticleLocation;
@@ -137,12 +150,13 @@ namespace CP {
             IsoVector m_electron_isoTypes;
             IsoVector m_photon_isoTypes;
 
+            //Name of the isolation selection and input quality decorators
             std::string m_quality_name;
             std::string m_passOR_name;
             std::string m_isoSelection_name;
+
             SelectionAccessor m_acc_quality;
             SelectionAccessor m_acc_passOR;
-
             SelectionDecorator m_dec_isoselection;
 
             //Functionallity to backup the original cone variables if needed

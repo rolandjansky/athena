@@ -32,7 +32,9 @@ namespace CP {
                 m_selectorTool(""),
                 m_coreCone(0.1),
                 m_ptvarconeRadius(1.e4),
-                m_accept(),
+                m_maxTopoPolution(1.1),
+                m_ConeSizeVariation(1.2),
+//                m_accept(),
                 m_isInitialised(false),
                 m_isCoreSubtracted(false),
                 m_indetTrackParticleLocation("InDetTrackParticles"),
@@ -64,8 +66,9 @@ namespace CP {
         declareProperty("VertexContainer", m_VertexContainerName, "Name of the primary vertex container");
         declareProperty("CaloClusterContainer", m_CaloClusterContainerName, "Name of the primary calo cluster container");
 
-        declareProperty("CoreCone", m_coreCone = 0.1, "This is the size of the core cone for the topoetcone variables.");
-        declareProperty("PtvarconeRadius", m_ptvarconeRadius = 10000., "This is the kT parameter for the ptvarcone variables.");
+        declareProperty("CoreCone", m_coreCone, "This is the size of the core cone for the topoetcone variables.");
+        declareProperty("PtvarconeRadius", m_ptvarconeRadius, "This is the kT parameter for the ptvarcone variables.");
+        declareProperty("MaxClusterFrac", m_maxTopoPolution);
 
     }
 
@@ -334,7 +337,8 @@ namespace CP {
         for (const auto P : *Particles) {
             if (!ConsiderForCorrection(P)) continue;
             ClusterCollection AssocClusters = GetAssociatedClusters(P);
-            for (auto& C : AssocClusters) Clusters.insert(C);
+            for (auto& C : AssocClusters)
+                Clusters.insert(C);
         }
     }
     bool IsolationCloseByCorrectionTool::ConsiderForCorrection(const xAOD::IParticle* P) const {
@@ -394,12 +398,24 @@ namespace CP {
 
         ATH_MSG_DEBUG(xAOD::Iso::toString(type) << " of " << particleName(par) << " with pt " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " before correction: " << correction / 1.e3 << " GeV");
 
-        double MaxDR = ConeSize(par, type);
+        double MaxDR = ConeSize(par, type) * (Ref->type() == xAOD::Type::ObjectType::CaloCluster ? 1. : m_ConeSizeVariation);
         const xAOD::IParticle* Ref = TopoEtIsoRefPart(par);
+        if (!Ref) {
+            ATH_MSG_ERROR("Could not find a reference particle for " << particleName(par) << " with pt " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi());
+            return CorrectionCode::Error;
+        }
         for (auto& cluster : clusters) {
             ATH_MSG_DEBUG("Cluster with pt: " << cluster->pt() / 1.e3 << " GeV, eta: " << cluster->eta() << ", phi: " << cluster->phi() << " dR: " << sqrt(DeltaR2(cluster, par)));
-            if (Overlap(cluster, Ref, MaxDR) && !Overlap(cluster, Ref, m_coreCone)) {
-                ATH_MSG_DEBUG("Subtract "<<ClusterEtMinusTile(cluster) /1.e3<<" GeV from cone");
+            bool Subtract = false;
+            if (Ref->type() == xAOD::Type::ObjectType::CaloCluster) Subtract = Overlap(cluster, Ref, MaxDR) && !Overlap(cluster, Ref, m_coreCone);
+            else {
+                float Polution = ClusterEtMinusTile(cluster) / (correction != 0 ? correction : 1.);
+                if (Polution > m_maxTopoPolution) {
+                    ATH_MSG_DEBUG("The cluster could not contributed to the isolation cone. As it has more energy" << Polution);
+                } else if (Overlap(cluster, Ref, MaxDR)) Subtract = true;
+            }
+            if (Subtract) {
+                ATH_MSG_DEBUG("Subtract " << ClusterEtMinusTile(cluster) / 1.e3 << " GeV from cone " << correction / 1.e3 << " GeV");
                 correction -= ClusterEtMinusTile(cluster);
             }
         }
@@ -429,7 +445,7 @@ namespace CP {
     }
     float IsolationCloseByCorrectionTool::CaloCorrectionFromDecorator(const xAOD::IParticle* ToCorrect, const xAOD::IParticle* CloseBy, float ConeSize, int Model) const {
         float fraction = CaloCorrectionFraction(ToCorrect, CloseBy, ConeSize, Model);
-        //No contribution from the close by particle expected
+//No contribution from the close by particle expected
         if (fraction == 0) return fraction;
         float coreToBeRemoved = 0;
         auto acc = xAOD::getIsolationCorrectionAccessor(xAOD::Iso::topoetcone, xAOD::Iso::coreCone, xAOD::Iso::coreEnergy);
@@ -556,7 +572,7 @@ namespace CP {
         }
         const xAOD::IParticle* OR = xAOD::getOriginalObject(*P);
         if (!OR) {
-            ATH_MSG_VERBOSE("No reference from the shallow copy container of "<<particleName(P)<<" could be found");
+            ATH_MSG_VERBOSE("No reference from the shallow copy container of " << particleName(P) << " could be found");
             return P->pt();
         }
         return OR->pt();
@@ -567,7 +583,7 @@ namespace CP {
             ATH_MSG_ERROR("Nullptr given");
             return nullptr;
         }
-        //Use for muons the associated ID track. Else the particle itself
+//Use for muons the associated ID track. Else the particle itself
         if (P->type() == xAOD::Type::ObjectType::Muon) return getTrackParticle(P);
         return P;
     }
@@ -600,21 +616,21 @@ namespace CP {
         return (P == P1);
     }
 
-    double IsolationCloseByCorrectionTool::DeltaR2(const xAOD::IParticle* P, const xAOD::IParticle* P1, bool AvgCalo) const {
+    double IsolationCloseByCorrectionTool::DeltaR2(const xAOD::IParticle* P, const xAOD::IParticle* P1, bool /*AvgCalo*/) const {
         if (!P || !P1) {
             ATH_MSG_WARNING("IsolationCloseByCorrectionTool::DeltaR2(): One of the given Particles points to nullptr return 1.e4");
             return 1.e4;
         }
         if (IsSame(P, P1)) return 0.;
         //Check if one of the objects is a CaloCluster or the Averaging over the clusters is requested.
-        if (AvgCalo || (P->type() != P1->type() && (P->type() == xAOD::Type::ObjectType::CaloCluster || P1->type() == xAOD::Type::ObjectType::CaloCluster))) {
-            float phi1(0), eta1(0), eta2(0), phi2(0);
-            getExtrapEtaPhi(P, eta1, phi1);
-            getExtrapEtaPhi(P1, eta2, phi2);
-            double dPhi = xAOD::P4Helpers::deltaPhi(phi1, phi2);
-            double dEta = eta1 - eta2;
-            return dEta * dEta + dPhi * dPhi;
-        }
+//        if (AvgCalo || (P->type() != P1->type() && (P->type() == xAOD::Type::ObjectType::CaloCluster || P1->type() == xAOD::Type::ObjectType::CaloCluster))) {
+//            float phi1(0), eta1(0), eta2(0), phi2(0);
+//            getExtrapEtaPhi(P, eta1, phi1);
+//            getExtrapEtaPhi(P1, eta2, phi2);
+//            double dPhi = xAOD::P4Helpers::deltaPhi(phi1, phi2);
+//            double dEta = eta1 - eta2;
+//            return dEta * dEta + dPhi * dPhi;
+//        }
         double dPhi = xAOD::P4Helpers::deltaPhi(P, P1);
         double dEta = P->eta() - P1->eta();
         return dEta * dEta + dPhi * dPhi;
@@ -684,9 +700,9 @@ namespace CP {
             ATH_MSG_WARNING("TopoEtIsoRefPart(): Nullptr given");
             return nullptr;
         }
-        //Use for Muons the associated track particle
+//Use for Muons the associated track particle
 //        if (P->type() == xAOD::Type::ObjectType::Muon) return getTrackParticle(P);
-        //Electrons and photons shall use the cluster as reference
+//Electrons and photons shall use the cluster as reference
         if (IsEgamma(P)) return Cluster(P);
         return P;
     }
