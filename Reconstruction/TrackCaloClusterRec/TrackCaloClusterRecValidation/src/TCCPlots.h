@@ -68,7 +68,8 @@ public:
   void fillTCCptCut(const xAOD::TrackCaloCluster& tcc);
   void fillTCCetaCut(const xAOD::TrackCaloCluster& tcc);
     
-  void make_median(TH2* h2_response, TH1* h1_resolution, TH1* h1_resolution_2=nullptr, TH1* h1_median=nullptr);
+  void make_median(TH2* h2_response, TH1* h1_resolution, TH1* h1_median=nullptr);
+  void make_median_add(TH2* h2_response, TH1* h1_resolution);
   void make_median(TH3* h3_response, TH2* h2_resolution);
   
   void setEventWeight(const float& weight);
@@ -140,6 +141,16 @@ private:
   TH1* m_jet_response_eta_subleading       ;
   TH1* m_jet_response_phi_subleading       ;
   
+  TH1* m_jet_response_add_eta              ;
+  TH1* m_jet_response_add_eta_2leadings    ;
+  TH1* m_jet_response_add_eta_leading      ;
+  TH1* m_jet_response_add_eta_subleading   ;
+  
+  TH2* m_jet_response_add_eta_pt           ;
+  TH2* m_jet_response_add_eta_pt_2leadings ;
+  TH2* m_jet_response_add_eta_pt_leading   ;
+  TH2* m_jet_response_add_eta_pt_subleading;
+  
   TH2* m_jet_response_m_npv                ;
   TH2* m_jet_response_m_npv_2leadings      ;
   TH2* m_jet_response_m_npv_leading        ;
@@ -149,6 +160,11 @@ private:
   TH2* m_jet_response_d2_pt_2leadings      ;
   TH2* m_jet_response_d2_pt_leading        ;
   TH2* m_jet_response_d2_pt_subleading     ;
+  
+  TH2* m_jet_response_add_d2_pt                ;
+  TH2* m_jet_response_add_d2_pt_2leadings      ;
+  TH2* m_jet_response_add_d2_pt_leading        ;
+  TH2* m_jet_response_add_d2_pt_subleading     ;
   
   TH1* m_jet_pseudoresponse_m              ;
   TH1* m_jet_pseudoresponse_pt             ;
@@ -176,51 +192,36 @@ private:
   TH1* m_jet_response_d2_2leadings         ;
   TH1* m_jet_response_d2_leading           ;
   TH1* m_jet_response_d2_subleading        ;  
-   
-  TH1* m_jet_resolution_IQR1_m                  ;
-  TH1* m_jet_resolution_IQR1_m_2leadings        ;
-  TH1* m_jet_resolution_IQR1_m_leading          ;
-  TH1* m_jet_resolution_IQR1_m_subleading       ;
+  
+  TH1* m_jet_response_add_d2                   ;
+  TH1* m_jet_response_add_d2_2leadings         ;
+  TH1* m_jet_response_add_d2_leading           ;
+  TH1* m_jet_response_add_d2_subleading        ;  
+  
+  TH1* m_jet_resolution_m                  ;
+  TH1* m_jet_resolution_m_2leadings        ;
+  TH1* m_jet_resolution_m_leading          ;
+  TH1* m_jet_resolution_m_subleading       ;
 
-  TH1* m_jet_resolution_IQR2_m                  ;
-  TH1* m_jet_resolution_IQR2_m_2leadings        ;
-  TH1* m_jet_resolution_IQR2_m_leading          ;
-  TH1* m_jet_resolution_IQR2_m_subleading       ;  
+  TH1* m_jet_resolution_m_npv              ;
+  TH1* m_jet_resolution_m_npv_2leadings    ;
+  TH1* m_jet_resolution_m_npv_leading      ;
+  TH1* m_jet_resolution_m_npv_subleading   ;
   
-  TH1* m_jet_resolution_IQR1_m_npv              ;
-  TH1* m_jet_resolution_IQR1_m_npv_2leadings    ;
-  TH1* m_jet_resolution_IQR1_m_npv_leading      ;
-  TH1* m_jet_resolution_IQR1_m_npv_subleading   ;
-  
-  TH1* m_jet_resolution_IQR2_m_npv              ;
-  TH1* m_jet_resolution_IQR2_m_npv_2leadings    ;
-  TH1* m_jet_resolution_IQR2_m_npv_leading      ;
-  TH1* m_jet_resolution_IQR2_m_npv_subleading   ;
-  
-  TH1* m_jet_median_m_npv              ;
-  TH1* m_jet_median_m_npv_2leadings    ;
-  TH1* m_jet_median_m_npv_leading      ;
-  TH1* m_jet_median_m_npv_subleading   ;
-  
-  TH1* m_jet_median_width_IQR1_m_npv              ;
-  TH1* m_jet_median_width_IQR1_m_npv_2leadings    ;
-  TH1* m_jet_median_width_IQR1_m_npv_leading      ;
-  TH1* m_jet_median_width_IQR1_m_npv_subleading   ;
-  
-  TH1* m_jet_median_width_IQR2_m_npv              ;
-  TH1* m_jet_median_width_IQR2_m_npv_2leadings    ;
-  TH1* m_jet_median_width_IQR2_m_npv_leading      ;
-  TH1* m_jet_median_width_IQR2_m_npv_subleading   ;
+  TH1* m_jet_median_width_m_npv              ;
+  TH1* m_jet_median_width_m_npv_2leadings    ;
+  TH1* m_jet_median_width_m_npv_leading      ;
+  TH1* m_jet_median_width_m_npv_subleading   ;
 
-  TH1* m_jet_resolution_IQR1_d2              ;
-  TH1* m_jet_resolution_IQR1_d2_2leadings    ;
-  TH1* m_jet_resolution_IQR1_d2_leading      ;
-  TH1* m_jet_resolution_IQR1_d2_subleading   ;  
+  TH1* m_jet_resolution_d2              ;
+  TH1* m_jet_resolution_d2_2leadings    ;
+  TH1* m_jet_resolution_d2_leading      ;
+  TH1* m_jet_resolution_d2_subleading   ;  
   
-  TH1* m_jet_resolution_IQR2_d2              ;
-  TH1* m_jet_resolution_IQR2_d2_2leadings    ;
-  TH1* m_jet_resolution_IQR2_d2_leading      ;
-  TH1* m_jet_resolution_IQR2_d2_subleading   ;
+  TH1* m_jet_resolution_add_d2              ;
+  TH1* m_jet_resolution_add_d2_2leadings    ;
+  TH1* m_jet_resolution_add_d2_leading      ;
+  TH1* m_jet_resolution_add_d2_subleading   ;
   
   TH3* m_jet_mopt_pt_response_m                  ;
   TH3* m_jet_mopt_pt_response_m_2leadings        ;
