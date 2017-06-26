@@ -57,11 +57,11 @@ egammaTrkRefitterTool::egammaTrkRefitterTool(const std::string& type, const std:
   m_oMeasPer(0),
   m_rMeasPer(0),
   m_ParticleHypothesis(Trk::electron), 
-  m_ITrackFitter("TrkKalmanFitter/AtlasKalmanFitter"),
-  m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-  m_linFactory("Trk::FullLinearizedTrackFactory"),
+  m_ITrackFitter("TrkKalmanFitter/AtlasKalmanFitter", this),
+  m_extrapolator("Trk::Extrapolator/AtlasExtrapolator", this),
+  m_linFactory("Trk::FullLinearizedTrackFactory", this),
   m_beamCondSvc("BeamCondSvc",name),
-  m_CCOTBuilder("CaloCluster_OnTrackBuilder"),
+  m_CCOTBuilder("CaloCluster_OnTrackBuilder", this),
   m_idHelper(0) 
 {
   // declare interface

@@ -16,7 +16,6 @@
 #include "xAODCaloEvent/CaloClusterFwd.h"
 
 // INCLUDE HEADER FILES:
-#include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "egammaUtils/EigenVectorAndMatrix.h"

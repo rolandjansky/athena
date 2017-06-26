@@ -6,7 +6,6 @@
 #define EGAMMATOOLS_EGAMMACHECKENERGYDEPOSITTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"

@@ -116,9 +116,6 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
   /** @brief Tool to handle cluster corrections */
   ToolHandle<IegammaSwTool>   m_clusterCorrectionTool;
   
-  /** @brief Name of tool for cluster corrections */
-  std::string            m_ClusterCorrectionToolName;
-  
   /** @brief do super clusters **/ 
   bool m_doSuperClusters;
 

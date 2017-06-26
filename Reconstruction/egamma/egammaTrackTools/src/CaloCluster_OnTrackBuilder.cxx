@@ -26,7 +26,7 @@ CaloCluster_OnTrackBuilder::CaloCluster_OnTrackBuilder(const std::string& t,
                                                        const std::string& n,
                                                        const IInterface*  p )
 : AthAlgTool(t,n,p),
-  m_calosurf("CaloSurfaceBuilder"),
+  m_calosurf("CaloSurfaceBuilder", this),
   m_cellContainer(0),
   m_eta(0),
   m_phi(0),

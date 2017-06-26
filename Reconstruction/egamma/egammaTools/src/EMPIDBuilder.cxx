@@ -19,7 +19,12 @@
 EMPIDBuilder::EMPIDBuilder(const std::string& type,
 					   const std::string& name,
 					   const IInterface* parent)
-  : egammaBaseTool(type, name, parent)
+  : egammaBaseTool(type, name, parent),
+    m_electronIsEMselectors(this),
+    m_electronLHselectors(this),
+    m_genericIsEMselectors(this),
+    m_photonIsEMselectors(this),
+    m_lumiBlockMuTool("", this)
 {
   //
   // constructor

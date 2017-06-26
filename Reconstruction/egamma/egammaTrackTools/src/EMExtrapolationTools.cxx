@@ -33,9 +33,9 @@ EMExtrapolationTools::EMExtrapolationTools(const std::string& type,
                                            const std::string& name,
                                            const IInterface* parent) :
   AthAlgTool(type, name, parent),
-  m_defaultParticleCaloExtensionTool("Trk::ParticleCaloExtensionTool"),
-  m_perigeeParticleCaloExtensionTool("Trk::ParticleCaloExtensionTool/EMParticleCaloExtensionTool"),
-  m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
+  m_defaultParticleCaloExtensionTool("Trk::ParticleCaloExtensionTool", this),
+  m_perigeeParticleCaloExtensionTool("Trk::ParticleCaloExtensionTool/EMParticleCaloExtensionTool", this),
+  m_extrapolator("Trk::Extrapolator/AtlasExtrapolator", this),
   m_trtId(0)
 {
   declareProperty( "DefaultCaloExtentionTool", m_defaultParticleCaloExtensionTool );

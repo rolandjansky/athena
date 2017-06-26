@@ -43,7 +43,7 @@ EMFourMomBuilder::EMFourMomBuilder(const std::string& type,
                                  const IInterface* parent)
   : egammaBaseTool(type, name, parent),
     //m_tmp_dataType(ParticleDataType::Full),
-    m_FourMomCombiner("FourMomCombiner")
+    m_FourMomCombiner("FourMomCombiner", this)
 {
   // declare interface
   declareInterface<IEMFourMomBuilder>(this);

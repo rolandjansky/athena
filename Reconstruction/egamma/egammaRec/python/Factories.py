@@ -187,11 +187,12 @@ class Factory:
 class ToolFactory( Factory ):
   """ToolFactory: to instantiate tools and add them to TopSequence. See Factory"""
   def add(self, obj):
-    if not isAlreadyInToolSvc(obj.getName()):
-      factoriesInfo("Adding new Tool ===> %s" % obj.getFullName())
-      addToToolSvc(obj)
-    else :
-      factoriesInfo("Tool with name ==> %s  already in ToolSvc, use existing instance" %  obj.getFullName() )
+    pass # now all are private, no longer need to add
+    # if not isAlreadyInToolSvc(obj.getName()):
+    #   factoriesInfo("Adding new Tool ===> %s" % obj.getFullName())
+    #   addToToolSvc(obj)
+    # else :
+    #   factoriesInfo("Tool with name ==> %s  already in ToolSvc, use existing instance" %  obj.getFullName() )
 
 class AlgFactory( Factory ):
   """AlgFactory: to instantiate algs and add them to TopSequence. See Factory"""

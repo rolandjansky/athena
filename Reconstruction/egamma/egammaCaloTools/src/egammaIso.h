@@ -15,7 +15,6 @@ class CaloCellList;
 class ICalorimeterNoiseTool;
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include <vector>
-#include "GaudiKernel/ToolHandle.h"
 #include "egammaInterfaces/IegammaIso.h"
 
 class egammaIso : public AthAlgTool, virtual public IegammaIso {

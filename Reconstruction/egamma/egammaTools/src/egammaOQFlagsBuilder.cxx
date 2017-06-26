@@ -30,9 +30,9 @@ egammaOQFlagsBuilder::egammaOQFlagsBuilder(const std::string& type,
 					   const std::string& name,
 					   const IInterface* parent)
   : egammaBaseTool(type, name, parent),
-    m_badChannelTool("LArBadChanTool"),
-    m_larCablingSvc("LArCablingService"),
-    m_affectedTool("CaloAffectedTool"),
+    m_badChannelTool("LArBadChanTool", this),
+    m_larCablingSvc("LArCablingService", this),
+    m_affectedTool("CaloAffectedTool", this),
     m_emHelper(0),
     m_cellCentrId(0),
     m_detStore(NULL)

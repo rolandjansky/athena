@@ -55,7 +55,7 @@ egammaMVATool =  ToolFactory(egammaMVACalibConf.egammaMVATool,
 EMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
                             OutputClusterContainerName = egammaKeys.outputClusterKey(),
                             OutputTopoSeededClusterContainerName = egammaKeys.outputTopoSeededClusterKey(),
-                            ClusterCorrectionToolName = FullNameWrapper(egammaSwTool),
+                            ClusterCorrectionTool = egammaSwTool,
                             doSuperCluster = jobproperties.egammaRecFlags.doSuperclusters(),
                             MVACalibTool= egammaMVATool
                             )

@@ -24,9 +24,11 @@
 // =============================================================
 EMClusterTool::EMClusterTool(const std::string& type, const std::string& name, const IInterface* parent) :
   egammaBaseTool(type, name, parent), 
+  m_MVACalibTool("egammaMVATool", this),
+  m_clusterCorrectionTool("egammaSwTool/egammaswtool", this),
   m_doTopoSeededContainer(false)
 {
-  declareProperty("ClusterCorrectionToolName", m_ClusterCorrectionToolName = "egammaSwTool/egammaswtool");
+  declareProperty("ClusterCorrectionTool", m_clusterCorrectionTool);
   declareProperty("MVACalibTool", m_MVACalibTool);
   declareProperty("OutputClusterContainerName", m_outputClusterContainerKey, 
     "Name of the output cluster container");
@@ -65,7 +67,6 @@ StatusCode EMClusterTool::initialize() {
   ATH_CHECK(m_outputTopoSeededClusterContainerCellLinkKey.initialize(m_doTopoSeededContainer));
 
   // Get the cluster correction tool
-  m_clusterCorrectionTool = ToolHandle<IegammaSwTool>(m_ClusterCorrectionToolName);
   if(m_clusterCorrectionTool.retrieve().isFailure()) {
     ATH_MSG_ERROR("Failed to retrieve " << m_clusterCorrectionTool);
     return StatusCode::SUCCESS;

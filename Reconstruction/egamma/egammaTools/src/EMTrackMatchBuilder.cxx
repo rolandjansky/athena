@@ -35,7 +35,7 @@ EMTrackMatchBuilder::EMTrackMatchBuilder(const std::string& type,
                                          const std::string& name,
                                          const IInterface* parent) : 
   egammaBaseTool(type, name, parent),
-  m_extrapolationTool("EMExtrapolationTools"),
+  m_extrapolationTool("EMExtrapolationTools", this),
   m_isCosmics(false)
 {
 
