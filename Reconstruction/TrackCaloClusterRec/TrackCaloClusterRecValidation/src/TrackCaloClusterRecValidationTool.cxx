@@ -12,7 +12,11 @@
 #include "EventInfo/PileUpTimeEventIndex.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODCore/ShallowCopy.h"
+#include "xAODParticleEvent/IParticleLink.h"
 #include "xAODTrackCaloCluster/TrackCaloClusterContainer.h"
+
+#include "JetCalibTools/JetCalibrationTool.h"
 
 #include "TCCPlots.h"
 //
@@ -29,10 +33,15 @@ using CLHEP::GeV;
 ///Parametrized constructor
 TrackCaloClusterRecValidationTool::TrackCaloClusterRecValidationTool(const std::string& type, const std::string& name,
 								     const IInterface* parent) :
-  ManagedMonitorToolBase(type, name, parent)
+  ManagedMonitorToolBase(type, name, parent),
+  m_jetCalibrationTools()
   {
+  declareProperty("JetCalibrationTools"         , m_jetCalibrationTools);
+  declareProperty("ApplyCalibration"            , m_applyCalibration = false);
+  declareProperty("CollectionsToCalibrate"      , m_jetCalibrationCollections);
   declareProperty("SaveJetInfo"                 , m_saveJetInfo = true);
   declareProperty("JetTruthContainerName"       , m_truthJetContainerName);
+  declareProperty("JetTruthTrimmedContainerName", m_truthTrimmedJetContainerName);
   declareProperty("JetContainerNames"           , m_jetContainerNames);
   declareProperty("PrimaryVertexContainerName"  , m_vertexContainerName = "PrimaryVertices");
   declareProperty("TopoJetReferenceName"        , m_topoJetReferenceName = "AntiKt10LCTopoJets");
@@ -70,12 +79,27 @@ TrackCaloClusterRecValidationTool::initialize() {
   ATH_MSG_DEBUG("Initializing " << name() << "...");
   ATH_CHECK(ManagedMonitorToolBase::initialize());
   
+  // retrieve the jet calibration tool
+  if (m_applyCalibration) {
+    if (m_jetCalibrationCollections.size() != m_jetCalibrationTools.size()) {
+      ATH_MSG_WARNING("Number of collections to calibrate differs from the number of calibration tools... switching off calibration!");
+      m_applyCalibration=false;
+    }
+    CHECK( m_jetCalibrationTools.retrieve() );
+  }
+  
   if (m_saveJetInfo) {
     for (auto name : m_jetContainerNames) {
       ATH_MSG_INFO("Saving Plots for " << name << "...");
       std::string myname = name;
       if (name.find("AntiKt10LCTopo")!= std::string::npos and name.find("My")== std::string::npos)
 	myname = "My"+name;
+      
+      if (name == "AntiKt10TrackCaloClustersChargedJets")
+	myname = "AntiKt10TrackCaloClustersCombinedJets";
+      if (name == "AntiKt10TrackCaloClustersChargedTrimmedJets")
+	myname = "AntiKt10TrackCaloClustersCombinedTrimmedJets";
+      
       m_tccPlots.insert(std::pair<std::string, TCCPlots*>(name, new TCCPlots(0, m_dirName + myname, "jets")));
       m_tccPlots.at(name)->setJetPtBinning(m_jetPtBins);
       m_tccPlots.at(name)->setJetMassOverPtBinning(m_jetMassOverPtBins);
@@ -116,24 +140,40 @@ TrackCaloClusterRecValidationTool::fillHistograms() {
   
   if (m_saveJetInfo) {
     ATH_MSG_DEBUG("Filling hists " << name() << "...");
-    
-    const auto truths = getContainer<xAOD::JetContainer>(m_truthJetContainerName);
-    if (not truths) return StatusCode::FAILURE;
-    
+        
     const auto vertices = getContainer<xAOD::VertexContainer>(m_vertexContainerName);
         
     // retrieve jet container
     for (auto name : m_jetContainerNames) {
+      
       m_tccPlots.at(name)->setEventWeight(mcEventWeight);
       ATH_MSG_DEBUG("Using Container " << name << "...");
+      ATH_MSG_DEBUG("-- weight = " << mcEventWeight << "...");
     
-      const auto jets = getContainer<xAOD::JetContainer>(name);
-      if (not jets) return StatusCode::FAILURE;
+      const auto jets_beforeCalib = getContainer<xAOD::JetContainer>(name);
+      if (not jets_beforeCalib) return StatusCode::FAILURE;
+      
+      const xAOD::JetContainer* jets = jets_beforeCalib;
+              
+      if (m_applyCalibration and std::find(m_jetCalibrationCollections.begin(), m_jetCalibrationCollections.end(), name)!=m_jetCalibrationCollections.end()) {
+	/** Calibrate and record a shallow copy of the jet container */
+	jets = calibrateAndRecordShallowCopyJetCollection(jets_beforeCalib, name);
+	if(!jets){
+	  ATH_MSG_WARNING(  "Unable to create calibrated jet shallow copy container" );
+	  return StatusCode::SUCCESS;
+	}
+      }
     
       // Getting the collections for the pseudo response
       const auto caloclusters = (name.find("Trimmed")== std::string::npos) ?
                                  getContainer<xAOD::JetContainer>(m_topoJetReferenceName) :
                                  getContainer<xAOD::JetContainer>(m_topoTrimmedJetReferenceName);
+      const auto truths = (name.find("Trimmed")== std::string::npos) ?
+                          getContainer<xAOD::JetContainer>(m_truthJetContainerName) :
+                          getContainer<xAOD::JetContainer>(m_truthTrimmedJetContainerName);
+      
+      if (not truths) return StatusCode::FAILURE;
+    
       if (not caloclusters) return StatusCode::FAILURE;
       
       m_tccPlots.at(name)->fill(*jets);
@@ -388,4 +428,47 @@ TrackCaloClusterRecValidationTool::procHistograms() {
   
   ATH_MSG_INFO("Successfully finalized hists");
   return StatusCode::SUCCESS;
+}
+
+/**Calibrate and record a shallow copy of a given jet container */
+const xAOD::JetContainer* TrackCaloClusterRecValidationTool::calibrateAndRecordShallowCopyJetCollection(const xAOD::JetContainer * jetContainer, const std::string name) {
+  
+  // create a shallow copy of the jet container
+  std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* >  shallowCopy = xAOD::shallowCopyContainer(*jetContainer);
+  xAOD::JetContainer *jetContainerShallowCopy           = shallowCopy.first;
+  xAOD::ShallowAuxContainer *jetAuxContainerShallowCopy = shallowCopy.second;
+ 
+  if( evtStore()->record(jetContainerShallowCopy, name+"_Calib").isFailure() ){
+    ATH_MSG_WARNING("Unable to record JetCalibratedContainer: " << name+"_Calib");
+    return 0;
+  }
+  if( evtStore()->record(jetAuxContainerShallowCopy, name+"_Calib"+"Aux.").isFailure() ){
+    ATH_MSG_WARNING("Unable to record JetCalibratedAuxContainer: " << name+"_Calib"+"Aux.");
+    return 0;
+  }
+  
+  static SG::AuxElement::Accessor< xAOD::IParticleLink > accSetOriginLink ("originalObjectLink");
+  static SG::AuxElement::Decorator< float > decJvt("JvtUpdate");
+
+  int pos = std::find(m_jetCalibrationCollections.begin(), m_jetCalibrationCollections.end(), name) - m_jetCalibrationCollections.begin();
+  for ( xAOD::Jet *shallowCopyJet : * jetContainerShallowCopy ) {
+    
+    if( m_jetCalibrationTools[pos]->applyCalibration(*shallowCopyJet).isFailure() ){
+      ATH_MSG_WARNING( "Failed to apply calibration to the jet container"); 
+      return 0;
+    }
+    const xAOD::IParticleLink originLink( *jetContainer, shallowCopyJet->index() );
+    accSetOriginLink(*shallowCopyJet) = originLink;
+  }
+
+  if( evtStore()->setConst(jetContainerShallowCopy ).isFailure() ){
+    ATH_MSG_WARNING( "Failed to set jetcalibCollection (" << name+"_Calib"+"Aux." << ")const in StoreGate!"); 
+    return 0;
+  }
+  if( evtStore()->setConst(jetAuxContainerShallowCopy ).isFailure() ){
+    ATH_MSG_WARNING( "Failed to set jetcalibCollection (" << name+"_Calib"+"Aux." << ")const in StoreGate!"); 
+    return 0;
+  }
+  
+  return jetContainerShallowCopy; 
 }

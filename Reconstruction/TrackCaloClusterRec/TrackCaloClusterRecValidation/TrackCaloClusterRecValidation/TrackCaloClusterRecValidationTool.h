@@ -20,8 +20,11 @@
 #include <vector>
 
 #include "xAODJet/JetContainer.h"
+#include "GaudiKernel/ToolHandle.h"
 
 class TCCPlots;
+class IJetCalibrationTool;
+
 /**
  * Tool to book and fill inner detector histograms for physics validation
  */
@@ -43,6 +46,14 @@ private:
     ///prevent default construction
     TrackCaloClusterRecValidationTool();
     
+    /// calibration tool
+    ToolHandleArray<IJetCalibrationTool>  m_jetCalibrationTools;
+    std::vector< std::string >            m_jetCalibrationCollections;
+    bool                                  m_applyCalibration;
+    
+    /**Calibrate and record a shallow copy of a given jet container */
+    const xAOD::JetContainer* calibrateAndRecordShallowCopyJetCollection(const xAOD::JetContainer * jetContainer, const std::string name);
+    
     /// Get the matched jet
     const xAOD::Jet* ClusterMatched(const xAOD::Jet* jet, const xAOD::JetContainer* jets);
     const xAOD::Jet* ClusterMatched(const xAOD::Jet* jet, std::vector<const xAOD::Jet*> jets);
@@ -53,6 +64,7 @@ private:
     bool m_saveJetInfo;
     ///Truth jet container's name
     std::string m_truthJetContainerName;
+    std::string m_truthTrimmedJetContainerName;
     
     std::vector<std::string> m_jetContainerNames;
     

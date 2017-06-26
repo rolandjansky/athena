@@ -50,6 +50,14 @@ TCCPlots::TCCPlots(TCCPlotsBase* pParent, const std::string& sDir, const std::st
   m_jet_response_pt_subleading      (nullptr),
   m_jet_response_eta_subleading     (nullptr),
   m_jet_response_phi_subleading     (nullptr),
+  m_jet_response_add_eta            (nullptr),
+  m_jet_response_add_eta_2leadings  (nullptr),
+  m_jet_response_add_eta_leading    (nullptr),
+  m_jet_response_add_eta_subleading (nullptr),
+  m_jet_response_add_eta_pt            (nullptr),
+  m_jet_response_add_eta_pt_2leadings  (nullptr),
+  m_jet_response_add_eta_pt_leading    (nullptr),
+  m_jet_response_add_eta_pt_subleading (nullptr),
   m_jet_response_m_npv              (nullptr),
   m_jet_response_m_npv_2leadings    (nullptr),
   m_jet_response_m_npv_leading      (nullptr),
@@ -58,6 +66,10 @@ TCCPlots::TCCPlots(TCCPlotsBase* pParent, const std::string& sDir, const std::st
   m_jet_response_d2_pt_2leadings    (nullptr),
   m_jet_response_d2_pt_leading      (nullptr),
   m_jet_response_d2_pt_subleading   (nullptr),
+  m_jet_response_add_d2_pt            (nullptr),
+  m_jet_response_add_d2_pt_2leadings  (nullptr),
+  m_jet_response_add_d2_pt_leading    (nullptr),
+  m_jet_response_add_d2_pt_subleading (nullptr),
   m_jet_pseudoresponse_m            (nullptr),
   m_jet_pseudoresponse_pt           (nullptr),
   m_jet_pseudoresponse_m_2leadings  (nullptr),
@@ -78,42 +90,30 @@ TCCPlots::TCCPlots(TCCPlotsBase* pParent, const std::string& sDir, const std::st
   m_jet_response_d2_2leadings       (nullptr),
   m_jet_response_d2_leading         (nullptr),
   m_jet_response_d2_subleading      (nullptr),
-  m_jet_resolution_IQR1_m                (nullptr),
-  m_jet_resolution_IQR1_m_2leadings      (nullptr),
-  m_jet_resolution_IQR1_m_leading        (nullptr),
-  m_jet_resolution_IQR1_m_subleading     (nullptr),
-  m_jet_resolution_IQR2_m                (nullptr),
-  m_jet_resolution_IQR2_m_2leadings      (nullptr),
-  m_jet_resolution_IQR2_m_leading        (nullptr),
-  m_jet_resolution_IQR2_m_subleading     (nullptr),
-  m_jet_resolution_IQR1_m_npv            (nullptr),
-  m_jet_resolution_IQR1_m_npv_2leadings  (nullptr),
-  m_jet_resolution_IQR1_m_npv_leading    (nullptr),
-  m_jet_resolution_IQR1_m_npv_subleading (nullptr),
-  m_jet_resolution_IQR2_m_npv            (nullptr),
-  m_jet_resolution_IQR2_m_npv_2leadings  (nullptr),
-  m_jet_resolution_IQR2_m_npv_leading    (nullptr),
-  m_jet_resolution_IQR2_m_npv_subleading (nullptr),
-  m_jet_median_m_npv                     (nullptr),
-  m_jet_median_m_npv_2leadings           (nullptr),
-  m_jet_median_m_npv_leading             (nullptr),
-  m_jet_median_m_npv_subleading          (nullptr),
-  m_jet_median_width_IQR1_m_npv            (nullptr),
-  m_jet_median_width_IQR1_m_npv_2leadings  (nullptr),
-  m_jet_median_width_IQR1_m_npv_leading    (nullptr),
-  m_jet_median_width_IQR1_m_npv_subleading (nullptr),  
-  m_jet_median_width_IQR2_m_npv            (nullptr),
-  m_jet_median_width_IQR2_m_npv_2leadings  (nullptr),
-  m_jet_median_width_IQR2_m_npv_leading    (nullptr),
-  m_jet_median_width_IQR2_m_npv_subleading (nullptr),
-  m_jet_resolution_IQR1_d2                (nullptr),
-  m_jet_resolution_IQR1_d2_2leadings      (nullptr),
-  m_jet_resolution_IQR1_d2_leading        (nullptr),
-  m_jet_resolution_IQR1_d2_subleading     (nullptr),
-  m_jet_resolution_IQR2_d2                (nullptr),
-  m_jet_resolution_IQR2_d2_2leadings      (nullptr),
-  m_jet_resolution_IQR2_d2_leading        (nullptr),
-  m_jet_resolution_IQR2_d2_subleading     (nullptr),
+  m_jet_response_add_d2             (nullptr),
+  m_jet_response_add_d2_2leadings   (nullptr),
+  m_jet_response_add_d2_leading     (nullptr),
+  m_jet_response_add_d2_subleading  (nullptr),
+  m_jet_resolution_m                (nullptr),
+  m_jet_resolution_m_2leadings      (nullptr),
+  m_jet_resolution_m_leading        (nullptr),
+  m_jet_resolution_m_subleading     (nullptr),
+  m_jet_resolution_m_npv            (nullptr),
+  m_jet_resolution_m_npv_2leadings  (nullptr),
+  m_jet_resolution_m_npv_leading    (nullptr),
+  m_jet_resolution_m_npv_subleading (nullptr),
+  m_jet_median_width_m_npv            (nullptr),
+  m_jet_median_width_m_npv_2leadings  (nullptr),
+  m_jet_median_width_m_npv_leading    (nullptr),
+  m_jet_median_width_m_npv_subleading (nullptr),  
+  m_jet_resolution_d2                 (nullptr),
+  m_jet_resolution_d2_2leadings       (nullptr),
+  m_jet_resolution_d2_leading         (nullptr),
+  m_jet_resolution_d2_subleading      (nullptr),
+  m_jet_resolution_add_d2             (nullptr),
+  m_jet_resolution_add_d2_2leadings   (nullptr),
+  m_jet_resolution_add_d2_leading     (nullptr),
+  m_jet_resolution_add_d2_subleading  (nullptr),
   m_jet_mopt_pt_response_m                   (nullptr),  
   m_jet_mopt_pt_response_m_2leadings         (nullptr),  
   m_jet_mopt_pt_response_m_leading           (nullptr),  
@@ -580,6 +580,14 @@ void TCCPlots::initializePlots() {
     book(m_jet_response_phi_leading                  , "jet_response_phi_leading"                 );
     book(m_jet_response_eta_subleading               , "jet_response_eta_subleading"              );
     book(m_jet_response_phi_subleading               , "jet_response_phi_subleading"              );
+    book(m_jet_response_add_eta                      , "jet_response_add_eta"                     );
+    book(m_jet_response_add_eta_2leadings            , "jet_response_add_eta_2leadings"           );
+    book(m_jet_response_add_eta_leading              , "jet_response_add_eta_leading"             );
+    book(m_jet_response_add_eta_subleading           , "jet_response_add_eta_subleading"          );
+    book(m_jet_response_add_eta_pt                   , "jet_response_add_eta_pt"                  );
+    book(m_jet_response_add_eta_pt_2leadings         , "jet_response_add_eta_pt_2leadings"        );
+    book(m_jet_response_add_eta_pt_leading           , "jet_response_add_eta_pt_leading"          );
+    book(m_jet_response_add_eta_pt_subleading        , "jet_response_add_eta_pt_subleading"       );
     book(m_jet_response_m_npv                        , "jet_response_m_npv"                       );
     book(m_jet_response_m_npv_2leadings              , "jet_response_m_npv_2leadings"             );
     book(m_jet_response_m_npv_leading                , "jet_response_m_npv_leading"               );
@@ -588,6 +596,10 @@ void TCCPlots::initializePlots() {
     book(m_jet_response_d2_pt_2leadings              , "jet_response_d2_pt_2leadings"             );
     book(m_jet_response_d2_pt_leading                , "jet_response_d2_pt_leading"               );
     book(m_jet_response_d2_pt_subleading             , "jet_response_d2_pt_subleading"            );
+    book(m_jet_response_add_d2_pt                    , "jet_response_add_d2_pt"                   );
+    book(m_jet_response_add_d2_pt_2leadings          , "jet_response_add_d2_pt_2leadings"         );
+    book(m_jet_response_add_d2_pt_leading            , "jet_response_add_d2_pt_leading"           );
+    book(m_jet_response_add_d2_pt_subleading         , "jet_response_add_d2_pt_subleading"        );
     book(m_jet_pseudoresponse_m                      , "jet_pseudoresponse_m"                     );
     book(m_jet_pseudoresponse_pt                     , "jet_pseudoresponse_pt"                    );
     book(m_jet_pseudoresponse_m_2leadings            , "jet_pseudoresponse_m_2leadings"           );
@@ -608,42 +620,30 @@ void TCCPlots::initializePlots() {
     book(m_jet_response_d2_2leadings                 , "jet_response_d2_2leadings"                );
     book(m_jet_response_d2_leading                   , "jet_response_d2_leading"                  );
     book(m_jet_response_d2_subleading                , "jet_response_d2_subleading"               ); 
-    book(m_jet_resolution_IQR1_m                     , "jet_resolution_IQR1_m"                    );
-    book(m_jet_resolution_IQR1_m_2leadings           , "jet_resolution_IQR1_m_2leadings"          );
-    book(m_jet_resolution_IQR1_m_leading             , "jet_resolution_IQR1_m_leading"            );
-    book(m_jet_resolution_IQR1_m_subleading          , "jet_resolution_IQR1_m_subleading"         );
-    book(m_jet_resolution_IQR1_m_npv                 , "jet_resolution_IQR1_m_npv"                );
-    book(m_jet_resolution_IQR1_m_npv_2leadings       , "jet_resolution_IQR1_m_npv_2leadings"      );
-    book(m_jet_resolution_IQR1_m_npv_leading         , "jet_resolution_IQR1_m_npv_leading"        );
-    book(m_jet_resolution_IQR1_m_npv_subleading      , "jet_resolution_IQR1_m_npv_subleading"     );
-    book(m_jet_resolution_IQR2_m                     , "jet_resolution_IQR2_m"                    );
-    book(m_jet_resolution_IQR2_m_2leadings           , "jet_resolution_IQR2_m_2leadings"          );
-    book(m_jet_resolution_IQR2_m_leading             , "jet_resolution_IQR2_m_leading"            );
-    book(m_jet_resolution_IQR2_m_subleading          , "jet_resolution_IQR2_m_subleading"         );
-    book(m_jet_resolution_IQR2_m_npv                 , "jet_resolution_IQR2_m_npv"                );
-    book(m_jet_resolution_IQR2_m_npv_2leadings       , "jet_resolution_IQR2_m_npv_2leadings"      );
-    book(m_jet_resolution_IQR2_m_npv_leading         , "jet_resolution_IQR2_m_npv_leading"        );
-    book(m_jet_resolution_IQR2_m_npv_subleading      , "jet_resolution_IQR2_m_npv_subleading"     );
-    book(m_jet_resolution_IQR1_d2                    , "jet_resolution_IQR1_d2"                   );
-    book(m_jet_resolution_IQR1_d2_2leadings          , "jet_resolution_IQR1_d2_2leadings"         );
-    book(m_jet_resolution_IQR1_d2_leading            , "jet_resolution_IQR1_d2_leading"           );
-    book(m_jet_resolution_IQR1_d2_subleading         , "jet_resolution_IQR1_d2_subleading"        );
-    book(m_jet_resolution_IQR2_d2                    , "jet_resolution_IQR2_d2"                   );
-    book(m_jet_resolution_IQR2_d2_2leadings          , "jet_resolution_IQR2_d2_2leadings"         );
-    book(m_jet_resolution_IQR2_d2_leading            , "jet_resolution_IQR2_d2_leading"           );
-    book(m_jet_resolution_IQR2_d2_subleading         , "jet_resolution_IQR2_d2_subleading"        );
-    book(m_jet_median_m_npv                          , "jet_median_m_npv"                         );
-    book(m_jet_median_m_npv_2leadings                , "jet_median_m_npv_2leadings"               );
-    book(m_jet_median_m_npv_leading                  , "jet_median_m_npv_leading"                 );
-    book(m_jet_median_m_npv_subleading               , "jet_median_m_npv_subleading"              );
-    book(m_jet_median_width_IQR1_m_npv               , "jet_median_width_IQR1_m_npv"              );
-    book(m_jet_median_width_IQR1_m_npv_2leadings     , "jet_median_width_IQR1_m_npv_2leadings"    );
-    book(m_jet_median_width_IQR1_m_npv_leading       , "jet_median_width_IQR1_m_npv_leading"      );
-    book(m_jet_median_width_IQR1_m_npv_subleading    , "jet_median_width_IQR1_m_npv_subleading"   );
-    book(m_jet_median_width_IQR2_m_npv               , "jet_median_width_IQR2_m_npv"              );
-    book(m_jet_median_width_IQR2_m_npv_2leadings     , "jet_median_width_IQR2_m_npv_2leadings"    );
-    book(m_jet_median_width_IQR2_m_npv_leading       , "jet_median_width_IQR2_m_npv_leading"      );
-    book(m_jet_median_width_IQR2_m_npv_subleading    , "jet_median_width_IQR2_m_npv_subleading"   );
+    book(m_jet_response_add_d2                       , "jet_response_add_d2"                      );
+    book(m_jet_response_add_d2_2leadings             , "jet_response_add_d2_2leadings"            );
+    book(m_jet_response_add_d2_leading               , "jet_response_add_d2_leading"              );
+    book(m_jet_response_add_d2_subleading            , "jet_response_add_d2_subleading"           ); 
+    book(m_jet_resolution_m                          , "jet_resolution_m"                         );
+    book(m_jet_resolution_m_2leadings                , "jet_resolution_m_2leadings"               );
+    book(m_jet_resolution_m_leading                  , "jet_resolution_m_leading"                 );
+    book(m_jet_resolution_m_subleading               , "jet_resolution_m_subleading"              );
+    book(m_jet_resolution_m_npv                      , "jet_resolution_m_npv"                     );
+    book(m_jet_resolution_m_npv_2leadings            , "jet_resolution_m_npv_2leadings"           );
+    book(m_jet_resolution_m_npv_leading              , "jet_resolution_m_npv_leading"             );
+    book(m_jet_resolution_m_npv_subleading           , "jet_resolution_m_npv_subleading"          );
+    book(m_jet_resolution_d2                         , "jet_resolution_d2"                        );
+    book(m_jet_resolution_d2_2leadings               , "jet_resolution_d2_2leadings"              );
+    book(m_jet_resolution_d2_leading                 , "jet_resolution_d2_leading"                );
+    book(m_jet_resolution_d2_subleading              , "jet_resolution_d2_subleading"             );
+    book(m_jet_resolution_add_d2                     , "jet_resolution_add_d2"                    );
+    book(m_jet_resolution_add_d2_2leadings           , "jet_resolution_add_d2_2leadings"          );
+    book(m_jet_resolution_add_d2_leading             , "jet_resolution_add_d2_leading"            );
+    book(m_jet_resolution_add_d2_subleading          , "jet_resolution_add_d2_subleading"         );
+    book(m_jet_median_width_m_npv                    , "jet_median_width_m_npv"                   );
+    book(m_jet_median_width_m_npv_2leadings          , "jet_median_width_m_npv_2leadings"         );
+    book(m_jet_median_width_m_npv_leading            , "jet_median_width_m_npv_leading"           );
+    book(m_jet_median_width_m_npv_subleading         , "jet_median_width_m_npv_subleading"        );
     book(m_jet_mopt_pt_response_m                    , "jet_mopt_pt_response_m"                   );
     book(m_jet_mopt_pt_response_m_2leadings          , "jet_mopt_pt_response_m_2leadings"         );
     book(m_jet_mopt_pt_response_m_leading            , "jet_mopt_pt_response_m_leading"           );
@@ -1091,12 +1091,17 @@ void TCCPlots::fillResponse(const xAOD::Jet& jet, const xAOD::Jet& truth) {
   fillHisto(m_jet_response_eta   , jet.eta()/truth.eta()      , m_eventWeight);
   fillHisto(m_jet_response_phi   , jet.phi()/truth.phi()      , m_eventWeight);
   
+  fillHisto(m_jet_response_add_eta, jet.eta() - truth.eta()   , m_eventWeight);
+  fillHisto(m_jet_response_add_eta_pt, truth.pt()/GeV, jet.eta() - truth.eta(), m_eventWeight);
+  
   fillHisto(m_jet_response_m_pt  , truth.pt()/GeV, jet.m()/truth.m() , m_eventWeight);
     
   static SG::AuxElement::Accessor<float> accD2("D2");
   if (accD2.isAvailable(jet) and accD2.isAvailable(truth)) {
     fillHisto(m_jet_response_d2   , accD2(jet)/accD2(truth), m_eventWeight);  
     fillHisto(m_jet_response_d2_pt, truth.pt()/GeV, accD2(jet)/accD2(truth) , m_eventWeight);
+    fillHisto(m_jet_response_add_d2   , accD2(jet) - accD2(truth), m_eventWeight);  
+    fillHisto(m_jet_response_add_d2_pt, truth.pt()/GeV, accD2(jet) - accD2(truth) , m_eventWeight);
   }
 }
 
@@ -1174,6 +1179,12 @@ void TCCPlots::fillResponseLeading(const xAOD::Jet& jet, const xAOD::Jet& truth)
   fillHisto(m_jet_response_eta_2leadings , jet.eta()/truth.eta(), m_eventWeight);
   fillHisto(m_jet_response_phi_2leadings , jet.phi()/truth.phi(), m_eventWeight);
   
+  fillHisto(m_jet_response_add_eta_leading  , jet.eta() - truth.eta()   , m_eventWeight);
+  fillHisto(m_jet_response_add_eta_2leadings, jet.eta() - truth.eta()   , m_eventWeight);
+  
+  fillHisto(m_jet_response_add_eta_pt_leading  , truth.pt()/GeV, jet.eta() - truth.eta(), m_eventWeight);
+  fillHisto(m_jet_response_add_eta_pt_2leadings, truth.pt()/GeV, jet.eta() - truth.eta(), m_eventWeight);
+  
   fillHisto(m_jet_response_m_pt_2leadings  , truth.pt()/GeV, jet.m()/truth.m(), m_eventWeight);
   fillHisto(m_jet_response_m_pt_leading    , truth.pt()/GeV, jet.m()/truth.m(), m_eventWeight);
 
@@ -1183,6 +1194,10 @@ void TCCPlots::fillResponseLeading(const xAOD::Jet& jet, const xAOD::Jet& truth)
     fillHisto(m_jet_response_d2_leading   , accD2(jet)/accD2(truth), m_eventWeight);
     fillHisto(m_jet_response_d2_pt_2leadings  , truth.pt()/GeV, accD2(jet)/accD2(truth), m_eventWeight);
     fillHisto(m_jet_response_d2_pt_leading    , truth.pt()/GeV, accD2(jet)/accD2(truth), m_eventWeight);
+    fillHisto(m_jet_response_add_d2_2leadings , accD2(jet) - accD2(truth), m_eventWeight);
+    fillHisto(m_jet_response_add_d2_leading   , accD2(jet) - accD2(truth), m_eventWeight);
+    fillHisto(m_jet_response_add_d2_pt_2leadings  , truth.pt()/GeV, accD2(jet) - accD2(truth), m_eventWeight);
+    fillHisto(m_jet_response_add_d2_pt_leading    , truth.pt()/GeV, accD2(jet) - accD2(truth), m_eventWeight);
   }
 }
 
@@ -1200,6 +1215,7 @@ void TCCPlots::fillResponseNoPtNoMassCutsLeading(const xAOD::Jet& jet, const xAO
   fillHisto(m_jet_mopt_pt_response_eta_2leadings   , truth.pt()/GeV, truth.m()/truth.pt(), jet.eta()/truth.eta(), m_eventWeight);
   fillHisto(m_jet_mopt_pt_response_phi_leading     , truth.pt()/GeV, truth.m()/truth.pt(), jet.phi()/truth.phi(), m_eventWeight);
   fillHisto(m_jet_mopt_pt_response_phi_2leadings   , truth.pt()/GeV, truth.m()/truth.pt(), jet.phi()/truth.phi(), m_eventWeight);
+  
     
   static SG::AuxElement::Accessor<float> accD2("D2");
   if (accD2.isAvailable(jet) and accD2.isAvailable(truth)) {
@@ -1229,6 +1245,12 @@ void TCCPlots::fillResponseSubLeading(const xAOD::Jet& jet, const xAOD::Jet& tru
   fillHisto(m_jet_response_eta_2leadings  , jet.eta()/truth.eta(), m_eventWeight);
   fillHisto(m_jet_response_phi_2leadings  , jet.phi()/truth.phi(), m_eventWeight);
   
+  fillHisto(m_jet_response_add_eta_subleading, jet.eta() - truth.eta()   , m_eventWeight);
+  fillHisto(m_jet_response_add_eta_2leadings , jet.eta() - truth.eta()   , m_eventWeight);
+  
+  fillHisto(m_jet_response_add_eta_pt_subleading, truth.pt()/GeV, jet.eta() - truth.eta(), m_eventWeight);
+  fillHisto(m_jet_response_add_eta_pt_2leadings , truth.pt()/GeV, jet.eta() - truth.eta(), m_eventWeight);
+  
   fillHisto(m_jet_response_m_pt_2leadings  , truth.pt()/GeV, jet.m()/truth.m(), m_eventWeight);
   fillHisto(m_jet_response_m_pt_subleading , truth.pt()/GeV, jet.m()/truth.m(), m_eventWeight);
 
@@ -1238,6 +1260,10 @@ void TCCPlots::fillResponseSubLeading(const xAOD::Jet& jet, const xAOD::Jet& tru
     fillHisto(m_jet_response_d2_subleading   , accD2(jet)/accD2(truth), m_eventWeight);
     fillHisto(m_jet_response_d2_pt_2leadings  , truth.pt()/GeV, accD2(jet)/accD2(truth), m_eventWeight);
     fillHisto(m_jet_response_d2_pt_subleading , truth.pt()/GeV, accD2(jet)/accD2(truth), m_eventWeight);
+    fillHisto(m_jet_response_add_d2_2leadings    , accD2(jet) - accD2(truth), m_eventWeight);
+    fillHisto(m_jet_response_add_d2_subleading   , accD2(jet) - accD2(truth), m_eventWeight);
+    fillHisto(m_jet_response_add_d2_pt_2leadings  , truth.pt()/GeV, accD2(jet) - accD2(truth), m_eventWeight);
+    fillHisto(m_jet_response_add_d2_pt_subleading , truth.pt()/GeV, accD2(jet) - accD2(truth), m_eventWeight);
   }
 }
 
@@ -2132,7 +2158,12 @@ void TCCPlots::finalizePlots() {
     std::vector < TH2* > th2f = { m_jet_response_m_pt, m_jet_response_m_pt_2leadings, 
       m_jet_response_m_pt_leading, m_jet_response_m_pt_subleading, 
       m_jet_response_d2_pt, m_jet_response_d2_pt_2leadings, 
-      m_jet_response_d2_pt_leading, m_jet_response_d2_pt_subleading };
+      m_jet_response_d2_pt_leading, m_jet_response_d2_pt_subleading,
+      m_jet_response_add_d2_pt, m_jet_response_add_d2_pt_2leadings, 
+      m_jet_response_add_d2_pt_leading, m_jet_response_add_d2_pt_subleading,
+      m_jet_response_add_eta_pt, m_jet_response_add_eta_pt_2leadings, 
+      m_jet_response_add_eta_pt_leading, m_jet_response_add_eta_pt_subleading      
+    };
       
     std::vector < TH3* > th3f = { m_jet_mopt_pt_response_m, m_jet_mopt_pt_response_m_2leadings,
       m_jet_mopt_pt_response_m_leading, m_jet_mopt_pt_response_m_subleading,
@@ -2158,15 +2189,20 @@ void TCCPlots::finalizePlots() {
 	    histo->SetBinContent(i,j,k,histo->GetBinContent(i,j,k)/(histo->GetXaxis()->GetBinWidth(i)*histo->GetYaxis()->GetBinWidth(j)*histo->GetZaxis()->GetBinWidth(k)));
     }
 
-    make_median(m_jet_response_m_pt                      , m_jet_resolution_IQR1_m             , m_jet_resolution_IQR2_m              );
-    make_median(m_jet_response_m_pt_2leadings            , m_jet_resolution_IQR1_m_2leadings   , m_jet_resolution_IQR2_m_2leadings    );  
-    make_median(m_jet_response_m_pt_leading              , m_jet_resolution_IQR1_m_leading     , m_jet_resolution_IQR2_m_leading      );
-    make_median(m_jet_response_m_pt_subleading           , m_jet_resolution_IQR1_m_subleading  , m_jet_resolution_IQR2_m_subleading   );
+    make_median(m_jet_response_m_pt                      , m_jet_resolution_m            );
+    make_median(m_jet_response_m_pt_2leadings            , m_jet_resolution_m_2leadings  );  
+    make_median(m_jet_response_m_pt_leading              , m_jet_resolution_m_leading    );
+    make_median(m_jet_response_m_pt_subleading           , m_jet_resolution_m_subleading );
     
-    make_median(m_jet_response_d2_pt                     , m_jet_resolution_IQR1_d2            , m_jet_resolution_IQR2_d2             );
-    make_median(m_jet_response_d2_pt_2leadings           , m_jet_resolution_IQR1_d2_2leadings  , m_jet_resolution_IQR2_d2_2leadings   );  
-    make_median(m_jet_response_d2_pt_leading             , m_jet_resolution_IQR1_d2_leading    , m_jet_resolution_IQR2_d2_leading     );
-    make_median(m_jet_response_d2_pt_subleading          , m_jet_resolution_IQR1_d2_subleading , m_jet_resolution_IQR2_d2_subleading  );
+    make_median(m_jet_response_d2_pt                     , m_jet_resolution_d2            );
+    make_median(m_jet_response_d2_pt_2leadings           , m_jet_resolution_d2_2leadings  );  
+    make_median(m_jet_response_d2_pt_leading             , m_jet_resolution_d2_leading    );
+    make_median(m_jet_response_d2_pt_subleading          , m_jet_resolution_d2_subleading );
+    
+    make_median_add(m_jet_response_add_d2_pt             , m_jet_resolution_add_d2            );
+    make_median_add(m_jet_response_add_d2_pt_2leadings   , m_jet_resolution_add_d2_2leadings  );  
+    make_median_add(m_jet_response_add_d2_pt_leading     , m_jet_resolution_add_d2_leading    );
+    make_median_add(m_jet_response_add_d2_pt_subleading  , m_jet_resolution_add_d2_subleading );
     
     make_median(m_jet_mopt_pt_response_m                 , m_jet_resolution_mopt_pt_m               );
     make_median(m_jet_mopt_pt_response_m_2leadings       , m_jet_resolution_mopt_pt_m_2leadings     );
@@ -2194,32 +2230,11 @@ void TCCPlots::finalizePlots() {
     make_median(m_jet_mopt_pt_response_d2_leading        , m_jet_resolution_mopt_pt_d2_leading      );
     make_median(m_jet_mopt_pt_response_d2_subleading     , m_jet_resolution_mopt_pt_d2_subleading   );  
     
-    make_median(m_jet_response_m_npv                      , m_jet_resolution_IQR1_m_npv            , m_jet_resolution_IQR2_m_npv            , m_jet_median_m_npv           );
-    make_median(m_jet_response_m_npv_2leadings            , m_jet_resolution_IQR1_m_npv_2leadings  , m_jet_resolution_IQR2_m_npv_2leadings  , m_jet_median_m_npv_2leadings );  
-    make_median(m_jet_response_m_npv_leading              , m_jet_resolution_IQR1_m_npv_leading    , m_jet_resolution_IQR2_m_npv_leading    , m_jet_median_m_npv_leading   );
-    make_median(m_jet_response_m_npv_subleading           , m_jet_resolution_IQR1_m_npv_subleading , m_jet_resolution_IQR2_m_npv_subleading , m_jet_median_m_npv_subleading);
+    make_median(m_jet_response_m_npv                      , m_jet_resolution_m_npv            , m_jet_median_width_m_npv           );
+    make_median(m_jet_response_m_npv_2leadings            , m_jet_resolution_m_npv_2leadings  , m_jet_median_width_m_npv_2leadings );  
+    make_median(m_jet_response_m_npv_leading              , m_jet_resolution_m_npv_leading    , m_jet_median_width_m_npv_leading   );
+    make_median(m_jet_response_m_npv_subleading           , m_jet_resolution_m_npv_subleading , m_jet_median_width_m_npv_subleading);
         
-    for (int i=1; i<=m_jet_median_width_IQR1_m_npv->GetNbinsX(); i++) {
-      m_jet_median_width_IQR1_m_npv           ->SetBinContent(i,m_jet_median_m_npv           ->GetBinContent(i));
-      m_jet_median_width_IQR1_m_npv_2leadings ->SetBinContent(i,m_jet_median_m_npv_2leadings ->GetBinContent(i));
-      m_jet_median_width_IQR1_m_npv_leading   ->SetBinContent(i,m_jet_median_m_npv_leading   ->GetBinContent(i));
-      m_jet_median_width_IQR1_m_npv_subleading->SetBinContent(i,m_jet_median_m_npv_subleading->GetBinContent(i));
-      
-      m_jet_median_width_IQR2_m_npv           ->SetBinContent(i,m_jet_median_m_npv           ->GetBinContent(i));
-      m_jet_median_width_IQR2_m_npv_2leadings ->SetBinContent(i,m_jet_median_m_npv_2leadings ->GetBinContent(i));
-      m_jet_median_width_IQR2_m_npv_leading   ->SetBinContent(i,m_jet_median_m_npv_leading   ->GetBinContent(i));
-      m_jet_median_width_IQR2_m_npv_subleading->SetBinContent(i,m_jet_median_m_npv_subleading->GetBinContent(i));
-      
-      m_jet_median_width_IQR1_m_npv           ->SetBinError(i,m_jet_resolution_IQR1_m_npv           ->GetBinContent(i));
-      m_jet_median_width_IQR1_m_npv_2leadings ->SetBinError(i,m_jet_resolution_IQR1_m_npv_2leadings ->GetBinContent(i));
-      m_jet_median_width_IQR1_m_npv_leading   ->SetBinError(i,m_jet_resolution_IQR1_m_npv_leading   ->GetBinContent(i));
-      m_jet_median_width_IQR1_m_npv_subleading->SetBinError(i,m_jet_resolution_IQR1_m_npv_subleading->GetBinContent(i));
-            
-      m_jet_median_width_IQR2_m_npv           ->SetBinError(i,m_jet_resolution_IQR2_m_npv           ->GetBinContent(i));
-      m_jet_median_width_IQR2_m_npv_2leadings ->SetBinError(i,m_jet_resolution_IQR2_m_npv_2leadings ->GetBinContent(i));
-      m_jet_median_width_IQR2_m_npv_leading   ->SetBinError(i,m_jet_resolution_IQR2_m_npv_leading   ->GetBinContent(i));
-      m_jet_median_width_IQR2_m_npv_subleading->SetBinError(i,m_jet_resolution_IQR2_m_npv_subleading->GetBinContent(i));
-    }
   
   } else if (m_collectionType == "tracks") {
     //pt + prod radius th2
@@ -2396,7 +2411,7 @@ void TCCPlots::finalizePlots() {
   
 }
 
-void TCCPlots::make_median(TH2* h2_response, TH1* h1_resolution, TH1* h1_resolution_2, TH1* h1_median){
+void TCCPlots::make_median(TH2* h2_response, TH1* h1_resolution, TH1* h1_median){
   for (int i=1; i<=h2_response->GetNbinsX(); i++){
     TH1F* hold = new TH1F("","", h2_response->GetNbinsY(),
 			  h2_response->GetYaxis()->GetBinCenter(1)-0.5*h2_response->GetYaxis()->GetBinWidth(1),
@@ -2413,8 +2428,30 @@ void TCCPlots::make_median(TH2* h2_response, TH1* h1_resolution, TH1* h1_resolut
     prob=.16;
     hold->GetQuantiles(1,&quant16,&prob);
     h1_resolution->SetBinContent(i,0.5*fabs(quant84-quant16)/median);
-    if (h1_resolution_2) h1_resolution_2->SetBinContent(i,0.5*fabs(quant84-quant16)/(1-fabs(1-median)));
-    if (h1_median) h1_median->SetBinContent(i,median);
+    if (h1_median) {
+      h1_median->SetBinContent(i,median);
+      h1_median->SetBinError(i,h1_resolution->GetBinContent(i));
+    }
+  }
+}
+
+void TCCPlots::make_median_add(TH2* h2_response, TH1* h1_resolution){
+  for (int i=1; i<=h2_response->GetNbinsX(); i++){
+    TH1F* hold = new TH1F("","", h2_response->GetNbinsY(),
+			  h2_response->GetYaxis()->GetBinCenter(1)-0.5*h2_response->GetYaxis()->GetBinWidth(1),
+			  h2_response->GetYaxis()->GetBinCenter(h2_response->GetNbinsY())+0.5*h2_response->GetYaxis()->GetBinWidth(h2_response->GetNbinsY()));
+    for (int j=1; j<=h2_response->GetNbinsY(); j++){
+      hold->SetBinContent(j,h2_response->GetBinContent(i,j));
+    }
+    if (hold->Integral()==0.) continue;
+    Double_t prob,quant16,quant84,median;
+    prob=.5;
+    hold->GetQuantiles(1,&median,&prob);
+    prob=.84;
+    hold->GetQuantiles(1,&quant84,&prob);
+    prob=.16;
+    hold->GetQuantiles(1,&quant16,&prob);
+    h1_resolution->SetBinContent(i,0.5*fabs(quant84-quant16));
   }
 }
 
@@ -2565,22 +2602,26 @@ void TCCPlots::resizeHistograms() {
       m_jet_response_d2_pt_2leadings  ->GetXaxis()->Set(nBins, ptBins);
       m_jet_response_d2_pt_leading    ->GetXaxis()->Set(nBins, ptBins);
       m_jet_response_d2_pt_subleading ->GetXaxis()->Set(nBins, ptBins);
-      m_jet_resolution_IQR1_m              ->GetXaxis()->Set(nBins, ptBins);          
-      m_jet_resolution_IQR1_m_2leadings    ->GetXaxis()->Set(nBins, ptBins);
-      m_jet_resolution_IQR1_m_leading      ->GetXaxis()->Set(nBins, ptBins);
-      m_jet_resolution_IQR1_m_subleading   ->GetXaxis()->Set(nBins, ptBins);
-      m_jet_resolution_IQR2_m              ->GetXaxis()->Set(nBins, ptBins);          
-      m_jet_resolution_IQR2_m_2leadings    ->GetXaxis()->Set(nBins, ptBins);
-      m_jet_resolution_IQR2_m_leading      ->GetXaxis()->Set(nBins, ptBins);
-      m_jet_resolution_IQR2_m_subleading   ->GetXaxis()->Set(nBins, ptBins);
-      m_jet_resolution_IQR1_d2              ->GetXaxis()->Set(nBins, ptBins);          
-      m_jet_resolution_IQR1_d2_2leadings    ->GetXaxis()->Set(nBins, ptBins);
-      m_jet_resolution_IQR1_d2_leading      ->GetXaxis()->Set(nBins, ptBins);
-      m_jet_resolution_IQR1_d2_subleading   ->GetXaxis()->Set(nBins, ptBins);
-      m_jet_resolution_IQR2_d2              ->GetXaxis()->Set(nBins, ptBins);          
-      m_jet_resolution_IQR2_d2_2leadings    ->GetXaxis()->Set(nBins, ptBins);
-      m_jet_resolution_IQR2_d2_leading      ->GetXaxis()->Set(nBins, ptBins);
-      m_jet_resolution_IQR2_d2_subleading   ->GetXaxis()->Set(nBins, ptBins);      
+      m_jet_response_add_d2_pt             ->GetXaxis()->Set(nBins, ptBins);
+      m_jet_response_add_d2_pt_2leadings   ->GetXaxis()->Set(nBins, ptBins);
+      m_jet_response_add_d2_pt_leading     ->GetXaxis()->Set(nBins, ptBins);
+      m_jet_response_add_d2_pt_subleading  ->GetXaxis()->Set(nBins, ptBins);
+      m_jet_response_add_eta_pt            ->GetXaxis()->Set(nBins, ptBins);
+      m_jet_response_add_eta_pt_2leadings  ->GetXaxis()->Set(nBins, ptBins);
+      m_jet_response_add_eta_pt_leading    ->GetXaxis()->Set(nBins, ptBins);
+      m_jet_response_add_eta_pt_subleading ->GetXaxis()->Set(nBins, ptBins);      
+      m_jet_resolution_m                   ->GetXaxis()->Set(nBins, ptBins);          
+      m_jet_resolution_m_2leadings         ->GetXaxis()->Set(nBins, ptBins);
+      m_jet_resolution_m_leading           ->GetXaxis()->Set(nBins, ptBins);
+      m_jet_resolution_m_subleading        ->GetXaxis()->Set(nBins, ptBins);
+      m_jet_resolution_d2                  ->GetXaxis()->Set(nBins, ptBins);          
+      m_jet_resolution_d2_2leadings        ->GetXaxis()->Set(nBins, ptBins);
+      m_jet_resolution_d2_leading          ->GetXaxis()->Set(nBins, ptBins);
+      m_jet_resolution_d2_subleading       ->GetXaxis()->Set(nBins, ptBins);
+      m_jet_resolution_add_d2              ->GetXaxis()->Set(nBins, ptBins);          
+      m_jet_resolution_add_d2_2leadings    ->GetXaxis()->Set(nBins, ptBins);
+      m_jet_resolution_add_d2_leading      ->GetXaxis()->Set(nBins, ptBins);
+      m_jet_resolution_add_d2_subleading   ->GetXaxis()->Set(nBins, ptBins);      
     }
     
     if (m_jetPtBins.size()>0 and m_jetMassOverPtBins.size()>0) {
