@@ -19,6 +19,7 @@
 #include "CxxUtils/make_unique.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 
 namespace AthViews {
 
@@ -112,7 +113,7 @@ StatusCode DFlowAlg3::execute()
 
   // create a temporary r-handle
   SG::ReadHandle< std::vector<int> > ints( inputVectorHandle.name() );
-  StatusCode sc = ints.setProxyDict( ctx.proxy() );
+  StatusCode sc = ints.setProxyDict( ctx.getExtension<Atlas::ExtendedEventContext>()->proxy() );
   if ( !sc.isSuccess() ) ATH_MSG_INFO( "Failed to load view " );
   ATH_MSG_INFO( "temporary r-handle[ints] - size: " << ints->size() );
 

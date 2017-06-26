@@ -4,6 +4,7 @@
 
 #include "TrigT1ZDC/TrigT1ZDC.h"
 #include "TrigT1Interfaces/ZdcCTP.h"
+#include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 #include "TrigConfL1Data/ThresholdConfig.h"
 
 // Needed for truth based trigger simulation.
@@ -161,7 +162,6 @@ namespace LVL1 {
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "execute()" << endmsg;
     
     StatusCode sc;
-    std::string containerName;
 
     // The ZDC simulation is currently not in working order.
     // Therefore just use long lived neutrals within the ZDC
@@ -283,15 +283,14 @@ namespace LVL1 {
       zdcCTP->dump();
     }
     
-    containerName = "/Run/L1ZDCtoCTPLocation";
     
-    sc=evtStore()->record(zdcCTP, containerName, false);
+    sc=evtStore()->record(zdcCTP, LVL1::DEFAULT_ZdcCTPLocation, false);
     if(sc.isFailure()) {
-      if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Failed to register " << containerName << endmsg;
+      if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Failed to register " << LVL1::DEFAULT_ZdcCTPLocation << endmsg;
       return sc;
     } 
     else if(msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << containerName << " registered successfully "
+      msg(MSG::DEBUG) << LVL1::DEFAULT_ZdcCTPLocation << " registered successfully "
 		      << endmsg;
     }
     

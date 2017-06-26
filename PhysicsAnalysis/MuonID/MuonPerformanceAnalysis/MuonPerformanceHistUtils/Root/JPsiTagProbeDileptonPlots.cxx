@@ -21,8 +21,8 @@ JPsiTagProbeDileptonPlots::JPsiTagProbeDileptonPlots(PlotBase* pParent, std::str
 void JPsiTagProbeDileptonPlots::initializePlots()
 {
   m_ll = Book1D("m_ll","mll; m_{ll} [GeV]; Entries",250,2000.,4500.);
-  opening_angle = Book1D("opening_angle","opening_angle; Dilepton opening angle; Entries",40,0.0,TMath::Pi());
-  jpsi_pt  = Book1D("jpsi_pt","jpsi_pt; JPsi p_{T} [GeV] ; Entries",100,0.0,50000.);
+  m_opening_angle = Book1D("opening_angle","opening_angle; Dilepton opening angle; Entries",40,0.0,TMath::Pi());
+  m_jpsi_pt  = Book1D("jpsi_pt","jpsi_pt; JPsi p_{T} [GeV] ; Entries",100,0.0,50000.);
 
   //  const double pi = 3.141592653589;
 
@@ -47,8 +47,8 @@ void JPsiTagProbeDileptonPlots::initializePlots()
 
   // 25 fixed-size bins in phi
 
-  double min_f = -pi;
-  double max_f =  pi;
+  double min_f = -m_pi;
+  double max_f =  m_pi;
   int nBins_f = 25;
   double step_f = (max_f-min_f)/nBins_f; // ~0.25 rad
   double bins_f[26];
@@ -94,13 +94,13 @@ void JPsiTagProbeDileptonPlots::initializePlots()
 
   TH3D pfm_dummy ("pfm_dummy","pfmdummy", n_bins_p, bins_p, n_bins_f, bins_f, n_bins_m, bins_m);
 
-  pem_num = PlotBase::Book3D("_pem_num", &pem_dummy, "pem_num; p_{T} [GeV]; eta; m_{ll} [GeV]; Entries");
-  pem_num_etaq = PlotBase::Book3D("_pem_num_etaq", &pem_dummy_etaq, "pem_num_etaq; p_{T} [GeV]; eta*Q; m_{ll} [GeV]; Entries");
+  m_pem_num = PlotBase::Book3D("_pem_num", &pem_dummy, "pem_num; p_{T} [GeV]; eta; m_{ll} [GeV]; Entries");
+  m_pem_num_etaq = PlotBase::Book3D("_pem_num_etaq", &pem_dummy_etaq, "pem_num_etaq; p_{T} [GeV]; eta*Q; m_{ll} [GeV]; Entries");
 
-  fem_num = PlotBase::Book3D("_fem_num", &fem_dummy, "fem_num; phi; eta; m_{ll} [GeV]; Entries");
-  fem_num_etaq = PlotBase::Book3D("_fem_num_etaq", &fem_dummy_etaq, "fem_num_etaq; phi; eta*Q; m_{ll} [GeV]; Entries");
+  m_fem_num = PlotBase::Book3D("_fem_num", &fem_dummy, "fem_num; phi; eta; m_{ll} [GeV]; Entries");
+  m_fem_num_etaq = PlotBase::Book3D("_fem_num_etaq", &fem_dummy_etaq, "fem_num_etaq; phi; eta*Q; m_{ll} [GeV]; Entries");
 
-  pfm_num = PlotBase::Book3D("_pfm_num", &pfm_dummy, "pfm_num; p_{T} [GeV]; phi; m_{ll} [GeV]; Entries");
+  m_pfm_num = PlotBase::Book3D("_pfm_num", &pfm_dummy, "pfm_num; p_{T} [GeV]; phi; m_{ll} [GeV]; Entries");
 
 }
 
@@ -114,8 +114,8 @@ void JPsiTagProbeDileptonPlots::fill(Probe& probe)
     TLorentzVector z = probe.probeTrack().p4() + probe.tagTrack().p4();
 
     m_ll->Fill(z.M(),sfweight );
-    jpsi_pt->Fill(z.Pt(),sfweight);
-    opening_angle->Fill(fabs(probe.probeTrack().p4().Angle(probe.tagTrack().p4().Vect())),sfweight);
+    m_jpsi_pt->Fill(z.Pt(),sfweight);
+    m_opening_angle->Fill(fabs(probe.probeTrack().p4().Angle(probe.tagTrack().p4().Vect())),sfweight);
 
     float vtx_mass = z.M();
     float probePt = probe.pt();
@@ -133,13 +133,13 @@ void JPsiTagProbeDileptonPlots::fill(Probe& probe)
     if (trkprobe) probeQ = trkprobe->charge();
 
     if ( probeQ < 1000 ) {
-      pem_num->Fill(probePt/1000., probeEta, vtx_mass/1000., sfweight);
-      pem_num_etaq->Fill(probePt/1000., probeEta*probeQ, vtx_mass/1000., sfweight);
+      m_pem_num->Fill(probePt/1000., probeEta, vtx_mass/1000., sfweight);
+      m_pem_num_etaq->Fill(probePt/1000., probeEta*probeQ, vtx_mass/1000., sfweight);
 
-      fem_num->Fill(probePhi, probeEta, vtx_mass/1000., sfweight);
-      fem_num_etaq->Fill(probePhi, probeEta*probeQ, vtx_mass/1000., sfweight);
+      m_fem_num->Fill(probePhi, probeEta, vtx_mass/1000., sfweight);
+      m_fem_num_etaq->Fill(probePhi, probeEta*probeQ, vtx_mass/1000., sfweight);
 
-      pfm_num->Fill(probePt/1000., probePhi, vtx_mass/1000., sfweight);
+      m_pfm_num->Fill(probePt/1000., probePhi, vtx_mass/1000., sfweight);
     }
 
 }

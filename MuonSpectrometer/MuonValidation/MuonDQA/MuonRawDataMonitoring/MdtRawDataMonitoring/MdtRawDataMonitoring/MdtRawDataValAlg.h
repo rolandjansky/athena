@@ -106,8 +106,7 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
 
   std::string m_title;
 
-  EventInfo* eventInfo; 
-  MDTMonGroupStruct* mg;
+  MDTMonGroupStruct* m_mg;
   MDTNoisyTubes* m_masked_tubes;
   ActiveStoreSvc* m_activeStore;
 
@@ -150,9 +149,9 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   int GetTubeMax(const Identifier & digcoll_id, const std::string & hardware_name);
   StatusCode StoreTriggerType();
   void StoreTriggerType(int type);
-  int GetTriggerType() { return trigtype; }
-  bool HasTrigBARREL() { return trig_BARREL; }
-  bool HasTrigENDCAP() { return trig_ENDCAP; }
+  int GetTriggerType() { return m_trigtype; }
+  bool HasTrigBARREL() { return m_trig_BARREL; }
+  bool HasTrigENDCAP() { return m_trig_ENDCAP; }
   bool isATLASReady() { return m_atlas_ready; }
   void setIsATLASReady();
   StatusCode fillLumiBlock();
@@ -167,7 +166,7 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   int m_firstEvent;
   uint32_t m_time;
   uint32_t m_firstTime;
-  int numberOfEvents;
+  int m_numberOfEvents;
   //int m_time;
   //
 
@@ -195,7 +194,7 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   std::vector<IdentifierHash> m_chambersIdHash;
   std::set<std::string> m_hardware_name_list;
   std::set<int> m_hashId_list;
-  std::map<std::string,float> hitsperchamber_map;
+  std::map<std::string,float> m_hitsperchamber_map;
 
   std::map<std::string,float> m_tubesperchamber_map;
 
@@ -215,9 +214,9 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   int m_StationEta;
   int m_StationPhi;
 
-  int trigtype;
-  bool trig_BARREL;
-  bool trig_ENDCAP;
+  int m_trigtype;
+  bool m_trig_BARREL;
+  bool m_trig_ENDCAP;
   //Define configurable adccut and TGC/RPC keys
   float m_ADCCut;
   float m_ADCCut_Bkgrd;
@@ -236,69 +235,69 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   //TH1* overalltdccut_TGCtrig; // all chambers tdc superimposed with adc cut
     
   //From Old BS
-  TH2* overalltdcadcLumi; // all chambers tdc vs adc superimposed
-  TH2* overalltdcadcPRLumi[4]; // all chambers tdc vs adc superimposed
+  TH2* m_overalltdcadcLumi; // all chambers tdc vs adc superimposed
+  TH2* m_overalltdcadcPRLumi[4]; // all chambers tdc vs adc superimposed
   //  TH1* overalltdc; // all chambers tdc superimposed
-  TH1* overalltdccutLumi; // all chambers tdc superimposed with adc cut
-  TH1* overalltdccut_segm_Lumi; // all chambers tdc superimposed with adc cut
-  TH1* overalladc_segm_Lumi; // all chambers adc on segm
-  TH1* overalladc_Lumi; // all chambers adc
-  TH1* overalltdccut_segm_PR_Lumi[4]; // all chambers tdc superimposed with adc cut per region
-  TH1* overalltdccutPRLumi[4]; // all chambers tdc superimposed with adc cut per region
-  TH1* overalladc_segm_PR_Lumi[4]; // all chambers adc superimposed per region
-  TH1* overalladcPRLumi[4]; // all chambers adc superimposed per region
-  TH1* overalladccutPRLumi[4]; // all chambers adc superimposed per region with adc noise cut
-  TH1* overalltdccutPRLumi_RPCtrig[4]; // all chambers tdc superimposed with adc cut per region
-  TH1* overalltdccutPRLumi_TGCtrig[4]; // all chambers tdc superimposed with adc cut per region
+  TH1* m_overalltdccutLumi; // all chambers tdc superimposed with adc cut
+  TH1* m_overalltdccut_segm_Lumi; // all chambers tdc superimposed with adc cut
+  TH1* m_overalladc_segm_Lumi; // all chambers adc on segm
+  TH1* m_overalladc_Lumi; // all chambers adc
+  TH1* m_overalltdccut_segm_PR_Lumi[4]; // all chambers tdc superimposed with adc cut per region
+  TH1* m_overalltdccutPRLumi[4]; // all chambers tdc superimposed with adc cut per region
+  TH1* m_overalladc_segm_PR_Lumi[4]; // all chambers adc superimposed per region
+  TH1* m_overalladcPRLumi[4]; // all chambers adc superimposed per region
+  TH1* m_overalladccutPRLumi[4]; // all chambers adc superimposed per region with adc noise cut
+  TH1* m_overalltdccutPRLumi_RPCtrig[4]; // all chambers tdc superimposed with adc cut per region
+  TH1* m_overalltdccutPRLumi_TGCtrig[4]; // all chambers tdc superimposed with adc cut per region
   
   
-  TH2* overalltdcadcHighOcc; // all chambers tdc vs adc superimposed, events with > m_HighOccThreshold hits
-  TH1* overalltdcHighOcc; // all chambers tdc superimposed, events with > m_HighOccThreshold hits
-  TH1* overalltdcHighOcc_ADCCut; // all chambers tdc (with ADC>80) superimposed, events with > m_HighOccThreshold hits
-  TH1* overalladc_HighOcc; // all chambers adc superimposed, events with > m_HighOccThreshold hits
-  TH2* overalltdcadcPR_HighOcc[4]; // all chambers tdc vs adc superimposed
-  TH1* overalltdcPR_HighOcc[4]; // all chambers tdc superimposed per region
-  TH1* overalltdcPR_HighOcc_ADCCut[4]; // all chambers tdc superimposed with adc cut per region
-  TH1* overalladcPR_HighOcc[4]; // all chambers tdc superimposed with adc cut per region
+  TH2* m_overalltdcadcHighOcc; // all chambers tdc vs adc superimposed, events with > m_HighOccThreshold hits
+  TH1* m_overalltdcHighOcc; // all chambers tdc superimposed, events with > m_HighOccThreshold hits
+  TH1* m_overalltdcHighOcc_ADCCut; // all chambers tdc (with ADC>80) superimposed, events with > m_HighOccThreshold hits
+  TH1* m_overalladc_HighOcc; // all chambers adc superimposed, events with > m_HighOccThreshold hits
+  TH2* m_overalltdcadcPR_HighOcc[4]; // all chambers tdc vs adc superimposed
+  TH1* m_overalltdcPR_HighOcc[4]; // all chambers tdc superimposed per region
+  TH1* m_overalltdcPR_HighOcc_ADCCut[4]; // all chambers tdc superimposed with adc cut per region
+  TH1* m_overalladcPR_HighOcc[4]; // all chambers tdc superimposed with adc cut per region
 
-  TH2* overall_mdt_DRvsDT;
+  TH2* m_overall_mdt_DRvsDT;
   //  TH2* overall_mdt_DRvsDRerr;
-  TH2* overall_mdt_DRvsSegD;
-  TH2* overallPR_mdt_DRvsDT[4];
+  TH2* m_overall_mdt_DRvsSegD;
+  TH2* m_overallPR_mdt_DRvsDT[4];
   //  TH2* overallPR_mdt_DRvsDRerr[4];
-  TH2* overallPR_mdt_DRvsSegD[4];
-  TH2* MdtNHitsvsRpcNHits;  
+  TH2* m_overallPR_mdt_DRvsSegD[4];
+  TH2* m_MdtNHitsvsRpcNHits;  
   
 
-  TH1* mdteventscutLumi; // Total number of MDT digits with a cut on ADC
-  TH1* mdteventscutLumi_big; // Total number of MDT digits with a cut on ADC (for high mult. evt)
-  TH1* mdteventsLumi; // Total number of MDT digits without a cut on ADC
-  TH1* mdteventsLumi_big; // Total number of MDT digits without a cut on ADC (for high mult. evt)
+  TH1* m_mdteventscutLumi; // Total number of MDT digits with a cut on ADC
+  TH1* m_mdteventscutLumi_big; // Total number of MDT digits with a cut on ADC (for high mult. evt)
+  TH1* m_mdteventsLumi; // Total number of MDT digits without a cut on ADC
+  TH1* m_mdteventsLumi_big; // Total number of MDT digits without a cut on ADC (for high mult. evt)
 
-  TH1* mdtglobalhitstime;
+  TH1* m_mdtglobalhitstime;
   
-  TH1* nummdtchamberswithhits; // Number of MDT chambers with hits
-  TH1* nummdtchamberswithhits_ADCCut; // Number of MDT chambers with hits
-  TH1* nummdtchamberswithHighOcc; // Number of MDT chambers with > 1% occupancy
+  TH1* m_nummdtchamberswithhits; // Number of MDT chambers with hits
+  TH1* m_nummdtchamberswithhits_ADCCut; // Number of MDT chambers with hits
+  TH1* m_nummdtchamberswithHighOcc; // Number of MDT chambers with > 1% occupancy
 
-  TH1* mdtchamberstat;
-  TH1* mdtchamberstatphislice[16];
-  TH1* mdtChamberHits[4][4][16];
-  TH2* mdtxydet[3];
-  TH2* mdtrzdet[3]; 
-  TH2* mdthitspermultilayerLumi[4][4];
-  TH2* mdteffpermultilayer[4][4];
-  TH2* mdthitsperchamber_InnerMiddleOuterLumi[2];
-  TH2* mdthitsperchamber_InnerMiddleOuter_HighOcc[2];
-  TH2* mdthitsperchamber_onSegm_InnerMiddleOuterLumi[2];
-  TH2* mdteffperchamber_InnerMiddleOuter[4];
-  TH2* mdthitsperML_byLayer[3];//These are alternative Global hit coverage plots
-  TH2* mdtoccvslb[4][3];
-  TH2* mdtoccvslb_by_crate[4][4];
+  TH1* m_mdtchamberstat;
+  TH1* m_mdtchamberstatphislice[16];
+  TH1* m_mdtChamberHits[4][4][16];
+  TH2* m_mdtxydet[3];
+  TH2* m_mdtrzdet[3]; 
+  TH2* m_mdthitspermultilayerLumi[4][4];
+  TH2* m_mdteffpermultilayer[4][4];
+  TH2* m_mdthitsperchamber_InnerMiddleOuterLumi[2];
+  TH2* m_mdthitsperchamber_InnerMiddleOuter_HighOcc[2];
+  TH2* m_mdthitsperchamber_onSegm_InnerMiddleOuterLumi[2];
+  TH2* m_mdteffperchamber_InnerMiddleOuter[4];
+  TH2* m_mdthitsperML_byLayer[3];//These are alternative Global hit coverage plots
+  TH2* m_mdtoccvslb[4][3];
+  TH2* m_mdtoccvslb_by_crate[4][4];
   /////End from old BS
 
   ///////////For t0 calculations//////////
-  TH1* mdttdccut_sector[4][4][16]; ////  [endcap/barrel A/C][layer][sector]
+  TH1* m_mdttdccut_sector[4][4][16]; ////  [endcap/barrel A/C][layer][sector]
   //These can be left to the post-processing
 /*   TH1* mdttdccut_t0[4]; //Just four plot */
 /*   TH1* mdttdccut_tmax[4]; //Just four plot */

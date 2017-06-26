@@ -12,6 +12,7 @@
 
 
 #undef NDEBUG
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandle.h"
@@ -40,9 +41,11 @@ class MyAlg
 public:
   MyAlg (const std::string& name, ISvcLocator* svcLoc);
 
+  virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
 
   virtual void declare(Gaudi::DataHandle& hnd) override;
+  virtual void addDependency (const DataObjID& obj, const Gaudi::DataHandle::Mode& mode) override;
 
   SG::ReadHandleKey<MyObj> rkey;
   SG::WriteHandle<MyObj> whandle;
@@ -52,6 +55,8 @@ public:
 
   std::vector<Gaudi::DataHandle*> inputs;
   std::vector<Gaudi::DataHandle*> outputs;
+  std::vector<DataObjID> extra_inputs;
+  std::vector<DataObjID> extra_outputs;
 };
 
 
@@ -65,18 +70,39 @@ MyAlg::MyAlg  (const std::string& name, ISvcLocator* svcLoc)
 }
 
 
+StatusCode MyAlg::initialize()
+{
+  //ATH_CHECK( rkey.initialize() );
+  //ATH_CHECK( whandle.initialize() );
+  //ATH_CHECK( rdkey.initialize() );
+  ATH_CHECK( wdkey.initialize() );
+  return StatusCode::SUCCESS;
+}
+
+
 StatusCode MyAlg::execute()
 {
   return StatusCode::SUCCESS;
 }
 
 
-void MyAlg::declare(Gaudi::DataHandle& hnd) {
+void MyAlg::declare(Gaudi::DataHandle& hnd)
+{
   if (hnd.mode() & Gaudi::DataHandle::Reader) 
     inputs.push_back( &hnd );
   if (hnd.mode() & Gaudi::DataHandle::Writer) 
     outputs.push_back( &hnd );
   AthAlgorithm::declare (hnd);
+}
+
+
+void MyAlg::addDependency (const DataObjID& obj, const Gaudi::DataHandle::Mode& mode)
+{
+  if (mode & Gaudi::DataHandle::Reader) 
+    extra_inputs.push_back( obj );
+  if (mode & Gaudi::DataHandle::Writer) 
+    extra_outputs.push_back( obj );
+  AthAlgorithm::addDependency (obj, mode);
 }
 
 
@@ -98,7 +124,7 @@ void test1 (ISvcLocator* svcLoc)
   assert (alg.whandle.storeHandle().name() == "BarSvc");
   assert (alg.whandle.mode() == Gaudi::DataHandle::Writer);
 
-  std::vector<std::string> inputKeys { "aaa", "yyy.qqq", "zzz"  };
+  std::vector<std::string> inputKeys { "aaa", "yyy.qqq" };
   assert (alg.inputs.size() == inputKeys.size());
   for (size_t i = 0; i < alg.inputs.size(); i++) {
     //std::cout << "inp " << alg.inputs[i]->objKey() << "\n";
@@ -112,10 +138,19 @@ void test1 (ISvcLocator* svcLoc)
     assert (alg.outputs[i]->objKey() == outputKeys[i]);
   }
 
+  std::vector<std::string> extraInputKeys { "zzz" };
+  assert (alg.extra_inputs.size() == extraInputKeys.size());
+  for (size_t i = 0; i < alg.extra_inputs.size(); i++) {
+    //std::cout << "extra inp " << alg.extra_inputs[i].key() << "\n";
+    assert (alg.extra_inputs[i].key() == extraInputKeys[i]);
+  }
+
+  assert (alg.extra_outputs.empty() );
+
   IProxyDict* xdict = &*alg.evtStore();
   xdict = alg.evtStore()->hiveProxyDict();
   EventContext ctx;
-  ctx.setProxy (xdict);
+  ctx.setExtension( Atlas::ExtendedEventContext(xdict) );
   Gaudi::Hive::setCurrentContext (ctx);
 
   assert (alg.execute().isSuccess());

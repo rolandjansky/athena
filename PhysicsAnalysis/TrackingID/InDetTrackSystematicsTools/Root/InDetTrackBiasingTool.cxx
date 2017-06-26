@@ -139,49 +139,29 @@ namespace InDet {
     }
     if (runNumber >= 286282 && runNumber <= 287931) {
       ATH_MSG_INFO( "Calibrating for 2015 HI and 5 TeV pp runs (286282 to 287931)." );
-      ATH_MSG_INFO( "Note: no d0 and z0 maps are implemented." );
-      rootfileName = "5TeVHI2015_sagittaBias_pTmethod.root";
+      ATH_MSG_ERROR( "The 5 TeV and heavy ion runs do not have biasing maps for release 21. "
+		     "Contact the tracking CP group to discuss the derivation of these maps." );
       m_biasD0Histogram = nullptr;
       m_biasZ0Histogram = nullptr;
-      ATH_CHECK ( initObject<TH2>(m_biasQoverPsagittaHistogram, rootfileName, "h_deltaSagittaMap") );
-      rootfileName = "5TeVHI2015_sagittaBias_pTmethod_statUncertainty.root";
+      m_biasQoverPsagittaHistogram = nullptr;
       m_biasD0HistError = nullptr;
       m_biasZ0HistError = nullptr;
-      ATH_CHECK ( initObject<TH2>(m_biasQoverPsagittaHistError, rootfileName, "h_deltaSagittaMap_statErr") );
-    } else if (runNumber < 297730) {
-      ATH_MSG_INFO( "Calibrating for 2015 runs after 287931 and before 297730." );
-      rootfileName = "correctionmaps_HighGran_IBLon_NoGRL_INDET_2015_datareproAll25ns_correctedEp.root";
-      ATH_CHECK ( initObject<TH2>(m_biasD0Histogram, rootfileName, "d0CorrectionVsEtaPhi") );
-      ATH_CHECK ( initObject<TH2>(m_biasZ0Histogram, rootfileName, "z0CorrectionVsEtaPhi") );
-      ATH_CHECK ( initObject<TH2>(m_biasQoverPsagittaHistogram, rootfileName, "LambdaCorrectionVsEtaPhi_reweightedToEP") );
-      m_biasD0HistError = m_biasZ0HistError = m_biasQoverPsagittaHistError = nullptr;
-    } else if (runNumber <= 300908) {
-      ATH_MSG_INFO( "Calibrating for 2016 runs before IBL temperature change (297730 to 300908)." ); // pre-TSI: 297730 - 300908
-      rootfileName = "CorrectionsResult_PreTSI.root";
+      m_biasQoverPsagittaHistError = nullptr;
+      return StatusCode::FAILURE;
+    } else if (runNumber <= 311481) {
+      if (runNumber < 297730) {
+	ATH_MSG_INFO( "Calibrating for 2015 runs (before 297730)." );
+	rootfileName = "data15_13TeV_all_CorrectionResult.root";
+      } else if (runNumber <= 300908) {
+	ATH_MSG_INFO( "Calibrating for 2016 runs before IBL temperature change (297730 to 300908)." ); // pre-TSI: 297730 - 300908
+	rootfileName = "data16_13TeV_preTS1_CorrectionResult.root";
+      } else {  // post TS1: 301912 - 311481
+	ATH_MSG_INFO( "Calibrating for 2016 runs after IBL temperature change (301912 to 311481)." );
+	rootfileName = "data16_13TeV_postTS1_CorrectionResult.root";
+      } 
       ATH_CHECK ( initObject<TH2>(m_biasD0Histogram, rootfileName, "d0/theNominal_d0") );
       ATH_CHECK ( initObject<TH2>(m_biasZ0Histogram, rootfileName, "z0/theNominal_z0") );
       ATH_CHECK ( initObject<TH2>(m_biasQoverPsagittaHistogram, rootfileName, "sagitta/theNominal_sagitta") );
-      rootfileName = "UncertaintiesResult_PreTSI.root";
-      ATH_CHECK ( initObject<TH2>(m_biasD0HistError, rootfileName, "d0/theUncertainty_d0") );
-      ATH_CHECK ( initObject<TH2>(m_biasZ0HistError, rootfileName, "z0/theUncertainty_z0") );
-      ATH_CHECK ( initObject<TH2>(m_biasQoverPsagittaHistError, rootfileName, "sagitta/theUncertainty_sagitta") );
-    } else if (runNumber <= 304178) { // pre d0 fix: 301912 - 304178
-      ATH_MSG_INFO( "Calibrating for 2016 runs after IBL temperature change, before d0 fix (301912 to 304178)." );
-      rootfileName = "CorrectionsResult_Pred0fix.root";
-      ATH_CHECK ( initObject<TH2>(m_biasD0Histogram, rootfileName, "d0/theNominal_d0") );
-      ATH_CHECK ( initObject<TH2>(m_biasZ0Histogram, rootfileName, "z0/theNominal_z0") );
-      ATH_CHECK ( initObject<TH2>(m_biasQoverPsagittaHistogram, rootfileName, "sagitta/theNominal_sagitta") );
-      rootfileName = "UncertaintiesResult_Pred0fix.root";
-      ATH_CHECK ( initObject<TH2>(m_biasD0HistError, rootfileName, "d0/theUncertainty_d0") );
-      ATH_CHECK ( initObject<TH2>(m_biasZ0HistError, rootfileName, "z0/theUncertainty_z0") );
-      ATH_CHECK ( initObject<TH2>(m_biasQoverPsagittaHistError, rootfileName, "sagitta/theUncertainty_sagitta") );
-    } else if (runNumber <= 311481) {  // post d0 fix: 304198 - 311481
-      ATH_MSG_INFO( "Calibrating for 2016 runs after IBL temperature change, after d0 fix (304198 to 311481)." );
-      rootfileName = "CorrectionsResult_Postd0fix.root";
-      ATH_CHECK ( initObject<TH2>(m_biasD0Histogram, rootfileName, "d0/theNominal_d0") );
-      ATH_CHECK ( initObject<TH2>(m_biasZ0Histogram, rootfileName, "z0/theNominal_z0") );
-      ATH_CHECK ( initObject<TH2>(m_biasQoverPsagittaHistogram, rootfileName, "sagitta/theNominal_sagitta") );
-      rootfileName = "UncertaintiesResult_Postd0fix.root";
       ATH_CHECK ( initObject<TH2>(m_biasD0HistError, rootfileName, "d0/theUncertainty_d0") );
       ATH_CHECK ( initObject<TH2>(m_biasZ0HistError, rootfileName, "z0/theUncertainty_z0") );
       ATH_CHECK ( initObject<TH2>(m_biasQoverPsagittaHistError, rootfileName, "sagitta/theUncertainty_sagitta") );

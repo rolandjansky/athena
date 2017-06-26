@@ -3,7 +3,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#pragma once
+#ifndef INDETTRACKSYSTEMATICSTOOLS_INDETTRACKTRUTHORIGINDEFS_H
+#define INDETTRACKSYSTEMATICSTOOLS_INDETTRACKTRUTHORIGINDEFS_H
 
 /**
    Definition of track truth origin types
@@ -121,3 +122,4 @@ namespace InDet {
 
 } // namespace InDet
 
+#endif

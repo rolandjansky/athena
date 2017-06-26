@@ -3,7 +3,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#pragma once
+#ifndef INDETTRACKSYSTEMATICSTOOLS_IINDETTRACKTRUTHORIGINTOOL_H
+#define INDETTRACKSYSTEMATICSTOOLS_IINDETTRACKTRUTHORIGINTOOL_H
 
 #include "AsgTools/IAsgTool.h"
 #include "xAODTracking/TrackParticle.h"
@@ -34,3 +35,5 @@ namespace InDet {
 }; // class IInDetTrackTruthOriginTool
 
 } // namespace InDet
+
+#endif

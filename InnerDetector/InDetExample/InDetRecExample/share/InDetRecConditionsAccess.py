@@ -292,8 +292,12 @@ if DetFlags.haveRIO.SCT_on():
     if (globalflags.DataSource() == 'data'):       
         # Load TdaqEnabled service
         if not conddb.folderRequested(tdaqFolder):
-            conddb.addFolder("TDAQ",tdaqFolder)
-            #conddb.addFolder("","<db>COOLONL_TDAQ/COMP200</db> /TDAQ/EnabledResources/ATLAS/SCT/Robins")
+            conddb.addFolder("TDAQ",tdaqFolder,className="CondAttrListCollection")
+            from AthenaCommon.AlgSequence import AthSequencer
+            condSequence = AthSequencer("AthCondSeq")
+            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledCondAlg
+            condSequence += SCT_TdaqEnabledCondAlg(name = "SCT_TdaqEnabledCondAlg",
+                                                   ReadKey = tdaqFolder)
 
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledSvc
         InDetSCT_TdaqEnabledSvc = SCT_TdaqEnabledSvc(name = "InDetSCT_TdaqEnabledSvc",

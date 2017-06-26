@@ -9,7 +9,6 @@
 from CoolLumiUtilities.CoolDataReader import CoolDataReader
 
 # Raw objects to handle COOL data                                                                         
-import PyCintex
 import array
 
 from optparse import OptionParser

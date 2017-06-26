@@ -20,8 +20,6 @@ atlas_depends_on_subdirs( PRIVATE
 # External dependencies:
 find_package( ROOT COMPONENTS Core RIO TreePlayer Tree MathCore Hist pthread )
 
-# tag ROOTCintexLibs was not recognized in automatic conversion in cmt2cmake
-
 # Component(s) in the package:
 atlas_add_library( RootStorageSvc
                    src/*.cpp

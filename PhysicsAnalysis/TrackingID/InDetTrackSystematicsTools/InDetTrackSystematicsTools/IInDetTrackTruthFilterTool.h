@@ -3,7 +3,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#pragma once
+#ifndef INDETTRACKSYSTEMATICSTOOLS_IINDETTRACKTRUTHFILTERTOOL_H
+#define INDETTRACKSYSTEMATICSTOOLS_IINDETTRACKTRUTHFILTERTOOL_H
 
 #include "AsgTools/IAsgTool.h"
 #include "PATInterfaces/ISystematicsTool.h"
@@ -50,3 +51,5 @@ namespace InDet {
   }; // class IInDetTrackTruthFilterTool
 
 } // namespace InDet
+
+#endif

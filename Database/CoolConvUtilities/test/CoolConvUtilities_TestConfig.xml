@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <atn>
 <TEST name="CoolConvUtilities" type="script" suite="Examples">
-<options_atn>Database/CoolConvUtilities/share/AtlCoolCopy_test.sh</options_atn>
+<options_atn>AtlCoolCopy_test.sh</options_atn>
 <timelimit>4</timelimit>
 <author>Richard Hawkings</author>
 <mailto>richard.hawkings@cern.ch</mailto>

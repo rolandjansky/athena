@@ -39,7 +39,7 @@ using namespace std;
 // Selects valid segments and attempts to match them into a track, then looks for TGC hits in the various layers
 //New to calculate the efficiency
 void
-MdtVsTgcRawDataValAlg::tgceffcalc(const xAOD::MuonSegmentContainer *m_newmdtsegment,
+MdtVsTgcRawDataValAlg::tgceffcalc(const xAOD::MuonSegmentContainer *newmdtsegment,
                                   const Muon::TgcPrepDataContainer *tgc_prepcontainer){
   if(m_debuglevel) m_log<<MSG::DEBUG<<"inside tgcEIFIeffcalc"<<endmsg;
   //////////////////////////////////////////////////////
@@ -60,7 +60,7 @@ MdtVsTgcRawDataValAlg::tgceffcalc(const xAOD::MuonSegmentContainer *m_newmdtsegm
   // Sort and filter Segments
   
   // Sort Segments from segmcollection into correct bin in sortedSegments array
-  SortMDTSegments(m_newmdtsegment, sortedSegments);
+  SortMDTSegments(newmdtsegment, sortedSegments);
   // Disqualify Segments with bad DQ
   DQCheckMDTSegments(sortedSegments, DQdisqualifiedSegments);
   for(int i=0;i<2;i++){
@@ -89,7 +89,7 @@ MdtVsTgcRawDataValAlg::tgceffcalc(const xAOD::MuonSegmentContainer *m_newmdtsegm
 
 //Old to calculate the efficiency
 void
-MdtVsTgcRawDataValAlg::tgceffcalc(const Trk::SegmentCollection     *m_segmcollection,
+MdtVsTgcRawDataValAlg::tgceffcalc(const Trk::SegmentCollection     *segmcollection,
                                   const Muon::TgcPrepDataContainer *tgc_prepcontainer){
   if(m_debuglevel) m_log<<MSG::DEBUG<<"inside tgcEIFIeffcalc"<<endmsg;
   //////////////////////////////////////////////////////
@@ -110,7 +110,7 @@ MdtVsTgcRawDataValAlg::tgceffcalc(const Trk::SegmentCollection     *m_segmcollec
   // Sort and filter Segments
   
   // Sort Segments from segmcollection into correct bin in sortedSegments array
-  SortMDTSegments(m_segmcollection, sortedSegments);
+  SortMDTSegments(segmcollection, sortedSegments);
   // Disqualify Segments with bad DQ
   DQCheckMDTSegments(sortedSegments, DQdisqualifiedSegments);
   for(int i=0;i<2;i++){
@@ -151,11 +151,11 @@ MdtVsTgcRawDataValAlg::prepareTREarray(){
       for(int stationPhi=0; stationPhi<=48; stationPhi++){// Station Phi
         // Exclude non-existent "zero" sectors included in the array for ease of use
         if(stationEta==0){
-          TREarray[stationNameIndex][0][absStationEta][stationPhi]=0;
-          TREarray[stationNameIndex][1][absStationEta][stationPhi]=0;
+          m_TREarray[stationNameIndex][0][absStationEta][stationPhi]=0;
+          m_TREarray[stationNameIndex][1][absStationEta][stationPhi]=0;
           continue;
         }
-        TREarray[stationNameIndex][tgcAC][absStationEta][stationPhi]=0;
+        m_TREarray[stationNameIndex][tgcAC][absStationEta][stationPhi]=0;
         if(stationPhi==0)continue;
         
         // Exclude sectors known not to exist
@@ -186,8 +186,8 @@ MdtVsTgcRawDataValAlg::prepareTREarray(){
         delete isValid;
         
         // Get TRE and put into to array
-        TREarray[stationNameIndex][tgcAC][absStationEta][stationPhi] = m_muonMgr->getTgcReadoutElement(tgc_testId);
-        if(TREarray[stationNameIndex][tgcAC][absStationEta][stationPhi]==0){
+        m_TREarray[stationNameIndex][tgcAC][absStationEta][stationPhi] = m_muonMgr->getTgcReadoutElement(tgc_testId);
+        if(m_TREarray[stationNameIndex][tgcAC][absStationEta][stationPhi]==0){
           m_log << MSG::WARNING << "prepareTREarray: TgcReadoutElement==0 passed checks" << endmsg;
           continue;
         }
@@ -208,16 +208,16 @@ MdtVsTgcRawDataValAlg::tgceffcalcfinalize(){
       // Loop Numerator and Denominator, total up histograms
       for(int e=1;e<3;e++){
         TList histlist;
-        histlist.Add(eff_stationmapbase[i][k][e]);
-        histlist.Add(eff_stationmapmid[i][k][e]);
-        eff_stationmap[i][k][e]->Merge(&histlist);
+        histlist.Add(m_eff_stationmapbase[i][k][e]);
+        histlist.Add(m_eff_stationmapmid[i][k][e]);
+        m_eff_stationmap[i][k][e]->Merge(&histlist);
       }
       
       const int nhtypes = 3;
       // Make array of pointers to different efficiency histogram types
-      TH2 *histarray[nhtypes][4] = {{  eff_stationmapbase[i][k][0],  eff_stationmapbase[i][k][1],  eff_stationmapbase[i][k][2],  eff_stationmapbase[i][k][3]},
-                                    {   eff_stationmapmid[i][k][0],   eff_stationmapmid[i][k][1],   eff_stationmapmid[i][k][2],   eff_stationmapmid[i][k][3]},
-                                    {      eff_stationmap[i][k][0],      eff_stationmap[i][k][1],      eff_stationmap[i][k][2],      eff_stationmap[i][k][3]}};
+      TH2 *histarray[nhtypes][4] = {{  m_eff_stationmapbase[i][k][0],  m_eff_stationmapbase[i][k][1],  m_eff_stationmapbase[i][k][2],  m_eff_stationmapbase[i][k][3]},
+                                    {   m_eff_stationmapmid[i][k][0],   m_eff_stationmapmid[i][k][1],   m_eff_stationmapmid[i][k][2],   m_eff_stationmapmid[i][k][3]},
+                                    {      m_eff_stationmap[i][k][0],      m_eff_stationmap[i][k][1],      m_eff_stationmap[i][k][2],      m_eff_stationmap[i][k][3]}};
       for(int h=0;h<nhtypes;h++){
         // Calculate Efficiency
         histarray[h][0]->Divide(histarray[h][1], histarray[h][2]);

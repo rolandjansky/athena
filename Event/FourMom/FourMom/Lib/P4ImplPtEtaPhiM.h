@@ -212,7 +212,7 @@ inline double P4ImplPtEtaPhiM::pt() const
 inline const I4MomentumError* P4ImplPtEtaPhiM::errors() const
 {
   // check if the pointer is empty before dereferencing
-  return (m_error ? &(*m_error) : 0);
+  return m_error.get();
 }
 
 // setters

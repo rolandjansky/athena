@@ -82,7 +82,6 @@ class MDTChamber {
 
  private:
   std::string m_hardware_name;
-  int m_global_bin_;
   //BA=0,BC,EA,EC=3
   short int m_barrel_region;
   short int m_layer_region;

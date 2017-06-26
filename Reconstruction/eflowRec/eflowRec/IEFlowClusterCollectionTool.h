@@ -19,8 +19,8 @@ class IEFlowClusterCollectionTool : virtual public IAlgTool {
   static const InterfaceID& interfaceID();
   
    /** Put all clusters into a temporary container - then we use this to calculate moments, some of which depend on configuration of nearby clusters */
-  virtual xAOD::CaloClusterContainer* execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, bool useNonModifiedClusters) = 0;
-  virtual eflowRecClusterContainer* retrieve(eflowCaloObjectContainer* theEflowCaloObjectContainer, bool useNonModifiedClusters) = 0;
+  virtual std::unique_ptr<xAOD::CaloClusterContainer> execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, bool useNonModifiedClusters) = 0;
+  virtual std::unique_ptr<eflowRecClusterContainer> retrieve(eflowCaloObjectContainer* theEflowCaloObjectContainer, bool useNonModifiedClusters) = 0;
 
 };
 

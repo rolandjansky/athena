@@ -546,31 +546,39 @@ void TrigL2MuonSA::RpcPatFinder::abcal(unsigned int result_pat, size_t index[], 
     }//else
   }//else 
 
-   for(int i=1;i<3;i++){
-    if((Z[hot_max[i]] != Z[hot_min[i]])&&(hot_min[i]!=999)&&(hot_max[i]!=-999)){
-      aw[i] = (R[hot_max[i]]- R[hot_min[i]]) / (Z[hot_max[i]]-Z[hot_min[i]]);
-      bw[i] = R[hot_max[i]] - Z[hot_max[i]]*aw[i];
-      aw[i] = 1.0/aw[i];
+  for(int i=1;i<3;i++){
+    if(hot_max[i]!=-999 && hot_min[i]!=999){
+      if(Z[hot_max[i]]!=Z[hot_min[i]]){
+        aw[i] = (R[hot_max[i]]- R[hot_min[i]]) / (Z[hot_max[i]]-Z[hot_min[i]]);
+        bw[i] = R[hot_max[i]] - Z[hot_max[i]]*aw[i];
+        aw[i] = 1.0/aw[i];
+      }else if(i<2){
+        aw[i] = Z[hot_min[i]] / R[hot_min[i]];
+        bw[i] = 0.0;
+      } else{
+        aw[i] = Z[hot_max[i]] / R[hot_max[i]];
+        bw[i] = 0.0;
+      }
     }else{
       if(i <2){
-	if(hot_min[i]!=999){
-	  aw[i] = Z[hot_min[i]] / R[hot_min[i]];
-	  bw[i] = 0.0;
-	}else{
-	  aw[i] = Z[hot_max[i]] / R[hot_max[i]];
-	  bw[i] = 0.0;
-	}//else
+        if(hot_min[i]!=999){
+          aw[i] = Z[hot_min[i]] / R[hot_min[i]];
+          bw[i] = 0.0;
+        }else if(hot_max[i]!=-999){
+          aw[i] = Z[hot_max[i]] / R[hot_max[i]];
+          bw[i] = 0.0;
+        }
       }else{
-	if(hot_max[i]!=-999){
-	  aw[i] = Z[hot_max[i]] / R[hot_max[i]];
-	  bw[i] = 0.0;
-	}else{
-	  aw[i] = Z[hot_min[i]] / R[hot_min[i]];
-	  bw[i] = 0.0;
-	}//else
-      }//else
-    }//else    
-  }//for
+        if(hot_max[i]!=-999){
+          aw[i] = Z[hot_max[i]] / R[hot_max[i]];
+          bw[i] = 0.0;
+        }else if(hot_min[i]!=999){
+          aw[i] = Z[hot_min[i]] / R[hot_min[i]];
+          bw[i] = 0.0;
+        }
+      }    
+    }
+  }
 }//abcal()
 
 // --------------------------------------------------------------------------------

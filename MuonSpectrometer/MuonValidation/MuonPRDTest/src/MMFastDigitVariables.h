@@ -44,7 +44,7 @@ class MMFastDigitVariables : public ValAlgVariables
   {
     if( (this->deleteVariables()).isFailure() ){
       ATH_MSG_ERROR("Failing to delete MMFastDigitVariables.");
-      throw;
+      std::terminate();
     }
   }
 

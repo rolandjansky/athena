@@ -20,6 +20,8 @@ CREATED:  25th January, 2005
 #include "GaudiKernel/ToolHandle.h"
 
 #include "eflowRec/eflowCellList.h"
+#include "eflowRec/eflowLayerIntegrator.h"
+#include "eflowRec/eflowEEtaBinnedParameters.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODTracking/TrackParticle.h"
 
@@ -30,8 +32,6 @@ class eflowCaloObjectContainer;
 class eflowRecTrackContainer;
 class eflowRecClusterContainer;
 class IEFlowCellEOverPTool;
-class eflowEEtaBinnedParameters;
-class eflowLayerIntegrator;
 class PFTrackClusterMatchingTool;
 class eflowRecTrack;
 
@@ -76,8 +76,8 @@ public:
   ToolHandle<PFTrackClusterMatchingTool> m_matchingToolForPull_02;
   
   /* Tools for "shower simulation" */
-  eflowEEtaBinnedParameters* m_binnedParameters;
-  eflowLayerIntegrator* m_integrator;
+  std::unique_ptr<eflowEEtaBinnedParameters> m_binnedParameters;
+  std::unique_ptr<eflowLayerIntegrator> m_integrator;
   ToolHandle<IEFlowCellEOverPTool> m_theEOverPTool;
 
   //double m_rCell;

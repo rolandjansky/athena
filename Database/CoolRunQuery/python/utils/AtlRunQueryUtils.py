@@ -67,8 +67,6 @@ def importroot(batch=True):
     ROOT.gROOT.SetBatch(batch)
     if batch:
         del sys.argv[1]
-    # import PyCintex
-    # PyCintex.Cintex.Enable()
     ROOT.gErrorIgnoreLevel = 2000 # to avoid printout when creating images
     sys.argv=cmdline_args
     return ROOT

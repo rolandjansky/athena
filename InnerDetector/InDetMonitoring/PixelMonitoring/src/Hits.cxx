@@ -220,8 +220,8 @@ StatusCode PixelMainMon::BookHitsMon(void)
        }
 
        for(int i=0; i<PixLayerDBM::COUNT-1+(int)(m_doIBL); i++){
-         hname = makeHistname(("Lvl1A_"+m_modLabel_PixLayerIBL2D3DDBM[i]), false);
-         htitles = makeHisttitle(("Hit Level 1 Accept, "+m_modLabel_PixLayerIBL2D3DDBM[i]), (atext_lv1+atext_nhit), false);
+         hname = makeHistname(("Lvl1A_"+m_modLabel_PixLayerDBM[i]), false);
+         htitles = makeHisttitle(("Hit Level 1 Accept, "+m_modLabel_PixLayerDBM[i]), (atext_lv1+atext_nhit), false);
          sc = timeShift.regHist(m_Lvl1A_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), 14, -1.5, 12.5));
        }
      }
@@ -459,13 +459,13 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
   Identifier rdoID;
   
   int nChannels_mod[PixLayerIBL2D3D::COUNT] = {46080, 46080, 46080, 46080, 46080, 26880, 53760, 26880};
-  double nActiveChannels_total = 0.;
+  double nGoodChannels_total = 0.;
   double nGoodChannels_layer[PixLayerIBL2D3D::COUNT];
   double nActiveChannels_layer[PixLayerIBL2D3D::COUNT];
   for( int i=0; i<PixLayerIBL2D3D::COUNT; i++){
     nGoodChannels_layer[i]   = 1.0 * nChannels_mod[i] * m_nGood_mod[i];
     nActiveChannels_layer[i] = 1.0 * nChannels_mod[i] * m_nActive_mod[i];
-    nActiveChannels_total    =+ nGoodChannels_layer[i];
+    nGoodChannels_total    =+ nGoodChannels_layer[i];
   }
 
   StatusCode sc;
@@ -600,12 +600,10 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	    
 
 	/// Fill ToT
-	if (pixlayerdbm != 99 && m_hit_ToT[pixlayerdbm]) m_hit_ToT[pixlayerdbm]->Fill((*p_rdo)->getToT());
+	if (pixlayeribl2d3ddbm != 99 && m_hit_ToT[pixlayeribl2d3ddbm])  m_hit_ToT[pixlayeribl2d3ddbm]->Fill((*p_rdo)->getToT());
+	if (pixlayerdbm == PixLayerDBM::kIBL && m_hit_ToT[pixlayerdbm]) m_hit_ToT[pixlayerdbm]->Fill((*p_rdo)->getToT());
+
 	if (pixlayer != 99 && m_hit_ToTMean_mod[pixlayer]) m_hit_ToTMean_mod[pixlayer]->Fill(m_manager->lumiBlockNumber(), (*p_rdo)->getToT());
-	if (pixlayerdbm == PixLayerDBM::kIBL){
-	  int ibl2d3d = GetPixLayerIDIBL2D3DDBM(m_pixelid->barrel_ec(rdoID), m_pixelid->layer_disk(rdoID), m_pixelid->eta_module(rdoID), m_doIBL);
-	  if(m_hit_ToT[ibl2d3d]) m_hit_ToT[ibl2d3d]->Fill((*p_rdo)->getToT());
-	}
 	if (m_doLumiBlock && pixlayer != 99){
 	  if(m_hit_ToT_LB_mod[pixlayer]) m_hit_ToT_LB_mod[pixlayer]->Fill((*p_rdo)->getToT());
 	}
@@ -714,7 +712,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
   double avgocc = 0;
   double avgocc_mod[PixLayerIBL2D3D::COUNT] = {0};
   double avgocc_active_mod[PixLayerIBL2D3D::COUNT] = {0};
-  if(nActiveChannels_total>0) avgocc = nhits/nActiveChannels_total;
+  if(nGoodChannels_total>0) avgocc = nhits/nGoodChannels_total;
   if(m_avgocc_per_lumi) m_avgocc_per_lumi->Fill(m_manager->lumiBlockNumber(), avgocc);
 
   if (m_doOfflineAnalysis) {

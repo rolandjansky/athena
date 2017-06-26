@@ -16,6 +16,7 @@
 #include "SGTools/CurrentEventStore.h"
 #include "SGTools/CLASS_DEF.h"
 #include "AthenaKernel/getMessageSvc.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "GaudiKernel/EventContext.h"
 #include <iostream>
 #include <cassert>
@@ -213,7 +214,7 @@ void test2()
   TestStore::sgkey_t sgkeyz = store.stringToKey ("fooz", fooclid);
 
   EventContext ctx;
-  ctx.setProxy (&store);
+  ctx.setExtension( Atlas::ExtendedEventContext(&store) );
 
   DataLinkBase_test l1 (sgkey4, fooclid);
   l1.toTransient();

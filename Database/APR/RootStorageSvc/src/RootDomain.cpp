@@ -28,6 +28,7 @@ using namespace pool;
 RootDomain::RootDomain(IOODatabase* idb)
 : DbDomainImp(idb),
   m_defCompression(1),
+  m_defCompressionAlg(1),
   m_defSplitLevel(99),
   m_defAutoSave(16*1024*1024),
   m_defBufferSize(16*1024),
@@ -61,6 +62,9 @@ DbStatus RootDomain::setOption(const DbOption& opt)  {
     case 'D':
       if ( !strcasecmp(n, "DEFAULT_COMPRESSION") )  {
         return opt._getValue(m_defCompression);
+      }
+      else if ( !strcasecmp(n, "DEFAULT_COMPRESSIONALG") )  {
+        return opt._getValue(m_defCompressionAlg);
       }
       else if ( !strcasecmp(n, "DEFAULT_SPLITLEVEL") )  {
         return opt._getValue(m_defSplitLevel);
@@ -147,6 +151,9 @@ DbStatus RootDomain::getOption(DbOption& opt) const   {
     case 'D':
       if ( !strcasecmp(n, "DEFAULT_COMPRESSION") )  {
         return opt._setValue(int(m_defCompression));
+      }
+      else if ( !strcasecmp(n, "DEFAULT_COMPRESSIONALG") )  {
+        return opt._setValue(int(m_defCompressionAlg));
       }
       else if ( !strcasecmp(n, "DEFAULT_SPLITLEVEL") )  {
         return opt._setValue(int(m_defSplitLevel));

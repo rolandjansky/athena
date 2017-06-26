@@ -237,7 +237,10 @@ class SCT_ConditionsServicesSetup:
     
     self.isMC = False
     from AthenaCommon.GlobalFlags import globalflags
-    if globalflags.DataSource() == 'geant4': self.isMC = True
+    self.eventInfoKey = "ByteStreamEventInfo"
+    if globalflags.DataSource() == 'geant4':
+      self.isMC = True
+      self.eventInfoKey = "McEventInfo" 
 
   def config(self, useDCS=True, onlineMode=False, prefix=''):
     if not self._lock:

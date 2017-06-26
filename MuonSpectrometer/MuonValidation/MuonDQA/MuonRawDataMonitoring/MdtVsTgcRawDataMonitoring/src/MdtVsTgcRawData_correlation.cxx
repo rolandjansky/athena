@@ -67,7 +67,7 @@ MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_con
          itc!= itc_end;
          ++itc){
 
-      Muon::TgcCoinData* tcd=*itc;
+      const Muon::TgcCoinData* tcd=*itc;
       Identifier tgcid=(*itc)->identify();
 
       if( tcd->type() != Muon::TgcCoinData::TYPE_SL )continue;
