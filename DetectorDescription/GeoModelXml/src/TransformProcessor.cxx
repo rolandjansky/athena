@@ -54,8 +54,8 @@ char *tagName;
     if (alignable) { 
         int level;
         istringstream(translate(element->getAttribute(translate("alignable")))) >> level;
-cout << "\nTransformProcessor: Add Alignable named " << ((GeoNameTag *) objectsToAdd[0])->getName() << " with GeoModel id " << 
-        ((GeoIdentifierTag *) objectsToAdd[1])->getIdentifier() << endl;
+	//cout << "\nTransformProcessor: Add Alignable named " << ((GeoNameTag *) objectsToAdd[0])->getName() << " with GeoModel id " << 
+        //((GeoIdentifierTag *) objectsToAdd[1])->getIdentifier() << endl; // commenting out this cout, as it is spamming all ITk jobs with tens of thousands of lines of output
         map<string, int> index;
         gmxUtil.positionIndex.incrementLevel(); // Logvol has unfortunately already decremented this; temp. restore it
         gmxUtil.positionIndex.indices(index, gmxUtil.eval);
