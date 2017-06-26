@@ -40,7 +40,7 @@ StatusCode JetConstitFourMomTool::initialize() {
   // Check configuration consistency
 
   // initialize data handles in a handle array from a python list of strings
-  for(auto s : m_altJetScales){m_datahandle_keys.emplace_back(s);}
+  for(auto s : m_altColls){m_datahandle_keys.emplace_back(s);}
 
   declareProperty("AltJetScales", m_datahandle_keys );
 
