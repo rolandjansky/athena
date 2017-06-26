@@ -203,7 +203,7 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(vector<SegmTrack> (&matchedSegments)[2],
       const Muon::MuonSegment *segm=matchedSegments[i].at(0).at(jMDT);
       // Loop through contained ROTs and identify used stations
       const std::vector<const Trk::MeasurementBase*> mMeasTrk = segm->containedMeasurements();
-      m_log  << MSG::DEBUG << "number of MeasurementBase: "<<mMeasTrk.size()<<endl;
+      ATH_MSG_DEBUG( "number of MeasurementBase: "<<mMeasTrk.size() );
       for (unsigned int i=0; i<mMeasTrk.size(); i++) {
 	const Trk::MeasurementBase* m  = mMeasTrk[i];
 	//const Trk::RIO_OnTrack* rio = dynamic_cast<const Trk::RIO_OnTrack*>(m);
@@ -223,7 +223,7 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(vector<SegmTrack> (&matchedSegments)[2],
              if((jMDT==0)&&((stationName==47)||(stationName==48)))nTGCStrips[3]++;// TGC
            }
 
-	   m_log << MSG::DEBUG<< " check if TGC strip: "<<m_tgcIdHelper->isStrip(id)<<" StationName: "<<stationName<<endl;
+	   ATH_MSG_DEBUG( " check if TGC strip: "<<m_tgcIdHelper->isStrip(id)<<" StationName: "<<stationName );
 	  }
 	}
       }
@@ -301,7 +301,7 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(vector<SegmTrack> (&matchedSegments)[2],
        // Trk::GlobalPosition tgcExtrapolatedPos;
 	Amg::Vector3D tgcExtrapolatedPos;
         if(stationIndex==3){// Extrapolate position from Inner Position to PRD Z position
-          //if(innerSegmPos=0)m_log << MSG::WARNING << "MidstationOnly: innerSegmPos=0 but passed canCheckGlobal" << endmsg;
+          //if(innerSegmPos=0)m_log << MSG::WARNING << "MidstationOnly: innerSegmPos=0 but passed canCheckGlobal"  );
           float dZ = abs(tgcZ) - abs(innerSegmZ);
           //tgcExtrapolatedPos = Trk::GlobalPosition(innerSegmPos+(innerSegmDirzunit*dZ));
           tgcExtrapolatedPos = Amg::Vector3D(innerSegmPos+(innerSegmDirzunit*dZ)); 
@@ -360,10 +360,10 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(vector<SegmTrack> (&matchedSegments)[2],
         // If Segment Track matches a Sector
         if(canCheckSector[stationIndex]){
           if((TGCstation_StationFE[stationIndex]<0)||(TGCstation_StationEta[stationIndex]==0)||(TGCstation_StationPhi[stationIndex]==0)){
-            m_log << MSG::WARNING << "SegmTrack: canCheckSector passed for jTGC=" << stationIndex
-            << " but, FE=" << TGCstation_StationFE[stationIndex]
-            << " Eta=" << TGCstation_StationEta[stationIndex]
-            << " Phi=" << TGCstation_StationPhi[stationIndex] << endmsg;
+            ATH_MSG_WARNING( "SegmTrack: canCheckSector passed for jTGC=" << stationIndex
+                             << " but, FE=" << TGCstation_StationFE[stationIndex]
+                             << " Eta=" << TGCstation_StationEta[stationIndex]
+                             << " Phi=" << TGCstation_StationPhi[stationIndex]  );
             continue;
           }
           // Get Sector histogram indexes

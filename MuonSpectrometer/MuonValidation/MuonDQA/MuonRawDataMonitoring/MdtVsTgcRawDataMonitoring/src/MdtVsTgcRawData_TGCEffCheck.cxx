@@ -41,7 +41,7 @@ using namespace std;
 void
 MdtVsTgcRawDataValAlg::tgceffcalc(const xAOD::MuonSegmentContainer *newmdtsegment,
                                   const Muon::TgcPrepDataContainer *tgc_prepcontainer){
-  if(m_debuglevel) m_log<<MSG::DEBUG<<"inside tgcEIFIeffcalc"<<endmsg;
+  ATH_MSG_DEBUG("inside tgcEIFIeffcalc" );
   //////////////////////////////////////////////////////
   // Declare vector arrays to hold segment pointers
 
@@ -91,7 +91,7 @@ MdtVsTgcRawDataValAlg::tgceffcalc(const xAOD::MuonSegmentContainer *newmdtsegmen
 void
 MdtVsTgcRawDataValAlg::tgceffcalc(const Trk::SegmentCollection     *segmcollection,
                                   const Muon::TgcPrepDataContainer *tgc_prepcontainer){
-  if(m_debuglevel) m_log<<MSG::DEBUG<<"inside tgcEIFIeffcalc"<<endmsg;
+  ATH_MSG_DEBUG("inside tgcEIFIeffcalc" );
   //////////////////////////////////////////////////////
   // Declare vector arrays to hold segment pointers
 
@@ -188,7 +188,7 @@ MdtVsTgcRawDataValAlg::prepareTREarray(){
         // Get TRE and put into to array
         m_TREarray[stationNameIndex][tgcAC][absStationEta][stationPhi] = m_muonMgr->getTgcReadoutElement(tgc_testId);
         if(m_TREarray[stationNameIndex][tgcAC][absStationEta][stationPhi]==0){
-          m_log << MSG::WARNING << "prepareTREarray: TgcReadoutElement==0 passed checks" << endmsg;
+          ATH_MSG_WARNING( "prepareTREarray: TgcReadoutElement==0 passed checks"  );
           continue;
         }
       }// Station Phi
@@ -252,35 +252,35 @@ MdtVsTgcRawDataValAlg::tgceffcalcfinalize(){
 int
 MdtVsTgcRawDataValAlg::TGCgetlayer(int stationName, int g){
   if(g<1){
-    m_log << MSG::WARNING << "TGCgetlayer passed invalid gasgap g=" << g << endmsg;
+    ATH_MSG_WARNING( "TGCgetlayer passed invalid gasgap g=" << g  );
     return -1;
   }
   int l = g-1;
   if(stationName==41||stationName==42){
     if(g>3){
-      m_log << MSG::WARNING << "TGCgetlayer passed invalid gasgap and stationName combination n=" << stationName << " g=" << g << endmsg;
+      ATH_MSG_WARNING( "TGCgetlayer passed invalid gasgap and stationName combination n=" << stationName << " g=" << g  );
       return -1;
     }
   }else if(stationName==43||stationName==44){
     if(g>2){
-      m_log << MSG::WARNING << "TGCgetlayer passed invalid gasgap and stationName combination n=" << stationName << " g=" << g << endmsg;
+      ATH_MSG_WARNING( "TGCgetlayer passed invalid gasgap and stationName combination n=" << stationName << " g=" << g  );
       return -1;
     }
     l+=3;
   }else if(stationName==45||stationName==46){
     if(g>2){
-      m_log << MSG::WARNING << "TGCgetlayer passed invalid gasgap and stationName combination n=" << stationName << " g=" << g << endmsg;
+      ATH_MSG_WARNING( "TGCgetlayer passed invalid gasgap and stationName combination n=" << stationName << " g=" << g  );
       return -1;
     }
     l+=5;
   }else if(stationName==47||stationName==48){
     if(g>2){
-      m_log << MSG::WARNING << "TGCgetlayer passed invalid gasgap and stationName combination n=" << stationName << " g=" << g << endmsg;
+      ATH_MSG_WARNING( "TGCgetlayer passed invalid gasgap and stationName combination n=" << stationName << " g=" << g  );
       return -1;
     }
     l+=7;
   }else{
-    m_log << MSG::WARNING << "TGCgetlayer passed invalid stationName n=" << stationName << endmsg;
+    ATH_MSG_WARNING( "TGCgetlayer passed invalid stationName n=" << stationName  );
     return -1;
   }
   return l;
@@ -294,7 +294,7 @@ MdtVsTgcRawDataValAlg::TGClayer2stationindex(int l){
   else if(l==5||l==6)return 2;
   else if(l==7||l==8)return 3;
   else{
-    m_log << MSG::WARNING << "TGClayer2Station passed invalid layer number:" << l << endmsg;
+    ATH_MSG_WARNING( "TGClayer2Station passed invalid layer number:" << l  );
     return -1;
   }
 }// End of function
@@ -306,7 +306,7 @@ MdtVsTgcRawDataValAlg::TGCstationname2stationindex(int stationName){
   else if(stationName==45||stationName==46)return 2;
   else if(stationName==47||stationName==48)return 3;
   else{
-    m_log << MSG::WARNING << "TGCstationname2stationindex passed invalid stationName n=" << stationName << endmsg;
+    ATH_MSG_WARNING( "TGCstationname2stationindex passed invalid stationName n=" << stationName  );
     return -1;
   }
 }// End of function
@@ -315,15 +315,15 @@ MdtVsTgcRawDataValAlg::TGCstationname2stationindex(int stationName){
 int
 MdtVsTgcRawDataValAlg::getStationMapIndex(int x, int l, int stationFE, int stationEta, int stationPhi){
   // Display error messages if invalid TRE variables are passed in
-  if((stationFE!=0)&&(stationFE!=1)) m_log << MSG::WARNING << "getStationMapIndex passed invalid stationFE=" << stationFE << endmsg;
-  if((l<0)||(l>8)) m_log << MSG::WARNING << "getStationMapIndex passed invalid layer index l=" << l << endmsg;
-  if(stationEta<1) m_log << MSG::WARNING << "getStationMapIndex passed invalid stationEta=" << stationEta << endmsg;
-  if(stationPhi<1) m_log << MSG::WARNING << "getStationMapIndex passed invalid stationPhi=" << stationPhi << endmsg;
+  if((stationFE!=0)&&(stationFE!=1)) ATH_MSG_WARNING( "getStationMapIndex passed invalid stationFE=" << stationFE  );
+  if((l<0)||(l>8)) ATH_MSG_WARNING( "getStationMapIndex passed invalid layer index l=" << l  );
+  if(stationEta<1) ATH_MSG_WARNING( "getStationMapIndex passed invalid stationEta=" << stationEta  );
+  if(stationPhi<1) ATH_MSG_WARNING( "getStationMapIndex passed invalid stationPhi=" << stationPhi  );
   int index=0;
   switch(x){
    case 1:// Getting Eta Index //use old eta bin
     if(l==0||l==1||l==2){// T1
-      if(stationEta>4) m_log << MSG::WARNING << "getStationMapIndex(" << x << ") passed invalid l=" << l << " stationEta=" << stationEta << endmsg;
+      if(stationEta>4) ATH_MSG_WARNING( "getStationMapIndex(" << x << ") passed invalid l=" << l << " stationEta=" << stationEta  );
       if(stationFE==0)index=32+l;
       else{ 
       	index=4-stationEta;
@@ -331,7 +331,7 @@ MdtVsTgcRawDataValAlg::getStationMapIndex(int x, int l, int stationFE, int stati
 			}
     }
     else if(l==3||l==4){// T2
-      if(stationEta>5) m_log << MSG::WARNING << "getStationMapIndex(" << x << ") passed invalid l=" << l << " stationEta=" << stationEta << endmsg;
+      if(stationEta>5) ATH_MSG_WARNING( "getStationMapIndex(" << x << ") passed invalid l=" << l << " stationEta=" << stationEta  );
       if(stationFE==0)index=32+l;
       else {
         index=5-stationEta;
@@ -340,7 +340,7 @@ MdtVsTgcRawDataValAlg::getStationMapIndex(int x, int l, int stationFE, int stati
       }
     }
     else if(l==5||l==6){// T3
-      if(stationEta>5) m_log << MSG::WARNING << "getStationMapIndex(" << x << ") passed invalid l=" << l << " stationEta=" << stationEta << endmsg;
+      if(stationEta>5) ATH_MSG_WARNING( "getStationMapIndex(" << x << ") passed invalid l=" << l << " stationEta=" << stationEta  );
       if(stationFE==0)index=32+l;
       else{
         index=5-stationEta;
@@ -349,7 +349,7 @@ MdtVsTgcRawDataValAlg::getStationMapIndex(int x, int l, int stationFE, int stati
       }
     }
     else if(l==7||l==8){// T4
-      if(stationEta>1) m_log << MSG::WARNING << "getStationMapIndex(" << x << ") passed invalid l=" << l << " stationEta=" << stationEta << endmsg;
+      if(stationEta>1) ATH_MSG_WARNING( "getStationMapIndex(" << x << ") passed invalid l=" << l << " stationEta=" << stationEta  );
       if(stationFE==0){
         if(l==7){index=41;}
         else if(l==8){index=42;}
@@ -362,17 +362,17 @@ MdtVsTgcRawDataValAlg::getStationMapIndex(int x, int l, int stationFE, int stati
   case 2:// Getting Phi Index
     if(stationFE==0){// Forward
       if((l==7)||(l==8)){// FI
-        if(stationPhi>24) m_log << MSG::WARNING << "getStationMapIndex(" << x << ") passed invalid l=" << l << " FE=" << stationFE << " stationPhi=" << stationPhi << endmsg;
+        if(stationPhi>24) ATH_MSG_WARNING( "getStationMapIndex(" << x << ") passed invalid l=" << l << " FE=" << stationFE << " stationPhi=" << stationPhi  );
         index=(stationPhi-1)*2;
       }
       else{// Forward Midstation
-        if(stationPhi>24) m_log << MSG::WARNING << "getStationMapIndex(" << x << ") passed invalid l=" << l << " FE=" << stationFE << " stationPhi=" << stationPhi << endmsg;
+        if(stationPhi>24) ATH_MSG_WARNING( "getStationMapIndex(" << x << ") passed invalid l=" << l << " FE=" << stationFE << " stationPhi=" << stationPhi  );
         index=(stationPhi-1)*2;
       }
     }
     else{// Endcap
       if((l==7)||(l==8)){// EI
-        if(stationPhi>21) m_log << MSG::WARNING << "getStationMapIndex(" << x << ") passed invalid l=" << l << " FE=" << stationFE << " stationPhi=" << stationPhi << endmsg;
+        if(stationPhi>21) ATH_MSG_WARNING( "getStationMapIndex(" << x << ") passed invalid l=" << l << " FE=" << stationFE << " stationPhi=" << stationPhi  );
         index=(stationPhi-1);
         if(index>7)index++;
         if(index>15)index++;
@@ -380,7 +380,7 @@ MdtVsTgcRawDataValAlg::getStationMapIndex(int x, int l, int stationFE, int stati
         index*=2;
       }
       else{// Endcap Midstation
-        if(stationPhi>48) m_log << MSG::WARNING << "getStationMapIndex(" << x << ") passed invalid l=" << l << " FE=" << stationFE << " stationPhi=" << stationPhi << endmsg;
+        if(stationPhi>48) ATH_MSG_WARNING( "getStationMapIndex(" << x << ") passed invalid l=" << l << " FE=" << stationFE << " stationPhi=" << stationPhi  );
         index=stationPhi-1;
       }
     }
@@ -389,7 +389,7 @@ MdtVsTgcRawDataValAlg::getStationMapIndex(int x, int l, int stationFE, int stati
     if(index>47)index-=48;
     break;
   default:
-    m_log << MSG::WARNING << "getStationMapIndex(" << x << ") is invalid" << endmsg;
+    ATH_MSG_WARNING( "getStationMapIndex(" << x << ") is invalid"  );
     break;
   }
   return index;
