@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TFCSParametrizationBase_h
-#define TFCSParametrizationBase_h
+#ifndef ISF_FASTCALOSIMEVENT_TFCSParametrizationBase_h
+#define ISF_FASTCALOSIMEVENT_TFCSParametrizationBase_h
 
 #include <TNamed.h>
 #include <set>
@@ -14,7 +14,7 @@
 class TFCSParametrizationBase:public TNamed {
 public:
   TFCSParametrizationBase(const char* name=0, const char* title=0);
-  
+
   virtual bool is_match_pdgid(int /*id*/) const {return false;};
   virtual bool is_match_Ekin(float /*Ekin*/) const {return false;};
   virtual bool is_match_eta(float /*eta*/) const {return false;};
@@ -41,9 +41,5 @@ private:
 
   ClassDef(TFCSParametrizationBase,1)  //TFCSParametrizationBase
 };
-
-#if defined(__MAKECINT__)
-#pragma link C++ class TFCSParametrizationBase+;
-#endif
 
 #endif
