@@ -123,8 +123,8 @@ if ( VerboseOutput):
 	StoreGateSvc.Dump = True
 	DetectorStore = Service( "DetectorStore" )
 	DetectorStore.Dump = True
-	ConditionsStore = Service( "ConditionsStore" )
-	ConditionsStore.Dump = True
+	ConditionStore = Service( "ConditionStore" )
+	ConditionStore.Dump = True
 
 ###########################################################################
 

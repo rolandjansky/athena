@@ -45,7 +45,7 @@ int main() {
   assert(pStore);
   assert(pStore->storeID() == StoreID::DETECTOR_STORE);
   
-  assert((pSvcLoc->service("ConditionsStore", pStore, CREATE)).isSuccess());
+  assert((pSvcLoc->service("ConditionStore", pStore, CREATE)).isSuccess());
   assert(pStore);
   assert(pStore->storeID() == StoreID::CONDITION_STORE);
   
