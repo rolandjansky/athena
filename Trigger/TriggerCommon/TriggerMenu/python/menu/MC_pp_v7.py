@@ -1039,8 +1039,6 @@ def setupMenu():
     #   Bphysics
     ###########################################################################################################
     TriggerFlags.BphysicsSlice.signatures = TriggerFlags.BphysicsSlice.signatures() + [
-
-	['mu11_mu6_bTau',                  'L1_MU11_2MU6', ['L1_MU11','L1_MU6'], [BPhysicsStream, 'express'], [RATE_BphysTag,BW_BphysTag], -1],
 	
         #['2mu6_bMuMu_L12MU6', 'L1_2MU6', [], [PhysicsStream], [], -1], 
 
@@ -1521,6 +1519,10 @@ def setupMenu():
         ['g35_medium_L1EM24VHI_tau35_kaonpi1_tracktwo_L1TAU12',     'L1_EM24VHI', ['L1_EM24VHI','L1_TAU12'], [PhysicsStream], ['RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,["g35_medium_L1EM24VHI","tau35_kaonpi1_tracktwo_L1TAU12"]]],
         ['g35_medium_L1EM24VHI_tau25_kaonpi2_tracktwo_L1TAU12',     'L1_EM24VHI', ['L1_EM24VHI','L1_TAU12'], [PhysicsStream], ['RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,["g35_medium_L1EM24VHI","tau25_kaonpi2_tracktwo_L1TAU12"]]],
         ['g35_medium_L1EM24VHI_tau35_kaonpi2_tracktwo_L1TAU12',     'L1_EM24VHI', ['L1_EM24VHI','L1_TAU12'], [PhysicsStream], ['RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,["g35_medium_L1EM24VHI","tau35_kaonpi2_tracktwo_L1TAU12"]]],        
+
+        # with pi0's (ATR-16600)
+        ['g35_medium_L1EM24VHI_tau25_dipion3_tracktwo_60mVis10000','L1_EM24VHI', ['L1_EM24VHI','L1_TAU12'], [PhysicsStream], ['RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,['g35_medium_L1EM24VHI','tau25_dipion3_tracktwo'],False]],
+
         # photon+pion (ATR-13525)
         ['g35_medium_tau25_singlepion_tracktwo_L1TAU12',     'L1_EM22VHI', ['L1_EM22VHI','L1_TAU12'], [PhysicsStream], ['RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,["g35_medium","tau25_singlepion_tracktwo_L1TAU12"]]],
         ['g35_medium_tau25_singlepiontight_tracktwo_L1TAU12',     'L1_EM22VHI', ['L1_EM22VHI','L1_TAU12'], [PhysicsStream], ['RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,["g35_medium","tau25_singlepiontight_tracktwo_L1TAU12"]]],

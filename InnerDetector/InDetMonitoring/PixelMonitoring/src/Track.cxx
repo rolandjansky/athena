@@ -112,12 +112,12 @@ StatusCode PixelMainMon::BookTrackMon(void)
   m_degFactorMap->SetMaximum(2.0);
   
   if (m_do2DMaps && !m_doOnline) {
-    m_tsos_hitmap = new PixelMon2DMapsLW("TSOS_Measurement", ("TSOS of type Measurement" + m_histTitleExt), m_doIBL, false);
-    sc = m_tsos_hitmap->regHist(trackHistos, m_doIBL, false);
-    m_tsos_holemap = new PixelMon2DMapsLW("TSOS_Hole", ("TSOS of type Hole" + m_histTitleExt), m_doIBL, false);
-    sc = m_tsos_holemap->regHist(trackHistos, m_doIBL, false);
-    m_tsos_outliermap = new PixelMon2DMapsLW("TSOS_Outlier", ("TSOS of type Outlier" + m_histTitleExt), m_doIBL, false);
-    sc = m_tsos_outliermap->regHist(trackHistos, m_doIBL, false);
+    m_tsos_hitmap = new PixelMon2DMapsLW("TSOS_Measurement", ("TSOS of type Measurement" + m_histTitleExt), m_doIBL);
+    sc = m_tsos_hitmap->regHist(trackHistos);
+    m_tsos_holemap = new PixelMon2DMapsLW("TSOS_Hole", ("TSOS of type Hole" + m_histTitleExt), m_doIBL);
+    sc = m_tsos_holemap->regHist(trackHistos);
+    m_tsos_outliermap = new PixelMon2DMapsLW("TSOS_Outlier", ("TSOS of type Outlier" + m_histTitleExt), m_doIBL);
+    sc = m_tsos_outliermap->regHist(trackHistos);
     
     //m_tsos_measratio = new PixelMon2DProfilesLW("TSOS_MeasRatio", ("TSOS of type Meas per track" + m_histTitleExt), m_doIBL, false, true);
     //sc = m_tsos_measratio->regHist(trackHistos);
@@ -139,7 +139,7 @@ StatusCode PixelMainMon::BookTrackMon(void)
   
   if (m_doModules) {
     m_tsos_hiteff_vs_lumi = new PixelMonModulesProf("TSOS_HitEfficiency",("TSOS-based hit efficiency in module" + m_histTitleExt).c_str(),2500,-0.5,2499.5,m_doIBL);
-    sc = m_tsos_hiteff_vs_lumi->regHist(this,(path+"/Modules_TSOSHitEff").c_str(),run, m_doIBL);
+    sc = m_tsos_hiteff_vs_lumi->regHist(this,(path+"/Modules_TSOSHitEff").c_str(),run);
     if (!m_doOnline) {
       sc=trackHistos.regHist(m_clustot_lowpt = TH1F_LW::create("m_clustot_lowpt",("Cluster ToT vs Track pT (pT<10GeV)" + m_histTitleExt + "; Track pT; Cluster ToT (on track)").c_str(),250,0,250));
       sc=trackHistos.regHist(m_clustot_highpt = TH1F_LW::create("m_clustot_highpt",("Cluster ToT vs Track pT (pT>=10GeV)" + m_histTitleExt + "; Track pT; Cluster ToT (on track)").c_str(),250,0,250));
@@ -327,8 +327,8 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	  if (clus) clusID = clus->identify();
 	  //nMeasurement = 1.0;
 
-	  if ( m_tsos_hitmap ) m_tsos_hitmap->Fill(surfaceID,m_pixelid,m_doIBL,false);
-	  if ( m_tsos_hiteff_vs_lumi ) m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(),1.,surfaceID,m_pixelid,m_doIBL);
+	  if ( m_tsos_hitmap ) m_tsos_hitmap->Fill(surfaceID, m_pixelid);
+	  if ( m_tsos_hiteff_vs_lumi ) m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(),1.,surfaceID,m_pixelid);
 	  //if( m_hiteff_incl_mod[pixlayerdisk] && passQualityCut ) m_hiteff_incl_mod[pixlayerdisk]->Fill( m_manager->lumiBlockNumber(), 1.0 );
 	  if ( m_hiteff_incl_mod[pixlayerdisk] && pass1hole2GeVTightCut ) m_hiteff_incl_mod[pixlayerdisk]->Fill( m_manager->lumiBlockNumber(), 1.0 );
 	}
@@ -338,8 +338,8 @@ StatusCode PixelMainMon::FillTrackMon(void)
            if(clus) clusID = clus->identify();
            nOutlier = 1.0;
 
-           if( m_tsos_holemap ) m_tsos_holemap->Fill(surfaceID,m_pixelid,m_doIBL,false);
-           if( m_tsos_hiteff_vs_lumi ) m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(),0.,surfaceID,m_pixelid,m_doIBL);
+           if( m_tsos_holemap ) m_tsos_holemap->Fill(surfaceID, m_pixelid);
+           if( m_tsos_hiteff_vs_lumi ) m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(),0.,surfaceID,m_pixelid);
            //if( m_hiteff_incl_mod[pixlayerdisk] && passQualityCut ) m_hiteff_incl_mod[pixlayerdisk]->Fill( m_manager->lumiBlockNumber(), 0.0 );
            if( m_hiteff_incl_mod[pixlayerdisk] && pass1hole2GeVTightCut ) m_hiteff_incl_mod[pixlayerdisk]->Fill( m_manager->lumiBlockNumber(), 0.0 );
          }
@@ -349,8 +349,8 @@ StatusCode PixelMainMon::FillTrackMon(void)
            if(clus) clusID = clus->identify();
            nHole = 1.0;
 
-           if( m_tsos_outliermap)m_tsos_outliermap->Fill(surfaceID,m_pixelid,m_doIBL,false);
-           if( m_tsos_hiteff_vs_lumi) m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(),0.,surfaceID,m_pixelid,m_doIBL);
+           if( m_tsos_outliermap)m_tsos_outliermap->Fill(surfaceID, m_pixelid);
+           if( m_tsos_hiteff_vs_lumi) m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(),0.,surfaceID,m_pixelid);
            //if( m_hiteff_incl_mod[pixlayerdisk] && passQualityCut ) m_hiteff_incl_mod[pixlayerdisk]->Fill( m_manager->lumiBlockNumber(), 0.0 );
            if( m_hiteff_incl_mod[pixlayerdisk] && pass1hole2GeVTightCut ) m_hiteff_incl_mod[pixlayerdisk]->Fill( m_manager->lumiBlockNumber(), 0.0 );
          }

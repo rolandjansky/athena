@@ -68,7 +68,7 @@ class TauHypoProvider:
                         from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo_tauNoCut
                         currentHypo = EFTauMVHypo_tauNoCut(currentHypoKey.replace(threshold, ''))
 
-                    elif criteria=='dikaon' or criteria=='dikaontight' or criteria=='dikaonmass' or criteria=='dikaonmasstight' or criteria=='kaonpi1' or criteria=='kaonpi2' or criteria=='dipion1' or criteria=='dipion1loose' or criteria=='dipion2':
+                    elif criteria=='dikaon' or criteria=='dikaontight' or criteria=='dikaonmass' or criteria=='dikaonmasstight' or criteria=='kaonpi1' or criteria=='kaonpi2' or criteria=='dipion1' or criteria=='dipion1loose' or criteria=='dipion2' or criteria=='dipion3':
                         from TrigTauHypo.TrigTauHypoConfig2012 import EFTauDiKaonHypo
                         theVars = ['massTrkSysMin', 'massTrkSysMax', 'massTrkSysKaonMin', 'massTrkSysKaonMax', 'massTrkSysKaonPiMin', 'massTrkSysKaonPiMax', 'targetMassTrkSysKaonPi', 'leadTrkPtMin','EtCalibMin','EMPOverTrkSysPMax']
                         theThresh = self.thresholdsEF_dikaon[(criteria, int(threshold))]
@@ -336,6 +336,7 @@ class TauHypoProvider:
         ('medium1HighptH'):[160.0*GeV,330.0*GeV,410.0*GeV]   
         }
 
+# 'massTrkSysMin', 'massTrkSysMax', 'massTrkSysKaonMin', 'massTrkSysKaonMax', 'massTrkSysKaonPiMin', 'massTrkSysKaonPiMax', 'targetMassTrkSysKaonPi', 'leadTrkPtMin','EtCalibMin','EMPOverTrkSysPMax'
     thresholdsEF_dikaon = {
         ('dikaon', 25):          [0.2*GeV, 0.45*GeV,    0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   15.0*GeV, 25.0*GeV, 1.5],
         ('dikaon', 35):          [0.2*GeV, 0.45*GeV,    0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   25.0*GeV, 35.0*GeV, 1.5], 
@@ -354,7 +355,8 @@ class TauHypoProvider:
         ('dipion1loose', 25):    [0.475*GeV, 1.075*GeV, 0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   25.0*GeV, 25.0*GeV, 1.5],
         ('dipion1loose', 35):    [0.475*GeV, 1.075*GeV, 0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   25.0*GeV, 35.0*GeV, 1.5],
         ('dipion2', 25):         [0.460*GeV, 0.538*GeV, 0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   15.0*GeV, 25.0*GeV, 1.0],
-        ('dipion2', 35):         [0.460*GeV, 0.538*GeV, 0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   25.0*GeV, 35.0*GeV, 1.0]
+        ('dipion2', 35):         [0.460*GeV, 0.538*GeV, 0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   25.0*GeV, 35.0*GeV, 1.0],
+        ('dipion3', 25):         [0.279*GeV, 0.648*GeV, 0.0*GeV, 1000.0*GeV,  0.0*GeV, 1000.0*GeV, 0.0*GeV,   25.0*GeV, 25.0*GeV, 2.2], #ATR-16600
         }
 
 
