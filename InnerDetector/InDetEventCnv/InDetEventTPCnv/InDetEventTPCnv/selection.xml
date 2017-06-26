@@ -37,6 +37,8 @@
     <class name="std::vector<InDet::SCT_Cluster_p2>" />
     <class name="InDet::SCT_Cluster_p3" />
     <class name="std::vector<InDet::SCT_Cluster_p3>" />
+    <class name="InDet::SCT_Cluster_p4" />
+    <class name="std::vector<InDet::SCT_Cluster_p4>" />
     <class name="InDet::SiWidth_p1" />
     <class name="InDet::SiWidth_p2" />
     <class name="std::vector<InDet::SiWidth_p1>" />
@@ -60,6 +62,7 @@
     <class name="InDet::SCT_ClusterContainer_tlp1" id="657F6546-F5CD-4166-9567-16AD9C96D286" />
     <class name="InDet::SCT_ClusterContainer_p2" id="ECE7D831-0F31-4E6F-A6BE-2ADDE90083BA" />
     <class name="InDet::SCT_ClusterContainer_p3" id="623F5836-369F-4A94-9DD4-DAD728E93C13" />
+    <class name="InDet::SCT_ClusterContainer_p4" id="00BD58F2-E44D-407D-BA82-28CA29A4397C" />
     <class name="InDet::TRT_DriftCircle_p1" />
     <class name="std::vector<InDet::TRT_DriftCircle_p1>" />
     <class name="InDet::TRT_DriftCircle_p2" />
