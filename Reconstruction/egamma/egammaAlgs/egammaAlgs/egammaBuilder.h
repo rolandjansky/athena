@@ -30,12 +30,15 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IChronoStatSvc.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 #include "xAODEgamma/ElectronFwd.h"
 #include "xAODEgamma/PhotonFwd.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "egammaRecEvent/egammaRecContainer.h"
 
 class IegammaBaseTool;
 class IEGammaAmbiguityTool;
@@ -110,22 +113,19 @@ class egammaBuilder : public AthAlgorithm
   /** @brief retrieve EMConversionBuilder **/
   StatusCode RetrieveEMConversionBuilder();
   
-  /** @brief Name of the track particle container in StoreGate  */
-  std::string m_tracksName;
-  
   /** @brief Name of the electron output collection*/
-  std::string  m_electronOutputName;
+  SG::WriteHandleKey<xAOD::ElectronContainer> m_electronOutputKey;
   /** @brief Name of the photon output collection */
-  std::string  m_photonOutputName;
+  SG::WriteHandleKey<xAOD::PhotonContainer> m_photonOutputKey;
 
   /** @brief Name of the cluster intput collection */
-  std::string  m_inputClusterContainerName;
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_inputClusterContainerKey;
 
   /** @brief Name of the topo-seeded cluster collection */
-  std::string  m_topoSeededClusterContainerName;
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_topoSeededClusterContainerKey;
 
   /** @brief Name of egammaRec container */
-  std::string  m_egammaRecContainerName;
+  SG::WriteHandleKey<EgammaRecContainer> m_egammaRecContainerKey;
 
   //
   // The tools

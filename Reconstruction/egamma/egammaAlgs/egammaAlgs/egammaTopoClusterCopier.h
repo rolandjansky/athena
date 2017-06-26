@@ -6,7 +6,6 @@
 #define EGAMMAALGS_EGAMMATOPOCLUSTERCOPIER_H
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "xAODCaloEvent/CaloClusterFwd.h" 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"

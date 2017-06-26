@@ -36,7 +36,10 @@ using CLHEP::GeV;
     
 egammaForwardBuilder::egammaForwardBuilder(const std::string& name, ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator),
-  m_timingProfile(0)
+  m_objectqualityTool("egammaOQFlagsBuilder", this),
+  m_fourMomBuilder("EMFourMomBuilder", this),
+  m_timingProfile(0),
+  m_forwardelectronIsEMselectors(this)
 { 
   // Name of Electron Container to be created
   declareProperty("ElectronOutputName",

@@ -54,9 +54,6 @@ class EMVertexBuilder : public AthAlgorithm {
   /** @brief Tool to find vertices (creates double-track conversions) */
   ToolHandle<InDet::IVertexFinder>    m_vertexFinderTool;
 
-  /** @brief Tool to create single-track conversions */
-  ToolHandle<InDet::SingleTrackConversionTool> m_singleTrkConvTool;
-
   /** @brief EMExtrapolationTool */
   ToolHandle<IEMExtrapolationTools>  m_EMExtrapolationTool;
     		

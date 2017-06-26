@@ -57,6 +57,8 @@ namespace{
 topoEgammaBuilder::topoEgammaBuilder(const std::string& name, 
 				     ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator),
+  m_egammaTools(this), m_electronTools(this), m_photonTools(this),
+  m_ambiguityTool("EGammaAmbiguityTool", this),
   m_timingProfile(0){
 
   //Containers

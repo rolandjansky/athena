@@ -29,7 +29,8 @@ typedef ElementLink<xAOD::PhotonContainer> PhotonLink_t;
 // =============================================================
 egammaTruthAssociationAlg::egammaTruthAssociationAlg(const std::string& name, 
 						     ISvcLocator* pSvcLocator): 
-  AthAlgorithm(name, pSvcLocator)
+  AthAlgorithm(name, pSvcLocator),
+  m_mcTruthClassifier("MCTruthClassifier/EMMCTruthClassifier", this)
 {
   declareProperty("ClusterContainerName", m_clusterContainerName, 
     "Name of the egamma cluster container");

@@ -113,7 +113,8 @@ namespace {
 egammaSuperClusterBuilder::egammaSuperClusterBuilder(const std::string& name, 
 						     ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator),
-  m_clusterCorrectionTool("egammaSwTool/egammaswtool")
+  m_MVACalibTool("egammaMVATool", this),
+  m_clusterCorrectionTool("egammaSwTool/egammaswtool", this)
 {
 
   declareProperty("EtThresholdCut", m_EtThresholdCut = 1.5*GeV,

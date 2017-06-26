@@ -40,7 +40,8 @@ electronSuperClusterBuilder::electronSuperClusterBuilder(const std::string& name
   m_nWindowClusters(0),
   m_nExtraClusters(0),
   m_nSameTrackClusters(0),
-  m_nSimpleBremSearchClusters(0)
+  m_nSimpleBremSearchClusters(0),
+  m_trackMatchBuilder("EMTrackMatchBuilder", this)
 {
 
   ////////////////////////////////////////////////////////////////////////////////

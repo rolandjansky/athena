@@ -33,7 +33,8 @@ using CLHEP::GeV;
 //Constructor.
 photonSuperClusterBuilder::photonSuperClusterBuilder(const std::string& name, 
 						     ISvcLocator* pSvcLocator):
-  egammaSuperClusterBuilder(name, pSvcLocator)
+  egammaSuperClusterBuilder(name, pSvcLocator),
+  m_conversionBuilder("EMConversionBuilder", this)
 {
 
   //Containers

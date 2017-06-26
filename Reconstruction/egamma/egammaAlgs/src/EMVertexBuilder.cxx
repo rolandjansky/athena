@@ -30,8 +30,8 @@ changes :
 EMVertexBuilder::EMVertexBuilder(const std::string& name, 
 				 ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
-  m_vertexFinderTool("InDet::InDetConversionFinderTools"),
-  m_EMExtrapolationTool("EMExtrapolationTools")
+  m_vertexFinderTool("InDet::InDetConversionFinderTools", this),
+  m_EMExtrapolationTool("EMExtrapolationTools", this)
 {
   declareProperty("InputTrackParticleContainerName", m_inputTrackParticleContainerKey = "GSFTrackParticles");
 

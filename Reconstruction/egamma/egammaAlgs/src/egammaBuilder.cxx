@@ -51,6 +51,8 @@ PURPOSE:  Algorithm which makes a egammaObjectCollection. For each cluster
 
 #include "StoreGate/StoreGateSvc.h"
 
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 
 // INCLUDE GAUDI HEADER FILES:
 #include <algorithm> 
@@ -69,7 +71,10 @@ using CLHEP::GeV;
 egammaBuilder::egammaBuilder(const std::string& name, 
 				   ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator),
-  m_tracksName("InnerDetectorTrackParticles"),
+  m_egammaTools(this), m_electronTools(this), m_photonTools(this),
+  m_ambiguityTool("EGammaAmbiguityTool", this),
+  m_trackMatchBuilder("EMTrackMatchBuilder", this),
+  m_conversionBuilder("EMConversionBuilder", this),
   m_doTrackMatching(true),
   m_doConversions(true),
   m_timingProfile(0)
@@ -79,24 +84,24 @@ egammaBuilder::egammaBuilder(const std::string& name,
   // (declared in jobOptions file)
   
   declareProperty("ElectronOutputName",
-		  m_electronOutputName="ElectronContainer",
+		  m_electronOutputKey="ElectronContainer",
 		  "Name of Electron Connainer to be created");
   
   declareProperty("PhotonOutputName",
-		  m_photonOutputName="PhotonContainer",
+		  m_photonOutputKey="PhotonContainer",
 		  "Name of Photon Container to be created");
 
   declareProperty("InputClusterContainerName",
-		  m_inputClusterContainerName="LArClusterEM",
+		  m_inputClusterContainerKey="LArClusterEM",
 		  "Input cluster container for egamma objects");
 
 
   declareProperty("TopoSeededClusterContainerName",
-		  m_topoSeededClusterContainerName="EMTopoCluster430",
+		  m_topoSeededClusterContainerKey="EMTopoCluster430",
 		  "Input topo-seeded cluster container for egamma objects");
 
   declareProperty("egammaRecContainer",
-		  m_egammaRecContainerName="egammaRecCollection",
+		  m_egammaRecContainerKey="egammaRecCollection",
 		  "Output container for egammaRec objects");
 
   declareProperty("egammaTools", m_egammaTools,
@@ -184,6 +189,12 @@ StatusCode egammaBuilder::initialize()
 
   ATH_MSG_DEBUG("Initializing egammaBuilder");
 
+  // the keys
+  ATH_CHECK(m_electronOutputKey.initialize());
+  ATH_CHECK(m_photonOutputKey.initialize());
+  ATH_CHECK(m_inputClusterContainerKey.initialize());
+  ATH_CHECK(m_topoSeededClusterContainerKey.initialize(m_doTopoSeededPhotons));
+  ATH_CHECK(m_egammaRecContainerKey.initialize());
 
   // retrieve track match builder
   CHECK( RetrieveEMTrackMatchBuilder() );
@@ -311,46 +322,29 @@ StatusCode egammaBuilder::execute(){
   std::string chronoName;
 
   // create egammaRecContainer, ElectronContainer, PhotonContainer and register them
-  EgammaRecContainer* egammaRecs = new EgammaRecContainer();
-  if (evtStore()->record(egammaRecs, m_egammaRecContainerName).isFailure())
-  {
-    ATH_MSG_ERROR("Could not record egammaRecContainer");
-    return StatusCode::FAILURE;
-  }
+  //Build the initial egamma Rec objects for all copied Topo Clusters
+  SG::WriteHandle<EgammaRecContainer> egammaRecs(m_egammaRecContainerKey);
+  ATH_CHECK(egammaRecs.record(std::make_unique<EgammaRecContainer>()));
 
-  xAOD::ElectronContainer* electronContainer = new xAOD::ElectronContainer();
-  xAOD::ElectronAuxContainer* electronAuxContainer = new xAOD::ElectronAuxContainer();
-  electronContainer->setStore( electronAuxContainer );
-  
-  if ( evtStore()->record(electronContainer, m_electronOutputName).isFailure() ||
-       evtStore()->record(electronAuxContainer, m_electronOutputName + "Aux.").isFailure())
-  {
-    ATH_MSG_ERROR("Could not record electron container or its aux container");
-    return StatusCode::FAILURE;
-  }       
-  
-  xAOD::PhotonContainer* photonContainer = new xAOD::PhotonContainer();
-  xAOD::PhotonAuxContainer* photonAuxContainer = new xAOD::PhotonAuxContainer();
-  photonContainer->setStore( photonAuxContainer );
-  
-  if ( evtStore()->record(photonContainer, m_photonOutputName).isFailure() ||
-       evtStore()->record(photonAuxContainer, m_photonOutputName + "Aux.").isFailure())
-  {
-    ATH_MSG_ERROR("Could not record photon container or its aux container");
-    return StatusCode::FAILURE;
-  }       
+
+  SG::WriteHandle<xAOD::ElectronContainer> electronContainer(m_electronOutputKey);
+  ATH_CHECK(electronContainer.record(std::make_unique<xAOD::ElectronContainer>(),
+				     std::make_unique<xAOD::ElectronAuxContainer>()));
+
+  SG::WriteHandle<xAOD::PhotonContainer> photonContainer(m_photonOutputKey);
+  ATH_CHECK(photonContainer.record(std::make_unique<xAOD::PhotonContainer>(),
+				   std::make_unique<xAOD::PhotonAuxContainer>()));
     
   // Loop over clusters and create egammaRec objects
   ATH_MSG_DEBUG("Creating egammaRec objects");
-  const xAOD::CaloClusterContainer *clusters;
-  if (evtStore()->retrieve(clusters, m_inputClusterContainerName).isFailure())
-  {
-    ATH_MSG_ERROR("Could not retrieve cluster container " << m_inputClusterContainerName);
+  SG::ReadHandle<xAOD::CaloClusterContainer> clusters(m_inputClusterContainerKey);
+  // only for single-threaded running, remove later
+  if (!clusters.isValid()) {
+    ATH_MSG_ERROR("Could not retrieve cluster container " << m_inputClusterContainerKey.key());
     return StatusCode::FAILURE;
   }
   
-  for (unsigned int i = 0; i < clusters->size(); ++i)
-  {
+  for (unsigned int i = 0; i < clusters->size(); ++i) {
     const ElementLink< xAOD::CaloClusterContainer > clusterLink( *clusters, i );
     const std::vector< ElementLink<xAOD::CaloClusterContainer> > elClusters {clusterLink};    
     egammaRec *egRec = new egammaRec();
@@ -412,7 +406,7 @@ StatusCode egammaBuilder::execute(){
     //Electron
     if (author == xAOD::EgammaParameters::AuthorElectron){
 	ATH_MSG_DEBUG("getElectron");
-	if ( !getElectron(egRec, electronContainer, author) ){
+	if ( !getElectron(egRec, electronContainer.ptr(), author) ){
 	  return StatusCode::FAILURE;
 	}
 	acc(*(electronContainer->back())) = type;
@@ -421,7 +415,7 @@ StatusCode egammaBuilder::execute(){
     //Photon
     if (author == xAOD::EgammaParameters::AuthorPhoton ){
       ATH_MSG_DEBUG("getPhoton");
-      if ( !getPhoton(egRec, photonContainer, author) ){
+      if ( !getPhoton(egRec, photonContainer.ptr(), author) ){
 	return StatusCode::FAILURE;
       }
 	acc(*(photonContainer->back())) = type;
@@ -432,8 +426,8 @@ StatusCode egammaBuilder::execute(){
    
       ATH_MSG_DEBUG("get Electron and Photon");
       
-      if ( !getPhoton(egRec, photonContainer, author) || 
-	   !getElectron(egRec, electronContainer, author)){
+      if ( !getPhoton(egRec, photonContainer.ptr(), author) || 
+	   !getElectron(egRec, electronContainer.ptr(), author)){
 	return StatusCode::FAILURE;
       }
       
@@ -450,23 +444,24 @@ StatusCode egammaBuilder::execute(){
   }
  
   // Add topo-seeded clusters to the photon collection
-  if (m_doTopoSeededPhotons)
-    CHECK( addTopoSeededPhotons(photonContainer, clusters) );
-  
+  if (m_doTopoSeededPhotons) {
+    CHECK( addTopoSeededPhotons(photonContainer.ptr(), clusters.ptr()) );
+  }
+
   // Call tools
   for (auto& tool : m_egammaTools)
   {
-    CHECK( CallTool(tool, electronContainer, photonContainer) );
+    CHECK( CallTool(tool, electronContainer.ptr(), photonContainer.ptr()) );
   }
 
   for (auto& tool : m_electronTools)
   {
-    CHECK( CallTool(tool, electronContainer, 0) );
+    CHECK( CallTool(tool, electronContainer.ptr(), 0) );
   }
 
   for (auto& tool : m_photonTools)
   {
-    CHECK( CallTool(tool, 0, photonContainer) );
+    CHECK( CallTool(tool, 0, photonContainer.ptr()) );
   }
   ATH_MSG_DEBUG("execute completed successfully");
 
@@ -626,8 +621,13 @@ StatusCode egammaBuilder::addTopoSeededPhotons(xAOD::PhotonContainer *photonCont
                                                const xAOD::CaloClusterContainer *clusters)
 {
   // Retrieve the cluster container
-  const xAOD::CaloClusterContainer *topoSeededClusters = 0;
-  CHECK( evtStore()->retrieve(topoSeededClusters, m_topoSeededClusterContainerName) );
+  SG::ReadHandle<xAOD::CaloClusterContainer> topoSeededClusters(m_topoSeededClusterContainerKey);
+  // only for single-threaded running, remove later
+  if (!topoSeededClusters.isValid()) {
+    ATH_MSG_ERROR("Could not retrieve toposeeded cluster container " << m_topoSeededClusterContainerKey.key());
+    return StatusCode::FAILURE;
+  }
+
   ATH_MSG_DEBUG("Number of photons (before topo-clusters): " << photonContainer->size() );
   ATH_MSG_DEBUG("Number of topo-seeded clusters: " << topoSeededClusters->size() );
   

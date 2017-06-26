@@ -64,11 +64,11 @@ UPDATE :
 EMBremCollectionBuilder::EMBremCollectionBuilder(const std::string& name, 
 						 ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
-  m_trkRefitTool("egamma/ElectronRefitterTool"),
-  m_particleCreatorTool("Trk::TrackParticleCreatorTool"),
-  m_slimTool("Trk::TrkTrackSlimmingTool/TrkTrackSlimmingTool"),
-  m_summaryTool("Trk::TrackSummaryTool/InDetTrackSummaryTool"),
-  m_extrapolationTool("EMExtrapolationTools"),
+  m_trkRefitTool("egamma/ElectronRefitterTool", this),
+  m_particleCreatorTool("Trk::TrackParticleCreatorTool", this),
+  m_slimTool("Trk::TrkTrackSlimmingTool/TrkTrackSlimmingTool", this),
+  m_summaryTool("Trk::TrackSummaryTool/InDetTrackSummaryTool", this),
+  m_extrapolationTool("EMExtrapolationTools", this),
   m_finalTracks(0),
   m_finalTrkPartContainer(0)
 {
