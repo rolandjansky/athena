@@ -369,6 +369,12 @@ namespace MuonCombined {
 
     // create candidate from SA muon only
     addMuonCandidate(candidate,*muon,outputData);
+
+    if(!muon->extrapolatedMuonSpectrometerTrackParticleLink().isValid()){
+      ATH_MSG_DEBUG("Creation of track particle for SA muon failed, removing it");
+      outputData.muonContainer->pop_back();
+      return 0;
+    }
     
     if( !dressMuon(*muon) ){
       ATH_MSG_WARNING("Failed to dress muon");
