@@ -14,6 +14,7 @@
 
 //================================================================
 namespace {
+#if 0
   std::string shortPrint(const SCT_RDO_Container *main_input_SCT, unsigned maxprint=25) {
     std::ostringstream os;
     if(main_input_SCT) {
@@ -32,6 +33,7 @@ namespace {
     }
     return os.str();
   }
+#endif
 }
 
 SCT_RDO_ContainerCnv::SCT_RDO_ContainerCnv (ISvcLocator* svcloc) : SCT_RDO_ContainerCnvBase(svcloc) {}

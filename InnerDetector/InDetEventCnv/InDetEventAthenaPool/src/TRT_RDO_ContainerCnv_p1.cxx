@@ -16,6 +16,7 @@
 
 //================================================================
 namespace {
+#if 0
   std::string shortPrint(const TRT_RDO_Container *main_input_TRT, unsigned maxprint=25) {
     std::ostringstream os;
     if(main_input_TRT) {
@@ -34,6 +35,7 @@ namespace {
     }
     return os.str();
   }
+#endif
 
   //----------------------------------------------------------------
   std::string persistentTRT_ToString(const TRT_RDO_colvector& rdoV, unsigned maxprint = 20) {

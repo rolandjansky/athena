@@ -44,3 +44,16 @@ apply_pattern lcgdict dict=InDetEventAthenaPoolCnv  selectionfile=selection.xml 
 private 
 use AthenaPoolCnvSvc AthenaPoolCnvSvc-* Database/AthenaPOOL
 use AtlasSealCLHEP AtlasSealCLHEP-* Database
+
+
+private
+use TestTools            TestTools-*                AtlasTest -no_auto_imports
+
+apply_pattern declare_joboptions files="-s=../share *.py"
+
+apply_pattern athenarun_test \
+   name="InDetEventTPCnv_16.6.2.1" \
+   options="InDetEventAthenaPool/InDetEventTPCnv_16.6.2.1_test.py" \
+   pre_script="${ATHENAPOOLUTILITIESROOT}/share/pre_tpcnvtest.sh InDetEventTPCnv_16.6.2.1" \
+   post_script="${ATHENAPOOLUTILITIESROOT}/share/post_tpcnvtest.sh InDetEventTPCnv_16.6.2.1"
+
