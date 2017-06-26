@@ -52,6 +52,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include "TrigFTK_RawData/FTK_RawSCT_Cluster.h"
 #include "FTKStandaloneMonitoring/FTKTrkAssoc.h"
 #include "FTKStandaloneMonitoring/CompareFTKTracks.h"
+#undef PACKAGE_VERSION
 #include "RunControl/Common/OnlineServices.h"
 #include "ipc/partition.h"
 #include "ipc/core.h"
