@@ -57,7 +57,7 @@ if( NOT XAOD_STANDALONE )
    atlas_add_test( ut_JetReclusteringTool_test
       SOURCES test/ut_JetReclusteringTool_test.cxx
       LINK_LIBRARIES xAODRootAccess AsgTools JetInterface xAODJet
-      POOLRootAccess )
+      POOLRootAccessLib )
 endif()
 
 # Install files from the package:

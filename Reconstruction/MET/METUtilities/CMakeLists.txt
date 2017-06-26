@@ -71,42 +71,40 @@ atlas_add_dictionary( METUtilitiesDict
    METUtilities/selection.xml
    LINK_LIBRARIES METUtilitiesLib )
 
+
+#set readLib, used below to compile apps/tests
+set( readLib )
+if( XAOD_STANDALONE ) 
+  set( readLib xAODRootAccess )
+else()
+  set( readLib POOLRootAccessLib )
+endif()
+
 # Executable(s) in the package:
-foreach( utility example_METMaker_METSystematicsTool
-         example_METMaker_advanced example_rebuildTrackMET )
-   if( XAOD_STANDALONE )
-      atlas_add_executable( ${utility}
-         util/${utility}.cxx
-         INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-         LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess AsgTools xAODBase
-         xAODMissingET xAODCore xAODJet xAODEgamma xAODMuon xAODTau
-         JetCalibToolsLib METInterface PATInterfaces METUtilitiesLib )
-   elseif( XAOD_ANALYSIS )
-      atlas_add_executable( ${utility}
-         util/${utility}.cxx
-         INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-         LINK_LIBRARIES ${ROOT_LIBRARIES} POOLRootAccess AsgTools xAODBase
-         xAODMissingET xAODCore xAODJet xAODEgamma xAODMuon xAODTau
-         JetCalibToolsLib METInterface PATInterfaces METUtilitiesLib )
-   endif()
-endforeach()
+# only compiled in analysis releases
+if( XAOD_ANALYSIS )
+  foreach( utility example_METMaker_METSystematicsTool
+          example_METMaker_advanced example_rebuildTrackMET )
+    atlas_add_executable( ${utility}
+          util/${utility}.cxx
+          INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+          LINK_LIBRARIES ${ROOT_LIBRARIES} ${readLib} AsgTools xAODBase
+          xAODMissingET xAODCore xAODJet xAODEgamma xAODMuon xAODTau
+          JetCalibToolsLib METInterface PATInterfaces METUtilitiesLib )
+  endforeach()
+endif()
+
 
 # Test(s) in the package:
-foreach( test gt_metMaker gt_metSystematicsTool )
-   if( XAOD_STANDALONE )
-      atlas_add_test( ${test}
-         SOURCES test/${test}.cxx
-      	 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-      	 LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} xAODRootAccess
-	       AsgTools xAODBase xAODMissingET METUtilitiesLib )
-   elseif (XAOD_ANALYSIS)
-      atlas_add_test( ${test}
-         SOURCES test/${test}.cxx
-      	 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-      	 LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} POOLRootAccess
-	       AsgTools xAODBase xAODMissingET METUtilitiesLib )
-   endif()
-endforeach()
+if( XAOD_ANALYSIS )
+  foreach( test gt_metMaker gt_metSystematicsTool )
+    atlas_add_test( ${test}
+          SOURCES test/${test}.cxx
+          INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
+          LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} ${readLib}
+                AsgTools xAODBase xAODMissingET METUtilitiesLib )
+  endforeach()
+endif()
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

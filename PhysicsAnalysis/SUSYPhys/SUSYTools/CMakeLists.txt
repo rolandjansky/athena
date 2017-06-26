@@ -126,7 +126,7 @@ atlas_add_dictionary( SUSYToolsDict
 # Executable(s) in the package:
 set( extra_libs )
 if( NOT XAOD_STANDALONE )
-   set( extra_libs POOLRootAccess )
+   set( extra_libs POOLRootAccessLib )
 endif()
 atlas_add_executable( SUSYToolsTester
    util/SUSYToolsTester.cxx

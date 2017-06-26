@@ -138,7 +138,7 @@ else()
    atlas_add_executable( checkxAODTrigger
       util/checkxAODTrigger.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib POOLRootAccess
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib POOLRootAccessLib
       GaudiKernel AsgTools TrigDecisionToolLib )
 endif()
 
@@ -158,14 +158,14 @@ else()
    atlas_add_executable( ut_ath_EgammaCalibrationAndSmearingTool_test
       test/ut_ath_EgammaCalibrationAndSmearingTool_test.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib POOLRootAccess
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib POOLRootAccessLib
       GaudiKernel AsgTools xAODEgamma xAODCore
       ElectronPhotonFourMomentumCorrectionLib )
 
    atlas_add_executable( ut_ath_checkTrigger_test
       test/ut_ath_checkTrigger_test.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib POOLRootAccess
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib POOLRootAccessLib
       GaudiKernel AsgTools TrigDecisionToolLib )
 endif()
 
