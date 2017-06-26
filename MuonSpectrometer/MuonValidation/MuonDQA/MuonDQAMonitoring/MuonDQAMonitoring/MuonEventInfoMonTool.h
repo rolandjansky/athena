@@ -67,11 +67,11 @@ namespace MuonDQA {
   
       ActiveStoreSvc* m_activeStore;
 
-      int mdt_eventstotal; 
-      int mdt_event_inarea;
+      int m_mdt_eventstotal; 
+      int m_mdt_event_inarea;
   
-      bool in_area;
-      int testcounter;
+      bool m_in_area;
+      int m_testcounter;
    
       //Declare Properties
  
