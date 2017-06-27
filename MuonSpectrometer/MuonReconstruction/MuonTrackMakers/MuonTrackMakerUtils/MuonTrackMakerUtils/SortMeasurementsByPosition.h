@@ -94,7 +94,6 @@ namespace Muon {
       // get average direction of the 2 TSOSs
       Amg::Vector3D trackDir = tsos1->trackParameters()->momentum().unit();
       trackDir += tsos2->trackParameters()->momentum().unit();
-      // trackDir *= 0.5; // not really needed for the purpose. Avoid waisting unneeded CPU.
       const Amg::Vector3D& pos1 = tsos1->trackParameters()->position();
       const Amg::Vector3D& pos2 = tsos2->trackParameters()->position();
       double dist = (pos2 - pos1).dot(trackDir);
@@ -130,25 +129,6 @@ namespace Muon {
         // if we get here, there was no decision
 	return false; //consider them equal
       }
-      /*
-      else{
-	if( m_helperTool && m_idHelperTool ){
-          const Trk::MeasurementBase* meas1 = tsos1->measurementOnTrack();
-          Identifier id1 = meas1 ? m_helperTool->getIdentifier(*meas1) : Identifier();
-
-          const Trk::MeasurementBase* meas2 = tsos2->measurementOnTrack();
-          Identifier id2 = meas2 ? m_helperTool->getIdentifier(*meas2) : Identifier();
-
-          bool okId1 = id1.is_valid() && m_idHelperTool->isMuon(id1) ? true : false;
-          bool okId2 = id2.is_valid() && m_idHelperTool->isMuon(id2) ? true : false;
-
-	  //if(okId1) std::cout<<"tsos1 is muon hit"<<std::endl;
-	  //else std::cout<<"tsos 1 is not a muon hit"<<std::endl;
-	  //if(okId2) std::cout<<"tsos2 is muon hit"<<std::endl;
-	  //else std::cout<<"tsos2 is not a muon hit"<<std::endl;
-	}
-	}
-      */
       return dist > 0.;
     }
 
