@@ -76,21 +76,17 @@ namespace Muon {
       bool okId1=true,okId2=true;
       Identifier id1,id2;
       //check between muon and non-muon hits first
-      if( m_helperTool && m_idHelperTool ){
-	const Trk::MeasurementBase* meas1 = tsos1->measurementOnTrack();
-	id1 = meas1 ? m_helperTool->getIdentifier(*meas1) : Identifier();
-	
-	const Trk::MeasurementBase* meas2 = tsos2->measurementOnTrack();
-	id2 = meas2 ? m_helperTool->getIdentifier(*meas2) : Identifier();	  
-	
-	okId1 = id1.is_valid() && m_idHelperTool->isMuon(id1) ? true : false;
-	okId2 = id2.is_valid() && m_idHelperTool->isMuon(id2) ? true : false;
-	// put invalid hits and non-muon hits after valid muon hits
-	if(  okId1 && !okId2 ) return true;
-	if( !okId1 &&  okId2 ) return false;
-      }else{
-	//std::cout << " no helper " << std::endl;
-      }
+      const Trk::MeasurementBase* meas1 = tsos1->measurementOnTrack();
+      id1 = meas1 ? m_helperTool->getIdentifier(*meas1) : Identifier();
+      
+      const Trk::MeasurementBase* meas2 = tsos2->measurementOnTrack();
+      id2 = meas2 ? m_helperTool->getIdentifier(*meas2) : Identifier();	  
+      
+      okId1 = id1.is_valid() && m_idHelperTool->isMuon(id1) ? true : false;
+      okId2 = id2.is_valid() && m_idHelperTool->isMuon(id2) ? true : false;
+      // put invalid hits and non-muon hits after valid muon hits
+      if(  okId1 && !okId2 ) return true;
+      if( !okId1 &&  okId2 ) return false;
       // get average direction of the 2 TSOSs
       Amg::Vector3D trackDir = tsos1->trackParameters()->momentum().unit();
       trackDir += tsos2->trackParameters()->momentum().unit();
@@ -131,8 +127,6 @@ namespace Muon {
       }
       return dist > 0.;
     }
-
-    SortTSOSs() : m_helperTool(0),m_idHelperTool(0) {}
 
     SortTSOSs( const MuonEDMHelperTool* h, const MuonIdHelperTool*  idh ) : m_helperTool(h),m_idHelperTool(idh) {}
   
