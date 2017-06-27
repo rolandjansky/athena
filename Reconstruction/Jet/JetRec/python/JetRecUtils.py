@@ -9,8 +9,6 @@ def retrieveAODList():
     from JetRec.JetRecFlags import jetFlags, JetContentDetail
     from RecExConfig.RecFlags import rec
 
-    if rec.doESD():
-        return jetFlags.jetAODList()
     # then we are merging or doing a AOD ?
     # We can not simply copy what we have from input since some
     # jobs starts from empty files. See ATEAM-191.
@@ -75,6 +73,10 @@ def retrieveAODList():
     ## esdjets = [ o for o in inputcontent if saveThisObject(o) ]
 
     ## return esdjets
+
+def retrieveESDList():
+    from JetRec.JetRecFlags import jetFlags
+    return jetFlags.jetAODList()
 
 # define the convention that we write R truncating the decimal point
 # if R>=1, then we write R*10
