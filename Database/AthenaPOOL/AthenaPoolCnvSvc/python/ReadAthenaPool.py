@@ -58,14 +58,18 @@ def _configureReadAthenaPool():
 
     # Add in EventSelector
     svcMgr += CfgMgr.EventSelectorAthenaPool ("EventSelector")
+
+    #default InputCollections to FilesInput value of AthenaCommonFlags
+    from AthenaCommon.JobProperties import jobproperties as jps
+    svcMgr.EventSelector.InputCollections = jps.AthenaCommonFlags.FilesInput()
+
     _n = svcMgr.EventSelector.getFullJobOptName()
     theApp.EvtSel = _n
     del _n
 
-    # For Analysis release use DataHeader satellite and lower heartbeat
+    # For Analysis release lower heartbeat
     import os 
-    if "AthAnalysisBase" in os.environ.get('CMTEXTRATAGS',""): 
-        svcMgr.EventSelector.CollectionTree = "POOLContainer/basic"
+    if "AthAnalysis_DIR" in os.environ: 
         # From Will Buttinger to suppress the event loop heartbeat as it is somewhat I/O hungry for 
         # no real gain in analysis scenarii 
         if not hasattr(svcMgr, theApp.EventLoop): 
