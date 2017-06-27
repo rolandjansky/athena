@@ -5,15 +5,16 @@ from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger('JetRec_jobOptions')
 
+# Define the jet content list for AODs
 def retrieveAODList():
     from JetRec.JetRecFlags import jetFlags, JetContentDetail
     from RecExConfig.RecFlags import rec
 
-    # then we are merging or doing a AOD ?
     # We can not simply copy what we have from input since some
-    # jobs starts from empty files. See ATEAM-191.
+    # jobs start from empty files. See ATEAM-191.
     # We hard code the list here while waiting for a more robust solution
 
+    # These objects are always written out
     l = [
         # event shape objects
         'xAOD::EventShape#Kt4EMPFlowEventShape',                    'xAOD::EventShapeAuxInfo#Kt4EMPFlowEventShapeAux.',
@@ -33,6 +34,8 @@ def retrieveAODList():
         'xAOD::JetContainer#AntiKt4LCTopoJets',                     'xAOD::JetAuxContainer#AntiKt4LCTopoJetsAux.',
         ]
 
+    # Prior to R21, i.e. without the AOD size reduction, these were also always written.
+    # However, the reduction TF decided that these should be dropped.
     if jetFlags.detailLevel()>=JetContentDetail.Full:
         l += [
             'xAOD::JetContainer#AntiKt10LCTopoJets',                    'xAOD::JetAuxContainer#AntiKt10LCTopoJetsAux.',
@@ -53,6 +56,8 @@ def retrieveAODList():
                 'xAOD::JetContainer#CamKt12TruthWZJets',                'xAOD::JetAuxContainer#CamKt12TruthWZJetsAux.',
                 ]
 
+    # For physics validation we would want the option to also validate the trimmed jets
+    # but this is not presently done directly from AOD.
     if jetFlags.detailLevel()>=JetContentDetail.Validation:
         l += [
             'xAOD::JetContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets',
@@ -74,10 +79,15 @@ def retrieveAODList():
 
     ## return esdjets
 
+# Define the jet content list for ESDs
+# Here we need a few more items for monitoring purposes,
+# and because ESDs are not (usually) saved, we simply write out
+# everything that we built, which is automatically recorded
+# in jetFlags.jetAODList
 def retrieveESDList():
     from JetRec.JetRecFlags import jetFlags
     return jetFlags.jetAODList()
-
+    
 # define the convention that we write R truncating the decimal point
 # if R>=1, then we write R*10
 def formatRvalue(parameter):
