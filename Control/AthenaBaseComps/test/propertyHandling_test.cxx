@@ -47,9 +47,11 @@ class MyAthAlgorithm
 public:
   MyAthAlgorithm (const std::string& name, ISvcLocator* svcLoc);
 
+  virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
 
   virtual void declare(Gaudi::DataHandle& hnd) override;
+  virtual void addDependency (const DataObjID& obj, const Gaudi::DataHandle::Mode& mode) override;
 
   SG::ReadHandleKey<MyObj> rkey;
   SG::WriteHandleKey<MyObj> wkey;
@@ -67,6 +69,8 @@ public:
 
   std::vector<Gaudi::DataHandle*> inputs;
   std::vector<Gaudi::DataHandle*> outputs;
+  std::vector<DataObjID> extra_inputs;
+  std::vector<DataObjID> extra_outputs;
 };
 
 
@@ -88,16 +92,37 @@ MyAthAlgorithm::MyAthAlgorithm  (const std::string& name, ISvcLocator* svcLoc)
 }
 
 
+StatusCode MyAthAlgorithm::initialize()
+{
+  //ATH_CHECK( rkey.initialize() );
+  //ATH_CHECK( whandle.initialize() );
+  //ATH_CHECK( rdkey.initialize() );
+  ATH_CHECK( wdkey.initialize() );
+  return StatusCode::SUCCESS;
+}
+
+
 StatusCode MyAthAlgorithm::execute()
 {
   return StatusCode::SUCCESS;
 }
 
-void MyAthAlgorithm::declare(Gaudi::DataHandle& hnd) {
+void MyAthAlgorithm::declare(Gaudi::DataHandle& hnd)
+{
   if (hnd.mode() & Gaudi::DataHandle::Reader) 
     inputs.push_back( &hnd );
   if (hnd.mode() & Gaudi::DataHandle::Writer) 
     outputs.push_back( &hnd );
+}
+
+
+void MyAthAlgorithm::addDependency (const DataObjID& obj, const Gaudi::DataHandle::Mode& mode)
+{
+  if (mode & Gaudi::DataHandle::Reader) 
+    extra_inputs.push_back( obj );
+  if (mode & Gaudi::DataHandle::Writer) 
+    extra_outputs.push_back( obj );
+  AthAlgorithm::addDependency (obj, mode);
 }
 
 
@@ -109,7 +134,9 @@ public:
                 const std::string& name,
                 IInterface* parent);
 
+  virtual StatusCode initialize() override;
   virtual void declare(Gaudi::DataHandle& hnd) override;
+  virtual void addDependency (const DataObjID& obj, const Gaudi::DataHandle::Mode& mode) override;
 
   SG::ReadHandleKey<MyObj> rkey;
   SG::WriteHandleKey<MyObj> wkey;
@@ -127,6 +154,8 @@ public:
 
   std::vector<Gaudi::DataHandle*> inputs;
   std::vector<Gaudi::DataHandle*> outputs;
+  std::vector<DataObjID> extra_inputs;
+  std::vector<DataObjID> extra_outputs;
 };
 
 
@@ -150,11 +179,32 @@ MyAthAlgTool::MyAthAlgTool  (const std::string& type,
 }
 
 
-void MyAthAlgTool::declare(Gaudi::DataHandle& hnd) {
+StatusCode MyAthAlgTool::initialize()
+{
+  //ATH_CHECK( rkey.initialize() );
+  //ATH_CHECK( whandle.initialize() );
+  //ATH_CHECK( rdkey.initialize() );
+  ATH_CHECK( wdkey.initialize() );
+  return StatusCode::SUCCESS;
+}
+
+
+void MyAthAlgTool::declare(Gaudi::DataHandle& hnd)
+{
   if (hnd.mode() & Gaudi::DataHandle::Reader) 
     inputs.push_back( &hnd );
   if (hnd.mode() & Gaudi::DataHandle::Writer) 
     outputs.push_back( &hnd );
+}
+
+
+void MyAthAlgTool::addDependency (const DataObjID& obj, const Gaudi::DataHandle::Mode& mode)
+{
+  if (mode & Gaudi::DataHandle::Reader) 
+    extra_inputs.push_back( obj );
+  if (mode & Gaudi::DataHandle::Writer) 
+    extra_outputs.push_back( obj );
+  AthAlgTool::addDependency (obj, mode);
 }
 
 
@@ -163,7 +213,8 @@ void test1 (ISvcLocator* svcLoc)
   std::cout << "test1\n";
 
   MyAthAlgorithm alg ("alg", svcLoc);  alg.addRef();
-  assert (alg.setProperties().isSuccess());
+  //assert (alg.setProperties().isSuccess());
+  assert (alg.sysInitialize().isSuccess());
 
   assert (alg.rkey.clid() == 293847295);
   assert (alg.rkey.key() == "aaa");
@@ -187,11 +238,11 @@ void test1 (ISvcLocator* svcLoc)
 
   assert (alg.wdkey.clid() == 293847295);
   assert (alg.wdkey.key() == "hhh.rrr");
-  assert (alg.wdkey.storeHandle().name() == "BarSvc");
+  assert (alg.wdkey.storeHandle().name() == "StoreGateSvc");
   assert (alg.wdkey.mode() == Gaudi::DataHandle::Writer);
   assert (alg.wdkey.contHandleKey().clid() == 293847295);
   assert (alg.wdkey.contHandleKey().key() == "hhh");
-  assert (alg.wdkey.contHandleKey().storeHandle().name() == "BarSvc");
+  assert (alg.wdkey.contHandleKey().storeHandle().name() == "StoreGateSvc");
   assert (alg.wdkey.contHandleKey().mode() == Gaudi::DataHandle::Reader);
 
   assert (alg.rckey.clid() == 293847295);
@@ -218,7 +269,7 @@ void test1 (ISvcLocator* svcLoc)
   assert (alg.uhandle.mode() == Gaudi::DataHandle::Updater);
 
   std::vector<std::string> inputKeys { "aaa", "ccc", "ddd", "fff",
-                                       "ggg.qqq", "hhh", "iii" };
+                                       "ggg.qqq", "iii" };
   assert (alg.inputs.size() == inputKeys.size());
   for (size_t i = 0; i < alg.inputs.size(); i++) {
     //std::cout << "inp " << alg.inputs[i]->objKey() << "\n";
@@ -232,6 +283,15 @@ void test1 (ISvcLocator* svcLoc)
     //std::cout << "out " << alg.outputs[i]->objKey() << "\n";
     assert (alg.outputs[i]->objKey() == outputKeys[i]);
   }
+
+  std::vector<std::string> extraInputKeys { "hhh" };
+  assert (alg.extra_inputs.size() == extraInputKeys.size());
+  for (size_t i = 0; i < alg.extra_inputs.size(); i++) {
+    //std::cout << "extra inp " << alg.extra_inputs[i].key() << "\n";
+    assert (alg.extra_inputs[i].key() == extraInputKeys[i]);
+  }
+
+  assert (alg.extra_outputs.empty() );
 }
 
 
@@ -242,6 +302,7 @@ void test2 (ISvcLocator* svcLoc)
   MyAthAlgorithm alg ("alg", svcLoc);  alg.addRef();
   MyAthAlgTool tool ("MyAthAlgTool", "tool", &alg);   tool.addRef();
   assert (tool.setProperties().isSuccess());
+  assert (tool.sysInitialize().isSuccess());
 
   assert (tool.rkey.clid() == 293847295);
   assert (tool.rkey.key() == "taa");
@@ -265,11 +326,11 @@ void test2 (ISvcLocator* svcLoc)
 
   assert (tool.wdkey.clid() == 293847295);
   assert (tool.wdkey.key() == "thh.rrr");
-  assert (tool.wdkey.storeHandle().name() == "BarSvc");
+  assert (tool.wdkey.storeHandle().name() == "StoreGateSvc");
   assert (tool.wdkey.mode() == Gaudi::DataHandle::Writer);
   assert (tool.wdkey.contHandleKey().clid() == 293847295);
   assert (tool.wdkey.contHandleKey().key() == "thh");
-  assert (tool.wdkey.contHandleKey().storeHandle().name() == "BarSvc");
+  assert (tool.wdkey.contHandleKey().storeHandle().name() == "StoreGateSvc");
   assert (tool.wdkey.contHandleKey().mode() == Gaudi::DataHandle::Reader);
 
   assert (tool.rckey.clid() == 293847295);
@@ -296,7 +357,7 @@ void test2 (ISvcLocator* svcLoc)
   assert (tool.uhandle.mode() == Gaudi::DataHandle::Updater);
 
   std::vector<std::string> inputKeys { "taa", "tcc", "tdd", "tff",
-                                       "tgg.qqq", "thh", "tii" };
+                                       "tgg.qqq", "tii" };
   assert (tool.inputs.size() == inputKeys.size());
   for (size_t i = 0; i < tool.inputs.size(); i++) {
     //std::cout << "inp " << tool.inputs[i]->objKey() << "\n";
@@ -310,6 +371,15 @@ void test2 (ISvcLocator* svcLoc)
     //std::cout << "out " << tool.outputs[i]->objKey() << "\n";
     assert (tool.outputs[i]->objKey() == outputKeys[i]);
   }
+
+  std::vector<std::string> extraInputKeys { "thh" };
+  assert (tool.extra_inputs.size() == extraInputKeys.size());
+  for (size_t i = 0; i < tool.extra_inputs.size(); i++) {
+    //std::cout << "extra inp " << tool.extra_inputs[i].key() << "\n";
+    assert (tool.extra_inputs[i].key() == extraInputKeys[i]);
+  }
+
+  assert (tool.extra_outputs.empty() );
 }
 
 

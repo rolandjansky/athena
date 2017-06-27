@@ -73,9 +73,9 @@ class MuonResonancePlots: public PlotBase {
     DeltaZ_m_q_etaphi(NULL),
     p_pTRUE_etapt(NULL),
     p_pTRUE_etaphi(NULL),
-    suffix(""),  
-    prefix(""),
-    fGeV(1.0)
+    m_suffix(""),  
+    m_prefix(""),
+    m_fGeV(1.0)
 
   {;}
 
@@ -83,9 +83,9 @@ class MuonResonancePlots: public PlotBase {
   const double M_pdg[3] = {91187.6, 3096.9, 9460.3};
   const double Pi = TMath::Pi();
 
-  void useGeV(bool u){if (u) fGeV=1000.0; else fGeV=1.0;}
-  void setSuffix(std::string suff){suffix=suff;};
-  void setPrefix(std::string pref){prefix=pref;};
+  void useGeV(bool u){if (u) m_fGeV=1000.0; else m_fGeV=1.0;}
+  void setSuffix(std::string suff){m_suffix=suff;};
+  void setPrefix(std::string pref){m_prefix=pref;};
   void setBinning(std::map< std::string,std::vector<double> >);
   void BookPlots();
   void fill(const xAOD::Muon& mu1st, const xAOD::Muon& mu2nd, int trk=-1);
@@ -181,9 +181,9 @@ class MuonResonancePlots: public PlotBase {
  private:
 
   void initializePlots();
-  std::string suffix;
-  std::string prefix;
-  float fGeV;
+  std::string m_suffix;
+  std::string m_prefix;
+  float m_fGeV;
 
   void Binning1D(TH1*& histo,std::string hname);
   void Binning2D(TH2*& histo,std::string hname);

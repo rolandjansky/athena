@@ -40,7 +40,8 @@ atlas_add_test( GraphView2 SCRIPT scripts/GraphView.sh
 atlas_add_test( GraphView64 SCRIPT scripts/GraphView.sh
                 ENVIRONMENT THREADS=64              )
 
-atlas_add_test( creatingEVTest SCRIPT ../../TrigSteer/ViewAlgsTest/scripts/creatingEVTest.sh )
+# out untill we find a way to properly invoke tests from other packages
+# atlas_add_test( creatingEVTest SCRIPT  forward.sh ViewAlgsTest/scripts/creatingEVTest.sh )
 
 atlas_add_test( mergeTest SCRIPT scripts/mergeTest.sh)
 
@@ -57,6 +58,8 @@ atlas_add_test( caloRunData   SCRIPT scripts/caloRunData.sh
               )
 
 atlas_add_test( EmuL1DecodingTest SCRIPT scripts/EmuL1DecodingTest.sh)
+
+atlas_add_test( DataL1DecodingTest SCRIPT scripts/DataL1DecodingTest.sh )
 
 atlas_install_joboptions( share/*.py )
 atlas_install_python_modules( python/*.py )

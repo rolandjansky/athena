@@ -7,6 +7,7 @@
  
 #include "GaudiKernel/IAlgTool.h"
 #include "MSVertexUtils/Tracklet.h"
+#include "GaudiKernel/EventContext.h"
 #include <vector>
 //                           
 static const InterfaceID IID_IMSVertexTrackletTool("Muon::IMSVertexTrackletTool",1,0);
@@ -21,7 +22,7 @@ namespace Muon {
     /** access to tool interface */
     static const InterfaceID& interfaceID();
     
-    virtual StatusCode findTracklets(std::vector<Tracklet>& traklets) = 0;
+    virtual StatusCode findTracklets(std::vector<Tracklet>& traklets, const EventContext &ctx) const = 0;
 
   };
   

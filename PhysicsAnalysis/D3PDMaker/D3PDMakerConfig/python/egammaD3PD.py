@@ -212,12 +212,12 @@ class MergeElectrons (PyAthena.Alg):
 
         #e1 = sg['StacoMuonCollection']
         e1 = sg.retrieve (ROOT.DataVector(ROOT.xAOD.Electron_v1), 'AllElectrons')
-        if e1.size() > 0:
-            reg = ROOT.SG.AuxTypeRegistry.instance()
-            auxids = list(e1[0].getAuxIDs())
-            auxids = [(reg.getName(id), id) for id in auxids]
-            auxids.sort()
-            print 'aaa', auxids
+        #if e1.size() > 0:
+        #    reg = ROOT.SG.AuxTypeRegistry.instance()
+        #    auxids = list(e1[0].getAuxIDs())
+        #    auxids = [(reg.getName(id), id) for id in auxids]
+        #    auxids.sort()
+        #    print 'aaa', auxids
         # if e2.size() > 0:
         #     acc = ROOT.SG.AuxElement.TypelessConstAccessor ('Loose')
         #     print 'bbb2', acc.isAvailable(e2[0])

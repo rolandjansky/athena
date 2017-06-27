@@ -12,9 +12,6 @@
 #include <TFile.h>
 #include <TTree.h>
 #include <TSystem.h>
-#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 99, 0 )
-#   include <Cintex/Cintex.h>
-#endif // ROOT 5
 
 // Local include(s):
 #include "xAODEventInfo/EventInfo.h"
@@ -48,11 +45,6 @@ private:
    } while( 0 )
 
 int main() {
-
-#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 99, 0 )
-   // Enable Cintex for ROOT 5:
-   ROOT::Cintex::Cintex::Enable();
-#endif // ROOT 5
 
    // Create objects that we'll write out:
    std::unique_ptr< xAOD::EventInfo > ei( new xAOD::EventInfo() );

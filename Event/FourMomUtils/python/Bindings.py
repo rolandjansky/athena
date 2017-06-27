@@ -3,13 +3,12 @@
 # @file FourMomUtils/python/Bindings.py
 # @author Sebastien Binet <binet@cern.ch>
 # @purpose load the python bindings to FourMomUtils' functions
-#          this is to workaround a limitation of PyCintex which cannot (yet?)
+#          this is to workaround a limitation of ROOT6 which cannot
 #          autoload free functions (only classes)
 
 def _installBindings():
     """load the python bindings to FourMomUtils' function, at module import
     """
-    import ROOT
     import cppyy
     cppyy.loadDictionary('libFourMomUtilsDict')
 

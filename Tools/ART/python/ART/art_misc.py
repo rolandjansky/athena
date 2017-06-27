@@ -5,14 +5,12 @@
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
 
 import errno
-import glob
 import os
 import shlex
 import subprocess
-import sys
 
 
-def run_command(cmd, dir=None, shell=False, redirect=False):
+def run_command(cmd, dir=None, shell=False):
     """Run the given command locally and returns the output, err and exit_code."""
     print "Execute: " + cmd
     if "|" in cmd:
@@ -31,12 +29,6 @@ def run_command(cmd, dir=None, shell=False, redirect=False):
         i = i + 1
     (output, err) = p[i - 1].communicate()
     exit_code = p[0].wait()
-
-    if redirect:
-        with open(os.path.join(dir, "stdout.txt"), "w") as text_file:
-            text_file.write(str(output))
-        with open(os.path.join(dir, "stderr.txt"), "w") as text_file:
-            text_file.write(str(err))
 
     return exit_code, str(output), str(err)
 
@@ -60,13 +52,11 @@ def verify((exitcode, out, err)):
     """Check exitcode and print statement."""
     if exitcode == 0:
         print out
-        return out
+        return exitcode
 
     print "Error:", exitcode
     print "StdOut:", out
     print "StdErr:", err
-
-    print 'art-status: error'
 
     return exitcode
 
@@ -114,15 +104,3 @@ def which(program):
                 return exe_file
 
     return None
-
-
-def count_string_occurrence(path, string):
-    """Count number of occurences of 'string' inside file 'path'. Returns count or 0."""
-    for file in glob.iglob(path):
-        print file
-        sys.stdout.flush()
-        f = open(file)
-        contents = f.read()
-        f.close()
-        return contents.count(string)
-    return 0

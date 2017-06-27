@@ -1,7 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-import PyCintex
-PyCintex.Cintex.Enable()
 import ROOT
 
 colsvc = ROOT.pool.CollectionService()

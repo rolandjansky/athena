@@ -12,6 +12,7 @@
 #include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigT1Interfaces/RecEmTauRoI.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
+#include "AthenaMonitoring/GenericMonitoringTool.h"
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -47,6 +48,7 @@ class EMRoIsUnpackingTool : virtual public AthAlgTool, virtual public IRoIsUnpac
   SG::WriteHandleKey< DataVector<LVL1::RecEmTauRoI> > m_recRoIsKey;  
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
   float m_roIWidth;
+  ToolHandle<GenericMonitoringTool> m_monTool;
 }; 
 
 #endif //> !L1DECODER_EMROISUNPACKINGTOOL_H

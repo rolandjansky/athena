@@ -19,13 +19,15 @@ MURoIsUnpackingTool::MURoIsUnpackingTool( const std::string& type,
   : AthAlgTool  ( type, name, parent ),
     m_configSvc( "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name ),
     m_recRpcRoISvc( "LVL1RPC::RPCRecRoiSvc/RPCRecRoiSvc", name ),
-    m_recTgcRoISvc( "LVL1TGC::TGCRecRoiSvc/TGCRecRoiSvc", name ) {
+    m_recTgcRoISvc( "LVL1TGC::TGCRecRoiSvc/TGCRecRoiSvc", name ),
+    m_monTool( "GenericMonitoringTool/MonTool", this ) {
 
   declareProperty( "Decisions", m_decisionsKey="MURoIDecisions", "Decisions for each RoI" );
   declareProperty( "ThresholdToChainMapping", m_thresholdToChainProperty, "Mapping from the threshold name to chain in the form: 'EM3:HLT_e5', 'EM3:HLT_e5tight', ..." );
   declareProperty( "OutputTrigRoIs", m_trigRoIsKey="MURoIs", "Name of the RoIs object produced by the unpacker" );
   declareProperty( "OutputRecRoIs",  m_recRoIsKey ="RecMURoIs", "Name of the RoIs object produced by the unpacker" );
   declareProperty( "RoIWidth", m_roIWidth = 0.1, "Size of RoI in eta/ phi" );
+  declareProperty( "MonTool", m_monTool=ToolHandle<GenericMonitoringTool>( "", this ), "Monitoring tool" );
 }
 
 // Destructor
@@ -41,7 +43,10 @@ StatusCode MURoIsUnpackingTool::initialize() {
   CHECK( m_recRoIsKey.initialize() );
   CHECK( m_recRpcRoISvc.retrieve() );
   CHECK( m_recTgcRoISvc.retrieve() );
-  if (decodeMapping().isFailure() ) {
+  if ( not m_monTool.name().empty() ) 
+    CHECK( m_monTool.retrieve() );
+
+  if ( decodeMapping().isFailure() ) {
     ATH_MSG_ERROR( "Failed to decode threshold to chains mapping, is the format th : chain?" );
     return StatusCode::FAILURE;
   }
@@ -51,10 +56,10 @@ StatusCode MURoIsUnpackingTool::initialize() {
 StatusCode MURoIsUnpackingTool::updateConfiguration() {
   using namespace TrigConf;
   const ThresholdConfig* thresholdConfig = m_configSvc->thresholdConfig();
-  for (TriggerThreshold * th : thresholdConfig->getThresholdVector( L1DataDef::MUON ) ) {
+  for ( TriggerThreshold * th : thresholdConfig->getThresholdVector( L1DataDef::MUON ) ) {
     if ( th != nullptr ) {
-      ATH_MSG_DEBUG( "Found threshold in the configuration: " << th->name() << " of ID: " << HLT::Identifier(th->name()).numeric() ); 
-      m_muonThresholds.push_back(th);    
+      ATH_MSG_DEBUG( "Found threshold in the configuration: " << th->name() << " of ID: " << HLT::Identifier( th->name() ).numeric() ); 
+      m_muonThresholds.push_back( th );    
     }
   }
   return StatusCode::SUCCESS;
@@ -70,7 +75,7 @@ StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
   using namespace TrigCompositeUtils;
   auto decisionOutput = std::make_unique<DecisionContainer>();
   auto decisionAux    = std::make_unique<DecisionAuxContainer>();
-  decisionOutput->setStore(decisionAux.get());
+  decisionOutput->setStore( decisionAux.get() );
 
   auto trigRoIs = std::make_unique< TrigRoiDescriptorCollection >();
   auto recRoIs  = std::make_unique< DataVector<LVL1::RecMuonRoI> >();
@@ -83,14 +88,14 @@ StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
 		       << thresholdNumber << ", force setting it to 1" );
       thresholdNumber = 1;
     }
-    LVL1::RecMuonRoI* recRoI = new LVL1::RecMuonRoI(roIWord, m_recRpcRoISvc.get(), m_recTgcRoISvc.get(), &m_muonThresholds);
-    recRoIs->push_back(recRoI);
+    LVL1::RecMuonRoI* recRoI = new LVL1::RecMuonRoI( roIWord, m_recRpcRoISvc.get(), m_recTgcRoISvc.get(), &m_muonThresholds );
+    recRoIs->push_back( recRoI );
     auto trigRoI = new TrigRoiDescriptor( roIWord, 0u ,0u,
 					  recRoI->eta(), recRoI->eta()-m_roIWidth, recRoI->eta()+m_roIWidth,
 					  recRoI->phi(), recRoI->phi()-m_roIWidth, recRoI->phi()+m_roIWidth );
       trigRoIs->push_back( trigRoI );
 			  
-      ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw(8) << roIWord << ", threshold pattern ");
+      ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw( 8 ) << roIWord << ", threshold pattern " );
 
       auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.get() );
 
@@ -101,19 +106,26 @@ StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
 	}
       }
   }
-  
+  // monitoring
+  {
+    using namespace Monitored;
+    auto RoIsCount = MonitoredScalar::declare( "count", trigRoIs->size() );
+    auto RoIsPhi   = MonitoredCollection::declare( "phi", *trigRoIs.get(), &TrigRoiDescriptor::phi );
+    auto RoIsEta   = MonitoredCollection::declare( "eta", *trigRoIs.get(), &TrigRoiDescriptor::eta );
+    MonitoredScope::declare( m_monTool,  RoIsCount, RoIsEta, RoIsPhi );
+  }
   // recording
   {
     auto handle = SG::makeHandle( m_trigRoIsKey, ctx );
-    CHECK( handle.record( std::move(trigRoIs) ) );
+    CHECK( handle.record( std::move( trigRoIs ) ) );
   }
   {
     auto handle = SG::makeHandle( m_recRoIsKey, ctx );
-    CHECK( handle.record( std::move(recRoIs) ) );
+    CHECK( handle.record( std::move( recRoIs ) ) );
   }
   {
     auto handle = SG::makeHandle(  m_decisionsKey, ctx );
-    CHECK( handle.record( std::move(decisionOutput) ) );
+    CHECK( handle.record( std::move( decisionOutput ) ) );
   }
   return StatusCode::SUCCESS;
 }

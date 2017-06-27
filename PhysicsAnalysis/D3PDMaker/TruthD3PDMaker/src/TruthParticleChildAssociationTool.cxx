@@ -60,9 +60,12 @@ TruthParticleChildAssociationTool::reset (const xAOD::TruthParticle& p)
   }
 
   size_t sz = vx->nOutgoingParticles();
-  m_xaod_children.resize (sz);
-  for (unsigned int i = 0; i < sz; i++)
-    m_xaod_children[i] =  vx->outgoingParticle (i);
+  m_xaod_children.reserve (sz);
+  for (unsigned int i = 0; i < sz; i++) {
+    const xAOD::TruthParticle* p = vx->outgoingParticle (i);
+    if (p)
+      m_xaod_children[i] =  p;
+  }
   std::sort (m_xaod_children.begin(), m_xaod_children.end(), barcodeOrder());
   return StatusCode::SUCCESS;
 }

@@ -37,9 +37,14 @@ namespace Muon {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-  const MdtIdHelper* MSVertexTrackletTool::s_mdtCompareIdHelper;
-
-
+    //CONSTANTS
+    constexpr float c_PI = 3.1415927;
+    //Delta Alpha Constants -- p = k/(delta_alpha)
+    constexpr float c_BIL = 28.4366;//MeV*mrad
+    constexpr float c_BML = 62.8267;//MeV*mrad
+    constexpr float c_BMS = 53.1259;//MeV*mrad
+    constexpr float c_BOL = 29.7554;//MeV*mrad
+    constexpr float sq(float x) { return (x)*(x); }
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
@@ -48,12 +53,6 @@ namespace Muon {
     : 
     AthAlgTool(type, name, parent),
     m_mdtIdHelper(0),
-    m_DeltaAlphaCut(0),
-    m_PI(3.1415927),
-    m_BIL(28.4366),
-    m_BML(62.8267),
-    m_BMS(53.1259),
-    m_BOL(29.7554),
     m_mdtTESKey("MDT_DriftCircles"),
     m_TPContainer("MSonlyTracklets")
   {
@@ -91,15 +90,8 @@ namespace Muon {
       ATH_MSG_ERROR("Failed to retrieve the mdtIdHelper");
       return StatusCode::FAILURE;
     }
-    s_mdtCompareIdHelper = m_mdtIdHelper;
 
-    //CONSTANTS
-    m_PI = 3.1415927;
-    //Delta Alpha Constants -- p = k/(delta_alpha)
-    m_BIL = 28.4366;//MeV*mrad
-    m_BML = 62.8267;//MeV*mrad
-    m_BMS = 53.1259;//MeV*mrad
-    m_BOL = 29.7554;//MeV*mrad
+
 
     ATH_CHECK(m_mdtTESKey.initialize());
     ATH_CHECK(m_TPContainer.initialize());
@@ -127,11 +119,11 @@ namespace Muon {
 //** ----------------------------------------------------------------------------------------------------------------- **//
  
 
-  StatusCode MSVertexTrackletTool::findTracklets(std::vector<Tracklet>& tracklets) {
+  StatusCode MSVertexTrackletTool::findTracklets(std::vector<Tracklet>& tracklets, const EventContext &ctx) const {
 
 
 
-    SG::WriteHandle<xAOD::TrackParticleContainer> container(m_TPContainer);
+    SG::WriteHandle<xAOD::TrackParticleContainer> container(m_TPContainer, ctx);
     //record TrackParticle container in StoreGate
 
     ATH_CHECK( container.record (std::make_unique<xAOD::TrackParticleContainer>(),
@@ -140,7 +132,7 @@ namespace Muon {
    //sort the MDT hits into chambers & MLs
     std::vector<std::vector<const Muon::MdtPrepData*> > SortedMdt;
 
-    int nMDT = SortMDThits(SortedMdt);   
+    int nMDT = SortMDThits(SortedMdt, ctx);   
 
     if (nMDT<=0) {   
       return StatusCode::SUCCESS;
@@ -269,23 +261,23 @@ namespace Muon {
     }
 
     for(int st=0; st<6; ++st) {
-      m_DeltaAlphaCut = m_BarrelDeltaAlphaCut;
-      if(st >= 3) m_DeltaAlphaCut = m_EndcapDeltaAlphaCut;
+      float DeltaAlphaCut = m_BarrelDeltaAlphaCut;
+      if(st >= 3) DeltaAlphaCut = m_EndcapDeltaAlphaCut;
       for(int sector=0; sector<16; ++sector) {
 	for(unsigned int i1=0; i1<CleanSegs[st][0][sector].size(); ++i1) {	
 	  //Set the delta alpha cut depending on station type
 	  int stName = CleanSegs[st][0][sector].at(i1).mdtChamber();
-	  if( stName == 0) m_DeltaAlphaCut = m_BIL/750.0;
-	  else if(stName == 2) m_DeltaAlphaCut = m_BML/750.0;
-	  else if(stName == 3) m_DeltaAlphaCut = m_BMS/750.0;
-	  else if(stName == 4) m_DeltaAlphaCut = m_BOL/750.0;
-	  else if(stName == 7) m_DeltaAlphaCut = m_BIL/750.0;
-	  else if(stName == 8) m_DeltaAlphaCut = m_BML/750.0;
-	  else if(stName == 9) m_DeltaAlphaCut = m_BOL/750.0;
-	  else if(stName == 10) m_DeltaAlphaCut = m_BOL/750.0;
-	  else if(stName == 52) m_DeltaAlphaCut = m_BIL/750.0;
-	  else if(stName <= 11) m_DeltaAlphaCut = 0.02;
-	  else m_DeltaAlphaCut = m_EndcapDeltaAlphaCut;
+	  if( stName == 0) DeltaAlphaCut = c_BIL/750.0;
+	  else if(stName == 2) DeltaAlphaCut = c_BML/750.0;
+	  else if(stName == 3) DeltaAlphaCut = c_BMS/750.0;
+	  else if(stName == 4) DeltaAlphaCut = c_BOL/750.0;
+	  else if(stName == 7) DeltaAlphaCut = c_BIL/750.0;
+	  else if(stName == 8) DeltaAlphaCut = c_BML/750.0;
+	  else if(stName == 9) DeltaAlphaCut = c_BOL/750.0;
+	  else if(stName == 10) DeltaAlphaCut = c_BOL/750.0;
+	  else if(stName == 52) DeltaAlphaCut = c_BIL/750.0;
+	  else if(stName <= 11) DeltaAlphaCut = 0.02;
+	  else DeltaAlphaCut = m_EndcapDeltaAlphaCut;
 	  //loop on ML2 segments from same sector
 	  for(unsigned int i2=0; i2<CleanSegs[st][1][sector].size(); ++i2) {
 	    if(CleanSegs[st][0][sector].at(i1).mdtChamber()!=CleanSegs[st][1][sector].at(i2).mdtChamber() || 
@@ -293,7 +285,7 @@ namespace Muon {
 	    float deltaAlpha = CleanSegs[st][0][sector].at(i1).alpha()-CleanSegs[st][1][sector].at(i2).alpha();
 	    bool goodDeltab = DeltabCalc(CleanSegs[st][0][sector].at(i1),CleanSegs[st][1][sector].at(i2));
 	    //select the good combinations
-	    if(fabs(deltaAlpha) < m_DeltaAlphaCut && goodDeltab) {
+	    if(fabs(deltaAlpha) < DeltaAlphaCut && goodDeltab) {
 	      if(st < 3) {//barrel chambers
 		float charge = 1;
 		if( deltaAlpha*CleanSegs[st][0][sector].at(i1).globalPosition().z()*tan(CleanSegs[st][0][sector].at(i1).alpha()) < 0 ) charge = -1;
@@ -393,7 +385,7 @@ namespace Muon {
 
 
   //convert tracklets to Trk::Track and store in a TrackCollection
-  void MSVertexTrackletTool::convertToTrackParticles(std::vector<Tracklet>& tracklets, SG::WriteHandle<xAOD::TrackParticleContainer> &container) {
+  void MSVertexTrackletTool::convertToTrackParticles(std::vector<Tracklet>& tracklets, SG::WriteHandle<xAOD::TrackParticleContainer> &container) const {
     
     for(std::vector<Tracklet>::iterator trkItr=tracklets.begin(); trkItr!=tracklets.end(); ++trkItr) {
 
@@ -430,12 +422,12 @@ namespace Muon {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-  int MSVertexTrackletTool::SortMDThits(std::vector<std::vector<const Muon::MdtPrepData*> >& SortedMdt) {
+  int MSVertexTrackletTool::SortMDThits(std::vector<std::vector<const Muon::MdtPrepData*> >& SortedMdt, const EventContext &ctx) const {
 
     SortedMdt.clear();
     int nMDT(0);
 
-    SG::ReadHandle<Muon::MdtPrepDataContainer> mdtTES(m_mdtTESKey);
+    SG::ReadHandle<Muon::MdtPrepDataContainer> mdtTES(m_mdtTESKey, ctx);
     if(!mdtTES.isValid()) {
       if (msgLvl(MSG::DEBUG)) 
 	msg(MSG::DEBUG) << "Muon::MdtPrepDataContainer with key MDT_DriftCircles was not retrieved" << endmsg;
@@ -510,14 +502,20 @@ namespace Muon {
     // calculate number of hits in ML
     int ntubes = hits.front()->detectorElement()->getNLayers()*hits.front()->detectorElement()->getNtubesperlayer();
     if( hits.size() > 0.75*ntubes ) return;
-    std::sort(hits.begin(),hits.end(),MSVertexTrackletTool::mdtComp);//sort the MDTs by layer and tube number
+    std::sort(hits.begin(),hits.end(), [this](const Muon::MdtPrepData* mprd1, const Muon::MdtPrepData* mprd2) ->bool{
+        if(m_mdtIdHelper->tubeLayer(mprd1->identify()) > m_mdtIdHelper->tubeLayer(mprd2->identify())) return false;
+        if(m_mdtIdHelper->tubeLayer(mprd1->identify()) < m_mdtIdHelper->tubeLayer(mprd2->identify())) return true;
+        if(m_mdtIdHelper->tube(mprd1->identify()) < m_mdtIdHelper->tube(mprd2->identify())) return true;
+        return false;
+    } );//sort the MDTs by layer and tube number
+
     SortedMdt.push_back(hits);
   }
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-  bool MSVertexTrackletTool::SortMDT(Identifier& i1, Identifier& i2) {
+  bool MSVertexTrackletTool::SortMDT(Identifier& i1, Identifier& i2) const {
     if(m_mdtIdHelper->stationName(i1) != m_mdtIdHelper->stationName(i2)) return false;
     if(m_mdtIdHelper->stationEta(i1) != m_mdtIdHelper->stationEta(i2)) return false;
     if(m_mdtIdHelper->stationPhi(i1) != m_mdtIdHelper->stationPhi(i2)) return false;
@@ -526,22 +524,11 @@ namespace Muon {
   }
 
 
-//** ----------------------------------------------------------------------------------------------------------------- **//
-
-
-  bool MSVertexTrackletTool::mdtComp(const Muon::MdtPrepData* mprd1, const Muon::MdtPrepData* mprd2) {
-    //mdts sorted by layer and tube number
-    if(s_mdtCompareIdHelper->tubeLayer(mprd1->identify()) > s_mdtCompareIdHelper->tubeLayer(mprd2->identify())) return false;
-    if(s_mdtCompareIdHelper->tubeLayer(mprd1->identify()) < s_mdtCompareIdHelper->tubeLayer(mprd2->identify())) return true;
-    if(s_mdtCompareIdHelper->tube(mprd1->identify()) < s_mdtCompareIdHelper->tube(mprd2->identify())) return true;
-    return false;
-  }
-
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-  std::vector<TrackletSegment> MSVertexTrackletTool::TrackletSegmentFitter(std::vector<const Muon::MdtPrepData*>& mdts) {
+  std::vector<TrackletSegment> MSVertexTrackletTool::TrackletSegmentFitter(std::vector<const Muon::MdtPrepData*>& mdts) const {
 
     //create the segment seeds
     std::vector<std::pair<float,float> > SeedParams = SegSeeds(mdts);
@@ -555,7 +542,7 @@ namespace Muon {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-  std::vector<std::pair<float,float> > MSVertexTrackletTool::SegSeeds(std::vector<const Muon::MdtPrepData*>& mdts) {
+  std::vector<std::pair<float,float> > MSVertexTrackletTool::SegSeeds(std::vector<const Muon::MdtPrepData*>& mdts) const {
 
     std::vector<std::pair<float,float> > SeedParams;
     //create seeds by drawing the 4 possible lines tangent to the two outermost drift circles
@@ -662,7 +649,7 @@ namespace Muon {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
   
-  float MSVertexTrackletTool::SeedResiduals(std::vector<const Muon::MdtPrepData*>& mdts, float slope, float inter) {
+  float MSVertexTrackletTool::SeedResiduals(std::vector<const Muon::MdtPrepData*>& mdts, float slope, float inter) const {
     //calculate the residual of the MDTs not used to create the seed
     float resid = 0;
     for(unsigned int i=1; i<(mdts.size()-1); ++i) {
@@ -678,7 +665,7 @@ namespace Muon {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-  std::vector<TrackletSegment> MSVertexTrackletTool::TrackletSegmentFitterCore(std::vector<const Muon::MdtPrepData*>& mdts,std::vector<std::pair<float,float> >& SeedParams){
+  std::vector<TrackletSegment> MSVertexTrackletTool::TrackletSegmentFitterCore(std::vector<const Muon::MdtPrepData*>& mdts,std::vector<std::pair<float,float> >& SeedParams) const {
     std::vector<TrackletSegment> segs;
     int stName = m_mdtIdHelper->stationName(mdts.at(0)->identify());
     float mlmidpt = 0;
@@ -704,7 +691,7 @@ namespace Muon {
       
       //Find the initial parameters of the fit
       float alpha = atan2(SeedParams.at(i_p).first,1.0);
-      if(alpha < 0) alpha += m_PI;
+      if(alpha < 0) alpha += c_PI;
       float dalpha = 0;
       float d = (SeedParams.at(i_p).second - yc + zc*SeedParams.at(i_p).first)*cos(alpha);
       float dd = 0;
@@ -833,7 +820,7 @@ namespace Muon {
 //** ----------------------------------------------------------------------------------------------------------------- **//  
 
 
-  std::vector<TrackletSegment> MSVertexTrackletTool::CleanSegments(std::vector<TrackletSegment>& Segs) {
+  std::vector<TrackletSegment> MSVertexTrackletTool::CleanSegments(std::vector<TrackletSegment>& Segs) const {
     std::vector<TrackletSegment> CleanSegs;
     std::vector<TrackletSegment> segs = Segs;
     bool keepCleaning(true);
@@ -989,7 +976,7 @@ namespace Muon {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-  bool MSVertexTrackletTool::DeltabCalc(TrackletSegment& ML1seg, TrackletSegment& ML2seg) {
+  bool MSVertexTrackletTool::DeltabCalc(TrackletSegment& ML1seg, TrackletSegment& ML2seg) const {
     float ChMid = (ML1seg.getChMidPoint() + ML2seg.getChMidPoint())/2.0;
     //Calculate the Delta b (see http://inspirehep.net/record/1266438)
     float mid1(100),mid2(1000);
@@ -1026,19 +1013,19 @@ namespace Muon {
 //** ----------------------------------------------------------------------------------------------------------------- **//
   
 
-  float MSVertexTrackletTool::TrackMomentum(int chamber,float deltaAlpha) {
+  float MSVertexTrackletTool::TrackMomentum(int chamber,float deltaAlpha) const {
     float pTot = 100000.;
     //p = k/delta_alpha 
-    if(chamber == 0) pTot = m_BIL/fabs(deltaAlpha);
-    else if(chamber == 2) pTot = m_BML/fabs(deltaAlpha);
-    else if(chamber == 3) pTot = m_BMS/fabs(deltaAlpha);
-    else if(chamber == 54) pTot = m_BMS/fabs(deltaAlpha);
-    else if(chamber == 4) pTot = m_BOL/fabs(deltaAlpha);
-    else if(chamber == 7) pTot = m_BIL/fabs(deltaAlpha);
-    else if(chamber == 8) pTot = m_BML/fabs(deltaAlpha);
-    else if(chamber == 9) pTot = m_BOL/fabs(deltaAlpha);
-    else if(chamber == 10) pTot = m_BOL/fabs(deltaAlpha);
-    else if(chamber == 52) pTot = m_BIL/fabs(deltaAlpha);
+    if(chamber == 0) pTot = c_BIL/fabs(deltaAlpha);
+    else if(chamber == 2) pTot = c_BML/fabs(deltaAlpha);
+    else if(chamber == 3) pTot = c_BMS/fabs(deltaAlpha);
+    else if(chamber == 54) pTot = c_BMS/fabs(deltaAlpha);
+    else if(chamber == 4) pTot = c_BOL/fabs(deltaAlpha);
+    else if(chamber == 7) pTot = c_BIL/fabs(deltaAlpha);
+    else if(chamber == 8) pTot = c_BML/fabs(deltaAlpha);
+    else if(chamber == 9) pTot = c_BOL/fabs(deltaAlpha);
+    else if(chamber == 10) pTot = c_BOL/fabs(deltaAlpha);
+    else if(chamber == 52) pTot = c_BIL/fabs(deltaAlpha);
     if(pTot > 10000.) pTot = 100000.;
     
     return pTot;
@@ -1048,21 +1035,21 @@ namespace Muon {
 //** ----------------------------------------------------------------------------------------------------------------- **//  
 
 
-  float MSVertexTrackletTool::TrackMomentumError(TrackletSegment& ml1, TrackletSegment& ml2) {
+  float MSVertexTrackletTool::TrackMomentumError(TrackletSegment& ml1, TrackletSegment& ml2) const {
     //uncertainty on 1/p
     int ChType = ml1.mdtChamber();
     float dalpha = sqrt(sq(ml1.alphaError())+sq(ml2.alphaError()));
-    float pErr = dalpha/m_BML;
-    if(ChType == 0) pErr = dalpha/m_BIL;
-    else if(ChType == 2) pErr = dalpha/m_BML;
-    else if(ChType == 3) pErr = dalpha/m_BMS;
-    else if(ChType == 54) pErr = dalpha/m_BMS;
-    else if(ChType == 4) pErr = dalpha/m_BOL;
-    else if(ChType == 7) pErr = dalpha/m_BIL;
-    else if(ChType == 8) pErr = dalpha/m_BML;
-    else if(ChType == 9) pErr = dalpha/m_BOL;
-    else if(ChType == 10) pErr = dalpha/m_BOL;
-    else if(ChType == 52) pErr = dalpha/m_BIL;
+    float pErr = dalpha/c_BML;
+    if(ChType == 0) pErr = dalpha/c_BIL;
+    else if(ChType == 2) pErr = dalpha/c_BML;
+    else if(ChType == 3) pErr = dalpha/c_BMS;
+    else if(ChType == 54) pErr = dalpha/c_BMS;
+    else if(ChType == 4) pErr = dalpha/c_BOL;
+    else if(ChType == 7) pErr = dalpha/c_BIL;
+    else if(ChType == 8) pErr = dalpha/c_BML;
+    else if(ChType == 9) pErr = dalpha/c_BOL;
+    else if(ChType == 10) pErr = dalpha/c_BOL;
+    else if(ChType == 52) pErr = dalpha/c_BIL;
     
     return pErr;
   }
@@ -1071,21 +1058,21 @@ namespace Muon {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-  float MSVertexTrackletTool::TrackMomentumError(TrackletSegment& ml1) {
+  float MSVertexTrackletTool::TrackMomentumError(TrackletSegment& ml1) const {
     //uncertainty in 1/p
     int ChType = ml1.mdtChamber();
     float dalpha = fabs(ml1.alphaError());
-    float pErr = dalpha/m_BML;
-    if(ChType == 0) pErr = dalpha/m_BIL;
-    else if(ChType == 2) pErr = dalpha/m_BML;
-    else if(ChType == 3) pErr = dalpha/m_BMS;
-    else if(ChType == 54) pErr = dalpha/m_BMS;
-    else if(ChType == 4) pErr = dalpha/m_BOL;
-    else if(ChType == 7) pErr = dalpha/m_BIL;
-    else if(ChType == 8) pErr = dalpha/m_BML;
-    else if(ChType == 9) pErr = dalpha/m_BOL;
-    else if(ChType == 10) pErr = dalpha/m_BOL;
-    else if(ChType == 52) pErr = dalpha/m_BIL;
+    float pErr = dalpha/c_BML;
+    if(ChType == 0) pErr = dalpha/c_BIL;
+    else if(ChType == 2) pErr = dalpha/c_BML;
+    else if(ChType == 3) pErr = dalpha/c_BMS;
+    else if(ChType == 54) pErr = dalpha/c_BMS;
+    else if(ChType == 4) pErr = dalpha/c_BOL;
+    else if(ChType == 7) pErr = dalpha/c_BIL;
+    else if(ChType == 8) pErr = dalpha/c_BML;
+    else if(ChType == 9) pErr = dalpha/c_BOL;
+    else if(ChType == 10) pErr = dalpha/c_BOL;
+    else if(ChType == 52) pErr = dalpha/c_BIL;
     
     return pErr;
   }
@@ -1094,7 +1081,7 @@ namespace Muon {
 //** ----------------------------------------------------------------------------------------------------------------- **//  
 
 
-  std::vector<Tracklet> MSVertexTrackletTool::ResolveAmbiguousTracklets(std::vector<Tracklet>& tracks) {
+  std::vector<Tracklet> MSVertexTrackletTool::ResolveAmbiguousTracklets(std::vector<Tracklet>& tracks) const {
 
     ATH_MSG_DEBUG( "In ResolveAmbiguousTracks" );
 

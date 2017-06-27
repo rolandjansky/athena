@@ -3,7 +3,7 @@ Created on 16/08/2012
 
  * Repository : https://github.com/victor-gil-sepulveda/pyScheduler
  * Licensed under the MIT license (see LICENSE-MIT)
- * Copyright (C) 2013 Víctor Alejandro Gil Sepúlveda
+ * Copyright (C) 2013 Victor Alejandro Gil Sepulveda
 
 @author: victor
 '''

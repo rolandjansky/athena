@@ -72,7 +72,7 @@ theApp.CreateSvc += ['xAODMaker::EventFormatSvc']
 # ItemList:
 include( "EventAthenaPool/EventAthenaPoolItemList_joboptions.py" )
 fullItemList+=["DMTest::CVec#cvec"]
-fullItemList+=["DMTest::CAuxContainer#cvecAux.-dVar2"]
+fullItemList+=["DMTest::CAuxContainer#cvecAux.-dVar2.-dtest"]
 fullItemList+=["DMTest::CVecWithData#cvecWD"]
 fullItemList+=["DMTest::CView#cview"]
 fullItemList+=["DMTest::CAuxContainer#cvecWDAux."]

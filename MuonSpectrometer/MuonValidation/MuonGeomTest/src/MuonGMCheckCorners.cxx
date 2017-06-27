@@ -14,12 +14,6 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IDataProviderSvc.h"
-#include "GaudiKernel/AlgFactory.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/NTuple.h" 
-#include "GaudiKernel/INTupleSvc.h"
-#include "GaudiKernel/SmartDataPtr.h"
 #include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
 

@@ -31,10 +31,10 @@ MuonTrigTPEfficiencyPlots::MuonTrigTPEfficiencyPlots(PlotBase* pParent, std::str
     double ptbins[] = {0.,5.,10.,15.,20.,25.,30.,35.,40.,45.,50.,55.,60.,65.,70.,75,80.,85,90.,95,100.,120.,140.,160.,180.,200.};
     int nptbins = sizeof (ptbins) / sizeof (double) - 1;
     TH1D ptdummy ("ptdummy","dummy",nptbins,ptbins) ;
-    pt      = Book1D("pt" ,&ptdummy, " Large Pt; Muon Transverse Momentum [GeV];Entries / 1 GeV");
-    eta     = Book1D("eta"     ," eta; #eta; Entries ",50,-2.5,2.5);
-    phi     = Book1D("phi"     ," phi; #phi; Entries ",64,-TMath::Pi(),TMath::Pi());
-    eta_phi = Book2D("eta_phi" , "eta vs phi",50,-2.5,2.5,32,-TMath::Pi(),TMath::Pi());
+    m_pt      = Book1D("pt" ,&ptdummy, " Large Pt; Muon Transverse Momentum [GeV];Entries / 1 GeV");
+    m_eta     = Book1D("eta"     ," eta; #eta; Entries ",50,-2.5,2.5);
+    m_phi     = Book1D("phi"     ," phi; #phi; Entries ",64,-TMath::Pi(),TMath::Pi());
+    m_eta_phi = Book2D("eta_phi" , "eta vs phi",50,-2.5,2.5,32,-TMath::Pi(),TMath::Pi());
  
 }
 
@@ -101,19 +101,19 @@ void MuonTrigTPEfficiencyPlots::fill(Probe& probe)
    
     if(m_isMatched && !probe.isMatched()) return;
     float sfweight = (m_isMatched && m_apply_SF ? probe.sfweight() : 1.);
-    pt->Fill(probe.pt() / 1000.,sfweight);
+    m_pt->Fill(probe.pt() / 1000.,sfweight);
     if ( probe.pt()/1000. > TriggerThreshold*1.05)
     {
-        eta->Fill(probe.eta(),sfweight);
+        m_eta->Fill(probe.eta(),sfweight);
         if(CurrentTrigger=="HLT_mu60_0eta105_msonly")
         {
             if(fabs(probe.eta())<=1.05)
-                phi->Fill(probe.phi(),sfweight);
+                m_phi->Fill(probe.phi(),sfweight);
         }
         else
         {
-            phi->Fill(probe.phi(),sfweight);
+            m_phi->Fill(probe.phi(),sfweight);
         }
-        eta_phi->Fill(probe.eta(),probe.phi());
+        m_eta_phi->Fill(probe.eta(),probe.phi());
     }
 }

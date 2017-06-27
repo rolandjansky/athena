@@ -95,13 +95,8 @@ public:
 
   MuonDQAHistMap m_stationHists;
 
-  StoreGateSvc* m_eventStore;
-  
   ActiveStoreSvc* m_activeStore;
 
-  mutable MsgStream      m_log;                  //!< Gaudi message stream - msgstream as private member (-> speed)
-  bool                   m_debuglevel;           //!< private member to control debug messages  
- 
   const MuonGM::MuonDetectorManager* m_muonMgr;
 
   const MdtIdHelper* m_mdtIdHelper;
@@ -109,13 +104,6 @@ public:
   
   //  const ITGCcablingSvc* m_cabling;
     
-  static const int numberOfTube[5][6][8];//[StationName][abs(StationEta)-1][StationPhi-1]
-  
-  double MDTz(int ac,
-              int stationName,
-              int multiLayer,
-              int tubeLayer);
-
 
   //Declare Properties  
   
@@ -137,25 +125,12 @@ public:
   int m_MdtAdcCut;
   int m_MdtTdcCut;
 
-  const Muon::TgcCoinData* theSL;
-  double SLr;
-  double SLz;
-  double SLeta;
-  double SLphi;
-  std::vector<Identifier> WireHits;
-  std::vector<Identifier> StripHits;
-
-  std::vector<XYPosition> wires;
-  std::vector<XYPosition> strips;
-
-  double MDTZpos[2][2][3];
-  
   //////////////////////////////////////////////////
   // Variables and Functions for TGC Efficiency Maps
   
   // Array of all TREs, indexed by location.  Used to find which sectors tracks pass through in tgceffcalc
   void prepareTREarray();
-  const MuonGM::TgcReadoutElement* TREarray[8][2][9][49]; // [StationName][AC][StationEta][StationPhi]
+  const MuonGM::TgcReadoutElement* m_TREarray[8][2][9][49]; // [StationName][AC][StationEta][StationPhi]
   // Functions used to standardize the way TGC stations are indexed by the program
   int  TGCgetlayer(int stationName, int g);
   int  TGClayer2stationindex(int l);
@@ -172,9 +147,9 @@ public:
 
   void maphistsfinalize();                                                  // Finalize histograms used in maphists
   // number of~ hists
-  TH1 *mvt_cutspassed[2];        // [AC]
+  TH1 *m_mvt_cutspassed[2];        // [AC]
   // distributions
-  TH2 *mdt_segmmap[2][4];        // [AC][StationIndex]
+  TH2 *m_mdt_segmmap[2][4];        // [AC][StationIndex]
   
   /////////////////////////
   // Functions to Calculate Efficiency
@@ -210,17 +185,17 @@ public:
   void BlankStationMap(TH2 *h2, int ws);
   
   // efficiencies
-  TH2* eff_stationmapbase[2][2][4];     // [AC][WireStrip][EffNumDenomError]
-  TH2* eff_stationmapmid[2][2][4];      // [AC][WireStrip][EffNumDenomError]
-  TH2* eff_stationmap[2][2][4];         // [AC][WireStrip][EffNumDenomError] //Filled in postprocessor
+  TH2* m_eff_stationmapbase[2][2][4];     // [AC][WireStrip][EffNumDenomError]
+  TH2* m_eff_stationmapmid[2][2][4];      // [AC][WireStrip][EffNumDenomError]
+  TH2* m_eff_stationmap[2][2][4];         // [AC][WireStrip][EffNumDenomError] //Filled in postprocessor
   // sagittas
-  TH1* mvt_extrprdsag[2][4][2][2][4];   // [AC][TGCStation][FE][WireStrip][RhoEtaPhi]
-  TH1* mvt_extrprdsag2[2][4][2][2][4];  // [AC][TGCStation][FE][WireStrip][RhoEtaPhi]
-  TH1* tgc_prdcompsag[2][2][4];         // [AC][TGCStation][RhoEtaPhiZ]
-  TH1* mdt_segmmatchsag[2][4][4][4];    // [AC][MDTStation][MDTStation][RhoEtaPhiThe]
-  TH1* mdt_segmposdirsag[2][4][4];      // [AC][MDTStation][RhoEtaPhiThe]
-  TH1* mdt_trackdirdirsag[2][4][4][4];  // [AC][MDTStation][MDTStation][RhoEtaPhiThe]
-  TH1* mdt_trackchecksag[2][4][4][4][2];// [AC][MDTStation][MDTStation][RhoEtaPhiThe]
+  TH1* m_mvt_extrprdsag[2][4][2][2][4];   // [AC][TGCStation][FE][WireStrip][RhoEtaPhi]
+  TH1* m_mvt_extrprdsag2[2][4][2][2][4];  // [AC][TGCStation][FE][WireStrip][RhoEtaPhi]
+  TH1* m_tgc_prdcompsag[2][2][4];         // [AC][TGCStation][RhoEtaPhiZ]
+  TH1* m_mdt_segmmatchsag[2][4][4][4];    // [AC][MDTStation][MDTStation][RhoEtaPhiThe]
+  TH1* m_mdt_segmposdirsag[2][4][4];      // [AC][MDTStation][RhoEtaPhiThe]
+  TH1* m_mdt_trackdirdirsag[2][4][4][4];  // [AC][MDTStation][MDTStation][RhoEtaPhiThe]
+  TH1* m_mdt_trackchecksag[2][4][4][4][2];// [AC][MDTStation][MDTStation][RhoEtaPhiThe]
 };
 
 #endif

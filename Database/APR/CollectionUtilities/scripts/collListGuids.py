@@ -10,8 +10,6 @@
 # supports queries (without trigger bits decoding though)
 #
 
-import PyCintex
-PyCintex.Cintex.Enable()
 import ROOT
 ROOT.gROOT.SetBatch(True)
 import re,sys

@@ -153,9 +153,9 @@ MdtVsTgcRawDataValAlg::MatchMDTSegments(vector<const Muon::MuonSegment*> (&sorte
             if(dPhi_Extr_Segm2> M_PI)dPhi_Extr_Segm2-=2*M_PI;
             
             // Fill difference histograms
-            if(mdt_segmmatchsag[i][jMDT1][jMDT2][0]) mdt_segmmatchsag[i][jMDT1][jMDT2][0]->Fill(dRho_Extr_Segm2);
-            if(mdt_segmmatchsag[i][jMDT1][jMDT2][2]) mdt_segmmatchsag[i][jMDT1][jMDT2][2]->Fill(dPhi_Extr_Segm2);
-            if(mdt_segmmatchsag[i][jMDT1][jMDT2][3]) mdt_segmmatchsag[i][jMDT1][jMDT2][3]->Fill(dThe_Extr_Segm2);
+            if(m_mdt_segmmatchsag[i][jMDT1][jMDT2][0]) m_mdt_segmmatchsag[i][jMDT1][jMDT2][0]->Fill(dRho_Extr_Segm2);
+            if(m_mdt_segmmatchsag[i][jMDT1][jMDT2][2]) m_mdt_segmmatchsag[i][jMDT1][jMDT2][2]->Fill(dPhi_Extr_Segm2);
+            if(m_mdt_segmmatchsag[i][jMDT1][jMDT2][3]) m_mdt_segmmatchsag[i][jMDT1][jMDT2][3]->Fill(dThe_Extr_Segm2);
             
             // Cut segments (segm2) which are outside difference cuts
             if(abs(dPhi_Extr_Segm2)>dPhiCutSegmentMatching)continue;
@@ -196,16 +196,16 @@ MdtVsTgcRawDataValAlg::MatchMDTSegments(vector<const Muon::MuonSegment*> (&sorte
             
             // Fill histograms
             if(jMDT1>jMDT2){
-              if(mdt_trackchecksag[i][jMDT2][jMDT1][2][0]) mdt_trackchecksag[i][jMDT2][jMDT1][2][0]->Fill(dPhi_Vec_Segm2);
-              if(mdt_trackchecksag[i][jMDT2][jMDT1][3][0]) mdt_trackchecksag[i][jMDT2][jMDT1][3][0]->Fill(dThe_Vec_Segm2);
-              if(mdt_trackchecksag[i][jMDT2][jMDT1][2][1]) mdt_trackchecksag[i][jMDT2][jMDT1][2][1]->Fill(dPhi_Vec_Segm1);
-              if(mdt_trackchecksag[i][jMDT2][jMDT1][3][1]) mdt_trackchecksag[i][jMDT2][jMDT1][3][1]->Fill(dThe_Vec_Segm1);
+              if(m_mdt_trackchecksag[i][jMDT2][jMDT1][2][0]) m_mdt_trackchecksag[i][jMDT2][jMDT1][2][0]->Fill(dPhi_Vec_Segm2);
+              if(m_mdt_trackchecksag[i][jMDT2][jMDT1][3][0]) m_mdt_trackchecksag[i][jMDT2][jMDT1][3][0]->Fill(dThe_Vec_Segm2);
+              if(m_mdt_trackchecksag[i][jMDT2][jMDT1][2][1]) m_mdt_trackchecksag[i][jMDT2][jMDT1][2][1]->Fill(dPhi_Vec_Segm1);
+              if(m_mdt_trackchecksag[i][jMDT2][jMDT1][3][1]) m_mdt_trackchecksag[i][jMDT2][jMDT1][3][1]->Fill(dThe_Vec_Segm1);
             }
             else if(jMDT1<jMDT2){
-              if(mdt_trackchecksag[i][jMDT1][jMDT2][2][0]) mdt_trackchecksag[i][jMDT1][jMDT2][2][0]->Fill(dPhi_Vec_Segm1);
-              if(mdt_trackchecksag[i][jMDT1][jMDT2][3][0]) mdt_trackchecksag[i][jMDT1][jMDT2][3][0]->Fill(dThe_Vec_Segm1);
-              if(mdt_trackchecksag[i][jMDT1][jMDT2][2][1]) mdt_trackchecksag[i][jMDT1][jMDT2][2][1]->Fill(dPhi_Vec_Segm2);
-              if(mdt_trackchecksag[i][jMDT1][jMDT2][3][1]) mdt_trackchecksag[i][jMDT1][jMDT2][3][1]->Fill(dThe_Vec_Segm2);
+              if(m_mdt_trackchecksag[i][jMDT1][jMDT2][2][0]) m_mdt_trackchecksag[i][jMDT1][jMDT2][2][0]->Fill(dPhi_Vec_Segm1);
+              if(m_mdt_trackchecksag[i][jMDT1][jMDT2][3][0]) m_mdt_trackchecksag[i][jMDT1][jMDT2][3][0]->Fill(dThe_Vec_Segm1);
+              if(m_mdt_trackchecksag[i][jMDT1][jMDT2][2][1]) m_mdt_trackchecksag[i][jMDT1][jMDT2][2][1]->Fill(dPhi_Vec_Segm2);
+              if(m_mdt_trackchecksag[i][jMDT1][jMDT2][3][1]) m_mdt_trackchecksag[i][jMDT1][jMDT2][3][1]->Fill(dThe_Vec_Segm2);
             }
             
             // Direction Comparison Method
@@ -213,8 +213,8 @@ MdtVsTgcRawDataValAlg::MatchMDTSegments(vector<const Muon::MuonSegment*> (&sorte
             float dPhiDir_Segm1_Segm2 = segm1PosPhi-segm2PosPhi;
             if(dPhiDir_Segm1_Segm2<-M_PI)dPhiDir_Segm1_Segm2+=2*M_PI;
             if(dPhiDir_Segm1_Segm2> M_PI)dPhiDir_Segm1_Segm2-=2*M_PI;
-            if(mdt_trackdirdirsag[i][jMDT1][jMDT2][2]) mdt_trackdirdirsag[i][jMDT1][jMDT2][2]->Fill(dTheDir_Segm1_Segm2);
-            if(mdt_trackdirdirsag[i][jMDT1][jMDT2][3]) mdt_trackdirdirsag[i][jMDT1][jMDT2][3]->Fill(dPhiDir_Segm1_Segm2);
+            if(m_mdt_trackdirdirsag[i][jMDT1][jMDT2][2]) m_mdt_trackdirdirsag[i][jMDT1][jMDT2][2]->Fill(dTheDir_Segm1_Segm2);
+            if(m_mdt_trackdirdirsag[i][jMDT1][jMDT2][3]) m_mdt_trackdirdirsag[i][jMDT1][jMDT2][3]->Fill(dPhiDir_Segm1_Segm2);
             // Cut using Vector Method
             if(dPhi_Vec_Segm1>dPhiCutSegmentDirectionChecking[jMDT1][jMDT2] ||
                dThe_Vec_Segm1>dTheCutSegmentDirectionChecking[jMDT1][jMDT2] ||
