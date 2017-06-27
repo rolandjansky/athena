@@ -19,6 +19,12 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 
+#include <vector>
+#include <set>
+#include <memory>
+#include <map>
+#include <string>
+
 namespace InDet {
     class IInDetTrackSelectionTool;
 }
@@ -32,8 +38,10 @@ namespace CP {
     typedef SG::AuxElement::Decorator<char> CharDecorator;
     typedef SG::AuxElement::Decorator<float> FloatDecorator;
 
+    //For tracks it does not matter whether we're using a set of a vector
     typedef std::set<const xAOD::TrackParticle*> TrackCollection;
-    typedef std::set<const xAOD::CaloCluster*> ClusterCollection;
+
+    typedef std::vector<const xAOD::CaloCluster*> ClusterCollection;
 
     typedef std::unique_ptr<CharAccessor> SelectionAccessor;
     typedef std::unique_ptr<CharDecorator> SelectionDecorator;

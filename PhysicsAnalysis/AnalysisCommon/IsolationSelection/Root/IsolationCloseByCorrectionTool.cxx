@@ -34,7 +34,6 @@ namespace CP {
                 m_ptvarconeRadius(1.e4),
                 m_maxTopoPolution(1.1),
                 m_ConeSizeVariation(1.2),
-//                m_accept(),
                 m_isInitialised(false),
                 m_isCoreSubtracted(false),
                 m_indetTrackParticleLocation("InDetTrackParticles"),
@@ -304,13 +303,13 @@ namespace CP {
 //            for (unsigned int i = 0; i < E->nCaloClusters(); ++i) {
 //                const xAOD::CaloCluster* cluster = E->caloCluster(i);
 //                if (!cluster || fabs(cluster->eta()) > 7.0 || cluster->pt() <= 1.e-3) continue;
-//                clusters.insert(cluster);
+//                clusters.push_back(cluster);
 //            }
 //        }
         for (const auto& cluster : *topoClusters) {
             if (!cluster || fabs(cluster->eta()) > 7.0 || cluster->pt() <= 1.e-3) continue;
             //Consider also the cluster of Egamma if they are in the container
-            if (IsSame(Ref, cluster) || Overlap(cluster, Ref, m_coreCone)) clusters.insert(cluster);
+            if (IsSame(Ref, cluster) || Overlap(cluster, Ref, m_coreCone)) clusters.push_back(cluster);
         }
         return clusters;
     }
@@ -337,9 +336,13 @@ namespace CP {
         for (const auto P : *Particles) {
             if (!ConsiderForCorrection(P)) continue;
             ClusterCollection AssocClusters = GetAssociatedClusters(P);
+            Clusters.reserve(AssocClusters.size() + Clusters.size());
             for (auto& C : AssocClusters)
-                Clusters.insert(C);
+                if (!IsElementInList(Clusters, C)) Clusters.push_back(C);
         }
+        Clusters.shrink_to_fit();
+        std::sort(Clusters.begin(), Clusters.end(), [] (const xAOD::CaloCluster* C , const xAOD::CaloCluster* C1) {return C->pt() > C1->pt();});
+
     }
     bool IsolationCloseByCorrectionTool::ConsiderForCorrection(const xAOD::IParticle* P) const {
         if (P == nullptr) return false;
@@ -393,8 +396,8 @@ namespace CP {
             ATH_MSG_WARNING("Could not retrieve the isolation variable.");
             return CorrectionCode::Error;
         } else if (clusters.empty()) return CorrectionCode::Ok;
-
-        //else if (correction <= 0.0) return CorrectionCode::Ok;
+        //Disable the correction of already isolated objects
+        else if (correction <= 0.0) return CorrectionCode::Ok;
 
         ATH_MSG_DEBUG(xAOD::Iso::toString(type) << " of " << particleName(par) << " with pt " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " before correction: " << correction / 1.e3 << " GeV");
         const xAOD::IParticle* Ref = TopoEtIsoRefPart(par);
@@ -404,17 +407,17 @@ namespace CP {
         }
         double MaxDR = ConeSize(par, type) * (Ref->type() == xAOD::Type::ObjectType::CaloCluster ? 1. : m_ConeSizeVariation);
         for (auto& cluster : clusters) {
-            ATH_MSG_DEBUG("Cluster with pt: " << cluster->pt() / 1.e3 << " GeV, eta: " << cluster->eta() << ", phi: " << cluster->phi() << " dR: " << sqrt(DeltaR2(cluster, par)));
+            ATH_MSG_DEBUG("Cluster with pt: " << cluster->pt() / 1.e3 << " GeV, eta: " << cluster->eta() << ", phi: " << cluster->phi() << " dR: " << sqrt(DeltaR2(cluster, par)) << " (" << MaxDR << ")");
             bool Subtract = false;
-            if (Ref->type() == xAOD::Type::ObjectType::CaloCluster) Subtract = Overlap(cluster, Ref, MaxDR) && !Overlap(cluster, Ref, m_coreCone);
+            if (Ref->type() == xAOD::Type::ObjectType::CaloCluster) Subtract = (Overlap(cluster, Ref, MaxDR) && !Overlap(cluster, Ref, m_coreCone));
             else {
                 float Polution = ClusterEtMinusTile(cluster) / (correction != 0 ? correction : 1.);
-                if (Polution > m_maxTopoPolution) {
-                    ATH_MSG_DEBUG("The cluster could not contributed to the isolation cone. As it has more energy" << Polution);
+                if (Polution > m_maxTopoPolution || Polution < 0.) {
+                    ATH_MSG_VERBOSE("The cluster could not contributed to the isolation cone. As it has " << Polution << " times more energy");
                 } else if (Overlap(cluster, Ref, MaxDR)) Subtract = true;
             }
             if (Subtract) {
-                ATH_MSG_DEBUG("Subtract " << ClusterEtMinusTile(cluster) / 1.e3 << " GeV from cone " << correction / 1.e3 << " GeV");
+                ATH_MSG_VERBOSE("Subtract " << ClusterEtMinusTile(cluster) / 1.e3 << " GeV from cone " << correction / 1.e3 << " GeV");
                 correction -= ClusterEtMinusTile(cluster);
             }
         }
@@ -678,9 +681,12 @@ namespace CP {
         return fmax(Et, 0);
     }
     template<typename T> bool IsolationCloseByCorrectionTool::IsElementInList(const std::vector<T> &List, const T& Element) const {
-        for (auto&Test : List) {
-            if (Test == Element) return true;
+        for (const auto&Test : List) {
+            if (Test == Element) {
+                return true;
+            }
         }
+
         return false;
     }
     template<typename T> bool IsolationCloseByCorrectionTool::IsElementInList(const std::set<T> &List, const T& Element) const {
@@ -721,9 +727,9 @@ namespace CP {
         ATH_MSG_WARNING("No cluster was found");
         return nullptr;
     }
-    //######################################################################################################
-    //                                      IsoVariableHelper
-    //######################################################################################################
+//######################################################################################################
+//                                      IsoVariableHelper
+//######################################################################################################
     IsoVariableHelper::IsoVariableHelper(xAOD::Iso::IsolationType type, const std::string& BackupPreFix) :
                 m_IsoType(type),
                 m_BackupIso(!BackupPreFix.empty()),
