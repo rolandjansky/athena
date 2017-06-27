@@ -927,11 +927,6 @@ StatusCode CSCSegmValAlg::procHistograms() {
   if( m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD ) {
 
     if (m_debuglevel)  ATH_MSG_DEBUG(  "in CSCSegmValAlg::procHistograms()" );
-    if(endOfEventsBlock){}
-    if(endOfLumiBlock){}
-    if(endOfRun){
-
-    } // endOfRun
   } // environment if
 
   return StatusCode::SUCCESS;   
