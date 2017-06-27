@@ -542,12 +542,12 @@ StatusCode JetTagMonitoring::bookHistograms() {
     registerHist(*m_monGr_LowStat, m_jet_tracks_z0_LS = TH1F_LW::create("jet_tracks_z0_LS","z0 of Tracks in Jets; z0 [mm]",100,-300.,300.));
 
     // registerHist(*m_monGr_LowStat, m_mv_tag_77_2D_LS = TH2F_LW::create("mv_tag_77_2D_LS", (m_mv_algorithmName+" Tag 77%").c_str(), 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
-    registerHist(*m_monGr_shift, m_tag_mv_w_LS  = TH1F_LW::create("tag_MV_w_LS",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets); "+m_mv_algorithmName+" tag weight").c_str(),100,-1.,1.));  
-    registerHist(*m_monGr_shift, m_tag_mv_w_pT10_20_LS   = TH1F_LW::create("tag_MV_w_pT10_20_LS"  ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, pT = [10,20] GeV); "+m_mv_algorithmName+" tag weight").c_str()  ,100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv_w_pT20_50_LS   = TH1F_LW::create("tag_MV_w_pT20_50_LS"  ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, pT = [20,50] GeV); "+m_mv_algorithmName+" tag weight").c_str()  ,100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv_w_pT50_100_LS  = TH1F_LW::create("tag_MV_w_pT50_100_LS" ,(m_mv_algorithmName+" Tag Weight Taggable Good Jets, pT = [50,100] GeV); "+m_mv_algorithmName+" tag weight").c_str() ,100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv_w_pT100_200_LS = TH1F_LW::create("tag_MV_w_pT100_200_LS",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, pT = [100,200] GeV); "+m_mv_algorithmName+" tag weight").c_str(),100,-1.,1.));    
-    registerHist(*m_monGr_shift, m_tag_mv_w_pT200_LS     = TH1F_LW::create("tag_MV_w_pT200_LS"    ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, pT > 200 GeV); "+m_mv_algorithmName+" tag weight").c_str()      ,100,-1.,1.));   
+    registerHist(*m_monGr_LowStat, m_tag_mv_w_LS  = TH1F_LW::create("tag_MV_w_LS",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets); "+m_mv_algorithmName+" tag weight").c_str(),100,-1.,1.));  
+    registerHist(*m_monGr_LowStat, m_tag_mv_w_pT10_20_LS   = TH1F_LW::create("tag_MV_w_pT10_20_LS"  ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, pT = [10,20] GeV); "+m_mv_algorithmName+" tag weight").c_str()  ,100,-1.,1.));    
+    registerHist(*m_monGr_LowStat, m_tag_mv_w_pT20_50_LS   = TH1F_LW::create("tag_MV_w_pT20_50_LS"  ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, pT = [20,50] GeV); "+m_mv_algorithmName+" tag weight").c_str()  ,100,-1.,1.));    
+    registerHist(*m_monGr_LowStat, m_tag_mv_w_pT50_100_LS  = TH1F_LW::create("tag_MV_w_pT50_100_LS" ,(m_mv_algorithmName+" Tag Weight Taggable Good Jets, pT = [50,100] GeV); "+m_mv_algorithmName+" tag weight").c_str() ,100,-1.,1.));    
+    registerHist(*m_monGr_LowStat, m_tag_mv_w_pT100_200_LS = TH1F_LW::create("tag_MV_w_pT100_200_LS",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, pT = [100,200] GeV); "+m_mv_algorithmName+" tag weight").c_str(),100,-1.,1.));    
+    registerHist(*m_monGr_LowStat, m_tag_mv_w_pT200_LS     = TH1F_LW::create("tag_MV_w_pT200_LS"    ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, pT > 200 GeV); "+m_mv_algorithmName+" tag weight").c_str()      ,100,-1.,1.));   
     
     registerHist(*m_monGr_LowStat, m_jet_2D_kinematic_LS     = TH2F_LW::create("jet_2D_kinematic_LS", "Number of Jets (Kinematic Cuts);#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
     registerHist(*m_monGr_LowStat, m_track_selector_eff_LS   = TH2F_LW::create("track_selector_eff_LS", "Fraction of Taggable Jets;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
