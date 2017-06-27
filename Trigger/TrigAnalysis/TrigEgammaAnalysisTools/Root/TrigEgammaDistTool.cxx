@@ -359,16 +359,16 @@ void TrigEgammaDistTool::fillRnnDistribution(const std::string dir, const xAOD::
       float avgmu=rnn->rnnDecision()[0];
 
       cd(dir);
-      hist1("ringerOutput_integrated")->Fill(output);
-      hist2("ringerOutputVsMu_integrated")->Fill(output,avgmu);
-      cd(dir+"/ringerOutput_binned");
+      hist1("discriminant")->Fill(output);
+      hist2("discriminantVsMu")->Fill(output,avgmu);
+      cd(dir+"/discriminant_binned");
       for (unsigned etBinIdx=0; etBinIdx<6-1; ++etBinIdx){
         for (unsigned etaBinIdx=0; etaBinIdx<6-1; ++etaBinIdx){
           if( ( et < ringer_thres_et_bins[etBinIdx]  && ringer_thres_et_bins[etBinIdx+1] >= et)
            && ( eta < ringer_thres_eta_bins[etaBinIdx]  && ringer_thres_eta_bins[etaBinIdx+1] >= eta)){
             std::stringstream ss1,ss2;
-            ss1 << "ringerOutput_et_"<<etBinIdx<<"_eta_"<<etaBinIdx;
-            ss2 << "ringerOutputVsMu_et_"<<etBinIdx<<"_eta_"<<etaBinIdx;
+            ss1 << "discriminant_et_"<<etBinIdx<<"_eta_"<<etaBinIdx;
+            ss2 << "discriminantVsMu_et_"<<etBinIdx<<"_eta_"<<etaBinIdx;
             hist1(ss1.str())->Fill(output);
             hist2(ss2.str())->Fill(output,avgmu);
            }

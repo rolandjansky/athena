@@ -1336,22 +1336,21 @@ void TrigEgammaPlotTool::bookExpertHistos(TrigInfo trigInfo){
     addDirectory(dirname);
 
     //addHistogram(new TH2F("RingerShapes","RingerShapes;E_{t};#rings;Count",21000,-1000,20000,100,0,100));
-    addHistogram(new TH1F("ringerOutput_integrated","nnOutput_integrated;nnOutput;Count",190,-12,7));
-    addHistogram(new TH2F("ringerOutputVsMu_integrated","nnOutputVsMu_integrated;nnOutput;avgmu;Count",190,-12,7,20,0,100));
-    
-    addDirectory(dirname+"/ringerOutput_binned");
+    addHistogram(new TH1F("discriminant","discriminant(integrated);discriminant(ringer);Count",190,-12,7));
+    addHistogram(new TH2F("discriminantVsMu","discriminantVsMu(integrated);discriminant(ringer);avgmu;Count",190,-12,7,20,0,100));
+    addDirectory(dirname+"/discriminant_binned");
     for(unsigned etBinIdx=0; etBinIdx<m_ringerEtbins.size()-1; ++etBinIdx){
       for(unsigned etaBinIdx=0; etaBinIdx<m_ringerEtabins.size()-1; ++etaBinIdx){
         std::stringstream ss1,ss2,ss3,ss4;
-        ss1 << "ringerOutput_et_"<<etBinIdx<<"_eta_"<<etaBinIdx;
+        ss1 << "discriminant_et_"<<etBinIdx<<"_eta_"<<etaBinIdx;
         ss2       << m_ringerEtabins[etaBinIdx]<<"<=|#eta|<"<< m_ringerEtabins[etaBinIdx+1] <<
           " and " << m_ringerEtbins[etBinIdx]<< "<=E_{t}<"<< m_ringerEtbins[etBinIdx+1] <<
-          ";discriminant;Count";
+          ";discriminant(ringer);Count";
         addHistogram(new TH1F(ss1.str().c_str(),ss2.str().c_str(),190,-12.,7.));
-        ss3 << "ringerOutputVsMu_et_"<<etBinIdx<<"_eta_"<<etaBinIdx;
+        ss3 << "discriminantVsMu_et_"<<etBinIdx<<"_eta_"<<etaBinIdx;
         ss4       << m_ringerEtabins[etaBinIdx]<<"<=|#eta|<"<< m_ringerEtabins[etaBinIdx+1] <<
           " and " << m_ringerEtbins[etBinIdx]<< "<=E_{t}<"<< m_ringerEtbins[etBinIdx+1] <<
-          ";discriminant;Avgmu;Count";
+          ";discriminant(ringer);Avgmu;Count";
         addHistogram(new TH2F(ss3.str().c_str(),ss4.str().c_str(),190,-12.,7.,20,0.,100.));
       }
     }
