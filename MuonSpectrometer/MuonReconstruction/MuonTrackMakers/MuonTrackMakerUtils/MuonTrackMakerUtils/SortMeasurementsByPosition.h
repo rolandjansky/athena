@@ -73,17 +73,15 @@ namespace Muon {
 	std::cout << "Muon::SortTSOSs: state 2 without parameters " << std::endl;
 	return true;
       }
-      bool okId1=true,okId2=true;
-      Identifier id1,id2;
       //check between muon and non-muon hits first
       const Trk::MeasurementBase* meas1 = tsos1->measurementOnTrack();
-      id1 = meas1 ? m_helperTool->getIdentifier(*meas1) : Identifier();
+      Identifier id1 = meas1 ? m_helperTool->getIdentifier(*meas1) : Identifier();
       
       const Trk::MeasurementBase* meas2 = tsos2->measurementOnTrack();
-      id2 = meas2 ? m_helperTool->getIdentifier(*meas2) : Identifier();	  
+      Identifier id2 = meas2 ? m_helperTool->getIdentifier(*meas2) : Identifier();	  
       
-      okId1 = id1.is_valid() && m_idHelperTool->isMuon(id1) ? true : false;
-      okId2 = id2.is_valid() && m_idHelperTool->isMuon(id2) ? true : false;
+      bool okId1 = id1.is_valid() && m_idHelperTool->isMuon(id1) ? true : false;
+      bool okId2 = id2.is_valid() && m_idHelperTool->isMuon(id2) ? true : false;
       // put invalid hits and non-muon hits after valid muon hits
       if(  okId1 && !okId2 ) return true;
       if( !okId1 &&  okId2 ) return false;
