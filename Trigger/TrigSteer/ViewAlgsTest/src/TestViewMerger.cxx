@@ -38,25 +38,37 @@ StatusCode TestViewMerger::initialize() {
 StatusCode TestViewMerger::execute(){
   //  auto viewsHandle = SG::makeHandle( m_viewsKey, ctx );
   auto viewsHandle = SG::makeHandle( m_viewsKey );
-  if ( not viewsHandle.isValid() ) {
-    ATH_MSG_ERROR("Invalid views key " << m_viewsKey.key() );
+  if ( not viewsHandle.isValid() ) { // have to check because this is not checked at compile time
+    ATH_MSG_ERROR( "Invalid views key " << m_viewsKey.key() );
     return StatusCode::FAILURE;
   }  
+
+  auto outputClusterContainer = std::make_unique< TestClusterContainer >();
+  auto outputClusterContainerAux = std::make_unique< TestClusterAuxContainer>();
+  outputClusterContainer->setStore( outputClusterContainerAux.get() );
+
+
   for ( auto view : *viewsHandle ) {
     ATH_MSG_DEBUG( "Reading fromt he view: " << view->impl()->name() );
+    auto context = EventContext();
+    context.setExtension(  Atlas::ExtendedEventContext( view ) );
+    auto clusterInViewHandle = SG::makeHandle( m_clustersViewInputKey, context );
+    CHECK ( clusterInViewHandle.isValid() );
+    ATH_MSG_DEBUG( "Found clusters"  );
+
+    for ( auto c : *clusterInViewHandle.cptr() ) {
+      using namespace TestEDM;
+      ATH_MSG_DEBUG( "Et " << getClusterEt( c ) << " eta " << getClusterEta( c ) << " phi " << getClusterPhi( c ) );
+      auto tosave = new TestCluster();
+      outputClusterContainer->push_back( tosave ) ;
+      copyCluster( c, tosave );
+    }
+  }
+  {
+    auto h = SG::makeHandle( m_clustersOutputKey );
+    CHECK( h.record( std::move(outputClusterContainer), std::move(outputClusterContainerAux) ) );
   }
 
-
-  // for now we are not outputting
-  //  {
-  //    auto handle = SG::makeHandle( m_clustersOutputHandle );
-  //    CHECK( handle.record( std::move( clustersOutputContainer ), std::move( clustersOutputContainerAux ) ) );
-  //  }
-  // Store the views for re-use/book-keeping
-  //  {
-  //    auto handle = SG::makeHandle( m_views );
-  //    CHECK( handle.record( std::move( viewVector ) ) );
-  //  }
 
   return StatusCode::SUCCESS;
 }
