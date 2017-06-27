@@ -14,7 +14,8 @@
 #include "./TestViewMerger.h"
 
 TestViewMerger::TestViewMerger( const std::string& name, ISvcLocator* pSvcLocator )
-  : AthReentrantAlgorithm( name, pSvcLocator ),
+  : AthAlgorithm( name, pSvcLocator ),
+//  : AthReentrantAlgorithm( name, pSvcLocator ),
     m_viewsKey( "Views" ),   
     m_clustersViewInputKey( "ClustersViewInput" ),
     m_clustersOutputKey( "ClustersOutput" ) {
@@ -33,8 +34,10 @@ StatusCode TestViewMerger::initialize() {
 }
 
 
-StatusCode TestViewMerger::execute_r( const EventContext& ctx ) const {
-  auto viewsHandle = SG::makeHandle( m_viewsKey, ctx );
+//StatusCode TestViewMerger::execute_r( const EventContext& ctx ) const {
+StatusCode TestViewMerger::execute(){
+  //  auto viewsHandle = SG::makeHandle( m_viewsKey, ctx );
+  auto viewsHandle = SG::makeHandle( m_viewsKey );
   if ( not viewsHandle.isValid() ) {
     ATH_MSG_ERROR("Invalid views key " << m_viewsKey.key() );
     return StatusCode::FAILURE;
