@@ -106,6 +106,7 @@ rec.doDetailedPerfMon.set_Value_and_Lock( False )
 rec.doSemiDetailedPerfMon.set_Value_and_Lock( False )
 from PerfMonComps.PerfMonFlags import jobproperties
 jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False )
+jobproperties.AthenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7572_tid07644622_00/RDO.07644622._000001.pool.root.1"]
 
 
 from MuonRecExample.MuonRecFlags import muonRecFlags
@@ -142,6 +143,8 @@ for i in topSequence:
 
 # once L1 re-simulation works this has to change from emulation to real unpacking
 include("TrigUpgradeTest/L1CF.py")
+
+data = {}
 
 data['l1emroi'] = ['1.3,2.9,2704088841,EM3,EM7,EM10,EM20;',
                    '1.2,3.1,2972524297,EM3,EM7,EM10,EM20;']

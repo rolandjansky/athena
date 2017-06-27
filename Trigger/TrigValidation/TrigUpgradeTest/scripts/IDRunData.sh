@@ -1,2 +1,2 @@
 #!/usr/bin/env sh
-athena.py --threads=1 ViewAlgsTest/ID_RawDataMT_Trigger.py
+athena.py --threads=1 TrigUpgradeTest/ID_RawDataMT_Trigger.py
