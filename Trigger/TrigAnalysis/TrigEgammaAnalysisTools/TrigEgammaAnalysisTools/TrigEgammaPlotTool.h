@@ -73,8 +73,8 @@ class TrigEgammaPlotTool
           int m_ncoarseEtabins; //2D
           std::vector<float>  m_etbins;
           std::vector<float>  m_etabins;
-          std::vector<float>  m_minBin_ringer;
-          std::vector<float>  m_maxBin_ringer;
+          std::vector<float>  m_ringerEtbins;
+          std::vector<float>  m_ringerEtabins;
           std::vector<double> m_defaultEtbins;
           std::vector<double> m_defaultEtabins;
           std::vector<double> m_coarseEtbins;
