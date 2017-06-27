@@ -117,7 +117,7 @@ void test2()
   h.m_outputHandles.push_back (&w1);
   assert (k1.initialize().isSuccess());
   assert (h.m_deps.size() == 1);
-  assert (h.m_deps[0].fullKey() == "MyObj/aaa");
+  assert (h.m_deps[0].fullKey() == "MyObj/StoreGateSvc:aaa");
 
   h.m_deps.clear();
   SG::ReadHandleKey<MyObj> r2 ("aaa");
