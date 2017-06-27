@@ -250,6 +250,18 @@ theFTF.RoIs="L1EMRoIs"
 topSequence += theFTF
 log.info(theFTF)
 
+from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
+xAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg(name = "InDetxAODParticleCreatorAlg"+InputTrackCollection,
+                                                         ConvertTracks = True,
+                                                         ConvertTrackParticles = False,
+                                                         TrackContainerName = "TrigFastTrackFinder_Tracks",
+                                                         xAODContainerName = "xAODTracks",
+                                                         xAODTrackParticlesFromTracksContainerName = "xAODTracks2",
+                                                         TrackParticleCreator = InDetxAODParticleCreatorTool,
+                                                         PrintIDSummaryInfo = True)
+
+topSequence += xAODTrackParticleCnvAlg
+
 #probably initialized only in trigger=True?
 from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
 RegSelSvc = RegSelSvcDefault()
