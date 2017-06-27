@@ -168,6 +168,35 @@ def addTrkMomsTool(toolname,
         print 'TrigHLTJetRecConfig.addTrkMomsTool '\
             'Added trkmoms tools "%s" to jtm' % toolname
 
+
+
+def addJVFTool(toolname,
+                  tvSGkey,
+                  vcSGkey,
+                  tpcSGkey, ):
+
+    global jtm
+
+    try:
+        jvfTool  = getattr(jtm, toolname)
+    except AttributeError:       
+        from JetMomentTools.JetMomentToolsConf import JetVertexFractionTool
+ 
+        # Build the tool :
+        jvfTool = JetVertexFractionTool(toolname,
+                                        VertexContainer = vcSGkey, 
+                                        AssociatedTracks = "GhostTrack",
+                                        TrackVertexAssociation = tvSGkey,
+                                        TrackParticleContainer = tpcSGkey, 
+                                        TrackSelector = jtm.trackselloose,
+                                        JVFName = "JVF",
+                                        IsTrigger=True,)
+        
+        jtm += jvfTool
+        print 'TrigHLTJetRecConfig.addJVFTool '\
+            'Added jvf tool "%s" to jtm' % toolname
+
+
 # *** FTK track moment tool helpers set up ***
 def configTVassocTool(name,
                     tvSGkey,
@@ -182,6 +211,7 @@ def configTVassocTool(name,
         TrackParticleContainer = tpcSGkey,
         TrackVertexAssociation = tvSGkey,
         VertexContainer = vcSGkey,
+        TrackVertexAssoTool = jtm.jetLooseTVAtool,
     )
 
     # Build the tool :
@@ -263,6 +293,14 @@ def _getJetBuildTool(merge_param,
             trkmoms_ghosttrack.AssociatedTracks = secondary_label
             trkmoms_ghosttrack.lock()
             mymods.append(trkmoms_ghosttrack)
+        if not hasattr(jtm, 'jvf_GhostTracks'):
+            print "In TrigHLTJetRecConfig._getJetBuildTool: Something went wrong. GhostTrack label set but no JVF tool configured. Continuing without jvf calculations."
+        else:        
+            jvf_ghosttrack = getattr(jtm, 'jvf_GhostTracks')
+            jvf_ghosttrack.unlock()
+            jvf_ghosttrack.AssociatedTracks = secondary_label
+            jvf_ghosttrack.lock()
+            mymods.append(jvf_ghosttrack)
 
     if not do_minimalist_setup:
         # add in extra modofiers. This allows monitoring the ability
@@ -1070,6 +1108,15 @@ class TrigHLTTrackMomentHelpers(TrigHLTJetRecConf.TrigHLTTrackMomentHelpers):
                        vcSGkey=primVtxSGkey,
                        )
         addTrkMomsTool(trkmomstoolname, **trkmomsoptions)
+        
+        # add  a specially configured jvf tool to jtm 
+        jvftoolname = 'jvf_GhostTracks'
+        
+        jvfoptions = dict(tvSGkey=tvassocSGkey,
+                       tpcSGkey=trackSGkey,
+                       vcSGkey=primVtxSGkey,
+                       )
+        addJVFTool(jvftoolname, **jvfoptions)
 
 # Data scouting algorithm
 class TrigHLTJetDSSelector(TrigHLTJetRecConf.TrigHLTJetDSSelector):
