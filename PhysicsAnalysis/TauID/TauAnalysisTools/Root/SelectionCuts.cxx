@@ -473,7 +473,7 @@ bool SelectionCutEleBDTWP::accept(const xAOD::TauJet& xTau)
     if (fEleBDTScore > 0.15) bPass = true;
     break;
   default:
-    m_tTST->msg() << MSG::WARNING << "The electron ID working point with the enum "<<m_tTST->m_iJetIDWP<<" is not available" << endmsg;
+    m_tTST->msg() << MSG::WARNING << "The electron ID working point with the enum "<<m_tTST->m_iEleBDTWP<<" is not available" << endmsg;
     break;
   }
   if (bPass)
