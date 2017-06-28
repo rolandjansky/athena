@@ -2,3 +2,4 @@
 
 from AthenaCommon.CfgGetter import addAlgorithm
 addAlgorithm("InDetOverlay.InDetOverlayConfig.getInDetOverlay", "InDetOverlay")
+addAlgorithm("InDetOverlay.InDetOverlayConfig.getInDetSDOOverlay", "InDetSDOOverlay")
