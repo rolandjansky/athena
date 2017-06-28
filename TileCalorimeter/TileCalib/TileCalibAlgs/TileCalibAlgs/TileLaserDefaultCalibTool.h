@@ -30,6 +30,8 @@
 #define NCHANNELS 48
 #define NSLICES 100
 #define NFIBERS 2
+#define NPMT1 21
+#define NPMT2 22
 
 class TileRawChannelContainer;
 class TileBeamInfoProvider;
@@ -183,7 +185,7 @@ class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTo
   RunningStat* m_rs_time[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];
   RunningStat* m_rs_signal[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];
   RunningStat* m_rs_raw_signal[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];
-  RunningStat* m_rs_reducedKappa[NPARTITIONS][NDRAWERS][21][22][NGAINS][2];
+  RunningStat* m_rs_reducedKappa[NPARTITIONS][NDRAWERS][NPMT1][NPMT2][NGAINS][NFIBERS];
 
   // Functions
   std::pair<unsigned int, unsigned int> getCoupleOfChan(int ros, int couple);

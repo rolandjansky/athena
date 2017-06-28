@@ -203,28 +203,18 @@ StatusCode TileLaserDefaultCalibTool::initialize(){
       m_rs_meantime[part][gain] = new RunningStat(); 
       m_meantime[part][gain] = 0.;
     } 
-
-    for ( int drawer=0; drawer<NDRAWERS; ++drawer ) {
-      for (int i=0; i<21; ++i){
-	for (int j=i+1; j<22; ++j){
-	  for ( int gain=0; gain<NGAINS; ++gain ) {
-	    for (int p =0; p<2; ++p){
-	      m_rs_reducedKappa[part][drawer][i][j][gain][p] = new RunningStat();
-	    }
-	  }
-	}
-      }
-    }
+    
 
     for ( int drawer=0; drawer<NDRAWERS; ++drawer ) {
       for ( int gain=0; gain<NGAINS; ++gain ) {
-        
-        /*for(int couple=0; couple<NCOUPLES; ++couple){
-	  // K factor for each couple of odd and event pmts
-          m_rs_reducedKappa[part][drawer][couple][gain] = new RunningStat();
-	  } // FOR*/
         for (int fiber=0; fiber<NFIBERS; ++fiber){
 	   m_kappa[part][drawer][fiber][gain]   = 0;
+	   for (int pmt1=0; pmt1<NPMT1; ++pmt1){
+	     for (int pmt2=pmt1+1; pmt2<NPMT2; ++pmt2){
+	       m_rs_reducedKappa[part][drawer][pmt1][pmt2][gain][fiber] = new RunningStat();
+	     }
+	   }
+	      
 	}
 	
         for ( int channel=0; channel<NCHANNELS; ++channel ) {
@@ -497,12 +487,11 @@ StatusCode TileLaserDefaultCalibTool::execute(){
   TileRawChannelContainer::const_iterator itColl;
   TileRawChannelContainer::const_iterator itCollEnd = rawCnt->end();
   
-  /*double Q1Q2[NCOUPLES];
-    for (int couple=0; couple<NCOUPLES; ++couple) Q1Q2[couple]=1;*/
-  double Q1Q2[21][22];
-  for (int i=0; i<21; ++i){
-    for (int j=i+1; j<22; ++j){
-      Q1Q2[i][j]=0.;
+ 
+  double Q1Q2[NPMT1][NPMT2];
+  for (int pmt1=0; pmt1<NPMT1; ++pmt1){
+    for (int pmt2=0; pmt2<NPMT2; ++pmt2){
+      Q1Q2[pmt1][pmt2]=0.;
     }
   }
   //int currentDrawer=0;
@@ -630,144 +619,58 @@ StatusCode TileLaserDefaultCalibTool::execute(){
         } // FOR
       } // ELSE
 
-      /* 
-	 V.Giangiobbe. Compute the average <q1.q2> for each couple of even and odd PMTs.
-      */
-
-      /*if (m_status[ros][drawer][chan][gain]&0x4) //We don't want to use bad channels for the calculation of kappa
-	continue;
-
-      if (int (ped/10000.)-10 == -8){
-	m_status[ros][drawer][chan][gain] = m_status[ros][drawer][chan][gain] | 0x100;
-        continue;
-	}
-
       
-      if (int (ped/10000.)-10 == -2){
-	m_status[ros][drawer][chan][gain] = m_status[ros][drawer][chan][gain] | 0x200;
-        continue;
-	}*/
-
-      /*if(currentDrawer != drawer){
-        for(int couple=0; couple<NCOUPLES; ++couple) Q1Q2[couple]=1;
-	} 
-      
-      //-- Store the data in m_rs_reducedKappa[ros][drawer][couple][gain]
-      for(int couple=0; couple<NCOUPLES; ++couple){
-        if(chan==int(getCoupleOfChan(ros, couple).first) || chan==int(getCoupleOfChan(ros, couple).second)){
-          Q1Q2[couple]*=ampInPicoCoulombs;
-          currentDrawer = drawer;
-          
-          if(Q1Q2[couple]!=1 && Q1Q2[couple]!=ampInPicoCoulombs) m_rs_reducedKappa[ros][drawer][couple][gain]->Push( Q1Q2[couple] );
-        } // IF
-      } // FOR */
-
     } // End of the loop over the TileRawChannelCollection
   } // End of the loop over the TileRawChannelContainer
   
 
-  /*
-  for ( itColl=rawCnt->begin(); itColl != itCollEnd; ++itColl ) {
-    HWIdentifier drawer_id = m_tileHWID->drawer_id((*itColl)->identify());
-    int ros = m_tileHWID->ros(drawer_id)-1;     // LBA=0 LBC=1 EBA=2 EBC=3
-    int drawer = m_tileHWID->drawer(drawer_id); // 0 to 63
-    unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros+1,drawer);
-    
-    // Loop over tilerawchannels in collection
-    for ( TileRawChannelCollection::const_iterator it = (*itColl)->begin(); it != (*itColl)->end(); ++it ) {
-          // Get adchash
-      HWIdentifier hwid = (*it)->adc_HWID();
-      int chan          = m_tileHWID->channel(hwid);  // 0 to 47 channel
-      int gain          = m_tileHWID->adc(hwid);      // low=0 high=1
-      float amp         = (*it)->amplitude();
-      float ofctime     = (*it)->time();
-      // float ped = (*it)->pedestal();
-      if(ofctime!=0.0) ofctime -= avg_time[ros][gain]->Mean();
-      //      const TileDQstatus *theDQstatus = m_beamInfo->getDQstatus();
-      
-      float ampInPicoCoulombs = m_tileToolEmscale->channelCalib(drawerIdx, chan, gain, amp, RChUnit, TileRawChannelUnit::PicoCoulombs);
-      
-      if(currentDrawer != drawer){
-        for(int couple=0; couple<NCOUPLES; ++couple) Q1Q2[couple]=1;
-      } 
-      
-      if (fabs( m_rs_signal[ros][drawer][chan][gain]->Mean()-ampInPicoCoulombs)>4*m_rs_signal[ros][drawer][chan][gain]->StandardDeviation()){
-	continue;
-      }
-
-      //-- Store the data in m_rs_reducedKappa[ros][drawer][couple][gain]
-      for(int couple=0; couple<NCOUPLES; ++couple){
-        if(chan==int(getCoupleOfChan(ros, couple).first) || chan==int(getCoupleOfChan(ros, couple).second)){
-          Q1Q2[couple]*=ampInPicoCoulombs;
-          currentDrawer = drawer;
-          
-          if(Q1Q2[couple]!=1 && Q1Q2[couple]!=ampInPicoCoulombs)
-	    m_rs_reducedKappa[ros][drawer][couple][gain]->Push( Q1Q2[couple] );
-	} // IF
-      } // FOR
-    }
-    }*/
-
+  
+  
   int chan1;
   int chan2;
-  //float ampInPicoCoulomb1;
-  //float ampInPicoCoulomb2;
   for (int ros=0; ros<NPARTITIONS; ros++){
     for (int drawer=0; drawer<NDRAWERS; ++drawer){
-      for(int i=0; i<21; ++i){
-	  for (int j=0; j<22; ++j){
-	    Q1Q2[i][j]=0.;
+      for(int pmt1=0; pmt1<NPMT1; ++pmt1){
+	  for (int pmt2=0; pmt2<NPMT2; ++pmt2){
+	    Q1Q2[pmt1][pmt2]=0.;
 	  }
 	}
-      //unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros+1,drawer);
-      //We evaluate kappa variable for odd PMTs
+      //We compute <q1.q2> for odd PMTs
       for (int gain=0; gain<NGAINS; ++gain){
-	for (int i=0; i<21; ++i){
-	  chan1 = int(getCoupleOfPMT(ros, i).second);
-	  //if (m_status[ros][drawer][chan1][gain]&0x4){
+	for (int pmt1=0; pmt1<NPMT1; ++pmt1){
+	  chan1 = int(getCoupleOfPMT(ros, pmt1).second);
 	  if (m_status[ros][drawer][chan1][gain]!=0){
 	    continue;
 	  }
-	  for (int j=i+1; j<22; ++j){
-	    chan2 = int(getCoupleOfPMT(ros, j).second);
-	    //if (m_status[ros][drawer][chan2][gain]&0x4){
+	  for (int pmt2=pmt1+1; pmt2<NPMT2; ++pmt2){
+	    chan2 = int(getCoupleOfPMT(ros, pmt2).second);
 	    if (m_status[ros][drawer][chan2][gain]!=0){
 	      continue;
 	    }
-	    //ampInPicoCoulomb1= m_tileToolEmscale->channelCalib(drawerIdx, chan1, gain, amp, RChUnit, TileRawChannelUnit::PicoCoulombs);
-	    //ampInPicoCoulomb2= m_tileToolEmscale->channelCalib(drawerIdx, chan2, gain, amp, RChUnit, TileRawChannelUnit::PicoCoulombs);
-	    Q1Q2[i][j]= pmt_values[ros][drawer][chan1][gain]*pmt_values[ros][drawer][chan2][gain];
-	    /*if (pmt_values[ros][drawer][chan1][gain]<0. || pmt_values[ros][drawer][chan2][gain]<0.){
-	      ATH_MSG_INFO ( "GIULIA negative PMT signal : " << pmt_values[ros][drawer][chan1][gain] << pmt_values[ros][drawer][chan2][gain]);
-	      }*/
-	    if (Q1Q2[i][j]>0.){
-	      m_rs_reducedKappa[ros][drawer][i][j][gain][1]->Push(Q1Q2[i][j]);
+	    Q1Q2[pmt1][pmt2]= pmt_values[ros][drawer][chan1][gain]*pmt_values[ros][drawer][chan2][gain];
+	    if (Q1Q2[pmt1][pmt2]>0.){
+	      m_rs_reducedKappa[ros][drawer][pmt1][pmt2][gain][1]->Push(Q1Q2[pmt1][pmt2]);
 	    }//IF
-	  }//j
-	}//i
+	  }//pmt2
+	}//pmt1
 	
-        //We evaluate kappa variabla for even PMTs
-	for (int i=0; i<21; ++i){
-	  chan1 = int(getCoupleOfPMT(ros, i).first);
+        //We compute <q1.q2> for even PMTs
+	for (int pmt1=0; pmt1<NPMT1; ++pmt1){
+	  chan1 = int(getCoupleOfPMT(ros, pmt1).first);
 	  if (m_status[ros][drawer][chan1][gain]&0x4){
 	    continue;
 	  }
-	  for (int j=i+1; j<22; ++j){
-	    chan2=int(getCoupleOfPMT(ros, j).first);
+	  for (int pmt2=pmt1+1; pmt2<NPMT2; ++pmt2){
+	    chan2=int(getCoupleOfPMT(ros, pmt2).first);
 	    if (m_status[ros][drawer][chan2][gain]&0x4){
 	      continue;
 	    }
-	    //ampInPicoCoulomb1= m_tileToolEmscale->channelCalib(drawerIdx, chan1, gain, amp, RChUnit, TileRawChannelUnit::PicoCoulombs);
-	    //ampInPicoCoulomb2= m_tileToolEmscale->channelCalib(drawerIdx, chan2, gain, amp, RChUnit, TileRawChannelUnit::PicoCoulombs);
-	    Q1Q2[i][j]= pmt_values[ros][drawer][chan1][gain]*pmt_values[ros][drawer][chan2][gain];
-	    /* if (pmt_values[ros][drawer][chan1][gain]<0. || pmt_values[ros][drawer][chan2][gain]<0.){
-	      ATH_MSG_INFO ( "GIULIA negative PMT signal : " << pmt_values[ros][drawer][chan1][gain] << pmt_values[ros][drawer][chan2][gain]);
-	      }*/
-	    if (Q1Q2[i][j]>0.){
-	      m_rs_reducedKappa[ros][drawer][i][j][gain][0]->Push(Q1Q2[i][j]);
+	    Q1Q2[pmt1][pmt2]= pmt_values[ros][drawer][chan1][gain]*pmt_values[ros][drawer][chan2][gain];
+	    if (Q1Q2[pmt1][pmt2]>0.){
+	      m_rs_reducedKappa[ros][drawer][pmt1][pmt2][gain][0]->Push(Q1Q2[pmt1][pmt2]);
 	    }//IF
-	  }//j
-	}//i
+	  }//pmt2
+	}//pmt1
 	
 	
       }//gain
@@ -865,101 +768,72 @@ StatusCode TileLaserDefaultCalibTool::finalizeCalculations(){
     kappa for each module)    */
         int nCouplesEven=0, nCouplesOdd=0;
 
-        /*for(int couple=0; couple<NCOUPLES; ++couple){
-          int chan0 = getCoupleOfChan(partition, couple).first;
-          int chan1 = getCoupleOfChan(partition, couple).second;
-          double q0 = m_rs_signal[partition][drawer][chan0][gain]->Mean();
-          double q1 = m_rs_signal[partition][drawer][chan1][gain]->Mean();
-          
-          if(q0*q1==0) continue;
-          
-          //-- Average of all couples on the same even fiber
-	  int fibre = couple%2;
-	  m_kappa[partition][drawer][fibre][gain] += (m_rs_reducedKappa[partition][drawer][couple][gain]->Mean()/(q0*q1) - 1);
-	  
-          if ( fibre ) nCouplesOdd ++; 
-	  else nCouplesEven++;
-
-        } // FOR
-
-	*/
-
 	int chan1;
 	int chan2;
 	double q1;
 	double q2;
 
 	//We evaluate kappa value for odd PMTs
-	for (int i=0; i<21; ++i){
-	  for (int j=i+1; j<22; ++j){
-	    chan1 = getCoupleOfPMT(partition, i).second;
-	    chan2 = getCoupleOfPMT(partition, j).second;
+	for (int pmt1=0; pmt1<NPMT1; ++pmt1){
+	  for (int pmt2=pmt1+1; pmt2<NPMT2; ++pmt2){
+	    chan1 = getCoupleOfPMT(partition, pmt1).second;
+	    chan2 = getCoupleOfPMT(partition, pmt2).second;
 	    q1 = m_rs_signal[partition][drawer][chan1][gain]->Mean();
 	    q2 = m_rs_signal[partition][drawer][chan2][gain]->Mean();
 
 	    if (q1*q2<=0){
 	      continue;
 	    }
-	    //ATH_MSG_INFO ("m_rs_reducedKappa: " << m_rs_reducedKappa[partition][drawer][i][j][gain][0]->Mean() << " q1*q2: " << q1*q2);
-	    if (m_rs_reducedKappa[partition][drawer][i][j][gain][1]->Mean() < q1*q2){
+	    if (m_rs_reducedKappa[partition][drawer][pmt1][pmt2][gain][1]->Mean() < q1*q2){
 	      continue;
 	    }
-	    if ((m_rs_reducedKappa[partition][drawer][i][j][gain][1]->Mean()/(q1*q2)-1) > 0.01 ){
+	    if ((m_rs_reducedKappa[partition][drawer][pmt1][pmt2][gain][1]->Mean()/(q1*q2)-1) > 0.01 ){
 	      continue;
 	    }
-	    m_kappa[partition][drawer][1][gain] += (m_rs_reducedKappa[partition][drawer][i][j][gain][1]->Mean()/(q1*q2)-1);
+	    m_kappa[partition][drawer][1][gain] += (m_rs_reducedKappa[partition][drawer][pmt1][pmt2][gain][1]->Mean()/(q1*q2)-1);
 	    if ( m_kappa[partition][drawer][1][gain]<0.){
-	      ATH_MSG_INFO ( "ATTENZIONEEEE: " <<  m_kappa[partition][drawer][1][gain] );
+	      ATH_MSG_DEBUG ( "Negative kappa value: " <<  m_kappa[partition][drawer][1][gain] );
 	    }
 	    nCouplesOdd++;
-	  }
-	}
+	  }// pmt2
+	}// pmt1
 
 	//We evaluate kappa value for even PMTs
-	for (int i=0; i<21; ++i){
-	  for (int j=i+1; j<22; ++j){
-	    chan1 = getCoupleOfPMT(partition, i).first;
-	    chan2 = getCoupleOfPMT(partition, j).first;
+	for (int pmt1=0; pmt1<NPMT1; ++pmt1){
+	  for (int pmt2=pmt1+1; pmt2<NPMT2; ++pmt2){
+	    chan1 = getCoupleOfPMT(partition, pmt2).first;
+	    chan2 = getCoupleOfPMT(partition, pmt1).first;
 	    q1 = m_rs_signal[partition][drawer][chan1][gain]->Mean();
 	    q2 = m_rs_signal[partition][drawer][chan2][gain]->Mean();
 
 	    if (q1*q2<=0){
 	      continue;
 	    }
-	    //ATH_MSG_INFO ( "m_rs_reducedKappa: " << m_rs_reducedKappa[partition][drawer][i][j][gain][0]->Mean() << " q1*q2: " << q1*q2);
-	    if (m_rs_reducedKappa[partition][drawer][i][j][gain][0]->Mean()<q1*q2){
+	    if (m_rs_reducedKappa[partition][drawer][pmt1][pmt2][gain][0]->Mean()<q1*q2){
 	      continue;
 	    }
-	    if ((m_rs_reducedKappa[partition][drawer][i][j][gain][0]->Mean()/(q1*q2)-1) >0.01){
+	    if ((m_rs_reducedKappa[partition][drawer][pmt1][pmt2][gain][0]->Mean()/(q1*q2)-1) >0.01){
 	      continue;
 	    }
-	    m_kappa[partition][drawer][0][gain] += (m_rs_reducedKappa[partition][drawer][i][j][gain][0]->Mean()/(q1*q2)-1);
+	    m_kappa[partition][drawer][0][gain] += (m_rs_reducedKappa[partition][drawer][pmt1][pmt2][gain][0]->Mean()/(q1*q2)-1);
 	    nCouplesEven++;
 	    if (m_kappa[partition][drawer][0][gain]<0.){
-	      ATH_MSG_INFO ( "ATTENZIONEEEE: " <<  m_kappa[partition][drawer][0][gain] );
-	     }
-	  }
-	}
+	      ATH_MSG_DEBUG ( "Negative kappa value: " <<  m_kappa[partition][drawer][0][gain] );
+	    }// if
+	  }// pmt2
+	}// pmt1
 	
         if ( nCouplesEven!=0 ){
 	  m_kappa[partition][drawer][0][gain] = m_kappa[partition][drawer][0][gain]/nCouplesEven;
 	  if (m_kappa[partition][drawer][0][gain]>0.01){
-	    ATH_MSG_INFO ( "Giulia: " << m_kappa[partition][drawer][0][gain] << "  " << nCouplesEven);
+	    ATH_MSG_DEBUG ( "Too big kappa value: " << m_kappa[partition][drawer][0][gain] << "  " << nCouplesEven);
 	  }
-	  ATH_MSG_INFO("Number of even couples: " << nCouplesEven);
-	  /* if (m_kappa[partition][drawer][0][gain]<0.){
-	    ATH_MSG_INFO ( "ATTENZIONEEEE: " <<  m_kappa[partition][drawer][0][gain] );
-	    }*/
 	}
         if ( nCouplesOdd!=0 ){
 	  m_kappa[partition][drawer][1][gain] = m_kappa[partition][drawer][1][gain]/nCouplesOdd;
 	  if ( m_kappa[partition][drawer][1][gain]>0.01){
-	    ATH_MSG_INFO ( "Giulia: " <<  m_kappa[partition][drawer][1][gain] << "  " << nCouplesOdd );
+	    ATH_MSG_DEBUG ( "Too big kappa value: " <<  m_kappa[partition][drawer][1][gain] << "  " << nCouplesOdd );
 	  }
-	  ATH_MSG_INFO("Number of odd couples: " << nCouplesOdd );
-	  /*if (m_kappa[partition][drawer][1][gain]<0.){
-	    ATH_MSG_INFO ( "ATTENZIONEEEE: " <<  m_kappa[partition][drawer][1][gain] );
-	    }*/
 	}
        
         // This line looks like a bug to me (Henric), commenting it,
