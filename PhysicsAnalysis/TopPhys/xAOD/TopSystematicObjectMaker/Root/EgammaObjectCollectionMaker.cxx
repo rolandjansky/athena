@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EgammaObjectCollectionMaker.cxx 802735 2017-04-11 16:38:01Z tpelzer $
+// $Id: EgammaObjectCollectionMaker.cxx 806381 2017-06-09 14:58:44Z iconnell $
 #include "TopSystematicObjectMaker/EgammaObjectCollectionMaker.h"
 #include "TopConfiguration/TopConfig.h"
 #include "TopEvent/EventTools.h"
@@ -64,6 +64,22 @@ namespace top{
     
     top::check( m_calibrationTool.retrieve() , "Failed to retrieve egamma calibration tool" );
     
+    // Release 21 scrutiny effort currently requires that no egamma calibrations are applied
+    // We will use the tools with R20.7 settings, but not store the calibrated objects
+    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AtlasRelease21Scrutiny#Temporary_Recommendations_for_Co
+    if(m_config->getReleaseSeries() == 25){
+      ATH_MSG_INFO( "Configuring EgammaObjectCollectionMaker for Release 21 scrutiny" );
+      ATH_MSG_INFO( "... We should not currently apply any calibrations ..." );
+      ATH_MSG_INFO( "... The tools will be setup, but the calibrated objects will not be saved ..." );
+      calibrateElectrons = false;
+      calibratePhotons   = false;
+    }
+    else{
+      calibrateElectrons = true;
+      calibratePhotons   = true;
+    }
+
+
     if (m_config->usePhotons()) {
       top::check(m_isolationTool_FixedCutTight.retrieve(),
                  "Failed to retrieve Isolation Tool" );
@@ -141,16 +157,21 @@ namespace top{
         ///-- Apply correction to object --///
 	// Needs a calo cluster so carry on if no cluster
 	if (!photon->caloCluster()) continue;
-        top::check( m_calibrationTool->applyCorrection( *photon ) , "Failed to applyCorrection" );
-        
-        top::check(m_isolationCorr->applyCorrection(*photon),
-                   "Failed to apply photon isolation leakage correction");
+	
+	if(calibratePhotons){
 
-        // Only apply shower shape fudging on full simulation MC
-        if (m_config->isMC() && !m_config->isAFII()) {
-          top::check(m_photonFudgeTool->applyCorrection(*photon),
-                     "Failed to apply photon shower shape fudge tool");
-        }
+	  top::check(m_calibrationTool->applyCorrection( *photon ) , 
+		     "Failed to applyCorrection" );        
+	  top::check(m_isolationCorr->applyCorrection(*photon),
+		     "Failed to apply photon isolation leakage correction");
+
+	  // Only apply shower shape fudging on full simulation MC
+	  if (m_config->isMC() && !m_config->isAFII()) {
+	    top::check(m_photonFudgeTool->applyCorrection(*photon),
+		       "Failed to apply photon shower shape fudge tool");
+	  }
+
+	}
         
         ///-- Isolation selection --///
         char passIsol_FixedCutTight(0);
@@ -177,13 +198,15 @@ namespace top{
       
       ///-- Save corrected xAOD Container to StoreGate / TStore --///
       std::string outputSGKey = m_config->sgKeyPhotons( systematic.hash() );
-      std::string outputSGKeyAux = outputSGKey + "Aux.";
-      
+      std::string outputSGKeyAux = outputSGKey + "Aux.";      
+
       xAOD::TReturnCode save = evtStore()->tds()->record( shallow_xaod_copy.first , outputSGKey );
-      xAOD::TReturnCode saveAux = evtStore()->tds()->record( shallow_xaod_copy.second , outputSGKeyAux );
+      xAOD::TReturnCode saveAux = evtStore()->tds()->record( shallow_xaod_copy.second , outputSGKeyAux );      
+
       if( !save || !saveAux ){
-        return StatusCode::FAILURE;
+	return StatusCode::FAILURE;
       }
+
     }  // Loop over all systematics      
     
     return StatusCode::SUCCESS;
@@ -217,9 +240,13 @@ namespace top{
         // Apply correction to object 
         // should not affect derivations if there is no CC or track thinning
         if (electron->caloCluster() != nullptr && electron->trackParticle() != nullptr) { // derivations might remove CC and tracks for low pt electrons
-          top::check( m_calibrationTool->applyCorrection( *electron ) , "Failed to applyCorrection" );
 
-	  top::check( m_isolationCorr->applyCorrection( *electron ), "Failed to apply leakage correction" );
+	  if(calibrateElectrons){
+
+	    top::check( m_calibrationTool->applyCorrection( *electron ) , "Failed to applyCorrection" );	    
+	    top::check( m_isolationCorr->applyCorrection( *electron ), "Failed to apply leakage correction" );
+
+	  }
 
 	  double d0sig = xAOD::TrackingHelpers::d0significance( electron->trackParticle(),
 								beam_pos_sigma_x,
@@ -265,12 +292,14 @@ namespace top{
       // Save corrected xAOD Container to StoreGate / TStore
       std::string outputSGKey = m_config->sgKeyElectronsStandAlone( systematic.hash() );
       std::string outputSGKeyAux = outputSGKey + "Aux.";
-      
+
       xAOD::TReturnCode save = evtStore()->tds()->record( shallow_xaod_copy.first , outputSGKey );
       xAOD::TReturnCode saveAux = evtStore()->tds()->record( shallow_xaod_copy.second , outputSGKeyAux );
+      
       if( !save || !saveAux ){
-        return StatusCode::FAILURE;
+	return StatusCode::FAILURE;
       }
+
     }  // Loop over all systematics     
     
     return StatusCode::SUCCESS;

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuonScaleFactorCalculator.cxx 796972 2017-02-14 03:08:26Z tpelzer $
+// $Id: MuonScaleFactorCalculator.cxx 805964 2017-06-05 19:27:16Z iconnell $
 #include "TopCorrections/MuonScaleFactorCalculator.h"
 
 #include <string>
@@ -72,17 +72,36 @@ namespace top {
   StatusCode MuonScaleFactorCalculator::initialize() {
     ATH_MSG_INFO(" top::MuonScaleFactorCalculator initialize");
 
-    std::set<std::string> implemented_systematics =
-      {"MUON_EFF_TrigStatUncertainty",
-       "MUON_EFF_TrigSystUncertainty",
-       "MUON_EFF_STAT",
-       "MUON_EFF_SYS",
-       "MUON_EFF_STAT_LOWPT",
-       "MUON_EFF_SYS_LOWPT",
-       "MUON_ISO_STAT",
-       "MUON_ISO_SYS",
-       "MUON_TTVA_STAT",
-       "MUON_TTVA_SYS"};
+    std::set<std::string> implemented_systematics;
+    // Default release 20.7 implemented systematic names
+    if(m_config->getReleaseSeries() == 24){
+      implemented_systematics = {"MUON_EFF_TrigStatUncertainty",
+				 "MUON_EFF_TrigSystUncertainty",
+				 "MUON_EFF_STAT",
+				 "MUON_EFF_SYS",
+				 "MUON_EFF_STAT_LOWPT",
+				 "MUON_EFF_SYS_LOWPT",
+				 "MUON_ISO_STAT",
+				 "MUON_ISO_SYS",
+				 "MUON_TTVA_STAT",
+				 "MUON_TTVA_SYS"};
+    }
+    // Updated systematic names for release 21
+    else if(m_config->getReleaseSeries() == 25){
+      implemented_systematics = {"MUON_EFF_RECO_STAT",
+				 "MUON_EFF_RECO_STAT_LOWPT",
+				 "MUON_EFF_RECO_SYS",
+				 "MUON_EFF_RECO_SYS_LOWPT",
+				 "MUON_EFF_TrigStatUncertainty",
+				 "MUON_EFF_TrigSystUncertainty",
+				 "MUON_EFF_ISO_STAT",
+				 "MUON_EFF_ISO_SYS",
+				 "MUON_EFF_TTVA_STAT",
+				 "MUON_EFF_TTVA_SYS"};
+    }
+    else{
+      throw std::runtime_error("TopCorrections :: MuonScaleFactorCalculator :: Unable to identify expected release series from configuration");
+    }
 
     std::set<std::string> recommended_systematics;
     this->retrieveSystematicTool(m_muonTriggerScaleFactors_2015,
@@ -352,6 +371,12 @@ namespace top {
                         implemented.end(),
                         std::back_inserter(different_systematics));
     if (different_systematics.size()) {
+      ATH_MSG_WARNING("WE ARE EXPECTING THE FOLLOWING SYSTEMATICS:");
+      for (auto syst : recommended)
+        ATH_MSG_WARNING("\t" << syst);
+      ATH_MSG_WARNING("WE HAVE THE FOLLOWING SYSTEMATICS:");
+      for (auto syst : implemented)
+        ATH_MSG_WARNING("\t" << syst);
       ATH_MSG_WARNING("WE ARE MISSING THE FOLLOWING SYSTEMATICS:");
       for (auto syst : different_systematics)
         ATH_MSG_WARNING("\t" << syst);

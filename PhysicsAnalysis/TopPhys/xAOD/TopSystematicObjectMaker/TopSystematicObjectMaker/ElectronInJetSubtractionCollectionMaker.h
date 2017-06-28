@@ -22,7 +22,7 @@
   *   This class prepares the collections and calls the algorithm
   * 
   * $Revision: 653798 $
-  * $Date: 2015-03-12 20:24:22 +0100 (Thu, 12 Mar 2015) $
+  * $Date: 2015-03-12 19:24:22 +0000 (Thu, 12 Mar 2015) $
   * 
   **/ 
 

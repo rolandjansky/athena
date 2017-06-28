@@ -13,7 +13,7 @@
   *   Calculate all photon scale factors and decorate
   *
   * $Revision: 802226 $
-  * $Date: 2017-04-04 18:13:10 +0200 (Tue, 04 Apr 2017) $
+  * $Date: 2017-04-04 17:13:10 +0100 (Tue, 04 Apr 2017) $
   *
   **/
 

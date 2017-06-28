@@ -338,10 +338,16 @@ private:
     float m_weight_tauSF;
     float m_weight_tauSF_ELEOLR_UP;
     float m_weight_tauSF_ELEOLR_DOWN;
+    float m_weight_tauSF_TRUEELECTRON_ELEOLR_UP;
+    float m_weight_tauSF_TRUEELECTRON_ELEOLR_DOWN;
     float m_weight_tauSF_JETID_UP;
     float m_weight_tauSF_JETID_DOWN;
+    float m_weight_tauSF_JETID_HIGHPT_UP;
+    float m_weight_tauSF_JETID_HIGHPT_DOWN;
     float m_weight_tauSF_RECO_UP;
     float m_weight_tauSF_RECO_DOWN;
+    float m_weight_tauSF_RECO_HIGHPT_UP;
+    float m_weight_tauSF_RECO_HIGHPT_DOWN;
 
     // Photons
     float m_weight_photonSF = 0.;

@@ -37,6 +37,7 @@
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
 + PhysicsAnalysis/D3PDTools/.*
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
+- PhysicsAnalysis/ElectronPhotonID/PhotonVertexSelection
 + PhysicsAnalysis/ElectronPhotonID/.*
 + PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint
 + PhysicsAnalysis/Interfaces/.*

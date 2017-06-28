@@ -76,7 +76,7 @@ EventSelection::EventSelection(const std::string& name, const std::vector<std::s
 
     TDirectory* plotDir = outputFile->mkdir(m_name.c_str());
     plotDir->cd();
-    if (!config->doLooseTreeOnly()) {
+    if (config->doTightEvents()) {
       m_cutflow = new TH1D("cutflow", (name + " cutflow").c_str(), cutNames.size(), -0.5, cutNames.size() - 0.5);
       m_cutflowMCWeights = new TH1D("cutflow_mc", (name + " cutflow MC weights").c_str(), cutNames.size(), -0.5, cutNames.size() - 0.5);
       m_cutflowPUWeights = new TH1D("cutflow_pu", (name + " cutflow PU weights").c_str(), cutNames.size(), -0.5, cutNames.size() - 0.5);
@@ -145,7 +145,7 @@ EventSelection::EventSelection(const std::string& name, const std::vector<std::s
         }         
 
         //some cutflow histograms
-        if (!config->doLooseTreeOnly()) {
+        if (config->doTightEvents()) {
           m_cutflow->GetXaxis()->SetBinLabel(i + 1, m_allCuts[i]->name().c_str());
           m_cutflowMCWeights->GetXaxis()->SetBinLabel(i + 1, m_allCuts[i]->name().c_str());
           m_cutflowPUWeights->GetXaxis()->SetBinLabel(i + 1, m_allCuts[i]->name().c_str());
@@ -232,7 +232,7 @@ EventSelection::EventSelection(EventSelection&& other) :
 void EventSelection::countInitial(const float mcEventWeight,const float pileupWeight,const float zvtxWeight) const
 {
   if (m_containsInitial) {
-    if (!m_config->doLooseTreeOnly()) {
+    if (m_config->doTightEvents()) {
       m_cutflow->Fill(m_positionInitial);
       m_cutflowMCWeights->Fill(m_positionInitial,mcEventWeight);
       m_cutflowPUWeights->Fill(m_positionInitial,pileupWeight);
@@ -254,7 +254,7 @@ void EventSelection::countInitial(const float mcEventWeight,const float pileupWe
 void EventSelection::countGRL(const float mcEventWeight,const float pileupWeight,const float zvtxWeight) const
 {
   if (m_containsGRL) {
-    if (!m_config->doLooseTreeOnly()) {
+    if (m_config->doTightEvents()) {
       m_cutflow->Fill(m_positionGRL);
       m_cutflowMCWeights->Fill(m_positionGRL,mcEventWeight);
       m_cutflowPUWeights->Fill(m_positionGRL,pileupWeight);
@@ -276,7 +276,7 @@ void EventSelection::countGRL(const float mcEventWeight,const float pileupWeight
 void EventSelection::countGoodCalo(const float mcEventWeight,const float pileupWeight,const float zvtxWeight) const
 {
   if (m_containsGoodCalo) {
-    if (!m_config->doLooseTreeOnly()) {
+    if (m_config->doTightEvents()) {
       m_cutflow->Fill(m_positionGoodCalo);
       m_cutflowMCWeights->Fill(m_positionGoodCalo,mcEventWeight);
       m_cutflowPUWeights->Fill(m_positionGoodCalo,pileupWeight);
@@ -298,7 +298,7 @@ void EventSelection::countGoodCalo(const float mcEventWeight,const float pileupW
 void EventSelection::countPrimaryVertex(const float mcEventWeight,const float pileupWeight,const float zvtxWeight) const
 {
   if (m_containsPrimaryVertex) {
-    if (!m_config->doLooseTreeOnly()) {
+    if (m_config->doTightEvents()) {
       m_cutflow->Fill(m_positionPrimaryVertex);
       m_cutflowMCWeights->Fill(m_positionPrimaryVertex,mcEventWeight);
       m_cutflowPUWeights->Fill(m_positionPrimaryVertex,pileupWeight);
@@ -359,7 +359,7 @@ bool EventSelection::apply(const top::Event& event) const {
           if ( m_containsGoodCalo && i == m_positionGoodCalo) {countThisCut = false;}
           if ( m_containsPrimaryVertex && i == m_positionPrimaryVertex) {countThisCut = false;}
           if (countThisCut) {
-            if (!m_config->doLooseTreeOnly() && !event.m_isLoose) {
+            if (m_config->doTightEvents() && !event.m_isLoose) {
               m_cutflow->Fill(i);
               m_cutflowMCWeights->Fill(i, mcweight);
               m_cutflowPUWeights->Fill(i, puweight);
@@ -458,7 +458,7 @@ void EventSelection::finalise() const {
     if (m_isMC)
         std::cout << std::fixed << std::setprecision(2);
 
-  if (!m_config->doLooseTreeOnly()) {
+  if (m_config->doTightEvents()) {
     //channel name
     std::cout << " - " << m_name << " cutflow:\n";
 
@@ -577,7 +577,7 @@ std::vector<std::string> EventSelection::GetFakesMMConfigs() const {
 
 void EventSelection::printCuts() {
     std::cout << " - " << m_name << ":\n";
-    if (!m_config->doLooseTreeOnly()) {
+    if (m_config->doTightEvents()) {
       for (int i = 1; i <= m_cutflow->GetNbinsX(); ++i) {
           std::cout << "    " << std::setw(3) << i
                   << std::setw(30) << m_cutflow->GetXaxis()->GetBinLabel(i)

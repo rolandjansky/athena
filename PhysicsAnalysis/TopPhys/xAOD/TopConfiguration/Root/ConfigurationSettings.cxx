@@ -180,15 +180,16 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("PerfStats"," I/O Performance printouts. None, Summary or Full" , "None");
     registerParameter("IsAFII", "Define if you are running over a fastsim sample: True or False", " ");
 
-    registerParameter("FakesControlRegionDoLooseMC","Run Loose events on MC : True (study fakes control regions), False (regular analysis)", "False");
-
     registerParameter("FakesMMWeights","Calculate matrix-method weights for fake prompt leptons estimate : True (calculate weights), False (does nothing)", "False");
     registerParameter("FakesMMDir","Directory of files containing efficiencies for fake prompt leptons estimate - default is $ROOTCOREBIN/data/TopFakes", "$ROOTCOREBIN/data/TopFakes");
     registerParameter("FakesMMDebug","Enables debug mode for matrix-method weight calculation: True, False (default)", "False");
 
-    registerParameter("OverlapRemovalLeptonDef","Run overlap removal on : Tight (top default) or Loose (not top default) lepton definitions", "Tight");
-    registerParameter("DoLooseTreeOnly","Only dumps the Loose trees (and activate them for MC): True or False (default)", "False");
-    registerParameter("ApplyTightSFsInLooseTree","In Loose trees, calculate lepton SFs with tight leptons only, and considering they are tight: True or False (default)", "False");
+    registerParameter("DoTight","Dumps the normal non-\"*_Loose\" trees : Data, MC, Both (default), False", "Both");
+    registerParameter("DoLoose","Run Loose selection and dumps the Loose trees : Data (default), MC, Both, False", "Data");
+
+    registerParameter("OverlapRemovalLeptonDef","Special: run overlap removal on : Tight (top default) or Loose (not top default) lepton definitions", "Tight");
+    registerParameter("ApplyTightSFsInLooseTree","Special: in Loose trees, calculate lepton SFs with tight leptons only, and considering they are tight: True or False (default)", "False");
+
     registerParameter("ApplyElectronInJetSubtraction","Subtract electrons close to jets for boosted analysis : True or False(top default)", "False");
     registerParameter("TopPartonHistory","ttbar, tb, False (default)", "False");
 

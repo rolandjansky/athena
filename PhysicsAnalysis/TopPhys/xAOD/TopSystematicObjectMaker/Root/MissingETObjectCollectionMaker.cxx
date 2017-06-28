@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MissingETObjectCollectionMaker.cxx 792986 2017-01-19 11:10:37Z grancagn $
+// $Id: MissingETObjectCollectionMaker.cxx 806051 2017-06-07 00:32:41Z tpelzer $
 #include "TopSystematicObjectMaker/MissingETObjectCollectionMaker.h"
 #include "TopConfiguration/TopConfig.h"
 #include "TopEvent/EventTools.h"
@@ -85,7 +85,7 @@ namespace top{
     const xAOD::MissingETAssociationMap*  xaod_met_map(nullptr);
     top::check( evtStore()->retrieve( xaod_met_map , m_MET_map ) , "Failed to retrieve MET Association Map" );
 
-    if (!m_config->doLooseTreeOnly()) {
+    if (m_config->doTightEvents()) {
       // All the tight systematic events
       const xAOD::SystematicEventContainer* systEvents(nullptr);
       top::check( evtStore()->retrieve(systEvents,m_config->sgKeyTopSystematicEvents()) , "Failed to retrieve TopEvents" );

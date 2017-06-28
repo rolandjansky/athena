@@ -13,7 +13,7 @@
   *   Makes all systematic variations of all objects
   * 
   * $Revision: 790414 $
-  * $Date: 2016-12-19 01:49:08 +0100 (Mon, 19 Dec 2016) $
+  * $Date: 2016-12-19 00:49:08 +0000 (Mon, 19 Dec 2016) $
   * 
   **/ 
 

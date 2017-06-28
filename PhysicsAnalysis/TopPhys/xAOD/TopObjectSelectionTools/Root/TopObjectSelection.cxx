@@ -396,7 +396,7 @@ void TopObjectSelection::applySelectionPreOverlapRemovalTrackJets()
 StatusCode TopObjectSelection::applyOverlapRemoval()
 {
   bool aLooseEvent(true),aTightEvent(false);
-  if (!m_config->doLooseTreeOnly()) {
+  if (m_config->doTightEvents()) {
     top::check( applyOverlapRemoval(aTightEvent,m_config->sgKeyTopSystematicEvents()) , "Failed to apply overlap removal" );
   }
   if (m_config->doLooseEvents()) {

@@ -32,7 +32,7 @@
   /// @author John Morris <john.morris@cern.ch>
   ///
   /// $Revision: 788027 $
-  /// $Date: 2016-12-04 19:30:45 +0100 (Sun, 04 Dec 2016) $
+  /// $Date: 2016-12-04 18:30:45 +0000 (Sun, 04 Dec 2016) $
   ///
   /// @brief Interface to KLFitter
   ///  

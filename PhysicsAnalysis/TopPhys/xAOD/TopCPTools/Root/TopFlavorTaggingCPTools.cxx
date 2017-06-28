@@ -39,7 +39,7 @@ StatusCode FlavorTaggingCPTools::initialize() {
   }
 
   m_tagger = "MV2c10";
-  m_cdi_file = "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-04-24_v1.root";
+  m_cdi_file = "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-06-07_v2.root";
   m_efficiency_maps = "410000;410004;410500;410187;410021";
 
   // working points for calo jets

@@ -103,3 +103,29 @@ atlas_add_executable( top-xaod
                                      ${ROOT_LIBRARIES}
                                      TopAnalysis )
 
+atlas_add_executable( top-tool-ftag
+                      util/top-tool-ftag.cxx
+                      LINK_LIBRARIES xAODCore
+                                     xAODRootAccess
+                                     xAODEgamma
+                                     xAODMuon
+                                     xAODJet
+                                     xAODMissingET
+                                     xAODCutFlow
+                                     AsgTools
+                                     AthContainers
+                                     PATInterfaces
+                                     TopCPTools
+                                     TopEventSelectionTools
+                                     TopConfiguration
+                                     TopCorrections
+                                     TopEvent
+                                     TopParticleLevel
+                                     TopPartons
+                                     TopObjectSelectionTools
+                                     TopSystematicObjectMaker
+                                     TopFakes
+                                     TopDataPreparation
+                                     TopHLUpgrade
+                                     ${ROOT_LIBRARIES}
+                                     TopAnalysis )

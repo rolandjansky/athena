@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventCleaningSelection.h 797163 2017-02-14 16:31:05Z grancagn $
+// $Id: EventCleaningSelection.h 806029 2017-06-06 19:10:49Z tpelzer $
 #ifndef ANALYSISTOP_TOPOBJECTSELECTIONTOOLS_EVENTCLEANINGSELECTION_H
 #define ANALYSISTOP_TOPOBJECTSELECTIONTOOLS_EVENTCLEANINGSELECTION_H
 
@@ -47,7 +47,7 @@ namespace top{
       // Delete Standard constructors
       EventCleaningSelection(const EventCleaningSelection& rhs) = delete;
       EventCleaningSelection(EventCleaningSelection&& rhs) = delete;
-      EventCleaningSelection& operator=(const EventCleaningSelection& rhs) = delete;  
+      EventCleaningSelection& operator=(const EventCleaningSelection& rhs) = delete;
       
     private:
       
@@ -79,10 +79,14 @@ namespace top{
       ToolHandle<Trig::ITrigTauMatchingTool> m_trigMatchTauTool;
       
       ///List of triggers to 'or' together for each event. If any one passes, the event passes
-      std::vector<std::string> m_allTriggers;   
-      std::vector<std::string> m_electronTriggers;
-      std::vector<std::string> m_muonTriggers;
-      std::vector<std::string> m_tauTriggers;
+      std::vector<std::string> m_allTriggers_Tight;
+      std::vector<std::string> m_electronTriggers_Tight;
+      std::vector<std::string> m_muonTriggers_Tight;
+      std::vector<std::string> m_tauTriggers_Tight;
+      std::vector<std::string> m_allTriggers_Loose;
+      std::vector<std::string> m_electronTriggers_Loose;
+      std::vector<std::string> m_muonTriggers_Loose;
+      std::vector<std::string> m_tauTriggers_Loose;
       
       /// Apply a logical OR cut to all supplied triggers
       /// If ANY selection does not request the trigger, this will not be set 
@@ -101,7 +105,7 @@ namespace top{
       bool m_vetoEventsGoodCalo;
       
       /// If ALL selections request PRIVTX, then we can veto events
-      bool m_vetoEventsPriVtx;      
+      bool m_vetoEventsPriVtx;
   };
 }
 #endif

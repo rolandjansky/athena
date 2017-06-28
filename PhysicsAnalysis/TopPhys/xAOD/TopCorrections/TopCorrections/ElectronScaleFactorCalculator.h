@@ -13,7 +13,7 @@
   *   Calculate all electron scale factors and decorate
   * 
   * $Revision: 799556 $
-  * $Date: 2017-03-05 20:46:03 +0100 (Sun, 05 Mar 2017) $
+  * $Date: 2017-03-05 19:46:03 +0000 (Sun, 05 Mar 2017) $
   * 
   **/ 
 

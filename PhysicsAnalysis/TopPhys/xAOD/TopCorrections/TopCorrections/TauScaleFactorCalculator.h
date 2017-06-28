@@ -13,7 +13,7 @@
   *   Calculate all tau scale factors and decorate
   *
   * $Revision: 718402 $
-  * $Date: 2016-01-19 12:58:25 +0100 (Tue, 19 Jan 2016) $
+  * $Date: 2016-01-19 11:58:25 +0000 (Tue, 19 Jan 2016) $
   *
   **/
 

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EgammaObjectCollectionMaker.h 802735 2017-04-11 16:38:01Z tpelzer $
+// $Id: EgammaObjectCollectionMaker.h 806381 2017-06-09 14:58:44Z iconnell $
 #ifndef ANALYSISTOP_TOPSYSTEMATICOBJECTMAKER_EGAMMAOBJECTCOLLECTIONMAKER_H
 #define ANALYSISTOP_TOPSYSTEMATICOBJECTMAKER_EGAMMAOBJECTCOLLECTIONMAKER_H
 
@@ -12,8 +12,8 @@
   * @brief EgammaObjectCollectionMaker
   *   Makes all systematic variations of photons and electrons
   * 
-  * $Revision: 802735 $
-  * $Date: 2017-04-11 18:38:01 +0200 (Tue, 11 Apr 2017) $
+  * $Revision: 806381 $
+  * $Date: 2017-06-09 15:58:44 +0100 (Fri, 09 Jun 2017) $
   * 
   **/ 
 
@@ -96,6 +96,10 @@ namespace top{
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FixedCutLoose;
       
       ToolHandle<CP::IIsolationCorrectionTool> m_isolationCorr;
+
+      // Flag for applying calibration to objects
+      bool calibrateElectrons;
+      bool calibratePhotons;
 
   };
 } // namespace

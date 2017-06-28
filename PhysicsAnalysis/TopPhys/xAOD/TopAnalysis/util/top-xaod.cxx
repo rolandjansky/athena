@@ -672,7 +672,7 @@ int main(int argc, char** argv) {
             if (topConfig->isMC())
                 top::check( topScaleFactors->execute() , "Failed to calculate scale factors" );
 
-            if (!topConfig->doLooseTreeOnly()) {
+            if (topConfig->doTightEvents()) {
               ///-- Loop over all systematics and make a "top::Event" for each --///
               const xAOD::SystematicEventContainer* allSystematics = topEventMaker->systematicEvents( topConfig->sgKeyTopSystematicEvents() );
               for (auto currentSystematic : *allSystematics) {
@@ -827,7 +827,8 @@ int main(int argc, char** argv) {
     }
 
     if (!topConfig->isTruthDxAOD()) {
-      std::cout << "\nEvents saved to output file nominal reconstruction tree: " << eventSavedReco << "\n";
+      if (topConfig->doTightEvents())
+        std::cout << "\nEvents saved to output file nominal reconstruction tree: " << eventSavedReco << "\n";
       if (topConfig->doLooseEvents())
         std::cout << "Events saved to output file nominal Loose reconstruction tree: " << eventSavedRecoLoose << "\n";
     }

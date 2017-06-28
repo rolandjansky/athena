@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BTagScaleFactorCalculator.h 754162 2016-06-10 15:01:10Z tpelzer $
+// $Id: BTagScaleFactorCalculator.h 805660 2017-05-30 12:01:32Z iconnell $
 #ifndef ANALYSISTOP_TOPCORRECTIONS_BTAGSCALEFACTORCALCULATOR_H
 #define ANALYSISTOP_TOPCORRECTIONS_BTAGSCALEFACTORCALCULATOR_H
 
@@ -13,7 +13,7 @@
   *   Calculate all jet scale factors and decorate
   * 
   * $Revision: 
-  * $Date: 2016-06-10 17:01:10 +0200 (Fri, 10 Jun 2016) $
+  * $Date: 2017-05-30 13:01:32 +0100 (Tue, 30 May 2017) $
   * 
   **/ 
 
@@ -51,6 +51,9 @@ namespace top{
       StatusCode execute();
       StatusCode apply( const std::shared_ptr<std::unordered_map<std::size_t,std::string>>& jet_syst_collections,
                         bool use_trackjets = false);
+
+      // Function to print out information about internal tools
+      StatusCode debug();
 
     private:
       

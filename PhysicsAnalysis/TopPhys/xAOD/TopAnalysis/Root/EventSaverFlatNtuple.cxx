@@ -218,7 +218,7 @@ namespace top {
 
         //make a tree for each systematic
         std::string nominalTTreeName("SetMe"),nominalLooseTTreeName("SetMe");
-        if (!m_config->doLooseTreeOnly() && !m_config->HLLHC()) {
+        if (m_config->doTightEvents() && !m_config->HLLHC()) {
           for (auto treeName : *config->systAllTTreeNames()) {
               m_treeManagers.push_back(std::shared_ptr<top::TreeManager>( new top::TreeManager(treeName.second, file , m_config->outputFileSetAutoFlushZero()) ) );
               m_treeManagers.back()->branchFilters() = branchFilters();
@@ -457,14 +457,26 @@ namespace top {
                                                          "weight_tauSF_ELEOLR_UP");
                       systematicTree->makeOutputVariable(m_weight_tauSF_ELEOLR_DOWN,
                                                          "weight_tauSF_ELEOLR_DOWN");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_TRUEELECTRON_ELEOLR_UP,
+                                                         "weight_tauSF_TRUEELECTRON_ELEOLR_UP");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_TRUEELECTRON_ELEOLR_DOWN,
+                                                         "weight_tauSF_TRUEELECTRON_ELEOLR_DOWN");
                       systematicTree->makeOutputVariable(m_weight_tauSF_JETID_UP,
                                                          "weight_tauSF_JETID_UP");
                       systematicTree->makeOutputVariable(m_weight_tauSF_JETID_DOWN,
                                                          "weight_tauSF_JETID_DOWN");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_JETID_HIGHPT_UP,
+                                                         "weight_tauSF_JETID_HIGHPT_UP");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_JETID_HIGHPT_DOWN,
+                                                         "weight_tauSF_JETID_HIGHPT_DOWN");
                       systematicTree->makeOutputVariable(m_weight_tauSF_RECO_UP,
                                                          "weight_tauSF_RECO_UP");
                       systematicTree->makeOutputVariable(m_weight_tauSF_RECO_DOWN,
                                                          "weight_tauSF_RECO_DOWN");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_RECO_HIGHPT_UP,
+                                                         "weight_tauSF_RECO_HIGHPT_UP");
+                      systematicTree->makeOutputVariable(m_weight_tauSF_RECO_HIGHPT_DOWN,
+                                                         "weight_tauSF_RECO_HIGHPT_DOWN");
                     }
 
                     if (m_config->usePhotons()) {
@@ -822,15 +834,33 @@ namespace top {
                 m_selectionDecisions[index] = 0;
                 systematicTree->makeOutputVariable(m_selectionDecisions[index], branchName);
                 // Add all triggers to a map so we don't get any duplicates
-                for (auto& trigger_name : m_config->allTriggers( branchName ) ) {
+                for (auto& trigger_name : m_config->allTriggers_Tight( branchName ) ) {
                     m_triggerDecisions [trigger_name] = 0;
                     if (!m_config->isMC() && m_config->doFakesMMWeights())
                         m_triggerPrescales [trigger_name] = -99999.;//initialised to dummmy value, in case it can't be retrieved by the tool
                 }
-                for (auto& trigger_name : m_config->electronTriggers( branchName ) )
+                for (auto& trigger_name : m_config->allTriggers_Loose( branchName ) ) {
+                  // let's make sure this isn't done twice
+                  if (m_triggerDecisions.find(trigger_name) != m_triggerDecisions.end()
+                    && m_triggerPrescales.find(trigger_name) != m_triggerPrescales.end()) continue;
+                    m_triggerDecisions [trigger_name] = 0;
+                    if (!m_config->isMC() && m_config->doFakesMMWeights())
+                        m_triggerPrescales [trigger_name] = -99999.;//initialised to dummmy value, in case it can't be retrieved by the tool
+                }
+                for (auto& trigger_name : m_config->electronTriggers_Tight( branchName ) )
                     m_el_trigMatched [trigger_name] = std::vector<char>();
-                for (auto& trigger_name : m_config->muonTriggers( branchName ) )
+                for (auto& trigger_name : m_config->electronTriggers_Loose( branchName ) ) {
+                    // let's make sure this isn't done twice
+                    if (m_el_trigMatched.find(trigger_name) != m_el_trigMatched.end()) continue;
+                    m_el_trigMatched [trigger_name] = std::vector<char>();
+                }
+                for (auto& trigger_name : m_config->muonTriggers_Tight( branchName ) )
                     m_mu_trigMatched [trigger_name] = std::vector<char>();
+                for (auto& trigger_name : m_config->muonTriggers_Loose( branchName ) ) {
+                    // let's make sure this isn't done twice
+                    if (m_mu_trigMatched.find(trigger_name) != m_mu_trigMatched.end()) continue;
+                    m_mu_trigMatched [trigger_name] = std::vector<char>();
+                }
                 ++index;
             }
 
@@ -1206,12 +1236,18 @@ namespace top {
                   // Tau-electron overlap removal
                   m_weight_tauSF_ELEOLR_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_ELEOLR_TOTAL_UP);
                   m_weight_tauSF_ELEOLR_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_ELEOLR_TOTAL_DOWN);
+                  m_weight_tauSF_TRUEELECTRON_ELEOLR_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_TRUEELECTRON_ELEOLR_TOTAL_UP);
+                  m_weight_tauSF_TRUEELECTRON_ELEOLR_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_TRUEELECTRON_ELEOLR_TOTAL_DOWN);
                   // Tau Jet IDWP
                   m_weight_tauSF_JETID_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_JETID_TOTAL_UP);
                   m_weight_tauSF_JETID_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_JETID_TOTAL_DOWN);
+                  m_weight_tauSF_JETID_HIGHPT_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_JETID_HIGHPT_UP);
+                  m_weight_tauSF_JETID_HIGHPT_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_JETID_HIGHPT_DOWN);
                   // Tau reconstruction
                   m_weight_tauSF_RECO_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_RECO_TOTAL_UP);
                   m_weight_tauSF_RECO_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_RECO_TOTAL_DOWN);
+                  m_weight_tauSF_RECO_HIGHPT_UP = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_RECO_HIGHPT_UP);
+                  m_weight_tauSF_RECO_HIGHPT_DOWN = m_sfRetriever->tauSF(event, top::topSFSyst::TAU_SF_RECO_HIGHPT_DOWN);
                 }
 
                 if (m_config->usePhotons()) {
