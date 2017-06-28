@@ -18,6 +18,15 @@
 
 using namespace std;
 
+/** 
+    A utility to convert xml files from TMVA into root TTrees for this package.
+
+    Usage: convertXmlToRootTree <inFile(xml)> [outFile(root)]
+
+    If outFile is not given, then it is named based on the input name
+
+    @author J Griffith
+ */
 
 struct XmlVariableInfo {
   TString expression;
@@ -42,25 +51,25 @@ parseVariables(TXMLEngine *xml, void* node, const TString & nodeName)
        info_node = xml->GetNext(info_node))
   {
     XMLAttrPointer_t attr = xml->GetFirstAttr(info_node);
-    XmlVariableInfo o;
+    XmlVariableInfo varInfo;
     // loop over the attributes of each child
     while (attr != 0)
     {
       TString name = xml->GetAttrName(attr);
       if (name == "Expression")
-        o.expression = xml->GetAttrValue(attr);
+        varInfo.expression = xml->GetAttrValue(attr);
       else if (name == "Label")
-        o.label = xml->GetAttrValue(attr);
+        varInfo.label = xml->GetAttrValue(attr);
       else if (name == "Type")
-        o.varType = xml->GetAttrValue(attr);
-      else if (name == "Min") o.min=TString(xml->GetAttrValue(attr)).Atof();
-      else if (name == "Max") o.max=TString(xml->GetAttrValue(attr)).Atof();
+        varInfo.varType = xml->GetAttrValue(attr);
+      else if (name == "Min") varInfo.min=TString(xml->GetAttrValue(attr)).Atof();
+      else if (name == "Max") varInfo.max=TString(xml->GetAttrValue(attr)).Atof();
       
       attr = xml->GetNextAttr(attr);
     }
     //          ATH_MSG_DEBUG("Expression: " << expression << " Label: " << label << " varType: " << varType);
-    o.nodeName = nodeName;
-    result.push_back(o);
+    varInfo.nodeName = nodeName;
+    result.push_back(varInfo);
   }
   return result;
 }
@@ -101,8 +110,9 @@ parseXml(const TString & xml_filename)
         }
       }
     }
-    else if (nodeName == "Classes")
+    else if (nodeName == "Classes") {
       NClass = TString(xml.GetAttr(node,"NClass")).Atoi();
+    }
     node = xml.GetNext(node);
   }
   xml.FreeDoc(xmldoc);
@@ -214,7 +224,7 @@ int main(int argc, char** argv){
   f->Close();
   delete f;
   delete bdt;
-  bdt = 0;
+  bdt = nullptr;
 
 
   cout << endl << "Reading BDT from root file and testing " << outFileName << endl;
