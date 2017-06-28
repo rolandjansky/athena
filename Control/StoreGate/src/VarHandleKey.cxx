@@ -20,6 +20,8 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
+static const char* storeSeparator = "+";
+
 namespace SG {
 
 
@@ -30,7 +32,7 @@ namespace SG {
  * @param a Mode: read/write/update.
  *
  * The provided key may actually start with the name of the store,
- * separated by a colon:  "MyStore:Obj".  If no colon is present,
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present,
  * the store named by @c storeName is used.  However, if the key name
  * starts with a slash, it is interpreted as a hierarchical key name,
  * not an empty store name.
@@ -54,7 +56,7 @@ VarHandleKey::VarHandleKey (CLID clid,
  * @param sgkey The StoreGate key for the object.
  * 
  * The provided key may actually start with the name of the store,
- * separated by a colon:  "MyStore:Obj".  If no colon is present
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present
  * the store is not changed.  A key name that starts with a slash
  * is interpreted as a hierarchical key name, not an empty store name.
  *
@@ -73,7 +75,7 @@ VarHandleKey& VarHandleKey::operator= (const std::string& sgkey)
  * @param sgkey The StoreGate key for the object.
  * 
  * The provided key may actually start with the name of the store,
- * separated by a colon:  "MyStore:Obj".  If no colon is present
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present
  * the store is not changed.  A key name that starts with a slash
  * is interpreted as a hierarchical key name, not an empty store name.
  *
@@ -169,7 +171,7 @@ void VarHandleKey::updateKey(const std::string& /*key*/) const
  * @param sgkey The StoreGate key for the referenced object.
  *
  * The provided key may actually start with the name of the store,
- * separated by a colon:  "MyStore:Obj".  If no colon is present
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present
  * the store named by @c storeName is used.  A key name that starts
  * with a slash is interpreted as a hierarchical key name,
  * not an empty store name.
@@ -200,7 +202,7 @@ void VarHandleKey::parseKey (const std::string& key,
   }
 
   // StoreName separator is ":"
-  sp = key.find(":");
+  sp = key.find(storeSeparator);
   if(sp == std::string::npos) {
     m_sgKey = key;
   } else {
@@ -247,7 +249,7 @@ void VarHandleKey::parseKey (const std::string& key,
   if (m_sgKey.length() == 0) {
     Gaudi::DataHandle::updateKey("");
   } else {
-    Gaudi::DataHandle::updateKey(sn + ":" + m_sgKey);
+    Gaudi::DataHandle::updateKey(sn + storeSeparator + m_sgKey);
   }
 
 

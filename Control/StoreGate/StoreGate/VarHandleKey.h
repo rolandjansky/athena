@@ -45,7 +45,7 @@ namespace SG {
  * A reference to the store is saved in this class.
  *
  * The string for the key property can optionally be prefixed with the store
- * name, separated by a colon: "MyStore:Obj".  (However, if the key name
+ * name, separated by a "+": "MyStore+Obj".  (However, if the key name
  * starts with a slash, it is interpreted as a hierarchical key name,
  * not an empty store name.)
  */
@@ -61,7 +61,7 @@ public:
    * @param storeName Name to use for the store, if it's not encoded in sgkey.
    *
    * The provided key may actually start with the name of the store,
-   * separated by a colon:  "MyStore:Obj".  If no colon is present
+   * separated by a "+":  "MyStore:Obj".  If no "+" is present
    * the store named by @c storeName is used.  However, if the key name
    * starts with a slash, it is interpreted as a hierarchical key name,
    * not an empty store name.
@@ -80,7 +80,7 @@ public:
    * @param sgkey The StoreGate key for the object.
    * 
    * The provided key may actually start with the name of the store,
-   * separated by a colon:  "MyStore:Obj".  If no colon is present,
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present,
    * the store is not changed.  A key name that starts with a slash
    * is interpreted as a hierarchical key name, not an empty store name.
    *
@@ -95,7 +95,7 @@ public:
    * @param sgkey The StoreGate key for the object.
    * 
    * The provided key may actually start with the name of the store,
-   * separated by a colon:  "MyStore:Obj".  If no colon is present
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present
    * the store is not changed.  A key name that starts with a slash
    * is interpreted as a hierarchical key name, not an empty store name.
    *
@@ -143,7 +143,7 @@ private:
    * @param sgkey The StoreGate key for the referenced object.
    *
    * The provided key may actually start with the name of the store,
-   * separated by a colon:  "MyStore:Obj".  If no colon is present,
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present,
    * the store named by @c storeName is used.  A key name that starts
    * with a slash is interpreted as a hierarchical key name,
    * not an empty store name.

@@ -85,30 +85,30 @@ int main()
   ISvcLocator* pDum;
   Athena_test::initGaudi(pDum); //need MessageSvc
 
-  test("foo",true,"StoreGateSvc:foo");
+  test("foo",true,"StoreGateSvc+foo");
   test("/foo",false,"");
-  test("foo","StoreGateSvc",true,"StoreGateSvc:foo");
-  test("foo","StoreGateSvc/StoreGateSvc",true,"StoreGateSvc:foo");
-  test("StoreGateSvc:foo", true, "StoreGateSvc:foo");
-  test("StoreGateSvc:foo", "StoreGateSvc",true, "StoreGateSvc:foo");
+  test("foo","StoreGateSvc",true,"StoreGateSvc+foo");
+  test("foo","StoreGateSvc/StoreGateSvc",true,"StoreGateSvc+foo");
+  test("StoreGateSvc+foo", true, "StoreGateSvc+foo");
+  test("StoreGateSvc+foo", "StoreGateSvc",true, "StoreGateSvc+foo");
 
   // compound Condition store
-  test("/foo/bar","ConditionStore",true, "ConditionStore:/foo/bar");
-  test("/foo/bar","StoreGateSvc/ConditionStore",true,"ConditionStore:/foo/bar");
-  test("foo/bar/aaa", "ConditionStore", true, "ConditionStore:foo/bar/aaa");
-  test("foo/bar/aaa", "StoreGateSvc/ConditionStore", true, "ConditionStore:foo/bar/aaa");
-  test("ConditionStore:foo/bar/aaa", "ConditionStore", true, "ConditionStore:foo/bar/aaa");
+  test("/foo/bar","ConditionStore",true, "ConditionStore+/foo/bar");
+  test("/foo/bar","StoreGateSvc/ConditionStore",true,"ConditionStore+/foo/bar");
+  test("foo/bar/aaa", "ConditionStore", true, "ConditionStore+foo/bar/aaa");
+  test("foo/bar/aaa", "StoreGateSvc/ConditionStore", true, "ConditionStore+foo/bar/aaa");
+  test("ConditionStore+foo/bar/aaa", "ConditionStore", true, "ConditionStore+foo/bar/aaa");
 
   // compound non-Condition store : all fail
   test("/foo/bar",false,"");  
-  test("StoreGateSvc:foo/bar",false,"");
+  test("StoreGateSvc+foo/bar",false,"");
   test("foo/bar",false,"");
   test("/foo/bar","OtherStore",false,"");
-  test("OtherStore:foo/bar","OtherStore",false,"");
+  test("OtherStore+foo/bar","OtherStore",false,"");
   test("foo/bar/aaa", "OtherStore", false,"");
         
   // blank keys
-  test("StoreGateSvc:",true,"");
+  test("StoreGateSvc+",true,"");
   test("", "StoreGateSvc",true,"");
   test("/", "StoreGateSvc",false,"");
   test("",true,"");
@@ -116,11 +116,11 @@ int main()
   test("", "ConditionStore",true,"");
   test("/", "ConditionStore",false,"");
   test("", "OtherStore",true,"");
-  test("OtherStore:", "OtherStore",true,"");
-  test("OtherStore:", "StoreGateSvc/OtherStore",true,"");
+  test("OtherStore+", "OtherStore",true,"");
+  test("OtherStore+", "StoreGateSvc/OtherStore",true,"");
 
   // other errors
-  test("ConditonStore:foo/",false,"");
+  test("ConditonStore+foo/",false,"");
   test("foo/","ConditonStore",false,"");
   test("foo/bar/","ConditionStore",false,"");
 

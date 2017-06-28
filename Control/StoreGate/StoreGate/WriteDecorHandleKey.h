@@ -89,7 +89,7 @@ public:
    * @param storeName Name to use for the store, if it's not encoded in sgkey.
    *
    * The provided key may actually start with the name of the store,
-   * separated by a slash:  "MyStore/Obj".  If no slash is present
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present
    * the store named by @c storeName is used.
    */
   WriteDecorHandleKey (const std::string& key = "",
@@ -101,7 +101,7 @@ public:
    * @param sgkey The StoreGate key for the object.
    * 
    * The provided key may actually start with the name of the store,
-   * separated by a slash:  "MyStore/Obj".  If no slash is present,
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present,
    * the store is not changed.
    */
   WriteDecorHandleKey& operator= (const std::string& sgkey);
@@ -112,7 +112,7 @@ public:
    * @param sgkey The StoreGate key for the object.
    * 
    * The provided key may actually start with the name of the store,
-   * separated by a slash:  "MyStore/Obj".  If no slash is present
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present
    * the store is not changed.  A key name that starts with a slash
    * is interpreted as a hierarchical key name, not an empty store name.
    *
