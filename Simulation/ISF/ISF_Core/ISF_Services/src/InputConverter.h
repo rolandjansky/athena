@@ -41,6 +41,7 @@ namespace ISF {
   class IGenParticleFilter;
 }
 
+class G4ParticleDefinition;
 class G4PrimaryParticle;
 class G4VSolid;
 
@@ -87,11 +88,13 @@ namespace ISF {
 
   private:
 
-    G4PrimaryParticle* getPrimaryParticle(const HepMC::GenParticle& gp) const;
+    const G4ParticleDefinition* getG4ParticleDefinition(int pdgcode) const;
 
-    G4PrimaryParticle* getPrimaryParticle(const ISF::ISFParticle& isp) const;
+    G4PrimaryParticle* getG4PrimaryParticle(const HepMC::GenParticle& gp) const;
 
-    void addPrimaryVertex(G4Event* g4evt, const ISF::ISFParticle& isp) const;
+    G4PrimaryParticle* getG4PrimaryParticle(const ISF::ISFParticle& isp) const;
+
+    void addG4PrimaryVertex(G4Event* g4evt, const ISF::ISFParticle& isp) const;
 
     /** Tests whether the given ISFParticle is within the Geant4 world volume */
     bool isInsideG4WorldVolume(const ISF::ISFParticle& isp) const;
