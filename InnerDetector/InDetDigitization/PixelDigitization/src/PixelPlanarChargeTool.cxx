@@ -139,7 +139,7 @@ StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharg
 
   // -1 ParticleType means we are unable to run Bichel simulation for this case
   int ParticleType = -1;
-  if(m_doBichsel && !Module.isDBM()){
+  if(m_doBichsel && !(Module.isDBM())){
 
     ParticleType = delta_hit ? (m_doDeltaRay ? 4 : -1) : m_BichselSimTool->trfPDG(genPart->pdg_id()); 
 
@@ -219,8 +219,8 @@ StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharg
   // *** Finsih Bichsel *** //
 
   // *** Now diffuse charges to surface *** //
-  for(unsigned int j = 0; j < trfHitRecord.size(); j++){
-    std::pair<double,double> iHitRecord = trfHitRecord[j];
+  for(unsigned int i = 0; i < trfHitRecord.size(); i++){
+    std::pair<double,double> iHitRecord = trfHitRecord[i];
 
     // double eta_i = eta_0 +  stepEta * (j + 0.5);
     // double phi_i = phi_0 +  stepPhi * (j + 0.5);
@@ -256,8 +256,7 @@ StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharg
       double energy_per_step = 1.0*iHitRecord.second/1.E+6/ncharges;
 
       // Slim Edge for IBL planar sensors:
-      // TODO: Access these from somewhere          
-      if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) {
+      if ( !(Module.isDBM()) && p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) {
         if(std::abs(eta_drifted) > 20.440)energy_per_step=0.;
         if(std::abs(eta_drifted)< 20.440 && std::abs(eta_drifted)> 20.200){
           if(eta_drifted>0){
