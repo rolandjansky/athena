@@ -59,11 +59,11 @@ Root::TElectronLikelihoodTool::TElectronLikelihoodTool(const char* name) :
   m_cutPositionEoverPAtHighET(-9),
   m_resultPosition_LH(-9)
 {
-  for(unsigned int varIndex = 0; varIndex < fnVariables; varIndex++){
+  for(unsigned int varIndex = 0; varIndex < s_fnVariables; varIndex++){
     for(unsigned int s_or_b = 0; s_or_b < 2; s_or_b++){
       for (unsigned int ip = 0; ip < IP_BINS; ip++){
-	for(unsigned int et = 0; et < fnEtBinsHist; et++){
-	  for(unsigned int eta = 0; eta < fnEtaBins; eta++){
+	for(unsigned int et = 0; et < s_fnEtBinsHist; et++){
+	  for(unsigned int eta = 0; eta < s_fnEtaBins; eta++){
 	    fPDFbins[s_or_b][ip][et][eta][varIndex] = 0;
 	  }
 	}
@@ -80,11 +80,11 @@ Root::TElectronLikelihoodTool::TElectronLikelihoodTool(const char* name) :
 //=============================================================================
 Root::TElectronLikelihoodTool::~TElectronLikelihoodTool()
 {
-  for(unsigned int varIndex = 0; varIndex < fnVariables; varIndex++){
+  for(unsigned int varIndex = 0; varIndex < s_fnVariables; varIndex++){
     for(unsigned int s_or_b = 0; s_or_b < 2; s_or_b++){
       for (unsigned int ip = 0; ip < IP_BINS; ip++){
-	for(unsigned int et = 0; et < fnEtBinsHist; et++){
-	  for(unsigned int eta = 0; eta < fnEtaBins; eta++){
+	for(unsigned int et = 0; et < s_fnEtBinsHist; et++){
+	  for(unsigned int eta = 0; eta < s_fnEtaBins; eta++){
 	    if (fPDFbins[s_or_b][ip][et][eta][varIndex]){
 	      delete fPDFbins[s_or_b][ip][et][eta][varIndex];
 	      fPDFbins[s_or_b][ip][et][eta][varIndex] = 0;
@@ -110,6 +110,66 @@ int Root::TElectronLikelihoodTool::initialize()
       ATH_MSG_WARNING("You need to specify the input PDF file name before you call initialize() with setPDFFileName('your/file/name.root') ");
       sc = 0;
     }
+  
+  unsigned int ibin_combinedLH ;
+  if(useHighETLHBinning) ibin_combinedLH =  s_fnDiscEtBins*s_fnEtaBins ;
+  else  if(useOneExtraHighETLHBin) ibin_combinedLH =  s_fnDiscEtBinsOneExtra*s_fnEtaBins ;
+  else ibin_combinedLH =  s_fnDiscEtBinsOrig*s_fnEtaBins ;
+  unsigned int ibin_combinedOther =  s_fnDiscEtBinsOrig*s_fnEtaBins ;
+
+
+  if(ibin_combinedLH > CutLikelihood.size()){
+    ATH_MSG_WARNING(" Something wrong wiht the config file we expect diffent number of bins  ");
+    sc = 0;
+  } 
+
+  if( DiscHardCutForPileupTransform.size()) {
+    if(ibin_combinedLH > DiscHardCutForPileupTransform.size()){
+      ATH_MSG_WARNING(" Something wrong wiht the config file we expect diffent number of bins  ");
+      sc = 0;
+    } 
+  }
+
+
+  if(DiscHardCutSlopeForPileupTransform.size() ) {
+    if(ibin_combinedLH > DiscHardCutSlopeForPileupTransform.size()){
+      ATH_MSG_WARNING(" Something wrong wiht the config file we expect diffent number of bins  ");
+      sc = 0;
+    } 
+  }
+  
+  if(DiscLooseForPileupTransform.size() == 0) {
+    if(ibin_combinedLH > DiscLooseForPileupTransform.size()){
+      ATH_MSG_WARNING(" Something wrong wiht the config file we expect diffent number of bins  ");
+      sc = 0;
+    } 
+  }
+
+ // d0 cut
+  if (CutA0.size()){
+    if (ibin_combinedOther >CutA0.size()){
+     ATH_MSG_WARNING(" Something wrong wiht the config file we expect diffent number of bins  ");
+    sc = 0;
+    }
+  }
+
+  // deltaEta cut
+  if (CutDeltaEta.size()){
+     if (ibin_combinedOther >CutDeltaEta.size()){
+       ATH_MSG_WARNING(" Something wrong wiht the config file we expect diffent number of bins  ");
+       sc = 0;
+     }
+  }
+  
+  // deltaPhiRes cut
+  if (CutDeltaPhiRes.size()){
+    if (ibin_combinedOther >CutDeltaPhiRes.size() ){
+       ATH_MSG_WARNING(" Something wrong wiht the config file we expect diffent number of bins  ");
+       sc = 0;
+    }
+  }
+
+
   if ( sc == 0 )
     {
       ATH_MSG_ERROR("Could NOT initialize! Please fix the errors mentioned above...");
@@ -201,7 +261,7 @@ int Root::TElectronLikelihoodTool::initialize()
     }
 
   //Load the histograms
-  for(unsigned int varIndex = 0; varIndex < fnVariables; varIndex++){
+  for(unsigned int varIndex = 0; varIndex < s_fnVariables; varIndex++){
     const std::string& vstr = fVariables[varIndex];
     // Skip the loading of PDFs for variables we don't care about for this operating point.
     // If the string is empty (which is true in the default 2012 case), load all of them.
@@ -249,8 +309,8 @@ int Root::TElectronLikelihoodTool::initialize()
 int Root::TElectronLikelihoodTool::LoadVarHistograms(std::string vstr,unsigned int varIndex){
   for(unsigned int s_or_b = 0; s_or_b < 2; s_or_b++){
     for (unsigned int ip = 0; ip < IP_BINS; ip++){
-      for(unsigned int et = 0; et < fnEtBinsHist; et++){
-        for(unsigned int eta = 0; eta < fnEtaBins; eta++){
+      for(unsigned int et = 0; et < s_fnEtBinsHist; et++){
+        for(unsigned int eta = 0; eta < s_fnEtaBins; eta++){
 	  
           std::string sig_bkg = (s_or_b==0) ? "sig" : "bkg" ;	  
           // Because eta bins in the root file don't match up exactly with cut menu
@@ -289,7 +349,7 @@ int Root::TElectronLikelihoodTool::LoadVarHistograms(std::string vstr,unsigned i
           // For backwards compatibility:
           // If we are not using the high ET LH binning, we only need to load PDFs 
           // up to a certain ET value (40 GeV)
-          if(!useHighETLHBinning && et > fnEtBinsHistOrig-1){
+          if(!useHighETLHBinning && et > s_fnEtBinsHistOrig-1){
             continue;
           }
 
@@ -370,15 +430,22 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
     passKine = false;
   }
   
-  unsigned int etbin = getLikelihoodEtDiscBin(vars_struct.eT);
+  unsigned int etbinLH = getLikelihoodEtDiscBin(vars_struct.eT,true);
+  unsigned int etbinOther = getLikelihoodEtDiscBin(vars_struct.eT,false);
   unsigned int etabin = getLikelihoodEtaBin(vars_struct.eta);
   //unsigned int ipbin  = 0;
 
   // sanity
-  if (etbin  >= fnDiscEtBins) {
+  if (etbinLH  >= s_fnDiscEtBins) {
     ATH_MSG_WARNING( "Cannot evaluate likelihood for Et " << vars_struct.eT<< ". Returning false..");
     passKine = false;
   }
+ // sanity
+  if (etbinOther  >= s_fnDiscEtBinsOrig) {
+    ATH_MSG_WARNING( "Cannot evaluate likelihood for Et " << vars_struct.eT<< ". Returning false..");
+    passKine = false;
+  }
+
 
   // Return if the kinematic requirements are not fulfilled
   m_accept.setCutResult( m_cutPosition_kinematic, passKine );
@@ -415,11 +482,12 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   }
   
   double cutDiscriminant;
-  unsigned int ibin_combined = etbin*10+etabin; // Must change if number of eta bins changes!. Also starts from 7-10 GeV bin.
+  unsigned int ibin_combinedLH = etbinLH*10+etabin; // Must change if number of eta bins changes!. Also starts from 7-10 GeV bin.
+  unsigned int ibin_combinedOther = etbinOther*10+etabin; // Must change if number of eta bins changes!. Also starts from 7-10 GeV bin.
 
   if(CutLikelihood.size()){
     // To protect against a binning mismatch, which should never happen
-    if(ibin_combined > CutLikelihood.size()){
+    if(ibin_combinedLH > CutLikelihood.size()){
       ATH_MSG_ERROR("Somehow the desired bin is outside of the range specified by the conf file! This should never happen!");
     }
 
@@ -429,10 +497,10 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
         cutDiscriminant += vars_struct.ip*InterpolateCuts(CutLikelihoodPileupCorrection,CutLikelihoodPileupCorrection4GeV,vars_struct.eT,vars_struct.eta);
     } else {
       if (vars_struct.eT > 7000. || !CutLikelihood4GeV.size()){
-        cutDiscriminant = CutLikelihood[ibin_combined];
+        cutDiscriminant = CutLikelihood[ibin_combinedLH];
         // If doPileupTransform, then correct the discriminant itself instead of the cut value
         if (!doPileupTransform && CutLikelihoodPileupCorrection.size()) 
-          cutDiscriminant += vars_struct.ip*CutLikelihoodPileupCorrection[ibin_combined];
+          cutDiscriminant += vars_struct.ip*CutLikelihoodPileupCorrection[ibin_combinedLH];
       }
       else {
         cutDiscriminant = CutLikelihood4GeV[etabin];
@@ -452,7 +520,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
 
   // d0 cut
   if (CutA0.size()){
-    if (fabs(vars_struct.d0) > CutA0[ibin_combined]){
+    if (fabs(vars_struct.d0) > CutA0[ibin_combinedOther]){
       ATH_MSG_DEBUG("Likelihood macro: D0 Failed.");
       passTrackA0 = false;
     }
@@ -460,7 +528,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
 
   // deltaEta cut
   if (CutDeltaEta.size()){
-    if ( fabs(vars_struct.deltaEta) > CutDeltaEta[ibin_combined]){
+    if ( fabs(vars_struct.deltaEta) > CutDeltaEta[ibin_combinedOther]){
       ATH_MSG_DEBUG("Likelihood macro: deltaEta Failed.");
       passDeltaEta = false;
     }
@@ -468,7 +536,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   
   // deltaPhiRes cut
   if (CutDeltaPhiRes.size()){
-    if ( fabs(vars_struct.deltaphires) > CutDeltaPhiRes[ibin_combined]){
+    if ( fabs(vars_struct.deltaphires) > CutDeltaPhiRes[ibin_combinedOther]){
       ATH_MSG_DEBUG("Likelihood macro: deltaphires Failed.");
       passDeltaPhiRes = false;
     }
@@ -572,7 +640,7 @@ const Root::TResult& Root::TElectronLikelihoodTool::calculate(LikeEnum::LHCalcVa
 double Root::TElectronLikelihoodTool::EvaluateLikelihood(std::vector<float> varVector,double et,double eta,double ip) const
 {
   std::vector<double> vec;
-  for(unsigned int var = 0; var < fnVariables; var++){
+  for(unsigned int var = 0; var < s_fnVariables; var++){
     vec.push_back(varVector[var]);
   }
   return EvaluateLikelihood(vec,et,eta,ip);//,mask);  
@@ -591,16 +659,16 @@ double Root::TElectronLikelihoodTool::EvaluateLikelihood(std::vector<double> var
   ATH_MSG_DEBUG("et: " << et << " eta: " << eta 
 			     << " etbin: " << etbin << " etabin: " << etabin);
   
-  if (etbin >= fnEtBinsHist) {
+  if (etbin >= s_fnEtBinsHist) {
     ATH_MSG_WARNING("skipping etbin " << etbin << ", et " << et);
     return -999.;
   }
-  if (etabin >= fnEtaBins) {
+  if (etabin >= s_fnEtaBins) {
     ATH_MSG_WARNING("skipping etabin " << etabin << ", eta " << eta);
     return -999.;
   }
   
-  if (varVector.size() != fnVariables) 
+  if (varVector.size() != s_fnVariables) 
     ATH_MSG_WARNING("Error! Variable vector size mismatch! Check your vector!" );
   
   double SigmaS = 1.;
@@ -611,7 +679,7 @@ double Root::TElectronLikelihoodTool::EvaluateLikelihood(std::vector<double> var
   const std::string el_f3_string = "el_f3";
   const std::string el_TRT_PID_string = "el_TRT_PID";
 
-  for(unsigned int var = 0; var < fnVariables; var++){
+  for(unsigned int var = 0; var < s_fnVariables; var++){
     
     const std::string& varstr = fVariables[var];
     
@@ -723,8 +791,8 @@ double Root::TElectronLikelihoodTool::TransformLikelihoodOutput(double ps,double
     } else {
       // default situation, in the case where 4-7 GeV bin is not defined
       if (et > 7000. || !DiscHardCutForPileupTransform4GeV.size()){
-        unsigned int etfinebin = getLikelihoodEtDiscBin(et);
-        unsigned int ibin_combined = etfinebin*10+etabin;
+        unsigned int etfinebinLH = getLikelihoodEtDiscBin(et,true);
+        unsigned int ibin_combined = etfinebinLH*10+etabin;
         disc_hard_cut_ref       = DiscHardCutForPileupTransform[ibin_combined];
         disc_hard_cut_ref_slope = DiscHardCutSlopeForPileupTransform[ibin_combined];
         if (doCentralityTransform) disc_hard_cut_ref_quad  = DiscHardCutQuadForPileupTransform[ibin_combined];
@@ -808,7 +876,7 @@ unsigned int Root::TElectronLikelihoodTool::getLikelihoodEtHistBin(double eT) co
   const double GeV = 1000;
 
   if(useHighETLHBinning){
-    const unsigned int nEtBins = fnEtBinsHist;
+    const unsigned int nEtBins = s_fnEtBinsHist;
     const double eTBins[nEtBins] = {7*GeV,10*GeV,15*GeV,20*GeV,30*GeV,40*GeV,100*GeV,6000*GeV};
 
     for(unsigned int eTBin = 0; eTBin < nEtBins; ++eTBin){
@@ -819,7 +887,7 @@ unsigned int Root::TElectronLikelihoodTool::getLikelihoodEtHistBin(double eT) co
     return nEtBins-1; // Return the last bin if > the last bin.
   }
   else{
-    const unsigned int nEtBins = fnEtBinsHistOrig;
+    const unsigned int nEtBins = s_fnEtBinsHistOrig;
     const double eTBins[nEtBins] = {7*GeV,10*GeV,15*GeV,20*GeV,30*GeV,40*GeV,50*GeV};
 
     for(unsigned int eTBin = 0; eTBin < nEtBins; ++eTBin){
@@ -833,17 +901,17 @@ unsigned int Root::TElectronLikelihoodTool::getLikelihoodEtHistBin(double eT) co
 
 //---------------------------------------------------------------------------------------
 // Gets the Et bin [0-10] given the et (MeV)
-unsigned int Root::TElectronLikelihoodTool::getLikelihoodEtDiscBin(double eT) const{
+unsigned int Root::TElectronLikelihoodTool::getLikelihoodEtDiscBin(double eT, const bool isLHbinning) const{
   const double GeV = 1000;
 
-  if(useHighETLHBinning){
-    const unsigned int nEtBins = fnDiscEtBins;
+  if(useHighETLHBinning and isLHbinning){
+    const unsigned int nEtBins = s_fnDiscEtBins;
     const double eTBins[nEtBins] = {10*GeV,15*GeV,20*GeV,25*GeV,30*GeV,35*GeV,40*GeV,45*GeV
-                                   ,100*GeV,150*GeV,200*GeV,250*GeV,300*GeV,350*GeV,400*GeV
-                                   ,450*GeV,500*GeV,600*GeV,700*GeV,800*GeV,900*GeV,1000*GeV
-                                   ,1200*GeV,1400*GeV,1600*GeV,1800*GeV,2000*GeV,2200*GeV
-                                   ,2400*GeV,2600*GeV,2800*GeV,3000*GeV,6000*GeV};
-
+				    ,100*GeV,150*GeV,200*GeV,250*GeV,300*GeV,350*GeV,400*GeV
+				    ,450*GeV,500*GeV,600*GeV,700*GeV,800*GeV,900*GeV,1000*GeV
+				    ,1200*GeV,1400*GeV,1600*GeV,1800*GeV,2000*GeV,2200*GeV
+				    ,2400*GeV,2600*GeV,2800*GeV,3000*GeV,6000*GeV};
+    
     for(unsigned int eTBin = 0; eTBin < nEtBins; ++eTBin){
       if(eT < eTBins[eTBin])
         return eTBin;
@@ -851,8 +919,8 @@ unsigned int Root::TElectronLikelihoodTool::getLikelihoodEtDiscBin(double eT) co
     
     return nEtBins-1; // Return the last bin if > the last bin.
   }
-  else if(useOneExtraHighETLHBin){
-    const unsigned int nEtBins = fnDiscEtBinsOneExtra;
+  else if(useOneExtraHighETLHBin and isLHbinning){
+    const unsigned int nEtBins = s_fnDiscEtBinsOneExtra;
     const double eTBins[nEtBins] = {10*GeV,15*GeV,20*GeV,25*GeV,30*GeV,35*GeV,40*GeV,45*GeV,HighETBinThreshold*GeV,6000*GeV};
 
     for(unsigned int eTBin = 0; eTBin < nEtBins; ++eTBin){
@@ -864,7 +932,7 @@ unsigned int Root::TElectronLikelihoodTool::getLikelihoodEtDiscBin(double eT) co
 
   }
   else{
-    const unsigned int nEtBins = fnDiscEtBinsOrig;
+    const unsigned int nEtBins = s_fnDiscEtBinsOrig;
     const double eTBins[nEtBins] = {10*GeV,15*GeV,20*GeV,25*GeV,30*GeV,35*GeV,40*GeV,45*GeV,50*GeV};
 
     for(unsigned int eTBin = 0; eTBin < nEtBins; ++eTBin){
@@ -882,7 +950,7 @@ unsigned int Root::TElectronLikelihoodTool::getLikelihoodEtDiscBin(double eT) co
 // Gets the bin name. Given the HISTOGRAM binning (fnEtBinsHist)
 void Root::TElectronLikelihoodTool::getBinName(char* buffer, int etbin,int etabin, int ipbin, std::string iptype) const{
   double eta_bounds[9] = {0.0,0.6,0.8,1.15,1.37,1.52,1.81,2.01,2.37};
-  int et_bounds[fnEtBinsHist] = {4,7,10,15,20,30,40,100};
+  int et_bounds[s_fnEtBinsHist] = {4,7,10,15,20,30,40,100};
   if (!iptype.empty())
     sprintf(buffer, "%s%det%02deta%0.2f", iptype.c_str(), int(fIpBounds[ipbin]), et_bounds[etbin], eta_bounds[etabin]);
   else 
@@ -895,7 +963,7 @@ void Root::TElectronLikelihoodTool::getBinName(char* buffer, int etbin,int etabi
 unsigned int Root::TElectronLikelihoodTool::GetLikelihoodBitmask(std::string vars) const{
   unsigned int mask = 0x0;
   ATH_MSG_DEBUG ("Variables to be used: ");
-  for(unsigned int var = 0; var < fnVariables; var++){
+  for(unsigned int var = 0; var < s_fnVariables; var++){
     if (vars.find(fVariables[var]) != std::string::npos){
       ATH_MSG_DEBUG( fVariables[var] );
       mask = mask | 0x1 << var;
@@ -909,10 +977,11 @@ unsigned int Root::TElectronLikelihoodTool::GetLikelihoodBitmask(std::string var
 // Note that this will only perform the cut interpolation up to ~45 GeV, so 
 // no smoothing is done above this for the high ET LH binning yet
 double Root::TElectronLikelihoodTool::InterpolateCuts(const std::vector<double>& cuts,const std::vector<double>& cuts_4gev,double et,double eta) const{
-  int etbin = getLikelihoodEtDiscBin(et);
+  int etbinLH = getLikelihoodEtDiscBin(et,true);
+  int etbinOther = getLikelihoodEtDiscBin(et,false);
   int etabin = getLikelihoodEtaBin(eta);
-  unsigned int ibin_combined = etbin*10+etabin;
-  double cut = cuts.at(ibin_combined);
+  unsigned int ibin_combinedLH = etbinLH*10+etabin;
+  double cut = cuts.at(ibin_combinedLH);
   if (cuts_4gev.size() && et < 7000.) cut = cuts_4gev.at(etabin);
   if (et > 47500.) return cut; // interpolation stops here.
   if (cuts_4gev.size() == 0 && et < 8500.) return cut; // stops here
@@ -922,16 +991,16 @@ double Root::TElectronLikelihoodTool::InterpolateCuts(const std::vector<double>&
   if (et < 7000.) bin_width = 2000.;
   const double GeV = 1000; 
   const double eTBins[9] = {8.5*GeV,12.5*GeV,17.5*GeV,22.5*GeV,27.5*GeV,32.5*GeV,37.5*GeV,42.5*GeV,47.5*GeV};
-  double bin_center = eTBins[etbin];
+  double bin_center = eTBins[etbinLH];
   if (et > bin_center) {
     double cut_next = cut;
-    if (etbin+1<=8) cut_next = cuts.at((etbin+1)*10+etabin);
+    if (etbinLH+1<=8) cut_next = cuts.at((etbinLH+1)*10+etabin);
     return cut+(cut_next-cut)*(et-bin_center)/(bin_width);
   }
   // or else if et < bin_center :
   double cut_before = cut;
-  if (etbin-1>=0) cut_before = cuts.at((etbin-1)*10+etabin);
-  else if (etbin == 0 && cuts_4gev.size()) cut_before = cuts_4gev.at(etabin);
+  if (etbinLH-1>=0) cut_before = cuts.at((etbinLH-1)*10+etabin);
+  else if (etbinLH == 0 && cuts_4gev.size()) cut_before = cuts_4gev.at(etabin);
   return cut-(cut-cut_before)*(bin_center-et)/(bin_width);
 }
 
@@ -978,7 +1047,7 @@ double Root::TElectronLikelihoodTool::InterpolatePdfs(unsigned int s_or_b,unsign
 //----------------------------------------------------------------------------------------
 
 // These are the variables availalble in the likelihood.
-const std::string Root::TElectronLikelihoodTool::fVariables[fnVariables] = {
+const std::string Root::TElectronLikelihoodTool::fVariables[s_fnVariables] = {
    "el_d0significance"
   ,"el_eratio"
   ,"el_deltaeta1"
