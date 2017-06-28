@@ -77,11 +77,18 @@ StatusCode PixelPlanarChargeTool::finalize() {
 
 StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, const InDetDD::SiDetectorElement &Module) {
 
-  // if (!Module.isBarrel()) { return StatusCode::SUCCESS; }
   const PixelModuleDesign *p_design= static_cast<const PixelModuleDesign*>(&(Module.design()));
 
   // So far, this is only discriminating variable from 3D sensor.
-  if (p_design->numberOfCircuits()<2 && !Module.isDBM()) { return StatusCode::SUCCESS; }
+  if (p_design->numberOfCircuits()<2){
+	  if(!Module.isDBM()) {  //DBM modules also processed here
+		  ATH_MSG_INFO("3D module");
+		  return StatusCode::SUCCESS; 
+	  }
+	  ATH_MSG_INFO("DBM module");
+  } else {
+    ATH_MSG_INFO("planar module");
+  }
 
   ATH_MSG_DEBUG("Applying PixelPlanar charge processor");
   const HepMcParticleLink McLink = HepMcParticleLink(phit->trackNumber(),phit.eventId());
@@ -224,10 +231,6 @@ StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharg
   for(unsigned int i = 0; i < trfHitRecord.size(); i++){
     std::pair<double,double> iHitRecord = trfHitRecord[i];
 
-    // double eta_i = eta_0 +  stepEta * (j + 0.5);
-    // double phi_i = phi_0 +  stepPhi * (j + 0.5);
-    // double depth_i  = depth_0 +  stepDep * (j + 0.5);
-
     double eta_i = eta_0;
     double phi_i = phi_0;
     double depth_i  = depth_0;
@@ -292,6 +295,7 @@ StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharg
         ed=energy_per_step*eleholePairEnergy;
       }
 
+      ATH_MSG_INFO("charge collected: "<< ed <<"");
       //The following lines are adapted from SiDigitization's Inserter class
       SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));
 

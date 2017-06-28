@@ -311,6 +311,7 @@ StatusCode Pixel3DChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiChargedDi
           //ATH_MSG_INFO(" (i, j) "<<i<<" "<<j<<"  y_bin_cc_map   "<<y_bin_cc_map << "   x_bin_cc_map  " << x_bin_cc_map << " charge_coll neighbor "<<ccprob_neighbor);
 
           double ed=es_current*eleholePairEnergy*ccprob_neighbor;
+          ATH_MSG_INFO("charge collected: "<< ed <<"");
 
           // -- pixel coordinates --> module coordinates
           //double x_mod = x_neighbor - half_pixel_size_x + pixel_size_x*nPixX -module_size_x/2.;
