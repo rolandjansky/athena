@@ -404,7 +404,7 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const HepMC::GenPar
   G4double py = genpartMomentum.y();
   G4double pz = genpartMomentum.z();
 
-  G4PrimaryParticle *particle = new G4PrimaryParticle(particleDefinition,px,py,pz);
+  G4PrimaryParticle *g4particle = new G4PrimaryParticle(particleDefinition,px,py,pz);
 
   if (genpart.end_vertex()) {
     // Add all necessary daughter particles
@@ -412,7 +412,7 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const HepMC::GenPar
          iter!=genpart.end_vertex()->particles_out_const_end(); ++iter ) {
       if ( !(*iter) ) { continue; }
       G4PrimaryParticle  *daught = this->getG4PrimaryParticle( **iter );
-      particle->SetDaughter( daught );
+      g4particle->SetDaughter( daught );
     }
     // Set the lifetime appropriately - this is slow but rigorous, and we
     //  don't want to end up with something like vertex time that we have
@@ -425,17 +425,17 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const HepMC::GenPar
                           genpart.end_vertex()->position().y(),
                           genpart.end_vertex()->position().z(),
                           genpart.end_vertex()->position().t() );
-    particle->SetProperTime( (lv1-lv0).mag()/Gaudi::Units::c_light );
+    g4particle->SetProperTime( (lv1-lv0).mag()/Gaudi::Units::c_light );
   }
 
   // Set the user information for this primary to point to the HepMcParticleLink...
   PrimaryParticleInformation* ppi = new PrimaryParticleInformation(&genpart);
   ppi->SetParticle(&genpart);
   ppi->SetRegenerationNr(0);
-  particle->SetUserInformation(ppi);
+  g4particle->SetUserInformation(ppi);
   std::cout << "ZLM making primary down the line with " << ppi->GetParticleBarcode() << std::endl;
 
-  return particle;
+  return g4particle;
 }
 
 
@@ -460,10 +460,10 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
   G4double isp_py = ispMomentum.y();
   G4double isp_pz = ispMomentum.z();
 
-  G4PrimaryParticle *particle = new G4PrimaryParticle(particleDefinition,
-                                                      isp_px,
-                                                      isp_py,
-                                                      isp_pz);
+  G4PrimaryParticle *g4particle = new G4PrimaryParticle(particleDefinition,
+                                                        isp_px,
+                                                        isp_py,
+                                                        isp_pz);
 
   auto truthBinding = isp.getTruthBinding();
   if (!truthBinding) {
@@ -493,7 +493,7 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
       const auto& endVtx = genpart->end_vertex()->position();
       const G4LorentzVector lv0( prodVtx.x(), prodVtx.y(), prodVtx.z(), prodVtx.t() );
       const G4LorentzVector lv1( endVtx.x(), endVtx.y(), endVtx.z(), endVtx.t() );
-      particle->SetProperTime( (lv1-lv0).mag()/Gaudi::Units::c_light );
+      g4particle->SetProperTime( (lv1-lv0).mag()/Gaudi::Units::c_light );
 
       if(m_quasiStableParticlesIncluded) {
         ATH_MSG_VERBOSE( "Detected primary particle with end vertex." );
@@ -537,7 +537,7 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
             ATH_MSG_WARNING ( "Number of daughters of "<<(*iter)->barcode()<<": " << (*iter)->end_vertex()->particles_out_size() );
           }
         }
-        particle->SetDaughter( daught );
+        g4particle->SetDaughter( daught );
       }
      } // particle had an end vertex
   } // Truth was detected
@@ -547,9 +547,9 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
   ATH_MSG_VERBOSE("     GetRegenerationNr = " << ppi->GetRegenerationNr());
   ATH_MSG_VERBOSE("     GetHepMCParticle = " << ppi->GetHepMCParticle());
   ATH_MSG_VERBOSE("     GetISFParticle = " << ppi->GetISFParticle());
-  particle->SetUserInformation(ppi);
+  g4particle->SetUserInformation(ppi);
 
-  return particle;
+  return g4particle;
 }
 
 //________________________________________________________________________
