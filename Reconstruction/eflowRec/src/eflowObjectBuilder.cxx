@@ -100,13 +100,6 @@ StatusCode eflowObjectBuilder::execute(){
     (*itAlgTool)->execute(const_cast<eflowCaloObjectContainer*>(caloObjectContainer));
   }
 
-  /* Sort clusters by pt TODO: should this be done somewhere else? */
-  //Do we need to sort the objects at all?
-  //newCaloClusterContainer->sort(P4Sorters::Descending::Pt());
-
-  /* Clear track-cluster links */
-  eflowTrackClusterLink::clearInstances();
-
   return StatusCode::SUCCESS;
 
 }
