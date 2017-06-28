@@ -17,7 +17,6 @@ addTool("PixelDigitization.PixelDigitizationConfig.PixelNoisyCellGenerator", "Pi
 addTool("PixelDigitization.PixelDigitizationConfig.PixelChargeSmearer", "PixelChargeSmearer")
 addTool("PixelDigitization.PixelDigitizationConfig.PixelDiodeCrossTalkGenerator", "PixelDiodeCrossTalkGenerator")
 addTool("PixelDigitization.PixelDigitizationConfig.PixelRandomDisabledCellGenerator", "PixelRandomDisabledCellGenerator")
-addTool("PixelDigitization.PixelDigitizationConfig.DBMChargeTool","DBMChargeTool")
 addTool("PixelDigitization.PixelDigitizationConfig.PixelPlanarChargeTool","PixelPlanarChargeTool")
 addTool("PixelDigitization.PixelDigitizationConfig.Pixel3DChargeTool","Pixel3DChargeTool")
 addTool("PixelDigitization.PixelDigitizationConfig.SubChargesTool","SubChargesTool")

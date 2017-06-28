@@ -30,11 +30,6 @@ def ChargeCollProbSvc(name="ChargeCollProbSvc", **kwargs):
 
 ###############################################################################
 
-def DBMChargeTool(name="DBMChargeTool", **kwargs):
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
-    return CfgMgr.DBMChargeTool(name, **kwargs)
-
 def BichselSimTool(name="BichselSimTool", **kwargs):
     kwargs.setdefault("DeltaRayCut", 117.)
     kwargs.setdefault("nCols", 5)
@@ -187,7 +182,6 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
       procTools += ['PixelChargeSmearer']
       procTools += ['PixelNoisyCellGenerator']
       procTools += ['PixelRandomDisabledCellGenerator']
-      chargeTools += ['DBMChargeTool']
       chargeTools += ['PixelPlanarChargeTool']
       chargeTools += ['Pixel3DChargeTool']
       feSimTools += ['FEI4SimTool']

@@ -23,6 +23,7 @@
 #include "CLHEP/Random/RandGaussZiggurat.h"
 
 #include "TLorentzVector.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 
 using namespace InDetDD;
 
@@ -80,8 +81,7 @@ StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharg
   const PixelModuleDesign *p_design= static_cast<const PixelModuleDesign*>(&(Module.design()));
 
   // So far, this is only discriminating variable from 3D sensor.
-  if (p_design->numberOfCircuits()<2) { return StatusCode::SUCCESS; }
-  if (Module.isDBM()) { return StatusCode::SUCCESS; }
+  if (p_design->numberOfCircuits()<2 && !Module.isDBM()) { return StatusCode::SUCCESS; }
 
   ATH_MSG_DEBUG("Applying PixelPlanar charge processor");
   const HepMcParticleLink McLink = HepMcParticleLink(phit->trackNumber(),phit.eventId());
@@ -90,7 +90,15 @@ StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharg
   if (genPart) delta_hit = false;
   double sensorThickness = Module.design().thickness();
   const InDet::SiliconProperties & siProperties = m_siPropertiesSvc->getSiProperties(Module.identifyHash());
-  double eleholePairEnergy = siProperties.electronHolePairsPerEnergy();
+  double eleholePairEnergy = 0;
+  if (Module.isDBM()){
+    eleholePairEnergy = 1. / (13. * CLHEP::eV); // was 3.62 eV.
+  }
+  else{
+    eleholePairEnergy = siProperties.electronHolePairsPerEnergy();
+  }
+  double collectionDist = 0.2*CLHEP::mm;
+  double smearScale = 1. + 0.35*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
 
   double stepsize = sensorThickness/m_numberOfSteps;
   double tanLorentz = Module.getTanLorentzAnglePhi();
@@ -131,7 +139,7 @@ StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharg
 
   // -1 ParticleType means we are unable to run Bichel simulation for this case
   int ParticleType = -1;
-  if(m_doBichsel){
+  if(m_doBichsel && !Module.isDBM()){
 
     ParticleType = delta_hit ? (m_doDeltaRay ? 4 : -1) : m_BichselSimTool->trfPDG(genPart->pdg_id()); 
 
@@ -231,6 +239,9 @@ StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharg
     // +1 if readout side is in +ve depth axis direction and visa-versa.
     double dist_electrode = 0.5 * sensorThickness - Module.design().readoutSide() * depth_i;
     if (dist_electrode<0) dist_electrode=0;
+    
+    // nonTrapping probability
+    double nontrappingProbability = exp(-dist_electrode/collectionDist);
 
     for(int j=0 ; j<ncharges ; j++) {
 
@@ -272,7 +283,13 @@ StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharg
       SiLocalPosition chargePos = Module.hitLocalToLocal(eta_drifted, phi_drifted);
 
       // The parametrization of the sensor efficiency (if needed)
-      double ed=energy_per_step*eleholePairEnergy;
+      double ed = 0;
+      if (Module.isDBM()){
+        ed=energy_per_step*eleholePairEnergy*nontrappingProbability*smearScale;
+      }
+      else {
+        ed=energy_per_step*eleholePairEnergy;
+      }
 
       //The following lines are adapted from SiDigitization's Inserter class
       SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));

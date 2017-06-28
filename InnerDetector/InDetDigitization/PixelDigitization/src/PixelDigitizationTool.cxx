@@ -150,8 +150,12 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
 
   // Loop over the Detectors with hits
   TimedHitCollection<SiHit>::const_iterator firstHit, lastHit;
+  int counter = 0;
   while (m_timedHits->nextDetectorElement(firstHit,lastHit)) {
 
+    counter++;
+    if(counter%10 == 0)
+	    ATH_MSG_INFO(counter);
     // Create the identifier for the collection
     ATH_MSG_DEBUG("create ID for the hit collection");
     const PixelID* PID = static_cast<const PixelID*>(m_detID);
@@ -216,6 +220,7 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
     }
     chargedDiodes->clear();
   }
+  counter = 0;
   delete m_timedHits;
   m_timedHits = nullptr;
   ATH_MSG_DEBUG("hits processed");

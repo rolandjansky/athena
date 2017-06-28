@@ -8,7 +8,6 @@
 #include "src/PixelRandomDisabledCellGenerator.h"
 #include "src/PixelPlanarChargeTool.h"
 #include "src/Pixel3DChargeTool.h"
-#include "src/DBMChargeTool.h"
 #include "src/ChargeCollProbSvc.h"
 #include "src/BichselSimTool.h"
 #include "src/RD53SimTool.h"
@@ -24,7 +23,6 @@ DECLARE_TOOL_FACTORY(PixelDiodeCrossTalkGenerator)
 DECLARE_TOOL_FACTORY(PixelRandomDisabledCellGenerator)
 DECLARE_TOOL_FACTORY(PixelPlanarChargeTool)
 DECLARE_TOOL_FACTORY(Pixel3DChargeTool)
-DECLARE_TOOL_FACTORY(DBMChargeTool)
 DECLARE_TOOL_FACTORY(RD53SimTool)
 DECLARE_TOOL_FACTORY(FEI4SimTool)
 DECLARE_TOOL_FACTORY(FEI3SimTool)
@@ -40,7 +38,6 @@ DECLARE_FACTORY_ENTRIES(PixelDigitization) {
   DECLARE_TOOL(PixelRandomDisabledCellGenerator)
   DECLARE_TOOL(PixelPlanarChargeTool)
   DECLARE_TOOL(Pixel3DChargeTool)
-  DECLARE_TOOL(DBMChargeTool)
   DECLARE_TOOL(RD53SimTool)
   DECLARE_TOOL(FEI4SimTool)
   DECLARE_TOOL(FEI3SimTool)
