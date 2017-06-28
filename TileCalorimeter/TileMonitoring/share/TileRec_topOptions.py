@@ -114,8 +114,8 @@ if not athenaCommonFlags.isOnline():
        else:
            RunFromLocal = False
    
-    if not 'FileNameVec' in dir() or FileNameVec.size() == 0 or FileNameVec[0].size() == 0:
-        if not 'FileName' in dir() or FileName.size()==0:
+    if not 'FileNameVec' in dir() or len(FileNameVec) == 0 or len(FileNameVec[0]) == 0:
+        if not 'FileName' in dir() or len(FileName)==0:
 
             if not 'FileFilter' in dir():
                 FileFilter = "data"
