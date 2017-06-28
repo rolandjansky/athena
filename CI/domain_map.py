@@ -4,11 +4,13 @@
 DOMAIN_MAP = {}
 
 DOMAIN_MAP['Analysis']         = set(['^PhysicsAnalysis/'])
+DOMAIN_MAP['AnalysisTop']      = set(['^PhysicsAnalysis/TopPhys/'])
 DOMAIN_MAP['Build']            = set(['^Build$','^Projects/'])
 DOMAIN_MAP['Calorimeter']      = set(['^Calorimeter/'])
 DOMAIN_MAP['CI']               = set(['^CI'])
 DOMAIN_MAP['Core']             = set(['^Control/'])
 DOMAIN_MAP['Database']         = set(['^Database/'])
+DOMAIN_MAP['Derivation']         = set(['^PhysicsAnalysis/DerivationFramework/'])
 DOMAIN_MAP['Digitization']     = set(['Digitization','TileSimAlgs','PileUpComps','PileUpTools','RunDependentSim'])
 DOMAIN_MAP['DQ']               = set(['^DataQuality/','^LumiBlock/'])
 DOMAIN_MAP['EDM']              = set(['^Event/'])
