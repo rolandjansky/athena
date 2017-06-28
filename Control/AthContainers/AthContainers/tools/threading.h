@@ -21,7 +21,7 @@
 #define ATHCONTAINERS_THREADING_H
 
 
-#if defined(XAOD_STANDALONE) || defined(__GCCXML__)
+#if defined(__GCCXML__)
 # ifndef ATHCONTAINERS_NO_THREADS
 #  define ATHCONTAINERS_NO_THREADS
 # endif
