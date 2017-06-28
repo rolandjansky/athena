@@ -365,7 +365,7 @@ G4Event* ISF::InputConverter::ISF_to_G4Event(const ISF::ConstISFParticleVector& 
 }
 
 //________________________________________________________________________
-const G4ParticleDefinition* getG4ParticleDefinition(int pdgcode) const
+const G4ParticleDefinition* ISF::InputConverter::getG4ParticleDefinition(int pdgcode) const
 {
   /// Special cases for Geantinos
   if (pdgcode==998) {
@@ -377,7 +377,7 @@ const G4ParticleDefinition* getG4ParticleDefinition(int pdgcode) const
   /// Standard particles
   G4ParticleTable *ptable = G4ParticleTable::GetParticleTable();
   if(ptable) {
-    return ptable->FindParticle(genpart.pdg_id());
+    return ptable->FindParticle(pdgcode);
   }
   ATH_MSG_ERROR("getG4ParticleDefinition - Failed to retrieve G4ParticleTable!");
   return nullptr;
@@ -388,9 +388,9 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const HepMC::GenPar
 {
   ATH_MSG_VERBOSE("Creating G4PrimaryParticle from GenParticle.");
 
-  const G4ParticleDefinition *particle_definition = this->getG4ParticleDefinition(genpart.pdg_id());
+  const G4ParticleDefinition *particleDefinition = this->getG4ParticleDefinition(genpart.pdg_id());
 
-  if(particle_definition==nullptr) {
+  if(particleDefinition==nullptr) {
     ATH_MSG_ERROR("ISF_to_G4Event particle conversion failed. ISF_Particle PDG code = " << genpart.pdg_id() <<
                   "\n This usually indicates a problem with the evgen step.\n" <<
                   "Please report this to the Generators group, mentioning the release and generator used for evgen and the PDG code above." );
@@ -398,13 +398,13 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const HepMC::GenPar
   }
 
   // create new primaries and set them to the vertex
-  //  G4double mass =  particle_definition->GetPDGMass();
+  //  G4double mass =  particleDefinition->GetPDGMass();
   auto &genpartMomentum = genpart.momentum();
   G4double px = genpartMomentum.x();
   G4double py = genpartMomentum.y();
   G4double pz = genpartMomentum.z();
 
-  G4PrimaryParticle *particle = new G4PrimaryParticle(particle_definition,px,py,pz);
+  G4PrimaryParticle *particle = new G4PrimaryParticle(particleDefinition,px,py,pz);
 
   if (genpart.end_vertex()) {
     // Add all necessary daughter particles
@@ -444,7 +444,7 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
 {
   ATH_MSG_VERBOSE("Creating G4PrimaryParticle from ISFParticle.");
 
-  const G4ParticleDefinition *particle_definition = this->getG4ParticleDefinition(isp.pdgCode());
+  const G4ParticleDefinition *particleDefinition = this->getG4ParticleDefinition(isp.pdgCode());
 
   if(particleDefinition==nullptr) {
     ATH_MSG_ERROR("ISF_to_G4Event particle conversion failed. ISF_Particle PDG code = " << isp.pdgCode() <<
