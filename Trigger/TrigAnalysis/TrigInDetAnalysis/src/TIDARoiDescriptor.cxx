@@ -43,7 +43,7 @@ TIDARoiDescriptor::TIDARoiDescriptor( double eta,  double etaMinus,   double eta
 { }
 
 
-TIDARoiDescriptor::TIDARoiDescriptor( unsigned long long l1id, int id, 
+TIDARoiDescriptor::TIDARoiDescriptor( unsigned int l1id, int id, 
 				      double eta,  double etaMinus,   double etaPlus,
 				      double phi,  double phiMinus,   double phiPlus,
 				      double zed,  double zedMinus,   double zedPlus )
@@ -55,8 +55,7 @@ TIDARoiDescriptor::TIDARoiDescriptor( unsigned long long l1id, int id,
 { }
 
 
-TIDARoiDescriptor::TIDARoiDescriptor(unsigned int roiword, unsigned long long l1id,
-				     int id, 
+TIDARoiDescriptor::TIDARoiDescriptor(unsigned int roiword, unsigned int l1id, int id, 
 				     double eta,  double etaMinus,   double etaPlus,
 				     double phi,  double phiMinus,   double phiPlus,
 				     double zed,  double zedMinus,   double zedPlus )
