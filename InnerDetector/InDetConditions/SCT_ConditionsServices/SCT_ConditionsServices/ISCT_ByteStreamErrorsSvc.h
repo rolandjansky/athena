@@ -54,6 +54,14 @@ namespace SCT_ByteStreamErrors {
     ABCDError_Error1,
     ABCDError_Error2,
     ABCDError_Error4,
+    TempMaskedChip0,
+    TempMaskedChip1,
+    TempMaskedChip2,
+    TempMaskedChip3,
+    TempMaskedChip4,
+    TempMaskedChip5,
+    ABCDError_Error7,
+    ABCDError_Invalid,
     NUM_ERROR_TYPES  // always have this one last, so we can use it as a loop index
   };
 }
