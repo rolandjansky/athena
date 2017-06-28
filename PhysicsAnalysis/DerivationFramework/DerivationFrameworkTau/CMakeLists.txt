@@ -13,6 +13,10 @@ atlas_depends_on_subdirs( PUBLIC
                           PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
                           PRIVATE
                           Event/xAOD/xAODTau
+                          Event/xAOD/xAODPFlow  
+                          Event/xAOD/xAODTruth
+                          Calorimeter/CaloEvent
+                          Calorimeter/CaloSimEvent
                           PhysicsAnalysis/JpsiUpsilonTools
                           PhysicsAnalysis/TauID/TauAnalysisTools )
 
@@ -20,12 +24,12 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( DerivationFrameworkTauLib
                    src/*.cxx
                    PUBLIC_HEADERS DerivationFrameworkTau
-                   LINK_LIBRARIES AthenaBaseComps xAODTracking GaudiKernel JpsiUpsilonToolsLib
+                   LINK_LIBRARIES AthenaBaseComps xAODTracking GaudiKernel JpsiUpsilonToolsLib CaloSimEvent
                    PRIVATE_LINK_LIBRARIES xAODTau )
 
 atlas_add_component( DerivationFrameworkTau
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps xAODTracking GaudiKernel xAODTau JpsiUpsilonToolsLib DerivationFrameworkTauLib )
+                     LINK_LIBRARIES AthenaBaseComps xAODTracking GaudiKernel xAODTau JpsiUpsilonToolsLib CaloSimEvent DerivationFrameworkTauLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
