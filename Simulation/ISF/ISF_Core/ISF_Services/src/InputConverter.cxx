@@ -407,25 +407,22 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const HepMC::GenPar
   G4PrimaryParticle *g4particle = new G4PrimaryParticle(particleDefinition,px,py,pz);
 
   if (genpart.end_vertex()) {
-    // Add all necessary daughter particles
-    for ( HepMC::GenVertex::particles_out_const_iterator iter=genpart.end_vertex()->particles_out_const_begin();
-         iter!=genpart.end_vertex()->particles_out_const_end(); ++iter ) {
-      if ( !(*iter) ) { continue; }
-      G4PrimaryParticle  *daught = this->getG4PrimaryParticle( **iter );
-      g4particle->SetDaughter( daught );
-    }
     // Set the lifetime appropriately - this is slow but rigorous, and we
     //  don't want to end up with something like vertex time that we have
     //  to validate for every generator on earth...
-    G4LorentzVector lv0 ( genpart.production_vertex()->position().x(),
-                          genpart.production_vertex()->position().y(),
-                          genpart.production_vertex()->position().z(),
-                          genpart.production_vertex()->position().t() );
-    G4LorentzVector lv1 ( genpart.end_vertex()->position().x(),
-                          genpart.end_vertex()->position().y(),
-                          genpart.end_vertex()->position().z(),
-                          genpart.end_vertex()->position().t() );
+    const auto& prodVtx = genpart.production_vertex()->position();
+    const auto& endVtx = genpart.end_vertex()->position();
+    const G4LorentzVector lv0 ( prodVtx.x(), prodVtx.y(), prodVtx.z(), prodVtx.t() );
+    const G4LorentzVector lv1 ( endVtx.x(), endVtx.y(), endVtx.z(), endVtx.t() );
     g4particle->SetProperTime( (lv1-lv0).mag()/Gaudi::Units::c_light );
+
+    // Add all necessary daughter particles
+    for ( auto daughterIter=genpart.end_vertex()->particles_out_const_begin();
+          daughterIter!=genpart.end_vertex()->particles_out_const_end(); ++daughterIter ) {
+      if ( !(*daughterIter) ) { continue; }
+      G4PrimaryParticle *daughterG4Particle = this->getG4PrimaryParticle( **daughterIter );
+      g4particle->SetDaughter( daughterG4Particle );
+    }
   }
 
   // Set the user information for this primary to point to the HepMcParticleLink...
@@ -444,6 +441,17 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
 {
   ATH_MSG_VERBOSE("Creating G4PrimaryParticle from ISFParticle.");
 
+  auto truthBinding = isp.getTruthBinding();
+  if (!truthBinding) {
+      G4ExceptionDescription description;
+      description << G4String("getG4PrimaryParticle: ") + "No ISF::TruthBinding associated with ISParticle (" << isp <<")";
+      G4Exception("iGeant4::TransportTool", "NoISFTruthBinding", FatalException, description);
+      return nullptr; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
+  }
+  // if truth binding exists -> try to retrieve the HepMC::GenParticle from it
+  HepMC::GenParticle*        genpart = truthBinding->getTruthParticle();
+  HepMC::GenParticle* primaryGenpart = truthBinding->getPrimaryTruthParticle();
+
   const G4ParticleDefinition *particleDefinition = this->getG4ParticleDefinition(isp.pdgCode());
 
   if(particleDefinition==nullptr) {
@@ -456,25 +464,11 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
   // create new primaries and set them to the vertex
   //  G4double mass =  particleDefinition->GetPDGMass();
   auto &ispMomentum = isp.momentum();
-  G4double isp_px = ispMomentum.x();
-  G4double isp_py = ispMomentum.y();
-  G4double isp_pz = ispMomentum.z();
+  G4double px = ispMomentum.x();
+  G4double py = ispMomentum.y();
+  G4double pz = ispMomentum.z();
 
-  G4PrimaryParticle *g4particle = new G4PrimaryParticle(particleDefinition,
-                                                        isp_px,
-                                                        isp_py,
-                                                        isp_pz);
-
-  auto truthBinding = isp.getTruthBinding();
-  if (!truthBinding) {
-      G4ExceptionDescription description;
-      description << G4String("getG4PrimaryParticle: ") + "No ISF::TruthBinding associated with ISParticle (" << isp <<")";
-      G4Exception("iGeant4::TransportTool", "NoISFTruthBinding", FatalException, description);
-      return nullptr; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
-  }
-  HepMC::GenParticle*        genpart = truthBinding->getTruthParticle();
-  HepMC::GenParticle* primaryGenpart = truthBinding->getPrimaryTruthParticle();
-
+  G4PrimaryParticle *g4particle = new G4PrimaryParticle(particleDefinition,px,py,pz);
   // UserInformation
   PrimaryParticleInformation* ppi = new PrimaryParticleInformation(primaryGenpart,&isp);
 
@@ -482,7 +476,6 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
   const int regenerationNr = (barcode - barcode%m_barcodeGenerationIncrement)/m_barcodeGenerationIncrement;
   ppi->SetRegenerationNr(regenerationNr);
 
-  // if truth binding exists -> try to retrieve the HepMC::GenParticle from it
   if ( genpart ) {
     if (genpart->end_vertex()) {
 
@@ -512,32 +505,32 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
         ATH_MSG_WARNING("Number of daughters of "<<genpart->barcode()<<": " << genpart->end_vertex()->particles_out_size() );
       }
       // Add all necessary daughter particles
-      for ( HepMC::GenVertex::particles_out_const_iterator iter=genpart->end_vertex()->particles_out_const_begin();
-           iter!=genpart->end_vertex()->particles_out_const_end(); ++iter ) {
-        G4PrimaryParticle * daught = this->getG4PrimaryParticle( **iter );
+      for ( auto daughterIter=genpart->end_vertex()->particles_out_const_begin();
+            daughterIter!=genpart->end_vertex()->particles_out_const_end(); ++daughterIter ) {
+        G4PrimaryParticle *daughterG4Particle = this->getG4PrimaryParticle( **daughterIter );
+        g4particle->SetDaughter( daughterG4Particle );
         if(m_quasiStableParticlesIncluded) {
-          ATH_MSG_VERBOSE ( "Daughter Particle of "<<genpart->barcode()<<": " << **iter );
+          ATH_MSG_VERBOSE ( "Daughter Particle of "<<genpart->barcode()<<": " << **daughterIter );
         }
         else {
-          ATH_MSG_WARNING ( "Daughter Particle of "<<genpart->barcode()<<": " << **iter );
+          ATH_MSG_WARNING ( "Daughter Particle of "<<genpart->barcode()<<": " << **daughterIter );
         }
-        if(nullptr==(*iter)->end_vertex()) {
+        if(nullptr==(*daughterIter)->end_vertex()) {
           if(m_quasiStableParticlesIncluded) {
-            ATH_MSG_VERBOSE ( "Number of daughters of "<<(*iter)->barcode()<<": 0 (NULL)." );
+            ATH_MSG_VERBOSE ( "Number of daughters of "<<(*daughterIter)->barcode()<<": 0 (NULL)." );
           }
           else {
-            ATH_MSG_WARNING ( "Number of daughters of "<<(*iter)->barcode()<<": 0 (NULL)." );
+            ATH_MSG_WARNING ( "Number of daughters of "<<(*daughterIter)->barcode()<<": 0 (NULL)." );
           }
         }
         else {
           if(m_quasiStableParticlesIncluded) {
-            ATH_MSG_VERBOSE ( "Number of daughters of "<<(*iter)->barcode()<<": " << (*iter)->end_vertex()->particles_out_size() );
+            ATH_MSG_VERBOSE ( "Number of daughters of "<<(*daughterIter)->barcode()<<": " << (*daughterIter)->end_vertex()->particles_out_size() );
           }
           else {
-            ATH_MSG_WARNING ( "Number of daughters of "<<(*iter)->barcode()<<": " << (*iter)->end_vertex()->particles_out_size() );
+            ATH_MSG_WARNING ( "Number of daughters of "<<(*daughterIter)->barcode()<<": " << (*daughterIter)->end_vertex()->particles_out_size() );
           }
         }
-        g4particle->SetDaughter( daught );
       }
      } // particle had an end vertex
   } // Truth was detected
