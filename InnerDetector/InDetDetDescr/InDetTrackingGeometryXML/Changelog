@@ -1,3 +1,37 @@
+2017-06-28 Sharka Todorova <sarka.todorova@cern.ch>
+	* adding forgotten initialization of the radial tilt
+
+2017-06-27 Sharka Todorova <sarka.todorova@cern.ch>
+	* adding tilt around radial axis for inclined modules
+	* tag as InDetTrackingGeometryXML-00-00-68
+	 
+
+2017-06-18 Ben Smart <Ben.Smart@cern.ch>
+	* Adding 3D sensors for pixel layer zero of Inclined Quads and Inclined Duals layouts
+
+2017-06-09 Nathan Readioff <nathan.peter.readioff@cern.ch>
+	* InclinedDuals Layers now feature phi rotation
+2017-06-09 Noemi Calace <noemi.calace@cern.ch>
+	* Fixing module definition in ITK_PixelModules.xml
+
+2017-06-09 Noemi Calace <noemi.calace@cern.ch>
+	* Adding flag in the GMXReaderSvc to add the BCL in the IdDictionary
+
+2017-06-08 Alessandro Calandri <alessandro.calandri@cern.ch>
+	* Adding CMOS modules in ITK_PixelModules.xml
+	
+2017-06-06 Nathan Readioff <nathan.peter.readioff@cern.ch>
+	* Including InclinedDual XMl
+	* InclinedQuads Layers now feature phi rotation
+2017-05-31 Noemi Calace <Noemi.Calace@cern.ch>
+	* Including implementation of the InclinedQuad
+	* Updating again for the split ring offset implementation
+	* Tag as InDetTrackingGeometryXML-00-00-66
+
+2017-05-24 Noemi Calace <Noemi.Calace@cern.ch>
+	* Updating builder to adapt changes in the split rings
+	* Tag as InDetTrackingGeometryXML-00-00-65
+
 2017-05-10 Noemi Calace <Noemi.Calace@cern.ch>
 	* Updating builder to adapt changes in the AlpineLayer and PixelOverlapDescriptor
 	* Tag as InDetTrackingGeometryXML-00-00-64

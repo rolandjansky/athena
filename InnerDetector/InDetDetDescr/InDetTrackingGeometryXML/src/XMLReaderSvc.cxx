@@ -420,6 +420,7 @@ void InDet::XMLReaderSvc::parseStaveXML(DOMNode* node, std::vector< InDet::Stave
   XMLCh* TAG_alp_angle   = transcode("MountainModuleAngle");
   XMLCh* TAG_alp_type    = transcode("MountainModuleType");
   XMLCh* TAG_alp_rshift  = transcode("MountainModuleRShift");
+  XMLCh* TAG_alp_radialTilt    = transcode("MountainModuleRadialTilt");
   XMLCh* TAG_material    = transcode("StaveMaterial");
   XMLCh* TAG_length      = transcode("StaveSupportLength");
   XMLCh* TAG_doublesided = transcode("DoubleSided");
@@ -457,6 +458,7 @@ void InDet::XMLReaderSvc::parseStaveXML(DOMNode* node, std::vector< InDet::Stave
     else if( XMLString::equals(currentElement->getTagName(), TAG_alp_type))    stave->alp_type           = getString(currentNode);
     else if( XMLString::equals(currentElement->getTagName(), TAG_alp_pos))     stave->alp_pos            = getVectorDouble(currentNode);
     else if( XMLString::equals(currentElement->getTagName(), TAG_alp_rshift))  stave->alp_rshift         = atof(getString(currentNode));
+    else if( XMLString::equals(currentElement->getTagName(), TAG_alp_radialTilt))  stave->alp_radialTilt = atof(getString(currentNode));
     else if( XMLString::equals(currentElement->getTagName(), TAG_length))      stave->support_halflength = atof(getString(currentNode));
     else if( XMLString::equals(currentElement->getTagName(), TAG_material))    stave->support_material   = getString(currentNode);
     else if( XMLString::equals(currentElement->getTagName(), TAG_doublesided)) stave->double_sided       = getBoolean(currentNode);
@@ -540,6 +542,9 @@ void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::Endc
   XMLCh* TAG_stereoSep       = transcode("RingModuleStereoSeparation");
   XMLCh* TAG_doublesided     = transcode("DoubleSided");
   XMLCh* TAG_useDiscSurface  = transcode("UseDiscSurface");
+  XMLCh* TAG_splitMode       = transcode("SplitMode");
+  XMLCh* TAG_splitOffset     = transcode("SplitOffset");
+
 
   // temporary variables
   std::string name;
@@ -558,8 +563,10 @@ void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::Endc
   std::vector<double> tmpradius;
   std::vector<double> tmpringpos;
   std::vector<int>    tmpnsectors;
-  std::vector<double> tmpzoffset;
-  std::vector<double> tmpphioffset;
+  std::vector<std::string>  tmpsplitmode;
+  std::vector<double>       tmpsplitoffset;
+  std::vector<double>       tmpzoffset;
+  std::vector<double>       tmpphioffset;
 
   for( XMLSize_t xx = 0; xx < nodeCount; ++xx ) {
 
@@ -584,6 +591,8 @@ void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::Endc
     else if (XMLString::equals(currentElement->getTagName(),TAG_modtype))         tmpmodtype    = getVectorString(currentNode);
     else if (XMLString::equals(currentElement->getTagName(),TAG_radius))          tmpradius     = getVectorDouble(currentNode);
     else if (XMLString::equals(currentElement->getTagName(),TAG_nsectors))        tmpnsectors   = getVectorInt(currentNode);
+    else if (XMLString::equals(currentElement->getTagName(),TAG_splitMode))       tmpsplitmode  = getVectorString(currentNode);
+    else if (XMLString::equals(currentElement->getTagName(),TAG_splitOffset))     tmpsplitoffset= getVectorDouble(currentNode);
     else if (XMLString::equals(currentElement->getTagName(),TAG_zoffset))         tmpzoffset    = getVectorDouble(currentNode);
     else if (XMLString::equals(currentElement->getTagName(),TAG_phioffset))       tmpphioffset  = getVectorDouble(currentNode);
     else if (XMLString::equals(currentElement->getTagName(),TAG_ringpos))         tmpringpos    = getVectorDouble(currentNode);
@@ -628,7 +637,35 @@ void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::Endc
     ATH_MSG_WARNING("Number of sectors not defined for rings --> No template built");
       return;
   }
+  
+  if(tmpsplitmode.size() != nrings && tmpsplitmode.size()>0){
+    std::string split = tmpsplitmode.at(0);
+    tmpsplitmode.clear();
+    for (unsigned int ir = 0 ; ir < nrings; ir++) {
+      tmpsplitmode.push_back(split);
+    }
+  } else {
+    for (unsigned int ir = 0 ; ir < nrings; ir++) tmpsplitmode.push_back("None");
+  }
+  
+  if(tmpsplitoffset.size() != nrings && tmpsplitoffset.size()>0){
+    double splitoffs = tmpsplitoffset.at(0);
+    tmpsplitoffset.clear();
+    for (unsigned int ir = 0 ; ir < nrings; ir++) {
+      tmpsplitoffset.push_back(splitoffs);
+    }
+  } else {
+    for (unsigned int ir = 0 ; ir < nrings; ir++) tmpsplitoffset.push_back(0.);
+  }
 
+  for (unsigned int ir = 0 ; ir < nrings; ir++) {
+    if ((tmpsplitmode.at(ir)!= "None" and tmpsplitoffset.at(ir)==0.) or (tmpsplitmode.at(ir)== "None" and tmpsplitoffset.at(ir)!=0.)) {
+      ATH_MSG_WARNING("Split offset == "<< tmpsplitoffset.at(ir) << " not compatible with split mode " << tmpsplitmode.at(ir) <<"... Moving to split mode = 'None' with split offset == 0.0");
+      tmpsplitmode.at(ir)="None";
+      tmpsplitoffset.at(ir)=0.;
+    }
+  }
+  
   if(tmpradius.size() != nrings && tmpradius.size()>0){
     double rad = tmpradius.at(0);
     tmpradius.clear();
@@ -678,6 +715,8 @@ void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::Endc
     layer->zoffset.push_back(tmpzoffset.at(ir));
     layer->phioffset.push_back(tmpphioffset.at(ir));
     layer->nsectors.push_back(tmpnsectors.at(ir));
+    layer->splitMode.push_back(tmpsplitmode.at(ir));
+    layer->splitOffset.push_back(tmpsplitoffset.at(ir));
 
     // compute ring radii
     double innerRadius = tmpradius.at(ir);

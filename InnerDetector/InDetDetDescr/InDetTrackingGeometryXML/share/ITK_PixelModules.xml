@@ -174,6 +174,41 @@
   <hybridThickness>0.</hybridThickness>
 </Module>
 
+
+
+<!-- ### CMOS ### -->
+
+<Module> 
+  <moduleName>FourChip_RD53_50x50_CMOS</moduleName>
+  <chipName> RD53 </chipName>
+  <lengthInChips>2</lengthInChips>
+  <widthMaxInChips>2</widthMaxInChips>
+  <sensorThickness>0.100</sensorThickness>
+  <chipThickness>0.</chipThickness>
+  <hybridThickness>0.</hybridThickness>
+</Module>
+
+<Module> 
+  <moduleName>FourChip_RD53_25x100_CMOS</moduleName>
+  <chipName> RD53_25x100 </chipName>
+  <lengthInChips>2</lengthInChips>
+  <widthMaxInChips>2</widthMaxInChips>
+  <sensorThickness>0.100</sensorThickness>
+  <chipThickness>0.</chipThickness>
+  <hybridThickness>0.</hybridThickness>
+</Module>
+
+<Module> 
+  <moduleName>FourChip_RD53_20x19_25x100_CMOS</moduleName>
+  <chipName> RD53_20x19 </chipName>
+  <lengthInChips>2</lengthInChips>
+  <widthMaxInChips>2</widthMaxInChips>
+  <sensorThickness>0.100</sensorThickness>
+  <chipThickness>0.</chipThickness>
+  <hybridThickness>0.</hybridThickness>
+</Module>
+
+
 <!-- ### 25 um x 100 um pixels ### -->
 
 <Module>
@@ -796,5 +831,39 @@
   <hybridThickness>0.</hybridThickness>
 </Module>
 
+<!-- ### 50 um x 50 um pixels, 3D sensor ### -->
+
+<Module>
+  <moduleName>FourChip_RD53_20x19_3D</moduleName>
+  <chipName> RD53_20x19 </chipName>
+  <lengthInChips>2</lengthInChips>
+  <widthMaxInChips>2</widthMaxInChips>
+  <sensorThickness>0.150</sensorThickness>
+  <chipThickness>0.150</chipThickness>
+  <hybridThickness>0.</hybridThickness>
+</Module>
+
+<Module>
+  <moduleName>DoubleLength_RD53_20x19_3D</moduleName>
+  <chipName> RD53_20x19 </chipName>
+  <lengthInChips>2</lengthInChips>
+  <widthMaxInChips>1</widthMaxInChips>
+  <sensorThickness>0.150</sensorThickness>
+  <chipThickness>0.150</chipThickness>
+  <hybridThickness>0.</hybridThickness>
+</Module>
+
+<Module>
+  <moduleName>SingleChip_RD53_20x19_Rot_3D</moduleName>
+  <chipName> RD53_20x19_Rot </chipName>
+  <lengthInChips>1</lengthInChips>
+  <widthMaxInChips>1</widthMaxInChips>
+  <sensorThickness>0.150</sensorThickness>
+  <chipThickness>0.150</chipThickness>
+  <hybridThickness>0.</hybridThickness>
+</Module>
+
 </PixelModules>
+
+
 

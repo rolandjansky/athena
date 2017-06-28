@@ -71,6 +71,8 @@ namespace InDet {
     std::vector< LayerDiscClass*> m_tmp_EndcapDiscs;
 
     bool m_createDict;
+    
+    bool m_addBCL;
   };
 }
 

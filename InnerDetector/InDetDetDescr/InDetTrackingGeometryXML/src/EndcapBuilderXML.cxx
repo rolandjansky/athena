@@ -36,7 +36,8 @@ InDet::EndcapBuilderXML::EndcapBuilderXML(const std::string& t, const std::strin
   m_moduleProvider("InDet::SiModuleProvider/SiModuleProvider"),
   m_endcapLayerBinsR(50),
   m_endcapLayerBinsPhi(1),
-  m_customMaterial(false)
+  m_customMaterial(false),
+  m_discEnvelope(0.1)
   //m_moduleProvider("iFatras::PlanarModuleProvider/PlanarModuleProvider"),
 {
   declareInterface<EndcapBuilderXML>(this);
@@ -47,6 +48,7 @@ InDet::EndcapBuilderXML::EndcapBuilderXML(const std::string& t, const std::strin
   declareProperty("EndcapLayerBinR",    m_endcapLayerBinsR);
   declareProperty("EndcapLayerBinPhi",  m_endcapLayerBinsPhi);
   declareProperty("CustomMaterial",     m_customMaterial);
+  declareProperty("DiscEnvelope",       m_discEnvelope);
 
 }
 
@@ -268,6 +270,8 @@ void InDet::EndcapBuilderXML::createActiveRingLayers(unsigned int itmpl, int sid
     double zpos = side*layerTmp->ringpos.at(iring);
     double innerR = layerTmp->innerRadius.at(iring);
     double outerR = layerTmp->outerRadius.at(iring);
+    
+    // you need to correct the outer radius to fit the corners of the modules
     double phiOffset = layerTmp->phioffset.at(iring);
     int nsectors = layerTmp->nsectors.at(iring);
     double disc_thickness = layerTmp->thickness.at(iring); 
@@ -295,14 +299,31 @@ void InDet::EndcapBuilderXML::createActiveRingLayers(unsigned int itmpl, int sid
       float centerphi =  centersOnModule.at(cEl).phi();
       if( centerphi < phiLowBound ) phiLowBound = centerphi;
       if( centerphi > phiHighBound ) phiHighBound = centerphi;
+//       std::cout << "z " << cEl << " --> " << centersOnModule.at(cEl).z() << std::endl;
     }
+    
+    InDet::ModuleTmp* moduleTmp = m_xmlReader->getModuleTemplate(layerTmp->modtype.at(iring));
+    double hwidth = moduleTmp->widthmax*0.5;
+    
+    double corr = cos(atan(hwidth/outerR));
+    outerR *= 1./corr;
+    
+    double zmin =  99999;
+    double zmax = -99999;
+    for (auto& el : cElements) {
+      zmin = std::min(zmin,el->center().z());
+      zmax = std::max(zmax,el->center().z());
+    }
+    
+    disc_thickness+=fabs(zmax-zmin);
+    
     double halfPhiStep = TMath::Pi()/nsectors;
     phiLowBound  -= halfPhiStep;
     phiHighBound += halfPhiStep;
     
     ATH_MSG_DEBUG("Creating phi BinUtility with these parameters:");
     ATH_MSG_DEBUG("halfPhiStep = " << halfPhiStep << "    phiHighBound = " << phiHighBound << "   phiLowBound = " << phiLowBound);
-  
+        
     Trk::BinUtility* BinUtilityPhi = new Trk::BinUtility(nsectors,
 							 phiLowBound,
 							 phiHighBound,
@@ -312,17 +333,19 @@ void InDet::EndcapBuilderXML::createActiveRingLayers(unsigned int itmpl, int sid
     ATH_MSG_DEBUG("  PHI bin utility - lowhigh -2  : RING "<<iring<<" "<<phiLowBound<<" "<<phiHighBound<<"  //  "<<phiLowBound+2.*TMath::Pi()<<" "<<phiHighBound<<"  Offset/step "<<phiOffset<<" "<<2.*halfPhiStep<<"     - "<<nsectors );
 
     // create binned array
-    Trk::BinnedArray<Trk::Surface>* binnedArray = getBinnedArray1D(*BinUtilityPhi, cElements,centersOnModule);
+    Trk::BinnedArray<Trk::Surface>* binnedArray = getBinnedArray1D(*BinUtilityPhi, cElements, centersOnModule);
 
     // prepare the overlap descriptor       
     Trk::OverlapDescriptor* olDescriptor = m_moduleProvider->getDiscOverlapDescriptor(m_pixelCase);
     
     // get the layer material from the helper method
-    const Trk::LayerMaterialProperties* disc_material = endcapLayerMaterial(innerR,outerR,layerTmp);
+    const Trk::LayerMaterialProperties* disc_material = endcapLayerMaterial(innerR-m_discEnvelope,
+									    outerR+m_discEnvelope,
+									    layerTmp);
 
     // create disc layer
     Trk::DiscLayer* layer = new Trk::DiscLayer(transf,
-					       new Trk::DiscBounds(innerR,outerR),
+					       new Trk::DiscBounds(innerR-m_discEnvelope,outerR+m_discEnvelope),
 					       binnedArray,
 					       *disc_material,
 					       disc_thickness,
@@ -402,14 +425,8 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
   // set identifiers variables
   int brl_ec = 2*side; // For identifier : endcap element brl_ec = +/-2 (neg ec/pos ec)
 
-  int iphi   = isector;
-  
-  if (side>0 || !m_pixelCase) {
-    iphi = isector+1+nsectors/2;
-    if ( isector*2+4>nsectors)
-      iphi = isector+1-nsectors/2;
-  }
-  
+  int iphi   = side>0 ? isector : (2*nsectors-isector-1)%(nsectors);  
+ 
   int ieta   = iring; 
   int ilayer = layerTmp->ilayer;
   bool isOuterMost = false; // JL -- needs to be fixed 
@@ -423,14 +440,12 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
 
   m_moduleProvider->setIdentifier(m_pixelCase,idwafer,idhash,brl_ec,ilayer,iphi,ieta,0);
 
-  // create the transform parameters
+  // create the transform parameters  
   double phistep = 2*TMath::Pi()/nsectors;
-  //double phi = phistep*isector-TMath::Pi()+phistep/2.0 + mod0phioffset;
-  double phi = phistep*(isector+1)-TMath::Pi()+ mod0phioffset;
-
+  double phi = phistep*(isector)+ mod0phioffset;
   if(phi > TMath::Pi()) phi -= 2*TMath::Pi();
   if(phi < -TMath::Pi()) phi += 2*TMath::Pi();
-    
+  
   // First the translation
   double  r = ring_rmin + (ring_rmax-ring_rmin)/2.0; 
   double dr = 0.; 
@@ -442,12 +457,18 @@ Trk::TrkDetElementBase* InDet::EndcapBuilderXML::createDiscDetElement(int itmpl,
   double rot = 0.5*TMath::Pi();
   
   Amg::Vector3D centerOnModule(r*cos(phi), r*sin(phi), z);
-  
+      
   Amg::Transform3D transform = m_moduleProvider->getTransform(r,dr,xshift,z,stereoO,tilt,rot,phi,useDisc);    
-
   Trk::TrkDetElementBase* planElement = (Trk::TrkDetElementBase *) m_moduleProvider->getDetElement(idwafer,idhash, moduleTmp, centerOnModule, 
 												   transform, m_pixelCase, isBarrel, isOuterMost, debug,
 												   useDisc, ring_rmin, ring_rmax, stereoO);
+  
+//   std::cout << "1 - Module  Id = " << brl_ec << " - " << ilayer << " - " << iphi << " - " << ieta << std::endl;
+//   std::cout << "2 - Module Pos = " << planElement->surface().center().perp() << " - " << planElement->surface().center().z() << " - " << planElement->surface().center().phi() <<  std::endl;
+
+  centerOnModule = Amg::Vector3D(planElement->surface().center().perp()*cos(planElement->surface().center().phi()),
+				 planElement->surface().center().perp()*sin(planElement->surface().center().phi()),
+				 planElement->surface().center().z());
   
 //   std::cout << "        -->  Endcap Element: " << std::endl;
 //   std::cout << "        -->  brl_ec = " << brl_ec << "     layer_disc = " << ilayer << "     iphi = " << iphi << "     ieta = " << ieta << "     side = 0" << std::endl;

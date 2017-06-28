@@ -107,7 +107,7 @@ namespace InDet {
 
   class StaveTmp {
   public:
-    StaveTmp() {  layer = b_modn = 0; support_material = "DefaultPixelStaveMaterial"; active_halflength = support_halflength = b_gap = b_tilt = b_angle = b_stereoI = b_stereoO = b_stereoSep = b_rshift = trans_tilt = trans_angle = trans_gap = alp_tilt = alp_angle = alp_rshift = 0; rMax = -99999; rMin = 99999; double_sided = b_sameAngle = false;}
+    StaveTmp() {  layer = b_modn = 0; support_material = "DefaultPixelStaveMaterial"; active_halflength = support_halflength = b_gap = b_tilt = b_angle = b_stereoI = b_stereoO = b_stereoSep = b_rshift = trans_tilt = trans_angle = trans_gap = alp_tilt = alp_angle = alp_rshift = alp_radialTilt = 0; rMax = -99999; rMin = 99999; double_sided = b_sameAngle = false;}
     ~StaveTmp() {}
 
     inline void Print() {
@@ -128,7 +128,7 @@ namespace InDet {
       if(alp_pos.size()>0){
 	std::cout << "     Alpine modules parameters:"        << std::endl;
 	std::cout << "        #modules = "  << alp_pos.size() << " type = '" << alp_type 
-		  << " tilt = " << alp_tilt << " [rad] angle = " << alp_angle << " [rad] rshift = " << alp_rshift << std::endl;
+		  << " tilt = " << alp_tilt << " [rad] angle = " << alp_angle << " [rad] rshift = " << alp_rshift <<" [degree] radial tilt = "<< alp_radialTilt << std::endl;
       }
     }
 
@@ -162,6 +162,7 @@ namespace InDet {
     double alp_tilt;
     double alp_angle;
     double alp_rshift;
+    double alp_radialTilt;
     // Cylindrical envelop
     double active_halflength;
     double rMax;
@@ -204,7 +205,8 @@ namespace InDet {
 	std::cout << "     Ring " << i << " nsectors = "  << nsectors.at(i) << " z = " << ringpos.at(i) 
 		  << " rMin/rMax = "<< innerRadius.at(i) <<"/"<< outerRadius.at(i) << " Zoffset = "  
 		  << zoffset.at(i) << " Phi offset mod0 = " << phioffset.at(i) 
-		  << " thck = " <<  thickness.at(i)<< " [mm] mtype = '" << modtype.at(i) << "'"<< std::endl;
+		  << " thck = " <<  thickness.at(i)<< " [mm] mtype = '" << modtype.at(i) << "' splitMode = " << splitMode.at(i) 
+		  << " splitOffset = " << splitOffset.at(i) << std::endl;
       }
     }
     
@@ -219,13 +221,15 @@ namespace InDet {
 
     // rings parameters
     std::vector<std::string> modtype;
-    std::vector<double> ringpos;
-    std::vector<double> zoffset;
-    std::vector<double> phioffset;
-    std::vector<double> outerRadius;
-    std::vector<double> innerRadius;
-    std::vector<double> thickness;
-    std::vector<int>    nsectors;
+    std::vector<double>      ringpos;
+    std::vector<double>      zoffset;
+    std::vector<double>      phioffset;
+    std::vector<double>      outerRadius;
+    std::vector<double>      innerRadius;
+    std::vector<double>      thickness;
+    std::vector<int>         nsectors;
+    std::vector<std::string> splitMode;
+    std::vector<double>      splitOffset;
    
   };
 

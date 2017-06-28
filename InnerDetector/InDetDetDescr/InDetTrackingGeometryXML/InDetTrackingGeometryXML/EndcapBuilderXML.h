@@ -93,7 +93,8 @@ namespace InDet {
     
     size_t              m_endcapLayerBinsR;               //!< Endcap bins for the material in r
     size_t              m_endcapLayerBinsPhi;             //!< Endcap bins for the material in phi
-    bool		m_customMaterial;
+    bool                m_customMaterial;
+    float               m_discEnvelope;
 
   };
 }
