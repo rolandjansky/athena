@@ -31,7 +31,7 @@ PixelPlanarChargeTool::PixelPlanarChargeTool(const std::string& type, const std:
   SubChargesTool(type,name,parent),
   m_numberOfSteps(50),
   m_numberOfCharges(10),
-  m_diffusionConstant(.007),
+  m_diffusionConstant(.0),
   m_doBichsel(false),
   m_doBichselBetaGammaCut(0.1),        // replace momentum cut
   m_doDeltaRay(false),                 // need validation
@@ -93,9 +93,11 @@ StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharg
   double eleholePairEnergy = 0;
   if (Module.isDBM()){
     eleholePairEnergy = 1. / (13. * CLHEP::eV); // was 3.62 eV.
+    m_diffusionConstant = .00265;
   }
   else{
     eleholePairEnergy = siProperties.electronHolePairsPerEnergy();
+    m_diffusionConstant = .007;
   }
   double collectionDist = 0.2*CLHEP::mm;
   double smearScale = 1. + 0.35*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
