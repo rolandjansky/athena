@@ -27,7 +27,6 @@
 #include "xAODTruth/TruthParticleContainer.h" 
 // #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
-// #include "xAODPFlow/PFO.h"
 #include "xAODPFlow/PFOContainer.h"
 
 
@@ -62,93 +61,58 @@ protected:
   SG::WriteHandleKey<xAOD::TruthParticleContainer> m_truthParticleKey;
   SG::WriteHandleKey<xAOD::TrackParticleContainer> m_trackParticleKey;
 
-  SG::WriteHandleKey<xAOD::PFOContainer> m_pfoChargedKey{
+  SG::WriteHandleKey<xAOD::PFOContainer> m_outPFOChargedKey{
     "ChargedParticleFlowObjects"};
 
-  SG::WriteHandleKey<xAOD::PFOContainer> m_pfoNeutralKey{
+  SG::WriteHandleKey<xAOD::PFOContainer> m_outPFONeutralKey{
     "NeutralParticleFlowObjects"};
 
-  SG::WriteHandleKey<xAOD::PFOContainer> m_pfoKey{};
+  SG::WriteHandleKey<ConstDataVector<xAOD::PFOContainer>> m_outPFOAllKey{};
 
-  SG::ReadHandleKey<xAOD::IParticleContainer> m_inputKey{};
-  SG::ReadHandleKey<xAOD::IParticleContainer> m_inputPFOChargedKey{};
-  SG::ReadHandleKey<xAOD::IParticleContainer> m_inputPFONeutralKey{};
-
+  SG::ReadHandleKey<xAOD::PFOContainer> m_inPFOChargedKey{};
+  SG::ReadHandleKey<xAOD::PFOContainer> m_inPFONeutralKey{};
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_inCaloClusterKey{};
+  SG::ReadHandleKey<xAOD::TruthParticleContainer> m_inTruthParticleKey{};
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_inTrackParticleKey{};
+  SG::ReadHandleKey<xAOD::PFOContainer> m_inPFOChargedCopyKey{};
+  SG::ReadHandleKey<xAOD::PFOContainer> m_inPFONeutralCopyKey{};
 
   StatusCode copyModRecordPFO() const;
 
   /// helper function to cast, shallow copy and record a container.
-  template<class T>
-  // xAOD::IParticleContainer*
-  StatusCode
-  copyModRecord(const xAOD::IParticleContainer* cont,
-                // bool record, 
-                bool useModifiers,
-                const SG::WriteHandleKey<T>&) const;
-  // std::string suffix="") const;
-  const xAOD::IParticleContainer* 
-  getInput(const SG::ReadHandleKey<xAOD::IParticleContainer>&) const;
 
+  template<class T>
+  StatusCode
+  copyModRecord(const SG::ReadHandleKey<T>&,
+                const SG::WriteHandleKey<T>&) const;
 };
 
 template<class T>
 StatusCode
-JetConstituentModSequence::copyModRecord(const xAOD::IParticleContainer* cont,
-                                         // bool record, 
-                                         bool useModifiers,
-                                         const SG::WriteHandleKey<T>& key) const {
-  //std::string suffix) const {
-  
-  /*
-  const T * clustCont = dynamic_cast<const T *>(cont);
-  if(clustCont == nullptr) {
-    ATH_MSG_ERROR( "Container "
-                   << key.key()
-                   << " is not of type "
-                   << m_inputType);
-    return nullptr;
-  }
+JetConstituentModSequence::copyModRecord(const SG::ReadHandleKey<T>& inKey,
+                                         const SG::WriteHandleKey<T>& outKey) const {
+
+  /* Read in a container of (type is template parameter),
+     optionally modify the elements of this container, and store.
+     This puts a (modified) copy of the container  into storegate.
   */
-
-
-  auto handle = makeHandle(key);
-  ATH_CHECK(handle.record(std::make_unique<T>(),
-                          std::make_unique<xAOD::ShallowAuxContainer>()));
-
-  for(auto o: *cont){
-    auto po = dynamic_cast<typename T::value_type>(o);
-    if(po == nullptr){
-      ATH_MSG_ERROR( "Error downcasting from IParticle to  "
-                     << m_inputType
-                     << " for container key "
-                     << key.key());
-      return StatusCode::FAILURE;
-    }
-    
-    handle->push_back(po);
+  
+  auto inHandle = makeHandle(inKey);
+  if(!inHandle.isValid()){
+    ATH_MSG_WARNING("Unable to retrieve input container from " << inKey.key());
+    return StatusCode::FAILURE;
   }
 
   std::pair< T*, xAOD::ShallowAuxContainer* > newclust = 
-    // xAOD::shallowCopyContainer(*clustCont );    
-    xAOD::shallowCopyContainer(*handle);    
+    xAOD::shallowCopyContainer(*inHandle);    
   newclust.second->setShallowIO(m_saveAsShallow);
-  
-  if(useModifiers){
-    for (auto t : m_modifiers) {ATH_CHECK(t->process(newclust.first));}
-  }
-  
-  // if(record){
 
-  /*
-  if(evtStore()->record( newclust.first, m_outputContainer+suffix ).isFailure() || 
-     evtStore()->record( newclust.second, m_outputContainer+suffix+"Aux." ).isFailure() ){
-    ATH_MSG_ERROR("Unable to record cluster collection" << m_outputContainer+suffix );
-    return NULL;
-    }
-  */
-  // }
-  //newclust.second->setShallowIO(false);
-  // return newclust.first;
+  auto handle = makeHandle(outKey);
+  ATH_CHECK(handle.record(std::unique_ptr<T>(newclust.first),
+                          std::unique_ptr<xAOD::ShallowAuxContainer>(newclust.second)));
+  
+  for (auto t : m_modifiers) {ATH_CHECK(t->process(newclust.first));}
+  
   return StatusCode::SUCCESS;
 }
 

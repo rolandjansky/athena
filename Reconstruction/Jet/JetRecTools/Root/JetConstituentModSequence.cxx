@@ -7,6 +7,7 @@
 // Will later add the intermediate step
 
 #include "JetRecTools/JetConstituentModSequence.h"
+#include "AthContainers/ConstDataVector.h"
 
 JetConstituentModSequence::JetConstituentModSequence(const std::string &name): asg::AsgTool(name) {
 
@@ -32,25 +33,35 @@ StatusCode JetConstituentModSequence::initialize() {
     return StatusCode::FAILURE;
   }
 
-  m_pfoKey = m_outputContainer+"ParticleFlowObjects";
+  m_outPFOAllKey = m_outputContainer+"ParticleFlowObjects";
   m_caloClusterKey = m_outputContainer;
   m_truthParticleKey = m_outputContainer;
   m_trackParticleKey = m_outputContainer;
 
-  m_inputKey = m_inputContainer;
-  m_inputPFOChargedKey = m_inputContainer + "ChargedParticleFlowObjects";
-  m_inputPFONeutralKey = m_inputContainer + "NeutralParticleFlowObjects";
+  m_inCaloClusterKey = m_inputContainer;
+  m_inTrackParticleKey = m_inputContainer;
+  m_inTruthParticleKey = m_inputContainer;
+  m_inPFOChargedKey = m_inputContainer + "ChargedParticleFlowObjects";
+  m_inPFONeutralKey = m_inputContainer + "NeutralParticleFlowObjects";
 
-  ATH_CHECK(m_pfoKey.initialize());
+  // allow reading in of containers previously written out
+  m_inPFONeutralCopyKey = m_outPFONeutralKey.key();
+  m_inPFOChargedCopyKey = m_outPFOChargedKey.key();
+
+  ATH_CHECK(m_outPFOAllKey.initialize());
   ATH_CHECK(m_caloClusterKey.initialize());
   ATH_CHECK(m_truthParticleKey.initialize());
   ATH_CHECK(m_trackParticleKey.initialize());
-  ATH_CHECK(m_pfoChargedKey.initialize());
-  ATH_CHECK(m_pfoNeutralKey.initialize());
+  ATH_CHECK(m_outPFOChargedKey.initialize());
+  ATH_CHECK(m_outPFONeutralKey.initialize());
   
-  ATH_CHECK(m_inputKey.initialize());
-  ATH_CHECK(m_inputPFOChargedKey.initialize());
-  ATH_CHECK(m_inputPFONeutralKey.initialize());
+  ATH_CHECK(m_inCaloClusterKey.initialize());
+  ATH_CHECK(m_inTruthParticleKey.initialize());
+  ATH_CHECK(m_inTrackParticleKey.initialize());
+  ATH_CHECK(m_inPFOChargedKey.initialize());
+  ATH_CHECK(m_inPFONeutralKey.initialize());
+  ATH_CHECK(m_inPFOChargedCopyKey.initialize());
+  ATH_CHECK(m_inPFONeutralCopyKey.initialize());
 
   if(m_inputTypeName == "CaloCluster") {
     m_inputType =  xAOD::Type::CaloCluster;
@@ -71,41 +82,26 @@ StatusCode JetConstituentModSequence::initialize() {
 int JetConstituentModSequence::execute() const {
   if (m_trigger){return 0;}
 
-  /*
-  const xAOD::IParticleContainer* cont = nullptr;
-  if(!(evtStore()->retrieve(cont, m_inputContainer)).isSuccess()){
-    ATH_MSG_ERROR(" Unable to retrieve input container "
-                    << m_inputTypeName);
-    return StatusCode::FAILURE;
-  }
-  */
-
-
-  constexpr auto useModifiers = true;
-
   // Create the shallow copy according to the input type
   switch(m_inputType){
 
   case xAOD::Type::CaloCluster: {
-    auto cont = getInput(m_inputKey);
-    if(cont == nullptr){return 1;}
-    auto sc  = copyModRecord(cont, useModifiers, m_caloClusterKey);
+    auto sc  = copyModRecord(m_inCaloClusterKey, 
+                             m_caloClusterKey);
     if(!sc.isSuccess()){return 1;}
     break; 
   }
   
   case xAOD::Type::TruthParticle: {
-    auto cont = getInput(m_inputKey);
-    if(cont == nullptr){return 1;}
-    auto sc = copyModRecord(cont, useModifiers, m_truthParticleKey);
+    auto sc = copyModRecord(m_inTruthParticleKey, 
+                            m_truthParticleKey);
     if(!sc.isSuccess()){return 1;}
     break;
   }
         
   case xAOD::Type::TrackParticle: {
-    auto cont = getInput(m_inputKey);
-    if(cont == nullptr){return 1;}
-    auto sc = copyModRecord(cont, useModifiers, m_trackParticleKey);
+    auto sc = copyModRecord(m_inTrackParticleKey, 
+                            m_trackParticleKey);
     if(!sc.isSuccess()){return 1;}
     break;
   }
@@ -121,33 +117,8 @@ int JetConstituentModSequence::execute() const {
     return 1;
   }
     
-    
   }
   
-  /*
-  if(modifiedCont == nullptr) {
-    ATH_MSG_WARNING("Could not create a copy of "<< m_inputContainer);
-    return 1;
-  }
-  */
-
-  // Now pass the input container shallow copy through the modifiers 
-  
-  // Loop over the modifier tools:
-  /*
-    for (auto t : m_modifiers) {
-    if(t->process(modifiedCont).isFailure()){
-    ATH_MSG_WARNING("Failure in modifying constituents " << m_outputContainer );
-    return 1;
-    }
-    }
-  */
-  
-  //To prevent memory leak when modified PFO are not recorded to event store
-  /*
-    if(m_inputType == xAOD::Type::ParticleFlow && m_trigger) delete modifiedCont;
-  */
-
   return 0;
 }
 
@@ -155,81 +126,48 @@ void JetConstituentModSequence::setInputClusterCollection(const xAOD::IParticleC
   m_trigInputClusters = cont;
 }
 
-
-//xAOD::IParticleContainer* 
 StatusCode
 JetConstituentModSequence::copyModRecordPFO() const {
 
-  // const xAOD::IParticleContainer *charged;
-  // const xAOD::IParticleContainer *neutral;
+  // write in charged and neutral PFO object,
+  // pass them to copyModRecord so that copies are
+  // written to store gate. Request that the  copies not be modified.
 
-  auto charged = getInput(m_inputPFOChargedKey);
-  if(charged == nullptr){
-    ATH_MSG_WARNING("Error retrieving PFO charged objects");
+  using PFOCont = xAOD::PFOContainer;
+  ATH_CHECK(copyModRecord<PFOCont>(m_inPFOChargedKey, 
+                                   m_outPFOChargedKey));
+
+  ATH_CHECK(copyModRecord<PFOCont>(m_inPFONeutralKey, 
+                                   m_outPFONeutralKey));
+
+
+  /* read in copies of neutral and chargeed PFO objects just written out,
+     place into a single data vector, modify them, and write them out */
+
+  auto outHandle = makeHandle(m_outPFOAllKey);
+
+  ATH_CHECK(outHandle.record(std::make_unique<ConstDataVector<xAOD::PFOContainer>>(SG::VIEW_ELEMENTS)));
+  
+                             
+  auto neutralHandle = makeHandle(m_inPFONeutralCopyKey);
+  if(!neutralHandle.isValid()){
+    ATH_MSG_WARNING("Unable to retrieve copy of neutral PFOs from " 
+                    << m_inPFONeutralCopyKey.key());
     return StatusCode::FAILURE;
   }
 
-  auto neutral = getInput(m_inputPFONeutralKey);
-  if(neutral == nullptr){
-    ATH_MSG_WARNING("Error retrieving PFO neutral objects");
-      return StatusCode::FAILURE;
+
+  auto chargedHandle = makeHandle(m_inPFOChargedCopyKey);
+  if(!chargedHandle.isValid()){
+    ATH_MSG_WARNING("Unable to retrieve copy of charged PFOs from " 
+                    << m_inPFOChargedCopyKey.key());
+    return StatusCode::FAILURE;
   }
 
-  /*
-  std::string key = m_inputContainer+"ChargedParticleFlowObjects";
-  ATH_CHECK(evtStore()->retrieve(charged, key));
-
-  key = m_inputContainer+"NeutralParticleFlowObjects";
-  ATH_CHECK(evtStore()->retrieve(neutral, key).isSuccess());
-  */
-
-  using PFOCont = xAOD::PFOContainer;
-  constexpr auto useModifiers = false;
-  ATH_CHECK(copyModRecord<PFOCont>(charged, useModifiers, m_pfoChargedKey));
-  ATH_CHECK(copyModRecord<PFOCont>(neutral, useModifiers, m_pfoNeutralKey));
-  /*
-  using PFOCont = xAOD::PFOContainer;
-  PFOCont* chargedCopy = 
-    dynamic_cast<PFOCont*>(copyModRecord<PFOCont>(charged, 
-                                                  useModifiers,
-                                                  m_pfoChargedKey));
+  outHandle->assign(neutralHandle->begin(), neutralHandle->end());
+  outHandle->insert(outHandle->end(),
+                    chargedHandle->begin(), 
+                    chargedHandle->end());
   
-  PFOCont* neutralCopy = 
-    dynamic_cast<PFOCont*>(copyModRecord<PFOCont>(neutral, 
-                                                  useModifiers,
-                                                  m_pfoNeutralKey));
-
-  PFOCont* modifiedCont = new PFOCont(SG::VIEW_ELEMENTS);
-  for (xAOD::PFO* pfo: *chargedCopy) {modifiedCont->push_back(pfo);}
-  for (xAOD::PFO* pfo: *neutralCopy) {modifiedCont->push_back(pfo);}
-  */
-
-  auto handle = makeHandle(m_pfoKey);
-  ATH_CHECK(handle.record(std::make_unique< PFOCont>(SG::VIEW_ELEMENTS)));
-  for (auto o : *charged) {handle->push_back(dynamic_cast<xAOD::PFO*>(o));}
-  for (auto o : *neutral) {handle->push_back(dynamic_cast<xAOD::PFO*>(o));}
-  /*
-    PFOCont* pfoCont = new PFOCont(SG::VIEW_ELEMENTS);
-    for (auto o : *charged) {pfoCont->push_back(dynamic_cast<xAOD::PFO*>(o));}
-    for (auto o : *neutral) {pfoCont->push_back(dynamic_cast<xAOD::PFO*>(o));}
-    ATH_CHECK(evtStore()->record(pfoCont, 
-    m_outputContainer+"ParticleFlowObjects"));
-  */
-
   return StatusCode::SUCCESS;
-}
-
-
-const xAOD::IParticleContainer* 
-JetConstituentModSequence::getInput(const SG::ReadHandleKey<xAOD::IParticleContainer>& key) const {
-  
-  auto handle = SG::makeHandle(key);
-
-  if(!handle.isValid()){
-    ATH_MSG_ERROR("Error retrieving input from evtStore: " 
-                  << m_inputKey.key());
-    return nullptr;
-  }
-
-  return handle.cptr();
 }
