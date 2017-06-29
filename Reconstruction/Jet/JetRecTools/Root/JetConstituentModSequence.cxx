@@ -28,7 +28,7 @@ JetConstituentModSequence::JetConstituentModSequence(const std::string &name): a
 #endif
   declareProperty("InputContainer", m_inputContainer, "The input container for the sequence.");
   declareProperty("OutputContainer", m_outputContainer, "The output container for the sequence.");
-  declareProperty("InputType", m_inputTypeName, "The xAOD type name for the input container.");
+  declareProperty("InputType", m_inputType, "The xAOD type name for the input container.");
   declareProperty("Modifiers", m_modifiers, "List of IJet tools.");
   declareProperty("Trigger", m_trigger=false);
   declareProperty("SaveAsShallow", m_saveAsShallow=true, "Save as shallow copy");
@@ -42,12 +42,13 @@ StatusCode JetConstituentModSequence::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if(m_inputTypeName == "CaloCluster") m_inputType =  xAOD::Type::CaloCluster;
-  else if(m_inputTypeName == "TruthParticle") m_inputType =  xAOD::Type::TruthParticle;
-  else if(m_inputTypeName == "TrackParticle") m_inputType = xAOD::Type::TrackParticle;
-  else if(m_inputTypeName == "ParticleFlow") m_inputType = xAOD::Type::ParticleFlow;
-  else {
-    ATH_MSG_ERROR(" Unkonwn input type "<< m_inputType );
+  switch(m_inputType) {
+  case xAOD::Type::CaloCluster:
+    break;
+  case xAOD::Type::ParticleFlow:
+    break;
+  default:
+    ATH_MSG_ERROR(" Unsupported input type "<< m_inputType );
     return StatusCode::FAILURE;
   }
   
@@ -101,7 +102,7 @@ int JetConstituentModSequence::execute() const {
 
     if(!m_trigger){
       if( evtStore()->record(modifiedCont, m_outputContainer+"ParticleFlowObjects").isFailure() ){
-        ATH_MSG_ERROR("Unable to record cluster collection" << m_outputContainer+"ParticleFlowObjects" );
+        ATH_MSG_ERROR("Unable to record output collection" << m_outputContainer+"ParticleFlowObjects" );
         return 1;
       }
     }

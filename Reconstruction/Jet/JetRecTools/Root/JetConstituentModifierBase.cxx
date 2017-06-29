@@ -6,37 +6,36 @@
 // // Michael Nelson, CERN & University of Oxford 
 
 #include "JetRecTools/JetConstituentModifierBase.h"
-#include "xAODCore/ShallowCopy.h"
+#include "xAODCaloEvent/CaloCluster.h"
+#include "xAODPFlow/PFO.h"
 
 JetConstituentModifierBase::JetConstituentModifierBase(const std::string & name): asg::AsgTool(name) {
 #ifdef ASGTOOL_ATHENA  
   declareInterface<IJetConstituentModifier>(this);
 #endif
+  declareProperty("InputType", m_inputType);
 }
 
-//xAOD::IParticleContainer* cont = 0; MEN: moved into the execute() method
-/*
-StatusCode JetConstituentModifierBase::execute () { // MEN: Make this blank for now, just during the testing. See below.
-  xAOD::IParticleContainer* cont = 0;
-  if(m_inputContainer) {
-    CHECK( evtStore()->retrieve(cont, m_inputContainer) );
-    std::pair< xAOD::CaloClusterContainer*, xAOD::ShallowAuxContainer* > newclust = xAOD::shallowCopyContainer( *cont ); // MEN: Should we make the container type more generic here, since we will have to add truth, track, pFlow eventually?
+StatusCode JetConstituentModifierBase::process(xAOD::IParticleContainer* cont) const
+{
+  // Test that we are operating on the type of object that
+  // we will be writing out.
+  // By implication, any supporting containers should not
+  // be the ones passed to this method...
+  if(!cont->empty() && cont->front()->type() != m_inputType) {
+    ATH_MSG_ERROR("Object type mismatch! This tool expects " << m_inputType
+		  << ", but received " << cont->front()->type());
+    return StatusCode::FAILURE;
   }
 
-  process(cont);
+  ATH_CHECK(process_impl(cont));
 
-  if(evtStore()->record( newclust.first, m_outputContainer ).isFailure() || evtStore()->record( newclust.second, m_outputContainer+"Aux." ).isFailure() ){
+  return StatusCode::SUCCESS;
+}
 
-  ATH_MSG_ERROR("Unable to record cluster collection" << m_inputContainer );
-
-  return StatusCode::FAILURE;
 
   }
 }
-*/
-
-// For testing (comment as appropriate):
-
 
 StatusCode JetConstituentModifierBase::process(xAOD::IParticleContainer*) const { 
   return StatusCode::SUCCESS;
@@ -49,4 +48,3 @@ int JetConstituentModifierBase::execute() const {
   return 0;
 
 }
-
