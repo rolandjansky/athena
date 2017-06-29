@@ -7,57 +7,12 @@
 #ifndef TRUTHRIVETTOOLS_HIGGSCLASSIFICATION_H
 #define TRUTHRIVETTOOLS_HIGGSCLASSIFICATION_H
 
-// ROOT include(s):
-#include <TLorentzVector.h>
-
 // Rivet include(s):
 #include <Rivet/Particle.hh>
 #include <Rivet/Jet.hh>
 
 // Local include(s):
 #include "TruthRivetTools/Enums.h"
-
-/// Higgs Template Cross Section namespace
-namespace HTXS {
-
-   /// Structure holding information about the current event
-   ///
-   /// Four-momenta and event classification according to the
-   /// Higgs Template Cross Section.
-   ///
-   struct HiggsClassification {
-
-      /// Higgs production mode
-      HTXS::HiggsProdMode prodMode;
-
-      /// The Higgs boson
-      TLorentzVector higgs;
-      /// The Higgs boson decay products
-      TLorentzVector p4decay_higgs;
-      /// Associated vector bosons
-      TLorentzVector V;
-      /// The V-boson decay products
-      TLorentzVector p4decay_V;
-      /// Jets are built ignoring Higgs decay products and leptons from V decays
-      /// jets with pT > 25 GeV and 30 GeV
-      std::vector< TLorentzVector > jets25, jets30;
-
-      /// Stage-0 HTXS event classifcation
-      /// See: https://cds.cern.ch/record/2138079
-      HTXS::Stage0::Category stage0_cat;
-      /// Stage-1 HTXS event classifcation
-      /// See: https://cds.cern.ch/record/2138079
-      HTXS::Stage1::Category stage1_cat_pTjet25GeV;
-      /// Stage-1 HTXS event classifcation
-      /// See: https://cds.cern.ch/record/2138079
-      HTXS::Stage1::Category stage1_cat_pTjet30GeV;
-
-      /// Error code: classification was succesful or some error occured
-      HTXS::ErrorCode errorCode;
-
-   }; // struct HiggsClassification
-
-} // namespace HTXS
 
 /// Rivet namespace
 namespace Rivet {
