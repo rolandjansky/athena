@@ -76,7 +76,7 @@ namespace G4UA
           const HepMC::GenParticle* part = ppi->GetHepMCParticle();
           if(part) {
             // OK, we got back to HepMC
-            std::unique_ptr<TrackInformation> ti(new TrackInformation(part));
+            std::unique_ptr<TrackInformation> ti = std::make_unique<TrackInformation>(part);
             ti->SetRegenerationNr(0);
             ti->SetClassification(Primary);
             // regNr=0 and classify=Primary are default values anyway
@@ -85,7 +85,7 @@ namespace G4UA
           // What does this condition mean?
           else if(ppi->GetParticleBarcode() >= 0) {
             // PrimaryParticleInformation should at least provide a barcode
-            std::unique_ptr<TrackBarcodeInfo> bi(new TrackBarcodeInfo(ppi->GetParticleBarcode()));
+            std::unique_ptr<TrackBarcodeInfo> bi = std::make_unique<TrackBarcodeInfo>(ppi->GetParticleBarcode());
             mutableTrack->SetUserInformation(bi.release()); /// Pass ownership to mutableTrack
           }
         } // no ISFParticle attached
