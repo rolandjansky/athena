@@ -28,10 +28,12 @@
 #include <iostream>
 
 /****************************************************/
-/* TileLaserDefaultCalibTool.cxx     July 2014      */
+/* TileLaserDefaultCalibTool.cxx     June 2017      */
 /*                                                  */
 /* Henric Wilkens, following work from Seb Viret and 
-   Vincent Giangiobbe             
+   Vincent Giangiobbe    
+
+  Giulia Di Gregorio, following work from Henric 
                                                     */
 /****************************************************/
 
