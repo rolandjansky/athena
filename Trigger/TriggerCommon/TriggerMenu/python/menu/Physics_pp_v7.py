@@ -4400,7 +4400,14 @@ def setupMenu():
 	["noalg_l1topo_L13J20_4J20.0ETA49_MJJ-800",          	"L1_3J20_4J20.0ETA49_MJJ-800",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
 	["noalg_l1topo_L13J20_4J20.0ETA49_MJJ-900",          	"L1_3J20_4J20.0ETA49_MJJ-900",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
 	["noalg_l1topo_L1XE35_MJJ-200",          		"L1_XE35_MJJ-200",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
-
+	["noalg_l1topo_L130M-EM20ITAU12",          		"L1_30M-EM20ITAU12",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
+	["noalg_l1topo_L1TAU60_DR-TAU20ITAU12I",          		"L1_TAU60_DR-TAU20ITAU12I",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
+ 	["noalg_l1topo_L1LLP-RO",          		"L1_LLP-RO",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
+ 	["noalg_l1topo_L1MJJ-400-CF",          		"L1_MJJ-400-CF",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
+ 	["noalg_l1topo_L1SC111-CJ15",          		"L1_SC111-CJ15",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
+ 	["noalg_l1topo_L1SC85-CJ15",          		"L1_SC85-CJ15",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
+ 	["noalg_l1topo_L1LATE-MU10_J50",          		"L1_LATE-MU10_J50",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
+ 	["noalg_l1topo_L1LATE-MU10_XE40",          		"L1_LATE-MU10_XE40",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
  
         # #minbias streamer
         ['noalg_mb_L1MBTS_1',             'L1_MBTS_1',        [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
