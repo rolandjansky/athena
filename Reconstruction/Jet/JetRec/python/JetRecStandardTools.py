@@ -241,12 +241,12 @@ from JetRecTools.JetRecToolsConfig import ctm
 jtm += ctm.buildConstitModifSequence( "JetConstitSeq_LCOrigin",
     OutputContainer='LCOriginTopoClusters',
     InputContainer= 'CaloCalTopoClusters',
-    modList = [  'lc_origin' ] )
+    modList = [  'clus_origin' ] )
 
 jtm += ctm.buildConstitModifSequence( "JetConstitSeq_EMOrigin",
     OutputContainer='EMOriginTopoClusters',
     InputContainer= 'CaloCalTopoClusters',                                      
-    modList = [  'em_origin' ] )
+    modList = [ 'clus_emscale', 'clus_origin' ] )
 
 
 

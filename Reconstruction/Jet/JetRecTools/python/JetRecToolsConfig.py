@@ -1,11 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 import os
-from AthenaCommon import Logging
-#from JetRec.JetToolSupport import jtm
-#import JetRec.JetRecStandardTools
-from JetRecTools.JetRecToolsConf import JetTrackSelectionTool , TrackVertexAssociationTool, TrackPseudoJetGetter #MissingCellListTool, 
-
+from AthenaCommon import Logging, CfgMgr
 
 ## # ------------------------------------------------
 ## # Bad/Missing Cells list creation
@@ -34,9 +30,8 @@ def badChanInputHistoHelper():
 
 
     badChanInputHistoHelper()
-    from JetMomentTools.JetMomentToolsConf import JetBadChanCorrTool
     from JetRec.JetRecStandard import jtm
-    jtm += JetBadChanCorrTool("JetBadChanCorrTool", MissingCellMap="MissingCaloCellsMap")
+    jtm += CfgMgr.JetBadChanCorrTool("JetBadChanCorrTool", MissingCellMap="MissingCaloCellsMap")
 
 
 # -----------------------------------
@@ -138,13 +133,14 @@ class ConstituentToolManager(object):
                 # translate into a real tool
                 tool = self.modifiersMap.get(t,None)
                 if tool is None:
-                    self.log.error( seqName+". Uknown shortcut for constit modifier list : "+t)
+                    self.log.error( seqName+". Unknown shortcut for constit modifier list : "+t)
                     return None
                 t = tool
+                t.InputType = InputType
             # append to the final list
             finalList.append( t )
             
-        clustModSeq = JetConstituentModSequence( seqName, # the name of the tool 
+        clustModSeq = CfgMgr.JetConstituentModSequence( seqName, # the name of the tool 
                                                  InputContainer = InputContainer,
                                                  OutputContainer = OutputContainer,
                                                  InputType = InputType,
@@ -162,14 +158,12 @@ ctm = ConstituentToolManager()
     
 # -----------------------------------
 # add standard tools to ctm
-from JetRecTools.JetRecToolsConf import  JetConstituentModSequence, CaloClusterConstituentsOrigin, SoftKillerWeightTool
-
-
-ctm.add( SoftKillerWeightTool("JetConstit_SoftKiller", SKGridSize=0.6) ,
+ctm.add( CfgMgr.SoftKillerWeightTool("JetConstit_SoftKiller", SKGridSize=0.6) ,
          alias = 'softkiller' )
 
-ctm.add( CaloClusterConstituentsOrigin("JetConstit_LCOrigin") ,
-         alias = 'lc_origin' )
-ctm.add( CaloClusterConstituentsOrigin("JetConstit_EMOrigin", UseEMScale=True) ,
-         alias = 'em_origin' )
+ctm.add( CfgMgr.ClusterAtEMScaleTool("JetConstit_ClusEM") ,
+         alias = 'clus_emscale' )
+
+ctm.add( CfgMgr.CaloClusterConstituentsOrigin("JetConstit_ClusOrigin") ,
+         alias = 'clus_origin' )
 
