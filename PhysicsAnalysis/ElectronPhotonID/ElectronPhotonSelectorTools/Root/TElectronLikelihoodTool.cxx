@@ -111,60 +111,60 @@ int Root::TElectronLikelihoodTool::initialize()
       sc = 0;
     }
   
-  unsigned int ibin_combinedLH ;
-  if(useHighETLHBinning) ibin_combinedLH =  s_fnDiscEtBins*s_fnEtaBins ;
-  else  if(useOneExtraHighETLHBin) ibin_combinedLH =  s_fnDiscEtBinsOneExtra*s_fnEtaBins ;
-  else ibin_combinedLH =  s_fnDiscEtBinsOrig*s_fnEtaBins ;
-  unsigned int ibin_combinedOther =  s_fnDiscEtBinsOrig*s_fnEtaBins ;
+  unsigned int number_of_expected_bin_combinedLH ;
+  if(useHighETLHBinning) number_of_expected_bin_combinedLH =  s_fnDiscEtBins*s_fnEtaBins ;
+  else  if(useOneExtraHighETLHBin) number_of_expected_bin_combinedLH =  s_fnDiscEtBinsOneExtra*s_fnEtaBins ;
+  else number_of_expected_bin_combinedLH =  s_fnDiscEtBinsOrig*s_fnEtaBins ;
+  unsigned int number_of_expected_bin_combinedOther =  s_fnDiscEtBinsOrig*s_fnEtaBins ;
 
 
-  if(ibin_combinedLH > CutLikelihood.size()){
-    ATH_MSG_WARNING(" Something wrong wiht the config file we expect diffent number of bins  ");
+  if( CutLikelihood.size() != number_of_expected_bin_combinedLH){
+    ATH_MSG_WARNING(" Something wrong wiht the config file: CutLikelihood  we expect diffent number of bins  ");
     sc = 0;
   } 
 
-  if( DiscHardCutForPileupTransform.size()) {
-    if(ibin_combinedLH > DiscHardCutForPileupTransform.size()){
-      ATH_MSG_WARNING(" Something wrong wiht the config file we expect diffent number of bins  ");
+  if( DiscHardCutForPileupTransform.size() >0 ) {
+    if( DiscHardCutForPileupTransform.size() != number_of_expected_bin_combinedLH){
+      ATH_MSG_WARNING(" Something wrong wiht the config file: DiscHardCutForPileupTransform  we expect diffent number of bins  ");
       sc = 0;
     } 
   }
 
 
-  if(DiscHardCutSlopeForPileupTransform.size() ) {
-    if(ibin_combinedLH > DiscHardCutSlopeForPileupTransform.size()){
-      ATH_MSG_WARNING(" Something wrong wiht the config file we expect diffent number of bins  ");
+  if(DiscHardCutSlopeForPileupTransform.size() >0 ) {
+    if(DiscHardCutSlopeForPileupTransform.size() != number_of_expected_bin_combinedLH){
+      ATH_MSG_WARNING(" Something wrong wiht the config file: DiscHardCutSlopeForPileupTransform  we expect diffent number of bins  ");
       sc = 0;
     } 
   }
   
-  if(DiscLooseForPileupTransform.size() == 0) {
-    if(ibin_combinedLH > DiscLooseForPileupTransform.size()){
-      ATH_MSG_WARNING(" Something wrong wiht the config file we expect diffent number of bins  ");
+  if(DiscLooseForPileupTransform.size() >0) {
+    if( DiscLooseForPileupTransform.size() != number_of_expected_bin_combinedLH){
+      ATH_MSG_WARNING(" Something wrong wiht the config file: DiscLooseForPileupTransform  we expect diffent number of bins  ");
       sc = 0;
     } 
   }
 
  // d0 cut
-  if (CutA0.size()){
-    if (ibin_combinedOther >CutA0.size()){
-     ATH_MSG_WARNING(" Something wrong wiht the config file we expect diffent number of bins  ");
+  if (CutA0.size() >0){
+    if (CutA0.size() != number_of_expected_bin_combinedOther){
+     ATH_MSG_WARNING(" Something wrong wiht the config file: CutA0  we expect diffent number of bins  ");
     sc = 0;
     }
   }
 
   // deltaEta cut
-  if (CutDeltaEta.size()){
-     if (ibin_combinedOther >CutDeltaEta.size()){
-       ATH_MSG_WARNING(" Something wrong wiht the config file we expect diffent number of bins  ");
+  if (CutDeltaEta.size() >0){
+     if (CutDeltaEta.size() != number_of_expected_bin_combinedOther){
+       ATH_MSG_WARNING(" Something wrong wiht the config file: CutDeltaEta  we expect diffent number of bins  ");
        sc = 0;
      }
   }
   
   // deltaPhiRes cut
-  if (CutDeltaPhiRes.size()){
-    if (ibin_combinedOther >CutDeltaPhiRes.size() ){
-       ATH_MSG_WARNING(" Something wrong wiht the config file we expect diffent number of bins  ");
+  if (CutDeltaPhiRes.size() >0){
+    if (CutDeltaPhiRes.size() != number_of_expected_bin_combinedOther ){
+       ATH_MSG_WARNING(" Something wrong wiht the config file: CutDeltaPhiRes  we expect diffent number of bins  ");
        sc = 0;
     }
   }
