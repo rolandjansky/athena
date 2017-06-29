@@ -3,15 +3,6 @@
 from METReconstruction.METRecoFlags import metFlags
 from METReconstruction.METAssocConfig import AssocConfig, METAssocConfig
 
-modClusKey = ""
-modClusColl = {}
-if metFlags.UseTracks():
-                 modClusKey="OriginCorr",
-                 modClusColls={
-                     'LCOriginCorrClusters':'LCOriginTopoClusters',
-                     'EMOriginCorrClusters':'EMOriginTopoClusters'
-                     }
-
 ############################################################################
 # AntiKt4LCTopo
 JetType = 'LCJet'
@@ -25,8 +16,7 @@ associators = [AssocConfig(JetType),
 cfg_akt4lc = METAssocConfig('AntiKt4LCTopo',
                             associators,
                             doPFlow=False,
-                            modClusKey=modClusKey,
-                            modClusColl=modClusColl
+                            doOriginCorrClus=metFlags.UseTracks()
                             )
 
 metFlags.METAssocConfigs()[cfg_akt4lc.suffix] = cfg_akt4lc
@@ -45,8 +35,7 @@ associators = [AssocConfig(JetType),
 cfg_akt4em = METAssocConfig('AntiKt4EMTopo',
                             associators,
                             doPFlow=False,
-                            modClusKey=modClusKey,
-                            modClusColl=modClusColl,
+                            doOriginCorrClus=metFlags.UseTracks()
                             )
 
 metFlags.METAssocConfigs()[cfg_akt4em.suffix] = cfg_akt4em
