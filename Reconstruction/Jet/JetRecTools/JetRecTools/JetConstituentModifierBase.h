@@ -37,6 +37,17 @@ public:
   }
 
 protected:
+  // Define four-momentum setters that will handle type-specific operations
+  // Multiple versions are needed that only correct particular four-vector
+  // components,  to avoid producing unnecessary shallow copy branches
+  
+  // Setter for eta/phi
+  StatusCode setEtaPhi(xAOD::IParticle* obj, float eta, float phi) const;
+  // Setter for e/pt
+  StatusCode setEnergyPt(xAOD::IParticle* obj, float e, float pt) const;
+  // Setter for full four-vector
+  StatusCode setP4(xAOD::IParticle* obj, const xAOD::JetFourMom_t& p4) const;
+
   std::string m_inputContainer = "";
   std::string m_outputContainer = ""; // These containers can be empty 
 
