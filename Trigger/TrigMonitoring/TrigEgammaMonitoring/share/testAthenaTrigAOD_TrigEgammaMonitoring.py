@@ -91,6 +91,8 @@ HLTMonManager = algseq.HLTMonManager
 from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import TrigEgammaMonitoringTool
 if ('derivation' in dir()):
     HLTMonManager.AthenaMonTools += TrigEgammaMonitoringTool(derivation=True)
+elif ('emulation' in dir()):
+    HLTMonManager.AthenaMonTools += TrigEgammaMonitoringTool(emulation=True)
 else:
     HLTMonManager.AthenaMonTools += TrigEgammaMonitoringTool()
 
