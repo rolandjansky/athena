@@ -51,6 +51,6 @@ set( VP1AlgsEnvironment_DIR ${CMAKE_CURRENT_BINARY_DIR}
     )
 # And now "find" it! It will set the env vars defined in the package's 'Config' file.
 find_package( VP1AlgsEnvironment REQUIRED )
-message( "VP1PLUGINPATH has been set to: " $ENV{VP1PLUGINPATH} )
+# message( "VP1PLUGINPATH has been set to: " $ENV{VP1PLUGINPATH} )
 
 

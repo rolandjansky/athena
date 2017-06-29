@@ -34,8 +34,6 @@ set( CMAKE_AUTOMOC TRUE )
 # Generate resource files automatically:
 set( CMAKE_AUTORCC TRUE )
 
-message("VP1Base - CMAKE_CURRENT_BINARY_DIR: ${CMAKE_CURRENT_BINARY_DIR}")
-
 # Build the library. Remember that the auto-generated UI files are put under
 # CMAKE_CURRENT_BINARY_DIR, so it needs to be added explicitly to the
 # declaration of PRIVATE_INCLUDE_DIRS.

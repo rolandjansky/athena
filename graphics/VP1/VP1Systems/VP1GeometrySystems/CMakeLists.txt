@@ -46,8 +46,6 @@ set( CMAKE_AUTORCC ON )
 # CMAKE_CURRENT_BINARY_DIR, so it needs to be added explicitly to the
 # declaration of PRIVATE_INCLUDE_DIRS.
 
-message("VP1GeometrySystems - CMAKE_CURRENT_BINARY_DIR: ${CMAKE_CURRENT_BINARY_DIR}")
-
 atlas_add_library( VP1GeometrySystems
    VP1GeometrySystems/*.h src/*.cxx
    PUBLIC_HEADERS VP1GeometrySystems
