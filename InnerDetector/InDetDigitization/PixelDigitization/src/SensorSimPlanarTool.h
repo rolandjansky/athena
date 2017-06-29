@@ -3,8 +3,8 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// PixelPlanarChargeTool.h
-//   Header file for class PixelPlanarChargeTool
+// SensorSimPlanarTool.h
+//   Header file for class SensorSimPlanarTool
 ///////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
@@ -20,26 +20,26 @@
 //
 //////////////////////////////////////////////////////////////////
 
-#ifndef PIXELDIGITIZATION_PixelPlanarChargeTool_H
-#define PIXELDIGITIZATION_PixelPlanarChargeTool_H
+#ifndef PIXELDIGITIZATION_SensorSimPlanarTool_H
+#define PIXELDIGITIZATION_SensorSimPlanarTool_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "SubChargesTool.h"
+#include "SensorSimTool.h"
 
 #include "BichselSimTool.h"
 
-class PixelPlanarChargeTool : public SubChargesTool {
+class SensorSimPlanarTool : public SensorSimTool {
 
   public:
-    PixelPlanarChargeTool( const std::string& type, const std::string& name,const IInterface* parent);
+    SensorSimPlanarTool( const std::string& type, const std::string& name,const IInterface* parent);
     virtual StatusCode initialize();
     virtual StatusCode finalize();
-    virtual ~PixelPlanarChargeTool();
+    virtual ~SensorSimPlanarTool();
 
     virtual StatusCode charge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, const InDetDD::SiDetectorElement &Module);  
 
   private:
-    PixelPlanarChargeTool();
+    SensorSimPlanarTool();
 
     int    m_numberOfSteps;
     int    m_numberOfCharges;  
@@ -56,4 +56,4 @@ class PixelPlanarChargeTool : public SubChargesTool {
     void simulateBow(const InDetDD::SiDetectorElement * element,double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const;
 };
 
-#endif // PIXELDIGITIZATION_PixelPlanarChargeTool_H
+#endif // PIXELDIGITIZATION_SensorSimPlanarTool_H

@@ -2,28 +2,28 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef PIXELDIGITIZATION_Pixel3DChargeTool_H
-#define PIXELDIGITIZATION_Pixel3DChargeTool_H
+#ifndef PIXELDIGITIZATION_SensorSim3DTool_H
+#define PIXELDIGITIZATION_SensorSim3DTool_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "SubChargesTool.h"
+#include "SensorSimTool.h"
 #include "IChargeCollProbSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 
 #include "BichselSimTool.h"
 
-class Pixel3DChargeTool : public SubChargesTool {
+class SensorSim3DTool : public SensorSimTool {
 
   public:
-    Pixel3DChargeTool( const std::string& type, const std::string& name,const IInterface* parent);
+    SensorSim3DTool( const std::string& type, const std::string& name,const IInterface* parent);
     virtual StatusCode initialize();
     virtual StatusCode finalize();
-    virtual ~Pixel3DChargeTool();
+    virtual ~SensorSim3DTool();
 
     virtual StatusCode charge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, const InDetDD::SiDetectorElement &Module);  
 
   private:
-    Pixel3DChargeTool();
+    SensorSim3DTool();
 
     int m_numberOfSteps;
     bool   m_doBichsel;                                  // re-do charge deposition following Bichsel model
@@ -37,4 +37,4 @@ class Pixel3DChargeTool : public SubChargesTool {
     void simulateBow(const InDetDD::SiDetectorElement * element,double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const;
 };
 
-#endif // PIXELDIGITIZATION_Pixel3DChargeTool_H
+#endif // PIXELDIGITIZATION_SensorSim3DTool_H

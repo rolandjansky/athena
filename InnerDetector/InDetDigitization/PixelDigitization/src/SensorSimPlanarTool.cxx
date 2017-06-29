@@ -3,13 +3,13 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// PixelPlanarChargeTool.cxx
-//   Implementation file for class PixelPlanarChargeTool
+// SensorSimPlanarTool.cxx
+//   Implementation file for class SensorSimPlanarTool
 ///////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#include "PixelPlanarChargeTool.h"
+#include "SensorSimPlanarTool.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "SiDigitization/SiSurfaceCharge.h"
@@ -27,8 +27,8 @@
 
 using namespace InDetDD;
 
-PixelPlanarChargeTool::PixelPlanarChargeTool(const std::string& type, const std::string& name,const IInterface* parent):
-  SubChargesTool(type,name,parent),
+SensorSimPlanarTool::SensorSimPlanarTool(const std::string& type, const std::string& name,const IInterface* parent):
+  SensorSimTool(type,name,parent),
   m_numberOfSteps(50),
   m_numberOfCharges(10),
   m_diffusionConstant(.0),
@@ -50,32 +50,32 @@ PixelPlanarChargeTool::PixelPlanarChargeTool(const std::string& type, const std:
 
 class DetCondCFloat;
 
-PixelPlanarChargeTool::~PixelPlanarChargeTool() { }
+SensorSimPlanarTool::~SensorSimPlanarTool() { }
 
-StatusCode PixelPlanarChargeTool::initialize() {
-  CHECK(SubChargesTool::initialize()); 
-  ATH_MSG_INFO("You are using PixelPlanarChargeTool, not PixelPlanarChargeTool");
+StatusCode SensorSimPlanarTool::initialize() {
+  CHECK(SensorSimTool::initialize()); 
+  ATH_MSG_INFO("You are using SensorSimPlanarTool, not SensorSimPlanarTool");
 
   if (m_doBichsel) {
-    ATH_MSG_INFO("Bichsel Digitization is turned ON in PixelPlanarChargeTool!");
+    ATH_MSG_INFO("Bichsel Digitization is turned ON in SensorSimPlanarTool!");
     CHECK(m_BichselSimTool.retrieve());
   }
   else {
-    ATH_MSG_INFO("Bichsel Digitization is turned OFF in PixelPlanarChargeTool!");
+    ATH_MSG_INFO("Bichsel Digitization is turned OFF in SensorSimPlanarTool!");
   }
 
   m_doDeltaRay = (m_doBichsel && m_doDeltaRay);    // if we don't do Bichsel model, no re-simulation on delta-ray at all!
 
-  ATH_MSG_DEBUG ( "PixelPlanarChargeTool::initialize()");
+  ATH_MSG_DEBUG ( "SensorSimPlanarTool::initialize()");
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelPlanarChargeTool::finalize() {
-  ATH_MSG_DEBUG("PixelPlanarChargeTool::finalize()");
+StatusCode SensorSimPlanarTool::finalize() {
+  ATH_MSG_DEBUG("SensorSimPlanarTool::finalize()");
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, const InDetDD::SiDetectorElement &Module) {
+StatusCode SensorSimPlanarTool::charge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, const InDetDD::SiDetectorElement &Module) {
 
   const PixelModuleDesign *p_design= static_cast<const PixelModuleDesign*>(&(Module.design()));
 
@@ -308,7 +308,7 @@ StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharg
   return StatusCode::SUCCESS;
 }
 
-void PixelPlanarChargeTool::simulateBow(const InDetDD::SiDetectorElement * element, double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const {
+void SensorSimPlanarTool::simulateBow(const InDetDD::SiDetectorElement * element, double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const {
 
   // The corrections are assumed to be in the reconstruction local frame, so
   // we must convertfrom the hit local frame to the  reconstruction local frame.

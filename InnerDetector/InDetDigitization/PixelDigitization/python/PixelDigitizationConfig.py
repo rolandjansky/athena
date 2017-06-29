@@ -38,7 +38,7 @@ def BichselSimTool(name="BichselSimTool", **kwargs):
     kwargs.setdefault("RndmEngine", "PixelDigitization")
     return CfgMgr.BichselSimTool(name, **kwargs)
 
-def PixelPlanarChargeTool(name="PixelPlanarChargeTool", **kwargs):
+def SensorSimPlanarTool(name="SensorSimPlanarTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
     kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
@@ -48,9 +48,9 @@ def PixelPlanarChargeTool(name="PixelPlanarChargeTool", **kwargs):
     kwargs.setdefault("BichselSimTool", "BichselSimTool")
     # kwargs.setdefault("OutputFileName", digitizationFlags.BichselOutputFileName())
     # kwargs.setdefault("doHITPlots", True)
-    return CfgMgr.PixelPlanarChargeTool(name, **kwargs)
+    return CfgMgr.SensorSimPlanarTool(name, **kwargs)
 
-def Pixel3DChargeTool(name="Pixel3DChargeTool", **kwargs):
+def SensorSim3DTool(name="SensorSim3DTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
     kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
@@ -58,12 +58,12 @@ def Pixel3DChargeTool(name="Pixel3DChargeTool", **kwargs):
     kwargs.setdefault("doDeltaRay", False)            # needs validation
     kwargs.setdefault("doPU", True)
     kwargs.setdefault("BichselSimTool", "BichselSimTool")
-    return CfgMgr.Pixel3DChargeTool(name, **kwargs)
+    return CfgMgr.SensorSim3DTool(name, **kwargs)
 
-def SubChargesTool(name="SubChargesTool", **kwargs):
+def SensorSimTool(name="SensorSimTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
-    return CfgMgr.SubChargesTool(name, **kwargs)
+    return CfgMgr.SensorSimTool(name, **kwargs)
 
 def PixelProcessorTool(name="PixelProcessorTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
@@ -175,15 +175,15 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     feSimTools = []
     if GeometryFlags.isSLHC():
       procTools += ['PixelDiodeCrossTalkGenerator']
-      chargeTools += ['PixelPlanarChargeTool']
+      chargeTools += ['SensorSimPlanarTool']
       feSimTools += ['RD53SimTool']
     else:
       procTools += ['PixelDiodeCrossTalkGenerator']
       procTools += ['PixelChargeSmearer']
       procTools += ['PixelNoisyCellGenerator']
       procTools += ['PixelRandomDisabledCellGenerator']
-      chargeTools += ['PixelPlanarChargeTool']
-      chargeTools += ['Pixel3DChargeTool']
+      chargeTools += ['SensorSimPlanarTool']
+      chargeTools += ['SensorSim3DTool']
       feSimTools += ['FEI4SimTool']
       feSimTools += ['FEI3SimTool']
     kwargs.setdefault("PixelProcessorTools", procTools)

@@ -3,13 +3,13 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// SubChargesTool.h
-//   Header file for class SubChargesTool
+// SensorSimTool.h
+//   Header file for class SensorSimTool
 ///////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
-#ifndef PIXELDIGITIZATION_SubChargesTool_H
-#define PIXELDIGITIZATION_SubChargesTool_H
+#ifndef PIXELDIGITIZATION_SensorSimTool_H
+#define PIXELDIGITIZATION_SensorSimTool_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -23,12 +23,12 @@
 #include "SiPropertiesSvc/ISiPropertiesSvc.h"
 #include "PixelConditionsTools/IModuleDistortionsTool.h"
 
-static const InterfaceID IID_ISubChargesTool("SubChargesTool", 1, 0);
+static const InterfaceID IID_ISensorSimTool("SensorSimTool", 1, 0);
 
-class SubChargesTool:public AthAlgTool,virtual public IAlgTool {
+class SensorSimTool:public AthAlgTool,virtual public IAlgTool {
 
   public:
-    SubChargesTool( const std::string& type, const std::string& name,const IInterface* parent) : 
+    SensorSimTool( const std::string& type, const std::string& name,const IInterface* parent) : 
       AthAlgTool(type,name,parent),
       m_siPropertiesSvc("PixelSiPropertiesSvc",name),
       m_rndmSvc("AtDSFMTGenSvc",name),
@@ -37,14 +37,14 @@ class SubChargesTool:public AthAlgTool,virtual public IAlgTool {
       m_disableDistortions(false),
       m_pixDistoTool("PixelDistortionsTool") 
   {
-    declareInterface<SubChargesTool>(this);
+    declareInterface<SensorSimTool>(this);
     declareProperty("SiPropertiesSvc",   m_siPropertiesSvc,    "SiPropertiesSvc");
     declareProperty("RndmSvc",           m_rndmSvc,            "Random Number Service used in SCT & Pixel digitization");
     declareProperty("RndmEngine",        m_rndmEngineName,     "Random engine name");
     declareProperty("DisableDistortions",m_disableDistortions, "Disable simulation of module distortions");
   }
 
-    static const InterfaceID& interfaceID() { return IID_ISubChargesTool; }
+    static const InterfaceID& interfaceID() { return IID_ISensorSimTool; }
 
     virtual StatusCode initialize() {
       CHECK(AthAlgTool::initialize()); 
@@ -76,11 +76,11 @@ class SubChargesTool:public AthAlgTool,virtual public IAlgTool {
     }
 
     virtual StatusCode finalize() {return StatusCode::FAILURE;}
-    virtual ~SubChargesTool() {}
+    virtual ~SensorSimTool() {}
     virtual StatusCode charge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, const InDetDD::SiDetectorElement &Module) = 0;  
 
   private:
-    SubChargesTool();
+    SensorSimTool();
 
   protected:
     ServiceHandle<ISiPropertiesSvc>	m_siPropertiesSvc;
@@ -96,4 +96,4 @@ class SubChargesTool:public AthAlgTool,virtual public IAlgTool {
 };
 
 
-#endif // PIXELDIGITIZATION_SubChargesTool_H
+#endif // PIXELDIGITIZATION_SensorSimTool_H

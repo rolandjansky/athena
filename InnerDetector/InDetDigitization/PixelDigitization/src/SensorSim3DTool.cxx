@@ -3,13 +3,13 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// Pixel3DChargeTool.cxx
-//   Implementation file for class Pixel3DChargeTool
+// SensorSim3DTool.cxx
+//   Implementation file for class SensorSim3DTool
 ///////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#include "Pixel3DChargeTool.h"
+#include "SensorSim3DTool.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "InDetSimEvent/SiHit.h"
@@ -29,8 +29,8 @@ using namespace InDetDD;
 
 
 // Constructor with parameters:
-Pixel3DChargeTool::Pixel3DChargeTool(const std::string& type, const std::string& name,const IInterface* parent):
-  SubChargesTool(type,name,parent),
+SensorSim3DTool::SensorSim3DTool(const std::string& type, const std::string& name,const IInterface* parent):
+  SensorSimTool(type,name,parent),
   m_numberOfSteps(50),
   m_doBichsel(false),
   m_doBichselBetaGammaCut(0.1),        // momentum cut on beta-gamma
@@ -51,45 +51,45 @@ Pixel3DChargeTool::Pixel3DChargeTool(const std::string& type, const std::string&
 class DetCondCFloat;
 
 // Destructor:
-Pixel3DChargeTool::~Pixel3DChargeTool() { }
+SensorSim3DTool::~SensorSim3DTool() { }
 
 //----------------------------------------------------------------------
 // Initialize
 //----------------------------------------------------------------------
-StatusCode Pixel3DChargeTool::initialize() {
-  CHECK(SubChargesTool::initialize());
+StatusCode SensorSim3DTool::initialize() {
+  CHECK(SensorSimTool::initialize());
  	  
   // -- Get ChargeCollProb  Service
   CHECK(m_chargeCollSvc.retrieve());
 
-  ATH_MSG_INFO("You are using Pixel3DChargeTool, not Pixel3DChargeTool");
+  ATH_MSG_INFO("You are using SensorSim3DTool, not SensorSim3DTool");
 
   if(m_doBichsel){
-    ATH_MSG_INFO("Bichsel Digitization is turned ON in Pixel3DChargeTool!");
+    ATH_MSG_INFO("Bichsel Digitization is turned ON in SensorSim3DTool!");
     CHECK(m_BichselSimTool.retrieve());
   }
   else {
-    ATH_MSG_INFO("Bichsel Digitization is turned OFF in Pixel3DChargeTool!");
+    ATH_MSG_INFO("Bichsel Digitization is turned OFF in SensorSim3DTool!");
   }
 
   m_doDeltaRay = (m_doBichsel && m_doDeltaRay);    // if we don't do Bichsel model, no re-simulation on delta-ray at all!
 
-  ATH_MSG_DEBUG("Pixel3DChargeTool::initialize()");
+  ATH_MSG_DEBUG("SensorSim3DTool::initialize()");
   return StatusCode::SUCCESS;
 }
 
 //----------------------------------------------------------------------
 // finalize
 //----------------------------------------------------------------------
-StatusCode Pixel3DChargeTool::finalize() {
-  ATH_MSG_DEBUG("Pixel3DChargeTool::finalize()");
+StatusCode SensorSim3DTool::finalize() {
+  ATH_MSG_DEBUG("SensorSim3DTool::finalize()");
   return StatusCode::SUCCESS;
 }
 
 //----------------------------------------------------------------------
 // charge
 //----------------------------------------------------------------------
-StatusCode Pixel3DChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, const InDetDD::SiDetectorElement &Module) { 
+StatusCode SensorSim3DTool::charge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, const InDetDD::SiDetectorElement &Module) { 
 
   if (!Module.isBarrel()) { return StatusCode::SUCCESS; }
   const PixelModuleDesign *p_design= static_cast<const PixelModuleDesign*>(&(Module.design()));
@@ -334,7 +334,7 @@ StatusCode Pixel3DChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiChargedDi
   return StatusCode::SUCCESS;
 }
 
-void Pixel3DChargeTool::simulateBow(const InDetDD::SiDetectorElement * element, double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const {
+void SensorSim3DTool::simulateBow(const InDetDD::SiDetectorElement * element, double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const {
 
   // The corrections are assumed to be in the reconstruction local frame, so
   // we must convertfrom the hit local frame to the  reconstruction local frame.
