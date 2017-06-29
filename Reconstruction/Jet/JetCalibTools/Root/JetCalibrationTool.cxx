@@ -91,7 +91,6 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   }
   else{dir.insert(14,m_calibAreaTag);} // Obtaining the path of the configuration file
   std::string configPath=dir+m_config; // Full path
-  ATH_MSG_INFO("Searching for config at " << configPath);
   TString fn =  PathResolverFindCalibFile(configPath);
 
   ATH_MSG_INFO("Reading global JES settings from: " << m_config);
@@ -105,7 +104,7 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   //Make sure that one of the standard jet collections is being used
   if ( calibSeq.Contains("JetArea") ) {
     if ( jetAlgo.Contains("PFlow") ) m_jetScale = PFLOW;
-    else if ( jetAlgo.Contains("EM") or jetAlgo.Contains("SK") ) m_jetScale = EM;
+    else if ( jetAlgo.Contains("EM") ) m_jetScale = EM;
     else if ( jetAlgo.Contains("LC") ) m_jetScale = LC;
     else { ATH_MSG_FATAL("jetAlgo " << jetAlgo << " not recognized."); return StatusCode::FAILURE; }
   }
@@ -396,7 +395,7 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
   if ( m_doJetArea && evtStore()->contains<xAOD::EventShape>(m_rhoKey) ) {
     ATH_MSG_VERBOSE("  Found event density container " << m_rhoKey);
     if ( evtStore()->retrieve(eventShape, m_rhoKey).isFailure() || !eventShape ) {
-      ATH_MSG_VERBOSE("  Event shape container " << m_rhoKey <<" not found.");
+      ATH_MSG_VERBOSE("  Event shape container not found.");
       ATH_MSG_FATAL("Could not retrieve xAOD::EventShape from evtStore.");
       return StatusCode::FAILURE;
     } else if ( !eventShape->getDensity( xAOD::EventShape::Density, rho ) ) {
