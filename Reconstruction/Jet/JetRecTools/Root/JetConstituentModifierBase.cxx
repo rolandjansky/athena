@@ -34,17 +34,77 @@ StatusCode JetConstituentModifierBase::process(xAOD::IParticleContainer* cont) c
 }
 
 
+StatusCode JetConstituentModifierBase::setEtaPhi(xAOD::IParticle* obj, float eta, float phi) const
+{
+  switch(m_inputType) {
+    // The main (only?) application is origin-correcting LC topoclusters
+    // By convention we leave the raw p4 unmodified
+  case xAOD::Type::CaloCluster:
+    {
+      xAOD::CaloCluster* clus = static_cast<xAOD::CaloCluster*>(obj);
+      clus->setCalEta(eta);
+      clus->setCalPhi(phi);
+    }
+    break;
+  default:
+    // Should not get here, because type-checking should happen in process()
+    ATH_MSG_ERROR("No specialisation for object type " << m_inputType);
+    return StatusCode::FAILURE;
   }
-}
-
-StatusCode JetConstituentModifierBase::process(xAOD::IParticleContainer*) const { 
   return StatusCode::SUCCESS;
 }
 
+StatusCode JetConstituentModifierBase::setEnergyPt(xAOD::IParticle* obj, float e, float pt) const
+{
+  switch(m_inputType) {
+  case xAOD::Type::CaloCluster:
+    {
+      xAOD::CaloCluster* clus = static_cast<xAOD::CaloCluster*>(obj);
+      // Clusters get pt via the energy
+      // This currently leaves the mass unaltered.
+      clus->setCalE(e);
+    }
+    break;
+  case xAOD::Type::ParticleFlow:
+    {
+      xAOD::PFO* pfo = static_cast<xAOD::PFO*>(obj);
+      // Use accessors explicitly because PFO only has an interface for setting the full p4
+      const static SG::AuxElement::Accessor<float> accPt("pt");
+      const static SG::AuxElement::Accessor<float> accE("e");
+      accPt(*pfo) = pt;
+      accE(*pfo) = e;
+    }
+    break;
+  default:
+    // Should not get here, because type-checking should happen in process()
+    ATH_MSG_ERROR("No specialisation for object type " << m_inputType);
+    return StatusCode::FAILURE;
+  }
+  return StatusCode::SUCCESS;
+}
 
-int JetConstituentModifierBase::execute() const {
-
-  ATH_MSG_INFO("Executing JetConstituentModifierBase");
-  return 0;
-
+StatusCode JetConstituentModifierBase::setP4(xAOD::IParticle* obj, const xAOD::JetFourMom_t& p4) const {
+  switch(m_inputType) {
+  case xAOD::Type::CaloCluster:
+    {
+      xAOD::CaloCluster* clus = static_cast<xAOD::CaloCluster*>(obj);
+      // This currently leaves the mass unaltered
+      clus->setCalE(p4.e());
+      clus->setCalEta(p4.eta());
+      clus->setCalPhi(p4.phi());
+    }
+    break;
+  case xAOD::Type::ParticleFlow:
+    {
+      xAOD::PFO* pfo = static_cast<xAOD::PFO*>(obj);
+      // The PFO setter defaults to m=0
+      pfo->setP4(p4.pt(),p4.eta(),p4.phi(),p4.mass());
+      break;
+    }
+  default:
+    // Should not get here, because type-checking should happen in process()
+    ATH_MSG_ERROR("No specialisation for object type " << m_inputType);
+    return StatusCode::FAILURE;
+  }
+  return StatusCode::SUCCESS;
 }
