@@ -458,7 +458,7 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
 {
   ATH_MSG_VERBOSE("Creating G4PrimaryParticle from ISFParticle.");
 
-  auto truthBinding = isp.getTruthBinding();
+  const auto* truthBinding = isp.getTruthBinding();
   if (!truthBinding) {
       G4ExceptionDescription description;
       description << G4String("getG4PrimaryParticle: ") + "No ISF::TruthBinding associated with ISParticle (" << isp <<")";
