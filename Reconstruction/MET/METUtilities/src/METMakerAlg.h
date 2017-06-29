@@ -66,8 +66,6 @@ namespace met {
     std::string m_tauColl;
     std::string m_muonColl;
 
-    std::string m_jetCalibState;
-
     bool m_doTruthLep;
     
     /// Athena configured tools
