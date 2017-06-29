@@ -47,17 +47,18 @@ SGInputLoader::initialize()
 
   StatusCode sc(StatusCode::SUCCESS);
 
-  std::ostringstream str;
-  str << "Will explicitly preload the following DataObjects:";
-  for (auto &e : m_load) {
-    str << "\n    + " << e;
-    if (e.key() == "") {
-      sc = StatusCode::FAILURE;
-      str << "   ERROR: empty key is not allowed!";
+  if (m_load.size() > 0) {
+    std::ostringstream str;
+    str << "Will explicitly preload the following DataObjects:";
+    for (auto &e : m_load) {
+      str << "\n    + " << e;
+      if (e.key() == "") {
+        sc = StatusCode::FAILURE;
+        str << "   ERROR: empty key is not allowed!";
+      }
     }
+    ATH_MSG_INFO(str.str());
   }
-
-  ATH_MSG_INFO(str.str());
 
   return sc;
 }
