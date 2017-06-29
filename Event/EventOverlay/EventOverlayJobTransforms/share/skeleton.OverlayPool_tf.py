@@ -75,6 +75,7 @@ else:
    DataInputCollections=runArgs.inputRDO_BKGFile
    athenaCommonFlags.PoolRDOInput=runArgs.inputRDO_BKGFile
 
+import MagFieldServices.SetupField
 
 from IOVDbSvc.CondDB import conddb
 
