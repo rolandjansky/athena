@@ -111,6 +111,7 @@
 + Generators/GenAnalysisTools/TruthHelper
 + Generators/GeneratorObjects.*
 + Generators/HepMCWeightSvc
++ Generators/TruthConverters
 + Generators/TruthRivetTools
 + Generators/TruthUtils
 
