@@ -8,7 +8,6 @@
 #include "JetRecTools/PFlowPseudoJetGetter.h"
 #include "JetRecTools/JetConstituentModSequence.h"
 #include "JetRecTools/JetConstituentModifierBase.h"
-#include "JetRecTools/CaloClusterConstituentsWeight.h"
 #include "JetRecTools/CaloClusterConstituentsOrigin.h"
 #include "JetRecTools/SoftKillerWeightTool.h"
 #include "JetRecTools/VoronoiWeightTool.h"
@@ -25,7 +24,6 @@ DECLARE_TOOL_FACTORY(TrackPseudoJetGetter)
 DECLARE_TOOL_FACTORY(PFlowPseudoJetGetter)
 DECLARE_TOOL_FACTORY(JetConstituentModSequence)
 DECLARE_TOOL_FACTORY(JetConstituentModifierBase)
-DECLARE_TOOL_FACTORY(CaloClusterConstituentsWeight)
 DECLARE_TOOL_FACTORY(CaloClusterConstituentsOrigin)
 DECLARE_TOOL_FACTORY(SoftKillerWeightTool)
 DECLARE_TOOL_FACTORY( VoronoiWeightTool )
@@ -43,7 +41,6 @@ DECLARE_FACTORY_ENTRIES(JetRecTools) {
   DECLARE_TOOL(PFlowPseudoJetGetter)
   DECLARE_TOOL(JetConstituentModSequence)
   DECLARE_TOOL(JetConstituentModifierBase)
-  DECLARE_TOOL(CaloClusterConstituentsWeight)
   DECLARE_TOOL(CaloClusterConstituentsOrigin)
   DECLARE_TOOL(SoftKillerWeightTool)
   DECLARE_TOOL( ConstituentSubtractorTool )
