@@ -66,9 +66,14 @@ class ConstituentToolManager(object):
     # map of named standard list of modifiers
     standardModifierLists = dict()
 
+    import cppyy
+    try: cppyy.loadDictionary('xAODBaseDict')
+    except: pass
+    from ROOT import xAOD
+
     # map of known input collection to their type
-    inputContainerMap = dict( CaloCalTopoClusters = "CaloCluster", CaloTopoClusters = "CaloCluster",
-                              InDetTrackParticles = "TrackParticles")
+    inputContainerMap = dict( CaloCalTopoClusters = xAOD.Type.CaloCluster, CaloTopoClusters = xAOD.Type.CaloCluster,
+                              InDetTrackParticles = xAOD.Type.TrackParticle, JetETMiss = xAOD.Type.ParticleFlow )
         
 
     log = Logging.logging.getLogger("ConstituentToolManager")
@@ -104,7 +109,7 @@ class ConstituentToolManager(object):
            InputContainer  (str) : name of input constituents container (property of JetConstituentModSequence)
            modList (str or list): if str, this is taken as a shortcut to a knonw, default list of modifier tools (from self.standardModifierLists)
                                   if list, entries are eihter configured modifier tools either strings in which case they are shortcut to known modifier tool (in self.modifiersMap).
-          InputType : (str or None) the type of particles in the input container. If None attempt is made to guess it from InputContainer (from self.inputContainerMap).
+          InputType : (int or None) the type of particles in the input container. If None attempt is made to guess it from InputContainer (from self.inputContainerMap).
           
         """
         
@@ -115,7 +120,7 @@ class ConstituentToolManager(object):
             # get it from the knonw inputs
             InputType = self.inputContainerMap[ InputContainer ]
         if InputType is None:
-            self.log.error( seqName+'. Unknonw input container : '+InputContainer )
+            self.log.error( seqName+'. Unknown input container : '+InputContainer )
             return 
 
         # deal with modifiers ---------------
@@ -124,7 +129,7 @@ class ConstituentToolManager(object):
             # translate into a knonw list :
             modList = self.standardModifierLists.get( modKey , None)
             if modList is None :
-                self.log.error( seqName+". Uknown shortcut for constit modifier list : "+modKey)
+                self.log.error( seqName+". Unknown shortcut for constit modifier list : "+modKey)
                 return None
         # loop over modList
         finalList = []

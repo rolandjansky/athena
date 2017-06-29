@@ -37,10 +37,10 @@ protected:
   mutable xAOD::IParticleContainer* m_trigOutputClusters;
   bool m_trigger;
   
-  // P-A : a property defining the type name of the input constituent
-  std::string m_inputTypeName = "CaloCluster"; // MEN: Check this 
   // P-A : the actual type
-  xAOD::Type::ObjectType m_inputType; // 
+  // Define as a basic integer type because Gaudi
+  // doesn't support arbitrary property types
+  unsigned short m_inputType; // 
   
   
   ToolHandleArray<IJetConstituentModifier> m_modifiers;

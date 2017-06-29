@@ -12,9 +12,8 @@
 
 #include "AsgTools/AsgTool.h"
 #include "xAODBase/IParticleContainer.h"
-#include "xAODCore/ShallowAuxContainer.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
 #include "JetInterface/IJetConstituentModifier.h"
+#include "xAODJet/Jet.h"
 
 // JetConstituentModifierBase provides default execute () behaviour
 // to all JetConstituentModifier tools. Can be used in Rootcore, without
@@ -24,12 +23,29 @@ class JetConstituentModifierBase: public asg::AsgTool, virtual public IJetConsti
 ASG_TOOL_CLASS(JetConstituentModifierBase, IJetConstituentModifier) 
 public:
   JetConstituentModifierBase(const std::string & name);
-  int execute() const;
-  StatusCode process(xAOD::IParticleContainer* cont) const;
+
+  // Implement the IJetConstituentModifier interface
+  // Do some type-checking on the input container
+  StatusCode process(xAOD::IParticleContainer* cont) const override final;
+  // Concrete implementation method to be overridden by child tools
+  // We pass a pointer here, because some of the type-specific tools
+  // will want to cast to the right container type
+  virtual StatusCode process_impl(xAOD::IParticleContainer* /*cont*/) const
+  { 
+    ATH_MSG_ERROR("This is the JetConstituentModifierBase class, no corrections implemented!");
+    return StatusCode::FAILURE;
+  }
 
 protected:
   std::string m_inputContainer = "";
   std::string m_outputContainer = ""; // These containers can be empty 
+
+  // We need to know the output type so that we can set the p4 appropriately,
+  // because IParticle does not specify the p4 encoding.
+  // The user must explicitly set what sort of object they modify
+  // Define as a basic integer type because Gaudi
+  // doesn't support arbitrary property types
+  unsigned int m_inputType=xAOD::Type::Other;
 };
 
 #endif
