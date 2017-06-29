@@ -26,16 +26,22 @@ CorrectPFOTool::CorrectPFOTool(const std::string &name): JetConstituentModifierB
   declareProperty("TrackVertexAssociation", m_trkVtxAssocName, "SG key for the TrackVertexAssociation object");
 }
 
-StatusCode CorrectPFOTool::process(xAOD::IParticleContainer* cont) const {
-  xAOD::PFOContainer* pfoCont = dynamic_cast<xAOD::PFOContainer*> (cont);
-  if(pfoCont) return process(pfoCont);
-  else{
-    ATH_MSG_ERROR("Unable to dynamic cast IParticleContainer to PFOContainer");
-    return StatusCode::FAILURE;
+StatusCode CorrectPFOTool::initialize() {
+  if(m_inputType!=xAOD::Type::ParticleFlow) {
+    ATH_MSG_ERROR("ChargedHadronSubtractionTool requires PFO inputs. It cannot operate on objects of type "
+		  << m_inputType);
   }
+  return StatusCode::SUCCESS;
 }
 
-StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const { 
+StatusCode CorrectPFOTool::process_impl(xAOD::IParticleContainer* cont) const {
+  // Type-checking happens in the JetConstituentModifierBase class
+  // so it is safe just to static_cast
+  xAOD::PFOContainer* pfoCont = static_cast<xAOD::PFOContainer*> (cont);
+  return correctPFO(*pfoCont);
+}
+
+StatusCode CorrectPFOTool::correctPFO(xAOD::PFOContainer& cont) const { 
   // Get the vertex.
   const xAOD::VertexContainer* pvtxs = nullptr;
   const xAOD::Vertex* vtx = nullptr;
@@ -72,7 +78,7 @@ StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const {
 
   SG::AuxElement::Accessor<bool> PVMatchedAcc("matchedToPV");
 
-  for ( xAOD::PFO* ppfo : *cont ) {
+  for ( xAOD::PFO* ppfo : cont ) {
     if ( ppfo == 0 ) {
       ATH_MSG_WARNING("Have NULL pointer to neutral PFO");
       continue;
