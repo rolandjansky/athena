@@ -335,8 +335,8 @@ StatusCode ISF::InputConverter::queryInterface(const InterfaceID& riid, void** p
 //________________________________________________________________________
 G4Event* ISF::InputConverter::ISF_to_G4Event(const ISF::ConstISFParticleVector& ispVector, HepMC::GenEvent *genEvent) const
 {
-
-  G4Event *g4evt = new G4Event(1);
+  const int eventID(1);
+  G4Event *g4evt = new G4Event(eventID);
 
   int n_pp=0;
   for ( const ISF::ISFParticle *ispPtr: ispVector ) {
