@@ -399,7 +399,7 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const HepMC::GenPar
   G4double py = genpartMomentum.y();
   G4double pz = genpartMomentum.z();
 
-  std::unique_ptr<G4PrimaryParticle> g4particle(new G4PrimaryParticle(particleDefinition,px,py,pz));
+  std::unique_ptr<G4PrimaryParticle> g4particle = std::make_unique<G4PrimaryParticle>(particleDefinition,px,py,pz);
 
   if (genpart.end_vertex()) {
     // Set the lifetime appropriately - this is slow but rigorous, and we
@@ -495,9 +495,9 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
     pz = ispMomentum.z();
   }
 
-  std::unique_ptr<G4PrimaryParticle> g4particle(new G4PrimaryParticle(particleDefinition,px,py,pz));
+  std::unique_ptr<G4PrimaryParticle> g4particle = std::make_unique<G4PrimaryParticle>(particleDefinition,px,py,pz);
   // UserInformation
-  std::unique_ptr<PrimaryParticleInformation> ppi(new PrimaryParticleInformation(primaryGenpart,&isp));
+  std::unique_ptr<PrimaryParticleInformation> ppi = std::make_unique<PrimaryParticleInformation>(primaryGenpart,&isp);
 
   /// In the case that particles are being passed back to Geant4 then
   /// we may have particles which have already interacted, so we
