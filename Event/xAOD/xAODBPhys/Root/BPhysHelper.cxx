@@ -26,6 +26,16 @@ typedef std::vector<MuonLink> MuonLinkVector;
 /*****************************************************************************/
 
 /** @{
+ *  Some useful static consts
+ */
+
+const unsigned int  xAOD::BPhysHelper::n_pv_types = 4;
+const std::string   xAOD::BPhysHelper::pv_type_str[] = 
+  {"PV_MAX_SUM_PT2", "PV_MIN_A0", "PV_MIN_Z0", "PV_MIN_Z0_BA"};
+
+/*****************************************************************************/
+
+/** @{
  *  Some useful macros
  */
 
@@ -322,7 +332,7 @@ bool xAOD::BPhysHelper::setRefTrks(const std::vector<TVector3>& refTrks)
 }
 
 /*****************************************************************************/
-#ifndef XAOD_ANALYSIS
+#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
 
 bool xAOD::BPhysHelper::setRefTrks()
 {
@@ -351,7 +361,7 @@ bool xAOD::BPhysHelper::setRefTrks()
   return true;
   
 }
-#endif // not XAOD_ANALYSIS
+#endif // not XAOD_STANDALONE and not XAOD_MANACORE      
 
 /*****************************************************************************/
 TVector3 xAOD::BPhysHelper::totalP()
@@ -701,6 +711,7 @@ const xAOD::Vertex* xAOD::BPhysHelper::pv(const pv_type vertexType)
     case PV_MAX_SUM_PT2 : GET_PV("PvMaxSumPt2Link");
     case PV_MIN_A0      : GET_PV("PvMinA0Link");
     case PV_MIN_Z0      : GET_PV("PvMinZ0Link");
+    case PV_MIN_Z0_BA   : GET_PV("PvMinZ0BALink");
     default: return 0;
   }      
 }        
@@ -711,6 +722,7 @@ const xAOD::Vertex* xAOD::BPhysHelper::origPv(const pv_type vertexType)
     case PV_MAX_SUM_PT2 : GET_PV("OrigPvMaxSumPt2Link");
     case PV_MIN_A0      : GET_PV("OrigPvMinA0Link");
     case PV_MIN_Z0      : GET_PV("OrigPvMinZ0Link");
+    case PV_MIN_Z0_BA   : GET_PV("OrigPvMinZ0BALink");
     default: return 0;
   } 
 }
@@ -721,8 +733,9 @@ bool xAOD::BPhysHelper::setOrigPv(const xAOD::Vertex* pv,
 {        
   switch(vertexType) {
     case PV_MAX_SUM_PT2 : SET_PV("OrigPvMaxSumPt2Link", pv, vertexContainer);
-    case PV_MIN_A0      : SET_PV("OrigPvMinA0Link", pv, vertexContainer);
-    case PV_MIN_Z0      : SET_PV("OrigPvMinZ0Link", pv, vertexContainer);
+    case PV_MIN_A0      : SET_PV("OrigPvMinA0Link"    , pv, vertexContainer);
+    case PV_MIN_Z0      : SET_PV("OrigPvMinZ0Link"    , pv, vertexContainer);
+    case PV_MIN_Z0_BA   : SET_PV("OrigPvMinZ0BALink"  , pv, vertexContainer);
     default: return 0;
   } 
 }
@@ -735,6 +748,7 @@ bool xAOD::BPhysHelper::setPv(const xAOD::Vertex* pv,
     case PV_MAX_SUM_PT2 : SET_PV("PvMaxSumPt2Link", pv, vertexContainer);
     case PV_MIN_A0      : SET_PV("PvMinA0Link"    , pv, vertexContainer);
     case PV_MIN_Z0      : SET_PV("PvMinZ0Link"    , pv, vertexContainer);
+    case PV_MIN_Z0_BA   : SET_PV("PvMinZ0BALink"  , pv, vertexContainer);
     default: return false;
   }
 }
@@ -743,8 +757,9 @@ bool xAOD::BPhysHelper::setRefitPVStatus(int code, const pv_type vertexType)
 {        
   switch(vertexType) {
     case PV_MAX_SUM_PT2 : SET_INT("PvMaxSumPt2Status", code);
-    case PV_MIN_A0      : SET_INT("PvMinA0Status", code);
-    case PV_MIN_Z0      : SET_INT("PvMinZ0Status", code);
+    case PV_MIN_A0      : SET_INT("PvMinA0Status"    , code);
+    case PV_MIN_Z0      : SET_INT("PvMinZ0Status"    , code);
+    case PV_MIN_Z0_BA   : SET_INT("PvMinZ0BAStatus"  , code);
     default: return 0;
   } 
 }
@@ -755,6 +770,7 @@ int xAOD::BPhysHelper::RefitPVStatus(const pv_type vertexType)
     case PV_MAX_SUM_PT2 : GET_INT("PvMaxSumPt2Status");
     case PV_MIN_A0      : GET_INT("PvMinA0Status"    );
     case PV_MIN_Z0      : GET_INT("PvMinZ0Status"    );
+    case PV_MIN_Z0_BA   : GET_INT("PvMinZ0BAStatus"  );
     default: return -999999;
   }
 }
@@ -765,6 +781,7 @@ float xAOD::BPhysHelper::lxy(const pv_type vertexType)
     case PV_MAX_SUM_PT2 : GET_FLOAT("LxyMaxSumPt2");
     case PV_MIN_A0      : GET_FLOAT("LxyMinA0");
     case PV_MIN_Z0      : GET_FLOAT("LxyMinZ0");
+    case PV_MIN_Z0_BA   : GET_FLOAT("LxyMinZ0BA");
     default: return -9999999.;
   }
 }
@@ -775,6 +792,7 @@ float xAOD::BPhysHelper::lxyErr(const pv_type vertexType)
     case PV_MAX_SUM_PT2 : GET_FLOAT("LxyErrMaxSumPt2");
     case PV_MIN_A0      : GET_FLOAT("LxyErrMinA0");
     case PV_MIN_Z0      : GET_FLOAT("LxyErrMinZ0");
+    case PV_MIN_Z0_BA   : GET_FLOAT("LxyErrMinZ0BA");
     default: return -9999999.;
   }
 }
@@ -785,6 +803,7 @@ bool xAOD::BPhysHelper::setLxy(const float val, const pv_type vertexType)
     case PV_MAX_SUM_PT2 : SET_FLOAT("LxyMaxSumPt2", val);
     case PV_MIN_A0      : SET_FLOAT("LxyMinA0"    , val);
     case PV_MIN_Z0      : SET_FLOAT("LxyMinZ0"    , val);
+    case PV_MIN_Z0_BA   : SET_FLOAT("LxyMinZ0BA"  , val);
     default: return false;
   }
 }
@@ -795,6 +814,7 @@ bool xAOD::BPhysHelper::setLxyErr(const float val, const pv_type vertexType)
     case PV_MAX_SUM_PT2 : SET_FLOAT("LxyErrMaxSumPt2", val);
     case PV_MIN_A0      : SET_FLOAT("LxyErrMinA0"    , val);
     case PV_MIN_Z0      : SET_FLOAT("LxyErrMinZ0"    , val);
+    case PV_MIN_Z0_BA   : SET_FLOAT("LxyErrMinZ0BA"  , val);
     default: return false;
   }
 }
@@ -805,6 +825,7 @@ float xAOD::BPhysHelper::a0     (const pv_type vertexType)
     case PV_MAX_SUM_PT2 : GET_FLOAT("A0MaxSumPt2");
     case PV_MIN_A0      : GET_FLOAT("A0MinA0");
     case PV_MIN_Z0      : GET_FLOAT("A0MinZ0");
+    case PV_MIN_Z0_BA   : GET_FLOAT("A0MinZ0BA");
     default: return -9999999.;
   }
 }
@@ -815,6 +836,7 @@ float xAOD::BPhysHelper::a0Err  (const pv_type vertexType)
     case PV_MAX_SUM_PT2 : GET_FLOAT("A0ErrMaxSumPt2");
     case PV_MIN_A0      : GET_FLOAT("A0ErrMinA0");
     case PV_MIN_Z0      : GET_FLOAT("A0ErrMinZ0");
+    case PV_MIN_Z0_BA   : GET_FLOAT("A0ErrMinZ0BA");
     default: return -9999999.;
   }
 }
@@ -825,6 +847,7 @@ float xAOD::BPhysHelper::a0xy   (const pv_type vertexType)
     case PV_MAX_SUM_PT2 : GET_FLOAT("A0xyMaxSumPt2");
     case PV_MIN_A0      : GET_FLOAT("A0xyMinA0");
     case PV_MIN_Z0      : GET_FLOAT("A0xyMinZ0");
+    case PV_MIN_Z0_BA   : GET_FLOAT("A0xyMinZ0BA");
     default: return -9999999.;
   }  
 }
@@ -835,6 +858,7 @@ float xAOD::BPhysHelper::a0xyErr(const pv_type vertexType)
     case PV_MAX_SUM_PT2 : GET_FLOAT("A0xyErrMaxSumPt2");
     case PV_MIN_A0      : GET_FLOAT("A0xyErrMinA0");
     case PV_MIN_Z0      : GET_FLOAT("A0xyErrMinZ0");
+    case PV_MIN_Z0_BA   : GET_FLOAT("A0xyErrMinZ0BA");
     default: return -9999999.;
   }    
 }
@@ -845,6 +869,7 @@ float xAOD::BPhysHelper::z0     (const pv_type vertexType)
     case PV_MAX_SUM_PT2 : GET_FLOAT("Z0MaxSumPt2");
     case PV_MIN_A0      : GET_FLOAT("Z0MinA0");
     case PV_MIN_Z0      : GET_FLOAT("Z0MinZ0");
+    case PV_MIN_Z0_BA   : GET_FLOAT("Z0MinZ0BA");
     default: return -9999999.;
   }
 }
@@ -855,6 +880,7 @@ float xAOD::BPhysHelper::z0Err  (const pv_type vertexType)
     case PV_MAX_SUM_PT2 : GET_FLOAT("Z0ErrMaxSumPt2");
     case PV_MIN_A0      : GET_FLOAT("Z0ErrMinA0");
     case PV_MIN_Z0      : GET_FLOAT("Z0ErrMinZ0");
+    case PV_MIN_Z0_BA   : GET_FLOAT("Z0ErrMinZ0BA");
     default: return -9999999.;
   }
 }
@@ -865,6 +891,7 @@ float xAOD::BPhysHelper::setA0     (const float val, const pv_type vertexType)
     case PV_MAX_SUM_PT2 : SET_FLOAT("A0MaxSumPt2", val);
     case PV_MIN_A0      : SET_FLOAT("A0MinA0"    , val);
     case PV_MIN_Z0      : SET_FLOAT("A0MinZ0"    , val);
+    case PV_MIN_Z0_BA   : SET_FLOAT("A0MinZ0BA"  , val);
     default: return false;
   }  
 }
@@ -875,6 +902,7 @@ float xAOD::BPhysHelper::setA0Err  (const float val, const pv_type vertexType)
     case PV_MAX_SUM_PT2 : SET_FLOAT("A0ErrMaxSumPt2", val);
     case PV_MIN_A0      : SET_FLOAT("A0ErrMinA0"    , val);
     case PV_MIN_Z0      : SET_FLOAT("A0ErrMinZ0"    , val);
+    case PV_MIN_Z0_BA   : SET_FLOAT("A0ErrMinZ0BA"  , val);
     default: return false;
   }    
 }
@@ -885,6 +913,7 @@ float xAOD::BPhysHelper::setA0xy   (const float val, const pv_type vertexType)
     case PV_MAX_SUM_PT2 : SET_FLOAT("A0xyMaxSumPt2", val);
     case PV_MIN_A0      : SET_FLOAT("A0xyMinA0"    , val);
     case PV_MIN_Z0      : SET_FLOAT("A0xyMinZ0"    , val);
+    case PV_MIN_Z0_BA   : SET_FLOAT("A0xyMinZ0BA"  , val);
     default: return false;
   }    
 }
@@ -895,6 +924,7 @@ float xAOD::BPhysHelper::setA0xyErr(const float val, const pv_type vertexType)
     case PV_MAX_SUM_PT2 : SET_FLOAT("A0xyErrMaxSumPt2", val);
     case PV_MIN_A0      : SET_FLOAT("A0xyErrMinA0"    , val);
     case PV_MIN_Z0      : SET_FLOAT("A0xyErrMinZ0"    , val);
+    case PV_MIN_Z0_BA   : SET_FLOAT("A0xyErrMinZ0BA"  , val);
     default: return false;
   }    
 }
@@ -905,6 +935,7 @@ float xAOD::BPhysHelper::setZ0     (const float val, const pv_type vertexType)
     case PV_MAX_SUM_PT2 : SET_FLOAT("Z0MaxSumPt2", val);
     case PV_MIN_A0      : SET_FLOAT("Z0MinA0"    , val);
     case PV_MIN_Z0      : SET_FLOAT("Z0MinZ0"    , val);
+    case PV_MIN_Z0_BA   : SET_FLOAT("Z0MinZ0BA"  , val);
     default: return false;
   }  
 }
@@ -915,6 +946,7 @@ float xAOD::BPhysHelper::setZ0Err  (const float val, const pv_type vertexType)
     case PV_MAX_SUM_PT2 : SET_FLOAT("Z0ErrMaxSumPt2", val);
     case PV_MIN_A0      : SET_FLOAT("Z0ErrMinA0"    , val);
     case PV_MIN_Z0      : SET_FLOAT("Z0ErrMinZ0"    , val);
+    case PV_MIN_Z0_BA   : SET_FLOAT("Z0ErrMinZ0BA"  , val);
     default: return false;
   }    
 }

@@ -1,3 +1,5 @@
+// Dear emacs, this is -*- c++ -*
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -240,7 +242,7 @@ namespace xAOD {
       
       bool setRefTrks(const std::vector<TVector3>& refTrks);
 
-#ifndef XAOD_ANALYSIS
+#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
 
       /** @brief: Sets refitted track momenta
        *
@@ -260,7 +262,7 @@ namespace xAOD {
       bool setRefTrks();
 
 
-#endif // not XAOD_ANALYSIS
+#endif // not XAOD_STANDALONE and not XAOD_MANACORE      
       
       /** @} */
       
@@ -459,9 +461,12 @@ namespace xAOD {
        *  @value: PV_MIN_Z0       collision vertex closest in delta(z0) = pv_z - z0, where z0 
        *                          is the z coordinate of the intesection of the  particle's 
        *                          trajectory with the  beam axis in the Z-rho plane.
+       *  @value: PV_MIN_Z0_BA    collision vertex closest in delta(z0) = pv_z - z0, where z0 
+       *                          is the z coordinate of the point of closest aproach (in 2D) to the  particle's 
+       *                          trajectory with the  beam axis in the Z-rho plane.
        */
       
-      enum pv_type {PV_MAX_SUM_PT2, PV_MIN_A0, PV_MIN_Z0};
+      enum pv_type {PV_MAX_SUM_PT2, PV_MIN_A0, PV_MIN_Z0, PV_MIN_Z0_BA};
       
       /************************************************************************/
       /** @{ 
@@ -580,6 +585,22 @@ namespace xAOD {
       float setZ0Err  (const float val, const pv_type vertexType = BPhysHelper::PV_MIN_A0); //!< longitudinal impact parameter error
       
       /** @} */
+      
+      /************************************************************************/
+      /** @{
+       *  Return string names for vertex association types.
+       */
+      
+      static const std::string pv_type_str[];
+      /** @}  */
+      
+      /************************************************************************/
+      /** @{
+       *  Return number of vertex association types (useful for loops).
+       */
+      
+      static const unsigned int n_pv_types;
+      /** @}  */
       
       /************************************************************************/
       /************************************************************************/

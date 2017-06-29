@@ -91,6 +91,13 @@ float xAOD::BPhysHypoHelper::tau(const pv_type vertexType, const tau_type tauTyp
         default: return -9999999.;
       }
     }
+    case PV_MIN_Z0_BA: {
+      switch(tauType) {
+        case TAU_CONST_MASS : GET_FLOAT(m_hypo+"_TauConstMassPVMinZ0BA");
+        case TAU_INV_MASS   : GET_FLOAT(m_hypo+"_TauInvMassPVMinZ0BA");
+        default: return -9999999.;
+      }
+    }
     default: return -9999999.;
   }  
 }
@@ -116,6 +123,13 @@ float xAOD::BPhysHypoHelper::tauErr(const pv_type vertexType, const tau_type tau
       switch(tauType) {
         case TAU_CONST_MASS : GET_FLOAT(m_hypo+"_TauErrConstMassPVMinZ0");
         case TAU_INV_MASS   : GET_FLOAT(m_hypo+"_TauErrInvMassPVMinZ0");
+        default: return -9999999.;
+      }
+    }
+    case PV_MIN_Z0_BA: {
+      switch(tauType) {
+        case TAU_CONST_MASS : GET_FLOAT(m_hypo+"_TauErrConstMassPVMinZ0BA");
+        case TAU_INV_MASS   : GET_FLOAT(m_hypo+"_TauErrInvMassPVMinZ0BA");
         default: return -9999999.;
       }
     }
@@ -147,6 +161,13 @@ bool xAOD::BPhysHypoHelper::setTau(const float val, const pv_type vertexType, co
         default: return -9999999.;
       }
     }
+    case PV_MIN_Z0_BA: {
+      switch(tauType) {
+        case TAU_CONST_MASS : SET_FLOAT(m_hypo+"_TauConstMassPVMinZ0BA", val);
+        case TAU_INV_MASS   : SET_FLOAT(m_hypo+"_TauInvMassPVMinZ0BA", val);
+        default: return -9999999.;
+      }
+    }
     default: return -9999999.;
   }  
   
@@ -173,6 +194,13 @@ bool xAOD::BPhysHypoHelper::setTauErr(const float val, const pv_type vertexType,
       switch(tauType) {
         case TAU_CONST_MASS : SET_FLOAT(m_hypo+"_TauErrConstMassPVMinZ0", val);
         case TAU_INV_MASS   : SET_FLOAT(m_hypo+"_TauErrInvMassPVMinZ0", val);
+        default: return -9999999.;
+      }
+    }
+    case PV_MIN_Z0_BA: {
+      switch(tauType) {
+        case TAU_CONST_MASS : SET_FLOAT(m_hypo+"_TauErrConstMassPVMinZ0BA", val);
+        case TAU_INV_MASS   : SET_FLOAT(m_hypo+"_TauErrInvMassPVMinZ0BA", val);
         default: return -9999999.;
       }
     }
