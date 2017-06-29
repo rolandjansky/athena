@@ -119,62 +119,63 @@ int Root::TElectronLikelihoodTool::initialize()
 
 
   if( CutLikelihood.size() != number_of_expected_bin_combinedLH){
-    ATH_MSG_WARNING(" Something wrong wiht the config file: CutLikelihood  we expect diffent number of bins  ");
+    ATH_MSG_ERROR("Configuration issue :  CutLikelihood expected size " << number_of_expected_bin_combinedLH << 
+		  " input size " << CutLikelihood.size());
     sc = 0;
   } 
 
   if( DiscHardCutForPileupTransform.size() >0 ) {
     if( DiscHardCutForPileupTransform.size() != number_of_expected_bin_combinedLH){
-      ATH_MSG_WARNING(" Something wrong wiht the config file: DiscHardCutForPileupTransform  we expect diffent number of bins  ");
+      ATH_MSG_ERROR("Configuration issue :   DiscHardCutForPileupTransform expected size " << number_of_expected_bin_combinedLH << 
+		    " input size " <<  DiscHardCutForPileupTransform.size());
       sc = 0;
     } 
   }
-
-
   if(DiscHardCutSlopeForPileupTransform.size() >0 ) {
     if(DiscHardCutSlopeForPileupTransform.size() != number_of_expected_bin_combinedLH){
-      ATH_MSG_WARNING(" Something wrong wiht the config file: DiscHardCutSlopeForPileupTransform  we expect diffent number of bins  ");
+      ATH_MSG_ERROR("Configuration issue :   DiscHardCutSlopeForPileupTransform expected size " << number_of_expected_bin_combinedLH << 
+		    " input size " <<  DiscHardCutSlopeForPileupTransform.size());
       sc = 0;
     } 
   }
-  
   if(DiscLooseForPileupTransform.size() >0) {
     if( DiscLooseForPileupTransform.size() != number_of_expected_bin_combinedLH){
-      ATH_MSG_WARNING(" Something wrong wiht the config file: DiscLooseForPileupTransform  we expect diffent number of bins  ");
+      ATH_MSG_ERROR("Configuration issue :   DiscLooseForPileupTransform expected size " << number_of_expected_bin_combinedLH << 
+		    " input size " <<  DiscLooseForPileupTransform.size());
       sc = 0;
     } 
   }
 
- // d0 cut
+  // d0 cut
   if (CutA0.size() >0){
     if (CutA0.size() != number_of_expected_bin_combinedOther){
-     ATH_MSG_WARNING(" Something wrong wiht the config file: CutA0  we expect diffent number of bins  ");
-    sc = 0;
+      ATH_MSG_ERROR("Configuration issue :   CutA0  expected size " << number_of_expected_bin_combinedOther << 
+		    " input size " <<  CutA0.size());
+      sc = 0;
     }
   }
-
+    
   // deltaEta cut
   if (CutDeltaEta.size() >0){
-     if (CutDeltaEta.size() != number_of_expected_bin_combinedOther){
-       ATH_MSG_WARNING(" Something wrong wiht the config file: CutDeltaEta  we expect diffent number of bins  ");
-       sc = 0;
-     }
+    if (CutDeltaEta.size() != number_of_expected_bin_combinedOther){
+      ATH_MSG_ERROR("Configuration issue :  CutDeltaEta  expected size " << number_of_expected_bin_combinedOther << 
+		    " input size " <<  CutDeltaEta.size());
+      sc = 0;
+    }
   }
   
   // deltaPhiRes cut
   if (CutDeltaPhiRes.size() >0){
     if (CutDeltaPhiRes.size() != number_of_expected_bin_combinedOther ){
-       ATH_MSG_WARNING(" Something wrong wiht the config file: CutDeltaPhiRes  we expect diffent number of bins  ");
-       sc = 0;
+      ATH_MSG_ERROR("Configuration issue :  CutDeltaPhiRes  expected size " << number_of_expected_bin_combinedOther << 
+		    " input size " <<  CutDeltaPhiRes.size());
+      sc = 0;
     }
   }
-
-
-  if ( sc == 0 )
-    {
-      ATH_MSG_ERROR("Could NOT initialize! Please fix the errors mentioned above...");
-      return sc;
-    }
+  if ( sc == 0 ){
+    ATH_MSG_ERROR("Could NOT initialize! Please fix the errors mentioned above...");
+    return sc;
+  }
 
   // --------------------------------------------------------------------------
   // Register the cuts and check that the registration worked:
@@ -183,47 +184,47 @@ int Root::TElectronLikelihoodTool::initialize()
   
   // Cut position for the kineatic pre-selection
   m_cutPosition_kinematic = m_accept.addCut( "kinematic", "pass kinematic" );
-  if ( m_cutPosition_kinematic < 0 ) sc = 0;
+  if ( m_cutPosition_kinematic < 0 ) {sc = 0;}
 
   // NSilicon
   m_cutPosition_NSilicon = m_accept.addCut( "NSilicon", "pass NSilicon" );
-  if ( m_cutPosition_NSilicon < 0 ) sc = 0;
+  if ( m_cutPosition_NSilicon < 0 ) {sc = 0;}
 
   // NPixel
   m_cutPosition_NPixel = m_accept.addCut( "NPixel", "pass NPixel" );
-  if ( m_cutPosition_NPixel < 0 ) sc = 0;
+  if ( m_cutPosition_NPixel < 0 ) {sc = 0;}
 
   // NBlayer
   m_cutPosition_NBlayer = m_accept.addCut( "NBlayer", "pass NBlayer" );
-  if ( m_cutPosition_NBlayer < 0 ) sc = 0;
+  if ( m_cutPosition_NBlayer < 0 ) {sc = 0;}
 
   // Conversion
   m_cutPosition_conversion = m_accept.addCut( "conversion", "pass conversion" );
-  if ( m_cutPosition_conversion < 0 ) sc = 0;
+  if ( m_cutPosition_conversion < 0 ) {sc = 0;}
 
   // Cut position for the likelihood selection - DO NOT CHANGE ORDER!
   m_cutPosition_LH = m_accept.addCut( "passLH", "pass Likelihood" );
-  if ( m_cutPosition_LH < 0 ) sc = 0;
+  if ( m_cutPosition_LH < 0 ) {sc = 0;}
 
   // D0
   m_cutPositionTrackA0 = m_accept.addCut( "TrackA0", "A0 (aka d0) wrt beam spot < Cut" );
-  if ( m_cutPositionTrackA0 < 0 ) sc = 0;
+  if ( m_cutPositionTrackA0 < 0 ) {sc = 0;}
 
   // deltaeta
   m_cutPositionTrackMatchEta = m_accept.addCut("TrackMatchEta", "Track match deta in 1st sampling < Cut");
-  if ( m_cutPositionTrackMatchEta < 0 ) sc = 0;
+  if ( m_cutPositionTrackMatchEta < 0 ) {sc = 0;}
 
   // deltaphi
   m_cutPositionTrackMatchPhiRes = m_accept.addCut( "TrackMatchPhiRes", "Track match dphi in 2nd sampling, rescaled < Cut" );
-  if ( m_cutPositionTrackMatchPhiRes < 0 ) sc = 0;
+  if ( m_cutPositionTrackMatchPhiRes < 0 ) {sc = 0;}
   
   // Wstot
   m_cutPositionWstotAtHighET = m_accept.addCut( "WstotAtHighET", "Above HighETBinThreshold, Wstot < Cut" );
-  if ( m_cutPositionWstotAtHighET < 0 ) sc = 0;
+  if ( m_cutPositionWstotAtHighET < 0 ) {sc = 0;}
 
   // EoverP
   m_cutPositionEoverPAtHighET = m_accept.addCut( "EoverPAtHighET", "Above HighETBinThreshold, EoverP < Cut" );
-  if ( m_cutPositionEoverPAtHighET < 0 ) sc = 0;
+  if ( m_cutPositionEoverPAtHighET < 0 ) {sc = 0;}
 
   // --------------------------------------------------------------------------
   // Register the cuts and check that the registration worked:
@@ -234,18 +235,15 @@ int Root::TElectronLikelihoodTool::initialize()
   // Set the result to a defaul value
   m_result.setResult( m_resultPosition_LH, -9999.0  );
 
-
   // Check that we got everything OK
-  if ( sc == 0 )
-    {
-      ATH_MSG_ERROR("! Something went wrong with the setup of the return objects...");
-      return 0;
-    }
+  if ( sc == 0 ){
+    ATH_MSG_ERROR("! Something went wrong with the setup of the decision  objects...");
+    return 0;
+  }
 
   // ----------------------------------
   // Get the correct bit mask for the current likelihood operating point
   m_variableBitMask = GetLikelihoodBitmask(VariableNames);
-  // ----------------------------------
   
   //----------File/Histo operation------------------------------------
   // Load the ROOT file containing the PDFs
@@ -277,32 +275,32 @@ int Root::TElectronLikelihoodTool::initialize()
   delete m_pdfFile;
   //----------End File/Histo operation------------------------------------
 
-    ATH_MSG_DEBUG("Initialization complete for a LH tool with these specs:"
-		  << "\n - PdfFileName                                  : " << PdfFileName
-		  << "\n - Result name                                  : " << (m_resultPrefix+m_resultName).c_str()
-		  << "\n - Variable bitmask                             : " << m_variableBitMask);
+  ATH_MSG_DEBUG("Initialization complete for a LH tool with these specs:"
+		<< "\n - PdfFileName                                  : " << PdfFileName
+		<< "\n - Result name                                  : " << (m_resultPrefix+m_resultName).c_str()
+		<< "\n - Variable bitmask                             : " << m_variableBitMask);
 
   ATH_MSG_DEBUG("\n - VariableNames                                : " << VariableNames
-                << "\n - (bool)CutBL (yes/no)                         : " << (CutBL.size() ? "yes" : "no")
-                << "\n - (bool)CutPi (yes/no)                         : " << (CutPi.size() ? "yes" : "no")
-                << "\n - (bool)CutSi (yes/no)                         : " << (CutSi.size() ? "yes" : "no")
-                << "\n - (bool)doCutConversion (yes/no)               : " << (doCutConversion ? "yes" : "no")
-                << "\n - (bool)doRemoveF3AtHighEt (yes/no)            : " << (doRemoveF3AtHighEt ? "yes" : "no")
-                << "\n - (bool)doRemoveTRTPIDAtHighEt (yes/no)        : " << (doRemoveTRTPIDAtHighEt ? "yes" : "no")
-                << "\n - (bool)doSmoothBinInterpolation (yes/no)      : " << (doSmoothBinInterpolation ? "yes" : "no")
-                << "\n - (bool)useHighETLHBinning (yes/no)            : " << (useHighETLHBinning ? "yes" : "no")
-                << "\n - (bool)useOneExtraHighETLHBin(yes/no)         : " << (useOneExtraHighETLHBin ? "yes" : "no")
-                << "\n - (double)HighETBinThreshold                   : " << HighETBinThreshold
-                << "\n - (bool)doPileupTransform (yes/no)             : " << (doPileupTransform ? "yes" : "no")
-                << "\n - (bool)doCentralityTransform (yes/no)         : " << (doCentralityTransform ? "yes" : "no")
-                << "\n - (bool)CutLikelihood (yes/no)                 : " << (CutLikelihood.size() ? "yes" : "no")
-                << "\n - (bool)CutLikelihoodPileupCorrection (yes/no) : " << (CutLikelihoodPileupCorrection.size() ? "yes" : "no")
-                << "\n - (bool)CutA0 (yes/no)                         : " << (CutA0.size() ? "yes" : "no")
-                << "\n - (bool)CutDeltaEta (yes/no)                   : " << (CutDeltaEta.size() ? "yes" : "no")
-                << "\n - (bool)CutDeltaPhiRes (yes/no)                : " << (CutDeltaPhiRes.size() ? "yes" : "no")
-                << "\n - (bool)CutWstotAtHighET (yes/no)              : " << (CutWstotAtHighET.size() ? "yes" : "no")
-                << "\n - (bool)CutEoverPAtHighET (yes/no)             : " << (CutEoverPAtHighET.size() ? "yes" : "no")
-                );
+		<< "\n - (bool)CutBL (yes/no)                         : " << (CutBL.size() ? "yes" : "no")
+		<< "\n - (bool)CutPi (yes/no)                         : " << (CutPi.size() ? "yes" : "no")
+		<< "\n - (bool)CutSi (yes/no)                         : " << (CutSi.size() ? "yes" : "no")
+		<< "\n - (bool)doCutConversion (yes/no)               : " << (doCutConversion ? "yes" : "no")
+		<< "\n - (bool)doRemoveF3AtHighEt (yes/no)            : " << (doRemoveF3AtHighEt ? "yes" : "no")
+		<< "\n - (bool)doRemoveTRTPIDAtHighEt (yes/no)        : " << (doRemoveTRTPIDAtHighEt ? "yes" : "no")
+		<< "\n - (bool)doSmoothBinInterpolation (yes/no)      : " << (doSmoothBinInterpolation ? "yes" : "no")
+		<< "\n - (bool)useHighETLHBinning (yes/no)            : " << (useHighETLHBinning ? "yes" : "no")
+		<< "\n - (bool)useOneExtraHighETLHBin(yes/no)         : " << (useOneExtraHighETLHBin ? "yes" : "no")
+		<< "\n - (double)HighETBinThreshold                   : " << HighETBinThreshold
+		<< "\n - (bool)doPileupTransform (yes/no)             : " << (doPileupTransform ? "yes" : "no")
+		<< "\n - (bool)doCentralityTransform (yes/no)         : " << (doCentralityTransform ? "yes" : "no")
+		<< "\n - (bool)CutLikelihood (yes/no)                 : " << (CutLikelihood.size() ? "yes" : "no")
+		<< "\n - (bool)CutLikelihoodPileupCorrection (yes/no) : " << (CutLikelihoodPileupCorrection.size() ? "yes" : "no")
+		<< "\n - (bool)CutA0 (yes/no)                         : " << (CutA0.size() ? "yes" : "no")
+		<< "\n - (bool)CutDeltaEta (yes/no)                   : " << (CutDeltaEta.size() ? "yes" : "no")
+		<< "\n - (bool)CutDeltaPhiRes (yes/no)                : " << (CutDeltaPhiRes.size() ? "yes" : "no")
+		<< "\n - (bool)CutWstotAtHighET (yes/no)              : " << (CutWstotAtHighET.size() ? "yes" : "no")
+		<< "\n - (bool)CutEoverPAtHighET (yes/no)             : " << (CutEoverPAtHighET.size() ? "yes" : "no")
+		);
   return sc;
 }
 
@@ -310,18 +308,18 @@ int Root::TElectronLikelihoodTool::LoadVarHistograms(std::string vstr,unsigned i
   for(unsigned int s_or_b = 0; s_or_b < 2; s_or_b++){
     for (unsigned int ip = 0; ip < IP_BINS; ip++){
       for(unsigned int et = 0; et < s_fnEtBinsHist; et++){
-        for(unsigned int eta = 0; eta < s_fnEtaBins; eta++){
+	for(unsigned int eta = 0; eta < s_fnEtaBins; eta++){
 	  
-          std::string sig_bkg = (s_or_b==0) ? "sig" : "bkg" ;	  
-          // Because eta bins in the root file don't match up exactly with cut menu
-          // definitions, the second eta bin is an exact copy of the first,
-          // and all subsequent eta bins are pushed back by one.
-          unsigned int eta_tmp = (eta > 0) ? eta-1 : eta ;
-          // The 7-10 GeV, crack bin uses the 10-15 Gev pdfs. WE DO NOT DO THIS ANYMORE!
-          //unsigned int et_tmp = (eta == 5 && et == 1) ? 1 : et; 
+	  std::string sig_bkg = (s_or_b==0) ? "sig" : "bkg" ;	  
+	  // Because eta bins in the root file don't match up exactly with cut menu
+	  // definitions, the second eta bin is an exact copy of the first,
+	  // and all subsequent eta bins are pushed back by one.
+	  unsigned int eta_tmp = (eta > 0) ? eta-1 : eta ;
+	  // The 7-10 GeV, crack bin uses the 10-15 Gev pdfs. WE DO NOT DO THIS ANYMORE!
+	  //unsigned int et_tmp = (eta == 5 && et == 1) ? 1 : et; 
 	  unsigned int et_tmp = et;
-          char binname[200];
-          getBinName( binname, et_tmp, eta_tmp, ip, m_ipBinning );
+	  char binname[200];
+	  getBinName( binname, et_tmp, eta_tmp, ip, m_ipBinning );
           
 	  if (((std::string(binname).find("2.37") != std::string::npos)) && (vstr.find("el_f3") != std::string::npos))
 	    continue;
@@ -338,40 +336,40 @@ int Root::TElectronLikelihoodTool::LoadVarHistograms(std::string vstr,unsigned i
 	  sprintf(pdf_newname,"%s_%s_%s_LHtool_copy_%s",Root::TSelectorToolBase::getName(),vstr.c_str(),sig_bkg.c_str(),binname);
 
 	  if (!m_pdfFile->GetListOfKeys()->Contains(vstr.c_str())){
-            ATH_MSG_INFO("Warning: skipping variable " << vstr << " because the folder does not exist.");
-            return 1;
+	    ATH_MSG_INFO("Warning: skipping variable " << vstr << " because the folder does not exist.");
+	    return 1;
 	  }
 	  if (!((TDirectory*)m_pdfFile->Get(vstr.c_str()))->GetListOfKeys()->Contains(sig_bkg.c_str())){
-            ATH_MSG_INFO("Warning: skipping variable " << vstr << " because the folder does not exist.");
-            return 1;
+	    ATH_MSG_INFO("Warning: skipping variable " << vstr << " because the folder does not exist.");
+	    return 1;
 	  }
 
-          // For backwards compatibility:
-          // If we are not using the high ET LH binning, we only need to load PDFs 
-          // up to a certain ET value (40 GeV)
-          if(!useHighETLHBinning && et > s_fnEtBinsHistOrig-1){
-            continue;
-          }
+	  // For backwards compatibility:
+	  // If we are not using the high ET LH binning, we only need to load PDFs 
+	  // up to a certain ET value (40 GeV)
+	  if(!useHighETLHBinning && et > s_fnEtBinsHistOrig-1){
+	    continue;
+	  }
 
-          // If the 0th et bin (4-7 GeV) histogram does not exist in the root file,
-          // then just use the 7-10 GeV bin histogram. 
-          // This should preserve backward compatibility
-          if (et == 0 && !((TDirectory*)m_pdfFile->Get(pdfdir))->GetListOfKeys()->Contains(pdf)) {
-            //std::cout << "Info: using 7 GeV bin in place of 4 GeV bin." << std::endl;
-            getBinName( binname, et_tmp+1, eta_tmp, ip, m_ipBinning );
-            sprintf(pdf,"%s_%s_smoothed_hist_from_KDE_%s",vstr.c_str(),sig_bkg.c_str(),binname);
-            sprintf(pdf_newname,"%s_%s_%s_LHtool_copy4GeV_%s",Root::TSelectorToolBase::getName(),vstr.c_str(),sig_bkg.c_str(),binname);
-          }
-          if (((TDirectory*)m_pdfFile->Get(pdfdir))->GetListOfKeys()->Contains(pdf)) {
-            TH1F* hist = (TH1F*)(((TDirectory*)m_pdfFile->Get(pdfdir))->Get(pdf));
-            fPDFbins[s_or_b][ip][et][eta][varIndex] = new TElectronLikelihoodTool::SafeTH1(hist);
-            delete hist;
-          }
-          else {
-            ATH_MSG_INFO("Warning: Object " << pdf << " does not exist.");
-            ATH_MSG_INFO("Skipping all other histograms with this variable.");
-            return 1;
-          }
+	  // If the 0th et bin (4-7 GeV) histogram does not exist in the root file,
+	  // then just use the 7-10 GeV bin histogram. 
+	  // This should preserve backward compatibility
+	  if (et == 0 && !((TDirectory*)m_pdfFile->Get(pdfdir))->GetListOfKeys()->Contains(pdf)) {
+	    //std::cout << "Info: using 7 GeV bin in place of 4 GeV bin." << std::endl;
+	    getBinName( binname, et_tmp+1, eta_tmp, ip, m_ipBinning );
+	    sprintf(pdf,"%s_%s_smoothed_hist_from_KDE_%s",vstr.c_str(),sig_bkg.c_str(),binname);
+	    sprintf(pdf_newname,"%s_%s_%s_LHtool_copy4GeV_%s",Root::TSelectorToolBase::getName(),vstr.c_str(),sig_bkg.c_str(),binname);
+	  }
+	  if (((TDirectory*)m_pdfFile->Get(pdfdir))->GetListOfKeys()->Contains(pdf)) {
+	    TH1F* hist = (TH1F*)(((TDirectory*)m_pdfFile->Get(pdfdir))->Get(pdf));
+	    fPDFbins[s_or_b][ip][et][eta][varIndex] = new TElectronLikelihoodTool::SafeTH1(hist);
+	    delete hist;
+	  }
+	  else {
+	    ATH_MSG_INFO("Warning: Object " << pdf << " does not exist.");
+	    ATH_MSG_INFO("Skipping all other histograms with this variable.");
+	    return 1;
+	  }
 	}
       }
     }  
@@ -380,13 +378,13 @@ int Root::TElectronLikelihoodTool::LoadVarHistograms(std::string vstr,unsigned i
 }
 
 const Root::TAccept& Root::TElectronLikelihoodTool::accept( double likelihood,
-                                                            double eta, double eT,
-                                                            int nSi,int nSiDeadSensors, int nPix, int nPixDeadSensors,
-                                                            int nBlayer, int nBlayerOutliers, bool expectBlayer,
+							    double eta, double eT,
+							    int nSi,int nSiDeadSensors, int nPix, int nPixDeadSensors,
+							    int nBlayer, int nBlayerOutliers, bool expectBlayer,
 							    int nNextToInnerMostLayer, int nNextToInnerMostLayerOutliers, bool expectNextToInnerMostLayer,
-                                                            int convBit, double d0, double deltaEta, double deltaphires, 
-                                                            double wstot, double EoverP, double ip
-                                                            ) const
+							    int convBit, double d0, double deltaEta, double deltaphires, 
+							    double wstot, double EoverP, double ip
+							    ) const
 {
   LikeEnum::LHAcceptVars_t vars;
   
@@ -448,7 +446,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
     ATH_MSG_WARNING( "Cannot evaluate likelihood for Et " << vars_struct.eT<< ". Returning false..");
     passKine = false;
   }
- // sanity
+  // sanity
   if (etbinOther  >= s_fnDiscEtBinsOrig) {
     ATH_MSG_WARNING( "Cannot evaluate likelihood for Et " << vars_struct.eT<< ". Returning false..");
     passKine = false;
@@ -461,8 +459,8 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
 
   // conversion bit
   if (doCutConversion && vars_struct.convBit){
-      ATH_MSG_DEBUG("Likelihood macro: Conversion Bit Failed." );
-      passConversion = false;
+    ATH_MSG_DEBUG("Likelihood macro: Conversion Bit Failed." );
+    passConversion = false;
   }
 
   // blayer cut
@@ -480,7 +478,6 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
       } 
     }
   }
-  
   // pixel cut
   if (CutPi.size()){
     if (vars_struct.nPix+vars_struct.nPixDeadSensors < CutPi[etabin]){
@@ -488,7 +485,6 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
       passNPixel = false;
     }
   }
-  
   // silicon cut
   if (CutSi.size()){
     if (vars_struct.nSi + vars_struct.nSiDeadSensors < CutSi[etabin]){
@@ -503,35 +499,37 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
 
   if(CutLikelihood.size()){
     // To protect against a binning mismatch, which should never happen
-    if(ibin_combinedLH > CutLikelihood.size()){
-      ATH_MSG_ERROR("Somehow the desired bin is outside of the range specified by the conf file! This should never happen!");
+    if(ibin_combinedLH>=CutLikelihood.size()){
+      ATH_MSG_ERROR("The desired eta/pt bin " << ibin_combinedLH 
+		    << " is outside of the range specified by the input" << CutLikelihood.size() << "This should never happen!");
+      return m_accept; 
     }
 
     if (doSmoothBinInterpolation){
       cutDiscriminant = InterpolateCuts(CutLikelihood,CutLikelihood4GeV,vars_struct.eT,vars_struct.eta);
       if (!doPileupTransform && CutLikelihoodPileupCorrection.size() && CutLikelihoodPileupCorrection4GeV.size())
-        cutDiscriminant += vars_struct.ip*InterpolateCuts(CutLikelihoodPileupCorrection,CutLikelihoodPileupCorrection4GeV,vars_struct.eT,vars_struct.eta);
+	cutDiscriminant += vars_struct.ip*InterpolateCuts(CutLikelihoodPileupCorrection,CutLikelihoodPileupCorrection4GeV,vars_struct.eT,vars_struct.eta);
     } else {
       if (vars_struct.eT > 7000. || !CutLikelihood4GeV.size()){
-        cutDiscriminant = CutLikelihood[ibin_combinedLH];
-        // If doPileupTransform, then correct the discriminant itself instead of the cut value
-        if (!doPileupTransform && CutLikelihoodPileupCorrection.size()) 
-          cutDiscriminant += vars_struct.ip*CutLikelihoodPileupCorrection[ibin_combinedLH];
+	cutDiscriminant = CutLikelihood[ibin_combinedLH];
+	// If doPileupTransform, then correct the discriminant itself instead of the cut value
+	if (!doPileupTransform && CutLikelihoodPileupCorrection.size()) 
+	  cutDiscriminant += vars_struct.ip*CutLikelihoodPileupCorrection[ibin_combinedLH];
       }
       else {
-        cutDiscriminant = CutLikelihood4GeV[etabin];
-        if (!doPileupTransform && CutLikelihoodPileupCorrection4GeV.size()) 
-          cutDiscriminant += vars_struct.ip*CutLikelihoodPileupCorrection4GeV[etabin];
+	cutDiscriminant = CutLikelihood4GeV[etabin];
+	if (!doPileupTransform && CutLikelihoodPileupCorrection4GeV.size()) 
+	  cutDiscriminant += vars_struct.ip*CutLikelihoodPileupCorrection4GeV[etabin];
       }
     }
 
     // Determine if the calculated likelihood value passes the cut
     ATH_MSG_DEBUG("Likelihood macro: Discriminant: ");
     if ( vars_struct.likelihood < cutDiscriminant )
-    {
-      ATH_MSG_DEBUG("Likelihood macro: Disciminant Cut Failed.");
-      passLH = false;
-    }
+      {
+	ATH_MSG_DEBUG("Likelihood macro: Disciminant Cut Failed.");
+	passLH = false;
+      }
   }
 
   // d0 cut
@@ -563,21 +561,20 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
     // wstot cut
     if (CutWstotAtHighET.size()){
       if ( fabs(vars_struct.wstot) > CutWstotAtHighET[etabin]){
-        ATH_MSG_DEBUG("Likelihood macro: wstot Failed.");
-        passWstotAtHighET = false;
+	ATH_MSG_DEBUG("Likelihood macro: wstot Failed.");
+	passWstotAtHighET = false;
       }
     }
 
     // EoverP cut
     if (CutEoverPAtHighET.size()){
       if ( fabs(vars_struct.EoverP) > CutEoverPAtHighET[etabin]){
-        ATH_MSG_DEBUG("Likelihood macro: EoverP Failed.");
-        passEoverPAtHighET = false;
+	ATH_MSG_DEBUG("Likelihood macro: EoverP Failed.");
+	passEoverPAtHighET = false;
       }
     }
   }
-  
-  
+
   // Set the individual cut bits in the return object
   m_accept.setCutResult( m_cutPosition_NSilicon, passNSilicon );
   m_accept.setCutResult( m_cutPosition_NPixel, passNPixel );
@@ -589,15 +586,14 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   m_accept.setCutResult( m_cutPositionTrackMatchPhiRes, passDeltaPhiRes );  
   m_accept.setCutResult( m_cutPositionWstotAtHighET, passWstotAtHighET );  
   m_accept.setCutResult( m_cutPositionEoverPAtHighET, passEoverPAtHighET );  
-  
   return m_accept;
 }
 
 const Root::TResult& Root::TElectronLikelihoodTool::calculate( double eta, double eT,double f3, double rHad, double rHad1,
-                                                               double Reta, double w2, double f1, double eratio,
-                                                               double deltaEta, double d0, double d0sigma, double rphi,
-                                                               double deltaPoverP ,double deltaphires, double TRT_PID,
-                                                               double ip )  const
+							       double Reta, double w2, double f1, double eratio,
+							       double deltaEta, double d0, double d0sigma, double rphi,
+							       double deltaPoverP ,double deltaphires, double TRT_PID,
+							       double ip )  const
 {
 
   LikeEnum::LHCalcVars_t vars;
@@ -636,10 +632,10 @@ const Root::TResult& Root::TElectronLikelihoodTool::calculate(LikeEnum::LHCalcVa
   double d0significance = vars_struct.d0sigma == 0 ? 0. : fabs(vars_struct.d0)/vars_struct.d0sigma;
   
   double arr[] = {d0significance,vars_struct.eratio,vars_struct.deltaEta
-                  ,vars_struct.f1,vars_struct.f3
-                  ,vars_struct.Reta,rhad_corr,vars_struct.rphi
-                  ,vars_struct.d0,vars_struct.w2
-                  ,vars_struct.deltaPoverP,vars_struct.deltaphires
+		  ,vars_struct.f1,vars_struct.f3
+		  ,vars_struct.Reta,rhad_corr,vars_struct.rphi
+		  ,vars_struct.d0,vars_struct.w2
+		  ,vars_struct.deltaPoverP,vars_struct.deltaphires
 		  ,vars_struct.TRT_PID};
   std::vector<double> vec (arr, arr + sizeof(arr) / sizeof(double) );
   
@@ -673,7 +669,7 @@ double Root::TElectronLikelihoodTool::EvaluateLikelihood(std::vector<double> var
   unsigned int ipbin  = getIpBin(ip);
 
   ATH_MSG_DEBUG("et: " << et << " eta: " << eta 
-			     << " etbin: " << etbin << " etabin: " << etabin);
+		<< " etbin: " << etbin << " etabin: " << etabin);
   
   if (etbin >= s_fnEtBinsHist) {
     ATH_MSG_WARNING("skipping etbin " << etbin << ", et " << et);
@@ -713,11 +709,11 @@ double Root::TElectronLikelihoodTool::EvaluateLikelihood(std::vector<double> var
     }
     // Don't use f3 for high et (>80 GeV)
     if (doRemoveF3AtHighEt && (et > 80*GeV) && (varstr.find(el_f3_string) != std::string::npos)){
-        continue;
+      continue;
     }
     // Don't use TRTPID for high et (>80 GeV)
     if (doRemoveTRTPIDAtHighEt && (et > 80*GeV) && (varstr.find(el_TRT_PID_string) != std::string::npos)){
-        continue;
+      continue;
     }
     for (unsigned int s_or_b=0; s_or_b<2;s_or_b++) {
       
@@ -725,16 +721,16 @@ double Root::TElectronLikelihoodTool::EvaluateLikelihood(std::vector<double> var
 
       double prob = 0;
       if (doSmoothBinInterpolation) {
-        prob = InterpolatePdfs(s_or_b,ipbin,et,eta,bin,var);
+	prob = InterpolatePdfs(s_or_b,ipbin,et,eta,bin,var);
       } 
       else {
-        double integral = double(fPDFbins[s_or_b][ipbin][etbin][etabin][var]->Integral());
-        if (integral == 0) {
-          ATH_MSG_WARNING("Error! PDF integral == 0!");
-          return -1.35;
-        }
+	double integral = double(fPDFbins[s_or_b][ipbin][etbin][etabin][var]->Integral());
+	if (integral == 0) {
+	  ATH_MSG_WARNING("Error! PDF integral == 0!");
+	  return -1.35;
+	}
         
-        prob = double(fPDFbins[s_or_b][ipbin][etbin][etabin][var]->GetBinContent(bin)) / integral;
+	prob = double(fPDFbins[s_or_b][ipbin][etbin][etabin][var]->GetBinContent(bin)) / integral;
       }
 
       if   (s_or_b == 0) SigmaS *= prob;
@@ -807,25 +803,25 @@ double Root::TElectronLikelihoodTool::TransformLikelihoodOutput(double ps,double
     } else {
       // default situation, in the case where 4-7 GeV bin is not defined
       if (et > 7000. || !DiscHardCutForPileupTransform4GeV.size()){
-        unsigned int etfinebinLH = getLikelihoodEtDiscBin(et,true);
-        unsigned int ibin_combined = etfinebinLH*10+etabin;
-        disc_hard_cut_ref       = DiscHardCutForPileupTransform[ibin_combined];
-        disc_hard_cut_ref_slope = DiscHardCutSlopeForPileupTransform[ibin_combined];
-        if (doCentralityTransform) disc_hard_cut_ref_quad  = DiscHardCutQuadForPileupTransform[ibin_combined];
-        disc_loose_ref          = DiscLooseForPileupTransform[ibin_combined];
+	unsigned int etfinebinLH = getLikelihoodEtDiscBin(et,true);
+	unsigned int ibin_combined = etfinebinLH*10+etabin;
+	disc_hard_cut_ref       = DiscHardCutForPileupTransform[ibin_combined];
+	disc_hard_cut_ref_slope = DiscHardCutSlopeForPileupTransform[ibin_combined];
+	if (doCentralityTransform) disc_hard_cut_ref_quad  = DiscHardCutQuadForPileupTransform[ibin_combined];
+	disc_loose_ref          = DiscLooseForPileupTransform[ibin_combined];
       } else {
-        if( DiscHardCutForPileupTransform4GeV.size() == 0 || DiscHardCutSlopeForPileupTransform4GeV.size() == 0 || DiscLooseForPileupTransform4GeV.size() == 0){
-          ATH_MSG_WARNING("Vectors needed for pileup-dependent transform not correctly filled for 4-7 GeV bin! Skipping the transform.");
-          return disc;
-        }
-        if(doCentralityTransform && DiscHardCutQuadForPileupTransform4GeV.size() == 0){
-          ATH_MSG_WARNING("Vectors needed for centrality-dependent transform not correctly filled for 4-7 GeV bin! Skipping the transform.");
-          return disc;
-        }
-        disc_hard_cut_ref       = DiscHardCutForPileupTransform4GeV[etabin];
-        disc_hard_cut_ref_slope = DiscHardCutSlopeForPileupTransform4GeV[etabin];
-        if (doCentralityTransform) disc_hard_cut_ref_quad  = DiscHardCutQuadForPileupTransform4GeV[etabin];
-        disc_loose_ref          = DiscLooseForPileupTransform4GeV[etabin];
+	if( DiscHardCutForPileupTransform4GeV.size() == 0 || DiscHardCutSlopeForPileupTransform4GeV.size() == 0 || DiscLooseForPileupTransform4GeV.size() == 0){
+	  ATH_MSG_WARNING("Vectors needed for pileup-dependent transform not correctly filled for 4-7 GeV bin! Skipping the transform.");
+	  return disc;
+	}
+	if(doCentralityTransform && DiscHardCutQuadForPileupTransform4GeV.size() == 0){
+	  ATH_MSG_WARNING("Vectors needed for centrality-dependent transform not correctly filled for 4-7 GeV bin! Skipping the transform.");
+	  return disc;
+	}
+	disc_hard_cut_ref       = DiscHardCutForPileupTransform4GeV[etabin];
+	disc_hard_cut_ref_slope = DiscHardCutSlopeForPileupTransform4GeV[etabin];
+	if (doCentralityTransform) disc_hard_cut_ref_quad  = DiscHardCutQuadForPileupTransform4GeV[etabin];
+	disc_loose_ref          = DiscLooseForPileupTransform4GeV[etabin];
       }
     }
 
@@ -897,7 +893,7 @@ unsigned int Root::TElectronLikelihoodTool::getLikelihoodEtHistBin(double eT) co
 
     for(unsigned int eTBin = 0; eTBin < nEtBins; ++eTBin){
       if(eT < eTBins[eTBin])
-        return eTBin;
+	return eTBin;
     }
     
     return nEtBins-1; // Return the last bin if > the last bin.
@@ -908,7 +904,7 @@ unsigned int Root::TElectronLikelihoodTool::getLikelihoodEtHistBin(double eT) co
 
     for(unsigned int eTBin = 0; eTBin < nEtBins; ++eTBin){
       if(eT < eTBins[eTBin])
-        return eTBin;
+	return eTBin;
     }
     
     return nEtBins-1; // Return the last bin if > the last bin.
@@ -930,7 +926,7 @@ unsigned int Root::TElectronLikelihoodTool::getLikelihoodEtDiscBin(double eT, co
     
     for(unsigned int eTBin = 0; eTBin < nEtBins; ++eTBin){
       if(eT < eTBins[eTBin])
-        return eTBin;
+	return eTBin;
     }
     
     return nEtBins-1; // Return the last bin if > the last bin.
@@ -941,7 +937,7 @@ unsigned int Root::TElectronLikelihoodTool::getLikelihoodEtDiscBin(double eT, co
 
     for(unsigned int eTBin = 0; eTBin < nEtBins; ++eTBin){
       if(eT < eTBins[eTBin])
-        return eTBin;
+	return eTBin;
     }
     
     return nEtBins-1; // Return the last bin if > the last bin.
@@ -953,7 +949,7 @@ unsigned int Root::TElectronLikelihoodTool::getLikelihoodEtDiscBin(double eT, co
 
     for(unsigned int eTBin = 0; eTBin < nEtBins; ++eTBin){
       if(eT < eTBins[eTBin])
-        return eTBin;
+	return eTBin;
     }
     
     return nEtBins-1; // Return the last bin if > the last bin.
@@ -994,17 +990,16 @@ unsigned int Root::TElectronLikelihoodTool::GetLikelihoodBitmask(std::string var
 // no smoothing is done above this for the high ET LH binning yet
 double Root::TElectronLikelihoodTool::InterpolateCuts(const std::vector<double>& cuts,const std::vector<double>& cuts_4gev,double et,double eta) const{
   int etbinLH = getLikelihoodEtDiscBin(et,true);
-  int etbinOther = getLikelihoodEtDiscBin(et,false);
   int etabin = getLikelihoodEtaBin(eta);
   unsigned int ibin_combinedLH = etbinLH*10+etabin;
   double cut = cuts.at(ibin_combinedLH);
-  if (cuts_4gev.size() && et < 7000.) cut = cuts_4gev.at(etabin);
-  if (et > 47500.) return cut; // interpolation stops here.
-  if (cuts_4gev.size() == 0 && et < 8500.) return cut; // stops here
-  if (cuts_4gev.size() > 0 && et < 6000.) return cut; // stops here
+  if (cuts_4gev.size() && et < 7000.) {cut = cuts_4gev.at(etabin);}
+  if (et > 47500.) {return cut;} // interpolation stops here.
+  if (cuts_4gev.size() == 0 && et < 8500.) {return cut;} // stops here
+  if (cuts_4gev.size() > 0 && et < 6000.) {return cut;} // stops here
   double bin_width = 5000.;
-  if (7000. < et && et < 10000.) bin_width = 3000.;
-  if (et < 7000.) bin_width = 2000.;
+  if (7000. < et && et < 10000.) {bin_width = 3000.;}
+  if (et < 7000.) {bin_width = 2000.;}
   const double GeV = 1000; 
   const double eTBins[9] = {8.5*GeV,12.5*GeV,17.5*GeV,22.5*GeV,27.5*GeV,32.5*GeV,37.5*GeV,42.5*GeV,47.5*GeV};
   double bin_center = eTBins[etbinLH];
@@ -1015,8 +1010,9 @@ double Root::TElectronLikelihoodTool::InterpolateCuts(const std::vector<double>&
   }
   // or else if et < bin_center :
   double cut_before = cut;
-  if (etbinLH-1>=0) cut_before = cuts.at((etbinLH-1)*10+etabin);
-  else if (etbinLH == 0 && cuts_4gev.size()) cut_before = cuts_4gev.at(etabin);
+  if (etbinLH-1>=0) {cut_before = cuts.at((etbinLH-1)*10+etabin);}
+  else if (etbinLH == 0 && cuts_4gev.size()){cut_before = cuts_4gev.at(etabin);}
+
   return cut-(cut-cut_before)*(bin_center-et)/(bin_width);
 }
 
@@ -1064,7 +1060,7 @@ double Root::TElectronLikelihoodTool::InterpolatePdfs(unsigned int s_or_b,unsign
 
 // These are the variables availalble in the likelihood.
 const std::string Root::TElectronLikelihoodTool::fVariables[s_fnVariables] = {
-   "el_d0significance"
+  "el_d0significance"
   ,"el_eratio"
   ,"el_deltaeta1"
   ,"el_f1"
