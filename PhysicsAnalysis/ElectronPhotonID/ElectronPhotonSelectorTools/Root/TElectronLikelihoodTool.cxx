@@ -901,7 +901,7 @@ unsigned int Root::TElectronLikelihoodTool::getLikelihoodEtHistBin(double eT) co
 unsigned int Root::TElectronLikelihoodTool::getLikelihoodEtDiscBin(double eT, const bool isLHbinning) const{
   const double GeV = 1000;
 
-  if(useHighETLHBinning and isLHbinning){
+  if(useHighETLHBinning && isLHbinning){
     const unsigned int nEtBins = s_fnDiscEtBins;
     const double eTBins[nEtBins] = {10*GeV,15*GeV,20*GeV,25*GeV,30*GeV,35*GeV,40*GeV,45*GeV
 				    ,100*GeV,150*GeV,200*GeV,250*GeV,300*GeV,350*GeV,400*GeV
@@ -916,7 +916,7 @@ unsigned int Root::TElectronLikelihoodTool::getLikelihoodEtDiscBin(double eT, co
     
     return nEtBins-1; // Return the last bin if > the last bin.
   }
-  else if(useOneExtraHighETLHBin and isLHbinning){
+  else if(useOneExtraHighETLHBin && isLHbinning){
     const unsigned int nEtBins = s_fnDiscEtBinsOneExtra;
     const double eTBins[nEtBins] = {10*GeV,15*GeV,20*GeV,25*GeV,30*GeV,35*GeV,40*GeV,45*GeV,HighETBinThreshold*GeV,6000*GeV};
 
