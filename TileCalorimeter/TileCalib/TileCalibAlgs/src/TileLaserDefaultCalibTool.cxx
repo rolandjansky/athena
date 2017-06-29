@@ -868,11 +868,7 @@ StatusCode TileLaserDefaultCalibTool::finalizeCalculations(){
 	    }
 	    m_pmt_ratios[partition][drawer][channel][gain] = m_rs_pmt_ratios[partition][drawer][channel][gain]->Mean();
 	    if (std::abs(m_rs_pmt_ratios[partition][drawer][channel][gain]->Mean())>100000.) {
-	      std::cout << "too big value for " << partition 
-			<< " " << drawer
- 			<< " " << channel
- 			<< " " << gain << " " << m_rs_pmt_ratios[partition][drawer][channel][gain]->NumDataValues() << "status" << m_status[partition][drawer][channel][gain] << std::endl;
-
+	      ATH_MSG_DEBUG( "too big value for " << partition << " " << drawer	<< " " << channel << " " << gain << " " << m_rs_pmt_ratios[partition][drawer][channel][gain]->NumDataValues() << "status" << m_status[partition][drawer][channel][gain] );
 		}
 	    m_pmt_S_ratios[partition][drawer][channel][gain] = m_rs_pmt_ratios[partition][drawer][channel][gain]->StandardDeviation();	    
 	  } else {
