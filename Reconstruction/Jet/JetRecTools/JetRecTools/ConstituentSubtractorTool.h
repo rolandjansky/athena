@@ -26,8 +26,7 @@ public:
 	
   ConstituentSubtractorTool(const std::string & name); 
 
-  StatusCode process(xAOD::IParticleContainer* cont) const; 
-  StatusCode process(xAOD::CaloClusterContainer* cont) const;
+  StatusCode process_impl(xAOD::IParticleContainer* cont) const; 
 
 public:
 
