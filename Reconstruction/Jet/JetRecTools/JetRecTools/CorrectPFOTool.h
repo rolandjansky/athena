@@ -31,13 +31,20 @@ namespace jet{
 class CorrectPFOTool : public JetConstituentModifierBase{
   ASG_TOOL_CLASS(CorrectPFOTool, IJetConstituentModifier)
 
-    public:
+  public:
 
   CorrectPFOTool(const std::string& name);
-  StatusCode process(xAOD::IParticleContainer* cont) const; 
-  StatusCode process(xAOD::PFOContainer* cont) const;
+  
+  // Check that the configuration is reasonable
+  StatusCode initialize();
 
  private:
+
+  // Implement the correction
+  StatusCode process_impl(xAOD::IParticleContainer* cont) const;
+  // Type-speciific operation
+  StatusCode correctPFO(xAOD::PFOContainer& cont) const;
+
   bool m_inputIsEM;   /// If true EM clusters are used for neutral PFOs.
   bool m_calibrate;   /// If true, EM PFOs are calibrated to LC.
   bool m_correctneutral;   //If true, correct neutral PFO

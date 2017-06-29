@@ -31,8 +31,14 @@ class ChargedHadronSubtractionTool : public JetConstituentModifierBase{
   public:
   
   ChargedHadronSubtractionTool(const std::string& name);
-  StatusCode process(xAOD::IParticleContainer* cont) const; 
-  StatusCode process(xAOD::PFOContainer* cont) const;
+
+  // Check that the configuration is reasonable
+  StatusCode initialize();
+
+  private:
+  // Implement the correction
+  StatusCode process_impl(xAOD::IParticleContainer* cont) const; 
+  StatusCode removePileupChargedHadrons(xAOD::PFOContainer& cont) const;
 	
 };
 

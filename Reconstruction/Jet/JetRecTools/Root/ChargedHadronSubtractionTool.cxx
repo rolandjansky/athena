@@ -1,14 +1,4 @@
-#include <vector>
-
-#include "fastjet/ClusterSequenceArea.hh"
-#include "fastjet/PseudoJet.hh"
-#include "fastjet/Selector.hh"
-
 #include "JetRecTools/ChargedHadronSubtractionTool.h"
-#include "fastjet/contrib/SoftKiller.hh"
-#include "xAODCore/ShallowCopy.h"
-#include "xAODBase/IParticleHelpers.h"
-#include "xAODCore/ShallowAuxContainer.h"
 
 using namespace std;
 
@@ -20,19 +10,25 @@ ChargedHadronSubtractionTool::ChargedHadronSubtractionTool(const std::string& na
 
 }
 
-StatusCode ChargedHadronSubtractionTool::process(xAOD::IParticleContainer* cont) const {
-  xAOD::PFOContainer* pfoCont = dynamic_cast<xAOD::PFOContainer*> (cont);
-  if(pfoCont) return process(pfoCont);
-  else{
-    ATH_MSG_ERROR("Unable to dynamic cast IParticleContainer to PFOContainer");
-    return StatusCode::FAILURE;
+StatusCode ChargedHadronSubtractionTool::initialize() {
+  if(m_inputType!=xAOD::Type::ParticleFlow) {
+    ATH_MSG_ERROR("ChargedHadronSubtractionTool requires PFO inputs. It cannot operate on objects of type "
+		  << m_inputType);
   }
+  return StatusCode::SUCCESS;
 }
 
-StatusCode ChargedHadronSubtractionTool::process(xAOD::PFOContainer* cont) const {
+StatusCode ChargedHadronSubtractionTool::process_impl(xAOD::IParticleContainer* cont) const {
+  // Type-checking happens in the JetConstituentModifierBase class
+  // so it is safe just to static_cast
+  xAOD::PFOContainer* pfoCont = static_cast<xAOD::PFOContainer*> (cont);
+  return removePileupChargedHadrons(*pfoCont);
+}
+
+StatusCode ChargedHadronSubtractionTool::removePileupChargedHadrons(xAOD::PFOContainer& cont) const {
 
   SG::AuxElement::Accessor<bool> PVMatchedAcc("matchedToPV");
-  for ( xAOD::PFO* ppfo : *cont ) {
+  for ( xAOD::PFO* ppfo : cont ) {
     if(ppfo->charge() == 0) continue;
 
     if (!PVMatchedAcc.isAvailable(*ppfo)){
