@@ -16,13 +16,14 @@
 #include "VP1Base/VP1StdCollection.h"
 #include "VP1Base/VP1MaterialButton.h"
 #include "VP1Base/VP1Msg.h"
-#include <QtGui/QSpacerItem>
-#include <QtGui/QGridLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QCheckBox>
-#include <QtCore/QSet>
-#include <QtCore/QList>
-#include <QtCore/QRegExp>
+
+#include <QSpacerItem>
+#include <QGridLayout>
+#include <QLabel>
+#include <QCheckBox>
+#include <QSet>
+#include <QList>
+#include <QRegExp>
 
 //____________________________________________________________________
 class VP1CollectionWidget::Imp {

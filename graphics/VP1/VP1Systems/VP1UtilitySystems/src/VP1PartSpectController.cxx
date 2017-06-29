@@ -9,8 +9,8 @@
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Settings.h"
 
-#include <QtGui/QFileDialog>
-#include <QtCore/QFileInfo>
+#include <QFileDialog>
+#include <QFileInfo>
 
 class VP1PartSpectController::Imp
 {

@@ -15,7 +15,8 @@
 #ifndef VP1DOCKWIDGET_H
 #define VP1DOCKWIDGET_H
 
-#include <QtGui/QDockWidget>
+#include <QDockWidget>
+
 class IVP1ChannelWidget;
 class VP1TabManager;
 class QResizeEvent;

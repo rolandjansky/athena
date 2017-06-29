@@ -19,7 +19,7 @@
 #include "VP1Base/VP1String.h"
 #include "VP1Base/VP1Msg.h"
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 #include <set>
 

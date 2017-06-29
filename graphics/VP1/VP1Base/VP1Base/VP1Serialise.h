@@ -19,7 +19,7 @@
 
 #include "VP1Base/VP1HelperClassBase.h"
 #include <typeinfo>
-#include <QtCore/QDataStream>
+#include <QDataStream>
 class VP1EtaPhiCutWidget;
 class VP1DrawOptionsWidget;
 class PhiSectionWidget;

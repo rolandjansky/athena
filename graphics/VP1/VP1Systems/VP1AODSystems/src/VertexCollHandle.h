@@ -28,7 +28,7 @@
 #include "xAODBase/IParticle.h"
 
 // Qt
-#include <QtGui/QColor>
+#include <QColor>
 #include <QList>
 
 //Misc

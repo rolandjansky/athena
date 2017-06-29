@@ -40,15 +40,14 @@
 #include <Inventor/actions/SoSearchAction.h>
 #include <Inventor/nodekits/SoBaseKit.h>
 
-#include <QtCore/QBuffer>
-#include <QtCore/QByteArray>
-#include <QtGui/QMenu>
-#include <QtGui/QCursor>
-#include <QtGui/QColorDialog>
-#include <QtGui/QFileDialog>
-#include <QtGui/QInputDialog>
-#include <QtGui/QPushButton>
-
+#include <QBuffer>
+#include <QByteArray>
+#include <QMenu>
+#include <QCursor>
+#include <QColorDialog>
+#include <QFileDialog>
+#include <QInputDialog>
+#include <QPushButton>
 #include <QGLFormat>
 
 #include <map>
@@ -144,7 +143,7 @@ public:
 		// is not removed before the new rendering.
 		// theclass->setClearBeforeRender(FALSE, TRUE);
 		// theclass->setClearBeforeRender(FALSE, FALSE);
-		// theclass->setClearBeforeOverlayRender(FALSE); 
+		// theclass->setClearBeforeOverlayRender(FALSE);
 }
 
 
@@ -555,7 +554,7 @@ VP1ExaminerViewer::VP1ExaminerViewer(QWidget * parent,
 	if (d->customtoureditorState!=QByteArray()) {
 		d->customtoureditor->setState(d->customtoureditorState);
 		d->customtoureditorState = QByteArray();
-	}   
+	}
 
 	// test Ric
 	VP1Msg::messageVerbose("is stereo: " + QString(isStereoViewing()) + " - offset: " + QString::number(getStereoOffsetSlot()) + " - type: " + QString::number(getStereoType()) );
@@ -2396,7 +2395,8 @@ void VP1ExaminerViewer::showPopupMenu()
 	if ( selAct == d->popup_ambientLightAction ) {
 		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu ambient light editor triggered");
 		bool ok;
-		int newamb = QInputDialog::getInteger(getWidget(), "Change ambient light",
+		// int newamb = QInputDialog::getInteger(getWidget(), "Change ambient light",
+		int newamb = QInputDialog::getInt(getWidget(), "Change ambient light",
 				"New ambient light percentage:",
 				ambientLight(),0,100,1,&ok);
 		if (ok)
@@ -2592,7 +2592,8 @@ void VP1ExaminerViewer::showPopupMenu()
 	if (selAct==d->action_moviewidth) {
 		int old = d->action_moviewidth->data().toInt();
 		bool ok;
-		int newwidth = QInputDialog::getInteger(getWidget(), "Change movie width",
+		// int newwidth = QInputDialog::getInteger(getWidget(), "Change movie width",
+		int newwidth = QInputDialog::getInt(getWidget(), "Change movie width",
 				"New movie width:", old,1,4000,1,&ok);
 		if (ok&&old!=newwidth) {
 			VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu changed movie width to "+VP1Msg::str(newwidth));
@@ -2604,7 +2605,8 @@ void VP1ExaminerViewer::showPopupMenu()
 	if (selAct==d->action_movieheight) {
 		int old = d->action_movieheight->data().toInt();
 		bool ok;
-		int newheight = QInputDialog::getInteger(getWidget(), "Change movie height",
+		// int newheight = QInputDialog::getInteger(getWidget(), "Change movie height",
+		int newheight = QInputDialog::getInt(getWidget(), "Change movie height",
 				"New movie height:", old,1,4000,1,&ok);
 		if (ok&&old!=newheight) {
 			VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu changed movie height to "+VP1Msg::str(newheight));
@@ -2616,7 +2618,8 @@ void VP1ExaminerViewer::showPopupMenu()
 	if (selAct==d->action_moviefps) {
 		int old = d->action_moviefps->data().toInt();
 		bool ok;
-		int newfps = QInputDialog::getInteger(getWidget(), "Change movie FPS",
+		// int newfps = QInputDialog::getInteger(getWidget(), "Change movie FPS",
+		int newfps = QInputDialog::getInt(getWidget(), "Change movie FPS",
 				"New movie frames per second:", old,1,4000,1,&ok);
 		if (ok&&old!=newfps) {
 			VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu changed movie fps to "+VP1Msg::str(newfps));
@@ -2725,7 +2728,7 @@ void VP1ExaminerViewer::showPopupMenu()
 		//		float old = d->popup_focal_value_action->data().toFloat();
 		bool ok;
 		SoPerspectiveCamera * camera = dynamic_cast<SoPerspectiveCamera*>(getCamera());
-		if (camera) {
+		if (! (camera==NULL) ) {
 			float current_value = camera->focalDistance.getValue();
 			int newfocal = QInputDialog::getDouble(getWidget(),
 					"Change focal length", // title

@@ -15,7 +15,7 @@
 #include "VP1Utils/VP1SGContentsHelper.h"
 #include "VP1Base/IVP1System.h"
 #include <stdexcept>
-#include <QtCore/QStringList>
+#include <QStringList>
 
 
 /////////////////////////////////////////////////////////////////////////

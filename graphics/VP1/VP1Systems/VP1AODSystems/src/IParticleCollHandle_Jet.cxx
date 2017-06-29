@@ -27,7 +27,7 @@
 #include "VP1Utils/VP1SGContentsHelper.h"
 
 //Qt
-#include <QtCore/QStringList>
+#include <QStringList>
 
 //xAOD
 #include "xAODJet/JetContainer.h"
