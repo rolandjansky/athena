@@ -15,28 +15,30 @@ ClusterAtEMScaleTool::ClusterAtEMScaleTool(const std::string& name) : JetConstit
 #endif
 }
 
+StatusCode ClusterAtEMScaleTool::initialize() {
+  if(m_inputType!=xAOD::Type::CaloCluster) {
+    ATH_MSG_ERROR("As the name suggests, ClusterAtEMScaleTool cannot operate on objects of type "
+		  << m_inputType);
+  }
+  return StatusCode::SUCCESS;
+}
 
-StatusCode ClusterAtEMScaleTool::process(xAOD::CaloClusterContainer* cont) const {
-  xAOD::CaloClusterContainer::iterator cl = cont->begin();
-  xAOD::CaloClusterContainer::iterator cl_end = cont->end();
-
-  for( ; cl != cl_end; ++cl ) {
-		(*cl)->setCalE( (*cl)->rawE() );
-		(*cl)->setCalPhi( (*cl)->rawPhi() );
-		(*cl)->setCalEta( (*cl)->rawEta() );
+StatusCode ClusterAtEMScaleTool::setClustersToEMScale(xAOD::CaloClusterContainer& cont) const {
+  for(const auto& cl : cont ) {
+		cl->setCalE( cl->rawE() );
+		cl->setCalPhi( cl->rawPhi() );
+		cl->setCalEta( cl->rawEta() );
   }
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode ClusterAtEMScaleTool::process(xAOD::IParticleContainer* cont) const {
+StatusCode ClusterAtEMScaleTool::process_impl(xAOD::IParticleContainer* cont) const {
   xAOD::CaloClusterContainer* clust = dynamic_cast<xAOD::CaloClusterContainer*> (cont); // Get CaloCluster container
-  if(clust) return process(clust);
+  if(clust) return setClustersToEMScale(*clust);
   return StatusCode::FAILURE;
 }
 
 
 ClusterAtEMScaleTool::~ClusterAtEMScaleTool(){
 }
-
-
