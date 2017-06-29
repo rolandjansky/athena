@@ -28,8 +28,8 @@ def getSimBarcodeOffset1():
 EMClassifierParticleCaloExtensionTool =  ToolFactory (CfgMgr.Trk__ParticleCaloExtensionTool, 
                                                       name="EMClassifierParticleCaloExtensionTool",
                                                       Extrapolator = egammaExtrapolator,
-                                                      OutputContainerName="EGClassifierCaloExtension"
-                                                      )
+                                                      OutputContainerName="EGClassifierCaloExtension",
+                                                      doAdd = True)
 
 EMMCTruthClassifier = ToolFactory( MCTruthClassifierConf.MCTruthClassifier, name = 'EMMCTruthClassifier',
                                    ParticleCaloExtensionTool=EMClassifierParticleCaloExtensionTool,

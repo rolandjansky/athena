@@ -186,13 +186,26 @@ class Factory:
 
 class ToolFactory( Factory ):
   """ToolFactory: to instantiate tools and add them to TopSequence. See Factory"""
+
+  def __init__(self, iclass, **defaults ):
+    """
+    @param iclass Tool class
+    @param defaults default values for configurables, can be overridden at instantiation.
+     Special parameters: 
+    - preInit: list of functions to be called before toolinstantiation, take no arguments
+    - preInit: list of functions to be called after tool instantiation, take tool as argument
+    - doAdd: add tool to ToolSvc (default: False)
+    - doPrint: print tool after instantiation (default: False)
+    """
+    self.iclass = iclass
+    self.defaults = dict({'doAdd': False}, **defaults)
+
   def add(self, obj):
-    pass # now all are private, no longer need to add
-    # if not isAlreadyInToolSvc(obj.getName()):
-    #   factoriesInfo("Adding new Tool ===> %s" % obj.getFullName())
-    #   addToToolSvc(obj)
-    # else :
-    #   factoriesInfo("Tool with name ==> %s  already in ToolSvc, use existing instance" %  obj.getFullName() )
+    if not isAlreadyInToolSvc(obj.getName()):
+      factoriesInfo("Adding new Tool ===> %s" % obj.getFullName())
+      addToToolSvc(obj)
+    else :
+      factoriesInfo("Tool with name ==> %s  already in ToolSvc, use existing instance" %  obj.getFullName() )
 
 class AlgFactory( Factory ):
   """AlgFactory: to instantiate algs and add them to TopSequence. See Factory"""

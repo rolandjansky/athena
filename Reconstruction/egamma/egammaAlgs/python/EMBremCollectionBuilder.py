@@ -32,12 +32,14 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
         GSFBuildInDetExtrapolator= egammaExtrapolator()
 
         from egammaTrackTools.egammaTrackToolsConf import egammaTrkRefitterTool
+        from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
         GSFRefitterTool = egammaTrkRefitterTool(name = 'GSFRefitterTool',
                                                 FitterTool = egammaRec.EMCommonRefitter.GSFTrackFitter,
                                                 useBeamSpot = False,
+                                                Extrapolator = AtlasExtrapolator(),
                                                 ReintegrateOutliers=True)
         from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += GSFRefitterTool
+        #ToolSvc += GSFRefitterTool
 
         # ----------- load association tool from Inner Detector to handle pixel ganged ambiguities
         #
@@ -140,7 +142,7 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
                                                                          TrackSummaryTool        = GSFBuildInDetTrackSummaryTool,
                                                                          UseTrackSummaryTool     = False,
                                                                          ForceTrackSummaryUpdate = False)
-        ToolSvc += GSFBuildInDetParticleCreatorTool
+        #ToolSvc += GSFBuildInDetParticleCreatorTool
         #
         # --- do track slimming
         #
@@ -148,7 +150,7 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
         GSFBuildInDetTrkSlimmingTool = ConfigurableTrackSlimmingTool(name  = "GSFBuildInDetTrackSlimmingTool",
                                                                      KeepParameters = False,
                                                                      KeepOutliers   = True )
-        ToolSvc += GSFBuildInDetTrkSlimmingTool
+        #ToolSvc += GSFBuildInDetTrkSlimmingTool
 
 
         # do the configuration

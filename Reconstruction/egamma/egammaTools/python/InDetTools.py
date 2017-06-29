@@ -43,7 +43,7 @@ def configureExtrapolator( egammaExtrapolator ):
 from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
 egammaExtrapolator = ToolFactory(AtlasExtrapolator,
                                  postInit=[configureExtrapolator],
-                                 name = 'egammaExtrapolator')
+                                 name = 'egammaExtrapolator', doAdd = True)
 
 #################################################################
 # egamma InDet summary tool to be used conversion finding
@@ -53,14 +53,14 @@ egammaExtrapolator = ToolFactory(AtlasExtrapolator,
 from InDetAssociationTools.InDetAssociationToolsConf import InDet__InDetPRD_AssociationToolGangedPixels
 egammaInDetPrdAssociationTool = ToolFactory( InDet__InDetPRD_AssociationToolGangedPixels,
                                              name                           = "egammaInDetPrdAssociationTool",
-                                             PixelClusterAmbiguitiesMapName = 'PixelClusterAmbiguitiesMap')
+                                             PixelClusterAmbiguitiesMapName = 'PixelClusterAmbiguitiesMap', doAdd = True )
 
 # Loading Configurable HoleSearchTool
 #
 from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
 egammaInDetHoleSearchTool = ToolFactory( InDet__InDetTrackHoleSearchTool,
                                          name = "egammaInDetHoleSearchTool",
-                                         Extrapolator = egammaExtrapolator)
+                                         Extrapolator = egammaExtrapolator, doAdd = True )
 #
 # Load the InDetTrackSummaryHelperTool
 #
@@ -73,7 +73,7 @@ egammaInDetTrackSummaryHelperTool = ToolFactory( InDet__InDetTrackSummaryHelperT
                                                  HoleSearch   = egammaInDetHoleSearchTool,
                                                  usePixel     = DetFlags.haveRIO.pixel_on(),
                                                  useSCT       = DetFlags.haveRIO.SCT_on(),
-                                                 useTRT       = DetFlags.haveRIO.TRT_on() )
+                                                 useTRT       = DetFlags.haveRIO.TRT_on(), doAdd = True )
 
 #
 from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
@@ -81,7 +81,7 @@ egammaInDetTrackSummaryTool = ToolFactory( Trk__TrackSummaryTool,
                                            name = "egammaInDetTrackSummaryTool",
                                            InDetSummaryHelperTool = egammaInDetTrackSummaryHelperTool,
                                            doSharedHits           = False,
-                                           InDetHoleSearchTool    = egammaInDetHoleSearchTool)
+                                           InDetHoleSearchTool    = egammaInDetHoleSearchTool, doAdd = True )
 
 #################################################################
 # Configure InDet__ConversionFinderUtils  and InDet__SingleTrackConversionTool 
@@ -91,7 +91,7 @@ def getTrkExtrapolator():
   return egammaRec.EMCommonRefitter.egTrkExtrapolator
 
 from InDetConversionFinderTools import InDetConversionFinderToolsConf
-InDet__ConversionFinderUtils = ToolFactory( InDetConversionFinderToolsConf.InDet__ConversionFinderUtils)
+InDet__ConversionFinderUtils = ToolFactory( InDetConversionFinderToolsConf.InDet__ConversionFinderUtils, doAdd = True )
 
 #
 # Single track conversion tool
@@ -102,5 +102,6 @@ InDet__SingleTrackConversionTool = ToolFactory( InDetConversionFinderToolsConf.I
                                                 TrackSummaryTool           = egammaInDetTrackSummaryTool,
                                                 Extrapolator               = FcnWrapper(getTrkExtrapolator),
                                                 MinInitialHitRadius        = 70.,
-                                                MinRatioOfHLhits           = 0.95)
+                                                MinRatioOfHLhits           = 0.95, 
+                                                doAdd = True)
 
