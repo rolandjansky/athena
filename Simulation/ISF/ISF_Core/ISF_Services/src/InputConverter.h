@@ -119,12 +119,12 @@ namespace ISF {
 
     ToolHandleArray<IGenParticleFilter>   m_genParticleFilters;       //!< HepMC::GenParticle filters
 
-    mutable G4VSolid                             *m_worldSolid;               //!< The Geant4 world volume solid <-- FIXME!!
+    mutable G4VSolid                     *m_worldSolid;               //!< The Geant4 world volume solid <-- FIXME!!
 
-    bool   m_quasiStableParticlesIncluded; //<! will quasi-stable particles be included in the simulation
+    bool                                  m_quasiStableParticlesIncluded; //<! will quasi-stable particles be included in the simulation
 
-    ServiceHandle<Barcode::IBarcodeSvc>       m_barcodeSvc;                 //!< The ISF Barcode service
-    Barcode::ParticleBarcode                  m_barcodeGenerationIncrement; //!< to be retrieved from ISF Barcode service
+    ServiceHandle<Barcode::IBarcodeSvc>   m_barcodeSvc;                 //!< The ISF Barcode service
+    Barcode::ParticleBarcode              m_barcodeGenerationIncrement; //!< to be retrieved from ISF Barcode service
 
   };
 
