@@ -86,15 +86,15 @@ namespace Root {
       }
   
       /// helper functions to retrieve the position of the first/last toy MC scale factors and correlated systematics in the result
-      int getFirstToyMCPosition();
-      int getLastToyMCPosition();
-      int getFirstCorrSysPosition();
-      int getLastCorrSysPosition();
-      int getGlobalBinNumberPosition();
-      int getNbins(std::map<float, std::vector<float> >&); 
-      int getNSyst() {return m_nSysMax;};
+      int getFirstToyMCPosition() const ;
+      int getLastToyMCPosition() const ;
+      int getFirstCorrSysPosition() const ;
+      int getLastCorrSysPosition() const ;
+      int getGlobalBinNumberPosition() const ;
+      int getNbins(std::map<float, std::vector<float> >&) const; 
+      int getNSyst() const {return m_nSysMax;}  ;
 
-      void printResultMap();
+      void printResultMap() const;
 
       enum detailLevel{simple,medium,detailed};
 
@@ -108,11 +108,11 @@ namespace Root {
 
       // Private methods
     private:
+
       /// Load all histograms from the input file(s)
       int getHistograms();
       int getHistogramInDirectory( TKey *key );
       int setupHistogramsInFolder( const TObjArray& dirNameArray, int lastIdx );
-
       void calcDetailLevels(TH1D *eig) ;
 
       std::vector<TObjArray> buildToyMCTable (const TObjArray &sf, const TObjArray &eig, 
@@ -131,17 +131,20 @@ namespace Root {
       int setupSys( std::vector<TObjArray> & hist,
 		    std::vector< std::vector< TObjArray>> & histList);
 
-      void printDefaultReturnMessage(TString reason, int line);
+      void printDefaultReturnMessage(const TString& reason, int line) const;
 
       TRandom3 m_Rndm;
       int m_randomCounter;
+      ///
       bool m_isInitialized;
       /// The detail level
       int m_detailLevel;
+      ///
       int m_toyMCSF;
       //
       /// The seed
       int m_seed;
+      ///
       bool m_doToyMC;
       bool m_doCombToyMC;
       int m_nToyMC;
@@ -175,13 +178,13 @@ namespace Root {
       /// total number of bins in the efficiency tables
       int m_nbins; 
 
+      /// Number of uncorelated systematucs
       int m_nSimpleUncorrSyst;
 
       /// The position of the efficiency scale factor uncorrelated systematic uncertainty in the result
       int m_position_globalBinNumber; 
 
-
-      //description here ?
+      ///Uncorrelated toy systematics
       std::vector< std::vector<TObjArray>> m_uncorrToyMCSystFull;
       std::vector< std::vector<TObjArray>> m_uncorrToyMCSystFast;
       /// The list of file name(s)

@@ -23,15 +23,10 @@ class IAsgElectronEfficiencyCorrectionTool : virtual public CP::ISystematicsTool
   ///The interface for Scale Factors
   virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::Electron& inputObject, double& efficiencyScaleFactor) const = 0;
   virtual CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::Electron& inputObject) const = 0;
+  virtual int systUncorrVariationIndex( const xAOD::Electron &inputObject) const =0;
   virtual ~IAsgElectronEfficiencyCorrectionTool() {}
 
 };
-
-
-
-
-
-
 
 
 #endif
