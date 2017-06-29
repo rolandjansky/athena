@@ -22,10 +22,8 @@ jetalg = None
 #   eventShapeTools: Keys for the event shape tools to be run
 #   separateJetAlgs: Run JetRecTools in separate algs (experts only)
 #             debug: Debug level (0 for quiet). See below.
-def addJetRecoToAlgSequence(job = None, useTruth = None, eventShapeTools = None,
-                            separateJetAlgs = None,
-                            constitModTools = [],
-                            debug = None):
+def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
+                            separateJetAlgs= None, debug =None):
 
   myname = "JetAlgorithm: "
 
@@ -112,7 +110,6 @@ def addJetRecoToAlgSequence(job = None, useTruth = None, eventShapeTools = None,
       ctools += [jtm.JetConstitSeq_LCOrigin]
     if not IsInInputFile("xAOD::CaloClusterContainer","EMOriginTopoClusters"):
       ctools += [jtm.JetConstitSeq_EMOrigin]
-  ctools += constitModTools
   from JetRec.JetRecConf import JetToolRunner
   runners = []
   if len(ctools)>0:
