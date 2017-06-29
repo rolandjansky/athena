@@ -11,9 +11,17 @@ from AthenaCommon.GlobalFlags import globalflags
 # running on data or MC
 DFisMC = (globalflags.DataSource()=='geant4')
 
+## add LHE3 weights metadata
+from DerivationFrameworkCore.LHE3WeightMetadata import *
+
 def setup(HIGG4DxName, ToolSvc):
 
     augmentationTools=[]
+
+    # Isolation Tool
+    #from DerivationFrameworkMuons.TrackIsolationDecorator import MUON1IDTrackDecorator
+    #ToolSvc += MUON1IDTrackDecorator
+    #augmentationTools.append(MUON1IDTrackDecorator)
 
     # DELTA R TOOL
     from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__DeltaRTool
@@ -103,3 +111,38 @@ def setup(HIGG4DxName, ToolSvc):
     #=============
     return augmentationTools
 
+#=====================================
+# variable-R jets reconstruction + btagging
+#=====================================
+def addVRJetsAndBTagging(HIGG4DxName, sequence):
+    
+    # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
+    
+    from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
+    
+    # removed for now. Does not work in rel 21 anymore
+    addVRJets(sequence, 
+              "AntiKtVR30Rmax4Rmin02Track", 
+              "GhostVR30Rmax4Rmin02TrackJet", 
+              VRJetAlg="AntiKt", 
+              VRJetRadius=0.4, 
+              VRJetInputs="pv0track", 
+              ghostArea = 0 , 
+              ptmin = 2000, 
+              ptminFilter = 7000, 
+              variableRMinRadius = 0.02, 
+              variableRMassScale = 30000, 
+              calibOpt = "none")
+    
+    # Run b-tagging
+    from BTagging.BTaggingFlags import BTaggingFlags
+    
+    # alias for VR
+    BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
+    
+    from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+    # must re-tag AntiKt4LCTopoJets and AntiKt4PV0TrackJets to make JetFitterNN work with corresponding VR jets (nikola: why?)
+    # also, re-tag R=0.2 track jets
+    #New in rel 21: AntiKt2PV0TrackJets should now be tagged automatically. Must not be re-tagged
+    
+    FlavorTagInit( JetCollections = ["AntiKt4PV0TrackJets", "AntiKtVR30Rmax4Rmin02TrackJets"], Sequencer = sequence )

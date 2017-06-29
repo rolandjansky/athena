@@ -13,6 +13,7 @@
 #include <string>
 
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "xAODTrigger/JetRoIContainer.h"
 
 // Constructor
 DerivationFramework::SkimmingToolHIGG5VBF::SkimmingToolHIGG5VBF(const std::string& t,
@@ -99,6 +100,9 @@ bool DerivationFramework::SkimmingToolHIGG5VBF::eventPassesFilter() const
       break;
     }
   }
+
+  //emulate L1 triggers
+  bool passEmulatedL1s = emulateL1Trig();
   
   // (1) Count Jet Multiplicity
   m_goodAllJets.clear();
@@ -150,7 +154,8 @@ bool DerivationFramework::SkimmingToolHIGG5VBF::eventPassesFilter() const
   if (m_reqNAllJets)     { if (not passNAllJet)     {acceptEvent=false;} }
   if (m_reqNCentralJets) { if (not passNCentralJet) {acceptEvent=false;} }
   //if (m_reqVbfMjj)       { if (not passMjjCut)      {acceptEvent=false;} }
-  if (m_reqTrigger)      { if (not isTriggerFired)  {acceptEvent=false;} } 
+  // if (m_reqTrigger)      { if (not isTriggerFired)  {acceptEvent=false;} } 
+  if (m_reqTrigger)      { if (not (isTriggerFired || passEmulatedL1s))  {acceptEvent=false;} }
   //vbf+gamma addition -- logical OR of mjj and phpt cut
   if(m_reqVbfMjj and not m_reqPh)     { if (not passMjjCut)                   {acceptEvent=false;} }
   if(m_reqPh     and not m_reqVbfMjj) { if (not passPhPtCut)                  {acceptEvent=false;} }
@@ -204,4 +209,50 @@ DerivationFramework::SkimmingToolHIGG5VBF::getCalibedJets(const xAOD::Jet* jet) 
   rc.SetPtEtaPhiM(pt, eta, phi, m);
   
   return rc;
+}
+
+bool DerivationFramework::SkimmingToolHIGG5VBF::emulateL1Trig() const
+{
+
+  const xAOD::JetRoIContainer *l1JetContainer_SG = 0;
+  ATH_CHECK( evtStore()->retrieve(l1JetContainer_SG,"LVL1JetRoIs") );
+  std::vector<xAOD::JetRoIContainer::const_iterator> uniquel1jet_its = std::vector<xAOD::JetRoIContainer::const_iterator>();
+  xAOD::JetRoIContainer::const_iterator l1sg, l1sgEnd = l1JetContainer_SG->end();
+  for(l1sg = l1JetContainer_SG->begin(); l1sg!=l1sgEnd; l1sg++) {
+    bool unique=true;
+    for(auto &l1 : uniquel1jet_its) {
+      if ((*l1sg)->et8x8() == (*l1)->et8x8() &&
+	  (*l1sg)->phi() == (*l1)->phi()) {
+	unique = false;
+	break;
+      }//endif
+    }//l1 new
+    if(unique) uniquel1jet_its.push_back(l1sg);
+  }//l1 original
+
+  //L1_J40.0ETA25_2J15.31ETA49
+  int njets15_31eta49 = 0;
+  int njets40_0eta25 = 0;
+
+  //L1_J40.0ETA25_2J25_J20.31ETA49
+  int njets20_31eta49 = 0;
+  int njets25_0eta31 = 0;
+
+  for(auto &l1 : uniquel1jet_its) {
+    float e8x8 = (*l1)->et8x8();
+    float eta = (*l1)->eta();
+    if(fabs(eta)>3.1 && fabs(eta)<4.9){
+      if (e8x8 > 15000) njets15_31eta49++;
+      if (e8x8 > 20000) njets20_31eta49++;
+    }//endif 3.1-4.9
+    if(fabs(eta)<2.5 && e8x8 > 40000) njets40_0eta25++;
+    if(fabs(eta)<3.1 && e8x8 > 25000) njets25_0eta31++;
+  }//l1 new
+
+  bool L1_J40_0ETA25_2J15_31ETA49 = (njets15_31eta49>=2 && njets40_0eta25>=1);
+  bool L1_J40_0ETA25_2J25_J20_31ETA49 = (njets25_0eta31>=2 && 
+					 njets20_31eta49>=1 &&
+					 njets40_0eta25>=1);
+
+  return ( L1_J40_0ETA25_2J15_31ETA49 || L1_J40_0ETA25_2J25_J20_31ETA49 );
 }

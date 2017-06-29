@@ -13,6 +13,11 @@ from DerivationFrameworkMuons.MuonsCommon import *
 RecomputeElectronSelectors = True
 #RecomputeElectronSelectors = False
 
+if globalflags.DataSource()=='geant4':
+	from DerivationFrameworkHiggs.TruthCategories import *
+
+from DerivationFrameworkCore.LHE3WeightMetadata import *
+
 #====================================================================
 # SKIMMING TOOLS
 #====================================================================
@@ -25,12 +30,12 @@ RecomputeElectronSelectors = True
 #====================================================================
 
 if RecomputeElectronSelectors :
-    requirementEl = '(Electrons.DFCommonElectronsIsEMMedium || Electrons.DFCommonElectronsLHMedium) && abs(Electrons.eta)<2.5 && (Electrons.pt > 9.5*GeV)'
+    requirementEl = '(Electrons.DFCommonElectronsIsEMLoose || Electrons.DFCommonElectronsLHLoose) && abs(Electrons.eta)<2.5 && (Electrons.pt > 9.5*GeV)'
 else :
-    requirementEl = '(Electrons.Medium || Electrons.DFCommonElectronsLHMedium) && abs(Electrons.eta)<2.5 && (Electrons.pt > 9.5*GeV)'
+    requirementEl = '(Electrons.Loose || Electrons.DFCommonElectronsLHLoose) && abs(Electrons.eta)<2.5 && (Electrons.pt > 9.5*GeV)'
 
 
-requirementMu = 'Muons.pt>9.5*GeV && abs(Muons.eta)<2.7 && Muons.DFCommonGoodMuon'
+requirementMu = 'Muons.pt>9.5*GeV && abs(Muons.eta)<2.7 && Muons.DFCommonGoodMuon && Muons.DFCommonMuonsPreselection'
 
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGInvariantMassTool
 HIGG1D2_EEMassTool = DerivationFramework__EGInvariantMassTool( name = "HIGG1D2_EEMassTool",
@@ -213,7 +218,8 @@ svcMgr += createThinningSvc( svcName="HIGG1D2ThinningSvc", outStreams=[evtStream
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 HIGG1D2SlimmingHelper = SlimmingHelper("HIGG1D2SlimmingHelper")
-
+HIGG1D2Stream.AddItem("xAOD::EventShape_v1#*")
+HIGG1D2Stream.AddItem("xAOD::EventShapeAuxInfo_v1#*")
 
 HIGG1D2SlimmingHelper.SmartCollections = ["Electrons",
                                           "Photons",
@@ -224,12 +230,13 @@ HIGG1D2SlimmingHelper.SmartCollections = ["Electrons",
                                           "InDetTrackParticles",
                                           "PrimaryVertices" ]
 
-HIGG1D2SlimmingHelper.AllVariables = ["Electrons","Photons","egammaClusters","egammaTopoSeededClusters","GSFConversionVertices","TruthEvents", "TruthParticles", "TruthVertices", "AntiKt4TruthJets","AntiKt4TruthWZJets","PrimaryVertices","MET_Truth", "egammaTruthParticles","CaloCalTopoClusters"]
+HIGG1D2SlimmingHelper.AllVariables = ["Electrons","Photons","egammaClusters","egammaTopoSeededClusters","GSFConversionVertices","TruthEvents", "TruthParticles", "TruthVertices", "AntiKt4TruthJets","AntiKt4TruthWZJets","PrimaryVertices","MET_Truth", "MET_Track", "egammaTruthParticles","CaloCalTopoClusters"]
 
-HIGG1D2SlimmingHelper.ExtraVariables = ["Muons.quality.EnergyLoss.energyLossType",
+HIGG1D2SlimmingHelper.ExtraVariables = ["Muons.quality.EnergyLoss.energyLossType.etcone20.ptconecoreTrackPtrCorrection",
+                                        "MuonClusterCollection.eta_sampl.phi_sampl",
                                         "GSFTrackParticles.parameterY.parameterZ.vx.vy",
                                         "InDetTrackParticles.vx.vy",
-                                        "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.Jvt.JvtJvfcorr.JvtRpt",
+                                        "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.Jvt.JVFCorr.JvtRpt.ConstituentScale",
                                         "CombinedMuonTrackParticles.z0.vz.definingParametersCovMatrix",
                                         "BTagging_AntiKt4EMTopo.MV1_discriminant",                                        
                                         "ExtrapolatedMuonTrackParticles.z0.vz.definingParametersCovMatrix",

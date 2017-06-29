@@ -12,7 +12,12 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
+from DerivationFrameworkCore.WeightMetadata import *
+from DerivationFrameworkHiggs.TruthCategories import *
 import AthenaCommon.SystemOfUnits as Units
+
+# Add sumOfWeights metadata for LHE3 multiweights =======
+from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 #====================================================================
 # SET UP STREAM
@@ -46,13 +51,20 @@ ToolSvc += HIGG2D2TPThinningTool
 thinningTools.append(HIGG2D2TPThinningTool)
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-HIGG2D2JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                   = "HIGG2D2JetTPThinningTool",
-                                                                         ThinningService        = HIGG2D2ThinningHelper.ThinningSvc(),
-                                                                         JetKey                 = "AntiKt4LCTopoJets",
-                                                                         InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                         ApplyAnd               = True)
-ToolSvc += HIGG2D2JetTPThinningTool
-thinningTools.append(HIGG2D2JetTPThinningTool)
+# HIGG2D2LCJetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                   = "HIGG2D2LCJetTPThinningTool",
+#                                                                            ThinningService        = HIGG2D2ThinningHelper.ThinningSvc(),
+#                                                                            JetKey                 = "AntiKt4LCTopoJets",
+#                                                                            InDetTrackParticlesKey = "InDetTrackParticles",
+#                                                                            ApplyAnd               = True)
+# ToolSvc += HIGG2D2LCJetTPThinningTool
+# thinningTools.append(HIGG2D2LCJetTPThinningTool)
+HIGG2D2EMJetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                   = "HIGG2D2EMJetTPThinningTool",
+                                                                           ThinningService        = HIGG2D2ThinningHelper.ThinningSvc(),
+                                                                           JetKey                 = "AntiKt4EMTopoJets",
+                                                                           InDetTrackParticlesKey = "InDetTrackParticles",
+                                                                           ApplyAnd               = True)
+ToolSvc += HIGG2D2EMJetTPThinningTool
+thinningTools.append(HIGG2D2EMJetTPThinningTool)
 
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -84,6 +96,14 @@ ToolSvc += HIGG2D2TauTPThinningTool
 thinningTools.append(HIGG2D2TauTPThinningTool)
 
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
+HIGG2D2ElectronCCThinningTool = DerivationFramework__CaloClusterThinning(name                  = "HIGG2D2ElectronCCThinningTool",
+                                                                         ThinningService       = HIGG2D2ThinningHelper.ThinningSvc(),
+                                                                         SGKey                 = "Electrons",
+                                                                         TopoClCollectionSGKey = "CaloCalTopoClusters",
+                                                                         SelectionString       = "Electrons.pt>0.*GeV",
+                                                                         ConeSize              = 0.6)
+ToolSvc += HIGG2D2ElectronCCThinningTool
+thinningTools.append(HIGG2D2ElectronCCThinningTool)
 HIGG2D2MuonCCThinningTool = DerivationFramework__CaloClusterThinning(name                  = "HIGG2D2MuonCCThinningTool",
                                                                      ThinningService       = HIGG2D2ThinningHelper.ThinningSvc(),
                                                                      SGKey                 = "Muons",
@@ -92,6 +112,12 @@ HIGG2D2MuonCCThinningTool = DerivationFramework__CaloClusterThinning(name       
                                                                      ConeSize              = 0.6)
 ToolSvc += HIGG2D2MuonCCThinningTool
 thinningTools.append(HIGG2D2MuonCCThinningTool)
+HIGG2D2TauCCThinningTool = DerivationFramework__CaloClusterThinning(name                  = "HIGG2D2TauCCThinningTool",
+                                                                    ThinningService       = HIGG2D2ThinningHelper.ThinningSvc(),
+                                                                    SGKey                 = "TauJets",
+                                                                    TopoClCollectionSGKey = "CaloCalTopoClusters")
+ToolSvc += HIGG2D2TauCCThinningTool
+thinningTools.append(HIGG2D2TauCCThinningTool)
 
 # Truth particles
 useGenericTruthThinning = True
@@ -144,6 +170,38 @@ print "HIGG2D2.py thinningTools", thinningTools
 # SKIMMING TOOLS 
 #====================================================================
 
+## Trigger requirement 
+from AthenaCommon.BeamFlags import jobproperties
+print "HIGG2D2.py jobproperties.Beam.energy()", jobproperties.Beam.energy()
+# 13 TeV
+singleElectronTriggerRequirement=["HLT_e.*"]
+diElectronTriggerRequirement=["HLT_2e.*", "HLT_3e.*"]
+singleMuonTriggerRequirement=["HLT_mu.*"]
+diMuonTriggerRequirement=["HLT_2mu.*", "HLT_3mu.*"]
+electronMuonTriggerRequirement=[]
+if jobproperties.Beam.energy()==4000000.0:
+    # 8 TeV
+    singleElectronTriggerRequirement=["EF_e24vhi_medium1", "EF_e60_medium1"]
+    diElectronTriggerRequirement=["EF_2e12Tvh_loose1", "EF_2e12Tvh_loose1_L2StarB"]
+    singleMuonTriggerRequirement=["EF_mu24i_tight", "EF_mu36_tight"]
+    diMuonTriggerRequirement=["EF_2mu13", "EF_mu18_tight_mu8_EFFS"]
+    electronMuonTriggerRequirement=["EF_e12Tvh_medium1_mu8", "EF_e24vhi_loose1_mu8"]
+triggerRequirement=singleElectronTriggerRequirement+diElectronTriggerRequirement+singleMuonTriggerRequirement+diMuonTriggerRequirement+electronMuonTriggerRequirement
+# 8 TeV MC does not have trigger information
+SkipTriggerRequirement=((globalflags.DataSource()=='geant4') and (jobproperties.Beam.energy()==4000000.0))
+print "HIGG2D2.py SkipTriggerRequirement", SkipTriggerRequirement
+if SkipTriggerRequirement:
+    triggerRequirement=[]
+print "HIGG2D2.py triggerRequirement", triggerRequirement
+
+Do4LVertexing = True
+
+if Do4LVertexing:
+    include('DerivationFrameworkHiggs/configureVertexFitter.py')
+else:
+    TrkVKalVrtFitter = None
+print "HIGG2D2.py Do4LVertexing", Do4LVertexing
+
 from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__SkimmingToolHIGG2
 SkimmingToolHIGG2D2 = DerivationFramework__SkimmingToolHIGG2(name                     = "SkimmingToolHIGG2D2",
                                                              FilterType               = "4L", 
@@ -157,9 +215,18 @@ SkimmingToolHIGG2D2 = DerivationFramework__SkimmingToolHIGG2(name               
                                                              ElectronEtCut            =  5.*Units.GeV,
                                                              MuonPtCut                =  4.*Units.GeV,
                                                              JetPtCut                 = 15.*Units.GeV,
-                                                             InvariantMassCut         = 10.*Units.GeV)
+                                                             InvariantMassCut         = 10.*Units.GeV,
+                                                             Trigger4L                = triggerRequirement,
+                                                             DoVertexing              = Do4LVertexing,
+                                                             DoVertexing_el_withOrigInDetTrack = False,
+                                                             VertexFitter             = TrkVKalVrtFitter)
 ToolSvc += SkimmingToolHIGG2D2
 print SkimmingToolHIGG2D2
+
+augmentationTools = []
+if Do4LVertexing:
+    ToolSvc += SkimmingToolHIGG2D2
+    augmentationTools.append(SkimmingToolHIGG2D2)
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
@@ -169,7 +236,8 @@ print SkimmingToolHIGG2D2
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HIGG2D2Kernel",
                                                                        SkimmingTools = [SkimmingToolHIGG2D2],
-                                                                       ThinningTools = thinningTools)
+                                                                       ThinningTools = thinningTools,
+                                                                       AugmentationTools = augmentationTools)
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -184,10 +252,11 @@ HIGG2D2SlimmingHelper.SmartCollections = ["Electrons",
                                           "TauJets",
                                           "MET_Reference_AntiKt4EMTopo",
                                           "MET_Reference_AntiKt4LCTopo",
+                                          "MET_Reference_AntiKt4EMPFlow",
                                           "AntiKt4EMTopoJets",
                                           "AntiKt4LCTopoJets",
+                                          "AntiKt4EMPFlowJets",
                                           "BTagging_AntiKt4EMTopo",
-                                          "BTagging_AntiKt4LCTopo",
                                           "InDetTrackParticles",
                                           "PrimaryVertices"]
 
@@ -204,3 +273,7 @@ HIGG2D2SlimmingHelper.IncludeMuonTriggerContent = True
 HIGG2D2SlimmingHelper.IncludeEGammaTriggerContent = True
 
 HIGG2D2SlimmingHelper.AppendContentToStream(HIGG2D2Stream)
+
+if Do4LVertexing:
+    HIGG2D2Stream.AddItem("xAOD::VertexContainer#FourLeptonVertices")
+    HIGG2D2Stream.AddItem("xAOD::VertexAuxContainer#FourLeptonVerticesAux.-vxTrackAtVertex")

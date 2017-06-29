@@ -12,10 +12,7 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
     from AthenaCommon.GlobalFlags import globalflags
     DFisMC = (globalflags.DataSource()=='geant4')
     
-    #HIGG4DxSlimmingHelper = SlimmingHelper(HIGG4DxName+"SlimmingHelper")
-
     #smart slimming
-
     if HIGG4DxName == 'HIGG4D4':
         HIGG4DxSlimmingHelper.SmartCollections = ["Electrons",
                                                   "Muons",
@@ -24,7 +21,17 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
                                                   "AntiKt4EMTopoJets",
                                                   "BTagging_AntiKt4EMTopo",
                                                   "InDetTrackParticles",
-                                                  "PrimaryVertices" ]
+                                                  "PrimaryVertices"]
+    elif HIGG4DxName == 'HIGG4D5':
+        HIGG4DxSlimmingHelper.SmartCollections = ["Electrons",
+                                                  "Photons",
+                                                  "Muons",
+                                                  "TauJets",
+                                                  "MET_Reference_AntiKt4EMTopo",
+                                                  "AntiKt4EMTopoJets",
+                                                  "BTagging_AntiKt4EMTopo",
+                                                  "InDetTrackParticles",
+                                                  "PrimaryVertices"]
     else:
         HIGG4DxSlimmingHelper.SmartCollections = ["Electrons",
                                                   "Photons",
@@ -37,7 +44,10 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
                                                   "BTagging_AntiKt4EMTopo",
                                                   "BTagging_AntiKt4LCTopo",
                                                   "InDetTrackParticles",
-                                                  "PrimaryVertices" ]
+                                                  "PrimaryVertices"]
+
+    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3']:
+        HIGG4DxSlimmingHelper.SmartCollections += ["BTagging_AntiKt2Track"]
 
     #extra variables added to the smart slimming content
     ExtraContentElectrons=[
@@ -77,7 +87,10 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
         "mPanTauCellBased."
         "pantau_CellBasedInput_BDTValue_1p0n_vs_1p1n."
         "pantau_CellBasedInput_BDTValue_1p1n_vs_1pXn."
-        "pantau_CellBasedInput_BDTValue_3p0n_vs_3pXn"
+        "pantau_CellBasedInput_BDTValue_3p0n_vs_3pXn."
+        "ele_match_lhscore."
+        "ele_olr_pass."
+        "electronLink"
         ,
         "TauNeutralParticleFlowObjects."
         "pt."
@@ -90,12 +103,12 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
         ]
 
     ExtraTausTruth = [
-        "TauJets.IsTruthMatched.truthParticleLink.truthJetLink.ele_match_lhscore.ele_olr_pass.electronLink"
+        "TauJets.IsTruthMatched.truthParticleLink.truthJetLink"
         ]
     
 
     if HIGG4DxName == 'HIGG4D3':
-        ExtraContentVtx=["PrimaryVertices.x.y.z.vertexType.TauRefittedPVLink"]
+        ExtraContentVtx=["PrimaryVertices.x.y.z.vertexType.TauRefittedPVLink.chiSquared.numberDoF"]
     else:
         ExtraContentVtx=["PrimaryVertices.x.y.z.vertexType"]
 
@@ -105,15 +118,36 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
         HIGG4DxSlimmingHelper.ExtraVariables += ExtraElectronsTruth + ExtraMuonsTruth + ExtraTausTruth
 
     #extra containers
-    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D4']:
+    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D4', 'HIGG4D5']:
         HIGG4DxSlimmingHelper.AllVariables += ["LVL1JetRoIs"]
-        
+
+    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3']:
+        HIGG4DxSlimmingHelper.AllVariables += ["AntiKt10LCTopoJets"]
+
+    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3']:
+       HIGG4DxSlimmingHelper.AllVariables += ["DiTauJets"]
+
     if DFisMC:
         HIGG4DxSlimmingHelper.AllVariables += ["TruthEvents", 
                                                "TruthParticles", 
                                                "TruthVertices", 
-                                               "AntiKt4TruthJets"]
+                                               "AntiKt4TruthJets",
+                                               "AntiKt4TruthWZJets"]
 
+    if HIGG4DxName == 'HIGG4D3':
+        HIGG4DxSlimmingHelper.AppendToDictionary = {
+              "AntiKtVR30Rmax4Rmin02TrackJets"               :   "xAOD::JetContainer"        ,
+              "AntiKtVR30Rmax4Rmin02TrackJetsAux"            :   "xAOD::JetAuxContainer"     ,
+              "BTagging_AntiKtVR30Rmax4Rmin02Track"          :   "xAOD::BTaggingContainer"   ,
+              "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"       :   "xAOD::BTaggingAuxContainer",
+              }
+              
+        HIGG4DxSlimmingHelper.AllVariables += ["AntiKtVR30Rmax4Rmin02TrackJets", "BTagging_AntiKtVR30Rmax4Rmin02Track"]
+    
+    # common for all formats
+    HIGG4DxSlimmingHelper.AllVariables +=  [ "MET_Track" ]  # this is needed for the forward JVT
+    
+    
     #derivation truth
     if DFisMC:
 
@@ -145,6 +179,10 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
     elif HIGG4DxName == 'HIGG4D4':
         HIGG4DxSlimmingHelper.IncludeJetTriggerContent = True
         HIGG4DxSlimmingHelper.IncludeTauTriggerContent = True
+    elif HIGG4DxName == "HIGG4D5":
+        HIGG4DxSlimmingHelper.IncludeJetTriggerContent = True
+        HIGG4DxSlimmingHelper.IncludeTauTriggerContent = True
+        HIGG4DxSlimmingHelper.IncludeEtMissTriggerContent = True
     else:
         assert False, "HIGG4DxSlimming: Unknown derivation stream '{}'".format(HIGG4DxName)
 

@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #ifndef DERIVATIONFRAMEWORK_SKIMMINGTOOLHSG1_H
-#define DERIVATIONFRAMEWORK_SKIMMINGTOOLHSG1_H 1
+#define DERIVATIONFRAMEWORK_SKIMMINGTOOLHSG1_H
  
 #include <string>
 #include <vector>
@@ -28,14 +28,19 @@
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
 
-
 namespace DerivationFramework {
 
   /** @class SkimmingToolHIGG1
       @author jsaxon@cern.ch 
       @author magdac@cern.ch
      */
+ 
+  
+ 
+ 
   class SkimmingToolHIGG1 : public AthAlgTool, public ISkimmingTool {
+   
+
 
     public: 
       /** Constructor with parameters */
@@ -57,7 +62,7 @@ namespace DerivationFramework {
       ///// TOOLS 
 
       ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
-
+      
       ///////////////
       ///// SETTINGS
 
@@ -102,6 +107,7 @@ namespace DerivationFramework {
       double m_minElectronPt;
       double m_minMuonPt;
       double m_maxMuonEta;
+     
 
       ////////////////
       ///// FUNCTIONS
@@ -128,6 +134,7 @@ namespace DerivationFramework {
       double CorrectedEnergy(const xAOD::Photon *ph) const;
       double CorrectedEta(const xAOD::Photon *ph) const;
       double ReturnRZ_1stSampling_cscopt2(double eta1) const;
+    
 
       ///////////////
       ///// COUNTERS
@@ -152,6 +159,7 @@ namespace DerivationFramework {
 
       mutable std::vector<const xAOD::Photon*> e_leadingPhotons;
 
+  
       mutable TLorentzVector leadPhotonLV;
       mutable TLorentzVector sublPhotonLV;
 

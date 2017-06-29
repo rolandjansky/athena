@@ -3,7 +3,7 @@
 
 # The additional HIGG3D3 content lists
 
-HIGG3D3ExtraVariables = [ "GSFTrackParticles.z0.vz",
+HIGG3D3ExtraVariables = [ "GSFTrackParticles.z0.vz.numberOfNextToInnermostPixelLayerHits",
                           "CombinedMuonTrackParticles.z0.vz",
                           "ExtrapolatedMuonTrackParticles.z0.vz",
                           "Muons.clusterLink.extrapolatedMuonSpectrometerTrackParticleLink",
@@ -13,7 +13,8 @@ HIGG3D3ExtraVariables = [ "GSFTrackParticles.z0.vz",
 
 HIGG3D3ExtraTruthVariables = [ "Electrons.truthOrigin.truthType.truthParticleLink",
                                "AntiKt4LCTopoJets.ConeTruthLabelID.PartonTruthLabelID",
-                               "AntiKt4EMTopoJets.ConeTruthLabelID.PartonTruthLabelID" ]
+                               "AntiKt4EMTopoJets.ConeTruthLabelID.PartonTruthLabelID",
+                               "AntiKt4TruthWZJets.pt.eta.phi.m.constituentLinks.constituentWeights.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.btaggingLink" ]
 
 HIGG3D3ExtraContainers = [ ]
 

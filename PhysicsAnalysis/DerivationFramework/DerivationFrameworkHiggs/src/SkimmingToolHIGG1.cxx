@@ -15,6 +15,7 @@
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/TrackingPrimitives.h"
+#include "PhotonVertexSelection/IPhotonVertexSelectionTool.h"
 
 // Constructor
 DerivationFramework::SkimmingToolHIGG1::SkimmingToolHIGG1(const std::string& t,
@@ -34,11 +35,41 @@ DerivationFramework::SkimmingToolHIGG1::SkimmingToolHIGG1(const std::string& t,
   n_passQuality(0),
   n_passIsolation(0),
   n_passInvariantMass(0),
-  n_pass(0)
+  n_pass(0),
+  e_tot(false),
+  e_passGRL(false),
+  e_passLArError(false),
+  e_passTrigger(false),
+  e_passPreselect(false),
+  e_passSingleElectronPreselect(false),
+  e_passDoubleElectronPreselect(false),
+  e_passSingleMuonPreselect(false),
+  e_passKinematic(false),
+  e_passQuality(false),
+  e_passIsolation(false),
+  e_passInvariantMass(false),
+  e_pass(false),
+  ph_pos_lead(0), 
+  ph_pos_subl(0),
+  ph_pt_lead(0.), 
+  ph_eta_lead(0.), 
+  ph_phi_lead(0.), 
+  ph_e_lead(0.),
+  ph_pt_subl(0.), 
+  ph_eta_subl(0.), 
+  ph_phi_subl(0.), 
+  ph_e_subl(0.),
+  ph_tight_lead(0), 
+  ph_tight_subl(0.),
+  ph_iso_lead(0), 
+  ph_iso_subl(0),
+  e_invariantMass(0.),
+  e_diphotonZ(0.)  
 {
 
   declareInterface<DerivationFramework::ISkimmingTool>(this);
-
+ 
+ 
   declareProperty("PhotonContainerKey",    m_photonSGKey="Photons");
   declareProperty("ElectronContainer",     m_electronSGKey = "Electrons");
   declareProperty("MuonContainer",         m_muonSGKey = "Muons");
@@ -94,7 +125,6 @@ StatusCode DerivationFramework::SkimmingToolHIGG1::initialize()
   if (!m_triggers.size()) m_triggers.push_back(m_defaultTrigger);
   ATH_MSG_INFO("Retrieved tool: " << m_trigDecisionTool);
   ////////////////////////////
-
   return StatusCode::SUCCESS;
 }
 
@@ -135,9 +165,9 @@ bool DerivationFramework::SkimmingToolHIGG1::eventPassesFilter() const
   bool writeEvent(false);
 
   const xAOD::EventInfo *eventInfo(0);
-  ATH_CHECK(evtStore()->retrieve(eventInfo));
-  m_isMC = eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);   
-
+  if((evtStore()->retrieve(eventInfo)).isFailure()) return false;
+  m_isMC = eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);
+  
   if (!SubcutGoodRunList() && m_reqGRL      ) return false;
   if (!SubcutLArError()    && m_reqLArError ) return false;
   if (!SubcutTrigger()     && m_reqTrigger  ) return false;
@@ -163,7 +193,9 @@ bool DerivationFramework::SkimmingToolHIGG1::eventPassesFilter() const
     if (!SubcutInvariantMass() && m_reqInvariantMass) passTwoPhotonCuts = false;
     // yy events
     if (passTwoPhotonCuts) writeEvent = true; 
+    
   }
+   
 
   if (!writeEvent) return false;
   
@@ -257,6 +289,7 @@ bool DerivationFramework::SkimmingToolHIGG1::SubcutPreselect() const {
     e_leadingPhotons.push_back(*(photons->begin() + ph_pos_subl));
     e_passPreselect = true;
     n_passPreselect++;
+    
     return true;
   }
 
@@ -284,8 +317,9 @@ bool DerivationFramework::SkimmingToolHIGG1::PhotonPreselect(const xAOD::Photon 
   }
   
   if(!defined || !val) return false;
+  
 
-  // // veto topo-seeded clusters 
+  // veto topo-seeded clusters 
   // uint16_t author = 0;
   // author = ph->author();  
   // if (author & xAOD::EgammaParameters::AuthorCaloTopo35) return false;

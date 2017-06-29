@@ -6,10 +6,14 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkFlavourTag.HbbCommon import *
 # from DerivationFrameworkJetEtMiss.JetMomentFix import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
+
+if DerivationFrameworkIsMonteCarlo: 
+  from DerivationFrameworkTau.TauTruthCommon import * 
 
 
 # running on data or MC
@@ -18,6 +22,9 @@ from AthenaCommon.GlobalFlags import globalflags
 #print globalflags.DataSource()  # this should be "data" or "geant4"
 is_MC = (globalflags.DataSource()=='geant4')
 print "is_MC = ",is_MC
+
+if globalflags.DataSource()=='geant4':
+  from DerivationFrameworkHiggs.TruthCategories import *
 
 
 #====================================================================
@@ -119,6 +126,15 @@ ToolSvc += HIGG5D1TauTPThinningTool
 thinningTools.append(HIGG5D1TauTPThinningTool)
 
 
+# calo cluster thinning
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
+HIGG5D1TauCCThinningTool = DerivationFramework__CaloClusterThinning(name                  = "HIGG5D1TauCCThinningTool",
+                                                                    ThinningService       = HIGG5D1ThinningHelper.ThinningSvc(),
+                                                                    SGKey                 = "TauJets",
+                                                                    TopoClCollectionSGKey = "CaloCalTopoClusters")
+ToolSvc += HIGG5D1TauCCThinningTool
+thinningTools.append(HIGG5D1TauCCThinningTool)
+
 
 #====================================================================
 # jet selection 
@@ -127,10 +143,11 @@ thinningTools.append(HIGG5D1TauTPThinningTool)
 jetSel = '(( count( (AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 15.*GeV) && (abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 2.6) ) ) > 0)'
 jetSel += '|| (( count( (AntiKt4EMTopoJets.pt > 100.0*GeV) && (abs(AntiKt4EMTopoJets.eta) < 2.6) ) ) > 0)'
 jetSel += '|| (( count( (AntiKt10LCTopoJets.pt > 100.0*GeV) && (abs(AntiKt10LCTopoJets.eta) < 2.6) ) ) > 0)'
-jetSel += '|| (( count( (CamKt12LCTopoJets.pt > 100.0*GeV) && (abs(CamKt12LCTopoJets.eta) < 2.6) ) ) > 0)'
+# jetSel += '|| (( count( (CamKt12LCTopoJets.pt > 100.0*GeV) && (abs(CamKt12LCTopoJets.eta) < 2.6) ) ) > 0)'
 jetSel += '|| (( count( (AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt > 100.0*GeV) && (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta) < 2.6) ) ) > 0)'
+# jetSel += '|| (( count( (AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 100.0*GeV) && (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.6) ) ) > 0)'
 # jetSel += '|| (( count( (CamKt10LCTopoPrunedR50Z15Jets.pt > 100.0*GeV) && (abs(CamKt10LCTopoPrunedR50Z15Jets.eta) < 2.6) ) ) > 0)'
-jetSel += '|| (( count( (CamKt12LCTopoBDRSFilteredMU100Y15Jets.pt > 100.0*GeV) && (abs(CamKt12LCTopoBDRSFilteredMU100Y15Jets.eta) < 2.6) ) ) > 0)'
+# jetSel += '|| (( count( (CamKt12LCTopoBDRSFilteredMU100Y15Jets.pt > 100.0*GeV) && (abs(CamKt12LCTopoBDRSFilteredMU100Y15Jets.eta) < 2.6) ) ) > 0)'
 
 #====================================================================
 # Trigger selection
@@ -157,6 +174,48 @@ if (beamEnergy > 6.0e+06): # 13 TeV, name should be HLT_xxx
     triglist.append("HLT_j100_xe80_L1J40_DPHI-J20XE50")
     triglist.append("HLT_j100_xe80_L1J40_DPHI-J20s2XE50")
     triglist.append("HLT_g120_loose")
+    triglist.append("HLT_g140_loose") # added on Sep 2016
+    triglist.append("HLT_g160_loose") # added on Sep 2016
+    triglist.append("HLT_xe80_tc_lcw_L1XE50") # added on Apr 2016
+    triglist.append("HLT_xe90_tc_lcw_L1XE50")
+    triglist.append("HLT_xe100_tc_lcw_L1XE50")
+    triglist.append("HLT_xe110_tc_lcw_L1XE60")
+    triglist.append("HLT_xe80_mht_L1XE50")
+    triglist.append("HLT_xe90_mht_L1XE50")
+    triglist.append("HLT_xe100_mht_L1XE50")
+    triglist.append("HLT_xe100_mht_L1XE60")
+    triglist.append("HLT_xe110_mht_L1XE50") # added on Aug 2016
+    triglist.append("HLT_xe110_mht_L1XE50_AND_xe70_L1XE50") # added on Sep 2016
+    triglist.append("HLT_xe130_mht_L1XE50") # added on Aug 2016
+    triglist.append("HLT_xe90_L1XE50")
+    triglist.append("HLT_xe100_L1XE50")
+    triglist.append("HLT_xe110_L1XE60")
+    triglist.append("HLT_xe80_tc_em_L1XE50")
+    triglist.append("HLT_xe90_tc_em_L1XE50")
+    triglist.append("HLT_xe100_tc_em_L1XE50")
+    triglist.append("HLT_xe80_tc_lcw")
+    triglist.append("HLT_xe90_tc_lcw")
+    triglist.append("HLT_xe100_tc_lcw")
+    triglist.append("HLT_xe90_mht")
+    triglist.append("HLT_xe100_mht")
+    triglist.append("HLT_xe90_tc_lcw_wEFMu_L1XE50")
+    triglist.append("HLT_xe90_mht_wEFMu_L1XE50")
+    triglist.append("HLT_xe120_pueta")
+    triglist.append("HLT_xe120_pufit")
+    triglist.append("HLT_xe100_tc_lcw_L1XE60") # added on Jun 2016
+    triglist.append("HLT_xe110_tc_em_L1XE50")
+    triglist.append("HLT_xe110_tc_em_wEFMu_L1XE50")
+    triglist.append("HLT_xe120_pueta_wEFMu")
+    triglist.append("HLT_xe120_mht")
+    triglist.append("HLT_xe120_tc_lcw")
+    triglist.append("HLT_xe120_mht_wEFMu")
+    triglist.append("HLT_xe110_L1XE50")
+    triglist.append("HLT_xe100_L1XE60")
+    triglist.append("HLT_xe120_pufit_wEFMu")
+    triglist.append("HLT_xe120_tc_lcw_wEFMu")
+    triglist.append("HLT_xe120_tc_em")
+    triglist.append("HLT_noalg_L1J400") # added on Nov 2016
+
     # triglist.append("L1_XE50")
     # triglist.append("L1_XE60")
     # triglist.append("L1_XE70")
@@ -176,6 +235,7 @@ HIGG5D1TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name   
 ToolSvc += HIGG5D1TriggerSkimmingTool
 
 
+
 #=======================================
 # CREATE PRIVATE SEQUENCE
 #=======================================
@@ -193,31 +253,112 @@ higg5d1Seq += CfgMgr.DerivationFramework__DerivationKernel(
     )
 
 
-# Then apply the TruthWZ fix
-if globalflags.DataSource()=='geant4':
-    replaceBuggyAntiKt4TruthWZJets(higg5d1Seq,'HIGG5D1')
-    replaceBuggyAntiKt10TruthWZJets(higg5d1Seq,'HIGG5D1')
+#====================================================================
+# Standard jets
+#====================================================================
+if not "HIGG5D1Jets" in OutputJets:
+    OutputJets["HIGG5D1Jets"] = []
+
+    #AntiKt2PV0TrackJets
+    addStandardJets("AntiKt", 0.2, "PV0Track", 2000, mods="track_ungroomed", algseq=higg5d1Seq, outputGroup="HIGG5D1Jets")
+    OutputJets["HIGG5D1Jets"].append("AntiKt2PV0TrackJets")
+    #AntiKt4PV0TrackJets
+    addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=higg5d1Seq, outputGroup="HIGG5D1Jets")
+    OutputJets["HIGG5D1Jets"].append("AntiKt4PV0TrackJets")
+    #AntiKt10LCTopoJets
+    addStandardJets("AntiKt", 1.0, "LCTopo", mods="lctopo_ungroomed", ptmin=40000, ptminFilter=50000, calibOpt="none", algseq=higg5d1Seq, outputGroup="HIGG5D1Jets")
+    OutputJets["HIGG5D1Jets"].append("AntiKt10LCTopoJets")
 
 #====================================================================
 # Special jets
 #====================================================================
-if not "HIGG5D1Jets" in OutputJets:
-    OutputJets["HIGG5D1Jets"] = ["AntiKt3PV0TrackJets","AntiKt2PV0TrackJets","AntiKt10LCTopoJets","CamKt12LCTopoJets"]
+# if not "HIGG5D1Jets" in OutputJets:
+    # OutputJets["HIGG5D1Jets"] = ["AntiKt2PV0TrackJets","AntiKt10LCTopoJets","CamKt12LCTopoJets"]
 
     if jetFlags.useTruth:
-        OutputJets["HIGG5D1Jets"].append("AntiKt4TruthJets")
-        OutputJets["HIGG5D1Jets"].append("AntiKt4TruthWZJets")
-        # OutputJets["HIGG5D1Jets"].append("AntiKt10TruthWZJets")
-        # OutputJets["HIGG5D1Jets"].append("AntiKt10TruthJets")
-        #OutputJets["HIGG5D1Jets"].append("CamKt12TruthJets")
-        addTrimmedJets("AntiKt", 1.0, "TruthWZ", rclus=0.2, ptfrac=0.05, includePreTools=False, algseq=higg5d1Seq,outputGroup="HIGG5D1Jets")
+      #AntiKt4TruthJets
+      addStandardJets("AntiKt", 0.4, "Truth", 5000, mods="truth_ungroomed", algseq=higg5d1Seq, outputGroup="HIGG5D1Jets")
+      OutputJets["HIGG5D1Jets"].append("AntiKt4TruthJets")
+      #AntiKt4TruthWZJets
+      addStandardJets("AntiKt", 0.4, "TruthWZ", 5000, mods="truth_ungroomed", algseq=higg5d1Seq, outputGroup="HIGG5D1Jets")
+      OutputJets["HIGG5D1Jets"].append("AntiKt4TruthWZJets")
+      # OutputJets["HIGG5D1Jets"].append("AntiKt10TruthWZJets")
+      # OutputJets["HIGG5D1Jets"].append("AntiKt10TruthJets")
+      # OutputJets["HIGG5D1Jets"].append("CamKt12TruthJets")
+      addTrimmedJets("AntiKt", 1.0, "TruthWZ", rclus=0.2, ptfrac=0.05, includePreTools=False, algseq=higg5d1Seq,outputGroup="HIGG5D1Jets")
 
-    addFilteredJets("CamKt", 1.2, "LCTopo", mumax=1.0, ymin=0.15, includePreTools=False, algseq=higg5d1Seq,outputGroup="HIGG5D1Jets")
+    # addFilteredJets("CamKt", 1.2, "LCTopo", mumax=1.0, ymin=0.15, includePreTools=False, algseq=higg5d1Seq,outputGroup="HIGG5D1Jets")
     addTrimmedJets("AntiKt", 1.0, "LCTopo", rclus=0.2, ptfrac=0.05, includePreTools=False, algseq=higg5d1Seq,outputGroup="HIGG5D1Jets")
+
+#====================================================================
+# Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
+#====================================================================
+
+addVRJets(higg5d1Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet", 
+          VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track", 
+          ghostArea = 0 , ptmin = 2000, ptminFilter = 7000, 
+          variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
+
+#===================================================================
+# Run b-tagging
+#===================================================================
+from BTagging.BTaggingFlags import BTaggingFlags
+
+# alias for VR
+BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
+
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+# must re-tag AntiKt4LCTopoJets and AntiKt4PV0TrackJets to make JetFitterNN work with corresponding VR jets (nikola: why?)
+# also, re-tag R=0.2 track jets
+FlavorTagInit( JetCollections = ["AntiKt4PV0TrackJets", "AntiKtVR30Rmax4Rmin02TrackJets", "AntiKt2PV0TrackJets"], Sequencer = higg5d1Seq )
 
 # Jet calibration should come after fat jets
 applyJetCalibration_xAODColl(jetalg="AntiKt4EMTopo", sequence=higg5d1Seq)
-applyJetCalibration_CustomColl(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20", sequence=higg5d1Seq)
+# applyJetCalibration_CustomColl(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20", sequence=higg5d1Seq)
+# applyJetCalibration_OTFJets("AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=higg5d1Seq)
+
+
+
+#====================================================================
+# Add non-prompt lepton tagging
+#====================================================================
+# import the JetTagNonPromptLepton config and add to the private sequence 
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+higg5d1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
+
+
+
+# # Tau Truth matching
+# if DerivationFrameworkIsMonteCarlo:
+#     TauTruthWrapperTools5d1 = []
+#     from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauTruthMatchingWrapper
+#     from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauTruthMatchingTool
+#     from RecExConfig.ObjKeyStore import objKeyStore
+#     # Tau Truth making and matching
+#     from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
+#     TauTruthClassifier5d1 = MCTruthClassifier(name = "TauTruthClassifier5d1",
+#                                               ParticleCaloExtensionTool="")
+#     ToolSvc += TauTruthClassifier5d1
+#     # Build the truth taus
+#     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthCollectionMakerTau
+#     TruthTauTool5d1 = DerivationFramework__TruthCollectionMakerTau(name             = "TruthTauTool5d1",
+#                                                                    NewCollectionName       = "TruthTaus",
+#                                                                    MCTruthClassifier       = TauTruthClassifier5d1)
+#     ToolSvc += TruthTauTool5d1
+#     TauTruthWrapperTools5d1.append(TruthTauTool5d1)
+#     if objKeyStore.isInInput( "xAOD::TauJetContainer", "TauJets" ):
+#         TauTruthMatchingTool5d1 = TauAnalysisTools__TauTruthMatchingTool(name="TauTruthMatchingTool5d1")
+#         ToolSvc += TauTruthMatchingTool5d1
+#         TauTruthMatchingWrapper5d1 = DerivationFramework__TauTruthMatchingWrapper( name = "TauTruthMatchingWrapper5d1",
+#                                                                                    TauTruthMatchingTool = TauTruthMatchingTool5d1,
+#                                                                                    TauContainerName     = "TauJets")
+#         ToolSvc += TauTruthMatchingWrapper5d1
+#         print TauTruthMatchingWrapper5d1
+#         TauTruthWrapperTools5d1 += [TauTruthMatchingWrapper5d1] 
+#     higg5d1Seq += CfgMgr.DerivationFramework__DerivationKernel(
+#         "HIGG5D1Kernel_aug",
+#         AugmentationTools = TauTruthWrapperTools5d1
+#         )
 
 
 higg5d1Seq += CfgMgr.DerivationFramework__DerivationKernel(
@@ -229,7 +370,6 @@ higg5d1Seq += CfgMgr.DerivationFramework__DerivationKernel(
     "HIGG5D1Kernel",
     ThinningTools = thinningTools
     )
-
 
 DerivationFrameworkJob += higg5d1Seq
 
@@ -248,6 +388,13 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from DerivationFrameworkHiggs.HIGG5D1ExtraContent import *
 HIGG5D1SlimmingHelper = SlimmingHelper("HIGG5D1SlimmingHelper")
 
+HIGG5D1SlimmingHelper.AppendToDictionary = {
+  "AntiKtVR30Rmax4Rmin02TrackJets"               :   "xAOD::JetContainer"        ,
+  "AntiKtVR30Rmax4Rmin02TrackJetsAux"            :   "xAOD::JetAuxContainer"     ,
+  "BTagging_AntiKtVR30Rmax4Rmin02Track"          :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"       :   "xAOD::BTaggingAuxContainer",
+  }
+
 HIGG5D1SlimmingHelper.SmartCollections = [ "Electrons",
                                            "Photons",
                                            "Muons",
@@ -263,9 +410,11 @@ HIGG5D1SlimmingHelper.SmartCollections = [ "Electrons",
 
 HIGG5D1SlimmingHelper.ExtraVariables = ExtraContent
 HIGG5D1SlimmingHelper.AllVariables = ExtraContainers
+# HIGG5D1SlimmingHelper.AllVariables += ["AntiKtVR30Rmax4Rmin02TrackJets", "BTagging_AntiKtVR30Rmax4Rmin02Track"]
 if globalflags.DataSource()=='geant4':
     HIGG5D1SlimmingHelper.ExtraVariables += ExtraContentTruth
     HIGG5D1SlimmingHelper.AllVariables += ExtraContainersTruth
+HIGG5D1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 
 # Add the jet containers to the stream
 addJetOutputs(HIGG5D1SlimmingHelper,["HIGG5D1Jets"])
