@@ -73,10 +73,7 @@ int JetConstitFourMomTool::modify(xAOD::JetContainer& jets) const {
     if(!m_altColls[iScale].empty()) { // retrieve alternate constituent collections
       const xAOD::Jet& leadjet = *jets.front();
       if(leadjet.getInputType()==xAOD::JetInput::LCTopo || leadjet.getInputType()==xAOD::JetInput::EMTopo
-	 || leadjet.getInputType()==xAOD::JetInput::LCTopoOrigin || leadjet.getInputType()==xAOD::JetInput::EMTopoOrigin
-	 || leadjet.getInputType()==xAOD::JetInput::EMTopoOriginSK
-	 || leadjet.getInputType()==xAOD::JetInput::EMTopoOriginVorSK
-	 || leadjet.getInputType()==xAOD::JetInput::EMTopoOriginCSSK) {
+	 || leadjet.getInputType()==xAOD::JetInput::LCTopoOrigin || leadjet.getInputType()==xAOD::JetInput::EMTopoOrigin) {
 	const xAOD::CaloClusterContainer* altclusters(0);
 	ATH_CHECK( evtStore()->retrieve(altclusters,m_altColls[iScale]) );
 	if(!altclusters) {
