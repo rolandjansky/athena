@@ -34,6 +34,7 @@
 #include "TRandom.h"
 #include "TDirectory.h"
 #include "TH2.h"
+#include "TKey.h"
 class TLorentzVector;
 class TH2;
 class TFile;
@@ -47,34 +48,6 @@ namespace CP {
             ASG_TOOL_CLASS( MuonTriggerScaleFactors, CP::IMuonTriggerScaleFactors )
 
             public:
-
-            struct Storage {
-                const std::vector<std::string> *type;
-                const std::vector<std::string> *region;
-                const std::vector<std::string> *quality;
-                const std::vector<std::string> *isolation;
-                const std::vector<std::string> *bins;
-                const std::vector<std::string> *trigger;
-                const std::vector<std::string> *period;
-                const std::vector<std::string> *systematic;
-
-                Storage(const std::vector<std::string> *type_=0,
-                                const std::vector<std::string> *region_=0,
-                                const std::vector<std::string> *quality_=0,
-                                const std::vector<std::string> *isolation_=0,
-                                const std::vector<std::string> *bins_=0,
-                                const std::vector<std::string> *trigger_=0,
-                                const std::vector<std::string> *period_=0,
-                                const std::vector<std::string> *systematic_=0) :
-                type(type_),
-                region(region_),
-                quality(quality_),
-                isolation(isolation_),
-                bins(bins_),
-                trigger(trigger_),
-                period(period_),
-                systematic(systematic_) {}
-            };
 
             MuonTriggerScaleFactors(const std::string& name);
 
@@ -127,12 +100,6 @@ namespace CP {
                             TrigMuonEff::Configuration& configuration,
                             const xAOD::MuonContainer& mucont,
                             const std::string& trigger);
-
-            virtual CorrectionCode getSingleOrDimuonEfficiency(Double_t& eff,
-                            const TrigMuonEff::Configuration& config,
-                            const xAOD::MuonContainer& mucont,
-                            const std::string& chain,
-                            const std::string& systematic);
 
             virtual CorrectionCode getDimuonEfficiency(Double_t& eff,
                             const TrigMuonEff::Configuration& configuration,
@@ -218,8 +185,6 @@ namespace CP {
                             DileptonTrigger& legs);
 
             static TrigMuonEff::DataPeriod getDataPeriod(int runNumber);
-
-            void setStorage(Storage& storage) const;
 
             TDirectory* getTemporaryDirectory(void) const;
 
