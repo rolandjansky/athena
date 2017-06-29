@@ -9,6 +9,8 @@
 // class header include
 #include "InputConverter.h"
 
+#include <memory>
+
 // framework
 #include "GaudiKernel/IPartPropSvc.h"
 #include "GaudiKernel/PhysicalConstants.h"
@@ -227,37 +229,30 @@ ISF::InputConverter::getSelectedParticles(const HepMC::GenEvent& evnt, bool lega
 /** get all generator particles which pass filters */
 ISF::ISFParticle*
 ISF::InputConverter::convertParticle(HepMC::GenParticle* genPartPtr, int bcid) const {
-
   if (!genPartPtr) { return nullptr; }
-
   auto& genPart = *genPartPtr;
 
-  // -> particle origin (TODO: add proper GeoID, collision/cosmics)
-  DetRegionSvcIDPair origin(AtlasDetDescr::fUndefinedAtlasRegion, ISF::fEventGeneratorSimID);
-
-  // -> truth binding
-  ISF::TruthBinding* tBinding = new ISF::TruthBinding(genPartPtr);
-
-  // 4-vectors: position, momentum
   HepMC::GenVertex* pVertex = genPart.production_vertex();
   if (!pVertex) {
     ATH_MSG_ERROR("Unable to convert following generator particle due to missing "
                   << "production vertex: " << genPart);
     return nullptr;
   }
+
   const auto& pVertexPos(pVertex->point3d());
   const Amg::Vector3D pos(pVertexPos.x(), pVertexPos.y(), pVertexPos.z());
   const auto& pMomentum(genPart.momentum());
   const Amg::Vector3D mom(pMomentum.px(), pMomentum.py(), pMomentum.pz());
+  const double pMass = this->getParticleMass(genPart);
+  const int pPdgId = genPart.pdg_id();
+  const double charge = HepPDT::ParticleID(pPdgId).charge();
+  const double pTime = pVertex->position().t() / Gaudi::Units::c_light;
+  /// particle origin (TODO: add proper GeoID, collision/cosmics)
+  DetRegionSvcIDPair origin(AtlasDetDescr::fUndefinedAtlasRegion, ISF::fEventGeneratorSimID);
+  const auto pBarcode = genPart.barcode();
+  ISF::TruthBinding* tBinding = new ISF::TruthBinding(genPartPtr);
 
-  // get the pdg_id, mass & time, barcode
-  int pPdgId = genPart.pdg_id();
-  double pMass = this->getParticleMass(genPart);
-  double pTime = pVertex->position().t() / Gaudi::Units::c_light;
-  double charge = HepPDT::ParticleID(pPdgId).charge();
-  auto pBarcode = genPart.barcode();
-
-  auto sParticle = new ISF::ISFParticle( std::move(pos),
+  auto* sParticle = new ISF::ISFParticle( std::move(pos),
                                          std::move(mom),
                                          pMass,
                                          charge,
@@ -280,8 +275,8 @@ ISF::InputConverter::getParticleMass(const HepMC::GenParticle &part) const
   ATH_MSG_VERBOSE("part.generated_mass, mass="<<mass);
 
   // 1. use PDT mass?
-  if ( !m_useGeneratedParticleMass) {
-    int absPDG = abs(part.pdg_id());
+  if ( !m_useGeneratedParticleMass ) {
+    const int absPDG = std::abs(part.pdg_id());
     HepPDT::ParticleData const *pData = (m_particleDataTable)
       ? m_particleDataTable->particle(absPDG)
       : nullptr;
@@ -404,7 +399,7 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const HepMC::GenPar
   G4double py = genpartMomentum.y();
   G4double pz = genpartMomentum.z();
 
-  G4PrimaryParticle *g4particle = new G4PrimaryParticle(particleDefinition,px,py,pz);
+  std::unique_ptr<G4PrimaryParticle> g4particle(new G4PrimaryParticle(particleDefinition,px,py,pz));
 
   if (genpart.end_vertex()) {
     // Set the lifetime appropriately - this is slow but rigorous, and we
@@ -416,11 +411,33 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const HepMC::GenPar
     const G4LorentzVector lv1 ( endVtx.x(), endVtx.y(), endVtx.z(), endVtx.t() );
     g4particle->SetProperTime( (lv1-lv0).mag()/Gaudi::Units::c_light );
 
+    if(m_quasiStableParticlesIncluded) {
+      ATH_MSG_VERBOSE( "Detected primary particle with end vertex." );
+      ATH_MSG_VERBOSE( "Will add the primary particle set on." );
+      ATH_MSG_VERBOSE( "Primary Particle: " << genpart );
+      ATH_MSG_VERBOSE( "Number of daughters of "<<genpart.barcode()<<": " << genpart.end_vertex()->particles_out_size() );
+    }
+    else {
+      ATH_MSG_WARNING( "Detected primary particle with end vertex." );
+      ATH_MSG_WARNING( "Will add the primary particle set on." );
+      ATH_MSG_WARNING( "Primary Particle: " << genpart );
+      ATH_MSG_WARNING( "Number of daughters of "<<genpart.barcode()<<": " << genpart.end_vertex()->particles_out_size() );
+    }
     // Add all necessary daughter particles
     for ( auto daughterIter=genpart.end_vertex()->particles_out_const_begin();
           daughterIter!=genpart.end_vertex()->particles_out_const_end(); ++daughterIter ) {
-      if ( !(*daughterIter) ) { continue; }
+      if(m_quasiStableParticlesIncluded) {
+        ATH_MSG_VERBOSE ( "Attempting to add daughter particle of "<<genpart.barcode()<<": " << **daughterIter );
+      }
+      else {
+        ATH_MSG_WARNING ( "Attempting to add daughter particle of "<<genpart.barcode()<<": " << **daughterIter );
+      }
       G4PrimaryParticle *daughterG4Particle = this->getG4PrimaryParticle( **daughterIter );
+      if(!daughterG4Particle) {
+        ATH_MSG_ERROR("Bailing out of loop over daughters of particle with barcode: "<<genpart.barcode() <<
+                      " due to errors - will not return G4Particle.");
+        return nullptr;
+      }
       g4particle->SetDaughter( daughterG4Particle );
     }
   }
@@ -432,7 +449,7 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const HepMC::GenPar
   g4particle->SetUserInformation(ppi);
   std::cout << "ZLM making primary down the line with " << ppi->GetParticleBarcode() << std::endl;
 
-  return g4particle;
+  return g4particle.release();
 }
 
 
@@ -448,7 +465,6 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
       G4Exception("iGeant4::TransportTool", "NoISFTruthBinding", FatalException, description);
       return nullptr; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
   }
-  // if truth binding exists -> try to retrieve the HepMC::GenParticle from it
   HepMC::GenParticle*        genpart = truthBinding->getTruthParticle();
   HepMC::GenParticle* primaryGenpart = truthBinding->getPrimaryTruthParticle();
 
@@ -463,15 +479,29 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
 
   // create new primaries and set them to the vertex
   //  G4double mass =  particleDefinition->GetPDGMass();
-  auto &ispMomentum = isp.momentum();
-  G4double px = ispMomentum.x();
-  G4double py = ispMomentum.y();
-  G4double pz = ispMomentum.z();
+  G4double px(0.0);
+  G4double py(0.0);
+  G4double pz(0.0);
+  if(genpart) {
+    auto &genpartMomentum = genpart->momentum();
+    px = genpartMomentum.x();
+    py = genpartMomentum.y();
+    pz = genpartMomentum.z();
+  }
+  else {
+    auto &ispMomentum = isp.momentum();
+    px = ispMomentum.x();
+    py = ispMomentum.y();
+    pz = ispMomentum.z();
+  }
 
-  G4PrimaryParticle *g4particle = new G4PrimaryParticle(particleDefinition,px,py,pz);
+  std::unique_ptr<G4PrimaryParticle> g4particle(new G4PrimaryParticle(particleDefinition,px,py,pz));
   // UserInformation
-  PrimaryParticleInformation* ppi = new PrimaryParticleInformation(primaryGenpart,&isp);
+  std::unique_ptr<PrimaryParticleInformation> ppi(new PrimaryParticleInformation(primaryGenpart,&isp));
 
+  /// In the case that particles are being passed back to Geant4 then
+  /// we may have particles which have already interacted, so we
+  /// should set the regeneration number accordingly.
   Barcode::ParticleBarcode barcode = isp.barcode();
   const int regenerationNr = (barcode - barcode%m_barcodeGenerationIncrement)/m_barcodeGenerationIncrement;
   ppi->SetRegenerationNr(regenerationNr);
@@ -493,7 +523,7 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
         ATH_MSG_VERBOSE( "Will add the primary particle set on." );
         ATH_MSG_VERBOSE( "ISF Particle: " << isp );
         ATH_MSG_VERBOSE( "Primary Particle: " << *genpart );
-        ATH_MSG_VERBOSE("Number of daughters of "<<genpart->barcode()<<": " << genpart->end_vertex()->particles_out_size() );
+        ATH_MSG_VERBOSE( "Number of daughters of "<<genpart->barcode()<<": " << genpart->end_vertex()->particles_out_size() );
       }
       else {
         ATH_MSG_WARNING( "Detected primary particle with end vertex. This should only be the case if" );
@@ -502,37 +532,32 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
         ATH_MSG_WARNING( "particle set on." );
         ATH_MSG_WARNING( "ISF Particle: " << isp );
         ATH_MSG_WARNING( "Primary Particle: " << *genpart );
-        ATH_MSG_WARNING("Number of daughters of "<<genpart->barcode()<<": " << genpart->end_vertex()->particles_out_size() );
+        ATH_MSG_WARNING( "Number of daughters of "<<genpart->barcode()<<": " << genpart->end_vertex()->particles_out_size() );
       }
       // Add all necessary daughter particles
       for ( auto daughterIter=genpart->end_vertex()->particles_out_const_begin();
             daughterIter!=genpart->end_vertex()->particles_out_const_end(); ++daughterIter ) {
-        G4PrimaryParticle *daughterG4Particle = this->getG4PrimaryParticle( **daughterIter );
-        g4particle->SetDaughter( daughterG4Particle );
         if(m_quasiStableParticlesIncluded) {
-          ATH_MSG_VERBOSE ( "Daughter Particle of "<<genpart->barcode()<<": " << **daughterIter );
+          ATH_MSG_VERBOSE ( "Attempting to add daughter particle of "<<genpart->barcode()<<": " << **daughterIter );
         }
         else {
-          ATH_MSG_WARNING ( "Daughter Particle of "<<genpart->barcode()<<": " << **daughterIter );
+          ATH_MSG_WARNING ( "Attempting to add daughter particle of "<<genpart->barcode()<<": " << **daughterIter );
         }
-        if(nullptr==(*daughterIter)->end_vertex()) {
-          if(m_quasiStableParticlesIncluded) {
-            ATH_MSG_VERBOSE ( "Number of daughters of "<<(*daughterIter)->barcode()<<": 0 (NULL)." );
-          }
-          else {
-            ATH_MSG_WARNING ( "Number of daughters of "<<(*daughterIter)->barcode()<<": 0 (NULL)." );
-          }
+        G4PrimaryParticle *daughterG4Particle = this->getG4PrimaryParticle( **daughterIter );
+        if(!daughterG4Particle) {
+          ATH_MSG_ERROR("Bailing out of loop over daughters of particle with barcode: "<<genpart->barcode() <<
+                        " due to errors - will not return G4Particle.");
+          return nullptr;
         }
-        else {
-          if(m_quasiStableParticlesIncluded) {
-            ATH_MSG_VERBOSE ( "Number of daughters of "<<(*daughterIter)->barcode()<<": " << (*daughterIter)->end_vertex()->particles_out_size() );
-          }
-          else {
-            ATH_MSG_WARNING ( "Number of daughters of "<<(*daughterIter)->barcode()<<": " << (*daughterIter)->end_vertex()->particles_out_size() );
-          }
-        }
+        g4particle->SetDaughter( daughterG4Particle );
       }
      } // particle had an end vertex
+    //Code copied from TruthHepMCEventConverter::TransformHepMCParticle
+    CLHEP::Hep3Vector gpv = g4particle->GetMomentum();
+    double pmass = g4particle->GetMass();
+    const double pe = sqrt(gpv.mag2() + pmass*pmass);  // this does only change for boosts, etc.
+    genpart->set_momentum(CLHEP::HepLorentzVector(gpv.x(),gpv.y(),gpv.z(),pe));
+    //End of code copied from TruthHepMCEventConverter::TransformHepMCParticle
   } // Truth was detected
 
   ATH_MSG_VERBOSE("PrimaryParticleInformation:");
@@ -540,9 +565,9 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
   ATH_MSG_VERBOSE("     GetRegenerationNr = " << ppi->GetRegenerationNr());
   ATH_MSG_VERBOSE("     GetHepMCParticle = " << ppi->GetHepMCParticle());
   ATH_MSG_VERBOSE("     GetISFParticle = " << ppi->GetISFParticle());
-  g4particle->SetUserInformation(ppi);
+  g4particle->SetUserInformation(ppi.release());
 
-  return g4particle;
+  return g4particle.release();
 }
 
 //________________________________________________________________________
@@ -559,7 +584,10 @@ void ISF::InputConverter::addG4PrimaryVertex(G4Event* g4evt, const ISF::ISFParti
   */
 
   G4PrimaryParticle *g4particle = this->getG4PrimaryParticle( isp );
-  if (!g4particle) { return; }// Already printed a warning
+  if (!g4particle) {
+    ATH_MSG_ERROR("Failed to create G4PrimaryParticle for ISParticle (" << isp <<")");
+    return;
+  }// Already printed a warning
 
   // create a new vertex
   G4PrimaryVertex *g4vertex = new G4PrimaryVertex(isp.position().x(),
