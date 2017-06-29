@@ -47,7 +47,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Component(s) in the package:
 atlas_add_library( VP1TriggerSystems VP1TriggerSystems/*.h src/*.h src/*.cxx src/*.qrc
                    PUBLIC_HEADERS VP1TriggerSystems
-                   INCLUDE_DIRS ${QT4_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES AnalysisTriggerEvent TrigMuonEvent TrigSteeringEvent VP1Base GL StoreGateLib SGtests TrigDecisionToolLib TrigObjectMatchingLib
                    Qt5::Gui Qt5::Core

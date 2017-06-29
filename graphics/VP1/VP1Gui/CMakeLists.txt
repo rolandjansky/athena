@@ -18,9 +18,9 @@ atlas_depends_on_subdirs(
    )
 
 # External dependencies:
-find_package( Qt5 COMPONENTS Core OpenGL Gui Network REQUIRED )
-find_package( Coin3D REQUIRED )
-find_package( SoQt REQUIRED )
+find_package( Qt5 COMPONENTS Core OpenGL Gui Network )
+find_package( Coin3D )
+find_package( SoQt )
 
 # set C++11 explicitely
 set (CMAKE_CXX_STANDARD 11)

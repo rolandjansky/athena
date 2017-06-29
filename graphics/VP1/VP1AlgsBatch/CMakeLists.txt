@@ -29,8 +29,7 @@ include_directories( /usr/X11R6/include )
 atlas_add_component( VP1AlgsBatch
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${QT4_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${QT4_LIBRARIES} GL AthenaBaseComps GaudiKernel CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc EventInfo PathResolver VP1UtilsBase )
+                   LINK_LIBRARIES ${QT4_LIBRARIES} GL AthenaBaseComps GaudiKernel CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc EventInfo PathResolver VP1UtilsBase )
 
 # Install files from the package:
 atlas_install_headers( VP1AlgsBatch )
