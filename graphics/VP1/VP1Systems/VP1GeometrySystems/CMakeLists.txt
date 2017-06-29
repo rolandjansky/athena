@@ -26,7 +26,7 @@ atlas_depends_on_subdirs(
 # External dependencies:
 find_package( CLHEP )
 find_package( Coin3D )
-find_package( Qt5 COMPONENTS Core Gui Widgets REQUIRED )
+find_package( Qt5 COMPONENTS Core Gui Widgets  )
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)

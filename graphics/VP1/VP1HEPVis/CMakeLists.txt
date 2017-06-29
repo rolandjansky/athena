@@ -12,7 +12,7 @@ cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
 atlas_subdir( VP1HEPVis )
 
 # External dependencies:
-find_package( Coin3D REQUIRED )
+find_package( Coin3D )
 
 # Component(s) in the package:
 atlas_add_library( VP1HEPVis src/*.cxx

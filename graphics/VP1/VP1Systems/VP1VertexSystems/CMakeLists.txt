@@ -22,7 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( Coin3D )
 find_package( Eigen )
 find_package( HepMC )
-find_package( Qt5 COMPONENTS Core Gui REQUIRED )
+find_package( Qt5 COMPONENTS Core Gui  )
 
 # Generate UI files automatically:
 set( CMAKE_AUTOUIC TRUE )

@@ -17,14 +17,9 @@ atlas_depends_on_subdirs(
    PRIVATE graphics/VP1/VP1HEPVis )
 
 # Find the external dependencies:
-#find_package( Qt4 COMPONENTS QtCore QtGui QtOpenGL )
-#find_package( Qt5 COMPONENTS Core OpenGL Gui REQUIRED HINTS ${QT5_ROOT} )
-#find_package( Qt5 5.6.2 COMPONENTS Core OpenGL Gui REQUIRED HINTS ${QT5_ROOT} )
-#find_package( Qt5 5.6 COMPONENTS Core OpenGL Gui PrintSupport REQUIRED )
-find_package( Qt5 COMPONENTS Core OpenGL Gui PrintSupport REQUIRED )
-
-find_package( SoQt REQUIRED )
-find_package( Coin3D REQUIRED )
+find_package( Qt5 COMPONENTS Core OpenGL Gui PrintSupport )
+find_package( SoQt  )
+find_package( Coin3D  )
 
 # Generate UI files automatically:
 # Note: add the "Widgets" component to "find_package( Qt5 ...)" if you have UI files, otherwise UIC, even if CMAKE_AUTOUIC is set to ON, is not run

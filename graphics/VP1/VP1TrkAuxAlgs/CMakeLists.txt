@@ -19,7 +19,7 @@ atlas_depends_on_subdirs(
    graphics/VP1/VP1Utils )
 
 # External dependencies:
-find_package( Qt5 COMPONENTS Core REQUIRED )
+find_package( Qt5 COMPONENTS Core  )
 
 # Component(s) in the package:
 atlas_add_component( VP1TrkAuxAlgs src/*.cxx src/components/*.cxx
