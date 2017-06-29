@@ -43,12 +43,12 @@ def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID, doR2A=False
 
     CleanDirName="clean_run_"+q+"_"+UniqID
 
-    cmd = "mkdir -p "+CleanRunHeadDir+" ; cd "+CleanRunHeadDir+"; mkdir -p "+CleanDirName+" ; cd "+CleanDirName+" ; source $AtlasSetup/scripts/asetup.sh "+release+" --testarea `pwd` >& /dev/null ; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
+    cmd = "mkdir -p "+CleanRunHeadDir+" ; cd "+CleanRunHeadDir+"; mkdir -p "+CleanDirName+" ; cd "+CleanDirName+" ; source $AtlasSetup/scripts/asetup.sh "+release+" >& /dev/null ; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
     subprocess.call(cmd,shell=True)
     logging.info("Finished clean \"Reco_tf.py --AMI "+q+"\"")
     pass
 
-def RunPatchedQTest(qtest,pwd,release,theTestArea,extraArg, doR2A=False, trigConfig="2017"):
+def RunPatchedQTest(qtest,pwd,release,extraArg, doR2A=False, trigConfig="2017"):
     q=qtest
     if q == 'q431' and doR2A:
         extraArg += " --steering='doRAWtoALL'"
@@ -66,10 +66,10 @@ def RunPatchedQTest(qtest,pwd,release,theTestArea,extraArg, doR2A=False, trigCon
 
     if 'WorkDir_DIR' in os.environ:
         cmake_build_dir = (os.environ['WorkDir_DIR'])
-        cmd = "cd "+pwd+"; source $AtlasSetup/scripts/asetup.sh "+release+" --testarea "+theTestArea+" >& /dev/null    ; source "+cmake_build_dir+"/setup.sh ; mkdir -p run_"+q+"; cd run_"+q+"; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
+        cmd = "cd "+pwd+"; source $AtlasSetup/scripts/asetup.sh "+release+"  >& /dev/null    ; source "+cmake_build_dir+"/setup.sh ; mkdir -p run_"+q+"; cd run_"+q+"; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
         subprocess.call(cmd,shell=True)
     else :
-        cmd = "cd "+pwd+"; source $AtlasSetup/scripts/asetup.sh "+release+" --testarea "+theTestArea+" >& /dev/null  ; mkdir -p run_"+q+"; cd run_"+q+"; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
+        cmd = "cd "+pwd+"; source $AtlasSetup/scripts/asetup.sh "+release+" >& /dev/null  ; mkdir -p run_"+q+"; cd run_"+q+"; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
         subprocess.call(cmd,shell=True)
 
     logging.info("Finished patched \"Reco_tf.py --AMI "+q+"\"")
@@ -103,22 +103,7 @@ def GetReleaseSetup():
 ###############################
 ########### List patch packages
 def list_patch_packages():
-    if 'CMTPATH' in os.environ:
-        if 'TestArea' in os.environ and os.access(os.environ['TestArea'], os.R_OK):
-            logging.info("Patch packages in your InstallArea that will be tested are:\n")
-
-            cmd = ['cmt', 'show', 'packages', os.environ['TestArea']]
-            cmtProc = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
-            cmtOut = cmtProc.communicate()[0]
-            for line in cmtOut.split('\n'):
-                try:
-                    if line.strip() == '':
-                        continue
-                    (package, packageVersion, packagePath) = line.split()
-                    logging.info('\t%s\n' % (packageVersion))
-                except ValueError:
-                    logging.info("Warning, unusual output from cmt: %s\n" % line )
-    elif 'WorkDir_DIR' in os.environ :                 
+    if 'WorkDir_DIR' in os.environ :                 
         logging.info("Patch packages in your build to be tested:\n")
         myfilepath = os.environ['WorkDir_DIR']                                                                                  
         fname = str(myfilepath) + '/packages.txt'                                                                                                   
@@ -449,24 +434,9 @@ def main():
     if 'AtlasPatchVersion' not in os.environ and 'AtlasArea' not in os.environ and 'AtlasBaseDir' not in os.environ:
         logging.error("Exit. Please setup the an ATLAS release")
         sys.exit(0)
-    elif 'TestArea' not in os.environ:
-        logging.error("Exit. The environment variable ${TESTAREA} is not defined."                                        )
-        logging.error("Please re-setup the release with the argument \"here\" in the execution of the asetup command"     )
-        logging.error("to specify the TestArea to be the directory from which you setup the release"                      )
-        logging.error("E.g. "                                                                                             )
-        logging.error("     asetup 20.7.X.Y-VAL,rel_5,AtlasProduction,here"                                               )
-        logging.error(                                                                                                    )
-        logging.error("or use the --testarea <TestArea> option of asetup to explicitly define the TestArea"               )
-        logging.error("E.g. "                                                                                             )
-        logging.error("     asetup 20.7.X.Y-VAL,rel_5,AtlasProduction --testarea `pwd`"                                   )
-        logging.error(                                                                                                    )
-        sys.exit(0)
-    elif not os.path.exists(os.environ['TestArea']):
-        logging.error("Exit. The path for your TestArea "+os.environ['TestArea']+" does not exist!."        )
     else:
         if 'AtlasPatchVersion' not in os.environ and 'AtlasArea' not in os.environ and 'AtlasBaseDir' in os.environ:
             logging.warning("Please be aware that you are running a release which seems to not be a Tier0 release, where in general q-tests are not guaranteed to work.")
-
 
 ########### Define which q-tests to run
 
@@ -486,14 +456,13 @@ def main():
 ########### Get release info
         mysetup = GetReleaseSetup() 
         mypwd   = pwd()
-        myTestArea = os.environ['TestArea']
         cleanSetup = mysetup
 
 ########### List the packages in the local InstallArea                                                                                                                                                                                                                           
         if options.ref and options.val:
             cleanSetup = options.ref
             mysetup = options.val
-            logging.info("WARNING: You have specified a dedicated release as reference %s and as validation %s release, Your local testarea will not be considered!!!" %(cleanSetup, mysetup))
+            logging.info("WARNING: You have specified a dedicated release as reference %s and as validation %s release, Your local setup area will not be considered!!!" %(cleanSetup, mysetup))
             logging.info("this option is mainly designed for comparing release versions!!")
         else:
             list_patch_packages()
@@ -515,7 +484,7 @@ def main():
                     pass
 
                 def mypatchedqtest():
-                    RunPatchedQTest(q,mypwd,mysetup,myTestArea,extraArg, doR2A=r2aMode, trigConfig=trigRun2Config)
+                    RunPatchedQTest(q,mypwd,mysetup,extraArg, doR2A=r2aMode, trigConfig=trigRun2Config)
                     pass
             
                 mythreads[q+"_clean"]   = threading.Thread(target=mycleanqtest)
@@ -533,7 +502,7 @@ def main():
 
 
                 def mypatchedqtest():
-                    RunPatchedQTest(q,mypwd,mysetup,myTestArea,extraArg, doR2A=r2aMode, trigConfig=trigRun2Config)
+                    RunPatchedQTest(q,mypwd,mysetup,extraArg, doR2A=r2aMode, trigConfig=trigRun2Config)
                     pass
             
                 mythreads[q+"_patched"] = threading.Thread(target=mypatchedqtest)
@@ -553,7 +522,7 @@ def main():
                     pass
                 
                 def mypatchedqtest():
-                    RunPatchedQTest(q,mypwd,mysetup,myTestArea,extraArg,trigConfig=trigRun2Config)
+                    RunPatchedQTest(q,mypwd,mysetup,extraArg,trigConfig=trigRun2Config)
                     pass
 
                 mythreads[q+"_clean"]   = threading.Thread(target=mycleanqtest)
