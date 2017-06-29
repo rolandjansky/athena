@@ -2,22 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IOStats.cxx 778387 2016-10-14 00:02:04Z krasznaa $
-
 // Local include(s):
 #include "xAODCore/tools/IOStats.h"
-#include "xAODCore/tools/ReadStats.h"
 
 namespace xAOD {
-
-   IOStats::~IOStats() {
-
-      // The ReadStats object is not deleted. Since the object may be needed
-      // during the finalisation of the application. In which case it can lead
-      // to a race condition which object is deleted first. This one, or the one
-      // trying to use this one in its destructor.
-      //      delete m_stats;
-   }
 
    IOStats& IOStats::instance() {
 
@@ -27,16 +15,42 @@ namespace xAOD {
 
    ReadStats& IOStats::stats() {
 
-      return *m_stats;
+      // Make sure that the thread specific object exists:
+      if( ! m_ptr.get() ) {
+         m_ptr.reset( new ReadStatsPtr() );
+      }
+
+      // If we already cached the pointer for this thread, then go no further:
+      if( m_ptr->m_ptr ) {
+         return *( m_ptr->m_ptr );
+      }
+
+      // If not, then acquire a lock, and set up the object now:
+      std::unique_lock< std::mutex > lock( m_mutex );
+      const std::thread::id id = std::this_thread::get_id();
+      m_ptr->m_ptr = &( m_stats[ id ] );
+
+      // And finally return the newly setup pointer:
+      return *( m_ptr->m_ptr );
    }
 
-   const ReadStats& IOStats::stats() const {
+   ReadStats IOStats::merged() const {
 
-      return *m_stats;
+      // Get a lock on the map:
+      std::unique_lock< std::mutex > lock( m_mutex );
+
+      // Merge the objects from all the threads:
+      ReadStats result;
+      for( auto& pair : m_stats ) {
+         result += pair.second;
+      }
+
+      // Return the merged object:
+      return result;
    }
 
    IOStats::IOStats()
-      : m_stats( new ReadStats() ) {
+      : m_stats(), m_ptr(), m_mutex() {
 
    }
 
