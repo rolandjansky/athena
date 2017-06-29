@@ -84,7 +84,6 @@ StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharg
 	  if(!Module.isDBM()) {  //DBM modules also processed here
 		  return StatusCode::SUCCESS; 
 	  }
-	  ATH_MSG_INFO("DBM module");
   }
 
   ATH_MSG_DEBUG("Applying PixelPlanar charge processor");
@@ -95,16 +94,18 @@ StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharg
   double sensorThickness = Module.design().thickness();
   const InDet::SiliconProperties & siProperties = m_siPropertiesSvc->getSiProperties(Module.identifyHash());
   double eleholePairEnergy = 0;
+  
+  double smearRand = 0;
   if (Module.isDBM()){
     eleholePairEnergy = 1. / (13. * CLHEP::eV); // was 3.62 eV.
     m_diffusionConstant = .00265;
-  }
+    smearRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);}
   else{
     eleholePairEnergy = siProperties.electronHolePairsPerEnergy();
     m_diffusionConstant = .007;
   }
   double collectionDist = 0.2*CLHEP::mm;
-  double smearScale = 1. + 0.35*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+  double smearScale = 1. + 0.35*smearRand;
 
   double stepsize = sensorThickness/m_numberOfSteps;
   double tanLorentz = Module.getTanLorentzAnglePhi();
@@ -233,12 +234,6 @@ StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharg
       depth_i  += 1.0*iHitRecord.first/iTotalLength*dDepth;
     }
     
-    if(Module.isDBM()){
-      ATH_MSG_INFO("eta i: "<<eta_i);
-      ATH_MSG_INFO("phi i: "<<phi_i);
-      ATH_MSG_INFO("depth i: "<<depth_i);
-    }
-
     // Distance between charge and readout side.  p_design->readoutSide() is
     // +1 if readout side is in +ve depth axis direction and visa-versa.
     double dist_electrode = 0.5 * sensorThickness - Module.design().readoutSide() * depth_i;
@@ -247,29 +242,19 @@ StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharg
     // nonTrapping probability
     double nontrappingProbability = exp(-dist_electrode/collectionDist);
 
-    if(Module.isDBM()){
-	    ATH_MSG_INFO("Dist_electrode: " << dist_electrode );
-	    ATH_MSG_INFO("non-trapping probability: " << nontrappingProbability );
-    }
     for(int j=0 ; j<ncharges ; j++) {
 
       // diffusion sigma
       double rdif=this->m_diffusionConstant*sqrt(dist_electrode*coLorentz/0.3);
 
       // position at the surface
-      double phi_drifted=phi_i+dist_electrode*tanLorentz+rdif*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
-      double eta_drifted=eta_i+rdif*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+      double randPhi = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+      double phi_drifted=phi_i+dist_electrode*tanLorentz+rdif*randPhi;
+      double randEta = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+      double eta_drifted=eta_i+rdif*randEta;
 
       // amount of energy to be converted into charges at current step
       double energy_per_step = 1.0*iHitRecord.second/1.E+6/ncharges;
-
-      if( Module.isDBM()){
-        ATH_MSG_INFO("rdif: " <<rdif);
-	ATH_MSG_INFO("eta_drift: "<<eta_drifted);
-	ATH_MSG_INFO("phi_drift: "<<phi_drifted);
-	ATH_MSG_INFO("energy per step: "<<energy_per_step);
-
-      }
 
 
       // Slim Edge for IBL planar sensors:
@@ -295,10 +280,6 @@ StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharg
         }
       }
 
-      if( Module.isDBM()){
-	ATH_MSG_INFO("eta_drift: "<<eta_drifted);
-	ATH_MSG_INFO("phi_drift: "<<phi_drifted);
-      }
 	// Get the charge position in Reconstruction local coordinates.
       SiLocalPosition chargePos = Module.hitLocalToLocal(eta_drifted, phi_drifted);
 
@@ -306,8 +287,6 @@ StatusCode PixelPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit, SiCharg
       double ed = 0;
       if (Module.isDBM()){
         ed=energy_per_step*eleholePairEnergy*nontrappingProbability*smearScale;
-      ATH_MSG_INFO("charge collected: "<< ed <<"");
-      ATH_MSG_INFO("++++++++++++++++++++++++++++++++++++++++++++++");
       }
       else {
         ed=energy_per_step*eleholePairEnergy;
