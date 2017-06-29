@@ -54,37 +54,37 @@ StatusCode TrackParticleTruthAlg::finalize() {
 // -----------------------------------------------------------------------------------------------------
 StatusCode TrackParticleTruthAlg::execute() {
 
-  SG::ReadHandle<TrackTruthCollection> m_truthTracks(m_truthTracksKey);
-  SG::ReadHandle<xAODTruthParticleLinkVector> m_truthParticleLinkVec(m_truthParticleLinkVecKey);
-  SG::WriteDecorHandle<xAOD::TrackParticleContainer,ElementLink<xAOD::TruthParticleContainer> > m_particlesLink(m_particlesLinkKey);
-  SG::WriteDecorHandle<xAOD::TrackParticleContainer,int> m_particlesType(m_particlesTypeKey);
-  SG::WriteDecorHandle<xAOD::TrackParticleContainer,int> m_particlesOrigin(m_particlesOriginKey);
+  SG::ReadHandle<TrackTruthCollection> truthTracks(m_truthTracksKey);
+  SG::ReadHandle<xAODTruthParticleLinkVector> truthParticleLinkVec(m_truthParticleLinkVecKey);
+  SG::WriteDecorHandle<xAOD::TrackParticleContainer,ElementLink<xAOD::TruthParticleContainer> > particlesLink(m_particlesLinkKey);
+  SG::WriteDecorHandle<xAOD::TrackParticleContainer,int> particlesType(m_particlesTypeKey);
+  SG::WriteDecorHandle<xAOD::TrackParticleContainer,int> particlesOrigin(m_particlesOriginKey);
 
-  if(!m_particlesLink.isPresent()){ //no track particle container of this name is in SG
-    ATH_MSG_WARNING("TrackParticleTruthAlg: "<<m_particlesLink.name()<<" not found");
+  if(!particlesLink.isPresent()){ //no track particle container of this name is in SG
+    ATH_MSG_WARNING("TrackParticleTruthAlg: "<<particlesLink.name()<<" not found");
     return StatusCode::SUCCESS;
   }
 
-  if(!m_particlesLink.isValid()){
-    ATH_MSG_ERROR("Could not read " << m_particlesLink.name());
+  if(!particlesLink.isValid()){
+    ATH_MSG_ERROR("Could not read " << particlesLink.name());
     return StatusCode::FAILURE;
   }
 
-  if(!m_truthParticleLinkVec.isValid()){
-    ATH_MSG_ERROR("Could not read " << m_truthParticleLinkVec.name());
+  if(!truthParticleLinkVec.isValid()){
+    ATH_MSG_ERROR("Could not read " << truthParticleLinkVec.name());
     return StatusCode::FAILURE;
   }
 
-  if(!m_truthTracks.isValid()){
-    ATH_MSG_ERROR("Could not read " << m_truthTracks.name());
+  if(!truthTracks.isValid()){
+    ATH_MSG_ERROR("Could not read " << truthTracks.name());
     return StatusCode::FAILURE;
   }
 
-  const TrackTruthCollection truthTracks=*m_truthTracks;
-  const xAODTruthParticleLinkVector truthParticleLinkVec=*m_truthParticleLinkVec;
+  const TrackTruthCollection truthTrackColl=*truthTracks;
+  const xAODTruthParticleLinkVector truthParticleLinks=*truthParticleLinkVec;
 
   int partInd=0;
-  for( const auto particle : *m_particlesLink ){
+  for( const auto particle : *particlesLink ){
 
     if( !particle->trackLink().isValid() ){
       ATH_MSG_WARNING("Found TrackParticle with Invalid element link, skipping");
@@ -98,12 +98,12 @@ StatusCode TrackParticleTruthAlg::execute() {
     // look-up associated truth particle
 
     Trk::TrackTruthKey key(particle->trackLink());
-    auto result = truthTracks.find(key);
+    auto result = truthTrackColl.find(key);
     
     // if we found a match use it
-    if( result != truthTracks.end() ){
+    if( result != truthTrackColl.end() ){
       ATH_MSG_VERBOSE("Found track Truth: barcode  " << result->second.particleLink().barcode() << " evt " << result->second.particleLink().eventIndex());
-      link = truthParticleLinkVec.find(result->second.particleLink());
+      link = truthParticleLinks.find(result->second.particleLink());
       
       // if configured also get truth classification
 
@@ -119,17 +119,17 @@ StatusCode TrackParticleTruthAlg::execute() {
       ATH_MSG_DEBUG("Found matching xAOD Truth: barcode " << (*link)->barcode() << " pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi());
       // set element link 
       link.toPersistent();
-      m_particlesLink(*particle)=link;
+      particlesLink(*particle)=link;
 
     }
     else{ //no truth link, add a dummy
-      m_particlesLink(*particle)=ElementLink<xAOD::TruthParticleContainer>();
+      particlesLink(*particle)=ElementLink<xAOD::TruthParticleContainer>();
     }
 
     if( !m_truthClassifier.empty() ){
       //use index for these since it's the same particle
-      m_particlesType(partInd)=static_cast<int>(type);
-      m_particlesOrigin(partInd)=static_cast<int>(origin);
+      particlesType(partInd)=static_cast<int>(type);
+      particlesOrigin(partInd)=static_cast<int>(origin);
     }
     partInd++;
   }
