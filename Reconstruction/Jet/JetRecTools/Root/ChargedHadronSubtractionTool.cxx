@@ -30,7 +30,7 @@ StatusCode ChargedHadronSubtractionTool::removePileupChargedHadrons(xAOD::PFOCon
 
   SG::AuxElement::Accessor<bool> PVMatchedAcc("matchedToPV");
   for ( xAOD::PFO* ppfo : cont ) {
-    if(ppfo->charge() == 0) continue;
+    if(fabs(ppfo->charge()) < 1e-9) continue;
 
     if (!PVMatchedAcc.isAvailable(*ppfo)){
       ATH_MSG_ERROR("Not known if PFO is matched to primary vertex.  Run CorrectPFOTool before ChargedHadronSubtractionTool");
