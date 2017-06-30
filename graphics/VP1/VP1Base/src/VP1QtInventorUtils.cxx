@@ -154,7 +154,6 @@ public:
 		} endianTest;
 		ImageRec *image;
 		int swapFlag;
-		int x;
 
 		endianTest.testWord = 1;
 		if (endianTest.testByte[0] == 1) {
