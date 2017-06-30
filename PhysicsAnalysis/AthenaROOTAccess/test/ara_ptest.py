@@ -12,10 +12,10 @@
 #
 
 import ROOT
-import PyCintex
+import cppyy
 import AthenaROOTAccess.transientTree
 
-PyCintex.loadDictionary("libDataModelTestDataWriteDict")
+cppyy.loadDictionary("libDataModelTestDataWriteDict")
 
 f = ROOT.TFile ('../../../Control/DataModelTest/DataModelRunTests/run/SimplePoolFile.root')
 tt = AthenaROOTAccess.transientTree.makeTree (f,
