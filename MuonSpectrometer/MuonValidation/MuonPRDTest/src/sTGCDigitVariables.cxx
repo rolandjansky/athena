@@ -155,7 +155,7 @@ StatusCode sTGCDigitVariables::fillVariables()
 			m_NSWsTGC_dig_truth_globalPosY->push_back( hit_gpos[1] );
 			m_NSWsTGC_dig_truth_globalPosZ->push_back( hit_gpos[2] );
 		}
-
+        if(channelType == 0) m_NSWsTGC_nPadDigits++;
 		m_NSWsTGC_nDigits++;
 	}
 }
@@ -169,6 +169,7 @@ StatusCode sTGCDigitVariables::clearVariables()
 {
 
   m_NSWsTGC_nDigits = 0;
+  m_NSWsTGC_nPadDigits = 0;
   m_NSWsTGC_dig_time->clear();
   m_NSWsTGC_dig_bctag->clear();
   m_NSWsTGC_dig_charge->clear();
@@ -223,6 +224,7 @@ StatusCode sTGCDigitVariables::initializeVariables()
 {
 
   m_NSWsTGC_nDigits    				= 0;
+  m_NSWsTGC_nPadDigits    				= 0;
   m_NSWsTGC_dig_time     			= new std::vector<double>();
   m_NSWsTGC_dig_bctag     			= new std::vector<int>();
   m_NSWsTGC_dig_charge   			= new std::vector<double>();
@@ -272,6 +274,7 @@ StatusCode sTGCDigitVariables::initializeVariables()
 
   if(m_tree) {
     m_tree->Branch("Digit_sTGC", 						 &m_NSWsTGC_nDigits, "Digits_sTGC_n/i");
+    m_tree->Branch("Digit_sTGC_Pad_Digits", 						 &m_NSWsTGC_nPadDigits, "Digit_sTGC_Pad_Digits_n/i");
     m_tree->Branch("Digit_sTGC_time",       "std::vector< double >", &m_NSWsTGC_dig_time);
     m_tree->Branch("Digit_sTGC_bctag",       "std::vector< int >", &m_NSWsTGC_dig_bctag);
     m_tree->Branch("Digit_sTGC_charge",     "std::vector< double >", &m_NSWsTGC_dig_charge);
@@ -374,6 +377,7 @@ StatusCode sTGCDigitVariables::deleteVariables()
 
 
   m_NSWsTGC_nDigits      = 0;
+  m_NSWsTGC_nPadDigits      = 0;
   m_NSWsTGC_dig_time     = nullptr;
   m_NSWsTGC_dig_bctag    = nullptr;
   m_NSWsTGC_dig_charge   = nullptr;

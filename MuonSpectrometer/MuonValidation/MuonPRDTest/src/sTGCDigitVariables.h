@@ -16,6 +16,7 @@ class sTGCDigitVariables : public ValAlgVariables
                      std::string containername) :
     ValAlgVariables(evtStore, detManager, tree, containername, "sTGCDigitVariables"),
     m_NSWsTGC_nDigits(0),
+    m_NSWsTGC_nPadDigits(0),
     m_NSWsTGC_dig_time(0),
     m_NSWsTGC_dig_bctag(0),
     m_NSWsTGC_dig_charge(0),
@@ -90,6 +91,7 @@ class sTGCDigitVariables : public ValAlgVariables
   const sTgcIdHelper* m_sTgcIdHelper;
 
   int m_NSWsTGC_nDigits;
+  int m_NSWsTGC_nPadDigits;
   std::vector<double> *m_NSWsTGC_dig_time;
   std::vector<int> *m_NSWsTGC_dig_bctag;
   std::vector<double> *m_NSWsTGC_dig_charge;
