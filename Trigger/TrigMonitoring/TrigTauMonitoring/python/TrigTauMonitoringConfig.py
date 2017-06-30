@@ -67,8 +67,8 @@ def TrigTauMonitoringTool():
 
 	highpt_tau = [
 		'tau80_medium1_tracktwo_L1TAU60',
-		'tau160_idperf_tracktwo',
-		'tau160_medium1_tracktwo',
+		'tau160_idperf_tracktwo_L1TAU100',
+		'tau160_medium1_tracktwo_L1TAU100',
 	]
 	# removed highpt_tau chains:
 	# 'tau160_medium1HighptL_tracktwo',
