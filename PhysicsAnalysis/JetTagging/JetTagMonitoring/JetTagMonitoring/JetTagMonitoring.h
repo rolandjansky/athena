@@ -87,7 +87,7 @@ private:
     void fillBadJetHistos(const xAOD::Jet *jet);
     void fillDetailedHistograms(const xAOD::Jet *jet, Jet_t taggabilityLabel);
     void fillTrackInJetHistograms(const xAOD::Jet *jet);
-    void fillBtagHistograms(const xAOD::Jet *jet, bool is_top_event); // added by SARA;
+    void fillBtagHistograms(const xAOD::Jet *jet, bool fill_top_histos); // added by SARA;
     void fillBadTrackBits(const std::bitset<17> failedCuts, double eta, double phi);
     void fillEffHist(TH1 * h_passed, TH1 * h_all, TH1F_LW * effHist);
     //void fillBadZone(int zone, double w);

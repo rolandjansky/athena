@@ -89,35 +89,35 @@ JetTagMonitoring::JetTagMonitoring(const std::string & type, const std::string &
   declareProperty("JetEta_cuts", m_jet_eta_cut = 2.5);
   declareProperty("nTrk_cuts", m_trk_n = 1);
   declareProperty("SV1IP3D_weight_cut", m_sv1ip3d_weight_cut=0.);
-  declareProperty("MV_algorithmName", m_mv_algorithmName="MV2c10");
   declareProperty("MV_60_cut", m_mv_60_weight_cut=0.934906);
   declareProperty("MV_70_cut", m_mv_70_weight_cut=0.8244273);
   declareProperty("MV_77_cut", m_mv_77_weight_cut=0.645925);
   declareProperty("MV_85_cut", m_mv_85_weight_cut=0.1758475);
+  declareProperty("MV_algorithmName", m_mv_algorithmName="MV2c10"); // added by SARA
 
   declareProperty("UseTrackSelector", m_use_trackselector = true);
   declareProperty("UseTrigDecisionTool", m_use_trigdectool = true);
   declareProperty("doLumiBlock",     m_doLumiBlock=false);
   declareProperty("doStatus",        m_doStatus = false);
 
-  declareProperty( "ElectronPtCut", m_ElectronPtCut = 25.0 ); // in GeV
-  declareProperty( "MuonPtCut", m_MuonPtCut = 25.0 ); // in GeV
-  declareProperty( "ElectronEtaCut", m_ElectronEtaCut = 2.47 );
-  declareProperty( "MuonEtaCut", m_MuonEtaCut = 2.5 );
-  declareProperty( "ElectronEtaCrackLowCut", m_ElectronEtaCrackLowCut = 1.37 );
-  declareProperty( "ElectronEtaCrackHighCut", m_ElectronEtaCrackHighCut = 1.52 );
+  declareProperty( "ElectronPtCut", m_ElectronPtCut = 25.0 ); // added by SARA - in GeV
+  declareProperty( "MuonPtCut", m_MuonPtCut = 25.0 ); // added by SARA - in GeV
+  declareProperty( "ElectronEtaCut", m_ElectronEtaCut = 2.47 ); // added by SARA
+  declareProperty( "MuonEtaCut", m_MuonEtaCut = 2.4 ); // added by SARA
+  declareProperty( "ElectronEtaCrackLowCut", m_ElectronEtaCrackLowCut = 1.37 ); // added by SARA
+  declareProperty( "ElectronEtaCrackHighCut", m_ElectronEtaCrackHighCut = 1.52 ); // added by SARA
 
-  declareProperty( "ElectronTopoEtCone20Cut", m_ElectronTopoEtCone20Cut = 0.06 ); // 0.06 corresponds to the FixedTightCut working point
-  declareProperty( "MuonTopoEtCone20Cut", m_MuonTopoEtCone20Cut = 0.06 ); // 0.06 corresponds to the FixedTightCut working point
-  declareProperty( "ElectronPtVarCone20Cut", m_ElectronPtVarCone20Cut = 0.06 ); // 0.06 corresponds to the FixedTightCut working point
-  declareProperty( "MuonPtVarCone20Cut", m_MuonPtVarCone20Cut = 0.06 ); // 0.06 corresponds to the FixedTightCut working point
+  declareProperty( "ElectronTopoEtCone20Cut", m_ElectronTopoEtCone20Cut = 0.06 ); // added by SARA -0.06 corresponds to the FixedTightCut working point
+  declareProperty( "MuonTopoEtCone20Cut", m_MuonTopoEtCone20Cut = 0.06 ); // added by SARA -0.06 corresponds to the FixedTightCut working point
+  declareProperty( "ElectronPtVarCone20Cut", m_ElectronPtVarCone20Cut = 0.06 ); // added by SARA -0.06 corresponds to the FixedTightCut working point
+  declareProperty( "MuonPtVarCone20Cut", m_MuonPtVarCone20Cut = 0.06 ); // added by SARA -0.06 corresponds to the FixedTightCut working point
   
-  declareProperty( "ElectronTrigger_2016", m_ElectronTrigger_2016 = "HLT_e26_lhtight_nod0_ivarloose" );
-  declareProperty( "MuonTrigger_2016", m_MuonTrigger_2016 = "HLT_mu26_ivarmedium" );
-  declareProperty( "JetTrigger_2016", m_JetTrigger_2016 = "HLT_j15" );
-  declareProperty( "ElectronTrigger_2017", m_ElectronTrigger_2017 = "HLT_e28_lhtight_nod0_ivarloose" );
-  declareProperty( "MuonTrigger_2017", m_MuonTrigger_2017 = "HLT_mu26_ivarmedium" );
-  declareProperty( "JetTrigger_2017", m_JetTrigger_2017 = "HLT_j15" );
+  declareProperty( "ElectronTrigger_2016", m_ElectronTrigger_2016 = "HLT_e26_lhtight_nod0_ivarloose" ); // added by SARA
+  declareProperty( "MuonTrigger_2016", m_MuonTrigger_2016 = "HLT_mu26_ivarmedium" ); // added by SARA
+  declareProperty( "JetTrigger_2016", m_JetTrigger_2016 = "HLT_j15" ); // added by SARA
+  declareProperty( "ElectronTrigger_2017", m_ElectronTrigger_2017 = "HLT_e28_lhtight_nod0_ivarloose" ); // added by SARA
+  declareProperty( "MuonTrigger_2017", m_MuonTrigger_2017 = "HLT_mu26_ivarmedium" ); // added by SARA
+  declareProperty( "JetTrigger_2017", m_JetTrigger_2017 = "HLT_j15" ); // added by SARA
 
   m_isNewLumiBlock = false;
 }
@@ -1075,6 +1075,9 @@ void JetTagMonitoring::fillJetHistograms() {
 
   m_jet_n->Fill((*jets).size());
   
+  int n_jets_kinematic = 0; // added by SARA
+  xAOD::JetContainer::const_iterator firstKinematicjetItr = jets->end(); // added by SARA
+  
   // Loop over jets
   for ( ; jetItr != jetEnd; jetItr++) {
     
@@ -1097,18 +1100,30 @@ void JetTagMonitoring::fillJetHistograms() {
     // Jets passing kinemtic cuts
 
     m_cutflow_jet->Fill(2.); // jets passing kinematic cuts
+    if (n_jets_kinematic == 0) firstKinematicjetItr = jetItr; // added by SARA - save this iterator since I will need to fill top histograms also for this 1st one if I find a 2nd kinematic jet later
+    ++n_jets_kinematic; // added by SARA
 
     m_jet_2D_kinematic->Fill((*jetItr)->eta(), (*jetItr)->phi(), 1.);
     m_jet_2D_kinematic_LS->Fill((*jetItr)->eta(), (*jetItr)->phi(), 1.);
 
     fillTrackInJetHistograms(*jetItr); // fill histograms with properties of associated tracks
 
-    if (is_top_event) {
+    if (is_top_event && n_jets_kinematic >= 2) { // added by SARA - I have at least 2 kinematic jets, so want to fill top histograms
       m_jet_top->Fill(0., 1.); // added by SARA
       m_jet_pt_top->Fill((*jetItr)->pt() / CLHEP::GeV, 1.); // added by SARA
+      if (n_jets_kinematic == 2) { // added by SARA - now I know I have (at least) two kinematic jets, so I want to fill also for 1st kinematic jet
+	m_jet_top->Fill(0., 1.); // added by SARA
+	m_jet_pt_top->Fill((*firstKinematicjetItr)->pt() / CLHEP::GeV, 1.); // added by SARA
+      }
     }
 
-    fillBtagHistograms(*jetItr, is_top_event); // added by SARA; fill histograms with b-tagging information (tag weights etc)
+    fillBtagHistograms(*jetItr, false); // added by SARA; fill non-top histograms with b-tagging information (tag weights etc)
+    if (is_top_event && n_jets_kinematic >= 2) { // added by SARA - I have at least 2 kinematic jets, so want to fill top histograms
+      fillBtagHistograms(*jetItr, true); // added by SARA; fill histograms with b-tagging information (tag weights etc)
+      if (n_jets_kinematic == 2) { // added by SARA - now I know I have (at least) two kinematic jets, so I want to fill also for 1st kinematic jet
+	fillBtagHistograms(*firstKinematicjetItr, true); // added by SARA; fill histograms with b-tagging information (tag weights etc)
+      }
+    }
     
     Jet_t taggabilityLabel = getTaggabilityLabel(*jetItr); // check if jet is taggable (defined as goodJet or suspectJet)
     
@@ -1182,7 +1197,7 @@ void JetTagMonitoring::fillTrackInJetHistograms(const xAOD::Jet *jet) {
   return;
 }
 
-void JetTagMonitoring::fillBtagHistograms(const xAOD::Jet *jet, bool is_top_event) { // added by SARA (just moved already existing code into this function for better readibility)
+void JetTagMonitoring::fillBtagHistograms(const xAOD::Jet *jet, bool fill_top_histos) { // added by SARA (just moved already existing code into this function for better readibility)
   
   const xAOD::BTagging* btag = jet->btagging();
   
@@ -1193,32 +1208,30 @@ void JetTagMonitoring::fillBtagHistograms(const xAOD::Jet *jet, bool is_top_even
   btag->MVx_discriminant(m_mv_algorithmName,mv_tmp);
   double mv = mv_tmp;
   
-  if (is_top_event) {
+  ATH_MSG_DEBUG("btagging weights: " << "SV1IP3D: " << sv1ip3d << ", MV: "  << mv);
+  
+  if (fill_top_histos) { // added by SARA - fill top histograms
     m_jet_mv_w_top->Fill(mv); // added by SARA
-  }	
-  
-  /* fill the 2D SV1IP3D rate */
-  if ( sv1ip3d > m_sv1ip3d_weight_cut ) {
-    m_sv1ip3d_tag_pos_rate_2D->Fill(jet->eta(), jet->phi(), 1.);
-  } 
-  else {
-    m_sv1ip3d_tag_neg_rate_2D->Fill(jet->eta(), jet->phi(), 1.);
-  }
-  
-  /* fill the 2D MV histos */
-  if ( mv > m_mv_60_weight_cut ) m_mv_tag_60_2D->Fill(jet->eta(), jet->phi(), 1.);
-  if ( mv > m_mv_70_weight_cut ) m_mv_tag_70_2D->Fill(jet->eta(), jet->phi(), 1.);
-  if ( mv > m_mv_77_weight_cut ) m_mv_tag_77_2D->Fill(jet->eta(), jet->phi(), 1.);	
-  
-  if (is_top_event) {
     if (mv > m_mv_70_weight_cut) {
       m_jet_top_tagged->Fill(0., 1.); // added by SARA
       m_jet_pt_top_tagged->Fill(jet->pt() / CLHEP::GeV, 1.); // added by SARA
     }
   }
-  
-  ATH_MSG_DEBUG("btagging weights: " << "SV1IP3D: " << sv1ip3d << ", MV: "  << mv);
-  
+  else { // added by SARA - fill non-top histograms
+    /* fill the 2D SV1IP3D rate */
+    if ( sv1ip3d > m_sv1ip3d_weight_cut ) {
+      m_sv1ip3d_tag_pos_rate_2D->Fill(jet->eta(), jet->phi(), 1.);
+    } 
+    else {
+      m_sv1ip3d_tag_neg_rate_2D->Fill(jet->eta(), jet->phi(), 1.);
+    }
+    
+    /* fill the 2D MV histos */
+    if ( mv > m_mv_60_weight_cut ) m_mv_tag_60_2D->Fill(jet->eta(), jet->phi(), 1.);
+    if ( mv > m_mv_70_weight_cut ) m_mv_tag_70_2D->Fill(jet->eta(), jet->phi(), 1.);
+    if ( mv > m_mv_77_weight_cut ) m_mv_tag_77_2D->Fill(jet->eta(), jet->phi(), 1.);	
+  }
+ 
   return;
   
 }
