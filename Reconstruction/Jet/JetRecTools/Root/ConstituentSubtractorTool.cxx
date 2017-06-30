@@ -19,9 +19,28 @@ ConstituentSubtractorTool::ConstituentSubtractorTool(const std::string & name): 
   declareProperty("Alpha", m_alpha=1.);
   declareProperty("MaxEta", m_maxEta=10.);
   declareProperty("MaxRapForRhoComputation", m_maxRapForRhoComputation=2.0);
+
+  // Option to disregard cPFOs in the weight calculation
+  declareProperty("IgnoreChargedPFO", m_ignoreChargedPFOs=true);
 }
 
-// Apply PU weighting and decorate the IParticle container appropriately:
+
+StatusCode ConstituentSubtractorTool::initialize() {
+
+  if(m_inputType==xAOD::Type::ParticleFlow) {
+    if(m_ignoreChargedPFOs && m_applyToChargedPFO) {
+      ATH_MSG_ERROR("Incompatible configuration: setting both IgnoreChargedPFO and ApplyToChargedPFO to true"
+		    <<  "will set all cPFOs to zero");
+      return StatusCode::FAILURE;
+    }
+    if(!m_applyToNeutralPFO) {
+      ATH_MSG_ERROR("Incompatible configuration: ApplyToNeutralPFO=False -- what kind of pileup do you wish to suppress?");
+      return StatusCode::FAILURE;
+    }
+  }
+  return StatusCode::SUCCESS;
+}
+
 	
 StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* cont) const {
 
@@ -59,7 +78,6 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
       ATH_MSG_VERBOSE("Will not correct " << part->type() << " with pt " << part->pt());
       inputs_to_not_correct.push_back(pj);
     }
-
     ++i;
   }
 

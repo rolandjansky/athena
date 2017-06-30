@@ -75,9 +75,28 @@ VoronoiWeightTool :: VoronoiWeightTool(const std::string& name) :
 
   declareProperty("doSpread", m_doSpread);
   declareProperty("nSigma", m_nSigma);
+
+  // Option to disregard cPFOs in the weight calculation
+  declareProperty("IgnoreChargedPFO", m_ignoreChargedPFOs);
 }
 
 VoronoiWeightTool::~VoronoiWeightTool() {}
+
+StatusCode VoronoiWeightTool::initialize() {
+
+  if(m_inputType==xAOD::Type::ParticleFlow) {
+    if(m_ignoreChargedPFOs && m_applyToChargedPFO) {
+      ATH_MSG_ERROR("Incompatible configuration: setting both IgnoreChargedPFO and ApplyToChargedPFO to true"
+		    <<  "will set all cPFOs to zero");
+      return StatusCode::FAILURE;
+    }
+    if(!m_applyToNeutralPFO) {
+      ATH_MSG_ERROR("Incompatible configuration: ApplyToNeutralPFO=False -- what kind of pileup do you wish to suppress?");
+      return StatusCode::FAILURE;
+    }
+  }
+  return StatusCode::SUCCESS;
+}
 
 //Have to define custom comparator for PseudoJets in order to have a map from PJs to anything
 //Comparison is fuzzy to account for rounding errors
@@ -89,12 +108,18 @@ StatusCode VoronoiWeightTool::process_impl(xAOD::IParticleContainer* particlesin
   std::vector<fastjet::PseudoJet> particles; particles.reserve(particlesin->size());
 
   for(auto part: *particlesin){
-    //read in particles as PseudoJets
-    fastjet::PseudoJet test;
-    test = fastjet::PseudoJet(part->p4());
-    if(part->e() >= 0){
-	particles.push_back(test);
-	if(m_debug) std::cout << part->pt() << std::endl;
+    // Only use positive E
+    bool accept = part->e() > 1e-9;
+    // For PFlow we would only want to apply the correction to neutral PFOs,
+    // because charged hadron subtraction handles the charged PFOs.
+    // However, we might still want to use the cPFOs for the min pt calculation
+    if(m_inputType==xAOD::Type::ParticleFlow && m_ignoreChargedPFOs) {
+      xAOD::PFO* pfo = static_cast<xAOD::PFO*>(part);
+      accept = fabs(pfo->charge())>1e-9;
+    }
+    if(accept) {
+      particles.push_back( fastjet::PseudoJet(part->p4()) );
+      if(m_debug) ATH_MSG_VERBOSE( "Accepted particle with pt " << part->pt() );
     }
   }
 

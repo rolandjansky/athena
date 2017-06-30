@@ -35,6 +35,9 @@ public:
   // Destructor:
   ~VoronoiWeightTool();
 
+  // Check that the configuration is sane
+  StatusCode initialize();
+
 protected:
   // Implement the correction
   StatusCode process_impl(xAOD::IParticleContainer* cont) const;
@@ -47,6 +50,7 @@ protected:
   bool m_doSpread = true;
   int m_nSigma = 0;
 
+  bool m_ignoreChargedPFOs=true;
 
   // this is needed to distribute the algorithm to the workers
   //ClassDef(VoronoiWeightTool, 1);
