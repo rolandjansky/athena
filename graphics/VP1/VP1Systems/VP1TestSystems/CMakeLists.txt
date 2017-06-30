@@ -32,7 +32,7 @@ set( CMAKE_AUTORCC TRUE )
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # Commenting out for the moment, in case it really was needed.
-# include_directories( /usr/X11R6/include )
+# 
 
 # Component(s) in the package:
 atlas_add_library( VP1TestSystems VP1TestSystems/*.h src/*.h src/*.cxx src/*.qrc  

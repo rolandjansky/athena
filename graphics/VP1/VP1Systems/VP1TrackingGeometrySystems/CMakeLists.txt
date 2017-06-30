@@ -35,7 +35,7 @@ set( CMAKE_AUTORCC TRUE )
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 
-include_directories( /usr/X11R6/include )
+
 
 # Component(s) in the package:
 atlas_add_library( VP1TrackingGeometrySystems VP1TrackingGeometrySystems/*.h src/*.h src/*.cxx src/*.qrc  

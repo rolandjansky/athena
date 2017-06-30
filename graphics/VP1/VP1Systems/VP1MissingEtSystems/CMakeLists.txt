@@ -17,7 +17,7 @@ find_package( CLHEP )
 find_package( Coin3D )
 
 
-include_directories( /usr/X11R6/include )
+
 
 # Generate UI files automatically:
 set( CMAKE_AUTOUIC TRUE )

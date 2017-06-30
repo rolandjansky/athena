@@ -25,7 +25,7 @@ find_package( Coin3D )
 find_package( Eigen )
 find_package( Qt5 COMPONENTS Core Gui  )
 
-include_directories( /usr/X11R6/include )
+
 
 # Generate UI files automatically:
 set( CMAKE_AUTOUIC TRUE )

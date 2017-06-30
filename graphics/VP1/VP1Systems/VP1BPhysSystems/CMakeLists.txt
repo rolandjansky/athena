@@ -24,7 +24,7 @@ find_package( Coin3D )
 find_package( Eigen )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread Table MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 
-include_directories( /usr/X11R6/include )
+
 
 # Generate UI files automatically:
 set( CMAKE_AUTOUIC TRUE )

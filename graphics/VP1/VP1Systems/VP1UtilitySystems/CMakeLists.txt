@@ -27,7 +27,7 @@ set( CMAKE_AUTORCC TRUE )
 # to let CMake find .h files automatically-generated from .ui files
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-include_directories( /usr/X11R6/include )
+
 
 # Component(s) in the package:
 atlas_add_library( VP1UtilitySystems VP1UtilitySystems/*.h src/*.h src/*.cxx src/*.qrc  
