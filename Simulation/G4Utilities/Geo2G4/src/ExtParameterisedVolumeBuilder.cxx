@@ -13,12 +13,6 @@
 #include "G4ReflectionFactory.hh"
 #include "G4VPVParameterisation.hh"
 #include "G4PVParameterised.hh"
-#include "G4AffineTransform.hh"
-#include "G4UnitsTable.hh"
-#include "G4LogicalVolume.hh"
-#include "G4VSolid.hh"
-#include "G4SubtractionSolid.hh"
-#include "G4PhysicalVolumeStore.hh"
 #include "globals.hh"
 
 #include "SimHelpers/ServiceAccessor.h"
