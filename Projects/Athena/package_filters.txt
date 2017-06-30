@@ -19,6 +19,17 @@
 # Abandoned generator package(s):
 - Generators/Herwigpp_i
 
+# Temporary VP1 compilation issues
++ graphics/VP1/VP1HEPVis
++ graphics/VP1/VP1Base
++ graphics/VP1/VP1UtilsBase
++ graphics/VP1/VP1Gui
++ graphics/VP1/VP1Algs
++ graphics/VP1/VP1Utils
++ graphics/VP1/VP1Systems/VP1AODSystems
++ graphics/VP1/VP1Plugins/VP1AODPlugin
+- graphics/VP1/.*
+
 # Some analysis packages that are not part of Athena
 - AsgExternal/Asg_Test
 - Control/AthLinksSA
