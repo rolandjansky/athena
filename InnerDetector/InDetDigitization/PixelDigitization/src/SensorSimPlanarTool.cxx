@@ -94,15 +94,17 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
   double tanLorentz = Module.getTanLorentzAnglePhi();
   double coLorentz=sqrt(1+pow(tanLorentz,2));
 
-  if( Module.isDBM()){
-    ATH_MSG_INFO("eta_i : "<<eta_i);
-    ATH_MSG_INFO("phi_i : "<<phi_i);
-    ATH_MSG_INFO("depth_i : "<<depth_i);
-    ATH_MSG_INFO("iTotalLength : "<<iTotalLength);
-    ATH_MSG_INFO("eleholeenergy : "<<eleholePairEnergy);
-    ATH_MSG_INFO("smearRand : "<<smearRand);
-    ATH_MSG_INFO("tanLorentz : "<<tanLorentz);
-  }
+  ATH_MSG_INFO("sensor_thickness: "<<sensorThickness);
+  ATH_MSG_INFO("eta_0: "<<eta_i);
+  ATH_MSG_INFO("phi_0: "<<phi_i);
+  ATH_MSG_INFO("depth_0: "<<depth_i);
+  ATH_MSG_INFO("dEta: "<<dEta);
+  ATH_MSG_INFO("dPhi: "<<dPhi);
+  ATH_MSG_INFO("dDepth: "<<dDepth);
+  ATH_MSG_INFO("nCharges: "<<ncharges);
+  ATH_MSG_INFO("iTotalLength: "<<iTotalLength);
+  ATH_MSG_INFO("trfHitRecord: "<<trfHitRecord.size());
+
   //**************************************//
   //*** Now diffuse charges to surface *** //
   //**************************************//
@@ -115,6 +117,9 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
       depth_i  += 1.0*iHitRecord.first/iTotalLength*dDepth;
     }
     
+  ATH_MSG_INFO("eta_i: "<<eta_i);
+  ATH_MSG_INFO("phi_i: "<<phi_i);
+  ATH_MSG_INFO("depth_i: "<<depth_i);
     // Distance between charge and readout side.  p_design->readoutSide() is
     // +1 if readout side is in +ve depth axis direction and visa-versa.
     double dist_electrode = 0.5 * sensorThickness - Module.design().readoutSide() * depth_i;
@@ -132,8 +137,12 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
       double rdif=this->m_diffusionConstant*sqrt(dist_electrode*coLorentz/0.3);
 
       // position at the surface
-      double phi_drifted=phi_i+dist_electrode*tanLorentz+rdif*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
-      double eta_drifted=eta_i+rdif*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+      double phiRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+      double phi_drifted=phi_i+dist_electrode*tanLorentz+rdif*phiRand;
+      double etaRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+      double eta_drifted=eta_i+rdif*etaRand;
+      ATH_MSG_INFO("phiRand: "<<phiRand);
+      ATH_MSG_INFO("etaRand: "<<etaRand);
 
       // amount of energy to be converted into charges at current step
       double energy_per_step = 1.0*iHitRecord.second/1.E+6/ncharges;
@@ -174,19 +183,6 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
         ed=energy_per_step*eleholePairEnergy;
       }
 
-      if( Module.isDBM()){
-          ATH_MSG_INFO("eta_i : "<<eta_i);
-          ATH_MSG_INFO("phi_i : "<<phi_i);
-          ATH_MSG_INFO("depth_i : "<<depth_i);
-          ATH_MSG_INFO("dist_electrode : "<<dist_electrode);
-          ATH_MSG_INFO("rdif : "<<rdif);
-          ATH_MSG_INFO("eta_drifted : "<<eta_drifted);
-          ATH_MSG_INFO("phi_drifted : "<<phi_drifted);
-          ATH_MSG_INFO("energy_pers_step : "<<energy_per_step);
-          ATH_MSG_INFO("collectedCharge : "<<ed);
-          ATH_MSG_INFO("------------------------------------------------");
-      }
-
       //The following lines are adapted from SiDigitization's Inserter class
       SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));
 
@@ -199,5 +195,6 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
       }
     }									
   }
+  ATH_MSG_INFO("==============================");
   return StatusCode::SUCCESS;
 }

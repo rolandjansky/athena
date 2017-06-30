@@ -108,6 +108,15 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiCharg
   double module_size_y = Module.length();
   
 
+  ATH_MSG_INFO("sensor_thickness: "<<sensorThickness);
+  ATH_MSG_INFO("eta_0: "<<eta_i);
+  ATH_MSG_INFO("phi_0: "<<phi_i);
+  ATH_MSG_INFO("depth_0: "<<depth_i);
+  ATH_MSG_INFO("dEta: "<<dEta);
+  ATH_MSG_INFO("dPhi: "<<dPhi);
+  ATH_MSG_INFO("dDepth: "<<dDepth);
+  ATH_MSG_INFO("iTotalLength: "<<iTotalLength);
+  ATH_MSG_INFO("trfHitRecord: "<<trfHitRecord.size());
   // *** Now diffuse charges to surface *** //
   // We split the G4 step into several sub steps. The charge will be deposited at the mid point
   // of these steps
@@ -120,6 +129,9 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiCharg
       depth_i  += 1.0*iHitRecord.first/iTotalLength*dDepth;
     }
 
+  ATH_MSG_INFO("eta_i: "<<eta_i);
+  ATH_MSG_INFO("phi_i: "<<phi_i);
+  ATH_MSG_INFO("depth_i: "<<depth_i);
     double es_current = 1.0*iHitRecord.second/1.E+6;
 
     double dist_electrode = 0.5 * sensorThickness - Module.design().readoutSide() * depth_i;
@@ -194,6 +206,8 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiCharg
       }
     }
   }
+
+  ATH_MSG_INFO("==============================");
 
   return StatusCode::SUCCESS;
 }

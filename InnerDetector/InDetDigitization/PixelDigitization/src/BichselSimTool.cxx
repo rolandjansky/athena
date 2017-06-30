@@ -242,20 +242,6 @@ StatusCode BichselSimTool::finalize() {
   initialConditions.push_back( iTotalLength );
 
   // ultimate feed in to the diffusion (to surface) part
-	  ATH_MSG_INFO("sensorThickness: "<<sensorThickness);
-	  ATH_MSG_INFO("stepsize: "<<stepsize);
-	  ATH_MSG_INFO("eta_0: "<<eta_0);
-	  ATH_MSG_INFO("phi_0: "<<phi_0);
-	  ATH_MSG_INFO("depth_0: "<<depth_0);
-	  ATH_MSG_INFO("eta_f: "<<eta_f);
-	  ATH_MSG_INFO("phi_f: "<<phi_f);
-	  ATH_MSG_INFO("depth_f: "<<depth_f);
-	  ATH_MSG_INFO("depth_f: "<<depth_f);
-	  ATH_MSG_INFO("nsteps: "<<nsteps);
-	  ATH_MSG_INFO("ncharges: "<<ncharges);
-	  ATH_MSG_INFO("iTotalLength: "<<iTotalLength);
-	  ATH_MSG_INFO("depth_f: "<<depth_f);
-          ATH_MSG_INFO("===================================");
 
   // -1 ParticleType means we are unable to run Bichel simulation for this case
   int ParticleType = -1;
@@ -424,8 +410,11 @@ std::vector<std::pair<double,double> > BichselSimTool::BichselSim(double BetaGam
 
     // sample hit position -- exponential distribution
     double HitPosition = 0.;
-    for(int iHit = 0; iHit < m_nCols; iHit++) HitPosition += CLHEP::RandExpZiggurat::shoot(m_rndmEngine, lambda);
-
+    for(int iHit = 0; iHit < m_nCols; iHit++){
+	    double cat = CLHEP::RandExpZiggurat::shoot(m_rndmEngine, lambda);
+	    HitPosition += cat;
+	    //ATH_MSG_INFO("cat: "<<cat);
+    }
     // termination by hit position
     // yes, in case m_nCols > 1, we will loose the last m_nCols collisions. So m_nCols cannot be too big
     if(accumLength + HitPosition >= TotalLength)
@@ -435,6 +424,7 @@ std::vector<std::pair<double,double> > BichselSimTool::BichselSim(double BetaGam
     double TossEnergyLoss = -1.;
     while(TossEnergyLoss <= 0.){ // we have to do this because sometimes TossEnergyLoss will be negative due to too small TossIntX
       double TossIntX = CLHEP::RandFlat::shoot(m_rndmEngine, 0., IntXUpperBound);
+     // ATH_MSG_INFO("TossIntX: "<<TossIntX);
       TossEnergyLoss = GetColE(indices_BetaGammaLog10, TMath::Log10(TossIntX), iData);
     }
 
