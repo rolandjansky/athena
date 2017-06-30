@@ -169,10 +169,22 @@ public:
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-  // since the contents of the VarHandleKeyArrays have not been read 
+  // Since the contents of the VarHandleKeyArrays have not been read 
   // in from the configurables by the time that declareProperty is
   // executed, we must cache them and loop through them later to
-  // register the data dependencies
+  // register the data dependencies.
+  //
+  // However, we cannot actually call declare() on the key instances
+  // until we know that the vector cannot change size anymore --- otherwise,
+  // the pointers given to declare() may become invalid.  That basically means
+  // that we can't call declare() until the derived class's initialize()
+  // completes.  So instead of doing it here (which would be too early),
+  // we override sysInitialize() and do it at the end of that.  But,
+  // Algorithm::sysInitialize() wants to have the handle lists after initialize()
+  // completes in order to do dependency analysis.  It gets these lists
+  // solely by calling inputHandles() and outputHandles(), so we can get this
+  // to work by overriding those methods and adding in the current contents
+  // of the arrays.
 
   void updateVHKA(Property& /*p*/) {
     // debug() << "updateVHKA for property " << p.name() << " " << p.toString() 
@@ -180,7 +192,6 @@ public:
     for (auto &a : m_vhka) {
       std::vector<SG::VarHandleKey*> keys = a->keys();
       for (auto k : keys) {
-        this->declare(*k);
         k->setOwner(this);
       }
     }
@@ -234,6 +245,36 @@ public:
 
   }
 
+
+  /**
+   * @brief Perform system initialization for an algorithm.
+   *
+   * We override this to declare all the elements of handle key arrays
+   * at the end of initialization.
+   * See comments on updateVHKA.
+   */
+  virtual StatusCode sysInitialize() override;
+
+
+  /**
+   * @brief Return this algorithm's input handles.
+   *
+   * We override this to include handle instances from key arrays
+   * if they have not yet been declared.
+   * See comments on updateVHKA.
+   */
+  virtual std::vector<Gaudi::DataHandle*> inputHandles() const override;
+
+
+  /**
+   * @brief Return this algorithm's output handles.
+   *
+   * We override this to include handle instances from key arrays
+   * if they have not yet been declared.
+   * See comments on updateVHKA.
+   */
+  virtual std::vector<Gaudi::DataHandle*> outputHandles() const override;
+
   
   /**
    * @brief Return the list of extra output dependencies.
@@ -280,6 +321,8 @@ public:
   /// Extra output dependency collection, extended by AthAlgorithmDHUpdate
   /// to add symlinks.  Empty if no symlinks were found.
   DataObjIDColl m_extendedExtraObjects;
+
+  bool m_varHandleArraysDeclared;
 }; 
 
 /////////////////////////////////////////////////////////////////// 
