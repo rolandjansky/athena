@@ -30,6 +30,7 @@ StatusCode CorrectPFOTool::initialize() {
   if(m_inputType!=xAOD::Type::ParticleFlow) {
     ATH_MSG_ERROR("ChargedHadronSubtractionTool requires PFO inputs. It cannot operate on objects of type "
 		  << m_inputType);
+    return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
 }
