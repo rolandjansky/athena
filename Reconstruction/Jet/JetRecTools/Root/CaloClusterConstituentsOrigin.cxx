@@ -22,6 +22,7 @@ StatusCode CaloClusterConstituentsOrigin::initialize() {
   if(m_inputType!=xAOD::Type::CaloCluster) {
     ATH_MSG_ERROR("As the name suggests, CaloClusterConstituentsOrigin cannot operate on objects of type "
 		  << m_inputType);
+    return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
 }
