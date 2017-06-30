@@ -70,8 +70,8 @@ bool FTK_DuplicateTrackRemovalTool::match(const FTK_RawTrack* track, const FTK_R
 			}
 		}
 	}
-	ATH_MSG_INFO("Found "<<nmatchingpixclus<<" matching pix clus out of "<<pixclus.size());
-	ATH_MSG_INFO("Found "<<nmatchingsctclus<<" matching sct clus out of "<<sctclus.size());
+	ATH_MSG_DEBUG("Found "<<nmatchingpixclus<<" matching pix clus out of "<<pixclus.size());
+	ATH_MSG_DEBUG("Found "<<nmatchingsctclus<<" matching sct clus out of "<<sctclus.size());
 
 	int nclus = pixclus.size() + sctclus.size();
 	int nmatchingclus = nmatchingpixclus+nmatchingsctclus;
@@ -90,12 +90,12 @@ const FTK_RawTrack* FTK_DuplicateTrackRemovalTool::besttrack(const FTK_RawTrack*
 	if (oldtrackhits > trackhits) return oldtrack;
 
 	//in case of a tie, use chi2
-	if (track->getChi2()<oldtrack->getChi2()) return track;
+	if (track->getChi2() < oldtrack->getChi2()) return track; // smaller chi2 wins
 	else return oldtrack;
 }
 
 FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK_RawTrackContainer* trks){
-  ATH_MSG_INFO("ACH99 - I'm in removeDuplicates!");
+  ATH_MSG_DEBUG("ACH99 - I'm in removeDuplicates!");
   m_trks_nodups->clear();
   m_trks_nodups->reserve(trks->size());
   for (unsigned int i = 0; i!=trks->size(); i++) {
@@ -109,10 +109,12 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
 	  		  matching_oldtracks.push_back(e);
 	  	  }
 	  }
-	  ATH_MSG_INFO("Found "<<matching_oldtracks.size()<<" old tracks matching track "<<i);
+	  ATH_MSG_VERBOSE("Found "<<matching_oldtracks.size()<<" old tracks matching track "<<i);
+
 	  if (matching_oldtracks.size()==0){//if there's no match, just add the new track
 		  m_trks_nodups->push_back((FTK_RawTrack*)track);
 	  }
+
 	  //if it does match, either replace the matching track(s) with this new track, or ignore this new track, depending on which track we like best
 	  else if (matching_oldtracks.size()==1){
 		  unsigned int e = matching_oldtracks[0];
@@ -125,14 +127,43 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
 			  //nothing to do - the better track was already in the output container
 		  }
 	  }
+
 	  else { // more than 1 matching existing track (yet the existing matching tracks did not match each other)
-		  //TODO
-	  }
+		  ATH_MSG_INFO("Found multiple tracks ("<<matching_oldtracks.size()<<") matching track "<<i);
+
+		  // is the new track better than all the matching old tracks?
+		  bool newisbest = true;//start with an optimistic attitude!
+		  for (unsigned int e : matching_oldtracks){
+			  const FTK_RawTrack *oldtrack = m_trks_nodups->at(e);
+			  const FTK_RawTrack *besttrack = this->besttrack(track,oldtrack);
+			  if (besttrack!=track){
+				  newisbest=false; // guess we're not the best, give up!
+				  break;
+			  }
+		  }
+
+		  // if the new track is better than all the matching old tracks, remove the old tracks and add this one, otherwise do nothing (the new track is dropped)
+		  if (newisbest){
+			  //yikes, we're better than all the matching old tracks
+			  bool replacedfirsttrack = false;//I want to check that the algorithm really replaces the first old track with the new one, and just once
+			  for (unsigned int e : matching_oldtracks){
+				  if (e==matching_oldtracks[0]) {//this should be a little faster than removing all the old matching tracks and then adding the new one
+					  m_trks_nodups->at(e)=(FTK_RawTrack*)track; // replace the first matching track with this new track
+					  if (replacedfirsttrack) ATH_MSG_WARNING("We already did replace the first matching track!");
+					  replacedfirsttrack=true;//just check that we really did it!
+				  }
+				  else {
+					  //remove the old matching tracks beyond the first  one
+					  m_trks_nodups->erase(m_trks_nodups->begin()+e); // yes this is really the way you remove an element from a vector, you have to pass in the iterator
+				  }
+			  }
+			  if (!replacedfirsttrack)  ATH_MSG_WARNING("Why did I not replace the first track?!");
+
+		  } // new track is best one
+
+	  } // deciding what to do based on the number of matches
 
   } // loop over incoming tracks
-
-  //maybe at the end we should do a check that no further matches exist?
-  //TODO
 
   return m_trks_nodups;
 }
