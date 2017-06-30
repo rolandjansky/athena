@@ -75,10 +75,6 @@ namespace CP {
 
             virtual CP::SystematicCode applySystematicVariation(const CP::SystematicSet& systConfig);
 
-            virtual bool maskFeetRegions(const xAOD::Muon& mu, double dR);
-
-            virtual bool inFeetRegion(unsigned int SectorAddress, unsigned int RoI);
-
             virtual double dR(const double eta1, const double phi1, const double eta2, const double phi2);
 
             //
