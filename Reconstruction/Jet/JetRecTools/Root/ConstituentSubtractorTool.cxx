@@ -15,9 +15,6 @@
 using namespace fastjet;
 ConstituentSubtractorTool::ConstituentSubtractorTool(const std::string & name): JetConstituentModifierBase(name) {
 
-#ifdef ASG_TOOL_ATHENA
-  declareInterface<IJetConstituentModifier>(this);
-#endif
   declareProperty("MaxDeltaR", m_maxDeltaR=0.25);
   declareProperty("Alpha", m_alpha=1.);
   declareProperty("MaxEta", m_maxEta=10.);

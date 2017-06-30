@@ -72,9 +72,6 @@ namespace SortHelper {
 VoronoiWeightTool :: VoronoiWeightTool(const std::string& name) :
   JetConstituentModifierBase(name)
 {
-  #ifdef ASG_TOOL_ATHENA
-    declareInterface<IJetConstituentModifier>(this);
-  #endif
 
   declareProperty("doSpread", m_doSpread);
   declareProperty("nSigma", m_nSigma);
