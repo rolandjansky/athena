@@ -379,8 +379,9 @@ const {
 void StripStereoAnnulusDesign::distanceToDetectorEdge(SiLocalPosition const & pos,
                                             double & etaDist,
                                             double & phiDist) const {
-  
-  etaDist = length()/2.0 - abs(pos.xEta()); 
+                                              
+                                              
+  etaDist = length()/2.0 - abs(pos.xEta());
   phiDist = (minWidth() + maxWidth())/4.0 - abs(pos.xPhi());
 
 }

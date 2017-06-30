@@ -110,6 +110,9 @@ void StripAnnulusDesign::neighboursOfCell(const SiCellId &cellId, std::vector<Si
     return;
 }
 
+
+
+
 const Trk::SurfaceBounds &StripAnnulusDesign::bounds() const {
 
     return *m_bounds;

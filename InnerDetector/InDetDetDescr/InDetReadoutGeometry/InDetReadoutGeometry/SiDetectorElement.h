@@ -442,16 +442,6 @@ public:
     bool nearBondGap(Amg::Vector2D localPosition, double etaTol) const;
     bool nearBondGap(HepGeom::Point3D<double> globalPosition, double etaTol) const;
 
-    // Test that it is in the active region
-    // Intersect has 3 states
-    // bool SiIntersect::in() const // definitely in
-    // bool SiIntersect::out() const // definitely out
-    // bool SiIntersect::nearBoundary() const // near a boundary within the tolerances
-    // bool SiIntersect::mayIntersect() const // in() OR nearBoundary()
-    SiIntersect inDetector(const Amg::Vector2D &localPosition, double phiTol, double etaTol) const;
-    SiIntersect inDetector(const HepGeom::Point3D<double> &globalPosition, double phiTol, double etaTol) const;
-    // @}
-
     ///////////////////////////////////////////////////////////////////
     //
     /// @name Lorentz Correction
@@ -703,8 +693,9 @@ protected:
     mutable bool m_isStereo;      
 
     // Reco to Global transformation
-    mutable Amg::Transform3D m_transform;
+    mutable Amg::Transform3D     m_transform;
     mutable HepGeom::Transform3D m_transformCLHEP; 
+    mutable HepGeom::Transform3D m_transformHit;
 
     mutable Amg::Vector3D m_normal;
     mutable HepGeom::Vector3D<double> m_normalCLHEP;
@@ -775,6 +766,10 @@ inline Amg::Vector2D SiDetectorElement::localPosition(const HepGeom::Point3D<dou
         updateCache();
     }
     HepGeom::Vector3D<double> relativePos = globalPosition - m_centerCLHEP - design().sensorCenter();
+    
+    if (design().shape() == InDetDD::Annulus)
+          relativePos = globalPosition;
+    
     return Amg::Vector2D(relativePos.dot(m_phiAxisCLHEP), relativePos.dot(m_etaAxisCLHEP));
 }
 
@@ -785,6 +780,8 @@ inline Amg::Vector2D SiDetectorElement::localPosition(const Amg::Vector3D &globa
     HepGeom::Vector3D<double> sensorCCLHEP = design().sensorCenter();
     Amg::Vector3D sensorC(sensorCCLHEP[0], sensorCCLHEP[1], sensorCCLHEP[2]);
     Amg::Vector3D relativePos = globalPosition - m_center - sensorC;
+    if (design().shape() == InDetDD::Annulus)
+          relativePos = globalPosition;
     return Amg::Vector2D(relativePos.dot(m_phiAxis), relativePos.dot(m_etaAxis));
 }
 

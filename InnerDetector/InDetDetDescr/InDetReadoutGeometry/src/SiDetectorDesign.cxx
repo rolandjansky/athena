@@ -73,7 +73,7 @@ SiIntersect SiDetectorDesign::inDetector(const SiLocalPosition &localPosition,
     double phiDist = 0;
 
     distanceToDetectorEdge(localPosition, etaDist, phiDist);
-
+    
     SiIntersect state;
 
     if (phiDist < -phiTol || etaDist < -etaTol) {

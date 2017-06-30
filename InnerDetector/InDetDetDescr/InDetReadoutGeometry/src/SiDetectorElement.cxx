@@ -3,11 +3,11 @@
 */
 
 /**
- * @file SiDetectorElement.cxx
- * Implementation file for class SiDetectorElement
- * @author Grant Gorfine
- * Based on version developed by David Calvet.
- **/
+* @file SiDetectorElement.cxx
+* Implementation file for class SiDetectorElement
+* @author Grant Gorfine
+* Based on version developed by David Calvet.
+**/
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
@@ -41,32 +41,32 @@
 
 namespace InDetDD {
 
-using Trk::distPhi;
-using Trk::distEta;
-using Trk::distDepth;
+  using Trk::distPhi;
+  using Trk::distEta;
+  using Trk::distDepth;
 
-// Constructor with parameters:
-SiDetectorElement::SiDetectorElement(const Identifier &id,
-                                     const SiDetectorDesign *design,
-                                     const GeoVFullPhysVol *geophysvol,
-                                     SiCommonItems *commonItems):
-    TrkDetElementBase(geophysvol),
-    m_id(id),
-    m_design(design),
-    m_commonItems(commonItems),
-    m_nextInEta(0),
-    m_prevInEta(0),
-    m_nextInPhi(0),
-    m_prevInPhi(0),
-    m_otherSide(0),
-    m_cacheValid(false),
-    m_conditionsCacheValid(false),
-    m_firstTime(true),
-    m_isStereo(false),
-    m_tanLorentzAnglePhi(0),
-    m_tanLorentzAngleEta(0),
-    m_lorentzCorrection(0),
-    m_surface(0) {
+  // Constructor with parameters:
+  SiDetectorElement::SiDetectorElement(const Identifier &id,
+  const SiDetectorDesign *design,
+  const GeoVFullPhysVol *geophysvol,
+  SiCommonItems *commonItems):
+  TrkDetElementBase(geophysvol),
+  m_id(id),
+  m_design(design),
+  m_commonItems(commonItems),
+  m_nextInEta(0),
+  m_prevInEta(0),
+  m_nextInPhi(0),
+  m_prevInPhi(0),
+  m_otherSide(0),
+  m_cacheValid(false),
+  m_conditionsCacheValid(false),
+  m_firstTime(true),
+  m_isStereo(false),
+  m_tanLorentzAnglePhi(0),
+  m_tanLorentzAngleEta(0),
+  m_lorentzCorrection(0),
+  m_surface(0) {
     // The following are fixes for coverity bug 11955, uninitialized scalars:
     const bool boolDefault(true);
 
@@ -88,45 +88,45 @@ SiDetectorElement::SiDetectorElement(const Identifier &id,
     ///
 
     commonConstructor();
-}
+  }
 
-void SiDetectorElement::commonConstructor() {
+  void SiDetectorElement::commonConstructor() {
     if (!m_id.is_valid()) {
-        throw std::runtime_error("SiDetectorElement: Invalid identifier");
+      throw std::runtime_error("SiDetectorElement: Invalid identifier");
     }
 
     // Set booleans for wether we are pixel/sct barrel/endcap
     m_isPixel = getIdHelper()->is_pixel(m_id);
     if (!m_isPixel && !getIdHelper()->is_sct(m_id)) {
-        if (msgLvl(MSG::WARNING)) {
-            msg(MSG::WARNING) << "Element id is not for pixel or SCT" << endmsg;
-        }
+      if (msgLvl(MSG::WARNING)) {
+        msg(MSG::WARNING) << "Element id is not for pixel or SCT" << endmsg;
+      }
     }
 
     // Set IdHash. Also set m_isBarrel.
     m_isDBM = false;
     if (isPixel()) {
-        const PixelID *pixelId = dynamic_cast<const PixelID *>(getIdHelper());
-        if (pixelId) {
-            m_isBarrel = pixelId->is_barrel(m_id);
-            m_idHash = pixelId->wafer_hash(m_id);
+      const PixelID *pixelId = dynamic_cast<const PixelID *>(getIdHelper());
+      if (pixelId) {
+        m_isBarrel = pixelId->is_barrel(m_id);
+        m_idHash = pixelId->wafer_hash(m_id);
 
-            if (pixelId->is_dbm(m_id)) {
-                m_isBarrel = false;
-                m_isDBM = true;
-            }
+        if (pixelId->is_dbm(m_id)) {
+          m_isBarrel = false;
+          m_isDBM = true;
         }
+      }
     }
     else {
-        const SCT_ID *sctId = dynamic_cast<const SCT_ID *>(getIdHelper());
-        if (sctId) {
-            m_isBarrel = sctId->is_barrel(m_id);
-            m_idHash = sctId->wafer_hash(m_id);
-        }
+      const SCT_ID *sctId = dynamic_cast<const SCT_ID *>(getIdHelper());
+      if (sctId) {
+        m_isBarrel = sctId->is_barrel(m_id);
+        m_idHash = sctId->wafer_hash(m_id);
+      }
     }
 
     if (!m_idHash.is_valid()) {
-        throw std::runtime_error("SiDetectorElement: Unable to set IdentifierHash");
+      throw std::runtime_error("SiDetectorElement: Unable to set IdentifierHash");
     }
 
     // Increase the reference count of the SiDetectorDesign objects.
@@ -136,25 +136,27 @@ void SiDetectorElement::commonConstructor() {
     m_commonItems->ref();
 
     // Should we reference count the geophysvol as well?
-}
+  }
 
-// Destructor:
-SiDetectorElement::~SiDetectorElement() {
+  // Destructor:
+  SiDetectorElement::~SiDetectorElement() {
     delete m_surface;
 
     // The design is reference counted so that it will not be deleted until the last element is deleted.
     m_design->unref();
 
     m_commonItems->unref();
-}
+  }
 
-void SiDetectorElement::updateCache() const {
+  void SiDetectorElement::updateCache() const {
     m_cacheValid = true;
 
     bool firstTimeTmp = m_firstTime;
     m_firstTime = false;
 
-    const HepGeom::Transform3D &geoTransform = transformHit();
+    // AS: changed to getMaterialGeom()->getAbsoluteTransfrom() after changing transformHit() back
+    // to original meaning
+    const HepGeom::Transform3D &geoTransform = getMaterialGeom()->getAbsoluteTransform();
 
     m_centerCLHEP = geoTransform * design().sensorCenter();
     m_center = Amg::Vector3D(m_centerCLHEP[0], m_centerCLHEP[1], m_centerCLHEP[2]);
@@ -169,9 +171,9 @@ void SiDetectorElement::updateCache() const {
     // depthAxis, phiAxis, and etaAxis are defined to be x,y,z respectively for all detectors for hit local frame.
     // depthAxis, phiAxis, and etaAxis are defined to be z,x,y respectively for all detectors for reco local frame.
     static const HepGeom::Vector3D<double> localAxes[3] = {
-        HepGeom::Vector3D<double>(1, 0, 0),
-        HepGeom::Vector3D<double>(0, 1, 0),
-        HepGeom::Vector3D<double>(0, 0, 1)
+      HepGeom::Vector3D<double>(1, 0, 0),
+      HepGeom::Vector3D<double>(0, 1, 0),
+      HepGeom::Vector3D<double>(0, 0, 1)
     };
 
     static const HepGeom::Vector3D<double> &localRecoPhiAxis = localAxes[distPhi];
@@ -181,58 +183,59 @@ void SiDetectorElement::updateCache() const {
     // We only need to calculate the rough orientation once.
     // For it to change would require extreme unrealistic misalignment changes.
     if (firstTimeTmp) {
-        // Determine the unit vectors in global frame
+      // Determine the unit vectors in global frame
 
-        const HepGeom::Vector3D<double> &geoModelPhiAxis = localAxes[m_hitPhi];
-        const HepGeom::Vector3D<double> &geoModelEtaAxis = localAxes[m_hitEta];
-        const HepGeom::Vector3D<double> &geoModelDepthAxis = localAxes[m_hitDepth];
+      const HepGeom::Vector3D<double> &geoModelPhiAxis = localAxes[m_hitPhi];
+      const HepGeom::Vector3D<double> &geoModelEtaAxis = localAxes[m_hitEta];
+      const HepGeom::Vector3D<double> &geoModelDepthAxis = localAxes[m_hitDepth];
 
-        HepGeom::Vector3D<double> globalDepthAxis(geoTransform * geoModelDepthAxis);
-        HepGeom::Vector3D<double> globalPhiAxis(geoTransform * geoModelPhiAxis);
-        HepGeom::Vector3D<double> globalEtaAxis(geoTransform * geoModelEtaAxis);
+      HepGeom::Vector3D<double> globalDepthAxis(geoTransform * geoModelDepthAxis);
+      HepGeom::Vector3D<double> globalPhiAxis(geoTransform * geoModelPhiAxis);
+      HepGeom::Vector3D<double> globalEtaAxis(geoTransform * geoModelEtaAxis);
 
-        // unit radial vector from (0, 0, 0) to sensor center
-        HepGeom::Vector3D<double> unitR(m_center.x(), m_center.y(), 0.);
-        unitR.setMag(1.);
+      // unit radial vector from (0, 0, 0) to sensor center
+      HepGeom::Vector3D<double> unitR(m_center.x(), m_center.y(), 0.);
+      unitR.setMag(1.);
 
-        checkOrientation(unitR, globalEtaAxis, globalDepthAxis);
+      checkOrientation(unitR, globalEtaAxis, globalDepthAxis);
 
-        HepGeom::Vector3D<double> nominalEta(0., 0., 1.);
-        HepGeom::Vector3D<double> nominalDepth(unitR);
-        HepGeom::Vector3D<double> nominalPhi(-unitR.y(), unitR.x(), 0);
+      HepGeom::Vector3D<double> nominalEta(0., 0., 1.);
+      HepGeom::Vector3D<double> nominalDepth(unitR);
+      HepGeom::Vector3D<double> nominalPhi(-unitR.y(), unitR.x(), 0);
 
-        bool barrelLike = (std::abs(globalEtaAxis.dot(nominalEta)) >= 0.5);
+      bool barrelLike = (std::abs(globalEtaAxis.dot(nominalEta)) >= 0.5);
 
-        if (!barrelLike) {
-            nominalDepth = HepGeom::Vector3D<double>(0., 0., -1.);
-            nominalEta = unitR;
-        }
+      if (!barrelLike) {
+        nominalDepth = HepGeom::Vector3D<double>(0., 0., -1.);
+        nominalEta = unitR;
+      }
 
-        // Determine if axes are to have their directions swapped.
+      // Determine if axes are to have their directions swapped.
 
-        double depthDir = globalDepthAxis.dot(nominalDepth);
-        m_depthDirection = depthDir >= 0.;
+      double depthDir = globalDepthAxis.dot(nominalDepth);
+      m_depthDirection = depthDir >= 0.;
 
-        double phiDir = globalPhiAxis.dot(nominalPhi);
-	if(m_design->shape()==InDetDD::Annulus) m_phiDirection = true;
-	else m_phiDirection = phiDir >= 0.;
+      double phiDir = globalPhiAxis.dot(nominalPhi);
+      if(m_design->shape()==InDetDD::Annulus) m_phiDirection = true;
+      else m_phiDirection = phiDir >= 0.;
 
-        double etaDir = globalEtaAxis.dot(nominalEta);
-        m_etaDirection = etaDir >= 0.;
+      double etaDir = globalEtaAxis.dot(nominalEta);
+      m_etaDirection = etaDir >= 0.;
 
-/* There is nothing wrong in principle with wanting all three reversed. Error message commented out.
-        if (!m_depthDirection && !m_phiDirection && !m_etaDirection) {
-            msg(MSG::FATAL) << "Something is very wrong in the GeoModel frame of a sensor. \n" << 
-             "It would require swapping all three coordinate directions, which is not allowed (left-handed GeoModel frame?)" << 
-              endmsg;
-            getIdHelper()->print(identify());
-        }
-*/
+      /* There is nothing wrong in principle with wanting all three reversed. Error message commented out.
+      if (!m_depthDirection && !m_phiDirection && !m_etaDirection) {
+      msg(MSG::FATAL) << "Something is very wrong in the GeoModel frame of a sensor. \n" << 
+      "It would require swapping all three coordinate directions, which is not allowed (left-handed GeoModel frame?)" << 
+      endmsg;
+      getIdHelper()->print(identify());
+      }
+      */
 
     } // end if (m_firstTime)
 
     // Initialize various cached members
 
+    m_transformHit   = isSCT() ? getMaterialGeom()->getAbsoluteTransform()*HepGeom::RotateY3D(90.*CLHEP::deg) : getMaterialGeom()->getAbsoluteTransform();
     m_transformCLHEP = geoTransform * recoToHitTransform();
     m_transform = Amg::CLHEPTransformToEigen(m_transformCLHEP);
 
@@ -251,23 +254,23 @@ void SiDetectorElement::updateCache() const {
 
     // Determin isStereo
     if (firstTimeTmp) {
-        m_isStereo = false;
-        if (isSCT() && m_otherSide) {
-            double cosStereoThis = std::fabs(cosStereo());
-            double cosStereoOther = std::fabs(m_otherSide->cosStereo());
-            if (std::fabs(cosStereoOther - cosStereoThis) < 1.e-6) { // Same; take side 1 as stereo
-                const SCT_ID *sctId = dynamic_cast<const SCT_ID *>(getIdHelper());
-                int side = sctId->side(m_id);
-                m_isStereo = (side == 1);
-            }
-            else {
-                m_isStereo = std::fabs(cosStereoThis) < std::fabs(cosStereoOther);
-            }
+      m_isStereo = false;
+      if (isSCT() && m_otherSide) {
+        double cosStereoThis = std::fabs(cosStereo());
+        double cosStereoOther = std::fabs(m_otherSide->cosStereo());
+        if (std::fabs(cosStereoOther - cosStereoThis) < 1.e-6) { // Same; take side 1 as stereo
+          const SCT_ID *sctId = dynamic_cast<const SCT_ID *>(getIdHelper());
+          int side = sctId->side(m_id);
+          m_isStereo = (side == 1);
         }
+        else {
+          m_isStereo = std::fabs(cosStereoThis) < std::fabs(cosStereoOther);
+        }
+      }
     }
-}
+  }
 
-void SiDetectorElement::updateConditionsCache() const {
+  void SiDetectorElement::updateConditionsCache() const {
     m_conditionsCacheValid = true;
 
     //
@@ -275,51 +278,54 @@ void SiDetectorElement::updateConditionsCache() const {
     //
 
     if (m_commonItems->lorentzAngleSvc()) {
-        m_tanLorentzAnglePhi = m_commonItems->lorentzAngleSvc()->getTanLorentzAngle(m_idHash);
-        m_tanLorentzAngleEta = m_commonItems->lorentzAngleSvc()->getTanLorentzAngleEta(m_idHash);
-        m_lorentzCorrection = m_commonItems->lorentzAngleSvc()->getLorentzShift(m_idHash);
+      m_tanLorentzAnglePhi = m_commonItems->lorentzAngleSvc()->getTanLorentzAngle(m_idHash);
+      m_tanLorentzAngleEta = m_commonItems->lorentzAngleSvc()->getTanLorentzAngleEta(m_idHash);
+      m_lorentzCorrection = m_commonItems->lorentzAngleSvc()->getLorentzShift(m_idHash);
     }
     else {
-        // Set to zero
-        m_tanLorentzAnglePhi = 0;
-        m_tanLorentzAngleEta = 0;
-        m_lorentzCorrection = 0;
+      // Set to zero
+      m_tanLorentzAnglePhi = 0;
+      m_tanLorentzAngleEta = 0;
+      m_lorentzCorrection = 0;
     }
-}
+  }
 
-const HepGeom::Transform3D &SiDetectorElement::transformHit() const {
-    return getMaterialGeom()->getAbsoluteTransform();
-}
-
-const Amg::Transform3D &SiDetectorElement::transform() const {
+  const HepGeom::Transform3D &SiDetectorElement::transformHit() const {
     if (!m_cacheValid) {
-        updateCache();
+      updateCache();
+    }
+    return m_transformHit;
+  }
+
+  const Amg::Transform3D &SiDetectorElement::transform() const {
+    if (!m_cacheValid) {
+      updateCache();
     }
     return m_transform;
-}
+  }
 
-const HepGeom::Transform3D &SiDetectorElement::transformCLHEP() const {
+  const HepGeom::Transform3D &SiDetectorElement::transformCLHEP() const {
     if (!m_cacheValid) {
-        updateCache();
+      updateCache();
     }
     return m_transformCLHEP;
-}
+  }
 
-const HepGeom::Transform3D SiDetectorElement::defTransformCLHEP() const {
+  const HepGeom::Transform3D SiDetectorElement::defTransformCLHEP() const {
     return getMaterialGeom()->getDefAbsoluteTransform() * recoToHitTransform();
-}
+  }
 
-const Amg::Transform3D SiDetectorElement::defTransform() const {
+  const Amg::Transform3D SiDetectorElement::defTransform() const {
     HepGeom::Transform3D tmpTransform = getMaterialGeom()->getDefAbsoluteTransform() * recoToHitTransform();
 
     return Amg::CLHEPTransformToEigen(tmpTransform);
-}
+  }
 
-const HepGeom::Transform3D SiDetectorElement::recoToHitTransform() const {
+  const HepGeom::Transform3D SiDetectorElement::recoToHitTransform() const {
     // Reconstruction-local to GeoModel-local transform. Ignore the name, which suggests it gives Hit frame.
 
     if (m_firstTime) {
-        updateCache();
+      updateCache();
     }
 
     // global = xfGeoModelToGlobal * xfRecoToGeoModel = transform * recoLocal
@@ -332,197 +338,197 @@ const HepGeom::Transform3D SiDetectorElement::recoToHitTransform() const {
     // It assume phi, eta, depth makes a right handed system.
 
     static const HepGeom::Vector3D<double> localAxes[3] = {
-        HepGeom::Vector3D<double>(1, 0, 0),
-        HepGeom::Vector3D<double>(0, 1, 0),
-        HepGeom::Vector3D<double>(0, 0, 1)
+      HepGeom::Vector3D<double>(1, 0, 0),
+      HepGeom::Vector3D<double>(0, 1, 0),
+      HepGeom::Vector3D<double>(0, 0, 1)
     };
 
     int signPhi = m_phiDirection? +1: -1;
     int signEta = m_etaDirection? +1: -1;
 
     const HepGeom::Transform3D recoToHit(HepGeom::Point3D<double>(0, 0, 0), 
-                                         signPhi * localAxes[distPhi], signEta * localAxes[distEta],
-                                         HepGeom::Point3D<double>(0, 0, 0), localAxes[m_hitPhi], localAxes[m_hitEta]);
+    signPhi * localAxes[distPhi], signEta * localAxes[distEta],
+    HepGeom::Point3D<double>(0, 0, 0), localAxes[m_hitPhi], localAxes[m_hitEta]);
 
     return recoToHit;
-}
+  }
 
-const Amg::Transform3D &SiDetectorElement::moduleTransform() const {
+  const Amg::Transform3D &SiDetectorElement::moduleTransform() const {
     return (isModuleFrame()) ?  transform() : m_otherSide->transform();
-}
+  }
 
-Amg::Transform3D SiDetectorElement::defModuleTransform() const {
+  Amg::Transform3D SiDetectorElement::defModuleTransform() const {
     return (isModuleFrame()) ? defTransform() : m_otherSide->defTransform();
-}
+  }
 
-// Take a transform in the local reconstruction and return it in the module frame
-// For a given transform l in frame A. The equivalent transform in frame B is
-//  B.inverse() * A * l * A.inverse() * B
-// Here A is the local to global transform of the element and B is the local to global
-// transform of the module.
-// If we are already in the module frame then there is nothing to do, we just return the
-// transform that is input. Otherwise we use the above formula.
-Amg::Transform3D SiDetectorElement::localToModuleFrame(const Amg::Transform3D &localTransform) const {
+  // Take a transform in the local reconstruction and return it in the module frame
+  // For a given transform l in frame A. The equivalent transform in frame B is
+  //  B.inverse() * A * l * A.inverse() * B
+  // Here A is the local to global transform of the element and B is the local to global
+  // transform of the module.
+  // If we are already in the module frame then there is nothing to do, we just return the
+  // transform that is input. Otherwise we use the above formula.
+  Amg::Transform3D SiDetectorElement::localToModuleFrame(const Amg::Transform3D &localTransform) const {
     if (isModuleFrame()) {
-        return localTransform;
+      return localTransform;
     }
     else {
-        return m_otherSide->transform().inverse() * transform() * localTransform * transform().inverse() *
-               m_otherSide->transform();
+      return m_otherSide->transform().inverse() * transform() * localTransform * transform().inverse() *
+        m_otherSide->transform();
     }
-}
+  }
 
-Amg::Transform3D SiDetectorElement::localToModuleTransform() const {
+  Amg::Transform3D SiDetectorElement::localToModuleTransform() const {
     if (isModuleFrame()) {
-        return Amg::Transform3D(); // Identity
+      return Amg::Transform3D(); // Identity
     }
     else {
-        return m_otherSide->transform().inverse() * transform();
+      return m_otherSide->transform().inverse() * transform();
     }
-}
+  }
 
-bool SiDetectorElement::isModuleFrame() const {
+  bool SiDetectorElement::isModuleFrame() const {
     // The module frame is the axial side.
     // NB isStereo returns false for the pixel and so
     // isModuleFrame is always true for the pixel.
 
     return !isStereo();
-}
+  }
 
-const Amg::Vector3D &SiDetectorElement::center() const {
+  const Amg::Vector3D &SiDetectorElement::center() const {
     if (!m_cacheValid) {
-        updateCache();
+      updateCache();
     }
     return m_center;
-}
+  }
 
-const Amg::Vector3D &SiDetectorElement::normal() const {
+  const Amg::Vector3D &SiDetectorElement::normal() const {
     if (!m_cacheValid) {
-        updateCache();
+      updateCache();
     }
     return m_normal;
-}
+  }
 
-const HepGeom::Vector3D<double> &SiDetectorElement::etaAxisCLHEP() const {
+  const HepGeom::Vector3D<double> &SiDetectorElement::etaAxisCLHEP() const {
     if (!m_cacheValid) {
-        updateCache();
+      updateCache();
     }
     return m_etaAxisCLHEP;
-}
+  }
 
-const HepGeom::Vector3D<double> &SiDetectorElement::phiAxisCLHEP() const {
+  const HepGeom::Vector3D<double> &SiDetectorElement::phiAxisCLHEP() const {
     if (!m_cacheValid) {
-        updateCache();
+      updateCache();
     }
     return m_phiAxisCLHEP;
-}
+  }
 
-const Amg::Vector3D &SiDetectorElement::etaAxis() const {
+  const Amg::Vector3D &SiDetectorElement::etaAxis() const {
     if (!m_cacheValid) {
-        updateCache();
+      updateCache();
     }
     return m_etaAxis;
-}
+  }
 
-const Amg::Vector3D &SiDetectorElement::phiAxis() const {
+  const Amg::Vector3D &SiDetectorElement::phiAxis() const {
     if (!m_cacheValid) {
-        updateCache();
+      updateCache();
     }
     return m_phiAxis;
-}
+  }
 
-Amg::Vector2D SiDetectorElement::hitLocalToLocal(double xEta, double xPhi) const {
+  Amg::Vector2D SiDetectorElement::hitLocalToLocal(double xEta, double xPhi) const {
     // Transform Reco to SiLocalPosition. Swaps order of eta and phi, taking into account the sense of axes.
     if (!m_cacheValid) {
-        updateCache();
+      updateCache();
     }
     if (!m_etaDirection) {
-        xEta = -xEta;
+      xEta = -xEta;
     }
     if (!m_phiDirection) {
-        xPhi = -xPhi;
+      xPhi = -xPhi;
     }
     return Amg::Vector2D(xPhi, xEta);
-}
+  }
 
-HepGeom::Point3D<double>
-SiDetectorElement::hitLocalToLocal3D(const HepGeom::Point3D<double> &hitPosition) const {
+  HepGeom::Point3D<double>
+  SiDetectorElement::hitLocalToLocal3D(const HepGeom::Point3D<double> &hitPosition) const {
     // Equiv to transform().inverse * transformHit() * hitPosition; takes point in GeoModel to Reco
     if (!m_cacheValid) {
-        updateCache();
+      updateCache();
     }
     double xDepth = hitPosition[m_hitDepth];
     double xPhi = hitPosition[m_hitPhi];
     double xEta = hitPosition[m_hitEta];
     if (!m_depthDirection) {
-        xDepth = -xDepth;
+      xDepth = -xDepth;
     }
     if (!m_phiDirection) {
-        xPhi = -xPhi;
+      xPhi = -xPhi;
     }
     if (!m_etaDirection) {
-        xEta = -xEta;
+      xEta = -xEta;
     }
     return HepGeom::Point3D<double>(xPhi, xEta, xDepth);
-}
+  }
 
-bool SiDetectorElement::isPixel() const {
+  bool SiDetectorElement::isPixel() const {
     return m_isPixel;
-}
+  }
 
-bool SiDetectorElement::isSCT() const {
+  bool SiDetectorElement::isSCT() const {
     return !m_isPixel;
-}
+  }
 
-bool SiDetectorElement::isBarrel() const {
+  bool SiDetectorElement::isBarrel() const {
     return m_isBarrel;
-}
+  }
 
-bool SiDetectorElement::isDBM() const {
+  bool SiDetectorElement::isDBM() const {
     return m_isDBM;
-}
+  }
 
-bool SiDetectorElement::isBlayer() const {
+  bool SiDetectorElement::isBlayer() const {
     if (isPixel() && isBarrel()) {
-        const PixelID *p_pixelId = static_cast<const PixelID *>(getIdHelper());
-        return(0 == p_pixelId->layer_disk(m_id));
+      const PixelID *p_pixelId = static_cast<const PixelID *>(getIdHelper());
+      return(0 == p_pixelId->layer_disk(m_id));
     }
     else {
-        return false;
+      return false;
     }
-}
+  }
 
-bool SiDetectorElement::isInnermostPixelLayer() const {
+  bool SiDetectorElement::isInnermostPixelLayer() const {
     if (isPixel() && isBarrel()) {
-        const PixelID *p_pixelId = static_cast<const PixelID *>(getIdHelper());
-        return(0 == p_pixelId->layer_disk(m_id));
+      const PixelID *p_pixelId = static_cast<const PixelID *>(getIdHelper());
+      return(0 == p_pixelId->layer_disk(m_id));
     }
     else {
-        return false;
+      return false;
     }
-}
+  }
 
-bool SiDetectorElement::isNextToInnermostPixelLayer() const {
+  bool SiDetectorElement::isNextToInnermostPixelLayer() const {
     if (isPixel() && isBarrel()) {
-        const PixelID *p_pixelId = static_cast<const PixelID *>(getIdHelper());
-        return(1 == p_pixelId->layer_disk(m_id));
+      const PixelID *p_pixelId = static_cast<const PixelID *>(getIdHelper());
+      return(1 == p_pixelId->layer_disk(m_id));
     }
     else {
-        return false;
+      return false;
     }
-}
+  }
 
-Amg::Vector2D SiDetectorElement::correctLocalPosition(const Amg::Vector2D &position) const {
+  Amg::Vector2D SiDetectorElement::correctLocalPosition(const Amg::Vector2D &position) const {
     Amg::Vector2D correctedPosition(position);
 
     correctedPosition[distPhi] += getLorentzCorrection();
     return correctedPosition;
-}
+  }
 
-// compute sin(tilt angle) at center:
-double SiDetectorElement::sinTilt() const {
+  // compute sin(tilt angle) at center:
+  double SiDetectorElement::sinTilt() const {
     if (!m_cacheValid) {
-        updateCache();
+      updateCache();
     }
 
     // Tilt is defined as the angle between a refVector and the sensor normal.
@@ -532,7 +538,7 @@ double SiDetectorElement::sinTilt() const {
 
     // tilt angle is not defined for the endcap
     if (isEndcap()) {
-        return 0;
+      return 0;
     }
 
     // Angle between normal and radial vector.
@@ -540,32 +546,32 @@ double SiDetectorElement::sinTilt() const {
     // return (refVector.cross(m_normal)).z()/refVector.mag();
     // or the equivalent
     return (m_center.x() * m_normal.y() - m_center.y() * m_normal.x()) / m_center.perp();
-}
+  }
 
-double SiDetectorElement::sinTilt(const Amg::Vector2D &localPos) const {
+  double SiDetectorElement::sinTilt(const Amg::Vector2D &localPos) const {
     if (!m_cacheValid) {
-        updateCache();
+      updateCache();
     }
 
     // tilt angle is not defined for the endcap
     if (isEndcap()) {
-        return 0;
+      return 0;
     }
 
     HepGeom::Point3D<double> point = globalPositionCLHEP(localPos);
     return sinTilt(point);
-}
+  }
 
-double SiDetectorElement::sinTilt(const HepGeom::Point3D<double> &globalPos) const {
+  double SiDetectorElement::sinTilt(const HepGeom::Point3D<double> &globalPos) const {
     if (!m_cacheValid) {
-        updateCache();
+      updateCache();
     }
 
     // It is assumed that the global position is already in the plane of the element.
 
     // tilt angle is not defined for the endcap
     if (isEndcap()) {
-        return 0;
+      return 0;
     }
 
     // Angle between normal and radial vector.
@@ -573,11 +579,11 @@ double SiDetectorElement::sinTilt(const HepGeom::Point3D<double> &globalPos) con
     // return (refVector.cross(m_normal)).z()/refVector.mag();
     // or the equivalent
     return (globalPos.x() * m_normal.y() - globalPos.y() * m_normal.x()) / globalPos.perp();
-}
+  }
 
-double SiDetectorElement::sinStereo() const {
+  double SiDetectorElement::sinStereo() const {
     if (!m_cacheValid) {
-        updateCache();
+      updateCache();
     }
 
     // Stereo is the angle between a refVector and a vector along the strip/pixel in eta direction.
@@ -603,159 +609,160 @@ double SiDetectorElement::sinStereo() const {
     //           = (etaAxis cross center). z()
 
     if (isBarrel()) {
-        return m_phiAxis.z();
+      return m_phiAxis.z();
     }
     else { // endcap
 
-        const SCT_ModuleSideDesign *myDesign = dynamic_cast<const SCT_ModuleSideDesign *> (&design());
-        if (!myDesign) {
-            msg(MSG::FATAL) << "Request for cosStereo() for non-strip detector? " <<
-                               "Unable to convert SiDetectorElement design to SCT-type." << endmsg;
-            return 1.0;
-        }
-        if (myDesign->shape() == DetectorShape::Annulus) {
-            //   Stereo angle is built in; return the angle of a strip instead of the angle of an axis
-            //   Choose strip 0 (and row 0) (arbitrarily).
-            //   Get its end-points
-            //   Transform them to global frame
-            //   Get sine of its angle with the global radial axis
-            // To do: consider getting stereo angle as for Trapezoid, and adding m_stereo.
-            SiCellId strip0(0);
-            SiLocalPosition center = myDesign->localPositionOfCell(strip0);
-            std::pair<SiLocalPosition, SiLocalPosition> ends = myDesign->endsOfStrip(center);
-            HepGeom::Point3D<double> inner(ends.first.xEta(), ends.first.xPhi(), ends.first.xDepth()); 
-            HepGeom::Point3D<double> outer(ends.second.xEta(), ends.second.xPhi(), ends.second.xDepth()); 
-            HepGeom::Point3D<double> globalInner = transformHit() * inner;
-            HepGeom::Point3D<double> globalOuter = transformHit() * outer;
-            HepGeom::Point3D<double> globalStrip0 = globalOuter - globalInner;
-            HepGeom::Point3D<double> globalCenter = (globalInner + globalOuter) / 2.;
-            // Global-phi vector is 90 deg to radial vector (not normalised here)
-            HepGeom::Point3D<double> phiVec = HepGeom::Point3D<double>(-globalCenter.y(), globalCenter.x(), 0.0);
-            // sin(theta) = -cos(90 + theta) 
-            return -globalStrip0.dot(phiVec) / globalStrip0.mag() / phiVec.mag();
-        }
-        else {
-            return (m_center.y() * m_etaAxis.x() - m_center.x() * m_etaAxis.y()) / m_center.perp();
-        }
+      const SCT_ModuleSideDesign *myDesign = dynamic_cast<const SCT_ModuleSideDesign *> (&design());
+      if (!myDesign) {
+        msg(MSG::FATAL) << "Request for cosStereo() for non-strip detector? " <<
+          "Unable to convert SiDetectorElement design to SCT-type." << endmsg;
+        return 1.0;
+      }
+      if (myDesign->shape() == DetectorShape::Annulus) {
+        //   Stereo angle is built in; return the angle of a strip instead of the angle of an axis
+        //   Choose strip 0 (and row 0) (arbitrarily).
+        //   Get its end-points
+        //   Transform them to global frame
+        //   Get sine of its angle with the global radial axis
+        // To do: consider getting stereo angle as for Trapezoid, and adding m_stereo.
+        SiCellId strip0(0);
+        SiLocalPosition center = myDesign->localPositionOfCell(strip0);
+        std::pair<SiLocalPosition, SiLocalPosition> ends = myDesign->endsOfStrip(center);
+        HepGeom::Point3D<double> inner(ends.first.xEta(), ends.first.xPhi(), ends.first.xDepth()); 
+        HepGeom::Point3D<double> outer(ends.second.xEta(), ends.second.xPhi(), ends.second.xDepth()); 
+        // AS: changed to getMaterialGeom()->getAbsoluteTransfrom() after changing transformHit() back
+        HepGeom::Point3D<double> globalInner = getMaterialGeom()->getAbsoluteTransform() * inner;
+        HepGeom::Point3D<double> globalOuter = getMaterialGeom()->getAbsoluteTransform() * outer;
+        HepGeom::Point3D<double> globalStrip0 = globalOuter - globalInner;
+        HepGeom::Point3D<double> globalCenter = (globalInner + globalOuter) / 2.;
+        // Global-phi vector is 90 deg to radial vector (not normalised here)
+        HepGeom::Point3D<double> phiVec = HepGeom::Point3D<double>(-globalCenter.y(), globalCenter.x(), 0.0);
+        // sin(theta) = -cos(90 + theta) 
+        return -globalStrip0.dot(phiVec) / globalStrip0.mag() / phiVec.mag();
+      }
+      else {
+        return (m_center.y() * m_etaAxis.x() - m_center.x() * m_etaAxis.y()) / m_center.perp();
+      }
     }
     return 0.0; // Shouldn't ever get here, but compiler likes it
-}
+  }
 
-double SiDetectorElement::sinStereo(const Amg::Vector2D &localPos) const {
+  double SiDetectorElement::sinStereo(const Amg::Vector2D &localPos) const {
     if (!m_cacheValid) {
-        updateCache();
+      updateCache();
     }
 
     HepGeom::Point3D<double> point = globalPositionCLHEP(localPos);
     return sinStereo(point);
-}
+  }
 
-double SiDetectorElement::sinStereo(const HepGeom::Point3D<double> &globalPos) const {
+  double SiDetectorElement::sinStereo(const HepGeom::Point3D<double> &globalPos) const {
     //
     // sinStereo =  (refVector cross stripAxis) . normal
     //
 
     if (!m_cacheValid) {
-        updateCache();
+      updateCache();
     }
 
     double sinStereo;
     if (isBarrel()) {
-        if (m_design->shape() != InDetDD::Trapezoid) {
-            sinStereo = m_phiAxis.z();
-        }
-        else { // trapezoid
-            assert(minWidth() != maxWidth());
-            double radius = width() * length() / (maxWidth() - minWidth());
-            HepGeom::Vector3D<double> stripAxis = radius * m_etaAxisCLHEP + globalPos - m_centerCLHEP;
-            sinStereo = (stripAxis.x() * m_normal.y() - stripAxis.y() * m_normal.x()) / stripAxis.mag();
-        }
+      if (m_design->shape() != InDetDD::Trapezoid) {
+        sinStereo = m_phiAxis.z();
+      }
+      else { // trapezoid
+        assert(minWidth() != maxWidth());
+        double radius = width() * length() / (maxWidth() - minWidth());
+        HepGeom::Vector3D<double> stripAxis = radius * m_etaAxisCLHEP + globalPos - m_centerCLHEP;
+        sinStereo = (stripAxis.x() * m_normal.y() - stripAxis.y() * m_normal.x()) / stripAxis.mag();
+      }
     }
     else { // endcap
-        if (m_design->shape() != InDetDD::Trapezoid) {
-            sinStereo = (globalPos.y() * m_etaAxis.x() - globalPos.x() * m_etaAxis.y()) / globalPos.perp();
-        }
-        else { // trapezoid
-            // double radius   = m_center.perp(); // Really want nominal r.
-            assert(minWidth() != maxWidth());
-            double radius = width() * length() / (maxWidth() - minWidth());
-            // HepGeom::Vector3D<double> stripAxis = radius * m_etaAxis + globalPos - m_center;
-            // Only need projection in xy plane.
-            double stripAxisX = globalPos.x() - m_center.x() + m_etaAxis.x() * radius;
-            double stripAxisY = globalPos.y() - m_center.y() + m_etaAxis.y() * radius;
-            double norm = 1. / (radius * sqrt(stripAxisX * stripAxisX + stripAxisY * stripAxisY));
-            sinStereo = norm * (stripAxisX * globalPos.y() - stripAxisY * globalPos.x());
-        }
+      if (m_design->shape() != InDetDD::Trapezoid) {
+        sinStereo = (globalPos.y() * m_etaAxis.x() - globalPos.x() * m_etaAxis.y()) / globalPos.perp();
+      }
+      else { // trapezoid
+        // double radius   = m_center.perp(); // Really want nominal r.
+        assert(minWidth() != maxWidth());
+        double radius = width() * length() / (maxWidth() - minWidth());
+        // HepGeom::Vector3D<double> stripAxis = radius * m_etaAxis + globalPos - m_center;
+        // Only need projection in xy plane.
+        double stripAxisX = globalPos.x() - m_center.x() + m_etaAxis.x() * radius;
+        double stripAxisY = globalPos.y() - m_center.y() + m_etaAxis.y() * radius;
+        double norm = 1. / (radius * sqrt(stripAxisX * stripAxisX + stripAxisY * stripAxisY));
+        sinStereo = norm * (stripAxisX * globalPos.y() - stripAxisY * globalPos.x());
+      }
     }
     return sinStereo;
-}
+  }
 
-bool SiDetectorElement::isStereo() const {
+  bool SiDetectorElement::isStereo() const {
     if (m_firstTime) {
-        updateCache();
+      updateCache();
     }
     return m_isStereo;
-}
+  }
 
-double SiDetectorElement::sinStereoLocal(const Amg::Vector2D &localPos) const {
+  double SiDetectorElement::sinStereoLocal(const Amg::Vector2D &localPos) const {
     return design().sinStripAngleReco(localPos[0], localPos[1]);
-}
+  }
 
-double SiDetectorElement::sinStereoLocal(const HepGeom::Point3D<double> &globalPos) const {
+  double SiDetectorElement::sinStereoLocal(const HepGeom::Point3D<double> &globalPos) const {
     return sinStereoLocal(localPosition(globalPos));
-}
+  }
 
-// Special method for SCT to retrieve the two ends of a "strip"
-std::pair<Amg::Vector3D, Amg::Vector3D> SiDetectorElement::endsOfStrip(const Amg::Vector2D &position) const {
+  // Special method for SCT to retrieve the two ends of a "strip"
+  std::pair<Amg::Vector3D, Amg::Vector3D> SiDetectorElement::endsOfStrip(const Amg::Vector2D &position) const {
     
     if(m_design->shape()==InDetDD::Annulus){
 
-    	double signPhi = hitPhiDirection();
-   	double signEta = hitEtaDirection();
-    	const SiLocalPosition pos(signEta * position[Trk::distEta], signPhi * position[Trk::distPhi]);
-    	const std::pair<SiLocalPosition, SiLocalPosition> localEnds = m_design->endsOfStrip(position);
-    	Amg::Vector3D recoEndFirst(signPhi * localEnds.first.xPhi(), signEta * localEnds.first.xEta(), 0.0);
-    	Amg::Vector3D recoEndSecond(signPhi * localEnds.second.xPhi(), signEta * localEnds.second.xEta(), 0.0);
+      double signPhi = hitPhiDirection();
+      double signEta = hitEtaDirection();
+      const SiLocalPosition pos(signEta * position[Trk::distEta], signPhi * position[Trk::distPhi]);
+      const std::pair<SiLocalPosition, SiLocalPosition> localEnds = m_design->endsOfStrip(position);
+      Amg::Vector3D recoEndFirst(signPhi * localEnds.first.xPhi(), signEta * localEnds.first.xEta(), 0.0);
+      Amg::Vector3D recoEndSecond(signPhi * localEnds.second.xPhi(), signEta * localEnds.second.xEta(), 0.0);
 
-    	return std::pair<Amg::Vector3D, Amg::Vector3D >(globalPosition(recoEndFirst), globalPosition(recoEndSecond));
+      return std::pair<Amg::Vector3D, Amg::Vector3D >(globalPosition(recoEndFirst), globalPosition(recoEndSecond));
     }
     else{                                   
-      	const std::pair<Amg::Vector2D,Amg::Vector2D> localEnds = m_design->endsOfStrip(position);
-	return std::pair<Amg::Vector3D,Amg::Vector3D >(globalPosition(localEnds.first),globalPosition(localEnds.second)); 
+      const std::pair<Amg::Vector2D,Amg::Vector2D> localEnds = m_design->endsOfStrip(position);
+      return std::pair<Amg::Vector3D,Amg::Vector3D >(globalPosition(localEnds.first),globalPosition(localEnds.second)); 
     }               
-}
+  }
 
 
-const Trk::Surface &SiDetectorElement::surface() const {
+  const Trk::Surface &SiDetectorElement::surface() const {
     if (!m_surface) {
-        m_surface = new Trk::PlaneSurface(*this);
+      m_surface = new Trk::PlaneSurface(*this);
     }
     return *m_surface;
-}
+  }
 
-const std::vector<const Trk::Surface *> &SiDetectorElement::surfaces() const {
+  const std::vector<const Trk::Surface *> &SiDetectorElement::surfaces() const {
     if (!m_surfaces.size()) {
-        // get this surface
-        m_surfaces.push_back(&surface());
-        // get the other side surface
-        if (otherSide()) {
-            m_surfaces.push_back(&(otherSide()->surface()));
-        }
+      // get this surface
+      m_surfaces.push_back(&surface());
+      // get the other side surface
+      if (otherSide()) {
+        m_surfaces.push_back(&(otherSide()->surface()));
+      }
     }
     // return the surfaces
     return m_surfaces;
-}
+  }
 
-const Trk::SurfaceBounds &SiDetectorElement::bounds() const {
+  const Trk::SurfaceBounds &SiDetectorElement::bounds() const {
     return m_design->bounds();
-}
+  }
 
-// Get min/max of r, z,and phi
-void SiDetectorElement::getExtent(double &rMin, double &rMax,
-                                  double &zMin, double &zMax,
-                                  double &phiMin, double &phiMax) const {
+  // Get min/max of r, z,and phi
+  void SiDetectorElement::getExtent(double &rMin, double &rMax,
+  double &zMin, double &zMax,
+  double &phiMin, double &phiMax) const {
     const InDetDD::StripStereoAnnulusDesign *testDesign =
-        dynamic_cast<const InDetDD::StripStereoAnnulusDesign *>(m_design);
+      dynamic_cast<const InDetDD::StripStereoAnnulusDesign *>(m_design);
 
     HepGeom::Point3D<double> corners[4];
 
@@ -767,83 +774,83 @@ void SiDetectorElement::getExtent(double &rMin, double &rMax,
 
     double radialShift = 0.;
     if (testDesign) {
-        radialShift = testDesign->localModuleCentreRadius(); // additional radial shift for sensors centred on beamline
+      radialShift = testDesign->localModuleCentreRadius(); // additional radial shift for sensors centred on beamline
     }
     const HepGeom::Transform3D rShift = HepGeom::TranslateX3D(radialShift); // in local frame, radius is x
 
     for (int i = 0; i < 4; i++) {
-        if (testDesign) {
-            corners[i].transform(rShift);
-        }
+      if (testDesign) {
+        corners[i].transform(rShift);
+      }
 
-        HepGeom::Point3D<double> globalPoint = globalPosition(corners[i]);
+      HepGeom::Point3D<double> globalPoint = globalPosition(corners[i]);
 
-        double rPoint = globalPoint.perp();
-        double zPoint = globalPoint.z();
-        double phiPoint = globalPoint.phi();
+      double rPoint = globalPoint.perp();
+      double zPoint = globalPoint.z();
+      double phiPoint = globalPoint.phi();
 
-        // Use first point to initializa min/max values.
-        if (first) {
-            // Put phi in a range so that we are not near -180/+180 division.
-            // Do this by adding an offset if phi > 90 CLHEP::deg or < -90 CLHEP::deg.
-            // This offset is later removed.
-            if (phiPoint < -0.5 * M_PI) {
-                phiOffset = -0.5 * M_PI;
-            }
-            else if (phiPoint > 0.5 * M_PI) {
-                phiOffset = 0.5 * M_PI;
-            }
-            phiMin = phiMax = phiPoint - phiOffset;
-            rMin = rMax = rPoint;
-            zMin = zMax = zPoint;
+      // Use first point to initializa min/max values.
+      if (first) {
+        // Put phi in a range so that we are not near -180/+180 division.
+        // Do this by adding an offset if phi > 90 CLHEP::deg or < -90 CLHEP::deg.
+        // This offset is later removed.
+        if (phiPoint < -0.5 * M_PI) {
+          phiOffset = -0.5 * M_PI;
         }
-        else {
-            phiPoint -= phiOffset;
-            // put phi back in -M_PI < phi < +M_PI range
-            if (phiPoint < -M_PI) {
-                phiPoint += 2. * M_PI;
-            }
-            if (phiPoint > M_PI) {
-                phiPoint -= 2. * M_PI;
-            }
-            phiMin = std::min(phiMin, phiPoint);
-            phiMax = std::max(phiMax, phiPoint);
-            rMin = std::min(rMin, rPoint);
-            rMax = std::max(rMax, rPoint);
-            zMin = std::min(zMin, zPoint);
-            zMax = std::max(zMax, zPoint);
+        else if (phiPoint > 0.5 * M_PI) {
+          phiOffset = 0.5 * M_PI;
         }
-        first = false;
+        phiMin = phiMax = phiPoint - phiOffset;
+        rMin = rMax = rPoint;
+        zMin = zMax = zPoint;
+      }
+      else {
+        phiPoint -= phiOffset;
+        // put phi back in -M_PI < phi < +M_PI range
+        if (phiPoint < -M_PI) {
+          phiPoint += 2. * M_PI;
+        }
+        if (phiPoint > M_PI) {
+          phiPoint -= 2. * M_PI;
+        }
+        phiMin = std::min(phiMin, phiPoint);
+        phiMax = std::max(phiMax, phiPoint);
+        rMin = std::min(rMin, rPoint);
+        rMax = std::max(rMax, rPoint);
+        zMin = std::min(zMin, zPoint);
+        zMax = std::max(zMax, zPoint);
+      }
+      first = false;
     }
 
     // put phi back in -M_PI < phi < +M_PI range
     phiMin += phiOffset;
     phiMax += phiOffset;
     if (phiMin < -M_PI) {
-        phiMin += 2. * M_PI;
+      phiMin += 2. * M_PI;
     }
     if (phiMin > M_PI) {
-        phiMin -= 2. * M_PI;
+      phiMin -= 2. * M_PI;
     }
     if (phiMax < -M_PI) {
-        phiMax += 2. * M_PI;
+      phiMax += 2. * M_PI;
     }
     if (phiMax > M_PI) {
-        phiMax -= 2. * M_PI;
+      phiMax -= 2. * M_PI;
     }
-}
+  }
 
-// Get eta/phi extent. Returns min/max eta and phi and r (for barrel)
-// or z (for endcap) Takes as input the vertex spread in z (+-deltaZ).
-// Gets 4 corners of the sensor and calculates eta phi for each corner
-// for both +/- vertex spread.  The returned phi is between -M_PI and M_PI
-// with the direction minPhi to maxPhi always in the positive sense,
-// so if the element extends across the -180/180 boundary then minPhi will
-// be greater than maxPhi.
-void SiDetectorElement::getEtaPhiRegion(double deltaZ, double &etaMin, double &etaMax, double &phiMin,
-                                        double &phiMax, double &rz) const {
+  // Get eta/phi extent. Returns min/max eta and phi and r (for barrel)
+  // or z (for endcap) Takes as input the vertex spread in z (+-deltaZ).
+  // Gets 4 corners of the sensor and calculates eta phi for each corner
+  // for both +/- vertex spread.  The returned phi is between -M_PI and M_PI
+  // with the direction minPhi to maxPhi always in the positive sense,
+  // so if the element extends across the -180/180 boundary then minPhi will
+  // be greater than maxPhi.
+  void SiDetectorElement::getEtaPhiRegion(double deltaZ, double &etaMin, double &etaMax, double &phiMin,
+  double &phiMax, double &rz) const {
     if (!m_cacheValid) {
-        updateCache();
+      updateCache();
     }
 
     HepGeom::Point3D<double> corners[4];
@@ -854,77 +861,77 @@ void SiDetectorElement::getEtaPhiRegion(double deltaZ, double &etaMin, double &e
     double phiOffset = 0.;
 
     for (int i = 0; i < 4; i++) {
-        double etaMinPoint;
-        double etaMaxPoint;
-        double phiPoint;
+      double etaMinPoint;
+      double etaMaxPoint;
+      double phiPoint;
 
-        // Get the eta phi value for this corner.
-        getEtaPhiPoint(corners[i], deltaZ, etaMinPoint, etaMaxPoint, phiPoint);
+      // Get the eta phi value for this corner.
+      getEtaPhiPoint(corners[i], deltaZ, etaMinPoint, etaMaxPoint, phiPoint);
 
-        if (first) { // Use the first point to initialize the min/max values.
-            // Put phi in a range so that we are not near -180/+180 division.
-            // Do this by adding an offset if phi > 90 CLHEP::deg or < -90 CLHEP::deg.
-            // This offset is later removed.
-            if (phiPoint < -0.5 * M_PI) {
-                phiOffset = -0.5 * M_PI;
-            }
-            else if (phiPoint > 0.5 * M_PI) {
-                phiOffset = 0.5 * M_PI;
-            }
-            phiMin = phiMax = phiPoint - phiOffset;
-            etaMin = etaMinPoint;
-            etaMax = etaMaxPoint;
+      if (first) { // Use the first point to initialize the min/max values.
+        // Put phi in a range so that we are not near -180/+180 division.
+        // Do this by adding an offset if phi > 90 CLHEP::deg or < -90 CLHEP::deg.
+        // This offset is later removed.
+        if (phiPoint < -0.5 * M_PI) {
+          phiOffset = -0.5 * M_PI;
         }
-        else {
-            phiPoint -= phiOffset;
-            // put phi back in -M_PI < phi < +M_PI range
-            if (phiPoint < -M_PI) {
-                phiPoint += 2. * M_PI;
-            }
-            if (phiPoint > M_PI) {
-                phiPoint -= 2. * M_PI;
-            }
-            phiMin = std::min(phiMin, phiPoint);
-            phiMax = std::max(phiMax, phiPoint);
-            etaMin = std::min(etaMin, etaMinPoint);
-            etaMax = std::max(etaMax, etaMaxPoint);
+        else if (phiPoint > 0.5 * M_PI) {
+          phiOffset = 0.5 * M_PI;
         }
-        first = false;
+        phiMin = phiMax = phiPoint - phiOffset;
+        etaMin = etaMinPoint;
+        etaMax = etaMaxPoint;
+      }
+      else {
+        phiPoint -= phiOffset;
+        // put phi back in -M_PI < phi < +M_PI range
+        if (phiPoint < -M_PI) {
+          phiPoint += 2. * M_PI;
+        }
+        if (phiPoint > M_PI) {
+          phiPoint -= 2. * M_PI;
+        }
+        phiMin = std::min(phiMin, phiPoint);
+        phiMax = std::max(phiMax, phiPoint);
+        etaMin = std::min(etaMin, etaMinPoint);
+        etaMax = std::max(etaMax, etaMaxPoint);
+      }
+      first = false;
     }
 
     // put phi back in -M_PI < phi < +M_PI range
     phiMin += phiOffset;
     phiMax += phiOffset;
     if (phiMin < -M_PI) {
-        phiMin += 2. * M_PI;
+      phiMin += 2. * M_PI;
     }
     if (phiMin > M_PI) {
-        phiMin -= 2. * M_PI;
+      phiMin -= 2. * M_PI;
     }
     if (phiMax < -M_PI) {
-        phiMax += 2. * M_PI;
+      phiMax += 2. * M_PI;
     }
     if (phiMax > M_PI) {
-        phiMax -= 2. * M_PI;
+      phiMax -= 2. * M_PI;
     }
 
     // Calculate rz = r (barrel) or z (endcap)
     // Use center of sensor ((0,0,0) in local coordinates) for determining this.
     //  HepGeom::Point3D<double> globalCenter = globalPosition(HepGeom::Point3D<double>(0,0,0));
     if (isBarrel()) {
-        rz = center().perp(); // r
+      rz = center().perp(); // r
     }
     else {
-        rz = center().z();  // z
+      rz = center().z();  // z
     }
-}
+  }
 
-// Gets eta phi for a point given in local coordinates. deltaZ is specified to
-// account for the vertex spread. phi is independent of this vertex
-// spread. etaMax will correspond to zMin (-deltaZ) and etaMin will
-// correspond to zMax (+deltaZ).
-void SiDetectorElement::getEtaPhiPoint(const HepGeom::Point3D<double> &point, double deltaZ,
-                                       double &etaMin, double &etaMax, double &phi) const {
+  // Gets eta phi for a point given in local coordinates. deltaZ is specified to
+  // account for the vertex spread. phi is independent of this vertex
+  // spread. etaMax will correspond to zMin (-deltaZ) and etaMin will
+  // correspond to zMax (+deltaZ).
+  void SiDetectorElement::getEtaPhiPoint(const HepGeom::Point3D<double> &point, double deltaZ,
+  double &etaMin, double &etaMax, double &phi) const {
     // Get the point in global coordinates.
     HepGeom::Point3D<double> globalPoint = globalPosition(point);
 
@@ -938,11 +945,11 @@ void SiDetectorElement::getEtaPhiPoint(const HepGeom::Point3D<double> &point, do
     etaMin = -log(tan(0.5 * thetaMax));
 
     phi = globalPoint.phi();
-}
+  }
 
-void SiDetectorElement::getCorners(HepGeom::Point3D<double> *corners) const {
+  void SiDetectorElement::getCorners(HepGeom::Point3D<double> *corners) const {
     if (!m_cacheValid) {
-        updateCache();
+      updateCache();
     }
 
     // This makes the assumption that the forward SCT detectors are orientated such that
@@ -974,214 +981,209 @@ void SiDetectorElement::getCorners(HepGeom::Point3D<double> *corners) const {
     corners[3][distPhi] = -0.5 * maxWidth;
     corners[3][distEta] = 0.5 * length;
     corners[3][distDepth] = 0.;
-}
+  }
 
-SiIntersect SiDetectorElement::inDetector(const Amg::Vector2D &localPosition,
-                                          double phiTol, double etaTol) const {
-    return m_design->inDetector(localPosition, phiTol, etaTol);
-}
+  bool SiDetectorElement::nearBondGap(Amg::Vector2D localPosition, double etaTol) const {
+  
 
-SiIntersect SiDetectorElement::inDetector(const HepGeom::Point3D<double> &globalPosition, double phiTol,
-                                          double etaTol) const {
-    return m_design->inDetector(localPosition(globalPosition), phiTol, etaTol);
-}
-
-bool SiDetectorElement::nearBondGap(Amg::Vector2D localPosition, double etaTol) const {
     return m_design->nearBondGap(localPosition, etaTol);
-}
+  }
 
-bool SiDetectorElement::nearBondGap(HepGeom::Point3D<double> globalPosition, double etaTol) const {
+  bool SiDetectorElement::nearBondGap(HepGeom::Point3D<double> globalPosition, double etaTol) const {
+    
+  
     return m_design->nearBondGap(localPosition(globalPosition), etaTol);
-}
+  }
 
-Amg::Vector2D SiDetectorElement::localPositionOfCell(const SiCellId &cellId) const {
+  Amg::Vector2D SiDetectorElement::localPositionOfCell(const SiCellId &cellId) const {
     Amg::Vector2D pos(m_design->localPositionOfCell(cellId));
 
     return correctLocalPosition(pos);
-}
+  }
 
-Amg::Vector2D SiDetectorElement::localPositionOfCell(const Identifier &id) const {
+  Amg::Vector2D SiDetectorElement::localPositionOfCell(const Identifier &id) const {
     SiCellId cellId = cellIdFromIdentifier(id);
     SiLocalPosition silp = m_design->localPositionOfCell(cellId);
     Amg::Vector2D pos = hitLocalToLocal(silp.xEta(), silp.xPhi());
 
     return correctLocalPosition(pos);
-}
+  }
 
-Amg::Vector2D SiDetectorElement::rawLocalPositionOfCell(const SiCellId &cellId) const {
+  Amg::Vector2D SiDetectorElement::rawLocalPositionOfCell(const SiCellId &cellId) const {
     return m_design->localPositionOfCell(cellId);
-}
+  }
 
-Amg::Vector2D SiDetectorElement::rawLocalPositionOfCell(const Identifier &id) const {
+  Amg::Vector2D SiDetectorElement::rawLocalPositionOfCell(const Identifier &id) const {
     SiCellId cellId = cellIdFromIdentifier(id);
 
     return m_design->localPositionOfCell(cellId);
-}
+  }
 
-int SiDetectorElement::numberOfConnectedCells(const SiCellId cellId) const {
+  int SiDetectorElement::numberOfConnectedCells(const SiCellId cellId) const {
     SiReadoutCellId readoutId = m_design->readoutIdOfCell(cellId);
 
     return m_design->numberOfConnectedCells(readoutId);
-}
+  }
 
-SiCellId SiDetectorElement::connectedCell(const SiCellId cellId, int number) const {
+  SiCellId SiDetectorElement::connectedCell(const SiCellId cellId, int number) const {
     SiReadoutCellId readoutId = m_design->readoutIdOfCell(cellId);
 
     return m_design->connectedCell(readoutId, number);
-}
+  }
 
-SiCellId SiDetectorElement::cellIdOfPosition(const Amg::Vector2D &localPosition) const {
+  SiCellId SiDetectorElement::cellIdOfPosition(const Amg::Vector2D &localPosition) const {
     return m_design->cellIdOfPosition(localPosition);
-}
+  }
 
-Identifier SiDetectorElement::identifierOfPosition(const Amg::Vector2D &localPosition) const {
+  Identifier SiDetectorElement::identifierOfPosition(const Amg::Vector2D &localPosition) const {
     SiCellId cellId = m_design->cellIdOfPosition(localPosition);
 
     return identifierFromCellId(cellId);
-}
+  }
 
-Identifier SiDetectorElement::identifierFromCellId(const SiCellId &cellId) const {
+  Identifier SiDetectorElement::identifierFromCellId(const SiCellId &cellId) const {
     Identifier id; // Will be initialized in an invalid state.
 
     // If something fails it returns the id in an invalid state.
 
     if (cellId.isValid()) {
-        if (isPixel()) {
-            const PixelID *pixelIdHelper = static_cast<const PixelID *>(getIdHelper());
-            if (pixelIdHelper) {
-                id = pixelIdHelper->pixel_id(m_id, cellId.phiIndex(), cellId.etaIndex());
-            }
+      if (isPixel()) {
+        const PixelID *pixelIdHelper = static_cast<const PixelID *>(getIdHelper());
+        if (pixelIdHelper) {
+          id = pixelIdHelper->pixel_id(m_id, cellId.phiIndex(), cellId.etaIndex());
         }
-        else {
-            const SCT_ID *sctIdHelper = static_cast<const SCT_ID *>(getIdHelper());
-            if (sctIdHelper) {
-                id = sctIdHelper->strip_id(m_id, cellId.strip());
-            }
+      }
+      else {
+        const SCT_ID *sctIdHelper = static_cast<const SCT_ID *>(getIdHelper());
+        if (sctIdHelper) {
+          id = sctIdHelper->strip_id(m_id, cellId.strip());
         }
+      }
     }
 
     return id;
-}
+  }
 
-SiCellId SiDetectorElement::cellIdFromIdentifier(const Identifier &identifier) const {
+  SiCellId SiDetectorElement::cellIdFromIdentifier(const Identifier &identifier) const {
     SiCellId cellId; // Initialized in invalid state.
  
     // If something fails it returns the cellId in an invalid state.
  
     if (identifier.is_valid()) {
-        if (isPixel()) {
-            const PixelID *pixelIdHelper = static_cast<const PixelID *>(getIdHelper());
-            if (pixelIdHelper) {
-                cellId = SiCellId(pixelIdHelper->phi_index(
-                                      identifier), pixelIdHelper->eta_index(identifier));
-            }
+      if (isPixel()) {
+        const PixelID *pixelIdHelper = static_cast<const PixelID *>(getIdHelper());
+        if (pixelIdHelper) {
+          cellId = SiCellId(pixelIdHelper->phi_index(
+            identifier), pixelIdHelper->eta_index(identifier));
         }
-        else {
-            const SCT_ID *sctIdHelper = static_cast<const SCT_ID *>(getIdHelper());
-            if (sctIdHelper) {
-                int row = sctIdHelper->row(identifier);
-                int strip = sctIdHelper->strip(identifier);
-                if (row < 0) { // This sensor does not have rows
-                    cellId = SiCellId(strip);
-                }
-                else {
-                    const InDetDD::SCT_ModuleSideDesign &sctDesign =
-                     dynamic_cast<const InDetDD::SCT_ModuleSideDesign &> (*m_design);
-                    int strip1D = sctDesign.strip1Dim(strip, row);
-                    cellId = SiCellId(strip1D);
-                }
-            }
+      }
+      else {
+        const SCT_ID *sctIdHelper = static_cast<const SCT_ID *>(getIdHelper());
+        if (sctIdHelper) {
+          int row = sctIdHelper->row(identifier);
+          int strip = sctIdHelper->strip(identifier);
+          if (row < 0) { // This sensor does not have rows
+            cellId = SiCellId(strip);
+          }
+          else {
+            const InDetDD::SCT_ModuleSideDesign &sctDesign =
+              dynamic_cast<const InDetDD::SCT_ModuleSideDesign &> (*m_design);
+            int strip1D = sctDesign.strip1Dim(strip, row);
+            cellId = SiCellId(strip1D);
+          }
         }
+      }
     }
  
     return cellId;
-}
+  }
 
-void SiDetectorElement::checkOrientation(const HepGeom::Vector3D<double> &unitR, 
-                                         const HepGeom::Vector3D<double> &globalEtaAxis, 
-                                         const HepGeom::Vector3D<double> &globalDepthAxis) const {
+  void SiDetectorElement::checkOrientation(const HepGeom::Vector3D<double> &unitR, 
+  const HepGeom::Vector3D<double> &globalEtaAxis, 
+  const HepGeom::Vector3D<double> &globalDepthAxis) const {
 
     if (isBarrel()) {
-        // Strips should be along globalZ
-        if (fabs(globalEtaAxis[2]) < 0.7) {
-            if (isPixel()) {
-                msg(MSG::DEBUG) << "Pixel barrel sensor: eta far from parallel to z\n    GlobalEtaAxis = (" << 
-                                  globalEtaAxis[0] << ", " << globalEtaAxis[1] << ", " << globalEtaAxis[2] << ")" << endmsg;
-            }
-            else {
-                msg(MSG::DEBUG) << "SCT/Strip barrel sensor: eta far from parallel to z\n    GlobalEtaAxis = (" << 
-                                  globalEtaAxis[0] << ", " << globalEtaAxis[1] << ", " << globalEtaAxis[2] << ")" << endmsg;
-            }
+      // Strips should be along globalZ
+      if (fabs(globalEtaAxis[2]) < 0.7) {
+        if (isPixel()) {
+          msg(MSG::DEBUG) << "Pixel barrel sensor: eta far from parallel to z\n    GlobalEtaAxis = (" << 
+            globalEtaAxis[0] << ", " << globalEtaAxis[1] << ", " << globalEtaAxis[2] << ")" << endmsg;
         }
-        // Depth should be radial
-        if (fabs(globalDepthAxis.dot(unitR)) < 0.7) {
-            if (isPixel()) {
-                msg(MSG::DEBUG) << "Pixel barrel sensor: depth direction far from radial" << endmsg;
-            }
-            else {
-                msg(MSG::DEBUG) << "SCT/Strip barrel sensor: depth direction far from radial" << endmsg;
-            }
-        } 
+        else {
+          msg(MSG::DEBUG) << "SCT/Strip barrel sensor: eta far from parallel to z\n    GlobalEtaAxis = (" << 
+            globalEtaAxis[0] << ", " << globalEtaAxis[1] << ", " << globalEtaAxis[2] << ")" << endmsg;
+        }
+      }
+      // Depth should be radial
+      if (fabs(globalDepthAxis.dot(unitR)) < 0.7) {
+        if (isPixel()) {
+          msg(MSG::DEBUG) << "Pixel barrel sensor: depth direction far from radial" << endmsg;
+        }
+        else {
+          msg(MSG::DEBUG) << "SCT/Strip barrel sensor: depth direction far from radial" << endmsg;
+        }
+      } 
     }
     else {
-        // Strips should be radial
-        if (fabs(globalEtaAxis.dot(unitR)) < 0.7) {
-            if (isPixel()) {
-                msg(MSG::DEBUG) << "Pixel endcap sensor: eta/strip direction far from radial" << endmsg;
-            }
-            else {
-                msg(MSG::DEBUG) << "SCT/Strip endcap sensor: eta/strip direction far from radial" << endmsg;
-            }
+      // Strips should be radial
+      if (fabs(globalEtaAxis.dot(unitR)) < 0.7) {
+        if (isPixel()) {
+          msg(MSG::DEBUG) << "Pixel endcap sensor: eta/strip direction far from radial" << endmsg;
         }
-        // Depth should be along z
-        if (fabs(globalDepthAxis[2]) < 0.7) {
-            if (isPixel()) {
-                msg(MSG::DEBUG) << "Pixel endcap sensor: depth direction far from parallel to z\n";
-            }
-            else {
-                msg(MSG::DEBUG) << "SCT/Strip endcap sensor: depth direction far from parallel to z\n";
-            }
-        } 
+        else {
+          msg(MSG::DEBUG) << "SCT/Strip endcap sensor: eta/strip direction far from radial" << endmsg;
+        }
+      }
+      // Depth should be along z
+      if (fabs(globalDepthAxis[2]) < 0.7) {
+        if (isPixel()) {
+          msg(MSG::DEBUG) << "Pixel endcap sensor: depth direction far from parallel to z\n";
+        }
+        else {
+          msg(MSG::DEBUG) << "SCT/Strip endcap sensor: depth direction far from parallel to z\n";
+        }
+      } 
     }
-}
+  }
 
-double SiDetectorElement::cosStereo() const {
+  double SiDetectorElement::cosStereo() const {
 
-//   Choose strip 0 (and row 0) (arbitrarily).
-//   Get its end-points
-//   Transform them to global frame
-//   Get cosine of its angle with the appropriate global axis
-//   For barrel sensors, that is the z-axis
-//   For endcap sensors, that is the radial direction, which we calculate at the strip centre.
+    //   Choose strip 0 (and row 0) (arbitrarily).
+    //   Get its end-points
+    //   Transform them to global frame
+    //   Get cosine of its angle with the appropriate global axis
+    //   For barrel sensors, that is the z-axis
+    //   For endcap sensors, that is the radial direction, which we calculate at the strip centre.
 
     const SCT_ModuleSideDesign *myDesign = dynamic_cast<const SCT_ModuleSideDesign *> (&design());
     if (!myDesign) {
-        msg(MSG::FATAL) << "Request for cosStereo() for non-strip detector? " <<
-                           "Unable to convert SiDetectorElement design to SCT-type." << endmsg;
-        return 1.0;
+      msg(MSG::FATAL) << "Request for cosStereo() for non-strip detector? " <<
+        "Unable to convert SiDetectorElement design to SCT-type." << endmsg;
+      return 1.0;
     }
     SiCellId strip0(0);
     SiLocalPosition center = myDesign->localPositionOfCell(strip0);
     std::pair<SiLocalPosition, SiLocalPosition> ends = myDesign->endsOfStrip(center);
     HepGeom::Point3D<double> inner(ends.first.xEta(), ends.first.xPhi(), ends.first.xDepth()); 
     HepGeom::Point3D<double> outer(ends.second.xEta(), ends.second.xPhi(), ends.second.xDepth()); 
-    HepGeom::Point3D<double> globalInner = transformHit() * inner;
-    HepGeom::Point3D<double> globalOuter = transformHit() * outer;
+    // AS: change to 
+    HepGeom::Point3D<double> globalInner = getMaterialGeom()->getAbsoluteTransform() * inner;
+    HepGeom::Point3D<double> globalOuter = getMaterialGeom()->getAbsoluteTransform() * outer;
     HepGeom::Point3D<double> globalStrip0 = globalOuter - globalInner;
     HepGeom::Point3D<double> refVec(0., 0., 1.);
     if (!isBarrel()) {
-        HepGeom::Point3D<double> globalCenter = (globalInner + globalOuter) / 2.;
-        refVec = HepGeom::Point3D<double>(globalCenter.x(), globalCenter.y(), 0.0); // Radial vector outwards (not normalised)
+      HepGeom::Point3D<double> globalCenter = (globalInner + globalOuter) / 2.;
+      refVec = HepGeom::Point3D<double>(globalCenter.x(), globalCenter.y(), 0.0); // Radial vector outwards (not normalised)
     }
     return globalStrip0.dot(refVec) / globalStrip0.mag() / refVec.mag();
-}
+  }
 
-Amg::Vector3D SiDetectorElement::globalPosition(const Amg::Vector2D &localPos) const {
+  Amg::Vector3D SiDetectorElement::globalPosition(const Amg::Vector2D &localPos) const {
     if (!m_cacheValid) {
-        updateCache();
+      updateCache();
     }
     Amg::Vector3D lp(localPos[0], localPos[1], 0.);
     return transform() * lp;
-}
+  }
 
 } // namespace InDetDD
