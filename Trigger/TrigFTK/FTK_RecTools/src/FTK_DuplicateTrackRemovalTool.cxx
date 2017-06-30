@@ -97,6 +97,7 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
 
 #ifdef FTKDuplicateTrackRemovalTiming
   clock_t tStart = clock();
+  for (int tim=0;tim<100;++tim){
 #endif
 
   ATH_MSG_DEBUG("ACH99 - I'm in removeDuplicates!");
@@ -170,6 +171,7 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
   } // loop over incoming tracks
 
 #ifdef FTKDuplicateTrackRemovalTiming
+  } // loop over 100 times of doing the removal
   clock_t tEnd = clock();
   double elapsed_secs = double(tEnd - tStart) / CLOCKS_PER_SEC;
   ATH_MSG_INFO("Time taken: "<<elapsed_secs<<"s");
