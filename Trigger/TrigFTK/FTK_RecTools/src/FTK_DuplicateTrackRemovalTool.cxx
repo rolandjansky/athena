@@ -92,7 +92,13 @@ const FTK_RawTrack* FTK_DuplicateTrackRemovalTool::besttrack(const FTK_RawTrack*
 	else return oldtrack;
 }
 
+//#define FTKDuplicateTrackRemovalTiming
 FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK_RawTrackContainer* trks){
+
+#ifdef FTKDuplicateTrackRemovalTiming
+  clock_t tStart = clock();
+#endif
+
   ATH_MSG_DEBUG("ACH99 - I'm in removeDuplicates!");
   m_trks_nodups->clear();
   m_trks_nodups->reserve(trks->size());
@@ -162,6 +168,12 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
 	  } // deciding what to do based on the number of matches
 
   } // loop over incoming tracks
+
+#ifdef FTKDuplicateTrackRemovalTiming
+  clock_t tEnd = clock();
+  double elapsed_secs = double(tEnd - tStart) / CLOCKS_PER_SEC;
+  ATH_MSG_INFO("Time taken: "<<elapsed_secs<<"s");
+#endif
 
   return m_trks_nodups;
 }
