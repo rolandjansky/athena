@@ -116,8 +116,8 @@ InDet::InDetRecStatisticsAlg::InDetRecStatisticsAlg(const std::string& name, ISv
   m_minEtaDBM (2.5),
   m_maxEtaDBM (10.0)
 {  
-  m_RecTrackCollection_keys.push_back(std::string("Tracks"));
-  m_TrackTruthCollection_keys.push_back(std::string("TrackTruthCollection"));  
+  // m_RecTrackCollection_keys.push_back(std::string("Tracks"));
+  // m_TrackTruthCollection_keys.push_back(std::string("TrackTruthCollection"));
 
   // Algorithm properties
   declareProperty("SummaryTool",                m_trkSummaryTool);
