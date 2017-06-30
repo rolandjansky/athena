@@ -37,7 +37,7 @@ atlas_depends_on_subdirs(
 # External dependencies:
 find_package( CLHEP )
 find_package( Coin3D )
-find_package( Qt5 COMPONENTS Core Gui  )
+find_package( Qt5 COMPONENTS Core Gui Widgets)
 
 # Generate UI files automatically:
 set( CMAKE_AUTOUIC TRUE )
