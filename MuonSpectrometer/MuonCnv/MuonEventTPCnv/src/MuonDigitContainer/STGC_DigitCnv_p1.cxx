@@ -25,7 +25,6 @@ void STGC_DigitCnv_p1::transToPers( const sTgcDigit *transObj, Muon::STGC_Digit_
   persObj->m_time                     = transObj->time();
   persObj->m_isDead                   = transObj->isDead();
   persObj->m_isPileup                 = transObj->isPileup();
-  std::cout<<"STGC_DigitCnv_p1 done!"<<std::endl;
 }
 /*******************************************************************************/
 
