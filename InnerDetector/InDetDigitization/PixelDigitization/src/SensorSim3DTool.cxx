@@ -108,15 +108,6 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiCharg
   double module_size_y = Module.length();
   
 
-  ATH_MSG_INFO("sensor_thickness: "<<sensorThickness);
-  ATH_MSG_INFO("eta_0: "<<eta_i);
-  ATH_MSG_INFO("phi_0: "<<phi_i);
-  ATH_MSG_INFO("depth_0: "<<depth_i);
-  ATH_MSG_INFO("dEta: "<<dEta);
-  ATH_MSG_INFO("dPhi: "<<dPhi);
-  ATH_MSG_INFO("dDepth: "<<dDepth);
-  ATH_MSG_INFO("iTotalLength: "<<iTotalLength);
-  ATH_MSG_INFO("trfHitRecord: "<<trfHitRecord.size());
   // *** Now diffuse charges to surface *** //
   // We split the G4 step into several sub steps. The charge will be deposited at the mid point
   // of these steps
@@ -129,9 +120,6 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiCharg
       depth_i  += 1.0*iHitRecord.first/iTotalLength*dDepth;
     }
 
-  ATH_MSG_INFO("eta_i: "<<eta_i);
-  ATH_MSG_INFO("phi_i: "<<phi_i);
-  ATH_MSG_INFO("depth_i: "<<depth_i);
     double es_current = 1.0*iHitRecord.second/1.E+6;
 
     double dist_electrode = 0.5 * sensorThickness - Module.design().readoutSide() * depth_i;
@@ -168,7 +156,6 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiCharg
       for (int j=-1; j<=1; j++){
         y_neighbor = y_pix_center - j*pixel_size_y;
 
-        //ATH_MSG_INFO(" (i, j) "<<i<<" "<<j<<" before cut   x_neighbor  " << x_neighbor << " y_neighbor "<<y_neighbor);
         // -- check if the neighbor falls inside the charge collection prob map window
         if ( (fabs(x_neighbor)<pixel_size_x) && (fabs(y_neighbor)<pixel_size_y) ){
 
@@ -184,7 +171,6 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiCharg
           // -- swap x and y bins to match Map coord convention
           double ccprob_neighbor = m_chargeCollSvc->getProbMapEntry("FEI4",y_bin_cc_map,x_bin_cc_map);
           if ( ccprob_neighbor == -1. ) return StatusCode::FAILURE;
-          //ATH_MSG_INFO(" (i, j) "<<i<<" "<<j<<"  y_bin_cc_map   "<<y_bin_cc_map << "   x_bin_cc_map  " << x_bin_cc_map << " charge_coll neighbor "<<ccprob_neighbor);
 
           double ed=es_current*eleholePairEnergy*ccprob_neighbor;
 
@@ -194,7 +180,6 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiCharg
           double x_mod = x_neighbor + pixel_size_x/2 + pixel_size_x*nPixX -module_size_x/2.;
           double y_mod = y_neighbor + pixel_size_y/2 + pixel_size_y*nPixY -module_size_y/2.;
           SiLocalPosition chargePos = Module.hitLocalToLocal(y_mod,x_mod);
-          //ATH_MSG_INFO(" Si3D charge startPosition "<<chargePos<<"  ed  "<<ed);
 
           SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));
           SiCellId diode = Module.cellIdOfPosition(scharge.position());
@@ -207,7 +192,6 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiCharg
     }
   }
 
-  ATH_MSG_INFO("==============================");
 
   return StatusCode::SUCCESS;
 }

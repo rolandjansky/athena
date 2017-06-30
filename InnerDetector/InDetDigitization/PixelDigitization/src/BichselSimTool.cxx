@@ -411,10 +411,7 @@ std::vector<std::pair<double,double> > BichselSimTool::BichselSim(double BetaGam
     // sample hit position -- exponential distribution
     double HitPosition = 0.;
     for(int iHit = 0; iHit < m_nCols; iHit++){
-	    double cat = CLHEP::RandExpZiggurat::shoot(m_rndmEngine, lambda);
-	    HitPosition += cat;
-	    if(!iHit)
-	      ATH_MSG_INFO("cat: "<<cat);
+	   HitPosition += CLHEP::RandExpZiggurat::shoot(m_rndmEngine, lambda);
     }
     // termination by hit position
     // yes, in case m_nCols > 1, we will loose the last m_nCols collisions. So m_nCols cannot be too big
@@ -425,7 +422,6 @@ std::vector<std::pair<double,double> > BichselSimTool::BichselSim(double BetaGam
     double TossEnergyLoss = -1.;
     while(TossEnergyLoss <= 0.){ // we have to do this because sometimes TossEnergyLoss will be negative due to too small TossIntX
       double TossIntX = CLHEP::RandFlat::shoot(m_rndmEngine, 0., IntXUpperBound);
-      ATH_MSG_INFO("TossIntX: "<<TossIntX);
       TossEnergyLoss = GetColE(indices_BetaGammaLog10, TMath::Log10(TossIntX), iData);
     }
 
