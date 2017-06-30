@@ -83,8 +83,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
   if (Module.isDBM()){
     eleholePairEnergy = 1. / (13. * CLHEP::eV); // was 3.62 eV.
     m_diffusionConstant = .00265;
-    //smearRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
-    smearRand = 0.2;
+    smearRand = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
   }
   else{
     eleholePairEnergy = siProperties.electronHolePairsPerEnergy();
