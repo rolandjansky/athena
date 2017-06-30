@@ -6,6 +6,7 @@
 #ifndef __L1TopoCoreSimulation__TopoSteering__
 #define __L1TopoCoreSimulation__TopoSteering__
 
+#include <bitset>
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -90,6 +91,18 @@ namespace TCS {
 
       StatusCode saveHist();
 
+      static const unsigned int numberOfL1TopoBits = 128;
+      /**
+         @brief cache the decision/overflow bits from hardware
+         These bits are propagated to the algorithms with propagateHardwareBitsToAlgos.
+       */
+      void setHardwareBits(const std::bitset<numberOfL1TopoBits> &triggerBits,
+                           const std::bitset<numberOfL1TopoBits> &ovrflowBits);
+      /**
+         @brief propagate the bits from hardware to each simulated decision algo.
+         They will then be used to fill the accept/reject monitoring histograms.
+       */
+      void propagateHardwareBitsToAlgos();
    private:
 
       // execution
@@ -115,7 +128,7 @@ namespace TCS {
       TopoInputEvent         m_inputEvent;       // the input event
 
       TopoCoreSimResult      m_simulationResult; // the result of the execution
-
+      
       TopoSteeringStructure  m_structure;
 
       unsigned int m_evtCounter = {1};
@@ -124,8 +137,11 @@ namespace TCS {
 
       std::shared_ptr<IL1TopoHistSvc>  m_histSvc;
 
+      std::bitset<numberOfL1TopoBits> m_triggerHdwBits;
+      std::bitset<numberOfL1TopoBits> m_ovrflowHdwBits;
+
    };
-   
+
    
 } // end of namespace TCS
 

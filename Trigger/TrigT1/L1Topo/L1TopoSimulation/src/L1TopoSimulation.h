@@ -56,6 +56,14 @@ namespace LVL1 {
       virtual StatusCode execute() override;
 
       virtual StatusCode finalize() override;
+      /**
+         @brief Retrieve the L1Topo hardware bits from the DAQ RODs
+         
+         No need to cache them within this AthAlgorithm; just pass
+         them to TopoSteering, which will then do all the work with
+         them.
+      */
+      StatusCode retrieveHardwareDecision();
 
    private:
 
@@ -79,6 +87,7 @@ namespace LVL1 {
 
       BooleanProperty m_enableInputDump { false }; // for enabling input dumping
       BooleanProperty m_enableBitwise { false }; // for enabling bitwise algorithms
+      BooleanProperty m_fillHistogramsBasedOnHardwareDecision { false }; // default: fill based on simulation
 
       StringProperty  m_inputDumpFile { "inputdump.txt" }; // input dump file
 //      SG::ReadHandleKey<EventInfo> m_EventInfoKey;
@@ -95,8 +104,7 @@ namespace LVL1 {
       LVL1::PeriodicScaler* m_scaler; //! prescale decision tool
 
       StringProperty m_histBaseDir; //! sets base dir for monitoring histograms
-
-   };
+  };
 
 }
 #endif
