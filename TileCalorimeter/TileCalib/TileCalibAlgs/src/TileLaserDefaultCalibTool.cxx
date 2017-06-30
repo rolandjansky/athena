@@ -498,9 +498,11 @@ StatusCode TileLaserDefaultCalibTool::execute(){
   }
   //int currentDrawer=0;
   
-  RunningStat* avg_time[NCHANNELS][NGAINS];
-  for (int ros=0; ros<NCHANNELS; ros++) {
-    for (int gain=0; gain<NGAINS; gain++) avg_time[ros][gain] = new RunningStat();
+  RunningStat* avg_time[NPARTITIONS][NGAINS];
+  for(int ros=0; ros<NPARTITIONS; ros++){
+    for(int gain=0;gain<NGAINS;++gain){
+      avg_time[ros][gain] = new RunningStat();
+    }
   }
   
   // Loop over tilerawchannelcollections to get avg time per partition
@@ -721,7 +723,7 @@ StatusCode TileLaserDefaultCalibTool::execute(){
       delete(avg_time[ros][gain]);
     } // FOR
   } // FOR
-  
+
   return StatusCode::SUCCESS;
 } // EXECUTE
 
@@ -852,8 +854,8 @@ StatusCode TileLaserDefaultCalibTool::finalizeCalculations(){
           
           //-- V.Giangiobbe : save the average charge and variance in slices of m_eventsPerSlice=1000
           if(m_pisaMethod2){
-            for(int iSlice=0; iSlice<m_rs_signal[partition][drawer][channel][gain]->GetNSlices(); ++iSlice){
-              if(iSlice>=100) continue;
+            int nSlices = std::min(NSLICES,m_rs_signal[partition][drawer][channel][gain]->GetNSlices());
+            for(int iSlice=0; iSlice<nSlices; ++iSlice){
               m_mean_slice[partition][drawer][channel][iSlice][gain]     = m_rs_signal[partition][drawer][channel][gain]->Mean(iSlice);
               m_variance_slice[partition][drawer][channel][iSlice][gain] = m_rs_signal[partition][drawer][channel][gain]->Variance(iSlice);
             } // FOR
@@ -884,6 +886,79 @@ StatusCode TileLaserDefaultCalibTool::finalizeCalculations(){
     } // Drawer
   } // Partition
   
+
+  // remove all RunningStat objects from memory
+
+  for ( int diode=0; diode<NDIODES; ++diode ) {
+    for ( int gain=0; gain<NGAINS; gain++ ) {
+      delete m_rs_diode_signal_LASERII[diode][gain];
+    }
+  }
+
+  for(int pmt=0;pmt<NPMTS;++pmt){
+    for ( int gain=0; gain<NGAINS; gain++ ) {
+      delete m_rs_PMT_signal_LASERII[pmt][gain];
+    }
+    delete m_rs_PMT_signal[pmt];
+  }
+
+  for(int d=0; d<NDIODES_LASER1; ++d){
+    delete m_rs_diode_signal[d];
+  }
+
+  for ( int part=0; part<NPARTITIONS; ++part ) {
+    for ( int gain=0; gain<NGAINS; ++gain ) {
+      delete m_rs_meantime[part][gain];
+    }
+
+    for ( int drawer=0; drawer<NDRAWERS; ++drawer ) {
+      for ( int gain=0; gain<NGAINS; ++gain ) {
+        for (int fiber=0; fiber<NFIBERS; ++fiber){
+	   for (int pmt1=0; pmt1<NPMT1; ++pmt1){
+	     for (int pmt2=pmt1+1; pmt2<NPMT2; ++pmt2){
+	       delete m_rs_reducedKappa[part][drawer][pmt1][pmt2][gain][fiber];
+	     }
+	   }
+	}
+
+        for ( int channel=0; channel<NCHANNELS; ++channel ) {
+          delete m_rs_time[part][drawer][channel][gain];
+          delete m_rs_signal[part][drawer][channel][gain];
+          delete m_rs_raw_signal[part][drawer][channel][gain];
+
+          for(int diode=0; diode<NDIODES; ++diode){
+	    for (int diode_gain=0; diode_gain<NGAINS; diode_gain++) {
+	      delete m_rs_ratio_LASERII[diode][diode_gain][part][drawer][channel][gain];
+	    }
+          }
+
+	  delete m_rs_pmt_ratios[part][drawer][channel][gain];
+
+          for(int d=0; d<NDIODES_LASER1; ++d){
+            delete m_rs_ratio[d][part][drawer][channel][gain];
+          }
+
+        } // channel loop
+      } // gain loop
+    } // drawer loop
+  } // partition loop
+
+
+  // STORE HIGH VOLTAGE
+
+  for(int part=0; part<NPARTITIONS; ++part){
+    int ros = part+1;
+    for(int drawer=0; drawer<NDRAWERS; ++drawer){
+      int module = drawer+1;
+      for(int channel=0; channel<NCHANNELS; ++channel){
+        int pmt = abs(m_cabling->channel2hole(ros,channel));
+        m_HV[part][drawer][channel] = m_tileDCSSvc->getDCSHV(ros, module, pmt);
+        m_HVSet[part][drawer][channel] = m_tileDCSSvc->getDCSHVSET(ros, module, pmt);
+      } // FOR
+    } // FOR
+  } // FOR
+
+
   return StatusCode::SUCCESS;
 } // FINALIZECALCULATIONS
 
@@ -984,28 +1059,7 @@ StatusCode TileLaserDefaultCalibTool::writeNtuple(int runNumber, int runType, TF
 } // WRITENTUPLE
 
 StatusCode TileLaserDefaultCalibTool::finalize(){
-  // STORE HIGH VOLTAGE (HV) AND FINALIZE CALCULATIONS
   ATH_MSG_INFO ( "finalize()" );
-  
-  StatusCode sc = TileLaserDefaultCalibTool::finalizeCalculations(); // Perform the analysis
-  
-  for(int part=0; part<NPARTITIONS; ++part){
-    int ros = part+1;
-    for(int drawer=0; drawer<NDRAWERS; ++drawer){
-      int module = drawer+1;
-      for(int channel=0; channel<NCHANNELS; ++channel){
-        int pmt = abs(m_cabling->channel2hole(ros,channel));        
-        m_HV[part][drawer][channel] = m_tileDCSSvc->getDCSHV(ros, module, pmt);
-        m_HVSet[part][drawer][channel] = m_tileDCSSvc->getDCSHVSET(ros, module, pmt);
-      } // FOR
-    } // FOR
-  } // FOR
-  
-  if(sc.isFailure()){
-    ATH_MSG_ERROR( "Failure in DefaultLaserTool finalization!" );
-    return StatusCode::FAILURE;
-  } // IF
-  
   return StatusCode::SUCCESS;
 } // FINALIZE
 
