@@ -1,0 +1,28 @@
+####################################################################################
+# Title :
+# Smooth Top Tagger Config File
+#
+# Author :
+# Tobias Kupfer <tobias.kupfer@cern.ch>
+#
+# Description :
+# The simple top tagger provides two smoothed cut functions :
+# - a lower cut on Qw
+# - an upper cut on Tau32_wta 
+# these cut functions have been optimized on a sample of fully contained top jets
+# ( dR(truth_top,truth_jet) < 0.75 && dR(truth_b,reco_jet) < 0.75 && dR(truth_q_1,reco_jet) < 0.75 && dR(truth_q_2,reco_jet) < 0.75 )
+# The smoothed cut functions are parameterized in units of ! [GeV] ! for pT and Qw
+#
+#
+# Tagger Descriptions :
+# - fully contained top tagger 
+# - fixed signal efficiency of 80% as a function of pT 
+# - only valid with the combined mass (if using mass)
+####################################################################################
+
+Var1: Qw
+Var2: Tau32
+
+QwCut: x > 2500 ? 60.2482866936 : (27.2519643156)*pow(x,0.0)+(0.0484437546023)*pow(x,1.0)+(-4.74858582685e-05)*pow(x,2.0)+(2.33088141633e-08)*pow(x,3.0)+(-3.98148278403e-12)*pow(x,4.0)
+
+Tau32Cut: x > 2500 ? 0.740347319953 : (0.36803303436)*pow(x,0.0)+(0.000916698340258)*pow(x,1.0)+(-7.83919392114e-07)*pow(x,2.0)+(2.93777854935e-10)*pow(x,3.0)+(-4.12214873011e-14)*pow(x,4.0)

@@ -217,11 +217,12 @@
 + PhysicsAnalysis/PATJobTransforms
 + PhysicsAnalysis/POOLRootAccess
 + PhysicsAnalysis/PrimaryDPDMaker
-- hysicsAnalysis/PyAnalysis/PyAnalysisExamples
+- PhysicsAnalysis/PyAnalysis/PyAnalysisExamples
 + PhysicsAnalysis/PyAnalysis/.*
 + PhysicsAnalysis/RingerSelectorTools
 + PhysicsAnalysis/TauID/TauAnalysisTools
 + PhysicsAnalysis/TruthParticleID/.*
++ PhysicsAnalysis/TrackingID/InDetTrackSystematicsTools
 
 # Reconstruction package(s):
 + Reconstruction/AODFix
