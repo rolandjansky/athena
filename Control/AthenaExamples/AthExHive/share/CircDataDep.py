@@ -49,7 +49,7 @@ topSequence = AlgSequence()
 
 from SGComps.SGCompsConf import SGInputLoader
 topSequence+=SGInputLoader(OutputLevel=DEBUG, ShowEventDump=False)
-topSequence.SGInputLoader.Load = [ ('EventInfo','McEventInfo') ]
+topSequence.SGInputLoader.Load = [ ('EventInfo','StoreGateSvc+McEventInfo') ]
 
 from AthExHive.AthExHiveConf import *
 
