@@ -1,8 +1,10 @@
-// $Id: ToolStore.cxx 687011 2015-08-03 09:25:07Z krasznaa $
 
 // System include(s):
 #include <map>
 #include <iostream>
+
+// ROOT include(s):
+#include <ThreadLocalStorage.h>
 
 // Local include(s):
 #include "AsgTools/ToolStore.h"
@@ -27,7 +29,7 @@ namespace {
    /// Helper function providing the application-wide tool registry
    ToolMap_t& tools() {
 
-      static ToolMap_t s_tools;
+      TTHREAD_TLS( ToolMap_t ) s_tools;
       return s_tools;
    }
 
