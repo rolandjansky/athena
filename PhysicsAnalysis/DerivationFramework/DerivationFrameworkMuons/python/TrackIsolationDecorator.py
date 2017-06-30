@@ -40,9 +40,9 @@ print CaloIsoTool
 ToolSvc += CaloIsoTool
 
 
-import ROOT, PyCintex
-PyCintex.loadDictionary('xAODCoreRflxDict')
-PyCintex.loadDictionary('xAODPrimitivesDict')
+import ROOT, cppyy
+cppyy.loadDictionary('xAODCoreRflxDict')
+cppyy.loadDictionary('xAODPrimitivesDict')
 isoPar = ROOT.xAOD.Iso
 
 deco_ptcones = [isoPar.ptcone40, isoPar.ptcone30]
