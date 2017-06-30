@@ -14,6 +14,8 @@ JetConstituentModifierBase::JetConstituentModifierBase(const std::string & name)
   declareInterface<IJetConstituentModifier>(this);
 #endif
   declareProperty("InputType", m_inputType);
+  declareProperty("ApplyToChargedPFO", m_applyToChargedPFO);
+  declareProperty("ApplyToNeutralPFO", m_applyToNeutralPFO);
 }
 
 StatusCode JetConstituentModifierBase::process(xAOD::IParticleContainer* cont) const
@@ -71,8 +73,11 @@ StatusCode JetConstituentModifierBase::setEnergyPt(xAOD::IParticle* obj, float e
       // Use accessors explicitly because PFO only has an interface for setting the full p4
       const static SG::AuxElement::Accessor<float> accPt("pt");
       const static SG::AuxElement::Accessor<float> accE("e");
-      accPt(*pfo) = pt;
-      accE(*pfo) = e;
+      if( (m_applyToChargedPFO && fabs(pfo->charge())>=1e-9) || 
+	  (m_applyToNeutralPFO && fabs(pfo->charge())<1e-9) ) {
+	accPt(*pfo) = pt;
+	accE(*pfo) = e;
+      }
     }
     break;
   default:
@@ -98,7 +103,10 @@ StatusCode JetConstituentModifierBase::setP4(xAOD::IParticle* obj, const xAOD::J
     {
       xAOD::PFO* pfo = static_cast<xAOD::PFO*>(obj);
       // The PFO setter defaults to m=0
-      pfo->setP4(p4.pt(),p4.eta(),p4.phi(),p4.mass());
+      if( (m_applyToChargedPFO && fabs(pfo->charge())>=1e-9) || 
+	  (m_applyToNeutralPFO && fabs(pfo->charge())<1e-9) ) {
+	pfo->setP4(p4.pt(),p4.eta(),p4.phi(),p4.mass());
+      }
       break;
     }
   default:
