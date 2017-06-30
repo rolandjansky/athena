@@ -28,10 +28,6 @@ SoftKillerWeightTool::SoftKillerWeightTool(const std::string& name) : JetConstit
                                                                       
 {
 
-#ifdef ASG_TOOL_ATHENA
-  declareInterface<IJetConstituentModifier>(this);
-#endif
-
   declareProperty("SKGridSize", m_gridSpacing);
   declareProperty("SKRapMin", m_rapmin);
   declareProperty("SKRapMax", m_rapmax); 
