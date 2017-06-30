@@ -37,7 +37,8 @@ namespace L1Topo {
   //! OUT OF DATE DO NOT USE Helper to calculate the index needed to pack trigger bits into the full 128-bit decision. See 4-bit part of L1Topo TOB definition in https://twiki.cern.ch/twiki/pub/Atlas/L1CaloUpgrade/ROD_data_format_v1.0.4.xlsx
   unsigned int triggerBitIndex(uint32_t moduleId, L1Topo::L1TopoTOB);
 
-  //! Helper to calculate the index needed to pack trigger bits into the full 128-bit decision. See 4-bit part of L1Topo TOB definition in https://twiki.cern.ch/twiki/pub/Atlas/L1CaloUpgrade/ROD_data_format_v1.0.4.xlsx
+  //! Helper to calculate the index needed to pack trigger bits into the full 128-bit decision. See 4-bit part of L1Topo TOB definition in https://twiki.cern.ch/twiki/pub/Atlas/L1CaloUpgrade/ROD_data_format_v1.0.4.xlsx ; same as TriggerLine::calcCounter()?
+
   unsigned int triggerBitIndexNew(uint32_t moduleId, L1Topo::L1TopoTOB, unsigned int bitIdx);
 
   //! Get the trigger decision and overflow bits from the L1Topo ROI data block 'L1Topo TOB' and order them correctly in a bitset. Reference needed for layout.

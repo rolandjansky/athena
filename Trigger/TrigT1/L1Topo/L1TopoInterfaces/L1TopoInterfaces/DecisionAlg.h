@@ -36,7 +36,21 @@ namespace TCS {
 
       unsigned int numberOutputBits() const { return m_numberOutputBits; }
       void setNumberOutputBits(unsigned int numberOutputBits) { m_numberOutputBits = numberOutputBits; }
+      /**
+         @brief propagate the hardware decision bits for each output bit of this algo
 
+         These bits are used only to fill the monitoring histograms.
+         They do not have any use in the L1TopoSimulation itself.         
+       */
+      DecisionAlg& setHardwareBits(const unsigned int &bitNumber,
+                                   const bool &valueDecision,
+                                   const bool &valueOverflow);
+      ///! reset all hardware bits for this algo
+      DecisionAlg& resetHardwareBits();
+      ///! get one hardware decision bit from this algo
+      bool getDecisionHardwareBit(const unsigned int &bitNumber) const;
+      ///! get one hardware overflow bit from this algo
+      bool getOverflowHardwareBit(const unsigned int &bitNumber) const;
    private:
 
       virtual StatusCode doReset();
@@ -45,7 +59,10 @@ namespace TCS {
 
       // generic parameter
       unsigned int m_numberOutputBits {1};
-
+      ///! decision bits from hardware (assume the algo won't have >31 output bits)
+      uint32_t m_hardwareDecisionBits {0};
+      ///! overflow bits from hardware (assume the algo won't have >31 output bits)
+      uint32_t m_hardwareOverflowBits {0};
    };
 
 }

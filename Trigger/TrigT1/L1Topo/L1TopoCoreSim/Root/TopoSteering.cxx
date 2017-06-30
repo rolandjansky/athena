@@ -140,7 +140,7 @@ TopoSteering::executeEvent() {
 
    TRG_MSG_INFO("LateMuonTOB::heap().size = "<<LateMuonTOB::heap().size());
    inputEvent().print();
-         
+
    // execute all connectors
    StatusCode sc = StatusCode::SUCCESS;
    TRG_MSG_INFO("Going to execute " << m_structure.outputConnectors().size() << " connectors");
@@ -417,3 +417,33 @@ TopoSteering::setAlgMsgLevel( TrigConf::MSGTC::Level lvl ) {
       alg->msg().setLevel(lvl);
    }
 }
+//----------------------------------------------------------
+void TopoSteering::setHardwareBits(const std::bitset<numberOfL1TopoBits> &triggerBits,
+                                   const std::bitset<numberOfL1TopoBits> &ovrflowBits)
+{
+    m_triggerHdwBits = triggerBits;
+    m_ovrflowHdwBits = ovrflowBits;
+}
+//----------------------------------------------------------
+void TopoSteering::propagateHardwareBitsToAlgos()
+{
+   for(auto connector : m_structure.outputConnectors()) {
+       const string &connectorName = connector.first;
+       TCS::DecisionConnector *outCon = connector.second;
+        outCon->decisionAlgorithm()->resetHardwareBits();
+        unsigned int pos = 0; // for multi-output algorithms pos is the output index
+        for(const TXC::TriggerLine &trigger : outCon->triggers()){
+            unsigned int bitNumber = trigger.counter();
+            outCon->decisionAlgorithm()->setHardwareBits(pos,
+                                                         m_triggerHdwBits[bitNumber],
+                                                         m_ovrflowHdwBits[bitNumber]);
+            pos++;
+            TRG_MSG_DEBUG("propagating hardware bit (dec/ovr) "<<bitNumber
+                          <<" to algo "<<connectorName<<"["<<pos<<"]"
+                          <<" "<<m_triggerHdwBits[bitNumber]<<" /"
+                          <<" "<<m_ovrflowHdwBits[bitNumber]);
+
+        }
+   }
+}
+//----------------------------------------------------------

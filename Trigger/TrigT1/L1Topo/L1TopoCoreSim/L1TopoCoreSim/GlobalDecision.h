@@ -52,7 +52,6 @@ namespace TCS {
       StatusCode collectDecision(const std::set<DecisionConnector*> & outconn);
 
       StatusCode resetDecision();
-      
       void print() const;
 
    private:
@@ -62,7 +61,6 @@ namespace TCS {
       uint64_t m_decision[3] {0,0,0};
       // 64 bit overflow bit field
       uint64_t m_overflow[3] {0,0,0};
-
       // flags if the decision field is up to date
       // set by @collectDecision(), unset by @resetDecision()
       bool m_valid {false};
