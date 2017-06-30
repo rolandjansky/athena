@@ -22,9 +22,6 @@ find_package( Qt5 COMPONENTS Core OpenGL Gui Network )
 find_package( Coin3D )
 find_package( SoQt )
 
-# set C++11 explicitely
-set (CMAKE_CXX_STANDARD 11)
-
 # Generate UI files automatically:
 set( CMAKE_AUTOUIC TRUE )
 # Generate MOC files automatically:
