@@ -1162,9 +1162,12 @@ bool InDet::InDetTrackHoleSearchTool::isSensitive(const Trk::TrackParameters* pa
   }
 
   bool isActiveElement = true;
+  
+  // AS: get the parameter surface
+  auto& pBounds = parameters->associatedSurface().bounds();
+  
   // inside detector within tolerance
-  InDetDD::SiIntersect siIn = siElement->inDetector(parameters->localPosition(), phitol, etatol);
-  if (!siIn.in()) {
+  if (!pBounds.inside(parameters->localPosition(),phitol,etatol)) {
     ATH_MSG_VERBOSE ("---> extrapolation not inside (active?) det"
 		     << "ector within "<<phitol<<" "<<etatol<<", but check for dead module anyway");
      isActiveElement=false;
@@ -1174,10 +1177,9 @@ bool InDet::InDetTrackHoleSearchTool::isSensitive(const Trk::TrackParameters* pa
   // check for dead modules if extrapolation with smaller errors are in active detector (2.5 5.)
   if (!isActiveElement) {
     if ( phitol>2.5 || etatol>5) {
-      siIn = siElement->inDetector(parameters->localPosition(), 2.5, 5.);
-      if (!siIn.in()) {
-	ATH_MSG_VERBOSE ("extrapolation too close to inactive detector; abort search for dead module");
-	return false;
+        if (!pBounds.inside(parameters->localPosition(),2.5,5.)) {
+	          ATH_MSG_VERBOSE ("extrapolation too close to inactive detector; abort search for dead module");
+	         return false;
       }
     }  else {
       ATH_MSG_VERBOSE ("extrapolation precise enough and too close to inactive detector; abort search for dead module");
