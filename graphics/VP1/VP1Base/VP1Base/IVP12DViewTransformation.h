@@ -16,11 +16,7 @@
 #define IVP12DVIEWTRANSFORMATION_H
 
 #include <QtGlobal>
-#if QT_VERSION >= 0x050000
-	#include <QPainterPath>
-#else
-	#include <QtGui/QPainterPath>
-#endif
+#include <QPainterPath>
 
 class QPainter;
 class QGraphicsItem;
