@@ -15,29 +15,25 @@ namespace xAOD {
 
    ReadStats& IOStats::stats() {
 
-      // Make sure that the thread specific object exists:
-      if( ! m_ptr.get() ) {
-         m_ptr.reset( new ReadStatsPtr() );
+      // Try to access a cached pointer:
+      ReadStats* stats = m_ptr.get();
+
+      // If a pointer is not cached yet, do so now:
+      if( ! stats ) {
+         const std::thread::id id = std::this_thread::get_id();
+         std::lock_guard< std::mutex > lock( m_mutex );
+         stats = &( m_stats[ id ] );
+         m_ptr.reset( stats );
       }
 
-      // If we already cached the pointer for this thread, then go no further:
-      if( m_ptr->m_ptr ) {
-         return *( m_ptr->m_ptr );
-      }
-
-      // If not, then acquire a lock, and set up the object now:
-      std::unique_lock< std::mutex > lock( m_mutex );
-      const std::thread::id id = std::this_thread::get_id();
-      m_ptr->m_ptr = &( m_stats[ id ] );
-
-      // And finally return the newly setup pointer:
-      return *( m_ptr->m_ptr );
+      // Return the (now) cached object:
+      return *stats;
    }
 
    ReadStats IOStats::merged() const {
 
       // Get a lock on the map:
-      std::unique_lock< std::mutex > lock( m_mutex );
+      std::lock_guard< std::mutex > lock( m_mutex );
 
       // Merge the objects from all the threads:
       ReadStats result;
@@ -50,7 +46,11 @@ namespace xAOD {
    }
 
    IOStats::IOStats()
-      : m_stats(), m_ptr(), m_mutex() {
+      : m_stats(),
+        // Make sure that the thread specific pointer doesn't try to delete
+        // the object it points to when the thread ends:
+        m_ptr( []( ReadStats* ){} ),
+        m_mutex() {
 
    }
 

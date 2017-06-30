@@ -37,11 +37,29 @@ namespace xAOD {
       /// Singleton object accessor
       static IOStats& instance();
 
-      /// Access the object describing the file access pattern in the current
-      /// thread
+      /// Access the object belonging to the current thread
+      ///
+      /// Components collecting information should always use this function. It
+      /// is safe to be called at any point during the process, from any thread,
+      /// without any outside protection.
+      ///
+      /// @return A thread specific xAOD::ReadStat object that can be modified
+      ///
       ReadStats& stats();
 
-      /// Access the statistics object merging information from all threads
+      /// Access the statistics object, merging information from all threads
+      ///
+      /// This function should only be used during the finalisation of a
+      /// process, once all the event processing threads have already finished.
+      /// That's because it's not absolutely thread-safe. If another thread
+      /// modifies an xAOD::ReadStats object through the stats() function while
+      /// this function is executing, that can possibly lead to a crash.
+      ///
+      /// In the end the function is not made thread safe, because doing so
+      /// would require the stats() function to be made slower.
+      ///
+      /// @return The merged statistics from all executing threads
+      ///
       ReadStats merged() const;
 
    private:
@@ -53,18 +71,8 @@ namespace xAOD {
       /// Objects describing the file access pattern, per thread
       std::map< std::thread::id, ReadStats > m_stats;
 
-      /// Helper structure holding a pointer to the ReadStats object in the
-      /// current thread.
-      class ReadStatsPtr {
-      public:
-         /// Constructor making sure that we start with a null pointer
-         ReadStatsPtr() : m_ptr( nullptr ) {}
-         /// Pointer to the ReadStats object of a given thread
-         ReadStats* m_ptr;
-      }; // class ReadStatsPtr
-
       /// Thread specific pointer to the ReadStats object of the current thread
-      AthContainers_detail::thread_specific_ptr< ReadStatsPtr > m_ptr;
+      AthContainers_detail::thread_specific_ptr< ReadStats > m_ptr;
 
       /// Mutex for accessing the read statistics
       mutable std::mutex m_mutex;
