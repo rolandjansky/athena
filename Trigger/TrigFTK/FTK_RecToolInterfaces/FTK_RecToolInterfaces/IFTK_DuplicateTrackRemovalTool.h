@@ -4,20 +4,9 @@
 #ifndef __IFTK_DUPLICATETRACKREMOVAL_TOOL_H__
 #define __IFTK_DUPLICATETRACKREMOVAL_TOOL_H__
 
-#include "GaudiKernel/IAlgTool.h"	
-//#include "AthenaKernel/IOVSvcDefs.h"
-class VxContainer;
-#include "TrigFTK_RawData/FTK_RawTrack.h"
+#include "GaudiKernel/IAlgTool.h"
 #include "TrigFTK_RawData/FTK_RawTrackContainer.h"
-#include "xAODTracking/VertexFwd.h"
-//#include "xAODTracking/TrackParticleFwd.h"
-#include "xAODTracking/VertexContainerFwd.h"
-#include "xAODTracking/VertexAuxContainer.h"
-#include "TrkTrack/TrackCollection.h"
-//#include "xAODTracking/TrackParticleContainerFwd.h"
-//namespace Trk {
-////  class Track;
-//}
+
 static const InterfaceID IID_IFTK_DuplicateTrackRemovalTool("IFTK_DuplicateTrackRemovalTool",1,0);
 
 class IFTK_DuplicateTrackRemovalTool : virtual public IAlgTool { 
@@ -30,6 +19,7 @@ class IFTK_DuplicateTrackRemovalTool : virtual public IAlgTool {
   virtual FTK_RawTrackContainer* removeDuplicates(const FTK_RawTrackContainer* trks) = 0;
 
  private:
+
 };
 
 #endif

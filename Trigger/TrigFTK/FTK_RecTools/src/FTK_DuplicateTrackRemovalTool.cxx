@@ -12,11 +12,9 @@ FTK_DuplicateTrackRemovalTool::FTK_DuplicateTrackRemovalTool(const std::string& 
                                                const IInterface*  p ):
   AthAlgTool(t,n,p),
   m_trks_nodups(NULL),
-  m_uncertaintyTool("FTK_UncertaintyTool",this),
   m_HW_ndiff(6)
 {
   declareInterface< IFTK_DuplicateTrackRemovalTool >( this );
-  declareProperty( "UncertaintyTool", m_uncertaintyTool);
   declareProperty("HW_ndiff",m_HW_ndiff);
 }
 
