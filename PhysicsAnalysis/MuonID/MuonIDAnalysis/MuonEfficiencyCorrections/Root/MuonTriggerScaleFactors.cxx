@@ -38,9 +38,8 @@ namespace CP {
     MuonTriggerScaleFactors::MuonTriggerScaleFactors(const std::string& name) :
                     asg::AsgTool(name),
                     m_appliedSystematics(0),
-                    m_runNumber(300345),
+                    m_dataPeriod(""),
                     m_classname(name.c_str()),
-                    m_max_period(TrigMuonEff::period_undefined),
                     m_allowZeroSF(false) {
         declareProperty("MuonQuality", m_muonquality = "Medium"); // HighPt,Tight,Medium,Loose
         declareProperty("Isolation", m_isolation = ""); // "", "IsoGradient", "IsoLoose", "IsoTight"
@@ -113,6 +112,10 @@ namespace CP {
             ATH_MSG_ERROR("Note: you have set year " << m_year << " and " << m_mc << " . This combination is not provided.");
             return StatusCode::FAILURE;
         }
+        
+        // Set default value to data period
+        if (m_year == "2015") m_dataPeriod = "AC";
+        else if (m_year == "2016") m_dataPeriod = "B";
 
         // isolation workinig points have been merged as they have no big difference
         if (!m_isolation.empty()) {
@@ -129,7 +132,6 @@ namespace CP {
             return StatusCode::FAILURE;
         }
 
-        m_max_period = TrigMuonEff::period_undefined;
         TDirectory* origDir = gDirectory;
 
         //const std::string filePath = getPathName(m_directory, m_fileName);
@@ -164,23 +166,23 @@ namespace CP {
         static const std::vector<std::string> bins { "coarse", "fine" };
         static const std::vector<std::string> systematic { "nominal", "stat_up", "stat_down", "syst_up", "syst_down" };
 
-	const std::string quality = m_muonquality;
-	TDirectory* qualityDirectory = file->GetDirectory(quality.c_str());
-	if (not qualityDirectory) {
+        const std::string quality = m_muonquality;
+        TDirectory* qualityDirectory = file->GetDirectory(quality.c_str());
+        if (not qualityDirectory) {
             ATH_MSG_FATAL("MuonTriggerScaleFactors::initialize cannot find directory with selected quality");
-	}
+        }
         TKey* periodKey;
-   	TIter nextPeriod(qualityDirectory->GetListOfKeys());
+        TIter nextPeriod(qualityDirectory->GetListOfKeys());
         while ((periodKey = (TKey*)nextPeriod())) {
            if (not periodKey->IsFolder()) continue;
-	   TDirectory* periodDirectory = qualityDirectory->GetDirectory(periodKey->GetName());
+           TDirectory* periodDirectory = qualityDirectory->GetDirectory(periodKey->GetName());
            std::string periodName = std::string(periodKey->GetName());
 
            TKey* triggerKey;
-   	   TIter nextTrigger(periodDirectory->GetListOfKeys());
+   	       TIter nextTrigger(periodDirectory->GetListOfKeys());
            while ((triggerKey = (TKey*)nextTrigger())) {
                if (not triggerKey->IsFolder()) continue;
-	       TDirectory* triggerDirectory = periodDirectory->GetDirectory(triggerKey->GetName());
+               TDirectory* triggerDirectory = periodDirectory->GetDirectory(triggerKey->GetName());
                std::string triggerName = std::string(triggerKey->GetName());
                
                for (size_t ibins = 0; ibins < bins.size(); ++ibins) {
@@ -196,7 +198,7 @@ namespace CP {
                                
                                TH2* hist = dynamic_cast<TH2*>(triggerDirectory->Get(path.c_str()));
                                if (not hist) {
-                                    ATH_MSG_FATAL("MuonTriggerScaleFactors::initialize " << path << " not found under trigger " << triggerName << " and period" << periodName);
+                                    ATH_MSG_FATAL("MuonTriggerScaleFactors::initialize " << path << " not found under trigger " << triggerName << " and period " << periodName);
                                     continue;
                                }
                                hist->SetDirectory(0);
@@ -222,8 +224,8 @@ namespace CP {
 
                                 //Set specific container in the map for each of the triggers/hists needing a replica
                                 m_efficiencyMapReplicaArray[histname + "_replicas"] = generateReplicas(&tmp_h2, m_nReplicas, m_ReplicaRandomSeed);
-                           }
-			}
+                            }
+                        }
                     }
                 }
             }
@@ -247,14 +249,12 @@ namespace CP {
     // == MuonTriggerScaleFactors::setRunNumber
     // ==================================================================================
     CorrectionCode MuonTriggerScaleFactors::setRunNumber(Int_t runNumber) {
-        TrigMuonEff::DataPeriod period = getDataPeriod(runNumber);
-        if (period == TrigMuonEff::period_undefined) {
-            ATH_MSG_WARNING("I am using run #" << runNumber << " but I cannot find corresponding run period. Now setting to use 2016 period B. This might give problems! Please check which year and mc you have set up!");
-
-            m_runNumber = 300345;
-            return CorrectionCode::Ok;
+        std::string period = getDataPeriod(runNumber, m_year);
+        if (period.empty()) {
+            ATH_MSG_ERROR("Run number #" << runNumber << " does not match with any run period in year " << m_year);
+            return CorrectionCode::Error;
         }
-        m_runNumber = runNumber;
+        m_dataPeriod = period;
         return CorrectionCode::Ok;
     }
 
@@ -262,9 +262,11 @@ namespace CP {
     // == MuonTriggerScaleFactors::getTriggerScaleFactor
     // ==================================================================================
     CorrectionCode MuonTriggerScaleFactors::getTriggerScaleFactor(const xAOD::MuonContainer& mucont, Double_t& triggersf, const std::string& trigger) {
+        if (trigger.empty()) {
+            ATH_MSG_ERROR("MuonTriggerScaleFactors::getTriggerScaleFactor Trigger must have value.");
+            return CorrectionCode::Error;
+        }
         TrigMuonEff::Configuration configuration;
-        configuration.runNumber = m_runNumber;
-        configuration.setByUser = false;
 
         if (trigger == "HLT_mu8noL1") {
             //if(trigger == "HLT_mu8noL1" || trigger == "HLT_mu10" || trigger == "HLT_mu14" || trigger == "HLT_mu18" || trigger == "HLT_mu20" || trigger == "HLT_mu22" || trigger == "HLT_mu24" || trigger == "HLT_mu26"){
@@ -296,24 +298,18 @@ namespace CP {
     // == MuonTriggerScaleFactors::getTriggerEfficiency
     // ==================================================================================
     CorrectionCode MuonTriggerScaleFactors::getTriggerEfficiency(const xAOD::Muon& mu, Double_t& efficiency, const std::string& trigger, Bool_t dataType) {
+        if (trigger.empty()) {
+            ATH_MSG_ERROR("MuonTriggerScaleFactors::getTriggerEfficiency Trigger must have value.");
+            return CorrectionCode::Error;
+        }
         TrigMuonEff::Configuration configuration;
         configuration.isData = dataType;
-        configuration.runNumber = m_runNumber;
-        configuration.setByUser = false;
-        configuration.trigger = trigger;
         configuration.replicaIndex = -1;
         const Double_t threshold = getThresholds(trigger);
         if (mu.pt() < threshold) {
             efficiency = 0;
             return CorrectionCode::Ok;
-        } else {
-            if (not configuration.setByUser) {
-                if (not setConfiguration(const_cast<TrigMuonEff::Configuration&>(configuration))) {
-                    efficiency = 0;
-                    return CorrectionCode::Ok;
-                }
-            }
-        }
+        } 
 
         // Pre-define uncertainty variations
         static const CP::SystematicVariation stat_up("MUON_EFF_TrigStatUncertainty", 1);
@@ -464,9 +460,7 @@ namespace CP {
         const std::string region = ((fabs(mu_eta) < muon_barrel_endcap_boundary) ? "_barrel" : "_endcap");
         const std::string quality = m_muonquality;
 
-        const std::string chain = (trigger.empty() ? configuration.trigger : trigger);
-
-        const std::string histname = "_MuonTrigEff_Period" + configuration.period + chain + "_" + quality + "_" + "_EtaPhi_" + configuration.binning + region + type + "_" + systematic;
+        const std::string histname = "_MuonTrigEff_Period" + m_dataPeriod + "_" + trigger + "_" + quality + "_" + "_EtaPhi_" + m_binning + region + type + "_" + systematic;
 
         TH2* eff_h2 = nullptr;
         if (configuration.replicaIndex >= 0) { //Only look into the replicas if asking for them
@@ -545,13 +539,6 @@ namespace CP {
 
         if (mucont.size() != 2) {
             ATH_MSG_FATAL("MuonTriggerScaleFactors::GetTriggerSF;Currently dimuon trigger chains only implemented for events with exactly 2 muons.");
-        }
-
-        if (not configuration.setByUser) {
-            if (not setConfiguration(const_cast<TrigMuonEff::Configuration&>(configuration))) {
-                TriggerSF = 0;
-                return CorrectionCode::Ok;
-            }
         }
 
         ATH_MSG_DEBUG("The trigger that you choose : " << trigger);
@@ -636,13 +623,6 @@ namespace CP {
                 eff_mc = 0.;
 
             } else {
-
-                if (not configuration.setByUser) {
-                    if (not setConfiguration(const_cast<TrigMuonEff::Configuration&>(configuration))) {
-                        TriggerSF = 0;
-                        return CorrectionCode::Ok;
-                    }
-                }
 
                 std::string muon_trigger_name = trigger;
                 std::string data_err = "";
@@ -752,14 +732,6 @@ namespace CP {
         return CorrectionCode::Ok;
     }
 
-    // ==================================================================================
-    // == MuonTriggerScaleFactors::setMaxPeriod
-    // ==================================================================================
-    CorrectionCode MuonTriggerScaleFactors::setMaxPeriod(const TrigMuonEff::DataPeriod x) {
-        m_max_period = x;
-        return CorrectionCode::Ok;
-    }
-
     // Private functions
     // ==================================================================================
     // == MuonTriggerScaleFactors::getDileptonLegs
@@ -800,156 +772,6 @@ namespace CP {
     }
 
     // ==================================================================================
-    // == MuonTriggerScaleFactors::setConfiguration
-    // ==================================================================================
-    bool MuonTriggerScaleFactors::setConfiguration(TrigMuonEff::Configuration& config, TrigMuonEff::DataPeriod period) const {
-        if (period == TrigMuonEff::period_undefined) {
-            period = getDataPeriod(config.runNumber);
-            if (m_max_period != TrigMuonEff::period_undefined) {
-                if (period > m_max_period) {
-                    static bool hasWarned = false;
-                    if (not hasWarned) {
-                        ATH_MSG_WARNING("MuonTriggerScaleFactors::period out of range:setting it to ");
-                        hasWarned = true;
-                    }
-                    period = m_max_period;
-                }
-            }
-
-            if (period == TrigMuonEff::period_undefined) {
-                ATH_MSG_ERROR("MuonTriggerScaleFactors::setConfiguration RunNumber is not in 2015 dataset. No scale factors calculated.");
-                return false;
-            }
-
-            if (period == TrigMuonEff::period_runnumber_zero) {
-                ATH_MSG_WARNING("MuonTriggerScaleFactors::setConfiguration;RunNumber is 0. If the value of pileupReweight is 0, this is no problem. (Trigger SF also returns 0)");
-                return false;
-            }
-        }
-        switch (period) {
-            case TrigMuonEff::per2015AC:
-                config.period = "AC_";
-                config.binning = m_binning;
-                config.trigger = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
-                break;
-
-            case TrigMuonEff::per2015D:
-                config.period = "D_";
-                config.binning = m_binning;
-                config.trigger = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
-                break;
-
-            case TrigMuonEff::per2015E:
-                config.period = "E_";
-                config.binning = m_binning;
-                config.trigger = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
-                break;
-
-            case TrigMuonEff::per2015F:
-                config.period = "F_";
-                config.binning = m_binning;
-                config.trigger = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
-                break;
-
-            case TrigMuonEff::per2015G:
-                config.period = "G_";
-                config.binning = m_binning;
-                config.trigger = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
-                break;
-
-            case TrigMuonEff::per2015H:
-                config.period = "H_";
-                config.binning = m_binning;
-                config.trigger = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
-                break;
-
-            case TrigMuonEff::per2015I:
-                config.period = "I_";
-                config.binning = m_binning;
-                config.trigger = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
-                break;
-
-            case TrigMuonEff::per2015J:
-                config.period = "J_";
-                config.binning = m_binning;
-                config.trigger = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
-                break;
-
-            case TrigMuonEff::per2016A:
-                config.period = "A_";
-                config.binning = m_binning;
-                config.trigger = "HLT_mu26_ivarmedium_OR_HLT_mu50";
-                break;
-
-            case TrigMuonEff::per2016B:
-                config.period = "B_";
-                config.binning = m_binning;
-                config.trigger = "HLT_mu26_ivarmedium_OR_HLT_mu50";
-                break;
-
-            case TrigMuonEff::per2016C:
-                config.period = "C_";
-                config.binning = m_binning;
-                config.trigger = "HLT_mu26_ivarmedium_OR_HLT_mu50";
-                break;
-
-            case TrigMuonEff::per2016D1D3:
-                config.period = "D1D3_";
-                config.binning = m_binning;
-                config.trigger = "HLT_mu26_ivarmedium_OR_HLT_mu50";
-                break;
-
-            case TrigMuonEff::per2016D4D8:
-                config.period = "D4D8_";
-                config.binning = m_binning;
-                config.trigger = "HLT_mu26_ivarmedium_OR_HLT_mu50";
-                break;
-
-            case TrigMuonEff::per2016E:
-                config.period = "E_";
-                config.binning = m_binning;
-                config.trigger = "HLT_mu26_ivarmedium_OR_HLT_mu50";
-                break;
-
-            case TrigMuonEff::per2016F:
-                config.period = "F_";
-                config.binning = m_binning;
-                config.trigger = "HLT_mu26_ivarmedium_OR_HLT_mu50";
-                break;
-
-            case TrigMuonEff::per2016G:
-                config.period = "G_";
-                config.binning = m_binning;
-                config.trigger = "HLT_mu26_ivarmedium_OR_HLT_mu50";
-                break;
-
-            case TrigMuonEff::per2016I:
-                config.period = "I_";
-                config.binning = m_binning;
-                config.trigger = "HLT_mu26_ivarmedium_OR_HLT_mu50";
-                break;
-
-            case TrigMuonEff::per2016K:
-                config.period = "K_";
-                config.binning = m_binning;
-                config.trigger = "HLT_mu26_ivarmedium_OR_HLT_mu50";
-                break;
-
-            case TrigMuonEff::per2016L:
-                config.period = "L_";
-                config.binning = m_binning;
-                config.trigger = "HLT_mu26_ivarmedium_OR_HLT_mu50";
-                break;
-
-            default:
-                ATH_MSG_ERROR("MuonTriggerScaleFactors::setConfiguration;Unknown data period " << config.runNumber << " requested");
-                return false;
-        }
-
-        return true;
-    }
-
-    // ==================================================================================
     // ==
     // ==================================================================================
     // ==================================================================================
@@ -970,31 +792,31 @@ namespace CP {
     // ==================================================================================
     // == MuonTriggerScaleFactors::getDataPeriod
     // ==================================================================================
-    TrigMuonEff::DataPeriod MuonTriggerScaleFactors::getDataPeriod(int runNumber) {
-        // 2015
-        if (runNumber >= 266904 && runNumber <= 272531) return TrigMuonEff::per2015AC;
-        if (runNumber >= 276073 && runNumber <= 276954) return TrigMuonEff::per2015D;
-        if (runNumber >= 278727 && runNumber <= 279928) return TrigMuonEff::per2015E;
-        if (runNumber >= 279932 && runNumber <= 280422) return TrigMuonEff::per2015F;
-        if (runNumber >= 280423 && runNumber <= 281075) return TrigMuonEff::per2015G;
-        if (runNumber >= 281130 && runNumber <= 281411) return TrigMuonEff::per2015H;
-        if (runNumber >= 281662 && runNumber <= 282482) return TrigMuonEff::per2015I; // special ALFA run
-        if (runNumber >= 282625 && runNumber <= 284484) return TrigMuonEff::per2015J;
-
-        // 2016
-        if (runNumber >= 296939 && runNumber <= 300287) return TrigMuonEff::per2016A;
-        if (runNumber >= 300345 && runNumber <= 300908) return TrigMuonEff::per2016B;
-        if (runNumber >= 301912 && runNumber <= 302393) return TrigMuonEff::per2016C;
-        if (runNumber >= 302737 && runNumber <= 302872) return TrigMuonEff::per2016D1D3;
-        if (runNumber >= 302919 && runNumber <= 303560) return TrigMuonEff::per2016D4D8;
-        if (runNumber >= 303638 && runNumber <= 303892) return TrigMuonEff::per2016E;
-        if (runNumber >= 303943 && runNumber <= 304494) return TrigMuonEff::per2016F;
-        if (runNumber >= 305291 && runNumber <= 306714) return TrigMuonEff::per2016G;
-        if (runNumber >= 307124 && runNumber <= 308084) return TrigMuonEff::per2016I;
-        if (runNumber >= 309311 && runNumber <= 309759) return TrigMuonEff::per2016K;
-        if (runNumber >= 310015 && runNumber <= 311481) return TrigMuonEff::per2016L;
-
-        return TrigMuonEff::perUnDefined;
+    std::string MuonTriggerScaleFactors::getDataPeriod(int runNumber, const std::string& year) {
+        if (year == "2015") {
+            if (runNumber >= 266904 && runNumber <= 272531) return "AC";
+            if (runNumber >= 276073 && runNumber <= 276954) return "D";
+            if (runNumber >= 278727 && runNumber <= 279928) return "E";
+            if (runNumber >= 279932 && runNumber <= 280422) return "F";
+            if (runNumber >= 280423 && runNumber <= 281075) return "G";
+            if (runNumber >= 281130 && runNumber <= 281411) return "H";
+            if (runNumber >= 281662 && runNumber <= 282482) return "I"; // special ALFA run
+            if (runNumber >= 282625 && runNumber <= 284484) return "J";
+        }
+        else if (year == "2016") {
+            if (runNumber >= 296939 && runNumber <= 300287) return "A";
+            if (runNumber >= 300345 && runNumber <= 300908) return "B";
+            if (runNumber >= 301912 && runNumber <= 302393) return "C";
+            if (runNumber >= 302737 && runNumber <= 302872) return "D1D3";
+            if (runNumber >= 302919 && runNumber <= 303560) return "D4D8";
+            if (runNumber >= 303638 && runNumber <= 303892) return "E";
+            if (runNumber >= 303943 && runNumber <= 304494) return "F";
+            if (runNumber >= 305291 && runNumber <= 306714) return "G";
+            if (runNumber >= 307124 && runNumber <= 308084) return "I";
+            if (runNumber >= 309311 && runNumber <= 309759) return "K";
+            if (runNumber >= 310015 && runNumber <= 311481) return "L";
+        }
+        return "";
     }
 
     // ==================================================================================

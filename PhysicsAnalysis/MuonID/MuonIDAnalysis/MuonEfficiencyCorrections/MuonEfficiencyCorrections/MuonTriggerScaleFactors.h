@@ -107,8 +107,6 @@ namespace CP {
                             const std::string& chain,
                             const std::string& systematic);
 
-            virtual CorrectionCode setMaxPeriod(const TrigMuonEff::DataPeriod x);
-
             const CP::SystematicSet& appliedSystematics() const {
                 return *m_appliedSystematics;
             }
@@ -120,7 +118,7 @@ namespace CP {
             CP::SystematicSet* m_appliedSystematics;
 
             std::string m_fileName;
-            Int_t m_runNumber;
+            std::string m_dataPeriod;
             const char* m_classname;
 
             typedef std::map<std::string, TH2*> EfficiencyMap;
@@ -131,9 +129,6 @@ namespace CP {
             std::map<std::string, std::vector<TH2*> > m_efficiencyMapReplicaArray;
 
             Double_t getThresholds(const std::string& trigger);
-
-            bool setConfiguration(TrigMuonEff::Configuration& config,
-                            TrigMuonEff::DataPeriod period = TrigMuonEff::period_undefined) const;
 
             struct DileptonThresholds {
                     double mu6;
@@ -184,11 +179,9 @@ namespace CP {
             static void getDileptonLegs(const std::string& chain,
                             DileptonTrigger& legs);
 
-            static TrigMuonEff::DataPeriod getDataPeriod(int runNumber);
+            static std::string getDataPeriod(int runNumber, const std::string& year);
 
             TDirectory* getTemporaryDirectory(void) const;
-
-            TrigMuonEff::DataPeriod m_max_period;
 
             std::string m_muonquality;
 
