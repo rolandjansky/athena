@@ -26,8 +26,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SensorSimTool.h"
 
-#include "BichselSimTool.h"
-
 class SensorSimPlanarTool : public SensorSimTool {
 
   public:
@@ -36,7 +34,8 @@ class SensorSimPlanarTool : public SensorSimTool {
     virtual StatusCode finalize();
     virtual ~SensorSimPlanarTool();
 
-    virtual StatusCode charge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, const InDetDD::SiDetectorElement &Module);  
+    //TODO: change name to induceCharge
+    virtual StatusCode induceCharge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection& chargedDiodes, const InDetDD::SiDetectorElement &Module, const InDetDD::PixelModuleDesign &p_design, std::vector< std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions);  
 
   private:
     SensorSimPlanarTool();
@@ -44,16 +43,6 @@ class SensorSimPlanarTool : public SensorSimTool {
     int    m_numberOfSteps;
     int    m_numberOfCharges;  
     double m_diffusionConstant;
-
-    bool   m_doBichsel;                                  // re-do charge deposition following Bichsel model ?
-    double m_doBichselBetaGammaCut;                      // replace momentum cut
-    bool   m_doDeltaRay;                                 // implement Bichsel Model into delta-ray, which does not have truth particle link. 
-
-    // We will assume all delta-ray is electron, with all energy deposited in silicon layer. So the 4-momentum can be reconstructed using energy and direction
-    bool   m_doPU;                                       // Whether we apply Bichsel model on non-HS particles
-    ToolHandle<BichselSimTool> m_BichselSimTool;         // if yes, you need to load related tool here
-
-    void simulateBow(const InDetDD::SiDetectorElement * element,double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const;
 };
 
 #endif // PIXELDIGITIZATION_SensorSimPlanarTool_H

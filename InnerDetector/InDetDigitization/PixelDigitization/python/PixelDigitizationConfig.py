@@ -36,28 +36,20 @@ def BichselSimTool(name="BichselSimTool", **kwargs):
     kwargs.setdefault("LoopLimit", 100000)
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
+    kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
+    kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
+    kwargs.setdefault("doDeltaRay", False)            # needs validation
+    kwargs.setdefault("doPU", True)
     return CfgMgr.BichselSimTool(name, **kwargs)
 
 def SensorSimPlanarTool(name="SensorSimPlanarTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
-    kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
-    kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
-    kwargs.setdefault("doDeltaRay", False)            # needs validation
-    kwargs.setdefault("doPU", True)
-    kwargs.setdefault("BichselSimTool", "BichselSimTool")
-    # kwargs.setdefault("OutputFileName", digitizationFlags.BichselOutputFileName())
-    # kwargs.setdefault("doHITPlots", True)
     return CfgMgr.SensorSimPlanarTool(name, **kwargs)
 
 def SensorSim3DTool(name="SensorSim3DTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
-    kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
-    kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
-    kwargs.setdefault("doDeltaRay", False)            # needs validation
-    kwargs.setdefault("doPU", True)
-    kwargs.setdefault("BichselSimTool", "BichselSimTool")
     return CfgMgr.SensorSim3DTool(name, **kwargs)
 
 def SensorSimTool(name="SensorSimTool", **kwargs):
@@ -189,6 +181,7 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     kwargs.setdefault("PixelProcessorTools", procTools)
     kwargs.setdefault("ChargeTools", chargeTools)
     kwargs.setdefault("FrontEndSimTools", feSimTools)
+    kwargs.setdefault("BichselSimTool", "BichselSimTool")
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", Pixel_FirstXing() )
         kwargs.setdefault("LastXing", Pixel_LastXing() )

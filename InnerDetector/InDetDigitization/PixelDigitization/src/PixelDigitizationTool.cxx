@@ -39,6 +39,7 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   m_processorTool(nullptr),
   m_chargeTool(nullptr),
   m_fesimTool(nullptr),
+  m_energyDepositionTool(nullptr),
   m_detID(nullptr),
   m_vetoThisBarcode(crazyParticleBarcode),
   m_timedHits(nullptr),
@@ -52,6 +53,7 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   declareProperty("PixelProcessorTools", m_processorTool, "List of processor tools");
   declareProperty("ChargeTools",      m_chargeTool,      "List of charge tools");
   declareProperty("FrontEndSimTools", m_fesimTool,       "List of Front-End simulation tools");
+  declareProperty("BichselSimTool",   m_energyDepositionTool,       "Energy deposition tool");
   declareProperty("RndmSvc",          m_rndmSvc,         "Random number service used in Pixel Digitization");
   declareProperty("MergeSvc",         m_mergeSvc,        "Merge service used in Pixel digitization");
   declareProperty("InputObjectName",  m_inputObjectName, "Input Object name" );
@@ -102,6 +104,8 @@ StatusCode PixelDigitizationTool::initialize() {
   CHECK(m_chargeTool.retrieve());
 
   CHECK(m_fesimTool.retrieve());
+  
+  CHECK(m_energyDepositionTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -144,6 +148,8 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
   ATH_MSG_VERBOSE("PixelDigitizationTool::digitizeEvent()");
 
   SiChargedDiodeCollection  *chargedDiodes = new SiChargedDiodeCollection;
+  std::vector<std::pair<double,double> > trfHitRecord; trfHitRecord.clear(); 
+  std::vector<double> initialConditions; initialConditions.clear();
 
   std::vector<bool> processedElements;
   processedElements.resize(m_detID->wafer_hash_max(),false);
@@ -172,6 +178,7 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
 
     // Create the charged diodes collection
     chargedDiodes->setDetectorElement(sielement);
+    const InDetDD::PixelModuleDesign *p_design= static_cast<const InDetDD::PixelModuleDesign*>(&(sielement->design()));
 
     // Loop over the hits and created charged diodes:
     for (TimedHitCollection<SiHit>::const_iterator phit=firstHit; phit!=lastHit; phit++) {
@@ -180,11 +187,18 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
         ATH_MSG_DEBUG("HASH = " << m_detID->wafer_hash(m_detID->wafer_id((*phit)->getBarrelEndcap(),(*phit)->getLayerDisk(),(*phit)->getPhiModule(),(*phit)->getEtaModule())));
 
         // Apply charge collection tools
-        ATH_MSG_DEBUG("calling process() for all methods");
-        for (unsigned int itool=0; itool<m_chargeTool.size(); itool++) {
+        ATH_MSG_DEBUG("Running sensor simulation.");
+	
+	//Deposit energy in sensor
+	CHECK(m_energyDepositionTool->depositEnergy( *phit,  *sielement, trfHitRecord, initialConditions));
+        
+	//Create signal in sensor
+	for (unsigned int itool=0; itool<m_chargeTool.size(); itool++) {
           ATH_MSG_DEBUG("Executing tool " << m_chargeTool[itool]->name());
-          if (m_chargeTool[itool]->charge(*phit,*chargedDiodes,*sielement)==StatusCode::FAILURE) { break; }
+          if (m_chargeTool[itool]->induceCharge( *phit, *chargedDiodes, *sielement, *p_design, trfHitRecord, initialConditions)==StatusCode::FAILURE) { break; }
         }
+	initialConditions.clear();
+	trfHitRecord.clear();
         ATH_MSG_DEBUG("charges filled!");
       }
     }
