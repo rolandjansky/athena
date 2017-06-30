@@ -38,19 +38,24 @@ StatusCode FTK_DuplicateTrackRemovalTool::finalize() {
   return sc;
 }
 
+//tell whether the two tracks match, based on number of matching hits and unmatching hits
 bool FTK_DuplicateTrackRemovalTool::match(const FTK_RawTrack* track, const FTK_RawTrack* oldtrack) const {
 	const std::vector<FTK_RawPixelCluster>& pixclus = track->getPixelClusters();
 	const std::vector<FTK_RawSCT_Cluster>& sctclus = track->getSCTClusters();
 	const std::vector<FTK_RawPixelCluster>& oldpixclus = oldtrack->getPixelClusters();
 	const std::vector<FTK_RawSCT_Cluster>& oldsctclus = oldtrack->getSCTClusters();
 
+	//Note to self: Clusters are made from sim in FTK_RDO_CreatorAlgo...
+
 	int nmatchingpixclus=0;
 	for (auto clus : pixclus){
 		//is this pixel clus matched by any on the old track?
-		long int barcode = clus.getBarcode();
+		unsigned int id = clus.getModuleID();
 		for (auto oldclus : oldpixclus){
-			if (oldclus.getBarcode()==barcode){
-				nmatchingpixclus++;
+			if (oldclus.getModuleID()==id){ // if the ID matches, it's on the same module // stored in WordA
+				if (clus.getWordB()==oldclus.getWordB()) { // is it the same eta and phi position and width? // stored in WordB
+					nmatchingpixclus++; break;
+				}
 			}
 		}
 	}
@@ -58,13 +63,15 @@ bool FTK_DuplicateTrackRemovalTool::match(const FTK_RawTrack* track, const FTK_R
 	int nmatchingsctclus=0;
 	for (auto clus : sctclus){
 		//is this sct clus matched by any on the old track?
-		long int barcode = clus.getBarcode();
+		unsigned int id = clus.getWord();
 		for (auto oldclus : oldsctclus){
-			if (oldclus.getBarcode()==barcode){
-				nmatchingsctclus++;
+			if (oldclus.getWord()==id){ // if the word matches, it's the same dude
+				nmatchingsctclus++; break;
 			}
 		}
 	}
+	ATH_MSG_INFO("Found "<<nmatchingpixclus<<" matching pix clus out of "<<pixclus.size());
+	ATH_MSG_INFO("Found "<<nmatchingsctclus<<" matching sct clus out of "<<sctclus.size());
 
 	int nclus = pixclus.size() + sctclus.size();
 	int nmatchingclus = nmatchingpixclus+nmatchingsctclus;
@@ -75,6 +82,18 @@ bool FTK_DuplicateTrackRemovalTool::match(const FTK_RawTrack* track, const FTK_R
 	else return false;
 }
 
+//return the better of two tracks, based on number of missing layers, and if those tie, chi2
+const FTK_RawTrack* FTK_DuplicateTrackRemovalTool::besttrack(const FTK_RawTrack* track, const FTK_RawTrack* oldtrack) const {
+	unsigned int trackhits = track->getPixelClusters().size()+track->getSCTClusters().size();
+	unsigned int oldtrackhits = oldtrack->getPixelClusters().size()+oldtrack->getSCTClusters().size();
+	if (trackhits > oldtrackhits) return track;
+	if (oldtrackhits > trackhits) return oldtrack;
+
+	//in case of a tie, use chi2
+	if (track->getChi2()<oldtrack->getChi2()) return track;
+	else return oldtrack;
+}
+
 FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK_RawTrackContainer* trks){
   ATH_MSG_INFO("ACH99 - I'm in removeDuplicates!");
   m_trks_nodups->clear();
@@ -83,21 +102,37 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
 	  const FTK_RawTrack *track = trks->at(i);
 
 	  //now we should see whether this track overlaps with one (or more?) tracks already in the nodups container
-	  std::vector<const FTK_RawTrack *> matching_oldtracks;
+	  std::vector<unsigned int> matching_oldtracks;
 	  for (unsigned int e = 0; e!=m_trks_nodups->size(); e++) {
 	  	  const FTK_RawTrack *oldtrack = m_trks_nodups->at(e);
-	  	  if (match(track,oldtrack)) {
-	  		  matching_oldtracks.push_back(oldtrack);
+	  	  if (this->match(track,oldtrack)) {
+	  		  matching_oldtracks.push_back(e);
 	  	  }
 	  }
 	  ATH_MSG_INFO("Found "<<matching_oldtracks.size()<<" old tracks matching track "<<i);
+	  if (matching_oldtracks.size()==0){//if there's no match, just add the new track
+		  m_trks_nodups->push_back((FTK_RawTrack*)track);
+	  }
+	  //if it does match, either replace the matching track(s) with this new track, or ignore this new track, depending on which track we like best
+	  else if (matching_oldtracks.size()==1){
+		  unsigned int e = matching_oldtracks[0];
+		  const FTK_RawTrack *oldtrack = m_trks_nodups->at(e);
+		  const FTK_RawTrack *besttrack = this->besttrack(track,oldtrack);
+		  if (besttrack==track){
+			  m_trks_nodups->at(e)=(FTK_RawTrack*)track;
+		  }
+		  else{
+			  //nothing to do - the better track was already in the output container
+		  }
+	  }
+	  else { // more than 1 matching existing track (yet the existing matching tracks did not match each other)
+		  //TODO
+	  }
 
-	  //if it does, either replace the (worst?) matching track with this new track, or ignore this new track, depending on which track we like better
-
-	  m_trks_nodups->push_back((FTK_RawTrack*)track);
-  }
+  } // loop over incoming tracks
 
   //maybe at the end we should do a check that no further matches exist?
+  //TODO
 
   return m_trks_nodups;
 }

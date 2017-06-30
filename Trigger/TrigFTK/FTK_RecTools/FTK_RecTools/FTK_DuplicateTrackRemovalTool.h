@@ -32,6 +32,7 @@ class FTK_DuplicateTrackRemovalTool : public AthAlgTool, virtual public IFTK_Dup
     FTK_RawTrackContainer* m_trks_nodups;
     ToolHandle<IFTK_UncertaintyTool> m_uncertaintyTool;
     bool match(const FTK_RawTrack* track, const FTK_RawTrack* oldtrack) const;
+    const FTK_RawTrack* besttrack(const FTK_RawTrack* track, const FTK_RawTrack* oldtrack) const;
     int m_HW_ndiff;
 };
 

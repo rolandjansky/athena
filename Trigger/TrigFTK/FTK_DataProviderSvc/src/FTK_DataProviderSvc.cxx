@@ -1009,29 +1009,29 @@ void FTK_DataProviderSvc::getFTK_RawTracksFromSG(){
 
   // new event - get the tracks from StoreGate
   if (!m_storeGate->contains<FTK_RawTrackContainer>(m_RDO_key)) {
-    ATH_MSG_DEBUG( "getFTK_RawTracksFromSG: FTK tracks  "<< m_RDO_key <<" not found in StoreGate !");
-    return;
+	  ATH_MSG_DEBUG( "getFTK_RawTracksFromSG: FTK tracks  "<< m_RDO_key <<" not found in StoreGate !");
+	  return;
   } else {    
-    if (m_remove_duplicates){//get all tracks, and then call duplicate rmoval tool
-      ATH_MSG_INFO( "getFTK_RawTracksFromSG:  Doing storegate retreive and then duplicate removal");
-      const FTK_RawTrackContainer* temporaryTracks=nullptr;
-      StatusCode sc = m_storeGate->retrieve(temporaryTracks, m_RDO_key);
-      m_ftk_tracks = m_DuplicateTrackRemovalTool->removeDuplicates(temporaryTracks);
-      if (sc.isFailure()) {
-	ATH_MSG_WARNING( "getFTK_RawTracksFromSG: Failed to get FTK Tracks Container when using removeDumplicates ");
-	return;
-      }
-    }
-    else{//the original way
-      ATH_MSG_VERBOSE( "getFTK_RawTracksFromSG:  Doing storegate retreive");
-      StatusCode sc = m_storeGate->retrieve(m_ftk_tracks, m_RDO_key);
-      if (sc.isFailure()) {
-	ATH_MSG_WARNING( "getFTK_RawTracksFromSG: Failed to get FTK Tracks Container");
-	return;
-      }
-    }
-    ATH_MSG_INFO( "getFTK_RawTracksFromSG:  Got " << m_ftk_tracks->size() << " raw FTK tracks (RDO) from  StoreGate ");
-    m_gotRawTracks = true;
+	  if (m_remove_duplicates){//get all tracks, and then call duplicate removal tool
+		  const FTK_RawTrackContainer* temporaryTracks=nullptr;
+		  StatusCode sc = m_storeGate->retrieve(temporaryTracks, m_RDO_key);
+		  ATH_MSG_INFO( "getFTK_RawTracksFromSG:  Got " << temporaryTracks->size() << " raw FTK tracks (RDO) from  StoreGate ");
+		  m_ftk_tracks = m_DuplicateTrackRemovalTool->removeDuplicates(temporaryTracks);
+		  if (sc.isFailure()) {
+			  ATH_MSG_WARNING( "getFTK_RawTracksFromSG: Failed to get FTK Tracks Container when using removeDumplicates ");
+			  return;
+		  }
+	  }
+	  else{//the original way
+		  ATH_MSG_VERBOSE( "getFTK_RawTracksFromSG:  Doing storegate retrieve");
+		  StatusCode sc = m_storeGate->retrieve(m_ftk_tracks, m_RDO_key);
+		  if (sc.isFailure()) {
+			  ATH_MSG_WARNING( "getFTK_RawTracksFromSG: Failed to get FTK Tracks Container");
+			  return;
+		  }
+	  }
+	  ATH_MSG_INFO( "getFTK_RawTracksFromSG:  Got " << m_ftk_tracks->size() << " raw FTK tracks");
+	  m_gotRawTracks = true;
   }
   
   // Creating collection for pixel clusters
