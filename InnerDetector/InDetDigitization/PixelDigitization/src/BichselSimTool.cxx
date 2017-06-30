@@ -212,10 +212,6 @@ StatusCode BichselSimTool::finalize() {
   double eta_f = endPosition[SiHit::xEta];
   double phi_f = endPosition[SiHit::xPhi];
   const double depth_f = endPosition[SiHit::xDep];
-  initialConditions.clear();
-  initialConditions.push_back( eta_0 );
-  initialConditions.push_back( phi_0 );
-  initialConditions.push_back( depth_0 );
 
   //Simulate effect of bowing on entry and exit points
   if (!m_disableDistortions && !delta_hit) simulateBow(&Module,phi_0,eta_0,depth_0,phi_f,eta_f,depth_f);
@@ -230,6 +226,10 @@ StatusCode BichselSimTool::finalize() {
   const int ncharges=this->m_numberOfCharges*this->m_numberOfSteps/nsteps+1; 
 
   //Store information
+  initialConditions.clear();
+  initialConditions.push_back( eta_0 );
+  initialConditions.push_back( phi_0 );
+  initialConditions.push_back( depth_0 );
   initialConditions.push_back( dEta );
   initialConditions.push_back( dPhi );
   initialConditions.push_back( dDepth );
