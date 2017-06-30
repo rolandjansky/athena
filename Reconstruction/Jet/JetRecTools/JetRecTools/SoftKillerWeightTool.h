@@ -45,10 +45,8 @@
 // applied.
 //
 
-
-
-
 #include <string>
+#include <utility>
 #include "JetRecTools/JetConstituentModifierBase.h"
 #include "xAODBase/IParticleContainer.h"
 
@@ -70,20 +68,19 @@ private:
 
   // Detailed implementation methods where clusters in
   // both calorimeters are treated consistently
-  float calculateWeight(xAOD::IParticle& part) const;
-  void RunSoftKiller(xAOD::IParticleContainer& cont) const;
+  float calculateWeight(xAOD::IParticle& part, double minPt) const;
+  double getSoftKillerMinPt(xAOD::IParticleContainer& cont) const;
 
   // Detailed implementation methods where clusters in
   // ECAL and HCAL are treated independently
-  float calculateSplitWeight(xAOD::IParticle& part) const;
-  void RunSoftKillerSplit(xAOD::IParticleContainer& cont) const;
+  float calculateSplitWeight(xAOD::IParticle& part, double minPtECal, double minPtHCal) const;
+  std::pair<double,double> getSoftKillerMinPtSplit(xAOD::IParticleContainer& cont) const;
 
   double findMinPt(const std::vector<fastjet::PseudoJet> &partSK) const;
   std::vector<fastjet::PseudoJet> makeSKParticles(const std::vector<fastjet::PseudoJet>& partPJ) const;
 
 
 private:
-
   //mutable int m_initCount;
   float m_lambdaCalDivide;
 
@@ -96,9 +93,7 @@ private:
   float m_rapmax;
   float m_rapminApplied;
   float m_rapmaxApplied;
-  mutable double m_minPt;
-  mutable double m_minPtECal;
-  mutable double m_minPtHCal;
+  bool m_ignoreChargedPFOs;
 		
 };
 

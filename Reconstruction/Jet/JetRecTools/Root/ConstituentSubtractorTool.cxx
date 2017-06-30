@@ -21,9 +21,29 @@ ConstituentSubtractorTool::ConstituentSubtractorTool(const std::string & name): 
   declareProperty("MaxRapForRhoComputation", m_maxRapForRhoComputation=2.0);
   declareProperty("GhostArea", m_ghost_area=0.01);
   declareProperty("CommonBGEForRhoAndRhom",m_common_bge_for_rho_and_rhom=false);
+
+  // Option to disregard cPFOs in the weight calculation
+  declareProperty("IgnoreChargedPFO", m_ignoreChargedPFOs=true);
 }
 
-// Apply PU weighting and decorate the IParticle container appropriately:
+
+StatusCode ConstituentSubtractorTool::initialize() {
+
+  if(m_inputType==xAOD::Type::ParticleFlow) {
+    if(m_ignoreChargedPFOs && m_applyToChargedPFO) {
+      ATH_MSG_ERROR("Incompatible configuration: setting both IgnoreChargedPFO and ApplyToChargedPFO to true"
+		    <<  "will set all cPFOs to zero");
+      return StatusCode::FAILURE;
+    }
+    if(!m_applyToNeutralPFO) {
+      ATH_MSG_ERROR("Incompatible configuration: ApplyToNeutralPFO=False -- what kind of pileup do you wish to suppress?");
+      return StatusCode::FAILURE;
+    }
+  }
+  return StatusCode::SUCCESS;
+>>>>>>> Allow constituent pileup suppression tools to ignore charged PFOs
+}
+
 	
 StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* cont) const {
 
@@ -67,7 +87,6 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
       ATH_MSG_VERBOSE("Will not correct " << part->type() << " with pt " << part->pt());
       inputs_to_not_correct.push_back(pj);
     }
-
     ++i;
   }
 

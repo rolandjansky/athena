@@ -26,9 +26,12 @@ public:
 	
   ConstituentSubtractorTool(const std::string & name); 
 
-  StatusCode process_impl(xAOD::IParticleContainer* cont) const; 
+  // Check that the configuration is sane
+  StatusCode initialize();
 
-public:
+private:
+  // Implement the correction
+  StatusCode process_impl(xAOD::IParticleContainer* cont) const; 
 
   float m_maxDeltaR = 0.25;
   float m_alpha = 0.0;
@@ -36,6 +39,8 @@ public:
   float m_maxRapForRhoComputation = 2.0;
   float m_ghost_area = 0.01;
   bool m_common_bge_for_rho_and_rhom = false;
+  bool m_ignoreChargedPFOs = true;
+
 };
 
 #endif
