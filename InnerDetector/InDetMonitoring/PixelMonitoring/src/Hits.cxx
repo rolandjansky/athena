@@ -45,8 +45,7 @@
 
 StatusCode PixelMainMon::BookHitsMon(void)
 {
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Hits" << endmsg;  
- 
+   ATH_MSG_DEBUG("Start booking Hit histogtams..");
    std::string path = "Pixel/Hits";
    if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/HitsOnTrack");
    if(m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/HitsOnPixelTrack");
@@ -332,13 +331,13 @@ StatusCode PixelMainMon::BookHitsMon(void)
      }
    }
 
-   if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endmsg;         
+   if (sc.isFailure()) ATH_MSG_WARNING("Problems with booking Hit histograms");
    return StatusCode::SUCCESS;
 }
 
 StatusCode PixelMainMon::BookHitsLumiBlockMon(void)
 {
-   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Hits for lowStat" << endmsg;  
+   ATH_MSG_DEBUG("Start booking Hits histograms per LB (low stat)");
    
    std::string path = "Pixel/LumiBlock";
    if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnTrack");
@@ -389,7 +388,7 @@ StatusCode PixelMainMon::BookHitsLumiBlockMon(void)
    m_occupancy_10min = new PixelMon2DMaps("Occupancy_10min", ("hit occupancy" + m_histTitleExt).c_str(), m_doIBL);
    sc = m_occupancy_10min->regHist(lumiBlockHist);
    
-   if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endmsg;         
+   if (sc.isFailure()) ATH_MSG_WARNING("Problems with booking Hit histograms per LB (low stat)");
    return StatusCode::SUCCESS;
 }
 
@@ -469,7 +468,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
   int pix_rod_bcid      = 0;
   if ( !sc.isFailure() && Pixel_BCIDColl!=0 ) 
     {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Found Pixel BCID collection"<<endmsg;
+      ATH_MSG_DEBUG("Found Pixel BCID collection");
       for ( InDetTimeCollection::const_iterator ipix_bcid = Pixel_BCIDColl->begin(); ipix_bcid != Pixel_BCIDColl->end(); ++ipix_bcid ) 
 	{
 	  if (!(*ipix_bcid)) continue;
@@ -477,17 +476,15 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	  pix_rod_bcid = pix_bcid;
 	} 
     }
-  if (sc.isFailure()) if(msgLvl(MSG::INFO)) {msg(MSG::INFO)  << "Could not find the data object PixelBCID" << " !" << endmsg;}
+  if (sc.isFailure()) ATH_MSG_WARNING("Could not find the data object PixelBCID !");
 
   // get ATLAS LVL1ID
   //
   int lvl1idATLAS(-1);
   const EventInfo* thisEventInfo;
   sc=evtStore()->retrieve(thisEventInfo);
-  if (sc != StatusCode::SUCCESS)
-    {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "No EventInfo object found" << endmsg;
-    } else 
+  if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING("No EventInfo object found");
+  else 
     {
       lvl1idATLAS = (int)((thisEventInfo->trigger_info()->extendedLevel1ID())&0xf);
     }
@@ -496,11 +493,11 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
   sc=evtStore()->retrieve(m_rdocontainer,m_Pixel_RDOName);
   if (sc.isFailure() || !m_rdocontainer) 
     {
-      if (msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not find the data object " << m_Pixel_RDOName << " !" << endmsg;
+      ATH_MSG_WARNING("Could not retrieve Pixel RDO container !");
       if (m_storegate_errors) m_storegate_errors->Fill(1.,3.);  //first entry (1). is for RDO, second (2) is for retrieve problem
       return StatusCode::SUCCESS;  //fail gracefully and keep going in the next tool
     } else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Data object " << m_Pixel_RDOName << " found" << endmsg;
+    ATH_MSG_DEBUG("Pixel RDO container " << m_Pixel_RDOName << " found");
   }
 
   PixelRDO_Container::const_iterator colNext   = m_rdocontainer->begin();
@@ -722,7 +719,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
     if(m_avgocc_per_bcid_mod[i]) m_avgocc_per_bcid_mod[i]->Fill(pix_rod_bcid, avgocc_mod[i]);
     if(m_avgocc_active_per_lumi_mod[i]) m_avgocc_active_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(),avgocc_active_mod[i]);
 
-    if(m_maxocc_per_lumi_mod[i]) m_maxocc_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), avgocc_mod[i]);
+    if(m_maxocc_per_lumi_mod[i]) m_maxocc_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), avgocc_active_mod[i]);
     if(m_maxocc_per_bcid_mod[i]){
       int bin = m_maxocc_per_bcid_mod[i]->GetXaxis()->FindBin( 1.0*pix_rod_bcid );
       double content = m_maxocc_per_bcid_mod[i]->GetBinContent( bin );
