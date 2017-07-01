@@ -61,6 +61,8 @@ class StatusCode;
   XYZ(TempMaskedChip3)	       \
   XYZ(TempMaskedChip4)	       \
   XYZ(TempMaskedChip5)         \
+  XYZ(ABCDError_Error7)        \
+  XYZ(ABCDError_Invalid)       \
   XYZ(NUM_ERROR_TYPES) // always have this one last, so we can use it as a loop index
 #endif // SCT_ERRORTYPELIST
 
