@@ -3,19 +3,20 @@
 */
 
 #include "FTK_RecTools/FTK_DuplicateTrackRemovalTool.h"
-#include <map>
 #include <vector>
-#include <utility>
+#include "TVector2.h"
 
 FTK_DuplicateTrackRemovalTool::FTK_DuplicateTrackRemovalTool(const std::string& t,
                                                const std::string& n,
                                                const IInterface*  p ):
   AthAlgTool(t,n,p),
   m_trks_nodups(NULL),
-  m_HW_ndiff(6)
+  m_HW_ndiff(6),
+  m_dphi_roughmatch(0.3)
 {
   declareInterface< IFTK_DuplicateTrackRemovalTool >( this );
   declareProperty("HW_ndiff",m_HW_ndiff);
+  declareProperty("dphi_roughmatch",m_dphi_roughmatch);
 }
 
 StatusCode FTK_DuplicateTrackRemovalTool::initialize() {
@@ -38,6 +39,12 @@ StatusCode FTK_DuplicateTrackRemovalTool::finalize() {
 
 //tell whether the two tracks match, based on number of matching hits and unmatching hits
 bool FTK_DuplicateTrackRemovalTool::match(const FTK_RawTrack* track, const FTK_RawTrack* oldtrack) const {
+
+	//first check for a rough match in phi
+	double dphi = TVector2::Phi_mpi_pi(track->getPhi()-oldtrack->getPhi());//make sure it's in -pi..pi
+	dphi = fabs(dphi);//then take abs since we don't care about sign
+	if (dphi>m_dphi_roughmatch) return false;//no match if dphi is larger than dphi_roughmatch, 0.3 by default
+
 	const std::vector<FTK_RawPixelCluster>& pixclus = track->getPixelClusters();
 	const std::vector<FTK_RawSCT_Cluster>& sctclus = track->getSCTClusters();
 	const std::vector<FTK_RawPixelCluster>& oldpixclus = oldtrack->getPixelClusters();
@@ -71,17 +78,22 @@ bool FTK_DuplicateTrackRemovalTool::match(const FTK_RawTrack* track, const FTK_R
 	ATH_MSG_DEBUG("Found "<<nmatchingpixclus<<" matching pix clus out of "<<pixclus.size());
 	ATH_MSG_DEBUG("Found "<<nmatchingsctclus<<" matching sct clus out of "<<sctclus.size());
 
+	bool matching=false;
 	int nclus = pixclus.size() + sctclus.size();
 	int nmatchingclus = nmatchingpixclus+nmatchingsctclus;
 	//it matches if the number of unmatched clusters is <= 6 (or HW_diff)
 	if ( (nclus-nmatchingclus) <= m_HW_ndiff){//corresponding criteria in simulation
-		return true;
+		matching = true;
 	}
-	else return false;
+
+	ATH_MSG_VERBOSE("ACH888: "<<matching<<" "<<track->getSectorID()<<" "<<track->getPhi()<<" "<<track->getCotTh()<<" "<<track->getZ0()<<" "<<oldtrack->getSectorID()<<" "<<oldtrack->getPhi()<<" "<<oldtrack->getCotTh()<<" "<<oldtrack->getZ0());
+	return matching;
 }
 
 //return the better of two tracks, based on number of missing layers, and if those tie, chi2
 const FTK_RawTrack* FTK_DuplicateTrackRemovalTool::besttrack(const FTK_RawTrack* track, const FTK_RawTrack* oldtrack) const {
+	//return track;//ACH-temporary test to see if this is slow
+
 	unsigned int trackhits = track->getPixelClusters().size()+track->getSCTClusters().size();
 	unsigned int oldtrackhits = oldtrack->getPixelClusters().size()+oldtrack->getSCTClusters().size();
 	if (trackhits > oldtrackhits) return track;
@@ -97,7 +109,7 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
 
 #ifdef FTKDuplicateTrackRemovalTiming
   clock_t tStart = clock();
-  for (int tim=0;tim<100;++tim){
+  for (int tim=0;tim<1000;++tim){
 #endif
 
   ATH_MSG_DEBUG("ACH99 - I'm in removeDuplicates!");
@@ -171,10 +183,10 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
   } // loop over incoming tracks
 
 #ifdef FTKDuplicateTrackRemovalTiming
-  } // loop over 100 times of doing the removal
+  } // loop over doing the removal
   clock_t tEnd = clock();
   double elapsed_secs = double(tEnd - tStart) / CLOCKS_PER_SEC;
-  ATH_MSG_INFO("Time taken: "<<elapsed_secs<<"s");
+  ATH_MSG_INFO("Time taken: "<<elapsed_secs<<"ms");//it's "ms", not "s", since we did 1000 times
 #endif
 
   return m_trks_nodups;

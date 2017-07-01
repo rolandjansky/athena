@@ -33,6 +33,7 @@ class FTK_DuplicateTrackRemovalTool : public AthAlgTool, virtual public IFTK_Dup
     bool match(const FTK_RawTrack* track, const FTK_RawTrack* oldtrack) const;
     const FTK_RawTrack* besttrack(const FTK_RawTrack* track, const FTK_RawTrack* oldtrack) const;
     int m_HW_ndiff;
+    double m_dphi_roughmatch;
 };
 
 #endif
