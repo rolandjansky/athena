@@ -166,10 +166,10 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inpu
   output.push_back(avgmu);
     
 
+  if(doTiming())  m_decisionTimer->start();
+  
   if(m_discriminators.size() > 0){
-    
-    if(doTiming())  m_decisionTimer->start();
-    
+      
     for(unsigned i=0; i<m_discriminators.size(); ++i){
       if(et > m_discriminators[i]->etmin() && et <= m_discriminators[i]->etmax()){
         if(eta > m_discriminators[i]->etamin() && eta <= m_discriminators[i]->etamax()){
@@ -219,7 +219,6 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inpu
   }else{
     ATH_MSG_DEBUG( "There is no discriminator into this Fex." );
   }
-
 
   if(doTiming())  m_decisionTimer->stop();
 
