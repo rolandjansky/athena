@@ -177,23 +177,25 @@ StatusCode ISF::CollectionMerger::setupReadHandleKeyVector( const SGKeyVector_t&
 template <typename T>
 void ISF::CollectionMerger::mergeCollections( const ReadHandleKeyVector_t<T>& inputReadHandleKeys,
                                               SG::WriteHandleKey<T>&          outputWriteHandleKey ) const {
-    // skip if not input collection
-    if ( inputReadHandleKeys.empty() )
-        return;
+  // skip if not input collection
+  if ( inputReadHandleKeys.empty() ) {
+    return;
+  }
+  // TODO: is there a way to conveniently get the total number of hits in all inputReadHandleKeys
+  //       and reserve the corresponding size in the outputHandle
+  SG::WriteHandle<T>  outputHandle{outputWriteHandleKey};
+  if (outputHandle.record( CxxUtils::make_unique<T>() ).isFailure()) {
+    return;
+  }
 
-    // TODO: is there a way to conveniently get the total number of hits in all inputReadHandleKeys
-    //       and reserve the corresponding size in the outputHandle
-    SG::WriteHandle<T>  outputHandle{outputWriteHandleKey};
-    outputHandle.record( CxxUtils::make_unique<T>() );
+  for ( const auto& collKey: inputReadHandleKeys ) {
+    SG::ReadHandle<T>  inputHandle{collKey};
 
-    for ( const auto& collKey: inputReadHandleKeys ) {
-        SG::ReadHandle<T>  inputHandle{collKey};
-
-        for ( const auto& hit: *inputHandle ) {
-            // TODO: replace with ->Emplace(hit) once LArHitContainer supports this
-            outputHandle->push_back( hit );
-        }
+    for ( const auto& hit: *inputHandle ) {
+      // TODO: replace with ->Emplace(hit) once LArHitContainer supports this
+      outputHandle->push_back( hit );
     }
+  }
 }
 
 
