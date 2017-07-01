@@ -171,39 +171,39 @@ public:
 // Interface functions go here
 void initPattTree(int nbanks, int nplanes,int ndims);
 void finishPattTree();
-int addKDPattern(int bank, bool const_test_mode, int* pattern, int *hashID, int mult,matrix Mtmp,double* hitc,
+int addKDPattern(unsigned int bank, bool const_test_mode, int* pattern, int *hashID, int mult,matrix Mtmp,double* hitc,
 		 double* xC,double* xD,double* xPhi,double* xCoto,double* xZ,double* covx,
 		 vector<short> int_c,vector<short> int_phi,vector<short> int_d0,
 		 vector<short> int_z0,vector<short> int_eta);
 
-int loadPatterns(int bank, FILE *infile, int npatterns);
-int isTherePatt(int bank, int* pattern);
-int sortPatterns(int bank);
-int sortMPatterns(int bank);
-int getNPatterns( int bank);
-int getPatternSS(int bank, int pattid, int plane);
-int getPatthashID(int bank, int pattid, int plane);
-int getPattNHits(int bank, int pattid);
-double getPattC(int bank, int pattid);
-double getPattD(int bank, int pattid);
-double getPattPhi(int bank, int pattid);
-double getPattCoto(int bank, int pattid);
-double getPattZ(int bank, int pattid);
-double getPatthitc(int bank, int pattid,int dim);
-float  getPattnhit(int bank, int pattid);
+int loadPatterns(unsigned int bank, FILE *infile, int npatterns);
+int isTherePatt(unsigned int bank, int* pattern);
+int sortPatterns(unsigned int bank);
+int sortMPatterns(unsigned int bank);
+int getNPatterns( unsigned int bank);
+int getPatternSS(unsigned int bank, unsigned int pattid, int plane);
+int getPatthashID(unsigned int bank, unsigned int pattid, int plane);
+int getPattNHits(unsigned int bank, unsigned int pattid);
+double getPattC(unsigned int bank, unsigned int pattid);
+double getPattD(unsigned int bank, unsigned int pattid);
+double getPattPhi(unsigned int bank, unsigned int pattid);
+double getPattCoto(unsigned int bank, unsigned int pattid);
+double getPattZ(unsigned int bank, unsigned int pattid);
+double getPatthitc(unsigned int bank, unsigned int pattid,int dim);
+float  getPattnhit(unsigned int bank, unsigned int pattid);
 
-double getPattxC(int bank, int pattid,int dim);
-double getPattxD(int bank, int pattid,int dim);
-double getPattxPhi(int bank, int pattid,int dim);
-double getPattxCoto(int bank, int pattid,int dim);
-double getPattxZ(int bank, int pattid,int dim);
-double getPattcovx(int bank, int pattid,int dim);
+double getPattxC(unsigned int bank, unsigned int pattid,int dim);
+double getPattxD(unsigned int bank, unsigned int pattid,int dim);
+double getPattxPhi(unsigned int bank, unsigned int pattid,int dim);
+double getPattxCoto(unsigned int bank, unsigned int pattid,int dim);
+double getPattxZ(unsigned int bank, unsigned int pattid,int dim);
+double getPattcovx(unsigned int bank, unsigned int pattid,int dim);
 
-short getPattintc(int bank, int pattid,int nhit);
-short getPattintphi(int bank, int pattid,int nhit);
-short getPattintd0(int bank, int pattid,int nhit);
-short getPattintz0(int bank, int pattid,int nhit);
-short getPattinteta(int bank, int pattid,int nhit);
+short getPattintc(unsigned int bank, unsigned int pattid,int nhit);
+short getPattintphi(unsigned int bank, unsigned int pattid,int nhit);
+short getPattintd0(unsigned int bank, unsigned int pattid,int nhit);
+short getPattintz0(unsigned int bank, unsigned int pattid,int nhit);
+short getPattinteta(unsigned int bank, unsigned int pattid,int nhit);
 
 //void print(); // used for debugging
 
