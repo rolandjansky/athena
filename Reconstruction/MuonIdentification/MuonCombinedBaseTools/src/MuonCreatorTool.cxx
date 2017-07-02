@@ -1301,19 +1301,7 @@ namespace MuonCombined {
         auto trackCandLink = trackMuonCandLinks.find( track );
         if( trackCandLink != trackMuonCandLinks.end() ) 
           resolvedMuonCandidates.push_back( trackCandLink->second );
-      }
-
-      std::vector<const MuonCombined::MuonCandidate*>::iterator it_MuonCandidate;
-      for(auto cand : *muonCandidates) {
-	it_MuonCandidate = std::find(resolvedMuonCandidates.begin(), resolvedMuonCandidates.end(), cand);
-	if(it_MuonCandidate == resolvedMuonCandidates.end()) {
-	  //remove duplicate extrapolated track
-	  const Trk::Track* tr = (*cand).releaseExtrapolatedTrack();
-	  if(tr)
-	    delete tr;
-	}
-      }
-
+      }    
       if(resolvedTracks) delete resolvedTracks;
       if(resolvedAllTracks) delete resolvedAllTracks;
 
