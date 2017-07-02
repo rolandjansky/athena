@@ -44,14 +44,13 @@ bool FTK_DuplicateTrackRemovalTool::match(const FTK_RawTrack* track, const FTK_R
 
 	const std::vector<FTK_RawPixelCluster>& pixclus = track->getPixelClusters();
 	const std::vector<FTK_RawSCT_Cluster>& sctclus = track->getSCTClusters();
-	const std::vector<FTK_RawPixelCluster>& oldpixclus = oldtrack->getPixelClusters();
-	const std::vector<FTK_RawSCT_Cluster>& oldsctclus = oldtrack->getSCTClusters();
 
 	//Note to self: Clusters are made from sim in FTK_RDO_CreatorAlgo...
 
 	int nclus = pixclus.size() + sctclus.size();
-
 	int nmatchingclus=0;
+	int nclusleft=12;// there's at most 12 hits, 4 pixel and 8 sct
+	const std::vector<FTK_RawPixelCluster>& oldpixclus = oldtrack->getPixelClusters();
 	for (auto clus : pixclus){
 		//is this pixel clus matched by any on the old track?
 		unsigned int id = clus.getModuleID();
@@ -64,13 +63,15 @@ bool FTK_DuplicateTrackRemovalTool::match(const FTK_RawTrack* track, const FTK_R
 					if ( (nclus-nmatchingclus) <= m_HW_ndiff){ //corresponding criteria in simulation
 						return true; //return as soon as we know the answer!
 					}
-
 					break; //we already found a matching cluster to this cluster, so no need to look for more matches to this cluster
 				}
 			}
-		}
+		}//loop over old tracks' clusters
+		nclusleft--;
+		if ((nclus-nmatchingclus-nclusleft)>m_HW_ndiff) return false; // no way we can get there with just nclusleft remaining
 	}
 
+	const std::vector<FTK_RawSCT_Cluster>& oldsctclus = oldtrack->getSCTClusters();
 	for (auto clus : sctclus){
 		//is this sct clus matched by any on the old track?
 		unsigned int id = clus.getWord();
@@ -82,10 +83,11 @@ bool FTK_DuplicateTrackRemovalTool::match(const FTK_RawTrack* track, const FTK_R
 				if ( (nclus-nmatchingclus) <= m_HW_ndiff){ //corresponding criteria in simulation
 					return true; //return as soon as we know the answer!
 				}
-
 				break; //we already found a matching cluster to this cluster, so no need to look for more matches to this cluster
 			}
-		}
+		}//loop over old tracks' clusters
+		nclusleft--;
+		if ((nclus-nmatchingclus-nclusleft)>m_HW_ndiff) return false; // no way we can get there with just nclusleft remaining
 	}
 
 	//ATH_MSG_DEBUG("Found "<<nmatchingpixclus<<" matching pix clus out of "<<pixclus.size());
@@ -199,10 +201,16 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
 
 	  //ATH_MSG_DEBUG("Found "<<matching_oldtracks.size()<<" old tracks matching track "<<i);
 	  if (matching_oldtracks.size()==0){//if there's no match, just add the new track
+#ifdef FTKDuplicateTrackRemovalTestMultiple
+		  for (int j=0; j<3; ++j){ // ACH - temporary test - add multiple times, to test multiple matches!
+#endif
 #ifdef FTKDuplicateTrackRemovalUseMap
 		  addtophimap(trackphi,m_trks_nodups->size());//so e.g. the first track will be index 0, since the size is 0 just before we push_back the first track
 #endif
 		  m_trks_nodups->push_back((FTK_RawTrack*)track);
+#ifdef FTKDuplicateTrackRemovalTestMultiple
+		  } // ACH - temporary test - add multiple times, to test multiple matches!
+#endif
 	  }
 
 	  //if it does match, either replace the matching track(s) with this new track, or ignore this new track, depending on which track we like best
@@ -223,7 +231,7 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
 	  }
 
 	  else { // more than 1 matching existing track (yet the existing matching tracks did not match each other)
-		  ATH_MSG_WARNING("Found multiple tracks ("<<matching_oldtracks.size()<<") matching track "<<i);
+		  ATH_MSG_INFO("Found multiple tracks ("<<matching_oldtracks.size()<<") matching track "<<i);
 
 		  // is the new track better than all the matching old tracks?
 		  bool newisbest = true;//start with an optimistic attitude!
@@ -289,7 +297,7 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
   } // loop over doing the removal
   clock_t tEnd = clock();
   double elapsed_secs = double(tEnd - tStart) / CLOCKS_PER_SEC;
-  ATH_MSG_INFO("Time taken: "<<elapsed_secs<<"ms");//it's "ms", not "s", since we did 1000 times
+  ATH_MSG_INFO("Time taken: "<<elapsed_secs<<" ms");//it's "ms", not "s", since we did 1000 times
 #endif
 
   return m_trks_nodups;

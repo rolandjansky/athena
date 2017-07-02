@@ -21,8 +21,10 @@
 #include "TrigFTK_RawData/FTK_RawTrackContainer.h"
 #include <map>
 
-#define FTKDuplicateTrackRemovalTiming
+//#define FTKDuplicateTrackRemovalTiming
 #define FTKDuplicateTrackRemovalUseMap
+//#define FTKDuplicateTrackRemovalTestMultiple
+
 class FTK_DuplicateTrackRemovalTool : public AthAlgTool, virtual public IFTK_DuplicateTrackRemovalTool
 {
  public:

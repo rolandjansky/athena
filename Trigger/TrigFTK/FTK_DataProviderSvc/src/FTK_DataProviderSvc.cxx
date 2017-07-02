@@ -1215,7 +1215,7 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
   // Find if the track includes IBL - needed for the error calculaton 
   for( unsigned int cluster_number = 0; cluster_number < track.getPixelClusters().size(); ++cluster_number){
     if ( !track.isMissingPixelLayer(cluster_number)) {
-      Identifier wafer_id = m_pixelId->wafer_id(track.getPixelClusters()[cluster_number].getModuleID());
+      Identifier wafer_id = m_pixelId->wafer_id(Identifier(track.getPixelClusters()[cluster_number].getModuleID()));
       if (m_pixelId->barrel_ec(wafer_id)==0 && m_pixelId->layer_disk(wafer_id)==0) {
 	hasIBL=true;
 	break;
