@@ -1050,6 +1050,9 @@ namespace MuonCombined {
 	      muon.setTrackParticleLink(xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle, link );
 	    }
 	    else ATH_MSG_WARNING("failed to create MS-only extrapolated track particle");
+	  } else {
+	    //original extrapolatedTrack is not needed anymore:
+	    delete extrapolatedTrack;
 	  }
 	  //now add refitted track as ME track
 	  ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(updatedExtrapolatedTrack),
@@ -1063,8 +1066,6 @@ namespace MuonCombined {
 	    muon.setParameter(fieldInt,xAOD::Muon::spectrometerFieldIntegral);
 	    //TrackSummary* tsum=updatedExtrapolatedTrack->trackSummary();
 	  }
-	  //original extrapolatedTrack is not needed anymore:
-          delete extrapolatedTrack;
 	}
 	else{ //no refitted track, so add original un-refitted extrapolated track as ME track
 	  if(muon.author()==xAOD::Muon::MuGirl && muon.extrapolatedMuonSpectrometerTrackParticleLink().isValid()){
