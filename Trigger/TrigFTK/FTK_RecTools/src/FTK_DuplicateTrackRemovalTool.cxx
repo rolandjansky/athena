@@ -154,7 +154,7 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
 
 #ifdef FTKDuplicateTrackRemovalUseMap
 	  phimap.clear();
-	  std::list<unsigned int> trackstokill;
+	  std::unordered_set<unsigned int> trackstokill;
 #endif
 
   ATH_MSG_DEBUG("ACH99 - I'm in removeDuplicates!");
@@ -257,7 +257,7 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
 				  else {
 					  //remove the old matching tracks beyond the first  one
 #ifdef FTKDuplicateTrackRemovalUseMap
-					  trackstokill.push_back(e);//we'll remove these from the tracks returned at the end of the day, so we don't screw up the map in the meantime
+					  trackstokill.insert(e);//we'll remove these from the tracks returned at the end of the day, so we don't screw up the map in the meantime
 #else
 					  m_trks_nodups->erase(m_trks_nodups->begin()+e); // yes this is really the way you remove an element from a vector, you have to pass in the iterator
 #endif
