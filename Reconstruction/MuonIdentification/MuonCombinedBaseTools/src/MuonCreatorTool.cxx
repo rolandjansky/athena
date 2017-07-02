@@ -1063,6 +1063,8 @@ namespace MuonCombined {
 	    muon.setParameter(fieldInt,xAOD::Muon::spectrometerFieldIntegral);
 	    //TrackSummary* tsum=updatedExtrapolatedTrack->trackSummary();
 	  }
+	  //original extrapolatedTrack is not needed anymore:
+          delete extrapolatedTrack;
 	}
 	else{ //no refitted track, so add original un-refitted extrapolated track as ME track
 	  if(muon.author()==xAOD::Muon::MuGirl && muon.extrapolatedMuonSpectrometerTrackParticleLink().isValid()){
