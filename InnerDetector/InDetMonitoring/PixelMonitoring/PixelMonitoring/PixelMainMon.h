@@ -299,8 +299,6 @@ private:
 
    double m_occupancy_cut;
 
-   std::vector<double> m_hitocc_stock[PixLayer::COUNT];
-
    int                   m_ClusPerEventArray_disksA[48][3];
    int                   m_ClusPerEventArray_disksC[48][3];
    int                   m_ClusPerEventArray_lI[14][20];

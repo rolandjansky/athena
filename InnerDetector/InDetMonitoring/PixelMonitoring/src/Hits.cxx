@@ -622,7 +622,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	nhitsM3++;
 	nhitsM4++;
 	
-	///if (m_doModuleas)//fill module hit arrays so we can calculate the number of hits/event/module 
+	///if (m_doModules)//fill module hit arrays so we can calculate the number of hits/event/module 
 	///{
 	if(m_pixelid->barrel_ec(rdoID)==2 ) m_HitPerEventArray_disksA[m_pixelid->phi_module(rdoID)][m_pixelid->layer_disk(rdoID)]++;
 	if(m_pixelid->barrel_ec(rdoID)==-2) m_HitPerEventArray_disksC[m_pixelid->phi_module(rdoID)][m_pixelid->layer_disk(rdoID)]++;
@@ -749,16 +749,6 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
     }
   }
   
-  /// Put the #hits per event for each layer
-  if ( m_event == 0) {
-    for( int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++) {
-      m_hitocc_stock[i].push_back( avgocc_mod[i] );
-    }
-  } else if ( !newLumiBlockFlag() ) {
-    for( int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++) {
-      m_hitocc_stock[i].push_back( avgocc_mod[i] );
-    }
-  }
   /// Fill some histograms only if =< 50% of modules disabled
   if(!m_majorityDisabled) {
     if (m_doDetails) {
