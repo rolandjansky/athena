@@ -49,42 +49,50 @@ bool FTK_DuplicateTrackRemovalTool::match(const FTK_RawTrack* track, const FTK_R
 
 	//Note to self: Clusters are made from sim in FTK_RDO_CreatorAlgo...
 
-	int nmatchingpixclus=0;
+	int nclus = pixclus.size() + sctclus.size();
+
+	int nmatchingclus=0;
 	for (auto clus : pixclus){
 		//is this pixel clus matched by any on the old track?
 		unsigned int id = clus.getModuleID();
 		for (auto oldclus : oldpixclus){
 			if (oldclus.getModuleID()==id){ // if the ID matches, it's on the same module // stored in WordA
 				if (clus.getWordB()==oldclus.getWordB()) { // is it the same eta and phi position and width? // stored in WordB
-					nmatchingpixclus++; break;
+					nmatchingclus++;
+
+					//it matches if the number of unmatched clusters is <= 6 (or HW_diff)
+					if ( (nclus-nmatchingclus) <= m_HW_ndiff){ //corresponding criteria in simulation
+						return true; //return as soon as we know the answer!
+					}
+
+					break; //we already found a matching cluster to this cluster, so no need to look for more matches to this cluster
 				}
 			}
 		}
 	}
 
-	int nmatchingsctclus=0;
 	for (auto clus : sctclus){
 		//is this sct clus matched by any on the old track?
 		unsigned int id = clus.getWord();
 		for (auto oldclus : oldsctclus){
 			if (oldclus.getWord()==id){ // if the word matches, it's the same dude
-				nmatchingsctclus++; break;
+				nmatchingclus++;
+
+				//it matches if the number of unmatched clusters is <= 6 (or HW_diff)
+				if ( (nclus-nmatchingclus) <= m_HW_ndiff){ //corresponding criteria in simulation
+					return true; //return as soon as we know the answer!
+				}
+
+				break; //we already found a matching cluster to this cluster, so no need to look for more matches to this cluster
 			}
 		}
 	}
-	ATH_MSG_DEBUG("Found "<<nmatchingpixclus<<" matching pix clus out of "<<pixclus.size());
-	ATH_MSG_DEBUG("Found "<<nmatchingsctclus<<" matching sct clus out of "<<sctclus.size());
 
-	bool matching=false;
-	int nclus = pixclus.size() + sctclus.size();
-	int nmatchingclus = nmatchingpixclus+nmatchingsctclus;
-	//it matches if the number of unmatched clusters is <= 6 (or HW_diff)
-	if ( (nclus-nmatchingclus) <= m_HW_ndiff){//corresponding criteria in simulation
-		matching = true;
-	}
+	//ATH_MSG_DEBUG("Found "<<nmatchingpixclus<<" matching pix clus out of "<<pixclus.size());
+	//ATH_MSG_DEBUG("Found "<<nmatchingsctclus<<" matching sct clus out of "<<sctclus.size());
 
-	ATH_MSG_VERBOSE("ACH888: "<<matching<<" "<<track->getSectorID()<<" "<<track->getPhi()<<" "<<track->getCotTh()<<" "<<track->getZ0()<<" "<<oldtrack->getSectorID()<<" "<<oldtrack->getPhi()<<" "<<oldtrack->getCotTh()<<" "<<oldtrack->getZ0());
-	return matching;
+	//ATH_MSG_VERBOSE("ACH888: "<<matching<<" "<<track->getSectorID()<<" "<<track->getPhi()<<" "<<track->getCotTh()<<" "<<track->getZ0()<<" "<<oldtrack->getSectorID()<<" "<<oldtrack->getPhi()<<" "<<oldtrack->getCotTh()<<" "<<oldtrack->getZ0());
+	return false;
 }
 
 //return the better of two tracks, based on number of missing layers, and if those tie, chi2
@@ -149,7 +157,7 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
 	  std::list<unsigned int> trackstokill;
 #endif
 
-  ATH_MSG_INFO("ACH99 - I'm in removeDuplicates!");
+  ATH_MSG_DEBUG("ACH99 - I'm in removeDuplicates!");
   m_trks_nodups->clear();
   m_trks_nodups->reserve(trks->size());
   for (unsigned int i = 0; i!=trks->size(); i++) {
@@ -165,9 +173,8 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
 	  auto lower = phimap.lower_bound(trackphi-m_dphi_roughmatch);
 	  auto upper = phimap.upper_bound(trackphi+m_dphi_roughmatch);
 	  for (auto it=lower; it!=upper; it++){
-		  std::vector<unsigned int>& vec = it->second;
-		  for (unsigned int e : vec) {//these are the indices of the old tracks at each phi value in the phi range
-			  ATH_MSG_INFO("Looking for match of track "<<i<<" with oldtrack "<<e);
+		  for (unsigned int e : it->second) {//these are the indices of the old tracks at each phi value in the phi range
+			  //ATH_MSG_DEBUG("Looking for match of track "<<i<<" with oldtrack "<<e);
 			  const FTK_RawTrack *oldtrack = m_trks_nodups->at(e);
 			  if (this->match(track,oldtrack)) {
 				  matching_oldtracks.push_back(e);
@@ -190,7 +197,7 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
 	  }
 #endif
 
-	  ATH_MSG_INFO("Found "<<matching_oldtracks.size()<<" old tracks matching track "<<i);
+	  //ATH_MSG_DEBUG("Found "<<matching_oldtracks.size()<<" old tracks matching track "<<i);
 	  if (matching_oldtracks.size()==0){//if there's no match, just add the new track
 #ifdef FTKDuplicateTrackRemovalUseMap
 		  addtophimap(trackphi,m_trks_nodups->size());//so e.g. the first track will be index 0, since the size is 0 just before we push_back the first track
@@ -267,6 +274,7 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
 #ifdef FTKDuplicateTrackRemovalUseMap
   //remove those tracks that we flagged for killing
   if (trackstokill.size()){
+	  ATH_MSG_INFO("Killing an extra "<<trackstokill.size()<<" tracks from multiple matches");
 	  FTK_RawTrackContainer* trks_nodups_temp  = new FTK_RawTrackContainer(SG::VIEW_ELEMENTS);//we don't own the tracks, we're just going to hold them
 	  for (unsigned int e = 0; e!=m_trks_nodups->size(); e++) {
 		  if (std::find(trackstokill.begin(),trackstokill.end(),e)==trackstokill.end()) trks_nodups_temp->push_back((FTK_RawTrack*)m_trks_nodups->at(e));
