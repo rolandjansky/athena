@@ -4,7 +4,9 @@
 
 #include "FTK_RecTools/FTK_DuplicateTrackRemovalTool.h"
 #include <vector>
+#include <list>
 #include "TVector2.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 
 FTK_DuplicateTrackRemovalTool::FTK_DuplicateTrackRemovalTool(const std::string& t,
                                                const std::string& n,
@@ -39,11 +41,6 @@ StatusCode FTK_DuplicateTrackRemovalTool::finalize() {
 
 //tell whether the two tracks match, based on number of matching hits and unmatching hits
 bool FTK_DuplicateTrackRemovalTool::match(const FTK_RawTrack* track, const FTK_RawTrack* oldtrack) const {
-
-	//first check for a rough match in phi
-	double dphi = TVector2::Phi_mpi_pi(track->getPhi()-oldtrack->getPhi());//make sure it's in -pi..pi
-	dphi = fabs(dphi);//then take abs since we don't care about sign
-	if (dphi>m_dphi_roughmatch) return false;//no match if dphi is larger than dphi_roughmatch, 0.3 by default
 
 	const std::vector<FTK_RawPixelCluster>& pixclus = track->getPixelClusters();
 	const std::vector<FTK_RawSCT_Cluster>& sctclus = track->getSCTClusters();
@@ -104,7 +101,42 @@ const FTK_RawTrack* FTK_DuplicateTrackRemovalTool::besttrack(const FTK_RawTrack*
 	else return oldtrack;
 }
 
-//#define FTKDuplicateTrackRemovalTiming
+#ifdef FTKDuplicateTrackRemovalUseMap
+void FTK_DuplicateTrackRemovalTool::addtophimap(double trackphi, unsigned int pos){
+	phimap[trackphi].push_back(pos);//add it to the map
+
+	//check that track phi is within 0-2pi
+	if (trackphi<-CLHEP::pi) ATH_MSG_ERROR("FTK track with phi < -pi! "<<trackphi);
+	else if (trackphi>CLHEP::pi) ATH_MSG_ERROR("FTK track with phi > pi! "<<trackphi);
+
+	//add extra copy in case of wraparound past 0 or 2pi
+	if (trackphi>(CLHEP::pi-m_dphi_roughmatch)) phimap[trackphi-CLHEP::twopi].push_back(pos);
+	else if (trackphi<(-CLHEP::pi+m_dphi_roughmatch)) phimap[trackphi+CLHEP::twopi].push_back(pos);
+}
+void FTK_DuplicateTrackRemovalTool::removefromphimap(double oldtrackphi, unsigned int e){
+
+	//remove the old track from the map
+	auto& vec = phimap[oldtrackphi];
+	auto ind = std::find(vec.begin(),vec.end(),e);
+	if (ind==vec.end()) ATH_MSG_WARNING("Wasn't in the map?! "<<oldtrackphi<<" "<<e);
+	else vec.erase(ind);
+
+	//take of removing wraparound entries
+	if (oldtrackphi>(CLHEP::pi-m_dphi_roughmatch)) {
+		vec = phimap[oldtrackphi-CLHEP::twopi];
+		auto ind = std::find(vec.begin(),vec.end(),e);
+		if (ind==vec.end()) ATH_MSG_WARNING("Wasn't in the map?! "<<oldtrackphi<<" "<<e);
+		else vec.erase(ind);
+	}
+	else if (oldtrackphi<(-CLHEP::pi+m_dphi_roughmatch)) {
+		vec = phimap[oldtrackphi+CLHEP::twopi];
+		auto ind = std::find(vec.begin(),vec.end(),e);
+		if (ind==vec.end()) ATH_MSG_WARNING("Wasn't in the map?! "<<oldtrackphi<<" "<<e);
+		else vec.erase(ind);
+	}
+}
+#endif
+
 FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK_RawTrackContainer* trks){
 
 #ifdef FTKDuplicateTrackRemovalTiming
@@ -112,7 +144,12 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
   for (int tim=0;tim<1000;++tim){
 #endif
 
-  ATH_MSG_DEBUG("ACH99 - I'm in removeDuplicates!");
+#ifdef FTKDuplicateTrackRemovalUseMap
+	  phimap.clear();
+	  std::list<unsigned int> trackstokill;
+#endif
+
+  ATH_MSG_INFO("ACH99 - I'm in removeDuplicates!");
   m_trks_nodups->clear();
   m_trks_nodups->reserve(trks->size());
   for (unsigned int i = 0; i!=trks->size(); i++) {
@@ -120,15 +157,44 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
 
 	  //now we should see whether this track overlaps with one (or more?) tracks already in the nodups container
 	  std::vector<unsigned int> matching_oldtracks;
-	  for (unsigned int e = 0; e!=m_trks_nodups->size(); e++) {
-	  	  const FTK_RawTrack *oldtrack = m_trks_nodups->at(e);
-	  	  if (this->match(track,oldtrack)) {
-	  		  matching_oldtracks.push_back(e);
-	  	  }
-	  }
-	  ATH_MSG_VERBOSE("Found "<<matching_oldtracks.size()<<" old tracks matching track "<<i);
 
+#ifdef FTKDuplicateTrackRemovalUseMap
+	  //search just the range of phi in the map of old tracks near the phi of this new track
+	  //the map goes from -pi-dphi_roughmatch to pi+dphi_roughmatch, to handle wraparound
+	  double trackphi = track->getPhi();
+	  auto lower = phimap.lower_bound(trackphi-m_dphi_roughmatch);
+	  auto upper = phimap.upper_bound(trackphi+m_dphi_roughmatch);
+	  for (auto it=lower; it!=upper; it++){
+		  std::vector<unsigned int>& vec = it->second;
+		  for (unsigned int e : vec) {//these are the indices of the old tracks at each phi value in the phi range
+			  ATH_MSG_INFO("Looking for match of track "<<i<<" with oldtrack "<<e);
+			  const FTK_RawTrack *oldtrack = m_trks_nodups->at(e);
+			  if (this->match(track,oldtrack)) {
+				  matching_oldtracks.push_back(e);
+			  }
+		  }
+	  }
+#else
+	  //loop over all old tracks and see if they match
+	  for (unsigned int e = 0; e!=m_trks_nodups->size(); e++) {
+		  const FTK_RawTrack *oldtrack = m_trks_nodups->at(e);
+
+		  //first check for a rough match in phi
+		  double dphi = TVector2::Phi_mpi_pi(track->getPhi()-oldtrack->getPhi());//make sure it's in -pi..pi
+		  dphi = fabs(dphi);//then take abs since we don't care about sign
+		  if (dphi>m_dphi_roughmatch) continue;//no match if dphi is larger than dphi_roughmatch, 0.3 by default
+
+		  if (this->match(track,oldtrack)) {
+			  matching_oldtracks.push_back(e);
+		  }
+	  }
+#endif
+
+	  ATH_MSG_INFO("Found "<<matching_oldtracks.size()<<" old tracks matching track "<<i);
 	  if (matching_oldtracks.size()==0){//if there's no match, just add the new track
+#ifdef FTKDuplicateTrackRemovalUseMap
+		  addtophimap(trackphi,m_trks_nodups->size());//so e.g. the first track will be index 0, since the size is 0 just before we push_back the first track
+#endif
 		  m_trks_nodups->push_back((FTK_RawTrack*)track);
 	  }
 
@@ -138,6 +204,10 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
 		  const FTK_RawTrack *oldtrack = m_trks_nodups->at(e);
 		  const FTK_RawTrack *besttrack = this->besttrack(track,oldtrack);
 		  if (besttrack==track){
+#ifdef FTKDuplicateTrackRemovalUseMap
+			  removefromphimap(oldtrack->getPhi(),e);//remove the old track from the map
+			  addtophimap(trackphi,e);//add the new track to the map
+#endif
 			  m_trks_nodups->at(e)=(FTK_RawTrack*)track;
 		  }
 		  else{
@@ -146,7 +216,7 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
 	  }
 
 	  else { // more than 1 matching existing track (yet the existing matching tracks did not match each other)
-		  ATH_MSG_INFO("Found multiple tracks ("<<matching_oldtracks.size()<<") matching track "<<i);
+		  ATH_MSG_WARNING("Found multiple tracks ("<<matching_oldtracks.size()<<") matching track "<<i);
 
 		  // is the new track better than all the matching old tracks?
 		  bool newisbest = true;//start with an optimistic attitude!
@@ -164,14 +234,26 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
 			  //yikes, we're better than all the matching old tracks
 			  bool replacedfirsttrack = false;//I want to check that the algorithm really replaces the first old track with the new one, and just once
 			  for (unsigned int e : matching_oldtracks){
+
+#ifdef FTKDuplicateTrackRemovalUseMap
+				  removefromphimap(m_trks_nodups->at(e)->getPhi(),e);
+#endif
 				  if (e==matching_oldtracks[0]) {//this should be a little faster than removing all the old matching tracks and then adding the new one
+
+#ifdef FTKDuplicateTrackRemovalUseMap
+					  addtophimap(trackphi,e);
+#endif
 					  m_trks_nodups->at(e)=(FTK_RawTrack*)track; // replace the first matching track with this new track
 					  if (replacedfirsttrack) ATH_MSG_WARNING("We already did replace the first matching track!");
 					  replacedfirsttrack=true;//just check that we really did it!
 				  }
 				  else {
 					  //remove the old matching tracks beyond the first  one
+#ifdef FTKDuplicateTrackRemovalUseMap
+					  trackstokill.push_back(e);//we'll remove these from the tracks returned at the end of the day, so we don't screw up the map in the meantime
+#else
 					  m_trks_nodups->erase(m_trks_nodups->begin()+e); // yes this is really the way you remove an element from a vector, you have to pass in the iterator
+#endif
 				  }
 			  }
 			  if (!replacedfirsttrack)  ATH_MSG_WARNING("Why did I not replace the first track?!");
@@ -181,6 +263,19 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
 	  } // deciding what to do based on the number of matches
 
   } // loop over incoming tracks
+
+#ifdef FTKDuplicateTrackRemovalUseMap
+  //remove those tracks that we flagged for killing
+  if (trackstokill.size()){
+	  FTK_RawTrackContainer* trks_nodups_temp  = new FTK_RawTrackContainer(SG::VIEW_ELEMENTS);//we don't own the tracks, we're just going to hold them
+	  for (unsigned int e = 0; e!=m_trks_nodups->size(); e++) {
+		  if (std::find(trackstokill.begin(),trackstokill.end(),e)==trackstokill.end()) trks_nodups_temp->push_back((FTK_RawTrack*)m_trks_nodups->at(e));
+	  }
+	  m_trks_nodups->clear();
+	  delete m_trks_nodups;
+	  m_trks_nodups = trks_nodups_temp;
+  }
+#endif
 
 #ifdef FTKDuplicateTrackRemovalTiming
   } // loop over doing the removal

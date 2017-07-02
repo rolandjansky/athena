@@ -19,7 +19,10 @@
 #include "FTK_RecToolInterfaces/IFTK_DuplicateTrackRemovalTool.h"
 #include "FTK_DataProviderInterfaces/IFTK_UncertaintyTool.h"
 #include "TrigFTK_RawData/FTK_RawTrackContainer.h"
+#include <map>
 
+#define FTKDuplicateTrackRemovalTiming
+#define FTKDuplicateTrackRemovalUseMap
 class FTK_DuplicateTrackRemovalTool : public AthAlgTool, virtual public IFTK_DuplicateTrackRemovalTool
 {
  public:
@@ -34,6 +37,11 @@ class FTK_DuplicateTrackRemovalTool : public AthAlgTool, virtual public IFTK_Dup
     const FTK_RawTrack* besttrack(const FTK_RawTrack* track, const FTK_RawTrack* oldtrack) const;
     int m_HW_ndiff;
     double m_dphi_roughmatch;
+#ifdef FTKDuplicateTrackRemovalUseMap
+    std::map<double, std::vector<unsigned int> > phimap;//keep track of the phi of tracks in the output container - at each phi there could be a vector of track indices...
+    void addtophimap(double trackphi, unsigned int pos);
+    void removefromphimap(double trackphi, unsigned int pos);
+#endif
 };
 
 #endif
