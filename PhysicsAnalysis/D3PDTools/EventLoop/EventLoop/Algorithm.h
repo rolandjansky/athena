@@ -25,6 +25,7 @@
 
 #include <TNamed.h>
 #include <AsgTools/INamedInterface.h>
+#include <AsgTools/SgTEvent.h>
 #include <EventLoop/StatusCode.h>
 
 class TH1;
@@ -79,6 +80,21 @@ namespace EL
     ///   histogram not found
   public:
     TH1 *hist (const std::string& name) const;
+
+
+    /// \brief get the (main) event store for this algorithm
+    ///
+    /// This is mostly to mirror the method of the same name in
+    /// AthAlgorithm, allowing to make the tutorial instructions more
+    /// dual-use.
+    ///
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory I\n
+    ///   job not configured for xAODs
+  public:
+    asg::SgTEvent *evtStore() const;
 
 
 
@@ -289,6 +305,14 @@ namespace EL
     // description: members directly corresponding to accessors
   private:
     Worker *m_wk; //!
+
+    /// \brief the value of \ref evtStore
+  private:
+    mutable asg::SgTEvent *m_evtStorePtr = nullptr; //!
+
+    /// \brief when configured, the object returned by \ref evtStore
+  private:
+    mutable asg::SgTEvent m_evtStore; //!
 
     /// \brief the message stream, if it has been instantiated
   private:
