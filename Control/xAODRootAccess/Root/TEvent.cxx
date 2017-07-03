@@ -250,8 +250,8 @@ namespace xAOD {
       // If this is set up as the active event at the moment, notify
       // the active event object that this object will no longer be
       // available.
-      if( TActiveEvent::s_event == this ) {
-         TActiveEvent::s_event = 0;
+      if( TActiveEvent::event() == this ) {
+         TActiveEvent::setEvent( nullptr );
       }
 #ifndef XAOD_STANDALONE
       if( SG::CurrentEventStore::store() == this ) {
@@ -753,7 +753,7 @@ namespace xAOD {
       // Do the deed. Since this needs both a static and a const cast at
       // the same time, let's just do the "brutal" cast instead of writing
       // way too much for the same thing...
-      TActiveEvent::s_event = ( TVirtualEvent* ) this;
+      TActiveEvent::setEvent( ( TVirtualEvent* ) this );
 
 #ifndef XAOD_STANDALONE
       SG::CurrentEventStore::setStore( const_cast< TEvent* >( this ) );
