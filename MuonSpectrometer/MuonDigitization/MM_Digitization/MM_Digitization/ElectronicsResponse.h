@@ -1,9 +1,4 @@
 /* -*- C++ -*- */
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #ifndef ElectronicsResponse_h
 #define ElectronicsResponse_h
 /** @class ElectronicsResponse
@@ -95,6 +90,7 @@ public :
   void GetVMMId(const std::vector< int > & ElectronicsThreshold_stripPos, const int chMax, const int stationEta, std::vector< int > & trigger_VMM_id, std::vector< int > & trigger_MMFE_VMM_id);
   MmDigitToolOutput ApplyDeadTimeStrip(const MmDigitToolOutput & ElectronicsTriggerOutput);
   MmElectronicsToolTriggerOutput ApplyDeadTimeART(const MmElectronicsToolTriggerOutput & ElectronicsTriggerOutput);
+  MmElectronicsToolTriggerOutput ApplyARTTiming(const MmElectronicsToolTriggerOutput & ElectronicsTriggerOutput, float jitter, float offset);
   bool DeadChannel(int id, float time, std::vector<int> & v_id, const std::vector<float> & v_time, float deadtime);
 
   float tMinFromIntegration;
@@ -104,8 +100,8 @@ public :
   vector <float> qStripElectronics;
   vector <int> nStripElectronics;
 
-  inline void set_alpha(float val) {alpha = val;};
-  inline void set_RC (float val) {RC = val;};
+  inline void set_alpha(float val) {alpha = val; intFn->SetParameter( 0, alpha); };
+  inline void set_RC (float val) {RC = val;intFn->SetParameter( 1, RC); };
   inline void set_timeWindowLowerOffset(float val) { timeWindowLowerOffset = val;};
   inline void set_timeWindowUpperOffset(float val) { timeWindowUpperOffset = val;};
   inline void set_electronicsThreshold(float val) {electronicsThreshold = val;};
