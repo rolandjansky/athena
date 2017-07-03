@@ -196,7 +196,7 @@ MmDigitizationTool::MmDigitizationTool(const std::string& type, const std::strin
   // crosstalk of neighbor strips, it's 6%
   declareProperty("crossTalk2",		     m_crossTalk2 = 0.0); 
   declareProperty("qThresholdForTrigger",    m_qThresholdForTrigger = 1.0); 
-  declareProperty("GasFileName",             m_gasFileName = "ar_93_co2_7_bbin41_ebin1_abin19.gas"); // 28/05/2015 T.Saito  
+  declareProperty("GasFileName",             m_gasFileName = "MM_Digitization/ar_93_co2_7_bbin41_ebin1_abin19.gas"); // 28/05/2015 T.Saito  
   // Constants vars for the ElectronicsResponse
   declareProperty("alpha",                   m_alpha = 2.5);
   declareProperty("RC",                      m_RC = 20.);
