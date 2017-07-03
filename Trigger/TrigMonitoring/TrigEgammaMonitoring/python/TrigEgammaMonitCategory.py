@@ -68,7 +68,7 @@ commission_electron = [ 'HLT_e60_lhmedium_nod0_ringer_L1EM24VHI',
                        'HLT_e140_lhloose_nod0_ringer_L1EM24VHI']
 monitoring_electron = ['HLT_e60_lhmedium_nod0_L1EM24VHI',
                        'HLT_e140_lhloose_nod0_L1EM24VHI']
-monitoring_electron += commission_electron
+# monitoring_electron += commission_electron
 
 # 2017 single electrons triggers to monitor from Zee TP, includes rerun
 
@@ -82,8 +82,11 @@ commissionTP_electron = ['HLT_e17_lhvloose_nod0_ringer_L1EM15VHI',
                          ]
 monitoringTP_electron = [ 'HLT_e17_lhvloose_nod0_L1EM15VHI',
                           'HLT_e26_lhtight_nod0_ivarloose',
-                          'HLT_e28_lhtight_nod0_ivarloose']
-monitoringTP_electron += commissionTP_electron
+                          'HLT_e28_lhtight_nod0_ivarloose',
+                          'HLT_e28_lhtight_nod0_ivarloose_L1EM24VHIM',
+                          'HLT_e28_lhtight_nod0_noringer_ivarloose'
+                          ]
+# monitoringTP_electron += commissionTP_electron
 
 monitoringTP_Jpsiee = ["HLT_e5_lhtight_nod0"]    
 monitoring_photon = [ 'HLT_g25_medium_L1EM20VH',
