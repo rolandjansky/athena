@@ -119,7 +119,7 @@ StatusCode TileLaserCalibAlg::finalize() {
   lastools_t::iterator fTool = m_lasTools.begin();
 
   for (; fTool != m_lasTools.end(); ++fTool) {
-    CHECK( (*fTool)->finalize() ); // Perform the calibration
+    CHECK( (*fTool)->finalizeCalculations() ); // Perform the calibration
     CHECK( (*fTool)->writeNtuple(m_runNo, 2, m_outfile) ); // Fill the nTuple
   }
 

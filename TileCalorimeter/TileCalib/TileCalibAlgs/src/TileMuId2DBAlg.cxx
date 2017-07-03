@@ -221,7 +221,7 @@ StatusCode TileMuId2DBAlg::execute()
 
       }
 
-      msg(MSG::INFO) << endreq;
+      msg(MSG::INFO) << endmsg;
       *fl << endl;
 
     }
