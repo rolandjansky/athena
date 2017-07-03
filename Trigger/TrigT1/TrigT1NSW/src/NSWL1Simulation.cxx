@@ -195,7 +195,7 @@ namespace NSWL1 {
 
 
   StatusCode NSWL1Simulation::execute() {
-    ATH_MSG_INFO( "execute " << name() );
+    ATH_MSG_INFO( "execute" << name() );
     m_counters.clear();
 
     // retrieve the current run number and event number
@@ -205,10 +205,6 @@ namespace NSWL1 {
       ATH_MSG_ERROR( "Could not retrieve the EventInfo, so cannot assess if the cache is still valid for this event!" );
       return StatusCode::FAILURE;
     }
-
-    ATH_MSG_INFO( "Checkpoint 1: " << name() );
-
-
     m_current_run = pevt->event_ID()->run_number();
     m_current_evt = pevt->event_ID()->event_number();
 
@@ -230,9 +226,6 @@ namespace NSWL1 {
           return sc;
       }
       
-    ATH_MSG_INFO( "Checkpoint 2: " << name() );
-
-
       std::vector<NSWL1::PadTrigger*> padTriggers; // will be passed on to m_strip_tds
       if(m_doPadTrigger){
           sc = m_pad_trigger->compute_pad_triggers(pads, padTriggers);
@@ -260,7 +253,6 @@ namespace NSWL1 {
     }
     } // if(dosTGC)
 
-    ATH_MSG_INFO( "Checkpoint 3: " << name() );
 
     //retrive the MM Strip hit data
     if(m_doMM){
@@ -286,8 +278,6 @@ namespace NSWL1 {
     }
 
     if (m_tree) m_tree->Fill();
-
-    ATH_MSG_INFO( "Leaving execute " << name() );
 
     return StatusCode::SUCCESS;
   }
