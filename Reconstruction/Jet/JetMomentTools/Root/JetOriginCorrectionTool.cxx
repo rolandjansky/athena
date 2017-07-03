@@ -74,8 +74,6 @@ int JetOriginCorrectionTool::modify(xAOD::JetContainer& jetCont) const {
   // Specifying the PV index is only for special cases
   int PVindex = 0;
   //if (m_eventInfoName.key() != "") {
-  ATH_MSG_INFO("Reading  event info key");
-  ATH_MSG_INFO("Event info key is ->" << m_eventInfo_key.key() <<"<-");
   if (m_eventInfo_key.key() != "") {
     // retrieve the VertexContainer. if fails, fill the jets with null vector
 
