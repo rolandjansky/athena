@@ -13,6 +13,11 @@ private
 use xAODTau             xAODTau-*               Event/xAOD
 use JpsiUpsilonTools    JpsiUpsilonTools-*      PhysicsAnalysis
 use TauAnalysisTools    TauAnalysisTools-*      PhysicsAnalysis/TauID
+use xAODPFlow           xAODPFlow-*             Event/xAOD
+use xAODTruth           xAODTruth-*             Event/xAOD
+use CaloEvent           CaloEvent-*             Calorimeter
+use CaloSimEvent        CaloSimEvent-*          Calorimeter
+
 
 #################################################################
 #

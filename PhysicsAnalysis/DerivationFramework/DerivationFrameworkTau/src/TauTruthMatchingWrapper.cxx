@@ -44,11 +44,14 @@ namespace DerivationFramework {
       return StatusCode::FAILURE;
     }
 
-    CHECK(m_tTauTruthMatchingTool->initializeEvent());
-
     for(auto xTau : *xTauContainer)
       m_tTauTruthMatchingTool->applyTruthMatch(*xTau);
-    
+
+    // suggested by TAT experts; David Kirchmeier, 28.03.2017
+    // build TruthTaus container even if there are no reco taus
+    if (xTauContainer->empty())
+      CHECK(m_tTauTruthMatchingTool->retrieveTruthTaus());
+
     return StatusCode::SUCCESS;
   }  
 }

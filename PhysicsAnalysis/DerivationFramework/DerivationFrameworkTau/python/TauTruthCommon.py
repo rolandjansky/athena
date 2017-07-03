@@ -25,19 +25,15 @@ if DerivationFrameworkIsMonteCarlo:
                                         ParticleCaloExtensionTool="")
     ToolSvc += DFCommonTauTruthClassifier
 
-    # Build the truth taus
-    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthCollectionMakerTau
-    DFCommonTruthTauTool = DerivationFramework__TruthCollectionMakerTau(name             = "DFCommonTruthTauTool",
-                                                                 NewCollectionName       = "TruthTaus",
-                                                                 MCTruthClassifier       = DFCommonTauTruthClassifier)
-    ToolSvc += DFCommonTruthTauTool
-    DFCommonTauTruthWrapperTools.append(DFCommonTruthTauTool)
+    # 28.03.2017 Removed the usage of DerivationFramework__TruthCollectionMakerTau; 
+    # using directly TauAnalysisTools to produce the true taus; implemented after TAT expert request
 
     # Matching
     # Only do if working with AOD
     from RecExConfig.ObjKeyStore import objKeyStore
     if objKeyStore.isInInput( "xAOD::TauJetContainer", "TauJets" ):    
         DFCommonTauTruthMatchingTool = TauAnalysisTools__TauTruthMatchingTool(name="DFCommonTauTruthMatchingTool")
+        DFCommonTauTruthMatchingTool.WriteTruthTaus = True
         ToolSvc += DFCommonTauTruthMatchingTool
         DFCommonTauTruthMatchingWrapper = DerivationFramework__TauTruthMatchingWrapper( name = "DFCommonTauTruthMatchingWrapper",
                                                                                         TauTruthMatchingTool = DFCommonTauTruthMatchingTool,

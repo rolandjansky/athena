@@ -4,6 +4,7 @@
 #include "DerivationFrameworkTau/TauPVRefitTool.h"
 #include "DerivationFrameworkTau/TauPVTrkSelectionTool.h"
 #include "DerivationFrameworkTau/TauOverlappingElectronLLHDecoratorWrapper.h"
+#include "DerivationFrameworkTau/TauPFOCalHitDecorator.h"
 
 using namespace DerivationFramework;
 
@@ -12,6 +13,7 @@ DECLARE_TOOL_FACTORY( TauTruthMatchingWrapper )
 DECLARE_TOOL_FACTORY( TauPVRefitTool )
 DECLARE_TOOL_FACTORY( TauPVTrkSelectionTool )
 DECLARE_TOOL_FACTORY( TauOverlappingElectronLLHDecoratorWrapper )
+DECLARE_TOOL_FACTORY( TauPFOCalHitDecorator )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkTau ) {
    DECLARE_TOOL( TauSelectionWrapper )
@@ -19,4 +21,5 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkTau ) {
    DECLARE_TOOL( TauPVRefitTool )
    DECLARE_TOOL( TauPVTrkSelectionTool )
    DECLARE_TOOL( TauOverlappingElectronLLHDecoratorWrapper )
+   DECLARE_TOOL( TauPFOCalHitDecorator )
 }

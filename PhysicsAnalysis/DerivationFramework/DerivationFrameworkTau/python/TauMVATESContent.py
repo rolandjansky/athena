@@ -3,7 +3,7 @@
 
 from DerivationFrameworkTau.TauJetsCPContent import TauJetsCPContent as taucore
 
-TauMVATESContent=taucore
+TauMVATESContent=list(taucore)
 TauMVATESContent += [ 
     "TauJets",
     "TauJetsAux.ptDetectorAxis.phiDetectorAxis.etaDetectorAxis.mDetectorAxis.ptPanTauCellBased.etaPanTauCellBased.phiPanTauCellBased.mPanTauCellBased.pantau_CellBasedInput_DecayMode.pantau_CellBasedInput_DecayModeProto",
