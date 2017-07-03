@@ -39,6 +39,7 @@ JetVertexTaggerTool::JetVertexTaggerTool(const std::string& name)
 //**********************************************************************
 
 StatusCode JetVertexTaggerTool::initialize() {
+  ATH_MSG_DEBUG("initializing version with data handles");
   ATH_MSG_INFO("Initializing JetVertexTaggerTool " << name());
 
   if ( m_htsel.empty() ) {

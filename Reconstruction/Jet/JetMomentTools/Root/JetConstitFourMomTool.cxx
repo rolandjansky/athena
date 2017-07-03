@@ -20,7 +20,7 @@ JetConstitFourMomTool::JetConstitFourMomTool(std::string myname)
     m_altColls({}),
     m_altConstitScales({}),
     m_altJetScales({}),
-    m_datahandle_keys {}  // calls default constructor 
+    m_altColls_keys {}  // calls default constructor 
 {
   // What cluster signal state to use for the jet constituents
   declareProperty("ConstitScale",     m_constitScale     );
@@ -37,25 +37,39 @@ JetConstitFourMomTool::JetConstitFourMomTool(std::string myname)
 //**********************************************************************
 
 StatusCode JetConstitFourMomTool::initialize() {
+  ATH_MSG_DEBUG("initializing version with data handles");
+
+  // load  data handle key array from a std::vector<std::string>
+  
+
+  // cannot use DataHandleKeyArray.assign(vector) as this sneakily removes
+  // empty strings...
+
+  for(auto dhn : m_altColls){
+    m_altColls_keys.emplace_back(SG::ReadHandleKey<xAOD::CaloClusterContainer>(dhn));
+  }
+
+  for(auto& dh : m_altColls_keys){
+    if(dh.key() == "") {
+      ATH_CHECK(dh.initialize(false));
+    } else {
+      ATH_CHECK(dh.initialize());
+    }
+  }
+
   // Check configuration consistency
-
-  // initialize data handles in a handle array from a python list of strings
-  for(auto s : m_altColls){m_datahandle_keys.emplace_back(s);}
-
-  declareProperty("AltJetScales", m_datahandle_keys );
-
   if( m_jetScaleNames.empty() ||
       (m_jetScaleNames.size() != m_altColls.size()) ||
       (m_jetScaleNames.size() != m_altConstitScales.size()) ||
       (m_jetScaleNames.size() != m_altJetScales.size()) ||
-      (m_jetScaleNames.size() != m_datahandle_keys.size())
+      (m_jetScaleNames.size() != m_altColls_keys.size())
       ) {
     ATH_MSG_FATAL("Inconsistency in configuration -- all vector properties must have the same (nonzero) length! Sizes: " 
                   << m_jetScaleNames.size() << " "
                   << m_altColls.size() << " "
                   << m_altConstitScales.size() << " "
                   << m_altJetScales.size() << " "
-                  << m_datahandle_keys.size());
+                  << m_altColls_keys.size());
     return StatusCode::FAILURE;
   }
 
@@ -71,7 +85,6 @@ StatusCode JetConstitFourMomTool::initialize() {
     }
   }
 
-  ATH_CHECK(m_datahandle_keys.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -84,14 +97,16 @@ int JetConstitFourMomTool::modify(xAOD::JetContainer& jets) const {
   std::vector<const xAOD::CaloClusterContainer*> altCollections(nScales,NULL);
   // Do some setup that doesn't have to be repeated for each jet
   for(size_t iScale=0; iScale<nScales; ++iScale) {
-    if(!m_altColls[iScale].empty()) { // retrieve alternate constituent collections
+    // if(!m_altColls[iScale].empty()) { // retrieve alternate constituent collections
+    if(!m_altColls_keys[iScale].key().empty()) { // retrieve alternate constituent collections
       const xAOD::Jet& leadjet = *jets.front();
       if(leadjet.getInputType()==xAOD::JetInput::LCTopo || leadjet.getInputType()==xAOD::JetInput::EMTopo
 	 || leadjet.getInputType()==xAOD::JetInput::LCTopoOrigin || leadjet.getInputType()==xAOD::JetInput::EMTopoOrigin) {
 
-        auto handle = SG::makeHandle(m_datahandle_keys[iScale]);
+        auto handle = SG::makeHandle(m_altColls_keys[iScale]);
         if(!handle.isValid()){
-          ATH_MSG_WARNING("Failed to retrieve alt cluster collection " << m_altColls[iScale]);
+          ATH_MSG_WARNING("Failed to retrieve alt cluster collection " 
+                          << m_altColls_keys[iScale].key());
           return 1;
         }
 

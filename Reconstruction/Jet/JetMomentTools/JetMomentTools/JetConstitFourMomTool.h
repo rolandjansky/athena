@@ -41,7 +41,7 @@ class JetConstitFourMomTool : public JetModifierBase {
 
   std::vector<bool> m_isDetectorEtaPhi;
 
-  SG::ReadHandleKeyArray<xAOD::CaloClusterContainer> m_datahandle_keys;
+  SG::ReadHandleKeyArray<xAOD::CaloClusterContainer> m_altColls_keys;
 
 };
 

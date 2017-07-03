@@ -28,6 +28,7 @@ JetPtAssociationTool::JetPtAssociationTool(std::string myname)
 
 StatusCode JetPtAssociationTool::initialize() {
 
+  ATH_MSG_DEBUG("initializing version with data handles");
   ATH_CHECK(m_jetContainer_key.initialize());
   return StatusCode::SUCCESS;
 

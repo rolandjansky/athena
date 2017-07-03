@@ -29,6 +29,7 @@ JetOriginCorrectionTool::JetOriginCorrectionTool(const std::string& myname)
 //**********************************************************************
 
 StatusCode JetOriginCorrectionTool::initialize() {
+  ATH_MSG_DEBUG("initializing version with data handles");
 
   ATH_CHECK(m_vertexContainer_key.initialize());
   ATH_CHECK(m_eventInfo_key.initialize());
@@ -43,11 +44,10 @@ int JetOriginCorrectionTool::modify(xAOD::JetContainer& jetCont) const {
   static SG::AuxElement::ConstAccessor<int> PVIndexAccessor("PVIndex");
 
 
-  const xAOD::VertexContainer *vxContainer = 0;
 
   // retrieve the VertexContainer. if fails, fill the jets with null vector
-  auto vertexContainer = SG::makeHandle (m_vertexContainer_key);
-  if (!vertexContainer.isValid()){
+  auto handle = SG::makeHandle (m_vertexContainer_key);
+  if (!handle.isValid()){
     ATH_MSG_WARNING("Invalid VertexContainer datahandle: " 
                     <<  m_correctionName
                     << ": filling jet with null");
@@ -55,6 +55,8 @@ int JetOriginCorrectionTool::modify(xAOD::JetContainer& jetCont) const {
     for(xAOD::Jet * j : jetCont) j->setAttribute<xAOD::JetFourMom_t>(m_correctionName, null);
     return 0;
   }
+
+  auto vxContainer = handle.cptr();
 
   // const xAOD::VertexContainer *vxContainer = 0;
 
@@ -72,6 +74,8 @@ int JetOriginCorrectionTool::modify(xAOD::JetContainer& jetCont) const {
   // Specifying the PV index is only for special cases
   int PVindex = 0;
   //if (m_eventInfoName.key() != "") {
+  ATH_MSG_INFO("Reading  event info key");
+  ATH_MSG_INFO("Event info key is ->" << m_eventInfo_key.key() <<"<-");
   if (m_eventInfo_key.key() != "") {
     // retrieve the VertexContainer. if fails, fill the jets with null vector
 

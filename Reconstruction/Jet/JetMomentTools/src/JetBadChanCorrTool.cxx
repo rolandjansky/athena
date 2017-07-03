@@ -73,6 +73,7 @@ JetBadChanCorrTool::~JetBadChanCorrTool()
 
 StatusCode JetBadChanCorrTool::initialize()
 {
+  ATH_MSG_DEBUG("initializing version with data handles");
 
   if(!m_useClusters){
     std::string fname = PathResolver::find_file(m_profileName, "DATAPATH");

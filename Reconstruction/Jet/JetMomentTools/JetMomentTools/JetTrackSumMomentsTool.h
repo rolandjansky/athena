@@ -69,7 +69,7 @@ private:
 
 
   SG::ReadHandleKey< xAOD::VertexContainer> m_vertexContainer_key;
-  SG::ReadHandleKey<jet::TrackVertexAssociation> m_trackVertexAssoc_key;
+  SG::ReadHandleKey<jet::TrackVertexAssociation> m_tva_key;
 };
 
 #endif

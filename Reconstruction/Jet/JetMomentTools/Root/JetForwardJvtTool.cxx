@@ -60,6 +60,7 @@
   ////////////////////////////
   StatusCode JetForwardJvtTool::initialize()
   {
+    ATH_MSG_DEBUG("initializing version with data handles");
     ATH_MSG_INFO ("Initializing " << name() << "...");
     if (m_tightOP) m_fjvtThresh = 0.4;
     else m_fjvtThresh = 0.5;

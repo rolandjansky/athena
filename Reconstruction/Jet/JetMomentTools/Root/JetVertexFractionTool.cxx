@@ -33,6 +33,7 @@ JetVertexFractionTool::JetVertexFractionTool(const std::string& name)
 //**********************************************************************
 
 StatusCode JetVertexFractionTool::initialize() {
+  ATH_MSG_DEBUG("initializing version with data handles");
   ATH_MSG_INFO("Initializing JetVertexFractionTool " << name());
   if ( m_htsel.empty() ) {
     ATH_MSG_INFO("  No track selector.");

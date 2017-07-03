@@ -30,6 +30,7 @@ JetTrackMomentsTool::JetTrackMomentsTool(const std::string& name)
 //**********************************************************************
 
 StatusCode JetTrackMomentsTool::initialize() {
+  ATH_MSG_DEBUG("initializing version with data handles");
   ATH_MSG_INFO("Initializing JetTrackMomentsTool " << name());
   if ( m_htsel.empty() ) {
     ATH_MSG_INFO("  No track selector.");
