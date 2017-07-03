@@ -487,7 +487,6 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
         else :  # insert this after Hypo that goes after EF ID
             position = -1
             for signature in theChainDef.signatureList:
-                print "OI continue with " , signature
                 if signature['listOfTriggerElements'][0].startswith( "EF_FStracksMuon" ) or signature['listOfTriggerElements'][0].startswith( "EF_NStrkMu" ) :
                     if position == -1 :
                         position = signature['signature_counter']
@@ -498,9 +497,7 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
                 locTEname = "EF_mTrk_" + TEname+'_'+mtopo+'_'+chainDict['L1item']
                 theChainDef.addSequence([L2Fex, L2Hypo], locInputTEs, locTEname, topo_start_from = None)
                 theChainDef.insertSignature(position+1, [locTEname])
-                print " OI success ", chainDict['chainName'], " , found EF_FStracksMuon at position "  , position, " inserting bphys topo"
             else :
-                print "OI failure !!! ", chainDict['chainName']
                 log.error('Bphysics Chain %s  unknown noL1 configuration, please check!! ' %(chainDict['chainName'] ))
                 
     else :
