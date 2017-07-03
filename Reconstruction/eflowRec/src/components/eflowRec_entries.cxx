@@ -8,6 +8,7 @@
 #include "eflowRec/eflowMomentCalculatorTool.h"
 #include "eflowRec/eflowClusterCollectionTool.h"
 #include "eflowRec/eflowTrackCaloExtensionTool.h"
+#include "eflowRec/eflowTrackCaloDummyExtensionTool.h"
 #include "eflowRec/PFTrackClusterMatchingTool.h"
 #include "eflowRec/eflowCellEOverPTool_mc12_JetETMiss.h"
 #include "eflowRec/eflowCellEOverPTool_mc12_LC.h"
@@ -28,6 +29,7 @@ DECLARE_TOOL_FACTORY( eflowLCCalibTool )
 DECLARE_TOOL_FACTORY( eflowMomentCalculatorTool )
 DECLARE_TOOL_FACTORY( eflowClusterCollectionTool )
 DECLARE_TOOL_FACTORY( eflowTrackCaloExtensionTool )
+DECLARE_TOOL_FACTORY( eflowTrackCaloDummyExtensionTool )
 DECLARE_TOOL_FACTORY( PFTrackClusterMatchingTool )
 DECLARE_TOOL_FACTORY( eflowCellEOverPTool_mc12_JetETMiss)
 DECLARE_TOOL_FACTORY( eflowCellEOverPTool_mc12_LC)
@@ -46,6 +48,7 @@ DECLARE_FACTORY_ENTRIES(eflowRec) {
     DECLARE_TOOL ( eflowClusterCollectionTool )
     DECLARE_TOOL ( eflowLCCalibTool )
     DECLARE_TOOL ( eflowTrackCaloExtensionTool )
+    DECLARE_TOOL ( eflowTrackCaloDummyExtensionTool )
     DECLARE_TOOL ( PFTrackClusterMatchingTool )
     DECLARE_TOOL (eflowCellEOverPTool_mc12_JetETMiss)
     DECLARE_TOOL ( eflowCellEOverPTool_mc12_LC)

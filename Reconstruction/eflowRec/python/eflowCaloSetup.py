@@ -21,8 +21,8 @@ def setup_eflowCaloObjectCreator(Configured, nameModifier,mlog):
     Configured._eflowPreparationHandle = eflowPreparationAlgorithm
 
     try:
-        from eflowRec.eflowRecConf import eflowTrackCaloExtensionTool
-        TrackCaloExtensionTool=eflowTrackCaloExtensionTool()
+        from eflowRec.eflowRecConf import eflowTrackCaloDummyExtensionTool
+        TrackCaloExtensionTool=eflowTrackCaloDummyExtensionTool()
     except:
         mlog.error("could not import eflowRec.eflowTrackCaloExtensionTool")
         print traceback.format_exc()
