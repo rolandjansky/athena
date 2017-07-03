@@ -13,6 +13,7 @@ atlas_subdir( VP1HEPVis )
 
 # External dependencies:
 find_package( Coin3D )
+find_package( OpenGL )
 
 # Component(s) in the package:
 atlas_add_library( VP1HEPVis src/*.cxx
