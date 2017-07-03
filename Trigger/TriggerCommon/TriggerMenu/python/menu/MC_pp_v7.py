@@ -2118,7 +2118,14 @@ ps_beamspot_list=[
     'beamspot_trkFS_trkfast',
     'beamspot_trkFS_trkfast_L1TRT_EMPTY',
     'beamspot_trkFS_trkfast_L1TRT_FILLED',
+    'beamspot_activeTE_trkfast_peb_L13J15',
+    'beamspot_allTE_trkfast_peb_L13J15',
+    'beamspot_trkFS_trkfast_L13J15',
+    'beamspot_activeTE_trkfast_peb_L1J15',
+    'beamspot_allTE_trkfast_peb_L1J15',
+    'beamspot_trkFS_trkfast_L1J15'
     ]
+
 ps_fwdphys_list=[
     'lhcfpeb',
     'lhcfpeb_L1LHCF_EMPTY',
@@ -2477,6 +2484,17 @@ ps_perform_list = [
     'j70_bperf_split_3j70_L13J25.0ETA23',
     'j75_bperf_split_3j75',
     'j75_bperf_split_3j75_L13J25.0ETA23',
+
+    'e35_lhtight_nod0_ivarloose',
+    'e40_lhtight_nod0_ivarloose',
+    'e50_lhtight_nod0_ivarloose',
+
+    'e5_etcut_L1W-HT20-JJ15.ETA49',
+    'e13_etcut_L1EM12_W-MT25',
+    'e18_etcut_trkcut',
+    'e18_etcut_L1EM15_W-MT35',
+
+
 
     'mu14_tau25_medium1_tracktwo_L1DR-MU10TAU12I',
     'mu14_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12I-J25',
@@ -2989,6 +3007,10 @@ ps_streamers_list = [
      'noalg_L1AFP_A_OR_C_TE5',
      'noalg_L1AFP_A_OR_C_UNPAIRED_ISO',
      'noalg_L1AFP_A_OR_C_UNPAIRED_NONISO',
+     'noalg_L1AFP_A_OR_C_EM3',
+     'noalg_L1AFP_A_AND_C_EM3',
+     'noalg_L1AFP_A_OR_C_MU4',
+     'noalg_L1AFP_A_AND_C_MU4',
      'noalg_L1AFP_C',
      'noalg_L1BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4',
      'noalg_L1DR-MU10TAU12I',
@@ -3009,8 +3031,6 @@ ps_streamers_list = [
      'noalg_L1EM20VH',
      'noalg_L1EM22VHI',
      'noalg_L1EM3',
-   
-  
      'noalg_L1EM7',
      'noalg_L1EM7_MU10',
      'noalg_L1EM8VH',
@@ -3055,8 +3075,6 @@ ps_streamers_list = [
      'noalg_L1MU21',
      'noalg_L1MU21_FIRSTEMPTY',
      'noalg_L1MU4',
-  
-  
      'noalg_L1MU4_EMPTY',
      'noalg_L1MU4_FIRSTEMPTY',
      'noalg_L1MU4_J12',
@@ -3120,19 +3138,9 @@ ps_streamers_list = [
      'noalg_bkg_L1MBTS_4_C_UNPAIRED_ISO',
      'noalg_bkg_L1MU4_UNPAIRED_ISO',
      'noalg_bkg_L1RD0_UNPAIRED_ISO',
-   
-   
-   
-  
-  
   
      'noalg_l1calo_L1J400',
-  
 
-   
-  
-  
-  
      'noalg_l1topo_L12EM3',
      'noalg_l1topo_L12MU4',
      'noalg_l1topo_L12MU4-B',
@@ -3259,8 +3267,6 @@ ps_streamers_list = [
      'noalg_l1topo_L1XE55',
      'noalg_l1topo_L1XE60',
      'noalg_l1topo_L1XE70',
-   
-   
   
      'noalg_standby_L13J15',
      'noalg_standby_L14J15',
@@ -3320,10 +3326,8 @@ Prescales.HLTPrescales_tightperf_mc_prescale.update(dict(map(None,chain_list,len
 ######################################################
 Prescales.L1Prescales_tight_mc_prescale  = deepcopy(Prescales.L1Prescales)
 Prescales.HLTPrescales_tight_mc_prescale = deepcopy(Prescales.HLTPrescales_tightperf_mc_prescale)
-chain_list=ps_streamers_list + ps_perform_list + ps_Bphys_list#+ps_Jpsi_list # enabling JPSI ee again ATR-15162
+chain_list=ps_streamers_list + ps_perform_list
 
-#Prescales.HLTPrescales_tight_mc_prescale = deepcopy(Prescales.HLTPrescales_loose_mc_prescale)
-#chain_list=ps_eb_list+ps_fwdphys_list+ps_minb_list+ps_ftk_list+ps_perform_list
 Prescales.HLTPrescales_tight_mc_prescale.update(dict(map(None,chain_list,len(chain_list)*[ [-1, 0,-1] ])))
 ######################################################
 
@@ -3332,4 +3336,4 @@ Prescales.L1Prescales_upgrade_mc_prescale  = deepcopy(Prescales.L1Prescales)
 Prescales.HLTPrescales_upgrade_mc_prescale = deepcopy(Prescales.HLTPrescales_tight_mc_prescale)
 # Note: "upgrade" prescales are set with regular expressions at the end
 #       of the setupMenu() function above 
-######################################################
+######################################################	
