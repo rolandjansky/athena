@@ -47,7 +47,7 @@
     declareProperty("UseTightOP",          m_tightOP         = false              );//Tight or Loose
 
     declareProperty("VertexContainer", m_vertexContainer_key="PrimaryVertices");
-    declareProperty("Met_Track", m_vertexContainer_key="Met_Track");
+    declareProperty("Met_Track", m_trkMET_key="Met_Track");
 
   }
 
