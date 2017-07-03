@@ -86,6 +86,10 @@ def TrigIDtrkMonitoringTool():
 		# tidabase.OutputLevel = DEBUG
 		tidaegammashift.ntupleChainNames += [
 			"Offline",
+                        "HLT_e28_lhtight_idperf:InDetTrigTrackingxAODCnv_Electron_FTF",
+                        "HLT_e28_lhtight_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig",
+                        "HLT_e24_lhmedium_idperf_L1EM20VH:InDetTrigTrackingxAODCnv_Electron_FTF",
+                        "HLT_e24_lhmedium_idperf_L1EM20VH:InDetTrigTrackingxAODCnv_Electron_IDTrig",
 			"HLT_e26_lhtight_idperf:InDetTrigTrackingxAODCnv_Electron_FTF",
 			"HLT_e26_lhtight_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig",
                         # HI chains - pPb running
@@ -112,6 +116,8 @@ def TrigIDtrkMonitoringTool():
 		tidaegammapurity.Shifter = True
 		tidaegammapurity.ntupleChainNames += [
 			"Offline",
+                        "HLT_e28_lhtight_idperf:InDetTrigTrackingxAODCnv_Electron_FTF",
+                        "HLT_e28_lhtight_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig",
 		        "HLT_e26_lhtight_idperf:InDetTrigTrackingxAODCnv_Electron_FTF",
 		        "HLT_e26_lhtight_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig",
                         # HI chains 
@@ -293,8 +299,10 @@ def TrigIDtrkMonitoringTool():
 		tidabjetshift.SliceTag = "HLT/TRIDT/Bjet/Shifter"
 		tidabjetshift.ntupleChainNames += [
 			"Offline",
-			"HLT_j35.*_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
-			"HLT_j35.*_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
+                        "HLT_j35_gsc55_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
+                        "HLT_j35_gsc55_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
+			"HLT_j55.*_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
+			"HLT_j55.*_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
 			"HLT_j5.*_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
 			"HLT_j5.*_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
 			"HLT_j.*_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
@@ -309,8 +317,11 @@ def TrigIDtrkMonitoringTool():
 		tidabjetpurity.AnalysisConfig = "Tier0"
 		tidabjetpurity.SliceTag = "HLT/TRIDT/BjetPurity/Expert"
 		tidabjetpurity.RunPurity = True
+		tidabjetpurity.Shifter = True
 		tidabjetpurity.ntupleChainNames += [
 			"Offline",
+			"HLT_j225_gsc400_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
+			"HLT_j225_gsc400_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
 			"HLT_j85_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
 			"HLT_j85_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig"
 			]
@@ -326,8 +337,12 @@ def TrigIDtrkMonitoringTool():
 		tidabjetvtxshift.ShifterChains = 2
 		tidabjetvtxshift.ntupleChainNames += [
 			"Offline",
-			"HLT_j35.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx",
-			"HLT_j35.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=EFHistoPrmVtx",
+#			"HLT_j225_gsc400_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx",
+#			"HLT_j225_gsc400_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=EFHistoPrmVtx",
+                        "HLT_j35_gsc55_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx",
+                        "HLT_j35_gsc55_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=EFHistoPrmVtx",
+			"HLT_j55.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx",
+			"HLT_j55.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=EFHistoPrmVtx",
 			"HLT_j5.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx",
 			"HLT_j5.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=EFHistoPrmVtx",
 			"HLT_j.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx",
@@ -345,8 +360,10 @@ def TrigIDtrkMonitoringTool():
 		tidajetvtxshift.ShifterChains = 2
 		tidajetvtxshift.ntupleChainNames += [
 			"Offline",
-			"HLT_j250_gsc.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx",
-			"HLT_j250_gsc.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=EFHistoPrmVtx",
+			"HLT_j225_gsc400_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx",
+			"HLT_j225_gsc400_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=EFHistoPrmVtx",
+			"HLT_j225_gsc.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx",
+			"HLT_j225_gsc.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=EFHistoPrmVtx",
 			"HLT_j50_gsc.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx",
 			"HLT_j50_gsc.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=EFHistoPrmVtx",
 			"HLT_j.*_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx",
