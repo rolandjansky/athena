@@ -49,14 +49,15 @@ StatusCode JetConstitFourMomTool::initialize() {
     m_altColls_keys.emplace_back(SG::ReadHandleKey<xAOD::CaloClusterContainer>(dhn));
   }
 
-  for(auto& dh : m_altColls_keys){
+  for(auto& dh : m_altColls_keys){ATH_CHECK(dh.initialize(!(dh.key() == "")));}
+  /*
     if(dh.key() == "") {
       ATH_CHECK(dh.initialize(false));
     } else {
       ATH_CHECK(dh.initialize());
     }
   }
-
+  */
   // Check configuration consistency
   if( m_jetScaleNames.empty() ||
       (m_jetScaleNames.size() != m_altColls.size()) ||
