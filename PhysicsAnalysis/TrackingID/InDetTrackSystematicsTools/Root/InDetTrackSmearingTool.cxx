@@ -33,6 +33,8 @@ namespace InDet {
       InDet::TrackSystematicMap[TRK_RES_Z0_MEAS_UP],
       InDet::TrackSystematicMap[TRK_RES_D0_MEAS_DOWN],
       InDet::TrackSystematicMap[TRK_RES_Z0_MEAS_DOWN],
+      InDet::TrackSystematicMap[TRK_RES_D0Z0Corl_MEAS],
+      InDet::TrackSystematicMap[TRK_RES_D0Z0_MEAS],
       InDet::TrackSystematicMap[TRK_RES_D0_DEAD],
       InDet::TrackSystematicMap[TRK_RES_Z0_DEAD]
     };
@@ -117,7 +119,8 @@ namespace InDet {
       throw std::runtime_error( "Multiple incompatible D0 systematics are activated." );
     }
 
-    if ( isActiveD0Meas || isActiveD0MeasUp || isActiveD0MeasDown ) {
+    if ( isActiveD0Meas || isActiveD0MeasUp || isActiveD0MeasDown 
+         || isActive(TRK_RES_D0Z0Corl_MEAS) || isActive(TRK_RES_D0Z0_MEAS) ) {
       TH2* d0hist = m_smearD0;
       if(isActiveD0MeasUp) d0hist = m_smearD0_sys_up;
       if(isActiveD0MeasDown) d0hist = m_smearD0_sys_dw;
@@ -152,7 +155,8 @@ namespace InDet {
       throw std::runtime_error( "Multiple incompatible Z0 systematics are activated." );
     }
 
-    if ( isActiveZ0Meas || isActiveZ0MeasUp || isActiveZ0MeasDown ) {
+    if ( isActiveZ0Meas || isActiveZ0MeasUp || isActiveZ0MeasDown 
+         || isActive(TRK_RES_D0Z0Corl_MEAS) || isActive(TRK_RES_D0Z0_MEAS) ) {
       TH2* z0hist = m_smearZ0;
       if(isActiveZ0MeasUp) z0hist = m_smearZ0_sys_up;
       if(isActiveZ0MeasDown) z0hist = m_smearZ0_sys_dw;
@@ -171,9 +175,17 @@ namespace InDet {
     static SG::AuxElement::Accessor< float > accD0( "d0" );
     static SG::AuxElement::Accessor< float > accZ0( "z0" );
 
-    // only call the RNG if the widths are greater than 0
-    if ( sigmaD0 > 0. ) accD0( track ) = m_rnd->Gaus( track.d0(), sigmaD0 );
-    if ( sigmaZ0 > 0. ) accZ0( track ) = m_rnd->Gaus( track.z0(), sigmaZ0 );
+    //NB: only call the RNG if the widths are greater than 0
+
+    if(isActive(TRK_RES_D0Z0Corl_MEAS)){ 
+      //for correlation studies: use same random number to smear both d0 and z0
+      double rnd1 = m_rnd->Gaus();
+      if(sigmaD0 > 0. ) accD0( track ) = track.d0() + (rnd1*sigmaD0);
+      if(sigmaZ0 > 0. ) accZ0( track ) = track.z0() + (rnd1*sigmaZ0);
+    } else {
+      if ( sigmaD0 > 0. ) accD0( track ) = m_rnd->Gaus( track.d0(), sigmaD0 );
+      if ( sigmaZ0 > 0. ) accZ0( track ) = m_rnd->Gaus( track.z0(), sigmaZ0 );
+    }
 
     return CP::CorrectionCode::Ok;
   }
