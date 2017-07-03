@@ -3,7 +3,7 @@
 #Categories currently used by offline Egamma TO monitoring tool
 #Important to keep lists updated
 primary_single_ele = ['HLT_e24_lhtight_nod0','HLT_e26_lhtight_nod0','HLT_e60_lhmedium_nod0_L1EM24VHI','HLT_e140_lhloose_nod0_L1EM24VHI']
-primary_single_ele_iso =['HLT_e24_lhtight_nod0_ivarloose','HLT_e26_lhtight_nod0_ivarloose','HLT_e28_lhtight_nod0_ivarloose']
+primary_single_ele_iso =['HLT_e24_lhtight_nod0_ivarloose','HLT_e28_lhtight_nod0_ivarloose']
 monitoring_Zee = ['HLT_e28_lhtight_nod0_e15_etcut_L1EM7_Zee']
 monitoring_Jpsiee = ['HLT_e5_lhtight_nod0_e4_etcut','HLT_e5_lhtight_nod0_e4_etcut_Jpsiee']
 primary_single_pho = ['HLT_g140_tight','HLT_g200_loose']
@@ -46,7 +46,6 @@ plots_resolution = ["res_et","res_Rphi","res_Reta","res_Rhad","res_ptvarcone20",
 
 # Define triggers for tagging 
 monitoring_tags = ['HLT_e24_lhtight_nod0_ivarloose',
-                   'HLT_e26_lhtight_nod0_ivarloose',
                    'HLT_e28_lhtight_nod0_ivarloose']
 
 monitoring_jpsitags = [
@@ -77,11 +76,9 @@ commissionTP_electron = ['HLT_e17_lhvloose_nod0_ringer_L1EM15VHI',
                          'HLT_e26_lhtight_nod0_ringer_ivarloose',
                          'HLT_e26_lhtight_cutd0dphideta_ivarloose',
                          'HLT_e28_lhtight_nod0_ringer_ivarloose',
-                         'HLT_e26_lhtight_nod0_ivarloose_L1EM22VHIM',
                          'HLT_e28_lhtight_nod0_ivarloose_L1EM24VHIM',
                          ]
 monitoringTP_electron = [ 'HLT_e17_lhvloose_nod0_L1EM15VHI',
-                          'HLT_e26_lhtight_nod0_ivarloose',
                           'HLT_e28_lhtight_nod0_ivarloose',
                           'HLT_e28_lhtight_nod0_ivarloose_L1EM24VHIM',
                           'HLT_e28_lhtight_nod0_noringer_ivarloose'
@@ -91,9 +88,7 @@ monitoringTP_electron = [ 'HLT_e17_lhvloose_nod0_L1EM15VHI',
 monitoringTP_Jpsiee = ["HLT_e5_lhtight_nod0"]    
 monitoring_photon = [ 'HLT_g25_medium_L1EM20VH',
                       'HLT_g200_loose',
-                      'HLT_g22_tight' ,
                       'HLT_g22_tight_icalovloose_L1EM15VHI' ,
-                      'HLT_g22_tight_L1EM15VHI',
                       ]
 #Add the Menu-Aware monitoring; maps a trigger to a category
 monitoring_mam = {'primary_single_ele_iso':'HLT_e28_lhtight_nod0_ivarloose',
