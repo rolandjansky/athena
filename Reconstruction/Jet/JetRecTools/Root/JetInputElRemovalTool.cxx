@@ -70,8 +70,9 @@ JetInputElRemovalTool::~JetInputElRemovalTool(){
 
 
 StatusCode JetInputElRemovalTool::initialize(){
-
   ATH_MSG_INFO("Initializing tool " << name() << "...");
+  ATH_MSG_DEBUG("initializing version with data handles");
+
   ATH_CHECK(m_trkInputContainer_key.initialize());
   ATH_CHECK(m_jetInputContainer_key.initialize());
   ATH_CHECK(m_clInputContainer_key.initialize());

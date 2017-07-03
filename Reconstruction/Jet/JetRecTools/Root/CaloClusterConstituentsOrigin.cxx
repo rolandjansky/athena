@@ -28,6 +28,8 @@ CaloClusterConstituentsOrigin::CaloClusterConstituentsOrigin(const std::string &
 
 StatusCode CaloClusterConstituentsOrigin::initialize() {
   ATH_MSG_INFO("Initializing tool " << name() << "...");
+  ATH_MSG_DEBUG("initializing version with data handles");
+
   ATH_CHECK(m_readVertexContainer_key.initialize());
   return StatusCode::SUCCESS;
 }

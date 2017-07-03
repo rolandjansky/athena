@@ -32,6 +32,7 @@ TrackVertexAssociationTool::TrackVertexAssociationTool(const std::string& t)
 
 StatusCode TrackVertexAssociationTool::initialize(){
   ATH_MSG_INFO("Initializing tool " << name() << "...");
+  ATH_MSG_DEBUG("initializing version with data handles");
   
   ATH_CHECK(m_trackContainer_key.initialize());
   ATH_CHECK(m_vertexContainer_key.initialize());
