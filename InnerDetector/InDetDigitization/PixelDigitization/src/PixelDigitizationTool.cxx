@@ -157,6 +157,7 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
   // Loop over the Detectors with hits
   TimedHitCollection<SiHit>::const_iterator firstHit, lastHit;
   int counter = 0;
+  bool print = true;
   while (m_timedHits->nextDetectorElement(firstHit,lastHit)) {
 
     counter++;
@@ -190,8 +191,8 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
         ATH_MSG_DEBUG("Running sensor simulation.");
 	
 	//Deposit energy in sensor
-	CHECK(m_energyDepositionTool->depositEnergy( *phit,  *sielement, trfHitRecord, initialConditions));
-        
+	CHECK(m_energyDepositionTool->depositEnergy( *phit,  *sielement, trfHitRecord, initialConditions, print));
+        print = false; 
 	//Create signal in sensor
 	for (unsigned int itool=0; itool<m_chargeTool.size(); itool++) {
           ATH_MSG_DEBUG("Executing tool " << m_chargeTool[itool]->name());

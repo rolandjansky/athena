@@ -91,7 +91,6 @@ StatusCode BichselSimTool::initialize() {
     }
   }
 
-
   // get the random stream
   ATH_MSG_DEBUG ( "Getting random number engine : <" << m_rndmEngineName << ">" );
   m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
@@ -187,17 +186,24 @@ StatusCode BichselSimTool::finalize() {
 //=======================================
 // D E P O S I T  E N E R G Y
 //=======================================
- StatusCode BichselSimTool::depositEnergy(const TimedHitPtr<SiHit> &phit, const InDetDD::SiDetectorElement &Module, std::vector<std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions){
+ //StatusCode BichselSimTool::depositEnergy(const TimedHitPtr<SiHit> &phit, const InDetDD::SiDetectorElement &Module, std::vector<std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions ){
+StatusCode BichselSimTool::depositEnergy(const TimedHitPtr<SiHit> &phit, const InDetDD::SiDetectorElement &Module, std::vector<std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions, bool print){
 
 
   ATH_MSG_DEBUG("Deposit energy in sensor volume.");
   
+  if(print)
+	  ATH_MSG_INFO("ENERGY DEPOSITION:     ");
+
   //Check if simulated particle or delta ray
   const HepMcParticleLink McLink = HepMcParticleLink(phit->trackNumber(),phit.eventId());
   const HepMC::GenParticle* genPart= McLink.cptr(); 
   bool delta_hit = true;
   if (genPart) delta_hit = false;
   double sensorThickness = Module.design().thickness();
+
+  if(print)
+	  ATH_MSG_INFO("SENSOR THICKNESS: "<<sensorThickness);
 
   //Get path of particle through volume of G4
   double stepsize = sensorThickness/m_numberOfSteps;
@@ -216,14 +222,34 @@ StatusCode BichselSimTool::finalize() {
   //Simulate effect of bowing on entry and exit points
   if (!m_disableDistortions && !delta_hit) simulateBow(&Module,phi_0,eta_0,depth_0,phi_f,eta_f,depth_f);
   
+  if(print){
+	  ATH_MSG_INFO("stepsize: "<<stepsize);
+	  ATH_MSG_INFO("eta0: "<<eta_0);
+	  ATH_MSG_INFO("phi0: "<<phi_0);
+	  ATH_MSG_INFO("depth0: "<<depth_0);
+	  ATH_MSG_INFO("etaf: "<<eta_f);
+	  ATH_MSG_INFO("phif: "<<phi_f);
+	  ATH_MSG_INFO("depthf: "<<depth_f);
+  }
   double dEta=eta_f-eta_0;
   double dPhi=phi_f-phi_0;
   const double dDepth=depth_f-depth_0;
   double pathLength=sqrt(dEta*dEta+dPhi*dPhi+dDepth*dDepth);
 
+  if(print){
+	  ATH_MSG_INFO("dEta: "<<dEta);
+	  ATH_MSG_INFO("dPhi: "<<dPhi);
+	  ATH_MSG_INFO("dDepth: "<<dDepth);
+	  ATH_MSG_INFO("pathLength: "<<pathLength);
+  }
   //Scale steps and charge chunks
   const int nsteps=int(pathLength/stepsize)+1; 
   const int ncharges=this->m_numberOfCharges*this->m_numberOfSteps/nsteps+1; 
+
+  if(print){
+	  ATH_MSG_INFO("nsteps: "<<nsteps);
+	  ATH_MSG_INFO("ncharges: "<<ncharges);
+  }
 
   //Store information
   initialConditions.clear();
@@ -241,13 +267,21 @@ StatusCode BichselSimTool::finalize() {
   double iTotalLength = pathLength*1000.;   // mm -> micrometer
   initialConditions.push_back( iTotalLength );
 
-  // ultimate feed in to the diffusion (to surface) part
+  if(print){
+	  ATH_MSG_INFO("iTotalLength: "<<iTotalLength);
+  }
 
   // -1 ParticleType means we are unable to run Bichel simulation for this case
   int ParticleType = -1;
   if(m_doBichsel && !(Module.isDBM())){
 
     ParticleType = delta_hit ? (m_doDeltaRay ? 4 : -1) : trfPDG(genPart->pdg_id()); 
+  
+    if(print){
+	  ATH_MSG_INFO("doBichsel: "<<m_doBichsel);
+	  ATH_MSG_INFO("isDBM: "<<Module.isDBM());
+	  ATH_MSG_INFO("ParticleType: "<<ParticleType);
+  }
 
     if(ParticleType != -1){ // this is a protection in case delta_hit == true (a delta ray)
       TLorentzVector genPart_4V;
@@ -256,12 +290,15 @@ StatusCode BichselSimTool::finalize() {
         genPart_4V.SetPtEtaPhiM(genPart->momentum().perp(), genPart->momentum().eta(), genPart->momentum().phi(), genPart->momentum().m());
         double iBetaGamma = genPart_4V.Beta() * genPart_4V.Gamma();
         if(iBetaGamma < m_doBichselBetaGammaCut) ParticleType = -1;
+
+	if(print) ATH_MSG_INFO("genPart:iBetaGamma: "<<iBetaGamma);
       }
       else{ // delta-ray. 
         double k = phit->energyLoss()/CLHEP::MeV;     // unit of MeV
         double m = 0.511;                             // unit of MeV
         double iBetaGamma = TMath::Sqrt(k*(2*m+k))/m;
 
+	if(print) ATH_MSG_INFO("genPart:iBetaGamma: "<<iBetaGamma);
         if(iBetaGamma < m_doBichselBetaGammaCut) ParticleType = -1;
       }
 
@@ -280,21 +317,25 @@ StatusCode BichselSimTool::finalize() {
     TLorentzVector genPart_4V;
     double iBetaGamma;
 
+    if(print) ATH_MSG_INFO("----- Good to go with Bichsel ------");
+    
     if(genPart){
       genPart_4V.SetPtEtaPhiM(genPart->momentum().perp(), genPart->momentum().eta(), genPart->momentum().phi(), genPart->momentum().m());
       iBetaGamma = genPart_4V.Beta() * genPart_4V.Gamma();
+    if(print) ATH_MSG_INFO("genPart:iBetaGamma: "<<iBetaGamma);
     }
     else{
       double k = phit->energyLoss()/CLHEP::MeV;     // unit of MeV
       double m = 0.511;                             // unit of MeV
       iBetaGamma = TMath::Sqrt(k*(2*m+k))/m;
+    if(print) ATH_MSG_INFO("!genPart:iBetaGamma: "<<iBetaGamma);
     }
 
     int iParticleType = ParticleType;
     //double iTotalLength = pathLength*1000.;   // mm -> micrometer
 
     // begin simulation
-    std::vector<std::pair<double,double> > rawHitRecord = BichselSim(iBetaGamma, iParticleType, iTotalLength, genPart ? (genPart->momentum().e()/CLHEP::MeV) : (phit->energyLoss()/CLHEP::MeV) );
+    std::vector<std::pair<double,double> > rawHitRecord = BichselSim(iBetaGamma, iParticleType, iTotalLength, genPart ? (genPart->momentum().e()/CLHEP::MeV) : (phit->energyLoss()/CLHEP::MeV), print );
 
     // check if returned simulation result makes sense
     if(rawHitRecord.size() == 0){ // deal with rawHitRecord==0 specifically -- no energy deposition
@@ -361,7 +402,7 @@ void BichselSimTool::simulateBow(const InDetDD::SiDetectorElement * element, dou
 // InciEnergy should be in MeV
 // In case there is any abnormal in runtime, (-1,-1) will be returned indicating old deposition model should be used instead
 //-----------------------------------------------------------
-std::vector<std::pair<double,double> > BichselSimTool::BichselSim(double BetaGamma, int ParticleType, double TotalLength, double InciEnergy) const{
+std::vector<std::pair<double,double> > BichselSimTool::BichselSim(double BetaGamma, int ParticleType, double TotalLength, double InciEnergy, bool print) const{
   ATH_MSG_DEBUG("Begin BichselSimTool::BichselSim");
 
   // prepare hit record (output)
@@ -374,6 +415,11 @@ std::vector<std::pair<double,double> > BichselSimTool::BichselSim(double BetaGam
   double BetaGammaLog10 = TMath::Log10(BetaGamma);
   std::pair<int,int> indices_BetaGammaLog10 = GetBetaGammaIndices(BetaGammaLog10, iData);
 
+  if(print){
+	  ATH_MSG_INFO("-------- IN BICHSEL SIM ----------");
+	  ATH_MSG_INFO(" BetaGammalog10: "<<BetaGammaLog10);
+	  ATH_MSG_INFO("Indices[ "<<indices_BetaGammaLog10.first<<", "<<indices_BetaGammaLog10.second<<"]");
+  }
   // upper bound
   double IntXUpperBound = GetUpperBound(indices_BetaGammaLog10, BetaGammaLog10, iData);
   if(IntXUpperBound <= 0.){
@@ -381,9 +427,15 @@ std::vector<std::pair<double,double> > BichselSimTool::BichselSim(double BetaGam
     SetFailureFlag(rawHitRecord);
     return rawHitRecord;
   }
-  
+ 
+  if(print){
+	  ATH_MSG_INFO("IntXUpperBound: "<<IntXUpperBound);
+  }
   // mean-free path
   double lambda = (1./IntXUpperBound) * 1.E4;   // unit of IntX is cm-1. It needs to be converted to micrometer-1
+
+  if(print) 
+	  ATH_MSG_INFO("lambda: "<<lambda);
 
   // check nan lambda
   if(std::isnan(lambda)){
@@ -397,6 +449,8 @@ std::vector<std::pair<double,double> > BichselSimTool::BichselSim(double BetaGam
     SetFailureFlag(rawHitRecord);
     return rawHitRecord;
   }
+  if(print)
+	  ATH_MSG_INFO("LoopLimit: "<<LoopLimit);
 
   // begin simulation
   int count = 0;
@@ -413,6 +467,8 @@ std::vector<std::pair<double,double> > BichselSimTool::BichselSim(double BetaGam
     for(int iHit = 0; iHit < m_nCols; iHit++){
 	   HitPosition += CLHEP::RandExpZiggurat::shoot(m_rndmEngine, lambda);
     }
+    if(print)
+	  ATH_MSG_INFO("HitPosition: "<<HitPosition);
     // termination by hit position
     // yes, in case m_nCols > 1, we will loose the last m_nCols collisions. So m_nCols cannot be too big
     if(accumLength + HitPosition >= TotalLength)
@@ -424,6 +480,8 @@ std::vector<std::pair<double,double> > BichselSimTool::BichselSim(double BetaGam
       double TossIntX = CLHEP::RandFlat::shoot(m_rndmEngine, 0., IntXUpperBound);
       TossEnergyLoss = GetColE(indices_BetaGammaLog10, TMath::Log10(TossIntX), iData);
     }
+  if(print)
+	  ATH_MSG_INFO("TossEnergyLoss: "<<TossEnergyLoss);
 
     // check if it is delta-ray -- delta-ray is already taken care of by G4 and treated as an independent hit. Unfortunately, we won't deal with delta-ray using Bichsel's model
     // as long as m_nCols is not very big, the probability of having >= 2 such a big energy loss in a row is very small. In case there is a delta-ray, it would be so dominant that other energy deposition becomes negligible
@@ -443,6 +501,10 @@ std::vector<std::pair<double,double> > BichselSimTool::BichselSim(double BetaGam
     accumLength += HitPosition;
     TotalEnergyLoss += TossEnergyLoss;
 
+  if(print){
+	  ATH_MSG_INFO("accumLength: "<<accumLength);
+	  ATH_MSG_INFO("TotalEnergyLoss: "<<TotalEnergyLoss);
+  }
     // record this hit
     std::pair<double,double> oneHit;
     if(m_nCols == 1)  oneHit.first = accumLength; 
