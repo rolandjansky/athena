@@ -70,7 +70,7 @@ unsigned long TSU::Kinematics::quadraticSumBW(int i1, int i2){
   for(int i = 0; i < halflength; i++){ //16-->4
     right = 1 + (sign<<1) + (result<<2);
 
-    left = (r<<2) + (a >> 2*halflength-2);
+    left = (r<<2) + (a >> (2*halflength-2));
     a <<= 2;
     a = a & bitmask;
 
