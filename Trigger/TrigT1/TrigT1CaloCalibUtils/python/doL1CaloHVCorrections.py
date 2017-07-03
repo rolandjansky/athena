@@ -1,5 +1,9 @@
 #!/bin/env python
 
+#
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
 #from ROOT import gRandom,TCanvas,TH1F,TH2F
 import ROOT
 import sys
@@ -184,13 +188,16 @@ if __name__ == "__main__":
   parser.add_option("-c", "--channel_list", action = "store", type = "string", dest = "channel_list", default =             "")
   parser.add_option("-o", "--output_files", action = "store", type = "string", dest = "output_files", default = "doL1CaloHVCorrections")
 
+  parser.add_option("--noFCAL", action = "store_true", dest = "noFCAL", default = False)
+  parser.add_option("--noFCAL23",action = "store_true", dest = "noFCAL23", default = False)
+
   parser.add_option("-h", "--help", action = "store_true")
 
   (options, args) = parser.parse_args()
 
   if options.help: # print helpful info 
     
-    print "\nusage:    python LArHVGainsPredictor.py [options]"
+    print "\nusage:    python doL1CaloHVCorrections.py [options]"
     
     print "\noptions:\n"                  
 
@@ -198,17 +205,19 @@ if __name__ == "__main__":
     print "-t, --hv_corr_diff    minimum abs. change in hv corrections    (default:         0.01)"
     print "-c, --channel_list    file containing an input channel list    (default:           '')"
     print "-o, --output_files    name assigned to all the output files    (default: doL1CaloHVCorrections)"
+    print "--noFCAL              receiver channels in FCAL not considered"
+    print "--noFCAL23            receiver channels in hadronic FCAL (FCAL23) not considered"
+   
 
     print "\n[*] minimal requirements"
 
-    print "\nexample:  python LArHVGainsPredictor.py -i file_1 "
+    print "\nexample:  python doL1CaloHVCorrections.py -i file_1 "
 
     print "\nnote: if no input channel list is given all the channels will be considered by default"
 
     print "\n(see https://twiki.cern.ch/twiki/bin/save/Atlas/LevelOneCaloGainPredictor for more info)\n"
 
     sys.exit()
-
 
   if options.hv_input == "" :
     print "\ntoo few input arguments given ....exiting , need at least sqlite file with input HV corrections\n"
@@ -294,10 +303,17 @@ if __name__ == "__main__":
 
       continue # skip this receiver (it's non-LAr)
 
+
     coolid = geometry_convertor.getPPMfromReceiver(receiver)
         
     eta_bin = geometry_convertor.getEtaBin(coolid)
     phi_bin = geometry_convertor.getPhiBin(coolid)
+
+    if options.noFCAL and geometry_convertor.isPPMFCAL(coolid):
+      continue # skip this receiver (it's non-LAr)
+
+    if options.noFCAL23 and geometry_convertor.isPPMFCAL(coolid) and geometry_convertor.isCoolHad(coolid):
+      continue # skip this receiver (it's non-LAr)
 
     ### retrieve num layers and layer names (from new or ref hv input)
 
@@ -329,21 +345,13 @@ if __name__ == "__main__":
       if num_layers > 3:
         layer_corr[3] = (hv_input.GetCorLayer4()[receiver])
         
-    ### check if the channel has at least one layer with HV correction greater then the threshold
-
-    if  abs(layer_corr[0] - 1) <= options.hv_corr_diff \
-    and abs(layer_corr[1] - 1) <= options.hv_corr_diff \
-    and abs(layer_corr[2] - 1) <= options.hv_corr_diff \
-    and abs(layer_corr[3] - 1) <= options.hv_corr_diff:
-
-      continue # skip this receiver
+    ### check if the channel has overall HV correction larger than the threshold
     
     predictedCorrection = correctionCalculator.GetCorrection(receiver, layer_corr, layer_names)
 
-#    if predictedCorrection < 1.:
-#    print "Receiver ", receiver ," coolId",coolid, "eta_bin", eta_bin,  "correction=",predictedCorrection
-#    print "Nlayers ", num_layers, "layer corrections ", layer_corr, "layer names ", layer_names, "\n"
-#  calculatedCorrections['0x1'] = [1.1,0]
+    if abs(predictedCorrection - 1) <= options.hv_corr_diff:
+      continue # skip this receiver, the correction is not high enough
+
     calculatedCorrections[receiver] = [predictedCorrection,0]
     print >> output_text, ("%5s %9s  %3i %2i  %.3f") % (receiver, coolid, eta_bin, phi_bin, predictedCorrection)
 

@@ -1,6 +1,8 @@
 #!/bin/env python
+#
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 
-#from ROOT import gRandom,TCanvas,TH1F,TH2F
 import ROOT
 import sys
 import time
@@ -13,8 +15,6 @@ from PlotCalibrationHV import *
 
 from PyCool import cool
 from optparse import OptionParser
-
-#from coolTools import *
 
 from math import fabs
 
@@ -47,6 +47,7 @@ if __name__ == "__main__":
   c2.Divide(3,2)
 
 # now define histograms
+
   h_gains_em  = L1CaloMap("Eta-phi map of EM gains","#eta bin","#phi bin")
   h_gains_had = L1CaloMap("Eta-phi map of HAD gains","#eta bin","#phi bin")
 
@@ -62,34 +63,49 @@ if __name__ == "__main__":
   h_corr_em  = L1CaloMap("Eta-phi map of mean HV corrections in EM layer","#eta bin","#phi bin")
   h_corr_had = L1CaloMap("Eta-phi map of mean HV corrections in HAD layer","#eta bin","#phi bin")
 
+  h_corrGainPredictor_em  = L1CaloMap("Eta-phi map of HV corrections from Gain Predictor in EM layer","#eta bin","#phi bin")
+  h_corrGainPredictor_had = L1CaloMap("Eta-phi map of HV corrections from Gain Predictor in HAD layer","#eta bin","#phi bin")
+
+
   h1D_corr_em  = EmPartitionPlots("mean HV corrections in EM layer",40,0.,2.5,"mean HV correction","N")
   h1D_corr_had = HadPartitionPlots("mean HV corrections in HAD layer",40,0.,2.5,"mean HV correction","N")
 
   h_corrHVdiff_em  = L1CaloMap("(ratio-meanHV)/meanHV in EM layer","#eta bin","#phi bin")
-  h_corrHVdiff_had = L1CaloMap("(ratio-meanHV/meanHV in HAD layer","#eta bin","#phi bin")
+  h_corrHVdiff_had = L1CaloMap("(ratio-meanHV)/meanHV in HAD layer","#eta bin","#phi bin")
 
   h1D_corrHVdiff_em  = EmPartitionPlots("(ratio-meanHV)/meanHV in EM layer",40,-0.1,0.1,"(ratio-meanHV)/meanHV","N")
   h1D_corrHVdiff_had = HadPartitionPlots("(ratio-meanHV)/meanHV in HAD layer",40,-0.1,0.1,"(ratio-meanHV)/meanHV","N")
 
+  h_corrHVdiffGainPredictor_em  = L1CaloMap("(ratio-GainPredictor)/GainPredictor in EM layer","#eta bin","#phi bin")
+  h_corrHVdiffGainPredictor_had = L1CaloMap("(ratio-GainPredictor)/GainPredictor in HAD layer","#eta bin","#phi bin")
 
-# read in gains
-  fileDefault = 'energyscanresults_321849.sqlite'
-  fileNoHV    = 'energyscanresults_321849noHV.sqlite'
 
-#  fileDefault = 'energyscanresults_321852.sqlite'
-#  fileNoHV    = 'energyscanresults_321852noHV.sqlite'
+# input files are define here
 
-  hvCorrFile = 'hvcorrections_3may17.sqlite'
+  fileDefault = '/afs/cern.ch/work/j/juraj/public/testarea/21.0.18/CalibrationProcessing/326189_HV/energyscanresults.sqlite'
+  fileNoHV    = '/afs/cern.ch/work/j/juraj/public/testarea/21.0.18/CalibrationProcessing/326189/energyscanresults.sqlite'
 
-  strategyString = 'GainOneOvEmecFcalLowEta'
+  hvCorrFile = '/afs/cern.ch/work/j/juraj/public/testarea/20.7.8.3/HVDumps/hvcorrections_9jun17.sqlite'
+
+  hvGainPredictor = '/afs/cern.ch/work/j/juraj/public/testarea/20.7.8.3/HVDumps/hvUpdate_9jun17_0p.txt'
+
+  strategyString = 'GainOneOvEmecFcalLowEta'       # defines receiver to TT mapping for EMB/EMEC overlap and hadronic FCAL
 #  strategyString = 'GainOneOvEmbFcalHighEta'
+
 
   receiver_gains.LoadGainsSqlite(fileDefault)
   receiver_gains.LoadReferenceSqlite(fileNoHV)
 
   hv_status = L1CaloHVReader(hvCorrFile)
 
-#  print hv_status.GetMeanCorections()
+  strange_channel_file = open('checkHVCorrections.txt','w')
+
+  gpReceiver,gpCool,gpEta,gpPhi,gpCorrection = np.genfromtxt(hvGainPredictor,unpack=True,dtype='str')
+
+  gainPredictorCorrections = {}
+
+  for iii in range(len(gpReceiver)):
+     gainPredictorCorrections[gpReceiver[iii]] = float(gpCorrection[iii])
 
   for i_eta in range(-49,45):
      for i_phi in range(0,64):
@@ -104,27 +120,43 @@ if __name__ == "__main__":
          reference_gain = receiver_gains.getReferenceGain(coolEm)
          receiverEm  = geometry_convertor.getReceiverfromPPM(coolEm,strategyString)
 
-#         print "COOL Id=", coolEm, " receiverId=", receiverEm,  " is overlap?" , geometry_convertor.isPPMOverlap(coolEm)
-
          try:
            meanEmHVCorrection = (hv_status.GetMeanCorections())[receiverEm]
          except KeyError:
            meanEmHVCorrection = 1.
+
+         try:
+           gainPredictorEmHVCorrection = gainPredictorCorrections[receiverEm]
+         except KeyError:
+           gainPredictorEmHVCorrection = 1.
 
          if (not gain == '') and (not reference_gain == ''):        # both  gains should be available
 	 
            h_gains_em.Fill(i_eta,i_phi,gain)
            h_gains_em_noHV.Fill(i_eta,i_phi,reference_gain)
            h_corr_em.Fill(i_eta,i_phi,meanEmHVCorrection)
+           h_corrGainPredictor_em.Fill(i_eta,i_phi,gainPredictorEmHVCorrection)
+
            h1D_corr_em.Fill(i_eta,meanEmHVCorrection)
            if reference_gain > 0.1 :
              if gain/reference_gain > 0.01:                            # to make histo look nicer
                h_gains_em_ratio.Fill(i_eta,i_phi,gain/reference_gain)
              h1D_gains_em_ratio.Fill(i_eta,gain/reference_gain)
-             if meanEmHVCorrection > 0.1:
+
+             if gainPredictorEmHVCorrection > 0.00001:                    # just to avoid division by zero, usually >=1.
+               relDifference = (gain/reference_gain - gainPredictorEmHVCorrection)/gainPredictorEmHVCorrection
+
+               if relDifference > 0.001:                               # to make histo look nicer
+                 h_corrHVdiffGainPredictor_em.Fill(i_eta,i_phi,relDifference)
+               if relDifference > 0.05:                               #  print out interesting channels
+                 strange_channel_file.write('%s %s %i %i EM  corr(RampMaker)= %.4f  corr(GainPredictor)= %.4f  diff= %.4f  \n' % (coolEm , receiverEm, \
+                                             i_eta , i_phi, gain/reference_gain,gainPredictorEmHVCorrection,relDifference) )  
+
+             if meanEmHVCorrection > 0.00001:                              # just to avoid division by zero, usually >=1.
                relDifference = (gain/reference_gain - meanEmHVCorrection)/meanEmHVCorrection
                if relDifference > 0.01:                               # to make histo look nicer
                  h_corrHVdiff_em.Fill(i_eta,i_phi,relDifference)
+
                h1D_corrHVdiff_em.Fill(i_eta,relDifference)
 
        if not coolHad == '':                         # there is a channel for this eta-phi
@@ -138,18 +170,37 @@ if __name__ == "__main__":
          except KeyError:
            meanHadHVCorrection = 1.
 
+         try:
+           gainPredictorHadHVCorrection = gainPredictorCorrections[receiverHad]
+         except KeyError:
+           gainPredictorHadHVCorrection = 1.
+
+
          if (not gain == '') and (not reference_gain == ''):       # both gains should be available
 
            h_gains_had.Fill(i_eta,i_phi,gain)
            h_gains_had_noHV.Fill(i_eta,i_phi,reference_gain)
            h_corr_had.Fill(i_eta,i_phi,meanHadHVCorrection) 
+           h_corrGainPredictor_had.Fill(i_eta,i_phi,gainPredictorHadHVCorrection) 
+
            h1D_corr_had.Fill(i_eta,meanHadHVCorrection)
+
            if reference_gain > 0.1 :
              if gain/reference_gain > 0.01:                            # to make histo look nicer
                h_gains_had_ratio.Fill(i_eta,i_phi,gain/reference_gain)
              h1D_gains_had_ratio.Fill(i_eta,gain/reference_gain)
-             if meanHadHVCorrection > 0.1:
-               relDifference = (gain/reference_gain - meanEmHVCorrection)/meanEmHVCorrection
+
+             if gainPredictorHadHVCorrection > 0.00001:                      # to avoid accidental zeros
+               relDifference = (gain/reference_gain - gainPredictorHadHVCorrection)/gainPredictorHadHVCorrection
+               if relDifference > 0.001:                               # to make histo look nicer
+                 h_corrHVdiffGainPredictor_had.Fill(i_eta,i_phi,relDifference)
+               if relDifference > 0.05:                               # print interesting channels
+                 strange_channel_file.write('%s %s %i %i HAD  corr(RampMaker)= %.4f  corr(GainPredictor)= %.4f  diff= %.4f  \n' % (coolHad,receiverHad, \
+                                             i_eta , i_phi, gain/reference_gain,gainPredictorHadHVCorrection,relDifference) )  
+
+
+             if meanHadHVCorrection > 0.00001:
+               relDifference = (gain/reference_gain - meanHadHVCorrection)/meanHadHVCorrection
                if relDifference > 0.01:                               # to make histo look nicer
                  h_corrHVdiff_had.Fill(i_eta,i_phi,relDifference)
                h1D_corrHVdiff_had.Fill(i_eta,relDifference)
@@ -160,7 +211,6 @@ if __name__ == "__main__":
 
   h_gains_em.SetMinimum(0.6)
   h_gains_em.SetMaximum(1.4)
-#  h_gains_em.SetMaximum(2.1)
   h_gains_em.Draw()
   c1.Print("checkHVCorrections.ps(")
 
@@ -199,6 +249,17 @@ if __name__ == "__main__":
   h_corr_had.Draw()
   c1.Print("checkHVCorrections.ps")
 
+  h_corrGainPredictor_em.SetMinimum(1.0)
+  h_corrGainPredictor_em.SetMaximum(2.1)
+  h_corrGainPredictor_em.Draw()
+  c1.Print("checkHVCorrections.ps")
+
+  h_corrGainPredictor_had.SetMinimum(1.0)
+  h_corrGainPredictor_had.SetMaximum(2.1)
+  h_corrGainPredictor_had.Draw()
+  c1.Print("checkHVCorrections.ps")
+
+
   h_corrHVdiff_em.SetMinimum(-.1)
   h_corrHVdiff_em.SetMaximum( .1)
   h_corrHVdiff_em.Draw()
@@ -207,6 +268,36 @@ if __name__ == "__main__":
   h_corrHVdiff_had.SetMinimum(-.1)
   h_corrHVdiff_had.SetMaximum( .1)
   h_corrHVdiff_had.Draw()
+  c1.Print("checkHVCorrections.ps")
+
+  h_corrHVdiffGainPredictor_em.SetMinimum(-.5)
+  h_corrHVdiffGainPredictor_em.SetMaximum( .5)
+  h_corrHVdiffGainPredictor_em.Draw()
+  c1.Print("checkHVCorrections.ps")
+
+  h_corrHVdiffGainPredictor_had.SetMinimum(-.5)
+  h_corrHVdiffGainPredictor_had.SetMaximum( .5)
+  h_corrHVdiffGainPredictor_had.Draw()
+  c1.Print("checkHVCorrections.ps")
+
+  h_corrHVdiffGainPredictor_em.SetMinimum(-.1)
+  h_corrHVdiffGainPredictor_em.SetMaximum( .1)
+  h_corrHVdiffGainPredictor_em.Draw()
+  c1.Print("checkHVCorrections.ps")
+
+  h_corrHVdiffGainPredictor_had.SetMinimum(-.1)
+  h_corrHVdiffGainPredictor_had.SetMaximum( .1)
+  h_corrHVdiffGainPredictor_had.Draw()
+  c1.Print("checkHVCorrections.ps")
+
+  h_corrHVdiffGainPredictor_em.SetMinimum(-.05)
+  h_corrHVdiffGainPredictor_em.SetMaximum( .05)
+  h_corrHVdiffGainPredictor_em.Draw()
+  c1.Print("checkHVCorrections.ps")
+
+  h_corrHVdiffGainPredictor_had.SetMinimum(-.05)
+  h_corrHVdiffGainPredictor_had.SetMaximum( .05)
+  h_corrHVdiffGainPredictor_had.Draw()
   c1.Print("checkHVCorrections.ps")
 
   c2.Clear()
@@ -285,5 +376,5 @@ if __name__ == "__main__":
 
   os.system("ps2pdf checkHVCorrections.ps")
 
-
+  strange_channel_file.close()
 
