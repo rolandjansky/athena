@@ -224,7 +224,22 @@ ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRu
       for(HLT::SteeringChain* chain : m_chainIdMap[ item->hashId() ]) {
          // activate and push into vector of active chains
          if (chain) {
-            addChain(chains, chain, l1Passed, l1BeforePrescale);
+
+	   if ( chain->getConfigChain()->hasMultipleLowerChains() ) {
+	     auto iter = find(chains.begin(), chains.end(), chain);
+	     if ( iter == chains.end() ) { // inserting for the first time
+	       addChain(chains, chain, l1Passed, l1BeforePrescale);
+	     } else {
+	       if ( l1Passed ) { // remove previous insert as it maybe for re-running and add for firstPass running
+		 chains.erase( iter );
+		 chain->reset();
+		 addChain(chains, chain, l1Passed, l1BeforePrescale);
+		 ATH_MSG_DEBUG("Reconfigured the chain " << chain->getChainName() << " state to run in the first pass");
+	       }
+	     }
+	   } else { // not added before, so we add it
+	     addChain(chains, chain, l1Passed, l1BeforePrescale);
+	   }
          } else {
             ATH_MSG_WARNING("No configured chain found,  that would match LVL1 item from previous level, this should not happen at thsi stage " << item->name());
          }
@@ -249,14 +264,16 @@ ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRu
    }
 
    // make chains list unique
+
    std::set<HLT::SteeringChain*> temp;
    for ( std::vector<HLT::SteeringChain*>::const_iterator chain = chains.begin();
-         chain != chains.end(); ++chain) {    
-      unsigned int ss = temp.size(); 
-      temp.insert(*chain);
-      if ( ss != temp.size() ) 
-         chainsToRun.push_back(*chain);
+	 chain != chains.end(); ++chain) {    
+     unsigned int ss = temp.size(); 
+     temp.insert(*chain);
+     if ( ss != temp.size() ) 
+       chainsToRun.push_back(*chain);
    }
+   
 
    // -----------------------------------------------------------------
 
