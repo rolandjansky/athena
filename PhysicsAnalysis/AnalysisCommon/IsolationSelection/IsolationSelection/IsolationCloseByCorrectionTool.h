@@ -72,6 +72,8 @@ namespace CP {
             virtual float GetOriginalIsolation(const xAOD::IParticle* P, IsoType type) const;
 
         private:
+            Root::TAccept passIsolationWP(const xAOD::IParticle *x) const;
+            Root::TAccept passIsolationWP(const xAOD::IParticle& x) const;
 
             void IsoTypesFromWP(const std::vector<IsolationWP*> &WP, IsoVector & types);
             //Helper function to check whether an element is in the vector

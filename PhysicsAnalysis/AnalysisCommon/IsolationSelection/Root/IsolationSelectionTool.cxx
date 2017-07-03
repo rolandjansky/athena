@@ -359,85 +359,61 @@ namespace CP {
 
         return StatusCode::SUCCESS;
     }
-
-    const Root::TAccept& IsolationSelectionTool::accept(const xAOD::Photon& x) const {
-        m_photonAccept.clear();
-        for (auto i : m_phWPs) {
-            if (i->accept(x)) {
-                m_photonAccept.setCutResult(i->name(), true);
-            }
+    template<typename T> void IsolationSelectionTool::evaluateWP(const T& x, const std::vector<IsolationWP*>& WP, Root::TAccept& accept) const {
+        accept.clear();
+        for (auto& i : WP) {
+            if (i->accept(x)) accept.setCutResult(i->name(), true);
         }
+    }
+    const Root::TAccept& IsolationSelectionTool::accept(const xAOD::Photon& x) const {
+        evaluateWP(x, m_phWPs, m_photonAccept);
         return m_photonAccept;
     }
 
     const Root::TAccept& IsolationSelectionTool::accept(const xAOD::Electron& x) const {
-        m_electronAccept.clear();
-        for (auto i : m_elWPs) {
-            if (i->accept(x)) {
-                m_electronAccept.setCutResult(i->name(), true);
-            }
-        }
+        evaluateWP(x, m_elWPs, m_electronAccept);
         return m_electronAccept;
     }
 
     const Root::TAccept& IsolationSelectionTool::accept(const xAOD::Muon& x) const {
-        m_muonAccept.clear();
-        for (auto i : m_muWPs) {
-            if (i->accept(x)) {
-                m_muonAccept.setCutResult(i->name(), true);
-            }
-        }
+        evaluateWP(x, m_muWPs, m_muonAccept);
         return m_muonAccept;
     }
 
     const Root::TAccept& IsolationSelectionTool::accept(const xAOD::IParticle& x) const {
-        m_iparAccept->clear();
-        for (auto i : *m_iparWPs) {
-            if (i->accept(x)) {
-                m_iparAccept->setCutResult(i->name(), true);
-            }
+
+        if (x.type() == xAOD::Type::Electron) {
+            evaluateWP(x, m_elWPs, m_electronAccept);
+            return m_electronAccept;
+        } else if (x.type() == xAOD::Type::Muon) {
+            evaluateWP(x, m_muWPs, m_muonAccept);
+            return m_muonAccept;
+        } else if (x.type() == xAOD::Type::Photon) {
+            evaluateWP(x, m_phWPs, m_photonAccept);
+            return m_photonAccept;
         }
-        return *m_iparAccept;
+
+        else if (m_iparAccept && m_iparWPs) {
+            evaluateWP(x, *m_iparWPs, *m_iparAccept);
+            return *m_iparAccept;
+        }
+        ATH_MSG_ERROR("Someting here makes really no  sense");
+        m_objAccept.clear();
+        return m_objAccept;
     }
 
     const Root::TAccept& IsolationSelectionTool::accept(const strObj& x) const {
-//     m_objAccept.clear();
-//     for(auto i : m_objWPs){
-//       if(i->accept(x)){
-//         m_objAccept.setCutResult(i->name(), true);
-//       }
-//     }
         if (x.type == xAOD::Type::Electron) {
-            m_electronAccept.clear();
-            for (auto i : m_elWPs) {
-                if (i->accept(x)) {
-                    m_electronAccept.setCutResult(i->name(), true);
-                }
-            }
+            evaluateWP(x, m_elWPs, m_electronAccept);
             return m_electronAccept;
         } else if (x.type == xAOD::Type::Muon) {
-            m_muonAccept.clear();
-            for (auto i : m_muWPs) {
-                if (i->accept(x)) {
-                    m_muonAccept.setCutResult(i->name(), true);
-                }
-            }
+            evaluateWP(x, m_muWPs, m_muonAccept);
             return m_muonAccept;
         } else if (x.type == xAOD::Type::Photon) {
-            m_photonAccept.clear();
-            for (auto i : m_phWPs) {
-                if (i->accept(x)) {
-                    m_photonAccept.setCutResult(i->name(), true);
-                }
-            }
+            evaluateWP(x, m_phWPs, m_photonAccept);
             return m_photonAccept;
         } else {
-            m_objAccept.clear();
-            for (auto i : m_objWPs) {
-                if (i->accept(x)) {
-                    m_objAccept.setCutResult(i->name(), true);
-                }
-            }
+            evaluateWP(x, m_objWPs, m_objAccept);
         }
         return m_objAccept;
     }

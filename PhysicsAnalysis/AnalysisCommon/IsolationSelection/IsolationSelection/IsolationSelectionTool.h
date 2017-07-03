@@ -85,6 +85,8 @@ namespace CP {
             void clearObjWPs();
 
         private:
+            //same interface for xAOD::IParticle and StrObj -> use  template
+            template<typename T> void evaluateWP(const T& x, const std::vector<IsolationWP*>& WP, Root::TAccept& accept) const;
             void clearWPs(std::vector<IsolationWP*>& WP);
 
             // Stupid ROOT
