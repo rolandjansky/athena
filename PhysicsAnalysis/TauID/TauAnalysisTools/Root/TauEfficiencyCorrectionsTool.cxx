@@ -48,6 +48,7 @@ TauEfficiencyCorrectionsTool::TauEfficiencyCorrectionsTool( const std::string& s
   declareProperty( "RecommendationTag",            m_sRecommendationTag            = "2017-moriond" );
   declareProperty( "TriggerName",                  m_sTriggerName                  = "" );
   declareProperty( "TriggerYear",                  m_sTriggerYear                  = "2016" );
+  declareProperty( "TriggerSFMeasurement",         m_sTriggerSFMeasurement         = "combined" ); // "combined", "Ztauttau" or "ttbar"
 
   declareProperty( "UseIDExclusiveSF",             m_bUseIDExclusiveSF             = false );
   declareProperty( "UseInclusiveEta",              m_bUseInclusiveEta              = false );
@@ -534,7 +535,18 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2017_moriond()
         if (m_sInputFilePathTriggerHadTau.empty())
         {
           if (m_sTriggerName.empty()) ATH_MSG_FATAL("Property \"Trigger\" was not set, please provide a trigger name.");
-          if (m_bUseTriggerInclusiveEta) m_sInputFilePathTriggerHadTau = sDirectory+"Trigger/Trigger_TrueHadTau_2016-fall_data"+m_sTriggerYear+"_"+m_sTriggerName+"_etainc.root";
+          if (m_bUseTriggerInclusiveEta) 
+          {
+            if (m_sTriggerYear == "2015")
+              m_sInputFilePathTriggerHadTau = sDirectory+"Trigger/Trigger_TrueHadTau_2017-moriond_data2015_"+m_sTriggerName+"_etainc.root";
+            else if (m_sTriggerYear == "2016")
+            {
+              m_sInputFilePathTriggerHadTau = sDirectory+"Trigger/Trigger_TrueHadTau_2017-moriond_data2016"+GetTriggerSFMeasrementString()+m_sTriggerName+"_etainc.root";
+
+            }
+            else 
+              ATH_MSG_ERROR("trigger recommendations are only provided for year 2015 and 2016. Please set property \"TriggerYear\" accordingly.");
+          }
           else
           {
             ATH_MSG_ERROR("eta exclusive scale factors not available");
@@ -564,7 +576,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2017_moriond()
           if (m_sInputFilePathTriggerHadTau.empty())
           {
             if (m_sTriggerName.empty()) ATH_MSG_FATAL("Property \"Trigger\" was not set, please provide a trigger name.");
-            if (m_bUseTriggerInclusiveEta) sInputFilePathTriggerHadTau = sDirectory+"Trigger/Trigger_TrueHadTau_2016-fall_data2015_"+m_sTriggerName+"_etainc.root";
+            if (m_bUseTriggerInclusiveEta) sInputFilePathTriggerHadTau = sDirectory+"Trigger/Trigger_TrueHadTau_2017-moriond_data2015_"+m_sTriggerName+"_etainc.root";
             else
             {
               ATH_MSG_ERROR("eta exclusive scale factors not available");
@@ -588,7 +600,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2017_moriond()
         if (m_sInputFilePathTriggerHadTau.empty())
         {
           if (m_sTriggerName.empty()) ATH_MSG_FATAL("Property \"Trigger\" was not set, please provide a trigger name.");
-          if (m_bUseTriggerInclusiveEta) sInputFilePathTriggerHadTau = sDirectory+"Trigger/Trigger_TrueHadTau_2016-fall_data2016_"+m_sTriggerName+"_etainc.root";
+          if (m_bUseTriggerInclusiveEta) sInputFilePathTriggerHadTau = sDirectory+"Trigger/Trigger_TrueHadTau_2017-moriond_data2016"+GetTriggerSFMeasrementString()+m_sTriggerName+"_etainc.root";
           else
           {
             ATH_MSG_ERROR("eta exclusive scale factors not available");
@@ -1234,4 +1246,24 @@ std::string TauEfficiencyCorrectionsTool::ConvertTriggerIDToString(const int& iL
   return "";
 }
 
+//______________________________________________________________________________
+std::string TauEfficiencyCorrectionsTool::GetTriggerSFMeasrementString()
+{
+  std::string sMeasurement = "_comb_";
+
+  if (m_sTriggerSFMeasurement=="Ztautau")
+    sMeasurement = "_Ztt_";
+  else if (m_sTriggerSFMeasurement=="ttbar")
+    sMeasurement = "_ttbar_";
+  else if (m_sTriggerSFMeasurement!="combined")
+  {
+    ATH_MSG_WARNING("Trigger scale factor measurement \'" << m_sTriggerSFMeasurement << "\' is not known. \'combined\' is used instead.");
+  }
+
+  return sMeasurement;
+}
+
+
 } // namespace TauAnalysisTools
+
+

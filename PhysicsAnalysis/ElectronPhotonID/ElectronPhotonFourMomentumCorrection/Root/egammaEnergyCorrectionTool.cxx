@@ -72,13 +72,13 @@ namespace AtlasRoot {
 
     m_rootFile = nullptr;
 
-    m_rootFileName = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/egammaEnergyCorrectionData.root");
-
+    m_rootFileName = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v11/egammaEnergyCorrectionData.root");
+    
     if (m_rootFileName.empty()) {
       ATH_MSG_FATAL("cannot find configuration file");
       throw std::runtime_error("cannot find file");
     }
-
+    
     m_begRunNumber = 0;
     m_endRunNumber = 0;
 
@@ -766,7 +766,7 @@ namespace AtlasRoot {
       m_use_temp_correction201516 = true;
     }
 
-    else if (m_esmodel == egEnergyCorr::es2017 or m_esmodel == egEnergyCorr::es2017_summer) {
+    else if (m_esmodel == egEnergyCorr::es2017 or m_esmodel == egEnergyCorr::es2017_summer or m_esmodel == egEnergyCorr::es2017_R21_PRE) {//add release 21 here for now
       m_use_etaCalo_scales = true;
       m_use_new_resolution_model = true;
       m_resolution_tool = new eg_resolution("run2_pre");
@@ -777,15 +777,35 @@ namespace AtlasRoot {
       m_daS12Cor     = (TH1D*) m_rootFile->Get("Scales/es2012c/dalphaS12_cor");                 m_daS12Cor->SetDirectory(0);
 
       m_trkSyst      = (TH1D*) m_rootFile->Get("Scales/es2012c/momentum_errSyst");              m_trkSyst->SetDirectory(0);
-
+      if(m_esmodel == egEnergyCorr::es2017){
       m_zeeNom       = (TH1D*) m_rootFile->Get("Scales/es2017/alphaZee_errStat_period_2016");         m_zeeNom->SetDirectory(0);
       m_zeeNom_data2015 = (TH1D*) m_rootFile->Get("Scales/es2017/alphaZee_errStat_period_2015");      m_zeeNom_data2015->SetDirectory(0);
-      m_zeeSyst      = (TH1D*) m_rootFile->Get("Scales/es2017/alphaZee_errSyst");         m_zeeSyst->SetDirectory(0);
+      }
+      else{
+	m_zeeNom       = (TH1D*) m_rootFile->Get("Scales/es2017_summer/alphaZee_errStat_period_2016");         m_zeeNom->SetDirectory(0); 
+	m_zeeNom_data2015 = (TH1D*) m_rootFile->Get("Scales/es2017_summer/alphaZee_errStat_period_2015");      m_zeeNom_data2015->SetDirectory(0);
+      }
+      if(m_esmodel == egEnergyCorr::es2017){
+	m_zeeSyst      = (TH1D*) m_rootFile->Get("Scales/es2017/alphaZee_errSyst");         m_zeeSyst->SetDirectory(0);
+      }
+      else{
+	m_zeeSyst      = (TH1D*) m_rootFile->Get("Scales/es2017_summer/alphaZee_errSyst");         m_zeeSyst->SetDirectory(0);
+      }
+      
       m_uA2MeV_2015_first2weeks_correction = nullptr;
-
-      m_resNom       = (TH1D*) m_rootFile->Get("Resolution/es2017/ctZee_errStat");        m_resNom->SetDirectory(0);
-      m_resSyst      = (TH1D*) m_rootFile->Get("Resolution/es2017/ctZee_errSyst");        m_resSyst->SetDirectory(0);
-
+      if(m_esmodel == egEnergyCorr::es2017){
+	m_resNom       = (TH1D*) m_rootFile->Get("Resolution/es2017/ctZee_errStat");        m_resNom->SetDirectory(0);
+      }
+      else{
+	m_resNom       = (TH1D*) m_rootFile->Get("Resolution/es2017_summer/ctZee_errStat");        m_resNom->SetDirectory(0);
+      }
+      if(m_esmodel == egEnergyCorr::es2017){
+	m_resSyst      = (TH1D*) m_rootFile->Get("Resolution/es2017/ctZee_errSyst");        m_resSyst->SetDirectory(0);
+      }
+      else{
+	m_resSyst      = (TH1D*) m_rootFile->Get("Resolution/es2017_summer/ctZee_errSyst");        m_resSyst->SetDirectory(0);
+      }
+      
       m_pedestals_es2017 = get_object<TH1F>(*m_rootFile, "Pedestals/es2017/pedestals");          m_pedestals_es2017->SetDirectory(0);
 
       m_dX_ID_Nom    = (TH1D*) m_rootFile->Get("Material/DX0_ConfigA");                         m_dX_ID_Nom->SetDirectory(0);
@@ -803,8 +823,14 @@ namespace AtlasRoot {
       m_dX_PSAcc_G4  = (TH1D*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(0);
 
       m_convRadius            = (TH1D*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(0);
-      m_convFakeRate          = (TH1D*) m_rootFile->Get("Conversions/es2012c/convFakeRate");          m_convFakeRate->SetDirectory(0);
-      m_convRecoEfficiency    = (TH1D*) m_rootFile->Get("Conversions/es2012c/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(0);
+      if(m_esmodel == egEnergyCorr::es2017){
+	m_convFakeRate          = (TH1D*) m_rootFile->Get("Conversions/es2012c/convFakeRate");          m_convFakeRate->SetDirectory(0);
+	m_convRecoEfficiency    = (TH1D*) m_rootFile->Get("Conversions/es2012c/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(0);
+      }
+      else{
+	m_convFakeRate          = (TH1D*) m_rootFile->Get("Conversions/es2017_summer/convFakeRate");          m_convFakeRate->SetDirectory(0); 
+        m_convRecoEfficiency    = (TH1D*) m_rootFile->Get("Conversions/es2017_summer/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(0);
+      }
 
       // TODO: change path when moving to calibarea
       // TODO: better package this somewhere
@@ -1036,9 +1062,15 @@ namespace AtlasRoot {
 
     // ... Leakage systematics
 
-    m_leakageConverted      = (TH1D*) m_rootFile->Get("Leakage/LeakageDiffConverted");      m_leakageConverted->SetDirectory(0);
-    m_leakageUnconverted    = (TH1D*) m_rootFile->Get("Leakage/LeakageDiffUnconverted");    m_leakageUnconverted->SetDirectory(0);
-
+    if(m_esmodel != egEnergyCorr::es2017_summer){
+      m_leakageConverted      = (TH1D*) m_rootFile->Get("Leakage/LeakageDiffConverted");      m_leakageConverted->SetDirectory(0);
+      m_leakageUnconverted    = (TH1D*) m_rootFile->Get("Leakage/LeakageDiffUnconverted");    m_leakageUnconverted->SetDirectory(0);
+    }
+    else{
+      m_leakageConverted      = (TH1D*) m_rootFile->Get("Leakage/es2017_summer/LeakageDiffConverted");      m_leakageConverted->SetDirectory(0);
+      m_leakageUnconverted    = (TH1D*) m_rootFile->Get("Leakage/es2017_summer/LeakageDiffUnconverted");    m_leakageUnconverted->SetDirectory(0);
+    }
+      
     // ... Zee S2 profile (needed for gain switch syst).
 
     m_zeeES2Profile         = (TH1D*) m_rootFile->Get("ZeeEnergyProfiles/p2MC");    m_zeeES2Profile->SetDirectory(0);
@@ -2177,25 +2209,30 @@ namespace AtlasRoot {
       else if (var == egEnergyCorr::Scale::S12Down && m_aS12Nom) { value = -m_aS12Nom->GetBinError(m_aS12Nom->FindBin(cl_eta)); }
       else if (var == egEnergyCorr::Scale::LArCalibUp && m_daS12Cor) { value = m_daS12Cor->GetBinContent(m_daS12Cor->FindBin(cl_eta)); }
       else if (var == egEnergyCorr::Scale::LArCalibDown && m_daS12Cor) { value = -m_daS12Cor->GetBinContent( m_daS12Cor->FindBin(cl_eta)); }
-      else if (var == egEnergyCorr::Scale::LArCalibExtra2015PreUp and
-               (m_esmodel == egEnergyCorr::es2015PRE or m_esmodel == egEnergyCorr::es2015PRE_res_improved or
-                m_esmodel == egEnergyCorr::es2015cPRE or m_esmodel == egEnergyCorr::es2015cPRE_res_improved or
-                m_esmodel == egEnergyCorr::es2015c_summer or m_esmodel == egEnergyCorr::es2016PRE or m_esmodel == egEnergyCorr::es2017
-		or m_esmodel == egEnergyCorr::es2017_summer)) {
-	      // special case for es2015PRE and also for es2015c_summer and also for es2017
-	      // numbers from Lydia and Christophe,
-	      // https://indico.cern.ch/event/395345/contribution/2/material/slides/0.pdf
-	      // assuming constant uncertainty
-	      value = 1.5E-2;
+      else if (var == egEnergyCorr::Scale::LArCalibExtra2015PreUp and 
+	       (m_esmodel == egEnergyCorr::es2015PRE or m_esmodel == egEnergyCorr::es2015PRE_res_improved or
+		m_esmodel == egEnergyCorr::es2015cPRE or m_esmodel == egEnergyCorr::es2015cPRE_res_improved or
+		m_esmodel == egEnergyCorr::es2015c_summer or m_esmodel == egEnergyCorr::es2016PRE or m_esmodel == egEnergyCorr::es2017
+		or m_esmodel == egEnergyCorr::es2017_summer)) { 
+	// special case for es2015PRE and also for es2015c_summer and also for es2017
+	// numbers from Lydia and Christophe,
+	// https://indico.cern.ch/event/395345/contribution/2/material/slides/0.pdf
+	// assuming constant uncertainty
+	// es2017_summer: increased to 5% in the endcap
+	const double aeta = std::abs(cl_eta); 
+	if ( m_esmodel == egEnergyCorr::es2017_summer and aeta >= 1.37 and aeta < 2.5) value = 5.0E-2;
+	else value = 1.5E-2;
       }
       else if (var == egEnergyCorr::Scale::LArCalibExtra2015PreDown and
                (m_esmodel == egEnergyCorr::es2015PRE or m_esmodel == egEnergyCorr::es2015PRE_res_improved or
                 m_esmodel == egEnergyCorr::es2015cPRE or m_esmodel == egEnergyCorr::es2015cPRE_res_improved or
                 m_esmodel == egEnergyCorr::es2015c_summer or m_esmodel == egEnergyCorr::es2016PRE or m_esmodel == egEnergyCorr::es2017
 		or m_esmodel == egEnergyCorr::es2017_summer)) {
-	      value = -1.5E-2;
+	const double aeta = std::abs(cl_eta);  
+        if ( m_esmodel == egEnergyCorr::es2017_summer and aeta >= 1.37 and aeta < 2.5) value = -5.0E-2; 
+        else value = -1.5E-2;
       }
-
+      
       else if (var == egEnergyCorr::Scale::S12ExtraLastEtaBinRun2Up or var == egEnergyCorr::Scale::S12ExtraLastEtaBinRun2Down) {
         // special large sys for run2 in the last eta-bin in es2017, see ATLASEG-42
         if (m_esmodel == egEnergyCorr::es2017 or m_esmodel == egEnergyCorr::es2017_summer) {
@@ -2660,9 +2697,10 @@ namespace AtlasRoot {
 	alpha = delta / (energy / cosh(cl_eta));
 	if (var == egEnergyCorr::Scale::PedestalDown) alpha *= -1;
       }
-      else if(m_esmodel == egEnergyCorr::es2017_summer){
+      else if(m_esmodel == egEnergyCorr::es2017_summer or m_esmodel == egEnergyCorr::es2017_R21_PRE){
 	//Et uncertainty band: 10 MeV for the corrected cluster
 	alpha = 10. / (energy / cosh(cl_eta));
+	if (var == egEnergyCorr::Scale::PedestalDown) alpha *= -1;
       }
       else {
 	// observed pedestal corrected as a systematic on MC for now.

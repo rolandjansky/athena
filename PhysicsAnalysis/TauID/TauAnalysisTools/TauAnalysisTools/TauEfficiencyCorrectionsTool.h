@@ -90,6 +90,7 @@ private:
   std::string ConvertJetIDToString(const int& iLevel);
   std::string ConvertEleOLRToString(const int& iLevel);
   std::string ConvertTriggerIDToString(const int& iLevel);
+  std::string GetTriggerSFMeasrementString();
 
   StatusCode initializeWithTauSelectionTool();
 
@@ -123,6 +124,7 @@ private:
   std::string m_sRecommendationTag;
   std::string m_sTriggerName;
   std::string m_sTriggerYear;
+  std::string m_sTriggerSFMeasurement;
   bool m_bSkipTruthMatchCheck;
   //bool m_bNoMultiprong;
   bool m_bUseIDExclusiveSF;

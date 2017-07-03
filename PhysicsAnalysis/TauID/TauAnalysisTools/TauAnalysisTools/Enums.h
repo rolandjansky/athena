@@ -128,7 +128,8 @@ typedef enum e_TruthMatchedParticleType
   TruthLeptonicTau = 2,
   TruthMuon        = 3,
   TruthElectron    = 4,
-  TruthJet         = 5
+  TruthJet         = 5,
+  TruthHadronicDiTau = 6
 } TruthMatchedParticleType;
 
 typedef enum e_DataPeriod

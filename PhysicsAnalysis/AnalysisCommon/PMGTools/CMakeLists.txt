@@ -55,7 +55,7 @@ if( NOT XAOD_STANDALONE )
    atlas_add_executable( MyPMGApp
       test/MyPMGApp.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib POOLRootAccess
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib POOLRootAccessLib
       AsgTools xAODJet xAODTruth FourMomUtils PATInterfaces )
 endif()
 

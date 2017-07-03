@@ -63,6 +63,9 @@ like::
 
   CHECK(TauTriggerEffTool.setProperty("TriggerYear", "2015" ));
 
+The final trigger scale factors for 2016 data are extracted from three different measurements: Ztautau, ttbar and their combination. With ``TriggerSFMeasurement`` property one can choose between those measurements. Plots summarizing the trigger SF distributions are available here: https://qbuat-trigger.web.cern.ch/qbuat-trigger/tau_trigger_20.7_final/lmt_overlayed/index.html 
+
+
 --------------------
 Available properties
 --------------------
@@ -88,7 +91,7 @@ one needs a separate tool instance with at least the following configuration:
      - ``std::string``
      - ``"2016"``
      - year of data taking, not necessary if PileupReweightingTool Property is used
-	 
+   
    * - ``PileupReweightingTool``
      - ``ToolHandle<CP::PileupReweightingTool>``
      - empty
@@ -100,6 +103,12 @@ one needs a separate tool instance with at least the following configuration:
      - ``JETIDBDTMEDIUM`` 
      - level of offline ID, it is the same property as for jet ID scale
        factors. A list of supported values can be found below
+    
+   * - ``TriggerSFMeasurement``
+     - ``std::string``
+     - ``"combined"``
+     - choose between the measurements from which scale factors are extracted from. Options are: ``"combined"``, ``"Ztautau"`` and ``"ttbar"``
+
 
 In addition the variable ``EfficiencyCorrectionTypes`` needs to be set to the
 value ``std::vector<int>({SFTriggerHadTau})``
@@ -107,6 +116,24 @@ value ``std::vector<int>({SFTriggerHadTau})``
 ----------------------
 Overview of Variations
 ----------------------
+
+2017 Moriond
+---------
+
+The recommended systematic variations are as of now for 2015 or 2016 as
+indicated by the postfix number:
+
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_STATDATA2015``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_STATMC2015``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_SYST2015``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_STATDATA2016``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_STATMC2016``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_SYST2016``
+
+The following additional systematic variations are also available (**NOT recommended**):
+
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_TOTAL2015``
+* ``TAUS_TRUEHADTAU_EFF_TRIGGER_TOTAL2016``
 
 2016 fall
 ---------
