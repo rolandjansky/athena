@@ -12,6 +12,8 @@
 #include <IsolationSelection/IsolationSelectionTool.h>
 #include <InDetTrackSelectionTool/InDetTrackSelectionTool.h>
 
+
+#include <xAODBase/ObjectType.h>
 #include <xAODBase/IParticleHelpers.h>
 
 #include "xAODEgamma/Egamma.h"
@@ -341,6 +343,7 @@ namespace CP {
                 if (!IsElementInList(Clusters, C)) Clusters.push_back(C);
         }
         Clusters.shrink_to_fit();
+        //Sort the clusters in ascending order
         std::sort(Clusters.begin(), Clusters.end(), [] (const xAOD::CaloCluster* C , const xAOD::CaloCluster* C1) {return C->pt() > C1->pt();});
 
     }
