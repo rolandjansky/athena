@@ -7,13 +7,21 @@
 
 namespace CP {
 
+    std::string EraseWhiteSpaces(std::string str) {
+        str.erase(std::remove(str.begin(), str.end(), '\t'), str.end());
+        if (str.find(" ") == 0) return EraseWhiteSpaces(str.substr(1, str.size()));
+        if (str.size() > 0 && str.find(" ") == str.size() - 1) return EraseWhiteSpaces(str.substr(0, str.size() - 1));
+        return str;
+    }
+
     IsoCorrectionTestHelper::IsoCorrectionTestHelper(TTree* outTree, const std::string& ContainerName) :
+                m_tree(outTree),
+                m_init(true),
                 m_pt(),
                 m_eta(),
                 m_phi(),
                 m_e(),
                 m_Q(),
-
                 m_orig_TrackIsol(),
                 m_corr_TrackIsol(),
 
@@ -22,6 +30,16 @@ namespace CP {
 
                 m_orig_passIso(),
                 m_corr_passIso() {
+
+        if (!AddBranch(ContainerName+"_pt",m_pt)) m_init = false;
+        if (!AddBranch(ContainerName+"_eta",m_eta)) m_init = false;
+        if (!AddBranch(ContainerName+"_phi",m_phi)) m_init = false;
+        if (!AddBranch(ContainerName+"_e",m_e)) m_init = false;
+        if (!AddBranch(ContainerName+"_Q",m_Q)) m_init = false;
+//        if (!AddBranch(ContainerName+"_pt",m_pt)) m_init = false;
+//        if (!AddBranch(ContainerName+"_pt",m_pt)) m_init = false;
+//
+
     }
     StatusCode IsoCorrectionTestHelper::Fill(xAOD::IParticleContainer* Particles) {
         if (!Particles) {
@@ -42,6 +60,7 @@ namespace CP {
         m_corr_CaloIsol.clear();
         m_orig_passIso.clear();
         m_corr_passIso.clear();
+
         for (const auto object : *Particles) {
             m_pt.push_back(object->pt());
             m_eta.push_back(object->eta());
@@ -58,6 +77,20 @@ namespace CP {
         if (!acc_charge.isAvailable(*P)) return 0;
         else return acc_charge(*P);
     }
+
+    template<typename T> bool IsoCorrectionTestHelper::AddBranch(const std::string &Name, T &Element) {
+        std::string bName = EraseWhiteSpaces(Name);
+        if (m_tree->FindBranch(bName.c_str())) {
+            Error("TreeHelper::AddBranch()", "The branch %s already exists in TTree %s", Name.c_str(), m_tree->GetName());
+            return false;
+        }
+        if (m_tree->Branch(bName.c_str(), &Element) == nullptr) {
+            Error("TreeHelper::AddBranch()", "Could not create the branch %s in TTree %s", Name.c_str(), m_tree->GetName());
+            return false;
+        }
+        return true;
+    }
+
 //
 //    private:
 //
