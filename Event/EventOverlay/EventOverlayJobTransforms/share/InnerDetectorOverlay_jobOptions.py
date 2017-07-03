@@ -28,6 +28,9 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
            job.InDetPixelRawDataProvider.RDOKey = "OriginalEvent_SG+PixelRDOs"
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "PixelRDO_Container/PixelRDOs" ]
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "Trk::PixelClusterContainer/PixelOnlineClusters" ]
+        else:
+            if not conddb.folderRequested('PIXEL/PixReco'):
+                conddb.addFolder('PIXEL_OFL','/PIXEL/PixReco')
 
     if DetFlags.overlay.SCT_on():
 
