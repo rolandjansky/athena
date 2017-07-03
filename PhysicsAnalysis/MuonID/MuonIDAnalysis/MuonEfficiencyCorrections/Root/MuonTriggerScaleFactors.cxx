@@ -305,7 +305,9 @@ namespace CP {
         TrigMuonEff::Configuration configuration;
         configuration.isData = dataType;
         configuration.replicaIndex = -1;
-        const Double_t threshold = getThresholds(trigger);
+        Int_t threshold;
+        CorrectionCode result = getThreshold(threshold, trigger);
+        if (result != CorrectionCode::Ok) return result;
         if (mu.pt() < threshold) {
             efficiency = 0;
             return CorrectionCode::Ok;
@@ -472,8 +474,6 @@ namespace CP {
 
         ATH_MSG_DEBUG("The trigger that you choose : " << trigger);
 
-        const Bool_t is_dimu = (trigger.find("HLT_2mu10") != std::string::npos || trigger.find("HLT_2mu14") != std::string::npos);
-
         Double_t eff_data = 0;
         Double_t eff_mc = 0;
 
@@ -508,21 +508,14 @@ namespace CP {
         }
 
         configuration.isData = true;
-        if (is_dimu) {
-            CorrectionCode result = getDimuonEfficiency(eff_data, configuration, mucont, trigger, data_err);
-            if (result != CorrectionCode::Ok) return result;
-        } else {
-            ATH_MSG_FATAL("MuonTriggerScaleFactors::GetTriggerSF;unknown trigger combination");
-            throw std::runtime_error("unknown trigger combination");
-        }
-
+        CorrectionCode result = getDimuonEfficiency(eff_data, configuration, mucont, trigger, data_err);
+        if (result != CorrectionCode::Ok) return result;
+        
         configuration.isData = false;
         configuration.replicaIndex = -1;
-        if (is_dimu) {
-            CorrectionCode result = getDimuonEfficiency(eff_mc, configuration, mucont, trigger, mc_err);
-            if (result != CorrectionCode::Ok) return result;
-        }
-
+        result = getDimuonEfficiency(eff_mc, configuration, mucont, trigger, mc_err);
+        if (result != CorrectionCode::Ok) return result;
+        
         double event_SF = 1.;
 
         if (fabs(1. - eff_mc) > 0.0001) {
@@ -537,7 +530,9 @@ namespace CP {
     // == MuonTriggerScaleFactors::GetTriggerSF
     // ==================================================================================
     CorrectionCode MuonTriggerScaleFactors::GetTriggerSF(Double_t& TriggerSF, TrigMuonEff::Configuration& configuration, const xAOD::MuonContainer& mucont, const std::string& trigger) {
-        const Double_t threshold = getThresholds(trigger);
+        Int_t threshold;
+        CorrectionCode result = getThreshold(threshold, trigger);
+        if (result != CorrectionCode::Ok) return result;
 
         double rate_not_fired_data = 1.;
         double rate_not_fired_mc = 1.;
@@ -619,103 +614,54 @@ namespace CP {
     // ==================================================================================
     CorrectionCode MuonTriggerScaleFactors::getDimuonEfficiency(Double_t& eff, const TrigMuonEff::Configuration& configuration, const xAOD::MuonContainer& mucont, const std::string& chain, const std::string& systematic) {
 
-        DileptonThresholds thresholds;
-        getDileptonThresholds(thresholds);
-
-        double threshold_leg1 = 0.;
-        double threshold_leg2 = 0.;
-
-        if (chain.find("2mu10") != std::string::npos) {
-            threshold_leg1 = thresholds.mu10;
-            threshold_leg2 = thresholds.mu10;
-        } else if (chain.find("2mu14") != std::string::npos) {
-            threshold_leg1 = thresholds.mu14;
-            threshold_leg2 = thresholds.mu14;
-        } else {
-            ATH_MSG_ERROR("MuonTriggerScaleFactors::getDimuonEfficiency ; Invalid dimuon or combination of single and dimuon trigger chain name given");
-        }
-
-        DileptonTrigger dimuon;
-        getDileptonLegs(chain, dimuon);
+        std::string trigger = getTriggerCorrespondingToDimuonTrigger(chain);
+        Int_t threshold;
+        CorrectionCode result = getThreshold(threshold, trigger);
+        if (result != CorrectionCode::Ok) return result;
 
         xAOD::MuonContainer::const_iterator mu1 = mucont.begin();
         xAOD::MuonContainer::const_iterator mu2 = mucont.begin() + 1;
 
-        // data
         Double_t eff1 = 0;
-        if ((**mu1).pt() * 0.001 > threshold_leg1) {
-            CorrectionCode result1 = getMuonEfficiency(eff1, configuration, (**mu1), dimuon.leg1, systematic);
+        if ((**mu1).pt() > threshold) {
+            CorrectionCode result1 = getMuonEfficiency(eff1, configuration, (**mu1), trigger, systematic);
             if (result1 != CorrectionCode::Ok) return result1;
         }
         Double_t eff2 = 0;
-        if ((**mu2).pt() * 0.001 > threshold_leg2) {
-            CorrectionCode result2 = getMuonEfficiency(eff2, configuration, (**mu2), dimuon.leg2, systematic);
+        if ((**mu2).pt() > threshold) {
+            CorrectionCode result2 = getMuonEfficiency(eff2, configuration, (**mu2), trigger, systematic);
             if (result2 != CorrectionCode::Ok) return result2;
         }
 
-        //    Double_t TrigEff = 1 - (1 - eff1)*(1 - eff2);
-        Double_t TrigEff = eff1 * eff2;
-
-        eff = TrigEff;
-
+        eff = eff1 * eff2;
         return CorrectionCode::Ok;
     }
 
-    // Private functions
     // ==================================================================================
-    // == MuonTriggerScaleFactors::getDileptonLegs
+    // == MuonTriggerScaleFactors::getTriggerCorrespondingToDimuonTrigger
     // ==================================================================================
-    void MuonTriggerScaleFactors::getDileptonLegs(const std::string& chain, DileptonTrigger& dilepton) {
-        if (chain.find("2mu10") != std::string::npos) {
-            dilepton.leg1 = "HLT_mu10";
-            dilepton.leg2 = "HLT_mu10";
-            dilepton.bothLegs = "HLT_mu10";
-        } else if (chain.find("2mu14") != std::string::npos) {
-            dilepton.leg1 = "HLT_mu14";
-            dilepton.leg2 = "HLT_mu14";
-            dilepton.bothLegs = "HLT_mu14";
-        } else {
-            dilepton.leg1 = "";
-            dilepton.leg2 = "";
-            dilepton.bothLegs = "";
-            //ATH_MSG_ERROR( "MuonTriggerScaleFactors::getDileptonLegs Invalid dilepton or combination of single and dilepton trigger chain name given");
+    std::string MuonTriggerScaleFactors::getTriggerCorrespondingToDimuonTrigger(const std::string& trigger) {
+        if (trigger.find("2mu10") != std::string::npos) return "HLT_mu10";
+        if (trigger.find("2mu14") != std::string::npos) return "HLT_mu14";
+        throw std::runtime_error("Unknown dimuon trigger");
+    }
+
+    // ==================================================================================
+    // == MuonTriggerScaleFactors::getThreshold
+    // ==================================================================================
+    CorrectionCode MuonTriggerScaleFactors::getThreshold(Int_t& threshold, const std::string& trigger) {
+        std::size_t index = trigger.find("HLT_mu");
+        if (index != std::string::npos) {
+            std::string rawNumber = trigger.substr(index + 6);
+            if (!rawNumber.empty() && isdigit(rawNumber[0])) {
+                std::stringstream(rawNumber) >> threshold;
+                if (threshold < 10) threshold = 10000;
+                else threshold = (threshold + 1) * 1000;
+                return CorrectionCode::Ok;
+            }
         }
-    }
-
-    // ==================================================================================
-    // == MuonTriggerScaleFactors::getThresholds
-    // ==================================================================================
-    Double_t MuonTriggerScaleFactors::getThresholds(const std::string& trigger) {
-        if (trigger.find("HLT_mu6") != std::string::npos) return 10000;
-        if (trigger.find("HLT_mu8") != std::string::npos) return 10000;
-        if (trigger.find("HLT_mu10") != std::string::npos) return 10000 * 1.05;
-        if (trigger.find("HLT_mu14") != std::string::npos) return 14000 * 1.05;
-        if (trigger.find("HLT_mu18") != std::string::npos) return 18000 * 1.05;
-        if (trigger.find("HLT_mu20") != std::string::npos) return 20000 * 1.05;
-        if (trigger.find("HLT_mu22") != std::string::npos) return 22000 * 1.05;
-        if (trigger.find("HLT_mu24") != std::string::npos) return 24000 * 1.05;
-        if (trigger.find("HLT_mu26") != std::string::npos) return 26000 * 1.05;
-        if (trigger.compare("HLT_mu40") == 0) return 40000 * 1.05;
-        if (trigger.compare("HLT_mu50") == 0) return 50000 * 1.05;
-        return 10000;
-    }
-
-    // ==================================================================================
-    // ==
-    // ==================================================================================
-    // ==================================================================================
-    // == MuonTriggerScaleFactors::getDileptonThresholds
-    // ==================================================================================
-    void MuonTriggerScaleFactors::getDileptonThresholds(DileptonThresholds& thresholds) {
-        thresholds.mu6 = 7;
-        thresholds.mu10 = 11;
-        thresholds.mu14 = 15;
-        thresholds.mu18 = 19;
-        thresholds.mu20 = 21;
-        thresholds.mu22 = 23;
-        thresholds.mu24 = 25;
-        thresholds.mu26 = 27;
-        thresholds.mu8noL1 = 10;
+        ATH_MSG_ERROR("MuonTriggerScaleFactors::getThreshold Could not extract threshold for trigger " << trigger);
+        return CorrectionCode::Error;
     }
 
     // ==================================================================================

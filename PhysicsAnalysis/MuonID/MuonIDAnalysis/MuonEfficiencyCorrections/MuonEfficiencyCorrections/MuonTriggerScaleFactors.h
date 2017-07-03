@@ -124,56 +124,9 @@ namespace CP {
 
             std::map<std::string, std::vector<TH2*> > m_efficiencyMapReplicaArray;
 
-            Double_t getThresholds(const std::string& trigger);
+            CorrectionCode getThreshold(Int_t& threshold, const std::string& trigger);
 
-            struct DileptonThresholds {
-                    double mu6;
-                    double mu10;
-                    double mu14;
-                    double mu18;
-                    double mu20;
-                    double mu22;
-                    double mu24;
-                    double mu26;
-                    double mu8noL1;
-                    DileptonThresholds(const double mu6_ = 7,
-                                    const double mu10_ = 11,
-                                    const double mu14_ = 15,
-                                    const double mu18_ = 19,
-                                    const double mu20_ = 21,
-                                    const double mu22_ = 23,
-                                    const double mu24_ = 25,
-                                    const double mu26_ = 27,
-                                    const double mu8noL1_ = 10) :
-                                    mu6(mu6_),
-                                    mu10(mu10_),
-                                    mu14(mu14_),
-                                    mu18(mu18_),
-                                    mu20(mu20_),
-                                    mu22(mu22_),
-                                    mu24(mu24_),
-                                    mu26(mu26_),
-                                    mu8noL1(mu8noL1_) {
-                    }
-            };
-
-            static void getDileptonThresholds(DileptonThresholds& thresholds);
-
-            struct DileptonTrigger {
-                    std::string leg1;
-                    std::string leg2;
-                    std::string bothLegs;
-                    DileptonTrigger(const std::string& leg1_ = std::string(),
-                                    const std::string& leg2_ = std::string(),
-                                    const std::string& bothLegs_ = std::string()) :
-                                    leg1(leg1_),
-                                    leg2(leg2_),
-                                    bothLegs(bothLegs_) {
-                    }
-            };
-
-            static void getDileptonLegs(const std::string& chain,
-                            DileptonTrigger& legs);
+            static std::string getTriggerCorrespondingToDimuonTrigger(const std::string& trigger);
 
             static std::string getDataPeriod(int runNumber, const std::string& year);
 
