@@ -80,9 +80,9 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiCharg
 	  return StatusCode::FAILURE;
   }
 
-  double eta_i = initialConditions[0];
-  double phi_i = initialConditions[1];
-  double depth_i  = initialConditions[2];
+  double eta_0 = initialConditions[0];
+  double phi_0 = initialConditions[1];
+  double depth_0  = initialConditions[2];
   double dEta = initialConditions[3];
   double dPhi = initialConditions[4];
   double dDepth = initialConditions[5];
@@ -113,6 +113,10 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiCharg
   // of these steps
   for(unsigned int istep = 0; istep < trfHitRecord.size(); istep++) {
     std::pair<double,double> iHitRecord = trfHitRecord[istep];
+
+    double eta_i = eta_0;
+    double phi_i = phi_0;
+    double depth_i = depth_0;
 
     if (iTotalLength) {
       eta_i += 1.0*iHitRecord.first/iTotalLength*dEta;

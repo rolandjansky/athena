@@ -64,9 +64,9 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
   }
 
   //Load values from energyDeposition
-  double eta_i = initialConditions[0];
-  double phi_i = initialConditions[1];
-  double depth_i  = initialConditions[2];
+  double eta_0 = initialConditions[0];
+  double phi_0 = initialConditions[1];
+  double depth_0  = initialConditions[2];
   double dEta = initialConditions[3];
   double dPhi = initialConditions[4];
   double dDepth = initialConditions[5];
@@ -102,6 +102,9 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
   for(unsigned int i = 0; i < trfHitRecord.size(); i++){
     std::pair<double,double> iHitRecord = trfHitRecord[i];
 
+    double eta_i = eta_0;
+    double phi_i = phi_0;
+    double depth_i = depth_0;
     if (iTotalLength) {
       eta_i += 1.0*iHitRecord.first/iTotalLength*dEta;
       phi_i += 1.0*iHitRecord.first/iTotalLength*dPhi;
