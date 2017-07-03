@@ -415,26 +415,14 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
   static constexpr int nmod_phi[PixLayer::COUNT] = {48, 48, 22, 38, 52, 14};
   static constexpr int nmod_eta[PixLayer::COUNT] = {3, 3, 13, 13, 13, 20};
   
-  int HitPerEventArray_disksA[ nmod_phi[PixLayer::kECA] ][ nmod_eta[PixLayer::kECA] ];
-  int HitPerEventArray_disksC[ nmod_phi[PixLayer::kECC] ][ nmod_eta[PixLayer::kECC] ];
-  int HitPerEventArray_l0[ nmod_phi[PixLayer::kB0] ][ nmod_eta[PixLayer::kB0] ];
-  int HitPerEventArray_l1[ nmod_phi[PixLayer::kB1] ][ nmod_eta[PixLayer::kB1] ];
-  int HitPerEventArray_l2[ nmod_phi[PixLayer::kB2] ][ nmod_eta[PixLayer::kB2] ];
-  int HitPerEventArray_lI[ nmod_phi[PixLayer::kIBL] ][ nmod_eta[PixLayer::kIBL] ];
-  
-  for(int i=0; i<PixLayer::COUNT; i++){
-    for( int phi=0; phi<nmod_phi[i]; phi++){
-      for(int eta=0; eta<nmod_eta[i]; eta++){
-	if(i==PixLayer::kECA) HitPerEventArray_disksA[phi][eta]=0;
-	if(i==PixLayer::kECC) HitPerEventArray_disksC[phi][eta]=0;
-	if(i==PixLayer::kB0)  HitPerEventArray_l0[phi][eta]=0;
-	if(i==PixLayer::kB1)  HitPerEventArray_l1[phi][eta]=0;
-	if(i==PixLayer::kB2)  HitPerEventArray_l2[phi][eta]=0;
-	if(i==PixLayer::kIBL) HitPerEventArray_lI[phi][eta]=0;
-      }
-    }
-  }
-  
+  // Reset the centrally saved hit arrays back to zero.
+  memset(m_HitPerEventArray_disksA, 0, sizeof(m_HitPerEventArray_disksA[0][0] * nmod_phi[PixLayer::kECA] * nmod_eta[PixLayer::kECA]));
+  memset(m_HitPerEventArray_disksC, 0, sizeof(m_HitPerEventArray_disksC[0][0] * nmod_phi[PixLayer::kECC] * nmod_eta[PixLayer::kECC]));
+  memset(m_HitPerEventArray_l0,     0, sizeof(m_HitPerEventArray_l0[0][0]     * nmod_phi[PixLayer::kB0]  * nmod_eta[PixLayer::kB0]));
+  memset(m_HitPerEventArray_l1,     0, sizeof(m_HitPerEventArray_l1[0][0]     * nmod_phi[PixLayer::kB1]  * nmod_eta[PixLayer::kB1]));
+  memset(m_HitPerEventArray_l2,     0, sizeof(m_HitPerEventArray_l2[0][0]     * nmod_phi[PixLayer::kB2]  * nmod_eta[PixLayer::kB2]));
+  memset(m_HitPerEventArray_lI,     0, sizeof(m_HitPerEventArray_lI[0][0]     * nmod_phi[PixLayer::kIBL] * nmod_eta[PixLayer::kIBL]));
+
   double nhits=0;
   double nhits_mod[PixLayerIBL2D3D::COUNT]={0};
   int nhits_L0_B11_S2_C6[96] = {0};
@@ -639,14 +627,14 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	
 	///if (m_doModuleas)//fill module hit arrays so we can calculate the number of hits/event/module 
 	///{
-	if(m_pixelid->barrel_ec(rdoID)==2 ) HitPerEventArray_disksA[m_pixelid->phi_module(rdoID)][m_pixelid->layer_disk(rdoID)]++;
-	if(m_pixelid->barrel_ec(rdoID)==-2) HitPerEventArray_disksC[m_pixelid->phi_module(rdoID)][m_pixelid->layer_disk(rdoID)]++;
+	if(m_pixelid->barrel_ec(rdoID)==2 ) m_HitPerEventArray_disksA[m_pixelid->phi_module(rdoID)][m_pixelid->layer_disk(rdoID)]++;
+	if(m_pixelid->barrel_ec(rdoID)==-2) m_HitPerEventArray_disksC[m_pixelid->phi_module(rdoID)][m_pixelid->layer_disk(rdoID)]++;
 	if(m_pixelid->barrel_ec(rdoID)==0 )
 	  {
-	    if(m_doIBL && m_pixelid->layer_disk(rdoID)==0) HitPerEventArray_lI[m_pixelid->phi_module(rdoID)][m_pixelid->eta_module(rdoID)+10]++;
-	    if(m_pixelid->layer_disk(rdoID)==0+m_doIBL) HitPerEventArray_l0[m_pixelid->phi_module(rdoID)][m_pixelid->eta_module(rdoID)+6]++;
-	    if(m_pixelid->layer_disk(rdoID)==1+m_doIBL) HitPerEventArray_l1[m_pixelid->phi_module(rdoID)][m_pixelid->eta_module(rdoID)+6]++;
-	    if(m_pixelid->layer_disk(rdoID)==2+m_doIBL) HitPerEventArray_l2[m_pixelid->phi_module(rdoID)][m_pixelid->eta_module(rdoID)+6]++;
+	    if(m_doIBL && m_pixelid->layer_disk(rdoID)==0) m_HitPerEventArray_lI[m_pixelid->phi_module(rdoID)][m_pixelid->eta_module(rdoID)+10]++;
+	    if(m_pixelid->layer_disk(rdoID)==0+m_doIBL) m_HitPerEventArray_l0[m_pixelid->phi_module(rdoID)][m_pixelid->eta_module(rdoID)+6]++;
+	    if(m_pixelid->layer_disk(rdoID)==1+m_doIBL) m_HitPerEventArray_l1[m_pixelid->phi_module(rdoID)][m_pixelid->eta_module(rdoID)+6]++;
+	    if(m_pixelid->layer_disk(rdoID)==2+m_doIBL) m_HitPerEventArray_l2[m_pixelid->phi_module(rdoID)][m_pixelid->eta_module(rdoID)+6]++;
 	  } 
 	///}
 	
@@ -754,12 +742,12 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
   for(int i=0; i<PixLayer::COUNT; i++){
     for(int phi=0; phi<nmod_phi[i]; phi++){
       for(int eta=0; eta<nmod_eta[i]; eta++){
-	if(i == PixLayer::kECA && m_nhits_mod[i]) m_nhits_mod[i]->Fill( HitPerEventArray_disksA[phi][eta] );
-	if(i == PixLayer::kECC && m_nhits_mod[i]) m_nhits_mod[i]->Fill( HitPerEventArray_disksC[phi][eta] );
-	if(i == PixLayer::kB0  && m_nhits_mod[i]) m_nhits_mod[i]->Fill( HitPerEventArray_l0[phi][eta]);
-	if(i == PixLayer::kB1  && m_nhits_mod[i]) m_nhits_mod[i]->Fill( HitPerEventArray_l1[phi][eta]);
-	if(i == PixLayer::kB2  && m_nhits_mod[i]) m_nhits_mod[i]->Fill( HitPerEventArray_l2[phi][eta]);
-	if(i == PixLayer::kIBL && m_nhits_mod[i]) m_nhits_mod[i]->Fill( HitPerEventArray_lI[phi][eta]);
+	if(i == PixLayer::kECA && m_nhits_mod[i]) m_nhits_mod[i]->Fill( m_HitPerEventArray_disksA[phi][eta] );
+	if(i == PixLayer::kECC && m_nhits_mod[i]) m_nhits_mod[i]->Fill( m_HitPerEventArray_disksC[phi][eta] );
+	if(i == PixLayer::kB0  && m_nhits_mod[i]) m_nhits_mod[i]->Fill( m_HitPerEventArray_l0[phi][eta]);
+	if(i == PixLayer::kB1  && m_nhits_mod[i]) m_nhits_mod[i]->Fill( m_HitPerEventArray_l1[phi][eta]);
+	if(i == PixLayer::kB2  && m_nhits_mod[i]) m_nhits_mod[i]->Fill( m_HitPerEventArray_l2[phi][eta]);
+	if(i == PixLayer::kIBL && m_nhits_mod[i]) m_nhits_mod[i]->Fill( m_HitPerEventArray_lI[phi][eta]);
       }
     }
   }
@@ -794,30 +782,30 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	for (; idIt != idItEnd; ++idIt) {
 	  Identifier WaferID = *idIt;
 	  if(m_pixelid->barrel_ec(WaferID)==2 ){
-	    m_hit_num_mod->Fill( HitPerEventArray_disksA[m_pixelid->phi_module(WaferID)][m_pixelid->layer_disk(WaferID)], WaferID, m_pixelid);
+	    m_hit_num_mod->Fill( m_HitPerEventArray_disksA[m_pixelid->phi_module(WaferID)][m_pixelid->layer_disk(WaferID)], WaferID, m_pixelid);
 	  }
-	  if(m_pixelid->barrel_ec(WaferID)==-2) m_hit_num_mod->Fill( HitPerEventArray_disksC[m_pixelid->phi_module(WaferID)][m_pixelid->layer_disk(WaferID)], WaferID, m_pixelid);
+	  if(m_pixelid->barrel_ec(WaferID)==-2) m_hit_num_mod->Fill( m_HitPerEventArray_disksC[m_pixelid->phi_module(WaferID)][m_pixelid->layer_disk(WaferID)], WaferID, m_pixelid);
 	  if(m_pixelid->barrel_ec(WaferID)==0 )
 	    {
 	      if(m_doIBL && m_pixelid->layer_disk(WaferID)==0) {
-		m_hit_num_mod->Fill( HitPerEventArray_lI[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+10], WaferID, m_pixelid);
+		m_hit_num_mod->Fill( m_HitPerEventArray_lI[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+10], WaferID, m_pixelid);
 	      }
 	      if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) {
-		 m_hit_num_mod->Fill( HitPerEventArray_l0[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+6], WaferID, m_pixelid);
+		 m_hit_num_mod->Fill( m_HitPerEventArray_l0[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+6], WaferID, m_pixelid);
 	      }
-	      if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) m_hit_num_mod->Fill( HitPerEventArray_l1[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+6], WaferID, m_pixelid);
-	      if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) m_hit_num_mod->Fill( HitPerEventArray_l2[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+6], WaferID, m_pixelid);
+	      if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) m_hit_num_mod->Fill( m_HitPerEventArray_l1[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+6], WaferID, m_pixelid);
+	      if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) m_hit_num_mod->Fill( m_HitPerEventArray_l2[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+6], WaferID, m_pixelid);
 	    }  
 	  
 	  if (m_doLumiBlock) {
-	    if(m_pixelid->barrel_ec(WaferID)==2 ) m_hit_num_mod_LB->Fill( HitPerEventArray_disksA[m_pixelid->phi_module(WaferID)][m_pixelid->layer_disk(WaferID)], WaferID, m_pixelid);
-	    if(m_pixelid->barrel_ec(WaferID)==-2) m_hit_num_mod_LB->Fill( HitPerEventArray_disksC[m_pixelid->phi_module(WaferID)][m_pixelid->layer_disk(WaferID)], WaferID, m_pixelid);
+	    if(m_pixelid->barrel_ec(WaferID)==2 ) m_hit_num_mod_LB->Fill( m_HitPerEventArray_disksA[m_pixelid->phi_module(WaferID)][m_pixelid->layer_disk(WaferID)], WaferID, m_pixelid);
+	    if(m_pixelid->barrel_ec(WaferID)==-2) m_hit_num_mod_LB->Fill( m_HitPerEventArray_disksC[m_pixelid->phi_module(WaferID)][m_pixelid->layer_disk(WaferID)], WaferID, m_pixelid);
 	    if(m_pixelid->barrel_ec(WaferID)==0 )                                                                                                                                       
 	      {
-		if(m_doIBL && m_pixelid->layer_disk(WaferID)==0) m_hit_num_mod_LB->Fill( HitPerEventArray_lI[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+10], WaferID, m_pixelid);
-		if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) m_hit_num_mod_LB->Fill( HitPerEventArray_l0[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+6], WaferID, m_pixelid);
-		if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) m_hit_num_mod_LB->Fill( HitPerEventArray_l1[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+6], WaferID, m_pixelid);
-		if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) m_hit_num_mod_LB->Fill( HitPerEventArray_l2[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+6], WaferID, m_pixelid);
+		if(m_doIBL && m_pixelid->layer_disk(WaferID)==0) m_hit_num_mod_LB->Fill( m_HitPerEventArray_lI[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+10], WaferID, m_pixelid);
+		if(m_pixelid->layer_disk(WaferID)==0+m_doIBL) m_hit_num_mod_LB->Fill( m_HitPerEventArray_l0[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+6], WaferID, m_pixelid);
+		if(m_pixelid->layer_disk(WaferID)==1+m_doIBL) m_hit_num_mod_LB->Fill( m_HitPerEventArray_l1[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+6], WaferID, m_pixelid);
+		if(m_pixelid->layer_disk(WaferID)==2+m_doIBL) m_hit_num_mod_LB->Fill( m_HitPerEventArray_l2[m_pixelid->phi_module(WaferID)][m_pixelid->eta_module(WaferID)+6], WaferID, m_pixelid);
 	      }  
 	  }
 	}

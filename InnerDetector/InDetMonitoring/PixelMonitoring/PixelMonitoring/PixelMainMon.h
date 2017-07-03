@@ -138,6 +138,7 @@ public:
    void FillSummaryHistos(PixelMon2DMaps* occupancy, TH1F_LW* A, TH1F_LW* C, TH1F_LW* IBL, TH1F_LW* B0, TH1F_LW* B1, TH1F_LW* B2);
    int ParseDetailsString(std::string & detailsMod);
    bool OnTrack(Identifier id, bool isCluster);
+   double getErrorBitFraction(const Identifier& WaferID, const unsigned int& num_femcc_errorwords);
    int getErrorState(int bit, bool isibl);
 	std::string makeHistname(std::string set, bool ontrk);
 	std::string makeHisttitle(std::string set, std::string axis, bool ontrk);
@@ -306,6 +307,13 @@ private:
    int                   m_ClusPerEventArray_l0[22][13];
    int                   m_ClusPerEventArray_l1[38][13];
    int                   m_ClusPerEventArray_l2[52][13];
+
+   int                   m_HitPerEventArray_disksA[48][3] = {0};
+   int                   m_HitPerEventArray_disksC[48][3] = {0};
+   int                   m_HitPerEventArray_lI[14][20] = {0};
+   int                   m_HitPerEventArray_l0[22][13] = {0};
+   int                   m_HitPerEventArray_l1[38][13] = {0};
+   int                   m_HitPerEventArray_l2[52][13] = {0};
 
    //////////////////////Histograms///////////////////////////
    
@@ -551,6 +559,7 @@ private:
    TProfile*             m_error_time2;       
    TProfile*             m_error_time3;       
    PixelMonModules1D*    m_errors;
+   PixelMonProfiles*     m_errhist_femcc_errwords_map;
 
    // Histograms in 'ErrorsExpert' folder
    PixelMon2DLumiMaps*   m_errhist_expert_LB_maps[kNumErrorStates];

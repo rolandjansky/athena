@@ -961,6 +961,18 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
      }
    }
 
+   /// Hits
+   if(m_doRDO){
+     if(evtStore()->contains<PixelRDO_Container>(m_Pixel_RDOName) ) {
+       if (FillHitsMon().isFailure()) {
+	 if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endmsg;
+       }
+     }
+     else if(m_storegate_errors) m_storegate_errors->Fill(1.,2.);
+   }else{
+      if(m_storegate_errors) m_storegate_errors->Fill(1.,1.);
+   }
+
    //if(m_doRODError&&evtStore()->contains<PixelRODErrorCollection>(m_detector_error_name))
    if(m_doRODError)
    {
@@ -980,18 +992,6 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
       }else if(m_storegate_errors) m_storegate_errors->Fill(4.,2.);
    }else{
       if(m_storegate_errors) m_storegate_errors->Fill(4.,1.);
-   }
-
-   /// Hits
-   if(m_doRDO){
-     if(evtStore()->contains<PixelRDO_Container>(m_Pixel_RDOName) ) {
-       if (FillHitsMon().isFailure()) {
-	 if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endmsg; 
-       }
-     }
-     else if(m_storegate_errors) m_storegate_errors->Fill(1.,2.); 
-   }else{
-      if(m_storegate_errors) m_storegate_errors->Fill(1.,1.); 
    }
 
    /// Cluster
