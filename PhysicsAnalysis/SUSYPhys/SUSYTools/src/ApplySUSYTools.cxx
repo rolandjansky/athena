@@ -755,8 +755,6 @@ StatusCode ApplySUSYTools::execute()
 
   if( !m_isData  && 
   !evtStore()->contains<xAOD::TruthParticleContainer>("TruthTaus") ){
-    // If there are no taus, then we need to force the building of the container
-    if (0==p_TauJets->size()) m_tauTruthTool->buildTruthTausFromTruthParticles();
     for(const auto& tau : *p_TauJets){
       const xAOD::TruthParticle* trueTau = 0;
       trueTau = m_tauTruthTool->getTruth(*tau);
