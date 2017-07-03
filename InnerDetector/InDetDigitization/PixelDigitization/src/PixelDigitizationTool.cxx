@@ -156,13 +156,8 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
 
   // Loop over the Detectors with hits
   TimedHitCollection<SiHit>::const_iterator firstHit, lastHit;
-  int counter = 0;
-  bool print = true;
   while (m_timedHits->nextDetectorElement(firstHit,lastHit)) {
 
-    counter++;
-    if(counter%10 == 0)
-	    ATH_MSG_INFO(counter);
     // Create the identifier for the collection
     ATH_MSG_DEBUG("create ID for the hit collection");
     const PixelID* PID = static_cast<const PixelID*>(m_detID);
@@ -191,8 +186,7 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
         ATH_MSG_DEBUG("Running sensor simulation.");
 	
 	//Deposit energy in sensor
-	CHECK(m_energyDepositionTool->depositEnergy( *phit,  *sielement, trfHitRecord, initialConditions, print));
-        print = false; 
+	CHECK(m_energyDepositionTool->depositEnergy( *phit,  *sielement, trfHitRecord, initialConditions));
 	//Create signal in sensor
 	for (unsigned int itool=0; itool<m_chargeTool.size(); itool++) {
           ATH_MSG_DEBUG("Executing tool " << m_chargeTool[itool]->name());
@@ -235,7 +229,6 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
     }
     chargedDiodes->clear();
   }
-  counter = 0;
   delete m_timedHits;
   m_timedHits = nullptr;
   ATH_MSG_DEBUG("hits processed");
