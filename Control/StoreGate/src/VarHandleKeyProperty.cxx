@@ -18,6 +18,8 @@
 // StoreGate includes
 #include "StoreGate/VarHandleKeyProperty.h"
 
+static const char* storeSeparator = "+";
+
 namespace Gaudi { 
 namespace Parsers {
 
@@ -58,7 +60,7 @@ namespace Utils {
 std::ostream& 
 toStream(const SG::VarHandleKey& v, std::ostream& o)
 {
-  o << "'" << v.storeHandle().name() << "/" << v.objKey() << "'";
+  o << "'" << v.storeHandle().name() << storeSeparator << v.key() << "'";
   return o;
 }
     

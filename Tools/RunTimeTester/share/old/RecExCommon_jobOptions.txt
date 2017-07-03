@@ -64,7 +64,7 @@ AuditorSvc.Auditors  += { "ChronoAuditor"};
 // lock/unlock state. Very useful for debugging purpose
 //StoreGateSvc.Dump = true ;
 //DetectorStore.Dump = true ;
-//ConditionsStore.Dump = true ;
+//ConditionStore.Dump = true ;
 
 // Set output level threshold 
 //(0=ALL 1=VERBOSE, 2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )

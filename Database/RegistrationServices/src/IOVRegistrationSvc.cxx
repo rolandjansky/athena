@@ -144,7 +144,7 @@ StatusCode IOVRegistrationSvc::initialize()
     // locate the conditions store ptr to it.
     sc = m_detStore.retrieve();
     if (!sc.isSuccess() || 0 == m_detStore)  {
-       ATH_MSG_ERROR ("Could not find ConditionsStore");
+       ATH_MSG_ERROR ("Could not find ConditionStore");
        return StatusCode::FAILURE;
     }
 
