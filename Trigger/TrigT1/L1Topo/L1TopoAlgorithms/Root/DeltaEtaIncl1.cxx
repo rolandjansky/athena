@@ -116,8 +116,7 @@ TCS::DeltaEtaIncl1::processBitCorrect( const std::vector<TCS::TOBArray const *> 
 
 {
    if(input.size() == 1) {
-       bool iaccept[numberOutputBits()];
-       std::fill_n(iaccept,numberOutputBits(),0);
+       std::vector<bool> iaccept(numberOutputBits());
        unsigned int nLeading = p_NumberLeading1;
        unsigned int nLeading2 = p_NumberLeading2;
        for( TOBArray::const_iterator tob1 = input[0]->begin();
