@@ -45,8 +45,7 @@
 
 StatusCode PixelMainMon::BookHitsMon(void)
 {
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Hits" << endmsg;  
- 
+   ATH_MSG_DEBUG("Start booking Hit histogtams..");
    std::string path = "Pixel/Hits";
    if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/HitsOnTrack");
    if(m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/HitsOnPixelTrack");
@@ -80,6 +79,7 @@ StatusCode PixelMainMon::BookHitsMon(void)
    std::string atext_nhit = ";# hits"; 
    std::string atext_hit = ";# hits/event"; 
    std::string atext_occ = ";# hits/pixel/event"; 
+   std::string atext_occ_mod = ";# hits/pixel";
    std::string atext_tot = ";ToT [BC]"; 
    std::string atext_lv1 = ";Level 1 Accept"; 
 
@@ -110,6 +110,12 @@ StatusCode PixelMainMon::BookHitsMon(void)
       hname = makeHistname(("Hit_ToTMean_"+m_modLabel_PixLayerIBL2D3D[i]), false);
       htitles = makeHisttitle(("Hit ToT Mean, "+m_modLabel_PixLayerIBL2D3D[i]), (atext_LB+";Average Hit ToT"), false);
       sc = rdoExpert.regHist( m_hit_ToTMean_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB) );
+
+      if (!m_doOnline) {
+	hname = makeHistname(("ModOcc_per_lumi_"+m_modLabel_PixLayerIBL2D3D[i]), false);
+	htitles = makeHisttitle(("Module occupancy per event, "+m_modLabel_PixLayerIBL2D3D[i]), (atext_LB+atext_occ_mod), false);
+	sc = rdoShift.regHist(m_modocc_per_lumi[i] = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB, 100, 0.0001, 0.0101));
+      }
    }
 
    for(int i=0; i<PixLayerIBL2D3D::COUNT; i++){
@@ -332,13 +338,13 @@ StatusCode PixelMainMon::BookHitsMon(void)
      }
    }
 
-   if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endmsg;         
+   if (sc.isFailure()) ATH_MSG_WARNING("Problems with booking Hit histograms");
    return StatusCode::SUCCESS;
 }
 
 StatusCode PixelMainMon::BookHitsLumiBlockMon(void)
 {
-   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Hits for lowStat" << endmsg;  
+   ATH_MSG_DEBUG("Start booking Hits histograms per LB (low stat)");
    
    std::string path = "Pixel/LumiBlock";
    if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnTrack");
@@ -389,7 +395,7 @@ StatusCode PixelMainMon::BookHitsLumiBlockMon(void)
    m_occupancy_10min = new PixelMon2DMaps("Occupancy_10min", ("hit occupancy" + m_histTitleExt).c_str(), m_doIBL);
    sc = m_occupancy_10min->regHist(lumiBlockHist);
    
-   if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endmsg;         
+   if (sc.isFailure()) ATH_MSG_WARNING("Problems with booking Hit histograms per LB (low stat)");
    return StatusCode::SUCCESS;
 }
 
@@ -449,10 +455,12 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
   Identifier rdoID;
   
   int nChannels_mod[PixLayerIBL2D3D::COUNT] = {46080, 46080, 46080, 46080, 46080, 26880, 53760, 26880};
+  double inv_nChannels_mod[PixLayerIBL2D3D::COUNT];
   double nGoodChannels_total = 0.;
   double nGoodChannels_layer[PixLayerIBL2D3D::COUNT];
   double nActiveChannels_layer[PixLayerIBL2D3D::COUNT];
   for( int i=0; i<PixLayerIBL2D3D::COUNT; i++){
+    inv_nChannels_mod[i] = 1.0/(1.0 * nChannels_mod[i]);
     nGoodChannels_layer[i]   = 1.0 * nChannels_mod[i] * m_nGood_mod[i];
     nActiveChannels_layer[i] = 1.0 * nChannels_mod[i] * m_nActive_mod[i];
     nGoodChannels_total    =+ nGoodChannels_layer[i];
@@ -469,7 +477,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
   int pix_rod_bcid      = 0;
   if ( !sc.isFailure() && Pixel_BCIDColl!=0 ) 
     {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Found Pixel BCID collection"<<endmsg;
+      ATH_MSG_DEBUG("Found Pixel BCID collection");
       for ( InDetTimeCollection::const_iterator ipix_bcid = Pixel_BCIDColl->begin(); ipix_bcid != Pixel_BCIDColl->end(); ++ipix_bcid ) 
 	{
 	  if (!(*ipix_bcid)) continue;
@@ -477,17 +485,15 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	  pix_rod_bcid = pix_bcid;
 	} 
     }
-  if (sc.isFailure()) if(msgLvl(MSG::INFO)) {msg(MSG::INFO)  << "Could not find the data object PixelBCID" << " !" << endmsg;}
+  if (sc.isFailure()) ATH_MSG_WARNING("Could not find the data object PixelBCID !");
 
   // get ATLAS LVL1ID
   //
   int lvl1idATLAS(-1);
   const EventInfo* thisEventInfo;
   sc=evtStore()->retrieve(thisEventInfo);
-  if (sc != StatusCode::SUCCESS)
-    {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "No EventInfo object found" << endmsg;
-    } else 
+  if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING("No EventInfo object found");
+  else 
     {
       lvl1idATLAS = (int)((thisEventInfo->trigger_info()->extendedLevel1ID())&0xf);
     }
@@ -496,11 +502,11 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
   sc=evtStore()->retrieve(m_rdocontainer,m_Pixel_RDOName);
   if (sc.isFailure() || !m_rdocontainer) 
     {
-      if (msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not find the data object " << m_Pixel_RDOName << " !" << endmsg;
+      ATH_MSG_WARNING("Could not retrieve Pixel RDO container !");
       if (m_storegate_errors) m_storegate_errors->Fill(1.,3.);  //first entry (1). is for RDO, second (2) is for retrieve problem
       return StatusCode::SUCCESS;  //fail gracefully and keep going in the next tool
     } else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Data object " << m_Pixel_RDOName << " found" << endmsg;
+    ATH_MSG_DEBUG("Pixel RDO container " << m_Pixel_RDOName << " found");
   }
 
   PixelRDO_Container::const_iterator colNext   = m_rdocontainer->begin();
@@ -625,7 +631,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	nhitsM3++;
 	nhitsM4++;
 	
-	///if (m_doModuleas)//fill module hit arrays so we can calculate the number of hits/event/module 
+	///if (m_doModules)//fill module hit arrays so we can calculate the number of hits/event/module 
 	///{
 	if(m_pixelid->barrel_ec(rdoID)==2 ) m_HitPerEventArray_disksA[m_pixelid->phi_module(rdoID)][m_pixelid->layer_disk(rdoID)]++;
 	if(m_pixelid->barrel_ec(rdoID)==-2) m_HitPerEventArray_disksC[m_pixelid->phi_module(rdoID)][m_pixelid->layer_disk(rdoID)]++;
@@ -722,7 +728,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
     if(m_avgocc_per_bcid_mod[i]) m_avgocc_per_bcid_mod[i]->Fill(pix_rod_bcid, avgocc_mod[i]);
     if(m_avgocc_active_per_lumi_mod[i]) m_avgocc_active_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(),avgocc_active_mod[i]);
 
-    if(m_maxocc_per_lumi_mod[i]) m_maxocc_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), avgocc_mod[i]);
+    if(m_maxocc_per_lumi_mod[i]) m_maxocc_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), avgocc_active_mod[i]);
     if(m_maxocc_per_bcid_mod[i]){
       int bin = m_maxocc_per_bcid_mod[i]->GetXaxis()->FindBin( 1.0*pix_rod_bcid );
       double content = m_maxocc_per_bcid_mod[i]->GetBinContent( bin );
@@ -740,28 +746,40 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
   
   /// Fill the #hit per module per event
   for(int i=0; i<PixLayer::COUNT; i++){
-    for(int phi=0; phi<nmod_phi[i]; phi++){
-      for(int eta=0; eta<nmod_eta[i]; eta++){
-	if(i == PixLayer::kECA && m_nhits_mod[i]) m_nhits_mod[i]->Fill( m_HitPerEventArray_disksA[phi][eta] );
-	if(i == PixLayer::kECC && m_nhits_mod[i]) m_nhits_mod[i]->Fill( m_HitPerEventArray_disksC[phi][eta] );
-	if(i == PixLayer::kB0  && m_nhits_mod[i]) m_nhits_mod[i]->Fill( m_HitPerEventArray_l0[phi][eta]);
-	if(i == PixLayer::kB1  && m_nhits_mod[i]) m_nhits_mod[i]->Fill( m_HitPerEventArray_l1[phi][eta]);
-	if(i == PixLayer::kB2  && m_nhits_mod[i]) m_nhits_mod[i]->Fill( m_HitPerEventArray_l2[phi][eta]);
-	if(i == PixLayer::kIBL && m_nhits_mod[i]) m_nhits_mod[i]->Fill( m_HitPerEventArray_lI[phi][eta]);
+    if (m_nhits_mod[i]) {
+      for(int phi=0; phi<nmod_phi[i]; phi++){
+	for(int eta=0; eta<nmod_eta[i]; eta++){
+	  if (i == PixLayer::kECA) m_nhits_mod[i]->Fill( m_HitPerEventArray_disksA[phi][eta] );
+	  if (i == PixLayer::kECC) m_nhits_mod[i]->Fill( m_HitPerEventArray_disksC[phi][eta] );
+	  if (i == PixLayer::kB0)  m_nhits_mod[i]->Fill( m_HitPerEventArray_l0[phi][eta]);
+	  if (i == PixLayer::kB1)  m_nhits_mod[i]->Fill( m_HitPerEventArray_l1[phi][eta]);
+	  if (i == PixLayer::kB2)  m_nhits_mod[i]->Fill( m_HitPerEventArray_l2[phi][eta]);
+	  if (i == PixLayer::kIBL) m_nhits_mod[i]->Fill( m_HitPerEventArray_lI[phi][eta]);
+	}
       }
     }
   }
-  
-  /// Put the #hits per event for each layer
-  if ( m_event == 0) {
-    for( int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++) {
-      m_hitocc_stock[i].push_back( avgocc_mod[i] );
-    }
-  } else if ( !newLumiBlockFlag() ) {
-    for( int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++) {
-      m_hitocc_stock[i].push_back( avgocc_mod[i] );
+
+  if ( !m_doOnline ) { 
+    for (int i=0; i<PixLayer::COUNT; i++) {
+      if (m_modocc_per_lumi[i]) {
+	for (int phi=0; phi<nmod_phi[i]; phi++) {
+	  for (int eta=0; eta<nmod_eta[i]; eta++) {
+	    if (i == PixLayer::kECA) m_modocc_per_lumi[i]->Fill( m_manager->lumiBlockNumber(), m_HitPerEventArray_disksA[phi][eta]*inv_nChannels_mod[i] );
+	    if (i == PixLayer::kECC) m_modocc_per_lumi[i]->Fill( m_manager->lumiBlockNumber(), m_HitPerEventArray_disksC[phi][eta]*inv_nChannels_mod[i] );
+	    if (i == PixLayer::kB0)  m_modocc_per_lumi[i]->Fill( m_manager->lumiBlockNumber(), m_HitPerEventArray_l0[phi][eta]*inv_nChannels_mod[i] );
+	    if (i == PixLayer::kB1)  m_modocc_per_lumi[i]->Fill( m_manager->lumiBlockNumber(), m_HitPerEventArray_l1[phi][eta]*inv_nChannels_mod[i] );
+	    if (i == PixLayer::kB2)  m_modocc_per_lumi[i]->Fill( m_manager->lumiBlockNumber(), m_HitPerEventArray_l2[phi][eta]*inv_nChannels_mod[i] );
+	    if (i == PixLayer::kIBL) {
+	      if (eta<4 || eta>15) m_modocc_per_lumi[i]->Fill( m_manager->lumiBlockNumber(), m_HitPerEventArray_lI[phi][eta]*inv_nChannels_mod[i] );
+	      else m_modocc_per_lumi[i]->Fill( m_manager->lumiBlockNumber(), m_HitPerEventArray_lI[phi][eta]*inv_nChannels_mod[i+1] );
+	    }
+	  }
+	}
+      }
     }
   }
+ 
   /// Fill some histograms only if =< 50% of modules disabled
   if(!m_majorityDisabled) {
     if (m_doDetails) {
