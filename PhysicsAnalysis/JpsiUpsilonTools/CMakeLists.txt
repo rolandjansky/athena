@@ -38,7 +38,7 @@ atlas_add_library( JpsiUpsilonToolsLib
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${HEPPDT_LIBRARIES} AthenaBaseComps DataModel xAODMuon xAODTracking GaudiKernel InDetConversionFinderToolsLib TrkVKalVrtFitterLib TrkV0FitterLib TrkVertexAnalysisUtilsLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} EventPrimitives TrkParametersBase VxVertex TrkToolInterfaces TrkVertexFitterInterfaces xAODBPhys )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} EventPrimitives TrkParametersBase VxVertex TrkToolInterfaces TrkVertexFitterInterfaces xAODBPhysLib )
 
 atlas_add_component( JpsiUpsilonTools
                      src/components/*.cxx

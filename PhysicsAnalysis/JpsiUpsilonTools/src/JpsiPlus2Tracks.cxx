@@ -22,6 +22,8 @@
 #include "InDetConversionFinderTools/VertexPointEstimator.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include <memory>
+#include "JpsiUpsilonTools/JpsiUpsilonCommon.h"
+
 namespace Analysis {
     
     StatusCode JpsiPlus2Tracks::initialize() {
@@ -65,7 +67,7 @@ namespace Analysis {
     }
     
     JpsiPlus2Tracks::JpsiPlus2Tracks(const std::string& t, const std::string& n, const IInterface* p)  : AthAlgTool(t,n,p),
-    m_particleDataTable(0),
+    //    m_particleDataTable(0),
     m_pipiMassHyp(true),
     m_kkMassHyp(true),
     m_kpiMassHyp(true),
@@ -153,9 +155,9 @@ namespace Analysis {
         };
         
         // Set masses
-        double muMass = 105.658;
-        double kMass = 493.677;
-        double piMass = 139.57;
+        constexpr double muMass = 105.658;
+        constexpr double kMass = 493.677;
+        constexpr double piMass = 139.57;
         
         // Get the J/psis from StoreGate
         const xAOD::VertexContainer* importedJpsiCollection(0);
@@ -197,13 +199,12 @@ namespace Analysis {
         
         // Select the inner detector tracks
         TrackBag theIDTracksAfterSelection;
-        xAOD::TrackParticleContainer::const_iterator trkPBItr;
-        for (trkPBItr=importedTrackCollection->begin(); trkPBItr!=importedTrackCollection->end(); ++trkPBItr) {
+        for (auto trkPBItr=importedTrackCollection->cbegin(); trkPBItr!=importedTrackCollection->cend(); ++trkPBItr) {
             const xAOD::TrackParticle* tp (*trkPBItr);
             if ( tp->pt()<m_trkThresholdPt ) continue;
             if ( fabs(tp->eta())>m_trkMaxEta ) continue;
             if (importedMuonCollection!=NULL) {
-                if (isContainedIn(tp,importedMuonCollection)) continue;
+                if (JpsiUpsilonCommon::isContainedIn(tp,importedMuonCollection)) continue;
             }
             if ( m_trkSelector->decision(*tp, NULL) ) theIDTracksAfterSelection.push_back(tp);
         }
@@ -211,28 +212,28 @@ namespace Analysis {
         ATH_MSG_DEBUG("Number of tracks after ID trkSelector: " << theIDTracksAfterSelection.size());
         
         // Set vector of muon masses
-        std::vector<double> muonMasses;
-        muonMasses.push_back(muMass); muonMasses.push_back(muMass);
+        const std::vector<double> muonMasses(2, muMass);
         
         // Loop over J/psi candidates, select, collect up tracks used to build a J/psi
         std::vector<const xAOD::Vertex*> selectedJpsiCandidates;
         std::vector<const xAOD::TrackParticle*> jpsiTracks;
-        xAOD::VertexContainer::const_iterator vxcItr;
-        for(vxcItr=importedJpsiCollection->begin(); vxcItr!=importedJpsiCollection->end(); ++vxcItr) {
+        for(auto vxcItr=importedJpsiCollection->cbegin(); vxcItr!=importedJpsiCollection->cend(); ++vxcItr) {
             // Check J/psi candidate invariant mass and skip if need be
             
-            if (m_jpsiMassUpper>0.0) {
+            if (m_jpsiMassUpper>0.0 || m_jpsiMassLower > 0.0) {
                 xAOD::BPhysHelper jpsiCandidate(*vxcItr);
                 jpsiCandidate.setRefTrks();
                 double jpsiMass = jpsiCandidate.totalP(muonMasses).M();
-                if (jpsiMass<m_jpsiMassLower || jpsiMass>m_jpsiMassUpper) continue;
+                bool pass = JpsiUpsilonCommon::cutRange(jpsiMass, m_jpsiMassLower, m_jpsiMassUpper);
+                if (!pass) continue;
             }
             selectedJpsiCandidates.push_back(*vxcItr);
-            // Extract tracks from J/psi
-            const xAOD::TrackParticle* jpsiTP1 = (*vxcItr)->trackParticle(0);
-            const xAOD::TrackParticle* jpsiTP2 = (*vxcItr)->trackParticle(1);
+
             // Collect up tracks
 	    if(m_excludeCrossJpsiTracks){
+            // Extract tracks from J/psi
+                const xAOD::TrackParticle* jpsiTP1 = (*vxcItr)->trackParticle(0);
+                const xAOD::TrackParticle* jpsiTP2 = (*vxcItr)->trackParticle(1);
             	jpsiTracks.push_back(jpsiTP1);
             	jpsiTracks.push_back(jpsiTP2);
 	    }
@@ -248,34 +249,29 @@ namespace Analysis {
         
         // Attempt to fit each track with the two tracks from the J/psi candidates
         // Loop over J/psis
-        std::vector<double> bMasses, bPts;
         std::vector<const xAOD::TrackParticle*> QuadletTracks(4, nullptr);//Initialise as 4 nulls
         
-        std::vector<const xAOD::Vertex*>::iterator jpsiItr;
-        for(jpsiItr=selectedJpsiCandidates.begin(); jpsiItr!=selectedJpsiCandidates.end(); ++jpsiItr) {
+        std::vector<double> massCuts;
 
-            if (m_jpsiMassUpper>0.0) {
-                xAOD::BPhysHelper jpsiCandidate(*jpsiItr);
-                jpsiCandidate.setRefTrks();
-            // Check J/psi candidate invariant mass and skip if need be
-                double jpsiMass = jpsiCandidate.totalP(muonMasses).M();
-                if (jpsiMass<m_jpsiMassLower || jpsiMass>m_jpsiMassUpper) continue;
-            }
+        for(auto jpsiItr=selectedJpsiCandidates.begin(); jpsiItr!=selectedJpsiCandidates.end(); ++jpsiItr) {
+
             // Extract tracks from J/psi
             const xAOD::TrackParticle* jpsiTP1 = (*jpsiItr)->trackParticle(0);
             const xAOD::TrackParticle* jpsiTP2 = (*jpsiItr)->trackParticle(1);
             QuadletTracks[0] = jpsiTP1;
             QuadletTracks[1] = jpsiTP2;
 
-	    if(!m_excludeCrossJpsiTracks){
-	       jpsiTracks.clear();
-	       jpsiTracks.push_back(jpsiTP1);
-               jpsiTracks.push_back(jpsiTP2);
-	    }
+	    //If requested, only exclude duplicates in the same tripplet
+            if(!m_excludeCrossJpsiTracks){
+                jpsiTracks.resize(2);
+                jpsiTracks[0] = jpsiTP1;
+                jpsiTracks[1] = jpsiTP2;
+            }
+
 
             // Loop over ID tracks, call vertexing
             for (TrackBag::iterator trkItr1=theIDTracksAfterSelection.begin(); trkItr1<theIDTracksAfterSelection.end(); ++trkItr1) { // outer loop
-                if (isContainedIn(*trkItr1,jpsiTracks)) continue; // remove tracks which were used to build J/psi
+                if (JpsiUpsilonCommon::isContainedIn(*trkItr1,jpsiTracks)) continue; // remove tracks which were used to build J/psi
                 
                 // Daniel Scheirich: remove track too far from the Jpsi vertex (DeltaZ cut)
                 if(m_trkDeltaZ>0 &&
@@ -283,7 +279,7 @@ namespace Analysis {
                     continue;
                 
                 for (TrackBag::iterator trkItr2=trkItr1+1; trkItr2!=theIDTracksAfterSelection.end(); ++trkItr2) { // inner loop
-                    if (isContainedIn(*trkItr2,jpsiTracks)) continue; // remove tracks which were used to build J/psi
+                    if (JpsiUpsilonCommon::isContainedIn(*trkItr2,jpsiTracks)) continue; // remove tracks which were used to build J/psi
                     
                     // Daniel Scheirich: remove track too far from the Jpsi vertex (DeltaZ cut)
                     if(m_trkDeltaZ>0 &&
@@ -292,8 +288,9 @@ namespace Analysis {
                     
                     if (!oppositeCharges(*trkItr1,*trkItr2)) continue; //enforce opposite charges
                     
-                    if (m_diTrackPt>0 && getPt(*trkItr1,*trkItr2) < m_diTrackPt ) continue; // track pair pT cut (daniel Scheirich)
-          
+                    if (m_diTrackPt>0 && JpsiUpsilonCommon::getPt(*trkItr1,*trkItr2) < m_diTrackPt ) continue; // track pair pT cut (daniel Scheirich)
+                     
+                    // sort the track by charge, putting the positive track first         
                     if((*trkItr2)->qOverP()>0) {
                 	    QuadletTracks[2] = *trkItr2;
          	            QuadletTracks[3] = *trkItr1;
@@ -302,55 +299,36 @@ namespace Analysis {
          	            QuadletTracks[3] = *trkItr2;
          	    }            
                     
-                    if (m_trkQuadrupletPt>0 && getPt(QuadletTracks[0], QuadletTracks[1], *trkItr1,*trkItr2) < m_trkQuadrupletPt ) continue; // track quadruplet pT cut (daniel Scheirich)
-                    
-                    // sort the track by charge, putting the positive track first
+                    if (m_trkQuadrupletPt>0 && JpsiUpsilonCommon::getPt(QuadletTracks[0], QuadletTracks[1], *trkItr1,*trkItr2) < m_trkQuadrupletPt ) continue; // track quadruplet pT cut (daniel Scheirich)
 
-                
-                    
                     // apply mass cut on track pair (non muon) if requested
-                    bool passesDiTrackMassUpper(true);
-                    bool passesDiTrackMassLower(true);
+                    bool passesDiTrack(true);
                     if (m_diTrackMassUpper>0.0 || m_diTrackMassLower>0.0) {
-                        double kk = getInvariantMass(*trkItr1,kMass,*trkItr2,kMass);
-                        double pipi = getInvariantMass(*trkItr1,piMass,*trkItr2,piMass);
-                        double kpi = getInvariantMass(*trkItr1,kMass,*trkItr2,piMass);
-                        double pik = getInvariantMass(*trkItr1,piMass,*trkItr2,kMass);
-                        if (m_diTrackMassUpper>0.0) {
-                            if (m_kkMassHyp && kk>m_diTrackMassUpper) passesDiTrackMassUpper=false;
-                            if (m_pipiMassHyp && pipi>m_diTrackMassUpper) passesDiTrackMassUpper=false;
-                            if (m_kpiMassHyp && (kpi>m_diTrackMassUpper && pik>m_diTrackMassUpper)) passesDiTrackMassUpper=false;
+                        massCuts.clear();
+                        if(m_kkMassHyp)   massCuts.push_back(getInvariantMass(*trkItr1,kMass,*trkItr2,kMass));
+                        if(m_pipiMassHyp) massCuts.push_back(getInvariantMass(*trkItr1,piMass,*trkItr2,piMass));
+                        if(m_kpiMassHyp){
+			   massCuts.push_back(getInvariantMass(*trkItr1,kMass,*trkItr2,piMass));
+			   massCuts.push_back(getInvariantMass(*trkItr1,piMass,*trkItr2,kMass));
                         }
-                        if (m_diTrackMassLower>0.0) {
-                            if (m_kkMassHyp && kk<m_diTrackMassLower) passesDiTrackMassLower=false;
-                            if (m_pipiMassHyp && pipi<m_diTrackMassLower) passesDiTrackMassLower=false;
-                            if (m_kpiMassHyp && (kpi<m_diTrackMassLower && pik<m_diTrackMassLower)) passesDiTrackMassLower=false;
-                        }
+                        passesDiTrack = JpsiUpsilonCommon::cutRangeOR(massCuts, m_diTrackMassLower, m_diTrackMassUpper);
+
                     }
-                    if (!passesDiTrackMassUpper||!passesDiTrackMassLower) continue;
+                    if (!passesDiTrack) continue;
                     
                     // apply mass cut on track quadruplet if requested
-                    bool passes4TrackMassUpper(true);
-                    bool passes4TrackMassLower(true);
+                    bool passes4TrackMass(true);
                     if (m_trkQuadrupletMassUpper>0.0 || m_trkQuadrupletMassLower>0.0) {
-                        double jpsikk   = getInvariantMass(jpsiTP1, muMass, jpsiTP2, muMass, *trkItr1,kMass , *trkItr2, kMass);
-                        double jpsipipi = getInvariantMass(jpsiTP1, muMass, jpsiTP2, muMass, *trkItr1,piMass, *trkItr2, piMass);
-                        double jpsikpi  = getInvariantMass(jpsiTP1, muMass, jpsiTP2, muMass, *trkItr1,kMass , *trkItr2, piMass);
-                        double jpsipik  = getInvariantMass(jpsiTP1, muMass, jpsiTP2, muMass, *trkItr1,piMass, *trkItr2, kMass);
-                        if (m_trkQuadrupletMassUpper>0.0) {
-                            if (m_kkMassHyp && jpsikk>m_trkQuadrupletMassUpper) passes4TrackMassUpper=false;
-                            if (m_pipiMassHyp && jpsipipi>m_trkQuadrupletMassUpper) passes4TrackMassUpper=false;
-                            if (m_kpiMassHyp && (jpsikpi>m_trkQuadrupletMassUpper && jpsipik>m_trkQuadrupletMassUpper)) passes4TrackMassUpper=false;
+                        massCuts.clear();
+                        if(m_kkMassHyp) massCuts.push_back( getInvariantMass(jpsiTP1, muMass, jpsiTP2, muMass, *trkItr1,kMass , *trkItr2, kMass) );
+                        if(m_pipiMassHyp) massCuts.push_back(getInvariantMass(jpsiTP1, muMass, jpsiTP2, muMass, *trkItr1,piMass, *trkItr2, piMass));
+                        if(m_kpiMassHyp){
+                           massCuts.push_back(getInvariantMass(jpsiTP1, muMass, jpsiTP2, muMass, *trkItr1,kMass , *trkItr2, piMass));
+                           massCuts.push_back(getInvariantMass(jpsiTP1, muMass, jpsiTP2, muMass, *trkItr1,piMass, *trkItr2, kMass));
                         }
-                        if (m_trkQuadrupletMassLower>0.0) {
-                            if (m_kkMassHyp && jpsikk<m_trkQuadrupletMassLower) passes4TrackMassLower=false;
-                            if (m_pipiMassHyp && jpsipipi<m_trkQuadrupletMassLower) passes4TrackMassLower=false;
-                            if (m_kpiMassHyp && (jpsikpi<m_trkQuadrupletMassLower && jpsipik<m_trkQuadrupletMassLower)) passes4TrackMassLower=false;
-                        }
+                        passes4TrackMass = JpsiUpsilonCommon::cutRangeOR(massCuts, m_trkQuadrupletMassLower, m_trkQuadrupletMassUpper);
                     }
-                    if (!passes4TrackMassUpper||!passes4TrackMassLower) continue;
-
-
+                    if (!passes4TrackMass) continue;
                     
                     //Managed pointer, "release" if you don't want it deleted. Automatically deleted otherwise
                     std::unique_ptr<xAOD::Vertex> bVertex (fit(QuadletTracks,m_useMassConst,m_altMassConst, importedTrackCollection)); // do vertexing
@@ -366,77 +344,11 @@ namespace Analysis {
                         bHelper.setRefTrks();
 
 
-                        bMasses.clear();
-                        bPts.clear();
-                        if (m_BMassUpper>0.0 || m_BThresholdPt>0.0) {
-                            if (m_kkMassHyp) {
-                                TLorentzVector bMomentum = bHelper.totalP(mumukkMasses);
-//                                ATH_MSG_DEBUG(bMomentum.X() << " " << bMomentum.Y()<< " " << bMomentum.Z() << " " << bMomentum.E());
-                                double bPt = bMomentum.Pt();
-                                double bMass = bMomentum.M();
-                                ATH_MSG_DEBUG("Candidate pt/mass under KK track mass hypothesis is " << bPt << " / " << bMass);
-                                bMasses.push_back(bMass);
-                                bPts.push_back(bPt);
-                            }
-                            if (m_pipiMassHyp) {
-                                TLorentzVector bMomentum = bHelper.totalP(mumupipiMasses);
-                                double bPt = bMomentum.Pt();
-                                double bMass = bMomentum.M();
-                                ATH_MSG_DEBUG("Candidate pt/mass under pipi track mass hypothesis is " << bPt << " / " << bMass);
-                                bMasses.push_back(bMass);
-                                bPts.push_back(bPt);
-                            }
-                            if (m_kpiMassHyp) {
-                                TLorentzVector bMomentumKPI = bHelper.totalP(mumukpiMasses);
-                                double bPt = bMomentumKPI.Pt();
-                                double bMass = bMomentumKPI.M();
-                                ATH_MSG_DEBUG("Candidate pt/mass under K pi track mass hypothesis is " << bPt << " / " << bMass);
-                                bMasses.push_back(bMass);
-                                bPts.push_back(bPt);
-                                TLorentzVector bMomentumPIK = bHelper.totalP(mumupikMasses);
-                                bPt = bMomentumPIK.Pt();
-                                bMass = bMomentumPIK.M();
-                                ATH_MSG_DEBUG("Candidate pt/mass under pi K track mass hypothesis is " << bPt << " / " << bMass);
-                                bMasses.push_back(bMass);
-                                bPts.push_back(bPt);
-                            }
-                        }
-                        // Chi2/DOF cut
-
-                        
-                        bool massCutPassed(false);
-                        bool ptCutPassed(false);
-
-                        
-                        // Mass cut
-                        if (m_BMassUpper>0.0) {
-                            bool lowerPassed(false); bool upperPassed(false);
-                            for (auto bm : bMasses) {
-                                lowerPassed|= (bm > m_BMassLower);
-                                upperPassed|= (bm < m_BMassUpper);
-                            }
-                            massCutPassed=lowerPassed && upperPassed;
-                        } else {
-                            massCutPassed=true;
-                        }
-                        
-                        // Pt cut
-                        if (m_BThresholdPt>0.0) {
-                            for (auto bpt : bPts) {
-                                if ( bpt > m_BThresholdPt ) {
-                                    ptCutPassed = true;
-                                    break;
-                                }
-                            }
-                        }else{
-                            ptCutPassed = true;
-                        }
-//                        for(auto m : bMasses) ATH_MSG_DEBUG("mass " << m);
-//                        for(auto m : bPts) ATH_MSG_DEBUG("pt " << m);
-                        
-                        ATH_MSG_DEBUG("massCutPassed " << massCutPassed << " ptCutPassed " << ptCutPassed << " chi2CutPassed " << chi2CutPassed );
-                        bool passesCuts = massCutPassed && ptCutPassed;
-                        
+                        bool passesCuts = (m_kkMassHyp && passCuts(bHelper, mumukkMasses, "KK")) ||
+                                      (m_pipiMassHyp && passCuts(bHelper, mumupipiMasses, "pi pi")) ||
+                                      (m_kpiMassHyp && (passCuts(bHelper, mumukpiMasses, "K pi") ||
+                                                        passCuts(bHelper, mumupikMasses, "pi K")));
+                     
                         // Saving successful candidates
                         if (passesCuts) {
                             // Set refitted tracks (done above)
@@ -478,11 +390,11 @@ namespace Analysis {
 
 
         if (doMassConst) {
-            double jpsiTableMass = 3096.916;
-            double muTableMass = 105.658;
-            static std::vector<double> muMasses = {muTableMass, muTableMass};
+            constexpr double jpsiTableMass = 3096.916;
+            constexpr double muTableMass = 105.658;
+            std::vector<double> muMasses(2, muTableMass);
             m_VKVFitter->setMassInputParticles(muMasses);
-            static std::vector<int> indices= {1, 2};
+            std::vector<int> indices= {1, 2};
             if (massConst<0.0) m_VKVFitter->setMassForConstraint(jpsiTableMass,indices);
             if (massConst>0.0) m_VKVFitter->setMassForConstraint(massConst,indices);
         }
@@ -503,7 +415,6 @@ namespace Analysis {
         for(unsigned int i=0; i< theResult->trackParticleLinks().size(); i++)
         { ElementLink<DataVector<xAOD::TrackParticle> > mylink=theResult->trackParticleLinks()[i]; //makes a copy (non-const) 
         mylink.setStorableObject(*importedTrackCollection, true); 
-        mylink.index(); // Use index (should be faster) 
         newLinkVector.push_back( mylink ); }
         
         theResult->clearTracks();
@@ -516,34 +427,7 @@ namespace Analysis {
         
     }
     
-    
-    // *********************************************************************************
-    
-    // ---------------------------------------------------------------------------------
-    // getPt: returns the pT of a track pair
-    // ---------------------------------------------------------------------------------
-    double JpsiPlus2Tracks::getPt(const xAOD::TrackParticle* trk1, const xAOD::TrackParticle* trk2) {
-        
-        TLorentzVector momentum(trk1->p4() + trk2->p4() ); 
-        return momentum.Perp();
-        
-    }
-    
-    // ---------------------------------------------------------------------------------
-    // getPt: returns the pT of a track quadruplet
-    // ---------------------------------------------------------------------------------
-    double JpsiPlus2Tracks::getPt(const xAOD::TrackParticle* trk1,
-                                  const xAOD::TrackParticle* trk2,
-                                  const xAOD::TrackParticle* trk3,
-                                  const xAOD::TrackParticle* trk4)
-    {
-        TLorentzVector momentum( trk1->p4() );
-        momentum += trk2->p4();
-        momentum += trk3->p4();
-        momentum += trk4->p4();
-        return momentum.Perp();
-    }
-    
+   
     
     // *********************************************************************************
     
@@ -554,29 +438,7 @@ namespace Analysis {
         bool opposite = (qOverP1*qOverP2<0.0);
         return opposite;
     }
-    
-    // -------------------------------------------------------------------------------------------------
-    // isContainedIn: boolean function which checks if a track (1st argument) is also contained in a
-    // vector (second argument)
-    // -------------------------------------------------------------------------------------------------
-    
-    bool JpsiPlus2Tracks::isContainedIn(const xAOD::TrackParticle* theTrack, std::vector<const xAOD::TrackParticle*> theColl) {
-        bool isContained(false);
-        std::vector<const xAOD::TrackParticle*>::iterator trkItr;
-        for (trkItr=theColl.begin(); trkItr!=theColl.end(); ++trkItr) {
-            if ( (*trkItr) == theTrack ) {isContained=true; break;}
-        }
-        return isContained;
-    }
-    
-    bool JpsiPlus2Tracks::isContainedIn(const xAOD::TrackParticle* theTrack, const xAOD::MuonContainer* theColl) {
-        bool isContained(false);
-        xAOD::MuonContainer::const_iterator muItr;
-        for (muItr=theColl->begin(); muItr!=theColl->end(); ++muItr) {
-            if ( (*muItr)->inDetTrackParticleLink().cachedElement() == theTrack ) {isContained=true; break;}
-        }
-        return isContained;
-    }
+
    
   
     // ---------------------------------------------------------------------------------
@@ -647,6 +509,25 @@ namespace Analysis {
         
     }
     
+    bool  JpsiPlus2Tracks::passCuts(xAOD::BPhysHelper &bHelper, const std::vector<double> &masses, const std::string &str) const{
+       
+        TLorentzVector bMomentum = bHelper.totalP(masses);
+//      ATH_MSG_DEBUG(bMomentum.X() << " " << bMomentum.Y()<< " " << bMomentum.Z() << " " << bMomentum.E());
+        double bPt = bMomentum.Pt();
+
+        double bMass = bMomentum.M();
+        ATH_MSG_DEBUG("Candidate pt/mass under " << str << " track mass hypothesis is " << bPt << " / " << bMass);
+        if( !JpsiUpsilonCommon::cutAcceptGreater(bPt, m_BThresholdPt)) return false;
+        if( !JpsiUpsilonCommon::cutRange(bMass, m_BMassLower, m_BMassUpper)) return false;
+	TLorentzVector tr1 = bHelper.refTrk(2,masses.at(2));
+	TLorentzVector tr2 = bHelper.refTrk(3,masses.at(3));
+	double bDiTrkPt   = (tr1+tr2).Pt();
+        double bDiTrkMass = (tr1+tr2).M();
+        if( !JpsiUpsilonCommon::cutAcceptGreater(bDiTrkPt, m_finalDiTrackPt)) return false;
+        if( !JpsiUpsilonCommon::cutRange(bDiTrkMass, m_finalDiTrackMassLower, m_finalDiTrackMassUpper)) return false;
+
+        return true;
+    }
     
 } // End of namespace
 

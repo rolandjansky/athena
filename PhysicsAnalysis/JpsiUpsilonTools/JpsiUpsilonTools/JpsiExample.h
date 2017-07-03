@@ -46,8 +46,8 @@ private:
   double m_muonMass;
   std::string  m_userFName;
  
-  int eventCntr;
-  int jpsiCntr;
+  int m_eventCntr;
+  int m_jpsiCntr;
  
   std::vector<double> * m_jpsiMass;
   std::vector<double> * m_jpsiMassError;
@@ -81,8 +81,8 @@ private:
 //  std::vector<double> * m_rxyError;
   
 
-  TFile* outputFile; // N-tuple output file
-  TTree* auxTree; // Tree for auxilliary n-tuple
+  TFile* m_outputFile; // N-tuple output file
+  TTree* m_auxTree; // Tree for auxilliary n-tuple
 
   std::string m_JpsiCandidatesKey; //!< Name of J/psi container
 

@@ -50,15 +50,11 @@ namespace Analysis {
                                              const xAOD::TrackParticle* trk2, double mass2,
                                              const xAOD::TrackParticle* trk3, double mass3);
  
-        static double getPt(const xAOD::TrackParticle* trk1,
-                                  const xAOD::TrackParticle* trk2,
-                                  const xAOD::TrackParticle* trk3);
+
       
         //-------------------------------------------------------------------------------------
         //Doing Calculation and inline functions
         StatusCode performSearch(xAOD::VertexContainer*& , xAOD::VertexAuxContainer*& );
-        static bool isContainedIn(const xAOD::TrackParticle*, std::vector<const xAOD::TrackParticle*>);
-        static bool isContainedIn(const xAOD::TrackParticle*, const xAOD::MuonContainer*);
         xAOD::Vertex* fit(const xAOD::TrackParticle*, const xAOD::TrackParticle*, const xAOD::TrackParticle*, bool, double, const xAOD::TrackParticleContainer*);
         //-------------------------------------------------------------------------------------
         
