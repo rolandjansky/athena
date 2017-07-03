@@ -31,8 +31,8 @@ def printFlag(flag,asList=True):
         print '        %i: isEM = %i' % (i, flag.FlagsAsInt(i))
 
 ### import the modules 
-print '... importing ROOT and PyCintex'
-import ROOT, PyCintex
+print '... importing ROOT'
+import ROOT
 
 print '... define list of files'
 # location

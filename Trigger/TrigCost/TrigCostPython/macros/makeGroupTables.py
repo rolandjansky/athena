@@ -2,7 +2,6 @@
 
 import os, sys, string, math, shutil
 import xml.dom.minidom
-import ROOT, PyCintex
 
 #-----------------------------------------------------------------------
 #  Options definitions

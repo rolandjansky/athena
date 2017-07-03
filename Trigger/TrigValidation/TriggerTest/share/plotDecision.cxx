@@ -1,16 +1,7 @@
-void start()
-{
-  gSystem->Load("libCintex.so");
-  Cintex::Enable();
-}
 
 
 int plotDecision(const char * fileName = "")
 {
-  // need to enable Cintex for running in RTT 
-  //  Cintex::Enable();
-  start();
-
   if( fileName == "" ) 
     {
       cout << " Usage : .x plotDecision.cxx (\"..\") \n";

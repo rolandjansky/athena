@@ -23,7 +23,6 @@
 #include "TList.h"
 #include "TObjString.h"
 #include "TClonesArray.h"
-//#include "Cintex/Cintex.h"
 
 using namespace std;
 
@@ -63,16 +62,6 @@ TrigMenuNtupleAlg::~TrigMenuNtupleAlg() {
 
 StatusCode TrigMenuNtupleAlg::initialize() {
   msg(MSG::INFO) << "entering intialize()" << endmsg;
-
-//   ROOT::Cintex::Cintex::Enable();
-//   log << MSG::DEBUG << "after Cintex" << endmsg;
-//   System::ImageHandle handle = 0;
-//   const std::string libname = "TriggerMenuNtupleDict";
-//   if ( System::loadDynamicLib(libname, &handle) != 1) {
-//     log << MSG::WARNING << "Cannot load " << libname << endmsg;
-//   } else {
-//     log << MSG::INFO << "loaded : " << libname << endmsg;
-//   }
 
   if (serviceLocator()->service("ActiveStoreSvc", m_activeStoreSvc).isFailure()) {
     msg(MSG::WARNING) << "Cannot retrieve ActiveStoreSvc" << endmsg;
