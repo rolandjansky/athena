@@ -9,13 +9,13 @@
 #include "src/SensorSimPlanarTool.h"
 #include "src/SensorSim3DTool.h"
 #include "src/ChargeCollProbSvc.h"
-#include "src/BichselSimTool.h"
+#include "src/EnergyDepositionTool.h"
 #include "src/RD53SimTool.h"
 #include "src/FEI4SimTool.h"
 #include "src/FEI3SimTool.h"
 
 DECLARE_ALGORITHM_FACTORY(PixelDigitization)
-DECLARE_TOOL_FACTORY(BichselSimTool)
+DECLARE_TOOL_FACTORY(EnergyDepositionTool)
 DECLARE_TOOL_FACTORY(PixelDigitizationTool)
 DECLARE_TOOL_FACTORY(PixelNoisyCellGenerator)
 DECLARE_TOOL_FACTORY(PixelChargeSmearer)
@@ -30,7 +30,7 @@ DECLARE_SERVICE_FACTORY(ChargeCollProbSvc)
 
 DECLARE_FACTORY_ENTRIES(PixelDigitization) {
   DECLARE_ALGORITHM(PixelDigitization)
-  DECLARE_TOOL(BichselSimTool)
+  DECLARE_TOOL(EnergyDepositionTool)
   DECLARE_TOOL(PixelDigitizationTool)
   DECLARE_TOOL(PixelNoisyCellGenerator)
   DECLARE_TOOL(PixelChargeSmearer)

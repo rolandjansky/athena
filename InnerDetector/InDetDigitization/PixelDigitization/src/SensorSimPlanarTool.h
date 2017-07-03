@@ -13,10 +13,6 @@
 //
 // -numberOfSteps	Geant4:number of steps for PixelPlanar
 // -numberOfCharges	Geant4:number of charges for PixelPlanar
-// -diffusionConstant	Geant4:Diffusion Constant for PixelPlanar
-// -doBichsel : re-do charge deposition following Bichsel model
-// -BichselMomentumCut : minimum MOMENTUM for particle to be re-simulated through Bichsel Model
-// -BichselSimTool : tool that implements Bichsel model
 //
 //////////////////////////////////////////////////////////////////
 

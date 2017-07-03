@@ -30,7 +30,7 @@ def ChargeCollProbSvc(name="ChargeCollProbSvc", **kwargs):
 
 ###############################################################################
 
-def BichselSimTool(name="BichselSimTool", **kwargs):
+def EnergyDepositionTool(name="EnergyDepositionTool", **kwargs):
     kwargs.setdefault("DeltaRayCut", 117.)
     kwargs.setdefault("nCols", 5)
     kwargs.setdefault("LoopLimit", 100000)
@@ -40,7 +40,7 @@ def BichselSimTool(name="BichselSimTool", **kwargs):
     kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
     kwargs.setdefault("doDeltaRay", False)            # needs validation
     kwargs.setdefault("doPU", True)
-    return CfgMgr.BichselSimTool(name, **kwargs)
+    return CfgMgr.EnergyDepositionTool(name, **kwargs)
 
 def SensorSimPlanarTool(name="SensorSimPlanarTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
@@ -163,7 +163,7 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
       ServiceMgr += pixelSiPropertiesSvc
     kwargs.setdefault("InputObjectName", "PixelHits")
     procTools = []
-    chargeTools = []
+    chargeTools = [] #Tools in array for flexibility
     feSimTools = []
     if GeometryFlags.isSLHC():
       procTools += ['PixelDiodeCrossTalkGenerator']
@@ -181,7 +181,7 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     kwargs.setdefault("PixelProcessorTools", procTools)
     kwargs.setdefault("ChargeTools", chargeTools)
     kwargs.setdefault("FrontEndSimTools", feSimTools)
-    kwargs.setdefault("BichselSimTool", "BichselSimTool")
+    kwargs.setdefault("EnergyDepositionTool", "EnergyDepositionTool")
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", Pixel_FirstXing() )
         kwargs.setdefault("LastXing", Pixel_LastXing() )

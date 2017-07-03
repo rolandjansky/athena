@@ -3,8 +3,8 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// BichselSimTool.h
-//   Header file for class BichselSimTool
+// EnergyDepositionTool.h
+//   Header file for class EnergyDepositionTool
 ///////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 // Author: Qi Zeng
@@ -17,8 +17,8 @@
 ///////////////////////////////////////////////////////////////////
 
 
-#ifndef PIXELDIGITIZATION_BichselSimTool_H
-#define PIXELDIGITIZATION_BichselSimTool_H
+#ifndef PIXELDIGITIZATION_EnergyDepositionTool_H
+#define PIXELDIGITIZATION_EnergyDepositionTool_H
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -33,8 +33,9 @@
 #include "SiDigitization/SiChargedDiodeCollection.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 
-
-// internal data structure for storage purpose
+//=============================
+// C U S T O M   S T R U C T 
+//=============================
 struct BichselData
 {
   std::vector<double> Array_BetaGammaLog10;
@@ -43,17 +44,20 @@ struct BichselData
   std::vector<double> Array_BetaGammaLog10_UpperBoundIntXLog10;      // upper bound of log10(IntX)
 };
 
-class BichselSimTool : public AthAlgTool {
+//==================== 
+//  C L A S S   D E F
+//====================
+class EnergyDepositionTool : public AthAlgTool {
 
 public:
   
-  BichselSimTool( const std::string& type, const std::string& name,const IInterface* parent);
+  EnergyDepositionTool( const std::string& type, const std::string& name,const IInterface* parent);
 
   static const InterfaceID& interfaceID() ;
   virtual StatusCode initialize();
   virtual StatusCode finalize();
 
-  virtual ~BichselSimTool();
+  virtual ~EnergyDepositionTool();
   StatusCode initTools();
   
   std::vector<std::pair<double,double> > BichselSim(double BetaGamma, int ParticleType, double TotalLength, double InciEnergy) const;   // output hit record in the format (hit position, energy loss)
@@ -64,9 +68,9 @@ public:
   virtual StatusCode depositEnergy(const TimedHitPtr<SiHit> &phit, const InDetDD::SiDetectorElement &Module, std::vector<std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions);
 
 
-
+// Variables
 private:
-  BichselSimTool();
+  EnergyDepositionTool();
 
   // internal private members //
   double                   m_DeltaRayCut;      // Threshold to identify a delta ray. unit in keV
@@ -90,6 +94,7 @@ protected:
   std::string                  m_rndmEngineName;
   CLHEP::HepRandomEngine*      m_rndmEngine;
 
+// Functions
 private:
   void simulateBow(const InDetDD::SiDetectorElement * element,double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const;
   std::pair<int,int> FastSearch(std::vector<double> vec, double item) const;               // A quick implementation of binary search in 2D table
@@ -102,4 +107,4 @@ private:
  };
 
 
-#endif //PIXELDIGITIZATION_BichselSimTool_H
+#endif //PIXELDIGITIZATION_EnergyDepositionTool_H

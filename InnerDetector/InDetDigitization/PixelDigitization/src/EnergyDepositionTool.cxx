@@ -3,14 +3,14 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// BichselSimTool.cxx
-//   Implementation file for class BichselSimTool
+// EnergyDepositionTool.cxx
+//   Implementation file for class EnergyDepositionTool
 ///////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 // Details in head file
 ///////////////////////////////////////////////////////////////////
 
-#include "BichselSimTool.h"
+#include "EnergyDepositionTool.h"
 
 #include "TGraph.h"
 #include "TString.h"
@@ -38,7 +38,7 @@
 using namespace std;
 
 // Constructor with parameters:
-BichselSimTool::BichselSimTool(const std::string& type, const std::string& name,const IInterface* parent):
+EnergyDepositionTool::EnergyDepositionTool(const std::string& type, const std::string& name,const IInterface* parent):
   AthAlgTool(type,name,parent),
   m_numberOfSteps(50),
   m_numberOfCharges(10),
@@ -63,17 +63,17 @@ BichselSimTool::BichselSimTool(const std::string& type, const std::string& name,
   declareProperty("doBichselBetaGammaCut", m_doBichselBetaGammaCut, "minimum beta-gamma for particle to be re-simulated through Bichsel Model");
   declareProperty("doDeltaRay", m_doDeltaRay, "whether we simulate delta-ray using Bichsel model");
   declareProperty("doPU", m_doPU, "Whether we apply Bichsel model on PU");
-  declareProperty("RndmSvc", m_rndmSvc, "Random Number Service used in BichselSimTool");
+  declareProperty("RndmSvc", m_rndmSvc, "Random Number Service used in EnergyDepositionTool");
   declareProperty("RndmEngine", m_rndmEngineName, "Random engine name");
 }
 
 // Destructor:
-BichselSimTool::~BichselSimTool(){}
+EnergyDepositionTool::~EnergyDepositionTool(){}
 
 //=======================================
 // I N I T I A L I Z E
 //=======================================
-StatusCode BichselSimTool::initialize() {
+StatusCode EnergyDepositionTool::initialize() {
   
   CHECK(AthAlgTool::initialize());
   CHECK(m_rndmSvc.retrieve());
@@ -123,7 +123,7 @@ StatusCode BichselSimTool::initialize() {
 
       if(!inputFile.is_open()){
         ATH_MSG_FATAL("Fail to load file " << inputFileName.Data() << " !");
-	ATH_MSG_FATAL("BichselSimTool::initialize() failed");
+	ATH_MSG_FATAL("EnergyDepositionTool::initialize() failed");
 	return StatusCode::FAILURE;
       }
 
@@ -177,8 +177,8 @@ StatusCode BichselSimTool::initialize() {
 //=======================================
 // F I N A L I Z E
 //=======================================
-StatusCode BichselSimTool::finalize() {
-  ATH_MSG_DEBUG ( "BichselSimTool::finalize()");
+StatusCode EnergyDepositionTool::finalize() {
+  ATH_MSG_DEBUG ( "EnergyDepositionTool::finalize()");
   return StatusCode::SUCCESS;
 }
 
@@ -186,9 +186,7 @@ StatusCode BichselSimTool::finalize() {
 //=======================================
 // D E P O S I T  E N E R G Y
 //=======================================
- //StatusCode BichselSimTool::depositEnergy(const TimedHitPtr<SiHit> &phit, const InDetDD::SiDetectorElement &Module, std::vector<std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions ){
-StatusCode BichselSimTool::depositEnergy(const TimedHitPtr<SiHit> &phit, const InDetDD::SiDetectorElement &Module, std::vector<std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions){
-
+StatusCode EnergyDepositionTool::depositEnergy(const TimedHitPtr<SiHit> &phit, const InDetDD::SiDetectorElement &Module, std::vector<std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions){
 
   ATH_MSG_DEBUG("Deposit energy in sensor volume.");
   
@@ -335,7 +333,7 @@ StatusCode BichselSimTool::depositEnergy(const TimedHitPtr<SiHit> &phit, const I
 //======================================
 //  S I M U L A T E    B O W 
 //======================================
-void BichselSimTool::simulateBow(const InDetDD::SiDetectorElement * element, double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const {
+void EnergyDepositionTool::simulateBow(const InDetDD::SiDetectorElement * element, double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const {
 
   // If tool is NONE we apply no correction.
   if (m_pixDistoTool.empty()) return;
@@ -363,8 +361,8 @@ void BichselSimTool::simulateBow(const InDetDD::SiDetectorElement * element, dou
 // InciEnergy should be in MeV
 // In case there is any abnormal in runtime, (-1,-1) will be returned indicating old deposition model should be used instead
 //-----------------------------------------------------------
-std::vector<std::pair<double,double> > BichselSimTool::BichselSim(double BetaGamma, int ParticleType, double TotalLength, double InciEnergy) const{
-  ATH_MSG_DEBUG("Begin BichselSimTool::BichselSim");
+std::vector<std::pair<double,double> > EnergyDepositionTool::BichselSim(double BetaGamma, int ParticleType, double TotalLength, double InciEnergy) const{
+  ATH_MSG_DEBUG("Begin EnergyDepositionTool::BichselSim");
 
   // prepare hit record (output)
   std::vector<std::pair<double,double> > rawHitRecord;
@@ -379,7 +377,7 @@ std::vector<std::pair<double,double> > BichselSimTool::BichselSim(double BetaGam
   // upper bound
   double IntXUpperBound = GetUpperBound(indices_BetaGammaLog10, BetaGammaLog10, iData);
   if(IntXUpperBound <= 0.){
-    ATH_MSG_WARNING("Negative IntXUpperBound in BichselSimTool::BichselSim! (-1,-1) will be returned");
+    ATH_MSG_WARNING("Negative IntXUpperBound in EnergyDepositionTool::BichselSim! (-1,-1) will be returned");
     SetFailureFlag(rawHitRecord);
     return rawHitRecord;
   }
@@ -436,7 +434,7 @@ std::vector<std::pair<double,double> > BichselSimTool::BichselSim(double BetaGam
     bool fLastStep = false;
 
     if( ((TotalEnergyLoss + TossEnergyLoss)/1.E+6) > InciEnergy ){
-      ATH_MSG_WARNING("Energy loss is larger than incident energy in BichselSimTool::BichselSim! This is usually delta-ray.");
+      ATH_MSG_WARNING("Energy loss is larger than incident energy in EnergyDepositionTool::BichselSim! This is usually delta-ray.");
       TossEnergyLoss = InciEnergy*1.E+6 - TotalEnergyLoss;
       fLastStep = true;
     }
@@ -458,7 +456,7 @@ std::vector<std::pair<double,double> > BichselSimTool::BichselSim(double BetaGam
       break;
   }
 
-  ATH_MSG_DEBUG("Finish BichselSimTool::BichselSim");
+  ATH_MSG_DEBUG("Finish EnergyDepositionTool::BichselSim");
 
   return rawHitRecord;
 }
@@ -466,8 +464,8 @@ std::vector<std::pair<double,double> > BichselSimTool::BichselSim(double BetaGam
 //=======================================
 // C L U S T E R   H I T S
 //=======================================
-std::vector<std::pair<double,double> > BichselSimTool::ClusterHits(std::vector<std::pair<double,double> >& rawHitRecord, int n_pieces) const{
-  ATH_MSG_DEBUG("Begin BichselSimTool::ClusterHits");
+std::vector<std::pair<double,double> > EnergyDepositionTool::ClusterHits(std::vector<std::pair<double,double> >& rawHitRecord, int n_pieces) const{
+  ATH_MSG_DEBUG("Begin EnergyDepositionTool::ClusterHits");
   std::vector<std::pair<double,double> > trfHitRecord;
 
   if((int)(rawHitRecord.size()) < n_pieces){ // each single collision is the most fundamental unit
@@ -506,7 +504,7 @@ std::vector<std::pair<double,double> > BichselSimTool::ClusterHits(std::vector<s
     }
   }
 
-  ATH_MSG_DEBUG("Finsih BichselSimTool::ClusterHits");
+  ATH_MSG_DEBUG("Finsih EnergyDepositionTool::ClusterHits");
 
   return trfHitRecord;
 }
@@ -519,7 +517,7 @@ std::vector<std::pair<double,double> > BichselSimTool::ClusterHits(std::vector<s
 //=======================================
 // TRF PDG
 //=======================================
-int BichselSimTool::trfPDG(int pdgId) const{
+int EnergyDepositionTool::trfPDG(int pdgId) const{
   if(std::fabs(pdgId) == 2212) return 1;   // proton
   if(std::fabs(pdgId) == 211)  return 2;   // pion
   // alpha is skipped -- 3
@@ -534,7 +532,7 @@ int BichselSimTool::trfPDG(int pdgId) const{
 //=======================================
 // C L U S T E R   H I T S
 //=======================================
-std::pair<int,int> BichselSimTool::FastSearch(std::vector<double> vec, double item) const{
+std::pair<int,int> EnergyDepositionTool::FastSearch(std::vector<double> vec, double item) const{
   std::pair<int,int> output;
 
   int index_low = 0;
@@ -572,7 +570,7 @@ std::pair<int,int> BichselSimTool::FastSearch(std::vector<double> vec, double it
 //=======================================
 // B E T A   G A M M A   I N D E X 
 //=======================================
-std::pair<int,int> BichselSimTool::GetBetaGammaIndices(double BetaGammaLog10, BichselData& iData) const{
+std::pair<int,int> EnergyDepositionTool::GetBetaGammaIndices(double BetaGammaLog10, BichselData& iData) const{
   std::pair<int,int> indices_BetaGammaLog10;
   if(BetaGammaLog10 > iData.Array_BetaGammaLog10.back()){ // last one is used because when beta-gamma is very large, energy deposition behavior is very similar
     indices_BetaGammaLog10.first = iData.Array_BetaGammaLog10.size()-1;
@@ -589,7 +587,7 @@ std::pair<int,int> BichselSimTool::GetBetaGammaIndices(double BetaGammaLog10, Bi
 // G E T   C O L L I S I O N   E N E R G Y
 //==========================================
 //Interpolate collision energy
-double BichselSimTool::GetColE(std::pair<int,int> indices_BetaGammaLog10, double IntXLog10, BichselData& iData) const{
+double EnergyDepositionTool::GetColE(std::pair<int,int> indices_BetaGammaLog10, double IntXLog10, BichselData& iData) const{
 
   if( (indices_BetaGammaLog10.first==-1) && (indices_BetaGammaLog10.second==-1) )
     return -1.;
@@ -610,7 +608,7 @@ double BichselSimTool::GetColE(std::pair<int,int> indices_BetaGammaLog10, double
 //===========================================
 // Overloaded C O L L I S I O N  E N E R G Y
 //===========================================
-double BichselSimTool::GetColE(double BetaGammaLog10, double IntXLog10, BichselData& iData) const{
+double EnergyDepositionTool::GetColE(double BetaGammaLog10, double IntXLog10, BichselData& iData) const{
   std::pair<int,int> indices_BetaGammaLog10 = GetBetaGammaIndices(BetaGammaLog10, iData);
   return GetColE(indices_BetaGammaLog10, IntXLog10, iData);
 }
@@ -619,7 +617,7 @@ double BichselSimTool::GetColE(double BetaGammaLog10, double IntXLog10, BichselD
 //==========================================
 // G E T   U P P E R   B O U N D  BETA GAMMA
 //==========================================
-double BichselSimTool::GetUpperBound(std::pair<int,int> indices_BetaGammaLog10, double BetaGammaLog10, BichselData& iData) const{
+double EnergyDepositionTool::GetUpperBound(std::pair<int,int> indices_BetaGammaLog10, double BetaGammaLog10, BichselData& iData) const{
 
   if (indices_BetaGammaLog10.first<0)  { return -1; }
   if (indices_BetaGammaLog10.second<0) { return -1; }
@@ -639,7 +637,7 @@ double BichselSimTool::GetUpperBound(std::pair<int,int> indices_BetaGammaLog10, 
 //==========================================
 // overloaded G E T  U P P E R   B O U N D
 //==========================================
-double BichselSimTool::GetUpperBound(double BetaGammaLog10, BichselData& iData) const{
+double EnergyDepositionTool::GetUpperBound(double BetaGammaLog10, BichselData& iData) const{
   std::pair<int,int> indices_BetaGammaLog10 = GetBetaGammaIndices(BetaGammaLog10, iData);
   return GetUpperBound(indices_BetaGammaLog10, BetaGammaLog10, iData);
 }
@@ -647,7 +645,7 @@ double BichselSimTool::GetUpperBound(double BetaGammaLog10, BichselData& iData) 
 //==========================================
 // S E T  F A I L U R E
 //==========================================
-void BichselSimTool::SetFailureFlag(std::vector<std::pair<double,double> >& rawHitRecord) const{
+void EnergyDepositionTool::SetFailureFlag(std::vector<std::pair<double,double> >& rawHitRecord) const{
   rawHitRecord.clear();
   std::pair<double, double> specialFlag;
   specialFlag.first = -1.; specialFlag.second = -1.;

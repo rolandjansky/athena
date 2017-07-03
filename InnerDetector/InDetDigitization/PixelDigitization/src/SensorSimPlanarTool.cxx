@@ -27,6 +27,9 @@
 
 using namespace InDetDD;
 
+//===============================================
+//    C O N S T R U C T O R
+//===============================================
 SensorSimPlanarTool::SensorSimPlanarTool(const std::string& type, const std::string& name,const IInterface* parent):
   SensorSimTool(type,name,parent),
   m_numberOfSteps(50),
@@ -43,17 +46,25 @@ class DetCondCFloat;
 
 SensorSimPlanarTool::~SensorSimPlanarTool() { }
 
+//===============================================
+//    I N I T I A L I Z E
+//===============================================
 StatusCode SensorSimPlanarTool::initialize() {
   CHECK(SensorSimTool::initialize()); 
   ATH_MSG_DEBUG ( "SensorSimPlanarTool::initialize()");
   return StatusCode::SUCCESS;
 }
 
+//===============================================
+//    F I N A L I Z E
+//===============================================
 StatusCode SensorSimPlanarTool::finalize() {
   ATH_MSG_DEBUG("SensorSimPlanarTool::finalize()");
   return StatusCode::SUCCESS;
 }
-
+//===============================================
+//    I N D U C E    C H A R G E
+//===============================================
 StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection &chargedDiodes, const InDetDD::SiDetectorElement &Module, const InDetDD::PixelModuleDesign &p_design, std::vector< std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions) {
 
   // So far, this is only discriminating variable from 3D sensor.

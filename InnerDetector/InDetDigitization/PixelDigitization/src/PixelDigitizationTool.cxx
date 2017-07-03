@@ -53,7 +53,7 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   declareProperty("PixelProcessorTools", m_processorTool, "List of processor tools");
   declareProperty("ChargeTools",      m_chargeTool,      "List of charge tools");
   declareProperty("FrontEndSimTools", m_fesimTool,       "List of Front-End simulation tools");
-  declareProperty("BichselSimTool",   m_energyDepositionTool,       "Energy deposition tool");
+  declareProperty("EnergyDepositionTool",   m_energyDepositionTool,       "Energy deposition tool");
   declareProperty("RndmSvc",          m_rndmSvc,         "Random number service used in Pixel Digitization");
   declareProperty("MergeSvc",         m_mergeSvc,        "Merge service used in Pixel digitization");
   declareProperty("InputObjectName",  m_inputObjectName, "Input Object name" );
@@ -66,6 +66,9 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   declareProperty("ParticleBarcodeVeto",m_vetoThisBarcode=crazyParticleBarcode, "Barcode of particle to ignore");
 }
 
+//=======================================
+// I N I T I A L I Z E
+//=======================================
 StatusCode PixelDigitizationTool::initialize() {
   ATH_MSG_DEBUG("PixelDigitizationTool::Initialize()");
 
@@ -110,10 +113,16 @@ StatusCode PixelDigitizationTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
+//=======================================
+// F I N A L I Z E
+//=======================================
 StatusCode PixelDigitizationTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
+//=======================================
+// P R O C E S S   S U B E V E N T S
+//=======================================
 StatusCode PixelDigitizationTool::processAllSubEvents() {
 
   // Prepare event
@@ -144,6 +153,9 @@ StatusCode PixelDigitizationTool::processAllSubEvents() {
   return StatusCode::SUCCESS;
 }
 
+//=======================================
+// D I G I T I Z E   E V E N T (main)
+//=======================================
 StatusCode PixelDigitizationTool::digitizeEvent() {
   ATH_MSG_VERBOSE("PixelDigitizationTool::digitizeEvent()");
 
@@ -154,8 +166,11 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
   std::vector<bool> processedElements;
   processedElements.resize(m_detID->wafer_hash_max(),false);
 
-  // Loop over the Detectors with hits
   TimedHitCollection<SiHit>::const_iterator firstHit, lastHit;
+  
+  ////////////////////////////////////////////////
+  // **** Loop over the Detectors with hits ****
+  ////////////////////////////////////////////////
   while (m_timedHits->nextDetectorElement(firstHit,lastHit)) {
 
     // Create the identifier for the collection
@@ -176,7 +191,9 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
     chargedDiodes->setDetectorElement(sielement);
     const InDetDD::PixelModuleDesign *p_design= static_cast<const InDetDD::PixelModuleDesign*>(&(sielement->design()));
 
-    // Loop over the hits and created charged diodes:
+    ///////////////////////////////////////////////////////////
+    // **** Loop over the hits and created charged diodes ****
+    ///////////////////////////////////////////////////////////
     for (TimedHitCollection<SiHit>::const_iterator phit=firstHit; phit!=lastHit; phit++) {
       //skip hits which are more than 10us away
       if (fabs((*phit)->meanTime())<10000.0*CLHEP::ns) {
@@ -187,7 +204,8 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
 	
 	//Deposit energy in sensor
 	CHECK(m_energyDepositionTool->depositEnergy( *phit,  *sielement, trfHitRecord, initialConditions));
-	//Create signal in sensor
+	
+	//Create signal in sensor, loop over collection of loaded sensorTools
 	for (unsigned int itool=0; itool<m_chargeTool.size(); itool++) {
           ATH_MSG_DEBUG("Executing tool " << m_chargeTool[itool]->name());
           if (m_chargeTool[itool]->induceCharge( *phit, *chargedDiodes, *sielement, *p_design, trfHitRecord, initialConditions)==StatusCode::FAILURE) { break; }
@@ -213,7 +231,9 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
     assert(idHash<processedElements.size());
     processedElements[idHash] = true;
 
-    // Create and store RDO and SDO
+    ///////////////////////////////////////////////////////////
+    // ***       Create and store RDO and SDO   ****
+    ///////////////////////////////////////////////////////////
     if (!chargedDiodes->empty()) {
 
       PixelRDO_Collection *RDOColl = new PixelRDO_Collection(chargedDiodes->identifyHash());
@@ -233,7 +253,9 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
   m_timedHits = nullptr;
   ATH_MSG_DEBUG("hits processed");
 
-  // Loop over the Detectors without hits
+  ///////////////////////////////////////////////////////////
+  //  ***  Loop over the Detectors without hits ****
+  ///////////////////////////////////////////////////////////
   if (!m_onlyHitElements) { 
     ATH_MSG_DEBUG("processing elements without hits");
     for (unsigned int i=0; i<processedElements.size(); i++) {
@@ -279,7 +301,9 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
   return StatusCode::SUCCESS;
 }
 
-//-----------------------------------------------------------------------------------------------
+//=======================================
+// A D D   S D O
+//=======================================
 // Convert a SiTotalCharge to a InDetSimData, and store it. (this needs working...)
 //-----------------------------------------------------------------------------------------------
 void PixelDigitizationTool::addSDO(SiChargedDiodeCollection* collection) {
@@ -328,9 +352,9 @@ void PixelDigitizationTool::addSDO(SiChargedDiodeCollection* collection) {
   }
 }
 
-//----------------------------------------------------------------------
-// PrepareEvent method:
-//----------------------------------------------------------------------
+//=======================================
+// P R E P A R E   E V E N T
+//=======================================
 StatusCode PixelDigitizationTool::prepareEvent(unsigned int) {
   ATH_MSG_VERBOSE("PixelDigitizationTool::prepareEvent()");
 
@@ -359,9 +383,9 @@ StatusCode PixelDigitizationTool::prepareEvent(unsigned int) {
   return StatusCode::SUCCESS;
 }
 
-//----------------------------------------------------------------------
-// MergeEvent method:
-//----------------------------------------------------------------------
+//=======================================
+// M E R G E   E V E N T
+//=======================================
 StatusCode PixelDigitizationTool::mergeEvent() {
   ATH_MSG_VERBOSE("PixelDigitizationTool::mergeEvent()");
 
@@ -377,9 +401,9 @@ StatusCode PixelDigitizationTool::mergeEvent() {
   return StatusCode::SUCCESS;
 }
 
-//----------------------------------------------------------------------
-// ProcessBunchXing method:
-//----------------------------------------------------------------------
+//=======================================
+// P R O C E S S   B U N C H  X I N G
+//=======================================
 StatusCode PixelDigitizationTool::processBunchXing(int bunchXing, SubEventIterator bSubEvents, SubEventIterator eSubEvents) {
 
   ATH_MSG_VERBOSE("PixelDigitizationTool::processBunchXing() " << bunchXing);

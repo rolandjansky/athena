@@ -26,5 +26,5 @@ addTool("PixelDigitization.PixelDigitizationConfig.FEI4SimTool","FEI4SimTool")
 addTool("PixelDigitization.PixelDigitizationConfig.FEI3SimTool","FEI3SimTool")
 addTool("PixelDigitization.PixelDigitizationConfig.PixelOverlayDigitizationTool", "PixelOverlayDigitizationTool")
 addAlgorithm("PixelDigitization.PixelDigitizationConfig.PixelOverlayDigitization", "PixelOverlayDigitization")
-addTool("PixelDigitization.PixelDigitizationConfig.BichselSimTool", "BichselSimTool")
+addTool("PixelDigitization.PixelDigitizationConfig.EnergyDepositionTool", "EnergyDepositionTool")
 

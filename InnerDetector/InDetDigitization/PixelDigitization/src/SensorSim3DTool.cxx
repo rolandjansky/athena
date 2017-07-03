@@ -28,7 +28,9 @@
 using namespace InDetDD;
 
 
-// Constructor with parameters:
+//===============================================
+//    C O N S T R U C T O R
+//===============================================
 SensorSim3DTool::SensorSim3DTool(const std::string& type, const std::string& name,const IInterface* parent):
   SensorSimTool(type,name,parent),
   m_numberOfSteps(50),
@@ -43,9 +45,9 @@ class DetCondCFloat;
 // Destructor:
 SensorSim3DTool::~SensorSim3DTool() { }
 
-//----------------------------------------------------------------------
-// Initialize
-//----------------------------------------------------------------------
+//===============================================
+//    I N I T I A L I Z E
+//===============================================
 StatusCode SensorSim3DTool::initialize() {
   CHECK(SensorSimTool::initialize());
  	  
@@ -56,17 +58,17 @@ StatusCode SensorSim3DTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-//----------------------------------------------------------------------
-// finalize
-//----------------------------------------------------------------------
+//===============================================
+//    F I N A L I Z E
+//===============================================
 StatusCode SensorSim3DTool::finalize() {
   ATH_MSG_DEBUG("SensorSim3DTool::finalize()");
   return StatusCode::SUCCESS;
 }
 
-//----------------------------------------------------------------------
-// charge
-//----------------------------------------------------------------------
+//===============================================
+//    I N D U C E    C H A R G E
+//===============================================
 StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiChargedDiodeCollection &chargedDiodes, const InDetDD::SiDetectorElement &Module, const InDetDD::PixelModuleDesign &p_design, std::vector< std::pair<double,double> > &trfHitRecord, std::vector<double> &initialConditions) {
 
 
@@ -108,9 +110,9 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiCharg
   double module_size_y = Module.length();
   
 
-  // *** Now diffuse charges to surface *** //
-  // We split the G4 step into several sub steps. The charge will be deposited at the mid point
-  // of these steps
+  //**************************************//
+  //*** Now diffuse charges to surface *** //
+  //**************************************//
   for(unsigned int istep = 0; istep < trfHitRecord.size(); istep++) {
     std::pair<double,double> iHitRecord = trfHitRecord[istep];
 
