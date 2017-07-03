@@ -130,13 +130,11 @@ TCS::InvariantMassInclusive1::initialize() {
 TCS::StatusCode
 TCS::InvariantMassInclusive1::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
                              const std::vector<TCS::TOBArray *> & output,
-                             Decision & decison )
+                             Decision & decision )
 {
 
    if(input.size() == 1) {     
      
-      std::vector<bool> iaccept (numberOutputBits());
-
       for( TOBArray::const_iterator tob1 = input[0]->begin(); 
            tob1 != input[0]->end() && distance( input[0]->begin(), tob1) < p_NumberLeading1;
            ++tob1) 
@@ -160,16 +158,20 @@ TCS::InvariantMassInclusive1::processBitCorrect( const std::vector<TCS::TOBArray
                    if( parType_t((*tob2)->Et()) <= min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
                    if( (parType_t((*tob1)->Et()) <= max(p_MinET1[i],p_MinET2[i])) && (parType_t((*tob2)->Et()) <= max(p_MinET1[i],p_MinET2[i]))) continue;
                    accept = invmass2 >= p_InvMassMin[i] && invmass2 <= p_InvMassMax[i]; // 
+                   const bool fillAccept = (fillHistosBasedOnHardware() ?
+                                            getDecisionHardwareBit(i) :
+                                            accept);
+                   const bool fillReject = not fillAccept;
+                   const bool alreadyFilled = decision.bit(i);
                    if( accept ) {
-                       decison.setBit(i, true);  
+                       decision.setBit(i, true);
                        output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
-                       if (!(iaccept[i])) {
-                           iaccept[i]=1;
-                           m_histAcceptINV1[i]->Fill(sqrt((float)invmass2));
-                       }
                    }
-                   else
+                   if(fillAccept and not alreadyFilled) {
+                       m_histAcceptINV1[i]->Fill(sqrt((float)invmass2));
+                   } else if(fillReject) {
                        m_histRejectINV1[i]->Fill(sqrt((float)invmass2));
+                   }
                    TRG_MSG_INFO("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2);
                }
             }
@@ -187,13 +189,10 @@ TCS::InvariantMassInclusive1::processBitCorrect( const std::vector<TCS::TOBArray
 TCS::StatusCode
 TCS::InvariantMassInclusive1::process( const std::vector<TCS::TOBArray const *> & input,
                              const std::vector<TCS::TOBArray *> & output,
-                             Decision & decison )
+                             Decision & decision )
 {
 
    if(input.size() == 1) {     
-     
-      std::vector<bool> iaccept (numberOutputBits());
-
       for( TOBArray::const_iterator tob1 = input[0]->begin(); 
            tob1 != input[0]->end() && distance( input[0]->begin(), tob1) < p_NumberLeading1;
            ++tob1) 
@@ -220,16 +219,20 @@ TCS::InvariantMassInclusive1::process( const std::vector<TCS::TOBArray const *> 
                   if( parType_t((*tob2)->Et()) <= min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
                   if( (parType_t((*tob1)->Et()) <= max(p_MinET1[i],p_MinET2[i])) && (parType_t((*tob2)->Et()) <= max(p_MinET1[i],p_MinET2[i]))) continue;
                   accept = invmass2 >= p_InvMassMin[i] && invmass2 <= p_InvMassMax[i]; // 
+                  const bool fillAccept = (fillHistosBasedOnHardware() ?
+                                           getDecisionHardwareBit(i) :
+                                           accept);
+                  const bool fillReject = not fillAccept;
+                  const bool alreadyFilled = decision.bit(i);
                   if( accept ) {
-                     decison.setBit(i, true);  
-                     output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
-                     if (!(iaccept[i])) {
-                         iaccept[i]=1;
-                         m_histAcceptINV1[i]->Fill(sqrt((float)invmass2));
-                     }
+                      decision.setBit(i, true);
+                      output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                   }
-                  else
+                  if(fillAccept and not alreadyFilled) {
+                      m_histAcceptINV1[i]->Fill(sqrt((float)invmass2));
+                  } else if(fillReject) {
                       m_histRejectINV1[i]->Fill(sqrt((float)invmass2));
+                  }
                   TRG_MSG_INFO("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2);
                }
             }

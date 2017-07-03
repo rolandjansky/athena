@@ -103,6 +103,13 @@ namespace TCS {
          They will then be used to fill the accept/reject monitoring histograms.
        */
       void propagateHardwareBitsToAlgos();
+      /**
+         @brief tell output algos to fill accept/reject histos based on hdw decision.
+
+         In this case you will need to call setHardwareBits +
+         propagateHardwareBitsToAlgos at each event.
+       */
+      void setOutputAlgosFillBasedOnHardware(const bool &value);
    private:
 
       // execution

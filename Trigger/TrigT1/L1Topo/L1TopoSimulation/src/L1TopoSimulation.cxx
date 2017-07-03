@@ -156,6 +156,8 @@ L1TopoSimulation::initialize() {
    }
 
    m_topoSteering->setAlgMsgLevel( TrigConf::MSGTC::Level(m_topoOutputLevel) );
+   m_topoSteering->setOutputAlgosFillBasedOnHardware(m_fillHistogramsBasedOnHardwareDecision);
+
 
    std::shared_ptr<IL1TopoHistSvc> topoHistSvc = std::shared_ptr<IL1TopoHistSvc>( new AthenaL1TopoHistSvc(m_histSvc) );
    topoHistSvc->setBaseDir("/EXPERT/" + m_histBaseDir.value());

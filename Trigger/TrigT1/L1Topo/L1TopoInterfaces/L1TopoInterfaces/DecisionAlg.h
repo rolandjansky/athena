@@ -51,6 +51,11 @@ namespace TCS {
       bool getDecisionHardwareBit(const unsigned int &bitNumber) const;
       ///! get one hardware overflow bit from this algo
       bool getOverflowHardwareBit(const unsigned int &bitNumber) const;
+      ///! toggle m_fillHistosBasedOnHardware
+      DecisionAlg& setFillHistosBasedOnHardware(const bool &value);
+      ///! getter
+      bool fillHistosBasedOnHardware() const;
+
    private:
 
       virtual StatusCode doReset();
@@ -63,6 +68,8 @@ namespace TCS {
       uint32_t m_hardwareDecisionBits {0};
       ///! overflow bits from hardware (assume the algo won't have >31 output bits)
       uint32_t m_hardwareOverflowBits {0};
+      ///! fill accept/reject monitoring histos based on hdw decision
+      bool m_fillHistosBasedOnHardware {0};
    };
 
 }
