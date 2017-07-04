@@ -1686,10 +1686,19 @@ Analysis::CalibrationDataInterfaceROOT::getWeightScaleFactor (const CalibrationD
   if (unc == Total || unc == Systematic) {
     if (container->getSystUncertainty(variables, uncertaintyResult) == Analysis::kError) {
       cerr << "getWeightScaleFactor: error retrieving Scale factor parameter systematic uncertainty!"
-	   << endl;
+           << endl;
       return Analysis::kError;
     }
-  }
+  } else if (unc == Extrapolation) {
+    // this uncertainty is special, since it is not normally to be combined into the overall systematic uncertainty
+    if (container->getUncertainty("extrapolation", variables, uncertaintyResult) == Analysis::kError)
+      cerr << "getWeightScaleFactor: error retrieving Scale factor parameter extrapolation uncertainty!" << endl;
+  } else if (unc == TauExtrapolation) {
+    // also this uncertainty is special, since it it singles out an uncertainty relevant only for tau "jets",
+    // and some care has to be taken not to duplicate or omit uncertainties
+    if (container->getUncertainty("extrapolation from charm", variables, uncertaintyResult) == Analysis::kError)
+      cerr << "getWeightScaleFactor: error retrieving Scale factor parameter extrapolation uncertainty!" << endl;
+  }  
 
   double uncertainty = combinedUncertainty(stat, uncertaintyResult);
 
