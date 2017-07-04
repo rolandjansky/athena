@@ -33,7 +33,10 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODMuon/MuonContainer.h"
-
+// Local include(s):
+#include <xAODCore/ShallowCopy.h>
+#include <xAODBase/ObjectType.h>
+#include <xAODBase/IParticleHelpers.h>
 // Tools
 #include "IsolationSelection/IsolationCloseByCorrectionTool.h"
 #include "IsolationSelection/TestMacroHelpers.h"
@@ -51,16 +54,18 @@ const float PI = 3.1416;
 
 template<typename Container> StatusCode RetrieveContainer(xAOD::TEvent &Ev, const std::string &Key, Container* &C, xAOD::ShallowAuxContainer* &Aux) {
     if (Aux) delete Aux;
+    if (C) delete C;
     const Container* InCont(0);
     if (!Ev.retrieve(InCont, Key).isSuccess()) {
-        Error(APP_NAME.c_str(), "Could not retrieve %s", Key.c_str());
+        Error("RetrieveContainer()", "Could not retrieve %s", Key.c_str());
         return StatusCode::FAILURE;
     }
     typename std::pair<Container*, xAOD::ShallowAuxContainer*> shallowcopy = xAOD::shallowCopyContainer(*InCont);
     Aux = shallowcopy.second;
     C = shallowcopy.first;
     if (!xAOD::setOriginalObjectLink(*InCont, *C)) {
-        Error(APP_NAME.c_str(), "Failed to set Object links to %s", Key.c_str());
+        Error("RetrieveContainer()", "Failed to set Object links to %s", Key.c_str());
+        delete Aux;
         return StatusCode::FAILURE;
     }
     return StatusCode::SUCCESS;
@@ -72,7 +77,7 @@ int main(int argc, char** argv) {
     const char* APP_NAME = "test_IsolationCloseByCorrectionTool";
     CHECK(xAOD::Init());
 
-    TString outputTree = "output_testIsolationCloseByCorrectionTool_ttbar.root";
+    TString outputTree = "test_IsolationCloseByCorrectionTool.root";
 
     TString fileName = "root://eosatlas//eos/atlas/atlastier0/tzero/prod/valid1/PowhegPythia_P2011C_ttbar/117050/valid1.117050.PowhegPythia_P2011C_ttbar.recon.AOD.e2658_s1967_s1964_r5787_v111/valid1.117050.PowhegPythia_P2011C_ttbar.recon.AOD.e2658_s1967_s1964_r5787_v111._000001.4";
 
@@ -83,6 +88,9 @@ int main(int argc, char** argv) {
     Info(APP_NAME, "Opening file: %s", fileName.Data());
     std::auto_ptr<TFile> ifile(TFile::Open(fileName, "READ"));
     ifile.get();
+    // Create a TEvent object:
+    xAOD::TEvent event(xAOD::TEvent::kClassAccess);
+    CHECK(event.readFrom(ifile.get()));
 
     // Creating the tools.
 
@@ -129,10 +137,6 @@ int main(int argc, char** argv) {
     CP::IsoCorrectionTestHelper muoBranches(tree, "Muons", m_isoSelTool->getMuonWPs());
     CP::IsoCorrectionTestHelper phoBranches(tree, "Photons", m_isoSelTool->getPhotonWPs());
 
-    // Create a TEvent object:
-    xAOD::TEvent event(xAOD::TEvent::kClassAccess);
-    CHECK(event.readFrom(ifile.get()));
-
     Long64_t maxEVT = -1;
     Long64_t entries = event.getEntries();
     if ((entries < maxEVT) || (maxEVT <= 0)) {
@@ -142,7 +146,9 @@ int main(int argc, char** argv) {
 
     const int INTERVAL = maxEVT > 20000 ? 10000 : maxEVT / 10;
 
-    xAOD::xAODShallowAuxContainer* AuxMuons(nullptr), AuxElectrons(nullptr), AuxPhotons(nullptr);
+    xAOD::ShallowAuxContainer* AuxMuons = nullptr;
+    xAOD::ShallowAuxContainer* AuxElectrons = nullptr;
+    xAOD::ShallowAuxContainer* AuxPhotons = nullptr;
     xAOD::MuonContainer* Muons = nullptr;
     xAOD::ElectronContainer* Electrons = nullptr;
     xAOD::PhotonContainer* Photons = nullptr;
@@ -162,33 +168,32 @@ int main(int argc, char** argv) {
 //        eventNumber = ei->eventNumber();
 
         //Retrieve the Containers and create the ShallowAux links
-        CHECK(RetrieveContainer(event, "Muons", Muons, AuxMuons));
-        CHECK(RetrieveContainer(event, "Electrons", Electrons, AuxElectrons));
-        CHECK(RetrieveContainer(event, "Photons", Photons, AuxPhotons));
+        if (!RetrieveContainer(event, "Muons", Muons, AuxMuons).isSuccess()) break;
+        if (!RetrieveContainer(event, "Electrons", Electrons, AuxElectrons).isSuccess()) break;
+        if (!RetrieveContainer(event, "Photons", Photons, AuxPhotons).isSuccess()) break;
         for (const auto ielec : *Electrons) {
             //Store if the electron passes the isolation
-            dec_PassIsol(*ielec) = m_isoSelectorTool->accept(*ielec);
+            dec_PassIsol(*ielec) = m_isoSelTool->accept(*ielec);
             //Quality criteria only baseline kinematic selection
             dec_PassQuality(*ielec) = ielec->pt() > 10.e3 && fabs(ielec->eta()) < 2.47;
         }
 
         for (const auto iphot : *Photons) {
             //Store if the photon passes the isolation (only needed for later comparisons)
-            dec_PassIsol(*iphot) = m_isoSelectorTool->accept(*iphot);
+            dec_PassIsol(*iphot) = m_isoSelTool->accept(*iphot);
             //Quality criteria only baseline kinematic selection
             dec_PassQuality(*iphot) = iphot->pt() > 25.e3 && fabs(iphot->eta()) < 2.35;
         }
         for (const auto imuon : *Muons) {
             //Store if the muon passes the isolation
-            dec_PassIsol(*imuon) = m_isoSelectorTool->accept(*imuon);
+            dec_PassIsol(*imuon) = m_isoSelTool->accept(*imuon);
             //Quality criteria only baseline kinematic selection
             dec_PassQuality(*imuon) = imuon->pt() > 5.e3 && fabs(imuon->eta()) < 2.7;
         }
         //Okay everything is defined for the preselection of the algorithm. lets  pass the things  towards the IsoCorrectionTool
 
-        if (m_isoCloseByTool->getCloseByIsoCorrection(Electrons, Muons, Photons).code() == CorrectionCode::Error) {
-            ATH_MSG_ERROR("Something weird happened with the tool");
-            return StatusCode::FAILURE;
+        if (m_isoCloseByTool->getCloseByIsoCorrection(Electrons, Muons, Photons).code() == CP::CorrectionCode::Error) {
+            return EXIT_FAILURE;
         }
         // The isoCorrectionTool has now corrected everything using close-by objects satisfiyng the dec_PassQuality criteria
         // The name of the decorator is set via the 'SelectionDecorator' property of the tool
@@ -198,9 +203,9 @@ int main(int argc, char** argv) {
         // The final result  whether the object  passes the isolation criteria now can be stored in the 'IsolationSelectionDecorator' e.g. 'CorrectedIso'
 
         //Store everything in the final ntuples
-        ATH_CHECK(eleBranches.Fill(Electrons));
-        ATH_CHECK(muoBranches.Fill(Muons));
-        ATH_CHECK(phoBranches.Fill(Photons));
+        CHECK(eleBranches.Fill(Electrons));
+        CHECK(muoBranches.Fill(Muons));
+        CHECK(phoBranches.Fill(Photons));
         tree->Fill();
 
     }
@@ -210,11 +215,6 @@ int main(int argc, char** argv) {
     ofile->Close();
 
     Info(APP_NAME, "Finished successfully!");
-
-    xAOD::IOStats::instance().stats().printSmartSlimmingBranchList();
-
-    delete m_isoCloseByTool_Muon;
-
-    return 0;
+    return EXIT_SUCCESS;
 
 }
