@@ -122,11 +122,10 @@ bool eflowRingSubtractionManager::getOrdering(const eflowEEtaBinnedParameters* b
   if (isFailed) { return false; }
 
   /* Set the ring thicknesses */
-  const eflowRingThicknesses ringThicknessFactory;
   std::vector<double> ringThicknesses(eflowCalo::nRegions);
   for (int i = 0; i < eflowCalo::nRegions; i++) {
     //This was reviously interpolated - but the ring thickeness is a geometric property of the calorimeter without any energy dependence, so it was not needed.
-    ringThicknesses[i] = ringThicknessFactory.ringThickness((eflowCaloENUM) i);
+    ringThicknesses[i] = eflowRingThicknesses::ringThickness((eflowCaloENUM) i);
   }
 
   setParameters(meanBin, ringThicknesses);

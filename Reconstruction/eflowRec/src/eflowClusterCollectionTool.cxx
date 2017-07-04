@@ -40,7 +40,7 @@ std::unique_ptr<eflowRecClusterContainer> eflowClusterCollectionTool::retrieve(e
       result->push_back(thisEfRecCluster);
   }
 }
-  return std::move(result);
+  return result;
 }
 
 
@@ -72,7 +72,7 @@ std::unique_ptr<xAOD::CaloClusterContainer> eflowClusterCollectionTool::execute(
           << thisCluster->e() << ", " << thisCluster->eta() << " and " << thisCluster->phi() << endmsg;
     }
   }
-  return std::move(result);
+  return result;
 }
 
 StatusCode eflowClusterCollectionTool::finalize(){
