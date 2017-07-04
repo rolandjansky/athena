@@ -16,11 +16,18 @@
 #include <xAODBase/ObjectType.h>
 #include <xAODBase/IParticleHelpers.h>
 #include <GaudiKernel/ITHistSvc.h>
-#include "IsolationSelection/IIsolationCloseByCorrectionTool.h"
-#include "IsolationSelection/TestMacroHelpers.h"
+
+#include <IsolationSelection/TestMacroHelpers.h>
+
+
+#include <memory>
+
 
 class ITHistSvc;
+
 namespace CP {
+    class IIsolationCloseByCorrectionTool;
+    class IIsolationSelectionTool;
 
     class TestIsolationCloseByCorrAthenaAlg: public AthAlgorithm {
 
@@ -56,8 +63,6 @@ namespace CP {
             std::unique_ptr<IsoCorrectionTestHelper> m_ele_helper;
             std::unique_ptr<IsoCorrectionTestHelper> m_muo_helper;
             std::unique_ptr<IsoCorrectionTestHelper> m_pho_helper;
-
-
 
     };
 

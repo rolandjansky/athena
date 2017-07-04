@@ -6,7 +6,7 @@
 #define ISOLATIONSELECTION_IISOLATIONCLOSEBYCORRECTIONTOOL_H
 
 #include <PATInterfaces/CorrectionCode.h>
-#include <xAODPrimitives/IsolationType.h>
+#include <IsolationSelection/Defs.h>
 #include <PATCore/TAccept.h>
 
 #include <xAODEgamma/ElectronContainer.h>
@@ -14,10 +14,9 @@
 #include <xAODMuon/MuonContainer.h>
 #include <xAODBase/IParticleContainer.h>
 #include <AsgTools/IAsgTool.h>
-namespace CP {
-    typedef xAOD::Iso::IsolationType IsoType;
-    typedef std::vector<IsoType> IsoVector;
 
+
+namespace CP {
     class IIsolationCloseByCorrectionTool: public virtual asg::IAsgTool {
 
             ASG_TOOL_INTERFACE (CP::IIsolationCloseByCorrectionTool)

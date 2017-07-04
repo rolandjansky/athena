@@ -4,6 +4,7 @@
 
 #include <IsolationSelection/IsolationWP.h>
 #include <IsolationSelection/TestMacroHelpers.h>
+#include <IsolationSelection/IsoVariableHelper.h>
 
 #include <xAODPrimitives/IsolationHelpers.h>
 #include <xAODPrimitives/tools/getIsolationAccessor.h>
@@ -17,7 +18,9 @@ namespace CP {
         if (str.size() > 0 && str.find(" ") == str.size() - 1) return EraseWhiteSpaces(str.substr(0, str.size() - 1));
         return str;
     }
-
+    //############################################################################
+    //                      IsoCorrectionTestHelper
+    //############################################################################
     IsoCorrectionTestHelper::IsoCorrectionTestHelper(TTree* outTree, const std::string& ContainerName, const std::vector<IsolationWP*> &WPs) :
                 m_tree(outTree),
                 m_init(true),

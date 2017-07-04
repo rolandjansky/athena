@@ -6,18 +6,23 @@
 #define ISOLATIONSELECTION_TESTMARCOHELPERS_H
 
 #include <AsgTools/ToolHandle.h>
-#include <IsolationSelection/IsolationCloseByCorrectionTool.h>
-#include <IsolationSelection/IsolationSelectionTool.h>
+
+#include <IsolationSelection/IsoVariableHelper.h>
+#include <IsolationSelection/Defs.h>
+
 
 #include <xAODBase/IParticle.h>
-
 #include <xAODBase/IParticleContainer.h>
+
 #include <TTree.h>
 #include <vector>
+#include <memory>
+
 namespace CP {
-    
     std::string EraseWhiteSpaces(std::string str);
-    
+
+    class IsolationWP;
+
     class IsoCorrectionTestHelper {
         public:
             IsoCorrectionTestHelper(TTree* outTree, const std::string& ContainerName, const std::vector<IsolationWP*> &WP);

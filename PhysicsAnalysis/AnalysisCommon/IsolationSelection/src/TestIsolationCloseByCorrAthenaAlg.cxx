@@ -11,6 +11,11 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODMuon/MuonContainer.h"
 
+#include <IsolationSelection/IIsolationCloseByCorrectionTool.h>
+#include <IsolationSelection/IIsolationSelectionTool.h>
+#include <IsolationSelection/IsoVariableHelper.h>
+#include <IsolationSelection/TestMacroHelpers.h>
+
 
 
 namespace CP {
