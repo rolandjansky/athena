@@ -166,6 +166,39 @@ int PixelMainMon :: GetEtaID(Identifier &id, const PixelID* pixID, bool doIBL, b
    return etaid;
 }
 
+bool PixelMainMon::HasComponent(const PixMon::HistConf& config, const PixLayerIBL2D3DDBM::PixLayerIBL2D3DDBMID& component)
+{
+   // enum class HistConf {kPix, kPixIBL, kPixIBL2D3D, kPixDBM, kPixDBMIBL, kPixDBMIBL2D3D, kDBM, kDBMIBL, kDBMIBL2D3D, kIBL, kIBL2D3D, COUNT};
+   // enum PixLayerIBL2D3DDBMID {kECA = 0, kECC, kB0, kB1, kB2, kDBMA, kDBMC, kIBL, kIBL2D, kIBL3D, COUNT};
+   if (component >= PixLayerIBL2D3DDBM::COUNT) {
+      return false;
+   } else if (config == PixMon::HistConf::kPix && component <= PixLayerIBL2D3DDBM::kB2) {
+      return true;
+   } else if (config == PixMon::HistConf::kPixIBL && (component <= PixLayerIBL2D3DDBM::kB2 || component == PixLayerIBL2D3DDBM::kIBL)) {
+      return true;
+   } else if (config == PixMon::HistConf::kPixIBL2D3D && (component <= PixLayerIBL2D3DDBM::kB2 || component >= PixLayerIBL2D3DDBM::kIBL)) {
+      return true;
+   } else if (config == PixMon::HistConf::kPixDBM && component <= PixLayerIBL2D3DDBM::kDBMC) {
+      return true;
+   } else if (config == PixMon::HistConf::kPixDBMIBL && component <= PixLayerIBL2D3DDBM::kIBL) {
+      return true;
+   } else if (config == PixMon::HistConf::kPixDBMIBL2D3D) {
+      return true;
+   } else if (config == PixMon::HistConf::kDBM && (component == PixLayerIBL2D3DDBM::kDBMA || component == PixLayerIBL2D3DDBM::kDBMC)) {
+      return true;
+   } else if (config == PixMon::HistConf::kDBMIBL && component >= PixLayerIBL2D3DDBM::kDBMA && component <= PixLayerIBL2D3DDBM::kIBL) {
+      return true;
+   } else if (config == PixMon::HistConf::kDBMIBL2D3D && component >= PixLayerIBL2D3DDBM::kDBMA) {
+      return true;
+   } else if (config == PixMon::HistConf::kIBL && component == PixLayerIBL2D3DDBM::kIBL) {
+      return true;
+   } else if (config == PixMon::HistConf::kIBL2D3D && component >= PixLayerIBL2D3DDBM::kIBL) {
+      return true;
+   } else {
+      return false;
+   }
+}
+
 void PixelMainMon :: TH1FFillMonitoring(TH1F_LW* mon, TH1F_LW* tmp)
 {
    for(unsigned int i=1; i<=tmp->GetNbinsX(); i++){

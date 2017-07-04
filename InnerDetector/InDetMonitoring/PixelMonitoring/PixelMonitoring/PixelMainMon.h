@@ -137,6 +137,7 @@ public:
    int GetPixLayerDiskID(int ec, int ld, bool ibl);
    int GetPhiID(Identifier &id, const PixelID* pixID);
    int GetEtaID(Identifier &id, const PixelID* pixID, bool doIBL, bool doIBL2D3D);
+   bool HasComponent(const PixMon::HistConf& config, const PixLayerIBL2D3DDBM::PixLayerIBL2D3DDBMID& component);
    void TH1FFillMonitoring(TH1F_LW* mon, TH1F_LW* tmp);
    void TH2FSetBinScaled(TH2F_LW* mon, TH2F_LW* tmp, int nevent);
    void FillTimeHisto(double, TProfile*, TProfile*, TProfile*, double, double, double);
