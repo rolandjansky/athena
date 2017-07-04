@@ -149,13 +149,13 @@ void test1 (ISvcLocator* svcloc)
   assert (tool.whandle.storeHandle().name() == "StoreGateSvc");
   assert (tool.whandle.mode() == Gaudi::DataHandle::Writer);
 
-  comphandles (tool.inputHandles(), { "taa", "tgg.qqq" });
-  comphandles (tool.outputHandles(), { "tee", "thh.rrr" });
+  comphandles (tool.inputHandles(), { "StoreGateSvc+taa", "StoreGateSvc+tgg.qqq" });
+  comphandles (tool.outputHandles(), { "StoreGateSvc+tee", "StoreGateSvc+thh.rrr" });
 
-  std::vector<std::string> extraInputKeys { "thh" };
+  std::vector<std::string> extraInputKeys { "StoreGateSvc+thh" };
   assert (tool.extra_inputs.size() == extraInputKeys.size());
   for (size_t i = 0; i < tool.extra_inputs.size(); i++) {
-    //std::cout << "extra inp " << tool.extra_inputs[i].key() << "\n";
+    // std::cout << "extra inp " << tool.extra_inputs[i].key() << "\n";
     assert (tool.extra_inputs[i].key() == extraInputKeys[i]);
   }
 
@@ -211,8 +211,8 @@ void test2 (ISvcLocator* svcLoc)
   MyArrAlgTool tool ("MyAlgTool", "arrtool", &alg);  tool.addRef();
   assert (tool.setProperties().isSuccess());
   assert (tool.sysInitialize().isSuccess());
-  comphandles (tool.inputHandles(),{"raa", "rbb", "rcc", "rdd", "ree", "rff", "rrr"});
-  comphandles (tool.outputHandles(),{"waa", "wbb", "wcc", "wdd", "wee", "wff", "www"});
+  comphandles (tool.inputHandles(),{"StoreGateSvc+raa", "StoreGateSvc+rbb", "StoreGateSvc+rcc", "StoreGateSvc+rdd", "StoreGateSvc+ree", "StoreGateSvc+rff", "StoreGateSvc+rrr"});
+  comphandles (tool.outputHandles(),{"StoreGateSvc+waa", "StoreGateSvc+wbb", "StoreGateSvc+wcc", "StoreGateSvc+wdd", "StoreGateSvc+wee", "StoreGateSvc+wff", "StoreGateSvc+www"});
 
   // Test that circular dependency detection worksd.
   MyArrAlgTool tool2 ("MyArrAlgTool", "arrtool2", &alg);  tool2.addRef();

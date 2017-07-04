@@ -141,21 +141,21 @@ void test1 (ISvcLocator* svcLoc)
   assert (alg.wdkey.contHandleKey().storeHandle().name() == "StoreGateSvc");
   assert (alg.wdkey.contHandleKey().mode() == Gaudi::DataHandle::Reader);
 
-  std::vector<std::string> inputKeys { "aaa", "yyy.qqq" };
+  std::vector<std::string> inputKeys { "FooSvc+aaa", "FooSvc+yyy.qqq" };
   assert (alg.inputs.size() == inputKeys.size());
   for (size_t i = 0; i < alg.inputs.size(); i++) {
     //std::cout << "inp " << alg.inputs[i]->objKey() << "\n";
     assert (alg.inputs[i]->objKey() == inputKeys[i]);
   }
 
-  std::vector<std::string> outputKeys { "eee", "zzz.rrr" };
+  std::vector<std::string> outputKeys { "BarSvc+eee", "StoreGateSvc+zzz.rrr" };
   assert (alg.outputs.size() == outputKeys.size());
   for (size_t i = 0; i < alg.outputs.size(); i++) {
     //std::cout << "out " << alg.outputs[i]->objKey() << "\n";
     assert (alg.outputs[i]->objKey() == outputKeys[i]);
   }
 
-  std::vector<std::string> extraInputKeys { "zzz" };
+  std::vector<std::string> extraInputKeys { "StoreGateSvc+zzz" };
   assert (alg.extra_inputs.size() == extraInputKeys.size());
   for (size_t i = 0; i < alg.extra_inputs.size(); i++) {
     //std::cout << "extra inp " << alg.extra_inputs[i].key() << "\n";
