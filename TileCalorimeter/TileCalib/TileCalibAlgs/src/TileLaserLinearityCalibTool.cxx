@@ -522,7 +522,46 @@ StatusCode TileLaserLinearityCalibTool::finalizeCalculations()
     }
   } 
 
+  // remove all RunningStat objects from memory
 
+  for(int f=0; f<8; ++f)
+  {
+    for(int d=0; d<2; ++d)
+    {
+      delete m_LG_PMT_signal[f][d];
+      delete m_HG_PMT_signal[f][d];
+    }
+  }
+
+  for(int f=0; f<8; ++f)
+  {
+    for(int d=0; d<4; ++d)
+    {
+      delete m_LG_diode_signal[f][d];
+      delete m_HG_diode_signal[f][d];
+    }
+  }
+
+  for(int f=0; f<8; ++f)        // Filter
+  {
+    for(int i=0; i<4; ++i)      // Partition
+    {
+      for(int j=0; j<64; ++j)   // Module
+      {
+	for(int k=0; k<48; ++k) // Channel
+	{
+	  for(int l=0; l<2; ++l) // Gain
+	  {
+	    delete m_signal[f][i][j][k][l];
+	    delete m_HG_ratio_stat[f][i][j][k][l];
+	    delete m_HG_ratio2_stat[f][i][j][k][l];
+	    delete m_LG_ratio_stat[f][i][j][k][l];
+	    delete m_LG_ratio2_stat[f][i][j][k][l];
+	  }
+	}
+      }
+    }
+  }
 
   return StatusCode::SUCCESS;  
 }       
@@ -585,7 +624,6 @@ StatusCode TileLaserLinearityCalibTool::writeNtuple(int runNumber, int runType, 
 StatusCode TileLaserLinearityCalibTool::finalize()
 {
   ATH_MSG_INFO ( "finalize()" );
-  ATH_CHECK( TileLaserLinearityCalibTool::finalizeCalculations() );
   return StatusCode::SUCCESS;  
 }  
 
