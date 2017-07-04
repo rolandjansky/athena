@@ -28,7 +28,7 @@ public:
   virtual ~BoostedHadTopAndTopPairFilterTool();
   virtual StatusCode initialize();
   virtual StatusCode finalize();
-  int filterFlag() const;
+  int filterFlag(double, double) const;
 
   static const InterfaceID& interfaceID() { return IID_BoostedHadTopAndTopPairFilterTool; }
 
@@ -37,8 +37,9 @@ private:
   std::string m_mcName;
 
   // properties
-  double m_tHadPtCut;
-  double m_tPairPtCut;
+  // use pt cuts locally for now
+  //  double m_tHadPtCut;
+  //  double m_tPairPtCut;
   int m_cutPtOf;
  
   const xAOD::TruthParticle* findInitial(const xAOD::TruthParticle* part) const;

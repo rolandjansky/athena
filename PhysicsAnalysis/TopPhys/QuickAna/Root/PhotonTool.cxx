@@ -22,6 +22,9 @@
 #include <IsolationCorrections/IsolationCorrectionTool.h>
 #include <xAODTracking/TrackParticlexAODHelpers.h>
 
+// Helper for object quality
+#include <ElectronPhotonSelectorTools/PhotonSelectorHelpers.h>
+
 // The photon tools are apparently lazy?
 #include <PathResolver/PathResolver.h>
 
@@ -62,7 +65,7 @@ namespace ana
 
     // Initialize Fudge Tool
     ATH_CHECK (ASG_MAKE_ANA_TOOL (m_fudgeMCTool, ElectronPhotonShowerShapeFudgeTool));
-    ATH_CHECK (m_fudgeMCTool.setProperty ("Preselection", 16)); // 16 == MC15
+    ATH_CHECK (m_fudgeMCTool.setProperty ("Preselection", 21)); // 21 == MC15
     ATH_CHECK (m_fudgeMCTool.initialize());
 
     // Initialize isolation correction tool
@@ -165,26 +168,18 @@ namespace ana
                             (photon.author() & xAOD::EgammaParameters::AuthorAmbiguous) );
 
     // Photon cleaning from the same TWiki
-    // Damn... These should really be in a CP tool!
-    cut_cleaning.setPassedIf( !( (photon.OQ()&134217728)!=0 &&
-                               (photon.showerShapeValue(xAOD::EgammaParameters::Reta)>0.98 ||
-                                photon.showerShapeValue(xAOD::EgammaParameters::Rphi)>1.0 ||
-                                (photon.OQ()&67108864)!=0) ) );
+    cut_cleaning.setPassedIf( PhotonSelectorHelpers::passOQquality( &photon ) );
 
     // Using MC15/R20 selections
-    cut_selection.setPassedIf (m_selection->accept (&photon));
+    // Explicit check that the photon is not in the crack
+    cut_selection.setPassedIf (m_selection->accept (&photon) &&
+                              (fabs( photon.caloCluster()->etaBE(2) ) <=1.37 ||
+                               fabs( photon.caloCluster()->etaBE(2) ) >=1.52) );
 
     // Apply isolation tool
     if (m_isolationOn) {
       cut_isolationTool.setPassedIf (m_isolationTool->accept(photon));
     }
-
-    // Photon eta should be calculated as
-    // input.caloCluster()->etaBE(2)
-    // according to :
-    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EGammaIdentificationRun2#Fiducial_region_and_Calorimeter
-    // We should really try to find a way to do this
-    //  Only needed in the case of loose ID!
 
     return StatusCode::SUCCESS;
   }
@@ -212,17 +207,9 @@ namespace ana
 
     // Initialize the AsgPhotonEfficiencyCorrectionTool.
     ATH_CHECK (ASG_MAKE_ANA_TOOL (m_efficiencyTool, AsgPhotonEfficiencyCorrectionTool));
-    // Reco scale factors - currently need to set this file by hand
-    std::string file_unc = PathResolverFindCalibFile(m_isAF2?
-          "PhotonEfficiencyCorrection/v1/efficiencySF.offline.Tight.2015.13TeV.rel20.AFII.unc.v01.root":
-          "PhotonEfficiencyCorrection/v1/efficiencySF.offline.Tight.2015.13TeV.rel20.unc.v02.root");
-    std::string file_con = PathResolverFindCalibFile(m_isAF2?
-          "PhotonEfficiencyCorrection/v1/efficiencySF.offline.Tight.2015.13TeV.rel20.AFII.con.v01.root":
-          "PhotonEfficiencyCorrection/v1/efficiencySF.offline.Tight.2015.13TeV.rel20.con.v02.root");
-
-    ATH_CHECK( m_efficiencyTool.setProperty("CorrectionFileNameConv",file_con) );
-    ATH_CHECK( m_efficiencyTool.setProperty("CorrectionFileNameUnconv",file_unc) );
-    ATH_CHECK( m_efficiencyTool.setProperty("ForceDataType", 1 + (m_isAF2?2:0)) );
+    // Reco scale factors
+    ATH_CHECK( m_efficiencyTool.setProperty("MapFilePath", "PhotonEfficiencyCorrection/map0.txt"));
+    ATH_CHECK( m_efficiencyTool.setProperty("ForceDataType", 1 ) ); //+ (m_isAF2?2:0)) );
     ATH_CHECK( m_efficiencyTool.initialize() );
     registerTool(&*m_efficiencyTool);
 
@@ -230,13 +217,8 @@ namespace ana
     {
       // Initialize the AsgPhotonEfficiencyCorrectionTool.
       ATH_CHECK (ASG_MAKE_ANA_TOOL (m_isoSFTool, AsgPhotonEfficiencyCorrectionTool));
-      std::string file_unc_iso = PathResolverFindCalibFile("PhotonEfficiencyCorrection/2015_2016/rel20.7/ICHEP_June2016_v1/isolation/efficiencySF.Isolation.isol"
-             + m_isolationWP + ".2016.13TeV.rel20.7.25ns.unc.v01.root");
-      std::string file_con_iso = PathResolverFindCalibFile("PhotonEfficiencyCorrection/2015_2016/rel20.7/ICHEP_June2016_v1/isolation/efficiencySF.Isolation.isol"
-             + m_isolationWP + ".2016.13TeV.rel20.7.25ns.con.v01.root");
-      ATH_CHECK( m_isoSFTool.setProperty("CorrectionFileNameConv", file_con_iso) );
-      ATH_CHECK( m_isoSFTool.setProperty("CorrectionFileNameUnconv", file_unc_iso) );
-      ATH_CHECK( m_isoSFTool.setProperty("ForceDataType", 1 + (m_isAF2?2:0)) );
+      ATH_CHECK( m_isoSFTool.setProperty("MapFilePath", "PhotonEfficiencyCorrection/map0.txt"));
+      ATH_CHECK( m_isoSFTool.setProperty("ForceDataType", 1 ) ); //+ (m_isAF2?2:0)) );
       ATH_CHECK( m_isoSFTool.initialize() );
       registerTool(&*m_isoSFTool);
       m_doIsolation = true;

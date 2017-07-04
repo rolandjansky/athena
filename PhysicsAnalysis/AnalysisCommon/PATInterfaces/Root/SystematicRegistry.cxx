@@ -5,8 +5,11 @@
 // includes
 //
 
-#include <PATInterfaces/SystematicRegistry.h>
+// ROOT include(s):
+#include <ThreadLocalStorage.h>
 
+// Local include(s):
+#include <PATInterfaces/SystematicRegistry.h>
 #include <PATInterfaces/ISystematicsTool.h>
 #include <PATInterfaces/SystematicSet.h>
 #include <PATInterfaces/SystematicCode.h>
@@ -21,7 +24,7 @@ namespace CP
   // Get the singleton registry instance
   SystematicRegistry& SystematicRegistry::getInstance()
   {
-    static SystematicRegistry systRegistry;
+    TTHREAD_TLS( SystematicRegistry ) systRegistry;
     return systRegistry;
   }
 

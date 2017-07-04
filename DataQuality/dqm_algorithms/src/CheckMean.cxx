@@ -29,10 +29,10 @@ namespace dqm_algorithms {
 
 CheckMean::
 CheckMean()
-  : name("AlgCheckMean")
-  , limitName("chi2")
+  : m_name("AlgCheckMean")
+  , m_limitName("chi2")
 {
-  dqm_core::AlgorithmManager::instance().registerAlgorithm( name, this );
+  dqm_core::AlgorithmManager::instance().registerAlgorithm( m_name, this );
 }
 
 
@@ -74,8 +74,8 @@ execute( const std::string& name, const TObject& data, const dqm_core::Algorithm
   const double mean_data_err = h->GetMeanError();
   const double mean_ref_err  = ref->GetMeanError();
   
-  const double chi2_warn = getWarningLimit( config, limitName );
-  const double chi2_err = getErrorLimit( config, limitName );
+  const double chi2_warn = getWarningLimit( config, m_limitName );
+  const double chi2_err = getErrorLimit( config, m_limitName );
   
   const double s  = ( mean_data - mean_ref );
   const double s2 = s*s;
@@ -110,12 +110,12 @@ printDescription(std::ostream& out)
 {
   std::string message;
   message += "\n";
-  message += "Algorithm: \"" + name + "\"\n";
+  message += "Algorithm: \"" + m_name + "\"\n";
   message += "Description: Checks the mean of a TH1 against the mean of a reference TH1\n";
   message += "             by assessing a chi2 defined by the two means and their errors\n";
   message += "Parameters: none\n";
   message += "Limits:\n";
-  message += " \"" + limitName + "\" : generate warnings on the chi2 value\n";
+  message += " \"" + m_limitName + "\" : generate warnings on the chi2 value\n";
   message += "\n";
   
   out << message;

@@ -10,6 +10,9 @@
 #include <string>
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "IRegionSelector/IRegSelSvc.h"
+
 class MdtIdHelper;
 class MdtDigit;
 class MdtCalibrationSvc;
@@ -46,6 +49,10 @@ class MdtRdoToMdtPrepData : public AthAlgorithm {
 
     bool                                    m_print_inputRdo; //!<< If true, will dump information about the input RDOs.
     bool                                    m_print_prepData; //!<< If true, will dump information about the resulting PRDs.
+    bool m_seededDecoding;
+    SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
+    ServiceHandle<IRegSelSvc> m_regionSelector; //<! pointer to RegionSelectionSvc
+ 
 };
 
 #endif /// MDTRDOTOMDTPREPDATA_H

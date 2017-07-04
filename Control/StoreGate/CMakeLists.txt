@@ -89,6 +89,10 @@ atlas_add_test( exceptions_test
    SOURCES test/exceptions_test.cxx
    LINK_LIBRARIES SGtests )
 
+atlas_add_test( VarHandleKey_parseKey_test
+   SOURCES test/VarHandleKey_parseKey_test.cxx
+   LINK_LIBRARIES SGtests )
+
 atlas_add_test( VarHandleKey_test
    SOURCES test/VarHandleKey_test.cxx
    LINK_LIBRARIES SGtests )

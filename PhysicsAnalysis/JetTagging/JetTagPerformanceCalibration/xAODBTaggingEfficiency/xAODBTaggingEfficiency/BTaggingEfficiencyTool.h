@@ -182,6 +182,13 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
 
   /// Specify whether any systematic variation is being used at present
   bool applySystematics() const { return m_applySyst;}
+
+  /**
+   * This merely passes on the request to the underlying CDI object (listSystematics() cannot be used here, as corresponding CP::SystematicVariation objects may not exist).
+   * Note that the uncertainty naming does not follow the rewriting conventions leading to the names one will see as CP::SystematicVariations, but rather follows the "raw"
+   * names used on input (which are appropriate e.g. when excluding uncertainties from the eigenvalue decomposition).
+   */
+  std::map<std::string, std::vector<std::string> > listScaleFactorSystematics(bool named = false) const;
   /// @}
 
 private:

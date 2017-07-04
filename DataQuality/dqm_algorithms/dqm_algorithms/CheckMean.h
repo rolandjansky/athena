@@ -29,8 +29,8 @@ protected:
   virtual double  getWarningLimit( const dqm_core::AlgorithmConfig& config, std::string limitName );
   virtual double  getErrorLimit( const dqm_core::AlgorithmConfig& config, std::string limitName );
 
-  std::string  name;
-  std::string  limitName;
+  std::string  m_name;
+  std::string  m_limitName;
 };
 
 } //namespace dqm_algorithms

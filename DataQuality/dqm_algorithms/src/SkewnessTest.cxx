@@ -28,7 +28,7 @@ namespace
 
 
 dqm_algorithms::SkewnessTest::SkewnessTest( const std::string & name )
-  : name_( name )
+  : m_name( name )
 {
   dqm_core::AlgorithmManager::instance().registerAlgorithm("SkewnessTest_"+name,this);
 }
@@ -36,7 +36,7 @@ dqm_algorithms::SkewnessTest::SkewnessTest( const std::string & name )
 dqm_algorithms::SkewnessTest * 
 dqm_algorithms::SkewnessTest::clone()
 {
-    return new SkewnessTest( name_ );
+    return new SkewnessTest( m_name );
 }
 
 
@@ -83,9 +83,9 @@ dqm_algorithms::SkewnessTest::execute(	const std::string &  name,
   result->tags_["Skewness"] = skewness;
   result->tags_["ApproxStandardError"]=skewness_e;
 
-  if ( CompareSkewnessTest( name_ , skewness ,gthreshold)  ) {
+  if ( CompareSkewnessTest( m_name , skewness ,gthreshold)  ) {
     result->status_ = dqm_core::Result::Green;
-  } else if ( CompareSkewnessTest( name_, skewness, rthreshold) ) {
+  } else if ( CompareSkewnessTest( m_name, skewness, rthreshold) ) {
     result->status_ = dqm_core::Result::Yellow;
   } else {
     result->status_ = dqm_core::Result::Red;
@@ -109,7 +109,7 @@ dqm_algorithms::SkewnessTest::CompareSkewnessTest(const std::string & type, doub
 void
 dqm_algorithms::SkewnessTest::printDescription(std::ostream& out)
 {
-  out<<"SkewnessTest_"+name_+" : Checks if the Skewness of the distribution is "+name_+" threshold value\n"<<std::endl;
+  out<<"SkewnessTest_"+m_name+" : Checks if the Skewness of the distribution is "+m_name+" threshold value\n"<<std::endl;
   
   out<<"Mandatory Green/Red Threshold: S: Value of Skewness"<<std::endl;
   

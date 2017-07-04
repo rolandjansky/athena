@@ -36,14 +36,14 @@ TTree * ClusterMomentSetter::tree = 0;
 
 namespace ClusterData {
 
-  xAOD::CaloClusterContainer clusterCont;
-  xAOD::JetContainer jetCont;
+  xAOD::CaloClusterContainer* clusterCont = new  xAOD::CaloClusterContainer();
+  xAOD::JetContainer* jetCont = new xAOD::JetContainer();
 
 
   int testEL(){
     //const xAOD::IParticleContainer *cont = dynamic_cast<const xAOD::IParticleContainer*>( ClusterData::clusterCont[0]->container() ); 
     //std::cout << " testEL : "<< cont << "  "<< &ClusterData::clusterCont << std::endl;
-    ElementLink<xAOD::IParticleContainer> el(ClusterData::clusterCont,0);
+    ElementLink<xAOD::IParticleContainer> el(*ClusterData::clusterCont,0);
     return 0;
   }
 
@@ -53,8 +53,8 @@ namespace ClusterData {
     static bool auxStoreAdded = false;
     if( ! auxStoreAdded ){
       xAOD::CaloClusterAuxContainer* aux = new xAOD::CaloClusterAuxContainer();
-      clusterCont.setStore(aux);
-      jetCont.setStore(    new xAOD::JetAuxContainer() ) ;
+      clusterCont->setStore(aux);
+      jetCont->setStore(    new xAOD::JetAuxContainer() ) ;
       auxStoreAdded = true;
     }
     
@@ -90,7 +90,7 @@ namespace ClusterData {
       xAOD::CaloCluster *cl = new xAOD::CaloCluster();
 #define SETCLUSTERMOM( E, eta, phi ) cl->setE(E);cl->setEta(eta);cl->setPhi(phi);cl->setM(0)
 #define SETCLUSTERRAWMOM( E, eta, phi ) cl->setRawE(E);cl->setRawEta(eta);cl->setRawPhi(phi);cl->setRawM(0)
-      clusterCont.push_back(cl);
+      clusterCont->push_back(cl);
 
       SETCLUSTERMOM( e[i], eta[i], phi[i] );
       SETCLUSTERRAWMOM( rawe[i], eta[i], phi[i] );
@@ -106,7 +106,7 @@ namespace ClusterData {
     // redo a loop for time
     ncl = tree->Draw("CaloCalTopoClusterAux.time", "","goff",1);
     e =   tree->GetV1();
-    for(size_t i=0;i<ncl; i++){ clusterCont[i]->setTime( e[i] ); }
+    for(size_t i=0;i<ncl; i++){ (*clusterCont)[i]->setTime( e[i] ); }
 
     // std::cout << " testing EL "<< std::endl;
     // testEL();
@@ -120,12 +120,12 @@ namespace ClusterData {
     for(size_t i=0;i<3;i++){
       size_t nconst = tree->Draw(TString::Format("AntiKt4LCTopoJetsAux.constituentLinks.ElementLinkBase.m_persIndex[%d]",int(i)) ,"","goff",1);
       double *ind = tree->GetV1();
-      jetCont.push_back(new xAOD::Jet());
-      xAOD::Jet *jet = jetCont.back();
+      jetCont->push_back(new xAOD::Jet());
+      xAOD::Jet *jet = jetCont->back();
       
       TLorentzVector sum;
       for(size_t c=0; c<nconst; c++) {
-        xAOD::CaloCluster* cl = clusterCont[ size_t(ind[c]) ];
+        xAOD::CaloCluster* cl = (*clusterCont)[ size_t(ind[c]) ];
         jet->addConstituent( cl );
         sum += cl->p4();
       }

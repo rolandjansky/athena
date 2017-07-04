@@ -3,7 +3,7 @@
 
 Initializing Gaudi ApplicationMgr using job opts ../share/StoreGateTestCommon.txt
 JobOptionsSvc        INFO # =======> /home/sss/nobackup/atlas/build-clang/../tests/../share/StoreGateTestCommon.txt
-JobOptionsSvc        INFO # (5,1): ApplicationMgr.ExtSvc += ["StoreGateSvc/DetectorStore", "StoreGateSvc/HistoryStore", "StoreGateSvc/ConditionsStore"]
+JobOptionsSvc        INFO # (5,1): ApplicationMgr.ExtSvc += ["StoreGateSvc/DetectorStore", "StoreGateSvc/HistoryStore", "StoreGateSvc/ConditionStore"]
 JobOptionsSvc        INFO # (6,1): AuditorSvc.Auditors += ["AlgContextAuditor"]
 JobOptionsSvc        INFO # (7,1): StoreGateSvc.OutputLevel = 1
 JobOptionsSvc        INFO # (8,1): StoreGateSvc.ActivateHistory = 0

@@ -1,5 +1,5 @@
 #====================================================================
-# TOPQ2 
+# TOPQ2
 # DILEPTON SELECTION
 #  >=2 leptons(pT>15GeV) OR
 #  >=2 leptons(pT>10GeV) && >=1 lepton(pT>20GeV)
@@ -12,15 +12,19 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import * 
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from AthenaCommon.GlobalFlags import globalflags
 DFisMC = (globalflags.DataSource()=='geant4')
 
+# no truth info for data xAODs
+if DFisMC:
+  from DerivationFrameworkMCTruth.MCTruthCommon import *
+
 #====================================================================
-# SET UP STREAM   
+# SET UP STREAM
 #====================================================================
 streamName = derivationFlags.WriteDAOD_TOPQ2Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_TOPQ2Stream )
@@ -29,18 +33,18 @@ TOPQ2Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 TOPQ2Stream.AcceptAlgs(["TOPQ2Kernel"])
 
 #====================================================================
-# PDF Weight Metadata  
+# PDF Weight Metadata
 #====================================================================
 if DFisMC:
   from DerivationFrameworkCore.WeightMetadata import *
 
 #====================================================================
-# TRIGGER NAVIGATION THINNING   
+# TRIGGER NAVIGATION THINNING
 #====================================================================
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 import DerivationFrameworkTop.TOPQCommonThinning
 TOPQ2ThinningHelper = ThinningHelper("TOPQ2ThinningHelper")
-TOPQ2ThinningHelper.TriggerChains =  DerivationFrameworkTop.TOPQCommonThinning.TOPQTriggerChains()
+TOPQ2ThinningHelper.TriggerChains =  DerivationFrameworkTop.TOPQCommonThinning.TOPQTriggerChains('leptonicTriggers' if globalflags.DataSource()!='geant4' else 'allTriggers')
 TOPQ2ThinningHelper.AppendToStream(TOPQ2Stream)
 
 #====================================================================
@@ -57,24 +61,19 @@ import DerivationFrameworkTop.TOPQCommonThinning
 thinningTools = DerivationFrameworkTop.TOPQCommonThinning.setup('TOPQ2',TOPQ2ThinningHelper.ThinningSvc(), ToolSvc)
 
 #====================================================================
-# CREATE THE KERNEL(S) 
+# CREATE THE KERNEL(S)
 #====================================================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
 # Create the private sequence
 TOPQ2Sequence = CfgMgr.AthSequencer("TOPQ2Sequence")
 
-# Retagging to get BTagging_AntiKt4EMPFlow Collection (not present in primary AOD)
-from DerivationFrameworkFlavourTag.FlavourTagCommon import *
-BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4EMPFlow->AntiKt4EMTopo" ]
-ReTag(['IP2D', 'IP3D', 'SV0',  'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'MV2c00', 'MV2c10', 'MV2c20', 'MV2c100', 'MV2m'],['AntiKt4EMPFlowJets'], DerivationFrameworkJob)
-
 # First skim on leptons
 TOPQ2Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ2SkimmingKernel_lep", SkimmingTools = skimmingTools_lep)
 
 # Then build fat/trimmed jets
-import DerivationFrameworkTop.TOPQCommonJets
-addDefaultTrimmedJets(TOPQ2Sequence,'TOPQ2')
+from DerivationFrameworkTop.TOPQCommonJets import addStandardJetsForTop
+addStandardJetsForTop(TOPQ2Sequence,'TOPQ2')
 
 #Then apply jet calibration
 DerivationFrameworkTop.TOPQCommonJets.applyTOPQJetCalibration("AntiKt4EMTopo",DerivationFrameworkJob)
@@ -83,17 +82,36 @@ DerivationFrameworkTop.TOPQCommonJets.applyTOPQJetCalibration("AntiKt10LCTopoTri
 # Then skim on the newly created fat jets and calibrated jets
 TOPQ2Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ2SkimmingKernel_jet", SkimmingTools = skimmingTools_jet)
 
-# Then apply the TruthWZ fix
-if DFisMC:
-  replaceBuggyAntiKt4TruthWZJets(TOPQ2Sequence,'TOPQ2')
+# Retagging to get BTagging_AntiKt4EMPFlow Collection (not present in primary AOD)
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
+BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4EMPFlow->AntiKt4EMTopo" ]
+ReTag(['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2c100', 'MV2cl100' , 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP'],
+      ['AntiKt4EMPFlowJets'],
+      TOPQ2Sequence)
+
+# Removing manual scheduling of ELReset, see https://its.cern.ch/jira/browse/ATLASRECTS-3988
+# if not hasattr(TOPQ2Sequence,"ELReset"):
+#   TOPQ2Sequence += CfgMgr.xAODMaker__ElementLinkResetAlg( "ELReset" )
+
+
+# THIS IS NO LONGER NEEDED IN REL 21, REMOVE IN FUTURE (May-17)
+# # Then apply the TruthWZ fix
+# if DFisMC:
+#   replaceBuggyAntiKt4TruthWZJets(TOPQ2Sequence,'TOPQ2')
 
 # Then apply truth tools in the form of aumentation
 if DFisMC:
   from DerivationFrameworkTop.TOPQCommonTruthTools import *
   TOPQ2Sequence += TOPQCommonTruthKernel
 
+DerivationFrameworkTop.TOPQCommonJets.addMSVVariables("AntiKt4EMTopoJets", TOPQ2Sequence, ToolSvc)
+
 # Then apply thinning
 TOPQ2Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ2Kernel", ThinningTools = thinningTools)
+
+# JetTagNonPromptLepton decorations
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as Config
+TOPQ2Sequence += Config.GetDecoratePromptLeptonAlgs()
 
 # Finally, add the private sequence to the main job
 DerivationFrameworkJob += TOPQ2Sequence

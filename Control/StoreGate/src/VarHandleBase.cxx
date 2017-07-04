@@ -265,7 +265,7 @@ namespace SG {
     std::cerr << "::VHB:: move assign from " << &rhs
               << " to " << this << ", "
               << "proxy=" << this->m_proxy << ", "
-              << "key=" <<this->m_sgkey
+              << "key=" <<this->key()
               << std::endl;
 #endif
     return *this;
@@ -285,7 +285,7 @@ namespace SG {
       std::cerr << " -- isValid: " << m_proxy->isValid()
                 << " -- isConst: " << m_proxy->isConst();
     }
-    std::cerr << ", key=" <<this->m_sgkey << ")...\n";
+    std::cerr << ", key=" <<this->key() << ")...\n";
 #endif
 
     resetProxy();
@@ -877,7 +877,7 @@ namespace SG {
    */
   IProxyDict* VarHandleBase::storeFromHandle (const EventContext* ctx) const
   {
-    if (this->storeHandle().name() == "StoreGateSvc") {
+    if (this->storeHandle().name() == StoreID::storeName(StoreID::EVENT_STORE)) {
       if (ctx)
         return ctx->getExtension<Atlas::ExtendedEventContext>()->proxy();
       if (m_storeWasSet && m_store) return m_store;

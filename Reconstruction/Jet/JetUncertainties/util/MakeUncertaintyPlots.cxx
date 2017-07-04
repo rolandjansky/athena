@@ -32,6 +32,9 @@
 
 #include "OptionHelper.h"
 
+#include <iostream>
+#include <sstream>
+
 #define TESTLINE printf("Reached line %d\n",__LINE__);
 
 // Kate's comparison plot colours
@@ -566,11 +569,17 @@ double GetPunchthroughProb(const JetUncertaintiesTool* provider, const xAOD::Jet
         TString filename;
         jetType = provider->getJetDef();
         TString histName = "";
-        if (config.Contains("_2015")) {
-          filename = "PTprob.root";
+        // All Run 2 analyses should use this option.
+        const TString release = provider->getRelease();
+        std::istringstream ss(release.Data());
+        std::string token;
+        std::getline(ss, token, '_');
+        int year = std::stoi(token);
+        if (year > 2012) {
+          filename = optHelper.GetInputsDir()+"PTprob.root";
           histName = "h_PT_pT_EMJES4_norm";
         } else {
-          filename = "PTprob_2012.root";
+          filename = optHelper.GetInputsDir()+"PTprob_2012.root";
 
           if (jetType == "AntiKt4LCTopo")
               histName = "h_PT_pT_LCJES4_norm";
@@ -586,6 +595,7 @@ double GetPunchthroughProb(const JetUncertaintiesTool* provider, const xAOD::Jet
             exit(100);
           }
         }
+        std::cout << "Using pT file " << filename << std::endl;
         TFile* PTfile = new TFile(filename,"READ");
         if (!PTfile || PTfile->IsZombie())
         {
@@ -1302,6 +1312,18 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
     delete frameEtaScan;
 }
 
+// Add your root files here if you are doing additional studies
+TString getCompFile() {
+
+  TString tmpFile; // const
+  if (optHelper.IsDijetComposition()) tmpFile = optHelper.GetInputsDir()+"/../random_stuff/DijetFlavourComp_Run2.root";
+  else if (optHelper.IsGinosComposition()) tmpFile = optHelper.GetInputsDir()+"/../random_stuff/random_stuff/GinoComposition.root";
+  else if (optHelper.IsReginasComposition()) tmpFile = optHelper.GetInputsDir()+"/../random_stuff/TTBarFlavourComp.root";
+  else tmpFile = "";
+
+  return tmpFile;
+
+}
 
 int main (int argc, char* argv[])
 {
@@ -1482,15 +1504,17 @@ int main (int argc, char* argv[])
                 }
 
                 // Check if we want to change topology from unknown to dijet
-                if (optHelper.IsDijetComposition())
-                {
-                    const TString dijetAnalysisFile = "../testingMacros/random_stuff/MJESForInclusiveJets_MC11b.root";
-                    if (providers.back()->setProperty("AnalysisFile",dijetAnalysisFile.Data()).isFailure())
+                const TString analysisFile = getCompFile();
+          
+                if (analysisFile) {
+                  
+                    if (providers.back()->setProperty("AnalysisFile",analysisFile.Data()).isFailure())
                     {
-                        printf("Failed to set AnalysisFile to %s\n",dijetAnalysisFile.Data());
+                        printf("Failed to set AnalysisFile to %s\n",analysisFile.Data());
                         exit(7);
                     }
                 }
+
             
                 // Set filters if specified
                 if (optHelper.VariablesToShift().size())
@@ -1551,26 +1575,17 @@ int main (int argc, char* argv[])
             }
 
             // Check if we want to change topology from unknown to dijet
-            if (optHelper.IsDijetComposition())
-            {
-                const TString dijetAnalysisFile = "../testingMacros/random_stuff/MJESForInclusiveJets_MC11b.root";
-                if (providers.back()->setProperty("AnalysisFile",dijetAnalysisFile.Data()).isFailure())
+            const TString analysisFile = getCompFile();
+          
+            if (analysisFile) {
+                  
+                if (providers.back()->setProperty("AnalysisFile",analysisFile.Data()).isFailure())
                 {
-                    printf("Failed to set AnalysisFile to %s\n",dijetAnalysisFile.Data());
+                    printf("Failed to set AnalysisFile to %s\n",analysisFile.Data());
                     exit(7);
                 }
             }
 
-             // Check if we want to change topology to Gino's
-            if (optHelper.IsGinosComposition())
-            {
-                const TString dijetAnalysisFile = "../testingMacros/random_stuff/GinoComposition.root";
-                if (providers.back()->setProperty("AnalysisFile",dijetAnalysisFile.Data()).isFailure())
-                {
-                    printf("Failed to set AnalysisFile to %s\n",dijetAnalysisFile.Data());
-                    exit(7);
-                }
-            }
 
             // Set filters if specified
             if (optHelper.VariablesToShift().size())

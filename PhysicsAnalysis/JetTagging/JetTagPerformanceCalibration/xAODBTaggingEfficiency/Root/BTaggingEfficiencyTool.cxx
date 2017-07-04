@@ -307,7 +307,6 @@ StatusCode BTaggingEfficiencyTool::initialize() {
       for (unsigned int i = 0, n = systematics.size(); i < n; ++i) {
 	if (systematics[i] == "extrapolation") {
 	  systematics[i] = "FT_EFF_extrapolation";
-	  break;
 	} else {
 	  std::replace_if(systematics[i].begin(), systematics[i].end(), [] (char c) { return c == ' '; }, '_');
 	}
@@ -817,6 +816,37 @@ BTaggingEfficiencyTool::listSystematics() const {
     results[variation] = flavours;
   }
   return results;
+}
+///
+/// This method retrieves all systematic uncertainties known to the relevant calibration objects.
+/// Since the expected use of this method is in the context of the SFEigen model, we will assume (and not check) that this model is being used.
+/// Note: the uncertainties returned are in the format of the underlying CDI, and do not have the rewriting applied to them that one would use in analysis.
+///
+std::map<std::string, std::vector<std::string> >
+BTaggingEfficiencyTool::listScaleFactorSystematics(bool named) const {
+  std::map<std::string, std::vector<std::string> > uncertainties;
+
+  const unsigned int all_flavours[4] = { 5, 4, 15, 0 };
+  for (unsigned int flv = 0; flv < 4; ++flv) {
+    unsigned int flavourID = all_flavours[flv];
+    // Assumed model: use eigenvector variations. In this model, the tau SF are identical to the c-jet ones,
+    // with merely one additional uncertainty assigned due to the extrapolation.
+    unsigned int flavourIDRef = (flavourID == 15) ? 4 : flavourID;
+    auto mapIter = m_SFIndices.find(flavourIDRef);
+    if( mapIter==m_SFIndices.end()) { // if the flavour doesn't have an entry need to fail the initialization
+      ATH_MSG_ERROR( "No entry for flavour " << flavourIDRef << " in SFIndices map, invalid initialization");
+      continue;
+    }
+    int idRef = mapIter->second;
+    // Retrieve the actual list
+    std::vector<std::string> systematics = m_CDI->listScaleFactorUncertainties(idRef, named);
+    // For the special case of tau SF, add the extrapolation from charm.
+    // Since this comes on top of the charm uncertainties, it would always be a "named" uncertainty,
+    // so there is no need to check for the "named" argument.
+    if (flavourID == 15) systematics.push_back("extrapolation from charm");
+    uncertainties[getLabel(int(flavourID))] = systematics;
+  }
+  return uncertainties;
 }
 
 // WARNING the behaviour of future calls to getEfficiency and friends are modified by this

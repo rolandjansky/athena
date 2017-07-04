@@ -34,7 +34,7 @@ namespace dqm_algorithms {
 // *********************************************************************
 
 MDTOverview::MDTOverview(const std::string & name)
-  : name_ ( name )
+  : m_name ( name )
 {
   dqm_core::AlgorithmManager::instance().registerAlgorithm(  name, this );
 }
@@ -48,7 +48,7 @@ MDTOverview::~MDTOverview()
 dqm_core::Algorithm*
 MDTOverview::clone()
 {
-  return new MDTOverview(name_);
+  return new MDTOverview(m_name);
 }
 
 
@@ -75,12 +75,12 @@ MDTOverview::execute( const std::string& name, const TObject& object, const dqm_
   double thresh;
   double using_ref_for_flag;
   std::string thresholdname;
-  if (name_ ==  "MDTOverview_Global") {
+  if (m_name ==  "MDTOverview_Global") {
     thresholdname="Percentage";
-  } else if (name_ ==  "MDTOverview_Station") {
+  } else if (m_name ==  "MDTOverview_Station") {
     thresholdname="Limits";
   } else {
-    throw dqm_core::BadConfig( ERS_HERE, "None", name_ );
+    throw dqm_core::BadConfig( ERS_HERE, "None", m_name );
   }
 
   try {
@@ -134,7 +134,7 @@ MDTOverview::execute( const std::string& name, const TObject& object, const dqm_
   const char *htitle = hist->GetTitle();
   ERS_DEBUG(1,"Histogram title: "<< htitle);
 
-  if (name_ ==  "MDTOverview_Global") {
+  if (m_name ==  "MDTOverview_Global") {
     //GLOBAL   htitle="Global HitsPerML Endcap"
     //if (strstr(htitle, "Global")) {
     if (strstr(htitle, "BA")) {
@@ -147,7 +147,7 @@ MDTOverview::execute( const std::string& name, const TObject& object, const dqm_
       nML = 502; // BIS7/8 + BEE + EEL included
     }
     
-  } else  if (name_ ==  "MDTOverview_Station") {
+  } else  if (m_name ==  "MDTOverview_Station") {
     // Barrel  htitle="HitsPerML_BX_Station"
     if (strstr(htitle, "B")) {
       if (strstr(htitle,"Inner")) {
@@ -306,7 +306,7 @@ MDTOverview::printDescription(std::ostream& out)
 {
   std::string message;
   message += "\n";
-  message += "Algorithm: \"" + name_ + "\"\n";
+  message += "Algorithm: \"" + m_name + "\"\n";
   message += "Description: check if there are any bins with less then a thresh% of the entries of the median bin\n";
   message += "             and perform a comparison with reference.\n";
   message += "MDTOverview_Global: Mandatory Green/Red Threshold: Percentage: of ML OFF\n";

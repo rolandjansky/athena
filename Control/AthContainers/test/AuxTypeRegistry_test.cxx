@@ -25,7 +25,6 @@
 #include "SGTools/CLASS_DEF.h"
 CLASS_DEF (std::vector<int*>, 28374627, 0)
 using namespace SGTest;
-#endif
 
 
 class TestStringPool
@@ -61,6 +60,7 @@ public:
 
   SG::StringPool m_pool;
 };
+#endif // not XAOD_STANDALONE
 
 
 struct Payload
@@ -436,6 +436,7 @@ void test_copyForOutput()
 }
 
 
+#ifndef XAOD_STANDALONE
 void addto_renameMap (Athena::IInputRename::InputRenameMap_t& map,
                       IStringPool& pool,
                       const char* from,
@@ -446,6 +447,7 @@ void addto_renameMap (Athena::IInputRename::InputRenameMap_t& map,
   sgkey_t to_key   = pool.stringToKey (to, clid);
   map[from_key] = to_key;
 }
+#endif // NOT XAOD_STANDALONE
 
 
 void test_renameMap()

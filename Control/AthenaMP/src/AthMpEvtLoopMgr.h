@@ -49,7 +49,6 @@ class AthMpEvtLoopMgr
   int                            m_nPollingInterval;      // in milliseconds
   int                            m_nMemSamplingInterval;  // in seconds
   int                            m_nEventsBeforeFork;
-  std::string                    m_shmemName;
   pid_t                          m_masterPid;
 
   // vectors for collecting memory samples
@@ -65,6 +64,7 @@ class AthMpEvtLoopMgr
   StatusCode wait();
   StatusCode generateOutputReport(); 
   boost::shared_ptr<AthenaInterprocess::FdsRegistry> extractFds();
+  StatusCode afterRestart(int&);
 }; 
 
 #endif
