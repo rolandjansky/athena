@@ -8,18 +8,25 @@ ExtraContent=[
     "AntiKt4LCTopoJets.TrackWidthPt500.GhostTrackCount.Jvt.JvtJvfcorr.JvtRpt",
     "AntiKt4LCTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m",
     "AntiKt4EMTopoJets.TrackWidthPt500.GhostTrackCount.Jvt.JvtJvfcorr.JvtRpt",
-    "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m",
+    "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.DetectorEta",
     "AntiKt4EMTopoJets.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.DFCommonJets_Calib_m",
-    "Photons.f3core"]
+    "Photons.f3core",
+    "TauJets.IsTruthMatched.truthJetLink.truthParticleLink.ptDetectorAxis.etaDetectorAxis.phiDetectorAxis.mDetectorAxis",
+    "BTagging_AntiKt4EMTopo.MV2cl100_discriminant",
+    "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant",
+    "AntiKtVR30Rmax4Rmin02TrackJets.-JetConstitScaleMomentum_pt.-JetConstitScaleMomentum_eta.-JetConstitScaleMomentum_phi.-JetConstitScaleMomentum_m.-constituentLinks"
+   ]
 
 ExtraContentTruth=[
     "AntiKt4EMTopoJets.ConeTruthLabelID",
     "AntiKt4LCTopoJets.ConeTruthLabelID"]
 
 ExtraContainers=[
-    "BTagging_AntiKt3Track",
     "BTagging_AntiKt2Track",
-    "MuonSegments"]
+    "MuonSegments",
+    "CaloCalTopoClusters",
+    "TauChargedParticleFlowObjects"
+    ]
 
 ExtraContainersTruth=[
     "TruthEvents",

@@ -18,6 +18,8 @@ DFisMC = (globalflags.DataSource()=='geant4')
 
 if DFisMC:
     from DerivationFrameworkMCTruth.MCTruthCommon import *
+    #Template Higgs cross section tool for DFHiggs
+    from DerivationFrameworkHiggs.TruthCategories import *
 
 print "Hello, my name is {} and I am running on {}".format(DAOD_StreamID, 'MC' if DFisMC else 'Data')
 

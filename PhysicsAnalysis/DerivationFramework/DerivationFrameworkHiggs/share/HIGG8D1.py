@@ -9,11 +9,14 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 #from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkHiggs.TruthCategories import *
 from AthenaCommon.GlobalFlags import globalflags
 
 if globalflags.DataSource()=='geant4':
     from DerivationFrameworkMCTruth.MCTruthCommon import *
     from DerivationFrameworkMCTruth.HFHadronsCommon import *
+    from DerivationFrameworkTau.TauTruthCommon import *
+  
 
 # testing globalflags
 is_MC = (globalflags.DataSource()=='geant4')
@@ -34,9 +37,13 @@ HIGG8D1Stream.AcceptAlgs(["HIGG8D1Kernel"])
 #svcMgr += createThinningSvc( svcName="HIGG8D1ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
-# TAU SELECTOR TOOL 
+# AUGMENTATION TOOLS
 #====================================================================
 augmentationTools = []
+
+#====================================================================
+# Tau Selector Tool
+#====================================================================
 
 from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauSelectionWrapper
 HIGG8D1TauWrapper = DerivationFramework__TauSelectionWrapper(name = "HIGG8D1TauSelectionWrapper",
@@ -52,21 +59,145 @@ augmentationTools.append(HIGG8D1TauWrapper)
 #=======================================
 
 #truth matching
+#if globalflags.DataSource()=='geant4':
+#    from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauTruthMatchingTool
+#    HIGG8D1TauTruthMatchingTool = TauAnalysisTools__TauTruthMatchingTool(name="HIGG8D1TauTruthMatchingTool",
+#                                                                         WriteTruthTaus = True)
+
+
+#    ToolSvc += HIGG8D1TauTruthMatchingTool
+
+#    from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauTruthMatchingWrapper
+#    HIGG8D1TauTruthMatchingWrapper = DerivationFramework__TauTruthMatchingWrapper( name = "HIGG8D1TauTruthMatchingWrapper",
+#                                                                                TauTruthMatchingTool = HIGG8D1TauTruthMatchingTool)
+                                                                                #TauContainerName     = "TauJets")
+
+#    ToolSvc += HIGG8D1TauTruthMatchingWrapper
+#    augmentationTools.append(HIGG8D1TauTruthMatchingWrapper)
+
+#=======================================
+# Tau Overlapping Electron LLH 
+#=======================================
+
+#Tau Overlapping Electron LLH Decorator
+from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauOverlappingElectronLLHDecorator
+HIGG8D1TauOrlElLLHDec = TauAnalysisTools__TauOverlappingElectronLLHDecorator(name="HIGG8D1TauOrlElLLHDec",
+                                                                             ElectronContainerName = "Electrons")
+    
+ToolSvc += HIGG8D1TauOrlElLLHDec
+        
+#Tau Overlapping Electron LLH Decorator Wrapper
+from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauOverlappingElectronLLHDecoratorWrapper
+HIGG8D1TauOrlElLLHDecWrapper = DerivationFramework__TauOverlappingElectronLLHDecoratorWrapper( name = "HIGG8D1TauOrlElLLHDecWrapper",
+                                                                                               TauOverlappingElectronLLHDecorator = HIGG8D1TauOrlElLLHDec,
+                                                                                               TauContainerName     = "TauJets")
+    
+ToolSvc += HIGG8D1TauOrlElLLHDecWrapper
+augmentationTools.append(HIGG8D1TauOrlElLLHDecWrapper)
+
+
+#==============================================================================
+# BACKGROUND ELECTRON DECORATION TYPE/ORIGIN
+#==============================================================================
+# PhysicsAnalysis/DerivationFramework/DerivationFrameworkEGamma/trunk/src/BkgElectronClassification.cxx
+
 if globalflags.DataSource()=='geant4':
-    from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauTruthMatchingTool
-    HIGG8D1TauTruthMatchingTool = TauAnalysisTools__TauTruthMatchingTool(name="HIGG8D1TauTruthMatchingTool",
-                                                                         WriteTruthTaus = True)
+    from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier as BkgElectronMCTruthClassifier   
+    from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__BkgElectronClassification 
+    HIGG8D1BkgElectronClassificationTool = DerivationFramework__BkgElectronClassification (name = "BkgElectronClassificationTool",
+                                                                                           MCTruthClassifierTool = BkgElectronMCTruthClassifier)
+    ToolSvc += HIGG8D1BkgElectronClassificationTool
+    augmentationTools.append(HIGG8D1BkgElectronClassificationTool)
+    print "BkgElectronClassificationTool: ", HIGG8D1BkgElectronClassificationTool
 
+#==============================================================================
+# HEAVY FLAVOR DECORATION
+#==============================================================================
+# PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/TTbarPlusHeavyFlavorFilterTool.cxx
+# PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/TopHeavyFlavorFilterAugmentation.cxx
+if globalflags.DataSource()=='geant4':
+    from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__TTbarPlusHeavyFlavorFilterTool
+    HIGG8D1tthffiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("HIGG8D1TTbarPlusHeavyFlavorFilterTool")
+    ToolSvc += HIGG8D1tthffiltertool
+   
+    from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__TopHeavyFlavorFilterAugmentation
+    HIGG8D1TopHFFilterAugmentation = DerivationFramework__TopHeavyFlavorFilterAugmentation(name = "HIGG8D1TopHFFilterAugmentation")
+    HIGG8D1TopHFFilterAugmentation.FilterTool = HIGG8D1tthffiltertool
+    ToolSvc += HIGG8D1TopHFFilterAugmentation
+    augmentationTools.append(HIGG8D1TopHFFilterAugmentation)
+    print "HIGG8D1TopHFFilterAugmentationTool: ", HIGG8D1TopHFFilterAugmentation
 
-    ToolSvc += HIGG8D1TauTruthMatchingTool
+#==============================================================================
+# HEAVY FLAVOR DECORATIONS (ttbar)
+#==============================================================================
+# PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/trunk/src/HadronOriginClassifier.cxx
+# PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/trunk/src/HadronOriginDecorator.cxx
+# list of ttbar samples by mc_channel_number
+HIGG8D1DSIDList=[
+    410000,
+    410001,
+    410002,
+    410003,
+    410004,
+    410007,
+    410008,
+    410009,
+    301528,
+    301529,
+    301530,
+    301531,
+    301532,
+    303722,
+    303723,
+    303724,
+    303725,
+    303726,
+    407009,
+    407010,
+    407011,
+    407012,
+    410120,
+    410121,
+    426090,
+    426091,
+    426092,
+    426093,
+    426094,
+    426095,
+    426096,
+    426097,
+    429007,
+    410501,
+    410502,
+    410503,
+    410504,
+    410505,
+    410511,
+    410512,
+    410225,
+    410226,
+    410250,
+    410251,
+    410252,
+    410525,
+    410527
+    ]
 
-    from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauTruthMatchingWrapper
-    HIGG8D1TauTruthMatchingWrapper = DerivationFramework__TauTruthMatchingWrapper( name = "HIGG8D1TauTruthMatchingWrapper",
-                                                                                TauTruthMatchingTool = HIGG8D1TauTruthMatchingTool,
-                                                                                TauContainerName     = "TauJets")
-
-    ToolSvc += HIGG8D1TauTruthMatchingWrapper
-    augmentationTools.append(HIGG8D1TauTruthMatchingWrapper)
+import PyUtils.AthFile as af
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+f = af.fopen(athenaCommonFlags.PoolAODInput()[0])
+if len(f.mc_channel_number) > 0:
+    if(int(f.mc_channel_number[0]) in HIGG8D1DSIDList):
+        from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__HadronOriginClassifier
+        HIGG8D1hadronorigintool = DerivationFramework__HadronOriginClassifier("HIGG8D1HadronOriginClassifier",DSID=int(f.mc_channel_number[0]))
+        ToolSvc += HIGG8D1hadronorigintool
+        print "HIGG8D1hadronorigintool: ", HIGG8D1hadronorigintool
+        from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__HadronOriginDecorator
+        HIGG8D1hadronorigindecorator = DerivationFramework__HadronOriginDecorator(name = "HIGG8D1HadronOriginDecorator")
+        HIGG8D1hadronorigindecorator.ToolName = HIGG8D1hadronorigintool
+        ToolSvc += HIGG8D1hadronorigindecorator
+        print "HIGG8D1hadronorigindecorator: ", HIGG8D1hadronorigindecorator
+        augmentationTools.append(HIGG8D1hadronorigindecorator)
 
 
 #====================================================================
@@ -82,18 +213,7 @@ HIGG8D1ThinningHelper.TriggerChains = 'HLT_e.*|HLT_mu.*|HLT_2e.*|HLT_2mu.*|HLT_t
 HIGG8D1ThinningHelper.AppendToStream( HIGG8D1Stream )
 
 
-# MET/Jet tracks
-thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-HIGG8D1MetTPThinningTool = DerivationFramework__TrackParticleThinning(name                   = "HIGG8D1MetTPThinningTool",
-                                                                      ThinningService        = HIGG8D1ThinningHelper.ThinningSvc(), #"HIGG8D1ThinningSvc
-                                                                      SelectionString        = thinning_expression,
-                                                                      InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                      ApplyAnd               = True)
-ToolSvc += HIGG8D1MetTPThinningTool
-thinningTools.append(HIGG8D1MetTPThinningTool)
-
-
+# Jet tracks
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 HIGG8D1JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "HIGG8D1JetTPThinningTool",
                                                                 ThinningService         = HIGG8D1ThinningHelper.ThinningSvc(),
@@ -196,10 +316,11 @@ HIGG8D1TruthTool3 = DerivationFramework__MenuTruthThinning(name                 
                                                            WriteEverything            = False,
                                                            WriteAllLeptons            = True,
                                                            WriteStatus3               = False,
-                                                           WritettHFHadrons           = True,
+                                                           #WritettHFHadrons           = True,
                                                            #PreserveGeneratorDescendants = True,
                                                            #PreserveDescendants       = True,
                                                            #PreserveAncestors         = True,
+                                                           PreserveParentsSiblingsChildren = True,
                                                            WriteFirstN                = -1)
 
 if globalflags.DataSource()=='geant4':
@@ -209,6 +330,19 @@ if globalflags.DataSource()=='geant4':
     thinningTools.append(HIGG8D1TruthTool2)
     ToolSvc += HIGG8D1TruthTool3
     thinningTools.append(HIGG8D1TruthTool3)
+
+#====================================================================
+# Clusters for Tau TES
+#====================================================================
+                                                                                                                                                                                                                                   
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
+HIGG8D1CaloClusterThinning  = DerivationFramework__CaloClusterThinning(name                  = "HIGG8D1CaloClusterThinning",
+                            ThinningService       = HIGG8D1ThinningHelper.ThinningSvc(),
+                            SGKey                 = "TauJets",
+                            TopoClCollectionSGKey = "CaloCalTopoClusters",
+                            )
+ToolSvc += HIGG8D1CaloClusterThinning
+thinningTools.append(HIGG8D1CaloClusterThinning)
 
 
 
@@ -224,14 +358,39 @@ muRequirements = '(Muons.DFCommonGoodMuon) && (Muons.muonType == 0) && (Muons.pt
 leadMuon = muRequirements + ' && (Muons.pt > 15*GeV)'
 tauRequirements = '(TauJets.pt > 15*GeV) && HIGG8D1JetBDTSigLoose && (abs(TauJets.charge)==1.0) && ((TauJets.nTracks == 1) || (TauJets.nTracks == 3))'
 
+#=======================================
+# DeltaR (tau skimming)
+#=======================================
+
+# deltaRTool 
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__DeltaRTool
+HIGG8D1ElTauDeltaRTool = DerivationFramework__DeltaRTool( name = "HIGG8D1ElTauDeltaRTool",
+                                                        StoreGateEntryName = "dRElecTau",
+                                                        ObjectRequirements = leadElectron,
+                                                        SecondObjectRequirements = tauRequirements,
+                                                        ContainerName = "Electrons",
+                                                        SecondContainerName = "TauJets" )
+ToolSvc += HIGG8D1ElTauDeltaRTool
+augmentationTools.append(HIGG8D1ElTauDeltaRTool)
+HIGG8D1MuTauDeltaRTool = DerivationFramework__DeltaRTool( name = "HIGG8D1MuTauDeltaRTool",
+                                                        StoreGateEntryName = "dRMuTau",
+                                                        ObjectRequirements = leadMuon,
+                                                        SecondObjectRequirements = tauRequirements,
+                                                        ContainerName = "Muons",
+                                                        SecondContainerName = "TauJets" )
+ToolSvc += HIGG8D1MuTauDeltaRTool
+augmentationTools.append(HIGG8D1MuTauDeltaRTool)
+#===================================
+
 eeSelection = '((count('+eleRequirements+') >= 2) && (count('+leadElectron+') >= 1))'
 mmSelection = '((count('+muRequirements+') >= 2) && (count('+leadMuon+') >= 1))'
 emSelection = '(((count('+eleRequirements+') >= 1) && (count('+muRequirements+') >= 1)) && ((count('+leadElectron+') >= 1) || (count('+leadMuon+') >= 1)))'
 
 lepSelection = eeSelection+' || '+mmSelection+' || '+emSelection
-tauSelection = '((count('+leadElectron+')+count('+leadMuon+') >= 1) && (count('+tauRequirements+') >= 2))'
+#tauSelection = '((count('+leadElectron+')+count('+leadMuon+') >= 1) && (count('+tauRequirements+') >= 2))'
+leptauSelection = '((count('+leadElectron+')+count('+leadMuon+') >= 1) && ((count('+tauRequirements+') >= 1) && (count(dRElecTau > 0.4 ) + count(dRMuTau > 0.4) >= 1)))'
 
-expression = lepSelection+ ' || ' +tauSelection
+expression = lepSelection+ ' || ' +leptauSelection
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 HIGG8D1SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "HIGG8D1SkimmingTool1",
@@ -239,10 +398,21 @@ HIGG8D1SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "HIGG8
 ToolSvc += HIGG8D1SkimmingTool
 
 #=======================================
+# CREATE PRIVATE SEQUENCE  
+#=======================================
+
+HIGG8D1Seq = CfgMgr.AthSequencer("HIGG8D1Sequence")
+
+
+#=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+
+if globalflags.DataSource()=='geant4':
+    from DerivationFrameworkCore.LHE3WeightMetadata import *
+
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HIGG8D1Kernel",
                                                                        ThinningTools = thinningTools,
                                                                        AugmentationTools = augmentationTools,
@@ -250,11 +420,25 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HIGG8D1K
                                                                        )
 
 
+#====================================================================
+# RESTORE JET COLLECTIONS REMOVED BETWEEN r20 AND r21
+#====================================================================
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+reducedJetList = ["AntiKt4PV0TrackJets"]
+replaceAODReducedJets(reducedJetList,HIGG8D1Seq,"HIGG8D1")
 
+#====================================================================
+# JetTagNonPromptLepton decorations
+#====================================================================
+
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as Config
+HIGG8D1Seq += Config.GetDecoratePromptLeptonAlgs()
+
+DerivationFrameworkJob += HIGG8D1Seq
 
 
 #====================================================================
-# Add the containers to the output stream - slimming done here
+# SLIMMING TOOL
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 HIGG8D1SlimmingHelper = SlimmingHelper("HIGG8D1SlimmingHelper")
@@ -263,8 +447,9 @@ HIGG8D1SlimmingHelper = SlimmingHelper("HIGG8D1SlimmingHelper")
 HIGG8D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "Muons",
                                           "TauJets",
+                                          "TauMVATESJets",
                                           #"MET_Reference_AntiKt4LCTopo",
-                                          #"AntiKt4LCTopoJets",
+                                          "AntiKt4LCTopoJets",
                                           #"BTagging_AntiKt4LCTopo",
                                           "MET_Reference_AntiKt4EMTopo",
                                           "AntiKt4EMTopoJets",
@@ -275,23 +460,53 @@ HIGG8D1SlimmingHelper.SmartCollections = ["Electrons",
 HIGG8D1SlimmingHelper.ExtraVariables = ["Muons.clusterLink.allAuthors.charge.extrapolatedMuonSpectrometerTrackParticleLink.scatteringCurvatureSignificance.scatteringNeighbourSignificance",
                                         "Electrons.author.charge",
                                         "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.ConeTruthLabelID.PartonTruthLabelID.SumPtTrkPt1000.Jvt.JvtJvfcorr.JvtRpt",
+                                        "AntiKt4LCTopoJets.ConeTruthLabelID.PartonTruthLabelID",
                                         "GSFTrackParticles.z0.vz.definingParametersCovMatrix",
                                         "CombinedMuonTrackParticles.z0.vz.definingParametersCovMatrix",
                                         "ExtrapolatedMuonTrackParticles.z0.vz.definingParametersCovMatrix",
-                                        "PrimaryVertices.x.y",
-                                        "BTagging_AntiKt4Track.SV1_pb.SV1_pc.SV1_pu.IP2D_pb.IP2D_pc.IP2D_pu.IP3D_pb.IP3D_pc.IP3D_pu.JetFitter_pb.JetFitter_pc.JetFitter_pu.JetFitterCombNN_pb.JetFitterCombNN_pc.JetFitterCombNN_pu.MV2c00_discriminant.MV2c10_discriminant.MV2c20_discriminant",
-                                        "AntiKt4PV0TrackJets.pt.eta.phi.e.m.rapidity.btaggingLink"
+                                        "PrimaryVertices.x.y"                                        
                                         ]
 
-HIGG8D1SlimmingHelper.AllVariables = ["egammaClusters"]
+HIGG8D1SlimmingHelper.ExtraVariables += Config.GetExtraPromptVariablesForDxAOD()
+
+ExtraContentTaus=[
+        "TauJets."
+        "pantau_CellBasedInput_isPanTauCandidate."
+        "pantau_CellBasedInput_DecayMode."
+        "ptPanTauCellBased."
+        "etaPanTauCellBased."
+        "phiPanTauCellBased."
+        "mPanTauCellBased."
+        "pantau_CellBasedInput_BDTValue_1p0n_vs_1p1n."
+        "pantau_CellBasedInput_BDTValue_1p1n_vs_1pXn."
+        "pantau_CellBasedInput_BDTValue_3p0n_vs_3pXn."
+        "ele_match_lhscore." 
+        "ele_olr_pass."
+        "electronLink.ptDetectorAxis.etaDetectorAxis.phiDetectorAxis.mDetectorAxis"
+        ,
+        "TauNeutralParticleFlowObjects."
+        "pt."
+        "eta."
+        "phi."
+        "m."
+        "e."
+        "rapidity."
+        "bdtPi0Score"
+        ,
+        "TauChargedParticleFlowObjects.pt.eta.phi.m"
+        ]
+
+HIGG8D1SlimmingHelper.ExtraVariables += ExtraContentTaus
+
+HIGG8D1SlimmingHelper.AllVariables = ["egammaClusters","CaloCalTopoClusters"]
 
 if globalflags.DataSource()=='geant4':
     HIGG8D1SlimmingHelper.AllVariables += ["TruthParticles", "TruthEvents","TruthVertices","AntiKt4TruthJets"]
-    HIGG8D1SlimmingHelper.ExtraVariables += ["Electrons.truthOrigin.truthType.truthParticleLink",
+    HIGG8D1SlimmingHelper.ExtraVariables += ["Electrons.truthOrigin.truthType.truthParticleLink.bkgTruthType.bkgTruthOrigin.bkgTruthParticleLink.bkgMotherPdgId.deltaPhi1",
                                              "MuonTruthParticles.truthOrigin.truthType.truthParticleLink",
                                              "InDetTrackParticles.truthOrigin.truthType.truthParticleLink",
                                              "CombinedMuonTrackParticles.truthOrigin.truthType.truthParticleLink",
-                                             "TauJets.IsTruthMatched.TruthTau.truthParticleLink"]
+                                             "TauJets.IsTruthMatched.truthParticleLink.truthJetLink"]
     
     HIGG8D1SlimmingHelper.StaticContent = ["xAOD::TruthParticleContainer#TruthMuons",
                                            "xAOD::TruthParticleAuxContainer#TruthMuonsAux.",

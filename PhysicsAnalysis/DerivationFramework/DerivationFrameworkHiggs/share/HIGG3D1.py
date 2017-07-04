@@ -9,8 +9,11 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
+###from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 
 from DerivationFrameworkCore.WeightMetadata import *
+
+from DerivationFrameworkHiggs.TruthCategories import *
 
 from AthenaCommon.GlobalFlags import globalflags
 
@@ -100,16 +103,52 @@ if globalflags.DataSource()=='geant4':
     ToolSvc += HIGG3D1TruthThinningTool                                                                      
     thinningTools.append(HIGG3D1TruthThinningTool)
 
+
+# Calo cluster thinning
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
+
+# Calo Clusters associated with Electrons
+HIGG3D1ElectronCCThinningTool = DerivationFramework__CaloClusterThinning( name                  = "HIGG3D1ElectronCCThinningTool",
+                                                                          ThinningService       = HIGG3D1ThinningHelper.ThinningSvc(),
+                                                                          SGKey                 = "Electrons",
+                                                                          TopoClCollectionSGKey = "CaloCalTopoClusters",
+                                                                          SelectionString       = "Electrons.pt > 7*GeV",
+                                                                          ConeSize              = 0.2)
+ToolSvc += HIGG3D1ElectronCCThinningTool
+thinningTools.append(HIGG3D1ElectronCCThinningTool)
+
+# Calo Clusters associated with Muons
+HIGG3D1MuonCCThinningTool = DerivationFramework__CaloClusterThinning( name                  = "HIGG3D1MuonCCThinningTool",
+                                                                      ThinningService       = HIGG3D1ThinningHelper.ThinningSvc(),
+                                                                      SGKey                 = "Muons",
+                                                                      TopoClCollectionSGKey = "CaloCalTopoClusters",
+                                                                      SelectionString       = "Muons.pt > 6*GeV",
+                                                                      ConeSize              = 0.2)
+ToolSvc += HIGG3D1MuonCCThinningTool
+thinningTools.append(HIGG3D1MuonCCThinningTool)
+
+# Calo Clusters associated with AntiKt4EM Jets
+HIGG3D1AntiKt4EMCCThinningTool = DerivationFramework__JetCaloClusterThinning(name                    = "HIGG3D1AntiKt4EMCCThinningTool", 
+                                                                             ThinningService         = HIGG3D1ThinningHelper.ThinningSvc(), 
+                                                                             SGKey                   = "AntiKt4EMTopoJets", 
+                                                                             TopoClCollectionSGKey   = "CaloCalTopoClusters", 
+                                                                             SelectionString         = "AntiKt4EMTopoJets.pt > 20*GeV",
+                                                                             ConeSize                = 0.4) 
+ToolSvc += HIGG3D1AntiKt4EMCCThinningTool
+thinningTools.append(HIGG3D1AntiKt4EMCCThinningTool)
+###############################################################
+
 #====================================================================
 # SKIMMING TOOL 
 #====================================================================
-electronIDRequirements = '(Electrons.DFCommonElectronsLHLoose)'
-electronRequirements = '(Electrons.pt > 7*GeV) && (abs(Electrons.eta) < 2.6)'
+electronIDRequirements = '(Electrons.DFCommonElectronsLHVeryLoose)'
+electronRequirements = '(Electrons.pt > 7*GeV) && (abs(Electrons.eta) < 2.6) && '+electronIDRequirements
 leadElectron = electronRequirements + ' && (Electrons.pt > 17*GeV)'
 muonsRequirements = '(Muons.pt > 7*GeV) && (Muons.DFCommonGoodMuon)'
 leadMuon = muonsRequirements + ' && (Muons.pt > 17*GeV)'
 
-eeSelection = '((count('+electronRequirements+') >= 2) && (count('+leadElectron+') >= 1) && (count('+electronRequirements+' && '+electronIDRequirements+') >= 1))'
+eeSelection = '((count('+electronRequirements+') >= 2) && (count('+leadElectron+') >= 1))'
 mmSelection = '((count('+muonsRequirements+') >= 2) && (count('+leadMuon+') >= 1))'
 emSelection = '(((count('+electronRequirements+') >= 1) && (count('+muonsRequirements+') >= 1)) && ((count('+leadElectron+') >= 1) || (count('+leadMuon+') >= 1)))'
 expression = eeSelection+' || '+mmSelection+' || '+emSelection
@@ -119,14 +158,61 @@ HIGG3D1SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "HIGG3
                                                                     expression = expression)
 ToolSvc += HIGG3D1SkimmingTool
 
+higg3d1Seq = CfgMgr.AthSequencer("HIGG3d1Sequence")
+#====================================================================
+# Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
+#====================================================================
+
+#addVRJets(higg3d1Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
+#          VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track",
+#          ghostArea = 0 , ptmin = 2000, ptminFilter = 7000,
+#          variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
+
+#====================================================================
+# Add AntiKt2PV0TrackJets and AntiKt4PV0TrackJets
+#====================================================================
+
+#if not "HIGG3D1Jets" in OutputJets:
+    #OutputJets["HIGG3D1Jets"] = []
+    #AntiKt4PV0TrackJets
+    #addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=higg3d1Seq, outputGroup="HIGG3D1Jets")
+    #AntiKt2PV0TrackJets
+    #addStandardJets("AntiKt", 0.2, "PV0Track", 2000, mods="track_ungroomed", algseq=higg3d1Seq, outputGroup="HIGG3D1Jets")
+
+#====================================================================
+# RESTORE JET COLLECTIONS REMOVED BETWEEN r20 AND r21
+#====================================================================
+
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets"]
+replaceAODReducedJets(reducedJetList, higg3d1Seq,"HIGG3D1Jets")
+
+
+#===================================================================
+# Run b-tagging
+#===================================================================
+from BTagging.BTaggingFlags import BTaggingFlags
+
+# alias for VR
+# BTaggingFlags.CalibrationChannelAliases += ["AntiKt4EMTopo"]
+
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+# must re-tag AntiKt4LCTopoJets and AntiKt4PV0TrackJets to make JetFitterNN work with corresponding VR jets (nikola: why?)
+# also, re-tag R=0.2 track jets
+###FlavorTagInit( JetCollections = ["AntiKt4PV0TrackJets", "AntiKt2PV0TrackJets"], Sequencer = higg3d1Seq )
+FlavorTagInit( JetCollections = ["AntiKt4PV0TrackJets"], Sequencer = higg3d1Seq )
+### add back VR jets !!!!
+
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D1Kernel",
-									SkimmingTools = [HIGG3D1SkimmingTool],
-									ThinningTools = thinningTools
-                                                                      )
+higg3d1Seq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D1Kernel",
+                                                           SkimmingTools = [HIGG3D1SkimmingTool],
+                                                           ThinningTools = thinningTools
+                                                           )
+DerivationFrameworkJob += higg3d1Seq
+
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -135,32 +221,48 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 HIGG3D1SlimmingHelper = SlimmingHelper("HIGG3D1SlimmingHelper")
 from DerivationFrameworkHiggs.HIGG3D1ExtraContent import *
 
-HIGG3D1SlimmingHelper.SmartCollections = [ "Electrons",
-                                           "Muons",
-                                           "Photons",
-                                           "MET_Reference_AntiKt4LCTopo",
-                                           "MET_Reference_AntiKt4EMTopo",
-                                           "AntiKt4EMTopoJets",
-                                           "AntiKt4LCTopoJets",
-                                           "BTagging_AntiKt4LCTopo",
-                                           "BTagging_AntiKt4EMTopo",
-                                           "BTagging_AntiKt4Track",
-                                           "BTagging_AntiKt2Track",
-                                           "InDetTrackParticles",
-                                           "PrimaryVertices" ]
+#HIGG3D1SlimmingHelper.AppendToDictionary = {
+ # "AntiKtVR30Rmax4Rmin02TrackJets"                :   "xAOD::JetContainer"        ,
+ # "AntiKtVR30Rmax4Rmin02TrackJetsAux"             :   "xAOD::JetAuxContainer"     ,
+ # "BTagging_AntiKtVR30Rmax4Rmin02Track"           :   "xAOD::BTaggingContainer"   ,
+ # "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"        :   "xAOD::BTaggingAuxContainer",
+#  }
 
-HIGG3D1SlimmingHelper.ExtraVariables = HIGG3D1ExtraVariables
-HIGG3D1SlimmingHelper.AllVariables = HIGG3D1ExtraContainers
+HIGG3D1SlimmingHelper.SmartCollections = ["Electrons",
+                                          "Photons",
+                                          "Muons",
+                                          "TauJets",
+                                          "MET_Reference_AntiKt4EMTopo",
+                                          "MET_Reference_AntiKt4LCTopo",
+                                          "AntiKt4EMTopoJets",
+                                          "AntiKt4LCTopoJets",
+                                          "BTagging_AntiKt4EMTopo",
+                                          "InDetTrackParticles",
+                                          "PrimaryVertices"]
+
+HIGG3D1SlimmingHelper.ExtraVariables = list(HIGG3D1ExtraVariables)
+HIGG3D1SlimmingHelper.AllVariables = list(HIGG3D1ExtraContainers)
 
 if globalflags.DataSource()=='geant4':
-    HIGG3D1SlimmingHelper.AllVariables += HIGG3D1ExtraTruthContainers
-    HIGG3D1SlimmingHelper.ExtraVariables += HIGG3D1ExtraTruthVariables
+    HIGG3D1SlimmingHelper.AllVariables += list(HIGG3D1ExtraTruthContainers)
+    HIGG3D1SlimmingHelper.ExtraVariables += list(HIGG3D1ExtraTruthVariables)
+
+    # Add special truth containers
+    from DerivationFrameworkMCTruth.MCTruthCommon import *
+    HIGG3D1SlimmingHelper.StaticContent = [ "xAOD::TruthParticleContainer#TruthMuons",
+                                            "xAOD::TruthParticleAuxContainer#TruthMuonsAux.",
+                                            "xAOD::TruthParticleContainer#TruthElectrons",
+                                            "xAOD::TruthParticleAuxContainer#TruthElectronsAux.",
+                                            "xAOD::TruthParticleContainer#TruthPhotons",
+                                            "xAOD::TruthParticleAuxContainer#TruthPhotonsAux.",
+                                            "xAOD::TruthParticleContainer#TruthNeutrinos",
+                                            "xAOD::TruthParticleAuxContainer#TruthNeutrinosAux." ]
 
 # Add Trigger content
 HIGG3D1SlimmingHelper.IncludeMuonTriggerContent = True
 HIGG3D1SlimmingHelper.IncludeEGammaTriggerContent = True
 
 # Add MET to output stream
-#addMETOutputs(HIGG3D1SlimmingHelper)
+addMETOutputs(HIGG3D1SlimmingHelper, ["AntiKt4EMPFlow", "Track"])
 
 HIGG3D1SlimmingHelper.AppendContentToStream(HIGG3D1Stream)

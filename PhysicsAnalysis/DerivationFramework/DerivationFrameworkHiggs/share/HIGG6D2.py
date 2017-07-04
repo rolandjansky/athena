@@ -12,6 +12,8 @@ from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 
+from DerivationFrameworkHiggs.TruthCategories import *
+
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
@@ -29,6 +31,8 @@ print "HIGG6D2.py jobproperties.Beam.energy()", jobproperties.Beam.energy()
 
 if is_MC:
   from DerivationFrameworkMCTruth.MCTruthCommon import *
+  from DerivationFrameworkTau.TauTruthCommon import * 
+  from DerivationFrameworkCore.LHE3WeightMetadata import *
   
 #====================================================================
 # TAU SELECTOR TOOL 
@@ -47,21 +51,21 @@ augmentationTools.append(HIGG6D2TauWrapper)
 #=======================================
 
 #truth matching
-if is_MC:
-    from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauTruthMatchingTool
-    HIGG6D2TauTruthMatchingTool = TauAnalysisTools__TauTruthMatchingTool(name="HIGG6D2TauTruthMatchingTool",
-                                                                         WriteTruthTaus = True)
-
-
-    ToolSvc += HIGG6D2TauTruthMatchingTool
-
-    from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauTruthMatchingWrapper
-    HIGG6D2TauTruthMatchingWrapper = DerivationFramework__TauTruthMatchingWrapper( name = "HIGG6D2TauTruthMatchingWrapper",
-                                                                                TauTruthMatchingTool = HIGG6D2TauTruthMatchingTool,
-                                                                                TauContainerName     = "TauJets")
-
-    ToolSvc += HIGG6D2TauTruthMatchingWrapper
-    augmentationTools.append(HIGG6D2TauTruthMatchingWrapper)
+#if is_MC:
+#    from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauTruthMatchingTool
+#    HIGG6D2TauTruthMatchingTool = TauAnalysisTools__TauTruthMatchingTool(name="HIGG6D2TauTruthMatchingTool",
+#                                                                         WriteTruthTaus = True)
+#
+#
+#    ToolSvc += HIGG6D2TauTruthMatchingTool
+#
+#    from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauTruthMatchingWrapper
+#    HIGG6D2TauTruthMatchingWrapper = DerivationFramework__TauTruthMatchingWrapper( name = "HIGG6D2TauTruthMatchingWrapper",
+#                                                                                TauTruthMatchingTool = HIGG6D2TauTruthMatchingTool,
+#                                                                                TauContainerName     = "TauJets")
+#
+#    ToolSvc += HIGG6D2TauTruthMatchingWrapper
+#    augmentationTools.append(HIGG6D2TauTruthMatchingWrapper)
 
 
 #====================================================================
@@ -70,19 +74,10 @@ if is_MC:
 MCselection = '1'
 #if is_MC: MCselection = '(EventInfo.eventTypeBitmask==1)'
 
-#====================================================================
-# jet selection - jets with pt>20 and |eta|<2.6
-#====================================================================
-jetSelEM = ' count ((AntiKt4EMTopoJets.pt > 20.0*GeV) && (abs(AntiKt4EMTopoJets.eta) < 2.6)) >= 2'
-jetSelLC = ' count ((AntiKt4LCTopoJets.pt > 20.0*GeV) && (abs(AntiKt4LCTopoJets.eta) < 2.6)) >= 2'
-jetSelEMCalib = ' count ((AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 20.0*GeV) && (abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 2.6)) >= 2'
-jetSel = '( '+ jetSelEM + ' ) || ( '+ jetSelLC + ' ) || ( '+ jetSelEMCalib + ' )'
-
-
 #=============================================================================================
 # tau selection - tau pt>25GeV, with Ntracks=1,3 and |q_\tau|=1 and |eta|<2.6
 #=============================================================================================
-tauSel = '(TauJets.pt > 25*GeV && (abs(TauJets.eta)<2.6) && (abs(TauJets.charge)<3) && ( (TauJets.nTracks == 1) || (TauJets.nTracks == 2) || (TauJets.nTracks == 3) ) )'
+tauSel = '(TauJets.pt > 25*GeV && (abs(TauJets.eta)<2.6) && (abs(TauJets.charge)==1 || abs(TauJets.charge)==3) && ((TauJets.nTracks == 1) || (TauJets.nTracks == 3) ) )'
 
 #====================================================================
 # Trigger selection 
@@ -106,16 +101,25 @@ elif jobproperties.Beam.energy()==4000000.0:
 #========================================================================
 # lepton selection
 #========================================================================
-electronRequirements = '( (Electrons.pt > 25*GeV) && (abs(Electrons.eta) < 2.6) && (Electrons.Loose || Electrons.DFCommonElectronsLHLoose) )'
-muonRequirements = '( (Muons.pt > 25.0*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DFCommonGoodMuon) )'
+electronRequirements = '( (Electrons.pt > 20*GeV) && (abs(Electrons.eta) < 2.6) && (Electrons.DFCommonElectronsLHLoose) )'
+muonRequirements = '( (Muons.pt > 20.0*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DFCommonGoodMuon) )'
 lepSel = '( (count( ' + electronRequirements + ' ) >=1)  || (count( ' + muonRequirements + ' ) >=1 ) )'
+lepSel2 = '( ( (count( ' + electronRequirements + ' ) + count( ' + muonRequirements + ' )) >=2 ) )'
+
+#====================================================================
+# jet selection - jets with pt>20 and |eta|<2.6, nJet>=1 + nEl + nTau
+#====================================================================
+jetSelEM = ' count ((AntiKt4EMTopoJets.pt > 20.0*GeV) && (abs(AntiKt4EMTopoJets.eta) < 2.6)) >= (1 + count(' + electronRequirements + ') + count( ' + tauSel +  ' ) )'
+jetSelEMCalib = ' count ((AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 20.0*GeV) && (abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 2.6)) >= (1 + count(' + electronRequirements + ') + count( ' + tauSel +  ' ) )'
+jetSel = '( '+ jetSelEM + ' ) || ( '+ jetSelEMCalib + ' )'
+
 
 
 #====================================================================
 # SKIMMING TOOL 
 #====================================================================
 #expression = '(count( '+ lepSel + ' ) >= 1) && (count( ' + tauSel +  ' ) >= 1) && ( ' +MCselection + ' ) && ( ' + singleLepTrigger +  ' )'
-expression = '( '+ jetSel + ' ) && ( '+ lepSel + ' ) && (count( ' + tauSel +  ' ) >= 1) && ( ' +MCselection + ' )'
+expression = '( '+ jetSel + ' ) && ((( '+ lepSel + ' ) && (count( ' + tauSel +  ' ) >= 1)) || (' + lepSel2 + ')) && ( ' +MCselection + ' )'
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 HIGG6D2SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "HIGG6D2SkimmingTool1",
@@ -245,6 +249,20 @@ if is_MC:
     thinningTools.append(HIGG6D2TruthThinningTool)
 
 
+#====================================================================
+# Clusters for Tau TES
+#====================================================================
+                                                                                                                                                                                                                                   
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
+HIGG6D2CaloClusterThinning  = DerivationFramework__CaloClusterThinning(name                  = "HIGG6D2PClusterThinning",
+                            ThinningService       = "HIGG6D2ThinningSvc",
+                            SGKey                 = "TauJets",
+                            TopoClCollectionSGKey = "CaloCalTopoClusters",
+                            )
+ToolSvc += HIGG6D2CaloClusterThinning
+thinningTools.append(HIGG6D2CaloClusterThinning)
+
+
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
@@ -286,6 +304,7 @@ HIGG6D2SlimmingHelper.SmartCollections = ["Electrons",
                                       "MET_Reference_AntiKt4EMTopo",
                                       "AntiKt4LCTopoJets",
                                       "AntiKt4EMTopoJets",
+                                      "TauMVATESJets",
                                       "BTagging_AntiKt4LCTopo",
                                       "BTagging_AntiKt4EMTopo",
                                       "InDetTrackParticles",
@@ -294,18 +313,20 @@ HIGG6D2SlimmingHelper.SmartCollections = ["Electrons",
 
 ## Add extra variables
 HIGG6D2SlimmingHelper.ExtraVariables += ["AntiKt4EMTopoJets.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta"]
-HIGG6D2SlimmingHelper.ExtraVariables += ["TauJets.BDTEleScore.pantau_CellBasedInput_isPanTauCandidate.pantau_CellBasedInput_DecayMode.ptPanTauCellBased.etaPanTauCellBased.phiPanTauCellBased.mPanTauCellBased.pantau_CellBasedInput_BDTValue_1p0n_vs_1p1n.pantau_CellBasedInput_BDTValue_1p1n_vs_1pXn.pantau_CellBasedInput_BDTValue_3p0n_vs_3pXn","TauNeutralParticleFlowObjects.pt.eta.phi.m.rapidity.bdtPi0Score"]
+HIGG6D2SlimmingHelper.ExtraVariables += ["BTagging_AntiKt4EMTopo.MV2cl100_discriminant"]
+HIGG6D2SlimmingHelper.ExtraVariables += ["TauJets.ptDetectorAxis.etaDetectorAxis.phiDetectorAxis.mDetectorAxis.BDTEleScore.pantau_CellBasedInput_isPanTauCandidate.pantau_CellBasedInput_DecayMode.ptPanTauCellBased.etaPanTauCellBased.phiPanTauCellBased.mPanTauCellBased.pantau_CellBasedInput_BDTValue_1p0n_vs_1p1n.pantau_CellBasedInput_BDTValue_1p1n_vs_1pXn.pantau_CellBasedInput_BDTValue_3p0n_vs_3pXn","TauNeutralParticleFlowObjects.pt.eta.phi.m.rapidity.bdtPi0Score"]
 HIGG6D2SlimmingHelper.ExtraVariables += ["Electrons.DFCommonElectronsLHLoose.DFCommonElectronsLHMedium.DFCommonElectronsLHTight.DFCommonElectronsML.author.OQ.charge.LHLoose.LHMedium.LHTight.LHValue"]
 HIGG6D2SlimmingHelper.ExtraVariables += ["Muons.DFCommonGoodMuons","CombinedMuonTrackParticles.d0.z0.vz","InDetTrackParticles.numberOfTRTHits.numberOfTRTOutliers"]
 HIGG6D2SlimmingHelper.ExtraVariables += ["PrimaryVertices.x.y.z.vertexType"]
+HIGG6D2SlimmingHelper.AllVariables = ["CaloCalTopoClusters","TauChargedParticleFlowObjects"]
 
 if is_MC:
   HIGG6D2SlimmingHelper.StaticContent = ["xAOD::TruthParticleContainer#TruthMuons","xAOD::TruthParticleAuxContainer#TruthMuonsAux.","xAOD::TruthParticleContainer#TruthElectrons","xAOD::TruthParticleAuxContainer#TruthElectronsAux.","xAOD::TruthParticleContainer#TruthPhotons","xAOD::TruthParticleAuxContainer#TruthPhotonsAux.","xAOD::TruthParticleContainer#TruthNeutrinos","xAOD::TruthParticleAuxContainer#TruthNeutrinosAux.","xAOD::TruthParticleContainer#TruthTaus","xAOD::TruthParticleAuxContainer#TruthTausAux."]  
-  HIGG6D2SlimmingHelper.AllVariables = ["TruthParticles","TruthEvents","MET_Truth","METMap_Truth","TruthVertices","AntiKt4TruthJets"]
+  HIGG6D2SlimmingHelper.AllVariables = ["TruthParticles","TruthEvents","MET_Truth","METMap_Truth","TruthVertices","AntiKt4TruthJets","CaloCalTopoClusters","TauChargedParticleFlowObjects"]
   HIGG6D2SlimmingHelper.ExtraVariables += ["AntiKt4LCTopoJets.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T"]
   HIGG6D2SlimmingHelper.ExtraVariables += ["AntiKt4EMTopoJets.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T"]
   HIGG6D2SlimmingHelper.ExtraVariables += ["Electrons.truthOrigin.truthType.truthParticleLink","MuonTruthParticles.truthOrigin.truthType"]
-  HIGG6D2SlimmingHelper.ExtraVariables += ["TauJets.IsTruthMatched.truthParticleLink"]
+  HIGG6D2SlimmingHelper.ExtraVariables += ["TauJets.IsTruthMatched.truthParticleLink.truthJetLink"]
 
 # Add MET_RefFinalFix
 addMETOutputs(HIGG6D2SlimmingHelper,["AntiKt4LCTopo","AntiKt4EMTopo","Track"])

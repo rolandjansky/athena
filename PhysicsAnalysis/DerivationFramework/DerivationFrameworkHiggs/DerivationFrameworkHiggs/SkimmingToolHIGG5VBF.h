@@ -83,6 +83,7 @@ namespace DerivationFramework {
     bool checkAllJetQuality(const TLorentzVector& jet) const;
     bool checkCentralJetQuality(const TLorentzVector& jet) const;
     TLorentzVector getCalibedJets(const xAOD::Jet* jet) const;
+    bool emulateL1Trig() const;
     
     //for photon (p. rose)
     std::string m_phSGKey;

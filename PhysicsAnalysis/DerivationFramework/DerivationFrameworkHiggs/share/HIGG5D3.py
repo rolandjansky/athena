@@ -10,6 +10,9 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 
+if DerivationFrameworkIsMonteCarlo: 
+  from DerivationFrameworkTau.TauTruthCommon import * 
+
 
 # running on data or MC
 from AthenaCommon.GlobalFlags import globalflags
@@ -17,6 +20,9 @@ from AthenaCommon.GlobalFlags import globalflags
 #print globalflags.DataSource()  # this should be "data" or "geant4"
 is_MC = (globalflags.DataSource()=='geant4')
 print "is_MC = ",is_MC
+
+if globalflags.DataSource()=='geant4':
+  from DerivationFrameworkHiggs.TruthCategories import *
 
 
 #====================================================================
@@ -36,27 +42,27 @@ thinningTools=[]
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper 
 HIGG5D3ThinningHelper = ThinningHelper("HIGG5D3ThinningHelper") 
 #trigger navigation content
-HIGG5D3ThinningHelper.TriggerChains = 'HLT_g.*|HLT_mu.*|HLT_j.*|HLT_b.*' 
+HIGG5D3ThinningHelper.TriggerChains = 'HLT_g.*|HLT_2g.*|HLT_mu.*|HLT_j.*|HLT_b.*|HLT_2b.*' 
 HIGG5D3ThinningHelper.AppendToStream(HIGG5D3Stream) 
 
 
-# MC truth thinning (not for data)
-truth_cond_WZH    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))" # W, Z and Higgs
-truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16))" # Leptons
-truth_cond_Quark  = "((abs(TruthParticles.pdgId) ==  6) || (abs(TruthParticles.pdgId) ==  5))" # Top quark and Bottom quark
-truth_cond_Photon = "((abs(TruthParticles.pdgId) == 22) && (TruthParticles.pt > 1*GeV))"       # Photon
-truth_expression = '('+truth_cond_WZH+' || '+truth_cond_Lepton +' || '+truth_cond_Quark +' || '+truth_cond_Photon+')'
-from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
-HIGG5D3MCThinningTool = DerivationFramework__GenericTruthThinning(
-    name                    = "HIGG5D3MCThinningTool", 
-    ThinningService         = HIGG5D3ThinningHelper.ThinningSvc(),
-    ParticleSelectionString = truth_expression,
-    PreserveDescendants     = False,
-    PreserveGeneratorDescendants = True,
-    PreserveAncestors       = True)
-if (is_MC) :
-    ToolSvc += HIGG5D3MCThinningTool
-    thinningTools.append(HIGG5D3MCThinningTool)
+# # MC truth thinning (not for data)
+# truth_cond_WZH    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))" # W, Z and Higgs
+# truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16))" # Leptons
+# truth_cond_Quark  = "((abs(TruthParticles.pdgId) ==  6) || (abs(TruthParticles.pdgId) ==  5))" # Top quark and Bottom quark
+# truth_cond_Photon = "((abs(TruthParticles.pdgId) == 22) && (TruthParticles.pt > 1*GeV))"       # Photon
+# truth_expression = '('+truth_cond_WZH+' || '+truth_cond_Lepton +' || '+truth_cond_Quark +' || '+truth_cond_Photon+')'
+# from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
+# HIGG5D3MCThinningTool = DerivationFramework__GenericTruthThinning(
+#     name                    = "HIGG5D3MCThinningTool", 
+#     ThinningService         = HIGG5D3ThinningHelper.ThinningSvc(),
+#     ParticleSelectionString = truth_expression,
+#     PreserveDescendants     = False,
+#     PreserveGeneratorDescendants = True,
+#     PreserveAncestors       = True)
+# if (is_MC) :
+#     ToolSvc += HIGG5D3MCThinningTool
+#     thinningTools.append(HIGG5D3MCThinningTool)
 
 
 # MET/Jet tracks
@@ -108,6 +114,17 @@ HIGG5D3TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name  
 ToolSvc += HIGG5D3TauTPThinningTool
 thinningTools.append(HIGG5D3TauTPThinningTool)
 
+
+# calo cluster thinning
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
+HIGG5D3TauCCThinningTool = DerivationFramework__CaloClusterThinning(name                  = "HIGG5D3TauCCThinningTool",
+                                                                    ThinningService       = HIGG5D3ThinningHelper.ThinningSvc(),
+                                                                    SGKey                 = "TauJets",
+                                                                    TopoClCollectionSGKey = "CaloCalTopoClusters")
+ToolSvc += HIGG5D3TauCCThinningTool
+thinningTools.append(HIGG5D3TauCCThinningTool)
+
+
 #====================================================================
 # Skimming Tool
 #====================================================================
@@ -121,6 +138,8 @@ Run2DataTriggers=['HLT_2j35_bmv2c2070_2j35_L13J25.0ETA23',
                   'HLT_2j45_bmedium_2j45_L14J15.0ETA25',
                   'HLT_2j45_bmedium_split_2j45_L13J25.0ETA23',
                   'HLT_2j45_bmedium_split_2j45_L14J15.0ETA25',
+                  'HLT_2j45_bmv2c2070_split_2j45_L14J15', # added on Nov 2016
+                  'HLT_2j45_bmv2c2070_split_2j45', # added on Nov 2016
                   'HLT_2j45_bmv2c2077_2j45_L13J25.0ETA23',
                   'HLT_2j45_bmv2c2077_split_2j45_L13J25.0ETA23',
                   'HLT_2j45_btight_2j45',
@@ -150,16 +169,57 @@ Run2DataTriggers=['HLT_2j35_bmv2c2070_2j35_L13J25.0ETA23',
                   'HLT_mu6_2j40_0eta490_invm400_L1MU6_J30.0ETA49_2J20.0ETA49',
                   'HLT_mu6_2j40_0eta490_invm600_L1MU6_J30.0ETA49_2J20.0ETA49',
                   'HLT_mu6_2j40_0eta490_invm800_L1MU6_J30.0ETA49_2J20.0ETA49',
+                  'HLT_mu26_imedium_2j35_boffperf_split', # added on May 2016
+                  'HLT_mu26_imedium_2j35_bperf',
+                  'HLT_e26_tight_iloose_2j35_bperf',
                   'HLT_g20_loose_L1EM18VH_2j40_0eta490_3j25_0eta490',
                   'HLT_g20_loose_L1EM18VH_2j40_0eta490_3j25_0eta490_invm700',
                   'HLT_g25_loose_2j40_0eta490_3j25_0eta490_invm700',
                   'HLT_g25_loose_L1EM20VH_2j40_0eta490_3j25_0eta490_invm700',
                   'HLT_g20_loose',
                   'HLT_g25_loose', # updated with TriggerMenu-00-12-40 (July 2015)
+                  'HLT_g25_medium_L1EM22VHI', # added on Aug 2016
                   'HLT_g25_medium_L1EM22VHI_4j35_0eta490_invm700',
-                  'HLT_g25_medium_L1EM22VHI_j35_0eta490_bmv2c2077_3j25_0eta490_invm700',
+                  'HLT_g25_medium_L1EM22VHI_4j35_0eta490_invm1000', # added on Aug 2016
+                  # 'HLT_g25_medium_L1EM22VHI_j35_0eta490_bmv2c2077_3j25_0eta490_invm700',
+                  'HLT_g25_medium_L1EM22VHI_j35_0eta490_bmv2c2077_3j35_0eta490_invm700', # modified on Jan 2016
                   'HLT_g25_medium_L1EM22VHI_2j35_0eta490_bmv2c2077_2j35_0eta490',
-                  'HLT_g25_loose_L1EM20VH_4j35_0eta490'] # added on Oct 2015
+                  'HLT_g25_loose_L1EM20VH_4j35_0eta490', # added on Oct 2015
+                  'HLT_g10_loose',
+                  'HLT_g15_loose_L1EM7',
+                  'HLT_g20_loose_L1EM12',
+                  'HLT_g25_loose_L1EM15',
+                  'HLT_g35_loose_L1EM15',
+                  'HLT_g40_loose_L1EM15',
+                  'HLT_g45_loose_L1EM15',
+                  'HLT_g50_loose_L1EM15',
+                  'HLT_g60_loose',
+                  'HLT_g70_loose',
+                  'HLT_g80_loose',
+                  'HLT_g100_loose',
+                  'HLT_g120_loose', # added on Jan 2016
+                  'HLT_g25_medium_L1EM22VHI_j35_0eta490_bmv2c2077_split_3j35_0eta490_invm700',
+                  'HLT_g25_medium_L1EM22VHI_2j35_0eta490_bmv2c2077_split_2j35_0eta490', # added on Apr 2016
+                  'HLT_2g20_tight',
+                  'HLT_2g22_tight',
+                  'HLT_g35_loose_g25_loose',
+                  'HLT_g35_medium_g25_medium', # added on Aug 2016
+                  'HLT_j225_bmv2c2060_split',
+                  'HLT_j150_bmv2c2060_split_j50_bmv2c2060_split',
+                  'HLT_j100_2j55_bmv2c2060_split',
+                  'HLT_j55_bmv2c2060_ht500_L14J15',
+                  'HLT_j55_bmv2c2060_split_ht500_L14J15',
+                  'HLT_j225_bloose',
+                  'HLT_j175_bmedium',
+                  'HLT_j100_2j55_bmedium',
+                  'HLT_j150_bmedium_j50_bmedium', # added on May 2016
+                  'HLT_j80_bmv2c2085_split_2j60_320eta490',
+                  'HLT_j80_0eta240_2j60_320eta490',
+                  'HLT_j80_bmv2c2070_split_j60_bmv2c2085_split_j45_320eta490',
+                  'HLT_j80_0eta240_j60_j45_320eta490', # added on May 2016
+                  'HLT_j80_0eta240_j60_j45_320eta490_AND_2j45_bmv2c2070_split', # added on Nov 2016
+                  'HLT_2j35_bmv2c2060_split_2j35_L14J15'] # added on Dec 2016
+
 
 
 Run2MCTriggers=["L1_3J20_4J20.0ETA49_MJJ-400",
@@ -169,7 +229,10 @@ Run2MCTriggers=["L1_3J20_4J20.0ETA49_MJJ-400",
                 "L1_MJJ-700",
                 "L1_MJJ-400",
                 "L1_EM15VH",
-                "L1_EM13VH"] # based on TriggerMenu-00-09-41-12 for MC15 production
+                "L1_EM13VH", # based on TriggerMenu-00-09-41-12 for MC15 production
+                "L1_2EM15VH",
+                "L1_J100",
+                "L1_J75_3J20"] # added on May 2016
 
 
 # Run2MCTriggers=["HLT_2j55_bloose_L13J20_4J20.0ETA49_MJJ-400",
@@ -301,11 +364,6 @@ ToolSvc += HIGG5D3SkimmingTool
 #=======================================
 higg5d3Seq = CfgMgr.AthSequencer("HIGG5D3Sequence")
 
-# Then apply the TruthWZ fix
-if globalflags.DataSource()=='geant4':
-    replaceBuggyAntiKt4TruthWZJets(higg5d3Seq,'HIGG5D3')
-    replaceBuggyAntiKt10TruthWZJets(higg5d3Seq,'HIGG5D3')
-
 # Jet calibration should come after fat jets
 applyJetCalibration_xAODColl(jetalg="AntiKt4EMTopo", sequence=higg5d3Seq)
 
@@ -319,22 +377,41 @@ higg5d3Seq += CfgMgr.DerivationFramework__DerivationKernel(
     SkimmingTools = [HIGG5D3SkimmingTool]
     )
 
+#====================================================================
+# Standard jets
+#====================================================================
+if not "HIGG5D3Jets" in OutputJets:
+    OutputJets["HIGG5D3Jets"] = []
+
+    #AntiKt2PV0TrackJets
+    addStandardJets("AntiKt", 0.2, "PV0Track", 2000, mods="track_ungroomed", algseq=higg5d3Seq, outputGroup="HIGG5D3Jets")
+    OutputJets["HIGG5D3Jets"].append("AntiKt2PV0TrackJets")
+    #AntiKt4PV0TrackJets
+    addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=higg5d3Seq, outputGroup="HIGG5D3Jets")
+    OutputJets["HIGG5D3Jets"].append("AntiKt4PV0TrackJets")
+    #AntiKt10LCTopoJets
+    addStandardJets("AntiKt", 1.0, "LCTopo", mods="lctopo_ungroomed", ptmin=40000, ptminFilter=50000, calibOpt="none", algseq=higg5d3Seq, outputGroup="HIGG5D3Jets")
+    OutputJets["HIGG5D3Jets"].append("AntiKt10LCTopoJets")
 
 #====================================================================
 # Special jets
 #====================================================================
-if not "HIGG5D3Jets" in OutputJets:
-    OutputJets["HIGG5D3Jets"] = ["AntiKt3PV0TrackJets","AntiKt2PV0TrackJets","AntiKt10LCTopoJets","CamKt12LCTopoJets"]
+# if not "HIGG5D3Jets" in OutputJets:
+    # OutputJets["HIGG5D3Jets"] = ["AntiKt2PV0TrackJets","AntiKt10LCTopoJets","CamKt12LCTopoJets"]
 
     if jetFlags.useTruth:
-        OutputJets["HIGG5D3Jets"].append("AntiKt4TruthJets")
-        OutputJets["HIGG5D3Jets"].append("AntiKt4TruthWZJets")
-        # OutputJets["HIGG5D3Jets"].append("AntiKt10TruthWZJets")
-        # OutputJets["HIGG5D3Jets"].append("AntiKt10TruthJets")
-        #OutputJets["HIGG5D3Jets"].append("CamKt12TruthJets")
-        addTrimmedJets("AntiKt", 1.0, "TruthWZ", rclus=0.2, ptfrac=0.05, includePreTools=False, algseq=higg5d3Seq,outputGroup="HIGG5D3Jets")
+      #AntiKt4TruthJets
+      addStandardJets("AntiKt", 0.4, "Truth", 5000, mods="truth_ungroomed", algseq=higg5d3Seq, outputGroup="HIGG5D3Jets")
+      OutputJets["HIGG5D3Jets"].append("AntiKt4TruthJets")
+      #AntiKt4TruthWZJets
+      addStandardJets("AntiKt", 0.4, "TruthWZ", 5000, mods="truth_ungroomed", algseq=higg5d3Seq, outputGroup="HIGG5D3Jets")
+      OutputJets["HIGG5D3Jets"].append("AntiKt4TruthWZJets")
+      # OutputJets["HIGG5D3Jets"].append("AntiKt10TruthWZJets")
+      # OutputJets["HIGG5D3Jets"].append("AntiKt10TruthJets")
+      # OutputJets["HIGG5D3Jets"].append("CamKt12TruthJets")
+      addTrimmedJets("AntiKt", 1.0, "TruthWZ", rclus=0.2, ptfrac=0.05, includePreTools=False, algseq=higg5d3Seq,outputGroup="HIGG5D3Jets")
 
-    addFilteredJets("CamKt", 1.2, "LCTopo", mumax=1.0, ymin=0.15, includePreTools=False, algseq=higg5d3Seq,outputGroup="HIGG5D3Jets")
+    # addFilteredJets("CamKt", 1.2, "LCTopo", mumax=1.0, ymin=0.15, includePreTools=False, algseq=higg5d3Seq,outputGroup="HIGG5D3Jets")
     addTrimmedJets("AntiKt", 1.0, "LCTopo", rclus=0.2, ptfrac=0.05, includePreTools=False, algseq=higg5d3Seq,outputGroup="HIGG5D3Jets")
 
 
@@ -344,7 +421,56 @@ higg5d3Seq += CfgMgr.DerivationFramework__DerivationKernel(
     )
 
 
-applyJetCalibration_CustomColl(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20", sequence=higg5d3Seq)
+# applyJetCalibration_CustomColl(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20", sequence=higg5d3Seq)
+# applyJetCalibration_OTFJets("AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=higg5d3Seq)
+
+#===================================================================
+# Run b-tagging
+#===================================================================
+from BTagging.BTaggingFlags import BTaggingFlags
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit( JetCollections = ["AntiKt4PV0TrackJets", "AntiKt2PV0TrackJets"], Sequencer = higg5d3Seq )
+
+#====================================================================
+# Add non-prompt lepton tagging
+#====================================================================
+# import the JetTagNonPromptLepton config and add to the private sequence 
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+higg5d3Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
+
+
+
+# # Tau Truth matching
+# if DerivationFrameworkIsMonteCarlo:
+#     TauTruthWrapperTools5d3 = []
+#     from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauTruthMatchingWrapper
+#     from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauTruthMatchingTool
+#     from RecExConfig.ObjKeyStore import objKeyStore
+#     # Tau Truth making and matching
+#     from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
+#     TauTruthClassifier5d3 = MCTruthClassifier(name = "TauTruthClassifier5d3",
+#                                                    ParticleCaloExtensionTool="")
+#     ToolSvc += TauTruthClassifier5d3
+#     # Build the truth taus
+#     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthCollectionMakerTau
+#     TruthTauTool5d3 = DerivationFramework__TruthCollectionMakerTau(name             = "TruthTauTool5d3",
+#                                                                  NewCollectionName       = "TruthTaus",
+#                                                                  MCTruthClassifier       = TauTruthClassifier5d3)
+#     ToolSvc += TruthTauTool5d3
+#     TauTruthWrapperTools5d3.append(TruthTauTool5d3)
+#     if objKeyStore.isInInput( "xAOD::TauJetContainer", "TauJets" ):
+#         TauTruthMatchingTool5d3 = TauAnalysisTools__TauTruthMatchingTool(name="TauTruthMatchingTool5d3")
+#         ToolSvc += TauTruthMatchingTool5d3
+#         TauTruthMatchingWrapper5d3 = DerivationFramework__TauTruthMatchingWrapper( name = "TauTruthMatchingWrapper5d3",
+#                                                                                         TauTruthMatchingTool = TauTruthMatchingTool5d3,
+#                                                                                         TauContainerName     = "TauJets")
+#         ToolSvc += TauTruthMatchingWrapper5d3
+#         print TauTruthMatchingWrapper5d3
+#         TauTruthWrapperTools5d3 += [TauTruthMatchingWrapper5d3] 
+#     higg5d3Seq += CfgMgr.DerivationFramework__DerivationKernel(
+#         "HIGG5D3Kernel_aug",
+#         AugmentationTools = TauTruthWrapperTools5d3
+#         )
 
 
 DerivationFrameworkJob += higg5d3Seq
@@ -382,6 +508,7 @@ HIGG5D3SlimmingHelper.AllVariables = ExtraContainers
 if (is_MC) :
     HIGG5D3SlimmingHelper.ExtraVariables += ExtraContentTruth
     HIGG5D3SlimmingHelper.AllVariables += ExtraContainersTruth
+HIGG5D3SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 
 # Add the jet containers to the stream
 addJetOutputs(HIGG5D3SlimmingHelper,["HIGG5D3Jets"])
