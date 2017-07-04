@@ -36,9 +36,9 @@ namespace CP {
 
         m_tree = new TTree("IsoCorrTest", "Test tree for the isolaiton correction tool");
 
-        m_ele_helper = std::unique_ptr < IsoCorrectionTestHelper > (new IsoCorrectionTestHelper(m_tree, "Electrons"));
-        m_muo_helper = std::unique_ptr < IsoCorrectionTestHelper > (new IsoCorrectionTestHelper(m_tree, "Muons"));
-        m_pho_helper = std::unique_ptr < IsoCorrectionTestHelper > (new IsoCorrectionTestHelper(m_tree, "Photons"));
+        m_ele_helper = std::unique_ptr < IsoCorrectionTestHelper > (new IsoCorrectionTestHelper(m_tree, "Electrons",m_isoSelectorTool->getElectronWPs()));
+        m_muo_helper = std::unique_ptr < IsoCorrectionTestHelper > (new IsoCorrectionTestHelper(m_tree, "Muons",m_isoSelectorTool->getMuonWPs()));
+        m_pho_helper = std::unique_ptr < IsoCorrectionTestHelper > (new IsoCorrectionTestHelper(m_tree, "Photons",m_isoSelectorTool->getPhotonWPs()));
 
         ATH_CHECK(m_histSvc->regTree("/ISOCORRECTION/IsoCorrTest", m_tree));
 

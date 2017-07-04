@@ -805,5 +805,8 @@ namespace CP {
     IsoType IsoVariableHelper::isotype() const {
         return m_IsoType;
     }
+    std::string IsoVariableHelper::name() const {
+        return std::string(xAOD::Iso::toString(isotype()));
+    }
 
 }

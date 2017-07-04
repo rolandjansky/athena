@@ -57,7 +57,7 @@ ToolSvc += CfgMgr.CP__IsolationCloseByCorrectionTool("IsolationCloseByCorrection
                                                      IsolationSelectionTool=ToolSvc.MySelectionTool,
                                                      SelectionDecorator = "quality",
 #                                                      PassOverlapDecorator = "passOR",
-                                                     IsolationSelectionDecorator = "CorrectedIsol" ,
+                                                      IsolationSelectionDecorator = "CorrectedIsol" ,
                                                       BackupPrefix = "Default")
 
 

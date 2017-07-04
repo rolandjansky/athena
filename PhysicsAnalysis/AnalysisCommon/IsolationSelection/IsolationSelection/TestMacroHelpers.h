@@ -1,3 +1,7 @@
+/*
+ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
+
 #ifndef ISOLATIONSELECTION_TESTMARCOHELPERS_H
 #define ISOLATIONSELECTION_TESTMARCOHELPERS_H
 
@@ -11,12 +15,12 @@
 #include <TTree.h>
 #include <vector>
 namespace CP {
-    class IsolationCloseByCorrectionTool;
-
+    
     std::string EraseWhiteSpaces(std::string str);
+    
     class IsoCorrectionTestHelper {
         public:
-            IsoCorrectionTestHelper(TTree* outTree, const std::string& ContainerName);
+            IsoCorrectionTestHelper(TTree* outTree, const std::string& ContainerName, const std::vector<IsolationWP*> &WP);
             StatusCode Fill(xAOD::IParticleContainer* Particles);
 
         private:
@@ -24,7 +28,8 @@ namespace CP {
             template<typename T> bool AddBranch(const std::string &Name, T &Element);
 
             float Charge(const xAOD::IParticle* P) const;
-
+            StatusCode FillIsolationBranches(const xAOD::IParticle* P ,  const IsoHelperPtr & Acc, std::vector<float> &Original, std::vector<float> &Corrected);
+            
             TTree* m_tree;
             bool m_init;
             std::vector<float> m_pt;
@@ -41,6 +46,13 @@ namespace CP {
 
             std::vector<char> m_orig_passIso;
             std::vector<char> m_corr_passIso;
+            
+            IsoHelperPtr m_TrackAcc;
+            IsoHelperPtr m_CaloAcc;
+            
+            SelectionAccessor m_acc_passDefault;
+            SelectionAccessor m_acc_passCorrected;
+            
 
     };
 

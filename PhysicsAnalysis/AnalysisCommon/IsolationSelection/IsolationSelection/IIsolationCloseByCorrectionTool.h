@@ -5,16 +5,15 @@
 #ifndef ISOLATIONSELECTION_IISOLATIONCLOSEBYCORRECTIONTOOL_H
 #define ISOLATIONSELECTION_IISOLATIONCLOSEBYCORRECTIONTOOL_H
 
-#include "PATInterfaces/CorrectionCode.h"
-#include <xAODBase/IParticle.h>
-#include "xAODPrimitives/IsolationType.h"
-#include "PATCore/TAccept.h"
-#include "IsolationSelection/IsolationSelectionTool.h"
+#include <PATInterfaces/CorrectionCode.h>
+#include <xAODPrimitives/IsolationType.h>
+#include <PATCore/TAccept.h>
 
-#include<xAODEgamma/ElectronContainer.h>
-#include<xAODEgamma/PhotonContainer.h>
-#include<xAODMuon/MuonContainer.h>
-
+#include <xAODEgamma/ElectronContainer.h>
+#include <xAODEgamma/PhotonContainer.h>
+#include <xAODMuon/MuonContainer.h>
+#include <xAODBase/IParticleContainer.h>
+#include <AsgTools/IAsgTool.h>
 namespace CP {
     typedef xAOD::Iso::IsolationType IsoType;
     typedef std::vector<IsoType> IsoVector;

@@ -180,8 +180,10 @@ namespace CP {
             CorrectionCode GetIsolation(const xAOD::IParticle* P, float& Value) const;
             CorrectionCode BackupIsolation(const xAOD::IParticle* P) const;
             CorrectionCode SetIsolation(xAOD::IParticle* P, float Value) const;
+          
             IsoType isotype() const;
-
+            std::string name() const;
+            
             IsoVariableHelper(IsoType type, const std::string& BackupPreFix);
 
         private:

@@ -5,6 +5,10 @@
 #include <IsolationSelection/IsolationWP.h>
 #include <IsolationSelection/TestMacroHelpers.h>
 
+#include <xAODPrimitives/IsolationHelpers.h>
+#include <xAODPrimitives/tools/getIsolationAccessor.h>
+#include <xAODPrimitives/tools/getIsolationCorrectionAccessor.h>
+
 namespace CP {
 
     std::string EraseWhiteSpaces(std::string str) {
@@ -14,7 +18,7 @@ namespace CP {
         return str;
     }
 
-    IsoCorrectionTestHelper::IsoCorrectionTestHelper(TTree* outTree, const std::string& ContainerName) :
+    IsoCorrectionTestHelper::IsoCorrectionTestHelper(TTree* outTree, const std::string& ContainerName, const std::vector<IsolationWP*> &WPs) :
                 m_tree(outTree),
                 m_init(true),
                 m_pt(),
@@ -24,26 +28,55 @@ namespace CP {
                 m_Q(),
                 m_orig_TrackIsol(),
                 m_corr_TrackIsol(),
-
+                
                 m_orig_CaloIsol(),
                 m_corr_CaloIsol(),
 
                 m_orig_passIso(),
-                m_corr_passIso() {
+                m_corr_passIso(),
+                m_TrackAcc(),
+                m_CaloAcc(),
+                m_acc_passDefault(SelectionAccessor(new CharAccessor("DefaultIso"))),
+                m_acc_passCorrected(SelectionAccessor(new CharAccessor("CorrectedIsol"))){
 
         if (!AddBranch(ContainerName+"_pt",m_pt)) m_init = false;
         if (!AddBranch(ContainerName+"_eta",m_eta)) m_init = false;
         if (!AddBranch(ContainerName+"_phi",m_phi)) m_init = false;
         if (!AddBranch(ContainerName+"_e",m_e)) m_init = false;
         if (!AddBranch(ContainerName+"_Q",m_Q)) m_init = false;
-//        if (!AddBranch(ContainerName+"_pt",m_pt)) m_init = false;
-//        if (!AddBranch(ContainerName+"_pt",m_pt)) m_init = false;
-//
-
+        
+        //Retrieve the isolaiton accessors directly from the WP
+        for (const auto& W : WPs) {
+            for (auto& C : W->conditions()) {
+                // The 'Default' has been fixed in the Athena JO and util macro
+                if (xAOD::Iso::IsolationFlavour::ptcone == xAOD::Iso::isolationFlavour(C->type())) {
+                    m_TrackAcc = IsoHelperPtr(new IsoVariableHelper(C->type(), "Default"));}
+                else if (xAOD::Iso::IsolationFlavour::ptvarcone == xAOD::Iso::isolationFlavour(C->type())) {
+                    m_TrackAcc = IsoHelperPtr(new IsoVariableHelper(C->type(), "Default"));}
+                else if (xAOD::Iso::IsolationFlavour::topoetcone == xAOD::Iso::isolationFlavour(C->type())) {
+                    m_CaloAcc = IsoHelperPtr(new IsoVariableHelper(C->type(), "Default"));}
+            }
+            //Assume only 1 WP
+            break;
+        }
+        if (m_TrackAcc){
+            if(!AddBranch(ContainerName+"_orig-"+m_TrackAcc->name(), m_orig_TrackIsol)) m_init = false;
+            if(!AddBranch(ContainerName+"_corr-"+m_TrackAcc->name(), m_corr_TrackIsol)) m_init = false;
+        }        
+        if (m_CaloAcc){
+            if(!AddBranch(ContainerName+"_orig-"+m_CaloAcc->name(), m_orig_CaloIsol)) m_init = false;
+            if(!AddBranch(ContainerName+"_corr-"+m_CaloAcc->name(), m_corr_CaloIsol)) m_init = false;
+        }
+        if (!AddBranch(ContainerName+"_orig-passIso",m_orig_passIso)) m_init = false;
+        if (!AddBranch(ContainerName+"_corr-passIso",m_corr_passIso)) m_init = false;
     }
     StatusCode IsoCorrectionTestHelper::Fill(xAOD::IParticleContainer* Particles) {
         if (!Particles) {
             Error("IsoCorrectionTestHelper::Fill()", "No particles given");
+            return StatusCode::FAILURE;
+        }
+        if (!m_init){
+            Error("IsoCorrectionTestHelper::Fill()", "Something went wrong during setup");
             return StatusCode::FAILURE;
         }
         //Clear the old vectors first
@@ -67,13 +100,17 @@ namespace CP {
             m_phi.push_back(object->phi());
             m_e.push_back(object->e());
             m_Q.push_back(Charge(object));
+            if (!FillIsolationBranches(object,m_TrackAcc, m_orig_TrackIsol, m_corr_TrackIsol).isSuccess()) return StatusCode::FAILURE;
+            if (!FillIsolationBranches(object,m_CaloAcc, m_orig_CaloIsol, m_corr_CaloIsol).isSuccess()) return StatusCode::FAILURE;
+            if (!m_acc_passDefault->isAvailable(*object) ) return StatusCode::FAILURE;
+            else m_orig_passIso.push_back( m_acc_passDefault->operator()(*object));
+            if (!m_acc_passCorrected->isAvailable(*object) ) return StatusCode::FAILURE;
+            else m_corr_passIso.push_back( m_acc_passCorrected->operator()(*object));            
         }
-
         return StatusCode::SUCCESS;
-
     }
     float IsoCorrectionTestHelper::Charge(const xAOD::IParticle* P) const {
-        static SG::AuxElement::ConstAccessor<float> acc_charge("charge");
+        static FloatAccessor acc_charge("charge");
         if (!acc_charge.isAvailable(*P)) return 0;
         else return acc_charge(*P);
     }
@@ -90,25 +127,14 @@ namespace CP {
         }
         return true;
     }
-
-//
-//    private:
-//
-//    float Charge(const xAOD::IParticle* P) const;
-//
-//    std::vector<float> m_pt;
-//    std::vector<float> m_eta;
-//    std::vector<float> m_phi;
-//    std::vector<float> m_e;
-//    std::vector<int> m_Q;
-//
-//    std::vector<float> m_orig_TrackIsol;
-//    std::vector<float> m_corr_TrackIsol;
-//
-//    std::vector<float> m_orig_CaloIsol;
-//    std::vector<float> m_corr_CaloIsol;
-//
-//    std::vector<char> m_orig_passIso;
-//    std::vector<char> m_corr_passIso;
+    StatusCode IsoCorrectionTestHelper::FillIsolationBranches(const xAOD::IParticle* P ,const IsoHelperPtr & Acc, std::vector<float> &Original, std::vector<float> &Corrected){
+        if (!Acc.get()) return StatusCode::SUCCESS;
+        float IsoValue;
+        if (Acc->GetOrignalIsolation(P,IsoValue).code() != CorrectionCode::Ok) return StatusCode::FAILURE;
+        Original.push_back(IsoValue);
+        if (Acc->GetIsolation(P,IsoValue).code() != CorrectionCode::Ok) return StatusCode::FAILURE;
+        Corrected.push_back(IsoValue);
+        return StatusCode::SUCCESS;
+    }
 
 }
