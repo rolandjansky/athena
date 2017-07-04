@@ -106,6 +106,12 @@ class Simulator(JobProperty):
         if self.statusOn:
             return 'configureFlags' + self.StoredValue
 
+class HITSMergingRequired(JobProperty):
+    """The configured set of simulators requires merging of HITS collections"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True
+
 class UsingGeant4(JobProperty):
     """Will this job be using Geant4?"""
     statusOn     = True
@@ -228,6 +234,7 @@ jobproperties.ISF_jobProperties.add_JobProperty(DoMemoryMonitoring)
 jobproperties.ISF_jobProperties.add_JobProperty(DoTimeMonitoring)
 jobproperties.ISF_jobProperties.add_JobProperty(Input)
 jobproperties.ISF_jobProperties.add_JobProperty(Simulator)
+jobproperties.ISF_jobProperties.add_JobProperty(HITSMergingRequired)
 jobproperties.ISF_jobProperties.add_JobProperty(UsingGeant4)
 jobproperties.ISF_jobProperties.add_JobProperty(TruthStrategy)
 jobproperties.ISF_jobProperties.add_JobProperty(TruthService)
