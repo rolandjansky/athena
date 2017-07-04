@@ -46,7 +46,6 @@ protected:
   StatusCode makeVoronoiParticles(std::vector<fastjet::PseudoJet>& particles, std::vector< std::pair<fastjet::PseudoJet,std::vector<float> > >&) const;
   void spreadPt(std::vector< std::pair< fastjet::PseudoJet,std::vector<float> > >& correctedptvec, float spreadr=0.4, float alpha=2) const;
 
-  bool m_debug = false;
   bool m_doSpread = true;
   int m_nSigma = 0;
 

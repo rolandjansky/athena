@@ -103,8 +103,6 @@ StatusCode VoronoiWeightTool::initialize() {
 
 StatusCode VoronoiWeightTool::process_impl(xAOD::IParticleContainer* particlesin) const
 {
-  const char* APP_NAME = "VoronoiWeightTool::process()";
-
   std::vector<fastjet::PseudoJet> particles; particles.reserve(particlesin->size());
 
   for(auto part: *particlesin){
@@ -119,15 +117,15 @@ StatusCode VoronoiWeightTool::process_impl(xAOD::IParticleContainer* particlesin
     }
     if(accept) {
       particles.push_back( fastjet::PseudoJet(part->p4()) );
-      if(m_debug) ATH_MSG_VERBOSE( "Accepted particle with pt " << part->pt() );
+      ATH_MSG_VERBOSE( "Accepted particle with pt " << part->pt() );
     }
   }
 
   std::vector< std::pair< fastjet::PseudoJet, std::vector<float> > > ptvec; //vector of pairs of PJs and their corrected pTs
-  if(makeVoronoiParticles(particles, ptvec) != StatusCode::SUCCESS) ATH_MSG_ERROR(APP_NAME << ": Error in makeVoronoiParticless");
+  if(makeVoronoiParticles(particles, ptvec) != StatusCode::SUCCESS) ATH_MSG_ERROR("Error in makeVoronoiParticles");
   std::sort(ptvec.begin(), ptvec.end(), SortHelper::PJcomp());
 
-  if(m_doSpread && m_nSigma > 0) ATH_MSG_ERROR(APP_NAME << ": Can't combine spreading with nSigma yet");
+  if(m_doSpread && m_nSigma > 0) ATH_MSG_ERROR("Can't combine spreading with nSigma yet");
   int alg;
   if(m_doSpread && m_nSigma == 0) alg = 3;
   if(!m_doSpread && m_nSigma == 0) alg = 1;
@@ -144,20 +142,18 @@ StatusCode VoronoiWeightTool::process_impl(xAOD::IParticleContainer* particlesin
       newE = 0;  //remove negative energy particles
     }
     else if(endContainer || endVec){
-      ATH_MSG_ERROR(APP_NAME << ": Filtered particle list doesn't have same number of elements as the list returned by FastJet.");
+	ATH_MSG_ERROR("Filtered particle list doesn't have same number of elements as the list returned by FastJet.");
       return StatusCode::FAILURE;
     }
     else{
       //And the particles should match
       float Containerpt = part->pt();
       float PJpt = ptvec[i].first.pt();
-      if(m_debug){
-        std::cout << "Container: " << Containerpt << std::endl;
-        std::cout << "Ptvec: " << PJpt << std::endl;
-      }
+	ATH_MSG_VERBOSE( "Container: " << Containerpt );
+	ATH_MSG_VERBOSE( "Ptvec: " << PJpt );
       if (fabs(Containerpt-PJpt) > 0.1){
-        if(m_debug) std::cout << fabs(Containerpt-PJpt) << std::endl;
-        ATH_MSG_ERROR(APP_NAME << ": Particle pt's don't match.");
+	 ATH_MSG_VERBOSE( fabs(Containerpt-PJpt) );
+	 ATH_MSG_ERROR("Particle pt's don't match.");
         return StatusCode::FAILURE;
       }
       newE = ptvec[i].second[alg]*cosh(part->eta());
@@ -167,7 +163,6 @@ StatusCode VoronoiWeightTool::process_impl(xAOD::IParticleContainer* particlesin
     ATH_CHECK(setEnergyPt(part,newE,part->pt()*w));
     i++;
   }
-
   return StatusCode::SUCCESS;
  }
 
