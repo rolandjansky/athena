@@ -404,16 +404,6 @@ jtm += PseudoJetGetter(
   GhostScale = ghostScaleFactor,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
 )
 
-# AntiKt3 track jets.
-# jtm += PseudoJetGetter(
-#   "gakt3trackget", # give a unique name
-#   InputContainer = jetFlags.containerNamePrefix() + "AntiKt3PV0TrackJets", # SG key
-#   Label = "GhostAntiKt3TrackJet",   # this is the name you'll use to retrieve associated ghosts
-#   OutputContainer = "PseudoJetGhostAntiKt3TrackJet",
-#   SkipNegativeEnergy = True,
-#   GhostScale = ghostScaleFactor,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
-# )
-
 # AntiKt4 track jets.
 jtm += PseudoJetGetter(
   "gakt4trackget", # give a unique name

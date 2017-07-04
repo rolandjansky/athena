@@ -59,8 +59,6 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
     "emtopo"   : ("EMTopoEventShape",   jtm.emget),
     "lctopo"   : ("LCTopoEventShape",   jtm.lcget),
     "empflow"  : ("EMPFlowEventShape",  jtm.empflowget),
-    "emcpflow" : ("EMCPFlowEventShape", jtm.emcpflowget),
-    "lcpflow"  : ("LCPFlowEventShape",  jtm.lcpflowget),
   }
 
   if jetFlags.useTracks():
