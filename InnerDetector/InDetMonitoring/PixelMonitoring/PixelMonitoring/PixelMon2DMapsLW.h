@@ -5,6 +5,7 @@
 #ifndef PIXELMON2DMAPSLW_H_
 #define PIXELMON2DMAPSLW_H_
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
+#include "PixelMonitoring/PixelMainMon.h"
 #include <string.h>
 
 class TH2F_LW;
@@ -22,7 +23,7 @@ class StatusCode;
 class PixelMon2DMapsLW
 {
    public:
-      PixelMon2DMapsLW(std::string name, std::string title, bool doIBL, bool errorHist = false, bool copy2DFEval = false);
+      PixelMon2DMapsLW(std::string name, std::string title, const PixMon::HistConf& config, bool doIBL, bool copy2DFEval = false);
       ~PixelMon2DMapsLW();
       TH2F_LW* IBL;
       TH2F_LW* IBL2D;
@@ -40,8 +41,8 @@ class PixelMon2DMapsLW
       StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
 private:
       void formatHist();
+      const PixMon::HistConf m_config;
       const bool m_doIBL;
-      const bool m_errorHist;
       const bool m_copy2DFEval;
 };
 

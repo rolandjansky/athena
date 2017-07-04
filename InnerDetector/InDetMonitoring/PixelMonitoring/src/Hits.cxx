@@ -159,7 +159,7 @@ StatusCode PixelMainMon::BookHitsMon(void)
       }
    }
    
-   m_hitmap_tmp = new PixelMon2DMapsLW("HitMap_tmp", ("Hit map for monitoring" + m_histTitleExt).c_str(), m_doIBL);
+   m_hitmap_tmp = new PixelMon2DMapsLW("HitMap_tmp", ("Hit map for monitoring" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, m_doIBL);
    sc = m_hitmap_tmp->regHist(rdoShift);
 
    for( int i=0; i<PixLayer::COUNT; i++){
@@ -174,7 +174,7 @@ StatusCode PixelMainMon::BookHitsMon(void)
        sc = rdoShift.regHist(m_occupancy_time2= new TProfile("occupancy_time_1hr",   ("Module hit occupancy as function of time over 1 hour.  36 sec/bin" + m_histTitleExt + ";time;module occupancy").c_str(), 99,0.,1.,"i"));
        sc = rdoShift.regHist(m_occupancy_time3= new TProfile("occupancy_time_6hr",   ("Module hit occupancy as function of time over 6 hours.  3.6 min/bin" + m_histTitleExt + ";time;module occupancy").c_str(), 99,0.,1.,"i"));
        
-       m_hitmap_mon = new PixelMon2DMapsLW("HitMap_Mon", ("Hit map for monitoring" + m_histTitleExt).c_str(), m_doIBL);
+       m_hitmap_mon = new PixelMon2DMapsLW("HitMap_Mon", ("Hit map for monitoring" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, m_doIBL);
        sc = m_hitmap_mon->regHist(rdoShift);
        
        for (int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++){
@@ -234,10 +234,10 @@ StatusCode PixelMainMon::BookHitsMon(void)
 
    if (m_do2DMaps)
      {
-       m_occupancy = new PixelMon2DMapsLW("Occupancy", ("hit map"+ m_histTitleExt).c_str(), m_doIBL);
+       m_occupancy = new PixelMon2DMapsLW("Occupancy", ("hit map"+ m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, m_doIBL);
        sc = m_occupancy->regHist(rdoShift);
        
-       m_average_pixocc = new PixelMon2DMapsLW("Occupancy_per_pixel", ("#hits / pixel" + m_histTitleExt).c_str(), m_doIBL, false, true);
+       m_average_pixocc = new PixelMon2DMapsLW("Occupancy_per_pixel", ("#hits / pixel" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, m_doIBL, true);
        sc = m_average_pixocc->regHist(rdoShift);
        
        m_occupancy_pix_evt = new PixelMon2DProfilesLW("Occupancy_per_pixel_event", ("#hits / pixel / event" + m_histTitleExt).c_str(), m_doIBL);
@@ -390,7 +390,7 @@ StatusCode PixelMainMon::BookHitsLumiBlockMon(void)
       sc = lumiBlockHist.regHist(m_Lvl1A_10min_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), 14, -1.5, 12.5));
    }
 
-   m_occupancy_10min = new PixelMon2DMapsLW("Occupancy_10min", ("hit occupancy" + m_histTitleExt).c_str(), m_doIBL);
+   m_occupancy_10min = new PixelMon2DMapsLW("Occupancy_10min", ("hit occupancy" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, m_doIBL);
    sc = m_occupancy_10min->regHist(lumiBlockHist);
    
    if (sc.isFailure()) ATH_MSG_WARNING("Problems with booking Hit histograms per LB (low stat)");

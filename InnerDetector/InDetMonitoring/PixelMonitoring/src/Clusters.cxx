@@ -249,7 +249,7 @@ StatusCode PixelMainMon::BookClustersMon(void)
   if (m_do2DMaps)
     {
       tmp = "Cluster_Occupancy"; tmp2 = "Cluster occupancy";
-      m_cluster_occupancy = new PixelMon2DMapsLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), m_doIBL);
+      m_cluster_occupancy = new PixelMon2DMapsLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, m_doIBL);
       sc = m_cluster_occupancy->regHist(clusterShift);
       
       tmp = "Cluster_LVL1A_Mod"; tmp2 = "Average cluster Level 1 Accept";
@@ -257,7 +257,7 @@ StatusCode PixelMainMon::BookClustersMon(void)
       sc = m_cluster_LVL1A_mod->regHist(timeShift);
 
       tmp = "Clus_Occ_SizeCut"; tmp2 = "Size>1 Cluster occupancy";
-      m_clusocc_sizenot1 = new PixelMon2DMapsLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), m_doIBL);
+      m_clusocc_sizenot1 = new PixelMon2DMapsLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, m_doIBL);
       sc = m_clusocc_sizenot1->regHist(clusterShift); 
 
       tmp = "Clus_LVL1A_SizeCut"; tmp2 = "Average Size>1 Cluster Level 1 Accept";
@@ -266,11 +266,11 @@ StatusCode PixelMainMon::BookClustersMon(void)
 
       if (m_doOnline){
         tmp = "ClusterMap_Mon"; tmp2 = "Cluster map for monitoring";
-        m_clustermap_mon = new PixelMon2DMapsLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), m_doIBL);
+        m_clustermap_mon = new PixelMon2DMapsLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, m_doIBL);
         sc = m_clustermap_mon->regHist(clusterShift);
 
         tmp = "ClusterMap_tmp"; tmp2 = "Cluster map for monitoring";
-        m_clustermap_tmp = new PixelMon2DMapsLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), m_doIBL);
+        m_clustermap_tmp = new PixelMon2DMapsLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, m_doIBL);
         sc = m_clustermap_tmp->regHist(clusterShift);
       }
       if (!m_doOnline){
@@ -409,7 +409,7 @@ StatusCode PixelMainMon::BookClustersLumiBlockMon(void)
   sc = lumiBlockHist.regHist(m_cluster_ToT_LB  = TH1F_LW::create("Cluster_ToT_LB", ("Cluster Time over Threshold" + m_histTitleExt + ";ToT;# clusters").c_str(), 300,-0.5,299.5));   
   
   if (m_do2DMaps) {
-    m_cluster_occupancy_LB = new PixelMon2DMapsLW("Cluster_Occupancy_LB", ("Cluster Occupancy" + m_histTitleExt).c_str(), m_doIBL);
+    m_cluster_occupancy_LB = new PixelMon2DMapsLW("Cluster_Occupancy_LB", ("Cluster Occupancy" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, m_doIBL);
     sc = m_cluster_occupancy_LB->regHist(lumiBlockHist);
   }
   if (m_doLowOccupancy || m_doHighOccupancy) {
