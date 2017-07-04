@@ -37,14 +37,13 @@
 // Tools
 #include "IsolationSelection/IsolationCloseByCorrectionTool.h"
 #include "IsolationSelection/TestMacroHelpers.h"
-
 #include "IsolationSelection/IsolationSelectionTool.h"
 
-/// For statistics
-#include "xAODCore/tools/IOStats.h"
-#include "xAODCore/tools/ReadStats.h"
+#include "AsgTools/AnaToolHandle.h"
 
-using namespace std;
+#define SET_DUAL_TOOL( TOOLHANDLE, TOOLTYPE, TOOLNAME )                \
+  ASG_SET_ANA_TOOL_TYPE(TOOLHANDLE, TOOLTYPE);                        \
+  TOOLHANDLE.setName(TOOLNAME);
 
 const float GeV = 1000.;
 const float iGeV = 0.001;
@@ -68,26 +67,54 @@ int main(int argc, char** argv) {
     std::auto_ptr<TFile> ifile(TFile::Open(fileName, "READ"));
     ifile.get();
 
+    // Creating the tools.
+
+    //Define first the isolation selection tool with all WP
+    asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoSelTool;
+    SET_DUAL_TOOL(m_isoSelTool, CP::IsolationSelectionTool, "IsolationSelectionTool");
+    CHECK(m_isoSelTool.setProperty("MuonWP", "FixedCutLoose"));
+    CHECK(m_isoSelTool.setProperty("ElectronWP", "Loose"));
+    CHECK(m_isoSelTool.setProperty("PhotonWP", "FixedCutTightCaloOnly"));
+    CHECK(m_isoSelTool.retrieve());
+
+    //Now let's come to the IsolaionCloseByCorrecitonTool
+    asg::AnaToolHandle<CP::IIsolationCloseByCorrectionTool> m_isoCloseByTool;
+    SET_DUAL_TOOL(m_isoCloseByTool, CP::IsolationCloseByCorrectionTool, "IsolationCloseByCorrectionTool");
+
+    //pass the instance of the created isolation tool
+    CHECK(m_isoCloseByTool.setProperty("IsolationSelectionTool", m_isoSelTool.getHandle()));
+
+    //Name of the quality decorator defining all nearby particles used to correct the isolation of a given particle
+    CHECK(m_isoCloseByTool.setProperty("SelectionDecorator", "quality"));
+
+    //If you want to use only particles survivving the overlap removal. Then just add this line. Only particles with auxdata<char>("passOR") == 1 are used
+    //CHECK(m_isoCloseByTool.setProperty("PassOverlapDecorator","passOR"));
+
+    //What is the name of the final isolation decorator. The tool internally calls P->auxdata<char>("CorrectedIsol") = m_IsoTool->accept(*P)
+    CHECK(m_isoCloseByTool.setProperty("IsolationSelectionDecorator", "CorrectedIsol"));
+
+    //By default all particles in the container are corrected. For the purpose of saving processing time one can optionally
+    //define this property. Then the isolation of the particle is only corrected only if the particle passes the input quality or if this decorator is set to true
+    //CHECK(m_isoCloseByTool.setProperty("CorrectIsolationOf", "CorrectTheThing"));
+
+    //The closeByIsoCorrectionTool accesses the default variables of a particle via the original container links
+    //Optionally one can backup the isolation values before correction. Then the tool creates an auxelement called <BackupPrefix>_<IsoVariable> This might be interesting if the people are interested in writing
+    //out the default values using CxAODs
+    CHECK(m_isoCloseByTool.setProperty("BackupPrefix", "Default"));
+    CHECK(m_isoCloseByTool.retrieve());
+
+    //Define  the output
     TFile* ofile;
-    if (produceOutput) {
-        ofile = TFile::Open(outputTree, "RECREATE");
-    }
+    ofile = TFile::Open(outputTree, "RECREATE");
 
     TTree *tree = new TTree("otree", "otree");
+    CP::IsoCorrectionTestHelper eleBranches(tree, "Electrons", m_isoSelTool->getElectronWPs());
+    CP::IsoCorrectionTestHelper muoBranches(tree, "Muons", m_isoSelTool->getMuonWPs());
+    CP::IsoCorrectionTestHelper phoBranches(tree, "Photons", m_isoSelTool->getPhotonWPs());
 
     // Create a TEvent object:
     xAOD::TEvent event(xAOD::TEvent::kClassAccess);
     CHECK(event.readFrom(ifile.get()));
-    CP::IsolationSelectionTool* m_isoSelTool = new CP::IsolationSelectionTool("isoSelTool_Muon");
-    CHECK(m_isoSelTool->setProperty("MuonWP", "FixedCutLoose"));
-    CHECK(m_isoSelTool->setProperty("ElectronWP", "Loose"));
-    CHECK(m_isoSelTool->setProperty("PhotonWP", "FixedCutTightCaloOnly"));
-//    m_isoSelTool->msg().setLevel(MSG::INFO);
-    CHECK(m_isoSelTool->initialize());
-
-    // Creating tools.
-    CP::IsolationCloseByCorrectionTool* m_isoCloseByTool_Muon = new CP::IsolationCloseByCorrectionTool("isoCloseByTool_Muon");
-//     m_isoCloseByTool_Muon->msg().setLevel(MSG::DEBUG);
 
     Long64_t maxEVT = -1;
     Long64_t entries = event.getEntries();
@@ -107,18 +134,15 @@ int main(int argc, char** argv) {
         if (entry % INTERVAL == 0) {
             Info(APP_NAME, "%lld events processed, on event %llu of run %u", entry, ei->eventNumber(), ei->runNumber());
         }
-        eventNumber = ei->eventNumber();
+//        eventNumber = ei->eventNumber();
 
         // get muon container of interest
         const xAOD::MuonContainer* muons = 0;
         CHECK(event.retrieve(muons, "Muons"));
 
-
         // get electron container of interest
         const xAOD::ElectronContainer* electrons = 0;
         CHECK(event.retrieve(electrons, "Electrons"));
-
-
 
         // get photon container of interest
         const xAOD::PhotonContainer* photons = 0;

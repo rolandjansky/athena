@@ -44,8 +44,8 @@ namespace CP {
             std::vector<float> m_orig_CaloIsol;
             std::vector<float> m_corr_CaloIsol;
 
-            std::vector<char> m_orig_passIso;
-            std::vector<char> m_corr_passIso;
+            std::vector<bool> m_orig_passIso;
+            std::vector<bool> m_corr_passIso;
             
             IsoHelperPtr m_TrackAcc;
             IsoHelperPtr m_CaloAcc;

@@ -59,15 +59,15 @@ namespace CP {
             break;
         }
         if (m_TrackAcc) {
-            if (!AddBranch(ContainerName + "_orig-" + m_TrackAcc->name(), m_orig_TrackIsol)) m_init = false;
-            if (!AddBranch(ContainerName + "_corr-" + m_TrackAcc->name(), m_corr_TrackIsol)) m_init = false;
+            if (!AddBranch(ContainerName + "_Orig_" + m_TrackAcc->name(), m_orig_TrackIsol)) m_init = false;
+            if (!AddBranch(ContainerName + "_Corr_" + m_TrackAcc->name(), m_corr_TrackIsol)) m_init = false;
         }
         if (m_CaloAcc) {
-            if (!AddBranch(ContainerName + "_orig-" + m_CaloAcc->name(), m_orig_CaloIsol)) m_init = false;
-            if (!AddBranch(ContainerName + "_corr-" + m_CaloAcc->name(), m_corr_CaloIsol)) m_init = false;
+            if (!AddBranch(ContainerName + "_Orig_" + m_CaloAcc->name(), m_orig_CaloIsol)) m_init = false;
+            if (!AddBranch(ContainerName + "_Corr_" + m_CaloAcc->name(), m_corr_CaloIsol)) m_init = false;
         }
-        if (!AddBranch(ContainerName + "_orig-passIso", m_orig_passIso)) m_init = false;
-        if (!AddBranch(ContainerName + "_corr-passIso", m_corr_passIso)) m_init = false;
+        if (!AddBranch(ContainerName + "_OrigPassIso", m_orig_passIso)) m_init = false;
+        if (!AddBranch(ContainerName + "_CorrPassIso", m_corr_passIso)) m_init = false;
     }
     StatusCode IsoCorrectionTestHelper::Fill(xAOD::IParticleContainer* Particles) {
         if (!Particles) {
