@@ -5,7 +5,7 @@
 #ifndef PIXELMON2DMAPSLW_H_
 #define PIXELMON2DMAPSLW_H_
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "PixelMonitoring/PixelMainMon.h"
+#include "PixelMonitoring/Components.h"
 #include <string.h>
 
 class TH2F_LW;

@@ -64,14 +64,6 @@ typedef InDet::PixelCluster PixelCluster;
 typedef InDetRawDataCollection<PixelRDORawData> RDO_Collection;
 typedef Trk::SpacePoint SpacePoint;
 
-namespace PixMon {
-  // Enum class to determine which histograms should be produced.
-  //   - Pix  = pixel components (L0, L1, L2, ECA, ECC)
-  //   - IBL  = IBL
-  //   - IBL2D3D = IBL plus additional IBL2D and IBL3D
-  //   - DBM  = DBM
-  enum class HistConf {kPix, kPixIBL, kPixIBL2D3D, kPixDBM, kPixDBMIBL, kPixDBMIBL2D3D, kDBM, kDBMIBL, kDBMIBL2D3D, kIBL, kIBL2D3D, COUNT};
-}
 
 class ErrorCategory{
    public:
@@ -137,7 +129,6 @@ public:
    int GetPixLayerDiskID(int ec, int ld, bool ibl);
    int GetPhiID(Identifier &id, const PixelID* pixID);
    int GetEtaID(Identifier &id, const PixelID* pixID, bool doIBL, bool doIBL2D3D);
-   static bool HasComponent(const PixMon::HistConf& config, const PixLayerIBL2D3DDBM::PixLayerIBL2D3DDBMID& component);
    void TH1FFillMonitoring(TH1F_LW* mon, TH1F_LW* tmp);
    void TH2FSetBinScaled(TH2F_LW* mon, TH2F_LW* tmp, int nevent);
    void FillTimeHisto(double, TProfile*, TProfile*, TProfile*, double, double, double);
