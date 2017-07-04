@@ -22,23 +22,23 @@ class JSSTaggerBase :   public asg::AsgTool ,
                         virtual public IJetSelector {
   ASG_TOOL_CLASS2(JSSTaggerBase, IJetSelectorTool, IJetSelector )
 
-  public:
+  protected:
 
   // the object where you store the contents of what the jet has passed
   mutable Root::TAccept m_accept;
-
-  // the location where CVMFS files live
-  std::string m_calibarea;
-
-  // whether you will decorate information onto the jet
-  bool m_decorate;
 
   // the kinematic bounds for the jet - these are in MeV (not GeV!)
   float m_jetPtMin;
   float m_jetPtMax;
   float m_jetEtaMax;
 
-  // default constructor - to be used in all derived classes
+  // whether you will decorate information onto the jet
+  bool m_decorate;
+
+   // the location where CVMFS files live
+  std::string m_calibarea;
+
+   // default constructor - to be used in all derived classes
   JSSTaggerBase(const std::string &name);
 
   // provide a default implementation for IJetSelector::keep :

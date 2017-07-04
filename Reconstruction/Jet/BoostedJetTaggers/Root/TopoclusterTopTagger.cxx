@@ -282,7 +282,7 @@ void TopoclusterTopTagger::preprocess(std::map<std::string,double> &clusters, co
     // Instructions from Jannicke
     //- min max scaling (this is actually has a hard-coded min and max)
     for (int i = 0; i < N_CONSTITUENTS; ++i) {
-      clusters["clust_"+std::to_string(i)+"_pt"] = TopoclusterTransform::pt_min_max_scale(clusters["clust_"+std::to_string(i)+"_pt"], 0);
+      clusters["clust_"+std::to_string(i)+"_pt"] = TopoclusterTransform::pt_min_max_scale(clusters["clust_"+std::to_string(i)+"_pt"]);
     }
     // -  shift prim (translation about primary jet constituent)
     for (int i = 0; i < N_CONSTITUENTS; ++i) {

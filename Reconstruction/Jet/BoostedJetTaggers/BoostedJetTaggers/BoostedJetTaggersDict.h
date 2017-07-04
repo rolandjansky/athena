@@ -10,5 +10,13 @@
 #endif // __GCCXML__
 
 // Includes for the dictionary generation:
+#include "JetAnalysisInterfaces/IJetSelectorTool.h"
+#include "BoostedJetTaggers/SmoothedWZTagger.h"
+#include "BoostedJetTaggers/BoostedXbbTagger.h"
+#include "BoostedJetTaggers/SmoothedTopTagger.h"
+#include "BoostedJetTaggers/JSSWTopTaggerBDT.h"
+#include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
+#include "BoostedJetTaggers/TopoclusterTopTagger.h"
+#include "BoostedJetTaggers/JetQGTagger.h"
 
 #endif // BOOSTEDJETTAGGERS_BOOSTEDJETTAGGERSDICT_H

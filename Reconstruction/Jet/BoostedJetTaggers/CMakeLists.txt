@@ -44,16 +44,9 @@ find_package( FastJet )
 find_package( ROOT COMPONENTS Matrix RooFit TMVA )
 find_package( Boost )
 
-# Build a dictionary for the library:
-atlas_add_root_dictionary( BoostedJetTaggersLib _dictionarySource
-   #ROOT_HEADERS BoostedJetTaggers/*.h Root/LinkDef.h
-   ROOT_HEADERS Root/LinkDef.h
-   EXTERNAL_PACKAGES ROOT )
-
-
 # Build a shared library:
 atlas_add_library( BoostedJetTaggersLib
-   BoostedJetTaggers/*.h Root/*.h Root/*.cxx ${_dictionarySource}
+   BoostedJetTaggers/*.h BoostedJetTaggers/lwtnn/*.h Root/*.h Root/*.cxx ${_dictionarySource}
    PUBLIC_HEADERS BoostedJetTaggers
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} AsgTools xAODBase xAODJet JetInterface JetRecLib JetEDM JetSelectorToolsLib JetCalibToolsLib MuonSelectorToolsLib MuonMomentumCorrectionsLib PATCoreLib PATInterfaces JetAnalysisInterfacesLib InDetTrackSelectionToolLib InDetTrackSystematicsToolsLib JetAnalysisInterfacesLib ${extra_libs} 
@@ -72,5 +65,4 @@ atlas_add_dictionary( BoostedJetTaggersDict
    LINK_LIBRARIES BoostedJetTaggersLib )
 
 # Install files from the package:
-atlas_install_generic( share/*
-   DESTINATION data PKGNAME_SUBDIR )
+atlas_install_data( share/* )

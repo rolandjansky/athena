@@ -15,10 +15,10 @@
 class TopoclusterTransform {
   public:
 
-  static double pt_min_max_scale(double clust_pt, double jet_pt);
+  static double pt_min_max_scale(double clust_pt);
   static double jet_pt_scale(double clust_pt, double jet_pt);
-  static double eta_min_max_scale(double clust_eta, double jet_eta);
-  static double phi_min_max_scale(double clust_phi, double jet_phi);
+  static double eta_min_max_scale(double clust_eta);
+  static double phi_min_max_scale(double clust_phi);
   static double eta_shift(double clust_eta, double jet_eta);
   static double phi_shift(double clust_phi, double jet_phi);
   static double eta_shift_and_scale(double clust_eta, double jet_eta);

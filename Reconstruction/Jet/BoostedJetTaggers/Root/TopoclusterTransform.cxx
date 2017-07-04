@@ -13,7 +13,7 @@ namespace {
   static const double MAX_PHI = M_PI;
 }
 
-double TopoclusterTransform::pt_min_max_scale(double clust_pt, double jet_pt){
+double TopoclusterTransform::pt_min_max_scale(double clust_pt){
   return (clust_pt - MIN_PT) / (MAX_PT - MIN_PT);
 }
 
@@ -21,11 +21,11 @@ double TopoclusterTransform::jet_pt_scale(double clust_pt, double jet_pt){
   return clust_pt / jet_pt;
 }
 
-double TopoclusterTransform::eta_min_max_scale(double clust_eta, double jet_eta){
+double TopoclusterTransform::eta_min_max_scale(double clust_eta){
   return (clust_eta - MIN_ETA) / (MAX_ETA - MIN_ETA);
 }
 
-double TopoclusterTransform::phi_min_max_scale(double clust_phi, double jet_phi){
+double TopoclusterTransform::phi_min_max_scale(double clust_phi){
   return (clust_phi - MIN_PHI) / (MAX_PHI - MIN_PHI);
 }
 
