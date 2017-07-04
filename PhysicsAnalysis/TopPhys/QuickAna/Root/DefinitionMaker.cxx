@@ -99,7 +99,7 @@ namespace ana
     for (auto&& def : result)
     {
       if (def.first)
-	args.add (std::unique_ptr<IAnaTool> (std::move (def.first)));
+	args.add (std::move (def.first));
     }
     return StatusCode::SUCCESS;
   }
