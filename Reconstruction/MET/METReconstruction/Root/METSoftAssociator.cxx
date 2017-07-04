@@ -110,7 +110,7 @@ namespace met {
 	    }
 	  }
 	} else { // Neutral PFOs
-	  if (pfo->e()>0) {
+	  if (pfo->e()>FLT_MIN) {
 	    // This is a non-issue; just add the four-vector
  	    *metCoreCl += sig;
  	    if(m_decorateSoftTermConst) dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));
@@ -135,7 +135,7 @@ namespace met {
 	ATH_CHECK( evtStore()->retrieve(emtc,m_emmodclus_key) );
       }
       for(const auto& cl : *uniqueClusters) {
-	if (cl->e()>0) {
+	if (cl->e()>FLT_MIN) {
 	  if(m_useModifiedClus) {
 	    if(lctc && emtc) {
 	      size_t cl_idx(cl->index());

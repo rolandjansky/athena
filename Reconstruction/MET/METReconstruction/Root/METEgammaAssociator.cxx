@@ -216,7 +216,7 @@ namespace met {
       } // if we will retain the topocluster
       else {break;}
     } // loop over nearby clusters
-    if(sumE_pfo<1e-9 && bestbadmatch) {
+    if(sumE_pfo<FLT_MIN && bestbadmatch) {
       ATH_MSG_VERBOSE("No better matches found -- add bad match topocluster with pt "
     		      << bestbadmatch->pt() << ", e " << bestbadmatch->e() << ".");
       pfolist.push_back(bestbadmatch);
@@ -256,7 +256,7 @@ namespace met {
     	sumE_tc += tcl_e;
       } // if we will retain the topocluster
     } // loop over nearby clusters
-    if(sumE_tc<1e-9 && bestbadmatch) {
+    if(sumE_tc<FLT_MIN && bestbadmatch) {
       ATH_MSG_VERBOSE("No better matches found -- add bad match topocluster with pt "
     		      << bestbadmatch->pt() << ", e " << bestbadmatch->e() << ".");
       tclist.push_back(bestbadmatch);
