@@ -13,12 +13,8 @@
 //**********************************************************************
 
 JetWidthTool::JetWidthTool(std::string myname)
-  : JetModifierBase(myname),
-    m_weightpfoEM("WeightPFOTool/pflowweighter"),
-    m_weightpfoLC("WeightPFOTool/pflowweighterLC")
+  : JetModifierBase(myname)
 {
-  declareProperty( "WeightPFOToolEM", m_weightpfoEM );
-  declareProperty( "WeightPFOToolLC", m_weightpfoLC );
 }
 
 //**********************************************************************
@@ -88,21 +84,9 @@ double JetWidthTool::width(const xAOD::Jet& jet, double& widthEta, double& width
     const double dPhi = fabs(jet::JetDistances::deltaPhi(jetPhi, constituent->phi() ));
     const double pt   = constituent->pt();
 
-    float weight = 1.; 
-    if(isPFlowEM || isPFlowLC) {
-      const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>(constituent->rawConstituent());
-      if(pfo->charge()>FLT_MIN) {
-	if(isPFlowEM) {
-	  ATH_CHECK( m_weightpfoEM->fillWeight( *pfo, weight ) );
-	} else if(isPFlowLC) {
-	  ATH_CHECK( m_weightpfoLC->fillWeight( *pfo, weight ) );
-	}
-      }
-    }
-
-    weightedWidth += dR * pt * weight;
-    weightedWidthEta += dEta * pt * weight;
-    weightedWidthPhi += dPhi * pt * weight;
+    weightedWidth += dR * pt;
+    weightedWidthEta += dEta * pt;
+    weightedWidthPhi += dPhi * pt;
     
     ptSum += pt * weight;
   }

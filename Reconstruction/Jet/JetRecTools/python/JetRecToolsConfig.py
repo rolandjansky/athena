@@ -68,6 +68,7 @@ class ConstituentToolManager(object):
 
     # map of known input collection to their type
     inputContainerMap = dict( CaloCalTopoClusters = xAOD.Type.CaloCluster, CaloTopoClusters = xAOD.Type.CaloCluster,
+                              EMOriginTopoClusters = xAOD.Type.CaloCluster, LCOriginTopoClusters = xAOD.Type.CaloCluster, 
                               InDetTrackParticles = xAOD.Type.TrackParticle, JetETMiss = xAOD.Type.ParticleFlow )
         
 
@@ -112,7 +113,7 @@ class ConstituentToolManager(object):
 
         # Deal with input -----------------
         if InputType is None:
-            # get it from the knonw inputs
+            # get it from the known inputs
             InputType = self.inputContainerMap[ InputContainer ]
         if InputType is None:
             self.log.error( seqName+'. Unknown input container : '+InputContainer )
@@ -121,7 +122,7 @@ class ConstituentToolManager(object):
         # deal with modifiers ---------------
         if isinstance(modList, str):
             modKey = modList
-            # translate into a knonw list :
+            # translate into a known list :
             modList = self.standardModifierLists.get( modKey , None)
             if modList is None :
                 self.log.error( seqName+". Unknown shortcut for constit modifier list : "+modKey)
@@ -140,15 +141,15 @@ class ConstituentToolManager(object):
             # append to the final list
             finalList.append( t )
             
-        clustModSeq = CfgMgr.JetConstituentModSequence( seqName, # the name of the tool 
-                                                 InputContainer = InputContainer,
-                                                 OutputContainer = OutputContainer,
-                                                 InputType = InputType,
-                                                 Modifiers = finalList, # pass the list of modifier we want 
-                                                 )
-        self += clustModSeq
+        constModSeq = CfgMgr.JetConstituentModSequence( seqName, # the name of the tool 
+                                                        InputContainer = InputContainer,
+                                                        OutputContainer = OutputContainer,
+                                                        InputType = InputType,
+                                                        Modifiers = finalList, # pass the list of modifier we want 
+                                                        )
+        self += constModSeq
         
-        return clustModSeq
+        return constModSeq
 
 
 # -----------------------------------

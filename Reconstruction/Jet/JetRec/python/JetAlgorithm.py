@@ -108,6 +108,9 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
       ctools += [jtm.JetConstitSeq_LCOrigin]
     if not IsInInputFile("xAOD::CaloClusterContainer","EMOriginTopoClusters"):
       ctools += [jtm.JetConstitSeq_EMOrigin]
+    if not IsInInputFile("xAOD::PFOContainer","CHSParticleFlowObjects"):
+      ctools += [jtm.JetConstitSeq_PFlowCHS]
+  ctools += constitModTools
   from JetRec.JetRecConf import JetToolRunner
   runners = []
   if len(ctools)>0:
