@@ -23,8 +23,8 @@ namespace dqm_algorithms {
     TripleGaussCollFit* clone();
 
   private:
-    std::string name;
-    TF1* gaus3_fn;
+    std::string m_name;
+    TF1* m_gaus3_fn;
     void fitSingle(TH1* hist1D);
     
   };  // end class

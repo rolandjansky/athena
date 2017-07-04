@@ -31,9 +31,9 @@ namespace dqm_algorithms {
 
 GatherData::
 GatherData()
-  : name("GatherData")
+  : m_name("GatherData")
 {
-  dqm_core::AlgorithmManager::instance().registerAlgorithm( name, this );
+  dqm_core::AlgorithmManager::instance().registerAlgorithm( m_name, this );
 }
 
 
@@ -92,7 +92,7 @@ printDescription(std::ostream& out)
 {
   std::string message;
   message += "\n";
-  message += "Algorithm: \"" + name + "\"\n";
+  message += "Algorithm: \"" + m_name + "\"\n";
   message += "Description: Extracts data (ex., mean, RMS) from an object without performing\n";
   message += "             any assessment; the status is always \"Undefined\"\n";
   message += "Parameters: none\n";

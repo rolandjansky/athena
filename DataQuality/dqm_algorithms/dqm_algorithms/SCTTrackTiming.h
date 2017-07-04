@@ -27,9 +27,9 @@ public:
 
 protected:
 
-  std::string  name;
+  std::string  m_name;
 
-  int NbinsX;
+  int m_NbinsX;
 };
 
 } //namespace dqm_algorithms

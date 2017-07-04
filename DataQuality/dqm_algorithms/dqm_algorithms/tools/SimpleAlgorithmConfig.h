@@ -40,10 +40,10 @@ namespace dqm_algorithms
 	void addGreenThreshold(std::string,double);//< Adds a new threshold to the list of current params
 	void addRedThreshold(std::string,double);//< Adds a new threshold to the list of current params
       private:
-	TObject* ref_;
-	std::map<std::string,double> param_;
-	std::map<std::string,double> green_;
-	std::map<std::string,double> red_;
+	TObject* m_ref;
+	std::map<std::string,double> m_param;
+	std::map<std::string,double> m_green;
+	std::map<std::string,double> m_red;
       };
   }
 

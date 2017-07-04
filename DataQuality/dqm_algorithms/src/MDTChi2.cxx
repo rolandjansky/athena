@@ -36,9 +36,9 @@ namespace dqm_algorithms {
 // *********************************************************************
 
 MDTChi2::MDTChi2()
-  : name("MDTchi2")
+  : m_name("MDTchi2")
 {
-  dqm_core::AlgorithmManager::instance().registerAlgorithm( name, this );
+  dqm_core::AlgorithmManager::instance().registerAlgorithm( m_name, this );
 }
 
 
@@ -173,7 +173,7 @@ MDTChi2::printDescription(std::ostream& out)
 {
   std::string message;
   message += "\n";
-  message += "Algorithm: \"" + name + "\"\n";
+  message += "Algorithm: \"" + m_name + "\"\n";
   message += "Description: Perform a chi square check between input istogram and reference\n";
   message += "Mandatory Green/Red Threshold: Limits: chi square probability limits\n";
   message += "Optional Parameters: MinStat = Minimum histogram statistics needed to perform Algorithm\n";
