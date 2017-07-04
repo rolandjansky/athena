@@ -117,7 +117,7 @@ def getBphysThresholds(chainDict) :
             mult_without_noL1 = mult_without_noL1 + int(part['multiplicity'])
 
     for dictpart in chainDict['chainParts']:
-        if 'noL1' in  dictpart['extra'] : continue
+        #if 'noL1' in  dictpart['extra'] : continue
         if 'mu' in dictpart['trigType']:
             for x in range(0,int(dictpart['multiplicity'])):
                 if dictpart['threshold']!='0':
@@ -480,9 +480,26 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
         log.error('Bphysics Chain %s can not be constructed, the given topo algs are not known: %s  ' %(chainDict['chainName'], mtopo ))
 
     # OI make sure that L2Fex is not running, when only 1 muon and therefore only 1 ID RoI is processed at L2
-    if  L2Fex != None and mult_without_noL1 > 1 :
-        theChainDef.addSequence([L2Fex, L2Hypo], inputTEsL2, L2TEname, topo_start_from = topoStartFrom)
-        theChainDef.addSignatureL2([L2TEname])
+    if  L2Fex != None :
+        if mult_without_noL1 == mult :  # no noL1 parts
+            theChainDef.addSequence([L2Fex, L2Hypo], inputTEsL2, L2TEname, topo_start_from = topoStartFrom)
+            theChainDef.addSignatureL2([L2TEname])
+        else :  # insert this after Hypo that goes after EF ID
+            position = -1
+            for signature in theChainDef.signatureList:
+                if signature['listOfTriggerElements'][0].startswith( "EF_FStracksMuon" ) or signature['listOfTriggerElements'][0].startswith( "EF_NStrkMu" ) :
+                    if position == -1 :
+                        position = signature['signature_counter']
+                    else : 
+                        position = min(position, signature['signature_counter'])
+            if position > -1 :
+                locInputTEs = theChainDef.signatureList[position]['listOfTriggerElements']
+                locTEname = "EF_mTrk_" + TEname+'_'+mtopo+'_'+chainDict['L1item']
+                theChainDef.addSequence([L2Fex, L2Hypo], locInputTEs, locTEname, topo_start_from = None)
+                theChainDef.insertSignature(position+1, [locTEname])
+            else :
+                log.error('Bphysics Chain %s  unknown noL1 configuration, please check!! ' %(chainDict['chainName'] ))
+                
     else :
         # that is to make sure that L1 topo seed is not give to EF-only chains..
         topo2StartFrom = None
@@ -1004,11 +1021,26 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
     else:
         log.error('Bphysics Chain %s can not be constructed, the given topo algs are not known: %s  ' %(chainDict['chainName'], topoAlgs ))
 
-    if L2Fex != None :
-        theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2TEname, topo_start_from = topoStartFrom)
-        theChainDef.addSignatureL2([L2TEname])
-    else :
-        topo2StartFrom = None
+    # OI make sure that L2Fex is not running, when only 1 muon and therefore only 1 ID RoI is processed at L2
+    if  L2Fex != None :
+        if mult_without_noL1 == mult :  # no noL1 parts
+            theChainDef.addSequence([L2Fex, L2Hypo], inputTEsL2, L2TEname, topo_start_from = topoStartFrom)
+            theChainDef.addSignatureL2([L2TEname])
+        else :  # insert this after Hypo that goes after EF ID
+            position = -1
+            for signature in theChainDef.signatureList:
+                if signature['listOfTriggerElements'][0].startswith( "EF_FStracksMuon" ) or signature['listOfTriggerElements'][0].startswith( "EF_NStrkMu" ) :
+                    if position == -1 :
+                        position = signature['signature_counter']
+                    else : 
+                        position = min(position, signature['signature_counter'])
+            if position > -1 :
+                locInputTEs = theChainDef.signatureList[position]['listOfTriggerElements']
+                locTEname = "EF_mTrk_" + TEname+'_'+mtopo+'_'+chainDict['L1item']
+                theChainDef.addSequence([L2Fex, L2Hypo], locInputTEs, locTEname, topo_start_from = None)
+                theChainDef.insertSignature(position+1, [locTEname])
+            else :
+                log.error('Bphysics Chain %s  unknown noL1 configuration, please check!! ' %(chainDict['chainName'] ))
 
     if not ('noEFbph' in topoAlgs) :
         from TrigBphysHypo.TrigBphysMuonCounterConfig import  TrigBphysMuonCounter_bNmu
