@@ -197,6 +197,11 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
   m_disabledModulesMapSCT(nullptr),
   m_errorModulesMapSCT(nullptr),
   m_totalModulesMapSCT(nullptr),
+  m_nBinsEta( 100 ),
+  m_rangeEta( 2.5 ),
+  m_nBinsPhi( 100 ),
+  m_ModulesThreshold( 2.5 ),
+  m_TotalDetectorCoverageVsLB{},
   tmp_allErrs{},
   tmp_pallErrs{},
   tmp_ByteStreamVsLB{},
@@ -204,13 +209,7 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
   tmp_LinksWithAnyErrorsVsLB{},
   tmp_LinksWithBadErrorsVsLB{},
   tmp_LinksWithLnkErrorsVsLB{},
-  tmp_LinksWithRODErrorsVsLB{},
-  tmp_LinksWithRODErrorsVsLB_check{},
-  m_nBinsEta( 100 ),
-  m_rangeEta( 2.5 ),
-  m_nBinsPhi( 100 ),
-  m_ModulesThreshold( 2.5 ),
-  m_TotalDetectorCoverageVsLB{} {
+  tmp_LinksWithRODErrorsVsLB{} {
     /**
      *  sroe 3 Sept 2015:
      *  histoPathBase is declared as a property in the base class, assigned to m_path
@@ -534,15 +533,15 @@ SCTErrMonTool::copyHistograms_book() {
     	"ROBFrag", "BSParse", "MissingLink", "MaskedROD", "MaskedLink", "ABCDChip0", "ABCDChip1", "ABCDChip2",
     	"ABCDChip3", "ABCDChip4", "ABCDChip5", "ABCDError1", "ABCDError2", "ABCDError4", "summary", "badError", "LinkLevel", "RODLevel"
       };
-      int tmp_errorIndex[] = {
-    	SCT_ByteStreamErrors::ABCDError, SCT_ByteStreamErrors::RawError, SCT_ByteStreamErrors::TimeOutError, SCT_ByteStreamErrors::LVL1IDError, SCT_ByteStreamErrors::BCIDError,
-    	SCT_ByteStreamErrors::PreambleError, SCT_ByteStreamErrors::FormatterError, SCT_ByteStreamErrors::MaskedLink, 
-    	SCT_ByteStreamErrors::RODClockError, SCT_ByteStreamErrors::TruncatedROD, SCT_ByteStreamErrors::ROBFragmentError, SCT_ByteStreamErrors::ByteStreamParseError,
-    	SCT_ByteStreamErrors::MissingLinkHeaderError, SCT_ByteStreamErrors::MaskedROD, CategoryErrors::MASKEDLINKALL+100, SCT_ByteStreamErrors::ABCDError_Chip0,
-    	SCT_ByteStreamErrors::ABCDError_Chip1, SCT_ByteStreamErrors::ABCDError_Chip2, SCT_ByteStreamErrors::ABCDError_Chip3, SCT_ByteStreamErrors::ABCDError_Chip4, 
-    	SCT_ByteStreamErrors::ABCDError_Chip5, SCT_ByteStreamErrors::ABCDError_Error1, SCT_ByteStreamErrors::ABCDError_Error2, SCT_ByteStreamErrors::ABCDError_Error4, 
-    	CategoryErrors::SUMMARY+100, CategoryErrors::BADERR+100, CategoryErrors::LINKLEVEL+100, CategoryErrors::RODLEVEL+100
-      };
+      // int tmp_errorIndex[] = {
+      // 	SCT_ByteStreamErrors::ABCDError, SCT_ByteStreamErrors::RawError, SCT_ByteStreamErrors::TimeOutError, SCT_ByteStreamErrors::LVL1IDError, SCT_ByteStreamErrors::BCIDError,
+      // 	SCT_ByteStreamErrors::PreambleError, SCT_ByteStreamErrors::FormatterError, SCT_ByteStreamErrors::MaskedLink, 
+      // 	SCT_ByteStreamErrors::RODClockError, SCT_ByteStreamErrors::TruncatedROD, SCT_ByteStreamErrors::ROBFragmentError, SCT_ByteStreamErrors::ByteStreamParseError,
+      // 	SCT_ByteStreamErrors::MissingLinkHeaderError, SCT_ByteStreamErrors::MaskedROD, CategoryErrors::MASKEDLINKALL+100, SCT_ByteStreamErrors::ABCDError_Chip0,
+      // 	SCT_ByteStreamErrors::ABCDError_Chip1, SCT_ByteStreamErrors::ABCDError_Chip2, SCT_ByteStreamErrors::ABCDError_Chip3, SCT_ByteStreamErrors::ABCDError_Chip4, 
+      // 	SCT_ByteStreamErrors::ABCDError_Chip5, SCT_ByteStreamErrors::ABCDError_Error1, SCT_ByteStreamErrors::ABCDError_Error2, SCT_ByteStreamErrors::ABCDError_Error4, 
+      // 	CategoryErrors::SUMMARY+100, CategoryErrors::BADERR+100, CategoryErrors::LINKLEVEL+100, CategoryErrors::RODLEVEL+100
+      // };
 
       for(int reg=0; reg<N_REGIONS; reg++){
     	std::string tmp_errorsNamesMG[] = {
@@ -819,7 +818,7 @@ SCTErrMonTool::fillHistograms() {
     if (!SCT_Collection) continue;  // select only SCT RDOs
 
     DataVector<SCTRawDataType>::const_iterator p_rdo_end = SCT_Collection->end();
-    const InDetRawDataCollection<SCT_RDORawData> *rd(*col_it);
+    //const InDetRawDataCollection<SCT_RDORawData> *rd(*col_it);
 
     Identifier SCT_Identifier = SCT_Collection->identify();
     for (DataVector<SCTRawDataType>::const_iterator p_rdo = SCT_Collection->begin(); p_rdo != p_rdo_end; ++p_rdo) {

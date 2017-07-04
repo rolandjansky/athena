@@ -292,7 +292,6 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   TProfile_LW * tmp_LinksWithBadErrorsVsLB[NREGIONS_INC_GENERAL];
   TProfile_LW * tmp_LinksWithLnkErrorsVsLB[NREGIONS_INC_GENERAL];
   TProfile_LW * tmp_LinksWithRODErrorsVsLB[NREGIONS_INC_GENERAL];
-  TProfile_LW * tmp_LinksWithRODErrorsVsLB_check[NREGIONS_INC_GENERAL];
 
 };
 
