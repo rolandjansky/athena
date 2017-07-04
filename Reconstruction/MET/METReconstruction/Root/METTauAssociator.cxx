@@ -162,17 +162,6 @@ namespace met {
       }
       if(match) {
 	pfolist.push_back(pfo);
-	if(fabs(pfo->charge())<1e-9) {
-	  momentum = constits.pv ? pfo->GetVertexCorrectedEMFourVec(*constits.pv) : pfo->p4EM();
-	  momenta[pfo] = MissingETBase::Types::constvec_t(momentum.Px(),momentum.Py(),momentum.Pz(),
-						     momentum.E(),momentum.Pt());
-	  ATH_MSG_VERBOSE("Vx-corrected nPFO pt: " << momentum.Pt());
-	} else if(m_weight_charged_pfo) {
-	  float weight = 0.0;
-	  ATH_CHECK( m_pfoweighttool->fillWeight( *pfo, weight ) );
-	  momenta[pfo] = weight*MissingETBase::Types::constvec_t(*pfo);
-	  ATH_MSG_VERBOSE("cPFO pt: " << pfo->pt() << ", weight: " << weight);
-	}
       }
     }
     return StatusCode::SUCCESS;
