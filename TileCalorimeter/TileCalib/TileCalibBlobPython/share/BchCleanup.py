@@ -94,7 +94,7 @@ if __name__ == "__main__":
   keywords = ["help","tag=","folder=","outtag=","instance="]
   try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
-  except getopt.GetOptError, err:
+  except getopt.GetoptError, err:
     print str(err)
     usage()
     sys.exit(2)

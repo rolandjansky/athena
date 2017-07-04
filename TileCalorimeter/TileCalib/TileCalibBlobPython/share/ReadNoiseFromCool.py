@@ -24,7 +24,7 @@ keywords = ["help","run=","lumi=","schema=","tag=","ros=","drawer=","channel=","
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
-except getopt.GetOptError, err:
+except getopt.GetoptError, err:
     print str(err)
     usage()
     sys.exit(2)

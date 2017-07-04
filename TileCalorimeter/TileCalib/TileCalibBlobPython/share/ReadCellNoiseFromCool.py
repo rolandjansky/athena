@@ -95,7 +95,11 @@ except:
 from CaloCondBlobAlgs import CaloCondTools, CaloCondLogger
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython import TileCellTools
-hashMgr=TileCellTools.TileCellHashMgr()
+hashMgr=None
+hashMgrDef=TileCellTools.TileCellHashMgr()
+hashMgrA=TileCellTools.TileCellHashMgr("UpgradeA")
+hashMgrBC=TileCellTools.TileCellHashMgr("UpgradeBC")
+hashMgrABC=TileCellTools.TileCellHashMgr("UpgradeABC")
 
 #=== get a logger
 log = CaloCondLogger.getLogger("ReadCellNoise")
@@ -175,6 +179,16 @@ blobFlt = PyCintex.gbl.CaloCondBlobFlt.getInstance(blob)
 ncell=blobFlt.getNChans()
 ngain=blobFlt.getNGains()
 nval=blobFlt.getObjSizeUint32()
+
+if ncell>hashMgrA.getHashMax():
+    hashMgr=hashMgrABC
+elif ncell>hashMgrBC.getHashMax():
+    hashMgr=hashMgrA
+elif ncell>hashMgrDef.getHashMax():
+    hashMgr=hashMgrBC
+else:
+    hashMgr=hashMgrDef
+log.info("Using %s CellMgr with hashMax %d" % (hashMgr.getGeometry(),hashMgr.getHashMax()))
 
 if cell<0 or cell>=ncell:
     cellmin=0
