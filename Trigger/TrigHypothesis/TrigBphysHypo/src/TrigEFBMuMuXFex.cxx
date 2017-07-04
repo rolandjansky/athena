@@ -1487,7 +1487,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                         if (trigPartBplusMuMuKplus) {
                             m_bphysHelperTool->setBeamlineDisplacement(trigPartBplusMuMuKplus,{*trackEL3,*trackELmu1,*trackELmu2});
                             if(m_maxBpToStore >= 0 && m_countBpToStore >= m_maxBpToStore) {
-                              delete trigPartBplusMuMuKplus;
                               if(m_countBpToStore == m_maxBpToStore) {
                                 ATH_MSG(WARNING) << "Reached maximum number of B+ candidates to store " << m_maxBpToStore << "; following candidates won't be written out" << endmsg;
                                 m_mon_Errors.push_back(ERROR_MaxNumBpReached);
@@ -1648,8 +1647,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartKstar,      {*trackEL3,*trackEL4});
                                         
                                         if(m_maxBdToStore >= 0 && m_countBdToStore >= m_maxBdToStore) {
-                                          delete xaod_trigPartBdMuMuKstar;
-                                          delete xaod_trigPartKstar;
                                           if(m_countBdToStore == m_maxBdToStore) {
                                             ATH_MSG(WARNING) << "Reached maximum number of Bd candidates to store " << m_maxBdToStore << "; following candidates won't be written out" << endmsg;
                                             m_mon_Errors.push_back(ERROR_MaxNumBdReached);
@@ -1694,8 +1691,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartBdMuMuKstar,{*trackEL4,*trackEL3,*trackELmu1,*trackELmu2});
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartKstar,      {*trackEL4,*trackEL3});
                                         if(m_maxBdToStore >= 0 && m_countBdToStore >= m_maxBdToStore) {
-                                          delete xaod_trigPartBdMuMuKstar;
-                                          delete xaod_trigPartKstar;
                                           if(m_countBdToStore == m_maxBdToStore) {
                                             ATH_MSG(WARNING) << "Reached maximum number of Bd candidates to store " << m_maxBdToStore << "; following candidates won't be written out" << endmsg;
                                             m_mon_Errors.push_back(ERROR_MaxNumBdReached);
@@ -1909,8 +1904,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartPhi,        {*trackEL3,*trackEL4});
                                         
                                         if(m_maxBsToStore >= 0 && m_countBsToStore >= m_maxBsToStore) {
-                                          delete xaod_trigPartBsMuMuPhi;
-                                          delete xaod_trigPartPhi;
                                           if(m_countBsToStore == m_maxBsToStore) {
                                             ATH_MSG(WARNING) << "Reached maximum number of Bs candidates to store " << m_maxBsToStore << "; following candidates won't be written out" << endmsg;
                                             m_mon_Errors.push_back(ERROR_MaxNumBsReached);
@@ -2074,8 +2067,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                             m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartLambda,      {*trackEL3,*trackEL4});
                                             
                                             if(m_maxLbToStore >= 0 && m_countLbToStore >= m_maxLbToStore) {
-                                              delete xaod_trigPartLbMuMuLambda;
-                                              delete xaod_trigPartLambda;
                                               if(m_countLbToStore == m_maxLbToStore) {
                                                 ATH_MSG(WARNING) << "Reached maximum number of Lb candidates to store " << m_maxLbToStore << "; following candidates won't be written out" << endmsg;
                                                 m_mon_Errors.push_back(ERROR_MaxNumLbReached);
@@ -2125,8 +2116,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                               m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartLambda,      {*trackEL4,*trackEL3});
                                               
                                               if(m_maxLbToStore >= 0 && m_countLbToStore >= m_maxLbToStore) {
-                                                delete xaod_trigPartLbMuMuLambda;
-                                                delete xaod_trigPartLambda;
                                                 if(m_countLbToStore == m_maxLbToStore) {
                                                   ATH_MSG(WARNING) << "Reached maximum number of Lb candidates to store " << m_maxLbToStore << "; following candidates won't be written out" << endmsg;
                                                   m_mon_Errors.push_back(ERROR_MaxNumLbReached);
@@ -2423,8 +2412,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                 nTriedCombinations++;
                                                 if (trigPartBcMuMuDs) {
                                                     if(m_maxBcToStore >= 0 && m_countBcToStore >= m_maxBcToStore) {
-                                                      delete trigPartBcMuMuDs;
-                                                      delete trigPartDs;
                                                       if(m_countBcToStore == m_maxBcToStore) {
                                                         ATH_MSG(WARNING) << "Reached maximum number of Bc candidates to store " << m_maxBcToStore << "; following candidates won't be written out" << endmsg;
                                                         m_mon_Errors.push_back(ERROR_MaxNumBcReached);

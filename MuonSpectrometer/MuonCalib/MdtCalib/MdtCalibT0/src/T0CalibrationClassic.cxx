@@ -63,7 +63,7 @@ namespace MuonCalib {
     p_file->Write();
     p_file->Close();
     delete p_file;
-    std::for_each(p_histos.begin(),p_histos.end(),DeleteObject());
+    std::for_each(m_histos.begin(),m_histos.end(),DeleteObject());
     if(m_delete_settings) delete m_settings;
   }
 
@@ -153,8 +153,8 @@ namespace MuonCalib {
     if(m_settings->printLevel() <= 3)
       std::cout << "T0CalibrationClassic::analyse iteration "<<m_currentItnum << std::endl;
 
-    // loop over p_histos histograms 
-    for(std::vector<T0ClassicHistos*>::iterator it=p_histos.begin(); it!=p_histos.end();++it) {
+    // loop over m_histos histograms 
+    for(std::vector<T0ClassicHistos*>::iterator it=m_histos.begin(); it!=m_histos.end();++it) {
       if(m_settings->fitTime()) {
 	MdtTubeFitContainer::SingleTubeFit full;
 	MdtTubeFitContainer::SingleTubeCalib st;
@@ -717,8 +717,8 @@ namespace MuonCalib {
     if(!timeHis) {   //book histo if it does not exist
       // std::cout<<"T0CalibrationClassic::getHistos "<<idtube<<" pointer not found, booking"<<std::endl;
       ret = bookHistos(idtube);
-    } else {  // else loop over p_histos histograms to look for the set of histos of tube idtube 
-      for(std::vector<T0ClassicHistos*>::iterator it =p_histos.begin(); it!=p_histos.end();++it) {
+    } else {  // else loop over m_histos histograms to look for the set of histos of tube idtube 
+      for(std::vector<T0ClassicHistos*>::iterator it =m_histos.begin(); it!=m_histos.end();++it) {
 	if((*it)->time==timeHis) {
 	  ret = (*it);
 	  break;
@@ -784,7 +784,7 @@ namespace MuonCalib {
     histos->time=new TH1F(histonametdc.c_str(),"Drift Time",m_settings->binTime(),m_settings->minTime(),m_settings->maxTime()); 
     histos->adc= new TH1F(histonameadc.c_str(),"ADC",m_settings->binAdc(),m_settings->minAdc(),m_settings->maxAdc());
 
-    p_histos.push_back(histos);  
+    m_histos.push_back(histos);  
     return histos;
   }
 

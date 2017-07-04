@@ -11,6 +11,9 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "TrkTruthData/TrackTruthCollection.h"
 #include "GeneratorObjects/xAODTruthParticleLink.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteDecorHandleKey.h"
+
 
 class IMCTruthClassifier;
 
@@ -24,10 +27,12 @@ public:
   
 private:
 
-  
-  SG::ReadHandle<xAOD::TrackParticleContainer> m_particles;//std::string m_trackParticleName;  /// TrackParticle input name
-  SG::ReadHandle<xAODTruthParticleLinkVector>  m_truthParticleLinkVec;//std::string m_truthLinkVecName;   /// link vector to map HepMC onto xAOD truth
-  SG::ReadHandle<TrackTruthCollection> m_truthTracks;//std::string m_truthName;          /// Track(Particle)TruthCollection input name
+  SG::WriteDecorHandleKey<xAOD::TrackParticleContainer> m_particlesLinkKey;
+  SG::WriteDecorHandleKey<xAOD::TrackParticleContainer> m_particlesTypeKey;
+  SG::WriteDecorHandleKey<xAOD::TrackParticleContainer> m_particlesOriginKey;
+  std::string m_particleName; /// TrackParticle input name
+  SG::ReadHandleKey<xAODTruthParticleLinkVector>  m_truthParticleLinkVecKey;//std::string m_truthLinkVecName;   /// link vector to map HepMC onto xAOD truth
+  SG::ReadHandleKey<TrackTruthCollection> m_truthTracksKey;//std::string m_truthName;          /// Track(Particle)TruthCollection input name
   
   
   ToolHandle<IMCTruthClassifier> m_truthClassifier;

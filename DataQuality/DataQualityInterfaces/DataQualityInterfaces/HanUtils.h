@@ -33,6 +33,6 @@ namespace dqi {
     ~DisableMustClean();
   private:
     boost::mutex::scoped_lock m_lock;
-    bool useRecursiveDelete;
+    bool m_useRecursiveDelete;
   };
 }

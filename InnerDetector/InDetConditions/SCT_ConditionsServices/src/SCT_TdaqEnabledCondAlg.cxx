@@ -19,7 +19,7 @@ SCT_TdaqEnabledCondAlg::SCT_TdaqEnabledCondAlg(const std::string& name, ISvcLoca
 {
   declareProperty("ReadKey", m_readKey);
   declareProperty("WriteKey", m_writeKey);
-  declareProperty("EventInfoKey", m_eventInfoKey=std::string("ByteStreamEventInfo"));
+  declareProperty("EventInfoKey", m_eventInfoKey=std::string("McEventInfo"));
 }
 
 SCT_TdaqEnabledCondAlg::~SCT_TdaqEnabledCondAlg()

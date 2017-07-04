@@ -12,11 +12,11 @@
 
 namespace MuonCalib {
 
-bool RegionLogicalOperation ::AddRegion(const RegionSelectorBase *region, bool m_invert)
+bool RegionLogicalOperation ::AddRegion(const RegionSelectorBase *region, bool invert)
 	{
 	if(m_regions.size() > m_operator.size()) return false;
 	m_regions.push_back(region);
-	m_inverse.push_back(m_invert);
+	m_inverse.push_back(invert);
 	return true;
 	}
 	

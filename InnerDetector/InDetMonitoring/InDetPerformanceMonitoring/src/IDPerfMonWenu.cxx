@@ -142,10 +142,7 @@ StatusCode IDPerfMonWenu::bookHistograms()
 
 
 
-  if ( newLowStat || newLumiBlock ) {
-  }
-
-  if( newRun ) {
+  if( newRunFlag() ) {
 
     //if user environment specified we don't want to book new histograms at every run boundary
     //we instead want one histogram per job
@@ -573,11 +570,7 @@ void IDPerfMonWenu::makeEffHisto(TH1F* h_num, TH1F* h_denom, TH1F* h_eff) {
 StatusCode IDPerfMonWenu::procHistograms()
 {
 
-  if( endOfLowStat || endOfLumiBlock ) {
-
-  }
-
-  if( endOfRun ) {
+  if( endOfRunFlag() ) {
 
     // PostProcess Wenu histograms
 

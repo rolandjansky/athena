@@ -612,9 +612,9 @@ void AFP_SIDBasicKalman::Smooth()
 
 
         if( xk.size() > 1) {
-	for (Int_t i=(xk.size()-2); i>=0; i--)
+        for (Int_t i=(static_cast<int>(xk.size())-2); i>=0; i--)
 	{
-		if(i==(xk.size()-2))
+                if(i==(static_cast<int>(xk.size())-2))
 		{
 			xiS = xk[xk.size()-1];	// !!!!!!!!!
 			CiS = Ck[xk.size()-1];	// !!!!!!!!!
@@ -782,10 +782,34 @@ void AFP_SIDBasicKalman::HistInitialize()
 {
 	//supporting histograms with binning convention: z, x
 	MyFile = new TFile("PixMap.root","RECREATE");
-	histS1_PixMap = new TH2F("histS1x_PixMap", "", 600, fzMapSID[1][0][0][0]-5., fzMapSID[1][5][335][0]+5., 400, fxMapSID[1][5][335][0]-2., fxMapSID[1][0][0][0]+2.);
-	histS2_PixMap = new TH2F("histS2x_PixMap", "", 600, fzMapSID[0][0][0][0]-5., fzMapSID[0][5][335][0]+5., 400, fxMapSID[0][5][335][0]-2., fxMapSID[0][0][0][0]+2.);
-	histS3_PixMap = new TH2F("histS1y_PixMap", "", 600, fzMapSID[1][0][0][0]-5., fzMapSID[1][5][335][0]+5., 400, fyMapSID[1][0][0][79]-2., fyMapSID[1][0][0][0]+2.);
-	histS4_PixMap = new TH2F("histS2y_PixMap", "", 600, fzMapSID[0][0][0][0]-5., fzMapSID[0][5][335][0]+5., 400, fyMapSID[0][0][0][79]-2., fyMapSID[0][0][0][0]+2.);
+	histS1_PixMap = new TH2F("histS1x_PixMap", "",
+                                 600,
+                                 fzMapSID[1][0][0][0]-5.,
+                                 fzMapSID[1][SIDCNT-1][335][0]+5.,
+                                 400,
+                                 fxMapSID[1][SIDCNT-1][335][0]-2.,
+                                 fxMapSID[1][0][0][0]+2.);
+	histS2_PixMap = new TH2F("histS2x_PixMap", "",
+                                 600,
+                                 fzMapSID[0][0][0][0]-5.,
+                                 fzMapSID[0][SIDCNT-1][335][0]+5.,
+                                 400,
+                                 fxMapSID[0][SIDCNT-1][335][0]-2.,
+                                 fxMapSID[0][0][0][0]+2.);
+	histS3_PixMap = new TH2F("histS1y_PixMap", "",
+                                 600,
+                                 fzMapSID[1][0][0][0]-5.,
+                                 fzMapSID[1][SIDCNT-1][335][0]+5.,
+                                 400,
+                                 fyMapSID[1][0][0][79]-2.,
+                                 fyMapSID[1][0][0][0]+2.);
+	histS4_PixMap = new TH2F("histS2y_PixMap", "",
+                                 600,
+                                 fzMapSID[0][0][0][0]-5.,
+                                 fzMapSID[0][SIDCNT-1][335][0]+5.,
+                                 400,
+                                 fyMapSID[0][0][0][79]-2.,
+                                 fyMapSID[0][0][0][0]+2.);
 }
 
 void AFP_SIDBasicKalman::HistFinalize()
