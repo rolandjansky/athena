@@ -86,6 +86,19 @@ namespace EL
 
 
 
+  asg::SgTEvent *Algorithm ::
+  evtStore() const
+  {
+    RCU_CHANGE_INVARIANT (this);
+    if (m_evtStorePtr)
+      return m_evtStorePtr;
+    m_evtStore = asg::SgTEvent (wk()->xaodEvent(), wk()->xaodStore());
+    m_evtStorePtr = &m_evtStore;
+    return m_evtStorePtr;
+  }
+
+
+
   MsgStream& Algorithm ::
   msg () const
   {
