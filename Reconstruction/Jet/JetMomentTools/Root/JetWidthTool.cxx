@@ -73,10 +73,6 @@ double JetWidthTool::width(const xAOD::Jet& jet, double& widthEta, double& width
   double weightedWidthPhi = 0;
   double ptSum = 0;
 
-  const xAOD::JetInput::Type jetinput = jet.getInputType();
-  const bool isPFlowEM = (jetinput == xAOD::JetInput::PFlow || jetinput == xAOD::JetInput::EMPFlow);
-  const bool isPFlowLC = (jetinput == xAOD::JetInput::LCPFlow || jetinput == xAOD::JetInput::EMCPFlow);
-
   const xAOD::JetConstituentVector constituents = jet.getConstituents();
   for (const auto& constituent : constituents) {
     const double dR   = jet::JetDistances::deltaR(jetEta, jetPhi, constituent->eta(),  constituent->phi() );
@@ -88,7 +84,7 @@ double JetWidthTool::width(const xAOD::Jet& jet, double& widthEta, double& width
     weightedWidthEta += dEta * pt;
     weightedWidthPhi += dPhi * pt;
     
-    ptSum += pt * weight;
+    ptSum += pt;
   }
 
   widthEta = ptSum > 0 ? weightedWidthEta/ptSum : -1;
