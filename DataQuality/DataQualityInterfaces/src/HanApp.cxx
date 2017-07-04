@@ -55,7 +55,7 @@ namespace dqi {
 
 HanApp::
 HanApp()
-  : outputName("")
+  : m_outputName("")
 {
 }
 
@@ -82,7 +82,7 @@ Analyze( std::string configName_, std::string inputName_, std::string outputName
   HanOutput::DQOutputMap_t * outputMap = new HanOutput::DQOutputMap_t();
   TSeqCollection *outputList = new TList();
 
-  outputName = outputName_;
+  m_outputName = outputName_;
   
   //dqm_core::InputRootFile	input( inputName_ );
   HanInputRootFile input( inputName_, path_ );				// HanInputRootFile inherits from dqm_core::InputRootFile
@@ -118,10 +118,10 @@ TFile*
 HanApp::
 OpenResultsFile() const
 {
-  if( outputName == "" )
+  if( m_outputName == "" )
     return 0;
   
-  return TFile::Open( outputName.c_str() );
+  return TFile::Open( m_outputName.c_str() );
 }
 
 } // namespace dqi
