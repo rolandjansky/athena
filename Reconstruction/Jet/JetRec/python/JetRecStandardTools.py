@@ -29,8 +29,9 @@ from JetRec.JetRecStandardToolManager import jtm
 from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
 from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
 
-from PFlowUtils.PFlowUtilsConf import CP__RetrievePFOTool as RetrievePFOTool
 from PFlowUtils.PFlowUtilsConf import CP__WeightPFOTool as WeightPFOTool
+from JetRecTools.JetRecToolsConf import CorrectPFOTool
+from JetRecTools.JetRecToolsConf import ChargedHadronSubtractionTool
 from JetRecTools.JetRecToolsConf import TrackPseudoJetGetter
 from JetRecTools.JetRecToolsConf import JetTrackSelectionTool
 from JetRecTools.JetRecToolsConf import SimpleJetTrackSelectionTool
@@ -40,7 +41,6 @@ try:
   jtm.haveJetRecCalo = True
 except ImportError:
   jtm.haveJetRecCalo = False
-from JetRecTools.JetRecToolsConf import PFlowPseudoJetGetter
 from JetRec.JetRecConf import JetPseudojetRetriever
 from JetRec.JetRecConf import JetConstituentsRetriever
 from JetRec.JetRecConf import JetRecTool
@@ -248,8 +248,6 @@ jtm += ctm.buildConstitModifSequence( "JetConstitSeq_EMOrigin",
     InputContainer= 'CaloCalTopoClusters',                                      
     modList = [ 'clus_emscale', 'clus_origin' ] )
 
-
-
 jtm += PseudoJetGetter(
   "lcoriginget",
   InputContainer = jtm.JetConstitSeq_LCOrigin.OutputContainer,
@@ -329,13 +327,6 @@ jtm += PseudoJetGetter(
   GhostScale = 0.0
 )
 
-# Retriever for pflow objects.
-jtm += RetrievePFOTool("pflowretriever")
-
-# Weight tool for charged pflow objects.
-jtm += WeightPFOTool("pflowweighter")
-jtm += WeightPFOTool("pflowweighter_LC",NeutralPFOScale="LC")
-
 useVertices = True
 if False == jetFlags.useVertices:
   useVertices = False
@@ -349,49 +340,47 @@ useTrackVertexTool = False
 if True == jetFlags.useTrackVertexTool:
   useTrackVertexTool = True
 
+import cppyy
+try: cppyy.loadDictionary('xAODBaseDict')
+except: pass
+from ROOT import xAOD
+
+# Weight tool for charged pflow objects.
+jtm += WeightPFOTool("pflowweighter")
+
+# Would go in JetRecToolsConfig but this hits a circular dependency on jtm?
+# this applies four-momentum corrections to PFlow objects:
+#  - points neutral PFOs to the selected vertex
+#  - weights charged PFOs to smoothly turn off shower subtraction at high pt
+ctm.add( CorrectPFOTool("correctPFOTool",
+                        WeightPFOTool = jtm.pflowweighter,
+                        InputIsEM = True,
+                        CalibratePFO = False,
+                        UseChargedWeights = True,
+                        UseVertices = True,
+                        UseTrackToVertexTool = False,
+                        InputType = xAOD.Type.ParticleFlow
+                        ),
+         alias = 'correctPFO' )
+
+# this removes (weights momenta to 0) charged PFOs from non-hard-scatter vertices
+ctm.add( ChargedHadronSubtractionTool("CHSTool", InputType = xAOD.Type.ParticleFlow),
+         alias = 'chsPFO' )
+
+# Run the above tools to modify PFO
+jtm += ctm.buildConstitModifSequence( "JetConstitSeq_PFlowCHS",
+                                      InputContainer = "JetETMiss",
+                                      OutputContainer = "CHS",  #"ParticleFlowObjects" will be appended later
+                                      modList = ['correctPFO', 'chsPFO'] )
+
 # EM-scale pflow.
-jtm += PFlowPseudoJetGetter(
+jtm += PseudoJetGetter(
   "empflowget",
   Label = "EMPFlow",
+  InputContainer = "CHSParticleFlowObjects",
   OutputContainer = "PseudoJetEMPFlow",
-  RetrievePFOTool = jtm.pflowretriever,
-  WeightPFOTool = jtm.pflowweighter,
-  InputIsEM = True,
-  CalibratePFO = False,
   SkipNegativeEnergy = True,
-  UseChargedWeights = useChargedWeights,
-  UseVertices = useVertices,
-  UseTrackToVertexTool = useTrackVertexTool
-)
-
-# Calibrated EM-scale pflow.
-jtm += PFlowPseudoJetGetter(
-  "emcpflowget",
-  Label = "EMCPFlow",
-  OutputContainer = "PseudoJetEMCPFlow",
-  RetrievePFOTool = jtm.pflowretriever,
-  WeightPFOTool = jtm.pflowweighter_LC,
-  InputIsEM = True,
-  CalibratePFO = True,
-  SkipNegativeEnergy = True,
-  UseChargedWeights = useChargedWeights,
-  UseVertices = useVertices,
-  UseTrackToVertexTool = useTrackVertexTool
-)
-
-# LC-scale pflow.
-jtm += PFlowPseudoJetGetter(
-  "lcpflowget",
-  Label = "LCPFlow",
-  OutputContainer = "PseudoJetLCPFlow",
-  RetrievePFOTool = jtm.pflowretriever,
-  WeightPFOTool = jtm.pflowweighter_LC,
-  InputIsEM = False,
-  CalibratePFO = False,
-  SkipNegativeEnergy = True,
-  UseChargedWeights = useChargedWeights,
-  UseVertices = useVertices,
-  UseTrackToVertexTool = useTrackVertexTool
+  GhostScale = 0.0
 )
 
 # AntiKt2 track jets.
@@ -540,7 +529,7 @@ if jtm.haveJetCaloCellQualityTool:
   )
 
 # Jet width.
-jtm += JetWidthTool("width", WeightPFOToolEM=jtm.pflowweighter, WeightPFOToolLC=jtm.pflowweighter_LC)
+jtm += JetWidthTool("width")
 
 # Calo layer energies.
 jtm += JetCaloEnergies("jetens")
