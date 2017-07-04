@@ -117,7 +117,7 @@ def getBphysThresholds(chainDict) :
             mult_without_noL1 = mult_without_noL1 + int(part['multiplicity'])
 
     for dictpart in chainDict['chainParts']:
-        if 'noL1' in  dictpart['extra'] : continue
+        #if 'noL1' in  dictpart['extra'] : continue
         if 'mu' in dictpart['trigType']:
             for x in range(0,int(dictpart['multiplicity'])):
                 if dictpart['threshold']!='0':
