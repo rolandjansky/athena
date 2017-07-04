@@ -392,8 +392,11 @@ QWidget * VP1GeometrySystem::buildController()
   d->addSubSystem( VP1GeoFlags::CavernInfra,"CavernInfra");
   d->addSubSystem( VP1GeoFlags::BeamPipe,"BeamPipe");
   d->addSubSystem( VP1GeoFlags::LUCID,".*Lucid.*");
-  d->addSubSystem( VP1GeoFlags::ZDC,".*Zdc.*");
+  d->addSubSystem( VP1GeoFlags::ZDC,".*ZDC.*");
+  
   d->addSubSystem( VP1GeoFlags::ALFA,".*ALFA.*");
+  d->addSubSystem( VP1GeoFlags::AFP,".*AFP.*");
+  
   d->addSubSystem( VP1GeoFlags::ForwardRegion,".*ForwardRegion.*");
 
   //The muon systems require special treatment, since we want to
@@ -910,7 +913,9 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
   partspectPath.push("Atlas::Atlas");
 
   // Emit the signal
-  int cn=(!volhandle) ?  -1 :  volhandle->copyNumber();
+  //volhandle cannot be NULL here (coverity 16287)
+  //int cn=(!volhandle) ?  -1 :  volhandle->copyNumber();
+  int cn=volhandle->copyNumber();
   plotSpectrum(partspectPath,cn);
 }
 
@@ -983,7 +988,7 @@ void VP1GeometrySystem::Imp::buildSystem(SubSystemInfo* si)
 		  const bool hasMuonChambers=si->hasMuonChambers();
 
 		  GeoVolumeCursor av(it->pV);
-      unsigned int count=0;
+      //unsigned int count=0;
 		  while (!av.atEnd()) {
 
 			  // DEBUG
@@ -999,15 +1004,14 @@ void VP1GeometrySystem::Imp::buildSystem(SubSystemInfo* si)
           // si->dump();
           // std::cout<<"---"<<std::endl;
 				  if (hasMuonChambers){
-					  vh = new MuonVolumeHandle(volhandle_subsysdata,0,pVD,ichild++,
-							  (hasMuonChambers?VolumeHandle::MUONCHAMBER_DIRTY:VolumeHandle::NONMUONCHAMBER),matr,pv2MuonStation[pVD],chamberT0s);
+					  vh = new MuonVolumeHandle(volhandle_subsysdata,0,pVD,ichild++,VolumeHandle::MUONCHAMBER_DIRTY,matr,pv2MuonStation[pVD],chamberT0s);
 					  muonchambers_pv2handles[pVD] = vh;
             // std::cout<<"Has muon chamber VH="<<vh<<std::endl;
             
 				  } else {
             
 					  vh = new VolumeHandle(volhandle_subsysdata,0,pVD,ichild++,
-							  (hasMuonChambers?VolumeHandle::MUONCHAMBER_DIRTY:VolumeHandle::NONMUONCHAMBER),matr);
+							  VolumeHandle::NONMUONCHAMBER,matr);
                 // std::cout<<"Does not have muon chamber (weird one) VH="<<vh<<std::endl;
 				  }
 
@@ -1257,6 +1261,7 @@ void VP1GeometrySystem::Imp::createPathExtras(const VolumeHandle* volhandle, QSt
   case VP1GeoFlags::MuonEndcapStationCSC:
   case VP1GeoFlags::MuonEndcapStationTGC:
   case VP1GeoFlags::MuonEndcapStationMDT:
+  //
   case VP1GeoFlags::AllMuonChambers:{
     prefix = QString("Muon::");
     entries.push("MUONQ02::MUONQ02");
@@ -1273,6 +1278,7 @@ void VP1GeometrySystem::Imp::createPathExtras(const VolumeHandle* volhandle, QSt
   case VP1GeoFlags::LUCID:
   case VP1GeoFlags::ZDC:
   case VP1GeoFlags::ALFA:
+  case VP1GeoFlags::AFP:
   case VP1GeoFlags::ForwardRegion:
   case VP1GeoFlags::AllUnrecognisedVolumes:
   default:{

@@ -248,7 +248,9 @@ int PhiSectorManager::getVolumeType(const SbMatrix& transform, SoNode * shape) c
     } else {
       // -> No:
       //Fixme: Move this message somewhere appropriate???
-      std::string Typenametest = shape ? shape->getTypeId().getName().getString() : "NULL";
+      //shape cannot be NULL here, so 'false' case is redundant (coverity 16272)
+      //std::string Typenametest = shape ? shape->getTypeId().getName().getString() : "NULL";
+      std::string Typenametest = shape->getTypeId().getName().getString();
       d->system->message("WARNING: Unknown volume type (boolean?) for volume around Z-axis (type "
 			 +QString(Typenametest.c_str())+"). Phi-sector cuts won't work for this!");
       return -1;

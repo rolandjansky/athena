@@ -361,10 +361,10 @@ MatVisAttributes::MatVisAttributes() {
   {
     // Silicon
     SoMaterial *m = new SoMaterial;
-    m->ambientColor.setValue(0.98, 0.82, 0.02);
-    m->diffuseColor.setValue(0.16, 0.26, 0.36);
-    m->specularColor.setValue(0.56, 0.55, 0.56);
-    m->shininess.setValue(0.13);
+    m->ambientColor.setValue(0.9, 0.9, 0.9);
+    m->diffuseColor.setValue(0.9, 0.9, 0.9);
+    m->specularColor.setValue(0.9, 0.9, 0.9);
+    m->shininess.setValue(0.53);
     add("Silicon",m);
   }
 
@@ -501,6 +501,72 @@ MatVisAttributes::MatVisAttributes() {
     add("Carbon",m);
   }
 
+  {
+    SoMaterial *m = new SoMaterial;
+    m->diffuseColor.setValue (1., 0., 0.);
+    m->ambientColor.setValue (1., 0., 0.);
+    m->specularColor.setValue (1., 0., 0.);
+    m->emissiveColor.setValue (1., 0., 0.);
+    add("pix::Default_InclBrl4_Stave_Support_L0_Fixed_Weight",m);
+    add("pix::Default_InclBrl4_Stave_Support_L1_Fixed_Weight",m);
+    add("pix::Default_InclBrl4_Stave_Support_L2_Fixed_Weight",m);
+    add("pix::Default_InclBrl4_Stave_Support_L3_Fixed_Weight",m);
+    add("pix::Default_InclBrl4_Stave_Support_L4_Fixed_Weight",m);
+  }
+
+  {
+    SoMaterial *m = new SoMaterial;
+    m->diffuseColor.setValue (0.5, 0., 0.);
+    m->ambientColor.setValue (0.5, 0., 0.);
+    m->specularColor.setValue (0.5, 0., 0.);
+    m->emissiveColor.setValue (0.5, 0., 0.);
+    add("pix::Default_Slim_InclBrl4_L2L3W_Fixed_Weight",m);
+    add("pix::Default_Slim_InclBrl4_L3L4W_3CL_Fixed_Weight", m);
+    add("pix::Default_Slim_InclBrl4_L3L4W_4CL_Fixed_Weight", m);
+    add("pix::Default_Slim_InclBrl4_InclDual_L2L3W_3CL_Fixed_Weight", m);
+    add("pix::Default_Slim_InclBrl4_InclDual_L2L3W_4CL_Fixed_Weight", m);
+    add("pix::Default_Slim_InclBrl4_InclDual_L3L4W_Fixed_Weight", m);
+    add("pix::Default_Slim_InclBrl4_InclDual_L2L3W_3CL_Fixed_WeightINNER", m);
+    add("pix::Default_Slim_InclBrl4_InclDual_L2L3W_4CL_Fixed_WeightINNER", m);
+    add("pix::Default_Slim_InclBrl4_InclDual_L3L4W_Fixed_WeightINNER", m);
+    add("pix::Default_Slim_InclBrl4_InclDual_L2L3W_3CL_Fixed_WeightOUTER", m);
+    add("pix::Default_Slim_InclBrl4_InclDual_L2L3W_4CL_Fixed_WeightOUTER", m);
+    add("pix::Default_Slim_InclBrl4_InclDual_L3L4W_Fixed_WeightOUTER", m);
+  }
+  
+  {
+    SoMaterial *m = new SoMaterial;
+    m->diffuseColor.setValue (0.3, 0., 0.);
+    m->ambientColor.setValue (0.3, 0., 0.);
+    //m->specularColor.setValue (0.3, 0., 0.);
+    //m->emissiveColor.setValue (0.3, 0., 0.);
+    add("pix::Default_Slim_InclBrl4_L2L3C_Fixed_Weight",m);
+    add("pix::Default_Slim_InclBrl4_L3L4C_3CL_Fixed_Weight", m);
+    add("pix::Default_Slim_InclBrl4_L3L4C_4CL_Fixed_Weight", m);
+    add("pix::Default_Slim_InclBrl4_InclDual_L2L3C_3CL_Fixed_Weight", m);
+    add("pix::Default_Slim_InclBrl4_InclDual_L2L3C_4CL_Fixed_Weight", m);
+    add("pix::Default_Slim_InclBrl4_InclDual_L3L4C_Fixed_Weight", m);
+    add("pix::Default_Slim_InclBrl4_InclDual_L2L3C_3CL_Fixed_WeightINNER", m);
+    add("pix::Default_Slim_InclBrl4_InclDual_L2L3C_4CL_Fixed_WeightINNER", m);
+    add("pix::Default_Slim_InclBrl4_InclDual_L3L4C_Fixed_WeightINNER", m);
+    add("pix::Default_Slim_InclBrl4_InclDual_L2L3C_3CL_Fixed_WeightOUTER", m);
+    add("pix::Default_Slim_InclBrl4_InclDual_L2L3C_4CL_Fixed_WeightOUTER", m);
+    add("pix::Default_Slim_InclBrl4_InclDual_L3L4C_Fixed_WeightOUTER", m);
+  }
+  
+  {
+    SoMaterial *m = new SoMaterial;
+    m->diffuseColor.setValue (1., 0., 0.);
+    m->ambientColor.setValue (1., 0., 0.);
+    m->specularColor.setValue (1., 0., 0.);
+    m->emissiveColor.setValue (1., 0., 0.);
+    add("pix::Pixel_Ring_Support_UK_L0_Fixed_Weight",m);
+    add("pix::Pixel_Ring_Support_UK_L1_Fixed_Weight",m);
+    add("pix::Pixel_Ring_Support_UK_L2_Fixed_Weight",m);
+    add("pix::Pixel_Ring_Support_UK_L3_Fixed_Weight",m);
+    add("pix::Pixel_Ring_Support_UK_L4_Fixed_Weight",m);
+  }
+  
   {
     //Titanium
     SoMaterial *m = new SoMaterial;
@@ -1053,6 +1119,211 @@ VolVisAttributes::VolVisAttributes() {
     add( "LAr::Barrel::Cryostat::Cylinder::#3",m);
     add( "LAr::Barrel::Cryostat::Ear",m);
     add( "LAr::Barrel::Cryostat::OuterWall",m);
+  }
+
+  {
+    SoMaterial *material = new SoMaterial;
+    material->ambientColor.setValue(0, .8, 0);
+    material->diffuseColor.setValue(0, .8, 0);
+    material->specularColor.setValue(0, .8, .0);
+    material->shininess.setValue(0.642424);
+    add("ModuleSvc",material);
+    add("ISM57A_SvcEc20_RadL_L0_Sec0",material);
+    add("ISM68A_SvcEc30_RadL_L4_Sec0",material);
+    add("ISM58A_SvcEc20_RadL_L7_Sec0",material);
+    add("ISM69A_SvcEc30_RadL_L9_Sec0",material);
+    add("ISM59A_SvcEc20_RadL_L12_Sec0",material);
+    add("ISM70A_SvcEc30_RadL_L15_Sec0",material);
+    add("ISM60A_SvcEc20_RadL_L17_Sec0",material);
+    add("ISM71A_SvcEc30_RadL_L21_Sec0",material);
+    add("ISM61A_SvcEc20_RadL_L22_Sec0",material);
+    add("ISM62A_SvcEc20_RadL_L25_Sec0",material);
+    add("ISM63A_SvcEc20_RadL_L28_Sec0",material);
+    add("ISM64A_SvcEc20_RadL_L31_Sec0",material);
+    add("ISM65A_SvcEc20_RadL_L33_Sec0",material);
+    add("ISM66A_SvcEc20_RadL_L37_Sec0",material);
+    add("ISM67A_SvcEc20_RadL_L38_Sec0",material);
+    add("ISM57C_SvcEc20_RadL_L0_Sec0",material);
+    add("ISM68C_SvcEc30_RadL_L4_Sec0",material);
+    add("ISM58C_SvcEc20_RadL_L7_Sec0",material);
+    add("ISM69C_SvcEc30_RadL_L9_Sec0",material);
+    add("ISM59C_SvcEc20_RadL_L12_Sec0",material);
+    add("ISM70C_SvcEc30_RadL_L15_Sec0",material);
+    add("ISM60C_SvcEc20_RadL_L17_Sec0",material);
+    add("ISM71C_SvcEc30_RadL_L21_Sec0",material);
+    add("ISM61C_SvcEc20_RadL_L22_Sec0",material);
+    add("ISM62C_SvcEc20_RadL_L25_Sec0",material);
+    add("ISM63C_SvcEc20_RadL_L28_Sec0",material);
+    add("ISM64C_SvcEc20_RadL_L31_Sec0",material);
+    add("ISM65C_SvcEc20_RadL_L33_Sec0",material);
+    add("ISM66C_SvcEc20_RadL_L37_Sec0",material);
+    add("ISM67C_SvcEc20_RadL_L38_Sec0",material);
+    add("ISM08A_SvcEc21_Hor0_38_Sec0",material);
+    add("ISM09A_SvcEc21_Hor0_38_Sec1",material);
+    add("ISM10A_SvcEc21_Hor0_38_Sec2",material);
+    add("ISM11A_SvcEc21_Hor0_38_Sec3",material);
+    add("ISM12A_SvcEc21_Hor0_38_Sec4",material);
+    add("ISM13A_SvcEc21_Hor0_38_Sec5",material);
+    add("ISM14A_SvcEc21_Hor0_38_Sec6",material);
+    add("ISM15A_SvcEc21_Hor0_38_Sec7",material);
+    add("ISM16A_SvcEc21_Hor0_38_Sec8",material);
+    add("ISM17A_SvcEc21_Hor0_38_Sec9",material);
+    add("ISM18A_SvcEc21_Hor0_38_Sec10",material);
+    add("ISM19A_SvcEc31_Hor4_21_Sec0",material);
+    add("ISM20A_SvcEc31_Hor4_21_Sec1",material);
+    add("ISM21A_SvcEc31_Hor4_21_Sec2",material);
+    add("ISM22A_SvcEc31_Hor4_21_Sec3",material);
+    add("ISM08C_SvcEc21_Hor0_38_Sec0",material);
+    add("ISM09C_SvcEc21_Hor0_38_Sec1",material);
+    add("ISM10C_SvcEc21_Hor0_38_Sec2",material);
+    add("ISM11C_SvcEc21_Hor0_38_Sec3",material);
+    add("ISM12C_SvcEc21_Hor0_38_Sec4",material);
+    add("ISM13C_SvcEc21_Hor0_38_Sec5",material);
+    add("ISM14C_SvcEc21_Hor0_38_Sec6",material);
+    add("ISM15C_SvcEc21_Hor0_38_Sec7",material);
+    add("ISM16C_SvcEc21_Hor0_38_Sec8",material);
+    add("ISM17C_SvcEc21_Hor0_38_Sec9",material);
+    add("ISM18C_SvcEc21_Hor0_38_Sec10",material);
+    add("ISM19C_SvcEc31_Hor4_21_Sec0",material);
+    add("ISM20C_SvcEc31_Hor4_21_Sec1",material);
+    add("ISM21C_SvcEc31_Hor4_21_Sec2",material);
+    add("ISM22C_SvcEc31_Hor4_21_Sec3",material);
+    add("ISM72C_1_SvcEc40_RadL_L1_Sec0",material);
+    add("ISM73C_1_SvcEc40_RadL_L5_Sec0",material);
+    add("ISM74C_1_SvcEc40_RadL_L10_Sec0",material);
+    add("ISM75C_1_SvcEc40_RadL_L14_Sec0",material);
+    add("ISM76C_1_SvcEc40_RadL_L19_Sec0",material);
+    add("ISM77C_1_SvcEc40_RadL_L23_Sec0",material);
+    add("ISM78C_1_SvcEc40_RadL_L27_Sec0",material);
+    add("ISM79C_1_SvcEc40_RadL_L32_Sec0",material);
+    add("ISM80C_1_SvcEc40_RadL_L36_Sec0",material);
+    add("ISM81C_1_SvcEc40_RadL_L39_Sec0",material);
+    add("ISM23C_SvcEc41_Hor1_39_Sec0",material);
+    add("ISM24C_SvcEc41_Hor1_39_Sec1",material);
+    add("ISM25C_SvcEc41_Hor1_39_Sec2",material);
+    add("ISM26C_SvcEc41_Hor1_39_Sec3",material);
+    add("ISM27C_SvcEc41_Hor1_39_Sec4",material);
+    add("ISM28C_SvcEc41_Hor1_39_Sec5",material);
+    add("ISM29C_SvcEc41_Hor1_39_Sec6",material);
+    add("ISM30C_SvcEc41_Hor1_39_Sec7",material);
+    add("ISM31C_SvcEc41_Hor1_39_Sec8",material);
+    add("ISM32C_SvcEc41_Hor1_39_Sec9",material);
+    add("ISM82C_SvcEc50_RadL_L2_Sec0",material);
+    add("ISM83C_SvcEc50_RadL_L8_Sec0",material);
+    add("ISM84C_SvcEc50_RadL_L13_Sec0",material);
+    add("ISM85C_SvcEc50_RadL_L18_Sec0",material);
+    add("ISM86C_SvcEc50_RadL_L24_Sec0",material);
+    add("ISM87C_SvcEc50_RadL_L29_Sec0",material);
+    add("ISM88C_SvcEc50_RadL_L34_Sec0",material);
+    add("ISM89C_SvcEc50_RadL_L40_Sec0",material);
+    add("ISM33C_SvcEc51_Hor2_40_Sec0",material);
+    add("ISM34C_SvcEc51_Hor2_40_Sec1",material);
+    add("ISM35C_SvcEc51_Hor2_40_Sec2",material);
+    add("ISM36C_SvcEc51_Hor2_40_Sec3",material);
+    add("ISM37C_SvcEc51_Hor2_40_Sec4",material);
+    add("ISM38C_SvcEc51_Hor2_40_Sec5",material);
+    add("ISM39C_SvcEc51_Hor2_40_Sec6",material);
+    add("ISM40C_SvcEc51_Hor2_40_Sec7",material);
+    add("ISM90C_SvcEc60_RadL_L3_Sec0",material);
+    add("ISM91C_SvcEc60_RadL_L6_Sec0",material);
+    add("ISM92C_SvcEc60_RadL_L11_Sec0",material);
+    add("ISM93C_SvcEc60_RadL_L16_Sec0",material);
+    add("ISM94C_SvcEc60_RadL_L20_Sec0",material);
+    add("ISM95C_SvcEc60_RadL_L26_Sec0",material);
+    add("ISM96C_SvcEc60_RadL_L30_Sec0",material);
+    add("ISM97C_SvcEc60_RadL_L35_Sec0",material);
+    add("ISM98C_SvcEc60_RadL_L41_Sec0",material);
+    add("ISM41C_SvcEc61_Hor3_41_Sec0",material);
+    add("ISM42C_SvcEc61_Hor3_41_Sec1",material);
+    add("ISM43C_SvcEc61_Hor3_41_Sec2",material);
+    add("ISM44C_SvcEc61_Hor3_41_Sec3",material);
+    add("ISM45C_SvcEc61_Hor3_41_Sec4",material);
+    add("ISM46C_SvcEc61_Hor3_41_Sec5",material);
+    add("ISM47C_SvcEc61_Hor3_41_Sec6",material);
+    add("ISM48C_SvcEc61_Hor3_41_Sec7",material);
+    add("ISM49C_SvcEc61_Hor3_41_Sec8",material);
+    add("ISM72A_1_SvcEc40_RadL_L1_Sec0",material);
+    add("ISM73A_1_SvcEc40_RadL_L5_Sec0",material);
+    add("ISM74A_1_SvcEc40_RadL_L10_Sec0",material);
+    add("ISM75A_1_SvcEc40_RadL_L14_Sec0",material);
+    add("ISM76A_1_SvcEc40_RadL_L19_Sec0",material);
+    add("ISM77A_1_SvcEc40_RadL_L23_Sec0",material);
+    add("ISM78A_1_SvcEc40_RadL_L27_Sec0",material);
+    add("ISM79A_1_SvcEc40_RadL_L32_Sec0",material);
+    add("ISM80A_1_SvcEc40_RadL_L36_Sec0",material);
+    add("ISM81A_1_SvcEc40_RadL_L39_Sec0",material);
+    add("ISM23A_SvcEc41_Hor1_39_Sec0",material);
+    add("ISM24A_SvcEc41_Hor1_39_Sec1",material);
+    add("ISM25A_SvcEc41_Hor1_39_Sec2",material);
+    add("ISM26A_SvcEc41_Hor1_39_Sec3",material);
+    add("ISM27A_SvcEc41_Hor1_39_Sec4",material);
+    add("ISM28A_SvcEc41_Hor1_39_Sec5",material);
+    add("ISM29A_SvcEc41_Hor1_39_Sec6",material);
+    add("ISM30A_SvcEc41_Hor1_39_Sec7",material);
+    add("ISM31A_SvcEc41_Hor1_39_Sec8",material);
+    add("ISM32A_SvcEc41_Hor1_39_Sec9",material);
+    add("ISM82A_SvcEc50_RadL_L2_Sec0",material);
+    add("ISM83A_SvcEc50_RadL_L8_Sec0",material);
+    add("ISM84A_SvcEc50_RadL_L13_Sec0",material);
+    add("ISM85A_SvcEc50_RadL_L18_Sec0",material);
+    add("ISM86A_SvcEc50_RadL_L24_Sec0",material);
+    add("ISM87A_SvcEc50_RadL_L29_Sec0",material);
+    add("ISM88A_SvcEc50_RadL_L34_Sec0",material);
+    add("ISM89A_SvcEc50_RadL_L40_Sec0",material);
+    add("ISM33A_SvcEc51_Hor2_40_Sec0",material);
+    add("ISM34A_SvcEc51_Hor2_40_Sec1",material);
+    add("ISM35A_SvcEc51_Hor2_40_Sec2",material);
+    add("ISM36A_SvcEc51_Hor2_40_Sec3",material);
+    add("ISM37A_SvcEc51_Hor2_40_Sec4",material);
+    add("ISM38A_SvcEc51_Hor2_40_Sec5",material);
+    add("ISM39A_SvcEc51_Hor2_40_Sec6",material);
+    add("ISM40A_SvcEc51_Hor2_40_Sec7",material);
+    add("ISM90A_SvcEc60_RadL_L3_Sec0",material);
+    add("ISM91A_SvcEc60_RadL_L6_Sec0",material);
+    add("ISM92A_SvcEc60_RadL_L11_Sec0",material);
+    add("ISM93A_SvcEc60_RadL_L16_Sec0",material);
+    add("ISM94A_SvcEc60_RadL_L20_Sec0",material);
+    add("ISM95A_SvcEc60_RadL_L26_Sec0",material);
+    add("ISM96A_SvcEc60_RadL_L30_Sec0",material);
+    add("ISM97A_SvcEc60_RadL_L35_Sec0",material);
+    add("ISM98A_SvcEc60_RadL_L41_Sec0",material);
+    add("ISM41A_SvcEc61_Hor3_41_Sec0",material);
+    add("ISM42A_SvcEc61_Hor3_41_Sec1",material);
+    add("ISM43A_SvcEc61_Hor3_41_Sec2",material);
+    add("ISM44A_SvcEc61_Hor3_41_Sec3",material);
+    add("ISM45A_SvcEc61_Hor3_41_Sec4",material);
+    add("ISM46A_SvcEc61_Hor3_41_Sec5",material);
+    add("ISM47A_SvcEc61_Hor3_41_Sec6",material);
+    add("ISM48A_SvcEc61_Hor3_41_Sec7",material);
+    add("ISM49A_SvcEc61_Hor3_41_Sec8",material);
+    
+  }
+
+  {
+    SoMaterial *material = new SoMaterial;
+    material->ambientColor.setValue(.3, .3, .3);
+    material->diffuseColor.setValue(.3, .3, .3);
+    material->specularColor.setValue(.3, .3, .3);
+    material->shininess.setValue(0.642424);
+    add("Module",material);
+  }
+
+  {
+    SoMaterial *material = new SoMaterial;
+    material->ambientColor.setValue(.6, 0., 0.);
+    material->diffuseColor.setValue(.6, 0., 0.);
+    material->specularColor.setValue(.6, 0., 0.);
+    material->shininess.setValue(0.642424);
+    add("FoamSupport",material);
+  }
+
+  {
+    SoMaterial *material = new SoMaterial;
+    material->ambientColor.setValue(.5, .5, 0.);
+    material->diffuseColor.setValue(.5, .5, 0.);
+    material->specularColor.setValue(.5, .5, 0.);
+    material->shininess.setValue(0.642424);
+    add("ChipBrl",material);
   }
 
   {

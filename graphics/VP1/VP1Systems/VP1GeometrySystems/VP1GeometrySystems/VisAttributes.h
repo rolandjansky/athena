@@ -17,6 +17,10 @@ class VisAttributes {
 
   // Constructor:
   VisAttributes();
+  //delete copy
+  VisAttributes(const VisAttributes &) = delete;
+  //delete assignment
+  VisAttributes & operator=(const VisAttributes &)=delete;
   void init();//Call at end of constructor in derived classes.
   // Destructor:
   virtual ~VisAttributes();

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>287</width>
+    <width>359</width>
     <height>646</height>
    </rect>
   </property>
@@ -591,6 +591,17 @@
                </size>
               </property>
              </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_7">
+            <item>
+             <widget class="QCheckBox" name="checkBox_AFP">
+              <property name="text">
+               <string>AFP</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
