@@ -182,7 +182,7 @@ namespace met {
       	  static const SG::AuxElement::ConstAccessor<std::vector<ElementLink<CaloClusterContainer> > > tcLinkAcc("constituentClusterLinks");
       	  for(const auto& matchel : tcLinkAcc(*muclus)) {
       	    ATH_MSG_VERBOSE("Tool found cluster " << (*matchel)->index() << " with pt " << (*matchel)->pt() );
-      	    if((*matchel)->e()>1e-9 && pfo->cluster(0) == *matchel) { // +ve E && matches cluster
+      	    if((*matchel)->e()>FLT_MIN && pfo->cluster(0) == *matchel) { // +ve E && matches cluster
       	      pfolist.push_back(pfo);
       	    }
       	  }
