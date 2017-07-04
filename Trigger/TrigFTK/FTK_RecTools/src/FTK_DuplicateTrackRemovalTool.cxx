@@ -4,7 +4,6 @@
 
 #include "FTK_RecTools/FTK_DuplicateTrackRemovalTool.h"
 #include <vector>
-#include <list>
 #include "TVector2.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 
@@ -156,10 +155,10 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
 
 #ifdef FTKDuplicateTrackRemovalUseMap
 	  phimap.clear();
-	  std::unordered_set<unsigned int> trackstokill;
+	  std::set<unsigned int> trackstokill;
 #endif
 
-  ATH_MSG_DEBUG("ACH99 - I'm in removeDuplicates!");
+  ATH_MSG_DEBUG("I'm in removeDuplicates!");
   m_trks_nodups->clear();
   m_trks_nodups->reserve(trks->size());
   for (unsigned int i = 0; i!=trks->size(); i++) {
@@ -231,7 +230,7 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
 	  }
 
 	  else { // more than 1 matching existing track (yet the existing matching tracks did not match each other)
-		  ATH_MSG_INFO("Found multiple tracks ("<<matching_oldtracks.size()<<") matching track "<<i);
+		  ATH_MSG_WARNING("Found multiple tracks ("<<matching_oldtracks.size()<<") matching track "<<i);
 
 		  // is the new track better than all the matching old tracks?
 		  bool newisbest = true;//start with an optimistic attitude!
@@ -282,7 +281,7 @@ FTK_RawTrackContainer* FTK_DuplicateTrackRemovalTool::removeDuplicates(const FTK
 #ifdef FTKDuplicateTrackRemovalUseMap
   //remove those tracks that we flagged for killing
   if (trackstokill.size()){
-	  ATH_MSG_INFO("Killing an extra "<<trackstokill.size()<<" tracks from multiple matches");
+	  ATH_MSG_WARNING("Killing an extra "<<trackstokill.size()<<" tracks from multiple matches");
 	  FTK_RawTrackContainer* trks_nodups_temp  = new FTK_RawTrackContainer(SG::VIEW_ELEMENTS);//we don't own the tracks, we're just going to hold them
 	  for (unsigned int e = 0; e!=m_trks_nodups->size(); e++) {
 		  if (std::find(trackstokill.begin(),trackstokill.end(),e)==trackstokill.end()) trks_nodups_temp->push_back((FTK_RawTrack*)m_trks_nodups->at(e));

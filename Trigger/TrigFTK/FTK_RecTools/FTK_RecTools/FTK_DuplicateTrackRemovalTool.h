@@ -17,7 +17,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "FTK_RecToolInterfaces/IFTK_DuplicateTrackRemovalTool.h"
-#include "FTK_DataProviderInterfaces/IFTK_UncertaintyTool.h"
 #include "TrigFTK_RawData/FTK_RawTrackContainer.h"
 #include <map>
 

@@ -1015,7 +1015,7 @@ void FTK_DataProviderSvc::getFTK_RawTracksFromSG(){
 	  if (m_remove_duplicates){//get all tracks, and then call duplicate removal tool
 		  const FTK_RawTrackContainer* temporaryTracks=nullptr;
 		  StatusCode sc = m_storeGate->retrieve(temporaryTracks, m_RDO_key);
-		  ATH_MSG_INFO( "getFTK_RawTracksFromSG:  Got " << temporaryTracks->size() << " raw FTK tracks (RDO) from  StoreGate ");
+		  ATH_MSG_DEBUG( "getFTK_RawTracksFromSG:  Got " << temporaryTracks->size() << " raw FTK tracks (RDO) from  StoreGate ");
 		  m_ftk_tracks = m_DuplicateTrackRemovalTool->removeDuplicates(temporaryTracks);
 		  if (sc.isFailure()) {
 			  ATH_MSG_WARNING( "getFTK_RawTracksFromSG: Failed to get FTK Tracks Container when using removeDumplicates ");
@@ -1030,7 +1030,7 @@ void FTK_DataProviderSvc::getFTK_RawTracksFromSG(){
 			  return;
 		  }
 	  }
-	  ATH_MSG_INFO( "getFTK_RawTracksFromSG:  Got " << m_ftk_tracks->size() << " raw FTK tracks");
+	  ATH_MSG_DEBUG( "getFTK_RawTracksFromSG:  Got " << m_ftk_tracks->size() << " raw FTK tracks");
 	  m_gotRawTracks = true;
   }
   
