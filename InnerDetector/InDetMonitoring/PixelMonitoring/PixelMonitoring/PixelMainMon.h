@@ -64,6 +64,14 @@ typedef InDet::PixelCluster PixelCluster;
 typedef InDetRawDataCollection<PixelRDORawData> RDO_Collection;
 typedef Trk::SpacePoint SpacePoint;
 
+namespace PixMon {
+  // Enum class to determine which histograms should be produced.
+  //   - Pix  = pixel components (L0, L1, L2, ECA, ECC)
+  //   - IBL  = IBL
+  //   - IBL2D3D = IBL plus additional IBL2D and IBL3D
+  //   - DBM  = DBM
+  enum class HistConf {kPix, kPixIBL, kPixIBL2D3D, kPixDBM, kPixDBMIBL, kPixDBMIBL2D3D, kDBM, kDBMIBL, kDBMIBL2D3D, kIBL, kIBL2D3D, COUNT};
+}
 
 class ErrorCategory{
    public:
