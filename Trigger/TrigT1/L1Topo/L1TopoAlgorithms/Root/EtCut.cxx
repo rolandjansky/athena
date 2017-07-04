@@ -52,6 +52,8 @@ TCS::EtCut::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
                      Decision & decision )
 
 {
+  //Bitwise implementation should be fully identical 
+  //to the non-bitwise one due to its nature as a simple ET cut
 	return process(input,output,decision);
 }
 
