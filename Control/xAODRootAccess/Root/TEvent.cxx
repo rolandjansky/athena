@@ -2799,7 +2799,7 @@ namespace xAOD {
    TReturnCode TEvent::setUpDynamicStore( TObjectManager& mgr, ::TTree* tree ) {
 
       // Check if we can call setName(...) on the object:
-      static ::TMethodCall setNameCall;
+      ::TMethodCall setNameCall;
       // Don't use this code in Athena access mode. And just accept that access
       // monitoring is disabled in this case...
       if( m_auxMode != kAthenaAccess ) {
