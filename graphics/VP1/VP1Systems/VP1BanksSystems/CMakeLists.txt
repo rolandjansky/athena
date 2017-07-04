@@ -16,7 +16,7 @@ atlas_depends_on_subdirs(
    graphics/VP1/VP1Utils )
 
 # External package(s):
-find_package( Qt4 )
+find_package( Qt5 COMPONENTS Core Gui Widgets )
 
 # Generate UI files automatically:
 set( CMAKE_AUTOUIC TRUE )

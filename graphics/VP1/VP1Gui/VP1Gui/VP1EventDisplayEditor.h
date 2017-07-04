@@ -18,11 +18,11 @@
 #define VP1CUSTOMTOUREDITOR_H
 
 #include "VP1Gui/VP1EventDisplaySceneView.h"
+
 #include "VP1Base/IVP1ChannelWidget.h"
 #include "VP1Base/VP1Msg.h"
 
-#include <QtGui/QWidget>
-
+#include <QWidget>
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QGraphicsPixmapItem>

@@ -23,8 +23,8 @@
 #include "VP1Base/VP1CameraHelper.h"
 #include "VP1Base/VP1MaterialButton.h"
 
-#include <QtCore/QStringList>
-#include <QtGui/QComboBox>
+#include <QStringList>
+#include <QComboBox>
 
 #include <Inventor/nodes/SoTranslation.h>
 #include <Inventor/nodes/SoSeparator.h>

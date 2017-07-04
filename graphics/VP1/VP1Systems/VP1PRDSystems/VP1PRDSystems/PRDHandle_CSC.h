@@ -8,7 +8,7 @@
 #include "VP1PRDSystems/PRDHandleBase.h"
 #include "VP1PRDSystems/PRDCollHandle_CSC.h"
 #include "MuonPrepRawData/CscPrepData.h"
-#include <QtCore/QStringList>
+#include <QStringList>
 
 class PRDHandle_CSC : public PRDHandleBase {
 public:

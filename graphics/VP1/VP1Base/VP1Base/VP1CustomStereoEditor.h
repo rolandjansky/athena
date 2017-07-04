@@ -17,10 +17,10 @@
 #ifndef VP1CUSTOMSTEREOEDITOR_H
 #define VP1CUSTOMSTEREOEDITOR_H
 
-#include <QtGui/QWidget>
 #include <Inventor/C/errors/debugerror.h>
 #include <Inventor/SbBasic.h>
 
+#include <QWidget>
 
 class VP1ExaminerViewer;
 

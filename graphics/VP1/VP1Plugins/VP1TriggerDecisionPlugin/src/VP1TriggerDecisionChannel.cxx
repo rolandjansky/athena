@@ -13,7 +13,7 @@
 #include "VP1TriggerDecisionPlugin/VP1TriggerDecisionChannel.h"
 #include "ui_trigdecchannelwidgetform.h"
 #include "VP1TriggerDecisionSystems/VP1TriggerDecisionSystem.h"
-#include <QtGui/QLabel>
+#include <QLabel>
 
 //_________________________________________________________
 VP1TriggerDecisionChannel::VP1TriggerDecisionChannel()

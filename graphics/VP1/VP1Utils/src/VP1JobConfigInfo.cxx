@@ -24,7 +24,7 @@
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "StoreGate/DataHandle.h"
 
-#include <QtCore/QString>
+#include <QString>
 
 //____________________________________________________________________
 class VP1JobConfigInfo::Imp {

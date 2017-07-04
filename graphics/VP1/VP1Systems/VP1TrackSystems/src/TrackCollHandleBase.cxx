@@ -38,7 +38,7 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
-#include <QtGui/QComboBox>
+#include <QComboBox>
 #include <QTreeWidgetItem>
 
 #include <qdatetime.h>

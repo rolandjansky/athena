@@ -6,9 +6,9 @@
 #define _GEOVISATTRIBUTES_H_
 
 #include <string>
-#include <QtCore/QByteArray>
-#include <QtCore/QMap>
-#include <QtCore/QString>
+#include <QByteArray>
+#include <QMap>
+#include <QString>
 class SoMaterial;
 
 class VisAttributes {

@@ -19,9 +19,9 @@
 
 #include "VP1Base/VP1HelperClassBase.h"
 #include "VP1Base/VP1Interval.h"
-#include <QtGui/QWidget>
-// #include <QtCore/QList>
-// #include <QtCore/QByteArray>
+
+#include <QWidget>
+
 class QPushButton;
 class QAbstractButton;
 class QCheckBox;
@@ -56,7 +56,7 @@ public:
   QByteArray saveSettings() const;
   void restoreSettings(QByteArray);
 
-  // Need to be able to pass signals from customtoureditor to 
+  // Need to be able to pass signals from customtoureditor to
   static void setCustomTourEditor(VP1CustomTourEditor* editor) { m_customTourEditor=editor;}
   static VP1CustomTourEditor* customTourEditor() {return m_customTourEditor;}
 
@@ -106,7 +106,7 @@ protected:
   //convenience:
   SoMaterial * getMaterial(VP1MaterialButton*) const;
   SoMaterial * fallBackMaterial() const;
-  
+
 
   protected slots:
   void testForChanges() { dummyUpdateTrigger(); }

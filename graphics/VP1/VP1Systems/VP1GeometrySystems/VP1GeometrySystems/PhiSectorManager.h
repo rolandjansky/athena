@@ -15,7 +15,7 @@
 //                                                                     //
 /////////////////////////////////////////////////////////////////////////
 
-#include <QtCore/QObject>
+#include <QObject>
 #include "VP1GeometrySystems/VP1GeoFlags.h"
 
 class PhiSectionWidget;

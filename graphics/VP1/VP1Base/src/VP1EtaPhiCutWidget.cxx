@@ -15,7 +15,9 @@
 #include "VP1Base/VP1EtaPhiCutWidget.h"
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
+
 #include "ui_vp1etaphicutform.h"
+
 #include <cmath>
 
 //____________________________________________________________________

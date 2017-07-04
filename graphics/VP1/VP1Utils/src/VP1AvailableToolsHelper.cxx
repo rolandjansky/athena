@@ -16,8 +16,8 @@
 #include "VP1Base/IVP1System.h"
 
 #include "GaudiKernel/IToolSvc.h"
-#include <QtGui/QComboBox>
-#include <QtCore/QTimerEvent>
+#include <QComboBox>
+#include <QTimerEvent>
 #include <map>
 
 //____________________________________________________________________

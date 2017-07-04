@@ -15,7 +15,7 @@
 #ifndef VP1RAWDATAFLAGS_H
 #define VP1RAWDATAFLAGS_H
 
-#include <QtCore/QFlags>
+#include <QFlags>
 
 class VP1RawDataFlags {
 public:

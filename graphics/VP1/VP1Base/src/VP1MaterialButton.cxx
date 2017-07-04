@@ -33,14 +33,16 @@
 #include "Inventor/nodes/SoMaterial.h"
 #include <Inventor/nodes/SoSeparator.h>
 
-#include <QtCore/QTimer>
-#include <QtCore/QByteArray>
-#include <QtCore/QBuffer>
-#include <QtCore/QDataStream>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QDragEnterEvent>
-#include <QtGui/QDropEvent>
-#include <QtGui/QShortcut>
+#include <QTimer>
+#include <QByteArray>
+#include <QBuffer>
+#include <QDataStream>
+#include <QMouseEvent>
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QShortcut>
+#include <QMimeData>
+#include <QDrag>
 
 //____________________________________________________________________
 class VP1MaterialButton::Imp {
@@ -174,7 +176,7 @@ QWidget& VP1MaterialButton::editWindow() {
   if (!d->editwindow)
     d->initEditWindow();
   return *(d->editwindow);
-} 
+}
 
 //____________________________________________________________________
 void VP1MaterialButton::showEditMaterialDialog()
@@ -913,14 +915,14 @@ void VP1MaterialButton::dropEvent(QDropEvent *event)
   state >> d->lastapplied_emissive;
   state >> d->lastapplied_shininess;
   state >> d->lastapplied_transparency;
-  state >> d->lastapplied_brightness;  
+  state >> d->lastapplied_brightness;
   buffer.close();
   d->adaptGuiAndMaterialsToLastApplied();
 }
 
 QByteArray VP1MaterialButton::saveState() const{
   VP1Serialise serialise(1/*version*/);
-  serialise.save(this);  
+  serialise.save(this);
   return serialise.result();
 }
 
@@ -930,5 +932,3 @@ void VP1MaterialButton::restoreFromState( const QByteArray& ba){
     return;//Ignore silently
   state.restore(this);
 }
-
-
