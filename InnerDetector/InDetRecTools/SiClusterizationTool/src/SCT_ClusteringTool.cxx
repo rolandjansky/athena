@@ -46,8 +46,8 @@ namespace InDet{
   };
 
   // Are two strips adjacent?
-  bool adjacent(const unsigned int strip1, const unsigned int strip2){
-    return ((1 == (strip2-strip1)) or (1 == (strip1-strip2))); 
+  bool adjacent(const unsigned int strip1, const int row1, const unsigned int strip2, const int row2){
+    return ( (row1==row2) and ((1 == (strip2-strip1)) or (1 == (strip1-strip2)))); 
   }
   
   // Constructor with parameters:
@@ -277,6 +277,7 @@ namespace InDet{
       clusterVector=recluster(clusterVector, idGroups);
       // After this, the cluster vector is either empty or has the last good cluster
     }
+    
   } 
 
   
@@ -336,8 +337,9 @@ namespace InDet{
 
     std::vector<uint16_t> tbinGroups;
     tbinGroups.reserve(collection.size());
-
+          
     unsigned int previousStrip(0); // Should be ok?
+    int previousRow(-1);
     uint16_t hitsInThirdTimeBin = 0;
     int stripCount=0;
     for(; pRdo != end; ++pRdo){
@@ -347,9 +349,10 @@ namespace InDet{
       int                   thisStrip(idHelper.strip(firstStripId));
       int                   BEC(idHelper.barrel_ec(firstStripId));
       int                   layer(idHelper.layer_disk(firstStripId));
-
+      int                   thisRow(idHelper.row(firstStripId));
+    
       // Flushes the vector every time a non-adjacent strip is found
-      if (not adjacent(thisStrip, previousStrip) and not(currentVector.empty())){
+      if (not adjacent(thisStrip, thisRow, previousStrip, previousRow) and not(currentVector.empty())){
 	if (m_majority01X) {
 	  if (n01X >= n11X){
 	    idGroups.push_back(currentVector);
@@ -414,6 +417,7 @@ namespace InDet{
       if (not currentVector.empty()) {
 	// Gives the last strip number in the cluster
 	previousStrip = idHelper.strip(currentVector.back());
+	previousRow   = idHelper.row(currentVector.back());
       }
     } 
     
@@ -430,13 +434,8 @@ namespace InDet{
     Identifier elementID(collection.identify());
     const  InDetDD::SiDetectorElement* element = manager.getDetectorElement(elementID);
     if (!element) return msg(MSG::WARNING) << "Element not in the element map, ID = "<< elementID << endreq, nullResult;
-
-    const InDetDD::SCT_ModuleSideDesign* design;
-    if (idHelper.is_barrel(elementID)){
-      design = (static_cast<const InDetDD::SCT_BarrelModuleSideDesign*>(&element->design()));
-    } else {
-      design = (static_cast<const InDetDD::SCT_ForwardModuleSideDesign*>(&element->design()));
-    }    
+    const InDetDD::SCT_ModuleSideDesign* design = (dynamic_cast<const InDetDD::SCT_ModuleSideDesign*>(&element->design()));
+    if(!design) ATH_MSG_ERROR("Unable to cast to SCT_ModuleSideDesign! This is not an SCT detector element."); 
 
     IdentifierHash idHash(collection.identifyHash());
     SCT_ClusterCollection* clusterCollection = new SCT_ClusterCollection(idHash);
@@ -476,6 +475,7 @@ namespace InDet{
       // Now make a SiCluster
       clusterNumber++;
       SiWidth siWidth(Amg::Vector2D(nStrips,1), Amg::Vector2D(clusterDim.width,stripLength) );
+            
       //
       //sroe: coverity 31564
       
@@ -514,7 +514,8 @@ namespace InDet{
   SCT_ClusteringTool::DimensionAndPosition  
   SCT_ClusteringTool::clusterDimensionsInclRow(const int firstStrip, const int  lastStrip, const int row,
 					       const InDetDD::SiDetectorElement* pElement, const InDetDD::SCT_ModuleSideDesign* design) const{
-    const int                      nStrips(lastStrip - firstStrip + 1); 
+    
+    const int nStrips(lastStrip - firstStrip + 1);
     const int firstStrip1D = design->strip1Dim(firstStrip,row);
     const int lastStrip1D = design->strip1Dim(lastStrip, row);
     const double stripPitch =  design->stripPitch();
