@@ -49,6 +49,23 @@ const float GeV = 1000.;
 const float iGeV = 0.001;
 const float PI = 3.1416;
 
+template<typename Container> StatusCode RetrieveContainer(xAOD::TEvent &Ev, const std::string &Key, Container* &C, xAOD::ShallowAuxContainer* &Aux) {
+    if (Aux) delete Aux;
+    const Container* InCont(0);
+    if (!Ev.retrieve(InCont, Key).isSuccess()) {
+        Error(APP_NAME.c_str(), "Could not retrieve %s", Key.c_str());
+        return StatusCode::FAILURE;
+    }
+    typename std::pair<Container*, xAOD::ShallowAuxContainer*> shallowcopy = xAOD::shallowCopyContainer(*InCont);
+    Aux = shallowcopy.second;
+    C = shallowcopy.first;
+    if (!xAOD::setOriginalObjectLink(*InCont, *C)) {
+        Error(APP_NAME.c_str(), "Failed to set Object links to %s", Key.c_str());
+        return StatusCode::FAILURE;
+    }
+    return StatusCode::SUCCESS;
+}
+
 int main(int argc, char** argv) {
 
     gErrorIgnoreLevel = 0;
@@ -125,6 +142,14 @@ int main(int argc, char** argv) {
 
     const int INTERVAL = maxEVT > 20000 ? 10000 : maxEVT / 10;
 
+    xAOD::xAODShallowAuxContainer* AuxMuons(nullptr), AuxElectrons(nullptr), AuxPhotons(nullptr);
+    xAOD::MuonContainer* Muons = nullptr;
+    xAOD::ElectronContainer* Electrons = nullptr;
+    xAOD::PhotonContainer* Photons = nullptr;
+
+    SG::AuxElement::Decorator<char> dec_PassQuality("quality");
+    SG::AuxElement::Decorator<char> dec_PassIsol("DefaultIso");
+
     for (Long64_t entry = 0; entry < maxEVT; ++entry) {
 
         event.getEntry(entry);
@@ -136,18 +161,46 @@ int main(int argc, char** argv) {
         }
 //        eventNumber = ei->eventNumber();
 
-        // get muon container of interest
-        const xAOD::MuonContainer* muons = 0;
-        CHECK(event.retrieve(muons, "Muons"));
+        //Retrieve the Containers and create the ShallowAux links
+        CHECK(RetrieveContainer(event, "Muons", Muons, AuxMuons));
+        CHECK(RetrieveContainer(event, "Electrons", Electrons, AuxElectrons));
+        CHECK(RetrieveContainer(event, "Photons", Photons, AuxPhotons));
+        for (const auto ielec : *Electrons) {
+            //Store if the electron passes the isolation
+            dec_PassIsol(*ielec) = m_isoSelectorTool->accept(*ielec);
+            //Quality criteria only baseline kinematic selection
+            dec_PassQuality(*ielec) = ielec->pt() > 10.e3 && fabs(ielec->eta()) < 2.47;
+        }
 
-        // get electron container of interest
-        const xAOD::ElectronContainer* electrons = 0;
-        CHECK(event.retrieve(electrons, "Electrons"));
+        for (const auto iphot : *Photons) {
+            //Store if the photon passes the isolation (only needed for later comparisons)
+            dec_PassIsol(*iphot) = m_isoSelectorTool->accept(*iphot);
+            //Quality criteria only baseline kinematic selection
+            dec_PassQuality(*iphot) = iphot->pt() > 25.e3 && fabs(iphot->eta()) < 2.35;
+        }
+        for (const auto imuon : *Muons) {
+            //Store if the muon passes the isolation
+            dec_PassIsol(*imuon) = m_isoSelectorTool->accept(*imuon);
+            //Quality criteria only baseline kinematic selection
+            dec_PassQuality(*imuon) = imuon->pt() > 5.e3 && fabs(imuon->eta()) < 2.7;
+        }
+        //Okay everything is defined for the preselection of the algorithm. lets  pass the things  towards the IsoCorrectionTool
 
-        // get photon container of interest
-        const xAOD::PhotonContainer* photons = 0;
-        CHECK(event.retrieve(photons, "Photons"));
+        if (m_isoCloseByTool->getCloseByIsoCorrection(Electrons, Muons, Photons).code() == CorrectionCode::Error) {
+            ATH_MSG_ERROR("Something weird happened with the tool");
+            return StatusCode::FAILURE;
+        }
+        // The isoCorrectionTool has now corrected everything using close-by objects satisfiyng the dec_PassQuality criteria
+        // The name of the decorator is set via the 'SelectionDecorator' property of the tool
+        // Optionally one can also define that the tool shall only objects surviving the overlap removal without  changing the initial decorator
+        // Use therefore the 'PassOverlapDecorator' property to define the decorators name
+        // If you define  the 'BackupPrefix' property then the original values are stored before correction <Prefix>_<IsolationCone>
+        // The final result  whether the object  passes the isolation criteria now can be stored in the 'IsolationSelectionDecorator' e.g. 'CorrectedIso'
 
+        //Store everything in the final ntuples
+        ATH_CHECK(eleBranches.Fill(Electrons));
+        ATH_CHECK(muoBranches.Fill(Muons));
+        ATH_CHECK(phoBranches.Fill(Photons));
         tree->Fill();
 
     }
