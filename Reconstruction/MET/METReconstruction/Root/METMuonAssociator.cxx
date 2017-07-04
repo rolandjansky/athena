@@ -23,8 +23,6 @@
 
 #include "CaloClusterMatching/ICaloClusterMatchingTool.h"
 
-#include "PFlowUtils/IWeightPFOTool.h"
-
 namespace met {
 
   using namespace xAOD;
@@ -145,7 +143,7 @@ namespace met {
   StatusCode METMuonAssociator::extractPFO(const xAOD::IParticle* obj,
 					   std::vector<const xAOD::IParticle*>& pfolist,
 					   const met::METAssociator::ConstitHolder& constits,
-					   std::map<const IParticle*,MissingETBase::Types::constvec_t>& momenta) const
+					   std::map<const IParticle*,MissingETBase::Types::constvec_t>& /*momenta*/) const
   {  
     const xAOD::Muon *mu = static_cast<const xAOD::Muon*>(obj);
     const TrackParticle* idtrack = mu->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
@@ -155,18 +153,14 @@ namespace met {
     for(const auto& pfo : *constits.pfoCont) {
       if(fabs(pfo->charge())>1e-9) {
 	// get charged PFOs by matching the muon ID track
-	if(idtrack && pfo->track(0) == idtrack && acceptChargedPFO(idtrack,constits.pv) &&
+	// Zero energy implies removal by Charged Hadron Subtraction
+	if(idtrack && pfo->track(0) == idtrack && pfo->e()>FLT_MIN &&
 	   ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) )
 	   ) {
 	  ATH_MSG_VERBOSE("Accept muon PFO " << pfo << " px, py = " << pfo->p4().Px() << ", " << pfo->p4().Py());
 	  ATH_MSG_VERBOSE("Muon PFO index: " << pfo->index() << ", pt: " << pfo->pt() << ", eta: " << pfo->eta() << ", phi: " << pfo->phi() );
 	  ATH_MSG_VERBOSE("Muon ID Track index: " << idtrack->index() << ", pt: " << idtrack->pt() << ", eta: " << idtrack->eta() << ", phi: " << idtrack->phi() );
 	  pfolist.push_back(pfo);
-	  if(m_weight_charged_pfo) {
-	    float weight = 0.0;
-	    ATH_CHECK( m_pfoweighttool->fillWeight( *pfo, weight ) );
-	    momenta[pfo] = weight*MissingETBase::Types::constvec_t(*pfo);
-	  }
 	  break;
 	} // track match
       } else {

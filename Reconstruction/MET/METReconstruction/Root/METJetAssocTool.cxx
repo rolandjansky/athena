@@ -162,10 +162,10 @@ namespace met {
 	for(const auto& trk : jettracks) if (trk==pfotrk) consts.push_back(pfo);
       } else {
         bool marked = false;
-        for (size_t consti = 0; consti < jet->numConstituents(); consti++) if (pfo->p4EM().DeltaR(jet->rawConstituent(consti)->p4())<0.05) marked = true;
+        for (size_t consti = 0; consti < jet->numConstituents(); consti++) if (pfo->p4().DeltaR(jet->rawConstituent(consti)->p4())<0.05) marked = true;
         if (marked) {
           consts.push_back(pfo);
-          TLorentzVector momentum = constits.pv ? pfo->GetVertexCorrectedEMFourVec(*constits.pv) : pfo->p4EM();
+          TLorentzVector momentum = pfo->p4();
           momenta[pfo] = MissingETBase::Types::constvec_t(momentum.Px(),momentum.Py(),momentum.Pz(),
 							  momentum.E(),momentum.Pt());
         }

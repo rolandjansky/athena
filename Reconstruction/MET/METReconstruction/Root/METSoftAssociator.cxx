@@ -17,8 +17,6 @@
 #include "xAODCaloEvent/CaloClusterChangeSignalState.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
-#include "PFlowUtils/IWeightPFOTool.h"
-
 namespace met {
 
   using namespace xAOD;
@@ -33,7 +31,6 @@ namespace met {
     declareProperty("DecorateSoftConst", m_decorateSoftTermConst=false);
     declareProperty("LCModClusterKey",   m_lcmodclus_key = "LCOriginTopoClusters");
     declareProperty("EMModClusterKey",   m_emmodclus_key = "EMOriginTopoClusters");
-    declareProperty("WeightSoftPFO",     m_weight_soft_pfo = false);
   }
 
   // Destructor
@@ -98,25 +95,24 @@ namespace met {
       }
       for(const auto& sig : *uniquePFOs) {
 	const PFO *pfo = static_cast<const PFO*>(sig);
-	if (fabs(pfo->charge())>1e-9) {
-	  if (acceptChargedPFO(pfo->track(0),constits.pv) &&
-	      ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) ) 
-	      ) {
-	    *metCoreTrk += sig;
-	    float weight = 1.0;
-	    if(m_weight_charged_pfo && m_weight_soft_pfo) {
-	      ATH_CHECK( m_pfoweighttool->fillWeight( *pfo, weight ) );
-	    }
-	    metCoreCl->add(sig,weight);
+	if (fabs(pfo->charge())>FLT_MIN) { // Charged PFOs
+	  if (pfo->e()>FLT_MIN && ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) ) ) {
+	    // For the TST, we add the track pt, as this need not be
+	    // corrected for nearby energy in the calo
+	    *metCoreTrk += pfo->track(0);
+	    // For CST we add the PFO pt, which is weighted down
+	    // to account for energy in the calo that may not have
+	    // been subtracted
+	    *metCoreCl  += sig;
 	    if(m_decorateSoftTermConst) {
 	      dec_softConst(*metCoreTrk).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));
 	      dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));
 	    }
 	  }
-	} else {
-	  TLorentzVector corrected = constits.pv ? pfo->GetVertexCorrectedEMFourVec(*constits.pv) : pfo->p4EM();
-	  if (pfo->eEM()>0) {
- 	    metCoreCl->add(corrected.Px(),corrected.Py(),corrected.Pt());
+	} else { // Neutral PFOs
+	  if (pfo->e()>0) {
+	    // This is a non-issue; just add the four-vector
+ 	    *metCoreCl += sig;
  	    if(m_decorateSoftTermConst) dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));
 	  }
 	}
