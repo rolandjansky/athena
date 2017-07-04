@@ -105,14 +105,15 @@ StatusCode VoronoiWeightTool::process_impl(xAOD::IParticleContainer* particlesin
 {
   std::vector<fastjet::PseudoJet> particles; particles.reserve(particlesin->size());
 
-  for(auto part: *particlesin){
+  for(const auto& part: *particlesin){
     // Only use positive E
     bool accept = part->e() > 1e-9;
     // For PFlow we would only want to apply the correction to neutral PFOs,
     // because charged hadron subtraction handles the charged PFOs.
     // However, we might still want to use the cPFOs for the min pt calculation
     if(m_inputType==xAOD::Type::ParticleFlow && m_ignoreChargedPFOs) {
-      xAOD::PFO* pfo = static_cast<xAOD::PFO*>(part);
+      // The auto loop returns an ElementProxy, so we need to dereference/reference
+      const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>(&*part);
       accept = fabs(pfo->charge())>1e-9;
     }
     if(accept) {
@@ -133,35 +134,45 @@ StatusCode VoronoiWeightTool::process_impl(xAOD::IParticleContainer* particlesin
 
   size_t i=0;
   SG::AuxElement::Accessor<float> weightAcc("VoronoiWeight"); // Handle for PU weighting here
-  for(auto part : SortHelper::sort_container_pt(particlesin)){
-    float newE(0.);
-   //There should be the same number of positive E Particles in the container as particles in the ptvec
-    bool endContainer = part->e()<=0;
-    bool endVec = i>=ptvec.size();
-    if(endVec && endContainer){
-      newE = 0;  //remove negative energy particles
+  for(const auto& part : SortHelper::sort_container_pt(particlesin)){
+    // Skip the check on charged PFOs if needed
+    bool accept(true);
+    if(m_inputType==xAOD::Type::ParticleFlow && m_ignoreChargedPFOs) {
+      // The auto loop returns an ElementProxy, so we need to dereference/reference
+      const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>(&*part);
+      accept = fabs(pfo->charge())>1e-9;
     }
-    else if(endContainer || endVec){
+
+    if(accept) {
+      float newE(0.);
+      //There should be the same number of positive E Particles in the container as particles in the ptvec
+      bool endContainer = part->e()<=0;
+      bool endVec = i>=ptvec.size();
+      if(endVec && endContainer){
+	newE = 0;  //remove negative energy particles
+      }
+      else if(endContainer || endVec){
 	ATH_MSG_ERROR("Filtered particle list doesn't have same number of elements as the list returned by FastJet.");
-      return StatusCode::FAILURE;
-    }
-    else{
-      //And the particles should match
-      float Containerpt = part->pt();
-      float PJpt = ptvec[i].first.pt();
+	return StatusCode::FAILURE;
+      }
+      else{
+	//And the particles should match
+	float Containerpt = part->pt();
+	float PJpt = ptvec[i].first.pt();
 	ATH_MSG_VERBOSE( "Container: " << Containerpt );
 	ATH_MSG_VERBOSE( "Ptvec: " << PJpt );
-      if (fabs(Containerpt-PJpt) > 0.1){
-	 ATH_MSG_VERBOSE( fabs(Containerpt-PJpt) );
-	 ATH_MSG_ERROR("Particle pt's don't match.");
-        return StatusCode::FAILURE;
+	if (fabs(Containerpt-PJpt) > 0.1){
+	  ATH_MSG_VERBOSE( fabs(Containerpt-PJpt) );
+	  ATH_MSG_ERROR("Particle pt's don't match.");
+	  return StatusCode::FAILURE;
+	}
+	newE = ptvec[i].second[alg]*cosh(part->eta());
       }
-      newE = ptvec[i].second[alg]*cosh(part->eta());
+      float w = newE/part->e();
+      weightAcc(*part) = w;
+      ATH_CHECK(setEnergyPt(part,newE,part->pt()*w));
+      i++;
     }
-    float w = newE/part->e();
-    weightAcc(*part) = w;
-    ATH_CHECK(setEnergyPt(part,newE,part->pt()*w));
-    i++;
   }
   return StatusCode::SUCCESS;
  }
@@ -186,7 +197,7 @@ StatusCode VoronoiWeightTool::makeVoronoiParticles(std::vector<fastjet::PseudoJe
   for(unsigned int iJet = 0 ; iJet < inclusiveJets.size() ; iJet++){
     fastjet::PseudoJet jet = inclusiveJets[iJet];
     std::vector<fastjet::PseudoJet> constituents = jet.constituents();
-    for(auto cons : constituents){
+    for(const auto& cons : constituents){
       float pt = cons.pt();
       float area = cons.area();
       float subPt = pt-rho*area;
