@@ -35,9 +35,9 @@ namespace dqm_algorithms {
 // *********************************************************************
 
 MDTPercentUnderThresh::MDTPercentUnderThresh()
-  : name("MDTpercent_under_thresh")
+  : m_name("MDTpercent_under_thresh")
 {
-  dqm_core::AlgorithmManager::instance().registerAlgorithm( name, this );
+  dqm_core::AlgorithmManager::instance().registerAlgorithm( m_name, this );
 }
 
 
@@ -143,7 +143,7 @@ void
 MDTPercentUnderThresh::printDescription(std::ostream& out){
   std::string message;
   message += "\n";
-  message += "Algorithm: \"" + name + "\"\n";
+  message += "Algorithm: \"" + m_name + "\"\n";
   message += "Description: Compute the percent of entries above a threshold and and compare it with user defined green and red Threshold\n";
   message += "Mandatory Parameters: Green/Red Threshold: Percent:  Percent of the entries above threshold requested"; 
   message += "Optional Parameters: MinStat = Minimum histogram statistics needed to perform Algorithm\n";
