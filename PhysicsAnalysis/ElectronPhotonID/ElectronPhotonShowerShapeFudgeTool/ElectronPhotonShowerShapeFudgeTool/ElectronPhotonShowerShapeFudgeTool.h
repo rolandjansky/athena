@@ -4,7 +4,7 @@
 
 #ifndef _ELECTRONPHOTONSHOWERSHAPEFUDGETOOL_H
 #define _ELECTRONPHOTONSHOWERSHAPEFUDGETOOL_H
-
+#define USE_NEW_TOOL
 /**
    @class ElectronPhotonShowerShapeFudgeTool
    @brief Tool to fudge photon MC shower shapes.
@@ -65,6 +65,7 @@ private:
    TElectronMCShifterTool* m_el_rootTool;
 
    int m_preselection;
+   std::string m_ffFile;
 
    std::string m_configFile;
 

@@ -36,7 +36,7 @@ namespace IDVAR
 }
 
 
-class TPhotonMCShifterTool 
+class TPhotonMCShifterTool                            
 {
 
  public:
@@ -60,7 +60,8 @@ class TPhotonMCShifterTool
 		     double& deltae ,
 		     double& eratio ,
 		     int    isConv  ,
-		     int    preselection=-999);
+		     int    preselection=-999,
+         std::string m_corr_file="");
 
   //fudge shower shapes for preselection chosen.
   void FudgeShowers( float pt     ,
@@ -78,7 +79,8 @@ class TPhotonMCShifterTool
 		     float& deltae ,
 		     float& eratio ,
 		     int    isConv  ,
-		     int    preselection=-999);
+		     int    preselection=-999,
+         std::string m_corr_file="");
 	
   // fudge showers using D3PD vectors (except for eratio)
   void FudgeShowers( std::vector<float> clE,
@@ -96,7 +98,8 @@ class TPhotonMCShifterTool
 		     std::vector<float>& deltae ,
 		     std::vector<float>& eratio ,
 		     std::vector<int> isConv  ,
-		     int    preselection=-999);
+		     int    preselection=-999,
+         std::string m_corr_file="");
 
   /** Calculate Eratio (the only variable which is not stored in the egamma/PhotonD3PD)
     * given emaxs1 and Emax2. Return a pointer to a vector<float>
@@ -357,13 +360,14 @@ class TPhotonMCShifterTool
   TGraphErrors* GetFFmap_DE    (double eta, int isConv, int preselection);
   TGraphErrors* GetFFmap_Eratio(double eta, int isConv, int preselection);
   //  TH2D* GetFFTH2D(int var, int isConv, int preselection);
-  void LoadFFs(int preselection);
+  void LoadFFs(int preselection, std::string m_corr_file);
 
  private:
   bool m_verbose;
 
   //shower preselection to extract FFs
   int m_preselection;
+  std::string m_corr_file; 
 
   // collections of fudge factors
   TH2D* h_u_rhad1;

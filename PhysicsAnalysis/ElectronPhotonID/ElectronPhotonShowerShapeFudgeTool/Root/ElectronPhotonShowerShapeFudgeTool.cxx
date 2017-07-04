@@ -25,10 +25,12 @@ ElectronPhotonShowerShapeFudgeTool::ElectronPhotonShowerShapeFudgeTool(std::stri
   AsgTool(myname),
   m_ph_rootTool(0),
   m_el_rootTool(0),
-  m_configFile("")
+  m_configFile(""),
+  m_ffFile("")
 {
 
   declareProperty("Preselection",m_preselection=-999);
+  declareProperty("FFCalibFile", m_ffFile="ElectronPhotonShowerShapeFudgeTool/v1/PhotonFudgeFactors.root", "Calib path file for Photon MC corrections");
   declareProperty("ConfigFile",m_configFile="","The config file to use for the Electron Shifter");
 
   // Create an instance of the underlying ROOT tool
@@ -57,6 +59,11 @@ StatusCode ElectronPhotonShowerShapeFudgeTool::initialize()
   if(m_configFile.empty()){
     ATH_MSG_INFO("No config file set! Using default shift values for the electron shifter.");
     m_configFile = "ElectronPhotonShowerShapeFudgeTool/DefaultShifts.conf";
+  }
+
+  if(m_ffFile.empty()){
+    ATH_MSG_ERROR ( "Could NOT resolve file name " << m_ffFile);
+    return StatusCode::FAILURE ;
   }
   std::string configFile = PathResolverFindCalibFile(m_configFile);
   TEnv env(configFile.c_str());
@@ -103,7 +110,7 @@ StatusCode ElectronPhotonShowerShapeFudgeTool::initialize()
   m_el_rootTool->Widths[ElePIDNames::Var::DeltaE] = GetFloatVector("width_DeltaE", env);
   
 #ifdef USE_NEW_TOOL  
-  m_ph_rootTool->LoadFFs(m_preselection);
+  m_ph_rootTool->LoadFFs(m_preselection, m_ffFile);
 #endif
   return StatusCode::SUCCESS;
 }
@@ -190,7 +197,8 @@ const CP::CorrectionCode ElectronPhotonShowerShapeFudgeTool::applyCorrection( xA
                                DeltaE,
                                Eratio,
                                xAOD::EgammaHelpers::isConvertedPhoton(&ph),
-                               m_preselection);
+                               m_preselection,
+                               m_ffFile);
 
 
 
