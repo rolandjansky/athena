@@ -26,11 +26,6 @@ public:
   JetConstituentModifierBase(const std::string & name);
   int execute() const;
   StatusCode process(xAOD::IParticleContainer* cont) const;
-
-protected:
-  // PS
-  // std::string m_inputContainer = "";
-  // std::string m_outputContainer = ""; // These containers can be empty 
 };
 
 #endif

@@ -7,9 +7,6 @@
 //
 //
 #include "JetRecTools/CaloClusterConstituentsOrigin.h"
-//#include "xAODBase/IParticleContainer.h"
-//#include "xAODCaloEvent/CaloClusterContainer.h"
-//#include "JetRecTools/JetConstituentModifierBase.h"
 #include "xAODCaloEvent/CaloVertexedTopoCluster.h"
 
 
@@ -19,7 +16,6 @@ CaloClusterConstituentsOrigin::CaloClusterConstituentsOrigin(const std::string &
 #ifdef ASG_TOOL_ATHENA
   declareInterface<IJetConstituentModifier>(this);
 #endif
-  // declareProperty("VertexContainer",m_vertexContName="PrimaryVertices");
   declareProperty ("VertexContainer",  
                    m_readVertexContainer_key="PrimaryVertices");
   declareProperty("UseEMScale",m_useEMScale=false);
@@ -45,11 +41,6 @@ StatusCode CaloClusterConstituentsOrigin::process(xAOD::IParticleContainer* cont
        ATH_CHECK(handle.isValid());
        auto vertexContainer = handle.cptr();
          
-       // const xAOD::VertexContainer* vertexContainer=0;
-
-       // get vertexcontainer from eventstore
-       // ATH_CHECK( evtStore()->retrieve(vertexContainer, m_vertexContName) );
-
        return process(clust, vertexContainer->at(0)); 
      }
    return StatusCode::FAILURE;

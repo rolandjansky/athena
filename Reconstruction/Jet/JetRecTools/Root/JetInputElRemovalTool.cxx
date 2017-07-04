@@ -18,29 +18,17 @@
 JetInputElRemovalTool::JetInputElRemovalTool(const std::string& t)
   :AsgTool(t)
    
-   // ,m_elInputContainer("Electrons")
   ,m_elIDname("DFCommonElectronsLHTight")
   ,m_elPt(25000)
-   // ,m_clInputContainer("CaloCalTopoClusters")
-   // ,m_clOutputContainer("CaloCalTopoClustersNoEl")
   ,m_useOnlyclInJets(false)
-   // ,m_jetINputContainer("AntiKt4EMTopoJets")
   ,m_clRemovRadius(0.15)
   ,m_clEMFrac(0.8)
-   // ,m_trkInputContainer("InDetTrackParticles")
-   // ,m_trkOutputContainer("InDetTrackParticlesNoEl")
 {
-  // declareProperty("ElectronContainerName",m_elInputContainer);
   declareProperty("ElectronQuality",m_elIDname);
   declareProperty("ElectronMinpT",m_elPt);
-  // declareProperty("ClusterContainerName",m_clInputContainer);
-  // declareProperty("ClusterNoElName",m_clOutputContainer);
   declareProperty("ClusterRemovRadius",m_clRemovRadius);
   declareProperty("ClusterEMFrac",m_clEMFrac);
   declareProperty("UseOnlyclInJets",m_useOnlyclInJets);
-  // declareProperty("JetINputContainer",m_jetINputContainer);
-  // declareProperty("TrkInputContainer",m_trkInputContainer);
-  // declareProperty("TrkOutputContainer",m_trkOutputContainer);
 
   declareProperty("TrkInputContainer",
                   m_trkInputContainer_key="InDetTrackParticles");
@@ -86,9 +74,6 @@ StatusCode JetInputElRemovalTool::initialize(){
 
 int JetInputElRemovalTool::execute() const{
 
-  // ConstDataVector<xAOD::CaloClusterContainer> *filtered_clusters = 
-  //   new ConstDataVector<xAOD::CaloClusterContainer>(SG::VIEW_ELEMENTS);
-
   using OutContTypeCl = ConstDataVector<xAOD::CaloClusterContainer>;
   OutContTypeCl* filtered_clusters = new OutContTypeCl(SG::VIEW_ELEMENTS);
   
@@ -107,8 +92,6 @@ int JetInputElRemovalTool::execute() const{
   }
   
   //Record clusters vector
-  
-
   {
     auto handle = SG::makeHandle(m_clOutputContainer_key);
     if(!handle.record(std::unique_ptr<OutContTypeCl>(filtered_clusters))){
@@ -116,20 +99,9 @@ int JetInputElRemovalTool::execute() const{
       return 1;
     }
   }
-
-  // PS
-  // StatusCode sc=evtStore()->record( filtered_clusters ,  m_clOutputContainer );
-  
-  // if (sc.isFailure()){
-  //   ATH_MSG_WARNING("Unable to record new clustersvector");
-  //  return 1;
-  // }
-  
- 
   
   //Store vector only if data vector name not empty 
   if (!m_trkInputContainer_key.key().empty()){
-    // ConstDataVector<xAOD::TrackParticleContainer> *filtered_tracks = new ConstDataVector<xAOD::TrackParticleContainer>(SG::VIEW_ELEMENTS) ;
 
     using OutContTypeTr = ConstDataVector<xAOD::TrackParticleContainer>;
  
@@ -142,26 +114,12 @@ int JetInputElRemovalTool::execute() const{
       ATH_MSG_WARNING("Unable to record new tracks vector");
       return 1;
     }
-  
-    // PS 
-    // sc=evtStore()->record( filtered_tracks , m_trkOutputContainer);
-    
-    // if (sc.isFailure()){
-    //   ATH_MSG_WARNING("Unable to record new tracks vector");
-    //   return 1;
-    // }
   }
-  
-  
+
   return 0;
-  
-  
 }
 
 StatusCode JetInputElRemovalTool::finalize(){
-  
-  //delete selected_electrons_v;
-  //delete m_ElSelTool;
   return StatusCode::SUCCESS;
 }
 
@@ -179,15 +137,6 @@ std::vector<const xAOD::Electron*> JetInputElRemovalTool::selectElectron()const{
     
   auto electrons = handle.cptr();
 
-  // const xAOD::EgammaContainer* electrons = 0;
-
-  // PS 
-  // StatusCode sc =evtStore()->retrieve( electrons, m_elInputContainer);
-  // if (sc.isFailure()){
-  //   ATH_MSG_WARNING("Unable to retrieve electrons");
-  //  return selected_electrons_v;
-  // }
-  
   selected_electrons_v.clear();
   bool isTight=false;
   
@@ -211,9 +160,7 @@ std::vector<const xAOD::Electron*> JetInputElRemovalTool::selectElectron()const{
     
   }
   
-  //ANA_CHECK(evtStore()->record( selected_electrons_v , "Selected_LHtight_above25GeV_electrons" ));
   return selected_electrons_v ;
-  
 }
 
 
@@ -237,17 +184,6 @@ int JetInputElRemovalTool::fillSelectedClusters(std::vector<const xAOD::Electron
   }
     
   auto clusterContainer = handle.cptr();
-
-
-  // PS
-  // const xAOD::CaloClusterContainer* clusterContainer;
-  //
-  // StatusCode sc=evtStore()->retrieve( clusterContainer, m_clInputContainer );
-  
-  // if (sc.isFailure()){
-  //   ATH_MSG_WARNING("Unable to retrieve clusters");
-  //   return 0;
-  // }
   
   //Loop over all the clusters
   for (const xAOD::CaloCluster* cluster_itr : *clusterContainer){

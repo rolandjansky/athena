@@ -49,9 +49,6 @@ class CorrectPFOTool : public JetConstituentModifierBase{
   bool m_applyCHS; //If true, remove charged PFO not matched to the PV
   ToolHandle<CP::IWeightPFOTool> m_weightPFOTool;
 
-  // not used after transition to data handles
-  // std::string m_trkVtxAssocName; //Name of track-vertex association container
-
   SG::ReadHandleKey<xAOD::VertexContainer> 
     m_vertexContainer_key{"PrimaryVertices"};
 

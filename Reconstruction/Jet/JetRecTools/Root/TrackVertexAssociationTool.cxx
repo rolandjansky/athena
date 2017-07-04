@@ -8,16 +8,10 @@
 TrackVertexAssociationTool::TrackVertexAssociationTool(const std::string& t)
     : AsgTool(t)
     , m_tvaTool("") // default as empty
-      // , m_trackContainer("")
-      // , m_vertexContainer("")
-      // , m_tvaStoreName("")
     , m_transDistMax(10e6)
     , m_longDistMax(10e6)
     , m_maxZ0SinTheta(10e6)
 {
-  // declareProperty("TrackParticleContainer",m_trackContainer);
-  // declareProperty("VertexContainer",m_vertexContainer);
-  // declareProperty("TrackVertexAssociation",m_tvaStoreName);
   declareProperty("TrackVertexAssoTool", m_tvaTool);  // Tool handle
 
   declareProperty("MaxTransverseDistance",m_transDistMax);
@@ -47,9 +41,6 @@ StatusCode TrackVertexAssociationTool::initialize(){
   return StatusCode::SUCCESS;
 }
 
-
-
-
 int TrackVertexAssociationTool::execute() const {
   // Get input track collection
 
@@ -62,12 +53,6 @@ int TrackVertexAssociationTool::execute() const {
   }
 
   auto trackContainer = handle_tracks.cptr();
-
-  // const xAOD::TrackParticleContainer* trackContainer = nullptr;
-  // if ( evtStore()->retrieve(trackContainer, m_trackContainer).isFailure() || trackContainer==nullptr) {
-  // ATH_MSG_ERROR("Could not retrieve the TrackParticleContainer from evtStore: " << m_trackContainer);
-  // return 1;
-  // }
 
   // Check this is not a view container.
   if ( trackContainer->ownPolicy() != SG::OWN_ELEMENTS ) {
@@ -87,21 +72,6 @@ int TrackVertexAssociationTool::execute() const {
 
   auto vertexContainer = handle_vert.cptr();
 
-  // const xAOD::VertexContainer* vertexContainer = nullptr;
-  // if ( evtStore()->retrieve(vertexContainer,m_vertexContainer).isFailure() || vertexContainer==nullptr) {
-  //  ATH_MSG_ERROR("Could not retrieve the VertexContainer from evtStore: " << m_vertexContainer);
-  //  return 2;
-  // }
-
-  // Build the TVA
-
-  // jet::TrackVertexAssociation* tva;
-  
-  // if(m_tvaTool.empty() )
-  //   tva = buildTrackVertexAssociation_custom(trackContainer,vertexContainer);
-  // else
-  //   tva = buildTrackVertexAssociation_withTool(trackContainer,vertexContainer);
-  
   auto useCustom = m_tvaTool.empty();
   auto tva = makeTrackVertexAssociation(trackContainer,
                                         vertexContainer,
@@ -122,11 +92,6 @@ int TrackVertexAssociationTool::execute() const {
     return 4;
   }
 
-  // if ( evtStore()->record(tva, m_tvaStoreName).isFailure() ) {
-  //   ATH_MSG_ERROR("Unable to write new TrackVertexAssociation to evtStore: " << m_tvaStoreName);
-  //  return 4;
-  // }
-
   // Success
   ATH_MSG_DEBUG("Wrote new TrackVertexAssociation to evtStore: " 
                 << m_tva_key.key());
@@ -145,8 +110,6 @@ TrackVertexAssociationTool::buildTrackVertexAssociation_withTool(const xAOD::Tra
   ATH_MSG_DEBUG("Building track-vertex association USING InDet tool. trk size="<< trackContainer->size() 
                 << "  vtx size="<< vertexContainer->size());
 
-  // Construct object with track container input
-  // jet::TrackVertexAssociation* tva = new jet::TrackVertexAssociation(trackContainer);
   auto tva = std::make_unique<jet::TrackVertexAssociation>(trackContainer);
 
   std::vector<const xAOD::Vertex*> vecVert;
@@ -168,8 +131,6 @@ TrackVertexAssociationTool::buildTrackVertexAssociation_custom(const xAOD::Track
   ATH_MSG_DEBUG("Building track-vertex association trk size="<< trackContainer->size() 
                 << "  vtx size="<< vertexContainer->size());
   
-  // Construct object with track container input
-  // jet::TrackVertexAssociation* tva = new jet::TrackVertexAssociation(trackContainer);
   auto tva = std::make_unique<jet::TrackVertexAssociation>(trackContainer);
 
   for (size_t iTrack = 0; iTrack < trackContainer->size(); ++iTrack)

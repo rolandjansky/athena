@@ -37,9 +37,6 @@ protected:
   StatusCode processLC(xAOD::CaloClusterContainer* cont, const xAOD::Vertex *vert) const; // MEN: Might need to rename this process
   StatusCode processEM(xAOD::CaloClusterContainer* cont, const xAOD::Vertex *vert) const; // MEN: Might need to rename this process
 
-
-  // removed with transition to data handles
-  // std::string m_vertexContName = "";
   bool m_useEMScale = false;
 
 private:

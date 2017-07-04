@@ -46,10 +46,6 @@ protected:
 
   ToolHandle<InDet::IInDetTrackSelectionTool> m_hidselector;
   
-  // container names (strings) no longer used with move to data handles.
-  // std::string m_inputContainer;
-  // std::string m_outputContainer;
-
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_inCont_key;
   SG::WriteHandleKey<ConstDataVector<xAOD::TrackParticleContainer>> 
     m_outCont_key;

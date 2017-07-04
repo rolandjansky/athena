@@ -56,9 +56,6 @@ class TrackVertexAssociationTool :  virtual public asg::AsgTool,
   
 private:
 
-  // Constuct a TrackVertexAssociation using a ITrackVertexAssociationTool 
-  // object
-  // jet::TrackVertexAssociation* 
   std::unique_ptr<jet::TrackVertexAssociation>
   buildTrackVertexAssociation_withTool(const xAOD::TrackParticleContainer*, 
                                        const xAOD::VertexContainer*) const;
@@ -74,11 +71,6 @@ private:
                              bool useCustom) const;
 
   ToolHandle<CP::ITrackVertexAssociationTool> m_tvaTool;
-
-  // Switched to data handles, following strings no longer used:
-  // std::string m_trackContainer;
-  // std::string m_vertexContainer;
-  // std::string m_tvaStoreName;
 
   // old Configurable parameters
 

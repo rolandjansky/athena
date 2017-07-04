@@ -7,8 +7,6 @@
 JetTrackSelectionTool::JetTrackSelectionTool(const std::string &name):
   asg::AsgTool(name), m_hidselector("") {
   declareProperty("Selector", m_hidselector);
-  // declareProperty("InputContainer",m_inputContainer);
-  // declareProperty("OutputContainer",m_outputContainer);
 
   declareProperty("InputContainer",m_inCont_key);
   declareProperty("OutputContainer",m_outCont_key);
@@ -41,15 +39,6 @@ int JetTrackSelectionTool::execute() const {
   
   auto inCont = handle_in.cptr();
 
-  // const xAOD::TrackParticleContainer* inCont;
-  // StatusCode sc = evtStore()->retrieve(inCont,m_inputContainer);
-  //if ( sc.isFailure() ) {ATH_MSG_ERROR("Can't retrieve input track container "<< m_inputContainer); return 1;}
-
-
-
-  // ConstDataVector<xAOD::TrackParticleContainer> *pOutCont = 
-  // new ConstDataVector< xAOD::TrackParticleContainer> (SG::VIEW_ELEMENTS);
-
   using OutContType = ConstDataVector<xAOD::TrackParticleContainer>;
   OutContType* pOutCont = new OutContType(SG::VIEW_ELEMENTS);
 
@@ -64,9 +53,6 @@ int JetTrackSelectionTool::execute() const {
     return 1;
   }
 
-  // ATH_MSG_DEBUG(" in size = "<< inCont->size() << " outSize="<< outCont->size());
-  // sc = evtStore()->record( outCont, m_outputContainer);
-  // if ( sc.isFailure() ) {ATH_MSG_ERROR("Can't record output track container "<< m_outputContainer); return 1;}
   return 0;
 }
 

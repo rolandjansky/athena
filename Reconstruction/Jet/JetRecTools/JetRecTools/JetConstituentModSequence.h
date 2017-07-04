@@ -21,11 +21,8 @@
 #include "xAODCore/ShallowCopy.h"
 
 #include "xAODBase/IParticleContainer.h"
-// #include "xAODCaloEvent/CaloCluster.h" 
 #include "xAODCaloEvent/CaloClusterContainer.h"
-// #include "xAODTruth/TruthParticle.h" 
 #include "xAODTruth/TruthParticleContainer.h" 
-// #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODPFlow/PFOContainer.h"
 
