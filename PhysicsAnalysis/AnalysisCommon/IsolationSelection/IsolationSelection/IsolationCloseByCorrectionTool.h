@@ -99,6 +99,9 @@ namespace CP {
             double ConeSize(const xAOD::IParticle* P, IsoType Cone) const;
             //Retrieves the uncalibrated pt from the particle
             double UnCalibPt(const xAOD::IParticle* P) const;
+            //Which particles shall actually be corrected
+            bool PassSelectionQuality(const xAOD::IParticle* P) const;
+            bool ConsiderForCorrection(const xAOD::IParticle* P) const;
 
             //Some helper functions for Overlap and DeltaR
             bool IsSame(const xAOD::IParticle* P, const xAOD::IParticle* P1) const;
@@ -128,7 +131,7 @@ namespace CP {
             void GetClusterCandidates(const xAOD::IParticleContainer* Container, ClusterCollection& Clusters) const;
 
             float ClusterEtMinusTile(const xAOD::CaloCluster* C) const;
-            bool ConsiderForCorrection(const xAOD::IParticle* P) const;
+
 
             std::string particleName(const xAOD::IParticle* C) const;
 
@@ -162,8 +165,13 @@ namespace CP {
             std::string m_passOR_name;
             std::string m_isoSelection_name;
 
+            std::string m_ToCorrect_name;
+
             SelectionAccessor m_acc_quality;
             SelectionAccessor m_acc_passOR;
+
+            SelectionAccessor m_acc_ToCorrect;
+
             SelectionDecorator m_dec_isoselection;
 
             //Functionallity to backup the original cone variables if needed
