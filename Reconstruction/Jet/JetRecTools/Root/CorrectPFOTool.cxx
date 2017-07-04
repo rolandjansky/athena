@@ -9,7 +9,10 @@
 #include "xAODTracking/VertexContainer.h" 
 #include <cmath>
 
-CorrectPFOTool::CorrectPFOTool(const std::string &name): JetConstituentModifierBase(name), m_weightPFOTool("WeightPFOTool"), m_trkVtxAssocName("JetTrackVtxAssoc") {
+CorrectPFOTool::CorrectPFOTool(const std::string &name):
+  JetConstituentModifierBase(name), 
+  m_weightPFOTool(""),
+  m_trkVtxAssocName("JetTrackVtxAssoc") {
 
 
   declareProperty("WeightPFOTool",   m_weightPFOTool,    "Name of tool that extracts the cPFO weights.");
@@ -28,6 +31,9 @@ StatusCode CorrectPFOTool::initialize() {
     ATH_MSG_ERROR("ChargedHadronSubtractionTool requires PFO inputs. It cannot operate on objects of type "
 		  << m_inputType);
     return StatusCode::FAILURE;
+  }
+  if(m_useChargedWeights) {
+    ATH_CHECK( m_weightPFOTool.retrieve() );
   }
   return StatusCode::SUCCESS;
 }
@@ -126,21 +132,16 @@ StatusCode CorrectPFOTool::correctPFO(xAOD::PFOContainer& cont) const {
 	}
       }
 
-      if ( true == matchedToPrimaryVertex || !m_applyCHS){
-	if (true == m_useChargedWeights) {
-	  float weight = 0.0;
-	  ATH_CHECK( m_weightPFOTool->fillWeight( *ppfo, weight ) );
-	  //if (weight>FLT_MIN){ // check against float precision
-	  ATH_MSG_VERBOSE("Fill pseudojet for CPFO with weighted pt: " << ppfo->pt()*weight);
-	  ppfo->setP4(ppfo->p4()*weight);
-	  //} else {
-	  //  ATH_MSG_VERBOSE("CPFO had a weight of 0, do not fill.");
-	  //} // received a weight
-	}//if should use charged PFO weighting scheme
-      }
-      if ( false == matchedToPrimaryVertex && m_applyCHS){
-        ppfo->setP4(0,0,0,0);
-      }
+      if (true == m_useChargedWeights) {
+	float weight = 0.0;
+	ATH_CHECK( m_weightPFOTool->fillWeight( *ppfo, weight ) );
+	//if (weight>FLT_MIN){ // check against float precision
+	ATH_MSG_VERBOSE("Fill pseudojet for CPFO with weighted pt: " << ppfo->pt()*weight);
+	ppfo->setP4(ppfo->p4()*weight);
+	//} else {
+	//  ATH_MSG_VERBOSE("CPFO had a weight of 0, do not fill.");
+	//} // received a weight
+      }//if should use charged PFO weighting scheme
     }
     PVMatchedAcc(*ppfo) = matchedToPrimaryVertex;
   }
