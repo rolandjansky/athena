@@ -25,7 +25,7 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
         job += CfgGetter.getAlgorithm("PixelOverlayDigitization")
 
         if readBS and isRealData:
-           job.InDetPixelRawDataProvider.RDOKey = "OriginalEvent_SG/PixelRDOs"
+           job.InDetPixelRawDataProvider.RDOKey = "OriginalEvent_SG+PixelRDOs"
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "PixelRDO_Container/PixelRDOs" ]
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "Trk::PixelClusterContainer/PixelOnlineClusters" ]
 
@@ -54,9 +54,9 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
         CfgGetter.getPublicTool("SCT_DigitizationTool").InputObjectName="SCT_Hits"
         if readBS and isRealData:
            #job.InDetSCTRawDataProvider.EvtStore = "OriginalEvent_SG"
-           job.InDetSCTRawDataProvider.RDOKey = "OriginalEvent_SG/SCT_RDOs"
-           job.InDetSCTRawDataProvider.LVL1IDKey = "OriginalEvent_SG/SCT_LVL1ID"
-           job.InDetSCTRawDataProvider.BCIDKey = "OriginalEvent_SG/SCT_BCID"
+           job.InDetSCTRawDataProvider.RDOKey = "OriginalEvent_SG+SCT_RDOs"
+           job.InDetSCTRawDataProvider.LVL1IDKey = "OriginalEvent_SG+SCT_LVL1ID"
+           job.InDetSCTRawDataProvider.BCIDKey = "OriginalEvent_SG+SCT_BCID"
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "SCT_RDO_Container/SCT_RDOs" ]
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "Trk::SCT_ClusterContainer/SCT_OnlineClusters" ]
 
@@ -70,7 +70,7 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
 
         if readBS and isRealData:
            job.InDetTRTRawDataProvider.EvtStore = "OriginalEvent_SG"
-           job.InDetTRTRawDataProvider.RDOKey = "OriginalEvent_SG/TRT_RDOs"
+           job.InDetTRTRawDataProvider.RDOKey = "OriginalEvent_SG+TRT_RDOs"
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TRT_RDO_Container/TRT_RDOs" ]
   
            from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc

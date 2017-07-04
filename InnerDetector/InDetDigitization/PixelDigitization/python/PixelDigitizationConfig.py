@@ -233,8 +233,8 @@ def PixelDigitizationToolSplitNoMergePU(name="PixelDigitizationToolSplitNoMergeP
 def PixelOverlayDigitizationTool(name="PixelOverlayDigitizationTool",**kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     kwargs.setdefault("EvtStore", overlayFlags.evtStore())
-    kwargs.setdefault("RDOCollName", overlayFlags.evtStore()+"/PixelRDOs")
-    kwargs.setdefault("SDOCollName", overlayFlags.evtStore()+"/PixelSDO_Map")
+    kwargs.setdefault("RDOCollName", overlayFlags.evtStore() + "+PixelRDOs")
+    kwargs.setdefault("SDOCollName", overlayFlags.evtStore() + "+PixelSDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     return BasicPixelDigitizationTool(name,**kwargs)
 
