@@ -525,6 +525,7 @@ xAODEventSelector::createAddress( const Context& /*refCtx*/,
 StatusCode
 xAODEventSelector::releaseContext( Context*& refCtxt ) const
 {
+  if(refCtxt==0) return StatusCode::SUCCESS; //added to avoid warning from MetaDataSvc, which passes an empty context
   xAODEventContext *ctx  = dynamic_cast<xAODEventContext*>(refCtxt);
   if ( ctx )   {
     delete ctx; ctx = 0;
