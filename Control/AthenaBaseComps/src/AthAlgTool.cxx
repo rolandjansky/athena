@@ -30,7 +30,8 @@ AthAlgTool::AthAlgTool( const std::string& type,
   ::AthMessaging ( msgSvc(),     name ),
   m_evtStore     ( "StoreGateSvc/StoreGateSvc",  name ),
   m_detStore     ( "StoreGateSvc/DetectorStore", name ),
-  m_userStore    ( "UserDataSvc/UserDataSvc", name )
+  m_userStore    ( "UserDataSvc/UserDataSvc", name ),
+  m_varHandleArraysDeclared (false)
 {
   //
   // Property declaration
@@ -69,6 +70,78 @@ AthAlgTool::~AthAlgTool()
 { 
   ATH_MSG_DEBUG ("Calling destructor");
 }
+
+
+/**
+ * @brief Perform system initialization for a tool.
+ *
+ * We override this to declare all the elements of handle key arrays
+ * at the end of initialization.
+ * See comments on updateVHKA.
+ */
+StatusCode AthAlgTool::sysInitialize()
+{
+  ATH_CHECK( AlgTool::sysInitialize() );
+
+  for (SG::VarHandleKeyArray* a : m_vhka) {
+    for (SG::VarHandleKey* k : a->keys()) {
+      this->declare (*k);
+      k->setOwner(this);
+    }
+  }
+  m_varHandleArraysDeclared = true;
+
+  return StatusCode::SUCCESS;
+}
+
+
+/**
+ * @brief Return this tool's input handles.
+ *
+ * We override this to include handle instances from key arrays
+ * if they have not yet been declared.
+ * See comments on updateVHKA.
+ */
+std::vector<Gaudi::DataHandle*> AthAlgTool::inputHandles() const
+{
+  std::vector<Gaudi::DataHandle*> v = AlgTool::inputHandles();
+
+  if (!m_varHandleArraysDeclared) {
+    for (SG::VarHandleKeyArray* a : m_vhka) {
+      for (SG::VarHandleKey* k : a->keys()) {
+        if (!(k->mode() & Gaudi::DataHandle::Reader)) break;
+        v.push_back (k);
+      }
+    }
+  }
+
+  return v;
+}
+
+
+/**
+ * @brief Return this tool's output handles.
+ *
+ * We override this to include handle instances from key arrays
+ * if they have not yet been declared.
+ * See comments on updateVHKA.
+ */
+std::vector<Gaudi::DataHandle*> AthAlgTool::outputHandles() const
+{
+  std::vector<Gaudi::DataHandle*> v = AlgTool::outputHandles();
+
+  if (!m_varHandleArraysDeclared) {
+    for (SG::VarHandleKeyArray* a : m_vhka) {
+      for (SG::VarHandleKey* k : a->keys()) {
+        if (!(k->mode() & Gaudi::DataHandle::Writer)) break;
+        v.push_back (k);
+      }
+    }
+  }
+
+  return v;
+}
+
 
 /////////////////////////////////////////////////////////////////// 
 // Const methods: 

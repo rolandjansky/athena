@@ -21,6 +21,16 @@
 
 namespace ViewHelper
 {
+
+  namespace impl {
+    class SaveAndRestoreContext {
+    public:
+      SaveAndRestoreContext() : m_context(  Gaudi::Hive::currentContext() ) {}
+      ~SaveAndRestoreContext() { Gaudi::Hive::setCurrentContext (m_context); }
+    private:
+      EventContext m_context;
+    };
+  }
 	//Function to create a vector of views, each populated with one data object
 	template< typename T >
 	inline StatusCode MakeAndPopulate( std::string const& ViewNameRoot, std::vector< SG::View* > & ViewVector,
@@ -92,6 +102,7 @@ namespace ViewHelper
 	inline StatusCode RunViews( std::vector< SG::View* > const& ViewVector, std::vector< std::string > const& AlgorithmNames,
 			EventContext const& InputContext, SmartIF< IService > & AlgPool )
 	{
+	  impl::SaveAndRestoreContext restoreContext;
 		//Check there is work to do
 		if ( !ViewVector.size() || !AlgorithmNames.size() )
 		{
@@ -125,6 +136,7 @@ namespace ViewHelper
 	  if ( contexts.empty() )
 	    return StatusCode::SUCCESS;
 	  
+	  impl::SaveAndRestoreContext restoreContext;
 	  tbb::task_list allTasks;
 	  for ( EventContext& ctx: contexts ) {
 

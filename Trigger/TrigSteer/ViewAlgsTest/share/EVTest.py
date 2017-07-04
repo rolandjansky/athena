@@ -82,45 +82,23 @@ viewAlgsContainer += viewAlg
 svcMgr.ViewAlgPool.TopAlg += [ viewAlg.getFullName() ]
 #topSequence += allViewAlgs
 
-
+algs=[]
 from ViewAlgsTest.ViewAlgsTestConf import TestViewDriver
-EMViewsMaker = TestViewDriver( "EMViewsMaker", OutputLevel = DEBUG, RoIsContainer = 'L1EMRoIs', RoIsViewOutput="InViewRoI", ClustersViewInput="ViewClusters", ViewAlgorithmNames = [ viewAlg.name() ] )
+EMViewsMaker = TestViewDriver( "EMViewsMaker", OutputLevel = DEBUG, 
+                               RoIsContainer = 'L1EMRoIs', RoIsViewOutput="InViewRoI", 
+                               ClustersViewInput="ViewClusters", Views="EMClusterViews", 
+                               ViewAlgorithmNames = [ viewAlg.name() ] )
+algs.append( EMViewsMaker )
+
+if 'doMerging' in dir() and  doMerging == True:
+    from ViewAlgsTest.ViewAlgsTestConf import TestViewMerger    
+    EMViewsMerger = TestViewMerger("EMViewsMerger", OutputLevel = DEBUG, 
+                                   Views = "EMClusterViews", ClustersViewInput = "ViewClusters", 
+                                   ClustersOutput = "EMClusters")
+    algs.append( EMViewsMerger )
 
 
-
-# if True:
-#   from AthenaCommon.AlgSequence import AthSequencer
-#   allViewAlgorithms = AthSequencer( "allViewAlgorithms" )
-#   allViewAlgorithms += CfgMgr.AthPrescaler( "alwaysFail" )
-#   allViewAlgorithms.alwaysFail.PercentPass = 0.0
-
-#   # The algorithm to run inside the views
-#   from ViewAlgsTest.ViewAlgsTestConf import SchedulerProxyAlg
-#   viewAlgName = "algInView"
-#   viewAlg = SchedulerProxyAlg( viewAlgName )
-#   viewAlg.RoIsContainer = "InViewRoI"
-#   allViewAlgorithms += viewAlg
-
-#   # The pool to retrieve the view algorithm from
-#   from GaudiHive.GaudiHiveConf import AlgResourcePool
-#   viewAlgPoolName = "ViewAlgPool"
-#   svcMgr += AlgResourcePool( viewAlgPoolName )
-#   print svcMgr.ViewAlgPool
-#   svcMgr.ViewAlgPool.TopAlg = [ 'SchedulerProxyAlg/algInView' ]
-
-#   # The algorithm to launch the views
-#   from ViewAlgsTest.ViewAlgsTestConf import TestViewDriver
-#   EMViewsMaker = TestViewDriver( "EMViewsMaker" )
-#   EMViewsMaker.RoIsContainer = 'L1EMRoIs'
-#   EMViewsMaker.OutputLevel = DEBUG
-#   EMViewsMaker.ViewAlgorithmNames = [ viewAlgName ]
-#   topSequence += EMViewsMaker
-#   topSequence += allViewAlgorithms
-
-from ViewAlgsTest.ViewAlgsTestConf import TestViewDriver
-
-
-steps[1] += stepSeq("emViewReco", useExisting( "Step0EM" ), [ EMViewsMaker ] ) 
+steps[1] += stepSeq("emViewReco", useExisting( "Step0EM" ), algs ) 
 
 TopHLTSeq += addSteps( steps )
 

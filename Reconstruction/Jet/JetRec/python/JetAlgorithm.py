@@ -37,7 +37,7 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
   from JetRec.JetRecFlags import jetFlags
 
   # Import the standard jet tool manager.
-  from JetRec.JetRecStandardToolManager import jtm
+  from JetRec.JetRecStandard import jtm
 
   # Set sequence and flags as needed.
   if job == None:

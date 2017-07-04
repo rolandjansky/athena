@@ -6,7 +6,9 @@
 # Specify input file
 
 # mc15 test file
-input_file = '/afs/cern.ch/atlas/project/PAT/xAODs/r6594/valid3.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.AOD.e3099_s2578_r6594_tid05292824_00/AOD.05292824._000011.pool.root.1'
+import os
+input_file = os.getenv('ASG_TEST_FILE_MC')
+#input_file = '/afs/cern.ch/atlas/project/PAT/xAODs/r6594/valid3.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.AOD.e3099_s2578_r6594_tid05292824_00/AOD.05292824._000011.pool.root.1'
 
 import AthenaPoolCnvSvc.ReadAthenaPool
 ServiceMgr.EventSelector.InputCollections = [input_file]
@@ -19,7 +21,7 @@ theJob = AlgSequence()
 from AthenaCommon.AppMgr import ToolSvc
 from JetResolution.JetResolutionConf import JERTool, JERSmearingTool
 ToolSvc += JERTool('JERTool', CollectionName="AntiKt4EMTopoJets",
-                   OutputLevel=DEBUG)
+                   OutputLevel=INFO)
 ToolSvc += JERSmearingTool('JERSmearingTool', JERTool=ToolSvc.JERTool,
                            ApplyNominalSmearing=True, OutputLevel=DEBUG)
 
@@ -33,5 +35,4 @@ theJob += alg
 
 # Configure the job
 from AthenaCommon.AppMgr import theApp
-#theApp.EvtMax = 50
-
+theApp.EvtMax = 5

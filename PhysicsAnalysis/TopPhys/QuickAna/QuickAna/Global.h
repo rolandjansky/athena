@@ -60,6 +60,9 @@ namespace ana
     /// \brief perform the pileup reweighting
     STEP_PILEUP_REWEIGHT,
 
+    /// \brief get the trigger decision and basic trig matching
+    STEP_TRIG_DECISION,
+
     /// description: apply "corrections" independent on systematics
     //    (like adding some aux data that's independent on systematics)
     STEP_PRECORRECT,

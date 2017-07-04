@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 782306 2016-11-04 09:42:24Z krasznaa $
+# $Id: CMakeLists.txt 801794 2017-03-29 15:34:20Z elmsheus $
 ################################################################################
 # Package: JetUtils
 ################################################################################
@@ -56,6 +56,12 @@ if( NOT XAOD_STANDALONE )
       SOURCES test/JetUtils_CaloQual_test.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODCaloEvent JetUtils AthLinks SGTools
+      EXTRA_PATTERNS "no dictionary for class" )
+elseif( XAOD_STANDALONE OR XAOD_ANALYSIS )
+   atlas_add_test( JetUtils_CaloQual_test
+      SOURCES test/JetUtils_CaloQual_test.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODCaloEvent JetUtils AthLinks 
       EXTRA_PATTERNS "no dictionary for class" )
 endif()
 

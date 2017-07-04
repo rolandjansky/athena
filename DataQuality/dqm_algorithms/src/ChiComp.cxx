@@ -24,7 +24,7 @@ using namespace std;
 static dqm_algorithms::ChiComp Basic( "Basic" );
 
 dqm_algorithms::ChiComp::ChiComp( const std::string & name )
-  : name_ ( name )
+  : m_name ( name )
 {
   dqm_core::AlgorithmManager::instance().registerAlgorithm( "AlgChiComp_"+ name, this );
 }
@@ -32,7 +32,7 @@ dqm_algorithms::ChiComp::ChiComp( const std::string & name )
 dqm_algorithms::ChiComp * 
 dqm_algorithms::ChiComp::clone()
 {
-  return new ChiComp( name_ );
+  return new ChiComp( m_name );
 }
 
 
@@ -187,6 +187,6 @@ dqm_algorithms::ChiComp::execute(	const std::string & name,
 void
 dqm_algorithms::ChiComp::printDescription(std::ostream& out)
 {
-  out<<"AlgChiComp_" << name_ << ": Gives back a Chi Squared like quantity per histogram bin in comparison to a reference histogram. Note that this assumes Gaussian statistics, and handles different numbers of events per histogram correctly.  It is also fully compatible with TProfile graphs"<<std::endl;
+  out<<"AlgChiComp_" << m_name << ": Gives back a Chi Squared like quantity per histogram bin in comparison to a reference histogram. Note that this assumes Gaussian statistics, and handles different numbers of events per histogram correctly.  It is also fully compatible with TProfile graphs"<<std::endl;
   out<<"Mandatory Green/Red Threshold ChiSqPerNdof: Chi Squared per bin for Green/Red results\n"<<std::endl;
 }

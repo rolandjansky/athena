@@ -163,6 +163,9 @@ PP="$PP"'|DEBUG trying to create store'
 
 # Differences in MT build.
 PP="$PP"'|^IncidentProcAlg.* INFO|^Ath.*Seq +INFO'
+PP="$PP"'|INFO massageEventInfo:'
+PP="$PP"'|Loop Finished'
+PP="$PP"'|Terminating thread-pool resources|Joining Scheduler thread'
 
 
 if [ "$extrapatterns" != "" ]; then

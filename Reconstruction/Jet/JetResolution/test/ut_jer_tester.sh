@@ -8,4 +8,4 @@ fi
 set -e
 set -u
 
-JERTester $ASG_TEST_FILE_MC
+JERTester $ASG_TEST_FILE_MC 5

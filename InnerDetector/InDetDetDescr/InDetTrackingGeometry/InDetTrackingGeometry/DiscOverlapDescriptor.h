@@ -67,7 +67,7 @@ namespace InDet {
     }
     
     /**Pseudo-Constructor*/
-    DiscOverlapDescriptor* clone() const;
+    virtual DiscOverlapDescriptor* clone() const override;
     
     /** get the compatible surfaces 
         - return vector : surfaces

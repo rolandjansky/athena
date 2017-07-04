@@ -80,7 +80,7 @@ dqm_core::Result* dqm_algorithms::KillBinsByStrip::execute(const std::string& na
   double stripavg = 0.,striperr = 0.,striperr2 = 0.,testval = 0.;
 
   // Some parameters set by hand: move to jobOption
-  int m_PoissonLimit = 5;
+  int poissonLimit = 5;
   
 
   // loop over all strips (eta or x-axis)
@@ -120,7 +120,7 @@ dqm_core::Result* dqm_algorithms::KillBinsByStrip::execute(const std::string& na
       stripavg = projected_strip->Integral()/(double)nbins;
 
       // error on the mean: we might have to consider switching to Poisson if the number of remaining bins is low
-      if(nbins<=m_PoissonLimit){
+      if(nbins<=poissonLimit){
 
         // Poisson error calculated from mean
         striperr = sqrt(stripavg);

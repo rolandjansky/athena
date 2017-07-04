@@ -23,6 +23,14 @@
 #define TESTTOOLS_RANDOM_H
 
 
+// Can't use CxxUtils/checker_macros.h here, since that would be circular dependency.
+#ifdef ATLAS_GCC_CHECKERS
+#define ATLAS_NOT_REENTRANT [[gnu::not_reentrant]]
+#else
+#define ATLAS_NOT_REENTRANT
+#endif
+
+
 #include <stdint.h>
 
 
@@ -30,7 +38,7 @@ namespace Athena_test {
 
 
 /// Maximum number generated.
-static uint32_t rngmax = static_cast<uint32_t> (-1);
+static const uint32_t rngmax = static_cast<uint32_t> (-1);
 
 
 /// Generate a random number between 0 and @c rngmax
@@ -59,8 +67,8 @@ int randi_seed (uint32_t& seed, int rmax, int rmin = 0)
 struct RNG
 {
   RNG() : seed(1) {}
-  int operator() (int n) const { return randi_seed (seed, n); }
-  mutable uint32_t seed;
+  int operator() (int n) { return randi_seed (seed, n); }
+  uint32_t seed;
 };
 
 
@@ -69,17 +77,17 @@ struct URNG
 {
   typedef uint32_t result_type;
   URNG() : seed(1) {}
-  static result_type min() { return 0; }
-  static result_type max() { return 1000000; }
-  result_type operator()() const { return randi_seed (seed, max()); }
-  mutable uint32_t seed;
+  static constexpr result_type min() { return 0; }
+  static constexpr result_type max() { return 1000000; }
+  result_type operator()() { return randi_seed (seed, max()); }
+  uint32_t seed;
 };
 
 
 uint32_t seed = 1;
-uint32_t rng() { return rng_seed(seed); }
-int randi (int rmax, int rmin = 0) { return randi_seed (seed, rmax, rmin); }
-float randf (float rmax, float rmin = 0) { return randf_seed (seed, rmax, rmin); }
+uint32_t rng ATLAS_NOT_REENTRANT () { return rng_seed(seed); }
+int randi ATLAS_NOT_REENTRANT (int rmax, int rmin = 0) { return randi_seed (seed, rmax, rmin); }
+float randf ATLAS_NOT_REENTRANT (float rmax, float rmin = 0) { return randf_seed (seed, rmax, rmin); }
 
 
 
