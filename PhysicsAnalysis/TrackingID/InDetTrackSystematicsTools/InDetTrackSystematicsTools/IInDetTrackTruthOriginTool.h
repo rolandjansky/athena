@@ -29,8 +29,6 @@ namespace InDet {
 
   /** Computes the tracks origin */
   virtual int getTrackOrigin(const xAOD::TrackParticle* track) const = 0;
-  virtual int getTrackOrigin(const xAOD::TrackParticle* track, int &parentID) const = 0;
-
 
 }; // class IInDetTrackTruthOriginTool
 
