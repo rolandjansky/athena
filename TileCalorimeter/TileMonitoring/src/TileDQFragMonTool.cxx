@@ -624,7 +624,10 @@ void TileDQFragMonTool::fillBadDrawer() {
           int channel = m_tileHWID->channel(adcId);
           int gain = m_tileHWID->adc(adcId);
 
-          if ((error = TileRawChannelBuilder::CorruptedData(ROS, drawer, channel, gain, pDigits->samples(), dmin, dmax)) > 0) {
+          error = TileRawChannelBuilder::CorruptedData(ROS, drawer, channel, gain, pDigits->samples(), dmin, dmax);
+
+          if ((error > 0) && !(isDisconnected(ROS, drawer, channel)
+                               || m_tileBadChanTool->getAdcStatus(adcId).isBad())) {
             ++nBadCh;
             if (msgLvl(MSG::DEBUG)) {
               msg(MSG::DEBUG) << "LB " << getLumiBlock()
