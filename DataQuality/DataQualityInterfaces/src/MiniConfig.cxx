@@ -280,8 +280,8 @@ GetFloatAttribute( std::string objName, std::string attName ) const
   std::istringstream valstream(valstring);
   valstream >> val;
   if( !valstream ) {
-    std::cerr << "MiniConfig::GetFloatAttribute(): "
-              << "\"" << attName << "\" not a floating-point type\n";
+    std::cerr << "MiniConfig::GetFloatAttribute(): object \"" << objName << "\""
+              << ": \"" << attName << "\" not a floating-point type\n";
     return 0;
   }
   
