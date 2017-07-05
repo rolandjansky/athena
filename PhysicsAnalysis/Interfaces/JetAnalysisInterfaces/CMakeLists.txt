@@ -14,3 +14,8 @@ atlas_add_library( JetAnalysisInterfacesLib
    INTERFACE
    PUBLIC_HEADERS JetAnalysisInterfaces
    LINK_LIBRARIES AsgTools xAODJet PATCoreLib )
+
+atlas_add_dictionary( JetAnalysisInterfacesDict
+   JetAnalysisInterfaces/JetAnalysisInterfacesDict.h
+   JetAnalysisInterfaces/selection.xml
+   LINK_LIBRARIES JetAnalysisInterfacesLib )

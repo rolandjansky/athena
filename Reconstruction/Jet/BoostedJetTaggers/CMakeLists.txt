@@ -46,7 +46,7 @@ find_package( Boost )
 
 # Build a shared library:
 atlas_add_library( BoostedJetTaggersLib
-   BoostedJetTaggers/*.h BoostedJetTaggers/lwtnn/*.h Root/*.h Root/*.cxx ${_dictionarySource}
+   BoostedJetTaggers/*.h BoostedJetTaggers/lwtnn/*.h Root/*.h Root/*.cxx
    PUBLIC_HEADERS BoostedJetTaggers
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} AsgTools xAODBase xAODJet JetInterface JetRecLib JetEDM JetSelectorToolsLib JetCalibToolsLib MuonSelectorToolsLib MuonMomentumCorrectionsLib PATCoreLib PATInterfaces JetAnalysisInterfacesLib InDetTrackSelectionToolLib InDetTrackSystematicsToolsLib JetAnalysisInterfacesLib ${extra_libs} 
