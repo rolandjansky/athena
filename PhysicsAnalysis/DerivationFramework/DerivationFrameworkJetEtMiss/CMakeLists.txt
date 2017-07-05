@@ -21,7 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
                           PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
                           Reconstruction/Jet/JetInterface
-			  Reconstruction/PFlow/PFlowUtils
+                          Reconstruction/PFlow/PFlowUtils
                           Tools/PathResolver )
 
 # External dependencies:
@@ -33,7 +33,7 @@ atlas_add_library( DerivationFrameworkJetEtMissLib
                    NO_PUBLIC_HEADERS
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps xAODCore xAODJet xAODPFlow xAODTracking xAODTrigger xAODTruth JetInterface PathResolver PFlowUtils )
+                   PRIVATE_LINK_LIBRARIES AthenaBaseComps xAODCore xAODJet xAODPFlow xAODTracking xAODTrigger xAODTruth JetInterface PathResolver PFlowUtils xAODBTaggingEfficiencyLib )
 
 atlas_add_component( DerivationFrameworkJetEtMiss
                      src/components/*.cxx
