@@ -14,6 +14,7 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "IRegionSelector/IRegSelSvc.h"
+#include "MuonPrepRawData/MuonPrepDataContainer.h"
 /** Algorithm to decode RDO into RpcPrepData, using the Muon::RpcRdoToRpcPrepDataTool 
  @author Ketevi A. Assamagan
  @author Stefania Spagnolo
@@ -41,6 +42,7 @@ private:
     bool m_seededDecoding;
     SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
     ServiceHandle<IRegSelSvc> m_regionSelector; //<! pointer to RegionSelectionSvc
+    SG::WriteHandleKey<Muon::RpcPrepDataContainer> m_rpcCollection;
 
 };
 

@@ -19,7 +19,8 @@ TgcRdoToTgcPrepData::TgcRdoToTgcPrepData(const std::string& name, ISvcLocator* p
   m_setting(0),
   m_seededDecoding(false),
   m_roiCollectionKey("OutputRoIs"),
-  m_regionSelector("RegSelSvc",name)
+  m_regionSelector("RegSelSvc",name),
+  m_tgcCollection("TGC_Measurements")
 {
   declareProperty("DecodingTool",       m_tool,       "tgc rdo to prep data conversion tool" );
   declareProperty("PrintInputRdo",      m_print_inputRdo, "If true, will dump information about the input RDOs");
@@ -28,6 +29,7 @@ TgcRdoToTgcPrepData::TgcRdoToTgcPrepData(const std::string& name, ISvcLocator* p
   declareProperty("DoSeededDecoding",   m_seededDecoding, "If true decode only in RoIs");
   declareProperty("RoIs",               m_roiCollectionKey, "RoIs to read in");
   declareProperty("RegionSelectorSvc",  m_regionSelector, "Region Selector");
+  declareProperty("OutputCollection",   m_tgcCollection);
 
   // m_setting=314321 means 
   // Execution #0 is mode=1 unseeded mode
@@ -80,14 +82,19 @@ StatusCode TgcRdoToTgcPrepData::initialize(){
     }
   }
   //Nullify key from scheduler if not needed
-  if(!m_seededDecoding) m_roiCollectionKey = "";
+  if(!m_seededDecoding){
+    m_roiCollectionKey = "";
+    m_tgcCollection="";
+  }
   if(m_seededDecoding){
     ATH_CHECK(m_roiCollectionKey.initialize());
+    ATH_CHECK(m_tgcCollection.initialize());
     if (m_regionSelector.retrieve().isFailure()) {
       ATH_MSG_FATAL("Unable to retrieve RegionSelector Svc");
       return StatusCode::FAILURE;
     }
   }
+
 
   return StatusCode::SUCCESS;
 }
@@ -99,6 +106,7 @@ StatusCode TgcRdoToTgcPrepData::execute() {
     
 
   if(m_seededDecoding){ //decoding from trigger RoI
+    bool decoded = false;
     SG::ReadHandle<TrigRoiDescriptorCollection> muonRoI(m_roiCollectionKey);
     if(!muonRoI.isValid()){
       ATH_MSG_WARNING("Cannot retrieve muonRoI "<<m_roiCollectionKey.key());
@@ -112,7 +120,14 @@ StatusCode TgcRdoToTgcPrepData::execute() {
 	if(tgchashids.size()!=0){
 	  ATH_CHECK(m_tool->decode(tgchashids, hash_ids_withData));
 	  tgchashids.clear();
+	  decoded=true;
 	}
+      }
+      if(!decoded){
+	//Need to store an empty prd container if we didn't decode anything
+	//as the container is expected to exist downstream
+	SG::WriteHandle<Muon::TgcPrepDataContainer> h_output (m_tgcCollection);
+	ATH_CHECK(h_output.record(std::make_unique<Muon::TgcPrepDataContainer>(0)));
       }
     }
 
