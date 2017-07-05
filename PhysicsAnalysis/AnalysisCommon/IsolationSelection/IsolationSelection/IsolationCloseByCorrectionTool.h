@@ -62,15 +62,15 @@ namespace CP {
             virtual CorrectionCode getCloseByIsoCorrection(xAOD::ElectronContainer* Electrons = nullptr, xAOD::MuonContainer* Muons = nullptr, xAOD::PhotonContainer* Photons = nullptr, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const;
             virtual CorrectionCode subtractCloseByContribution(xAOD::IParticle& x, const xAOD::IParticleContainer& closebyPar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const;
 
-            virtual float GetOriginalIsolation(const xAOD::IParticle& P, IsoType type) const;
-            virtual float GetOriginalIsolation(const xAOD::IParticle*  particle, IsoType type) const;
+            virtual float getOriginalIsolation(const xAOD::IParticle& P, IsoType type) const;
+            virtual float getOriginalIsolation(const xAOD::IParticle*  particle, IsoType type) const;
 
         private:
 
-            void IsoTypesFromWP(const std::vector<IsolationWP*> &WP, IsoVector & types);
+            void isoTypesFromWP(const std::vector<IsolationWP*> &WP, IsoVector & types);
             //Helper function to check whether an element is in the vector
-            template<typename T> bool IsElementInList(const std::vector<T> &List, const T& Element) const;
-            template<typename T> bool IsElementInList(const std::set<T> &List, const T& Element) const;
+            template<typename T> bool isElementInList(const std::vector<T> &List, const T& Element) const;
+            template<typename T> bool isElementInList(const std::set<T> &List, const T& Element) const;
 
             CorrectionCode performCloseByCorrection(xAOD::IParticleContainer* Particles, const TrackCollection& AssocTracks, const ClusterCollection& AssocClusters) const;
             CorrectionCode performCloseByCaloCorrection(xAOD::IParticleContainer* Cont1, xAOD::IParticleContainer* Cont2) const;
@@ -88,41 +88,41 @@ namespace CP {
             void getExtrapEtaPhi(const xAOD::IParticle*  particlear, float& eta, float& phi) const;
 
             //Returns the Size of the Isolation cone
-            double ConeSize(const xAOD::IParticle*  particle, IsoType Cone) const;
+            double coneSize(const xAOD::IParticle*  particle, IsoType Cone) const;
             //Retrieves the uncalibrated pt from the particle
-            double UnCalibPt(const xAOD::IParticle*  particle) const;
+            double unCalibPt(const xAOD::IParticle*  particle) const;
             //Which particles shall actually be corrected
-            bool PassSelectionQuality(const xAOD::IParticle*  particle) const;
-            bool ConsiderForCorrection(const xAOD::IParticle*  particle) const;
+            bool passSelectionQuality(const xAOD::IParticle*  particle) const;
+            bool considerForCorrection(const xAOD::IParticle*  particle) const;
 
             //Some helper functions for Overlap and DeltaR
-            bool IsSame(const xAOD::IParticle*  particle, const xAOD::IParticle*  particle1) const;
-            bool Overlap(const xAOD::IParticle*  particle, const xAOD::IParticle*  particle1, double dR) const;
-            double DeltaR2(const xAOD::IParticle*  particle, const xAOD::IParticle*  particle1, bool AvgCalo = false) const;
+            bool isSame(const xAOD::IParticle*  particle, const xAOD::IParticle*  particle1) const;
+            bool overlap(const xAOD::IParticle*  particle, const xAOD::IParticle*  particle1, double dR) const;
+            double deltaR2(const xAOD::IParticle*  particle, const xAOD::IParticle*  particle1, bool AvgCalo = false) const;
 
-            float CaloCorrectionFraction(const xAOD::IParticle*  particle, const xAOD::IParticle*  particle1, float ConeSize, int Model) const;
-            float CaloCorrectionFromDecorator(const xAOD::IParticle* ToCorrect, const xAOD::IParticle* CloseBy, float ConeSize, int Model) const;
+            float caloCorrectionFraction(const xAOD::IParticle*  particle, const xAOD::IParticle*  particle1, float ConeSize, int Model) const;
+            float caloCorrectionFromDecorator(const xAOD::IParticle* ToCorrect, const xAOD::IParticle* CloseBy, float ConeSize, int Model) const;
 
-            bool IsFixedTrackIso(xAOD::Iso::IsolationType Iso) const;
-            bool IsVarTrackIso(xAOD::Iso::IsolationType Iso) const;
-            bool IsTrackIso(xAOD::Iso::IsolationType Iso) const;
-            bool IsTopoEtIso(xAOD::Iso::IsolationType Iso) const;
+            bool isFixedTrackIso(xAOD::Iso::IsolationType Iso) const;
+            bool isVarTrackIso(xAOD::Iso::IsolationType Iso) const;
+            bool isTrackIso(xAOD::Iso::IsolationType Iso) const;
+            bool isTopoEtIso(xAOD::Iso::IsolationType Iso) const;
 
-            bool IsEgamma(const xAOD::IParticle*  particle) const;
+            bool isEgamma(const xAOD::IParticle*  particle) const;
 
             const xAOD::TrackParticle* getTrackParticle(const xAOD::IParticle*  particlear) const;
-            const xAOD::IParticle* TrackIsoRefPart(const xAOD::IParticle*  particle) const;
+            const xAOD::IParticle* trackIsoRefPart(const xAOD::IParticle*  particle) const;
 
-            TrackCollection GetAssociatedTracks(const xAOD::IParticle*  particle) const;
-            void GetTrackCandidates(const xAOD::IParticleContainer* Container, const xAOD::Vertex* Vtx, TrackCollection &Tracks) const;
+            TrackCollection getAssociatedTracks(const xAOD::IParticle*  particle) const;
+            void getTrackCandidates(const xAOD::IParticleContainer* Container, const xAOD::Vertex* Vtx, TrackCollection &Tracks) const;
 
-            const xAOD::IParticle* TopoEtIsoRefPart(const xAOD::IParticle*  particle) const;
-            const xAOD::CaloCluster* Cluster(const xAOD::IParticle*  particle) const;
+            const xAOD::IParticle* topoEtIsoRefPart(const xAOD::IParticle*  particle) const;
+            const xAOD::CaloCluster* getCluster(const xAOD::IParticle*  particle) const;
 
-            ClusterCollection GetAssociatedClusters(const xAOD::IParticle*  particle) const;
-            void GetClusterCandidates(const xAOD::IParticleContainer* Container, ClusterCollection& Clusters) const;
+            ClusterCollection getAssociatedClusters(const xAOD::IParticle*  particle) const;
+            void getClusterCandidates(const xAOD::IParticleContainer* Container, ClusterCollection& Clusters) const;
 
-            float ClusterEtMinusTile(const xAOD::CaloCluster* C) const;
+            float clusterEtMinusTile(const xAOD::CaloCluster* C) const;
 
             std::string particleName(const xAOD::IParticle* C) const;
 

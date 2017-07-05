@@ -41,8 +41,8 @@ namespace CP {
             virtual CorrectionCode getCloseByIsoCorrection(xAOD::ElectronContainer* Electrons = nullptr, xAOD::MuonContainer* Muons = nullptr, xAOD::PhotonContainer* Photons = nullptr, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const=0;
             virtual CorrectionCode subtractCloseByContribution(xAOD::IParticle& x, const xAOD::IParticleContainer& closebyPar, int topoetconeModel = TopoConeCorrectionModel::DirectCaloClusters) const= 0;
 
-            virtual float GetOriginalIsolation(const xAOD::IParticle& P, IsoType type) const=0;
-            virtual float GetOriginalIsolation(const xAOD::IParticle* P, IsoType type) const=0;
+            virtual float getOriginalIsolation(const xAOD::IParticle& P, IsoType type) const=0;
+            virtual float getOriginalIsolation(const xAOD::IParticle* P, IsoType type) const=0;
 
             virtual ~IIsolationCloseByCorrectionTool() {
             }

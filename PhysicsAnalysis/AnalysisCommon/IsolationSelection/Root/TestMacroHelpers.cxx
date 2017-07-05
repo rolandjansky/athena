@@ -133,9 +133,9 @@ namespace CP {
     StatusCode IsoCorrectionTestHelper::FillIsolationBranches(const xAOD::IParticle* P, const IsoHelperPtr & Acc, std::vector<float> &Original, std::vector<float> &Corrected) {
         if (!Acc.get()) return StatusCode::SUCCESS;
         float IsoValue;
-        if (Acc->GetOrignalIsolation(P, IsoValue).code() != CorrectionCode::Ok) return StatusCode::FAILURE;
+        if (Acc->getOrignalIsolation(P, IsoValue).code() != CorrectionCode::Ok) return StatusCode::FAILURE;
         Original.push_back(IsoValue);
-        if (Acc->GetIsolation(P, IsoValue).code() != CorrectionCode::Ok) return StatusCode::FAILURE;
+        if (Acc->getIsolation(P, IsoValue).code() != CorrectionCode::Ok) return StatusCode::FAILURE;
         Corrected.push_back(IsoValue);
         return StatusCode::SUCCESS;
     }

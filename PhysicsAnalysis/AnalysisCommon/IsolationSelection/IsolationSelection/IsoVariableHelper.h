@@ -19,10 +19,10 @@ namespace CP {
 
     class IsoVariableHelper {
         public:
-            CorrectionCode GetOrignalIsolation(const xAOD::IParticle*  particle, float& value) const;
-            CorrectionCode GetIsolation(const xAOD::IParticle*  particle, float& value) const;
-            CorrectionCode BackupIsolation(const xAOD::IParticle*  particle) const;
-            CorrectionCode SetIsolation(xAOD::IParticle* P, float value) const;
+            CorrectionCode getOrignalIsolation(const xAOD::IParticle*  particle, float& value) const;
+            CorrectionCode getIsolation(const xAOD::IParticle*  particle, float& value) const;
+            CorrectionCode backupIsolation(const xAOD::IParticle*  particle) const;
+            CorrectionCode setIsolation(xAOD::IParticle* P, float value) const;
 
             IsoType isotype() const;
             std::string name() const;

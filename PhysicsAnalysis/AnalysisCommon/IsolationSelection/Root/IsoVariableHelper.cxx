@@ -24,17 +24,17 @@ namespace CP {
                 m_dec_iso_backup(std::string(xAOD::Iso::toString(type)) + (BackupPreFix.empty() ? "" : "_") + BackupPreFix) {
     }
 
-    CorrectionCode IsoVariableHelper::GetOrignalIsolation(const xAOD::IParticle* particle, float& value) const {
+    CorrectionCode IsoVariableHelper::getOrignalIsolation(const xAOD::IParticle* particle, float& value) const {
         if (!particle) {
             Error("IsoVariableHelper::GetOrignalIsolation()", "No particle given");
             return CorrectionCode::Error;
         }
         if (!m_BackupIso) {
             const xAOD::IParticle* originalParticle = xAOD::getOriginalObject(*particle);
-            if (originalParticle && GetIsolation(originalParticle, value) == CorrectionCode::Error) return CorrectionCode::Error;
+            if (originalParticle && getIsolation(originalParticle, value) == CorrectionCode::Error) return CorrectionCode::Error;
             else if (!originalParticle) {
                 Warning("IsoVariableHelper::GetOrignalIsolation()", "No original object was found");
-                return GetIsolation(particle, value);
+                return getIsolation(particle, value);
             }
         } else {
             if (!m_acc_IsoIsBackup.isAvailable(*particle) || !m_acc_IsoIsBackup(*particle)) {
@@ -47,7 +47,7 @@ namespace CP {
         return CorrectionCode::Ok;
 
     }
-    CorrectionCode IsoVariableHelper::GetIsolation(const xAOD::IParticle* particle, float& value) const {
+    CorrectionCode IsoVariableHelper::getIsolation(const xAOD::IParticle* particle, float& value) const {
         if (!particle || !m_acc_iso_variable.isAvailable(*particle)) {
             Error("IsoVariableHelper::GetIsolation()", "Failed to retrieve isolation %s", xAOD::Iso::toString(isotype()));
             return CorrectionCode::Error;
@@ -55,14 +55,14 @@ namespace CP {
         value = m_acc_iso_variable(*particle);
         return CorrectionCode::Ok;
     }
-    CorrectionCode IsoVariableHelper::BackupIsolation(const xAOD::IParticle* particle) const {
+    CorrectionCode IsoVariableHelper::backupIsolation(const xAOD::IParticle* particle) const {
         if (!particle) {
             Error("IsoVariableHelper::GetIsolation()", "No particle  given");
             return CorrectionCode::Error;
         }
         if (m_BackupIso && (!m_acc_IsoIsBackup.isAvailable(*particle) || !m_acc_IsoIsBackup(*particle))) {
             float Isovalue = 0;
-            if (GetIsolation(particle, Isovalue) == CorrectionCode::Error) {
+            if (getIsolation(particle, Isovalue) == CorrectionCode::Error) {
                 return CorrectionCode::Error;
             }
             m_dec_IsoIsBackup(*particle) = true;
@@ -70,7 +70,7 @@ namespace CP {
         }
         return CorrectionCode::Ok;
     }
-    CorrectionCode IsoVariableHelper::SetIsolation(xAOD::IParticle* particle, float value) const {
+    CorrectionCode IsoVariableHelper::setIsolation(xAOD::IParticle* particle, float value) const {
         if (!particle) {
             Error("IsoVariableHelper::SetIsolation()", "No particle given");
             return CorrectionCode::Error;
