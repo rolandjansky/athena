@@ -1871,19 +1871,30 @@ class tagMergeExecutor(scriptExecutor):
 ## @brief Archive transform - use tar
 class archiveExecutor(scriptExecutor):
 
+    def __init__(self, name = 'Archiver', exe = 'zip'):
+        super(archiveExecutor, self).__init__(name=name, exe=exe, memMonitor=False)
+
     def preExecute(self, input = set(), output = set()):
         self.setPreExeStart()
-        # Set the correct command for execution
-        self._cmd = [self._exe, '-c', '-v',]
-        if 'compressionType' in self.conf.argdict.keys():
-            if self.conf.argdict['compressionType'] == 'gzip':
-                self._cmd.append('-z')
-            elif self.conf.argdict['compressionType'] == 'bzip2':
-                self._cmd.append('-j')
-            elif self.conf.argdict['compressionType'] == 'none':
-                pass
-        self._cmd.extend(['-f', self.conf.argdict['outputArchFile'].value[0]])
-        self._cmd.extend(self.conf.argdict['inputDataFile'].value)
-        
-        super(archiveExecutor, self).preExecute(input=input, output=output)
 
+        if 'exe' in self.conf.argdict:
+            self._exe = self.conf.argdict['exe']
+
+        if self._exe == 'tar':
+            self._cmd = [self._exe, '-c', '-v',]
+            self._cmd.extend(['-f', self.conf.argdict['outputArchFile'].value[0]])
+            if 'compressionType' in self.conf.argdict:
+                if self.conf.argdict['compressionType'] == 'gzip':
+                    self._cmd.append('-z')
+                elif self.conf.argdict['compressionType'] == 'bzip2':
+                    self._cmd.append('-j')
+                elif self.conf.argdict['compressionType'] == 'none':
+                    pass
+        elif self._exe == 'zip':
+            self._cmd = [self._exe]
+            self._cmd.extend([self.conf.argdict['outputArchFile'].value[0]])
+            if '.' not in self.conf.argdict['outputArchFile'].value[0]:
+                errmsg = 'Output filename must end in ".", ".zip" or ".anyname" '
+                raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'), errmsg)
+        self._cmd.extend(self.conf.argdict['inputDataFile'].value)
+        super(archiveExecutor, self).preExecute(input=input, output=output)
