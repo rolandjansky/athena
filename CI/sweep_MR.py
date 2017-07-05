@@ -317,7 +317,6 @@ def main():
 
     # do the actual cherry-picking
     for mr in MR_list:
-        print "*************** DBG: for mr in MR_list: ********************************** "
         cherry_pick_mr(mr,args.branch,target_branch_rules,project,args.dry_run)
 
     # change back to initial directory
