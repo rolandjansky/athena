@@ -17,7 +17,7 @@ TaggerType: TopQuark
 
 DecorationName: TopoclusterTopTaggerScoreTopQuark
 
-KerasConfigFile:  TopoclusterTopTaggerDNN_TEST_20170519.json
+KerasConfigFile:  TopoclusterTopTaggerDNN_Training_20170701.json
 
 KerasOutput: HFT_MVA
 
