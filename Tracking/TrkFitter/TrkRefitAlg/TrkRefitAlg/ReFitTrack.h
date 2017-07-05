@@ -10,7 +10,7 @@
 #define TRKREFITALG_REFITTRACK_H
 
 // Base class
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/MsgStream.h"
@@ -43,7 +43,7 @@ class IPRD_AssociationTool;
      @author Maria.Jose.Costa@cern.ch, Andreas.Salzburger@cern.ch
      */
  
-class ReFitTrack : public AthReentrantAlgorithm  {
+class ReFitTrack : public AthAlgorithm  {
 
 public:
 
@@ -53,7 +53,7 @@ public:
   ReFitTrack(const std::string &name,ISvcLocator *pSvcLocator);
 
   virtual StatusCode initialize();
-  virtual StatusCode execute_r(const EventContext& ctx) const;
+  virtual StatusCode execute();
   virtual StatusCode finalize();
 
 private:

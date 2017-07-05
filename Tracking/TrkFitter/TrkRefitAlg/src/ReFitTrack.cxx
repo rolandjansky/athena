@@ -35,7 +35,7 @@
 
 // Constructor with parameters:
 Trk::ReFitTrack::ReFitTrack(const std::string &name, ISvcLocator *pSvcLocator) :
-  AthReentrantAlgorithm(name,pSvcLocator),
+  AthAlgorithm(name,pSvcLocator),
   m_TrackName("Tracks"),
   m_NewTrackName("ReFitted_Tracks"),
   m_runOutlier(false),
@@ -152,7 +152,7 @@ StatusCode Trk::ReFitTrack::initialize()
 }
 
 // Execute method:
-StatusCode Trk::ReFitTrack::execute_r(const EventContext& ctx) const 
+StatusCode Trk::ReFitTrack::execute() 
 {
   ATH_MSG_DEBUG ("ReFitTrack::execute()");
   StatusCode sc;
@@ -160,7 +160,7 @@ StatusCode Trk::ReFitTrack::execute_r(const EventContext& ctx) const
   // clean up association tool
   m_assoTool->reset();
 
-  SG::ReadHandle<TrackCollection> m_tracks (m_TrackName, ctx);
+  SG::ReadHandle<TrackCollection> m_tracks (m_TrackName);
 
   if (!m_tracks.isValid()){
     msg(MSG::ERROR) <<"Track collection named " << m_TrackName.key() 
@@ -190,7 +190,7 @@ StatusCode Trk::ReFitTrack::execute_r(const EventContext& ctx) const
             << constrainVx->position().y() << ", " 
             << constrainVx->position().z());
       } else if (m_constrainFitMode ==1){
-	  SG::ReadHandle<VxContainer> vxContainer (m_vxContainerName, ctx);
+	  SG::ReadHandle<VxContainer> vxContainer (m_vxContainerName);
 	  ATH_MSG_DEBUG("Track fit with vertex from collection '" << m_vxContainerName.key() << "'.");
 	  if (!vxContainer.isValid())
 	    ATH_MSG_WARNING("Track fit configured to use vertex constraint, but '" << m_vxContainerName.key() << "' could not be retrieved.");
@@ -215,7 +215,7 @@ StatusCode Trk::ReFitTrack::execute_r(const EventContext& ctx) const
 
   // create new collection of tracks to write in storegate
   auto newtracks = std::make_unique<TrackCollection>();
-  SG::WriteHandle<TrackCollection> outputtracks (m_NewTrackName, ctx);
+  SG::WriteHandle<TrackCollection> outputtracks (m_NewTrackName);
 
   // loop over tracks
   for (TrackCollection::const_iterator itr  = (*m_tracks).begin(); itr < (*m_tracks).end(); itr++){
