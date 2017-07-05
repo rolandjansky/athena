@@ -32,6 +32,7 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "FTK_DataProviderInterfaces/IFTK_UncertaintyTool.h"
+#include "FTK_RecToolInterfaces/IFTK_DuplicateTrackRemovalTool.h"
 
 /// Forward Declarations ///
 class AtlasDetectorID;
@@ -173,14 +174,16 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   ToolHandle< InDet::IVertexFinder > m_VertexFinderTool;
   ToolHandle< IFTK_VertexFinderTool > m_RawVertexFinderTool;
   ToolHandle< Trk::IRIO_OnTrackCreator >      m_ROTcreator;
+  ToolHandle< IFTK_DuplicateTrackRemovalTool > m_DuplicateTrackRemovalTool;
 
   double m_trainingBeamspotX;
   double m_trainingBeamspotY;
   double m_trainingBeamspotZ;
   double m_trainingBeamspotTiltX;
   double m_trainingBeamspotTiltY;
-
-
+  
+  bool m_remove_duplicates;
+  
   const FTK_RawTrackContainer* m_ftk_tracks;
 
   // Track Cache
