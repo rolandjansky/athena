@@ -19,7 +19,7 @@ theApp.AuditAlgorithms=True
 #--------------------------------------------------------------
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.DetDescrVersion="ATLAS-R1-2012-03-00-00"
-globalflags.ConditionsTag="COMCOND-BLKPA-RUN1-09 "
+globalflags.ConditionsTag="COMCOND-BLKPA-RUN1-09"
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
 globalflags.DataSource="data"
@@ -75,6 +75,11 @@ DetFlags.writeRIOPool.all_setOff()
 
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit
+
+# Disable SiLorentzAngleSvc to remove
+# ERROR ServiceLocatorHelper::createService: wrong interface id IID_665279653 for service
+ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=""
+ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=""
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SensorsSvc
 ServiceMgr +=SCT_SensorsSvc()

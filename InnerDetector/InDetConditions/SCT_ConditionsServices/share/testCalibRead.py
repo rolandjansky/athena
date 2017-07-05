@@ -40,10 +40,9 @@ jobproperties.PerfMonFlags.OutputFile = "perfmon.root"
 # Load Geometry
 #--------------------------------------------------------------
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetDescrVersion="ATLAS-GEO-18-00-00"
+globalflags.DetDescrVersion="ATLAS-R1-2012-03-00-00"
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
-#globalflags.DataSource="geant4"
 globalflags.DataSource="data"
 print globalflags
 
@@ -80,6 +79,9 @@ DetFlags.writeRIOPool.all_setOff()
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit
 
+# Disable SiLorentzAngleSvc to remove
+# ERROR ServiceLocatorHelper::createService: wrong interface id IID_665279653 for service
+ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=""
 
 #--------------------------------------------------------------
 # Load ReadCalibData Alg and Service
@@ -146,11 +148,13 @@ topSequence.SCT_ReadCalibDataTestAlg.OutputLevel = INFO
 #include("IOVDbSvc/IOVDbSvc_jobOptions.py")
 IOVDbSvc = Service("IOVDbSvc")
 from IOVDbSvc.CondDB import conddb
-#IOVDbSvc.GlobalTag='COMCOND-ES1C-000-00'
-IOVDbSvc.GlobalTag='COMCOND-ES1PST-004-05'
-#IOVDbSvc.GlobalTag='OFLCOND-SDR-BS7T-04-05' 
+IOVDbSvc.GlobalTag='COMCOND-BLKPA-RUN1-09'
 IOVDbSvc.OutputLevel = DEBUG
 #ToolSvc = Service( "ToolSvc" )
+
+# Not clear why these tags are not resolved from global tag
+conddb.blockFolder("/Indet/Align")
+conddb.addFolderWithTag("INDET_OFL","/Indet/Align","InDetAlign-BLK-UPD4-09")
 
 #For testing against the DEVDB10
 #DBname='<dbConnection>oracle://DEVDB10;schema=ATLAS_SCT_COMMCOND_DEV;dbname=ACALTEST;user=ATLAS_SCT_COMMCOND_DEV;password=********</dbConnection>'
@@ -161,6 +165,7 @@ IOVDbSvc.OutputLevel = DEBUG
 #conddb.addFolder("SCT",CoolFldrPathNoiseOcc)
 #conddb.addFolder("SCT",CoolFldrPathNPtGain)
 #Now multi-version in comp200:
+
 conddb.addFolder("SCT","/SCT/DAQ/Calibration/NoiseOccupancyDefects <tag>HEAD</tag>")
 conddb.addFolder("SCT","/SCT/DAQ/Calibration/NPtGainDefects <tag>HEAD</tag>")
 conddb.addFolder("SCT","/SCT/DAQ/Configuration/ROD <tag>HEAD</tag>")
