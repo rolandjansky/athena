@@ -114,23 +114,12 @@
     }
     auto trkMet = trkMETContainer.cptr();
 
-    //  const xAOD::MissingETContainer* trkMet  = nullptr;
-    // if( evtStore()->retrieve(trkMet, "MET_Track").isFailure()) {
-    //   ATH_MSG_WARNING("Unable to retrieve MET_Track container");
-    // }
-
-
     auto vertexContainer = SG::makeHandle (m_vertexContainer_key);
     if (!vertexContainer.isValid()){
       ATH_MSG_WARNING("Invalid  xAOD::VertexContainer datahandle");
       return;
     }
     auto vxCont = vertexContainer.cptr();
-
-    // const xAOD::VertexContainer *vxCont = 0;
-    // if( evtStore()->retrieve(vxCont, "PrimaryVertices").isFailure() ) {
-    //   ATH_MSG_WARNING("Unable to retrieve primary vertex container");
-    // }
 
     for(const auto& vx : *vxCont) {
       if(vx->vertexType()!=xAOD::VxType::PriVtx && vx->vertexType()!=xAOD::VxType::PileUp) continue;
@@ -217,12 +206,6 @@
       return;
     }
     auto vxCont = vertexContainer.cptr();
-
-    // const xAOD::VertexContainer *vxCont = 0;
-    // m_pvind = 0;
-    // if( evtStore()->retrieve(vxCont, "PrimaryVertices").isFailure() ) {
-    //   ATH_MSG_WARNING("Unable to retrieve primary vertex container");
-    // } else if(vxCont->empty()) {
 
     m_pvind = 0;
     if(vxCont->empty()) {

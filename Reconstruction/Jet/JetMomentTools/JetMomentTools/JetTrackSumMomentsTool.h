@@ -61,9 +61,7 @@ public:
 
 private:
 
-  // std::string m_vertexContainer;
   std::string m_assocTracksName;
-  // std::string m_tva;
   bool m_requireTrackPV;
   ToolHandle<IJetTrackSelector> m_htsel;
 

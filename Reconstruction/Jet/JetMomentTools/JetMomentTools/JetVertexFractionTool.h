@@ -89,10 +89,7 @@ public:  // methods
 private:  // data
 
   // Configurable parameters
-  // std::string m_verticesName;
   std::string m_assocTracksName;
-  // std::string m_tvaName;
-  // std::string m_tracksName;
   std::string m_sumPtTrkName;
   ToolHandle<IJetTrackSelector> m_htsel;
   std::string m_jvfname;

@@ -16,9 +16,7 @@ JetTrackMomentsTool::JetTrackMomentsTool(const std::string& name)
     , m_minTrackPt()
     , m_htsel("")
 {
-  // declareProperty("VertexContainer",m_vertexContainer);
   declareProperty("AssociatedTracks",m_assocTracksName);
-  // declareProperty("TrackVertexAssociation",m_tva);
   declareProperty("TrackMinPtCuts",m_minTrackPt);
   declareProperty("TrackSelector", m_htsel);
   
@@ -101,7 +99,8 @@ int JetTrackMomentsTool::modifyJet(xAOD::Jet& jet) const {
   if ( ! havetracks ) ATH_MSG_WARNING("Associated tracks not found");
   ATH_MSG_DEBUG("Successfully retrieved track particles");
   
-  //For PFlow jets we will also calculate the same moments, using charged PFO                                                                                                                                                                                                        
+  //For PFlow jets we will also calculate the same moments, using charged PFO
+
   xAOD::Type::ObjectType ctype = jet.rawConstituent( 0 )->type();
   std::vector<const xAOD::TrackParticle*> pflowTracks;
   bool isPFlowJet = false;

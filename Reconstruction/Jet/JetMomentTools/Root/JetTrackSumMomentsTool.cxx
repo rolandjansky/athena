@@ -23,17 +23,12 @@ JetTrackSumMomentsTool::JetTrackSumMomentsTool(const std::string& name)
     , m_vertexContainer_key("")
     , m_tva_key("")
 {
-  // declareProperty("VertexContainer",m_vertexContainer);
   declareProperty("VertexContainer",m_vertexContainer_key);
   declareProperty("AssociatedTracks",m_assocTracksName);
   declareProperty("TrackVertexAssociation",m_tva_key);
   declareProperty("TrackSelector", m_htsel);
   declareProperty("RequireTrackPV", m_requireTrackPV = true);
-  
-  // declareProperty("AssociatedTracks",m_trackVertexAssoc_key);
-  
 }
-
 
 //**********************************************************************
 
@@ -53,8 +48,6 @@ StatusCode JetTrackSumMomentsTool::initialize() {
 }
 
 //**********************************************************************
-
-
 
 int JetTrackSumMomentsTool::modifyJet(xAOD::Jet& jet) const {
 
@@ -86,7 +79,6 @@ int JetTrackSumMomentsTool::modifyJet(xAOD::Jet& jet) const {
     ATH_MSG_DEBUG("Associated tracks not found.");
   }
   
-
   if (vertexContainer->size() == 0 ) { 
     ATH_MSG_WARNING("There are no vertices in the container. Exiting"); 
     return 4;
@@ -104,7 +96,6 @@ int JetTrackSumMomentsTool::modifyJet(xAOD::Jet& jet) const {
 		  << ", TrackSumMass=" << tracksums.second  );
   return 0;
 }
-
 
 //**********************************************************************
 
@@ -151,6 +142,5 @@ std::pair<float,float> JetTrackSumMomentsTool::getJetTrackSums(const xAOD::Verte
   return std::make_pair(tracksum.Pt(),tracksum.M());
   
 }
-
 
 //**********************************************************************

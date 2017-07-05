@@ -18,8 +18,6 @@ using xAOD::JetConstituentVector;
 JetPtAssociationTool::JetPtAssociationTool(std::string myname)
 : JetModifierBase(myname) {
   declareProperty("AssociationName", m_aname);
-  // declareProperty("InputContainer", m_conname);
-
   declareProperty("InputContainer", m_jetContainer_key);
 
 }
@@ -56,12 +54,6 @@ int JetPtAssociationTool::modifyJet(xAOD::Jet& jet) const {
   }
 
   auto pjets = handle.cptr();
-
-  // const JetContainer* pjets = evtStore()->retrieve<const JetContainer>(m_conname);
-  // if ( pjets == 0 ) {
-  //   ATH_MSG_WARNING("Matching jet container not found: " << m_conname);
-  //   return 2;
-  // }
 
   // Match associated particle to jets.
   FloatVector ptfs;

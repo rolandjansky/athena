@@ -15,9 +15,7 @@
 
 JetOriginCorrectionTool::JetOriginCorrectionTool(const std::string& myname)
 : asg::AsgTool(myname) { 
-  // declareProperty("VertexContainer", m_vtxContainerName="PrimaryVertices");
   declareProperty("OriginCorrectedName", m_correctionName="JetOriginConstitScaleMomentum");
-  // declareProperty("EventInfoName", m_eInfoName="EventInfo");
 
   declareProperty("OnlyAssignPV", m_onlyAssignPV=false);
 
@@ -58,18 +56,10 @@ int JetOriginCorrectionTool::modify(xAOD::JetContainer& jetCont) const {
 
   auto vxContainer = handle.cptr();
 
-  // const xAOD::VertexContainer *vxContainer = 0;
-
-  // retrieve the VertexContainer. if fails, fill the jets with null vector
-  // if( (evtStore()->retrieve(vxContainer, m_vtxContainerName).isFailure()) || vxContainer->empty() ){
-  //   ATH_MSG_WARNING("Could not find origin Vertex. Filling jet with null "<< m_correctionName);
-  //   xAOD::JetFourMom_t null;    
-  //   for(xAOD::Jet * j : jetCont) j->setAttribute<xAOD::JetFourMom_t>(m_correctionName, null);
-  //  return 0;
-  // }
 
   // Retrieve EventInfo to check for a PV# specification != PV0
-  // No errors if EventInfo or PV index is not specified, as this is the standard scenario
+  // No errors if EventInfo or PV index is not specified, 
+  // as this is the standard scenario
   // Warn if EventInfo is specified but cannot be retrieved
   // Specifying the PV index is only for special cases
   int PVindex = 0;
@@ -96,25 +86,6 @@ int JetOriginCorrectionTool::modify(xAOD::JetContainer& jetCont) const {
       
     }
   }
-
-  //    const xAOD::EventInfo* eInfo = 0;
-  //    if ( evtStore()->retrieve(eInfo,m_eInfoName).isFailure() )
-  //      ATH_MSG_WARNING("Failed to retrieve EventInfo object.  Defaulting to PV0 for "<<m_correctionName);
-  //    if ( evtStore()->retrieve(eInfo,m_eInfoName).isFailure() )
-  //      ATH_MSG_WARNING("Failed to retrieve EventInfo object.  Defaulting to PV0 for "<<m_correctionName);
-  //    else if (PVIndexAccessor.isAvailable(*eInfo))
-  //    {
-  //        PVindex = PVIndexAccessor(*eInfo);
-  //        ATH_MSG_DEBUG("Found PVIndex value of " << PVindex << " for " << m_correctionName);
-  //        if (PVindex < 0 || static_cast<size_t>(PVindex) >= vxContainer->size())
-  //        {
-  //          ATH_MSG_WARNING("Specified PV index of " << PVindex << " is out of bounds.  Filling jet with nu//ll "<<m_correctionName);
-  //          xAOD::JetFourMom_t null;
-  //          for (xAOD::Jet* j : jetCont) j->setAttribute<xAOD::JetFourMom_t>(m_correctionName,null);
-  //          return 0;
-  //        }
-  //    }
-  //  }
 
   // choose PV.
   const xAOD::Vertex *vx = vxContainer->at(PVindex); 

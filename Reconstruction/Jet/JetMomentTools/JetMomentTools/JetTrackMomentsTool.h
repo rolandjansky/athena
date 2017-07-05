@@ -49,9 +49,7 @@ public:
 private:
 
   // Configurable parameters
-  // std::string m_vertexContainer;
   std::string m_assocTracksName;
-  // std::string m_tva;
   std::vector<float> m_minTrackPt;
   ToolHandle<IJetTrackSelector> m_htsel;
         

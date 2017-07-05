@@ -104,15 +104,6 @@ int JetConstitFourMomTool::modify(xAOD::JetContainer& jets) const {
         }
 
         altCollections[iScale] = handle.cptr();
-        
-        // const xAOD::CaloClusterContainer* altclusters(0);
-        // ATH_CHECK( evtStore()->retrieve(altclusters,m_altColls[iScale]) );
-        // if(!altclusters) {
-        //   ATH_MSG_WARNING("Failed to retrieve alt cluster collection " << m_altColls[iScale]);
-        //   return 1;
-        // } else {
-        //   altCollections[iScale] = altclusters;
-        // }
       } else {
         ATH_MSG_WARNING("Alt collection " << m_altColls[iScale] << " and jet type " << leadjet.getInputType() << " not supported yet!");
         return 1;

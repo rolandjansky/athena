@@ -43,10 +43,7 @@ public:
 
  protected:
   
-  // std::string m_vtxContainerName;
   std::string m_correctionName;
-  // std::string m_eInfoName;
-
   bool m_onlyAssignPV;
 
 private:
