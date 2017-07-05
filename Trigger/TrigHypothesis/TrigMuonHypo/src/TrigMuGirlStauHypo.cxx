@@ -120,10 +120,10 @@ HLT::ErrorCode TrigMuGirlStauHypo::hltExecute(const HLT::TriggerElement* outputT
       else msg() << MSG::DEBUG << "container OK with size "<<trackCont->size()<< endmsg;
     }
   if(trackCont!=NULL){
-    for (TrigMuonEFInfoContainer::const_iterator tr = trackCont->begin();tr != trackCont->end(); tr++)
+    for (const TrigMuonEFInfo* tr : *trackCont)
       {
 	//if ((*tr)->MuonCode()<100 && (*tr)->MuonCode() != 5) continue;
-	if(!(*tr)->hasCombinedTrack()) continue;
+	if(!tr->hasCombinedTrack()) continue;
 	//      {
 	
 	//	m_pt.push_back( (*tr)->pt());
@@ -137,7 +137,11 @@ HLT::ErrorCode TrigMuGirlStauHypo::hltExecute(const HLT::TriggerElement* outputT
 	// loop on the muons within the RoI
 	//TrigMuonEFInfoTrackContainer* InfoTrkCont= (*tr)->TrackContainer();
 	//if ((*InfoTrkCont->begin())->MuonType() != 2) continue;
-	TrigMuonEFCbTrack* trk= (*tr)->CombinedTrack() ;
+	const TrigMuonEFCbTrack* trk = nullptr;
+        if (tr->hasLegacyTrack())
+          trk = tr->legacyCombinedTrack();
+        else
+          trk = tr->TrackContainer()->front()->CombinedTrack();
 	
 	double eta=-log(sqrt(1+((trk)->cotTh())*((trk)->cotTh()))-((trk)->cotTh()));
 	double pt = (trk)->pt()/CLHEP::GeV;

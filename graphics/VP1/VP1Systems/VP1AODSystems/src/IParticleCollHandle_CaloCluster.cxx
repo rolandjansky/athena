@@ -27,7 +27,7 @@
 #include "VP1Utils/VP1SGContentsHelper.h"
 
 //Qt
-#include <QtCore/QStringList>
+#include <QStringList>
 
 //xAOD
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -74,7 +74,7 @@ public:
   VP1Interval allowedEta;
   QList<VP1Interval> allowedPhi;
   double last_highestEnergy;
-  double calculateHighestVisibleClusterEnergy() const;
+//  double calculateHighestVisibleClusterEnergy() const;
 
 
   double calo_start_r = theclass->calo_start_r;
@@ -529,7 +529,7 @@ double IParticleCollHandle_CaloCluster::highestVisibleClusterEnergy() const
 //____________________________________________________________________
 double IParticleCollHandle_CaloCluster::calculateHighestVisibleClusterEnergy()
 {
-	messageDebug("IParticleCollHandle_CaloCluster::calculateHighestVisibleClusterEnergy()");
+	messageDebug("IParticleCollHandle_CaloCluster::Imp::calculateHighestVisibleClusterEnergy()");
 	 if (!isLoaded()){
 		 messageDebug("Not loaded. Returning...");
 	   return 0;
@@ -558,7 +558,8 @@ double IParticleCollHandle_CaloCluster::calculateHighestVisibleClusterEnergy()
 void IParticleCollHandle_CaloCluster::recheckHighestVisibleClusterEnergy()
 {
   //When visibility or cut changes:
-  double newhighest = d->calculateHighestVisibleClusterEnergy();
+//  double newhighest = d->calculateHighestVisibleClusterEnergy();
+  double newhighest = calculateHighestVisibleClusterEnergy();
   if (d->last_highestEnergy == newhighest)
     return;
   d->last_highestEnergy = newhighest;

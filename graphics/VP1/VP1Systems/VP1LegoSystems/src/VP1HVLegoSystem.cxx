@@ -5,7 +5,7 @@
 #include "VP1LegoSystems/VP1HVLegoSystem.h"
 #include "ui_hvlegocontrollerform.h"
 
-#include <QtCore/QMap>
+#include <QMap>
 
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoSeparator.h>

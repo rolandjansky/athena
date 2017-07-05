@@ -114,11 +114,6 @@ private:
   std::vector<int> m_layerCellOrderVector;
   std::vector<float> m_radiusCellOrderVector;
   std::vector<float> m_avgEdensityCellOrderVector;
-//   int m_layerCellOrder;
-//   float m_radiusCellOrder;
-// 
-//   float m_avgEdensityCellOrder;
-  
 
   double m_eExpect;
   double m_varEExpect;
@@ -129,8 +124,6 @@ private:
 
   std::vector<double> m_caloDepthArray;
 
-//create new class -- link from here, e.g.
-// eflowCellOrderingParameters* m_cellOrderingParameters;
   std::unique_ptr<eflowTrackCaloPoints> m_trackCaloPoints;
   eflowRingSubtractionManager m_ringSubtractionManager;
   std::vector<eflowTrackClusterLink*> m_clusterMatches;

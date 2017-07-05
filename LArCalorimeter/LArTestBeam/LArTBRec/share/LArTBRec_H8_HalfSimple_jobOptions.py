@@ -57,7 +57,7 @@ ToolSvc.LArRoI_Map.Print=FALSE;
 #StoreGateSvc.Dump = TRUE
 #DetectorStore = Service( "DetectorStore" )
 #DetectorStore.Dump = TRUE
-#ConditionsStore = Service( "ConditionsStore" )
-#ConditionsStore.Dump = TRUE
+#ConditionStore = Service( "ConditionStore" )
+#ConditionStore.Dump = TRUE
 
 

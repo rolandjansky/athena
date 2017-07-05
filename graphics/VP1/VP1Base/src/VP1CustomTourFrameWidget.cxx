@@ -16,11 +16,14 @@
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
 #include "ui_vp1customtourframewidget.h"
-#include <QtGui/QMouseEvent>
-#include <QtGui/QDragEnterEvent>
-#include <QtGui/QDropEvent>
-#include <QtGui/QPainter>
-#include <QtCore/QBuffer>
+
+#include <QMouseEvent>
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QPainter>
+#include <QMimeData>
+#include <QBuffer>
+#include <QDrag>
 
 //____________________________________________________________________
 class VP1CustomTourFrameWidget::Imp {

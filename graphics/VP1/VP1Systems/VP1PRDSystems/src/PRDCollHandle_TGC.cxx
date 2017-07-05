@@ -7,7 +7,7 @@
 #include "VP1PRDSystems/PRDHandle_TGC.h"
 #include "MuonPrepRawData/TgcPrepData.h"
 #include "VP1PRDSystems/PRDSystemController.h"
-#include <QtGui/QColor>
+#include <QColor>
 
 #include "VP1Utils/VP1JobConfigInfo.h"
 #include "VP1Utils/VP1SGContentsHelper.h"

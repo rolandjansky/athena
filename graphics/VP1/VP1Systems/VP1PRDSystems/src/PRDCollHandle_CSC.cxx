@@ -8,7 +8,7 @@
 #include "MuonPrepRawData/CscPrepData.h"
 #include "VP1PRDSystems/PRDSystemController.h"
 #include "VP1Utils/VP1DetInfo.h"
-#include <QtGui/QColor>
+#include <QColor>
 
 #include "VP1Utils/VP1JobConfigInfo.h"
 #include "VP1Utils/VP1SGContentsHelper.h"

@@ -46,7 +46,7 @@ namespace ana
   {
     RCU_REQUIRE (val_tool != nullptr);
 
-    m_tool = val_tool.release();
+    m_tool = std::move (val_tool);
 
     RCU_NEW_INVARIANT (this);
   }

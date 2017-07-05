@@ -69,7 +69,7 @@ private:
   private slots:
   void updateVertexDrawStyle();
   void updateVertexLightModel(bool);
-  void possibleChange_vertexSize();
+//  void possibleChange_vertexSize();
   void possibleChange_cutAllowedR();
   void possibleChange_cutAllowedZ();
     

@@ -20,7 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( Coin3D )
 find_package( Eigen )
-find_package( Qt4 COMPONENTS QtCore QtOpenGL QtGui )
+find_package( Qt5 COMPONENTS Core Gui  )
 
 # Generate UI files automatically:
 set( CMAKE_AUTOUIC TRUE )
@@ -31,13 +31,13 @@ set( CMAKE_AUTORCC TRUE )
 # to let CMake find .h files automatically-generated from .ui files
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-include_directories( /usr/X11R6/include )
+# Commenting out for the moment, in case it really was needed.
+# 
 
 # Component(s) in the package:
 atlas_add_library( VP1TestSystems VP1TestSystems/*.h src/*.h src/*.cxx src/*.qrc  
                    PUBLIC_HEADERS VP1TestSystems
-                   INCLUDE_DIRS ${QT4_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES VP1Base VP1Utils ${QT4_LIBRARIES} GL StoreGateLib SGtests
+                   LINK_LIBRARIES VP1Base VP1Utils GL StoreGateLib SGtests Qt5::Gui Qt5::Core
                    PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${EIGEN_LIBRARIES} GeoPrimitives GaudiKernel TrkSurfaces TrkParameters TrkTrack )
 

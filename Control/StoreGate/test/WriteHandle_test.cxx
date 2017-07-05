@@ -29,6 +29,8 @@
 #include <cassert>
 #include <iostream>
 
+#define DEBUG_VHB 1
+
 
 class MyObjAux
   : public SG::IConstAuxStore, public ILockable
@@ -200,7 +202,6 @@ void test2()
   assert (h3.isInitialized());
   assert (h3.cptr() == fooptr);
   assert (foo_proxy->refCount() == 3);
-  assert (h2.key() == "foo");
   assert (h2.store() == "TestStore");
   assert (!h2.isInitialized());
   assert (h2.cptr() == nullptr);
@@ -237,7 +238,6 @@ void test2()
   assert (h2.store() == "TestStore");
   assert (h2.isInitialized());
   assert (h2.cptr() == barptr);
-  assert (h3.key() == "bar");
   assert (h3.store() == "TestStore");
   assert (!h3.isInitialized());
   assert (h3.cptr() == nullptr);

@@ -76,10 +76,10 @@ namespace MuonCalib {
       }		
       TDirectory *cwd=gDirectory;
       snprintf(buf, 100, "t0_tmax_dir_%d", id);
-      dir=gDirectory->mkdir(buf, buf);
+      m_dir=gDirectory->mkdir(buf, buf);
       cwd->cd();
     } else {
-      dir=NULL;
+      m_dir=NULL;
     }
     m_t0_ok=false;
     m_tmax_ok=false;
@@ -99,7 +99,7 @@ namespace MuonCalib {
     if(settings->DrawDebugGraphs()) {
       char buffer[100];
       snprintf(buffer, 100, "t0_tmax_dir_%d", id);
-      dir=gDirectory->mkdir(buffer, buffer);
+      m_dir=gDirectory->mkdir(buffer, buffer);
       cwd->cd();
     }
   }  //end T0MTHistos::SetTSpec
@@ -136,7 +136,7 @@ namespace MuonCalib {
 //////////////////
   bool T0MTHistos::FitTmax() {
     TDirectory *cwd=gDirectory;
-    if(dir!=NULL) dir->cd();
+    if(m_dir!=NULL) m_dir->cd();
     if(m_time==NULL) {
       cerr<<"T0MTHistos::FitTmax: Class is not initialized!"<<endl;
       m_tmax_ok=false;
@@ -185,7 +185,7 @@ namespace MuonCalib {
       m_tmax_fermi->SetParameter(TMAX_PAR_NR_T, 3.0);
     }
 //perform fit
-    if(dir!=NULL) {
+    if(m_dir!=NULL) {
       m_tmax_fermi->SetLineColor(3);
       m_tmax_fermi->Write();
     }
@@ -212,7 +212,7 @@ namespace MuonCalib {
       cout<<"T0MTHistos::FitT0(): called"<<endl;
     }		
     TDirectory *cwd=gDirectory;
-    if(dir!=NULL) dir->cd();
+    if(m_dir!=NULL) m_dir->cd();
 //check if class is initialized
     if(m_time==NULL) {
       cerr<<"T0MTHistos::FitT0: Class is not initialized!"<<endl;
@@ -250,7 +250,7 @@ namespace MuonCalib {
 //set resonable start value for T
     m_t0_fermi->SetParameter(T0_PAR_NR_T, 3.0);
 //perform fit - NOTE: The return value of the Fit function is not documented!
-    if(dir!=NULL) {
+    if(m_dir!=NULL) {
       TLine *ln = new TLine( rec.GetFitRangeMin(), 0, rec.GetFitRangeMin(), m_time->GetMaximum());
       ln->Write("t0_range_min");
       ln = new TLine( rec.GetFitRangeMax(), 0, rec.GetFitRangeMax(), m_time->GetMaximum());
@@ -301,7 +301,7 @@ namespace MuonCalib {
       if (scramhist->GetBinContent(binnr)<0) scramhist->SetBinContent(binnr, 0);
     }
     TDirectory *cwd=gDirectory;
-    if(dir!=NULL) dir->cd();
+    if(m_dir!=NULL) m_dir->cd();
     MTT0PatternRecognition scramrec;
 //perform pattern recognition
     if(!scramrec.Initialize(scramhist, m_settings)) {

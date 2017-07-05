@@ -25,7 +25,7 @@ namespace {
   static dqm_algorithms::AddReference b7("BinContentComp");
 }
 
-dqm_algorithms::AddReference::AddReference(const std::string& name ) : name_(name)
+dqm_algorithms::AddReference::AddReference(const std::string& name ) : m_name(name)
 {
   dqm_core::AlgorithmManager::instance().registerAlgorithm("AddReference_"+name,this);
 }
@@ -33,7 +33,7 @@ dqm_algorithms::AddReference::AddReference(const std::string& name ) : name_(nam
 dqm_algorithms::AddReference* 
 dqm_algorithms::AddReference::clone()
 {
-  return new AddReference(name_);
+  return new AddReference(m_name);
 }
 
 dqm_core::Result* 
@@ -84,15 +84,15 @@ if ((histogram->GetDimension() != refhist->GetDimension()) ||
   histogram->Add( refhist , coeff );
   
   //Now prepare to run the real algorithm...
-  ERS_DEBUG(2,"Running algorithm: "<<name_);
+  ERS_DEBUG(2,"Running algorithm: "<<m_name);
   dqm_core::Algorithm* subalgorithm;
   try {
-    subalgorithm = dqm_core::AlgorithmManager::instance().getAlgorithm( name_ );
+    subalgorithm = dqm_core::AlgorithmManager::instance().getAlgorithm( m_name );
   }
   catch ( dqm_core::AlgorithmNotFound& ex )
     {
-      ERS_DEBUG(2,"Cannot find algorithm:"+name_);
-      throw dqm_core::BadConfig(ERS_HERE,name,"Cannot Find sub-algorithm:"+name_);
+      ERS_DEBUG(2,"Cannot find algorithm:"+m_name);
+      throw dqm_core::BadConfig(ERS_HERE,name,"Cannot Find sub-algorithm:"+m_name);
     }
   dqm_core::Result* result = subalgorithm->execute( name , *histogram ,  config);
   ERS_DEBUG(2,"Sub algorithm returns:"<<*result);
@@ -127,7 +127,7 @@ if ((histogram->GetDimension() != refhist->GetDimension()) ||
 
 
 void dqm_algorithms::AddReference::printDescription(std::ostream& out) {
-  out<<"AddReference_"+name_+" : Performst the "+name_+" algorithm after adding to the input histogram the reference. I.e. performing: histogram += c*Reference. Adds to the output TObject list the modified input histogram."<<std::endl;
+  out<<"AddReference_"+m_name+" : Performst the "+m_name+" algorithm after adding to the input histogram the reference. I.e. performing: histogram += c*Reference. Adds to the output TObject list the modified input histogram."<<std::endl;
   out<<"Optional Parameter : MinStat : Minimum histogram statistics needed to perform Algorithm"<<std::endl;
   out<<"Optional Parameter : Coeff : The multiplication coefficient c, for reference. Default c=+1"<<std::endl;
 

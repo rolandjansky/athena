@@ -44,7 +44,7 @@ void test1()
   assert (k1.storeHandle().name() == "StoreGateSvc");
   assert (k1.storeHandle().isSet());
 
-  k1 = "FeeSvc/aac";
+  k1 = "FeeSvc+aac";
   assert (k1.clid() == 293847295);
   assert (k1.key() == "aac");
   assert (k1.mode() == Gaudi::DataHandle::Reader);

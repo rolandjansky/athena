@@ -22,8 +22,8 @@
 #include "VP1Gui/VP1QtApplication.h"
 
 // include Qt
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
+#include <QObject>
+#include <QStringList>
 
 
 

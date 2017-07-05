@@ -22,12 +22,15 @@
 #include "VP1Base/AnimationSequencer.h"
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
+
 #include <Inventor/nodes/SoGroup.h>
 #include <Inventor/nodes/SoCamera.h>
 #include <Inventor/SbBox.h>
-#include <QtGui/QShortcut>
-#include <QtGui/QCloseEvent>
-#include <QtGui/QScrollBar>
+
+#include <QShortcut>
+#include <QCloseEvent>
+#include <QScrollBar>
+
 #include <iostream>
 
 //____________________________________________________________________
@@ -411,10 +414,10 @@ void VP1CustomTourEditor::addTourToAnimationSequencer(AnimationSequencer& as,boo
         t = 0.0;
         firstInDirectJump = false;
       }
-      
+
       // std::cout<<"addTourToAnimationSequencer %="<<frame->clipVolumePercentOfATLAS()<<std::endl;
-      as.sequence().addFrame(frame->camState(),t, 
-                             frame->zoomToFrameWithVariableSpeed(),frame->zoomToFrameForcedCircular(), 
+      as.sequence().addFrame(frame->camState(),t,
+                             frame->zoomToFrameWithVariableSpeed(),frame->zoomToFrameForcedCircular(),
                              frame->clipVolumePercentOfATLAS() );
       if (frame->stayOnFrameTime()>0.0)
         as.sequence().addFrame(frame->camState(),frame->stayOnFrameTime(),false, false, frame->clipVolumePercentOfATLAS());
@@ -424,7 +427,7 @@ void VP1CustomTourEditor::addTourToAnimationSequencer(AnimationSequencer& as,boo
 
 void VP1CustomTourEditor::setClipVolumePercentOfATLAS(double percent){
   emit clipVolumePercentOfATLAS( percent );
-  
+
   // Let's assume ATLAS is 40m long. So emit this.
   emit clipVolumeRadiusChanged( percent * 400 );
 }

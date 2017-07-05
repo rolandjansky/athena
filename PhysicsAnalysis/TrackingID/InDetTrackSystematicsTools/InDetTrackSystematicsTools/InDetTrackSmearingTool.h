@@ -63,10 +63,11 @@ namespace InDet {
     /// configure the tool to apply a given list of systematic variations
     virtual CP::SystematicCode applySystematicVariation( const CP::SystematicSet& );
 
-  private:
     /// Get smearing widths to add to IPs
     float GetSmearD0Sigma(const xAOD::TrackParticle&);
     float GetSmearZ0Sigma(const xAOD::TrackParticle&);
+
+  private:
 
     int m_seed = 0;
     std::unique_ptr<TRandom3> m_rnd; //!

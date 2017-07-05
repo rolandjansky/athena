@@ -18,7 +18,7 @@
 #include "VP1Base/IVP1System.h"
 #include <vector>//fixme
 #include <set>
-#include <QtCore/QSet>
+#include <QSet>
 
 class SoPath;
 class SoNode;

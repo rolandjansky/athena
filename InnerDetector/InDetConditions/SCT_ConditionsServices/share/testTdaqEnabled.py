@@ -70,6 +70,21 @@ import AtlasGeoModel.GeoModelInit
 ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=""
 ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=""
 
+from IOVSvc.IOVSvcConf import CondSvc 
+ServiceMgr += CondSvc()
+from AthenaCommon.AlgSequence import AthSequencer 
+condSeq = AthSequencer("AthCondSeq")
+
+from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+condSeq+=xAODMaker__EventInfoCnvAlg(OutputLevel=2)
+
+from IOVSvc.IOVSvcConf import CondInputLoader 
+condSeq += CondInputLoader( "CondInputLoader",OutputLevel=2)
+import StoreGate.StoreGateConf as StoreGateConf 
+ServiceMgr += StoreGateConf.StoreGateSvc("ConditionStore")
+from  SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledCondAlg
+condSeq += SCT_TdaqEnabledCondAlg( "SCT_TdaqEnabledCondAlg" ) 
+
 #--------------------------------------------------------------
 # Load DCSConditions Alg and Service
 #--------------------------------------------------------------
@@ -112,7 +127,7 @@ from IOVDbSvc.CondDB import conddb
 #IOVDbSvc.GlobalTag="HEAD"
 IOVDbSvc.GlobalTag="CONDBR2-BLKPA-2017-06"
 IOVDbSvc.OutputLevel = 3
-conddb.addFolder("TDAQ", "/TDAQ/Resources/ATLAS/SCT/Robins")
+conddb.addFolder("TDAQ", "/TDAQ/Resources/ATLAS/SCT/Robins", className="CondAttrListCollection")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/ROD", "/SCT/DAQ/Config/ROD")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Geog", "/SCT/DAQ/Config/Geog")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/RODMUR", "/SCT/DAQ/Config/RODMUR")

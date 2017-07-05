@@ -20,7 +20,7 @@
 #include "VP1Base/VP1String.h"
 #include <Inventor/C/errors/debugerror.h>
 #include <Inventor/Qt/viewers/SoQtExaminerViewer.h>
-#include <QtCore/QObject>
+#include <QObject>
 class QPixmap;
 
 

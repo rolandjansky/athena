@@ -226,6 +226,9 @@ namespace xAOD {
    ///
    void TFileAccessTracer::add( const ::TFile& file ) {
 
+      // Protect this call:
+      std::lock_guard< std::mutex > lock( m_mutex );
+
       // Remember this file:
       m_accessedFiles.insert(
          AccessedFile{ gSystem->DirName( file.GetName() ),
@@ -237,10 +240,16 @@ namespace xAOD {
 
    const std::string& TFileAccessTracer::serverAddress() const {
 
+      // Protect this call:
+      std::lock_guard< std::mutex > lock( m_mutex );
+
       return m_serverAddress;
    }
 
    void TFileAccessTracer::setServerAddress( const std::string& addr ) {
+
+      // Protect this call:
+      std::lock_guard< std::mutex > lock( m_mutex );
 
       // Set the address itself:
       m_serverAddress = addr;
@@ -253,10 +262,16 @@ namespace xAOD {
 
    ::Double_t TFileAccessTracer::monitoredFraction() const {
 
+      // Protect this call:
+      std::lock_guard< std::mutex > lock( m_mutex );
+
       return m_monitoredFraction;
    }
 
    void TFileAccessTracer::setMonitoredFraction( ::Double_t value ) {
+
+      // Protect this call:
+      std::lock_guard< std::mutex > lock( m_mutex );
 
       m_monitoredFraction = value;
       return;
@@ -268,6 +283,10 @@ namespace xAOD {
    /// @param value Setting whether data submission should be enabled or not
    ///
    void TFileAccessTracer::enableDataSubmission( ::Bool_t value ) {
+
+      // Protect this call:
+      static std::mutex s_mutex;
+      std::lock_guard< std::mutex > lock( s_mutex );
 
       m_enableDataSumbission = value;
       return;

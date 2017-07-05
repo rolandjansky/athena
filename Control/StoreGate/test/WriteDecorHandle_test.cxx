@@ -140,7 +140,6 @@ void test2()
   assert (h3.isInitialized());
   assert (h3.cptr() == fooptr);
   assert (foo_proxy->refCount() == 2);
-  assert (h2.key() == "foo.aaa");
   assert (h2.store() == "TestStore");
   assert (!h2.isInitialized());
   assert (h2.cachedPtr() == nullptr);
@@ -177,7 +176,6 @@ void test2()
   assert (h2.store() == "TestStore");
   assert (h2.isInitialized());
   assert (h2.cptr() == barptr);
-  assert (h3.key() == "bar.bbb");
   assert (h3.store() == "TestStore");
   assert (!h3.isInitialized());
   assert (h3.cachedPtr() == nullptr);

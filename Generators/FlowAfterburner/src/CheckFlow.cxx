@@ -13,21 +13,9 @@
 #include "FlowAfterburner/CheckFlow.h"
 #include "GeneratorObjects/McEventCollection.h"
 
-#include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/DataSvc.h"
-
-#include "GaudiKernel/ITHistSvc.h"
-
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TH3F.h>
-
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/INTupleSvc.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IDataProviderSvc.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ObjectList.h"
 
 #include "TruthHelper/IsGenStable.h"
 #include "TruthHelper/GenAll.h"

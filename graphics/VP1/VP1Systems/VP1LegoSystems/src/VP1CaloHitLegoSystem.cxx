@@ -21,7 +21,7 @@
 #include <Inventor/nodes/SoTranslation.h>
 #include <Inventor/nodes/SoSeparator.h>
 
-#include <QtCore/QMap>
+#include <QMap>
 
 class VP1CaloHitLegoSystem::Clockwork
 {

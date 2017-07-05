@@ -25,20 +25,20 @@
 
 #include <Inventor/nodes/SoMaterial.h>
 
-#include <QtCore/QSet>
-#include <QtCore/QBuffer>
-#include <QtCore/QByteArray>
-#include <QtCore/QDataStream>
+#include <QSet>
+#include <QBuffer>
+#include <QByteArray>
+#include <QDataStream>
 
-#include <QtGui/QCheckBox>
-#include <QtGui/QGroupBox>
-#include <QtGui/QComboBox>
-#include <QtGui/QLineEdit>
-#include <QtGui/QDoubleSpinBox>
-#include <QtGui/QSpinBox>
-#include <QtGui/QSlider>
-#include <QtGui/QToolBox>
-#include <QtGui/QRadioButton>
+#include <QCheckBox>
+#include <QGroupBox>
+#include <QComboBox>
+#include <QLineEdit>
+#include <QDoubleSpinBox>
+#include <QSpinBox>
+#include <QSlider>
+#include <QToolBox>
+#include <QRadioButton>
 
 //____________________________________________________________________
 class VP1Deserialise::Imp {

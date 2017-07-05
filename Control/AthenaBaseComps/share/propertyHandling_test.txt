@@ -24,3 +24,25 @@ ralg.rkey = "FooSvc/aaa";
 ralg.whandle = "BarSvc/eee";
 ralg.rdkey = "FooSvc/yyy.qqq";
 ralg.wdkey = "zzz.rrr";
+
+arralg.rkeyarr = ["raa", "rbb", "rcc", "rdd", "ree", "rff"];
+arralg.wkeyarr = ["waa", "wbb", "wcc", "wdd", "wee", "wff"];
+arralg.rkey = "rrr";
+arralg.wkey = "www";
+
+arralg2.rkeyarr = ["aaa"];
+arralg2.wkeyarr = ["aaa"];
+
+
+tool2.rkey = "taa";
+tool2.whandle = "tee";
+tool2.rdkey = "tgg.qqq";
+tool2.wdkey = "thh.rrr";
+
+arrtool.rkeyarr = ["raa", "rbb", "rcc", "rdd", "ree", "rff"];
+arrtool.wkeyarr = ["waa", "wbb", "wcc", "wdd", "wee", "wff"];
+arrtool.rkey = "rrr";
+arrtool.wkey = "www";
+
+arrtool2.rkeyarr = ["aaa"];
+arrtool2.wkeyarr = ["aaa"];

@@ -3,7 +3,7 @@
 */
 
 #include "AthenaKernel/errorcheck.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 #define private public
 #   include "GeneratorObjects/McEventCollection.h"

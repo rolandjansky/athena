@@ -20,7 +20,7 @@
 #define PRDTRACKSEGMENTHELPER_H
 
 #include "VP1Base/VP1HelperClassBase.h"
-#include <QtCore/QObject>
+#include <QObject>
 #include <vector>
 #include <map>
 

@@ -25,13 +25,6 @@
 #include "TH1D.h"
 #include "TProfile.h"
 
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/INTupleSvc.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IDataProviderSvc.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ObjectList.h"
-
 #include "TruthHelper/GenAccessIO.h"
 #include "TruthHelper/IsGenStable.h"
 #include "TruthHelper/GenAll.h"
@@ -252,7 +245,6 @@ StatusCode CheckFlow_New::initialize(){
 
 
 StatusCode CheckFlow_New::execute() {
-  MsgStream msglog(messageService(), name());
   msg(MSG::INFO) << ">>> CheckFlow_New from execute" << endmsg;
 
   float pt_binvals[n_ptbin+1]={0.0,0.25,0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,6.0,8.0,12.0,16.0,20.0,30.0,40.0};
@@ -427,7 +419,6 @@ StatusCode CheckFlow_New::execute() {
 }
 
 StatusCode CheckFlow_New::finalize() {
-  MsgStream msglog(messageService(), name());
   msg(MSG::INFO) << ">>> CheckFlow_New from finalize" << endmsg;
 
 /*

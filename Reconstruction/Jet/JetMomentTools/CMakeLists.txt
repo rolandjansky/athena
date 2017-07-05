@@ -67,7 +67,7 @@ atlas_add_library( JetMomentToolsLib
    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES}
    AsgTools xAODCaloEvent xAODJet xAODMissingET xAODTracking JetEDM JetInterface
-   JetRecLib JetUtils PFlowUtilsLib
+   JetRecLib JetUtils
    PRIVATE_LINK_LIBRARIES CaloGeoHelpers xAODEventInfo xAODPFlow PathResolver )
 
 if( NOT XAOD_STANDALONE )

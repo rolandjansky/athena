@@ -251,6 +251,7 @@ void PixelByteStreamErrorsSvc::resetPixelCounts() {
     m_event_read[i]=0;
     m_FE_errors[i]=0;
   }
+  m_all_FE_errors.clear();
 }
 
 int PixelByteStreamErrorsSvc::getNumberOfErrors(int errorType) {
@@ -289,6 +290,7 @@ void PixelByteStreamErrorsSvc::reset(){
     m_moduleROD_errors[i]=0;
     m_module_isread[i]=m_readESD;
   }
+  m_all_FE_errors.clear();
 }
 
 // retrieve the data from Storegate: for one event, one entry per module with errors

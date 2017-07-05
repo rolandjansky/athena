@@ -23,8 +23,7 @@ namespace dqm_algorithms
 	  void  printDescription(std::ostream& out);           
 
           private:
-            std::string name_;
-	    std::string option;
+            std::string m_name;
 	};
 }
 
