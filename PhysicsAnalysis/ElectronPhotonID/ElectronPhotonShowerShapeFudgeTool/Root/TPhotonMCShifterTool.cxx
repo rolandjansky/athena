@@ -6,6 +6,7 @@
 
 #include "ElectronPhotonShowerShapeFudgeTool/TPhotonMCShifterTool.h"
 #include "PathResolver/PathResolver.h"
+#include <AsgTools/AsgMessaging.h>
 #include "TMath.h"
 #include "TFile.h"
 #include <iostream>
@@ -146,7 +147,7 @@ void TPhotonMCShifterTool::LoadFFs(int preselection, std::string m_corr_file)
   if (filename.empty()){
     throw std::runtime_error("FudgeMCTool  ERROR  Could NOT resolve file name "+ m_corr_file);
   } else{
-    std::cout << "FudgeMCTool Path found = "<<filename << std::endl;
+    Info("FudgeMCTool", "Path found = %s", filename.c_str()); 
   }
   m_corr_file = filename;
 
@@ -159,7 +160,7 @@ void TPhotonMCShifterTool::LoadFFs(int preselection, std::string m_corr_file)
      throw std::runtime_error( "FudgeMCTool Couldn't open file: " + m_corr_file );
   }
   if (!f->FindKey(Form("TUNE%d",preselection))) {
-    std::cout << "FudgeMCTool Directory TUNE" << preselection << " does not exist in fudge factor file. Aborting" << std::endl;
+    Error("FudgeMCTool", "Directory Tune %d does not exist in the fudge factor file. Aborting", preselection); 
     exit(-1);
   }
   

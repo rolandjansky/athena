@@ -65,9 +65,9 @@ private:
    TElectronMCShifterTool* m_el_rootTool;
 
    int m_preselection;
-   std::string m_ffFile;
 
    std::string m_configFile;
+   std::string m_ffFile;
 
    /** Copied over from the configuration helper so that the selector tools do not need to be included */
    std::vector<float> GetFloatVector(const std::string& input,  TEnv& env);
