@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 import os, sys, string, math, shutil
 import xml.dom.minidom
-import ROOT, PyCintex
+import ROOT
 
 
 

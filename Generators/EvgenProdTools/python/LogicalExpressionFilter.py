@@ -77,8 +77,8 @@ class LogicalExpressionFilter( PyAthena.Alg ):
                   error = 'could not retrieve IAlgManager/ApplicationMgr'
                   self.msg.error (error)
                   raise RuntimeError (error)
-              import PyCintex
-              _alg = PyCintex.libPyROOT.MakeNullPointer("IAlgorithm")
+              import cppyy
+              _alg = cppyy.libPyROOT.MakeNullPointer("IAlgorithm")
               if algmgr.createAlgorithm(filterType,filterName,_alg).isFailure() or not _alg:
                   self.msg.error ('could not create alg: ' + filterTypeAndName)
                   raise RuntimeError ('could not create alg: ' + filterTypeAndName)

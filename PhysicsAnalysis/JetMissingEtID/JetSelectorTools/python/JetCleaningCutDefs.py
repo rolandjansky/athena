@@ -10,11 +10,6 @@
 ##
 ##=============================================================================
 
-# import the needed Reflex and ROOT stuff
-import PyCintex
-PyCintex.Cintex.Enable()
-import ROOT
-
 # Import a needed helper
 from PATCore.HelperUtils import GetTool
 

@@ -2,12 +2,6 @@ import ROOT
 import cppyy
 import sys
 
-try:
-    # ROOT 5 needs that, ROOT 6 does not have Cintex
-    cppyy.Cintex.Enable()
-except :
-    pass
-
 if len(sys.argv) == 1:
   fname = 'bs-streamerinfos.root'
 else:

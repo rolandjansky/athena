@@ -146,14 +146,7 @@ elif tag=='UPD5' and outfolderPath!=folderPath:
 if outtag is None:
     outtag = tag
 
-#import PyCintex
-try:
-   # ROOT5
-   import PyCintex
-except:
-   # ROOT6
-   import cppyy as PyCintex
-   sys.modules['PyCintex'] = PyCintex
+import cppyy
 
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobObjs.Classes import *
@@ -235,11 +228,11 @@ else:
 
 if len(txtFile)>0:
     #=== create default: one number per ADC
-    default = PyCintex.gbl.std.vector('float')()
+    default = cppyy.gbl.std.vector('float')()
     for n in xrange(nval):
         default.push_back(0.)
 
-    defConst = PyCintex.gbl.std.vector('std::vector<float>')()
+    defConst = cppyy.gbl.std.vector('std::vector<float>')()
     for ng in xrange(ngain):
         defConst.push_back(default) # low/high gain
 

@@ -14,14 +14,7 @@ Python module for managing TileCal ADC status words.
 
 """
 
-#import PyCintex
-try:
-   # ROOT5
-   import PyCintex
-except:
-   # ROOT6
-   import cppyy as PyCintex
-   sys.modules['PyCintex'] = PyCintex
+import cppyy
 
 from TileCalibBlobObjs.Classes import *
 from TileCalibBlobPython import TileCalibTools
@@ -432,14 +425,14 @@ class TileBchMgr(TileCalibLogger):
         self.log().info("... comment: \'%s\'" % comment )
 
         #=== default for drawer initialization
-        loGainDefVec = PyCintex.gbl.std.vector('unsigned int')()
+        loGainDefVec = cppyy.gbl.std.vector('unsigned int')()
         loGainDefVec.push_back(0)
-        hiGainDefVec = PyCintex.gbl.std.vector('unsigned int')()
+        hiGainDefVec = cppyy.gbl.std.vector('unsigned int')()
         hiGainDefVec.push_back(0)
-        comChnDefVec = PyCintex.gbl.std.vector('unsigned int')()
+        comChnDefVec = cppyy.gbl.std.vector('unsigned int')()
         comChnDefVec.push_back(0)
-        PyCintex.makeClass('std::vector<unsigned int>')
-        defVec = PyCintex.gbl.std.vector('std::vector<unsigned int>')()
+        cppyy.makeClass('std::vector<unsigned int>')
+        defVec = cppyy.gbl.std.vector('std::vector<unsigned int>')()
         defVec.push_back(loGainDefVec)
         defVec.push_back(hiGainDefVec)
         defVec.push_back(comChnDefVec)

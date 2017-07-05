@@ -8,7 +8,7 @@
 import sys
 import copy
 import ROOT
-import PyCintex
+import cppyy
 from PyCool import coral
 import AthenaROOTAccess.transientTree
 
@@ -79,13 +79,13 @@ class TriggerConfigARA(object):
         self.verbose = False
         if 'verbose' in args: self.verbose = args['verbose']
 
-        plcClass = PyCintex.makeClass("IOVPayloadContainer")
+        plcClass = cppyy.makeClass("IOVPayloadContainer")
         plcClass.iter  = _iter
 
-        tiClass = PyCintex.makeClass("TrigConf::TriggerItem")
+        tiClass = cppyy.makeClass("TrigConf::TriggerItem")
         tiClass.__str__  = lambda x: "%s (ctpid %i), ps %g" % (x.name(), x.ctpId(), x.ps)
 
-        chClass = PyCintex.makeClass("TrigConf::HLTChain")
+        chClass = cppyy.makeClass("TrigConf::HLTChain")
         chClass.__str__  = _chPrint
 
         ROOT.IOVTime.__str__ = lambda x: "%i/%i" % (x.run(),x.event())
