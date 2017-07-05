@@ -27,7 +27,7 @@ namespace xAODMaker {
   
   StatusCode TrackCollectionCnvTool::initialize() {
     // Greet the user:
-    ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
+    ATH_MSG_INFO( "Initializing TrackCollectionCnvTool - Package version: " << PACKAGE_VERSION );
     ATH_CHECK( m_particleCreator.retrieve() );
     
     return StatusCode::SUCCESS;
