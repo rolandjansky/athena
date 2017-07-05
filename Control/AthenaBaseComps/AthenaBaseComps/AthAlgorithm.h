@@ -15,6 +15,19 @@
 #include <string>
 #include <type_traits>
 
+// Need to do this very early so parser for VarHandleKey picked up
+#include <string>
+#include "GaudiKernel/StatusCode.h"
+namespace SG {
+  class VarHandleKey;
+}
+namespace Gaudi {
+  namespace Parsers {
+    StatusCode parse(SG::VarHandleKey& v, const std::string& s);
+  }
+}
+
+
 // Framework includes
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/MsgStream.h"
@@ -105,6 +118,52 @@ class AthAlgorithm
 private:
   // to keep track of VarHandleKeyArrays for data dep registration
   mutable std::vector<SG::VarHandleKeyArray*> m_vhka;
+
+
+public:
+  /////////////////////////////////////////////////////////////////
+  //
+  //// Enable use of Gaudi::Property<Foo> m_foo {this,"NAME",init,"doc"};
+  //   style properties in AthAlgorithms
+  //
+
+  template <class T>
+  Property& declareProperty(Gaudi::Property<T> &t) {
+    return AthAlgorithm::declareGaudiProperty(t, std::is_base_of<SG::VarHandleKey, T>());
+  }
+
+private:
+  /**
+   * @brief specialization for handling Gaudi::Property<SG::VarHandleKey>
+   *
+   */
+  template <class T>
+  Property& declareGaudiProperty(Gaudi::Property<T> &hndl, std::true_type) {
+    try {
+      SG::VarHandleKey &vhk = dynamic_cast<SG::VarHandleKey&>( hndl.value() );
+
+      this->declare(vhk);
+      vhk.setOwner(this);
+
+    } catch (...) {
+      ATH_MSG_ERROR("AthAlgorith::declareGaudiProperty: " << hndl 
+                    << " could not dcast to SG::VarHandleKey. "
+                    << "This should not happen!");
+      throw std::runtime_error("AthAlgorith::declareGaudiProperty: not a VarHandleKey (this should not happen)!");
+    }
+
+    return Algorithm::declareProperty(hndl);
+  }
+
+  /**
+   * @brief specialization for handling everything that's not a
+   * Gaudi::Property<SG::VarHandleKey>
+   *
+   */
+  template <class T>
+  Property& declareGaudiProperty(Gaudi::Property<T> &t, std::false_type) {
+    return Algorithm::declareProperty(t);
+  }
 
   /////////////////////////////////////////////////////////////////
   //

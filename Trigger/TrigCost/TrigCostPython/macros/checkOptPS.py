@@ -4,7 +4,7 @@
 from TrigCostPython import TrigCostAnalysis, TrigCostXML , TrigCostTRP
 from optparse import OptionParser
 import os, sys, string, math, shutil
-import ROOT, PyCintex
+import ROOT
 ROOT.gROOT.SetBatch(True)
 
 #-----------------------------------------------------------------------

@@ -156,14 +156,7 @@ else:
   # COOLOFL_TILE/OFLP200 COOLOFL_TILE/COMP200 COOLOFL_TILE/CONDBR2
 
 
-#import PyCintex
-try:
-   # ROOT5
-   import PyCintex
-except:
-   # ROOT6
-   import cppyy as PyCintex
-   sys.modules['PyCintex'] = PyCintex
+import cppyy
 
 from CaloCondBlobAlgs import CaloCondTools
 from TileCalibBlobPython import TileCalibTools
@@ -394,10 +387,10 @@ for iov in iovList:
 
   print "output db:  ncell: %d ngain %d nval %d" % (ncell, ngain, nval)
 
-  GainDefVec = PyCintex.gbl.std.vector('float')()
+  GainDefVec = cppyy.gbl.std.vector('float')()
   for val in xrange(nval):
     GainDefVec.push_back(0.0)
-  defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+  defVec = cppyy.gbl.std.vector('std::vector<float>')()
   for gain in xrange(ngain):
     defVec.push_back(GainDefVec)
   blobW = writer.getCells(chan)
