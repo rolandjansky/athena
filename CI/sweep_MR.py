@@ -152,8 +152,7 @@ def cherry_pick_mr(merge_commit,source_branch,target_branch_rules,project,dry_ru
 
     # if this is a test run, we can stop here
     if dry_run:
-        print "*** DBG: dry_run, return skipped ***"
-        #return
+        return
 
     # get initial MR commit title and description
     _,mr_title,_ = execute_command_with_retry('git show {0} --pretty=format:"%s"'.format(merge_commit))
