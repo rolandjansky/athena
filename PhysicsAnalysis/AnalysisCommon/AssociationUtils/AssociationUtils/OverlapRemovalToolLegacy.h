@@ -271,7 +271,7 @@ class OverlapRemovalTool : public virtual IOverlapRemovalTool,
     ort::sharedTrackAccessor_t* m_sharedTrackAccessor;
 
 }
-#if not defined(__GCCXML__) and not defined(__ROOTCLING__) and not defined(__MAKECINT__)
+#if not defined(__GCCXML__) and not defined(__ROOTCLING__) and not defined(__MAKECINT__) and not defined(R__DICTIONARY_FILENAME)
 __attribute__((deprecated))
 #endif
 ; // class OverlapRemovalTool
