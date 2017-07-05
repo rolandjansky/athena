@@ -5,13 +5,15 @@
 #ifndef PIXELMON2DMAPSLW_H_
 #define PIXELMON2DMAPSLW_H_
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "PixelMonitoring/Components.h"
 #include <string.h>
 
 class TH2F_LW;
 class Identifier;
 class PixelID;
 class StatusCode;
+namespace PixMon {
+enum class HistConf;
+}
 
 // A helper class to remove a lot of the code duplication.
 // This is a collection of 5 2D histograms which make up the '2D mapsLW' used a lot of in the monitoring.

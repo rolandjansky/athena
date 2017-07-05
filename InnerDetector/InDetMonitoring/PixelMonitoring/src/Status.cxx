@@ -22,6 +22,7 @@
 #include "InDetIdentifier/PixelID.h"
 #include <sstream>
 
+#include "PixelMonitoring/Components.h"
 #include "PixelMonitoring/PixelMon2DMapsLW.h"
 #include "PixelMonitoring/PixelMon2DProfilesLW.h"
 #include "PixelMonitoring/PixelMonModules.h"

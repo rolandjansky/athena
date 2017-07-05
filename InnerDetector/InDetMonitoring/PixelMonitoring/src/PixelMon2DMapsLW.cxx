@@ -7,6 +7,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "PixelMonitoring/PixelMon2DMapsLW.h"
+#include "PixelMonitoring/Components.h"
 #include "InDetIdentifier/PixelID.h"
 #include "LWHists/TH2F_LW.h"
 #include "GaudiKernel/StatusCode.h"     
