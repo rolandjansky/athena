@@ -72,14 +72,17 @@ void G4AtlasRunManager::InitializeGeometry()
     abort(); // to keep Coverity happy
   }
 
-  G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
-  for (unsigned int i=0;i<lvs->size();++i) {
-    if ( (*lvs)[i]->GetName() == "Muon::MuonSys" ) {
-      (*lvs)[i]->SetSmartless( 0.1 );
+  // Set smartlessness
+  G4LogicalVolumeStore *logicalVolumeStore = G4LogicalVolumeStore::GetInstance();
+  const std::string muonSys("Muon::MuonSys");
+  const std::string embSTAC("LArMgr::LAr::EMB::STAC");
+  for (auto* ilv : *logicalVolumeStore ) {
+    if ( ilv->GetName() == muonSys ) {
+      ilv->SetSmartless( 0.1 );
       ATH_MSG_INFO( "Set smartlessness for Muon::MuonSys to 0.1" );
     }
-    else if ( (*lvs)[i]->GetName() == "LArMgr::LAr::EMB::STAC") {
-      (*lvs)[i]->SetSmartless( 0.5 );
+    else if ( ilv->GetName() == embSTAC ) {
+      ilv->SetSmartless( 0.5 );
       ATH_MSG_INFO( "Set smartlessness for LArMgr::LAr::EMB::STAC to 0.5" );
     }
   }
