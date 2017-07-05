@@ -470,9 +470,9 @@ void Pythia8_i::addLHEToHepMC(HepMC::GenEvent *evt){
   
   HepMC::GenEvent *procEvent = new HepMC::GenEvent(evt->momentum_unit(), evt->length_unit());
   
-  m_pythiaToHepMC.set_free_parton_warnings(false);
+  m_pythiaToHepMC.set_free_parton_exception(false);
   m_pythiaToHepMC.fill_next_event(m_pythia.process, procEvent, evt->event_number(), &m_pythia.info, &m_pythia.settings);
-  m_pythiaToHepMC.set_free_parton_warnings(true);
+  m_pythiaToHepMC.set_free_parton_exception(true);
   
   for(HepMC::GenEvent::particle_iterator p = procEvent->particles_begin();
       p != procEvent->particles_end(); ++p){
