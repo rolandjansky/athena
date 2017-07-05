@@ -349,6 +349,23 @@ AssessmentVisitorBase( HanConfigGroup* root_, const MiniConfig& algConfig_,
 {
 }
 
+std::shared_ptr<TFile>
+HanConfig::AssessmentVisitorBase::
+GetROOTFile( std::string& fname ) const
+{
+  auto it = m_filecache.find(fname);
+  if (it != end(m_filecache)) {
+    return it->second;
+  } else {
+    std::shared_ptr<TFile> thisptr(TFile::Open(fname.c_str()));
+    if (thisptr.get()) {
+      return ( m_filecache[fname] = thisptr );
+     } else {
+      return thisptr;
+    }	  
+  }
+}
+
 float AttribToFloat(const MiniConfigTreeNode* node, const std::string attrib,
 		    const std::string warningString, bool local=false)
 {
@@ -453,11 +470,16 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	    absAlgRefName += algRefName;
 	    std::string algRefFile( m_refConfig.GetStringAttribute(thisRefID,"file") );
 	    if( algRefFile != "" ) {
-	      std::auto_ptr<TFile> infile( TFile::Open(algRefFile.c_str()) );
+	      std::shared_ptr<TFile> infile = GetROOTFile(algRefFile);
+	      if ( ! infile.get() ) {
+		std::cerr << "HanConfig::AssessmentVistorBase::GetAlgorithmConfiguration: Reference file " << algRefFile << " not found" << std::endl;
+		continue;
+	      }
 	      TKey* key = getObjKey( infile.get(), absAlgRefName );
 	      if( key == 0 ) {
-		std::cerr << "HanConfig::AssessmentVisitorBase::GetAlgorithmConfiguration: "
-			  << "Reference not found: \"" << absAlgRefName << "\"\n";
+		// Quiet this error ...
+		//std::cerr << "HanConfig::AssessmentVisitorBase::GetAlgorithmConfiguration: "
+		//<< "Reference not found: \"" << absAlgRefName << "\"\n";
 		continue;
 	      }
 	      // TDirectory* dir = ChangeOutputDir( m_outfile, absAlgRefName, m_directories );
@@ -499,8 +521,10 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	    newRefId=CS.getNewReferenceName(algRefName,true);
 	    if(newRefId.empty()){
 	      std::cerr<<"Warning New reference id is empty for refId=\""
-		       <<refID<<"\", cond=\""<<cond<<"\", assessorName= \""
-		       <<assessorName<<"\""<<std::endl;
+		       <<refID<<"\", cond=\""<<cond<<"\", assessorName=\""
+		       <<assessorName<<"\", algRefName=\""
+		       <<algRefName<<"\""<<std::endl;
+	      std::cerr << "AlgRefPath=" << algRefPath << " AlgRefInfo=" << algRefInfo << std::endl;
 	    }
 	  }
 	} 
@@ -798,7 +822,8 @@ Visit( const MiniConfigTreeNode* node ) const
       std::string objPath("");
       std::string absObjPath("");
       
-      std::auto_ptr<TFile> infile( TFile::Open(refFile.c_str()) );
+      //std::auto_ptr<TFile> infile( TFile::Open(refFile.c_str()) );
+      std::shared_ptr<TFile> infile( GetROOTFile(refFile) );
       TDirectory* basedir(0);
       TDirectory* dir(0);
       TKey* key;
