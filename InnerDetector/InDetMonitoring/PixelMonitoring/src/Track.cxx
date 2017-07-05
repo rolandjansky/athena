@@ -119,21 +119,21 @@ StatusCode PixelMainMon::BookTrackMon(void)
     m_tsos_outliermap = new PixelMon2DMapsLW("TSOS_Outlier", ("TSOS of type Outlier" + m_histTitleExt), PixMon::HistConf::kPixDBMIBL2D3D, m_doIBL, true);
     sc = m_tsos_outliermap->regHist(trackHistos);
     
-    //m_tsos_measratio = new PixelMon2DProfilesLW("TSOS_MeasRatio", ("TSOS of type Meas per track" + m_histTitleExt), PixMon::HistConf::kPixDBMIBL2D3D, m_doIBL, true);
+    //m_tsos_measratio = new PixelMon2DProfilesLW("TSOS_MeasRatio", ("TSOS of type Meas per track" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, m_doIBL, true);
     //sc = m_tsos_measratio->regHist(trackHistos);
-    //m_tsos_holeratio = new PixelMon2DProfilesLW("TSOS_HoleRatio", ("TSOS of type Hole per track" + m_histTitleExt), PixMon::HistConf::kPixDBMIBL2D3D, m_doIBL, true);
+    //m_tsos_holeratio = new PixelMon2DProfilesLW("TSOS_HoleRatio", ("TSOS of type Hole per track" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, m_doIBL, true);
     //sc = m_tsos_holeratio->regHist(trackHistos);
-    //m_misshits_ratio = new PixelMon2DProfilesLW("MissHitsRatioOnTrack", ("Hole+Outlier per track" + m_histTitleExt), PixMon::HistConf::kPixDBMIBL2D3D, m_doIBL, true);
+    //m_misshits_ratio = new PixelMon2DProfilesLW("MissHitsRatioOnTrack", ("Hole+Outlier per track" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, m_doIBL, true);
     //sc = m_misshits_ratio->regHist(trackHistos);
   }
   if (m_doOnline) {
-    m_tsos_holeratio_tmp = new PixelMon2DProfilesLW("HoleRatio_tmp", ("TSOS of type Hole per track tmp" + m_histTitleExt), PixMon::HistConf::kPixDBMIBL2D3D, m_doIBL, true);
+    m_tsos_holeratio_tmp = new PixelMon2DProfilesLW("HoleRatio_tmp", ("TSOS of type Hole per track tmp" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, m_doIBL, true);
     sc = m_tsos_holeratio_tmp->regHist(trackHistos);
-    m_tsos_holeratio_mon = new PixelMon2DProfilesLW("HoleRatio_mon", ("TSOS of type Hole per track for monitoring" + m_histTitleExt), PixMon::HistConf::kPixDBMIBL2D3D, m_doIBL, true);
+    m_tsos_holeratio_mon = new PixelMon2DProfilesLW("HoleRatio_mon", ("TSOS of type Hole per track for monitoring" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, m_doIBL, true);
     sc = m_tsos_holeratio_mon->regHist(trackHistos);
-    m_misshits_ratio_tmp = new PixelMon2DProfilesLW("MissHitsRatioOnTrack_tmp", ("Hole+Outlier per track" + m_histTitleExt), PixMon::HistConf::kPixDBMIBL2D3D, m_doIBL, true);
+    m_misshits_ratio_tmp = new PixelMon2DProfilesLW("MissHitsRatioOnTrack_tmp", ("Hole+Outlier per track" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, m_doIBL, true);
     sc = m_misshits_ratio_tmp->regHist(trackHistos);
-    m_misshits_ratio_mon = new PixelMon2DProfilesLW("MissHitsRatioOnTrack_mon", ("Hole+Outlier per track for monitoring" + m_histTitleExt), PixMon::HistConf::kPixDBMIBL2D3D, m_doIBL, true);
+    m_misshits_ratio_mon = new PixelMon2DProfilesLW("MissHitsRatioOnTrack_mon", ("Hole+Outlier per track for monitoring" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, m_doIBL, true);
     sc = m_misshits_ratio_mon->regHist(trackHistos);
   }
   
