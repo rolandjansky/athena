@@ -1,0 +1,72 @@
+LibraryNames libTopEventSelectionTools libTopEventReconstructionTools
+
+### Good Run List
+GRLDir  GoodRunsLists
+GRLFile data15_13TeV/20160720/physics_25ns_20.7.xml data16_13TeV/20170215/physics_25ns_20.7.xml
+
+### Pile-up reweighting tool - this is now mandatory
+### Now requires only PRWLumiCalcFiles
+### No PRWDefaultChannel anymore
+### The nominal mc15c PU distribution is now appended to PRWConfigFiles automatically
+### Will hence be using mc15c_v2_defaults.NotRecommended.prw.root if nothing is provided for PRWConfigFiles
+# PRWConfigFiles TopCorrections/PRW.410000.mc15c.r7725_r7676.root
+PRWConfigFiles
+PRWLumiCalcFiles GoodRunsLists/data15_13TeV/20160720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root GoodRunsLists/data16_13TeV/20170215/physics_25ns_20.7.lumicalc.OflLumi-13TeV-008.root
+# no PRWDefaultChannel anymore
+
+ElectronCollectionName Electrons
+MuonCollectionName Muons
+JetCollectionName AntiKt4EMTopoJets
+LargeJetCollectionName None
+LargeJetSubstructure None
+TauCollectionName None
+PhotonCollectionName None
+
+TruthCollectionName TruthParticles
+TruthJetCollectionName AntiKt4TruthWZJets
+TopPartonHistory ttbar
+TruthBlockInfo False
+PDFInfo False
+
+ObjectSelectionName top::ObjectLoaderStandardCuts
+OutputFormat top::EventSaverFlatNtuple
+OutputEvents SelectedEvents
+OutputFilename output.root
+PerfStats No
+
+Systematics Nominal
+
+ElectronID TightLH
+ElectronIDLoose MediumLH
+ElectronIsolation Gradient
+ElectronIsolationLoose None
+
+MuonQuality Medium
+MuonQualityLoose Medium
+MuonIsolation Gradient
+MuonIsolationLoose None
+
+FakesControlRegionDoLooseMC False
+OverlapRemovalLeptonDef Tight
+ApplyElectronInJetSubtraction False
+
+NEvents 2000
+
+SELECTION all_2015
+INITIAL
+GRL
+GOODCALO
+PRIVTX
+RUN_NUMBER >= 276262
+RUN_NUMBER <= 284484
+EXAMPLEPLOTS
+SAVE
+
+SELECTION all_2016
+INITIAL
+GRL
+GOODCALO
+PRIVTX
+RUN_NUMBER >= 297730
+EXAMPLEPLOTS
+SAVE

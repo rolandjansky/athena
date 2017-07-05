@@ -50,7 +50,10 @@
 - PhysicsAnalysis/SUSYPhys/SUSYTools
 - PhysicsAnalysis/TauID/DiTauMassTools
 - PhysicsAnalysis/TauID/TauCorrUncert
+- PhysicsAnalysis/TopPhys/KLFitter
 - PhysicsAnalysis/TopPhys/QuickAna
+- PhysicsAnalysis/TopPhys/TopPhysUtils/.*
+- PhysicsAnalysis/TopPhys/xAOD/.*
 - PhysicsAnalysis/TrackingID/InDetTrackSystematicsTools
 - Reconstruction/Jet/JetAnalysisTools/JetTileCorrection
 - Reconstruction/Jet/JetJvtEfficiency
