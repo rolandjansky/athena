@@ -62,7 +62,7 @@ namespace InDet {
 
       MsgStream& dump(MsgStream& out) const;
       
-    // private:
+    private:
 
       ///////////////////////////////////////////////////////////////////
       /* Private data                                                */

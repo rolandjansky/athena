@@ -248,7 +248,7 @@ MsgStream&  InDet::TRT_StandaloneTrackFinder::dump( MsgStream& out ) const
 }
 
 
-MsgStream &dumpevent(MsgStream &out, const InDet::TRT_StandaloneTrackFinder::Counter_t& counter) {
+MsgStream& InDet::TRT_StandaloneTrackFinder::dumpevent(MsgStream &out, const InDet::TRT_StandaloneTrackFinder::Counter_t& counter) {
   out<<"| counters |" << counter << std::endl; 
   return out;
 }
