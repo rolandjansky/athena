@@ -569,7 +569,7 @@ Signal::wait (const sigset_t */*mask*/,
    the signal is effectively ignored.  Note however that certain
    options to #fatal() also cause the quit hook to be invoked.  */
 void
-Signal::handleQuit (QuitHook hook /* = 0 */)
+Signal::handleQuit ATLAS_NOT_THREAD_SAFE (QuitHook hook /* = 0 */)
 {
     static int hups [] = {
 #ifdef SIGHUP
@@ -634,11 +634,11 @@ Signal::handleQuit (QuitHook hook /* = 0 */)
     which thread catches the signals, and on the other hand, it is
     best to dump the problems in the faulting thread if possible.)  */
 void
-Signal::handleFatal (const char  *applicationName /* = 0 */,
-		     IOFD	 fd /* = IOFD_INVALID */,
-		     FatalHook	 hook /* = 0 */,
-		     FatalReturn mainreturn /* = 0 */,
-		     unsigned    options /* = FATAL_DEFAULT */)
+Signal::handleFatal ATLAS_NOT_THREAD_SAFE  (const char  *applicationName /* = 0 */,
+                                            IOFD	 fd /* = IOFD_INVALID */,
+                                            FatalHook	 hook /* = 0 */,
+                                            FatalReturn mainreturn /* = 0 */,
+                                            unsigned    options /* = FATAL_DEFAULT */)
 {
     // FIXME: Provide means to install handlers for fatal signals that
     // an application has requested and app was supposed to register a
@@ -661,7 +661,7 @@ Signal::handleFatal (const char  *applicationName /* = 0 */,
     // wait or poll for events (SIGPOLL, SIGIO, possibly SIGALRM, the
     // real-time signals if they are used).
 
-    static int hups [] = {
+    static const int hups [] = {
 #ifdef SIGHUP
 	SIGHUP,		// hang up (lost terminal or process group leader)
 #endif
@@ -805,7 +805,7 @@ Signal::handleFatal (const char  *applicationName /* = 0 */,
     @c true if the application has crashed as noted in the
     documentation for \<\<QuitHook\>\>.  */
 void
-Signal::quit (int sig, siginfo_t *info, void *x)
+Signal::quit ATLAS_NOT_THREAD_SAFE (int sig, siginfo_t *info, void *x)
 {
     // Quit if no hook has been registered: we are coming in via
     // FATAL_AUTO_EXIT in fatal and the application did not call
@@ -883,7 +883,7 @@ Signal::quit (int sig, siginfo_t *info, void *x)
     in balance, the application just got a fatal signal and the leak
     is unlikely to be the greatest concern.  */
 void
-Signal::fatal (int sig, siginfo_t *info, void *x)
+Signal::fatal ATLAS_NOT_THREAD_SAFE (int sig, siginfo_t *info, void *x)
 {
     assert (s_fatalReturn || (s_fatalOptions & FATAL_AUTO_EXIT));
 
@@ -958,7 +958,7 @@ Signal::fatal (int sig, siginfo_t *info, void *x)
 const char *
 Signal::describe (int sig, int code)
 {
-    static struct { int sig; int code; const char *desc; } infos [] = {
+    static const struct { int sig; int code; const char *desc; } infos [] = {
 #if HAVE_POSIX_SIGNALS
 	{ -1,	   SI_USER,	"user sent: kill, sigsend or raise" },
 # ifdef SI_KERNEL
@@ -1496,7 +1496,7 @@ Signal::dumpContext (IOFD fd, char *buf, const void *context)
     and then calls this function. */
 static char buf[SIGNAL_MESSAGE_BUFSIZE];
 bool
-Signal::fatalDump (int sig, siginfo_t *info, void *extra)
+Signal::fatalDump ATLAS_NOT_THREAD_SAFE (int sig, siginfo_t *info, void *extra)
 {
     bool haveCore = false;
     if (sig < 0)
@@ -1558,7 +1558,7 @@ Signal::fatalDump (int sig, siginfo_t *info, void *extra)
 /** Return the file descriptor #fataldump() uses for output.
     Registered through #handleFatal().  */
 IOFD
-Signal::handleFatalFd (void)
+Signal::handleFatalFd ATLAS_NOT_THREAD_SAFE (void)
 {
     // Automatically initialise on first access.
     if (s_fatalFd == IOFD_INVALID)
@@ -1570,25 +1570,25 @@ Signal::handleFatalFd (void)
 /** Return the application fatal signal hook.  Registered through
     #handleFatal().  @sa #fatal() */
 Signal::FatalHook
-Signal::handleFatalHook (void)
+Signal::handleFatalHook ATLAS_NOT_THREAD_SAFE (void)
 { return s_fatalHook; }
 
 /** Return the application fatal signal return hook.  Registered
     through #handleFatal().  @sa #fatal().  */
 Signal::FatalReturn
-Signal::handleFatalReturn (void)
+Signal::handleFatalReturn ATLAS_NOT_THREAD_SAFE (void)
 { return s_fatalReturn; }
 
 /** Return the current fatal signal handling options.  Set on
     invocation to #handleFatal().  */
 unsigned
-Signal::handleFatalOptions (void)
+Signal::handleFatalOptions ATLAS_NOT_THREAD_SAFE (void)
 { return s_fatalOptions; }
 
 /** Return the current application quit signal hook.  Registered
     through #handleQuit().  */
 Signal::QuitHook
-Signal::handleQuitHook (void)
+Signal::handleQuitHook ATLAS_NOT_THREAD_SAFE (void)
 { return s_quitHook; }
 
 /** Return the depth to which #fatal() is currently recursively
@@ -1600,14 +1600,14 @@ Signal::handleQuitHook (void)
     application's hooks and forces termination if the nesting level
     reaches 4. */
 int
-Signal::fatalLevel (void)
+Signal::fatalLevel ATLAS_NOT_THREAD_SAFE (void)
 { return s_inFatal; }
 
 /** Return the crash status indicator: @c true if a fatal signal has
     been received since the program started.  Set if #fatal() is
     entered with a fatal signal.  */
 bool
-Signal::crashed (void)
+Signal::crashed ATLAS_NOT_THREAD_SAFE (void)
 { return s_crashed; }
 
 //} // namespace seal                             wlav
@@ -1617,7 +1617,7 @@ Signal::crashed (void)
 extern "C" {
   /// Install fatal handler with default options.
   /// This is meant to be easy to call from pyton via ctypes.
-  void CxxUtils_installFatalHandler()
+  void CxxUtils_installFatalHandler ATLAS_NOT_THREAD_SAFE ()
   {
     Athena::Signal::handleFatal(nullptr, 1);
   }
