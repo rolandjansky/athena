@@ -227,7 +227,7 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    }
 
    if (m_do2DMaps) {
-      m_errhist_femcc_errwords_map = new PixelMon2DProfilesLW("femcc_errorwords", ("Average FE/MCC Error Words" + m_histTitleExt).c_str(), m_doIBL);
+      m_errhist_femcc_errwords_map = new PixelMon2DProfilesLW("femcc_errorwords", ("Average FE/MCC Error Words" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, m_doIBL);
       sc = m_errhist_femcc_errwords_map->regHist(rodHistos);
    }
 
