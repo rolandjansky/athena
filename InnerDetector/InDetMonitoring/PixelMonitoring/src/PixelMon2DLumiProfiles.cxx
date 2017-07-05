@@ -6,37 +6,55 @@
 // Function to handle 2D maps of modules, one for each region
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "PixelMonitoring/Components.h"
 #include "PixelMonitoring/PixelMon2DLumiProfiles.h"
 #include "InDetIdentifier/PixelID.h"
 #include "LWHists/TProfile2D_LW.h"
 #include "GaudiKernel/StatusCode.h"     
 #include <string.h>
 
-PixelMon2DLumiProfiles::PixelMon2DLumiProfiles(std::string name, std::string title, std::string zlabel, bool doIBL, bool errorHist) : m_doIBL(doIBL), m_errorHist(errorHist)
+PixelMon2DLumiProfiles::PixelMon2DLumiProfiles(std::string name, std::string title, std::string zlabel, const PixMon::HistConf& config, bool doIBL)
+    : IBLlbp(nullptr),
+      B0lbp(nullptr),
+      B1lbp(nullptr),
+      B2lbp(nullptr),
+      Albp(nullptr),
+      Clbp(nullptr),
+      m_config(config),
+      m_doIBL(doIBL)
 {
    const int lbRange = 3000;
-   if (m_doIBL && !m_errorHist) {
+
+   if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kIBL)) {
       IBLlbp= TProfile2D_LW::create((name+"_2D_Profile_IBL").c_str(), (title + ", IBL " + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+(float)lbRange,280,-0.5,279.5);
    }
-   B0lbp = TProfile2D_LW::create((name+"_2D_Profile_B0").c_str(),  (title + ", B0 "  + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+(float)lbRange,286,-0.5,285.5);
-   B1lbp = TProfile2D_LW::create((name+"_2D_Profile_B1").c_str(),  (title + ", B1 "  + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+(float)lbRange,494,-0.5,493.5);
-   B2lbp = TProfile2D_LW::create((name+"_2D_Profile_B2").c_str(),  (title + ", B2 "  + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+(float)lbRange,676,-0.5,675.5);
-   Albp  = TProfile2D_LW::create((name+"_2D_Profile_ECA" ).c_str(),(title + ", ECA " + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+(float)lbRange,144,-0.5,143.5);
-   Clbp  = TProfile2D_LW::create((name+"_2D_Profile_ECC" ).c_str(),(title + ", ECC " + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+(float)lbRange,144,-0.5,143.5);
+   if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kB0)) {
+      B0lbp = TProfile2D_LW::create((name+"_2D_Profile_B0").c_str(),  (title + ", B0 "  + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+(float)lbRange,286,-0.5,285.5);
+   }
+   if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kB1)) {
+      B1lbp = TProfile2D_LW::create((name+"_2D_Profile_B1").c_str(),  (title + ", B1 "  + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+(float)lbRange,494,-0.5,493.5);
+   }
+   if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kB2)) {
+      B2lbp = TProfile2D_LW::create((name+"_2D_Profile_B2").c_str(),  (title + ", B2 "  + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+(float)lbRange,676,-0.5,675.5);
+   }
+   if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kECA)) {
+      Albp  = TProfile2D_LW::create((name+"_2D_Profile_ECA" ).c_str(),(title + ", ECA " + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+(float)lbRange,144,-0.5,143.5);
+   }
+   if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kECC)) {
+      Clbp  = TProfile2D_LW::create((name+"_2D_Profile_ECC" ).c_str(),(title + ", ECC " + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+(float)lbRange,144,-0.5,143.5);
+   }
 
    formatHist();
 }
 
 PixelMon2DLumiProfiles::~PixelMon2DLumiProfiles()
 {
-   if (m_doIBL && !m_errorHist) {
-      LWHist::safeDelete(IBLlbp);
-   }
-   LWHist::safeDelete(B0lbp);
-   LWHist::safeDelete(B1lbp);
-   LWHist::safeDelete(B2lbp);
-   LWHist::safeDelete(Albp);
-   LWHist::safeDelete(Clbp);
+   if (IBLlbp) LWHist::safeDelete(IBLlbp);
+   if (B0lbp) LWHist::safeDelete(B0lbp);
+   if (B1lbp) LWHist::safeDelete(B1lbp);
+   if (B2lbp) LWHist::safeDelete(B2lbp);
+   if (Albp) LWHist::safeDelete(Albp);
+   if (Clbp) LWHist::safeDelete(Clbp);
 }
 
 void PixelMon2DLumiProfiles::Fill(double LB,Identifier &id, const PixelID* pixID, double weight)
@@ -45,20 +63,20 @@ void PixelMon2DLumiProfiles::Fill(double LB,Identifier &id, const PixelID* pixID
    const int pm  = pixID->phi_module(id);
    int ld = pixID->layer_disk(id);
 
-   if (bec == 2) {
+   if (bec == 2 && Albp) {
       Albp->Fill(LB, ld * 48 + pm, weight);
-   } else if (bec == -2) {
+   } else if (bec == -2 && Clbp) {
       Clbp->Fill(LB, ld * 48 + pm, weight);
    } else if (bec == 0) {
       if (m_doIBL) ld--;
       const int em = pixID->eta_module(id) + 6;
-      if (ld == 0) {
+      if (ld == 0 && B0lbp) {
          B0lbp->Fill(LB, em + 13 * pm, weight);
-      } else if (ld == 1) {
+      } else if (ld == 1 && B1lbp) {
          B1lbp->Fill(LB, em + 13 * pm, weight);
-      } else if (ld == 2) {
+      } else if (ld == 2 && B2lbp) {
          B2lbp->Fill(LB, em + 13 * pm, weight);
-      } else if (ld == -1 && !m_errorHist && m_doIBL) {
+      } else if (ld == -1 && IBLlbp) {
          IBLlbp->Fill(LB, em + 4 + 20 * pm, weight);
       }
    }
@@ -128,41 +146,45 @@ void PixelMon2DLumiProfiles::formatHist()
       "B01_S1_M4", "B01_S1_M3", "B01_S1_M5", "B01_S1_M2", "B01_S1_M6", "B01_S1_M1"};
 
    int count = 1;
-   for (int j = 0; j < ndisk; j++) {
-      for (int i = 0; i < nphi; i++) {
-         sprintf(label, "%sA_%s", disk[j], nstaveA[i]);
-         Albp->GetYaxis()->SetBinLabel(count, label);
-         sprintf(label, "%sC_%s", disk[j], nstaveC[i]);
-         Clbp->GetYaxis()->SetBinLabel(count, label);
-         count++;
+   if (Albp && Clbp) {
+      for (int j = 0; j < ndisk; j++) {
+         for (int i = 0; i < nphi; i++) {
+            sprintf(label, "%sA_%s", disk[j], nstaveA[i]);
+            Albp->GetYaxis()->SetBinLabel(count, label);
+            sprintf(label, "%sC_%s", disk[j], nstaveC[i]);
+            Clbp->GetYaxis()->SetBinLabel(count, label);
+            count++;
+         }
       }
+      count = 1;
    }
-   count = 1;
-   for (int i = 0; i < nstave0; i++) {
-      for (int j = 0; j < nmod; j++) {
-         sprintf(label, "L0_%s_%s", stave0[i], mod[j]);
-         B0lbp->GetYaxis()->SetBinLabel(count, label); 
-         count++;
+   if (B0lbp && B1lbp && B2lbp) {
+      for (int i = 0; i < nstave0; i++) {
+         for (int j = 0; j < nmod; j++) {
+            sprintf(label, "L0_%s_%s", stave0[i], mod[j]);
+            B0lbp->GetYaxis()->SetBinLabel(count, label);
+            count++;
+         }
       }
-   }
-   count = 1;
-   for (int i = 0; i < nstave1; i++) {
-      for (int j = 0; j < nmod; j++) {
-         sprintf(label, "L1_%s_%s", stave1[i], mod[j]);
-         B1lbp->GetYaxis()->SetBinLabel(count,label);
-         count++; 
+      count = 1;
+      for (int i = 0; i < nstave1; i++) {
+         for (int j = 0; j < nmod; j++) {
+            sprintf(label, "L1_%s_%s", stave1[i], mod[j]);
+            B1lbp->GetYaxis()->SetBinLabel(count,label);
+            count++;
+         }
       }
+      count = 1;
+      for (int i = 0; i < nstave2; i++) {
+         for (int j = 0; j < nmod; j++) {
+            sprintf(label, "L2_%s_%s", stave2[i], mod[j]);
+            B2lbp->GetYaxis()->SetBinLabel(count, label);
+            count++;
+         }
+      }
+      count = 1;
    }
-   count = 1;
-   for (int i = 0; i < nstave2; i++) {
-      for (int j = 0; j < nmod; j++) {
-         sprintf(label, "L2_%s_%s", stave2[i], mod[j]);
-         B2lbp->GetYaxis()->SetBinLabel(count, label);
-         count++;
-      } 
-   }
-   count = 1;
-   if (!m_errorHist && m_doIBL) {
+   if (IBLlbp) {
       for (int i = 0; i < nstaveb; i++) {
 	 for (int j = 0; j < nmodIBL; j++) {
             sprintf(label, "IBL_%s_%s", staveb[i], modIBL[j]);
@@ -172,36 +194,35 @@ void PixelMon2DLumiProfiles::formatHist()
       }
    }
 
-   if (!m_errorHist && m_doIBL) {
+   if (Albp && Clbp) {
+      Albp->GetYaxis()->SetLabelSize(0.02);
+      Clbp->GetYaxis()->SetLabelSize(0.02);
+      Albp->SetOption("colz");
+      Clbp->SetOption("colz");
+   }
+   if (B0lbp && B1lbp && B2lbp) {
+      B0lbp->GetYaxis()->SetLabelSize(0.03);
+      B1lbp->GetYaxis()->SetLabelSize(0.03);
+      B2lbp->GetYaxis()->SetLabelSize(0.03);
+      B0lbp->SetOption("colz");
+      B1lbp->SetOption("colz");
+      B2lbp->SetOption("colz");
+   }
+   if (IBLlbp) {
      IBLlbp->GetYaxis()->SetLabelSize(0.03);
      IBLlbp->SetOption("colz");
    }
-
-   //Make the text smaller
-   B0lbp->GetYaxis()->SetLabelSize(0.03);
-   B1lbp->GetYaxis()->SetLabelSize(0.03);
-   B2lbp->GetYaxis()->SetLabelSize(0.03);
-   Albp->GetYaxis()->SetLabelSize(0.02);
-   Clbp->GetYaxis()->SetLabelSize(0.02);
-   //put histograms in the easier to read colz format
-   B0lbp->SetOption("colz");
-   B1lbp->SetOption("colz");
-   B2lbp->SetOption("colz");
-   Albp->SetOption("colz");
-   Clbp->SetOption("colz");
 }
 
 StatusCode PixelMon2DLumiProfiles::regHist(ManagedMonitorToolBase::MonGroup &group)
 {
    StatusCode sc = StatusCode::SUCCESS;
-   if (!m_errorHist && m_doIBL) {
-      if (group.regHist(IBLlbp).isFailure()) sc = StatusCode::FAILURE;
-   }
-   if (group.regHist(B0lbp).isFailure()) sc = StatusCode::FAILURE;
-   if (group.regHist(B1lbp).isFailure()) sc = StatusCode::FAILURE;
-   if (group.regHist(B2lbp).isFailure()) sc = StatusCode::FAILURE;
-   if (group.regHist(Albp).isFailure()) sc = StatusCode::FAILURE;
-   if (group.regHist(Clbp).isFailure()) sc = StatusCode::FAILURE;
+   if (IBLlbp && group.regHist(IBLlbp).isFailure()) sc = StatusCode::FAILURE;
+   if (B0lbp && group.regHist(B0lbp).isFailure()) sc = StatusCode::FAILURE;
+   if (B1lbp && group.regHist(B1lbp).isFailure()) sc = StatusCode::FAILURE;
+   if (B2lbp && group.regHist(B2lbp).isFailure()) sc = StatusCode::FAILURE;
+   if (Albp && group.regHist(Albp).isFailure()) sc = StatusCode::FAILURE;
+   if (Clbp && group.regHist(Clbp).isFailure()) sc = StatusCode::FAILURE;
    
    return sc;
 }

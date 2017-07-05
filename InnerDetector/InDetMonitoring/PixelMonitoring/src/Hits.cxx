@@ -244,10 +244,10 @@ StatusCode PixelMainMon::BookHitsMon(void)
        m_occupancy_pix_evt = new PixelMon2DProfilesLW("Occupancy_per_pixel_event", ("#hits / pixel / event" + m_histTitleExt).c_str(), m_doIBL);
        sc = m_occupancy_pix_evt->regHist(rdoShift);
              
-       m_Lvl1ID_diff_mod_ATLAS_per_LB = new PixelMon2DLumiProfiles("Lvl1ID_diff_ATLAS_mod_per_LB", ("ATLAS_{Level 1 ID} - Module_{Level 1 ID} per LB" + m_histTitleExt).c_str(),"#Delta Level 1 ID",m_doIBL);
+       m_Lvl1ID_diff_mod_ATLAS_per_LB = new PixelMon2DLumiProfiles("Lvl1ID_diff_ATLAS_mod_per_LB", ("ATLAS_{Level 1 ID} - Module_{Level 1 ID} per LB" + m_histTitleExt).c_str(),"#Delta Level 1 ID", PixMon::HistConf::kPixDBMIBL2D3D, m_doIBL);
        sc = m_Lvl1ID_diff_mod_ATLAS_per_LB->regHist(timeExpert);
        
-       m_Lvl1ID_absdiff_mod_ATLAS_per_LB = new PixelMon2DLumiProfiles("Lvl1ID_absdiff_ATLAS_mod_per_LB", ("ATLAS_{Level 1 ID} - Module_{Level 1 ID} per LB" + m_histTitleExt).c_str(),"#Delta Level 1 ID",m_doIBL);
+       m_Lvl1ID_absdiff_mod_ATLAS_per_LB = new PixelMon2DLumiProfiles("Lvl1ID_absdiff_ATLAS_mod_per_LB", ("ATLAS_{Level 1 ID} - Module_{Level 1 ID} per LB" + m_histTitleExt).c_str(),"#Delta Level 1 ID", PixMon::HistConf::kPixDBMIBL2D3D, m_doIBL);
        sc = m_Lvl1ID_absdiff_mod_ATLAS_per_LB->regHist(timeExpert);
      }
    
