@@ -64,8 +64,8 @@ void G4AtlasMTRunManager::InitializeGeometry()
 
   // Set smartlessness
   G4LogicalVolumeStore *logicalVolumeStore = G4LogicalVolumeStore::GetInstance();
-  const std::string muonSys("Muon::MuonSys");
-  const std::string embSTAC("LArMgr::LAr::EMB::STAC");
+  const G4String muonSys("Muon::MuonSys");
+  const G4String embSTAC("LArMgr::LAr::EMB::STAC");
   for (auto* ilv : *logicalVolumeStore ) {
     if ( ilv->GetName() == muonSys ) {
       ilv->SetSmartless( 0.1 );
