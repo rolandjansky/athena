@@ -24,6 +24,7 @@
 #include <TKey.h>
 #include <TBox.h>
 #include <TLine.h>
+#include <TROOT.h>
 
 #include "dqm_core/LibraryManager.h"
 #include "dqm_core/Parameter.h"
@@ -256,6 +257,40 @@ GetReference( std::string& groupName, std::string& name )
   return 0;
 }
 
+std::string 
+SplitReference( std::string refName )
+{
+  //Split comma sepated inputs into individual file names
+  std::string delimiter = ",";
+  std::vector<std::string> refFileList;
+  size_t pos = 0;
+  std::string token;
+  while ((pos = refName.find(delimiter)) != std::string::npos) {
+    token = refName.substr(0, pos);
+    refFileList.push_back(token);
+    refName.erase(0, pos + delimiter.length());
+  }
+  refFileList.push_back(refName);
+
+  //Try to open each file in the list
+  for(int i=0; i<refFileList.size(); i++){
+    std::string fileName=refFileList.at(i);
+    if (gROOT->GetListOfFiles()->FindObject(fileName.c_str()) ) {
+      return fileName;
+    } 
+    else {
+      if(TFile::Open(fileName.c_str())){
+	return fileName;
+      }
+      else{
+	std::cout << "Unable to open " << fileName << ", trying next reference file" << std::endl;
+      }
+    }
+  }
+  std::cout << "Unable to open any reference file, reference will not be included" << std::endl;
+  return "";
+}
+
 const HanConfigAssessor*
 HanConfig::
 GetAssessor( std::string& groupName, std::string& name ) const
@@ -303,6 +338,7 @@ Visit( const MiniConfigTreeNode* node ) const
   std::string name = node->GetAttribute("name");
   std::string fileName = node->GetAttribute("file");
   std::string refInfo = node->GetAttribute("info");
+  fileName = SplitReference(fileName);
   if( fileName != "" && name != "" && name != "same_name" ) {
     std::auto_ptr<TFile> infile( TFile::Open(fileName.c_str()) );
     TKey* key = getObjKey( infile.get(), name );
@@ -453,6 +489,7 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	    absAlgRefName += algRefName;
 	    std::string algRefFile( refConfig.GetStringAttribute(thisRefID,"file") );
 	    if( algRefFile != "" ) {
+	      algRefFile = SplitReference( algRefFile );
 	      std::auto_ptr<TFile> infile( TFile::Open(algRefFile.c_str()) );
 	      TKey* key = getObjKey( infile.get(), absAlgRefName );
 	      if( key == 0 ) {
