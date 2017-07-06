@@ -12,6 +12,7 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "IRegionSelector/IRegSelSvc.h"
+#include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 class MdtIdHelper;
 class MdtDigit;
@@ -52,7 +53,8 @@ class MdtRdoToMdtPrepData : public AthAlgorithm {
     bool m_seededDecoding;
     SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
     ServiceHandle<IRegSelSvc> m_regionSelector; //<! pointer to RegionSelectionSvc
- 
+    SG::WriteHandleKey<Muon::MdtPrepDataContainer> m_mdtCollection;
+
 };
 
 #endif /// MDTRDOTOMDTPREPDATA_H

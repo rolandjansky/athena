@@ -11,6 +11,7 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "IRegionSelector/IRegSelSvc.h"
+#include "MuonPrepRawData/CscStripPrepDataContainer.h"
 /** Algorithm to decode RDO into CscStripPrepData
  - get the RDO container from Storegate
  - loop over the RDO
@@ -38,6 +39,7 @@ private:
   bool m_seededDecoding;
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
   ServiceHandle<IRegSelSvc> m_regionSelector; //<! pointer to RegionSelectionSvc
+  SG::WriteHandleKey<Muon::CscStripPrepDataContainer> m_cscCollection;
 };
 
 #endif /// CSCRDOTOCSCPREPDATA_H

@@ -14,6 +14,7 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "IRegionSelector/IRegSelSvc.h"
+#include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 /** Algorithm to decode RDO into TgcPrepData, using the Muon::TgcRdoToTgcPrepDataTool 
  @author Takashi Kubota (Takashi.Kubota@cern.ch)
@@ -44,6 +45,7 @@ class TgcRdoToTgcPrepData : public AthAlgorithm {
   bool m_seededDecoding;
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
   ServiceHandle<IRegSelSvc> m_regionSelector; //<! pointer to RegionSelectionSvc
+  SG::WriteHandleKey<Muon::TgcPrepDataContainer> m_tgcCollection;
 };
 
 #endif /// TGCRDOTOTGCPREPDATA_H
