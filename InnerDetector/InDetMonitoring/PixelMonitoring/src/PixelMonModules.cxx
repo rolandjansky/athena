@@ -8,14 +8,10 @@
 
 #include "PixelMonitoring/PixelMonModules.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "TH1I.h"
-#include "TH2I.h"
-#include "TProfile.h"
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TProfile_LW.h"
 #include "InDetIdentifier/PixelID.h"
 #include "GaudiKernel/StatusCode.h"       
-#include <iostream>
 #include <string.h>
 
 PixelMonModules::~PixelMonModules()
