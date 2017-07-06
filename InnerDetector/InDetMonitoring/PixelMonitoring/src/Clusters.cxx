@@ -26,7 +26,6 @@
 #include <sstream>
 
 #include "PixelMonitoring/PixelMon2DMaps.h"
-#include "PixelMonitoring/DBMMon2DMaps.h"
 #include "PixelMonitoring/PixelMonModules.h"
 #include "PixelMonitoring/PixelMonProfiles.h"
 #include "PixelMonitoring/PixelMon2DProfilesLW.h"
