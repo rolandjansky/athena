@@ -23,7 +23,7 @@ namespace Gaudi {
     GAUDI_API
     StatusCode parse(SG::VarHandleKeyArray& v, const std::string& s);    
   }
-
+  
   namespace Utils {
     GAUDI_API
     std::ostream& toStream(const SG::VarHandleKeyArray& v, std::ostream& o);    
