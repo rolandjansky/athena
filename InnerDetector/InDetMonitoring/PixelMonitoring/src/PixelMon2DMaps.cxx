@@ -15,7 +15,6 @@
 
 PixelMon2DMaps::PixelMon2DMaps(std::string name, std::string title, bool doIBL) : m_doIBL(doIBL)
 {
-   m_cnt = 0;
    if (m_doIBL) {
       IBL3D = new TH2F((name+"_IBL3D").c_str(),(title + ", IBL 3D modules " + ";eta index of module;phi index of module").c_str(), 8, -.5, 7.5, 14, -0.5, 13.5);
       IBL2D = new TH2F((name+"_IBL2D").c_str(),(title + ", IBL planar modules " + ";shifted eta index of module;phi index of module").c_str(), 12, -6.5, 5.5, 14, -0.5, 13.5);
@@ -46,22 +45,6 @@ PixelMon2DMaps::~PixelMon2DMaps()
    delete C;
    delete DBMA;
    delete DBMC;
-}
-
-void PixelMon2DMaps::Reset()
-{
-   if (m_doIBL) {
-      IBL3D->Reset();
-      IBL2D->Reset();
-      IBL->Reset();
-   }
-   B0->Reset();
-   B1->Reset();
-   B2->Reset();
-   A->Reset();
-   C->Reset();
-   DBMA->Reset();
-   DBMC->Reset();
 }
 
 void PixelMon2DMaps::Fill(Identifier &id, const PixelID* pixID)
@@ -140,55 +123,6 @@ void PixelMon2DMaps::WeightingFill(Identifier &id, const PixelID* pixID, float w
    }
 }   
 
-
-//void PixelMon2DMaps::Scale (double number)
-void PixelMon2DMaps::Scale (double number)
-{
-   if (number==0) return; //shouldn't happen the way function is called, but dummy check to avoid divide by zero
-
-   A->Scale((float) 1.0/number);
-   C->Scale((float) 1.0/number);
-   DBMA->Scale((float) 1.0/number);
-   DBMC->Scale((float) 1.0/number);
-   B0->Scale((float) 1.0/number);
-   B1->Scale((float) 1.0/number);
-   B2->Scale((float) 1.0/number);
-   if (m_doIBL) {
-      IBL2D->Scale((float) 1.0/number);
-      IBL3D->Scale((float) 1.0/number);
-      IBL->Scale((float) 1.0/number);
-   }
-}
-
-void PixelMon2DMaps::ScaleBynPixnEvt(int nevent)
-{
-   double nactivechannels_DBMA  = 1.0*nevent*46080;
-   double nactivechannels_DBMC  = 1.0*nevent*46080;
-   double nactivechannels_ECA   = 1.0*nevent*46080;
-   double nactivechannels_ECC   = 1.0*nevent*46080;
-   double nactivechannels_IBL2D = 1.0*nevent*26880*2;
-   double nactivechannels_IBL3D = 1.0*nevent*26880;
-   double nactivechannels_IBL   = nactivechannels_IBL2D + nactivechannels_IBL3D;
-   double nactivechannels_B0    = 1.0*nevent*46080;
-   double nactivechannels_B1    = 1.0*nevent*46080;
-   double nactivechannels_B2    = 1.0*nevent*46080;
-
-   if (nevent==0) return; //shouldn't happen the way function is called, but dummy check to avoid divide by zero
-
-   DBMA->Scale((float) 1.0/nactivechannels_DBMA);
-   DBMC->Scale((float) 1.0/nactivechannels_DBMC);
-   A->Scale((float)  1.0/nactivechannels_ECA);
-   C->Scale((float)  1.0/nactivechannels_ECC);
-   B0->Scale((float) 1.0/nactivechannels_B0);
-   B1->Scale((float) 1.0/nactivechannels_B1);
-   B2->Scale((float) 1.0/nactivechannels_B2);
-   if (m_doIBL) {
-      IBL2D->Scale((float) 1.0/nactivechannels_IBL2D);
-      IBL3D->Scale((float) 1.0/nactivechannels_IBL3D);
-      IBL->Scale((float) 1.0/nactivechannels_IBL);
-   }
-}
-
 void PixelMon2DMaps::Fill2DMon(PixelMon2DMaps* oldmap)
 {
    for (int x = 1; x <= DBMA->GetNbinsX(); x++) {
@@ -262,34 +196,6 @@ void PixelMon2DMaps::Fill2DMon(PixelMon2DMaps* oldmap)
             oldmap->IBL3D->SetBinContent(x, y, 0);
          }
       }
-   }
-}
-
-
-void PixelMon2DMaps::ScaleByNChannels(int nActive_IBL2D, int nActive_IBL3D, int nActive_B0, int nActive_B1, int nActive_B2, int nActive_ECA, int nActive_ECC, int nActive_DBMA, int nActive_DBMC)
-{
-   double nactivechannels_DBMA   = 1.0*26880*nActive_DBMA;
-   double nactivechannels_DBMC   = 1.0*26880*nActive_DBMC;
-   double nactivechannels_ECA   = 1.0*46080*nActive_ECA;
-   double nactivechannels_ECC   = 1.0*46080*nActive_ECC;
-   double nactivechannels_IBL2D = 1.0*26880*2*nActive_IBL2D;
-   double nactivechannels_IBL3D = 1.0*26880*nActive_IBL3D;
-   double nactivechannels_IBL   = nactivechannels_IBL2D + nactivechannels_IBL3D;
-   double nactivechannels_B0    = 1.0*46080*nActive_B0;
-   double nactivechannels_B1    = 1.0*46080*nActive_B1;
-   double nactivechannels_B2    = 1.0*46080*nActive_B2;
-
-   if(nActive_DBMA>0) DBMA->Scale((double) 1.0/nactivechannels_DBMA);
-   if(nActive_DBMC>0) DBMC->Scale((double) 1.0/nactivechannels_DBMC);
-   if(nActive_ECA>0)  A->Scale((double) 1.0/nactivechannels_ECA);
-   if(nActive_ECC>0)  C->Scale((double) 1.0/nactivechannels_ECC);
-   if(nActive_B0>0)   B0->Scale((double) 1.0/nactivechannels_B0);
-   if(nActive_B1>0)   B1->Scale((double) 1.0/nactivechannels_B1);
-   if(nActive_B2>0)   B2->Scale((double) 1.0/nactivechannels_B2);
-   if (m_doIBL) {
-      if(nActive_IBL2D>0) IBL2D->Scale((double) 1.0/nactivechannels_IBL2D);
-      if(nActive_IBL3D>0) IBL3D->Scale((double) 1.0/nactivechannels_IBL3D);
-      if(nActive_IBL3D>0 || nActive_IBL2D>0) IBL->Scale((double) 1.0/nactivechannels_IBL);
    }
 }
 
