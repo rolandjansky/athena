@@ -192,9 +192,7 @@ inline StatusCode ISF::CollectionMerger::mergeCollections( const ReadHandleKeyVe
   // TODO: is there a way to conveniently get the total number of hits in all inputReadHandleKeys
   //       and reserve the corresponding size in the outputHandle
   SG::WriteHandle<T> outputHandle{outputWriteHandleKey};
-  if (outputHandle.record( std::make_unique<T>() ).isFailure()) {
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( outputHandle.record(std::make_unique<T>()) );
 
   for ( const auto& collKey: inputReadHandleKeys ) {
     SG::ReadHandle<T> inputHandle{collKey};
