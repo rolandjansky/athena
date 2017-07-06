@@ -13,7 +13,7 @@
 //                                                                     //
 /////////////////////////////////////////////////////////////////////////
 #include "VP1Base/IVP1System.h"
-#include <QtCore/QStringList>
+#include <QStringList>
 
 class VP1TriggerDecisionSystem : public IVP1System 
 {

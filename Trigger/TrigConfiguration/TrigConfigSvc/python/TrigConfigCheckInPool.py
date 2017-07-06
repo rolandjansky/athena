@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-import ROOT, PyCintex
+import ROOT, cppyy
 import AthenaROOTAccess.transientTree
 
 from AthenaCommon.Logging import logging
@@ -17,7 +17,7 @@ def _iter(self) :
         sequential.__preinc__()
     raise StopIteration
 
-_plcClass = PyCintex.makeClass("IOVPayloadContainer")
+_plcClass = cppyy.makeClass("IOVPayloadContainer")
 _plcClass.iter  = _iter
 
 ROOT.IOVTime.__str__ = lambda x: "%i/%i" % (x.run(),x.event())

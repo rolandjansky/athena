@@ -66,7 +66,6 @@ Trig::BuildTransientTrees(const std::vector< std::string >& PoolFileList, TTree*
 
    // import necessary python libs
    TPython::Exec("import ROOT");
-   TPython::Exec("import PyCintex");
    TPython::Exec("import AthenaROOTAccess.transientTree");
    
    // create the persistent trees

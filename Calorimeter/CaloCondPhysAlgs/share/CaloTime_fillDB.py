@@ -20,7 +20,7 @@ lbkUntil = sys.argv[4]
 print "runSince ", runSince, lbkSince
 print "runUntil ", runUntil, lbkUntil
 
-import PyCintex
+import cppyy
 from PyCool import cool
 from CaloCondBlobAlgs import CaloCondTools, CaloCondLogger
 
@@ -61,8 +61,8 @@ comment  = "Updated time constant values"
 #===
 #==================================================
 #=== set shortcut
-g = PyCintex.gbl
-PyCintex.makeClass('std::vector<float>')
+g = cppyy.gbl
+cppyy.makeClass('std::vector<float>')
 
 #=== get a logger
 log = CaloCondLogger.getLogger("CaloTimeConsWriter")

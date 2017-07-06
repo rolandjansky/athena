@@ -8,7 +8,7 @@
 #include "VP1PRDSystems/TouchedMuonChamberHelper.h"
 
 #include "VP1Base/IVP13DSystem.h"
-#include <QtGui/QColor>
+#include <QColor>
 
 #include "VP1Utils/VP1JobConfigInfo.h"
 #include "VP1Utils/VP1SGContentsHelper.h"

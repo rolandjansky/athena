@@ -769,13 +769,13 @@ Root::TElectronEfficiencyCorrectionTool::getNbins(std::map<float, std::vector<fl
       int nbinsX = h_tmp->GetNbinsX();
       int nbinsY = h_tmp->GetNbinsY();
 
-      for (int biny = 1; biny <= nbinsY + 1; biny++) {
+      for (int biny = 1; biny <= nbinsY; biny++) {
         eta1.push_back(h_tmp->GetYaxis()->GetBinLowEdge(biny));
         if (entries == (tmpVec.at(ikey)).GetEntries() - 1) {
           eta1.push_back(h_tmp->GetYaxis()->GetBinLowEdge(biny + 1));
         }
       }
-      for (int binx = 1; binx <= nbinsX; binx++) {
+      for (int binx = 1; binx < nbinsX; binx++) {
         pt_eta1[h_tmp->GetXaxis()->GetBinLowEdge(binx)] = eta1;
         if (entries == (tmpVec.at(ikey)).GetEntries() - 1) {
           pt_eta1[h_tmp->GetXaxis()->GetBinLowEdge(binx + 1)] = eta1;

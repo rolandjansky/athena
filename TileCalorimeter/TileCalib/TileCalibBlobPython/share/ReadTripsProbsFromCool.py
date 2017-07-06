@@ -72,7 +72,8 @@ log.info("Initializing folder %s with tag %s" % (folderPath, folderTag))
 
 blobReader = TileCalibTools.TileBlobReader(db, folderPath, folderTag)
 
-util = PyCintex.gbl.TileCalibUtils()
+import cppyy
+util = cppyy.gbl.TileCalibUtils()
 tripsCalibDrawer = blobReader.getDrawer(util.trips_ros(), util.trips_drawer(), (run,lumi))
 
 if tripsCalibDrawer.getNChans() != util.max_ros() \

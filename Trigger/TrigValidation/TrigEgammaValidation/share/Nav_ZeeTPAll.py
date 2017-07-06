@@ -63,11 +63,6 @@ ServiceMgr += THistSvc()
 ServiceMgr.THistSvc.Output += ["file1 DATAFILE='output.root' OPT='RECREATE'"]
 
 #topSequence += TrigDecChecker
-import PyUtils.RootUtils as ru
-ROOT = ru.import_root()
-import PyCintex
-PyCintex.loadDictionary('ElectronPhotonSelectorToolsDict')
-PyCintex.loadDictionary('egammaEnumsDict')
 from ROOT import LikeEnum
 from ROOT import egammaPID
 from ROOT import egammaParameters

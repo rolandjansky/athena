@@ -268,5 +268,11 @@ void VarHandleKey::updateHandle (const std::string& name)
     m_storeHandle = ServiceHandle<IProxyDict>(name, "VarHandleKey");
 }
 
-
 } // namespace SG
+
+namespace std {
+  ostream& operator<<(ostream& s, const SG::VarHandleKey& m) {
+    s << "'" << m.objKey() << "'";
+    return s;
+  }
+}

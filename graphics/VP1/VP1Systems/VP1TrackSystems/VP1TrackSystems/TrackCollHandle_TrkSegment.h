@@ -18,7 +18,7 @@
 #define TRACKCOLLHANDLE_TRKSEGMENT_H
 
 #include "VP1TrackSystems/TrackCollHandleBase.h"
-#include <QtCore/QStringList>
+#include <QStringList>
 
 class TrackHandle_TrkSegment;
 

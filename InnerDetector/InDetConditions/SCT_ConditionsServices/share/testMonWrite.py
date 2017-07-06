@@ -13,15 +13,15 @@ theAuditorSvc.Auditors  += [ "MemStatAuditor" ]
 #MemStatAuditor = theAuditorSvc.auditor( "MemStatAuditor" )
 theApp.AuditAlgorithms=True
 
-from AthenaCommon.GlobalFlags import GlobalFlags
+from AthenaCommon.GlobalFlags import globalflags
 # --- default is atlas geometry
-GlobalFlags.DetGeo.set_atlas()
+globalflags.DetGeo="atlas"
 # --- set defaults
-GlobalFlags.DataSource.set_geant4()    
-GlobalFlags.InputFormat.set_pool()    
+globalflags.DataSource="geant4"
+globalflags.InputFormat="pool"
 # --- default is zero luminosity
-GlobalFlags.Luminosity.set_zero()
-GlobalFlags.Print()
+globalflags.Luminosity="zero"
+print globalflags
 
 #--------------------------------------------------------------
 # Set Detector setup
@@ -50,6 +50,11 @@ DetFlags.writeRIOPool.all_setOff()
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit
 
+# Disable SiLorentzAngleSvc to remove
+# ERROR ServiceLocatorHelper::createService: wrong interface id IID_665279653 for service
+ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=""
+ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=""
+
 #------------------------------------------------------------
 
 from AthenaCommon.AlgSequence import AlgSequence
@@ -60,7 +65,7 @@ job = AlgSequence()
 #------------------------------------------------------------
 
 eventInfoKey = "ByteStreamEventInfo"
-if GlobalFlags.DataSource()=="geant4":
+if globalflags.DataSource()=="geant4":
     eventInfoKey = "McEventInfo"
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MonitorConditionsSvc
@@ -89,7 +94,7 @@ job+= SCT_MonitorConditionsTestAlg()
 
 SCT_MonitorTest=job.SCT_MonitorConditionsTestAlg
 SCT_MonitorTest.OutputLevel      = 2
-SCT_MonitorTest.TestWrite = True
+# SCT_MonitorTest.TestWrite = True
 SCT_MonitorTest.RunNumber    = 1
 SCT_MonitorTest.EventNumber  = 5
 

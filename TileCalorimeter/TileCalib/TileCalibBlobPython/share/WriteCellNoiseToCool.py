@@ -4,7 +4,7 @@
 # Purpose: Manual update of cell noise constants from ascii file
 #
 # 2014-07-14 - Sasha, based on update_noise_bulk.py from Carlos,Gui,Blake,Yuri
-# 2024-12-14 - Yuri Smirnov, change for PyCintex->cppyy for ROOT6
+# 2016-12-14 - Yuri Smirnov, change for PyCintex->cppyy for ROOT6
 
 import getopt,sys,os,string,math,re
 os.environ['TERM'] = 'linux'
@@ -156,14 +156,7 @@ else:
   # COOLOFL_TILE/OFLP200 COOLOFL_TILE/COMP200 COOLOFL_TILE/CONDBR2
 
 
-#import PyCintex
-try:
-   # ROOT5
-   import PyCintex
-except:
-   # ROOT6
-   import cppyy as PyCintex
-   sys.modules['PyCintex'] = PyCintex
+import cppyy
 
 from CaloCondBlobAlgs import CaloCondTools
 from TileCalibBlobPython import TileCalibTools
@@ -409,10 +402,10 @@ for iov in iovList:
     hashMgr=hashMgrDef
   print "Using %s CellMgr with hashMax %d" % (hashMgr.getGeometry(),hashMgr.getHashMax())
 
-  GainDefVec = PyCintex.gbl.std.vector('float')()
+  GainDefVec = cppyy.gbl.std.vector('float')()
   for val in xrange(nval):
     GainDefVec.push_back(0.0)
-  defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+  defVec = cppyy.gbl.std.vector('std::vector<float>')()
   for gain in xrange(ngain):
     defVec.push_back(GainDefVec)
   blobW = writer.getCells(chan)

@@ -44,8 +44,8 @@ T0CalibrationMT::T0CalibrationMT( std::string name, const T0MTSettings* settings
   p_file = new TFile(HistoFileName.c_str(),"recreate");
   m_regiondir = p_file->mkdir(m_name.c_str()); 
   
-  p_histos.resize(sort_by.size());
-  p_adc_histos.resize(adc_sort_by.size());
+  m_histos.resize(sort_by.size());
+  m_adc_histos.resize(adc_sort_by.size());
   
   m_tube_ids.resize(sort_by.size());
   m_adc_tube_ids.resize(adc_sort_by.size());
@@ -56,8 +56,8 @@ T0CalibrationMT::~T0CalibrationMT()
   p_file->Write();
   p_file->Close();
   delete p_file;
-  for(unsigned int i=0; i<p_histos.size(); i++)
-  for(std::map<HistogramId, T0MTHistos*> :: iterator it = p_histos[i].begin(); it!= p_histos[i].end(); it++)
+  for(unsigned int i=0; i<m_histos.size(); i++)
+  for(std::map<HistogramId, T0MTHistos*> :: iterator it = m_histos[i].begin(); it!= m_histos[i].end(); it++)
   	delete it->second;
 if (m_delete_settings)
 	delete m_settings;
@@ -176,8 +176,8 @@ bool  T0CalibrationMT::analyse_tdc(const int & nr, std::map<int, MdtTubeFitConta
 			break;
 		}
 		
-	for(std::map<HistogramId, T0MTHistos*>::iterator it =p_histos[nr].begin() ;it!=p_histos[nr].end();++it)
-// loop over p_histos histograms 
+	for(std::map<HistogramId, T0MTHistos*>::iterator it =m_histos[nr].begin() ;it!=m_histos[nr].end();++it)
+// loop over m_histos histograms 
 		{
 		doTimeFit(it->second, m_tube_ids[nr][it->first], full, st, fit_by_map, fit_by);
 		
@@ -188,7 +188,7 @@ bool  T0CalibrationMT::analyse_tdc(const int & nr, std::map<int, MdtTubeFitConta
 
 bool  T0CalibrationMT::analyse_adc(const int & nr, std::map<int, MdtTubeFitContainer::SingleTubeFit> & full, std::map<int, MdtTubeFitContainer::SingleTubeCalib> & st)
 	{
-	for(std::map<HistogramId, ADCMTHistos*>::iterator it =p_adc_histos[nr].begin() ;it!=p_adc_histos[nr].end();++it)
+	for(std::map<HistogramId, ADCMTHistos*>::iterator it =m_adc_histos[nr].begin() ;it!=m_adc_histos[nr].end();++it)
 	if(m_settings->FitADC())
 		{
 		doAdcFit(it->second, m_adc_tube_ids[nr][it->first], full, st);
@@ -294,29 +294,29 @@ ADCMTHistos* T0CalibrationMT::getADCHistos(const MuonFixedId & idtube, unsigned 
 {
       HistogramId id;
       id.Initialize(idtube, m_adc_sort_by[nr]);
-      if(p_adc_histos[nr][id] == NULL)
+      if(m_adc_histos[nr][id] == NULL)
       	{
 	TDirectory *cwd=gDirectory;
 	m_regiondir->cd();
-	p_adc_histos[nr][id] = new ADCMTHistos(id.getIdInt(), m_settings, id.HistogramName().c_str());
+	m_adc_histos[nr][id] = new ADCMTHistos(id.getIdInt(), m_settings, id.HistogramName().c_str());
 	cwd->cd();
 	}
       m_adc_tube_ids[nr][id].insert(idtube);
-      return p_adc_histos[nr][id];
+      return m_adc_histos[nr][id];
 }
 
 T0MTHistos* T0CalibrationMT::getHistos(const MuonFixedId & idtube, unsigned int nr) {
       HistogramId id;
       	id.Initialize(idtube, m_sort_by[nr]);
-      if(p_histos[nr][id] == NULL)
+      if(m_histos[nr][id] == NULL)
       	{
 	TDirectory *cwd=gDirectory;
 	m_regiondir->cd();
-	p_histos[nr][id] = new T0MTHistos(id.getIdInt(), m_settings, id.HistogramName().c_str());
+	m_histos[nr][id] = new T0MTHistos(id.getIdInt(), m_settings, id.HistogramName().c_str());
 	cwd->cd();
 	}
       m_tube_ids[nr][id].insert(idtube);
-      return p_histos[nr][id];
+      return m_histos[nr][id];
 }
 
 void T0CalibrationMT::setInput( const IMdtCalibrationOutput* calib_in )

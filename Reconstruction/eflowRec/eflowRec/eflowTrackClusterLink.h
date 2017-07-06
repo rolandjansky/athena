@@ -28,26 +28,27 @@ class eflowRecCluster;
 
 class eflowTrackClusterLink {
 private:
-  typedef std::map<std::pair<eflowRecTrack*, eflowRecCluster*>, eflowTrackClusterLink*> InstanceMap;
-
+  typedef std::map<std::pair<eflowRecTrack*, eflowRecCluster*>, std::unique_ptr<eflowTrackClusterLink> > InstanceMap;
+  
+public:
   eflowTrackClusterLink(eflowRecTrack* track, eflowRecCluster* cluster) :
-      m_track(track), m_cluster(cluster)/*,  m_eExpect(NAN), m_varEExpect(NAN)*/ { }
+      m_track(track), m_cluster(cluster) { }
 
   virtual ~eflowTrackClusterLink() { }
 
-public:
   static eflowTrackClusterLink* getInstance(eflowRecTrack* track, eflowRecCluster* cluster){
-    std::pair<eflowRecTrack*, eflowRecCluster*> thisPair(std::make_pair(track, cluster));
-    eflowTrackClusterLink* dummy(0);
-    /* If the pair was already in the map, insert().first is an iterator to the existing entry, otherwise to the newly inserted one
-     * iterator->second is a reference to the corresponding eflowTrackClusterLink pointer */
-    eflowTrackClusterLink*& result = m_instances.insert(std::make_pair(thisPair, dummy)).first->second;
-    if (!result) {
-      result = new eflowTrackClusterLink(track, cluster);
+    std::pair<eflowRecTrack*, eflowRecCluster*> thisPair(std::make_pair(track, cluster));    
+
+    /* The find returns a valid iterator. If there is no existing entry it returns the end iterator */
+    InstanceMap::iterator mapIterator = m_instances.find(thisPair);
+    
+    if (m_instances.end() == mapIterator){
+      /* If no existing entry we create a new unique_ptr and add an entry into the map */
+      m_instances[thisPair] = std::make_unique<eflowTrackClusterLink>(track,cluster);
+      return m_instances[thisPair].get();
     }
-    return result;
+    else return (*mapIterator).second.get();
   }
-  static void clearInstances();
 
   eflowRecCluster* getCluster() const { return m_cluster; }
   eflowRecTrack* getTrack() const { return m_track; }

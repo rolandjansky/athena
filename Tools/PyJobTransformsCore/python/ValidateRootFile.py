@@ -17,7 +17,6 @@ def checkPFCorruption(filename,verbose=False):
 
     ROOT = RootUtils.import_root()
     from ROOT import TFile,TTree
-    import PyCintex
     
     try:
         f=TFile.Open(filename)

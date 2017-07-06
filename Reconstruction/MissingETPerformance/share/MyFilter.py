@@ -28,7 +28,6 @@ class METFilter( PyAthena.Alg ):
     def initialize(self):
         ## Import needed modules
         import ROOT
-        import PyCintex
 
         ## Get the StoreGate service
         self.storeGateSvc = PyAthena.py_svc('StoreGateSvc')
@@ -84,7 +83,6 @@ class EventFilter( PyAthena.Alg ):
     def initialize(self):
         ## Import needed modules
         import ROOT
-        import PyCintex
 
         ## Get the StoreGate service
         self.storeGateSvc = PyAthena.py_svc('StoreGateSvc')

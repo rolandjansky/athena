@@ -53,32 +53,35 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "VP1Gui/VP1ChannelManager.h"
+#include "VP1Gui/VP1ExecutionScheduler.h"
+#include "VP1Gui/VP1MainWindow.h"
 
 #include "VP1Base/IVP1ChannelWidgetFactory.h"
 #include "VP1Base/IVP1ChannelWidget.h"
+
+#include <QPluginLoader>
+#include <QFileInfo>
+#include <QMap>
+#include <QScrollArea>
 
 #include <map>
 #include <set>
 #include <cassert>
 
-#include <QtCore/QPluginLoader>
-#include <QtCore/QFileInfo>
-#include <QtCore/QMap>
-#include <QtGui/QScrollArea>
-
-#include "VP1Gui/VP1ExecutionScheduler.h"
-#include "VP1Gui/VP1MainWindow.h"
-
 //QT_NO_PLUGIN_CHECK
 
 class VP1ChannelManager::Imp {
+
 public:
+
 	VP1ChannelManager*channelmanager;
 	VP1ExecutionScheduler*scheduler;
 	VP1MainWindow*mainwindow;
+
 	//Actual created channels:
 	std::map<QString,std::set<IVP1ChannelWidget*> > basename_2_channels;
 	std::map<QString,IVP1ChannelWidget*> uniquename_2_channel;
+
 	//plugin info:
 	std::map<QString,std::pair<QStringList,IVP1ChannelWidgetFactory *> > pluginfile_2_basenamesAndFactory;
 	std::map<QString,QString> basename_2_pluginfile;
@@ -179,6 +182,8 @@ bool VP1ChannelManager::deleteChannel(QString channeluniquename) {
 
 //___________________________________________________________________________________
 bool VP1ChannelManager::unloadPluginFile(QString filename) {
+
+	VP1Msg::messageVerbose("VP1ChannelManager::unloadPluginFile()");
 
 	if (d->pluginfile_2_pluginloader.find(filename)==d->pluginfile_2_pluginloader.end())
 		return false;

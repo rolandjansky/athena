@@ -36,7 +36,7 @@
 #ifndef VP1TABBAR_H
 #define VP1TABBAR_H
 
-#include <QtGui/QTabBar>
+#include <QTabBar>
 
 class VP1TabBar: public QTabBar
 {

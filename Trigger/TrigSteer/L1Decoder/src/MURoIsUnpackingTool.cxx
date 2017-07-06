@@ -18,8 +18,8 @@ MURoIsUnpackingTool::MURoIsUnpackingTool( const std::string& type,
 					  const IInterface* parent )
   : AthAlgTool  ( type, name, parent ),
     m_configSvc( "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name ),
-    m_recRpcRoISvc( "LVL1RPC::RPCRecRoiSvc/RPCRecRoiSvc", name ),
-    m_recTgcRoISvc( "LVL1TGC::TGCRecRoiSvc/TGCRecRoiSvc", name ),
+    m_recRpcRoISvc( "LVL1RPC::RPCRecRoiSvc/LVL1RPC::RPCRecRoiSvc", name ),
+    m_recTgcRoISvc( "LVL1TGC::TGCRecRoiSvc/LVL1TGC::TGCRecRoiSvc", name ),
     m_monTool( "GenericMonitoringTool/MonTool", this ) {
 
   declareProperty( "Decisions", m_decisionsKey="MURoIDecisions", "Decisions for each RoI" );
@@ -83,6 +83,7 @@ StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
   for ( auto& roi : roib.muCTPIResult().roIVec() ) {    
     const uint32_t roIWord = roi.roIWord();
     int thresholdNumber = roi.pt();
+    ATH_MSG_DEBUG( "MUON RoI with the threshold number: " << thresholdNumber );
     if ( thresholdNumber < 1 or thresholdNumber > 6 ) {
       ATH_MSG_WARNING( "Incorrect threshold number, should be between 1 and 6 but is: "
 		       << thresholdNumber << ", force setting it to 1" );
@@ -93,18 +94,19 @@ StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
     auto trigRoI = new TrigRoiDescriptor( roIWord, 0u ,0u,
 					  recRoI->eta(), recRoI->eta()-m_roIWidth, recRoI->eta()+m_roIWidth,
 					  recRoI->phi(), recRoI->phi()-m_roIWidth, recRoI->phi()+m_roIWidth );
-      trigRoIs->push_back( trigRoI );
-			  
-      ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw( 8 ) << roIWord << ", threshold pattern " );
-
-      auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.get() );
-
-      for ( auto th: m_muonThresholds ) {
-	if ( th->thresholdNumber() <= thresholdNumber )  { // TODO verify if here should be <= or <
-	  // this code suggests <= https://gitlab.cern.ch/atlas/athena/blob/master/Trigger/TrigSteer/TrigSteering/src/Lvl1ResultAccessTool.cxx#L654
-	  addChainsToDecision( HLT::Identifier( th->name() ), decision, activeChains );
-	}
+    trigRoIs->push_back( trigRoI );
+    
+    ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw( 8 ) << roIWord );
+    
+    auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.get() );
+    
+    for ( auto th: m_muonThresholds ) {
+      if ( th->thresholdNumber() <= thresholdNumber )  { // TODO verify if here should be <= or <
+	// this code suggests <= https://gitlab.cern.ch/atlas/athena/blob/master/Trigger/TrigSteer/TrigSteering/src/Lvl1ResultAccessTool.cxx#L654
+	addChainsToDecision( HLT::Identifier( th->name() ), decision, activeChains );
+	ATH_MSG_DEBUG( "Threshold passed: " << th->name() );
       }
+    }
   }
   // monitoring
   {

@@ -15,11 +15,14 @@
 #include "VP1Base/IVP13DSystem.h"
 #include "VP1Base/SoCooperativeSelection.h"
 #include "VP1Base/VP1Msg.h"
+
 #include <Inventor/nodes/SoCamera.h>
 #include <Inventor/Qt/viewers/SoQtViewer.h>
-#include <map>
+
+#include <QTimer>
+
 #include <iostream>
-#include <QtCore/QTimer>
+#include <map>
 
 //* Always use SoCooperativeSelections
 //* A selection node should only appear in the subtree of just one system

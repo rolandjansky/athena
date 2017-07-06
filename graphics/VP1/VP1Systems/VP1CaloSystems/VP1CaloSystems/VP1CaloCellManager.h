@@ -6,7 +6,7 @@
 #define VP1CALOSYSTEMS_VP1CALOCELLMANAGER_H
 
 #include "VP1CaloSystems/VP1CaloCells.h"
-#include <QtCore/QObject>
+#include <QObject>
 
 #include <map>
 

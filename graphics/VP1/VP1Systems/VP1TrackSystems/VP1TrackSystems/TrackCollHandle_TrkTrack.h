@@ -19,7 +19,7 @@
 
 #include "VP1TrackSystems/TrackCollHandleBase.h"
 #include "VP1TrackSystems/TrackCommonFlags.h"
-#include <QtCore/QStringList>
+#include <QStringList>
 #include <iostream>
 
 class TrackHandle_TrkTrack;

@@ -13,7 +13,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include "VP1Gui/VP1EventFile.h"
-#include <QtCore/QStringList>
+#include <QStringList>
 
 //____________________________________________________________________
 class VP1EventFile::Imp {

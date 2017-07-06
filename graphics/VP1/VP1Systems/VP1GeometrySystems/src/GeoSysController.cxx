@@ -19,6 +19,7 @@
 #include "VP1Base/VP1Settings.h"
 #include "VP1Base/IVP1System.h"
 #include "VP1Utils/VP1JobConfigInfo.h"
+
 #include "ui_geometrysystemcontroller.h"
 #include "ui_settings_display_form.h"
 #include "ui_settings_iconisedvols_form.h"
@@ -26,9 +27,13 @@
 #include "ui_settings_misc_form.h"
 #include "ui_settings_muonchamber_form.h"
 #include "ui_settings_treebrowser_form.h"
+
 #include <Inventor/nodes/SoPickStyle.h>
+
+#include <QFileDialog>
+
 #include <map>
-#include <QtGui/QFileDialog>
+
 
 //____________________________________________________________________
 class GeoSysController::Imp {

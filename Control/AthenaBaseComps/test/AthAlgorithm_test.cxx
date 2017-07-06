@@ -57,6 +57,11 @@ public:
   std::vector<Gaudi::DataHandle*> outputs;
   std::vector<DataObjID> extra_inputs;
   std::vector<DataObjID> extra_outputs;
+
+  Gaudi::Property< int > gp_int {this, "gp_int", 3, "doc for gp_int"};
+  Gaudi::Property< SG::ReadHandleKey<MyObj> > 
+     gp_rkey {this, "gp_rkey", "aaa_gp", "doc for gp_rkey"};
+
 };
 
 
@@ -124,24 +129,27 @@ void test1 (ISvcLocator* svcLoc)
   assert (alg.whandle.storeHandle().name() == "BarSvc");
   assert (alg.whandle.mode() == Gaudi::DataHandle::Writer);
 
-  std::vector<std::string> inputKeys { "aaa", "yyy.qqq" };
+  std::vector<std::string> inputKeys { "StoreGateSvc+aaa_gp", "FooSvc+aaa", "FooSvc+yyy.qqq" };
   assert (alg.inputs.size() == inputKeys.size());
   for (size_t i = 0; i < alg.inputs.size(); i++) {
-    //std::cout << "inp " << alg.inputs[i]->objKey() << "\n";
+    // std::cout << "inp " << alg.inputs[i]->objKey() << " =?= " 
+    //           << inputKeys[i] << "\n";
     assert (alg.inputs[i]->objKey() == inputKeys[i]);
   }
 
-  std::vector<std::string> outputKeys { "eee", "zzz.rrr" };
+  std::vector<std::string> outputKeys { "BarSvc+eee", "StoreGateSvc+zzz.rrr" };
   assert (alg.outputs.size() == outputKeys.size());
   for (size_t i = 0; i < alg.outputs.size(); i++) {
-    //std::cout << "out " << alg.outputs[i]->objKey() << "\n";
+    // std::cout << "out " << alg.outputs[i]->objKey() << " =?= "
+    //           << outputKeys[i] << "\n";
     assert (alg.outputs[i]->objKey() == outputKeys[i]);
   }
 
-  std::vector<std::string> extraInputKeys { "zzz" };
+  std::vector<std::string> extraInputKeys { "StoreGateSvc+zzz" };
   assert (alg.extra_inputs.size() == extraInputKeys.size());
   for (size_t i = 0; i < alg.extra_inputs.size(); i++) {
-    //std::cout << "extra inp " << alg.extra_inputs[i].key() << "\n";
+    // std::cout << "extra inp " << alg.extra_inputs[i].key() << " =?= " 
+    //           << extraInputKeys[i] << "\n";
     assert (alg.extra_inputs[i].key() == extraInputKeys[i]);
   }
 
@@ -234,8 +242,8 @@ void test2 (ISvcLocator* svcLoc)
 
   assert (alg.sysInitialize().isSuccess());
 
-  comphandles (alg.inputHandles(),{"raa", "rbb", "rcc", "rdd", "ree", "rff", "rrr"});
-  comphandles (alg.outputHandles(),{"waa", "wbb", "wcc", "wdd", "wee", "wff", "www"});
+  comphandles (alg.inputHandles(),{"StoreGateSvc+raa", "StoreGateSvc+rbb", "StoreGateSvc+rcc", "StoreGateSvc+rdd", "StoreGateSvc+ree", "StoreGateSvc+rff", "StoreGateSvc+rrr"});
+  comphandles (alg.outputHandles(),{"StoreGateSvc+waa", "StoreGateSvc+wbb", "StoreGateSvc+wcc", "StoreGateSvc+wdd", "StoreGateSvc+wee", "StoreGateSvc+wff", "StoreGateSvc+www"});
 
   // Test that circular dependency detection worksd.
   MyArrAlg alg2 ("arralg2", svcLoc);  alg2.addRef();

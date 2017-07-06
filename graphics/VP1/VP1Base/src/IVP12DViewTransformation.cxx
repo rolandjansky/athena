@@ -13,10 +13,12 @@
 /////////////////////////////////////////////////////////////
 
 #include "VP1Base/IVP12DViewTransformation.h"
-#include <QtGui/QAbstractGraphicsShapeItem>
-#include <QtGui/QGraphicsLineItem>
-#include <QtGui/QGraphicsPixmapItem>
-#include <QtGui/QPainter>
+
+#include <QAbstractGraphicsShapeItem>
+#include <QGraphicsLineItem>
+#include <QGraphicsPixmapItem>
+#include <QPainter>
+
 #include <iostream>//fixme
 #include <cassert>
 

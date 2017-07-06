@@ -202,14 +202,6 @@ from ROOT import kTRUE
 from array import array
 import numpy as np
 
-try:
-   # ROOT5
-   import PyCintex
-except:
-   # ROOT6
-   import cppyy as PyCintex
-   sys.modules['PyCintex'] = PyCintex
-
 
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython import TileCellTools

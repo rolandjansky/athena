@@ -69,7 +69,7 @@ protected:
     void copyString( char* to, const std::string& from );
     std::auto_ptr<TTree> m_result;
     char* m_status;
-    static const int charArrSize;
+    static const int s_charArrSize;
   };
   
   class RegionNameComp {
