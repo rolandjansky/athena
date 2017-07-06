@@ -34,13 +34,8 @@ class PixelMon2DMaps
       TH2F* C;
       TH2F* DBMA;
       TH2F* DBMC;
-      int m_cnt;
-      void Reset();
       void Fill(Identifier &id, const PixelID* pixID);
       void WeightingFill(Identifier &id, const PixelID* pixID, float weight);
-      void Scale(double number);
-      void ScaleByNChannels(int nActive_IBL2D, int nActive_IBL3D, int nActive_B0, int nActive_B1, int nActive_B2, int nActive_ECA, int nActive_ECC, int nActive_DBMA, int nActive_DBMC);
-      void ScaleBynPixnEvt(int nevent);
       void Fill2DMon(PixelMon2DMaps* oldmap);
       StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
 private:
