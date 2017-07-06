@@ -8,12 +8,10 @@
 #include <string.h>
 
 class TProfile2D_LW;
-class TH2F_LW;
 class Identifier;
 class PixelID;
 class StatusCode;
 class PixelMon2DMaps;
-class PixelMon2DMapsLW;
 
 // A helper class to facilitate definition of per-layer 2D profile maps.
 // It defines a collection of TProfile2D_LW histograms for each pixel layer, which then can be declared or
