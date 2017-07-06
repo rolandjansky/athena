@@ -266,10 +266,10 @@ void TSPROOTBankGenerator::generateChildren(int bankID, int planes) throw (TSPPa
                     unsigned int bitlayerY = (localY % etass)/(m_ssMaps[bankID-1]->getMap(i, 0, 0).m_etass); // between 0 and 2^(nbitsY)-1
                     
                     // verify that there are not bits set after nbitsX, then nbitsY
-                    if (bitlayerX&(~0<<nbitsX)) {
+                    if (bitlayerX&(~0u<<nbitsX)) {
                        FTKSetup::PrintMessageFmt(ftk::sevr,"Error creating the local-SS representation for pattern %d, bitlayerX[%d]=%d\n",iTSP,i,bitlayerX);
                     }
-                    if (bitlayerY&(~0<<nbitsY)) {
+                    if (bitlayerY&(~0u<<nbitsY)) {
                        FTKSetup::PrintMessageFmt(ftk::sevr,"Error creating the local-SS representation for pattern %d, bitlayerY[%d]=%d\n",iTSP,i,bitlayerY);
                     }
                     
@@ -292,7 +292,7 @@ void TSPROOTBankGenerator::generateChildren(int bankID, int planes) throw (TSPPa
                     // Half plane bit
                     unsigned int bitlayerX = (localX % phiss)/(m_ssMaps[bankID-1]->getMap(i, 0, 0).m_phiss); // is 0 to (2^nbits-1)
                     // verify that there are not bits set after nbitsX
-                    if (bitlayerX&(~0<<nbitsX)) {
+                    if (bitlayerX&(~0u<<nbitsX)) {
                        FTKSetup::PrintMessageFmt(ftk::sevr,"Error creating the local-SS representation for pattern %d, bitlayerX[%d]=%d\n",iTSP,i,bitlayerX);
                     }
                     // use the Grey code for the position
@@ -391,10 +391,10 @@ void TSPROOTBankGenerator::generateChildren(int bankID, int planes) throw (TSPPa
                     // if (debug) printf ("bitlayerX: %d, bitlayerY: %d\n", bitlayerX,bitlayerY);
                     
                     // verify that there are not bits set after nbitsX, then nbitsY
-                    if (bitlayerX&(~0<<nbitsX)) {
+                    if (bitlayerX&(~0u<<nbitsX)) {
                        FTKSetup::PrintMessageFmt(ftk::sevr,"Error creating the local-SS representation for pattern %d, bitlayerX[%d]=%d\n",iTSP,i,bitlayerX);
                     }
-                    if (bitlayerY&(~0<<nbitsY)) {
+                    if (bitlayerY&(~0u<<nbitsY)) {
                        FTKSetup::PrintMessageFmt(ftk::sevr,"Error creating the local-SS representation for pattern %d, bitlayerY[%d]=%d\n",iTSP,i,bitlayerY);
                     }
                     
@@ -445,7 +445,7 @@ void TSPROOTBankGenerator::generateChildren(int bankID, int planes) throw (TSPPa
                     unsigned int bitlayerX = phi_dc; // between 0 and 2^(nbitsX)-1
                     
                     // verify that there are not bits set after nbitsX, then nbitsY
-                    if (bitlayerX&(~0<<nbitsX)) {
+                    if (bitlayerX&(~0u<<nbitsX)) {
                        FTKSetup::PrintMessageFmt(ftk::sevr,"Error creating the local-SS representation for pattern %d, bitlayerX[%d]=%d\n",iTSP,i,bitlayerX);
                     }
                     

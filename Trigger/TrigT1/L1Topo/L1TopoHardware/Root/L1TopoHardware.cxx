@@ -14,7 +14,7 @@ TCS::HardwareParam::HardwareParam(const std::string & name, uint32_t value, cons
    value(value),
    description(description),
    rule(rule)
-{};
+{}
 
 
 uint32_t
@@ -23,12 +23,12 @@ define(const std::string & name, uint32_t value, const std::string & description
    return value;
 }
 
-#define VA_NUM_ARGS(...) VA_NUM_ARGS_IMPL(__VA_ARGS__, 5,4,3,2,1)
+#define VA_NUM_ARGS(...) VA_NUM_ARGS_IMPL(__VA_ARGS__, 5,4,3,2,1,0)
 #define VA_NUM_ARGS_IMPL(_1,_2,_3,_4,_5,N,...) N
 #define macro_dispatcher(func, ...) macro_dispatcher_(func, VA_NUM_ARGS(__VA_ARGS__))
 #define macro_dispatcher_(func, nargs) macro_dispatcher__(func, nargs)
 #define macro_dispatcher__(func, nargs) func ## nargs
-#define DEF_HW(...) macro_dispatcher(DEF_HW, __VA_ARGS__)(__VA_ARGS__)
+#define DEF_HW(...) macro_dispatcher(DEF_HW, __VA_ARGS__)(__VA_ARGS__) class swallow_semicolon
 
 #define DEF_HW1(VARNAME)                                                \
    namespace { const uint32_t VARNAME = define(#VARNAME, TCS::VARNAME, "", ""); }

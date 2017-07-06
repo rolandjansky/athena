@@ -1487,7 +1487,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                         if (trigPartBplusMuMuKplus) {
                             m_bphysHelperTool->setBeamlineDisplacement(trigPartBplusMuMuKplus,{*trackEL3,*trackELmu1,*trackELmu2});
                             if(m_maxBpToStore >= 0 && m_countBpToStore >= m_maxBpToStore) {
-                              delete trigPartBplusMuMuKplus;
                               if(m_countBpToStore == m_maxBpToStore) {
                                 ATH_MSG(WARNING) << "Reached maximum number of B+ candidates to store " << m_maxBpToStore << "; following candidates won't be written out" << endmsg;
                                 m_mon_Errors.push_back(ERROR_MaxNumBpReached);
@@ -1648,8 +1647,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartKstar,      {*trackEL3,*trackEL4});
                                         
                                         if(m_maxBdToStore >= 0 && m_countBdToStore >= m_maxBdToStore) {
-                                          delete xaod_trigPartBdMuMuKstar;
-                                          delete xaod_trigPartKstar;
                                           if(m_countBdToStore == m_maxBdToStore) {
                                             ATH_MSG(WARNING) << "Reached maximum number of Bd candidates to store " << m_maxBdToStore << "; following candidates won't be written out" << endmsg;
                                             m_mon_Errors.push_back(ERROR_MaxNumBdReached);
@@ -1694,8 +1691,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartBdMuMuKstar,{*trackEL4,*trackEL3,*trackELmu1,*trackELmu2});
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartKstar,      {*trackEL4,*trackEL3});
                                         if(m_maxBdToStore >= 0 && m_countBdToStore >= m_maxBdToStore) {
-                                          delete xaod_trigPartBdMuMuKstar;
-                                          delete xaod_trigPartKstar;
                                           if(m_countBdToStore == m_maxBdToStore) {
                                             ATH_MSG(WARNING) << "Reached maximum number of Bd candidates to store " << m_maxBdToStore << "; following candidates won't be written out" << endmsg;
                                             m_mon_Errors.push_back(ERROR_MaxNumBdReached);
@@ -1909,8 +1904,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartPhi,        {*trackEL3,*trackEL4});
                                         
                                         if(m_maxBsToStore >= 0 && m_countBsToStore >= m_maxBsToStore) {
-                                          delete xaod_trigPartBsMuMuPhi;
-                                          delete xaod_trigPartPhi;
                                           if(m_countBsToStore == m_maxBsToStore) {
                                             ATH_MSG(WARNING) << "Reached maximum number of Bs candidates to store " << m_maxBsToStore << "; following candidates won't be written out" << endmsg;
                                             m_mon_Errors.push_back(ERROR_MaxNumBsReached);
@@ -2074,8 +2067,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                             m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartLambda,      {*trackEL3,*trackEL4});
                                             
                                             if(m_maxLbToStore >= 0 && m_countLbToStore >= m_maxLbToStore) {
-                                              delete xaod_trigPartLbMuMuLambda;
-                                              delete xaod_trigPartLambda;
                                               if(m_countLbToStore == m_maxLbToStore) {
                                                 ATH_MSG(WARNING) << "Reached maximum number of Lb candidates to store " << m_maxLbToStore << "; following candidates won't be written out" << endmsg;
                                                 m_mon_Errors.push_back(ERROR_MaxNumLbReached);
@@ -2125,8 +2116,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                               m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartLambda,      {*trackEL4,*trackEL3});
                                               
                                               if(m_maxLbToStore >= 0 && m_countLbToStore >= m_maxLbToStore) {
-                                                delete xaod_trigPartLbMuMuLambda;
-                                                delete xaod_trigPartLambda;
                                                 if(m_countLbToStore == m_maxLbToStore) {
                                                   ATH_MSG(WARNING) << "Reached maximum number of Lb candidates to store " << m_maxLbToStore << "; following candidates won't be written out" << endmsg;
                                                   m_mon_Errors.push_back(ERROR_MaxNumLbReached);
@@ -2423,8 +2412,6 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                 nTriedCombinations++;
                                                 if (trigPartBcMuMuDs) {
                                                     if(m_maxBcToStore >= 0 && m_countBcToStore >= m_maxBcToStore) {
-                                                      delete trigPartBcMuMuDs;
-                                                      delete trigPartDs;
                                                       if(m_countBcToStore == m_maxBcToStore) {
                                                         ATH_MSG(WARNING) << "Reached maximum number of Bc candidates to store " << m_maxBcToStore << "; following candidates won't be written out" << endmsg;
                                                         m_mon_Errors.push_back(ERROR_MaxNumBcReached);
@@ -2660,25 +2647,25 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                     else {
                                                       m_TrigBphysColl_b->push_back( trigPartBcMuMuDplus );
                                                       m_TrigBphysColl_X->push_back( trigPartDplus );
-                                                    }
 
-                                                    m_bphysHelperTool->setBeamlineDisplacement(trigPartBcMuMuDplus,
-                                                                                               {*trkIt1,*trkIt2,*trkIt3,*trackELmu1,*trackELmu2});
-                                                    m_bphysHelperTool->setBeamlineDisplacement(trigPartDplus,
-                                                                                               {*trkIt1,*trkIt2,*trkIt3});
-                                                    trigPartDplus->addParticleLink(ItrackEL3);
-                                                    trigPartDplus->addParticleLink(ItrackEL4);
-                                                    trigPartDplus->addParticleLink(ItrackEL5);
-                                                   
-                                                    int iDplus = m_TrigBphysColl_X->size() - 1;
-                                                    ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iDplus);
+                                                      m_bphysHelperTool->setBeamlineDisplacement(trigPartBcMuMuDplus,
+                                                                                                {*trkIt1,*trkIt2,*trkIt3,*trackELmu1,*trackELmu2});
+                                                      m_bphysHelperTool->setBeamlineDisplacement(trigPartDplus,
+                                                                                                {*trkIt1,*trkIt2,*trkIt3});
+                                                      trigPartDplus->addParticleLink(ItrackEL3);
+                                                      trigPartDplus->addParticleLink(ItrackEL4);
+                                                      trigPartDplus->addParticleLink(ItrackEL5);
                                                     
-                                                    trigPartBcMuMuDplus->addParticleLink(ItrackEL3);
-                                                    trigPartBcMuMuDplus->addParticleLink(ItrackEL4);
-                                                    trigPartBcMuMuDplus->addParticleLink(ItrackEL5);
-                                                    if(Found1Track) trigPartBcMuMuDplus->addParticleLink(ELmu1);
-                                                    if(Found2Track) trigPartBcMuMuDplus->addParticleLink(ELmu2);
-                                                    trigPartBcMuMuDplus->setSecondaryDecayLink(trigPartXEL);
+                                                      int iDplus = m_TrigBphysColl_X->size() - 1;
+                                                      ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iDplus);
+                                                      
+                                                      trigPartBcMuMuDplus->addParticleLink(ItrackEL3);
+                                                      trigPartBcMuMuDplus->addParticleLink(ItrackEL4);
+                                                      trigPartBcMuMuDplus->addParticleLink(ItrackEL5);
+                                                      if(Found1Track) trigPartBcMuMuDplus->addParticleLink(ELmu1);
+                                                      if(Found2Track) trigPartBcMuMuDplus->addParticleLink(ELmu2);
+                                                      trigPartBcMuMuDplus->setSecondaryDecayLink(trigPartXEL);
+                                                    }
                                                     
                                                     result=true;
                                                     m_mon_BcMuMuDplus_n++;
@@ -2819,25 +2806,25 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                     else {
                                                       m_TrigBphysColl_b->push_back( trigPartBcMuMuDstar );
                                                       m_TrigBphysColl_X->push_back( trigPartDstar );
-                                                    }
 
-                                                    m_bphysHelperTool->setBeamlineDisplacement(trigPartBcMuMuDstar,
-                                                                                               {*trkIt1,*trkIt2,*trkIt3,*trackELmu1,*trackELmu2});
-                                                    m_bphysHelperTool->setBeamlineDisplacement(trigPartDstar,
-                                                                                               {*trkIt1,*trkIt2,*trkIt3});
-                                                    trigPartDstar->addParticleLink(ItrackEL3);
-                                                    trigPartDstar->addParticleLink(ItrackEL4);
-                                                    trigPartDstar->addParticleLink(ItrackEL5);
-                                                   
-                                                    int iDstar = m_TrigBphysColl_X->size() - 1;
-                                                    ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iDstar);
+                                                      m_bphysHelperTool->setBeamlineDisplacement(trigPartBcMuMuDstar,
+                                                                                                {*trkIt1,*trkIt2,*trkIt3,*trackELmu1,*trackELmu2});
+                                                      m_bphysHelperTool->setBeamlineDisplacement(trigPartDstar,
+                                                                                                {*trkIt1,*trkIt2,*trkIt3});
+                                                      trigPartDstar->addParticleLink(ItrackEL3);
+                                                      trigPartDstar->addParticleLink(ItrackEL4);
+                                                      trigPartDstar->addParticleLink(ItrackEL5);
                                                     
-                                                    trigPartBcMuMuDstar->addParticleLink(ItrackEL3);
-                                                    trigPartBcMuMuDstar->addParticleLink(ItrackEL4);
-                                                    trigPartBcMuMuDstar->addParticleLink(ItrackEL5);
-                                                    if(Found1Track) trigPartBcMuMuDstar->addParticleLink(ELmu1);
-                                                    if(Found2Track) trigPartBcMuMuDstar->addParticleLink(ELmu2);
-                                                    trigPartBcMuMuDstar->setSecondaryDecayLink(trigPartXEL);
+                                                      int iDstar = m_TrigBphysColl_X->size() - 1;
+                                                      ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iDstar);
+                                                      
+                                                      trigPartBcMuMuDstar->addParticleLink(ItrackEL3);
+                                                      trigPartBcMuMuDstar->addParticleLink(ItrackEL4);
+                                                      trigPartBcMuMuDstar->addParticleLink(ItrackEL5);
+                                                      if(Found1Track) trigPartBcMuMuDstar->addParticleLink(ELmu1);
+                                                      if(Found2Track) trigPartBcMuMuDstar->addParticleLink(ELmu2);
+                                                      trigPartBcMuMuDstar->setSecondaryDecayLink(trigPartXEL);
+                                                    }
                                                     
                                                     result=true;
                                                     m_mon_BcMuMuDstar_n++;
@@ -2919,23 +2906,23 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                     else {
                                                       m_TrigBphysColl_b->push_back( trigPartBcMuMuD0 );
                                                       m_TrigBphysColl_X->push_back( trigPartD0 );
-                                                    }
 
-                                                    m_bphysHelperTool->setBeamlineDisplacement(trigPartBcMuMuD0,
-                                                                                               {*trkIt1,*trkIt2,*trackELmu1,*trackELmu2});
-                                                    m_bphysHelperTool->setBeamlineDisplacement(trigPartD0,
-                                                                                               {*trkIt1,*trkIt2});
-                                                    trigPartD0->addParticleLink(ItrackEL3);
-                                                    trigPartD0->addParticleLink(ItrackEL4);
-                                                   
-                                                    int iD0 = m_TrigBphysColl_X->size() - 1;
-                                                    ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iD0);
+                                                      m_bphysHelperTool->setBeamlineDisplacement(trigPartBcMuMuD0,
+                                                                                                {*trkIt1,*trkIt2,*trackELmu1,*trackELmu2});
+                                                      m_bphysHelperTool->setBeamlineDisplacement(trigPartD0,
+                                                                                                {*trkIt1,*trkIt2});
+                                                      trigPartD0->addParticleLink(ItrackEL3);
+                                                      trigPartD0->addParticleLink(ItrackEL4);
                                                     
-                                                    trigPartBcMuMuD0->addParticleLink(ItrackEL3);
-                                                    trigPartBcMuMuD0->addParticleLink(ItrackEL4);
-                                                    if(Found1Track) trigPartBcMuMuD0->addParticleLink(ELmu1);
-                                                    if(Found2Track) trigPartBcMuMuD0->addParticleLink(ELmu2);
-                                                    trigPartBcMuMuD0->setSecondaryDecayLink(trigPartXEL);
+                                                      int iD0 = m_TrigBphysColl_X->size() - 1;
+                                                      ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iD0);
+                                                      
+                                                      trigPartBcMuMuD0->addParticleLink(ItrackEL3);
+                                                      trigPartBcMuMuD0->addParticleLink(ItrackEL4);
+                                                      if(Found1Track) trigPartBcMuMuD0->addParticleLink(ELmu1);
+                                                      if(Found2Track) trigPartBcMuMuD0->addParticleLink(ELmu2);
+                                                      trigPartBcMuMuD0->setSecondaryDecayLink(trigPartXEL);
+                                                    }
                                                     
                                                     result=true;
                                                     m_mon_BcMuMuD0_n++;

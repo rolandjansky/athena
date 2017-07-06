@@ -96,8 +96,6 @@ namespace Muon {
       /** Private method to blend the inert material */
       void blendMaterial() const;
      
-      unsigned int                                         m_magFieldMode;                  //!< switch the magnetic field mode
-
       ToolHandle<Trk::IDetachedTrackingVolumeBuilder>      m_stationBuilder;                //!< A Tool for station type creation
 
       ToolHandle<Trk::IDetachedTrackingVolumeBuilder>      m_inertBuilder;                  //!< A Tool for inert object  creation

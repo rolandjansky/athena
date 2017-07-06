@@ -27,7 +27,6 @@ def getSCT_Amp(name="SCT_Amp", **kwargs):
     kwargs.setdefault("deltaT", 1.0)
     kwargs.setdefault("Tmin", -25.0)
     kwargs.setdefault("Tmax", 150.0)
-    kwargs.setdefault("NbAverage", 0)
     from SCT_Digitization.SCT_DigitizationConf import SCT_Amp
     return SCT_Amp(name, **kwargs)
 
@@ -263,8 +262,8 @@ def SCT_DigitizationToolSplitNoMergePU(name="SCT_DigitizationToolSplitNoMergePU"
 def SCT_OverlayDigitizationTool(name="SCT_OverlayDigitizationTool",**kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     kwargs.setdefault("EvtStore", overlayFlags.evtStore())
-    kwargs.setdefault("OutputObjectName", overlayFlags.evtStore()+"/SCT_RDOs")
-    kwargs.setdefault("OutputSDOName", overlayFlags.evtStore()+"/SCT_SDO_Map")
+    kwargs.setdefault("OutputObjectName", overlayFlags.evtStore() + "+SCT_RDOs")
+    kwargs.setdefault("OutputSDOName", overlayFlags.evtStore() + "+SCT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     return commonSCT_DigitizationConfig(name,**kwargs)
 

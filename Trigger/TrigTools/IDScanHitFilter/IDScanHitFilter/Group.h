@@ -23,15 +23,8 @@
 
 
 #include <list>
-using std::list;
-
 #include <iostream>
-using std::ostream;
-
 #include <iomanip>
-using std::hex;
-using std::dec;
-
 
 
 #include "IDScanHitFilter/IdScanSpPoint.h"
@@ -91,16 +84,16 @@ typedef std::list< Group >             GroupList;
 
 
 
-inline ostream& operator<<(ostream& s, const Group& g)
+inline std::ostream& operator<<(std::ostream& s, const Group& g)
 { 
-  const list<IdScanSpPoint*>&           hits = g.groupHits(); 
+  const std::list<IdScanSpPoint*>&           hits = g.groupHits(); 
   s << "[ eta="   << g.getEta() 
     << "\tphi="   << g.getPhi0() 
     << "\tzed="   << g.getz0() 
     << "\tnhits=" << hits.size() 
-    << "\taddr=" << hex << (void*)&g << dec << "\t]";
-  list<IdScanSpPoint*>::const_iterator  hitr(hits.begin());   
-  list<IdScanSpPoint*>::const_iterator  hend(hits.end());   
+    << "\taddr=" << std::hex << (void*)&g << std::dec << "\t]";
+  std::list<IdScanSpPoint*>::const_iterator  hitr(hits.begin());   
+  std::list<IdScanSpPoint*>::const_iterator  hend(hits.end());   
   while ( hitr!=hend ) s << "\n\t" << *(*hitr++); 
   return s;
 }

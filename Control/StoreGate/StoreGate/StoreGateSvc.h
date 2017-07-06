@@ -1080,8 +1080,9 @@ private:
 };
 
 
-/// Here's one that's easy to call from the debugger.
+/// These are intended to be easy to call from the debugger.
 void SG_dump (StoreGateSvc* sg);
+void SG_dump (StoreGateSvc* sg, const char* fname);
 
 
 #include "StoreGate/StoreGateSvc.icc"

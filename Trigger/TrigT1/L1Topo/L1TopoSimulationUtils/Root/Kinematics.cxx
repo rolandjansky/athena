@@ -28,13 +28,18 @@ unsigned int TSU::Kinematics::calcDeltaPhiBW(const TCS::GenericTOB* tob1, const 
       return dphiB ;
 }
 
+unsigned int TSU::Kinematics::calcDeltaEtaBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+      double deta = abs( tob1->eta() - tob2->eta() );
+	return deta;
+}
+
 unsigned int TSU::Kinematics::calcInvMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2){
 
      auto bit_cosheta = TSU::L1TopoDataTypes<19,7>(TSU::Hyperbolic::Cosh.at(abs(tob1->eta() - tob2->eta())));
       auto bit_cosphi = TSU::L1TopoDataTypes<9,7>(TSU::Trigo::Cos.at(abs(tob1->phi() - tob2->phi())));
       TSU::L1TopoDataTypes<11,0> bit_Et1(tob1->Et());
       TSU::L1TopoDataTypes<11,0> bit_Et2(tob2->Et());
-      auto bit_invmass2 = 2*bit_Et1*bit_Et2*(bit_cosheta - bit_cosphi);
+      auto bit_invmass2 = bit_Et1*bit_Et2*(bit_cosheta - bit_cosphi)*2;
       return int(bit_invmass2) ;
 }
 
@@ -50,7 +55,35 @@ unsigned int TSU::Kinematics::calcDeltaR2BW(const TCS::GenericTOB* tob1, const T
       return bit_dr2;
 }
 
+unsigned long TSU::Kinematics::quadraticSumBW(int i1, int i2){
+  long a = i1*i1 + i2*i2;
 
+  unsigned long result=0;
+  long left=0,right=0,r=0;
+  long sign = 0;
+  
+  //long input = a;
+  int halflength = 16; //max 16
+  long bitmask = 0b11111111111111111111111111111111; //32 bits
+  bitmask >>= (32-halflength*2);
+  
+  for(int i = 0; i < halflength; i++){ //16-->4
+    right = 1 + (sign<<1) + (result<<2);
+
+    left = (r<<2) + (a >> (2*halflength-2));
+    a <<= 2;
+    a = a & bitmask;
+
+    if(sign) r = left + right;
+    else r = left - right;
+     
+    sign = (r & (1 << (halflength+1) ))  > 0;
+    result <<= 1;
+    if(!sign) result += 1;
+  }
+ 
+  return result;
+}
 
 /*------------------------------------------ NON-BITWISE --------------------------------------------------*/
 

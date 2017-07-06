@@ -29,8 +29,8 @@ TrigHLTJetRecFromCluster::~TrigHLTJetRecFromCluster(){}
 
 HLT::ErrorCode
 TrigHLTJetRecFromCluster::getPseudoJets(const xAOD::CaloClusterContainer* ic,
-                                        LabelIndex* indexMap,
-                                        PseudoJetVector& pjv){
+                                        jet::LabelIndex* indexMap,
+                                        jet::PseudoJetVector& pjv){
 
   // override of base class function - due to CaloClusters
   // having calibration states. CaloCluster will always be run

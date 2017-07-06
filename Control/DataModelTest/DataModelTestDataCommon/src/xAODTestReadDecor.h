@@ -64,6 +64,10 @@ private:
   /// Parameter: Name of the decoration.
   std::string m_decorName;
 
+  /// Parameter: Root names of the objects.
+  std::string m_cvecName;
+  std::string m_cinfoName;
+
   /// Handles for reading decorations.
   SG::ReadDecorHandleKey<CVec> m_cvecDecorKey;
   SG::ReadDecorHandleKey<C>    m_cinfoDecorKey;

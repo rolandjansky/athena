@@ -28,6 +28,7 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetDetDescr/PixelCabling
    InnerDetector/InDetRecEvent/InDetRIO_OnTrack
    Tools/LWHists
+   Tools/PathResolver
    Tracking/TrkEvent/TrkParameters
    Tracking/TrkEvent/TrkSpacePoint
    Tracking/TrkEvent/TrkTrackSummary
@@ -38,13 +39,11 @@ find_package( ROOT COMPONENTS Core MathCore Hist )
 
 # Component(s) in the package:
 atlas_add_component( PixelMonitoring
-   PixelMonitoring/*.h src/*.cxx src/componets/*.cxx
+   PixelMonitoring/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib AtlasDetDescr
    GaudiKernel InDetRawData InDetPrepRawData LumiBlockCompsLib TrkTrack
    AthenaPoolUtilities GeoPrimitives EventInfo EventPrimitives InDetIdentifier
    InDetReadoutGeometry InDetRIO_OnTrack LWHists TrkParameters TrkSpacePoint
-   TrkTrackSummary TrkToolInterfaces PixelCablingLib PixelGeoModelLib )
+   TrkTrackSummary TrkToolInterfaces PixelCablingLib PixelGeoModelLib PathResolver )
 
-# Install files from the package:
-atlas_install_runtime( share/*.csv )

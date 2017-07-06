@@ -1,26 +1,50 @@
-alg.rkey = "FooSvc/aaa";
-alg.wkey = "BarSvc/bbb";
+alg.rkey = "FooSvc+aaa";
+alg.wkey = "BarSvc+bbb";
 alg.ukey = "ccc";
-alg.rhandle = "FooSvc/ddd";
-alg.whandle = "BarSvc/eee";
+alg.rhandle = "FooSvc+ddd";
+alg.whandle = "BarSvc+eee";
 alg.uhandle = "fff";
-alg.rdkey = "FooSvc/ggg.qqq";
-alg.wdkey = "BarSvc/hhh.rrr";
+alg.rdkey = "FooSvc+ggg.qqq";
+alg.wdkey = "hhh.rrr";
 alg.rckey = "iii";
 alg.wckey = "jjj";
 
-tool.rkey = "FooSvc/taa";
-tool.wkey = "BarSvc/tbb";
+alg.gp_rkey = "AAA_gp";
+
+tool.rkey = "FooSvc+taa";
+tool.wkey = "BarSvc+tbb";
 tool.ukey = "tcc";
-tool.rhandle = "FooSvc/tdd";
-tool.whandle = "BarSvc/tee";
+tool.rhandle = "FooSvc+tdd";
+tool.whandle = "BarSvc+tee";
 tool.uhandle = "tff";
-tool.rdkey = "FooSvc/tgg.qqq";
-tool.wdkey = "BarSvc/thh.rrr";
+tool.rdkey = "FooSvc+tgg.qqq";
+tool.wdkey = "thh.rrr";
 tool.rckey = "tii";
 tool.wckey = "tjj";
 
-ralg.rkey = "FooSvc/aaa";
-ralg.whandle = "BarSvc/eee";
-ralg.rdkey = "FooSvc/yyy.qqq";
-ralg.wdkey = "BarSvc/zzz.rrr";
+ralg.rkey = "FooSvc+aaa";
+ralg.whandle = "BarSvc+eee";
+ralg.rdkey = "FooSvc+yyy.qqq";
+ralg.wdkey = "zzz.rrr";
+
+arralg.rkeyarr = ["raa", "rbb", "rcc", "rdd", "ree", "rff"];
+arralg.wkeyarr = ["waa", "wbb", "wcc", "wdd", "wee", "wff"];
+arralg.rkey = "rrr";
+arralg.wkey = "www";
+
+arralg2.rkeyarr = ["aaa"];
+arralg2.wkeyarr = ["aaa"];
+
+
+tool2.rkey = "taa";
+tool2.whandle = "tee";
+tool2.rdkey = "tgg.qqq";
+tool2.wdkey = "thh.rrr";
+
+arrtool.rkeyarr = ["raa", "rbb", "rcc", "rdd", "ree", "rff"];
+arrtool.wkeyarr = ["waa", "wbb", "wcc", "wdd", "wee", "wff"];
+arrtool.rkey = "rrr";
+arrtool.wkey = "www";
+
+arrtool2.rkeyarr = ["aaa"];
+arrtool2.wkeyarr = ["aaa"];

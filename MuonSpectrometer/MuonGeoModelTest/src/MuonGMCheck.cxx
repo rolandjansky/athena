@@ -12,10 +12,6 @@
 //<version>	$Name: not supported by cvs2svn $
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IDataProviderSvc.h"
-#include "GaudiKernel/AlgFactory.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "MuonGeoModelTest/PerfUtils.h"

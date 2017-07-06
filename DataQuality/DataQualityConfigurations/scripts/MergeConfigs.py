@@ -56,7 +56,7 @@ def merge_han_configs(template, parent_dir, out, options):
     files = []
 
     # First pass; find if there are name conflicts
-    for dir in list_directories('.'):
+    for dir in list_directories(parent_dir):
         f = os.path.join(dir, template)
         if not os.access(f, os.R_OK):
             continue
@@ -102,9 +102,8 @@ def merge_han_configs(template, parent_dir, out, options):
     # if we got here, we should be ok on the unique names: pass 2
     outobj = open(out, 'w')
     outobj.write('# ****************************\n')
-    outobj.write('metadata SVNInfo {\n')
-    outobj.write('  Revision = $Revision: $\n')
-    outobj.write('  URL = $URL: $\n')
+    outobj.write('metadata GitInfo {\n')
+    outobj.write('  Hash = %s\n' % (os.environ.get('GIT_COMMIT_HASH', 'unknown')))
     outobj.write('}\n')
     outobj.write('# ****************************\n\n')
     for f in files:

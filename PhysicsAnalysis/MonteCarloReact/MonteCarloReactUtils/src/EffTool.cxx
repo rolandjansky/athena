@@ -17,12 +17,12 @@ using namespace std;
 using namespace MonteCarloReact;
 
 EffTool::EffTool(const EffInfo& spec, const std::string& path) {
-  m_isValid = m_makeEfficiencyObj(spec, path);
+  m_isValid = makeEfficiencyObj(spec, path);
   if( !m_isValid ) m_eff = 0;
 }
 
 EffTool::EffTool(const EffInfo& spec, const std::vector<std::string>& path) {
-  m_isValid = m_makeEfficiencyObj(spec, path);
+  m_isValid = makeEfficiencyObj(spec, path);
   if( !m_isValid ) m_eff = 0;
 }
 
@@ -31,7 +31,7 @@ EffTool::EffTool(const EffInfo& spec, const std::vector<std::string>& path) {
 EffTool::~EffTool() { delete m_eff; }
 
 bool EffTool::getInfo(const EffInfo& spec) {
-  m_isValid = m_makeEfficiencyObj(spec);
+  m_isValid = makeEfficiencyObj(spec);
   return m_isValid;
 }
 
@@ -51,11 +51,11 @@ const Efficiency& EffTool::getEffObj() const {
     throw EffConfigException("EffObj: No Efficiency Object Present");
 }
 
-bool EffTool::m_makeEfficiencyObj(const EffInfo& request, const std::string& path){
+bool EffTool::makeEfficiencyObj(const EffInfo& request, const std::string& path){
 
   // add mcr files from directory path and all subdirectories to the file list
   vector<string> files ;
-  m_addFilesToList(path.c_str(), files) ;    
+  addFilesToList(path.c_str(), files) ;    
   
   if (files.size() == 0) {
     cerr << "MonteCarloReactUtils::EffObj ERROR: Directory " 
@@ -134,14 +134,14 @@ bool EffTool::m_makeEfficiencyObj(const EffInfo& request, const std::string& pat
 }
 
 
-bool EffTool::m_makeEfficiencyObj(const EffInfo& request, const std::vector<std::string>& path){
+bool EffTool::makeEfficiencyObj(const EffInfo& request, const std::vector<std::string>& path){
 
   // add mcr files from directory path and all subdirectories to the file list
   vector<string> files ;
   typedef vector<string>::size_type size_t;
 
   for(size_t p = 0; p < path.size(); p++) {
-    m_addFilesToList(path[p].c_str(), files) ;    
+    addFilesToList(path[p].c_str(), files) ;    
   }
   
   if (files.size() == 0) {
@@ -226,7 +226,7 @@ bool EffTool::m_makeEfficiencyObj(const EffInfo& request, const std::vector<std:
 
 
 
-void EffTool::m_addFilesToList(const char* path, vector<string>& files) {
+void EffTool::addFilesToList(const char* path, vector<string>& files) {
   
    void* work_dir = 0 ;
    work_dir = gSystem->OpenDirectory(path)  ;
@@ -245,7 +245,7 @@ void EffTool::m_addFilesToList(const char* path, vector<string>& files) {
      string file_name = file_name_c ;
      if (file_name == "." || file_name == "..") continue ;      
      if ( (flags & 2) == 2) {
-       m_addFilesToList(gSystem->ConcatFileName(path,file_name_c), files) ;
+       addFilesToList(gSystem->ConcatFileName(path,file_name_c), files) ;
        continue ;
      }
      if ( file_name.find(".mcr") == string::npos ) continue ;           

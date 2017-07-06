@@ -96,6 +96,11 @@ ServiceMgr.AthenaPoolCnvSvc.PoolAttributes = [ "DEFAULT_BUFFERSIZE = '2048'" ]
 
 import AthenaPoolCnvSvc.ReadAthenaPool
 
+from IOVSvc.IOVSvcConf import CondInputLoader
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+condSeq += CondInputLoader()
+
 from CLIDComps.CLIDCompsConf import ClassIDSvc
 ServiceMgr += ClassIDSvc()
 include( "PartPropSvc/PartPropSvc.py" )
@@ -137,9 +142,9 @@ if hasattr(runArgs,"outputRDO_MRGFile"): Out = runArgs.outputRDO_MRGFile
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 try:
-  StreamRDO = AthenaPoolOutputStream( "StreamRDO", Out, True )
+  StreamRDO = AthenaPoolOutputStream( "StreamRDO", Out, True, noTag=True )
 except:
-  StreamRDO = AthenaPoolOutputStream( "StreamRDO", "DidNotSetOutputName.root", True )
+  StreamRDO = AthenaPoolOutputStream( "StreamRDO", "DidNotSetOutputName.root", True, noTag=True )
 StreamRDO.TakeItemsFromInput=TRUE;
 StreamRDO.ForceRead=TRUE;  #force read of output data objs
 # The next line is an example on how to exclude clid's if they are causing a  problem

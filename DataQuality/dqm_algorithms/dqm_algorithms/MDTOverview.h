@@ -28,7 +28,7 @@ public:
   virtual void                  printDescription(std::ostream& out);
 
 private:
-  std::string  name_;
+  std::string  m_name;
 };
 
 } //namespace dqm_algorithms

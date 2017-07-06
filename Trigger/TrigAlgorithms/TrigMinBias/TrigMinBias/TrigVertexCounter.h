@@ -27,10 +27,6 @@ class TrigVertexCounter: public HLT::FexAlgo {
   HLT::ErrorCode hltExecute(const HLT::TriggerElement *, HLT::TriggerElement* outputTE);
   
  private:
-  /** A data member to retain a connection to the MsgStream
-      service. */
-  MsgStream m_log;
-  
   /** Vertex container name. */
   std::string m_vtxContainerName;
 

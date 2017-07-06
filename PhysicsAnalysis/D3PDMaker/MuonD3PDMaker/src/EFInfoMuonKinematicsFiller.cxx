@@ -15,6 +15,7 @@
 #include "TrigMuonEvent/TrigMuonEFTrack.h"
 #include "TrigMuonEvent/TrigMuonEFCbTrack.h"
 #include "TrigMuonEvent/TrigMuonEFInfoTrack.h"
+#include "TrigMuonEvent/TrigMuonEFInfoTrackContainer.h"
 
 #include "AthenaKernel/errorcheck.h"
 
@@ -73,21 +74,26 @@ StatusCode EFInfoMuonKinematicsFiller::book()
  */
 StatusCode EFInfoMuonKinematicsFiller::fill (const TrigMuonEFInfo& p)
 {
-  TrigMuonEFInfo &cp = const_cast<TrigMuonEFInfo &>(p);
-  TrigMuonEFCbTrack* cbtrk = cp.CombinedTrack();
-  *m_cb_eta          = (cbtrk ? cbtrk->eta() : -10);
-  *m_cb_phi          = (cbtrk ? cbtrk->phi() : -10);
-  *m_cb_pt           = (cbtrk && cbtrk->iPt()!= 0 ? cbtrk->pt()  : -1.e9);
+  const TrigMuonEFInfoTrackContainer* tracks = p.TrackContainer();
+  if (tracks && !tracks->empty()) {
+    const TrigMuonEFInfoTrack* t = tracks->front();
+    if (t) {
+      const TrigMuonEFCbTrack* cbtrk = t->CombinedTrack();
+      *m_cb_eta          = (cbtrk ? cbtrk->eta() : -10);
+      *m_cb_phi          = (cbtrk ? cbtrk->phi() : -10);
+      *m_cb_pt           = (cbtrk && cbtrk->iPt()!= 0 ? cbtrk->pt()  : -1.e9);
 
-  const TrigMuonEFTrack* mstrk = cp.SpectrometerTrack();
-  *m_ms_eta          = (mstrk ? mstrk->eta() : -10);
-  *m_ms_phi          = (mstrk ? mstrk->phi() : -10);
-  *m_ms_pt           = (mstrk ? mstrk->pt()  : -1.e9);
+      const TrigMuonEFTrack* mstrk = t->SpectrometerTrack();
+      *m_ms_eta          = (mstrk ? mstrk->eta() : -10);
+      *m_ms_phi          = (mstrk ? mstrk->phi() : -10);
+      *m_ms_pt           = (mstrk ? mstrk->pt()  : -1.e9);
 
-  const TrigMuonEFTrack* metrk = cp.ExtrapolatedTrack();
-  *m_me_eta          = (metrk ? metrk->eta() : -10);
-  *m_me_phi          = (metrk ? metrk->phi() : -10);
-  *m_me_pt           = (metrk ? metrk->pt()  : -1.e9);
+      const TrigMuonEFTrack* metrk = t->ExtrapolatedTrack();
+      *m_me_eta          = (metrk ? metrk->eta() : -10);
+      *m_me_phi          = (metrk ? metrk->phi() : -10);
+      *m_me_pt           = (metrk ? metrk->pt()  : -1.e9);
+    }
+  }
 
   return StatusCode::SUCCESS;
 }

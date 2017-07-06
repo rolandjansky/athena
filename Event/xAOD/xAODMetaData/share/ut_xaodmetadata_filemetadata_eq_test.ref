@@ -1,0 +1,2 @@
+xAOD::FileMetaData::operator==  WARNING  Unsupported variable ("IntValue"/int) encountered
+All tests succeeded

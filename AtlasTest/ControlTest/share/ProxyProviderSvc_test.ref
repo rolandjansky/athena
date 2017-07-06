@@ -2,7 +2,7 @@
 
 Initializing Gaudi ApplicationMgr using job opts ../share/ProxyProviderSvc_test.txt
 JobOptionsSvc        INFO # =======> /home/sss/atlas/rootaccess/build-clang/joboptions/ControlTest/StoreGateTestCommon.txt
-JobOptionsSvc        INFO # (5,1): ApplicationMgr.ExtSvc += ["StoreGateSvc/DetectorStore", "StoreGateSvc/HistoryStore", "StoreGateSvc/ConditionsStore"]
+JobOptionsSvc        INFO # (5,1): ApplicationMgr.ExtSvc += ["StoreGateSvc/DetectorStore", "StoreGateSvc/HistoryStore", "StoreGateSvc/ConditionStore"]
 JobOptionsSvc        INFO # (6,1): AuditorSvc.Auditors += ["AlgContextAuditor"]
 JobOptionsSvc        INFO # (7,1): StoreGateSvc.OutputLevel = 1
 JobOptionsSvc        INFO # (8,1): StoreGateSvc.ActivateHistory = 0
@@ -46,7 +46,7 @@ HistoryStore        DEBUG Property update for OutputLevel : new value = 1[m
 HistoryStore        DEBUG Service base class initialized successfully[m
 HistoryStore      VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc[m
 HistoryStore      VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc[m
-ServiceManager      DEBUG Initializing service ConditionsStore[m
+ServiceManager      DEBUG Initializing service ConditionStore[m
 ServiceManager      DEBUG Initializing service AppMgrRunable[m
 ServiceManager      DEBUG Initializing service EventLoopMgr[m
 EventDataSvc        DEBUG Property update for OutputLevel : new value = 1[m

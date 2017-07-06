@@ -10,7 +10,7 @@
 
 This package containes the interfaces to retrieve the electronics calibration
 constants for the LAr calorimeters. The classes are normally recorded in the
-ConditionsStore, and to be used by Algorithms. These classes should not have
+ConditionStore, and to be used by Algorithms. These classes should not have
 explicit dependency on the backend, which is normally a database for the
 stored constants. The concrete implementation of the interfaces contained in
 this package is found in <a

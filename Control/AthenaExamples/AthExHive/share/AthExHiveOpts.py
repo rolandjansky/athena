@@ -31,6 +31,7 @@ from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.OutputLevel( INFO )
 AlgScheduler.ShowControlFlow( True )
 AlgScheduler.ShowDataDependencies( True )
+AlgScheduler.setDataLoaderAlg( "SGInputLoader" )
 
 # ThreadPoolService thread local initialization
 from GaudiHive.GaudiHiveConf import ThreadPoolSvc
@@ -58,7 +59,6 @@ topSequence = AlgSequence()
 
 from SGComps.SGCompsConf import SGInputLoader
 topSequence+=SGInputLoader(OutputLevel=INFO, ShowEventDump=False)
-topSequence.SGInputLoader.Load = [ ('EventInfo','McEventInfo') ]
 
 from AthExHive.AthExHiveConf import *
 topSequence+=HiveAlgA(OutputLevel=DEBUG,Time=20)

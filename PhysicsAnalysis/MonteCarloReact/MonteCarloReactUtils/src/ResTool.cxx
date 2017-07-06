@@ -20,7 +20,7 @@ using namespace MonteCarloReact;
 ResTool::~ResTool() { delete m_res; }
 
 bool ResTool::getInfo(const ResInfo& spec) {
-  m_isValid = m_makeResolutionObj(spec);
+  m_isValid = makeResolutionObj(spec);
   return m_isValid;
 }
 
@@ -39,10 +39,10 @@ const Resolution& ResTool::getResObj() const {
 }
 
 
-bool ResTool::m_makeResolutionObj(const ResInfo& request, const std::string& path){
+bool ResTool::makeResolutionObj(const ResInfo& request, const std::string& path){
   // add mcr files from directory path and all subdirectories to the file list
   vector<string> files ;
-  m_addFilesToList(path.c_str(), files) ;    
+  addFilesToList(path.c_str(), files) ;    
   
   if (files.size() == 0) {
    cerr << "MonteCarloReactUtils::ResObj ERROR: Directory " 
@@ -124,13 +124,13 @@ bool ResTool::m_makeResolutionObj(const ResInfo& request, const std::string& pat
   else return false;
 }
 
-bool ResTool::m_makeResolutionObj(const ResInfo& request, const std::vector<std::string>& path){
+bool ResTool::makeResolutionObj(const ResInfo& request, const std::vector<std::string>& path){
 
   // add mcr files from directory path and all subdirectories to the file list
   vector<string> files ;
   typedef vector<string>::size_type size_t;
   for(size_t p = 0; p < path.size(); p++) {
-    m_addFilesToList(path[p].c_str(), files) ;    
+    addFilesToList(path[p].c_str(), files) ;    
   }
 
   if (files.size() == 0) {
@@ -221,7 +221,7 @@ bool ResTool::m_makeResolutionObj(const ResInfo& request, const std::vector<std:
 
 
 
-void ResTool::m_addFilesToList(const char* path, vector<string>& files) {
+void ResTool::addFilesToList(const char* path, vector<string>& files) {
   
    void* work_dir = 0 ;
    work_dir = gSystem->OpenDirectory(path)  ;
@@ -240,7 +240,7 @@ void ResTool::m_addFilesToList(const char* path, vector<string>& files) {
      string file_name = file_name_c ;
      if (file_name == "." || file_name == "..") continue ;      
      if ( (flags & 2) == 2) {
-       m_addFilesToList(gSystem->ConcatFileName(path,file_name_c), files) ;
+       addFilesToList(gSystem->ConcatFileName(path,file_name_c), files) ;
        continue ;
      }
      if ( file_name.find(".mcr") == string::npos ) continue ;           

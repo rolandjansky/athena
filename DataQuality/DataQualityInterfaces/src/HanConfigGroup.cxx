@@ -33,20 +33,20 @@ HanConfigGroup()
 HanConfigGroup::
 HanConfigGroup( const HanConfigGroup& other )
   : HanConfigAssessor(other)
-  , pathName(other.pathName)
+  , m_pathName(other.m_pathName)
 {
-  TIter nextAssess( &other.assessors );
+  TIter nextAssess( &other.m_assessors );
   HanConfigAssessor* otherAssess;
   while( (otherAssess = dynamic_cast<HanConfigAssessor*>( nextAssess() )) != 0 ) {
     HanConfigAssessor* acpy = new HanConfigAssessor( *otherAssess );
-    assessors.Add( acpy );
+    m_assessors.Add( acpy );
   }
   
-  TIter nextGroup( &other.groups );
+  TIter nextGroup( &other.m_groups );
   HanConfigGroup* otherGroup;
   while( (otherGroup = dynamic_cast<HanConfigGroup*>( nextGroup() )) != 0 ) {
     HanConfigGroup* gcpy = new HanConfigGroup( *otherGroup );
-    groups.Add( gcpy );
+    m_groups.Add( gcpy );
   }
 }
 
@@ -56,20 +56,20 @@ HanConfigGroup::
 operator=( const HanConfigGroup& other )
 {
   HanConfigAssessor::operator=(other);
-  pathName = other.pathName;
+  m_pathName = other.m_pathName;
   
-  TIter nextAssess( &other.assessors );
+  TIter nextAssess( &other.m_assessors );
   HanConfigAssessor* otherAssess;
   while( (otherAssess = dynamic_cast<HanConfigAssessor*>( nextAssess() )) != 0 ) {
     HanConfigAssessor* acpy = new HanConfigAssessor( *otherAssess );
-    assessors.Add( acpy );
+    m_assessors.Add( acpy );
   }
   
-  TIter nextGroup( &other.groups );
+  TIter nextGroup( &other.m_groups );
   HanConfigGroup* otherGroup;
   while( (otherGroup = dynamic_cast<HanConfigGroup*>( nextGroup() )) != 0 ) {
     HanConfigGroup* gcpy = new HanConfigGroup( *otherGroup );
-    groups.Add( gcpy );
+    m_groups.Add( gcpy );
   }
 
   return *this;
@@ -80,8 +80,8 @@ HanConfigGroup::
 ~HanConfigGroup()
 {
   // Assume that the same object has not been added to both lists
-  assessors.Delete();
-  groups.Delete();
+  m_assessors.Delete();
+  m_groups.Delete();
 }
 
 
@@ -97,7 +97,7 @@ void
 HanConfigGroup::
 SetPathName( const std::string& name_ )
 {
-  pathName.SetString( name_.c_str() );
+  m_pathName.SetString( name_.c_str() );
 }
 
 
@@ -105,7 +105,7 @@ const char*
 HanConfigGroup::
 GetPathName() const
 {
-  return pathName.GetName();
+  return m_pathName.GetName();
 }
 
 
@@ -114,7 +114,7 @@ HanConfigGroup::
 AddAssessor( const HanConfigAssessor& hcass_ )
 {
   HanConfigAssessor* acpy = new HanConfigAssessor( hcass_ );
-  assessors.Add( acpy );
+  m_assessors.Add( acpy );
 }
 
 
@@ -122,7 +122,7 @@ const HanConfigAssessor
 HanConfigGroup::
 GetAssessor( const std::string& name_ ) const
 {
-  HanConfigAssessor* hca = dynamic_cast<HanConfigAssessor*>( assessors.FindObject(name_.c_str()) );
+  HanConfigAssessor* hca = dynamic_cast<HanConfigAssessor*>( m_assessors.FindObject(name_.c_str()) );
   if( hca == 0 ) {
     return HanConfigAssessor();
   }
@@ -135,7 +135,7 @@ TIter
 HanConfigGroup::
 GetAllAssessors() const
 {
-  return TIter( &assessors );
+  return TIter( &m_assessors );
 }
 
 
@@ -144,7 +144,7 @@ HanConfigGroup::
 AddGroup( const HanConfigGroup& hcg_ )
 {
   HanConfigGroup* gcpy = new HanConfigGroup( hcg_ );
-  groups.Add( gcpy );
+  m_groups.Add( gcpy );
 }
 
 
@@ -152,7 +152,7 @@ HanConfigGroup
 HanConfigGroup::
 GetGroup( const std::string& name_ ) const
 {
-  HanConfigGroup* hcg = dynamic_cast<HanConfigGroup*>( groups.FindObject(name_.c_str()) );
+  HanConfigGroup* hcg = dynamic_cast<HanConfigGroup*>( m_groups.FindObject(name_.c_str()) );
   if( hcg == 0 ) {
     return HanConfigGroup();
   }
@@ -165,7 +165,7 @@ TIter
 HanConfigGroup::
 GetAllGroups() const
 {
-  return TIter( &groups );
+  return TIter( &m_groups );
 }
 
 
@@ -173,7 +173,7 @@ HanConfigGroup*
 HanConfigGroup::
 GetNode( const std::string& name_ ) const
 {
-  if( groups.IsEmpty() ) {
+  if( m_groups.IsEmpty() ) {
     return 0;
   }
 
@@ -185,7 +185,7 @@ GetNode( const std::string& name_ ) const
       if( dName == std::string( GetName() ) ) {
         return GetNode( pName );
       }
-      HanConfigGroup* subreg = dynamic_cast<HanConfigGroup*>( groups.FindObject(dName.c_str()) );
+      HanConfigGroup* subreg = dynamic_cast<HanConfigGroup*>( m_groups.FindObject(dName.c_str()) );
       if( subreg == 0 ) {
         return 0;
       }
@@ -194,7 +194,7 @@ GetNode( const std::string& name_ ) const
     return GetNode( pName );
   }
   
-  HanConfigGroup* subreg = dynamic_cast<HanConfigGroup*>( groups.FindObject(name_.c_str()) );
+  HanConfigGroup* subreg = dynamic_cast<HanConfigGroup*>( m_groups.FindObject(name_.c_str()) );
   return subreg;
 }
 
@@ -205,15 +205,15 @@ GetList( TDirectory* basedir, std::map<std::string,TSeqCollection*>& mp )
 {
   // Let the original method do all the work
   TSeqCollection *ret = HanConfigAssessor::GetList( basedir, mp );
-  ret->SetName( this->name.GetName() );
+  ret->SetName( this->m_name.GetName() );
 
-  // Iterate through containing groups and assessors and add them to the childrenList
-  TIter nextAssess( &assessors );
+  // Iterate through containing m_groups and m_assessors and add them to the childrenList
+  TIter nextAssess( &m_assessors );
   HanConfigAssessor* hca;
   while( (hca = dynamic_cast<HanConfigAssessor*>( nextAssess() )) != 0 )
     ret->Add( hca->GetList(basedir,mp) );
 
-  TIter nextGroup( &groups );
+  TIter nextGroup( &m_groups );
   HanConfigGroup* hcg;
   while( (hcg = dynamic_cast<HanConfigGroup*>( nextGroup() )) != 0 )
     ret->Add( hcg->GetList(basedir,mp) );
@@ -236,15 +236,15 @@ Accept( const Visitor& visitor, boost::shared_ptr<dqm_core::Region> dqParent ) c
     dqr = dqParent;
   }
 
-  // Accept the same visitor on all containing groups and assessors
+  // Accept the same visitor on all containing m_groups and m_assessors
 
-  TIter nextAssess( &assessors );
+  TIter nextAssess( &m_assessors );
   HanConfigAssessor* hca;
   while( (hca = dynamic_cast<HanConfigAssessor*>( nextAssess() )) != 0 ) {
     hca->Accept( visitor, dqr );
   }
   
-  TIter nextGroup( &groups );
+  TIter nextGroup( &m_groups );
   HanConfigGroup* hcg;
   while( (hcg = dynamic_cast<HanConfigGroup*>( nextGroup() )) != 0 ) {
     hcg->Accept( visitor, dqr );
@@ -262,9 +262,9 @@ PrintIOStream( std::ostream& o ) const
     << "  Algorithm Reference = \"" << GetAlgRefName() << "\"\n"
     << "  Weight = " << GetWeight() << "\n";
   
-  if( !algPars->IsEmpty() ) {
+  if( !m_algPars->IsEmpty() ) {
     o << "  Algorithm Parameters = {\n";
-    TIter nextPar( algPars );
+    TIter nextPar( m_algPars );
     HanConfigAlgPar* par;
     while( (par = dynamic_cast<HanConfigAlgPar*>( nextPar() )) != 0 ) {
       o << "    " << par;
@@ -272,9 +272,9 @@ PrintIOStream( std::ostream& o ) const
     o << "  }\n";
   }
   
-  if( !algLimits->IsEmpty() ) {
+  if( !m_algLimits->IsEmpty() ) {
     o << "  Algorithm Limits = {\n";
-    TIter nextLim( algLimits );
+    TIter nextLim( m_algLimits );
     HanConfigAlgLimit* lim;
     while( (lim = dynamic_cast<HanConfigAlgLimit*>( nextLim() )) != 0 ) {
       o << "    " << lim;
@@ -282,9 +282,9 @@ PrintIOStream( std::ostream& o ) const
     o << "  }\n";
   }
   
-  if( !groups.IsEmpty() ) {
+  if( !m_groups.IsEmpty() ) {
     o << "\n>>  BEGIN SUB REGIONS of \"" << GetName() << "\"\n";
-    TIter nextGroup( &groups );
+    TIter nextGroup( &m_groups );
     HanConfigGroup* hcg;
     while( (hcg = dynamic_cast<HanConfigGroup*>( nextGroup() )) != 0 ) {
       o << hcg;
@@ -292,9 +292,9 @@ PrintIOStream( std::ostream& o ) const
     o << "\n<<  END SUB REGIONS of \"" << GetName() << "\"\n";
   }
   
-  if( !assessors.IsEmpty() ) {
+  if( !m_assessors.IsEmpty() ) {
     o << "\n>>  BEGIN ASSESSMENTS of \"" << GetName() << "\"\n";
-    TIter nextAssess( &assessors );
+    TIter nextAssess( &m_assessors );
     HanConfigAssessor* hca;
     while( (hca = dynamic_cast<HanConfigAssessor*>( nextAssess() )) != 0 ) {
       o << hca;

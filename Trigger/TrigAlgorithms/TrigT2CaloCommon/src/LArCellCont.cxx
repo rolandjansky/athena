@@ -22,7 +22,7 @@
 #include <iostream>
 //#include <time.h>
 
-LArCellCont::LArCellCont() : m_event(0), m_masker(NULL), m_badChanTool(NULL), m_corrBCIDref( m_corrBCIDref_example ), m_caloLumiBCIDTool(0), m_lumi_block(0), m_bcid(5000), m_larCablingSvc(0), m_BCIDcache(false)
+LArCellCont::LArCellCont() : m_event(0), m_masker(NULL), m_badChanTool(NULL), m_corrBCIDref( corrBCIDref_example ), m_caloLumiBCIDTool(0), m_lumi_block(0), m_bcid(5000), m_larCablingSvc(0), m_BCIDcache(false)
 {}
 
 StatusCode
@@ -152,12 +152,12 @@ for(  ;  beg != end;  ++beg ){
 } // end of loop over online IDs
 }
 std::map<HWIdentifier,int>::const_iterator end = m_indexset.end  ();
-int m_indexsetmax = m_indexset.size();
+int indexsetmax = m_indexset.size();
 //int maxBCID=3564;
 m_corrBCID.resize(1);
 for( int bcid=0; bcid<1; ++bcid) {
 std::vector<float>& BCID0=m_corrBCID[bcid];
-BCID0.resize(m_indexsetmax+1);
+BCID0.resize(indexsetmax+1);
 std::map<HWIdentifier,int>::const_iterator beg = m_indexset.begin();
 for( ; beg != end ; ++beg ) {
 	BCID0.push_back(0.);
@@ -208,7 +208,7 @@ m_hashSym.resize(onlineId->febHashMax());
 		if ( m_indexset.find( hwsym ) != m_indexset.end() ){
 		  int index = (m_indexset.find( hwsym ))->second;
 		  hashTab.push_back( index );
-		} else hashTab.push_back(m_indexsetmax+1);
+		} else hashTab.push_back(indexsetmax+1);
 #ifdef TRIGLARCELLDEBUG
 		std::cout << "Cell registered at Collection " 
 		<< std::hex << febid.get_identifier32().get_compact() << std::dec <<
@@ -222,7 +222,7 @@ m_hashSym.resize(onlineId->febHashMax());
 #endif
 		LArCell* larcell = new LArCell();
 		(*this)[idx]->push_back(larcell);
-		hashTab.push_back( m_indexsetmax+1);
+		hashTab.push_back( indexsetmax+1);
 	} // end of if bad cell
 	} // end of for ch loop
 	std::map<LArRoI_Map::TT_ID,std::vector<LArCell* > >::const_iterator
@@ -348,11 +348,11 @@ void LArCellCont::updateBCID() {
   //startT = clock();
   int bcid=m_bcid;
   std::map<HWIdentifier,int>::const_iterator end = m_indexset.end  ();
-  int m_indexsetmax = m_indexset.size();
+  int indexsetmax = m_indexset.size();
   //m_corrBCID.resize(1);
   if ( (m_larCablingSvc == 0) || (m_caloLumiBCIDTool==0) ) return;
     std::vector<float>& BCID0=m_corrBCID[0];
-    BCID0.resize(m_indexsetmax+1);
+    BCID0.resize(indexsetmax+1);
     std::map<HWIdentifier,int>::const_iterator beg = m_indexset.begin();
     for( ; beg != end ; ++beg ) {
       HWIdentifier hwid = (*beg).first;

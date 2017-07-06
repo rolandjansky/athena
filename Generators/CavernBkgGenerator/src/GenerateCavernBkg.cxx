@@ -4,10 +4,6 @@
 
 #include "CavernBkgGenerator/GenerateCavernBkg.h"
 
-#include "GaudiKernel/IDataProviderSvc.h"
-#include "GaudiKernel/AlgFactory.h"
-#include "GaudiKernel/PropertyMgr.h"
-
 #include "HepPDT/ParticleData.hh"
 #include "CLHEP/Random/RandFlat.h"
 

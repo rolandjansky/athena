@@ -49,7 +49,7 @@ void
 MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_container, 
                                    const Muon::TgcCoinDataContainer* tgccontainer){
 
-  if (m_debuglevel) m_log<<MSG::DEBUG<<"inside correlation"<<endmsg;
+  ATH_MSG_DEBUG("inside correlation" );
   //StatusCode sc=StatusCode::SUCCESS;
 
   //loop over TGC RoI container
@@ -59,7 +59,7 @@ MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_con
        ++it){
   
 
-    if (m_debuglevel) m_log<<MSG::DEBUG<< "size of tgc collection is " << (*it) -> size() << endmsg;
+    ATH_MSG_DEBUG( "size of tgc collection is " << (*it) -> size()  );
 
     //loop over TGC RoI collection
     Muon::TgcCoinDataCollection::const_iterator itc_end=(*it)->end();
@@ -67,7 +67,7 @@ MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_con
          itc!= itc_end;
          ++itc){
 
-      Muon::TgcCoinData* tcd=*itc;
+      const Muon::TgcCoinData* tcd=*itc;
       Identifier tgcid=(*itc)->identify();
 
       if( tcd->type() != Muon::TgcCoinData::TYPE_SL )continue;
@@ -91,18 +91,14 @@ MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_con
       if(tgcPhi<0)tgcPhi+=2*M_PI;
 
 
-      if(m_debuglevel){
-        m_log<<MSG::DEBUG
-             <<"ac "<<ac
-             <<" ef "<<ef
-             <<" phi48 "<<phi48
-             <<" roi "<<roi
-             <<" roieta "<<roieta
-             <<" roiphi "<<roiphi
-             <<" tgcEta "<<tgcEta
-             <<" tgcPhi "<<tgcPhi
-             <<endmsg;
-      }
+      ATH_MSG_DEBUG("ac "<<ac
+                    <<" ef "<<ef
+                    <<" phi48 "<<phi48
+                    <<" roi "<<roi
+                    <<" roieta "<<roieta
+                    <<" roiphi "<<roiphi
+                    <<" tgcEta "<<tgcEta
+                    <<" tgcPhi "<<tgcPhi );
 
 
       //loop over MDT container
@@ -161,16 +157,13 @@ MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_con
 
         //same Side
         if(ac!=mdtAC)continue;
-        if (m_debuglevel) m_log<<MSG::DEBUG<< "size of mdt collection is " << (*containerIt) -> size() << endmsg;
+        ATH_MSG_DEBUG( "size of mdt collection is " << (*containerIt) -> size()  );
 
-        if (m_debuglevel){
-          m_log<<MSG::DEBUG
-               <<"mdtStationName "<<mdtStationName
-               <<" mdtStationEta "<<mdtStationEta
-               <<" mdtStationPhi "<<mdtStationPhi
-               <<" mdtSectorPhi "<<mdtSectorPhi
-               <<endmsg;
-        }
+        ATH_MSG_DEBUG("mdtStationName "<<mdtStationName
+                      <<" mdtStationEta "<<mdtStationEta
+                      <<" mdtStationPhi "<<mdtStationPhi
+                      <<" mdtSectorPhi "<<mdtSectorPhi );
+
         //if( itgcstationEta!=RoIEta || itgcstationPhi!=RoIPhi48 || end_or_for!=RoIEF || a_or_c!=RoISide )continue;
 
         //loop over MDT PRD Collection
@@ -194,14 +187,10 @@ MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_con
           int mdtTube             =   int(m_mdtIdHelper->tube(mdt_id2));
           int mdtTubeIdForEM = (abs(mdtStationEta)-1)*64 + mdtTube -1;
 
-          if(m_debuglevel){
-            m_log<<MSG::DEBUG
-                 <<"mdtMultiLayer "<<mdtMultiLayer
-                 <<" mdtTubeLayer "<<mdtTubeLayer
-                 <<" mdtTube "<<mdtTube
-                 <<" mdtTubeIdForEM "<<mdtTubeIdForEM
-                 <<endmsg;
-          }
+          ATH_MSG_DEBUG("mdtMultiLayer "<<mdtMultiLayer
+                        <<" mdtTubeLayer "<<mdtTubeLayer
+                        <<" mdtTube "<<mdtTube
+                        <<" mdtTubeIdForEM "<<mdtTubeIdForEM );
 
           if(tmp[mdtMultiLayer-1][mdtTubeLayer-1][mdtTube-1]==1)continue;
           tmp[mdtMultiLayer-1][mdtTubeLayer-1][mdtTube-1]=1;
@@ -219,25 +208,21 @@ MdtVsTgcRawDataValAlg::correlation(const Muon::MdtPrepDataContainer* mdt_hit_con
           float mdtz = mdtgPos.z();
           if(mdtPhi<0)mdtPhi+=2*M_PI;
 
-          if (m_debuglevel){
-            m_log<<MSG::DEBUG
-                 <<" Name "<<mdtStationName
-                 <<" Eta "<<mdtStationEta
-                 <<" Phi "<<mdtStationPhi
-                 <<" MultiLayer "<<mdtMultiLayer
-                 <<" TubeLayer "<<mdtTubeLayer
-                 <<" Tube "<<mdtTube
-                 <<" TubeIdForEM "<<mdtTubeIdForEM
-                 <<" Eta "<<mdtEta
-                 <<" Phi "<<mdtPhi
-                 <<" r "<<mdtr
-                 <<" z "<<mdtz
-                 <<" Sec "<<mdtSector
-                 <<" SecPhi "<<mdtSectorPhi
-                 <<" ADC "<<adc
-                 <<" TDC "<<tdc
-                 <<endmsg;
-          }
+          ATH_MSG_DEBUG(" Name "<<mdtStationName
+                        <<" Eta "<<mdtStationEta
+                        <<" Phi "<<mdtStationPhi
+                        <<" MultiLayer "<<mdtMultiLayer
+                        <<" TubeLayer "<<mdtTubeLayer
+                        <<" Tube "<<mdtTube
+                        <<" TubeIdForEM "<<mdtTubeIdForEM
+                        <<" Eta "<<mdtEta
+                        <<" Phi "<<mdtPhi
+                        <<" r "<<mdtr
+                        <<" z "<<mdtz
+                        <<" Sec "<<mdtSector
+                        <<" SecPhi "<<mdtSectorPhi
+                        <<" ADC "<<adc
+                        <<" TDC "<<tdc );
           
         }//MDT collection
       }//MDT container

@@ -26,6 +26,7 @@
 /** other */
 #include "InDetRawData/InDetTimeCollection.h"
 #include "InDetRawData/SCT_RDO_Container.h"
+#include "InDetByteStreamErrors/InDetBSErrContainer.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
@@ -72,6 +73,7 @@ class SCTRawDataProvider : public AthAlgorithm
   SG::WriteHandleKey<SCT_RDO_Container> m_rdoContainerKey;
   SG::WriteHandleKey<InDetTimeCollection> m_lvl1CollectionKey;
   SG::WriteHandleKey<InDetTimeCollection> m_bcidCollectionKey;
+  SG::WriteHandleKey<InDetBSErrContainer> m_bsErrContainerKey;
 
 };
 

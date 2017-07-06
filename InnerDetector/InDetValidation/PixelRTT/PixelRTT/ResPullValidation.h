@@ -32,14 +32,14 @@ public:
 	
 private:
 
-	std::string datatype;
-	std::string respullname;
-	std::string anglename;
-	MultiHisto<RMSProfile> *PtProfile;
-	MultiHisto<RMSProfile> *AngleProfile;
-	MultiHisto<TH1D> *Histogram;
+	std::string m_datatype;
+	std::string m_respullname;
+	std::string m_anglename;
+	MultiHisto<RMSProfile> *m_PtProfile;
+	MultiHisto<RMSProfile> *m_AngleProfile;
+	MultiHisto<TH1D> *m_Histogram;
 
-	std::string globaldirname;
+	std::string m_globaldirname;
 	
 
 

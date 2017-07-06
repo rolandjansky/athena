@@ -4,6 +4,8 @@ from RecExConfig.RecFlags import rec
 
 if (not rec.readRDO() or muonCombinedRecFlags.doAOD()) and not muonCombinedRecFlags.doxAOD():
 
+  from RecExConfig.ObjKeyStore                  import cfgKeyStore
+
   # from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
   # truthAlg = xAODMaker__xAODTruthCnvAlg("GEN_AOD2xAOD")
   # # truthAlg.OutputLevel = VERBOSE
@@ -61,10 +63,11 @@ if (not rec.readRDO() or muonCombinedRecFlags.doAOD()) and not muonCombinedRecFl
   topSequence += alg5
 
   # MuonSegments
-  from xAODMuonCnv.xAODMuonCnvConf import xAODMaker__MuonSegmentCnvAlg
-  muonSegAlg = xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg")
-  # muonAlg.OutputLevel = VERBOSE
-  topSequence += muonSegAlg
+  if (not cfgKeyStore.isInInput ('xAOD::MuonSegmentContainer', 'MuonSegments')):
+    from xAODMuonCnv.xAODMuonCnvConf import xAODMaker__MuonSegmentCnvAlg
+    muonSegAlg = xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg")
+    # muonAlg.OutputLevel = VERBOSE
+    topSequence += muonSegAlg
   
   #Muons
   from xAODMuonCnv.xAODMuonCnvConf import xAODMaker__MuonCnvAlg

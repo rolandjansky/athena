@@ -10,7 +10,6 @@ branches run
 
 use     AtlasPolicy             AtlasPolicy-* 
 use     AthenaMonitoring        AthenaMonitoring-*              Control
-use     DataModel               DataModel-*             	Control
 use     StoreGate               StoreGate-*             	Control
 
 use     AtlasROOT               AtlasROOT-*                     External

@@ -430,8 +430,10 @@ StatusCode TauProcessorTool::execute(){
 
 //________________________________________
 StatusCode TauProcessorTool::finalize(){
+#if defined(ASGTOOL_STANDALONE)
   for (auto tool : m_tools)
     ATH_CHECK(tool->finalize());
+#endif // ASGTOOL_STANDALONE
 
   return StatusCode::SUCCESS;
 }

@@ -33,7 +33,7 @@ bool NtupleStationId :: Initialize(const std::string & station, const int & eta,
 	m_ml=ml;
 	m_author=author;
 	m_region_id_valid = false;
-	geom_ok=false;
+	m_geom_ok=false;
 	return true;
 	}
 
@@ -51,36 +51,36 @@ bool NtupleStationId :: InitializeGeometry(const MdtIdHelper* mdtIdHelper, const
 	if(m_station == -1 || m_phi < 0 || m_eta == -99)
 		{
 		std::cerr<<" NtupleStationId :: InitializeGeometry: Cannot initialize geometry for multi station id"<<std::endl;
-		geom_ok=false;
+		m_geom_ok=false;
 		return false;
 		}
 //	std::cout<<m_phi<<" "<<m_eta<<std::endl;
 	Identifier id(mdtIdHelper->elementID(fid.stationNumberToFixedStationString(m_station), m_eta, m_phi));
 //	std::cout<<"Station id is: "<<mdtIdHelper->print_to_string(id)<<std::endl;
-	n_ml = mdtIdHelper->numberOfMultilayers(id);
+	m_n_ml = mdtIdHelper->numberOfMultilayers(id);
 //	const MuonGM::MdtReadoutElement* detEl = detMgr->getMdtReadoutElement(mdtIdHelper->channelID(id,1,1,1));
-//	n_ml=detEl->getMultilayer();
+//	m_n_ml=detEl->getMultilayer();
 //loop on multilayers
-	for(int i=0; i<n_ml; i++)
+	for(int i=0; i<m_n_ml; i++)
 		{
 		const MuonGM::MdtReadoutElement* detEl_ml = detMgr->getMdtReadoutElement(mdtIdHelper->channelID(id,1+i ,1,1));
-		layer_min[i]=1;
+		m_layer_min[i]=1;
 		if (detEl_ml==NULL)
 			{
 			std::cout<<regionId()<<" ml "<<i<< "does not exist in current geometry"<<std::endl;
 			return false;
 			}
-		layer_max[i]=detEl_ml->getNLayers();
-		n_layer[i] = layer_max[i] - layer_min[i] +1;
-		tube_min[i]= 1;
-		tube_max[i]= detEl_ml->getNtubesperlayer();
-		n_tubes[i] = tube_max[i] - tube_min[i] +1;
+		m_layer_max[i]=detEl_ml->getNLayers();
+		m_n_layer[i] = m_layer_max[i] - m_layer_min[i] +1;
+		m_tube_min[i]= 1;
+		m_tube_max[i]= detEl_ml->getNtubesperlayer();
+		m_n_tubes[i] = m_tube_max[i] - m_tube_min[i] +1;
 		}
 	MdtBasicRegionHash hash;
 	IdContext idCont = mdtIdHelper->module_context();
 	mdtIdHelper->get_hash( id, hash, &idCont );
-	region_hash = static_cast<int>(hash);
-	geom_ok = true;
+	m_region_hash = static_cast<int>(hash);
+	m_geom_ok = true;
 	return true;
 	}
 

@@ -25,9 +25,6 @@ int main(int argc, char * argv[]){
 
   if (argc == 1)print_usage();
 
-  // enable cintex for proper stl functioning in combo with ROOT
-  RootType::EnableCintex();
-
   // schedule for time info 
   TStopwatch timer;
   timer.Start();

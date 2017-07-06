@@ -9,7 +9,7 @@
 #include "GaudiKernel/IPartPropSvc.h"
 #include "GaudiKernel/StatusCode.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "DataModel/DataLink.h"
+#include "AthLinks/DataLink.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonIdHelpers/TgcIdHelper.h"
@@ -88,10 +88,10 @@ class MuonTGHitNtuple : public AthAlgorithm
   const CscIdHelper* m_cscIdHelper;
 
   // simulation id helper
-  MdtHitIdHelper* mdtHelper;
-  RpcHitIdHelper* rpcHelper;
-  CscHitIdHelper* cscHelper;
-  TgcHitIdHelper* tgcHelper;
+  MdtHitIdHelper* m_mdtHelper;
+  RpcHitIdHelper* m_rpcHelper;
+  CscHitIdHelper* m_cscHelper;
+  TgcHitIdHelper* m_tgcHelper;
 
 
   const MuonGM::MuonDetectorManager* m_muonMgr;
@@ -124,7 +124,6 @@ class MuonTGHitNtuple : public AthAlgorithm
 //  Max Nber of Hits in to save
   int m_MaxNberOfHits;
 
-  TFile* m_outFile;
   TTree* m_ptree;
   ITHistSvc*                       m_THistSvc; 
  

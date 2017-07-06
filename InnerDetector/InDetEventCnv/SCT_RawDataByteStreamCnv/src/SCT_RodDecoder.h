@@ -20,11 +20,7 @@
 #include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
-
-#include "StoreGate/WriteHandleKey.h"
-#include "StoreGate/WriteHandle.h"
 
 class ISCT_CablingSvc;
 class ISCT_ByteStreamErrorsSvc;
@@ -40,7 +36,8 @@ namespace InDetDD{
  *  also inserts them to the collection.
  *  This tool is used by the SCTRawCollByteStreamTool
  **/
-class SCT_RodDecoder : virtual public ISCT_RodDecoder, virtual public IIncidentListener, virtual public AthAlgTool {
+class SCT_RodDecoder : public AthAlgTool, public ISCT_RodDecoder
+{
  public: 
   //@name Usual AlgTool methods
   //@{
@@ -51,41 +48,43 @@ class SCT_RodDecoder : virtual public ISCT_RodDecoder, virtual public IIncidentL
   virtual ~SCT_RodDecoder(); 
 
   /** AlgTool initialize */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   /** AlgTool finalize*/
-  virtual StatusCode finalize();
-  //@}
-  /** function to be executed at BeginEvent incident */
-  virtual void handle(const Incident& inc);
+  virtual StatusCode finalize() override;
   
   /** @brief Decode the rob data fragment and fill the collection SCT_RDO_Collection 
    *  with the RDO built by the makeRDO(..) method
    **/
-  virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFrag,
-				    SCT_RDO_Container* rdoIdc,
-				    std::vector<IdentifierHash>* vecHash = 0);
+  virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
+				    SCT_RDO_Container& rdoIdc,
+                                    InDetBSErrContainer* errs,
+				    std::vector<IdentifierHash>* vecHash = 0)
+    override;
 
+
+private:
   /// method that builds the RawData RDO and add it to the collection 
   int makeRDO(int strip, int groupSize, int tbin, 
 	      uint32_t onlineId, int ERRORS,
-	      SCT_RDO_Container* rdoIdc,
+	      SCT_RDO_Container& rdoIdc,
 	      std::vector<IdentifierHash>* vecHash, 
-	      IdentifierHash& skipHash, IdentifierHash& lastHash);
+	      IdentifierHash& skipHash, IdentifierHash& lastHash,
+              const std::vector<int>& errorHit);
 
   /// add an error for each wafer in a problematic ROD.
-  void addRODError(uint32_t rodid, int errorType);
+  void addRODError(uint32_t rodid, int errorType,
+                      InDetBSErrContainer* errs);
 
-
- private:
-  bool addSingleError(const IdentifierHash & idHash, const int bsErrorType);
+  bool addSingleError(const IdentifierHash idHash,
+                      const int bsErrorType,
+                      InDetBSErrContainer* errs);
   const SCT_ID* m_sct_id;
   const InDetDD::SCT_DetectorManager *m_indet_mgr;
   ServiceHandle<ISCT_CablingSvc> m_cabling;
   ServiceHandle<ISCT_ByteStreamErrorsSvc> m_byteStreamErrSvc;
   bool m_condensedMode ;
   bool m_superCondensedMode ;
-  std::vector<int>* m_errorHit;
   /** Summary of the decoding process */
   //  unsigned int m_hitnumber;             //!< Total number of decoded hits
   unsigned int  m_singleCondHitNumber;  //!< Total number of single hit decoded in condensed mode
@@ -118,13 +117,9 @@ class SCT_RodDecoder : virtual public ISCT_RodDecoder, virtual public IIncidentL
   unsigned int m_numMissingLinkHeader;
   unsigned int m_numUnknownOfflineId;
   
-  SG::WriteHandle<InDetBSErrContainer> m_bsErrCont;
-  SG::WriteHandleKey<InDetBSErrContainer> m_bsErrContainerName;
-
   bool m_triggerMode;
 
   ServiceHandle<IIncidentSvc> m_incidentSvc;
-
 };
 
 

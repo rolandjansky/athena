@@ -14,7 +14,7 @@
 #define TRKTRUTHARA_H
 
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "TrkTruthData/DetailedTrackTruthCollection.h"
 #include "TrkTruthData/TrackTruthCollection.h"

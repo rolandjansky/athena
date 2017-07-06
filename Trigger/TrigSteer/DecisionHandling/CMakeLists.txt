@@ -43,3 +43,8 @@ atlas_add_test( TrigCompositeUtils_test
                         SOURCES test/TrigCompositeUtils_test.cxx
                         LINK_LIBRARIES  TestTools xAODTrigger DecisionHandlingLib
                         AthContainers )
+
+atlas_add_test( Combinators_test
+                        SOURCES test/Combinators_test.cxx
+                        LINK_LIBRARIES  TestTools xAODTrigger DecisionHandlingLib
+                        AthContainers )

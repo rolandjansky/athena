@@ -1,10 +1,10 @@
 // -*- c++ -*-
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#pragma once
+#ifndef INDETTRACKSYSTEMATICSTOOLS_IINDETTRACKTRUTHFILTERTOOL_H
+#define INDETTRACKSYSTEMATICSTOOLS_IINDETTRACKTRUTHFILTERTOOL_H
 
 #include "AsgTools/IAsgTool.h"
 #include "PATInterfaces/ISystematicsTool.h"
@@ -33,8 +33,6 @@ namespace InDet {
     virtual StatusCode finalize() = 0;
 
     virtual bool accept(const xAOD::TrackParticle* track) const = 0;
-    virtual bool selectTrack(const xAOD::TrackParticle* track) const __attribute__ ((deprecated("use accept(track) instead"))) = 0; // an old name for the above
-
       
     // implement the CP::ISystematicTool interface
       
@@ -51,3 +49,5 @@ namespace InDet {
   }; // class IInDetTrackTruthFilterTool
 
 } // namespace InDet
+
+#endif

@@ -26,11 +26,11 @@ class VertexAnalysis {
 
 public:
 
-  VertexAnalysis( const std::string& n ) : mname(n) { } 
+  VertexAnalysis( const std::string& n ) : m_name(n) { } 
 
   virtual ~VertexAnalysis() { } 
 
-  std::string name() const { return mname; }
+  std::string name() const { return m_name; }
   
   virtual void initialise() = 0;
   
@@ -72,12 +72,12 @@ protected:
 
 private:
 
-  std::string mname;
+  std::string m_name;
 
 };
 
-inline std::ostream& operator<<( std::ostream& s, const VertexAnalysis& _v ) { 
-  return s << _v.name();
+inline std::ostream& operator<<( std::ostream& s, const VertexAnalysis& v ) { 
+  return s << v.name();
 }
 
 

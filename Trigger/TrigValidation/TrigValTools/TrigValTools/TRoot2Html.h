@@ -81,9 +81,9 @@ class TRoot2Html : public TMultiFileLooper {
   TString hist2Png(TDirectory& dir, const TString& name);
   TString getDrawOptions(const TH1& h);
     
-  const char* xmlTreeItem(const char* text);
-  const char* xmlTreeItemClose();
-  const char* xmlUserData(const char* name, const char* data);
+  TString xmlTreeItem(const char* text);
+  TString xmlTreeItemClose();
+  TString xmlUserData(const char* name, const char* data);
 
   // Not copyable due to the ofstream.
   TRoot2Html& operator= (const TRoot2Html&);

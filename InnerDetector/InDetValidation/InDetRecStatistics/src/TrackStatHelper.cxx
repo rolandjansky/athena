@@ -640,18 +640,6 @@ void InDet::TrackStatHelper::reset(){
 }
 
 
-
-std::string InDet::TrackStatHelper::key()
-{
-  return m_TrackCollectionKey;  
-}
-
-
-std::string InDet::TrackStatHelper::Truthkey()
-{
-  return m_TrackTruthCollectionKey;  
-}
-
 void InDet::TrackStatHelper::print(){
 
   std::cout << " Printing Statistics for " << key();

@@ -3,9 +3,6 @@
 */
 
 {
-gSystem->Load("libCintex.so");
-Cintex::Enable();
-
 std::string incpath = gSystem->GetIncludePath();
 incpath += "-I/home/okuyama/athena/15.5.3.8/InstallArea/include/TriggerMenuNtuple";
 gSystem->SetIncludePath(incpath.c_str());

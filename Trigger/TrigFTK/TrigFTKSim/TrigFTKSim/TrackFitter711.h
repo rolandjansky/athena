@@ -32,7 +32,7 @@ protected:
   int m_max_missing_extraplanes; // maximum number of missing layers
 
   int m_nneighbours; // number of strips to retrieve, 1 just the central
-  FTKTrack *combtrackI; // pre-allocated array for MJ-recovery
+  FTKTrack *m_combtrackI; // pre-allocated array for MJ-recovery
 
   bool m_passedExtrapolation; // temp variable to count if AUX track passed extrapolation
 
@@ -81,7 +81,7 @@ protected:
   int *m_CImap; // this array, if m_ncoords_incomplete size, has the relation to transform a complete track in an incomplete one
   int *m_CIlayermap; // this array maps the position of the layer for the complete tracks in the incomplete version
 
-  FTKTrack newtrkI; // incomplete track used during the fitting
+  FTKTrack m_newtrkI; // incomplete track used during the fitting
   unsigned int m_complete_maskI; // set 1 in all the coordinates
 
   TFile *m_resfile; // output file for resolution studies
@@ -129,7 +129,8 @@ protected:
 
   /* void processor_ResolutionMode(const FTKRoad &); */
   /* void processor_ResolutionMode(const FTKRoad &, std::list<FTKTrack> &); */
-  void processor_Incomplete(const FTKRoad &, std::list<FTKTrack> &, std::list<FTKTrack> &);
+   void processor_Incomplete(const FTKRoad &, std::list<FTKTrack> &);
+//  void processor_Incomplete(const FTKRoad &, std::list<FTKTrack> &, std::list<FTKTrack> &);
   void processor_Extrapolate(const FTKRoad &, std::list<FTKTrack> &);
   void processor_SuperExtrapolate(const FTKRoad &, std::list<FTKTrack> &);
 
@@ -213,22 +214,22 @@ private:
   int m_sector_for_superexp;
   int *m_ssid;
   int **m_bounds;
-  int cur_iconn;
+  int m_cur_iconn;
   unsigned int m_cbitmask;
   unsigned int m_cbitmask_real;
   unsigned int m_norecovery_mask;// mask to prevent majority in planes with multiple hits or previous hits
   std::vector<FTKHit> *m_hits_more;
-  std::vector<FTKTrack> completeTrackCandidates;    // vector used as buffer to temporary store the found tracks
-  std::vector<std::pair<int,int> > connectedSectorPairs; // vector used to retrieve the correspondent simlar sector
-  std::vector<int> nmissingOfCompleteTracks;        // vector used to store the number of missing points int the extension
+  std::vector<FTKTrack> m_completeTrackCandidates;    // vector used as buffer to temporary store the found tracks
+  std::vector<std::pair<int,int> > m_connectedSectorPairs; // vector used to retrieve the correspondent simlar sector
+  std::vector<int> m_nmissingOfCompleteTracks;        // vector used to store the number of missing points int the extension
   int m_check_TR_by;
   float m_transition_region_max_eta;
   float m_transition_region_min_eta;
   bool m_super_exp_allow_extra_miss;
 
-  std::vector<int> conn_subregs;
-  std::vector<int> conn_sectors;
-  std::vector<FTKConstantBank *> conn_gcbanks;
+  std::vector<int> m_conn_subregs;
+  std::vector<int> m_conn_sectors;
+  std::vector<FTKConstantBank *> m_conn_gcbanks;
 
   bool isDebugSuperExp() { return m_debug_super_extrapolate; }
   void initializeSuperExtrapolate(const FTKRoad &road);
@@ -254,7 +255,7 @@ private:
   bool isTransitionRegion();
   bool isTransitionRegion(float eta);
   bool isTransitionRegion(int moduleid);
-  void setIConn(int iconn) { cur_iconn = iconn; }
+  void setIConn(int iconn) { m_cur_iconn = iconn; }
 public:
   void setTransitionRegion(float min, float max) { m_transition_region_min_eta = min; m_transition_region_max_eta = max; }
   void setTransitionRegionMinEta(float min) { m_transition_region_min_eta = min; }
@@ -281,10 +282,10 @@ private:
   TH1F* m_histo_module_value_diff;
   int* m_ncomb_event_conn;
   TH2F* m_IBL_res;
-  double IBLcoordPhi;
-  double IBLcoordEta;
+  double m_IBLcoordPhi;
+  double m_IBLcoordEta;
   TH2F* m_histo_delta_guessed_hit_found_hit;
-  int ibl_module_with_hit;
+  int m_ibl_module_with_hit;
 
   void fillDiagnosticPlotsPerTrack();
   void fillDiagnosticPlotsPerTrackPerConn();

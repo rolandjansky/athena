@@ -31,6 +31,8 @@ xAODTestReadDecor::xAODTestReadDecor (const std::string &name,
 {
   declareProperty ("ReadPrefix",  m_readPrefix);
   declareProperty ("DecorName",   m_decorName = "dInt1");
+  declareProperty ("CVecName",    m_cvecName  = "cvec");
+  declareProperty ("CInfoName",   m_cinfoName = "cinfo");
 
   declareProperty ("CVecDecorKey",  m_cvecDecorKey);
   declareProperty ("CInfoDecorKey", m_cinfoDecorKey);
@@ -42,8 +44,8 @@ xAODTestReadDecor::xAODTestReadDecor (const std::string &name,
  */
 StatusCode xAODTestReadDecor::initialize()
 {
-  m_cvecDecorKey  = m_readPrefix + "cvec."  + m_decorName;
-  m_cinfoDecorKey = m_readPrefix + "cinfo." + m_decorName;
+  m_cvecDecorKey  = m_readPrefix + m_cvecName +  "."  + m_decorName;
+  m_cinfoDecorKey = m_readPrefix + m_cinfoName + "." + m_decorName;
 
   ATH_CHECK( m_cvecDecorKey.initialize() );
   ATH_CHECK( m_cinfoDecorKey.initialize() );

@@ -9,6 +9,7 @@
 
 #include <iostream>
 
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthContainers/ConstDataVector.h"
 #include "StoreGate/ReadHandle.h"
@@ -29,16 +30,15 @@ namespace SchedulerProxy {
 
 	{
 	  SG::ReadHandle<ConstDataVector<TrigRoiDescriptorCollection> > rois("RegionOfReco");
-	  CHECK(rois.setProxyDict(context.proxy()));
-	  
+	  CHECK(rois.setProxyDict(context.getExtension<Atlas::ExtendedEventContext>()->proxy()));
 	  
 	  SG::WriteHandle< TestClusterContainer > clusterContainer("Clusters");
-	  CHECK(clusterContainer.setProxyDict(context.proxy()));
+	  CHECK(clusterContainer.setProxyDict(context.getExtension<Atlas::ExtendedEventContext>()->proxy()));
 	  clusterContainer =  CxxUtils::make_unique< TestClusterContainer >();
 	  ATH_CHECK(clusterContainer.commit());
 	  
 	  SG::WriteHandle< TestClusterAuxContainer > clusterContainerAux("ClustersAux.");
-	  CHECK(clusterContainerAux.setProxyDict(context.proxy()));
+	  CHECK(clusterContainerAux.setProxyDict(context.getExtension<Atlas::ExtendedEventContext>()->proxy()));
 	  clusterContainerAux = CxxUtils::make_unique< TestClusterAuxContainer>();  	  
 	  ATH_CHECK(clusterContainerAux.commit());
 	  clusterContainer->setStore(clusterContainerAux.ptr());

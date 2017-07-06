@@ -18,10 +18,6 @@
 #include "PixelCalibAlgs/PixelChargeInterpolationValidation.h"
 #include "PixelConditionsData/PixelChargeInterpolationParameters.h"
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-#include "Cintex/Cintex.h"
-#endif
-
 namespace PixelCalib{
 
 
@@ -61,16 +57,11 @@ PixelRIOs::PixelRIOs(std::string starting_tag,
 			m_StartingTag(starting_tag), 
       m_FinalTag(final_tag)
   {
-
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-	ROOT::Cintex::Cintex::Enable();
-#endif
-
 	m_timer = new TStopwatch;
 	m_timer->Start();
 
 	std::string constantsfile = starting_tag;
-	if(ifstream(constantsfile.c_str()).fail()){
+	if(std::ifstream(constantsfile.c_str()).fail()){
 		std::cout << "Failing to open " << constantsfile <<
 			" for initialization..." << std::endl;
 		abort();
@@ -98,7 +89,7 @@ PixelRIOs::PixelRIOs(std::string starting_tag,
 				abort();
 			}
 		}else{
-			ifstream myfile(input.c_str());
+                        std::ifstream myfile(input.c_str());
 			if (myfile.is_open()){
 				for(;;){
 					getline(myfile,input);

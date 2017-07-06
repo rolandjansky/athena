@@ -61,7 +61,6 @@ class DiMuMon : public ManagedMonitorToolBase
 
  protected:
 
-  StatusCode sc;
   int m_lumiBlockNum;
 
   int m_nMassBins;
@@ -77,7 +76,6 @@ class DiMuMon : public ManagedMonitorToolBase
   double m_maxInvmass;
   double m_ptCut;
   double m_etaCut;
-  double maxWidth;
 
   std::string m_resonName;
   std::string m_triggerChainName;

@@ -43,7 +43,7 @@
 
 //Other includes
 #include "StoreGate/StoreGateSvc.h"
-#include <QtCore/QStringList>
+#include <QStringList>
 
 namespace VP1Trig {
   class VP1TriggerSystem : public virtual Logger

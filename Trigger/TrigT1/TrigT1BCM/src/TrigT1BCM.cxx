@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include "TrigT1BCM/TrigT1BCM.h"
 #include "TrigT1Interfaces/BcmCTP.h"
+#include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 #include "TrigConfL1Data/ThresholdConfig.h"
 
 #include "InDetBCM_RawData/BCM_RawData.h"
@@ -112,15 +113,13 @@ namespace LVL1 {
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "execute()" << endmsg;
     
     StatusCode sc;
-    std::string containerName;
     
     //    Retrieve Lvl1 BCM container
-    containerName = m_bcmL1ContainerName;
     m_bcmRDO = 0;
-    sc = evtStore()->retrieve( m_bcmRDO, containerName);
+    sc = evtStore()->retrieve( m_bcmRDO, m_bcmL1ContainerName);
     if( sc.isFailure()  || !m_bcmRDO ) {
       if (!m_badDataFound) {  
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << containerName << " not found" << endmsg; 
+	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << m_bcmL1ContainerName << " not found" << endmsg; 
 	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Algorithm will be turned off for the rest of the run." << endmsg;
 	m_badDataFound = true;
 	return StatusCode::SUCCESS;
@@ -129,7 +128,7 @@ namespace LVL1 {
       }
     }
     else {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << containerName << " Container Successfully Retrieved" << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << m_bcmL1ContainerName << " Container Successfully Retrieved" << endmsg;
     }
 
   
@@ -239,14 +238,13 @@ namespace LVL1 {
 
     // Record the CTP trigger word in StoreGate.
     BcmCTP *bcmCTP = new BcmCTP(cableWord0);
-    containerName = "/Run/L1BCMtoCTPLocation";
-    sc = evtStore()->record(bcmCTP, containerName, false);
+    sc = evtStore()->record(bcmCTP, LVL1::DEFAULT_BcmCTPLocation, false);
     if(sc.isFailure()) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Failed to register " << containerName << endmsg;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Failed to register " << LVL1::DEFAULT_BcmCTPLocation << endmsg;
       return StatusCode::FAILURE;
     } 
     else {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << containerName << " registered successfully" << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << LVL1::DEFAULT_BcmCTPLocation << " registered successfully" << endmsg;
     }
     
     return StatusCode::SUCCESS;

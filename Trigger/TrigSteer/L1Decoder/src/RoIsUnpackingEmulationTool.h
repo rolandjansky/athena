@@ -44,7 +44,6 @@ class RoIsUnpackingEmulationTool : virtual public AthAlgTool, virtual public IRo
   RoIsUnpackingEmulationTool();
   std::vector<TrigConf::TriggerThreshold*> m_emThresholds;
   SG::WriteHandleKey< TrigRoiDescriptorCollection > m_trigRoIsKey;
-  ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
   float m_roIWidth;
 
   // emulation

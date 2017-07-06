@@ -1,7 +1,7 @@
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Sat Mar 25 17:58:55 2017
+                                          running on karma on Mon Jun 19 16:29:47 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
@@ -10,4 +10,5 @@ HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 test1
-ClassIDSvc           INFO  getRegistryEntries: read 165 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 195 CLIDRegistry entries for module ALL
+test2

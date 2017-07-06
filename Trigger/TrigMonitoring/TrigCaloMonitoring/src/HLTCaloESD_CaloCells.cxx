@@ -178,7 +178,7 @@ StatusCode HLTCaloESD_CaloCells::fill()
 
   for(; HLT_itr != HLT_end; ++HLT_itr) {
     
-    CaloCell* HLT_cell = (*HLT_itr);
+    const CaloCell* HLT_cell = (*HLT_itr);
     if(!HLT_cell || !HLT_cell->caloDDE()) {
       continue;
     }

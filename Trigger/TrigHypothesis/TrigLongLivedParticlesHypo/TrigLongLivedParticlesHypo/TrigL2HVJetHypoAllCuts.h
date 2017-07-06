@@ -108,10 +108,5 @@ class TrigL2HVJetHypoAllCuts : public HLT::HypoAlgo {
   double m_JetEt;
   double m_logRatio;
   double m_NumberOfTracks;
-
-  //Histogram Service:
-  //IHistogramSvc* m_histsvc;
-  StoreGateSvc*  m_storeGate;
-
 };
 #endif

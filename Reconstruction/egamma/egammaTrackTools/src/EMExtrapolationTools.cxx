@@ -612,8 +612,7 @@ int EMExtrapolationTools::getTRTsection(const xAOD::TrackParticle* trkPB) const{
     ATH_MSG_DEBUG("No trt ID guessing TRT section based on eta: " << trkPB->eta());
     return (trkPB->eta() > 0 ? 1 : -1) * (fabs(trkPB->eta()) < 0.6 ? 1 : 2);
   }
-  const Trk::TrackParameters* trkPar =0;
-  Trk::CurvilinearParameters temp;
+  const Trk::MeasurementBase* trkPar =0;  
   if( trkPB->trackLink().isValid() && trkPB->track() != 0 ) {
     ATH_MSG_DEBUG("Will get TrackParameters from Trk::Track");
     const DataVector<const Trk::TrackStateOnSurface> *trackStates = trkPB->track()->trackStateOnSurfaces();
@@ -621,16 +620,14 @@ int EMExtrapolationTools::getTRTsection(const xAOD::TrackParticle* trkPB) const{
       ATH_MSG_WARNING("NULL pointer to trackStateOnSurfaces");
       return 0;
     }   
-    //Loop over the TrkStateOnSurfaces
-    // search last valid TSOS first
-    for ( DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator rItTSoS = trackStates->rbegin(); rItTSoS != trackStates->rend(); ++rItTSoS)
-      {
-	if ( (*rItTSoS)->type(Trk::TrackStateOnSurface::Measurement) && (*rItTSoS)->trackParameters()!=0 && (*rItTSoS)->measurementOnTrack()!=0 
-	     && !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*rItTSoS)->measurementOnTrack())){
-	  trkPar = (*rItTSoS)->trackParameters();
-	  break;
-	}
+    //Loop over the TrkStateOnSurfaces search last valid TSOS first
+    for ( DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator rItTSoS = trackStates->rbegin(); rItTSoS != trackStates->rend(); ++rItTSoS){
+      if ( (*rItTSoS)->type(Trk::TrackStateOnSurface::Measurement) && !((*rItTSoS)->type(Trk::TrackStateOnSurface::Outlier)) && (*rItTSoS)->measurementOnTrack()!=0 
+	   && !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*rItTSoS)->measurementOnTrack())){
+	trkPar = (*rItTSoS)->measurementOnTrack();
+	break;
       }
+    }
   }
   else {
     ATH_MSG_WARNING("Track particle without Trk::Track");

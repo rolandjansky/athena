@@ -40,8 +40,8 @@ class AFP_RawData_p1 {
     Column(0),
     Row(0),
     ToT(0),
-    m_error_bit17(0),
-    lvl1(0)
+    lvl1(0),
+    m_error_bit17(0)
       {}
  
  

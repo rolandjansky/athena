@@ -25,6 +25,7 @@
 #include "AthenaKernel/IHiveStore.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
 #include <algorithm>
@@ -95,7 +96,8 @@ namespace SG {
     m_ptr(0),
     m_proxy(0),
     m_store(nullptr),
-    m_storeWasSet(false)
+    m_storeWasSet(false),
+    m_doBind(true)
   {
 #ifdef DEBUG_VHB
     std::cerr << "VarHandleBase() " << this << std::endl;
@@ -119,7 +121,8 @@ namespace SG {
     m_ptr(NULL),
     m_proxy(NULL),
     m_store(nullptr),
-    m_storeWasSet(false)
+    m_storeWasSet(false),
+    m_doBind(true)
   {
   }
 
@@ -139,7 +142,8 @@ namespace SG {
       m_ptr(nullptr),
       m_proxy(nullptr),
       m_store(nullptr),
-      m_storeWasSet(false)
+      m_storeWasSet(false),
+      m_doBind(false)
   {
     if (key.storeHandle().get() == nullptr)
       throw SG::ExcUninitKey (key.clid(), key.key(),
@@ -160,7 +164,8 @@ namespace SG {
     m_ptr(rhs.m_ptr),
     m_proxy(nullptr),
     m_store(rhs.m_store),
-    m_storeWasSet(rhs.m_storeWasSet)
+    m_storeWasSet(rhs.m_storeWasSet),
+    m_doBind(rhs.m_doBind)
   {
 #ifdef DEBUG_VHB
     std::cerr << "::VHB::copy constr from " << &rhs
@@ -183,13 +188,16 @@ namespace SG {
     m_ptr(rhs.m_ptr),
     m_proxy(nullptr),
     m_store(rhs.m_store),
-    m_storeWasSet(rhs.m_storeWasSet)
+    m_storeWasSet(rhs.m_storeWasSet),
+    m_doBind(rhs.m_doBind)
   {
     rhs.m_ptr=0;
 
     if (rhs.m_proxy) {
-      rhs.m_proxy->unbindHandle (&rhs);
-      rhs.m_proxy->bindHandle(this);
+      if (m_doBind) {
+        rhs.m_proxy->unbindHandle (&rhs);
+        rhs.m_proxy->bindHandle(this);
+      }
       m_proxy = rhs.m_proxy;
       rhs.m_proxy=0; //no release: this has the ref now
     }
@@ -239,13 +247,16 @@ namespace SG {
       m_ptr =    rhs.m_ptr;
       m_store =  rhs.m_store;
       m_storeWasSet = rhs.m_storeWasSet;
+      m_doBind = rhs.m_doBind;
 
       rhs.m_ptr=0;
 
       resetProxy();
       if (rhs.m_proxy) {
-        rhs.m_proxy->unbindHandle (&rhs);
-        rhs.m_proxy->bindHandle (this);
+        if (m_doBind) {
+          rhs.m_proxy->unbindHandle (&rhs);
+          rhs.m_proxy->bindHandle (this);
+        }
         m_proxy =  rhs.m_proxy;
         rhs.m_proxy=0; //no release: this has the ref now
       }
@@ -254,7 +265,7 @@ namespace SG {
     std::cerr << "::VHB:: move assign from " << &rhs
               << " to " << this << ", "
               << "proxy=" << this->m_proxy << ", "
-              << "key=" <<this->m_sgkey
+              << "key=" <<this->key()
               << std::endl;
 #endif
     return *this;
@@ -274,7 +285,7 @@ namespace SG {
       std::cerr << " -- isValid: " << m_proxy->isValid()
                 << " -- isConst: " << m_proxy->isConst();
     }
-    std::cerr << ", key=" <<this->m_sgkey << ")...\n";
+    std::cerr << ", key=" <<this->key() << ")...\n";
 #endif
 
     resetProxy();
@@ -340,7 +351,7 @@ namespace SG {
       if (!store)
         store = this->storeHandle().get();
       if (store)
-        proxy = m_store->proxy(this->clid(), this->key());
+        proxy = store->proxy(this->clid(), this->key());
     }
     if (proxy) {
       return proxy->isValid();
@@ -686,7 +697,7 @@ namespace SG {
   const void*
   VarHandleBase::put_impl (const EventContext* ctx,
                            std::unique_ptr<DataObject> dobj,
-                           void* dataPtr,
+                           const void* dataPtr,
                            bool allowMods,
                            bool returnExisting,
                            IProxyDict* & store) const
@@ -866,11 +877,12 @@ namespace SG {
    */
   IProxyDict* VarHandleBase::storeFromHandle (const EventContext* ctx) const
   {
-    if (this->storeHandle().name() == "StoreGateSvc") {
+    if (this->storeHandle().name() == StoreID::storeName(StoreID::EVENT_STORE)) {
       if (ctx)
-        return ctx->proxy();
+        return ctx->getExtension<Atlas::ExtendedEventContext>()->proxy();
       if (m_storeWasSet && m_store) return m_store;
-      return Gaudi::Hive::currentContext().proxy();
+      const Atlas::ExtendedEventContext *eec = Gaudi::Hive::currentContext().getExtension<Atlas::ExtendedEventContext>();
+      return ( (eec == nullptr) ? nullptr : eec->proxy() );
     }
 
     if (m_storeWasSet && m_store) return m_store;
@@ -893,7 +905,8 @@ namespace SG {
   {
     CHECK( VarHandleKey::initialize() );
     m_store = storeFromHandle (ctx);
-    m_storeWasSet = (ctx && m_store == ctx->proxy());
+    m_storeWasSet = (ctx && m_store ==
+                     ctx->getExtension<Atlas::ExtendedEventContext>()->proxy());
     return StatusCode::SUCCESS;
   }
 
@@ -904,8 +917,10 @@ namespace SG {
   void VarHandleBase::resetProxy()
   {
     if (m_proxy) {
-      m_proxy->unbindHandle(this);
-      m_proxy->release();
+      if (m_doBind) {
+        m_proxy->unbindHandle(this);
+        m_proxy->release();
+      }
       m_proxy = nullptr;
     }
   }
@@ -919,8 +934,10 @@ namespace SG {
   {
     resetProxy();
     if (proxy) {
-      proxy->addRef();
-      proxy->bindHandle (this);
+      if (m_doBind) {
+        proxy->addRef();
+        proxy->bindHandle (this);
+      }
       m_proxy = proxy;
     }
   }

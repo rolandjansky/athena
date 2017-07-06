@@ -2,9 +2,19 @@
 #  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
 
-#
-# get_files LVL1config_Physics_pp_v7.xml
-# 
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.CheckDependencies( True )
+AlgScheduler.OutputLevel( VERBOSE )
+AlgScheduler.ShowDataDependencies( True )
+AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
+
+
+## get a handle on the ServiceManager
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+from SGComps.SGCompsConf import SGInputLoader
+topSequence += SGInputLoader( )
 
 from AthenaCommon.GlobalFlags import globalflags;
 globalflags.DataSource.set_Value_and_Lock("data");
@@ -24,6 +34,7 @@ rec.doAOD=False
 rec.doWriteAOD=False # uncomment if do not write AOD
 rec.doWriteTAG=False # uncomment if do not write TAG
 rec.doESD=False
+rec.doWritexAOD=False
 
 from RecExConfig.RecFlags import rec
 rec.doForwardDet=False
@@ -35,7 +46,20 @@ rec.doMuonCombined=False
 rec.doJetMissingETTag=False
 rec.doTau=False
 rec.doCaloRinger=False
+rec.doPerfMon=False
 #rec.readRDO=False
+
+from PerfMonComps.PerfMonFlags import jobproperties
+jobproperties.PerfMonFlags.doDsoMonitoring.set_Value_and_Lock(False)
+jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock(False)
+jobproperties.PerfMonFlags.doPersistencyMonitoring.set_Value_and_Lock(False)
+
+from LArROD.LArRODFlags import larRODFlags
+larRODFlags.doLArFebErrorSummary.set_Value_and_Lock(False)
+#from AthenaCommon.DetFlags import DetFlags
+#DetFlags.makeRIO.Calo_setOff()
+#DetFlags.detdescr.Calo_setOn()
+#DetFlags.Print()
 
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
@@ -111,14 +135,6 @@ svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
 #--------------------------------------------------------------
 # Load "user algorithm" top algorithms to be run, and the libraries that house them
 
-
-if nThreads >= 1:
-  #Retrieve input data
-  from SGComps.SGCompsConf import SGInputLoader
-  topSequence += SGInputLoader( OutputLevel=INFO, ShowEventDump=False )
-  topSequence.SGInputLoader.Load = [ ('ROIB::RoIBResult','RoIBResult') ]
-
-
 #Run calo decoder
 from L1Decoder.L1DecoderConf import L1CaloDecoder
 caloDecoder = L1CaloDecoder() # by default it is steered towards the RoIBResult of the name above
@@ -158,6 +174,18 @@ svcMgr.AthDictLoaderSvc.OutputLevel = INFO
 svcMgr.EventPersistencySvc.OutputLevel = INFO
 svcMgr.ROBDataProviderSvc.OutputLevel = INFO
 
+from LArROD.LArRODConf import LArRawChannelBuilderDriver
+topSequence.remove(LArRawChannelBuilderDriver('LArRawChannelBuilder'))
+from LArROD.LArDigits import DefaultLArDigitThinner
+topSequence.remove(DefaultLArDigitThinner('LArDigitThinner'))
+from TileRecUtils.TileRecUtilsConf import TileRawChannelMaker
+topSequence.remove(TileRawChannelMaker('TileRChMaker'))
+from TileRecAlgs.TileRecAlgsConf import TileDigitsFilter
+topSequence.remove(TileDigitsFilter('TileDigitsFilter'))
+from CaloRec.CaloRecConf import CaloCellMaker 
+topSequence.remove(CaloCellMaker('CaloCellMaker'))
+from xAODCaloEventCnv.xAODCaloEventCnvConf import ClusterCreator
+topSequence.remove(ClusterCreator('CaloCluster2xAOD'))
 
 
 theApp.EvtMax = 100
@@ -167,4 +195,5 @@ theApp.EvtMax = 100
 # End of job options file
 #
 ###############################################################
+
 

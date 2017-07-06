@@ -58,7 +58,7 @@ using namespace std;
 // Private function to select tgc chambersId of the spectrometer
 void
 TgcRawDataValAlg::tgcchamberId(){
-  if (m_debuglevel) m_log << MSG::DEBUG << "in TGC ChambersIDvector" << endmsg;  
+  ATH_MSG_DEBUG( "in TGC ChambersIDvector"  );
 
   //std::vector<Identifier>::const_iterator  idfirst = m_tgcIdHelper->module_begin();
   std::vector<Identifier>::const_iterator  idlast =  m_tgcIdHelper->module_end();
@@ -277,7 +277,7 @@ TgcRawDataValAlg::getWireNumberPerPhi48(Identifier id) const{
   int stationName=m_tgcIdHelper->stationName(id);//41:T1F 42:T1E 43:T2F 44:T2E 45:T3F 46:T3E 47:T3F 48:T4E (T4 means inner small wheel TGCs, EI/FI)
   
   if(stationName==47||stationName==48){
-    m_log << MSG::WARNING << "getWireNumberPerPhi48 is not implemented yet for EIFI" << endmsg;
+    ATH_MSG_WARNING( "getWireNumberPerPhi48 is not implemented yet for EIFI"  );
     return -1;
   }
   
@@ -299,7 +299,7 @@ TgcRawDataValAlg::getWireNumberPerPhi48(Identifier id) const{
 int
 TgcRawDataValAlg::getWireNumberPerPhi48(int tgc, int ws, int channel, int eta) const{
   if(tgc==3){
-    m_log << MSG::WARNING << "getWireNumberPerPhi48 is not implemented yet for EIFI" << endmsg;
+    ATH_MSG_WARNING( "getWireNumberPerPhi48 is not implemented yet for EIFI"  );
     return -1;
   }
   int n;

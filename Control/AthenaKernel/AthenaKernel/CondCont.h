@@ -174,13 +174,12 @@ bool CondCont<T>::valid(const EventIDBase& it) const {
   if (it.isRunEvent()) {
     itr = m_condSet_RE.begin();
     for (; itr != m_condSet_RE.end(); ++itr) {
-      // std::cout << "  -> " << itr->range() << " : " << *(itr->objPtr()) 
-      //           << std::endl;
       if ( itr->range().isInRange( it ) ) {
         return true;
       }
     }
-  } else if (it.isTimeStamp()) {
+  } 
+  if (it.isTimeStamp()) {
     itr = m_condSet_clock.begin();
     for (; itr != m_condSet_clock.end(); ++itr) {
       if ( itr->range().isInRange( it ) ) {
@@ -204,14 +203,13 @@ bool CondCont<T>::find(const EventIDBase& it, T*& t) const {
   if (it.isRunEvent()) {
     itr = m_condSet_RE.begin();
     for (; itr != m_condSet_RE.end(); ++itr) {
-      // std::cout << "  -> " << itr->range() << " : " << *(itr->objPtr()) 
-      //           << std::endl;
       if ( itr->range().isInRange( it ) ) {
         t = itr->objPtr();
         return true;
       }
     }
-  } else if (it.isTimeStamp()) {
+  } 
+  if (it.isTimeStamp()) {
     itr = m_condSet_clock.begin();
     for (; itr != m_condSet_clock.end(); ++itr) {
       if ( itr->range().isInRange( it ) ) {
@@ -232,6 +230,7 @@ bool CondCont<T>::findEntry(const EventIDBase& it, const IOVEntryT<T>*& t) const
   
   std::lock_guard<std::mutex> lock(m_mut);
 
+  // if EventID is BOTH, we need to look in both sets
   if (it.isRunEvent()) {
     itr = m_condSet_RE.begin();
     for (; itr != m_condSet_RE.end(); ++itr) {
@@ -240,7 +239,8 @@ bool CondCont<T>::findEntry(const EventIDBase& it, const IOVEntryT<T>*& t) const
         return true;
       }
     }
-  } else if (it.isTimeStamp()) {
+  }
+  if (it.isTimeStamp()) {
     itr = m_condSet_clock.begin();
     for (; itr != m_condSet_clock.end(); ++itr) {
       if ( itr->range().isInRange( it ) ) {
@@ -316,7 +316,8 @@ CondCont<T>::range(const EventIDBase& now, EventIDRange& r) const {
         return true;
       }
     }
-  } else if (now.isTimeStamp()) {
+  } 
+  if (now.isTimeStamp()) {
     itr = m_condSet_clock.begin();
     for (; itr != m_condSet_clock.end(); ++itr) {
       if ( itr->range().isInRange( now ) ) {

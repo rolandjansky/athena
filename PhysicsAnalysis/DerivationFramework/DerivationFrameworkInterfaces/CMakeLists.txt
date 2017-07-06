@@ -5,6 +5,8 @@
 # Declare the package name:
 atlas_subdir( DerivationFrameworkInterfaces )
 
+find_package( ROOT )
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel )

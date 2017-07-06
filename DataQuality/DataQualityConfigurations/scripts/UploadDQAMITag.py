@@ -63,7 +63,7 @@ def get_current_config(amiclient):
     #del rv1['writeStatus']
     for k in ('tag', 'createdBy', 'modifiedBy', 'tagStatus', 'tagNumber', 'tagType',
               'locked', 'updates', 'created', 'lastModified', 'processingStep',
-              'transformationName', 'baseRelease'):
+              'transformationName', 'baseRelease', 'modified'):
         try:
             del rv1[k]
         except KeyError:

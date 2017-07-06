@@ -308,21 +308,21 @@ bool EffInfo::getNParameters( const std::string & id, int & i) const {
 }
 
 std::string EffInfo::makeFileName() const {
-  std::string _filename;
+  std::string filename;
   std::vector< std::string > axes = getEffVarNames();
   int dim = axes.size();
-  _filename = getDataType() + "_" + getEffName() + "_" + getObjType() ;
-  if (getObjQuality()!="UNDEFINED") _filename += "_" + getObjQuality() ;
-  _filename += "_" + convertToString(dim) + "D";
+  filename = getDataType() + "_" + getEffName() + "_" + getObjType() ;
+  if (getObjQuality()!="UNDEFINED") filename += "_" + getObjQuality() ;
+  filename += "_" + convertToString(dim) + "D";
 
-  for( int i = 0; i < dim; ++i) _filename += "_" + axes[i];
+  for( int i = 0; i < dim; ++i) filename += "_" + axes[i];
   
-  _filename += "_" + getEffType() + ".mcr" ;
-  if(!_filename.empty())
-    return _filename;
+  filename += "_" + getEffType() + ".mcr" ;
+  if(!filename.empty())
+    return filename;
   else {
-    _filename = "NOFILENAME";
-    return _filename;  
+    filename = "NOFILENAME";
+    return filename;  
   }
 }
 

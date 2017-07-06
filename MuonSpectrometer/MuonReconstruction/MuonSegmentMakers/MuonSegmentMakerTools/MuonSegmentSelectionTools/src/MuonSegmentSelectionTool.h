@@ -52,10 +52,10 @@ namespace Muon {
     StatusCode finalize();
     
     /** @brief select segment */
-    bool select( const MuonSegment& seg, bool ignoreHoles = false, int qualityLevel = 0 ) const; 
+    bool select( const MuonSegment& seg, bool ignoreHoles = false, int qualityLevel = 0, bool useEta=true, bool usePhi=true ) const; 
 
     /** @brief segment quality */
-    int quality( const MuonSegment& seg, bool ignoreHoles = false ) const;
+    int quality( const MuonSegment& seg, bool ignoreHoles = false, bool useEta=true, bool usePhi=true ) const;
 
   private:
     
@@ -64,7 +64,7 @@ namespace Muon {
 
 
     /** @brief calculate segment quality for CSC segments */
-    int cscSegmentQuality( const MuonSegment& seg, const Identifier& chid, bool ignoreHoles ) const;
+    int cscSegmentQuality( const MuonSegment& seg, const Identifier& chid, bool ignoreHoles, bool useEta, bool usePhi ) const;
 
     /** @brief calculate segment quality for NSW segments */
     int nswSegmentQuality( const MuonSegment& seg, const Identifier& chid, bool ignoreHoles ) const;

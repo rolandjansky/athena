@@ -27,16 +27,16 @@ namespace dqm_algorithms {
 		
 	protected:
 		
-		std::string  name;
+		std::string  m_name;
 		
-		int NbinsX;
-		int NbinsY;
-		int UnMask_All;
-		int UseValue;
-		int TypeValue;
-		double Value;
-		int UseMaskValue;
-		double MaskValue;
+		int m_NbinsX;
+		int m_NbinsY;
+		int m_UnMask_All;
+		int m_UseValue;
+		int m_TypeValue;
+		double m_Value;
+		int m_UseMaskValue;
+		double m_MaskValue;
 		
 		int UseValue_GetFromMap(const std::map<std::string, double> & params);
 		int TypeValue_GetFromMap(const std::map<std::string, double> & params);

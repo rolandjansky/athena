@@ -14,8 +14,6 @@
 #include <fstream>
 namespace PFMatch {
 
-TrackClusterMatcher::~TrackClusterMatcher() { delete m_distanceProvider; }
-
 MatchDistance TrackClusterMatcher::match(const ITrack* track, const ICluster* cluster) {
   double distance = m_distanceProvider->distanceBetween(track, cluster);
   return MatchDistance(cluster, distance, distance<m_matchCut);

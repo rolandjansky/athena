@@ -44,8 +44,6 @@ HLTJetMonTool::HLTJetMonTool(
 
   clearVectors();
 
-  m_debuglevel = true;
-
   //declareProperty("TrigMatchTool",       m_trigMatchTool); 
   declareProperty("JetMonBase",          m_monBase = "/HLT/JetMon");
 
@@ -276,10 +274,6 @@ HLTJetMonTool::~HLTJetMonTool() {
 
 StatusCode HLTJetMonTool::init() {
 
-  // init message stream
-  m_log->setLevel(msgLevel());
-  m_debuglevel = (m_log->level() <= MSG::DEBUG);
-
   ATH_MSG_INFO( "in HLTJetMonTool::init()" );
 
    //Luminosity information
@@ -455,7 +449,7 @@ StatusCode HLTJetMonTool::init() {
     m_hltbinhiEt.push_back(360.);
   }
 
-  if (m_debuglevel) {
+  if (msgLvl(MSG::DEBUG)) {
     unsigned int ich = 0;
     for(JetSigIter it = m_L1Items.begin(); it != m_L1Items.end(); ++it, ich++) {
       ATH_MSG_DEBUG( (*it).first << "\tThr: " 
@@ -483,8 +477,7 @@ StatusCode HLTJetMonTool::init() {
 
 StatusCode HLTJetMonTool::book( ) {
 
-  if (m_debuglevel) 
-    ATH_MSG_INFO( "in HLTJetMonTool::book()" );
+  ATH_MSG_DEBUG( "in HLTJetMonTool::book()" );
 
   const unsigned int l1v_num  = m_L1Items.size();
   const unsigned int hltv_num = m_HLTChains.size();
@@ -845,7 +838,7 @@ for(JetSigIter hj= m_basicHLTTrig.begin(); hj != m_basicHLTTrig.end(); ++hj) {
   //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
-  if(m_debuglevel) {
+  if(msgLvl(MSG::DEBUG)) {
     std::ostringstream mongrps;
     std::map<std::string, std::string>::iterator it = m_monGroups.begin();
     for(; it != m_monGroups.end(); it++ )
@@ -1265,8 +1258,7 @@ void HLTJetMonTool::bookBasicHists(std::vector<std::string>& level, std::vector<
 
 void HLTJetMonTool::setHistProperties(TH1* h) {
 
-  if (m_debuglevel) 
-    ATH_MSG_DEBUG( "in HLTJetMonTool::setHistProperties() " );
+  ATH_MSG_DEBUG( "in HLTJetMonTool::setHistProperties() " );
   if(!h) return;
   h->SetFillColor(42);
   h->SetTitleSize(0.037,"X");
@@ -1280,8 +1272,7 @@ void HLTJetMonTool::setHistProperties(TH1* h) {
 
 void HLTJetMonTool::set2DHistProperties(TH2* h) {
 
-  if (m_debuglevel) 
-    ATH_MSG_DEBUG( "in HLTJetMonTool::setHistProperties() " );
+  ATH_MSG_DEBUG( "in HLTJetMonTool::setHistProperties() " );
   if(!h) return;
   h->SetOption("CONT0");
 
@@ -1295,7 +1286,7 @@ StatusCode HLTJetMonTool::retrieveContainers() {
 
   // retrieve xAOD L1 ROI 
   m_L1JetRoIC = 0;
-  sc = m_storeGate->retrieve(m_L1JetRoIC, m_L1xAODJetKey);
+  sc = evtStore()->retrieve(m_L1JetRoIC, m_L1xAODJetKey);
   if(sc.isFailure() || !m_L1JetRoIC) {
     ATH_MSG_INFO ("Could not retrieve LVL1JetRoIs with key \"" << m_L1xAODJetKey << "\" from TDS"  );
   }
@@ -1308,7 +1299,7 @@ StatusCode HLTJetMonTool::retrieveContainers() {
   m_HLTJetC.clear();
   for(JetSigIter hltj=m_HLTJetKeys.begin(); hltj != m_HLTJetKeys.end(); ++hltj ) {
     const xAOD::JetContainer *hltcoll = 0;
-    sc = m_storeGate->retrieve(hltcoll, (*hltj).second);
+    sc = evtStore()->retrieve(hltcoll, (*hltj).second);
     if(sc.isFailure() || !hltcoll) {
       ATH_MSG_INFO ("Could not retrieve JetCollection with key \"" << (*hltj).second << "\" from TDS"  );
     }
@@ -1324,7 +1315,7 @@ StatusCode HLTJetMonTool::retrieveContainers() {
   m_OFJetC.clear();
   for(JetSigIter ofj= m_OFJetKeys.begin(); ofj != m_OFJetKeys.end(); ++ofj ) {
     const xAOD::JetContainer *jetcoll = 0;
-    sc = m_storeGate->retrieve(jetcoll, (*ofj).second /*m_OFJetKeys[k]*/);
+    sc = evtStore()->retrieve(jetcoll, (*ofj).second /*m_OFJetKeys[k]*/);
     if(sc.isFailure() || !jetcoll) {
       ATH_MSG_INFO ("Could not retrieve JetCollection with key \"" << (*ofj).second << "\" from TDS"  );
     }
@@ -1344,7 +1335,7 @@ int HLTJetMonTool::retrieveLumiBlock(){
   
   const xAOD::EventInfo* eventInfo = 0; 
   
-  StatusCode sc=m_storeGate->retrieve(eventInfo,"EventInfo"); 
+  StatusCode sc=evtStore()->retrieve(eventInfo,"EventInfo"); 
   if (sc.isFailure() || 0 == eventInfo ){
     ATH_MSG_ERROR("Could not retrieve EventInfo. LumiBlock set to -1");
     return -1;
@@ -1357,8 +1348,7 @@ int HLTJetMonTool::retrieveLumiBlock(){
 
 StatusCode HLTJetMonTool::fill() {
 
-  if (m_debuglevel) 
-    ATH_MSG_DEBUG( "in HLTJetMonTool::fill()" );
+  ATH_MSG_DEBUG( "in HLTJetMonTool::fill()" );
 
   StatusCode sc = StatusCode::SUCCESS;
 
@@ -1440,8 +1430,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 
   if(m_L1JetRoIC) {
     setCurrentMonGroup(m_monGroups["L1"]);
-    if(m_debuglevel)
-      ATH_MSG_DEBUG( "Mon group set to " << m_monGroups["L1"] );
+    ATH_MSG_DEBUG( "Mon group set to " << m_monGroups["L1"] );
     unsigned int L1Roi_num = 0;
 
     xAOD::JetRoIContainer::const_iterator it_L1 = m_L1JetRoIC->begin();
@@ -1454,12 +1443,10 @@ StatusCode HLTJetMonTool::fillBasicHists() {
       double ene = et * cosh(eta);
       double phi = (*it_L1)->phi();
       
-      if(m_debuglevel)
-	ATH_MSG_DEBUG( "et =  " << et <<  "\teta = " << eta << "\tene = " << ene << "\tphi = "<<phi );
+      ATH_MSG_DEBUG( "et =  " << et <<  "\teta = " << eta << "\tene = " << ene << "\tphi = "<<phi );
 
       if((h = hist("L1Jet_Et"))) { 
-        if(m_debuglevel)
-          ATH_MSG_DEBUG( "found L1Jet_Et" ); 
+        ATH_MSG_DEBUG( "found L1Jet_Et" ); 
         h->Fill(et,m_lumi_weight); 
       }
       if((h  = hist("L1Jet_eta")))          h->Fill(eta,m_lumi_weight);
@@ -1476,8 +1463,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
     } // end for it_L1
 
     if((h = hist("L1Jet_n"))) {
-      if (m_debuglevel)
-         ATH_MSG_DEBUG( " Number of L1JetROI's " << L1Roi_num );  
+      ATH_MSG_DEBUG( " Number of L1JetROI's " << L1Roi_num );  
       h->Fill(L1Roi_num,m_lumi_weight);
     }
 
@@ -1509,7 +1495,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
       std::string lvl = m_HLTpfx; 
       std::string mgrp = m_monGroups[Form("%s%d",m_HLTpfx.c_str(),k)];
       
-      if(m_debuglevel)ATH_MSG_DEBUG( "level set to " << lvl <<  " and mongroup set to " << mgrp );
+      ATH_MSG_DEBUG( "level set to " << lvl <<  " and mongroup set to " << mgrp );
       setCurrentMonGroup(mgrp);
       
       if((h  = hist(Form("%sSigma_vs_LB",lvl.c_str())))){    
@@ -1559,7 +1545,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 	  hecfrac = thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
 	}
 
-        if(m_debuglevel) ATH_MSG_DEBUG( lvl << " et =  " << et <<  "\teta = " << eta << "\temfrac = " << emfrac <<"\thecfrac");
+        ATH_MSG_DEBUG( lvl << " et =  " << et <<  "\teta = " << eta << "\temfrac = " << emfrac <<"\thecfrac");
 	
         if((h  = hist(Form("%sJet_Et",lvl.c_str()))))           h->Fill(et,m_lumi_weight);
 	if((h  = hist(Form("%sJet_HighEt",lvl.c_str()))))       h->Fill(et,m_lumi_weight);
@@ -1618,7 +1604,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
       if(jetcoll) {
 	  std::string lvl = m_OFpfx; 
 	  std::string mgrp = m_monGroups[Form("%s%d",m_OFpfx.c_str(),k)];
-	  if(m_debuglevel) ATH_MSG_DEBUG( "level set to " << lvl <<  " and mongroup set to " << mgrp );
+	  ATH_MSG_DEBUG( "level set to " << lvl <<  " and mongroup set to " << mgrp );
 	  setCurrentMonGroup(mgrp);
           unsigned int n_OFJet = 0;
 
@@ -1650,7 +1636,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 	      hecfrac = thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
 	    }
 
-            if(m_debuglevel) ATH_MSG_DEBUG( lvl << " et =  " << et <<  "\teta = " << eta << "\temfrac = " << emfrac <<"\thecfrac");
+            ATH_MSG_DEBUG( lvl << " et =  " << et <<  "\teta = " << eta << "\temfrac = " << emfrac <<"\thecfrac");
 
 
 	    v_thisjet.SetPtEtaPhiE(thisjet->pt()/CLHEP::GeV,eta,phi,e);
@@ -1845,7 +1831,7 @@ void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, double thrE
 	  double ene = et * cosh(eta);
 
 
-          if(m_debuglevel) {
+          if(msgLvl(MSG::DEBUG)) {
             const Jet_ROI::thresholds_type thrVec = (*it_L1)->thrNames();
             const Jet_ROI::thr_value_type thrVal = (*it_L1)->thrValues();
             double et6 = ((*it_L1)->et6x6())/CLHEP::GeV;

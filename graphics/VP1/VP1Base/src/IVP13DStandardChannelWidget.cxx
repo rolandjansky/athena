@@ -30,15 +30,16 @@
 #include <Inventor/nodes/SoPerspectiveCamera.h>
 #include <Inventor/SoOffscreenRenderer.h>
 
-#include <QtGui/QSplitter>
-#include <QtGui/QVBoxLayout>
-#include <QtCore/QMap>
-#include <QtCore/QTimer>
-#include <QtCore/QBuffer>
-#include <QtCore/QByteArray>
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
+#include <QSplitter>
+#include <QVBoxLayout>
+#include <QMap>
+#include <QTimer>
+#include <QBuffer>
+#include <QByteArray>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+
 #include <cassert>
 
 class IVP13DStandardChannelWidget::Imp {

@@ -17,7 +17,7 @@
 #ifndef VP1MSG_H
 #define VP1MSG_H
 
-#include <QtCore/QStringList>
+#include <QStringList>
 #include "VP1Base/VP1String.h"
 
 

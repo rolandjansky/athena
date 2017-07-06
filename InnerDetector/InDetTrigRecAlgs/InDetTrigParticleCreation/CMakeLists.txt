@@ -26,13 +26,14 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/VxVertex
                           Tracking/TrkTools/TrkToolInterfaces
                           Trigger/TrigEvent/TrigParticle
-                          Trigger/TrigEvent/TrigSteeringEvent )
+                          Trigger/TrigEvent/TrigSteeringEvent
+                          Trigger/TrigTools/TrigTimeAlgs )
 
 # Component(s) in the package:
 atlas_add_component( InDetTrigParticleCreation
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel TrkTrack TrigInterfacesLib AthenaKernel AtlasDetDescr IRegionSelector IdDictDetDescr Identifier xAODTracking InDetIdentifier Particle TrkParameters TrkParticleBase TrkTrackSummary VxVertex TrkToolInterfaces TrigParticle TrigSteeringEvent )
+                     LINK_LIBRARIES GaudiKernel TrkTrack TrigInterfacesLib AthenaKernel AtlasDetDescr IRegionSelector IdDictDetDescr Identifier xAODTracking InDetIdentifier Particle TrkParameters TrkParticleBase TrkTrackSummary VxVertex TrkToolInterfaces TrigParticle TrigSteeringEvent TrigTimeAlgsLib )
 
 # Install files from the package:
 atlas_install_headers( InDetTrigParticleCreation )

@@ -17,14 +17,14 @@
 #include "Inventor/nodes/SoLightModel.h"
 #include <iostream>
 
-#include <QtCore/QTimer>
-#include <QtCore/QByteArray>
-#include <QtCore/QBuffer>
-#include <QtCore/QDataStream>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QDragEnterEvent>
-#include <QtGui/QDropEvent>
-#include <QtGui/QShortcut>
+#include <QTimer>
+#include <QByteArray>
+#include <QBuffer>
+#include <QDataStream>
+#include <QMouseEvent>
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QShortcut>
 //____________________________________________________________________
 class TrackCollectionSettingsButton::Imp {
 public:

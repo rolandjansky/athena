@@ -18,7 +18,7 @@ Purpose : User Analysis Preparation - see UserAnalysisPreparationTool.h for deta
 
 // User Tools
 #include "UserAnalysisUtils/UserAnalysisPreparationTool.h"
-#include "DataModel/ConstDataVector.h"
+#include "AthContainers/ConstDataVector.h"
 
 #include <sstream>
 #include <iomanip>

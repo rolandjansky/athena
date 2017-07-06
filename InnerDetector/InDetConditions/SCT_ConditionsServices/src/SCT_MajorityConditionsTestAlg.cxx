@@ -36,7 +36,6 @@ SCT_MajorityConditionsTestAlg::~SCT_MajorityConditionsTestAlg()
 
 //Initialize
 StatusCode SCT_MajorityConditionsTestAlg::initialize(){
-  StatusCode sc(StatusCode::SUCCESS);
   msg(MSG::INFO)<< "Calling initialize" << endmsg;
   
   // Retrieve link masking service

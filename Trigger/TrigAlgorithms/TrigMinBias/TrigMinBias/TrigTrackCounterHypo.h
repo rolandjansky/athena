@@ -27,10 +27,6 @@ class TrigTrackCounterHypo: public HLT::HypoAlgo {
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* outputTE, bool& pass);
   
  private:
-  /** A data member to retain a connection to the MsgStream
-      service. */
-  MsgStream m_log;
-  
   /** Hypo selection criteria */
   float m_max_z0;
   float m_min_pt;

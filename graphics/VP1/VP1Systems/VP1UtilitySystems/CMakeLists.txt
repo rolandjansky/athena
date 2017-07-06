@@ -16,7 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( Coin3D )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
-find_package( Qt4 )
+find_package( Qt5 COMPONENTS Core Gui  Widgets )
 
 # Generate UI files automatically:
 set( CMAKE_AUTOUIC TRUE )
@@ -27,7 +27,7 @@ set( CMAKE_AUTORCC TRUE )
 # to let CMake find .h files automatically-generated from .ui files
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-include_directories( /usr/X11R6/include )
+
 
 # Component(s) in the package:
 atlas_add_library( VP1UtilitySystems VP1UtilitySystems/*.h src/*.h src/*.cxx src/*.qrc  

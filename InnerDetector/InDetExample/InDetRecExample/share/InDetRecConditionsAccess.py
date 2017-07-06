@@ -6,6 +6,11 @@ isData = (globalflags.DataSource == 'data')
 eventInfoKey = "ByteStreamEventInfo"
 if not isData:
   eventInfoKey = "McEventInfo"
+if globalflags.isOverlay():
+  if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.TRT_on():
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    if isData:
+      eventInfoKey = (overlayFlags.dataStore() + '+' + eventInfoKey).replace("StoreGateSvc+","")
 
 if not ('conddb' in dir()):
   IOVDbSvc = Service("IOVDbSvc")
@@ -78,15 +83,17 @@ if DetFlags.haveRIO.pixel_on():
             if not conddb.folderRequested('/PIXEL/DCS/FSMSTATE'):
                 conddb.addFolder("DCS_OFL","/PIXEL/DCS/FSMSTATE")
             from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
-            if (globalflags.DataSource() == 'data' and geoFlags.Run() == "RUN2" and conddb.dbdata == "CONDBR2"): # geoFlags.isIBL() == True may work too instead of geoFlags.Run() == "RUN2"
+            if (rec.doMonitoring() and globalflags.DataSource() == 'data' and geoFlags.Run() == "RUN2" and conddb.dbdata == "CONDBR2"): 
+                # geoFlags.isIBL() == True may work too instead of geoFlags.Run() == "RUN2"
                 if not conddb.folderRequested('/PIXEL/DCS/PIPES'):
                     conddb.addFolder("DCS_OFL","/PIXEL/DCS/PIPES")
                 if not conddb.folderRequested('/PIXEL/DCS/LV'):
                     conddb.addFolder("DCS_OFL","/PIXEL/DCS/LV")
                 if not conddb.folderRequested('/PIXEL/DCS/HVCURRENT'):
                     conddb.addFolder("DCS_OFL","/PIXEL/DCS/HVCURRENT")
-                if not conddb.folderRequested('/PIXEL/DCS/PLANTS'):
-                    conddb.addFolder("DCS_OFL","/PIXEL/DCS/PLANTS")
+                # not used anymore
+                # if not conddb.folderRequested('/PIXEL/DCS/PLANTS'):
+                #    conddb.addFolder("DCS_OFL","/PIXEL/DCS/PLANTS")
             
             InDetPixelDCSSvc =  PixelDCSSvc(RegisterCallback     = TRUE,
                                             TemperatureFolder    = "/PIXEL/DCS/TEMPERATURE",
@@ -290,8 +297,13 @@ if DetFlags.haveRIO.SCT_on():
     if (globalflags.DataSource() == 'data'):       
         # Load TdaqEnabled service
         if not conddb.folderRequested(tdaqFolder):
-            conddb.addFolder("TDAQ",tdaqFolder)
-            #conddb.addFolder("","<db>COOLONL_TDAQ/COMP200</db> /TDAQ/EnabledResources/ATLAS/SCT/Robins")
+            conddb.addFolder("TDAQ",tdaqFolder,className="CondAttrListCollection")
+            from AthenaCommon.AlgSequence import AthSequencer
+            condSequence = AthSequencer("AthCondSeq")
+            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledCondAlg
+            condSequence += SCT_TdaqEnabledCondAlg(name = "SCT_TdaqEnabledCondAlg",
+                                                   ReadKey = tdaqFolder,
+                                                   EventInfoKey = eventInfoKey)
 
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledSvc
         InDetSCT_TdaqEnabledSvc = SCT_TdaqEnabledSvc(name = "InDetSCT_TdaqEnabledSvc",

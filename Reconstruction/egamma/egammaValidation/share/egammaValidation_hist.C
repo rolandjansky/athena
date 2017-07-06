@@ -16,7 +16,6 @@ public:
  Hists(char* ntupFileName, char* histFileName)
  {
    cout<<"Hists construction"<<endl;
-   //Cintex::Enable();
     m_file    = new TFile(ntupFileName);
     m_tree    = (TTree*) m_file->Get("CollectionTree");
     m_hlist   = new TObjArray(0);

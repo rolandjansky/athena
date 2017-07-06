@@ -10,12 +10,14 @@ namespace DerivationFramework{
 BoostedHadTopAndTopPairFilterTool::BoostedHadTopAndTopPairFilterTool(const std::string& t, const std::string& n, const IInterface* p)
   : AthAlgTool(t,n,p)
 {
-  
+
   declareInterface<DerivationFramework::BoostedHadTopAndTopPairFilterTool>(this);
   declareProperty("MCCollectionName",m_mcName     ="TruthEvents");
-  declareProperty("tHadPtCut",       m_tHadPtCut  = 2000000.0);
-  declareProperty("tPairPtCut",      m_tPairPtCut = 3500000.0);
   declareProperty("cutPtOf",         m_cutPtOf    = 0);
+  // use values directly in filterFlag to make tool more flexible for now...
+  //declareProperty("tHadPtCut",       m_tHadPtCut  = 500000.0);
+  //declareProperty("tPairPtCut",      m_tPairPtCut = 350000.0);
+
 }
 
 //--------------------------------------------------------------------------
@@ -28,7 +30,8 @@ StatusCode BoostedHadTopAndTopPairFilterTool::initialize() {ATH_MSG_INFO("Initia
 StatusCode BoostedHadTopAndTopPairFilterTool::finalize() {return StatusCode::SUCCESS;}
 
 //--------------------------------------------------------------------------
-int BoostedHadTopAndTopPairFilterTool::filterFlag() const {
+  int BoostedHadTopAndTopPairFilterTool::filterFlag(double m_tHadPtCut, double m_tPairPtCut) const {
+
 
   // if true, the event pass the filter :
   int  filterCode  = 0;
@@ -41,7 +44,7 @@ int BoostedHadTopAndTopPairFilterTool::filterFlag() const {
   double topbarPt=0.0;
   double topbarPx=0.0;
   double topbarPy=0.0;
-  
+
   double topChildrenPx=0.0;
   double topChildrenPy=0.0;
   double topbarChildrenPx=0.0;
@@ -50,42 +53,53 @@ int BoostedHadTopAndTopPairFilterTool::filterFlag() const {
   double hadtopPt         = -1;
   double hadtopbarPt      = -1;
   double hadtopChildrenPt = -1;
-  
+
   double bPx=0.0;
   double bPy=0.0;
-  
+
   const xAOD::TruthEventContainer* xTruthEventContainer = 0;
   if (evtStore()->retrieve(xTruthEventContainer,m_mcName).isFailure()) {
     ATH_MSG_WARNING("could not retrieve TruthEventContainer " <<m_mcName);
     return -1;
   }
   for ( const auto* truthevent : *xTruthEventContainer ) {
-   
+
     // Loop over all truth particles in the event
     for(unsigned int i = 0; i < truthevent->nTruthParticles(); i++){
 
       const xAOD::TruthParticle* part = truthevent->truthParticle(i);
+      // In release 21 we'll have a thinned truth record in the AODs.
+      // Specifically, geant particle are removed in most cases. The subsequent
+      // nullptr check is supposed to catch these truth particles,
+      // unfortunately however, there's no way to check whether this truth
+      // particle would have had an impact on what we do further down.
+      if (not part){
+          // We could possibly also use break since the thinned truth particles
+          // in principle should have barcode >= 200000.
+          continue;
+      }
+
       if(part->barcode() >= 200000) break;
       int pdgId = part->pdgId();
- 
+
       // pdgId t quark = 6
       if ( pdgId == 6 && isFinalParticle(part) ){
-        if ( part->pt() > topPt ){ 
-          topPx = part->px(); 
-          topPy = part->py(); 
+        if ( part->pt() > topPt ){
+          topPx = part->px();
+          topPy = part->py();
           topPt = part->pt();}
       }
-  
+
       if ( pdgId == -6 && isFinalParticle(part) ){
         if ( part->pt() > topbarPt ){
-          topbarPx = part->px(); 
-          topbarPy = part->py(); 
+          topbarPx = part->px();
+          topbarPy = part->py();
           topbarPt = part->pt();}
       }
-  
+
      // pdgId W boson = 24
-     if ( abs(pdgId) != 24 || !isFinalParticle(part) ) continue; 
-  
+     if ( abs(pdgId) != 24 || !isFinalParticle(part) ) continue;
+
      // "part" is now a W boson
      bPx=PxBofW(part);
      bPy=PyBofW(part);
@@ -98,9 +112,9 @@ int BoostedHadTopAndTopPairFilterTool::filterFlag() const {
           topbarChildrenPx=( part->px() + bPx );
           topbarChildrenPy=( part->py() + bPy );
         }
-        
+
         if (isHadronic(part)){
-          double pT = sqrt( pow( part->px() + bPx,2) + pow( part->py() + bPy,2)); 
+          double pT = sqrt( pow( part->px() + bPx,2) + pow( part->py() + bPy,2));
           if (pT > hadtopChildrenPt){
             hadtopChildrenPt = pT;
             if (pdgId > 0) hadtopPt = topPt;
@@ -112,8 +126,8 @@ int BoostedHadTopAndTopPairFilterTool::filterFlag() const {
   } // event loop
 
 
-  double TTBarSysPt = sqrt( pow( topPx + topbarPx , 2 ) + pow( topPy + topbarPy , 2 )); 
-  double TTBarChildrenSysPt = sqrt( pow( topChildrenPx + topbarChildrenPx , 2 ) + pow( topChildrenPy + topbarChildrenPy , 2 )); 
+  double TTBarSysPt = sqrt( pow( topPx + topbarPx , 2 ) + pow( topPy + topbarPy , 2 ));
+  double TTBarChildrenSysPt = sqrt( pow( topChildrenPx + topbarChildrenPx , 2 ) + pow( topChildrenPy + topbarChildrenPy , 2 ));
 
   if (m_cutPtOf == 0){ // cut on the pT of top on the truth list
     if (hadtopPt   >= m_tHadPtCut || hadtopbarPt >= m_tHadPtCut )   passTopHad  = true;
@@ -142,7 +156,7 @@ const xAOD::TruthParticle*  BoostedHadTopAndTopPairFilterTool::findInitial(const
     if( part->barcode() < parent->barcode()) continue; /// protection for sherpa
     if( part->pdgId() == parent->pdgId() ) return findInitial(parent);
   }
-   
+
   return part;
 }
 
@@ -156,7 +170,7 @@ bool BoostedHadTopAndTopPairFilterTool::isFromTop(const xAOD::TruthParticle* par
     if( part->barcode() < parent->barcode() ) continue; /// protection for sherpa
     if( abs( parent->pdgId() ) == 6 ) return true;
   }
-   
+
   return false;
 }
 

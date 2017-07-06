@@ -44,9 +44,35 @@ SimpleIDNtupleTool::SimpleIDNtupleTool(const std::string& type, const std::strin
   : AthAlgTool(type,name,parent)
   , m_trackSumTool("Trk::TrackSummaryTool/TrackSummaryTool", this)
   , m_alignModuleTool("")
+  , m_trtDetManager(0)
   , m_idHelper(0)
   , m_file(0)
   , m_tree(0)
+  , m_runNumber(0)
+  , m_evtNumber(0)
+  , m_xvtx(0)
+  , m_yvtx(0)
+  , m_zvtx(0)
+  , m_d0(0)
+  , m_z0(0)
+  , m_phi0(0)
+  , m_theta(0)
+  , m_qoverp(0)
+  , m_pt(0)
+  , m_eta(0)
+  , m_chi2(0)
+  , m_ndof(0)
+  , m_chi2prob(0)
+  , m_nhits(0)
+  , m_nhitstrt(0)
+  , m_nhitssct(0)
+  , m_nhitspix(0)
+  , m_nshared(0)
+  , m_nshsct(0)
+  , m_nshpix(0)
+  , m_nholes(0)
+  , m_nhsct(0)
+  , m_nhpix(0)
   , m_hit_rho(0)
   , m_hit_phi(0)
   , m_hit_z(0)
@@ -180,13 +206,13 @@ StatusCode SimpleIDNtupleTool::initialize()
 //________________________________________________________________________
 StatusCode SimpleIDNtupleTool::fillNtuple()
 {
-  int success = 1;
   if (m_file && m_file->IsOpen()) {
     m_file->cd();
     if (m_tree) 
       m_tree->Write();
-  }
-  return success>0 ? StatusCode::SUCCESS : StatusCode::FAILURE;
+    else ATH_MSG_WARNING("Variable m_tree not set, nothing to write.");
+  } else ATH_MSG_WARNING("Variable m_file not set or not pointing to open output file.");
+  return StatusCode::SUCCESS;
 }
 
 //________________________________________________________________________
@@ -535,6 +561,7 @@ void SimpleIDNtupleTool::fillHits(const Trk::AlignTrack * alignTrack)
                 break;
               case Trk::AlignModule::BowZ:
                 m_hit_derivx_bowz[nhits] = derivative;
+                break;
               default:
                 ATH_MSG_WARNING("Unknown parameter type "<<ptype);
             }

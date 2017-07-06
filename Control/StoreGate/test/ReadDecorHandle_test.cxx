@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "StoreGate/ReadDecorHandle.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "AthContainers/DataVector.h"
 #include "AthContainers/AuxElement.h"
 #include "AthContainers/AuxTypeRegistry.h"
@@ -61,7 +62,7 @@ void test1()
 
   SGTest::TestStore dumstore;
   EventContext ctx5;
-  ctx5.setProxy (&dumstore);
+  ctx5.setExtension( Atlas::ExtendedEventContext(&dumstore) );
   SG::ReadDecorHandle<MyObj, int> h5 (k3, ctx5);
   assert (h5.clid() == MyCLID);
   assert (h5.key() == "asd.aaa");
@@ -118,7 +119,7 @@ void test2()
   assert (h1.setProxyDict (&testStore).isSuccess());
   assert (h1.store() == "TestStore");
   assert (h1.cptr() == fooptr);
-  assert (foo_proxy->refCount() == 3);
+  assert (foo_proxy->refCount() == 2);
   assert (h1.auxid() == ityp);
 
   SG::ReadDecorHandle<MyObj, int> h2 (h1);
@@ -126,7 +127,7 @@ void test2()
   assert (h2.store() == "TestStore");
   assert (h2.isInitialized());
   assert (h2.cptr() == fooptr);
-  assert (foo_proxy->refCount() == 4);
+  assert (foo_proxy->refCount() == 2);
   assert (h2.auxid() == ityp);
 
   SG::ReadDecorHandle<MyObj, int> h3 (std::move(h2));
@@ -135,8 +136,7 @@ void test2()
   assert (h3.isInitialized());
   assert (h3.cptr() == fooptr);
   assert (h3.auxid() == ityp);
-  assert (foo_proxy->refCount() == 4);
-  assert (h2.key() == "foo.aaa");
+  assert (foo_proxy->refCount() == 2);
   assert (h2.store() == "TestStore");
   assert (!h2.isInitialized());
   assert (h2.cachedPtr() == nullptr);
@@ -148,7 +148,7 @@ void test2()
   SG::ReadDecorHandle<MyObj, int> h4 (k4);
   assert (h4.setProxyDict (&testStore).isSuccess());
   assert (h4.cptr() == barptr);
-  assert (bar_proxy->refCount() == 3);
+  assert (bar_proxy->refCount() == 2);
   assert (h4.auxid() == ityp2);
 
   h3 = h4;
@@ -163,8 +163,8 @@ void test2()
   assert (h3.auxid() == ityp2);
   assert (h4.auxid() == ityp2);
 
-  assert (foo_proxy->refCount() == 3);
-  assert (bar_proxy->refCount() == 4);
+  assert (foo_proxy->refCount() == 2);
+  assert (bar_proxy->refCount() == 2);
 
   // h1: foo, h2: unint, h3: bar, h4: bar
 
@@ -173,15 +173,14 @@ void test2()
   assert (h2.store() == "TestStore");
   assert (h2.isInitialized());
   assert (h2.cptr() == barptr);
-  assert (h3.key() == "bar.bbb");
   assert (h3.store() == "TestStore");
   assert (!h3.isInitialized());
   assert (h3.cachedPtr() == nullptr);
   assert (h3.auxid() == ityp2);
   assert (h2.auxid() == ityp2);
 
-  assert (foo_proxy->refCount() == 3);
-  assert (bar_proxy->refCount() == 4);
+  assert (foo_proxy->refCount() == 2);
+  assert (bar_proxy->refCount() == 2);
 }
 
 
@@ -282,7 +281,7 @@ void test5()
 
   SGTest::TestStore dumstore;
   EventContext ctx;
-  ctx.setProxy (&dumstore);
+  ctx.setExtension( Atlas::ExtendedEventContext(&dumstore) );
   auto h2 = SG::makeHandle<int> (k1, ctx);
   assert (h2.clid() == MyCLID);
   assert (h2.key() == "asd.aaa");

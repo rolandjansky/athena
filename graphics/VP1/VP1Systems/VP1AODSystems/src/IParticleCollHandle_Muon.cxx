@@ -26,7 +26,7 @@
 #include "VP1Utils/VP1SGContentsHelper.h"
 
 //Qt
-#include <QtCore/QStringList>
+#include <QStringList>
 
 // SoCoin
 #include <Inventor/C/errors/debugerror.h>

@@ -108,19 +108,8 @@ Muon::MuonStationTypeBuilder::~MuonStationTypeBuilder()
 StatusCode Muon::MuonStationTypeBuilder::initialize()
 {
     
-    //StatusCode s = AlgTool::initialize();
-    // if (s.isFailure()) ATH_MSG_INFO( "failing to initialize?");
-    // Get DetectorStore service
-    //
-    StoreGateSvc* m_detStore=0;
-    StatusCode ds = service("DetectorStore",m_detStore);
-    if (ds.isFailure()) {
-      ATH_MSG_FATAL( "DetectorStore service not found !" );
-    }
     // get Muon Spectrometer Description Manager
-    // s = m_detStore->retrieve(m_muonMgr, m_muonMgrLocation);
-
-    ds = m_detStore->retrieve(m_muonMgr);
+    StatusCode ds = detStore()->retrieve(m_muonMgr);
 
     if (ds.isFailure()) {
       ATH_MSG_ERROR( "Could not get MuonDetectorManager, no layers for muons will be built. " );

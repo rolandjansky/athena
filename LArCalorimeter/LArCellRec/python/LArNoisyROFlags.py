@@ -36,7 +36,8 @@ class KnownMNBFEBs(JobProperty):
                  961839104, # EMBA FT 10 Slot 10
                  961970176, # EMBA FT 10 Slot 14
                  972980224, # EMBA FT 31 Slot 14
-                 961445888  # EMBA FT 9 Slot 14
+                 961445888, # EMBA FT 9 Slot 14
+                 944144384  # EMBC FT 8 Slot 14 - added June 20 2017
                  ]
     pass
 

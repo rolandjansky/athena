@@ -15,10 +15,11 @@
 #ifndef VP1INCOMINGMESSAGEDIALOG_H
 #define VP1INCOMINGMESSAGEDIALOG_H
 
-#include <QtGui/QDialog>
 #include "VP1Base/VP1ExternalRequest.h"
-#include <QtCore/QQueue>
-#include <QtCore/QList>
+
+#include <QDialog>
+#include <QQueue>
+#include <QList>
 
 class VP1TabManager;
 class VP1ChannelManager;

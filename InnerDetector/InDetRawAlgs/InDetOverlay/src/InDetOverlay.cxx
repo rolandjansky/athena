@@ -18,10 +18,6 @@
 #include "GeneratorObjects/McEventCollection.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 
-#include "InDetRawData/TRT_RDO_Container.h"
-#include "InDetRawData/SCT_RDO_Container.h"
-#include "InDetRawData/PixelRDO_Container.h"
-
 #include "InDetRawData/TRT_RDORawData.h"
 #include "InDetRawData/TRT_LoLumRawData.h"
 #include "InDetRawData/SCT3_RawData.h"
@@ -289,19 +285,21 @@ InDetOverlay::InDetOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
 
   declareProperty("do_TRT", m_do_TRT=true);
   declareProperty("do_TRT_background", m_do_TRT_background=true);
-  declareProperty("mainInputTRT_Name", m_mainInputTRT_Name="TRT_RDOs");
-  declareProperty("overlayInputTRT_Name", m_overlayInputTRT_Name="TRT_RDOs");
+  declareProperty("mainInputTRTKey", m_mainInputTRTKey);
+  declareProperty("overlayInputTRTKey", m_overlayInputTRTKey);
+  declareProperty("mainOutputTRTKey", m_mainOutputTRTKey);
 
   declareProperty("do_SCT", m_do_SCT=true);
   declareProperty("do_SCT_background", m_do_SCT_background=true);
-  declareProperty("mainInputSCT_Name", m_mainInputSCT_Name="SCT_RDOs");
-  declareProperty("overlayInputSCT_Name", m_overlayInputSCT_Name="SCT_RDOs");
+  declareProperty("mainInputSCTKey", m_mainInputSCTKey);
+  declareProperty("overlayInputSCTKey", m_overlayInputSCTKey);
+  declareProperty("mainOutputSCTKey", m_mainOutputSCTKey);
 
   declareProperty("do_Pixel", m_do_Pixel=true);
   declareProperty("do_Pixel_background", m_do_Pixel_background=true);
-  declareProperty("mainInputPixelName", m_mainInputPixel_Name="PixelRDOs");
-  declareProperty("overlayInputPixelName", m_overlayInputPixel_Name="PixelRDOs");
-  //  declareProperty("OutputPixelName", m_OutputPixel_Name="PixelRDOs");
+  declareProperty("mainInputPixelKey", m_mainInputPixelKey);
+  declareProperty("overlayInputPixelKey", m_overlayInputPixelKey);
+  declareProperty("mainOutputPixelKey", m_mainOutputPixelKey);    
 }
 
 //================================================================
@@ -313,6 +311,18 @@ StatusCode InDetOverlay::overlayInitialize()
     msg(MSG::FATAL) << "Cannot retrieve SCT ID helper"  << endmsg;
     return StatusCode::FAILURE;
   }
+
+  // Check and initialize keys
+  ATH_CHECK( m_mainInputTRTKey.initialize() );
+  ATH_CHECK( m_overlayInputTRTKey.initialize() );
+  ATH_CHECK( m_mainOutputTRTKey.initialize() );
+  ATH_CHECK( m_mainInputSCTKey.initialize() );
+  ATH_CHECK( m_overlayInputSCTKey.initialize() );
+  ATH_CHECK( m_mainOutputSCTKey.initialize() );
+  ATH_CHECK( m_mainInputPixelKey.initialize() );
+  ATH_CHECK( m_overlayInputPixelKey.initialize() );
+  ATH_CHECK( m_mainOutputPixelKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -330,21 +340,21 @@ StatusCode InDetOverlay::overlayExecute() {
   //----------------------------------------------------------------
   if(m_do_TRT) {
     ATH_MSG_VERBOSE("Retrieving data input TRT container");
-    SG::ReadHandle<TRT_RDO_Container> dataContainer(m_mainInputTRT_Name, m_storeGateData->name());
+    SG::ReadHandle<TRT_RDO_Container> dataContainer(m_mainInputTRTKey);
     if(!dataContainer.isValid()) {   
-      ATH_MSG_WARNING("Could not get data TRT container \""<<m_mainInputTRT_Name<<"\"");
+      ATH_MSG_WARNING("Could not get data TRT container \"" << m_mainInputTRTKey.key() << "\"");
     }
 
     ATH_MSG_INFO("TRT Data   = "<<shortPrint(dataContainer.cptr()));
 
     ATH_MSG_VERBOSE("Retrieving MC  input TRT container");
-    SG::ReadHandle<TRT_RDO_Container> mcContainer(m_overlayInputTRT_Name, m_storeGateMC->name());
+    SG::ReadHandle<TRT_RDO_Container> mcContainer(m_overlayInputTRTKey);
     if(!mcContainer.isValid()) {
-      ATH_MSG_WARNING("Could not get MC TRT container \""<<m_overlayInputTRT_Name<<"\"");
+      ATH_MSG_WARNING("Could not get MC TRT container \"" << m_overlayInputTRTKey.key() << "\"");
     }
     ATH_MSG_INFO("TRT MC     = "<<shortPrint(mcContainer.cptr()));
    
-   SG::WriteHandle<TRT_RDO_Container> outputContainer(m_mainInputTRT_Name, m_storeGateOutput->name());
+   SG::WriteHandle<TRT_RDO_Container> outputContainer(m_mainOutputTRTKey);
    outputContainer = CxxUtils::make_unique<TRT_RDO_Container>(dataContainer->size());
 
    if(dataContainer.isValid() && mcContainer.isValid() && outputContainer.isValid()) {
@@ -360,20 +370,20 @@ StatusCode InDetOverlay::overlayExecute() {
   //----------------------------------------------------------------
   if(m_do_SCT) {
     ATH_MSG_VERBOSE("Retrieving data input SCT container");
-    SG::ReadHandle<SCT_RDO_Container> dataContainer(m_mainInputSCT_Name, m_storeGateData->name());
+    SG::ReadHandle<SCT_RDO_Container> dataContainer(m_mainInputSCTKey);
     if(!dataContainer.isValid()) {
-      ATH_MSG_WARNING("Could not get data SCT container \""<<m_mainInputSCT_Name<<"\"");
+      ATH_MSG_WARNING("Could not get data SCT container \"" << m_mainInputSCTKey.key() << "\"");
     }
     ATH_MSG_INFO("SCT Data   = "<<shortPrint(dataContainer.cptr(), 50));
 
     ATH_MSG_VERBOSE("Retrieving MC  input SCT container");
-    SG::ReadHandle<SCT_RDO_Container> mcContainer(m_overlayInputSCT_Name, m_storeGateMC->name());
+    SG::ReadHandle<SCT_RDO_Container> mcContainer(m_overlayInputSCTKey);
     if(!mcContainer.isValid()) {
-      ATH_MSG_WARNING("Could not get MC SCT container \""<<m_overlayInputSCT_Name<<"\"");
+      ATH_MSG_WARNING("Could not get MC SCT container \"" << m_overlayInputSCTKey.key() << "\"");
     }
     ATH_MSG_INFO("SCT MC     = "<<shortPrint(mcContainer.cptr(), 50));
    
-    SG::WriteHandle<SCT_RDO_Container> outputContainer(m_mainInputSCT_Name, m_storeGateOutput->name());
+    SG::WriteHandle<SCT_RDO_Container> outputContainer(m_mainOutputSCTKey);
     outputContainer = CxxUtils::make_unique<SCT_RDO_Container>(dataContainer->size());
     
     if(dataContainer.isValid() && mcContainer.isValid() && outputContainer.isValid()) {
@@ -389,16 +399,16 @@ StatusCode InDetOverlay::overlayExecute() {
   //----------------------------------------------------------------
   if(m_do_Pixel) {
     ATH_MSG_VERBOSE("Retrieving data input Pixel container");
-    SG::ReadHandle<PixelRDO_Container> dataContainer(m_mainInputPixel_Name, m_storeGateData->name());
+    SG::ReadHandle<PixelRDO_Container> dataContainer(m_mainInputPixelKey);
     if(!dataContainer.isValid()) {
-      ATH_MSG_WARNING("Could not get data Pixel container \""<<m_mainInputPixel_Name<<"\"");
+      ATH_MSG_WARNING("Could not get data Pixel container \"" << m_mainInputPixelKey.key() << "\"");
     }
     ATH_MSG_INFO("Pixel Data   = "<<shortPrint(dataContainer.cptr()));
 
     ATH_MSG_VERBOSE("Retrieving MC  input Pixel container");
-    SG::ReadHandle<PixelRDO_Container> mcContainer(m_overlayInputPixel_Name, m_storeGateMC->name());
+    SG::ReadHandle<PixelRDO_Container> mcContainer(m_overlayInputPixelKey);
     if(!mcContainer.isValid()) {
-      ATH_MSG_WARNING("Could not get MC Pixel container \""<<m_overlayInputPixel_Name<<"\"");
+      ATH_MSG_WARNING("Could not get MC Pixel container \"" << m_overlayInputPixelKey.key() << "\"");
     }
     ATH_MSG_INFO("Pixel MC     = "<<shortPrint(mcContainer.cptr()));
 
@@ -436,7 +446,7 @@ for (containerItr=mcContainer->begin(); containerItr!=mcContainer->end(); ++cont
   if (nx>0){ATH_MSG_INFO("avgx ="<<avgx/(double)nx);}
 }
 */
-    SG::WriteHandle<PixelRDO_Container> outputContainer(m_mainInputPixel_Name, m_storeGateOutput->name());
+    SG::WriteHandle<PixelRDO_Container> outputContainer(m_mainOutputPixelKey);
     outputContainer = CxxUtils::make_unique<PixelRDO_Container>(dataContainer->size());
     
     if(dataContainer.isValid() && mcContainer.isValid()&&outputContainer.isValid()) {  

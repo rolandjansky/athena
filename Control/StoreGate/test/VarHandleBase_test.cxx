@@ -21,6 +21,7 @@
 #include "TestTools/initGaudi.h"
 #include "TestTools/expect_exception.h"
 #include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include <cassert>
 #include <iostream>
@@ -76,7 +77,8 @@ void test1()
 
   SGTest::TestStore dumstore2;
   EventContext ctx3;
-  ctx3.setProxy (&dumstore2);
+  ctx3.setExtension( Atlas::ExtendedEventContext(&dumstore2) );
+
   Gaudi::Hive::setCurrentContext (ctx3);
 
   SG::VarHandleKey k3 (1234, "asd", Gaudi::DataHandle::Updater);
@@ -96,7 +98,7 @@ void test1()
 
   SGTest::TestStore dumstore;
   EventContext ctx5;
-  ctx5.setProxy (&dumstore);
+  ctx5.setExtension( Atlas::ExtendedEventContext(&dumstore) );
   TestHandle h5 (k3, &ctx5);
   assert (h5.clid() == 1234);
   assert (h5.key() == "asd");
@@ -224,6 +226,18 @@ void test2()
   // h2, h3 went away
   assert (proxy->refCount() == 1);
   assert ((testStore.m_boundHandles == std::vector<IResetable*>{&h1}));
+
+  {
+    SG::VarHandleKey k11 (293847295, "foo", Gaudi::DataHandle::Writer);
+    k11.initialize().ignore();
+    TestHandle h11 (k11, nullptr);
+    assert (proxy->refCount() == 1);
+    assert ((testStore.m_boundHandles == std::vector<IResetable*>{&h1}));
+
+    TestHandle h12 (h11);
+    assert (proxy->refCount() == 1);
+    assert ((testStore.m_boundHandles == std::vector<IResetable*>{&h1}));
+  }
 
   // Test a !resetOnly proxy.
   auto obj5 = std::make_unique<MyObj>();
@@ -608,7 +622,8 @@ void test10()
 
   EventContext ctx2;
   SGTest::TestStore store2;
-  ctx2.setProxy (&store2);
+  ctx2.setExtension( Atlas::ExtendedEventContext(&store2) );
+
   obj = std::make_unique<MyObj>();
   objptr = obj.get();
   newptr = h2.put_impl (&ctx2,
@@ -659,7 +674,7 @@ void test11()
   MyObj* foo2 = new MyObj;
   store2.record (foo2, "foo");
   EventContext ctx2;
-  ctx2.setProxy (&store2);
+  ctx2.setExtension( Atlas::ExtendedEventContext(&store2) );
   assert (h4.get_impl(&ctx2, false) == foo2);
   assert (h4.get_impl(&ctx2, true) == foo2);
   Gaudi::Hive::setCurrentContext (ctx2);

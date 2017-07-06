@@ -61,5 +61,5 @@ int main(int argc, const char * argv[]) {
       cerr << "Caught exception: " << e.what() << endl;
    }
    return 1;
-};
+}
 

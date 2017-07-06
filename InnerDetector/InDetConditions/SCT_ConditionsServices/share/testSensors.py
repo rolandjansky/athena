@@ -18,11 +18,34 @@ theApp.AuditAlgorithms=True
 # Load Geometry
 #--------------------------------------------------------------
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetDescrVersion="ATLAS-GEO-16-00-00"
+globalflags.DetDescrVersion="ATLAS-R1-2012-03-00-00"
+globalflags.ConditionsTag="COMCOND-BLKPA-RUN1-09"
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
-globalflags.DataSource="geant4"
+globalflags.DataSource="data"
 print globalflags
+
+#--------------------------------------------------------------
+# Set up conditions
+#--------------------------------------------------------------
+from RecExConfig.RecFlags import rec
+rec.projectName.set_Value_and_Lock("data12_8TeV")
+
+# Load IOVDbSvc
+IOVDbSvc = Service("IOVDbSvc")
+IOVDbSvc.GlobalTag=globalflags.ConditionsTag()
+IOVDbSvc.OutputLevel = 3
+from IOVDbSvc.CondDB import conddb
+conddb.dbdata="COMP200"
+conddb.addFolderWithTag("SCT_OFL","/SCT/Sensors","SctSensors-Sep03-14")
+
+# Not clear why these tags are not resolved from global tag
+conddb.blockFolder("/Indet/Align")
+conddb.addFolderWithTag("INDET_OFL","/Indet/Align","InDetAlign-BLK-UPD4-09")
+conddb.blockFolder("/Indet/PixelDist")
+conddb.addFolderWithTag("INDET_OFL","/Indet/PixelDist","InDetPixelDist-ES1-UPD1-01")
+conddb.blockFolder("/Indet/IBLDist")
+conddb.addFolderWithTag("INDET_OFL","/Indet/IBLDist","IBLDist-NULL")
 
 #--------------------------------------------------------------
 # Set Detector setup
@@ -53,21 +76,13 @@ DetFlags.writeRIOPool.all_setOff()
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit
 
-#--------------------------------------------------------------
-# Load IOVDbSvc
-#--------------------------------------------------------------
+# Disable SiLorentzAngleSvc to remove
+# ERROR ServiceLocatorHelper::createService: wrong interface id IID_665279653 for service
+ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=""
+ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=""
 
-IOVDbSvc = Service("IOVDbSvc")
-from IOVDbSvc.CondDB import conddb
-#IOVDbSvc.GlobalTag="OFLCOND-FDR-01-02-00"
-#'''
-#DBname='<dbConnection>oracle://DEVDB10;schema=ATLAS_SCT_COMMCOND_DEV;dbname=ROE2;user=ATLAS_SCT_COMMCOND_DEV</dbConnection>'
-
-#IOVDbSvc.Folders += [ DBname +' /SCT/Sensors']
-#'''
-IOVDbSvc.GlobalTag="OFLCOND-FDR-01-02-00"
-IOVDbSvc.OutputLevel = 3
-conddb.addFolder('',"<db>COOLOFL_SCT/COMP200</db> /SCT/Sensors <tag>HEAD</tag>")
+from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SensorsSvc
+ServiceMgr +=SCT_SensorsSvc()
 
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
@@ -75,13 +90,8 @@ job = AlgSequence()
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SensorsTestAlg
 job+= SCT_SensorsTestAlg()
 
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SensorsSvc
-ServiceMgr +=SCT_SensorsSvc()
-
-#SCT_SensorsSvc.AttrListCollFolders=["/SCT/Sensors"]
-
 import AthenaCommon.AtlasUnixGeneratorJob
 
 
-ServiceMgr.EventSelector.RunNumber  = 0
+ServiceMgr.EventSelector.RunNumber  = 140975
 theApp.EvtMax                   = 1

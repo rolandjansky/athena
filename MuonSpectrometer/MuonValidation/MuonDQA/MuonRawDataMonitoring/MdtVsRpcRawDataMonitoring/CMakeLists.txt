@@ -8,7 +8,6 @@ atlas_subdir( MdtVsRpcRawDataMonitoring )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaMonitoring
-                          Control/DataModel
                           Control/StoreGate
                           GaudiKernel
                           MuonSpectrometer/MuonCablings/RPCcablingInterface
@@ -26,7 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( MdtVsRpcRawDataMonitoring
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaMonitoringLib DataModel StoreGateLib SGtests GaudiKernel RPCcablingInterfaceLib MuonReadoutGeometry MuonIdHelpersLib MuonDQAUtilsLib Identifier MuonRDO MuonPrepRawData )
+                     LINK_LIBRARIES AthenaMonitoringLib StoreGateLib SGtests GaudiKernel RPCcablingInterfaceLib MuonReadoutGeometry MuonIdHelpersLib MuonDQAUtilsLib Identifier MuonRDO MuonPrepRawData )
 
 # Install files from the package:
 atlas_install_headers( MdtVsRpcRawDataMonitoring )

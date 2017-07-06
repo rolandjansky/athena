@@ -11,7 +11,6 @@ branches run
 
 use     AtlasPolicy             AtlasPolicy-*
 use     StoreGate               StoreGate-*             	Control
-use     DataModel               DataModel-*             	Control
 use     AthenaMonitoring        AthenaMonitoring-*              Control
 use     GaudiInterface          GaudiInterface-*        	External
 use     MuonReadoutGeometry     MuonReadoutGeometry-*	        MuonSpectrometer/MuonDetDescr

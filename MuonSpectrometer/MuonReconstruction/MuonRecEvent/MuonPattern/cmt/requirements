@@ -4,7 +4,8 @@ author Niels van Eldik <nveldik@nikhef.nl>
 
 use AtlasPolicy AtlasPolicy-*
 
-use DataModel           *                             Control
+use AthLinks            AthLinks-*                    Control
+use AthContainers       AthContainers-*               Control
 use CLIDSvc             CLIDSvc-*                     Control
 use TrkParameters       TrkParameters-*               Tracking/TrkEvent
 #use TrkEventPrimitives  TrkEventPrimitives-*          Tracking/TrkEvent

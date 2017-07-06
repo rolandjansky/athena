@@ -210,14 +210,17 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
   if(tes_in.size()>0){
     
     for (HLT::TEVec::const_iterator it = tes_in[0].begin(); it != tes_in[0].end(); ++it) {
-      const xAOD::TrigCompositeContainer * passBitContainer ;   
-      /*HLT::ErrorCode status =*/ getFeature(  (*it) , passBitContainer);
-      for (xAOD::TrigCompositeContainer::const_iterator it = passBitContainer->begin(); it != passBitContainer->end(); ++it ){
-	(*it)->getDetail("beforeafterflag",beforeafterflag);
-	(*it)->getDetail("l1a_type",l1accept_type);
-	(*it)->getDetail("other_type",other_type);
+      const xAOD::TrigCompositeContainer * passBitContainer(0) ;   
+      HLT::ErrorCode status = getFeature(  (*it) , passBitContainer);
+      if (( status != HLT::OK ) || (!passBitContainer)) {
+	ATH_MSG_WARNING(" Failed to get passBitContainer. Status = " << status << ", passBitContainer = " << passBitContainer);
+      } else {
+	for (xAOD::TrigCompositeContainer::const_iterator itc = passBitContainer->begin(); itc != passBitContainer->end(); ++itc ){
+	  (*itc)->getDetail("beforeafterflag",beforeafterflag);
+	  (*itc)->getDetail("l1a_type",l1accept_type);
+	  (*itc)->getDetail("other_type",other_type);
+	}
       }
-      
     } // retrieve the encoded info from the L1Correlation algo
 
     //std::cout<< "I retrieved the following info: beforeafter:"<< beforeafterflag<< " l1at:"<< l1accept_type<<" othertype:"<< other_type<<std::endl;
@@ -347,12 +350,13 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
       TrigRoiDescriptor DummyRoiDescriptor;
       TrigL2MuonSA::RpcHits   rpcHits;
       m_dummypatfinder->clear();
-      m_rpcDataPreparator->prepareData(&DummyRoiDescriptor ,
-				       0  , /// dummy roiword
-				       rpcHits ,
-				       &m_dummypatfinder
-				       );
-
+      if ( (m_rpcDataPreparator->prepareData(&DummyRoiDescriptor ,
+					     0  , /// dummy roiword
+					     rpcHits ,
+					     &m_dummypatfinder
+					     )).isFailure() ) {
+	ATH_MSG_WARNING(" RpcDataPreparator->prepareData(...) failed.");
+      }
 
       // new solution: loop over all rois then over all hits
       // for (TrigL2MuonSA::RpcHits::const_iterator it = rpcHits.begin(); it!=rpcHits.end(); ++it) {

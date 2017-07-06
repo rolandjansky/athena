@@ -31,16 +31,16 @@ ArenaPoolAllocator_iterator_increment (ArenaPoolAllocator::pointer base,
 {
   // If we haven't yet reached the start of this block, move the iterator
   // back one.
-  if (base > block->index(0,0))
+  if (base > block->index(0,0)) {
     return base - block->eltSize();
-  else {
-    // Move to the previous block.
-    block = block->link();
-    if (block)
-      return block->index (block->size()-1, block->eltSize());
-    else
-      return nullptr;
   }
+
+  // Move to the previous block.
+  block = block->link();
+  if (block) {
+    return block->index (block->size()-1, block->eltSize());
+  }
+  return nullptr;
 }
 
 
@@ -56,16 +56,16 @@ ArenaPoolAllocator_iterator_increment (ArenaPoolAllocator::const_pointer base,
 {
   // If we haven't yet reached the start of this block, move the iterator
   // back one.
-  if (base > block->index(0,0))
+  if (base > block->index(0,0)) {
     return base - block->eltSize();
-  else {
-    // Move to the previous block.
-    block = block->link();
-    if (block)
-      return block->index (block->size()-1, block->eltSize());
-    else
-      return nullptr;
   }
+
+  // Move to the previous block.
+  block = block->link();
+  if (block) {
+    return block->index (block->size()-1, block->eltSize());
+  }
+  return nullptr;
 }
 
 
@@ -168,8 +168,9 @@ void ArenaPoolAllocator::swap (ArenaPoolAllocator& other)
 void ArenaPoolAllocator::reset()
 {
   // Clear each block in turn.
-  while (m_blocks)
+  while (m_blocks) {
     clearBlock();
+  }
 
   // Check that things are consistent.
   assert (m_stats.elts.inuse == 0);
@@ -222,8 +223,9 @@ void ArenaPoolAllocator::resetTo (pointer blk)
 
   // If the element is at the beginning of this block, just clear the whole
   // thing.
-  if (blk == p->index(0, elt_size))
+  if (blk == p->index(0, elt_size)) {
     clearBlock();
+  }
   else {
     // Otherwise, we need to clear some of the elements in this block.
     // See if we need to call @c clear.

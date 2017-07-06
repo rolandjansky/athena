@@ -31,8 +31,8 @@ protected:
 
   typedef std::vector<std::pair<dqm_core::Algorithm*, std::string> > AlgVec_t;
 
-  std::string name;
-  AlgVec_t subAlgs;
+  std::string m_name;
+  AlgVec_t m_subAlgs;
 
   HanAlgorithmConfig* ConfigureSubAlg(const dqm_core::AlgorithmConfig& config, std::string subalg);
   

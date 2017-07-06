@@ -28,7 +28,7 @@
 #include <Inventor/SoPath.h>
 #include <Inventor/nodes/SoSeparator.h>
 
-#include <QtCore/QStringList>
+#include <QStringList>
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "HepMC/GenEvent.h"

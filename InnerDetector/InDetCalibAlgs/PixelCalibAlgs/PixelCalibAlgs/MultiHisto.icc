@@ -22,54 +22,54 @@
 template <class ht>
 MultiHisto<ht>::MultiHisto(const ht &histo_model,const std::vector<std::string> &nameDiv,
 		const std::vector<int> &nDiv, const std::vector<double *> &binsDiv):
-	div_Nbins(nDiv), div_names(nameDiv){
+	m_div_Nbins(nDiv), m_div_names(nameDiv){
 
 // this should be added!!!  if( ! histo_model->InheritsFrom(TH1F::Class()) ) return -1;
 
-		model = new ht(histo_model);
+		m_model = new ht(histo_model);
 		int nhistos = 1;
-		for(unsigned int i=0; i < div_Nbins.size(); i++){
-			nhistos*=div_Nbins[i];
-			double *tmp = new double[div_Nbins[i]+1];
-			for(int j=0; j < div_Nbins[i]+1; j++) tmp[j] = (binsDiv[i])[j];
-			div_bins.push_back(tmp);
+		for(unsigned int i=0; i < m_div_Nbins.size(); i++){
+			nhistos*=m_div_Nbins[i];
+			double *tmp = new double[m_div_Nbins[i]+1];
+			for(int j=0; j < m_div_Nbins[i]+1; j++) tmp[j] = (binsDiv[i])[j];
+			m_div_bins.push_back(tmp);
 		}
 		std::vector<int> indexes;
 		for(int i = 0; i < nhistos; i++){
-			ht *clone = (ht *)model->Clone();
-			myhistos.push_back(clone);
+			ht *clone = (ht *)m_model->Clone();
+			m_myhistos.push_back(clone);
 			indexes = GetDivisionsIndexes(i);
-			myhistos[i]->SetTitle( ComposeTitle(indexes).c_str() );
-			myhistos[i]->SetName( ComposeName(indexes).c_str() );
+			m_myhistos[i]->SetTitle( ComposeTitle(indexes).c_str() );
+			m_myhistos[i]->SetName( ComposeName(indexes).c_str() );
 		}
 }
 
 template <class ht>
 MultiHisto<ht>::MultiHisto(const ht &histo_model,const std::vector<std::string> &nameDiv,
 			const std::vector<std::vector <float> > &binsDiv):
-	div_names(nameDiv){
+	m_div_names(nameDiv){
 
-		int nBinnages = div_names.size();
+		int nBinnages = m_div_names.size();
 		for(int i = 0; i < nBinnages ; i++)
-			div_Nbins.push_back((binsDiv[i]).size()-1);
+			m_div_Nbins.push_back((binsDiv[i]).size()-1);
 		
 // this should be added!!!  if( ! histo_model->InheritsFrom(TH1F::Class()) ) return -1;
 
-		model = new ht(histo_model);
+		m_model = new ht(histo_model);
 		int nhistos = 1;
-		for(unsigned int i=0; i < div_Nbins.size(); i++){
-			nhistos*=div_Nbins[i];
-			double *tmp = new double[div_Nbins[i]+1];
-			for(int j=0; j < div_Nbins[i]+1; j++) tmp[j] = (binsDiv[i])[j];
-			div_bins.push_back(tmp);
+		for(unsigned int i=0; i < m_div_Nbins.size(); i++){
+			nhistos*=m_div_Nbins[i];
+			double *tmp = new double[m_div_Nbins[i]+1];
+			for(int j=0; j < m_div_Nbins[i]+1; j++) tmp[j] = (binsDiv[i])[j];
+			m_div_bins.push_back(tmp);
 		}
 		std::vector<int> indexes;
 		for(int i = 0; i < nhistos; i++){
-			ht *clone = (ht *)model->Clone();
-			myhistos.push_back(clone);
+			ht *clone = (ht *)m_model->Clone();
+			m_myhistos.push_back(clone);
 			indexes = GetDivisionsIndexes(i);
-			myhistos[i]->SetTitle( ComposeTitle(indexes).c_str() );
-			myhistos[i]->SetName( ComposeName(indexes).c_str() );
+			m_myhistos[i]->SetTitle( ComposeTitle(indexes).c_str() );
+			m_myhistos[i]->SetName( ComposeName(indexes).c_str() );
 		}
 }
 
@@ -83,14 +83,14 @@ MultiHisto<ht>::~MultiHisto(){
 template <class ht>
 int MultiHisto<ht>::Fill(double xvar, double yvar,const std::vector<double> &pars){
 	int index = GetGlobalIndex(pars);
-	if( index >= 0 ) myhistos[index]->Fill(xvar,yvar);
+	if( index >= 0 ) m_myhistos[index]->Fill(xvar,yvar);
 	return index;
 }
 
 template <class ht>
 int MultiHisto<ht>::Fill(double xvar, double yvar,const std::vector<float> &pars){
 	int index = GetGlobalIndex(pars);
-	if( index >= 0 ) myhistos[index]->Fill(xvar,yvar);
+	if( index >= 0 ) m_myhistos[index]->Fill(xvar,yvar);
 	return index;
 }
 
@@ -98,15 +98,15 @@ int MultiHisto<ht>::Fill(double xvar, double yvar,const std::vector<float> &pars
 template <class ht>
 int MultiHisto<ht>::FillFromFile(TDirectory *histodir){
 	
-	int nhistos = myhistos.size();
+	int nhistos = m_myhistos.size();
 	int readhistos = 0;
 	TDirectory *olddir = gDirectory;
 	if(histodir) histodir->cd();
 	for(int i=0; i < nhistos; i++){
 		std::vector <int> indexes = GetDivisionsIndexes(i);
 		std::string name = ComposeName(indexes);
-		if( ( myhistos[i] = (ht *) gDirectory->Get(name.c_str()) ) ){
-			myhistos[i]->SetDirectory(gROOT);
+		if( ( m_myhistos[i] = (ht *) gDirectory->Get(name.c_str()) ) ){
+			m_myhistos[i]->SetDirectory(gROOT);
 			readhistos++;
 		}
 	}
@@ -122,25 +122,25 @@ int MultiHisto<ht>::FillFromFile(TDirectory *histodir){
 
 // without counting bins
 template <class ht>
-int MultiHisto<ht>::Write(const char* name, Int_t option, Int_t bufsize){
+int MultiHisto<ht>::Write(const char* name, Int_t option, Int_t bufsize) const {
 		
-	int nhistos = myhistos.size();
+	int nhistos = m_myhistos.size();
 	int writtenhistos = -1;
 	TDirectory *olddir = gDirectory;
-	if(name == 0) name = model->GetName();
+	if(name == 0) name = m_model->GetName();
 	TDirectory *histodir = gDirectory->mkdir(name);
 	if(histodir){
 		histodir->cd();
 		writtenhistos++;
 		for(int i=0; i < nhistos; i++)
-			if(myhistos[i]->Write(0,option,bufsize)) writtenhistos++;
+			if(m_myhistos[i]->Write(0,option,bufsize)) writtenhistos++;
 		olddir->cd();
 	}
 	return writtenhistos;
 }
 
 template <class ht>
-int MultiHisto<ht>::Write(const char* name, Int_t option, Int_t bufsize) const{
+int MultiHisto<ht>::Write(const char* name, Int_t option, Int_t bufsize) {
 	return Write(name,option,bufsize);
 }
 
@@ -150,7 +150,7 @@ template <class ht>
 int MultiHisto<ht>::WriteAndCount(int *nhistos, int *nbins) const{ 
 	int nwritten = Write();
 	*nhistos += nwritten;
-	*nbins += nwritten*model->GetNbinsY()*model->GetNbinsX();
+	*nbins += nwritten*m_model->GetNbinsY()*m_model->GetNbinsX();
 	return nwritten;
 }
 
@@ -212,9 +212,9 @@ int MultiHisto<ht>::GetGlobalIndex(const std::vector<int> &indexes) const{
 	int globalindex = 0, factor = 1;
 	for(int i = indexes.size()-1; i >= 0; i--){
 		globalindex += (indexes[i])*factor;
-		factor *= div_Nbins[i];
+		factor *= m_div_Nbins[i];
 	}
-	if(globalindex >= int(myhistos.size())) globalindex = -1;
+	if(globalindex >= int(m_myhistos.size())) globalindex = -1;
 	return globalindex;
 }
 
@@ -242,10 +242,10 @@ template <class ht>
 std::vector<int> MultiHisto<ht>::GetDivisionsIndexes(int globalindex) const{
 	int curr_index = globalindex, offset =0;
 	std::vector<int> indx, indxfinal;
-	for(int iNdivs = div_Nbins.size()-1; iNdivs != 0; iNdivs--){
-		offset = curr_index%div_Nbins[iNdivs];
+	for(int iNdivs = m_div_Nbins.size()-1; iNdivs != 0; iNdivs--){
+		offset = curr_index%m_div_Nbins[iNdivs];
 		indx.push_back(offset);
-		curr_index = curr_index/div_Nbins[iNdivs];
+		curr_index = curr_index/m_div_Nbins[iNdivs];
 	}
 	indxfinal.push_back(curr_index);
 	for(int i = indx.size()-1; i >= 0; i--)	indxfinal.push_back(indx[i]);
@@ -256,15 +256,15 @@ std::vector<int> MultiHisto<ht>::GetDivisionsIndexes(int globalindex) const{
 template <class ht>
 std::vector<int> MultiHisto<ht>::GetDivisionsIndexes(const std::vector<double> &pars) const{
 	std::vector<int> indexes;
-	for(unsigned int i = 0; i < div_Nbins.size(); i++)
-		for(int j = 0; j < div_Nbins[i]; j++)
-			if(pars[i] >= (div_bins[i])[j]
-					&& pars[i] < (div_bins[i])[j+1]){
+	for(unsigned int i = 0; i < m_div_Nbins.size(); i++)
+		for(int j = 0; j < m_div_Nbins[i]; j++)
+			if(pars[i] >= (m_div_bins[i])[j]
+					&& pars[i] < (m_div_bins[i])[j+1]){
 				indexes.push_back(int(j));
 				break;
 			}
 	unsigned int size = indexes.size();
-	if(size < div_Nbins.size()){
+	if(size < m_div_Nbins.size()){
 		for(unsigned int i = 0; i < size; i++) indexes.pop_back();
 		indexes.push_back(-1);
 	}
@@ -275,15 +275,15 @@ template <class ht>
 std::vector<int> MultiHisto<ht>::GetDivisionsIndexes(const std::vector<float> &pars) const{
 
 	std::vector<int> indexes;
-	for(unsigned int i = 0; i < div_Nbins.size(); i++)
-		for(int j = 0; j < div_Nbins[i]; j++)
-			if(pars[i] >= (div_bins[i])[j]
-					&& pars[i] < (div_bins[i])[j+1]){
+	for(unsigned int i = 0; i < m_div_Nbins.size(); i++)
+		for(int j = 0; j < m_div_Nbins[i]; j++)
+			if(pars[i] >= (m_div_bins[i])[j]
+					&& pars[i] < (m_div_bins[i])[j+1]){
 				indexes.push_back(int(j));
 				break;
 			}
 	unsigned int size = indexes.size();
-	if(size < div_Nbins.size()){
+	if(size < m_div_Nbins.size()){
 		for(unsigned int i = 0; i < size; i++) indexes.pop_back();
 		indexes.push_back(-1);
 	}
@@ -300,13 +300,13 @@ std::vector<int> MultiHisto<ht>::GetDivisionsIndexes(const std::vector<float> &p
 template <class ht>
 std::string  MultiHisto<ht>::NameString(int idiv, int index){
 	std::ostringstream basename;
-	std::string name = div_names[idiv];
+	std::string name = m_div_names[idiv];
 	size_t found = name.find("#");
 	if(found != std::string::npos) name = name.substr(found+1);
 	found = name.find(" ");
 	if(found != std::string::npos) name = name.substr(0,found);
-	basename << name << (div_bins[idiv])[index] << "-" <<
-		(div_bins[idiv])[index+1];
+	basename << name << (m_div_bins[idiv])[index] << "-" <<
+		(m_div_bins[idiv])[index+1];
 	return basename.str();
 }
 
@@ -314,9 +314,9 @@ std::string  MultiHisto<ht>::NameString(int idiv, int index){
 
 template <class ht>
 std::string  MultiHisto<ht>::ComposeName(const std::vector<int> &indexes){
-	std::string name = std::string(model->GetName());
-	for(unsigned int i = 0; i < div_Nbins.size(); i++)
-		if(indexes[i] >= 0 && indexes[i] < div_Nbins[i]) 
+	std::string name = std::string(m_model->GetName());
+	for(unsigned int i = 0; i < m_div_Nbins.size(); i++)
+		if(indexes[i] >= 0 && indexes[i] < m_div_Nbins[i]) 
 			name += "_" + NameString(i,indexes[i]);
 	return name;
 }
@@ -326,9 +326,9 @@ std::string  MultiHisto<ht>::ComposeName(const std::vector<int> &indexes){
 template <class ht>
 std::string  MultiHisto<ht>::TitleString(int idiv, int index){
 	std::ostringstream basename;
-	std::string div_name = div_names[idiv];
-	double low = (div_bins[idiv])[index];
-	double high = (div_bins[idiv])[index+1];
+	std::string div_name = m_div_names[idiv];
+	double low = (m_div_bins[idiv])[index];
+	double high = (m_div_bins[idiv])[index+1];
 	if( (high - low) == 1 && div_name.find("ayer") != std::string::npos)
 		basename << div_name << " " <<ceil( low );
 	else if( (high - low) == 1 &&
@@ -343,9 +343,9 @@ std::string  MultiHisto<ht>::TitleString(int idiv, int index){
 
 template <class ht>
 std::string  MultiHisto<ht>::ComposeTitle(const std::vector<int> &indexes){
-	std::string title = std::string(model->GetTitle());
-	for(unsigned int i = 0; i < div_Nbins.size(); i++) 
-		if(indexes[i] >= 0 && indexes[i] < div_Nbins[i]) 
+	std::string title = std::string(m_model->GetTitle());
+	for(unsigned int i = 0; i < m_div_Nbins.size(); i++) 
+		if(indexes[i] >= 0 && indexes[i] < m_div_Nbins[i]) 
 			title += " - " + TitleString(i,indexes[i]);
 	return title;
 }
@@ -359,18 +359,18 @@ std::string  MultiHisto<ht>::ComposeTitle(const std::vector<int> &indexes){
 
 template <class ht>
 const char * MultiHisto<ht>::GetName() const{
-	return model->GetName();		
+	return m_model->GetName();		
 }
 
 template <class ht>
 const char * MultiHisto<ht>::GetTitle() const{
-	return model->GetTitle();		
+	return m_model->GetTitle();		
 }
 
 
 template <class ht>
 unsigned int MultiHisto<ht>::GetNhistos() const{
-	return myhistos.size();	
+	return m_myhistos.size();	
 }
 
 
@@ -383,7 +383,7 @@ ht* MultiHisto<ht>::GetHisto(const std::vector<int> &indexes){
 template <class ht>
 ht* MultiHisto<ht>::GetHisto(int i){
 	ht *current = NULL;
-	if(i >= 0 && i < int(myhistos.size())) current = myhistos[i];
+	if(i >= 0 && i < int(m_myhistos.size())) current = m_myhistos[i];
 	return current; 
 }
 

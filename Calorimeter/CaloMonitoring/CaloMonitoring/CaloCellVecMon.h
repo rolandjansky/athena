@@ -103,7 +103,6 @@ class CaloCellVecMon : public CaloMonToolBase {
   virtual StatusCode bookHistograms();
   virtual StatusCode procHistograms();  
   virtual StatusCode fillHistograms();
-  virtual StatusCode finalHists();
 
   // Enumerate the layers in order to keep track of them when looping
   enum LayerEnum{EMBPA, EMBPC, EMB1A, EMB1C, EMB2A, EMB2C, EMB3A, EMB3C,

@@ -346,10 +346,12 @@ JobConfig::PrintSetup(std::ostream & log, std::ostream& (*lineend) ( std::ostrea
    log << lineend;
    log << "----------" << lineend;
    log << "   Input               : ";
-   for(string s: inpar) log << s << ", "; log << lineend;
+   for(string s: inpar) log << s << ", ";
+   log << lineend;
    if( input2 != UNDEF ) {
       log << "   Input for comparison: ";
-      for(string s: inpar2) log << s << ", "; log << lineend;
+      for(string s: inpar2) log << s << ", ";
+      log << lineend;
    }
    if( output != UNDEF ) {
       log << "   Output              : ";
@@ -678,10 +680,14 @@ int main( int argc, char* argv[] ) {
       
       if(ctpc)
          coolWriter->writeL1Payload(runNr, *ctpc);
-      
-      if(hltFrame)
-         coolWriter->writeHLTPayload(runNr, *hltFrame, configSource);
-      
+      try{
+	if(hltFrame)
+	  coolWriter->writeHLTPayload(runNr, *hltFrame, configSource);
+      }   
+      catch(cool::StorageTypeStringTooLong e){
+	log << "FATAL: Unable to write data to COOL";
+	exit(1);
+      }
        if(mck)
          coolWriter->writeMCKPayload(runNr, mck, release, info);
    }

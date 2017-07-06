@@ -121,8 +121,9 @@ size_t ArenaAllocatorRegistryImpl::lookup (const std::string& name)
 {
   lock_t lock (m_mutex);
   map_t::iterator it = m_map.find (name);
-  if (it == m_map.end())
+  if (it == m_map.end()) {
     return std::string::npos;
+  }
   return it->second;
 }
 

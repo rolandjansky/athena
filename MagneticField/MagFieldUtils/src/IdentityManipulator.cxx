@@ -36,7 +36,7 @@ void MagField::IdentityManipulator::modifyPosition(const double *xyz_old, double
   xyz_new[2] = xyz_old[2];
 }
 
-void MagField::IdentityManipulator::modifyField(double *bxyz, double *deriv)
+void MagField::IdentityManipulator::modifyField(double */*bxyz*/, double */*deriv*/)
 {
   // do nothing (i.e. leave bxyz untouched)
 }

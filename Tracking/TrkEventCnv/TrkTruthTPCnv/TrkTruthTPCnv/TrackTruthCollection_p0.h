@@ -10,8 +10,8 @@
 #ifndef TRACKTRUTHCOLLECTION_P0_H
 #define TRACKTRUTHCOLLECTION_P0_H
 
-#include "DataModel/DataVector.h"
-#include "DataModel/ElementLink.h"
+#include "AthContainers/DataVector.h"
+#include "AthLinks/ElementLink.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTruthData/TrackTruth.h"

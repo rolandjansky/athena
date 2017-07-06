@@ -16,7 +16,7 @@ L1Decoder::L1Decoder(const std::string& name, ISvcLocator* pSvcLocator)
 }
 
 StatusCode L1Decoder::initialize() {
-  CHECK( m_RoIBResultKey.initialize() );
+  CHECK( m_RoIBResultKey.initialize( not m_RoIBResultKey.key().empty() )  );
   CHECK( m_chainsKey.initialize() );
 
   CHECK( m_ctpUnpacker.retrieve() );
@@ -41,8 +41,12 @@ StatusCode L1Decoder::readConfiguration() {
 
 StatusCode L1Decoder::execute_r (const EventContext& ctx) const {
   using namespace TrigCompositeUtils;
-  SG::ReadHandle<ROIB::RoIBResult> roibH( m_RoIBResultKey, ctx );
-  ATH_MSG_DEBUG( "Obtained ROIB result" );
+  const ROIB::RoIBResult* roib=0;
+  if ( not m_RoIBResultKey.key().empty() ) {
+    SG::ReadHandle<ROIB::RoIBResult> roibH( m_RoIBResultKey, ctx );
+    roib = roibH.cptr();
+    ATH_MSG_DEBUG( "Obtained ROIB result" );
+  }
   // this should realy be: const ROIB::RoIBResult* roib = SG::INPUT_PTR (m_RoIBResultKey, ctx);
   // or const ROIB::RoIBResult& roib = SG::INPUT_REF (m_RoIBResultKey, ctx);
 
@@ -53,7 +57,7 @@ StatusCode L1Decoder::execute_r (const EventContext& ctx) const {
   chainsInfo->setStore(chainsAux.get());  
 
   HLT::IDVec l1SeededChains;
-  CHECK( m_ctpUnpacker->decode( *roibH, l1SeededChains ) );
+  CHECK( m_ctpUnpacker->decode( *roib, l1SeededChains ) );
   sort( l1SeededChains.begin(), l1SeededChains.end() ); // do so that following scaling is reproducable
 
   HLT::IDVec activeChains;
@@ -65,7 +69,7 @@ StatusCode L1Decoder::execute_r (const EventContext& ctx) const {
 
   HLT::IDSet activeChainSet( activeChains.begin(), activeChains.end() );
   for ( auto unpacker: m_roiUnpackers ) {
-    CHECK( unpacker->unpack( ctx, *roibH, activeChainSet ) );
+    CHECK( unpacker->unpack( ctx, *roib, activeChainSet ) );
   }
   ATH_MSG_DEBUG("Recording chains");
 

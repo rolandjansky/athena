@@ -39,7 +39,7 @@ Purpose : User tools for analyis overlap removal on ESD/AOD/DPD in Athena
 
 #include "NavFourMom/IParticleContainer.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
-#include "DataModel/ConstDataVector.h"
+#include "AthContainers/ConstDataVector.h"
 
 #include <string>
 #include <map>

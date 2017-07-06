@@ -63,8 +63,8 @@ LArNoisyROTool::LArNoisyROTool( const std::string& type,
 	                                              972980224  // EMBA FT 31 Slot 14
 	                                             });
 
-  declareProperty( "MNBLooseCut",m_MNBLooseCut=9,"Number of cells above CellQualityCut");
-  declareProperty( "MNBTightCut",m_MNBTightCut=33,"Number of cells above CellQualityCut");
+  declareProperty( "MNBLooseCut",m_MNBLooseCut=5,"Number of cells above CellQualityCut");
+  declareProperty( "MNBTightCut",m_MNBTightCut=17,"Number of cells above CellQualityCut");
 
   
   declareProperty( "OutputKey", m_outputKey="LArNoisyROSummary");

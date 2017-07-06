@@ -69,6 +69,11 @@ namespace CP {
             virtual CorrectionCode getMCEfficiencyReplicas(const xAOD::Muon& mu, std::vector<float> & sf_err, const xAOD::EventInfo* info = 0) const;
             virtual CorrectionCode applyMCEfficiencyReplicas(const xAOD::Muon& mu, int nreplicas = 50, const xAOD::EventInfo* info = 0) const;
 
+
+            virtual int getUnCorrelatedSystBin(const xAOD::Muon& mu) const;
+            virtual std::string getUncorrelatedSysBinName(unsigned int Bin) const;
+            virtual std::string getUncorrelatedSysBinName(const SystematicSet& systConfig) const;
+
             // copy constructor, to make reflex happy...
             MuonEfficiencyScaleFactors(const MuonEfficiencyScaleFactors& tocopy);
 

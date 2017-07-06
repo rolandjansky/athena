@@ -6,6 +6,8 @@
 #include "GaudiKernel/ToolFactory.h"
 #include "TrigHLTJetRec/PseudoJetSelectorEtaPt.h"
 
+using jet::PseudoJetVector;
+
 PseudoJetSelectorEtaPt::PseudoJetSelectorEtaPt(const std::string& s,
                                                const std::string& name,
                                                const IInterface* i):

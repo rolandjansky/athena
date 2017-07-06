@@ -18,6 +18,7 @@
 
 
 #include "AthenaKernel/IProxyDict.h"
+#include "AthenaKernel/StoreID.h"
 #include "GaudiKernel/DataHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -44,7 +45,7 @@ namespace SG {
  * A reference to the store is saved in this class.
  *
  * The string for the key property can optionally be prefixed with the store
- * name, separated by a slash: "MyStore/Obj".  (However, if the key name
+ * name, separated by a "+": "MyStore+Obj".  (However, if the key name
  * starts with a slash, it is interpreted as a hierarchical key name,
  * not an empty store name.)
  */
@@ -60,7 +61,7 @@ public:
    * @param storeName Name to use for the store, if it's not encoded in sgkey.
    *
    * The provided key may actually start with the name of the store,
-   * separated by a slash:  "MyStore/Obj".  If no slash is present
+   * separated by a "+":  "MyStore:Obj".  If no "+" is present
    * the store named by @c storeName is used.  However, if the key name
    * starts with a slash, it is interpreted as a hierarchical key name,
    * not an empty store name.
@@ -71,7 +72,7 @@ public:
   VarHandleKey (CLID clid,
                 const std::string& sgkey,
                 Gaudi::DataHandle::Mode a,
-                const std::string& storeName = "StoreGateSvc");
+                const std::string& storeName = StoreID::storeName(StoreID::EVENT_STORE));
 
 
   /**
@@ -79,7 +80,7 @@ public:
    * @param sgkey The StoreGate key for the object.
    * 
    * The provided key may actually start with the name of the store,
-   * separated by a slash:  "MyStore/Obj".  If no slash is present,
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present,
    * the store is not changed.  A key name that starts with a slash
    * is interpreted as a hierarchical key name, not an empty store name.
    *
@@ -94,7 +95,7 @@ public:
    * @param sgkey The StoreGate key for the object.
    * 
    * The provided key may actually start with the name of the store,
-   * separated by a slash:  "MyStore/Obj".  If no slash is present
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present
    * the store is not changed.  A key name that starts with a slash
    * is interpreted as a hierarchical key name, not an empty store name.
    *
@@ -125,7 +126,6 @@ public:
    */
   const std::string& key() const;
 
-
   /**
    * @brief Return handle to the referenced store.
    */
@@ -143,12 +143,14 @@ private:
    * @param sgkey The StoreGate key for the referenced object.
    *
    * The provided key may actually start with the name of the store,
-   * separated by a slash:  "MyStore/Obj".  If no slash is present,
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present,
    * the store named by @c storeName is used.  A key name that starts
    * with a slash is interpreted as a hierarchical key name,
    * not an empty store name.
+   *
+   * see implementation comments for further details
    */
-  StatusCode parseKey (const std::string& sgkey, const std::string& storeName);
+  void parseKey (const std::string& sgkey, const std::string& storeName);
 
 
   /**
@@ -160,10 +162,17 @@ private:
 
   /// Handle to the referenced store.
   ServiceHandle<IProxyDict> m_storeHandle;
+
+  /// StoreGate key, that doesn't include the storename
+  std::string m_sgKey {""};
 };
 
 
 } // namespace SG
+
+namespace std {
+  ostream& operator<<(ostream& s, const SG::VarHandleKey& m);
+}
 
 
 #endif // not STOREGATE_VARHANDLEKEY_H

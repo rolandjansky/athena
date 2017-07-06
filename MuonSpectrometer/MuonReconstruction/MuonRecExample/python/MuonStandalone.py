@@ -19,6 +19,8 @@ from RecExConfig.RecFlags import rec
 from AthenaCommon.DetFlags import DetFlags
 
 from AthenaCommon.CfgGetter import getPublicTool,getPublicToolClone,getPrivateTool
+from RecExConfig.ObjKeyStore                  import cfgKeyStore
+
 import sys
 #==============================================================
 
@@ -76,8 +78,6 @@ class MuonStandalone(ConfiguredMuonRec):
     def configure(self,keys=None):
         super(MuonStandalone,self).configure(keys)
         if not self.isEnabled(): return
-
-        print " configuring MuonStandalone: flags ", muonStandaloneFlags
 
         from AthenaCommon.BeamFlags import jobproperties
         beamFlags = jobproperties.Beam 
@@ -148,8 +148,10 @@ class MuonStandalone(ConfiguredMuonRec):
                                                      doTGCClust = False,
                                                      doRPCClust = False) )
 
-        self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg") )
-        self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg_NCB",SegmentContainerName="NCB_MuonSegments",xAODContainerName="NCB_MuonSegments") )
+        if (not cfgKeyStore.isInInput ('xAOD::MuonSegmentContainer', 'MuonSegments')):
+            self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg") )
+        if (not cfgKeyStore.isInInput ('xAOD::MuonSegmentContainer', 'MuonSegments_NCB')):
+            self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg_NCB",SegmentContainerName="NCB_MuonSegments",xAODContainerName="NCB_MuonSegments") )
         
         if muonStandaloneFlags.doSegmentsOnly():
             return	                    
@@ -164,14 +166,26 @@ class MuonStandalone(ConfiguredMuonRec):
         self.registerInputKey ("MuonSegments", self.MuPatTrackBuilder, "MuonSegmentCollection"   )
 
         
-        if muonStandaloneFlags.createTrackParticles() and DetFlags.ID_on():
-            from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
+        if muonStandaloneFlags.createTrackParticles():
+            from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg, xAODMaker__TrackCollectionCnvTool, xAODMaker__RecTrackParticleContainerCnvTool
+
+            muonParticleCreatorTool = getPublicTool("MuonParticleCreatorTool")
+            muonParticleCreatorTool.OutputLevel = 1
+
+            muonTrackCollectionCnvTool = xAODMaker__TrackCollectionCnvTool( name = "MuonTrackCollectionCnvTool", TrackParticleCreator = muonParticleCreatorTool, OutputLevel=1 )
+            
+            muonRecTrackParticleContainerCnvTool = xAODMaker__RecTrackParticleContainerCnvTool(name = "MuonRecTrackParticleContainerCnvTool", TrackParticleCreator = muonParticleCreatorTool, OutputLevel=1)
+
             xAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg( name = "MuonStandaloneTrackParticleCnvAlg", 
-                                                                      TrackParticleCreator = getPublicTool("MuonParticleCreatorTool"),
+                                                                      TrackParticleCreator = muonParticleCreatorTool,
+                                                                      TrackCollectionCnvTool=muonTrackCollectionCnvTool,
+                                                                      RecTrackParticleContainerCnvTool = muonRecTrackParticleContainerCnvTool,
                                                                       TrackContainerName = "MuonSpectrometerTracks",
                                                                       xAODTrackParticlesFromTracksContainerName = "MuonSpectrometerTrackParticles",
                                                                       ConvertTrackParticles = False,
-                                                                      ConvertTracks = True )
+                                                                      ConvertTracks = True,
+                                                                      OutputLevel=1 )
+
             self.addAlg( xAODTrackParticleCnvAlg )
 
 

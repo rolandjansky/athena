@@ -30,13 +30,13 @@
 #include <Inventor/nodes/SoText2.h>
 #include <Inventor/nodes/SoTranslation.h>
 
-#include <QtCore/QHash>
-#include <QtCore/QBuffer>
-#include <QtCore/QByteArray>
-#include <QtCore/QPair>
-#include <QtCore/QSet>
-#include <QtCore/QMap>
-#include <QtCore/QDataStream>
+#include <QHash>
+#include <QBuffer>
+#include <QByteArray>
+#include <QPair>
+#include <QSet>
+#include <QMap>
+#include <QDataStream>
 
 //____________________________________________________________________
 class VolumeHandle::Imp {

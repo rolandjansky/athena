@@ -31,7 +31,7 @@ namespace dqm_algorithms {
 	{
 		std::string message;
 		message += "\n";
-		message += "Algorithm: \"" + name + "\"\n";
+		message += "Algorithm: \"" + m_name + "\"\n";
 		message += "Description: Prints out the average of the histogram or profile bins\n";
 		message += "             In the case of a TProfile each bin is weighted by its fraction of the entries\n";
 		message += "             Overflow (and Underflow) bins are not included\n";
@@ -42,9 +42,9 @@ namespace dqm_algorithms {
 	
 	AveragePrint::
 	AveragePrint()
-    : name("AveragePrint")
+    : m_name("AveragePrint")
 	{
-		dqm_core::AlgorithmManager::instance().registerAlgorithm( name, this );
+		dqm_core::AlgorithmManager::instance().registerAlgorithm( m_name, this );
 	}
 	
 	

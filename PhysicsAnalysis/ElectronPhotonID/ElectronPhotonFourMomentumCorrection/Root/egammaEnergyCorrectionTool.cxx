@@ -370,7 +370,7 @@ namespace AtlasRoot {
       m_dX_PSAcc_LAr = (TH1D*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(0);
       m_dX_PSAcc_G4  = (TH1D*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(0);
 
-      m_convRadius            = (TH1D*) m_rootFile->Get("Conversions/es2011d/convRadiusMigrations");  m_convRadius->SetDirectory(0);
+      m_convRadius            = (TH2D*) m_rootFile->Get("Conversions/es2011d/convRadiusMigrations");  m_convRadius->SetDirectory(0);
       m_convFakeRate          = (TH1D*) m_rootFile->Get("Conversions/es2011d/convFakeRate");          m_convFakeRate->SetDirectory(0);
       m_convRecoEfficiency    = (TH1D*) m_rootFile->Get("Conversions/es2011d/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(0);
 
@@ -442,7 +442,7 @@ namespace AtlasRoot {
       m_dX_PSAcc_LAr = (TH1D*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(0);
       m_dX_PSAcc_G4  = (TH1D*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(0);
 
-      m_convRadius            = (TH1D*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(0);
+      m_convRadius            = (TH2D*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(0);
       m_convFakeRate          = (TH1D*) m_rootFile->Get("Conversions/es2012c/convFakeRate");          m_convFakeRate->SetDirectory(0);
       m_convRecoEfficiency    = (TH1D*) m_rootFile->Get("Conversions/es2012c/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(0);
 
@@ -492,7 +492,7 @@ namespace AtlasRoot {
       m_dX_PSAcc_LAr = (TH1D*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(0);
       m_dX_PSAcc_G4  = (TH1D*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(0);
 
-      m_convRadius            = (TH1D*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(0);
+      m_convRadius            = (TH2D*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(0);
       m_convFakeRate          = (TH1D*) m_rootFile->Get("Conversions/es2012c/convFakeRate");          m_convFakeRate->SetDirectory(0);
       m_convRecoEfficiency    = (TH1D*) m_rootFile->Get("Conversions/es2012c/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(0);
 
@@ -544,7 +544,7 @@ namespace AtlasRoot {
       m_dX_PSAcc_LAr = (TH1D*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(0);
       m_dX_PSAcc_G4  = (TH1D*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(0);
 
-      m_convRadius            = (TH1D*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(0);
+      m_convRadius            = (TH2D*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(0);
       m_convFakeRate          = (TH1D*) m_rootFile->Get("Conversions/es2012c/convFakeRate");          m_convFakeRate->SetDirectory(0);
       m_convRecoEfficiency    = (TH1D*) m_rootFile->Get("Conversions/es2012c/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(0);
 
@@ -608,7 +608,7 @@ namespace AtlasRoot {
       m_dX_PSAcc_LAr = (TH1D*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(0);
       m_dX_PSAcc_G4  = (TH1D*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(0);
 
-      m_convRadius            = (TH1D*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(0);
+      m_convRadius            = (TH2D*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(0);
       m_convFakeRate          = (TH1D*) m_rootFile->Get("Conversions/es2012c/convFakeRate");          m_convFakeRate->SetDirectory(0);
       m_convRecoEfficiency    = (TH1D*) m_rootFile->Get("Conversions/es2012c/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(0);
 
@@ -672,7 +672,7 @@ namespace AtlasRoot {
       m_dX_PSAcc_LAr = (TH1D*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(0);
       m_dX_PSAcc_G4  = (TH1D*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(0);
 
-      m_convRadius            = (TH1D*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(0);
+      m_convRadius            = (TH2D*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(0);
       m_convFakeRate          = (TH1D*) m_rootFile->Get("Conversions/es2012c/convFakeRate");          m_convFakeRate->SetDirectory(0);
       m_convRecoEfficiency    = (TH1D*) m_rootFile->Get("Conversions/es2012c/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(0);
 
@@ -738,7 +738,7 @@ namespace AtlasRoot {
       m_dX_PSAcc_LAr = (TH1D*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(0);
       m_dX_PSAcc_G4  = (TH1D*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(0);
 
-      m_convRadius            = (TH1D*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(0);
+      m_convRadius            = (TH2D*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(0);
       m_convFakeRate          = (TH1D*) m_rootFile->Get("Conversions/es2012c/convFakeRate");          m_convFakeRate->SetDirectory(0);
       m_convRecoEfficiency    = (TH1D*) m_rootFile->Get("Conversions/es2012c/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(0);
 
@@ -802,7 +802,7 @@ namespace AtlasRoot {
       m_dX_PSAcc_LAr = (TH1D*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(0);
       m_dX_PSAcc_G4  = (TH1D*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(0);
 
-      m_convRadius            = (TH1D*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(0);
+      m_convRadius            = (TH2D*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(0);
       m_convFakeRate          = (TH1D*) m_rootFile->Get("Conversions/es2012c/convFakeRate");          m_convFakeRate->SetDirectory(0);
       m_convRecoEfficiency    = (TH1D*) m_rootFile->Get("Conversions/es2012c/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(0);
 
@@ -903,7 +903,7 @@ namespace AtlasRoot {
       m_dX_PSAcc_LAr = (TH1D*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errLAr");    m_dX_PSAcc_LAr->SetDirectory(0);   // old one
       m_dX_PSAcc_G4  = (TH1D*) m_rootFile->Get("Material/Measured/DXerr_PSAcc_NewG_errG4");     m_dX_PSAcc_G4->SetDirectory(0);    // old one
 
-      m_convRadius            = (TH1D*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(0);          // old one
+      m_convRadius            = (TH2D*) m_rootFile->Get("Conversions/es2012c/convRadiusMigrations");  m_convRadius->SetDirectory(0);          // old one
       m_convFakeRate          = (TH1D*) m_rootFile->Get("Conversions/es2012c/convFakeRate");          m_convFakeRate->SetDirectory(0);        // old one
       m_convRecoEfficiency    = (TH1D*) m_rootFile->Get("Conversions/es2012c/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(0);  // old one
 
@@ -993,11 +993,11 @@ namespace AtlasRoot {
     m_matConvertedScale.push_back( (TH1D*) m_rootFile->Get("Material/convertedBiasSubtracted_ConfigFpMX") );
     m_matConvertedScale.push_back( (TH1D*) m_rootFile->Get("Material/convertedBiasSubtracted_ConfigGp") );
 
-    m_matElectronCstTerm.push_back( (TH1D*) m_rootFile->Get("Material/electronCstTerm_ConfigA") );
-    m_matElectronCstTerm.push_back( (TH1D*) m_rootFile->Get("Material/electronCstTerm_ConfigCpDp") );
-    m_matElectronCstTerm.push_back( (TH1D*) m_rootFile->Get("Material/electronCstTerm_ConfigEpLp") );
-    m_matElectronCstTerm.push_back( (TH1D*) m_rootFile->Get("Material/electronCstTerm_ConfigFpMX") );
-    m_matElectronCstTerm.push_back( (TH1D*) m_rootFile->Get("Material/electronCstTerm_ConfigGp") );
+    m_matElectronCstTerm.push_back( (TH1F*) m_rootFile->Get("Material/electronCstTerm_ConfigA") );
+    m_matElectronCstTerm.push_back( (TH1F*) m_rootFile->Get("Material/electronCstTerm_ConfigCpDp") );
+    m_matElectronCstTerm.push_back( (TH1F*) m_rootFile->Get("Material/electronCstTerm_ConfigEpLp") );
+    m_matElectronCstTerm.push_back( (TH1F*) m_rootFile->Get("Material/electronCstTerm_ConfigFpMX") );
+    m_matElectronCstTerm.push_back( (TH1F*) m_rootFile->Get("Material/electronCstTerm_ConfigGp") );
 
     m_matX0Additions.push_back( (TH1D*) m_rootFile->Get("Material/DX0_ConfigA") );
     m_matX0Additions.push_back( (TH1D*) m_rootFile->Get("Material/DX0_ConfigCpDp") );

@@ -26,8 +26,8 @@ namespace dqi {
 
 HanAlgorithmConfig::
 HanAlgorithmConfig( const HanConfigAssessor& hca, TFile* config )
-  : file(config)
-  , ref(0)
+  : m_file(config)
+  , m_ref(0)
 {
   CopyAlgConfig( hca );
 }
@@ -38,11 +38,11 @@ HanAlgorithmConfig( TObject* reference,
 		    const std::map< std::string, double >& greenThresholds,
 		    const std::map< std::string, double >& redThresholds,
 		    const HanConfigAssessor* hca)
-    : file(0)
-    , ref(reference)
-    , pars(parameters)
-    , grthr(greenThresholds)
-    , rdthr(redThresholds)
+    : m_file(0)
+    , m_ref(reference)
+    , m_pars(parameters)
+    , m_grthr(greenThresholds)
+    , m_rdthr(redThresholds)
     , m_hca(hca)
 {
 }
@@ -50,7 +50,7 @@ HanAlgorithmConfig( TObject* reference,
 HanAlgorithmConfig::
 ~HanAlgorithmConfig()
 {
-  delete ref;
+  delete m_ref;
 }
 
 
@@ -59,8 +59,8 @@ HanAlgorithmConfig::
 getReference() const
 throw (dqm_core::BadConfig)
 {
-  if (ref) { 
-    TObject* rv = ref->Clone();
+  if (m_ref) { 
+    TObject* rv = m_ref->Clone();
     if (rv) {
       return rv;
     } else {
@@ -79,7 +79,7 @@ const std::map< std::string, double >&
 HanAlgorithmConfig::
 getParameters() const
 {
-  return pars;
+  return m_pars;
 }
 
 
@@ -87,7 +87,7 @@ const std::map< std::string, double >&
 HanAlgorithmConfig::
 getGreenThresholds() const
 {
-  return grthr;
+  return m_grthr;
 }
 
 
@@ -95,7 +95,7 @@ const std::map< std::string, double >&
 HanAlgorithmConfig::
 getRedThresholds() const
 {
-  return rdthr;
+  return m_rdthr;
 }
 
 
@@ -118,7 +118,7 @@ CopyAlgConfig( const HanConfigAssessor& hca )
   while( (par = dynamic_cast<HanConfigAlgPar*>( nextPar() )) != 0 ) {
     parName = std::string( par->GetName() );
     ParsVal_t parMapVal( parName, par->GetValue() );
-    pars.insert( parMapVal );
+    m_pars.insert( parMapVal );
   }
   
   std::string limName;
@@ -127,19 +127,19 @@ CopyAlgConfig( const HanConfigAssessor& hca )
   while( (lim = dynamic_cast<HanConfigAlgLimit*>( nextLim() )) != 0 ) {
     limName = std::string( lim->GetName() );
     ThrVal_t greenMapVal( limName, lim->GetGreen() );
-    grthr.insert( greenMapVal );
+    m_grthr.insert( greenMapVal );
     ThrVal_t redMapVal( limName, lim->GetRed() );
-    rdthr.insert( redMapVal );
+    m_rdthr.insert( redMapVal );
   }
   
   std::string refName( hca.GetAlgRefName() );
   if( refName != "" ) {
-    TKey* key = dqi::getObjKey( file, refName );
+    TKey* key = dqi::getObjKey( m_file, refName );
     if (key == NULL) {
       std::cout << "ERROR: can't find reference " << refName << std::endl;
     } else {
-      ref = key->ReadObj();
-      //ref = file->Get(refName.c_str());
+      m_ref = key->ReadObj();
+      //m_ref = m_file->Get(refName.c_str());
     }
   }
 }

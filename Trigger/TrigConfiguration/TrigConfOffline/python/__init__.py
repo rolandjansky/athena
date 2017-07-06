@@ -2,14 +2,13 @@ __version__ = '1.0.0'
 __author__  = 'Joerg Stelzer <joerg.stelzer@cern.ch>'
 __all__ = [ 'TrigConf', 'l1menuloader', 'hltmenuloader' ]
 
-import ROOT, PyCintex
-PyCintex.Cintex.Enable()
+import cppyy
 
-PyCintex.loadDictionary("libTrigConfL1DataDict")
-PyCintex.loadDictionary("libTrigConfHLTDataDict")
-PyCintex.loadDictionary("libTrigConfStorageDict")
+cppyy.loadDictionary("libTrigConfL1DataDict")
+cppyy.loadDictionary("libTrigConfHLTDataDict")
+cppyy.loadDictionary("libTrigConfStorageDict")
 
-TrigConf = PyCintex.makeNamespace('TrigConf')
+TrigConf = cppyy.makeNamespace('TrigConf')
 
 # modify a few functions
 TrigConf.Menu.items = TrigConf.Menu.itemsV

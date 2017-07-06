@@ -49,8 +49,6 @@ class T2CaloCosmic: public T2CaloBase {
 
   private:
 
-    /** log output cached to avoid fetching MsgStream once per RoI */
-    MsgStream* m_log;
     /** Monitoring Tool */
     // T2CaloEgammaMon* m_monitoring;
     /** To support new monitoring. Values must be copied to
@@ -64,8 +62,6 @@ class T2CaloCosmic: public T2CaloBase {
     float m_l1eta;
     /** Forced LVL1 phi */
     float m_l1phi;
-
-    int m_index;
 
     // Properties:
     std::string m_trigEmClusterKey;

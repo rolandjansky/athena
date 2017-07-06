@@ -20,7 +20,6 @@ endif()
 atlas_depends_on_subdirs(
    PUBLIC
    Control/AthToolSupport/AsgTools
-   DataQuality/GoodRunsLists
    Event/xAOD/xAODMuon
    Event/xAOD/xAODJet
    Event/xAOD/xAODBTagging
@@ -37,6 +36,7 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/AnalysisCommon/PATCore
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/AnalysisCommon/PileupReweighting
+   PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
    PhysicsAnalysis/ElectronPhotonID/ElectronEfficiencyCorrection
    PhysicsAnalysis/ElectronPhotonID/ElectronPhotonFourMomentumCorrection
    PhysicsAnalysis/ElectronPhotonID/IsolationCorrections
@@ -50,7 +50,6 @@ atlas_depends_on_subdirs(
    Reconstruction/Jet/JetUncertainties
    Reconstruction/Jet/JetCalibTools
    Reconstruction/Jet/JetInterface
-   Reconstruction/Jet/JetJvtEfficiency
    Reconstruction/MET/METInterface
    Reconstruction/MET/METUtilities
    Trigger/TrigAnalysis/TrigDecisionTool
@@ -75,7 +74,7 @@ atlas_add_library( CPAnalysisExamplesLib
    CPAnalysisExamples/*.h Root/*.cxx ${CPAnalysisExamplesLibCintSource}
    PUBLIC_HEADERS CPAnalysisExamples
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools GoodRunsListsLib
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools 
    xAODMuon xAODJet xAODBTagging xAODCore xAODEgamma xAODMissingET
    xAODPrimitives xAODTau xAODTracking xAODTruth xAODEventInfo
    AssociationUtilsLib IsolationSelectionLib PATCoreLib PATInterfaces
@@ -84,7 +83,7 @@ atlas_add_library( CPAnalysisExamplesLib
    JetSelectorToolsLib xAODBTaggingEfficiencyLib MuonEfficiencyCorrectionsLib
    MuonMomentumCorrectionsLib MuonSelectorToolsLib TauAnalysisToolsLib
    JetResolutionLib JetUncertaintiesLib JetCalibToolsLib JetInterface
-   JetJvtEfficiencyLib METInterface METUtilitiesLib TrigDecisionToolLib
+   METInterface METUtilitiesLib TrigDecisionToolLib
    TriggerMatchingToolLib ${extra_libs}
    PRIVATE_LINK_LIBRARIES xAODBase xAODMetaData )
 
@@ -165,6 +164,7 @@ else()
    atlas_add_test( ut_ath_checkTrigger_test
       SOURCES test/ut_ath_checkTrigger_test.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      PROPERTIES TIMEOUT 300
       LINK_LIBRARIES ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib POOLRootAccess
       GaudiKernel AsgTools TrigDecisionToolLib )
 endif()

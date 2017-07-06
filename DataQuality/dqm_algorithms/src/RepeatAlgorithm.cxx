@@ -29,14 +29,14 @@ namespace dqm_algorithms{
 
 RepeatAlgorithm::
 RepeatAlgorithm( const RepeatAlgorithm& ) :
-  subalg_() {
+  m_subalg() {
 }  
 
 RepeatAlgorithm& 
 RepeatAlgorithm::
 operator=(const RepeatAlgorithm& other) {
   if (this != &other) {
-    subalg_ = other.subalg_;
+    m_subalg = other.m_subalg;
   }
   return *this;
 }
@@ -82,11 +82,11 @@ execute( const std::string& name, const TObject& data, const dqm_core::Algorithm
   std::map<std::string,double> tags;
   std::unique_ptr<TObjArray> returnObjs(new TObjArray);
 
-  if (!subalg_.get()) {
+  if (!m_subalg.get()) {
     // rely on requested subalg not changing over time
     std::string subalgname(dqm_algorithms::tools::ExtractAlgorithmName(config));
     try {
-      subalg_.reset(dqm_core::AlgorithmManager::instance().getAlgorithm(subalgname));
+      m_subalg.reset(dqm_core::AlgorithmManager::instance().getAlgorithm(subalgname));
     }
     catch (dqm_core::Exception& ex) {
       throw dqm_core::BadConfig( ERS_HERE, "RepeatAlgorithm", ex.what(), ex );
@@ -105,7 +105,7 @@ execute( const std::string& name, const TObject& data, const dqm_core::Algorithm
   TIter itr(listptr);
   while ( TObject* ireference = itr.Next() ) {
     boost::scoped_ptr<dqm_core::AlgorithmConfig> subConfig(ConfigureSubAlg(config, ireference));
-    dqm_core::Result* subResult = subalg_->execute( name, data, *subConfig );
+    dqm_core::Result* subResult = m_subalg->execute( name, data, *subConfig );
     if( subResult->status_ != dqm_core::Result::Undefined ) {
       status = ( status == dqm_core::Result::Undefined ) ? dqm_core::Result::Green : status;
       status = ( subResult->status_ < status ) ? subResult->status_ : status;

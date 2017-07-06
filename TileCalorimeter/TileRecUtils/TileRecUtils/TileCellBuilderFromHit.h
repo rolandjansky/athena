@@ -108,10 +108,8 @@ class TileCellBuilderFromHit: public AthAlgTool, virtual public ICaloCellMakerTo
     float m_maxTime;              //!< maximum time for the PMTs in the cels
     float m_minTime;              //!< minimum time for the PMTs in the cels
     bool m_maskBadChannels;      //!< if true=> bad channels are masked
-    bool m_fakeCrackCells;       //!< if true=> fake E3/E4 cells added
     bool m_useNoiseTool;         //!< if true=> add noise to all cells
     float m_noiseSigma;          //!< cell electroing noise if the CaloNoiseTool is switched off 
-    float m_channelNoiseSigma;   //!< cell electroing noise divided by sqrt(2.);
 
     const TileID* m_tileID;   //!< Pointer to TileID
     const TileTBID* m_tileTBID; //!< Pointer to TileTBID
@@ -136,9 +134,7 @@ class TileCellBuilderFromHit: public AthAlgTool, virtual public ICaloCellMakerTo
     TileCellContainer* m_E4prCells;     //!< Pointer to E4'  cell container
 
     TileFragHash::TYPE m_RChType;        //!< Type of TileRawChannels (Fit, OF2, etc.)
-    TileRawChannelUnit::UNIT m_RChUnit;  //!< Unit for TileRawChannels (ADC, pCb, etc.)
     //unsigned int m_bsflags;              //!< other flags stored in TileRawChannelContainer
-    float m_maxTimeCorr;                 //!< max possible time when time correction is applied
 
     TileDrawerEvtStatus m_drawerEvtStatus[5][64]; //!< status of every drawer in every event
     TileDrawerRunStatus m_drawerRunStatus[5][64]; //!< overall status of drawer in whole run
@@ -160,17 +156,17 @@ class TileCellBuilderFromHit: public AthAlgTool, virtual public ICaloCellMakerTo
     int m_RUN2;
     int m_E1_TOWER;
 
-    static const int nSide = 2;
-    static const int nPhi = 8;
-    static const int nEta = 2;
-    static const int nCellMBTS = nSide * nPhi * nEta;
+    static const int NSIDE = 2;
+    static const int NPHI = 8;
+    static const int NETA = 2;
+    static const int NCELLMBTS = NSIDE * NPHI * NETA;
     inline int mbts_index(int side, int phi, int eta) const {
-      return (side * nPhi + phi) * nEta + eta;
+      return (side * NPHI + phi) * NETA + eta;
     }
-    static const int E4side = -1;
-    static const int E4eta  = 2;
-    static const int E4nPhi = 4;
-    static const int nCellE4pr = E4nPhi;
+    static const int E4SIDE = -1;
+    static const int E4ETA  = 2;
+    static const int E4NPHI = 4;
+    static const int NCELLE4PR = E4NPHI;
     inline int e4pr_index(int phi) const {
       return  phi;
     }

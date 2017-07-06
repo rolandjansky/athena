@@ -655,9 +655,8 @@ Trk::Extrapolator::extrapolate(const IPropagator &prop,
 
     // MS specific code ------------------
     // extrapolation within detached volumes - returns parameters on destination surfaces, or boundary solution
-    // handles also dense volume description : for the moment, only Calo included
-    if (nextVolume->geometrySignature() == Trk::MS ||
-        (m_useDenseVolumeDescription && nextVolume->geometrySignature() == Trk::Calo)) {
+    // handles also dense volume description in Calo and beam pipe
+    if ( nextVolume->geometrySignature()>1 ) {
       if (m_parametersAtBoundary.navParameters &&
           m_parametersAtBoundary.navParameters != m_parametersAtBoundary.nextParameters) {
         // extrapolate to volume boundary to avoid navigation break
@@ -679,20 +678,20 @@ Trk::Extrapolator::extrapolate(const IPropagator &prop,
       }
       // start from the nextParameter (which are at volume boundary)
       if (nextParameters) {
-        if (!m_stepPropagator) {
-          ATH_MSG_ERROR("extrapolation in Calo/MS called without configured STEP propagator, aborting");
-          return 0;
-        }
-        resultParameters = extrapolateWithinDetachedVolumes(*m_stepPropagator,
-                                                            *nextParameters,
-                                                            sf,
-                                                            *nextVolume,
-                                                            dir,
-                                                            bcheck,
-                                                            particle,
-                                                            matupmode);
+		  if (!m_stepPropagator) { 
+		    ATH_MSG_ERROR("extrapolation in Calo/MS called without configured STEP propagator, aborting"); 
+		    return 0;  
+		  }  
+		  resultParameters = extrapolateWithinDetachedVolumes(*m_stepPropagator,
+								      *nextParameters,
+								      sf,
+								      *nextVolume,
+								      dir,
+								      bcheck,
+								      particle,
+								      matupmode);
       }
-      if (resultParameters) {
+      if (resultParameters){   
         // destination reached : indicated through result parameters
         // set the model action of the material effects updators
         for (unsigned int imueot = 0; imueot < m_subUpdators.size(); ++imueot) {
@@ -750,19 +749,23 @@ Trk::Extrapolator::extrapolate(const IPropagator &prop,
     // -------------------------------------------------------------------------------------------------------
     // (1) NAVIGATION BREAK : next Volume is identical to last volume -- LOOP
     if (nextVolume == lastVolume && nextVolume) {
+      // ST false when crossing beam pipe : additional check on step distance    
+      if (nextParameters && lastParameters && 
+	  (nextParameters->position()-lastParameters->position()).dot(lastParameters->momentum().normalized())*dir > 0.001 ) { 
+      } else {
       // output
-      ATH_MSG_DEBUG("  [X] Navigation break [X]");
-      ATH_MSG_DEBUG("          - Reason      : Loop detected in TrackingVolume '" << nextVolume->volumeName() << "'");
-      // statistics
-      ++m_navigationBreakLoop;
-      // record the oscillation volume -- increase the counter for the volume
-      if (m_navigationBreakDetails) {
-        ++m_loopVolumes[nextVolume];
+        ATH_MSG_DEBUG( "  [X] Navigation break [X]"  );
+        if (nextParameters && lastParameters) ATH_MSG_DEBUG("last step:"<<(nextParameters->position()-lastParameters->position()).mag());
+	ATH_MSG_DEBUG( "          - Reason      : Loop detected in TrackingVolume '"<< nextVolume->volumeName() << "'"  );         
+	// statistics
+	++m_navigationBreakLoop;
+	// record the oscillation volume -- increase the counter for the volume
+	if (m_navigationBreakDetails) ++m_loopVolumes[nextVolume];
+	// fallback flag
+	fallback = true;
+	// break it
+	break;
       }
-      // fallback flag
-      fallback = true;
-      // break it
-      break;
     }
     // (2) NAVIGATION BREAK : Oscillation
     else if (nextVolume == previousVolume && nextVolume) {
@@ -3169,7 +3172,7 @@ Trk::Extrapolator::extrapolateToVolumeBoundary(const IPropagator &prop,
                                                ) const {
   // ---> C) detached volumes exist
   if (tvol.confinedDetachedVolumes()) {
-    ATH_MSG_ERROR("  [!] toVolumeBoundaryDetachedVolumes(...) with confined detached volumes? This should not happen ! ");
+    ATH_MSG_WARNING("  [!] toVolumeBoundaryDetachedVolumes(...) with confined detached volumes? This should not happen ! volume name and signature: "<<tvol.volumeName()  <<":"<<tvol.geometrySignature() ); 
   }
   // ---> A) static layers exist
   if (insideVolumeStaticLayers(true, prop, parm, assLayer, tvol, dir, bcheck, particle,

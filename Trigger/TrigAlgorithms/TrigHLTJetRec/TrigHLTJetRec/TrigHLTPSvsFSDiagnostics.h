@@ -40,11 +40,11 @@ public:
   void jetsCheck();
   
 private:
-  TFile* fOut;
+  TFile* m_fOut;
   std::string m_chainName;
-  std::map<TString,TH1D*>     hMap1D;
-  std::map<TString,TH2D*>     hMap2D;
-  std::map<TString,TProfile*> hMapProf;
+  std::map<TString,TH1D*>     m_hMap1D;
+  std::map<TString,TH2D*>     m_hMap2D;
+  std::map<TString,TProfile*> m_hMapProf;
   
   int          m_event;
   float        m_hypoEt;

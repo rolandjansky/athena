@@ -92,6 +92,7 @@ int usage(const std::string& name, int status) {
   s << "         --deleteref          \t delete unused reference histograms\n";
   s << "    -xo, --xoffset            \t relative x offset for the key\n"; 
   s << "    -yp, --ypos               \t relative yposition for the key\n"; 
+  s << "    -ac, --addchains          \t if possible, add chain names histogram labels \n";   
   s << "    -xe, --xerror value       \t size of the x error tick marks\n"; 
   //  s << "         --fe,            \t relative x offset for the key\n"; 
   s << "    -h,  --help              \t this help\n";
@@ -220,7 +221,9 @@ int main(int argc, char** argv) {
   bool normref     = false;
   bool scalepix    = true;
   bool oldrms      = false;
-  
+  bool addchains   = false;
+
+
   double xerror    = 0;
 
   std::string atlaslabel = "Internal";
@@ -291,6 +294,9 @@ int main(int argc, char** argv) {
     }
     else if ( arg=="--unscalepix" ) { 
       scalepix = false;
+    }
+    else if ( arg=="-ac" || arg=="--addchains" ) { 
+      addchains = true;
     }
     else if ( arg=="-yrange" ) { 
       effset = true;
@@ -506,7 +512,7 @@ int main(int argc, char** argv) {
       for (unsigned int i=0; i<dataTree->GetEntries() ; i++ ) {
 	dataTree->GetEntry(i);      
 	release_data.push_back( releaseData->Data() );
-	std::cout << "main() release data: " << release_data.back() << " " << *releaseData << std::endl;
+	std::cout << "main() release data: " << release_data.back() << " : " << *releaseData << std::endl;
       }
     }
   
@@ -517,8 +523,17 @@ int main(int argc, char** argv) {
       //    std::cout << "release: " << chop(release_data[0], " " ) << std::endl;
       //    std::cout << "release: " << chop(release_data[0], " " ) << std::endl;
       
-      release += "  (" + chop(release_data[0], " " );
-      release += " " + chop(release_data[0], " " ) + ")";
+      std::string nightly = chop(release_data[0], " " );
+
+      if ( contains(nightly,"private" ) ) { 
+	for ( int ic=0 ; ic<4 ; ic++ ) chop(release_data[0], " " );
+	release += "  (" + release_data[0]+")"; 
+      }
+      else {
+	release += "  (" + nightly; 
+	chop( release_data[0], " " );
+	release += " " + chop(release_data[0], " " ) + ")";
+      }
     }
   }
   
@@ -631,8 +646,10 @@ int main(int argc, char** argv) {
     //  { "pT",  "p_{T}",     "xaxis:lin:0.7:100",  "Offline p_{T} [GeV]",   "yaxis:log:auto",  ""  },
     { "pT",      "p_{T}",     "xaxis:lin:auto:1:100",     "Offline p_{T} [GeV]",   "yaxis:log:auto",  ""  },
     { "pT_rec",  "p_{T} rec", "xaxis:lin:auto:1:100",   "Trigger p_{T} [GeV]",   "yaxis:log:auto",  ""  },
-    { "a0",      "a0",        "xaxis:lin:-2:2",     "Offline a_{0} [mm]",    "yaxis:log:auto",  ""  },
-    { "a0_rec",  "a0 rec",    "xaxis:lin:-2:2",     "Trigger a_{0} [mm]",    "yaxis:log:auto",  ""  },
+    { "a0",      "a0",        "xaxis:lin:-3:3",     "Offline a_{0} [mm]",    "yaxis:log:auto",  ""  },
+    { "a0_rec",  "a0 rec",    "xaxis:lin:-3:3",     "Trigger a_{0} [mm]",    "yaxis:log:auto",  ""  },
+    //{ "a0",      "a0",        "xaxis:lin:autosym",     "Offline a_{0} [mm]",    "yaxis:log:auto",  ""  },
+    //{ "a0_rec",  "a0 rec",    "xaxis:lin:autosym",     "Trigger a_{0} [mm]",    "yaxis:log:auto",  ""  },
     { "z0",      "z0",        "xaxis:lin:-250:250", "z_{0} [mm]",            "yaxis:log:auto",  ""  },
 
     /// efficiencies - 10 
@@ -1087,6 +1104,22 @@ int main(int argc, char** argv) {
 
     for ( unsigned int j=0; j<chains.size(); j++)  {
 
+      /// get the actual chain name and track collection from 
+      /// the Chain histogram if present
+      
+      std::string chain_name = "";
+
+      if ( addchains && ( contains(chains[j],"Shifter") || !contains(chains[j],"HLT_") ) ) { 
+	TH1F* hchain = (TH1F*)ftest.Get((chains[j]+"/Chain").c_str()) ;
+	if ( hchain ) { 
+	  std::string name = hchain->GetTitle();
+	  while ( contains( name, "HLT_" ) ) name = name.erase( name.find("HLT_"), 4 );
+	  if ( contains( name, ":" ) )  chain_name = name.substr( 0, name.find(":") ) + " : ";
+	  else                          chain_name = name;
+	}
+      }
+      
+
       noreftmp = noref;
       Plotter::setplotref(!noreftmp);
 
@@ -1485,8 +1518,8 @@ int main(int argc, char** argv) {
       //      std::cout << "adding plot " << histos[i] << " " << htest->GetName() << std::endl;
 
       if ( fulldbg ) std::cout << __LINE__ << std::endl;
-
-      if ( uselabels )  plots.push_back( Plotter( htest, href, usrlabels[j], tgtest ) );
+      
+      if ( uselabels )  plots.push_back( Plotter( htest, href, chain_name+usrlabels[j], tgtest ) );
       else              plots.push_back( Plotter( htest, href, c, tgtest ) );
 
       if ( fulldbg ) std::cout << __LINE__ << std::endl;

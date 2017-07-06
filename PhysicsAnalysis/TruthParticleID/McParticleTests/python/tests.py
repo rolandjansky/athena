@@ -23,6 +23,7 @@ def makeGenEvents( genName    = "Pythia",
             raise err
         
         genAlg = Pythia(cfgGenName)
+        genAlg.Tune_Name='ATLAS_20110103'
         if genProcess == "Z+j":
             genAlg.PythiaCommand = [ "pysubs msel 13",
                                      "pysubs ckin 3 18.",

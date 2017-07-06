@@ -20,10 +20,10 @@
 
 #include "VP1Base/VP1HelperClassBase.h"
 
-#include <QtCore/QByteArray>
-#include <QtCore/QList>
-#include <QtCore/QMap>
-#include <QtCore/QString>
+#include <QByteArray>
+#include <QList>
+#include <QMap>
+#include <QString>
 class QWidget;
 
 typedef QMap<QByteArray,QByteArray> VP1CollStates;//persistifiable id->state

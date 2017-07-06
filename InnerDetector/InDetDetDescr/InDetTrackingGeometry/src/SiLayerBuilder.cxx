@@ -173,14 +173,14 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
   const InDetDD::SiNumerology& siNumerology = m_siMgr->numerology();     
     
   // pre-set parameters for the run
-  size_t m_barrelLayers = 0;
+  size_t barrelLayers = 0;
   // save way to estimate the number of barrel layers : they can be deactivated hence the useLayer(i) check
   for (int i = 0; i < siNumerology.numLayers(); i++)
-       if (siNumerology.useLayer(i)) m_barrelLayers++;
+       if (siNumerology.useLayer(i)) barrelLayers++;
   
 
   // screen output
-  ATH_MSG_DEBUG( "Configured to build " << m_barrelLayers << " (active) barrel layers (out of " << siNumerology.numLayers() << " )" );
+  ATH_MSG_DEBUG( "Configured to build " << barrelLayers << " (active) barrel layers (out of " << siNumerology.numLayers() << " )" );
   if (m_barrelAdditionalLayerR.size())
       ATH_MSG_DEBUG( "Additionally " <<  m_barrelAdditionalLayerR.size() << " material layers will be built.");  
       
@@ -189,19 +189,19 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
       ATH_MSG_DEBUG( "[ Split mode ] Some layers may be cached." );
         
   // for barrels (the statistics for ordering the modules)
-  std::vector<double>                                               layerRadius(m_barrelLayers,0.);
-  std::vector<double>                                               layerRmin(m_barrelLayers,10e10);
-  std::vector<double>                                               layerRmax(m_barrelLayers,0.);
-  std::vector<double>                                               layerThickness(m_barrelLayers,0.);
-  std::vector<double>                                               layerMinZ(m_barrelLayers,0.);
-  std::vector<double>                                               layerMaxZ(m_barrelLayers,0.);
-  std::vector<double>                                               layerHalfLength(m_barrelLayers,0.);
-  std::vector<double>                                               layerMinPhi(m_barrelLayers,0.);
-  std::vector<double>                                               layerMaxPhi(m_barrelLayers,0.);
-  std::vector<size_t>                                               layerPhiSectors(m_barrelLayers,0);
-  std::vector<size_t>                                               layerZsectors(m_barrelLayers,0);
-  std::vector< std::vector<float> >                                 layerZboundaries(m_barrelLayers, std::vector<float>());
-  std::vector< std::vector< Trk::SurfaceOrderPosition > >           layerSurfaces(m_barrelLayers, std::vector< Trk::SurfaceOrderPosition >());
+  std::vector<double>                                               layerRadius(barrelLayers,0.);
+  std::vector<double>                                               layerRmin(barrelLayers,10e10);
+  std::vector<double>                                               layerRmax(barrelLayers,0.);
+  std::vector<double>                                               layerThickness(barrelLayers,0.);
+  std::vector<double>                                               layerMinZ(barrelLayers,0.);
+  std::vector<double>                                               layerMaxZ(barrelLayers,0.);
+  std::vector<double>                                               layerHalfLength(barrelLayers,0.);
+  std::vector<double>                                               layerMinPhi(barrelLayers,0.);
+  std::vector<double>                                               layerMaxPhi(barrelLayers,0.);
+  std::vector<size_t>                                               layerPhiSectors(barrelLayers,0);
+  std::vector<size_t>                                               layerZsectors(barrelLayers,0);
+  std::vector< std::vector<float> >                                 layerZboundaries(barrelLayers, std::vector<float>());
+  std::vector< std::vector< Trk::SurfaceOrderPosition > >           layerSurfaces(barrelLayers, std::vector< Trk::SurfaceOrderPosition >());
  
   // cache needed
   double minHalflengthZ         = 10e10;

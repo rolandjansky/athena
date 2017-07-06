@@ -19,11 +19,13 @@ class  ConfiguredInDetTrackTruth:
         #
         from AthenaCommon.AppMgr                import ToolSvc
         from AthenaCommon.AlgSequence           import AlgSequence
+        from RecExConfig.hideInput              import hideInput
         topSequence = AlgSequence()
         #
         # --- Enable the detailed track truth
         #
         from InDetTruthAlgs.InDetTruthAlgsConf import InDet__InDetDetailedTrackTruthMaker
+        hideInput ('DetailedTrackTruthCollection', DetailedTruth)
         DetailedTruthMaker = InDet__InDetDetailedTrackTruthMaker(name                   = DetailedTruth+"Maker",
                                                                  TrackCollectionName    = Tracks,
                                                                  DetailedTrackTruthName = DetailedTruth,

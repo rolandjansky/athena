@@ -3,8 +3,6 @@
 # File: StoreGate/python/Bindings.py
 # Author: Wim Lavrijsen <WLavrijsen@lbl.gov>
 
-import PyCintex
-
 ### data
 __version__ = '2.0.0'
 __author__  = 'Wim Lavrijsen (WLavrijsen@lbl.gov)'

@@ -255,14 +255,14 @@ StatusCode  GlobalTriggerTagTool::execute(TagFragmentCollection& globalTriggerTa
   else {
     globalTriggerTag.insert( m_lv1StrType[0], eventInfo->level1TriggerType() );
     // Put stream decisions into a bit mask
-    unsigned int stream = 0;
+    uint64_t stream = 0;
 
     for (const auto& STit :  eventInfo->streamTags()) {
       // check if stream is in list, if not add it, otherwise increment it
       std::map<std::string,unsigned int>::const_iterator bitshift = m_TDTstreamMap.find(STit.name());
       if (bitshift != m_TDTstreamMap.end()) {
-         ATH_MSG_DEBUG("Insertting for " << STit.name());
-         stream += 1 << bitshift->second;
+         ATH_MSG_DEBUG("Inserting for " << STit.name());
+         stream += 1ULL << bitshift->second;
       }
       else {
         ATH_MSG_WARNING("StreamTag " << STit.name() << " not found in StreamMap from TDT");
@@ -333,7 +333,7 @@ StatusCode  GlobalTriggerTagTool::execute(TagFragmentCollection& globalTriggerTa
  
 
   // Put stream decisions into a bit mask
-  unsigned int stream = 0;
+  uint64_t stream = 0;
   //std::vector<TriggerInfo::StreamTag>::const_iterator STit  = eventInfo->streamTags().begin();
   //std::vector<TriggerInfo::StreamTag>::const_iterator STend = eventInfo->streamTags().end();
   //while (STit != STend) {
@@ -342,8 +342,8 @@ StatusCode  GlobalTriggerTagTool::execute(TagFragmentCollection& globalTriggerTa
     // check if stream is in list, if not add it, otherwise increment it
     std::map<std::string,unsigned int>::const_iterator bitshift = m_TDTstreamMap.find(STit.name());
     if (bitshift != m_TDTstreamMap.end()) {
-       ATH_MSG_DEBUG("Insertting for " << STit.name());
-       stream += 1 << bitshift->second;
+       ATH_MSG_DEBUG("Inserting for " << STit.name());
+       stream += 1ULL << bitshift->second;
     }
     else {
        ATH_MSG_WARNING("StreamTag " << STit.name() << " not found in StreamMap from TDT");

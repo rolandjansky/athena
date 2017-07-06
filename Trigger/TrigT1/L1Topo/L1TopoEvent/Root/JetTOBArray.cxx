@@ -12,7 +12,7 @@
 TCS::JetTOBArray::JetTOBArray(const std::string & name, unsigned int reserve) :
    InputTOBArray(name),
    DataArrayImpl<JetTOB>(reserve)
-{};
+{}
 
 
 TCS::TOBArray

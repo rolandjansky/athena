@@ -40,6 +40,11 @@ namespace SG {
  * a Handle should not be passed between threads, and Handle objects
  * should not exist across any point where the current store/Arena
  * may be changed.
+ *
+ * A Handle also holds a lock on its associated allocator.
+ * Therefore, if you try to create two handle instances referencing the
+ * same allocator (i.e, same type and same thread), you'll get a deadlock.
+ *
  * Multiple Handle implementations may be available, implementing
  * different strategies for initializing the elements.
  *

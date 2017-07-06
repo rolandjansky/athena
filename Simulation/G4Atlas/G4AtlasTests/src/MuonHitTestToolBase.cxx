@@ -72,7 +72,7 @@ StatusCode MuonHitTestToolBase::executeCheckEventInfo()
 StatusCode  MuonHitTestToolBase::executeFillHistos(const Amg::Vector3D & u) {
   ///for MDTs that have barrel + endcap section, take only the barrel when plotting the xy-2d plot of the detector
 
-  if (fabs(m_direction.eta())<m_BarrelEtaCut){
+  if (m_direction.perp() > 0 && fabs(m_direction.eta())<m_BarrelEtaCut){
     //mdtdet->Fill(u.x(),u.y());
     m_muondetBarrel->Fill(u.x(),u.y());
     m_detBarrel->Fill(u.x(),u.y());
@@ -91,11 +91,19 @@ StatusCode  MuonHitTestToolBase::executeFillHistos(const Amg::Vector3D & u) {
   // phi->Fill(m_direction.phi());
   // phi->Fill(m_direction.phi());
 
-  m_muonzResid->Fill(u.cross(m_direction).dot(m_direction.cross(Amg::Vector3D(0,0,1)).unit()));
-  m_muonphiResid->Fill(u.cross(m_direction).z());
+  if (m_direction.perp() > 0) {
+    m_muonzResid->Fill(u.cross(m_direction).dot(m_direction.cross(Amg::Vector3D(0,0,1)).unit()));
+    m_muonphiResid->Fill(u.cross(m_direction).z());
 
-  m_zResid->Fill(u.cross(m_direction).dot(m_direction.cross(Amg::Vector3D(0,0,1)).unit()));
-  m_phiResid->Fill(u.cross(m_direction).z());
+    m_zResid->Fill(u.cross(m_direction).dot(m_direction.cross(Amg::Vector3D(0,0,1)).unit()));
+    m_phiResid->Fill(u.cross(m_direction).z());
+  }
+  else {
+    m_muonzResid->Fill(0);
+    m_muonphiResid->Fill(0);
+    m_zResid->Fill(0);
+    m_phiResid->Fill(0);
+  }
 
   return StatusCode::SUCCESS;
 }

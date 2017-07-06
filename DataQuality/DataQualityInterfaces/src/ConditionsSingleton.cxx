@@ -3,6 +3,8 @@
 */
 
 #include "DataQualityInterfaces/ConditionsSingleton.h"
+#include "TMap.h"
+#include "TObjString.h"
 #include <iostream>
 #include <map>
 #include <sstream>
@@ -19,44 +21,65 @@ namespace{
   boost::mutex ConditionsSingletonMutex;
 }
 namespace dqi{
-  ConditionsSingleton* ConditionsSingleton::_instance = 0;
+  ConditionsSingleton* ConditionsSingleton::s_instance = 0;
   
   ConditionsSingleton::ConditionsCleanup::~ConditionsCleanup() {
     boost::mutex::scoped_lock guard(ConditionsSingletonMutex);
     
-    if (ConditionsSingleton::_instance)
+    if (ConditionsSingleton::s_instance)
       {
-	delete ConditionsSingleton::_instance;
-	ConditionsSingleton::_instance=0;
+	delete ConditionsSingleton::s_instance;
+	ConditionsSingleton::s_instance=0;
       }
   }
 
   ConditionsSingleton& ConditionsSingleton::getInstance(){
-    static ConditionsCleanup _Cleanup;
+    static ConditionsCleanup cleanup;
     if(true){
       boost::mutex::scoped_lock guard(ConditionsSingletonMutex);
-      if(!_instance){
-	_instance=new ConditionsSingleton();
+      if(!s_instance){
+	s_instance=new ConditionsSingleton();
       }
     }
-    return *_instance;
+    return *s_instance;
   }
 
   void ConditionsSingleton::setCondition(const std::string& cond){
-    currentConditions=cond;
+    m_currentConditions=cond;
   }
 
   std::string& ConditionsSingleton::getCondition(){
-    return currentConditions;
+    return m_currentConditions;
   }
   int ConditionsSingleton::getNumReferenceHistos(){
-    return numRefHisto;
+    return m_numRefHisto;
+  }
+
+  void ConditionsSingleton::setRefSourceMapping(const TMap* refsourcedata) {
+    if (! refsourcedata) {
+      std::cerr << "You are setting a bad refsourcedata! This will cause you trouble later!" << std::endl;
+    }
+    m_refsourcedata = refsourcedata;
+  }
+
+  std::string ConditionsSingleton::getRefSourceData(const std::string& rawref) {
+    if (! m_refsourcedata) {
+      // Suppress error message as it will occur in cases of backwards compatibility
+      // std::cerr << "Null refsourcedata: THIS IS REALLY BAD!!!" << std::endl;
+      return "";
+    }
+    const TObjString* value = dynamic_cast<TObjString*>(m_refsourcedata->GetValue(rawref.c_str()));
+    if (!value) {
+      std::cerr << "Unable to figure out refsource mapping: THIS IS ALSO REALLY BAD!!!" << std::endl;
+      return "";
+    }
+    return value->GetName();
   }
 
   std::string ConditionsSingleton::getNewRefHistoName(){
     std::stringstream oss;
-    oss<<"reference-"<<std::setfill('0')<<std::setw(9)<<numRefHisto;
-    numRefHisto++;
+    oss<<"reference-"<<std::setfill('0')<<std::setw(9)<<m_numRefHisto;
+    m_numRefHisto++;
     //std::cout<<__PRETTY_FUNCTION__<<"new histo name"<<oss.str()<<std::endl;
     return oss.str();
   }
@@ -269,11 +292,11 @@ namespace dqi{
       std::cerr<<"Warning new name of the reference is empty. Old name is \""<<oldName<<"\""<<std::endl;
       return;
     }
-    if(referenceMap.find(oldName)==referenceMap.end()){
-      referenceMap[oldName]=newName;
+    if(m_referenceMap.find(oldName)==m_referenceMap.end()){
+      m_referenceMap[oldName]=newName;
     }else{
       std::cerr<<"Warning reference \""<<oldName<<"\" is added to map before as \""
-	       << referenceMap[oldName]<<"\". New name is \""<<newName<<"\""<<std::endl;
+	       << m_referenceMap[oldName]<<"\". New name is \""<<newName<<"\""<<std::endl;
       return;
     }
   }
@@ -283,11 +306,11 @@ namespace dqi{
       std::cerr<<"Reference must have a name"<<std::endl;
       return newName;
     }
-    if(referenceMap.find(oldName)==referenceMap.end()){
+    if(m_referenceMap.find(oldName)==m_referenceMap.end()){
       if(!quiet)std::cerr<<"Non-existent reference\""<<oldName<<"\". Returning empty string"<<std::endl;
       return newName;
     }
-    return referenceMap[oldName];
+    return m_referenceMap[oldName];
   }
 
 }

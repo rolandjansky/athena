@@ -17,9 +17,6 @@
 #include "AthenaROOTAccess/DVCollectionProxy.h"
 #include "AthenaROOTAccess/TestTypes.h"
 #include "TInterpreter.h"
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
-#include "Cintex/Cintex.h"
-#endif
 #include <iostream>
 #include <cassert>
 
@@ -66,9 +63,6 @@ void test1()
 
 int main()
 {
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
-  ROOT::Cintex::Cintex::Enable();
-#endif
   gInterpreter->EnableAutoLoading();
 
   TClass::GetClass("DataVector<AthenaROOTAccess::DVCollectionProxyDummy>");

@@ -69,7 +69,6 @@ Muon::MuonTGMeasurementTool::MuonTGMeasurementTool(const std::string &type, cons
   m_ExtrapolatorName(" "),
   //m_assocMeasName("MuonTGMeasAssocAlg"),
   m_StoreGate(0),
-  m_extrapolator(0),
   m_alignedMode(true)
 {  
   declareInterface<Muon::IMuonTGMeasTool>(this);

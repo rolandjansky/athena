@@ -63,6 +63,10 @@ namespace SG {
  *
  * Note that most of the public interface for this class is inherited
  * from the base classes.
+ *
+ * Be aware that a handle holds a lock on the underlying allocator.
+ * Therefore, if you try to create two handle instances referencing
+ * the same allocator (i.e, same type and same thread), you'll get a deadlock.
  */
 template <class T, class ALLOC>
 class ArenaHandle

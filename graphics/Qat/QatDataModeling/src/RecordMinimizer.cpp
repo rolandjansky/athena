@@ -40,10 +40,12 @@ MinuitMeasurement getMeasurement(const HistogramManager *input, const std::strin
   const Table *parameters   = input->findTable("PARAMETERS");
   const Table *covariance   = input->findTable("COVARIANCE");
   
-  unsigned int    index;  indices->read(0,parName,index);
-  double          value;  parameters->read(index,"Value", value);
+  unsigned int    index=0;
+  indices->read(0,parName,index);
+  double          value=0;
+  parameters->read(index,"Value", value);
   unsigned int I(0),J(0);
-  double CIJ;
+  double CIJ=0;
   for (unsigned int i=0;i<covariance->numTuples();i++) {
     covariance->read(i,"I", I);
     covariance->read(i,"J", J);

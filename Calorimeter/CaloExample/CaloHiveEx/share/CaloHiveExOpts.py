@@ -17,6 +17,7 @@ if nThreads >=1 :
    AlgScheduler.OutputLevel( INFO )
    AlgScheduler.ShowControlFlow( True )
    AlgScheduler.ShowDataDependencies( True )
+   AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
 
    # Support for the MT-MP hybrid mode
    if (nProc > 0) :
@@ -42,12 +43,6 @@ if nThreads >=1 :
    from SGComps.SGCompsConf import SGInputLoader
    topSequence+=SGInputLoader(OutputLevel=DEBUG, ShowEventDump=False)
 
-   topSequence.SGInputLoader.Load = [ ('EventInfo', 'McEventInfo'),
-                                      ('LArRawChannelContainer','LArRawChannels'),
-                                      ('TileRawChannelContainer','TileRawChannelCnt'),
-                                      ('CaloCalibrationHitContainer','LArCalibrationHitActive'),
-                                      ('CaloCalibrationHitContainer','LArCalibrationHitDeadMaterial'),
-                                      ('CaloCalibrationHitContainer','LArCalibrationHitInactive') ]
 # MT-specific code
 #---------------------------------------------------------------------------------#
 

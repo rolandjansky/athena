@@ -23,9 +23,6 @@ class SGInputLoader
   : public ::AthAlgorithm
 { 
 
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
 
   // Copy constructor: 
@@ -43,34 +40,25 @@ class SGInputLoader
   //SGInputLoader &operator=(const SGInputLoader &alg); 
 
   // Athena algorithm's Hooks
-  virtual StatusCode  initialize();
-  virtual StatusCode  execute();
-  virtual StatusCode  finalize();
+  virtual StatusCode  initialize() override;
+  virtual StatusCode  execute() override;
+  virtual StatusCode  finalize() override;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Private data: 
-  /////////////////////////////////////////////////////////////////// 
  private: 
 
   /// Default constructor: 
   SGInputLoader();
 
   void loader(Property&);
+  bool loadObjs(const DataObjIDColl& objs) const;
 
   /// Containers
   DataObjIDColl m_load;
 
-  bool m_dump;
-  
-  
+  bool m_dump{false}, m_first{true};
+
+  Gaudi::Property<bool> m_failEvt{true};
+  Gaudi::Property<bool> m_loadProxies{true};
 
 }; 
 

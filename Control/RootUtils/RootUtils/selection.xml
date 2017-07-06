@@ -11,7 +11,6 @@
     <class name="RootUtils::InitHist" />
     <class name="RootUtils::StdHackGenerator" />
     <class name="RootUtils::ScanForAbstract" />
-    <class name="RootUtils::ClearCINTMessageCallback" />
     <class name="RootUtils::ILogger" />
     <class name="RootUtils::ScatterH2" />
     <class name="RootUtils::ScatterH2::Pair" />

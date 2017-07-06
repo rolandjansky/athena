@@ -36,44 +36,26 @@ HLTCaloTool::~HLTCaloTool() {
 }
 
 StatusCode HLTCaloTool::init() {
-	(*m_log) << MSG::DEBUG << "Initializing" << endmsg;
+        ATH_MSG_DEBUG( "Initializing"  );
 
-	if ( m_tcrAlgTools.retrieve().isFailure() ) {
-    		(*m_log) << MSG::ERROR << "Failed to retrieve helper tools: " << m_tcrAlgTools << endmsg;
-		return StatusCode::FAILURE;
-	} else {
-		(*m_log) << MSG::DEBUG << "Retrieved " << m_tcrAlgTools << endmsg;
-	}
-	if ( m_cablingSvc.retrieve().isFailure() ) {
-                 (*m_log) << MSG::ERROR << "Failed to retrieve helper tools: " << m_cablingSvc << endmsg;
-                 return StatusCode::FAILURE;
-        } else {
-                 (*m_log) << MSG::INFO << "Retrieved " << m_cablingSvc << endmsg;
-        }
+	ATH_CHECK( m_tcrAlgTools.retrieve() );
+        ATH_MSG_DEBUG( "Retrieved " << m_tcrAlgTools  );
 
-        ServiceHandle<StoreGateSvc> detStore("DetectorStore",name());
-        if ( detStore.retrieve().isFailure() ) {
-               (*m_log) << MSG::ERROR << "Unable to retrieve DetectorStore" << endmsg;
-                return StatusCode::FAILURE;
-        }
+	ATH_CHECK( m_cablingSvc.retrieve() );
+        ATH_MSG_INFO( "Retrieved " << m_cablingSvc  );
+
         const LArIdManager* larMgr;
-        if ( (detStore->retrieve(larMgr)).isFailure() ) {
-                (*m_log) << MSG::ERROR << "Unable to retrieve LArIdManager from DetectorStore" << endmsg;
-                return StatusCode::FAILURE;
-        } else {
-                (*m_log) << MSG::DEBUG << "Successfully retrieved LArIdManager from DetectorStore" << endmsg;
-        }
+        ATH_CHECK( detStore()->retrieve(larMgr) );
+        ATH_MSG_DEBUG( "Successfully retrieved LArIdManager from DetectorStore"  );
+
         m_onlineHelper = larMgr->getOnlineID();
         if (!m_onlineHelper) {
-                (*m_log) << MSG::ERROR << "Could not access LArOnlineID helper" << endmsg;
+                ATH_MSG_ERROR( "Could not access LArOnlineID helper"  );
                 return StatusCode::FAILURE;
         } else {
-        (*m_log) << MSG::DEBUG << "Successfully accessed LArOnlineID helper" << endmsg;
+                ATH_MSG_DEBUG( "Successfully accessed LArOnlineID helper"  );
         }
-        if ( (detStore->retrieve(m_tileID)).isFailure() ) {
-                (*m_log) << MSG::ERROR << "Could not access TileID" << endmsg;
-                return StatusCode::FAILURE;
-	}
+        ATH_CHECK( detStore()->retrieve(m_tileID) );
 
 	return StatusCode::SUCCESS;
 
@@ -110,22 +92,18 @@ StatusCode HLTCaloTool::book(bool newEventsBlock, bool newLumiBlock, bool newRun
     return StatusCode::SUCCESS;
   }
 
-  *m_log << MSG::DEBUG << "End of book" << endmsg;
+  ATH_MSG_DEBUG( "End of book"  );
   return StatusCode::SUCCESS;
 }
 
 StatusCode HLTCaloTool::fill() {
 
 	const DataHandle<CaloCellContainer> AllCalo;
-	if ( m_storeGate->retrieve(AllCalo,"AllCalo").isFailure() ){
-		(*m_log) << MSG::DEBUG << "No Calo Cell Container found"
-                        << endmsg;
+	if ( evtStore()->retrieve(AllCalo,"AllCalo").isFailure() ){
+                ATH_MSG_DEBUG( "No Calo Cell Container found" );
 		return StatusCode::SUCCESS;
 	}
-	if ( (*m_log).level() <= MSG::DEBUG ) {
-	  (*m_log) << MSG::DEBUG << "Got container "; 
-	  (*m_log) << "Size : " << AllCalo->size() << endmsg;
-	}
+        ATH_MSG_DEBUG( "Got container " << "Size : " << AllCalo->size()  );
 
 	CaloCellContainer* pCaloCellContainer
 		= new CaloCellContainer(SG::VIEW_ELEMENTS);
@@ -138,10 +116,7 @@ StatusCode HLTCaloTool::fill() {
 	uint32_t error=0x0;
 	for (; itrtcr!=endtcr; ++itrtcr) {
 
-	if ( (*m_log).level() <= MSG::DEBUG ) {
-	   (*m_log) << MSG::DEBUG << "Tool name : " 
-		<< (*itrtcr).name() << endmsg;
-	}
+          ATH_MSG_DEBUG( "Tool name : "  << (*itrtcr).name()  );
 	phimin=-M_PI;
 	phimax=M_PI;
 	// Fix for stupid RS problem
@@ -158,8 +133,7 @@ StatusCode HLTCaloTool::fill() {
 	        sc = (*itrtcr)->execute(*pCaloCellContainer, TrigRoiDescriptor( eta0, etamin, etamax,phi0, phimin, phimax ) );
 	}
 	if ( sc.isFailure() ) {
-		(*m_log) << MSG::ERROR << "Problem with filling the cont"
-			<< endmsg;
+          ATH_MSG_ERROR( "Problem with filling the cont" );
 	} else {
 	  // This method does not exist in this place now
           uint32_t in_error = (*itrtcr)->report_error();
@@ -170,16 +144,13 @@ StatusCode HLTCaloTool::fill() {
 	} // End of loop over tools
 	hist("conversionErrors")->Fill(conversionError);
 	if ( error ) {
-		(*m_log) << MSG::DEBUG << "Problems in unpacking : "
-		<< error << endmsg;
+          ATH_MSG_DEBUG( "Problems in unpacking : " << error  );
 	}
 
-	if ( (*m_log).level() <=MSG::DEBUG) {
-	(*m_log) << MSG::DEBUG << "HLT Container size : "
-		<< pCaloCellContainer->size() << endmsg;
-	(*m_log) << MSG::DEBUG << "Differences in container sizes : "
-		<< (pCaloCellContainer->size())-(AllCalo->size()) <<endmsg;
-	}
+        ATH_MSG_DEBUG( "HLT Container size : "
+                       << pCaloCellContainer->size()  );
+        ATH_MSG_DEBUG( "Differences in container sizes : "
+                       << (pCaloCellContainer->size())-(AllCalo->size())  );
 	CaloCellContainer::const_iterator tbeg = pCaloCellContainer->begin();
 	CaloCellContainer::const_iterator tend = pCaloCellContainer->end();
 	int count_tcellsL=0;
@@ -195,7 +166,7 @@ StatusCode HLTCaloTool::fill() {
 	TH2* hist_HitAccetaphiTile = hist2("HitAccetaphiTile");
 	TH2* hist_HitAccetaphiLAr = hist2("HitAccetaphiLAr");
 	for(; tbeg!=tend ; ++tbeg){
-		CaloCell* tcell = (*tbeg);
+		const CaloCell* tcell = (*tbeg);
 		IdentifierHash tid = tcell->caloDDE()->calo_hash();
 		float tenergy = tcell->energy();
 		CaloGain::CaloGain tgain = tcell->gain();
@@ -218,45 +189,45 @@ StatusCode HLTCaloTool::fill() {
                         else hist_PercentDiffLAr->Fill(diffp);
 			if ( ( ((diff>20) && (diffp>6)) || gain!= tgain || (diff_time>1 && !cell->caloDDE()->is_tile() ) ) ) {
 			//if ( ( (diff_time>3.6 && diff_time<4.6) && !cell->caloDDE()->is_tile() )  ) {
-				if ( (*m_log).level() <=MSG::VERBOSE) {
-				(*m_log) << MSG::VERBOSE;
-				(*m_log) << "Offline cell found";
-				(*m_log) << " energy : " << cell->energy();
-				(*m_log) << " tenergy : " << tcell->energy();
-				(*m_log) << " eta : " << cell->eta();
-				(*m_log) << " teta : " << tcell->eta();
-				(*m_log) << " phi : " << cell->phi();
-				(*m_log) << " tphi : " << tcell->phi();
-				(*m_log) << " samp : " << cell->caloDDE()->getSampling();
-				(*m_log) << " tsamp : " << tcell->caloDDE()->getSampling();
-                                (*m_log) << " time : " << cell->time();
-                                (*m_log) << " ttime : " << tcell->time();
-				(*m_log) << " qua : " << cell->quality();
-				(*m_log) << " tqua : " << tcell->quality();
-				(*m_log) << " gain : " << cell->gain();
-				(*m_log) << " tgain : " << tcell->gain();
-				(*m_log) << " ID : " << cell->ID();
+                              if ( msgLvl(MSG::VERBOSE)) {
+				msg() << MSG::VERBOSE;
+				msg() << "Offline cell found";
+				msg() << " energy : " << cell->energy();
+				msg() << " tenergy : " << tcell->energy();
+				msg() << " eta : " << cell->eta();
+				msg() << " teta : " << tcell->eta();
+				msg() << " phi : " << cell->phi();
+				msg() << " tphi : " << tcell->phi();
+				msg() << " samp : " << cell->caloDDE()->getSampling();
+				msg() << " tsamp : " << tcell->caloDDE()->getSampling();
+                                msg() << " time : " << cell->time();
+                                msg() << " ttime : " << tcell->time();
+				msg() << " qua : " << cell->quality();
+				msg() << " tqua : " << tcell->quality();
+				msg() << " gain : " << cell->gain();
+				msg() << " tgain : " << tcell->gain();
+				msg() << " ID : " << cell->ID();
 				}
 				if ( cell->caloDDE()->is_tile() ){
-				 if ( (*m_log).level() <=MSG::VERBOSE)
-				 (*m_log) << " TileID : " << m_tileID->to_string(cell->ID(),-2);
+                                  if ( msgLvl(MSG::VERBOSE))
+                                    msg() << " TileID : " << m_tileID->to_string(cell->ID(),-2);
 				 hist_etaphiTile->Fill(cell->eta(),cell->phi());
 				 //hist_PercentDiffTile->Fill(diffp);  //moved up
 				 lartile=1.0;
 				 count_tcellspT++;
 				}else{
-				 if ( (*m_log).level() <=MSG::VERBOSE){
+                                  if ( msgLvl(MSG::VERBOSE)){
 				   Identifier idh = cell->ID();
                 		   HWIdentifier channel_hw = m_cablingSvc->createSignalChannelID(idh);
                 		   HWIdentifier feb_hw = m_onlineHelper->feb_Id(channel_hw);
-				   (*m_log) << " febID : " << feb_hw;
+				   msg() << " febID : " << feb_hw;
 				 }
 				 hist_etaphiLAr->Fill(cell->eta(),cell->phi());
 				 //hist_PercentDiffLAr->Fill(diffp);//moved up
 				 count_tcellspL++;
 				}
-				if ( (*m_log).level() <=MSG::VERBOSE)
-				  (*m_log) << endmsg;
+				if ( msgLvl(MSG::VERBOSE) )
+				  msg() << endmsg;
 				if ( m_ntuple ) 
 				 ((TNtuple*)tree("Details"))->Fill(cell->et(),cell->eta(),cell->phi(),(double)cell->gain(),tcell->et(),tcell->eta(),tcell->phi(),(double)tcell->gain(),lartile ); 
 			}
@@ -280,12 +251,10 @@ StatusCode HLTCaloTool::fill() {
 	hist("NCellsLAr")->Fill(count_tcellsL);
 	hist("NBadCellsTile")->Fill(count_tcellspT);
 	hist("NCellsTile")->Fill(count_tcellsT);
-	if ( (*m_log).level() <= MSG::DEBUG) {
-		(*m_log) << MSG::DEBUG << "Number of LAr cells found " << count_tcellsL << endmsg;
-		(*m_log) << MSG::DEBUG << "Number of LAr cells w problems " << count_tcellspL << endmsg;
-		(*m_log) << MSG::DEBUG << "Number of Tile cells found " << count_tcellsT << endmsg;
-		(*m_log) << MSG::DEBUG << "Number of Tile cells w problems " << count_tcellspT << endmsg;
-	}
+        ATH_MSG_DEBUG( "Number of LAr cells found " << count_tcellsL  );
+        ATH_MSG_DEBUG( "Number of LAr cells w problems " << count_tcellspL  );
+        ATH_MSG_DEBUG( "Number of Tile cells found " << count_tcellsT  );
+        ATH_MSG_DEBUG( "Number of Tile cells w problems " << count_tcellspT  );
 	delete pCaloCellContainer;
 
 	return StatusCode::SUCCESS;

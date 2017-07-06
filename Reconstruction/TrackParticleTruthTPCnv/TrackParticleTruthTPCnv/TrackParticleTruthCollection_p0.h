@@ -5,8 +5,8 @@
 #ifndef TRACKPARTICLETRUTHCOLLECTION_P0_H
 #define TRACKPARTICLETRUTHCOLLECTION_P0_H
 
-#include "DataModel/DataVector.h"
-#include "DataModel/ElementLink.h"
+#include "AthContainers/DataVector.h"
+#include "AthLinks/ElementLink.h"
 #include "Particle/TrackParticle.h"
 #include "Particle/TrackParticleContainer.h"
 #include "ParticleTruth/TrackParticleTruth.h"

@@ -6,7 +6,7 @@ author Andrea Di Simone <Andrea.Di.Simone@cern.ch>
 use AtlasPolicy AtlasPolicy-*
 
 use     StoreGate               StoreGate-*             Control
-use     DataModel               DataModel-*             Control
+use     AthLinks                AthLinks-*              Control
 use     GaudiInterface          GaudiInterface-*        External
 use     AthenaBaseComps         AthenaBaseComps-*       Control
 

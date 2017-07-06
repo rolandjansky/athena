@@ -35,8 +35,6 @@ class TrigNewLoFHypo : public HLT::HypoAlgo {
   int m_cutCounter;
   float m_CellContainerSize;
   float m_numberCells;
-
-  StoreGateSvc* m_storeGate;
 };
 #endif
 

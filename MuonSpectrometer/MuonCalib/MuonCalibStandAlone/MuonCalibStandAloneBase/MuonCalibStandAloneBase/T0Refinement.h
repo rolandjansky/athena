@@ -76,7 +76,7 @@ public:
 					///< fit is performed
 	inline void SetDeltaT0(const double &dt0)
 		{
-		delta_t0=dt0;
+		m_delta_t0=dt0;
 		}
 					///< Set the scan point distance
 	void setTimeOut(const double & time_out);
@@ -89,7 +89,7 @@ private:
 //	QuasianalyticLineReconstruction *m_qfitter; // straight-line fitter
 	StraightPatRec *m_qfitter; // straight-line fitter
 	CurvedPatRec *m_cfitter; // curved-segment fitter
-	double delta_t0;
+	double m_delta_t0;
 	double m_time_out; // time-out for pattern finding
 
 };

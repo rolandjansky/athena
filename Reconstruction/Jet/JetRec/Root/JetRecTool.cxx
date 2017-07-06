@@ -419,7 +419,7 @@ const JetContainer* JetRecTool::build() const {
   if ( m_groom || m_copy ) {
     m_inpclock.Start(false);
 
-    if(!m_trigger) { // reco case : get input from evt store
+    if(!m_trigger || m_copy) { // reco case : get input from evt store
       if ( m_incoll.size() && evtStore()->contains<JetContainer>(m_incoll)) {
         pjetsin = evtStore()->retrieve<const JetContainer>(m_incoll);
       }

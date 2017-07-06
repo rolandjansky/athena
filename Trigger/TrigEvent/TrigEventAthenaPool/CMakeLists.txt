@@ -55,7 +55,7 @@ find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( TRIGEVENTATHENAPOOL_REFERENCE_TAG
-       TrigEventAthenaPoolReference-01-00-00 )
+       TrigEventAthenaPoolReference-01-00-01 )
   run_tpcnv_test( TrigEventAthenaPool_15.6.1    ESD-15.6.1
                    REFERENCE_TAG ${TRIGEVENTATHENAPOOL_REFERENCE_TAG} )
   run_tpcnv_test( TrigEventAthenaPool_15.6.13.2 AOD-15.6.13.2-full

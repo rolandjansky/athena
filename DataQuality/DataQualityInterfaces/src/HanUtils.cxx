@@ -62,14 +62,14 @@ TKey* getObjKey( TDirectory* dir, const std::string path )
 
 DisableMustClean::DisableMustClean() :
   m_lock(root_mutex),
-  useRecursiveDelete(gROOT->MustClean()) 
+  m_useRecursiveDelete(gROOT->MustClean()) 
 {
   gROOT->SetMustClean(false);
 }
 
 DisableMustClean::~DisableMustClean()
 {
-  gROOT->SetMustClean(useRecursiveDelete);
+  gROOT->SetMustClean(m_useRecursiveDelete);
 }
 
 HanHistogramLink::

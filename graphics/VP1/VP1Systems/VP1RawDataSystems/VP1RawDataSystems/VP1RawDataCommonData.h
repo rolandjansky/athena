@@ -19,7 +19,7 @@
 #define VP1RAWDATACOMMONDATA_H
 
 #include "VP1Base/VP1HelperClassBase.h"
-#include <QtCore/QObject>
+#include <QObject>
 
 class VP1RawDataHandleBase;
 class VP1RawDataSysController;

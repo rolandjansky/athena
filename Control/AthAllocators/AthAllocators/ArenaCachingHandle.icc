@@ -38,7 +38,7 @@ template <class T, class ALLOC>
 ArenaCachingHandle<T, ALLOC>::ArenaCachingHandle
   (const typename ALLOC::Params* params /*= nullptr*/)
     : Base (static_cast<ArenaHeader*>(nullptr),
-            Base::template makeIndex1<ArenaCachingHandle, defaultParams_t> (params))
+            Base::template makeIndex<ArenaCachingHandle, defaultParams_t> (params))
 {
 }
 
@@ -55,7 +55,7 @@ ArenaCachingHandle<T, ALLOC>::ArenaCachingHandle
   (ArenaHeader* header,
    const typename ALLOC::Params* params /*=nullptr */)
     : Base (header,
-            Base::template makeIndex1<ArenaCachingHandle, defaultParams_t> (params))
+            Base::template makeIndex<ArenaCachingHandle, defaultParams_t> (params))
 {
 }
 
@@ -75,7 +75,7 @@ ArenaCachingHandle<T, ALLOC>::ArenaCachingHandle
    const typename ALLOC::Params* params /*= nullptr */)
     : Base (header,
             ctx,
-            Base::template makeIndex1<ArenaCachingHandle, defaultParams_t> (params))
+            Base::template makeIndex<ArenaCachingHandle, defaultParams_t> (params))
 {
 }
 
@@ -91,7 +91,7 @@ ArenaCachingHandle<T, ALLOC>::ArenaCachingHandle
   (Arena* arena,
    const typename ALLOC::Params* params /*= nullptr */)
     : Base (arena,
-            Base::template makeIndex1<ArenaCachingHandle, defaultParams_t> (params))
+            Base::template makeIndex<ArenaCachingHandle, defaultParams_t> (params))
 {
 }
 
