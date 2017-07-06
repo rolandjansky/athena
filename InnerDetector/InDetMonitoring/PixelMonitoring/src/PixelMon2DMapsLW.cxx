@@ -137,61 +137,6 @@ void PixelMon2DMapsLW::WeightingFill(Identifier &id, const PixelID* pixID, float
    }
 }   
 
-void PixelMon2DMapsLW::FillNormalized(PixelMon2DMapsLW* old, int nevent)
-{
-   double nactivechannels_ECA   = 1.0*nevent;
-   double nactivechannels_ECC   = 1.0*nevent;
-   double nactivechannels_IBL2D = 1.0*nevent;
-   double nactivechannels_IBL3D = 1.0*nevent;
-   double nactivechannels_IBL   = nactivechannels_IBL2D + nactivechannels_IBL3D;
-   double nactivechannels_B0    = 1.0*nevent;
-   double nactivechannels_B1    = 1.0*nevent;
-   double nactivechannels_B2    = 1.0*nevent;
-
-   for (unsigned int x = 1; x <= A->GetXaxis()->GetNbins(); x++) {
-      for (unsigned int y = 1; y <= A->GetYaxis()->GetNbins(); y++) {
-         A->SetBinContent(x, y, old->A->GetBinContent(x, y)/nactivechannels_ECA);
-      }
-   }
-   for (unsigned int x = 1; x <= C->GetXaxis()->GetNbins(); x++) {
-      for (unsigned int y = 1; y <= C->GetYaxis()->GetNbins(); y++) {
-         C->SetBinContent(x, y, old->C->GetBinContent(x, y)/nactivechannels_ECC);
-      }
-   }
-   for (unsigned int x = 1; x <= B0->GetXaxis()->GetNbins(); x++) {
-      for (unsigned int y = 1; y <= B0->GetYaxis()->GetNbins(); y++) {
-         B0->SetBinContent(x, y, old->B0->GetBinContent(x, y)/nactivechannels_B0);
-      }
-   }
-   for (unsigned int x = 1; x <= B1->GetXaxis()->GetNbins(); x++) {
-      for (unsigned int y = 1; y <= B1->GetYaxis()->GetNbins(); y++) {
-         B1->SetBinContent(x, y, old->B1->GetBinContent(x, y)/nactivechannels_B1);
-      }
-   }
-   for (unsigned int x = 1; x <= B2->GetXaxis()->GetNbins(); x++) {
-      for (unsigned int y = 1; y <= B2->GetYaxis()->GetNbins(); y++) {
-         B2->SetBinContent(x, y, old->B2->GetBinContent(x, y)/nactivechannels_B2);
-      }
-   }
-   if (m_doIBL && !m_errorHist) {
-      for (unsigned int x = 1; x <= IBL->GetXaxis()->GetNbins(); x++) {
-         for (unsigned int y = 1; y <= IBL->GetYaxis()->GetNbins(); y++) {
-            IBL->SetBinContent(x, y, old->IBL->GetBinContent(x, y)/nactivechannels_IBL);
-         }
-      }
-      for (unsigned int x = 1; x <= IBL2D->GetXaxis()->GetNbins(); x++) {
-         for (unsigned int y = 1; y <= IBL2D->GetYaxis()->GetNbins(); y++) {
-            IBL2D->SetBinContent(x, y, old->IBL2D->GetBinContent(x, y)/nactivechannels_IBL2D);
-         }
-      }
-      for (unsigned int x = 1; x <= IBL3D->GetXaxis()->GetNbins(); x++) {
-         for (unsigned int y = 1; y <= IBL3D->GetYaxis()->GetNbins(); y++) {
-            IBL3D->SetBinContent(x, y, old->IBL3D->GetBinContent(x, y)/nactivechannels_IBL3D);
-         }
-      }
-   }
-}
-
 void PixelMon2DMapsLW::formatHist()
 {
    const int ndisk = 3;
