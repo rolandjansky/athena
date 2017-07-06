@@ -36,7 +36,6 @@
 - graphics/VP1/.*
 
 # Some analysis packages that are not part of Athena
-- AsgExternal/Asg_Test
 - Control/AthLinksSA
 - PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
 - PhysicsAnalysis/AnalysisCommon/PMGTools
