@@ -10,7 +10,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 #
 from DerivationFrameworkJetEtMiss.METCommon import *
 #
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
     from DerivationFrameworkMCTruth.MCTruthCommon import *
     from DerivationFrameworkTau.TauTruthCommon import *
 
@@ -44,7 +44,7 @@ JETM4Stream.AcceptAlgs(["JETM4Kernel"])
 
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 JETM4ThinningHelper = ThinningHelper( "JETM4ThinningHelper" )
-JETM4ThinningHelper.TriggerChains = triggers
+# JETM4ThinningHelper.TriggerChains = triggers
 JETM4ThinningHelper.AppendToStream( JETM4Stream )
 
 #====================================================================
@@ -100,7 +100,7 @@ thinningTools.append(JETM4TauTPThinningTool)
 doTruthThinning = True
 preserveAllDescendants = False
 from AthenaCommon.GlobalFlags import globalflags
-if doTruthThinning and globalflags.DataSource()=='geant4':
+if doTruthThinning and DerivationFrameworkIsMonteCarlo:
     truth_cond_WZH    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))"            # W, Z and Higgs
     truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16) && (TruthParticles.barcode < 200000))"            # Leptons
     truth_cond_Quark  = "((abs(TruthParticles.pdgId) <=  5  && (TruthParticles.pt > 10000.)) || (abs(TruthParticles.pdgId) == 6))"                 # Quarks
@@ -135,16 +135,34 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 jetm4Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM4Kernel" ,
                                                          SkimmingTools = [JETM4SkimmingTool],
                                                          ThinningTools = thinningTools)
-
-
 #====================================================================
 # Special jets
 #====================================================================
 
 OutputJets["JETM4"] = []
 
+#=======================================
+# RESTORE AOD-REDUCED JET COLLECTIONS
+#=======================================
+reducedJetList = ["AntiKt2PV0TrackJets",
+                  "AntiKt4PV0TrackJets",
+                  "AntiKt10PV0TrackJets",
+                  "AntiKt4TruthJets",
+                  "AntiKt10TruthJets"]
+replaceAODReducedJets(reducedJetList,jetm4Seq,"JETM4")
+
 # AntiKt10*PtFrac5Rclus20
 addDefaultTrimmedJets(jetm4Seq,"JETM4")
+
+#=======================================
+# SCHEDULE CUSTOM MET RECONSTRUCTION
+#=======================================
+
+if DerivationFrameworkIsMonteCarlo:
+    addMETTruthMap('AntiKt4EMTopo',"JETMX")
+    addMETTruthMap('AntiKt4LCTopo',"JETMX")
+    addMETTruthMap('AntiKt4EMPFlow',"JETMX")
+    scheduleMETAssocAlg(jetm4Seq,"JETMX")
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -157,11 +175,13 @@ JETM4SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "MET_Reference_AntiKt4LCTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
-                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
-JETM4SlimmingHelper.AllVariables = ["BTagging_AntiKt4LCTopo", "BTagging_AntiKt4EMTopo",# "CaloCalTopoClusters",
+                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                        "BTagging_AntiKt4EMTopo"]
+JETM4SlimmingHelper.AllVariables = [# "CaloCalTopoClusters",
                                     "MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
-                                    "MuonSegments"
+                                    "MuonSegments",
+                                    "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
 #JETM4SlimmingHelper.ExtraVariables = []
 for truthc in [
@@ -178,8 +198,12 @@ for truthc in [
 JETM4SlimmingHelper.IncludeEGammaTriggerContent = True
 
 # Add the jet containers to the stream
-addJetOutputs(JETM4SlimmingHelper,["SmallR","AntiKt4TruthWZJets","AntiKt10LCTopoJets","JETM4"])
+addJetOutputs(JETM4SlimmingHelper,["SmallR",
+                                   #"AntiKt4TruthWZJets",
+                                   "AntiKt10LCTopoJets",
+                                   "AntiKt10TruthJets",
+                                   "JETM4"])
 # Add the MET containers to the stream
-addMETOutputs(JETM4SlimmingHelper,["Diagnostic","AntiKt4LCTopo","AntiKt4EMPFlow","Track"])
+addMETOutputs(JETM4SlimmingHelper,["Diagnostic","Assocs","TruthAssocs","Track",])
 
 JETM4SlimmingHelper.AppendContentToStream(JETM4Stream)

@@ -18,6 +18,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include <xAODPFlow/PFOContainer.h>
+#include <PFlowUtils/IWeightPFOTool.h>
 
 namespace DerivationFramework {
 
@@ -32,6 +33,9 @@ namespace DerivationFramework {
   private:
 
     float m_z0sinthcut;
+
+    ToolHandle<CP::IWeightPFOTool> m_weightPFOTool;    /// Retrieval tool
+    bool m_useChargedWeights; //If true, them we make use of the charged PFO weighting scheme
     
   }; 
 }
