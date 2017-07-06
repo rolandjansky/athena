@@ -8,7 +8,6 @@
 
 #include "PixelMonitoring/PixelMon2DLumiMaps.h"
 #include "InDetIdentifier/PixelID.h"
-//#include "TH2I.h"
 #include "LWHists/TH2F_LW.h"
 #include "GaudiKernel/StatusCode.h"     
 #include <string.h>
