@@ -57,7 +57,7 @@ atlas_add_library( BPhysToolsLib
 		   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
 		   LINK_LIBRARIES ${ROOT_LIBRARIES} 
 		   xAODTracking
-		   xAODBPhys
+		   xAODBPhysLib
 		   AsgTools
                    ${extra_libs}
 		   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES}
@@ -71,7 +71,7 @@ atlas_add_component( BPhysTools
 		     PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} 
 		     xAODTracking
-		     xAODBPhys
+		     xAODBPhysLib
 		     AsgTools
                      ${extra_libs}
                      BPhysToolsLib
