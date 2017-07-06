@@ -41,6 +41,8 @@ public:
   void Fill(Identifier &id, const PixelID* pixID, float value);
   void Fill2DMon(PixelMon2DProfilesLW* oldmap);
   void FillFromMap(PixelMon2DMaps* inputmap, bool clear_inputmap);
+  void SetMaxValue(float max);
+  void Reset();
   StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
 private:
   void formatHist();
