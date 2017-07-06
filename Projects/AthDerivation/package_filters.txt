@@ -196,6 +196,7 @@
 + PhysicsAnalysis/AnalysisCommon/PileupReweighting
 + PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
 + PhysicsAnalysis/AraTool
++ PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/CommonTools/ExpressionEvaluation
 + PhysicsAnalysis/D3PDTools/RootCoreUtils
 + PhysicsAnalysis/DerivationFramework/.*

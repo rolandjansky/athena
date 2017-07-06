@@ -242,7 +242,7 @@ namespace xAOD {
       
       bool setRefTrks(const std::vector<TVector3>& refTrks);
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_ANALYSIS
 
       /** @brief: Sets refitted track momenta
        *
@@ -262,7 +262,7 @@ namespace xAOD {
       bool setRefTrks();
 
 
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE      
+#endif // not XAOD_ANALYSIS
       
       /** @} */
       
