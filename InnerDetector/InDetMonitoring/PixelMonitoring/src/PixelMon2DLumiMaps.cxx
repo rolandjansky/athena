@@ -65,18 +65,6 @@ void PixelMon2DLumiMaps::Fill(double LB,Identifier &id, const PixelID* pixID,dou
    }
 }
 
-void PixelMon2DLumiMaps::Scale (double number)
-{
-   if (number==0) return; //shouldn't happen the way function is called, but dummy check to avoid divide by zero
-
-   Albm->scaleContentsAndErrors((float) 1.0/number);
-   Clbm->scaleContentsAndErrors((float) 1.0/number);
-   B0lbm->scaleContentsAndErrors((float) 1.0/number);
-   B1lbm->scaleContentsAndErrors((float) 1.0/number);
-   B2lbm->scaleContentsAndErrors((float) 1.0/number);
-   if (!m_errorHist && m_doIBL) IBLlbm->scaleContentsAndErrors((float) 1.0/number);
-}
-
 void PixelMon2DLumiMaps::formatHist()
 {
    const int ndisk = 3;
