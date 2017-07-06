@@ -53,14 +53,12 @@ private:
   std::vector< std::string > m_inCollection;
   std::vector< std::string > m_outCollection;
 
-  int _numEventsInFile;
-  int _event;
-  std::vector< std::string >::iterator _fItr;
-  std::string _prevFile;
+  std::vector< std::string >::iterator m_fItr;
+  std::string m_prevFile;
 
-  TStopwatch* _stopwatch;
-  double _waittime;
-  TH1D* _waithist;
+  TStopwatch* m_stopwatch;
+  double m_waittime;
+  TH1D* m_waithist;
 };
 
 #endif // FILESTAGERALG_H
