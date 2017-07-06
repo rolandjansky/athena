@@ -27,6 +27,7 @@ atlas_depends_on_subdirs(
   PhysicsAnalysis/AnalysisCommon/PATInterfaces
   InnerDetector/InDetRecTools/InDetTrackSelectionTool
   PRIVATE
+  Event/FourMomUtils
   Control/AthenaBaseComps
   Tools/PathResolver
   ${extra_dep} )
@@ -46,7 +47,7 @@ atlas_add_library( IsolationSelectionLib
   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
   LINK_LIBRARIES AthContainers AsgTools xAODBase xAODEgamma xAODMuon ${extra_libs}
   xAODPrimitives PATCoreLib PATInterfaces InDetTrackSelectionToolLib
-  PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver )
+  PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} FourMomUtils PathResolver )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( IsolationSelection
