@@ -51,6 +51,30 @@ PixelMon2DProfilesLW::~PixelMon2DProfilesLW()
    //LWHist::safeDelete(DBMC);
 }
 
+void PixelMon2DProfilesLW::SetMaxValue(float max)
+{
+   IBL->SetMaximum(max);
+   IBL2D->SetMaximum(max);
+   IBL3D->SetMaximum(max);
+   B0->SetMaximum(max);
+   B1->SetMaximum(max);
+   B2->SetMaximum(max);
+   A->SetMaximum(max);
+   C->SetMaximum(max);
+}
+
+void PixelMon2DProfilesLW::Reset()
+{
+   IBL->Reset();
+   IBL2D->Reset();
+   IBL3D->Reset();
+   B0->Reset();
+   B1->Reset();
+   B2->Reset();
+   A->Reset();
+   C->Reset();
+}
+
 void PixelMon2DProfilesLW::Fill(Identifier &id, const PixelID* pixID, float weight)
 {
    const int bec = pixID->barrel_ec(id);
