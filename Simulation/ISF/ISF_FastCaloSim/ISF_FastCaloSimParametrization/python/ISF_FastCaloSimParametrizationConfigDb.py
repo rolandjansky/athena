@@ -13,4 +13,3 @@ import AthenaCommon.SystemOfUnits as Units
 addTool("ISF_FastCaloSimParametrization.ISF_FastCaloSimParametrizationConfig.getFastCaloSimCaloExtrapolation" , "FastCaloSimCaloExtrapolation"   )
 addTool("ISF_FastCaloSimParametrization.ISF_FastCaloSimParametrizationConfig.getFastCaloSimGeometryHelper" , "FastCaloSimGeometryHelper"   )
 
-
