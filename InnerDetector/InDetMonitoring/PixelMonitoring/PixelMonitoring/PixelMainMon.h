@@ -26,7 +26,6 @@ class PixelMonModules1D;
 class PixelMonModulesProf;
 class PixelMonModules2D;
 class PixelMon2DMaps;
-class DBMMon2DMaps;
 class PixelMon2DMapsLW;
 class PixelMon2DProfilesLW;
 class PixelMonProfiles;

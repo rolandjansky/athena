@@ -28,7 +28,6 @@
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "TH2S.h"
 #include "TProfile2D.h"
-#include "PixelMonitoring/DBMMon2DMaps.h"
 #include "PixelMonitoring/PixelMon2DMaps.h"
 #include "PixelMonitoring/PixelMonProfiles.h"
 #include "LWHists/TH2F_LW.h"
