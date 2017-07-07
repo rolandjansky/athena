@@ -25,7 +25,7 @@ StatusCode ChargedHadronSubtractionTool::process_impl(xAOD::IParticleContainer* 
 
 StatusCode ChargedHadronSubtractionTool::removePileupChargedHadrons(xAOD::PFOContainer& cont) const {
 
-  const static SG::AuxElement::Accessor<bool> PVMatchedAcc("matchedToPV");
+  const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");
   for ( xAOD::PFO* ppfo : cont ) {
     if(fabs(ppfo->charge()) < 1e-9) continue;
 
@@ -35,7 +35,9 @@ StatusCode ChargedHadronSubtractionTool::removePileupChargedHadrons(xAOD::PFOCon
     }
 	
     if(!PVMatchedAcc(*ppfo))
-      (ppfo)->setP4(0,0,0,0);
+      // Set a -ve energy, because we actually want to differentiate
+      // CHS-removed cPFOs from those with a 0 weight due to calo energy
+      (ppfo)->setP4(-1e-6,0,0,0);
   }
 
   return StatusCode::SUCCESS;
