@@ -284,7 +284,6 @@
 + Simulation/G4Utilities/G4PhysicsLists
 + Simulation/G4Utilities/G4ProfilingTools
 + Simulation/G4Utilities/G4StepLimitation
-+ Simulation/G4Utilities/G4TruthStrategies
 + Simulation/G4Utilities/G4UserActions
 + Simulation/G4Utilities/Geo2G4
 + Simulation/G4Utilities/GeoMaterial2G4
