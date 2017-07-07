@@ -28,7 +28,6 @@ class PixelMonModules2D;
 class PixelMon2DMaps;
 class PixelMon2DMapsLW;
 class PixelMon2DProfilesLW;
-class PixelMonProfiles;
 class PixelMon2DLumiProfiles;
 class PixelMon2DLumiMaps;
 class StatusCode;
@@ -483,9 +482,9 @@ private:
    TH1F_LW*              m_2cluster_Q_mod[PixLayer::COUNT];
    TH1F_LW*              m_3cluster_Q_mod[PixLayer::COUNT];
    TH1F_LW*              m_bigcluster_Q_mod[PixLayer::COUNT];
-   PixelMonProfiles*     m_clussize_map;
-   PixelMonProfiles*     m_cluscharge_map;
-   PixelMonProfiles*     m_clusToT_map;
+   PixelMon2DProfilesLW* m_clussize_map;
+   PixelMon2DProfilesLW* m_cluscharge_map;
+   PixelMon2DProfilesLW* m_clusToT_map;
    TH1F_LW*              m_cluster_groupsize;
    TH1F_LW*              m_cluster_col_width;
    TH1F_LW*              m_cluster_row_width;
@@ -516,8 +515,8 @@ private:
    TProfile_LW*          m_clusters_per_track_per_lumi_mod[PixLayer::COUNT];
    TH1I_LW*              m_num_clusters_mod[PixLayer::COUNT];
    TH1F_LW*              m_cluster_occupancy_summary_mod[PixLayer::COUNT];
-   PixelMonProfiles*     m_cluster_LVL1A_mod;
-   PixelMonProfiles*     m_clus_LVL1A_sizenot1;
+   PixelMon2DProfilesLW* m_cluster_LVL1A_mod;
+   PixelMon2DProfilesLW* m_clus_LVL1A_sizenot1;
    TProfile_LW*          m_clustersOnOffTrack_per_lumi;
    /// Quick status
    TH2F_LW*              m_clusters_onTrack_L0_B11_S2_C6;
@@ -528,10 +527,9 @@ private:
    ///Status histograms
    ///
    PixelMonModules1D*    m_Status_modules;
-   PixelMonProfiles*     m_status;
-   PixelMonProfiles*     m_status_mon;
-   PixelMonProfiles*     m_status_LB;
-   PixelMonProfiles*     m_disabled;
+   PixelMon2DProfilesLW* m_status;
+   PixelMon2DProfilesLW* m_status_mon;
+   PixelMon2DProfilesLW* m_status_LB;
    PixelMon2DMaps*       m_dqStatus;
    TProfile_LW*          m_disabledModules_per_lumi_PIX;
    TProfile_LW*          m_badModules_per_lumi_mod[PixLayerIBL2D3D::COUNT];

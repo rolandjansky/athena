@@ -27,7 +27,6 @@
 
 #include "PixelMonitoring/PixelMon2DMaps.h"
 #include "PixelMonitoring/PixelMonModules.h"
-#include "PixelMonitoring/PixelMonProfiles.h"
 #include "PixelMonitoring/PixelMon2DProfilesLW.h"
 
 #include "PixelCabling/IPixelCablingSvc.h"
@@ -254,7 +253,7 @@ StatusCode PixelMainMon::BookClustersMon(void)
       sc = m_cluster_occupancy->regHist(clusterShift);
       
       tmp = "Cluster_LVL1A_Mod"; tmp2 = "Average cluster Level 1 Accept";
-      m_cluster_LVL1A_mod = new PixelMonProfiles(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), m_doIBL);
+      m_cluster_LVL1A_mod = new PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), m_doIBL, false, true);
       sc = m_cluster_LVL1A_mod->regHist(timeShift);
 
       tmp = "Clus_Occ_SizeCut"; tmp2 = "Size>1 Cluster occupancy";
@@ -262,7 +261,7 @@ StatusCode PixelMainMon::BookClustersMon(void)
       sc = m_clusocc_sizenot1->regHist(clusterShift); 
 
       tmp = "Clus_LVL1A_SizeCut"; tmp2 = "Average Size>1 Cluster Level 1 Accept";
-      m_clus_LVL1A_sizenot1 = new PixelMonProfiles(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), m_doIBL);
+      m_clus_LVL1A_sizenot1 = new PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), m_doIBL, false, true);
       sc = m_clus_LVL1A_sizenot1->regHist(timeShift); 
 
       if (m_doOnline){
@@ -276,15 +275,15 @@ StatusCode PixelMainMon::BookClustersMon(void)
       }
       if (!m_doOnline){
 	tmp = "Cluster_Size_Map"; tmp2 = "Average cluster size map";
-	m_clussize_map = new PixelMonProfiles(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), m_doIBL);
+	m_clussize_map = new PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), m_doIBL, false, true);
 	sc = m_clussize_map->regHist(clusterExpert);
 	
 	tmp = "Cluster_Charge_Map"; tmp2 = "Average cluster charge map";
-	m_cluscharge_map = new PixelMonProfiles(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), m_doIBL);
+	m_cluscharge_map = new PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), m_doIBL, false, true);
 	sc = m_cluscharge_map->regHist(clusterExpert);
 	
 	tmp = "Cluster_ToT_Map"; tmp2 = "Average cluster ToT map";
-	m_clusToT_map = new PixelMonProfiles(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), m_doIBL);
+	m_clusToT_map = new PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), m_doIBL, false, true);
 	sc = m_clusToT_map->regHist(clusterExpert);
 	
 
