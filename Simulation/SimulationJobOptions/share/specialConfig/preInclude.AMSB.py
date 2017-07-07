@@ -56,10 +56,15 @@ if doG4SimConfig:
     simFlags.PhysicsOptions += ['CharginosPhysicsTool']
 
     def amsb_applycalomctruthstrategy():
-## Applying the MCTruth strategies: add decays in the Calorimeter
-        from G4AtlasApps import AtlasG4Eng
-        myDecay = AtlasG4Eng.G4Eng.Dict_MCTruthStrg.get('Decay')
-        myDecay.add_Volumes('CALO::CALO', 1)
+        print "ERROR amsb_applycalomctruthstrategy is obsolete"
+        print "Please request replacment configuration."
+        import sys
+        sys.exit(1)
+        ## ## Applying the MCTruth strategies: add decays in the Calorimeter
+        ## from G4AtlasApps import AtlasG4Eng
+        ## myDecay = AtlasG4Eng.G4Eng.Dict_MCTruthStrg.get('Decay')
+        ## myDecay.add_Volumes('CALO::CALO', 1)
+
 
     simFlags.InitFunctions.add_function("postInit", amsb_applycalomctruthstrategy)
 
