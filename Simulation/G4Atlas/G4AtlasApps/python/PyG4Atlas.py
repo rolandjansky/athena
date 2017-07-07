@@ -88,8 +88,6 @@ class G4AtlasEngine:
         G4AtlasEngine.Dict = dict()
         G4AtlasEngine.Dict_DetConfig = dict()
         G4AtlasEngine.Dict_Materials = dict()
-        G4AtlasEngine.Dict_MCTruthStrg = dict()
-        G4AtlasEngine.Dict_MCTruthStrg['SecondarySavingPolicy'] = 'All'
         G4AtlasEngine.Dict_SpecialConfiguration = dict()
 
         ## Web doc links
@@ -147,25 +145,6 @@ class G4AtlasEngine:
             G4AtlasEngine.log.warning('G4AtlasEngine: init_G4 is already done')
 
 
-    def _init_MCTruth(self):
-        """ Inits MCTruth strategies
-
-           (for internal use)
-        """
-        if 'init_MCTruth' not in self._InitList:
-            G4AtlasEngine.log.debug('G4AtlasEngine: _init_MCTruth: init MCTruth strategies ')
-            for i in G4AtlasEngine.Dict_MCTruthStrg.keys():
-                if i != 'SecondarySavingPolicy':
-                    G4AtlasEngine.Dict_MCTruthStrg.get(i)._construct()
-            G4AtlasEngine._ctrl.mctruthMenu.secondarySaving(G4AtlasEngine.Dict_MCTruthStrg.get('SecondarySavingPolicy'))
-            G4AtlasEngine._ctrl.mctruthMenu.listStrategies()
-            self._InitList.append('init_MCTruth')
-            G4AtlasEngine._app_profiler('_init_MCTruth: ')
-        else:
-            G4AtlasEngine.log.warning('G4AtlasEngine: init_MCTruth is already done')
-            G4AtlasEngine._ctrl.mctruthMenu.listStrategies()
-
-
     def _init_Simulation(self):
         """\
         Simulation engine initialization.
@@ -177,7 +156,6 @@ class G4AtlasEngine:
 
           preInit - called before Athena initialize()
           pre/postInitG4 - called before/after the init_G4 method
-          pre/postInitMCTruth - called before/after the init_MCTruth method
           pre/postInitFields - called before/after the init_Fields method
           postInit - called after all sim engine initialisation methods
 
@@ -206,11 +184,6 @@ class G4AtlasEngine:
             _run_init_callbacks(self.init_status)
 
         _run_init_stage("G4")
-
-        if not self.useISF:
-            _run_init_stage("MCTruth")
-        else:
-            G4AtlasEngine.log.debug('not initializing MCTruth in G4AtlasEngine because useISF=True')
 
         self.init_status = "postInit"
         G4AtlasEngine.log.debug("G4AtlasEngine:init stage " + self.init_status)
@@ -265,73 +238,6 @@ class G4AtlasEngine:
         """
         print self.Name
         print self.List_LoadedLib
-
-
-
-    class menu_MCTruth:
-        """ MC truth strategies can be added using this menu.
-
-            As a menu, a instance of it is needed to access the
-            following methods:
-
-            .add_McTruthStrategy(MCTruthStrg_object)
-            .add_SecondarySaving()
-            .list_Strategies()
-            .list_Parameters()
-            .set_TruthStrategiesParameter('param_name',value)
-        """
-
-        @classmethod
-        def add_McTruthStrategy(cls, strg_obj):
-            """Adds a strategy to the dictionary of MCTruth strategies.
-
-               The strategies will be built after the physics-list and
-               physics-regions.
-            """
-            if isinstance(strg_obj,MCTruthStrg):
-                G4AtlasEngine.Dict_MCTruthStrg[strg_obj.Name] = strg_obj
-                G4AtlasEngine.log.debug(' G4AtlasEngine:'+
-                                              'menu_MCTruth:add_McTruthStrategy: '+
-                                              'added '+strg_obj.Name)
-            else:
-                G4AtlasEngine.log.error(' G4AtlasEngine:'+
-                                              'menu_MCTruth:add_McTruthStrategy:'+
-                                              ' This is not a MCTruthStrg object!!!')
-
-
-        @classmethod
-        def list_Strategies(cls):
-            """ List the possible strategies.
-            """
-            G4AtlasEngine._ctrl.mctruthMenu.listStrategies()
-
-
-        @classmethod
-        def list_Parameters(cls):
-            """ List parameters for the MCTruth.
-            """
-            G4AtlasEngine._ctrl.mctruthMenu.listParameters()
-
-
-        @classmethod
-        def set_SecondarySaving(cls, p):
-            """ Sets the secondary saving.
-
-                The possible values are:
-                      Primaries, StoredSecondaries , All
-
-                The value for production must be StoredSecondaries
-            """
-            G4AtlasEngine.Dict_MCTruthStrg['SecondarySavingPolicy'] = p
-
-
-        @classmethod
-        def set_TruthStrategiesParameter(cls, param_name, param_value):
-            """ Sets the parameters for the MCTruth
-
-               for the list of parameters look into list_Parameters
-            """
-            G4AtlasEngine._ctrl.mctruthMenu.setTruthStrategiesParameter(param_name,param_value)
 
 
 
@@ -482,52 +388,6 @@ class DetConfigurator:
             classes you want to make available to the users
         """
         G4AtlasEngine.log.warning(' DetConfigurator:_build: nothing is done!!!, you have to overwrite it!')
-
-
-
-class MCTruthStrg:
-    """ MCTruth strategy.
-
-        Different MCTruth strategies can be defined and applied to
-       several volumes (typically to the DetFacilities that are the
-       envelopes of the sub-detectors).
-
-       The G4AtlasEngine.menu_MCTruth menu is the way to deal with
-       the MCTruthStrg.
-    """
-    def __init__(self,G4TruthStrgLib,NameStrg,volume_name,volume_level):
-        """
-           volume_level = position of the volume in the G4 hierarchy.
-        """
-        self._Built=False
-        self.Lib=G4TruthStrgLib
-        self.Name=NameStrg
-        self.Dict_Volumes = dict()
-        self.Dict_Volumes[volume_name]=volume_level
-
-
-    def add_Volumes(self,vol_name, vol_level):
-        """ Adds volumes to the list of volumes in which the strategy
-            will be used.
-
-        """
-        if vol_name not in self.Dict_Volumes:
-            self.Dict_Volumes[vol_name] = vol_level
-        else:
-            G4AtlasEngine.log.warning(' MCTruthStrg: add_Volumes: The the volume '+vol_name+'is already in the list')
-
-
-    def _construct(self):
-        if self.Lib not in G4AtlasEngine.List_LoadedLib:
-            G4AtlasEngine._ctrl.load(self.Lib)
-            G4AtlasEngine.List_LoadedLib.append(self.Lib)
-        if not(self._Built):
-           for i in self.Dict_Volumes.keys():
-               G4AtlasEngine._ctrl.mctruthMenu.activateStrategy(self.Name, i, self.Dict_Volumes.get(i))
-               G4AtlasEngine.log.debug(' MCTruthStrg:'+
-                                             '_construct: '+self.Name +' and apply it to volume '+i)
-           self._Built=True
-           G4AtlasEngine._app_profiler('  _build MCTruthStrg: '+self.Name)
 
 
 
@@ -831,13 +691,6 @@ class SimSkeleton(object):
 
 
     @classmethod
-    def do_MCtruth(cls):
-        """ Place to define the MCTruth strategies.
-        """
-        G4AtlasEngine.log.info('SimSkeleton.do_MCtruth :: nothing done')
-
-
-    @classmethod
     def do_UserActions(cls):
         """ Place to define default user actions.
 
@@ -913,7 +766,7 @@ class SimSkeleton(object):
         Do not overload this method.
         """
         G4AtlasEngine.log.verbose('SimSkeleton._do_All :: starting')
-        known_methods = ['do_GeoSD', 'do_MCtruth']
+        known_methods = ['do_GeoSD']
         ## Execute the known methods from the known_methods list
         for k in known_methods:
             try:
