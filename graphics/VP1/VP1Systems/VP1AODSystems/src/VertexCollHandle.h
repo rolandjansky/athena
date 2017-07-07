@@ -114,7 +114,7 @@ private slots:
 	void resetCachedValuesCuts();
   
 public slots:
-  void rerandomiseRandomVertexColours();
+  // void rerandomiseRandomVertexColours();
 
 
   // setters
