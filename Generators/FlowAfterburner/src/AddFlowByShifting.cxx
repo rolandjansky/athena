@@ -96,9 +96,9 @@ AddFlowByShifting::AddFlowByShifting(const std::string& name, ISvcLocator* pSvcL
 
   m_graph_fluc=NULL;
   for(int ihar = 0; ihar< 6; ihar++){
-    psi_n[ihar] =0.0;
-    v_n  [ihar] =0.0;
-    EbE_Multiplier_vn[ihar]=1.0;
+    m_psi_n[ihar] =0.0;
+    m_v_n  [ihar] =0.0;
+    m_EbE_Multiplier_vn[ihar]=1.0;
   }
 }
 
@@ -225,12 +225,12 @@ StatusCode AddFlowByShifting::execute() {
   //Geneate the event-plane angles (some of them may or may not be used later on)
   //Store the angles into the hijing event parameters
   for(int ihar=0;ihar<6;ihar++){
-    psi_n[ihar] =(CLHEP::RandFlat::shoot(p_engine)-0.5)*2*M_PI / (ihar+1);   //Principal value must be within -PI/n to PI/n
-    (*hijing_pars).set_psi(ihar+1,psi_n[ihar]);
+    m_psi_n[ihar] =(CLHEP::RandFlat::shoot(p_engine)-0.5)*2*M_PI / (ihar+1);   //Principal value must be within -PI/n to PI/n
+    (*hijing_pars).set_psi(ihar+1,m_psi_n[ihar]);
   }
-  psi_n[1]=hijing_pars->get_bphi()                   ;//the psi2 plane is aligned with the impact parameter
-  psi_n[1]=atan2(sin(2*psi_n[1]),cos(2*psi_n[1]))/2.0;//ensure that Psi2 is within [-PI/2,PI/2]
-  (*hijing_pars).set_psi(2,psi_n[1]);
+  m_psi_n[1]=hijing_pars->get_bphi()                   ;//the psi2 plane is aligned with the impact parameter
+  m_psi_n[1]=atan2(sin(2*m_psi_n[1]),cos(2*m_psi_n[1]))/2.0;//ensure that Psi2 is within [-PI/2,PI/2]
+  (*hijing_pars).set_psi(2,m_psi_n[1]);
   ATH_MSG_DEBUG(" Psi2 for event : "<<(*hijing_pars).get_psi(2));
 
 
@@ -440,13 +440,13 @@ double AddFlowByShifting::AddFlowToParent (HepMC::GenParticle* parent, const Hij
 
 
   //Call the appropriate function to set the vn values
-  for(int ihar = 0; ihar< 6; ihar++){v_n  [ihar]=0.0;} //reset the vn for this particle
+  for(int ihar = 0; ihar< 6; ihar++){m_v_n  [ihar]=0.0;} //reset the vn for this particle
   double b = hijing_pars->get_b();
   (*this.*m_flow_function)(b,eta,pt);//get the vn for this particle
   if(m_flow_fluctuations){//add EbE fluctuations
     for(int ihar = 0; ihar< 6; ihar++){
-      v_n[ihar] *= EbE_Multiplier_vn[ihar];
-      if(v_n[ihar]>0.5) {ATH_MSG_WARNING(" Vn Too large  "<<ihar+1<<"  "<<EbE_Multiplier_vn[ihar]<<"  "<<v_n[ihar]);v_n[ihar]=0.5;}
+      m_v_n[ihar] *= m_EbE_Multiplier_vn[ihar];
+      if(m_v_n[ihar]>0.5) {ATH_MSG_WARNING(" Vn Too large  "<<ihar+1<<"  "<<m_EbE_Multiplier_vn[ihar]<<"  "<<m_v_n[ihar]);m_v_n[ihar]=0.5;}
     }
   }
 
@@ -455,9 +455,9 @@ double AddFlowByShifting::AddFlowToParent (HepMC::GenParticle* parent, const Hij
   // Old fashioned rotation(approximate)
   if (m_flow_implementation_type==0){
      float phi=phi_0;
-     phishift=  -2*( v_n[0]*sin(1*(phi-psi_n[0]))/1.0 + v_n[1]*sin(2*(phi-psi_n[1]))/2.0 +
-                     v_n[2]*sin(3*(phi-psi_n[2]))/3.0 + v_n[3]*sin(4*(phi-psi_n[3]))/4.0 +
-                     v_n[4]*sin(5*(phi-psi_n[4]))/5.0 + v_n[5]*sin(6*(phi-psi_n[5]))/6.0 );
+     phishift=  -2*( m_v_n[0]*sin(1*(phi-m_psi_n[0]))/1.0 + m_v_n[1]*sin(2*(phi-m_psi_n[1]))/2.0 +
+                     m_v_n[2]*sin(3*(phi-m_psi_n[2]))/3.0 + m_v_n[3]*sin(4*(phi-m_psi_n[3]))/4.0 +
+                     m_v_n[4]*sin(5*(phi-m_psi_n[4]))/5.0 + m_v_n[5]*sin(6*(phi-m_psi_n[5]))/6.0 );
 
   }
 
@@ -474,8 +474,8 @@ double AddFlowByShifting::AddFlowToParent (HepMC::GenParticle* parent, const Hij
     gsl_root_fsolver_set (s, &F, x_lo, x_hi);
     int iter=0;
     params[0]=phi_0;
-    params[1]=v_n  [0]; params[2]=v_n  [1]; params[3]=v_n  [2]; params[4 ]=v_n  [3]; params[5 ]=v_n  [4];  params[6 ]=v_n  [5];
-    params[7]=psi_n[0]; params[8]=psi_n[1]; params[9]=psi_n[2]; params[10]=psi_n[3]; params[11]=psi_n[4];  params[12]=psi_n[5];
+    params[1]=m_v_n  [0]; params[2]=m_v_n  [1]; params[3]=m_v_n  [2]; params[4 ]=m_v_n  [3]; params[5 ]=m_v_n  [4];  params[6 ]=m_v_n  [5];
+    params[7]=m_psi_n[0]; params[8]=m_psi_n[1]; params[9]=m_psi_n[2]; params[10]=m_psi_n[3]; params[11]=m_psi_n[4];  params[12]=m_psi_n[5];
     int status;
     double phi=phi_0;
     do
@@ -493,9 +493,9 @@ double AddFlowByShifting::AddFlowToParent (HepMC::GenParticle* parent, const Hij
     if (iter>=1000) return 0;
 
  /*
-    float val=phi   +2*( v1*sin(1*(phi-psi_n[0]))/1.0 + v2*sin(2*(phi-psi_n[1]))/2.0 +
-                         v3*sin(3*(phi-psi_n[2]))/3.0 + v4*sin(4*(phi-psi_n[3]))/4.0 +
-                         v5*sin(5*(phi-psi_n[4]))/5.0 + v6*sin(6*(phi-psi_n[5]))/6.0 );
+    float val=phi   +2*( v1*sin(1*(phi-m_psi_n[0]))/1.0 + v2*sin(2*(phi-m_psi_n[1]))/2.0 +
+                         v3*sin(3*(phi-m_psi_n[2]))/3.0 + v4*sin(4*(phi-m_psi_n[3]))/4.0 +
+                         v5*sin(5*(phi-m_psi_n[4]))/5.0 + v6*sin(6*(phi-m_psi_n  [5]))/6.0 );
     std::cout<<phi_0<<"  "<<val<<"  "<<phi_0-val<<std::endl;  // */
     phishift = phi-phi_0;
   }
@@ -504,12 +504,12 @@ double AddFlowByShifting::AddFlowToParent (HepMC::GenParticle* parent, const Hij
     momentum.rotateZ(phishift*Gaudi::Units::rad);
     parent->set_momentum( momentum );
   }
-  ATH_MSG_DEBUG( "Parent particle: V1 = " << v_n[0] <<
-                                 " V2 = " << v_n[1] <<
-                                 " V3 = " << v_n[2] <<
-                                 " V4 = " << v_n[3] <<
-                                 " V5 = " << v_n[4] <<
-                                 " V6 = " << v_n[5] <<
+  ATH_MSG_DEBUG( "Parent particle: V1 = " << m_v_n[0] <<
+                                 " V2 = " << m_v_n[1] <<
+                                 " V3 = " << m_v_n[2] <<
+                                 " V4 = " << m_v_n[3] <<
+                                 " V5 = " << m_v_n[4] <<
+                                 " V6 = " << m_v_n[5] <<
                           " Phi shift = " << phishift <<
                         " Phi shifted = " << momentum.phi() );
 
@@ -533,17 +533,17 @@ void AddFlowByShifting::jjia_minbias_new(double b, double eta, double pt)
   float temp2 = pow(pt+0.1,-a2) / (1+exp(-(pt-4.5)/a3));
   float temp3 =  0.01           / (1+exp(-(pt-4.5)/a3));
 
-  v_n[1] = ( a4*(temp1+temp2) + temp3 )* exp(-0.5* eta*eta /6.27/6.27) ;
+  m_v_n[1] = ( a4*(temp1+temp2) + temp3 )* exp(-0.5* eta*eta /6.27/6.27) ;
 
   float fb=0.97 +1.06*exp(-0.5*b*b/3.2/3.2);
-  v_n[2]=pow(fb*sqrt(v_n[1]),3);
+  m_v_n[2]=pow(fb*sqrt(m_v_n[1]),3);
 
   float gb= 1.096 +1.36 *exp(-0.5*b*b/3.0/3.0);
-  gb=gb*sqrt(v_n[1]);
-  v_n[3]=pow(gb,4);
-  v_n[4]=pow(gb,5);
-  v_n[5]=pow(gb,6);
-  v_n[0]=0;
+  gb=gb*sqrt(m_v_n[1]);
+  m_v_n[3]=pow(gb,4);
+  m_v_n[4]=pow(gb,5);
+  m_v_n[5]=pow(gb,6);
+  m_v_n[0]=0;
 }
 
 
@@ -562,13 +562,13 @@ void AddFlowByShifting::jjia_minbias_new_v2only(double b, double eta, double pt)
   float temp2 = pow(pt+0.1,-a2) / (1+exp(-(pt-4.5)/a3));
   float temp3 =  0.01           / (1+exp(-(pt-4.5)/a3));
 
-  v_n[1] = ( a4*(temp1+temp2) + temp3 )* exp(-0.5* eta*eta /6.27/6.27) ;
+  m_v_n[1] = ( a4*(temp1+temp2) + temp3 )* exp(-0.5* eta*eta /6.27/6.27) ;
 
-  v_n[0]=0;
-  v_n[2]=0;
-  v_n[3]=0;
-  v_n[4]=0;
-  v_n[5]=0;
+  m_v_n[0]=0;
+  m_v_n[2]=0;
+  m_v_n[3]=0;
+  m_v_n[4]=0;
+  m_v_n[5]=0;
 }
 
 
@@ -576,9 +576,9 @@ void AddFlowByShifting::jjia_minbias_new_v2only(double b, double eta, double pt)
 void AddFlowByShifting::fixed_vn(double b, double eta, double pt)
 {
   b=b;eta=eta;pt=pt;// to avoid compiler warnings
-  v_n[0]=0.0000; v_n[1]=0.0500;
-  v_n[2]=0.0280; v_n[3]=0.0130;
-  v_n[4]=0.0045; v_n[5]=0.0015;
+  m_v_n[0]=0.0000; m_v_n[1]=0.0500;
+  m_v_n[2]=0.0280; m_v_n[3]=0.0130;
+  m_v_n[4]=0.0045; m_v_n[5]=0.0015;
 }
 
 
@@ -586,20 +586,20 @@ void AddFlowByShifting::fixed_vn(double b, double eta, double pt)
 void AddFlowByShifting::fixed_v2(double b, double eta, double pt)
 {
   b=b;eta=eta;pt=pt; // to avoid compiler warnings
-  v_n[0]=0.0000; v_n[1]=0.0500;
-  v_n[2]=0.0000; v_n[3]=0.0000;
-  v_n[4]=0.0000; v_n[5]=0.0000;
+  m_v_n[0]=0.0000; m_v_n[1]=0.0500;
+  m_v_n[2]=0.0000; m_v_n[3]=0.0000;
+  m_v_n[4]=0.0000; m_v_n[5]=0.0000;
 }
 
 // Old parameterization for v2
 void AddFlowByShifting::jjia_minbias_old(double b, double eta, double pt)
 {
-  v_n[0] = 0;
-  v_n[1] = 0.03968 * b
+  m_v_n[0] = 0;
+  m_v_n[1] = 0.03968 * b
                * (1 - 2.1/(1 + exp(1.357*(pt/1000))))
                * exp(-(eta*eta)/(2*6.37*6.37));
-  v_n[2]=0.0000; v_n[3]=0.0000;
-  v_n[4]=0.0000; v_n[5]=0.0000;
+  m_v_n[2]=0.0000; m_v_n[3]=0.0000;
+  m_v_n[4]=0.0000; m_v_n[5]=0.0000;
 }
 
 
@@ -608,20 +608,20 @@ void AddFlowByShifting::ao_test (double b, double eta, double pt)
   eta=eta;  // to avoid compiler warnings
   pt/=1000;
   if(pt>2) pt = 2; // flat max at pt > 2
-  v_n[1] = 0.02 * b * pt;
-  v_n[0] = 0;
+  m_v_n[1] = 0.02 * b * pt;
+  m_v_n[0] = 0;
 }
 
 
 void AddFlowByShifting::custom_vn (double b, double eta, double pt)
 {
   b=b;eta=eta;pt=pt ; // to avoid compiler warnings
-  v_n[0]=m_custom_v1;
-  v_n[1]=m_custom_v2;
-  v_n[2]=m_custom_v3;
-  v_n[3]=m_custom_v4;
-  v_n[4]=m_custom_v5;
-  v_n[5]=m_custom_v6;
+  m_v_n[0]=m_custom_v1;
+  m_v_n[1]=m_custom_v2;
+  m_v_n[2]=m_custom_v3;
+  m_v_n[3]=m_custom_v4;
+  m_v_n[4]=m_custom_v5;
+  m_v_n[5]=m_custom_v6;
 }
 
 // p_Pb vn
@@ -648,12 +648,12 @@ void AddFlowByShifting::p_Pb_cent_eta_indep(double b, double eta, double pt)
   an_val[3][1] = 4.938;
   an_val[3][2] = 1.237;
 
-  v_n[0]=0;
-  v_n[1]=an_val[0][0]*pow(pt,an_val[0][1])*exp(-an_val[0][2]*pt);
-  v_n[2]=an_val[1][0]*pow(pt,an_val[1][1])*exp(-an_val[1][2]*pt);
-  v_n[3]=an_val[2][0]*pow(pt,an_val[2][1])*exp(-an_val[2][2]*pt);
-  v_n[4]=an_val[3][0]*pow(pt,an_val[3][1])*exp(-an_val[3][2]*pt);
-  v_n[5]=0;
+  m_v_n[0]=0;
+  m_v_n[1]=an_val[0][0]*pow(pt,an_val[0][1])*exp(-an_val[0][2]*pt);
+  m_v_n[2]=an_val[1][0]*pow(pt,an_val[1][1])*exp(-an_val[1][2]*pt);
+  m_v_n[3]=an_val[2][0]*pow(pt,an_val[2][1])*exp(-an_val[2][2]*pt);
+  m_v_n[4]=an_val[3][0]*pow(pt,an_val[3][1])*exp(-an_val[3][2]*pt);
+  m_v_n[5]=0;
 }
 
 
@@ -661,7 +661,7 @@ void AddFlowByShifting::p_Pb_cent_eta_indep(double b, double eta, double pt)
 void AddFlowByShifting::Set_EbE_Fluctuation_Multipliers(HepMC::GenVertex* mainvtx,float b){
     int Total_Multiplicity=0;
     double EbE_Vn[6];
-    for(int ihar=0;ihar<6;ihar++){EbE_Multiplier_vn[ihar]=1.0;EbE_Vn[ihar]=0.0;}
+    for(int ihar=0;ihar<6;ihar++){m_EbE_Multiplier_vn[ihar]=1.0;EbE_Vn[ihar]=0.0;}
   
     for(auto  partit  =(*mainvtx).particles_begin(HepMC::children);
 	      partit !=(*mainvtx).particles_end  (HepMC::children); 
@@ -670,14 +670,14 @@ void AddFlowByShifting::Set_EbE_Fluctuation_Multipliers(HepMC::GenVertex* mainvt
        float eta= parent->momentum().pseudoRapidity();
        float pT = parent->momentum().perp();
 
-       for(int ihar = 0; ihar< 6; ihar++){v_n  [ihar]=0.0;}
+       for(int ihar = 0; ihar< 6; ihar++){m_v_n  [ihar]=0.0;}
        (*this.*m_flow_function)(b,eta,pT);
-       for(int ihar = 0; ihar< 6; ihar++){EbE_Vn[ihar] += v_n  [ihar];}
+       for(int ihar = 0; ihar< 6; ihar++){EbE_Vn[ihar] += m_v_n  [ihar];}
        Total_Multiplicity++;
     }
 
 
-    for(int ihar = 0; ihar< 6; ihar++){v_n  [ihar]=0.0;}//keep vn as zero before we return from function
+    for(int ihar = 0; ihar< 6; ihar++){m_v_n  [ihar]=0.0;}//keep vn as zero before we return from function
     if(Total_Multiplicity<=0) return; 
 
 
@@ -702,8 +702,8 @@ void AddFlowByShifting::Set_EbE_Fluctuation_Multipliers(HepMC::GenVertex* mainvt
       if(EbE_Vn[ihar]==0) {ATH_MSG_WARNING("Zero EbeV"<<ihar+1); continue;}
       float X=CLHEP::RandGaussQ::shoot(p_engine,vn_rp,delta);
       float Y=CLHEP::RandGaussQ::shoot(p_engine,0.0  ,delta);
-      EbE_Multiplier_vn[ihar]=sqrt(X*X+ Y*Y)/EbE_Vn[ihar]; 
-      ATH_MSG_INFO("EbE_Multiplier_v"<<ihar+1<<"="<<EbE_Multiplier_vn[ihar]);
+      m_EbE_Multiplier_vn[ihar]=sqrt(X*X+ Y*Y)/EbE_Vn[ihar]; 
+      ATH_MSG_INFO("EbE_Multiplier_v"<<ihar+1<<"="<<m_EbE_Multiplier_vn[ihar]);
     }
 }
 
