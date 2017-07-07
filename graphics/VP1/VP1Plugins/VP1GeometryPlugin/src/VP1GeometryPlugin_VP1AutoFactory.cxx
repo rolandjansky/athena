@@ -19,5 +19,3 @@ IVP1ChannelWidget * VP1GeometryPlugin_VP1AutoFactory::getChannelWidget(const QSt
   return 0;
 }
 
-// moved to the header file, while migrating to Qt 5
-// Q_EXPORT_PLUGIN2(pnp_vp1geometryplugin_vp1autofactory, VP1GeometryPlugin_VP1AutoFactory)
