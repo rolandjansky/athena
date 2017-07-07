@@ -55,7 +55,9 @@ find_package( VP1BasePluginBoilerplate REQUIRED )
 #   with the declarations:
 #        ${VP1_PLUGIN_HEADER_FILENAME} ${VP1_PLUGIN_SRC_FILENAME}
 #
-atlas_add_library( ${pkgName} ${pkgName}/*.h src/*.cxx src/*.qrc ${VP1_PLUGIN_HEADER_FILENAME} ${VP1_PLUGIN_SRC_FILENAME}
+# TEMPORARELY DISABLED the inclusion of automatically generated plugin factory files - The Generation script needs to be updated
+#atlas_add_library( ${pkgName} ${pkgName}/*.h src/*.cxx src/*.qrc ${VP1_PLUGIN_HEADER_FILENAME} ${VP1_PLUGIN_SRC_FILENAME}
+atlas_add_library( ${pkgName} ${pkgName}/*.h src/*.cxx src/*.qrc 
    PUBLIC_HEADERS ${pkgName}
    INCLUDE_DIRS ${SOQT_INCLUDE_DIRS} ${COIN3D_INCLUDE_DIRS} ${QT5_INCLUDE_DIRS} 
    PRIVATE_INCLUDE_DIRS tmpqt_extraheaders/  ${ROOT_INCLUDE_DIRS}
@@ -66,5 +68,6 @@ atlas_add_library( ${pkgName} ${pkgName}/*.h src/*.cxx src/*.qrc ${VP1_PLUGIN_HE
 ### Generate the plugin boilercode
 # Add a dependency on a custom target, which triggers the custom command that generates the boilerplate code
 # So the boilerplate code, if missing, is generated before the compilation of the plugin library
-add_custom_target( plugin_${pkgName} ALL DEPENDS ${VP1_PLUGIN_HEADERS} ${VP1_PLUGIN_SRC} ${VP1_PLUGIN_HEADERS_IN_SOURCE} ${VP1_PLUGIN_SRC_IN_SOURCE})
-add_dependencies( ${pkgName} plugin_${pkgName} )
+# TEMPORARELY DISABLED - The Generation script needs to be updated
+#add_custom_target( plugin_${pkgName} ALL DEPENDS ${VP1_PLUGIN_HEADERS} ${VP1_PLUGIN_SRC} ${VP1_PLUGIN_HEADERS_IN_SOURCE} ${VP1_PLUGIN_SRC_IN_SOURCE})
+#add_dependencies( ${pkgName} plugin_${pkgName} )
