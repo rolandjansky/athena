@@ -1,6 +1,9 @@
 
 def rhadron_modify_truth_strategies():
     print "ERROR rhadron_modify_truth_strategies is obsolete"
+    print "Please request replacment configuration."
+    import sys
+    sys.exit(1)
     ## from G4AtlasApps import AtlasG4Eng
     ## AtlasG4Eng.G4Eng._ctrl.mctruthMenu.activateStrategy('LLP', 'Muon::MuonSys',1)
     ## AtlasG4Eng.G4Eng._ctrl.mctruthMenu.activateStrategy('LLP', 'MUONQ02::MUONQ02',1)
