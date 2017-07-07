@@ -171,7 +171,7 @@ StatusCode VoronoiWeightTool::process_impl(xAOD::IParticleContainer* particlesin
       float w = newE/part->e();
       weightAcc(*part) = w;
       ATH_CHECK(setEnergyPt(part,newE,part->pt()*w));
-      i++;
+      ++i; // Only increment if the particle was used.
     }
   }
   return StatusCode::SUCCESS;
@@ -221,33 +221,33 @@ StatusCode VoronoiWeightTool::makeVoronoiParticles(std::vector<fastjet::PseudoJe
 void VoronoiWeightTool::spreadPt(std::vector< std::pair< fastjet::PseudoJet,std::vector<float> > >& correctedptvec, float spreadr, float alpha) const{
   //default alpha = 2
   //Set up neighbors within spreadr:
-  int Nparticles = correctedptvec.size();
+  size_t Nparticles = correctedptvec.size();
   std::vector<float> spreadPT(Nparticles);
   std::vector<bool> isPositive(Nparticles);
-  for(int iPart = 0; iPart < Nparticles; iPart++){
+  for(size_t iPart = 0; iPart < Nparticles; iPart++){
     spreadPT[iPart] = correctedptvec[iPart].second[0];
     isPositive[iPart] = spreadPT[iPart]>0;
   }
 
-  std::vector<std::vector<std::pair<int,float> > > particle_drs; //for each particle, list of nearby positive pT particles and their distances
-  for(int iPart = 0; iPart < Nparticles; iPart++){
+  std::vector<std::vector<std::pair<size_t,float> > > particle_drs; //for each particle, list of nearby positive pT particles and their distances
+  for(size_t iPart = 0; iPart < Nparticles; iPart++){
     fastjet::PseudoJet iparticle = correctedptvec[iPart].first;
-    std::vector<std::pair<int,float> > this_particle_drs;
-    for(int jCl = 0; jCl < Nparticles; jCl++){
-      if(iPart == jCl) continue;
-      if(!isPositive[jCl]) continue;
-      fastjet::PseudoJet jparticle = correctedptvec[jCl].first;
+    std::vector<std::pair<size_t,float> > this_particle_drs;
+    for(size_t jPart = 0; jPart < Nparticles; jPart++){
+      if(iPart == jPart) continue;
+      if(!isPositive[jPart]) continue;
+      fastjet::PseudoJet jparticle = correctedptvec[jPart].first;
       float dphi = iparticle.delta_phi_to(jparticle);
       float deta = iparticle.eta() - jparticle.eta(); //fastjet::pseudojet::delta_R(const PseudoJet& other) gives rap-phi distance
       float dr2 = pow(dphi,2) + pow(deta,2);
       if(dr2 > pow(spreadr,2)) continue;
-      std::pair<int,float> jdrpair (jCl,dr2);
+      std::pair<size_t,float> jdrpair (jPart,dr2);
       this_particle_drs.push_back(jdrpair);
     }
     particle_drs.push_back(this_particle_drs);
   }
 
-  for(int i = 0; i < Nparticles; i++){
+  for(size_t i = 0; i < Nparticles; i++){
     if(!(spreadPT[i]<0)) continue; //only spread from negative pT particles
     //find closest positive PT particle:
     float sumdR2 = 0;
@@ -277,7 +277,7 @@ void VoronoiWeightTool::spreadPt(std::vector< std::pair< fastjet::PseudoJet,std:
     }
   }
 
-  for(int iPart = 0; iPart < Nparticles; iPart++){
+  for(size_t iPart = 0; iPart < Nparticles; iPart++){
     correctedptvec[iPart].second[3] = spreadPT[iPart] * (spreadPT[iPart] > 0);
   }
 }
