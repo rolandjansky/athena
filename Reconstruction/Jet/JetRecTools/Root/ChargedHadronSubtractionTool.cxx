@@ -25,7 +25,7 @@ StatusCode ChargedHadronSubtractionTool::process_impl(xAOD::IParticleContainer* 
 
 StatusCode ChargedHadronSubtractionTool::removePileupChargedHadrons(xAOD::PFOContainer& cont) const {
 
-  SG::AuxElement::Accessor<bool> PVMatchedAcc("matchedToPV");
+  const static SG::AuxElement::Accessor<bool> PVMatchedAcc("matchedToPV");
   for ( xAOD::PFO* ppfo : cont ) {
     if(fabs(ppfo->charge()) < 1e-9) continue;
 
