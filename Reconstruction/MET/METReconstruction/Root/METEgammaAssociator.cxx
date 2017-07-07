@@ -163,13 +163,15 @@ namespace met {
     std::vector<const xAOD::PFO*> nearbyPFO;
     nearbyPFO.reserve(20);
     for(const auto& pfo : *constits.pfoCont) {
-      // Reject pfo's with negative or 0 energy
-      // -- the latter includes cPFOs removed by charged hadron subtraction
-      // and/or nPFOs removed by other constituent-based pileup-subtraction methods
-      if(pfo->e() > FLT_MIN && P4Helpers::isInDeltaR(*pfo, *swclus, 0.4, m_useRapidity)) {
-	if(fabs(pfo->charge())<FLT_MIN || ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) ) ) {
+      if(P4Helpers::isInDeltaR(*pfo, *swclus, 0.4, m_useRapidity)) {
+	// We set a small -ve pt for cPFOs that were rejected
+	// by the ChargedHadronSubtractionTool
+	if( ( fabs(pfo->charge())<FLT_MIN && pfo->e() > FLT_MIN ) ||
+	    ( fabs(pfo->charge())>FLT_MIN && pfo->e()>-1*FLT_MIN
+	      && ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) ) )
+	    ) {
 	  nearbyPFO.push_back(pfo);
-	} // retain neutral PFOs and charged PFOs passing PV association
+	} // retain +ve E neutral PFOs and charged PFOs passing PV association
       } // DeltaR check
     } // PFO loop
     ATH_MSG_VERBOSE("Found " << nearbyPFO.size() << " nearby pfos");

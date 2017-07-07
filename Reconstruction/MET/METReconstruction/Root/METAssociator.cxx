@@ -172,19 +172,21 @@ namespace met {
       }
     }
 
-    const VertexContainer *vxCont = 0;
     if( !m_useTracks){
       //if you want to skip tracks, set the track collection empty manually
       ATH_MSG_DEBUG("Skipping tracks");
     }else{
+      const VertexContainer *vxCont = 0;
       if( evtStore()->retrieve(vxCont, m_pvcoll).isFailure() ) {
 	ATH_MSG_WARNING("Unable to retrieve primary vertex container " << m_pvcoll);
 	//this is actually really bad.  If it's empty that's okay
 	return StatusCode::FAILURE;
       }
       ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
+      ATH_MSG_DEBUG("Container holds " << vxCont->size() << " vertices");
 
       for(const auto& vx : *vxCont) {
+	ATH_MSG_VERBOSE( "Testing vertex " << vx->index() );
 	if(vx->vertexType()==VxType::PriVtx)
 	  {constits.pv = vx; break;}
       }
@@ -195,9 +197,11 @@ namespace met {
       }
 
       constits.trkCont=0;
+      ATH_MSG_DEBUG("Retrieving Track collection " << m_trkcoll);
       ATH_CHECK( evtStore()->retrieve(constits.trkCont, m_trkcoll) );
 
       if(m_pflow) {
+	ATH_MSG_DEBUG("Retrieving PFlow collection " << m_pfcoll);
 	constits.pfoCont = 0;
 	ATH_CHECK( evtStore()->retrieve(constits.pfoCont, m_pfcoll ) );
       }//pflow
