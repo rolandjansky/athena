@@ -275,57 +275,6 @@ class AtlasSimSkeleton(SimSkeleton):
 
 
     @classmethod
-    def do_MCtruth(self):
-        """ Configure the MCTruth strategies.
-        """
-        AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_MCTruth :: starting')
-        ## Different geometry levels for MCTruth strategies, depending on simFlags.SimLayout
-        mctruth_level = 1 # default
-        from G4AtlasApps.SimFlags import simFlags
-        if jobproperties.Beam.beamType() == 'cosmics' or \
-           (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
-            mctruth_level = 2
-
-        if DetFlags.Truth_on():
-            from atlas_mctruth import MCTruthStrategies
-            mcTruthMenu = AtlasG4Eng.G4Eng.menu_MCTruth()
-
-            if DetFlags.ID_on():
-                strategy1 = MCTruthStrategies.StrategyIDET1(mctruth_level)
-                strategy2 = MCTruthStrategies.StrategyIDET2(mctruth_level)
-                strategy3 = MCTruthStrategies.StrategyIDET3(mctruth_level)
-                strategy4 = MCTruthStrategies.StrategyIDET4(mctruth_level)
-                strategy5 = MCTruthStrategies.StrategyIDET5(mctruth_level)
-                strategy6 = MCTruthStrategies.StrategyIDET6(mctruth_level)
-                mcTruthMenu.add_McTruthStrategy(strategy1.strg)
-                mcTruthMenu.add_McTruthStrategy(strategy2.strg)
-                mcTruthMenu.add_McTruthStrategy(strategy3.strg)
-                mcTruthMenu.add_McTruthStrategy(strategy4.strg)
-                mcTruthMenu.add_McTruthStrategy(strategy5.strg)
-                mcTruthMenu.add_McTruthStrategy(strategy6.strg)
-                if DetFlags.bpipe_on():
-                   strategy1.strg.add_Volumes('BeamPipe::BeamPipe', mctruth_level)
-                   strategy2.strg.add_Volumes('BeamPipe::BeamPipe', mctruth_level)
-                   strategy3.strg.add_Volumes('BeamPipe::BeamPipe', mctruth_level)
-                   strategy4.strg.add_Volumes('BeamPipe::BeamPipe', mctruth_level)
-                   strategy5.strg.add_Volumes('BeamPipe::BeamPipeCentral', mctruth_level+1)
-                   strategy6.strg.add_Volumes('BeamPipe::BeamPipe', mctruth_level)
-
-            if DetFlags.Calo_on():
-                strategyCalo = MCTruthStrategies.StrategyCALO(mctruth_level)
-                mcTruthMenu.add_McTruthStrategy(strategyCalo.strg)
-
-            if DetFlags.geometry.Muon_on():
-                #strategyMuon = MCTruthStrategies.StrategyMUON(mctruth_level)
-                #mcTruthMenu.add_McTruthStrategy(strategyMuon.strg)
-                strategyMuonQ02 = MCTruthStrategies.StrategyMUONQ02(mctruth_level)
-                mcTruthMenu.add_McTruthStrategy(strategyMuonQ02.strg)
-            #mcTruthMenu.set_SecondarySaving('All')
-            mcTruthMenu.set_SecondarySaving('StoredSecondaries')
-        AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_MCTruth :: done')
-
-
-    @classmethod
     def _do_metadata(self):
         """
         Setup and add metadata to the HIT file.
