@@ -59,7 +59,7 @@ atlas_add_library( ${pkgName} ${pkgName}/*.h src/*.cxx src/*.qrc ${VP1_PLUGIN_HE
    PUBLIC_HEADERS ${pkgName}
    INCLUDE_DIRS ${SOQT_INCLUDE_DIRS} ${COIN3D_INCLUDE_DIRS} ${QT5_INCLUDE_DIRS} 
    PRIVATE_INCLUDE_DIRS tmpqt_extraheaders/  ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES Qt5::Core Qt5::Gui Qt::Widgets ${SOQT_LIBRARIES} ${COIN3D_LIBRARIES} GeoPrimitives
+   LINK_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets ${SOQT_LIBRARIES} ${COIN3D_LIBRARIES} GeoPrimitives
    PRIVATE_LINK_LIBRARIES VP1GuideLineSystems VP1GeometrySystems VP1AODSystems
 )
 
