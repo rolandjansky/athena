@@ -45,7 +45,7 @@ namespace errorcheck {
   {
     std::ostringstream ss;
     ss << "VarHandle(" 
-       << context->storeHandle().name() << "/" << context->key()
+       << context->storeHandle().name() << "+" << context->key()
        << "[" << context->clid() << "]"
        << ")";
     return ss.str();
