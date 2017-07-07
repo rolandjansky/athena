@@ -7,13 +7,13 @@
 QStringList VP1AODPlugin_VP1AutoFactory::channelWidgetsProvided() const
 {
   return QStringList()
-        << "Analysis"
+        << "AOD"
          ;
 }
 
 IVP1ChannelWidget * VP1AODPlugin_VP1AutoFactory::getChannelWidget(const QString & channelwidget)
 {
-  if (channelwidget == "Analysis")
+  if (channelwidget == "AOD")
     return new VP1AODChannel();
 
   return 0;
