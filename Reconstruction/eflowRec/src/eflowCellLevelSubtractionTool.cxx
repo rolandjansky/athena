@@ -271,7 +271,6 @@ void eflowCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
 	double radiusToStore = 0;
 	double totalEnergyPerCell = 0;
 	
-	int indexofCell = 0;
 	double energyDensityPerCell = -666;
 	double totalEnergyPerRing = 0;
 	
