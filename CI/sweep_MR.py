@@ -158,6 +158,26 @@ def cherry_pick_mr(merge_commit,source_branch,target_branch_rules,project,dry_ru
     _,mr_title,_ = execute_command_with_retry('git show {0} --pretty=format:"%s"'.format(merge_commit))
     _,mr_desc,_ = execute_command_with_retry('git show {0} --pretty=format:"%b"'.format(merge_commit))
 
+    _s_ = source_branch.split('/')
+    if len(_s_) == 2:
+        source_branch_strip = _s_[1]
+    elif len(_s_) == 1:
+        source_branch_strip = _s_[0]
+    else:
+        source_branch_strip = 'undefined branch'
+
+    _s_ = mr_desc.split('\n')
+    mr_desc_strip = ''
+    for _subs_ in _s_:
+        if not re.match('^See merge request ',_subs_):
+            mr_desc_strip += _subs_
+
+    _comment_1_ = 'Sweeping !' + str(MR_IID) + ' from ' + source_branch_strip + ' to '
+    _comment_2_ = '.\n' + mr_desc_strip
+
+    for _t_ in target_branches:
+        logging.debug("MR title for target branch %s: '%s'", _t_, _comment_1_ + _t_ + _comment_2_)
+
     # perform cherry-pick to all target branches
     for tbranch in target_branches:
         failed = False
@@ -184,14 +204,16 @@ def cherry_pick_mr(merge_commit,source_branch,target_branch_rules,project,dry_ru
         else:
             logging.info("cherry-picked '%s' into '%s'",merge_commit,tbranch)
 
+            _title_ = _comment_1_ + tbranch + _comment_2_
             # create merge request
             mr_data = {}
             mr_data['source_branch'] = cherry_pick_branch
             mr_data['target_branch'] = tbranch
-            mr_data['title'] = mr_title
+            mr_data['title'] = _title_
             mr_data['description'] = mr_desc
             mr_data['labels'] = "sweep:from {0}".format(os.path.basename(source_branch))
             mr_data['remove_source_branch'] = True
+            logging.debug("Sweeping MR %d to %s with a title: '%s'",MR_IID,tbranch,_title_)
             try:
                 new_mr = project.mergerequests.create(mr_data)
             except GitlabCreateError as e:
