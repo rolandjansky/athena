@@ -2,6 +2,9 @@
 #       (standard simulation uses level 1)
 def add_LLP_truth_strategy():
     print "ERROR add_LLP_truth_strategy is obsolete"
+    print "Please request replacment configuration."
+    import sys
+    sys.exit(1)
     ## from G4AtlasApps import PyG4Atlas
     ## MCTruthMenu=PyG4Atlas.G4AtlasEngine.menu_MCTruth()
     ## LLPstrg=PyG4Atlas.MCTruthStrg('G4TruthStrategies', 'LLP','Atlas::Atlas',0)
