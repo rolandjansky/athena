@@ -56,43 +56,43 @@ class AFP_SIDBasicKalman
 		void GetData();
 
 	private:
-		Float_t fxMapSID[SIDSTATIONID][SIDCNT][336][80];
-		Float_t fyMapSID[SIDSTATIONID][SIDCNT][336][80];
-		Float_t fzMapSID[SIDSTATIONID][SIDCNT][336][80];
+		Float_t m_fxMapSID[SIDSTATIONID][SIDCNT][336][80];
+		Float_t m_fyMapSID[SIDSTATIONID][SIDCNT][336][80];
+		Float_t m_fzMapSID[SIDSTATIONID][SIDCNT][336][80];
 		
 		void HistInitialize();
 		void HistFinalize();		
 		
-		TFile *MyFile;
-		TH2F* histS1_PixMap;
-		TH2F* histS2_PixMap;
-		TH2F* histS3_PixMap;
-		TH2F* histS4_PixMap;
+		TFile *m_MyFile;
+		TH2F* m_histS1_PixMap;
+		TH2F* m_histS2_PixMap;
+		TH2F* m_histS3_PixMap;
+		TH2F* m_histS4_PixMap;
 		
 	private:
-		vector<SIDHITSEED> pTrkSeeds;
-		CLHEP::HepMatrix Hk, Qk, Vk, C0;
+		vector<SIDHITSEED> m_pTrkSeeds;
+		CLHEP::HepMatrix m_Hk, m_Qk, m_Vk, m_C0;
 		
-		CLHEP::HepMatrix m0, x0;
-		Float_t z0;
+		CLHEP::HepMatrix m_m0, m_x0;
+		Float_t m_z0;
 		
-		vector< CLHEP::HepMatrix > Fk;
-		vector< CLHEP::HepMatrix > Ck;
-		vector< CLHEP::HepMatrix > CkP;
-		vector< CLHEP::HepMatrix > Rk;
+		vector< CLHEP::HepMatrix > m_Fk;
+		vector< CLHEP::HepMatrix > m_Ck;
+		vector< CLHEP::HepMatrix > m_CkP;
+		vector< CLHEP::HepMatrix > m_Rk;
 
-		vector< CLHEP::HepVector > xk;
-		vector< CLHEP::HepVector > xkP;
-		vector< CLHEP::HepVector > rk;
-		vector< CLHEP::HepVector > rkP;
-		vector< CLHEP::HepVector > mk;
-		vector< Float_t > chik;
-		vector< Float_t > zk;
-		vector< Int_t >   HID;
+		vector< CLHEP::HepVector > m_xk;
+		vector< CLHEP::HepVector > m_xkP;
+		vector< CLHEP::HepVector > m_rk;
+		vector< CLHEP::HepVector > m_rkP;
+		vector< CLHEP::HepVector > m_mk;
+		vector< Float_t > m_chik;
+		vector< Float_t > m_zk;
+		vector< Int_t >   m_HID;
 		
-		vector< CLHEP::HepVector > xkS;
-		vector< CLHEP::HepMatrix > CkS;
-		vector< Float_t > chikS;
+		vector< CLHEP::HepVector > m_xkS;
+		vector< CLHEP::HepMatrix > m_CkS;
+		vector< Float_t > m_chikS;
 		
 		void FillSIDHITPOS(const SIDHIT &SIDHit, map<Int_t, SIDHITPOS> &MapSIDHitPos);
 		void GetTrkSeeds();
