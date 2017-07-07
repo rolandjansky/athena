@@ -620,6 +620,9 @@ int JetRecTool::record(const xAOD::JetContainer* pjets) const {
     StatusCode sc = evtStore()->record(pmutjets, m_outcoll);
 #else
     StatusCode sc = evtStore()->record(pjets, m_outcoll);
+    if(sc.isSuccess()) {
+      sc = evtStore()->setConst(pjets);
+    }
 #endif
     if ( sc.isFailure() ) {
       ATH_MSG_ERROR("Unable to write new Jet collection to event store: " << m_outcoll);
