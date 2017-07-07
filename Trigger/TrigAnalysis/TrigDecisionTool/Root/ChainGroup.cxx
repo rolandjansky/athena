@@ -345,12 +345,12 @@ float Trig::ChainGroup::HLTPrescale(const std::string& chain, unsigned int /*con
 
 
 bool Trig::ChainGroup::isCorrelatedL1items(const std::string& item) const {
-  if(item == "L1_MU20,L1_MU21") return true;
+  if( (item == "L1_MU20,L1_MU21") || (item == "L1_MU21,L1_MU20") ) return true;
   return false;
 }
 
 float Trig::ChainGroup::correlatedL1Prescale(const std::string& item) const {
-  if(item == "L1_MU20,L1_MU21"){
+  if( (item == "L1_MU20,L1_MU21") || (item == "L1_MU21,L1_MU20") ) {
     //see discussion in ATR-16612
     auto l1mu20   = cgm(true)->config_item("L1_MU20");
     float l1mu20ps = cgm(true)->item_prescale(l1mu20->ctpId()); 
