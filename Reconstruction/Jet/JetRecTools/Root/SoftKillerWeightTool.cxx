@@ -70,11 +70,16 @@ StatusCode SoftKillerWeightTool::initialize() {
 StatusCode SoftKillerWeightTool::process_impl(xAOD::IParticleContainer* cont) const {
   const static SG::AuxElement::Accessor<float> weightAcc("PUWeight"); // Handle for PU weighting here
   double minPt(0.), minPtECal(0.), minPtHCal(0.);
-  if(m_isCaloSplit == false) {minPt = getSoftKillerMinPt(*cont);}
+  if(m_isCaloSplit == false) {
+    minPt = getSoftKillerMinPt(*cont);
+    ATH_MSG_VERBOSE("For current event, minpt = " << minPt);
+  }
   else {
     std::pair<double,double> minPt_split = getSoftKillerMinPtSplit(*cont);
     minPtECal = minPt_split.first;
     minPtHCal = minPt_split.second;
+    ATH_MSG_VERBOSE("For current event, minpt = " << minPtECal << " (ECAL), "
+		    << minPtHCal << " (HCAL)");
   }
 
   for(xAOD::IParticle* part : *cont) {

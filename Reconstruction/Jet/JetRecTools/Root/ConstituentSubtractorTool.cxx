@@ -106,7 +106,7 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
     corrected_p4s[pj.user_index()].SetCoordinates(pj.pt(),pj.eta(),pj.phi(),pj.m());
   }
 
-  // Set every constituent's four-vector in the output container
+  // Set every constituent's four-vector
   i = 0; // Again, we need to track the input container index, not the owning container index
   const static SG::AuxElement::Accessor<float> weightAcc("CSWeight"); // Handle for PU weighting here
   for(xAOD::IParticle * part: *cont){
