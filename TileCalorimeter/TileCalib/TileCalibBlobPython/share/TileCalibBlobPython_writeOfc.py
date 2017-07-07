@@ -3,14 +3,7 @@
 # Nils Gollub <nils.gollub@cern.ch>, 2007-11-19
 # change: Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24
 
-#import PyCintex
-try:
-   # ROOT5
-   import PyCintex
-except:
-   # ROOT6
-   import cppyy as PyCintex
-   sys.modules['PyCintex'] = PyCintex
+import cppyy
 
 from PyCool import cool, coral
 from TileCalibBlobPython import TileCalibTools, TileCalibLogger
@@ -46,7 +39,7 @@ comment  = "OFC weights (7 samples) imported from TileDSPofc v4r1p4"
 #===
 #==================================================
 #=== set shortcut
-g = PyCintex.gbl
+g = cppyy.gbl
 
 #=== get a logger
 log = TileCalibLogger.getLogger("WriteOfc")

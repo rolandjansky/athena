@@ -31,6 +31,7 @@
 + graphics/VP1/VP1Systems/VP1GeometrySystems
 + graphics/VP1/VP1Plugins/VP1GeometryPlugin
 + graphics/VP1/VP1Systems/VP1GuideLineSystems
++ graphics/VP1/VP1Systems/VP1SimHitSystems
 # + graphics/VP1/VP1Plugins/VP1TrackPlugin
 # + graphics/VP1/VP1Systems/VP1TrackSystems
 - graphics/VP1/.*

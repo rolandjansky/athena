@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 ### import the modules 
-import ROOT, PyCintex
+import ROOT
 
 ### define the list of input files
 import sys

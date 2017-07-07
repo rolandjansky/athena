@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>372</width>
-    <height>365</height>
+    <height>469</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -119,7 +119,7 @@
       <item>
        <widget class="QGroupBox" name="groupBox_r_position_cuts">
         <property name="enabled">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="title">
          <string>R position cuts</string>
@@ -253,6 +253,138 @@
          </item>
         </layout>
        </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_position_cut_y">
+     <property name="title">
+      <string>Y position cuts</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_7">
+      <item>
+       <layout class="QHBoxLayout" name="y_cut_upper_checkboxes">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QCheckBox" name="checkBox_cut_y">
+          <property name="toolTip">
+           <string>Check to enable pseudorapidity cut</string>
+          </property>
+          <property name="text">
+           <string>Active (</string>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBox_cut_y_range_forcesymmetric">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>Check to enforce a symmetric pseudorapidity cut</string>
+          </property>
+          <property name="text">
+           <string>symmetric ):</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBox_cut_y_excludeRange">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>exclude range</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="y_cut_values">
+        <property name="spacing">
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QDoubleSpinBox" name="doubleSpinBox_cut_y_lower">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>Lower pseudorapidity bound</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="minimum">
+           <double>-99.989999999999995</double>
+          </property>
+          <property name="maximum">
+           <double>0.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.100000000000000</double>
+          </property>
+          <property name="value">
+           <double>-3.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>-</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="doubleSpinBox_cut_y_upper">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="toolTip">
+           <string>Upper pseudorapidity bound</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="minimum">
+           <double>0.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.100000000000000</double>
+          </property>
+          <property name="value">
+           <double>3.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="y_h_spacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::MinimumExpanding</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
@@ -441,70 +573,6 @@
  <resources/>
  <connections>
   <connection>
-   <sender>checkBox_cut_r</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>checkBox_cut_r_range_forcesymmetric</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>55</x>
-     <y>129</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>138</x>
-     <y>129</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_cut_r</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>doubleSpinBox_cut_r_lower</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>55</x>
-     <y>129</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>53</x>
-     <y>153</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_cut_r</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>doubleSpinBox_cut_r_upper</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>55</x>
-     <y>129</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>140</x>
-     <y>153</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_cut_z</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>checkBox_cut_z_range_forcesymmetric</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>55</x>
-     <y>214</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>138</x>
-     <y>214</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>checkBox_cut_z</sender>
    <signal>clicked(bool)</signal>
    <receiver>doubleSpinBox_cut_z_lower</receiver>
@@ -533,6 +601,38 @@
     <hint type="destinationlabel">
      <x>134</x>
      <y>238</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_cut_y</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>doubleSpinBox_cut_y_lower</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>67</x>
+     <y>256</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>62</x>
+     <y>289</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_cut_y</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>doubleSpinBox_cut_y_upper</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>67</x>
+     <y>256</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>149</x>
+     <y>289</y>
     </hint>
    </hints>
   </connection>

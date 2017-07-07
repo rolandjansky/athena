@@ -24,8 +24,9 @@
 
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "PixelProcessorTool.h"
-#include "SubChargesTool.h"
+#include "SensorSimTool.h"
 #include "FrontEndSimTool.h"
+#include "EnergyDepositionTool.h"
 
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 
@@ -64,8 +65,9 @@ class PixelDigitizationTool : public PileUpToolBase {
     bool              m_onlyHitElements;
 
     ToolHandleArray<PixelProcessorTool>            m_processorTool;
-    ToolHandleArray<SubChargesTool>                m_chargeTool;
+    ToolHandleArray<SensorSimTool>                 m_chargeTool;
     ToolHandleArray<FrontEndSimTool>               m_fesimTool;
+    ToolHandle<EnergyDepositionTool>                     m_energyDepositionTool;
 
     const PixelID            *m_detID;
 

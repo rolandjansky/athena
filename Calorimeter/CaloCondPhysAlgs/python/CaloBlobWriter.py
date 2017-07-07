@@ -2,7 +2,6 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 import ROOT
-import PyCintex
 from PyCool import cool
 import os
 #from CaloCondBlobAlgs import CaloCondTools, CaloCondLogger
@@ -11,8 +10,6 @@ def CaloCondBlobWriter(spec,valuePairs,defaultValue):
 
    vec=getattr(ROOT,'vector<float>')
    vecvec=getattr(ROOT,'vector<vector<float> >')
-   #g = PyCintex.gbl
-   #PyCintex.makeClass('std::vector<float>')
 
    #Build the defintion vector (1 value per gain)
    gainDefVec = vec()#g.std.vector('float')()

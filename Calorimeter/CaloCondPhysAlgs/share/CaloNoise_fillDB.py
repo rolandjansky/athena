@@ -61,7 +61,6 @@ import ROOT
 import cppyy
 from PyCool import cool
 from CaloCondBlobAlgs import CaloCondTools, CaloCondLogger
-#PyCintex.loadDict("STLAddRflx")
 
 #==================================================
 #===
@@ -89,8 +88,6 @@ comment  = "Updated noise values"
 #===
 #==================================================
 #=== set shortcut
-#PyCintex.makeClass('std::vector<float>')
-#PyCintex.loadDict("STLAddRflx")
 cppyy.loadDictionary("STLAddRflx")
 
 #=== get a logger
@@ -126,7 +123,6 @@ try:
     #==================================================   
     #=== default a and b to be used for each gain 
     gainDefVec = ROOT.std.vector('float')()
-    #gainDefVec = PyCintex.gbl.std.vector('float')()
     gainDefVec.push_back(0.) # a 
     gainDefVec.push_back(0.) # b 
     #=== three gains per channel for LAr

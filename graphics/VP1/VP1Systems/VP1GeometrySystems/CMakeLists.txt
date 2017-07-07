@@ -3,10 +3,6 @@
 # Package: VP1GeometrySystems
 ################################################################################
 
-# Set the minimum required CMake version:
-cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
-
-
 # Declare the package name:
 atlas_subdir( VP1GeometrySystems )
 
@@ -37,9 +33,6 @@ set( CMAKE_AUTOUIC ON )
 set( CMAKE_AUTOMOC ON )
 # Generate resource files automatically:
 set( CMAKE_AUTORCC ON )
-
-
-
 
 ### Build the library. 
 # Remember: the auto-generated UI files are put under

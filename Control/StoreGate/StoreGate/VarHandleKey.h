@@ -170,5 +170,9 @@ private:
 
 } // namespace SG
 
+namespace std {
+  ostream& operator<<(ostream& s, const SG::VarHandleKey& m);
+}
+
 
 #endif // not STOREGATE_VARHANDLEKEY_H

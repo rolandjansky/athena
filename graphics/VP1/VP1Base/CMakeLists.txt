@@ -5,9 +5,6 @@
 # Author: Riccardo Maria BIANCHI <rbianchi@cern.ch>
 ################################################################################
 
-# Set the minimum required CMake version:
-cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
-
 # Set the name of the package:
 atlas_subdir( VP1Base )
 

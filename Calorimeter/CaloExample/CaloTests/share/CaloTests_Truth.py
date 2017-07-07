@@ -3,8 +3,6 @@
 import os,commands,sys,logging
 import ROOT
 import time,math,cmath
-#import PyCintex
-#PyCintex.Enable()
 
 class CaloTests_Truth:
     def __init__(self,log,logLevel):

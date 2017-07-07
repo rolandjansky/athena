@@ -10,16 +10,8 @@
 
 HiveAlgC::HiveAlgC( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
-  ::HiveAlgBase( name, pSvcLocator ),
-  m_rdh1("a1"),
-  m_wrh1("c1"),
-  m_wrh2("c2")
-{
-  
-  declareProperty("Key_R1",m_rdh1);
-  declareProperty("Key_W1",m_wrh1);
-  declareProperty("Key_W2",m_wrh2);
-
+  ::HiveAlgBase( name, pSvcLocator )
+{  
 }
 
 HiveAlgC::~HiveAlgC() {}
@@ -27,9 +19,9 @@ HiveAlgC::~HiveAlgC() {}
 StatusCode HiveAlgC::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
 
-  ATH_CHECK( m_rdh1.initialize() );
-  ATH_CHECK( m_wrh1.initialize() );
-  ATH_CHECK( m_wrh2.initialize() );
+  ATH_CHECK( m_rdh1.value().initialize() );
+  ATH_CHECK( m_wrh1.value().initialize() );
+  ATH_CHECK( m_wrh2.value().initialize() );
 
   return HiveAlgBase::initialize();
 }

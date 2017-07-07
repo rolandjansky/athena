@@ -93,7 +93,7 @@ def get_status(rfile, lfile):
         log.error('ROOT file does not exist')
         return False
             
-    import ROOT, PyCintex
+    import ROOT
     ROOT.gSystem.Load('libTrigMonitoringEventDict')
     
     file = ROOT.TFile(rfile)

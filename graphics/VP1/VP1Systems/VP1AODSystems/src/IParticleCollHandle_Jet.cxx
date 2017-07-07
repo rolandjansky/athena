@@ -818,9 +818,7 @@ void IParticleCollHandle_Jet::dumpToJSON( std::ofstream& str) const {
   for (auto handle : getHandlesList() ) {
     if (handle->visible()) {
       if (num) str <<",\n";
-      str << "\"Jet "<<num++<< "\":{";
       handle->dumpToJSON(str);
-      str << "}";
     }
   }
   

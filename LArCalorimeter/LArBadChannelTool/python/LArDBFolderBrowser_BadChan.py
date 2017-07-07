@@ -9,12 +9,9 @@ from PyCool import cool,coral
 from GaudiKernel.Constants import *
 import logging
 
-import PyCintex as PyLCGDict
-
 import LArBadChannelBrowserTools
 
-import PyCintex
-#PyCintex.loadDictionary("libBadChanDict")
+import cppyy
 
 STATUS_INIT="INIT"
 STATUS_NEW="NEW"
@@ -257,7 +254,7 @@ class LArDBFolderBrowser_BadChan():
     def BadChan_GetCoolChannelNameFromHWIdentifier(self,sHWid):
         """ Get channel name from HW identifier (only for text menu purpose)"""
 
-        self.class_LArBadChannelState=PyCintex.makeClass('LArBadChannelState')
+        self.class_LArBadChannelState=cppyy.makeClass('LArBadChannelState')
         inst_larBadChannelState=self.class_LArBadChannelState()
         
         sChannelName=""
@@ -608,7 +605,7 @@ class LArDBFolderBrowser_BadChan():
         listKeys.sort()
 
         # Create LArBadChannel object for defined BadChanEntry vector and coolChan
-        self.class_LArBadChannelState=PyCintex.makeClass('LArBadChannelState')
+        self.class_LArBadChannelState=cppyy.makeClass('LArBadChannelState')
         inst_larBadChannelState=self.class_LArBadChannelState()
 
         # Loop over cool channels
@@ -616,7 +613,7 @@ class LArDBFolderBrowser_BadChan():
         bNewDBCreated=False
         for coolChan in listKeys:
 
-            vect_BadChanEntry=PyCintex.gbl.std.vector('std::pair<HWIdentifier,LArBadChannel>')()
+            vect_BadChanEntry=cppyy.gbl.std.vector('std::pair<HWIdentifier,LArBadChannel>')()
             
             listHWidKeys=[x for x in self.dict_vectBadChanEntry[coolChan].keys()]
             listHWidKeys.sort()
@@ -637,7 +634,7 @@ class LArDBFolderBrowser_BadChan():
                 obj_HWid.set(sHWid)
                 larBadChannel=self.class_LArBadChannel(badChan_word)
 
-                pair_BadChanEntry=PyCintex.gbl.pair('HWIdentifier,LArBadChannel')(obj_HWid, larBadChannel)
+                pair_BadChanEntry=cppyy.gbl.pair('HWIdentifier,LArBadChannel')(obj_HWid, larBadChannel)
                 vect_BadChanEntry.push_back(pair_BadChanEntry)
 
             # if correction were made => store BadChanEntry vector
@@ -649,8 +646,8 @@ class LArDBFolderBrowser_BadChan():
                 continue
 
             # Create object based on new LArBadChannelState (via LArBadChannelDBTools python interface) 
-            attrListSpec=PyCintex.gbl.coral.AttributeListSpecification()
-            athenaAttrList=PyCintex.gbl.AthenaAttributeList()
+            attrListSpec=cppyy.gbl.coral.AttributeListSpecification()
+            athenaAttrList=cppyy.gbl.AthenaAttributeList()
         
             attrListSpec=self.nspace_LArBadChannelDBTools.createCoolSpec()
             athenaAttrList=self.nspace_LArBadChannelDBTools.createPayload(inst_larBadChannelState.coolChannel(coolChan), attrListSpec)

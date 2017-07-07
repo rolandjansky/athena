@@ -8,8 +8,6 @@
 #include <map>
 #include <set>
 
-//#include "Cintex/Cintex.h"
-
 #include "TChain.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -258,9 +256,6 @@ std::vector<T*> pointers( std::vector<T>& v ) {
 
 int main(int argc, char** argv) 
 {
-
-  //  ROOT::Cintex::Cintex::Enable();
-
   if ( argc<2 ) { 
     std::cerr << "Error: no config file specified\n" << std::endl;
     return usage(argv[0], -1);
