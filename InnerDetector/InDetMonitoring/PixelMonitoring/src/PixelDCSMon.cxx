@@ -22,7 +22,6 @@
 #include "InDetIdentifier/PixelID.h"
 #include "PixelMonitoring/PixelMon2DMaps.h"
 #include "PixelMonitoring/PixelMonModules.h"
-#include "PixelMonitoring/PixelMonProfiles.h"
 #include "TString.h"
 #include "TMath.h"
 // Database
