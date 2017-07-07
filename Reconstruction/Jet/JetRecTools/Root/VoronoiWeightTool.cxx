@@ -162,8 +162,8 @@ StatusCode VoronoiWeightTool::process_impl(xAOD::IParticleContainer* particlesin
 	//And the particles should match
 	float Containerpt = part->pt();
 	float PJpt = ptvec[i].first.pt();
-	ATH_MSG_VERBOSE( "Container: " << Containerpt );
-	ATH_MSG_VERBOSE( "Ptvec: " << PJpt );
+	ATH_MSG_VERBOSE( "Container pt: " << Containerpt << ", fastjet initial pt: " << PJpt 
+			 << ", subtracted pt: " << ptvec[i].second[alg]);
 	if (fabs(Containerpt-PJpt) > 0.1){
 	  ATH_MSG_VERBOSE( fabs(Containerpt-PJpt) );
 	  ATH_MSG_ERROR("Particle pt's don't match.");
