@@ -2,7 +2,7 @@
 
 #include "eflowRec/eflowRingThicknesses.h"
 
-double eflowRingThicknesses::ringThickness(const eflowCaloENUM& layer) const{
+double eflowRingThicknesses::ringThickness(const eflowCaloENUM& layer) {
  
   double EM1 = 0.0491122;   
   double EM2 = 0.0175171;  
