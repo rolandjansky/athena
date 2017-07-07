@@ -39,6 +39,7 @@
 GetDetectorPositions::GetDetectorPositions(std::string const&  name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_detailLevel(0),
+  m_doTRT(true),
   m_outputFileName("IDgeometry.txt"),  
   
   /** Pixel Variables */
@@ -80,6 +81,7 @@ GetDetectorPositions::GetDetectorPositions(std::string const&  name, ISvcLocator
 {
   declareProperty("OutputTextFile",m_outputFileName);
   declareProperty("DetailLevel",m_detailLevel);
+  declareProperty("DoTRT",        m_doTRT);
 }
 
 /** initialize */
@@ -87,17 +89,19 @@ StatusCode GetDetectorPositions::initialize(){
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "initialize()" << endmsg;
   
   /** Retrive TRT info */
-  if (detStore()->retrieve(m_TRTHelper, "TRT_ID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get TRT ID helper" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "got the TRT ID" << endmsg;
+  if(m_doTRT){
+    if (detStore()->retrieve(m_TRTHelper, "TRT_ID").isFailure()) {
+      msg(MSG::FATAL) << "Could not get TRT ID helper" << endmsg;
+      return StatusCode::FAILURE;
+    }
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "got the TRT ID" << endmsg;
 
-  if ((detStore()->retrieve(m_TRTDetectorManager)).isFailure()) {
-    if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Problem retrieving TRT_DetectorManager" << endmsg;
-    return StatusCode::FAILURE;
+    if ((detStore()->retrieve(m_TRTDetectorManager)).isFailure()) {
+      if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Problem retrieving TRT_DetectorManager" << endmsg;
+      return StatusCode::FAILURE;
+    }
   }
-  
+
   /** Retrive SCT info */
   if (detStore()->retrieve(m_SCTHelper, "SCT_ID").isFailure()) {
     msg(MSG::FATAL) << "Could not get SCT ID helper" << endmsg;
@@ -150,8 +154,9 @@ StatusCode GetDetectorPositions::execute() {
     //Write SCT positions
     writeSCTPositions();
 
-    //Write SCT positions
-    writeTRTPositions();
+    //Write TRT positions
+    if(m_doTRT)
+      writeTRTPositions();
 
     return StatusCode::SUCCESS;
 }
