@@ -112,7 +112,7 @@ namespace G4UA{
 	TrackHelper trackHelper(itr);
 
 	EventInformation* eventInfo=static_cast<EventInformation*>
-          (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
+    (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
 
 	//int primaryBarcode(0);
 	int currentBarcode(0);
