@@ -80,7 +80,7 @@ StatusCode CorrectPFOTool::correctPFO(xAOD::PFOContainer& cont) const {
     }
   }
 
-  SG::AuxElement::Accessor<bool> PVMatchedAcc("matchedToPV");
+  const static SG::AuxElement::Accessor<char> PVMatchedAcc("matchedToPV");
 
   for ( xAOD::PFO* ppfo : cont ) {
     if ( ppfo == 0 ) {

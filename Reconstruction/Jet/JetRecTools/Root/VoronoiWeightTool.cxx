@@ -107,18 +107,18 @@ StatusCode VoronoiWeightTool::process_impl(xAOD::IParticleContainer* particlesin
 
   for(const auto& part: *particlesin){
     // Only use positive E
-    bool accept = part->e() > 1e-9;
+    bool accept = part->e() > -1*FLT_MIN;
     // For PFlow we would only want to apply the correction to neutral PFOs,
     // because charged hadron subtraction handles the charged PFOs.
     // However, we might still want to use the cPFOs for the min pt calculation
     if(m_inputType==xAOD::Type::ParticleFlow && m_ignoreChargedPFOs) {
       // The auto loop returns an ElementProxy, so we need to dereference/reference
       const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>(&*part);
-      accept = fabs(pfo->charge())>1e-9;
+      accept &= fabs(pfo->charge())<FLT_MIN;
     }
     if(accept) {
       particles.push_back( fastjet::PseudoJet(part->p4()) );
-      ATH_MSG_VERBOSE( "Accepted particle with pt " << part->pt() );
+      // ATH_MSG_VERBOSE( "Accepted particle with pt " << part->pt() );
     }
   }
 
@@ -132,20 +132,23 @@ StatusCode VoronoiWeightTool::process_impl(xAOD::IParticleContainer* particlesin
   if(!m_doSpread && m_nSigma == 0) alg = 1;
   if(!m_doSpread && m_nSigma > 0) alg = 2;
 
+  // This tracks the index of the object in the fastjet container
   size_t i=0;
   SG::AuxElement::Accessor<float> weightAcc("VoronoiWeight"); // Handle for PU weighting here
   for(const auto& part : SortHelper::sort_container_pt(particlesin)){
     // Skip the check on charged PFOs if needed
-    bool accept(true);
+    // A subtle change in this check because fastjet will not return anything
+    // with <= 0 pt
+    bool accept = part->e() > FLT_MIN;
     if(m_inputType==xAOD::Type::ParticleFlow && m_ignoreChargedPFOs) {
       // The auto loop returns an ElementProxy, so we need to dereference/reference
       const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>(&*part);
-      accept = fabs(pfo->charge())>1e-9;
+      accept &= fabs(pfo->charge())<FLT_MIN;
     }
 
     if(accept) {
       float newE(0.);
-      //There should be the same number of positive E Particles in the container as particles in the ptvec
+      //There should be the same number of positive E particles in the container as particles in the ptvec
       bool endContainer = part->e()<=0;
       bool endVec = i>=ptvec.size();
       if(endVec && endContainer){
