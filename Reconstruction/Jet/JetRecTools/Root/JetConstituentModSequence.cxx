@@ -66,6 +66,8 @@ int JetConstituentModSequence::execute() const {
   }
 
   xAOD::IParticleContainer* modifiedCont = nullptr;
+  xAOD::PFOContainer* chargedCopy(nullptr);
+  xAOD::PFOContainer* neutralCopy(nullptr);
 
   // Create the shallow copy according to the input type
   switch(m_inputType){
@@ -83,13 +85,13 @@ int JetConstituentModSequence::execute() const {
 
 
   case xAOD::Type::ParticleFlow : {
-    const xAOD::IParticleContainer *charged;
-    const xAOD::IParticleContainer *neutral;
+    const xAOD::PFOContainer *charged(nullptr);
+    const xAOD::PFOContainer *neutral(nullptr);
     ATH_CHECK( evtStore()->retrieve(charged, m_inputContainer+"ChargedParticleFlowObjects") );
     ATH_CHECK( evtStore()->retrieve(neutral, m_inputContainer+"NeutralParticleFlowObjects") );
 
-    xAOD::PFOContainer* chargedCopy = dynamic_cast<xAOD::PFOContainer *>(copyAndRecord<xAOD::PFOContainer, xAOD::PFOAuxContainer, xAOD::PFO>(charged, !m_trigger, "ChargedParticleFlowObjects"));
-    xAOD::PFOContainer* neutralCopy = dynamic_cast<xAOD::PFOContainer *>(copyAndRecord<xAOD::PFOContainer, xAOD::PFOAuxContainer, xAOD::PFO>(neutral, !m_trigger, "NeutralParticleFlowObjects"));
+    chargedCopy = static_cast<xAOD::PFOContainer *>(copyAndRecord<xAOD::PFOContainer, xAOD::PFOAuxContainer, xAOD::PFO>(charged, !m_trigger, "ChargedParticleFlowObjects"));
+    neutralCopy = static_cast<xAOD::PFOContainer *>(copyAndRecord<xAOD::PFOContainer, xAOD::PFOAuxContainer, xAOD::PFO>(neutral, !m_trigger, "NeutralParticleFlowObjects"));
 
     xAOD::PFOContainer* tmpCont = new xAOD::PFOContainer(SG::VIEW_ELEMENTS);
     for ( xAOD::PFO* pfo: *chargedCopy){
@@ -101,8 +103,8 @@ int JetConstituentModSequence::execute() const {
     modifiedCont=tmpCont;
 
     if(!m_trigger){
-      if( evtStore()->record(modifiedCont, m_outputContainer+"ParticleFlowObjects").isFailure() ){
-        ATH_MSG_ERROR("Unable to record output collection" << m_outputContainer+"ParticleFlowObjects" );
+      if( evtStore()->record(tmpCont, m_outputContainer+"ParticleFlowObjects").isFailure() ){
+        ATH_MSG_ERROR("Unable to record output collections " << m_outputContainer+"*ParticleFlowObjects" );
         return 1;
       }
     }
@@ -127,6 +129,14 @@ int JetConstituentModSequence::execute() const {
     if(t->process(modifiedCont).isFailure()){
       ATH_MSG_WARNING("Failure in modifying constituents " << m_outputContainer );
       return 1;
+    }
+  }
+
+  if(!m_trigger) {
+    ATH_CHECK( evtStore()->setConst(modifiedCont) );
+    if(m_inputType == xAOD::Type::ParticleFlow) {
+      ATH_CHECK( evtStore()->setConst(chargedCopy) );
+      ATH_CHECK( evtStore()->setConst(neutralCopy) );
     }
   }
 
