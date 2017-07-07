@@ -1,12 +1,11 @@
+// $Id: ToolStore.cxx 802972 2017-04-15 18:13:17Z krumnack $
 
 // System include(s):
 #include <map>
 #include <iostream>
 
-// ROOT include(s):
-#include <ThreadLocalStorage.h>
-
 // Local include(s):
+#include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolStore.h"
 #include "AsgTools/MsgStreamMacros.h"
 
@@ -29,7 +28,7 @@ namespace {
    /// Helper function providing the application-wide tool registry
    ToolMap_t& tools() {
 
-      TTHREAD_TLS( ToolMap_t ) s_tools;
+      static ToolMap_t s_tools;
       return s_tools;
    }
 
@@ -115,5 +114,51 @@ namespace asg {
       tools().erase( name );
       return StatusCode::SUCCESS;
    }
+
+
+#ifdef ROOTCORE
+  void ToolStore::dumpToolConfig () {
+    using namespace asg::msgProperty;
+
+    // I am first putting everything into a map, so that the error
+    // messages don't interleave the property values
+    std::map<std::string,std::map<std::string,std::string> > properties;
+
+    for (auto& tool : tools())
+    {
+      auto& myproperties = properties[tool.first];
+      myproperties[""] = std::string (typeid(*tool.second).name()) + "/" + tool.first;
+      AsgTool *mytool = dynamic_cast<AsgTool*>(tool.second);
+      if (mytool == nullptr)
+      {
+	ANA_MSG_ERROR ("tool " << tool.first << " not of AsgTool type");
+	myproperties[""] += " <invalid type>";
+      } else
+      {
+	for (auto& property : mytool->getPropertyMgr()->getProperties())
+	{
+	  std::string asString;
+	  if (property.second->getString (asString).isFailure())
+	  {
+	    ANA_MSG_ERROR ("on property " << property.first << " for tool " << tool.first);
+	    myproperties[property.first] = "<<invalid>>";
+	  } else
+	    myproperties[property.first] = asString;
+	}
+      }
+    }
+    for (const auto& myproperties : properties)
+    {
+      for (auto& property : myproperties.second)
+      {
+	std::cout << myproperties.first;
+	if (!property.first.empty())
+	  std::cout << "." << property.first;
+	std::cout << " = " << property.second << "\n";
+      }
+    }
+    std::cout << std::flush;
+  }
+#endif
 
 } // namespace asg

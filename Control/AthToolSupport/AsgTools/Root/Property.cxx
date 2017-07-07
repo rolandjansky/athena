@@ -1,10 +1,11 @@
-// $Id: Property.cxx 687011 2015-08-03 09:25:07Z krasznaa $
+// $Id: Property.cxx 802972 2017-04-15 18:13:17Z krumnack $
 
 // System include(s):
 #include <iostream>
 
 // Local include(s):
 #include "AsgTools/Property.h"
+#include "AsgTools/StatusCode.h"
 
 /// Macro used in implementing the type->name translation function
 #define DECLARE_TYPE( TYPE, NAME )              \
@@ -66,4 +67,16 @@ int Property::setFrom( const Property& ) {
 
    std::cout << "Property::setFrom: Property not set!" << std::endl;
    return -1;
+}
+
+
+
+StatusCode Property::getString (std::string& /*result*/) const {
+  std::cout << "Property::getString: method not implemented" << std::endl;
+  return StatusCode::FAILURE;
+}
+
+StatusCode Property::setString (const std::string& /*value*/) {
+  std::cout << "Property::setString: method not implemented" << std::endl;
+  return StatusCode::FAILURE;
 }

@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: TProperty.h 612908 2014-08-21 16:19:03Z krasznaa $
+// $Id: TProperty.h 802972 2017-04-15 18:13:17Z krumnack $
 #ifndef ASGTOOLS_TPROPERTY_H
 #define ASGTOOLS_TPROPERTY_H
 
@@ -19,8 +19,8 @@
 ///
 /// @author David Adams <dladams@bnl.gov>
 ///
-/// $Revision: 612908 $
-/// $Date: 2014-08-21 18:19:03 +0200 (Thu, 21 Aug 2014) $
+/// $Revision: 802972 $
+/// $Date: 2017-04-15 20:13:17 +0200 (Sat, 15 Apr 2017) $
 ///
 template< typename T >
 class TProperty : public Property {
@@ -34,6 +34,10 @@ public:
 
    /// Set value using that from another property
    virtual int setFrom( const Property& rhs );
+
+  virtual StatusCode getString (std::string& result) const;
+
+  virtual StatusCode setString (const std::string& value);
 
 private:
    /// The address of the wrapped variable
