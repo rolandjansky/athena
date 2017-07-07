@@ -153,8 +153,9 @@ namespace met {
     for(const auto& pfo : *constits.pfoCont) {
       if(fabs(pfo->charge())>1e-9) {
 	// get charged PFOs by matching the muon ID track
-	// Zero energy implies removal by Charged Hadron Subtraction
-	if(idtrack && pfo->track(0) == idtrack && pfo->e()>FLT_MIN &&
+	// We set a small -ve pt for cPFOs that were rejected
+	// by the ChargedHadronSubtractionTool
+	if(idtrack && pfo->track(0) == idtrack && pfo->e()>-1*FLT_MIN &&
 	   ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) )
 	   ) {
 	  ATH_MSG_VERBOSE("Accept muon PFO " << pfo << " px, py = " << pfo->p4().Px() << ", " << pfo->p4().Py());
@@ -181,10 +182,14 @@ namespace met {
       
       	  static const SG::AuxElement::ConstAccessor<std::vector<ElementLink<CaloClusterContainer> > > tcLinkAcc("constituentClusterLinks");
       	  for(const auto& matchel : tcLinkAcc(*muclus)) {
-      	    ATH_MSG_VERBOSE("Tool found cluster " << (*matchel)->index() << " with pt " << (*matchel)->pt() );
-      	    if((*matchel)->e()>FLT_MIN && pfo->cluster(0) == *matchel) { // +ve E && matches cluster
-      	      pfolist.push_back(pfo);
-      	    }
+	    if(!matchel.isValid()) {
+	      ATH_MSG_DEBUG("Invalid muon-cluster elementLink");
+	    } else {
+	      ATH_MSG_VERBOSE("Tool found cluster " << (*matchel)->index() << " with pt " << (*matchel)->pt() );
+	      if((*matchel)->e()>FLT_MIN && pfo->cluster(0) == *matchel) { // +ve E && matches cluster
+		pfolist.push_back(pfo);
+	      }
+	    }
       	  }
       	} // muon has linked cluster
       } 
@@ -192,7 +197,5 @@ namespace met {
 
     return StatusCode::SUCCESS;
   }
-
-
 
 }

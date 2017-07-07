@@ -96,7 +96,9 @@ namespace met {
       for(const auto& sig : *uniquePFOs) {
 	const PFO *pfo = static_cast<const PFO*>(sig);
 	if (fabs(pfo->charge())>FLT_MIN) { // Charged PFOs
-	  if (pfo->e()>FLT_MIN && ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) ) ) {
+	  // We set a small -ve pt for cPFOs that were rejected
+	  // by the ChargedHadronSubtractionTool
+	  if (pfo->e()>-1*FLT_MIN && ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) ) ) {
 	    // For the TST, we add the track pt, as this need not be
 	    // corrected for nearby energy in the calo
 	    *metCoreTrk += pfo->track(0);

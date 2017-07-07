@@ -137,14 +137,14 @@ namespace met {
   StatusCode METTauAssociator::extractPFO(const xAOD::IParticle* obj,
 					  std::vector<const xAOD::IParticle*>& pfolist,
 					  const met::METAssociator::ConstitHolder& constits,
-					  std::map<const IParticle*,MissingETBase::Types::constvec_t> &momenta) const
+					  std::map<const IParticle*,MissingETBase::Types::constvec_t> &/*momenta*/) const
   {
     const TauJet* tau = static_cast<const TauJet*>(obj);
     const Jet* seedjet = *tau->jetLink();
     TLorentzVector momentum;
     for(const auto& pfo : *constits.pfoCont) {
       bool match = false;
-      if (fabs(pfo->charge())<1e-9) {
+      if (fabs(pfo->charge())<FLT_MIN) {
 	if(xAOD::P4Helpers::isInDeltaR(*seedjet,*pfo,0.2,m_useRapidity) && pfo->eEM()>0) {
 	  ATH_MSG_VERBOSE("Found nPFO with dR " << seedjet->p4().DeltaR(pfo->p4EM()));
 	  match = true;
@@ -156,7 +156,9 @@ namespace met {
           const TrackParticle* tautrk = ttrk->track();
           if(tautrk==pfotrk) {
 	    ATH_MSG_VERBOSE("Found cPFO with dR " << seedjet->p4().DeltaR(ttrk->p4()));
-            if(acceptChargedPFO(tautrk,constits.pv) && ( !m_cleanChargedPFO || isGoodEoverP(pfotrk) )) match = true;
+	    // We set a small -ve pt for cPFOs that were rejected
+	    // by the ChargedHadronSubtractionTool
+            if(pfo->e()>-1*FLT_MIN && ( !m_cleanChargedPFO || isGoodEoverP(pfotrk) )) match = true;
           }
         }
       }
