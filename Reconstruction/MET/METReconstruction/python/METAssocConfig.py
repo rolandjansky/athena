@@ -22,8 +22,9 @@ defaultInputKey = {
    'PFlowJet'  :'AntiKt4EMPFlowJets',
    'Muon'      :'Muons',
    'Soft'      :'',
-   'ClusColl'  :'CaloCalTopoClusters',
-   'TrkColl'   :'InDetTrackParticles',
+   'Clusters'  :'CaloCalTopoClusters',
+   'Tracks'    :'InDetTrackParticles',
+   'PFlowObj'  :'CHSParticleFlowObjects',
    'PrimVxColl':'PrimaryVertices',
    'Truth'     :'TruthEvents',
    'LCOCClusColl':'LCOriginTopoClusters',
@@ -42,13 +43,25 @@ class AssocConfig:
 
 def getAssociator(config,suffix,doPFlow=False,
                   trkseltool=None,trkisotool=None,caloisotool=None,
+<<<<<<< HEAD
                   doOriginCorrClus=True):
+=======
+                  modConstKey="",
+                  modClusColls={}):
+>>>>>>> 24e9ef20e3... METAssocConfig changes to reflect generic modified constituents
     tool = None
 
     import cppyy
     try: cppyy.loadDictionary('METReconstructionDict')
     except: pass
 
+<<<<<<< HEAD
+=======
+    doModClus = (modConstKey!="" and not doPFlow)
+    if doModClus:
+        modLCClus = modClusColls['LC{0}Clusters'.format(modConstKey)]
+        modEMClus = modClusColls['EM{0}Clusters'.format(modConstKey)]
+>>>>>>> 24e9ef20e3... METAssocConfig changes to reflect generic modified constituents
     from AthenaCommon.AppMgr import ToolSvc
     # Construct tool and set defaults for case-specific configuration
     if config.objType == 'Ele':
@@ -77,13 +90,8 @@ def getAssociator(config,suffix,doPFlow=False,
         tool = CfgMgr.met__METTruthAssociator('MET_TruthAssociator_'+suffix)
         tool.RecoJetKey = config.inputKey
     if doPFlow:
-        pfotool = CfgMgr.CP__RetrievePFOTool('MET_PFOTool_'+suffix)
-        ToolSvc += pfotool
-        tool.PFOTool = pfotool
-        pfoweighttool = CfgMgr.CP__WeightPFOTool('MET_PFOWeightTool_'+suffix)
-        ToolSvc += pfoweighttool
-        tool.PFOWeightTool = pfoweighttool
         tool.PFlow = True
+        tool.PFlowColl = modConstKey if modConstKey!="" else defaultInputKey["PFlowObj"]
     else:
         tool.UseModifiedClus = doOriginCorrClus
     # set input/output key names
@@ -133,7 +141,12 @@ class METAssocConfig:
                                            trkseltool=self.trkseltool,
                                            trkisotool=self.trkisotool,
                                            caloisotool=self.caloisotool,
+<<<<<<< HEAD
                                            doOriginCorrClus=self.doOriginCorrClus)
+=======
+                                           modConstKey=self.modConstKey,
+                                           modClusColls=self.modClusColls)
+>>>>>>> 24e9ef20e3... METAssocConfig changes to reflect generic modified constituents
                 from METReconstruction.METRecoFlags import metFlags
                 if config.objType == 'Soft' and metFlags.DecorateSoftConst:
                     print "activate soft term decoration"
@@ -144,14 +157,37 @@ class METAssocConfig:
     #
     def __init__(self,suffix,buildconfigs=[],
                  doPFlow=False,doTruth=False,
+<<<<<<< HEAD
                  trksel=None,doOriginCorrClus=False):
+=======
+                 trksel=None,
+                 modConstKey="",
+                 modClusColls={}
+                 ):
+        # Set some sensible defaults
+        modConstKey_tmp = modConstKey
+        modClusColls_tmp = modClusColls
+        if doPFlow:
+            if modConstKey_tmp == "": modConstKey_tmp = "CHSParticleFlowObjects"
+        else:
+            if modConstKey_tmp == "": modConstKey_tmp = "OriginCorr"
+            if modClusColls_tmp == {}: modClusColls_tmp = {'LCOriginCorrClusters':'LCOriginTopoClusters',
+                                                           'EMOriginCorrClusters':'EMOriginTopoClusters'}
+
+>>>>>>> 24e9ef20e3... METAssocConfig changes to reflect generic modified constituents
         if doTruth:
             print prefix, 'Creating MET TruthAssoc config \''+suffix+'\''
         else:
             print prefix, 'Creating MET Assoc config \''+suffix+'\''
         self.suffix = suffix
+<<<<<<< HEAD
         self.doPFlow = doPFlow
         self.doOriginCorrClus=doOriginCorrClus
+=======
+        self.doPFlow = doPFlow                
+        self.modConstKey=modConstKey_tmp
+        self.modClusColls=modClusColls_tmp
+>>>>>>> 24e9ef20e3... METAssocConfig changes to reflect generic modified constituents
         self.doTruth = doTruth
         from AthenaCommon.AppMgr import ToolSvc
         if trksel:
@@ -192,7 +228,11 @@ def getMETAssocTool(topconfig):
     else:
         tcstate = clusterSigStates['LocHad']
         if 'EMTopo' in topconfig.suffix: tcstate = clusterSigStates['EMScale']
+<<<<<<< HEAD
         if topconfig.doOriginCorrClus:
+=======
+        if topconfig.modConstKey!="":
+>>>>>>> 24e9ef20e3... METAssocConfig changes to reflect generic modified constituents
             tcstate = clusterSigStates['Mod']
         assocTool = CfgMgr.met__METAssociationTool('MET_AssociationTool_'+topconfig.suffix,
                                                    METAssociators = topconfig.assoclist,
