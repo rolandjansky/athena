@@ -39,6 +39,5 @@ atlas_add_library( VP1Base VP1Base/*.h src/*.cxx src/*.qrc
    LINK_LIBRARIES Qt5::Core Qt5::Gui Qt5::PrintSupport ${SOQT_LIBRARIES} ${COIN3D_LIBRARIES} GeoPrimitives
    PRIVATE_LINK_LIBRARIES Qt5::OpenGL VP1HEPVis )
 
-atlas_install_scripts( share/generate-vp1-factory-code-cmake )
 
 
