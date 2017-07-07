@@ -325,11 +325,10 @@ Visit( const MiniConfigTreeNode* node ) const
     TObjString* fnameostr = new TObjString(fileName.c_str());
     m_refsourcedata->Add(new TObjString(newHistoName.c_str()),
 			 fnameostr);
-    if (refInfo != "") {
-      if (! m_refsourcedata->FindObject(fileName.c_str())) {
-	m_refsourcedata->Add(fnameostr, new TObjString(refInfo.c_str()));
-      }  
-    }
+    if (! m_refsourcedata->FindObject(fileName.c_str())) {
+      m_refsourcedata->Add(fnameostr, refInfo != "" ? new TObjString(refInfo.c_str())
+			   : new TObjString("Reference"));
+    }  
   }
 }
 
