@@ -33,8 +33,8 @@ class JetConstituentModSequence: public asg::AsgTool, virtual public IJetExecute
 protected:
   std::string m_inputContainer = "";
   std::string m_outputContainer = "";
-  const xAOD::IParticleContainer* m_trigInputClusters; // used in trigger context only
-  mutable xAOD::IParticleContainer* m_trigOutputClusters;
+  const xAOD::IParticleContainer* m_trigInputConstits; // used in trigger context only
+  mutable xAOD::IParticleContainer* m_trigOutputConstits;
   bool m_trigger;
   
   // P-A : the actual type
@@ -50,47 +50,47 @@ protected:
   /// helper function to cast, shallow copy and record a container (for offline) or deep copy and record a container (for trigger, where shallow copy isn't supported)
   template<class T, class Taux, class Tsingle>
   xAOD::IParticleContainer* copyAndRecord(const xAOD::IParticleContainer* cont, bool record, std::string suffix="") const {
-    const T * clustCont = dynamic_cast<const T *>(cont);
-    if(clustCont == 0) {
+    const T * constitCont = dynamic_cast<const T *>(cont);
+    if(constitCont == 0) {
       ATH_MSG_ERROR( "Container "<<m_inputContainer+suffix<< " is not of type "<< m_inputType);
       return NULL;
     }
 
     if(!m_trigger){
-      std::pair< T*, xAOD::ShallowAuxContainer* > newclust = xAOD::shallowCopyContainer(*clustCont );    
-      newclust.second->setShallowIO(m_saveAsShallow);
+      std::pair< T*, xAOD::ShallowAuxContainer* > newconstit = xAOD::shallowCopyContainer(*constitCont );    
+      newconstit.second->setShallowIO(m_saveAsShallow);
       if(record){
-        if(evtStore()->record( newclust.first, m_outputContainer+suffix ).isFailure() ||
-	   evtStore()->record( newclust.second, m_outputContainer+suffix+"Aux." ).isFailure() ){
+        if(evtStore()->record( newconstit.first, m_outputContainer+suffix ).isFailure() ||
+	   evtStore()->record( newconstit.second, m_outputContainer+suffix+"Aux." ).isFailure() ){
           ATH_MSG_ERROR("Unable to record object collection" << m_outputContainer+suffix );
           return NULL;
         }
       }
-      //newclust.second->setShallowIO(false);
-      return newclust.first;
+      //newconstit.second->setShallowIO(false);
+      return newconstit.first;
     }
     
     
     // This is the trigger case, revert to a deep copy
     
     // Create the new container and its auxiliary store.
-    T* clusterCopy = new T();
-    Taux* clusterCopyAux = new Taux();
-    clusterCopy->setStore( clusterCopyAux ); //< Connect the two
-    typename T::const_iterator clust_itr;
-    clust_itr = clustCont->begin();
-    typename T::const_iterator clust_end = clustCont->end();
+    T* constitCopy = new T();
+    Taux* constitCopyAux = new Taux();
+    constitCopy->setStore( constitCopyAux ); //< Connect the two
+    typename T::const_iterator constit_itr;
+    constit_itr = constitCont->begin();
+    typename T::const_iterator constit_end = constitCont->end();
 
-    for( ; clust_itr != clust_end; ++clust_itr ) {
-      Tsingle* cluster = new Tsingle();
-      clusterCopy->push_back( cluster ); // jet acquires the goodJets auxstore
-      *cluster= **clust_itr; // copies auxdata from one auxstore to the other
-      //clusterCopy->push_back(new Tsingle(**clust_itr));
+    for( ; constit_itr != constit_end; ++constit_itr ) {
+      Tsingle* constit = new Tsingle();
+      constitCopy->push_back( constit ); // jet acquires the goodJets auxstore
+      *constit= **constit_itr; // copies auxdata from one auxstore to the other
+      //constitCopy->push_back(new Tsingle(**constit_itr));
     }
 
     // Store and return the container
-    m_trigOutputClusters = clusterCopy;
-    return m_trigOutputClusters;
+    m_trigOutputConstits = constitCopy;
+    return m_trigOutputConstits;
 
   }
 
