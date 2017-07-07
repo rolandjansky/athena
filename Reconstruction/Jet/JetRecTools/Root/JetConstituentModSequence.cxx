@@ -21,7 +21,7 @@
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODPFlow/PFOAuxContainer.h"
 
-JetConstituentModSequence::JetConstituentModSequence(const std::string &name): asg::AsgTool(name), m_trigInputClusters(NULL), m_trigOutputClusters(NULL) {
+JetConstituentModSequence::JetConstituentModSequence(const std::string &name): asg::AsgTool(name), m_trigInputConstits(NULL), m_trigOutputConstits(NULL) {
 
 #ifdef ASG_TOOL_ATHENA
   declareInterface<IJetConstituentModifier>(this);
@@ -62,7 +62,7 @@ int JetConstituentModSequence::execute() const {
       ATH_CHECK( evtStore()->retrieve(cont, m_inputContainer) );
     }
   } else {
-    cont = m_trigInputClusters;
+    cont = m_trigInputConstits;
   }
 
   xAOD::IParticleContainer* modifiedCont = nullptr;
@@ -137,10 +137,10 @@ int JetConstituentModSequence::execute() const {
 }
 
 void JetConstituentModSequence::setInputClusterCollection(const xAOD::IParticleContainer *cont) {
-	m_trigInputClusters = cont;
+	m_trigInputConstits = cont;
 }
 
 xAOD::IParticleContainer* JetConstituentModSequence::getOutputClusterCollection() {
-    return m_trigOutputClusters;
+    return m_trigOutputConstits;
 }
 
