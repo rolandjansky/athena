@@ -11,9 +11,6 @@
 #include "G4AtlasUserWorkerThreadInitialization.h"
 #include "G4AtlasRunManager.h"
 
-// FADS includes
-#include "FadsKinematics/GeneratorCenter.h"
-
 // Geant4 includes
 #include "G4TransportationManager.hh"
 #include "G4RunManagerKernel.hh"
@@ -28,10 +25,11 @@
 // CLHEP includes
 #include "CLHEP/Random/RandomEngine.h"
 
-// EDM includes
+// Athena includes
 #include "EventInfo/EventInfo.h"
-
+#include "CxxUtils/make_unique.h"
 #include "MCTruthBase/TruthStrategyManager.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 
 // call_once mutexes
 #include <mutex>
@@ -45,46 +43,57 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
   , m_libList("")
   , m_physList("")
-  , m_generator("")
+  , m_generator("") //@TODO replace FADS code
   , m_fieldMap("")
   , m_rndmGen("athena")
   , m_releaseGeoModel(true)
   , m_recordFlux(false)
-  , m_IncludeParentsInG4Event(false)
+  , m_IncludeParentsInG4Event(false) //@TODO replace FADS code
   , m_killAbortedEvents(true)
   , m_flagAbortedEvents(false)
+  , m_inputTruthCollection("BeamTruthEvent")
+  , m_outputTruthCollection("TruthEvent")
+  , m_useMT(false)
   , m_rndmGenSvc("AtDSFMTGenSvc", name)
   , m_userActionSvc("G4UA::UserActionSvc", name) // new user action design
-  , m_physListTool("PhysicsListToolBase")
+  , m_detGeoSvc("DetectorGeometrySvc", name)
+  , m_inputConverter("ISF_InputConverter",name)
   , m_truthRecordSvc("ISF_TruthRecordSvc", name)
   , m_geoIDSvc("ISF_GeoIDSvc", name)
+  , m_physListTool("PhysicsListToolBase")
+  , m_senDetTool("SensitiveDetectorMasterTool")
+  , m_fastSimTool("FastSimulationMasterTool")
 {
   declareProperty( "Dll", m_libList);
   declareProperty( "Physics", m_physList);
-  declareProperty( "Generator", m_generator);
+  declareProperty( "Generator", m_generator); //@TODO replace FADS code
   declareProperty( "FieldMap", m_fieldMap);
   declareProperty( "RandomGenerator", m_rndmGen);
   declareProperty( "ReleaseGeoModel", m_releaseGeoModel);
   declareProperty( "RecordFlux", m_recordFlux);
-  declareProperty( "IncludeParentsInG4Event", m_IncludeParentsInG4Event);
+  declareProperty( "IncludeParentsInG4Event", m_IncludeParentsInG4Event); //@TODO replace FADS code
   declareProperty( "KillAbortedEvents", m_killAbortedEvents);
   declareProperty( "FlagAbortedEvents", m_flagAbortedEvents);
-
-  // Service instantiation
-  declareProperty("AtRndmGenSvc", m_rndmGenSvc);
-  declareProperty("UserActionSvc", m_userActionSvc);
-  declareProperty("PhysicsListTool", m_physListTool);
-  declareProperty("TruthRecordService", m_truthRecordSvc);
-  declareProperty("GeoIDSvc", m_geoIDSvc);
+  declareProperty( "OutputTruthCollection", m_outputTruthCollection);
 
   // Verbosities
   declareProperty("Verbosities", m_verbosities);
-
-  // Multi-threading specific settings
-  declareProperty("MultiThreading", m_useMT=false);
-
   // Commands to send to the G4UI
   declareProperty("G4Commands", m_g4commands);
+  // Multi-threading specific settings
+  declareProperty("MultiThreading", m_useMT=false);
+  // ServiceHandle properties
+  declareProperty("AtRndmGenSvc", m_rndmGenSvc);
+  declareProperty("UserActionSvc", m_userActionSvc);
+  declareProperty("GeoIDSvc", m_geoIDSvc);
+  declareProperty("InputConverter",        m_inputConverter);
+  declareProperty("TruthRecordService", m_truthRecordSvc);
+  declareProperty("DetGeoSvc", m_detGeoSvc);
+  // ToolHandle properties
+  declareProperty("SenDetMasterTool", m_senDetTool);
+  declareProperty("FastSimMasterTool", m_fastSimTool);
+  declareProperty("PhysicsListTool", m_physListTool);
+
 }
 
 
@@ -119,6 +128,8 @@ StatusCode G4AtlasAlg::initialize() {
   ATH_CHECK( m_geoIDSvc.retrieve() );
   ATH_MSG_INFO( "- Using ISF GeoIDSvc       : " << m_geoIDSvc.typeAndName() );
 
+  ATH_CHECK(m_inputConverter.retrieve());
+
   ATH_MSG_DEBUG(std::endl << std::endl << std::endl);
 
   TruthStrategyManager* sManager = TruthStrategyManager::GetStrategyManager();
@@ -133,17 +144,18 @@ StatusCode G4AtlasAlg::initialize() {
 void G4AtlasAlg::initializeOnce() {
   // Assign physics list
   if(m_physListTool.retrieve().isFailure()) {
-      throw std::runtime_error("Could not initialize ATLAS PhysicsListTool!");
-    }
+    throw std::runtime_error("Could not initialize ATLAS PhysicsListTool!");
+  }
 
   // Create the (master) run manager
   if(m_useMT) {
 #ifdef G4MULTITHREADED
-    auto runMgr = G4AtlasMTRunManager::GetG4AtlasMTRunManager();
+    auto* runMgr = G4AtlasMTRunManager::GetG4AtlasMTRunManager();
     m_physListTool->SetPhysicsList();
     // Worker Thread initialization used to create worker run manager on demand.
     // @TODO use this class to pass any configuration to worker run manager.
     runMgr->SetUserInitialization( new G4AtlasUserWorkerThreadInitialization );
+    // @TODO configure all tool and service handles as in single threaded case.
     runMgr->SetUserInitialization( m_physListTool->GetPhysicsList() );
 #else
     throw std::runtime_error("Trying to use multi-threading in non-MT build!");
@@ -151,12 +163,15 @@ void G4AtlasAlg::initializeOnce() {
   }
   // Single-threaded run manager
   else {
-    auto runMgr = G4AtlasRunManager::GetG4AtlasRunManager();
+    auto* runMgr = G4AtlasRunManager::GetG4AtlasRunManager();
     m_physListTool->SetPhysicsList();
-    runMgr->SetReleaseGeo( m_releaseGeoModel );
     runMgr->SetRecordFlux( m_recordFlux );
     runMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
     runMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
+    runMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
+    runMgr->SetSDMasterTool(m_senDetTool.typeAndName() );
+    runMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
+    runMgr->SetPhysListTool(m_physListTool.typeAndName() );
     runMgr->SetUserInitialization(m_physListTool->GetPhysicsList());
   }
 
@@ -174,16 +189,6 @@ void G4AtlasAlg::initializeOnce() {
     ATH_MSG_INFO("requesting a specific physics list "<< m_physList);
     std::string temp="/Physics/GetPhysicsList "+m_physList;
     ui->ApplyCommand(temp);
-  }
-  // Setup generator
-  FADS::GeneratorCenter* gc = FADS::GeneratorCenter::GetGeneratorCenter();
-  gc->SetIncludeParentsInG4Event( m_IncludeParentsInG4Event );
-  if (!m_generator.empty()) {
-    ATH_MSG_INFO("requesting a specific generator "<< m_generator);
-    gc->SelectGenerator(m_generator);
-  } else {
-    // make sure that there is a default generator (i.e. HepMC interface)
-    gc->SelectGenerator("AthenaHepMCInterface");
   }
   // Load custom magnetic field
   if (!m_fieldMap.empty()) {
@@ -224,7 +229,6 @@ void G4AtlasAlg::initializeOnce() {
 }
 
 void G4AtlasAlg::initializeG4() {
-
   if (m_verbosities.size()>0) {
     G4TransportationManager *tm = G4TransportationManager::GetTransportationManager();
     G4RunManagerKernel *rmk = G4RunManagerKernel::GetRunManagerKernel();
@@ -281,7 +285,7 @@ void G4AtlasAlg::finalizeOnce() {
   //#else
   //  auto runMgr = G4AtlasRunManager::GetG4AtlasRunManager();
   //#endif
-  auto runMgr = G4RunManager::GetRunManager();
+  auto* runMgr = G4RunManager::GetRunManager();
   runMgr->RunTermination();
 }
 
@@ -305,37 +309,59 @@ StatusCode G4AtlasAlg::execute() {
   // tell TruthService we're starting a new event
   ATH_CHECK( m_truthRecordSvc->initializeTruthCollection() );
 
+  // Release GeoModel Geometry if necessary
+  if (m_releaseGeoModel) {
+    ATH_CHECK(this->releaseGeoModel());
+  }
+
   ATH_MSG_DEBUG("Calling SimulateG4Event");
 
+  if(!m_senDetTool) {
+    // FIXME temporary lazy init. To be (re)moved
+    ATH_CHECK(m_senDetTool.retrieve());
+  }
+  ATH_CHECK(m_senDetTool->BeginOfAthenaEvent());
 
+  if (!m_inputTruthCollection.isValid()) {
+    ATH_MSG_FATAL("Unable to read input GenEvent collection '" << m_inputTruthCollection.key() << "'");
+    return StatusCode::FAILURE;
+  }
+  // create copy
+  m_outputTruthCollection = CxxUtils::make_unique<McEventCollection>(*m_inputTruthCollection);
+  G4Event *inputEvent(nullptr);
+  ATH_CHECK( m_inputConverter->convertHepMCToG4Event(*m_outputTruthCollection, inputEvent, false) );
+
+  bool abort = false;
   // Worker run manager
-  // Custom class has custom method call: SimulateFADSEvent.
+  // Custom class has custom method call: ProcessEvent.
   // So, grab custom singleton class directly, rather than base.
   // Maybe that should be changed! Then we can use a base pointer.
-  bool abort = false;
   if(m_useMT) {
 #ifdef G4MULTITHREADED
-    auto workerRM = G4AtlasWorkerRunManager::GetG4AtlasWorkerRunManager();
-    abort = workerRM->SimulateFADSEvent();
+    auto* workerRM = G4AtlasWorkerRunManager::GetG4AtlasWorkerRunManager();
+    abort = workerRM->ProcessEvent(inputEvent);
 #else
     ATH_MSG_ERROR("Trying to use multi-threading in non-MT build!");
     return StatusCode::FAILURE;
 #endif
   }
   else {
-    auto workerRM = G4AtlasRunManager::GetG4AtlasRunManager();
-    abort = workerRM->SimulateFADSEvent();
+    auto* workerRM = G4AtlasRunManager::GetG4AtlasRunManager();
+    abort = workerRM->ProcessEvent(inputEvent);
   }
-
   if (abort) {
     ATH_MSG_WARNING("Event was aborted !! ");
     ATH_MSG_WARNING("Simulation will now go on to the next event ");
-    if (m_killAbortedEvents){
+    if (m_killAbortedEvents) {
       ATH_MSG_WARNING("setFilterPassed is now False");
       setFilterPassed(false);
     }
     if (m_flagAbortedEvents) {
-      // TODO: update to VarHandle
+      // FIXME This code is updating an object which is already in
+      // StoreGate, which is not really allowed. The long term
+      // solution is to switch Simulation to use xAOD::EventInfo, then
+      // use an SG::WriteDecorHandle (when available) to set the error
+      // state.
       const DataHandle<EventInfo> eic = 0;
       if ( sgSvc()->retrieve( eic ).isFailure() || !eic ) {
         ATH_MSG_WARNING( "Failed to retrieve EventInfo" );
@@ -349,7 +375,36 @@ StatusCode G4AtlasAlg::execute() {
     }
   }
 
+  // Register all of the collections if there are any new-style SDs
+  ATH_CHECK(m_senDetTool->EndOfAthenaEvent());
+  if(!m_fastSimTool) {
+    // FIXME temporary lazy init. To be (re)moved
+    ATH_CHECK(m_fastSimTool.retrieve());
+  }
+  ATH_CHECK(m_fastSimTool->EndOfAthenaEvent());
+
   ATH_CHECK( m_truthRecordSvc->releaseEvent() );
 
+  return StatusCode::SUCCESS;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+StatusCode G4AtlasAlg::releaseGeoModel()
+{
+  ISvcLocator *svcLocator = Gaudi::svcLocator(); // from Bootstrap
+  IGeoModelSvc *geoModel(nullptr);
+  if(svcLocator->service("GeoModelSvc",geoModel).isFailure()) {
+    ATH_MSG_WARNING( " ----> Unable to retrieve GeoModelSvc" );
+  }
+  else {
+    if(geoModel->clear().isFailure()) {
+      ATH_MSG_WARNING( " ----> GeoModelSvc::clear() failed" );
+    }
+    else {
+      ATH_MSG_INFO( " ----> GeoModelSvc::clear() succeeded " );
+    }
+  }
+  m_releaseGeoModel=false; // Don't do that again...
   return StatusCode::SUCCESS;
 }
