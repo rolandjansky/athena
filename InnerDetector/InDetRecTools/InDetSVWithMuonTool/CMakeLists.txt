@@ -9,7 +9,6 @@ atlas_subdir( InDetSVWithMuonTool )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
-		 	  AtlasROOT
                           Reconstruction/Particle
                           Event/xAOD/xAODTracking
                           Tracking/TrkVertexFitter/TrkVKalVrtFitter
