@@ -20,7 +20,6 @@
 #include "LWHists/TProfile2D_LW.h"
 #include "LWHists/TProfile_LW.h"
 #include "InDetIdentifier/PixelID.h"
-#include "PixelMonitoring/PixelMon2DMaps.h"
 #include "PixelMonitoring/PixelMonModules.h"
 #include "TString.h"
 #include "TMath.h"

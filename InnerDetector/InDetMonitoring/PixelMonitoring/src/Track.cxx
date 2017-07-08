@@ -35,7 +35,6 @@
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrackSummary/InDetTrackSummary.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
-#include "PixelMonitoring/PixelMon2DMaps.h"
 #include "PixelMonitoring/PixelMon2DMapsLW.h"
 #include "PixelMonitoring/PixelMon2DProfilesLW.h"
 #include "PixelMonitoring/PixelMonModules.h"

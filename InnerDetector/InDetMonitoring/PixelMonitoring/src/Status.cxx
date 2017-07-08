@@ -21,7 +21,7 @@
 #include "LWHists/TProfile_LW.h"
 #include "InDetIdentifier/PixelID.h"
 #include <sstream>
-#include "PixelMonitoring/PixelMon2DMaps.h"
+#include "PixelMonitoring/PixelMon2DMapsLW.h"
 #include "PixelMonitoring/PixelMon2DProfilesLW.h"
 #include "PixelMonitoring/PixelMonModules.h"
 
@@ -62,7 +62,7 @@ StatusCode PixelMainMon::BookStatusMon(void)
     }
   if (m_doOffline)
     { 
-      m_dqStatus = new PixelMon2DMaps("Ok_modules", ("module problems, empty bin means dead module not listed in status database"+ m_histTitleExt).c_str(), m_doIBL);
+      m_dqStatus = new PixelMon2DMapsLW("Ok_modules", ("module problems, empty bin means dead module not listed in status database"+ m_histTitleExt).c_str(), m_doIBL);
       sc = m_dqStatus->regHist(statusHistos);
     }
 

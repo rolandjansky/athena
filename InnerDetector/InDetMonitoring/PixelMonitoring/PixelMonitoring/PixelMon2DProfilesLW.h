@@ -11,7 +11,7 @@ class TProfile2D_LW;
 class Identifier;
 class PixelID;
 class StatusCode;
-class PixelMon2DMaps;
+class PixelMon2DMapsLW;
 
 // A helper class to facilitate definition of per-layer 2D profile maps.
 // It defines a collection of TProfile2D_LW histograms for each pixel layer, which then can be declared or
@@ -37,7 +37,7 @@ public:
   //TProfile2D_LW* DBMC;
   void Fill(Identifier &id, const PixelID* pixID, float value);
   void Fill2DMon(PixelMon2DProfilesLW* oldmap);
-  void FillFromMap(PixelMon2DMaps* inputmap, bool clear_inputmap);
+  void FillFromMap(PixelMon2DMapsLW* inputmap, bool clear_inputmap);
   void SetMaxValue(float max);
   void Reset();
   StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
