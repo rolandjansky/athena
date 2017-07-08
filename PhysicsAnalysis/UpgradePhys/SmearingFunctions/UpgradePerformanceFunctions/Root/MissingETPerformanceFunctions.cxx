@@ -26,40 +26,40 @@ void UpgradePerformanceFunctions::loadMETHistograms(TString filename) {
   std::cout << "Found Missing ET histogram file: " << METFile << std::endl;
 #endif // ROOTCORE
 
-  TFile *m_infile=new TFile(METFile.c_str(),"READ");
+  TFile *infile=new TFile(METFile.c_str(),"READ");
  
-//  m_SumEtH[0][nominal]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu60_th60_calibrated"));
-//  m_SumEtH[0][process]=static_cast<TH1F*>(m_infile->Get("sumetPU_j0_mu60_th60_calibrated"));
-//  m_SumEtH[0][thresholdUp]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu60_th80_uncalibrated"));
-//  m_SumEtH[0][thresholdDown]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu60_th40_uncalibrated"));
-//  m_SumEtH[0][resoUp]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu60_th60_calibrated"));
-//  m_SumEtH[0][resoDown]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu60_th60_calibrated"));    
-//  m_Ress[0]=static_cast<TGraphErrors*>(m_infile->Get("METresol_j0_mu60_th60_calibrated"));
+//  m_SumEtH[0][nominal]=static_cast<TH1F*>(infile->Get("sumetPU_zprime_mu60_th60_calibrated"));
+//  m_SumEtH[0][process]=static_cast<TH1F*>(infile->Get("sumetPU_j0_mu60_th60_calibrated"));
+//  m_SumEtH[0][thresholdUp]=static_cast<TH1F*>(infile->Get("sumetPU_zprime_mu60_th80_uncalibrated"));
+//  m_SumEtH[0][thresholdDown]=static_cast<TH1F*>(infile->Get("sumetPU_zprime_mu60_th40_uncalibrated"));
+//  m_SumEtH[0][resoUp]=static_cast<TH1F*>(infile->Get("sumetPU_zprime_mu60_th60_calibrated"));
+//  m_SumEtH[0][resoDown]=static_cast<TH1F*>(infile->Get("sumetPU_zprime_mu60_th60_calibrated"));    
+//  m_Ress[0]=static_cast<TGraphErrors*>(infile->Get("METresol_j0_mu60_th60_calibrated"));
 
-//  m_SumEtH[1][nominal]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu80_th80_calibrated"));
-//  m_SumEtH[1][process]=static_cast<TH1F*>(m_infile->Get("sumetPU_j0_mu80_th80_calibrated"));
-//  m_SumEtH[1][thresholdUp]=static_cast<TH1F*>(m_infile->Get("sumetPU_j3_mu80_th100_uncalibrated"));
-//  m_SumEtH[1][thresholdDown]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu80_th60_uncalibrated"));
-//  m_SumEtH[1][resoUp]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu80_th80_calibrated"));
-//  m_SumEtH[1][resoDown]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu80_th80_calibrated"));  
-//  m_Ress[1]=static_cast<TGraphErrors*>(m_infile->Get("METresol_j0_mu80_th80_calibrated"));
+//  m_SumEtH[1][nominal]=static_cast<TH1F*>(infile->Get("sumetPU_zprime_mu80_th80_calibrated"));
+//  m_SumEtH[1][process]=static_cast<TH1F*>(infile->Get("sumetPU_j0_mu80_th80_calibrated"));
+//  m_SumEtH[1][thresholdUp]=static_cast<TH1F*>(infile->Get("sumetPU_j3_mu80_th100_uncalibrated"));
+//  m_SumEtH[1][thresholdDown]=static_cast<TH1F*>(infile->Get("sumetPU_zprime_mu80_th60_uncalibrated"));
+//  m_SumEtH[1][resoUp]=static_cast<TH1F*>(infile->Get("sumetPU_zprime_mu80_th80_calibrated"));
+//  m_SumEtH[1][resoDown]=static_cast<TH1F*>(infile->Get("sumetPU_zprime_mu80_th80_calibrated"));  
+//  m_Ress[1]=static_cast<TGraphErrors*>(infile->Get("METresol_j0_mu80_th80_calibrated"));
 
-//  m_SumEtH[2][nominal]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu140_th140_calibrated"));
-//  m_SumEtH[2][process]=static_cast<TH1F*>(m_infile->Get("sumetPU_j0_mu140_th140_calibrated"));
-//  m_SumEtH[2][thresholdUp]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu140_th200_uncalibrated"));
-//  m_SumEtH[2][thresholdDown]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu140_th100_uncalibrated"));
-//  m_SumEtH[2][resoUp]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu140_th140_calibrated"));
-//  m_SumEtH[2][resoDown]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu140_th140_calibrated"));
-//  m_Ress[2]=static_cast<TGraphErrors*>(m_infile->Get("METresol_j0_mu140_th140_calibrated"));
+//  m_SumEtH[2][nominal]=static_cast<TH1F*>(infile->Get("sumetPU_zprime_mu140_th140_calibrated"));
+//  m_SumEtH[2][process]=static_cast<TH1F*>(infile->Get("sumetPU_j0_mu140_th140_calibrated"));
+//  m_SumEtH[2][thresholdUp]=static_cast<TH1F*>(infile->Get("sumetPU_zprime_mu140_th200_uncalibrated"));
+//  m_SumEtH[2][thresholdDown]=static_cast<TH1F*>(infile->Get("sumetPU_zprime_mu140_th100_uncalibrated"));
+//  m_SumEtH[2][resoUp]=static_cast<TH1F*>(infile->Get("sumetPU_zprime_mu140_th140_calibrated"));
+//  m_SumEtH[2][resoDown]=static_cast<TH1F*>(infile->Get("sumetPU_zprime_mu140_th140_calibrated"));
+//  m_Ress[2]=static_cast<TGraphErrors*>(infile->Get("METresol_j0_mu140_th140_calibrated"));
 
-  m_SumEtH[3][nominal]=static_cast<TH1F*>(m_infile->Get("h_sumetPU"));
-//  m_SumEtH[3][nominal]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu200_th200_uncalibrated"));
-//  m_SumEtH[3][process]=static_cast<TH1F*>(m_infile->Get("sumetPU_j0_mu200_th200_uncalibrated"));
-//  m_SumEtH[3][thresholdUp]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu200_th200_uncalibrated"));
-//  m_SumEtH[3][thresholdDown]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu200_th140_uncalibrated"));
-//  m_SumEtH[3][resoUp]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu200_th200_uncalibrated"));
-//  m_SumEtH[3][resoDown]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu200_th200_uncalibrated"));
-//  m_Ress[3]=static_cast<TGraphErrors*>(m_infile->Get("METresol_j0_mu200_th200_uncalibrated"));
+  m_SumEtH[3][nominal]=static_cast<TH1F*>(infile->Get("h_sumetPU"));
+//  m_SumEtH[3][nominal]=static_cast<TH1F*>(infile->Get("sumetPU_zprime_mu200_th200_uncalibrated"));
+//  m_SumEtH[3][process]=static_cast<TH1F*>(infile->Get("sumetPU_j0_mu200_th200_uncalibrated"));
+//  m_SumEtH[3][thresholdUp]=static_cast<TH1F*>(infile->Get("sumetPU_zprime_mu200_th200_uncalibrated"));
+//  m_SumEtH[3][thresholdDown]=static_cast<TH1F*>(infile->Get("sumetPU_zprime_mu200_th140_uncalibrated"));
+//  m_SumEtH[3][resoUp]=static_cast<TH1F*>(infile->Get("sumetPU_zprime_mu200_th200_uncalibrated"));
+//  m_SumEtH[3][resoDown]=static_cast<TH1F*>(infile->Get("sumetPU_zprime_mu200_th200_uncalibrated"));
+//  m_Ress[3]=static_cast<TGraphErrors*>(infile->Get("METresol_j0_mu200_th200_uncalibrated"));
 
 }
 
