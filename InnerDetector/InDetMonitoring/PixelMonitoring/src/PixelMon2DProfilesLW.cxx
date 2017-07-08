@@ -7,8 +7,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "PixelMonitoring/PixelMon2DProfilesLW.h"
-#include "PixelMonitoring/PixelMon2DMaps.h"
+#include "PixelMonitoring/PixelMon2DMapsLW.h"
 #include "InDetIdentifier/PixelID.h"
+#include "LWHists/TH2F_LW.h"
 #include "LWHists/TProfile2D_LW.h"
 #include "GaudiKernel/StatusCode.h"     
 #include <string.h>
@@ -338,7 +339,7 @@ void PixelMon2DProfilesLW::Fill2DMon(PixelMon2DProfilesLW* oldmap)
    }
 }
 
-void PixelMon2DProfilesLW::FillFromMap(PixelMon2DMaps* inputmap, bool clear_inputmap)
+void PixelMon2DProfilesLW::FillFromMap(PixelMon2DMapsLW* inputmap, bool clear_inputmap)
 {
   float weightIBL   = 1.0 / 26880.0;
   float weightPixel = 1.0 / 46080.0;
