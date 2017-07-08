@@ -36,6 +36,7 @@ class PixelMon2DMapsLW
       TH2F_LW* DBMC;
       void Fill(Identifier &id, const PixelID* pixID);
       void WeightingFill(Identifier &id, const PixelID* pixID, float weight);
+      void Fill2DMon(PixelMon2DMapsLW* oldmap);
       StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
 private:
       void formatHist();
