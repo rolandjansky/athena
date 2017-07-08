@@ -3,6 +3,8 @@
 */
 
 #include "DataQualityInterfaces/ConditionsSingleton.h"
+#include "TMap.h"
+#include "TObjString.h"
 #include <iostream>
 #include <map>
 #include <sstream>
@@ -51,6 +53,27 @@ namespace dqi{
   }
   int ConditionsSingleton::getNumReferenceHistos(){
     return numRefHisto;
+  }
+
+  void ConditionsSingleton::setRefSourceMapping(const TMap* refsourcedata) {
+    if (! refsourcedata) {
+      std::cerr << "You are setting a bad refsourcedata! This will cause you trouble later!" << std::endl;
+    }
+    m_refsourcedata = refsourcedata;
+  }
+
+  std::string ConditionsSingleton::getRefSourceData(const std::string& rawref) {
+    if (! m_refsourcedata) {
+      // Suppress error message as it will occur in cases of backwards compatibility
+      // std::cerr << "Null refsourcedata: THIS IS REALLY BAD!!!" << std::endl;
+      return "";
+    }
+    const TObjString* value = dynamic_cast<TObjString*>(m_refsourcedata->GetValue(rawref.c_str()));
+    if (!value) {
+      std::cerr << "Unable to figure out refsource mapping: THIS IS ALSO REALLY BAD!!!" << std::endl;
+      return "";
+    }
+    return value->GetName();
   }
 
   std::string ConditionsSingleton::getNewRefHistoName(){
