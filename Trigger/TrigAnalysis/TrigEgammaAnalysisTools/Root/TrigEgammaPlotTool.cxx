@@ -1198,7 +1198,7 @@ void TrigEgammaPlotTool::bookRnnDistributionHistos(const std::string dir)
         ss2       << m_ringerEtabins[etaBinIdx]<<"<=|#eta|<"<< m_ringerEtabins[etaBinIdx+1] <<
           " and " << m_ringerEtbins[etBinIdx]<< "<=E_{t}<"<< m_ringerEtbins[etBinIdx+1] <<
           ";discriminant(ringer);Count";
-        ATH_MSG_INFO("AKI = " << ss1.str());
+        
         addHistogram(new TH1F(ss1.str().c_str(),ss2.str().c_str(),95,-12.,7.));
         ss3 << "discriminantVsMu_et_"<<etBinIdx<<"_eta_"<<etaBinIdx;
         ss4       << m_ringerEtabins[etaBinIdx]<<"<=|#eta|<"<< m_ringerEtabins[etaBinIdx+1] <<
