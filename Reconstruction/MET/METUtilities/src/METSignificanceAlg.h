@@ -12,20 +12,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "xAODEgamma/Electron.h"
-#include "xAODEgamma/Photon.h"
-#include "xAODMuon/Muon.h"
-#include "xAODTau/TauJet.h"
-
 class IMETSignificance;
-class IAsgElectronLikelihoodTool;
-class IAsgPhotonIsEMSelector;
-namespace CP {
-  class IMuonSelectionTool;
-}
-namespace TauAnalysisTools {
-  class ITauSelectionTool;
-}
 
 namespace met {
   class METSignificanceAlg : public AthAlgorithm {
@@ -48,11 +35,6 @@ namespace met {
     /// Default constructor:
     METSignificanceAlg();
 
-    bool accept(const xAOD::Electron* el);
-    bool accept(const xAOD::Photon* ph);
-    bool accept(const xAOD::TauJet* tau);
-    bool accept(const xAOD::Muon* muon);
-
     std::string m_mapname;
     std::string m_corename;
     std::string m_outname;
@@ -70,11 +52,6 @@ namespace met {
     
     /// Athena configured tools
     ToolHandle<IMETSignificance> m_metsignif;
-
-    ToolHandle<CP::IMuonSelectionTool> m_muonSelTool;
-    ToolHandle<IAsgElectronLikelihoodTool> m_elecSelLHTool;
-    ToolHandle<IAsgPhotonIsEMSelector>     m_photonSelIsEMTool;
-    ToolHandle<TauAnalysisTools::ITauSelectionTool> m_tauSelTool;
 
   }; 
 

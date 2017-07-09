@@ -10,26 +10,9 @@ def getMETSigificanceAlg(suffix,jetSelection="Tier0",jetColl=""):
     topSequence = AlgSequence()
 
     doPFlow = 'PFlow' in suffix
-    doTruth = suffix.startswith('Truth')
     metSignificance = CfgMgr.met__METSignficance('METSignificance_'+suffix);
 
     ToolSvc += metSignificance
-
-    #muonSel = CfgMgr.CP__MuonSelectionTool("MuonSelectionTool_METSignificanceAlg",
-    #                                       MuQuality=1, # Medium
-    #                                       MaxEta=2.4)
-    #ToolSvc += muonSel
-    #
-    #elecSelLH = CfgMgr.AsgElectronLikelihoodTool("EleSelLikelihood_METSignificanceAlg",
-    #                                             WorkingPoint="MediumLHElectron")
-    #ToolSvc += elecSelLH
-    #
-    #photonSelIsEM = CfgMgr.AsgPhotonIsEMSelector("PhotonSelIsEM_METMakerAlg",
-    #                                             WorkingPoint="TightPhoton")
-    #ToolSvc += photonSelIsEM
-    #
-    #tauSel = CfgMgr.TauAnalysisTools__TauSelectionTool("TauSelectionTool_METMakerAlg")
-    #ToolSvc += tauSel
 
     if jetColl=="":
         jetColl = suffix+'Jets'
