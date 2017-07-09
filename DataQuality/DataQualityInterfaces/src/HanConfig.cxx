@@ -283,11 +283,11 @@ SplitReference( std::string refName )
 	return fileName;
       }
       else{
-	std::cout << "Unable to open " << fileName << ", trying next reference file" << std::endl;
+	std::cerr << "Unable to open " << fileName << ", trying next reference file" << std::endl;
       }
     }
   }
-  std::cout << "Unable to open any reference file, reference will not be included" << std::endl;
+  std::cerr << "Unable to open any reference file, reference will not be included" << std::endl;
   return "";
 }
 
@@ -336,9 +336,8 @@ Visit( const MiniConfigTreeNode* node ) const
 {
   TObject* obj;
   std::string name = node->GetAttribute("name");
-  std::string fileName = node->GetAttribute("file");
+  std::string fileName = SplitReference(node->GetAttribute("file"));
   std::string refInfo = node->GetAttribute("info");
-  fileName = SplitReference(fileName);
   if( fileName != "" && name != "" && name != "same_name" ) {
     std::auto_ptr<TFile> infile( TFile::Open(fileName.c_str()) );
     TKey* key = getObjKey( infile.get(), name );
@@ -503,10 +502,8 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	  if( algRefName == "same_name" ) {//sameName alg
 	    algRefName = assessorName;
 	    absAlgRefName += algRefName;
-	    std::string algRefFile( refConfig.GetStringAttribute(thisRefID,"file") );
+	    std::string algRefFile( SplitReference( refConfig.GetStringAttribute(thisRefID,"file") ) );
 	    if( algRefFile != "" ) {
-	      algRefFile = SplitReference( algRefFile );
-	      //std::auto_ptr<TFile> infile( TFile::Open(algRefFile.c_str()) );
 	      std::shared_ptr<TFile> infile = GetROOTFile(algRefFile);
 	      if ( ! infile.get() ) {
 		std::cerr << "HanConfig::AssessmentVistorBase::GetAlgorithmConfiguration: Reference file " << algRefFile << " not found" << std::endl;
