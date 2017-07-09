@@ -10,7 +10,7 @@ def getMETSigificanceAlg(suffix,jetSelection="Tier0",jetColl=""):
     topSequence = AlgSequence()
 
     doPFlow = 'PFlow' in suffix
-    metSignificance = CfgMgr.met__METSignficance('METSignificance_'+suffix);
+    metSignificance = CfgMgr.met__METSignificance('METSignificance_'+suffix);
 
     ToolSvc += metSignificance
 

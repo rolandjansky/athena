@@ -14,7 +14,7 @@ ServiceMgr.EventSelector.InputCollections = filelist
 #metAlg.METName = 'MET_Reco_AntiKt4EMTopo'
 
 from METUtilities.METSignificanceConfig import getMETSigificanceAlg
-signifAlg = getMETSigificanceAlg()
+signifAlg = getMETSigificanceAlg('AntiKt4EMTopo')
 signifAlg.METName = 'MET_Reco_AntiKt4EMTopo'
 
 from AthenaCommon.AlgSequence import AlgSequence

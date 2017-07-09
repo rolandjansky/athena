@@ -26,7 +26,7 @@ namespace met {
 			   ISvcLocator* pSvcLocator )
     : ::AthAlgorithm( name, pSvcLocator )
  {
-    declareProperty( "Signficiance",   m_metsignif                       );
+    declareProperty( "Significance",   m_metsignif                       );
     declareProperty( "METMapName",     m_mapname   = "METAssoc"          );
     declareProperty( "METCoreName",    m_corename  = "MET_Core"          );
     declareProperty( "METName",        m_outname   = "MET_Reference"     );
