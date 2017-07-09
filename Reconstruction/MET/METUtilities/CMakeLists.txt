@@ -41,6 +41,9 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
    PhysicsAnalysis/MuonID/MuonSelectorTools
    PhysicsAnalysis/TauID/TauAnalysisTools
+   Reconstruction/Jet/JetResolution
+   PhysicsAnalysis/ElectronPhotonID/ElectronPhotonFourMomentumCorrection
+   PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonMomentumCorrections
    Tools/PathResolver
    ${extra_deps} )
 
@@ -54,7 +57,7 @@ atlas_add_library( METUtilitiesLib
    PUBLIC_HEADERS METUtilities
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}  ${GTEST_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODJet xAODMissingET
-   xAODMuon xAODTau xAODTracking InDetTrackSelectionToolLib PATInterfaces
+   xAODMuon xAODTau xAODTracking InDetTrackSelectionToolLib PATInterfaces JetResolution ElectronPhotonFourMomentumCorrection MuonMomentumCorrections
    METInterface
    PRIVATE_LINK_LIBRARIES EventPrimitives FourMomUtils xAODCore PathResolver )
 
@@ -62,7 +65,7 @@ if( NOT XAOD_STANDALONE )
    atlas_add_component( METUtilities
       src/*.h src/*.cxx src/components/*.cxx
       LINK_LIBRARIES GaudiKernel AthenaBaseComps METInterface xAODEgamma
-      xAODMuon xAODTau xAODMissingET xAODJet MuonSelectorToolsLib
+      xAODMuon xAODTau xAODMissingET xAODJet MuonSelectorToolsLib JetResolution ElectronPhotonFourMomentumCorrection MuonMomentumCorrections
       ElectronPhotonSelectorToolsLib TauAnalysisToolsLib METUtilitiesLib  )
 endif()
 
@@ -84,7 +87,7 @@ endif()
 # only compiled in analysis releases
 if( XAOD_ANALYSIS )
   foreach( utility example_METMaker_METSystematicsTool
-          example_METMaker_advanced example_rebuildTrackMET )
+          example_METMaker_advanced example_rebuildTrackMET example_METSignificance )
     atlas_add_executable( ${utility}
           util/${utility}.cxx
           INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
@@ -97,7 +100,7 @@ endif()
 
 # Test(s) in the package:
 if( XAOD_ANALYSIS )
-  foreach( test gt_metMaker gt_metSystematicsTool )
+  foreach( test gt_metMaker gt_metSystematicsTool gt_metSignificance )
     atlas_add_test( ${test}
           SOURCES test/${test}.cxx
           INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}

@@ -22,8 +22,18 @@
 // Tracking Tool
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
-// Forward declaration
+// Tool interfaces
+class IJERTool;
+namespace CP {
+  class IMuonCalibrationAndSmearingTool;
+  class IEgammaCalibrationAndSmearingTool;
+}
 
+namespace TauAnalysisTools {
+  class ITauSmearingTool;
+}
+
+// Forward declaration
 namespace met {
 
   // typedefs
@@ -72,6 +82,12 @@ namespace met {
 
     /// Default constructor:
     METSignificance();
+
+    // tools
+    ToolHandle<IJERTool> m_jerTool;
+    ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muonCalibrationAndSmearingTool;
+    ToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_egammaCalibTool;
+    ToolHandle<TauAnalysisTools::ITauSmearingTool> m_tauSmearingTool;
 
   };
 
