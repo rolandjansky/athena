@@ -78,6 +78,10 @@ TCCPlots::TCCPlots(TCCPlotsBase* pParent, const std::string& sDir, const std::st
   m_jet_pseudoresponse_pt_leading   (nullptr),
   m_jet_pseudoresponse_m_subleading (nullptr),
   m_jet_pseudoresponse_pt_subleading(nullptr),
+  m_jet_pseudoresponse_notcalib_pt           (nullptr),
+  m_jet_pseudoresponse_notcalib_pt_2leadings (nullptr),
+  m_jet_pseudoresponse_notcalib_pt_leading   (nullptr),
+  m_jet_pseudoresponse_notcalib_pt_subleading(nullptr),
   m_jet_d2                          (nullptr),
   m_jet_d2_2leadings                (nullptr),
   m_jet_d2_leading                  (nullptr),
@@ -456,6 +460,7 @@ TCCPlots::TCCPlots(TCCPlotsBase* pParent, const std::string& sDir, const std::st
   m_trk_pv0_total_pt                                        (nullptr),
   m_trk_pv0_caloEntryUncTot_eta                             (nullptr),
   m_trk_pv0_caloEntryUncTot_pt                              (nullptr),
+  m_trk_pv0_caloEntryUncTot_truthpt                         (nullptr), 
   m_trk_pv0_total_clusters_eta                              (nullptr),
   m_trk_pv0_total_clusters_pt                               (nullptr),
   m_trk_pv0_matching_deltar_fix_eta                         (nullptr),
@@ -494,6 +499,11 @@ TCCPlots::TCCPlots(TCCPlotsBase* pParent, const std::string& sDir, const std::st
   m_trk_pv0_matchedFraction_pt_onlyvar                      (nullptr),
   m_trk_pv0_matchedFraction_pt_onlyfix                      (nullptr),
   m_trk_pv0_matchedFraction_pt_none                         (nullptr),
+  m_trk_pv0_caloEntryUncTot_eta_0SiHits                     (nullptr), 
+  m_trk_pv0_caloEntryUncTot_pt_0SiHits                      (nullptr),
+  m_trk_pv0_caloEntryUncTot_rFirstHit_0SiHits               (nullptr),
+  m_trk_pv0_caloEntryUncTot_nSiHits                         (nullptr),
+  m_trk_pv0_caloEntryUncTot_rFirstHit                       (nullptr),
   m_tcc_pt                                                  (nullptr),
   m_tcc_pt_etacut                                           (nullptr),
   m_tcc_phi                                                 (nullptr),
@@ -608,6 +618,10 @@ void TCCPlots::initializePlots() {
     book(m_jet_pseudoresponse_pt_leading             , "jet_pseudoresponse_pt_leading"            );
     book(m_jet_pseudoresponse_m_subleading           , "jet_pseudoresponse_m_subleading"          );
     book(m_jet_pseudoresponse_pt_subleading          , "jet_pseudoresponse_pt_subleading"         );
+    book(m_jet_pseudoresponse_notcalib_pt            , "jet_pseudoresponse_notcalib_pt"           );
+    book(m_jet_pseudoresponse_notcalib_pt_2leadings  , "jet_pseudoresponse_notcalib_pt_2leadings" );
+    book(m_jet_pseudoresponse_notcalib_pt_leading    , "jet_pseudoresponse_notcalib_pt_leading"   );
+    book(m_jet_pseudoresponse_notcalib_pt_subleading , "jet_pseudoresponse_notcalib_pt_subleading");
     book(m_jet_d2                                    , "jet_d2"                                   );
     book(m_jet_d2_2leadings                          , "jet_d2_2leadings"                         );
     book(m_jet_d2_leading                            , "jet_d2_leading"                           );
@@ -835,6 +849,7 @@ void TCCPlots::initializePlots() {
     book(m_trk_pv0_total_pt                                       , "trk_pv0_total_pt"                            );
     book(m_trk_pv0_caloEntryUncTot_eta                            , "trk_pv0_caloEntryUncTot_eta"                 );
     book(m_trk_pv0_caloEntryUncTot_pt                             , "trk_pv0_caloEntryUncTot_pt"                  );
+    book(m_trk_pv0_caloEntryUncTot_truthpt                        , "trk_pv0_caloEntryUncTot_truthpt"             );
     book(m_trk_pv0_total_clusters_eta                             , "trk_pv0_total_clusters_eta"                  );
     book(m_trk_pv0_total_clusters_pt                              , "trk_pv0_total_clusters_pt"                   );
     book(m_trk_pv0_matching_deltar_fix_eta                        , "trk_pv0_matching_deltar_fix_eta"             );
@@ -873,6 +888,12 @@ void TCCPlots::initializePlots() {
     book(m_trk_pv0_matchedFraction_pt_onlyvar                     , "trk_pv0_matchedFraction_pt_onlyvar"          );
     book(m_trk_pv0_matchedFraction_pt_onlyfix                     , "trk_pv0_matchedFraction_pt_onlyfix"          );
     book(m_trk_pv0_matchedFraction_pt_none                        , "trk_pv0_matchedFraction_pt_none"             );
+    
+    book(m_trk_pv0_caloEntryUncTot_eta_0SiHits                    , "trk_pv0_caloEntryUncTot_eta_0SiHits"         );
+    book(m_trk_pv0_caloEntryUncTot_pt_0SiHits                     , "trk_pv0_caloEntryUncTot_pt_0SiHits"          );
+    book(m_trk_pv0_caloEntryUncTot_rFirstHit_0SiHits              , "trk_pv0_caloEntryUncTot_rFirstHit_0SiHits"   );
+    book(m_trk_pv0_caloEntryUncTot_nSiHits                        , "trk_pv0_caloEntryUncTot_nSiHits"             );
+    book(m_trk_pv0_caloEntryUncTot_rFirstHit                      , "trk_pv0_caloEntryUncTot_rFirstHit"           );        
         
   } else if (m_collectionType == "clusters") {
     
@@ -1123,6 +1144,11 @@ void TCCPlots::fillResponseNoPtNoMassCuts(const xAOD::Jet& jet, const xAOD::Jet&
 void TCCPlots::fillPseudoResponse(const xAOD::Jet& jet, const xAOD::Jet& calo) {
   fillHisto(m_jet_pseudoresponse_m     , jet.m() /calo.m() , m_eventWeight);
   fillHisto(m_jet_pseudoresponse_pt    , jet.pt()/calo.pt(), m_eventWeight);
+  
+  static SG::AuxElement::Accessor<float> ptAcc("JetConstitScaleMomentum_pt");
+  if (ptAcc.isAvailable(calo)) {
+    fillHisto(m_jet_pseudoresponse_notcalib_pt, jet.pt()/ptAcc(calo), m_eventWeight);
+  }
 }
 
 void TCCPlots::fillMoments(const xAOD::Jet& jet) {
@@ -1305,6 +1331,12 @@ void TCCPlots::fillPseudoResponseLeading(const xAOD::Jet& jet, const xAOD::Jet& 
   fillHisto(m_jet_pseudoresponse_pt_leading    , jet.pt()/calo.pt(), m_eventWeight);
   fillHisto(m_jet_pseudoresponse_m_2leadings   , jet.m() /calo.m() , m_eventWeight);
   fillHisto(m_jet_pseudoresponse_pt_2leadings  , jet.pt()/calo.pt(), m_eventWeight);
+  
+  static SG::AuxElement::Accessor<float> ptAcc("JetConstitScaleMomentum_pt");
+  if (ptAcc.isAvailable(calo)) {
+    fillHisto(m_jet_pseudoresponse_notcalib_pt_leading  , jet.pt()/ptAcc(calo), m_eventWeight);
+    fillHisto(m_jet_pseudoresponse_notcalib_pt_2leadings, jet.pt()/ptAcc(calo), m_eventWeight);
+  }
 }
 
 void TCCPlots::fillPseudoResponseSubLeading(const xAOD::Jet& jet, const xAOD::Jet& calo) {
@@ -1312,6 +1344,12 @@ void TCCPlots::fillPseudoResponseSubLeading(const xAOD::Jet& jet, const xAOD::Je
   fillHisto(m_jet_pseudoresponse_pt_subleading  , jet.pt()/calo.pt(), m_eventWeight);
   fillHisto(m_jet_pseudoresponse_m_2leadings    , jet.m() /calo.m() , m_eventWeight);
   fillHisto(m_jet_pseudoresponse_pt_2leadings   , jet.pt()/calo.pt(), m_eventWeight);
+  
+  static SG::AuxElement::Accessor<float> ptAcc("JetConstitScaleMomentum_pt");
+  if (ptAcc.isAvailable(calo)) {
+    fillHisto(m_jet_pseudoresponse_notcalib_pt_subleading, jet.pt()/ptAcc(calo), m_eventWeight);
+    fillHisto(m_jet_pseudoresponse_notcalib_pt_2leadings , jet.pt()/ptAcc(calo), m_eventWeight);
+  }
 }
       
 void TCCPlots::fillTrackParametersAllPt(const xAOD::TrackParticle& track) {  
@@ -1766,7 +1804,22 @@ void TCCPlots::fillMatching(const xAOD::TrackParticle& track) {
       
       fillHisto(m_trk_pv0_caloEntryUncTot_eta, track.eta()   , totUnc, m_eventWeight);
       fillHisto(m_trk_pv0_caloEntryUncTot_pt , track.pt()/GeV, totUnc, m_eventWeight);
+     
+      uint8_t nPixHits (0);
+      uint8_t nSCTHits (0);
       
+      if (track.summaryValue(nPixHits, xAOD::numberOfPixelHits) and track.summaryValue(nSCTHits, xAOD::numberOfSCTHits)) {
+	int siHits = nPixHits + nSCTHits;
+	if (siHits == 0) {
+	  fillHisto(m_trk_pv0_caloEntryUncTot_eta_0SiHits      , track.eta()   , totUnc, m_eventWeight);
+	  fillHisto(m_trk_pv0_caloEntryUncTot_pt_0SiHits       , track.pt()/GeV, totUnc, m_eventWeight);
+	  fillHisto(m_trk_pv0_caloEntryUncTot_rFirstHit_0SiHits, track.radiusOfFirstHit(), totUnc, m_eventWeight);
+	}
+	fillHisto(m_trk_pv0_caloEntryUncTot_nSiHits, siHits, totUnc, m_eventWeight);
+      }
+
+      fillHisto(m_trk_pv0_caloEntryUncTot_rFirstHit, track.radiusOfFirstHit(), totUnc, m_eventWeight); 
+                  
       static SG::AuxElement::Accessor< int > acc_allClusters     ( "AllClusters"           );
       static SG::AuxElement::Accessor< int > acc_clusters_dr_fix ( "Match_deltaR_fixed"    );
       static SG::AuxElement::Accessor< int > acc_clusters_dr_var ( "Match_deltaR_variable" );
@@ -2240,7 +2293,8 @@ void TCCPlots::finalizePlots() {
     //pt + prod radius th2
     std::vector < TH2* > th2f = { m_trk_d0_pt, m_trk_z0_pt, m_trk_theta_pt, m_trk_phi_pt, m_trk_qOverP_pt, 
       m_trk_caloEntryEtaOverEta_pt, m_trk_caloEntryUncEta_pt, m_trk_caloEntryUncTheta_pt, m_trk_caloEntryPhiOverPhi_pt,
-      m_trk_caloEntryUncPhi_pt, m_trk_caloEntryUncTot_pt, m_trk_pv0_caloEntryUncTot_pt, m_trk_perigeeUncEta_pt, m_trk_perigeeUncTheta_pt, 
+      m_trk_caloEntryUncPhi_pt, m_trk_caloEntryUncTot_pt, m_trk_pv0_caloEntryUncTot_pt, m_trk_pv0_caloEntryUncTot_truthpt,
+      m_trk_pv0_caloEntryUncTot_pt_0SiHits, m_trk_perigeeUncEta_pt, m_trk_perigeeUncTheta_pt, 
       m_trk_perigeeUncPhi_pt, m_trk_perigeeUncTot_pt, m_trk_delta_perigeeEta_caloEntryEta_pt, 
       m_trk_delta_perigeePhi_caloEntryPhi_pt, m_trk_delta_trackEta_caloEntryEta_pt, m_trk_delta_trackPhi_caloEntryPhi_pt,
       m_trk_delta_trackEta_caloEntryEtaCorr_pt, m_trk_delta_trackPhi_caloEntryPhiCorr_pt, 
@@ -2447,9 +2501,11 @@ void TCCPlots::make_median_add(TH2* h2_response, TH1* h1_resolution){
     Double_t prob,quant16,quant84,median;
     prob=.5;
     hold->GetQuantiles(1,&median,&prob);
-    prob=.84;
+//     prob=.84;
+    prob=0.75;
     hold->GetQuantiles(1,&quant84,&prob);
-    prob=.16;
+//     prob=.16;
+    prob=0.25;
     hold->GetQuantiles(1,&quant16,&prob);
     h1_resolution->SetBinContent(i,0.5*fabs(quant84-quant16));
   }
@@ -2499,6 +2555,8 @@ void TCCPlots::resizeHistograms() {
       m_trk_caloEntryUncPhi_pt                         ->GetXaxis()->Set(nBins, ptBins);    
       m_trk_caloEntryUncTot_pt                         ->GetXaxis()->Set(nBins, ptBins); 
       m_trk_pv0_caloEntryUncTot_pt                     ->GetXaxis()->Set(nBins, ptBins); 
+      m_trk_pv0_caloEntryUncTot_truthpt                ->GetXaxis()->Set(nBins, ptBins);
+      m_trk_pv0_caloEntryUncTot_pt_0SiHits             ->GetXaxis()->Set(nBins, ptBins); 
       m_trk_perigeeUncEta_pt                           ->GetXaxis()->Set(nBins, ptBins);    
       m_trk_perigeeUncTheta_pt                         ->GetXaxis()->Set(nBins, ptBins);    
       m_trk_perigeeUncPhi_pt                           ->GetXaxis()->Set(nBins, ptBins);    

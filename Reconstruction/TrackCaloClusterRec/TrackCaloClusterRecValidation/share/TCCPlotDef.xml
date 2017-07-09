@@ -130,14 +130,14 @@
 
 <!-- m_jet_response_m -->
   <h id="jet_response_m" type="TH1F" title="Mass response - all jets">
-    <x title="Mass response" n="500" lo="0." hi="5."/>
+    <x title="Mass response" n="10000" lo="-1." hi="99."/>
     <y title="Entries"/>
   </h> 
   
 <!-- m_jet_response_m_pt -->
   <h id="jet_response_m_pt" type="TH2F" title="Mass response vs Truth jet p_{T} - all jets">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
-    <y title="Mass response"         n="500" lo="0." hi="5."/>
+    <y title="Mass response"         n="10000" lo="-1." hi="99."/>
   </h> 
 
 <!-- m_jet_response_pt -->
@@ -160,14 +160,14 @@
   
 <!-- m_jet_response_m_2leadings -->
   <h id="jet_response_m_2leadings" type="TH1F" title="Mass response - 2 leading jets">
-    <x title="Mass response" n="500" lo="0." hi="5."/>
+    <x title="Mass response" n="10000" lo="-1." hi="99."/>
     <y title="Entries"/>
   </h> 
   
 <!-- m_jet_response_m_pt_2leadings -->
   <h id="jet_response_m_pt_2leadings" type="TH2F" title="Mass response vs Truth jet p_{T} - 2 leading jets">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
-    <y title="Mass response"         n="500" lo="0." hi="5."/>
+    <y title="Mass response"         n="10000" lo="-1." hi="99."/>
   </h> 
   
 <!-- m_jet_response_pt_2leadings -->
@@ -190,14 +190,14 @@
 
 <!-- m_jet_response_m_leading -->
   <h id="jet_response_m_leading" type="TH1F" title="Mass response - leading jet">
-    <x title="Mass response" n="500" lo="0." hi="5."/>
+    <x title="Mass response" n="10000" lo="-1." hi="99."/>
     <y title="Entries"/>
   </h> 
   
 <!-- m_jet_response_m_pt_leading -->
   <h id="jet_response_m_pt_leading" type="TH2F" title="Mass response vs Truth jet p_{T} - leading jets">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
-    <y title="Mass response"         n="500" lo="0." hi="5."/>
+    <y title="Mass response"         n="10000" lo="-1." hi="99."/>
   </h> 
 
 <!-- m_jet_response_pt_leading -->
@@ -220,14 +220,14 @@
 
 <!-- m_jet_response_m_subleading -->
   <h id="jet_response_m_subleading" type="TH1F" title="Mass response - subleading jet">
-    <x title="Mass response" n="500" lo="0." hi="5."/>
+    <x title="Mass response" n="10000" lo="-1." hi="99."/>
     <y title="Entries"/>
   </h> 
   
 <!-- m_jet_response_m_pt_subleading -->
   <h id="jet_response_m_pt_subleading" type="TH2F" title="Mass response vs Truth jet p_{T} - subleading jets">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
-    <y title="Mass response"         n="500" lo="0." hi="5."/>
+    <y title="Mass response"         n="10000" lo="-1." hi="99."/>
   </h> 
 
 
@@ -300,73 +300,73 @@
 <!-- m_jet_response_m_npv -->
   <h id="jet_response_m_npv" type="TH2F" title="Mass response vs NPV - all jets">
     <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
-    <y title="Mass response" n="500" lo="0." hi="5."/>
+    <y title="Mass response" n="10000" lo="-1." hi="99."/>
   </h> 
   
 <!-- m_jet_response_m_npv_2leadings -->
   <h id="jet_response_m_npv_2leadings" type="TH2F" title="Mass response vs NPV - 2 leading jets">
     <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
-    <y title="Mass response" n="500" lo="0." hi="5."/>
+    <y title="Mass response" n="10000" lo="-1." hi="99."/>
   </h> 
   
 <!-- m_jet_response_m_npv_leading -->
   <h id="jet_response_m_npv_leading" type="TH2F" title="Mass response vs NPV - leading jet">
     <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
-    <y title="Mass response" n="500" lo="0." hi="5."/>
+    <y title="Mass response" n="10000" lo="-1." hi="99."/>
   </h> 
   
 <!-- m_jet_response_m_npv_subleading -->
   <h id="jet_response_m_npv_subleading" type="TH2F" title="Mass response vs NPV - subleading jets">
     <x title="NPV" n="80"    lo="-.5" hi="79.5"/>
-    <y title="Mass response" n="500" lo="0." hi="5."/>
+    <y title="Mass response" n="10000" lo="-1." hi="99."/>
   </h> 
 
   <!-- m_jet_response_d2_pt -->
   <h id="jet_response_d2_pt" type="TH2F" title="D_{2} response vs Truth jet p_{T} - all jets">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
-    <y title="D_{2} response"        n="500" lo="0." hi="5."/>
+    <y title="D_{2} response"        n="10000" lo="-1." hi="99."/>
   </h> 
 
   <!-- m_jet_response_d2_pt_2leadings -->
   <h id="jet_response_d2_pt_2leadings" type="TH2F" title="D_{2} response vs Truth jet p_{T} - 2 leading jets">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
-    <y title="D_{2} response"        n="500" lo="0." hi="5."/>
+    <y title="D_{2} response"        n="10000" lo="-1." hi="99."/>
   </h> 
 
   <!-- m_jet_response_d2_pt_leading -->
   <h id="jet_response_d2_pt_leading" type="TH2F" title="D_{2} response vs Truth jet p_{T} - leading jets">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
-    <y title="D_{2} response"        n="500" lo="0." hi="5."/>
+    <y title="D_{2} response"        n="10000" lo="-1." hi="99."/>
   </h> 
 
   <!-- m_jet_response_d2_pt_subleading -->
   <h id="jet_response_d2_pt_subleading" type="TH2F" title="D_{2} response vs Truth jet p_{T} - subleading jets">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
-    <y title="D_{2} response"        n="500" lo="0." hi="5."/>
+    <y title="D_{2} response"        n="10000" lo="-1." hi="99."/>
   </h> 
   
   <!-- m_jet_response_add_d2_pt -->
   <h id="jet_response_add_d2_pt" type="TH2F" title="D_{2} additive response vs Truth jet p_{T} - all jets">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
-    <y title="D_{2} additive response"       n="1000" lo="-5." hi="5."/>
+    <y title="D_{2} additive response"       n="200000" lo="-1000." hi="1000."/>
   </h> 
 
   <!-- m_jet_response_add_d2_pt_2leadings -->
   <h id="jet_response_add_d2_pt_2leadings" type="TH2F" title="D_{2} additive response vs Truth jet p_{T} - 2 leading jets">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
-    <y title="D_{2} additive response"       n="1000" lo="-5." hi="5."/>
+    <y title="D_{2} additive response"       n="200000" lo="-1000." hi="1000."/>
   </h> 
 
   <!-- m_jet_response_add_d2_pt_leading -->
   <h id="jet_response_add_d2_pt_leading" type="TH2F" title="D_{2} additive response vs Truth jet p_{T} - leading jets">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
-    <y title="D_{2} additive response"       n="1000" lo="-5." hi="5."/>
+    <y title="D_{2} additive response"       n="200000" lo="-1000." hi="1000."/>
   </h> 
 
   <!-- m_jet_response_add_d2_pt_subleading -->
   <h id="jet_response_add_d2_pt_subleading" type="TH2F" title="D_{2} additive response vs Truth jet p_{T} - subleading jets">
     <x title="Truth jet p_{T} [GeV]" n="18"  lo="200." hi="4000."/>
-    <y title="D_{2} additive response"       n="1000" lo="-5." hi="5."/>
+    <y title="D_{2} additive response"       n="200000" lo="-1000." hi="1000."/>
   </h> 
   
 <!-- m_jet_pseudoresponse_m -->
@@ -413,6 +413,30 @@
 
 <!-- m_jet_pseudoresponse_pt_subleading -->
   <h id="jet_pseudoresponse_pt_subleading" type="TH1F" title="p_{T} pseudo response - subleading jet">
+    <x title="p_{T} pseudo response" n="500" lo="0." hi="5."/>
+    <y title="Entries"/>
+  </h> 
+  
+<!-- m_jet_pseudoresponse_notcalib_pt -->
+  <h id="jet_pseudoresponse_notcalib_pt" type="TH1F" title="p_{T} pseudo response - all jets">
+    <x title="p_{T} pseudo response" n="500" lo="0." hi="5."/>
+    <y title="Entries"/>
+  </h> 
+  
+<!-- m_jet_pseudoresponse_notcalib_pt_2leadings -->
+  <h id="jet_pseudoresponse_notcalib_pt_2leadings" type="TH1F" title="p_{T} pseudo response - 2 leading jets">
+    <x title="p_{T} pseudo response" n="500" lo="0." hi="5."/>
+    <y title="Entries"/>
+  </h> 
+  
+<!-- m_jet_pseudoresponse_notcalib_pt_leading -->
+  <h id="jet_pseudoresponse_notcalib_pt_leading" type="TH1F" title="p_{T} pseudo response - leading jet">
+    <x title="p_{T} pseudo response" n="500" lo="0." hi="5."/>
+    <y title="Entries"/>
+  </h> 
+  
+<!-- m_jet_pseudoresponse_notcalib_pt_subleading -->
+  <h id="jet_pseudoresponse_notcalib_pt_subleading" type="TH1F" title="p_{T} pseudo response - subleading jet">
     <x title="p_{T} pseudo response" n="500" lo="0." hi="5."/>
     <y title="Entries"/>
   </h> 
@@ -467,49 +491,49 @@
   
   <!-- m_jet_response_d2 -->
   <h id="jet_response_d2" type="TH1F" title="D_{2} response - all jets">
-    <x title="D_{2} response" n="500" lo="0." hi="5."/>
+    <x title="D_{2} response" n="10000" lo="-1." hi="99."/>
     <y title="Entries"/>
   </h> 
   
 <!-- m_jet_response_d2_2leadings -->
   <h id="jet_response_d2_2leadings" type="TH1F" title="D_{2} response - 2 leading jets">
-    <x title="D_{2} response" n="500" lo="0." hi="5."/>
+    <x title="D_{2} response" n="10000" lo="-1." hi="99."/>
     <y title="Entries"/>
   </h> 
   
 <!-- m_jet_response_d2_leading -->
   <h id="jet_response_d2_leading" type="TH1F" title="D_{2} response - leading jet">
-    <x title="D_{2} response" n="500" lo="0." hi="5."/>
+    <x title="D_{2} response" n="10000" lo="-1." hi="99."/>
     <y title="Entries"/>
   </h> 
 
 <!-- m_jet_response_d2_subleading -->
   <h id="jet_response_d2_subleading" type="TH1F" title="D_{2} response - subleading jet">
-    <x title="D_{2} response" n="500" lo="0." hi="5."/>
+    <x title="D_{2} response" n="10000" lo="-1." hi="99."/>
     <y title="Entries"/>
   </h> 
   
   <!-- m_jet_response_add_d2 -->
   <h id="jet_response_add_d2" type="TH1F" title="D_{2} additive response - all jets">
-    <x title="D_{2} additive response" n="1000" lo="-5." hi="5."/>
+    <x title="D_{2} additive response" n="20000" lo="-100." hi="100."/>
     <y title="Entries"/>
   </h> 
   
 <!-- m_jet_response_add_d2_2leadings -->
   <h id="jet_response_add_d2_2leadings" type="TH1F" title="D_{2} additive response - 2 leading jets">
-    <x title="D_{2} additive response" n="1000" lo="-5." hi="5."/>
+    <x title="D_{2} additive response" n="20000" lo="-100." hi="100."/>
     <y title="Entries"/>
   </h> 
   
 <!-- m_jet_response_add_d2_leading -->
   <h id="jet_response_add_d2_leading" type="TH1F" title="D_{2} additive response - leading jet">
-    <x title="D_{2} additive response" n="1000" lo="-5." hi="5."/>
+    <x title="D_{2} additive response" n="20000" lo="-100." hi="100."/>
     <y title="Entries"/>
   </h> 
 
 <!-- m_jet_response_add_d2_subleading -->
   <h id="jet_response_add_d2_subleading" type="TH1F" title="D_{2} additive response - subleading jet">
-    <x title="D_{2} additive response" n="1000" lo="-5." hi="5."/>
+    <x title="D_{2} additive response" n="20000" lo="-100." hi="100."/>
     <y title="Entries"/>
   </h> 
   
@@ -637,28 +661,28 @@
   <h id="jet_mopt_pt_response_m" type="TH3F" title="Mass response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - all jets">
     <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
-    <z title="Mass response"                 n="500" lo="0." hi="5."/>
+    <z title="Mass response"                 n="10000" lo="-1." hi="99."/>
   </h> 
   
 <!-- m_jet_mopt_pt_response_m_2leadings -->
   <h id="jet_mopt_pt_response_m_2leadings" type="TH3F" title="Mass response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - 2 leading jets">
     <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
-    <z title="Mass response"                 n="500" lo="0." hi="5."/>
+    <z title="Mass response"                 n="10000" lo="-1." hi="99."/>
   </h> 
   
 <!-- m_jet_mopt_pt_response_m_leading -->
   <h id="jet_mopt_pt_response_m_leading" type="TH3F" title="Mass response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - leading jet">
     <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
-    <z title="Mass response"                 n="500" lo="0." hi="5."/>
+    <z title="Mass response"                 n="10000" lo="-1." hi="99."/>
   </h> 
   
 <!-- m_jet_mopt_pt_response_m_subleading -->
   <h id="jet_mopt_pt_response_m_subleading" type="TH3F" title="Mass response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - subleading jet">
     <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
-    <z title="Mass response"                 n="500" lo="0." hi="5."/>
+    <z title="Mass response"                 n="10000" lo="-1." hi="99."/>
   </h> 
 
 <!-- m_jet_mopt_pt_response_pt -->
@@ -749,28 +773,28 @@
   <h id="jet_mopt_pt_response_d2" type="TH3F" title="D_{2} response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - all jets">
     <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
-    <z title="D_{2} response"                 n="500" lo="0." hi="5."/>
+    <z title="D_{2} response"                 n="10000" lo="-1." hi="99."/>
   </h> 
   
 <!-- m_jet_mopt_pt_response_d2_2leadings -->
   <h id="jet_mopt_pt_response_d2_2leadings" type="TH3F" title="D_{2} response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - 2 leading jets">
     <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
-    <z title="D_{2} response"                 n="500" lo="0." hi="5."/>
+    <z title="D_{2} response"                 n="10000" lo="-1." hi="99."/>
   </h> 
   
 <!-- m_jet_mopt_pt_response_d2_leading -->
   <h id="jet_mopt_pt_response_d2_leading" type="TH3F" title="D_{2} response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - leading jet">
     <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
-    <z title="D_{2} response"                 n="500" lo="0." hi="5."/>
+    <z title="D_{2} response"                 n="10000" lo="-1." hi="99."/>
   </h> 
   
 <!-- m_jet_mopt_pt_response_d2_subleading -->
   <h id="jet_mopt_pt_response_d2_subleading" type="TH3F" title="D_{2} response vs truth jet Mass / truth jet p_{T} vs truth jet p_{T} - subleading jet">
     <x title="Truth jet p_{T} [GeV]"         n="18"  lo="200." hi="4000."/>
     <y title="Truth jet Mass / jet p_{T}"    n="20"  lo="0."   hi="1."/>
-    <z title="D_{2} response"                 n="500" lo="0." hi="5."/>
+    <z title="D_{2} response"                 n="10000" lo="-1." hi="99."/>
   </h> 
   
 <!-- m_jet_resolution_mopt_pt_m -->
@@ -1118,21 +1142,21 @@
   </h>
   
   <!-- m_trk_caloEntryUncTot_eta -->
-  <h id="trk_caloEntryUncTot_eta" type="TH2F" title="calo entry #sigma(#Delta R) vs track #eta">
+  <h id="trk_caloEntryUncTot_eta" type="TH2F" title="Extrapolated track angular uncertainty, #sigma(#Delta R) vs track #eta">
     <x title="track #eta [rad]" n="500" lo="-4." hi="4."/>
-    <y title="Calo Entry #sigma(#Delta R)" n="20000" lo="0" hi="1."/>
+    <y title="Extrapolated track angular uncertainty, #sigma(#Delta R)" n="20000" lo="0" hi="1."/>
   </h>
   
   <!-- m_trk_caloEntryUncTot_pt -->
-  <h id="trk_caloEntryUncTot_pt" type="TH2F" title="calo entry #sigma(#Delta R) vs track p_{T}">
+  <h id="trk_caloEntryUncTot_pt" type="TH2F" title="Extrapolated track angular uncertainty, #sigma(#Delta R) vs track p_{T}">
     <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
-    <y title="Calo Entry #sigma(#Delta R)" n="20000" lo="0" hi="1."/>
+    <y title="Extrapolated track angular uncertainty, #sigma(#Delta R)" n="20000" lo="0" hi="1."/>
   </h>
     
   <!-- m_trk_caloEntryUncTot_prodRadius -->
-  <h id="trk_caloEntryUncTot_prodRadius" type="TH2F" title="calo entry #sigma(#Delta R) vs truth production radius">
+  <h id="trk_caloEntryUncTot_prodRadius" type="TH2F" title="Extrapolated track angular uncertainty, #sigma(#Delta R) vs truth production radius">
     <x title="Truth Production Radius [mm]" n="1500" lo="0." hi="1500."/>
-    <y title="Calo Entry #sigma(#Delta R)" n="20000" lo="0" hi="1."/>
+    <y title="Extrapolated track angular uncertainty, #sigma(#Delta R)" n="20000" lo="0" hi="1."/>
   </h>
   
   <!-- m_trk_perigeeEta -->
@@ -1238,8 +1262,8 @@
   </h>
   
   <!-- m_trk_perigeeUncTot_caloUncTot   -->
-  <h id="trk_perigeeUncTot_caloUncTot" type="TH2F" title="perigee #sigma(#Delta R) vs calo entry #sigma(#Delta R)">
-    <x title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
+  <h id="trk_perigeeUncTot_caloUncTot" type="TH2F" title="perigee #sigma(#Delta R) vs Extrapolated track angular uncertainty, #sigma(#Delta R)">
+    <x title="Extrapolated track angular uncertainty, #sigma(#Delta R)" n="500" lo="0" hi="1."/>
     <y title="Perigee #sigma(#Delta R)"    n="500" lo="0" hi="1."/>
   </h>
   
@@ -2320,21 +2344,21 @@
   </h>
 
   <!-- m_trk_notMatching_deltar_fix_caloEntryUncTot_eta -->
-  <h id="trk_notMatching_deltar_fix_caloEntryUncTot_eta" type="TH2F" title="calo entry #sigma(#Delta R) vs track #eta - not matching with fixed #Delta R">
+  <h id="trk_notMatching_deltar_fix_caloEntryUncTot_eta" type="TH2F" title="Extrapolated track angular uncertainty, #sigma(#Delta R) vs track #eta - not matching with fixed #Delta R">
     <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
-    <y title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
+    <y title="Extrapolated track angular uncertainty, #sigma(#Delta R)" n="500" lo="0" hi="1."/>
   </h>
 
   <!-- m_trk_notMatching_deltar_fix_caloEntryUncTot_pt -->
-  <h id="trk_notMatching_deltar_fix_caloEntryUncTot_pt" type="TH2F" title="calo entry #sigma(#Delta R) vs track p_{T} - not matching with fixed #Delta R">
+  <h id="trk_notMatching_deltar_fix_caloEntryUncTot_pt" type="TH2F" title="Extrapolated track angular uncertainty, #sigma(#Delta R) vs track p_{T} - not matching with fixed #Delta R">
     <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
-    <y title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
+    <y title="Extrapolated track angular uncertainty, #sigma(#Delta R)" n="500" lo="0" hi="1."/>
   </h>
 
   <!-- m_trk_notMatching_deltar_fix_caloEntryUncTot_prodRadius -->
-  <h id="trk_notMatching_deltar_fix_caloEntryUncTot_prodRadius" type="TH2F" title="calo entry #sigma(#Delta R) vs track truth production radius - not matching with fixed #Delta R">
+  <h id="trk_notMatching_deltar_fix_caloEntryUncTot_prodRadius" type="TH2F" title="Extrapolated track angular uncertainty, #sigma(#Delta R) vs track truth production radius - not matching with fixed #Delta R">
     <x title="Truth Production Radius [mm]" n="1500" lo="0." hi="1500."/>
-    <y title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
+    <y title="Extrapolated track angular uncertainty, #sigma(#Delta R)" n="500" lo="0" hi="1."/>
   </h>
   
   <!-- m_trk_notMatching_deltar_var_eta -->
@@ -2356,21 +2380,21 @@
   </h>
 
   <!-- m_trk_notMatching_deltar_var_caloEntryUncTot_eta -->
-  <h id="trk_notMatching_deltar_var_caloEntryUncTot_eta" type="TH2F" title="calo entry #sigma(#Delta R) vs track #eta - not matching with variable #Delta R">
+  <h id="trk_notMatching_deltar_var_caloEntryUncTot_eta" type="TH2F" title="Extrapolated track angular uncertainty, #sigma(#Delta R) vs track #eta - not matching with variable #Delta R">
     <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
-    <y title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
+    <y title="Extrapolated track angular uncertainty, #sigma(#Delta R)" n="500" lo="0" hi="1."/>
   </h>
 
   <!-- m_trk_notMatching_deltar_var_caloEntryUncTot_pt -->
-  <h id="trk_notMatching_deltar_var_caloEntryUncTot_pt" type="TH2F" title="calo entry #sigma(#Delta R) vs track p_{T} - not matching with variable #Delta R">
+  <h id="trk_notMatching_deltar_var_caloEntryUncTot_pt" type="TH2F" title="Extrapolated track angular uncertainty, #sigma(#Delta R) vs track p_{T} - not matching with variable #Delta R">
     <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
-    <y title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
+    <y title="Extrapolated track angular uncertainty, #sigma(#Delta R)" n="500" lo="0" hi="1."/>
   </h>
 
   <!-- m_trk_notMatching_deltar_var_caloEntryUncTot_prodRadius -->
-  <h id="trk_notMatching_deltar_var_caloEntryUncTot_prodRadius" type="TH2F" title="calo entry #sigma(#Delta R) vs track truth production radius - not matching with variable #Delta R">
+  <h id="trk_notMatching_deltar_var_caloEntryUncTot_prodRadius" type="TH2F" title="Extrapolated track angular uncertainty, #sigma(#Delta R) vs track truth production radius - not matching with variable #Delta R">
     <x title="Truth Production Radius [mm]" n="1500" lo="0." hi="1500."/>
-    <y title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
+    <y title="Extrapolated track angular uncertainty, #sigma(#Delta R)" n="500" lo="0" hi="1."/>
   </h>
   
   <!-- m_trk_notMatching_deltar_none_eta -->
@@ -2392,21 +2416,21 @@
   </h>
 
   <!-- m_trk_notMatching_deltar_none_caloEntryUncTot_eta -->
-  <h id="trk_notMatching_deltar_none_caloEntryUncTot_eta" type="TH2F" title="calo entry #sigma(#Delta R) vs track #eta - not matching any #Delta R">
+  <h id="trk_notMatching_deltar_none_caloEntryUncTot_eta" type="TH2F" title="Extrapolated track angular uncertainty, #sigma(#Delta R) vs track #eta - not matching any #Delta R">
     <x title="track #eta [rad]" n="200" lo="-4." hi="4."/>
-    <y title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
+    <y title="Extrapolated track angular uncertainty, #sigma(#Delta R)" n="500" lo="0" hi="1."/>
   </h>
 
   <!-- m_trk_notMatching_deltar_none_caloEntryUncTot_pt -->
-  <h id="trk_notMatching_deltar_none_caloEntryUncTot_pt" type="TH2F" title="calo entry #sigma(#Delta R) vs track p_{T} - not matching any #Delta R">
+  <h id="trk_notMatching_deltar_none_caloEntryUncTot_pt" type="TH2F" title="Extrapolated track angular uncertainty, #sigma(#Delta R) vs track p_{T} - not matching any #Delta R">
     <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
-    <y title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
+    <y title="Extrapolated track angular uncertainty, #sigma(#Delta R)" n="500" lo="0" hi="1."/>
   </h>
 
   <!-- m_trk_notMatching_deltar_none_caloEntryUncTot_prodRadius -->
-  <h id="trk_notMatching_deltar_none_caloEntryUncTot_prodRadius" type="TH2F" title="calo entry #sigma(#Delta R) vs track truth production radius - not matching any #Delta R">
+  <h id="trk_notMatching_deltar_none_caloEntryUncTot_prodRadius" type="TH2F" title="Extrapolated track angular uncertainty, #sigma(#Delta R) vs track truth production radius - not matching any #Delta R">
     <x title="Truth Production Radius [mm]" n="1500" lo="0." hi="1500."/>
-    <y title="Calo Entry #sigma(#Delta R)" n="500" lo="0" hi="1."/>
+    <y title="Extrapolated track angular uncertainty, #sigma(#Delta R)" n="500" lo="0" hi="1."/>
   </h>
   
   <!-- m_trk_matching_deltar_fix_eta -->
@@ -2674,15 +2698,21 @@
   </h>
   
   <!-- m_trk_pv0_caloEntryUncTot_eta -->
-  <h id="trk_pv0_caloEntryUncTot_eta" type="TH2F" title="calo entry #sigma(#Delta R) vs track #eta - tracks from PV0">
+  <h id="trk_pv0_caloEntryUncTot_eta" type="TH2F" title="Extrapolated track angular uncertainty, #sigma(#Delta R) vs track #eta - tracks from PV0">
     <x title="track #eta [rad]" n="500" lo="-4." hi="4."/>
-    <y title="Calo Entry #sigma(#Delta R)" n="20000" lo="0" hi="1."/>
+    <y title="Extrapolated track angular uncertainty, #sigma(#Delta R)" n="20000" lo="0" hi="1."/>
   </h>
   
   <!-- m_trk_pv0_caloEntryUncTot_pt -->
-  <h id="trk_pv0_caloEntryUncTot_pt" type="TH2F" title="calo entry #sigma(#Delta R) vs track p_{T} - tracks from PV0">
+  <h id="trk_pv0_caloEntryUncTot_pt" type="TH2F" title="Extrapolated track angular uncertainty, #sigma(#Delta R) vs track p_{T} - tracks from PV0">
     <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
-    <y title="Calo Entry #sigma(#Delta R)" n="20000" lo="0" hi="1."/>
+    <y title="Extrapolated track angular uncertainty, #sigma(#Delta R)" n="20000" lo="0" hi="1."/>
+  </h>
+  
+  <!-- m_trk_pv0_caloEntryUncTot_truthpt -->
+  <h id="trk_pv0_caloEntryUncTot_truthpt" type="TH2F" title="Extrapolated track angular uncertainty, #sigma(#Delta R) vs track p_{T} - tracks from PV0">
+    <x title="Truth track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Extrapolated track angular uncertainty, #sigma(#Delta R)" n="20000" lo="0" hi="1."/>
   </h>
   
   <!-- m_trk_pv0_total_clusters_eta -->
@@ -2912,6 +2942,36 @@
     <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
     <y title="Fraction of not matching tracks"/>
   </h>
+ 
+  <!-- m_trk_pv0_caloEntryUncTot_pt_0SiHits -->
+  <h id="trk_pv0_caloEntryUncTot_pt_0SiHits" type="TH2F" title="Extrapolated track angular uncertainty, #sigma(#Delta R) vs track p_{T} - tracks from PV0 - 0 SiHits">
+    <x title="Track p_{T} [GeV]" n="64" lo="0." hi="2000."/>
+    <y title="Extrapolated track angular uncertainty, #sigma(#Delta R)" n="20000" lo="0" hi="1."/>
+  </h>
+  
+  <!-- m_trk_pv0_caloEntryUncTot_eta_0SiHits -->
+  <h id="trk_pv0_caloEntryUncTot_eta_0SiHits" type="TH2F" title="Extrapolated track angular uncertainty, #sigma(#Delta R) vs track #eta - tracks from PV0 - 0 SiHits">
+    <x title="Track #eta [rad]"  n="200" lo="-4." hi="4."/>
+    <y title="Extrapolated track angular uncertainty, #sigma(#Delta R)" n="20000" lo="0" hi="1."/>
+  </h>
+  
+  <!-- m_trk_pv0_caloEntryUncTot_rFirstHit_0SiHits -->
+  <h id="trk_pv0_caloEntryUncTot_rFirstHit_0SiHits" type="TH2F" title="Extrapolated track angular uncertainty, #sigma(#Delta R) vs Radius(first hit) - tracks from PV0 - 0 SiHits">
+    <x title="Radius(first Hit) [mm]"  n="1000" lo="0." hi="1000."/>
+    <y title="Extrapolated track angular uncertainty, #sigma(#Delta R)" n="20000" lo="0" hi="1."/>
+  </h>
+  
+  <!-- m_trk_pv0_caloEntryUncTot_rFirstHit -->
+  <h id="trk_pv0_caloEntryUncTot_rFirstHit" type="TH2F" title="Extrapolated track angular uncertainty, #sigma(#Delta R) vs Radius(first hit) - tracks from PV0">
+    <x title="Radius(first Hit) [mm]"  n="1000" lo="0." hi="1000."/>
+    <y title="Extrapolated track angular uncertainty, #sigma(#Delta R)" n="20000" lo="0" hi="1."/>
+  </h>
+  
+  <!-- m_trk_pv0_caloEntryUncTot_nSiHits -->
+  <h id="trk_pv0_caloEntryUncTot_nSiHits" type="TH2F" title="Extrapolated track angular uncertainty, #sigma(#Delta R) vs  # SiHits - tracks from PV0">
+    <x title="# SiHits"  n="40" lo="-0.5" hi="39.5"/>
+    <y title="Extrapolated track angular uncertainty, #sigma(#Delta R)" n="20000" lo="0" hi="1."/>
+  </h>  
   
   <!-- trk_tcc_reco_pt_response -->
   <h id="trk_tcc_reco_pt_response" type="TH1F" title="p_{T} response">
