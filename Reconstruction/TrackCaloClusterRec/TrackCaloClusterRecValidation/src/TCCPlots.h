@@ -178,6 +178,11 @@ private:
   TH1* m_jet_pseudoresponse_m_subleading   ;
   TH1* m_jet_pseudoresponse_pt_subleading  ;
   
+  TH1* m_jet_pseudoresponse_notcalib_pt            ;           
+  TH1* m_jet_pseudoresponse_notcalib_pt_2leadings  ;
+  TH1* m_jet_pseudoresponse_notcalib_pt_leading    ;
+  TH1* m_jet_pseudoresponse_notcalib_pt_subleading ;
+  
   TH1* m_jet_d2                            ;
   TH1* m_jet_d2_2leadings                  ;
   TH1* m_jet_d2_leading                    ;
@@ -586,6 +591,7 @@ private:
   TH1* m_trk_pv0_total_pt                                         ;
   TH2* m_trk_pv0_caloEntryUncTot_eta                              ;
   TH2* m_trk_pv0_caloEntryUncTot_pt                               ;
+  TH2* m_trk_pv0_caloEntryUncTot_truthpt                          ;
   TH2* m_trk_pv0_total_clusters_eta                               ;
   TH2* m_trk_pv0_total_clusters_pt                                ;
   TH1* m_trk_pv0_matching_deltar_fix_eta                          ;
@@ -624,6 +630,12 @@ private:
   TH1* m_trk_pv0_matchedFraction_pt_onlyvar                       ;
   TH1* m_trk_pv0_matchedFraction_pt_onlyfix                       ;
   TH1* m_trk_pv0_matchedFraction_pt_none                          ;
+  
+  TH2* m_trk_pv0_caloEntryUncTot_eta_0SiHits                      ;
+  TH2* m_trk_pv0_caloEntryUncTot_pt_0SiHits                       ;
+  TH2* m_trk_pv0_caloEntryUncTot_rFirstHit_0SiHits                ;
+  TH2* m_trk_pv0_caloEntryUncTot_nSiHits                          ;
+  TH2* m_trk_pv0_caloEntryUncTot_rFirstHit                        ;
     
   TH1* m_tcc_pt                                                   ;
   TH1* m_tcc_pt_etacut                                            ;

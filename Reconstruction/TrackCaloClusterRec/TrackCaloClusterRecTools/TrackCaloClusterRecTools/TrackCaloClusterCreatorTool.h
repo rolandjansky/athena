@@ -47,6 +47,8 @@ class TrackCaloClusterCreatorTool : public AthAlgTool {
     
     void computeVertexCorr(double& eta, double& phi, const Amg::Vector3D& vertex, double radius);
     
+//     double DetectorEta(const xAOD::CaloCluster& cluster, const Amg::Vector3D& vertex);
+    
     // ToolHandle<IJetFromPseudojet> m_bld;  // Tool to build jets.
     ToolHandle<CP::ITrackVertexAssociationTool> m_loosetrackvertexassoTool;
     
@@ -66,7 +68,14 @@ class TrackCaloClusterCreatorTool : public AthAlgTool {
     // enable cluster filtering on the neutralOnly collection
     bool m_applyFilter;
     ToolHandle<IClusterFilterTool> m_clusterFilterTool;
-
+    
+    // this is saving the detector eta to be used in calibration
+    // --> For charged and combined TCC this is using eta of the extrapolated position at the calo entry
+    //     in the ATLAS global frame, i.e. origin (0., 0., 0.)
+    // --> For neutral TCC this is evaluated using the cluster moment CaloCluster::CENTER_MAG
+    //     inverting what is done for CaloVertexedTopoCluster objects
+    bool m_saveDetectorEta;
+    
 };
 
 
