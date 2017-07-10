@@ -14,7 +14,6 @@ atlas_depends_on_subdirs(
 
 # Component(s) in the package:
 atlas_add_library( GeneratorFortranCommonLib
-   GeneratorFortranCommon/*.h GeneratorFortranCommon/*.inc
    src/inituser.F src/useuser.F src/getaddr.cxx
    PUBLIC_HEADERS GeneratorFortranCommon
    LINK_LIBRARIES SGTools GaudiKernel )
