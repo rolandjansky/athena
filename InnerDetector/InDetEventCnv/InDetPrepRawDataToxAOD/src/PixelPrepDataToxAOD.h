@@ -14,8 +14,11 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "InDetSimEvent/SiHitCollection.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "xAODTracking/TrackMeasurementValidation.h"
+#include "xAODTracking/TrackMeasurementValidationContainer.h"
 
 
 #include <string>
@@ -113,6 +116,9 @@ private:
   SG::ReadHandleKey<SiHitCollection> m_sihitContainer_key;
   SG::ReadHandleKey<InDetSimDataCollection> m_SDOcontainer_key;
   SG::ReadHandleKey<PRD_MultiTruthCollection> m_multiTruth_key;
+
+  SG::WriteHandleKey<xAOD::TrackMeasurementValidationContainer> m_write_xaod;
+  SG::WriteHandleKey<std::vector<unsigned int>> m_write_offsets;
 };
 
 

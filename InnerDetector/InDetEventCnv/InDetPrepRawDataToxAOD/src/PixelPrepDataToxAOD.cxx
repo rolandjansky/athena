@@ -99,6 +99,11 @@ StatusCode PixelPrepDataToxAOD::initialize()
   ATH_CHECK(m_SDOcontainer_key.initialize(m_writeSDOs));
   ATH_CHECK(m_multiTruth_key.initialize(m_useTruthInfo));
 
+  m_write_xaod = m_clustercontainer;
+  ATH_CHECK(m_write_xaod.initialize());
+  m_write_offsets = m_write_xaod.key() + "Offsets";
+  ATH_CHECK(m_write_offsets.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -113,15 +118,12 @@ StatusCode PixelPrepDataToxAOD::execute()
   SG::ReadHandle<InDet::PixelClusterContainer> PixelClusterContainer(m_clustercontainer);
 
   // Create the xAOD container and its auxiliary store:
-  xAOD::TrackMeasurementValidationContainer* xaod = new xAOD::TrackMeasurementValidationContainer();
-  CHECK( evtStore()->record( xaod, m_clustercontainer ) );
-  xAOD::TrackMeasurementValidationAuxContainer* aux = new xAOD::TrackMeasurementValidationAuxContainer();
-  CHECK( evtStore()->record( aux, m_clustercontainer + "Aux." ) );
-  xaod->setStore( aux );
+  SG::WriteHandle<xAOD::TrackMeasurementValidationContainer> xaod(m_write_xaod);
+  ATH_CHECK(xaod.record(std::make_unique<xAOD::TrackMeasurementValidationContainer>(),
+			std::make_unique<xAOD::TrackMeasurementValidationAuxContainer>()));
 
-  std::vector<unsigned int>* offsets = new std::vector<unsigned int>( m_PixelHelper->wafer_hash_max(), 0 );
-  CHECK( evtStore()->record( offsets, m_clustercontainer + "Offsets" ) );
-
+  SG::WriteHandle<std::vector<unsigned int>> offsets(m_write_offsets);
+  ATH_CHECK(offsets.record(std::make_unique<std::vector<unsigned int>>(m_PixelHelper->wafer_hash_max(), 0)));
   
   // Loop over the container
   unsigned int counter(0);
