@@ -7,9 +7,7 @@ atlas_subdir( G4AtlasControl )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Simulation/G4Sim/MCTruthBase )
+                          GaudiKernel )
 
 # External dependencies:
 find_package( CLHEP )
@@ -28,10 +26,10 @@ atlas_add_library( G4AtlasControl
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES GaudiKernel
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} MCTruthBaseLib )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} )
 
 atlas_add_dictionary( G4AtlasControlDict
                       G4AtlasControl/G4AtlasControlDict.h
                       G4AtlasControl/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel MCTruthBaseLib G4AtlasControl )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel G4AtlasControl )
