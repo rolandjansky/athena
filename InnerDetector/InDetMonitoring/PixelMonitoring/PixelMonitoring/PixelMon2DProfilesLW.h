@@ -19,9 +19,6 @@ class PixelMon2DMaps;
 // This books and formats the histograms in the constructor. The fill method will take the identifier 
 // as the input and fill the correct histogram and bin. The histograms are also public so that they
 // can be formated/accessed like any other histograms in the monitoring.
-//
-// N.B. the type of histograms is the same as for PixelMonProfiles class,
-// but the filling methods are somewhat different. Candidate for cleanup.
 
 class PixelMon2DProfilesLW
 {
