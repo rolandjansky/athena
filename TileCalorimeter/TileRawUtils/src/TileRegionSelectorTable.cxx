@@ -8,6 +8,8 @@
 #include "StoreGate/StoreGateSvc.h"
 
 #include <fstream>
+#include <iomanip>
+#include <cmath>
 
 #include "RegionSelector/RegionSelectorLUT.h" 
 #include "RegionSelector/StoreGateRS_ClassDEF.h" 
@@ -25,6 +27,9 @@
 
 //(const std::string& name, ISvcLocator* pSvcLocator): 
 //Service(name, pSvcLocator), 
+
+//#define USE_CELL_PHI 1
+//#define USE_MODULE_PHI 1
 
 TileRegionSelectorTable::TileRegionSelectorTable (const std::string& type,
 						  const std::string& name,
@@ -128,8 +133,6 @@ TileRegionSelectorTable::fillMaps()
     return;
   }
 
-  TileCablingService* cabling = TileCablingService::getInstance();
-
   ToolHandle<TileROD_Decoder> dec("TileROD_Decoder/TileROD_Decoder");
   if((dec.retrieve()).isFailure()){
     ATH_MSG_FATAL("Could not find TileRodDecoder");
@@ -161,6 +164,13 @@ TileRegionSelectorTable::fillMaps()
   etamax[EBA]=+1.60943;
   etamax[EBC]=-0.708779;
 
+#if (defined USE_CELL_PHI)
+  TileCablingService* cabling = TileCablingService::getInstance();
+#elif (defined USE_MODULE_PHI)
+#else
+  double dphi = 2 * M_PI / TileCalibUtils::MAX_DRAWER; // 0.09817477;
+#endif
+
   int sam = 0; // ?
   int layer = 0; //?
   int firstone = tileHWID->drawerIdx( tileHWID->drawer_id(LBA,0) ); // hash index of first real drawer (LBA01)
@@ -176,6 +186,7 @@ TileRegionSelectorTable::fillMaps()
       double etami = etamin[ros];
       double etama = etamax[ros];
 
+#if (defined USE_CELL_PHI)
       Identifier cell_id;
       int index, pmt;
       for (int ch=0; ch<cabling->getMaxChannels(); ch++){
@@ -183,15 +194,17 @@ TileRegionSelectorTable::fillMaps()
          cell_id = cabling->h2s_cell_id_index(channelID,index,pmt);
          if ( index >= 0 ) break; // found a normal cell
       }
-#ifdef USE_CELL
+
       int cell_hash = tileID->cell_hash(cell_id);
       CaloDetDescrElement* DDE = tileMgr->get_cell_element((IdentifierHash) cell_hash);
       double phimin = DDE->phi() - DDE->dphi()/2.0;
       if ( phimin < 0.0 ) phimin+=2*M_PI;
       double phimax = phimin + DDE->dphi();
-#else
+#elif (defined USE_MODULE_PHI)
       // alternative approach
-      Identifier moduleID = tileID->module_id(cell_id);
+      int section = (ros==LBA || ros==LBC) ? TileID::BARREL : TileID::EXTBAR;
+      int side = (ros==LBA || ros==EBA) ? TileID::POSITIVE : TileID::NEGATIVE;
+      Identifier moduleID = tileID->module_id(section,side,drawer);
       CaloDetDescriptor *moduleDDE = tileMgr->get_module_element(moduleID);
       double phimin = moduleDDE->calo_phi_min();
       double phimax = moduleDDE->calo_phi_max();
@@ -199,18 +212,24 @@ TileRegionSelectorTable::fillMaps()
         phimin+=2*M_PI;
         if ( phimax < phimin ) phimax+=2*M_PI;
       }
+#else
+      // OLD method - we can predict phi boundaries from module number
+      double phimin = drawer * dphi;
+      double phimax = (drawer+1) * dphi;
 #endif
 
       if (m_printTable){
+        ttmap->precision(7);
         *ttmap << std::hex
                << std::setw(7) << rod  << " "
                << std::setw(6) << coll << " "
                << std::setw(7) << hash << " "
                << std::dec
                << std::setw(12) << etami  << " "
-               << std::setw(12) << etama  << " "
-               << std::setw(12) << phimin << " "
-               << std::setw(12) << phimax
+               << std::setw(12) << etama  << " ";
+        ttmap->precision(17);
+        *ttmap << std::setw(22) << phimin << " "
+               << std::setw(22) << phimax
                << std::endl;
       }
 
