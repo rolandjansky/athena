@@ -801,7 +801,7 @@ void plotPhotonEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_eta
   TH2D *gold_PhotonEfficiency = new TH2D("gold_PhotonEfficiency","gold_PhotonEfficiency",1000,0,120,1000,0,5);
   TH2D *silver_PhotonEfficiency = new TH2D("silverPhotonEfficiency","silver_PhotonEfficiency",1000,0,120,1000,0,5);
   TH2D *bronze_PhotonEfficiency = new TH2D("bronze_PhotonEfficiency","bronze_PhotonEfficiency",1000,0,120,1000,0,5);
-  TH2D *gold_PhotonFakeRate = new TH2D("gold_PhotonFakeRate","gold_PhotonFakeRate",1000,0,120,1000,0,5);  
+  //TH2D *gold_PhotonFakeRate = new TH2D("gold_PhotonFakeRate","gold_PhotonFakeRate",1000,0,120,1000,0,5);  
 
   std::vector<float> eta; //Store x values for eta scan
   std::vector<float> pt; //Store x values for pt scan

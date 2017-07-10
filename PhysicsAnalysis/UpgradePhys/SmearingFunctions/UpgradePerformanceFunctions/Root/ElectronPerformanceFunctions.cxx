@@ -415,7 +415,7 @@ float UpgradePerformanceFunctions::getElectronFakeRescaledEnergy(float eMeV, flo
 }
 
 //*********************************************************************
-float UpgradePerformanceFunctions::getElectronChargeFlipProb(float eMeV, float eta)
+float UpgradePerformanceFunctions::getElectronChargeFlipProb(float /*eMeV*/, float eta)
 //*********************************************************************
 {
   if(m_layout == UpgradePerformanceFunctions::Step1p6){
