@@ -108,6 +108,14 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 #endif
   ANA_CHECK( event->readFrom( ifile.get() ) );
 
+  // declare METSignificance
+  asg::AnaToolHandle<IMETSignificance> metSignif;
+  metSignif.setTypeAndName("met::METSignificance/metSignficance");
+  ANA_CHECK( metSignif.setProperty("SoftTermParam", 0) );
+  ANA_CHECK( metSignif.setProperty("TreatPUJets",   false) );
+  ANA_CHECK( metSignif.retrieve() );
+
+  // reconstruct the MET
   asg::AnaToolHandle<IMETMaker> metMaker;
   metMaker.setTypeAndName("met::METMaker/metMaker");
   ANA_CHECK( metMaker.setProperty("DoMuonEloss", true) );
@@ -252,6 +260,9 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
     //this builds the final track and cluster met sums, using systematic varied container
     ANA_CHECK( metMaker->buildMETSum("FinalTrk" , newMetContainer, MissingETBase::Source::Track ) );
     ANA_CHECK( metMaker->buildMETSum("FinalClus", newMetContainer, MissingETBase::Source::LCTopo) );
+
+    // Run MET significance
+    ANA_CHECK( metSignif->varianceMET(newMetContainer));
 
     ANA_CHECK(store->record( newMetContainer,    "FinalMETContainer"    ));
     ANA_CHECK(store->record( newMetAuxContainer, "FinalMETContainerAux."));

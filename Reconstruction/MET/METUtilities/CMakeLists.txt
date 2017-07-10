@@ -55,7 +55,7 @@ find_package( GTest )
 atlas_add_library( METUtilitiesLib
    METUtilities/*.h Root/*.cxx
    PUBLIC_HEADERS METUtilities
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}  ${GTEST_INCLUDE_DIRS}
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}  ${GTEST_INCLUDE_DIRS} 
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODJet xAODMissingET
    xAODMuon xAODTau xAODTracking InDetTrackSelectionToolLib PATInterfaces JetResolution ElectronPhotonFourMomentumCorrection MuonMomentumCorrections
    METInterface
@@ -104,7 +104,7 @@ if( XAOD_ANALYSIS )
     atlas_add_test( ${test}
           SOURCES test/${test}.cxx
           INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-          LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} ${readLib}
+          LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} ${readLib} 
                 AsgTools xAODBase xAODMissingET METUtilitiesLib )
   endforeach()
 endif()

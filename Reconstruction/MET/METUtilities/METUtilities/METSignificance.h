@@ -8,6 +8,8 @@
 
 // STL includes
 #include <string>
+#include <tuple>
+//#include <TMatrixD.h>
 
 // FrameWork includes
 #include "AsgTools/ToolHandle.h"
@@ -88,6 +90,23 @@ namespace met {
     ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muonCalibrationAndSmearingTool;
     ToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_egammaCalibTool;
     ToolHandle<TauAnalysisTools::ITauSmearingTool> m_tauSmearingTool;
+
+    double GetPUProb(double jet_eta, double jet_phi,double jet_pt,  double jet_jvt);
+    double GetPhiUnc(double jet_eta, double jet_phi,double jet_pt);
+
+    std::tuple<double,double,double> CovMatrixRotation(double var_x, double var_y, double cv_xy, double Phi);
+    //TMatrixD MatrixRotation(TMatrixD CovM_xy , double Phi);
+
+    double Significance_LT(double Numerator, double var_parall, double var_perpen, double cov);
+
+    double m_GeV;
+
+    int  m_softTermParam;
+    bool m_treatPUJets;
+    bool m_doPhiReso;
+
+    bool m_isData;
+    bool m_isAFII;
 
   };
 
