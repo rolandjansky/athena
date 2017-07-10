@@ -93,16 +93,12 @@ PixelMainMon::PixelMainMon(const std::string & type,
    declareProperty("onPixelTrack",     m_doOnPixelTrack    = false); //using pixel only tracks
    declareProperty("do2DMaps",         m_do2DMaps          = false);   
    declareProperty("doModules",        m_doModules         = false); 
-   declareProperty("doFEChipSummary",  m_doFEChipSummary   = false);
    declareProperty("doOffline",        m_doOffline         = false);
    declareProperty("doOnline",         m_doOnline          = false);
    declareProperty("doLowOccupancy",   m_doLowOccupancy    = false);
    declareProperty("doHighOccupancy",  m_doHighOccupancy   = false);
    declareProperty("doPixelOccupancy", m_doPixelOccupancy  = false); 
-   declareProperty("doRodSim",         m_doRodSim          = false);
    declareProperty("doDetails",        m_doDetails         = false);
-   declareProperty("doSpectrum",       m_doSpectrum        = false);
-   declareProperty("doNoiseMap",       m_doNoiseMap        = false);
    declareProperty("doTiming",         m_doTiming          = false);
    declareProperty("doLumiBlock",      m_doLumiBlock       = false);
    declareProperty("doOfflineAnalysis",m_doOfflineAnalysis = false); // !!! if true using a lot of memory to be absolutely avoided for monitoring
@@ -126,7 +122,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    declareProperty("DetailsMod2",     m_DetailsMod2 = "");
    declareProperty("DetailsMod3",     m_DetailsMod3 = "");
    declareProperty("DetailsMod4",     m_DetailsMod4 = "");
-   declareProperty("OccupancyCut",    m_occupancy_cut = 1e-5);
+
 
    m_lbRange = 3000;
    m_bcidRange = 3600;

@@ -21,7 +21,7 @@ if doAllHits:
   InDetPixelMainsMon=PixelMainMon(name                = "InDetPixelMonitoringAllHits",
                                   onTrack             = False,
                                   onPixelTrack        = False,
-                                  #TrkSummaryTool      = InDetTrackSummaryTool,
+
                                   ##Flags for normal monitoring.  This will run over all hits/clusters/etc, not just ones on track    
                                   doOffline           = True,       #Histograms for offline (tier0) running                                             
                                   doOnline            = True if athenaCommonFlags.isOnline() else False,      #Histograms for online (athenaPT) running
@@ -29,14 +29,10 @@ if doAllHits:
 
                                   do2DMaps            = True,       #Turn on/off the sets of 2D module maps                                             
                                   doModules           = doAllHitsModules, #Turn on/off the sets of 1744 module histograms (for dqmf)
-                                  doFEChipSummary     = doAllHitsModules, #Turn on/off the 1744 module FE chip summary histograms (low memory version of doModules)
                                   doLowOccupancy      = False,      #Turn on/off histograms with binning for cosmics/single beam                        
                                   doHighOccupancy     = True,       #Turn on/off histograms with binning for collisions                                 
-                                  doRodSim            = False,      #Turn on/off histograms specific for the rod simulator                              
                                   doDetails           = False,      #Turn on/off the set of histograms with detailed info for 4 modules                 
                                   doPixelOccupancy    = False,      #Turn on/off histograms displaying pixel occupancy.  VERY memory heavy!      
-                                  doSpectrum          = False,      #Turn on/off histograms displaying pixel occupancy spectrum.  VERY memory heavy!    
-                                  doNoiseMap          = False,      #Turn on/off histograms displaying pixel occupancy noise map.  VERY memory heavy!
                                   doLumiBlock         = False if athenaCommonFlags.isOnline() else True,       #Turn on/off histograms stored for each lumi block
                                   
                                   doTiming            = True,       #Turn on/off histograms with BCID/timing information  
@@ -55,13 +51,11 @@ if doAllHits:
                                   DetailsMod1         = "D1A_B03_S2_M3",  #Give the 4 modules which you want to do detailed monitoring of                        
                                   DetailsMod2         = "L0_B05_S2_M1A",  #Use the normal name like D1A_B03_S2_M4 or                                             
                                   DetailsMod3         = "L1_B10_S1_M2C",  #L1_B10_S2_M2C and the code should be able to parse
-                                  DetailsMod4         = "D2C_B01_S1_M6",  #this for you
-                                  OccupancyCut        = 1e-5)
+                                  DetailsMod4         = "D2C_B01_S1_M6")
   
   InDetPixelMainsMon.TrackName = InDetKeys.PixelTracks() if InDetFlags.doTrackSegmentsPixel() else InDetKeys.Tracks() 
     
   ##Other parameters                                                                                                                  
-  #PixelMainsMon.OfflineDoPixelOccupancy = False  #pixel occupancy plots for offline analysis.  Leave off except for private analysis 
 
   if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
     InDetPixelMainsMon.FilterTools.append(monFilledBunchFilterTool)
@@ -76,7 +70,7 @@ if doHitsOnTrack:
   InDetPixelMainsMonOnTrack=PixelMainMon(name                = "InDetPixelMonitoringOnTrack",
                                          onTrack             = True,
                                          onPixelTrack        = False,
-                                         #TrkSummaryTool      = InDetTrackSummaryTool,                                         
+
                                          ##Flags for data container types                                                                                                    
                                          doOffline           = True,      #Histograms for offline (tier0) running                                          
                                          doOnline            = True if athenaCommonFlags.isOnline() else False,     #Histograms for online (athenaPT) running                                        
@@ -84,14 +78,10 @@ if doHitsOnTrack:
 
                                          do2DMaps            = True ,     #Turn on/off the sets of 2D module maps                                          
                                          doModules           = False,     #Turn on/off the sets of 1744 module histograms (for dqmf)                       
-                                         doFEChipSummary     = False,     #Turn on/off the 1744 module FE chip summary histograms (low memory version of doModules)
                                          doLowOccupancy      = False,     #Turn on/off histograms with binning for cosmics/single beam                     
                                          doHighOccupancy     = True,      #Turn on/off histograms with binning for collisions                              
-                                         doRodSim            = False,     #Turn on/off histograms specific for the rod simulator                           
                                          doDetails           = False,     #Turn on/off the set of histograms with detailed info for 4 modules              
                                          doPixelOccupancy    = False,     #Turn on/off histograms displaying pixel occupancy.  VERY memory heavy!          
-                                         doSpectrum          = False,     #Turn on/off histograms displaying pixel occupancy spectrum.  VERY memory heavy! 
-                                         doNoiseMap          = False,     #Turn on/off histograms displaying pixel occupancy noise map.  VERY memory heavy!
                                          doLumiBlock         = False if athenaCommonFlags.isOnline() else True,      #Turn on/off histograms stored for each lumi block
                                          doHoleSearch        = True,
                                          doTiming            = False,     #Turn on/off histograms with BCID/timing information                             
@@ -112,13 +102,11 @@ if doHitsOnTrack:
                                          DetailsMod1         = "D1A_B03_S2_M3",  #Give the 4 modules which you want to do detailed monitoring of                 
                                          DetailsMod2         = "L0_B05_S2_M1A",  #Use the normal name like D1A_B03_S2_M4 or                                      
                                          DetailsMod3         = "L1_B10_S1_M2C",  #L1_B10_S2_M2C and the code should be able to parse                             
-                                         DetailsMod4         = "D2C_B01_S1_M6",  #this for you                                                                   
-                                         OccupancyCut        = 1e-5)                                                                           
+                                         DetailsMod4         = "D2C_B01_S1_M6")                                                                   
   
   InDetPixelMainsMonOnTrack.TrackName      = InDetKeys.Tracks()
 
   ##Other parameters                                                                                                                  
-  #PixelMainsMon.OfflineDoPixelOccupancy = False  #pixel occupancy plots for offline analysis.  Leave off except for private analysis 
 
   if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
     InDetPixelMainsMonOnTrack.FilterTools.append(monFilledBunchFilterTool)
@@ -133,7 +121,7 @@ if doHitsOnPixelTrack:
   InDetPixelMainsMonOnPixelTrack=PixelMainMon(name                = "InDetPixelMonitoringOnPixelTrack",
                                               onTrack             = False,
                                               onPixelTrack        = True,
-                                              #TrkSummaryTool      = InDetTrackSummaryTool,                                              
+
                                               ##Flags for data container types
                                               doOffline           = True,      #Histograms for offline (tier0) running                                          
                                               doOnline            = True if athenaCommonFlags.isOnline() else False,     #Histograms for online (athenaPT) running                                        
@@ -141,14 +129,10 @@ if doHitsOnPixelTrack:
 
                                               do2DMaps            = True ,     #Turn on/off the sets of 2D module maps                                          
                                               doModules           = False,     #Turn on/off the sets of 1744 module histograms (for dqmf)                       
-                                              doFEChipSummary     = False,     #Turn on/off the 1744 module FE chip summary histograms (low memory version of doModules)
                                               doLowOccupancy      = True,      #Turn on/off histograms with binning for cosmics/single beam                     
                                               doHighOccupancy     = True,      #Turn on/off histograms with binning for collisions                              
-                                              doRodSim            = False,     #Turn on/off histograms specific for the rod simulator                           
                                               doDetails           = False,     #Turn on/off the set of histograms with detailed info for 4 modules              
                                               doPixelOccupancy    = False,     #Turn on/off histograms displaying pixel occupancy.  VERY memory heavy!          
-                                              doSpectrum          = False,     #Turn on/off histograms displaying pixel occupancy spectrum.  VERY memory heavy! 
-                                              doNoiseMap          = False,     #Turn on/off histograms displaying pixel occupancy noise map.  VERY memory heavy!
                                               doLumiBlock         = False if athenaCommonFlags.isOnline() else True,      #Turn on/off histograms stored for each lumi block
                                               
                                               doTiming            = False,     #Turn on/off histograms with BCID/timing information                             
@@ -169,13 +153,12 @@ if doHitsOnPixelTrack:
                                               DetailsMod1         = "D1A_B03_S2_M3",  #Give the 4 modules which you want to do detailed monitoring of                 
                                               DetailsMod2         = "L0_B05_S2_M1A",  #Use the normal name like D1A_B03_S2_M4 or                                      
                                               DetailsMod3         = "L1_B10_S1_M2C",  #L1_B10_S2_M2C and the code should be able to parse                             
-                                              DetailsMod4         = "D2C_B01_S1_M6",  #this for you                                                                   
-                                              OccupancyCut        = 1e-5)                                                                           
+                                              DetailsMod4         = "D2C_B01_S1_M6")                                                                   
+
   
   InDetPixelMainsMonOnPixelTrack.TrackName = InDetKeys.PixelTracks() 
 
   ##Other parameters                                                                                                                  
-  #PixelMainsMon.OfflineDoPixelOccupancy = False  #pixel occupancy plots for offline analysis.  Leave off except for private analysis 
 
   if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
     InDetPixelMainsMonOnPixelTrack.FilterTools.append(monFilledBunchFilterTool)

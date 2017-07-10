@@ -257,12 +257,10 @@ StatusCode PixelMainMon::BookHitsMon(void)
        sc = m_hit_num_mod->regHist(this,(path+"/Modules_NumberOfHits").c_str(),run);
        m_hiteff_mod = new PixelMonModulesProf("Hit_track_eff", ("Proportion of hits on track" + m_histTitleExt).c_str(), 2500,-0.5,2499.5);
        sc = m_hiteff_mod->regHist(this,(path+"/Modules_HitEff").c_str(),run);
-     }
-   if (m_doFEChipSummary)
-     {
        m_FE_chip_hit_summary = new PixelMonModules1D("FE_Chip_Summary", ("FE Chip Summary" + m_histTitleExt).c_str(), 16,-0.5,15.5);
        sc = m_FE_chip_hit_summary->regHist(this,(path+"/Modules_FEChipSummary").c_str(),run);
      }
+
    if (m_doLowOccupancy || m_doHighOccupancy)
      {
        int nbins_hits = 2000;  float max_hits = 80000.0;
@@ -287,11 +285,6 @@ StatusCode PixelMainMon::BookHitsMon(void)
      {
        m_pixel_occupancy = new PixelMonModules2D("Pixel_Occupancy", ("Pixel Occupancy" + m_histTitleExt).c_str(), 160, -0.,160.,336,0.,336.);
        sc = m_pixel_occupancy->regHist(this,(path+"/PixelOccupancy").c_str(),run);
-     }
-   if (m_doRodSim)
-     {
-       sc = rdoExpert.regHist(m_RodSim_BCID_minus_ToT= TH1F_LW::create("RodSim_BCID_minus_ToT",  ("BCID - ToT" + m_histTitleExt).c_str(), 300,-0.5,299.5));
-       sc = rdoExpert.regHist(m_RodSim_FrontEnd_minus_Lvl1ID= TH1F_LW::create("RodSim_FrontEnd_minus_Lvl1ID",  ("Front End Chip - Lvl1ID" + m_histTitleExt).c_str(), 33,-16.5,16.5));
      }
 
    if (m_doDetails)
@@ -578,10 +571,6 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	if (m_Atlas_BCID) m_Atlas_BCID->Fill(pix_rod_bcid); //defined at the start of the method
 	if (m_BCID_Profile) m_BCID_Profile->Fill(double(pix_rod_bcid),double(nhits));          
 	if (pixlayer != 99 && m_diff_ROD_vs_Module_BCID_mod[pixlayer]) m_diff_ROD_vs_Module_BCID_mod[pixlayer]->Fill( (pix_rod_bcid&0x000000ff)-(*p_rdo)->getBCID() ); 
-	if (m_doRodSim) {
-	  if (m_RodSim_FrontEnd_minus_Lvl1ID) m_RodSim_FrontEnd_minus_Lvl1ID->Fill(m_pixelCableSvc->getFE(&rdoID,rdoID) -(*p_rdo)->getLVL1ID());
-	  if (m_RodSim_BCID_minus_ToT) m_RodSim_BCID_minus_ToT->Fill((*p_rdo)->getBCID() - (*p_rdo)->getToT() );
-	}
        
 	if (m_FE_chip_hit_summary) m_FE_chip_hit_summary->Fill(m_pixelCableSvc->getFE(&rdoID,rdoID),rdoID,m_pixelid);
 	

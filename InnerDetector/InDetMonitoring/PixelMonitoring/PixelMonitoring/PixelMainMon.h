@@ -261,7 +261,6 @@ private:
    bool m_doESD;
    bool m_do2DMaps;
    bool m_doModules;
-   bool m_doFEChipSummary;
    bool m_doOffline;
    bool m_doOnline;
    bool m_doLowOccupancy;
@@ -269,10 +268,7 @@ private:
    bool m_doOnTrack;
    bool m_doOnPixelTrack;
    bool m_doPixelOccupancy; 
-   bool m_doRodSim;
    bool m_doDetails;
-   bool m_doSpectrum;
-   bool m_doNoiseMap;
    bool m_doTiming;
    bool m_doLumiBlock;   //store module status, error etc for each lumiblock
    bool m_doRefresh;
