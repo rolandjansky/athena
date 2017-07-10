@@ -266,7 +266,6 @@
 + Simulation/G4Atlas/G4AtlasInterfaces
 + Simulation/G4Atlas/G4AtlasServices
 + Simulation/G4Atlas/G4AtlasTools
-+ Simulation/G4Sim/FADS/FadsPackageLoader
 + Simulation/G4Sim/G4HiveEx
 + Simulation/G4Sim/MCTruth
 + Simulation/G4Sim/MCTruthBase
