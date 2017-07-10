@@ -480,7 +480,7 @@ namespace HTTxAOD {
           //fastjet::GhostedAreaSpec ghost_area_spec = fastjet::GhostedAreaSpec(fatjet_rap-fatjet_r,fatjet_rap+fatjet_r , 1, 0.01, .0, 0.1, 1e-100);
           std::vector<int> vseed = {32,5434,342342};
           ghost_area_spec.set_random_status(vseed);
-          ghost_area_spec.set_fj2_placement(true);
+          // ghost_area_spec.set_fj2_placement(true);
           fastjet::AreaDefinition areaDefinition = fastjet::AreaDefinition(ghost_area_spec);
 
 
