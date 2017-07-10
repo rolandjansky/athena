@@ -22,8 +22,6 @@ public:
   SimControl();
   /// Empty Destructor
   virtual ~SimControl();
-  /// Used to load libraries for G4Extentions using FadsPackageLoader. FIXME Drop this. ATLASSIM-2768
-  void load(const std::string&) const;
   /// Still used from PyG4Atlas.G4AtlasEngine to initialize Geant4.
   void initializeG4(bool isMT=false) const;
 };
