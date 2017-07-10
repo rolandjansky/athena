@@ -61,17 +61,20 @@ class TrigInDetFTKSequence(TrigInDetSequence):
     algos = list()
 
 
-    #the first step can be FTK only vertexing
-    if "FTKVtx" in sequenceFlavour:
-      algos += [("TrigFTK_VxPrimary","")]
-
-      fullseq.append(algos)
 
 
-    #always run FTF
     algos = [("IDTrigRoiUpdater", roiupdater)]
     algos += [("FTK_TrackMaker", "")]
     algos += [("TrigFTKAvailable", "")]
+
+    #the first step can be FTK only vertexing
+    if "FTKVtx" in sequenceFlavour:
+      algos += [("TrigFTK_VxPrimary","")]
+      fullseq.append(algos)
+      algos = list()
+
+
+    #always run FTF
     algos += [("TrigFastTrackFinder",ftfname),
               ("InDetTrigTrackingxAODCnv",cnvname),
               ]
