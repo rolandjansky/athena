@@ -199,19 +199,22 @@ std::vector<Trk::HitInfo>* FastCaloSimCaloExtrapolation::caloHits(const TFCSTrut
 
   // get CaloEntrance if not done already
   if(!m_caloEntrance) {
-    Geometry()->trackingVolume(m_caloEntranceName)<<std::endl;
+    ATH_MSG_DEBUG("check1");
+    ATH_MSG_DEBUG("m_extrapolator "<<m_extrapolator);
+    ATH_MSG_DEBUG("trackingGeometry() "<<m_extrapolator->trackingGeometry());
+    ATH_MSG_DEBUG("trackingVolume(m_caloEntranceName) "<<m_extrapolator->trackingGeometry()->trackingVolume(m_caloEntranceName));
 
     m_caloEntrance = m_extrapolator->trackingGeometry()->trackingVolume(m_caloEntranceName);
 
     if(!m_caloEntrance) {
-      std::cout<<"CaloEntrance not found"<<std::endl;
+      ATH_MSG_WARNING("CaloEntrance not found");
     }
     else {
-      std::cout<<"CaloEntrance found"<<std::endl;
+      ATH_MSG_DEBUG("CaloEntrance found");
     }
   }
 
-  ATH_MSG_INFO( "[ fastCaloSim transport ] after calo entrance ");
+  ATH_MSG_DEBUG( "[ fastCaloSim transport ] after calo entrance ");
 
   const Trk::TrackParameters* caloEntry = 0;
 
