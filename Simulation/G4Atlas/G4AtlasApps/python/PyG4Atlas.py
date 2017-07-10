@@ -199,22 +199,6 @@ class G4AtlasEngine:
 
 
     @classmethod
-    def load_Lib(cls, lib_name):
-        """ Loads libraries.
-
-            lib_name ='name_library'
-        """
-        if lib_name:
-            if lib_name not in G4AtlasEngine.List_LoadedLib:
-                try:
-                    G4AtlasEngine._ctrl.load(lib_name)
-                    G4AtlasEngine.List_LoadedLib.append(lib_name)
-                    G4AtlasEngine.log.debug('G4AtlasEngine:load_Lib: %s loaded' % lib_name)
-                except:
-                    raise RuntimeError('Lib %s cannot be found' % lib_name)
-
-
-    @classmethod
     def load_Dict(cls, dict_name):
         """ Loads  python dictionaries
 
