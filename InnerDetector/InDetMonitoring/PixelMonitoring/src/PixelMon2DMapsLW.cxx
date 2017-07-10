@@ -12,7 +12,7 @@
 #include "GaudiKernel/StatusCode.h"     
 #include <string.h>
 
-PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title, bool doIBL, bool errorHist) : m_doIBL(doIBL), m_errorHist(errorHist)
+PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title, bool doIBL, bool errorHist, bool copy2DFEval) : m_doIBL(doIBL), m_errorHist(errorHist), m_copy2DFEval(copy2DFEval)
 {
    std::string setatext = ";shifted eta index of module";
    std::string etatext = ";eta index of module";
@@ -91,7 +91,7 @@ void PixelMon2DMapsLW::Fill(Identifier &id, const PixelID* pixID)
             IBL3D->Fill(em - 2,pm); 
 	 }
 	 IBL->Fill(emf, pm);
-         if (copy) IBL->Fill(emf + 1, pm);
+         if (m_copy2DFEval && copy) IBL->Fill(emf + 1, pm);
       }
    }
 }
