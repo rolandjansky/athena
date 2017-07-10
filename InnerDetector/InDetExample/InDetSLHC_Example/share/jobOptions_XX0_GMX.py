@@ -48,7 +48,7 @@ if 'GeometryTextFile' in dir():
 # enter interactive mode 
 theApp.initialize()
 
-## Something like this should work:
+## TODO Something like this should work with the appropriate CfgGetter method:
 from G4AtlasApps.SimFlags import simFlags
 simFlags.OptionalUserActionList.addAction('XX0_Tool',['BeginOfEvent','EndOfEvent','BeginOfRun','EndOfRun','Step'])
 simFlags.UserActionConfig.addConfig('XX0_Tool','volumePartsFile', "VolumeNameParts.txt")
