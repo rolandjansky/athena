@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #ifndef TrigEgammaEmulationTool_TrigEgammaInfo_H
 #define TrigEgammaEmulationTool_TrigEgammaInfo_H
 
@@ -25,6 +21,8 @@ namespace Trig{
     bool hltcalo;
     bool ringer; // ringer chain
     bool etcut; // Et cut only chain
+    bool doL2Electron;
+    bool applyEFCaloPid;
     float thrHLT; // HLT Et threshold
     float thrL1; // L1 Et threshold
   
