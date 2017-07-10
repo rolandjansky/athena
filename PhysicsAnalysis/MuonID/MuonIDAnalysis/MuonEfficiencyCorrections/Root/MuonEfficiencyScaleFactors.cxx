@@ -526,9 +526,9 @@ namespace CP {
         } else if (!mySysConf.name().empty()) {
             for (std::set<SystematicVariation>::iterator t = mySysConf.begin(); t != mySysConf.end(); ++t) {
                 if ((*t).isToyVariation()) {
-                    std::pair<unsigned, float> m_pair = (*t).getToyVariation();
-                    currentBinNumber = m_pair.first;
-                    currentEfficiencySystType = MuonEfficiencySystType(m_pair.second);
+                    std::pair<unsigned, float> pair = (*t).getToyVariation();
+                    currentBinNumber = pair.first;
+                    currentEfficiencySystType = MuonEfficiencySystType(pair.second);
                 }
             }
             ATH_MSG_DEBUG("need to access currentBinNumber=" << currentBinNumber);
@@ -611,8 +611,8 @@ namespace CP {
     std::string MuonEfficiencyScaleFactors::getUncorrelatedSysBinName(const SystematicSet& systConfig) const {
         for (std::set<SystematicVariation>::iterator t = systConfig.begin(); t != systConfig.end(); ++t) {
             if ((*t).isToyVariation()) {
-                std::pair<unsigned, float> m_pair = (*t).getToyVariation();
-                return getUncorrelatedSysBinName(m_pair.first);
+                std::pair<unsigned, float> pair = (*t).getToyVariation();
+                return getUncorrelatedSysBinName(pair.first);
 
             }
         }
