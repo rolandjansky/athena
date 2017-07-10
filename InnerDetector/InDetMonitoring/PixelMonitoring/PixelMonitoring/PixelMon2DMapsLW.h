@@ -22,7 +22,7 @@ class StatusCode;
 class PixelMon2DMapsLW
 {
    public:
-      PixelMon2DMapsLW(std::string name, std::string title, bool doIBL, bool errorHist = false);
+      PixelMon2DMapsLW(std::string name, std::string title, bool doIBL, bool errorHist = false, bool copy2DFEval = false);
       ~PixelMon2DMapsLW();
       TH2F_LW* IBL;
       TH2F_LW* IBL2D;
@@ -42,6 +42,7 @@ private:
       void formatHist();
       const bool m_doIBL;
       const bool m_errorHist;
+      const bool m_copy2DFEval;
 };
 
 #endif
