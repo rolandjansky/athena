@@ -57,19 +57,40 @@ double EtaPhiRectangle::overlappingArea(const EtaPhiRectangle &lhs,
 //--------------------------------------------------------------
 EtaPhiRectangle EtaPhiRectangle::overlappingRectangle(const EtaPhiRectangle &lhs,
                                                       const EtaPhiRectangle &rhs) {
-  double etaOverlap(0.), phiOverlap(0.);
-  double deltaEta12(fabs(lhs.eta() - rhs.eta()));
-  double totHalfEtaWidth(lhs.etaHalfWidth() + rhs.etaHalfWidth());
-  double deltaPhi12(fabs(phi_mpi_pi(lhs.phi() - rhs.phi())));
-  double totHalfPhiWidth(lhs.phiHalfWidth() + rhs.phiHalfWidth());
-  if (deltaEta12 < totHalfEtaWidth) etaOverlap = totHalfEtaWidth - deltaEta12;
-  if (deltaPhi12 < totHalfPhiWidth) phiOverlap = totHalfPhiWidth - deltaPhi12;
-  double etaAvg(0.5*(lhs.eta() + rhs.eta()));
-  double phiAvg(atan2(sin(lhs.phi()) + sin(rhs.phi()),
-                      cos(lhs.phi()) + cos(rhs.phi())));
+  //ASM-2017-07-10
+  //ASM-2017-07-10
+  //ASM-2017-07-10
+  //double etaOverlap(0.), phiOverlap(0.);
+  //double deltaEta12(fabs(lhs.eta() - rhs.eta()));
+  //double totHalfEtaWidth(lhs.etaHalfWidth() + rhs.etaHalfWidth());
+  //double deltaPhi12(fabs(phi_mpi_pi(lhs.phi() - rhs.phi())));
+  //double totHalfPhiWidth(lhs.phiHalfWidth() + rhs.phiHalfWidth());
+  //if (deltaEta12 < totHalfEtaWidth) etaOverlap = totHalfEtaWidth - deltaEta12;
+  //if (deltaPhi12 < totHalfPhiWidth) phiOverlap = totHalfPhiWidth - deltaPhi12;
+  //double etaAvg(0.5*(lhs.eta() + rhs.eta()));
+  //double phiAvg(atan2(sin(lhs.phi()) + sin(rhs.phi()),
+  //                    cos(lhs.phi()) + cos(rhs.phi())));
 
-  return EtaPhiRectangle(etaAvg-0.5*etaOverlap, etaAvg+0.5*etaOverlap,
-                         phiAvg-0.5*phiOverlap, phiAvg+0.5*phiOverlap);
+  //return EtaPhiRectangle(etaAvg-0.5*etaOverlap, etaAvg+0.5*etaOverlap,
+  //                       phiAvg-0.5*phiOverlap, phiAvg+0.5*phiOverlap);
+  double eta_max_low  = std::max(lhs.etaMin(), rhs.etaMin());
+  double eta_min_high = std::min(lhs.etaMax(), rhs.etaMax());
+  double phi_max_low  = std::max(lhs.phiMin(), rhs.phiMin());
+  double phi_min_high = std::min(lhs.phiMax(), rhs.phiMax());
+
+  // Find the intersection
+  double deta = fabs(eta_min_high - eta_max_low);
+  double dphi = fabs(phi_mpi_pi(phi_min_high - phi_max_low));
+  double result_eta_min = deta*dphi > 0. ? eta_max_low : 0.;
+  double result_eta_max = deta*dphi > 0. ? eta_max_low + deta : 0.;
+  double result_phi_min = deta*dphi > 0. ? phi_max_low : 0.;
+  double result_phi_max = deta*dphi > 0. ? phi_mpi_pi(phi_max_low + dphi) : 0.;
+
+  return EtaPhiRectangle(result_eta_min, result_eta_max,
+                         result_phi_min, result_phi_max);
+  //ASM-2017-07-10
+  //ASM-2017-07-10
+  //ASM-2017-07-10
 }
 
 //--------------------------------------------------------------

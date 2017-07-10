@@ -117,12 +117,28 @@ EtaPhiRectangle Swpt::padOverlap(const vpads_t &pads)
   bool validLayerCombination(hasL1L2 || hasL1L4 || hasL2L3);
   // if(!validLayerCombination) cout<<"buggy layer combination? layers: "<<l0<<","<<l1<<","<<l2<<endl;
   assert(validLayerCombination); // probably got a pattern we don't know how to interpret
-  const PadWithHits &padA = pad0;
-  const PadWithHits &padB = (hasL1L4 ? pad2 : pad1);
-  return EtaPhiRectangle::overlappingRectangle(EtaPhiRectangle(padA.m_loEta, padA.m_hiEta,
-                                                               padA.m_loPhi, padA.m_hiPhi),
-                                               EtaPhiRectangle(padB.m_loEta, padB.m_hiEta,
-                                                               padB.m_loPhi, padB.m_hiPhi));
+  // ASM-2017-07-07
+  // ASM-2017-07-07
+  // ASM-2017-07-07
+  //const PadWithHits &padA = pad0;
+  //const PadWithHits &padB = (hasL1L4 ? pad2 : pad1);
+  //return EtaPhiRectangle::overlappingRectangle(EtaPhiRectangle(padA.m_loEta, padA.m_hiEta,
+  //                                                             padA.m_loPhi, padA.m_hiPhi),
+  //                                             EtaPhiRectangle(padB.m_loEta, padB.m_hiEta,
+  //                                                             padB.m_loPhi, padB.m_hiPhi));
+  EtaPhiRectangle overlap = EtaPhiRectangle::overlappingRectangle(EtaPhiRectangle(pads[0].m_loEta, pads[0].m_hiEta,
+                                                                                  pads[0].m_loPhi, pads[0].m_hiPhi),
+                                                                  EtaPhiRectangle(pads[1].m_loEta, pads[1].m_hiEta,
+                                                                                  pads[1].m_loPhi, pads[1].m_hiPhi));
+  for(unsigned int i=2; i<pads.size(); i++) {
+    overlap = EtaPhiRectangle::overlappingRectangle(overlap,
+                                                    EtaPhiRectangle(pads[i].m_loEta, pads[i].m_hiEta,
+                                                                    pads[i].m_loPhi, pads[i].m_hiPhi));
+  }
+  return overlap;
+  // ASM-2017-07-07
+  // ASM-2017-07-07
+  // ASM-2017-07-07
 }
 
 TVector3 Swpt::direction(const nsw::PadWithHits &firstPad,
