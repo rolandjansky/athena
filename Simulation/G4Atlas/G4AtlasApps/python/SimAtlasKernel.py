@@ -83,15 +83,6 @@ class AtlasSimSkeleton(SimSkeleton):
         ## At this point we can set the global job properties flag
         globalflags.DetDescrVersion = simFlags.SimLayout.get_Value()
 
-        ## Switch off filters in the case of cavern BG
-        if simFlags.CavernBG.statusOn and simFlags.CavernBG.get_Value() != 'Signal':
-            if simFlags.EventFilter.statusOn and simFlags.EventFilter.get_Value()['EtaPhiFilters']:
-                AtlasG4Eng.G4Eng.log.info('AtlasSimSkeleton._do_jobproperties :: Running Cavern BG simulation - turning off EtaPhi Filter!')
-                simFlags.EventFilter.switchFilterOff('EtaPhiFilters')
-            if simFlags.CavernBG.get_Value()=='Read':
-                 simFlags.VertexFromCondDB.set_Off()
-                 simFlags.VertexTimeOffset.set_Off()
-
         # Switch off GeoModel Release in the case of parameterization
         if simFlags.LArParameterization.get_Value()>0 and simFlags.ReleaseGeoModel():
             AtlasG4Eng.G4Eng.log.info('AtlasSimSkeleton._do_jobproperties :: Running parameterization - switching off GeoModel release!')
@@ -297,26 +288,3 @@ class AtlasSimSkeleton(SimSkeleton):
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_metadata :: done')
 
 
-    @classmethod
-    def do_EventFilter(self):
-        """ Configure the event manipulators
-        """
-        import AtlasG4Eng
-        AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_EventFilter :: starting')
-        ## Event filter
-        from G4AtlasApps.SimFlags import simFlags
-        if simFlags.EventFilter.statusOn:
-            menu_EventFilter = AtlasG4Eng.G4Eng.menu_EventFilter()
-            stat = menu_EventFilter.getFilterStatus()
-            ## TODO: Always switch off the EtaPhiFilters if ALFA/ZDC/AFP are being simulated?
-            stat['EtaPhiFilters'] = simFlags.EventFilter.get_Value()['EtaPhiFilters']
-            stat['VertexRangeChecker'] = simFlags.EventFilter.get_Value()['VertexRangeChecker']
-            menu_EventFilter._build()
-
-            if stat['EtaPhiFilters']:
-                ## Choose a wider allowed eta range if LUCID is enabled
-                etaFilter = menu_EventFilter.getFilter('EtaPhiFilters')
-                etarange = 7.0 if DetFlags.geometry.Lucid_on() else 6.0
-                etaFilter.AddEtaInterval(-etarange, etarange)
-
-        AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_EventFilter :: done')
