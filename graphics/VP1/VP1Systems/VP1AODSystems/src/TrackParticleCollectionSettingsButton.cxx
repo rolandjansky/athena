@@ -180,7 +180,7 @@ TrackParticleCollectionSettingsButton::TrackParticleCollectionSettingsButton(QWi
   connect(d->editwindow_ui.spinBox_cut_nhits_muon,SIGNAL(valueChanged(int)),this,SLOT(possibleChange_cutRequiredNHits()));
 
   // -> cutOnlyVertexAssocTracks
-  connect(d->editwindow_ui.checkBox_vertexAssociated,SIGNAL(toggled(bool)),this,SLOT(cutOnlyVertexAssocTracks()));
+  connect(d->editwindow_ui.checkBox_vertexAssociated,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutOnlyVertexAssocTracks()));
   
   connect(this,SIGNAL(clicked()),this,SLOT(showEditMaterialDialog()));
   connect(d->editwindow_ui.pushButton_close,SIGNAL(clicked()),this,SLOT(showEditMaterialDialog()));
@@ -591,6 +591,14 @@ void TrackParticleCollectionSettingsButton::possibleChange_cutRequiredNHits()
   messageVerbose("cutRequiredNHits() changed");
   d->last_cutRequiredNHits=cutRequiredNHits();
   emit cutRequiredNHitsChanged(d->last_cutRequiredNHits);
+}
+
+void TrackParticleCollectionSettingsButton::possibleChange_cutOnlyVertexAssocTracks()
+{
+  if (d->last_cutOnlyVertexAssocTracks!=cutOnlyVertexAssocTracks()) return;
+  messageVerbose("cutOnlyVertexAssocTracks() changed");
+  d->last_cutOnlyVertexAssocTracks=cutOnlyVertexAssocTracks();
+  emit cutOnlyVertexAssocTracksChanged(d->last_cutOnlyVertexAssocTracks);
 }
 
 void TrackParticleCollectionSettingsButton::possibleChange_showParameters()
