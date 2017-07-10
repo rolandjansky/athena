@@ -313,7 +313,7 @@ StatusCode PadTriggerLogicOfflineTool::compute_pad_triggers(const std::vector<Pa
                     }
                     nsw::L1TdrStgcTriggerLogic tdrLogic;
                     tdrLogic.m_writePickle = false;
-                    tdrLogic.m_verbose = false;
+                    tdrLogic.m_verbose = true;
                     tdrLogic.buildSectorTriggers(pwhs, nsw::indices(pwhs));
                     for(const nsw::SectorTriggerCandidate &st : tdrLogic.candidates())
                         triggers.push_back(new PadTrigger(convert(st)));
