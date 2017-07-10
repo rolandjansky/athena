@@ -271,7 +271,6 @@
 + Simulation/G4Sim/FADS/FadsMaterial
 + Simulation/G4Sim/FADS/FadsPackageLoader
 + Simulation/G4Sim/FADS/FadsUtilities
-+ Simulation/G4Sim/FADS/FadsXMLParser
 + Simulation/G4Sim/MCTruth
 + Simulation/G4Sim/MCTruthBase
 + Simulation/G4Sim/SimHelpers
