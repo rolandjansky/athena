@@ -137,72 +137,72 @@ void PixelMon2DMapsLW::WeightingFill(Identifier &id, const PixelID* pixID, float
 
 void PixelMon2DMapsLW::Fill2DMon(PixelMon2DMapsLW* oldmap)
 {
-   for (int x = 1; x <= DBMA->GetNbinsX(); x++) {
-      for (int y = 1; y <= DBMA->GetNbinsY(); y++) {
+   for (unsigned int x = 1; x <= DBMA->GetNbinsX(); x++) {
+      for (unsigned int y = 1; y <= DBMA->GetNbinsY(); y++) {
          float content = oldmap->DBMA->GetBinContent(x, y);
          DBMA->SetBinContent(x, y, content);
          oldmap->DBMA->SetBinContent(x, y, 0);
       }
    }
-   for (int x = 1; x <= DBMC->GetNbinsX(); x++) {
-      for (int y = 1; y <= DBMC->GetNbinsY(); y++) {
+   for (unsigned int x = 1; x <= DBMC->GetNbinsX(); x++) {
+      for (unsigned int y = 1; y <= DBMC->GetNbinsY(); y++) {
          float content = oldmap->DBMC->GetBinContent(x, y);
          DBMC->SetBinContent(x, y, content);
          oldmap->DBMC->SetBinContent(x, y, 0);
       }
    }
-   for (int x = 1; x <= A->GetNbinsX(); x++) {
-      for (int y = 1; y <= A->GetNbinsY(); y++) {
+   for (unsigned int x = 1; x <= A->GetNbinsX(); x++) {
+      for (unsigned int y = 1; y <= A->GetNbinsY(); y++) {
          float content = oldmap->A->GetBinContent(x, y);
          A->SetBinContent(x, y, content);
          oldmap->A->SetBinContent(x, y, 0);
       }
    }
-   for (int x = 1; x <= C->GetNbinsX(); x++) {
-      for (int y = 1; y <= C->GetNbinsY(); y++) {
+   for (unsigned int x = 1; x <= C->GetNbinsX(); x++) {
+      for (unsigned int y = 1; y <= C->GetNbinsY(); y++) {
          float content = oldmap->C->GetBinContent(x, y);
          C->SetBinContent(x, y, content);
          oldmap->C->SetBinContent(x, y, 0);
       }
    }
-   for (int x = 1; x <= B0->GetNbinsX(); x++) {
-      for (int y = 1; y <= B0->GetNbinsY(); y++) {
+   for (unsigned int x = 1; x <= B0->GetNbinsX(); x++) {
+      for (unsigned int y = 1; y <= B0->GetNbinsY(); y++) {
          float content = oldmap->B0->GetBinContent(x, y);
          B0->SetBinContent(x, y, content);
          oldmap->B0->SetBinContent(x, y, 0);
       }
    }
-   for (int x = 1; x <= B1->GetNbinsX(); x++) {
-      for (int y = 1; y <= B1->GetNbinsY(); y++) {
+   for (unsigned int x = 1; x <= B1->GetNbinsX(); x++) {
+      for (unsigned int y = 1; y <= B1->GetNbinsY(); y++) {
          float content = oldmap->B1->GetBinContent(x, y);
          B1->SetBinContent(x, y, content);
          oldmap->B1->SetBinContent(x, y, 0);
       }
    }
-   for (int x = 1; x <= B2->GetNbinsX(); x++) {
-      for (int y = 1; y <= B2->GetNbinsY(); y++) {
+   for (unsigned int x = 1; x <= B2->GetNbinsX(); x++) {
+      for (unsigned int y = 1; y <= B2->GetNbinsY(); y++) {
          float content = oldmap->B2->GetBinContent(x, y);
          B2->SetBinContent(x, y, content );
          oldmap->B2->SetBinContent(x, y, 0);
       }
    }
    if (m_doIBL) {
-      for (int x = 1; x <= IBL->GetNbinsX(); x++) {
-         for (int y = 1; y <= IBL->GetNbinsY(); y++) {
+      for (unsigned int x = 1; x <= IBL->GetNbinsX(); x++) {
+         for (unsigned int y = 1; y <= IBL->GetNbinsY(); y++) {
             float content = oldmap->IBL->GetBinContent(x, y);
             IBL->SetBinContent(x, y, content);
             oldmap->IBL->SetBinContent(x, y, 0);
          }
       }
-      for (int x = 1; x <= IBL2D->GetNbinsX(); x++) {
-         for (int y = 1; y <= IBL2D->GetNbinsY(); y++) {
+      for (unsigned int x = 1; x <= IBL2D->GetNbinsX(); x++) {
+         for (unsigned int y = 1; y <= IBL2D->GetNbinsY(); y++) {
             float content = oldmap->IBL2D->GetBinContent(x, y);
             IBL2D->SetBinContent(x, y, content);
             oldmap->IBL2D->SetBinContent(x, y, 0);
          }
       }
-      for (int x = 1; x <= IBL3D->GetNbinsX(); x++) {
-         for (int y = 1; y <= IBL3D->GetNbinsY(); y++) {
+      for (unsigned int x = 1; x <= IBL3D->GetNbinsX(); x++) {
+         for (unsigned int y = 1; y <= IBL3D->GetNbinsY(); y++) {
             float content = oldmap->IBL3D->GetBinContent(x, y);
             IBL3D->SetBinContent(x, y, content);
             oldmap->IBL3D->SetBinContent(x, y, 0);
