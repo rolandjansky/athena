@@ -18,6 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloEvent
                           Control/AthenaKernel
                           DetectorDescription/Identifier
+                          DetectorDescription/IdDictParser
                           Event/EventContainers
                           Event/xAOD/xAODEventInfo
                           TileCalorimeter/TileCalib/TileCalibBlobObjs
