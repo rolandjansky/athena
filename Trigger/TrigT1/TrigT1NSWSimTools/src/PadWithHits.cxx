@@ -228,10 +228,10 @@ namespace nsw {
     m_cornerXyz[1][0] = p1.X(); m_cornerXyz[1][1] = p1.Y(); m_cornerXyz[1][2] = p1.Z();
     m_cornerXyz[2][0] = p2.X(); m_cornerXyz[2][1] = p2.Y(); m_cornerXyz[2][2] = p2.Z();
     m_cornerXyz[3][0] = p3.X(); m_cornerXyz[3][1] = p3.Y(); m_cornerXyz[3][2] = p3.Z();
-    m_loEta = p0.Eta();
-    m_hiEta = p1.Eta();
-    m_loPhi = p0.Phi();
-    m_hiPhi = p2.Phi();
+    //m_loEta = p0.Eta();
+    //m_hiEta = p1.Eta();
+    //m_loPhi = p0.Phi();
+    //m_hiPhi = p2.Phi();
     return *this;
   }
   //-------------------------------------
@@ -243,12 +243,36 @@ namespace nsw {
         m_cornerXyz[i][j] = corners[i][j];
       }
       TVector3 point(m_cornerXyz[i][0],m_cornerXyz[i][1],m_cornerXyz[i][2]);
+      //cout << "    >> Pad Corner " << i 
+      //      << " x " << m_cornerXyz[i][0]
+      //      << " y " << m_cornerXyz[i][1]
+      //      << " z " << m_cornerXyz[i][2] 
+      //      << " eta " << point.Eta() 
+      //      << " phi " << point.Phi()
+      //      << endl;
       points.push_back(point);
     }
+    // This is not strictly correct but and approximation - ASM-2017-07-07
+    // This is not strictly correct but and approximation - ASM-2017-07-07
+    // This is not strictly correct but and approximation - ASM-2017-07-07
+    //m_loEta = points[0].Eta();
+    //m_hiEta = points[2].Eta();
+    //m_loPhi = points[0].Phi();
+    //m_hiPhi = points[1].Phi();
     m_loEta = points[0].Eta();
-    m_hiEta = points[2].Eta();
+    m_hiEta = points[0].Eta();
     m_loPhi = points[0].Phi();
-    m_hiPhi = points[1].Phi();
+    m_hiPhi = points[0].Phi();
+    for(unsigned int i=1; i<4; i++) {
+        if(points[i].Eta()<m_loEta) m_loEta = points[i].Eta();
+        if(points[i].Eta()>m_hiEta) m_hiEta = points[i].Eta();
+        if(points[i].Phi()<m_loPhi) m_loPhi = points[i].Phi();
+        if(points[i].Phi()>m_hiPhi) m_hiPhi = points[i].Phi();
+    }
+    // This is not strictly correct but and approximation - ASM-2017-07-07
+    // This is not strictly correct but and approximation - ASM-2017-07-07
+    // This is not strictly correct but and approximation - ASM-2017-07-07
+    
     return *this;   
   }
   //-------------------------------------
