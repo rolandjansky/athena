@@ -86,7 +86,7 @@ def getGenParticleFilters():
     if jobproperties.Beam.beamType() != "cosmics":
         genParticleFilterList += ['ISF_ParticlePositionFilterDynamic']
         from G4AtlasApps.SimFlags import simFlags
-        if !simFlags.CavernBG.statusOn or simFlags.CavernBG.get_Value() == 'Signal':
+        if (not simFlags.CavernBG.statusOn) or simFlags.CavernBG.get_Value() == 'Signal':
             genParticleFilterList += ['ISF_EtaPhiFilter']
     genParticleFilterList += ['ISF_GenParticleInteractingFilter']
     return genParticleFilterList
