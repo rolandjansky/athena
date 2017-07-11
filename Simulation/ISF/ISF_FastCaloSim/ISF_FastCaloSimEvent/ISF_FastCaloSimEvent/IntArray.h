@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef IntArray_h
-#define IntArray_h
+#ifndef ISF_FASTCALOSIMEVENT_IntArray_h
+#define ISF_FASTCALOSIMEVENT_IntArray_h
 
 #include "TArrayI.h"
 #include "TObject.h"
@@ -20,9 +20,5 @@ private:
 
    ClassDef( IntArray, 1 )
 };
-
-#if defined(__MAKECINT__)
-#pragma link C++ class IntArray+;
-#endif
 
 #endif

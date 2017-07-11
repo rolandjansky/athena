@@ -13,6 +13,7 @@
 #include "L1TopoAlgorithms/DeltaRSqrIncl2.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
+#include "L1TopoSimulationUtils/Kinematics.h"
 
 REGISTER_ALG_TCS(DeltaRSqrIncl2)
 
@@ -20,37 +21,6 @@ using namespace std;
 
 // not the best solution but we will move to athena where this comes for free
 #define LOG cout << "TCS::DeltaRSqrIncl2:     "
-
-
-
-
-namespace {
-   unsigned int
-   calcDeltaR2(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-      double deta = ( tob1->etaDouble() - tob2->etaDouble() );
-      double dphi = fabs( tob1->phiDouble() - tob2->phiDouble() );
-      if(dphi>M_PI)
-         dphi = 2*M_PI - dphi;
-
-      return round ( 100 * ((dphi)*(dphi) + (deta)*(deta) )) ;
-
-   }
-
-
-   unsigned int
-   calcDeltaR2BW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-
-      int detaB = abs( tob1->eta() - tob2->eta() );
-      int dphiB = abs( tob1->phi() - tob2->phi() );
-      if(dphiB>32)
-         dphiB = 64 - dphiB;
-
-      unsigned int bit_dr2 = dphiB*dphiB + detaB*detaB;
-      return bit_dr2;
-
-   }
-}
-
 
 TCS::DeltaRSqrIncl2::DeltaRSqrIncl2(const std::string & name) : DecisionAlg(name)
 {
@@ -124,7 +94,7 @@ TCS::DeltaRSqrIncl2::processBitCorrect( const std::vector<TCS::TOBArray const *>
                   tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
                   ++tob2) {
                  // test DeltaR2Min, DeltaR2Max
-                 unsigned int deltaR2 = calcDeltaR2BW( *tob1, *tob2 );
+                 unsigned int deltaR2 = TSU::Kinematics::calcDeltaR2BW( *tob1, *tob2 );
                  TRG_MSG_DEBUG("Jet1 = " << **tob1 << ", Jet2 = " << **tob2 << ", deltaR2 = " << deltaR2);
                  for(unsigned int i=0; i<numberOutputBits(); ++i) {
                    bool accept = false;
@@ -165,7 +135,7 @@ TCS::DeltaRSqrIncl2::process( const std::vector<TCS::TOBArray const *> & input,
 
 
                // test DeltaR2Min, DeltaR2Max
-               unsigned int deltaR2 = calcDeltaR2( *tob1, *tob2 );
+               unsigned int deltaR2 = TSU::Kinematics::calcDeltaR2( *tob1, *tob2 );
 
                TRG_MSG_DEBUG("Jet1 = " << **tob1 << ", Jet2 = " << **tob2 << ", deltaR2 = " << deltaR2);
                for(unsigned int i=0; i<numberOutputBits(); ++i) {

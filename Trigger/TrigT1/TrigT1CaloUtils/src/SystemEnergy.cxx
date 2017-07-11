@@ -43,6 +43,8 @@ SystemEnergy::SystemEnergy(const DataVector<CrateEnergy> *crates, ServiceHandle<
                                                                                                                     m_debug(false)
 {
 
+  int xyMax = 1 << (m_sumBits - 1);
+
   /** Get Ex, Ey, ET sums from crates and form global sums <br>
       Propagate overflows and test for new ones <br> */
 
@@ -61,30 +63,32 @@ SystemEnergy::SystemEnergy(const DataVector<CrateEnergy> *crates, ServiceHandle<
       m_systemEy += (*it)->ey();
       m_systemEt += (*it)->et();
     }
-    m_overflowX = m_overflowX | (*it)->exOverflow();
-    m_overflowY = m_overflowY | (*it)->eyOverflow();
-    m_overflowT = m_overflowT | (*it)->etOverflow();
+    
+    m_overflowX = m_overflowX | ((*it)->ex() == -xyMax);
+    m_overflowY = m_overflowY | ((*it)->ey() == -xyMax);
+    m_overflowT = m_overflowT | ((*it)->et() == m_maxEtSumThr);
 
     if ((*it)->restricted())
       m_restricted = 1;
   }
 
   /** Check for EtSum overflow */
-  if (m_overflowT != 0)
+  if (m_overflowT != 0) {
     m_systemEt = m_etSumOverflow;
+  }
     
-  /** Check for overflow of Ex, Ey sums */
-  int xyMax = 1 << (m_sumBits - 1);
 
-  if ((abs(m_systemEx) > xyMax) || m_overflowX)
+
+  if ((abs(m_systemEx) >= xyMax) || m_overflowX)
   {
     m_overflowX = 1;
-    m_systemEx = xyMax;
+    m_systemEx = -xyMax;
   }
-  if ((abs(m_systemEy) > xyMax) || m_overflowY)
+
+  if ((abs(m_systemEy) >= xyMax) || m_overflowY)
   {
     m_overflowY = 1;
-    m_systemEy = xyMax;
+    m_systemEy = -xyMax;
   }
 
   if (m_debug)
@@ -117,8 +121,15 @@ SystemEnergy::SystemEnergy(unsigned int et, unsigned int exTC, unsigned int eyTC
                                                                              m_metSigHits(0),
                                                                              m_debug(false)
 {
+
   m_systemEx = decodeTC(exTC);
   m_systemEy = decodeTC(eyTC);
+
+  int xyMax = 1 << (m_sumBits - 1);
+
+  m_overflowT = m_systemEt == m_etSumOverflow;
+  m_overflowX = m_systemEx == -xyMax;
+  m_overflowY = m_systemEy == -xyMax;
 
   if (m_debug)
   {

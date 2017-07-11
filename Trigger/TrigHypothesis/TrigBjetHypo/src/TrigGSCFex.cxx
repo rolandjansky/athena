@@ -210,7 +210,7 @@ HLT::ErrorCode TrigGSCFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::T
 
 
   // calJet is a pointer to the new, calibrated jet
-  xAOD::Jet* calJet = new xAOD::Jet;
+  xAOD::Jet* calJet = nullptr;
   m_jetGSCCalib_tool->calibratedCopy(jet,calJet);
 
 //  std::cout << "TrigGSCFex: New jet"

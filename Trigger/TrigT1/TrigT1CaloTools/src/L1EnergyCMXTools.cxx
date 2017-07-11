@@ -78,7 +78,7 @@ StatusCode L1EnergyCMXTools::initialize()
     }
 
     findRestrictedEta(m_etaTruncXE, m_etaTruncTE);
-    ATH_MSG_INFO("Restricted eta ranges etaTruncXE=" << m_etaTruncXE << " etaTruncTE=" << m_etaTruncTE);
+    ATH_MSG_DEBUG("Restricted eta ranges etaTruncXE=" << m_etaTruncXE << " etaTruncTE=" << m_etaTruncTE);
 
     ATH_MSG_INFO("Initialization completed");
 
@@ -239,7 +239,7 @@ void L1EnergyCMXTools::formCMXEtSumsCrate(
 {
     float etaTruncXE, etaTruncTE;
     findRestrictedEta(etaTruncXE, etaTruncTE);
-    ATH_MSG_INFO("Restricted eta ranges etaTruncXE=" << etaTruncXE << " etaTruncTE=" << etaTruncTE);
+    ATH_MSG_DEBUG("Restricted eta ranges etaTruncXE=" << etaTruncXE << " etaTruncTE=" << etaTruncTE);
     // Convert to internal containers
     int peak = 0;
     MultiSliceModuleEnergy modulesVec;
@@ -441,6 +441,9 @@ void L1EnergyCMXTools::etSumsToCrateEnergy(const xAOD::CMXEtSumsContainer *etSum
                                               eyErr.get(DataError::Overflow), restricted));
         }
     }
+
+    dumpCrateEnergies("Crates from full region (for total)", crateVecFull);
+    dumpCrateEnergies("Crates from restricted region (for total)", crateVecRestricted);
 }
 
 /** Convert CMXEtSums container to internal SystemEnergy objects */
@@ -640,7 +643,11 @@ void L1EnergyCMXTools::crateEnergyToEtSums(
     unsigned int nslices = cratesVecFull.size();
     std::vector<uint16_t> dummy(nslices);
     std::vector<uint32_t> error(nslices);
-
+    
+    dumpCrateEnergies("Crates from full region", cratesVecFull);
+    dumpCrateEnergies("Crates from restricted region", cratesVecRestricted);
+    
+ 
     for (unsigned int slice = 0; slice < nslices; ++slice)
     {
         for (unsigned int i = 0; i < 2; i++)
@@ -763,6 +770,8 @@ void L1EnergyCMXTools::systemEnergyToEtSums(
         int exOverflow = energy->exOverflow();
         int eyOverflow = energy->eyOverflow();
         int etOverflow = energy->etOverflow();
+        
+        // don't trust to exOverflow for restricted
         if (ex == 0 && ey == 0 && et == 0 &&
             exOverflow == 0 && eyOverflow == 0 && etOverflow == 0)
             continue;
@@ -783,12 +792,14 @@ void L1EnergyCMXTools::systemEnergyToEtSums(
         exVec[slice] = ex;
         eyVec[slice] = ey;
         etVec[slice] = et;
+
         if (exOverflow)
         {
             DataError dEx(exErr[slice]);
             dEx.set(DataError::Overflow);
             exErr[slice] = dEx.error();
         }
+
         if (eyOverflow)
         {
             DataError dEy(eyErr[slice]);
@@ -943,6 +954,22 @@ void L1EnergyCMXTools::etMapsToEtSums(
         }
         (*iSlice)++;
     }
+}
+
+void L1EnergyCMXTools::dumpCrateEnergies(
+    const std::string &msg, const MultiSliceCrateEnergy &crates) const {
+  if (!m_debug) return;
+
+  ATH_MSG_DEBUG(msg);
+  for (const auto& p : crates) {
+    for (const auto& c : *p) {
+      ATH_MSG_DEBUG(" CrateEnergy: crate " << c->crate() << " results ");
+      ATH_MSG_DEBUG("  Et " << c->et() << " overflow " << c->etOverflow());
+      ATH_MSG_DEBUG("  Ex " << c->ex() << " overflow " << c->exOverflow());
+      ATH_MSG_DEBUG("  Ey " << c->ey() << " overflow "<< c->eyOverflow());
+    }
+    ATH_MSG_DEBUG("");
+  }
 }
 
 } // end of namespace

@@ -52,10 +52,11 @@ if not BTaggingFlags.DoNotSetupBTagging: # Temporary measure so the JetRec peopl
   if ConfInstance.checkFlagsUsingBTaggingFlags():
 
     #Jet collections
-    JetCollectionList = ['AntiKt4LCTopoJets', 'AntiKt4EMTopoJets', 'AntiKt4TrackJets', 'AntiKt4EMPFlowJets', 'AntiKt2TrackJets']
+    #JetCollectionList = ['AntiKt4LCTopoJets', 'AntiKt4EMTopoJets', 'AntiKt4TrackJets', 'AntiKt4EMPFlowJets', 'AntiKt2TrackJets']
+    JetCollectionList = ['AntiKt4EMTopoJets']
     from JetRec.JetRecFlags import jetFlags
-    if jetFlags.useTruth():
-      JetCollectionList += [ 'AntiKt10TruthWZJets', 'AntiKt4TruthWZJets' ]
+    #if jetFlags.useTruth():
+    #  JetCollectionList += [ 'AntiKt10TruthWZJets', 'AntiKt4TruthWZJets' ]
 
     #WOUTER: Moved these into the BTaggingsFlags.py file.
     #BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4EMTopo->AntiKt4TopoEM" ]
