@@ -12,3 +12,8 @@ WATCH_LIST['MooPerformance'] = set(['pop'])
 WATCH_LIST['JetCalibTools'] = set(['jbossios'])
 WATCH_LIST['AFP'] = set(['ggach'])
 WATCH_LIST['MuonEfficiencyCorrections'] = set(['nkoehler','jojungge'])
+WATCH_LIST['MuonTPTools'] = set(['nkoehler','jojungge'])
+WATCH_LIST['MuonPerformanceAlgs'] = set(['nkoehler','jojungge'])
+WATCH_LIST['MuonPerformanceHistUtils'] = set(['nkoehler','jojungge'])
+WATCH_LIST['IsolationSelection'] = set(['maklein','jojungge','jpoveda','dzhang'])
+
