@@ -139,7 +139,8 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
         self.setupAFPCalibrationChains()
       elif 'rpcpeb' in self.chainPart['purpose']:
         self.setupRPCCalibrationChains()
-        
+      elif 'idpsl1' in self.chainPart['purpose']:
+        self.setupIDPSCalibrationChains()
       else:
          log.error('Chain %s could not be assembled' % (self.chainPartName))
          return False      
@@ -319,7 +320,28 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      self.TErenamingDict = {
        'L2_':     'L2_l1RPCcalib',
        }
-     
+  
+   ###########################################################################
+   # IDprescaledL1 Calibration chains
+   ###########################################################################
+   def setupIDPSCalibrationChains(self):
+
+     from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
+
+     l2_IDPSSubDetListWriter = TrigSubDetListWriter("IDPSSubDetListWriter")
+     l2_IDPSSubDetListWriter.SubdetId = ['TDAQ_CTP','TDAQ_HLT','InnerDetector']
+
+     l2_IDPSSubDetListWriter.MaxRoIsPerEvent=1
+
+     self.robWriter = [l2_IDPSSubDetListWriter]
+     self.L2sequenceList += [['', self.robWriter, 'L2_']]
+
+     self.L2signatureList += [[['L2_']]]
+     self.TErenamingDict = {
+       'L2_':     'L2_l1IDPScalib',
+       }
+
+
    ###########################################################################
    # AFP Calibration chains
    ###########################################################################
