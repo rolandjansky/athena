@@ -28,6 +28,7 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetDetDescr/PixelCabling
    InnerDetector/InDetRecEvent/InDetRIO_OnTrack
    Tools/LWHists
+   Tools/PathResolver
    Tracking/TrkEvent/TrkParameters
    Tracking/TrkEvent/TrkSpacePoint
    Tracking/TrkEvent/TrkTrackSummary
@@ -44,7 +45,5 @@ atlas_add_component( PixelMonitoring
    GaudiKernel InDetRawData InDetPrepRawData LumiBlockCompsLib TrkTrack
    AthenaPoolUtilities GeoPrimitives EventInfo EventPrimitives InDetIdentifier
    InDetReadoutGeometry InDetRIO_OnTrack LWHists TrkParameters TrkSpacePoint
-   TrkTrackSummary TrkToolInterfaces PixelCablingLib PixelGeoModelLib )
+   TrkTrackSummary TrkToolInterfaces PixelCablingLib PixelGeoModelLib PathResolver )
 
-# Install files from the package:
-atlas_install_runtime( share/*.csv )

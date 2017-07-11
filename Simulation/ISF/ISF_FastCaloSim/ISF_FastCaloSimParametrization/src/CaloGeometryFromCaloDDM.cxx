@@ -3,8 +3,8 @@
 */
 
 #include "CaloGeometryFromCaloDDM.h"
-//#include "CaloDetDescr/CaloDetDescrElement.h"
-#include "ISF_FastCaloSimParametrization/CaloDetDescrElement.h"
+#include "CaloDetDescr/CaloDetDescrElement.h"
+//#include "ISF_FastCaloSimParametrization/CaloGeoDetDescrElement.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
 using namespace std;

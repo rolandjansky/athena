@@ -25,6 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetDetDescr/SCT_Cabling
                           InnerDetector/InDetRecEvent/InDetPrepRawData
+                          InnerDetector/InDetRecTools/TRT_ToT_Tools
                           PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/VxVertex
@@ -38,6 +39,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTruth
                           GaudiKernel
                           InnerDetector/InDetConditions/TRT_ConditionsServices
+			  InnerDetector/InDetRecEvent/InDetRIO_OnTrack
+			  InnerDetector/InDetRecTools/InDetAssociationTools
                           InnerDetector/InDetValidation/InDetPhysValMonitoring
                           LArCalorimeter/LArRecEvent
                           PhysicsAnalysis/CommonTools/ExpressionEvaluation
@@ -62,14 +65,14 @@ atlas_add_library( DerivationFrameworkInDetLib
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthLinks AthenaBaseComps AthenaKernel SGTools IRegionSelector Identifier RoiDescriptor xAODBase xAODEgamma xAODEventInfo xAODTracking InDetIdentifier InDetReadoutGeometry InDetPrepRawData TrkTrack VxVertex StoreGateLib SGtests SCT_CablingLib TRT_ConditionsServicesLib ExpressionEvaluationLib
-                   PRIVATE_LINK_LIBRARIES CommissionEvent AtlasDetDescr FourMomUtils xAODJet xAODMuon xAODTau xAODTruth GaudiKernel LArRecEvent TrkCompetingRIOsOnTrack TrkEventPrimitives TrkEventUtils TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkExInterfaces TrkToolInterfaces TrkVertexFitterInterfaces )
+                   PRIVATE_LINK_LIBRARIES CommissionEvent AtlasDetDescr FourMomUtils xAODJet xAODMuon xAODTau xAODTruth GaudiKernel InDetRIO_OnTrack LArRecEvent TrkCompetingRIOsOnTrack TrkEventPrimitives TrkEventUtils TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkExInterfaces TrkToolInterfaces TrkVertexFitterInterfaces )
 
 atlas_add_component( DerivationFrameworkInDet
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthLinks AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests IRegionSelector Identifier RoiDescriptor xAODBase xAODEgamma xAODEventInfo xAODTracking InDetIdentifier InDetReadoutGeometry SCT_CablingLib InDetPrepRawData TrkTrack VxVertex CommissionEvent AtlasDetDescr FourMomUtils xAODJet xAODMuon xAODTau xAODTruth GaudiKernel TRT_ConditionsServicesLib LArRecEvent ExpressionEvaluationLib TrkCompetingRIOsOnTrack TrkEventPrimitives TrkEventUtils TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkExInterfaces TrkToolInterfaces TrkVertexFitterInterfaces DerivationFrameworkInDetLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthLinks AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests IRegionSelector Identifier RoiDescriptor xAODBase xAODEgamma xAODEventInfo xAODTracking InDetIdentifier InDetReadoutGeometry SCT_CablingLib InDetPrepRawData TrkTrack VxVertex CommissionEvent AtlasDetDescr FourMomUtils xAODJet xAODMuon xAODTau xAODTruth GaudiKernel TRT_ConditionsServicesLib InDetRIO_OnTrack LArRecEvent ExpressionEvaluationLib TrkCompetingRIOsOnTrack TrkEventPrimitives TrkEventUtils TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkExInterfaces TrkToolInterfaces TrkVertexFitterInterfaces DerivationFrameworkInDetLib )
+
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-

@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+from ISF_Config.ISF_jobProperties import ISF_Flags
+
 
 ## Base method
 
@@ -33,7 +35,7 @@ def configureFlagsBase():
     DetFlags.writeBS.all_setOff()
     DetFlags.writeRDOPool.all_setOff()
     DetFlags.writeRIOPool.all_setOff()
-    from ISF_Config.ISF_jobProperties import ISF_Flags
+
     if "G4" in ISF_Flags.Simulator():
         # Short-cut: if G4 is in the simulator name, then it's a pretty
         # safe assumption that the configuration uses Geant4.
@@ -45,6 +47,7 @@ def configureFlagsBase():
 def configureFlagsFullG4():
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "FullG4"
+    ISF_Flags.HITSMergingRequired = False
     return
 
 def configureFlagsFullG4_LongLived():

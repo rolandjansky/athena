@@ -20,6 +20,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <algorithm>
 
 #include "TrigInDetAnalysis/Efficiency.h"
 
@@ -61,39 +62,49 @@ int usage(const std::string& name, int status) {
   //  s << "Configuration: \n";
   //  s << "    -o filename   \tname of output grid (filename required)\n\n";
   s << "Options: \n";
-  s << "    -c,  --config value       \t configure which histograms to plot from config file,\n";
-  s << "    -t,  --tag value          \t appends tag 'value' to the end of output plot names, \n";
-  s << "    -k,  --key value          \t prepends key 'value' to the from of output plots name, \n";
-  s << "    -d,  --dir value          \t creates output files into directory, \"value\" \n";
+  s << "    -c,  --config       value \t configure which histograms to plot from config file,\n\n";
+  s << "    -t,  --tag          value \t appends tag 'value' to the end of output plot names, \n";
+  s << "    -k,  --key          value \t prepends key 'value' to the from of output plots name, \n";
+  s << "    -d,  --dir          value \t creates output files into directory, \"value\" \n\n";
+
   s << "    -e,  --efficiencies       \t make test efficiencies with respect to reference \n";
-  s << "    -es, --effscale value     \t scale efficiencies to value\n";
-  s << "    -er, --effscaleref  value \t scale efficiencies to value\n";
+  s << "    -es, --effscale     value \t scale efficiencies to value\n";
+  s << "    -er, --effscaleref  value \t scale reference efficiencies to value\n";
+  s << "    -nb  --nobayes            \t do not calculate Basyesian efficiency uncertaintiesr\n\n";
+
   s << "    -r,  --refit              \t refit all test resplots\n";
   s << "    -rr, --refitref           \t also refit all reference resplots\n";
-  s << "         --oldrms             \t use fast rms95 when refitting resplots\n";
+  s << "         --oldrms             \t use fast rms95 when refitting resplots\n\n";
+
+  s << "    -as, --atlasstyle         \t use ATLAS style\n";
   s << "    -l,  --labels             \t use specified labels for key\n";
   s << "         --taglabels          \t use specified additional labels \n";
-  s << "    -nb  --nobayes            \t do not calculate Basyesian efficiency uncertaintiesr\n";
-  s << "    -as, --atlasstyle         \t use ATLAS style\n";
-  s << "    -al, --atlaslable value   \t set value for atlas label\n";
-  s << "         --yrange  min max    \t use specified y axis range\n";  
-  s << "    -ns, --nostats            \t do not show stats for mean and rms\n";
-  s << "    -nm, --nomeans            \t do not show stats for the means\n";
-  s << "    -nr, --noref              \t do not plot reference histograms\n";
-  s << "         --normref            \t normalise the reference counting histograms to test histograms\n";
+  s << "    -al, --atlaslable   value \t set value for atlas label\n";
+  s << "    -ac, --addchains          \t if possible, add chain names histogram labels \n\n";   
+
   s << "    -rc, --refchains values ..\t allow different reference chains for comparison\n";
   s << "    -s,  --swap pattern regex \t swap \"pattern\" in the reference chains name by \"regex\"\n";
+  s << "    -nr, --noref              \t do not plot reference histograms\n";
+  s << "         --normref            \t normalise the reference counting histograms to test histograms\n";
+  s << "    -us, --usechainref        \t use the histograms from chain definied in the \"Chain\" histogram as reference\n\n";
+
+
+  s << "    -ns, --nostats            \t do not show stats for mean and rms\n";
+  s << "    -nm, --nomeans            \t do not show stats for the means\n";
+  s << "         --chi2               \t show the chi2 with respect to the reference\n\n";
+
   s << "    -np, --noplots            \t do not actually make any plot\n";
   s << "         --unscalepix         \t do not scale the number of pixels by 0.5 (scaled by default)\n";
-  s << "         --chi2               \t show the chi2 with respect to the reference\n";
+  s << "         --yrange     min max \t use specified y axis range\n";  
+  s << "    -xo, --xoffset      value \t relative x offset for the key\n"; 
+  s << "    -yp, --ypos         value \t relative yposition for the key\n"; 
+  s << "    -xe, --xerror       value \t size of the x error tick marks\n"; 
+  s << "    -nw, --nowatermark        \t do not plot the release watermark\n\n"; 
+
   s << "    -C,  --Cfiles             \t write C files also\n"; 
-  s << "    -nw, --nowatermark        \t do not plot the release watermark\n"; 
   s << "         --nopng              \t do not print png files\n"; 
-  s << "         --deleteref          \t delete unused reference histograms\n";
-  s << "    -xo, --xoffset            \t relative x offset for the key\n"; 
-  s << "    -yp, --ypos               \t relative yposition for the key\n"; 
-  s << "    -ac, --addchains          \t if possible, add chain names histogram labels \n";   
-  s << "    -xe, --xerror value       \t size of the x error tick marks\n"; 
+  s << "         --deleteref          \t delete unused reference histograms\n\n";
+
   s << "    -h,  --help              \t this help\n";
   //  s << "\nSee " << PACKAGE_URL << " for more details\n"; 
   //  s << "\nReport bugs to <" << PACKAGE_BUGREPORT << ">";
@@ -147,6 +158,7 @@ void zero( TH2* h ) {
 
 double chi2( TH1* h0, TH1* h1 ) { 
   double c2 = 0;
+
   for ( int i=0 ; i<h0->GetNbinsX() ; i++ ) {
  
     double d0 = h0->GetBinContent(i+1);
@@ -215,11 +227,14 @@ int main(int argc, char** argv) {
   bool scalepix    = true;
   bool oldrms      = false;
   bool addchains   = false;
-
+  bool usechainref = false;
 
   double xerror    = 0;
 
   std::string atlaslabel = "Internal";
+
+
+  std::string chainref = ""; 
 
   double scale_eff     = -1;
   double scale_eff_ref = -1;
@@ -335,6 +350,9 @@ int main(int argc, char** argv) {
     }
     else if ( arg=="-rc" || arg=="--refchains" ) { 
       addingrefchains = true;
+    }
+    else if ( arg=="-uc" || arg=="--usechainref" ) { 
+      usechainref = true;
     }
     else if ( arg=="-nb" || arg=="--nobayes" ) { 
       _bayes = false;
@@ -453,9 +471,11 @@ int main(int argc, char** argv) {
   if ( !nostats ) std::cout << "\tsuppress meanstats:          " << ( nomeans ? "true" : "false" ) << std::endl;  
   std::cout << "\tsuppress png output:         " << ( nopng ? "true" : "false" ) << std::endl;  
   std::cout << "\tsuppress reference output:   " << ( noref ? "true" : "false" ) << std::endl;  
-  if ( usrlabels.size()>0 )    std::cout << "\tlabels:       " << usrlabels << std::endl;  
-  if ( taglabels.size()>0 )    std::cout << "\textra text:   " << taglabels << std::endl;  
+  std::cout << "\tuse chain references:        " << ( usechainref ? "true" : "false" ) << std::endl;
 
+  if ( usrlabels.size()>0 )  std::cout << "\tlabels:                 " << usrlabels << std::endl;        
+  if ( taglabels.size()>0 )  std::cout << "\textra text:             " << taglabels << std::endl;  
+  
 
   for ( size_t il=0 ; il<usrlabels.size() ; il++ ) { 
     std::cout << "usr label[" << il << "] : " << usrlabels[il] << std::endl;
@@ -864,7 +884,11 @@ int main(int argc, char** argv) {
 
       if ( fulldbg )  std::cout << __LINE__ << std::endl; 
 
-      std::string refchain = fullreplace( refchains[j], pattern, regex );
+      std::string refchain = "";
+      
+      if ( chainref!="" ) refchain = fullreplace( chainref, pattern, regex );
+      else                refchain = fullreplace( refchains[j], pattern, regex );
+      
 
       if ( fulldbg )  std::cout << __LINE__ << std::endl; 
 
@@ -1106,6 +1130,15 @@ int main(int argc, char** argv) {
 	TH1F* hchain = (TH1F*)ftest.Get((chains[j]+"/Chain").c_str()) ;
 	if ( hchain ) { 
 	  std::string name = hchain->GetTitle();
+	  if ( usechainref && !contains(chains[j],"Purity") ) { 
+	    chainref = name;
+	    std::string::size_type pos = chainref.find(":for");
+            if ( pos!=std::string::npos ) chainref.replace( pos, 4, "_for" );
+	    std::replace( chainref.begin(), chainref.end(), ':', '/');	    
+	    std::string newchain = dirname( dirname( chains[j]) ) + "/Expert/" + chainref;
+	    chainref = newchain;
+	  }
+
 	  while ( contains( name, "HLT_" ) ) name = name.erase( name.find("HLT_"), 4 );
 	  if ( contains( name, ":" ) )  chain_name = name.substr( 0, name.find(":") ) + " : ";
 	  else                          chain_name = name;
@@ -1125,9 +1158,11 @@ int main(int argc, char** argv) {
 
       TGraphAsymmErrors* tgtest = 0;
 
+      
+      std::string refchain = "";
 
-      std::string refchain = fullreplace( refchains[j], pattern, regex );
-
+      if ( chainref!="" ) refchain = fullreplace( chainref, pattern, regex );
+      else                refchain = fullreplace( refchains[j], pattern, regex );
   
       /// refit the resplots - get the 2d histogram and refit
      
@@ -1546,7 +1581,7 @@ int main(int argc, char** argv) {
       }
       
 
-      if ( href ) Chi2.push_back( label( "chi2 = %lf", chi2( htest, href ) ) );
+      if ( href ) Chi2.push_back( label( "chi2 = %5.2lf / %2.0lf", chi2( htest, href ), double(htest->GetNbinsX()) ) );
 
       if( residual ) {
 	
@@ -1651,6 +1686,9 @@ int main(int argc, char** argv) {
 	Norm( htest );
 	if ( href ) Norm( href );
       }
+      else if ( yinfo.refnormset() ) { 
+      	if ( href ) Norm( href, Entries(htest) );
+      }
 
       if ( yinfo.binwidth() ) { 
 	binwidth( htest );
@@ -1659,9 +1697,11 @@ int main(int argc, char** argv) {
     
 
 
-      if ( !noreftmp && normref && !contains( histos[i], "mean") && !contains( histos[i], "sigma" ) && !contains( histos[i], "eff" ) ) { 
-	double entries = Entries( htest );
-	Norm( href, entries );
+      if ( !noreftmp && normref && 
+           !contains( histos[i], "mean") && !contains( histos[i], "sigma" ) && 
+           !contains( histos[i], "Eff")  && !contains( histos[i], "eff") &&
+           !contains( histos[i], "Res")  && !contains( histos[i], "vs") && !contains( histos[i], "_lb") ) { 
+        Norm( href, Entries( htest ) );
       }
 
     }
@@ -1684,19 +1724,20 @@ int main(int argc, char** argv) {
       double  yminset = 0;
       double  ymaxset = 0;
 
+      double rmin = 0;
+      double rmax = 0;
+      
+      if ( xinfo.rangeset() ) { 
+	rmin = plots.realmin( plots.lo(), plots.hi() );
+	rmax = plots.realmax( plots.lo(), plots.hi() );
+      }
+      else {
+	rmin = plots.realmin();
+	rmax = plots.realmax();
+      }
+      
+
       if ( yinfo.autoset() ) { 
-	
-	double rmin = 0;
-	double rmax = 0;
-	
-	if ( xinfo.rangeset() ) { 
-	  rmin = plots.realmin( plots.lo(), plots.hi() );
-	  rmax = plots.realmax( plots.lo(), plots.hi() );
-	}
-	else {
-	  rmin = plots.realmin();
-	  rmax = plots.realmax();
-	}
 	
 	int csize = chains.size() + taglabels.size() + ( atlasstyle ? 1 : 0 );
 
@@ -1797,9 +1838,12 @@ int main(int argc, char** argv) {
 
       if ( fulldbg ) std::cout << __LINE__ << std::endl;
 
-      if ( yminset>0 ) plots.SetLogy(yinfo.log());
-      else             plots.SetLogy(false);
-   
+      if ( yminset!=0 || ymaxset!=0 ) { 
+	if ( yminset>0 ) plots.SetLogy(yinfo.log());
+	else             plots.SetLogy(false);
+      }	
+      else plots.SetLogy(yinfo.log());
+
       //      plots.SetLogy(false);
 
       if ( fulldbg ) std::cout << __LINE__ << std::endl;

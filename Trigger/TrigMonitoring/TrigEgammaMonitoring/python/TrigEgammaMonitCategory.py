@@ -40,7 +40,7 @@ monitoring_egamma = primary_single_ele + primary_double_ele + monitoring_ele_idp
 # MC 'monteCarlo'
 
 # Define the set of histograms to be monitored by shifters
-plots_efficiency = ["eff_et","eff_eta","eff_mu"]
+plots_efficiency = ["eff_et","eff_highet","eff_eta","eff_mu"]
 plots_distribution = ["et","eta","Reta","Rphi","Rhad","f1","f3","eratio","deta2","eprobHT","npixhits","nscthits","ptvarcone20"]
 plots_resolution = ["res_et","res_Rphi","res_Reta","res_Rhad","res_ptvarcone20","res_deta2"]
 
@@ -68,7 +68,7 @@ commission_electron = [ 'HLT_e60_lhmedium_nod0_ringer_L1EM24VHI',
                        'HLT_e140_lhloose_nod0_ringer_L1EM24VHI']
 monitoring_electron = ['HLT_e60_lhmedium_nod0_L1EM24VHI',
                        'HLT_e140_lhloose_nod0_L1EM24VHI']
-monitoring_electron += commission_electron
+# monitoring_electron += commission_electron
 
 # 2017 single electrons triggers to monitor from Zee TP, includes rerun
 
@@ -81,16 +81,15 @@ commissionTP_electron = ['HLT_e17_lhvloose_nod0_ringer_L1EM15VHI',
                          'HLT_e28_lhtight_nod0_ivarloose_L1EM24VHIM',
                          ]
 monitoringTP_electron = [ 'HLT_e17_lhvloose_nod0_L1EM15VHI',
-                          'HLT_e26_lhtight_nod0_ivarloose',
-                          'HLT_e28_lhtight_nod0_ivarloose']
-monitoringTP_electron += commissionTP_electron
+                          #'HLT_e26_lhtight_nod0_ivarloose',
+                          'HLT_e28_lhtight_nod0_ivarloose',
+                          'HLT_e28_lhtight_nod0_noringer_ivarloose'
+                          ]
+# monitoringTP_electron += commissionTP_electron
 
 monitoringTP_Jpsiee = ["HLT_e5_lhtight_nod0"]    
 monitoring_photon = [ 'HLT_g25_medium_L1EM20VH',
                       'HLT_g200_loose',
-                      'HLT_g22_tight' ,
-                      'HLT_g22_tight_icalovloose_L1EM15VHI' ,
-                      'HLT_g22_tight_L1EM15VHI',
                       ]
 #Add the Menu-Aware monitoring; maps a trigger to a category
 monitoring_mam = {'primary_single_ele_iso':'HLT_e28_lhtight_nod0_ivarloose',

@@ -161,21 +161,10 @@ void TrigEgammaPlotTool::setBinning(){
         20,20.5,21,21.5,22,22.5,23,23.5,24,24.5,
         25,25.5};
 
-    /* Ringer bins pdfs for each layer */
-    float minBin_ringer[100]={-500 ,-500 ,-1000,-1500,-1500,-1000,-1000,-1000,-500 ,-500 ,-500 ,-500 ,-500 ,-500 ,-500 ,-800,
-                                -800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800,
-                                -800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800,
-                                -800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800,
-                                -800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-500 ,-500 ,-500 ,-500 ,-1000,-1000,-1000,-500,
-                                -500 ,-500 ,-500 ,-500 ,-500 ,-500 ,-500 ,-500 ,-600 ,-1000,-1500,-2000,-400 ,-1000,-1500,-1500,
-                                -1000,-2000,-2000,-2000};
-    float maxBin_ringer[100]={9000 , 7000, 2000, 2000, 2000, 2000, 2000, 2000, 20000, 20000, 6000, 4000, 3000, 2000, 2000, 800,
-                                800  , 800 , 800 , 800 , 800 , 800 , 800 , 800 , 800  , 800  , 800 , 800 , 800 , 800 , 800 , 800,
-                                800  , 800 , 800 , 800 , 800 , 800 , 800 , 800 , 800  , 800  , 800 , 800 , 800 , 800 , 800 , 800,
-                                800  , 800 , 800 , 800 , 800 , 800 , 800 , 800 , 800  , 800  , 800 , 800 , 800 , 800 , 800 , 800,
-                                800  , 800 , 800 , 800 , 800 , 800 , 800 , 800 , 40000, 40000, 6000, 4000, 2000, 2000, 2000, 2000,
-                                500  , 500 , 500 , 500 , 500 , 500  ,500  , 500 , 3000 , 3000 , 3000 ,3000, 2000, 2000, 2000, 2000,
-                                8000, 5000 ,4000 ,3000};
+    //float ringer_eta_bins[10]={0.00, 0.60, 0.80, 1.15, 1.37, 1.54, 1.81, 2.01, 2.37, 2.47};
+    //float ringer_et_bins[9]  ={4.00,7.00,10.0,15.0,20.0,30.0,40.0,50.0,50000.};
+    float ringer_thres_et_bins[6]={15.,20.,30.,40.,50.,50000.};
+    float ringer_thres_eta_bins[6]={0.,0.8,1.37,1.54,2.37,2.5};
 
     if(m_doJpsiee){
         m_nEtbins=51;
@@ -202,8 +191,8 @@ void TrigEgammaPlotTool::setBinning(){
     m_defaultEtabins.insert(m_defaultEtabins.end(), &default_eta_bins[0], &default_eta_bins[m_ndefaultEtabins+1]);
     m_coarseEtbins.insert(m_coarseEtbins.end(), &coarse_et_bins[0], &coarse_et_bins[m_ncoarseEtbins+1]);
     m_coarseEtabins.insert(m_coarseEtabins.end(), &coarse_eta_bins[0], &coarse_eta_bins[m_ncoarseEtabins+1]);
-    m_minBin_ringer.insert(m_minBin_ringer.end(), &minBin_ringer[0], &minBin_ringer[100]);
-    m_maxBin_ringer.insert(m_maxBin_ringer.end(), &maxBin_ringer[0], &maxBin_ringer[100]);
+    m_ringerEtbins.insert(m_ringerEtbins.end(), &ringer_thres_et_bins[0], &ringer_thres_et_bins[6]);
+    m_ringerEtabins.insert(m_ringerEtabins.end(), &ringer_thres_eta_bins[0], &ringer_thres_eta_bins[6]);
 }
 
 StatusCode TrigEgammaPlotTool::book(std::map<std::string,TrigInfo> trigInfo){
@@ -1346,27 +1335,25 @@ void TrigEgammaPlotTool::bookExpertHistos(TrigInfo trigInfo){
     dirnames.push_back(dirname);
     addDirectory(dirname);
 
-    // Store ringer in trigInfo
-    if(boost::contains(trigInfo.trigName,"ringer") || trigInfo.trigEtcut || trigInfo.trigPerf){ 
-        addHistogram(new TH1F("ringer_nnOutput", "Discriminator distribution; nnOutput ; Count", 100, -1, 1));
-        addHistogram(new TH2F("ringer_etVsEta", "ringer count as function of #eta and E_{t}; #eta; E_{t} [GeV]; Count",
-                     m_ndefaultEtabins,m_defaultEtabins.data(), m_ndefaultEtbins, m_defaultEtbins.data() ));
-        if(m_detailedHists){
-            unsigned rCount=0; 
-            for(unsigned layer =0; layer < 7; ++layer){
-                unsigned minRing, maxRing;  std::string strLayer;
-                parseCaloRingsLayers( layer, minRing, maxRing, strLayer );
-                addDirectory(dirname+"/rings_"+strLayer);
-                for(unsigned r=minRing; r<=maxRing; ++r){
-                    std::stringstream ss_title, ss;
-                    ss_title << "ringer_ring#" << r;  ss << "L2Calo ringer ("<< strLayer <<"); ring#" << r << " E [MeV]; Count";
-                    addHistogram(new TH1F(ss_title.str().c_str(), ss.str().c_str(), 100, m_minBin_ringer[rCount], m_maxBin_ringer[rCount]));
-                    rCount++;
-                }
-            }///Loop for each calo layers    
-        }
+    //addHistogram(new TH2F("RingerShapes","RingerShapes;E_{t};#rings;Count",21000,-1000,20000,100,0,100));
+    addHistogram(new TH1F("discriminant","discriminant(integrated);discriminant(ringer);Count",190,-12,7));
+    addHistogram(new TH2F("discriminantVsMu","discriminantVsMu(integrated);discriminant(ringer);avgmu;Count",190,-12,7,20,0,100));
+    addDirectory(dirname+"/discriminant_binned");
+    for(unsigned etBinIdx=0; etBinIdx<m_ringerEtbins.size()-1; ++etBinIdx){
+      for(unsigned etaBinIdx=0; etaBinIdx<m_ringerEtabins.size()-1; ++etaBinIdx){
+        std::stringstream ss1,ss2,ss3,ss4;
+        ss1 << "discriminant_et_"<<etBinIdx<<"_eta_"<<etaBinIdx;
+        ss2       << m_ringerEtabins[etaBinIdx]<<"<=|#eta|<"<< m_ringerEtabins[etaBinIdx+1] <<
+          " and " << m_ringerEtbins[etBinIdx]<< "<=E_{t}<"<< m_ringerEtbins[etBinIdx+1] <<
+          ";discriminant(ringer);Count";
+        addHistogram(new TH1F(ss1.str().c_str(),ss2.str().c_str(),190,-12.,7.));
+        ss3 << "discriminantVsMu_et_"<<etBinIdx<<"_eta_"<<etaBinIdx;
+        ss4       << m_ringerEtabins[etaBinIdx]<<"<=|#eta|<"<< m_ringerEtabins[etaBinIdx+1] <<
+          " and " << m_ringerEtbins[etBinIdx]<< "<=E_{t}<"<< m_ringerEtbins[etBinIdx+1] <<
+          ";discriminant(ringer);Avgmu;Count";
+        addHistogram(new TH2F(ss3.str().c_str(),ss4.str().c_str(),190,-12.,7.,20,0.,100.));
+      }
     }
-
 
 
     //Book the kinematic plots for each trigger level

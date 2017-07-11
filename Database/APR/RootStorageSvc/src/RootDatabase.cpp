@@ -43,7 +43,8 @@ using namespace std;
 /// Standard Constuctor
 RootDatabase::RootDatabase(IOODatabase* idb)
 : DbDatabaseImp(idb), m_file(0), 
-  m_defCompression(1), 
+  m_defCompression(1),
+  m_defCompressionAlg(1),
   m_defSplitLevel(99),
   m_defAutoSave(16*1024*1024),
   m_defBufferSize(16*1024),
@@ -107,20 +108,23 @@ DbStatus RootDatabase::open(const DbDomain& domH,const std::string& nam,DbAccess
   const char* fname = nam.c_str();
   Bool_t result = ( mode == pool::READ ) ? kFALSE : gSystem->AccessPathName(fname, kFileExists);
   DbOption opt1("DEFAULT_COMPRESSION","");
-  DbOption opt2("DEFAULT_SPLITLEVEL","");
-  DbOption opt3("DEFAULT_AUTOSAVE","");
-  DbOption opt4("DEFAULT_BUFFERSIZE","");
-  DbOption opt5("TREE_BRANCH_OFFSETTAB_LEN","");
+  DbOption opt2("DEFAULT_COMPRESSIONALG","");
+  DbOption opt3("DEFAULT_SPLITLEVEL","");
+  DbOption opt4("DEFAULT_AUTOSAVE","");
+  DbOption opt5("DEFAULT_BUFFERSIZE","");
+  DbOption opt6("TREE_BRANCH_OFFSETTAB_LEN","");
   domH.getOption(opt1);
   domH.getOption(opt2);
   domH.getOption(opt3);
   domH.getOption(opt4);
   domH.getOption(opt5);
+  domH.getOption(opt6);
   opt1._getValue(m_defCompression);
-  opt2._getValue(m_defSplitLevel);
-  opt3._getValue(m_defAutoSave);
-  opt4._getValue(m_defBufferSize);
-  opt5._getValue(m_branchOffsetTabLen);
+  opt2._getValue(m_defCompressionAlg);
+  opt3._getValue(m_defSplitLevel);
+  opt4._getValue(m_defAutoSave);
+  opt5._getValue(m_defBufferSize);
+  opt6._getValue(m_branchOffsetTabLen);
   //gDebug = 2;
   TDirectory::TContext dirCtxt(0);
 
@@ -149,11 +153,9 @@ DbStatus RootDatabase::open(const DbDomain& domH,const std::string& nam,DbAccess
   }
 
   if ( mode == pool::READ )   {
-
     if (m_fileMgr == 0) {
       m_file = TFile::Open(fname);
     } else {
-
       void *vf(0);
       int r =  m_fileMgr->open(Io::ROOT,"RootDatabase",fname,Io::READ,vf,"POOL",false);
       if (r < 0) {
@@ -164,13 +166,10 @@ DbStatus RootDatabase::open(const DbDomain& domH,const std::string& nam,DbAccess
 	m_file = (TFile*)vf;
       }
     }
-
-
   }
   else if ( mode&pool::UPDATE && result == kFALSE )    {
-
     if (m_fileMgr == 0) {
-      m_file = TFile::Open(fname, "UPDATE", fname, m_defCompression);
+      m_file = TFile::Open(fname, "UPDATE", fname);
     } else {
       void *vf(0);
       int r =  m_fileMgr->open(Io::ROOT,"RootDatabase",fname,Io::APPEND,vf,"POOL",true);
@@ -180,16 +179,16 @@ DbStatus RootDatabase::open(const DbDomain& domH,const std::string& nam,DbAccess
 	    << DbPrint::endmsg;
       } else {      
 	m_file = (TFile*)vf;
-	if (m_file != 0) {
-	  m_file->SetCompressionLevel(m_defCompression);
-	}
       }
     }
-
+    if (m_file != 0) {
+      m_file->SetCompressionLevel(m_defCompression);
+      m_file->SetCompressionAlgorithm(m_defCompressionAlg);
+    }
   }
   else if ( pool::RECREATE == (mode&pool::RECREATE) )   {
     if (m_fileMgr == 0) {
-      m_file = TFile::Open(fname, "RECREATE", fname, m_defCompression);
+      m_file = TFile::Open(fname, "RECREATE", fname);
     } else {
       void *vf(0);
       int r =  m_fileMgr->open(Io::ROOT,"RootDatabase",fname,Io::WRITE|Io::CREATE,vf,"POOL",true);
@@ -199,15 +198,16 @@ DbStatus RootDatabase::open(const DbDomain& domH,const std::string& nam,DbAccess
 	    << DbPrint::endmsg;
       } else {      
 	m_file = (TFile*)vf;
-	if (m_file != 0) {
-	  m_file->SetCompressionLevel(m_defCompression);
-	}
       }
+    }
+    if (m_file != 0) {
+      m_file->SetCompressionLevel(m_defCompression);
+      m_file->SetCompressionAlgorithm(m_defCompressionAlg);
     }
   }
   else if ( mode&pool::CREATE && result == kTRUE )   {
     if (m_fileMgr == 0) {
-      m_file = TFile::Open(fname, "RECREATE", fname, m_defCompression);
+      m_file = TFile::Open(fname, "RECREATE", fname);
     } else {
       void *vf(0);
       int r =  m_fileMgr->open(Io::ROOT,"RootDatabase",fname,Io::WRITE|Io::CREATE,vf,"POOL",true);
@@ -217,10 +217,11 @@ DbStatus RootDatabase::open(const DbDomain& domH,const std::string& nam,DbAccess
 	    << DbPrint::endmsg;
       } else {      
 	m_file = (TFile*)vf;
-	if (m_file != 0) {
-	  m_file->SetCompressionLevel(m_defCompression);
-	}
       }
+    }
+    if (m_file != 0) {
+      m_file->SetCompressionLevel(m_defCompression);
+      m_file->SetCompressionAlgorithm(m_defCompressionAlg);
     }
   }
   else if ( mode&pool::CREATE && result == kFALSE )   {
@@ -371,6 +372,8 @@ DbStatus RootDatabase::getOption(DbOption& opt)  const   {
         return Error;
       else if ( !strcasecmp(n, "COMPRESSION_LEVEL") )     // int
         return opt._setValue(int(m_file->GetCompressionLevel()));
+      else if ( !strcasecmp(n, "COMPRESSION_ALGORITHM") ) // int
+        return opt._setValue(int(m_file->GetCompressionAlgorithm()));
       else if ( !strcasecmp(n, "COMPRESSION_FACTOR") )    // float
         return opt._setValue(double(m_file->GetCompressionFactor()));
       else if ( !strcasecmp(n, "CONTAINER_SPLITLEVEL") )  {
@@ -407,6 +410,8 @@ DbStatus RootDatabase::getOption(DbOption& opt)  const   {
     case 'D':
       if ( !strcasecmp(n,"DEFAULT_COMPRESSION") )         // int
         return opt._setValue(int(m_defCompression));
+      else if ( !strcasecmp(n,"DEFAULT_COMPRESSIONALG") ) // int
+        return opt._setValue(int(m_defCompressionAlg));
       else if ( !strcasecmp(n, "DEFAULT_SPLITLEVEL") )    // int
         return opt._setValue(int(m_defSplitLevel));
       else if ( !strcasecmp(n, "DEFAULT_AUTOSAVE") )      // int
@@ -512,6 +517,12 @@ DbStatus RootDatabase::setOption(const DbOption& opt)  {
         m_file->SetCompressionLevel(val);
         return Success;
       }
+      else if ( !strcasecmp(n, "COMPRESSION_ALGORITHM") )  {
+        int val=1;
+        opt._getValue(val);
+        m_file->SetCompressionAlgorithm(val);
+        return Success;
+      }
       else if ( !strcasecmp(n, "CONTAINER_SPLITLEVEL") )  {
         if (!opt.option().size()) {
           DbPrint log("RootDatabase.setOption");
@@ -526,15 +537,17 @@ DbStatus RootDatabase::setOption(const DbOption& opt)  {
       }
       break;
     case 'D':
-      if (      !strcasecmp(n, "DEFAULT_COMPRESSION") )
+      if (      !strcasecmp(n, "DEFAULT_COMPRESSION") )   // int
         return opt._getValue(m_defCompression);
-      else if ( !strcasecmp(n, "DEFAULT_SPLITLEVEL") )
+      else if ( !strcasecmp(n, "DEFAULT_COMPRESSIONALG") )// int
+        return opt._getValue(m_defCompressionAlg);
+      else if ( !strcasecmp(n, "DEFAULT_SPLITLEVEL") )    // int
         return opt._getValue(m_defSplitLevel);
       else if ( !strcasecmp(n, "DEFAULT_AUTOSAVE") )      // int
         return opt._getValue(m_defAutoSave);   
       else if ( !strcasecmp(n, "DEFAULT_BUFFERSIZE") )    // int
         return opt._getValue(m_defBufferSize);
-      else if ( !strcasecmp(n, "DEFAULT_WRITEPOLICY") )     // int
+      else if ( !strcasecmp(n, "DEFAULT_WRITEPOLICY") )   // int
         return opt._getValue(m_defWritePolicy);
       break;
     case 'F':
@@ -748,6 +761,8 @@ void RootDatabase::registerBranchContainer(RootTreeContainer* cont)
 /// Start/Commit/Rollback Database Transaction
 DbStatus RootDatabase::transAct(DbTransaction&  refTr )
 {
+   // process flush to write file
+   if( refTr.state() == Transaction::TRANSACT_FLUSH && m_file != nullptr && m_file->IsWritable() ) m_file->Write();
    // process commits only
    if( refTr.state() != Transaction::TRANSACT_COMMIT )
       return Success;
