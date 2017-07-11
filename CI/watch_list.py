@@ -16,4 +16,3 @@ WATCH_LIST['MuonTPTools'] = set(['nkoehler','jojungge'])
 WATCH_LIST['MuonPerformanceAlgs'] = set(['nkoehler','jojungge'])
 WATCH_LIST['MuonPerformanceHistUtils'] = set(['nkoehler','jojungge'])
 WATCH_LIST['IsolationSelection'] = set(['maklein','jojungge','jpoveda','dzhang'])
-
