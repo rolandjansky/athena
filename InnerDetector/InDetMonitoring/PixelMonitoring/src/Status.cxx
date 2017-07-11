@@ -37,7 +37,6 @@ StatusCode PixelMainMon::BookStatusMon(void)
 
   std::string path = "Pixel/Status";
   if (m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/StatusOnTrack");
-  if (m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/StatusOnPixelTrack");
   MonGroup statusHistos( this, path.c_str(), run, ATTRIB_MANAGED ); //declare a group of histograms
 
   // use the following definitions for modules states:
@@ -105,7 +104,6 @@ StatusCode PixelMainMon::BookStatusLumiBlockMon(void)
 
   std::string path = "Pixel/LumiBlock";
   if (m_doOnTrack)      path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnTrack");
-  if (m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnPixelTrack");
   MonGroup lumiBlockHist(this, path.c_str(), lowStat, ATTRIB_MANAGED);
 
   m_status_LB = new PixelMon2DProfilesLW("Map_Of_Modules_Status_LB", ("Module Status (0=Active+Good, 1=Active+Bad, 2=Inactive)"+ m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D, true);

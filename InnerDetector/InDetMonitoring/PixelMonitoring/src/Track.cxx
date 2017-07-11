@@ -52,7 +52,6 @@ StatusCode PixelMainMon::BookTrackMon(void)
   
   std::string path = "Pixel/Track";
   if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/TrackOnTrack");
-  if(m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/TrackOnPixelTrack");
   MonGroup trackHistos( this, path.c_str(), run, ATTRIB_MANAGED ); //declare a group of histograms
   
   std::string modlabel[9];
@@ -193,8 +192,10 @@ StatusCode PixelMainMon::FillTrackMon(void)
   ///
   /// Clear
   ///
-  if (m_doOnTrack || m_doOnPixelTrack)m_RDOIDs.clear();//reset these so you can fill them with the new id's
-  if (m_doOnTrack || m_doOnPixelTrack)m_ClusterIDs.clear();
+  if (m_doOnTrack) {
+    m_RDOIDs.clear();//reset these so you can fill them with the new id's
+    m_ClusterIDs.clear();
+  }
 
    
   ///
@@ -380,9 +381,9 @@ StatusCode PixelMainMon::FillTrackMon(void)
  
 	      nPixelHits++;//add another pixel hit 
 	      for(unsigned int loopSize=0;loopSize < RawDataClus->rdoList().size(); loopSize++) {
-	        if(m_doOnTrack || m_doOnPixelTrack) m_RDOIDs.push_back(RawDataClus->rdoList().at(loopSize));
+	        if (m_doOnTrack) m_RDOIDs.push_back(RawDataClus->rdoList().at(loopSize));
 	      }
-         if(m_doOnTrack || m_doOnPixelTrack) m_ClusterIDs.push_back( clus->identify());
+         if (m_doOnTrack) m_ClusterIDs.push_back( clus->identify());
 
          const InDet::PixelCluster* pixelCluster=dynamic_cast<const InDet::PixelCluster*>(RawDataClus);
          
@@ -554,8 +555,10 @@ StatusCode PixelMainMon::FillTrackMon(void)
     
    if(m_tracksPerEvt_per_lumi) m_tracksPerEvt_per_lumi->Fill(m_manager->lumiBlockNumber(), m_ntracksPerEvent);
 
-   if(m_doOnTrack || m_doOnPixelTrack)sort (m_RDOIDs.begin(), m_RDOIDs.end());
-   if(m_doOnTrack || m_doOnPixelTrack)sort (m_ClusterIDs.begin(), m_ClusterIDs.end());
+   if (m_doOnTrack) {
+     sort (m_RDOIDs.begin(), m_RDOIDs.end());
+     sort (m_ClusterIDs.begin(), m_ClusterIDs.end());
+   }
 
    if(m_doOnline){
       if(m_doRefresh5min) {

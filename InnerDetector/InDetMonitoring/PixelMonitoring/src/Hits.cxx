@@ -47,13 +47,11 @@ StatusCode PixelMainMon::BookHitsMon(void)
    ATH_MSG_DEBUG("Start booking Hit histogtams..");
    std::string path = "Pixel/Hits";
    if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/HitsOnTrack");
-   if(m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/HitsOnPixelTrack");
    MonGroup rdoShift(   this, path.c_str(),  run, ATTRIB_MANAGED ); //declare a group of histograms
    MonGroup rdoExpert ( this, path.c_str(), run, ATTRIB_MANAGED ); //declare a group of histograms
 
    std::string pathT = "Pixel/Timing";
    if(m_doOnTrack) pathT.replace(pathT.begin(), pathT.end(), "Pixel/TimingOnTrack");
-   if(m_doOnPixelTrack) pathT.replace(pathT.begin(), pathT.end(), "Pixel/TimingOnPixelTrack");
    MonGroup timeShift(  this, pathT.c_str(),  run, ATTRIB_MANAGED ); //declare a group of histograms
    MonGroup timeExpert( this, pathT.c_str(), run, ATTRIB_MANAGED ); //declare a group of histograms
    
@@ -340,7 +338,6 @@ StatusCode PixelMainMon::BookHitsLumiBlockMon(void)
    
    std::string path = "Pixel/LumiBlock";
    if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnTrack");
-   if(m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnPixelTrack");
    MonGroup lumiBlockHist(   this, path.c_str(), lowStat, ATTRIB_MANAGED); //declare a group of histograms
 
    std::string hname;
@@ -517,7 +514,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
       for (p_rdo=PixelCollection->begin(); p_rdo!=PixelCollection->end(); ++p_rdo) {
 	
 	rdoID=(*p_rdo)->identify();
-	if (m_doOnTrack || m_doOnPixelTrack) if(!OnTrack(rdoID,false) ) continue; //if we only want hits on track, and the hit is NOT on the track, skip filling
+	if (m_doOnTrack) if(!OnTrack(rdoID,false) ) continue; //if we only want hits on track, and the hit is NOT on the track, skip filling
 
 	int pixlayer = GetPixLayerID(m_pixelid->barrel_ec(rdoID), m_pixelid->layer_disk(rdoID), m_doIBL);
 	int pixlayerdbm = GetPixLayerIDDBM(m_pixelid->barrel_ec(rdoID), m_pixelid->layer_disk(rdoID), m_doIBL);

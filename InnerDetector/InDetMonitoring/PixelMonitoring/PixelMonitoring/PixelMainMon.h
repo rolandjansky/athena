@@ -266,7 +266,6 @@ private:
    bool m_doLowOccupancy;
    bool m_doHighOccupancy;
    bool m_doOnTrack;
-   bool m_doOnPixelTrack;
    bool m_doPixelOccupancy; 
    bool m_doDetails;
    bool m_doTiming;

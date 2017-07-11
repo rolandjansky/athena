@@ -42,7 +42,6 @@ StatusCode PixelMainMon::BookSpacePointMon(void)
 {
   std::string path = "Pixel/SpacePoint";
    if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/SpacePointOnTrack");
-   if(m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/SpacePointOnPixelTrack");
 
    StatusCode sc;
    MonGroup spacePointHistos( this, path.c_str(),run,ATTRIB_MANAGED ); //declare a group of histograms
@@ -102,7 +101,7 @@ StatusCode PixelMainMon::FillSpacePointMon(void)
          //first_clus = sp_clusInfo.first;
          PixelModuleId =  sp.clusterList().first->identify();
 
-         if(m_doOnTrack || m_doOnPixelTrack) if(!OnTrack(PixelModuleId,true) )continue; //if we only want hits on track, and the hit is NOT on the track, skip filling
+         if (m_doOnTrack) if(!OnTrack(PixelModuleId,true) )continue; //if we only want hits on track, and the hit is NOT on the track, skip filling
 	 Amg::Vector3D point = sp.globalPosition();
 
 	 if(m_spHit_x)m_spHit_x->Fill(point.x());     // spacepoint x.

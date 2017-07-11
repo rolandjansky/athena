@@ -43,7 +43,6 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    std::string path = "Pixel/Errors";
    std::string path2 = "Pixel/ErrorsExpert";
    if (m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/ErrorsOnTrack");
-   if (m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/ErrorsOnPixelTrack");
    MonGroup rodHistos(this, path.c_str(), run, ATTRIB_MANAGED); //declare a group of histograms
    MonGroup rodExpert(this, path2.c_str(), run, ATTRIB_MANAGED); //declare a group of histograms
 
@@ -271,7 +270,6 @@ StatusCode PixelMainMon::BookRODErrorLumiBlockMon(void)
 
    std::string path = "Pixel/LumiBlock";
    if (m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnTrack");
-   if (m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnPixelTrack");
    MonGroup lumiBlockHist(this, path.c_str(), lowStat, ATTRIB_MANAGED); //declare a group of histograms
 
    StatusCode sc;

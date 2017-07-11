@@ -90,7 +90,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    declareProperty("TrackName",        m_TracksName            = "Pixel_Cosmic_Tracks");         
 
    declareProperty("onTrack",          m_doOnTrack         = false); //using inner detector tracks
-   declareProperty("onPixelTrack",     m_doOnPixelTrack    = false); //using pixel only tracks
    declareProperty("do2DMaps",         m_do2DMaps          = false);   
    declareProperty("doModules",        m_doModules         = false); 
    declareProperty("doOffline",        m_doOffline         = false);
@@ -769,7 +768,6 @@ StatusCode PixelMainMon::bookHistograms()
    ///
      std::string path_hits = "Pixel/Hits";
      if(m_doOnTrack)      path_hits.replace(path_hits.begin(), path_hits.end(), "Pixel/HitsOnTrack");
-     if(m_doOnPixelTrack) path_hits.replace(path_hits.begin(), path_hits.end(), "Pixel/HitsOnPixelTrack");
      MonGroup hitsHistos(   this, path_hits.c_str(),  run, ATTRIB_MANAGED ); //declare a group of histograms
      StatusCode sc;
      sc = hitsHistos.regHist(m_mu_vs_bcid = TProfile_LW::create("Interactions_vs_bcid", "<Interactions> vs BCID;BCID;<#Interactions/event>"    , m_bcidRange,-0.5,-0.5+(1.0*m_bcidRange)));
@@ -780,7 +778,6 @@ StatusCode PixelMainMon::bookHistograms()
    ///
    std::string path = "Pixel/Errors";
    if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/ErrorsOnTrack");
-   if(m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/ErrorsOnPixelTrack");
    MonGroup errorHistos( this, path.c_str(), run, ATTRIB_MANAGED ); //declare a group of histograms
    sc = errorHistos.regHist(m_storegate_errors = TH2F_LW::create("storegate_errors",  ("Storegate Errors" + m_histTitleExt + ";Container Name;Error Type").c_str(), 6,0.5,6.5,5,0.5,5.5));
    if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endmsg; 
