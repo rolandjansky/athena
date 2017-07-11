@@ -13,7 +13,7 @@
 #include "GaudiKernel/StatusCode.h"     
 #include <string.h>
 
-PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title, const PixMon::HistConf& config, bool doIBL, bool copy2DFEval)
+PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title, const PixMon::HistConf& config, bool copy2DFEval)
     : IBL(nullptr),
       IBL2D(nullptr),
       IBL3D(nullptr),
@@ -25,7 +25,6 @@ PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title, const Pi
       DBMA(nullptr),
       DBMC(nullptr),
       m_config(config),
-      m_doIBL(doIBL),
       m_copy2DFEval(copy2DFEval)
 {
    std::string setatext = ";shifted eta index of module";
@@ -436,3 +435,5 @@ StatusCode PixelMon2DMapsLW::regHist(ManagedMonitorToolBase::MonGroup &group)
 
    return sc;
 }
+
+const bool PixelMon2DMapsLW::m_doIBL{true};

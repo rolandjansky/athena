@@ -27,7 +27,7 @@ enum class HistConf;
 class PixelMon2DProfilesLW
 {
 public:
-  PixelMon2DProfilesLW(std::string name, std::string title, const PixMon::HistConf& config, bool doIBL, bool copy2DFEval = false);
+  PixelMon2DProfilesLW(std::string name, std::string title, const PixMon::HistConf& config, bool copy2DFEval = false);
   ~PixelMon2DProfilesLW();
   TProfile2D_LW* IBL3D;
   TProfile2D_LW* IBL2D;
@@ -48,7 +48,7 @@ public:
 private:
   void formatHist();
   const PixMon::HistConf m_config;
-  const bool m_doIBL;
+  static const bool m_doIBL;
   const bool m_copy2DFEval;
 };
 

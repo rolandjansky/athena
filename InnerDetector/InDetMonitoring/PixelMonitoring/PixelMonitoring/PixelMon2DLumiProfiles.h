@@ -30,7 +30,7 @@ enum class HistConf;
 class PixelMon2DLumiProfiles
 {
    public:
-      PixelMon2DLumiProfiles(std::string name, std::string title, std::string zlabel, const PixMon::HistConf& config, bool doIBL);
+      PixelMon2DLumiProfiles(std::string name, std::string title, std::string zlabel, const PixMon::HistConf& config);
       ~PixelMon2DLumiProfiles();
       TProfile2D_LW* IBLlbp;
       TProfile2D_LW* B0lbp;
@@ -43,7 +43,7 @@ class PixelMon2DLumiProfiles
 private:
       void formatHist();
       const PixMon::HistConf m_config;
-      const bool m_doIBL;
+      static const bool m_doIBL;
 };
 
 #endif

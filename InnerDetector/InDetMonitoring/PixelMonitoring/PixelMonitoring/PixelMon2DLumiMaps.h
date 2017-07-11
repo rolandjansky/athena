@@ -30,7 +30,7 @@ enum class HistConf;
 class PixelMon2DLumiMaps
 {
    public:
-      PixelMon2DLumiMaps(std::string name, std::string title, std::string zlabel, const PixMon::HistConf& config, bool doIBL);
+      PixelMon2DLumiMaps(std::string name, std::string title, std::string zlabel, const PixMon::HistConf& config);
       ~PixelMon2DLumiMaps();
       TH2F_LW* IBLlbm;
       TH2F_LW* B0lbm;
@@ -43,7 +43,7 @@ class PixelMon2DLumiMaps
 private:
       void formatHist();
       const PixMon::HistConf m_config;
-      const bool m_doIBL;
+      static const bool m_doIBL;
 };
 
 #endif

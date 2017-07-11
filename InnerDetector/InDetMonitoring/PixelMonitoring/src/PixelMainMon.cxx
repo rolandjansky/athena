@@ -1073,4 +1073,3 @@ StatusCode PixelMainMon::procHistograms()
   return StatusCode::SUCCESS;
 }
 
-

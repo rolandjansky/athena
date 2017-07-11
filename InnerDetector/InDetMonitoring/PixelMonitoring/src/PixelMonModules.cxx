@@ -18,7 +18,7 @@ PixelMonModules::~PixelMonModules()
 {
 }
 
-PixelMonModulesProf::PixelMonModulesProf(std::string name, std::string title, int nbins, double* arr, bool doIBL) : m_doIBL(doIBL)
+PixelMonModulesProf::PixelMonModulesProf(std::string name, std::string title, int nbins, double* arr)
 {
    m_nBins=nbins;
    for (int i = 0; i < 1744 + 280 * m_doIBL; i++) {
@@ -33,7 +33,7 @@ PixelMonModulesProf::PixelMonModulesProf(std::string name, std::string title, in
    m_Dummy = 0;
 }
 
-PixelMonModulesProf::PixelMonModulesProf(std::string name, std::string title, int nbins, double low, double high, bool doIBL) : m_doIBL(doIBL)
+PixelMonModulesProf::PixelMonModulesProf(std::string name, std::string title, int nbins, double low, double high)
 {
    m_nBins = nbins;
    for (int i = 0; i < 1744 + 280 * m_doIBL; i++) {
@@ -55,7 +55,7 @@ PixelMonModulesProf::~PixelMonModulesProf()
    }
 }
 
-PixelMonModules1D::PixelMonModules1D(std::string name, std::string title, int nbins, double* arr, bool doIBL) : m_doIBL(doIBL)
+PixelMonModules1D::PixelMonModules1D(std::string name, std::string title, int nbins, double* arr)
 {
    m_nBins = nbins;
    for (int i = 0; i < 1744 + 280 * m_doIBL; i++) {
@@ -70,7 +70,7 @@ PixelMonModules1D::PixelMonModules1D(std::string name, std::string title, int nb
    m_Dummy = 0;
 }
 
-PixelMonModules1D::PixelMonModules1D(std::string name, std::string title, int nbins, double low, double high, bool doIBL) : m_doIBL(doIBL)
+PixelMonModules1D::PixelMonModules1D(std::string name, std::string title, int nbins, double low, double high)
 {
    m_nBins=nbins;
    for (int i = 0; i < 1744 + 280 * m_doIBL; i++) {
@@ -92,7 +92,7 @@ PixelMonModules1D::~PixelMonModules1D()
    }
 }
 
-PixelMonModules2D::PixelMonModules2D(std::string name, std::string title, int nbins0, double low0, double high0, int nbins1, double low1, double high1, bool doIBL) : m_doIBL(doIBL)
+PixelMonModules2D::PixelMonModules2D(std::string name, std::string title, int nbins0, double low0, double high0, int nbins1, double low1, double high1)
 {
    m_nBins = nbins0 * nbins1;
    for (int i = 0; i < 1744 + 280 * m_doIBL; i++) {
@@ -424,3 +424,4 @@ std::string PixelMonModules::getHistName(int i, bool forPath, bool doIBL)
   return dummy;  //should never get here
 }
 
+const bool PixelMonModules::m_doIBL{true};

@@ -13,15 +13,14 @@
 #include "GaudiKernel/StatusCode.h"     
 #include <string.h>
 
-PixelMon2DLumiMaps::PixelMon2DLumiMaps(std::string name, std::string title, std::string zlabel, const PixMon::HistConf& config, bool doIBL)
+PixelMon2DLumiMaps::PixelMon2DLumiMaps(std::string name, std::string title, std::string zlabel, const PixMon::HistConf& config)
     : IBLlbm(nullptr),
       B0lbm(nullptr),
       B1lbm(nullptr),
       B2lbm(nullptr),
       Albm(nullptr),
       Clbm(nullptr),
-      m_config(config),
-      m_doIBL(doIBL)
+      m_config(config)
 {
    const int lbRange = 3000;
    if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kIBL)) {
@@ -224,3 +223,5 @@ StatusCode PixelMon2DLumiMaps::regHist(ManagedMonitorToolBase::MonGroup &group)
 
    return sc;
 }
+
+const bool PixelMon2DLumiMaps::m_doIBL{true};

@@ -25,7 +25,7 @@ enum class HistConf;
 class PixelMon2DMapsLW
 {
    public:
-      PixelMon2DMapsLW(std::string name, std::string title, const PixMon::HistConf& config, bool doIBL, bool copy2DFEval = false);
+      PixelMon2DMapsLW(std::string name, std::string title, const PixMon::HistConf& config, bool copy2DFEval = false);
       ~PixelMon2DMapsLW();
       TH2F_LW* IBL;
       TH2F_LW* IBL2D;
@@ -44,7 +44,7 @@ class PixelMon2DMapsLW
 private:
       void formatHist();
       const PixMon::HistConf m_config;
-      const bool m_doIBL;
+      static const bool m_doIBL;
       const bool m_copy2DFEval;
 };
 
