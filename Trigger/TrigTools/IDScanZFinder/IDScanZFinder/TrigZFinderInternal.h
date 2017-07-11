@@ -69,8 +69,8 @@ class TrigZFinderInternal
         std::vector<double>& phi, std::vector<double>& rho, std::vector<double>& zed, 
         std::vector<long>&   lyr, std::vector<long>&   filledLayers);
 
-    std::string getType() const { return mType; }
-    std::string getName() const { return mName; }
+    std::string getType() const { return m_type; }
+    std::string getName() const { return m_name; }
 
     int GetInternalStatus() const { return m_Status; }
     int SetInternalStatus(int s)  { m_Status = s; return m_Status; }
@@ -78,8 +78,8 @@ class TrigZFinderInternal
     double computeZV(double r1, double z1, double r2, double z2) const;
     double computeZV(double r1, double p1, double z1, double r2, double p2, double z2) const;
 
-    void   SetReturnValue(double d) { mreturnval=d; }
-    double GetReturnValue() const   { return mreturnval; }
+    void   SetReturnValue(double d) { m_returnval=d; }
+    double GetReturnValue() const   { return m_returnval; }
 
 
   protected:  // data members
@@ -105,8 +105,8 @@ class TrigZFinderInternal
 
     bool   m_pixOnly;             // use only Pixel space points
 
-    std::string mType;  // type information for internal book keeping
-    std::string mName;  // name information for the same
+    std::string m_type;  // type information for internal book keeping
+    std::string m_name;  // name information for the same
 
     int    m_Status;   // return status of the algorithm: 0=ok, -1=error
 
@@ -116,7 +116,7 @@ class TrigZFinderInternal
     double m_dphideta; // how, as a function of eta, the number of phi neighbours decreases
     double m_neighborMultiplier; // extra factor to manually increase the number of phi neighbors
     //  long extraPhi[IdScan_MaxNumLayers][IdScan_MaxNumLayers]; // number of phi neighbours to look at
-    std::vector< std::vector<long> > extraPhi; // ( IdScan_MaxNumLayers, std::vector<long>(IdScan_MaxNumLayers) ); // number of phi neighbours to look at
+    std::vector< std::vector<long> > m_extraPhi; // ( IdScan_MaxNumLayers, std::vector<long>(IdScan_MaxNumLayers) ); // number of phi neighbours to look at
 
     // access the ZFinder histogram from outside the findZInternal method
 
@@ -134,7 +134,7 @@ class TrigZFinderInternal
 
     bool m_trustSPprovider; // Should we re-extract the RoI phi range from the phis of the SPs from the SPP
 
-    double mreturnval; // return value for algorithm
+    double m_returnval; // return value for algorithm
 
     bool   m_fullScanMode;
 
