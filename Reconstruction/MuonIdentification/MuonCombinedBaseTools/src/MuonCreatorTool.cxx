@@ -851,8 +851,8 @@ namespace MuonCombined {
         }
         else ATH_MSG_WARNING("Creating of MuGirl segment Link failed");         
       }
+      const_cast<MuGirlTag&>(*tag).releaseSegments();
     }  
-    const_cast<MuGirlTag&>(*tag).releaseSegments();
     
     ATH_MSG_DEBUG("Done Adding MuGirl Muon  " << tag->author() << " type " << tag->type());    
   }
