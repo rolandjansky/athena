@@ -823,7 +823,7 @@ fillHists()
    m_useTrigger = ( (m_triggerChainProp != "" || m_triggerGroupProp != "")  && (!m_trigDecTool.empty()) );
 
    if( m_manager != 0 ) {
-     m_newLumiBlock = ( (m_lastLumiBlock != m_manager->lumiBlockNumber()) | m_manager->forkedProcess());
+     m_newLumiBlock = ( (m_lastLumiBlock != m_manager->lumiBlockNumber()) || m_manager->forkedProcess());
       m_newRun = ( m_lastRun != m_manager->runNumber() );
       newLumiBlock = m_newLumiBlock;
       newRun = m_newRun;
