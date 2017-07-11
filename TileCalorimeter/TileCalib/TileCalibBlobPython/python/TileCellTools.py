@@ -10,9 +10,9 @@ class TileCellHashMgr():
     def __init__(self, geometry='Default'):
 
         #=== initialize all arrays
-        self.__geometry=geometry
+        self._geometry=geometry
         if geometry == "UpgradeABC":
-            self.__cellNames=[
+            self._cellNames=[
             ["A-1","A-2","A-3","B-1","C-1","A-4","A-5","A-6","A-7","B-2","C-2","A-8","A-9","D-1","A-10","A-11","B-3","C-3","A-12","A-13","A-14","A-15","B-4","C-4",
              "A-16","A-17","D-2","A-18","A-19","B-5","C-5","A-20","A-21","A-22","A-23","B-6","C-6","A-24","A-25","D-3","A-26","A-27","B-7","C-7","A-28","A-29","A-30",
              "A-31","B-8","C-8","A-32","A-33","A-34","A-35","B-9","A-36","A-37","A-38","A-39","A-40"],
@@ -26,10 +26,10 @@ class TileCellHashMgr():
             ["D-4","C-10","E-1","E-2","E-3","E-4","spD-4","spC-10","spD-40","spE-1","mbE-1","e4E-1"],
             ["D+4","C+10","E+1","E+2","E+3","E+4","spD+4","spC+10","spD+40","spE+1","mbE+1","e4E+1"]
             ]
-            self.__nCellsModule = [60,61,29,29,6,6]
+            self._nCellsModule = [60,61,29,29,6,6]
 
         elif geometry == "UpgradeBC":
-            self.__cellNames=[
+            self._cellNames=[
             ["A-1","B-1","C-1","A-2","B-2","C-2","A-3","B-3","C-3","D-1","A-4","B-4","C-4","A-5","B-5","C-5","D-2","A-6","B-6","C-6","A-7","B-7","C-7",
              "D-3","A-8","B-8","C-8","A-9","B-9","A-10"],
             ["A+1","B+1","C+1","D*0","A+2","B+2","C+2","A+3","B+3","C+3","D+1","A+4","B+4","C+4","A+5","B+5","C+5","D+2","A+6","B+6","C+6","A+7","B+7","C+7",
@@ -39,10 +39,10 @@ class TileCellHashMgr():
             ["D-4","C-10","E-1","E-2","E-3","E-4","spD-4","spC-10","spD-40","spE-1","mbE-1","e4E-1"],
             ["D+4","C+10","E+1","E+2","E+3","E+4","spD+4","spC+10","spD+40","spE+1","mbE+1","e4E+1"]
            ]
-            self.__nCellsModule = [30,31,12,12,6,6]
+            self._nCellsModule = [30,31,12,12,6,6]
 
         elif geometry == "UpgradeA":
-            self.__cellNames=[ 
+            self._cellNames=[
             ["A-1","A-2","A-3","B-1","A-4","A-5","A-6","A-7","B-2","A-8","A-9","D-1","A-10","A-11","B-3","A-12","A-13","A-14","A-15","B-4","A-16","A-17","D-2","A-18",
              "A-19","B-5","A-20","A-21","A-22","A-23","B-6","A-24","A-25","D-3","A-26","A-27","B-7","A-28","A-29","A-30","A-31","B-8","A-32","A-33","A-34",
              "A-35","B-9","A-36","A-37","A-38","A-39","A-40"],
@@ -56,11 +56,11 @@ class TileCellHashMgr():
             ["D-4","C-10","E-1","E-2","E-3","E-4","spD-4","spC-10","spD-40","spE-1","mbE-1","e4E-1"],
             ["D+4","C+10","E+1","E+2","E+3","E+4","spD+4","spC+10","spD+40","spE+1","mbE+1","e4E+1"]
             ]
-            self.__nCellsModule = [52,53,29,29,6,6]
+            self._nCellsModule = [52,53,29,29,6,6]
 
         else:
-            self.__geometry="Default"
-            self.__cellNames=[ 
+            self._geometry="Default"
+            self._cellNames=[
             ["A-1","B-1","A-2","B-2","A-3","B-3","D-1","A-4","B-4","A-5","B-5","D-2","A-6","B-6","A-7","B-7","D-3","A-8","B-8","A-9","B-9","A-10"],
             ["A+1","B+1","D*0","A+2","B+2","A+3","B+3","D+1","A+4","B+4","A+5","B+5","D+2","A+6","B+6","A+7","B+7","D+3","A+8","B+8","A+9","B+9","A+10"],
             ["B-11","D-5","A-12","B-12","A-13","B-13","D-6","A-14","B-14","A-15","B-15","A-16"],
@@ -68,42 +68,42 @@ class TileCellHashMgr():
             ["D-4","C-10","E-1","E-2","E-3","E-4","spD-4","spC-10","spD-40","spE-1","mbE-1","e4E-1"],
             ["D+4","C+10","E+1","E+2","E+3","E+4","spD+4","spC+10","spD+40","spE+1","mbE+1","e4E+1"]
             ]
-            self.__nCellsModule = [22,23,12,12,6,6]
+            self._nCellsModule = [22,23,12,12,6,6]
 
-        self.__partNames=["LBC","LBA","EBC","EBA","EBC","EBA"]
-        self.__nModules = 64
-        self.__nCellsPart = [0]
-        self.__nHashMax=0
+        self._partNames=["LBC","LBA","EBC","EBA","EBC","EBA"]
+        self._nModules = 64
+        self._nCellsPart = [0]
+        self._nHashMax=0
         for p in xrange(6):
-            self.__nHashMax+=self.__nCellsModule[p]*self.__nModules
-            self.__nCellsPart.append(self.__nHashMax)
+            self._nHashMax+=self._nCellsModule[p]*self._nModules
+            self._nCellsPart.append(self._nHashMax)
 
     #____________________________________________________________________
     def getGeometry(self):
         """
         return geometry name
         """
-        return self.__geometry
+        return self._geometry
 
     #____________________________________________________________________
     def getHashMax(self):
         """
         return max hash value
         """
-        return self.__nHashMax
+        return self._nHashMax
 
     #____________________________________________________________________
     def getNames(self, hash):
         """
         return module name and cell name for given hash
         """
-        if hash>=self.__nHashMax or hash<0:
+        if hash>=self._nHashMax or hash<0:
             return (None,None)
 
-        part=bisect.bisect(self.__nCellsPart,hash)-1
-        module=(hash-self.__nCellsPart[part])/self.__nCellsModule[part]+1
-        modName="%s%02d" % (self.__partNames[part],module)
-        index=(hash-self.__nCellsPart[part])%self.__nCellsModule[part]
+        part=bisect.bisect(self._nCellsPart,hash)-1
+        module=(hash-self._nCellsPart[part])/self._nCellsModule[part]+1
+        modName="%s%02d" % (self._partNames[part],module)
+        index=(hash-self._nCellsPart[part])%self._nCellsModule[part]
         if part>=4:
             if index==0 and ((part==4 and module==18) or (part==5 and module==15)): index+=8
             if index==0 and (module==14 or module==15 or module==18 or module==19): index+=6
@@ -114,19 +114,19 @@ class TileCellHashMgr():
                 if index==2 and (module==28 or module==31 or module==35 or module==38): index+=7
                 if index==2 and (module==29 or module==32 or module==34 or module==37): index+=9
 
-        return (modName,self.__cellNames[part][index])
+        return (modName,self._cellNames[part][index])
 
     #____________________________________________________________________
     def cellName(self, hash):
         """
         return cell name for given hash
         """
-        if hash>=self.__nHashMax or hash<0:
+        if hash>=self._nHashMax or hash<0:
             return None
 
-        part=bisect.bisect(self.__nCellsPart,hash)-1
-        module=(hash-self.__nCellsPart[part])/self.__nCellsModule[part]+1
-        index=(hash-self.__nCellsPart[part])%self.__nCellsModule[part]
+        part=bisect.bisect(self._nCellsPart,hash)-1
+        module=(hash-self._nCellsPart[part])/self._nCellsModule[part]+1
+        index=(hash-self._nCellsPart[part])%self._nCellsModule[part]
         if part>=4:
             if index==0 and ((part==4 and module==18) or (part==5 and module==15)): index+=8
             if index==0 and (module>=15 and module<=18): index+=6
@@ -135,18 +135,18 @@ class TileCellHashMgr():
             if part==4:
                 if index==2 and (module==28 or module==29 or module==31 or module==32 or module==35 or module==34 or module==38 or module==37): index+=7
 
-        return self.__cellNames[part][index]
+        return self._cellNames[part][index]
 
     #____________________________________________________________________
     def moduleName(self, hash):
         """
         return module name for given hash
         """
-        if hash>=self.__nHashMax or hash<0:
+        if hash>=self._nHashMax or hash<0:
             return None
 
-        part=bisect.bisect(self.__nCellsPart,hash)-1
-        module=(hash-self.__nCellsPart[part])/self.__nCellsModule[part]+1
-        modName="%s%02d" % (self.__partNames[part],module)
+        part=bisect.bisect(self._nCellsPart,hash)-1
+        module=(hash-self._nCellsPart[part])/self._nCellsModule[part]+1
+        modName="%s%02d" % (self._partNames[part],module)
 
         return modName
