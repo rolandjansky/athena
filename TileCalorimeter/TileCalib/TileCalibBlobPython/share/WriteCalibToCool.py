@@ -1,4 +1,7 @@
 #!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # WriteCalibToCool.py
 # Sanya Solodkov 2014-08-29
 # change Yuri Smirnov 2014-12-24

@@ -1,4 +1,7 @@
 #!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # ReadOfcFromCool.py
 # Lukas Pribyl <lukas.pribyl@cern.ch>, 2008-07-25
 

@@ -1,4 +1,7 @@
 #!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # ReadBadBitsFromCool.py   --schema='COOLOFL_TILE/CONDBR2'  --folder='OFL02' --tag='UPD4'
 # Sanya Solodkov 2011-07-15
 

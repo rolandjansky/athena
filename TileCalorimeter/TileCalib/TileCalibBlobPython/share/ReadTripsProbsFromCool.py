@@ -1,4 +1,7 @@
 #!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # ./ReadTripsProbsFromCool.py  --schema='COOLOFL_TILE/OFLP200'  --folder='OFL02' --tag='UPD4'
 
 import getopt,sys,os,string

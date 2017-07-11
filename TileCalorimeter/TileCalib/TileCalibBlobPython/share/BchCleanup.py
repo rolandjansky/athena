@@ -1,4 +1,7 @@
 #!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # File:    BchCleanup.py
 # Package: TileCalibBlobPython
 # Purpose: Clean up BCH folders from an input bch-input-sqlite.db file.  Output saved to output sqlite.db file.

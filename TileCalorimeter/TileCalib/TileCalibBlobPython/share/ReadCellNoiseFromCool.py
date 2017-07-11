@@ -1,4 +1,7 @@
-#!/usr/bin/env python
+#!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # ReadFloatFromCaloCool.py
 # Carlos.Solans <Carlos.Solans@cern.ch>
 # Each Tile cell has 5 values stored in COOL.

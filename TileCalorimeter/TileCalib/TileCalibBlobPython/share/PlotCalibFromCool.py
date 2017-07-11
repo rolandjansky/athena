@@ -1,6 +1,10 @@
 #!/bin/env python
-#Using Part of ReadCalibfromCool.py to plot constants
-#Tigran
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+# PlotCalibFromCool.py
+# Using Part of ReadCalibfromCool.py to plot constants
+# Tigran Mkrtchyan 2017-06-15
 
 
 
