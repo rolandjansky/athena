@@ -60,7 +60,7 @@ PixelPrepDataToxAOD::PixelPrepDataToxAOD(const std::string &name, ISvcLocator *p
   declareProperty("WriteRDOinformation", m_writeRDOinformation = true);
 
   // --- Configuration keys
-  declareProperty("SiClusterContainer",  m_clustercontainer = "PixelClusters");
+  declareProperty("SiClusterContainer",  m_clustercontainer_key = "PixelClusters");
   declareProperty("MC_SDOs", m_SDOcontainer_key = "PixelSDO_Map");
   declareProperty("MC_Hits", m_sihitContainer_key = "PixelHits");
   declareProperty("PRD_MultiTruth", m_multiTruth_key = "PRD_MultiTruthPixel");
@@ -92,16 +92,15 @@ StatusCode PixelPrepDataToxAOD::initialize()
 
   CHECK(m_lorentzAngleSvc.retrieve());
 
-  m_clustercontainer_key = m_clustercontainer;
   ATH_CHECK(m_clustercontainer_key.initialize());
   m_need_sihits = (m_writeNNinformation || m_writeSiHits) && m_useTruthInfo;
   ATH_CHECK(m_sihitContainer_key.initialize(m_need_sihits));
   ATH_CHECK(m_SDOcontainer_key.initialize(m_writeSDOs));
   ATH_CHECK(m_multiTruth_key.initialize(m_useTruthInfo));
 
-  m_write_xaod = m_clustercontainer;
+  m_write_xaod = m_clustercontainer_key.key();
   ATH_CHECK(m_write_xaod.initialize());
-  m_write_offsets = m_write_xaod.key() + "Offsets";
+  m_write_offsets = m_clustercontainer_key.key() + "Offsets";
   ATH_CHECK(m_write_offsets.initialize());
 
   return StatusCode::SUCCESS;
@@ -115,7 +114,7 @@ StatusCode PixelPrepDataToxAOD::initialize()
 StatusCode PixelPrepDataToxAOD::execute() 
 {
   //Mandatory. Require if the algorithm is scheduled.
-  SG::ReadHandle<InDet::PixelClusterContainer> PixelClusterContainer(m_clustercontainer);
+  SG::ReadHandle<InDet::PixelClusterContainer> PixelClusterContainer(m_clustercontainer_key);
 
   // Create the xAOD container and its auxiliary store:
   SG::WriteHandle<xAOD::TrackMeasurementValidationContainer> xaod(m_write_xaod);

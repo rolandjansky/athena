@@ -94,7 +94,6 @@ private:
 
 
   const PixelID *m_PixelHelper;
-  std::string  m_clustercontainer;
 
   bool  m_useTruthInfo;
   bool  m_writeSDOs;
