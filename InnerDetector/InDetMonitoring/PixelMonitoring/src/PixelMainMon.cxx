@@ -111,7 +111,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    declareProperty("doStatus",        m_doStatus     = false);
    declareProperty("doDCS",           m_doDCS        = false);
 
-   declareProperty("doDegFactorMap",  m_doDegFactorMap = true);
    declareProperty("doHeavyIonMon",   m_doHeavyIonMon = false);
 
    declareProperty("doIBL",           m_doIBL = false);
@@ -222,9 +221,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_hiteff_mod = 0;
    m_FE_chip_hit_summary = 0;
    m_pixel_occupancy = 0;
-   /// ROD Sim
-   m_RodSim_BCID_minus_ToT = 0;
-   m_RodSim_FrontEnd_minus_Lvl1ID = 0;
    /// details
    m_Details_mod1_num_hits = 0;
    m_Details_mod2_num_hits = 0;
@@ -270,9 +266,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_LorentzAngle_B0 = 0;
    m_LorentzAngle_B1 = 0;
    m_LorentzAngle_B2 = 0;
-   /// degradation factor
-   m_degFactorMap = 0;
-   m_degFactorMap_per_lumi = 0;
    /// cluster size
    memset(m_clusize_ontrack_mod, 0, sizeof(m_clusize_ontrack_mod));
    memset(m_clusize_offtrack_mod, 0, sizeof(m_clusize_offtrack_mod));

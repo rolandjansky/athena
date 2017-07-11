@@ -103,13 +103,7 @@ StatusCode PixelMainMon::BookTrackMon(void)
   if (m_LorentzAngle_B0)    m_LorentzAngle_B0->SetOption("colz");
   if (m_LorentzAngle_B1)    m_LorentzAngle_B1->SetOption("colz");
   if (m_LorentzAngle_B2)    m_LorentzAngle_B2->SetOption("colz");
-  
-  sc=trackHistos.regHist(m_degFactorMap_per_lumi = TProfile_LW::create("degFactorMap_per_lumi", ("deg. factor per lumi" + m_histTitleExt + ";lumi block;avg deg. factor").c_str(), nbins_LB, min_LB, max_LB));
-  sc=trackHistos.regHist(m_degFactorMap = TProfile2D_LW::create("degFactorMap", ("deg. factor map" + m_histTitleExt + ";track #eta;track #phi").c_str(), 60, -3.0, 3.0, 60, -3.0, 3.0));
-  m_degFactorMap->SetOption("colz");
-  m_degFactorMap->SetMinimum(1.0);
-  m_degFactorMap->SetMaximum(2.0);
-  
+    
   if (m_do2DMaps && !m_doOnline) {
     m_tsos_hitmap = new PixelMon2DMapsLW("TSOS_Measurement", ("TSOS of type Measurement" + m_histTitleExt), PixMon::HistConf::kPixDBMIBL2D3D, true);
     sc = m_tsos_hitmap->regHist(trackHistos);
@@ -209,7 +203,6 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	break;
       }
 
-      float degradationFactor = 1.0;
       int nholes=-1;
       int nbadclus=0;
       int ngoodclus=0;
@@ -435,7 +428,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
             /// Categorize tracks for IP resolution degradation
             ///
             hitsArrayLayer[pixlayer] = 1;
-	      }
+	 }
 
 	    
 	      ///
@@ -512,38 +505,6 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	{
 	  m_ntracksPerEvent++;
 	}
-
-      /// IP degradation factor map
-      if( m_doDegFactorMap ){
-         if (measPerigee){
-
-            double pt  = measPerigee->pT();
-            double eta = measPerigee->eta();
-            double phi = measPerigee->parameters()[Trk::phi0];
-
-            if(hitsArrayLayer[PixLayer::kECA]==1 || hitsArrayLayer[PixLayer::kECC]==1){
-               degradationFactor = 1.0;
-            }else{
-               if     ( hitsArrayLayer[PixLayer::kIBL] == 1 && hitsArrayLayer[PixLayer::kB0] == 1 && hitsArrayLayer[PixLayer::kB1] == 1 && hitsArrayLayer[PixLayer::kB2] == 1 ) degradationFactor = 1.0;
-               else if( hitsArrayLayer[PixLayer::kIBL] == 0 && hitsArrayLayer[PixLayer::kB0] == 1 && hitsArrayLayer[PixLayer::kB1] == 1 && hitsArrayLayer[PixLayer::kB2] == 1 ) degradationFactor = 1.8;
-               else if( hitsArrayLayer[PixLayer::kIBL] == 1 && hitsArrayLayer[PixLayer::kB0] == 0 && hitsArrayLayer[PixLayer::kB1] == 1 && hitsArrayLayer[PixLayer::kB2] == 1 ) degradationFactor = 1.16;
-               else if( hitsArrayLayer[PixLayer::kIBL] == 1 && hitsArrayLayer[PixLayer::kB0] == 1 && hitsArrayLayer[PixLayer::kB1] == 0 && hitsArrayLayer[PixLayer::kB2] == 1 ) degradationFactor = 1.0;
-               else if( hitsArrayLayer[PixLayer::kIBL] == 1 && hitsArrayLayer[PixLayer::kB0] == 1 && hitsArrayLayer[PixLayer::kB1] == 1 && hitsArrayLayer[PixLayer::kB2] == 0 ) degradationFactor = 1.0;
-               else if( hitsArrayLayer[PixLayer::kIBL] == 0 && hitsArrayLayer[PixLayer::kB0] == 0 && hitsArrayLayer[PixLayer::kB1] == 1 && hitsArrayLayer[PixLayer::kB2] == 1 ) degradationFactor = 3.5;
-               else if( hitsArrayLayer[PixLayer::kIBL] == 0 && hitsArrayLayer[PixLayer::kB0] == 1 && hitsArrayLayer[PixLayer::kB1] == 1 && hitsArrayLayer[PixLayer::kB2] == 0 ) degradationFactor = 1.8;
-               else if( hitsArrayLayer[PixLayer::kIBL] == 1 && hitsArrayLayer[PixLayer::kB0] == 0 && hitsArrayLayer[PixLayer::kB1] == 1 && hitsArrayLayer[PixLayer::kB2] == 0 ) degradationFactor = 1.17;
-               else if( hitsArrayLayer[PixLayer::kIBL] == 1 && hitsArrayLayer[PixLayer::kB0] == 1 && hitsArrayLayer[PixLayer::kB1] == 0 && hitsArrayLayer[PixLayer::kB2] == 0 ) degradationFactor = 1.0;
-               else if( hitsArrayLayer[PixLayer::kIBL] == 0 && hitsArrayLayer[PixLayer::kB0] == 0 && hitsArrayLayer[PixLayer::kB1] == 0 && hitsArrayLayer[PixLayer::kB2] == 1 ) degradationFactor = 6.0;
-               else if( hitsArrayLayer[PixLayer::kIBL] == 0 && hitsArrayLayer[PixLayer::kB0] == 0 && hitsArrayLayer[PixLayer::kB1] == 0 && hitsArrayLayer[PixLayer::kB2] == 0 ) degradationFactor = 6.0;
-               else degradationFactor = 1.0;
-            }
-
-            if( fabs(eta) < 2.5 && pt > 400.0 ){ // requirement of tracks
-               if(m_degFactorMap_per_lumi) m_degFactorMap_per_lumi->Fill(m_manager->lumiBlockNumber(), degradationFactor);
-               if(m_degFactorMap) m_degFactorMap->Fill( eta, phi, degradationFactor);
-            }
-         }
-      }
 
       if(m_doHoleSearch && !m_doOnline && nholes>0){delete (track);}
    } // end of track loop

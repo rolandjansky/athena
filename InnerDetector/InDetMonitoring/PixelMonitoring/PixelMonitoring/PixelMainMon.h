@@ -273,7 +273,6 @@ private:
    bool m_doRefresh;
    bool m_doRefresh5min;
    bool m_isFirstBook;
-   bool m_doDegFactorMap;
    bool m_doOfflineAnalysis;
 
    bool m_doHeavyIonMon;  //modifications for heavy ion monitoring
@@ -377,9 +376,6 @@ private:
    PixelMonModulesProf*    m_hiteff_mod;
    PixelMonModules1D*      m_FE_chip_hit_summary;
    PixelMonModules2D*      m_pixel_occupancy;
-   /// ROD Sim
-   TH1F_LW*                m_RodSim_BCID_minus_ToT;
-   TH1F_LW*                m_RodSim_FrontEnd_minus_Lvl1ID;
    /// details
    TH1F_LW*                m_Details_mod1_num_hits;
    TH1F_LW*                m_Details_mod2_num_hits;
@@ -427,9 +423,6 @@ private:
    TProfile2D_LW*          m_LorentzAngle_B0;
    TProfile2D_LW*          m_LorentzAngle_B1;
    TProfile2D_LW*          m_LorentzAngle_B2;
-   /// degradation factor
-   TProfile2D_LW*          m_degFactorMap;
-   TProfile_LW*            m_degFactorMap_per_lumi;
 
    /// cluster size
    TH1F_LW*                m_clusize_ontrack_mod[PixLayerIBL2D3D::COUNT];
