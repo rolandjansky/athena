@@ -20,7 +20,6 @@
 #include "PathResolver/PathResolver.h"
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/StoreGateSvc.h"//Detector Store
-#include "SimHelpers/ProcessSubTypeMap.h"
 
 // Geant4 includes
 #include "G4DynamicParticle.hh"
