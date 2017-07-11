@@ -81,7 +81,7 @@ if doHitsOnTrack:
                                          doTiming            = False,     #Turn on/off histograms with BCID/timing information                             
                                          doRDO               = False,     #Turn on/off histograms with RDO/Hit  information                                
                                          doErrors            = False,     #Turn on/off histograms with ROD Error information                               
-                                         doSpacePoint        = False,     #Turn on/off histograms with Spacepoint information                              
+                                         doSpacePoint        = True,      #Turn on/off histograms with Spacepoint information                              
                                          doCluster           = True,      #Turn on/off histograms with Cluster information
                                          doTrack             = True,      #Turn on/off histograms with Track information                                   
                                          doStatus            = False,     #Turn on/off histograms with Module Status information                           
