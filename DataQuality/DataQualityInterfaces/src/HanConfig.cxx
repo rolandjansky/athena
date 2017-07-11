@@ -275,6 +275,8 @@ SplitReference( std::string refName )
   //Try to open each file in the list
   for(int i=0; i<refFileList.size(); i++){
     std::string fileName=refFileList.at(i);
+    size_t first = fileName.find_first_not_of(" ");
+    fileName.erase(0, first);
     if (gROOT->GetListOfFiles()->FindObject(fileName.c_str()) ) {
       return fileName;
     } 
