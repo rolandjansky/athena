@@ -34,7 +34,7 @@ namespace HTTxAOD {
   public:
     FlavourRecombiner(fastjet::RecombinationScheme recomb_scheme = fastjet::E_scheme);
 
-    virtual string description() const;
+    virtual std::string description() const;
 
     /// get rid of default -ve user index (flavour!) for any ghosts that are around...
     virtual void preprocess(fastjet::PseudoJet&) const;
@@ -65,7 +65,7 @@ namespace HTTxAOD {
   FlavourRecombiner::FlavourRecombiner(fastjet::RecombinationScheme recomb_scheme) :
     DefRecomb(recomb_scheme) {}
 
-  string FlavourRecombiner::description() const {
+  std::string FlavourRecombiner::description() const {
     return DefRecomb::description() + " (with user index addition)";
   }
 
@@ -84,8 +84,8 @@ namespace HTTxAOD {
   // ************************************************************
   // Helper to filter a PseudoJet vector according to a filter operator
   template<class FILTER>
-  void filterPseudoJets( vector<fastjet::PseudoJet>& vec, const FILTER &f){
-    vector<fastjet::PseudoJet> tmp; tmp.reserve(vec.size());
+  void filterPseudoJets( std::vector<fastjet::PseudoJet>& vec, const FILTER &f){
+    std::vector<fastjet::PseudoJet> tmp; tmp.reserve(vec.size());
     for(fastjet::PseudoJet& pj:vec ) if( f(pj) ) tmp.push_back(pj);
     tmp.swap(vec);
   }
@@ -331,7 +331,7 @@ namespace HTTxAOD {
       ATH_MSG_DEBUG(" Top pt, mass "<< cand.top.pt() << " , "<< cand.top.m() );
 
       // Create top subjets and fill topSubJetCont :
-      vector<const xAOD::Jet *> subjets; subjets.reserve(3); // will use as an association.
+      std::vector<const xAOD::Jet *> subjets; subjets.reserve(3); // will use as an association.
       for(fastjet::PseudoJet &pjsub : cand.topSubJets)
         subjets.push_back(m_jetFromPJTool->add( pjsub , topSubJetCont, jtype, tmpv) );
 
@@ -391,7 +391,7 @@ namespace HTTxAOD {
   HEPTopTagger::HTTResult HEPTopTagger::runTagger(const fastjet::PseudoJet &jet) const {
 
 
-    vector<fastjet::PseudoJet> top_parts;
+    std::vector<fastjet::PseudoJet> top_parts;
     const fastjet::ClusterSequence* cs = jet.associated_cluster_sequence ();
 
     static HTTResult noCandidate;
@@ -450,16 +450,16 @@ namespace HTTxAOD {
           // ---------------------------------------------
 
           // define top_constituents
-          vector<fastjet::PseudoJet> top_constits;
+          std::vector<fastjet::PseudoJet> top_constits;
           top_constits.reserve(30); // guessed
           cs->add_constituents(top_parts[rr],top_constits);
           cs->add_constituents(top_parts[ll],top_constits);
           cs->add_constituents(top_parts[kk],top_constits);
 
-          // define radius for filtering ( min(m_RadiusFilter, dR(subjet_i, subjet_j)) )
-          double filt_top_R = min(m_RadiusFilter,
-                                  0.5*sqrt(min(top_parts[kk].squared_distance(top_parts[ll]),
-                                               min(top_parts[rr].squared_distance(top_parts[ll]),
+          // define radius for filtering ( std::min(m_RadiusFilter, dR(subjet_i, subjet_j)) )
+          double filt_top_R = std::min(m_RadiusFilter,
+                                  0.5*sqrt(std::min(top_parts[kk].squared_distance(top_parts[ll]),
+                                               std::min(top_parts[rr].squared_distance(top_parts[ll]),
                                                    top_parts[kk].squared_distance(top_parts[rr])))));
 
           ATH_MSG_DEBUG( "filt_top_R = " << filt_top_R );
@@ -490,7 +490,7 @@ namespace HTTxAOD {
 
 
           // extract top subjets
-          vector <fastjet::PseudoJet> filt_top_subjets = inclCsFunction(&cstopfilt);
+          std::vector <fastjet::PseudoJet> filt_top_subjets = inclCsFunction(&cstopfilt);
 
           // print block for debugging
           if(filt_top_subjets.size() > 0) {
@@ -507,10 +507,10 @@ namespace HTTxAOD {
 
           fastjet::PseudoJet topcandidate(0.0,0.0,0.0,0.0);
           topcandidate.set_user_index(0);
-          vector <fastjet::PseudoJet> topcand_constits;
+          std::vector <fastjet::PseudoJet> topcand_constits;
           topcand_constits.resize(0);
 
-          for(unsigned ii = 0; ii<min((unsigned)m_NJetsFilter, (unsigned)filt_top_subjets.size()) ; ii++) {
+          for(unsigned ii = 0; ii<std::min((unsigned)m_NJetsFilter, (unsigned)filt_top_subjets.size()) ; ii++) {
             cstopfilt.add_constituents(filt_top_subjets[ii],topcand_constits);
             fl_rec.plus_equal(topcandidate, filt_top_subjets[ii]);
           }
@@ -538,11 +538,11 @@ namespace HTTxAOD {
             continue;
           }
 
-          vector <fastjet::PseudoJet> top_subs = exclCsFunction(cssubtop, 3);
+          std::vector <fastjet::PseudoJet> top_subs = exclCsFunction(cssubtop, 3);
           //catch exceptions as occasionally exclusive filtering fails and fastjet::Error is thrown in delete_self_when_unused()
           try {
             cssubtop->delete_self_when_unused(); // Because we'll need this sequence when dealing with subjets
-          } catch (...) {
+          } catch (fastjet::Error) {
             continue;
           }
           if (top_subs.size() < 3) {
@@ -623,7 +623,7 @@ namespace HTTxAOD {
             double b=sqrt( top_parts[rr].squared_distance( top_parts[kk]));
             double c=sqrt( top_parts[kk].squared_distance( top_parts[ll]));
 
-            bestCandidate.drmaxpairsubstruct = max(a, max(b, c));
+            bestCandidate.drmaxpairsubstruct = std::max(a, std::max(b, c));
             bestCandidate.drmax3substruct = r_max_3jets( top_parts[rr], top_parts[ll], top_parts[kk] );
 	    bestCandidate.n_top_cands = count_top;
 
@@ -642,7 +642,7 @@ namespace HTTxAOD {
 
 
 
-  void HEPTopTagger::FindHardSubst(const fastjet::PseudoJet & this_jet, vector<fastjet::PseudoJet> & t_parts, const fastjet::ClusterSequence &clSeq) const
+  void HEPTopTagger::FindHardSubst(const fastjet::PseudoJet & this_jet, std::vector<fastjet::PseudoJet> & t_parts, const fastjet::ClusterSequence &clSeq) const
   {
     fastjet::PseudoJet parent1(0,0,0,0), parent2(0,0,0,0);
     //if (this_jet.m() < _max_subjet_mass || !clSeq.has_parents(this_jet, parent1, parent2)) original HTT
@@ -652,7 +652,7 @@ namespace HTTxAOD {
       }
     else
       {
-        if (parent1.m() < parent2.m()) swap(parent1, parent2);
+        if (parent1.m() < parent2.m()) std::swap(parent1, parent2);
 
         // original HTT :
         // FindHardSubst(parent1,t_parts);
@@ -687,11 +687,11 @@ namespace HTTxAOD {
   // ------------------------------------------
   // Reclusters the subjets and calibrates them
   // ------------------------------------------
-  vector<fastjet::PseudoJet> HEPTopTagger::inclCsFunction(fastjet::ClusterSequence *cs) const {
+  std::vector<fastjet::PseudoJet> HEPTopTagger::inclCsFunction(fastjet::ClusterSequence *cs) const {
     ATH_MSG_DEBUG( "In inclCsFunction" );
 
     //Find the Subjets
-    vector<fastjet::PseudoJet> out_v;
+    std::vector<fastjet::PseudoJet> out_v;
     if (m_CutCalibratedSubjetPt) {
       out_v = fastjet::sorted_by_pt(cs->inclusive_jets( 0.75*m_MinSubjetPt ));
     }
@@ -739,11 +739,11 @@ namespace HTTxAOD {
   // -----------------------------------------------------------
   // Reclusters the subjets to exactly njets and calibrates them
   // -----------------------------------------------------------
-  vector<fastjet::PseudoJet> HEPTopTagger::exclCsFunction(fastjet::ClusterSequence *cs,
+  std::vector<fastjet::PseudoJet> HEPTopTagger::exclCsFunction(fastjet::ClusterSequence *cs,
                                                           const int njets ) const {
 
     //Find the Subjets
-    vector<fastjet::PseudoJet> out_v = fastjet::sorted_by_pt(cs->exclusive_jets( njets ));
+    std::vector<fastjet::PseudoJet> out_v = fastjet::sorted_by_pt(cs->exclusive_jets( njets ));
 
     // Remove low pT jets
     double ptmin = m_MinSubjetPt;
@@ -796,7 +796,7 @@ namespace HTTxAOD {
 
     //see if the subjet consists of a single cluster
     // call the method of the cluster sequence
-    vector<fastjet::PseudoJet> constituents = cs->constituents(pj);
+    std::vector<fastjet::PseudoJet> constituents = cs->constituents(pj);
 
 
     if (constituents.size() == 1) {
@@ -808,7 +808,7 @@ namespace HTTxAOD {
         //Calculate the maximal deltaR between the jet axis and the constituents
         double R_max = -1;
         for (size_t i=0; i<constituents.size(); i++) {
-          R_max = max(R_max, pj.squared_distance(constituents[i]));
+          R_max = std::max(R_max, pj.squared_distance(constituents[i]));
         }
         R_param = std::sqrt(R_max);
       }
@@ -821,7 +821,7 @@ namespace HTTxAOD {
         bool pj_stillhere = true;
         while (pj_stillhere) {
           nj += 1;
-          vector<fastjet::PseudoJet> l_pj_ptsorted_nj = fastjet::sorted_by_pt(cs->exclusive_jets( nj ));
+          std::vector<fastjet::PseudoJet> l_pj_ptsorted_nj = fastjet::sorted_by_pt(cs->exclusive_jets( nj ));
 
           //go through the list of returned jets and see if pj is in the list
           pj_stillhere = false;
@@ -874,7 +874,7 @@ namespace HTTxAOD {
     }
 
     fastjet::PseudoJet groomed_fj_jet = filter_fj(fj_jet);
-    vector<fastjet::PseudoJet> keptsubjets = groomed_fj_jet.pieces(); // get N PJ subjets from filtering procedure. These subjets we can calibrate.
+    std::vector<fastjet::PseudoJet> keptsubjets = groomed_fj_jet.pieces(); // get N PJ subjets from filtering procedure. These subjets we can calibrate.
     ATH_MSG_DEBUG("Finish Filtering fat PJ" );
 
     // build a temporary JetContainer
@@ -930,7 +930,7 @@ namespace HTTxAOD {
 
 
 
-  void HEPTopTagger::fillJetContainer(xAOD::JetContainer& cont, vector<fastjet::PseudoJet> & pjVec) const {
+  void HEPTopTagger::fillJetContainer(xAOD::JetContainer& cont, std::vector<fastjet::PseudoJet> & pjVec) const {
     xAOD::JetAuxContainer* aux = new xAOD::JetAuxContainer();
     cont.setStore( aux );
     cont.reserve( pjVec.size() );
@@ -1121,7 +1121,7 @@ namespace HTTxAOD {
     }
     // extra sjJES scales
     while ( sjJESConfig.size() != 0 ) {
-        string tmpSjJESConfig = sjJESConfig.substr(0, 4);
+        std::string tmpSjJESConfig = sjJESConfig.substr(0, 4);
         //either directly add the configuration of add automatically pre-defined configs (see HTTsjJES_calib_grids)
         m_ScaleFactor_JES_EtaPT.push_back( std::stoi(tmpSjJESConfig) / 1000. );
         sjJESConfig.erase(0, 4);
@@ -1216,7 +1216,7 @@ namespace HTTxAOD {
     }
   }
 
-  bool HEPTopTagger::check_mass_criteria(const double rmin, const double rmax, const vector<fastjet::PseudoJet> & top_subs) const {
+  bool HEPTopTagger::check_mass_criteria(const double rmin, const double rmax, const std::vector<fastjet::PseudoJet> & top_subs) const {
     bool ispassed=false;
     double m12=(top_subs[0]+top_subs[1]).m();
     double m13=(top_subs[0]+top_subs[2]).m();
@@ -1294,11 +1294,11 @@ namespace HTTxAOD {
       dR1=c;
       dR2=sqrt(jet13.squared_distance(jet2));
     };
-    return max(dR1,dR2);
+    return std::max(dR1,dR2);
   }
 
 
-  HEPTopTagger::BWWIndex HEPTopTagger::extractBWMij(const vector<fastjet::PseudoJet>& top_subs) const {
+  HEPTopTagger::BWWIndex HEPTopTagger::extractBWMij(const std::vector<fastjet::PseudoJet>& top_subs) const {
     BWWIndex result;
     result.m12=(top_subs[0]+top_subs[1]).m();
     result.m13=(top_subs[0]+top_subs[2]).m();
@@ -1307,7 +1307,7 @@ namespace HTTxAOD {
     double dm12=abs(result.m12-m_WMass);
     double dm13=abs(result.m13-m_WMass);
     double dm23=abs(result.m23-m_WMass);
-    double dm_min=min(dm12,min(dm13,dm23));
+    double dm_min=std::min(dm12,std::min(dm13,dm23));
     if(dm_min==dm23){
       result.b=0;
       result.w1=1;

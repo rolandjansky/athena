@@ -1,5 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  MIT License
+  Copyright (c) 2017 Daniel Hay Guest and lwtnn contributors
 */
 
 // WARNING: this code was copied automatically from

@@ -1,5 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  MIT License
+  Copyright (c) 2017 Daniel Hay Guest and lwtnn contributors
 */
 
 // WARNING: this code was copied automatically from
@@ -10,8 +11,13 @@
 
 #include "BoostedJetTaggers/lwtnn/parse_json.h"
 
+// Errors thrown from including Boost json parse in 2.4.X versions. Temporary fix.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreturn-type"
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#pragma GCC diagnostic pop
+
 #include <cassert>
 #include <string>
 

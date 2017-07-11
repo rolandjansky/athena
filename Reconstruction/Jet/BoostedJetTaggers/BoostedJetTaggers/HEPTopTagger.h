@@ -36,8 +36,6 @@
 #include "JetInterface/IJetModifier.h"
 #include "JetCalibTools/IJetCalibrationTool.h"
 
-using namespace std;
-
 namespace HTTxAOD {
 
 
@@ -55,8 +53,8 @@ namespace HTTxAOD {
     struct HTTResult {
       bool validCandidate;
       fastjet::PseudoJet top;
-      vector<fastjet::PseudoJet> topSubJets;
-      vector<fastjet::PseudoJet> topConstituents;
+      std::vector<fastjet::PseudoJet> topSubJets;
+      std::vector<fastjet::PseudoJet> topConstituents;
       float drmaxpairsubstruct ;
       float drmax3substruct ;
       bool isTagged;
@@ -105,7 +103,7 @@ namespace HTTxAOD {
     // Output functions
 
   private:
-    string m_name;
+    std::string m_name;
 
 
     ToolHandle<IJetFromPseudojet> m_jetFromPJTool;  // Tool to build jets.
@@ -124,22 +122,22 @@ namespace HTTxAOD {
 
     // Functions
     struct BWWIndex { int b,w1,w2 ; double m12, m13,m23; };
-    BWWIndex extractBWMij(const vector<fastjet::PseudoJet>& top_subs) const ;
+    BWWIndex extractBWMij(const std::vector<fastjet::PseudoJet>& top_subs) const ;
     bool inMassRange(double mass) const;
-    void fillJetContainer(xAOD::JetContainer& cont, vector<fastjet::PseudoJet> & pjVec) const ;
+    void fillJetContainer(xAOD::JetContainer& cont, std::vector<fastjet::PseudoJet> & pjVec) const ;
 
     const IJetCalibrationTool * getCalibrator(double r) const;
     const IJetCalibrationTool * getCalibratorCA15() const;
 
     double findTopSubJetsRparam(const fastjet::ClusterSequence * cs , fastjet::PseudoJet & pj) const ;
 
-    vector<fastjet::PseudoJet> inclCsFunction( fastjet::ClusterSequence *cs ) const ;
-    vector<fastjet::PseudoJet> exclCsFunction( fastjet::ClusterSequence *cs,
+    std::vector<fastjet::PseudoJet> inclCsFunction( fastjet::ClusterSequence *cs ) const ;
+    std::vector<fastjet::PseudoJet> exclCsFunction( fastjet::ClusterSequence *cs,
                                                const int njets ) const ;
 
 
     void FindHardSubst(const fastjet::PseudoJet &this_jet,
-                       vector<fastjet::PseudoJet> &t_parts,
+                       std::vector<fastjet::PseudoJet> &t_parts,
                        const fastjet::ClusterSequence &cs) const ;
 
     double check_cos_theta(const fastjet::PseudoJet &jet,
@@ -152,7 +150,7 @@ namespace HTTxAOD {
 
     bool check_mass_criteria(const double rmin,
                              const double rmax,
-                             const vector<fastjet::PseudoJet> &top_subs) const;
+                             const std::vector<fastjet::PseudoJet> &top_subs) const;
 
     void groomFatJet(xAOD::Jet *j,
 			xAOD::Jet *&groomedJet,
