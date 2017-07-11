@@ -554,7 +554,7 @@ private:
    TProfile*             m_error_time2;       
    TProfile*             m_error_time3;       
    PixelMonModules1D*    m_errors;
-   PixelMonProfiles*     m_errhist_femcc_errwords_map;
+   PixelMon2DProfilesLW* m_errhist_femcc_errwords_map;
 
    // Histograms in 'ErrorsExpert' folder
    PixelMon2DLumiMaps*   m_errhist_expert_LB_maps[kNumErrorStates];

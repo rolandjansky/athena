@@ -26,8 +26,8 @@
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "PixelMonitoring/PixelMon2DMapsLW.h"
+#include "PixelMonitoring/PixelMon2DProfilesLW.h"
 #include "PixelMonitoring/PixelMonModules.h"
-#include "PixelMonitoring/PixelMonProfiles.h"
 #include "PixelMonitoring/PixelMon2DLumiMaps.h"
 
 
@@ -226,7 +226,7 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    }
 
    if (m_do2DMaps) {
-      m_errhist_femcc_errwords_map = new PixelMonProfiles("femcc_errorwords", ("Average FE/MCC Error Words" + m_histTitleExt).c_str(), m_doIBL);
+      m_errhist_femcc_errwords_map = new PixelMon2DProfilesLW("femcc_errorwords", ("Average FE/MCC Error Words" + m_histTitleExt).c_str(), m_doIBL);
       sc = m_errhist_femcc_errwords_map->regHist(rodHistos);
    }
 
