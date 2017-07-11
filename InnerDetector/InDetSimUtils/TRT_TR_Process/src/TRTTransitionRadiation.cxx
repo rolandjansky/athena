@@ -25,6 +25,9 @@
 #include "G4DynamicParticle.hh"
 #include "G4Gamma.hh"
 #include "G4Material.hh"
+#include "G4EmProcessSubType.hh"// for fTransitionRadiation
+#include "G4ProcessType.hh" // for fElectromagnetic
+
 #include "Randomize.hh"
 
 // CLHEP includes

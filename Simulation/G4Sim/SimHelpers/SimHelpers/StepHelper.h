@@ -54,6 +54,6 @@ namespace G4StepHelper {
   std::string getProcessName(const G4Step* theStep);
   /// @brief TODO
   G4int getProcessSubType(const G4Step* theStep);
-};
+}
 
 #endif

@@ -5,7 +5,7 @@
 #include "MCTruth/TruthController.h"
 #include "SimHelpers/TrackVisualizationHelper.h"
 
-TruthController* TruthController::s_thePointer=TruthController::GetTruthController() ;
+TruthController* TruthController::s_thePointer=TruthController::getTruthController() ;
 
 TruthController* TruthController::getTruthController()
 {
