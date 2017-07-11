@@ -55,7 +55,7 @@ ToolSvc += CfgMgr.CP__IsolationSelectionTool("MySelectionTool", MuonWP = "FixedC
 ## Configure CorrectionTool, feeding it our selection tool
 ToolSvc += CfgMgr.CP__IsolationCloseByCorrectionTool("IsolationCloseByCorrectionTool",
                                                      IsolationSelectionTool=ToolSvc.MySelectionTool,
-                                                     SelectionDecorator = "quality",
+                                                     SelectionDecorator = "isCloseByObject",
 #                                                      PassOverlapDecorator = "passOR",
                                                       IsolationSelectionDecorator = "CorrectedIsol" ,
                                                       BackupPrefix = "Default")

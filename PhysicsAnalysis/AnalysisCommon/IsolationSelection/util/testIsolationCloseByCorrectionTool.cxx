@@ -110,7 +110,7 @@ int main(int argc, char** argv) {
     CHECK(m_isoCloseByTool.setProperty("IsolationSelectionTool", m_isoSelTool.getHandle()));
 
     //Name of the quality decorator defining all nearby particles used to correct the isolation of a given particle
-    CHECK(m_isoCloseByTool.setProperty("SelectionDecorator", "quality"));
+    CHECK(m_isoCloseByTool.setProperty("SelectionDecorator", "isCloseByObject"));
 
     //If you want to use only particles survivving the overlap removal. Then just add this line. Only particles with auxdata<char>("passOR") == 1 are used
     //CHECK(m_isoCloseByTool.setProperty("PassOverlapDecorator","passOR"));
@@ -153,7 +153,7 @@ int main(int argc, char** argv) {
     xAOD::ElectronContainer* Electrons = nullptr;
     xAOD::PhotonContainer* Photons = nullptr;
 
-    SG::AuxElement::Decorator<char> dec_PassQuality("quality");
+    SG::AuxElement::Decorator<char> dec_PassQuality("isCloseByObject");
     SG::AuxElement::Decorator<char> dec_PassIsol("DefaultIso");
 
     for (Long64_t entry = 0; entry < maxEVT; ++entry) {

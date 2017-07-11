@@ -15,12 +15,13 @@
 #include <IsolationSelection/IIsolationSelectionTool.h>
 #include <IsolationSelection/IsoVariableHelper.h>
 #include <IsolationSelection/TestMacroHelpers.h>
+#include <IsolationSelection/Defs.h>
 
 
 
 namespace CP {
-    static SG::AuxElement::Decorator<char> dec_PassQuality("quality");
-    static SG::AuxElement::Decorator<char> dec_PassIsol("DefaultIso");
+    static CharDecorator dec_PassQuality("isCloseByObject");
+    static CharDecorator dec_PassIsol("defaultIso");
 
     TestIsolationCloseByCorrAthenaAlg::TestIsolationCloseByCorrAthenaAlg(const std::string& name, ISvcLocator* svcLoc) :
                 AthAlgorithm(name, svcLoc),
