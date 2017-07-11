@@ -22,6 +22,12 @@ use xAODEgamma          xAODEgamma-*            Event/xAOD
 use xAODMuon            xAODMuon-*              Event/xAOD
 use xAODTau             xAODTau-*               Event/xAOD
 
+use JetResolution       JetResolution-*         Reconstruction/Jet
+use ElectronPhotonFourMomentumCorrection  ElectronPhotonFourMomentumCorrection-* PhysicsAnalysis/ElectronPhotonID
+use MuonMomentumCorrections MuonMomentumCorrections-* PhysicsAnalysis/MuonID/MuonIDAnalysis
+use tauRecTools         tauRecTools-*           Reconstruction
+use TauAnalysisTools    TauAnalysisTools-*      PhysicsAnalysis/TauID
+
 use InDetTrackSelectionTool InDetTrackSelectionTool-* InnerDetector/InDetRecTools
 
 private
@@ -63,6 +69,7 @@ use AtlasReflex AtlasReflex-* External -no-auto-imports
 apply_pattern lcgdict dict=METUtilities selectionfile=selection.xml headerfiles="../METUtilities/METUtilitiesDict.h"
 
 # Compile examples but only fully in the analysis releases
+
 use_if tag=AthAnalysisBase pkg=JetCalibTools ver=JetCalibTools-* root=Reconstruction/Jet
 use_if tag=AthAnalysisBase pkg=xAODBase ver=xAODBase-* root=Event/xAOD
 use_if tag=AthAnalysisBase pkg=POOLRootAccess ver=POOLRootAccess-* root=PhysicsAnalysis
@@ -71,10 +78,12 @@ use_if tag=AthAnalysisBase pkg=StoreGate ver=StoreGate-* root=Control
 application example_METMaker_METSystematicsTool ../util/example_METMaker_METSystematicsTool.cxx
 application example_METMaker_advanced ../util/example_METMaker_advanced.cxx
 application example_METMaker_rebuildTrackMET ../util/example_rebuildTrackMET.cxx
+application example_METSignificance ../util/example_METSignificance.cxx
 
 macro_append example_METMaker_METSystematicsTool_dependencies " METUtilitiesLib "
 macro_append example_METMaker_advanced_dependencies " METUtilitiesLib "
 macro_append example_METMaker_rebuildTrackMET_dependencies " METUtilitiesLib "
+macro_append example_METSignificance_dependencies " METUtilitiesLib "
 
 end_private
 

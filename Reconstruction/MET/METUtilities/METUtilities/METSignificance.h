@@ -12,7 +12,7 @@
 //#include <TMatrixD.h>
 
 // FrameWork includes
-#include "AsgTools/ToolHandle.h"
+#include "AsgTools/AnaToolHandle.h"
 #include "AsgTools/AsgTool.h"
 
 // METInterface includes
@@ -30,10 +30,7 @@ namespace CP {
   class IMuonCalibrationAndSmearingTool;
   class IEgammaCalibrationAndSmearingTool;
 }
-
-namespace TauAnalysisTools {
-  class ITauSmearingTool;
-}
+class ITauToolBase;
 
 // Forward declaration
 namespace met {
@@ -72,6 +69,13 @@ namespace met {
     ///////////////////////////////////////////////////////////////////
     // Const methods:
     ///////////////////////////////////////////////////////////////////
+    double GetMETOverSqrtSumET() const { if(m_sumet>0.0)        return (m_met/sqrt(m_sumet)); return -1.0; } 
+    double GetMETOverSqrtHT   () const { if(m_ht>0.0)           return (m_met/sqrt(m_ht));    return -1.0; } 
+    double GetSignificance()     const { if(m_significance>0.0) return sqrt(m_significance);  return -1.0; }
+    double GetSigDirectional()   const { if(m_VarL>0.0)         return m_met/sqrt(m_VarL);    return -1.0; }
+    double GetRho()              const { return m_rho;  }
+    double GetVarL()             const { return m_VarL; }
+    double GetVarT()             const { return m_VarT; }
 
     ///////////////////////////////////////////////////////////////////
     // Non-const methods:
@@ -86,10 +90,10 @@ namespace met {
     METSignificance();
 
     // tools
-    ToolHandle<IJERTool> m_jerTool;
-    ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muonCalibrationAndSmearingTool;
-    ToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_egammaCalibTool;
-    ToolHandle<TauAnalysisTools::ITauSmearingTool> m_tauSmearingTool;
+    asg::AnaToolHandle<IJERTool> m_jerTool;
+    asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool>   m_muonCalibrationAndSmearingTool;
+    asg::AnaToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_egammaCalibTool;
+    asg::AnaToolHandle<ITauToolBase>                          m_tCombinedP4FromRecoTaus;
 
     double GetPUProb(double jet_eta, double jet_phi,double jet_pt,  double jet_jvt);
     double GetPhiUnc(double jet_eta, double jet_phi,double jet_pt);
@@ -102,11 +106,21 @@ namespace met {
     double m_GeV;
 
     int  m_softTermParam;
+    int  m_softTermReso;
     bool m_treatPUJets;
     bool m_doPhiReso;
 
     bool m_isData;
     bool m_isAFII;
+
+    double m_significance;
+    double m_rho;
+    double m_VarL;
+    double m_VarT;
+    double m_met;
+    double m_metphi;
+    double m_ht;
+    double m_sumet;
 
   };
 

@@ -33,30 +33,8 @@
 #include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
 #include "ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h"
 #include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
-#include "TauAnalysisTools/TauSmearingTool.h"
-#include "TauAnalysisTools/ITauSmearingTool.h"
-
-#define CHECK_TOOL_RETRIEVE( TOOLHANDLE )         \
-  ATH_MSG_VERBOSE("Try to retrieve " << #TOOLHANDLE);       \
-  if( TOOLHANDLE.retrieve().isFailure()) {          \
-    ATH_MSG_ERROR("Failed to retrieve tool " << #TOOLHANDLE); \
-    return StatusCode::FAILURE;             \
-  }
-
-#ifdef XAOD_STANDALONE
-template <typename T>
-static void DeleteTool(ToolHandle<T>& handle)
-{
-  if (handle.empty())
-    return;
-
-  std::string name = handle.name();
-  if (asg::ToolStore::contains<T>(name)) {
-    auto tool = asg::ToolStore::get<T>(name);
-    delete tool;
-  }
-}
-#endif
+#include "tauRecTools/ITauToolBase.h"
+#include "tauRecTools/CombinedP4FromRecoTaus.h"
 
 namespace met {
     
@@ -80,9 +58,12 @@ namespace met {
     typedef ElementLink<xAOD::IParticleContainer> iplink_t;
 
     
-    static const SG::AuxElement::ConstAccessor<float> acc_varX("varX");
-    static const SG::AuxElement::ConstAccessor<float> acc_varY("varY");
-    static const SG::AuxElement::ConstAccessor<float> acc_covXY("covXY");
+  //static const SG::AuxElement::ConstAccessor<float> acc_varX("varX");
+  //static const SG::AuxElement::ConstAccessor<float> acc_varY("varY");
+  //static const SG::AuxElement::ConstAccessor<float> acc_covXY("covXY");
+    static SG::AuxElement::Accessor<float> acc_varX("varX");
+    static SG::AuxElement::Accessor<float> acc_varY("varY");
+    static SG::AuxElement::Accessor<float> acc_covXY("covXY");
     static SG::AuxElement::Accessor<float>  acc_jvt("Jvt");
 
     static const SG::AuxElement::Decorator< std::vector<iplink_t > > dec_constitObjLinks("ConstitObjectLinks");
@@ -100,15 +81,23 @@ namespace met {
       m_jerTool(""),
       m_muonCalibrationAndSmearingTool(""),
       m_egammaCalibTool(""),
-      m_tauSmearingTool(""),
-      m_GeV(1.0e3)
+      m_tCombinedP4FromRecoTaus(""),
+      m_GeV(1.0e3),
+      m_significance(0.0),
+      m_rho(0.0),
+      m_VarL(0.0),
+      m_VarT(0.0),
+      m_met(0.0),
+      m_metphi(0.0),
+      m_ht(0.0),
+      m_sumet(0.0)
     {
         //
         // Property declaration
         //
-        //declareProperty("TrackSelectorTool",  m_trkseltool                               );
         declareProperty("SoftTermParam",  m_softTermParam = 0       );
-        declareProperty("TreatPUJets",    m_treatPUJets   = false   );
+        declareProperty("SoftTermReso",   m_softTermReso  = 10.0    );
+        declareProperty("TreatPUJets",    m_treatPUJets   = true    );
         declareProperty("DoPhiReso",      m_doPhiReso     = false   );
 
 	// properties to delete eventually
@@ -121,12 +110,6 @@ namespace met {
     ///////////////
     METSignificance::~METSignificance()
     {
-#ifdef XAOD_STANDALONE
-      DeleteTool(m_jerTool);
-      DeleteTool(m_muonCalibrationAndSmearingTool);
-      DeleteTool(m_egammaCalibTool);
-      DeleteTool(m_tauSmearingTool);
-#endif
     }
     
     // Athena algtool's Hooks
@@ -140,45 +123,26 @@ namespace met {
 	std::string toolName;
 	std::string jetcoll = "AntiKt4EMTopoJets";
 	toolName = "JERTool_" + jetcoll;
-	JERTool* jerTool = new JERTool(toolName);
-	ATH_CHECK( jerTool->setProperty("PlotFileName", "JetResolution/Prerec2015_xCalib_2012JER_ReducedTo9NP_Plots_v2.root") );
-	ATH_CHECK( jerTool->setProperty("CollectionName", jetcoll) );
-	ATH_CHECK( jerTool->initialize() );
-	m_jerTool = jerTool;
+
 	m_jerTool.setTypeAndName("JERTool/STAutoConf_"+toolName);
+	ATH_CHECK(m_jerTool.setProperty("PlotFileName", "JetResolution/Prerec2015_xCalib_2012JER_ReducedTo9NP_Plots_v2.root"));
+	ATH_CHECK(m_jerTool.setProperty("CollectionName", jetcoll));
 
 	ATH_MSG_INFO("Set up MuonCalibrationAndSmearing tools");
 	toolName = "MuonCalibrationAndSmearingTool";
-	CP::MuonCalibrationAndSmearingTool* muonCalibrationAndSmearingTool = new CP::MuonCalibrationAndSmearingTool(toolName);
-	//   MuonCalibrationAndSmearingTool->msg().setLevel( MSG::DEBUG);
-	ATH_CHECK( muonCalibrationAndSmearingTool->initialize() );
-	m_muonCalibrationAndSmearingTool = muonCalibrationAndSmearingTool;
 	m_muonCalibrationAndSmearingTool.setTypeAndName("CP::MuonCalibrationAndSmearingTool/STAutoConf_"+toolName);
 
-	CP::EgammaCalibrationAndSmearingTool* egammaCalibTool = new CP::EgammaCalibrationAndSmearingTool("EgammaCalibrationAndSmearingTool");
 	ATH_MSG_DEBUG( "Initialising EgcalibTool " );
 	toolName = "EgammaCalibrationAndSmearingTool";
-	//ATH_CHECK( egammaCalibTool->setProperty("ESModel", "es2015c_summer") ); //used for analysis using only 2015 data processed with 20.7
-	ATH_CHECK( egammaCalibTool->setProperty("ESModel", "es2016PRE") ); //used for analysis using only 2015 data processed with 20.7 (default)
-	ATH_CHECK( egammaCalibTool->setProperty("decorrelationModel", "1NP_v1") );
-	if (m_isAFII) ATH_CHECK( egammaCalibTool->setProperty("useAFII", m_isAFII) );
-	ATH_CHECK( egammaCalibTool->initialize() );
-	m_egammaCalibTool = egammaCalibTool;
 	m_egammaCalibTool.setTypeAndName("CP::EgammaCalibrationAndSmearingTool/STAutoConf_" + toolName);
+	ATH_CHECK(m_egammaCalibTool.setProperty("ESModel", "es2016PRE"));
+	ATH_CHECK(m_egammaCalibTool.setProperty("decorrelationModel", "1NP_v1"));
+	if(m_isAFII) ATH_CHECK(m_egammaCalibTool.setProperty("useAFII", m_isAFII));
 
-	//TauAnalysisTools::TauSmearingTool* tauSmearingTool = new TauAnalysisTools::TauSmearingTool("TauSmearingTool");
-	//toolName = "TauSmearingTool";
-	//ATH_CHECK( tauSmearingTool->initialize() );
-	//m_tauSmearingTool = tauSmearingTool;
-	//m_egammaCalibTool.setTypeAndName(" TauAnalysisTools::TauSmearingTool/STAutoConf_" + toolName);
+	toolName = "TauPerfTool";
+	m_tCombinedP4FromRecoTaus.setTypeAndName("CombinedP4FromRecoTaus/STAutoConf_" + toolName);
+	ATH_CHECK(m_tCombinedP4FromRecoTaus.setProperty("WeightFileName", "CalibLoopResult.root"));
 
-	// retrieve
-	/*
-	CHECK_TOOL_RETRIEVE( m_jerTool );
-	CHECK_TOOL_RETRIEVE( m_muonCalibrationAndSmearingTool );
-	CHECK_TOOL_RETRIEVE( m_egammaCalibTool );
-	CHECK_TOOL_RETRIEVE( m_tauSmearingTool );
-	*/
         return StatusCode::SUCCESS;
     }
     
@@ -197,18 +161,42 @@ namespace met {
         float varx=0;
         float vary=0;
         float covxy=0;
-	Double_t Phi = 0.0; //Angle for rotation of the cov matrix
-	double Metv = 10000.0/m_GeV; // Numerator
+	m_metphi = 0.0; //Angle for rotation of the cov matrix
+	m_met = -1.0; // Numerator
+	m_sumet=-1.0;
+	m_ht=0.0;
 	double Var_L_j=0.0, Var_T_j=0.0, Var_L=0.0, Var_T=0.0, Cv_LT_j=0.0, Cv_LT=0.0;
         for(const auto& met : *metCont) {
-            if(MissingETBase::Source::isTotalTerm(met->source())) continue;
+	  // fill met total terms
+	  if(MissingETBase::Source::isTotalTerm(met->source())){
+	    m_met = met->met()/m_GeV;
+	    m_metphi = met->phi();
+	    m_sumet = met->sumet()/m_GeV;
+	    m_ht   += m_sumet;
+	    continue;
+	  }
             if(met->source()==invisSource) continue;
 	    // Soft term collection
             if(MissingETBase::Source::isSoftTerm(met->source())){
-
+	      m_ht-=(met->sumet()/m_GeV);
+	      if(m_softTermParam==0){
+		
+		ATH_MSG_VERBOSE("Resolution Soft term set to 10GeV");
+		varx = m_softTermReso*m_softTermReso;
+		vary = varx; covxy = varx;
+		// Rotation (components)
+		std::tie(Var_L, Var_T, Cv_LT) = CovMatrixRotation(varx , vary, covxy, m_metphi);
+		//Covariance matrix rotated for all jets
+		Var_L_j += Var_L;
+		Var_T_j += Var_T;
+		Cv_LT_j += Cv_LT;
+		
+	      }else{
+		ATH_MSG_ERROR("Soft term parameterization is NOT defined for:" << m_softTermParam);
+	      }
 	      continue;
 	    }
-            ATH_MSG_INFO("Add MET term " << met->name() );
+            ATH_MSG_VERBOSE("Add MET term " << met->name() );
             for(const auto& el : dec_constitObjLinks(*met)) {
                 const IParticle* obj(*el);
 		float pt_reso=0.0;
@@ -256,38 +244,40 @@ namespace met {
 
 
 		}else if(obj->type()==xAOD::Type::Photon){
-		  const xAOD::Photon* pho(static_cast<const xAOD::Photon*>(obj)); 
-		  const auto cl_etaCalo = xAOD::get_eta_calo(*(pho->caloCluster()), pho->author());
+		  //const xAOD::Photon* pho(static_cast<const xAOD::Photon*>(obj)); 
+		  //const auto cl_etaCalo = xAOD::get_eta_calo(*(pho->caloCluster()), pho->author());
 		  // need to fix
 		  //pt_reso=m_egammaCalibTool->resolution(pho->e(),pho->caloCluster()->eta(),cl_etaCalo,PATCore::ParticleType::Photon);
 		  //pt_reso=m_egammaCalibTool->resolution(pho->e(),pho->caloCluster()->eta(),cl_etaCalo,PATCore::ParticleType::Electron); // crashes with photons
 		  // 
 		}else if(obj->type()==xAOD::Type::Tau){
 		  // needs to be implemented
-		  //const xAOD::Tau* tau(*static_cast<const xAOD::Tau*>(obj)); 
+		  const xAOD::TauJet* tau(static_cast<const xAOD::TauJet*>(obj)); 
+		  pt_reso = dynamic_cast<CombinedP4FromRecoTaus*>(m_tCombinedP4FromRecoTaus.get())->GetCaloResolution(tau);
 		}
 		
-		std::cout << "resolution: " << pt_reso << std::endl;
-		varx = (obj->p4().Px()*pt_reso);
-		vary = (obj->p4().Py()*pt_reso);
+		ATH_MSG_VERBOSE("Resolution: " << pt_reso);
+		varx = (obj->p4().Px()*pt_reso)/m_GeV;
+		vary = (obj->p4().Py()*pt_reso)/m_GeV;
 		covxy = varx*vary;
+		varx*=varx;
+		vary*=vary;
 
 		// Rotation (components)
-		std::tie(Var_L, Var_T, Cv_LT) = CovMatrixRotation(varx , vary, covxy, Phi);
+		std::tie(Var_L, Var_T, Cv_LT) = CovMatrixRotation(varx , vary, covxy, m_metphi);
 		//Covariance matrix rotated for all jets
-		Var_L_j = Var_L + Var_L_j ;
-		Var_T_j = Var_T + Var_T_j ;
-		Cv_LT_j = Cv_LT + Cv_LT_j ;  
-
+		Var_L_j += Var_L;
+		Var_T_j += Var_T;
+		Cv_LT_j += Cv_LT;  
+		
 		/*
                 if(acc_varX.isAvailable(*obj) && acc_varY.isAvailable(*obj) && acc_covXY.isAvailable(*obj)) {
-                    ATH_MSG_VERBOSE("Add object with vars " << acc_varX(*obj)<<","<<acc_varY(*obj)<<","<<acc_covXY(*obj));
-                    varx+=acc_varX(*obj);
-                    vary+=acc_varY(*obj);
-                    covxy+=acc_covXY(*obj);
-                    //met->add(acc_varX(*el),acc_varY(*el),acc_covXY(*el));
-                }
-		*/
+		  ATH_MSG_VERBOSE("Add object with vars " << acc_varX(*obj)<<","<<acc_varY(*obj)<<","<<acc_covXY(*obj));
+		  varx+=acc_varX(*obj);
+		  vary+=acc_varY(*obj);
+		  covxy+=acc_covXY(*obj);
+		  //met->add(acc_varX(*el),acc_varY(*el),acc_covXY(*el));
+		  }*/
             }
         }
 
@@ -296,15 +286,26 @@ namespace met {
 	Var_T = Var_T_j;
 	Cv_LT = Cv_LT_j;
 
-	if( Var_L != 0 )
-	  {
-	    Double_t Significance = Significance_LT(Metv,Var_L,Var_T,Cv_LT );
-	    
-	    Double_t Rho = Cv_LT  / sqrt( Var_L * Var_T ) ;
-	    std::cout << "     Dilia Significance: " << Significance << " rho: " << Rho
-		      << " MET: " << Metv << " sigmaL: " << Var_L
-		      << " sigmaT: " << Var_T << std::endl;
-	  }
+	if( Var_L != 0 ){
+	  Double_t Significance = Significance_LT(m_met,Var_L,Var_T,Cv_LT );
+	  
+	  Double_t Rho = Cv_LT  / sqrt( Var_L * Var_T ) ;
+	  m_significance = Significance;
+	  m_rho = Rho;
+	  m_VarL = Var_L;
+	  m_VarT = Var_T;
+	  
+	  
+	  ATH_MSG_VERBOSE("     Significance (squared): " << Significance << " rho: " << GetRho()
+			  << " MET: " << m_met << " sigmaL: " << GetVarL()
+			  << " sigmaT: " << GetVarT() << " MET/sqrt(SumEt): " << GetMETOverSqrtSumET()
+			  << " MET/sqrt(HT): " << GetMETOverSqrtHT()
+			  << " sqrt(signif): " << GetSignificance()
+			  << " sqrt(signifDirectional): " << GetSigDirectional());
+	}
+	else{
+	  ATH_MSG_DEBUG("Var_L is 0");
+	}
         return StatusCode::SUCCESS;
     }
 
@@ -313,7 +314,7 @@ namespace met {
     ///////////////////////////////////////////////////////////////////
     // Const methods:
     ///////////////////////////////////////////////////////////////////
-  double METSignificance::GetPUProb(double jet_eta, double jet_phi,
+  double METSignificance::GetPUProb(double jet_eta, double /*jet_phi*/,
 				    double jet_pt,  double jet_jvt) {
     
     double unc=0.0;
@@ -329,6 +330,7 @@ namespace met {
       unc=0.07;
     }
     return unc;
+    /*
     //  etaBins = [-4.5,-3.8,-3.5,-3.0,-2.7,-2.4,-1.5,-0.5,0.0,
     //           0.5,1.5,2.4,2.7,3.0,3.5,3.8,4.5]  
     //pTBins = [0, 20.0, 30.0, 40.0, 60.0, 100.0, 150.0, 200.0] 
@@ -358,6 +360,7 @@ namespace met {
     else if(60.0<jet_pt  && 100.0>=jet_pt) zbin=5;
     else if(100.0<jet_pt && 150.0>=jet_pt) zbin=6;
     else if(150.0<jet_pt)                  zbin=7;
+    */
     /*
     if(jet_jvt<0.05)
       return h_pu_prob_Jvt05->GetBinContent(xbin, ybin, zbin);
@@ -369,8 +372,9 @@ namespace met {
   }
 
 
-  double METSignificance::GetPhiUnc(double jet_eta, double jet_phi,double jet_pt)
+  double METSignificance::GetPhiUnc(double /*jet_eta*/, double /*jet_phi*/,double /*jet_pt*/)
   {
+    /*
     unsigned xbin=0, ybin=0;
     if(-4.5<jet_eta && -3.8>=jet_eta)      xbin=1;
     else if(-3.8<jet_eta && -3.5>=jet_eta) xbin=2;
@@ -390,7 +394,7 @@ namespace met {
     else if(3.8<jet_eta                  ) xbin=16;
     
     ybin = jet_phi>0.0? int(jet_phi/0.4)+9:int(jet_phi/0.4)+8;
-    
+    */
     /*
     // Stored as bin content = Mean, error = RMS, we want to use the RMS.  
     if(jet_pt<50.0)
@@ -411,24 +415,13 @@ namespace met {
     return  std::make_tuple( V11, V22, V12);
   }
   
-  /*TMatrixD METSignificance::MatrixRotation(TMatrixD CovM_xy , double Phi)
-  {
-    TMatrixD r(2,2);
-    TMatrixD rInv(2,2);
-    r(0,0) = cos(Phi); r(0,1) = sin(Phi); r(1,0) = -sin(Phi); r(1,1) = cos(Phi);
-    rInv = r;
-    rInv.Invert();
-    //rInv * CovM_xy * r;
-    return r * CovM_xy * rInv;
-    }*/
-
   double METSignificance::Significance_LT(double Numerator, double var_parall, double var_perpen, double cov)
   {
     Double_t rho = cov / sqrt( var_parall * var_perpen ) ;
     Double_t Significance = 0;
     if (fabs( rho ) >= 0.9 )  //Cov Max not invertible -> Significance diverges
       {
-	std::cout << "rho is large: " << rho << std::endl;
+	ATH_MSG_VERBOSE("rho is large: " << rho);
 	Significance = pow( Numerator , 2 ) / (  var_parall  ) ;
       }
     else
@@ -438,7 +431,7 @@ namespace met {
     
     if( fabs(Significance) >= 10e+15)
       {
-	std::cout<<"warning -->"<< Significance <<std::endl;
+	ATH_MSG_WARNING("warning -->"<< Significance);
       }
     
     return Significance;
