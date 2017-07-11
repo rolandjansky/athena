@@ -50,7 +50,7 @@ svcMgr.ThreadPoolSvc.ThreadInitTools = ["G4InitTool"]
 ## AthenaCommon flags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.PoolEvgenInput = [
-    '/afs/cern.ch/user/z/zmarshal/public/ForSteve/mc15_13TeV.424000.ParticleGun_single_mu_Pt100.evgen.EVNT.e3580/EVNT.04922446._000001.pool.root.1',
+    '/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/mu_E200_eta0-60-10000.evgen.pool.root',
     #'/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root',
 ]
 
@@ -77,7 +77,7 @@ if (nProc > 0) :
    jps.AthenaMPFlags.ChunkSize = chunkSize
    msg.info('AthenaMP workers will process %s events each', chunkSize)
 
-athenaCommonFlags.PoolHitsOutput = "atlasG4.hits.pool.root"
+athenaCommonFlags.PoolHitsOutput = "g4hive.hits.pool.root"
 athenaCommonFlags.EvtMax = evtMax
 
 ######################################################################################
