@@ -35,6 +35,8 @@
   // --------------- DEBUG CODE
   #include "HepMC/GenEvent.h"
   #include "TrkTruthData/PRD_MultiTruthCollection.h"
+  #include "GeneratorObjects/McEventCollection.h"
+  #include "TrkTruthData/TrackTruthCollection.h"
   typedef std::map<const Trk::Track*, const Trk::Track*> TrackCollectionConnection;
   CLASS_DEF( TrackCollectionConnection , 148639440 , 1 )
 #endif

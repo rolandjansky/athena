@@ -1552,26 +1552,6 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::storeTrkDistanceMapdR( const 
 //
 //==================================================================================================
 
-#ifdef SIMPLEAMBIGPROCNTUPLECODE
-void Trk::DenseEnvironmentsAmbiguityProcessorTool::fillValidationTree(const Trk::Track* track) const
-{     
-   // keep track of the track pointer
-    m_track = long(track);
-   // the good guess : we perigee 
-    const Trk::TrackParameters* tp = track->perigeeParameters();
-    m_perigeeInfo = tp ? 1 : 0;
-    if (!tp){
-      // take the first track parameter estimate for the validation
-      const DataVector<const Trk::TrackParameters>* tps = track->trackParameters();    
-      if (tps && tps->size()) tp = (*tps)[0];
-    }
-   // fill pt / eta / phi
-    m_pt  = tp ? float(tp->momentum().perp()) : m_pt;
-    m_eta = tp ? float(tp->momentum().eta())  : m_eta;
-    m_phi = tp ? float(tp->momentum().phi())  : m_phi;   
-}
-#endif
-
 //==================================================================================================
 // Part II : Truth association
 //==================================================================================================
