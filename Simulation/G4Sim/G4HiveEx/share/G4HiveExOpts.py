@@ -9,10 +9,11 @@
 ## $ athena --threads=4 ./G4HiveExOpts.py
 #
 
+from AthenaCommon.Logging import log as msg
+
 from AthenaCommon.ConcurrencyFlags import jobproperties as jp
 nThreads = jp.ConcurrencyFlags.NumThreads()
 if (nThreads < 1) :
-   from AthenaCommon.Logging import log as msg
    msg.fatal('numThreads must be >0. Did you set the --threads=N option?')
    sys.exit(AthenaCommon.ExitCodes.CONFIGURATION_ERROR)
 
@@ -22,7 +23,6 @@ if (nThreads < 1) :
 msgFmt = "% F%40W%S%5W%e%s%7W%R%T %0W%M"
 svcMgr.MessageSvc.Format = msgFmt
 # svcMgr.MessageSvc.useColors = True
-
 # svcMgr.AthenaHiveEventLoopMgr.OutputLevel = DEBUG
 
 #
@@ -33,32 +33,16 @@ svcMgr.MessageSvc.Format = msgFmt
 # numStores = 1
 # svcMgr.EventDataSvc.NSlots = numStores
 
-# from AthenaCommon.AlgScheduler import AlgScheduler
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.ShowControlFlow( True )
+AlgScheduler.ShowDataDependencies( True )
 # AlgScheduler.OutputLevel( DEBUG )
-# AlgScheduler.ShowControlFlow( True )
-# AlgScheduler.ShowDataDependencies( True )
 # AlgScheduler.setThreadPoolSize( nThreads )
 
 # Thread pool service and initialization
 from GaudiHive.GaudiHiveConf import ThreadPoolSvc
 svcMgr += ThreadPoolSvc("ThreadPoolSvc")
 svcMgr.ThreadPoolSvc.ThreadInitTools = ["G4InitTool"]
-
-# Algorithm resource pool
-from GaudiHive.GaudiHiveConf import AlgResourcePool
-svcMgr += AlgResourcePool( OutputLevel = INFO );
-
-
-#
-## Uncomment following to avoid long waits when segfaulting,
-## and add "Root.Stacktrace: no" to your .rootrc file
-#
-# import ROOT
-# ROOT.SetSignalPolicy( ROOT.kSignalFast )
-
-## Output threshold (DEBUG, INFO, WARNING, ERROR, FATAL)
-#ServiceMgr.MessageSvc.OutputLevel = INFO
-
 
 
 ######################################################################################
@@ -74,15 +58,11 @@ athenaCommonFlags.PoolEvgenInput = [
 if 'evtMax' in dir(): pass
 else: evtMax = -1
 
-# check to see if we're running hybrid mp/mt
+# Check to see if we're running hybrid mp/mt
 nProc = jp.ConcurrencyFlags.NumProcs()
 if (nProc > 0) :
 
-   #
-   ## For MP/Hive we need to set the chunk size
-   #
-
-   from AthenaCommon.Logging import log as msg
+   # For MP/Hive we need to set the chunk size
    if (evtMax == -1) :
       msg.fatal('EvtMax must be >0 for hybrid configuration')
       sys.exit(AthenaCommon.ExitCodes.CONFIGURATION_ERROR)
@@ -93,10 +73,8 @@ if (nProc > 0) :
                   evtMax, nProc)
 
    chunkSize = int (evtMax / nProc)
-
    from AthenaMP.AthenaMPFlags import jobproperties as jps
    jps.AthenaMPFlags.ChunkSize = chunkSize
-
    msg.info('AthenaMP workers will process %s events each', chunkSize)
 
 athenaCommonFlags.PoolHitsOutput = "atlasG4.hits.pool.root"
@@ -107,7 +85,7 @@ athenaCommonFlags.EvtMax = evtMax
 ## Job options for Geant4 ATLAS detector simulations
 #
 
-## Detector flags
+# Detector flags
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.ID_setOn()
 DetFlags.Calo_setOn()
@@ -115,69 +93,57 @@ DetFlags.Muon_setOn()
 DetFlags.Lucid_setOff()
 DetFlags.Truth_setOn()
 
-## Global conditions tag
+# Global conditions tag
 from AthenaCommon.GlobalFlags import jobproperties
 jobproperties.Global.ConditionsTag = "OFLCOND-MC12-SIM-00"
 
-## Simulation flags
+# Simulation flags
 from G4AtlasApps.SimFlags import simFlags
 from G4AtlasApps import callbacks
 simFlags.load_atlas_flags()
-#simFlags.RandomSvc = 'AtDSFMTGenSvc'
 
-## Layout tags: see simFlags.SimLayout for allowed values
-## Use the default layout:
+# Layout tags: see simFlags.SimLayout for allowed values
+# Use the default layout:
 simFlags.SimLayout.set_On()
 
-## Set the EtaPhi, VertexSpread and VertexRange checks on
+# Set the EtaPhi, VertexSpread and VertexRange checks on/off
 simFlags.EventFilter.set_Off()
 
-## Set the LAr parameterization
+# Set the LAr parameterization
 #simFlags.LArParameterization = 2
 
-## No magnetic field
+# Magnetic field
 simFlags.MagneticField.set_On()
 
-## Change the field stepper or use verbose G4 tracking
-#from G4AtlasApps import callbacks
-#simFlags.InitFunctions.add_function("postInit", callbacks.use_simplerunge_stepper)
-#simFlags.InitFunctions.add_function("preInitG4", callbacks.use_verbose_tracking)
-
-# Debug output
+# Debug outputs of user actions
 #CfgGetter.getPublicTool('G4UA::AthenaTrackingActionTool').OutputLevel = DEBUG
 
 # Setup the algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
 
-# Currently, Hive requires an algorithm to load the initial data into the
-# whiteboard and kickstart the data dependency chain. This alg must be at the
-# front of the AlgSequence.
-from AthenaCommon import CfgMgr
-topSeq += CfgMgr.SGInputLoader(OutputLevel = INFO, ShowEventDump=False)
-
-# Dependencies are either specified automatically via VarHandles (the preferred
-# way), or via the ExtraInputs/ExtraOutputs properties. Data objects in the
-# latter method are specified as vector of tuples as [(ClassID,'key'),...] or
-# [('ClassName','key'),...] 
-
 # SGInputLoader is a module in SGComps that will do a typeless StoreGate read
 # of data on disk, to preload it in the Whiteboard for other Alorithms to use.
-# Is uses the same syntax as Algorithmic dependency declarations
+# It uses the same syntax as Algorithmic dependency declarations.
+from AthenaCommon import CfgMgr
+topSeq += CfgMgr.SGInputLoader(OutputLevel=INFO, ShowEventDump=False)
 topSeq.SGInputLoader.Load = [('McEventCollection','StoreGateSvc+GEN_EVENT')]
 
 # Add the beam effects algorithm
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 
-## Add the G4 simulation service
+# Add the (python) G4 simulation service.
+# This will kickstart a lot of simulation setup.
 from G4AtlasApps.PyG4Atlas import PyG4AtlasSvc
 svcMgr += PyG4AtlasSvc()
 
+# Explicitly specify the data-flow dependencies of G4AtlasAlg and StreamHITS.
+# This is done like this because currently our VarHandles do not live in the
+# algorithm but rather in Geant4 components.
 # TODO: make this declaration more automatic
 topSeq.G4AtlasAlg.ExtraInputs =  [('McEventCollection','StoreGateSvc+BeamTruthEvent')]
 topSeq.G4AtlasAlg.ExtraOutputs = [('SiHitCollection','StoreGateSvc+SCT_Hits')]
-
 topSeq.StreamHITS.ExtraInputs += topSeq.G4AtlasAlg.ExtraOutputs
 
 # Disable all of the LAr SDs because they are not yet thread-safe
@@ -188,23 +154,15 @@ for sd in larSDs: sdMaster.SensitiveDetectors.remove(sd)
 # Increase verbosity of the output stream
 #topSeq.StreamHITS.OutputLevel = DEBUG
 
-# Disable alg filtering - doesn't work in multi-threading
+# Disable alg filtering - doesn't work yet in multi-threading
 topSeq.StreamHITS.AcceptAlgs = []
 
-# theAuditorSvc.Auditors = ["ChronoAuditor", "NameAuditor", "AlgContextAuditor"]
-
-#
-## set which Algorithms can be cloned
-#
-
-#  set algCardinality = 1 to disable cloning for all Algs
+# Override algorithm cloning settings
 algCardinality = jp.ConcurrencyFlags.NumThreads()
-
 if (algCardinality != 1):
     for alg in topSeq:
         name = alg.name()
-        if name in ["StreamHITS"]:
-            # suppress INFO message about Alg unclonability
+        if name == 'StreamHITS':
             alg.Cardinality = 1
         else:
             alg.Cardinality = algCardinality
