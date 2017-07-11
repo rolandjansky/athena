@@ -90,7 +90,7 @@ StatusCode DiTauEfficiencyCorrectionsTool::beginEvent()
 {
   if (!m_bIsConfigured)
   {
-    const xAOD::EventInfo* xEventInfo = 0;
+    const xAOD::EventInfo* xEventInfo = nullptr;
     ATH_CHECK(evtStore()->retrieve(xEventInfo,"EventInfo"));
     m_bIsData = !(xEventInfo->eventType( xAOD::EventInfo::IS_SIMULATION));
     m_bIsConfigured=true;

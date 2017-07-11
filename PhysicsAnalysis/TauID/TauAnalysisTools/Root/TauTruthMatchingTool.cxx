@@ -333,7 +333,7 @@ xAOD::TauJetParameters::DecayMode TauTruthMatchingTool::getDecayMode(const xAOD:
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-StatusCode TauTruthMatchingTool::findTruthTau(const xAOD::TauJet& xTau) const
+StatusCode TauTruthMatchingTool::findTruthTau(const xAOD::TauJet& xTau)
 {
   // check if decorations were already added to the first passed tau
   if (!m_bIsTruthMatchedAvailableChecked)

@@ -542,10 +542,13 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2017_moriond()
             else if (m_sTriggerYear == "2016")
             {
               m_sInputFilePathTriggerHadTau = sDirectory+"Trigger/Trigger_TrueHadTau_2017-moriond_data2016"+GetTriggerSFMeasrementString()+m_sTriggerName+"_etainc.root";
-
+            }
+            else if (m_sTriggerYear == "2017")
+            {
+              m_sInputFilePathTriggerHadTau = sDirectory+"Trigger/Trigger_TrueHadTau_2017-moriond_data2017"+GetTriggerSFMeasrementString()+m_sTriggerName+"_etainc.root";
             }
             else 
-              ATH_MSG_ERROR("trigger recommendations are only provided for year 2015 and 2016. Please set property \"TriggerYear\" accordingly.");
+              ATH_MSG_ERROR("trigger recommendations are only provided for year 2015, 2016 and 2017. Please set property \"TriggerYear\" accordingly.");
           }
           else
           {
@@ -569,6 +572,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2017_moriond()
       {
         if (m_sVarNameTriggerHadTau.length() == 0) m_sVarNameTriggerHadTau = "TauScaleFactorTriggerHadTau";
 
+        // 2015 data
         std::string sInputFilePathTriggerHadTau("");
         if (m_sTriggerName != "HLT_tau160_medium1_tracktwo")
         {
@@ -597,6 +601,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2017_moriond()
           ATH_CHECK(tTool_2015->setProperty("MaxRunNumber", 284484));
         }
 
+        // 2016 data
         if (m_sInputFilePathTriggerHadTau.empty())
         {
           if (m_sTriggerName.empty()) ATH_MSG_FATAL("Property \"Trigger\" was not set, please provide a trigger name.");
@@ -619,6 +624,31 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2017_moriond()
         ATH_CHECK(tTool_2016->setProperty("WP", ConvertTriggerIDToString(m_iIDLevel)));
         ATH_CHECK(tTool_2016->setProperty("PeriodBinning", (int)m_iTriggerPeriodBinning));
         ATH_CHECK(tTool_2016->setProperty("MinRunNumber", 296939));
+        ATH_CHECK(tTool_2016->setProperty("MaxRunNumber", 311481));
+
+        // 2017 data
+        if (m_sInputFilePathTriggerHadTau.empty())
+        {
+          if (m_sTriggerName.empty()) ATH_MSG_FATAL("Property \"Trigger\" was not set, please provide a trigger name.");
+          if (m_bUseTriggerInclusiveEta) sInputFilePathTriggerHadTau = sDirectory+"Trigger/Trigger_TrueHadTau_2017-moriond_data2017"+GetTriggerSFMeasrementString()+m_sTriggerName+"_etainc.root";
+          else
+          {
+            ATH_MSG_ERROR("eta exclusive scale factors not available");
+            return StatusCode::FAILURE;
+          }
+        }
+        else
+          sInputFilePathTriggerHadTau = m_sInputFilePathTriggerHadTau;
+
+        asg::AnaToolHandle<ITauEfficiencyCorrectionsTool>* tTool_2017 = new asg::AnaToolHandle<ITauEfficiencyCorrectionsTool>("TriggerHadTauTool_2017", this);
+        m_vTriggerEfficiencyTools.push_back(tTool_2017);
+        ATH_CHECK(ASG_MAKE_ANA_TOOL(*tTool_2017, TauAnalysisTools::TauEfficiencyTriggerTool));
+        ATH_CHECK(tTool_2017->setProperty("InputFilePath", sInputFilePathTriggerHadTau));
+        ATH_CHECK(tTool_2017->setProperty("VarName", m_sVarNameTriggerHadTau));
+        ATH_CHECK(tTool_2017->setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck));
+        ATH_CHECK(tTool_2017->setProperty("WP", ConvertTriggerIDToString(m_iIDLevel)));
+        ATH_CHECK(tTool_2017->setProperty("PeriodBinning", (int)m_iTriggerPeriodBinning));
+        ATH_CHECK(tTool_2017->setProperty("MinRunNumber", 324320));
       }
     }
     else
