@@ -240,14 +240,15 @@ namespace Trk {
 //==================================================================================================
 
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
-    const PRD_MultiTruthCollection   * m_truthPIX;
-    const PRD_MultiTruthCollection   * m_truthSCT;  
-    std::string                        m_truth_locationPixel    ;
-    std::string                        m_truth_locationSCT      ;  
-#endif
+    SG::ReadHandleKey<PRD_MultiTruthCollection> m_truth_locationPixel;
+    SG::ReadHandle<PRD_MultiTruthCollection> m_truthPIX;
 
+    SG::ReadHandleKey<PRD_MultiTruthCollection> m_truth_locationSCT;
+    SG::ReadHandle<PRD_MultiTruthCollection> m_truthSCT;
 
-#ifdef SIMPLEAMBIGPROCDEBUGCODE
+    SG::ReadHandleKey<PRD_MultiTruthCollection>  m_truth_locationTRT;
+    SG::ReadHandle<PRD_MultiTruthCollection>  m_truthTRT;
+
 //==================================================================================================
 // PART 2 : Output statistics
 //==================================================================================================
@@ -260,9 +261,12 @@ namespace Trk {
       void findTrueTracks(const TrackCollection* recTracks);
       void keepTrackOfTracks(const Trk::Track* oldTrack, const Trk::Track* newTrack);
       void produceInputOutputConnection();
- 
-      std::string m_resolvedTrackConnection;
-      std::string m_truthCollection;
+
+      SG::ReadHandleKey<McEventCollection> m_generatedEventCollectionName;
+      SG::ReadHandleKey<TrackTruthCollection> m_truthCollection;
+      SG::ReadHandleKey<TrackCollectionConnection> m_resolvedTrackConnection;
+      bool m_has_resolvedTrackConnection;
+
       int n_trueFitFails;
       int n_fitFails;
       int numOutliersDiff;
@@ -296,8 +300,6 @@ namespace Trk {
 
       std::string                        m_generatedEventCollectionName; 
       Trk::ITruthToTrack*                m_truthToTrack         ;
-      const PRD_MultiTruthCollection   * m_truthTRT               ;    
-      std::string                        m_truth_locationTRT      ;
 
 #endif // DebugCode
       bool m_rejectInvalidTracks;
