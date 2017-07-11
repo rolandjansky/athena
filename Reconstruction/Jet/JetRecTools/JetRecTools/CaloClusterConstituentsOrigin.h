@@ -41,6 +41,8 @@ protected:
   std::string m_vertexContName = "";
   bool m_useEMScale = false;
   
+  bool m_saveDetectorEta;
+  
 };
 
 #endif
