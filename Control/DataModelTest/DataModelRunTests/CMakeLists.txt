@@ -91,7 +91,8 @@ datamodel_run_test (xAODTestDecorHandle1)
 datamodel_run_test (xAODTestDecorHandle1MT
                     COMMAND "athena.py --thread=1")
 
-datamodel_run_test (xAODTestDecorHandle2)
+datamodel_run_test (xAODTestDecorHandle2
+                    DEPENDS xAODTestWrite)
 datamodel_run_test (xAODTestDecorHandle2MT
                     COMMAND "athena.py --thread=1"
                     DEPENDS xAODTestWrite)
