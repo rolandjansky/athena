@@ -66,6 +66,8 @@ PixelPrepDataToxAOD::PixelPrepDataToxAOD(const std::string &name, ISvcLocator *p
   declareProperty("PRD_MultiTruth", m_multiTruth_key = "PRD_MultiTruthPixel");
 
   // --- Services and Tools
+  declare(m_write_xaod);
+  declare(m_write_offsets);
 
 }
 
