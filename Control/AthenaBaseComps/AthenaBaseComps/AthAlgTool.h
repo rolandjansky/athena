@@ -301,6 +301,8 @@ public:
 protected: 
   /// callback for output level property 
   void msg_update_handler(Property& outputLevel);
+  /// callback to add storeName to ExtraInputs/Outputs data deps
+  void extraDeps_update_handler(Property&);
 
   /////////////////////////////////////////////////////////////////// 
   // Private data: 
