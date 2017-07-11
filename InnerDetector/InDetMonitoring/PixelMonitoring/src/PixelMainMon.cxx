@@ -710,15 +710,6 @@ StatusCode PixelMainMon::bookHistograms()
 
    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "bookHistograms()" << endmsg; 
 
-   if(m_environment==AthenaMonManager::tier0Raw&&!m_doOnline)
-   {
-     //m_doRDO        = false;
-     //m_doRODError   = false;
-     //m_doSpacePoint = false;
-     //m_doCluster    = false;
-     //m_doStatus     = false;
-     //m_doTrack      = false;
-   }
    if(m_environment==AthenaMonManager::tier0ESD&&!m_doOnline)
    {
      m_doRDO        = false;
@@ -1033,8 +1024,6 @@ StatusCode PixelMainMon::procHistograms()
   if ( endOfLumiBlockFlag() )
     {
       m_LBendTime = m_currentTime;
-      //if (m_doTrack) { sc=ProcTrackMon(); }
-      //if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not proc histograms" << endmsg; 
     }
   
   if ( !m_doOnline && endOfRunFlag() )
