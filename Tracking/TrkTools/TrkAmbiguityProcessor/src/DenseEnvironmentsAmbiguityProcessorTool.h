@@ -266,6 +266,7 @@ namespace Trk {
       SG::ReadHandleKey<TrackTruthCollection> m_truthCollection;
       SG::ReadHandleKey<TrackCollectionConnection> m_resolvedTrackConnection;
       bool m_has_resolvedTrackConnection;
+      SG::WriteHandleKey<TrackCollectionConnection> m_write_resolvedTrackConnection;
 
       int n_trueFitFails;
       int n_fitFails;
@@ -298,7 +299,6 @@ namespace Trk {
       const std::vector<Amg::Vector3D> positionsOfBremVertices( const HepMC::GenEvent* genEvent ) const;
       bool vertexAssociatedWithOriginalTrack( HepMC::GenVertex* genVertex) const;
 
-      std::string                        m_generatedEventCollectionName; 
       Trk::ITruthToTrack*                m_truthToTrack         ;
 
 #endif // DebugCode

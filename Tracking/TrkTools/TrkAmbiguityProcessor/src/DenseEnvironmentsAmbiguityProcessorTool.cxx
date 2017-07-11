@@ -164,10 +164,10 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcesso
   declareProperty("TruthLocationPixel", m_truth_locationPixel="PRD_MultiTruthPixel");
   declareProperty("TruthLocationSCT", m_truth_locationSCT="PRD_MultiTruthSCT");
   declareProperty("TruthLocationTRT", m_truth_locationTRT="PRD_MultiTruthTRT");
+
+  declare(m_write_resolvedTrackConnection);
 #endif
   declareProperty("RejectTracksWithInvalidCov"     ,m_rejectInvalidTracks   );
-
-  
 }
 //==================================================================================================
 
@@ -285,6 +285,10 @@ StatusCode Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize()
   ATH_CHECK(m_generatedEventCollectionName.initialize());
   ATH_CHECK(m_truthCollection.initialize());
   m_has_resolvedTrackConnection = m_resolvedTrackConnection.initialize().isSuccess();
+  if (!m_has_resolvedTrackConnection) {
+    m_write_resolvedTrackConnection = m_resolvedTrackConnection.key();
+    ATH_CHECK(m_write_resolvedTrackConnection.initialize());
+  }
 #endif
 
 
@@ -1653,7 +1657,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::produceInputOutputConnection(
 {
   if (!m_has_resolvedTrackConnection) {
     // output map: SiSpSeededTrack, ResolvedTrack  
-    TrackCollectionConnection* siSP_ResolvedConnection = new TrackCollectionConnection();
+    TrackCollectionConnection siSP_ResolvedConnection;
     
     TrackCollection::const_iterator  itFinal = m_finalTracks->begin();
     TrackCollection::const_iterator endFinal = m_finalTracks->end();
@@ -1666,16 +1670,14 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::produceInputOutputConnection(
       if (pos == m_trackHistory.end())
         ATH_MSG_ERROR( "Track not found in history" );
       else
-        siSP_ResolvedConnection->insert(std::make_pair(pos->second,*itFinal));
+        siSP_ResolvedConnection.insert(std::make_pair(pos->second,*itFinal));
       
     }
       
-    StatusCode sc = evtStore()->record(siSP_ResolvedConnection, m_resolvedTrackConnection,false);
-      
-    if (sc.isFailure())
-      ATH_MSG_ERROR( "Could not record trackCollectionConnecton" );
-    else
-      ATH_MSG_VERBOSE( "Saved "<<siSP_ResolvedConnection->size()<<" track collection connections"); 
+    SG::WriteHandle<TrackCollectionConnection> h_write_resolvedTrackConnection(m_write_resolvedTrackConnection);
+    h_write_resolvedTrackConnection.record(std::make_unique<TrackCollectionConnection>(siSP_ResolvedConnection));
+
+    ATH_MSG_VERBOSE( "Saved "<<siSP_ResolvedConnection.size()<<" track collection connections"); 
   }
 }
 //============================================================================================
