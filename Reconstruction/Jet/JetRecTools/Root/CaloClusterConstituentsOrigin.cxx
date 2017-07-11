@@ -21,6 +21,7 @@ CaloClusterConstituentsOrigin::CaloClusterConstituentsOrigin(const std::string &
 #endif
   declareProperty("VertexContainer",m_vertexContName="PrimaryVertices");
   declareProperty("UseEMScale",m_useEMScale=false);
+  declareProperty("SaveDetectorEta",m_saveDetectorEta=false);
   
 }
 
@@ -61,7 +62,8 @@ StatusCode CaloClusterConstituentsOrigin::processLC(xAOD::CaloClusterContainer* 
       cl->setEta(corrCL.eta());
       cl->setPhi(corrCL.phi());
     }
-    cl->auxdecor<float>("DetectorEta")     = eta_det;
+    if(m_saveDetectorEta)
+      cl->auxdecor<float>("DetectorEta") = eta_det;
   }
   return StatusCode::SUCCESS;
 }
@@ -77,7 +79,8 @@ StatusCode CaloClusterConstituentsOrigin::processEM(xAOD::CaloClusterContainer* 
       cl->setEta(corrCL.eta());
       cl->setPhi(corrCL.phi());
     }
-    cl->auxdecor<float>("DetectorEta")     = eta_det;
+    if(m_saveDetectorEta)
+      cl->auxdecor<float>("DetectorEta") = eta_det;
   }
   return StatusCode::SUCCESS;
 }

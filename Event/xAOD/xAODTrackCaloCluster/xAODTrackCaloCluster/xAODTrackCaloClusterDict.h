@@ -16,7 +16,7 @@
 #include "xAODTrackCaloCluster/versions/TrackCaloClusterAuxContainer_v1.h"
  
 namespace {
-  struct GCCXML_DUMMY_INSTANTIATION {
+  struct GCCXML_DUMMY_INSTANTIATION_XAODTRACKCALOCLUSTER {
     
      xAOD::TrackCaloClusterContainer_v1                                              c1;
      DataLink< xAOD::TrackCaloClusterContainer_v1 >                                  l1;

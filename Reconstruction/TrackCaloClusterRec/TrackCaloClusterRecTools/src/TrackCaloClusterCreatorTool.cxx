@@ -190,7 +190,9 @@ void TrackCaloClusterCreatorTool::createChargedTCCs(xAOD::TrackCaloClusterContai
 		ATH_MSG_WARNING( "Unable to retrieve " << m_caloEntryMapName << " will leak the ParticleCaloExtension" );
 	      
 	      const Trk::TrackParameters* pars = caloExtensionMap->readCaloEntry(track);
-	      double det_eta = pars->position().eta();
+	      double det_eta = track->eta();
+	      if(pars)
+		det_eta = pars->position().eta();
 	      tcc->auxdecor<float>("DetectorEta") = det_eta;
 	    }
         }

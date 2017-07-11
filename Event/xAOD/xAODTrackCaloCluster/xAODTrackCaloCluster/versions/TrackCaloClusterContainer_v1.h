@@ -5,9 +5,13 @@
  
 // Core include(s):
 #include "AthContainers/DataVector.h"
+#include "xAODBase/IParticleContainer.h"
  
 // Local include(s):
 #include "xAODTrackCaloCluster/versions/TrackCaloCluster_v1.h"
+
+// Declare IParticle as a base class of CaloCluster_v1:
+DATAVECTOR_BASE( xAOD::TrackCaloCluster_v1, xAOD::IParticle );
  
 namespace xAOD {
    /// The container is a simple typedef for now
