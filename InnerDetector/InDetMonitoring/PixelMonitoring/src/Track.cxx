@@ -209,7 +209,6 @@ StatusCode PixelMainMon::FillTrackMon(void)
       bool passQualityCut = false;
       bool passTightCut = false;
       bool pass1hole2GeVTightCut = false;
-      int hitsArrayLayer[PixLayer::COUNT] = {0};
       
       const Trk::TrackParameters *trkParameters = 0;
       const Trk::TrackSummary* summary = track0->trackSummary();
@@ -420,18 +419,10 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	             }
 	           }
             }
-            ///
-            /// Hole module map
-            ///
-
-            ///
-            /// Categorize tracks for IP resolution degradation
-            ///
-            hitsArrayLayer[pixlayer] = 1;
 	 }
 
 	    
-	      ///
+	 ///
          /// Get track parameters for current surface (with AtaPlane)
          ///
          trkParameters = (*trackStateOnSurfaceIterator)->trackParameters();
