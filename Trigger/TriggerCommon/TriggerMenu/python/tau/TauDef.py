@@ -198,7 +198,6 @@ class L2EFChain_tau(L2EFChainDef):
 #        from TrigInDetConf.TrigInDetSequence import vertexXAODCnvNeeded 
 #        if vertexXAODCnvNeeded():
 #           theTrigFTK_VxPrimary_EF.vxContainerName = 'PrimVxFTK'
-#           theTrigFTK_VxPrimary_EF.getVertexContainer = False
 #           theInDet__TrigVertexxAODCnv = InDet__TrigVertexxAODCnv(name="FTKTauVtxConversion")
 #           theInDet__TrigVertexxAODCnv.InputVxContainerKey = 'PrimVxFTK'
 #           theInDet__TrigVertexxAODCnv.OutputVxContainerKey = 'PrimVertexFTK'
@@ -206,7 +205,6 @@ class L2EFChain_tau(L2EFChainDef):
 #           self.EFsequenceList += [[[ self.currentItem ],vertexAlgorithms,self.continueChain('L2', 'vertex')]]          
 #        else:
         theTrigFTK_VxPrimary_EF.vertexContainerName= 'PrimVertexFTK'
-        theTrigFTK_VxPrimary_EF.getVertexContainer = True
         vertexAlgorithms = [theTrigFTK_VxPrimary_EF]
         self.EFsequenceList += [[[ self.currentItem ], vertexAlgorithms, self.continueChain('L2', 'vertex')]]
         
