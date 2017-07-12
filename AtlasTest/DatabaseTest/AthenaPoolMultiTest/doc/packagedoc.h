@@ -50,10 +50,5 @@
  * </ul>
  * <br>
  *
-@section AthenaPoolMultiTest_@section requirements requirements
- *
- *
-@section AthenaPoolMultiTest_@section Links Links to used packages
- *
  *
  */

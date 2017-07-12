@@ -31,15 +31,4 @@ The package follows the installed_library pattern.
       
 @section TrkValEvent_ExtrasTrkValEvent Extra Pages
 
- - @ref UsedTrkValEvent
- - @ref requirementsTrkValEvent
 */
-
-/**
-@page UsedTrkValEvent Used Packages
-*/
-
-/**
-@page requirementsTrkValEvent Requirements
-*/
-

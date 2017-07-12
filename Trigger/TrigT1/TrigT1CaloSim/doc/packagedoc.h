@@ -82,22 +82,7 @@ DumpTriggerObjects.h -  The DumpTriggerObjects algorithm shows how to access EmT
 
 <A href=""> TriggerMenu </A>
 
-@ref used_MyPackage
-
-@ref requirements_MyPackage
-
-
-*/
 
 
 
-
-
-
-/**
-@page used_MyPackage Used Packages
-*/
-
-/**
-@page requirements_MyPackage Requirements
 */

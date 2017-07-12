@@ -39,16 +39,4 @@ topSequence += MyReFitTrack
  
 @section TrkRefitAlg_ExtrasTrkRefitAlg Extra Pages
 
- - @ref UsedTrkRefitAlg
- - @ref RequirementsTrkRefitAlg
 */
-
-/**
-@page UsedTrkRefitAlg Used Packages
-*/
-
-/**
-@page RequirementsTrkRefitAlg Requirements
-*/
-
-

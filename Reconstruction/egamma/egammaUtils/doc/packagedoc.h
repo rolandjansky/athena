@@ -40,4 +40,3 @@ selection criteria
 @author Alexander Khodinov <khodinov@bnl.gov>
 
 */
-

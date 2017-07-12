@@ -19,16 +19,6 @@ tracking interface Trk::IDetailedTrackTruthBuilder.
   
 @see Trk::IDetailedTrackTruthBuilder
 
-@ref used_MuonTruthAlgs
 
-@ref requirements_MuonTruthAlgs
 
-*/
-
-/**
-@page used_MuonTruthAlgs Used Packages
-*/
-
-/**
-@page requirements_MuonTruthAlgs Requirements
 */

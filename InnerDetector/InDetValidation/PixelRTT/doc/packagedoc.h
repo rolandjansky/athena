@@ -18,18 +18,6 @@ It also enables the creation of the histograms contained in the PixelMonitoring 
 The root macros defined in the package are useful to easily create multiple histograms containing the same quantities for every layer, clustersize, eta and p_t bins of the Pixel detector.
 The macro included create a default set of this kind of histograms and are automatically executed by the RTT.
 
-@ref used_PixelRTT
 
-@ref requirements_PixelRTT
 
 */
-
-/**
-@page used_PixelRTT Used Packages
-*/
-
-/**
-@page requirements_PixelRTT Requirements
-*/
-
-

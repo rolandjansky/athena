@@ -18,6 +18,5 @@ has been filled primary vertices can be detected by simply scanning the contents
      
 This algorithm uses ISiSpacePointsSeedMaker tool for space point seeds production.
 
-@section SiZvertexTool_xk_SiZvertexTool_xkReq Requirements file
 
 */

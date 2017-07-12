@@ -45,15 +45,5 @@
   User can use all hits(i.e. associated to next bunch) by LVL1TGCTrigger::CurrentBunchTag=0   
 
 @section TrigT1TGC_TrigT1TGC Extra Packages
-  - @ref used_TrigT1TGC
-  - @ref requirements_TrigT1TGC
 
-*/
-
-/**
-   @page used_TrigT1TGC Used Packages
-*/
-
-/**
-   @page requirements_TrigT1TGC Requirements
 */

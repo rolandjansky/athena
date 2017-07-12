@@ -14,16 +14,6 @@ There are two algtools provided:
    
 For more details see "A New Algorithm For Solving Tracking Ambiguities, Daniel Wicke"
 
-@ref used_MyPackage
 
-@ref requirements_MyPackage
 
-*/
-
-/**
-@page used_MyPackage Used Packages
-*/
-
-/**
-@page requirements_MyPackage Requirements
 */

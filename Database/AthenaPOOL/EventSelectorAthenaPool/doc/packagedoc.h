@@ -37,11 +37,9 @@ The package Database/AthenaPOOL/AthenaPoolExample contains running examples of a
 reading Data Objects using AthenaPool.
 
 
-@section EventSelectorAthenaPool_Requirements Requirements
 
 
 
-@section EventSelectorAthenaPool_PackagesUsed Packages Used
 
 
 

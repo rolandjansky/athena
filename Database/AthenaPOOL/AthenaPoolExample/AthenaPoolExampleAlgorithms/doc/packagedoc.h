@@ -171,11 +171,9 @@ The code can be browsed using LXR
 (http://alxr.usatlas.bnl.gov/lxr/source/atlas/Database/AthenaPOOL/AthenaPoolExample/AthenaPoolExampleAlgorithms/)
 
 
-@section AthenaPoolExampleAlgorithms_Requirements Requirements
 
 
 
-@section AthenaPoolExampleAlgorithms_PackagesUsed Packages Used
 
 
 

@@ -86,9 +86,3 @@ The flag gravev that GravADD uses to distinguish the three types of events (QCD,
 
 
 */
-/**
-@page usedGravADD_i Used Packages
-*/
-/**
-@page requirementsGravADD_i Requirements
-*/

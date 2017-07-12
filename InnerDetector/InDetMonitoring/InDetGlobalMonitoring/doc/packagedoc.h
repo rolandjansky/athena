@@ -29,7 +29,6 @@
  * - SCT
  * - TRT
  *
-@section InDetGlobalMonitoring_requirements Requirements file
  *
 @section InDetGlobalMonitoring_ChangeLog Change log
  *@include ChangeLog

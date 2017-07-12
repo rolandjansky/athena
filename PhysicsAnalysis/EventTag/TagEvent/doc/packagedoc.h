@@ -34,11 +34,4 @@ b-physics group may encode the results of various hypotheses about exclusive pro
  - For questions or comments: Ketevi A. Assamagan
    ketevi@bnl.gov
 
-@section TagEvent_used_packagesTkPara Used Packages
-
-@section TagEvent_requirements Requirements
-
 */
-
-
-

@@ -39,7 +39,6 @@ Some of the other classes are described here:
  - PixelGeometryManager: %Base class for interfaces to primary numbers. 
  - OraclePixGeoManager: Interface to primary numbers from the Detector Description Database.
 
-@section PixelGeoModel_PixelGeoModelReq Requirements
 
 
 */

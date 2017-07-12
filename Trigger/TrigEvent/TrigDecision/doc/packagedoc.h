@@ -14,6 +14,3 @@ The package is obsolete. PLease look inti TrigDecisionTool.
 
 
 */
-
-
-

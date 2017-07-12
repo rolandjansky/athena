@@ -15,16 +15,6 @@ This package handles the persistency of Muon EDM classes.
 @see https://twiki.cern.ch/twiki/bin/view/Atlas/TransientPersistentSeparation
 
 
-@ref used_MuonEventAthenaPool
 
-@ref requirements_MuonEventAthenaPool
 
-*/
-
-/**
-@page used_MuonEventAthenaPool Used Packages
-*/
-
-/**
-@page requirements_MuonEventAthenaPool Requirements
 */

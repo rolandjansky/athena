@@ -25,14 +25,4 @@ This package contains the tools to create Trk::CompetingRIOsOnTrack. This includ
   
 @section TrkCompetingRIOsOnTrackTool_ExtrasTrkCompetingRIOsOnTrackTool Extra Pages
 
- - @ref UsedTrkCompetingRIOsOnTrackTool
- - @ref requirementsTrkCompetingRIOsOnTrackTool
-*/
-
-/**
-@page UsedTrkCompetingRIOsOnTrackTool Used Packages
-*/
-
-/**
-@page requirementsTrkCompetingRIOsOnTrackTool Requirements
 */

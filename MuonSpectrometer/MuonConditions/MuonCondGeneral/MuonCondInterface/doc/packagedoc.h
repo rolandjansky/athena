@@ -16,17 +16,5 @@ The MuonCondInterface package provides the following abstract interfaces:
 - MuonCalib::IMuonAlignmentDbTool:: Interface class for Tools accessing conditions DB for Alignment
 - MuonCalib::IMuonDetectorStatusDbTool:: interface class for Tools accessing conditions DB for Tube Status
 
-@ref used_MuonCondInterface
                                                                                 
-@ref requirements_MuonCondInterface
 */
-                                                                                
-/**
-@page used_MuonCondInterface Used Packages
-*/
-                                                                                
-/**
-@page requirements_MuonCondInterface Requirements
-*/
-
-

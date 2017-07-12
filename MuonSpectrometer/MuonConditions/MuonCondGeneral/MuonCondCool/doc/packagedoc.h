@@ -22,17 +22,6 @@ with the flags Read/Write True.
 
                                                             
 
-@ref used_MuonCondCool
                                                                                 
-@ref requirements_MuonCondCool
                                                                                 
 */
-                                                                                
-/**
-@page used_MuonCondCool Used Packages
-*/
-                                                                                
-/**
-@page requirements_MuonCondCool Requirements
-*/
-

@@ -59,16 +59,6 @@ href="http://isscvs.cern.ch/cgi-bin/viewcvs-all.cgi/offline/LArCalorimeter/LArRa
   - ILAruA2MeV
   - LArPedestalAll
 
-@ref used_LArElecCalib
 
-@ref requirements_LArElecCalib
 
-*/
-
-/**
-@page used_LArElecCalib Used Packages
-*/
-
-/**
-@page requirements_LArElecCalib Requirements
 */

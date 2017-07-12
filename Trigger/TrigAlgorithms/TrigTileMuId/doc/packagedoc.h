@@ -30,15 +30,5 @@ The TrigTileMuId package contains the following classes:
 
   - TrigTileMuToNtuple: dumps TrigTileLookForMuAlg info into TileMuTag directory in the ntuple for analysis.
 
-@ref used_TrigTileMuId
 
-@ref requirements_TrigTileMuId
-*/
-
-/**
-@page used_TrigTileMuId Used Packages
-*/
-
-/**
-@page requirements_TrigTileMuId Requirements
 */

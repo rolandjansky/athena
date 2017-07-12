@@ -19,15 +19,4 @@ The following classes are defined in this package:
 
 @section TrackToCalo_ExtrasTrackToCalo Extra Pages
 
- - @ref UsedTrackToCalo
- - @ref requirementsTrackToCalo
 */
-
-/**
-@page UsedTrackToCalo Used Packages
-*/
-
-/**
-@page requirementsTrackToCalo Requirements
-*/
-

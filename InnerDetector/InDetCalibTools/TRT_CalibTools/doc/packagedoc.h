@@ -42,17 +42,6 @@ whole detector.
   TRTCalibrator
   Calibrator
 
-@ref used_MyPackage
 
-@ref requirements_MyPackage
 
 */
-
-/**
-@page used_MyPackage Used Packages
-*/
-
-/**
-@page requirements_MyPackage Requirements
-*/
-

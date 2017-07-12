@@ -15,10 +15,6 @@ HiggsPhysTagTools contains the following tools:
 
 - for questions and comments: ketevi@bnl.gov
 
-@section HiggsPhysTagTools_used_packagesHiggsPhysTagTools Used packages
 
-@section HiggsPhysTagTools_requirementsHiggsPhysTagTools Requirements
 
 */
-
-

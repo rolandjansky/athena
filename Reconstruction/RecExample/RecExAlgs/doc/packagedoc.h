@@ -13,7 +13,6 @@
 
 >> Please enter a brief description of the package here.
 
-@section RecExAlgs_RecExAlgsReq Requirements
 
 
 */

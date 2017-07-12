@@ -17,16 +17,6 @@ to the primary vertex and by comparing the extrapolated eta and phi with the one
 The combined muon informations ar saved in a CombinedMuonFeature object atatched to the 
 event record for further analysis.
 
-@ref used_TrigmuComb
 
-@ref requirements_TrigmuComb
 
-*/
-
-/**
-@page used_TrigmuComb Used Packages
-*/
-
-/**
-@page requirements_TrigmuComb Requirements
 */

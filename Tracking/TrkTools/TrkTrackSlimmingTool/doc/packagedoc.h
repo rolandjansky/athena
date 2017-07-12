@@ -40,15 +40,4 @@ storage.
 
 @section TrkTrackSlimmingTool_ExtrasTrkSlimmingTool Extra Pages
 
- - @ref UsedTrkTrackSlimmingTool
- - @ref requirementsTrkTrackSlimmingTool
 */
-
-/**
-@page UsedTrkTrackSlimmingTool Used Packages
-*/
-
-/**
-@page requirementsTrkTrackSlimmingTool Requirements
-*/
-

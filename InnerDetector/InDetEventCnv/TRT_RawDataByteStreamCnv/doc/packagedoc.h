@@ -29,7 +29,6 @@ The writing of the Byte Stream makes use of the old Byte Stream converter infras
 
  - TRT_RodEncoder: the tool that encodes the RDOs of one ROD block.
 
-@section TRT_RawDataByteStreamCnv_TRT_RawDataByteStreamCnvReq Requirements file
 
 
 */

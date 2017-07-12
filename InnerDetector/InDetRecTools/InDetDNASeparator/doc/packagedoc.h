@@ -49,14 +49,4 @@ brem-sensitive detector floors.
 
 @section InDetDNASeparator_InDetDNASeparatorExtras Extra Pages
 
- - @ref InDetDNASeparatorPackages
- - @ref InDetDNASeparatorRequirements
-*/
-
-/**
-@page InDetDNASeparatorPackages Used Packages
-*/
-
-/**
-@page InDetDNASeparatorRequirements
 */

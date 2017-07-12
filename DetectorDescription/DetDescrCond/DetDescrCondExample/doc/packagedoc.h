@@ -120,10 +120,8 @@ For more details see the ATLAS wiki topic CoolHistograms
 
 @include CoolHistExample_jobOptions.py 
 
-@section DetDescrCondExample_requirements Requirements
 
 
-@section DetDescrCondExample_uses Packages used
 
 
 */

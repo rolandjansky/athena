@@ -29,13 +29,3 @@ treat python very well. See <a href="http://tmaeno.home.cern.ch/tmaeno/PyKernel/
   - @ref PyKernelUsed
   - @ref PyKernelReq
 */
-
-/**
-@page PyKernelUsed Used Packages
-*/
-
-
-/**
-@page PyKernelReq Requirements
-
-*/

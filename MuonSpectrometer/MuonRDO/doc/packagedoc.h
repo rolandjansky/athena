@@ -34,8 +34,4 @@ Finally, there are the raw data objects:
 
 @sa The official Muon EDM webpage is https://twiki.cern.ch/twiki/bin/view/Atlas/MuonEventDataModel
 
-@section MuonRDO_used_packagesMuonRDO Used Packages
-
-@section MuonRDO_requirementsMuonRDO Requirements
-
 */

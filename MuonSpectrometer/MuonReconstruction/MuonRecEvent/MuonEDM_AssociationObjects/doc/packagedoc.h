@@ -16,16 +16,6 @@ For more information on how to use these objects, there are some instructions in
 @see Muon::MuonSegPatAssMap
 
 
-@ref used_MyPackage
 
-@ref requirements_MyPackage
 
-*/
-
-/**
-@page used_MyPackage Used Packages
-*/
-
-/**
-@page requirements_MyPackage Requirements
 */

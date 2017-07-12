@@ -68,15 +68,5 @@ This package is used to decode and encode TileCal bytestream.
 
   - TileRawChannel2Bytes4: this class converts the TileRawChannel object into bytes as it is defined at the commissioning 2007.
 
-@ref used_TileByteStream
 
-@ref requirements_TileByteStream
-*/
-
-/**
-@page used_TileByteStream Used Packages
-*/
-
-/**
-@page requirements_TileByteStream Requirements
 */

@@ -13,18 +13,6 @@ This package provides classes and methods to perform a Sampling Calibration
 for L2 trigger. With EM energy, HAD energy and eta as input, it provides
 a fast calibration suitable for hadronic objects.
 
-@ref used_TrigT2CaloCalibration
 
-@ref requirements_TrigT2CaloCalibration
 
 */
-
-/**
-@page used_TrigT2CaloCalibration Used Packages
-*/
-
-/**
-@page requirements_TrigT2CaloCalibration Requirements
-*/
-
-

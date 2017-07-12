@@ -34,8 +34,6 @@ The following diagram illustrates the location of the service materials.
 
 @image html inafpp.gif
 
-@section InDetServMatGeoModel_InDetServMatGeoModelReq Requirements
 
 
 */
-

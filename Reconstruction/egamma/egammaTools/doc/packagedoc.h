@@ -56,4 +56,3 @@ Tools EMShowerBuilder, EMPIDBuilder, EMFourMomBuilder, EMConversionBuilder and E
 @author F. Derue <derue@lpnhe.in2p3.fr>
 @author T. Koffas  <Thomas.Koffas@cern.ch>
 */
-

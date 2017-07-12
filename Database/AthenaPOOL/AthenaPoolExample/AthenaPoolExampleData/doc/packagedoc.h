@@ -24,11 +24,9 @@ The code can be browsed using LXR
 (http://alxr.usatlas.bnl.gov/lxr/source/atlas/Database/AthenaPOOL/AthenaPoolExample/AthenaPoolExampleData/)
 
 
-@section AthenaPoolExampleData_Requirements Requirements
 
 
 
-@section AthenaPoolExampleData_PackagesUsed Packages Used
 
 
 

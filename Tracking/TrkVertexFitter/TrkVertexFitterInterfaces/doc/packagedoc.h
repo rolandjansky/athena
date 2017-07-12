@@ -69,7 +69,6 @@ Interface for kinematic vertex-fitting.
 <b><i>Trk::IKinematicConstraint</i></b>
 Abstract class used for implementing constraint-equations used
 by the kinematic vertex-fitting methods.
-@section TrkVertexFitterInterfaces_requirementsTrkVertexFitterInterfaces Requirements
 
 
 */

@@ -22,6 +22,5 @@ The class interface provides a constructor, accesss methods and stream operators
 
 The companion class TrackRoadCollection provides a persistent DataVector of TrkRoad objects. 
 
-@section TrkRoad_TrkRoadReq The requirements file
 
 */

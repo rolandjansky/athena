@@ -40,14 +40,4 @@ This package contains the tools to create Trk::CompetingRIOsOnTrack for the InDe
 
 @section InDetCompetingRIOsOnTrackTool_ExtrasInDetCompetingRIOsOnTrackTool Extra Pages
 
- - @ref UsedInDetCompetingRIOsOnTrackTool
- - @ref requirementsInDetCompetingRIOsOnTrackTool
-*/
-
-/**
-@page UsedInDetCompetingRIOsOnTrackTool Used Packages
-*/
-
-/**
-@page requirementsInDetCompetingRIOsOnTrackTool Requirements
 */

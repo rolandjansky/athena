@@ -43,17 +43,6 @@ detector-specific tools.
     performing alignment and for writing final alignment parameters to the 
     database 
 
-@ref used_TrkAlignGenTools
 
-@ref requirements_TrkAlignGenTools
 
 */
-
-/**
-@page used_TrkAlignGenTools Used Packages
-*/
-
-/**
-@page requirements_TrkAlignGenTools Requirements
-*/
-
