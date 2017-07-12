@@ -112,6 +112,15 @@ def getL1StandbySeed(l1items):
     exclude_list = ["L1_2MU4_J40_XE20","L1_2MU4_J40_XE50","L1_EM15VHI_2TAU12IM_4J12","L1_EM15VHI_2TAU12IM_J25_3J12","L1_EM15VHI_2TAU12IM_XE35","L1_EM15VHI_TAU20IM_2TAU15_J25_2J20_3J15","L1_EM15VHI_TAU40_2TAU15","L1_EM15VH_2EM8VH_MU6","L1_EM20VHI_TAU20IM_2TAU20_J25_3J20","L1_J40.0ETA25_2J25_J20.31ETA49","L1_MU10_2J15_J20","L1_MU10_TAU12IM_3J12","L1_MU10_TAU12IM_J25_2J12","L1_MU10_TAU12IM_XE35","L1_MU10_TAU20IM_J25_2J20","L1_MU4_J50_XE40","L1_MU6_J30.0ETA49_2J20.0ETA49","L1_TAU20IM_2J20_XE45","L1_TAU20IM_2TAU12IM_J25_2J20_3J12","L1_TAU20IM_2TAU12IM_XE35","L1_TAU20_2TAU12_XE35","L1_TAU25IM_2TAU20IM_2J25_3J20","L1_TAU40_2TAU12IM_XE40"]
     standby_seeds    = ",".join([ x for x in l1items if "_EMPTY" not in x and "CALREQ" not in x and "ZB" not in x and "-" not in x and "CMU" not in x and "ALFA" not in x  and "RD" not in x and "BCM" not in x and "BGRP12" not in x and "FTK" not in x and "SC" not in x and "LHCF" not in x and "AFP" not in x and "3EM" not in x and x not in exclude_list])
     return standby_seeds
+
+##############################
+def getL1IDprescaledSeed(l1items):
+    standby_list = getL1StandbySeed(l1items)
+    additional_seeds = ",".join([x for x in l1items if "_EMPTY" in x or "RD" in x])
+    idps_seed =  standby_list + ", " + additional_seeds
+    print idps_seed
+    return idps_seed
+
 ##############################
 def getL1TopoSeed(l1items):
     l1topo_seeds = ",".join([ x for x in l1items if  "FTK" not in x and ("-" in x or "CMU" in x) ])
@@ -329,6 +338,9 @@ def getSpecificL1Seeds(l1seedname, l1itemobject):
         
     elif (l1seedname == 'L1_Standby'):
         L1Seed = getL1StandbySeed(l1items)
+
+    elif (l1seedname == 'L1_IDprescaled'):
+        L1Seed = getL1IDprescaledSeed(l1items)
 
     elif (l1seedname == 'L1_Topo'):
         L1Seed = getL1TopoSeed(l1items)

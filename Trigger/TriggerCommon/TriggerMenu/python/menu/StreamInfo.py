@@ -63,6 +63,7 @@ calibStreams = [
                 'AFP',
                 'BphysPEB',
                 'RPCNoise',
+                'IDprescaledL1'
                 ]
 
 ##NOTE: DataScouting_xx_NAME: 
@@ -95,7 +96,7 @@ def getStreamTag(streams):
         if stream in physicsStreams:
             streamTags += [(stream, 'physics', 'yes', '1')]
         elif stream in calibStreams:
-            if 'BeamSpot' in stream or 'Background' in stream or "IDTracks" in stream or 'VdM' in stream or 'PixelBeam' in stream or 'BphysPEB' in stream:
+            if 'BeamSpot' in stream or 'Background' in stream or "IDTracks" in stream or 'VdM' in stream or 'PixelBeam' in stream or 'BphysPEB' in stream or 'IDprescaledL1' in stream:
                streamTags += [(stream, 'calibration', 'yes', '1')]
             else: 
                streamTags += [(stream, 'calibration', 'no', '1')]

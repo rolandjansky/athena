@@ -718,6 +718,7 @@ AllowedCalibChainIdentifiers = ['csccalib',
                                 'zdcpeb',
                                 'calibAFP',
                                 'rpcpeb',
+                                'idpsl1'
                                 ]
 
 # ---- Calib Chain Dictinary of all allowed Values ----
