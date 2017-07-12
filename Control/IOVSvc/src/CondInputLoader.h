@@ -69,6 +69,10 @@ class CondInputLoader
   /// Default constructor: 
   //  CondInputLoader();
 
+  // need to override the ExtraInputs/Outputs property handler
+  // from AthAlgorithm
+  void extraDeps_update_handler(Property&);
+
   //  void loader(Property&);
 
   /// Containers
