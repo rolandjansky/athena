@@ -329,7 +329,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
     }
 //
     long int ntrk=0;
-    StatusCode sc;
+    StatusCode sc; sc.setChecked();
     std::vector<const TrackParameters*> baseInpTrk;
     if(m_firstMeasuredPoint){               //First measured point strategy
        std::vector<const xAOD::TrackParticle*>::const_iterator   i_ntrk;
@@ -616,12 +616,12 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
       VrtCovMtx(2,1) = VrtCovMtx(1,2);
       double Chi2=0; int NTrInV=0;
       for(it=0; it<(int)m_vertexDefinition[iv].size(); it++) { Chi2 += particleChi2[m_vertexDefinition[iv][it]]; NTrInV++ ;};
-//      Trk::RecVertex * tmpRecV = new Trk::RecVertex(FitVertex, VrtCovMtx, NDOF, Chi2); 
+      Trk::RecVertex * tmpRecV = new Trk::RecVertex(FitVertex, VrtCovMtx, NDOF, Chi2); 
       fullChi2+=Chi2;
 
       int NRealT=m_vertexDefinition[iv].size();
     //std::vector<Trk::VxTrackAtVertex*> * tmpVTAV = new std::vector<Trk::VxTrackAtVertex*>();
-      std::vector<Trk::VxTrackAtVertex> tmpVTAV;
+      std::vector<Trk::VxTrackAtVertex> * tmpVTAV = new std::vector<Trk::VxTrackAtVertex>();
       //VK CLHEP::HepSymMatrix genCOV( m_vertexDefinition[iv].size()*3+3, 0 );   //Migration                       // Fill cov. matrix for vertex
       Amg::MatrixX genCOV( NRealT*3+3, NRealT*3+3 );     // Fill cov. matrix for vertex
       for( it=0; it<NRealT*3+3; it++){                                 // (X,Y,Z,px1,py1,....pxn,pyn,pzn)
@@ -700,7 +700,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
 //         tmpPointer->setWeight(1.);
 //         tmpVTAV->push_back( tmpPointer );
 //--xAOD::Vertex--- save VxTrackAtVertex directly 
-         tmpVTAV.push_back( VxTrackAtVertex( m_ich[m_vertexDefinition[iv][it]], measPerigee ) );  
+         tmpVTAV->push_back( VxTrackAtVertex( m_ich[m_vertexDefinition[iv][it]], measPerigee ) );  
        }
 //-------------------------------------------------------------- Trk::VxCandidate creation
 //       Trk::VxCandidate* tmpVx;
@@ -721,19 +721,20 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
        if( m_makeExtendedVertex ) {
   	 Amg::MatrixX tmpCovMtx(NRealT*3+3,NRealT*3+3);                      // New Eigen based EDM
          tmpCovMtx=genCOV.similarity(*fullDeriv);
+         floatErrMtx.resize((NRealT*3+3)*(NRealT*3+3+1)/2);
+         int ivk=0;
          for(int i=0;i<NRealT*3+3;i++){
            for(int j=0;j<=i;j++){
-               floatErrMtx.push_back(tmpCovMtx(i,j));
+               floatErrMtx.at(ivk++)=tmpCovMtx(i,j);
            }
 	 }
-         ATH_MSG_DEBUG("floatErrMtx size " << floatErrMtx.size());
        }else{
          floatErrMtx.resize(6);
          for(int i=0; i<6; i++) floatErrMtx[i]=covVertices[iv][i];
        }
        tmpXAODVertex->setCovariance(floatErrMtx);
-       std::vector<VxTrackAtVertex> xaodVTAV=tmpXAODVertex->vxTrackAtVertex();
-       xaodVTAV.swap(tmpVTAV);
+       std::vector<VxTrackAtVertex> & xaodVTAV=tmpXAODVertex->vxTrackAtVertex();
+       xaodVTAV.swap(*tmpVTAV);
        for(int itvk=0; itvk<(int)xaodVTAV.size(); itvk++) {
           ElementLink<xAOD::TrackParticleContainer> TEL;  TEL.setElement( m_partListForCascade[itvk] );
           tmpXAODVertex->addTrackAtVertex(TEL,1.);
@@ -741,8 +742,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
        xaodVrtList.push_back(tmpXAODVertex);              //VK Save xAOD::Vertex
 //
 //---- Save and clean
- //      delete tmpRecV;         //Mandatory cleaning
-       delete fullDeriv;
+       delete tmpVTAV;delete tmpRecV;         //Mandatory cleaning
     }
 //
 //  Save momenta of all particles including combined at vertex positions
@@ -787,14 +787,10 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
        }
     }    
 //
-    
 //
 //    VxCascadeInfo * recCascade= new VxCascadeInfo(vxVrtList,particleMoms,particleCovs, NDOF ,fullChi2);
     VxCascadeInfo * recCascade= new VxCascadeInfo(xaodVrtList,particleMoms,particleCovs, NDOF ,fullChi2);
     recCascade->setFullCascadeCovariance(FULL);
-
-
-
     return recCascade;
 }
 
