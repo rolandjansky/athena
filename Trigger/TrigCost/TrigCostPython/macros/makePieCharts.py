@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 import sys, string, math, shutil
 from TrigCostPython import TrigCostAnalysis, TrigCostXML
-import ROOT, PyCintex
+import ROOT
 
 #--------------------------------------------------------------------
 #  List of colors for the pie chart

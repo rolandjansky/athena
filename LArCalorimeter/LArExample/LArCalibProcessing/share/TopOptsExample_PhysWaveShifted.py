@@ -70,8 +70,8 @@ LArPhysWaveShifter.OutputLevel  = DEBUG
 #dtStore.OutputLevel = DEBUG
 
 #----------------------
-# Dump ConditionsStore
+# Dump ConditionStore
 #----------------------
-#cdStore = StoreGateSvc("ConditionsStore")
+#cdStore = StoreGateSvc("ConditionStore")
 #cdStore.Dump = True
 #cdStore.OutputLevel = DEBUG

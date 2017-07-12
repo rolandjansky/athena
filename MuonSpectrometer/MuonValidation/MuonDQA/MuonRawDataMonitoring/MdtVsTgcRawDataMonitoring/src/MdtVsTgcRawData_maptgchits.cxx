@@ -37,14 +37,14 @@
 
 using namespace std;
 void
-MdtVsTgcRawDataValAlg::maphists(const xAOD::MuonSegmentContainer *m_newsegment,
+MdtVsTgcRawDataValAlg::maphists(const xAOD::MuonSegmentContainer *newsegment,
                                 const Muon::TgcPrepDataContainer *tgc_prepcontainer){//use new mdt segment
-  if(m_debuglevel) m_log<<MSG::DEBUG<<"inside maptgchits"<<endmsg;
+  ATH_MSG_DEBUG("inside maptgchits" );
   
   ///////////////////////////////////////////////////////////////////////////////////////////////
   // loop over MDT Segment Collection
-  xAOD::MuonSegmentContainer::const_iterator mdtseg_itr = m_newsegment->begin();
-  xAOD::MuonSegmentContainer::const_iterator mdtseg_end = m_newsegment->end();
+  xAOD::MuonSegmentContainer::const_iterator mdtseg_itr = newsegment->begin();
+  xAOD::MuonSegmentContainer::const_iterator mdtseg_end = newsegment->end();
   for(; mdtseg_itr!=mdtseg_end; ++mdtseg_itr){
     if(!(*mdtseg_itr)->muonSegment().isValid())continue;
     // Get segm
@@ -98,7 +98,7 @@ MdtVsTgcRawDataValAlg::maphists(const xAOD::MuonSegmentContainer *m_newsegment,
         float  segmGlobalPhi  = segmGlobalPos.phi();
         if(segmGlobalPhi<0) segmGlobalPhi+=2*M_PI;
         // Fill position histogram
-        mdt_segmmap[segmAC][jMDT]->Fill(segmGlobalPhi, segmGlobalEta);
+        m_mdt_segmmap[segmAC][jMDT]->Fill(segmGlobalPhi, segmGlobalEta);
       }// If hits in Station
     }// jMDT
   }// MDT Segment Collection
@@ -115,7 +115,7 @@ MdtVsTgcRawDataValAlg::maphists(const xAOD::MuonSegmentContainer *m_newsegment,
     for( Muon::TgcPrepDataCollection::const_iterator tgc_itc=(*tgc_it)->begin();
          tgc_itc!= tgc_itc_end;
          ++tgc_itc){
-      Muon::TgcPrepData* tpd=*tgc_itc;
+      const Muon::TgcPrepData* tpd=*tgc_itc;
       
       // Get detector information
       const MuonGM::TgcReadoutElement *tre = tpd->detectorElement();
@@ -149,9 +149,9 @@ MdtVsTgcRawDataValAlg::maphists(const xAOD::MuonSegmentContainer *m_newsegment,
 }// End of function
 
 void
-MdtVsTgcRawDataValAlg::maphists(const Trk::SegmentCollection *m_segmcollection,
+MdtVsTgcRawDataValAlg::maphists(const Trk::SegmentCollection *segmcollection,
                                 const Muon::TgcPrepDataContainer *tgc_prepcontainer){//use old mdt segment
-  if(m_debuglevel) m_log<<MSG::DEBUG<<"inside maptgchits"<<endmsg;
+  ATH_MSG_DEBUG("inside maptgchits" );
   
   //////////////////////////////////////////////////////
   // Declare flags for data types present
@@ -165,8 +165,8 @@ MdtVsTgcRawDataValAlg::maphists(const Trk::SegmentCollection *m_segmcollection,
   
   ///////////////////////////////////////////////////////////////////////////////////////////////
   // loop over MDT Segment Collection
-  for(Trk::SegmentCollection::const_iterator s = m_segmcollection->begin();
-      s!=m_segmcollection->end();
+  for(Trk::SegmentCollection::const_iterator s = segmcollection->begin();
+      s!=segmcollection->end();
       ++s){
     // Get segm
     const Muon::MuonSegment *segm=dynamic_cast<const Muon::MuonSegment*>(*s);
@@ -246,7 +246,7 @@ MdtVsTgcRawDataValAlg::maphists(const Trk::SegmentCollection *m_segmcollection,
         //nMDTSegm[segmAC]++;
         
         // Fill position histogram
-        mdt_segmmap[segmAC][jMDT]->Fill(segmGlobalPhi, segmGlobalEta);
+        m_mdt_segmmap[segmAC][jMDT]->Fill(segmGlobalPhi, segmGlobalEta);
       }// If hits in Station
     }// jMDT
   }// MDT Segment Collection
@@ -263,7 +263,7 @@ MdtVsTgcRawDataValAlg::maphists(const Trk::SegmentCollection *m_segmcollection,
     for( Muon::TgcPrepDataCollection::const_iterator tgc_itc=(*tgc_it)->begin();
          tgc_itc!= tgc_itc_end;
          ++tgc_itc){
-      Muon::TgcPrepData* tpd=*tgc_itc;
+      const Muon::TgcPrepData* tpd=*tgc_itc;
       
       // Get detector information
       const MuonGM::TgcReadoutElement *tre = tpd->detectorElement();

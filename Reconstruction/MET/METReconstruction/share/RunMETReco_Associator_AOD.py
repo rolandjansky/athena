@@ -1,32 +1,16 @@
-options=locals()
-options.setdefault('EvtMax',10)
-options.setdefault('UseIsolationTools',True)
-options.setdefault('Inputfile',"/home/masaito/maxi183/datafiles/mc15_13TeV/AOD/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.merge.AOD.e3601_s2576_s2132_r7725_r7676/AOD.07918963._000185.pool.root.1")
-options.setdefault('Outputfile',"xAOD.pool.root")
-
 import AthenaPoolCnvSvc.ReadAthenaPool
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon import CfgMgr
 
-#import METReconstruction.METConfig_Calo
-
 from RecExConfig.RecFlags import rec
-#if rec.doTruth:
-#    import METReconstruction.METConfig_Truth
 
-filelist = [#"valid2.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.AOD.e3099_s2578_r7226/AOD.06803710._000047.pool.root.1",
-            #"valid2.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.AOD.e3099_s2578_r7226/AOD.06803710._000254.pool.root.1",
-#    "myESD.pool.root"
-#    "/atlas/data1/userdata/khoo/Data15/mc15_ESD/mc15_13TeV.422008.ParticleGun_single_ele_Pt100.recon.ESD.e4459_s2726_r7143_tid06642056_00/ESD.06642056._000021.pool.root.1"
-#    "/atlas/data1/userdata/khoo/Data15/mc15_ESD/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.ESD.e3698_s2608_s2183_r7509_tid07497143_00/ESD.07497143._000004.pool.root.1"
-#    "/atlas/data1/userdata/khoo/Data15/xAOD_20.7/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.AOD.e3698_s2608_s2183_r7725_r7676/AOD.07915894._000339.pool.root.1"
-#     "/home/masaito/data4/QualificationTask/MakeMETReconstruction_aodtoaod3_2/test01/run/output_new/AODM/output.AOD.pool.root"
-#     "/home/masaito/maxi183/datafiles/mc15_13TeV/AOD/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.merge.AOD.e3601_s2576_s2132_r7725_r7676/AOD.07918963._000185.pool.root.1"
-    ]
+from glob import glob
+filelist = glob("/atlas/data1/userdata/khoo/Data16/AOD_r21/data16_13TeV.00302347.express_express.recon.AOD.r9112/*")
+
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-#athenaCommonFlags.FilesInput = filelist
-athenaCommonFlags.FilesInput = [Inputfile]
+athenaCommonFlags.FilesInput = filelist
+#athenaCommonFlags.FilesInput = [Inputfile]
 ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
 
 ############################################################################
@@ -36,7 +20,7 @@ from AthenaCommon.GlobalFlags import globalflags
 globalflags.DetGeo = 'atlas'
 
 from RecExConfig.InputFilePeeker import inputFileSummary
-print inputFileSummary
+#print inputFileSummary
 if inputFileSummary['evt_type'][0] == 'IS_DATA':
     globalflags.DataSource = 'data'
 else:
@@ -49,37 +33,39 @@ DetFlags.detdescr.all_setOff()
 #DetFlags.detdescr.Calo_setOn()
 if hasattr(DetFlags,'BField_on'): DetFlags.BField_setOn()
 include('RecExCond/AllDet_detDescr.py')
-include('TrkDetDescrSvc/AtlasTrackingGeometrySvc.py')
+from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-############################################################################
-# Set up muon and egamma topocluster links
-#egammaTCLinkAlg = CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("EgammaTCLinks",
-#                                                 ClustersToDecorate="egammaClusters")
-#egammatopoTCLinkAlg = CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("TopoEgammaTCLinks",
-#                                                     ClustersToDecorate="egammaTopoSeededClusters")
-#muonTCLinkAlg = CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("MuonTCLinks",
-#                                               ClustersToDecorate="MuonClusterCollection",
-#                                               UseLeadCellEtaPhi=True)
-#topSequence += egammaTCLinkAlg
-#topSequence += egammatopoTCLinkAlg
-# topSequence += muonTCLinkAlg
-
-# Set up default configurations
-#import METReconstruction.METConfig_Associator
-
-#include('RecExCond/AllDet_detDescr.py')
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
+from GaudiSequencer.PyComps import PyEvtFilter
+filterseq = CfgMgr.AthSequencer("AthFilterSeq")
+#the following lines are examples, pick one...
+# filterseq += PyEvtFilter("PVSoftTrkTail", evt_list=[
+#         # 106239409,
+#         # 103677144,
+#         # 210091212,
+#         # 647377331,
+#         # 649083254,
+#         # 679943194,
+#         # 676957592,
+#         # 931088975,
+#         # 930867220,
+#         # 932105457,
+#         # 932761543,
+#         # 500249532,
+#         # 498552012,
+#         # 8093981,
+#         # 7747623,
+#         # 9713934,
+#         ])
+topSequence += filterseq
 
 ############################################################################
 # Set up an extra associator for testing
 from METReconstruction.METRecoFlags import metFlags
-from METReconstruction.METAssocConfig_readAOD import AssocConfig, METAssocConfig
+from METReconstruction.METAssocConfig import AssocConfig, METAssocConfig
 JetType = 'EMJet'
-#todo check pflow
 
 associators = [AssocConfig(JetType),
                AssocConfig('Muon'),
@@ -90,29 +76,55 @@ associators = [AssocConfig(JetType),
 cfg_akt4em = METAssocConfig('NewAntiKt4EMTopo',
                             associators,
                             doPFlow=False,
-                            doOriginCorrClus=False
+                            doOriginCorrClus=True
                             )
-for assoc in cfg_akt4em.assoclist:
-	assoc.UseIsolationTools=UseIsolationTools
 
 metFlags.METAssocConfigs()[cfg_akt4em.suffix] = cfg_akt4em
 metFlags.METAssocOutputList().append(cfg_akt4em.suffix)
+
+############################################################################
+# Set up an extra associator for testing
+JetType = 'PFlowJet'
+
+associators = [AssocConfig(JetType),
+               AssocConfig('Muon'),
+               AssocConfig('Ele'),
+               AssocConfig('Gamma'),
+               AssocConfig('Tau'),
+               AssocConfig('Soft')]
+cfg_akt4pf = METAssocConfig('NewAntiKt4EMPFlow',
+                            associators,
+                            doPFlow=True,
+                            )
+
+metFlags.METAssocConfigs()[cfg_akt4pf.suffix] = cfg_akt4pf
+metFlags.METAssocOutputList().append(cfg_akt4pf.suffix)
 
 from METReconstruction.METAssocConfig import getMETAssocAlg
 
 # Get the configuration directly from METRecoFlags
 # Can also provide a dict of configurations or list of RecoTools or both
 metAlg = getMETAssocAlg('METAssociation')
-topSequence += metAlg
+filterseq += metAlg
 
 from METUtilities.METMakerConfig import getMETMakerAlg
-for key,conf in metFlags.METAssocConfigs().iteritems():
-    if not conf.doTruth:
-        makerAlg = getMETMakerAlg(conf.suffix,jetColl="AntiKt4EMTopoJets")
-        topSequence += makerAlg
-#ToolSvc.METMaker_NewAntiKt4EMTopo.OutputLevel = DEBUG
+makerAlgEM = getMETMakerAlg("NewAntiKt4EMTopo",jetColl="AntiKt4EMTopoJets")
+# ToolSvc.METMaker_NewAntiKt4EMTopo.OutputLevel=VERBOSE
+ToolSvc.METMaker_NewAntiKt4EMTopo.DoRemoveElecTrks=False
+filterseq += makerAlgEM
+makerAlgPF = getMETMakerAlg("NewAntiKt4EMPFlow",jetColl="AntiKt4EMPFlowJets")
+# ToolSvc.METMaker_NewAntiKt4EMPFlow.OutputLevel=VERBOSE
+ToolSvc.METMaker_NewAntiKt4EMPFlow.DoRemoveElecTrks=False
+filterseq += makerAlgPF
 
-from METReconstruction.METRecoConfig import METConfig,BuildConfig
+# filterseq += CfgMgr.met__METAssocTestAlg("TestMETAssocEMTopo",
+#                                          OutputLevel=VERBOSE,
+#                                          FailOnInconsistency=True,
+#                                          METMapSuffix="NewAntiKt4EMTopo")
+# filterseq += CfgMgr.met__METAssocTestAlg("TestMETAssocEMPFlow",
+#                                          OutputLevel=VERBOSE,
+#                                          FailOnInconsistency=True,
+#                                          METMapSuffix="NewAntiKt4EMPFlow")
 
 write_xAOD = True
 if write_xAOD:
@@ -123,13 +135,17 @@ if write_xAOD:
     protectedInclude("METReconstruction/METReconstructionOutputAODList_jobOptions.py")
 
     from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-    xaodStream = MSMgr.NewPoolRootStream( "StreamAOD", Outputfile )
+    xaodStream = MSMgr.NewPoolRootStream( "StreamAOD", "xAOD3.pool.root" )
     for item in MissingETAODList:
         xaodStream.AddItem(item)
 
-    xaodStream.AddItem('xAOD::MissingETContainer#MET_Reference_AntiKt4EMTopo')
-    xaodStream.AddItem('xAOD::MissingETAuxContainer#MET_Reference_AntiKt4EMTopoAux.')
+    xaodStream.AddItem('xAOD::MissingETContainer#MET_Reference_Anti*')
+    xaodStream.AddItem('xAOD::MissingETAuxContainer#MET_Reference_Anti*Aux.')
 
-theApp.EvtMax = EvtMax
+    xaodStream.AddItem('xAOD::TrackParticleContainer#InDetTrackParticles*')
+    xaodStream.AddItem('xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux.')
+
+    # xaodStream.AddAcceptAlgs( "PVSoftTrkTail" )
+theApp.EvtMax = 200
 ServiceMgr.EventSelector.SkipEvents = 0
 ServiceMgr.MessageSvc.defaultLimit = 9999

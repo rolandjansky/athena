@@ -1,0 +1,65 @@
+
+
+Initializing Gaudi ApplicationMgr using job opts ../share/propertyHandling_test.txt
+JobOptionsSvc        INFO # =======> /home/leggett/bld2/work/gprop2/src/Control/AthenaBaseComps/share/../share/propertyHandling_test.txt
+JobOptionsSvc        INFO # (1,1): alg.rkey = "FooSvc+aaa"
+JobOptionsSvc        INFO # (2,1): alg.wkey = "BarSvc+bbb"
+JobOptionsSvc        INFO # (3,1): alg.ukey = "ccc"
+JobOptionsSvc        INFO # (4,1): alg.rhandle = "FooSvc+ddd"
+JobOptionsSvc        INFO # (5,1): alg.whandle = "BarSvc+eee"
+JobOptionsSvc        INFO # (6,1): alg.uhandle = "fff"
+JobOptionsSvc        INFO # (7,1): alg.rdkey = "FooSvc+ggg.qqq"
+JobOptionsSvc        INFO # (8,1): alg.wdkey = "hhh.rrr"
+JobOptionsSvc        INFO # (9,1): alg.rckey = "iii"
+JobOptionsSvc        INFO # (10,1): alg.wckey = "jjj"
+JobOptionsSvc        INFO # (12,1): alg.gp_rkey = "AAA_gp"
+JobOptionsSvc        INFO # (14,1): tool.rkey = "FooSvc+taa"
+JobOptionsSvc        INFO # (15,1): tool.wkey = "BarSvc+tbb"
+JobOptionsSvc        INFO # (16,1): tool.ukey = "tcc"
+JobOptionsSvc        INFO # (17,1): tool.rhandle = "FooSvc+tdd"
+JobOptionsSvc        INFO # (18,1): tool.whandle = "BarSvc+tee"
+JobOptionsSvc        INFO # (19,1): tool.uhandle = "tff"
+JobOptionsSvc        INFO # (20,1): tool.rdkey = "FooSvc+tgg.qqq"
+JobOptionsSvc        INFO # (21,1): tool.wdkey = "thh.rrr"
+JobOptionsSvc        INFO # (22,1): tool.rckey = "tii"
+JobOptionsSvc        INFO # (23,1): tool.wckey = "tjj"
+JobOptionsSvc        INFO # (25,1): ralg.rkey = "FooSvc+aaa"
+JobOptionsSvc        INFO # (26,1): ralg.whandle = "BarSvc+eee"
+JobOptionsSvc        INFO # (27,1): ralg.rdkey = "FooSvc+yyy.qqq"
+JobOptionsSvc        INFO # (28,1): ralg.wdkey = "zzz.rrr"
+JobOptionsSvc        INFO # (30,1): arralg.rkeyarr = ["raa", "rbb", "rcc", "rdd", "ree", "rff"]
+JobOptionsSvc        INFO # (31,1): arralg.wkeyarr = ["waa", "wbb", "wcc", "wdd", "wee", "wff"]
+JobOptionsSvc        INFO # (32,1): arralg.rkey = "rrr"
+JobOptionsSvc        INFO # (33,1): arralg.wkey = "www"
+JobOptionsSvc        INFO # (35,1): arralg2.rkeyarr = ["aaa"]
+JobOptionsSvc        INFO # (36,1): arralg2.wkeyarr = ["aaa"]
+JobOptionsSvc        INFO # (39,1): tool2.rkey = "taa"
+JobOptionsSvc        INFO # (40,1): tool2.whandle = "tee"
+JobOptionsSvc        INFO # (41,1): tool2.rdkey = "tgg.qqq"
+JobOptionsSvc        INFO # (42,1): tool2.wdkey = "thh.rrr"
+JobOptionsSvc        INFO # (44,1): arrtool.rkeyarr = ["raa", "rbb", "rcc", "rdd", "ree", "rff"]
+JobOptionsSvc        INFO # (45,1): arrtool.wkeyarr = ["waa", "wbb", "wcc", "wdd", "wee", "wff"]
+JobOptionsSvc        INFO # (46,1): arrtool.rkey = "rrr"
+JobOptionsSvc        INFO # (47,1): arrtool.wkey = "www"
+JobOptionsSvc        INFO # (49,1): arrtool2.rkeyarr = ["aaa"]
+JobOptionsSvc        INFO # (50,1): arrtool2.wkeyarr = ["aaa"]
+JobOptionsSvc        INFO Job options successfully read in from ../share/propertyHandling_test.txt
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v28r2)
+                                          running on zeus on Tue Jul  4 11:55:28 2017
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+test1
+ClassIDSvc           INFO  getRegistryEntries: read 751 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 401 CLIDRegistry entries for module ALL
+obj 293847295 StoreGateSvc+tee
+obj 293847295 StoreGateSvc+thh.rrr
+test2
+arrtool2            ERROR Explicit circular data dependency found for id ('AthenaBaseCompsTest::MyObj','StoreGateSvc+aaa')
+arrtool2            FATAL /home/leggett/bld2/work/gprop2/src/Control/AthenaBaseComps/src/AthAlgTool.cxx:84 (StatusCode AthAlgTool::sysInitialize()): code 0: AlgTool::sysInitialize()

@@ -1,3 +1,4 @@
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -13,10 +14,6 @@
 #include "TApplication.h"
 #include "TSystem.h"
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
-#include "Cintex/Cintex.h"
-#endif
-
 using namespace LArSamples;
 
 int main(int argc, char** argv) {
@@ -29,10 +26,6 @@ int main(int argc, char** argv) {
     
 
   TROOT root ("root", "root");
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
-  ROOT::Cintex::Cintex::Enable();
- #endif
- 
   gSystem->Load("libLArCafJobsDict.so");
 
   std::vector<TString> inFileNames;

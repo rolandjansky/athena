@@ -212,15 +212,15 @@ HLTMinBiasMonTool::HLTMinBiasMonTool(const std::string & type, const std::string
 	m_detStore = 0;
 	m_ZdcID = 0;
 	declareProperty("MBTS_countsBothSides", m_mbtsCountsBothSides);
-	declareProperty("pixSpBarr",	pixSpBarr = 0);
-	declareProperty("pixSpECA", 	pixSpECA = 0);
-	declareProperty("pixSpECC", 	pixSpECC = 0);
-	declareProperty("sctSpBarr",	sctSpBarr = 0);
-	declareProperty("sctSpECA", 	sctSpECA = 0);
-	declareProperty("sctSpECC", 	sctSpECC = 0);
-	declareProperty("mbTracks", 	mbTracks = 0);
-	declareProperty("totpix_spEF",	totpix_spEF = 0);
-	declareProperty("totsct_spEF",	totsct_spEF = 0);
+	declareProperty("pixSpBarr",	m_pixSpBarr = 0);
+	declareProperty("pixSpECA", 	m_pixSpECA = 0);
+	declareProperty("pixSpECC", 	m_pixSpECC = 0);
+	declareProperty("sctSpBarr",	m_sctSpBarr = 0);
+	declareProperty("sctSpECA", 	m_sctSpECA = 0);
+	declareProperty("sctSpECC", 	m_sctSpECC = 0);
+	declareProperty("mbTracks", 	m_mbTracks = 0);
+	declareProperty("totpix_spEF",	m_totpix_spEF = 0);
+	declareProperty("totsct_spEF",	m_totsct_spEF = 0);
 }
 
 StatusCode HLTMinBiasMonTool::init()
@@ -1082,16 +1082,16 @@ StatusCode HLTMinBiasMonTool::fillLUCIDInfo()
 {
 	StatusCode sc = StatusCode::SUCCESS;
 	
-	const int m_nLucidTubes = 40;
+	const int nLucidTubes = 40;
 	
 	int hitsA       = 0, hitsC      = 0;
 	int hitsAp      = 0, hitsCp     = 0;
 	int hitsAn      = 0, hitsCn     = 0;
         
-	const LUCID_RawDataContainer* m_LUCID_RawDataContainer;
-	sc = m_storeGate->retrieve(m_LUCID_RawDataContainer, m_LUCID_RawDataContainerName);
+	const LUCID_RawDataContainer* LUCID_RawDataContainer;
+	sc = m_storeGate->retrieve(LUCID_RawDataContainer, m_LUCID_RawDataContainerName);
 
-	if (sc.isFailure() || m_LUCID_RawDataContainer->empty()) {
+	if (sc.isFailure() || LUCID_RawDataContainer->empty()) {
 		if (sc.isFailure())
 			(*m_log) << MSG::WARNING << "Failed to retrieve LucidMinBiasMonTool for  LUCID_RawDataContainer" << endmsg;
 		else
@@ -1100,8 +1100,8 @@ StatusCode HLTMinBiasMonTool::fillLUCIDInfo()
 	} else {
 		(*m_log) << (MSG::DEBUG) << " LUCID_RawDataContainer is retrived from StoreGate " << endmsg;
 
-		LUCID_RawDataContainer::const_iterator LUCID_RawData_itr = m_LUCID_RawDataContainer->begin();
-		LUCID_RawDataContainer::const_iterator LUCID_RawData_end = m_LUCID_RawDataContainer->end();
+		LUCID_RawDataContainer::const_iterator LUCID_RawData_itr = LUCID_RawDataContainer->begin();
+		LUCID_RawDataContainer::const_iterator LUCID_RawData_end = LUCID_RawDataContainer->end();
 
 		for (; LUCID_RawData_itr != LUCID_RawData_end; LUCID_RawData_itr++) {
 
@@ -1115,17 +1115,17 @@ StatusCode HLTMinBiasMonTool::fillLUCIDInfo()
 					<< (*LUCID_RawData_itr)->getWord2n() << endmsg << " word4n : " << (*LUCID_RawData_itr)->getWord3n() << endmsg
 					<< " status: " << (*LUCID_RawData_itr)->getStatus() << endmsg;
 
-			for (int tub = 0; tub < m_nLucidTubes; tub++)
+			for (int tub = 0; tub < nLucidTubes; tub++)
 				if ((*LUCID_RawData_itr)->isTubeFired(tub, 0))
 					hist("lucidChannels")->Fill(tub);
 
 			//previous BX
-			for (int tub = 0; tub < m_nLucidTubes; tub++)
+			for (int tub = 0; tub < nLucidTubes; tub++)
 				if ((*LUCID_RawData_itr)->isTubeFired(tub, 1))
 					hist("lucidChannels_pBX")->Fill(tub);
 
 			//next BX
-			for (int tub = 0; tub < m_nLucidTubes; tub++)
+			for (int tub = 0; tub < nLucidTubes; tub++)
 				if ((*LUCID_RawData_itr)->isTubeFired(tub, 2))
 					hist("lucidChannels_nBX")->Fill(tub);
 
@@ -1736,12 +1736,12 @@ StatusCode HLTMinBiasMonTool::fillSpacePointInfo(const std::string &item)
 {
 	StatusCode sc = StatusCode::SUCCESS;
 	
-	pixSpBarr = 0;
-	pixSpECA = 0;
-	pixSpECC = 0;
-	sctSpBarr = 0;
-	sctSpECA = 0;
-	sctSpECC = 0;
+	m_pixSpBarr = 0;
+	m_pixSpECA = 0;
+	m_pixSpECC = 0;
+	m_sctSpBarr = 0;
+	m_sctSpECA = 0;
+	m_sctSpECC = 0;
 
 	const xAOD::TrigSpacePointCountsContainer* mbSPcont = 0;
 	StatusCode sc_mbsp = m_storeGate->retrieve(mbSPcont, m_spContainerName);
@@ -1764,29 +1764,29 @@ StatusCode HLTMinBiasMonTool::fillSpacePointInfo(const std::string &item)
 			xAOD::TrigSpacePointCounts *id_mbFeature = (*mbSP_coll_itr);
 			unsigned totBins = id_mbFeature->pixelClusTotBins();
 			if ( totBins > 0){
-				pixSpBarr = (int) id_mbFeature->pixelClusBarrelSumEntries(m_timeOverThresholdCut, 0., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
-				hist("PixBarr_SP")->Fill(pixSpBarr);
+				m_pixSpBarr = (int) id_mbFeature->pixelClusBarrelSumEntries(m_timeOverThresholdCut, 0., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
+				hist("PixBarr_SP")->Fill(m_pixSpBarr);
 				
-				pixSpECA = (int) id_mbFeature->pixelClusEndcapASumEntries(m_timeOverThresholdCut, 0., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
-				hist("PixECA_SP")->Fill(pixSpECA);
+				m_pixSpECA = (int) id_mbFeature->pixelClusEndcapASumEntries(m_timeOverThresholdCut, 0., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
+				hist("PixECA_SP")->Fill(m_pixSpECA);
 				
-				pixSpECC = (int) id_mbFeature->pixelClusEndcapCSumEntries(m_timeOverThresholdCut, 0., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
-				hist("PixECC_SP")->Fill(pixSpECC);
+				m_pixSpECC = (int) id_mbFeature->pixelClusEndcapCSumEntries(m_timeOverThresholdCut, 0., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
+				hist("PixECC_SP")->Fill(m_pixSpECC);
 				
 			} else {
 				(*m_log) << MSG::WARNING << "SpacePointCounts is not initialized properly; it has 0 bins in X or Y: "	<< totBins << endmsg;
 			}
                         
-			sctSpBarr = (int) id_mbFeature->sctSpBarrel();
-			sctSpECA = (int) id_mbFeature->sctSpEndcapA();
-			sctSpECC = (int) id_mbFeature->sctSpEndcapC();
+			m_sctSpBarr = (int) id_mbFeature->sctSpBarrel();
+			m_sctSpECA = (int) id_mbFeature->sctSpEndcapA();
+			m_sctSpECC = (int) id_mbFeature->sctSpEndcapC();
 			
-			hist("SctBarr_SP")->Fill(sctSpBarr);
-			hist("SctECA_SP")->Fill(sctSpECA);
-			hist("SctECC_SP")->Fill(sctSpECC);
+			hist("SctBarr_SP")->Fill(m_sctSpBarr);
+			hist("SctECA_SP")->Fill(m_sctSpECA);
+			hist("SctECC_SP")->Fill(m_sctSpECC);
                         
-			hist("PixTot")->Fill(pixSpBarr + pixSpECA + pixSpECC);
-			hist("SctTot")->Fill(sctSpBarr + sctSpECA + sctSpECC); //has overflows -> deeper investigation needed
+			hist("PixTot")->Fill(m_pixSpBarr + m_pixSpECA + m_pixSpECC);
+			hist("SctTot")->Fill(m_sctSpBarr + m_sctSpECA + m_sctSpECC); //has overflows -> deeper investigation needed
 		}
 
 	} // end TrigSpacePointCounts
@@ -1795,9 +1795,9 @@ StatusCode HLTMinBiasMonTool::fillSpacePointInfo(const std::string &item)
         
         bool sim = false;
 	if (m_triggerTypeAND) {
-                sim = ((pixSpBarr + pixSpECC + pixSpECA) > m_totalPixelClus_cut) && ((sctSpBarr + sctSpECA + sctSpECC) > m_totalSctSp_cut);
+                sim = ((m_pixSpBarr + m_pixSpECC + m_pixSpECA) > m_totalPixelClus_cut) && ((m_sctSpBarr + m_sctSpECA + m_sctSpECC) > m_totalSctSp_cut);
 	} else {
-		sim  = ((pixSpBarr + pixSpECC + pixSpECA) > m_totalPixelClus_cut) || ((sctSpBarr + sctSpECA + sctSpECC) > m_totalSctSp_cut);
+		sim  = ((m_pixSpBarr + m_pixSpECC + m_pixSpECA) > m_totalPixelClus_cut) || ((m_sctSpBarr + m_sctSpECA + m_sctSpECC) > m_totalSctSp_cut);
 	}
          
 	if (!sim) { //Trigger mismatch; error
@@ -1826,9 +1826,9 @@ StatusCode HLTMinBiasMonTool::fillTrackingInfo()
 	} else {
 		(*m_log) << MSG::DEBUG << " ====== START HLTMinBias MonTool for xAOD::TrigTrackCountsContainer ====== " << endmsg;
 
-		mbTracks = 0;
-		totpix_spEF = 0;
-		totsct_spEF = 0;
+		m_mbTracks = 0;
+		m_totpix_spEF = 0;
+		m_totsct_spEF = 0;
 
 		// Loop over EF TrigMinBias objects
 		xAOD::TrigTrackCountsContainer::const_iterator mbTT_coll_itr = mbTTcont->begin();
@@ -1836,8 +1836,8 @@ StatusCode HLTMinBiasMonTool::fillTrackingInfo()
 			xAOD::TrigTrackCounts *mbTT = (*mbTT_coll_itr);
 
 			if (mbTT->z0Bins() > 0) {
-				mbTracks = (int) (mbTT->z0_ptSumEntries(m_max_z0, m_min_pt, xAOD::TrigHistoCutType::BELOW_X_ABOVE_Y));
-				hist("MinbiasTracks")->Fill(mbTracks);
+				m_mbTracks = (int) (mbTT->z0_ptSumEntries(m_max_z0, m_min_pt, xAOD::TrigHistoCutType::BELOW_X_ABOVE_Y));
+				hist("MinbiasTracks")->Fill(m_mbTracks);
 			} else {
 				(*m_log) << MSG::WARNING << "The trigger histogram z0_pt is not initialized properly; it has 0 bins in X or Y: " << mbTT->z0Bins()	<< endmsg;
 			}

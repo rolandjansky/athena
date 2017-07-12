@@ -14,8 +14,8 @@ class FTK_RoadMarketInput : public FTKRoadInput {
 private:
   FTK_RoadMarketTool *m_market; // real object if the stream
 
-  FTKRoad **cur_road;
-  int *cur_iroad;
+  FTKRoad **m_cur_road;
+  int *m_cur_iroad;
 
   void notValid(const char *);
 public:

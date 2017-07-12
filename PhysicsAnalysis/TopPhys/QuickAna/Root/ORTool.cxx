@@ -32,8 +32,11 @@ namespace ana
     declareProperty("ORInputLabel", m_orFlags.inputLabel);
     declareProperty("OROutputLabel", m_orFlags.outputLabel);
     declareProperty("BJetLabel", m_orFlags.bJetLabel);
-    declareProperty("BoostedLeptons", m_orFlags.boostedLeptons);
     declareProperty("AnaSelectionName", m_anaSelectionName);
+    declareProperty("BoostedLeptons", m_orFlags.boostedLeptons);
+    declareProperty("SlidingConeType", m_slidingConeType);
+    declareProperty("JVTPriorities", m_jvtPriorities=false);
+    declareProperty("ApplyRelPt", m_applyRelPt=false);
   }
 
   //---------------------------------------------------------------------------
@@ -71,9 +74,36 @@ namespace ana
     // definitions are disabled, so we currently just configure all overlap
     // tools and disable the pointer safety checks
     ATH_CHECK( m_orToolBox.masterTool.setProperty("RequireExpectedPointers", false) );
+    ATH_CHECK( m_orToolBox.muJetORT.setProperty("ApplyRelPt", m_applyRelPt) );
 
     // Set some global properties
     //ATH_CHECK( m_orToolBox.setGlobalProperty("OutputLevel", MSG::DEBUG) );
+
+    // Deal with JVT priority for the relevant tools
+    if (m_jvtPriorities){
+      ATH_CHECK(m_orToolBox.eleJetORT.setProperty("EnableUserPriority", true));
+      ATH_CHECK(m_orToolBox.muJetORT.setProperty("EnableUserPriority", true));
+      ATH_CHECK(m_orToolBox.tauJetORT.setProperty("EnableUserPriority", true));
+      ATH_CHECK(m_orToolBox.phoJetORT.setProperty("EnableUserPriority", true));
+    }
+
+    // Override boosted OR sliding cone options
+    if(!m_slidingConeType.empty()) {
+      bool slideEle = false;
+      bool slideMu = false;
+      if(m_slidingConeType == "electron") {
+        slideEle = true;
+      } else if(m_slidingConeType == "muon") {
+        slideMu = true;
+      } else if(m_slidingConeType == "both") {
+        slideEle = slideMu = true;
+      } else {
+        ATH_MSG_ERROR("Unsupported SlidingConeType: " << m_slidingConeType);
+        return StatusCode::FAILURE;
+      }
+      ATH_CHECK( m_orToolBox.eleJetORT.setProperty("UseSlidingDR", slideEle) );
+      ATH_CHECK( m_orToolBox.muJetORT.setProperty("UseSlidingDR", slideMu) );
+    }
 
     // Initialzie the toolbox
     ATH_CHECK( m_orToolBox.initialize() );
@@ -103,6 +133,29 @@ namespace ana
   StatusCode ORTool ::
   execute(IEventObjects& objects)
   {
+    if (m_jvtPriorities){
+      // Reset the priorities of all objects so that non-JVT jets cannot remove the others
+      SG::AuxElement::Accessor<SelectType> inAcc(m_orFlags.inputLabel);
+      if (objects.electrons()){
+        for (auto e : *objects.electrons()) inAcc(*e) = inAcc(*e)*2;
+      }
+      if (objects.muons()){
+        for (auto m : *objects.muons()) inAcc(*m) = inAcc(*m)*2;
+      }
+      if (objects.photons()){
+        for (auto p : *objects.photons()) inAcc(*p) = inAcc(*p)*2;
+      }
+      if (objects.taus()){
+        for (auto t : *objects.taus()) inAcc(*t) = inAcc(*t)*2;
+      }
+      if (objects.jets()){
+        SG::AuxElement::Accessor<SelectType> jvtAcc("Jvt_pass");
+        for (auto j : *objects.jets()){
+          if (jvtAcc(*j)) inAcc(*j) = inAcc(*j)*2;
+        }
+      }
+    }
+
     auto& orTool = m_orToolBox.masterTool;
     ATH_CHECK( orTool->removeOverlaps(objects.electrons(), objects.muons(),
                                       objects.jets(), objects.taus(),
@@ -146,7 +199,9 @@ namespace
   //---------------------------------------------------------------------------
   StatusCode makeORTool(ana::DefinitionArgs& args,
                         const std::string& bJetLabel = "",
-                        const bool boostedLeptons = false)
+                        const std::string& boostedLeptons = "",
+                        const bool useJVT = false,
+                        const bool applyRelPt = false)
   {
     using namespace ana::msgObjectDefinition;
 
@@ -156,8 +211,12 @@ namespace
     auto anaLabel = config->selectionName(ana::SelectionStep::ANALYSIS);
     ANA_CHECK( orTool->setProperty("ORInputLabel", inLabel) );
     ANA_CHECK( orTool->setProperty("BJetLabel", bJetLabel) );
-    ANA_CHECK( orTool->setProperty("BoostedLeptons", boostedLeptons) );
+    bool doBoostedLeptons = ! boostedLeptons.empty();
+    ANA_CHECK( orTool->setProperty("BoostedLeptons", doBoostedLeptons) );
+    ANA_CHECK( orTool->setProperty("SlidingConeType", boostedLeptons) );
     ANA_CHECK( orTool->setProperty("AnaSelectionName", anaLabel) );
+    ANA_CHECK( orTool->setProperty("JVTPriorities", useJVT) );
+    ANA_CHECK( orTool->setProperty("ApplyRelPt", applyRelPt) );
     args.add( std::move(orTool) );
 
     return StatusCode::SUCCESS;
@@ -166,7 +225,11 @@ namespace
   // Register the object definitions
   QUICK_ANA_OR_DEFINITION_MAKER( "default", makeORTool(args) )
   QUICK_ANA_OR_DEFINITION_MAKER( "heavyFlavor", makeORTool(args, "bjet_OR") )
-  QUICK_ANA_OR_DEFINITION_MAKER( "boosted", makeORTool(args, "", true) )
-  QUICK_ANA_OR_DEFINITION_MAKER( "boostedHF", makeORTool(args, "bjet_OR", true) )
+  QUICK_ANA_OR_DEFINITION_MAKER( "boosted", makeORTool(args, "", "both") )
+  QUICK_ANA_OR_DEFINITION_MAKER( "boostedHF", makeORTool(args, "bjet_OR", "both") )
+
+  QUICK_ANA_OR_DEFINITION_MAKER( "boostedHF_JVT", makeORTool(args, "bjet_OR", "both", true) )
+  QUICK_ANA_OR_DEFINITION_MAKER( "boostedMuHF_JVT", makeORTool(args, "bjet_OR", "muon", true) )
+  QUICK_ANA_OR_DEFINITION_MAKER( "zzllvv", makeORTool(args, "", "", true, true) )
 
 } // anonymous namespace

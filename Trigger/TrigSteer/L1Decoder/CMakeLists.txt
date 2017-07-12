@@ -52,6 +52,7 @@ atlas_add_component( L1Decoder
 		     L1DecoderLib	
                      )
 
+atlas_install_python_modules( python/*.py)
 # Install files from the package:
 atlas_install_headers( L1Decoder )
 atlas_install_joboptions( share/*.py )

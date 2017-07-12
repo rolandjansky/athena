@@ -42,9 +42,6 @@
 namespace LVL1MUCTPI {
 
   // Set the default StoreGate locations of input and output objects:
-  const std::string L1Muctpi::m_DEFAULT_locationMuCTPItoCTP      = "/Run/L1MuCTPItoCTPLocation";
-  const std::string L1Muctpi::m_DEFAULT_locationMuCTPItoL1Topo   = "/Run/L1MuCTPItoL1TopoLocation";
-  const std::string L1Muctpi::m_DEFAULT_locationMuCTPItoRoIB     = "/Run/L1MuCTPItoRoIBLocation";
   const std::string L1Muctpi::m_DEFAULT_L1MuctpiStoreLocationRPC = "/Event/L1MuctpiStoreRPC";
   const std::string L1Muctpi::m_DEFAULT_L1MuctpiStoreLocationTGC = "/Event/L1MuctpiStoreTGC";
   const std::string L1Muctpi::m_DEFAULT_AODLocID                 = "LVL1_ROI";
@@ -79,9 +76,9 @@ namespace LVL1MUCTPI {
     declareProperty( "AODLocID", m_aodLocId = m_DEFAULT_AODLocID );
     declareProperty( "RDOLocID", m_rdoLocId = m_DEFAULT_RDOLocID );
     declareProperty( "RDOOutputLocID", m_rdoOutputLocId = m_DEFAULT_RDOLocID );
-    declareProperty( "RoIOutputLocID", m_roiOutputLocId = m_DEFAULT_locationMuCTPItoRoIB );
-    declareProperty( "CTPOutputLocID", m_ctpOutputLocId = m_DEFAULT_locationMuCTPItoCTP );
-    declareProperty( "L1TopoOutputLocID", m_l1topoOutputLocId = m_DEFAULT_locationMuCTPItoL1Topo );
+    declareProperty( "RoIOutputLocID", m_roiOutputLocId = LVL1MUCTPI::DEFAULT_MuonRoIBLocation );
+    declareProperty( "CTPOutputLocID", m_ctpOutputLocId = LVL1MUCTPI::DEFAULT_MuonCTPLocation );
+    declareProperty( "L1TopoOutputLocID", m_l1topoOutputLocId = LVL1MUCTPI::DEFAULT_MuonL1TopoLocation);
     // These are just here for flexibility, normally they should not be changed:
     declareProperty( "TGCLocID", m_tgcLocId = m_DEFAULT_L1MuctpiStoreLocationTGC );
     declareProperty( "RPCLocID", m_rpcLocId = m_DEFAULT_L1MuctpiStoreLocationRPC );

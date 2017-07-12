@@ -29,7 +29,7 @@ namespace {
   static dqm_algorithms::DivideReference d9("BinContentComp");
 }
 
-dqm_algorithms::DivideReference::DivideReference(const std::string& name ) : name_(name)
+dqm_algorithms::DivideReference::DivideReference(const std::string& name ) : m_name(name)
 {
   dqm_core::AlgorithmManager::instance().registerAlgorithm("DivideReference_"+name,this);
 }
@@ -37,7 +37,7 @@ dqm_algorithms::DivideReference::DivideReference(const std::string& name ) : nam
 dqm_algorithms::DivideReference* 
 dqm_algorithms::DivideReference::clone()
 {
-  return new DivideReference(name_);
+  return new DivideReference(m_name);
 }
 
 dqm_core::Result* 
@@ -86,15 +86,15 @@ dqm_algorithms::DivideReference::execute(const std::string& name, const TObject&
   //Configuration done, prepare input histogram
   histogram->Divide(refhist);
   //Now prepare to run the real algorithm...
-  ERS_DEBUG(2,"Running algorithm: "<<name_);
+  ERS_DEBUG(2,"Running algorithm: "<<m_name);
   dqm_core::Algorithm* subalgorithm;
   try {
-    subalgorithm = dqm_core::AlgorithmManager::instance().getAlgorithm( name_ );
+    subalgorithm = dqm_core::AlgorithmManager::instance().getAlgorithm( m_name );
   }
   catch ( dqm_core::AlgorithmNotFound& ex )
     {
-      ERS_DEBUG(2,"Cannot find algorithm:"+name_);
-      throw dqm_core::BadConfig(ERS_HERE,name,"Cannot Find sub-algorithm:"+name_);
+      ERS_DEBUG(2,"Cannot find algorithm:"+m_name);
+      throw dqm_core::BadConfig(ERS_HERE,name,"Cannot Find sub-algorithm:"+m_name);
     }
   //Copy configuration and update reference
   dqm_algorithms::tools::SimpleAlgorithmConfig newConf( config );
@@ -132,7 +132,7 @@ dqm_algorithms::DivideReference::execute(const std::string& name, const TObject&
 
 
 void dqm_algorithms::DivideReference::printDescription(std::ostream& out) {
-  out<<"DivideReference_"+name_+" : Performst the "+name_+" algorithm after dividing the input histogram by the reference. I.e. performing: histogram /= Reference (see TH1::Divide). Adds to the output TObject list the modified input histogram."<<std::endl;
+  out<<"DivideReference_"+m_name+" : Performs the "+m_name+" algorithm after dividing the input histogram by the reference. I.e. performing: histogram /= Reference (see TH1::Divide). Adds to the output TObject list the modified input histogram."<<std::endl;
   out<<"Optional Parameter : MinStat : Minimum histogram statistics needed to perform Algorithm"<<std::endl;
 
 

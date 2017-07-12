@@ -28,17 +28,17 @@ namespace
 }
 
 dqm_algorithms::RootFitGraph::RootFitGraph( const std::string & name )
-  : name_( name )
+  : m_name( name )
 { 
 
-  if (name_ == "fermi"){
-    func = std::auto_ptr<TF1> ( new TF1("fermi","[0]/(1+exp(([1]-x)/[2]))") );
+  if (m_name == "fermi"){
+    m_func = std::auto_ptr<TF1> ( new TF1("fermi","[0]/(1+exp(([1]-x)/[2]))") );
   }
-  if (name_ == "erf"){
-    func = std::auto_ptr<TF1> ( new TF1("erf","[0]*TMath::Erf((x-[1])/(sqrt(2.)*[2]))") );
+  if (m_name == "erf"){
+    m_func = std::auto_ptr<TF1> ( new TF1("erf","[0]*TMath::Erf((x-[1])/(sqrt(2.)*[2]))") );
   }
-  if (name_ == "flat"){
-    func = std::auto_ptr<TF1> ( new TF1("flat","[0]") );
+  if (m_name == "flat"){
+    m_func = std::auto_ptr<TF1> ( new TF1("flat","[0]") );
   }
   dqm_core::AlgorithmManager::instance().registerAlgorithm( "Simple_"+name +"_Fit_Graph", this );
 }
@@ -46,13 +46,13 @@ dqm_algorithms::RootFitGraph::RootFitGraph( const std::string & name )
 dqm_algorithms::RootFitGraph::~RootFitGraph()
 {
   // totally defeats the purpose of auto_ptr, but fixes a segfault in 5.34 ...
-  func.release();
+  m_func.release();
 }
 
 dqm_algorithms::RootFitGraph * 
 dqm_algorithms::RootFitGraph::clone()
 {
-  return new RootFitGraph( name_ );
+  return new RootFitGraph( m_name );
 }
 
 
@@ -134,52 +134,52 @@ dqm_algorithms::RootFitGraph::execute(	const std::string & name,
     std::cout <<" fit option " << option << std::endl;
   }
   //std::cout<<"ROOTFITGRAPH = trying to do fits"<<std::endl;  
-  if (name_ == "fermi") {
+  if (m_name == "fermi") {
     if(verbose)std::cout << "set "<<name<< " parameters" << std::endl;
-    func->SetParameter(0,ymax*0.9);
-    func->SetParameter(1,xaxismean);
-    func->SetParameter(2,xdiff/50.);
-    func->SetParNames("Plateau","Threshold","Resolution");
+    m_func->SetParameter(0,ymax*0.9);
+    m_func->SetParameter(1,xaxismean);
+    m_func->SetParameter(2,xdiff/50.);
+    m_func->SetParNames("Plateau","Threshold","Resolution");
 
-    func->SetParLimits(0, ymin - 0.1 * ydiff, ymax + 0.1 * ydiff );
-    func->SetParLimits(1, xmin, xmax );
-    func->SetParLimits(2, 0., xdiff/4. );
+    m_func->SetParLimits(0, ymin - 0.1 * ydiff, ymax + 0.1 * ydiff );
+    m_func->SetParLimits(1, xmin, xmax );
+    m_func->SetParLimits(2, 0., xdiff/4. );
   }
-  else if(name_ == "erf") {
+  else if(m_name == "erf") {
     if(verbose)std::cout << "set "<<name<< " parameters" << std::endl;
-    func->SetParameter(0,ymax*0.9);
-    func->SetParameter(1,xaxismean);
-    func->SetParameter(2,xdiff/50.);
-    func->SetParNames("Plateau","Threshold","Resolution");
+    m_func->SetParameter(0,ymax*0.9);
+    m_func->SetParameter(1,xaxismean);
+    m_func->SetParameter(2,xdiff/50.);
+    m_func->SetParNames("Plateau","Threshold","Resolution");
 
-    func->SetParLimits(0, ymin - 0.1 * ydiff, ymax + 0.1 * ydiff );
-    func->SetParLimits(1, xmin, xmax );
-    func->SetParLimits(2, 0., xdiff/4. );
+    m_func->SetParLimits(0, ymin - 0.1 * ydiff, ymax + 0.1 * ydiff );
+    m_func->SetParLimits(1, xmin, xmax );
+    m_func->SetParLimits(2, 0., xdiff/4. );
   }
-  else if(name_ == "flat") {
+  else if(m_name == "flat") {
     if(verbose)std::cout << "set "<<name<< " parameters" << std::endl;
-    func->SetParNames("Height");
+    m_func->SetParNames("Height");
   }
 /*
-  const int numsig = func->GetParNumber("Sigma");
+  const int numsig = m_func->GetParNumber("Sigma");
 
   if (numsig != -1 ){
   	  double sigmaup = dqm_algorithms::tools::GetFirstFromMap( "Sigma_upperLimit", config.getParameters(), 1000000);
-          func->SetParLimits(numsig, 0., sigmaup);
+          m_func->SetParLimits(numsig, 0., sigmaup);
   }
   */ 
 
   if(verbose)std::cout << "fit "<<name<< " with interval cut " << xmin << " - " << xmax  << std::endl;
-  graph->Fit( func.get(), option.c_str(),"",xmin,xmax );
+  graph->Fit( m_func.get(), option.c_str(),"",xmin,xmax );
 
-  const int numsig = func->GetParNumber("Sigma");
+  const int numsig = m_func->GetParNumber("Sigma");
   if (numsig != -1 ){
-	  double sigma=func->GetParameter(numsig);
-	  func->SetParameter(numsig,fabs(sigma));
+	  double sigma=m_func->GetParameter(numsig);
+	  m_func->SetParameter(numsig,fabs(sigma));
   }
 
   try {
-    dqm_core::Result *result= dqm_algorithms::tools::GetFitResult (func.get() , config, minSig );
+    dqm_core::Result *result= dqm_algorithms::tools::GetFitResult (m_func.get() , config, minSig );
     return result;
   }
   catch ( dqm_core::Exception & ex ) {
@@ -190,13 +190,13 @@ dqm_algorithms::RootFitGraph::execute(	const std::string & name,
 void
 dqm_algorithms::RootFitGraph::printDescription(std::ostream& out)
 {
-  out<<"Simple_"+name_+"_Fit_Graph: Does simple "+name_+" fit to graph and checks fit parameters against thresholds\n"<<std::endl;
-  if (name_ == "fermi" ) {
+  out<<"Simple_"+m_name+"_Fit_Graph: Does simple "+m_name+" fit to graph and checks fit parameters against thresholds\n"<<std::endl;
+  if (m_name == "fermi" ) {
     out<<"The following fit Parameters can be checked with Red and Green Thresholds; only one parameter is needed to get back real result"<<std::endl;
     out<<"Green/Red Threshold: Plateau : Plateau fit value to give Green/Red Result"<<std::endl;
     out<<"Green/Red Threshold: Threshold : Fermi energy fit value to give Green/Red Result"<<std::endl;
     out<<"Green/Red Threshold: Resolution : Templature fit value to give Green/Red Result\n"<<std::endl;
-  }else if (name_ == "erf" ) {
+  }else if (m_name == "erf" ) {
     out<<"The following fit Parameters can be checked with Red and Green Thresholds; only one parameter is needed to get back real result"<<std::endl;
     out<<"Green/Red Threshold: Plateau : Plateau fit value to give Green/Red Result"<<std::endl;
     out<<"Green/Red Threshold: Threshold : mean of gaussian fit value to give Green/Red Result"<<std::endl;

@@ -11,8 +11,6 @@
 #ifndef SCTMotherTrigMonTool_H
 #define SCTMotherTrigMonTool_H
 
-#include "TrigDecisionTool/TrigDecisionTool.h"
-
 //Local includes
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
@@ -64,8 +62,6 @@ protected:
   bool m_isStream;
 private:
   std::bitset<N_TRIGGER_TYPES> m_firedTriggers;
-  // TrigDecisionTool
-  ToolHandle<Trig::TrigDecisionTool> m_trigDec;
 
   SG::ReadHandleKey<EventInfo> m_eventInfoKey;
 };

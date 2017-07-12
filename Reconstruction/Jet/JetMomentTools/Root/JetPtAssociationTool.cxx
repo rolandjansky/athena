@@ -49,7 +49,6 @@ int JetPtAssociationTool::modifyJet(xAOD::Jet& jet) const {
   if (!handle.isValid()){
     ATH_MSG_WARNING("Matching jet container not found: "
                     << m_jetContainer_key.key()); 
-    // << m_conname);
     return 2;
   }
 

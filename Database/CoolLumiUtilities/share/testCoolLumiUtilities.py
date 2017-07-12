@@ -11,7 +11,6 @@
 from CoolLumiUtilities.CoolDataReader import CoolDataReader
 
 # Raw objects to handle COOL data
-import PyCintex
 from ROOT import *
 ##### CoolLumiUtilsTestObj
 print 'Testing CoolLumiUtilsTestObj'

@@ -463,7 +463,7 @@ class  ConfiguredNewTrackingSiPattern:
                                                  pTminBrem          = NewTrackingCuts.minPTBrem(),
                                                  RefitPrds          = True)
 	
-         if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM"):
+         if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM")  and globals().has_key('NnPixelClusterSplitProbTool'):
            InDetAmbiguityProcessor.SplitProbTool             = NnPixelClusterSplitProbTool
            InDetAmbiguityProcessor.sharedProbCut             = prob1
            InDetAmbiguityProcessor.sharedProbCut2            = prob2
@@ -503,6 +503,8 @@ class  ConfiguredNewTrackingSiPattern:
          # --- configure Ambiguity solver
          #
          from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguitySolver
+         from RecExConfig.hideInput import hideInput
+         hideInput ('TrackCollection', self.__SiTrackCollection)
          InDetAmbiguitySolver = Trk__TrkAmbiguitySolver(name               = 'InDetAmbiguitySolver'+NewTrackingCuts.extension(),
                                                         TrackInput         = [ InputTrackCollection ],
                                                         TrackOutput        = self.__SiTrackCollection,

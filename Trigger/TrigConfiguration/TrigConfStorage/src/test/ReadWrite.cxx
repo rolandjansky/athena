@@ -346,10 +346,12 @@ JobConfig::PrintSetup(std::ostream & log, std::ostream& (*lineend) ( std::ostrea
    log << lineend;
    log << "----------" << lineend;
    log << "   Input               : ";
-   for(string s: inpar) log << s << ", "; log << lineend;
+   for(string s: inpar) log << s << ", ";
+   log << lineend;
    if( input2 != UNDEF ) {
       log << "   Input for comparison: ";
-      for(string s: inpar2) log << s << ", "; log << lineend;
+      for(string s: inpar2) log << s << ", ";
+      log << lineend;
    }
    if( output != UNDEF ) {
       log << "   Output              : ";

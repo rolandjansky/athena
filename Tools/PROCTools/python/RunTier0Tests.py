@@ -11,6 +11,7 @@ import threading
 import time
 import uuid
 import logging
+import glob
 
 ### Setup global logging
 logging.basicConfig(level=logging.INFO,
@@ -42,12 +43,12 @@ def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID, doR2A=False
 
     CleanDirName="clean_run_"+q+"_"+UniqID
 
-    cmd = "mkdir -p "+CleanRunHeadDir+" ; cd "+CleanRunHeadDir+"; mkdir -p "+CleanDirName+" ; cd "+CleanDirName+" ; source $AtlasSetup/scripts/asetup.sh "+release+" --testarea `pwd` >& /dev/null ; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
+    cmd = "mkdir -p "+CleanRunHeadDir+" ; cd "+CleanRunHeadDir+"; mkdir -p "+CleanDirName+" ; cd "+CleanDirName+" ; source $AtlasSetup/scripts/asetup.sh "+release+" >& /dev/null ; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
     subprocess.call(cmd,shell=True)
     logging.info("Finished clean \"Reco_tf.py --AMI "+q+"\"")
     pass
 
-def RunPatchedQTest(qtest,pwd,release,theTestArea,extraArg, doR2A=False, trigConfig="2017"):
+def RunPatchedQTest(qtest,pwd,release,extraArg, doR2A=False, trigConfig="2017"):
     q=qtest
     if q == 'q431' and doR2A:
         extraArg += " --steering='doRAWtoALL'"
@@ -65,10 +66,10 @@ def RunPatchedQTest(qtest,pwd,release,theTestArea,extraArg, doR2A=False, trigCon
 
     if 'WorkDir_DIR' in os.environ:
         cmake_build_dir = (os.environ['WorkDir_DIR'])
-        cmd = "cd "+pwd+"; source $AtlasSetup/scripts/asetup.sh "+release+" --testarea "+theTestArea+" >& /dev/null    ; source "+cmake_build_dir+"/setup.sh ; mkdir -p run_"+q+"; cd run_"+q+"; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
+        cmd = "cd "+pwd+"; source $AtlasSetup/scripts/asetup.sh "+release+"  >& /dev/null    ; source "+cmake_build_dir+"/setup.sh ; mkdir -p run_"+q+"; cd run_"+q+"; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
         subprocess.call(cmd,shell=True)
     else :
-        cmd = "cd "+pwd+"; source $AtlasSetup/scripts/asetup.sh "+release+" --testarea "+theTestArea+" >& /dev/null  ; mkdir -p run_"+q+"; cd run_"+q+"; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
+        cmd = "cd "+pwd+"; source $AtlasSetup/scripts/asetup.sh "+release+" >& /dev/null  ; mkdir -p run_"+q+"; cd run_"+q+"; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
         subprocess.call(cmd,shell=True)
 
     logging.info("Finished patched \"Reco_tf.py --AMI "+q+"\"")
@@ -86,9 +87,9 @@ def GetReleaseSetup():
     release_head=os.environ['Athena_VERSION']
     platform=os.environ['Athena_PLATFORM']
     project=os.environ['AtlasProject']
-    builds_dir='/cvmfs/atlas-nightlies.cern.ch/repo/sw/'+release_base+'/*/'+project+'/'+release_head
-
-    latest_nightly  = subprocess.Popen(['/bin/bash', '-c',"ls -ltr "+builds_dir+" | grep "+release_head], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0].split('/')[-3]
+    builds_dir_searchStr='/cvmfs/atlas-nightlies.cern.ch/repo/sw/'+release_base+'/[!latest_]*/'+project+'/'+release_head
+    # finds all directories matching above search pattern, and sorts by modification time
+    latest_nightly = sorted(glob.glob(builds_dir_searchStr), key=os.path.getmtime)[-1].split('/')[-3]
 
     if current_nightly != latest_nightly:
         logging.info("Please be aware that you are not testing your tags in the latest available nightly, which is "+latest_nightly )
@@ -102,22 +103,7 @@ def GetReleaseSetup():
 ###############################
 ########### List patch packages
 def list_patch_packages():
-    if 'CMTPATH' in os.environ:
-        if 'TestArea' in os.environ and os.access(os.environ['TestArea'], os.R_OK):
-            logging.info("Patch packages in your InstallArea that will be tested are:\n")
-
-            cmd = ['cmt', 'show', 'packages', os.environ['TestArea']]
-            cmtProc = subprocess.Popen(cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
-            cmtOut = cmtProc.communicate()[0]
-            for line in cmtOut.split('\n'):
-                try:
-                    if line.strip() == '':
-                        continue
-                    (package, packageVersion, packagePath) = line.split()
-                    logging.info('\t%s\n' % (packageVersion))
-                except ValueError:
-                    logging.info("Warning, unusual output from cmt: %s\n" % line )
-    elif 'WorkDir_DIR' in os.environ :                 
+    if 'WorkDir_DIR' in os.environ :                 
         logging.info("Patch packages in your build to be tested:\n")
         myfilepath = os.environ['WorkDir_DIR']                                                                                  
         fname = str(myfilepath) + '/packages.txt'                                                                                                   
@@ -153,7 +139,7 @@ def QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir,UniqID,RunPatchedOnly=Fal
         if "successful run" in test:
             logging.info(step+" Patched test successful")
         else :
-            logging.info(step+" Patched test failed")
+            logging.error(step+" Patched test failed")
             _Test = False
 
         if RunPatchedOnly : continue   # Skip checking reference test because in this mode the clean tests have not been run
@@ -164,15 +150,16 @@ def QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir,UniqID,RunPatchedOnly=Fal
         if "successful run" in ref:
             logging.info(step+" Reference test successful")
         else :
-            logging.info(step+" Reference test failed")
+            logging.error(step+" Reference test failed")
             _Test = False
 
     logging.info("")       
     if _Test == True:
         logging.info("All "+q+" athena steps completed successfully")
     else :
-        logging.info("One or more "+q+" Athena steps failed. Please investigate the cause.")
-        sys.exit()
+        logging.error("One or more "+q+" Athena steps failed. Please investigate the cause.")
+
+    return _Test
              
 
 ############### Run Frozen Tier0 Policy Test 
@@ -188,22 +175,33 @@ def RunFrozenTier0PolicyTest(q,inputFormat,maxEvents,CleanRunHeadDir,UniqID,RunP
     comparison_command = "acmd.py diff-root "+clean_dir+"/my"+inputFormat+".pool.root run_"+q+"/my"+inputFormat+".pool.root --error-mode resilient --ignore-leaves  RecoTimingObj_p1_HITStoRDO_timings  RecoTimingObj_p1_RAWtoESD_mems  RecoTimingObj_p1_RAWtoESD_timings  RAWtoESD_mems  RAWtoESD_timings  ESDtoAOD_mems  ESDtoAOD_timings  HITStoRDO_mems  HITStoRDO_timings --entries "+str(maxEvents)+" > run_"+q+"/diff-root-"+q+"."+inputFormat+".log 2>&1"   
     output,error = subprocess.Popen(['/bin/bash', '-c', comparison_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
-    passed_frozen_tier0_test=False
+    # We want to catch/print both container additions/subtractions as well as
+    # changes in these containers.  `allGood_return_code` is meant to catch
+    # other issues found in the diff (not expected, but just to be safe)
+    passed_frozen_tier0_test=True
+    allGood_return_code=False
 
     f = open("run_"+q+"/diff-root-"+q+"."+inputFormat+".log", 'r')
     for line in f.readlines():
 
-        if "WARNING" in line:
-            logging.info(line)
+        if "WARNING" in line: # Catches container addition/subtractions
+            logging.error(line)
+            passed_frozen_tier0_test=False
+        if "leaves differ" in line: # Catches changes in branches
+            logging.error(line)
+            passed_frozen_tier0_test=False
         if "INFO all good." in line    :
-            passed_frozen_tier0_test=True
+            allGood_return_code = True
+
     f.close()
 
-    if passed_frozen_tier0_test:
+    _Test = passed_frozen_tier0_test and allGood_return_code
+    if _Test:
         logging.info("Passed!")
     else:
-        logging.info("Your tag breaks the frozen tier0 policy in test "+q+". See run_"+q+"/diff-root-"+q+"."+inputFormat+".log file for more information.")
-    pass
+        logging.error("Your tag breaks the frozen tier0 policy in test "+q+". See run_"+q+"/diff-root-"+q+"."+inputFormat+".log file for more information.")
+
+    return _Test
 
 ############### Run A Very Simple Test 
 def RunTest(q,qTestsToRun,TestName,SearchString,MeasurementUnit,FieldNumber,Threshold,CleanRunHeadDir,UniqID):
@@ -222,7 +220,7 @@ def RunTest(q,qTestsToRun,TestName,SearchString,MeasurementUnit,FieldNumber,Thre
         try:
             ref = int(subprocess.Popen(['/bin/bash', '-c',cmd], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0].split()[FieldNumber])
         except:
-            logging.info("No data available in "+ test_dir + "/log."+str(step)+" . Job failed.")
+            logging.error("No data available in "+ test_dir + "/log."+str(step)+" . Job failed.")
             return  
 
         cmd = "grep \""+SearchString+"\" run_"+q+"/log."+str(step)
@@ -230,31 +228,38 @@ def RunTest(q,qTestsToRun,TestName,SearchString,MeasurementUnit,FieldNumber,Thre
         try:
             test = int(subprocess.Popen(['/bin/bash', '-c',cmd], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0].split()[FieldNumber])
         except:
-            logging.info("No data available in run_"+q+"/log."+str(step)+" . Job failed.")
+            logging.error("No data available in run_"+q+"/log."+str(step)+" . Job failed.")
             return
  
 
         if float(ref) != 0 : 
             factor = float(test) / float(ref)
 
-            if  factor > float(1+Threshold) or factor < float(1-Threshold) :
-                logging.info(SearchString+" in the",step," step with(out) your tag is",test,"(",ref,") "+MeasurementUnit  )
-                logging.info("Your tag changes "+SearchString+" by a factor "+str(factor)                                 )
-                logging.info("Is this an expected outcome of your tag(s)?"                                                )
+            # Error if the factor increases (very bad things)
+            # Warning if the factor decreases (should be an understood feature)
+            if  factor > float(1+Threshold) :
+                logging.error(SearchString+" in the",step," step with(out) your tag is",test,"(",ref,") "+MeasurementUnit  )
+                logging.error("Your tag changes "+SearchString+" by a factor "+str(factor)                                 )
+                logging.error("Is this an expected outcome of your tag(s)?"                                                )
                 _Test=False
-    
-                logging.info(step+" : "+TestName                       )
-                logging.info("ref  "+str(ref)+" "+str(MeasurementUnit) )
-                logging.info("test "+str(test)+" "+str(MeasurementUnit))
-
-                
+                logging.error(step+" : "+TestName                       )
+                logging.error("ref  "+str(ref)+" "+str(MeasurementUnit) )
+                logging.error("test "+str(test)+" "+str(MeasurementUnit))
+            if factor < float(1-Threshold) :
+                logging.warning(SearchString+" in the",step," step with(out) your tag is",test,"(",ref,") "+MeasurementUnit  )
+                logging.warning("Your tag changes "+SearchString+" by a factor "+str(factor)                                 )
+                logging.warning("Is this an expected outcome of your tag(s)?"                                                )
+                _Test=True
+                logging.warning(step+" : "+TestName                       )
+                logging.warning("ref  "+str(ref)+" "+str(MeasurementUnit) )
+                logging.warning("test "+str(test)+" "+str(MeasurementUnit))
 
     if _Test:
         logging.info("Passed!")
     else :
-        logging.info("Failed!" )
+        logging.error("Failed!" )
   
-    pass    
+    return _Test
 
 ############### Run a WARNING helper function
 def warnings_count(file_name):
@@ -304,11 +309,11 @@ def RunWARNINGSTest(q,qTestsToRun,CleanRunHeadDir,UniqID):
             _Test=False
 
         elif (len(warnings_test) < len(warnings_ref)):
-            logging.error("Test log file "+test_file+" has "+str(len(warnings_ref) - len(warnings_test))+" less warnings than the reference log file "+ref_file)
-            logging.error("The reduction of unnecessary WARNINGs is much appreciated. Is it expected?")
-            logging.error("The following warning messages have been removed:")
+            logging.warning("Test log file "+test_file+" has "+str(len(warnings_ref) - len(warnings_test))+" less warnings than the reference log file "+ref_file)
+            logging.warning("The reduction of unnecessary WARNINGs is much appreciated. Is it expected?")
+            logging.warning("The following warning messages have been removed:")
             for w in wo:
-                logging.error(w)
+                logging.warning(w)
             _Test=True
         else :
             logging.info("Test log file "+test_file+" has the same number of warnings as the reference log file "+ref_file)
@@ -320,12 +325,9 @@ def RunWARNINGSTest(q,qTestsToRun,CleanRunHeadDir,UniqID):
     if _Test:
         logging.info("Passed!")
     else :
-        logging.info("Failed!" )
+        logging.error("Failed!" )
   
-    pass    
-  
-    pass    
-
+    return _Test
 
 ##########################################################################
 def RunHistTest(q,CleanRunHeadDir,UniqID):
@@ -395,9 +397,9 @@ def main():
 
 ########### Is TriggerFlags.run2Config defined properly?
     if trigRun2Config != "2016" and trigRun2Config != "2017":
-        logging.info("")
-        logging.info("Exit. The value of trigRun2Config can be \"2016\" or \"2017\"")
-        logging.info("")
+        logging.error("")
+        logging.error("Exit. The value of trigRun2Config can be \"2016\" or \"2017\"")
+        logging.error("")
         sys.exit(0)
         
 
@@ -420,36 +422,21 @@ def main():
             logging.info("The head directory for the output of the clean Tier0 q-tests will be "+CleanRunHeadDir)
         logging.info("")
     else:
-        logging.info("")
-        logging.info("Exit. Please specify a directory that exists for the argument of the -c or --cleanDir option")
-        logging.info("")
-        logging.info("RunTier0Tests.py  --cleanDir <ExistingDirectory>")
-        logging.info("")
+        logging.error("")
+        logging.error("Exit. Please specify a directory that exists for the argument of the -c or --cleanDir option")
+        logging.error("")
+        logging.error("RunTier0Tests.py  --cleanDir <ExistingDirectory>")
+        logging.error("")
         sys.exit(0)            
 
 
 ########### Is an ATLAS release setup?
     if 'AtlasPatchVersion' not in os.environ and 'AtlasArea' not in os.environ and 'AtlasBaseDir' not in os.environ:
-        logging.info("Exit. Please setup the an ATLAS release")
-        sys.exit(0)    
-    elif 'TestArea' not in os.environ :
-        logging.info("Exit. The environment variable ${TESTAREA} is not defined."                                        )
-        logging.info("Please re-setup the release with the argument \"here\" in the execution of the asetup command"     )
-        logging.info("to specify the TestArea to be the directory from which you setup the release"                      )
-        logging.info("E.g. "                                                                                             )
-        logging.info("     asetup 20.7.X.Y-VAL,rel_5,AtlasProduction,here"                                               )
-        logging.info(                                                                                                    )
-        logging.info("or use the --testarea <TestArea> option of asetup to explicitly define the TestArea"               )
-        logging.info("E.g. "                                                                                             )
-        logging.info("     asetup 20.7.X.Y-VAL,rel_5,AtlasProduction --testarea `pwd`"                                   )
-        logging.info(                                                                                                    )
+        logging.error("Exit. Please setup the an ATLAS release")
         sys.exit(0)
-    elif not os.path.exists(os.environ['TestArea']):
-        logging.info("Exit. The path for your TestArea "+os.environ['TestArea']+" does not exist!."        )
     else:
         if 'AtlasPatchVersion' not in os.environ and 'AtlasArea' not in os.environ and 'AtlasBaseDir' in os.environ:
-            logging.info("Please be aware that you are running in a base release rather than a Tier0 release, where in general q-tests are not guaranteed to work.")
-
+            logging.warning("Please be aware that you are running a release which seems to not be a Tier0 release, where in general q-tests are not guaranteed to work.")
 
 ########### Define which q-tests to run
 
@@ -469,14 +456,13 @@ def main():
 ########### Get release info
         mysetup = GetReleaseSetup() 
         mypwd   = pwd()
-        myTestArea = os.environ['TestArea']
         cleanSetup = mysetup
 
 ########### List the packages in the local InstallArea                                                                                                                                                                                                                           
         if options.ref and options.val:
             cleanSetup = options.ref
             mysetup = options.val
-            logging.info("WARNING: You have specified a dedicated release as reference %s and as validation %s release, Your local testarea will not be considered!!!" %(cleanSetup, mysetup))
+            logging.info("WARNING: You have specified a dedicated release as reference %s and as validation %s release, Your local setup area will not be considered!!!" %(cleanSetup, mysetup))
             logging.info("this option is mainly designed for comparing release versions!!")
         else:
             list_patch_packages()
@@ -498,7 +484,7 @@ def main():
                     pass
 
                 def mypatchedqtest():
-                    RunPatchedQTest(q,mypwd,mysetup,myTestArea,extraArg, doR2A=r2aMode, trigConfig=trigRun2Config)
+                    RunPatchedQTest(q,mypwd,mysetup,extraArg, doR2A=r2aMode, trigConfig=trigRun2Config)
                     pass
             
                 mythreads[q+"_clean"]   = threading.Thread(target=mycleanqtest)
@@ -516,7 +502,7 @@ def main():
 
 
                 def mypatchedqtest():
-                    RunPatchedQTest(q,mypwd,mysetup,myTestArea,extraArg, doR2A=r2aMode, trigConfig=trigRun2Config)
+                    RunPatchedQTest(q,mypwd,mysetup,extraArg, doR2A=r2aMode, trigConfig=trigRun2Config)
                     pass
             
                 mythreads[q+"_patched"] = threading.Thread(target=mypatchedqtest)
@@ -536,7 +522,7 @@ def main():
                     pass
                 
                 def mypatchedqtest():
-                    RunPatchedQTest(q,mypwd,mysetup,myTestArea,extraArg,trigConfig=trigRun2Config)
+                    RunPatchedQTest(q,mypwd,mysetup,extraArg,trigConfig=trigRun2Config)
                     pass
 
                 mythreads[q+"_clean"]   = threading.Thread(target=mycleanqtest)
@@ -549,33 +535,58 @@ def main():
 
 #Run post-processing tests
 
+
+        All_Tests_Passed = True
+
         for qtest in qTestsToRun:                                       
             q=str(qtest)
             logging.info("-----------------------------------------------------"    )
             logging.info("----------- Post-processing of "+q+" Test -----------"    )
 
-            QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir,UniqName,RunPatchedOnly)
+            # HAZ: Open question -- is there a cleaner way to do this?
+            # HAZ: adding a decorator to `logging` would be nicest (require 0 errors)...
+            if not QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir,UniqName,RunPatchedOnly):
+                All_Tests_Passed = False
+                continue
 
-            RunFrozenTier0PolicyTest(q,"ESD",10,CleanRunHeadDir,UniqName,RunPatchedOnly)
+            if not RunFrozenTier0PolicyTest(q,"ESD",10,CleanRunHeadDir,UniqName,RunPatchedOnly):
+                All_Tests_Passed = False
 
-            RunFrozenTier0PolicyTest(q,"AOD",20,CleanRunHeadDir,UniqName,RunPatchedOnly)
+            if not RunFrozenTier0PolicyTest(q,"AOD",20,CleanRunHeadDir,UniqName,RunPatchedOnly):
+                All_Tests_Passed = False
 
-            if RunPatchedOnly: continue  #
+            if RunPatchedOnly: continue  # Performance checks against static references not possible
     
             if 'q221' in q: 
-                RunFrozenTier0PolicyTest(q,"RDO",10,CleanRunHeadDir,UniqName)
+                if not RunFrozenTier0PolicyTest(q,"RDO",10,CleanRunHeadDir,UniqName):
+                    All_Tests_Passed = False
             
-            RunTest(q,qTestsToRun,"CPU Time"       ,"evtloop_time"    ,"sec/event"   ,4,0.4,CleanRunHeadDir,UniqName)
+            if not RunTest(q,qTestsToRun,"CPU Time"       ,"evtloop_time"    ,"sec/event"   ,4,0.4,CleanRunHeadDir,UniqName):
+                All_Tests_Passed = False
 
-            RunTest(q,qTestsToRun,"Physical Memory","VmRSS"           ,"kBytes"      ,4,0.2,CleanRunHeadDir,UniqName)
+            if not RunTest(q,qTestsToRun,"Physical Memory","VmRSS"           ,"kBytes"      ,4,0.2,CleanRunHeadDir,UniqName):
+                All_Tests_Passed = False
 
-            RunTest(q,qTestsToRun,"Virtual Memory" ,"VmSize"          ,"kBytes"      ,4,0.2,CleanRunHeadDir,UniqName)
+            if not RunTest(q,qTestsToRun,"Virtual Memory" ,"VmSize"          ,"kBytes"      ,4,0.2,CleanRunHeadDir,UniqName):
+                All_Tests_Passed = False
 
-            RunTest(q,qTestsToRun,"Memory Leak"    ,"leakperevt_evt11","kBytes/event",7,0.05,CleanRunHeadDir,UniqName)
+            if not RunTest(q,qTestsToRun,"Memory Leak"    ,"leakperevt_evt11","kBytes/event",7,0.05,CleanRunHeadDir,UniqName):
+                All_Tests_Passed = False
             
-            RunWARNINGSTest(q,qTestsToRun,CleanRunHeadDir,UniqName)
+            if not RunWARNINGSTest(q,qTestsToRun,CleanRunHeadDir,UniqName):
+                All_Tests_Passed = False
 
 #           RunHistTest(q,CleanRunHeadDir,UniqName)
+
+        logging.info("-----------------------------------------------------"    )
+        logging.info("---------------------- Summary ----------------------"    )
+        if All_Tests_Passed:
+            logging.info("ALL TESTS: PASSED (0)")
+        else:
+            logging.error("ALL TESTS: FAILED (-1)")
+
+
+
 
 if __name__ == '__main__':
         main()

@@ -13,6 +13,7 @@
 #include "AthenaKernel/ITimeKeeper.h"
 #include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 
 #include "GaudiKernel/IAlgorithm.h"
 #include "GaudiKernel/SmartIF.h"
@@ -713,7 +714,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   m_eventContext.setEventID( *((EventIDBase*) pEvent->event_ID()) );
   m_eventContext.set(m_nev,0);
 
-  m_eventContext.setProxy( eventStore()->hiveProxyDict() );
+  m_eventContext.setExtension( Atlas::ExtendedEventContext( eventStore()->hiveProxyDict() ) );
   Gaudi::Hive::setCurrentContext( m_eventContext );
 
   m_aess->reset(m_eventContext);

@@ -4,7 +4,6 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/PropertyMgr.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "xAODEventInfo/EventInfo.h"
@@ -1689,9 +1688,12 @@ namespace Muon {
     //  
     if (!m_applySelectionCuts) return true;
 
-    if (m_chiSqCut>0.         && chiSq>m_chiSqCut            ) return 0; m_nPassTrackChi2Cut++;    
-    if (m_nAllowedOutliers>=0 && nOutliers>m_nAllowedOutliers) return 0; m_nPassOutlierCut++;
-    if (m_nAllowedHoles>=0    && nOutliers>m_nAllowedHoles   ) return 0; m_nPassHoleCut++;
+    if (m_chiSqCut>0.         && chiSq>m_chiSqCut            ) return 0;
+    m_nPassTrackChi2Cut++;    
+    if (m_nAllowedOutliers>=0 && nOutliers>m_nAllowedOutliers) return 0;
+    m_nPassOutlierCut++;
+    if (m_nAllowedHoles>=0    && nOutliers>m_nAllowedHoles   ) return 0;
+    m_nPassHoleCut++;
 
     return true;
   }

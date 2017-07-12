@@ -344,8 +344,8 @@ int FTKTSPBank::readROOTBank(const char *fname, int maxpatt)
     }
 
     // define the step
-    ipatt_step = (m_npatterns + 9) / 10;
-    if (!ipatt_step) ipatt_step = 1;
+    m_ipatt_step = (m_npatterns + 9) / 10;
+    if (!m_ipatt_step) m_ipatt_step = 1;
 
     cout << "Reading : [" << flush;
     FTKPattern *ampatt = new FTKPattern();
@@ -353,7 +353,7 @@ int FTKTSPBank::readROOTBank(const char *fname, int maxpatt)
     list<AMSelection>::iterator iAMlist = AMPatternList.begin();
     for (int ipatt = 0; ipatt != m_npatterns; ++ipatt)
     {
-        if (ipatt % ipatt_step == 0) cout << ipatt / ipatt_step << flush;
+        if (ipatt % m_ipatt_step == 0) cout << ipatt / m_ipatt_step << flush;
 
         // Read the AM pattern
         int curAMID(ipatt);
@@ -456,8 +456,8 @@ int FTKTSPBank::readROOTBankCache(const char *fname)
 
     ftksetup.usageStat("Read AM cached bank");
     // define the step
-    ipatt_step = (m_npatterns + 9) / 10;
-    if (!ipatt_step) ipatt_step = 1;
+    m_ipatt_step = (m_npatterns + 9) / 10;
+    if (!m_ipatt_step) m_ipatt_step = 1;
 
     // reset the number of the TSP patterns
     m_npatternsTSP = 0;
@@ -467,7 +467,7 @@ int FTKTSPBank::readROOTBankCache(const char *fname)
     cout << "Reading : [" << flush;
     for (int ipatt = 0; ipatt != m_npatterns; ++ipatt) // pattern loop
     {
-        if (ipatt % ipatt_step == 0) cout << ipatt / ipatt_step << flush;
+        if (ipatt % m_ipatt_step == 0) cout << ipatt / m_ipatt_step << flush;
 
         if(!branch_sectorID) {
            // STS 2016-05-04
@@ -568,7 +568,7 @@ void FTKTSPBank::pattlookup_make_map() {
 
     // Count patterns for ss;
     for (int i = 0; i < m_npatterns; ++i) {
-      if(!(i%ipatt_step)) cout << "Layer " << iplane << ": counting patterns per ss (" << i << ")" << endl;
+      if(!(i%m_ipatt_step)) cout << "Layer " << iplane << ": counting patterns per ss (" << i << ")" << endl;
       // m_pattern content is an array, not a matrix
       int basess = m_patterns[_SSPOS(i,iplane)];
 
@@ -1203,13 +1203,13 @@ void FTKTSPBank::dumpCache()
     // the coverage in the cache file is arbitrary set to -1
     curpatt->setCoverage(-1);
 
-    ipatt_step = (m_npatterns + 9) / 10;
-    if (!ipatt_step) ipatt_step = 1;
+    m_ipatt_step = (m_npatterns + 9) / 10;
+    if (!m_ipatt_step) m_ipatt_step = 1;
 
     cout << "Writing AM bank cache [" << flush;
     for (int ipatt = 0; ipatt != m_npatterns; ++ipatt) // pattern loop
     {
-        if (ipatt % ipatt_step == 0) cout << ipatt / ipatt_step << flush;
+        if (ipatt % m_ipatt_step == 0) cout << ipatt / m_ipatt_step << flush;
         curpatt->clearSubPatterns();
 
         curpatt->setPatternID(ipatt);

@@ -55,6 +55,7 @@ TCS::Connector::reset() {
 
    // clear the output data
    sc &= clearOutput();
+   m_hasInputOverflow = false;
 
    // reset the algorithm
    if(m_algorithm)
@@ -67,8 +68,6 @@ TCS::Connector::reset() {
    return sc;
 }
 
-
-
 unsigned int
 TCS::Connector::numberOutputBits() const {
    if(isDecisionConnector()) {
@@ -76,6 +75,11 @@ TCS::Connector::numberOutputBits() const {
    } else {
       return 0;
    }
+}
+
+void TCS::Connector::toggleInputOverflow(const bool value)
+{
+    m_hasInputOverflow = value;
 }
 
 

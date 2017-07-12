@@ -95,8 +95,8 @@ namespace met {
 
     declareProperty("JetJvtMomentName",   m_jetJvtMomentName   = "Jvt"               );
     declareProperty("JetRejectionDec",    m_jetRejectionDec    = ""                  );
-    declareProperty("JetMinEFrac",        m_jetMinEfrac        = 0.5                 );
-    declareProperty("JetMinWeightedPt",   m_jetMinWeightedPt   = 0.                  );
+    declareProperty("JetMinEFrac",        m_jetMinEfrac        = 0.0                 );
+    declareProperty("JetMinWeightedPt",   m_jetMinWeightedPt   = 20.0e3              );
     //declareProperty("JetConstitScaleMom", m_jetConstitScaleMom = "JetLCScaleMomentum");
     declareProperty("JetConstitScaleMom", m_jetConstitScaleMom = "JetConstitScaleMomentum");
     declareProperty("CorrectJetPhi",      m_jetCorrectPhi      = false               );
@@ -584,6 +584,14 @@ namespace met {
         bool caloverlap = false;
         caloverlap = calvec.ce()>0;
         ATH_MSG_DEBUG("Jet " << jet->index() << " is " << ( caloverlap ? "" : "non-") << "overlapping");
+	if(caloverlap) {
+	  for(const auto& object : assoc->objects()) {
+	    if(assoc->objSelected(object)) {
+	      ATH_MSG_VERBOSE("  Jet overlaps with " << object->type() << " " << object->index() 
+			   << " with pt " << object->pt() << ", phi " << object->phi() );
+	    }
+	  }
+	}
 
 	xAOD::JetFourMom_t constjet;
 	double constSF(1);
@@ -638,7 +646,7 @@ namespace met {
 	  if(obj->type()==xAOD::Type::Muon && !m_useGhostMuons) {
 	    const xAOD::Muon* mu_test(static_cast<const xAOD::Muon*>(obj));
 	    ATH_MSG_VERBOSE("Muon " << mu_test->index() << " found in jet " << jet->index());
-	    if((m_doRemoveMuonJets || m_doSetMuonJetEMScale) && acc_ghostMuons.isAvailable(*jet)) {
+	    if((m_doRemoveMuonJets || m_doSetMuonJetEMScale)) {
 	      if(acc_originalObject.isAvailable(*mu_test)) mu_test = static_cast<const xAOD::Muon*>(*acc_originalObject(*mu_test));
 	      if(MissingETComposition::objSelected(map,mu_test)) { // 
 		muons_in_jet.push_back(mu_test);		
@@ -899,7 +907,7 @@ namespace met {
 	} // is not from muon FSR
       } // association exists
       else {
-	ATH_MSG_WARNING( "WARNING: Jet without association found!" );
+	ATH_MSG_WARNING( "Jet without association found!" );
       }
     } // jet loop
 
@@ -952,7 +960,6 @@ namespace met {
 	    if(acc_originalObject.isAvailable(*mu_test)) mu_test = static_cast<const xAOD::Muon*>(*acc_originalObject(*mu_test));
 	    if(MissingETComposition::objSelected(map,mu_test)) { // 
 	      float mu_Eloss = acc_Eloss(*mu_test);
-
 	      switch(mu_test->energyLossType()) {
 	      case xAOD::Muon::Parametrized:
 	      case xAOD::Muon::MOP:

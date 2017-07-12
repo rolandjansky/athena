@@ -56,7 +56,7 @@
  * -# kVecUO adds the content of the monitored varaible to the bins as if monitored varaible would be another histogram treating oth and last elements as under/overflows
  *
  * @author Tomasz Bold <Tomasz.Bold@cern.ch>
- * @author Wang Meng
+ * @author Piotr Sarna
  */
 
 class GenericMonitoringTool : public AthAlgTool {

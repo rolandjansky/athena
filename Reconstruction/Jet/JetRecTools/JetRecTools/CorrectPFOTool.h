@@ -34,6 +34,7 @@ class CorrectPFOTool : public JetConstituentModifierBase{
     public:
 
   CorrectPFOTool(const std::string& name);
+  StatusCode initialize();
   StatusCode process(xAOD::IParticleContainer* cont) const; 
   StatusCode process(xAOD::PFOContainer* cont) const;
 
@@ -47,7 +48,12 @@ class CorrectPFOTool : public JetConstituentModifierBase{
   bool m_useTrackToVertexTool; //If true, use jet tracktovertex tool
   bool m_applyCHS; //If true, remove charged PFO not matched to the PV
   ToolHandle<CP::IWeightPFOTool> m_weightPFOTool;
-  std::string m_trkVtxAssocName; //Name of track-vertex association container
+
+  SG::ReadHandleKey<xAOD::VertexContainer> 
+    m_vertexContainer_key{"PrimaryVertices"};
+
+  SG::ReadHandleKey<jet::TrackVertexAssociation> m_trkVtxAssoc_key;
+  
 };
 
 #endif

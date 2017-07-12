@@ -14,9 +14,9 @@ class JPsiTPEventCutFlowPlots: public MuonTPCutFlowBase {
 
  private:
 
-  TH1* tp_main_selection;
-  TH1* tp_tag_selection;
-  TH1* tp_probe_selection;
+  TH1* m_tp_main_selection;
+  TH1* m_tp_tag_selection;
+  TH1* m_tp_probe_selection;
 
 };
 

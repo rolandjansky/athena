@@ -25,7 +25,7 @@
 #include "VP1Utils/VP1SGContentsHelper.h"
 
 //Qt
-#include <QtCore/QStringList>
+#include <QStringList>
 
 // SoCoin
 #include <Inventor/C/errors/debugerror.h>
@@ -233,9 +233,7 @@ void IParticleCollHandle_TrackParticle::dumpToJSON( std::ofstream& str) const {
   for (auto handle : getHandlesList() ) {
     if (handle->visible()) {
       if (num) str <<",\n";
-      str << "\"Trk "<<num++<< "\":{";
       handle->dumpToJSON(str);
-      str << "}";
     }
   }
   

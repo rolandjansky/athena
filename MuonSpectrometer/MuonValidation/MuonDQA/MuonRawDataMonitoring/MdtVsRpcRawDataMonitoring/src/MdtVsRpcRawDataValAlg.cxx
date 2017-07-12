@@ -38,9 +38,7 @@
 
 using namespace std;
 
-static const int maxColl =   1200;
 static const int maxPRD  =   50000;
-static const int maxClus =   1000;
 
 //mdt stuff
 static const int maxPrd =    50000;

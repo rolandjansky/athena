@@ -6,8 +6,14 @@
 #define AmdcDbSvcMakerFromRDB_H
 
 #include "AmdcDb/AmdcDbMisc.h"
+
 class IRDBAccessSvc;
 class AmdcDbSvc;
+class IRDBRecord;
+class AmdcDbRecord;
+namespace AmdcDb_detail {
+  class VarDesc;
+}
 
   /**
    @class AmdcDbSvcMakerFromRDB
@@ -99,7 +105,14 @@ private:
    void HwSwIdMapping(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcDbSvc);
    
    void XtomoData(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcDbSvc);
-   
+
+   void addVars (const std::string& NameOfTheSet,
+                 const AmdcDb_detail::VarDesc* beg,
+                 const AmdcDb_detail::VarDesc* end,
+                 IRDBAccessSvc* pIRDBAccessSvc,
+                 AmdcDbSvc* pAmdcDbSvc);
+
+
    std::map< std::string, int> m_Map_Set_EpsLengthMM  ;  
    std::map< std::string, int> m_Map_Set_EpsLengthCM  ;  
    std::map< std::string, int> m_Map_Set_EpsAngle     ;  

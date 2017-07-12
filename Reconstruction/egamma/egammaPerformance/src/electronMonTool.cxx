@@ -374,7 +374,7 @@ StatusCode electronMonTool::fillHistogramsForOneElectron(xAOD::ElectronContainer
 
     ATH_MSG_DEBUG("electrons et, eta and phi" << et << " " << eta << " " << phi);
 
-    if (et>2500) return StatusCode::SUCCESS; 
+    if (et<2500) return StatusCode::SUCCESS; 
     
     ++myHist.m_nElectronsPerRegion[ir];  
     ++myHist.m_nElectrons;  

@@ -21,36 +21,35 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
   // energies in calo layers should be returned in simulstate
   virtual void simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
   
-  //int n_bins() {return 0;};
-  // CHANGE: return number of energy parametrization bins
-  int n_bins() { return (m_RelevantLayers->GetSize()+1); };
-  void P2X(TMatrixD, int gNVariables, double *p, double *x, int nTest); 
-  void P2X(int gNVariables, double *p, double *x, int nTest); 
-  void loadInputs(TFile* file, int);
+  int n_pcabins()        { return m_numberpcabins; };
+  IntArray* get_layers() { return m_RelevantLayers; };
+  
+  void P2X(TVectorD*, TVectorD* , TMatrixD* , int, double* , double* , int);
   void loadInputs(TFile* file);
-  double InvCumulant(TH1D* hist,double y);
-	  
+  void loadInputs(TFile* file,std::string);
+  
  private:
   // PCA Matrix and NN mapping information should be stored as private member variables here
   
-  TMatrixDSym* m_symCov;
-  TMatrixD* m_EV;
-  TVectorD* m_MeanValues;
-  TVectorD* m_SigmaValues;
-  TVectorD* m_Gauss_means;
-  TVectorD* m_Gauss_rms; //Gauss nur einmal speichern!
   IntArray* m_RelevantLayers;
-  TVectorD* m_LowerBounds;
-  std::vector<TFCS1DFunction*> m_cumulative;
-  std::vector<TH1D*> h_cumulative;
+
+  std::vector<TMatrixDSym*> m_symCov;
+  std::vector<TMatrixD*>    m_EV;
+  std::vector<TVectorD*>    m_MeanValues;
+  std::vector<TVectorD*>    m_SigmaValues;
+  std::vector<TVectorD*>    m_Gauss_means;
+  std::vector<TVectorD*>    m_Gauss_rms;
+  std::vector<TVectorD*>    m_LowerBounds;
+  std::vector<std::vector<TFCS1DFunction*> > m_cumulative;
+  
+  int m_numberpcabins;
   
   ClassDef(TFCSPCAEnergyParametrization,1)  //TFCSPCAEnergyParametrization
  
 };
 
-//#if defined(__MAKECINT__)
-//#pragma link C++ class TFCSPCAEnergyParametrization+;
-//#endif
-
+#if defined(__MAKECINT__)
+#pragma link C++ class TFCSPCAEnergyParametrization+;
 #endif
 
+#endif

@@ -51,7 +51,6 @@ include( "LArCondAthenaPool/LArCondAthenaPool_joboptions.py" )
 #--------------------------------------------------------------
 # Py related. 
 #--------------------------------------------------------------
-import PyCintex
 # interactive Athena
 from PyKernel import PyKernel
 # this must be the last one, since proxy classes are patched by this

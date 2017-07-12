@@ -13,6 +13,8 @@
 #include "TRT_RawDataByteStreamCnv/ITRTRawDataProviderTool.h"
 
 
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+
 
 namespace InDet {
 
@@ -29,8 +31,8 @@ namespace InDet {
     m_storeGate       ("StoreGateSvc",name),
     m_detStore        ("DetectorStore",name),
     m_IdMapping       ("TRT_CablingSvc",name),
-    m_container(0),
-    m_id(0)
+    m_id(0),
+    m_container(0)
   {
     declareInterface<InDet::ITrigRawDataProviderTool>(this);
     declareProperty("RDOKey", m_RDO_Key = "TRT_RDOs_EFID");

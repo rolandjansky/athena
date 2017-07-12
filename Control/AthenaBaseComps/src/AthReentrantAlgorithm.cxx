@@ -32,7 +32,8 @@ AthReentrantAlgorithm::AthReentrantAlgorithm( const std::string& name,
   ::AthMessaging( msgSvc(), name ),
   m_evtStore    ( "StoreGateSvc/StoreGateSvc",  name ),
   m_detStore    ( "StoreGateSvc/DetectorStore", name ),
-  m_userStore   ( "UserDataSvc/UserDataSvc", name )
+  m_userStore   ( "UserDataSvc/UserDataSvc", name ),
+  m_varHandleArraysDeclared (false)
 {
   //
   // Property declaration
@@ -128,6 +129,77 @@ StatusCode AthReentrantAlgorithm::execute()
   return execute_r (Gaudi::Hive::currentContext());
 }
 #endif
+
+
+/**
+ * @brief Perform system initialization for an algorithm.
+ *
+ * We override this to declare all the elements of handle key arrays
+ * at the end of initialization.
+ * See comments on updateVHKA.
+ */
+StatusCode AthReentrantAlgorithm::sysInitialize()
+{
+  ATH_CHECK( ReEntAlgorithm::sysInitialize() );
+
+  for (SG::VarHandleKeyArray* a : m_vhka) {
+    for (SG::VarHandleKey* k : a->keys()) {
+      this->declare (*k);
+      k->setOwner(this);
+    }
+  }
+  m_varHandleArraysDeclared = true;
+
+  return StatusCode::SUCCESS;
+}
+
+
+/**
+ * @brief Return this algorithm's input handles.
+ *
+ * We override this to include handle instances from key arrays
+ * if they have not yet been declared.
+ * See comments on updateVHKA.
+ */
+std::vector<Gaudi::DataHandle*> AthReentrantAlgorithm::inputHandles() const
+{
+  std::vector<Gaudi::DataHandle*> v = ReEntAlgorithm::inputHandles();
+
+  if (!m_varHandleArraysDeclared) {
+    for (SG::VarHandleKeyArray* a : m_vhka) {
+      for (SG::VarHandleKey* k : a->keys()) {
+        if (!(k->mode() & Gaudi::DataHandle::Reader)) break;
+        v.push_back (k);
+      }
+    }
+  }
+
+  return v;
+}
+
+
+/**
+ * @brief Return this algorithm's output handles.
+ *
+ * We override this to include handle instances from key arrays
+ * if they have not yet been declared.
+ * See comments on updateVHKA.
+ */
+std::vector<Gaudi::DataHandle*> AthReentrantAlgorithm::outputHandles() const
+{
+  std::vector<Gaudi::DataHandle*> v = ReEntAlgorithm::outputHandles();
+
+  if (!m_varHandleArraysDeclared) {
+    for (SG::VarHandleKeyArray* a : m_vhka) {
+      for (SG::VarHandleKey* k : a->keys()) {
+        if (!(k->mode() & Gaudi::DataHandle::Writer)) break;
+        v.push_back (k);
+      }
+    }
+  }
+
+  return v;
+}
 
 
 /**

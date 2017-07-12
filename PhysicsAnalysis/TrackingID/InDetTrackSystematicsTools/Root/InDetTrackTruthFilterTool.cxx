@@ -60,39 +60,39 @@ namespace InDet {
 
     m_rnd = make_unique<TRandom3>(m_seed);
 
-    string trkEffFilename = "TrackingEfficiencyRecommendations_20.7rel.root";
+    string trkEffFilename = "TrackingRecommendations_pre_rel21.root";
     ATH_CHECK ( initTrkEffSystHistogram( m_trkEffSystScale,
 					 m_trkEffHistLooseGlobal,
 					 trkEffFilename,
-					 "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_Old_Nominal_MCVSOld_5%Extra_MC_Loose") );
+					 "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_NominalVSOverall_5_Loose") );
     ATH_CHECK ( initTrkEffSystHistogram( m_trkEffSystScale,
 					 m_trkEffHistLooseIBL,
 					 trkEffFilename,
-					 "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_Old_Nominal_MCVSNew_Nominal_MC_Loose") );
+					 "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_NominalVSIBL_10_Loose") );
     ATH_CHECK ( initTrkEffSystHistogram( m_trkEffSystScale,
 					 m_trkEffHistLoosePP0,
 					 trkEffFilename,
-					 "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_Old_Nominal_MCVSOld_50%ExtraPP0_MC_Loose") );
+					 "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_NominalVSPP0_25_Loose") );
     ATH_CHECK ( initTrkEffSystHistogram( m_trkEffSystScale,
 					 m_trkEffHistLoosePhysModel,
 					 trkEffFilename,
-					 "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_Old_Nominal_MCVSOld_FTF_BIC_MC_Loose") );
+					 "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_NominalVSQGS_BIC_Loose") );
     ATH_CHECK ( initTrkEffSystHistogram( m_trkEffSystScale,
 					 m_trkEffHistTightGlobal,
 					 trkEffFilename,
-					 "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_Old_Nominal_MCVSOld_5%Extra_MC_TightPrimary") );
+					 "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_NominalVSOverall_5_TightPrimary") );
     ATH_CHECK ( initTrkEffSystHistogram( m_trkEffSystScale,
 					 m_trkEffHistTightIBL,
 					 trkEffFilename,
-					 "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_Old_Nominal_MCVSNew_Nominal_MC_TightPrimary") );
+					 "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_NominalVSIBL_10_TightPrimary") );
     ATH_CHECK ( initTrkEffSystHistogram( m_trkEffSystScale,
 					 m_trkEffHistTightPP0,
 					 trkEffFilename,
-					 "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_Old_Nominal_MCVSOld_50%ExtraPP0_MC_TightPrimary") );
+					 "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_NominalVSPP0_25_TightPrimary") );
     ATH_CHECK ( initTrkEffSystHistogram( m_trkEffSystScale,
 					 m_trkEffHistTightPhysModel,
 					 trkEffFilename,
-					 "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_Old_Nominal_MCVSOld_FTF_BIC_MC_TightPrimary") );
+					 "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_NominalVSQGS_BIC_TightPrimary") );
 
     ATH_CHECK ( m_trackOriginTool.retrieve() );
 
@@ -210,10 +210,6 @@ namespace InDet {
     }
 
     return true;
-  }
-
-  bool InDetTrackTruthFilterTool::selectTrack(const xAOD::TrackParticle* track) const {
-    return accept(track);
   }
 
   StatusCode InDetTrackTruthFilterTool::initTrkEffSystHistogram(float scale, TH2 *&histogram, string rootFileName, string histogramName) const {

@@ -1019,19 +1019,6 @@ ROOT.RootUtils.StdHackGenerator.initialize()
 if ROOT.gApplication.GetName() != "TRint":
     ROOT.RootUtils.InitHist.initialize()
 
-# PyROOT sets up a callback to intercept Cint's error messages
-# and turn them into Python errors.  That's fine if you're using
-# Python as a shell.  But if you're using Cint as a shell
-# (and calling python through TPython), then this will result
-# in Cint's error messages being lost.
-#
-# Now, PyROOT itself is smart enough to only install the callback
-# if python is actually being used as a shell.  However, PyCintex
-# installs the callback unconditionally.  This function can be
-# used to undo the damage.
-if ROOT.gApplication.GetName() != "PyROOT::TPyROOTApplication":
-    ROOT.RootUtils.ClearCINTMessageCallback.initialize()
-
 # Set up RootConversions converters.
 #reg=ROOT.TConverterRegistry.Instance()
 #reg.AddConverter ("TauJetContainer_p1_old_cnv")

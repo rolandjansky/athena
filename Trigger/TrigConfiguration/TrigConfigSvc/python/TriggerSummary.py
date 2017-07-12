@@ -10,9 +10,6 @@ __author__  = "Till Eifert <Till.Eifert@cern.ch>"
 
 import sys, os
 import shelve, whichdb
-#from Helpers import ShutUp
-#from Decorators import forking
-
 
 
 class PoolOpts(object):
@@ -140,10 +137,6 @@ class PoolFile(object):
         #rootMsg.unMute()
         sys.argv = oldArgs
 
-        #import PyCintex
-        #PyCintex.Cintex.Enable()
-
-        #rootMsg.mute()
         poolFile = None
         try:
             #ROOT.TFile.SetReadStreamerInfo(False)
@@ -190,13 +183,13 @@ class PoolFile(object):
         for (name,chain) in self.trigConf.HLTChains.items():
             if chain.level() == 'L2':
                 self.l2_chains += [PoolRecord(name=name, counter=chain.chain_counter(), evtsBeforePS=0, evtsAfterPS=0, \
-                                              evtsAfterPT=0, level=PoolOpts.level[2]) ]
+                                                  evtsAfterPT=0, level=PoolOpts.level[2]) ]
             elif chain.level() == 'EF':
                 self.ef_chains += [PoolRecord(name=name, counter=chain.chain_counter(), evtsBeforePS=0, evtsAfterPS=0, \
-                                              evtsAfterPT=0, level=PoolOpts.level[3]) ]
+                                                  evtsAfterPT=0, level=PoolOpts.level[3]) ]
             else:
                 print "will ignore chain (%s, %i) because the trigger level (=%s) is not set to either 'L2' or 'EF'" \
-                      % ( name, chain.chain_counter(), chain.level())
+                    % ( name, chain.chain_counter(), chain.level())
 
 
         return
@@ -228,7 +221,6 @@ class PoolFile(object):
 
         ## get the transient tree
         print "## Creating transient collection tree  ..."
-        import PyCintex
         import AthenaROOTAccess.transientTree
         def filter(dhe):
             if 'HLTResult' in dhe.token() or 'TrigDecision' in dhe.token() or 'EventInfo' in dhe.token():
@@ -250,8 +242,8 @@ class PoolFile(object):
             eventInfoBranchName = possible[0][1]
         del possible
 
-        from TrigSteering.Chain import Chain
-
+        # from TrigSteering.Chain import Chain  #MN
+        Chain = ROOT.HLT.Chain
 
         ## Branches that we're interested in: 
         EventInfo_br    = transientTree.GetBranch(eventInfoBranchName)        

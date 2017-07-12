@@ -17,12 +17,12 @@
 
 //#include "GeoPrimitives/GeoPrimitives.h"
 
-#include <QtCore/QStringList>
+#include <QStringList>
 #include <QTreeWidgetItem>
 #include <vector>
 #include <set>
 #include <QList>
-#include <QtCore/QFlags>
+#include <QFlags>
 #include <iostream>
 
 class AssocObjAttachmentHandle;

@@ -38,8 +38,8 @@
 
 #include "CLHEP/Vector/LorentzVector.h"
 
-#include <QtCore/QStringList>
-#include <QtCore/QTime>
+#include <QStringList>
+#include <QTime>
 
 #include <iostream>
 

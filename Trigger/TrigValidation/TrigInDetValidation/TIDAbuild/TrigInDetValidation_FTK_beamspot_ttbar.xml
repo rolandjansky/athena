@@ -35,7 +35,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-beamspot-FTK.root data-FTK_beamspot_ttbar-reference.root HLT_beamspot_allTE_trkfast_InDetTrigTrackingxAODCnv_BeamSpot_FTF  HLT_beamspot_idperf_FTK_InDetTrigTrackingxAODCnv_BeamSpot_FTKMon -d HLTL2-plots </argvalue>
+                <argvalue>data-beamspot-FTK.root data-FTK_beamspot_ttbar-reference.root HLT_beamspot_allTE_trkfast_InDetTrigTrackingxAODCnv_BeamSpot_FTF  HLT_beamspot_idperf_FTK_InDetTrigTrackingxAODCnv_BeamSpot_FTKMon HLT_beamspot_allTE_FTKRefit_InDetTrigTrackingxAODCnv_BeamSpot_FTKRefit -d HLTL2-plots </argvalue>
               </arg>
             </action>
 

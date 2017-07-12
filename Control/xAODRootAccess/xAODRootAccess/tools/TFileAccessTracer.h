@@ -4,13 +4,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TFileAccessTracer.h 781356 2016-10-31 14:03:28Z krasznaa $
 #ifndef XAODROOTACCESS_TOOLS_TFILEACCESSTRACER_H
 #define XAODROOTACCESS_TOOLS_TFILEACCESSTRACER_H
 
 // System include(s):
 #include <set>
 #include <string>
+#include <mutex>
 
 // ROOT include(s):
 #include <TString.h>
@@ -44,9 +44,6 @@ namespace xAOD {
    ///     monitored within that session. This is mostly for grid purposes...
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-   ///
-   /// $Revision: 781356 $
-   /// $Date: 2016-10-31 15:03:28 +0100 (Mon, 31 Oct 2016) $
    ///
    class TFileAccessTracer {
 
@@ -102,6 +99,9 @@ namespace xAOD {
 
       /// Global property for enabling data submission or not
       static ::Bool_t m_enableDataSumbission;
+
+      /// Mutex for modifying the object
+      mutable std::mutex m_mutex;
 
    }; // class TFileAccessTracer
 

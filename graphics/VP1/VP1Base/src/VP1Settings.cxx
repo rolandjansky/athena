@@ -15,8 +15,8 @@
 #include "VP1Base/VP1Settings.h"
 #include "VP1Base/VP1QtUtils.h"
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
+#include <QFileInfo>
+#include <QDir>
 
 //____________________________________________________________________
 QString VP1Settings::defaultFileSelectDirectory()

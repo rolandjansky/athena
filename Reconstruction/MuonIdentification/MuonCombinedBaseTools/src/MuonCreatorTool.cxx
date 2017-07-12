@@ -369,6 +369,12 @@ namespace MuonCombined {
 
     // create candidate from SA muon only
     addMuonCandidate(candidate,*muon,outputData);
+
+    if(!muon->extrapolatedMuonSpectrometerTrackParticleLink().isValid()){
+      ATH_MSG_DEBUG("Creation of track particle for SA muon failed, removing it");
+      outputData.muonContainer->pop_back();
+      return 0;
+    }
     
     if( !dressMuon(*muon) ){
       ATH_MSG_WARNING("Failed to dress muon");
@@ -1057,18 +1063,33 @@ namespace MuonCombined {
 	  }
 	}
 	else{ //no refitted track, so add original un-refitted extrapolated track as ME track
-	  ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(extrapolatedTrack),
-											   *outputData.extrapolatedTrackParticleContainer,
-											   outputData.extrapolatedTrackCollection );
+	  if(muon.author()==xAOD::Muon::MuGirl && muon.extrapolatedMuonSpectrometerTrackParticleLink().isValid()){
+	    //MuGirl case: ME track is already set, but now we have the extrapolated track from the STACO tag
+	    //add this as the MS-only extrapolated track instead
+	    ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(extrapolatedTrack),
+											     *outputData.msOnlyExtrapolatedTrackParticleContainer,
+											     outputData.msOnlyExtrapolatedTrackCollection );
 
-	  if( link.isValid() ) {
-	    ATH_MSG_DEBUG("Adding standalone fit (un-refitted): pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
-	    //link.toPersistent();
-	    muon.setTrackParticleLink(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle, link );
-	    float fieldInt=m_trackQuery->fieldIntegral(*extrapolatedTrack).betweenSpectrometerMeasurements();
-	    muon.setParameter(fieldInt,xAOD::Muon::spectrometerFieldIntegral);
-            int nunspoiled=extrapolatedTrack->trackSummary()->get(Trk::numberOfCscUnspoiltEtaHits);
-	    muon.auxdata<int>("nUnspoiledCscHits")=nunspoiled;
+	    if( link.isValid() ) {
+	      ATH_MSG_DEBUG("Adding MS-only extrapolated track to MuGirl muon: pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
+	      //link.toPersistent();                                                                                                                                              
+	      muon.setTrackParticleLink(xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle, link );
+	      float fieldInt=m_trackQuery->fieldIntegral(*extrapolatedTrack).betweenSpectrometerMeasurements();
+	      muon.setParameter(fieldInt,xAOD::Muon::spectrometerFieldIntegral);
+	    }
+	  }
+	  else{
+	    ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(extrapolatedTrack),
+											     *outputData.extrapolatedTrackParticleContainer,
+											     outputData.extrapolatedTrackCollection );
+	    
+	    if( link.isValid() ) {
+	      ATH_MSG_DEBUG("Adding standalone fit (un-refitted): pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
+	      //link.toPersistent();
+	      muon.setTrackParticleLink(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle, link );
+	      float fieldInt=m_trackQuery->fieldIntegral(*extrapolatedTrack).betweenSpectrometerMeasurements();
+	      muon.setParameter(fieldInt,xAOD::Muon::spectrometerFieldIntegral);
+	    }
 	  }
 	}
       }
@@ -1368,7 +1389,7 @@ namespace MuonCombined {
       }
       */
     }else{
-      ATH_MSG_ERROR("No primary track particle set, deleting muon");
+      ATH_MSG_DEBUG("No primary track particle set, deleting muon");
       return false;
     }
 

@@ -100,8 +100,8 @@ private:
   int   m_particles_processed;
 
   //float psi_n[6],v1,v2,v3,v4,v5,v6;
-  float psi_n[6],v_n[6];
-  float EbE_Multiplier_vn[6];
+  float m_psi_n[6],m_v_n[6];
+  float m_EbE_Multiplier_vn[6];
 
 };
 

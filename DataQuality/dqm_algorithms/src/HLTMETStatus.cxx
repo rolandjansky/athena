@@ -75,7 +75,7 @@ dqm_algorithms::HLTMETStatus::execute(const std::string & name,
 
   //non sense case: compare fraction and threshold >100%
   if ((grThr>1.0 || reThr>1.0) ) {
-    throw dqm_core::BadConfig(ERS_HERE,name_,"Configuration Error: Threshold should be between [0.0, 1.0] 10% => 0.1");
+    throw dqm_core::BadConfig(ERS_HERE,m_name,"Configuration Error: Threshold should be between [0.0, 1.0] 10% => 0.1");
   }
 
 

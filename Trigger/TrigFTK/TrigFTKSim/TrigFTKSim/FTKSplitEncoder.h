@@ -17,16 +17,16 @@
 class FTKSplitEncoder {
  private:
   static FTKSplitEncoder m_instance; // singleton instance
-  const int ctheta_nbins;
-  double *ctheta_lookup;
-  int ctheta_curindex;
+  const int m_ctheta_nbins;
+  double *m_ctheta_lookup;
+  int m_ctheta_curindex;
 
  public:
   FTKSplitEncoder(int nbins);
   ~FTKSplitEncoder();
   int cthetaIndex(double v);
-  double cthetaLowerBound() const { return ctheta_lookup[ctheta_curindex]; }
-  double cthetaUpperBound() const { return ctheta_lookup[ctheta_curindex+1]; }
+  double cthetaLowerBound() const { return m_ctheta_lookup[m_ctheta_curindex]; }
+  double cthetaUpperBound() const { return m_ctheta_lookup[m_ctheta_curindex+1]; }
   
   static FTKSplitEncoder& get() { return m_instance; }
 };

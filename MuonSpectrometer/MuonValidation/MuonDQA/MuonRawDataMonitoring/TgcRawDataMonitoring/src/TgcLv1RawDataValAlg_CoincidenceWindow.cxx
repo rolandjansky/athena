@@ -57,14 +57,13 @@ using namespace std;
 ///////////////////////////////////////////////////////////////////////////
 StatusCode
 TgcLv1RawDataValAlg::bookHistogramsCoincidenceWindow(){
-  StatusCode sc = StatusCode::SUCCESS; 
 
   ///////////////////////////////////////////////////////////////////////////
   // Make MonGroups for histogram booking paths
-  std::string m_generic_path_tgclv1 = "Muon/MuonRawDataMonitoring/TGCLV1";
+  std::string generic_path_tgclv1 = "Muon/MuonRawDataMonitoring/TGCLV1";
 
-  MonGroup tgclv1_cw_a( this, m_generic_path_tgclv1+"/TGCEA/CW", run, ATTRIB_UNMANAGED );
-  MonGroup tgclv1_cw_c( this, m_generic_path_tgclv1+"/TGCEC/CW", run, ATTRIB_UNMANAGED );
+  MonGroup tgclv1_cw_a( this, generic_path_tgclv1+"/TGCEA/CW", run, ATTRIB_UNMANAGED );
+  MonGroup tgclv1_cw_c( this, generic_path_tgclv1+"/TGCEC/CW", run, ATTRIB_UNMANAGED );
   MonGroup* tgclv1_cw_ac[2] = { &tgclv1_cw_a, &tgclv1_cw_c};
 
   std::stringstream ss;
@@ -82,34 +81,25 @@ TgcLv1RawDataValAlg::bookHistogramsCoincidenceWindow(){
       for(int pt=0;pt<6;pt++){
         // Coincidence Window for SL triggers for current pT threshold
         ss.str(""); ss << "CW_Mod"<< mod << "_RoI" << roi << "_PT"<< pt+1 << "_" << side[ac] ;
-        tgclv1cw[ac][mod][pt] = new TH2F(ss.str().c_str(), (ss.str() + ";d#phi;dR").c_str(), 15,  -7, 8, 31, -15, 16);
-        if( ( tgclv1_cw_ac[ac]->regHist(tgclv1cw[ac][mod][pt]) ).isFailure()){
-          m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-          return StatusCode::FAILURE;
-        }
+        m_tgclv1cw[ac][mod][pt] = new TH2F(ss.str().c_str(), (ss.str() + ";d#phi;dR").c_str(), 15,  -7, 8, 31, -15, 16);
+        ATH_CHECK( tgclv1_cw_ac[ac]->regHist(m_tgclv1cw[ac][mod][pt]) );
         // Coincidence Window for SL triggers compared with Offline Muons
         for(int m=0;m<m_nMuonAlgorithms;m++){
           // CW for SL triggers matched with offline muons above current pT threshold
           ss.str(""); ss << "CW_Mod"<< mod << "_RoI" << roi << "_PT"<< pt+1 << "_" << muid[m] << "_" << side[ac] ;
-          tgclv1cwoffline[ac][mod][pt][m] = new TH2F(ss.str().c_str(), (ss.str() + ";d#phi;dR").c_str(), 15,  -7, 8, 31, -15, 16);
-          if( ( tgclv1_cw_ac[ac]->regHist(tgclv1cwoffline[ac][mod][pt][m]) ).isFailure()){
-            m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-            return StatusCode::FAILURE;
-          }
+          m_tgclv1cwoffline[ac][mod][pt][m] = new TH2F(ss.str().c_str(), (ss.str() + ";d#phi;dR").c_str(), 15,  -7, 8, 31, -15, 16);
+          ATH_CHECK( tgclv1_cw_ac[ac]->regHist(m_tgclv1cwoffline[ac][mod][pt][m]) );
           
           // CW for SL triggers matched with offline muons below current pT threshold
           ss.str(""); ss << "!CW_Mod"<< mod << "_RoI" << roi << "_PT"<< pt+1 << "_" << muid[m] <<  "_" << side[ac] ;
-          tgclv1cwrejectedoffline[ac][mod][pt][m] = new TH2F(ss.str().c_str(), (ss.str() + ";d#phi;dR").c_str(), 15,  -7, 8, 31, -15, 16);
-          if( ( tgclv1_cw_ac[ac]->regHist(tgclv1cwrejectedoffline[ac][mod][pt][m]) ).isFailure()){
-            m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-            return StatusCode::FAILURE;
-          }
+          m_tgclv1cwrejectedoffline[ac][mod][pt][m] = new TH2F(ss.str().c_str(), (ss.str() + ";d#phi;dR").c_str(), 15,  -7, 8, 31, -15, 16);
+          ATH_CHECK( tgclv1_cw_ac[ac]->regHist(m_tgclv1cwrejectedoffline[ac][mod][pt][m]) );
         }// muon algorithm
       }// pt
     }// mod
   }// ac
 
-  return sc;
+  return StatusCode::SUCCESS;
 }// EOF
 
 
@@ -212,7 +202,7 @@ TgcLv1RawDataValAlg::fillCoincidenceWindow(int ms,
 
         // If ms (function argument)==0 fill general CW histogram
         if(ms==0){
-          tgclv1cw[isAside==false][mod][pt-1]->Fill(deltas, deltaw);
+          m_tgclv1cw[isAside==false][mod][pt-1]->Fill(deltas, deltaw);
         }
 
         // If no tracks were found close together loop over offline muons
@@ -245,9 +235,9 @@ TgcLv1RawDataValAlg::fillCoincidenceWindow(int ms,
               // Fill histogram based on whether the Offline Trigger Level is greater
               // than currently looping trigger level
               if(optthres>ipt)
-                tgclv1cwoffline[ac][mod][ipt][ms]->Fill(deltas, deltaw);
+                m_tgclv1cwoffline[ac][mod][ipt][ms]->Fill(deltas, deltaw);
               else
-                tgclv1cwrejectedoffline[ac][mod][ipt][ms]->Fill(deltas, deltaw);
+                m_tgclv1cwrejectedoffline[ac][mod][ipt][ms]->Fill(deltas, deltaw);
             }// ipt
           }// offline muons
   

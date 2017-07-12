@@ -78,7 +78,7 @@ class sTGCSimHitVariables : public ValAlgVariables
   {
     if( (this->deleteVariables()).isFailure() ){
       ATH_MSG_ERROR("Failing to delete sTGCSimHitVariables.");
-      throw;
+      std::terminate();
     }
   }
 

@@ -76,7 +76,7 @@ StatusCode DynConfSCT::initialize()
     return StatusCode::FAILURE;
   }
 
-  m_mainInputSCT_Name = ovlAlg->getProperty("mainInputSCT_Name").toString();
+  m_mainInputSCT_Name = ovlAlg->getProperty("mainInputSCTKey").toString();
   ATH_MSG_DEBUG("Got mainInputSCT_Name = "<<m_mainInputSCT_Name);
 
   m_storeGateData.setTypeAndName(ovlAlg->getProperty("DataStore").toString());

@@ -14,8 +14,8 @@
 //#include "CLHEP/Geometry/Transform3D.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
-#include <QtCore/QFlags>
-#include <QtCore/QStringList>
+#include <QFlags>
+#include <QStringList>
 
 
 

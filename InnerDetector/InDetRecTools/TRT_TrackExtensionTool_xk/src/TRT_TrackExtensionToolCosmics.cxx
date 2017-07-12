@@ -400,6 +400,11 @@ InDet::TRT_TrackExtensionToolCosmics::extendTrack(const Trk::TrackParameters& pa
   std::vector<const Trk::TrackParameters* >* tpars_down=0;
   std::vector<const Trk::TrackParameters* >* tpars_up=0;
 const Trk::Perigee *per=dynamic_cast<const Trk::Perigee *>(&par);
+  if (!per) {
+    msg(MSG::FATAL)<<"Track perigee not found!"<<endmsg;
+    return m_measurement;
+  }
+
 InDet::TRT_DriftCircleContainer::const_iterator
    w = m_trtcontainer->begin(),we = m_trtcontainer->end();
    for(; w!=we; ++w) {

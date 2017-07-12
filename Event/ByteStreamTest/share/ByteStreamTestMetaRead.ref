@@ -21,24 +21,204 @@ ByteStreamInputSvc  DEBUG MetaData[2]:UMD::RunEventTag::EventNumber/unsigned int
 ByteStreamInputSvc   INFO Picked valid file: metatest.data
 EventSelector       DEBUG Opened block/file metatest.data
 ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
-ByteStreamInputSvc  DEBUG Event Size 4748
+ByteStreamInputSvc  DEBUG Event Size 2208
 ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
 ByteStreamInputSvc  DEBUG Format version 500
-ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x13ef1400
-ByteStreamInputSvc  DEBUG ByteStream File GUID:62351E60-690B-E711-9361-001E67ABF0AC
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x1055c000
+ByteStreamInputSvc  DEBUG ByteStream File GUID:A479A3CF-D451-E711-B9FE-02163E018F68
 ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 424
 StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x142f4b40 --- key: RunEventTag
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x15164260 --- key: RunEventTag
 StoreDump            INFO AttributeList has size 2
 ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
-ByteStreamInputSvc  DEBUG Event Size 4812
+ByteStreamInputSvc  DEBUG Event Size 2244
 ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
 ByteStreamInputSvc  DEBUG Format version 500
-ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x13ef2800
-ByteStreamInputSvc  DEBUG ByteStream File GUID:62351E60-690B-E711-9361-001E67ABF0AC
-ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 5188
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x1055c900
+ByteStreamInputSvc  DEBUG ByteStream File GUID:A479A3CF-D451-E711-B9FE-02163E018F68
+ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 2648
 StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x142f4b40 --- key: RunEventTag
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x15164260 --- key: RunEventTag
+StoreDump            INFO AttributeList has size 2
+ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
+ByteStreamInputSvc  DEBUG Event Size 4028
+ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
+ByteStreamInputSvc  DEBUG Format version 500
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x12d83000
+ByteStreamInputSvc  DEBUG ByteStream File GUID:A479A3CF-D451-E711-B9FE-02163E018F68
+ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 4908
+StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x15164260 --- key: RunEventTag
+StoreDump            INFO AttributeList has size 2
+ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
+ByteStreamInputSvc  DEBUG Event Size 2244
+ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
+ByteStreamInputSvc  DEBUG Format version 500
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x1055c900
+ByteStreamInputSvc  DEBUG ByteStream File GUID:A479A3CF-D451-E711-B9FE-02163E018F68
+ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 8952
+StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x15164260 --- key: RunEventTag
+StoreDump            INFO AttributeList has size 2
+ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
+ByteStreamInputSvc  DEBUG Event Size 2208
+ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
+ByteStreamInputSvc  DEBUG Format version 500
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x1055c000
+ByteStreamInputSvc  DEBUG ByteStream File GUID:A479A3CF-D451-E711-B9FE-02163E018F68
+ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 11212
+StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x15164260 --- key: RunEventTag
+StoreDump            INFO AttributeList has size 2
+ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
+ByteStreamInputSvc  DEBUG Event Size 2208
+ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
+ByteStreamInputSvc  DEBUG Format version 500
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x1055c900
+ByteStreamInputSvc  DEBUG ByteStream File GUID:A479A3CF-D451-E711-B9FE-02163E018F68
+ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 13436
+StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x15164260 --- key: RunEventTag
+StoreDump            INFO AttributeList has size 2
+ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
+ByteStreamInputSvc  DEBUG Event Size 2240
+ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
+ByteStreamInputSvc  DEBUG Format version 500
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x1055c000
+ByteStreamInputSvc  DEBUG ByteStream File GUID:A479A3CF-D451-E711-B9FE-02163E018F68
+ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 15660
+StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x15164260 --- key: RunEventTag
+StoreDump            INFO AttributeList has size 2
+ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
+ByteStreamInputSvc  DEBUG Event Size 2208
+ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
+ByteStreamInputSvc  DEBUG Format version 500
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x1055c900
+ByteStreamInputSvc  DEBUG ByteStream File GUID:A479A3CF-D451-E711-B9FE-02163E018F68
+ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 17916
+StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x15164260 --- key: RunEventTag
+StoreDump            INFO AttributeList has size 2
+ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
+ByteStreamInputSvc  DEBUG Event Size 2208
+ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
+ByteStreamInputSvc  DEBUG Format version 500
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x1055c000
+ByteStreamInputSvc  DEBUG ByteStream File GUID:A479A3CF-D451-E711-B9FE-02163E018F68
+ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 20140
+StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x15164260 --- key: RunEventTag
+StoreDump            INFO AttributeList has size 2
+ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
+ByteStreamInputSvc  DEBUG Event Size 2424
+ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
+ByteStreamInputSvc  DEBUG Format version 500
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x1455d200
+ByteStreamInputSvc  DEBUG ByteStream File GUID:A479A3CF-D451-E711-B9FE-02163E018F68
+ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 22364
+StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x15164260 --- key: RunEventTag
+StoreDump            INFO AttributeList has size 2
+ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
+ByteStreamInputSvc  DEBUG Event Size 2240
+ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
+ByteStreamInputSvc  DEBUG Format version 500
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x1055c000
+ByteStreamInputSvc  DEBUG ByteStream File GUID:A479A3CF-D451-E711-B9FE-02163E018F68
+ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 24804
+StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x15164260 --- key: RunEventTag
+StoreDump            INFO AttributeList has size 2
+ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
+ByteStreamInputSvc  DEBUG Event Size 2208
+ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
+ByteStreamInputSvc  DEBUG Format version 500
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x1055c900
+ByteStreamInputSvc  DEBUG ByteStream File GUID:A479A3CF-D451-E711-B9FE-02163E018F68
+ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 27060
+StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x15164260 --- key: RunEventTag
+StoreDump            INFO AttributeList has size 2
+ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
+ByteStreamInputSvc  DEBUG Event Size 2208
+ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
+ByteStreamInputSvc  DEBUG Format version 500
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x1055c000
+ByteStreamInputSvc  DEBUG ByteStream File GUID:A479A3CF-D451-E711-B9FE-02163E018F68
+ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 29284
+StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x15164260 --- key: RunEventTag
+StoreDump            INFO AttributeList has size 2
+ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
+ByteStreamInputSvc  DEBUG Event Size 2208
+ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
+ByteStreamInputSvc  DEBUG Format version 500
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x1055c900
+ByteStreamInputSvc  DEBUG ByteStream File GUID:A479A3CF-D451-E711-B9FE-02163E018F68
+ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 31508
+StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x15164260 --- key: RunEventTag
+StoreDump            INFO AttributeList has size 2
+ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
+ByteStreamInputSvc  DEBUG Event Size 2208
+ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
+ByteStreamInputSvc  DEBUG Format version 500
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x1055c000
+ByteStreamInputSvc  DEBUG ByteStream File GUID:A479A3CF-D451-E711-B9FE-02163E018F68
+ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 33732
+StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x15164260 --- key: RunEventTag
+StoreDump            INFO AttributeList has size 2
+ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
+ByteStreamInputSvc  DEBUG Event Size 2208
+ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
+ByteStreamInputSvc  DEBUG Format version 500
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x1055c900
+ByteStreamInputSvc  DEBUG ByteStream File GUID:A479A3CF-D451-E711-B9FE-02163E018F68
+ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 35956
+StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x15164260 --- key: RunEventTag
+StoreDump            INFO AttributeList has size 2
+ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
+ByteStreamInputSvc  DEBUG Event Size 2208
+ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
+ByteStreamInputSvc  DEBUG Format version 500
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x1055c000
+ByteStreamInputSvc  DEBUG ByteStream File GUID:A479A3CF-D451-E711-B9FE-02163E018F68
+ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 38180
+StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x15164260 --- key: RunEventTag
+StoreDump            INFO AttributeList has size 2
+ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
+ByteStreamInputSvc  DEBUG Event Size 2240
+ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
+ByteStreamInputSvc  DEBUG Format version 500
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x1055c900
+ByteStreamInputSvc  DEBUG ByteStream File GUID:A479A3CF-D451-E711-B9FE-02163E018F68
+ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 40404
+StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x15164260 --- key: RunEventTag
+StoreDump            INFO AttributeList has size 2
+ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
+ByteStreamInputSvc  DEBUG Event Size 2208
+ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
+ByteStreamInputSvc  DEBUG Format version 500
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x1055c000
+ByteStreamInputSvc  DEBUG ByteStream File GUID:A479A3CF-D451-E711-B9FE-02163E018F68
+ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 42660
+StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x15164260 --- key: RunEventTag
+StoreDump            INFO AttributeList has size 2
+ByteStreamInputSvc  DEBUG nextEvent _above_ high water mark
+ByteStreamInputSvc  DEBUG Event Size 2208
+ByteStreamInputSvc  DEBUG First word of the fragment aa1234aa
+ByteStreamInputSvc  DEBUG Format version 500
+ByteStreamInputSvc  DEBUG Made an FullEventFragment from ES 0x1055c900
+ByteStreamInputSvc  DEBUG ByteStream File GUID:A479A3CF-D451-E711-B9FE-02163E018F68
+ByteStreamInputSvc  DEBUG ByteStream Event Position in File: 44884
+StoreDump            INFO <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x15164260 --- key: RunEventTag
 StoreDump            INFO AttributeList has size 2
 EventSelector        INFO End of input file list reached
 EventSelector       DEBUG Event source found no more valid files left in input list

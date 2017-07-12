@@ -11,6 +11,7 @@
 #include "AthLinks/tools/MapIndexingPolicy.h"
 #include "AthLinks/tools/IdentContIndexingPolicy.h"
 #include "AthenaKernel/getMessageSvc.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "SGTools/CurrentEventStore.h"
 #include "SGTools/CLASS_DEF.h"
 #include "GaudiKernel/EventContext.h"
@@ -722,7 +723,7 @@ void test4()
   store2.record (foocont4, "foocont4");
 
   EventContext ctx;
-  ctx.setProxy (&store2);
+  ctx.setExtension( Atlas::ExtendedEventContext(&store2) );
 
   ElementLink<FooCont> el1 ("foocont4", 2, &store2);
   assert (*el1.cptr() == (*foocont4)[2]);

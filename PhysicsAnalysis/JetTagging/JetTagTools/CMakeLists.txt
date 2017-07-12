@@ -53,6 +53,7 @@ atlas_depends_on_subdirs(
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )
 find_package( Eigen )
+find_package( FastJet )
 find_package( ROOT COMPONENTS TMVA Core Tree MathCore Hist RIO pthread
    MathMore Minuit Minuit2 Matrix Physics HistPainter Rint RooFitCore RooFit )
 

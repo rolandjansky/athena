@@ -54,11 +54,11 @@ protected:
   typedef std::set<std::string>     KeySet_t;
   typedef KeySet_t::const_iterator  KeyIter_t;
   
-  KeySet_t             keywords;
-  KeySet_t             attKeywords;
-  MiniConfigTreeNode*  tree;
+  KeySet_t             m_keywords;
+  KeySet_t             m_attKeywords;
+  MiniConfigTreeNode*  m_tree;
 
-  bool propagateDown;
+  bool m_propagateDown;
   
 private:
 

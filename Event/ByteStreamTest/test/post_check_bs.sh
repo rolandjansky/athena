@@ -37,6 +37,7 @@ else
              grep -v 'EventSelectorAthenaPool' | \
              grep -v 'software' | \
              grep -v 'cvmfs' | \
+             grep -v 'Request skipping event' | \
              grep -v 'POOLCollectionID' \
              > ${joblog}.small
 	joblog=${joblog}.small

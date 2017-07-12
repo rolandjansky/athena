@@ -166,9 +166,11 @@ void IParticleHandle_TrackParticle::addLine_FromTrackParticle(){
  
   positions.push_back(Amg::Vector3D(peri.position().x(),peri.position().y(),peri.position().z()));
   momenta.  push_back(Amg::Vector3D(peri.momentum().x(),peri.momentum().y(),peri.momentum().z()));
+  // std::cout<<"i:"<<0<<"/"<<d->trackparticle->numberOfParameters()+1<<": ("<<peri.position().x()<<","<<peri.position().y()<<","<<peri.position().z()<<")"<<std::endl;
+  
   VP1Msg::messageVerbose("IParticleHandle_TrackParticle::addLine_FromTrackParticle - has "+QString::number(d->trackparticle->numberOfParameters())+" extra parameters.");
-  for (unsigned int i=0; i<d->trackparticle->numberOfParameters() ; ++i){
-    // std::cout<<"i:"<<i<<"/"<<d->trackparticle->numberOfParameters()+1<<std::endl;
+   for (unsigned int i=0; i<d->trackparticle->numberOfParameters() ; ++i){
+    // std::cout<<"i:"<<i+1<<"/"<<d->trackparticle->numberOfParameters()+1<<": ("<<d->trackparticle->parameterX(i)<<","<<d->trackparticle->parameterY(i)<<","<<d->trackparticle->parameterZ(i)<<")"<<std::endl;
 
     positions.push_back(Amg::Vector3D(d->trackparticle->parameterX(i),
                                       d->trackparticle->parameterY(i),
@@ -178,7 +180,7 @@ void IParticleHandle_TrackParticle::addLine_FromTrackParticle(){
                                       d->trackparticle->parameterPZ(i)));      
   } // end of loop.
 
-  if ( positions.size()<2 ) VP1Msg::messageVerbose("IParticleHandle_TrackParticle::addLine_FromTrackParticle - WARNING - not enough points to make a line.");
+  // if ( positions.size()<2 ) VP1Msg::messageVerbose("IParticleHandle_TrackParticle::addLine_FromTrackParticle - WARNING - not enough points to make a line.");
 
   fillLineFromSplineFit(positions, momenta);
 
@@ -215,32 +217,55 @@ void IParticleHandle_TrackParticle::fillLineFromSplineFit(const std::vector<Amg:
   d->line->ref();
   
   // For the moment, lets just draw the lines.
-  // std::cout<<"About to loop over "<<positions.size()<<" points to make line"<<std::endl;
   SoVertexProperty * vertices = new SoVertexProperty();
+  
+  //  std::cout<<"About to loop over "<<positions.size()<<" points to make line"<<std::endl;
+  // for (unsigned int i=0; i<positions.size(); ++i){
+  //   std::cout<<"i: "<<i<<" at ("<<positions[i].x()<<","<<positions[i].y()<<","<<positions[i].z()<<")"<<" \tmom = ("<<momenta[i].x()<<","<<momenta[i].y()<<","<<momenta[i].z()<<")"<<std::endl;
+  // }
+
+  // std::cout<<"Now do interpolations."<<std::endl;
+
+  bool useExistingParams = d->collHandle->collSettingsButton().useExistingParameters();
 
   for (unsigned int i=1; i<positions.size(); ++i){
     // std::cout<<"i: "<<i<<" at ("<<positions[i].x()<<","<<positions[i].y()<<","<<positions[i].z()<<")"<<" \tmom = ("<<momenta[i].x()<<","<<momenta[i].y()<<","<<momenta[i].z()<<")"<<std::endl;
-    unsigned int maxCount=d->collHandle->collSettingsButton().numOfStepsForInterpolation();
-    float scale = ( (positions[i]-positions[i-1]).mag() )/2.0;
-    Amg::Vector3D p0(positions[i-1]);
-    Amg::Vector3D p1(positions[i-1]+(scale * momenta[i-1].unit() ) );
-    Amg::Vector3D p2(positions[i]  -(scale * momenta[i].unit() ) );
-    Amg::Vector3D p3(positions[i]);
-    // std::cout<<"p0: "<<p0<<"\np1: "<<p1<<"\np2: "<<p2<<"\np3: "<<p3<<std::endl;
     
-    for (unsigned int count=0; count<maxCount;++count){
-      float t=count/(float)maxCount;
-      Amg::Vector3D pos;
-      bezier(pos, p0, p1, p2, p3, t);
-      // std::cout<<"i: "<<count<<" \tat ("<<pos.x()<<","<<pos.y()<<","<<pos.z()<<")"<<" \tmomdelta = ("<<momdelta.x()<<","<<momdelta.y()<<","<<momdelta.z()<<")"<<std::endl;
+    if (useExistingParams){ 
+      float scale = ( (positions[i]-positions[i-1]).mag() )/3.0; // want to split curve into three parts
+      Amg::Vector3D p0(positions[i-1]); // first position
+      Amg::Vector3D p1(positions[i-1]+(scale * momenta[i-1].unit() ) ); // move 1/3 or the way towards next point, but following momentum direction
+      Amg::Vector3D p2(positions[i]  -(scale * momenta[i].unit() ) ); // back 1/3 from second point, but following momentum direction
+      Amg::Vector3D p3(positions[i]);
+      // std::cout<<"p0: ("<<p0[0]<<", "<<p0[1]<<", "<<p0[2]<<") "<<std::endl;
+      // std::cout<<"p1: ("<<p1[0]<<", "<<p1[1]<<", "<<p1[2]<<") "<<std::endl;
+      // std::cout<<"p2: ("<<p2[0]<<", "<<p2[1]<<", "<<p2[2]<<") "<<std::endl;
+      // std::cout<<"p3: ("<<p3[0]<<", "<<p3[1]<<", "<<p3[2]<<") "<<std::endl;
+    
+      unsigned int maxCount=d->collHandle->collSettingsButton().numOfStepsForInterpolation();
+      for (unsigned int count=1; count<=maxCount;++count){
+        float t=static_cast<float>(count)/static_cast<float>(maxCount);
+        Amg::Vector3D pos;
+        bezier(pos, p0, p1, p2, p3, t);
+        // std::cout<<"j: "<<count<<" \tat ("<<pos.x()<<","<<pos.y()<<","<<pos.z()<<")"<<std::endl;
       
-      // pos = pos + momdelta;
-      vertices->vertex.set1Value(iver++,pos.x(),pos.y(),pos.z());
-      d->positionsToWrite.append(pos);
+        // pos = pos + momdelta;
+        vertices->vertex.set1Value(iver++,pos.x(),pos.y(),pos.z());
+        d->positionsToWrite.append(pos);
       
+        npointsused++;        
+      }
+    } else {
+      vertices->vertex.set1Value(iver++,positions[i].x(),positions[i].y(),positions[i].z());
+      d->positionsToWrite.append(positions[i]);
       npointsused++;        
     }
   }
+  
+  // Add final point.
+  
+  
+    
   // Add to SoLine set
   d->line->numVertices.set1Value(0,npointsused);
   d->line->vertexProperty = vertices;
@@ -253,8 +278,13 @@ void IParticleHandle_TrackParticle::addLine_Extrapolated(){
   
   Trk::CurvilinearParameters startParameters(peri.position(),peri.momentum(),peri.charge());
   Trk::ExtrapolationCell<Trk::TrackParameters> ecc(startParameters);
-  ecc.addConfigurationMode(Trk::ExtrapolationMode::StopAtBoundary);
+  // ecc.addConfigurationMode(Trk::ExtrapolationMode::StopAtBoundary);
   ecc.addConfigurationMode(Trk::ExtrapolationMode::CollectPassive);
+  ecc.addConfigurationMode(Trk::ExtrapolationMode::CollectSensitive);
+  
+  // we want to extrapolate outwards only for muon tracks
+  if (getNMuonPrecisionLayers()==0 &&  getNMuonPhiLayers()==0 )
+    ecc.addConfigurationMode(Trk::ExtrapolationMode::StopAtBoundary);
   
   // call the extrapolation engine
   Trk::IExtrapolationEngine * engine = collHandle()->common()->extrapolator();

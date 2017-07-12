@@ -90,7 +90,6 @@ InDet::InDetRecStatisticsAlg::InDetRecStatisticsAlg(const std::string& name, ISv
   m_updatorHandle("Trk::KalmanUpdator/TrkKalmanUpdator"),
   m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
   m_McTrackCollection_key    ("TruthEvent"),
-  m_RecPrimaryVertexContainer_key ("VxPrimaryCandidate"), 
   m_trackSelectorTool("InDet::InDetDetailedTrackSelectorTool"),
   m_doSharedHits             (true),
   m_UseTrackSummary          (true),
@@ -117,8 +116,8 @@ InDet::InDetRecStatisticsAlg::InDetRecStatisticsAlg(const std::string& name, ISv
   m_minEtaDBM (2.5),
   m_maxEtaDBM (10.0)
 {  
-  m_RecTrackCollection_keys.push_back(std::string("Tracks"));
-  m_TrackTruthCollection_keys.push_back(std::string("TrackTruthCollection"));  
+  // m_RecTrackCollection_keys.push_back(std::string("Tracks"));
+  // m_TrackTruthCollection_keys.push_back(std::string("TrackTruthCollection"));
 
   // Algorithm properties
   declareProperty("SummaryTool",                m_trkSummaryTool);
@@ -130,8 +129,6 @@ InDet::InDetRecStatisticsAlg::InDetRecStatisticsAlg(const std::string& name, ISv
 		  "Tool to calculate residuals and pulls");
   declareProperty("TrackCollectionKeys",        m_RecTrackCollection_keys);
   declareProperty("McTrackCollectionKey",       m_McTrackCollection_key);
-  declareProperty("RecoPrimaryVertexContainerName",
-		  m_RecPrimaryVertexContainer_key);
   declareProperty("TrackTruthCollectionKeys",   m_TrackTruthCollection_keys);
   declareProperty("UseTrackSelection"       ,   m_useTrackSelection);
   declareProperty("DoTruth"                 ,   m_doTruth);
@@ -256,11 +253,11 @@ StatusCode InDet::InDetRecStatisticsAlg::initialize(){
   ct.maxEtaDBM = m_maxEtaDBM;
 
   unsigned int nCollections = 0;
-  for (std::vector <std::string>::const_iterator 
+  for (SG::ReadHandleKeyArray<TrackCollection>::const_iterator 
        it = m_RecTrackCollection_keys.begin(); 
        it < m_RecTrackCollection_keys.end(); ++ it) {
     InDet::TrackStatHelper * collection = 
-      new TrackStatHelper(*it,(m_doTruth ? m_TrackTruthCollection_keys[nCollections] : ""), m_doTruth);  
+      new TrackStatHelper(it->key(),(m_doTruth ? m_TrackTruthCollection_keys[nCollections].key() : ""), m_doTruth);  
     nCollections ++;
     collection->SetCuts(ct);        
     m_SignalCounters.push_back(collection); 
@@ -272,6 +269,16 @@ StatusCode InDet::InDetRecStatisticsAlg::initialize(){
     return StatusCode::FAILURE;
   }     
 
+  ATH_CHECK( m_RecTrackCollection_keys.initialize() );
+  if (m_doTruth) {
+    if (!m_McTrackCollection_key.key().empty()) {
+      ATH_CHECK( m_McTrackCollection_key.initialize() );
+    }
+    if (!m_TrackTruthCollection_keys.empty()) {
+      ATH_CHECK( m_TrackTruthCollection_keys.initialize() );
+    }
+  }
+
   return StatusCode :: SUCCESS;
 
 }
@@ -281,18 +288,16 @@ StatusCode InDet::InDetRecStatisticsAlg::initialize(){
 
 StatusCode InDet::InDetRecStatisticsAlg::execute() {
 
-    StatusCode sc = StatusCode :: SUCCESS;
     ATH_MSG_DEBUG("entering execute()");
 
     // Get reconstructed tracks , generated tracks, and truth from storegate
 
-    std :: vector <const TrackCollection *> RecTrackCollections;
-    const McEventCollection     * SimTracks = 0;
+    SG::ReadHandle<McEventCollection> SimTracks;
 
     if (m_doTruth) {
-      sc = getCollections(SimTracks);
-
-      if (sc.isFailure()) {
+      SimTracks=SG::ReadHandle<McEventCollection>(m_McTrackCollection_key);
+      if (!SimTracks.isValid()) {
+        // @TODO warning ?
         ATH_MSG_WARNING("Error retrieving collections !");
         return StatusCode::SUCCESS;
       }
@@ -311,8 +316,8 @@ StatusCode InDet::InDetRecStatisticsAlg::execute() {
     //     GenSignalPrimary, GenSignalTruncated, GenSignalSecondary;   
     unsigned int inTimeStart = 0;
     unsigned int inTimeEnd   = 0;
-    if (m_doTruth) selectGenSignal (SimTracks, GenSignal, inTimeStart, inTimeEnd);
-   
+    if (m_doTruth) selectGenSignal ((SimTracks.isValid() ? &(*SimTracks) : nullptr), GenSignal, inTimeStart, inTimeEnd);
+
     // step through the various reconstructed TrackCollections and 
     // corresponding TrackTruthCollections and produce statistics for each
 
@@ -322,50 +327,44 @@ StatusCode InDet::InDetRecStatisticsAlg::execute() {
       return StatusCode::FAILURE;
     }
 
+    std::vector< SG::ReadHandle<TrackCollection> > rec_track_collections = m_RecTrackCollection_keys.makeHandles();
+    std::vector< SG::ReadHandle<TrackTruthCollection> > truth_track_collections;
+    if (m_doTruth && !m_TrackTruthCollection_keys.empty()) {
+      truth_track_collections = m_TrackTruthCollection_keys.makeHandles();
+      if (truth_track_collections.size() != rec_track_collections.size()) {
+        ATH_MSG_ERROR("Different number of reco and truth track collections (" << rec_track_collections.size() << "!=" << truth_track_collections.size() << ")" );
+      }
+    }
+    if (m_SignalCounters.size() != rec_track_collections.size()) {
+        ATH_MSG_ERROR("Number expected reco track collections does not match the actual number of such collections (" 
+                      << m_SignalCounters.size() << "!=" << rec_track_collections.size() << ")" );
+    }
+
+    std::vector< SG::ReadHandle<TrackCollection> >::iterator rec_track_collections_iter = rec_track_collections.begin();
+    std::vector< SG::ReadHandle<TrackTruthCollection> >::iterator truth_track_collections_iter = truth_track_collections.begin();
     for (std::vector <class TrackStatHelper *>::const_iterator statHelper 
 	 =  m_SignalCounters.begin();
-	 statHelper !=  m_SignalCounters.end(); statHelper++) {
+	 statHelper !=  m_SignalCounters.end();
+         ++statHelper, ++rec_track_collections_iter) {
+      assert( rec_track_collections_iter != rec_track_collections.end());
 
-      const TrackCollection       * RecCollection = NULL;
+      ATH_MSG_DEBUG("Acessing TrackCollection " <<  m_RecTrackCollection_keys.at(rec_track_collections_iter - rec_track_collections.begin()).key());
+      const TrackCollection       * RecCollection = &(**rec_track_collections_iter);
       const TrackTruthCollection  * TruthMap  = NULL;
 
-      std::string recKey   ((*statHelper)->key());
-      std::string truthKey ((*statHelper)->Truthkey());
-
-      ATH_MSG_DEBUG("Acessing TrackCollection " <<  recKey);
-      
-      sc = evtStore()->retrieve(RecCollection, recKey);  
-     
-      if (sc.isFailure()) {
-	ATH_MSG_WARNING("Track collection \"" << recKey << "\" not found." 
-	);
-	return StatusCode::SUCCESS;
-      }
-      if (RecCollection)  ATH_MSG_DEBUG("Retrieved " 
-			      << RecCollection->size() 
-			      << " reconstructed tracks from storegate" 
+      if (RecCollection)  ATH_MSG_DEBUG("Retrieved "
+			      << RecCollection->size()
+			      << " reconstructed tracks from storegate"
 			);
 
       if (m_doTruth) {
-        ATH_MSG_DEBUG("Acessing TrackTruthCollection " <<  truthKey);
-
-        if (truthKey != "") {
-          if (evtStore()->retrieve (TruthMap , truthKey).isFailure()) {
-            ATH_MSG_WARNING("TrackTruthCollection \"" << truthKey
-	        <<"\" not found.");
-            return StatusCode::SUCCESS;
-          }
-        }
-        else {
-          ATH_MSG_ERROR( 
-	      "No TrackTruthCollection key specified to go with this"
-	      <<"TrackCollection!");
-          return StatusCode::SUCCESS;
-        }
+        ATH_MSG_DEBUG("Acessing TrackTruthCollection " <<  m_TrackTruthCollection_keys.at(truth_track_collections_iter - truth_track_collections.begin()).key());
+        assert( truth_track_collections_iter != truth_track_collections.end());
+        TruthMap = &(**truth_track_collections_iter);
         if (TruthMap)   ATH_MSG_DEBUG("Retrieved " << TruthMap->size() 
 			    << " TrackTruth elements from storegate");
+        ++truth_track_collections_iter;
       }
-
 
       //start process of getting correct track summary
 
@@ -544,42 +543,6 @@ StatusCode InDet :: InDetRecStatisticsAlg :: getServices ()
      }
    }
    return StatusCode :: SUCCESS;
-}
-
-StatusCode InDet :: InDetRecStatisticsAlg :: getCollections (const McEventCollection    * &SimTracks)	
-{
-//StatusCode InDet::InDetRecStatisticsAlg::getCollection(const McEventCollection* & SimTracks) {
-  
-  SimTracks = NULL;
-
-  // generated tracks
-  bool usingG3 = false;      
-  if (evtStore()->retrieve(SimTracks,m_McTrackCollection_key).isFailure())
-    {
-      std::string key = "G4Truth";
-      if (evtStore()->retrieve(SimTracks,key).isFailure()) 
-	{
-	  key = "";
-	  usingG3	= true;
-	  if (evtStore()->retrieve(SimTracks,key).isFailure())
-	    {
-	      ATH_MSG_FATAL("Could not find the McEventCollection" 
-		);
-	      return StatusCode::FAILURE;
-	    }
-	}
-    }
-  if (usingG3 == true) 
-    {
-      ATH_MSG_FATAL("The only McEventCollection found was from G3."
-		    << "This is not supported.");
-      return StatusCode::FAILURE;
-    }
-
-    if (SimTracks)  ATH_MSG_DEBUG("Retrieved " 
-			<< (*(SimTracks->begin()))->particles_size() 
-			<< " generated tracks from storegate. (First [signal] event.)");
-    return StatusCode::SUCCESS;
 }
 
 StatusCode InDet :: InDetRecStatisticsAlg :: resetStatistics() {

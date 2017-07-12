@@ -117,14 +117,6 @@ class CscCalibMonToolBase: public ManagedMonitorToolBase
 
 
     protected:
-
-        StoreGateSvc* m_detStore;
-        StoreGateSvc* m_storeGate;
-
-        bool                   m_debuglevel;           //!< private member to control debug messages  
-        bool                   m_verboselevel;           //!< private member to control debug messages  
-        mutable MsgStream      m_log;                  //!< Gaudi message stream - msgstream as private member (-> speed)
-
         unsigned int m_maxHashId;
         unsigned int m_maxChamId;
         unsigned int m_numBad;

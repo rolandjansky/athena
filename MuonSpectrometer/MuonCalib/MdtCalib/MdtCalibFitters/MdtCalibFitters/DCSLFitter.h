@@ -29,7 +29,7 @@ namespace MuonCalib {
 
   class DCSLFitter : public IMdtSegmentFitter {
   public:
-    DCSLFitter() : m_debug(false), m_error_dy0(0.0), m_error_dtheta(0.0) {}
+    DCSLFitter() : m_debug(false) {}
   
     /** fit using all hits */
     bool fit( MuonCalibSegment& seg ) const;
@@ -41,8 +41,6 @@ namespace MuonCalib {
 	no fit is performed.
     */
     bool fit( MuonCalibSegment& seg, HitSelection selection ) const;
-//    double error_dy0() { return m_error_dy0;} 
-//    double error_dtheta() { return m_error_dtheta;} 
 
     /** set print level */
     void printLevel(int level);
@@ -50,9 +48,6 @@ namespace MuonCalib {
   
     bool m_debug;
     
-    mutable double m_error_dy0;
-    mutable double m_error_dtheta;
-
     double getY( const Amg::Vector3D& p ) const { return p.z(); }
     double getZ( const Amg::Vector3D& p ) const { return p.y(); }
     Amg::Vector3D getVec( double x, double y, double z) const { return Amg::Vector3D( x, z, y ); }

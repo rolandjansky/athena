@@ -68,13 +68,12 @@ public:
   DVLDataBucket (T* data);
 
 
-#if __cplusplus > 201100
   /**
    * @brief Constructor from a payload object.
    * @param data Object to hold in the bucket.
    */
-  DVLDataBucket(std::unique_ptr<T> data);
-#endif
+  template <class U>
+  DVLDataBucket(std::unique_ptr<U> data);
 
 
   /**

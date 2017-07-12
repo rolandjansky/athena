@@ -27,10 +27,17 @@ namespace xAOD {
       const std::type_info& ti = typeid( T );
 
       // Check if we already have a destructor for it:
-      if( m_types.find( &ti ) != m_types.end() ) {
-         // Yep, there's nothing to do...
-         return;
+      {
+         // Get a "read lock":
+         std::shared_lock< std::shared_timed_mutex > lock( m_mutex );
+         if( m_types.find( &ti ) != m_types.end() ) {
+            // Yep, there's nothing to do...
+            return;
+         }
       }
+
+      // Get a "write lock":
+      std::unique_lock< std::shared_timed_mutex > lock( m_mutex );
 
       // Create a new destructor object:
       TVirtualDestructor* d = new TDestructor< T >();

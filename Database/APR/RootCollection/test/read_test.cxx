@@ -26,9 +26,6 @@
 
 #include "TInterpreter.h"
 #include "TClass.h"
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
-#include "Cintex/Cintex.h"
-#endif
 
 using namespace std;
 using namespace pool;
@@ -422,9 +419,6 @@ TestDriver::read()
 
 int main()
 {
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
-  ROOT::Cintex::Cintex::Enable();
-#endif
   gInterpreter->EnableAutoLoading();
   TClass::GetClass("map<string,string>");
 

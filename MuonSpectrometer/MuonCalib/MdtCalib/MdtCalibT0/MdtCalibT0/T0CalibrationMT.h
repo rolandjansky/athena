@@ -101,8 +101,8 @@ bool  analyse_adc(const int & nr, std::map<int, MdtTubeFitContainer::SingleTubeF
   TFile * p_file;			 //!< pointer to the histogram file 
   TDirectory * m_regiondir;              //!< pointer to the ROOT directory
 
-  std::vector<std::map<HistogramId, T0MTHistos*> >p_histos;  //!< vector of pointers tube histograms 
-  std::vector<std::map<HistogramId, ADCMTHistos*> >p_adc_histos;  //!< vector of pointers tube histograms 
+  std::vector<std::map<HistogramId, T0MTHistos*> >m_histos;  //!< vector of pointers tube histograms 
+  std::vector<std::map<HistogramId, ADCMTHistos*> >m_adc_histos;  //!< vector of pointers tube histograms 
   std::vector<std::map<HistogramId, std::set<MuonFixedId> > > m_tube_ids;
   std::vector<std::map<HistogramId, std::set<MuonFixedId> > > m_adc_tube_ids;
   std::map<int, int> m_nhits_per_tube; //!<number of hits per tube

@@ -19,7 +19,7 @@ topSequence = AlgSequence()
 # Event related parameters
 #--------------------------------------------------------------
 from AthenaCommon.AppMgr import theApp
-theApp.EvtMax = 200000
+theApp.EvtMax = 20
 
 #--------------------------------------------------------------
 # Load ByteStream support
@@ -43,7 +43,7 @@ if not hasattr(svcMgr,"ByteStreamCnvSvc"):
    except OSError:
       pass
 
-svcMgr.EventSelector.Input = [ "/afs/cern.ch/atlas/maxidisk/d108/cranshaw/nightlies/extractedEvents.data" ]
+svcMgr.EventSelector.Input += ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/data12_8TeV.00209109.physics_JetTauEtmiss.merge.RAW._lb0186._SFO-1._0001.1"]
 
 # The piece which does the AttList conversion for WRITING
 from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamAttListMetadataSvc
@@ -78,7 +78,7 @@ topSequence += sd
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL)
 #--------------------------------------------------------------
 svcMgr.MessageSvc.OutputLevel = INFO
-svcMgr.MessageSvc.defaultLimit = 100000
+#svcMgr.MessageSvc.defaultLimit = 100000
 
 svcMgr.MetaDataSvc.OutputLevel = DEBUG
 svcMgr.EventSelector.OutputLevel = INFO

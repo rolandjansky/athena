@@ -184,7 +184,7 @@ private:
   StatusCode checkEventSel();
   StatusCode setupFolders();
   StatusCode fillTagInfo();
-  StatusCode loadCaches(IOVDbConn* conn);
+  StatusCode loadCaches(IOVDbConn* conn, const IOVTime* time=nullptr);
   void printMetaDataContainer(const IOVMetaDataContainer* cont);
   void dumpKeys();
 

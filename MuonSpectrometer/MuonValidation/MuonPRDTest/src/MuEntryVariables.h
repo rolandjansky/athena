@@ -37,7 +37,7 @@ class MuEntryVariables : public ValAlgVariables
   {
     if( (this->deleteVariables()).isFailure() ){
       ATH_MSG_ERROR("Failing to delete MuEntryVariables.");
-      throw;
+      std::terminate();
     }
   }
 

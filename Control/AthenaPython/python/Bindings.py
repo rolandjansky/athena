@@ -136,18 +136,18 @@ def py_svc(svcName, createIf=True, iface=None):
      @param createIf: If True, the service will be created if it hasn't been yet
             instantiated.
      @param iface: type one wants to cast the service to (can be a string or the
-            PyCintex type)
+            cppyy type)
 
     Ex:
      ## retrieve default interface (ie: GaudiKernel/IService)
      svc = py_svc('ThinningSvc/AodThinningSvc')
-     assert(type(svc) == PyCintex.gbl.IService)
+     assert(type(svc) == cppyy.gbl.IService)
 
      ## retrieve special interface IThinningSvc
      ## Warning: a dict has to have been generated beforehand !!
      svc = py_svc('ThinningSvc/AodThinningSvc', createIf=True,
-                  iface=PyCintex.gbl.IThinningSvc)
-     assert(type(svc) == PyCintex.gbl.IThinningSvc)
+                  iface=cppyy.gbl.IThinningSvc)
+     assert(type(svc) == cppyy.gbl.IThinningSvc)
     """
     fullName = svcName
     s        = svcName.split('/')
@@ -189,16 +189,16 @@ def py_tool(toolName, createIf=True, iface=None):
      @param createIf: If True, the tool will be created if it hasn't been yet
             instantiated.
      @param iface: type one wants to cast the tool to (can be a string or the
-            PyCintex type)
+            cppyy type)
 
     Ex:
      ## retrieve default interface (ie: GaudiKernel/IAlgTool)
      tool = py_tool('LArOnlDbPrepTool')
-     assert(type(tool) == PyCintex.gbl.IAlgTool)
+     assert(type(tool) == cppyy.gbl.IAlgTool)
 
      ## retrieve with specified interface
      tool = py_tool('LArOnlDbPrepTool', iface='ILArOnlDbPrepTool')
-     assert(type(tool) == PyCintex.gbl.ILArOnlDbPrepTool)
+     assert(type(tool) == cppyy.gbl.ILArOnlDbPrepTool)
 
     """
     fullName = toolName
@@ -240,16 +240,16 @@ def py_alg(algName, iface='IAlgorithm'):
      @param algName: the name of the algorithm's instance one wants to retrieve
             ex: 'McAodBuilder'
      @param iface: type one wants to cast the tool to (can be a string or the
-            PyCintex type)
+            cppyy type)
 
     Ex:
      ## retrieve default interface (ie: GaudiKernel/IAlgorithm)
      alg = py_alg('McAodBuilder')
-     assert(type(alg) == PyCintex.gbl.IAlgorithm)
+     assert(type(alg) == cppyy.gbl.IAlgorithm)
 
      ## retrieve with specified interface
      alg = py_alg('McAodBuilder', iface='Algorithm')
-     assert(type(alg) == PyCintex.gbl.Algorithm)
+     assert(type(alg) == cppyy.gbl.Algorithm)
 
     """
     algmgr = py_svc('ApplicationMgr',iface='IAlgManager')

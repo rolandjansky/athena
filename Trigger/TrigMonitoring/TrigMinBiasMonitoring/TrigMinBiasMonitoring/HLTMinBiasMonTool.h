@@ -196,12 +196,12 @@ private:
 	float m_timeCut; // Controls the simulated trigger decision
 
 	// ID L2
-	int pixSpBarr;
-	int pixSpECA;
-	int pixSpECC;
-	int sctSpBarr;
-	int sctSpECA;
-	int sctSpECC;
+	int m_pixSpBarr;
+	int m_pixSpECA;
+	int m_pixSpECC;
+	int m_sctSpBarr;
+	int m_sctSpECA;
+	int m_sctSpECC;
 
 	/** Cut made on time overthreshold before any multiplicities are calculated for Pixel and SCT. */
 	float m_timeOverThresholdCut;
@@ -223,9 +223,9 @@ private:
 	float m_max_z0;
 	float m_min_pt;
 
-	int mbTracks;
-	int totpix_spEF;
-	int totsct_spEF;
+	int m_mbTracks;
+	int m_totpix_spEF;
+	int m_totsct_spEF;
 	
 	ToolHandle< InDet::IInDetTrackSelectionTool >  m_mbtsEffSelTool;
 	ToolHandle< InDet::IInDetTrackSelectionTool >  m_sptrkEffSelTool;

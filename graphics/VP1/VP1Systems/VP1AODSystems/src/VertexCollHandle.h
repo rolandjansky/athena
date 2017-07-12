@@ -114,17 +114,20 @@ private slots:
 	void resetCachedValuesCuts();
   
 public slots:
-  void rerandomiseRandomVertexColours();
+  // void rerandomiseRandomVertexColours();
 
 
   // setters
+  void setCutAllowedY(const VP1Interval&);
   void setCutAllowedZ(const VP1Interval&);
   void setCutAllowedR(const VP1Interval&);
   void setVertexSize(int);
 
   //getters
+  VP1Interval getCutAllowedY() {return m_cut_allowedY; };
   VP1Interval getCutAllowedZ() {return m_cut_allowedZ; };
   VP1Interval getCutAllowedR() {return m_cut_allowedR; };
+  bool        getYAllowall() {return m_cut_y_allowall; };
   bool        getZAllowall() {return m_cut_z_allowall; };
   bool        getRAllowall() {return m_cut_r_allowall; };
 
@@ -135,10 +138,13 @@ private:
 
   int m_nshownhandles;
 
+  VP1Interval m_cut_allowedY;
   VP1Interval m_cut_allowedR;
   VP1Interval m_cut_allowedZ;
+  bool m_cut_y_allowall;
   bool m_cut_r_allowall;
   bool m_cut_z_allowall;
+  bool m_cut_ry_allwillfail;
   bool m_cut_rz_allwillfail;
 };
 

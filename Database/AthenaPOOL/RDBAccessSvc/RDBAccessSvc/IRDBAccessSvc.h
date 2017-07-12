@@ -70,12 +70,6 @@ class IRDBAccessSvc : virtual public IInterface
   /// tag of the HVS branch node specified by tag2node otherwise
   /// @param tag2node [IN] some parent of the HVS leaf node specified by node parameter
   /// @return pointer to the recordset object
-  virtual const IRDBRecordset* getRecordset(const std::string& node,
-					    const std::string& tag,
-					    const std::string& tag2node="",
-					    const std::string& connName = "ATLASDD") = 0;
-
-
   virtual IRDBRecordset_ptr getRecordsetPtr(const std::string& node,
 					    const std::string& tag,
 					    const std::string& tag2node="",

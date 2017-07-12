@@ -17,13 +17,12 @@
 
 TrigTrackCounter::TrigTrackCounter(const std::string& name, ISvcLocator* pSvcLocator)
   : HLT::FexAlgo(name, pSvcLocator), 
-    m_log(msgSvc(), name),
     m_z0_pt(0),
     m_eta_phi(0),
     m_formFeaturesTimer(0),
     m_getTracksTimer(0),
-    m_recoTracks(0),
-    m_storeGate(0) {  
+    m_recoTracks(0)
+{  
   
   // Histogram dimensions
   declareProperty("Z0Bins", m_hZ0Bins = 20);
@@ -70,19 +69,12 @@ TrigTrackCounter::~TrigTrackCounter(void) {
 //---------------------------------------------------------------------------------
 
 HLT::ErrorCode TrigTrackCounter::hltInitialize() {
-  m_log.setLevel(outputLevel());
-  m_log << MSG::INFO << "Initialising this TrigTrackCounter: " << name() << endmsg;
+  ATH_MSG_INFO( "Initialising this TrigTrackCounter: " << name()  );
   
   // Create timers
   if( timerSvc() ){
     m_formFeaturesTimer = addTimer("formFeatures");
     m_getTracksTimer    = addTimer("getTracks");
-  }
-
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if( sc.isFailure() ){
-      m_log << MSG::ERROR << "Unable to get StoreGateSvc" << endmsg;
-      return StatusCode::FAILURE;
   }
 
   // Create empty histograms.
@@ -96,7 +88,7 @@ HLT::ErrorCode TrigTrackCounter::hltInitialize() {
   m_eta_phi->initialize(m_hEtaBins, m_hEtaMin, m_hEtaMax,
 			m_hPhiBins, m_hPhiMin, m_hPhiMax);
   
-  m_log << MSG::INFO << "TrigTrackCounter initialized successfully" << endmsg; 
+  ATH_MSG_INFO( "TrigTrackCounter initialized successfully"  );
   return HLT::OK;  
 }
 
@@ -104,9 +96,7 @@ HLT::ErrorCode TrigTrackCounter::hltInitialize() {
 
 HLT::ErrorCode TrigTrackCounter::hltExecute( const HLT::TriggerElement *, HLT::TriggerElement* outputTE ){
   
-  if ( msgLvl() <= MSG::DEBUG) {
-    m_log << MSG::DEBUG << "Executing this TrigTrackCounter " << name() << endmsg;
-  } 
+  ATH_MSG_DEBUG( "Executing this TrigTrackCounter " << name()  );
   
   if( timerSvc() ){ 
     m_formFeaturesTimer->start();
@@ -116,11 +106,11 @@ HLT::ErrorCode TrigTrackCounter::hltExecute( const HLT::TriggerElement *, HLT::T
   // retrieve output from TrigAmbiguitySolver
   HLT::ErrorCode ec = getFeature( outputTE, m_recoTracks, m_trkContainerName );
   if( ec != HLT::OK ){
-    m_log << MSG::ERROR << "Input track collection " << m_trkContainerName << "could not be found " << endmsg;
+    ATH_MSG_ERROR( "Input track collection " << m_trkContainerName << "could not be found "  );
     return HLT::NAV_ERROR;
   }
   else{
-    m_log << MSG::DEBUG << "Retrieved successfully track collection " << m_trkContainerName << endmsg;
+    ATH_MSG_DEBUG( "Retrieved successfully track collection " << m_trkContainerName  );
   }
 
   if( timerSvc() ){ 
@@ -133,15 +123,11 @@ HLT::ErrorCode TrigTrackCounter::hltExecute( const HLT::TriggerElement *, HLT::T
 
   m_ntrks = -999;
   if( !m_recoTracks || m_recoTracks->size() == 0 ){
-    if( msgLvl() <= MSG::DEBUG ){
-      m_log << MSG::DEBUG << "REGTEST: TrackCollection contains is empty or contains 0 tracks." << endmsg;
-    }
+    ATH_MSG_DEBUG( "REGTEST: TrackCollection contains is empty or contains 0 tracks."  );
   }
   else{
     m_ntrks = m_recoTracks->size();
-    if( msgLvl() <= MSG::DEBUG ){
-      m_log << MSG::DEBUG << "REGTEST: TrackCollection contains " << m_ntrks << " tracks." << endmsg;
-    }
+    ATH_MSG_DEBUG( "REGTEST: TrackCollection contains " << m_ntrks << " tracks."  );
     
     TrackCollection::const_iterator itr = m_recoTracks->begin();
     TrackCollection::const_iterator itrEnd = m_recoTracks->end();
@@ -162,14 +148,11 @@ HLT::ErrorCode TrigTrackCounter::hltExecute( const HLT::TriggerElement *, HLT::T
       if(pT/1000.>m_pt_min && fabs(z0)<m_z0_max){
 	m_eta_phi->fill(fabs(eta), fabs(phi0), 1.);
       }
-      if(msgLvl() <= MSG::DEBUG){
-	m_log << MSG::DEBUG 
-	      << "REGTEST: Found track with: "
-	      << "z0 = " << z0 << " mm, "
-	      << "phi0 = " << phi0 << ", "
-	      << "eta = " << eta << ", "
-	      << "pt = " << pT/1000. << " GeV" << endmsg;
-      }
+      ATH_MSG_DEBUG( "REGTEST: Found track with: "
+                     << "z0 = " << z0 << " mm, "
+                     << "phi0 = " << phi0 << ", "
+                     << "eta = " << eta << ", "
+                     << "pt = " << pT/1000. << " GeV"  );
     }
   }
 
@@ -211,9 +194,7 @@ HLT::ErrorCode TrigTrackCounter::hltExecute( const HLT::TriggerElement *, HLT::T
   
   HLT::ErrorCode hltStatus = attachFeature( outputTE, tk, "trackcounts" );
   if(hltStatus != HLT::OK) {
-    if(msgLvl() <= MSG::ERROR) {
-      m_log << MSG::ERROR << "Write of TrigTrackCounts into outputTE failed" << endmsg;
-    }
+    ATH_MSG_ERROR( "Write of TrigTrackCounts into outputTE failed"  );
     return hltStatus;
   }
 
@@ -224,6 +205,6 @@ HLT::ErrorCode TrigTrackCounter::hltExecute( const HLT::TriggerElement *, HLT::T
 
 HLT::ErrorCode TrigTrackCounter::hltFinalize() {
   
-  m_log << MSG::INFO << "Finalizing this TrigTrackCounter" << name() << endmsg; 
+  ATH_MSG_INFO( "Finalizing this TrigTrackCounter" << name()  );
   return HLT::OK;  
 }

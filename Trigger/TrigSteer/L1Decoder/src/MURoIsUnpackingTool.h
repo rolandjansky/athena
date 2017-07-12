@@ -18,7 +18,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
-
+#include "AthenaMonitoring/GenericMonitoringTool.h"
 
 #include "IRoIsUnpackingTool.h"
 
@@ -62,6 +62,7 @@ private:
   ServiceHandle<LVL1::RecMuonRoiSvc> m_recRpcRoISvc;
   ServiceHandle<LVL1::RecMuonRoiSvc> m_recTgcRoISvc;
   float m_roIWidth;
+  ToolHandle<GenericMonitoringTool> m_monTool;
 }; 
 
 // I/O operators

@@ -18,7 +18,7 @@ endif()
 atlas_depends_on_subdirs(
    PUBLIC
    Control/AthToolSupport/AsgTools
-   PhysicsAnalyis/Interfaces/AsgAnalysisInterfaces
+   PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
    Trigger/TrigEvent/TrigDecisionInterface
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PRIVATE

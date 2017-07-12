@@ -29,9 +29,18 @@ atlas_add_component( ViewAlgsTest
                      src/*.cxx
                      src/components/*.cxx
                      LINK_LIBRARIES GaudiKernel AthenaBaseComps CxxUtils xAODTrigger xAODTracking TrigConfHLTData TrigSteeringEvent ViewAlgsLib AthContainers FourMomUtils)
+
 atlas_install_joboptions( share/*.py )
-atlas_install_runtime( share/caloRoIData.dat share/menuData.dat share/muonRoIData.dat )
 
 atlas_install_python_modules( python/*.py )
+
 atlas_install_xmls( data/*.xml )
 
+
+atlas_add_test( creatingEVTest 
+		SCRIPT scripts/creatingEVTest.sh
+		EXTRA_PATTERNS AthenaHiveEventLoopMgr )
+
+atlas_add_test( mergingEVTest 
+		SCRIPT scripts/mergingEVTest.sh 
+		EXTRA_PATTERNS AthenaHiveEventLoopMgr )

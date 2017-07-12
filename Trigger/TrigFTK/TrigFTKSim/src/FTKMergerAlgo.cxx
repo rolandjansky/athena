@@ -479,9 +479,9 @@ StatusCode FTKMergerAlgo::execute() {
                m_banks[ib]->naoSetNroadsAMMissPix(0);
                m_banks[ib]->naoSetNroadsAMMissSCT(0);
                m_banks[ib]->naoSetNroadsMOD(0);
-               m_banks[ib]->naoSetNclus(zerovec);
-               m_banks[ib]->naoSetNclus_road(zerovec);
-               m_banks[ib]->naoSetNss(zerovec);
+               m_banks[ib]->naoSetNclus(m_zerovec);
+               m_banks[ib]->naoSetNclus_road(m_zerovec);
+               m_banks[ib]->naoSetNss(m_zerovec);
                StatusCode sc = merge_roads(m_banks[ib],m_srbanks[ib], ib, m_nsubregions);
                if (sc.isFailure()) {
                   log << MSG::FATAL << "Unable to merge roads" << endmsg;
@@ -782,7 +782,12 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
               if(m_ftktrack_tomerge_tree[ireg][isub]->FindBranch(Form("FTKTracksStream%d.",regNum))){
                  log << MSG::VERBOSE << "Setting branch with region number: " << regNum << " ireg: " << ireg << " isub: " << isub << endmsg;
                  m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress(Form("FTKTracksStream%d.",regNum),&m_ftktrack_tomerge_stream[ireg][isub],&m_ftktrack_tomerge_branch[ireg][isub]);
-                 
+                 if( m_MergeRoads) {
+                     m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress
+                        (Form("FTKRoadsStream%d.",regNum),
+                         &m_srbanks[ireg][isub],
+                         &m_ftkroad_tomerge_branch[ireg][isub]);
+                 }
               //
               // If not, Try to find branches named after merging has been done
               //
@@ -790,9 +795,21 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
               } else if (m_ftktrack_tomerge_tree[ireg][isub]->FindBranch(Form("FTKMergedTracksStream%d",regNum))) {
                   log << MSG::VERBOSE << "Setting merged branch with region number: " << regNum << " ireg: " << ireg << " isub: " << isub << endmsg;
                  m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress(Form("FTKMergedTracksStream%d",regNum),&m_ftktrack_tomerge_stream[ireg][isub],&m_ftktrack_tomerge_branch[ireg][isub]);
+                  if( m_srbanks[ireg][isub]) {
+                     m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress
+                        (Form("FTKMergedRoadsStream%d.",regNum),
+                         &m_srbanks[ireg][isub],
+                         &m_ftkroad_tomerge_branch[ireg][isub]);
+                  }
               } else {
                  log << MSG::DEBUG << "Setting branch with name: FTKMergedTracksStream" << endmsg;
                  m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress("FTKMergedTracksStream",&m_ftktrack_tomerge_stream[ireg][isub],&m_ftktrack_tomerge_branch[ireg][isub]);
+                 if( m_srbanks[ireg][isub]) {
+                     m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress
+                        ("FTKMergedRoadsStream.",
+                         &m_srbanks[ireg][isub],
+                         &m_ftkroad_tomerge_branch[ireg][isub]);
+                 }
               }
 ///           } // from not used else
            
@@ -879,7 +896,7 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
               m_ftkroad_tomerge_branch[ib][isub]->GetEntry(0);
               m_banks[ib]->init(m_srbanks[ib][isub]->getNPlanes()); 
               int np = m_srbanks[ib][isub]->getNPlanes();
-              if (zerovec.size() == 0) for (int i = 0; i < np; i++) zerovec.push_back(0);
+              if (m_zerovec.size() == 0) for (int i = 0; i < np; i++) m_zerovec.push_back(0);
            }
         }
 
@@ -907,7 +924,7 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
               m_ftkroad_tomerge_branch[ib][isub]->GetEntry(0);
               m_banks[m_nregions]->init(m_srbanks[ib][isub]->getNPlanes()); 
               int np = m_srbanks[ib][isub]->getNPlanes();
-              if (zerovec.size() == 0) for (int i = 0; i < np; i++) zerovec.push_back(0);
+              if (m_zerovec.size() == 0) for (int i = 0; i < np; i++) m_zerovec.push_back(0);
            }
         }
      }

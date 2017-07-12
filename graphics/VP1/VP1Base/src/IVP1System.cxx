@@ -19,8 +19,8 @@
 #include "VP1Base/VP1Msg.h"
 #include "VP1Base/VP1AthenaPtrs.h"
 
-#include <QtGui/QApplication>
-#include <QtGui/QWidget>
+#include <QApplication>
+#include <QWidget>
 
 #include <cassert>
 #include <iostream>

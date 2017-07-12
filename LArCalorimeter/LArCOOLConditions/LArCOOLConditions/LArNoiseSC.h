@@ -3,8 +3,8 @@
 */
 
 // Dear emacs, this is -*-c++-*-
-#ifndef LARCOOLCONDITIONS_LARMPHYSOVERMCALSC_H
-#define LARCOOLCONDITIONS_LARMPHYSOVERMCALSC_H
+#ifndef LARCOOLCONDITIONS_LARNOISESSC_H
+#define LARCOOLCONDITIONS_LARNOISESSC_H
 
 #include "LArElecCalib/ILArNoise.h" 
 #include "LArCOOLConditions/LArSingleFloatBlob.h"
@@ -37,5 +37,10 @@ private:
 };
 
 CLASS_DEF( LArNoiseSC ,234451881 , 1 )
+//ConditionsContainer clid for athenaMT
+#include "AthenaKernel/CondCont.h"
+CLASS_DEF( CondCont<LArNoiseSC> , 89903463 , 1 )
+#include "SGTools/BaseInfo.h"
+SG_BASE( CondCont<LArNoiseSC>, CondContBase );
 
 #endif 

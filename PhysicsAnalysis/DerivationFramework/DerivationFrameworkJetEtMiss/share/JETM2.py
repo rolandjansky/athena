@@ -12,7 +12,7 @@ from DerivationFrameworkMuons.MuonsCommon import *
 #
 from DerivationFrameworkJetEtMiss.METCommon import *
 #
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
     from DerivationFrameworkMCTruth.MCTruthCommon import *
     from DerivationFrameworkTau.TauTruthCommon import *
 
@@ -55,7 +55,7 @@ JETM2Stream.AcceptAlgs(["JETM2Kernel"])
 
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 JETM2ThinningHelper = ThinningHelper( "JETM2ThinningHelper" )
-JETM2ThinningHelper.TriggerChains = orstr.join(electronTriggers+muonTriggers)
+#JETM2ThinningHelper.TriggerChains = orstr.join(electronTriggers+muonTriggers)
 JETM2ThinningHelper.AppendToStream( JETM2Stream )
 
 #====================================================================
@@ -102,7 +102,7 @@ thinningTools.append(JETM2TauTPThinningTool)
 doTruthThinning = True
 preserveAllDescendants = False
 from AthenaCommon.GlobalFlags import globalflags
-if doTruthThinning and globalflags.DataSource()=='geant4':
+if doTruthThinning and DerivationFrameworkIsMonteCarlo:
     truth_cond_WZH    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))"            # W, Z and Higgs
     truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16) && (TruthParticles.barcode < 200000))" # Leptons
     truth_cond_Quark  = "((abs(TruthParticles.pdgId) <=  5  && (TruthParticles.pt > 10000.)) || (abs(TruthParticles.pdgId) == 6))"                 # Quarks
@@ -143,11 +143,12 @@ jetm2Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM2Kernel",
 # SCHEDULE CUSTOM MET RECONSTRUCTION
 #=======================================
 
-if globalflags.DataSource()=='geant4':
-    addMETTruthMap('AntiKt4EMTopo')
-    addMETTruthMap('AntiKt4LCTopo')
-    addMETTruthMap('AntiKt4EMPFlow')
-    scheduleMETAssocAlg(jetm2Seq)
+if DerivationFrameworkIsMonteCarlo:
+    addMETTruthMap('AntiKt4EMTopo',"JETMX")
+    addMETTruthMap('AntiKt4LCTopo',"JETMX")
+    addMETTruthMap('AntiKt4EMPFlow',"JETMX")
+    scheduleMETAssocAlg(jetm2Seq,"JETMX")
+
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -159,11 +160,13 @@ JETM2SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "MET_Reference_AntiKt4EMTopo",
                                         "MET_Reference_AntiKt4LCTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
-                                        "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets"]
-JETM2SlimmingHelper.AllVariables = ["BTagging_AntiKt4LCTopo", "BTagging_AntiKt4EMTopo",# "CaloCalTopoClusters",
-                                    "MuonTruthParticles", "egammaTruthParticles",
+                                        "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
+                                        "BTagging_AntiKt4EMTopo",
+                                        ]
+JETM2SlimmingHelper.AllVariables = ["MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
-                                    "MuonSegments"
+                                    "MuonSegments",
+                                    "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
 JETM2SlimmingHelper.ExtraVariables = ["Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus",
                                       "TauJets.IsTruthMatched.truthParticleLink.truthJetLink"]

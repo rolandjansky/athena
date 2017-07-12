@@ -21,11 +21,44 @@ assert os.path.isfile('input.data'), 'No input file: see the JO to see how to ge
 #
 #==============================================================
 
+
 ## basic job configuration
 import AthenaCommon.AtlasUnixStandardJob
 #import AthenaCommon.AtlasThreadedJob
 
 include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
+
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.InputFormat='bytestream'  # default for athenaMT/PT
+
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+athenaCommonFlags.BSRDOInput=["input.data"]
+
+# Input format and file for athena running
+
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+TriggerFlags.doMuon=True
+
+include("TriggerRelease/jobOfragment_ReadBS_standalone.py")
+
+from AthenaCommon.DetFlags import DetFlags
+DetFlags.detdescr.Muon_setOn()
+
+
+# Setup IOVDbSvc
+from IOVDbSvc.CondDB import conddb
+svcMgr.IOVDbSvc.GlobalTag=globalflags.ConditionsTag()
+
+# ----------------------------------------------------------------
+# Setting detector geometry
+# ----------------------------------------------------------------
+include ("RecExCond/AllDet_detDescr.py")
+#include("TriggerRelease/Trigger_topOptions_standalone.py")
+import MuonCnvExample.MuonCablingConfig
+import MuonRecExample.MuonReadCalib
+
+
+include ("MuonRecExample/MuonRecLoadTools.py")
 
 ## get a handle on the ServiceManager
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -60,6 +93,11 @@ if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
     from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc 
     svcMgr += ByteStreamAddressProviderSvc()
 
+if not hasattr(svcMgr, 'THistSvc'):
+  from GaudiSvc.GaudiSvcConf import THistSvc
+  svcMgr += THistSvc()
+svcMgr.THistSvc.Output = ["EXPERT DATAFILE='expert-monitoring.root', OPT='RECREATE'"]
+
 
 from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc
 l1svc = TrigConf__LVL1ConfigSvc("LVL1ConfigSvc")
@@ -83,34 +121,27 @@ if nThreads >= 1:
   topSequence += SGInputLoader( OutputLevel=INFO, ShowEventDump=False )
   topSequence.SGInputLoader.Load = [ ('ROIB::RoIBResult','RoIBResult') ]
 
-
-doL1Emulation=False
+from L1Decoder.L1DecoderMonitoring import CTPUnpackingMonitoring, RoIsUnpackingMonitoring
 from L1Decoder.L1DecoderConf import CTPUnpackingTool, EMRoIsUnpackingTool, L1Decoder, MURoIsUnpackingTool
 from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool
 l1Decoder = L1Decoder( OutputLevel=DEBUG )
-if doL1Emulation:
-    ctpUnpacker = CTPUnpackingEmulationTool( OutputLevel =  DEBUG, ForceEnableAllChains=True )
-else:
-    ctpUnpacker = CTPUnpackingTool( OutputLevel =  DEBUG, ForceEnableAllChains=True )
+ctpUnpacker = CTPUnpackingTool( OutputLevel =  DEBUG, ForceEnableAllChains=True )
+
 
 l1Decoder.ctpUnpacker = ctpUnpacker
+l1Decoder.ctpUnpacker.MonTool = CTPUnpackingMonitoring(512, 200)
 l1Decoder.ctpUnpacker.CTPToChainMapping = ["0:HLT_e3",  "0:HLT_g5", "1:HLT_e7", "2:HLT_2e3", "15:HLT_mu6", "33:HLT_2mu6", "15:HLT_mu6idperf", "42:HLT_e15mu4"] # this are real IDs of L1_* items in pp_v5 menu
 
-if doL1Emulation:
-    emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", OutputLevel=DEBUG )
-else:
-    emUnpacker = EMRoIsUnpackingTool( OutputLevel=DEBUG )
-
+emUnpacker = EMRoIsUnpackingTool( OutputLevel=DEBUG )
 emUnpacker.ThresholdToChainMapping = ["EM3 : HLT_e3", "EM3 : HLT_g5",  "EM7 : HLT_e7", "EM15 : HLT_e15mu4" ]
+emUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 )
 
-if doL1Emulation:
-    muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", OutputLevel=DEBUG )
-else:
-    muUnpacker = MURoIsUnpackingTool( OutputLevel=DEBUG )
+muUnpacker = MURoIsUnpackingTool( OutputLevel=DEBUG )
 muUnpacker.ThresholdToChainMapping = ["MU6 : HLT_mu6", "MU6 : HLT_mu6idperf", "MU4 : HLT_e15mu4"] 
+muUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 )
 # do not know yet how to configure the services for it
 
-l1Decoder.roiUnpackers = [emUnpacker]
+l1Decoder.roiUnpackers = [emUnpacker, muUnpacker]
 l1Decoder.Chains="HLTChainsResult"
 topSequence += l1Decoder
 #Run calo decoder
@@ -123,18 +154,6 @@ topSequence += emDecisionsDumper
 chainSeedingDumper = DumpDecisions("ChainSeedingDumper", OutputLevel=DEBUG)
 chainSeedingDumper.Decisions = "HLTChainsResult"
 topSequence += chainSeedingDumper
-
-
-
-# caloDecoder = L1CaloDecoder() # by default it is steered towards the RoIBResult of the name above
-# caloDecoder.OutputLevel=VERBOSE
-# topSequence += caloDecoder
-
-# #Dumper
-# from ViewAlgs.ViewAlgsConf import DumpDecisions
-# dumper = DumpDecisions("L1CaloDecisions")
-# dumper.OutputLevel=VERBOSE
-# topSequence += dumper
 
 
 #--------------------------------------------------------------

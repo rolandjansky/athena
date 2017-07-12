@@ -85,8 +85,8 @@ namespace  { // variable binning
     const double ptmumus[] = {0.,4.,8.,10.,12.,15.,20.,25.,30.,40.,50.,60.,80.,100.};
     const int nptmumus = (int) sizeof(ptmumus) / sizeof(ptmumus[0])  - 1;
     
-    const double taus[] = {-1,-0.3,-0.2,-0.1,0.,0.1,0.2,0.3,0.5,0.75,1.0,1.25,1.5,2.0,3.0,5.0,7.5,10,12.5,15,20};
-    const int ntaus = (int) sizeof(taus) / sizeof(taus[0])  - 1;
+    //const double taus[] = {-1,-0.3,-0.2,-0.1,0.,0.1,0.2,0.3,0.5,0.75,1.0,1.25,1.5,2.0,3.0,5.0,7.5,10,12.5,15,20};
+    //const int ntaus = (int) sizeof(taus) / sizeof(taus[0])  - 1;
 
 }
 
@@ -956,15 +956,12 @@ StatusCode HLTXAODBphysMonTool::fillJpsiFinder(){
         //double error     = invariantMassError(jpsiCandidate, std::vector<double>(2, m_muonMass));  // invariant mass error
         double rapidity  = ref_onia.Rapidity();
         double abs_rapidity = fabs(rapidity);
-        double phi       = ref_onia.Phi();
 
         float phiTrk1 = refTrk1.Phi();
         float etaTrk1 = refTrk1.Eta();
-        float ptTrk1  = refTrk1.Pt();
 
         float phiTrk2 = refTrk2.Phi();
         float etaTrk2 = refTrk2.Eta();
-        float ptTrk2  = refTrk2.Pt();
 
         float sumCharges(0.);
         for (auto tpel: jpsiCandidate->trackParticleLinks()) {
@@ -1011,21 +1008,13 @@ StatusCode HLTXAODBphysMonTool::fillJpsiFinder(){
         }
 
         float aLxy_bs      = (hasAccessorVariables ? acc_Lxy_bs(*jpsiCandidate) : 0.);
-        float aLxyError_bs = (hasAccessorVariables ? acc_LxyError_bs(*jpsiCandidate) : 0.);
         float aTau_bs      = (hasAccessorVariables ? acc_Tau_bs(*jpsiCandidate) : 0.);
-        float aTauError_bs = (hasAccessorVariables ? acc_TauError_bs(*jpsiCandidate) : 0.);
         
-        float aLxy_pv      = (hasAccessorVariables ? acc_Lxy_pv(*jpsiCandidate) : 0.);
-        float aLxyError_pv = (hasAccessorVariables ? acc_LxyError_pv(*jpsiCandidate) : 0.);
-        float aTau_pv      = (hasAccessorVariables ? acc_Tau_pv(*jpsiCandidate) : 0.);
-        float aTauError_pv = (hasAccessorVariables ? acc_TauError_pv(*jpsiCandidate) : 0.);
         
         float apT          = (hasAccessorVariables ? acc_pT(*jpsiCandidate) : 0.);
-        float apTError     = (hasAccessorVariables ? acc_pTError(*jpsiCandidate) : 0.);
         float aphiStar     = (hasAccessorVariables ? acc_phiStar(*jpsiCandidate) : 0.);
         float acosThetaStar= (hasAccessorVariables ? acc_cosThetaStar(*jpsiCandidate) : 0.);
         float amass        = (hasAccessorVariables ? acc_mass(*jpsiCandidate) : 0.);
-        float amassError   = (hasAccessorVariables ? acc_massError(*jpsiCandidate) : 0.);
 
         //ATH_MSG_INFO("old phiStar: " << phiStar);
         //ATH_MSG_INFO("new phiStar: " << aphiStar);

@@ -23,6 +23,7 @@
 // fwk includes
 #include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/IResetable.h"
+#include "AthenaKernel/StoreID.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/EventContext.h"
 
@@ -105,7 +106,7 @@ namespace SG {
     explicit VarHandleBase(CLID clid,
                            const std::string& sgkey,
                            Gaudi::DataHandle::Mode mode,
-                           const std::string& storename = "StoreGateSvc");
+                           const std::string& storename = StoreID::storeName(StoreID::EVENT_STORE));
 
 
     /**
@@ -358,7 +359,7 @@ namespace SG {
      */
     const void* put_impl (const EventContext* ctx,
                           std::unique_ptr<DataObject> dobj,
-                          void* dataPtr,
+                          const void* dataPtr,
                           bool allowMods,
                           bool returnExisting,
                           IProxyDict* & store) const;
@@ -484,6 +485,7 @@ namespace SG {
     void* 
     typeless_dataPointer_fromProxy (SG::DataProxy* proxy,
                                     bool quiet) const;
+
   }; 
 
 

@@ -45,21 +45,6 @@ StatusCode eflowCellEOverPTool_mc12_JetETMiss::execute(eflowEEtaBinnedParameters
     //      0 <= eta <  0.5   //
     ////////////////////////////
 
-    binnedParameters->setRingThickness( E001bin, eta050bin, eflowCalo::EMB1, 0.0491122 );
-    binnedParameters->setRingThickness( E001bin, eta050bin, eflowCalo::EMB2, 0.0175171 );
-    binnedParameters->setRingThickness( E001bin, eta050bin, eflowCalo::EMB3, 0.0278496 );
-    binnedParameters->setRingThickness( E001bin, eta050bin, eflowCalo::EME1, 0.0491122 );
-    binnedParameters->setRingThickness( E001bin, eta050bin, eflowCalo::EME2, 0.0175171 );
-    binnedParameters->setRingThickness( E001bin, eta050bin, eflowCalo::EME3, 0.0278496 );
-    binnedParameters->setRingThickness( E001bin, eta050bin, eflowCalo::HEC1, 0.0700683 );
-    binnedParameters->setRingThickness( E001bin, eta050bin, eflowCalo::HEC2, 0.0700683 );
-    binnedParameters->setRingThickness( E001bin, eta050bin, eflowCalo::HEC3, 0.0700683 );
-    binnedParameters->setRingThickness( E001bin, eta050bin, eflowCalo::HEC4, 0.0700683 );
-    binnedParameters->setRingThickness( E001bin, eta050bin, eflowCalo::Tile1, 0.0700683 );
-    binnedParameters->setRingThickness( E001bin, eta050bin, eflowCalo::Tile2, 0.0700683 );
-    binnedParameters->setRingThickness( E001bin, eta050bin, eflowCalo::Tile3, 0.111398 );
-
-
    // j1st = EMB1
     binnedParameters->setFudgeMean( E001bin, eta050bin, eflowFirstIntRegions::EMB1, 0.349639);
     binnedParameters->setFudgeStdDev( E001bin, eta050bin, eflowFirstIntRegions::EMB1, 0.227121);
@@ -202,21 +187,6 @@ StatusCode eflowCellEOverPTool_mc12_JetETMiss::execute(eflowEEtaBinnedParameters
     //      0.5 <= eta <  1.0   //
     ////////////////////////////
 
-    binnedParameters->setRingThickness( E001bin, eta100bin, eflowCalo::EMB1, 0.0491122 );
-    binnedParameters->setRingThickness( E001bin, eta100bin, eflowCalo::EMB2, 0.0175171 );
-    binnedParameters->setRingThickness( E001bin, eta100bin, eflowCalo::EMB3, 0.0278496 );
-    binnedParameters->setRingThickness( E001bin, eta100bin, eflowCalo::EME1, 0.0491122 );
-    binnedParameters->setRingThickness( E001bin, eta100bin, eflowCalo::EME2, 0.0175171 );
-    binnedParameters->setRingThickness( E001bin, eta100bin, eflowCalo::EME3, 0.0278496 );
-    binnedParameters->setRingThickness( E001bin, eta100bin, eflowCalo::HEC1, 0.0700683 );
-    binnedParameters->setRingThickness( E001bin, eta100bin, eflowCalo::HEC2, 0.0700683 );
-    binnedParameters->setRingThickness( E001bin, eta100bin, eflowCalo::HEC3, 0.0700683 );
-    binnedParameters->setRingThickness( E001bin, eta100bin, eflowCalo::HEC4, 0.0700683 );
-    binnedParameters->setRingThickness( E001bin, eta100bin, eflowCalo::Tile1, 0.0700683 );
-    binnedParameters->setRingThickness( E001bin, eta100bin, eflowCalo::Tile2, 0.0700683 );
-    binnedParameters->setRingThickness( E001bin, eta100bin, eflowCalo::Tile3, 0.111398 );
-
-
    // j1st = EMB1
     binnedParameters->setFudgeMean( E001bin, eta100bin, eflowFirstIntRegions::EMB1, 0.335748);
     binnedParameters->setFudgeStdDev( E001bin, eta100bin, eflowFirstIntRegions::EMB1, 0.202103);
@@ -334,21 +304,6 @@ StatusCode eflowCellEOverPTool_mc12_JetETMiss::execute(eflowEEtaBinnedParameters
     ////////////////////////////
     //      1.0 <= eta <  1.5   //
     ////////////////////////////
-
-    binnedParameters->setRingThickness( E001bin, eta150bin, eflowCalo::EMB1, 0.0491122 );
-    binnedParameters->setRingThickness( E001bin, eta150bin, eflowCalo::EMB2, 0.0175171 );
-    binnedParameters->setRingThickness( E001bin, eta150bin, eflowCalo::EMB3, 0.0278496 );
-    binnedParameters->setRingThickness( E001bin, eta150bin, eflowCalo::EME1, 0.0491122 );
-    binnedParameters->setRingThickness( E001bin, eta150bin, eflowCalo::EME2, 0.0175171 );
-    binnedParameters->setRingThickness( E001bin, eta150bin, eflowCalo::EME3, 0.0278496 );
-    binnedParameters->setRingThickness( E001bin, eta150bin, eflowCalo::HEC1, 0.0700683 );
-    binnedParameters->setRingThickness( E001bin, eta150bin, eflowCalo::HEC2, 0.0700683 );
-    binnedParameters->setRingThickness( E001bin, eta150bin, eflowCalo::HEC3, 0.0700683 );
-    binnedParameters->setRingThickness( E001bin, eta150bin, eflowCalo::HEC4, 0.0700683 );
-    binnedParameters->setRingThickness( E001bin, eta150bin, eflowCalo::Tile1, 0.0700683 );
-    binnedParameters->setRingThickness( E001bin, eta150bin, eflowCalo::Tile2, 0.0700683 );
-    binnedParameters->setRingThickness( E001bin, eta150bin, eflowCalo::Tile3, 0.111398 );
-
 
    // j1st = EMB1
     binnedParameters->setFudgeMean( E001bin, eta150bin, eflowFirstIntRegions::EMB1, 0.308497);
@@ -468,21 +423,6 @@ StatusCode eflowCellEOverPTool_mc12_JetETMiss::execute(eflowEEtaBinnedParameters
     //      1.5 <= eta <  2.5   //
     ////////////////////////////
 
-    binnedParameters->setRingThickness( E001bin, eta250bin, eflowCalo::EMB1, 0.0491122 );
-    binnedParameters->setRingThickness( E001bin, eta250bin, eflowCalo::EMB2, 0.0175171 );
-    binnedParameters->setRingThickness( E001bin, eta250bin, eflowCalo::EMB3, 0.0278496 );
-    binnedParameters->setRingThickness( E001bin, eta250bin, eflowCalo::EME1, 0.0491122 );
-    binnedParameters->setRingThickness( E001bin, eta250bin, eflowCalo::EME2, 0.0175171 );
-    binnedParameters->setRingThickness( E001bin, eta250bin, eflowCalo::EME3, 0.0278496 );
-    binnedParameters->setRingThickness( E001bin, eta250bin, eflowCalo::HEC1, 0.0700683 );
-    binnedParameters->setRingThickness( E001bin, eta250bin, eflowCalo::HEC2, 0.0700683 );
-    binnedParameters->setRingThickness( E001bin, eta250bin, eflowCalo::HEC3, 0.0700683 );
-    binnedParameters->setRingThickness( E001bin, eta250bin, eflowCalo::HEC4, 0.0700683 );
-    binnedParameters->setRingThickness( E001bin, eta250bin, eflowCalo::Tile1, 0.0700683 );
-    binnedParameters->setRingThickness( E001bin, eta250bin, eflowCalo::Tile2, 0.0700683 );
-    binnedParameters->setRingThickness( E001bin, eta250bin, eflowCalo::Tile3, 0.111398 );
-
-
    // j1st = EMB1
     binnedParameters->setFudgeMean( E001bin, eta250bin, eflowFirstIntRegions::EMB1, 0.364727);
     binnedParameters->setFudgeStdDev( E001bin, eta250bin, eflowFirstIntRegions::EMB1, 0.190818);
@@ -588,21 +528,6 @@ StatusCode eflowCellEOverPTool_mc12_JetETMiss::execute(eflowEEtaBinnedParameters
     ////////////////////////////
     //      0 <= eta <  0.5   //
     ////////////////////////////
-
-    binnedParameters->setRingThickness( E003point5bin, eta050bin, eflowCalo::EMB1, 0.0491122 );
-    binnedParameters->setRingThickness( E003point5bin, eta050bin, eflowCalo::EMB2, 0.0175171 );
-    binnedParameters->setRingThickness( E003point5bin, eta050bin, eflowCalo::EMB3, 0.0278496 );
-    binnedParameters->setRingThickness( E003point5bin, eta050bin, eflowCalo::EME1, 0.0491122 );
-    binnedParameters->setRingThickness( E003point5bin, eta050bin, eflowCalo::EME2, 0.0175171 );
-    binnedParameters->setRingThickness( E003point5bin, eta050bin, eflowCalo::EME3, 0.0278496 );
-    binnedParameters->setRingThickness( E003point5bin, eta050bin, eflowCalo::HEC1, 0.0700683 );
-    binnedParameters->setRingThickness( E003point5bin, eta050bin, eflowCalo::HEC2, 0.0700683 );
-    binnedParameters->setRingThickness( E003point5bin, eta050bin, eflowCalo::HEC3, 0.0700683 );
-    binnedParameters->setRingThickness( E003point5bin, eta050bin, eflowCalo::HEC4, 0.0700683 );
-    binnedParameters->setRingThickness( E003point5bin, eta050bin, eflowCalo::Tile1, 0.0700683 );
-    binnedParameters->setRingThickness( E003point5bin, eta050bin, eflowCalo::Tile2, 0.0700683 );
-    binnedParameters->setRingThickness( E003point5bin, eta050bin, eflowCalo::Tile3, 0.111398 );
-
 
    // j1st = EMB1
     binnedParameters->setFudgeMean( E003point5bin, eta050bin, eflowFirstIntRegions::EMB1, 0.433083);
@@ -758,21 +683,6 @@ StatusCode eflowCellEOverPTool_mc12_JetETMiss::execute(eflowEEtaBinnedParameters
     //      0.5 <= eta <  1.0   //
     ////////////////////////////
 
-    binnedParameters->setRingThickness( E003point5bin, eta100bin, eflowCalo::EMB1, 0.0491122 );
-    binnedParameters->setRingThickness( E003point5bin, eta100bin, eflowCalo::EMB2, 0.0175171 );
-    binnedParameters->setRingThickness( E003point5bin, eta100bin, eflowCalo::EMB3, 0.0278496 );
-    binnedParameters->setRingThickness( E003point5bin, eta100bin, eflowCalo::EME1, 0.0491122 );
-    binnedParameters->setRingThickness( E003point5bin, eta100bin, eflowCalo::EME2, 0.0175171 );
-    binnedParameters->setRingThickness( E003point5bin, eta100bin, eflowCalo::EME3, 0.0278496 );
-    binnedParameters->setRingThickness( E003point5bin, eta100bin, eflowCalo::HEC1, 0.0700683 );
-    binnedParameters->setRingThickness( E003point5bin, eta100bin, eflowCalo::HEC2, 0.0700683 );
-    binnedParameters->setRingThickness( E003point5bin, eta100bin, eflowCalo::HEC3, 0.0700683 );
-    binnedParameters->setRingThickness( E003point5bin, eta100bin, eflowCalo::HEC4, 0.0700683 );
-    binnedParameters->setRingThickness( E003point5bin, eta100bin, eflowCalo::Tile1, 0.0700683 );
-    binnedParameters->setRingThickness( E003point5bin, eta100bin, eflowCalo::Tile2, 0.0700683 );
-    binnedParameters->setRingThickness( E003point5bin, eta100bin, eflowCalo::Tile3, 0.111398 );
-
-
    // j1st = EMB1
     binnedParameters->setFudgeMean( E003point5bin, eta100bin, eflowFirstIntRegions::EMB1, 0.412345);
     binnedParameters->setFudgeStdDev( E003point5bin, eta100bin, eflowFirstIntRegions::EMB1, 0.240492);
@@ -922,21 +832,6 @@ StatusCode eflowCellEOverPTool_mc12_JetETMiss::execute(eflowEEtaBinnedParameters
     ////////////////////////////
     //      1.0 <= eta <  1.5   //
     ////////////////////////////
-
-    binnedParameters->setRingThickness( E003point5bin, eta150bin, eflowCalo::EMB1, 0.0491122 );
-    binnedParameters->setRingThickness( E003point5bin, eta150bin, eflowCalo::EMB2, 0.0175171 );
-    binnedParameters->setRingThickness( E003point5bin, eta150bin, eflowCalo::EMB3, 0.0278496 );
-    binnedParameters->setRingThickness( E003point5bin, eta150bin, eflowCalo::EME1, 0.0491122 );
-    binnedParameters->setRingThickness( E003point5bin, eta150bin, eflowCalo::EME2, 0.0175171 );
-    binnedParameters->setRingThickness( E003point5bin, eta150bin, eflowCalo::EME3, 0.0278496 );
-    binnedParameters->setRingThickness( E003point5bin, eta150bin, eflowCalo::HEC1, 0.0700683 );
-    binnedParameters->setRingThickness( E003point5bin, eta150bin, eflowCalo::HEC2, 0.0700683 );
-    binnedParameters->setRingThickness( E003point5bin, eta150bin, eflowCalo::HEC3, 0.0700683 );
-    binnedParameters->setRingThickness( E003point5bin, eta150bin, eflowCalo::HEC4, 0.0700683 );
-    binnedParameters->setRingThickness( E003point5bin, eta150bin, eflowCalo::Tile1, 0.0700683 );
-    binnedParameters->setRingThickness( E003point5bin, eta150bin, eflowCalo::Tile2, 0.0700683 );
-    binnedParameters->setRingThickness( E003point5bin, eta150bin, eflowCalo::Tile3, 0.111398 );
-
 
    // j1st = EMB1
     binnedParameters->setFudgeMean( E003point5bin, eta150bin, eflowFirstIntRegions::EMB1, 0.353851);
@@ -1111,20 +1006,6 @@ StatusCode eflowCellEOverPTool_mc12_JetETMiss::execute(eflowEEtaBinnedParameters
     ////////////////////////////
     //      1.5 <= eta <  2.5   //
     ////////////////////////////
-
-    binnedParameters->setRingThickness( E003point5bin, eta250bin, eflowCalo::EMB1, 0.0491122 );
-    binnedParameters->setRingThickness( E003point5bin, eta250bin, eflowCalo::EMB2, 0.0175171 );
-    binnedParameters->setRingThickness( E003point5bin, eta250bin, eflowCalo::EMB3, 0.0278496 );
-    binnedParameters->setRingThickness( E003point5bin, eta250bin, eflowCalo::EME1, 0.0491122 );
-    binnedParameters->setRingThickness( E003point5bin, eta250bin, eflowCalo::EME2, 0.0175171 );
-    binnedParameters->setRingThickness( E003point5bin, eta250bin, eflowCalo::EME3, 0.0278496 );
-    binnedParameters->setRingThickness( E003point5bin, eta250bin, eflowCalo::HEC1, 0.0700683 );
-    binnedParameters->setRingThickness( E003point5bin, eta250bin, eflowCalo::HEC2, 0.0700683 );
-    binnedParameters->setRingThickness( E003point5bin, eta250bin, eflowCalo::HEC3, 0.0700683 );
-    binnedParameters->setRingThickness( E003point5bin, eta250bin, eflowCalo::HEC4, 0.0700683 );
-    binnedParameters->setRingThickness( E003point5bin, eta250bin, eflowCalo::Tile1, 0.0700683 );
-    binnedParameters->setRingThickness( E003point5bin, eta250bin, eflowCalo::Tile2, 0.0700683 );
-    binnedParameters->setRingThickness( E003point5bin, eta250bin, eflowCalo::Tile3, 0.111398 );
 
 
    // j1st = EMB1
@@ -1329,21 +1210,6 @@ StatusCode eflowCellEOverPTool_mc12_JetETMiss::execute(eflowEEtaBinnedParameters
     //      0 <= eta <  0.5   //
     ////////////////////////////
 
-    binnedParameters->setRingThickness( E010bin, eta050bin, eflowCalo::EMB1, 0.0491122 );
-    binnedParameters->setRingThickness( E010bin, eta050bin, eflowCalo::EMB2, 0.0175171 );
-    binnedParameters->setRingThickness( E010bin, eta050bin, eflowCalo::EMB3, 0.0278496 );
-    binnedParameters->setRingThickness( E010bin, eta050bin, eflowCalo::EME1, 0.0491122 );
-    binnedParameters->setRingThickness( E010bin, eta050bin, eflowCalo::EME2, 0.0175171 );
-    binnedParameters->setRingThickness( E010bin, eta050bin, eflowCalo::EME3, 0.0278496 );
-    binnedParameters->setRingThickness( E010bin, eta050bin, eflowCalo::HEC1, 0.0700683 );
-    binnedParameters->setRingThickness( E010bin, eta050bin, eflowCalo::HEC2, 0.0700683 );
-    binnedParameters->setRingThickness( E010bin, eta050bin, eflowCalo::HEC3, 0.0700683 );
-    binnedParameters->setRingThickness( E010bin, eta050bin, eflowCalo::HEC4, 0.0700683 );
-    binnedParameters->setRingThickness( E010bin, eta050bin, eflowCalo::Tile1, 0.0700683 );
-    binnedParameters->setRingThickness( E010bin, eta050bin, eflowCalo::Tile2, 0.0700683 );
-    binnedParameters->setRingThickness( E010bin, eta050bin, eflowCalo::Tile3, 0.111398 );
-
-
    // j1st = EMB1
     binnedParameters->setFudgeMean( E010bin, eta050bin, eflowFirstIntRegions::EMB1, 0.6028);
     binnedParameters->setFudgeStdDev( E010bin, eta050bin, eflowFirstIntRegions::EMB1, 0.168412);
@@ -1498,20 +1364,6 @@ StatusCode eflowCellEOverPTool_mc12_JetETMiss::execute(eflowEEtaBinnedParameters
     //      0.5 <= eta <  1.0   //
     ////////////////////////////
 
-    binnedParameters->setRingThickness( E010bin, eta100bin, eflowCalo::EMB1, 0.0491122 );
-    binnedParameters->setRingThickness( E010bin, eta100bin, eflowCalo::EMB2, 0.0175171 );
-    binnedParameters->setRingThickness( E010bin, eta100bin, eflowCalo::EMB3, 0.0278496 );
-    binnedParameters->setRingThickness( E010bin, eta100bin, eflowCalo::EME1, 0.0491122 );
-    binnedParameters->setRingThickness( E010bin, eta100bin, eflowCalo::EME2, 0.0175171 );
-    binnedParameters->setRingThickness( E010bin, eta100bin, eflowCalo::EME3, 0.0278496 );
-    binnedParameters->setRingThickness( E010bin, eta100bin, eflowCalo::HEC1, 0.0700683 );
-    binnedParameters->setRingThickness( E010bin, eta100bin, eflowCalo::HEC2, 0.0700683 );
-    binnedParameters->setRingThickness( E010bin, eta100bin, eflowCalo::HEC3, 0.0700683 );
-    binnedParameters->setRingThickness( E010bin, eta100bin, eflowCalo::HEC4, 0.0700683 );
-    binnedParameters->setRingThickness( E010bin, eta100bin, eflowCalo::Tile1, 0.0700683 );
-    binnedParameters->setRingThickness( E010bin, eta100bin, eflowCalo::Tile2, 0.0700683 );
-    binnedParameters->setRingThickness( E010bin, eta100bin, eflowCalo::Tile3, 0.111398 );
-
 
    // j1st = EMB1
     binnedParameters->setFudgeMean( E010bin, eta100bin, eflowFirstIntRegions::EMB1, 0.575094);
@@ -1662,21 +1514,6 @@ StatusCode eflowCellEOverPTool_mc12_JetETMiss::execute(eflowEEtaBinnedParameters
     ////////////////////////////
     //      1.0 <= eta <  1.5   //
     ////////////////////////////
-
-    binnedParameters->setRingThickness( E010bin, eta150bin, eflowCalo::EMB1, 0.0491122 );
-    binnedParameters->setRingThickness( E010bin, eta150bin, eflowCalo::EMB2, 0.0175171 );
-    binnedParameters->setRingThickness( E010bin, eta150bin, eflowCalo::EMB3, 0.0278496 );
-    binnedParameters->setRingThickness( E010bin, eta150bin, eflowCalo::EME1, 0.0491122 );
-    binnedParameters->setRingThickness( E010bin, eta150bin, eflowCalo::EME2, 0.0175171 );
-    binnedParameters->setRingThickness( E010bin, eta150bin, eflowCalo::EME3, 0.0278496 );
-    binnedParameters->setRingThickness( E010bin, eta150bin, eflowCalo::HEC1, 0.0700683 );
-    binnedParameters->setRingThickness( E010bin, eta150bin, eflowCalo::HEC2, 0.0700683 );
-    binnedParameters->setRingThickness( E010bin, eta150bin, eflowCalo::HEC3, 0.0700683 );
-    binnedParameters->setRingThickness( E010bin, eta150bin, eflowCalo::HEC4, 0.0700683 );
-    binnedParameters->setRingThickness( E010bin, eta150bin, eflowCalo::Tile1, 0.0700683 );
-    binnedParameters->setRingThickness( E010bin, eta150bin, eflowCalo::Tile2, 0.0700683 );
-    binnedParameters->setRingThickness( E010bin, eta150bin, eflowCalo::Tile3, 0.111398 );
-
 
    // j1st = EMB1
     binnedParameters->setFudgeMean( E010bin, eta150bin, eflowFirstIntRegions::EMB1, 0.518462);
@@ -1895,21 +1732,6 @@ StatusCode eflowCellEOverPTool_mc12_JetETMiss::execute(eflowEEtaBinnedParameters
     ////////////////////////////
     //      1.5 <= eta <  2.5   //
     ////////////////////////////
-
-    binnedParameters->setRingThickness( E010bin, eta250bin, eflowCalo::EMB1, 0.0491122 );
-    binnedParameters->setRingThickness( E010bin, eta250bin, eflowCalo::EMB2, 0.0175171 );
-    binnedParameters->setRingThickness( E010bin, eta250bin, eflowCalo::EMB3, 0.0278496 );
-    binnedParameters->setRingThickness( E010bin, eta250bin, eflowCalo::EME1, 0.0491122 );
-    binnedParameters->setRingThickness( E010bin, eta250bin, eflowCalo::EME2, 0.0175171 );
-    binnedParameters->setRingThickness( E010bin, eta250bin, eflowCalo::EME3, 0.0278496 );
-    binnedParameters->setRingThickness( E010bin, eta250bin, eflowCalo::HEC1, 0.0700683 );
-    binnedParameters->setRingThickness( E010bin, eta250bin, eflowCalo::HEC2, 0.0700683 );
-    binnedParameters->setRingThickness( E010bin, eta250bin, eflowCalo::HEC3, 0.0700683 );
-    binnedParameters->setRingThickness( E010bin, eta250bin, eflowCalo::HEC4, 0.0700683 );
-    binnedParameters->setRingThickness( E010bin, eta250bin, eflowCalo::Tile1, 0.0700683 );
-    binnedParameters->setRingThickness( E010bin, eta250bin, eflowCalo::Tile2, 0.0700683 );
-    binnedParameters->setRingThickness( E010bin, eta250bin, eflowCalo::Tile3, 0.111398 );
-
 
    // j1st = EMB1
     binnedParameters->setFudgeMean( E010bin, eta250bin, eflowFirstIntRegions::EMB1, 0.407057);
@@ -2145,21 +1967,6 @@ StatusCode eflowCellEOverPTool_mc12_JetETMiss::execute(eflowEEtaBinnedParameters
     //      0 <= eta <  0.5   //
     ////////////////////////////
 
-    binnedParameters->setRingThickness( E020bin, eta050bin, eflowCalo::EMB1, 0.0491122 );
-    binnedParameters->setRingThickness( E020bin, eta050bin, eflowCalo::EMB2, 0.0175171 );
-    binnedParameters->setRingThickness( E020bin, eta050bin, eflowCalo::EMB3, 0.0278496 );
-    binnedParameters->setRingThickness( E020bin, eta050bin, eflowCalo::EME1, 0.0491122 );
-    binnedParameters->setRingThickness( E020bin, eta050bin, eflowCalo::EME2, 0.0175171 );
-    binnedParameters->setRingThickness( E020bin, eta050bin, eflowCalo::EME3, 0.0278496 );
-    binnedParameters->setRingThickness( E020bin, eta050bin, eflowCalo::HEC1, 0.0700683 );
-    binnedParameters->setRingThickness( E020bin, eta050bin, eflowCalo::HEC2, 0.0700683 );
-    binnedParameters->setRingThickness( E020bin, eta050bin, eflowCalo::HEC3, 0.0700683 );
-    binnedParameters->setRingThickness( E020bin, eta050bin, eflowCalo::HEC4, 0.0700683 );
-    binnedParameters->setRingThickness( E020bin, eta050bin, eflowCalo::Tile1, 0.0700683 );
-    binnedParameters->setRingThickness( E020bin, eta050bin, eflowCalo::Tile2, 0.0700683 );
-    binnedParameters->setRingThickness( E020bin, eta050bin, eflowCalo::Tile3, 0.111398 );
-
-
    // j1st = EMB1
     binnedParameters->setFudgeMean( E020bin, eta050bin, eflowFirstIntRegions::EMB1, 0.685641);
     binnedParameters->setFudgeStdDev( E020bin, eta050bin, eflowFirstIntRegions::EMB1, 0.129938);
@@ -2314,21 +2121,6 @@ StatusCode eflowCellEOverPTool_mc12_JetETMiss::execute(eflowEEtaBinnedParameters
     //      0.5 <= eta <  1.0   //
     ////////////////////////////
 
-    binnedParameters->setRingThickness( E020bin, eta100bin, eflowCalo::EMB1, 0.0491122 );
-    binnedParameters->setRingThickness( E020bin, eta100bin, eflowCalo::EMB2, 0.0175171 );
-    binnedParameters->setRingThickness( E020bin, eta100bin, eflowCalo::EMB3, 0.0278496 );
-    binnedParameters->setRingThickness( E020bin, eta100bin, eflowCalo::EME1, 0.0491122 );
-    binnedParameters->setRingThickness( E020bin, eta100bin, eflowCalo::EME2, 0.0175171 );
-    binnedParameters->setRingThickness( E020bin, eta100bin, eflowCalo::EME3, 0.0278496 );
-    binnedParameters->setRingThickness( E020bin, eta100bin, eflowCalo::HEC1, 0.0700683 );
-    binnedParameters->setRingThickness( E020bin, eta100bin, eflowCalo::HEC2, 0.0700683 );
-    binnedParameters->setRingThickness( E020bin, eta100bin, eflowCalo::HEC3, 0.0700683 );
-    binnedParameters->setRingThickness( E020bin, eta100bin, eflowCalo::HEC4, 0.0700683 );
-    binnedParameters->setRingThickness( E020bin, eta100bin, eflowCalo::Tile1, 0.0700683 );
-    binnedParameters->setRingThickness( E020bin, eta100bin, eflowCalo::Tile2, 0.0700683 );
-    binnedParameters->setRingThickness( E020bin, eta100bin, eflowCalo::Tile3, 0.111398 );
-
-
    // j1st = EMB1
     binnedParameters->setFudgeMean( E020bin, eta100bin, eflowFirstIntRegions::EMB1, 0.65136);
     binnedParameters->setFudgeStdDev( E020bin, eta100bin, eflowFirstIntRegions::EMB1, 0.142382);
@@ -2482,21 +2274,6 @@ StatusCode eflowCellEOverPTool_mc12_JetETMiss::execute(eflowEEtaBinnedParameters
     ////////////////////////////
     //      1.0 <= eta <  1.5   //
     ////////////////////////////
-
-    binnedParameters->setRingThickness( E020bin, eta150bin, eflowCalo::EMB1, 0.0491122 );
-    binnedParameters->setRingThickness( E020bin, eta150bin, eflowCalo::EMB2, 0.0175171 );
-    binnedParameters->setRingThickness( E020bin, eta150bin, eflowCalo::EMB3, 0.0278496 );
-    binnedParameters->setRingThickness( E020bin, eta150bin, eflowCalo::EME1, 0.0491122 );
-    binnedParameters->setRingThickness( E020bin, eta150bin, eflowCalo::EME2, 0.0175171 );
-    binnedParameters->setRingThickness( E020bin, eta150bin, eflowCalo::EME3, 0.0278496 );
-    binnedParameters->setRingThickness( E020bin, eta150bin, eflowCalo::HEC1, 0.0700683 );
-    binnedParameters->setRingThickness( E020bin, eta150bin, eflowCalo::HEC2, 0.0700683 );
-    binnedParameters->setRingThickness( E020bin, eta150bin, eflowCalo::HEC3, 0.0700683 );
-    binnedParameters->setRingThickness( E020bin, eta150bin, eflowCalo::HEC4, 0.0700683 );
-    binnedParameters->setRingThickness( E020bin, eta150bin, eflowCalo::Tile1, 0.0700683 );
-    binnedParameters->setRingThickness( E020bin, eta150bin, eflowCalo::Tile2, 0.0700683 );
-    binnedParameters->setRingThickness( E020bin, eta150bin, eflowCalo::Tile3, 0.111398 );
-
 
    // j1st = EMB1
     binnedParameters->setFudgeMean( E020bin, eta150bin, eflowFirstIntRegions::EMB1, 0.601511);
@@ -2720,20 +2497,6 @@ StatusCode eflowCellEOverPTool_mc12_JetETMiss::execute(eflowEEtaBinnedParameters
     //      1.5 <= eta <  2.5   //
     ////////////////////////////
 
-    binnedParameters->setRingThickness( E020bin, eta250bin, eflowCalo::EMB1, 0.0491122 );
-    binnedParameters->setRingThickness( E020bin, eta250bin, eflowCalo::EMB2, 0.0175171 );
-    binnedParameters->setRingThickness( E020bin, eta250bin, eflowCalo::EMB3, 0.0278496 );
-    binnedParameters->setRingThickness( E020bin, eta250bin, eflowCalo::EME1, 0.0491122 );
-    binnedParameters->setRingThickness( E020bin, eta250bin, eflowCalo::EME2, 0.0175171 );
-    binnedParameters->setRingThickness( E020bin, eta250bin, eflowCalo::EME3, 0.0278496 );
-    binnedParameters->setRingThickness( E020bin, eta250bin, eflowCalo::HEC1, 0.0700683 );
-    binnedParameters->setRingThickness( E020bin, eta250bin, eflowCalo::HEC2, 0.0700683 );
-    binnedParameters->setRingThickness( E020bin, eta250bin, eflowCalo::HEC3, 0.0700683 );
-    binnedParameters->setRingThickness( E020bin, eta250bin, eflowCalo::HEC4, 0.0700683 );
-    binnedParameters->setRingThickness( E020bin, eta250bin, eflowCalo::Tile1, 0.0700683 );
-    binnedParameters->setRingThickness( E020bin, eta250bin, eflowCalo::Tile2, 0.0700683 );
-    binnedParameters->setRingThickness( E020bin, eta250bin, eflowCalo::Tile3, 0.111398 );
-
 
    // j1st = EMB1
     binnedParameters->setFudgeMean( E020bin, eta250bin, eflowFirstIntRegions::EMB1, 0.432497);
@@ -2941,21 +2704,6 @@ StatusCode eflowCellEOverPTool_mc12_JetETMiss::execute(eflowEEtaBinnedParameters
     //      0 <= eta <  0.5   //
     ////////////////////////////
 
-    binnedParameters->setRingThickness( E032point5bin, eta050bin, eflowCalo::EMB1, 0.0491122 );
-    binnedParameters->setRingThickness( E032point5bin, eta050bin, eflowCalo::EMB2, 0.0175171 );
-    binnedParameters->setRingThickness( E032point5bin, eta050bin, eflowCalo::EMB3, 0.0278496 );
-    binnedParameters->setRingThickness( E032point5bin, eta050bin, eflowCalo::EME1, 0.0491122 );
-    binnedParameters->setRingThickness( E032point5bin, eta050bin, eflowCalo::EME2, 0.0175171 );
-    binnedParameters->setRingThickness( E032point5bin, eta050bin, eflowCalo::EME3, 0.0278496 );
-    binnedParameters->setRingThickness( E032point5bin, eta050bin, eflowCalo::HEC1, 0.0700683 );
-    binnedParameters->setRingThickness( E032point5bin, eta050bin, eflowCalo::HEC2, 0.0700683 );
-    binnedParameters->setRingThickness( E032point5bin, eta050bin, eflowCalo::HEC3, 0.0700683 );
-    binnedParameters->setRingThickness( E032point5bin, eta050bin, eflowCalo::HEC4, 0.0700683 );
-    binnedParameters->setRingThickness( E032point5bin, eta050bin, eflowCalo::Tile1, 0.0700683 );
-    binnedParameters->setRingThickness( E032point5bin, eta050bin, eflowCalo::Tile2, 0.0700683 );
-    binnedParameters->setRingThickness( E032point5bin, eta050bin, eflowCalo::Tile3, 0.111398 );
-
-
    // j1st = EMB1
     binnedParameters->setFudgeMean( E032point5bin, eta050bin, eflowFirstIntRegions::EMB1, 0.727417);
     binnedParameters->setFudgeStdDev( E032point5bin, eta050bin, eflowFirstIntRegions::EMB1, 0.121505);
@@ -3110,21 +2858,6 @@ StatusCode eflowCellEOverPTool_mc12_JetETMiss::execute(eflowEEtaBinnedParameters
     //      0.5 <= eta <  1.0   //
     ////////////////////////////
 
-    binnedParameters->setRingThickness( E032point5bin, eta100bin, eflowCalo::EMB1, 0.0491122 );
-    binnedParameters->setRingThickness( E032point5bin, eta100bin, eflowCalo::EMB2, 0.0175171 );
-    binnedParameters->setRingThickness( E032point5bin, eta100bin, eflowCalo::EMB3, 0.0278496 );
-    binnedParameters->setRingThickness( E032point5bin, eta100bin, eflowCalo::EME1, 0.0491122 );
-    binnedParameters->setRingThickness( E032point5bin, eta100bin, eflowCalo::EME2, 0.0175171 );
-    binnedParameters->setRingThickness( E032point5bin, eta100bin, eflowCalo::EME3, 0.0278496 );
-    binnedParameters->setRingThickness( E032point5bin, eta100bin, eflowCalo::HEC1, 0.0700683 );
-    binnedParameters->setRingThickness( E032point5bin, eta100bin, eflowCalo::HEC2, 0.0700683 );
-    binnedParameters->setRingThickness( E032point5bin, eta100bin, eflowCalo::HEC3, 0.0700683 );
-    binnedParameters->setRingThickness( E032point5bin, eta100bin, eflowCalo::HEC4, 0.0700683 );
-    binnedParameters->setRingThickness( E032point5bin, eta100bin, eflowCalo::Tile1, 0.0700683 );
-    binnedParameters->setRingThickness( E032point5bin, eta100bin, eflowCalo::Tile2, 0.0700683 );
-    binnedParameters->setRingThickness( E032point5bin, eta100bin, eflowCalo::Tile3, 0.111398 );
-
-
    // j1st = EMB1
     binnedParameters->setFudgeMean( E032point5bin, eta100bin, eflowFirstIntRegions::EMB1, 0.702035);
     binnedParameters->setFudgeStdDev( E032point5bin, eta100bin, eflowFirstIntRegions::EMB1, 0.123171);
@@ -3278,21 +3011,6 @@ StatusCode eflowCellEOverPTool_mc12_JetETMiss::execute(eflowEEtaBinnedParameters
     ////////////////////////////
     //      1.0 <= eta <  1.5   //
     ////////////////////////////
-
-    binnedParameters->setRingThickness( E032point5bin, eta150bin, eflowCalo::EMB1, 0.0491122 );
-    binnedParameters->setRingThickness( E032point5bin, eta150bin, eflowCalo::EMB2, 0.0175171 );
-    binnedParameters->setRingThickness( E032point5bin, eta150bin, eflowCalo::EMB3, 0.0278496 );
-    binnedParameters->setRingThickness( E032point5bin, eta150bin, eflowCalo::EME1, 0.0491122 );
-    binnedParameters->setRingThickness( E032point5bin, eta150bin, eflowCalo::EME2, 0.0175171 );
-    binnedParameters->setRingThickness( E032point5bin, eta150bin, eflowCalo::EME3, 0.0278496 );
-    binnedParameters->setRingThickness( E032point5bin, eta150bin, eflowCalo::HEC1, 0.0700683 );
-    binnedParameters->setRingThickness( E032point5bin, eta150bin, eflowCalo::HEC2, 0.0700683 );
-    binnedParameters->setRingThickness( E032point5bin, eta150bin, eflowCalo::HEC3, 0.0700683 );
-    binnedParameters->setRingThickness( E032point5bin, eta150bin, eflowCalo::HEC4, 0.0700683 );
-    binnedParameters->setRingThickness( E032point5bin, eta150bin, eflowCalo::Tile1, 0.0700683 );
-    binnedParameters->setRingThickness( E032point5bin, eta150bin, eflowCalo::Tile2, 0.0700683 );
-    binnedParameters->setRingThickness( E032point5bin, eta150bin, eflowCalo::Tile3, 0.111398 );
-
 
    // j1st = EMB1
     binnedParameters->setFudgeMean( E032point5bin, eta150bin, eflowFirstIntRegions::EMB1, 0.660859);
@@ -3516,21 +3234,6 @@ StatusCode eflowCellEOverPTool_mc12_JetETMiss::execute(eflowEEtaBinnedParameters
     //      1.5 <= eta <  2.5   //
     ////////////////////////////
 
-    binnedParameters->setRingThickness( E032point5bin, eta250bin, eflowCalo::EMB1, 0.0491122 );
-    binnedParameters->setRingThickness( E032point5bin, eta250bin, eflowCalo::EMB2, 0.0175171 );
-    binnedParameters->setRingThickness( E032point5bin, eta250bin, eflowCalo::EMB3, 0.0278496 );
-    binnedParameters->setRingThickness( E032point5bin, eta250bin, eflowCalo::EME1, 0.0491122 );
-    binnedParameters->setRingThickness( E032point5bin, eta250bin, eflowCalo::EME2, 0.0175171 );
-    binnedParameters->setRingThickness( E032point5bin, eta250bin, eflowCalo::EME3, 0.0278496 );
-    binnedParameters->setRingThickness( E032point5bin, eta250bin, eflowCalo::HEC1, 0.0700683 );
-    binnedParameters->setRingThickness( E032point5bin, eta250bin, eflowCalo::HEC2, 0.0700683 );
-    binnedParameters->setRingThickness( E032point5bin, eta250bin, eflowCalo::HEC3, 0.0700683 );
-    binnedParameters->setRingThickness( E032point5bin, eta250bin, eflowCalo::HEC4, 0.0700683 );
-    binnedParameters->setRingThickness( E032point5bin, eta250bin, eflowCalo::Tile1, 0.0700683 );
-    binnedParameters->setRingThickness( E032point5bin, eta250bin, eflowCalo::Tile2, 0.0700683 );
-    binnedParameters->setRingThickness( E032point5bin, eta250bin, eflowCalo::Tile3, 0.111398 );
-
-
    // j1st = EMB1
     binnedParameters->setFudgeMean( E032point5bin, eta250bin, eflowFirstIntRegions::EMB1, 0.610734);
     binnedParameters->setFudgeStdDev( E032point5bin, eta250bin, eflowFirstIntRegions::EMB1, 0.201675);
@@ -3741,21 +3444,6 @@ StatusCode eflowCellEOverPTool_mc12_JetETMiss::execute(eflowEEtaBinnedParameters
     //      0 <= eta <  0.5   //
     ////////////////////////////
 
-    binnedParameters->setRingThickness( E040bin, eta050bin, eflowCalo::EMB1, 0.0491122 );
-    binnedParameters->setRingThickness( E040bin, eta050bin, eflowCalo::EMB2, 0.0175171 );
-    binnedParameters->setRingThickness( E040bin, eta050bin, eflowCalo::EMB3, 0.0278496 );
-    binnedParameters->setRingThickness( E040bin, eta050bin, eflowCalo::EME1, 0.0491122 );
-    binnedParameters->setRingThickness( E040bin, eta050bin, eflowCalo::EME2, 0.0175171 );
-    binnedParameters->setRingThickness( E040bin, eta050bin, eflowCalo::EME3, 0.0278496 );
-    binnedParameters->setRingThickness( E040bin, eta050bin, eflowCalo::HEC1, 0.0700683 );
-    binnedParameters->setRingThickness( E040bin, eta050bin, eflowCalo::HEC2, 0.0700683 );
-    binnedParameters->setRingThickness( E040bin, eta050bin, eflowCalo::HEC3, 0.0700683 );
-    binnedParameters->setRingThickness( E040bin, eta050bin, eflowCalo::HEC4, 0.0700683 );
-    binnedParameters->setRingThickness( E040bin, eta050bin, eflowCalo::Tile1, 0.0700683 );
-    binnedParameters->setRingThickness( E040bin, eta050bin, eflowCalo::Tile2, 0.0700683 );
-    binnedParameters->setRingThickness( E040bin, eta050bin, eflowCalo::Tile3, 0.111398 );
-
-
    // j1st = EMB1
     binnedParameters->setFudgeMean( E040bin, eta050bin, eflowFirstIntRegions::EMB1, 0.758746);
     binnedParameters->setFudgeStdDev( E040bin, eta050bin, eflowFirstIntRegions::EMB1, 0.0998904);
@@ -3885,21 +3573,6 @@ StatusCode eflowCellEOverPTool_mc12_JetETMiss::execute(eflowEEtaBinnedParameters
     ////////////////////////////
     //      0.5 <= eta <  1.0   //
     ////////////////////////////
-
-    binnedParameters->setRingThickness( E040bin, eta100bin, eflowCalo::EMB1, 0.0491122 );
-    binnedParameters->setRingThickness( E040bin, eta100bin, eflowCalo::EMB2, 0.0175171 );
-    binnedParameters->setRingThickness( E040bin, eta100bin, eflowCalo::EMB3, 0.0278496 );
-    binnedParameters->setRingThickness( E040bin, eta100bin, eflowCalo::EME1, 0.0491122 );
-    binnedParameters->setRingThickness( E040bin, eta100bin, eflowCalo::EME2, 0.0175171 );
-    binnedParameters->setRingThickness( E040bin, eta100bin, eflowCalo::EME3, 0.0278496 );
-    binnedParameters->setRingThickness( E040bin, eta100bin, eflowCalo::HEC1, 0.0700683 );
-    binnedParameters->setRingThickness( E040bin, eta100bin, eflowCalo::HEC2, 0.0700683 );
-    binnedParameters->setRingThickness( E040bin, eta100bin, eflowCalo::HEC3, 0.0700683 );
-    binnedParameters->setRingThickness( E040bin, eta100bin, eflowCalo::HEC4, 0.0700683 );
-    binnedParameters->setRingThickness( E040bin, eta100bin, eflowCalo::Tile1, 0.0700683 );
-    binnedParameters->setRingThickness( E040bin, eta100bin, eflowCalo::Tile2, 0.0700683 );
-    binnedParameters->setRingThickness( E040bin, eta100bin, eflowCalo::Tile3, 0.111398 );
-
 
    // j1st = EMB1
     binnedParameters->setFudgeMean( E040bin, eta100bin, eflowFirstIntRegions::EMB1, 0.722937);
@@ -4054,21 +3727,6 @@ StatusCode eflowCellEOverPTool_mc12_JetETMiss::execute(eflowEEtaBinnedParameters
     ////////////////////////////
     //      1.0 <= eta <  1.5   //
     ////////////////////////////
-
-    binnedParameters->setRingThickness( E040bin, eta150bin, eflowCalo::EMB1, 0.0491122 );
-    binnedParameters->setRingThickness( E040bin, eta150bin, eflowCalo::EMB2, 0.0175171 );
-    binnedParameters->setRingThickness( E040bin, eta150bin, eflowCalo::EMB3, 0.0278496 );
-    binnedParameters->setRingThickness( E040bin, eta150bin, eflowCalo::EME1, 0.0491122 );
-    binnedParameters->setRingThickness( E040bin, eta150bin, eflowCalo::EME2, 0.0175171 );
-    binnedParameters->setRingThickness( E040bin, eta150bin, eflowCalo::EME3, 0.0278496 );
-    binnedParameters->setRingThickness( E040bin, eta150bin, eflowCalo::HEC1, 0.0700683 );
-    binnedParameters->setRingThickness( E040bin, eta150bin, eflowCalo::HEC2, 0.0700683 );
-    binnedParameters->setRingThickness( E040bin, eta150bin, eflowCalo::HEC3, 0.0700683 );
-    binnedParameters->setRingThickness( E040bin, eta150bin, eflowCalo::HEC4, 0.0700683 );
-    binnedParameters->setRingThickness( E040bin, eta150bin, eflowCalo::Tile1, 0.0700683 );
-    binnedParameters->setRingThickness( E040bin, eta150bin, eflowCalo::Tile2, 0.0700683 );
-    binnedParameters->setRingThickness( E040bin, eta150bin, eflowCalo::Tile3, 0.111398 );
-
 
    // j1st = EMB1
     binnedParameters->setFudgeMean( E040bin, eta150bin, eflowFirstIntRegions::EMB1, 0.706501);
@@ -4295,21 +3953,6 @@ StatusCode eflowCellEOverPTool_mc12_JetETMiss::execute(eflowEEtaBinnedParameters
     ////////////////////////////
     //      1.5 <= eta <  2.5   //
     ////////////////////////////
-
-    binnedParameters->setRingThickness( E040bin, eta250bin, eflowCalo::EMB1, 0.0491122 );
-    binnedParameters->setRingThickness( E040bin, eta250bin, eflowCalo::EMB2, 0.0175171 );
-    binnedParameters->setRingThickness( E040bin, eta250bin, eflowCalo::EMB3, 0.0278496 );
-    binnedParameters->setRingThickness( E040bin, eta250bin, eflowCalo::EME1, 0.0491122 );
-    binnedParameters->setRingThickness( E040bin, eta250bin, eflowCalo::EME2, 0.0175171 );
-    binnedParameters->setRingThickness( E040bin, eta250bin, eflowCalo::EME3, 0.0278496 );
-    binnedParameters->setRingThickness( E040bin, eta250bin, eflowCalo::HEC1, 0.0700683 );
-    binnedParameters->setRingThickness( E040bin, eta250bin, eflowCalo::HEC2, 0.0700683 );
-    binnedParameters->setRingThickness( E040bin, eta250bin, eflowCalo::HEC3, 0.0700683 );
-    binnedParameters->setRingThickness( E040bin, eta250bin, eflowCalo::HEC4, 0.0700683 );
-    binnedParameters->setRingThickness( E040bin, eta250bin, eflowCalo::Tile1, 0.0700683 );
-    binnedParameters->setRingThickness( E040bin, eta250bin, eflowCalo::Tile2, 0.0700683 );
-    binnedParameters->setRingThickness( E040bin, eta250bin, eflowCalo::Tile3, 0.111398 );
-
 
    // j1st = EMB1
     binnedParameters->setFudgeMean( E040bin, eta250bin, eflowFirstIntRegions::EMB1, 0.656913);

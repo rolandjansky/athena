@@ -12,6 +12,7 @@
 
 
 #undef NDEBUG
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "StoreGate/WriteDecorHandle.h"
 #include "AthContainers/DataVector.h"
 #include "AthContainers/AuxElement.h"
@@ -61,7 +62,8 @@ void test1()
 
   SGTest::TestStore dumstore;
   EventContext ctx5;
-  ctx5.setProxy (&dumstore);
+  ctx5.setExtension( Atlas::ExtendedEventContext(&dumstore) );
+
   SG::WriteDecorHandle<MyObj, int> h5 (k3, ctx5);
   assert (h5.clid() == MyCLID);
   assert (h5.key() == "asd.aaa");
@@ -138,7 +140,6 @@ void test2()
   assert (h3.isInitialized());
   assert (h3.cptr() == fooptr);
   assert (foo_proxy->refCount() == 2);
-  assert (h2.key() == "foo.aaa");
   assert (h2.store() == "TestStore");
   assert (!h2.isInitialized());
   assert (h2.cachedPtr() == nullptr);
@@ -175,7 +176,6 @@ void test2()
   assert (h2.store() == "TestStore");
   assert (h2.isInitialized());
   assert (h2.cptr() == barptr);
-  assert (h3.key() == "bar.bbb");
   assert (h3.store() == "TestStore");
   assert (!h3.isInitialized());
   assert (h3.cachedPtr() == nullptr);
@@ -274,7 +274,7 @@ void test5()
 
   SGTest::TestStore dumstore;
   EventContext ctx;
-  ctx.setProxy (&dumstore);
+  ctx.setExtension( Atlas::ExtendedEventContext(&dumstore) );
   auto h2 = SG::makeHandle<int> (k1, ctx);
   assert (h2.clid() == MyCLID);
   assert (h2.key() == "asd.aaa");

@@ -584,11 +584,10 @@ FTKRoad* FTKRoadStream:: fetchRoad()
 
 /** Expand the sub-roads of this road and if these are final roads are apppended to the fit list,
     if there are further level the navigation continues  */
-void FTKRoadStream::expandSubRoads(FTKRoad *AMroad, FTKRoad *uproad, int position, bool _first)
+void FTKRoadStream::expandSubRoads(FTKRoad *AMroad, FTKRoad *uproad, int position, bool first)
 {
 
-  // true if the road is the one that has to populate the hits for the group
-  bool first(_first);
+  // first is true if the road is the one that has to populate the hits for the group
 
   for ( int iroad=0;iroad!=uproad->getNSubRoads();++iroad) { // sub-roads loop
     FTKRoad *curroad = uproad->getSubRoad(iroad);

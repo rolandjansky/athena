@@ -16,9 +16,13 @@ public:
    ~IntArray();
 
 private:
-   TArrayI* m_array;
+//   TArrayI* m_array;
 
-   ClassDef( IntArray, 0 )
+   ClassDef( IntArray, 1 )
 };
+
+#if defined(__MAKECINT__)
+#pragma link C++ class IntArray+;
+#endif
 
 #endif

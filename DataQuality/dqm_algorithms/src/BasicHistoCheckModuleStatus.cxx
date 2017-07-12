@@ -24,7 +24,7 @@ namespace
 
 
 dqm_algorithms::BasicHistoCheckModuleStatus::BasicHistoCheckModuleStatus( const std::string & name )
-  : name_( name )
+  : m_name( name )
 {
   dqm_core::AlgorithmManager::instance().registerAlgorithm(name, this);
 }
@@ -33,7 +33,7 @@ dqm_algorithms::BasicHistoCheckModuleStatus *
 dqm_algorithms::BasicHistoCheckModuleStatus::clone()
 {
   
-  return new BasicHistoCheckModuleStatus( name_ );
+  return new BasicHistoCheckModuleStatus( m_name );
 }
 
 
@@ -63,7 +63,7 @@ dqm_algorithms::BasicHistoCheckModuleStatus::execute(	const std::string & name ,
   
   
  
-  if ( name_ == "ModuleStatus_All_Bins_Filled" ) {
+  if ( m_name == "ModuleStatus_All_Bins_Filled" ) {
     unsigned int nbinsX_filled = 0;
     const unsigned int binsx = histogram->GetNbinsX();
     //const unsigned int binsy = histogram->GetNbinsY();
@@ -110,7 +110,7 @@ dqm_algorithms::BasicHistoCheckModuleStatus::execute(	const std::string & name ,
 void
 dqm_algorithms::BasicHistoCheckModuleStatus::printDescription(std::ostream& out)
 {
-  if ( name_ == "All_Bins_Filled"){
+  if ( m_name == "All_Bins_Filled"){
     out<<"All_Bins_Filled: Checks that all bins of histogram are filled\n"<<std::endl;
   } 
   

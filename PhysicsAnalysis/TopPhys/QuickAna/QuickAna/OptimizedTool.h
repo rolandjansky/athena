@@ -168,7 +168,7 @@ namespace ana
 
     /// \brief the tool wrapped
   private:
-    IAnaTool *m_tool;
+    std::unique_ptr<IAnaTool> m_tool;
 
     /// \brief the list of tools we are using
   private:

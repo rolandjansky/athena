@@ -72,12 +72,14 @@ class TrigFastTrackFinder : public HLT::FexAlgo {
   HLT::ErrorCode hltFinalize();
   HLT::ErrorCode hltBeginRun();
 
+  StatusCode execute();
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE,
 			    HLT::TriggerElement* outputTE);
 
+  StatusCode findTracks(const TrigRoiDescriptor& roi, TrackCollection& outputTracks);
+
   double trackQuality(const Trk::Track* Tr);
   void filterSharedTracks(std::vector<std::tuple<bool, double, Trk::Track*>>& QT);
-  void convertToTrigInDetTrack(const TrackCollection& offlineTracks, TrigInDetTrackCollection& trigInDetTracks);
 
 protected: 
 
@@ -106,6 +108,10 @@ protected:
   ServiceHandle<IFTK_DataProviderSvc > m_ftkDataProviderSvc;
   std::string m_ftkDataProviderSvcName;
 
+  //DataHandles
+  SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
+  SG::WriteHandleKey<TrackCollection> m_outputTracksKey;
+
  
   double m_shift_x, m_shift_y;
 
@@ -116,7 +122,6 @@ protected:
   bool m_ftkRefit;//If True: Refit FTK tracks
   bool m_useBeamSpot; 
   bool m_vertexSeededMode;
-  bool m_doTrigInDetTrack;
   bool m_doZFinder;
   bool m_doFTKZFinder;
   bool m_doFTKFastVtxFinder;
@@ -245,8 +250,7 @@ protected:
 
   // Internal bookkeeping
 
-  std::string m_instanceName, m_attachedFeatureName, m_attachedFeatureName_TIDT,
-    m_outputCollectionSuffix;
+  std::string m_instanceName, m_attachedFeatureName, m_outputCollectionSuffix;
 
   unsigned int m_countTotalRoI;
   unsigned int m_countRoIwithEnoughHits;

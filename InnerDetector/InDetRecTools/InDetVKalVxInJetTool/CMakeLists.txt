@@ -21,7 +21,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkTrackSummary
                           Tracking/TrkEvent/VxSecVertex
                           Tracking/TrkEvent/VxVertex
-                          Tracking/TrkTools/TrkParticleCreator
                           Tracking/TrkTools/TrkToolInterfaces
                           Tracking/TrkVertexFitter/TrkVertexFitterInterfaces )
 #InnerDetector/InDetRecTools/InDetMaterialRejTool

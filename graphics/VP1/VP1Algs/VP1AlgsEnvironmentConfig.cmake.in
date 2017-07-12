@@ -5,7 +5,7 @@
 
 
 set( VP1ALGSENVIRONMENT_ENVIRONMENT  
-    FORCESET VP1PLUGINPATH @BUILD_DIR@/lib
+    FORCESET VP1PLUGINPATH \${@CMAKE_PROJECT_NAME@_DIR}/lib
     )
 
 # Silently declare the module found

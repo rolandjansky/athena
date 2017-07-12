@@ -31,6 +31,7 @@
 #include "../SCT_LinkMaskingTestAlg.h"
 
 #include "../SCT_TdaqEnabledSvc.h"
+#include "../SCT_TdaqEnabledCondAlg.h"
 #include "../SCT_TdaqEnabledTestAlg.h"
 
 #include "../SCT_ConditionsParameterSvc.h"
@@ -72,6 +73,7 @@ DECLARE_ALGORITHM_FACTORY(SCT_ConfigurationConditionsTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_MajorityConditionsTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_ConditionsParameterTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_SensorsTestAlg)
+DECLARE_ALGORITHM_FACTORY(SCT_TdaqEnabledCondAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_TdaqEnabledTestAlg)
 
 DECLARE_SERVICE_FACTORY(SCT_ConditionsSummarySvc)
@@ -137,6 +139,7 @@ DECLARE_ALGORITHM( SCT_RODVetoTestAlg )
   DECLARE_ALGORITHM( SCT_MajorityConditionsTestAlg )
   DECLARE_ALGORITHM( SCT_ConditionsParameterTestAlg )
   DECLARE_ALGORITHM( SCT_SensorsTestAlg )
+  DECLARE_ALGORITHM(SCT_TdaqEnabledCondAlg)
   DECLARE_ALGORITHM(SCT_TdaqEnabledTestAlg)
   
   

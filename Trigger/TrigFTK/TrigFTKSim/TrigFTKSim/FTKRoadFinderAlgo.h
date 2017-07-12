@@ -132,9 +132,6 @@ private:
   FTKSSMap *m_ssmap_tsp;
   // require presence of first layer (pixel B-layer)
   bool m_require_first;
-  // lists containing output of 8L run
-  std::string scttrk_tracklist;
-  std::string scttrk_roadlist;
   // 4L,8L -> 11L lookup map
   FTKSectorMap *m_scttrk_sectormap;
   

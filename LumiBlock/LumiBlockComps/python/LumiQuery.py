@@ -48,7 +48,6 @@ def ListFromFile(filename="FewEventsLumi.pool.root", label = "LumiBlockCollectio
     """    
 
     import ROOT
-    import PyCintex
     a = ROOT.TFile.Open(filename)
     global LumiRangeList
     LumiRangeList = []

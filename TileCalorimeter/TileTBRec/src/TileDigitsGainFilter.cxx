@@ -80,7 +80,7 @@ StatusCode TileDigitsGainFilter::execute() {
   outputContainer->set_type(inputContainer->get_type());
   outputContainer->set_bsflags(inputContainer->get_bsflags());
 
-  TileDigits* digits[2][48] = {0}; // 2 gains and 48 channels
+  TileDigits* digits[2][48] = {{0}}; // 2 gains and 48 channels
 
   for (const TileDigitsCollection* digitsCollection : *inputContainer) {
 

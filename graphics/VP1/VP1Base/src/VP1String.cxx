@@ -15,7 +15,7 @@
 #include "VP1Base/VP1String.h"
 #include "VP1Base/VP1QtInventorUtils.h"
 #include "VP1Base/VP1Interval.h"
-#include <QtGui/QColor>
+#include <QColor>
 #include <Inventor/SbVec2d.h>
 #include <Inventor/SbVec2f.h>
 #include <Inventor/SbVec2s.h>

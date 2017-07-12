@@ -4,8 +4,8 @@
 
 //Dear emacs, this is -*-c++-*-
 
-#ifndef LARCOOLCONDITIONS_LARRAMPFLAT_H
-#define LARCOOLCONDITIONS_LARRAMPFLAT_H
+#ifndef LARCOOLCONDITIONS_LARDSPCONIFG_H
+#define LARCOOLCONDITIONS_LARDSPCONIFG_H
 
 #include "LArCOOLConditions/LArCondFlatBase.h"
 #include <vector>

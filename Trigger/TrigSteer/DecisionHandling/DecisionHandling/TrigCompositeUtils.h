@@ -28,20 +28,20 @@ namespace TrigCompositeUtils {
   typedef xAOD::TrigCompositeAuxContainer DecisionAuxContainer;
 
   typedef SG::WriteHandle<DecisionContainer> DecisionWriteHandle;
-  /*
-    creates and right away stores the DecisionContainer under the key
-  */
+  /**
+   * @brief creates and right away stores the DecisionContainer under the key
+   **/
   DecisionWriteHandle createAndStore(const SG::WriteHandleKey<DecisionContainer>& key, const EventContext& ctx);
 
   
-  /*
-    @brief helper method to that created the Decision objects, places it in the container and returns
-    This is to make this:
-    auto d = newDecisionIn(output);
-    instead of:
-    auto d = new Decision; 
-    output->push_back(d);    
-  */
+  /**
+   * @brief helper method to that created the Decision objects, places it in the container and returns
+   * This is to make this:
+   * auto d = newDecisionIn(output);
+   * instead of:
+   * auto d = new Decision; 
+   * output->push_back(d);    
+   **/
   
   Decision* newDecisionIn (DecisionContainer* dc);
 
@@ -49,38 +49,39 @@ namespace TrigCompositeUtils {
   typedef unsigned int DecisionID;
   typedef std::set<DecisionID> DecisionIDContainer;
 
-  /*
-    @brief Appends the decision (given as ID) to the decision object
-  */
+  /**
+   * @brief Appends the decision (given as ID) to the decision object
+   * @warning Performing two decision insertions with the same ID consecutively results in the ID stored only once
+   * This helps solving multiple inserts in the combo hypo tools
+   **/
   void addDecisionID( DecisionID id,  Decision* d);
 
       
-  /*
-    @brief Extracts DecisionIDs stored in the Decsion object 
-  */
+  /**
+   * @brief Extracts DecisionIDs stored in the Decsion object 
+   **/
   void decisionIDs(const Decision* d, DecisionIDContainer& id );
 
 
-  /*
-    @brief Checks if any of the DecisionIDs passed in arg required is availble in Decision object
-  */
+  /**
+   * @brief Checks if any of the DecisionIDs passed in arg required is availble in Decision object
+   **/
   bool passingIDs( const Decision* d,  const DecisionIDContainer& required);
 
 
-  /*
-    @brief Links to the previous object
-    Typical usage: for ( auto 
-  */
+  /**
+   * @brief Links to the previous object
+   **/
   void linkToPrevious(Decision* d, const std::string& previousCollectionKey, size_t previousIndex);
 
-  /*
-    @brief checks if there is a link to previous object
-  */
+  /**
+   * @brief checks if there is a link to previous object
+   **/
   bool hasLinkToPrevious(const Decision* d);
 
-  /*
-    @brief returns link to previous decision object
-  */
+  /**
+   * @brief returns link to previous decision object
+   **/
   ElementLink<DecisionContainer> linkToPrevious(const Decision*);
 
 

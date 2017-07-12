@@ -23,11 +23,15 @@ print JETM11StringSkimmingTool
 #======================================================================================================================
 # AUGMENTATION TOOL
 #======================================================================================================================
-# from DerivationFrameworkJetEtMiss.DerivationFrameworkJetEtMissConf import DerivationFramework__METTriggerAugmentationTool
-# JETM11LVL1AugmentationTool = DerivationFramework__METTriggerAugmentationTool(name = "JETM11LVL1AugmentationTool",
-#                                                                              SGPrefix = "JETM11")
-# ToolSvc += JETM11LVL1AugmentationTool
-# print JETM11LVL1AugmentationTool
+from DerivationFrameworkJetEtMiss.DerivationFrameworkJetEtMissConf import DerivationFramework__METTriggerAugmentationTool
+JETM11KFData15AugmentationTool = DerivationFramework__METTriggerAugmentationTool(name = "JETM11KFData15AugmentationTool", #NB: data15 refers to the dataset used to form the look up table, not the intended target
+                                                                                 OutputName = "LVL1EnergySumRoI_KFMETData15",
+                                                                                 LUTFile = "LUT_data15.root")
+ToolSvc += JETM11KFData15AugmentationTool
+JETM11KFmc12AugmentationTool = DerivationFramework__METTriggerAugmentationTool(name = "JETM11KFmc12AugmentationTool", #NB: mc12 refers to the dataset used to form the look up table, not the intended target
+                                                                                 OutputName = "LVL1EnergySumRoI_KFMETmc12",
+                                                                                 LUTFile = "LUT_mc12.root")
+ToolSvc += JETM11KFmc12AugmentationTool
 
 #======================================================================================================================
 # SET UP STREAM
@@ -43,10 +47,10 @@ JETM11Stream.AcceptAlgs(['JETM11Kernel'])
 #=======================================
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 JETM11ThinningHelper = ThinningHelper( "JETM11ThinningHelper" )
-JETM11ThinningHelper.TriggerChains = ('L1_XE.*|L1_XS.*|L1_TE.*|HLT_xe.*|HLT_xs.*|HLT_te.*|'
-                                      'HLT_e26_lhvloose_L1EM20VH.*|HLT_e\\d\\d_(lhvloose|vloose)|'
-                                      'HLT_mu20_iloose.*|HLT_mu50|HLT_e24_lhmedium_iloose_L1_EM20VH|'
-                                      'HLT_e60_lhmedium|L1_J.*XE.*|HLT_j.*xe.*')
+# JETM11ThinningHelper.TriggerChains = ('L1_XE.*|L1_XS.*|L1_TE.*|HLT_xe.*|HLT_xs.*|HLT_te.*|'
+#                                       'HLT_e26_lhvloose_L1EM20VH.*|HLT_e\\d\\d_(lhvloose|vloose)|'
+#                                       'HLT_mu20_iloose.*|HLT_mu50|HLT_e24_lhmedium_iloose_L1_EM20VH|'
+#                                       'HLT_e60_lhmedium|L1_J.*XE.*|HLT_j.*xe.*')
 JETM11ThinningHelper.AppendToStream( JETM11Stream )
 
 #======================================================================================================================
@@ -111,7 +115,7 @@ DerivationFrameworkJob += jetm11Seq
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 jetm11Seq += CfgMgr.DerivationFramework__DerivationKernel('JETM11Kernel',
                                                           SkimmingTools = [JETM11StringSkimmingTool],
-#                                                          AugmentationTools = [JETM11LVL1AugmentationTool],
+                                                          AugmentationTools = [JETM11KFData15AugmentationTool, JETM11KFmc12AugmentationTool],
                                                           ThinningTools = thinningTools)
 
 #======================================================================================================================
@@ -121,18 +125,16 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM11SlimmingHelper = SlimmingHelper('JETM11SlimmingHelper')
 JETM11SlimmingHelper.SmartCollections = ["Electrons", "Muons", "Photons", "TauJets",
                                          "AntiKt4EMTopoJets", "PrimaryVertices", "BTagging_AntiKt4EMTopo"]
-JETM11SlimmingHelper.AllVariables =     ["HLT_xAOD__TrigMissingETContainer_EFJetEtSum",
-                                         "HLT_xAOD__TrigMissingETContainer_TrigMissingET_FEB",
-                                         "HLT_xAOD__TrigMissingETContainer_EFMissingET_Fex_2sidednoiseSupp_PUC",
-                                         "HLT_xAOD__TrigMissingETContainer_T2MissingET",
-                                         "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PS",
+JETM11SlimmingHelper.AllVariables =     ["HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PS",
                                          "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht",
                                          "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PUC",
                                          "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl",
-                                         "HLT_xAOD__TrigMissingETContainer_TrigL2MissingET_FEB",
                                          "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET",
+                                         "HLT_xAOD__JetContainer_a4tclcwsubjesFS",
                                          "LVL1JetRoIs",
                                          "LVL1JetEtRoI",
+                                         "LVL1EnergySumRoI_KFMETData15", 
+                                         "LVL1EnergySumRoI_KFMETmc12",
                                          "MET_Core_AntiKt4EMTopo",
                                          "METAssoc_AntiKt4EMTopo"]
 JETM11SlimmingHelper.IncludeJetTriggerContent = True

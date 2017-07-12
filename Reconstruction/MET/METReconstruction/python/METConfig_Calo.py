@@ -9,9 +9,9 @@ from METReconstruction.METRecoConfig import BuildConfig, RefConfig, METConfig,cl
 
 cfg_emt = METConfig('EMTopo',[BuildConfig('SoftClus','EMTopo')],
                     doRegions=True,
-                    doOriginCorrClus=metFlags.UseTracks()
+                    doOriginCorrClus=False
                     )
-cfg_emt.builders['SoftClus'].SignalState = clusterSigStates['Mod']
+cfg_emt.builders['SoftClus'].SignalState = clusterSigStates['EMScale']
 
 metFlags.METConfigs()[cfg_emt.suffix] = cfg_emt
 metFlags.METOutputList().append(cfg_emt.suffix)
@@ -22,7 +22,7 @@ metFlags.METOutputList().append(cfg_emt.suffix+"Regions")
 
 cfg_lht = METConfig('LocHadTopo',[BuildConfig('SoftClus','LocHadTopo')],
                     doRegions=True,
-                    doOriginCorrClus=metFlags.UseTracks()
+                    doOriginCorrClus=False
                     )
 cfg_lht.builders['SoftClus'].SignalState = clusterSigStates['LocHad']
 

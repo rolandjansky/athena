@@ -29,7 +29,7 @@ namespace
 
 
 dqm_algorithms::BasicHistoCheck::BasicHistoCheck( const std::string & name )
-  : name_( name )
+  : m_name( name )
 {
   dqm_core::AlgorithmManager::instance().registerAlgorithm(name, this);
 }
@@ -38,7 +38,7 @@ dqm_algorithms::BasicHistoCheck *
 dqm_algorithms::BasicHistoCheck::clone()
 {
   
-  return new BasicHistoCheck( name_ );
+  return new BasicHistoCheck( m_name );
 }
 
 
@@ -66,7 +66,7 @@ dqm_algorithms::BasicHistoCheck::execute(	const std::string & name ,
     return result;
   }
   
-  if (name_ == "Histogram_Not_Empty") {
+  if (m_name == "Histogram_Not_Empty") {
     if (histogram->GetEntries() != 0) {
       ERS_DEBUG(1, "Histogram " <<histogram->GetName()<<" is Not Empty");
       return new dqm_core::Result(dqm_core::Result::Green);
@@ -74,7 +74,7 @@ dqm_algorithms::BasicHistoCheck::execute(	const std::string & name ,
       ERS_DEBUG(1, "Histogram " <<histogram->GetName()<<" is Empty");
       return new dqm_core::Result(dqm_core::Result::Red);
     }
-  } else if (name_ == "No_OverFlows" ) {
+  } else if (m_name == "No_OverFlows" ) {
     const unsigned int binsx = histogram->GetNbinsX()+1;
     const unsigned int binsy = histogram->GetNbinsY()+1;
     const unsigned int binsz = histogram->GetNbinsZ()+1;
@@ -122,7 +122,7 @@ dqm_algorithms::BasicHistoCheck::execute(	const std::string & name ,
     }
     ERS_DEBUG(1, "Histogram " <<histogram->GetName()<<" does NOT have OverFlows");
     return new dqm_core::Result(dqm_core::Result::Green);
-  }else if (name_ == "No_UnderFlows") {
+  }else if (m_name == "No_UnderFlows") {
     const unsigned int binsx = histogram->GetNbinsX()+1;
     const unsigned int binsy = histogram->GetNbinsY()+1;
     const unsigned int binsz = histogram->GetNbinsZ()+1;
@@ -170,7 +170,7 @@ dqm_algorithms::BasicHistoCheck::execute(	const std::string & name ,
     }
     ERS_DEBUG(1, "Histogram " <<histogram->GetName()<<" does NOT have UnderFlows");
     return new dqm_core::Result(dqm_core::Result::Green);
-  } else if ( name_ == "All_Bins_Filled" ) {
+  } else if ( m_name == "All_Bins_Filled" ) {
     const unsigned int binsx = histogram->GetNbinsX();
     const unsigned int binsy = histogram->GetNbinsY();
     const unsigned int binsz = histogram->GetNbinsZ();
@@ -190,7 +190,7 @@ dqm_algorithms::BasicHistoCheck::execute(	const std::string & name ,
     return new dqm_core::Result(dqm_core::Result::Green);
 
 
-  } else if (name_ == "Histogram_Empty") {
+  } else if (m_name == "Histogram_Empty") {
     if (histogram->GetEntries() == 0) {
       ERS_DEBUG(1, "Histogram " <<histogram->GetName()<<" is Empty");
       return new dqm_core::Result(dqm_core::Result::Green);
@@ -198,7 +198,7 @@ dqm_algorithms::BasicHistoCheck::execute(	const std::string & name ,
       ERS_DEBUG(1, "Histogram " <<histogram->GetName()<<" is Not Empty");
       return new dqm_core::Result(dqm_core::Result::Red);
     }
-  } else if (name_ == "Histogram_Effective_Empty") {
+  } else if (m_name == "Histogram_Effective_Empty") {
     if (histogram->GetEffectiveEntries() == 0) {
       ERS_DEBUG(1, "Histogram " <<histogram->GetName()<<" is Empty");
       return new dqm_core::Result(dqm_core::Result::Green);
@@ -218,19 +218,19 @@ dqm_algorithms::BasicHistoCheck::execute(	const std::string & name ,
 void
 dqm_algorithms::BasicHistoCheck::printDescription(std::ostream& out)
 {
-  if ( name_ == "All_Bins_Filled"){
+  if ( m_name == "All_Bins_Filled"){
     out<<"All_Bins_Filled: Checks that all bins of histogram are filled\n"<<std::endl;
-  } else if ( name_ == "Histogram_Not_Empty"){
+  } else if ( m_name == "Histogram_Not_Empty"){
     out<<"Histogram_Not_Empty: Checks that histogram is not empty\n"<<std::endl;
-  }else if ( name_ == "No_UnderFlows"){
+  }else if ( m_name == "No_UnderFlows"){
     out<<"No_UnderFlows: Checks that histogram has no Underflows"<<std::endl;
-  }else if ( name_ == "No_OverFlows"){
+  }else if ( m_name == "No_OverFlows"){
     out<<"No_OverFlows: Checks that histogram has no Overflows"<<std::endl;
 
 
-  } else if ( name_ == "Histogram_Empty"){
+  } else if ( m_name == "Histogram_Empty"){
     out<<"Histogram_Empty: Checks that histogram is empty\n"<<std::endl;
-  } else if ( name_ == "Histogram_Effective_Empty"){
+  } else if ( m_name == "Histogram_Effective_Empty"){
     out<<"Histogram_Not_Empty:\tChecks that histogram has no effective entries\n\t\t\t(see ROOT doc -> TH1 -> GetEffectiveEntries())\n"<<std::endl;
   }
   

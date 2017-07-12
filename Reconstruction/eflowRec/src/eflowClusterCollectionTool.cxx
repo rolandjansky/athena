@@ -16,9 +16,9 @@ StatusCode eflowClusterCollectionTool::initialize(){
   return StatusCode::SUCCESS;
 }
 
-eflowRecClusterContainer* eflowClusterCollectionTool::retrieve(eflowCaloObjectContainer* theEflowCaloObjectContainer, bool useNonModifiedClusters) {
+std::unique_ptr<eflowRecClusterContainer> eflowClusterCollectionTool::retrieve(eflowCaloObjectContainer* theEflowCaloObjectContainer, bool useNonModifiedClusters) {
 
-  eflowRecClusterContainer* result = new eflowRecClusterContainer();
+  std::unique_ptr<eflowRecClusterContainer> result =  std::make_unique<eflowRecClusterContainer>();
 
   /* Loop over all eflowCaloObjects */
   eflowCaloObjectContainer::iterator itEFCaloObject = theEflowCaloObjectContainer->begin();
@@ -44,9 +44,9 @@ eflowRecClusterContainer* eflowClusterCollectionTool::retrieve(eflowCaloObjectCo
 }
 
 
-xAOD::CaloClusterContainer* eflowClusterCollectionTool::execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, bool useNonModifiedClusters) {
+std::unique_ptr<xAOD::CaloClusterContainer> eflowClusterCollectionTool::execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, bool useNonModifiedClusters) {
 
-  xAOD::CaloClusterContainer* result = new xAOD::CaloClusterContainer(SG::VIEW_ELEMENTS);
+  std::unique_ptr<xAOD::CaloClusterContainer> result = std::make_unique<xAOD::CaloClusterContainer>(SG::VIEW_ELEMENTS);
 
   /* Loop over all eflowCaloObjects */
   eflowCaloObjectContainer::iterator itEFCaloObject = theEflowCaloObjectContainer->begin();
