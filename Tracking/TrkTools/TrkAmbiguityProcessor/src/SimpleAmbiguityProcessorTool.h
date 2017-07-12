@@ -43,6 +43,7 @@ typedef HepGeom::Point3D<double> HepPoint3D;
 
 #ifdef SIMPLEAMBIGPROCNTUPLECODE
 // --------------- DEBUG CODE
+#include "xAODEventInfo/EventInfo.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IPartPropSvc.h"
@@ -279,6 +280,7 @@ namespace Trk {
       SG::ReadHandleKey<TrackTruthCollection> m_truthCollection;
       SG::ReadHandleKey<TrackCollectionConnection> m_resolvedTrackConnection;
       bool m_has_resolvedTrackConnection;
+      SG::WriteHandleKey<TrackCollectionConnection> m_write_resolvedTrackConnection;
 
       std::set<const Trk::Track*> m_trueTracks;
       std::map<const Trk::Track*, const Trk::Track*> m_trackHistory;

@@ -94,6 +94,7 @@ Trk::SimpleAmbiguityProcessorTool::SimpleAmbiguityProcessorTool(const std::strin
 
 #ifdef SIMPLEAMBIGPROCNTUPLECODE
   declareProperty("TrackSeedMap", m_trackSeedMapLocation = "TrackSeedMap");
+  declare(m_eventInfo_key = "EventInfo");
 #endif
 
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
@@ -101,6 +102,7 @@ Trk::SimpleAmbiguityProcessorTool::SimpleAmbiguityProcessorTool(const std::strin
   declareProperty("TruthCollection", m_truthCollection="SiSPSeededTracksTruthCollection");
   //to get brem truth
   declareProperty("GeneratedEventCollection", m_generatedEventCollectionName="TruthEvent");
+  declare(m_write_resolvedTrackConnection);
 #endif
 
 #if defined SIMPLEAMBIGPROCNTUPLECODE || defined SIMPLEAMBIGPROCDEBUGCODE
@@ -108,7 +110,6 @@ Trk::SimpleAmbiguityProcessorTool::SimpleAmbiguityProcessorTool(const std::strin
   declareProperty("TruthLocationPixel", m_truth_locationPixel="PRD_MultiTruthPixel");
   declareProperty("TruthLocationSCT", m_truth_locationSCT="PRD_MultiTruthSCT");
   declareProperty("TruthLocationTRT", m_truth_locationTRT="PRD_MultiTruthTRT");
-  declare(m_eventInfo_key = "EventInfo");
 #endif
 
 
@@ -265,6 +266,10 @@ StatusCode Trk::SimpleAmbiguityProcessorTool::initialize()
   ATH_CHECK(m_generatedEventCollectionName.initialize());
   ATH_CHECK(m_truthCollection.initialize());
   m_has_resolvedTrackConnection = m_resolvedTrackConnection.initialize().isSuccess();
+  if (!m_has_resolvedTrackConnection) {
+    m_write_resolvedTrackConnection = m_resolvedTrackConnection.key();
+    ATH_CHECK(m_write_resolvedTrackConnection.initialize());
+  }
 
   // to get the brem truth
   IToolSvc* toolSvc;
@@ -1457,7 +1462,7 @@ void Trk::SimpleAmbiguityProcessorTool::produceInputOutputConnection()
 {
   if (!m_has_resolvedTrackConnection) {
     // output map: SiSpSeededTrack, ResolvedTrack  
-    TrackCollectionConnection* siSP_ResolvedConnection = new TrackCollectionConnection();
+    TrackCollectionConnection siSP_ResolvedConnection;
       
     TrackCollection::const_iterator  itFinal = m_finalTracks->begin();
     TrackCollection::const_iterator endFinal = m_finalTracks->end();
@@ -1470,16 +1475,12 @@ void Trk::SimpleAmbiguityProcessorTool::produceInputOutputConnection()
       if (pos == m_trackHistory.end())
 	msg(MSG::ERROR) << "Track not found in history" << endmsg;
       else
-	siSP_ResolvedConnection->insert(std::make_pair(pos->second,*itFinal));
+	siSP_ResolvedConnection.insert(std::make_pair(pos->second,*itFinal));
 	  
     }
-      
-    StatusCode sc = evtStore()->record(siSP_ResolvedConnection, m_resolvedTrackConnection,false);
-      
-    if (sc.isFailure())
-      msg(MSG::ERROR) << "Could not record trackCollectionConnecton" << endmsg;
-    else
-      msg(MSG::VERBOSE) << "Saved "<<siSP_ResolvedConnection->size()<<" track collection connections"<<endmsg; 
+
+    SG::WriteHandle<TrackCollectionConnection> h_write(m_write_resolvedTrackConnection);
+    h_write.record(std::make_unique<TrackCollectionConnection>(siSP_ResolvedConnection));
   }
 }
 //============================================================================================
