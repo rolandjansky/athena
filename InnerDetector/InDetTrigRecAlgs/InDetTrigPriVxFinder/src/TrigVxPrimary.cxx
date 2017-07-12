@@ -203,25 +203,27 @@ namespace InDet
     } 
 
     //
-    auto itr = theVxContainer->begin();
-    auto end = theVxContainer->end();
-    for ( ; itr != end; itr++){
-      std::vector<Trk::VxTrackAtVertex> trks = (*itr)->vxTrackAtVertex();
-      size_t VTAVsize = trks.size();
-      for (size_t i=0; i<VTAVsize; i++){
-        Trk::ITrackLink*      trklink = trks[i].trackOrParticleLink();
-        Trk::LinkToTrack* linkToTrackPB = dynamic_cast<Trk::LinkToTrack*>(trklink);  
-        if (!linkToTrackPB) 
-        {
-          ATH_MSG_DEBUG ("Cast of element link failed, skip this track !!!!!");
-        } 
-        else
-        {
-          ElementLink<xAOD::TrackParticleContainer> newLink(*xTPCont, linkToTrackPB->index());
-          //Now set the newlink to the new xAOD vertex
-          (*itr)->addTrackAtVertex(newLink, trks[i].vtxCompatibility()); 
-        } 
-
+    if (xTPCont){
+      auto itr = theVxContainer->begin();
+      auto end = theVxContainer->end();
+      for ( ; itr != end; itr++){
+	std::vector<Trk::VxTrackAtVertex> trks = (*itr)->vxTrackAtVertex();
+	size_t VTAVsize = trks.size();
+	for (size_t i=0; i<VTAVsize; i++){
+	  Trk::ITrackLink*      trklink = trks[i].trackOrParticleLink();
+	  Trk::LinkToTrack* linkToTrackPB = dynamic_cast<Trk::LinkToTrack*>(trklink);  
+	  if (!linkToTrackPB) 
+	    {
+	      ATH_MSG_DEBUG ("Cast of element link failed, skip this track !!!!!");
+	    } 
+	  else
+	    {
+	      ElementLink<xAOD::TrackParticleContainer> newLink(*xTPCont, linkToTrackPB->index());
+	      //Now set the newlink to the new xAOD vertex
+	      (*itr)->addTrackAtVertex(newLink, trks[i].vtxCompatibility()); 
+	    } 
+	  
+	}
       }
     }
 
