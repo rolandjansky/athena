@@ -302,8 +302,8 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
   //StatusCode sc_ztp = m_storeGate->retrieve(VertexContainer,"VxPrimaryCandidate");
   StatusCode sc_ztp = m_storeGate->retrieve(VertexContainer,"HLT_xAOD__VertexContainer_xPrimVx");
   if(sc_ztp.isFailure()) {
-    ATH_MSG_INFO("VxPrimaryCandidate" << " Container Unavailable");
-    return StatusCode::SUCCESS;
+    ATH_MSG_DEBUG("VxPrimaryCandidate" << " Container Unavailable");
+    //return StatusCode::SUCCESS;
   }
 
   //REQUIREMENTS FOR GOOD PRIMARY VERTEX   
