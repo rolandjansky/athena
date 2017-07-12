@@ -6,6 +6,7 @@ log = logging.getLogger( 'TriggerMenu.menu.GroupInfo' )
 AllowedGroups = ['Muon',
                  'Jet',
                  'BJet',
+                 'BJet_combined',
                  'MET',
                  'Tau',
                  'Egamma',
