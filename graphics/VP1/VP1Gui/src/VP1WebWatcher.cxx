@@ -88,7 +88,7 @@ public:
     }
 
     //________________________________________
-    bool handleDone(bool error, QObject * sender) {
+    bool handleDone(bool /*error*/, QObject * /*sender*/) {
 
       // TODO: replace with QNetworkManager!!
       std::cout << "WARNING!! - VP1WebWatcher::handleDone() needs to be ported to QNetworkManager. Returning..." << std::endl;
@@ -147,7 +147,7 @@ public:
   QList<WatchedUrl*> watchedUrls;
 
 
-  static void ensureEndThread(HttpThread*& thread) {
+  static void ensureEndThread(HttpThread*& /*thread*/) {
 
     // if (!thread)
     //   return;
@@ -163,7 +163,7 @@ public:
     // thread=0;
   }
 
-  void startDownload(WatchedUrl* wu) {
+  void startDownload(WatchedUrl* /*wu*/) {
 
     // ensureEndThread(wu->thread);
     // wu->thread = new Imp::HttpThread(wu->url,theclass);
@@ -223,7 +223,7 @@ bool VP1WebWatcher::isWatchingUrl(const QString&u) const
 }
 
 //____________________________________________________________________
-void VP1WebWatcher::addUrl(const QString&u)
+void VP1WebWatcher::addUrl(const QString&/*u*/)
 {
   // if (isWatchingUrl(u))
   //   return;
@@ -233,7 +233,7 @@ void VP1WebWatcher::addUrl(const QString&u)
 }
 
 //____________________________________________________________________
-void VP1WebWatcher::addUrls(const QStringList&l)
+void VP1WebWatcher::addUrls(const QStringList&/*l*/)
 {
   // foreach (QString u, l)
   //   addUrl(u);
@@ -249,7 +249,7 @@ QStringList VP1WebWatcher::urls() const
 }
 
 //____________________________________________________________________
-void VP1WebWatcher::removeUrl(const QString&u)
+void VP1WebWatcher::removeUrl(const QString&/*u*/)
 {
   // foreach(Imp::WatchedUrl*wu,d->watchedUrls)
   //   if (wu->url == u) {
@@ -260,7 +260,7 @@ void VP1WebWatcher::removeUrl(const QString&u)
 }
 
 //____________________________________________________________________
-void VP1WebWatcher::removeUrls(const QStringList&l)
+void VP1WebWatcher::removeUrls(const QStringList&/*l*/)
 {
   // foreach (QString u, l)
   //   removeUrl(u);

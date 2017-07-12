@@ -15,9 +15,7 @@
 #include "VP1Base/VP1String.h"
 #include "VP1Base/VP1QtInventorUtils.h"
 #include "VP1Base/VP1Interval.h"
-
 #include <QColor>
-
 #include <Inventor/SbVec2d.h>
 #include <Inventor/SbVec2f.h>
 #include <Inventor/SbVec2s.h>
@@ -26,7 +24,6 @@
 #include <Inventor/SbVec3s.h>
 #include <Inventor/SbVec4d.h>
 #include <Inventor/SbVec4f.h>
-
 #include <sstream>
 
 //____________________________________________________________________

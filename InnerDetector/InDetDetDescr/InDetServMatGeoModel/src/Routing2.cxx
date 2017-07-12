@@ -13,7 +13,7 @@
 using namespace std; // for DEBUG
 
 Routing2::Routing2(const Athena::MsgStreamMember& msg):
-  previousBarrelLayer(0), m_msg(msg)
+  m_msg(msg)
 {
   m_routePixelBarrelOnPST = false;
   m_pixelAlongBarrelStrip = false;

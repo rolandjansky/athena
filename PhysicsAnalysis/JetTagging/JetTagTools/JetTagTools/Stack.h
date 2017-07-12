@@ -157,8 +157,8 @@ namespace lwt {
     virtual VectorXd compute(const VectorXd&) const;
 
   private:
-    VectorXd _W;
-    VectorXd _b;
+    VectorXd m_W;
+    VectorXd m_b;
 
   };
 

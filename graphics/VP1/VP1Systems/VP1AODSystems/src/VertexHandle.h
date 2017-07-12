@@ -67,6 +67,10 @@ public:
   virtual QString shortInfo() const ; //!< returns position & type information about vertex
   virtual QString type() const { return QString("Vertex"); } //!< return very short word with type (maybe link with collection type?)
   QString vertexType() const;
+ 
+  double getPositionX() const;
+  double getPositionY() const;
+  double getPositionZ() const;
   
 private:
 

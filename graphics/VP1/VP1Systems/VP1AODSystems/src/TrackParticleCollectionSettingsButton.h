@@ -105,7 +105,7 @@ private:
   void possibleChange_cutAllowedEta();
   void possibleChange_cutAllowedPhi();
   void possibleChange_cutRequiredNHits();
-//  void possibleChange_cutOnlyVertexAssocTracks();
+  void possibleChange_cutOnlyVertexAssocTracks();
   void possibleChange_showParameters();
   void possibleChange_parameterColours();
     

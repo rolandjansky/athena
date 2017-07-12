@@ -42,7 +42,7 @@ atlas_add_library( VP1AODSystems
    PUBLIC_HEADERS VP1AODSystems
    PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR}
    LINK_LIBRARIES xAODMuon xAODTracking GaudiKernel VP1Base StoreGateLib
-   Qt5::Core
+   Qt5::Core Qt5::Gui
    PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} GeoPrimitives EventPrimitives
    xAODBase xAODCaloEvent xAODJet xAODMissingET PathResolver TrkExInterfaces
    VP1HEPVis VP1Utils Qt5::Gui )

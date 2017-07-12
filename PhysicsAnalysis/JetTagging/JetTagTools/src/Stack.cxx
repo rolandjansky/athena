@@ -243,12 +243,12 @@ namespace lwt {
    // Normalization layer
    NormalizationLayer::NormalizationLayer(const VectorXd& W,
                                           const VectorXd& b):
-    _W(W), _b(b)
+    m_W(W), m_b(b)
   {
   }
   VectorXd NormalizationLayer::compute(const VectorXd& in) const {
-    VectorXd shift = in + _b ;
-    return _W.cwiseProduct(shift);
+    VectorXd shift = in + m_b ;
+    return m_W.cwiseProduct(shift);
   }
 
   // highway layer

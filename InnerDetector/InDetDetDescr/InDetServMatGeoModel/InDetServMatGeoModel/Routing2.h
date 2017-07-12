@@ -45,7 +45,6 @@ private:
   double c_LayerLengthTolerance;
 
   std::vector<ServiceVolume*> m_volumes;
-  ServicesLayer* previousBarrelLayer;
 
   VRoute m_bpVRoute;
   HRoute m_bpHRoute;
