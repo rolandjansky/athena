@@ -677,6 +677,9 @@ private:
 
   // This class needs to call the above protected constructor.
   friend class WritableArray<N+1>;
+
+  /// The underlying array representation, non-const copy.
+  Arrayrep* m_rep_nc;
 };
 
 
@@ -726,6 +729,10 @@ private:
 
   // This class needs to call the above protected constructor.
   friend class WritableArray<1>;
+
+  /// Pointer to this array's single element, non-const copy.
+  /// Null if this instance was created using the default constructor.
+  Arrayelt* m_elt_nc;
 };
 
 

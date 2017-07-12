@@ -19,7 +19,7 @@ MD5::MD5()    {
 }
 
 // MD5 simple initialization method
-MD5::MD5(unsigned char* buffer, unsigned long len)    {
+MD5::MD5(const unsigned char* buffer, unsigned long len)    {
   init();
   update(buffer, len);
   finalize();
@@ -28,7 +28,7 @@ MD5::MD5(unsigned char* buffer, unsigned long len)    {
 // MD5 block update operation. Continues an MD5 message-digest
 // operation, processing another message block, and updating the
 // context.
-void MD5::update (unsigned char *input, unsigned int input_length) {
+void MD5::update (const unsigned char *input, unsigned int input_length) {
   unsigned int idx, index, space;
   if ( m_finalized ) {  // so we can't update!
     std::cerr << "MD5::update:  Can't update a finalized digest!" << std::endl;
@@ -66,7 +66,7 @@ void MD5::update (unsigned char *input, unsigned int input_length) {
 void MD5::finalize ()     {
   unsigned char bits[8];
   unsigned int index, padLen;
-  static unsigned char PADDING[64]={
+  static const unsigned char PADDING[64]={
     0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -90,7 +90,7 @@ void MD5::finalize ()     {
   m_finalized=1;
 }
 
-void MD5::raw_digest(unsigned char *s){
+void MD5::raw_digest(unsigned char *s) const {
   if (m_finalized){
     memcpy(s, m_digest, 16);
     return;
@@ -99,7 +99,7 @@ void MD5::raw_digest(unsigned char *s){
     "finalized the digest!" << std::endl;
 }
 
-std::string MD5::hex_digest()   {
+std::string MD5::hex_digest() const  {
   char s[33];
   if (!m_finalized){
     std::cerr << "MD5::hex_digest:  Can't get digest if you haven't "<<
@@ -126,7 +126,7 @@ void MD5::init(){
 }
 
 // MD5 basic transformation. Transforms state based on block.
-void MD5::transform (unsigned char* block){
+void MD5::transform (const unsigned char* block){
   unsigned int a = m_state[0], b = m_state[1], c = m_state[2], d = m_state[3], x[16];
   decode (x, block, 64);
   assert(!m_finalized);  // not just a user error, since the method is private
@@ -208,7 +208,7 @@ void MD5::transform (unsigned char* block){
 
 // Encodes input (unsigned int) into output (unsigned char). Assumes len is
 // a multiple of 4.
-void MD5::encode (unsigned char *output, unsigned int *input, unsigned int len) {
+void MD5::encode (unsigned char *output, const unsigned int *input, unsigned int len) {
   for (unsigned int i = 0, j = 0; j < len; i++, j += 4) {
     output[j]   = (unsigned char)  (input[i] & 0xff);
     output[j+1] = (unsigned char) ((input[i] >> 8) & 0xff);
@@ -219,7 +219,7 @@ void MD5::encode (unsigned char *output, unsigned int *input, unsigned int len) 
 
 // Decodes input (unsigned char) into output (unsigned int). Assumes len is
 // a multiple of 4.
-void MD5::decode (unsigned int *output, unsigned char *input, unsigned int len){
+void MD5::decode (unsigned int *output, const unsigned char *input, unsigned int len){
   for (unsigned int i = 0, j = 0; j < len; i++, j += 4)
     output[i] = ((unsigned int)input[j]) | (((unsigned int)input[j+1]) << 8) |
       (((unsigned int)input[j+2]) << 16) | (((unsigned int)input[j+3]) << 24);
