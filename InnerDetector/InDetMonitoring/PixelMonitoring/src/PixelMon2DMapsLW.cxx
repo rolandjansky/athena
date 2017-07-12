@@ -33,14 +33,14 @@ PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title, const Pi
    std::string disktext = ";disk number";
    std::string layertext = ";layer number";
 
-   if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kIBL2D)) {
-      IBL3D = TH2F_LW::create((name+"_IBL3D").c_str(), (title + ", IBL 3D modules " + etatext + phitext).c_str(),8,-.5,7.5,14,-0.5,13.5);
-   }
-   if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kIBL3D)) {
-      IBL2D = TH2F_LW::create((name+"_IBL2D").c_str(), (title + ", IBL planar modules " + setatext + phitext).c_str(),12,-6.5,5.5,14,-0.5,13.5);
-   }
    if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kIBL)) {
       IBL   = TH2F_LW::create((name+"_IBL").c_str(),   (title + ", IBL " + setatext + phitext).c_str(),32,-16.5,15.5,14,-0.5,13.5);
+   }
+   if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kIBL2D)) {
+      IBL2D = TH2F_LW::create((name+"_IBL2D").c_str(), (title + ", IBL planar modules " + setatext + phitext).c_str(),12,-6.5,5.5,14,-0.5,13.5);
+   }
+   if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kIBL3D)) {
+      IBL3D = TH2F_LW::create((name+"_IBL3D").c_str(), (title + ", IBL 3D modules " + etatext + phitext).c_str(),8,-.5,7.5,14,-0.5,13.5);
    }
    if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kB0)) {
      B0 = TH2F_LW::create((name+"_B0").c_str(),       (title + ", B0 " + etatext + phitext).c_str(),13,-6.5,6.5,22,-0.5,21.5);
@@ -64,21 +64,16 @@ PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title, const Pi
      DBMC = TH2F_LW::create((name+"_DBMC" ).c_str(),  (title + ", DBMC " + layertext + phitext).c_str(),3,-0.5,2.5,4,-0.5,3.5);
    }
 
+   m_histograms = {IBL, IBL2D, IBL3D, B0, B1, B2, A, C, DBMA, DBMC};
+
    formatHist();
 }
 
 PixelMon2DMapsLW::~PixelMon2DMapsLW()
 {
-   if (IBL3D) LWHist::safeDelete(IBL3D);
-   if (IBL2D) LWHist::safeDelete(IBL2D);
-   if (IBL) LWHist::safeDelete(IBL);
-   if (B0) LWHist::safeDelete(B0);
-   if (B1) LWHist::safeDelete(B1);
-   if (B2) LWHist::safeDelete(B2);
-   if (A) LWHist::safeDelete(A);
-   if (C) LWHist::safeDelete(C);
-   if (DBMA) LWHist::safeDelete(DBMA);
-   if (DBMC) LWHist::safeDelete(DBMC);
+   for (auto& hist : m_histograms) {
+      if (hist) LWHist::safeDelete(hist);
+   }
 }
 
 void PixelMon2DMapsLW::Fill(Identifier &id, const PixelID* pixID)
@@ -162,83 +157,16 @@ void PixelMon2DMapsLW::WeightingFill(Identifier &id, const PixelID* pixID, float
 
 void PixelMon2DMapsLW::Fill2DMon(PixelMon2DMapsLW* oldmap)
 {
-   if (DBMA && DBMC) {
-      for (unsigned int x = 1; x <= DBMA->GetNbinsX(); x++) {
-         for (unsigned int y = 1; y <= DBMA->GetNbinsY(); y++) {
-            float content = oldmap->DBMA->GetBinContent(x, y);
-            DBMA->SetBinContent(x, y, content);
-            oldmap->DBMA->SetBinContent(x, y, 0);
-         }
-      }
-      for (unsigned int x = 1; x <= DBMC->GetNbinsX(); x++) {
-         for (unsigned int y = 1; y <= DBMC->GetNbinsY(); y++) {
-            float content = oldmap->DBMC->GetBinContent(x, y);
-            DBMC->SetBinContent(x, y, content);
-            oldmap->DBMC->SetBinContent(x, y, 0);
-         }
-      }
-   }
-   if (A && C) {
-      for (unsigned int x = 1; x <= A->GetNbinsX(); x++) {
-         for (unsigned int y = 1; y <= A->GetNbinsY(); y++) {
-            float content = oldmap->A->GetBinContent(x, y);
-            A->SetBinContent(x, y, content);
-            oldmap->A->SetBinContent(x, y, 0);
-         }
-      }
-      for (unsigned int x = 1; x <= C->GetNbinsX(); x++) {
-         for (unsigned int y = 1; y <= C->GetNbinsY(); y++) {
-            float content = oldmap->C->GetBinContent(x, y);
-            C->SetBinContent(x, y, content);
-            oldmap->C->SetBinContent(x, y, 0);
-         }
-      }
-   }
-   if (B0 && B1 && B2) {
-      for (unsigned int x = 1; x <= B0->GetNbinsX(); x++) {
-         for (unsigned int y = 1; y <= B0->GetNbinsY(); y++) {
-            float content = oldmap->B0->GetBinContent(x, y);
-            B0->SetBinContent(x, y, content);
-            oldmap->B0->SetBinContent(x, y, 0);
-         }
-      }
-      for (unsigned int x = 1; x <= B1->GetNbinsX(); x++) {
-         for (unsigned int y = 1; y <= B1->GetNbinsY(); y++) {
-            float content = oldmap->B1->GetBinContent(x, y);
-            B1->SetBinContent(x, y, content);
-            oldmap->B1->SetBinContent(x, y, 0);
-         }
-      }
-      for (unsigned int x = 1; x <= B2->GetNbinsX(); x++) {
-         for (unsigned int y = 1; y <= B2->GetNbinsY(); y++) {
-            float content = oldmap->B2->GetBinContent(x, y);
-            B2->SetBinContent(x, y, content );
-            oldmap->B2->SetBinContent(x, y, 0);
-         }
-      }
-   }
-   if (IBL) {
-      for (unsigned int x = 1; x <= IBL->GetNbinsX(); x++) {
-         for (unsigned int y = 1; y <= IBL->GetNbinsY(); y++) {
-            float content = oldmap->IBL->GetBinContent(x, y);
-            IBL->SetBinContent(x, y, content);
-            oldmap->IBL->SetBinContent(x, y, 0);
-         }
-      }
-   }
-   if (IBL2D && IBL3D) {
-      for (unsigned int x = 1; x <= IBL2D->GetNbinsX(); x++) {
-         for (unsigned int y = 1; y <= IBL2D->GetNbinsY(); y++) {
-            float content = oldmap->IBL2D->GetBinContent(x, y);
-            IBL2D->SetBinContent(x, y, content);
-            oldmap->IBL2D->SetBinContent(x, y, 0);
-         }
-      }
-      for (unsigned int x = 1; x <= IBL3D->GetNbinsX(); x++) {
-         for (unsigned int y = 1; y <= IBL3D->GetNbinsY(); y++) {
-            float content = oldmap->IBL3D->GetBinContent(x, y);
-            IBL3D->SetBinContent(x, y, content);
-            oldmap->IBL3D->SetBinContent(x, y, 0);
+   for (unsigned int index = 0; index < m_histograms.size(); ++index) {
+      auto& hist = m_histograms.at(index);
+      auto& oldhist = oldmap->m_histograms.at(index);
+      if (!hist) continue;
+      if (!oldhist) continue;
+      for (unsigned int x = 1; x <= hist->GetNbinsX(); ++x) {
+         for (unsigned int y = 1; y <= hist->GetNbinsY(); ++y) {
+            const auto content = oldhist->GetBinContent(x, y);
+            hist->SetBinContent(x, y, content);
+            oldhist->SetBinContent(x, y, 0);
          }
       }
    }
@@ -375,48 +303,15 @@ void PixelMon2DMapsLW::formatHist()
       }
    }
 
-   if (IBL) {
-      IBL->GetYaxis()->SetLabelSize(0.03);
-      IBL->SetOption("colz");
-      IBL->SetMinimum(0.);
-   }
-
-   if (IBL2D && IBL3D) {
-      IBL2D->GetYaxis()->SetLabelSize(0.03);
-      IBL3D->GetYaxis()->SetLabelSize(0.03);
-      IBL2D->SetOption("colz");
-      IBL3D->SetOption("colz");
-      IBL2D->SetMinimum(0.);
-      IBL3D->SetMinimum(0.);
-   }
-
-   if (DBMA && DBMC) {
-      DBMA->GetYaxis()->SetLabelSize(0.03);
-      DBMC->GetYaxis()->SetLabelSize(0.03);
-      DBMA->SetOption("colz");
-      DBMC->SetOption("colz");
-      DBMA->SetMinimum(0.);
-      DBMC->SetMinimum(0.);
-   }
-
-   if (B0 && B1 && B2) {
-      B0->GetYaxis()->SetLabelSize(0.03);
-      B1->GetYaxis()->SetLabelSize(0.03);
-      B2->GetYaxis()->SetLabelSize(0.03);
-      B0->SetOption("colz");
-      B1->SetOption("colz");
-      B2->SetOption("colz");
-      B0->SetMinimum(0.);
-      B1->SetMinimum(0.);
-      B2->SetMinimum(0.);
-   }
-   if (A && C) {
-      A->GetYaxis()->SetLabelSize(0.02);
-      C->GetYaxis()->SetLabelSize(0.02);
-      A->SetOption("colz");
-      C->SetOption("colz");
-      A->SetMinimum(0.);
-      C->SetMinimum(0.);
+   for (auto& hist : m_histograms) {
+      if (!hist) continue;
+      if (hist == A || hist == C) {
+         hist->GetYaxis()->SetLabelSize(0.02);
+      } else {
+         hist->GetYaxis()->SetLabelSize(0.03);
+      }
+      hist->SetOption("colz");
+      hist->SetMinimum(0.);
    }
 }
 
@@ -424,16 +319,12 @@ StatusCode PixelMon2DMapsLW::regHist(ManagedMonitorToolBase::MonGroup &group)
 {
    StatusCode sc = StatusCode::SUCCESS;
 
-   if (IBL && group.regHist(IBL).isFailure()) sc = StatusCode::FAILURE;
-   if (IBL2D && group.regHist(IBL2D).isFailure()) sc = StatusCode::FAILURE;
-   if (IBL3D && group.regHist(IBL3D).isFailure()) sc = StatusCode::FAILURE;
-   if (B0 && group.regHist(B0).isFailure()) sc = StatusCode::FAILURE;
-   if (B1 && group.regHist(B1).isFailure()) sc = StatusCode::FAILURE;
-   if (B2 && group.regHist(B2).isFailure()) sc = StatusCode::FAILURE;
-   if (A && group.regHist(A).isFailure()) sc = StatusCode::FAILURE;
-   if (C && group.regHist(C).isFailure()) sc = StatusCode::FAILURE;
-   if (DBMA && group.regHist(DBMA).isFailure()) sc = StatusCode::FAILURE;
-   if (DBMC && group.regHist(DBMC).isFailure()) sc = StatusCode::FAILURE;
+   for (auto& hist : m_histograms) {
+      if (!hist) continue;
+      if (group.regHist(hist).isFailure()) {
+         sc = StatusCode::FAILURE;
+      }
+   }
 
    return sc;
 }
