@@ -38,7 +38,7 @@ atlas_add_library( TrigT1TGCLib
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} 
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES AthenaBaseComps SGTools Identifier GaudiKernel TrigT1Interfaces StoreGateLib SGtests TGCcablingInterfaceLib MuonIdHelpersLib
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${COOL_LIBRARIES} EventInfo GeneratorObjects MuonDigitContainer MuonRDO MuonCondInterface AthenaPoolUtilities TileEvent PathResolver TrigConfL1Data )
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} EventInfo GeneratorObjects MuonDigitContainer MuonRDO MuonCondInterface AthenaPoolUtilities TileEvent PathResolver TrigConfL1Data )
 
 atlas_add_component( TrigT1TGC
                      src/components/*.cxx
