@@ -50,7 +50,8 @@ SRC_FILES=(
 
 
 # put a banner on every copied file to warn people not to edit it
-BANNER="// WARNING: this code was copied automatically from\n"
+BANNER="// MIT License\n// Copyright (c) 2017 Daniel Hay Guest and lwtnn contributors\n\n"
+BANNER+="// WARNING: this code was copied automatically from\n"
 BANNER+="// $UPSTREAM (rev $REV)\n"
 BANNER+="// Please don't edit it! To get the latest version, run\n"
 BANNER+="// > ./${0##*/}\n"

@@ -1,10 +1,8 @@
-/*
-  MIT License
-  Copyright (c) 2017 Daniel Hay Guest and lwtnn contributors
-*/
+// MIT License
+// Copyright (c) 2017 Daniel Hay Guest and lwtnn contributors
 
 // WARNING: this code was copied automatically from
-// https://github.com/dguest/lwtnn.git (rev v1.0-76-gd837944)
+// https://github.com/lwtnn/lwtnn.git (rev v2.0)
 // Please don't edit it! To get the latest version, run
 // > ./update-lwtnn.sh
 // from BoostedJetTaggers/share
