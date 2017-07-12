@@ -30,6 +30,9 @@ find_package( AtlasCMake QUIET )
 find_package( AthenaExternals REQUIRED )
 find_package( Gaudi REQUIRED )
 
+# Find some auxiliary packages:
+find_package( Doxygen )
+
 # Load all the files from the externals/ subdirectory:
 file( GLOB _externals "${CMAKE_CURRENT_SOURCE_DIR}/externals/*.cmake" )
 foreach( _external ${_externals} )
