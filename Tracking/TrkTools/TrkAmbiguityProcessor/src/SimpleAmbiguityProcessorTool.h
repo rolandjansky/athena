@@ -26,6 +26,7 @@
 
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
 // --------------- DEBUG CODE
+#include "GeneratorObjects/McEventCollection.h"
 #include "CLHEP/Geometry/Point3D.h"
 typedef HepGeom::Point3D<double> HepPoint3D;
 #include "TrkTruthData/TrackTruthCollection.h"
@@ -201,16 +202,20 @@ namespace Trk {
 //==================================================================================================
 
 #if defined SIMPLEAMBIGPROCNTUPLECODE || defined SIMPLEAMBIGPROCDEBUGCODE
-  const PRD_MultiTruthCollection   * m_truthPIX;
-  const PRD_MultiTruthCollection   * m_truthSCT;  
-  std::string                        m_truth_locationPixel    ;
-  std::string                        m_truth_locationSCT      ;
-  bool m_isBackTracking;
+      SG::ReadHandleKey<PRD_MultiTruthCollection> m_truth_locationPixel;
+      SG::ReadHandle<PRD_MultiTruthCollection> m_truthPIX;
+      SG::ReadHandleKey<PRD_MultiTruthCollection> m_truth_locationSCT;
+      SG::ReadHandle<PRD_MultiTruthCollection> m_truthSCT;
+      SG::ReadHandleKey<PRD_MultiTruthCollection> m_truth_locationTRT;
+      SG::ReadHandle<PRD_MultiTruthCollection> m_truthTRT;
+
+      bool m_isBackTracking;
 #endif
 
 #ifdef SIMPLEAMBIGPROCNTUPLECODE
       
       /** determine if the ambiguity processor is being used for back tracking */
+      SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo_key;
     
       std::map<const Trk::Track*, TrackBarcodeStats>   m_trackBarcodeMap;
       std::multimap<int,const Trk::Track*>             m_barcodeTrackMap;
@@ -254,8 +259,9 @@ namespace Trk {
       mutable int                           m_leadingnumhits;
       mutable int                           m_barcodeDuplicates;    
       
-      mutable Trk::TrackSeedMap	*           m_trackSeedMap;
-      std::string			    m_trackSeedMapLocation;
+      SG::ReadHandle<Trk::TrackSeedMap> m_trackSeedMap;
+      SG::ReadHandleKey<Trk::TrackSeedMap> m_trackSeedMapLocation;
+      bool m_has_trackSeedMap;
       
       mutable int			    m_nseeds;
       mutable int                           m_seeds[MAXSEEDSPERTRACK];
@@ -269,6 +275,11 @@ namespace Trk {
 
     private:
 
+      SG::ReadHandleKey<McEventCollection> m_generatedEventCollectionName;
+      SG::ReadHandleKey<TrackTruthCollection> m_truthCollection;
+      SG::ReadHandleKey<TrackCollectionConnection> m_resolvedTrackConnection;
+      bool m_has_resolvedTrackConnection;
+
       std::set<const Trk::Track*> m_trueTracks;
       std::map<const Trk::Track*, const Trk::Track*> m_trackHistory;
 
@@ -276,8 +287,6 @@ namespace Trk {
       void keepTrackOfTracks(const Trk::Track* oldTrack, const Trk::Track* newTrack);
       void produceInputOutputConnection();
  
-      std::string m_resolvedTrackConnection;
-      std::string m_truthCollection;
       int n_trueFitFails;
       int n_fitFails;
       int numOutliersDiff;
@@ -309,11 +318,7 @@ namespace Trk {
       const std::vector<HepPoint3D> positionsOfBremVertices( const HepMC::GenEvent* genEvent ) const;
       bool vertexAssociatedWithOriginalTrack( HepMC::GenVertex* genVertex) const;
 
-      std::string                        m_generatedEventCollectionName; 
       Trk::ITruthToTrack*                m_truthToTrack         ;
-      const PRD_MultiTruthCollection   * m_truthTRT               ;    
-      std::string                        m_truth_locationTRT      ;
-
 #endif // DebugCode
 	
     };
