@@ -10,6 +10,7 @@
 //Geant4
 #include "G4LogicalVolumeStore.hh"
 #include "G4Step.hh"
+#include "globals.hh"
 
 #include "G4TransportationManager.hh"
 #include "SimHelpers/StepHelper.h"
@@ -23,17 +24,17 @@ iGeant4::ISFG4GeoHelper::nextGeoId(const G4Step* aStep, int truthVolLevel, ISF::
 {
 
   static G4LogicalVolume *BPholder=nullptr, *IDholder=nullptr, *CALOholder=nullptr, *MUholder=nullptr , *TTRholder=nullptr;
-  if (BPholder==0){ // Initialize
+  if (BPholder==nullptr) { // Initialize
 
     G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
-    for (size_t i=0;i<lvs->size();++i){
+    for (size_t i=0;i<lvs->size();++i) {
 
-      if ( !(*lvs)[i] ) continue;
-      if ( (*lvs)[i]->GetName() == "BeamPipe::BeamPipe" ) BPholder = (*lvs)[i];
-      else if ( (*lvs)[i]->GetName() == "IDET::IDET" ) IDholder = (*lvs)[i];
-      else if ( (*lvs)[i]->GetName() == "CALO::CALO" ) CALOholder = (*lvs)[i];
-      else if ( (*lvs)[i]->GetName() == "MUONQ02::MUONQ02" ) MUholder = (*lvs)[i];
-      else if ( (*lvs)[i]->GetName() == "TTR_BARREL::TTR_BARREL" ) TTRholder = (*lvs)[i];
+      if ( !(*lvs)[i] ) { continue; }
+      if ( (*lvs)[i]->GetName() == "BeamPipe::BeamPipe" ) { BPholder = (*lvs)[i]; }
+      else if ( (*lvs)[i]->GetName() == "IDET::IDET" ) { IDholder = (*lvs)[i]; }
+      else if ( (*lvs)[i]->GetName() == "CALO::CALO" ) { CALOholder = (*lvs)[i]; }
+      else if ( (*lvs)[i]->GetName() == "MUONQ02::MUONQ02" ) { MUholder = (*lvs)[i]; }
+      else if ( (*lvs)[i]->GetName() == "TTR_BARREL::TTR_BARREL" ) {TTRholder = (*lvs)[i]; }
 
     }
 
@@ -53,25 +54,31 @@ iGeant4::ISFG4GeoHelper::nextGeoId(const G4Step* aStep, int truthVolLevel, ISF::
   }
 
   // If in mother volume, use the ISF_GeoIDSvc to resolve the geoID
-  if (G4StepHelper::postStepBranchDepth(aStep)<truthVolLevel){
+  if (G4StepHelper::postStepBranchDepth(aStep)<truthVolLevel) {
     nextGeoID = getNextGeoIDFromSvc(*postStep, *geoIDSvc);
     return nextGeoID;
   }
 
   // Ordering inside out (most truth in the ID anyway...)
-  if ( IDholder==G4StepHelper::getPostStepLogicalVolume(aStep,truthVolLevel) ){
+  if ( IDholder==G4StepHelper::getPostStepLogicalVolume(aStep,truthVolLevel) ) {
     nextGeoID = AtlasDetDescr::fAtlasID;
-  } else if ( CALOholder==G4StepHelper::getPostStepLogicalVolume(aStep,truthVolLevel) ){
+  }
+  else if ( CALOholder==G4StepHelper::getPostStepLogicalVolume(aStep,truthVolLevel) ) {
     nextGeoID = AtlasDetDescr::fAtlasCalo;
-  } else if ( MUholder==G4StepHelper::getPostStepLogicalVolume(aStep,truthVolLevel) ){
+  }
+  else if ( MUholder==G4StepHelper::getPostStepLogicalVolume(aStep,truthVolLevel) ) {
     nextGeoID = AtlasDetDescr::fAtlasMS;
-  } else if ( BPholder==G4StepHelper::getPostStepLogicalVolume(aStep,truthVolLevel) ){
+  }
+  else if ( BPholder==G4StepHelper::getPostStepLogicalVolume(aStep,truthVolLevel) ) {
     nextGeoID = (G4StepHelper::postStepBranchDepth(aStep)>truthVolLevel && G4StepHelper::getPostStepLogicalVolumeName(aStep,truthVolLevel+1)=="BeamPipe::BeamPipeCentral")?AtlasDetDescr::fAtlasID:AtlasDetDescr::fAtlasForward;
-  } else if ( TTRholder==G4StepHelper::getPostStepLogicalVolume(aStep,truthVolLevel) ){
+  }
+  else if ( TTRholder==G4StepHelper::getPostStepLogicalVolume(aStep,truthVolLevel) ) {
     nextGeoID = AtlasDetDescr::fAtlasCavern;
-  } else if (truthVolLevel>0 && G4StepHelper::getPostStepLogicalVolumeName(aStep,truthVolLevel-1).find("CavernInfra")!=std::string::npos) {
+  }
+  else if (truthVolLevel>0 && G4StepHelper::getPostStepLogicalVolumeName(aStep,truthVolLevel-1).find("CavernInfra")!=std::string::npos) {
     nextGeoID = AtlasDetDescr::fAtlasCavern;
-  } else {
+  }
+  else {
     nextGeoID = getNextGeoIDFromSvc(*postStep, *geoIDSvc);
   }
 
@@ -82,8 +89,8 @@ AtlasDetDescr::AtlasRegion iGeant4::ISFG4GeoHelper::getNextGeoIDFromSvc(const G4
                                                                         const ISF::IGeoIDSvc &geoIDSvc) {
   const G4ThreeVector &postPos = postStep.GetPosition();
   AtlasDetDescr::AtlasRegion nextGeoID = geoIDSvc.identifyGeoID(postPos.x(),
-                                                                  postPos.y(),
-                                                                  postPos.z());
+                                                                postPos.y(),
+                                                                postPos.z());
 
   // if we ever run into problems with the current approach, the following
   // takes the particle's traveling direction into account for finding the
@@ -102,7 +109,7 @@ AtlasDetDescr::AtlasRegion iGeant4::ISFG4GeoHelper::getNextGeoIDFromSvc(const G4
 bool iGeant4::ISFG4GeoHelper::checkVolumeDepth(G4LogicalVolume* lv, int volLevel, int depth) {
 
   //FIXME - can replace all this code with similar methods to those in MCTruthBase/src/RecordingEnvelope.cxx
-  if (lv==nullptr) return false;
+  if (lv==nullptr) { return false; }
 
   bool Cavern = false;
   // Check the volumes rather explicitly
@@ -111,33 +118,27 @@ bool iGeant4::ISFG4GeoHelper::checkVolumeDepth(G4LogicalVolume* lv, int volLevel
        lv->GetName() == "IDET::IDET" ||
        lv->GetName() == "CALO::CALO" ||
        lv->GetName() == "MUONQ02::MUONQ02" ||
-       lv->GetName() == "TTR_BARREL::TTR_BARREL" ){
-
-    if (depth==volLevel){
-      //ATH_MSG_DEBUG("Volume " << lv->GetName() << " is correctly registered at depth " << depth);
-    } else {
-      //ATH_MSG_ERROR("Volume " << lv->GetName() << " at depth " << depth << " instead of depth " << volLevel);
-      throw "WrongDepth";
-    } // Check of volume level
-  } else if ( lv->GetName()=="BeamPipe::BeamPipeCentral" ){ // Things that are supposed to be one deeper
-    if (depth==volLevel+1){
-      //ATH_MSG_DEBUG("Volume " << lv->GetName() << " is correctly registered at depth " << depth);
-    } else {
-      //ATH_MSG_ERROR("Volume " << lv->GetName() << " at depth " << depth << " instead of depth " << volLevel+1);
-      throw "WrongDepth";
-    } // Check of volume level
-  } else if ( lv->GetName()=="BeamPipe::BeamPipeCentral" ){ // Things that are supposed to be one deeper
-    if (depth==volLevel+1){
-      //ATH_MSG_DEBUG("Volume " << lv->GetName() << " is correctly registered at depth " << depth);
-    } else {
-      //ATH_MSG_ERROR("Volume " << lv->GetName() << " at depth " << depth << " instead of depth " << volLevel+1);
-      throw "WrongDepth";
-    } // Check of volume level
-  } else if ( lv->GetName().find("CavernInfra")!=std::string::npos ){ // Things that are supposed to be one shallower
-
-    if (depth==volLevel-1){
+       lv->GetName() == "TTR_BARREL::TTR_BARREL" ) {
+    if(depth!=volLevel) {
+      G4ExceptionDescription description;
+      description << "Volume " << lv->GetName() << " at depth " << depth << " instead of depth " << volLevel;
+      G4Exception("iGeant4::ISFG4GeoHelper", "checkVolumeDepth", FatalException, description);
+      return false; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
+    }
+    //ATH_MSG_DEBUG("Volume " << lv->GetName() << " is correctly registered at depth " << depth);
+  }
+  else if ( lv->GetName()=="BeamPipe::BeamPipeCentral" ) { // Things that are supposed to be one deeper
+    if (depth!=volLevel+1) {
+      G4ExceptionDescription description;
+      description << "Volume " << lv->GetName() << " at depth " << depth << " instead of depth " << volLevel+1;
+      G4Exception("iGeant4::ISFG4GeoHelper", "checkVolumeDepth", FatalException, description);
+      return false; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
+    }
+    //ATH_MSG_DEBUG("Volume " << lv->GetName() << " is correctly registered at depth " << depth);
+  }
+  else if ( lv->GetName().find("CavernInfra")!=std::string::npos ) { // Things that are supposed to be one shallower
+    if (depth==volLevel-1) {
       Cavern=true;
-
       //ATH_MSG_DEBUG("Volume " << lv->GetName() << " is correctly registered at depth " << depth);
       // Note: a number of volumes exist with "CavernInfra" in the name at the wrong depth, so we just need to
       //   check that there's at least one at the right depth
@@ -145,16 +146,14 @@ bool iGeant4::ISFG4GeoHelper::checkVolumeDepth(G4LogicalVolume* lv, int volLevel
   } // Check of volume name
 
   // Going through the volume depth
-  for (int i=0; i<lv->GetNoDaughters(); ++i){
-
+  for (int i=0; i<lv->GetNoDaughters(); ++i) {
     Cavern = Cavern || checkVolumeDepth( lv->GetDaughter(i)->GetLogicalVolume() , volLevel , depth+1 );
-
   }
-
-  if (depth==0 && !Cavern && volLevel>1){
-
-    //ATH_MSG_ERROR("No CavernInfra volume registered at depth " << volLevel-1);
-    throw "WrongDepth";
+  if (depth==0 && !Cavern && volLevel>1) {
+    G4ExceptionDescription description;
+    description << "No CavernInfra volume registered at depth " << volLevel-1;
+    G4Exception("iGeant4::ISFG4GeoHelper", "checkVolumeDepth", FatalException, description);
+    return false; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
   }
 
   return Cavern;
