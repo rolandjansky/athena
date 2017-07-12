@@ -4,28 +4,22 @@
 
 // class header
 #include "MCTruthBase/TruthStrategyManager.h"
-// other includes from this package
-#include "MCTruthBase/TruthStrategy.h"
 
 // Framework includes
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/IToolSvc.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 // Geant4 Includes
-#include "G4Step.hh"
-#include "G4EventManager.hh"
 #include "G4Event.hh"
-#include "G4Track.hh"
-#include "G4ParticleDefinition.hh"
-#include "G4TrackingManager.hh"
-#include "G4Trajectory.hh"
 #include "G4EventManager.hh"
+#include "G4PhysicalVolumeStore.hh"
+#include "G4Step.hh"
 #include "G4RunManagerKernel.hh"
+#include "G4TrackingManager.hh"
+#include "G4TransportationManager.hh"
+#include "G4VPhysicalVolume.hh"
+#include "G4VSolid.hh"
 
 // Truth-related includes
-#include "HepMC/GenEvent.h"
 #include "MCTruth/EventInformation.h"
 #include "MCTruth/TrackHelper.h"
 
@@ -39,24 +33,12 @@
 #include "ISF_Geant4Event/Geant4TruthIncident.h"
 #include "ISF_Geant4Event/ISFG4GeoHelper.h"
 
-//G4 includes
-#include "G4PhysicalVolumeStore.hh"
-#include "G4TransportationManager.hh"
-#include "G4VPhysicalVolume.hh"
-#include "G4VSolid.hh"
-
-//#include <stdlib.h>
-
-
 TruthStrategyManager::TruthStrategyManager()
-  : isEmpty(true),
-    secondarySavingLevel(0),
-    nSecondaries(0),
-    m_msg("TruthStrategyManager"),
-    m_truthSvc(nullptr),
-    m_geoIDSvc(),
-    m_sHelper(),
-    m_subDetVolLevel(-1) // please crash if left unset
+  : m_msg("TruthStrategyManager")
+  , m_truthSvc(nullptr)
+  , m_geoIDSvc()
+  , m_sHelper()
+  , m_subDetVolLevel(-1) // please crash if left unset
 {
 }
 
@@ -66,72 +48,52 @@ TruthStrategyManager* TruthStrategyManager::GetStrategyManager()
   return &theMgr;
 }
 
-void TruthStrategyManager::RegisterStrategy(TruthStrategy* strategy)
+void TruthStrategyManager::SetISFTruthSvc(ISF::ITruthSvc *truthSvc)
 {
-  theStrategies[strategy->StrategyName()] = strategy;
-  isEmpty = false;
-  ATH_MSG_INFO("MCTruth::TruthStrategyManager: registered strategy " <<
-               strategy->StrategyName());
-}
-
-TruthStrategy* TruthStrategyManager::GetStrategy(const std::string& name)
-{
-  auto itr = theStrategies.find(name);
-  if (itr != theStrategies.end()) {
-    return itr->second;
-  }
-  ATH_MSG_WARNING("Strategy " << name << " not found: returning null");
-  return nullptr;
-}
-
-void TruthStrategyManager::ListStrategies()
-{
-  ATH_MSG_INFO("List of all defined strategies (an X means active)");
-  for (const auto& strategyPair : theStrategies) {
-    if (strategyPair.second->IsActivated())
-      ATH_MSG_INFO("---> " << strategyPair.first << "\t\t X");
-    else ATH_MSG_INFO("---> " << strategyPair.first);
-  }
-}
-
-void TruthStrategyManager::SetISFTruthSvc(ISF::ITruthSvc *truthSvc){
   m_truthSvc = truthSvc;
 }
 
 
-void TruthStrategyManager::SetISFGeoIDSvc(ISF::IGeoIDSvc *geoIDSvc){
+void TruthStrategyManager::SetISFGeoIDSvc(ISF::IGeoIDSvc *geoIDSvc)
+{
   m_geoIDSvc = geoIDSvc;
 }
 
-StatusCode TruthStrategyManager::InitializeWorldVolume() {
+StatusCode TruthStrategyManager::InitializeWorldVolume()
+{
   const G4LogicalVolume * logicalWorld = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume()->GetLogicalVolume();
-
   const auto& logicalWorldName = logicalWorld->GetName();
-  if (logicalWorldName=="Atlas::Atlas") {
+
+  const G4String atlasWorldName("Atlas::Atlas");
+  if (logicalWorldName==atlasWorldName) {
     // simulation w/o cavern volume (e.g. normal collision simulation)
     m_subDetVolLevel = 1;
+    return StatusCode::SUCCESS;
   }
-  else if (logicalWorldName=="World::World") {
+
+  const G4String cavernWorldName("World::World");
+  if (logicalWorldName==cavernWorldName) {
     // simulation w/ cavern volume (e.g. cosmics simulation)
     m_subDetVolLevel = 2;
-  } 
-  else if (logicalWorldName=="CTB::CTB") {
+    return StatusCode::SUCCESS;
+  }
+
+  const G4String ctbWorldName("CTB::CTB");
+  if (logicalWorldName==ctbWorldName) {
     // test beam setup
     m_subDetVolLevel = 1;
+    return StatusCode::SUCCESS;
   }
-  else {
-    ATH_MSG_ERROR("Unknown World Volume name: '" << logicalWorldName << "'");
-    return StatusCode::FAILURE;
-  }
- 
-  return StatusCode::SUCCESS;
+
+  ATH_MSG_ERROR("Unknown World Volume name: '" << logicalWorldName << "'");
+  return StatusCode::FAILURE;
 }
 
-bool TruthStrategyManager::AnalyzeVertex(const G4Step* aStep)
+bool TruthStrategyManager::CreateTruthIncident(const G4Step* aStep, int numSecondaries)
 {
   G4RunManagerKernel *rmk = G4RunManagerKernel::GetRunManagerKernel();
   m_sHelper.SetTrackingManager(rmk->GetTrackingManager());
-  
+
   AtlasDetDescr::AtlasRegion geoID = iGeant4::ISFG4GeoHelper::nextGeoId(aStep, m_subDetVolLevel, m_geoIDSvc);
 
   auto* eventInfo = static_cast<EventInformation*> (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
@@ -139,7 +101,6 @@ bool TruthStrategyManager::AnalyzeVertex(const G4Step* aStep)
   // This is pretty ugly and but necessary because the Geant4TruthIncident
   // requires an ISFParticle at this point.
   // TODO: cleanup Geant4TruthIncident to not require an ISFParticle instance any longer
-  int numSecondaries = GetNrOfSecondaries();
   const Amg::Vector3D myPos(0,0,0);
   const Amg::Vector3D myMom(0,0,0);
   double myMass = 0.0;
@@ -156,37 +117,3 @@ bool TruthStrategyManager::AnalyzeVertex(const G4Step* aStep)
   return false;
 }
 
-EventInformation* TruthStrategyManager::GetEventInformation() const
-{
-  return static_cast<EventInformation*>
-    (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
-}
-
-std::vector<G4Track*> TruthStrategyManager::GetSecondaries()
-{
-  static SecondaryTracksHelper helper;
-  return helper.GetSecondaries(nSecondaries);
-}
-
-void TruthStrategyManager::SetTruthParameter(const std::string& n, double val)
-{
-  truthParams[n] = val;
-}
-
-double TruthStrategyManager::GetTruthParameter(const std::string& n)
-{
-  if (truthParams.find(n) != truthParams.end()) {
-    return truthParams[n];
-  }
-  ATH_MSG_WARNING("TruthStrategyManager: parameter " << n <<
-                  " not found in the available set");
-  return 0;
-}
-
-void TruthStrategyManager::PrintParameterList()
-{
-  ATH_MSG_INFO("List of all MCTruth configuration parameters");
-  for (const auto& paramPair : truthParams)
-    ATH_MSG_INFO("---> " << std::setw(30) << paramPair.first <<
-                 "\t\t value= " << paramPair.second);
-}

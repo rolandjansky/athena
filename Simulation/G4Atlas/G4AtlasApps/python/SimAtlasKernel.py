@@ -83,15 +83,6 @@ class AtlasSimSkeleton(SimSkeleton):
         ## At this point we can set the global job properties flag
         globalflags.DetDescrVersion = simFlags.SimLayout.get_Value()
 
-        ## Switch off filters in the case of cavern BG
-        if simFlags.CavernBG.statusOn and simFlags.CavernBG.get_Value() != 'Signal':
-            if simFlags.EventFilter.statusOn and simFlags.EventFilter.get_Value()['EtaPhiFilters']:
-                AtlasG4Eng.G4Eng.log.info('AtlasSimSkeleton._do_jobproperties :: Running Cavern BG simulation - turning off EtaPhi Filter!')
-                simFlags.EventFilter.switchFilterOff('EtaPhiFilters')
-            if simFlags.CavernBG.get_Value()=='Read':
-                 simFlags.VertexFromCondDB.set_Off()
-                 simFlags.VertexTimeOffset.set_Off()
-
         # Switch off GeoModel Release in the case of parameterization
         if simFlags.LArParameterization.get_Value()>0 and simFlags.ReleaseGeoModel():
             AtlasG4Eng.G4Eng.log.info('AtlasSimSkeleton._do_jobproperties :: Running parameterization - switching off GeoModel release!')
@@ -286,57 +277,6 @@ class AtlasSimSkeleton(SimSkeleton):
 
 
     @classmethod
-    def do_MCtruth(self):
-        """ Configure the MCTruth strategies.
-        """
-        AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_MCTruth :: starting')
-        ## Different geometry levels for MCTruth strategies, depending on simFlags.SimLayout
-        mctruth_level = 1 # default
-        from G4AtlasApps.SimFlags import simFlags
-        if jobproperties.Beam.beamType() == 'cosmics' or \
-           (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
-            mctruth_level = 2
-
-        if DetFlags.Truth_on():
-            from atlas_mctruth import MCTruthStrategies
-            mcTruthMenu = AtlasG4Eng.G4Eng.menu_MCTruth()
-
-            if DetFlags.ID_on():
-                strategy1 = MCTruthStrategies.StrategyIDET1(mctruth_level)
-                strategy2 = MCTruthStrategies.StrategyIDET2(mctruth_level)
-                strategy3 = MCTruthStrategies.StrategyIDET3(mctruth_level)
-                strategy4 = MCTruthStrategies.StrategyIDET4(mctruth_level)
-                strategy5 = MCTruthStrategies.StrategyIDET5(mctruth_level)
-                strategy6 = MCTruthStrategies.StrategyIDET6(mctruth_level)
-                mcTruthMenu.add_McTruthStrategy(strategy1.strg)
-                mcTruthMenu.add_McTruthStrategy(strategy2.strg)
-                mcTruthMenu.add_McTruthStrategy(strategy3.strg)
-                mcTruthMenu.add_McTruthStrategy(strategy4.strg)
-                mcTruthMenu.add_McTruthStrategy(strategy5.strg)
-                mcTruthMenu.add_McTruthStrategy(strategy6.strg)
-                if DetFlags.bpipe_on():
-                   strategy1.strg.add_Volumes('BeamPipe::BeamPipe', mctruth_level)
-                   strategy2.strg.add_Volumes('BeamPipe::BeamPipe', mctruth_level)
-                   strategy3.strg.add_Volumes('BeamPipe::BeamPipe', mctruth_level)
-                   strategy4.strg.add_Volumes('BeamPipe::BeamPipe', mctruth_level)
-                   strategy5.strg.add_Volumes('BeamPipe::BeamPipeCentral', mctruth_level+1)
-                   strategy6.strg.add_Volumes('BeamPipe::BeamPipe', mctruth_level)
-
-            if DetFlags.Calo_on():
-                strategyCalo = MCTruthStrategies.StrategyCALO(mctruth_level)
-                mcTruthMenu.add_McTruthStrategy(strategyCalo.strg)
-
-            if DetFlags.geometry.Muon_on():
-                #strategyMuon = MCTruthStrategies.StrategyMUON(mctruth_level)
-                #mcTruthMenu.add_McTruthStrategy(strategyMuon.strg)
-                strategyMuonQ02 = MCTruthStrategies.StrategyMUONQ02(mctruth_level)
-                mcTruthMenu.add_McTruthStrategy(strategyMuonQ02.strg)
-            #mcTruthMenu.set_SecondarySaving('All')
-            mcTruthMenu.set_SecondarySaving('StoredSecondaries')
-        AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_MCTruth :: done')
-
-
-    @classmethod
     def _do_metadata(self):
         """
         Setup and add metadata to the HIT file.
@@ -359,26 +299,3 @@ class AtlasSimSkeleton(SimSkeleton):
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_metadata :: done')
 
 
-    @classmethod
-    def do_EventFilter(self):
-        """ Configure the event manipulators
-        """
-        import AtlasG4Eng
-        AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_EventFilter :: starting')
-        ## Event filter
-        from G4AtlasApps.SimFlags import simFlags
-        if simFlags.EventFilter.statusOn:
-            menu_EventFilter = AtlasG4Eng.G4Eng.menu_EventFilter()
-            stat = menu_EventFilter.getFilterStatus()
-            ## TODO: Always switch off the EtaPhiFilters if ALFA/ZDC/AFP are being simulated?
-            stat['EtaPhiFilters'] = simFlags.EventFilter.get_Value()['EtaPhiFilters']
-            stat['VertexRangeChecker'] = simFlags.EventFilter.get_Value()['VertexRangeChecker']
-            menu_EventFilter._build()
-
-            if stat['EtaPhiFilters']:
-                ## Choose a wider allowed eta range if LUCID is enabled
-                etaFilter = menu_EventFilter.getFilter('EtaPhiFilters')
-                etarange = 7.0 if DetFlags.geometry.Lucid_on() else 6.0
-                etaFilter.AddEtaInterval(-etarange, etarange)
-
-        AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_EventFilter :: done')

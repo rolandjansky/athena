@@ -31,36 +31,6 @@ class TBSimSkeleton(SimSkeleton):
     """
 
     @classmethod
-    def do_MCtruth(self):
-        """ Configure the MCTruth strategies.
-        """
-        if DetFlags.Truth_on():
-            from atlas_mctruth import MCTruthStrategies
-            MCTruthMenu = AtlasG4Eng.G4Eng.menu_MCTruth()
-            if DetFlags.ID_on():
-                strategy1=MCTruthStrategies.StrategyIDET1()
-                strategy2=MCTruthStrategies.StrategyIDET2()
-                strategy3=MCTruthStrategies.StrategyIDET3()
-                strategy4=MCTruthStrategies.StrategyIDET4()
-                strategy5=MCTruthStrategies.StrategyIDET5()
-                strategy6=MCTruthStrategies.StrategyIDET6()
-                MCTruthMenu.add_McTruthStrategy(strategy1.strg)
-                MCTruthMenu.add_McTruthStrategy(strategy2.strg)
-                MCTruthMenu.add_McTruthStrategy(strategy3.strg)
-                MCTruthMenu.add_McTruthStrategy(strategy4.strg)
-                MCTruthMenu.add_McTruthStrategy(strategy5.strg)
-                MCTruthMenu.add_McTruthStrategy(strategy6.strg)
-            if(DetFlags.Calo_on()):
-                strategyCalo=MCTruthStrategies.StrategyCALO()
-                MCTruthMenu.add_McTruthStrategy(strategyCalo.strg)
-            if(DetFlags.geometry.Muon_on()):
-                strategyMuon=MCTruthStrategies.StrategyMUON()
-                MCTruthMenu.add_McTruthStrategy(strategyMuon.strg)
-           #MCTruthMenu.set_SecondarySaving('All')
-            MCTruthMenu.set_SecondarySaving('StoredSecondaries')
-
-
-    @classmethod
     def _do_metadata(self):
         """
         Setup and add metadata to the HIT file
