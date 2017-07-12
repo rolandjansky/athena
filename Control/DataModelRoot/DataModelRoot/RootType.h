@@ -204,21 +204,4 @@ typedef TScopeAdapter             RootScope;
 typedef TTypeAdapter              RootType;
 
 
-//MN: ad-hoc simplistic  reimplementation of Reflex::Object
-class RootObject 
-{
-public:
-  RootObject(const RootType& type=RootType(), void* obj=0);
-  
-  void*                 Address() const  { return m_object; }
-  const RootType&       Type() const { return m_type; }
-  RootObject            CastObject( const RootType &toType) const;
- 
-private:
-  RootType      m_type;
-  void*         m_object = 0;
-  std::string   m_objectName;   ///not used yet
-};
-
-
 #endif // !DATAMODELROOT_ROOT_TYPE_H

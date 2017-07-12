@@ -82,11 +82,9 @@ StatusCode AthenaRootStreamerSvc::finalize()
 {
    // Destroy converter Objects created by the service
    for( ConverterVector_t::iterator i = m_createdConverters.begin();
-	i !=  m_createdConverters.end(); i++ ) {
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-      i->Destruct();
-// PvG, FIXME: What about deletion fot ROOT 6?
-#endif
+	i !=  m_createdConverters.end(); i++ )
+   {
+     i->first.Destruct (i->second);
    }
    m_createdConverters.clear();
    
@@ -142,13 +140,9 @@ StatusCode AthenaRootStreamerSvc::AddStreamer(const std::string& converter_class
  //         << " ntypes loaded " << Reflex::Type::TypeSize() - ntypesBefore
           << endmsg;
    }
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-   RootObject convObj = streamer_class.Construct();
-#else
-   RootObject convObj(streamer_class);
-#endif
-   m_createdConverters.push_back( convObj );
-   return AddStreamer( (T_AthenaRootConverterBase*)convObj.Address(), adopt); 
+   void* obj = streamer_class.Construct();
+   m_createdConverters.emplace_back( streamer_class, obj );
+   return AddStreamer( (T_AthenaRootConverterBase*)obj, adopt); 
 }
 
 
