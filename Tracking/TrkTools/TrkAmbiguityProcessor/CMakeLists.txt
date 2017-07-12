@@ -28,6 +28,7 @@ atlas_depends_on_subdirs( PRIVATE
 # External dependencies:
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( HepPDT )
 
 # Component(s) in the package:
 atlas_add_library(   TrkAmbiguityProcessorLib
@@ -39,8 +40,8 @@ atlas_add_library(   TrkAmbiguityProcessorLib
 atlas_add_component( TrkAmbiguityProcessor
                      src/SimpleAmbiguityProcessorTool.cxx  src/TrackScoringTool.cxx  src/TrackSelectionProcessorTool.cxx
                      src/components/*.cxx 
-                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} TrkAmbiguityProcessorLib )
+                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPPDT_LIBRARIES} TrkAmbiguityProcessorLib )
 
 # Install files from the package:
 atlas_install_headers( TrkAmbiguityProcessor )

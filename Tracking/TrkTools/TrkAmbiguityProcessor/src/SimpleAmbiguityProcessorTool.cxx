@@ -541,8 +541,8 @@ TrackCollection*  Trk::SimpleAmbiguityProcessorTool::process(const TrackCollecti
 		  int barcode = particle->barcode();
 		  std::map<int,int>::iterator bcuIter = barcodeOccurence.find(barcode);
 		  if (barcode && bcuIter == barcodeOccurence.end()) {
-		    barcodeOccurence.insert(std::make_pair<int,int>(barcode,1));
-		    barcodeGenParticle.insert(std::make_pair<int,const HepMC::GenParticle*>(barcode,particle));
+		    barcodeOccurence.insert(std::make_pair(barcode,1));
+		    barcodeGenParticle.insert(std::make_pair(barcode,particle));
 		  }
 		  else if (barcode) ++barcodeOccurence[barcode];
 		  else ++numtruthlost; 
@@ -583,8 +583,8 @@ TrackCollection*  Trk::SimpleAmbiguityProcessorTool::process(const TrackCollecti
 	tbcStats.leadingbarcode =  leadingbarcode;
 	tbcStats.leadingnumhits =  leadingnumhits;
 	// create the map entries
-	m_trackBarcodeMap.insert(std::make_pair<const Trk::Track*,TrackBarcodeStats>(*trackIt,tbcStats));
-	m_barcodeTrackMap.insert(std::make_pair<int,const Trk::Track*>(leadingbarcode,*trackIt));
+	m_trackBarcodeMap.insert(std::make_pair(*trackIt,tbcStats));
+	m_barcodeTrackMap.insert(std::make_pair(leadingbarcode,*trackIt));
         
       } // track loop
     

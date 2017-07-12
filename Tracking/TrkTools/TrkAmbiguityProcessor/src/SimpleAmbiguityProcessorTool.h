@@ -204,13 +204,13 @@ namespace Trk {
   const PRD_MultiTruthCollection   * m_truthPIX;
   const PRD_MultiTruthCollection   * m_truthSCT;  
   std::string                        m_truth_locationPixel    ;
-  std::string                        m_truth_locationSCT      ;  
+  std::string                        m_truth_locationSCT      ;
+  bool m_isBackTracking;
 #endif
 
 #ifdef SIMPLEAMBIGPROCNTUPLECODE
       
       /** determine if the ambiguity processor is being used for back tracking */
-      bool m_isBackTracking;
     
       std::map<const Trk::Track*, TrackBarcodeStats>   m_trackBarcodeMap;
       std::multimap<int,const Trk::Track*>             m_barcodeTrackMap;
@@ -268,8 +268,6 @@ namespace Trk {
 //==================================================================================================
 
     private:
-
-      bool m_isBackTracking;
 
       std::set<const Trk::Track*> m_trueTracks;
       std::map<const Trk::Track*, const Trk::Track*> m_trackHistory;
