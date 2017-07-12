@@ -26,10 +26,17 @@
 
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
 // --------------- DEBUG CODE
+#include "CLHEP/Geometry/Point3D.h"
+typedef HepGeom::Point3D<double> HepPoint3D;
+#include "TrkTruthData/TrackTruthCollection.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "HepMC/GenEvent.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
      typedef std::map<const Trk::Track*, const Trk::Track*> TrackCollectionConnection;
+#ifndef SIMPLEAMBIGPROCDEBUGCODE_CLASS_DEF
+#define SIMPLEAMBIGPROCDEBUGCODE_CLASS_DEF
      CLASS_DEF( TrackCollectionConnection , 148639440 , 1 )
+#endif
 
 #endif
 
@@ -262,6 +269,8 @@ namespace Trk {
 
     private:
 
+      bool m_isBackTracking;
+
       std::set<const Trk::Track*> m_trueTracks;
       std::map<const Trk::Track*, const Trk::Track*> m_trackHistory;
 
@@ -296,8 +305,8 @@ namespace Trk {
       std::map<const Trk::PrepRawData*, const Trk::Track*> m_tracksShared;
 
       StatusCode getBremTruth();
-      const double originalMomentum( const HepMC::GenEvent* genEvent );
-      const double momentumLostByBrem( const HepMC::GenEvent* genEvent ) const;
+      double originalMomentum( const HepMC::GenEvent* genEvent );
+      double momentumLostByBrem( const HepMC::GenEvent* genEvent ) const;
       const std::vector<double> fractionOfIncidentMomentumLostPerVertex( const HepMC::GenEvent* genEvent ) const;
       const std::vector<HepPoint3D> positionsOfBremVertices( const HepMC::GenEvent* genEvent ) const;
       bool vertexAssociatedWithOriginalTrack( HepMC::GenVertex* genVertex) const;

@@ -1639,7 +1639,7 @@ void Trk::SimpleAmbiguityProcessorTool::tsosTruth(const Trk::Track* track){
   DataVector<const TrackStateOnSurface>::const_iterator iTsos    = tsos->begin();
   DataVector<const TrackStateOnSurface>::const_iterator iTsosEnd = tsos->end();   
   for(; iTsos != iTsosEnd; ++iTsos){
-    msg(MSG::INFO)<< "the type of " << *iTsos << " is "<< (*iTsos)->type() << endmsg;
+    msg(MSG::INFO)<< "the type of " << *iTsos << " is "<< (*iTsos)->dumpType() << endmsg;
     const FitQualityOnSurface* fq = (*iTsos)->fitQualityOnSurface();
     if (fq)
       msg(MSG::INFO)<< "the chi2 of " << *iTsos << " is "<< fq->chiSquared() << endmsg;
@@ -1716,7 +1716,7 @@ StatusCode Trk::SimpleAmbiguityProcessorTool::getBremTruth(){
   return StatusCode::SUCCESS;
 }
 //======================================================================================================
-const double Trk::SimpleAmbiguityProcessorTool::originalMomentum( const HepMC::GenEvent* genEvent )
+double Trk::SimpleAmbiguityProcessorTool::originalMomentum( const HepMC::GenEvent* genEvent )
 {
 
   // Loop over all particles in the event (info on this from GenEvent documentation)
@@ -1730,8 +1730,8 @@ const double Trk::SimpleAmbiguityProcessorTool::originalMomentum( const HepMC::G
   //  msg(MSG::WARNING) << "Inconsistency between initial particle and initial vertex" << endmsg;
 
   //Hep3Vector& initial3Momentum = initialParticle->momentum();
- 
-  double initialMomentum = initialParticle->momentum().mag();
+
+  double initialMomentum = initialParticle->momentum().perp();
 
   //  const Trk::TrackParameters* initialPerigeeParameters = m_truthToTrack->makePerigeeParameters(initialParticle);
 
@@ -1739,7 +1739,7 @@ const double Trk::SimpleAmbiguityProcessorTool::originalMomentum( const HepMC::G
 
 }
 //==================================================================================================
-const double Trk::SimpleAmbiguityProcessorTool::momentumLostByBrem( const HepMC::GenEvent* genEvent ) const
+double Trk::SimpleAmbiguityProcessorTool::momentumLostByBrem( const HepMC::GenEvent* genEvent ) const
 {
 
  
