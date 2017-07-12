@@ -264,7 +264,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
       /// TSOS Loop
       ///
       const DataVector< const Trk::TrackStateOnSurface>* trackStates=track->trackStateOnSurfaces();
-      for(DataVector< const Trk::TrackStateOnSurface>::const_iterator trackStateOnSurfaceIterator=trackStates->begin(); trackStateOnSurfaceIterator!=trackStates->end(); trackStateOnSurfaceIterator++)
+      for (DataVector< const Trk::TrackStateOnSurface>::const_iterator trackStateOnSurfaceIterator=trackStates->begin(); trackStateOnSurfaceIterator!=trackStates->end(); trackStateOnSurfaceIterator++)
       {
 	/// Change the track state on 1 surface into the cluster it represents
 	Identifier clusID;
@@ -293,7 +293,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	  surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
 	  side = dynamic_cast<const InDetDD::SiDetectorElement *>( mesb->associatedSurface().associatedDetectorElement() );
 	} else { // holes, perigee                                                                              
-	  if(not (*trackStateOnSurfaceIterator)->trackParameters() ) {
+	  if (not (*trackStateOnSurfaceIterator)->trackParameters() ) {
 	    msg(MSG::INFO) << "pointer of TSOS to track parameters or associated surface is null" << endmsg;
 	    continue;
 	  }
@@ -304,7 +304,6 @@ StatusCode PixelMainMon::FillTrackMon(void)
 
 	int pixlayer = GetPixLayerID(m_pixelid->barrel_ec(surfaceID), m_pixelid->layer_disk(surfaceID), m_doIBL);
 	int pixlayerdisk = GetPixLayerDiskID(m_pixelid->barrel_ec(surfaceID), m_pixelid->layer_disk(surfaceID), m_doIBL);
-	//int pixlayerdbm = GetPixLayerIDDBM(m_pixelid->barrel_ec(surfaceID), m_pixelid->layer_disk(surfaceID), m_doIBL);
 	int pixlayeribl2d3d = pixlayer;
 	if ( pixlayeribl2d3d == PixLayer::kIBL ){
 	  pixlayeribl2d3d = GetPixLayerIDIBL2D3D(m_pixelid->barrel_ec(surfaceID), m_pixelid->layer_disk(surfaceID), m_pixelid->eta_module(surfaceID), m_doIBL);
@@ -314,8 +313,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	id_hash = m_pixelid->wafer_hash(surfaceID);
 	//bool active = m_pixelCondSummarySvc->isActive(id_hash);
 
-
-	if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)){
+	if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)) {
 	  clus = dynamic_cast< const InDet::SiClusterOnTrack*>(mesb);
 	  if (clus) clusID = clus->identify();
 	  //nMeasurement = 1.0;
@@ -326,109 +324,108 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	  if ( m_hiteff_incl_mod[pixlayerdisk] && pass1hole2GeVTightCut ) m_hiteff_incl_mod[pixlayerdisk]->Fill( m_manager->lumiBlockNumber(), 1.0 );
 	}
          
-         if((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Outlier)){
-           clus = dynamic_cast< const InDet::SiClusterOnTrack*>((*trackStateOnSurfaceIterator)->measurementOnTrack());
-           if(clus) clusID = clus->identify();
-           nOutlier = 1.0;
+	if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Outlier)) {
+	  clus = dynamic_cast< const InDet::SiClusterOnTrack*>((*trackStateOnSurfaceIterator)->measurementOnTrack());
+	  if (clus) clusID = clus->identify();
+	  nOutlier = 1.0;
 
-           if( m_tsos_holemap ) m_tsos_holemap->Fill(surfaceID, m_pixelid);
-           if( m_tsos_hiteff_vs_lumi ) m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(),0.,surfaceID,m_pixelid);
-           //if( m_hiteff_incl_mod[pixlayerdisk] && passQualityCut ) m_hiteff_incl_mod[pixlayerdisk]->Fill( m_manager->lumiBlockNumber(), 0.0 );
-           if( m_hiteff_incl_mod[pixlayerdisk] && pass1hole2GeVTightCut ) m_hiteff_incl_mod[pixlayerdisk]->Fill( m_manager->lumiBlockNumber(), 0.0 );
-         }
+	  if ( m_tsos_holemap ) m_tsos_holemap->Fill(surfaceID, m_pixelid);
+	  if ( m_tsos_hiteff_vs_lumi ) m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(),0.,surfaceID,m_pixelid);
+	  //if( m_hiteff_incl_mod[pixlayerdisk] && passQualityCut ) m_hiteff_incl_mod[pixlayerdisk]->Fill( m_manager->lumiBlockNumber(), 0.0 );
+	  if ( m_hiteff_incl_mod[pixlayerdisk] && pass1hole2GeVTightCut ) m_hiteff_incl_mod[pixlayerdisk]->Fill( m_manager->lumiBlockNumber(), 0.0 );
+	}
           
-         if((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Hole)){
-           clus = dynamic_cast< const InDet::SiClusterOnTrack*>((*trackStateOnSurfaceIterator)->measurementOnTrack());
-           if(clus) clusID = clus->identify();
-           nHole = 1.0;
+	if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Hole)) {
+	  clus = dynamic_cast< const InDet::SiClusterOnTrack*>((*trackStateOnSurfaceIterator)->measurementOnTrack());
+	  if (clus) clusID = clus->identify();
+	  nHole = 1.0;
 
-           if( m_tsos_outliermap)m_tsos_outliermap->Fill(surfaceID, m_pixelid);
-           if( m_tsos_hiteff_vs_lumi) m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(),0.,surfaceID,m_pixelid);
-           //if( m_hiteff_incl_mod[pixlayerdisk] && passQualityCut ) m_hiteff_incl_mod[pixlayerdisk]->Fill( m_manager->lumiBlockNumber(), 0.0 );
-           if( m_hiteff_incl_mod[pixlayerdisk] && pass1hole2GeVTightCut ) m_hiteff_incl_mod[pixlayerdisk]->Fill( m_manager->lumiBlockNumber(), 0.0 );
-         }
+	  if ( m_tsos_outliermap)m_tsos_outliermap->Fill(surfaceID, m_pixelid);
+	  if ( m_tsos_hiteff_vs_lumi) m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(),0.,surfaceID,m_pixelid);
+	  //if( m_hiteff_incl_mod[pixlayerdisk] && passQualityCut ) m_hiteff_incl_mod[pixlayerdisk]->Fill( m_manager->lumiBlockNumber(), 0.0 );
+	  if ( m_hiteff_incl_mod[pixlayerdisk] && pass1hole2GeVTightCut ) m_hiteff_incl_mod[pixlayerdisk]->Fill( m_manager->lumiBlockNumber(), 0.0 );
+	}
 
 
-         //if(m_tsos_measratio && passQualityCut) m_tsos_measratio->Fill(surfaceID,m_pixelid,nMeasurement);
-         //if(m_tsos_holeratio && passQualityCut) m_tsos_holeratio->Fill(surfaceID,m_pixelid,nHole);
-         if (m_doOnline && m_tsos_holeratio_tmp && passQualityCut) m_tsos_holeratio_tmp->Fill(surfaceID,m_pixelid,nHole);
-         if (passQualityCut) {
-           if (nOutlier + nHole > 0.) {
-             if (m_misshits_ratio) m_misshits_ratio->Fill(surfaceID,m_pixelid,1.0);
-             if (m_doOnline && m_misshits_ratio_tmp) m_misshits_ratio_tmp->Fill(surfaceID,m_pixelid,1.0);
-           } else {
-             if (m_misshits_ratio) m_misshits_ratio->Fill(surfaceID,m_pixelid,0.0);
-             if (m_doOnline && m_misshits_ratio_tmp) m_misshits_ratio_tmp->Fill(surfaceID,m_pixelid,0.0);
-           }
-         }
+	//if(m_tsos_measratio && passQualityCut) m_tsos_measratio->Fill(surfaceID,m_pixelid,nMeasurement);
+	//if(m_tsos_holeratio && passQualityCut) m_tsos_holeratio->Fill(surfaceID,m_pixelid,nHole);
+	if (m_doOnline && m_tsos_holeratio_tmp && passQualityCut) m_tsos_holeratio_tmp->Fill(surfaceID,m_pixelid,nHole);
+	if (passQualityCut) {
+	  if (nOutlier + nHole > 0.) {
+	    if (m_misshits_ratio) m_misshits_ratio->Fill(surfaceID,m_pixelid,1.0);
+	    if (m_doOnline && m_misshits_ratio_tmp) m_misshits_ratio_tmp->Fill(surfaceID,m_pixelid,1.0);
+	  } else {
+	    if (m_misshits_ratio) m_misshits_ratio->Fill(surfaceID,m_pixelid,0.0);
+	    if (m_doOnline && m_misshits_ratio_tmp) m_misshits_ratio_tmp->Fill(surfaceID,m_pixelid,0.0);
+	  }
+	}
 
-         ///
-         /// PixelClusters are valid
-         ///
-         if(!(*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)){continue;}
-         if(!clus)continue;
-         const InDet::SiCluster *RawDataClus = dynamic_cast< const InDet::SiCluster*>(clus->prepRawData());
-         if(!RawDataClus)continue;
-         if(!RawDataClus->detectorElement()->isPixel()) continue;
+	///
+	/// PixelClusters are valid
+	///
+	if (!(*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)) continue;
+	if (!clus) continue;
+	const InDet::SiCluster *RawDataClus = dynamic_cast< const InDet::SiCluster*>(clus->prepRawData());
+	if (!RawDataClus) continue;
+	if (!RawDataClus->detectorElement()->isPixel()) continue;
  
-	      nPixelHits++;//add another pixel hit 
-	      for(unsigned int loopSize=0;loopSize < RawDataClus->rdoList().size(); loopSize++) {
-	        if (m_doOnTrack) m_RDOIDs.push_back(RawDataClus->rdoList().at(loopSize));
-	      }
-         if (m_doOnTrack) m_ClusterIDs.push_back( clus->identify());
+	nPixelHits++; //add another pixel hit 
+	for (unsigned int loopSize=0;loopSize < RawDataClus->rdoList().size(); loopSize++) {
+	  if (m_doOnTrack) m_RDOIDs.push_back(RawDataClus->rdoList().at(loopSize));
+	}
+	if (m_doOnTrack) m_ClusterIDs.push_back( clus->identify());
 
-         const InDet::PixelCluster* pixelCluster=dynamic_cast<const InDet::PixelCluster*>(RawDataClus);
-         
-         if(pixelCluster){
-            ///
-            /// Pixel Cluster Selection
-            ///
-            if( !RawDataClus->gangedPixel() && /// not include ganged-pixel
-                !pixelCluster->isFake() &&     /// not fake
-                ( (pixlayer == PixLayer::kIBL && fabs(clus->localParameters()[Trk::locX])<8.3)
-                  || (pixlayer != PixLayer::kIBL && fabs(clus->localParameters()[Trk::locX])<8.1) ) &&
-                (    (pixlayeribl2d3d == PixLayerIBL2D3D::kIBL2D && fabs(clus->localParameters()[Trk::locY])<19.7)
-                  || (pixlayeribl2d3d == PixLayerIBL2D3D::kIBL3D && fabs(clus->localParameters()[Trk::locY])<9.5) 
-                  || (pixlayer        != PixLayer::kIBL          && fabs(clus->localParameters()[Trk::locY])<28.7) )
-                ){
-              passClusterSelection = true;
-            }
-            ///
-            /// Cluster Variables
-            ///
-            npixHitsInCluster = pixelCluster->rdoList().size();
-            //colWidthOfCluster = pixelCluster->width().colRow().y();
-            rowWidthOfCluster = pixelCluster->width().colRow().x();
-            totalToTOfCluster = pixelCluster->totalToT();
+	const InDet::PixelCluster* pixelCluster = dynamic_cast<const InDet::PixelCluster*>(RawDataClus);
+	if (pixelCluster) {
+	  ///
+	  /// Pixel Cluster Selection
+	  ///
+	  if ( !RawDataClus->gangedPixel() && /// not include ganged-pixel
+	       !pixelCluster->isFake() &&     /// not fake
+	       ( (pixlayer == PixLayer::kIBL && fabs(clus->localParameters()[Trk::locX])<8.3)
+		 || (pixlayer != PixLayer::kIBL && fabs(clus->localParameters()[Trk::locX])<8.1) ) &&
+	       (    (pixlayeribl2d3d == PixLayerIBL2D3D::kIBL2D && fabs(clus->localParameters()[Trk::locY])<19.7)
+		    || (pixlayeribl2d3d == PixLayerIBL2D3D::kIBL3D && fabs(clus->localParameters()[Trk::locY])<9.5) 
+		    || (pixlayer        != PixLayer::kIBL          && fabs(clus->localParameters()[Trk::locY])<28.7) )
+	       ){
+	    passClusterSelection = true;
+	  }
+	  ///
+	  /// Cluster Variables
+	  ///
+	  npixHitsInCluster = pixelCluster->rdoList().size();
+	  //colWidthOfCluster = pixelCluster->width().colRow().y();
+	  rowWidthOfCluster = pixelCluster->width().colRow().x();
+	  totalToTOfCluster = pixelCluster->totalToT();
             
-            if( npixHitsInCluster == 1 && totalToTOfCluster < 8) { nbadclus++; }
-            else{ ngoodclus++; }
+	  if ( npixHitsInCluster == 1 && totalToTOfCluster < 8) { nbadclus++; }
+	  else { ngoodclus++; }
       	    
-            if(m_doModules && !m_doOnline){
-	           if(measPerigee){
-	             float pt = measPerigee->pT()/1000.0;
-	             if(m_clustot_vs_pt) m_clustot_vs_pt->Fill(pt, totalToTOfCluster);
-	             if(pt<10){
-	               if(m_clustot_lowpt) m_clustot_lowpt->Fill(totalToTOfCluster);
-	               if(npixHitsInCluster==1){ if(m_1hitclustot_lowpt) m_1hitclustot_lowpt->Fill(totalToTOfCluster);}
-	               if(npixHitsInCluster==2){ if(m_2hitclustot_lowpt) m_2hitclustot_lowpt->Fill(totalToTOfCluster);}
-	             }else{
-	               if(m_clustot_highpt) m_clustot_highpt->Fill(totalToTOfCluster);
-	               if(npixHitsInCluster==1){ if(m_1hitclustot_highpt) m_1hitclustot_highpt->Fill(totalToTOfCluster);}
-	               if(npixHitsInCluster==2){ if(m_2hitclustot_highpt) m_2hitclustot_highpt->Fill(totalToTOfCluster);}
-	             }
-	           }
-            }
-	 }
+	  if (m_doModules && !m_doOnline) {
+	    if (measPerigee) {
+	      float pt = measPerigee->pT()/1000.0;
+	      if (m_clustot_vs_pt) m_clustot_vs_pt->Fill(pt, totalToTOfCluster);
+	      if (pt<10) {
+		if (m_clustot_lowpt) m_clustot_lowpt->Fill(totalToTOfCluster);
+		if (npixHitsInCluster==1){ if(m_1hitclustot_lowpt) m_1hitclustot_lowpt->Fill(totalToTOfCluster);}
+		if (npixHitsInCluster==2){ if(m_2hitclustot_lowpt) m_2hitclustot_lowpt->Fill(totalToTOfCluster);}
+	      } else {
+		if (m_clustot_highpt) m_clustot_highpt->Fill(totalToTOfCluster);
+		if (npixHitsInCluster==1){ if(m_1hitclustot_highpt) m_1hitclustot_highpt->Fill(totalToTOfCluster);}
+		if (npixHitsInCluster==2){ if(m_2hitclustot_highpt) m_2hitclustot_highpt->Fill(totalToTOfCluster);}
+	      }
+	    }
+	  }
+	}
 
 	    
-	 ///
-         /// Get track parameters for current surface (with AtaPlane)
-         ///
-         trkParameters = (*trackStateOnSurfaceIterator)->trackParameters();
-         const Trk::AtaPlane *trackAtPlane = dynamic_cast<const Trk::AtaPlane*>(trkParameters);
-         if(trackAtPlane)
-         {
+	///
+	/// Get track parameters for current surface (with AtaPlane)
+	///
+	trkParameters = (*trackStateOnSurfaceIterator)->trackParameters();
+	const Trk::AtaPlane *trackAtPlane = dynamic_cast<const Trk::AtaPlane*>(trkParameters);
+	if (trackAtPlane)
+	  {
             const Amg::Vector2D localpos = trackAtPlane->localPosition();
 
             // Get local error matrix for hit and track and calc pull
@@ -438,17 +435,17 @@ StatusCode PixelMainMon::FillTrackMon(void)
             //pulls and residuals Phi
             double error_sum = sqrt(pow(Amg::error(trackErrMat,Trk::locX),2) + pow(Amg::error(clusErrMat,Trk::locX), 2));
             double res = clus->localParameters()[Trk::locX]-localpos[0];
-            if(m_track_res_phi) m_track_res_phi->Fill(res);
+            if (m_track_res_phi) m_track_res_phi->Fill(res);
             double pull = 0;
-            if(error_sum != 0) pull = (res)/error_sum;
-            if(m_track_pull_phi) m_track_pull_phi->Fill(pull);
+            if (error_sum != 0) pull = (res)/error_sum;
+            if (m_track_pull_phi) m_track_pull_phi->Fill(pull);
 
             //pulls and residuals Eta
             error_sum = sqrt(pow(Amg::error(trackErrMat,Trk::locY),2) + pow(Amg::error(clusErrMat,Trk::locY), 2));
             res = clus->localParameters()[Trk::locY]-localpos[1];
-            if(m_track_res_eta) m_track_res_eta->Fill(res);
-            if(error_sum != 0) pull = (res)/error_sum;
-            if(m_track_pull_eta) m_track_pull_eta->Fill(pull);
+            if (m_track_res_eta) m_track_res_eta->Fill(res);
+            if (error_sum != 0) pull = (res)/error_sum;
+            if (m_track_pull_eta) m_track_pull_eta->Fill(pull);
 
             /// LorentzAngle
             Amg::Vector3D mynormal = side->normal();
@@ -457,39 +454,39 @@ StatusCode PixelMainMon::FillTrackMon(void)
             double trkphicomp = mytrack.dot(myphiax);
             double trknormcomp = mytrack.dot(mynormal); 
             double phiIncident =  atan2(trkphicomp,trknormcomp);
-            if(npixHitsInCluster > 0 && passTightCut && passClusterSelection){
-               if(pixlayer == PixLayer::kIBL && m_LorentzAngle_IBL) m_LorentzAngle_IBL->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0*rowWidthOfCluster);
-               if(pixlayeribl2d3d == PixLayerIBL2D3D::kIBL2D && m_LorentzAngle_IBL2D) m_LorentzAngle_IBL2D->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0*rowWidthOfCluster);
-               if(pixlayeribl2d3d == PixLayerIBL2D3D::kIBL3D && m_LorentzAngle_IBL3D) m_LorentzAngle_IBL3D->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0*rowWidthOfCluster);
-               if(pixlayer == PixLayer::kB0 && m_LorentzAngle_B0) m_LorentzAngle_B0->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0*rowWidthOfCluster);
-               if(pixlayer == PixLayer::kB1 && m_LorentzAngle_B1) m_LorentzAngle_B1->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0*rowWidthOfCluster);
-               if(pixlayer == PixLayer::kB2 && m_LorentzAngle_B2) m_LorentzAngle_B2->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0*rowWidthOfCluster);
+            if (npixHitsInCluster > 0 && passTightCut && passClusterSelection){
+	      if (pixlayer == PixLayer::kIBL && m_LorentzAngle_IBL) m_LorentzAngle_IBL->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0*rowWidthOfCluster);
+	      if (pixlayeribl2d3d == PixLayerIBL2D3D::kIBL2D && m_LorentzAngle_IBL2D) m_LorentzAngle_IBL2D->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0*rowWidthOfCluster);
+	      if (pixlayeribl2d3d == PixLayerIBL2D3D::kIBL3D && m_LorentzAngle_IBL3D) m_LorentzAngle_IBL3D->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0*rowWidthOfCluster);
+	      if (pixlayer == PixLayer::kB0 && m_LorentzAngle_B0) m_LorentzAngle_B0->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0*rowWidthOfCluster);
+	      if (pixlayer == PixLayer::kB1 && m_LorentzAngle_B1) m_LorentzAngle_B1->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0*rowWidthOfCluster);
+	      if (pixlayer == PixLayer::kB2 && m_LorentzAngle_B2) m_LorentzAngle_B2->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0*rowWidthOfCluster);
             }
-         }
+	  }
       } // end of TSOS loop
     
-      if(!m_doOnline && m_doModules){
-	      float pt = measPerigee->pT()/1000.0;
-	      if(nbadclus==1){
-	         if(m_track_chi2_bcl1 && track0->fitQuality()->numberDoF() != 0) m_track_chi2_bcl1->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
-	      }
-	      if(nbadclus==0){
-	         if(m_track_chi2_bcl0 && track0->fitQuality()->numberDoF() != 0) m_track_chi2_bcl0->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
-	      } 
-	      if(nbadclus>1){
-	         if(m_track_chi2_bclgt1 && track0->fitQuality()->numberDoF() != 0) m_track_chi2_bclgt1->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
-	      } 
-	      if(pt>=10){
-	         if(nbadclus==1){
-	            if(m_track_chi2_bcl1_highpt && track0->fitQuality()->numberDoF() != 0) m_track_chi2_bcl1_highpt->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
-	         }
-	         if(nbadclus==0){
-	            if(m_track_chi2_bcl1_highpt && track0->fitQuality()->numberDoF() != 0) m_track_chi2_bcl0_highpt->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
-	         } 
-	         if(nbadclus>1){
-	            if(m_track_chi2_bclgt1_highpt && track0->fitQuality()->numberDoF() != 0) m_track_chi2_bclgt1_highpt->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
-	         } 
-	      }
+      if (!m_doOnline && m_doModules) {
+	float pt = measPerigee->pT()/1000.0;
+	if (nbadclus==1) {
+	  if (m_track_chi2_bcl1 && track0->fitQuality()->numberDoF() != 0) m_track_chi2_bcl1->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
+	}
+	if (nbadclus==0) {
+	  if (m_track_chi2_bcl0 && track0->fitQuality()->numberDoF() != 0) m_track_chi2_bcl0->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
+	} 
+	if (nbadclus>1) {
+	  if (m_track_chi2_bclgt1 && track0->fitQuality()->numberDoF() != 0) m_track_chi2_bclgt1->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
+	} 
+	if (pt>=10) {
+	  if (nbadclus==1) {
+	    if (m_track_chi2_bcl1_highpt && track0->fitQuality()->numberDoF() != 0) m_track_chi2_bcl1_highpt->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
+	  }
+	  if (nbadclus==0) {
+	    if (m_track_chi2_bcl1_highpt && track0->fitQuality()->numberDoF() != 0) m_track_chi2_bcl0_highpt->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
+	  } 
+	  if (nbadclus>1) {
+	    if (m_track_chi2_bclgt1_highpt && track0->fitQuality()->numberDoF() != 0) m_track_chi2_bclgt1_highpt->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
+	  } 
+	}
       }
             
       if (nPixelHits>0)
@@ -497,7 +494,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	  m_ntracksPerEvent++;
 	}
 
-      if(m_doHoleSearch && !m_doOnline && nholes>0){delete (track);}
+      if (m_doHoleSearch && !m_doOnline && nholes>0) delete track;
    } // end of track loop
 
    
@@ -505,19 +502,19 @@ StatusCode PixelMainMon::FillTrackMon(void)
    /// Fill histograms per event
    ///
     
-   if(m_tracksPerEvt_per_lumi) m_tracksPerEvt_per_lumi->Fill(m_manager->lumiBlockNumber(), m_ntracksPerEvent);
+   if (m_tracksPerEvt_per_lumi) m_tracksPerEvt_per_lumi->Fill(m_manager->lumiBlockNumber(), m_ntracksPerEvent);
 
    if (m_doOnTrack) {
      sort (m_RDOIDs.begin(), m_RDOIDs.end());
      sort (m_ClusterIDs.begin(), m_ClusterIDs.end());
    }
 
-   if(m_doOnline){
-      if(m_doRefresh5min) {
-         if(m_tsos_holeratio_mon && m_tsos_holeratio_tmp) m_tsos_holeratio_mon->Fill2DMon(m_tsos_holeratio_tmp);
-         if(m_misshits_ratio_mon && m_misshits_ratio_tmp) m_misshits_ratio_mon->Fill2DMon(m_misshits_ratio_tmp);
+   if (m_doOnline) {
+      if (m_doRefresh5min) {
+         if (m_tsos_holeratio_mon && m_tsos_holeratio_tmp) m_tsos_holeratio_mon->Fill2DMon(m_tsos_holeratio_tmp);
+         if (m_misshits_ratio_mon && m_misshits_ratio_tmp) m_misshits_ratio_mon->Fill2DMon(m_misshits_ratio_tmp);
       }
-   }//end of doOnline loop processing
+   }
 
 
    return StatusCode::SUCCESS;
@@ -528,7 +525,7 @@ StatusCode PixelMainMon::ProcTrackMon(void)
   double lengthLB = 0;
   lengthLB = m_LBendTime - m_LBstartTime;
   if (lengthLB <= 0) {
-    if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Luminosity block has length <= 0 sec, cannot calculate track rate." << endmsg;  
+    if (msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Luminosity block has length <= 0 sec, cannot calculate track rate." << endmsg;  
     return StatusCode::SUCCESS; //if LB length is zero, the rest is pointless and would divide by 0
   }
  
@@ -538,17 +535,11 @@ StatusCode PixelMainMon::ProcTrackMon(void)
   //  m_trackRate_per_lumi->Fill(m_manager->lumiBlockNumber(),trackRateLB);
   //}
   //for(int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++){
-  for(int i=0; i<PixLayerDisk::COUNT; i++){
-     if(m_hiteff_incl_mod[i]) m_hiteff_incl_mod[i]->SetMinimum(0.8);
-     if(m_hiteff_incl_mod[i]) m_hiteff_incl_mod[i]->SetMaximum(1.01);
+  for (int i=0; i<PixLayerDisk::COUNT; i++){
+     if (m_hiteff_incl_mod[i]) m_hiteff_incl_mod[i]->SetMinimum(0.8);
+     if (m_hiteff_incl_mod[i]) m_hiteff_incl_mod[i]->SetMaximum(1.01);
      //if(m_hiteff_actv_mod[i]) m_hiteff_actv_mod[i]->SetMinimum(0.8);
      //if(m_hiteff_actv_mod[i]) m_hiteff_actv_mod[i]->SetMaximum(1.01);
-     //if(m_hiteff_newtrkreq_mod[i]) m_hiteff_newtrkreq_mod[i]->SetMinimum(0.8);
-     //if(m_hiteff_newtrkreq_mod[i]) m_hiteff_newtrkreq_mod[i]->SetMaximum(1.01);
   }
-  return StatusCode::SUCCESS;
-  
+  return StatusCode::SUCCESS;  
 }
-
-
-
