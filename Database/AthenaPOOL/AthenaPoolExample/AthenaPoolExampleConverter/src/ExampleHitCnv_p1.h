@@ -13,13 +13,8 @@
  **/
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
-
-#define private public
-#define protected public
 #include "AthenaPoolExampleData/ExampleHit.h"
 #include "AthenaPoolExampleConverter/ExampleHit_p1.h"
-#undef private
-#undef protected
 
 
 class ExampleHitCnv_p1 : public T_AthenaPoolTPCnvBase<ExampleHit, ExampleHit_p1> { 
@@ -31,16 +26,20 @@ public:
     *  from its persistent representation @c ExampleHit_p1
     */
    virtual void persToTrans(const ExampleHit_p1* persObj, ExampleHit* transObj, MsgStream&/* msg*/) {
-      transObj->m_vec = persObj->m_vec;
-      transObj->m_detector = persObj->m_detector;
+      transObj->setX (persObj->m_vec.x());
+      transObj->setY (persObj->m_vec.y());
+      transObj->setZ (persObj->m_vec.z());
+      transObj->setDetector (persObj->m_detector);
    }
 
    /** Method creating the persistent representation @c ExampleHit_p1
     *  from its transient representation @c ExampleHit
     */
    virtual void transToPers(const ExampleHit* transObj, ExampleHit_p1* persObj, MsgStream&/* msg*/) {
-      persObj->m_vec = transObj->m_vec;
-      persObj->m_detector = transObj->m_detector;
+      persObj->m_vec.setX (transObj->getX());
+      persObj->m_vec.setY (transObj->getY());
+      persObj->m_vec.setZ (transObj->getZ());
+      persObj->m_detector = transObj->getDetector();
    }
 }; 
 
