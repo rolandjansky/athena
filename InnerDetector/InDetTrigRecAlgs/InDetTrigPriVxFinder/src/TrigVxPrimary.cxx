@@ -22,6 +22,9 @@
 #include "TrkParameters/TrackParameters.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
+#include "VxVertex/VxTrackAtVertex.h"
+#include "TrkTrackLink/ITrackLink.h"
+#include "TrkTrack/LinkToTrack.h"
 
 #include "TrkEventPrimitives/ParamDefs.h"
 
@@ -115,7 +118,7 @@ namespace InDet
     const TrackCollection* trackTES=0;
     
     if ( HLT::OK != getFeature(outputTE, trackTES)) {
-      msg() << MSG::ERROR << "Input track collection could not be found " << endreq;
+      ATH_MSG_ERROR("Input track collection could not be found ");
       return HLT::NAV_ERROR;
     } 
    
@@ -190,6 +193,36 @@ namespace InDet
       dummyvtx->setCovariancePosition( m_BeamCondSvc->beamVtx().covariancePosition() );
       dummyvtx->vxTrackAtVertex() = std::vector<Trk::VxTrackAtVertex>();
 
+    }
+
+
+    const xAOD::TrackParticleContainer *xTPCont = 0;
+    if ( HLT::OK != getFeature(outputTE, xTPCont)) {
+      ATH_MSG_ERROR("xAOD Track particle collection could not be found ");
+      return HLT::NAV_ERROR;
+    } 
+
+    //
+    auto itr = theVxContainer->begin();
+    auto end = theVxContainer->end();
+    for ( ; itr != end; itr++){
+      std::vector<Trk::VxTrackAtVertex> trks = (*itr)->vxTrackAtVertex();
+      size_t VTAVsize = trks.size();
+      for (size_t i=0; i<VTAVsize; i++){
+        Trk::ITrackLink*      trklink = trks[i].trackOrParticleLink();
+        Trk::LinkToTrack* linkToTrackPB = dynamic_cast<Trk::LinkToTrack*>(trklink);  
+        if (!linkToTrackPB) 
+        {
+          ATH_MSG_DEBUG ("Cast of element link failed, skip this track !!!!!");
+        } 
+        else
+        {
+          ElementLink<xAOD::TrackParticleContainer> newLink(*xTPCont, linkToTrackPB->index());
+          //Now set the newlink to the new xAOD vertex
+          (*itr)->addTrackAtVertex(newLink, trks[i].vtxCompatibility()); 
+        } 
+
+      }
     }
 
     //
