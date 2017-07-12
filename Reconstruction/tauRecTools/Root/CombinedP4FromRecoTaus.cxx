@@ -190,7 +190,14 @@ StatusCode CombinedP4FromRecoTaus::execute(xAOD::TauJet& xTau) {
   decPhiCombined(xTau) = 0;
   decMCombined(xTau) = 0;
   
-  TLorentzVector CombinedP4 = getCombinedP4(Tau);
+  TLorentzVector CombinedP4(xTau.p4());
+  int tmpDecayMode;
+  //Needs to be proto, by default PanTau_DecyMode==0 for invalid
+  //(pan)taus which is "valid"
+  //maybe we should initialize PanTau_DecyMode to NotSet
+  //Do we want to apply to Mode_Other? 2,4,5 prongs, I thnk yes
+  xTau.panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayModeProto, tmpDecayMode);
+  if(tmpDecayMode>=xAOD::TauJetParameters::Mode_1p0n && tmpDecayMode<=xAOD::TauJetParameters::Mode_Other) CombinedP4=getCombinedP4(Tau);
 
   // create xAOD variables and fill:
   decPtCombined(xTau) = CombinedP4.Pt();
@@ -457,11 +464,9 @@ TLorentzVector CombinedP4FromRecoTaus::getCombinedP4(const xAOD::TauJet* tau) {
   TLorentzVector tauRecP4;
   tauRecP4.SetPtEtaPhiM(tau->pt(), tau->eta(), tau->phi(), tau->m());
   TLorentzVector substructureP4;
-  if(tau->etaPanTauCellBased()<-111 || tau->phiPanTauCellBased()<-1111)
-    substructureP4.SetPtEtaPhiM(0,0,0,0);
-  else
-    substructureP4.SetPtEtaPhiM(tau->ptPanTauCellBased(), tau->etaPanTauCellBased(), tau->phiPanTauCellBased(), tau->mPanTauCellBased());
-
+  
+  substructureP4.SetPtEtaPhiM(tau->ptPanTauCellBased(), tau->etaPanTauCellBased(), tau->phiPanTauCellBased(), tau->mPanTauCellBased());
+  
   ATH_MSG_DEBUG( "TauRecET: " << tauRecP4.Et() );
   ATH_MSG_DEBUG( "ConstituentET: " << substructureP4.Et() );
 
