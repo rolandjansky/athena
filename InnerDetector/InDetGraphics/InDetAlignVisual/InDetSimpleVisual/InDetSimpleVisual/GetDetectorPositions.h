@@ -51,6 +51,7 @@ class GetDetectorPositions:public AthAlgorithm {
 
     /** Name of the Output file */
     unsigned int m_detailLevel;
+    bool         m_doTRT;
     std::string m_outputFileName;
     std::ofstream outputFile;
     
