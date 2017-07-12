@@ -8,10 +8,9 @@ import sys
 import time
 import os
 
-from PlotCalibrationGains import *
-from array import *
+import PlotCalibrationGains
 
-from PlotCalibrationHV import *
+import PlotCalibrationHV
 
 from PyCool import cool
 from optparse import OptionParser
@@ -34,8 +33,8 @@ if __name__ == "__main__":
   (options, args) = parser.parse_args()
 
 
-  geometry_convertor = L1CaloGeometryConvertor()
-  receiver_gains     = GainReader()
+  geometry_convertor = PlotCalibrationGains.L1CaloGeometryConvertor()
+  receiver_gains     = PlotCalibrationGains.GainReader()
   geometry_convertor.LoadReceiverPPMMap()
 
   ROOT.gStyle.SetPalette(1)
@@ -48,36 +47,36 @@ if __name__ == "__main__":
 
 # now define histograms
 
-  h_gains_em  = L1CaloMap("Eta-phi map of EM gains","#eta bin","#phi bin")
-  h_gains_had = L1CaloMap("Eta-phi map of HAD gains","#eta bin","#phi bin")
+  h_gains_em  = PlotCalibrationGains.L1CaloMap("Eta-phi map of EM gains","#eta bin","#phi bin")
+  h_gains_had = PlotCalibrationGains.L1CaloMap("Eta-phi map of HAD gains","#eta bin","#phi bin")
 
-  h_gains_em_noHV  = L1CaloMap("Eta-phi map of EM gains without HV corrections","#eta bin","#phi bin")
-  h_gains_had_noHV = L1CaloMap("Eta-phi map of HAD gains without HV corrections","#eta bin","#phi bin")
+  h_gains_em_noHV  = PlotCalibrationGains.L1CaloMap("Eta-phi map of EM gains without HV corrections","#eta bin","#phi bin")
+  h_gains_had_noHV = PlotCalibrationGains.L1CaloMap("Eta-phi map of HAD gains without HV corrections","#eta bin","#phi bin")
 
-  h_gains_em_ratio  = L1CaloMap("ratio of EM gains with and without HV corrections","#eta bin","#phi bin")
-  h_gains_had_ratio = L1CaloMap("ratio of HAD gains with and without HV corrections","#eta bin","#phi bin")
+  h_gains_em_ratio  = PlotCalibrationGains.L1CaloMap("ratio of EM gains with and without HV corrections","#eta bin","#phi bin")
+  h_gains_had_ratio = PlotCalibrationGains.L1CaloMap("ratio of HAD gains with and without HV corrections","#eta bin","#phi bin")
 
-  h1D_gains_em_ratio  = EmPartitionPlots("ratio of EM gains with and without HV corrections",40,0.,2.5,"gain/gain(no HV)","N")
-  h1D_gains_had_ratio = HadPartitionPlots("ratio of HAD gains with and without HV corrections",40,0.,2.5,"gain/gain(no HV)","N")
+  h1D_gains_em_ratio  = PlotCalibrationGains.EmPartitionPlots("ratio of EM gains with and without HV corrections",40,0.,2.5,"gain/gain(no HV)","N")
+  h1D_gains_had_ratio = PlotCalibrationGains.HadPartitionPlots("ratio of HAD gains with and without HV corrections",40,0.,2.5,"gain/gain(no HV)","N")
 
-  h_corr_em  = L1CaloMap("Eta-phi map of mean HV corrections in EM layer","#eta bin","#phi bin")
-  h_corr_had = L1CaloMap("Eta-phi map of mean HV corrections in HAD layer","#eta bin","#phi bin")
+  h_corr_em  = PlotCalibrationGains.L1CaloMap("Eta-phi map of mean HV corrections in EM layer","#eta bin","#phi bin")
+  h_corr_had = PlotCalibrationGains.L1CaloMap("Eta-phi map of mean HV corrections in HAD layer","#eta bin","#phi bin")
 
-  h_corrGainPredictor_em  = L1CaloMap("Eta-phi map of HV corrections from Gain Predictor in EM layer","#eta bin","#phi bin")
-  h_corrGainPredictor_had = L1CaloMap("Eta-phi map of HV corrections from Gain Predictor in HAD layer","#eta bin","#phi bin")
+  h_corrGainPredictor_em  = PlotCalibrationGains.L1CaloMap("Eta-phi map of HV corrections from Gain Predictor in EM layer","#eta bin","#phi bin")
+  h_corrGainPredictor_had = PlotCalibrationGains.L1CaloMap("Eta-phi map of HV corrections from Gain Predictor in HAD layer","#eta bin","#phi bin")
 
 
-  h1D_corr_em  = EmPartitionPlots("mean HV corrections in EM layer",40,0.,2.5,"mean HV correction","N")
-  h1D_corr_had = HadPartitionPlots("mean HV corrections in HAD layer",40,0.,2.5,"mean HV correction","N")
+  h1D_corr_em  = PlotCalibrationGains.EmPartitionPlots("mean HV corrections in EM layer",40,0.,2.5,"mean HV correction","N")
+  h1D_corr_had = PlotCalibrationGains.HadPartitionPlots("mean HV corrections in HAD layer",40,0.,2.5,"mean HV correction","N")
 
-  h_corrHVdiff_em  = L1CaloMap("(ratio-meanHV)/meanHV in EM layer","#eta bin","#phi bin")
-  h_corrHVdiff_had = L1CaloMap("(ratio-meanHV)/meanHV in HAD layer","#eta bin","#phi bin")
+  h_corrHVdiff_em  = PlotCalibrationGains.L1CaloMap("(ratio-meanHV)/meanHV in EM layer","#eta bin","#phi bin")
+  h_corrHVdiff_had = PlotCalibrationGains.L1CaloMap("(ratio-meanHV)/meanHV in HAD layer","#eta bin","#phi bin")
 
-  h1D_corrHVdiff_em  = EmPartitionPlots("(ratio-meanHV)/meanHV in EM layer",40,-0.1,0.1,"(ratio-meanHV)/meanHV","N")
-  h1D_corrHVdiff_had = HadPartitionPlots("(ratio-meanHV)/meanHV in HAD layer",40,-0.1,0.1,"(ratio-meanHV)/meanHV","N")
+  h1D_corrHVdiff_em  = PlotCalibrationGains.EmPartitionPlots("(ratio-meanHV)/meanHV in EM layer",40,-0.1,0.1,"(ratio-meanHV)/meanHV","N")
+  h1D_corrHVdiff_had = PlotCalibrationGains.HadPartitionPlots("(ratio-meanHV)/meanHV in HAD layer",40,-0.1,0.1,"(ratio-meanHV)/meanHV","N")
 
-  h_corrHVdiffGainPredictor_em  = L1CaloMap("(ratio-GainPredictor)/GainPredictor in EM layer","#eta bin","#phi bin")
-  h_corrHVdiffGainPredictor_had = L1CaloMap("(ratio-GainPredictor)/GainPredictor in HAD layer","#eta bin","#phi bin")
+  h_corrHVdiffGainPredictor_em  = PlotCalibrationGains.L1CaloMap("(ratio-GainPredictor)/GainPredictor in EM layer","#eta bin","#phi bin")
+  h_corrHVdiffGainPredictor_had = PlotCalibrationGains.L1CaloMap("(ratio-GainPredictor)/GainPredictor in HAD layer","#eta bin","#phi bin")
 
 
 # input files are define here
@@ -96,7 +95,7 @@ if __name__ == "__main__":
   receiver_gains.LoadGainsSqlite(fileDefault)
   receiver_gains.LoadReferenceSqlite(fileNoHV)
 
-  hv_status = L1CaloHVReader(hvCorrFile)
+  hv_status = PlotCalibrationHV.L1CaloHVReader(hvCorrFile)
 
   strange_channel_file = open('checkHVCorrections.txt','w')
 
