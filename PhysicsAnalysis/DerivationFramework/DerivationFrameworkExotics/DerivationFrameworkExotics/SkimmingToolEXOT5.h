@@ -35,6 +35,7 @@ namespace DerivationFramework {
 
       ToolHandle<IJetCalibrationTool> m_jetCalibrationTool;
       std::string m_jetSGKey;
+      std::string m_jetCalibToolName;
 
       double m_uncalibMonoJetPt;
       double m_monoJetPt;

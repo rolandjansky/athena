@@ -12,10 +12,21 @@ atlas_depends_on_subdirs( PUBLIC
                           PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
                           Reconstruction/Jet/JetCalibTools
                           Trigger/TrigAnalysis/TrigDecisionTool
+                          PhysicsAnalysis/AnalysisCommon/PATInterfaces
+                          Tracking/TrkExtrapolation/TrkExUtils
                           PRIVATE
                           Event/xAOD/xAODCore
                           Event/xAOD/xAODEventInfo
-                          GaudiKernel )
+                          GaudiKernel
+                          Event/xAOD/xAODTracking
+                          Tracking/TrkEvent/TrkParameters
+                          Event/EventPrimitives
+                          Tracking/TrkEvent/TrkEventPrimitives
+                          Tracking/TrkExtrapolation/TrkExInterfaces
+                          Tracking/TrkDetDescr/TrkSurfaces
+                          Trigger/TrigAnalysis/TrigAnalysisInterfaces
+                         )
+
 
 # External dependencies:
 find_package( CLHEP )
@@ -26,13 +37,13 @@ atlas_add_library( DerivationFrameworkExoticsLib
                    PUBLIC_HEADERS DerivationFrameworkExotics
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES AthenaBaseComps xAODJet TrigDecisionToolLib
+                   LINK_LIBRARIES AthenaBaseComps xAODJet PATInterfaces TrkExUtils TrigDecisionToolLib
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} xAODCore xAODEventInfo GaudiKernel )
 
 atlas_add_component( DerivationFrameworkExotics
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps xAODJet TrigDecisionToolLib xAODCore xAODEventInfo GaudiKernel DerivationFrameworkExoticsLib )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps xAODJet TrigDecisionToolLib xAODCore xAODEventInfo GaudiKernel PATInterfaces TrkExUtils DerivationFrameworkExoticsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

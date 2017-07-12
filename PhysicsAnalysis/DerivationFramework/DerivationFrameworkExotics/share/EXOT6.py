@@ -8,10 +8,17 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-
 from DerivationFrameworkCore.WeightMetadata import *
 
 exot6Seq = CfgMgr.AthSequencer("EXOT6Sequence")
+
+augTools = []
+
+# using now TauTruthCommon, so we use a central Python setup and it is not imported twice
+from DerivationFrameworkTau.TauTruthCommon import *
+if DerivationFrameworkIsMonteCarlo:
+   from DerivationFrameworkMCTruth.MCTruthCommon import *
+
 
 #====================================================================
 # THINNING TOOL 
@@ -76,21 +83,48 @@ EXOT6PhotonCCThinningTool = DerivationFramework__CaloClusterThinning( name      
                                                                                      ConeSize                = 0.6)
 ToolSvc += EXOT6PhotonCCThinningTool
 
+# Calo Clusters associated with Taus
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
+EXOT6CaloClusterThinning  = DerivationFramework__CaloClusterThinning (  name                      = "EXOT6ClusterThinning",
+                                                                        ThinningService           = "EXOT6ThinningSvc",
+                                                                        SGKey                     = "TauJets",
+                                                                        TopoClCollectionSGKey     = "CaloCalTopoClusters",
+                                                                      )
+ToolSvc  += EXOT6CaloClusterThinning
+
+
 #====================================================================
 # SKIMMING TOOL 
 #====================================================================
 
-beamEnergy = jobproperties.Beam.energy()
-expression = ''
-if (beamEnergy < 4.1e+06):
-    expression = '((EventInfo.eventTypeBitmask==1) || EF_g120_loose || EF_xe80_tclcw_tight) && (count(Photons.pt > 100*GeV) > 0) || (count(Electrons.pt > 100*GeV) > 0)'
-if (beamEnergy > 6.0e+06):
-    expression = '(HLT_g120_loose || HLT_g140_loose || HLT_xe100) && ((count(Photons.Loose && Photons.pt > 100*GeV) > 0) || (count(Electrons.Medium && Electrons.pt > 100*GeV) > 0))'
+expression = '(HLT_g140_loose || HLT_g160_loose || HLT_xe90_tc_lcw_L1XE50||HLT_g75_tight_3j50noL1_L1EM22VHI||HLT_g75_tight_3j25noL1_L1EM22VHI||HLT_xe90_mht_L1XE50||HLT_xe100_mht_L1XE50||HLT_xe110_mht_L1XE50||HLT_xe130_mht_L1XE50) && ((count(Photons.pt > 80*GeV) > 0) || ( ( HLT_g140_loose || HLT_g160_loose) && (count(Electrons.pt > 100*GeV) > 0) ) )'
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-EXOT6SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EXOT6SkimmingTool1",
-                                                                    expression = expression)
+EXOT6SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "EXOT6SkimmingTool1", expression = expression)
 ToolSvc += EXOT6SkimmingTool
+
+#====================================================================
+# Max Cell sum decoration tool
+#====================================================================
+
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__MaxCellDecorator
+EXOT6_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name                    = "EXOT6_MaxCellDecoratorTool",
+                                                                    SGKey_electrons         = "Electrons",
+                                                                    SGKey_photons           = "Photons",
+                                                                    )
+ToolSvc += EXOT6_MaxCellDecoratorTool
+augTools.append(EXOT6_MaxCellDecoratorTool)
+
+# Calo Clusters associated with Electrons
+EXOT6ElectronCCThinningTool = DerivationFramework__CaloClusterThinning(name = "EXOT6ElectronCCThinningTool",
+                                                                       ThinningService         = "EXOT6ThinningSvc",
+                                                                       SGKey                   = "Electrons",
+                                                                       CaloClCollectionSGKey   = "egammaClusters",
+                                                                       TopoClCollectionSGKey   = "",
+                                                                       #SelectionString         = "Electrons.pt > 15*GeV",
+                                                                       #FrwdClCollectionSGKey   = "LArClusterEMFrwd",
+                                                                       ConeSize                = 0)
+ToolSvc += EXOT6ElectronCCThinningTool
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
@@ -100,8 +134,20 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 DerivationFrameworkJob += exot6Seq
 exot6Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT6Kernel_skim", SkimmingTools = [EXOT6SkimmingTool])
 exot6Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT6Kernel",
-									ThinningTools = [EXOT6TPThinningTool,EXOT6MuonTPThinningTool,EXOT6ElectronTPThinningTool, EXOT6PhotonTPThinningTool, EXOT6PhotonCCThinningTool]
-                                                                      )
+                                                         AugmentationTools = augTools,
+                                                         ThinningTools = [EXOT6TPThinningTool,EXOT6MuonTPThinningTool,EXOT6ElectronTPThinningTool, EXOT6PhotonTPThinningTool, EXOT6PhotonCCThinningTool, EXOT6ElectronCCThinningTool])
+
+#=======================================
+# JETS
+#=======================================
+
+#restore AOD-reduced jet collections
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+OutputJets["EXOT6"] = []
+reducedJetList = [
+    "AntiKt4TruthJets"]
+replaceAODReducedJets(reducedJetList,exot6Seq,"EXOT6")
+
 
 #====================================================================
 # SET UP STREAM   

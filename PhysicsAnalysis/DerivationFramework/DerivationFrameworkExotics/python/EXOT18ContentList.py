@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-EXOT3SmartContent = [
+EXOT18SmartContent = [
     "Electrons",
     "Muons",
     "Photons",
@@ -8,66 +8,46 @@ EXOT3SmartContent = [
     "PrimaryVertices", 
     "MET_Reference_AntiKt4EMTopo",
     "MET_Reference_AntiKt4LCTopo",
-    "AntiKt4LCTopoJets",
     "AntiKt4EMTopoJets",
+    "AntiKt4LCTopoJets",
     "BTagging_AntiKt4EMTopo",
-    "BTagging_AntiKt2Track",
-    "TauJets"
+    "BTagging_AntiKt2Track"
 ]
 
-EXOT3ExtraVariables = [
-    "Electrons.AverageLArQF",
-    "Electrons.author.Medium.Tight.Loose.charge", 
-    "Muons.etcone30"
-]
-
-EXOT3AllVariablesContent = [
+EXOT18AllVariablesContent = [
      ### TRUTH ###
-     "TruthEvents",
      "TruthVertices",
      "MuonTruthParticles",
      "TruthParticles",
      "MET_Truth",
-     #"CamKt12TruthJets",#FIX #ATLJETMET-744
-     "AntiKt10TruthJets",
      "AntiKt4TruthJets",
 
      ### JETS ###
      "AntiKt10LCTopoJets",
-     "AntiKt4LCTopoJets",
      "AntiKt4EMTopoJets",
-     #"CamKt12LCTopoJets",#FIX #ATLJETMET-744
+     "AntiKt4LCTopoJets",
      "AntiKt2PV0TrackJets",
-     "TauJets",
-     
-     ### MET ###
-     "MET_LocHadTopo",
-     
-     ### B JETS ###
+
+     ### BTAGGING ###
      "BTagging_AntiKt4EMTopo",
      "BTagging_AntiKt2Track",
-
-     ### MUONS ###
-     "MuonSegments",
-
-     ### TOPOCLUSTERS ###
-     "CaloCalTopoClusters",
-
+     
+     ### MET ###
      "METAssoc_AntiKt4EMTopo",
      "MET_Core_AntiKt4EMTopo",
      "MET_Reference_AntiKt4EMTopo",
-
      "METAssoc_AntiKt4LCTopo",
      "MET_Core_AntiKt4LCTopo",
      "MET_Reference_AntiKt4LCTopo",
-
-     "egammaTopoSeededClusters",
-
-     "InDetForwardTrackParticles",
-
+     
+     ### MUONS ###
      "CombinedMuonTrackParticles",
      "ExtrapolatedMuonTrackParticles",
-     "GSFTrackParticles",
+     "GSFTrackParticles"
 ]
 
-EXOT3StaticContent = []
+EXOT18ExtraVariables = [ 
+     "TruthEvents.PDGID1.PDGID2.PDFID1.PDFID2.X1.X2.Q.XF1.XF2"
+]
+
+EXOT18UnslimmedContent = []

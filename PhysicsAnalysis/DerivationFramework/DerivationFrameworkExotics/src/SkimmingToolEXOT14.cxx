@@ -23,6 +23,7 @@ DerivationFramework::SkimmingToolEXOT14::SkimmingToolEXOT14(const std::string& t
 							    const IInterface* p) : 
   AthAlgTool(t, n, p),
   m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
+  m_JESTool("JetCalibrationTool/m_JESTool"),
   n_tot(0),
   n_passGRL(0),
   n_passLArError(0),
@@ -37,7 +38,7 @@ DerivationFramework::SkimmingToolEXOT14::SkimmingToolEXOT14(const std::string& t
 
   declareInterface<DerivationFramework::ISkimmingTool>(this);
 
-  declareProperty("JetContainer",          m_jetSGKey = "AntiKt4LCTopoJets");
+  declareProperty("JetContainer",          m_jetSGKey = "AntiKt4EMTopoJets");
 
   declareProperty("RequireGRL",            m_reqGRL          = true);
   declareProperty("ReqireLArError",        m_reqLArError     = true);
@@ -65,6 +66,23 @@ DerivationFramework::SkimmingToolEXOT14::SkimmingToolEXOT14(const std::string& t
 
   declareProperty("DiJetDPhi",             m_jetDPhi = 2.5);
 
+  m_isMC = true;
+  j1TLV = TLorentzVector();
+  j2TLV = TLorentzVector();
+
+  e_passGRL = false;
+  e_passLArError = false;
+  e_passTrigger = false;
+  e_passPreselect = false;
+  e_passJetPts = false;
+  e_passJetsDEta = false;
+  e_passDiJetMass = false;
+  e_passJetsDPhi = false;
+  e_pass = false;
+
+  e_JetsDEta = 0;
+  e_DiJetMass = 0;
+  e_JetsDPhi = 0;
 }
   
 // Destructor

@@ -28,6 +28,7 @@ DerivationFramework::SkimmingToolEXOT5::SkimmingToolEXOT5(const std::string& t,
                                                             const std::string& n,
                                                             const IInterface* p) :
   AthAlgTool(t, n, p),
+  m_jetCalibrationTool("JetCalibrationTool/EXOT5JESTool"),
   m_ntot(0),
   m_npass(0)
 {
@@ -35,12 +36,14 @@ DerivationFramework::SkimmingToolEXOT5::SkimmingToolEXOT5(const std::string& t,
   declareInterface<DerivationFramework::ISkimmingTool>(this);
 
   declareProperty("JetContainer",          m_jetSGKey = "AntiKt4EMTopoJets");
+  declareProperty("JetCalibToolName",      m_jetCalibToolName = "" ); //empty means use the default from ExtendedJetCommon
 
   declareProperty("UncalibMonoJetPtCut",   m_uncalibMonoJetPt = 100000.);
   declareProperty("MonoJetPtCut",          m_monoJetPt = 100000.);
   declareProperty("LeadingJetPtCut",       m_leadingJetPt = 40000.);
   declareProperty("SubleadingJetPtCut",    m_subleadingJetPt = 40000.);
   declareProperty("DiJetMassCut",          m_Mjj = 150000.);
+  m_isMC = true;
 }
 
 DerivationFramework::SkimmingToolEXOT5::~SkimmingToolEXOT5() {
@@ -50,7 +53,13 @@ StatusCode DerivationFramework::SkimmingToolEXOT5::initialize()
 {
   ATH_MSG_VERBOSE("initialize() ..");
 
-  m_jetCalibrationTool.setTypeAndName("JetCalibrationTool/EXOT5JESTool");
+  if(m_jetCalibToolName.empty()){
+    std::string jetColl = m_jetSGKey.substr(0,m_jetSGKey.length()-4);
+    m_jetCalibrationTool.setTypeAndName("DFJetCalib_"+jetColl);
+  }
+  else{
+    m_jetCalibrationTool.setTypeAndName("JetCalibrationTool/"+m_jetCalibToolName);//EXOT5JESTool");
+  }
   CHECK(m_jetCalibrationTool.retrieve());
   ATH_MSG_INFO("Retrieved tool: " << m_jetCalibrationTool);
 

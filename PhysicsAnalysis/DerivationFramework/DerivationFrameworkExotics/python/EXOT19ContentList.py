@@ -1,23 +1,22 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-EXOT12Content = []
+EXOT19Content = []
 
-EXOT12AllVariables = [
+EXOT19AllVariables = [
     "MET_Track"
 ]
-
-EXOT12AllVariablesTruth = [
+    
+EXOT19AllVariablesTruth = [
     "TruthParticles",
     "TruthEvents",
     "TruthVertices",
     "MET_Truth",
     "AntiKt4TruthJets",
     "AntiKt4TruthWZJets",
-    "MuonTruthParticles",
     "egammaTruthParticles"
 ]
 
-EXOT12SmartCollections = [
+EXOT19SmartCollections = [
     "Photons",
     "TauJets",
     "Electrons",
@@ -29,8 +28,8 @@ EXOT12SmartCollections = [
     "InDetTrackParticles"
 ]
 
-EXOT12ExtraVariables = []
+EXOT19ExtraVariables = []
 
-EXOT12ExtraVariablesTruth = [
+EXOT19ExtraVariablesTruth = [
     "Electrons.bkgTruthType.bkgTruthOrigin.bkgMotherPdgId.bkgTruthParticleLink.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherPdgId.firstEgMotherTruthParticleLink"
 ]
