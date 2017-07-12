@@ -154,9 +154,9 @@ class UpgradePerformanceFunctions {
 
   float m_fEff;
   bool m_bUseTrackConf;
-  float fEffNominalArray[m_nPUPtBins];
-  float fEffMediumArray[m_nPUPtBins];
-  float fEffExtendedArray[m_nPUPtBins];
+  float m_effNominalArray[m_nPUPtBins];
+  float m_effMediumArray[m_nPUPtBins];
+  float m_effExtendedArray[m_nPUPtBins];
 
   // -- new stuff for HGTD --> to be included into the Golden Scenario
   // -- first set of preliminary working points to contain only flat factors of 
@@ -212,8 +212,8 @@ class UpgradePerformanceFunctions {
   void initializePileupTemplates(TString pileupTemplateFilename); // needs to be called by "setAvgMu" - PU Libraries only for mu 140 and 200 so far
 
   // Photon globals
-  std::vector<TH1D*> hsfakes;
-  std::vector<TH1D*> pufakes;
+  std::vector<TH1D*> m_hsfakes;
+  std::vector<TH1D*> m_pufakes;
 
 };
 

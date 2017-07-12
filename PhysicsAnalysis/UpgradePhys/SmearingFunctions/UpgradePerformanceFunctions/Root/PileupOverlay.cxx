@@ -280,56 +280,56 @@ void UpgradePerformanceFunctions::initializePileupTemplates(TString pileupTempla
 
   if (m_pueff == HS && fabs(m_fEff - 0.7) < 0.001 && fabs( m_avgMu - 200)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffNominalArray[i] = fHS70Nominal200[i];
+      m_effNominalArray[i] = fHS70Nominal200[i];
   }
   if (m_pueff == HS && fabs(m_fEff - 0.8) < 0.001 && fabs( m_avgMu - 200)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffNominalArray[i] = fHS80Nominal200[i];
+      m_effNominalArray[i] = fHS80Nominal200[i];
   }
   if (m_pueff == HS && fabs(m_fEff - 0.9) < 0.001 && fabs( m_avgMu - 200)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffNominalArray[i] = fHS90Nominal200[i];
+      m_effNominalArray[i] = fHS90Nominal200[i];
   }
 
   if (m_pueff == PU && fabs(m_fEff - 0.02) < 0.001 && fabs( m_avgMu - 200)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffNominalArray[i] = fPU02Nominal200[i];
+      m_effNominalArray[i] = fPU02Nominal200[i];
   }
   if (m_pueff == PU && fabs(m_fEff - 0.05) < 0.001 && fabs( m_avgMu - 200)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffNominalArray[i] = fPU05Nominal200[i];
+      m_effNominalArray[i] = fPU05Nominal200[i];
   }
   if (m_pueff == PU && fabs(m_fEff - 0.1) < 0.001 && fabs( m_avgMu - 200)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffNominalArray[i] = fPU10Nominal200[i];
+      m_effNominalArray[i] = fPU10Nominal200[i];
   }
 
   // mu 140
 
   if (m_pueff == HS && fabs(m_fEff - 0.7) < 0.001 && fabs( m_avgMu - 140)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffNominalArray[i] = fHS70Nominal140[i];
+      m_effNominalArray[i] = fHS70Nominal140[i];
   }
   if (m_pueff == HS && fabs(m_fEff - 0.8) < 0.001 && fabs( m_avgMu - 140)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffNominalArray[i] = fHS80Nominal140[i];
+      m_effNominalArray[i] = fHS80Nominal140[i];
   }
   if (m_pueff == HS && fabs(m_fEff - 0.9) < 0.001 && fabs( m_avgMu - 140)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffNominalArray[i] = fHS90Nominal140[i];
+      m_effNominalArray[i] = fHS90Nominal140[i];
   }
 
   if (m_pueff == PU && fabs(m_fEff - 0.02) < 0.001 && fabs( m_avgMu - 140)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffNominalArray[i] = fPU02Nominal140[i];
+      m_effNominalArray[i] = fPU02Nominal140[i];
   }
   if (m_pueff == PU && fabs(m_fEff - 0.05) < 0.001 && fabs( m_avgMu - 140)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffNominalArray[i] = fPU05Nominal140[i];
+      m_effNominalArray[i] = fPU05Nominal140[i];
   }
   if (m_pueff == PU && fabs(m_fEff - 0.1) < 0.001 && fabs( m_avgMu - 140)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffNominalArray[i] = fPU10Nominal140[i];
+      m_effNominalArray[i] = fPU10Nominal140[i];
   }
 
   // medium region
@@ -338,56 +338,56 @@ void UpgradePerformanceFunctions::initializePileupTemplates(TString pileupTempla
 
   if (m_pueff == HS && fabs(m_fEff - 0.7) < 0.001 && fabs( m_avgMu - 200)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffMediumArray[i] = fHS70Medium200[i];
+      m_effMediumArray[i] = fHS70Medium200[i];
   }
   if (m_pueff == HS && fabs(m_fEff - 0.8) < 0.001 && fabs( m_avgMu - 200)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffMediumArray[i] = fHS80Medium200[i];
+      m_effMediumArray[i] = fHS80Medium200[i];
   }
   if (m_pueff == HS && fabs(m_fEff - 0.9) < 0.001 && fabs( m_avgMu - 200)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffMediumArray[i] = fHS90Medium200[i];
+      m_effMediumArray[i] = fHS90Medium200[i];
   }
 
   if (m_pueff == PU && fabs(m_fEff - 0.02) < 0.001 && fabs( m_avgMu - 200)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffMediumArray[i] = fPU02Medium200[i];
+      m_effMediumArray[i] = fPU02Medium200[i];
   }
   if (m_pueff == PU && fabs(m_fEff - 0.05) < 0.001 && fabs( m_avgMu - 200)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffMediumArray[i] = fPU05Medium200[i];
+      m_effMediumArray[i] = fPU05Medium200[i];
   }
   if (m_pueff == PU && fabs(m_fEff - 0.1) < 0.001 && fabs( m_avgMu - 200)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffMediumArray[i] = fPU10Medium200[i];
+      m_effMediumArray[i] = fPU10Medium200[i];
   }
 
   // mu 140
 
   if (m_pueff == HS && fabs(m_fEff - 0.7) < 0.001 && fabs( m_avgMu - 140)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffMediumArray[i] = fHS70Medium140[i];
+      m_effMediumArray[i] = fHS70Medium140[i];
   }
   if (m_pueff == HS && fabs(m_fEff - 0.8) < 0.001 && fabs( m_avgMu - 140)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffMediumArray[i] = fHS80Medium140[i];
+      m_effMediumArray[i] = fHS80Medium140[i];
   }
   if (m_pueff == HS && fabs(m_fEff - 0.9) < 0.001 && fabs( m_avgMu - 140)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffMediumArray[i] = fHS90Medium140[i];
+      m_effMediumArray[i] = fHS90Medium140[i];
   }
 
   if (m_pueff == PU && fabs(m_fEff - 0.02) < 0.001 && fabs( m_avgMu - 140)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffMediumArray[i] = fPU02Medium140[i];
+      m_effMediumArray[i] = fPU02Medium140[i];
   }
   if (m_pueff == PU && fabs(m_fEff - 0.05) < 0.001 && fabs( m_avgMu - 140)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffMediumArray[i] = fPU05Medium140[i];
+      m_effMediumArray[i] = fPU05Medium140[i];
   }
   if (m_pueff == PU && fabs(m_fEff - 0.1) < 0.001 && fabs( m_avgMu - 140)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffMediumArray[i] = fPU10Medium140[i];
+      m_effMediumArray[i] = fPU10Medium140[i];
   }
 
   // extended region
@@ -396,56 +396,56 @@ void UpgradePerformanceFunctions::initializePileupTemplates(TString pileupTempla
 
   if (m_pueff == HS && fabs(m_fEff - 0.7) < 0.001 && fabs( m_avgMu - 200)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffExtendedArray[i] = fHS70Extended200[i];
+      m_effExtendedArray[i] = fHS70Extended200[i];
   }
   if (m_pueff == HS && fabs(m_fEff - 0.8) < 0.001 && fabs( m_avgMu - 200)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffExtendedArray[i] = fHS80Extended200[i];
+      m_effExtendedArray[i] = fHS80Extended200[i];
   }
   if (m_pueff == HS && fabs(m_fEff - 0.9) < 0.001 && fabs( m_avgMu - 200)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffExtendedArray[i] = fHS90Extended200[i];
+      m_effExtendedArray[i] = fHS90Extended200[i];
   }
 
   if (m_pueff == PU && fabs(m_fEff - 0.02) < 0.001 && fabs( m_avgMu - 200)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffExtendedArray[i] = fPU02Extended200[i];
+      m_effExtendedArray[i] = fPU02Extended200[i];
   }
   if (m_pueff == PU && fabs(m_fEff - 0.05) < 0.001 && fabs( m_avgMu - 200)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffExtendedArray[i] = fPU05Extended200[i];
+      m_effExtendedArray[i] = fPU05Extended200[i];
   }
   if (m_pueff == PU && fabs(m_fEff - 0.1) < 0.001 && fabs( m_avgMu - 200)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffExtendedArray[i] = fPU10Extended200[i];
+      m_effExtendedArray[i] = fPU10Extended200[i];
   }
 
   // mu 140
 
   if (m_pueff == HS && fabs(m_fEff - 0.7) < 0.001 && fabs( m_avgMu - 140)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffExtendedArray[i] = fHS70Extended140[i];
+      m_effExtendedArray[i] = fHS70Extended140[i];
   }
   if (m_pueff == HS && fabs(m_fEff - 0.8) < 0.001 && fabs( m_avgMu - 140)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffExtendedArray[i] = fHS80Extended140[i];
+      m_effExtendedArray[i] = fHS80Extended140[i];
   }
   if (m_pueff == HS && fabs(m_fEff - 0.9) < 0.001 && fabs( m_avgMu - 140)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffExtendedArray[i] = fHS90Extended140[i];
+      m_effExtendedArray[i] = fHS90Extended140[i];
   }
 
   if (m_pueff == PU && fabs(m_fEff - 0.02) < 0.001 && fabs( m_avgMu - 140)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffExtendedArray[i] = fPU02Extended140[i];
+      m_effExtendedArray[i] = fPU02Extended140[i];
   }
   if (m_pueff == PU && fabs(m_fEff - 0.05) < 0.001 && fabs( m_avgMu - 140)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffExtendedArray[i] = fPU05Extended140[i];
+      m_effExtendedArray[i] = fPU05Extended140[i];
   }
   if (m_pueff == PU && fabs(m_fEff - 0.1) < 0.001 && fabs( m_avgMu - 140)  < 0.1){
     for (int i = 0; i < m_nPUPtBins; i++)
-      fEffExtendedArray[i] = fPU10Extended140[i];
+      m_effExtendedArray[i] = fPU10Extended140[i];
   }
 
   // additional HGTD prints - makes not much sense
@@ -540,13 +540,13 @@ float UpgradePerformanceFunctions::getTrackJetConfirmEff(float ptMeV, float eta,
 	  if (bHS){ // HS jet
 	    tceff = m_fEff;
 	  } else { // PU jet
-	    tceff = fEffNominalArray[nPt];
+	    tceff = m_effNominalArray[nPt];
 	  }
 	}
 
 	if (m_pueff == PU){       // PU Efficiency Scheme
 	  if (bHS){ // HS jet
-	    tceff = fEffNominalArray[nPt];
+	    tceff = m_effNominalArray[nPt];
 	  } else { // PU jet
 	    tceff = m_fEff;
 	  }
@@ -565,13 +565,13 @@ float UpgradePerformanceFunctions::getTrackJetConfirmEff(float ptMeV, float eta,
 	  if (bHS){ // HS jet
 	    tceff = m_fEff;
 	  } else { // PU jet
-	    tceff = fEffMediumArray[nPt];
+	    tceff = m_effMediumArray[nPt];
 	  }
 	}
 
 	if (m_pueff == PU){       // PU Efficiency Scheme
 	  if (bHS){ // HS jet
-	    tceff = fEffMediumArray[nPt];
+	    tceff = m_effMediumArray[nPt];
 	  } else { // PU jet
 	    tceff = m_fEff;
 	  }
@@ -582,13 +582,13 @@ float UpgradePerformanceFunctions::getTrackJetConfirmEff(float ptMeV, float eta,
 	  if (bHS){ // HS jet
 	    tceff = m_fEff;
 	  } else { // PU jet
-	    tceff = fEffNominalArray[nPt];
+	    tceff = m_effNominalArray[nPt];
 	  }
 	}
 
 	if (m_pueff == PU){       // PU Efficiency Scheme
 	  if (bHS){ // HS jet
-	    tceff = fEffNominalArray[nPt];
+	    tceff = m_effNominalArray[nPt];
 	  } else { // PU jet
 	    tceff = m_fEff;
 	  }
@@ -608,13 +608,13 @@ float UpgradePerformanceFunctions::getTrackJetConfirmEff(float ptMeV, float eta,
 	  if (bHS){ // HS jet
 	    tceff = m_fEff;
 	  } else { // PU jet
-	    tceff = fEffExtendedArray[nPt];
+	    tceff = m_effExtendedArray[nPt];
 	  }
 	}
 
 	if (m_pueff == PU){       // PU Efficiency Scheme
 	  if (bHS){ // HS jet
-	    tceff = fEffExtendedArray[nPt];
+	    tceff = m_effExtendedArray[nPt];
 	  } else { // PU jet
 	    tceff = m_fEff;
 	  }
@@ -627,13 +627,13 @@ float UpgradePerformanceFunctions::getTrackJetConfirmEff(float ptMeV, float eta,
 	  if (bHS){ // HS jet
 	    tceff = m_fEff;
 	  } else { // PU jet
-	    tceff = fEffMediumArray[nPt];
+	    tceff = m_effMediumArray[nPt];
 	  }
 	}
 
 	if (m_pueff == PU){       // PU Efficiency Scheme
 	  if (bHS){ // HS jet
-	    tceff = fEffMediumArray[nPt];
+	    tceff = m_effMediumArray[nPt];
 	  } else { // PU jet
 	    tceff = m_fEff;
 	  }
@@ -644,13 +644,13 @@ float UpgradePerformanceFunctions::getTrackJetConfirmEff(float ptMeV, float eta,
 	  if (bHS){ // HS jet
 	    tceff = m_fEff;
 	  } else { // PU jet
-	    tceff = fEffNominalArray[nPt];
+	    tceff = m_effNominalArray[nPt];
 	  }
 	}
 
 	if (m_pueff == PU){       // PU Efficiency Scheme
 	  if (bHS){ // HS jet
-	    tceff = fEffNominalArray[nPt];
+	    tceff = m_effNominalArray[nPt];
 	  } else { // PU jet
 	    tceff = m_fEff;
 	  }
