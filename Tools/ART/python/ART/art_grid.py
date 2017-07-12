@@ -212,32 +212,32 @@ class ArtGrid(ArtBase):
 
     def compare(self, package, test_name, days, file_names):
         """TBD."""
-        previous_nightly_tag = self.get_previous_nightly_tag(days)
-        print "Previous Nightly Tag:", str(previous_nightly_tag)
-        if previous_nightly_tag is None:
-            print "ERROR: No previous nightly tag found"
-            return 1
+        #previous_nightly_tag = self.get_previous_nightly_tag(days)
+        #print "Previous Nightly Tag:", str(previous_nightly_tag)
+        #if previous_nightly_tag is None:
+        #    print "ERROR: No previous nightly tag found"
+        #    return 1
 
-        ref_dir = os.path.join('.', 'ref-' + previous_nightly_tag)
-        mkdir_p(ref_dir)
+        #ref_dir = os.path.join('.', 'ref-' + previous_nightly_tag)
+        #mkdir_p(ref_dir)
 
-        tar = self.get_tar(package, test_name, '_EXT0', previous_nightly_tag)
-        if tar is None:
-            print "ERROR: No comparison tar file found"
-            return 1
+        #tar = self.get_tar(package, test_name, '_EXT0', previous_nightly_tag)
+        #if tar is None:
+        #    print "ERROR: No comparison tar file found"
+        #    return 1
 
-        for member in tar.getmembers():
-            if member.name in file_names:
-                tar.extractall(path=ref_dir, members=[member])
-        tar.close()
+        #for member in tar.getmembers():
+        #    if member.name in file_names:
+        #        tar.extractall(path=ref_dir, members=[member])
+        #tar.close()
 
-        for file_name in file_names:
-            ref_file = os.path.join(ref_dir, file_name)
-            if os.path.isfile(ref_file):
-                print "art-compare: " + previous_nightly_tag + " " + file_name
-                self.compare_ref(file_name, ref_file, 10)
-            else:
-                print "ERROR:", ref_file, "not found in tar file"
+        #for file_name in file_names:
+        #    ref_file = os.path.join(ref_dir, file_name)
+        #    if os.path.isfile(ref_file):
+        #        print "art-compare: " + previous_nightly_tag + " " + file_name
+        #        self.compare_ref(file_name, ref_file, 10)
+        #    else:
+        #        print "ERROR:", ref_file, "not found in tar file"
         return 0
 
     #
