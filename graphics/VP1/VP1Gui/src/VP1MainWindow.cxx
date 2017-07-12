@@ -719,8 +719,13 @@ QMap<QString,QString> VP1MainWindow::availableFiles(const QString& extension,
 		bool currentdir ) const
 {
 
+    qDebug() << "VP1MainWindow::availableFiles()";
+ 	qDebug() << "extension:" << extension << "pathvar:" << pathvar << "instareasubdir:" << instareasubdir << "extradirenvvar:" << extradirenvvar << "currentdir:" << currentdir;
+
 	//Add directories from extradirenvvar (e.g. $VP1PlUGINPATH)
 	QStringList vp1pluginpath = extradirenvvar.isEmpty() ? QStringList() : QString(::getenv(extradirenvvar.toStdString().c_str())).split(":",QString::SkipEmptyParts);
+    qDebug() << "extradirenvvar:" << extradirenvvar << "vp1pluginpath:" << vp1pluginpath;
+
 
 	//Currentdir:
 	if (currentdir) {
@@ -733,7 +738,7 @@ QMap<QString,QString> VP1MainWindow::availableFiles(const QString& extension,
 
 	//Add directories from pathvar (looking in subdir instareasubdir):
 	QString varStr = QString(::getenv(pathvar.toStdString().c_str()));
-	VP1Msg::messageDebug("Add directories from pathvar... " + pathvar + " - " + varStr);
+	//VP1Msg::messageDebug("Add directories from pathvar... " + pathvar + " - " + varStr);
 	QString path = QString(::getenv(pathvar.toStdString().c_str()));
 	if (!path.isEmpty()) {
 		//!instareasubdir.isEmpty()&&
@@ -775,7 +780,7 @@ QMap<QString,QString> VP1MainWindow::availablePluginFiles() const
 	QString sharedlibsuffix = "so";
 #endif
 
-	return availableFiles( "."+sharedlibsuffix, "LD_LIBRARY_PATH", "vp1plugins", "VP1PlUGINPATH" );
+	return availableFiles( "."+sharedlibsuffix, "LD_LIBRARY_PATH", "vp1plugins", "VP1PLUGINPATH" );
 
 }
 
