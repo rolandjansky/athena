@@ -12,35 +12,30 @@ unset( _version )
 
 # Set the versions of the TDAQ externals to pick up for the build:
 if( NOT LCG_NIGHTLY )
-   message( STATUS "LCG_NIGHTLY not set" )
    if( NOT "$ENV{LCG_NIGHTLY}" STREQUAL "" )
        set( LCG_NIGHTLY $ENV{LCG_NIGHTLY} CACHE STRING "LCG nightly build flavor" FORCE )
-       message( STATUS "Setting LCG_NIGHTLY to ${LCG_NIGHTLY}" )
+       message( STATUS "Using LCG_NIGHTLY: ${LCG_NIGHTLY}" )
    endif()
 endif()
  
+# Set the versions of the TDAQ externals to pick up for the build:
 if( LCG_NIGHTLY )
-   # no tdaq nightlies on CVMFS yet?
-   set( TDAQ_RELEASE_BASE "/afs/cern.ch/atlas/project/tdaq/prod" )
-   set( TDAQ-COMMON_ROOT "${TDAQ_RELEASE_BASE}/tdaq-common/tdaq-common-nightly4" )
-   set( DQM-COMMON_ROOT  "${TDAQ_RELEASE_BASE}/dqm-common/dqm-common-nightly4" )
-   set( TDAQ_ROOT "NO_TDAQ_NIGHTLY_PATH" )
-else()  
-   set( TDAQ-COMMON_VERSION "02-02-00" )
-   set( TDAQ-COMMON_ROOT
-      "$ENV{TDAQ_RELEASE_BASE}/tdaq-common/tdaq-common-${TDAQ-COMMON_VERSION}" )
-
-   set( DQM-COMMON_VERSION "01-02-00" )
-   set( DQM-COMMON_ROOT
-      "$ENV{TDAQ_RELEASE_BASE}/dqm-common/dqm-common-${DQM-COMMON_VERSION}" )
-
-   set( TDAQ_PROJECT_NAME "tdaq")
-   set( TDAQ_VERSION "07-01-00" )
-   set( TDAQ_ROOT "$ENV{TDAQ_RELEASE_BASE}/${TDAQ_PROJECT_NAME}/${TDAQ_PROJECT_NAME}-${TDAQ_VERSION}" )
+    # TDAQ_RELEASE_BASE should be set to a NIGHTLY TDAQ build!
+    set( TDAQ-COMMON_VERSION "99-00-00" )
+    set( DQM-COMMON_VERSION "99-00-00" )
+    set( TDAQ_VERSION "99-00-00" )
+else()
+    set( TDAQ-COMMON_VERSION "02-02-00" )
+    set( DQM-COMMON_VERSION "01-02-00" )
+    set( TDAQ_VERSION "07-01-00" )
 endif()
 
-message ( STATUS "TDAQ-COMMON_ROOT=${TDAQ-COMMON_ROOT}"  )
-message ( STATUS "DQM-COMMON_ROOT=${DQM-COMMON_ROOT}"  )
+set( TDAQ-COMMON_ROOT
+   "$ENV{TDAQ_RELEASE_BASE}/tdaq-common/tdaq-common-${TDAQ-COMMON_VERSION}" )
+set( DQM-COMMON_ROOT
+   "$ENV{TDAQ_RELEASE_BASE}/dqm-common/dqm-common-${DQM-COMMON_VERSION}" )
+set( TDAQ_PROJECT_NAME "tdaq")
+set( TDAQ_ROOT "$ENV{TDAQ_RELEASE_BASE}/${TDAQ_PROJECT_NAME}/${TDAQ_PROJECT_NAME}-${TDAQ_VERSION}" )
 
 # Find the ATLAS CMake code:
 find_package( AtlasCMake QUIET )
