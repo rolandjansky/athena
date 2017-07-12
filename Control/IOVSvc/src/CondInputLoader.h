@@ -73,6 +73,7 @@ class CondInputLoader
 
   /// Containers
   DataObjIDColl m_load;
+  std::vector< SG::VarHandleKey > m_vhk;
 
   bool m_dump;
   bool m_first { true };
