@@ -14,8 +14,7 @@ namespace LArG4
   //---------------------------------------------------------------------------
   EMECSDTool::EMECSDTool(const std::string& type, const std::string& name,
                                  const IInterface *parent)
-    : SimpleSDTool(type, name, parent),
-      m_hitCollName("LArHitEMEC")
+    : SimpleSDTool(type, name, parent)
     , m_emepiwcalc("EMECPosInnerWheelCalculator", name)
     , m_emeniwcalc("EMECNegInnerWheelCalculator", name)
     , m_emepowcalc("EMECPosOuterWheelCalculator", name)
@@ -23,7 +22,6 @@ namespace LArG4
     , m_emepscalc("EMECPresamplerCalculator", name)
     , m_emeobarcalc("EMECBackOuterBarretteCalculator", name)
   {
-    declareProperty("HitCollectionName", m_hitCollName);
     declareProperty("PosIWVolumes", m_posIWVolumes);
     declareProperty("NegIWVolumes", m_negIWVolumes);
     declareProperty("PosOWVolumes", m_posOWVolumes);
@@ -60,7 +58,7 @@ namespace LArG4
   G4VSensitiveDetector* EMECSDTool::makeSD()
   {
     // Create the wrapper
-    auto sdWrapper = new SimpleSDWrapper("LArEMECSDWrapper", m_hitCollName);
+    auto sdWrapper = new SimpleSDWrapper("LArEMECSDWrapper", m_outputCollectionNames[0]);
 
     // Add the SDs
     sdWrapper->addSD(
