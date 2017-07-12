@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef CALOGEODETECTORELEMENT_H
-#define CALOGEODETECTORELEMENT_H
+#ifndef ISF_FASTCALOSIMPARAMETRIZATION_CALOGEODETDESCRELEMENT_H
+#define ISF_FASTCALOSIMPARAMETRIZATION_CALOGEODETDESCRELEMENT_H
 
 class CaloGeometry;
 
@@ -45,76 +45,58 @@ class CaloGeoDetDescrElement
   virtual ~CaloGeoDetDescrElement() {};
 
   /** @brief cell eta
-   *  @copydoc CaloGeoDetDescrElement::m_eta
    */
   float eta() const;
   /** @brief cell phi
-   *  @copydoc CaloGeoDetDescrElement::m_phi
    */
   float phi() const;
   /** @brief cell r
-   *  @copydoc CaloGeoDetDescrElement::m_r
    */
   float r() const;
   /** @brief cell eta_raw
-   *  @copydoc CaloGeoDetDescrElement::m_eta_raw
    */
   float eta_raw() const;
   /** @brief cell phi_raw
-   *  @copydoc CaloGeoDetDescrElement::m_phi_raw
    */
   float phi_raw() const;
   /** @brief cell r_raw
-   *  @copydoc CaloGeoDetDescrElement::m_r_raw
    */
   float r_raw() const;
   /** @brief cell dphi
-   *  @copydoc CaloGeoDetDescrElement::m_dphi
    */
   float dphi() const;
   /** @brief cell deta
-   *  @copydoc CaloGeoDetDescrElement::m_deta
    */
   float deta() const;
   /** @brief cell dr
-   *  @copydoc CaloGeoDetDescrElement::m_dr
    */
   float dr() const;
 
   /** @brief cell x
-   *  @copydoc CaloGeoDetDescrElement::m_x
    */
   float x() const;
   /** @brief cell y
-   *  @copydoc CaloGeoDetDescrElement::m_y
    */
   float y() const;
   /** @brief cell z
-   *  @copydoc CaloGeoDetDescrElement::m_z
    */
   float z() const;
   /** @brief cell x_raw
-   *  @copydoc CaloGeoDetDescrElement::m_x_raw
    */
   float x_raw() const;
   /** @brief cell y_raw
-   *  @copydoc CaloGeoDetDescrElement::m_y_raw
    */
   float y_raw() const;
   /** @brief cell z_raw
-   *  @copydoc CaloGeoDetDescrElement::m_z_raw
    */
   float z_raw() const;
   /** @brief cell dx
-   *  @copydoc CaloGeoDetDescrElement::m_dx
    */
   float dx() const;
   /** @brief cell dy
-   *  @copydoc CaloGeoDetDescrElement::m_dy
    */
   float dy() const;
   /** @brief cell dz
-   *  @copydoc CaloGeoDetDescrElement::m_dz
    */
   float dz() const;
 
@@ -126,7 +108,6 @@ class CaloGeoDetDescrElement
 
   int getSampling() const ;
 
- private:
  //ACH protected:
  //
   long long m_identify;
