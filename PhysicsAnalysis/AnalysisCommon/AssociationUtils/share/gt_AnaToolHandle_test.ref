@@ -1,0 +1,16 @@
+[==========] Running 4 tests from 1 test case.
+[----------] Global test environment set-up.
+[----------] 4 tests from AnaToolHandleTest
+[ RUN      ] AnaToolHandleTest.OverlapTools
+[       OK ] AnaToolHandleTest.OverlapTools (42 ms)
+[ RUN      ] AnaToolHandleTest.MasterTools
+[       OK ] AnaToolHandleTest.MasterTools (0 ms)
+[ RUN      ] AnaToolHandleTest.ToolAssignment
+[       OK ] AnaToolHandleTest.ToolAssignment (0 ms)
+[ RUN      ] AnaToolHandleTest.ToolAssignment2
+[       OK ] AnaToolHandleTest.ToolAssignment2 (0 ms)
+[----------] 4 tests from AnaToolHandleTest (42 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test case ran. (42 ms total)
+[  PASSED  ] 4 tests.
