@@ -81,7 +81,7 @@ namespace met {
 
   // Athena algtool's Hooks
   ////////////////////////////
-  StatusCode METAssociator::initialize()o
+  StatusCode METAssociator::initialize()
   {
     ATH_MSG_DEBUG ("Initializing " << name() << "...");
 
