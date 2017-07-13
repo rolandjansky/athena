@@ -1,21 +1,20 @@
-Tue Jun 20 23:02:53 EDT 2017
-WARNING: TCMALLOCDIR not defined, will use libc malloc
+Thu Jul  6 15:06:12 CEST 2017
+Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
+Py:Athena            INFO using release [WorkDir-22.0.0] [x86_64-slc6-gcc62-opt] [atlas-work3g/22c15a400d] -- built on [2017-07-06T1502]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestSymlinks1_jo.py"
-Py:ConfigurableDb    INFO Read module info for 442 configurables from 2 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5355 configurables from 2 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-# setting LC_ALL to "C"
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+[?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Tue Jun 20 23:03:04 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v28r2)
+                                          running on lxplus064.cern.ch on Thu Jul  6 15:06:31 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -23,29 +22,29 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 2409 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2393 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 7129 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 58 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 6307 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 59 CLIDRegistry entries for module ALL
 MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
 AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Read replica configuration from /home/sss/atlas/dvtest/build/share/dbreplica.config
-DBReplicaSvc         INFO No specific match for domain found - use default fallback
-DBReplicaSvc         INFO Total of 1 servers found for host karma [atlas_dd ]
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-07-05T2251/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus064.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 DbSession Info     Open     DbSession    
 Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
 PoolSvc              INFO Re-initializing PoolSvc
-ClassIDSvc           INFO  getRegistryEntries: read 713 CLIDRegistry entries for module ALL
-xAODTestAlg       WARNING Implicit circular data dependency detected for id ('SG::AuxElement','cinfo2')
+ClassIDSvc           INFO  getRegistryEntries: read 903 CLIDRegistry entries for module ALL
+xAODTestAlg       WARNING Implicit circular data dependency detected for id ('SG::AuxElement','StoreGateSvc+cinfo2')
 HistogramPersis...WARNING Histograms saving not required.
 EventSelector        INFO  Enter McEventSelector Initialization 
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
@@ -54,7 +53,7 @@ ApplicationMgr       INFO Application Manager Started successfully
 EventPersistenc...   INFO Added successfully Conversion service:McCnvSvc
 AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
-ClassIDSvc           INFO  getRegistryEntries: read 106 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 108 CLIDRegistry entries for module ALL
 xAODTestReadSym...   INFO C (as AuxElement): 1000; S 0
 xAODTestAlg.xAO...   INFO From tool: C (as AuxElement): 1000; S 0
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===

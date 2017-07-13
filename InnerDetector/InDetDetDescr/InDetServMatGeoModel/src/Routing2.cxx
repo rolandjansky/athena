@@ -13,24 +13,24 @@
 using namespace std; // for DEBUG
 
 Routing2::Routing2(const Athena::MsgStreamMember& msg):
-  previousBarrelLayer(0), m_msg(msg)
+  m_msg(msg)
 {
   m_routePixelBarrelOnPST = false;
   m_pixelAlongBarrelStrip = false;
-  c_nInnerPixelLayers = 2;
+  m_c_nInnerPixelLayers = 2;
 
-  c_bpEosLength = 40; // mm
-  c_epEosLength = 30;
-  c_bsEosLength = 50;
-  c_safetyGap = 0.001;
+  m_c_bpEosLength = 40; // mm
+  m_c_epEosLength = 30;
+  m_c_bsEosLength = 50;
+  m_c_safetyGap = 0.001;
 
   // all units in cm
-  c_EosTolerance = 1.; // mm
-  c_halfEosThick = 3;
-  c_EosTolerance2 = 0.1;
-  c_ServiceDiskThickness = 10;
-  c_ServiceCylinderThickness = 6;
-  c_LayerLengthTolerance = 1;
+  m_c_EosTolerance = 1.; // mm
+  m_c_halfEosThick = 3;
+  m_c_EosTolerance2 = 0.1;
+  m_c_ServiceDiskThickness = 10;
+  m_c_ServiceCylinderThickness = 6;
+  m_c_LayerLengthTolerance = 1;
 
   m_ISTexists = false;
 
@@ -83,11 +83,11 @@ void Routing2::createRoutes(ServicesTracker& tracker)
   const LayerContainer& bslc = tracker.barrelStripLayers();
 
   double bpZmax = 0;
-  for (LayerContainer::const_iterator bl=bplc.begin()+c_nInnerPixelLayers; bl!=bplc.end(); ++bl)
+  for (LayerContainer::const_iterator bl=bplc.begin()+m_c_nInnerPixelLayers; bl!=bplc.end(); ++bl)
     bpZmax = std::max( bpZmax, (**bl).zPos() + (**bl).halfLength());
 
-  double bpVertRouteZpos = bpZmax+c_EosTolerance+c_bpEosLength +  0.5*c_ServiceDiskThickness + c_safetyGap;
-  double bpVertRouteRmin = bplc[c_nInnerPixelLayers]->radius(); // change if along PST
+  double bpVertRouteZpos = bpZmax+m_c_EosTolerance+m_c_bpEosLength +  0.5*m_c_ServiceDiskThickness + m_c_safetyGap;
+  double bpVertRouteRmin = bplc[m_c_nInnerPixelLayers]->radius(); // change if along PST
 
   // Find max endcap pixel layer radius
   double epRmax = 0;
@@ -97,18 +97,18 @@ void Routing2::createRoutes(ServicesTracker& tracker)
   // Find max radius for vertical route
   double bpVertRouteRmax;
   if (!m_ISTexists) {
-    bpVertRouteRmax = 0.5*(epRmax + c_epEosLength + tracker.geoMgr()->sctInnerSupport());
+    bpVertRouteRmax = 0.5*(epRmax + m_c_epEosLength + tracker.geoMgr()->sctInnerSupport());
     // Pixel horizontal route in the middle between pixel disks and first strip layer
-    if ( epRmax + c_epEosLength + c_ServiceCylinderThickness > tracker.geoMgr()->sctInnerSupport())
+    if ( epRmax + m_c_epEosLength + m_c_ServiceCylinderThickness > tracker.geoMgr()->sctInnerSupport())
       msg(MSG::WARNING)<< " No space for services between pixel diskd and sct support" << endmsg;
   }
   else {
     // services along PST, as close as they can get
-    bpVertRouteRmax = tracker.geoMgr()->SupportTubeRMin("PST") - c_safetyGap - 0.5*c_ServiceCylinderThickness;
+    bpVertRouteRmax = tracker.geoMgr()->SupportTubeRMin("PST") - m_c_safetyGap - 0.5*m_c_ServiceCylinderThickness;
   }
 
   double bpHorRouteR = bpVertRouteRmax;
-  double bpHRouteZmin = bpVertRouteZpos +  0.5*c_ServiceDiskThickness + c_safetyGap;
+  double bpHRouteZmin = bpVertRouteZpos +  0.5*m_c_ServiceDiskThickness + m_c_safetyGap;
   double bpHRouteZmax = eplc.back()->zPos(); // prolong if along PST ?
   msg(MSG::INFO) << "Route2: setting bpHRouteZmax to " << bpHRouteZmax << endmsg;
 
@@ -118,7 +118,7 @@ void Routing2::createRoutes(ServicesTracker& tracker)
   for (LayerContainer::const_iterator i=bslc.begin(); i!=bslc.end(); ++i)
     bsZmax = std::max( bsZmax, (**i).zPos() + (**i).halfLength());
 
-  double bsVertRouteZpos = bsZmax+c_EosTolerance+c_bsEosLength + 0.5*c_ServiceDiskThickness + c_safetyGap;
+  double bsVertRouteZpos = bsZmax+m_c_EosTolerance+m_c_bsEosLength + 0.5*m_c_ServiceDiskThickness + m_c_safetyGap;
 
   bpHRouteZmax = tracker.geoMgr()->SupportTubeZMax("PST");
   
@@ -132,8 +132,8 @@ void Routing2::createRoutes(ServicesTracker& tracker)
 
   msg(MSG::INFO)<< "Changing bpHRouteZmax to " << bpHRouteZmax << endmsg;
 
-  double bsVertRouteRmin = bpHorRouteR + 0.5*c_ServiceCylinderThickness + c_safetyGap;
-  double bsVertRouteRmax = bslc.back()->radius() + c_ServiceCylinderThickness; // approx
+  double bsVertRouteRmin = bpHorRouteR + 0.5*m_c_ServiceCylinderThickness + m_c_safetyGap;
+  double bsVertRouteRmax = bslc.back()->radius() + m_c_ServiceCylinderThickness; // approx
 
   m_bpVRoute = VRoute( bpVertRouteZpos, bpVertRouteRmin, bpVertRouteRmax, bpVertRouteRmax, "OuterPixelRPath");
 
@@ -150,19 +150,19 @@ void Routing2::createRoutes(ServicesTracker& tracker)
 
  // Additional Routes:
   // Outside MSTOuter
-  double bpMSTO_R =  tracker.geoMgr()->SupportTubeRMax("MSTO") + c_safetyGap + 0.5*c_ServiceCylinderThickness;
+  double bpMSTO_R =  tracker.geoMgr()->SupportTubeRMax("MSTO") + m_c_safetyGap + 0.5*m_c_ServiceCylinderThickness;
   m_MSTO_HRoute = HRoute( bpMSTO_R, bpHRouteZmin, bpHRouteZmax, bpHRouteZmax, "MSTOPixelZPath"); 
 
   // Outside MSTMiddle
-  double bpMSTM_R =  tracker.geoMgr()->SupportTubeRMax("MSTM") + c_safetyGap + 0.5*c_ServiceCylinderThickness;
+  double bpMSTM_R =  tracker.geoMgr()->SupportTubeRMax("MSTM") + m_c_safetyGap + 0.5*m_c_ServiceCylinderThickness;
   m_MSTM_HRoute = HRoute( bpMSTM_R, bpHRouteZmin, bpHRouteZmax, bpHRouteZmax, "MSTMPixelZPath"); 
 
   // Outside MSTInner
-  double bpMSTI_R =  tracker.geoMgr()->SupportTubeRMax("MSTI") + c_safetyGap + 0.5*c_ServiceCylinderThickness;
+  double bpMSTI_R =  tracker.geoMgr()->SupportTubeRMax("MSTI") + m_c_safetyGap + 0.5*m_c_ServiceCylinderThickness;
   m_MSTI_HRoute = HRoute( bpMSTI_R, bpHRouteZmin, bpHRouteZmax, bpHRouteZmax, "MSTIPixelZPath"); 
 
   // Inside MSTMiddle
-  double bpMSTM_RI =  tracker.geoMgr()->SupportTubeRMin("MSTM") - c_safetyGap - 0.5*c_ServiceCylinderThickness;
+  double bpMSTM_RI =  tracker.geoMgr()->SupportTubeRMin("MSTM") - m_c_safetyGap - 0.5*m_c_ServiceCylinderThickness;
   m_MSTM_HRouteInner = HRoute( bpMSTM_RI, bpHRouteZmin, bpHRouteZmax, bpHRouteZmax, "MSTMPixelZPathInner"); 
 
   // Exit route for pixel
@@ -176,14 +176,14 @@ void Routing2::createOuterPixelRoutes(ServicesTracker& tracker)
 {
   if (!m_ISTexists) { // PST is actually IST, and there is no PST
     // we need to reduce the route radius after the pixel disks to avoid conflict with SCT disks
-    double routeRadius = tracker.geoMgr()->pixelEnvelopeRMax() - c_safetyGap - c_ServiceCylinderThickness/2;
+    double routeRadius = tracker.geoMgr()->pixelEnvelopeRMax() - m_c_safetyGap - m_c_ServiceCylinderThickness/2;
     //double zpos = 0.5 * (tracker.endcapPixelLayers().back()->zPos() + tracker.endcapStripLayers().front()->zPos());
-    double zpos = m_epHRoute.zMax() + c_ServiceDiskThickness/2 + c_safetyGap;
+    double zpos = m_epHRoute.zMax() + m_c_ServiceDiskThickness/2 + m_c_safetyGap;
 
     m_pixelV2Route = VRoute( zpos, routeRadius, m_bpHRoute.radius(), routeRadius, "OuterPixelRPath2");
 
     double pstLen = tracker.geoMgr()->SupportTubeZMax("PST");
-    m_pixelH2Route = HRoute( routeRadius, zpos + c_ServiceDiskThickness/2 + c_safetyGap, pstLen, pstLen,"OuterPixelZPath2");
+    m_pixelH2Route = HRoute( routeRadius, zpos + m_c_ServiceDiskThickness/2 + m_c_safetyGap, pstLen, pstLen,"OuterPixelZPath2");
     m_epHRoute.setNextRoute( &m_pixelV2Route);
     m_pixelV2Route.setNextRoute( &m_pixelH2Route);
   }
@@ -193,12 +193,12 @@ void Routing2::createRoutesInIST(ServicesTracker& tracker)
 {
   const LayerContainer& bplc = tracker.barrelPixelLayers();
   double bpZmax = 0;
-  for (LayerContainer::const_iterator bl=bplc.begin(); bl!=bplc.begin()+c_nInnerPixelLayers; ++bl) {
+  for (LayerContainer::const_iterator bl=bplc.begin(); bl!=bplc.begin()+m_c_nInnerPixelLayers; ++bl) {
     bpZmax = std::max( bpZmax, (**bl).zPos() + (**bl).halfLength());
   }
 
-  double istVRouteZpos = bpZmax+c_EosTolerance+c_bpEosLength +
-    0.5*c_ServiceDiskThickness + c_safetyGap;
+  double istVRouteZpos = bpZmax+m_c_EosTolerance+m_c_bpEosLength +
+    0.5*m_c_ServiceDiskThickness + m_c_safetyGap;
   double istVRouteRmin = bplc.front()->radius();
 
   double istRmin;
@@ -216,10 +216,10 @@ void Routing2::createRoutesInIST(ServicesTracker& tracker)
     istZmax = tracker.geoMgr()->SupportTubeZMax("PST");
   }
 
-  double istVRouteRmax = istRmin - 0.5*c_ServiceCylinderThickness - c_safetyGap;
+  double istVRouteRmax = istRmin - 0.5*m_c_ServiceCylinderThickness - m_c_safetyGap;
   m_istVRoute = VRoute( istVRouteZpos, istVRouteRmin, istVRouteRmax, istVRouteRmax, "InnerPixelRPath");
 
-  double istHRouteZmin = istVRouteZpos + 0.5*c_ServiceDiskThickness + c_safetyGap;
+  double istHRouteZmin = istVRouteZpos + 0.5*m_c_ServiceDiskThickness + m_c_safetyGap;
   double istHRouteZmax = istZmax;
   m_istHRoute = HRoute( istVRouteRmax, istHRouteZmin, istHRouteZmax, istHRouteZmax, "InnerPixelZPath");
   m_istVRoute.setNextRoute(&m_istHRoute);
@@ -229,7 +229,7 @@ void Routing2::routeOuterBarrelPixel(ServicesTracker& tracker)
 {
 
   const LayerContainer& bls = tracker.barrelPixelLayers();
-  for (LayerContainer::const_iterator bl=bls.begin()+c_nInnerPixelLayers; bl!=bls.end(); ++bl) {
+  for (LayerContainer::const_iterator bl=bls.begin()+m_c_nInnerPixelLayers; bl!=bls.end(); ++bl) {
     routeBarrelLayer( bl, bls.end(), tracker, m_bpVRoute);
   }
 }
@@ -299,8 +299,8 @@ bool Routing2::isRoutedOutsideSupportTube(LayerContainer::const_iterator bl, HRo
 void Routing2::routeInnerBarrelPixel(ServicesTracker& tracker)
 {
   const LayerContainer& bls = tracker.barrelPixelLayers();
-  for (LayerContainer::const_iterator bl=bls.begin(); bl!=bls.begin()+c_nInnerPixelLayers; ++bl) {
-    routeBarrelLayer( bl, bls.begin()+c_nInnerPixelLayers, tracker, m_istVRoute);
+  for (LayerContainer::const_iterator bl=bls.begin(); bl!=bls.begin()+m_c_nInnerPixelLayers; ++bl) {
+    routeBarrelLayer( bl, bls.begin()+m_c_nInnerPixelLayers, tracker, m_istVRoute);
   }
 }
 
@@ -312,8 +312,8 @@ void Routing2::routeBarrelLayer(LayerContainer::const_iterator bl,
   double zEosMin = (*bl)->halfLength() + eosTolerance( (*bl)->type(), DetType::Barrel);
   double zEosMax = zEosMin + eosLength( (*bl)->type(), DetType::Barrel);
 
-  if (zEosMax < route.position() - 0.5*c_ServiceDiskThickness) {
-    zEosMax = route.position() - 0.5*c_ServiceDiskThickness - c_safetyGap;
+  if (zEosMax < route.position() - 0.5*m_c_ServiceDiskThickness) {
+    zEosMax = route.position() - 0.5*m_c_ServiceDiskThickness - m_c_safetyGap;
   }
   else {
     msg(MSG::WARNING) << "not enough space for end of stave of barrel layer at radius "
@@ -331,7 +331,7 @@ void Routing2::routeBarrelLayer(LayerContainer::const_iterator bl,
   // 2. Connect to route
   double rMin, rMax;
   if (route.volumes().empty()) rMin = route.rMin();
-  else rMin = route.volumes().back()->rMax() + c_safetyGap;
+  else rMin = route.volumes().back()->rMax() + m_c_safetyGap;
 
   LayerContainer::const_iterator blnext = bl+1;
   if (blnext != blend) {
@@ -340,8 +340,8 @@ void Routing2::routeBarrelLayer(LayerContainer::const_iterator bl,
   else rMax = route.rExit();
 
   ServiceVolume* newDisk = new ServiceVolume( ServiceVolume::Disk, rMin, rMax, 
-					      route.zPos()-0.5*c_ServiceDiskThickness,
-					      route.zPos()+0.5*c_ServiceDiskThickness,
+					      route.zPos()-0.5*m_c_ServiceDiskThickness,
+					      route.zPos()+0.5*m_c_ServiceDiskThickness,
 					      nextVolumeName(route));
   newDisk->dump(true);
   // newDisk->addLayer(*bl); // done by connect()
@@ -358,11 +358,11 @@ void Routing2::routeEndcapLayer(LayerContainer::const_iterator bl,
   // 1. construct end-of-stave volume 
 //   double rEosMin = (*bl)->rMax() + eosTolerance( (*bl)->type(), DetType::Endcap);
 //   double rEosMax = rEosMin + eosLength( (*bl)->type(), DetType::Endcap);
-//   if (rEosMax > route.position() - 0.5*c_ServiceCylinderThickness) {
+//   if (rEosMax > route.position() - 0.5*m_c_ServiceCylinderThickness) {
 //     msg(MSG::WARNING) << "not enough space for end of stave of endcap layer at Z = "
 // 		      << (**bl).zPos() << endmsg;
 //   }
-//   rEosMax = route.position() - 0.5*c_ServiceCylinderThickness - c_safetyGap;
+//   rEosMax = route.position() - 0.5*m_c_ServiceCylinderThickness - m_c_safetyGap;
 //   if (rEosMax < rEosMin) {
 //     msg(MSG::WARNING) << "no space for routing of endcap layer at Z = "
 // 		      << (**bl).zPos() << endmsg;
@@ -378,7 +378,7 @@ void Routing2::routeEndcapLayer(LayerContainer::const_iterator bl,
   if (SupportName == "PST")
   {
     rEosMin = (*bl)->rMax() + eosTolerance( (*bl)->type(), DetType::Endcap);   // Disk outer edge + safety
-    rEosMax = route.position() - 0.5*c_ServiceCylinderThickness - c_safetyGap; // support tube - safety
+    rEosMax = route.position() - 0.5*m_c_ServiceCylinderThickness - m_c_safetyGap; // support tube - safety
     EOSZOffset = tracker.geoMgr()->pixelDiskEOSZOffset( (*bl)->number() );
     if (rEosMax < rEosMin) msg(MSG::WARNING) << "No space for routing of endcap layer at Z = " << (**bl).zPos() << endmsg;
   }
@@ -390,7 +390,7 @@ void Routing2::routeEndcapLayer(LayerContainer::const_iterator bl,
   }
   else if (SupportName == "IST")
   {
-    rEosMin = route.position() + 0.5*c_ServiceCylinderThickness + c_safetyGap; // support tube + safety
+    rEosMin = route.position() + 0.5*m_c_ServiceCylinderThickness + m_c_safetyGap; // support tube + safety
     rEosMax = (*bl)->rMin() - eosTolerance( (*bl)->type(), DetType::Endcap);   // Disk outer edge - safety
     EOSZOffset = tracker.geoMgr()->pixelDiskEOSZOffset( (*bl)->number() );
     if (rEosMax < rEosMin) msg(MSG::WARNING) << "No space for routing of endcap layer at Z = " << (**bl).zPos() << endmsg;
@@ -400,12 +400,12 @@ void Routing2::routeEndcapLayer(LayerContainer::const_iterator bl,
     // rEosMin/Max are different if disk runs inside or outside the support tube
     if (bRoutedOutsideSupport)
     {
-      rEosMin = route.position() + 0.5*c_ServiceCylinderThickness + c_safetyGap;
+      rEosMin = route.position() + 0.5*m_c_ServiceCylinderThickness + m_c_safetyGap;
       rEosMax = (*bl)->rMax() - eosTolerance( (*bl)->type(), DetType::Endcap);
     }
     else
     {
-       rEosMax = route.position() - 0.5*c_ServiceCylinderThickness - c_safetyGap;
+       rEosMax = route.position() - 0.5*m_c_ServiceCylinderThickness - m_c_safetyGap;
        rEosMin = (**bl).rMin() - eosTolerance( (**bl).type(), DetType::Endcap);
     }
     EOSZOffset = tracker.geoMgr()->pixelDiskEOSZOffset( (*bl)->number() );
@@ -415,11 +415,11 @@ void Routing2::routeEndcapLayer(LayerContainer::const_iterator bl,
       rEosMin = (*bl)->rMax() + eosTolerance( (*bl)->type(), DetType::Endcap);
       rEosMax = rEosMin + eosLength( (*bl)->type(), DetType::Endcap);
       EOSZOffset = 0;
-      if (rEosMax > route.position() - 0.5*c_ServiceCylinderThickness) {
+      if (rEosMax > route.position() - 0.5*m_c_ServiceCylinderThickness) {
 	msg(MSG::WARNING) << "not enough space for end of stave of endcap layer at Z = "
 			  << (**bl).zPos() << endmsg;
       }
-      rEosMax = route.position() - 0.5*c_ServiceCylinderThickness - c_safetyGap;
+      rEosMax = route.position() - 0.5*m_c_ServiceCylinderThickness - m_c_safetyGap;
       if (rEosMax < rEosMin) {
 	msg(MSG::WARNING) << "no space for routing of endcap layer at Z = "
 			  << (**bl).zPos() << endmsg;
@@ -444,17 +444,17 @@ void Routing2::routeEndcapLayer(LayerContainer::const_iterator bl,
   double zMin, zMax;
   if (route.volumes().empty()) {
     zMin = (*bl)->zPos() + EOSZOffset;
-    if ( zMin - route.zMin() > c_EosTolerance) { // FIXME use specific tolerance
+    if ( zMin - route.zMin() > m_c_EosTolerance) { // FIXME use specific tolerance
       ServiceVolume* beg = new ServiceVolume( ServiceVolume::Cylinder,  
-					      route.radius()-0.5*c_ServiceCylinderThickness,
-					      route.radius()+0.5*c_ServiceCylinderThickness,
-					      route.zMin(), zMin - c_safetyGap,
+					      route.radius()-0.5*m_c_ServiceCylinderThickness,
+					      route.radius()+0.5*m_c_ServiceCylinderThickness,
+					      route.zMin(), zMin - m_c_safetyGap,
 					      nextVolumeName(route));
       route.addVolume( beg); // beg has no services at this time
       addVolume( beg);
     }
   }
-  else zMin = route.volumes().back()->zMax() + c_safetyGap;
+  else zMin = route.volumes().back()->zMax() + m_c_safetyGap;
 
   // Assume no further elements to link on the route then find next potential link 
   // Make sure next one is on the same support tube, and on the same side (inside or outside)
@@ -479,8 +479,8 @@ void Routing2::routeEndcapLayer(LayerContainer::const_iterator bl,
   if (route.zExit() < zMin) {
     // create a dedicated exit volume with zero length
     ServiceVolume* exitVol = new ServiceVolume( ServiceVolume::Cylinder,  
-						route.radius()-0.5*c_ServiceCylinderThickness,
-						route.radius()+0.5*c_ServiceCylinderThickness,
+						route.radius()-0.5*m_c_ServiceCylinderThickness,
+						route.radius()+0.5*m_c_ServiceCylinderThickness,
 						route.zExit(), route.zExit(),
 						route.name()+"ExitVol");
     // connect the last volume to the exit
@@ -492,8 +492,8 @@ void Routing2::routeEndcapLayer(LayerContainer::const_iterator bl,
   }
 
   ServiceVolume* newCyl = new ServiceVolume( ServiceVolume::Cylinder,  
-					     route.radius()-0.5*c_ServiceCylinderThickness,
-					     route.radius()+0.5*c_ServiceCylinderThickness,
+					     route.radius()-0.5*m_c_ServiceCylinderThickness,
+					     route.radius()+0.5*m_c_ServiceCylinderThickness,
 					     zMin, zMax, nextVolumeName(route));
   newCyl->dump();
   connect( eosVol, newCyl);
@@ -542,15 +542,15 @@ ServiceVolume* Routing2::createSingleRouteVolume( Route& rt)
   HRoute* hrt = dynamic_cast<HRoute*>(&rt);
   if (hrt != 0) {
     vol = new ServiceVolume( ServiceVolume::Cylinder,  
-			     rt.position()-0.5*c_ServiceCylinderThickness,
-			     rt.position()+0.5*c_ServiceCylinderThickness,
+			     rt.position()-0.5*m_c_ServiceCylinderThickness,
+			     rt.position()+0.5*m_c_ServiceCylinderThickness,
 			     hrt->zMin(), hrt->zMax(), rt.name());
   }
   else {
     VRoute* vrt = dynamic_cast<VRoute*>(&rt);
     if(vrt) vol = new ServiceVolume( ServiceVolume::Disk, vrt->rMin(), vrt->rMax(),
-				     rt.position()-0.5*c_ServiceDiskThickness,
-				     rt.position()+0.5*c_ServiceDiskThickness, rt.name());
+				     rt.position()-0.5*m_c_ServiceDiskThickness,
+				     rt.position()+0.5*m_c_ServiceDiskThickness, rt.name());
   }
   rt.addVolume( vol);
   addVolume(vol);
@@ -559,18 +559,18 @@ ServiceVolume* Routing2::createSingleRouteVolume( Route& rt)
 
 double Routing2::eosTolerance( DetType::Type /*type*/, DetType::Part /*part*/) 
 {
-  return c_EosTolerance;
+  return m_c_EosTolerance;
 }
 
 double Routing2::eosLength( DetType::Type type, DetType::Part part)
 {
   using namespace DetType;
   if (type == Pixel) {
-    if (part == Barrel) return c_bpEosLength;
-    else                return c_epEosLength;
+    if (part == Barrel) return m_c_bpEosLength;
+    else                return m_c_epEosLength;
   }
   else  {
-    return c_bsEosLength; 
+    return m_c_bsEosLength; 
     // FIXME add part for endcap strip
   }
 }
@@ -578,7 +578,7 @@ double Routing2::eosLength( DetType::Type type, DetType::Part part)
   
 double Routing2::eosHalfThickness( DetType::Type /*type*/, DetType::Part /*part*/)
 {
-  return c_halfEosThick;
+  return m_c_halfEosThick;
 }
 
 void Routing2::dumpRoute( const Route& route) 

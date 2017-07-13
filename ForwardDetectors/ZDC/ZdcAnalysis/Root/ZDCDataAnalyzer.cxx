@@ -41,8 +41,8 @@ ZDCDataAnalyzer::ZDCDataAnalyzer(int nSample, float deltaTSample, size_t preSamp
   m_calibTime[0] = {{0, 0, 0, 0}};
   m_calibTime[1] = {{0, 0, 0, 0}};
 
-  m_dataLoaded[0] = {false, false, false, false};
-  m_dataLoaded[1] = {false, false, false, false};
+  m_dataLoaded[0] = {{false, false, false, false}};
+  m_dataLoaded[1] = {{false, false, false, false}};
 
   // For now we are using hard-coded gain factors and pedestals
   //

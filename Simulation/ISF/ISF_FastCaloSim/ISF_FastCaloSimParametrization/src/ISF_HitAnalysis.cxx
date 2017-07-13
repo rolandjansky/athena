@@ -221,8 +221,6 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
   m_surfacelist.push_back(CaloCell_ID_FCS::EME2);
   m_surfacelist.push_back(CaloCell_ID_FCS::FCAL0);
 
-  //TLorentzVector *t;
-
 }
 
 
@@ -855,7 +853,21 @@ StatusCode ISF_HitAnalysis::execute()
                   if (particleIndex>loopEnd) break; //enough particles
 
                   //UPDATE EXTRAPOLATION WITH ALGTOOL *********************************************************************************************
+
                   TFCSTruthState truth((*it)->momentum().px(),(*it)->momentum().py(),(*it)->momentum().pz(),(*it)->momentum().e(),(*it)->pdg_id());
+
+                  //calculate the vertex
+                  TVector3 moment;
+                  moment.SetXYZ((*it)->momentum().px(),(*it)->momentum().py(),(*it)->momentum().pz());
+                  TVector3 direction=moment.Unit();
+
+                  //does it hit the barrel or the EC?
+                  if(abs(direction.Z())/3550.<direction.Perp()/1148.) //BARREL
+                    direction*=1148./direction.Perp();
+                  else //EC
+                    direction*=3550./abs(direction.Z());
+
+                  truth.set_vertex(direction.X(),direction.Y(),direction.Z()); //is this really needed?
                   TFCSExtrapolationState result;
                   m_FastCaloSimCaloExtrapolation->extrapolate(result,&truth);
 
@@ -913,7 +925,7 @@ StatusCode ISF_HitAnalysis::execute()
 
                   //*******************************************************************************************************************************
 
-                  //UPDATE EXTRAPOLATION (old extrapolation)
+                  //OLD EXTRAPOLATION
                   std::vector<Trk::HitInfo>* hitVector = caloHits(*(*it));
 
                   Amg::Vector3D mom((*it)->momentum().x(),(*it)->momentum().y(),(*it)->momentum().z());
@@ -1942,3 +1954,4 @@ double ISF_HitAnalysis::rzpos(int sample,double eta,int subpos) const
 {
   return GetCaloGeometry()->rzpos(sample,eta,subpos);
 }
+

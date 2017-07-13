@@ -15,10 +15,10 @@ int GeoPerfUtils::getMem() {
     procstream << "/proc/" << pid << "/status";
     std::ifstream memfile(procstream.str().c_str());
     
-    
-    char line[256];
+
+    std::string line;
     while ((memfile >> line)) {
-      if (std::string(line)=="VmSize:") {
+      if (line=="VmSize:") {
 	memfile >> line;
 	std::istringstream istream(line);
 	istream >> memSize;

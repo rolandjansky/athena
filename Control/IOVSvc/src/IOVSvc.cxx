@@ -857,10 +857,16 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
   IOVRange range;
   IOpaqueAddress* ioa;
   std::string tag;
+  // remove storename from key
+  std::string sgKey = id.key();
+  auto sep = sgKey.find("+");
+  if (sep != std::string::npos) {
+    sgKey.erase(0,sep+1);
+  }
   
-  if (getRangeFromDB(id.clid(), id.key(), t, range, tag, ioa).isFailure()) {
+  if (getRangeFromDB(id.clid(), sgKey, t, range, tag, ioa).isFailure()) {
     ATH_MSG_ERROR( "unable to get range from db for " 
-                   << id.clid() << " " << id.key() );
+                   << id.clid() << " " << sgKey );
     return StatusCode::FAILURE;
   }
      
@@ -872,7 +878,7 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
 
     SG::DataProxy* dp(0);
     SG::DataStore* ds = p_detStore->store();
-    dp = p_pps->retrieveProxy(id.clid(), id.key(), *ds);
+    dp = p_pps->retrieveProxy(id.clid(), sgKey, *ds);
     if (dp == 0) {
       ATH_MSG_ERROR ( "Could not get DataProxy from ProxyProviderSvc for "
                       << id );

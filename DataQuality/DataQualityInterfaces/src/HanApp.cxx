@@ -25,11 +25,13 @@
 ClassImp(dqi::HanApp)
 ///\endcond
 
+  /*
 void HanApp_dummyMethod()
 {
   TCanvas* dummyCanvas = new TCanvas("dummyCanvas","dummyCanvas", 450, 450 );
   dummyCanvas->cd();
 }
+  */
 
 namespace {
 

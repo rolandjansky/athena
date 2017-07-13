@@ -137,7 +137,8 @@ addListener(const std::string& name, dqm_core::InputListener *listener) throw (d
   // TKeys are owned by the TFile
   TKey* key = getObjKeyFromTDir( m_basedir, name );
   if( key == 0 ) {
-    std::cerr << "Warning: Histogram \"" << name << "\" was not found.  Ignoring...\n";
+    // reduce verbosity
+    //std::cerr << "Warning: Histogram \"" << name << "\" was not found.  Ignoring...\n";
     return;
   }
   m_monObjects.push_back( MonBundle(name,key,listener) );

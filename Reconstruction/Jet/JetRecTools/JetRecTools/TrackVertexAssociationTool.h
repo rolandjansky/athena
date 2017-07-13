@@ -56,24 +56,32 @@ class TrackVertexAssociationTool :  virtual public asg::AsgTool,
   
 private:
 
-  // Constuct a TrackVertexAssociation using a ITrackVertexAssociationTool object
-  jet::TrackVertexAssociation* buildTrackVertexAssociation_withTool(const xAOD::TrackParticleContainer*, const xAOD::VertexContainer*) const;
+  std::unique_ptr<jet::TrackVertexAssociation>
+  buildTrackVertexAssociation_withTool(const xAOD::TrackParticleContainer*, 
+                                       const xAOD::VertexContainer*) const;
   // Constuct a TrackVertexAssociation using the older custom method
-  jet::TrackVertexAssociation* buildTrackVertexAssociation_custom(const xAOD::TrackParticleContainer*, const xAOD::VertexContainer*) const;
+  // jet::TrackVertexAssociation* 
+  std::unique_ptr<jet::TrackVertexAssociation>
+  buildTrackVertexAssociation_custom(const xAOD::TrackParticleContainer*, 
+                                     const xAOD::VertexContainer*) const;
 
+  std::unique_ptr<jet::TrackVertexAssociation>
+  makeTrackVertexAssociation(const xAOD::TrackParticleContainer*, 
+                             const xAOD::VertexContainer*,
+                             bool useCustom) const;
 
   ToolHandle<CP::ITrackVertexAssociationTool> m_tvaTool;
-
-  std::string m_trackContainer;
-  std::string m_vertexContainer;
-  std::string m_tvaStoreName;
 
   // old Configurable parameters
 
   float m_transDistMax;
   float m_longDistMax;
   float m_maxZ0SinTheta;
-  
+
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackContainer_key;
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainer_key;
+  SG::WriteHandleKey<jet::TrackVertexAssociation> m_tva_key;
+
 };
 
 

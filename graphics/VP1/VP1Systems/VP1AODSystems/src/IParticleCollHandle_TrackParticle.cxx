@@ -233,9 +233,7 @@ void IParticleCollHandle_TrackParticle::dumpToJSON( std::ofstream& str) const {
   for (auto handle : getHandlesList() ) {
     if (handle->visible()) {
       if (num) str <<",\n";
-      str << "\"Trk "<<num++<< "\":{";
       handle->dumpToJSON(str);
-      str << "}";
     }
   }
   

@@ -281,3 +281,4 @@ int VP1TabBar::selectTab( const QPoint &pos ) const
 
   return -1;
 }
+

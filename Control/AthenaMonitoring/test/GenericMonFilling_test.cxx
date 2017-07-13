@@ -238,7 +238,7 @@ bool fillFromNonTrivialSourcesWorked( ToolHandle<GenericMonitoringTool>& monTool
   resetHists( histSvc );
   {
     
-    std::array<double, 2> eta( {0.1, 0.7} );
+    std::array<double, 2> eta( {{0.1, 0.7}} );
     double phi[2]={-2., -1.};
     auto arrayT = MonitoredCollection::declare( "Eta", eta );
     auto rawArrayT   = MonitoredCollection::declare( "Phi", phi );

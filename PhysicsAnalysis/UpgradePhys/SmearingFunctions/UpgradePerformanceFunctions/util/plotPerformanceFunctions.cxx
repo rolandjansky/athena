@@ -56,37 +56,37 @@ int main() {
   gStyle->SetPadTickX(1);
   gStyle->SetPadTickY(1);
 
-  UpgradePerformanceFunctions *m_upgrade = new UpgradePerformanceFunctions();
-  m_upgrade->setLayout(UpgradePerformanceFunctions::Step1p6);
-  m_upgrade->setAvgMu(200.);
-  std::cout << "Layout is " << m_upgrade->getLayout() 
-	    << ", and mu value is " << m_upgrade->getAvgMu() << std::endl;
-  //    m_upgrade->setUseHGTD0(true);
+  UpgradePerformanceFunctions *upgrade = new UpgradePerformanceFunctions();
+  upgrade->setLayout(UpgradePerformanceFunctions::Step1p6);
+  upgrade->setAvgMu(200.);
+  std::cout << "Layout is " << upgrade->getLayout() 
+	    << ", and mu value is " << upgrade->getAvgMu() << std::endl;
+  //    upgrade->setUseHGTD0(true);
 
-  // m_upgrade->extendJetTrigger(true);
-  // m_upgrade->setUseHGTD1(true);
+  // upgrade->extendJetTrigger(true);
+  // upgrade->setUseHGTD1(true);
 
-  //  plotElectronEfficiency(m_upgrade,3.0,32.0);
-  // plotElectronTriggerEfficiency(m_upgrade,3.0,32.0);
-  //  plotElectronEnergyResolution(m_upgrade,3.3,100.0);
-  // plotMuonEfficiency(m_upgrade,2,80.0);
-  // plotMuonTriggerEfficiency(m_upgrade,0.61,45.0);
-  // plotPhotonEfficiency(m_upgrade,1.0,80.0);
-  // plotFlavourTagEfficiency(m_upgrade,1.5,45,'B',"mv1",70);
-  // plotMETResolution(m_upgrade, 100,200,0);
-  plotTrackJetConfirmEff(m_upgrade,35);
-  plotJetTriggerEfficiency(m_upgrade);
+  //  plotElectronEfficiency(upgrade,3.0,32.0);
+  // plotElectronTriggerEfficiency(upgrade,3.0,32.0);
+  //  plotElectronEnergyResolution(upgrade,3.3,100.0);
+  // plotMuonEfficiency(upgrade,2,80.0);
+  // plotMuonTriggerEfficiency(upgrade,0.61,45.0);
+  // plotPhotonEfficiency(upgrade,1.0,80.0);
+  // plotFlavourTagEfficiency(upgrade,1.5,45,'B',"mv1",70);
+  // plotMETResolution(upgrade, 100,200,0);
+  plotTrackJetConfirmEff(upgrade,35);
+  plotJetTriggerEfficiency(upgrade);
 
   return 0;
 }
 
 
-void plotElectronEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_eta, float plot_pt) {
+void plotElectronEfficiency(UpgradePerformanceFunctions *upgrade, float plot_eta, float plot_pt) {
   // Make plot of Tight electron efficiency for pt and eta
   std::cout << "Generating Electron Efficiency Plots" << std::endl;
 
-  m_upgrade->setElectronWorkingPoint(UpgradePerformanceFunctions::tightElectron);
-  m_upgrade->setElectronRandomSeed(1);
+  upgrade->setElectronWorkingPoint(UpgradePerformanceFunctions::tightElectron);
+  upgrade->setElectronRandomSeed(1);
 
   TH2D *gold_ElectronEfficiency = new TH2D("gold_ElectronEfficiency","gold_ElectronEfficiency",1000,0,120,1000,0,5);
   // TH2D *silver_ElectronEfficiency = new TH2D("silverElectronEfficiency","silver_ElectronEfficiency",1000,0,120,1000,0,5);
@@ -108,8 +108,8 @@ void plotElectronEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_e
   for(int j=0;j<1000;j++){ //Begin eta loop
     
     for(int i=0;i<1000;i++){ //Begin pt loop
-      m_upgrade->setLayout(UpgradePerformanceFunctions::Step1p6);
-      result_f = m_upgrade->getElectronEfficiency(pt_f*1000,eta_f);
+      upgrade->setLayout(UpgradePerformanceFunctions::Step1p6);
+      result_f = upgrade->getElectronEfficiency(pt_f*1000,eta_f);
       gold_ElectronEfficiency->SetBinContent(i,j,result_f);
       if(eta_f < (plot_eta + .004) && eta_f > (plot_eta - .004)) {
         plot_eta = eta_f;
@@ -117,15 +117,15 @@ void plotElectronEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_e
         pt.push_back(pt_f);
       }
 
-      // m_upgrade->setLayout(UpgradePerformanceFunctions::silver);
-      // result_f = m_upgrade->getElectronEfficiency(pt_f*1000,eta_f);
+      // upgrade->setLayout(UpgradePerformanceFunctions::silver);
+      // result_f = upgrade->getElectronEfficiency(pt_f*1000,eta_f);
       // silver_ElectronEfficiency->SetBinContent(i,j,result_f);
       // if(eta_f < (plot_eta + .004) && eta_f > (plot_eta - .004)) {
       //   silver_pt.push_back(result_f);
       // }
   
-      // m_upgrade->setLayout(UpgradePerformanceFunctions::bronze);
-      // result_f = m_upgrade->getElectronEfficiency(pt_f*1000,eta_f);
+      // upgrade->setLayout(UpgradePerformanceFunctions::bronze);
+      // result_f = upgrade->getElectronEfficiency(pt_f*1000,eta_f);
       // bronze_ElectronEfficiency->SetBinContent(i,j,result_f);
       // if(eta_f < (plot_eta + .004) && eta_f > (plot_eta - .004)) {
       //   bronze_pt.push_back(result_f);
@@ -135,16 +135,16 @@ void plotElectronEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_e
         plot_pt = pt_f;
         eta.push_back(eta_f);
         
-        m_upgrade->setLayout(UpgradePerformanceFunctions::Step1p6);
-        result_f = m_upgrade->getElectronEfficiency(pt_f*1000,eta_f);
+        upgrade->setLayout(UpgradePerformanceFunctions::Step1p6);
+        result_f = upgrade->getElectronEfficiency(pt_f*1000,eta_f);
         gold_eta.push_back(result_f);
 
-        // m_upgrade->setLayout(UpgradePerformanceFunctions::silver);
-        // result_f = m_upgrade->getElectronEfficiency(pt_f*1000,eta_f);
+        // upgrade->setLayout(UpgradePerformanceFunctions::silver);
+        // result_f = upgrade->getElectronEfficiency(pt_f*1000,eta_f);
         // silver_eta.push_back(result_f);
 
-        // m_upgrade->setLayout(UpgradePerformanceFunctions::bronze);
-        // result_f = m_upgrade->getElectronEfficiency(pt_f*1000,eta_f);
+        // upgrade->setLayout(UpgradePerformanceFunctions::bronze);
+        // result_f = upgrade->getElectronEfficiency(pt_f*1000,eta_f);
         // bronze_eta.push_back(result_f);
       }
 
@@ -239,12 +239,12 @@ void plotElectronEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_e
   return;
 }
 
-void plotElectronTriggerEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_eta, float plot_pt) {
+void plotElectronTriggerEfficiency(UpgradePerformanceFunctions *upgrade, float plot_eta, float plot_pt) {
   // Make plot of Tight electron efficiency for pt and eta
   std::cout << "Generating Electron Trigger Efficiency Plots" << std::endl;
 
-  //  m_upgrade->setElectronWorkingPoint(UpgradePerformanceFunctions::tightElectron);
-  // m_upgrade->setElectronRandomSeed(1);
+  //  upgrade->setElectronWorkingPoint(UpgradePerformanceFunctions::tightElectron);
+  // upgrade->setElectronRandomSeed(1);
 
   TH2D *gold_ElectronTriggerEfficiency = new TH2D("gold_ElectronTriggerEfficiency","gold_ElectronTriggerEfficiency",1000,0,120,1000,-5,5);
   // TH2D *silver_ElectronTriggerEfficiency = new TH2D("silverElectronTriggerEfficiency","silver_ElectronTriggerEfficiency",1000,0,120,1000,-5,5);
@@ -266,8 +266,8 @@ void plotElectronTriggerEfficiency(UpgradePerformanceFunctions *m_upgrade, float
   for(int j=0;j<1000;j++){ //Begin eta loop
     
     for(int i=0;i<1000;i++){ //Begin pt loop
-      m_upgrade->setLayout(UpgradePerformanceFunctions::Step1p6);
-      result_f = m_upgrade->getSingleElectronTriggerEfficiency(pt_f*1000,eta_f);
+      upgrade->setLayout(UpgradePerformanceFunctions::Step1p6);
+      result_f = upgrade->getSingleElectronTriggerEfficiency(pt_f*1000,eta_f);
       gold_ElectronTriggerEfficiency->SetBinContent(i,j,result_f);
       if(eta_f < (plot_eta + .004) && eta_f > (plot_eta - .004)) {
         plot_eta = eta_f;
@@ -275,15 +275,15 @@ void plotElectronTriggerEfficiency(UpgradePerformanceFunctions *m_upgrade, float
         pt.push_back(pt_f);
       }
 
-      // m_upgrade->setLayout(UpgradePerformanceFunctions::silver);
-      // result_f = m_upgrade->getSingleElectronTriggerEfficiency(pt_f*1000,eta_f);
+      // upgrade->setLayout(UpgradePerformanceFunctions::silver);
+      // result_f = upgrade->getSingleElectronTriggerEfficiency(pt_f*1000,eta_f);
       // silver_ElectronTriggerEfficiency->SetBinContent(i,j,result_f);
       // if(eta_f < (plot_eta + .004) && eta_f > (plot_eta - .004)) {
       //   silver_pt.push_back(result_f);
       // }
   
-      // m_upgrade->setLayout(UpgradePerformanceFunctions::bronze);
-      // result_f = m_upgrade->getSingleElectronTriggerEfficiency(pt_f*1000,eta_f);
+      // upgrade->setLayout(UpgradePerformanceFunctions::bronze);
+      // result_f = upgrade->getSingleElectronTriggerEfficiency(pt_f*1000,eta_f);
       // bronze_ElectronTriggerEfficiency->SetBinContent(i,j,result_f);
       // if(eta_f < (plot_eta + .004) && eta_f > (plot_eta - .004)) {
       //   bronze_pt.push_back(result_f);
@@ -293,16 +293,16 @@ void plotElectronTriggerEfficiency(UpgradePerformanceFunctions *m_upgrade, float
         plot_pt = pt_f;
         eta.push_back(eta_f);
         
-        m_upgrade->setLayout(UpgradePerformanceFunctions::Step1p6);
-        result_f = m_upgrade->getSingleElectronTriggerEfficiency(pt_f*1000,eta_f);
+        upgrade->setLayout(UpgradePerformanceFunctions::Step1p6);
+        result_f = upgrade->getSingleElectronTriggerEfficiency(pt_f*1000,eta_f);
         gold_eta.push_back(result_f);
 
-        // m_upgrade->setLayout(UpgradePerformanceFunctions::silver);
-        // result_f = m_upgrade->getSingleElectronTriggerEfficiency(pt_f*1000,eta_f);
+        // upgrade->setLayout(UpgradePerformanceFunctions::silver);
+        // result_f = upgrade->getSingleElectronTriggerEfficiency(pt_f*1000,eta_f);
         // silver_eta.push_back(result_f);
 
-        // m_upgrade->setLayout(UpgradePerformanceFunctions::bronze);
-        // result_f = m_upgrade->getSingleElectronTriggerEfficiency(pt_f*1000,eta_f);
+        // upgrade->setLayout(UpgradePerformanceFunctions::bronze);
+        // result_f = upgrade->getSingleElectronTriggerEfficiency(pt_f*1000,eta_f);
         // bronze_eta.push_back(result_f);
       }
 
@@ -411,10 +411,10 @@ void plotElectronTriggerEfficiency(UpgradePerformanceFunctions *m_upgrade, float
 }
 
 
-void plotJetTriggerEfficiency(UpgradePerformanceFunctions *m_upgrade){
+void plotJetTriggerEfficiency(UpgradePerformanceFunctions *upgrade){
 
    std::cout << "Generating Jet Trigger Efficiency Plots" << std::endl;
-   m_upgrade->setLayout(UpgradePerformanceFunctions::gold);
+   upgrade->setLayout(UpgradePerformanceFunctions::gold);
 
    TH1F *h_1jtrig_pt = new TH1F("gold_Jet1jTriggerEfficiencyPt","gold_Jet1jTriggerEfficiencyPt; p_{T}^{LeadJet} [GeV]",200,0.,200.); h_1jtrig_pt->Sumw2();
    TH1F *h_1jtrig_eta = new TH1F("gold_Jet1jTriggerEfficiencyEta","gold_Jet1jTriggerEfficiencyEta; |#eta^{LeadJet}|",100,0.,5.); h_1jtrig_eta->Sumw2();
@@ -424,14 +424,14 @@ void plotJetTriggerEfficiency(UpgradePerformanceFunctions *m_upgrade){
    TH1F *h_4jtrig_eta = new TH1F("gold_Jet4jTriggerEfficiencyEta","gold_Jet4jTriggerEfficiencyEta; |#eta^{FourthJet}|",100,0.0,5.); h_4jtrig_eta->Sumw2();
 
   for(int j=0;j<100;j++){ //Begin eta loop
-    h_1jtrig_eta->Fill(j*0.05-0.001,m_upgrade->getSingleJetTriggerEfficiency(200000.,j*0.05));
-    h_3jtrig_eta->Fill(j*0.05-0.001,m_upgrade->getThreeJetTriggerEfficiency(200000.,0.,200000.,0.,200000.,j*0.05));
-    h_4jtrig_eta->Fill(j*0.05-0.001,m_upgrade->getFourJetTriggerEfficiency(200000.,0.,200000.,0.,200000.,0.,200000.,j*0.05));
+    h_1jtrig_eta->Fill(j*0.05-0.001,upgrade->getSingleJetTriggerEfficiency(200000.,j*0.05));
+    h_3jtrig_eta->Fill(j*0.05-0.001,upgrade->getThreeJetTriggerEfficiency(200000.,0.,200000.,0.,200000.,j*0.05));
+    h_4jtrig_eta->Fill(j*0.05-0.001,upgrade->getFourJetTriggerEfficiency(200000.,0.,200000.,0.,200000.,0.,200000.,j*0.05));
   }
   for(int j=0;j<200;j++){ //Begin pt loop
-    h_1jtrig_pt->Fill(j*1.,m_upgrade->getSingleJetTriggerEfficiency(j*1000.,0.));
-    h_3jtrig_pt->Fill(j*1.,m_upgrade->getThreeJetTriggerEfficiency(200000.,0.,200000.,0.,j*1000.,0.));
-    h_4jtrig_pt->Fill(j*1.,m_upgrade->getFourJetTriggerEfficiency(200000.,0.,200000.,0.,200000.,0.,j*1000.,0.));
+    h_1jtrig_pt->Fill(j*1.,upgrade->getSingleJetTriggerEfficiency(j*1000.,0.));
+    h_3jtrig_pt->Fill(j*1.,upgrade->getThreeJetTriggerEfficiency(200000.,0.,200000.,0.,j*1000.,0.));
+    h_4jtrig_pt->Fill(j*1.,upgrade->getFourJetTriggerEfficiency(200000.,0.,200000.,0.,200000.,0.,j*1000.,0.));
   }
 
   TCanvas *can1 = new TCanvas("can1","Jet Trigger pT Efficiency",1000,1000);
@@ -482,11 +482,11 @@ void plotJetTriggerEfficiency(UpgradePerformanceFunctions *m_upgrade){
 }
 
 
-void plotMuonEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_eta, float plot_pt) {
+void plotMuonEfficiency(UpgradePerformanceFunctions *upgrade, float plot_eta, float plot_pt) {
   // Make plot of Tight muon efficiency for pt and eta
   std::cout << "Generating Muon Efficiency Plots" << std::endl;
 
-  m_upgrade->setMuonWorkingPoint(UpgradePerformanceFunctions::tightMuon);
+  upgrade->setMuonWorkingPoint(UpgradePerformanceFunctions::tightMuon);
 
   TH2D *gold_MuonEfficiency = new TH2D("gold_MuonEfficiency","gold_MuonEfficiency",1000,0,120,1000,0,5);
   TH2D *silver_MuonEfficiency = new TH2D("silverMuonEfficiency","silver_MuonEfficiency",1000,0,120,1000,0,5);
@@ -508,8 +508,8 @@ void plotMuonEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_eta, 
   for(int j=0;j<1000;j++){ //Begin eta loop
     
     for(int i=0;i<1000;i++){ //Begin pt loop
-      m_upgrade->setLayout(UpgradePerformanceFunctions::gold);
-      result_f = m_upgrade->getMuonEfficiency(pt_f*1000,eta_f);
+      upgrade->setLayout(UpgradePerformanceFunctions::gold);
+      result_f = upgrade->getMuonEfficiency(pt_f*1000,eta_f);
       gold_MuonEfficiency->SetBinContent(i,j,result_f);
       if(eta_f < (plot_eta + .004) && eta_f > (plot_eta - .004)) {
         plot_eta = eta_f;
@@ -517,15 +517,15 @@ void plotMuonEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_eta, 
         pt.push_back(pt_f);
       }
 
-      m_upgrade->setLayout(UpgradePerformanceFunctions::silver);
-      result_f = m_upgrade->getMuonEfficiency(pt_f*1000,eta_f);
+      upgrade->setLayout(UpgradePerformanceFunctions::silver);
+      result_f = upgrade->getMuonEfficiency(pt_f*1000,eta_f);
       silver_MuonEfficiency->SetBinContent(i,j,result_f);
       if(eta_f < (plot_eta + .004) && eta_f > (plot_eta - .004)) {
         silver_pt.push_back(result_f);
       }
   
-      m_upgrade->setLayout(UpgradePerformanceFunctions::bronze);
-      result_f = m_upgrade->getMuonEfficiency(pt_f*1000,eta_f);
+      upgrade->setLayout(UpgradePerformanceFunctions::bronze);
+      result_f = upgrade->getMuonEfficiency(pt_f*1000,eta_f);
       bronze_MuonEfficiency->SetBinContent(i,j,result_f);
       if(eta_f < (plot_eta + .004) && eta_f > (plot_eta - .004)) {
         bronze_pt.push_back(result_f);
@@ -535,16 +535,16 @@ void plotMuonEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_eta, 
         plot_pt = pt_f;
         eta.push_back(eta_f);
         
-        m_upgrade->setLayout(UpgradePerformanceFunctions::gold);
-        result_f = m_upgrade->getMuonEfficiency(pt_f*1000,eta_f);
+        upgrade->setLayout(UpgradePerformanceFunctions::gold);
+        result_f = upgrade->getMuonEfficiency(pt_f*1000,eta_f);
         gold_eta.push_back(result_f);
 
-        m_upgrade->setLayout(UpgradePerformanceFunctions::silver);
-        result_f = m_upgrade->getMuonEfficiency(pt_f*1000,eta_f);
+        upgrade->setLayout(UpgradePerformanceFunctions::silver);
+        result_f = upgrade->getMuonEfficiency(pt_f*1000,eta_f);
         silver_eta.push_back(result_f);
 
-        m_upgrade->setLayout(UpgradePerformanceFunctions::bronze);
-        result_f = m_upgrade->getMuonEfficiency(pt_f*1000,eta_f);
+        upgrade->setLayout(UpgradePerformanceFunctions::bronze);
+        result_f = upgrade->getMuonEfficiency(pt_f*1000,eta_f);
         bronze_eta.push_back(result_f);
       }
 
@@ -640,7 +640,7 @@ void plotMuonEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_eta, 
 }
 
 
-void plotMuonTriggerEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_eta, float plot_pt) {
+void plotMuonTriggerEfficiency(UpgradePerformanceFunctions *upgrade, float plot_eta, float plot_pt) {
   // Make plot of Tight muon efficiency for pt and eta
   std::cout << "Generating Muon Trigger Efficiency Plots" << std::endl;
 
@@ -664,8 +664,8 @@ void plotMuonTriggerEfficiency(UpgradePerformanceFunctions *m_upgrade, float plo
   for(int j=0;j<1000;j++){ //Begin eta loop
     
     for(int i=0;i<1000;i++){ //Begin pt loop
-      m_upgrade->setLayout(UpgradePerformanceFunctions::gold);
-      result_f = m_upgrade->getSingleMuonTriggerEfficiency(pt_f*1000,eta_f);
+      upgrade->setLayout(UpgradePerformanceFunctions::gold);
+      result_f = upgrade->getSingleMuonTriggerEfficiency(pt_f*1000,eta_f);
       gold_MuonTriggerEfficiency->SetBinContent(i,j,result_f);
       if(eta_f < (plot_eta + .004) && eta_f > (plot_eta - .004)) {
         plot_eta = eta_f;
@@ -673,15 +673,15 @@ void plotMuonTriggerEfficiency(UpgradePerformanceFunctions *m_upgrade, float plo
         pt.push_back(pt_f);
       }
 
-      m_upgrade->setLayout(UpgradePerformanceFunctions::silver);
-      result_f = m_upgrade->getSingleMuonTriggerEfficiency(pt_f*1000,eta_f);
+      upgrade->setLayout(UpgradePerformanceFunctions::silver);
+      result_f = upgrade->getSingleMuonTriggerEfficiency(pt_f*1000,eta_f);
       silver_MuonTriggerEfficiency->SetBinContent(i,j,result_f);
       if(eta_f < (plot_eta + .004) && eta_f > (plot_eta - .004)) {
         silver_pt.push_back(result_f);
       }
   
-      m_upgrade->setLayout(UpgradePerformanceFunctions::bronze);
-      result_f = m_upgrade->getSingleMuonTriggerEfficiency(pt_f*1000,eta_f);
+      upgrade->setLayout(UpgradePerformanceFunctions::bronze);
+      result_f = upgrade->getSingleMuonTriggerEfficiency(pt_f*1000,eta_f);
       bronze_MuonTriggerEfficiency->SetBinContent(i,j,result_f);
       if(eta_f < (plot_eta + .004) && eta_f > (plot_eta - .004)) {
         bronze_pt.push_back(result_f);
@@ -691,16 +691,16 @@ void plotMuonTriggerEfficiency(UpgradePerformanceFunctions *m_upgrade, float plo
         plot_pt = pt_f;
         eta.push_back(eta_f);
         
-        m_upgrade->setLayout(UpgradePerformanceFunctions::gold);
-        result_f = m_upgrade->getSingleMuonTriggerEfficiency(pt_f*1000,eta_f);
+        upgrade->setLayout(UpgradePerformanceFunctions::gold);
+        result_f = upgrade->getSingleMuonTriggerEfficiency(pt_f*1000,eta_f);
         gold_eta.push_back(result_f);
 
-        m_upgrade->setLayout(UpgradePerformanceFunctions::silver);
-        result_f = m_upgrade->getSingleMuonTriggerEfficiency(pt_f*1000,eta_f);
+        upgrade->setLayout(UpgradePerformanceFunctions::silver);
+        result_f = upgrade->getSingleMuonTriggerEfficiency(pt_f*1000,eta_f);
         silver_eta.push_back(result_f);
 
-        m_upgrade->setLayout(UpgradePerformanceFunctions::bronze);
-        result_f = m_upgrade->getSingleMuonTriggerEfficiency(pt_f*1000,eta_f);
+        upgrade->setLayout(UpgradePerformanceFunctions::bronze);
+        result_f = upgrade->getSingleMuonTriggerEfficiency(pt_f*1000,eta_f);
         bronze_eta.push_back(result_f);
       }
 
@@ -791,17 +791,17 @@ void plotMuonTriggerEfficiency(UpgradePerformanceFunctions *m_upgrade, float plo
   return;
 }
 
-void plotPhotonEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_eta, float plot_pt) {
+void plotPhotonEfficiency(UpgradePerformanceFunctions *upgrade, float plot_eta, float plot_pt) {
   // Make plot of Tight photon efficiency for pt and eta
   std::cout << "Generating photon Efficiency Plots" << std::endl;
 
-  m_upgrade->setPhotonWorkingPoint(UpgradePerformanceFunctions::tightPhoton);
-  m_upgrade->setPhotonRandomSeed(1);
+  upgrade->setPhotonWorkingPoint(UpgradePerformanceFunctions::tightPhoton);
+  upgrade->setPhotonRandomSeed(1);
 
   TH2D *gold_PhotonEfficiency = new TH2D("gold_PhotonEfficiency","gold_PhotonEfficiency",1000,0,120,1000,0,5);
   TH2D *silver_PhotonEfficiency = new TH2D("silverPhotonEfficiency","silver_PhotonEfficiency",1000,0,120,1000,0,5);
   TH2D *bronze_PhotonEfficiency = new TH2D("bronze_PhotonEfficiency","bronze_PhotonEfficiency",1000,0,120,1000,0,5);
-  TH2D *gold_PhotonFakeRate = new TH2D("gold_PhotonFakeRate","gold_PhotonFakeRate",1000,0,120,1000,0,5);  
+  //TH2D *gold_PhotonFakeRate = new TH2D("gold_PhotonFakeRate","gold_PhotonFakeRate",1000,0,120,1000,0,5);  
 
   std::vector<float> eta; //Store x values for eta scan
   std::vector<float> pt; //Store x values for pt scan
@@ -819,8 +819,8 @@ void plotPhotonEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_eta
   for(int j=0;j<1000;j++){ //Begin eta loop
     
     for(int i=0;i<1000;i++){ //Begin pt loop
-      m_upgrade->setLayout(UpgradePerformanceFunctions::gold);
-      result_f = m_upgrade->getPhotonEfficiency(pt_f*1000);
+      upgrade->setLayout(UpgradePerformanceFunctions::gold);
+      result_f = upgrade->getPhotonEfficiency(pt_f*1000);
       gold_PhotonEfficiency->SetBinContent(i,j,result_f);
       if(eta_f < (plot_eta + .004) && eta_f > (plot_eta - .004)) {
         plot_eta = eta_f;
@@ -828,15 +828,15 @@ void plotPhotonEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_eta
         pt.push_back(pt_f);
       }
 
-      m_upgrade->setLayout(UpgradePerformanceFunctions::silver);
-      result_f = m_upgrade->getPhotonEfficiency(pt_f*1000);
+      upgrade->setLayout(UpgradePerformanceFunctions::silver);
+      result_f = upgrade->getPhotonEfficiency(pt_f*1000);
       silver_PhotonEfficiency->SetBinContent(i,j,result_f);
       if(eta_f < (plot_eta + .004) && eta_f > (plot_eta - .004)) {
         silver_pt.push_back(result_f);
       }
   
-      m_upgrade->setLayout(UpgradePerformanceFunctions::bronze);
-      result_f = m_upgrade->getPhotonEfficiency(pt_f*1000);
+      upgrade->setLayout(UpgradePerformanceFunctions::bronze);
+      result_f = upgrade->getPhotonEfficiency(pt_f*1000);
       bronze_PhotonEfficiency->SetBinContent(i,j,result_f);
       if(eta_f < (plot_eta + .004) && eta_f > (plot_eta - .004)) {
         bronze_pt.push_back(result_f);
@@ -846,16 +846,16 @@ void plotPhotonEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_eta
         plot_pt = pt_f;
         eta.push_back(eta_f);
         
-        m_upgrade->setLayout(UpgradePerformanceFunctions::gold);
-        result_f = m_upgrade->getPhotonEfficiency(pt_f*1000);
+        upgrade->setLayout(UpgradePerformanceFunctions::gold);
+        result_f = upgrade->getPhotonEfficiency(pt_f*1000);
         gold_eta.push_back(result_f);
 
-        m_upgrade->setLayout(UpgradePerformanceFunctions::silver);
-        result_f = m_upgrade->getPhotonEfficiency(pt_f*1000);
+        upgrade->setLayout(UpgradePerformanceFunctions::silver);
+        result_f = upgrade->getPhotonEfficiency(pt_f*1000);
         silver_eta.push_back(result_f);
 
-        m_upgrade->setLayout(UpgradePerformanceFunctions::bronze);
-        result_f = m_upgrade->getPhotonEfficiency(pt_f*1000);
+        upgrade->setLayout(UpgradePerformanceFunctions::bronze);
+        result_f = upgrade->getPhotonEfficiency(pt_f*1000);
         bronze_eta.push_back(result_f);
       }
 
@@ -950,12 +950,12 @@ void plotPhotonEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_eta
   return;
 }
 
-void plotElectronEnergyResolution(UpgradePerformanceFunctions *m_upgrade, float plot_eta, float plot_pt) {
+void plotElectronEnergyResolution(UpgradePerformanceFunctions *upgrade, float plot_eta, float plot_pt) {
   // Make plot of Tight electron efficiency for pt and eta
   std::cout << "Generating Electron Energy Resolution Plots" << std::endl;
 
-  m_upgrade->setElectronWorkingPoint(UpgradePerformanceFunctions::tightElectron);
-  m_upgrade->setElectronRandomSeed(1);
+  upgrade->setElectronWorkingPoint(UpgradePerformanceFunctions::tightElectron);
+  upgrade->setElectronRandomSeed(1);
 
   TH2D *gold_ElectronEnergyResolution = new TH2D("gold_ElectronEnergyResolution","gold_ElectronEnergyResolution",1000,0,120,1000,0,5);
   TH2D *silver_ElectronEnergyResolution = new TH2D("silverElectronEnergyResolution","silver_ElectronEnergyResolution",1000,0,120,1000,0,5);
@@ -977,8 +977,8 @@ void plotElectronEnergyResolution(UpgradePerformanceFunctions *m_upgrade, float 
   for(int j=0;j<1000;j++){ //Begin eta loop
     
     for(int i=0;i<1000;i++){ //Begin pt loop
-      m_upgrade->setLayout(UpgradePerformanceFunctions::gold);
-      result_f = m_upgrade->getElectronEnergyResolution(pt_f*1000,eta_f);
+      upgrade->setLayout(UpgradePerformanceFunctions::gold);
+      result_f = upgrade->getElectronEnergyResolution(pt_f*1000,eta_f);
       gold_ElectronEnergyResolution->SetBinContent(i,j,result_f);
       if(eta_f < (plot_eta + .004) && eta_f > (plot_eta - .004)) {
         plot_eta = eta_f;
@@ -986,15 +986,15 @@ void plotElectronEnergyResolution(UpgradePerformanceFunctions *m_upgrade, float 
         pt.push_back(pt_f);
       }
 
-      m_upgrade->setLayout(UpgradePerformanceFunctions::silver);
-      result_f = m_upgrade->getElectronEnergyResolution(pt_f*1000,eta_f);
+      upgrade->setLayout(UpgradePerformanceFunctions::silver);
+      result_f = upgrade->getElectronEnergyResolution(pt_f*1000,eta_f);
       silver_ElectronEnergyResolution->SetBinContent(i,j,result_f);
       if(eta_f < (plot_eta + .004) && eta_f > (plot_eta - .004)) {
         silver_pt.push_back(result_f);
       }
   
-      m_upgrade->setLayout(UpgradePerformanceFunctions::bronze);
-      result_f = m_upgrade->getElectronEnergyResolution(pt_f*1000,eta_f);
+      upgrade->setLayout(UpgradePerformanceFunctions::bronze);
+      result_f = upgrade->getElectronEnergyResolution(pt_f*1000,eta_f);
       bronze_ElectronEnergyResolution->SetBinContent(i,j,result_f);
       if(eta_f < (plot_eta + .004) && eta_f > (plot_eta - .004)) {
         bronze_pt.push_back(result_f);
@@ -1004,16 +1004,16 @@ void plotElectronEnergyResolution(UpgradePerformanceFunctions *m_upgrade, float 
         plot_pt = pt_f;
         eta.push_back(eta_f);
         
-        m_upgrade->setLayout(UpgradePerformanceFunctions::gold);
-        result_f = m_upgrade->getElectronEnergyResolution(pt_f*1000,eta_f);
+        upgrade->setLayout(UpgradePerformanceFunctions::gold);
+        result_f = upgrade->getElectronEnergyResolution(pt_f*1000,eta_f);
         gold_eta.push_back(result_f);
 
-        m_upgrade->setLayout(UpgradePerformanceFunctions::silver);
-        result_f = m_upgrade->getElectronEnergyResolution(pt_f*1000,eta_f);
+        upgrade->setLayout(UpgradePerformanceFunctions::silver);
+        result_f = upgrade->getElectronEnergyResolution(pt_f*1000,eta_f);
         silver_eta.push_back(result_f);
 
-        m_upgrade->setLayout(UpgradePerformanceFunctions::bronze);
-        result_f = m_upgrade->getElectronEnergyResolution(pt_f*1000,eta_f);
+        upgrade->setLayout(UpgradePerformanceFunctions::bronze);
+        result_f = upgrade->getElectronEnergyResolution(pt_f*1000,eta_f);
         bronze_eta.push_back(result_f);
       }
 
@@ -1099,12 +1099,12 @@ void plotElectronEnergyResolution(UpgradePerformanceFunctions *m_upgrade, float 
   return;
 }
 
-void plotFlavourTagEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_eta, float plot_pt, char flavour, TString Tagger, int operating_point) {
+void plotFlavourTagEfficiency(UpgradePerformanceFunctions *upgrade, float plot_eta, float plot_pt, char flavour, TString Tagger, int operating_point) {
   // Make plot of choosen Flavour tagging efficiency for pt and eta
   std::cout << "Generating " << flavour << "Tagging Efficiency plots" << std::endl;
 
   //Choose file containing histograms for Flavour tagging
-  m_upgrade->setFlavourTaggingCalibrationFilename("UpgradePerformanceFunctions/flavor_tags_v1.1.root");
+  upgrade->setFlavourTaggingCalibrationFilename("UpgradePerformanceFunctions/flavor_tags_v1.1.root");
 
   TH2D *gold_FlavourTagEfficiency = new TH2D("gold_FlavourTagEfficiency","gold_FlavourTagEfficiency",1000,0,120,1000,0,5);
   
@@ -1120,8 +1120,8 @@ void plotFlavourTagEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot
   for(int j=0;j<1000;j++){ //Begin eta loop
     
     for(int i=0;i<1000;i++){ //Begin pt loop
-      m_upgrade->setLayout(UpgradePerformanceFunctions::gold);
-      result_f = m_upgrade->getFlavourTagEfficiency(pt_f*1000,eta_f,flavour,Tagger,operating_point);
+      upgrade->setLayout(UpgradePerformanceFunctions::gold);
+      result_f = upgrade->getFlavourTagEfficiency(pt_f*1000,eta_f,flavour,Tagger,operating_point);
       gold_FlavourTagEfficiency->SetBinContent(i,j,result_f);
       if(eta_f < (plot_eta + .004) && eta_f > (plot_eta - .004)) {
         plot_eta = eta_f;
@@ -1133,8 +1133,8 @@ void plotFlavourTagEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot
         plot_pt = pt_f;
         eta.push_back(eta_f);
         
-        m_upgrade->setLayout(UpgradePerformanceFunctions::gold);
-        result_f = m_upgrade->getFlavourTagEfficiency(pt_f*1000,eta_f,flavour,Tagger,operating_point);
+        upgrade->setLayout(UpgradePerformanceFunctions::gold);
+        result_f = upgrade->getFlavourTagEfficiency(pt_f*1000,eta_f,flavour,Tagger,operating_point);
         gold_eta.push_back(result_f);
       }
 
@@ -1194,19 +1194,19 @@ void plotFlavourTagEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot
 }
 
 
-void plotMETResolution(UpgradePerformanceFunctions *m_upgrade, float sumEtGeV, float METxGeV, float METyGeV){
+void plotMETResolution(UpgradePerformanceFunctions *upgrade, float sumEtGeV, float METxGeV, float METyGeV){
   // Make plot of Missing Transverse Energy performance
   std::cout << "Generating Missing Transverse Energy performance plots" << std::endl;
 
   //Choose file containing histograms for Missing Transverse Energy
-  m_upgrade->loadMETHistograms("UpgradePerformanceFunctions/sumetPU_mu200_ttbar_gold.root");
+  upgrade->loadMETHistograms("UpgradePerformanceFunctions/sumetPU_mu200_ttbar_gold.root");
 
   // Set random number generator seed for MET smearing function
-  m_upgrade->setMETRandomSeed(1);
+  upgrade->setMETRandomSeed(1);
 
   // Set average pileup for analysis (only mu = 200 exists currently)
   std::cout << "Resetting average pileup value to 200" << std::endl;
-  m_upgrade->setAvgMu(200.);
+  upgrade->setAvgMu(200.);
 
   // Storage container for MET result defined by UpgradePerformaceFunctions
   UpgradePerformanceFunctions::MET met_result; // Definition: typedef std::pair<double,double> MET
@@ -1230,8 +1230,8 @@ void plotMETResolution(UpgradePerformanceFunctions *m_upgrade, float sumEtGeV, f
   float truth_phi = atan2(METyGeV,METxGeV);
 
   for(int i=0;i<1000000;i++){ //Create 100000 smeared events
-    m_upgrade->setLayout(UpgradePerformanceFunctions::gold); // Only gold implemented
-    met_result = m_upgrade->getMETSmeared(sumEtGeV*1000,METxGeV*1000,METyGeV*1000);
+    upgrade->setLayout(UpgradePerformanceFunctions::gold); // Only gold implemented
+    met_result = upgrade->getMETSmeared(sumEtGeV*1000,METxGeV*1000,METyGeV*1000);
 
     temp_METx = met_result.first/1000; // Smeared METx in GeV
     temp_METy = met_result.second/1000; // Smeared METy in GeV
@@ -1253,16 +1253,16 @@ void plotMETResolution(UpgradePerformanceFunctions *m_upgrade, float sumEtGeV, f
   for(int i=0;i<70000;i++) { // Generate points for MET Resolution plot
     temp_sumEt = i * 100; 
     sumEt.push_back(temp_sumEt/1000);
-    m_upgrade->setLayout(UpgradePerformanceFunctions::gold);
-    result_f = m_upgrade->getMETResolution(temp_sumEt);
+    upgrade->setLayout(UpgradePerformanceFunctions::gold);
+    result_f = upgrade->getMETResolution(temp_sumEt);
     gold_resol.push_back(result_f/1000.0);
 
-    m_upgrade->setLayout(UpgradePerformanceFunctions::silver);
-    result_f = m_upgrade->getMETResolution(temp_sumEt);
+    upgrade->setLayout(UpgradePerformanceFunctions::silver);
+    result_f = upgrade->getMETResolution(temp_sumEt);
     silver_resol.push_back(result_f/1000.0);
 
-    m_upgrade->setLayout(UpgradePerformanceFunctions::bronze);
-    result_f = m_upgrade->getMETResolution(temp_sumEt);
+    upgrade->setLayout(UpgradePerformanceFunctions::bronze);
+    result_f = upgrade->getMETResolution(temp_sumEt);
     bronze_resol.push_back(result_f/1000.0);
   } //End METResolution loop
 
@@ -1314,20 +1314,20 @@ void plotMETResolution(UpgradePerformanceFunctions *m_upgrade, float sumEtGeV, f
 }
 
 
-void plotTrackJetConfirmEff(UpgradePerformanceFunctions *m_upgrade, float plot_pt) {
+void plotTrackJetConfirmEff(UpgradePerformanceFunctions *upgrade, float plot_pt) {
   // Make plot of Missing Transverse Energy performance
   std::cout << "Generating Track-Jet Confirmation Efficiency plots" << std::endl;
 
-  //  m_upgrade->setUseHGTD1(true);
+  //  upgrade->setUseHGTD1(true);
 
   //Initialize jet parameters
-  m_upgrade->setJetRandomSeed(1);
-  m_upgrade->setPileupUseTrackConf(true); 
-  m_upgrade->setPileupRandomSeed(1);
-  m_upgrade->setPileupJetPtThresholdMeV(30000.);
+  upgrade->setJetRandomSeed(1);
+  upgrade->setPileupUseTrackConf(true); 
+  upgrade->setPileupRandomSeed(1);
+  upgrade->setPileupJetPtThresholdMeV(30000.);
 
   // Set pileup (options currently incude 140 and 200
-  m_upgrade->setAvgMu(200.);
+  upgrade->setAvgMu(200.);
 
   TCanvas *can = new TCanvas("can","Track-jet confirmation efficiency",1000,1000);
   //can->Divide(2,2);
@@ -1348,25 +1348,25 @@ void plotTrackJetConfirmEff(UpgradePerformanceFunctions *m_upgrade, float plot_p
   for(int j=0;j<2;j++) { // First loop Scheme = HS, Second loop Scheme = PU
     if(j == 0){ // First loop Scheme = HS
       std::cout << "First Track-jet confirmation loop Scheme = HS and PileupEff = .9" <<std::endl;
-      m_upgrade->setPileupEfficiencyScheme(UpgradePerformanceFunctions::PileupEff::HS); 
-      m_upgrade->setPileupEff(0.9);
+      upgrade->setPileupEfficiencyScheme(UpgradePerformanceFunctions::PileupEff::HS); 
+      upgrade->setPileupEff(0.9);
     }
     else { // Second loop Scheme = PU
       std::cout << "Second Track-jet confirmation loop Scheme = PU and PileupEff = .02" <<std::endl;
-      m_upgrade->setPileupEfficiencyScheme(UpgradePerformanceFunctions::PileupEff::PU); 
-      m_upgrade->setPileupEff(0.02);
+      upgrade->setPileupEfficiencyScheme(UpgradePerformanceFunctions::PileupEff::PU); 
+      upgrade->setPileupEff(0.02);
     }
 
     // **** Gold Loop **** //
     temp_eta = 0; // Start eta at 0
-    m_upgrade->setLayout(UpgradePerformanceFunctions::gold);
-    m_upgrade->setPileupTemplatesPath("/afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData/UpgradePerformanceFunctions");
+    upgrade->setLayout(UpgradePerformanceFunctions::gold);
+    upgrade->setPileupTemplatesPath("/afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData/UpgradePerformanceFunctions");
     for(int i=0;i<1000;i++){ // Gold loop to fill vectors
       eta.push_back(temp_eta);
       
-      store_result = m_upgrade->getTrackJetConfirmEff(plot_pt*1000,temp_eta,"HS");
+      store_result = upgrade->getTrackJetConfirmEff(plot_pt*1000,temp_eta,"HS");
       gold_HS.push_back(store_result);
-      store_result = m_upgrade->getTrackJetConfirmEff(plot_pt*1000,temp_eta,"PU"); 
+      store_result = upgrade->getTrackJetConfirmEff(plot_pt*1000,temp_eta,"PU"); 
       gold_PU.push_back(store_result);
 
       temp_eta = temp_eta + 5.0/1000.0;
@@ -1374,12 +1374,12 @@ void plotTrackJetConfirmEff(UpgradePerformanceFunctions *m_upgrade, float plot_p
 
     // **** Silver Loop **** //
     temp_eta = 0; // Start eta at 0
-    m_upgrade->setLayout(UpgradePerformanceFunctions::silver);
-    m_upgrade->setPileupTemplatesPath("/afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData/UpgradePerformanceFunctions");
+    upgrade->setLayout(UpgradePerformanceFunctions::silver);
+    upgrade->setPileupTemplatesPath("/afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData/UpgradePerformanceFunctions");
     for(int i=0;i<1000;i++){ // Silver loop to fill vectors
-      store_result = m_upgrade->getTrackJetConfirmEff(plot_pt*1000,temp_eta,"HS");
+      store_result = upgrade->getTrackJetConfirmEff(plot_pt*1000,temp_eta,"HS");
       silver_HS.push_back(store_result);
-      store_result = m_upgrade->getTrackJetConfirmEff(plot_pt*1000,temp_eta,"PU"); 
+      store_result = upgrade->getTrackJetConfirmEff(plot_pt*1000,temp_eta,"PU"); 
       silver_PU.push_back(store_result);
 
       temp_eta = temp_eta + 5.0/1000.0;
@@ -1387,12 +1387,12 @@ void plotTrackJetConfirmEff(UpgradePerformanceFunctions *m_upgrade, float plot_p
 
     // **** Bronze Loop **** //
     temp_eta = 0; // Start eta at 0
-    m_upgrade->setLayout(UpgradePerformanceFunctions::bronze);
-    m_upgrade->setPileupTemplatesPath("/afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData/UpgradePerformanceFunctions");
+    upgrade->setLayout(UpgradePerformanceFunctions::bronze);
+    upgrade->setPileupTemplatesPath("/afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData/UpgradePerformanceFunctions");
     for(int i=0;i<1000;i++){ // Bronze loop to fill vectors
-      store_result = m_upgrade->getTrackJetConfirmEff(plot_pt*1000,temp_eta,"HS");
+      store_result = upgrade->getTrackJetConfirmEff(plot_pt*1000,temp_eta,"HS");
       bronze_HS.push_back(store_result);
-      store_result = m_upgrade->getTrackJetConfirmEff(plot_pt*1000,temp_eta,"PU"); 
+      store_result = upgrade->getTrackJetConfirmEff(plot_pt*1000,temp_eta,"PU"); 
       bronze_PU.push_back(store_result);
 
       temp_eta = temp_eta + 5.0/1000.0;

@@ -34,12 +34,10 @@ FileStagerAlg::FileStagerAlg(const std::string& name, ISvcLocator* pSvcLocator)
  , m_logfileDir("")
  , m_keepLogfiles(false)
  , m_storeStats(false)
- , _numEventsInFile(0)
- , _event(0)
- , _prevFile("")
- , _stopwatch(0)
- , _waittime(0)
- , _waithist(0)
+ , m_prevFile("")
+ , m_stopwatch(0)
+ , m_waittime(0)
+ , m_waithist(0)
 {
   // Declare the properties
   declareProperty("PipeLength", m_pipeLength);
@@ -58,8 +56,8 @@ FileStagerAlg::FileStagerAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("KeepLogfiles", m_keepLogfiles);
   declareProperty("StoreStatistics", m_storeStats);
 
-  _stopwatch = new TStopwatch();
-  _waithist = new TH1D("stagehist","Time for next file to finish staging (s)",600,0.,60.);
+  m_stopwatch = new TStopwatch();
+  m_waithist = new TH1D("stagehist","Time for next file to finish staging (s)",600,0.,60.);
 
   // file statistics about number of bytes processed by root
   TCopyFile::PrintInfo();
@@ -68,8 +66,8 @@ FileStagerAlg::FileStagerAlg(const std::string& name, ISvcLocator* pSvcLocator)
 
 FileStagerAlg::~FileStagerAlg()
 {
-  if (_stopwatch) delete _stopwatch;
-  if (_waithist) delete _waithist;
+  if (m_stopwatch) delete m_stopwatch;
+  if (m_waithist) delete m_waithist;
 
   // file statistics about number of bytes processed by root
   TCopyFile::PrintInfo();
@@ -130,13 +128,13 @@ FileStagerAlg::finalize()
 {
   MsgStream log(msgSvc(), name());
   log << MSG::DEBUG << name() << "Finalize()" << endmsg;
-  log << MSG::WARNING << "Total wait time = " << _waittime << " s." << endmsg;
+  log << MSG::WARNING << "Total wait time = " << m_waittime << " s." << endmsg;
 
   if (m_storeStats) {
     std::string fileName = "filestager_stats.root";
     log << MSG::WARNING << "Writing filestager statistics to file <" << fileName << ">" << endmsg;
     TFile *ff = new TFile(fileName.c_str(),"recreate");
-    _waithist->Write();
+    m_waithist->Write();
     ff->Close();
     delete ff;
   }
@@ -155,7 +153,7 @@ FileStagerAlg::configStager()
   log << MSG::DEBUG << "configStager()" << endmsg;
 
   // itr for looping over input files
-  _fItr = m_inCollection.begin();
+  m_fItr = m_inCollection.begin();
 
   // stager settings
   TStageManager& manager(TStageManager::instance());
@@ -195,7 +193,7 @@ FileStagerAlg::loadStager()
 
   // ensure deletion of first staged file
   if (!m_inCollection.empty())
-    _prevFile = m_inCollection[0].c_str();
+    m_prevFile = m_inCollection[0].c_str();
 
   // add files and start staging ...
   for (; itr!=m_inCollection.end(); ++itr) {
@@ -210,13 +208,13 @@ void
 FileStagerAlg::releasePrevFile()
 {
   // release previous file (not previous file) to avoid possible conflicts w/ pool
-  if (!_prevFile.empty()) {
+  if (!m_prevFile.empty()) {
     TStageManager& manager(TStageManager::instance());
-    manager.releaseFile(_prevFile.c_str());
+    manager.releaseFile(m_prevFile.c_str());
   }
 
-  if (_fItr!=m_inCollection.end()) { 
-    _prevFile = *_fItr; 
+  if (m_fItr!=m_inCollection.end()) { 
+    m_prevFile = *m_fItr; 
   }
 }
 
@@ -227,21 +225,21 @@ FileStagerAlg::setupNextFile()
   MsgStream log(msgSvc(), name());
   log << MSG::DEBUG << "setupNextFile()" << endmsg;
 
-  if (_fItr!=m_inCollection.end()) {
+  if (m_fItr!=m_inCollection.end()) {
     TStageManager& manager(TStageManager::instance());
 
     // wait till file finishes staging ...
-    _stopwatch->Start();
-    (void) manager.getFile(_fItr->c_str());
-    _stopwatch->Stop();
+    m_stopwatch->Start();
+    (void) manager.getFile(m_fItr->c_str());
+    m_stopwatch->Stop();
 
     // collect wait time statistics
-    _waithist->Fill(_stopwatch->RealTime());
-    _waittime += _stopwatch->RealTime();
+    m_waithist->Fill(m_stopwatch->RealTime());
+    m_waittime += m_stopwatch->RealTime();
 
-    log << MSG::DEBUG << "Time to wait for <" << _fItr->c_str() << "> = " << _stopwatch->RealTime() << " s." << endmsg;
+    log << MSG::DEBUG << "Time to wait for <" << m_fItr->c_str() << "> = " << m_stopwatch->RealTime() << " s." << endmsg;
 
-    ++_fItr;
+    ++m_fItr;
   }
 }
 

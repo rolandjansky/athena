@@ -22,9 +22,10 @@
  * $Id: cPtrAccessSEGVHandler.h,v 1.1 2009-01-30 00:50:51 calaf Exp $
  */
 
+#include "CxxUtils/checker_macros.h"
 #include <signal.h>   /*siginfo_t*/
 class PtrAccessSEGVHandler;
 
-void setPtrAccessSEGVHandler(PtrAccessSEGVHandler* h);
-void cPtrAccessSEGVHandler(int signal, siginfo_t* si, void* old);
+void setPtrAccessSEGVHandler ATLAS_NOT_THREAD_SAFE (PtrAccessSEGVHandler* h);
+void cPtrAccessSEGVHandler ATLAS_NOT_THREAD_SAFE (int signal, siginfo_t* si, void* old);
 #endif

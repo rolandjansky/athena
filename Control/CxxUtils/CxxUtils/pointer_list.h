@@ -297,7 +297,7 @@ public:
     bool operator!= (const iterator& other) const;
 
     /// Dereference.
-    reference operator*() const;
+    reference operator*();
 
     /// Advance (pre-increment).
     iterator& operator++();
