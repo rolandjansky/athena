@@ -54,6 +54,7 @@ ISF::SimHitSvc::SimHitSvc(const std::string& name,ISvcLocator* svc) :
   m_rpcHits("RPC_Hits"),
   m_tgcHits("TGC_Hits"),
   m_cscHits("CSC_Hits"),
+  m_g4atlasSvc("G4AtlasSvc", name),
   m_senDetTool("SensitiveDetectorMasterTool"),
   m_fastSimTool("FastSimulationMasterTool")
 {
@@ -83,6 +84,7 @@ ISF::SimHitSvc::SimHitSvc(const std::string& name,ISvcLocator* svc) :
   declareProperty("TGC_HitCollection",  m_tgcHits );
   declareProperty("CSC_HitCollection",  m_cscHits );
 
+  declareProperty("G4AtlasSvc", m_g4atlasSvc );
   declareProperty("SensitiveDetectorMasterTool", m_senDetTool );
   declareProperty("FastSimulationMasterTool", m_fastSimTool );
 }
@@ -98,7 +100,7 @@ StatusCode ISF::SimHitSvc::initialize()
   // setup for validation mode
   if ( m_validationOutput)
     {
-      CHECK(this->createSimHitsTree());
+      ATH_CHECK(this->createSimHitsTree());
     }
 
   return StatusCode::SUCCESS;
@@ -114,12 +116,13 @@ StatusCode ISF::SimHitSvc::finalize()
 StatusCode ISF::SimHitSvc::initializeEvent()
 {
   ATH_MSG_DEBUG("initializing hit collections");
-
-  if(!m_senDetTool)
-    {
-      CHECK(m_senDetTool.retrieve());
-    }
-  CHECK(m_senDetTool->BeginOfAthenaEvent());
+  if(!m_g4atlasSvc) {
+    ATH_CHECK(m_g4atlasSvc.retrieve());
+  }
+  if(!m_senDetTool) {
+    ATH_CHECK(m_senDetTool.retrieve());
+  }
+  ATH_CHECK(m_senDetTool->BeginOfAthenaEvent());
 
   return StatusCode::SUCCESS;
 }
