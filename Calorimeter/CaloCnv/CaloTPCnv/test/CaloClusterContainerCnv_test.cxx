@@ -77,7 +77,7 @@ std::vector<CaloSampling::CaloSample> getSamplingList()
 }
 
 
-CaloCluster* make_cluster (int i)
+CaloCluster* make_cluster (int iclus)
 {
   float eta0 = randf (4, -4);
   float phi0 = randf (3, -3);
@@ -141,7 +141,7 @@ CaloCluster* make_cluster (int i)
   c->setRecoStatus (CaloRecoStatus
                     ((CaloRecoStatus::StatusIndicator)randi (100000)));
 
-  ElementLink<CaloCellLinkContainer> el ("celllinkkey", i);
+  ElementLink<CaloCellLinkContainer> el ("celllinkkey", iclus);
   c->resetCellLink (el);
 
   return c;
