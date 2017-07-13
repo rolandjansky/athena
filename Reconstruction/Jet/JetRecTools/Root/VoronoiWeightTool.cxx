@@ -134,7 +134,7 @@ StatusCode VoronoiWeightTool::process_impl(xAOD::IParticleContainer* particlesin
 
   // This tracks the index of the object in the fastjet container
   size_t i=0;
-  SG::AuxElement::Accessor<float> weightAcc("VoronoiWeight"); // Handle for PU weighting here
+  const static SG::AuxElement::Accessor<float> weightAcc("VoronoiWeight"); // Handle for PU weighting here
   for(xAOD::IParticle* part : SortHelper::sort_container_pt(particlesin)){
     // Skip the check on charged PFOs if needed
     // A subtle change in this check because fastjet will not return anything
@@ -146,13 +146,13 @@ StatusCode VoronoiWeightTool::process_impl(xAOD::IParticleContainer* particlesin
       accept &= fabs(pfo->charge())<FLT_MIN;
     }
 
+    float newPt(0.);
     if(accept) {
-      float newE(0.);
       //There should be the same number of positive E particles in the container as particles in the ptvec
       bool endContainer = part->e()<FLT_MIN;
       bool endVec = i>=ptvec.size();
       if(endVec && endContainer){
-	newE = 0;  //remove negative energy particles
+	newPt = 0;  //remove negative energy particles
       }
       else if(endContainer || endVec){
 	ATH_MSG_ERROR("Filtered particle list doesn't have same number of elements as the list returned by FastJet.");
@@ -169,13 +169,15 @@ StatusCode VoronoiWeightTool::process_impl(xAOD::IParticleContainer* particlesin
 	  ATH_MSG_ERROR("Particle pt's don't match.");
 	  return StatusCode::FAILURE;
 	}
-	newE = ptvec[i].second[alg]*cosh(part->eta());
+	newPt = ptvec[i].second[alg];
       }
-      float w = newE/part->e();
-      weightAcc(*part) = w;
-      ATH_CHECK(setEnergyPt(part,newE,part->pt()*w));
       ++i; // Only increment if the particle was used.
     }
+    // Call set on every object
+    // Leave it to the base class to determine if the correction
+    // should not be applied
+    float w = newPt/part->pt();
+    ATH_CHECK(setEnergyPt(part,part->e()*w,newPt,&weightAcc));
   }
   return StatusCode::SUCCESS;
  }
