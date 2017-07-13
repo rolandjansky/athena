@@ -127,7 +127,8 @@ StatusCode ReadData::execute() {
       for (ExampleTrackContainer::const_iterator obj = cont->begin(); obj != cont->end(); obj++) {
          ATH_MSG_INFO("Track pt = " << (*obj)->getPT() << " eta = " << (*obj)->getEta() << " phi = " << (*obj)->getPhi() << " detector = " << (*obj)->getDetector());
          try {
-            ATH_MSG_INFO("ElementLink1 = " << (*obj)->getElement1()->getX());
+            double x = (*obj)->getElement1()->getX();
+            ATH_MSG_INFO("ElementLink1 = " << x);
             ATH_MSG_INFO("ElementLink2 = " << (*obj)->getElement2()->getX());
             ATH_MSG_INFO("Link ElementLinkVector = " << (*obj)->getElementLinkVector()->size());
             for (ElementLinkVector<ExampleHitContainer>::const_iterator iter = (*obj)->getElementLinkVector()->begin(); iter != (*obj)->getElementLinkVector()->end(); ++iter) {
