@@ -91,12 +91,10 @@ private:
   /// Properties for the jobOptions
   std::string m_libList;
   std::string m_physList;
-  std::string m_generator; //@TODO replace FADS code
   std::string m_fieldMap;
   std::string m_rndmGen;
   bool m_releaseGeoModel;
   bool m_recordFlux;
-  bool m_IncludeParentsInG4Event; //@TODO replace FADS code
   bool m_killAbortedEvents;
   bool m_flagAbortedEvents;
   SG::ReadHandle<McEventCollection>    m_inputTruthCollection; //!< input hard scatter collection

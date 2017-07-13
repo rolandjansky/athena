@@ -32,10 +32,6 @@ def getG4AtlasAlg(name='G4AtlasAlg', **kwargs):
         ## Record the particle flux during the simulation
         kwargs.setdefault('RecordFlux' ,simFlags.RecordFlux.get_Value())
 
-    if hasattr(simFlags, 'IncludeParentsInG4Event') and simFlags.IncludeParentsInG4Event.statusOn:
-        ## Propagate quasi-stable particles
-        kwargs.setdefault('IncludeParentsInG4Event' ,simFlags.IncludeParentsInG4Event.get_Value())
-
     if hasattr(simFlags, 'FlagAbortedEvents') and simFlags.FlagAbortedEvents.statusOn:
         ## default false
         kwargs.setdefault('FlagAbortedEvents' ,simFlags.FlagAbortedEvents.get_Value())
