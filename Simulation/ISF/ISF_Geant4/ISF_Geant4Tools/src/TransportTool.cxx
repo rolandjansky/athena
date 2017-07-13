@@ -38,6 +38,11 @@
 #include "G4UImanager.hh"
 #include "G4ScoringManager.hh"
 
+// call_once mutexes
+#include <mutex>
+static std::once_flag initializeOnceFlag;
+static std::once_flag finalizeOnceFlag;
+
 //________________________________________________________________________
 iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
                                           const std::string& n,
@@ -100,35 +105,16 @@ StatusCode iGeant4::G4TransportTool::initialize()
 {
   ATH_MSG_VERBOSE("initialize");
 
-  // get G4AtlasRunManager
-  ATH_MSG_DEBUG("initialize G4AtlasRunManager");
-
-  if (m_g4RunManagerHelper.retrieve().isSuccess())
-    ATH_MSG_DEBUG("retrieved "<<m_g4RunManagerHelper);
-  else {
-    ATH_MSG_FATAL("Could not get "<<m_g4RunManagerHelper);
-  }
-
-  //m_pRunMgr = G4AtlasRunManager::GetG4AtlasRunManager();    // clashes with use of G4HadIntProcessor
-  m_pRunMgr = m_g4RunManagerHelper ? m_g4RunManagerHelper->g4RunManager() : 0;
-
-  if(m_physListTool.retrieve().isFailure())
-    {
-      ATH_MSG_FATAL("Could not get PhysicsListToolBase");
-    }
-  m_physListTool->SetPhysicsList();
-
   ATH_CHECK(m_inputConverter.retrieve());
 
-  m_pRunMgr->SetRecordFlux( m_recordFlux );
-  m_pRunMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
-  m_pRunMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
-  m_pRunMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
-  m_pRunMgr->SetSDMasterTool(m_senDetTool.typeAndName() );
-  m_pRunMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
-  m_pRunMgr->SetPhysListTool(m_physListTool.typeAndName() );
-  m_pRunMgr->SetUserInitialization(m_physListTool->GetPhysicsList());
-
+ // One-time initialization
+  try {
+    std::call_once(initializeOnceFlag, &iGeant4::G4TransportTool::initializeOnce, this);
+  }
+  catch(const std::exception& e) {
+    ATH_MSG_ERROR("Failure in iGeant4::G4TransportTool::initializeOnce: " << e.what());
+    return StatusCode::FAILURE;
+  }
   ATH_CHECK( m_userActionSvc.retrieve() );
 
   ATH_CHECK(m_g4atlasSvc.retrieve());
@@ -141,6 +127,34 @@ StatusCode iGeant4::G4TransportTool::initialize()
   }
 
   if (m_recordFlux) G4ScoringManager::GetScoringManager();
+
+  return StatusCode::SUCCESS;
+}
+
+//________________________________________________________________________
+void iGeant4::G4TransportTool::initializeOnce()
+{
+  // get G4AtlasRunManager
+  ATH_MSG_DEBUG("initialize G4AtlasRunManager");
+
+  if (m_g4RunManagerHelper.retrieve().isFailure()) {
+    throw std::runtime_error("Could not initialize G4RunManagerHelper!");
+  }
+  ATH_MSG_DEBUG("retrieved "<<m_g4RunManagerHelper);
+  m_pRunMgr = m_g4RunManagerHelper ? m_g4RunManagerHelper->g4RunManager() : nullptr;
+
+  if(m_physListTool.retrieve().isFailure()) {
+    throw std::runtime_error("Could not initialize ATLAS PhysicsListTool!");
+  }
+  m_physListTool->SetPhysicsList();
+
+  m_pRunMgr->SetRecordFlux( m_recordFlux );
+  m_pRunMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
+  m_pRunMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
+  m_pRunMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
+  m_pRunMgr->SetSDMasterTool(m_senDetTool.typeAndName() );
+  m_pRunMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
+  m_pRunMgr->SetPhysListTool(m_physListTool.typeAndName() );
 
   G4UImanager *ui = G4UImanager::GetUIpointer();
 
@@ -164,21 +178,13 @@ StatusCode iGeant4::G4TransportTool::initialize()
     ui->ApplyCommand("/MagneticField/Initialize");
   }
 
-  // *AS* TEST:
-  // *AS* m_pRunMgr->Initialize();
-  // *AS* but this is a good place
-
-
-  ATH_MSG_VERBOSE("++++++++++++  ISF G4 G4TransportTool initialized  ++++++++++++");
-
   ATH_MSG_DEBUG("Setting checkmode to true");
   ui->ApplyCommand("/geometry/navigator/check_mode true");
 
   if (m_rndmGen=="athena" || m_rndmGen=="ranecu")     {
     // Set the random number generator to AtRndmGen
     if (m_rndmGenSvc.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Could not initialize ATLAS Random Generator Service");
-      return StatusCode::FAILURE;
+      throw std::runtime_error("Could not initialize ATLAS Random Generator Service");
     }
     CLHEP::HepRandomEngine* engine = m_rndmGenSvc->GetEngine("AtlasG4");
     CLHEP::HepRandom::setTheEngine(engine);
@@ -194,33 +200,7 @@ StatusCode iGeant4::G4TransportTool::initialize()
     ATH_MSG_INFO("Returned " << the_return << " from G4 Command: " << g4command);
   }
 
-  ATH_MSG_DEBUG("initalize");
-  /*
-    if (m_particleBroker.retrieve().isSuccess())
-    ATH_MSG_DEBUG("retrieved "<<m_particleBroker);
-    else {
-    ATH_MSG_FATAL("Could not get "<<m_particleBroker);
-    return StatusCode::FAILURE;
-    }
-    //m_pRunMgr->setParticleBroker(&m_particleBroker);
-
-    if (m_particleHelper.retrieve().isSuccess())
-    ATH_MSG_DEBUG("retrieved "<<m_particleHelper);
-    else {
-    ATH_MSG_FATAL("Could not get "<<m_particleHelper);
-    return StatusCode::FAILURE;
-    }
-    //m_pRunMgr->setParticleHelper(&m_particleHelper);
-    */
-  /*
-    if (m_configTool.retrieve().isSuccess())
-    ATH_MSG_DEBUG("retrieved "<<m_configTool);
-    else {
-    ATH_MSG_FATAL("Could not get "<<m_configTool);
-    return StatusCode::FAILURE;
-    }
-  */
-  return StatusCode::SUCCESS;
+  return;
 }
 
 //________________________________________________________________________
