@@ -75,8 +75,8 @@ VoronoiWeightTool :: VoronoiWeightTool(const std::string& name) :
 
   declareProperty("doSpread", m_doSpread);
   declareProperty("nSigma", m_nSigma);
+  declareProperty("maxArea", m_maxArea);
 
-  // Option to disregard cPFOs in the weight calculation
   declareProperty("IgnoreChargedPFO", m_ignoreChargedPFOs);
 }
 
@@ -202,7 +202,8 @@ StatusCode VoronoiWeightTool::makeVoronoiParticles(std::vector<fastjet::PseudoJe
     std::vector<fastjet::PseudoJet> constituents = jet.constituents();
     for(const auto& cons : constituents){
       float pt = cons.pt();
-      float area = cons.area();
+      // Allow a limit on the area to prevent over-subtraction in sparse regions
+      float area = m_maxArea<cons.area() ? m_maxArea : cons.area();
       float subPt = pt-rho*area;
       float voro0pt = subPt * (subPt > 0);
       float voro1pt = subPt * (subPt > sqrt(area)*sigma*(float)nsigma);
