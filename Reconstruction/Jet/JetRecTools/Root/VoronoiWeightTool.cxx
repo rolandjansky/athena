@@ -9,6 +9,8 @@
 #include "fastjet/tools/JetMedianBackgroundEstimator.hh"
 #include <fastjet/tools/Subtractor.hh>
 
+#include "xAODPFlow/PFO.h"
+
 namespace SortHelper {
   //
   // For Sorting
