@@ -8,11 +8,9 @@
 /** Constructor **/
 ISF::SimHitSvc::SimHitSvc(const std::string& name,ISvcLocator* svc)
   : AthService(name,svc)
-  , m_g4atlasSvc("G4AtlasSvc", name)
   , m_senDetTool("SensitiveDetectorMasterTool")
   , m_fastSimTool("FastSimulationMasterTool")
 {
-  declareProperty("G4AtlasSvc", m_g4atlasSvc );
   declareProperty("SensitiveDetectorMasterTool", m_senDetTool );
   declareProperty("FastSimulationMasterTool", m_fastSimTool );
 }
@@ -27,9 +25,6 @@ StatusCode ISF::SimHitSvc::initializeEvent() {
   ATH_MSG_DEBUG("initializing hit collections");
 
   //FIXME Lazy initialization to be removed after FADS migration
-  if(!m_g4atlasSvc) {
-    ATH_CHECK(m_g4atlasSvc.retrieve());
-  }
   if(!m_senDetTool) {
     ATH_CHECK(m_senDetTool.retrieve());
   }

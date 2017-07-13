@@ -52,6 +52,7 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
   , m_mcEventCollectionName("TruthEvent")
   , m_useMT(false)
   , m_rndmGenSvc("AtDSFMTGenSvc",n)
+  , m_g4atlasSvc("G4AtlasSvc", n)
   , m_userActionSvc("",n)
   , m_detGeoSvc("DetectorGeometrySvc", n)
   , m_inputConverter("ISF_InputConverter",n)
@@ -78,6 +79,7 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
   // Multi-threading specific settings
   declareProperty("MultiThreading",        m_useMT=false);
   declareProperty("RandomNumberService",   m_rndmGenSvc);
+  declareProperty("G4AtlasSvc",            m_g4atlasSvc );
   declareProperty("UserActionSvc",         m_userActionSvc);
   declareProperty("DetGeoSvc",             m_detGeoSvc);
   declareProperty("InputConverter",        m_inputConverter);
@@ -129,6 +131,7 @@ StatusCode iGeant4::G4TransportTool::initialize()
 
   ATH_CHECK( m_userActionSvc.retrieve() );
 
+  ATH_CHECK(m_g4atlasSvc.retrieve());
   if(m_useMT) {
     // Retrieve the python service to trigger its initialization. This is done
     // here just to make sure things are initialized in the proper order.

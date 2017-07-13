@@ -10,7 +10,6 @@
 
 #include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
 #include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
-#include "G4AtlasInterfaces/IG4AtlasSvc.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -41,7 +40,6 @@ namespace ISF {
 
   private:
 
-    ServiceHandle<IG4AtlasSvc> m_g4atlasSvc;
     ToolHandle<ISensitiveDetectorMasterTool> m_senDetTool;
     ToolHandle<IFastSimulationMasterTool> m_fastSimTool;
 
