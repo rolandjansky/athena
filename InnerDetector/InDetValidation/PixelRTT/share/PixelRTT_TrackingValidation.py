@@ -66,7 +66,6 @@ InDetFlags.doTruth       = (globalflags.InputFormat() == 'pool')
 # --- activate non default algorithms
 InDetFlags.doTrkNtuple = True
 InDetFlags.doPixelTrkNtuple = True
-InDetFlags.doPixelClusterNtuple = True
 InDetFlags.doMonitoringPixel = True
 InDetFlags.doPrintConfigurables = True
 
