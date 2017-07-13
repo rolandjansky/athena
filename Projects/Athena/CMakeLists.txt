@@ -1,4 +1,3 @@
-
 # The minimum required CMake version:
 cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
 
@@ -13,7 +12,7 @@ unset( _version )
 # Set the versions of the TDAQ externals to pick up for the build:
 if( NOT LCG_NIGHTLY )
    if( NOT "$ENV{LCG_NIGHTLY}" STREQUAL "" )
-       set( LCG_NIGHTLY $ENV{LCG_NIGHTLY} CACHE STRING "LCG nightly build flavor" FORCE )
+       set( LCG_NIGHTLY $ENV{LCG_NIGHTLY} CACHE STRING "LCG nightly build flavor" )
        message( STATUS "Using LCG_NIGHTLY: ${LCG_NIGHTLY}" )
    endif()
 endif()
