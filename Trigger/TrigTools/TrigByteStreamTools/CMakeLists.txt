@@ -7,7 +7,7 @@ atlas_subdir( TrigByteStreamTools )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
-find_package( ROOT COMPONENTS Reflex Core Tree MathCore Hist RIO pthread )
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 find_package( tdaq-common COMPONENTS CTPfragment )
 
 # Component(s) in the package:
