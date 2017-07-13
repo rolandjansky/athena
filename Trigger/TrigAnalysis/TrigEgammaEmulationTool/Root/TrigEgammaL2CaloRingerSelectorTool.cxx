@@ -71,12 +71,12 @@ StatusCode TrigEgammaL2CaloRingerSelectorTool::initialize() {
   }
 
   if(m_nRings.size() != m_normRings.size()){
-    msg() << MSG::ERROR << "Preproc nRings list dont match with the number of discriminators found" << endreq;
+    ATH_MSG_ERROR("Preproc nRings list dont match with the number of discriminators found");
     return StatusCode::FAILURE;
   }
 
   if(m_sectionRings.size() != m_normRings.size()){
-    msg() << MSG::ERROR << "Preproc section rings list dont match with the number of discriminators found" << endreq;
+    ATH_MSG_ERROR("Preproc section rings list dont match with the number of discriminators found");
     return StatusCode::FAILURE;
   }
 
@@ -88,7 +88,7 @@ StatusCode TrigEgammaL2CaloRingerSelectorTool::initialize() {
     try{
       preproc = new TrigRingerPreprocessor(m_nRings,m_normRings,m_sectionRings);
     }catch(std::bad_alloc xa){
-      msg() << MSG::ERROR << "Bad alloc for TrigRingerPrepoc." << endreq;
+      ATH_MSG_ERROR( "Bad alloc for TrigRingerPrepoc." );
       return StatusCode::FAILURE;
     }
     ///Hold the pointer configuration
