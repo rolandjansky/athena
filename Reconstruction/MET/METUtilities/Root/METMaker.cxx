@@ -743,21 +743,17 @@ namespace met {
 	    }
 	  } // end muon-jet overlap-removal
 
-	  //m_muEloss && 
-	  //if(!isMuFSRJet) {
-	  if(true){
-	    switch(mu_in_jet->energyLossType()) {
-	    case xAOD::Muon::Parametrized:
-	    case xAOD::Muon::MOP:
-	    case xAOD::Muon::Tail:
-	    case xAOD::Muon::FSRcandidate:
-	    case xAOD::Muon::NotIsolated:
-	      // For now don't differentiate the behaviour
-	      // Remove the Eloss assuming the parameterised value
-	      // The correction is limited to the selected clusters
-	      total_eloss += mu_Eloss;
-	      muons_selflags |= (1<<assoc->findIndex(mu_in_jet));
-	    }
+	  switch(mu_in_jet->energyLossType()) {
+	  case xAOD::Muon::Parametrized:
+	  case xAOD::Muon::MOP:
+	  case xAOD::Muon::Tail:
+	  case xAOD::Muon::FSRcandidate:
+	  case xAOD::Muon::NotIsolated:
+	    // For now don't differentiate the behaviour
+	    // Remove the Eloss assuming the parameterised value
+	    // The correction is limited to the selected clusters
+	    total_eloss += mu_Eloss;
+	    muons_selflags |= (1<<assoc->findIndex(mu_in_jet));
 	  }
 	}
 	ATH_MSG_VERBOSE("Muon selection flags: " << muons_selflags);
