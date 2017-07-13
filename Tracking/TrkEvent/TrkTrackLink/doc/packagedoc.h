@@ -18,7 +18,5 @@ in the Trk::VxTrackAtVertex class and resolves this circular depenency therefore
 The actual links which are used now are the classes Trk::LinkToTrack and Trk::LinkToTrackParticle which both inherit from Trk::ITrackLink
 and ElementLink< TrackCollection > or ElementLink< TrackParticleBaseContainer >, respectively.
 
-@section TrkTrackLink_UsedPackages Used Packages
-@section TrkTrackLink_MyPackageReq Requirements
 
 */

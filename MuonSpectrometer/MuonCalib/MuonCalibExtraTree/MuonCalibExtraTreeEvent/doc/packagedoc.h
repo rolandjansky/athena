@@ -22,17 +22,6 @@ MuonCalibExtraTreeEventEvent is the package responsible for configuring the fill
 - MuonCalib::MuonCalibTrack_E
 
 
-@ref used_MuonCalibExtraTreeEvent
                                                                                 
-@ref requirements_MuonCalibExtraTreeEvent
                                                                                 
 */
-                                                                                
-/**
-@page used_MuonCalibExtraTreeEvent Used Packages
-*/
-                                                                                
-/**
-@page requirements_MuonCalibExtraTreeEvent Requirements
-*/
-       

@@ -45,7 +45,6 @@ Some of the other classes are described here:
  - SCT_Options: Class to contain various building options.
  - SCT_DefaultConditions: Class to store default conditions data.
 
-@section SCT_GeoModel_SCT_GeoModelReq Requirements
 
 
 */

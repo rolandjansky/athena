@@ -13,15 +13,10 @@ This package contains a set of helper tools for Muon EDM objects and Identifiers
  	
 @section MuonRecHelperTools_ExtrasMuonRecHelperTools Extra Pages
 
- - @ref UsedMuonRecHelperTools
- - @ref RequirementsMuonRecHelperTools
 */
 
-/**
-@page UsedMuonRecHelperTools Used Packages
-*/
+
 
 /**
-@page RequirementsMuonRecHelperTools Requirements
 
 */

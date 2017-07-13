@@ -33,18 +33,11 @@ introduction of the use of SCT_ConditionsAlgTools.
 TRT_RIO_Maker
 -------------
 
-@ref used_InDetPrepRawDataFormation
 
-@ref requirements_InDetPrepRawDataFormation
 
 */
 
 /**
 
-@page used_InDetPrepRawDataFormation Used Packages
 
-*/
-
-/**
-@page requirements_InDetPrepRawDataFormation requirements
 */

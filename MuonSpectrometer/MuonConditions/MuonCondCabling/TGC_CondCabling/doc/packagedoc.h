@@ -166,5 +166,3 @@ It is better to associate the leaf tag to a global tag and test the database wit
 If there is no problem, then you ask Paul and Richard to associate the leaf tag to other global tags.  
 
 */
-
-

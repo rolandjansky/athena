@@ -12,18 +12,8 @@ Track isolation is used by the @ref MuidCaloEnergyTool (MuidCaloEnergyTools pack
 @author Alan.Poppleton@cern.ch
 @author Konstantinos.Nikolopoulos@cern.ch
 
- - @ref UsedMuidCaloIsolationTools
- - @ref RequirementsMuidCaloIsolationTools
 
  @namespace Rec namespace for combined reconstruction tools and interfaces
  @namespace Trk namespace for general tracking tools and interfaces
 
-*/
-
-/**
-@page UsedMuidCaloIsolationTools Used Packages
-*/
-
-/**
-@page RequirementsMuidCaloIsolationTools Requirements
 */

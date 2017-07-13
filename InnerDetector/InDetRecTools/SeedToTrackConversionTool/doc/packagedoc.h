@@ -21,7 +21,6 @@
    m_seedtotrackconversion->endEvent(); save SiSPSeedSegment objects 
  That's it and send in your feedbacks. 
 
-@section SeedToTrackConversionTool_SeedToTrackConversionToolReq Requirements
 
 
 */

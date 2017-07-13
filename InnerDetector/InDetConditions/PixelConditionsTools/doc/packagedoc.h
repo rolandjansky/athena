@@ -29,15 +29,4 @@
 
 @section PixelConditionsTools_PixelConditionsToolsExtras Extra Pages
 
- - @ref PixelConditionsToolsUsedPackages
- - @ref PixelConditionsToolsRequirements
 */
-
-/**
-@page PixelConditionsToolsUsedPackages Used Packages
-*/
-
-/**
-@page PixelConditionsToolsRequirements Requirements
-*/
-

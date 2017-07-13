@@ -25,15 +25,5 @@ forward them to the formatting tool. Each tool implements the IDataRetriever int
 - JiveXML::SCTRDORetriever @copydoc JiveXML::SCTRDORetriever
 
 @section InDetJiveXML_InDetJiveXMLEnv Environment
- - @ref used_InDetJiveXML
- - @ref requirements_InDetJiveXML
 
-*/
-
-/**
-@page used_InDetJiveXML Used Packages
-*/
-
-/**
-@page requirements_InDetJiveXML Requirements
 */

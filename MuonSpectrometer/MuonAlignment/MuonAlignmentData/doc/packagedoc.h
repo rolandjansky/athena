@@ -23,6 +23,5 @@ the ConditionDB. There are stl maps and other data container.
 	- CorrContainer.h
 	- MuonAlignmentPar.h
 
-@section MuonAlignmentData_MuonAlignmentDataReq Requirements
 
 */

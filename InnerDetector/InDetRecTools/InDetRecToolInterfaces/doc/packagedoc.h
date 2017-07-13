@@ -183,6 +183,5 @@ from base class IAlgTool and describe methodes and intefaces needs for different
  to determine the area of search inside the TRT. Passing a TRT track segment
  as input is the prefered method, most compatible with the new tracking requirements.
 
-@section InDetRecToolInterfaces_InDetRecToolInterfacesReq Requirements file
 
 */

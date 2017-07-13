@@ -45,9 +45,7 @@ The TRT_SeededTrackFinder contains the following classes/files:
 
 - TRT_SeededTrackFinder.cxx...Main class calling all the necessary tools and producing the ouput track collection.
 
-@section TRT_SeededTrackFinder_TRT_SeededTrackFinderPackages Used Packages
 
 
-@section TRT_SeededTrackFinder_TRT_SeededTrackFinderReq Requirements file
 
 */

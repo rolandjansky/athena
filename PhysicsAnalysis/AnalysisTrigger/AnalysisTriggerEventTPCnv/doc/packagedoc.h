@@ -31,14 +31,4 @@ and the corresponding T/P converter.
 
 @section AnalysisTriggerEventTPCnv_AnalysisTriggerEventTPCnv Extra Pages
 
-- @ref used_AnalysisTriggerEventTPCnv
-- @ref requirements_AnalysisTriggerEventTPCnv
-*/
-
-/**
-   @page used_AnalysisTriggerEventTPCnv Used Packages
-*/
-
-/**
-   @page requirements_AnalysisTriggerEventTPCnv Requirements
 */

@@ -32,18 +32,4 @@ drift radius using various conditions data.
  - UseCalDb : TRTCalDbTool is used for Db access in case of data (default is TRT_CondDbTool)
  - TRTCalDbTool : the tool handle is a property
  - TRT_CondDbTool : the tool handle is a property
-
-@ref used_TRT_DriftFunctionTool
-
-@ref requirements_TRT_DriftFunctionTool
-
-*/
-/**
-@page used_TRT_DriftFunctionTool Used Packages
-
-
-*/
-/**
-@page requirements_TRT_DriftFunctionTool requirements
-
 */

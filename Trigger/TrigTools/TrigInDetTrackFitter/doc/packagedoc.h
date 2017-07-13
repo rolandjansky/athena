@@ -35,4 +35,3 @@ where recoTracks is a collection (vector) of TrigInDetTrack tracks. A track fitt
 of the input tracks so that no new tracks are created. 
 
 */  
-

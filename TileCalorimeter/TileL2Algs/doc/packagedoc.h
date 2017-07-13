@@ -58,15 +58,5 @@ It takes as input the raw channels from TileRawChannelContainer. The resulting T
 
 </ul>
 
-@ref used_TileL2Algs
 
-@ref requirements_TileL2Algs
-*/
-
-/**
-@page used_TileL2Algs Used Packages
-*/
-
-/**
-@page requirements_TileL2Algs Requirements
 */

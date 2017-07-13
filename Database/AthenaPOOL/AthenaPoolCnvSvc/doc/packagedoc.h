@@ -26,10 +26,8 @@ The code can be browsed using LXR
 The package Database/AthenaPOOL/AthenaPoolExample contains running examples of algorithms writing and
 reading Data Objects using AthenaPoolCnvSvc. 
 
-@section AthenaPoolCnvSvc_Requirements Requirements
 
 
-@section AthenaPoolCnvSvc_PackagesUsed Packages Used
 
 
 @author Peter van Gemmeren <gemmeren@bnl.gov>

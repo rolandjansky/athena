@@ -33,6 +33,5 @@ which have to be provided by the derived classes.
    - SpacePointOverlapCollection: Class to contain all the SCT overlap 
    SpacePoints, the other ones are in the SpacePointCollection.
  
-@section TrkSpacePoint_TrkSpacePointReq Requirements
 
 */

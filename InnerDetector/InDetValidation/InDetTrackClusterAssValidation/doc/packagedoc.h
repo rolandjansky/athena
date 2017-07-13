@@ -15,7 +15,5 @@ and truth collections and separate truth particles with sufficient number space 
 After that algorith compare them with clusters assosiated with tracks. Final product of this stadies
 is two dimension table of probabilities to loss correct cluster and assosiate track with wrong one.
 
-@section InDetTrackClusterAssValidation_TrackClusterAssValidationReq Requirements file
 
 */
-

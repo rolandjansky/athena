@@ -23,16 +23,5 @@ This set of classes are usefull whilst analysing/handling CalibrationNtuples. It
 - MuonCalib::TimedMdtCalibHit : class used by the T0Fitter, since each MdtCalibHitBase owns a t0.
 - MuonCalib::TimedSegment : class used by the T0fitter, since each MuonCalibSegment will own a t0.
 
-@ref used_CalibNtupleUtils
 
-@ref requirements_CalibNtupleUtils
-*/
-
-
-/**
-@page used_CalibNtupleUtils Used Packages
-*/
-
-/**
-@page requirements_CalibNtupleUtils Requirements
 */

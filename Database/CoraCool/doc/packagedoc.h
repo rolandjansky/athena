@@ -158,10 +158,5 @@ hasNext and next methods.
 a sequence for the generation of primary keys. It should not be used by
 clients.
 
-@section CoraCool_requirements requirements
-
-
-@section CoraCool_uses Packages used
-
 
 */

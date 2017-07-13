@@ -29,7 +29,6 @@ the material information per layer into an nTuple.
    - Displaying
 The Trk::TrackingVolumeDisplayer writes ROOT scripts for a dedicated TrackingGeometry visualization.
 
-@section TrkDetDescrTools_TrkDetDescrToolsReq Requirements
 
 
 */

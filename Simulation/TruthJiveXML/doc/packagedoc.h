@@ -21,15 +21,5 @@ forward them to the formatting tool. Each tool implements the IDataRetriever int
 - JiveXML::TruthCosmicsTrackRetriever @copydoc JiveXML::TruthCosmicsTrackRetriever
 
 @section TruthJiveXML_TruthJiveXMLEnv Environment
- - @ref used_TruthJiveXML
- - @ref requirements_TruthJiveXML
 
-*/
-
-/**
-@page used_TruthJiveXML Used Packages
-*/
-
-/**
-@page requirements_TruthJiveXML Requirements
 */

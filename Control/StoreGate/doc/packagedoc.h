@@ -34,8 +34,6 @@ The directory test contains several test programs that can be run issuing
 a "gmake check". 
  StoreGateSvcClient_test.cxx should cover most of the high-level client API.
 
-@section StoreGate_requirements file
-
 
 @section StoreGate_Documentation 
 

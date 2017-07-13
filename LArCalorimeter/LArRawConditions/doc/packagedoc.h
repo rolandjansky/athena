@@ -140,16 +140,6 @@ href="http://isscvs.cern.ch/cgi-bin/viewcvs-all.cgi/offline/LArCalorimeter/LArEl
   - LArWFParamsDB
   - LArWFParams
 
-@ref used_LArRawConditions
 
-@ref requirements_LArRawConditions
 
-*/
-
-/**
-@page used_LArRawConditions Used Packages
-*/
-
-/**
-@page requirements_LArRawConditions Requirements
 */

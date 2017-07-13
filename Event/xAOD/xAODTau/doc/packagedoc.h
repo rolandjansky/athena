@@ -25,5 +25,3 @@ $Date: 2013-11-13 18:03:12 +0100 (Wed, 13 Nov 2013) $
     - xAOD::TauJetAuxContainer: Typedef to the latest tau jet auxiliray
       container version.
     - xAOD::TauJet_v1: The current latest tau jet implementation.
-
-

@@ -637,15 +637,4 @@ data words that don't match up with any expected pattern</td>
 
 @section InDetTrackValidation_ExtrasInDetTrackValidation Extra Pages
 
- - @ref UsedInDetTrackValidation
- - @ref requirementsInDetTrackValidation
 */
-
-/**
-@page UsedInDetTrackValidation Used Packages
-*/
-
-/**
-@page requirementsInDetTrackValidation Requirements
-*/
-

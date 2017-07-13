@@ -16,10 +16,5 @@ implementation of identifiers.
  - For questions or comments: Ketevi A. Assamagan
    ketevi@bnl.gov
 
-@section MuonIdHelpersAlgs_used_packagesTkPara Used Packages
-
-@section MuonIdHelpersAlgs_requirements Requirements
-
 
 */
-

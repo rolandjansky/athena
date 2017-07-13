@@ -19,17 +19,6 @@ The classes included in this package are:
  - FastSimModel : A base class for fast simulations
  - FastSimModelProxy : A type for fast simulations to use for inclusion in the catalog
 
-@ref used_G4FastSimulation 
 
-@ref requirements_G4FastSimulation
 
 */
-
-/**
-@page used_G4FastSimulation Used Packages
-*/
-
-/**
-@page requirements_G4FastSimulation Requirements
-*/
-

@@ -17,7 +17,6 @@ matrices used in the various propagation tools (RiddersAlgorithm).
 @author Andreas.Salzburger@cern.ch
 
 
-@section TrkExExample_requirements Requirements
 The libaray type is a pure component library.
 */
 
@@ -25,4 +24,3 @@ The libaray type is a pure component library.
 \namespace Trk
 A namespace to enclose the new Track class, and related tools.
 */
-

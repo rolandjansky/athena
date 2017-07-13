@@ -19,20 +19,9 @@ The package contains three AlgTools:
 
 - @ref Rec::MuidCaloEnergyParam : Tool providing information on the parametrization of the muon energy loss in the material upstream of the muon spectrometer.
 
- - @ref UsedMuidCaloEnergyTools
- - @ref RequirementsMuidCaloEnergyTools
 
 
  @namespace Rec namespace for combined reconstruction tools and interfaces
  @namespace Trk namespace for general tracking tools and interfaces
 
 */
-
-/**
-@page UsedMuidCaloEnergyTools Used Packages
-*/
-
-/**
-@page RequirementsMuidCaloEnergyTools Requirements
-*/
-

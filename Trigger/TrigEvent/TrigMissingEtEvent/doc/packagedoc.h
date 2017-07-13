@@ -41,16 +41,6 @@ The TrigMissingEtEvent package contains of following classes:
 
 
 
-@ref used_TrigMissingEtEvent
 
-@ref requirements_TrigMissingEtEvent
 
-*/
-
-/**
-@page used_TrigMissingEtEvent Used Packages
-*/
-
-/**
-@page requirements_TrigMissingEtEvent Requirements
 */

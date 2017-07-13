@@ -26,4 +26,3 @@ CscDigitBuilder.h, the top algorithms that runs the digitization.
    ketevi@bnl.gov
 
 */
-

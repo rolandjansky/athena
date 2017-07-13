@@ -48,6 +48,5 @@ This TRT track extention algorithm contains next steps.
      
 This algorithm uses IMagneticFieldTool, IPropagator, ITRT_DetElementsRoadMaker, IRIO_OnTrackCreator tools.
 
-@section TRT_TrackExtensionTool_xk_TRT_TrackExtensionTool_xkReq Requirements file
 
 */

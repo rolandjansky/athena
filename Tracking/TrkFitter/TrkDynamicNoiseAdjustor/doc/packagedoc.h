@@ -18,7 +18,6 @@ of the covariance matrix during filtering. This noise term is calculated
 dynamically, whenever a local single-parameter fit suggests that a
 significant momentum loss has taken place at a given silicon layer.
 
-@section TrkDynamicNoiseAdjustor_requirementsTrkDynamicNoiseAdjustor Requirements
 
 
 */

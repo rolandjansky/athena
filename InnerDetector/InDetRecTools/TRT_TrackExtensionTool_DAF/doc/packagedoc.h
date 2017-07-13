@@ -83,14 +83,4 @@ The Trk::TRT_TrackExtensionTool_DAF can be configured by the Python setup class 
 
 @section TRT_TrackExtensionTool_DAF_ExtrasTRT_TrackExtensionTool_DAF Extra Pages
 
- - @ref UsedTRT_TrackExtensionTool_DAF
- - @ref requirementsTRT_TrackExtensionTool_DAF
-*/
-
-/**
-@page UsedTRT_TrackExtensionTool_DAF Used Packages
-*/
-
-/**
-@page requirementsTRT_TrackExtensionTool_DAF Requirements
 */

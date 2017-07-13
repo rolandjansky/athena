@@ -18,14 +18,3 @@ This package serves as an interface to fast simulation energy and option setting
 @ref requirements_LArG4FastSimSvc
 
 */
-
-/**
-@page used_LArG4FastSimSvc Used Packages
-@htmlinclude used_packages.html
-*/
-
-/**
-@page requirements_LArG4FastSimSvc Requirements
-@include requirements
-*/
-

@@ -33,10 +33,8 @@ begin/end event incidences by the IIncidentSvc. This class provides
 access to the EventInfo object to the object receiving the Incident. 
 
 
-@section EventInfo_requirements requirements
 
 
-@section EventInfo_uses Packages used
 
 
 */
