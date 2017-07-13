@@ -48,11 +48,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 StatusCode PixelMainMon::BookTrackMon(void)
 {
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Tracks" << endmsg;  
+  ATH_MSG_DEBUG("Start booking Track histogtams.."); 
   
   std::string path = "Pixel/Track";
-  if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/TrackOnTrack");
-  MonGroup trackHistos( this, path.c_str(), run, ATTRIB_MANAGED ); //declare a group of histograms
+  if (m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/TrackOnTrack");
+  MonGroup trackHistos( this, path.c_str(), run, ATTRIB_MANAGED ); //declare a group of track histograms
   
   std::string modlabel[9];
   modlabel[0]="ECA"; modlabel[1]="ECC";
@@ -156,13 +156,13 @@ StatusCode PixelMainMon::BookTrackMon(void)
     sc = trackHistos.regHist(m_hiteff_incl_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
   }
 
-  if (sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endmsg;   
+  if (sc.isFailure()) ATH_MSG_WARNING("Problems with booking Track histograms");
   return StatusCode::SUCCESS;
 }
 
 StatusCode PixelMainMon::FillTrackMon(void)
 {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "MainFillTrackMon" << endmsg;  
+  ATH_MSG_DEBUG("Filling Track Monitoring Histograms");
 
   ///
   /// Retrieve and Check Store Gate Error
@@ -171,13 +171,13 @@ StatusCode PixelMainMon::FillTrackMon(void)
   sc = evtStore()->retrieve(m_tracks, m_TracksName);
   if (sc.isFailure())
     {
-      if (msgLvl(MSG::INFO)) msg(MSG::INFO)  <<"No tracks in StoreGate found"<< endmsg;
+      ATH_MSG_INFO("No tracks in StoreGate found");
       if (m_storegate_errors) m_storegate_errors->Fill(4.,3.);  
       return StatusCode::SUCCESS;
     } 
   else 
     {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  <<"Tracks in StoreGate found" <<endmsg;
+      ATH_MSG_DEBUG("Tracks in StoreGate found");
     }
 
   m_ntracksPerEvent = 0;
@@ -199,7 +199,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
     {
       const Trk::Track *track0=(*m_tracks)[i];
       if (track0 == 0) {
-	if (msgLvl(MSG::ERROR) ) msg(MSG::ERROR) << "no pointer to track!!!" << endmsg; 
+	ATH_MSG_ERROR("no valid pointer to track!!!");
 	break;
       }
 
@@ -220,7 +220,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
       if (summary) {
       	if (summary->get(Trk::numberOfPixelHits)==0) continue;
       } else {
-      	if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "No Track Summary Found" << endmsg; 
+      	ATH_MSG_INFO("No Track Summary Found"); 
 	continue;
       }
 
@@ -294,7 +294,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	  side = dynamic_cast<const InDetDD::SiDetectorElement *>( mesb->associatedSurface().associatedDetectorElement() );
 	} else { // holes, perigee                                                                              
 	  if (not (*trackStateOnSurfaceIterator)->trackParameters() ) {
-	    msg(MSG::INFO) << "pointer of TSOS to track parameters or associated surface is null" << endmsg;
+	    ATH_MSG_INFO("pointer of TSOS to track parameters or associated surface is null");
 	    continue;
 	  }
 	  surfaceID = (*trackStateOnSurfaceIterator)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier();//check ptr
@@ -340,7 +340,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	  if (clus) clusID = clus->identify();
 	  nHole = 1.0;
 
-	  if ( m_tsos_outliermap)m_tsos_outliermap->Fill(surfaceID, m_pixelid);
+	  if ( m_tsos_outliermap) m_tsos_outliermap->Fill(surfaceID, m_pixelid);
 	  if ( m_tsos_hiteff_vs_lumi) m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(),0.,surfaceID,m_pixelid);
 	  //if( m_hiteff_incl_mod[pixlayerdisk] && passQualityCut ) m_hiteff_incl_mod[pixlayerdisk]->Fill( m_manager->lumiBlockNumber(), 0.0 );
 	  if ( m_hiteff_incl_mod[pixlayerdisk] && pass1hole2GeVTightCut ) m_hiteff_incl_mod[pixlayerdisk]->Fill( m_manager->lumiBlockNumber(), 0.0 );
@@ -505,8 +505,8 @@ StatusCode PixelMainMon::FillTrackMon(void)
    if (m_tracksPerEvt_per_lumi) m_tracksPerEvt_per_lumi->Fill(m_manager->lumiBlockNumber(), m_ntracksPerEvent);
 
    if (m_doOnTrack) {
-     sort (m_RDOIDs.begin(), m_RDOIDs.end());
-     sort (m_ClusterIDs.begin(), m_ClusterIDs.end());
+     sort( m_RDOIDs.begin(), m_RDOIDs.end() );
+     sort( m_ClusterIDs.begin(), m_ClusterIDs.end() );
    }
 
    if (m_doOnline) {
@@ -525,7 +525,7 @@ StatusCode PixelMainMon::ProcTrackMon(void)
   double lengthLB = 0;
   lengthLB = m_LBendTime - m_LBstartTime;
   if (lengthLB <= 0) {
-    if (msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Luminosity block has length <= 0 sec, cannot calculate track rate." << endmsg;  
+    ATH_MSG_INFO("Luminosity block has length <= 0 sec, cannot calculate track rate.");  
     return StatusCode::SUCCESS; //if LB length is zero, the rest is pointless and would divide by 0
   }
  
@@ -538,8 +538,6 @@ StatusCode PixelMainMon::ProcTrackMon(void)
   for (int i=0; i<PixLayerDisk::COUNT; i++){
      if (m_hiteff_incl_mod[i]) m_hiteff_incl_mod[i]->SetMinimum(0.8);
      if (m_hiteff_incl_mod[i]) m_hiteff_incl_mod[i]->SetMaximum(1.01);
-     //if(m_hiteff_actv_mod[i]) m_hiteff_actv_mod[i]->SetMinimum(0.8);
-     //if(m_hiteff_actv_mod[i]) m_hiteff_actv_mod[i]->SetMaximum(1.01);
   }
   return StatusCode::SUCCESS;  
 }
