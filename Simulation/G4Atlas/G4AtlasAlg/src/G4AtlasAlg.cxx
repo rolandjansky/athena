@@ -53,6 +53,7 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
   , m_outputTruthCollection("TruthEvent")
   , m_useMT(false)
   , m_rndmGenSvc("AtDSFMTGenSvc", name)
+  , m_g4atlasSvc("G4AtlasSvc", name)
   , m_userActionSvc("G4UA::UserActionSvc", name) // new user action design
   , m_detGeoSvc("DetectorGeometrySvc", name)
   , m_inputConverter("ISF_InputConverter",name)
@@ -80,6 +81,7 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("MultiThreading", m_useMT=false);
   // ServiceHandle properties
   declareProperty("AtRndmGenSvc", m_rndmGenSvc);
+  declareProperty("G4AtlasSvc", m_g4atlasSvc );
   declareProperty("UserActionSvc", m_userActionSvc);
   declareProperty("GeoIDSvc", m_geoIDSvc);
   declareProperty("InputConverter",        m_inputConverter);
@@ -110,7 +112,10 @@ StatusCode G4AtlasAlg::initialize() {
   }
 
   ATH_CHECK( m_userActionSvc.retrieve() );
-  
+
+  // FIXME TOO EARLY???
+  ATH_CHECK(m_g4atlasSvc.retrieve());
+
   if(m_useMT) {
     // Retrieve the python service to trigger its initialization. This is done
     // here just to make sure things are initialized in the proper order.
@@ -127,6 +132,7 @@ StatusCode G4AtlasAlg::initialize() {
   ATH_CHECK(m_inputConverter.retrieve());
 
   ATH_MSG_DEBUG(std::endl << std::endl << std::endl);
+
 
   TruthStrategyManager* sManager = TruthStrategyManager::GetStrategyManager();
   sManager->SetISFTruthSvc( &(*m_truthRecordSvc) );
@@ -283,7 +289,6 @@ void G4AtlasAlg::finalizeOnce() {
 StatusCode G4AtlasAlg::execute() {
   static int n_Event=0;
   ATH_MSG_DEBUG("++++++++++++  G4AtlasAlg execute  ++++++++++++");
-
 
   n_Event += 1;
 

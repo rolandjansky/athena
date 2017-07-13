@@ -25,6 +25,7 @@
 #include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
 #include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
 #include "G4AtlasInterfaces/IPhysicsListTool.h"
+#include "G4AtlasInterfaces/IG4AtlasSvc.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 // ISF includes
@@ -110,6 +111,8 @@ private:
 
   /// Random number Service
   ServiceHandle<IAtRndmGenSvc> m_rndmGenSvc;
+  /// G4Atlas Service - handles G4 initialization
+  ServiceHandle<IG4AtlasSvc> m_g4atlasSvc;
   /// User Action Service
   ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;
   /// Detector Geometry Service (builds G4 Geometry)
