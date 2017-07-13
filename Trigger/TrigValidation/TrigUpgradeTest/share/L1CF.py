@@ -1,7 +1,7 @@
 from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
 topSequence = AlgSequence()
 
-from TrigUpgradeTest.CFElements import *
+from AthenaCommon.CFElements import parOR, seqAND
 
 TopHLTSeq = seqAND("TopHLTSeq")
 topSequence += TopHLTSeq
