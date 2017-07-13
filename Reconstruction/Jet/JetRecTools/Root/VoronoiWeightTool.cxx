@@ -105,7 +105,7 @@ StatusCode VoronoiWeightTool::process_impl(xAOD::IParticleContainer* particlesin
 {
   std::vector<fastjet::PseudoJet> particles; particles.reserve(particlesin->size());
 
-  for(const auto& part: *particlesin){
+  for(xAOD::IParticle* part: *particlesin){
     // Only use positive E
     bool accept = part->e() > -1*FLT_MIN;
     // For PFlow we would only want to apply the correction to neutral PFOs,
@@ -113,7 +113,7 @@ StatusCode VoronoiWeightTool::process_impl(xAOD::IParticleContainer* particlesin
     // However, we might still want to use the cPFOs for the min pt calculation
     if(m_inputType==xAOD::Type::ParticleFlow && m_ignoreChargedPFOs) {
       // The auto loop returns an ElementProxy, so we need to dereference/reference
-      const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>(&*part);
+      const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>(part);
       accept &= fabs(pfo->charge())<FLT_MIN;
     }
     if(accept) {
@@ -135,21 +135,21 @@ StatusCode VoronoiWeightTool::process_impl(xAOD::IParticleContainer* particlesin
   // This tracks the index of the object in the fastjet container
   size_t i=0;
   SG::AuxElement::Accessor<float> weightAcc("VoronoiWeight"); // Handle for PU weighting here
-  for(const auto& part : SortHelper::sort_container_pt(particlesin)){
+  for(xAOD::IParticle* part : SortHelper::sort_container_pt(particlesin)){
     // Skip the check on charged PFOs if needed
     // A subtle change in this check because fastjet will not return anything
     // with <= 0 pt
     bool accept = part->e() > FLT_MIN;
     if(m_inputType==xAOD::Type::ParticleFlow && m_ignoreChargedPFOs) {
       // The auto loop returns an ElementProxy, so we need to dereference/reference
-      const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>(&*part);
+      const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>(part);
       accept &= fabs(pfo->charge())<FLT_MIN;
     }
 
     if(accept) {
       float newE(0.);
       //There should be the same number of positive E particles in the container as particles in the ptvec
-      bool endContainer = part->e()<=0;
+      bool endContainer = part->e()<FLT_MIN;
       bool endVec = i>=ptvec.size();
       if(endVec && endContainer){
 	newE = 0;  //remove negative energy particles
