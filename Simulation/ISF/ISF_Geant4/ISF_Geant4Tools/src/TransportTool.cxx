@@ -208,11 +208,26 @@ StatusCode iGeant4::G4TransportTool::finalize()
 {
   ATH_MSG_VERBOSE("++++++++++++  ISF G4 G4TransportTool finalized  ++++++++++++");
 
+  // One time finalization
+  try {
+    std::call_once(finalizeOnceFlag, &iGeant4::G4TransportTool::finalizeOnce, this);
+  }
+  catch(const std::exception& e) {
+    ATH_MSG_ERROR("Failure in iGeant4::G4TransportTool::finalizeOnce: " << e.what());
+    return StatusCode::FAILURE;
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+//________________________________________________________________________
+void iGeant4::G4TransportTool::finalizeOnce()
+{
   ATH_MSG_DEBUG("\t terminating the current G4 run");
 
   m_pRunMgr->RunTermination();
 
-  return StatusCode::SUCCESS;
+  return;
 }
 
 //________________________________________________________________________
