@@ -22,6 +22,7 @@
 
 // Athena headers
 #include "AthenaKernel/IAtRndmGenSvc.h"
+#include "G4AtlasInterfaces/IG4AtlasSvc.h"
 #include "G4AtlasInterfaces/IUserActionSvc.h"
 #include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
 #include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
@@ -98,6 +99,8 @@ namespace iGeant4
     bool m_useMT;
     // Random number service
     ServiceHandle<IAtRndmGenSvc> m_rndmGenSvc;
+    /// G4AtlasSvc
+    ServiceHandle<IG4AtlasSvc> m_g4atlasSvc;
     /// user action service
     ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;
     /// Detector Geometry Service (builds G4 Geometry)

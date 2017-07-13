@@ -14,7 +14,6 @@
 
 #include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
 #include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
-#include "G4AtlasInterfaces/IG4AtlasSvc.h"
 
 #include "InDetSimEvent/SiHitCollection.h"
 #include "InDetSimEvent/TRTUncompressedHitCollection.h"
@@ -132,7 +131,6 @@ namespace ISF {
     SG::ReadHandle<TGCSimHitCollection>                          m_tgcHits;
     SG::ReadHandle<CSCSimHitCollection>                          m_cscHits;
 
-    ServiceHandle<IG4AtlasSvc> m_g4atlasSvc;
     ToolHandle<ISensitiveDetectorMasterTool> m_senDetTool;
     ToolHandle<IFastSimulationMasterTool> m_fastSimTool;
 
