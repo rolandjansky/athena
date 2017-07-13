@@ -469,7 +469,7 @@ class MultipleStreamManager:
         return self.NewStream(StreamName,FileName,type='pool',asAlg=asAlg)
 
     def NewPoolRootStream(self,StreamName,FileName="default",asAlg=False):
-        theStream = self.NewStream(StreamName,FileName,type='pool',asAlg=asAlg)
+        theStream = self.NewStream(StreamName,FileName,type='pool', asAlg=asAlg)
         from AthenaCommon.AppMgr import theApp
         svcMgr = theApp.serviceMgr()
         theApp.CreateSvc += [ "xAODMaker::EventFormatSvc" ]
