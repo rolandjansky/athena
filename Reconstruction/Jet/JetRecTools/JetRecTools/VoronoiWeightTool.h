@@ -46,9 +46,14 @@ protected:
   StatusCode makeVoronoiParticles(std::vector<fastjet::PseudoJet>& particles, std::vector< std::pair<fastjet::PseudoJet,std::vector<float> > >&) const;
   void spreadPt(std::vector< std::pair< fastjet::PseudoJet,std::vector<float> > >& correctedptvec, float spreadr=0.4, float alpha=2) const;
 
+  // Whether to apply Voronoi spreading
   bool m_doSpread = true;
+  // Whether to apply Nsigma suppression
   int m_nSigma = 0;
+  // Maximum area to subtract
+  float m_maxArea = 1e9;
 
+  // Option to disregard cPFOs in the weight calculation
   bool m_ignoreChargedPFOs=true;
 
   // this is needed to distribute the algorithm to the workers
