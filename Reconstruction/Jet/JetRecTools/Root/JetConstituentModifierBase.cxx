@@ -56,7 +56,8 @@ StatusCode JetConstituentModifierBase::setEtaPhi(xAOD::IParticle* obj, float eta
   return StatusCode::SUCCESS;
 }
 
-StatusCode JetConstituentModifierBase::setEnergyPt(xAOD::IParticle* obj, float e, float pt) const
+StatusCode JetConstituentModifierBase::setEnergyPt(xAOD::IParticle* obj, float e, float pt,
+						   const SG::AuxElement::Accessor<float>* weightAcc) const
 {
   switch(m_inputType) {
   case xAOD::Type::CaloCluster:
@@ -64,6 +65,7 @@ StatusCode JetConstituentModifierBase::setEnergyPt(xAOD::IParticle* obj, float e
       xAOD::CaloCluster* clus = static_cast<xAOD::CaloCluster*>(obj);
       // Clusters get pt via the energy
       // This currently leaves the mass unaltered.
+      if(weightAcc) (*weightAcc)(*clus) = e / clus->calE();
       clus->setCalE(e);
     }
     break;
@@ -75,6 +77,7 @@ StatusCode JetConstituentModifierBase::setEnergyPt(xAOD::IParticle* obj, float e
       const static SG::AuxElement::Accessor<float> accE("e");
       if( (m_applyToChargedPFO && fabs(pfo->charge())>=1e-9) || 
 	  (m_applyToNeutralPFO && fabs(pfo->charge())<1e-9) ) {
+	if(weightAcc) (*weightAcc)(*pfo) = pt / pfo->pt();
 	accPt(*pfo) = pt;
 	accE(*pfo) = e;
       }
@@ -88,12 +91,14 @@ StatusCode JetConstituentModifierBase::setEnergyPt(xAOD::IParticle* obj, float e
   return StatusCode::SUCCESS;
 }
 
-StatusCode JetConstituentModifierBase::setP4(xAOD::IParticle* obj, const xAOD::JetFourMom_t& p4) const {
+StatusCode JetConstituentModifierBase::setP4(xAOD::IParticle* obj, const xAOD::JetFourMom_t& p4,
+					     const SG::AuxElement::Accessor<float>* weightAcc) const {
   switch(m_inputType) {
   case xAOD::Type::CaloCluster:
     {
       xAOD::CaloCluster* clus = static_cast<xAOD::CaloCluster*>(obj);
       // This currently leaves the mass unaltered
+      if(weightAcc) (*weightAcc)(*clus) = p4.e() / clus->calE();
       clus->setCalE(p4.e());
       clus->setCalEta(p4.eta());
       clus->setCalPhi(p4.phi());
@@ -105,6 +110,7 @@ StatusCode JetConstituentModifierBase::setP4(xAOD::IParticle* obj, const xAOD::J
       // The PFO setter defaults to m=0
       if( (m_applyToChargedPFO && fabs(pfo->charge())>=1e-9) || 
 	  (m_applyToNeutralPFO && fabs(pfo->charge())<1e-9) ) {
+	if(weightAcc) (*weightAcc)(*pfo) = p4.pt() / pfo->pt();
 	pfo->setP4(p4.pt(),p4.eta(),p4.phi(),p4.mass());
       }
       break;

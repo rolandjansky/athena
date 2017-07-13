@@ -68,7 +68,7 @@ StatusCode SoftKillerWeightTool::initialize() {
 }
 
 StatusCode SoftKillerWeightTool::process_impl(xAOD::IParticleContainer* cont) const {
-  const static SG::AuxElement::Accessor<float> weightAcc("PUWeight"); // Handle for PU weighting here
+  const static SG::AuxElement::Accessor<float> weightAcc("SoftKillerWeight"); // Handle for PU weighting here
   double minPt(0.), minPtECal(0.), minPtHCal(0.);
   if(m_isCaloSplit == false) {
     minPt = getSoftKillerMinPt(*cont);
@@ -87,8 +87,7 @@ StatusCode SoftKillerWeightTool::process_impl(xAOD::IParticleContainer* cont) co
     if(m_isCaloSplit == false) w = calculateWeight(*part, minPt);
     else w = calculateSplitWeight(*part, minPtECal, minPtHCal);
     // use parent class's type-sensitive setter
-    ATH_CHECK(setEnergyPt(part, part->e()*w, part->pt()*w));
-    weightAcc(*part) = w; // Weight decoration of the container
+    ATH_CHECK( setEnergyPt(part, part->e()*w, part->pt()*w,&weightAcc) );
   }
   return StatusCode::SUCCESS;
 }
