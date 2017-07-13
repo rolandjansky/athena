@@ -43,12 +43,10 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
   , m_libList("")
   , m_physList("")
-  , m_generator("") //@TODO replace FADS code
   , m_fieldMap("")
   , m_rndmGen("athena")
   , m_releaseGeoModel(true)
   , m_recordFlux(false)
-  , m_IncludeParentsInG4Event(false) //@TODO replace FADS code
   , m_killAbortedEvents(true)
   , m_flagAbortedEvents(false)
   , m_inputTruthCollection("BeamTruthEvent")
@@ -66,12 +64,10 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
 {
   declareProperty( "Dll", m_libList);
   declareProperty( "Physics", m_physList);
-  declareProperty( "Generator", m_generator); //@TODO replace FADS code
   declareProperty( "FieldMap", m_fieldMap);
   declareProperty( "RandomGenerator", m_rndmGen);
   declareProperty( "ReleaseGeoModel", m_releaseGeoModel);
   declareProperty( "RecordFlux", m_recordFlux);
-  declareProperty( "IncludeParentsInG4Event", m_IncludeParentsInG4Event); //@TODO replace FADS code
   declareProperty( "KillAbortedEvents", m_killAbortedEvents);
   declareProperty( "FlagAbortedEvents", m_flagAbortedEvents);
   declareProperty( "OutputTruthCollection", m_outputTruthCollection);
