@@ -138,7 +138,8 @@ class G4AtlasEngine:
         """
         if "init_G4" not in self._InitList:
             G4AtlasEngine.log.debug(' G4AtlasEngine: _init_G4: init Geant4 ')
-            G4AtlasEngine._ctrl.initializeG4(is_hive)
+            #G4AtlasEngine._ctrl.initializeG4(is_hive)
+            G4AtlasEngine.log.info(' G4AtlasEngine: _init_G4: init Geant4 ')
             self._InitList.append('init_G4')
             G4AtlasEngine._app_profiler('_init_G4: ')
         else:
