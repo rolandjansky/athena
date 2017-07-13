@@ -468,8 +468,8 @@ class MultipleStreamManager:
     def NewPoolStream(self,StreamName,FileName="default", asAlg=False):
         return self.NewStream(StreamName,FileName,type='pool',asAlg=asAlg)
 
-    def NewPoolRootStream(self,StreamName,FileName="default"):
-        theStream = self.NewStream(StreamName,FileName,type='pool')
+    def NewPoolRootStream(self,StreamName,FileName="default",asAlg=False):
+        theStream = self.NewStream(StreamName,FileName,type='pool',asAlg=asAlg)
         from AthenaCommon.AppMgr import theApp
         svcMgr = theApp.serviceMgr()
         theApp.CreateSvc += [ "xAODMaker::EventFormatSvc" ]
@@ -485,26 +485,23 @@ class MultipleStreamManager:
     def NewVirtualStream(self,StreamName,FileName="default", asAlg=False):
         return self.NewStream(StreamName,FileName,type='virtual',asAlg=asAlg)
 
-    def NewRootStream(self,StreamName,FileName=None,TreeName=None,asAlg=False):
-        """Function used to create a new D3PD 'stream'. The object returned by
-           it behaves both as an AugmentedStreamBase, and as a D3PD::MakerAlg
-           configurable.
+    def NewRootStream(self,StreamName,FileName=None,TreeName=None):
+        """Function used to create a new ROOT 'stream'. The object returned by
+           it behaves as an AugmentedStreamBase.
 
            Arguments:
-              StreamName: Logical name of the D3PD stream. Used also as the D3PD
+              StreamName: Logical name of the ROOT stream. Used also as the ROOT
                           TTree name in case a tree name is not specified.
-              FileName: Name of the output file into which the D3PD should be
+              FileName: Name of the output file into which the TTree should be
                         written. If not specified, '<StreamName>.root' is used.
               TreeName: Name of the TTree in the created file. If not specified,
                         StreamName is used for the TTree name as well.
-              asAlg: Selects whether the 'stream' should be configured as an
-                     actual stream, or an algorithm.
         """
         # Check if a file name was specified or not:
         if FileName == None:
             FileName = StreamName + ".root"
         # Use the common function for creating the stream:
-        return self.NewStream( StreamName, FileName, type='root', asAlg = asAlg,
+        return self.NewStream( StreamName, FileName, type='root',
                                TreeName = TreeName )
 
     def NewStream(self,StreamName,FileName="default",type='pool',asAlg=False,TreeName=None):
