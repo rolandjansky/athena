@@ -1,11 +1,10 @@
 # ScheduleCHSPFlowMods.py
 #
-# David Adams
-# March 2014
-# October 2014: Update to provide a fn that allow specification of alg sequence.
+# Teng Jian Khoo
+# July 2017
 #
-# Configure the jet algorithm after the tool manager has been configured.
-
+# Apply PFlow p4 corrections (nPFO origin & cPFO weights) and
+# Charged Hadron Subtraction with jet constituent modification tools
 
 from JetRec.JetRecStandard import jtm
 jtm += JetToolRunner("jetconstitCHSPFlow",
