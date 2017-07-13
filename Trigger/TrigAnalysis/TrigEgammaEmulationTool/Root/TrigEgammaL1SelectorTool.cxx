@@ -1,3 +1,7 @@
+/*
+ *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   */
+
 /**********************************************************************
  * AsgTool: TrigEgammaL1SelectorTool
  * Authors:
@@ -65,20 +69,20 @@ bool TrigEgammaL1SelectorTool::emulation( const xAOD::EmTauRoI* l1, bool &pass, 
   ATH_MSG_DEBUG("L1 threshold   = " << l1threshold);
   ATH_MSG_DEBUG("L1 type        = " << l1type);
   ATH_MSG_DEBUG("L1 Item        = " << L1Item);
-  /*
+  
   unsigned c=0;
   if(boost::contains(l1type,m_wpNames[0]))  c=1; // Tight
   if(boost::contains(l1type,m_wpNames[1]))  c=2; // Medium
   if(boost::contains(l1type,m_wpNames[2]))  c=3; // Loose
-  ATH_MSG_DEBUG("Using position "<< c << " to apply the cuts.")
+  ATH_MSG_DEBUG("Using position "<< c << " to apply the cuts.");
   float hadCoreCutMin  = m_hadCoreCutMin[c];
   float hadCoreCutOff  = m_hadCoreCutOff[c];
   float hadCoreSlope   = m_hadCoreSlope[c];
   float emIsolCutMin   = m_emIsolCutMin[c]; 
   float emIsolCutOff   = m_emIsolCutOff[c];
   float emIsolCutSlope = m_emIsolCutSlope[c];
-  */
-
+  
+  /*
   // float hadCoreCut = 0.0;
   float hadCoreCutMin = 1.0; // This could be defined somewhere else
   float hadCoreCutOff = -0.2;
@@ -88,6 +92,7 @@ bool TrigEgammaL1SelectorTool::emulation( const xAOD::EmTauRoI* l1, bool &pass, 
   float emIsolCutOff = -1.8;
   float emIsolCutSlope = 1/8.0;
   // float emEClusVCut = 0.0;
+  */
 
   float emE = 0.0;
   float emIsol = 0.0;

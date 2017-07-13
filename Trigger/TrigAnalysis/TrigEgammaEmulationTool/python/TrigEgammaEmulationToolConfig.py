@@ -56,7 +56,7 @@ EgammaL1Emulator = ToolFactory( Trig__TrigEgammaL1SelectorTool,
                                 WPNames                =       ['Tight','Medium','Loose'],
                                                       #  [Default, Tight , Medium, Loose ]
                                 HadCoreCutMin          = [ 1.0   ,  1.0  ,  1.0  ,  1.0  ],
-                                HadCoreCutOff          = [-2.0   , -2.0  , -2.0  , -2.0  ],
+                                HadCoreCutOff          = [-0.2   , -0,2  , -0.2  , -0.2  ],
                                 HadCoreSlope           = [ 1/23. ,  1/23.,  1/23.,  1/23.],
                                 EmIsolCutMin           = [ 2.0   ,  1.0  ,  1.0  ,  1.5  ],
                                 EmIsolCutOff           = [-1.8   , -2.6  , -2.0  , -1.8  ],

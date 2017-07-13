@@ -1,3 +1,8 @@
+/*
+ *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   */
+
+
 #ifndef TrigEgammaSelectorBaseTool_H_
 #define TrigEgammaSelectorBaseTool_H_
 
