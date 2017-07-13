@@ -76,6 +76,10 @@ namespace iGeant4
     /** AlgTool finalize method */
     virtual StatusCode finalize() override final;
 
+    /// G4 finalization called only by the first tool instance.
+    /// This is done (for now) because we get multiple tool instances in hive.
+    void finalizeOnce();
+
     /** Creates a new ParticleState from a given ParticleState, universal transport tool */
     virtual StatusCode process(const ISF::ISFParticle& isp) override final;
 
