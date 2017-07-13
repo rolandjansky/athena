@@ -12,6 +12,8 @@
 #include "fastjet/tools/GridMedianBackgroundEstimator.hh"
 #include "fastjet/Selector.hh"
 
+#include "xAODPFlow/PFO.h"
+
 using namespace fastjet;
 ConstituentSubtractorTool::ConstituentSubtractorTool(const std::string & name): JetConstituentModifierBase(name) {
 
