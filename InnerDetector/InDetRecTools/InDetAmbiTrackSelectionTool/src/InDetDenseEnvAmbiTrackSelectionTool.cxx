@@ -79,7 +79,7 @@ InDet::InDetDenseEnvAmbiTrackSelectionTool::InDetDenseEnvAmbiTrackSelectionTool(
   declareProperty("minPtSplit"           ,m_minPtSplit   = 0.   );
   declareProperty("phiWidth"             ,m_phiWidth     = 0.2  );
   declareProperty("etaWidth"             ,m_etaWidth     = 0.2  );
-  declareProperty("InputHadClusterContainerName",m_inputHadClusterContainerName);
+  declareProperty("InputHadClusterContainerName",m_inputHadClusterContainerName="InDetHadCaloClusterROIs");
   declareProperty("MonitorAmbiguitySolving"  , m_monitorTracks = false);
   declareProperty("ObserverTool"             , m_observerTool);
 
@@ -88,7 +88,7 @@ InDet::InDetDenseEnvAmbiTrackSelectionTool::InDetDenseEnvAmbiTrackSelectionTool(
   declareProperty("minPtConv"            ,m_minPtEm      = 10000.); // in MeV
   declareProperty("phiWidthEM"           ,m_phiWidthEm   = 0.05  );
   declareProperty("etaWidthEM"           ,m_etaWidthEm   = 0.05  );
-  declareProperty("InputEmClusterContainerName",m_inputEmClusterContainerName);
+  declareProperty("InputEmClusterContainerName",m_inputEmClusterContainerName="InDetCaloClusterROIs");
  
  
   declareProperty("doPairSelection"       ,m_doPairSelection = true);

@@ -78,7 +78,7 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
   declareProperty("minPtEM",           m_minPtEm      = 5000. ); // in MeV
   declareProperty("phiWidthEM",        m_phiWidthEm   = 0.075 );
   declareProperty("etaWidthEM",        m_etaWidthEm   = 0.05  );
-  declareProperty("InputEmClusterContainerName",m_inputEmClusterContainerName);  
+  declareProperty("InputEmClusterContainerName",m_inputEmClusterContainerName="InDetCaloClusterROIs");
 
   //set values for scores
   m_summaryTypeScore[Trk::numberOfPixelHits]            =  20;
