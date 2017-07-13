@@ -130,7 +130,7 @@ StatusCode PixelMainMon::BookTrackMon(void)
     sc = m_misshits_ratio_mon->regHist(trackHistos);
   }
   
-  if (m_doModules) {
+  if (m_doModules && !m_doOnTrack) { // tbc essentially code weren't used since doModules was enabled only for AllHits; to keep it disabled also now !m_doOnTrack switch was added
     m_tsos_hiteff_vs_lumi = new PixelMonModulesProf("TSOS_HitEfficiency",("TSOS-based hit efficiency in module" + m_histTitleExt).c_str(),2500,-0.5,2499.5);
     sc = m_tsos_hiteff_vs_lumi->regHist(this,(path+"/Modules_TSOSHitEff").c_str(),run);
     if (!m_doOnline) {
@@ -401,7 +401,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	  if ( npixHitsInCluster == 1 && totalToTOfCluster < 8) { nbadclus++; }
 	  else { ngoodclus++; }
       	    
-	  if (m_doModules && !m_doOnline) {
+	  if (m_doModules && !m_doOnline) { //indirectly disabled
 	    if (measPerigee) {
 	      float pt = measPerigee->pT()/1000.0;
 	      if (m_clustot_vs_pt) m_clustot_vs_pt->Fill(pt, totalToTOfCluster);
@@ -465,7 +465,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	  }
       } // end of TSOS loop
     
-      if (!m_doOnline && m_doModules) {
+      if (m_doModules && !m_doOnline) { //indirectly disabled
 	float pt = measPerigee->pT()/1000.0;
 	if (nbadclus==1) {
 	  if (m_track_chi2_bcl1 && track0->fitQuality()->numberDoF() != 0) m_track_chi2_bcl1->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());

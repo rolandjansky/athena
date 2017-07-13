@@ -71,7 +71,7 @@ if doHitsOnTrack:
                                          doHeavyIonMon       = InDetFlags.doHeavyIon(),   # Histogram modification for heavy ion monitoring
 
                                          do2DMaps            = True ,     #Turn on/off the sets of 2D module maps                                          
-                                         doModules           = False,     #Turn on/off the sets of 1744 module histograms (for dqmf)                       
+                                         doModules           = doAllHitsModules,     #Turn on/off the sets of 1744 module histograms (for dqmf)                       
                                          doLowOccupancy      = False,     #Turn on/off histograms with binning for cosmics/single beam                     
                                          doHighOccupancy     = True,      #Turn on/off histograms with binning for collisions                              
                                          doDetails           = False,     #Turn on/off the set of histograms with detailed info for 4 modules              
