@@ -135,6 +135,7 @@ class BjetHypoNoCut (TrigBjetHypo):
                 self.AcceptAll = True
                 self.Instance  = "EF"
                 self.UseBeamSpotFlag = False
+                self.OverrideBeamSpotValid = True
                 from TrigBjetHypo.TrigBjetHypoMonitoring import TrigEFBjetHypoValidationMonitoring, TrigEFBjetHypoOnlineMonitoring
                 validation = TrigEFBjetHypoValidationMonitoring()
                 online     = TrigEFBjetHypoOnlineMonitoring()
@@ -279,6 +280,7 @@ class BjetHypoSplitNoCut (TrigBjetHypo):
                 self.AcceptAll = True
                 self.Instance  = "EF"
                 self.UseBeamSpotFlag = False
+                self.OverrideBeamSpotValid = True
                 from TrigBjetHypo.TrigBjetHypoMonitoring import TrigEFBjetHypoValidationMonitoring, TrigEFBjetHypoOnlineMonitoring
                 validation = TrigEFBjetHypoValidationMonitoring()
                 online     = TrigEFBjetHypoOnlineMonitoring()
