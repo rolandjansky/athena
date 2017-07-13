@@ -5,7 +5,7 @@ Py:Athena            INFO using release [WorkDir-22.0.0] [x86_64-slc6-gcc62-opt]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
-[?1034hPy:Athena            INFO configuring AthenaHive with [1] concurrent threads
+Py:Athena            INFO configuring AthenaHive with [1] concurrent threads
 Py:AlgScheduler      INFO setting up AvalancheSchedulerSvc/AvalancheSchedulerSvc with 1 threads
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "ViewAlgsTest/EVTest.py"
