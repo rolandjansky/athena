@@ -1105,7 +1105,7 @@ def bMuTrackPEB(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom):
     EFTEname = "EF_" + chainDict['chainName']+"_1"
     inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
     theChainDef.addSequence([bphysROBWriter],inputTEsEF, EFTEname)
-    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname])
+    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname]+inputTEsEF)
 
     return theChainDef
 
