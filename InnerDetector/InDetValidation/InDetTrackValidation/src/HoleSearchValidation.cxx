@@ -183,7 +183,7 @@ StatusCode HoleSearchValidation::execute_r(const EventContext& ctx) const {
     const Trk::Track& track = *(*trackIterator);
     const DataVector<const Trk::TrackStateOnSurface>* tsos = track.trackStateOnSurfaces();
     ATH_MSG_DEBUG(  "Perform hole search on unmodified track (" << *trackIterator << ")" 
-		   << " which contains " << tsos->size() <<" track states" ) ;
+                    << " which contains " << tsos->size() <<" track states" ) ;
     // perform hole search
     unsigned int oldHoles = doHoleSearch( *trackIterator );
 
@@ -212,37 +212,37 @@ StatusCode HoleSearchValidation::execute_r(const EventContext& ctx) const {
     int maxSctLayerEndcap   = -1;
 
     if (m_ignoreTrackEnds || m_randomRemovalMode){
-        ATH_MSG_VERBOSE(  "Parsing track first to find end layers and maximal numbers" ) ;
-    	for ( ; iTsos != iTsosEnd ; ++iTsos) {
-			// 
-            Identifier plSurfaceID;
-			const Trk::MeasurementBase* plMesb = (*iTsos)->measurementOnTrack();
-	        if (plMesb &&  plMesb->associatedSurface().associatedDetectorElement()){
-            	plSurfaceID = plMesb->associatedSurface().associatedDetectorElement()->identify(); 
-                // to find out whether it is barrel / endcap
-  				// check pixel / sct 
-                if ( m_idHelper->is_pixel( plSurfaceID ) ) {
-	    			int plLayer = abs(m_pixelID->layer_disk( plSurfaceID ));
-                    bool isBarrel = m_pixelID->is_barrel( plSurfaceID );
-                    // set the maximal pixel layer: barrel / ec
-					if ( isBarrel )
-						maxPixelLayerBarrel = plLayer > maxPixelLayerBarrel ? plLayer : maxPixelLayerBarrel;
-                    else 
-						maxPixelLayerEndcap = plLayer > maxPixelLayerEndcap ? plLayer : maxPixelLayerEndcap;
-                } else if (m_idHelper->is_sct( plSurfaceID ) ) {
-				    int plLayer = abs(m_sctID->layer_disk(  plSurfaceID )); 
-                    bool isBarrel = m_sctID->is_barrel( plSurfaceID );
-                    // set the maximal pixel layer: barrel / ec
-					if ( isBarrel )
-						maxSctLayerBarrel = plLayer > maxSctLayerBarrel ? plLayer : maxSctLayerBarrel;
-                    else 
-						maxSctLayerEndcap = plLayer > maxSctLayerEndcap ? plLayer : maxSctLayerEndcap;
-               }
-            }
+      ATH_MSG_VERBOSE(  "Parsing track first to find end layers and maximal numbers" ) ;
+      for ( ; iTsos != iTsosEnd ; ++iTsos) {
+        // 
+        Identifier plSurfaceID;
+        const Trk::MeasurementBase* plMesb = (*iTsos)->measurementOnTrack();
+        if (plMesb &&  plMesb->associatedSurface().associatedDetectorElement()){
+          plSurfaceID = plMesb->associatedSurface().associatedDetectorElement()->identify(); 
+          // to find out whether it is barrel / endcap
+          // check pixel / sct 
+          if ( m_idHelper->is_pixel( plSurfaceID ) ) {
+            int plLayer = abs(m_pixelID->layer_disk( plSurfaceID ));
+            bool isBarrel = m_pixelID->is_barrel( plSurfaceID );
+            // set the maximal pixel layer: barrel / ec
+            if ( isBarrel )
+              maxPixelLayerBarrel = plLayer > maxPixelLayerBarrel ? plLayer : maxPixelLayerBarrel;
+            else 
+              maxPixelLayerEndcap = plLayer > maxPixelLayerEndcap ? plLayer : maxPixelLayerEndcap;
+          } else if (m_idHelper->is_sct( plSurfaceID ) ) {
+            int plLayer = abs(m_sctID->layer_disk(  plSurfaceID )); 
+            bool isBarrel = m_sctID->is_barrel( plSurfaceID );
+            // set the maximal pixel layer: barrel / ec
+            if ( isBarrel )
+              maxSctLayerBarrel = plLayer > maxSctLayerBarrel ? plLayer : maxSctLayerBarrel;
+            else 
+              maxSctLayerEndcap = plLayer > maxSctLayerEndcap ? plLayer : maxSctLayerEndcap;
+          }
         }
-        // sct overrules pixels
-        maxPixelLayerBarrel = maxSctLayerBarrel > 0 ? -1 : maxPixelLayerBarrel;
-        maxPixelLayerEndcap = maxSctLayerEndcap > 0 ? -1 : maxPixelLayerEndcap;
+      }
+      // sct overrules pixels
+      maxPixelLayerBarrel = maxSctLayerBarrel > 0 ? -1 : maxPixelLayerBarrel;
+      maxPixelLayerEndcap = maxSctLayerEndcap > 0 ? -1 : maxPixelLayerEndcap;
       // reset to start the main loop correctly
       iTsos    = tsos->begin();
     }
@@ -255,90 +255,90 @@ StatusCode HoleSearchValidation::execute_r(const EventContext& ctx) const {
 	Identifier surfaceID;
 	const Trk::MeasurementBase* mesb = (*iTsos)->measurementOnTrack();
 
-    // also reset the identifiers
-    unsigned int randomHoles = 0;
-    if (m_randomRemovalMode){
-       // ---------------------------------------------------------------------------------------
-       randomHoles = (unsigned int)(m_maxNumberOfHoles*CLHEP::RandFlat::shoot(m_randomEngine));
-       ATH_MSG_VERBOSE("Random mode chosen: will create " << randomHoles << " holes on the track.");
+        // also reset the identifiers
+        unsigned int randomHoles = 0;
+        if (m_randomRemovalMode){
+          // ---------------------------------------------------------------------------------------
+          randomHoles = (unsigned int)(m_maxNumberOfHoles*CLHEP::RandFlat::shoot(m_randomEngine));
+          ATH_MSG_VERBOSE("Random mode chosen: will create " << randomHoles << " holes on the track.");
 
-       // max int pixel  
-       unsigned int maxPixel = maxPixelLayerBarrel > maxPixelLayerEndcap 
-                    ? maxPixelLayerBarrel : maxPixelLayerEndcap;
-       // max int sct
-       unsigned int maxSct = maxSctLayerBarrel > maxSctLayerEndcap 
-                    ? maxSctLayerBarrel : maxSctLayerEndcap;
-       // -------------------------------------------------------------------
-       int maxHit 		  = maxPixel + maxSct;
-       int holesTriggered = 0;
-       maxHit -= m_ignoreTrackEnds ? 1 : 0;
-       // make the switch
-       for (unsigned int ihole = 0; ihole < randomHoles && holesTriggered < int(randomHoles); ++ihole){
+          // max int pixel  
+          unsigned int maxPixel = maxPixelLayerBarrel > maxPixelLayerEndcap 
+            ? maxPixelLayerBarrel : maxPixelLayerEndcap;
+          // max int sct
+          unsigned int maxSct = maxSctLayerBarrel > maxSctLayerEndcap 
+            ? maxSctLayerBarrel : maxSctLayerEndcap;
+          // -------------------------------------------------------------------
+          int maxHit 		  = maxPixel + maxSct;
+          int holesTriggered = 0;
+          maxHit -= m_ignoreTrackEnds ? 1 : 0;
+          // make the switch
+          for (unsigned int ihole = 0; ihole < randomHoles && holesTriggered < int(randomHoles); ++ihole){
             // throw the dices
-			unsigned int holeId = (unsigned int)(maxHit*CLHEP::RandFlat::shoot(m_randomEngine));
+            unsigned int holeId = (unsigned int)(maxHit*CLHEP::RandFlat::shoot(m_randomEngine));
             ATH_MSG_VERBOSE( "Random mode : layer identifier " << holeId << " chosen." );
-           {
-			 // now switch between --------
-             switch (holeId) {
-             case 0 : { remove_parts[Parts::kPix0] = true; ++holesTriggered; }; break;
-             case 1 : { remove_parts[Parts::kPix1] = true; ++holesTriggered; }; break;
-             case 2 : { remove_parts[Parts::kPix2] = true; ++holesTriggered; }; break;
-             case 3 : { remove_parts[Parts::kSct0] = true; ++holesTriggered; }; break;
-             case 4 : { remove_parts[Parts::kSct1] = true; ++holesTriggered; }; break;
-             case 5 : { remove_parts[Parts::kSct2] = true; ++holesTriggered; }; break;
-             case 6 : { remove_parts[Parts::kSct3] = true; ++holesTriggered; }; break;
-             case 7 : { remove_parts[Parts::kSct4] = true; ++holesTriggered; }; break;
-             case 8 : { remove_parts[Parts::kSct5] = true; ++holesTriggered; }; break;
-             case 9 : { remove_parts[Parts::kSct6] = true; ++holesTriggered; }; break;
-             case 10 : { remove_parts[Parts::kSct7] = true; ++holesTriggered; }; break;
-             case 11 : { remove_parts[Parts::kSct8] = true; ++holesTriggered; }; break;
-                default : break;
-            }
-            // make the side decision on the side
-	   		if (holeId > 2) {
+            {
+              // now switch between --------
+              switch (holeId) {
+              case 0 : { remove_parts[Parts::kPix0] = true; ++holesTriggered; }; break;
+              case 1 : { remove_parts[Parts::kPix1] = true; ++holesTriggered; }; break;
+              case 2 : { remove_parts[Parts::kPix2] = true; ++holesTriggered; }; break;
+              case 3 : { remove_parts[Parts::kSct0] = true; ++holesTriggered; }; break;
+              case 4 : { remove_parts[Parts::kSct1] = true; ++holesTriggered; }; break;
+              case 5 : { remove_parts[Parts::kSct2] = true; ++holesTriggered; }; break;
+              case 6 : { remove_parts[Parts::kSct3] = true; ++holesTriggered; }; break;
+              case 7 : { remove_parts[Parts::kSct4] = true; ++holesTriggered; }; break;
+              case 8 : { remove_parts[Parts::kSct5] = true; ++holesTriggered; }; break;
+              case 9 : { remove_parts[Parts::kSct6] = true; ++holesTriggered; }; break;
+              case 10 : { remove_parts[Parts::kSct7] = true; ++holesTriggered; }; break;
+              case 11 : { remove_parts[Parts::kSct8] = true; ++holesTriggered; }; break;
+              default : break;
+              }
+              // make the side decision on the side
+              if (holeId > 2) {
                 double sideDecision = CLHEP::RandFlat::shoot(m_randomEngine);
-				if ( sideDecision < 1./3. )
-                                  remove_parts[Parts::kSctSide0] = true;
-				else if ( sideDecision < 2./3. )
-                                  remove_parts[Parts::kSctSide1] = true;
-				else {
-                                  remove_parts[Parts::kSctSide0] = true;
-                                  remove_parts[Parts::kSctSide1] = true;
-                    ++holesTriggered;
+                if ( sideDecision < 1./3. )
+                  remove_parts[Parts::kSctSide0] = true;
+                else if ( sideDecision < 2./3. )
+                  remove_parts[Parts::kSctSide1] = true;
+                else {
+                  remove_parts[Parts::kSctSide0] = true;
+                  remove_parts[Parts::kSctSide1] = true;
+                  ++holesTriggered;
                 }
+              }
             }
-         }
-	   }
-    }
+          }
+        }
 
 	// hits, outliers
 	if (mesb != 0 && mesb->associatedSurface().associatedDetectorElement() != NULL) {
 	  surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify(); 
-      // the pixel case	  
+          // the pixel case	  
 	  if ( m_idHelper->is_pixel( surfaceID ) ) {
 	    int layer = abs(m_pixelID->layer_disk( surfaceID ));
-        // check barrel / ec
-        bool isBarrel = m_pixelID->is_barrel( surfaceID );
-        // indicate how many pixel hits are per layer
+            // check barrel / ec
+            bool isBarrel = m_pixelID->is_barrel( surfaceID );
+            // indicate how many pixel hits are per layer
 	    pixelHitsPerLayer[layer]++;
-        ATH_MSG_VERBOSE(  "Pixel hits on layer " << layer << " : " << pixelHitsPerLayer[layer] ) ;
-        // check for last layer
-        bool isLastLayer = (isBarrel && layer == maxPixelLayerBarrel) || (!isBarrel && layer == maxPixelLayerEndcap);
-		// only in the ignore track case
-        if (m_ignoreTrackEnds && isLastLayer){
-        	ATH_MSG_VERBOSE(  "This pixel hit is not removed, it is at the track end." ) ;
-        } else if ( !m_removeOverlapHitsOnly || pixelHitsPerLayer[layer] > 1) {
-            if ( !m_ignoreTrackEnds && layer == 0 && remove_parts[Parts::kPix0] ) {
+            ATH_MSG_VERBOSE(  "Pixel hits on layer " << layer << " : " << pixelHitsPerLayer[layer] ) ;
+            // check for last layer
+            bool isLastLayer = (isBarrel && layer == maxPixelLayerBarrel) || (!isBarrel && layer == maxPixelLayerEndcap);
+            // only in the ignore track case
+            if (m_ignoreTrackEnds && isLastLayer){
+              ATH_MSG_VERBOSE(  "This pixel hit is not removed, it is at the track end." ) ;
+            } else if ( !m_removeOverlapHitsOnly || pixelHitsPerLayer[layer] > 1) {
+              if ( !m_ignoreTrackEnds && layer == 0 && remove_parts[Parts::kPix0] ) {
 		ATH_MSG_DEBUG(  "Removing PIXEL layer 0 hit" ) ;
 		printInfoTSoS( *iTsos );
 		nRemoved++;
 		continue;
-	      } else if( layer == 1 && remove_parts[Parts::kPix1] ) {
+              } else if( layer == 1 && remove_parts[Parts::kPix1] ) {
 		ATH_MSG_DEBUG(  "Removing PIXEL layer 1 hit" ) ;
 		printInfoTSoS( *iTsos );
 		nRemoved++;
 		continue;
-          } else if( layer == 2 && remove_parts[Parts::kPix2] ) {
+              } else if( layer == 2 && remove_parts[Parts::kPix2] ) {
 		ATH_MSG_DEBUG(  "Removing PIXEL layer 2 hit" ) ;
 		printInfoTSoS( *iTsos );
 		nRemoved++;
@@ -346,73 +346,73 @@ StatusCode HoleSearchValidation::execute_r(const EventContext& ctx) const {
 	      } 
 	    }
 	  } else if ( m_idHelper->is_sct( surfaceID ) ) {
-        int layer = abs(m_sctID->layer_disk( surfaceID ));
-        // check barrel / ec
-        bool isBarrel = m_sctID->is_barrel( surfaceID );
-        // counter for number of layers
-        sctHitsPerLayer[layer]++;	    
-        ATH_MSG_VERBOSE(  "SCT hits on layer " << layer << " : " << sctHitsPerLayer[layer] ) ;
-        // steer the side to be removed
+            int layer = abs(m_sctID->layer_disk( surfaceID ));
+            // check barrel / ec
+            bool isBarrel = m_sctID->is_barrel( surfaceID );
+            // counter for number of layers
+            sctHitsPerLayer[layer]++;	    
+            ATH_MSG_VERBOSE(  "SCT hits on layer " << layer << " : " << sctHitsPerLayer[layer] ) ;
+            // steer the side to be removed
 	    int side  = m_sctID->side( surfaceID );
 	    bool canRemoveSide = (side == 0) ? remove_parts[Parts::kSctSide0] : remove_parts[Parts::kSctSide1];
-        // check for last layer
-        bool isLastLayer = (isBarrel && layer == maxSctLayerBarrel) || (!isBarrel && layer == maxSctLayerEndcap);
-		// only in the ignore track case
-        if (m_ignoreTrackEnds && isLastLayer){
-        	ATH_MSG_VERBOSE(  "This SCT hit is not removed, it is at the track end." ) ;
-        } else if ( layer == 0 && remove_parts[Parts::kSct0] && canRemoveSide ) {
+            // check for last layer
+            bool isLastLayer = (isBarrel && layer == maxSctLayerBarrel) || (!isBarrel && layer == maxSctLayerEndcap);
+            // only in the ignore track case
+            if (m_ignoreTrackEnds && isLastLayer){
+              ATH_MSG_VERBOSE(  "This SCT hit is not removed, it is at the track end." ) ;
+            } else if ( layer == 0 && remove_parts[Parts::kSct0] && canRemoveSide ) {
 	      ATH_MSG_DEBUG(  "Removing SCT layer 0 hit" ) ;
 	      printInfoTSoS( *iTsos );
 	      nRemoved++;
 	      continue;
-          } else if ( layer == 1 && remove_parts[Parts::kSct1]  && canRemoveSide ) {
+            } else if ( layer == 1 && remove_parts[Parts::kSct1]  && canRemoveSide ) {
 	      ATH_MSG_DEBUG(  "Removing SCT layer 1 hit" ) ;
 	      printInfoTSoS( *iTsos );
 	      nRemoved++;
 	      continue;
-        } else if ( layer == 2 && remove_parts[Parts::kSct2]  && canRemoveSide ) {
+            } else if ( layer == 2 && remove_parts[Parts::kSct2]  && canRemoveSide ) {
 	      ATH_MSG_DEBUG(  "Removing SCT layer 2 hit" ) ;
 	      printInfoTSoS( *iTsos );
 	      nRemoved++;
 	      continue;
-	    } else if ( layer == 3 && remove_parts[Parts::kSct3]  && canRemoveSide ) {
+            } else if ( layer == 3 && remove_parts[Parts::kSct3]  && canRemoveSide ) {
 	      ATH_MSG_DEBUG(  "Removing SCT layer 3 hit" ) ;
 	      printInfoTSoS( *iTsos );
 	      nRemoved++;
 	      continue;
-        } else if ( layer == 4 && remove_parts[Parts::kSct4]  && canRemoveSide ) {
+            } else if ( layer == 4 && remove_parts[Parts::kSct4]  && canRemoveSide ) {
 	      ATH_MSG_DEBUG(  "Removing SCT endcap layer 4 hit" ) ;
 	      printInfoTSoS( *iTsos );
 	      nRemoved++;
 	      continue;
-	    } else if ( layer == 5 && remove_parts[Parts::kSct5]  && canRemoveSide ) {
+            } else if ( layer == 5 && remove_parts[Parts::kSct5]  && canRemoveSide ) {
 	      ATH_MSG_DEBUG(  "Removing SCT endcap layer 5 hit" ) ;
 	      printInfoTSoS( *iTsos );
 	      nRemoved++;
 	      continue;
-        } else if ( layer == 6 && remove_parts[Parts::kSct6]  && canRemoveSide ) {
+            } else if ( layer == 6 && remove_parts[Parts::kSct6]  && canRemoveSide ) {
 	      ATH_MSG_DEBUG(  "Removing SCT endcap layer 6 hit" ) ;
 	      printInfoTSoS( *iTsos );
 	      nRemoved++;
 	      continue;
-	    } else if ( layer == 7 && remove_parts[Parts::kSct7]  && canRemoveSide ) {
+            } else if ( layer == 7 && remove_parts[Parts::kSct7]  && canRemoveSide ) {
 	      ATH_MSG_DEBUG(  "Removing SCT endcap layer 7 hit" ) ;
 	      printInfoTSoS( *iTsos );
 	      nRemoved++;
 	      continue;
-        } else if ( layer == 8 && remove_parts[Parts::kSct8]  && canRemoveSide ) {
+            } else if ( layer == 8 && remove_parts[Parts::kSct8]  && canRemoveSide ) {
 	      ATH_MSG_DEBUG(  "Removing SCT endcap layer 8 hit" ) ;
 	      printInfoTSoS( *iTsos );
 	      nRemoved++;
 	      continue;
-	    } 
+            }
 
-	  } // end SCT hit
-	 } // end have identifier
-    } // end TSoS is of type measurement
+          } // end SCT hit
+        } // end have identifier
+      } // end TSoS is of type measurement
 
-     const Trk::TrackStateOnSurface* newTsos = new Trk::TrackStateOnSurface(**iTsos);
-     vecTsos->push_back(newTsos);
+      const Trk::TrackStateOnSurface* newTsos = new Trk::TrackStateOnSurface(**iTsos);
+      vecTsos->push_back(newTsos);
     } // end loop over all TSoS
     
     ATH_MSG_DEBUG(  "Removed total of " << nRemoved << " TSoS on track." ) ;
