@@ -8,10 +8,6 @@ Reco_tf.py --AMI=q221 --outputRDOFile=myRDO.pool.root --outputTAGFile=myTAG.pool
 Reco_tf.py --validationFlags 'doExample,doMET,doPFlow,doTau,doTopoCluster,doEgamma,doBtag,doZee,doJet,doMuon,doTrigMinBias,doTrigIDtrk,doTrigBphys,doTrigMET,doTrigJet,doTrigTau, doTrigEgamma,doTrigMuon,doTrigBjet,doTrigHLTResult' --inputAODFile=myAOD.pool.root  --outputNTUP_PHYSVALFile=myNTUP_PHYSVAL.root
 
 
-export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
-alias setupATLAS='source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh'
-setupATLAS --quiet
-lsetup rucio
 SCRIPT_DIRECTORY=$1
 PACKAGE=$2
 TYPE=$3
