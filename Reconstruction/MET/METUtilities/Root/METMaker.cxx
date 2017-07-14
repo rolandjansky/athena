@@ -743,20 +743,17 @@ namespace met {
 	    }
 	  } // end muon-jet overlap-removal
 
-	  //m_muEloss && 
-	  if(!isMuFSRJet) {
-	    switch(mu_in_jet->energyLossType()) {
-	    case xAOD::Muon::Parametrized:
-	    case xAOD::Muon::MOP:
-	    case xAOD::Muon::Tail:
-	    case xAOD::Muon::FSRcandidate:
-	    case xAOD::Muon::NotIsolated:
-	      // For now don't differentiate the behaviour
-	      // Remove the Eloss assuming the parameterised value
-	      // The correction is limited to the selected clusters
-	      total_eloss += mu_Eloss;
-	      muons_selflags |= (1<<assoc->findIndex(mu_in_jet));
-	    }
+	  switch(mu_in_jet->energyLossType()) {
+	  case xAOD::Muon::Parametrized:
+	  case xAOD::Muon::MOP:
+	  case xAOD::Muon::Tail:
+	  case xAOD::Muon::FSRcandidate:
+	  case xAOD::Muon::NotIsolated:
+	    // For now don't differentiate the behaviour
+	    // Remove the Eloss assuming the parameterised value
+	    // The correction is limited to the selected clusters
+	    total_eloss += mu_Eloss;
+	    muons_selflags |= (1<<assoc->findIndex(mu_in_jet));
 	  }
 	}
 	ATH_MSG_VERBOSE("Muon selection flags: " << muons_selflags);
@@ -769,9 +766,9 @@ namespace met {
 	  if(selector) mu_calovec += assoc->calVec(iKey);
 	  ATH_MSG_VERBOSE("This key: " << assoc->calkey()[iKey] << ", selector: " << selector);
 	}
-	ATH_MSG_VERBOSE("Mu calovec pt, no Eloss:   " << mu_calovec.cpt());
+	ATH_MSG_VERBOSE("Mu calovec pt, no Eloss:   " << mu_calovec.cpt() << " e: " << mu_calovec.ce());
 	if(m_muEloss) mu_calovec *= std::max(0.,1-(total_eloss/mu_calovec.ce()));
-	ATH_MSG_VERBOSE("Mu calovec pt, with Eloss: " << mu_calovec.cpt());
+	ATH_MSG_VERBOSE("Mu calovec pt, with Eloss: " << mu_calovec.cpt() << " e: " << mu_calovec.ce());
 
 	// re-add calo components of muons beyond Eloss correction
 	ATH_MSG_VERBOSE("Jet " << jet->index() << " const pT before OR " << jpt);

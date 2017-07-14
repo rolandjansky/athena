@@ -250,6 +250,12 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
     ANA_CHECK( metMaker->buildMETSum("FinalTrk" , newMetContainer, MissingETBase::Source::Track ) );
     ANA_CHECK( metMaker->buildMETSum("FinalClus", newMetContainer, MissingETBase::Source::LCTopo) );
 
+    for(const auto& met : *newMetContainer){ 
+      if(MissingETBase::Source::isTotalTerm(met->source())){
+	std::cout << "met: " << met->met() << std::endl;;
+      }
+    }
+
     ANA_CHECK(store->record( newMetContainer,    "FinalMETContainer"    ));
     ANA_CHECK(store->record( newMetAuxContainer, "FinalMETContainerAux."));
 
