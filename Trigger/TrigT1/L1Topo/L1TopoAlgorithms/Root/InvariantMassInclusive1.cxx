@@ -103,22 +103,16 @@ TCS::InvariantMassInclusive1::initialize() {
    }
    TRG_MSG_INFO("number output : " << numberOutputBits());
 
-   // create strings for histogram names
-   std::vector<std::ostringstream> MyAcceptHist(numberOutputBits());
-   std::vector<std::ostringstream> MyRejectHist(numberOutputBits());
-   
-   for (unsigned int i=0;i<numberOutputBits();i++) {
-     MyAcceptHist[i] << "Accept" << sqrt(p_InvMassMin[i]) << "INVM"; 
-     MyRejectHist[i] << "Reject" << sqrt(p_InvMassMin[i]) << "INVM";
-   }
-
    for (unsigned int i=0; i<numberOutputBits();i++) {
-
-     const std::string& MyTitle1 = MyAcceptHist[i].str();
-     const std::string& MyTitle2 = MyRejectHist[i].str();
-     
-     registerHist(m_histAcceptINV1[i] = new TH1F(MyTitle1.c_str(),MyTitle1.c_str(),100,0,1+sqrt(p_InvMassMax[i])));
-     registerHist(m_histRejectINV1[i] = new TH1F(MyTitle2.c_str(),MyTitle2.c_str(),100,0,2*sqrt(p_InvMassMin[i])));
+       const int buf_len = 512;
+       char hname_accept[buf_len], hname_reject[buf_len];
+       int mass_min = sqrt(p_InvMassMin[i]);
+       int mass_max = sqrt(p_InvMassMax[i]);
+       // mass histograms
+       snprintf(hname_accept, buf_len, "Accept_%s_%s_bit%d_%dM%d", name().c_str(), className().c_str(), i, mass_min, mass_max);
+       snprintf(hname_reject, buf_len, "Reject_%s_%s_bit%d_%dM%d", name().c_str(), className().c_str(), i, mass_min, mass_max);
+       registerHist(m_histAcceptINV1[i] = new TH1F(hname_accept, hname_accept, 100, 0.0, 2*mass_max));
+       registerHist(m_histRejectINV1[i] = new TH1F(hname_reject, hname_reject, 100, 0.0, 2*mass_max));
    }
 
  

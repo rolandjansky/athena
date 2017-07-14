@@ -85,7 +85,7 @@ L1TopoSimulation::L1TopoSimulation(const std::string &name, ISvcLocator *pSvcLoc
    declareProperty( "MonHistBaseDir", m_histBaseDir = "L1TopoAlgorithms", "Base directory for monitoring histograms will be /EXPERT/<MonHistBaseDir>" );
    declareProperty( "EnableInputDump", m_enableInputDump, "Boolean to enable writing of input data for standalone running");
    declareProperty( "UseBitwise", m_enableBitwise, "Boolean to enable the bitwise version of software algorithms");
-   declareProperty("FillHistoBasedOnHardware", m_fillHistogramsBasedOnHardwareDecision,
+   declareProperty("FillHistoBasedOnHardware", m_fillHistogramsBasedOnHardwareDecision=true,
                    "Boolean to fill accept/reject histograms based on hdw; default based on sim");
    declareProperty( "InputDumpFile", m_inputDumpFile, "File name for dumping input data");
    declareProperty( "TopoCTPLocation", m_topoCTPLocation = LVL1::DEFAULT_L1TopoCTPLocation, "StoreGate key of topo decision output for CTP" );
