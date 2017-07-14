@@ -77,7 +77,6 @@ class SimSkeleton(object):
         if hasattr(simFlags,'IncludeParentsInG4Event') and simFlags.IncludeParentsInG4Event.statusOn and simFlags.IncludeParentsInG4Event():
             stream1.ItemList += ["McEventCollection#GEN_EVENT"]
 
-        from PyJobTransforms.trfUtils import releaseIsOlderThan
         stream1.ItemList += ["xAOD::JetContainer#*",
                              "xAOD::JetAuxContainer#*"]
 
@@ -284,17 +283,6 @@ class SimSkeleton(object):
         AtlasG4Eng.G4Eng.log.verbose('SimSkeleton._do_readevgen :: done')
 
 
-    ## @classmethod
-    ## def _do_G4AtlasAlg(cls):
-    ##     """ Place to handle the G4AtlasAlg service
-    ##     """
-    ##     AtlasG4Eng.G4Eng.log.verbose('SimSkeleton._doG4AtlasAlg :: starting')
-    ##     from AthenaCommon.AlgSequence import AlgSequence
-    ##     job = AlgSequence()
-    ##     if not hasattr(job, 'G4AtlasAlg'):
-    ##         from AthenaCommon import CfgGetter
-    ##         job += CfgGetter.getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
-    ##     AtlasG4Eng.G4Eng.log.verbose('SimSkeleton._doG4AtlasAlg :: done')
     @classmethod
     def _do_metadata(cls):
         """
@@ -319,7 +307,7 @@ class SimSkeleton(object):
           known_methods = ['_do_jobproperties', '_do_external', '_do_metadata']
         else:
           known_methods = ['_do_jobproperties', '_do_external', '_do_metadata',
-                           '_do_readevgen', '_do_persistency']#, '_do_G4AtlasAlg']
+                           '_do_readevgen', '_do_persistency']
 
         ## Execute the known methods from the known_methods in pre_init
         for k in known_methods:
