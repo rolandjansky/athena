@@ -371,7 +371,7 @@ void SCT_GmxInterface::addSensor(string typeName, map<string, int> &index, int /
 }
 
 void SCT_GmxInterface::addAlignable(int level, map<string, int> &index, GeoVFullPhysVol * fpv, GeoAlignableTransform *transform) {
-    *m_log << MSG::INFO << "SCT_GmxInterface::addAlignable called" << endmsg;
+    *m_log << MSG::DEBUG << "SCT_GmxInterface::addAlignable called" << endmsg;
 /*
  *    Get the offline-id appropriate to the level (0 = wafer, 1 = module, 2 = wheel/cylinder, 3 = part, i.e barrel or an endcap)
  */

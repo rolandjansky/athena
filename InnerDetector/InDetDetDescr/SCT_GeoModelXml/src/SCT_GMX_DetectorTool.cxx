@@ -17,6 +17,7 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
+#include "DetDescrConditions/AlignableTransformContainer.h"
 
 #include "CLIDSvc/tools/ClassID_traits.h"
 #include "SGTools/DataProxy.h"
@@ -38,7 +39,8 @@ SCT_GMX_DetectorTool::SCT_GMX_DetectorTool(const std::string &type,
     m_geoModelSvc("GeoModelSvc", name),
     m_rdbAccessSvc("RDBAccessSvc", name),
     m_geometryDBSvc("InDetGeometryDBSvc", name),
-    m_lorentzAngleSvc("SCTLorentzAngleSvc", name) {
+    m_lorentzAngleSvc("SCTLorentzAngleSvc", name) 
+    {
 //
 // Get parameter values from jobOptions file
 //
@@ -141,6 +143,7 @@ StatusCode SCT_GMX_DetectorTool::create(StoreGateSvc *detStore) {
 // Get the manager from the factory and store it in the detector store.
 //
     m_manager = theSCT.getDetectorManager();
+
     if (!m_manager) {
         msg(MSG::ERROR) << "SCT_DetectorManager not found; not created in SCT_DetectorFactory?" << endmsg;
         return(StatusCode::FAILURE);
@@ -188,4 +191,49 @@ StatusCode SCT_GMX_DetectorTool::clear(StoreGateSvc* detStore) {
         m_manager = 0;
     }
     return StatusCode::SUCCESS;
+}
+
+StatusCode SCT_GMX_DetectorTool::registerCallback(StoreGateSvc* detStore) {
+// 
+//    Register call-back for software alignment
+//
+    StatusCode sc = StatusCode::FAILURE;
+    if (m_alignable) {
+        std::string folderName = "/Indet/Align";
+        if (detStore->contains<AlignableTransformContainer>(folderName)) {
+            msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endmsg;
+            const DataHandle<AlignableTransformContainer> atc;
+            sc =  detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
+            if(sc.isFailure()) {
+                msg(MSG::ERROR) << "Could not register callback on AlignableTransformContainer with folder " << 
+                                    folderName << endmsg;
+            } 
+        } 
+        else {
+            msg(MSG::WARNING) << "Unable to register callback on AlignableTransformContainer with folder " <<
+                                 folderName << ", Alignment disabled (only if no Run2 scheme is loaded)!" << endmsg;
+        }
+    } 
+    else {
+        msg(MSG::INFO) << "Alignment disabled. No callback registered" << endmsg;
+        // We return failure otherwise it will try and register a GeoModelSvc callback associated with this callback.
+    }
+    return sc;
+}
+
+StatusCode SCT_GMX_DetectorTool::align(IOVSVC_CALLBACK_ARGS_P(I, keys)) {
+//
+//    The call-back routine, which just calls the real call-back routine from the manager.
+//
+    if (!m_manager) {
+        msg(MSG::WARNING) << "Manager does not exist" << endmsg;
+        return StatusCode::FAILURE;
+    }
+    if (m_alignable) {
+        return m_manager->align(I, keys);
+    } 
+    else {
+        msg(MSG::DEBUG) << "Alignment disabled. No alignments applied" << endmsg;
+        return StatusCode::SUCCESS;
+    }
 }
