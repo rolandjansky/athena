@@ -45,9 +45,9 @@ class BjetHypo (TrigBjetHypo):
             return None
 
         if instance=="EF" :
-            self.AcceptAll = False
-            self.Instance  = "EF"
-            self.UseBeamSpotFlag = False
+            self.AcceptAll       = False
+            self.Instance        = "EF"
+            self.UseBeamSpotFlag = True
 
         self.JetKey = ""
         
@@ -132,9 +132,10 @@ class BjetHypoNoCut (TrigBjetHypo):
         if instance in AllowedInstances :
             
             if instance=="EF" :
-                self.AcceptAll = True
-                self.Instance  = "EF"
-                self.UseBeamSpotFlag = False
+                self.AcceptAll             = True
+                self.Instance              = "EF"
+                self.UseBeamSpotFlag       = True
+                self.OverrideBeamSpotValid = True
                 from TrigBjetHypo.TrigBjetHypoMonitoring import TrigEFBjetHypoValidationMonitoring, TrigEFBjetHypoOnlineMonitoring
                 validation = TrigEFBjetHypoValidationMonitoring()
                 online     = TrigEFBjetHypoOnlineMonitoring()
@@ -185,9 +186,9 @@ class BjetHypoSplit (TrigBjetHypo):
             instance = "EF"
 
         if instance=="EF" :
-            self.AcceptAll = False
-            self.Instance  = "EF"
-            self.UseBeamSpotFlag = False
+            self.AcceptAll       = False
+            self.Instance        = "EF"
+            self.UseBeamSpotFlag = True
         
         if instance=="EF" :
             from TrigBjetHypo.TrigBjetHypoMonitoring import TrigEFBjetHypoValidationMonitoring, TrigEFBjetHypoOnlineMonitoring
@@ -276,9 +277,10 @@ class BjetHypoSplitNoCut (TrigBjetHypo):
                 instance = "EF"
                 
             if instance=="EF" :
-                self.AcceptAll = True
-                self.Instance  = "EF"
-                self.UseBeamSpotFlag = False
+                self.AcceptAll             = True
+                self.Instance              = "EF"
+                self.UseBeamSpotFlag       = True
+                self.OverrideBeamSpotValid = True
                 from TrigBjetHypo.TrigBjetHypoMonitoring import TrigEFBjetHypoValidationMonitoring, TrigEFBjetHypoOnlineMonitoring
                 validation = TrigEFBjetHypoValidationMonitoring()
                 online     = TrigEFBjetHypoOnlineMonitoring()
