@@ -305,17 +305,6 @@ class SimSkeleton(object):
 
 
     @classmethod
-    def do_UserActions(cls):
-        """ Place to define default user actions.
-
-           In most of the cases this will be empty unless a well
-         defined user action will be applied in all the jobs for a
-         given simulation entity.
-        """
-        AtlasG4Eng.G4Eng.log.info('SimSkeleton.do_UserActions :: nothing done')
-
-
-    @classmethod
     def _do_metadata(cls):
         """
         Default metadata: empty
@@ -336,12 +325,10 @@ class SimSkeleton(object):
         # use some different methods for ISF and G4 standalone run
         from G4AtlasApps.SimFlags import simFlags
         if simFlags.ISFRun:
-          known_methods = ['_do_jobproperties', '_do_external', '_do_metadata',
-                           'do_UserActions']
+          known_methods = ['_do_jobproperties', '_do_external', '_do_metadata']
         else:
           known_methods = ['_do_jobproperties', '_do_external', '_do_metadata',
-                           '_do_readevgen', '_do_persistency', '_do_G4AtlasAlg',
-                           'do_UserActions']
+                           '_do_readevgen', '_do_persistency', '_do_G4AtlasAlg']
 
         ## Execute the known methods from the known_methods in pre_init
         for k in known_methods:
@@ -384,8 +371,7 @@ class SimSkeleton(object):
                 raise RuntimeError('SimSkeleton: found problems with the method  %s' % k)
         ## Execute the unknown methods created by user
         for i in dir(cls):
-            # user actions need to be called at preinit
-            if i.find('do_') == 0 and i not in known_methods and i!='do_UserActions':
+            if i.find('do_') == 0 and i not in known_methods:
                try:
                    AtlasG4Eng.G4Eng.log.debug('SimSkeleton :: evaluating method %s' % i)
                    getattr(cls, i).__call__()
