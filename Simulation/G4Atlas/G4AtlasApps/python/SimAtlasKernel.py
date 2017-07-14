@@ -224,15 +224,6 @@ class AtlasSimSkeleton(SimSkeleton):
 
 
     @classmethod
-    def do_GeoSD(self):
-        """ Configure the geometry and SD
-        """
-        AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_GeoSD :: starting')
-        # TODO drop this method.
-        AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_GeoSD :: done')
-
-
-    @classmethod
     def _do_metadata(self):
         """
         Setup and add metadata to the HIT file.
