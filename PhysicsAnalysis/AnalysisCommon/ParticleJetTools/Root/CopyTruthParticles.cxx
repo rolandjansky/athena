@@ -39,7 +39,7 @@ int CopyTruthParticles::execute() const {
   size_t numCopied = 0;
   for (unsigned int ip = 0; ip < evt->nTruthParticles(); ++ip) {
     const xAOD::TruthParticle* tp = evt->truthParticle(ip);
-    if (tp->pt() < m_ptmin)
+    if (!tp || tp->pt() < m_ptmin)
         continue;
 
     if (classify(tp)) {
