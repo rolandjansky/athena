@@ -69,3 +69,5 @@ topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 ## Add the G4 sim to the alg sequence
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)

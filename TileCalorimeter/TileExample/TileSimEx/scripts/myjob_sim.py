@@ -222,6 +222,8 @@ if 'RangeCut' in dir():
 ## Populate alg sequence
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 # uncomment and modify any of options below to have non-standard simulation 
 from AthenaCommon.AppMgr import ToolSvc

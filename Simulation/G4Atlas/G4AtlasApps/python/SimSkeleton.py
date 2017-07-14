@@ -199,7 +199,7 @@ class SimSkeleton(object):
         """ Set the run number in the simulation.  In order of priority, use:
              - The RunNumber flag
              - The input file run number """
-
+        # FIXME This method is called from both _do_persistency and _do_All for AtlasG4 jobs!
         AtlasG4Eng.G4Eng.log.verbose('SimSkeleton.do_run_number_modifications :: starting')
         from G4AtlasApps.G4Atlas_Metadata import configureRunNumberOverrides
         configureRunNumberOverrides()
@@ -284,26 +284,17 @@ class SimSkeleton(object):
         AtlasG4Eng.G4Eng.log.verbose('SimSkeleton._do_readevgen :: done')
 
 
-    @classmethod
-    def _do_G4AtlasAlg(cls):
-        """ Place to handle the G4AtlasAlg service
-        """
-        AtlasG4Eng.G4Eng.log.verbose('SimSkeleton._doG4AtlasAlg :: starting')
-        from AthenaCommon.AlgSequence import AlgSequence
-        job = AlgSequence()
-        if not hasattr(job, 'G4AtlasAlg'):
-            from AthenaCommon import CfgGetter
-            job += CfgGetter.getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
-        AtlasG4Eng.G4Eng.log.verbose('SimSkeleton._doG4AtlasAlg :: done')
-
-
-    @classmethod
-    def do_GeoSD(cls):
-        """ Place to define the geometry and sensitive detectors.
-        """
-        AtlasG4Eng.G4Eng.log.info('SimSkeleton.do_GeoSD :: nothing done')
-
-
+    ## @classmethod
+    ## def _do_G4AtlasAlg(cls):
+    ##     """ Place to handle the G4AtlasAlg service
+    ##     """
+    ##     AtlasG4Eng.G4Eng.log.verbose('SimSkeleton._doG4AtlasAlg :: starting')
+    ##     from AthenaCommon.AlgSequence import AlgSequence
+    ##     job = AlgSequence()
+    ##     if not hasattr(job, 'G4AtlasAlg'):
+    ##         from AthenaCommon import CfgGetter
+    ##         job += CfgGetter.getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+    ##     AtlasG4Eng.G4Eng.log.verbose('SimSkeleton._doG4AtlasAlg :: done')
     @classmethod
     def _do_metadata(cls):
         """
@@ -328,7 +319,7 @@ class SimSkeleton(object):
           known_methods = ['_do_jobproperties', '_do_external', '_do_metadata']
         else:
           known_methods = ['_do_jobproperties', '_do_external', '_do_metadata',
-                           '_do_readevgen', '_do_persistency', '_do_G4AtlasAlg']
+                           '_do_readevgen', '_do_persistency']#, '_do_G4AtlasAlg']
 
         ## Execute the known methods from the known_methods in pre_init
         for k in known_methods:

@@ -119,6 +119,8 @@ MaterialStream.ItemList    += [ 'MaterialStepVector#*']
 ## Populate alg sequence
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 from InDetIBL_Example.SLHC_Setup import SLHC_Setup
 SLHC_Setup = SLHC_Setup()

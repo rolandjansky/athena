@@ -254,6 +254,8 @@ except ImportError:
         svcMgr += PyG4AtlasSvc()
     except ImportError:
         atlasG4log.fatal("Failed to import PyG4AtlasAlg/Svc")
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 ## Add AMITag MetaData to TagInfoMgr
 if hasattr(runArgs, 'AMITag'):

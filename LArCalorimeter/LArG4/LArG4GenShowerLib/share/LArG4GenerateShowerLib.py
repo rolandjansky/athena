@@ -82,6 +82,8 @@ from G4AtlasApps.SimFlags import simFlags
 simFlags.OptionalUserActionList.addAction('G4UA::TestActionShowerLibTool',['Event','Run','Step'])
 
 topSeq += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("LArG4GenShowerLib")
