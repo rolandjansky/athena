@@ -29,17 +29,34 @@ atlas_depends_on_subdirs(
 find_package( Boost COMPONENTS thread )
 find_package( CLHEP )
 find_package( PythonLibs )
+find_package( yampl QUIET )
 
-if( XAOD_ANALYSIS )
-  set( extra_libs )
-else()
-  set( extra_libs PerfMonEvent )
+# Environment specific dependencies:
+set( extra_inc )
+set( extra_libs )
+set( extra_defs )
+if( NOT XAOD_ANALYSIS )
+   list( APPEND extra_libs PerfMonEvent )
+endif()
+if( YAMPL_FOUND )
+   list( APPEND extra_inc ${YAMPL_INCLUDE_DIRS} )
+   list( APPEND extra_libs ${YAMPL_LIBRARIES} )
+   set( extra_defs DEFINITIONS -DHAVE_YAMPL )
+endif()
+
+# Select what sources to build:
+set( sources src/*.h src/*.cxx src/components/*.cxx )
+if( NOT YAMPL_FOUND )
+   file( GLOB sources RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+      src/*.h src/*.cxx src/components/*.cxx )
+   list( REMOVE_ITEM sources src/AthenaYamplTool.h src/AthenaYamplTool.cxx )
 endif()
 
 # Component(s) in the package:
-atlas_add_component( AthenaServices src/*.cxx src/components/*.cxx
+atlas_add_component( AthenaServices ${sources}
+   ${extra_defs}
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS}
-   ${CLHEP_INCLUDE_DIRS}
+   ${CLHEP_INCLUDE_DIRS} ${extra_inc}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} 
    ${CLHEP_LIBRARIES} z TestTools AthenaBaseComps AthenaKernel CxxUtils
    DataModel DataModelRoot Navigation PerfMonKernel SGTools
