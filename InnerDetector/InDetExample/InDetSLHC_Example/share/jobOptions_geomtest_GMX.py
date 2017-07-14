@@ -62,6 +62,8 @@ if (doFastCheck) :
 
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 MessageSvc = Service("MessageSvc")
 MessageSvc.OutputLevel = INFO

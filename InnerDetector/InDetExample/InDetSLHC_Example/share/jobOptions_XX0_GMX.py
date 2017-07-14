@@ -93,6 +93,8 @@ SimFlags.InitFunctions.add_function('preInitG4', XX0_Action)
 
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 # start run after the interactive mode 
 

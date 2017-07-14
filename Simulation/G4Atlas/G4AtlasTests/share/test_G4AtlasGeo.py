@@ -71,3 +71,5 @@ simFlags.InitFunctions.add_function("preInitG4", force_exit)
 ## Add app to alg sequence
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 job += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+job += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
