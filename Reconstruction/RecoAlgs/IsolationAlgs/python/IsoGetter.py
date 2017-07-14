@@ -41,18 +41,26 @@ if recAlgs.doEFlow() :
     useVertices = False
   
   from JetRec.JetRecStandard import jtm
-  from JetRecTools.JetRecToolsConf import PFlowPseudoJetGetter
-  jtm += PFlowPseudoJetGetter(
+  from JetRec.JetRecConf import PseudoJetGetter
+  from JetRec.JetRecConf import JetToolRunner
+  #from JetRecTools.JetRecToolsConf import PFlowPseudoJetGetter
+  jtm += JetToolRunner("jetconstitCHSPFlow",
+                       EventShapeTools=[],
+                       Tools=[jtm.JetConstitSeq_PFlowCHS],
+                       )
+  from AthenaCommon.AlgSequence import AlgSequence
+  job = AlgSequence()
+
+  from JetRec.JetRecConf import JetAlgorithm
+  job += JetAlgorithm("jetalgCHSPFlow",
+                      Tools=[jtm.jetconstitCHSPFlow])
+
+  jtm += PseudoJetGetter(
     name               = "emnpflowget",
     Label              = "EMNPFlow",
-    OutputContainer    = "PseudoJetEMNPFlow",
-    RetrievePFOTool    = jtm.pflowretriever,
-    InputIsEM          = True,
-    CalibratePFO       = False,
+    InputContainer = "CHSParticleFlowObjects",
+    OutputContainer = "PseudoJetEMPFlow",
     SkipNegativeEnergy = True,
-    UseNeutral         = True,
-    UseCharged         = False,
-    UseVertices        = useVertices
     )
 
 # tool to collect topo clusters in cone
