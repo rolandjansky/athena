@@ -98,15 +98,15 @@ void PixelMon2DLumiProfiles::Fill(double LB,Identifier &id, const PixelID* pixID
 
 void PixelMon2DLumiProfiles::formatHist()
 {
-   char label[30];
+   std::string label;
    unsigned int count = 1;
    if (Albp && Clbp) {
       for (unsigned int j = 0; j < PixMon::kNumLayersDisk; ++j) {
          for (unsigned int i = 0; i < PixMon::kNumModulesDisk; ++i) {
-            sprintf(label, "%sA_%s", PixMon::LayersDisk.at(j).c_str(), PixMon::ModulesECA.at(i).c_str());
-            Albp->GetYaxis()->SetBinLabel(count, label);
-            sprintf(label, "%sC_%s", PixMon::LayersDisk.at(j).c_str(), PixMon::ModulesECC.at(i).c_str());
-            Clbp->GetYaxis()->SetBinLabel(count, label);
+            label = PixMon::LayersDisk.at(j) + "A_" + PixMon::ModulesECA.at(i);
+            Albp->GetYaxis()->SetBinLabel(count, label.c_str());
+            label = PixMon::LayersDisk.at(j) + "C_" + PixMon::ModulesECC.at(i);
+            Clbp->GetYaxis()->SetBinLabel(count, label.c_str());
             count++;
          }
       }
@@ -115,10 +115,10 @@ void PixelMon2DLumiProfiles::formatHist()
    if (DBMAlbp && DBMClbp) {
       for (unsigned int j = 0; j < PixMon::kNumLayersDBM; ++j) {
          for (unsigned int i = 0; i < PixMon::kNumModulesDBM; ++i) {
-            sprintf(label, "%sA_%s", PixMon::LayersDBM.at(j).c_str(), PixMon::ModulesDBM.at(i).c_str());
-            DBMAlbp->GetYaxis()->SetBinLabel(count, label);
-            sprintf(label, "%sC_%s", PixMon::LayersDBM.at(j).c_str(), PixMon::ModulesDBM.at(i).c_str());
-            DBMClbp->GetYaxis()->SetBinLabel(count, label);
+            label = PixMon::LayersDBM.at(j) + "A_" + PixMon::ModulesDBM.at(i);
+            DBMAlbp->GetYaxis()->SetBinLabel(count, label.c_str());
+            label = PixMon::LayersDBM.at(j) + "C_" + PixMon::ModulesDBM.at(i);
+            DBMClbp->GetYaxis()->SetBinLabel(count, label.c_str());
             count++;
          }
       }
@@ -127,24 +127,24 @@ void PixelMon2DLumiProfiles::formatHist()
    if (B0lbp && B1lbp && B2lbp) {
       for (unsigned int i = 0; i < PixMon::kNumStavesL0; ++i) {
          for (unsigned int j = 0; j < PixMon::kNumModulesBarrel; ++j) {
-            sprintf(label, "L0_%s_%s", PixMon::StavesL0.at(i).c_str(), PixMon::ModulesBarrel.at(j).c_str());
-            B0lbp->GetYaxis()->SetBinLabel(count, label);
+            label = "L0_" + PixMon::StavesL0.at(i) + "_" + PixMon::ModulesBarrel.at(j);
+            B0lbp->GetYaxis()->SetBinLabel(count, label.c_str());
             count++;
          }
       }
       count = 1;
       for (unsigned int i = 0; i < PixMon::kNumStavesL1; ++i) {
          for (unsigned int j = 0; j < PixMon::kNumModulesBarrel; ++j) {
-            sprintf(label, "L1_%s_%s", PixMon::StavesL1.at(i).c_str(), PixMon::ModulesBarrel.at(j).c_str());
-            B1lbp->GetYaxis()->SetBinLabel(count,label);
+            label = "L1_" + PixMon::StavesL1.at(i) + "_" + PixMon::ModulesBarrel.at(j);
+            B1lbp->GetYaxis()->SetBinLabel(count, label.c_str());
             count++;
          }
       }
       count = 1;
       for (unsigned int i = 0; i < PixMon::kNumStavesL2; ++i) {
          for (unsigned int j = 0; j < PixMon::kNumModulesBarrel; ++j) {
-            sprintf(label, "L2_%s_%s", PixMon::StavesL2.at(i).c_str(), PixMon::ModulesBarrel.at(j).c_str());
-            B2lbp->GetYaxis()->SetBinLabel(count, label);
+            label = "L2_" + PixMon::StavesL2.at(i) + "_" + PixMon::ModulesBarrel.at(j);
+            B2lbp->GetYaxis()->SetBinLabel(count, label.c_str());
             count++;
          }
       }
@@ -153,8 +153,8 @@ void PixelMon2DLumiProfiles::formatHist()
    if (IBLlbp) {
       for (unsigned int i = 0; i < PixMon::kNumStavesIBL; ++i) {
          for (unsigned int j = 0; j < PixMon::kNumModulesIBL; ++j) {
-            sprintf(label, "IBL_%s_%s", PixMon::StavesIBL.at(i).c_str(), PixMon::ModulesIBL.at(j).c_str());
-            IBLlbp->GetYaxis()->SetBinLabel(count, label);
+            label = "IBL_" + PixMon::StavesIBL.at(i) + "_" + PixMon::ModulesIBL.at(j);
+            IBLlbp->GetYaxis()->SetBinLabel(count, label.c_str());
             count++;
 	 }
       }
