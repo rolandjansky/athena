@@ -17,13 +17,13 @@ namespace DerivationFramework {
       const std::string& n,
       const IInterface* p) : 
     AthAlgTool(t,n,p),
-    dec_calibpt(0),
-    dec_calibeta(0),
-    dec_calibphi(0),
-    dec_calibm(0),
+    m_dec_calibpt(0),
+    m_dec_calibeta(0),
+    m_dec_calibphi(0),
+    m_dec_calibm(0),
     m_jetCalibTool(""),
     m_docalib(false),
-    dec_jvt(0),
+    m_dec_jvt(0),
     m_jvtTool(""),
     m_dojvt(false),
     m_dobtag(false),
@@ -52,24 +52,24 @@ namespace DerivationFramework {
       ATH_MSG_INFO("Augmenting jets with calibration \"" << m_momentPrefix+m_calibMomentKey << "\"");
       m_docalib = true;
 
-      dec_calibpt  = new SG::AuxElement::Decorator<float>(m_momentPrefix+m_calibMomentKey+"_pt");
-      dec_calibeta = new SG::AuxElement::Decorator<float>(m_momentPrefix+m_calibMomentKey+"_eta");
-      dec_calibphi = new SG::AuxElement::Decorator<float>(m_momentPrefix+m_calibMomentKey+"_phi");
-      dec_calibm   = new SG::AuxElement::Decorator<float>(m_momentPrefix+m_calibMomentKey+"_m");
+      m_dec_calibpt  = new SG::AuxElement::Decorator<float>(m_momentPrefix+m_calibMomentKey+"_pt");
+      m_dec_calibeta = new SG::AuxElement::Decorator<float>(m_momentPrefix+m_calibMomentKey+"_eta");
+      m_dec_calibphi = new SG::AuxElement::Decorator<float>(m_momentPrefix+m_calibMomentKey+"_phi");
+      m_dec_calibm   = new SG::AuxElement::Decorator<float>(m_momentPrefix+m_calibMomentKey+"_m");
 
       if(!m_jvtTool.empty()) {
 	CHECK(m_jvtTool.retrieve());
 	ATH_MSG_INFO("Augmenting jets with updated JVT \"" << m_momentPrefix+m_jvtMomentKey << "\"");
 	m_dojvt = true;
 
-	dec_jvt  = new SG::AuxElement::Decorator<float>(m_momentPrefix+m_jvtMomentKey);
+	m_dec_jvt  = new SG::AuxElement::Decorator<float>(m_momentPrefix+m_jvtMomentKey);
 
 	if(!m_btagSelTools.empty()) {
 	  size_t ibtag(0);
 	  for(const auto& tool : m_btagSelTools) {
 	    CHECK(tool.retrieve());
 	    ATH_MSG_INFO("Augmenting jets with B-tag working point \"" << m_momentPrefix+m_btagWP[ibtag] << "\"");
-	    dec_btag.push_back(new SG::AuxElement::Decorator<float>(m_momentPrefix+m_btagWP[ibtag]));
+	    m_dec_btag.push_back(new SG::AuxElement::Decorator<float>(m_momentPrefix+m_btagWP[ibtag]));
 	    m_dobtag = true;
 	    ++ibtag;
 	  }
@@ -81,8 +81,8 @@ namespace DerivationFramework {
       CHECK(m_jetTrackSumMomentsTool.retrieve());
       ATH_MSG_INFO("Augmenting jets with track sum moments \"" << m_momentPrefix << "TrackSumMass,Pt\"");
       m_decoratetracksum = true;
-      dec_tracksummass = new SG::AuxElement::Decorator<float>(m_momentPrefix+"TrackSumMass");
-      dec_tracksumpt   = new SG::AuxElement::Decorator<float>(m_momentPrefix+"TrackSumPt");
+      m_dec_tracksummass = new SG::AuxElement::Decorator<float>(m_momentPrefix+"TrackSumMass");
+      m_dec_tracksumpt   = new SG::AuxElement::Decorator<float>(m_momentPrefix+"TrackSumPt");
     }
 
     return StatusCode::SUCCESS;
@@ -92,23 +92,23 @@ namespace DerivationFramework {
   {
 
     if(m_docalib) {
-      delete dec_calibpt;
-      delete dec_calibeta;
-      delete dec_calibphi;
-      delete dec_calibm;
+      delete m_dec_calibpt;
+      delete m_dec_calibeta;
+      delete m_dec_calibphi;
+      delete m_dec_calibm;
     }
 
     if(m_dojvt) {
-      delete dec_jvt;
+      delete m_dec_jvt;
     }
 
     if(m_dobtag) {
-      for(const auto& pdec : dec_btag) delete pdec;
+      for(const auto& pdec : m_dec_btag) delete pdec;
     }
 
     if(m_decoratetracksum){
-      delete dec_tracksummass;
-      delete dec_tracksumpt;
+      delete m_dec_tracksummass;
+      delete m_dec_tracksumpt;
     }
 
     return StatusCode::SUCCESS;
@@ -151,23 +151,23 @@ namespace DerivationFramework {
 
       if(m_docalib) {
 	// generate static decorators to avoid multiple lookups	
-	(*dec_calibpt)(jet_orig)  = jet->pt();
-	(*dec_calibeta)(jet_orig) = jet->eta();
-	(*dec_calibphi)(jet_orig) = jet->phi();
-	(*dec_calibm)(jet_orig)   = jet->m();
+	(*m_dec_calibpt)(jet_orig)  = jet->pt();
+	(*m_dec_calibeta)(jet_orig) = jet->eta();
+	(*m_dec_calibphi)(jet_orig) = jet->phi();
+	(*m_dec_calibm)(jet_orig)   = jet->m();
 
-	ATH_MSG_VERBOSE("Calibrated jet pt: " << (*dec_calibpt)(jet_orig) );
+	ATH_MSG_VERBOSE("Calibrated jet pt: " << (*m_dec_calibpt)(jet_orig) );
 
 	if(m_dojvt) {
-	  (*dec_jvt)(jet_orig) = m_jvtTool->updateJvt(*jet);
-	  ATH_MSG_VERBOSE("Calibrated JVT: " << (*dec_jvt)(jet_orig) );
+	  (*m_dec_jvt)(jet_orig) = m_jvtTool->updateJvt(*jet);
+	  ATH_MSG_VERBOSE("Calibrated JVT: " << (*m_dec_jvt)(jet_orig) );
 
 	  if(m_dobtag) {
-	    bool passJVT = jet->pt()>50e3 || fabs(jet->eta())>2.4 || (*dec_jvt)(jet_orig)>0.64;
+	    bool passJVT = jet->pt()>50e3 || fabs(jet->eta())>2.4 || (*m_dec_jvt)(jet_orig)>0.64;
 	    size_t ibtag(0);
 	    for(const auto& tool : m_btagSelTools) {
-	      (*dec_btag[ibtag])(jet_orig) = jet->pt()>20e3 && fabs(jet->eta())<2.5 && passJVT && tool->accept(*jet);
-	      ATH_MSG_VERBOSE("Btag working point \"" << m_btagWP[ibtag] << "\" " << ((*dec_btag[ibtag])(jet_orig) ? "passed." : "failed."));
+	      (*m_dec_btag[ibtag])(jet_orig) = jet->pt()>20e3 && fabs(jet->eta())<2.5 && passJVT && tool->accept(*jet);
+	      ATH_MSG_VERBOSE("Btag working point \"" << m_btagWP[ibtag] << "\" " << ((*m_dec_btag[ibtag])(jet_orig) ? "passed." : "failed."));
 	      ++ibtag;
 	    }
 	  }
@@ -175,10 +175,10 @@ namespace DerivationFramework {
       }
 
       if(m_decoratetracksum) {  
-	(*dec_tracksummass)(jet_orig) = jet->getAttribute<float>("TrackSumMass");
-	(*dec_tracksumpt)(jet_orig)   = jet->getAttribute<float>("TrackSumPt");
-	ATH_MSG_VERBOSE("TrackSumMass: " << (*dec_tracksummass)(jet_orig) );
-	ATH_MSG_VERBOSE("TrackSumPt: "   << (*dec_tracksummass)(jet_orig) );
+	(*m_dec_tracksummass)(jet_orig) = jet->getAttribute<float>("TrackSumMass");
+	(*m_dec_tracksumpt)(jet_orig)   = jet->getAttribute<float>("TrackSumPt");
+	ATH_MSG_VERBOSE("TrackSumMass: " << (*m_dec_tracksummass)(jet_orig) );
+	ATH_MSG_VERBOSE("TrackSumPt: "   << (*m_dec_tracksummass)(jet_orig) );
       }
     }
 
