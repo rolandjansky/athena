@@ -21,6 +21,8 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "InDetConversionFinderTools/VertexPointEstimator.h"
 #include <memory>
+#include "JpsiUpsilonTools/JpsiUpsilonCommon.h"
+
 namespace Analysis {
     
     StatusCode JpsiPlus1Track::initialize() {
@@ -148,9 +150,9 @@ namespace Analysis {
         };
         
         // Set masses
-        double muMass = 105.658;
-        double kMass = 493.677;
-        double piMass = 139.57;
+        constexpr double muMass = 105.658;
+        constexpr double kMass = 493.677;
+        constexpr double piMass = 139.57;
         
         // Get the J/psis from StoreGate
         const xAOD::VertexContainer* importedJpsiCollection(0);
@@ -193,13 +195,12 @@ namespace Analysis {
         // Select the inner detector tracks
         const xAOD::Vertex* vx = 0;
         TrackBag theIDTracksAfterSelection;
-        xAOD::TrackParticleContainer::const_iterator trkPBItr;
-        for (trkPBItr=importedTrackCollection->begin(); trkPBItr!=importedTrackCollection->end(); ++trkPBItr) {
+        for (auto trkPBItr=importedTrackCollection->cbegin(); trkPBItr!=importedTrackCollection->cend(); ++trkPBItr) {
             const xAOD::TrackParticle* tp (*trkPBItr);
             if ( tp->pt()<m_trkThresholdPt ) continue;
             if ( fabs(tp->eta())>m_trkMaxEta ) continue;
             if (importedMuonCollection!=NULL) {
-                if (isContainedIn(tp,importedMuonCollection)) continue;
+                if (JpsiUpsilonCommon::isContainedIn(tp,importedMuonCollection)) continue;
             }
             if ( m_trkSelector->decision(*tp, vx) ) theIDTracksAfterSelection.push_back(tp);
         }
@@ -207,27 +208,28 @@ namespace Analysis {
         ATH_MSG_DEBUG("Number of tracks after ID trkSelector: " << theIDTracksAfterSelection.size());
         
         // Set vector of muon masses
-        std::vector<double> muonMasses = {muMass , muMass};
+        const std::vector<double> muonMasses(2 , muMass);
 
         
         // Loop over J/psi candidates, select, collect up tracks used to build a J/psi
         std::vector<const xAOD::Vertex*> selectedJpsiCandidates;
         std::vector<const xAOD::TrackParticle*> jpsiTracks;
-        xAOD::VertexContainer::const_iterator vxcItr;
-        for(vxcItr=importedJpsiCollection->begin(); vxcItr!=importedJpsiCollection->end(); ++vxcItr) {
+        for(auto vxcItr=importedJpsiCollection->cbegin(); vxcItr!=importedJpsiCollection->cend(); ++vxcItr) {
             // Check J/psi candidate invariant mass and skip if need be
-            if (m_jpsiMassUpper>0.0) {
+            if (m_jpsiMassUpper>0.0 || m_jpsiMassLower >0.0) {
                 xAOD::BPhysHelper jpsiCandidate(*vxcItr);
                 jpsiCandidate.setRefTrks();
                 double jpsiMass = jpsiCandidate.totalP(muonMasses).M();
-                if (jpsiMass<m_jpsiMassLower || jpsiMass>m_jpsiMassUpper) continue;
+                bool pass = JpsiUpsilonCommon::cutRange(jpsiMass, m_jpsiMassLower, m_jpsiMassUpper);
+                if (!pass) continue;
             }
             selectedJpsiCandidates.push_back(*vxcItr);
-            // Extract tracks from J/psi
-            const xAOD::TrackParticle* jpsiTP1 = (*vxcItr)->trackParticle(0);
-            const xAOD::TrackParticle* jpsiTP2 = (*vxcItr)->trackParticle(1);
+
             // Collect up tracks
 	    if(m_excludeCrossJpsiTracks){
+                // Extract tracks from J/psi
+                const xAOD::TrackParticle* jpsiTP1 = (*vxcItr)->trackParticle(0);
+                const xAOD::TrackParticle* jpsiTP2 = (*vxcItr)->trackParticle(1);
             	jpsiTracks.push_back(jpsiTP1);
             	jpsiTracks.push_back(jpsiTP2);
 	    }
@@ -240,61 +242,50 @@ namespace Analysis {
         if (!m_kMassHyp && !m_piMassHyp && m_BMassUpper>0.0) {
             massHypotheses.push_back(kMass); massHypotheses.push_back(piMass);
         }        
-        std::vector<double> tripletMasses;
-        tripletMasses.push_back(muMass); tripletMasses.push_back(muMass);
+        std::vector<double> tripletMasses(2, muMass);
         // Attempt to fit each track with the two tracks from the J/psi candidates
         // Loop over J/psis
-        std::vector<const xAOD::Vertex*>::iterator jpsiItr;
-        for(jpsiItr=selectedJpsiCandidates.begin(); jpsiItr!=selectedJpsiCandidates.end(); ++jpsiItr) {
 
-            if (m_jpsiMassUpper>0.0) {
-               xAOD::BPhysHelper jpsiCandidate(*jpsiItr);
-               jpsiCandidate.setRefTrks();
-            // Check J/psi candidate invariant mass and skip if need be
-               double jpsiMass = jpsiCandidate.totalP(muonMasses).M();
-               if (jpsiMass<m_jpsiMassLower || jpsiMass>m_jpsiMassUpper) continue;
-            }
+        std::vector<double> massCuts;
+        
+
+        for(auto jpsiItr=selectedJpsiCandidates.cbegin(); jpsiItr!=selectedJpsiCandidates.cend(); ++jpsiItr) {
+
             // Extract tracks from J/psi
             const xAOD::TrackParticle* jpsiTP1 = (*jpsiItr)->trackParticle(0);
             const xAOD::TrackParticle* jpsiTP2 = (*jpsiItr)->trackParticle(1);
 
-	    if(!m_excludeCrossJpsiTracks){
-	       jpsiTracks.clear();
-	       jpsiTracks.push_back(jpsiTP1);
-               jpsiTracks.push_back(jpsiTP2);
-	    }
+	    //If requested, only exclude duplicates in the same tripplet
+            if(!m_excludeCrossJpsiTracks){
+                jpsiTracks.resize(2);
+                jpsiTracks[0] = jpsiTP1;
+                jpsiTracks[1] = jpsiTP2;
+            }
 
             // Loop over ID tracks, call vertexing
-            std::vector<const xAOD::TrackParticle*>::iterator trkItr;
-            for (trkItr=theIDTracksAfterSelection.begin(); trkItr!=theIDTracksAfterSelection.end(); ++trkItr) {
-                if (isContainedIn(*trkItr,jpsiTracks)) continue; // remove tracks which were used to build J/psi
+            for (auto trkItr=theIDTracksAfterSelection.cbegin(); trkItr!=theIDTracksAfterSelection.cend(); ++trkItr) {
+                if (JpsiUpsilonCommon::isContainedIn(*trkItr,jpsiTracks)) continue; // remove tracks which were used to build J/psi
                 // Convert to TrackParticleBase
                 const xAOD::TrackParticle* theThirdTP = *trkItr;
 
-                if (m_trkTrippletPt>0 && getPt(jpsiTP1, jpsiTP2, theThirdTP) < m_trkTrippletPt ) continue; // track tripplet pT cut (daniel Scheirich)
+                if (m_trkTrippletPt>0 && JpsiUpsilonCommon::getPt(jpsiTP1, jpsiTP2, theThirdTP) < m_trkTrippletPt ) continue; // track tripplet pT cut (daniel Scheirich)
                 if(m_trkDeltaZ>0 &&
                    fabs(theThirdTP->z0() - (*jpsiItr)->z()) > m_trkDeltaZ )
                     continue;
                     // apply mass cut on track tripplet if requested
-                bool passes3TrackMassUpper(true);
-                bool passes3TrackMassLower(true);
+                bool passRoughMassCuts(true);
+
                 if (m_trkTrippletMassUpper>0.0 || m_trkTrippletMassLower>0.0) {
-                     double jpsik   = getInvariantMass(jpsiTP1, muMass, jpsiTP2, muMass, theThirdTP,kMass );
-                     double jpsipi = getInvariantMass(jpsiTP1, muMass, jpsiTP2, muMass, theThirdTP,piMass);
-                     if (m_trkTrippletMassUpper>0.0) {
-                         if (m_kMassHyp && jpsik>m_trkTrippletMassUpper) passes3TrackMassUpper=false;
-                         if (m_piMassHyp && jpsipi>m_trkTrippletMassUpper) passes3TrackMassUpper=false;
-                     }
-                     if (m_trkTrippletMassLower>0.0) {
-                         if (m_kMassHyp && jpsik<m_trkTrippletMassLower) passes3TrackMassLower=false;
-                         if (m_piMassHyp && jpsipi<m_trkTrippletMassLower) passes3TrackMassLower=false;
-                     }
+                     massCuts.clear();
+                     if(m_kMassHyp)  massCuts.push_back(getInvariantMass(jpsiTP1, muMass, jpsiTP2, muMass, theThirdTP,kMass ));
+                     if(m_piMassHyp) massCuts.push_back(getInvariantMass(jpsiTP1, muMass, jpsiTP2, muMass, theThirdTP,piMass));
+                     passRoughMassCuts = JpsiUpsilonCommon::cutRangeOR(massCuts, m_trkTrippletMassLower, m_trkTrippletMassUpper);
                  }
-                 if (!passes3TrackMassUpper||!passes3TrackMassLower) continue;
+                 if (!passRoughMassCuts) continue;
 
 
                 //Managed pointer, "release" if you don't want it deleted. Automatically "deleted" otherwise
-                std::unique_ptr<xAOD::Vertex> bVertex( fit(jpsiTP1,jpsiTP2,theThirdTP,m_useMassConst,m_altMassConst,importedTrackCollection));
+                std::unique_ptr<xAOD::Vertex> bVertex( fit(jpsiTP1,jpsiTP2,theThirdTP,m_useMassConst, m_altMassConst, importedTrackCollection));
                 if (bVertex) {
 
                         // Chi2/DOF cut
@@ -309,27 +300,22 @@ namespace Analysis {
                     // setRefTrks needs to be called after BPhysHelper is created if you want to access refitted track parameters
                     bHelper.setRefTrks();
                     // Decide whether to keep the candidate
-                    bool massCutPassed(true);
-                    bool PtPassed(m_BThresholdPt <= 0.0);
-                    if (m_BMassUpper>0.0 || m_BThresholdPt >0.0) {
-                        bool lowerPassed(false); bool upperPassed(false);
-                        
+                    bool masspTpassed = true;
+                    if (m_BMassUpper>0.0 || m_BThresholdPt >0.0 || m_BMassLower > 0.0) {
+                        masspTpassed = false;
                         for (double masshypo3rd : massHypotheses) {
                             tripletMasses.push_back(masshypo3rd); //Add third mass
                             TLorentzVector bMomentum = bHelper.totalP(tripletMasses);//Calulcate result
                             tripletMasses.pop_back(); //Remove 3rd mass - now same as beginning
                             double bpt = bMomentum.Pt();
-                            PtPassed |=  (bpt >= m_BThresholdPt);// |= OR operator
+                            bool PtPassed =  m_BThresholdPt <= 0.0 || (bpt >= m_BThresholdPt);
                             double bMass = bMomentum.M();
                             ATH_MSG_DEBUG("candidate pt/mass under track mass hypothesis of " << masshypo3rd << " is " << bpt << " / " << bMass);
-                            if ( bMass > m_BMassLower ) lowerPassed=true;
-                            if ( bMass < m_BMassUpper ) upperPassed=true;
-                            
+                            bool masscut =  JpsiUpsilonCommon::cutRange(bMass, m_BMassLower, m_BMassUpper);  //( bMass >= m_BMassLower && bMass <= m_BMassUpper );
+                            if(masscut && PtPassed) { masspTpassed = true; break; } 
                         }
-                        massCutPassed= (massCutPassed<= 0.0) ||  (lowerPassed && upperPassed);
                     }
-                    bool passesCuts = ( massCutPassed && PtPassed );
-                    if ((*jpsiItr)!=NULL && passesCuts) {
+                    if ((*jpsiItr)!=NULL && masspTpassed) {
                         // Set links to J/psi
                         std::vector<const xAOD::Vertex*> theJpsiPreceding;
                         theJpsiPreceding.push_back(*jpsiItr);
@@ -368,14 +354,13 @@ namespace Analysis {
         // Can be set by user (m_altMassConstraint) - default is -1.0.
         // If < 0.0, uses J/psi (default)
         // If > 0.0, uses the value provided
-        double jpsiTableMass = 3096.916;
-        double muTableMass = 105.658;
+        constexpr double jpsiTableMass = 3096.916;
+        constexpr double muTableMass = 105.658;
 
         if (doMassConst) {
-            std::vector<double> muMasses;
-            muMasses.push_back(muTableMass); muMasses.push_back(muTableMass);
+            std::vector<double> muMasses(2, muTableMass);
             m_VKVFitter->setMassInputParticles(muMasses);
-            std::vector<int> indices; indices.push_back(1); indices.push_back(2);
+            std::vector<int> indices{1, 2};
             if (massConst<0.0) m_VKVFitter->setMassForConstraint(jpsiTableMass,indices);
             if (massConst>0.0) m_VKVFitter->setMassForConstraint(massConst,indices);
         }
@@ -396,7 +381,6 @@ namespace Analysis {
         for(unsigned int i=0; i< theResult->trackParticleLinks().size(); i++)
         { ElementLink<DataVector<xAOD::TrackParticle> > mylink=theResult->trackParticleLinks()[i]; //makes a copy (non-const) 
         mylink.setStorableObject(*importedTrackCollection, true); 
-        mylink.index(); // Use index (should be faster) 
         newLinkVector.push_back( mylink ); }
         
         theResult->clearTracks();
@@ -444,42 +428,6 @@ namespace Analysis {
         
     }
 
-
-    double JpsiPlus1Track::getPt(const xAOD::TrackParticle* trk1,
-                                  const xAOD::TrackParticle* trk2,
-                                  const xAOD::TrackParticle* trk3)
-    {
-        TLorentzVector momentum( trk1->p4() );
-        momentum+= trk2->p4();
-        momentum+= trk3->p4();
-        return momentum.Perp();
-    }
-
-    // *********************************************************************************
-    
-    // -------------------------------------------------------------------------------------------------
-    // isContainedIn: boolean function which checks if a track (1st argument) is also contained in a
-    // vector (second argument)
-    // -------------------------------------------------------------------------------------------------
-    
-    bool JpsiPlus1Track::isContainedIn(const xAOD::TrackParticle* theTrack, std::vector<const xAOD::TrackParticle*> theColl) {
-        bool isContained(false);
-        std::vector<const xAOD::TrackParticle*>::iterator trkItr;
-        for (trkItr=theColl.begin(); trkItr!=theColl.end(); ++trkItr) {
-            if ( (*trkItr) == theTrack ) {isContained=true; break;}
-        }
-        return isContained;
-    }
-    
-    bool JpsiPlus1Track::isContainedIn(const xAOD::TrackParticle* theTrack, const xAOD::MuonContainer* theColl) {
-        bool isContained(false);
-        xAOD::MuonContainer::const_iterator muItr;
-        for (muItr=theColl->begin(); muItr!=theColl->end(); ++muItr) {
-            if ( (*muItr)->trackParticle(xAOD::Muon::InnerDetectorTrackParticle) == theTrack ) {isContained=true; break;}
-        }
-        return isContained;
-    }
-    
     
     // *********************************************************************************
     
