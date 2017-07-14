@@ -47,6 +47,7 @@ public:
   StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
 private:
   void formatHist();
+  std::array<TProfile2D_LW*, 10> m_histograms;
   const PixMon::HistConf m_config;
   static const bool m_doIBL;
   const bool m_copy2DFEval;

@@ -43,6 +43,7 @@ class PixelMon2DMapsLW
       void Fill2DMon(PixelMon2DMapsLW* oldmap);
       StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
 private:
+      friend class PixelMon2DProfilesLW;
       void formatHist();
       std::array<TH2F_LW*, 10> m_histograms;
       const PixMon::HistConf m_config;
