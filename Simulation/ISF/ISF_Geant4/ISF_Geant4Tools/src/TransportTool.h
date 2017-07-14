@@ -88,9 +88,6 @@ namespace iGeant4
 
   private:
 
-    /** Converts ISF::ISFParticle to G4Event */
-    G4Event* ISF_to_G4Event(const ISF::ISFParticle& isp) const;
-
     HepMC::GenEvent* genEvent() const;
 
     /// @name Configurable Properties
