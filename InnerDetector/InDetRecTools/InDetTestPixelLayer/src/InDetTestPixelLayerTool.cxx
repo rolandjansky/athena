@@ -553,23 +553,26 @@ namespace InDet {
 	 phitol = 3.* sqrt((*trackpar->covariance())(Trk::locX,Trk::locX));			  
 	 etatol = 3.* sqrt((*trackpar->covariance())(Trk::locY,Trk::locY));
        }
-       InDetDD::SiIntersect siIn = siElement->inDetector(trackpar->localPosition(), phitol, etatol);
-       if( siElement->nearBondGap(trackpar->localPosition(), etatol) ) { 
-	 if (msgLvl(MSG::DEBUG)) 
-	   {
-	     msg(MSG::DEBUG) << "---> extrapolation on bond gap within " << etatol << ", return" << endreq;
-	   }
-       } else if (!siIn.in()) {
-	 if (msgLvl(MSG::DEBUG)) 
-	   { 
-	     msg(MSG::DEBUG) << "---> extrapolation not inside (active?) detector within "<< phitol << " " << 
-				   etatol << ", return" << endreq;
-	   }
+      
+      // inside detector within tolerance using surface bounds
+      auto& pBounds = trackpar->associatedSurface().bounds();
+
+       if( siElement->nearBondGap(trackpar->localPosition(), etatol) ) {
+         if (msgLvl(MSG::DEBUG))
+           {
+             msg(MSG::DEBUG) << "---> extrapolation on bond gap within " << etatol << ", return" << endreq;
+           }
+       } else if (!pBounds.inside(trackpar->localPosition(),phitol,etatol)) {
+         if (msgLvl(MSG::DEBUG))
+           {
+             msg(MSG::DEBUG) << "---> extrapolation not inside (active?) detector within "<< phitol << " " <<
+                                   etatol << ", return" << endreq;
+           }
        } else {
-	 return true;
+         return true;
        }
      }
-    
+
     return false;
 
   }
@@ -697,9 +700,8 @@ namespace InDet {
 	etatol = 3*sqrt((*trkParam->covariance())(Trk::locY,Trk::locY));
       }
 
-      InDetDD::SiIntersect siIn = sielem->inDetector(locPos, phitol, etatol);
-      bool isIn = siIn.in();
-
+      auto& pBounds = trkParam->associatedSurface().bounds();
+      bool isIn = pBounds.inside(locPos,phitol,etatol);
 
       if(isgood){
 	if(isIn)pixelLayerInfo.type(insideGoodModule);
