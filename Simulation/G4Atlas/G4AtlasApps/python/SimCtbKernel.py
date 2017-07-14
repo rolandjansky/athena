@@ -942,19 +942,3 @@ class LArH6_TB(TBSimSkeleton):
                 #LArH6Detector._initPR()
                 #AtlasG4Eng.G4Eng.add_DetFacility(LArH6Detector.H6_lar,\
                 #                                          larworld.world)
-
-    @classmethod
-    def do_UserActions(self):
-        # ADS: this is not needed anymore with the migration to the new MT UAs
-        #from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-        #from G4AtlasApps.SimFlags import simFlags
-        #if (simFlags.SimLayout.get_Value()=='tb_LArH6_2004'):
-        #    # ADS FIXME is it ok to add this system action here?
-        #    UAStore.addSystemAction('LArHitsH6EventAction',['EndOfEvent'])
-        #    UAStore.addAction('LArGeoH62004EventAction',['EndOfEvent'])
-        #    if simFlags.LArTB_H6Step.statusOn:
-        #       if simFlags.LArTB_H6Step.get_Value():
-        #           UAStore.addAction('LArGeoH62004SteppingAction',['Step'])
-        #           UAStore.addAction('RadLenNtuple',['BeginOfEvent','EndOfEvent','Step'])
-
-        return

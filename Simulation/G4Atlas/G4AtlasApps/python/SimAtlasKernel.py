@@ -224,14 +224,6 @@ class AtlasSimSkeleton(SimSkeleton):
 
 
     @classmethod
-    def do_UserActions(self):
-        """
-        User actions: with the migration ot MT UA, this method is no longer needed.
-        """
-        return
-
-
-    @classmethod
     def do_GeoSD(self):
         """ Configure the geometry and SD
         """
