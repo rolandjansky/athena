@@ -26,6 +26,9 @@ find_package( GTest )
 find_package( Eigen REQUIRED )
 #find_package( GMock )
 
+# Needed to suppress warnings from eigen when compiling the test.
+include_directories(SYSTEM ${EIGEN_INCLUDE_DIRS})
+
 atlas_add_test( BeamEffectsAlg_test
                 SOURCES src/*.cxx test/BeamEffectsAlg_test.cxx
                 INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HepMC_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS} #${GMOCK_INCLUDE_DIRS}
