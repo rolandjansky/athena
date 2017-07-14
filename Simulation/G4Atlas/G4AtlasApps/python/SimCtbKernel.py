@@ -20,7 +20,7 @@ from AthenaCommon.DetFlags      import DetFlags
 from AthenaCommon.JobProperties import jobproperties
 from AthenaCommon.BeamFlags     import jobproperties
 import PyG4Atlas, AtlasG4Eng
-from PyG4Atlas import SimSkeleton
+from SimSkeleton import SimSkeleton
 
 
 
