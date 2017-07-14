@@ -97,7 +97,8 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode G4AtlasAlg::initialize() {
+StatusCode G4AtlasAlg::initialize()
+{
   ATH_MSG_DEBUG("Start of initialize()");
   // Create the scoring manager if requested
   if (m_recordFlux) G4ScoringManager::GetScoringManager();
@@ -143,7 +144,8 @@ StatusCode G4AtlasAlg::initialize() {
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-void G4AtlasAlg::initializeOnce() {
+void G4AtlasAlg::initializeOnce()
+{
   // Assign physics list
   if(m_physListTool.retrieve().isFailure()) {
     throw std::runtime_error("Could not initialize ATLAS PhysicsListTool!");
@@ -226,9 +228,11 @@ void G4AtlasAlg::initializeOnce() {
   /// @todo Reinstate or delete?! This can't actually be called from the Py algs
   //ATH_MSG_INFO("Firing initialization of G4!!!");
   //initializeG4();
+  return;
 }
 
-void G4AtlasAlg::initializeG4() {
+void G4AtlasAlg::initializeG4()
+{
   if (m_verbosities.size()>0) {
     G4TransportationManager *tm = G4TransportationManager::GetTransportationManager();
     G4RunManagerKernel *rmk = G4RunManagerKernel::GetRunManagerKernel();
@@ -260,7 +264,8 @@ void G4AtlasAlg::initializeG4() {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode G4AtlasAlg::finalize() {
+StatusCode G4AtlasAlg::finalize()
+{
   ATH_MSG_DEBUG(std::endl<<std::endl<<std::endl);
   ATH_MSG_INFO("++++++++++++  G4AtlasAlg finalized  ++++++++++++" <<std::endl<<std::endl);
 
@@ -277,7 +282,8 @@ StatusCode G4AtlasAlg::finalize() {
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-void G4AtlasAlg::finalizeOnce() {
+void G4AtlasAlg::finalizeOnce()
+{
   ATH_MSG_DEBUG("\t terminating the current G4 run");
   // TODO: could probably just use G4RunManager base class generically.
   auto runMgr = G4RunManager::GetRunManager();
@@ -286,7 +292,8 @@ void G4AtlasAlg::finalizeOnce() {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode G4AtlasAlg::execute() {
+StatusCode G4AtlasAlg::execute()
+{
   static int n_Event=0;
   ATH_MSG_DEBUG("++++++++++++  G4AtlasAlg execute  ++++++++++++");
 
