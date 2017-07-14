@@ -8,10 +8,6 @@ Reco_tf.py  --outputHISTFile=myMergedMonitoring_express_0.root --AMI=f628 --maxE
 Reco_tf.py --inputAODFile myAOD_express_0.AOD.pool.root --outputTAGFile myTAG_express_0.root
 
 
-export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
-alias setupATLAS='source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh'
-setupATLAS --quiet
-lsetup rucio
 SCRIPT_DIRECTORY=$1
 PACKAGE=$2
 TYPE=$3
