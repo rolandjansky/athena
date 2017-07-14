@@ -226,14 +226,7 @@ def signalMetaDataCheck(metadatadict):
                 logDigitizationReadMetadata.warning("Input DetDescrVersion does not match the value used in the Simulation step!")
                 from AthenaCommon.AppMgr import ServiceMgr
                 ## FIXME - should not be relying on GeoModelSvc being initialized at this point.
-                ignoreTagDifference = False
-                try:
-                    if hasattr( ServiceMgr, "GeoModelSvc") and ServiceMgr.GeoModelSvc.IgnoreTagDifference==True:
-                        ignoreTagDifference = True
-                except:
-                    pass
-                
-                if ignoreTagDifference:
+                if hasattr( ServiceMgr, "GeoModelSvc") and ServiceMgr.GeoModelSvc.IgnoreTagDifference==True:
                     logDigitizationReadMetadata.warning("Global jobproperties: [DetDescrVersion = %s], Signal Simulation MetaData: [SimLayout = %s]",
                                                   globalflags.DetDescrVersion.get_Value(), metadatadict['SimLayout'])
                     logDigitizationReadMetadata.warning("Ignore Tag Difference Requested - doing nothing.")
