@@ -233,65 +233,37 @@ void iGeant4::G4TransportTool::finalizeOnce()
 //________________________________________________________________________
 StatusCode iGeant4::G4TransportTool::process(const ISF::ISFParticle& isp)
 {
-  ATH_MSG_VERBOSE("++++++++++++  ISF G4 G4TransportTool execute  ++++++++++++");
+  ATH_MSG_VERBOSE("process(...)");
 
-  ATH_MSG_DEBUG("Calling ISF_Geant4 ProcessEvent");
-
-  G4Event* inputEvent=ISF_to_G4Event(isp);
-  if (inputEvent) {
-
-    bool abort = m_pRunMgr->ProcessEvent(inputEvent);
-
-    if (abort) {
-      ATH_MSG_WARNING("Event was aborted !! ");
-      //ATH_MSG_WARNING("Simulation will now go on to the next event ");
-      //ATH_MSG_WARNING("setFilterPassed is now False");
-      //setFilterPassed(false);
-      return 0;
-    }
-  }
-  else {
-    ATH_MSG_ERROR("ISF Event conversion failed ");
-    return 0;
-  }
-
-  // const DataHandle <TrackRecordCollection> tracks;
-
-  // StatusCode sc = evtStore()->retrieve(tracks,m_trackCollName);
-
-  // if (sc.isFailure()) {
-  //   ATH_MSG_WARNING(" Cannot retrieve TrackRecordCollection " << m_trackCollName);
-  // }
-
-  // not implemented yet... need to get particle stack from Geant4 and convert to ISFParticle
-  return StatusCode::SUCCESS;
+  // wrap the given ISFParticle into a STL vector of ISFParticles with length 1
+  // (minimizing code duplication)
+  const ISF::ConstISFParticleVector ispVector(1, &isp);
+  return this->processVector(ispVector);
 }
 
 //________________________________________________________________________
 StatusCode iGeant4::G4TransportTool::processVector(const ISF::ConstISFParticleVector& ispVector)
 {
+  ATH_MSG_VERBOSE("processVector(...)");
   ATH_MSG_DEBUG("processing vector of "<<ispVector.size()<<" particles");
 
-  ATH_MSG_VERBOSE("++++++++++++  ISF G4 G4TransportTool execute  ++++++++++++");
-
-  ATH_MSG_DEBUG("Calling ISF_Geant4 ProcessEvent");
-
   G4Event* inputEvent = m_inputConverter->ISF_to_G4Event(ispVector, genEvent());
-  if (inputEvent) {
-    bool abort = m_pRunMgr->ProcessEvent(inputEvent);
-
-    if (abort) {
-      ATH_MSG_WARNING("Event was aborted !! ");
-      //ATH_MSG_WARNING("Simulation will now go on to the next event ");
-      //ATH_MSG_WARNING("setFilterPassed is now False");
-      //setFilterPassed(false);
-      return StatusCode::FAILURE;
-    }
-  }
-  else {
+  if (!inputEvent) {
     ATH_MSG_ERROR("ISF Event conversion failed ");
     return StatusCode::FAILURE;
   }
+
+  ATH_MSG_DEBUG("Calling ISF_Geant4 ProcessEvent");
+  bool abort = m_pRunMgr->ProcessEvent(inputEvent);
+
+  if (abort) {
+    ATH_MSG_WARNING("Event was aborted !! ");
+    //ATH_MSG_WARNING("Simulation will now go on to the next event ");
+    //ATH_MSG_WARNING("setFilterPassed is now False");
+    //setFilterPassed(false);
+    return StatusCode::FAILURE;
+  }
+
 
   // const DataHandle <TrackRecordCollection> tracks;
 
@@ -303,18 +275,6 @@ StatusCode iGeant4::G4TransportTool::processVector(const ISF::ConstISFParticleVe
 
   // not implemented yet... need to get particle stack from Geant4 and convert to ISFParticle
   return StatusCode::SUCCESS;
-}
-
-//________________________________________________________________________
-G4Event* iGeant4::G4TransportTool::ISF_to_G4Event(const ISF::ISFParticle& isp) const
-{
-
-  // wrap the given ISFParticle into a STL vector of ISFParticles with length 1
-  // (minimizing code duplication)
-  ISF::ConstISFParticleVector ispVector(1, &isp);
-  G4Event *g4evt = m_inputConverter->ISF_to_G4Event( ispVector, genEvent() );
-
-  return g4evt;
 }
 
 //________________________________________________________________________
