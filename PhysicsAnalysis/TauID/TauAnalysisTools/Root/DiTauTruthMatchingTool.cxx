@@ -82,7 +82,7 @@ void DiTauTruthMatchingTool::applyTruthMatch(const std::vector<const xAOD::DiTau
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-StatusCode DiTauTruthMatchingTool::findTruthTau(const xAOD::DiTauJet& xDiTau) const
+StatusCode DiTauTruthMatchingTool::findTruthTau(const xAOD::DiTauJet& xDiTau)
 {
   // check if decorations were already added to the first passed tau
   if (!m_bIsTruthMatchedAvailableChecked)
