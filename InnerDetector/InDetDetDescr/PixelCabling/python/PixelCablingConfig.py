@@ -62,6 +62,11 @@ def getPixelCablingSvc(name="PixelCablingSvc", **kwargs):
                     IdMappingDat = "ITk_Atlas_IdMapping_LoIVF.dat"
                 elif "LoI" == geoFlags.GeoType():
                     IdMappingDat = "ITk_Atlas_IdMapping_LoI.dat"
+                elif "Inclined_Duals":
+                    IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4_InclinedDuals_step2p2.dat"
+                elif "Inclined_Quads":
+                    IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4_InclinedQuads_step2p2.dat"
+                    
                 logger.info("Using ITk pixel mapping: %s" % IdMappingDat)
                 kwargs.setdefault("MappingFile", IdMappingDat)
 

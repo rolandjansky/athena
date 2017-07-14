@@ -160,6 +160,99 @@ def main():
     f.close()
 
 
+    # === ITk_Atlas_IdMapping_InclBrl4_InclinedQuads_step2p0.dat ===
+    f = open('ITk_Atlas_IdMapping_InclBrl4_InclinedQuads_step2p0.dat', 'w')
+    f.write('#Barrel_EC\tLayer_Disk\tPhi_module\tEta_module\tROBID\tRODID\t40FMT\t40Link\t80FMT\t80Link\tDCS Geographical ID\n')
+
+    write_layer(f, 0, 0, range(0,16), range(-22, 0)+range(1,23))
+    write_layer(f, 0, 1, range(0,20), range(-18, 0)+range(1,19))
+    write_layer(f, 0, 2, range(0,32), range(-16, 0)+range(1,17))
+    write_layer(f, 0, 3, range(0,42), range(-18, 0)+range(1,19))
+    write_layer(f, 0, 4, range(0,56), range(-19, 0)+range(1,20))
+
+    write_layer(f, 2, 0, range(0,22), range(0, 1))
+    write_layer(f, 2, 0, range(0,16), range(1, 2)) # L0
+    write_layer(f, 2, 0, range(0,22), range(2, 3))
+    write_layer(f, 2, 0, range(0,16), range(3, 4)) # L0
+    write_layer(f, 2, 0, range(0,22), range(4, 5))
+    write_layer(f, 2, 0, range(0,16), range(5, 6)) # L0
+    write_layer(f, 2, 0, range(0,22), range(6, 7))
+    write_layer(f, 2, 0, range(0,16), range(7, 8)) # L0
+    write_layer(f, 2, 0, range(0,22), range(8, 15))
+    write_layer(f, 2, 1, range(0,32), range(0, 10))
+    write_layer(f, 2, 2, range(0,44), range(0, 8))
+    write_layer(f, 2, 3, range(0,52), range(0, 9))
+
+    #write_layer(f, 2, 0, range(0,16), range(0, 4))
+    #write_layer(f, 2, 1, range(0,22), range(0, 11))
+    #write_layer(f, 2, 2, range(0,32), range(0, 10))
+    #write_layer(f, 2, 3, range(0,44), range(0, 8))
+    #write_layer(f, 2, 4, range(0,52), range(0, 9))
+    f.close()
+
+
+    # === ITk_Atlas_IdMapping_InclBrl4_InclinedQuads_step2p2.dat ===
+    f = open('ITk_Atlas_IdMapping_InclBrl4_InclinedQuads_step2p2.dat', 'w')
+    f.write('#Barrel_EC\tLayer_Disk\tPhi_module\tEta_module\tROBID\tRODID\t40FMT\t40Link\t80FMT\t80Link\tDCS Geographical ID\n')
+
+    write_layer(f, 0, 0, range(0,16), range(-22, 0)+range(1,23))
+    write_layer(f, 0, 1, range(0,20), range(-19, 0)+range(1,20))
+    write_layer(f, 0, 2, range(0,32), range(-16, 0)+range(1,17))
+    write_layer(f, 0, 3, range(0,42), range(-18, 0)+range(1,19))
+    write_layer(f, 0, 4, range(0,54), range(-19, 0)+range(1,20))
+
+    write_layer(f, 2, 0, range(0,22), range(0, 1))
+    write_layer(f, 2, 0, range(0,16), range(1, 2)) # L0
+    write_layer(f, 2, 0, range(0,22), range(2, 3))
+    write_layer(f, 2, 0, range(0,16), range(3, 4)) # L0
+    write_layer(f, 2, 0, range(0,22), range(4, 5))
+    write_layer(f, 2, 0, range(0,16), range(5, 6)) # L0
+    write_layer(f, 2, 0, range(0,22), range(6, 7))
+    write_layer(f, 2, 0, range(0,16), range(7, 8)) # L0
+    write_layer(f, 2, 0, range(0,22), range(8, 15))
+    write_layer(f, 2, 1, range(0,32), range(0, 10))
+    write_layer(f, 2, 2, range(0,44), range(0, 8))
+    write_layer(f, 2, 3, range(0,52), range(0, 9))
+
+    #write_layer(f, 2, 0, range(0,16), range(0, 4))
+    #write_layer(f, 2, 1, range(0,22), range(0, 11))
+    #write_layer(f, 2, 2, range(0,32), range(0, 10))
+    #write_layer(f, 2, 3, range(0,44), range(0, 8))
+    #write_layer(f, 2, 4, range(0,52), range(0, 9))
+    f.close()
+
+
+    # === ITk_Atlas_IdMapping_InclBrl4_InclinedDuals_step2p2.dat ===
+    f = open('ITk_Atlas_IdMapping_InclBrl4_InclinedDuals_step2p2.dat', 'w')
+    f.write('#Barrel_EC\tLayer_Disk\tPhi_module\tEta_module\tROBID\tRODID\t40FMT\t40Link\t80FMT\t80Link\tDCS Geographical ID\n')
+
+    write_layer(f, 0, 0, range(0,16), range(-22, 0)+range(1,23))
+    write_layer(f, 0, 1, range(0,20), range(-19, 0)+range(1,20))
+    write_layer(f, 0, 2, range(0,30), range(-22, 0)+range(1,23))
+    write_layer(f, 0, 3, range(0,40), range(-25, 0)+range(1,26))
+    write_layer(f, 0, 4, range(0,50), range(-26, 0)+range(1,27))
+
+    write_layer(f, 2, 0, range(0,22), range(0, 1))
+    write_layer(f, 2, 0, range(0,16), range(1, 2)) # L0
+    write_layer(f, 2, 0, range(0,22), range(2, 3))
+    write_layer(f, 2, 0, range(0,16), range(3, 4)) # L0
+    write_layer(f, 2, 0, range(0,22), range(4, 5))
+    write_layer(f, 2, 0, range(0,16), range(5, 6)) # L0
+    write_layer(f, 2, 0, range(0,22), range(6, 7))
+    write_layer(f, 2, 0, range(0,16), range(7, 8)) # L0
+    write_layer(f, 2, 0, range(0,22), range(8, 15))
+    write_layer(f, 2, 1, range(0,32), range(0, 10))
+    write_layer(f, 2, 2, range(0,44), range(0, 8))
+    write_layer(f, 2, 3, range(0,52), range(0, 9))
+
+    #write_layer(f, 2, 0, range(0,16), range(0, 4))
+    #write_layer(f, 2, 1, range(0,22), range(0, 11))
+    #write_layer(f, 2, 2, range(0,32), range(0, 10))
+    #write_layer(f, 2, 3, range(0,44), range(0, 8))
+    #write_layer(f, 2, 4, range(0,52), range(0, 9))
+    f.close()
+
+
     # === ITk_Atlas_IdMapping_LoI.dat ===
     f = open('ITk_Atlas_IdMapping_LoI.dat', 'w')
     f.write('#Barrel_EC\tLayer_Disk\tPhi_module\tEta_module\tROBID\tRODID\t40FMT\t40Link\t80FMT\t80Link\tDCS Geographical ID\n')
