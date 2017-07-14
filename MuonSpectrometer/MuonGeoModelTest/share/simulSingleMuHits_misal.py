@@ -98,6 +98,8 @@ ServiceMgr.AtRanluxGenSvc.Seeds = ["SINGLE 2040160768 443921183"]
 ## Add G4 sim framework alg sequence
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 #---  Output printout level ----------------------------------- 
 #output threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL)
