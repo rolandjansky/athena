@@ -5,6 +5,7 @@
 #ifndef PIXELMON2DLUMIMAPS_H_
 #define PIXELMON2DLUMIMAPS_H_
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
+#include <array>
 #include <string.h>
 
 class TH2F_LW;
@@ -44,6 +45,7 @@ class PixelMon2DLumiMaps
       StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
 private:
       void formatHist();
+      std::array<TH2F_LW*, 10> m_histograms;
       const PixMon::HistConf m_config;
       static const bool m_doIBL;
 };
