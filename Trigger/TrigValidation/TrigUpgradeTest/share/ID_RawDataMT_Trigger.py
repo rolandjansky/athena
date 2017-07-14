@@ -59,7 +59,8 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 from SGComps.SGCompsConf import SGInputLoader
 topSequence += SGInputLoader( )
-
+#topSequence.SGInputLoader.Load
+topSequence.SGInputLoader.FailIfNoProxy=False
 # -------------------- Condition Data Access --------------------------------
 # Conditions Service for reading conditions data in serial and MT Athena
 

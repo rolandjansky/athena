@@ -6,9 +6,20 @@
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.CheckDependencies( True )
-AlgScheduler.OutputLevel( VERBOSE )
+#AlgScheduler.OutputLevel( VERBOSE )
 #AlgScheduler.ShowDataDependencies( True )
 AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
+
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+
+from SGComps.SGCompsConf import SGInputLoader
+topSequence += SGInputLoader()
+
+
+#print topSequence
+#print kaboom
+
 
 
 from AthenaCommon.GlobalFlags import globalflags;
@@ -65,13 +76,9 @@ larRODFlags.doLArFebErrorSummary.set_Value_and_Lock(False)
 #include ("RecExRecoTest/RecExRecoTest_RTT_common_postOptions.py")
 
 ## get a handle on the ServiceManager
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
 
-from SGComps.SGCompsConf import SGInputLoader
-topSequence += SGInputLoader()
-AlgScheduler.setDataLoaderAlg("SGInputLoader")
-topSequence.SGInputLoader.Load = [ ('ROIB::RoIBResult','StoreGateSvc+RoIBResult') ] #, ('AthenaAttributeList','StoreGateSvc+Input') ]
+topSequence.SGInputLoader.Load = [ ('ROIB::RoIBResult','StoreGateSvc+RoIBResult'), ('AthenaAttributeList','StoreGateSvc+Input') ]
+topSequence.SGInputLoader.FailIfNoProxy=False
 #topSequence.CondInputLoader.Load = [('AthenaAttributeList','ConditionStore+Input')]
 
 #from IOVSvc.IOVSvcConf import CondInputLoader
@@ -122,9 +129,6 @@ if nThreads >= 1:
 #import AthenaCommon.AtlasUnixGeneratorJob
 
 ## get a handle on the default top-level algorithm sequence
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
-
 #svcMgr.ByteStreamInputSvc.FullFileName = 
 
 svcMgr.ByteStreamInputSvc.ValidateEvent = True
@@ -156,12 +160,6 @@ svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "ROIB::RoIBResult/RoIBResult"
 
 
 
-#Run calo decoder
-# from L1Decoder.L1DecoderConf import L1CaloDecoder
-# caloDecoder = L1CaloDecoder() # by default it is steered towards the RoIBResult of the name above
-# caloDecoder.OutputLevel=VERBOSE
-# topSequence += caloDecoder
-
 
 #from AthenaCommon.CFElements import parOR, seqAND
 #TopHLTSeq = seqAND("TopHLTSeq")
@@ -179,9 +177,12 @@ l1Decoder.ctpUnpacker = ctpUnpacker
 l1Decoder.ctpUnpacker.MonTool = CTPUnpackingMonitoring(512, 200)
 l1Decoder.ctpUnpacker.CTPToChainMapping = ["0:HLT_e3",  "0:HLT_g5", "1:HLT_e7", "2:HLT_2e3", "15:HLT_mu6", "33:HLT_2mu6", "15:HLT_mu6idperf", "42:HLT_e15mu4"] # this are real IDs of L1_* items in pp_v5 menu
 
-emUnpacker = EMRoIsUnpackingTool( OutputLevel=DEBUG )
+emUnpacker = EMRoIsUnpackingTool( OutputLevel=DEBUG, OutputTrigRoIs="StoreGateSvc+EMRoIs" )
 emUnpacker.ThresholdToChainMapping = ["EM3 : HLT_e3", "EM3 : HLT_g5",  "EM7 : HLT_e7", "EM15 : HLT_e15mu4" ]
 emUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 )
+
+l1Decoder.roiUnpackers = [emUnpacker]
+l1Decoder.Chains="HLTChainsResult"
 
 topSequence += l1Decoder
 
@@ -203,7 +204,7 @@ svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
 from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
 algo=T2CaloEgamma_FastAlgo("testFastAlgo")
-algo.RoIs="EMRoIs"
+algo.RoIs="StoreGateSvc+EMRoIs"
 algo.OutputLevel=VERBOSE
 #TopHLTSeq += algo
 topSequence += algo
@@ -235,6 +236,7 @@ from CaloRec.CaloRecConf import CaloCellMaker
 topSequence.remove(CaloCellMaker('CaloCellMaker'))
 from xAODCaloEventCnv.xAODCaloEventCnvConf import ClusterCreator
 topSequence.remove(ClusterCreator('CaloCluster2xAOD'))
+#topSequence.remove(CondInputLoader("CondInputLoader"))
 
 
 theApp.EvtMax = 100
