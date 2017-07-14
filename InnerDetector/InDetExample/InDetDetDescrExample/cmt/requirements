@@ -19,6 +19,7 @@ use GeoModelInterfaces   GeoModelInterfaces-*	   DetectorDescription/GeoModel
 use InDetCondServices    InDetCondServices-*       InnerDetector/InDetConditions
 use SiPropertiesSvc      SiPropertiesSvc-*          InnerDetector/InDetConditions   
 use InDetConditionsSummaryService InDetConditionsSummaryService-* InnerDetector/InDetConditions
+use TrkSurfaces            TrkSurfaces-*            Tracking/TrkDetDescr
 
 library InDetDetDescrExample *.cxx components/*.cxx
 apply_pattern component_library
