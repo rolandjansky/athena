@@ -78,7 +78,7 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
   declareProperty("minPtEM",           m_minPtEm      = 5000. ); // in MeV
   declareProperty("phiWidthEM",        m_phiWidthEm   = 0.075 );
   declareProperty("etaWidthEM",        m_etaWidthEm   = 0.05  );
-  declareProperty("InputEmClusterContainerName",m_inputEmClusterContainerName);  
+  declareProperty("InputEmClusterContainerName",m_inputEmClusterContainerName="InDetCaloClusterROIs");
 
   //set values for scores
   m_summaryTypeScore[Trk::numberOfPixelHits]            =  20;
@@ -165,6 +165,8 @@ StatusCode InDet::InDetAmbiScoringTool::initialize()
   
   
   if (m_useAmbigFcn || m_useTRT_AmbigFcn) setupScoreModifiers();
+
+  m_has_EM_clusters = m_inputEmClusterContainerName.initialize().isSuccess();
   
   return StatusCode::SUCCESS;
 }
@@ -901,10 +903,8 @@ InDet::InDetAmbiScoringTool::getInfo() const
   if (rh.isValid())
     return rh.cptr();
 
-  const CaloClusterROI_Collection* calo = nullptr;
-  StatusCode sc = evtStore()->retrieve(calo,m_inputEmClusterContainerName);
-
-  if(sc == StatusCode::SUCCESS && calo) {
+  if (m_has_EM_clusters) {
+    SG::ReadHandle<CaloClusterROI_Collection> calo(m_inputEmClusterContainerName);
     auto info = std::make_unique<ROIInfoVec>();
     for( const Trk::CaloClusterROI* ccROI : *calo) {
       if( ccROI->energy() * sin(ccROI->globalPosition().theta()) < m_minPtEm){ 
