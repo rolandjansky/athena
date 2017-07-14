@@ -1,3 +1,4 @@
+315
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #------------------------------------------------------------------------#
 #
@@ -45,6 +46,7 @@ def setupMenu():
         ['mu20_2mu4noL1',        'L1_MU6', ['L1_MU6',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu20','2mu4noL1']]],
 
         ['2mu11_L1MU6',                         'L1_MU6',           [], [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
+        ['2mu10_L1MU6',                         'L1_MU6',           [], [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
 
         ]
 
@@ -105,8 +107,31 @@ def setupMenu():
         ['ht450_L1J12',   'L1_J12', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
 
         # Standard topocluster large-R jet triggers
-        ['j30_a10_lcw_subjes_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j300_a10_lcw_subjes_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j370_a10_lcw_subjes_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+
+        # Standard topocluster large-R jet triggers + mass cut 
+        ['j375_a10t_lcw_jes_30smcINF_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j350_a10t_lcw_jes_30smcINF_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j300_a10t_lcw_jes_30smcINF_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j275_a10t_lcw_jes_30smcINF_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j250_a10t_lcw_jes_30smcINF_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j200_a10t_lcw_jes_30smcINF_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+
+        ['j375_a10t_lcw_jes_35smcINF_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j350_a10t_lcw_jes_35smcINF_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j300_a10t_lcw_jes_35smcINF_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j275_a10t_lcw_jes_35smcINF_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j250_a10t_lcw_jes_35smcINF_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j200_a10t_lcw_jes_35smcINF_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+
+        ['j375_a10t_lcw_jes_40smcINF_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j350_a10t_lcw_jes_40smcINF_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j300_a10t_lcw_jes_40smcINF_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j275_a10t_lcw_jes_40smcINF_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j250_a10t_lcw_jes_40smcINF_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j200_a10t_lcw_jes_40smcINF_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+
 
         ]
 
@@ -123,7 +148,21 @@ def setupMenu():
         #['j60_gsc85_bmv2c2050_split_3j60_gsc85_boffperf_split',       'L1_4J20',        [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
         
         #upgrade study chains
+        # single b-jets with gsc
+        ['j110_gsc150_bmv2c2040_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
+        ['j110_gsc150_bmv2c2060_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
+        ['j110_gsc150_bmv2c2070_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
+        ['j110_gsc150_bmv2c2077_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
+        ['j110_gsc150_bmv2c2085_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
+
+        ['j150_gsc175_bmv2c2040_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
+        ['j150_gsc175_bmv2c2060_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
+        ['j150_gsc175_bmv2c2070_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
+        ['j150_gsc175_bmv2c2077_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
+        ['j150_gsc175_bmv2c2085_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
+
         ['j175_gsc225_bmv2c2040_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
+        ['j175_gsc225_bmv2c2060_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
         ['j175_gsc225_bmv2c2070_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
         ['j175_gsc225_bmv2c2085_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
 
@@ -132,6 +171,8 @@ def setupMenu():
         ['j225_gsc275_bmv2c2077_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
         ['j225_gsc275_bmv2c2085_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
 
+
+        # single b-jets no gsc
         ['j175_bmv2c2040_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
         ['j175_bmv2c2070_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
         ['j175_bmv2c2085_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
@@ -141,32 +182,37 @@ def setupMenu():
         ['j225_bmv2c2077_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
         ['j225_bmv2c2085_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
 
+        # 1 b-jet + 3 jets
+        ['j25_gsc45_bmv2c1040_split_3j25_gsc45_boffperf_split_L1J12',  'L1_J12', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+        ['j25_gsc45_bmv2c1060_split_3j25_gsc45_boffperf_split_L1J12',  'L1_J12', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+        ['j25_gsc45_bmv2c1070_split_3j25_gsc45_boffperf_split_L1J12',  'L1_J12', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+        ['j25_gsc45_bmv2c1077_split_3j25_gsc45_boffperf_split_L1J12',  'L1_J12', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+        ['j25_gsc45_bmv2c1085_split_3j25_gsc45_boffperf_split_L1J12',  'L1_J12', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
 
         ['j35_gsc55_bmv2c1040_split_3j35_gsc55_boffperf_split_L1J12',  'L1_J12', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
         ['j35_gsc55_bmv2c1060_split_3j35_gsc55_boffperf_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
         ['j35_gsc55_bmv2c1070_split_3j35_gsc55_boffperf_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+        ['j35_gsc55_bmv2c1077_split_3j35_gsc55_boffperf_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+        ['j35_gsc55_bmv2c1085_split_3j35_gsc55_boffperf_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
 
+        ['j50_gsc65_bmv2c1040_split_3j50_gsc65_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['j50_gsc65_bmv2c1060_split_3j50_gsc65_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['j50_gsc65_bmv2c1070_split_3j50_gsc65_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['j50_gsc65_bmv2c1077_split_3j50_gsc65_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['j50_gsc65_bmv2c1085_split_3j50_gsc65_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
 
         ['j55_gsc75_bmv2c1040_split_3j55_gsc75_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-        ['j55_gsc75_bmv2c1050_split_3j55_gsc75_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
         ['j55_gsc75_bmv2c1060_split_3j55_gsc75_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
         ['j55_gsc75_bmv2c1070_split_3j55_gsc75_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-
-        ['2j55_gsc75_bmv2c1040_split_2j55_gsc75_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-        ['2j55_gsc75_bmv2c1050_split_2j55_gsc75_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-        ['2j55_gsc75_bmv2c1060_split_2j55_gsc75_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-        ['2j55_gsc75_bmv2c1070_split_2j55_gsc75_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-
+        ['j55_gsc75_bmv2c1077_split_3j55_gsc75_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['j55_gsc75_bmv2c1085_split_3j55_gsc75_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
 
         ['j65_gsc85_bmv2c1040_split_3j65_gsc85_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
         ['j65_gsc85_bmv2c1050_split_3j65_gsc85_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
         ['j65_gsc85_bmv2c1060_split_3j65_gsc85_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
         ['j65_gsc85_bmv2c1070_split_3j65_gsc85_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-
-        ['2j65_gsc85_bmv2c1040_split_2j65_gsc85_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-        ['2j65_gsc85_bmv2c1050_split_2j65_gsc85_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-        ['2j65_gsc85_bmv2c1060_split_2j65_gsc85_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-        ['2j65_gsc85_bmv2c1070_split_2j65_gsc85_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['j65_gsc85_bmv2c1077_split_3j65_gsc85_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['j65_gsc85_bmv2c1085_split_3j65_gsc85_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
 
         ['j65_bmv2c1040_split_3j65_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
         ['j65_bmv2c1050_split_3j65_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
@@ -178,7 +224,47 @@ def setupMenu():
         ['2j65_bmv2c1060_split_2j65_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
         ['2j65_bmv2c1070_split_2j65_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
 
+        # 2 b-jets + 2 jets
+        ['2j15_gsc35_bmv2c1040_split_2j15_gsc35_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['2j15_gsc35_bmv2c1060_split_2j15_gsc35_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['2j15_gsc35_bmv2c1070_split_2j15_gsc35_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['2j15_gsc35_bmv2c1077_split_2j15_gsc35_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['2j15_gsc35_bmv2c1085_split_2j15_gsc35_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
 
+        ['2j25_gsc45_bmv2c1040_split_2j25_gsc45_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['2j25_gsc45_bmv2c1060_split_2j25_gsc45_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['2j25_gsc45_bmv2c1070_split_2j25_gsc45_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['2j25_gsc45_bmv2c1077_split_2j25_gsc45_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['2j25_gsc45_bmv2c1085_split_2j25_gsc45_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+
+        ['2j35_gsc55_bmv2c1040_split_2j35_gsc55_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['2j35_gsc55_bmv2c1060_split_2j35_gsc55_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['2j35_gsc55_bmv2c1070_split_2j35_gsc55_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['2j35_gsc55_bmv2c1077_split_2j35_gsc55_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['2j35_gsc55_bmv2c1085_split_2j35_gsc55_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+
+        ['2j50_gsc65_bmv2c1040_split_2j50_gsc65_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['2j50_gsc65_bmv2c1060_split_2j50_gsc65_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['2j50_gsc65_bmv2c1070_split_2j50_gsc65_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['2j50_gsc65_bmv2c1077_split_2j50_gsc65_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['2j50_gsc65_bmv2c1085_split_2j50_gsc65_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+
+        ['2j55_gsc75_bmv2c1040_split_2j55_gsc75_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['2j55_gsc75_bmv2c1050_split_2j55_gsc75_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['2j55_gsc75_bmv2c1060_split_2j55_gsc75_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['2j55_gsc75_bmv2c1070_split_2j55_gsc75_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['2j55_gsc75_bmv2c1077_split_2j55_gsc75_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['2j55_gsc75_bmv2c1085_split_2j55_gsc75_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+
+        ['2j65_gsc85_bmv2c1040_split_2j65_gsc85_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['2j65_gsc85_bmv2c1050_split_2j65_gsc85_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['2j65_gsc85_bmv2c1060_split_2j65_gsc85_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['2j65_gsc85_bmv2c1070_split_2j65_gsc85_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['2j65_gsc85_bmv2c1077_split_2j65_gsc85_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['2j65_gsc85_bmv2c1085_split_2j65_gsc85_boffperf_split_L1J12',       'L1_J12',        [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+
+
+        # other chains
         ['j225_bmv2c2040_split_L1J12',        'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
         ['3j50_gsc65_bmv2c2070_split_L13J15', 'L1_3J15', [], [PhysicsStream], ['RATE:MultiBJet',  'BW:BJet'], -1],
         ['j150_gsc175_bmv2c2060_split_j45_gsc60_bmv2c2060_split_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:MultiBJet',  'BW:BJet'], -1],
@@ -226,8 +312,8 @@ def setupMenu():
         ['tau125_medium1_tracktwo_L1TAU12',       'L1_TAU12', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau160_medium1_tracktwo_L1TAU12',       'L1_TAU12', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
 
-        ['tau20_medium1_tracktwo_L1TAU20_tau29_medium1_tracktwo_L1TAU12',   'L1_TAU20_2TAU12',['L1_TAU20','L1_TAU12'], [PhysicsStream], ['RATE:MultiTau',  'BW:Tau'], -1,['serial',-1,["tau20_medium1_tracktwo_L1TAU20","tau29_medium1_tracktwo_L1TAU12"]]]       ,
-
+        ['tau20_medium1_tracktwo_L1TAU20_tau29_medium1_tracktwo_L1TAU12',   'L1_TAU20_2TAU12',['L1_TAU20','L1_TAU12'], [PhysicsStream], ['RATE:MultiTau',  'BW:Tau'], -1,['serial',-1,["tau20_medium1_tracktwo_L1TAU20","tau29_medium1_tracktwo_L1TAU12"]]],
+        ['tau35_medium1_tracktwo_L1TAU20_tau25_medium1_tracktwo_L1TAU12',   'L1_TAU20_2TAU12',['L1_TAU20','L1_TAU12'], [PhysicsStream], ['RATE:MultiTau',  'BW:Tau'], -1,['serial',-1,["tau35_medium1_tracktwo_L1TAU20","tau25_medium1_tracktwo_L1TAU12"]]]       ,
         ['tau40_medium1_tracktwo_L1TAU20_tau29_medium1_tracktwo_L1TAU12',   'L1_TAU20_2TAU12',['L1_TAU20','L1_TAU12'], [PhysicsStream], ['RATE:MultiTau',  'BW:Tau'], -1,['serial',-1,["tau40_medium1_tracktwo_L1TAU20","tau29_medium1_tracktwo_L1TAU12"]]]       ,
         
         ]
@@ -247,7 +333,10 @@ def setupMenu():
         ['g35_medium_g25_medium_L12EM20VH',          'L1_2EM20VH', [], [PhysicsStream], ['RATE:MultiPhoton',  'BW:Egamma'],-1],
         
         #upgrade study chains
+        # Electrons
+        ['e20_lhmedium_nod0_ivarloose_L1EM15VHI',        'L1_EM15VHI', [], [PhysicsStream], ['RATE:SingleElectron','BW:Egamma'],-1],
         ['e20_lhtight_nod0_ivarloose_L1EM15VHI',        'L1_EM15VHI', [], [PhysicsStream], ['RATE:SingleElectron','BW:Egamma'],-1],
+
         ['e22_lhtight_nod0_ivarloose_L1EM15VHI',        'L1_EM15VHI', [], [PhysicsStream], ['RATE:SingleElectron','BW:Egamma'],-1],
         ['e45_lhmedium_nod0_L1EM15VHI', 			'L1_EM15VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1], 
         ['e45_medium_L1EM15VHI',               	 	'L1_EM15VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1], 
@@ -268,13 +357,28 @@ def setupMenu():
         ['2e12_lhvloose_nod0_ringer_L12EM10VH',                 'L1_2EM10VH', [], [PhysicsStream], ['RATE:MultiElectron',  'BW:Egamma'],-1],
         ['2e15_lhvloose_nod0_ringer_L12EM10VH',                 'L1_2EM10VH', [], [PhysicsStream], ['RATE:MultiElectron',  'BW:Egamma'],-1],
 
-        ['g100_tight_L1EM15VHI',        				'L1_EM15VHI', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
+        # Photons
+        ['g100_loose_L1EM15VHI',        				'L1_EM15VHI', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
+        ['g100_medium_L1EM15VHI',        				'L1_EM15VHI', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g120_tight_L1EM15VHI',        				'L1_EM15VHI', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g120_loose_L1EM15VHI',        			'L1_EM15VHI', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g180_loose_L1EM15VHI',        			'L1_EM15VHI', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
+
+        ['g25_loose_g20_loose_L12EM10VH',       'L1_2EM10VH', [], [PhysicsStream], ['RATE:MultiPhoton',  'BW:Egamma'],-1],
+        ['g25_medium_g20_medium_L12EM10VH',       'L1_2EM10VH', [], [PhysicsStream], ['RATE:MultiPhoton',  'BW:Egamma'],-1],
+        ['g25_tight_g20_tight_L12EM10VH',       'L1_2EM10VH', [], [PhysicsStream], ['RATE:MultiPhoton',  'BW:Egamma'],-1],
+
         ['g35_medium_g25_medium_L12EM10VH',       'L1_2EM10VH', [], [PhysicsStream], ['RATE:MultiPhoton',  'BW:Egamma'],-1],
-        ['2g50_loose_L12EM10VH',       			'L1_2EM10VH', [], [PhysicsStream], ['RATE:MultiPhoton',  'BW:Egamma'],-1],
+
+        ['2g25_loose_L12EM10VH',       				'L1_2EM10VH', [], [PhysicsStream], ['RATE:MultiPhoton',  'BW:Egamma'],-1],
+        ['2g25_medium_L12EM10VH',       			'L1_2EM10VH', [], [PhysicsStream], ['RATE:MultiPhoton',  'BW:Egamma'],-1],
         ['2g25_tight_L12EM10VH',       				'L1_2EM10VH', [], [PhysicsStream], ['RATE:MultiPhoton',  'BW:Egamma'],-1],
+
+        ['2g20_loose_L12EM10VH',       				'L1_2EM10VH', [], [PhysicsStream], ['RATE:MultiPhoton',  'BW:Egamma'],-1],
+        ['2g20_medium_L12EM10VH',       			'L1_2EM10VH', [], [PhysicsStream], ['RATE:MultiPhoton',  'BW:Egamma'],-1],
+        ['2g20_tight_L12EM10VH',       				'L1_2EM10VH', [], [PhysicsStream], ['RATE:MultiPhoton',  'BW:Egamma'],-1],
+
+        ['2g50_loose_L12EM10VH',       			'L1_2EM10VH', [], [PhysicsStream], ['RATE:MultiPhoton',  'BW:Egamma'],-1],
         ]
 
     TriggerFlags.BphysicsSlice.signatures = [
@@ -292,23 +396,71 @@ def setupMenu():
         ['j100_xe80_mht',                    'L1_J40_XE50',['',''], [PhysicsStream], ['RATE:JetMET',  'BW:Jet', 'BW:MET'], -1,['serial',-1,["j100","xe80_mht"]]],
         ['j80_bmv2c2050_split_xe60_L12J50_XE40','L1_2J50_XE40',  [],  [PhysicsStream], ['RATE:JetMET', 'BW:MET', 'BW:BJet'], -1,['serial',-1,["j80_bmv2c2050_split","xe60"]]],
         
+
         #upgrade study chains
         #bjet + met
+        ['j15_gsc25_bmv2c1040_split_xe100_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j15_gsc25_bmv2c1040_split', 'xe100_L1XE35']]],
+        ['j15_gsc25_bmv2c1060_split_xe100_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j15_gsc25_bmv2c1060_split', 'xe100_L1XE35']]],
+        ['j15_gsc25_bmv2c1070_split_xe100_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j15_gsc25_bmv2c1070_split', 'xe100_L1XE35']]],
+        ['j15_gsc25_bmv2c1077_split_xe100_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j15_gsc25_bmv2c1077_split', 'xe100_L1XE35']]],
+        ['j15_gsc25_bmv2c1085_split_xe100_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j15_gsc25_bmv2c1085_split', 'xe100_L1XE35']]],
+
+        ['j25_gsc45_bmv2c1040_split_xe100_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j25_gsc45_bmv2c1040_split', 'xe100_L1XE35']]],
+        ['j25_gsc45_bmv2c1060_split_xe100_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j25_gsc45_bmv2c1060_split', 'xe100_L1XE35']]],
+        ['j25_gsc45_bmv2c1070_split_xe100_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j25_gsc45_bmv2c1070_split', 'xe100_L1XE35']]],
+        ['j25_gsc45_bmv2c1077_split_xe100_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j25_gsc45_bmv2c1077_split', 'xe100_L1XE35']]],
+        ['j25_gsc45_bmv2c1085_split_xe100_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j25_gsc45_bmv2c1085_split', 'xe100_L1XE35']]],
+
+        ['j35_gsc55_bmv2c1040_split_xe100_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j35_gsc55_bmv2c1040_split', 'xe100_L1XE35']]],
         ['j35_gsc55_bmv2c1060_split_xe100_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j35_gsc55_bmv2c1060_split', 'xe100_L1XE35']]],
-        ['j35_gsc55_bmv2c1060_split_xe110_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j35_gsc55_bmv2c1060_split', 'xe110_L1XE35']]],
-        ['j35_gsc55_bmv2c1060_split_xe120_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j35_gsc55_bmv2c1060_split', 'xe120_L1XE35']]],
+        ['j35_gsc55_bmv2c1070_split_xe100_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j35_gsc55_bmv2c1070_split', 'xe100_L1XE35']]],
+        ['j35_gsc55_bmv2c1077_split_xe100_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j35_gsc55_bmv2c1077_split', 'xe100_L1XE35']]],
+        ['j35_gsc55_bmv2c1085_split_xe100_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j35_gsc55_bmv2c1085_split', 'xe100_L1XE35']]],
+
+
+        ['j35_gsc55_bmv2c1070_split_xe110_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j35_gsc55_bmv2c1070_split', 'xe110_L1XE35']]],
         ['j35_gsc55_bmv2c1070_split_xe120_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j35_gsc55_bmv2c1070_split', 'xe120_L1XE35']]],
 
         ['j55_gsc75_bmv2c1070_split_xe100_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j55_gsc75_bmv2c1070_split', 'xe100_L1XE35']]],
         ['j55_gsc75_bmv2c1070_split_xe110_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j55_gsc75_bmv2c1070_split', 'xe110_L1XE35']]],
         ['j55_gsc75_bmv2c1070_split_xe120_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j55_gsc75_bmv2c1070_split', 'xe120_L1XE35']]],
-
         ['j60_gsc100_bmv2c2050_split_xe80_mht_L1XE35','L1_XE35',[],  [PhysicsStream], ['RATE:BJetMET',  'BW:BJet', 'BW:MET'], -1,['serial',-1,['j60_gsc100_bmv2c2050_split','xe80_mht_L1XE35']]],
         ['j80_bmv2c2050_split_xe60_L1XE35', 'L1_XE35',          [],  [PhysicsStream], ['RATE:BJetMET', 'BW:MET', 'BW:BJet'], -1,['serial',-1,["j80_bmv2c2050_split","xe60_L1XE35"]]],
+
+
+        # b-jet + trkmht
+        ['j15_gsc25_bmv2c1040_split_xe120_trkmht_xe80_mht_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j15_gsc25_bmv2c1040_split', 'xe120_trkmht','xe80_mht_L1XE35'] ]],
+        ['j15_gsc25_bmv2c1060_split_xe120_trkmht_xe80_mht_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j15_gsc25_bmv2c1060_split', 'xe120_trkmht','xe80_mht_L1XE35'] ]],
+        ['j15_gsc25_bmv2c1070_split_xe120_trkmht_xe80_mht_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j15_gsc25_bmv2c1070_split', 'xe120_trkmht','xe80_mht_L1XE35'] ]],
+        ['j15_gsc25_bmv2c1077_split_xe120_trkmht_xe80_mht_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j15_gsc25_bmv2c1077_split', 'xe120_trkmht','xe80_mht_L1XE35'] ]],
+        ['j15_gsc25_bmv2c1085_split_xe120_trkmht_xe80_mht_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j15_gsc25_bmv2c1085_split', 'xe120_trkmht','xe80_mht_L1XE35'] ]],
+
+        ['j25_gsc45_bmv2c1040_split_xe120_trkmht_xe80_mht_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j25_gsc45_bmv2c1040_split', 'xe120_trkmht','xe80_mht_L1XE35'] ]],
+        ['j25_gsc45_bmv2c1060_split_xe120_trkmht_xe80_mht_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j25_gsc45_bmv2c1060_split', 'xe120_trkmht','xe80_mht_L1XE35'] ]],
+        ['j25_gsc45_bmv2c1070_split_xe120_trkmht_xe80_mht_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j25_gsc45_bmv2c1070_split', 'xe120_trkmht','xe80_mht_L1XE35'] ]],
+        ['j25_gsc45_bmv2c1077_split_xe120_trkmht_xe80_mht_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j25_gsc45_bmv2c1077_split', 'xe120_trkmht','xe80_mht_L1XE35'] ]],
+        ['j25_gsc45_bmv2c1085_split_xe120_trkmht_xe80_mht_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j25_gsc45_bmv2c1085_split', 'xe120_trkmht','xe80_mht_L1XE35'] ]],
+
+        ['j35_gsc55_bmv2c1040_split_xe120_trkmht_xe80_mht_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j35_gsc55_bmv2c1040_split', 'xe120_trkmht','xe80_mht_L1XE35'] ]],
+        ['j35_gsc55_bmv2c1060_split_xe120_trkmht_xe80_mht_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j35_gsc55_bmv2c1060_split', 'xe120_trkmht','xe80_mht_L1XE35'] ]],
+        ['j35_gsc55_bmv2c1070_split_xe120_trkmht_xe80_mht_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j35_gsc55_bmv2c1070_split', 'xe120_trkmht','xe80_mht_L1XE35'] ]],
+        ['j35_gsc55_bmv2c1077_split_xe120_trkmht_xe80_mht_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j35_gsc55_bmv2c1077_split', 'xe120_trkmht','xe80_mht_L1XE35'] ]],
+        ['j35_gsc55_bmv2c1085_split_xe120_trkmht_xe80_mht_L1XE35', 'L1_XE35',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['j35_gsc55_bmv2c1085_split', 'xe120_trkmht','xe80_mht_L1XE35'] ]],
+
 
         #bjet+ht
         ['j35_gsc55_bmv2c1040_split_ht500_L1J12', 'L1_J12',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['ht500_L1J12','j35_gsc55_bmv2c1040_split']]],
         ['j35_gsc55_bmv2c1060_split_ht500_L1J12', 'L1_J12',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['ht500_L1J12','j35_gsc55_bmv2c1060_split']]],
+        ['j35_gsc55_bmv2c1070_split_ht500_L1J12', 'L1_J12',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['ht500_L1J12','j35_gsc55_bmv2c1070_split']]],
+        ['j35_gsc55_bmv2c1077_split_ht500_L1J12', 'L1_J12',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['ht500_L1J12','j35_gsc55_bmv2c1077_split']]],
+        ['j35_gsc55_bmv2c1085_split_ht500_L1J12', 'L1_J12',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['ht500_L1J12','j35_gsc55_bmv2c1085_split']]],
+
+        ['j35_gsc55_bmv2c1040_split_ht450_L1J12', 'L1_J12',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['ht450_L1J12','j35_gsc55_bmv2c1040_split']]],
+        ['j35_gsc55_bmv2c1060_split_ht450_L1J12', 'L1_J12',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['ht450_L1J12','j35_gsc55_bmv2c1060_split']]],
+        ['j35_gsc55_bmv2c1070_split_ht450_L1J12', 'L1_J12',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['ht450_L1J12','j35_gsc55_bmv2c1070_split']]],
+        ['j35_gsc55_bmv2c1077_split_ht450_L1J12', 'L1_J12',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['ht450_L1J12','j35_gsc55_bmv2c1077_split']]],
+        ['j35_gsc55_bmv2c1085_split_ht450_L1J12', 'L1_J12',   [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1,['serial',-1,['ht450_L1J12','j35_gsc55_bmv2c1085_split']]],
+
         ['j55_gsc75_bmv2c1040_split_ht500_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'],  -1,['serial',-1,[ 'ht500_L1J12','j55_gsc75_bmv2c1040_split']]],
         ['j55_gsc75_bmv2c1070_split_ht500_L1J12', 'L1_J12', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'],  -1,['serial',-1,[ 'ht500_L1J12','j55_gsc75_bmv2c1070_split']]],
 
