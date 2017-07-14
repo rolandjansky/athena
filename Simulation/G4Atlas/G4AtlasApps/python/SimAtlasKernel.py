@@ -224,26 +224,6 @@ class AtlasSimSkeleton(SimSkeleton):
 
 
     @classmethod
-    def do_GeoSD(self):
-        """ Configure the geometry and SD
-        """
-        AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_GeoSD :: starting')
-
-        ## Calorimeters
-        ##if DetFlags.Calo_on():
-        ##    ## LAr
-        ##    if DetFlags.geometry.LAr_on():
-        ##        from G4AtlasApps.SimFlags import simFlags
-        ##        # if this is an ISF run, allow the collections on store gate to be modified
-        ##        # by other algorithms (i.e. set them non-const)
-        ##        allowSGMods = True if simFlags.ISFRun else False
-        ##        from atlas_calo import PyLArG4RunControler
-        ##        lArG4RunControl = PyLArG4RunControler('PyLArG4RunControl', 'LArG4RunControlDict', allowMods=allowSGMods)
-
-        AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_GeoSD :: done')
-
-
-    @classmethod
     def _do_metadata(self):
         """
         Setup and add metadata to the HIT file.

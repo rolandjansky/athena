@@ -358,7 +358,7 @@ class SimSkeleton(object):
         Do not overload this method.
         """
         AtlasG4Eng.G4Eng.log.verbose('SimSkeleton._do_All :: starting')
-        known_methods = ['do_GeoSD']
+        known_methods = []
         ## Execute the known methods from the known_methods list
         for k in known_methods:
             try:
