@@ -23,19 +23,4 @@ muons reconstruction, analysis, and trigger simulation.
   - CBNTAA_TileMuonFitter: creates an AthenaAware CBNT ntuple with TileMuonFitter information.
 
   - TileCosmicsTrigger: used in simulation to emulate the standalone Tile cosmics trigger. It reads the container of TileTTL1 objects (see TileEvent and TileSimAlgs), apllies the trigger logic according to the board configuration and produces a TileTrigger object, put in the StoreGate. More details on the trigger logic, usage, etc, can be found here: https://twiki.cern.ch/twiki/bin/view/Main/TileCosmicsTrigger  The output can be put in CBNTAA format (see the TileRec package).
-
-
-
-@ref used_MyPackage
-
-@ref requirements_MyPackage
-*/
-
-/**
-@page used_MyPackage Used Packages
-*/
-
-/**
-@page requirements_MyPackage Requirements
-
 */

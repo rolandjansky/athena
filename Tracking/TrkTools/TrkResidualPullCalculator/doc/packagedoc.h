@@ -15,18 +15,9 @@
   account by calling tools in the sub-detector realm.
   See details with Trk::IResidualPullCalculator interface description
 
-*/
 @section TrkResidualPullCalculator_TrkResidualPullCalculatorExtras Extra Pages
 
  - @ref TrkResidualPullCalculatorUsed
  - @ref TrkResidualPullCalculatorReqs
  
-*/
-
-/**
-@page TrkResidualPullCalculatorUsed Used Packages
-*/
-
-/**
-@page TrkResidualPullCalculatorReqs Requirements
 */

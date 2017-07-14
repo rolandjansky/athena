@@ -147,8 +147,6 @@ There are two jobOptions files to run a memory-leak test. They are put in /TESTS
 
 A recipe how to run the memory-leak test is given in the README file in /TESTS.
 
-@section InDetTrigRecExample_InDetTrigRecExampleReq Requirements file
 
 
 */
-

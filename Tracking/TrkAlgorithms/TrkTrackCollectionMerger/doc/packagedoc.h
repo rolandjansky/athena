@@ -38,9 +38,7 @@ The TrkTrackCollectionMerger contains the following classes/files:
 
 - TrkTrackCollectionMerger.cxx...Main class calling all the necessary tools and producing the ouput track collection.
 
-@section TrkTrackCollectionMerger_TrkTrackCollectionMergerPackages Used Packages
 
 
-@section TrkTrackCollectionMerger_TrkTrackCollectionMergerReq Requirements file
 
 */

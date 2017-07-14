@@ -42,9 +42,7 @@ The TRT_TrigStandaloneTrackFinder contains the following classes/files:
 
 - TRT_TrigStandaloneTrackFinder.cxx...Main class calling all the necessary tools and producing the ouput track collection.
 
-@section TRT_TrigStandaloneTrackFinder_TRT_TrigStandaloneTrackFinderPackages Used Packages
 
 
-@section TRT_TrigStandaloneTrackFinder_TRT_TrigStandaloneTrackFinderReq Requirements file
 
 */

@@ -15,16 +15,6 @@ informations in DeltaR cones around the muon directions and save
 the isolation quantities in a IsoMuonFeature object atatched to the 
 event record for further analysis.
 
-@ref used_TrigmuIso
 
-@ref requirements_TrigmuIso
 
-*/
-
-/**
-@page used_TrigmuIso Used Packages
-*/
-
-/**
-@page requirements_TrigmuIso Requirements
 */

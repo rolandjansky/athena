@@ -138,7 +138,7 @@ pointer_list<NELT>::iterator::operator!= (const iterator& other) const
 template <size_t NELT>
 inline
 typename pointer_list<NELT>::iterator::reference
-pointer_list<NELT>::iterator::operator*() const
+pointer_list<NELT>::iterator::operator*()
 {
   return *m_p;
 }

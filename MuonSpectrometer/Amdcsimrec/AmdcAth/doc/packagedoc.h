@@ -21,15 +21,5 @@ The AmdcAth package contains:
 
 @section AmdcAth_ExtrasAmdcAth Extra Pages
 
-  - @ref used_AmdcAth
-  - @ref requirements_AmdcAth
 
-*/
-
-/**
-@page used_AmdcAth Used Packages
-*/
-
-/**
-@page requirements_AmdcAth Requirements
 */

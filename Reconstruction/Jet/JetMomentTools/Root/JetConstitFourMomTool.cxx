@@ -9,7 +9,6 @@
 #include "xAODJet/JetConstituentVector.h"
 #include "xAODJet/JetTypes.h"
 
-#include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterChangeSignalState.h"
 
 //**********************************************************************
@@ -20,7 +19,8 @@ JetConstitFourMomTool::JetConstitFourMomTool(std::string myname)
     m_jetScaleNames({}),
     m_altColls({}),
     m_altConstitScales({}),
-    m_altJetScales({})
+    m_altJetScales({}),
+    m_altColls_keys {}  // calls default constructor 
 {
   // What cluster signal state to use for the jet constituents
   declareProperty("ConstitScale",     m_constitScale     );
@@ -37,13 +37,32 @@ JetConstitFourMomTool::JetConstitFourMomTool(std::string myname)
 //**********************************************************************
 
 StatusCode JetConstitFourMomTool::initialize() {
+  ATH_MSG_DEBUG("initializing version with data handles");
+
+  // load  data handle key array from a std::vector<std::string>
+  
+
+  // cannot use DataHandleKeyArray.assign(vector) as this sneakily removes
+  // empty strings...
+
+  for(auto dhn : m_altColls){
+    m_altColls_keys.emplace_back(SG::ReadHandleKey<xAOD::CaloClusterContainer>(dhn));
+  }
+  for(auto& dh : m_altColls_keys){ATH_CHECK(dh.initialize(!(dh.key() == "")));}
+
   // Check configuration consistency
   if( m_jetScaleNames.empty() ||
       (m_jetScaleNames.size() != m_altColls.size()) ||
       (m_jetScaleNames.size() != m_altConstitScales.size()) ||
-      (m_jetScaleNames.size() != m_altJetScales.size())
+      (m_jetScaleNames.size() != m_altJetScales.size()) ||
+      (m_jetScaleNames.size() != m_altColls_keys.size())
       ) {
-    ATH_MSG_FATAL("Inconsistency in configuration -- all vector properties must have the same (nonzero) length!");
+    ATH_MSG_FATAL("Inconsistency in configuration -- all vector properties must have the same (nonzero) length! Sizes: " 
+                  << m_jetScaleNames.size() << " "
+                  << m_altColls.size() << " "
+                  << m_altConstitScales.size() << " "
+                  << m_altJetScales.size() << " "
+                  << m_altColls_keys.size());
     return StatusCode::FAILURE;
   }
 
@@ -59,6 +78,7 @@ StatusCode JetConstitFourMomTool::initialize() {
     }
   }
 
+
   return StatusCode::SUCCESS;
 }
 
@@ -70,21 +90,23 @@ int JetConstitFourMomTool::modify(xAOD::JetContainer& jets) const {
   std::vector<const xAOD::CaloClusterContainer*> altCollections(nScales,NULL);
   // Do some setup that doesn't have to be repeated for each jet
   for(size_t iScale=0; iScale<nScales; ++iScale) {
-    if(!m_altColls[iScale].empty()) { // retrieve alternate constituent collections
+    // if(!m_altColls[iScale].empty()) { // retrieve alternate constituent collections
+    if(!m_altColls_keys[iScale].key().empty()) { // retrieve alternate constituent collections
       const xAOD::Jet& leadjet = *jets.front();
       if(leadjet.getInputType()==xAOD::JetInput::LCTopo || leadjet.getInputType()==xAOD::JetInput::EMTopo
 	 || leadjet.getInputType()==xAOD::JetInput::LCTopoOrigin || leadjet.getInputType()==xAOD::JetInput::EMTopoOrigin) {
-	const xAOD::CaloClusterContainer* altclusters(0);
-	ATH_CHECK( evtStore()->retrieve(altclusters,m_altColls[iScale]) );
-	if(!altclusters) {
-	  ATH_MSG_WARNING("Failed to retrieve alt cluster collection " << m_altColls[iScale]);
-	  return 1;
-	} else {
-	  altCollections[iScale] = altclusters;
-	}
+
+        auto handle = SG::makeHandle(m_altColls_keys[iScale]);
+        if(!handle.isValid()){
+          ATH_MSG_WARNING("Failed to retrieve alt cluster collection " 
+                          << m_altColls_keys[iScale].key());
+          return 1;
+        }
+
+        altCollections[iScale] = handle.cptr();
       } else {
-	ATH_MSG_WARNING("Alt collection " << m_altColls[iScale] << " and jet type " << leadjet.getInputType() << " not supported yet!");
-	return 1;
+        ATH_MSG_WARNING("Alt collection " << m_altColls[iScale] << " and jet type " << leadjet.getInputType() << " not supported yet!");
+        return 1;
       } // check that jet type/alt collection are implemented
     } // have an alt collection for this scale
   }

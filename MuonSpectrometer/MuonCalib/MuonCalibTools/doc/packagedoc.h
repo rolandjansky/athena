@@ -19,17 +19,6 @@ This package contains general tools needed by the Muon Calibration Framework
 
 - MuonCalib::IdToFixedIdTool: translates an (ATHENA) Identifier to a (Calib EDM) MuonFixedId. And vice versa.
 
-@ref used_MuonCalibTools
                                                                                 
-@ref requirements_MuonCalibTools
                                                                                 
 */
-                                                                                
-/**
-@page used_MuonCalibTools Used Packages
-*/
-                                                                                
-/**
-@page requirements_MuonCalibTools Requirements
-*/
-       

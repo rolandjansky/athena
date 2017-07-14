@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
+/**
 @page CaloRingerTools_page The Calorimeter Ringer Tools
 
  - This package contains the Tools used by Reconstruction/RecoAlgs/CaloRingerAlgs to retrieve
@@ -11,9 +11,4 @@
 
  - For questions or comments: Werner S. Freund <wsfreund@cern.ch>
 
-@section CaloRingerTools_used_packagesTkPara Used Packages
-
-@section CaloRingerTools_requirements Requirements
-
 */
-

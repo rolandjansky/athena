@@ -15,7 +15,7 @@ atlas_depends_on_subdirs(
    )
 
 # External dependencies:
-find_package( Qt5 COMPONENTS Core OpenGL Gui Network )
+find_package( Qt5 COMPONENTS Core OpenGL Gui Network PrintSupport)
 find_package( Coin3D )
 find_package( SoQt )
 
@@ -31,7 +31,8 @@ atlas_add_library( VP1Gui VP1Gui/*.h src/*.h src/*.cxx src/*.qrc
    PUBLIC_HEADERS VP1Gui
    PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} ${SOQT_INCLUDE_DIRS}
    ${CMAKE_CURRENT_BINARY_DIR}
-   LINK_LIBRARIES VP1Base Qt5::Core Qt5::OpenGL Qt5::Gui VP1UtilsBase Qt5::Network
+   LINK_LIBRARIES VP1Base Qt5::Core Qt5::OpenGL Qt5::Gui VP1UtilsBase
+   Qt5::Network Qt5::PrintSupport
    PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${SOQT_LIBRARIES}  )
 
    

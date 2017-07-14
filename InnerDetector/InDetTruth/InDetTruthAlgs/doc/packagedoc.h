@@ -36,6 +36,5 @@ the information of all the other sources that also contribute is lost.
    TrackParticleTruth and fills both objects in a map. It is based on
    the truth of the Track contained in the TrackParticle.
 
-@section InDetTruthAlgs_InDetTruthAlgsReq Requirements
 
 */

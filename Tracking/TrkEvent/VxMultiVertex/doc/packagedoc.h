@@ -37,6 +37,5 @@ an adaptive multi vertex fit.
 of <i>Trk::MVFVxCandidate </i>. It is not used so far, but might become 
 quite important if any of presently transient MVF-related stuff becomes
 persistent.
-@section VxMultiVertex_requirementsVxMultiVertex Requirements
 
 */

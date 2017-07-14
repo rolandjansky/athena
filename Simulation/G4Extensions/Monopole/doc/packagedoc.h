@@ -17,21 +17,10 @@ This package allows users to introduce magnetic monopoles into the Geant4 simula
   - MonopoleProcessDefinition : Defines which processes are to be applied to the magnetic monopoles as they propagate through the detector.
   - G4mplIonisation , G4mplIonisationModel , G4mplTransportation : Defines several specific processes for the magnetic monopoles.
   
-@ref used_Monopole
 
-@ref requirements_Monopole
-
-*/
-
-/**
-@page used_Monopole Used Packages
-*/
-
-/**
-@page requirements_Monopole Requirements
-*/
 
 doc/mainpage.h
 Monopole/G4Monopole.h
 Monopole/G4mplTransportation.h
 Monopole/MonopoleProcessDefinition.h
+*/

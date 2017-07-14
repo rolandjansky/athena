@@ -30,15 +30,4 @@ The objects can be stored in StoreGate using the following collections:
 	
 @section MuonPattern_ExtrasMuonPattern Extra Pages
 
- - @ref UsedMuonPattern
- - @ref RequirementsMuonPattern
-*/
-
-/**
-@page UsedMuonPattern Used Packages
-*/
-
-/**
-@page RequirementsMuonPattern Requirements
-
 */

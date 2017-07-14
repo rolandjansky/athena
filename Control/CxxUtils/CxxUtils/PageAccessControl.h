@@ -74,9 +74,9 @@ public:
 
   /// @class Entry describes the protection of a memory region (see mprotect(2))
   struct Entry {
-    Entry(void* a, size_t l, int p, void* pl);
+    Entry(const void* a, size_t l, int p, void* pl);
     /// address of page for which protection was requested. Used as key
-    void* addr;
+    const void* addr;
     ///lenght of the protected region, from page addr to end of protected obj
     size_t lenProt; 
     int prot;

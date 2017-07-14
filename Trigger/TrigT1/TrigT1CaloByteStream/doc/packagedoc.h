@@ -31,17 +31,5 @@ Implemented so far: PPM, CPM, JEM, CMM-CP, CMM-Jet, CMM-Energy DAQ;
 
 @author Peter Faulkner
 
-@ref used_TrigT1CaloByteStream
-@ref requirements_TrigT1CaloByteStream
 
 */
-
-/**
-@page used_TrigT1CaloByteStream Used Packages
-*/
-
-/**
-@page requirements_TrigT1CaloByteStream Requirements
-*/
-
-

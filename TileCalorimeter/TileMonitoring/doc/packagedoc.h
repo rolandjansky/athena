@@ -35,17 +35,5 @@ analysis
 @section TileMonitoring_TileCosmicViewer 
 TileCosmicViewer is a root-based tool developed by Luciano Filho to display Tile and LAr cells and TileMuonFitter objects.
 
-@ref used_TileMonitoring
-@ref requirements_TileMonitoring
 
 */
-
-/**
-@page used_TileMonitoring Used Packages
-*/
-
-/**
-@page requirements_TileMonitoring Requirements
-*/
-
-

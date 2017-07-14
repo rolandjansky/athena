@@ -16,7 +16,6 @@ the extrapolation/propagation process.
 @author Andreas.Salzburger@cern.ch, Igor.Gavrilenko@cern.ch, Esben.Lund@cern.ch
 
 
-@section TrkExUtils_requirements Requirements
 */
 
 /**

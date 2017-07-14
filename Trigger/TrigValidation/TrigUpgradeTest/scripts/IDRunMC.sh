@@ -1,2 +1,1 @@
-source RecExCommon_links.sh
-athena.py --threads=1 ViewAlgsTest/BasicMTTrackingTrigger.py
+athena.py --threads=1 TrigUpgradeTest/BasicMTTrackingTrigger.py

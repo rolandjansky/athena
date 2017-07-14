@@ -24,8 +24,4 @@ This class is intended for use within the Trigger as well, and will probably und
 Please let me know of any errors, or if anything is unclear.
 Edward.Moyse@cern.ch
 
-@section TrkPrepRawData_used_packagesTkPara Used Packages
-
-@section TrkPrepRawData_requirements Requirements
 */
-

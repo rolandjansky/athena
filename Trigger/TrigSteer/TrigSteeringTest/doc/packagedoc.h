@@ -14,20 +14,6 @@
 This package provides some dummy algorithm to test the HLT Steering w/o any real or MC data!
 
 
-@ref used_TrigSteeringTest
-
-@ref requirements_TrigSteeringTest
-
-*/
-
-/**
-@page used_TrigSteeringTest Used Packages
-*/
-
-/**
-@page requirements_TrigSteeringTest Requirements
-*/
-
 
 
 */

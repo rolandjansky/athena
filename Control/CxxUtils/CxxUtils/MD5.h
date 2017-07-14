@@ -67,16 +67,16 @@ documentation and/or software.
 
 class MD5 {
   public:
-    MD5              (unsigned char* buffer, unsigned long len);
+    MD5              (const unsigned char* buffer, unsigned long len);
     MD5              ();  
-    void  update     (unsigned char *input, unsigned int input_length);
+    void  update     (const unsigned char *input, unsigned int input_length);
     // Finalize MD5 check-sum
     void  finalize   ();
 
 
-    void raw_digest (unsigned char *buff);
+    void raw_digest (unsigned char *buff) const;
 
-    std::string       hex_digest ();
+    std::string       hex_digest () const;
 
   private:
     // next, the private data:
@@ -88,11 +88,11 @@ class MD5 {
 
     // last, the private methods, mostly static:
     void init             ();               // called by all constructors
-    void transform        (unsigned char *buffer);  // does the real update work.  Note 
+    void transform        (const unsigned char *buffer);  // does the real update work.  Note 
                                             // that length is implied to be 64.
 
-    static void encode    (unsigned char *dest, unsigned int *src, unsigned int length);
-    static void decode    (unsigned int *dest, unsigned char *src, unsigned int length);
+    static void encode    (unsigned char *dest, const unsigned int *src, unsigned int length);
+    static void decode    (unsigned int *dest, const unsigned char *src, unsigned int length);
 
     // ROTATE_LEFT rotates x left n bits.
     static inline unsigned int  rotate_left (unsigned int x, unsigned int n)

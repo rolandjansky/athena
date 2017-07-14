@@ -14,9 +14,7 @@ EventSelection contains the following jobOs
 - AODtoTAG_topOptions.py : produce TAG from AOD
 - EventSplitTest_topOptions.py : produce TAG collections together with AOD streams
 
-@section EventSelection_used_packagesEventSelection Used packages
 
-@section EventSelection_requirementsEventSelection Requirements
 
 @section EventSelection_How to use MakeSimpleCollection.py, MakeEventTagCollection.py and EventTagCollectionDeepCopy.py
 

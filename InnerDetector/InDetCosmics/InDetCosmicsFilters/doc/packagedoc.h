@@ -16,6 +16,5 @@ those events that contain at least one good track in any specified trackcollecti
 @author Christian.Schmitt@cern.ch
 @author Wouter.Hulsbergen@cern.ch
 
-@section InDetCosmicsFilters_requirementsInDetCosmicsFilters Requirements
 
 */

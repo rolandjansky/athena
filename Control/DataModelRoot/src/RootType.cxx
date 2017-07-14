@@ -972,18 +972,3 @@ bool TScopeAdapter::operator<( const TScopeAdapter& rh ) const
 }
 
 
-//____________________________________________________________________________
-//____________________________________________________________________________
-RootObject::RootObject(const RootType& type, void* obj)
-      : m_type(type), m_object(obj)
-{
-}
-  
-//____________________________________________________________________________
-RootObject
-RootObject::CastObject(const RootType &toType) const
-{
-   return (m_type.Class() && toType.Class())?
-      RootObject( toType, m_type.Class()->DynamicCast(toType.Class(), m_object) )
-      : RootObject();
-}

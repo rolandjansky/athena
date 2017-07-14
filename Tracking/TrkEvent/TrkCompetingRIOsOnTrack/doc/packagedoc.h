@@ -30,14 +30,10 @@ by a Surface the CompetingRIOsOnTrack is expressed to and a vector of assignment
 
 @section TrkCompetingRIOsOnTrack_ExtrasTrkCompetingRIOsOnTrack Extra Pages
 
- - @ref UsedTrkCompetingRIOsOnTrack
- - @ref requirementsTrkCompetingRIOsOnTrack
 */
 
 /**
-@page UsedTrkCompetingRIOsOnTrack Used Packages
 */
 
 /**
-@page requirementsTrkCompetingRIOsOnTrack Requirements
 */

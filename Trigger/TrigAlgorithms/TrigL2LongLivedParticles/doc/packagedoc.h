@@ -25,16 +25,6 @@ algorithm computes the number
 of tracks with a Pt > 1 GeV in a region etaxphi 0.2x0.2 
 around the jet direction. No feature is written for this algorithm.
 
-@ref used_TrigL2LongLivedParticles
 
-@ref requirements_TrigL2LongLivedParticles
 
-*/
-
-/**
-@page used_TrigL2LongLivedParticles Used Packages
-*/
-
-/**
-@page requirements_TrigL2LongLivedParticles Requirements
 */

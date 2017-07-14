@@ -32,7 +32,7 @@ public:
 
 	// funtions to write histograms
 	int Write(const char* name = 0, Int_t option = 0, Int_t bufsize = 0) const;
-	int Write(const char* name = 0, Int_t option = 0, Int_t bufsize = 0);
+        int Write(const char* name = 0, Int_t option = 0, Int_t bufsize = 0);
 	int WriteAndCount(int *nhistos, int *nbins) const;
 
 	// functions to get informations

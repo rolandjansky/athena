@@ -174,8 +174,7 @@ void testHLTAutoKeyReset(StoreGateSvc& rSG, IProxyProviderSvc& rPPS) {
   cout << "*** ProxyProviderSvc_test HLTAutoKeyReset BEGINS ***" <<endl;
   assert(rSG.clearStore(true).isSuccess());
   std::list<DataProxy*> pl;
-  assert(rSG.store()->proxyList(pl).isSuccess());
-  assert(0 == pl.size());
+  assert(rSG.proxies().empty());
   rPPS.addProvider(new TestProvider<Foo>("HLTAutoKey_1"));
   rPPS.addProvider(new TestProvider<Foo>("HLTAutoKey_2"));
   rPPS.addProvider(new TestProvider<Foo>("HLTAutoKey_3"));
@@ -185,17 +184,14 @@ void testHLTAutoKeyReset(StoreGateSvc& rSG, IProxyProviderSvc& rPPS) {
   assert(rSG.contains<Foo>("HLTAutoKey_3"));
   assert(rSG.contains<Foo>("NOT_HLTAutoKey_3"));
   pl.clear();
-  assert(rSG.store()->proxyList(pl).isSuccess());
-  assert(4 == pl.size());
+  assert(rSG.proxies().size() == 4);
   assert(rSG.clearStore().isSuccess());
   pl.clear();
-  assert(rSG.store()->proxyList(pl).isSuccess());
-  assert(1 == pl.size());
+  assert(rSG.proxies().size() == 1);
   assert(rSG.contains<Foo>("HLTAutoKey_1"));
   assert(rSG.contains<Foo>("NOT_HLTAutoKey_3"));
   pl.clear();
-  assert(rSG.store()->proxyList(pl).isSuccess());
-  assert(2 == pl.size());
+  assert(rSG.proxies().size() == 2);
   
   cout << "*** ProxyProviderSvc_test HLTAutoKeyReset OK ***\n\n" <<endl;
 }

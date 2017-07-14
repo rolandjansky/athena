@@ -21,7 +21,6 @@ There are two services that can be used :
      
    - CalibrationTrackingGeometrySvc allows to apply additional distortions, material scaling.
 
-@section TrkDetDescrSvc_TrkDetDescrSvcReq Requirements
 
 
 */

@@ -18,9 +18,7 @@ ParticleTruth contains the following files/classes:
 - TrackParticleTruthCollectionContainer ... container of the TrackParticleTruthCollection used in the trigger navigation.
 - TrackParticleTruthVector.cxx ... an object necessary for custom converters (ignore it).
 
-@section ParticleTruth_used_packagesParticleTruth used packages
 
-@section ParticleTruth_requirements Requirements
 
 @namespace Rec Namespace of the ParticleTruth package.
 */

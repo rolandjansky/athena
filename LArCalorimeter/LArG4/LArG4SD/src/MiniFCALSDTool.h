@@ -38,9 +38,6 @@ namespace LArG4
     /// Create the SD wrapper for current worker thread
     G4VSensitiveDetector* makeSD() override final;
 
-    /// Hit collection name
-    std::string m_hitCollName;
-
     /// The list of volumes
     std::vector<std::string> m_miniVolumes;
 

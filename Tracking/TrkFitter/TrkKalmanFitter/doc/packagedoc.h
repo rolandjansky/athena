@@ -604,15 +604,4 @@ functioning, a few points need to be taken into account.
 
 @section TrkKalmanFitter_ExtrasTrkKalmanFitter Extra Pages
 
- - @ref UsedTrkKalmanFitter
- - @ref RequirementsTrkKalmanFitter
 */
-
-/**
-@page UsedTrkKalmanFitter Used Packages
-*/
-
-/**
-@page RequirementsTrkKalmanFitter Requirements
-*/
-

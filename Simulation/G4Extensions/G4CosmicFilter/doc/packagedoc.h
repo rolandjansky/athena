@@ -17,16 +17,6 @@ The package has three classes:
  - G4CosmicFilter : This algorithm checks for a cosmic ray having passed through the selected volume
  - G4CosmicAndFilter and G4CosmicOrFilter : These algorithms allow users to "and" or "or" two volumes in order to get a more precise selection criterion.  This is used for the pixel detector (and'ed with the TRT barrel in order to ensure the track passes through the sensitive volumes rather than the services).
 
-@ref used_G4CosmicFitter
 
-@ref requirements_G4CosmicFitter
 
-*/
-
-/**
-@page used_G4CosmicFitter Used Packages
-*/
-
-/**
-@page requirements_G4CosmicFitter Requirements
 */

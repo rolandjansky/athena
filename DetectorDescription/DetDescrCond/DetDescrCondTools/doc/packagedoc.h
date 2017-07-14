@@ -130,9 +130,6 @@ in AlignableTransform objects in the TDS. It sorts the contents of the
 AlignableTransform objects by Identifier, facilititing rapid access.
 This tool is not widely used, and might be declared obselete.
 
-@section DetDescrCondTools_Req The requirements file:
 
-@section DetDescrCondTools_uses Packages used
 
 */
-

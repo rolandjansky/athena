@@ -34,16 +34,6 @@ algorithms.
   - HLT::LvlXConverter : various tools to do the trigger level conversion
   - Scaler : various classes which provide scaler engines for both: pass-throughs and prescales
 
-@ref used_TrigSteering
 
-@ref requirements_TrigSteering
 
-*/
-
-/**
-@page used_TrigSteering Used Packages
-*/
-
-/**
-@page requirements_TrigSteering Requirements
 */

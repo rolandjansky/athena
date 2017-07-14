@@ -17,16 +17,6 @@ There are two classes in this package:
  - MergeCalibHits : For merging callibration hit collections
  - MergeTrackRecordCollection : For merging collections of track records
 
-@ref used_MCTruthSimAlgs
 
-@ref requirements_MCTruthSimAlgs
 
-*/
-
-/**
-@page used_MCTruthSimAlgs Used Packages
-*/
-
-/**
-@page requirements_MCTruthSimAlgs Requirements
 */

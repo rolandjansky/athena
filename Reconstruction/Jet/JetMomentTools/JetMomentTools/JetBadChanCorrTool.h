@@ -97,7 +97,7 @@ protected:
 
   //ToolHandle<IMissingCellListTool> m_missingCellToolHandle;
   //MissingCellListTool* m_missingCellTool;
-  std::string m_missingCellMapName;
+  // std::string m_missingCellMapName;
 
   bool m_forceMissingCellCheck;
 
@@ -137,11 +137,13 @@ protected:
     double m_etaMax;
     double m_phiMin;
     double m_phiMax;
+
   };
   std::vector<ProfileData> m_profileDatas[CaloCell_ID::Unknown];//24
   
   double getProfile(double pt, double dr, int sample, double eta, double phi) const;
 
+  SG::ReadHandleKey<jet::CaloCellFastMap> m_badCellMap_key;
 };
 #endif 
 

@@ -24,9 +24,7 @@ name this can be left untouched.</i></li>
 <li>Specify the name of the output container:<br>
 <b>VxPrimary.VxCandidatesOutputName      = "VxPrimaryCandidate";</b></li>
 </ul>
-@section InDetPriVxFinder_used_packagesInDetPriVxFinder used packages
 
-@section InDetPriVxFinder_requirements Requirements
 
 \namespace Vtx
 A namespace for all vertexing packages and related stuff.

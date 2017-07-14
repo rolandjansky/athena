@@ -31,16 +31,5 @@ The following classes related to "MT" implementation:
 - MuonCalib::VariableBinwidthHistogram: a histogram where every bin has the same number of entries. The density is represented by the bin width.
 - MuonCalib::VariableBinwidthHistogramBin: a bin of a VariableBinwidthHistogram.
 
-@ref used_MdtCalibT0
                                                                                 
-@ref requirements_MdtCalibT0
 */
-                                                                                
-/**
-@page used_MdtCalibT0 Used Packages
-*/
-                                                                                
-/**
-@page requirements_MdtCalibT0 Requirements
-*/
-

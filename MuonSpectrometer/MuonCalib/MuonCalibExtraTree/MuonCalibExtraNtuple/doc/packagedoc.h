@@ -27,17 +27,6 @@ And some analysis programmes:
 - MuonCalib::MultipleAnalysis : Analysis program for MuonSegment (MDT or CSC). This analysis routine performs checks for segments and patterns, and using hit truth information. Additional, the programme includes extended pattern recognition.
 
 
-@ref used_MuonCalibExtraNtuple
                                                                                 
-@ref requirements_MuonCalibExtraNtuple
                                                                                 
 */
-                                                                                
-/**
-@page used_MuonCalibExtraNtuple Used Packages
-*/
-                                                                                
-/**
-@page requirements_MuonCalibExtraNtuple Requirements
-*/
-       

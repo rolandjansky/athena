@@ -15,7 +15,6 @@ Lelas, Kyle Cranmer
 
 This is the package for calorimeter utilities.
 
-@section CaloUtils_CaloUtilsReq Requirements
 
 
 

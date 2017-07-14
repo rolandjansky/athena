@@ -28,7 +28,7 @@ void UpgradePerformanceFunctions::initPhotonFakeHistograms(TString filename){
     std::cout << "Found Photon Fake Rate histogram file: " << FakeFile << std::endl;
 #endif // ROOTCORE
     
-    TFile *m_infile=new TFile(FakeFile.c_str(),"READ");
+    TFile *infile=new TFile(FakeFile.c_str(),"READ");
     
     // hardcode number of allowed bins
     
@@ -38,8 +38,8 @@ void UpgradePerformanceFunctions::initPhotonFakeHistograms(TString filename){
     TString hsname = "PhotHSJetIsTightBkg2D";
     TString puname = "PhotPUJetIsTightBkg2D";
     
-    TH2D *hhs = (TH2D*)m_infile->Get(hsname);
-    TH2D *hpu = (TH2D*)m_infile->Get(puname);
+    TH2D *hhs = (TH2D*)infile->Get(hsname);
+    TH2D *hpu = (TH2D*)infile->Get(puname);
     
     //HS
     
@@ -54,15 +54,15 @@ void UpgradePerformanceFunctions::initPhotonFakeHistograms(TString filename){
 
       //      std::cout << " HS 2D bin " << i << " bin min: " << hhs->GetXaxis()->GetBinLowEdge(i) << " bin max: " <<  hhs->GetXaxis()->GetBinLowEdge(i)+ hhs->GetXaxis()->GetBinWidth(i) << " integral: " << htemp2->Integral() << std::endl;
 
-      hsfakes.push_back(htemp2);
+      m_hsfakes.push_back(htemp2);
     }
     
-    //    int nhhs = hsfakes.size();
+    //    int nhhs = m_hsfakes.size();
     
     std::cout << " HS Fake Initialisation done" << std::endl;
     
     // for (int i = 0; i < nhhs;i++){
-    //     TH1D *htemp = (TH1D*)hsfakes[i];
+    //     TH1D *htemp = (TH1D*)m_hsfakes[i];
     // 	//        std::cout << " HS histogram " << i << " with integral: " << htemp->Integral() << " nbins: " << htemp->GetNbinsX() << " xmin: " << htemp->GetBinLowEdge(1) << " xmax: " << htemp->GetBinLowEdge(htemp->GetNbinsX())+htemp->GetBinWidth(htemp->GetNbinsX()) << std::endl;
     // }
     
@@ -76,15 +76,15 @@ void UpgradePerformanceFunctions::initPhotonFakeHistograms(TString filename){
         TString hnamepu = pustream.str();
         TH1D *htemp = (TH1D*)hpu->ProjectionY(hnamepu,i,i);
         
-        pufakes.push_back(htemp);
+        m_pufakes.push_back(htemp);
     }
     
-    //    int nhpu = pufakes.size();
+    //    int nhpu = m_pufakes.size();
 
     std::cout << " PU Fake Initialisation done" << std::endl;
     
     // for (int i = 0; i < nhpu;i++){
-    //     TH1D *htemp = (TH1D*)pufakes[i];
+    //     TH1D *htemp = (TH1D*)m_pufakes[i];
     // 	//        std::cout << " histogram " << i << " with integral: " << htemp->Integral() << " nbins: " << htemp->GetNbinsX() << " xmin: " << htemp->GetBinLowEdge(1) << " xmax: " << htemp->GetBinLowEdge(htemp->GetNbinsX())+htemp->GetBinWidth(htemp->GetNbinsX()) << std::endl;
     // }
     
@@ -236,7 +236,7 @@ float UpgradePerformanceFunctions::getPhotonFakeRescaledET(float eTMeV) {
         
         int ind = TMath::Floor( (eTMeV-20000)/10000.);
     
-        TH1D *htemp = (TH1D*)hsfakes.at(ind);
+        TH1D *htemp = (TH1D*)m_hsfakes.at(ind);
 
         fakedEt = htemp->GetRandom()*1000.;
         
@@ -263,7 +263,7 @@ float UpgradePerformanceFunctions::getPhotonPileupFakeRescaledET(float eTMeV) {
         
         int ind = TMath::Floor( (eTMeV-20000)/5000.);
         
-        TH1D *htemp = (TH1D*)pufakes.at(ind);
+        TH1D *htemp = (TH1D*)m_pufakes.at(ind);
         
         fakedEt = htemp->GetRandom()*1000.;
         
