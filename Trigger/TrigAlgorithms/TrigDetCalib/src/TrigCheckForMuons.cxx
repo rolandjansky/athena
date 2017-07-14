@@ -18,7 +18,7 @@ TrigCheckForMuons::TrigCheckForMuons(const std::string& name, ISvcLocator* pSvcL
     //m_clidSvc("ClassIDSvc", name),
     //m_types(), m_names(), m_momType(), m_clid(),
     m_robSelector("TrigROBSelector", this ),
-    m_addCTPResult(0), m_addHLTResult(0),
+    m_addCTPResult(1), m_addHLTResult(1),
     m_addOppositePhiRoI(false), m_addOppositeEtaPhiRoI(false),
     m_nRoIs(0),
     m_mindRSqr(0.01*0.01)
@@ -48,9 +48,17 @@ TrigCheckForMuons::TrigCheckForMuons(const std::string& name, ISvcLocator* pSvcL
 
 HLT::ErrorCode TrigCheckForMuons::hltInitialize()
 {
-  if (m_addCTPResult) m_trigResults.push_back(eformat::TDAQ_CTP);
-  if (m_addHLTResult)  m_trigResults.push_back(eformat::TDAQ_HLT);
-
+  msg() << MSG::INFO << "Initializing CPTResult "<<m_addCTPResult
+                     << " HLTResult "<< m_addHLTResult<< endmsg;
+  if (m_addCTPResult){
+    m_trigResults.push_back(eformat::TDAQ_CTP);
+    m_trigResults.push_back(eformat::TDAQ_MUON_CTP_INTERFACE);
+    msg() << MSG::INFO << " Will add TDAQ_CTP, TDAQ_MUON_CTP_INTERFACE to event record" << endmsg;
+  }
+  if (m_addHLTResult){
+    m_trigResults.push_back(eformat::TDAQ_HLT);
+    msg() << MSG::INFO << " Will add TDAQ_HLT to event record " << endmsg;
+  }
   return HLT::OK;
 }
 
