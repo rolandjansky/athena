@@ -49,7 +49,7 @@ class L2EFChain_mu(L2EFChainDef):
   fullScanSeqMap = getFullScanCaloSequences()
   # ----------------------------------------------------------------
 
-  def __init__(self, chainDict, asymDiMuonChain = False, AllMuons = [], thisIsBphysChain=False):
+  def __init__(self, chainDict, asymDiMuonChain = False, asymMultiMuonChain = False, AllMuons = [], thisIsBphysChain=False):
     self.L2sequenceList   = []
     self.EFsequenceList   = []
     self.L2signatureList  = []
@@ -97,6 +97,7 @@ class L2EFChain_mu(L2EFChainDef):
     # --- when to run with ovlp removal ---
     self.ovlpRm = self.chainPart['overlapRemoval']
     self.asymDiMuonChain = asymDiMuonChain
+    self.asymMultiMuonChain = asymMultiMuonChain
 
     self.doOvlpRm = False
     if "nscan" in self.chainName or "bTau" in self.chainName :
@@ -107,6 +108,8 @@ class L2EFChain_mu(L2EFChainDef):
       self.doOvlpRm = True
     elif "bJpsi" in self.chainName or "bDimu" in self.chainName or "bUpsi" in self.chainName or self.thisIsBphysChain :
       self.doOvlpRm = False
+    elif self.asymMultiMuonChain and not self.chainPart['extra'] and not self.chainPart['reccalibInfo'] and not self.thisIsBphysChain:
+      self.doOvlpRm = True
     elif (self.asymDiMuonChain) and (self.mult > 1) and not self.chainPart['extra'] and not self.chainPart['reccalibInfo'] :
       self.doOvlpRm = True
     else: self.doOvlpRm = False
