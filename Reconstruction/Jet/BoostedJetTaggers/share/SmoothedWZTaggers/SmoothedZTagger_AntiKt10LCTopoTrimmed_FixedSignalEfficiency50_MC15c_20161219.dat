@@ -1,0 +1,28 @@
+####################################################################################
+# Title :
+# Smooth Z Tagger Config File
+#
+# Author :
+# Tobias Kupfer <tobias.kupfer@cern.ch>
+#
+# Description :
+# The simple Z tagger provides three smoothed cut functions :
+# - a lower cut on the uncorrelated combined jet mass (with QCD derived weights) 
+# - an upper cut on the uncorrelated combined jet mass (with QCD derived weights) 
+# - an upper cut on D2
+# these cut functions have been optimized on a sample of truth matched Z jets 
+# ( dR(truth_Z,truth_jet) < 0.75 && dR(truth_q_1,reco_jet) < 0.75 && dR(truth_q_2,reco_jet) < 0.75 )
+# The smoothed cut functions are parameterized in units of ! [GeV] ! for pT and combined mass
+#
+#
+# Tagger Descriptions :
+# - Z tagger 
+# - fixed signal efficiency of 50% as a function of pT 
+# - only valid with the combined mass (if using mass)
+####################################################################################
+
+MassCutLow: x > 2500 ? 69.4240299485 : sqrt(pow((-8911.32152025)/x-(-72.3863305346),2)+pow((0.0232216747865)*x+(-67.1786329156),2))
+
+MassCutHigh: x > 2500 ? 109.831901054 : sqrt(pow((428.215902774)/x-(-105.538285882),2)+pow((0.0192931557406)*x+(-18.4246216168),2))
+
+D2Cut: x > 2500 ? 1.90713763304 : (0.86245030986)+(0.0010301169875)*x+(-6.37151804335e-07)*pow(x,2.0)+(2.95602462111e-10)*pow(x,3.0)+(-5.54801878773e-14)*pow(x,4.0)

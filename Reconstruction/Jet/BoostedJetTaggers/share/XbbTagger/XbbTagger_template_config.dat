@@ -1,0 +1,42 @@
+####################################################################################
+# Title :
+# boosted Xbb tagger Config File
+#
+# Author :
+# Felix Mueller <fmueller@cern.ch>
+# Eric Takasugi <eric.hayato.takasugi@cern.ch>
+#
+# Description :
+# The boosted Xbb tagger is based on the following properties of the fat jet:
+# - a mass window, using combined mass and muon-in-jet correction
+# - b-tagging from ghost-associated track-jets
+# - cut on substructure; currently no recommendation exists
+#
+# Working Point Descriptions :
+# - generic template to show possible configuration parameters
+####################################################################################
+
+BTagAlgorithm           MV2c10
+NumBTags                2
+BTagCut                 0.3706
+# BTagCutLow              0.3706 # for asymmetric b-tagging; not implemented yet
+# BTagCutHigh             0.3706
+
+JetPtMin                250.0
+JetPtMax                3000.0
+JetEtaMax               2.0
+JetMassMin              TMath::Sqrt(pow((-11253.1/x+95.5272),2)+pow((0.0316914*x-68.7985),2))
+JetMassMax              TMath::Sqrt(pow((722.857/x+-137.592),2)+pow((0.0169621*x+17.4582),2))
+JetSubVar               D2
+JetSubCut               (11.3684217088)*pow(x,0.0)+(-0.0834101931325)*pow(x,1.0)+(0.000244968552399)*pow(x,2.0)+(-3.09799473883e-07)*pow(x,3.0)+(1.44703493877e-10)*pow(x,4.0)
+
+MuonPtMin               10.0
+MuonEtaMax              2.5
+MuonMatchDR             0.2
+MuonContainer           Muons
+MuonCorrectionScheme    Combined
+
+TrackJetPtMin           10.0
+TrackJetEtaMax          2.5
+TrackJetNConstituents   2
+TrackJetContainer       GhostAntiKt2TrackJet

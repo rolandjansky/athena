@@ -1,0 +1,28 @@
+####################################################################################
+# Title :
+# Smooth W Tagger Config File
+#
+# Author :
+# Tobias Kupfer <tobias.kupfer@cern.ch>
+#
+# Description :
+# The simple W tagger provides three smoothed cut functions :
+# - a lower cut on the uncorrelated combined jet mass (with QCD derived weights) 
+# - an upper cut on the uncorrelated combined jet mass (with QCD derived weights) 
+# - an upper cut on D2
+# these cut functions have been optimized on a sample of truth matched W jets 
+# ( dR(truth_W,truth_jet) < 0.75 && dR(truth_q_1,reco_jet) < 0.75 && dR(truth_q_2,reco_jet) < 0.75 )
+# The smoothed cut functions are parameterized in units of ! [GeV] ! for pT and combined mass
+#
+#
+# Tagger Descriptions :
+# - Fully contained W tagger 
+# - fixed signal efficiency of 80% as a function of pT 
+# - only valid with the combined mass (if using mass)
+####################################################################################
+
+MassCutLow: x > 2500 ? 50.7714736905 : sqrt(pow((-8606.34612736)/x-(-51.1335701495),2)+pow((0.020652974855)*x+(-69.0481781851),2))
+
+MassCutHigh: x > 2500 ? 111.740243019 : sqrt(pow((1860.2681864)/x-(-51.5706546367),2)+pow((0.00741761466127)*x+(80.1932288346),2))
+
+D2Cut: x > 2500 ? 2.97554064319 : (1.088513532)+(0.00277185655129)*x+(-2.89194646027e-06)*pow(x,2)+(1.47486583236e-09)*pow(x,3)+(-2.56325824537e-13)*pow(x,4)

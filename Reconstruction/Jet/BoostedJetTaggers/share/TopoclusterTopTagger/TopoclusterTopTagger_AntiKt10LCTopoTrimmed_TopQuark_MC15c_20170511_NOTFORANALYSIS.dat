@@ -1,0 +1,28 @@
+####################################################################################
+# Title :
+# Dummy DNN Top Tagger Config
+#
+# Author :
+# Samuel Meehan <samuel.meeha@cern.ch>
+#
+# Description :
+# DUMMY
+#
+# Tagger Descriptions :
+# DUMMY
+#
+####################################################################################
+
+TaggerType: TopQuark
+
+DecorationName: TopoclusterTopTaggerScoreTopQuark
+
+KerasConfigFile:  TopoclusterTopTaggerDNN_Training_20170701.json
+
+KerasOutput: HFT_MVA
+
+MassCutLow: 60.0
+
+MassCutHigh: 200.0
+
+ScoreCut: 0.0
