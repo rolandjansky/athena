@@ -270,7 +270,13 @@ namespace CP {
     std::pair<float, float> RZ1 = m_showerTool->getRZ(cluster.etaBE(1), 1);
 
     // Return corrected eta from new vertex
-    return asinh((RZ1.second - PVz)/RZ1.first);
+    if (RZ1.first > 0) {
+      return asinh((RZ1.second - PVz)/RZ1.first);
+    } else {
+      ATH_MSG_WARNING("Eta in sampling layer one is enormous (" << cluster.etaBE(1)
+                      << ") not correcting object.");
+      return cluster.etaBE(1);
+    }
   }
 
   //____________________________________________________________________________
