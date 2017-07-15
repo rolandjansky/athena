@@ -300,7 +300,7 @@ CaloClusterBuilderSW::execute(const EventContext& ctx,
 
     ATH_MSG_DEBUG("final  et0 eta0 phi0  " << et0 << " " << eta0 <<" "<<phi0);
 
-    xAOD::CaloCluster* cluster_ptr=CaloClusterStoreHelper::makeCluster(cellCont.cptr(),eta0,phi0,xAOD::CaloCluster::SW_35ele);
+    std::unique_ptr<xAOD::CaloCluster> cluster_ptr (CaloClusterStoreHelper::makeCluster(cellCont.cptr(),eta0,phi0,xAOD::CaloCluster::SW_35ele));
 
     SlidingWindowFinder::data_iterator ifirst = swin.cell_begin();
     SlidingWindowFinder::data_iterator ilast  = swin.cell_end();
@@ -314,14 +314,14 @@ CaloClusterBuilderSW::execute(const EventContext& ctx,
       cluster_ptr->addCell(theIndex,1.);
     } 
     // ** Calculate Kine **
-    CaloClusterKineHelper::calculateKine(cluster_ptr,false,true); //No weight at this point! 
+    CaloClusterKineHelper::calculateKine(cluster_ptr.get(),false,true); //No weight at this point! 
     ClusterWithCenter cwc;
-    cwc.cluster=cluster_ptr;
+    cwc.cluster=std::move(cluster_ptr);
     cwc.eta=ieta;
     cwc.phi=iphi;  
     // Note: cluster::et will be zero if we're not filling cells here.
-    cwc.et = m_FillClusterCells ? cluster_ptr->p4().Et() : et0;
-    list_cwc.push_back(cwc); 
+    cwc.et = m_FillClusterCells ? cwc.cluster->p4().Et() : et0;
+    list_cwc.emplace_back(std::move (cwc)); 
   }/////while
   
 
@@ -339,8 +339,6 @@ CaloClusterBuilderSW::execute(const EventContext& ctx,
          break; 
        } else 
        if(elim==2){ // eliminate it2; 
-	 delete (*it2).cluster ; 
-	 // std::cout <<" dup CaloCluster deleted" <<std::endl;
          it2=list_cwc.erase(it2); 
        } else 
        { 
@@ -350,8 +348,6 @@ CaloClusterBuilderSW::execute(const EventContext& ctx,
     }
 
     if(elim==1){ // this one has been eliminated
-	delete it1->cluster ; 
-	 // std::cout <<" dup CaloCluster deleted" <<std::endl;
 	it1=list_cwc.erase(it1); 
     } else 
     {
@@ -365,8 +361,8 @@ CaloClusterBuilderSW::execute(const EventContext& ctx,
 
    
   // add to cluster container.
-  for (const ClusterWithCenter& cwc : list_cwc) {
-    clusColl->push_back(cwc.cluster);
+  for (ClusterWithCenter& cwc : list_cwc) {
+    clusColl->push_back(std::move (cwc.cluster));
   } 
 
   return StatusCode::SUCCESS;
