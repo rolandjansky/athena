@@ -92,11 +92,11 @@ template<> void selectObjects<xAOD::JetContainer>
     bool pass = (jet->pt() > 20000. && fabs(jet->eta()) < 2.5);
     selectDec(*jet) = pass;
     // Label bjets
-    double mv2c20 = 0.;
-    if(!jet->btagging()->MVx_discriminant("MV2c20", mv2c20))
-      throw std::runtime_error("MV2c20 unavailable");
-    // This is the 80% efficiency working point
-    bJetDec(*jet) = (mv2c20 > -0.5911);
+    double mv2c10 = 0.;
+    if(!jet->btagging()->MVx_discriminant("MV2c10", mv2c10))
+      throw std::runtime_error("MV2c10 unavailable");
+    // This is the 85% efficiency working point
+    bJetDec(*jet) = (mv2c10 > -0.1416);
   }
 }
 //-----------------------------------------------------------------------------
