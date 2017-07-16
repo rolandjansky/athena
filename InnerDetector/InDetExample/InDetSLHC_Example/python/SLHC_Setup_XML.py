@@ -50,6 +50,8 @@ class SLHC_Setup_XMLReader :
         doPix = kwargs["doPix"]
         doSCT = kwargs["doSCT"]
         isGMX = kwargs["isGMX"]
+        AddBCL = False
+        if kwargs.has_key("addBCL"): AddBCL = kwargs["addBCL"]
         
         PIXMODULEFILE = "ITK_PixelModules.xml"
         PIXSTAVEFILE  = str(kwargs["PixelLayout"]) + "_PixelStave.xml"
@@ -85,6 +87,7 @@ class SLHC_Setup_XMLReader :
                                            doPix = kwargs["doPix"],
                                            doSCT = kwargs["doSCT"],
 					   isGMX = kwargs["isGMX"],
+					   addBCL = AddBCL,
                                            readXMLfromDB = readXMLfromDB_PIXXDD
                                            )
         XMLReaderFlags.dump()
@@ -158,5 +161,7 @@ class SLHC_Setup_XMLReader :
         from InDetTrackingGeometryXML.InDetTrackingGeometryXMLConf import InDet__GMXReaderSvc
         gmxReader = InDet__GMXReaderSvc(name='InDetGMXReaderSvc')
         gmxReader.dictionaryFileName=xmlReader.dictionaryFileName
+        gmxReader.addBCL= XMLReaderFlags.addBCL()
         svcMgr += gmxReader
+        gmxReader.OutputLevel=1
         theApp.CreateSvc.insert(1,"InDet::GMXReaderSvc/InDetGMXReaderSvc")

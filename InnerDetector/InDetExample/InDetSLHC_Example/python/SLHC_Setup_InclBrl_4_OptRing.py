@@ -82,7 +82,7 @@ class SLHC_Setup :
         xmlFileDict={}
         xmlFileDict["Pixel"]={
             "PIXELGENERAL":"InclBrl4_PixelGeneral",
-            "PIXELSIMPLESERVICE":"InclBrl_PixelSimpleService",
+            "PIXELSIMPLESERVICE":"InclBrl_OptRing_PixelSimpleService",
             "SILICONMODULES":"ITK_PixelModules",
             "SILICONREADOUT":"PixelModuleReadout",
             "STAVESUPPORT":"InclBrl4_StaveSupport",

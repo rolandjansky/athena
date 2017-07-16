@@ -22,9 +22,9 @@ class SLHC_Setup_XMLReader :
 
         # XMLReader setup
         from SLHC_Setup_XML import SLHC_Setup_XMLReader
-        if (SLHC_Flags.LayoutOption == "LightBrl" ):
+        if (SLHC_Flags.LayoutOption == "LightBrlv2" ):
             SLHC_Setup_XMLReader(PixelLayout = "InclBrl4Ref_Light",
-                                 PixelEndcapLayout = "ECRing5Ref",
+                                 PixelEndcapLayout = "ECRing4Ref_Light",
                                  SCTLayout = "FourLayersNoStub_23-25-dev0",
                                  dictionaryFileName = "InDetIdDictFiles/IdDictInnerDetector_SLHC_InclBrl_4.xml",
                                  createXML = True,
@@ -32,6 +32,18 @@ class SLHC_Setup_XMLReader :
                                  doSCT=True,
                                  isGMX=auto_isGMX,
                                  )
+
+        elif (SLHC_Flags.LayoutOption == "LightBrl" ):
+            SLHC_Setup_XMLReader(PixelLayout = "InclBrl4Ref_LightBrl",
+                                 PixelEndcapLayout = "ECRing4Ref",
+                                 SCTLayout = "FourLayersNoStub_23-25-dev0",
+                                 dictionaryFileName = "InDetIdDictFiles/IdDictInnerDetector_SLHC_InclBrl_4.xml",
+                                 createXML = True,
+                                 doPix=True,
+                                 doSCT=True,
+                                 isGMX=auto_isGMX,
+                                 )
+
         elif (SLHC_Flags.LayoutOption == "RobustBrl" ):
             SLHC_Setup_XMLReader(PixelLayout = "InclBrl4Ref_Robust",
                                  PixelEndcapLayout = "ECRing4Ref_Robust",
@@ -52,7 +64,21 @@ class SLHC_Setup_XMLReader :
                                  doPix=True,
                                  doSCT=True,
                                  isGMX=auto_isGMX,
+                                 addBCL=False, #True # If you want to set this to True, you must also change InnerDetector/InDetDetDescr/GmxLayouts/cmt/requirements to point to the Strips layout containing the BCL, otherwise Reco will segfault - Ben
                                  )
+
+        elif (SLHC_Flags.LayoutOption == "InclinedDuals" ):
+            SLHC_Setup_XMLReader(PixelLayout = "InclBrl4Ref_InclinedDuals",
+                                 PixelEndcapLayout = "ECRing4Ref_InclinedDuals",
+                                 SCTLayout = "FourLayersNoStub_23-25-dev0",
+                                 dictionaryFileName = "InDetIdDictFiles/IdDictInnerDetector_SLHC_InclBrl_4.xml",
+                                 createXML = True,
+                                 doPix=True,
+                                 doSCT=True,
+                                 isGMX=auto_isGMX,
+                                 addBCL=False, #True # If you want to set this to True, you must also change InnerDetector/InDetDetDescr/GmxLayouts/cmt/requirements to point to the Strips layout containing the BCL, otherwise Reco will segfault - Ben
+                                 )
+
         elif (SLHC_Flags.LayoutOption == "InclinedAlternative"):
             SLHC_Setup_XMLReader(PixelLayout = "InclBrl4Ref_InclinedAlternative",
                                  PixelEndcapLayout = "ECRing4Ref_InclinedAlternative",
@@ -64,6 +90,7 @@ class SLHC_Setup_XMLReader :
                                  isGMX=auto_isGMX,
                                  )          
         else:
+            print "WARNING! No recognised value of SLHC_Flags.LayoutOption found. (SLHC_Flags.LayoutOption =",SLHC_Flags.LayoutOption,") In this case the Step 1.7 Inclined layout will be used."
             SLHC_Setup_XMLReader(PixelLayout = "InclBrl4Ref",
                                  PixelEndcapLayout = "ECRing4Ref",
                                  SCTLayout = "FourLayersNoStub_23-25-dev0",
@@ -123,16 +150,27 @@ class SLHC_Setup :
         # GeoModelConfiguration 
 
         xmlFileDict={}
-        if (SLHC_Flags.LayoutOption == "LightBrl" ):
+        if (SLHC_Flags.LayoutOption == "LightBrlv2" ):
             xmlFileDict["Pixel"]={
                 "PIXELGENERAL":"InclBrl4_PixelGeneral",
                 "PIXELSIMPLESERVICE":"InclBrl_PixelSimpleService",
                 "SILICONMODULES":"ITK_PixelModules",
                 "SILICONREADOUT":"PixelModuleReadout",
                 "STAVESUPPORT":"InclBrl4_Light_StaveSupport",
-                "PIXELDISCSUPPORT":"InclBrl5_DiskSupport",
+                "PIXELDISCSUPPORT":"InclBrl4_Light_DiskSupport",
                 "MATERIAL":"InclBrl_Material",
-                "PIXELROUTINGSERVICE":"InclBrl5_PixelRoutingService",
+                "PIXELROUTINGSERVICE":"InclBrl4_Light_PixelRoutingService",
+                }
+        elif (SLHC_Flags.LayoutOption == "LightBrl" ):
+            xmlFileDict["Pixel"]={
+                "PIXELGENERAL":"InclBrl4_PixelGeneral",
+                "PIXELSIMPLESERVICE":"InclBrl_PixelSimpleService",
+                "SILICONMODULES":"ITK_PixelModules",
+                "SILICONREADOUT":"PixelModuleReadout",
+                "STAVESUPPORT":"InclBrl4_LightBrl_StaveSupport",
+                "PIXELDISCSUPPORT":"InclBrl4_DiskSupport",
+                "MATERIAL":"InclBrl_Material",
+                "PIXELROUTINGSERVICE":"InclBrl4_PixelRoutingService",
                 }
         elif (SLHC_Flags.LayoutOption == "RobustBrl" ):
             xmlFileDict["Pixel"]={
@@ -156,6 +194,19 @@ class SLHC_Setup :
                 "MATERIAL":"InclBrl_Material",
                 "PIXELROUTINGSERVICE":"InclBrl4_InclinedQuads_PixelRoutingService",
                 }
+
+        elif (SLHC_Flags.LayoutOption == "InclinedDuals" ):
+            xmlFileDict["Pixel"]={
+                "PIXELGENERAL":"InclBrl4_PixelGeneral_InclinedDuals",
+                "PIXELSIMPLESERVICE":"InclBrl_PixelSimpleService",
+                "SILICONMODULES":"ITK_PixelModules",
+                "SILICONREADOUT":"PixelModuleReadout",
+                "STAVESUPPORT":"InclBrl4_SlimStaveSupport_InclinedDuals",
+                "PIXELDISCSUPPORT":"InclBrl4_InclinedDuals_DiskSupport",
+                "MATERIAL":"InclBrl_Material",
+                "PIXELROUTINGSERVICE":"InclBrl4_InclinedDuals_PixelRoutingService",
+                }
+
         elif (SLHC_Flags.LayoutOption == "InclinedAlternative" ):
             xmlFileDict["Pixel"]={
                 "PIXELGENERAL":"InclBrl4_PixelGeneral_InclinedAlternative",
@@ -163,9 +214,9 @@ class SLHC_Setup :
                 "SILICONMODULES":"ITK_PixelModules",
                 "SILICONREADOUT":"PixelModuleReadout",
                 "STAVESUPPORT":"InclBrl4_SlimStaveSupport_InclinedAlternative",
-                #"PIXELDISCSUPPORT":"InclBrl4_InclinedQuads_DiskSupport",
+                "PIXELDISCSUPPORT":"InclBrl4_InclinedAlternative_DiskSupport",
                 "MATERIAL":"InclBrl_Material",
-                #"PIXELROUTINGSERVICE":"InclBrl4_InclinedAlternative_PixelRoutingService",
+                "PIXELROUTINGSERVICE":"InclBrl4_InclinedAlternative_PixelRoutingService",
                 }
         else:
             xmlFileDict["Pixel"]={
