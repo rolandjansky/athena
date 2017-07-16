@@ -100,6 +100,15 @@ std::string PixelInclRefStaveXMLHelper::getStaveSupportMaterial(int shapeIndex) 
   //return getString("PixelStaveGeo", m_layerIndices, "StaveSupportMaterialGeo");
 }
 
+std::string PixelInclRefStaveXMLHelper::getStaveSupportCornerMaterial(int shapeIndex) const
+{
+  std::vector<std::string> vec = getVectorString("PixelStaveGeo", m_layerIndices, "StaveSupportCornerMaterialGeo");
+  if (vec.size() != 0) return vec.at(shapeIndex);
+  return "";
+  //return getString("PixelStaveGeo", m_layerIndices, "StaveSupportMaterialGeo");
+}
+
+
 double PixelInclRefStaveXMLHelper::getServiceOffsetX() const
 {
   return getDouble("PixelStaveGeo", m_layerIndices, "ServiceOffsetX");
@@ -130,20 +139,16 @@ double PixelInclRefStaveXMLHelper::getMountainWidth() const
   return getDouble("PixelStaveGeo", m_layerIndices, "MountainWidth", 0.0, -1.0);
 }
 
-// getBoolean doesn't work (does not accept std::vector<int>&, wants int only).
-// Is there a better fix?
-bool PixelInclRefStaveXMLHelper::doStandardStave() const
-{
-  std::string tmp = getString("PixelStaveGeo", m_layerIndices, "StandardStave");
-  tmp.erase(std::remove(tmp.begin(),tmp.end(),' '),tmp.end());
-  return tmp.compare("true") == 0 ? true : false;
-}
 
-bool PixelInclRefStaveXMLHelper::doSlimStave() const
+
+std::string PixelInclRefStaveXMLHelper::getStaveSupportType() const
 {
-  std::string tmp = getString("PixelStaveGeo", m_layerIndices, "SlimStave");
-  tmp.erase(std::remove(tmp.begin(),tmp.end(),' '),tmp.end());
-  return tmp.compare("true") == 0 ? true : false;
+  std::string type = getString("PixelStaveGeo", m_layerIndices, "StaveSupportType");
+  if (type == "Standard" || type == "Longeron" || type == "None")  return type;
+
+  // If here, something wrong:
+  msg(MSG::WARNING) << "StaveSupportType \"" << type << "\" not recognised, defaulting to Standard (Check your XML)" << endreq;
+  return "Standard";
 }
 
 // Would prefer this to use getInt - but getInt does not accept m_layerIndices
@@ -202,9 +207,16 @@ double PixelInclRefStaveXMLHelper::getRadialLengthAtEOS(int shapeIndex) const
   return 0.0;
 }
 
-double PixelInclRefStaveXMLHelper::getShellThickness(int shapeIndex) const
+double PixelInclRefStaveXMLHelper::getWallThickness(int shapeIndex) const
 { 
-  std::vector<double> vec = getVectorDouble("PixelStaveGeo", m_layerIndices, "ShellThickness");
+  std::vector<double> vec = getVectorDouble("PixelStaveGeo", m_layerIndices, "WallThickness");
+  if (vec.size() != 0) return vec.at(shapeIndex);
+  return 0.0;
+}
+
+double PixelInclRefStaveXMLHelper::getCornerThickness(int shapeIndex) const
+{ 
+  std::vector<double> vec = getVectorDouble("PixelStaveGeo", m_layerIndices, "CornerThickness");
   if (vec.size() != 0) return vec.at(shapeIndex);
   return 0.0;
 }

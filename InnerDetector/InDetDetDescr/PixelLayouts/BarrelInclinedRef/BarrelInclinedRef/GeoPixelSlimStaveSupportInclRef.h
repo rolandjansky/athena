@@ -31,8 +31,6 @@ public:
   virtual const HepGeom::Transform3D & transform() const {return m_transform;}
 
 private:
-
-  const GeoShape* addShape(const GeoShape *lastShape, const GeoShape *nextShape, const HepGeom::Transform3D & trans);
   GeoPhysVol* m_physVol;
   int m_innerLayer;
   double m_planarGap;

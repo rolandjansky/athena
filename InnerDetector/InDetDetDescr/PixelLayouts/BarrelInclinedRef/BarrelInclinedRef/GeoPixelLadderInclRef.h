@@ -35,7 +35,7 @@ class GeoDetModulePixelBuilder;
 class GeoPixelLadderInclRef : public PixelGeoBuilder {
 
  public:
-  GeoPixelLadderInclRef(const PixelGeoBuilderBasics* basics, const InDet::StaveTmp *staveTmp, int iLayer, int nSectors, int nSectorsLastLayer, int nSectorsNextLayer, double phiOfStaveZero, HepGeom::Transform3D trf);
+  GeoPixelLadderInclRef(const PixelGeoBuilderBasics* basics, const InDet::StaveTmp *staveTmp, int iLayer, int nSectors, int nSectorsLastLayer, int nSectorsNextLayer, double phiOfStaveZero, double phiOfStaveZeroLastLayer, HepGeom::Transform3D trf);
   virtual GeoVPhysVol* Build();
   virtual void preBuild();
 
@@ -70,6 +70,7 @@ class GeoPixelLadderInclRef : public PixelGeoBuilder {
   int m_nSectorsLastLayer;
   int m_nSectorsNextLayer;
   double m_phiOfStaveZero;
+  double m_phiOfStaveZeroLastLayer;
   HepGeom::Transform3D m_localTrf;
   int m_sector;
   HepGeom::Transform3D m_ladderTransform;
@@ -103,6 +104,7 @@ class GeoPixelLadderInclRef : public PixelGeoBuilder {
   double m_endcapModuleGap;
   double m_endcapInclAngle;
   double m_endcapModuleRshift;
+  double m_endcapModuleRtilt;
   std::vector<HepGeom::Point3D<double> > m_endcapModPos;
 
   int m_transitionModuleNumber;

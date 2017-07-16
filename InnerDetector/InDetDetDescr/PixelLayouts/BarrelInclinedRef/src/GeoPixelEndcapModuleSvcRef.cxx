@@ -50,7 +50,7 @@ void GeoPixelEndcapModuleSvcRef::preBuild()
   msg(MSG::DEBUG) <<"Foam base derived from ladder width "<<m_FoamBaseWidth<<endreq;
 
   if (m_layer==0) {
-    m_FoamBaseWidth += -2.;
+    //m_FoamBaseWidth += -2.;
     msg(MSG::DEBUG) <<"Foam base width for layer 0 shrunk to "<< m_FoamBaseWidth<<endreq;
   }
   
@@ -143,8 +143,13 @@ void GeoPixelEndcapModuleSvcRef::buildFoamModules()
     double matVolume = shapeBrep->volume();
     foam_material = matMgr()->getMaterialForVolume(inclinedSupportMaterialName,matVolume);
   }else{
-    foam_material = matMgr()->getMaterial(inclinedSupportMaterialName);
+
+    inclinedSupportMaterialName = "pix::CarbonFoamMountain_Fixed_Weight";
+    if (m_layer == 0) inclinedSupportMaterialName = "pix::CarbonFoamMountain_L0_Fixed_Weight";
+    foam_material = matMgr()->getMaterialForVolume(inclinedSupportMaterialName, shapeBrep->volume() );
   }
+
+  msg(MSG::DEBUG) << "Layer " << m_layer << ", " << inclinedSupportMaterialName << ", Volume : " <<  shapeBrep->volume()  << ", Density = " << foam_material->getDensity()*CLHEP::cm3/CLHEP::gram << ", Mass = " <<  foam_material->getDensity()*(CLHEP::cm3/CLHEP::gram)*shapeBrep->volume() << endreq;
 
   //const GeoMaterial* foam_material = matMgr()->getMaterial(inclinedSupportMaterialName);
   GeoLogVol * foam_logVol = new GeoLogVol(inclinedSupportLogVolName,shapeBrep,foam_material);
@@ -201,7 +206,7 @@ void GeoPixelEndcapModuleSvcRef::buildFoamModules()
   }
   
   m_zTransFoamShift += 0.5*m_svcRouting;
-    
+  std::cout << "Here" << std::endl;
   GeoLogVol * foam_logVol_t = new GeoLogVol(inclinedTransitionSupportLogVolName,shapeBrep_t,foam_material);
   m_transFoam  = new GeoPhysVol(foam_logVol_t);
 

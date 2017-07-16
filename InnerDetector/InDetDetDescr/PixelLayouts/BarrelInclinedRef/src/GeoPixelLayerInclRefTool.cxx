@@ -6,7 +6,6 @@
 #include "BarrelInclinedRef/GeoPixelLayerInclRefTool.h"
 #include "BarrelInclinedRef/GeoPixelSlimStaveSupportInclRef.h"
 #include "PixelInterfaces/IPixelLayerValidationTool.h"
-//#include "PixelServicesTool/PixelSimpleServiceXMLHelper.h"
 
 #include "InDetGeoModelUtils/ExtraMaterial.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
@@ -141,8 +140,10 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
   double staveOffset       = layerTmp->stave_zoffset;   
   std::string staveType    = layerTmp->stave_type;
   double phiOfStaveZero    = layerTmp->phioffset;
+  double phiOfStaveZeroLastLayer = (m_layer == 0) ? 0 : m_xmlReader->getPixelBarrelLayerTemplate(m_layer-1)->phioffset;    
   int nSectorsLastLayer = (m_layer == 0) ? 0 : m_xmlReader->getPixelBarrelLayerTemplate(m_layer-1)->stave_n; 
   int nSectorsNextLayer = (m_layer == int(m_xmlReader->nbOfPixelBarrelLayers())-1) ? 0 : m_xmlReader->getPixelBarrelLayerTemplate(m_layer+1)->stave_n; 
+  
 
   msg(MSG::DEBUG)<<layerName<<" "<<staveType<<" "<<nSectors<<endreq;
   msg(MSG::DEBUG)<<"*****************************************************************************"<<endreq;
@@ -157,7 +158,7 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
   int nbLadderType = staveTmp.size();
   for(int iLadder=0; iLadder<nbLadderType; iLadder++)
     {
-      vPixelLadder.push_back( new GeoPixelLadderInclRef(basics, staveTmp[iLadder], m_layer, nSectors, nSectorsLastLayer, nSectorsNextLayer, phiOfStaveZero, transRadiusAndTilt)); 
+      vPixelLadder.push_back( new GeoPixelLadderInclRef(basics, staveTmp[iLadder], m_layer, nSectors, nSectorsLastLayer, nSectorsNextLayer, phiOfStaveZero, phiOfStaveZeroLastLayer, transRadiusAndTilt)); 
       if(iLadder==0)ComputeLayerThickness(*vPixelLadder[iLadder], ladderTilt, layerRadius);
     }
 
@@ -191,7 +192,7 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
 
       // Enlarge layer envelope if longerons are being built.
       PixelInclRefStaveXMLHelper staveHelperCurrLayer(m_layer, basics);
-      if (staveHelperCurrLayer.doSlimStave()) {
+      if (staveHelperCurrLayer.getStaveSupportType() == "Longeron") {
 	rmax = staveHelperCurrLayer.getRadialMidpointAtEOS();
 	
 	// Last layer longeron conects to PST, so extend envelope some more (refine this!)
@@ -201,7 +202,7 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
       // If previous layer used a longeron, extend this layer's envelope down to meet it
       if (m_layer>0) {
 	PixelInclRefStaveXMLHelper staveHelperLastLayer(m_layer-1, basics);
-	if (staveHelperLastLayer.doSlimStave()) rmin = staveHelperLastLayer.getRadialMidpointAtEOS();
+	if (staveHelperLastLayer.getStaveSupportType() == "Longeron") rmin = staveHelperLastLayer.getRadialMidpointAtEOS();
       }
 
       // Now make the layer envelope
@@ -242,71 +243,70 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
 
   // Check both sides of the layer to see if a half-stave shape is needed
   for (auto staveHalf : std::vector<halfStaveType> {halfStaveType::INNER, halfStaveType::OUTER}){
-    bool buildStave = false;
+    bool buildStaveSupport = false;
+    std::vector<halfStaveType> ShellsToBuild;
 
     int innerLayerID = -1;
     int owningLayerID = -1; // Phi rotation done relative to this layer ID
     
     PixelInclRefStaveXMLHelper staveDBHelper(m_layer, basics);
 
-    // Last layer is a special case (stave links to PST, so full stave built and owned by one layer)
-    if (m_layer == m_xmlReader->nbOfPixelBarrelLayers()-1  && staveDBHelper.doSlimStave()) {
-      buildStave = true;
+    // Do we need an inner shell to complete the outer shell built on previous layer?
+    if (staveHalf == halfStaveType::INNER && m_layer != 0 ) {
+      PixelInclRefStaveXMLHelper staveDBHelper_LastLayer(m_layer-1, basics);
+      if (staveDBHelper_LastLayer.getStaveSupportType() == "Longeron") {
+	buildStaveSupport = true;
+	innerLayerID = m_layer-1;
+	owningLayerID = staveDBHelper_LastLayer.getOwningLayer();
+	ShellsToBuild.push_back(halfStaveType::INNER);
+      }
+    }
+
+    // Default - build a stave half-shell going outwards
+    if (staveHalf == halfStaveType::OUTER  &&  staveDBHelper.getStaveSupportType() == "Longeron") {
+      buildStaveSupport = true;
       innerLayerID = m_layer;
       owningLayerID = staveDBHelper.getOwningLayer();
-      //PixelSimpleServiceXMLHelper *simpleSrvXMLHelper = new PixelSimpleServiceXMLHelper("PIXEL_PIXELSIMPLESERVICE_GEO_XML",basics);
-      //outerRadius = simpleSrvXMLHelper->SupportTubeRMin("PST");
-      //delete simpleSrvXMLHelper;
+      ShellsToBuild.push_back(halfStaveType::OUTER);
+      
+      // Last layer is a special case - outer shell will be full longeron (inner+outer halves)
+      if (m_layer == m_xmlReader->nbOfPixelBarrelLayers()-1) ShellsToBuild.push_back(halfStaveType::INNER);
     }
-    else {
-      // Do we need an inner shell to complete the outer shell built on previous layer?
-      if (staveHalf == halfStaveType::INNER && m_layer != 0 ) {
-	PixelInclRefStaveXMLHelper staveDBHelper_LastLayer(m_layer-1, basics);
-	if (staveDBHelper_LastLayer.doSlimStave()) {
-	  buildStave = true;
-	  innerLayerID = m_layer-1;
-	  owningLayerID = staveDBHelper_LastLayer.getOwningLayer();
-	}
-      }
-
-      // Default - build a stave half-shell going outwards
-      if (staveHalf == halfStaveType::OUTER  &&  staveDBHelper.doSlimStave()) {
-	buildStave = true;
-	innerLayerID = m_layer;
-	owningLayerID = staveDBHelper.getOwningLayer();
-      }
-    }
-  
-
+    
    
     // Construct the actual stave shape - should this take into account owning layer starting phi?
-    if (buildStave) {
-      double gapPlanarStave = (m_layer > 1) ? 4.0 : 0; // Why hardcoded?
+    // Typically only build one shell.  However, the last layer has to build three half-shells
+    //  Inner therefore completes last layer longeron, outer = inner+outer of shell linking to PST
+    if (buildStaveSupport) {
+       for (auto staveBuildHalf : ShellsToBuild) {
+	 double gapPlanarStave = (m_layer > 1) ? 4.0 : 0; // Why hardcoded?
 
-      int nOwningLayerStaves = m_xmlReader->getPixelBarrelLayerTemplate(owningLayerID)->stave_n;
-      double staveDeltaPhi = (360.0*CLHEP::deg) / double(nOwningLayerStaves);
-
-      PixelInclRefStaveXMLHelper innerLayerStaveDBHelper(innerLayerID, basics);
-      double currentPhi = staveDeltaPhi * innerLayerStaveDBHelper.getStartPhi();
-      double maxPhi     = (currentPhi < 0) ?  360.*CLHEP::deg + currentPhi : 360.*CLHEP::deg;
-      
-      int staveShapeIndex = 0;
-      while (currentPhi < maxPhi){
-	GeoPixelSlimStaveSupportInclRef *m_staveSupport = new GeoPixelSlimStaveSupportInclRef(basics, innerLayerID, gapPlanarStave, staveHalf, staveShapeIndex);
-	GeoVPhysVol *stavePhys = m_staveSupport->Build();
-	
-	// Computer phi angle of stave
-	HepGeom::Transform3D staveTransform = HepGeom::RotateZ3D(currentPhi) * m_staveSupport->transform();
-	GeoTransform* xformStave = new GeoTransform(staveTransform);
-
-	layerPhys->add(xformStave);
-	layerPhys->add(stavePhys);
-
-	// update phi angle for next module
-	currentPhi   += staveDeltaPhi * innerLayerStaveDBHelper.getPhiStepSize(staveShapeIndex);
-	staveShapeIndex++;
-	if (staveShapeIndex == innerLayerStaveDBHelper.getNStaveShapes()) staveShapeIndex = 0;
-      }
+	 int nOwningLayerStaves = m_xmlReader->getPixelBarrelLayerTemplate(owningLayerID)->stave_n;
+	 double staveDeltaPhi = (360.0*CLHEP::deg) / double(nOwningLayerStaves);
+	 
+	 PixelInclRefStaveXMLHelper innerLayerStaveDBHelper(innerLayerID, basics);
+	 double layerPhiModuleZero = m_xmlReader->getPixelBarrelLayerTemplate(owningLayerID)->phioffset;
+	 double currentPhi = (staveDeltaPhi * innerLayerStaveDBHelper.getStartPhi()) + layerPhiModuleZero;
+	 double maxPhi     = (currentPhi < 0) ?  360.*CLHEP::deg + currentPhi : 360.*CLHEP::deg;
+	 
+	 int staveShapeIndex = 0;
+	 while (currentPhi < maxPhi){
+	   GeoPixelSlimStaveSupportInclRef *m_staveSupport = new GeoPixelSlimStaveSupportInclRef(basics, innerLayerID, gapPlanarStave, staveBuildHalf, staveShapeIndex);
+	   GeoVPhysVol *stavePhys = m_staveSupport->Build();
+	   
+	   // Computer phi angle of stave
+	   HepGeom::Transform3D staveTransform = HepGeom::RotateZ3D(currentPhi) * m_staveSupport->transform();
+	   GeoTransform* xformStave = new GeoTransform(staveTransform);
+	   
+	   layerPhys->add(xformStave);
+	   layerPhys->add(stavePhys);
+	   
+	   // update phi angle for next module
+	   currentPhi   += staveDeltaPhi * innerLayerStaveDBHelper.getPhiStepSize(staveShapeIndex);
+	   staveShapeIndex++;
+	   if (staveShapeIndex == innerLayerStaveDBHelper.getNStaveShapes()) staveShapeIndex = 0;
+	 }
+       }
     }
   }
 

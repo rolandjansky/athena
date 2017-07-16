@@ -185,7 +185,6 @@ Routes by position : radius=... -> radial position
   <!-- <Cooling>  TiCO2  *2_stave   lin 2.143 2.438 pix::CoolingFluid std::Titanium</Cooling> --> <!-- With scaling for real_stave -> sim_stave. ScaleFactor = sqrt(n_staves_real/n_staves_sim) -->
 </ServiceSet>
 
-
 <ServiceSet>
   <name>EndcapRing_0</name>
   <Service>  data   *4_module  lin std::Copper  0.000137 std::Aluminium  0.000667  pix::Polyethylene 0.000931  pix::Polyester 0.000108  Cu-clad_Al  </Service>

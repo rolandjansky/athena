@@ -12,7 +12,7 @@
 
   <PixelStaveGeo>
     <Layer>0</Layer>
-    <StandardStave> true </StandardStave>
+    <StaveSupportType>Standard</StaveSupportType>
     <BarrelModuleDZ> 41.5 </BarrelModuleDZ>
     <ModuleTilt> 0. </ModuleTilt>
     <EnvelopeLength> 2300. </EnvelopeLength>
@@ -23,12 +23,12 @@
     <ServiceOffsetX> .95 </ServiceOffsetX>
     <ServiceOffsetY> -1.5 </ServiceOffsetY>
     <SlimStave> false </SlimStave>
-    <MountainEdge> 5. </MountainEdge>
+    <MountainEdge> 0.01 </MountainEdge>
   </PixelStaveGeo>
 
   <PixelStaveGeo>
     <Layer>1</Layer>
-    <StandardStave> true </StandardStave>
+    <StaveSupportType>Standard</StaveSupportType>
     <BarrelModuleDZ> 41.5 </BarrelModuleDZ>
     <ModuleTilt> 0. </ModuleTilt>
     <EnvelopeLength> 2300. </EnvelopeLength>
@@ -45,76 +45,92 @@
 
   <PixelStaveGeo>
     <Layer>2</Layer>
-    <StandardStave> false </StandardStave>
+    <StaveSupportType>Longeron</StaveSupportType>
     <BarrelModuleDZ> 41.3 </BarrelModuleDZ>
     <ModuleTilt> 0. </ModuleTilt>
     <EnvelopeLength> 2300 </EnvelopeLength>
-    <StaveSupportMaterialGeo>pix::Default_Slim_InclBrl4_L2L3_Fixed_Weight </StaveSupportMaterialGeo>
+    <StaveSupportMaterialGeo>pix::Default_Slim_InclBrl4_L2L3W_Fixed_Weight </StaveSupportMaterialGeo>
+    <StaveSupportCornerMaterialGeo>pix::Default_Slim_InclBrl4_L2L3C_Fixed_Weight </StaveSupportCornerMaterialGeo>
     <ServiceRouting>outer</ServiceRouting>
     <LadderThickness> .25 </LadderThickness>
     <LadderWidth> 13.8 </LadderWidth>
     <ServiceOffsetX> .95 </ServiceOffsetX>
     <ServiceOffsetY> -1.5 </ServiceOffsetY>
-    <SlimStave> true </SlimStave>
-    <RadialMidpointEOS> 194.0 </RadialMidpointEOS>
+    <RadialMidpointEOS> 199.2 </RadialMidpointEOS>
     <NStaveShapes>     1     </NStaveShapes>
     <StartPhi>         0.5   </StartPhi>
     <PhiFromLayer>     2     </PhiFromLayer>
-    <BaseWidthEOS>     33.6  </BaseWidthEOS>
-    <TopWidthEOS>      30.0  </TopWidthEOS>
-    <BarrelWidth>      33.6 </BarrelWidth>
+    <BaseWidthEOS>     35.7  </BaseWidthEOS>
+    <TopWidthEOS>      30.2  </TopWidthEOS>
+    <BarrelWidth>      30.2 </BarrelWidth>
     <BarrelZMax>      324.0  </BarrelZMax>
-    <RadialLengthEOS>  16.0  </RadialLengthEOS>
-    <ShellThickness>    0.3  </ShellThickness>
-    <XStepLowR>        14.5  </XStepLowR>
-    <XStepHighR>        0.5  </XStepHighR>
+    <RadialLengthEOS>  23.6  </RadialLengthEOS>
+    <WallThickness>     0.3  </WallThickness>
+    <CornerThickness>   6.0 </CornerThickness>
+    <XStepLowR>        13.9  </XStepLowR>
+    <XStepHighR>        0.0  </XStepHighR>
     <PhiStepSize>       2.0  </PhiStepSize>
     <MountainEdge> 0.01 </MountainEdge>
   </PixelStaveGeo>
 
   <PixelStaveGeo>
     <Layer>3</Layer>
-    <StandardStave> false </StandardStave>
+    <StaveSupportType>Longeron</StaveSupportType>
     <BarrelModuleDZ> 41.3 </BarrelModuleDZ>
     <ModuleTilt> 0. </ModuleTilt>
     <EnvelopeLength> 2300 </EnvelopeLength>
-    <StaveSupportMaterialGeo> pix::Default_Slim_InclBrl4_L3L4_3CL_Fixed_Weight  pix::Default_Slim_InclBrl4_L3L4_4CL_Fixed_Weight  </StaveSupportMaterialGeo> 
+    <StaveSupportMaterialGeo>pix::Default_Slim_InclBrl4_L3L4W_4CL_Fixed_Weight</StaveSupportMaterialGeo> 
+    <StaveSupportCornerMaterialGeo>pix::Default_Slim_InclBrl4_L3L4C_4CL_Fixed_Weight</StaveSupportCornerMaterialGeo> 
     <ServiceRouting>outer</ServiceRouting>
     <LadderThickness> .25 </LadderThickness>
     <LadderWidth> 13.8 </LadderWidth>
     <ServiceOffsetX> .95 </ServiceOffsetX>
     <ServiceOffsetY> -1.5 </ServiceOffsetY>
-    <SlimStave> true </SlimStave>
-    <RadialMidpointEOS> 258.0 </RadialMidpointEOS>
-    <NStaveShapes>     2     </NStaveShapes>
+    <RadialMidpointEOS> 260.9 </RadialMidpointEOS>
+    <NStaveShapes>     1     </NStaveShapes>
     <StartPhi>         0.5   </StartPhi>
-    <PhiFromLayer>     4     </PhiFromLayer>
-    <BaseWidthEOS>     23.50  39.5 </BaseWidthEOS>
-    <TopWidthEOS>      31.5   36.4 </TopWidthEOS>
-    <BarrelWidth>      23.5   39.5 </BarrelWidth>
-    <BarrelZMax>      324.0  324.0  </BarrelZMax>
-    <RadialLengthEOS>  28.0   28.0  </RadialLengthEOS>
-    <ShellThickness>    0.3    0.3  </ShellThickness>
-    <XStepLowR>        13.0   13.0  </XStepLowR>
-    <XStepHighR>       14.0   14.0  </XStepHighR>
-    <PhiStepSize>       2.0    2.0  </PhiStepSize>
+    <PhiFromLayer>     3     </PhiFromLayer>
+    <BaseWidthEOS>     35.7  </BaseWidthEOS>
+    <TopWidthEOS>      30.2  </TopWidthEOS>
+    <BarrelWidth>      30.2 </BarrelWidth>
+    <BarrelZMax>      324.0  </BarrelZMax>
+    <RadialLengthEOS>  23.6  </RadialLengthEOS>
+    <WallThickness>     0.3  </WallThickness>
+    <CornerThickness>   6.0 </CornerThickness>
+    <XStepLowR>        13.9  </XStepLowR>
+    <XStepHighR>        0.0  </XStepHighR>
+    <PhiStepSize>       2.0  </PhiStepSize>
     <MountainEdge> 0.01 </MountainEdge>
  </PixelStaveGeo>
 
 
   <PixelStaveGeo>
     <Layer>4</Layer>
-    <StandardStave> false </StandardStave>
+    <StaveSupportType>Longeron</StaveSupportType>
     <BarrelModuleDZ> 41.3 </BarrelModuleDZ>
     <ModuleTilt> 0. </ModuleTilt>
     <EnvelopeLength> 2300 </EnvelopeLength>
     <StaveSupportMaterialGeo>pix::Default_InclBrl4_Stave_Support_L4_Fixed_Weight</StaveSupportMaterialGeo> 
-    <ServiceRouting>inner</ServiceRouting>
+    <StaveSupportCornerMaterialGeo>pix::Default_InclBrl4_Stave_Support_L4_Fixed_Weight</StaveSupportCornerMaterialGeo> 
+    <ServiceRouting>outer</ServiceRouting>
     <LadderThickness> .25 </LadderThickness>
     <LadderWidth> 13.8 </LadderWidth>
     <ServiceOffsetX> .95 </ServiceOffsetX>
     <ServiceOffsetY> -1.5 </ServiceOffsetY>
-    <SlimStave> false </SlimStave>
+    <RadialMidpointEOS> 322.3 </RadialMidpointEOS>
+    <NStaveShapes>     1     </NStaveShapes>
+    <StartPhi>         -0.5   </StartPhi>
+    <PhiFromLayer>     4     </PhiFromLayer>
+    <BaseWidthEOS>     35.7  </BaseWidthEOS>
+    <TopWidthEOS>      30.2  </TopWidthEOS>
+    <BarrelWidth>      30.2 </BarrelWidth>
+    <BarrelZMax>      324.0  </BarrelZMax>
+    <RadialLengthEOS>  23.6  </RadialLengthEOS>
+    <WallThickness>     0.3  </WallThickness>
+    <CornerThickness>   6.0 </CornerThickness>
+    <XStepLowR>        13.9  </XStepLowR>
+    <XStepHighR>        0.0  </XStepHighR>
+    <PhiStepSize>       2.0  </PhiStepSize>
     <MountainEdge> 0.01 </MountainEdge>
  </PixelStaveGeo>
 

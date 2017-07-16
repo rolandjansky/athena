@@ -115,7 +115,7 @@ void GeoPixelStaveSupportInclRef::preBuild() {
   GeoBox* middle_box = new GeoBox(0.5*thickness, 0.5*width, 0.5*length);
   HepGeom::Transform3D middle_trf = HepGeom::Translate3D(xOffset,yOffset,0)*HepGeom::RotateZ3D(m_barrelTilt);
   lastShape = addShape(lastShape, middle_box, middle_trf); 
-
+   
   // end of stave
   double loc_xOffset = xOffset+ec_xOffset+endcapRadialPos;
   length = staveDBHelper.getStaveSupportLength()*.5-(m_barrelZMax+delta);
@@ -138,7 +138,8 @@ void GeoPixelStaveSupportInclRef::preBuild() {
   HepGeom::Transform3D latC_trf(HepGeom::Translate3D(loc_xOffset,yOffset,-zpos));
   lastShape = addShape(lastShape, lat_box, latC_trf);
 
-  const GeoMaterial* material = matMgr()->getMaterialForVolume(matName,lastShape->volume());
+  double shapeVolume = middle_box->volume() + 2.0*( eos_box->volume() + lat_box->volume());
+  const GeoMaterial* material = matMgr()->getMaterialForVolume(matName, shapeVolume );
   GeoLogVol* logVol = new GeoLogVol("StaveSupport",lastShape,material);
   
   m_thicknessP =  xOffset_stave + 0.5*thickness;

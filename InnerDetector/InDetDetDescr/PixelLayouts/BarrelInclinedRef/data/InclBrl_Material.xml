@@ -12,6 +12,19 @@
     <component> <name>std::Carbon</name> <weight>1. </weight> </component>
   </Material>
 
+
+  <MaterialWeight>
+    <name> CarbonFoamMountain_L0_Fixed_Weight </name>
+    <base> CarbonFoamMountain </base>
+    <weight> 1.425 </weight>
+  </MaterialWeight>
+
+  <MaterialWeight>
+    <name> CarbonFoamMountain_Fixed_Weight </name>
+    <base> CarbonFoamMountain </base>
+    <weight> 2.85 </weight>
+  </MaterialWeight>
+
   <Material>
     <name> CurlyPipeMountain  </name>
     <density> 2.124 </density>
@@ -319,26 +332,97 @@
     <linearweight> 0 </linearweight>
   </MaterialWeight>
 
+<!-- InclinedQuads - longeron wall values (18% total) -->
   <MaterialWeight>
-    <name> Default_Slim_InclBrl4_L2L3_Fixed_Weight </name>
+    <name> Default_Slim_InclBrl4_L2L3W_Fixed_Weight </name>
     <base> CarbonFibre </base>
-    <weight> 49.5 </weight>
+    <weight> 8.91 </weight>
     <linearweight> 0 </linearweight>
   </MaterialWeight>
 
   <MaterialWeight>
-    <name> Default_Slim_InclBrl4_L3L4_3CL_Fixed_Weight </name>
+    <name> Default_Slim_InclBrl4_L3L4W_3CL_Fixed_Weight </name>
     <base> CarbonFibre </base>
-    <weight> 66.0 </weight>
+    <weight> 11.88 </weight>
     <linearweight> 0 </linearweight>
   </MaterialWeight>
 
   <MaterialWeight>
-    <name> Default_Slim_InclBrl4_L3L4_4CL_Fixed_Weight </name>
+    <name> Default_Slim_InclBrl4_L3L4W_4CL_Fixed_Weight </name>
     <base> CarbonFibre </base>
-    <weight> 66.0 </weight>
+    <weight> 11.88 </weight>
     <linearweight> 0 </linearweight>
   </MaterialWeight>
+
+<!-- InclinedQuads - longeron corner values (82% total) -->
+  <MaterialWeight>
+    <name> Default_Slim_InclBrl4_L2L3C_Fixed_Weight </name>
+    <base> CarbonFibre </base>
+    <weight> 40.59 </weight>
+    <linearweight> 0 </linearweight>
+  </MaterialWeight>
+
+  <MaterialWeight>
+    <name> Default_Slim_InclBrl4_L3L4C_3CL_Fixed_Weight </name>
+    <base> CarbonFibre </base>
+    <weight> 54.12 </weight>
+    <linearweight> 0 </linearweight>
+  </MaterialWeight>
+
+  <MaterialWeight>
+    <name> Default_Slim_InclBrl4_L3L4C_4CL_Fixed_Weight </name>
+    <base> CarbonFibre </base>
+    <weight> 54.12 </weight>
+    <linearweight> 0 </linearweight>
+  </MaterialWeight>
+
+
+
+<!-- InclinedDuals values - longeron wall values (18% total)  -->
+  <MaterialWeight>
+    <name> Default_Slim_InclBrl4_InclDual_L2L3W_3CL_Fixed_Weight </name>
+    <base> CarbonFibre </base>
+    <weight> 11.88 </weight>
+    <linearweight> 0 </linearweight>
+  </MaterialWeight>
+  
+  <MaterialWeight>
+    <name> Default_Slim_InclBrl4_InclDual_L2L3W_4CL_Fixed_Weight </name>
+    <base> CarbonFibre </base>
+    <weight> 11.88 </weight>
+    <linearweight> 0 </linearweight>
+  </MaterialWeight>
+
+  <MaterialWeight>
+    <name> Default_Slim_InclBrl4_InclDual_L3L4W_Fixed_Weight </name>
+    <base> CarbonFibre </base>
+    <weight> 8.91 </weight>
+    <linearweight> 0 </linearweight>
+  </MaterialWeight>
+
+<!-- InclinedDuals values - longeron corner values (82% total)  -->
+
+  <MaterialWeight>
+    <name> Default_Slim_InclBrl4_InclDual_L2L3C_3CL_Fixed_Weight </name>
+    <base> CarbonFibre </base>
+    <weight> 54.12 </weight>
+    <linearweight> 0 </linearweight>
+  </MaterialWeight>
+  
+  <MaterialWeight>
+    <name> Default_Slim_InclBrl4_InclDual_L2L3C_4CL_Fixed_Weight </name>
+    <base> CarbonFibre </base>
+    <weight> 54.12 </weight>
+    <linearweight> 0 </linearweight>
+  </MaterialWeight>
+
+  <MaterialWeight>
+    <name> Default_Slim_InclBrl4_InclDual_L3L4C_Fixed_Weight </name>
+    <base> CarbonFibre </base>
+    <weight> 40.59 </weight>
+    <linearweight> 0 </linearweight>
+  </MaterialWeight>
+
 
 <!-- ITk pixel stave materials by Ben -->
 
@@ -921,6 +1005,18 @@
     <weight> 80.78 </weight>
   </MaterialWeight>
 
+  <MaterialWeight>
+    <name> Pixel_Ring_Support_UK_L0_Fixed_HalfWeight </name>
+    <base> Pixel_Ring_Support_UK_L0_Material </base>
+    <weight> 40.39 </weight> <!-- Adjusted for half-rings -->
+  </MaterialWeight>
+
+  <MaterialWeight>
+    <name> Pixel_Ring_Support_UK_L00_Fixed_HalfWeight </name>
+    <base> Pixel_Ring_Support_UK_L0_Material </base>
+    <weight> 29.03 </weight> <!-- Adjusted for half-rings -->
+  </MaterialWeight>
+
   <!-- rMin=150mm rMax=191.1mm thickness=4mm so density=0.74g/cm^3 -->
   <Material>
     <name> Pixel_Ring_Support_UK_L1_Material </name>
@@ -936,7 +1032,14 @@
     <weight> 131.18 </weight>
     <linearweight> 0 </linearweight>
   </MaterialWeight>
-
+  
+  <MaterialWeight>
+    <name> Pixel_Ring_Support_UK_L1_Fixed_HalfWeight </name>
+    <base> Pixel_Ring_Support_UK_L1_Material </base>
+    <weight> 65.59 </weight> <!-- Adjusted for half-rings -->
+    <linearweight> 0 </linearweight>
+  </MaterialWeight>
+  
   <!-- rMin=212.5mm rMax=253.48mm thickness=4mm so density=0.70g/cm^3 -->
   <Material>
     <name> Pixel_Ring_Support_UK_L2_Material </name>
@@ -950,6 +1053,13 @@
     <name> Pixel_Ring_Support_UK_L2_Fixed_Weight </name>
     <base> Pixel_Ring_Support_UK_L2_Material </base>
     <weight> 168.54 </weight>
+    <linearweight> 0 </linearweight>
+  </MaterialWeight>
+  
+  <MaterialWeight>
+    <name> Pixel_Ring_Support_UK_L2_Fixed_HalfWeight </name>
+    <base> Pixel_Ring_Support_UK_L2_Material </base>
+    <weight> 84.27 </weight> <!-- Adjusted for half-rings -->
     <linearweight> 0 </linearweight>
   </MaterialWeight>
 
@@ -966,6 +1076,13 @@
     <name> Pixel_Ring_Support_UK_L3_Fixed_Weight </name>
     <base> Pixel_Ring_Support_UK_L3_Material </base>
     <weight> 216.70 </weight>
+    <linearweight> 0 </linearweight>
+  </MaterialWeight>
+  
+  <MaterialWeight>
+    <name> Pixel_Ring_Support_UK_L3_Fixed_HalfWeight </name>
+    <base> Pixel_Ring_Support_UK_L3_Material </base>
+    <weight> 108.45 </weight> <!-- Adjusted for half-rings -->
     <linearweight> 0 </linearweight>
   </MaterialWeight>
 
@@ -1001,6 +1118,13 @@
     <component> <name> pix::ThermalInterfaceMaterial </name> <weight> 0.56 </weight> </component>
   </Material>
 
+  <Material>
+    <name> ChipBasePlusTIM_Plus3DSupportWafer </name>
+    <density> 2.27 </density>
+    <component> <name> pix::ChipBasePlusTIM          </name> <weight> 0.79 </weight> </component>
+    <component> <name> Silicon                       </name> <weight> 0.21 </weight> </component>
+  </Material>
+
   <MaterialWeight>
     <name> Chip_FourChip </name>
     <base> ChipBasePlusTIM </base>
@@ -1019,6 +1143,27 @@
     <name> Chip_SimpleChip </name>
     <base> ChipBasePlusTIM </base>
     <weight> .33 </weight> 
+    <linearweight> 0 </linearweight>
+  </MaterialWeight>
+
+  <MaterialWeight>
+    <name> Chip_FourChip_3D </name>
+    <base> ChipBasePlusTIM_Plus3DSupportWafer </base>
+    <weight> 1.68 </weight> 
+    <linearweight> 0 </linearweight>
+  </MaterialWeight>
+
+  <MaterialWeight>
+    <name> Chip_DoubleChip_3D </name>
+    <base> ChipBasePlusTIM_Plus3DSupportWafer </base>
+    <weight> .84 </weight> 
+    <linearweight> 0 </linearweight>
+  </MaterialWeight>
+
+  <MaterialWeight>
+    <name> Chip_SimpleChip_3D </name>
+    <base> ChipBasePlusTIM_Plus3DSupportWafer </base>
+    <weight> .42 </weight> 
     <linearweight> 0 </linearweight>
   </MaterialWeight>
 

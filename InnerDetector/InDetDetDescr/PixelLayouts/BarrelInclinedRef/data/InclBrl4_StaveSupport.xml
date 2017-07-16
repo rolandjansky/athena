@@ -2,13 +2,14 @@
 
   <PixelStaveGeo>
     <Layer>all</Layer>
-    <StandardStave> true </StandardStave>
+    <StaveSupportType>Standard</StaveSupportType>
     <ClearanceX> .1 </ClearanceX>
     <ClearanceY> 0 </ClearanceY>
     <StaggerDist> 0. </StaggerDist>
     <StaggerSign> 0. </StaggerSign>
     <ModuleCenterShift> 0. </ModuleCenterShift>
     <MountainEdge> 5. </MountainEdge>
+    <GapPlanarStave> 0 </GapPlanarStave>
   </PixelStaveGeo>
 
   <PixelStaveGeo>
