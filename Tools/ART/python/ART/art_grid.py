@@ -216,7 +216,7 @@ class ArtGrid(ArtBase):
         print "Previous Nightly Tag:", str(previous_nightly_tag)
         if previous_nightly_tag is None:
             print "ERROR: No previous nightly tag found"
-            return 1
+            return 0
 
         ref_dir = os.path.join('.', 'ref-' + previous_nightly_tag)
         mkdir_p(ref_dir)
@@ -224,7 +224,7 @@ class ArtGrid(ArtBase):
         tar = self.get_tar(package, test_name, '_EXT0', previous_nightly_tag)
         if tar is None:
             print "ERROR: No comparison tar file found"
-            return 1
+            return 0
 
         for member in tar.getmembers():
             if member.name in file_names:
