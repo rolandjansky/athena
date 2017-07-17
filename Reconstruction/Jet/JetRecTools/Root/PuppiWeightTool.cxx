@@ -35,6 +35,10 @@ PuppiWeightTool::PuppiWeightTool(const std::string& name) : JetConstituentModifi
 
   // Where we no longer have charged and neutral information
   //m_etaBoundary = 2.5;
+
+  //PVMatchedAcc= new SG::AuxElement::Accessor("matchedToPV");
+  //alphaAcc("PUPPI_alpha");
+  //weightAcc("PUPPI_weight");
 }
 
 //------------------------------------------------------------------------------
@@ -52,10 +56,10 @@ StatusCode PuppiWeightTool::process(xAOD::IParticleContainer* cont) const {
 
 StatusCode PuppiWeightTool::process(xAOD::PFOContainer* cont) const{
   //ATH_MSG_WARNING("Testing PUPPI");
- 
-  SG::AuxElement::Accessor<bool> PVMatchedAcc("matchedToPV");
-  SG::AuxElement::Accessor<double> alphaAcc("PUPPI_alpha");
-  SG::AuxElement::Accessor<double> weightAcc("PUPPI_weight");
+
+  const static SG::AuxElement::Accessor<bool> PVMatchedAcc("matchedToPV");
+  const static SG::AuxElement::Accessor<double> alphaAcc("PUPPI_alpha");
+  const static SG::AuxElement::Accessor<double> weightAcc("PUPPI_weight");
 
   std::vector<fastjet::PseudoJet> chargedHSVector;
   std::vector<fastjet::PseudoJet> chargedPUVector;
@@ -79,7 +83,7 @@ StatusCode PuppiWeightTool::process(xAOD::PFOContainer* cont) const{
 
     if(fabs(ppfo->eta()) > m_etaBoundary) forwardVector.push_back(pj);
     else{     
-      if(charge != 0){
+      if(fabs(charge) > FLT_MIN){
         bool matchedToPrimaryVertex=PVMatchedAcc(*ppfo);
 	if(matchedToPrimaryVertex) chargedHSVector.push_back(pj);
 	else chargedPUVector.push_back(pj);
@@ -90,7 +94,7 @@ StatusCode PuppiWeightTool::process(xAOD::PFOContainer* cont) const{
 
     //Test inclusion of low pT tracks
     if (m_includeLowPTTracks){
-      std::cout<<"WARNING: you are doing something experimental"<<std::endl;
+      ATH_MSG_WARNING("You are doing something experimental");
       const xAOD::Vertex* vtx = nullptr; 
 
       const xAOD::VertexContainer* pvtxs = 0;
@@ -153,7 +157,7 @@ StatusCode PuppiWeightTool::process(xAOD::PFOContainer* cont) const{
   int NPV=0;
   for( auto vtx_itr : *pvtxs ){
     if((int)vtx_itr->nTrackParticles() < 2 ) { continue; }
-    NPV++;
+    ++NPV;
   }
 
   Puppi* puppi = new Puppi(m_R0, m_Rmin, m_beta, m_centralPTCutOffset, m_centralPTCutSlope, m_forwardPTCutOffset, m_forwardPTCutSlope,m_etaBoundary, m_PUPenalty);
@@ -165,7 +169,7 @@ StatusCode PuppiWeightTool::process(xAOD::PFOContainer* cont) const{
     double weight = puppi->getWeight(pj);
     double alpha = puppi->getAlpha(pj);
 
-    if (ppfo->charge() == 0 && m_applyWeight) ppfo->setP4(weight*ppfo->p4());
+    if (abs(ppfo->charge()) < FLT_MIN && m_applyWeight) ppfo->setP4(weight*ppfo->p4());
     alphaAcc(*ppfo) = alpha;
     weightAcc(*ppfo) = weight;
   }
