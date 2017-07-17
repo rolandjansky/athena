@@ -58,7 +58,7 @@ atlas_add_library( METUtilitiesLib
    PUBLIC_HEADERS METUtilities
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}  ${GTEST_INCLUDE_DIRS} 
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODJet xAODMissingET
-   xAODMuon xAODTau xAODTracking InDetTrackSelectionToolLib PATInterfaces JetResolution ElectronPhotonFourMomentumCorrection MuonMomentumCorrections tauRecToolsLib
+   xAODMuon xAODTau xAODTracking InDetTrackSelectionToolLib PATInterfaces JetResolutionLib ElectronPhotonFourMomentumCorrectionLib MuonMomentumCorrectionsLib tauRecToolsLib
    METInterface
    PRIVATE_LINK_LIBRARIES EventPrimitives FourMomUtils xAODCore PathResolver )
 

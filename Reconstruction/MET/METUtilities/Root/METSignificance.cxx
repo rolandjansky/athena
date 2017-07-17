@@ -233,9 +233,9 @@ namespace met {
 		  // Use the phi resolution of the jets
 		  // needs to be finished
 		  //
-		  if(m_doPhiReso){
-		    double jet_phi_unc = GetPhiUnc(jet->eta(), jet->phi(),jet->pt()/m_GeV);
-		  }
+		  //if(m_doPhiReso){
+		  //  double jet_phi_unc = GetPhiUnc(jet->eta(), jet->phi(),jet->pt()/m_GeV);
+		  //}
 
 		}else if(obj->type()==xAOD::Type::Electron){
 		  const xAOD::Electron* ele(static_cast<const xAOD::Electron*>(obj)); 
