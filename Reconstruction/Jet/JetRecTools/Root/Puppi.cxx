@@ -49,7 +49,7 @@ double Puppi::getWeight(PseudoJet pfo){
 	int nDF=1;
 
 	if(pfo.has_user_info<PuppiUserInfo>()){
-		cout<<"WARNING: This is untested"<<endl;
+	  //This is untested!!!!
 		//Need to think about how to handle sign of chi2 - for now just throw it away
 		chi2Total=fabs(chi2Total);
 		for(auto v: pfo.user_info<PuppiUserInfo>().otherChi2Vec) {
@@ -132,7 +132,7 @@ double Puppi::getAlpha(const PseudoJet pfo){
 		}
 	}
 
-	if (sum<=0) return -99999;
+	if (sum<=FLT_MIN) return -99999;
 	if (nNeighbors!=0) return log(sum);
 	return -9999;
 }
@@ -163,7 +163,7 @@ void Puppi::findAlphaMedianAndRMS(){
 	for(auto value: values){
 		if (value - m_median > 0) continue;
 		sum += (value - m_median)*(value - m_median);
-		n++;
+		++n;
 	}
 
 	if(n > 0) m_rms = TMath::Sqrt(sum/n);
