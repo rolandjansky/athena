@@ -26,6 +26,7 @@
 
 #include "GeoPrimitives/GeoPrimitives.h" 
 #include "EventPrimitives/EventPrimitives.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 /** @class InDetTrackSplitterTool 
     
@@ -79,8 +80,6 @@
 
 InDet::InDetTrackSplitterTool::InDetTrackSplitterTool( std::string const & type, std::string const & name, IInterface const* parent ) :
   AthAlgTool( type, name, parent ),
-  upperTracks(0),
-  lowerTracks(0),
   m_trkfitter("Trk::GlobalChi2Fitter/InDetTrackFitter")
 {
   
@@ -349,7 +348,7 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInUpperL
 /** Strips either the Si or the TRT and refits the track using constrants 
  */
 Trk::Track* InDet::InDetTrackSplitterTool::stripTrack(Trk::Track const& input, 
-                  bool removeSilicon, bool applyConstraint ){
+                  bool removeSilicon, bool applyConstraint ) const {
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " In stripTrack" <<endmsg;
 
   /** The returned track */
@@ -370,7 +369,7 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripTrack(Trk::Track const& input,
 
 /** Strip the Si hits, fit the remaining with a theta, z0 constraint.
  */
-Trk::Track* InDet::InDetTrackSplitterTool::stripSiFromTrack(Trk::Track const& input){
+Trk::Track* InDet::InDetTrackSplitterTool::stripSiFromTrack(Trk::Track const& input) const {
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In stripSiFromTrack" <<endmsg;
   
   /** The returned track */
@@ -515,7 +514,7 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripTRTFromTrack(Trk::Track const& i
 
 /** Make the qOverP constraint
  */
-Trk::PseudoMeasurementOnTrack const* InDet::InDetTrackSplitterTool::makePConstraint(Trk::Perigee const* perigee,Trk::StraightLineSurface const* trtSurf){
+Trk::PseudoMeasurementOnTrack const* InDet::InDetTrackSplitterTool::makePConstraint(Trk::Perigee const* perigee,Trk::StraightLineSurface const* trtSurf) const {
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In makePConstraint" <<endmsg;
   
   if( !perigee->covariance() ) return 0;
@@ -543,7 +542,7 @@ Trk::PseudoMeasurementOnTrack const* InDet::InDetTrackSplitterTool::makePConstra
 
 /** Make the theta and z0 constraint 
  */
-Trk::PseudoMeasurementOnTrack const* InDet::InDetTrackSplitterTool::makeThetaZ0Constraint(Trk::Perigee const* perigee){
+Trk::PseudoMeasurementOnTrack const* InDet::InDetTrackSplitterTool::makeThetaZ0Constraint(Trk::Perigee const* perigee) const {
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In makeThetaZ0Constraint" <<endmsg;  
 
   if( !perigee->covariance() ) return 0;
@@ -586,7 +585,7 @@ Trk::PseudoMeasurementOnTrack const* InDet::InDetTrackSplitterTool::makeThetaZ0C
     Splits a single input track into upper and lower parts (based on global y) 
     returns a pair of track the first being the upper
 */
-std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInOddEvenHitsTrack(Trk::Track const& input){
+std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInOddEvenHitsTrack(Trk::Track const& input) const {
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " In splitInOddEvenHitsTrack" <<endmsg;
 
   /** The returned tracks */
@@ -785,11 +784,19 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInOddEve
     Using this method requires track to pass trackIsCandidate 
     (for the moment this is just a d0 cut requiring the track went through TRT cavity
 */
-void InDet::InDetTrackSplitterTool::splitTracks(TrackCollection const* inputTracks){
+void InDet::InDetTrackSplitterTool::splitTracks(TrackCollection const* inputTracks) const {
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " In splitTracks" <<endmsg;
   
-  upperTracks = new TrackCollection(SG::OWN_ELEMENTS);
-  lowerTracks = new TrackCollection(SG::OWN_ELEMENTS);
+  //  const EventContext& ctx = Gaudi::Hive::currentContext();
+  SG::WriteHandle<TrackCollection> upperTracks(m_outputUpperTracksName);
+  if ( upperTracks.record( std::make_unique<TrackCollection>() ).isFailure() ) {
+     ATH_MSG_FATAL( "Failed to record upper tracks collection " <<  m_outputUpperTracksName.key() );
+  }
+
+  SG::WriteHandle<TrackCollection> lowerTracks(m_outputLowerTracksName);
+  if ( lowerTracks.record( std::make_unique<TrackCollection>() ).isFailure() ) {
+     ATH_MSG_FATAL( "Failed to record upper tracks collection " <<  m_outputLowerTracksName.key() );
+  }
 
   if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "There are: " << inputTracks->size() << " input tracks."<< endmsg;
   
@@ -822,29 +829,7 @@ void InDet::InDetTrackSplitterTool::splitTracks(TrackCollection const* inputTrac
     } else
       if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Track is NOT a candidate."<< endmsg;
   }
-  
 
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There are  " << upperTracks->size() << " upper tracks. "<< endmsg;
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Recording Upper tracks..." << endmsg;
-  
-  StatusCode sc = evtStore()->record(upperTracks,m_outputUpperTracksName,false);
-  if (sc.isFailure()){
-    msg(MSG::FATAL) << "Tracks " << m_outputUpperTracksName << " could not be recorded in StoreGate !"
-  << endmsg;
-  } else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Tracks " << m_outputUpperTracksName << " recorded in StoreGate" << endmsg;
-  }
-  
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There are  " << lowerTracks->size() << " lower tracks. "<< endmsg;
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Recording Upper tracks..." << endmsg;
-  
-  sc = evtStore()->record(lowerTracks,m_outputLowerTracksName,false);
-  if (sc.isFailure()){
-    msg(MSG::FATAL) << "Tracks " << m_outputLowerTracksName << " could not be recorded in StoreGate !"<< endmsg;        
-  }else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Tracks " << m_outputLowerTracksName << " recorded in StoreGate" << endmsg;
-  }
-  
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Leaving splitTracks" <<endmsg;
   return;
 }
@@ -883,7 +868,7 @@ bool InDet::InDetTrackSplitterTool::trackIsCandidate(Trk::Track const& inputTrac
 /** Return a vector of the SCT hits on track 
     (used for not breaking up SCT space points, when splitting Odd/Even)
  */
-std::vector<Trk::MeasurementBase const*> InDet::InDetTrackSplitterTool::getSCTHits(Trk::Track const& input){
+std::vector<Trk::MeasurementBase const*> InDet::InDetTrackSplitterTool::getSCTHits(Trk::Track const& input) const {
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In getSCTHits " << endmsg;
   std::vector<Trk::MeasurementBase const*> m_SCTHits;
 
@@ -914,7 +899,7 @@ std::vector<Trk::MeasurementBase const*> InDet::InDetTrackSplitterTool::getSCTHi
     Logic to check if there is another SCT hit associated with the input hit, which forms a space point
     (used for not breaking up SCT space points, when splitting Odd/Even)
 */
-std::vector<Trk::MeasurementBase const*>::iterator InDet::InDetTrackSplitterTool::findSCTHitsFromSameSpacePoint(Trk::MeasurementBase const* m_sctHit, std::vector<Trk::MeasurementBase const*>& m_listOfSCTHits){
+std::vector<Trk::MeasurementBase const*>::iterator InDet::InDetTrackSplitterTool::findSCTHitsFromSameSpacePoint(Trk::MeasurementBase const* m_sctHit, std::vector<Trk::MeasurementBase const*>& m_listOfSCTHits) const {
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in findSCTHitsFromSameSpacePoint " << endmsg;
   std::vector<Trk::MeasurementBase const*>::iterator m_result = m_listOfSCTHits.end();
   
