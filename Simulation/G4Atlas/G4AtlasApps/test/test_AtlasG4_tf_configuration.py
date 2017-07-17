@@ -34,11 +34,12 @@ class TestAtlasG4(unittest.TestCase):
     def _assert_G4AtlasAlg_property_unordered_equal(self,
                                                     property_name,
                                                     expected_property_value):
-        collection_merger = self._job_config_dict['G4AtlasAlg']
-        actual_property_value_as_str = collection_merger[property_name]
+        g4atlasalg = self._job_config_dict['G4AtlasAlg']
+        print g4atlasalg.keys()
+        actual_property_value_as_str = g4atlasalg[property_name]
+        print actual_property_value_as_str
         # need to evaluate to obtain actual Python object
         actual_property_value = eval(actual_property_value_as_str)
-
         expected_property_value_sorted = sorted(expected_property_value)
         actual_property_value_sorted = sorted(actual_property_value)
 
@@ -56,6 +57,26 @@ class TestAtlasG4(unittest.TestCase):
                          failure_message)
 
 
+    def _assert_G4AtlasAlg_property(self,
+                                        property_name,
+                                        expected_property_value):
+        g4atlasalg = self._job_config_dict['G4AtlasAlg']
+        actual_property_value = g4atlasalg[property_name]
+
+        failure_message = "G4AtlasAlg.{property} has a different " \
+                          "value than expected!\n" \
+                          "expected:\n" \
+                          " {expected}\n" \
+                          "actual:\n" \
+                          " {actual}".format(
+                              property=property_name,
+                              expected=str(expected_property_value),
+                              actual=str(actual_property_value))
+        self.assertEqual(str(expected_property_value),
+                         str(actual_property_value),
+                         failure_message)
+
+
     def test___G4AtlasAlg_is_at_end_of_AthAlgSeq(self):
         ath_alg_seqence_as_str = self._job_config_dict['AthAlgSeq']['Members']
         # need to evaluate to obtain actual Python object
@@ -67,11 +88,119 @@ class TestAtlasG4(unittest.TestCase):
                          actual_last_ath_alg_sequence_entry)
 
 
-    ## def test___ISF_Collection_merger_InputBCMHits_contains_only_G4_collection(self):
-    ##     expected_input_hits = ['BCMHits_G4']
-    ##     self._assert_G4AtlasAlg_property_unordered_equal(
-    ##         'InputBCMHits',
-    ##         expected_input_hits)
+    def test___G4AtlasAlg_ListOfSetProperties(self):
+        expected_list = ['InputTruthCollection', 'SenDetMasterTool', 'G4AtlasSvc', 'ReleaseGeoModel', 'FastSimMasterTool', 'KillAbortedEvents', 'UserStore', 'InputConverter', 'NeededResources', 'OutputTruthCollection', 'ExtraOutputs', 'TruthRecordService', 'UserActionSvc', 'DetGeoSvc', 'ExtraInputs', 'DetStore', 'GeoIDSvc', 'AtRndmGenSvc', 'G4Commands', 'PhysicsListTool', 'Verbosities', 'FlagAbortedEvents', 'MultiThreading', 'RecordFlux', 'EvtStore']
+        g4atlasalg = self._job_config_dict['G4AtlasAlg']
+        actual_list = g4atlasalg.keys()
+        expected_property_value_sorted = sorted(expected_list)
+        actual_property_value_sorted = sorted(actual_list)
+
+        failure_message = "G4AtlasAlg.keys() has a different " \
+                          "value than expected!\n" \
+                          "expected (sorted):\n" \
+                          " {expected}\n" \
+                          "actual (sorted):\n" \
+                          " {actual}".format(
+                              expected=expected_property_value_sorted,
+                              actual=actual_property_value_sorted)
+        self.assertEqual(expected_property_value_sorted,
+                         actual_property_value_sorted,
+                         failure_message)
+
+
+    def test___G4AtlasAlg_InputTruthCollection_setCorrectly(self):
+        expected_input_truth = 'BeamTruthEvent'
+        self._assert_G4AtlasAlg_property('InputTruthCollection', expected_input_truth)
+
+
+    def test___G4AtlasAlg_OutputTruthCollection_setCorrectly(self):
+        expected_output_truth = 'TruthEvent'
+        self._assert_G4AtlasAlg_property('OutputTruthCollection', expected_output_truth)
+
+
+    def test___G4AtlasAlg_FastSimMasterTool_setCorrectly(self):
+        expected_tool_name = 'FastSimulationMasterTool/FastSimulationMasterTool'
+        self._assert_G4AtlasAlg_property('FastSimMasterTool', expected_tool_name)
+
+
+    def test___G4AtlasAlg_PhysicsListTool_setCorrectly(self):
+        expected_tool_name = 'PhysicsListToolBase/PhysicsListToolBase'
+        self._assert_G4AtlasAlg_property('PhysicsListTool', expected_tool_name)
+
+
+    def test___G4AtlasAlg_SenDetMasterTool_setCorrectly(self):
+        expected_tool_name = 'SensitiveDetectorMasterTool/SensitiveDetectorMasterTool'
+        self._assert_G4AtlasAlg_property('SenDetMasterTool', expected_tool_name)
+
+
+    def test___G4AtlasAlg_G4AtlasSvc_setCorrectly(self):
+        expected_service_name = 'G4AtlasSvc'
+        self._assert_G4AtlasAlg_property('G4AtlasSvc', expected_service_name)
+
+
+    def test___G4AtlasAlg_UserActionSvc_setCorrectly(self):
+        expected_service_name = 'G4UA::UserActionSvc'
+        self._assert_G4AtlasAlg_property('UserActionSvc', expected_service_name)
+
+
+    def test___G4AtlasAlg_DetGeoSvc_setCorrectly(self):
+        expected_service_name = 'DetectorGeometrySvc'
+        self._assert_G4AtlasAlg_property('DetGeoSvc', expected_service_name)
+
+
+    def test___G4AtlasAlg_GeoIDSvc_setCorrectly(self):
+        expected_service_name = 'ISF_GeoIDSvc'
+        self._assert_G4AtlasAlg_property('GeoIDSvc', expected_service_name)
+
+
+    def test___G4AtlasAlg_AtRndmGenSvc_setCorrectly(self):
+        expected_service_name = 'AtDSFMTGenSvc'
+        self._assert_G4AtlasAlg_property('AtRndmGenSvc', expected_service_name)
+
+
+    def test___G4AtlasAlg_TruthRecordService_setCorrectly(self):
+        expected_service_name = 'ISF_MC12TruthService'
+        self._assert_G4AtlasAlg_property('TruthRecordService', expected_service_name)
+
+
+    def test___G4AtlasAlg_InputConverter_setCorrectly(self):
+        expected_service_name = 'ISF_InputConverter'
+        self._assert_G4AtlasAlg_property('InputConverter', expected_service_name)
+
+
+    def test___G4AtlasAlg_G4Commands_setCorrectly(self):
+        expected_property_value = [] #TODO this will probably change as the configuration is migrated
+        self._assert_G4AtlasAlg_property_unordered_equal('G4Commands', expected_property_value)
+
+
+    def test___G4AtlasAlg_Verbosities_setCorrectly(self):
+        expected_property_value = {} #TODO this will probably change as the configuration is migrated
+        self._assert_G4AtlasAlg_property_unordered_equal('Verbosities', expected_property_value)
+
+
+    def test___G4AtlasAlg_ReleaseGeoModel_setCorrectly(self):
+        expected_property_value = True
+        self._assert_G4AtlasAlg_property('ReleaseGeoModel', expected_property_value)
+
+
+    def test___G4AtlasAlg_KillAbortedEvents_setCorrectly(self):
+        expected_property_value = True
+        self._assert_G4AtlasAlg_property('KillAbortedEvents', expected_property_value)
+
+
+    def test___G4AtlasAlg_FlagAbortedEvents_setCorrectly(self):
+        expected_property_value = False
+        self._assert_G4AtlasAlg_property('FlagAbortedEvents', expected_property_value)
+
+
+    def test___G4AtlasAlg_MultiThreading_setCorrectly(self):
+        expected_property_value = False
+        self._assert_G4AtlasAlg_property('MultiThreading', expected_property_value)
+
+
+    def test___G4AtlasAlg_RecordFlux_setCorrectly(self):
+        expected_property_value = False
+        self._assert_G4AtlasAlg_property('RecordFlux', expected_property_value)
 
 
 if __name__ == '__main__':
