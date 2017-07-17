@@ -288,7 +288,7 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
       int bcidOffset = 1;
       CHECK(m_MuctpiSimTool->fillMuCTPIL1Topo(l1topoBC1, bcidOffset));
       l1topoBC1.setBcidOffset(bcidOffset);
-      l1topoBC1.print();
+      //l1topoBC1.print();
       candList = l1topoBC1.getCandidates();
     }  
     
