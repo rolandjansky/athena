@@ -969,7 +969,15 @@ class ItemDef:
         LVL1MenuItem('L1_LUCID_COMM_UNPAIRED_ISO' ).setLogic( LUCID_COMM        & unpaired_isocond ).setTriggerType(TT.minb)      # noqa: F821
         LVL1MenuItem('L1_LUCID_A_C_UNPAIRED_ISO'  ).setLogic( LUCID_A & LUCID_C & unpaired_isocond).setTriggerType(TT.minb)       # noqa: F821
         LVL1MenuItem('L1_LUCID_A_C_UNPAIRED_NONISO').setLogic(LUCID_A & LUCID_C & unpaired_nonisocond).setTriggerType(TT.minb)    # noqa: F821
+
+        LVL1MenuItem('L1_LUCID_BGRP9').setLogic( (LUCID_A | LUCID_C) & bgrp9cond).setTriggerType(TT.minb) # noqa: F821
+        LVL1MenuItem('L1_LUCID_BGRP11').setLogic( (LUCID_A | LUCID_C) & bgrp11cond).setTriggerType(TT.minb) # noqa: F821
         
+        LVL1MenuItem('L1_LUCID_Bi').setLogic( (LUCID_05 | LUCID_06) & physcond).setTriggerType(TT.minb) # noqa: F821
+        LVL1MenuItem('L1_LUCID_Bi_BGRP9').setLogic( (LUCID_05 | LUCID_06) & bgrp9cond).setTriggerType(TT.minb) # noqa: F821
+        LVL1MenuItem('L1_LUCID_Bi_BGRP11').setLogic( (LUCID_05 | LUCID_06) & bgrp11cond).setTriggerType(TT.minb) # noqa: F821
+        LVL1MenuItem('L1_LUCID_Bi_UNPAIRED_ISO').setLogic( (LUCID_05 | LUCID_06) & unpaired_isocond).setTriggerType(TT.minb) # noqa: F821
+
         # BCM
         LVL1MenuItem('L1_BCM_Wide'                   ).setLogic( BCM_Wide & physcond ).setTriggerType(TT.minb)               # noqa: F821
         LVL1MenuItem('L1_BCM_Wide_BGRP0'             ).setLogic( BCM_Wide & BGRP0 ).setTriggerType(TT.minb)                  # noqa: F821
