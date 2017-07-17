@@ -528,6 +528,8 @@ private:
    ///
    static const int      kNumErrorBits{32};
    static const int      kNumErrorStates{16};
+	static const int 		 kNumErrorStatesIBL{27};
+
    TProfile_LW*          m_errhist_errcat_LB[PixLayerIBL2D3D::COUNT][ErrorCategory::COUNT];
    TProfile_LW*          m_errhist_errtype_LB[PixLayerIBL2D3D::COUNT][ErrorCategoryMODROD::COUNT - 3];
    PixelMon2DMapsLW*     m_errhist_errcat_map[ErrorCategory::COUNT];
@@ -545,10 +547,10 @@ private:
    PixelMon2DProfilesLW* m_errhist_femcc_errwords_map;
 
    // Histograms in 'ErrorsExpert' folder
-   PixelMon2DLumiMaps*   m_errhist_expert_LB_maps[kNumErrorStates];
-   PixelMon2DMapsLW*     m_errhist_expert_maps[kNumErrorStates];
-   TProfile_LW*          m_errhist_expert_LB[PixLayer::COUNT-1][kNumErrorStates];
-   TH3F*                 m_errhist_expert_fe_trunc_err_3d[PixLayer::COUNT];
+   PixelMon2DLumiMaps*   m_errhist_expert_LB_maps[kNumErrorStates + kNumErrorStatesIBL];
+   PixelMon2DMapsLW*     m_errhist_expert_maps[kNumErrorStates+kNumErrorStatesIBL];
+   TProfile_LW*          m_errhist_expert_LB[PixLayerIBL2D3DDBM::COUNT][kNumErrorStates+kNumErrorStatesIBL];
+   TH3F*                 m_errhist_expert_fe_trunc_err_3d[PixLayer::COUNT]; 
    TH1F_LW*              m_errhist_expert_servrec_ibl_unweighted;
    TH1F_LW*              m_errhist_expert_servrec_ibl_weighted;
    TH1F_LW*              m_errhist_expert_servrec_ibl_count;
