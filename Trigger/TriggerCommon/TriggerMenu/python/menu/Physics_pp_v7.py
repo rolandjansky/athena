@@ -1933,6 +1933,14 @@ def setupMenu():
         ['e14_lhtight_nod0_e4_etcut_Jpsiee', 'L1_EM12_2EM3', ['L1_EM12','L1_EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
         ['e5_lhtight_nod0_e14_etcut_Jpsiee', 'L1_EM12_2EM3', ['L1_EM3','L1_EM12'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
 
+        # L1Topo JPSI prescaled performance:
+        ['e5_lhtight_nod0_e4_etcut_L1JPSI-1M5',              'L1_JPSI-1M5',      ['L1_EM3','L1_EM3'],  [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, True],
+        ['e5_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5',       'L1_JPSI-1M5',      ['L1_EM3','L1_EM3'],  [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, True],
+        ['e9_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5-EM7',   'L1_JPSI-1M5-EM7',  ['L1_EM7','L1_EM3'],  [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, True],
+        ['e5_lhtight_nod0_e9_etcut_Jpsiee_L1JPSI-1M5-EM7',   'L1_JPSI-1M5-EM7',  ['L1_EM3','L1_EM7'],  [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, True],
+        ['e14_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5-EM12', 'L1_JPSI-1M5-EM12', ['L1_EM12','L1_EM3'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, True],
+        ['e5_lhtight_nod0_e14_etcut_Jpsiee_L1JPSI-1M5-EM12', 'L1_JPSI-1M5-EM12', ['L1_EM3','L1_EM12'], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, True],
+
         # Supporting trigger
         ['e0_perf_L1EM15',              'L1_EM15',[], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1], 
         ['g0_perf_L1EM15',                'L1_EM15',  [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1], 
@@ -3446,7 +3454,8 @@ def setupMenu():
         ['j30_muvtx_L1MU4_EMPTY',        'L1_MU4_EMPTY',        [], ["Late"], ['RATE:MuonJet','BW:Muon', 'BW:Jet'], -1],
         ['j30_muvtx_noiso_L1MU4_EMPTY',        'L1_MU4_EMPTY',        [], ["Late"], ['RATE:MuonJet','BW:Muon', 'BW:Jet'], -1],
 
-
+        # with pi0's (ATR-16600)
+        ['g35_medium_L1EM24VHI_tau25_dipion3_tracktwo_60mVis10000','L1_EM24VHI', ['L1_EM24VHI','L1_TAU12'], [PhysicsStream], ['RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,['g35_medium_L1EM24VHI','tau25_dipion3_tracktwo'],False]],
 
         ## Lepton + jets with unisolated leptons:
         # For above 1.0 e34
