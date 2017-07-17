@@ -47,7 +47,7 @@ class BjetHypo (TrigBjetHypo):
         if instance=="EF" :
             self.AcceptAll       = False
             self.Instance        = "EF"
-            self.UseBeamSpotFlag = True
+            self.UseBeamSpotFlag = False
 
         self.JetKey = ""
         
@@ -134,7 +134,7 @@ class BjetHypoNoCut (TrigBjetHypo):
             if instance=="EF" :
                 self.AcceptAll             = True
                 self.Instance              = "EF"
-                self.UseBeamSpotFlag       = True
+                self.UseBeamSpotFlag       = False
                 self.OverrideBeamSpotValid = True
                 from TrigBjetHypo.TrigBjetHypoMonitoring import TrigEFBjetHypoValidationMonitoring, TrigEFBjetHypoOnlineMonitoring
                 validation = TrigEFBjetHypoValidationMonitoring()
@@ -188,7 +188,7 @@ class BjetHypoSplit (TrigBjetHypo):
         if instance=="EF" :
             self.AcceptAll       = False
             self.Instance        = "EF"
-            self.UseBeamSpotFlag = True
+            self.UseBeamSpotFlag = False
         
         if instance=="EF" :
             from TrigBjetHypo.TrigBjetHypoMonitoring import TrigEFBjetHypoValidationMonitoring, TrigEFBjetHypoOnlineMonitoring
@@ -279,7 +279,7 @@ class BjetHypoSplitNoCut (TrigBjetHypo):
             if instance=="EF" :
                 self.AcceptAll             = True
                 self.Instance              = "EF"
-                self.UseBeamSpotFlag       = True
+                self.UseBeamSpotFlag       = False
                 self.OverrideBeamSpotValid = True
                 from TrigBjetHypo.TrigBjetHypoMonitoring import TrigEFBjetHypoValidationMonitoring, TrigEFBjetHypoOnlineMonitoring
                 validation = TrigEFBjetHypoValidationMonitoring()
