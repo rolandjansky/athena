@@ -71,6 +71,7 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty( "RecordFlux", m_recordFlux);
   declareProperty( "KillAbortedEvents", m_killAbortedEvents);
   declareProperty( "FlagAbortedEvents", m_flagAbortedEvents);
+  declareProperty( "InputTruthCollection", m_inputTruthCollection);
   declareProperty( "OutputTruthCollection", m_outputTruthCollection);
 
   // Verbosities
