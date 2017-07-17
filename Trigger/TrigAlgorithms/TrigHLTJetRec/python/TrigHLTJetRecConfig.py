@@ -143,6 +143,13 @@ def _getTrimmedJetCalibrationModifier(jet_calib,int_merge_param,cluster_calib,rc
     return calibmod
 
 
+
+def _getIsData():
+    # From Joerg on trig dev list, July 12 2017
+    from AthenaCommon.GlobalFlags import globalflags
+    return globalflags.DataSource() == 'data'
+
+
 def _getJetBuildTool(merge_param,
                      ptmin,
                      ptminFilter,
@@ -173,11 +180,15 @@ def _getJetBuildTool(merge_param,
     jtm.gettersMap["mygetters"] = mygetters
     # print jtm.gettersMap.keys()
 
+    # in situ calibration step is only for data, not MC
+    # this string here allows the following code to be data/MC unaware
+    inSitu = 'i' if _getIsData() else ''
+
     # tell the offline code which calibration is requested
     calib_str = {'jes': 'calib:j:triggerNoPileup:HLTKt4',
                  'subjes': 'calib:aj:trigger:HLTKt4',
                  'sub': 'calib:a:trigger:HLTKt4',
-                 'subjesIS': 'calib:ajgi:trigger2016:HLTKt4'}.get(jet_calib, '')
+                 'subjesIS': 'calib:ajg%s:trigger2016:HLTKt4'%(inSitu)}.get(jet_calib, '')
 
     # with S Schramm very early 18/4/2016
     mymods = [jtm.jetens]
