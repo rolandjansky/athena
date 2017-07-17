@@ -2,7 +2,7 @@
 <trigger>
   <lumivalues>
     <lumivalues_data>1e+34</lumivalues_data>
-    <lumivalues_pred>1e43</lumivalues_pred>
+    <lumivalues_pred>1e34</lumivalues_pred>
     <deadtime>0.063</deadtime>
     <peak_mu_av>41.79</peak_mu_av>
   </lumivalues>
