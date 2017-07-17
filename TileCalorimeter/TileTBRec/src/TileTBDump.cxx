@@ -378,9 +378,8 @@ StatusCode TileTBDump::execute() {
           size = max_allowed_size;
           std::cout<<" Problem with data size - assuming " << size << " words and no trailer at all"<<std::endl;
         }
-        std::cout << std::endl << "Dump of whole ROB fragment ("
-                  << robf.rod_fragment_size_word()+robf.header_size_word()
-                  << " words)" << std::endl;
+        std::cout << std::endl << "Dump of whole ROB fragment 0x" << std::hex << robf.rod_source_id() << std::dec
+                  << " (" << robf.rod_fragment_size_word()+robf.header_size_word() << " words)" << std::endl;
         dump_data(fprob, robf.rod_fragment_size_word()+robf.header_size_word(), version, verbosity);
       }
 
@@ -406,9 +405,10 @@ StatusCode TileTBDump::execute() {
             dump_digi(subdet_id,data, size, version, verbosity, source_id);
           }
         }
-        
-        std::cout << std::endl;
+      } else {
+        std::cout << std::endl <<  std::hex << "NO DATA in ROB fragment 0x" << robf.rod_source_id() << std::dec << std::endl << std::endl;
       }
+      std::cout << std::endl;
     }
   }
 
