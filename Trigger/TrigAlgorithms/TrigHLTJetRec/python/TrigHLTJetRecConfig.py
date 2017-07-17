@@ -115,8 +115,9 @@ def _getTrimmedJetCalibrationModifier(jet_calib,int_merge_param,cluster_calib,rc
         raise RuntimeError(error%("only R=1.0 is supported"))
 
     # We only have calibrations for rclus=0.2, ptfrac=0.05
-    if rclus != 0.2 or ptfrac != 0.05:
-        raise RuntimeError(error%("only rclus=0.2 and ptfrac=0.05 are supported"))
+    # However, we use ptfrac=0.04 to avoid resolution problems with the ptfrac=0.05 calibrations
+    if rclus != 0.2 or ptfrac != 0.04:
+        raise RuntimeError(error%("only rclus=0.2 and ptfrac=0.04 (in place of 0.05) are supported"))
     
     # If we got here, everything checks out
     # Do a generic build from the arguments
@@ -124,7 +125,8 @@ def _getTrimmedJetCalibrationModifier(jet_calib,int_merge_param,cluster_calib,rc
 
     alg="AntiKt"
     rad=float(int_merge_param)/10.
-    inp="%sTopoTrimmedPtFrac%sSmallR%s"%(cluster_calib,str(int(ptfrac*100+0.1)),str(int(rclus*100+0.1)))
+    #inp="%sTopoTrimmedPtFrac%sSmallR%s"%(cluster_calib,str(int(ptfrac*100+0.1)),str(int(rclus*100+0.1)))
+    inp="%sTopoTrimmedPtFrac%sSmallR%s"%(cluster_calib,str(int(0.05*100+0.1)),str(int(rclus*100+0.1))) #hardcoded for now due to 0.04 vs 0.05 choice
     seq="jm"
     config="triggerTrim"
     evsprefix="HLTKt4"
@@ -740,7 +742,7 @@ class TrigHLTJetRecGroomer(TrigHLTJetRecConf.TrigHLTJetRecGroomer):
                  output_collection_label='defaultJetCollection',
                  pseudojet_labelindex_arg='PseudoJetLabelMapTriggerFromCluster',
                  rclus= 0.2,
-                 ptfrac= 0.05,
+                 ptfrac= 0.04,
                  ):
         
         TrigHLTJetRecConf.TrigHLTJetRecGroomer.__init__(self, name = name)
