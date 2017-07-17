@@ -49,6 +49,7 @@ def getG4AtlasAlg(name='G4AtlasAlg', **kwargs):
         kwargs.setdefault('AtRndmGenSvc' ,simFlags.RandomSvc.get_Value())
     if not simFlags.RandomSeedList.checkForExistingSeed('AtlasG4'):
         simFlags.RandomSeedList.addSeed( "AtlasG4", 423451, 3213210 )
+    kwargs.setdefault("RandomGenerator", "athena")
 
     # Multi-threading settinggs
     from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps

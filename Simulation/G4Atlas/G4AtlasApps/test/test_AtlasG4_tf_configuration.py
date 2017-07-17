@@ -35,9 +35,7 @@ class TestAtlasG4(unittest.TestCase):
                                                     property_name,
                                                     expected_property_value):
         g4atlasalg = self._job_config_dict['G4AtlasAlg']
-        print g4atlasalg.keys()
         actual_property_value_as_str = g4atlasalg[property_name]
-        print actual_property_value_as_str
         # need to evaluate to obtain actual Python object
         actual_property_value = eval(actual_property_value_as_str)
         expected_property_value_sorted = sorted(expected_property_value)
@@ -89,7 +87,7 @@ class TestAtlasG4(unittest.TestCase):
 
 
     def test___G4AtlasAlg_ListOfSetProperties(self):
-        expected_list = ['InputTruthCollection', 'SenDetMasterTool', 'G4AtlasSvc', 'ReleaseGeoModel', 'FastSimMasterTool', 'KillAbortedEvents', 'UserStore', 'InputConverter', 'NeededResources', 'OutputTruthCollection', 'ExtraOutputs', 'TruthRecordService', 'UserActionSvc', 'DetGeoSvc', 'ExtraInputs', 'DetStore', 'GeoIDSvc', 'AtRndmGenSvc', 'G4Commands', 'PhysicsListTool', 'Verbosities', 'FlagAbortedEvents', 'MultiThreading', 'RecordFlux', 'EvtStore']
+        expected_list = ['AtRndmGenSvc', 'DetGeoSvc', 'DetStore', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FastSimMasterTool', 'FlagAbortedEvents', 'G4AtlasSvc', 'G4Commands', 'GeoIDSvc', 'InputConverter', 'InputTruthCollection', 'KillAbortedEvents', 'MultiThreading', 'NeededResources', 'OutputTruthCollection', 'PhysicsListTool', 'RandomGenerator', 'RecordFlux', 'ReleaseGeoModel', 'SenDetMasterTool', 'TruthRecordService', 'UserActionSvc', 'UserStore', 'Verbosities']
         g4atlasalg = self._job_config_dict['G4AtlasAlg']
         actual_list = g4atlasalg.keys()
         expected_property_value_sorted = sorted(expected_list)
@@ -166,6 +164,11 @@ class TestAtlasG4(unittest.TestCase):
     def test___G4AtlasAlg_InputConverter_setCorrectly(self):
         expected_service_name = 'ISF_InputConverter'
         self._assert_G4AtlasAlg_property('InputConverter', expected_service_name)
+
+
+    def test___G4AtlasAlg_RandomGenerator_setCorrectly(self):
+        expected_service_name = 'athena'
+        self._assert_G4AtlasAlg_property('RandomGenerator', expected_service_name)
 
 
     def test___G4AtlasAlg_G4Commands_setCorrectly(self):
