@@ -270,8 +270,8 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
       sc = m_errhist_femcc_errwords_map->regHist(rodHistos);
    }
   
-   for (int j = kNumErrorStates; j < kNumErrorStates+kNumErrorStatesIBL; j++) {
-       hname = makeHistname((error_state_labelsIBL[j - kNumErrorStates].first+"_Map"), false);
+   for (int j = kNumErrorStates; j < kNumErrorStates+kNumErrorStatesIBL; j++) {  
+      hname = makeHistname((error_state_labelsIBL[j - kNumErrorStates].first+"_Map"), false);
       htitles = makeHisttitle((error_state_labelsIBL[j - kNumErrorStates].second + " per event per LB"), "", false);
       m_errhist_expert_maps[j] = new PixelMon2DMapsLW(hname.c_str(), htitles.c_str(), PixMon::HistConf::kIBL2D3D, m_doIBL);
       sc = m_errhist_expert_maps[j]->regHist(rodExpert);
@@ -351,7 +351,8 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
    int num_errors[PixLayerIBL2D3D::COUNT] = {0};
    int num_errors_per_bit[PixLayerIBL2D3D::COUNT][kNumErrorBits] = {0};
    int num_errors_per_state[PixLayer::COUNT - 1][kNumErrorStates] = {0}; // no IBL here
-   int num_errors_per_stateIBL[PixLayerIBL2D3D
+
+
 
    // Counter for erroneous modules on the layer, per error type and
    // category (error cat. = error type w/o ROD/MOD distinction).
