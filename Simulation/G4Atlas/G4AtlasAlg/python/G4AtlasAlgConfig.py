@@ -22,6 +22,8 @@ def getAthenaTrackingActionTool(name='G4UA::AthenaTrackingActionTool', **kwargs)
     return CfgMgr.G4UA__AthenaTrackingActionTool(name,**kwargs)
 
 def getG4AtlasAlg(name='G4AtlasAlg', **kwargs):
+    kwargs.setdefault("InputTruthCollection", "BeamTruthEvent")
+    kwargs.setdefault("OutputTruthCollection", "TruthEvent")
     ## Killing neutrinos
     from G4AtlasApps.SimFlags import simFlags
     if hasattr(simFlags, 'ReleaseGeoModel') and simFlags.ReleaseGeoModel.statusOn:
