@@ -137,7 +137,7 @@ StatusCode InDet::InDetTrackSplitterTool::finalize()
     returns a pair of track the first being the upper
 */
 std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInUpperLowerTrack(Trk::Track const& input, 
-                        bool siliconHitsOnly){
+                        bool siliconHitsOnly) const {
   //std::cout << "input: " << input << std::endl;
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " In splitInUpperLowerTrack" <<endmsg;
 
@@ -436,7 +436,7 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripSiFromTrack(Trk::Track const& in
 
 /** Strip the TRT hits, fit the remaining with a qOverP constraint
  */
-Trk::Track* InDet::InDetTrackSplitterTool::stripTRTFromTrack(Trk::Track const& input, bool applyConstraint){
+Trk::Track* InDet::InDetTrackSplitterTool::stripTRTFromTrack(Trk::Track const& input, bool applyConstraint) const {
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In stripTRTFromTrack" <<endmsg;
 
   /** The returned track */
