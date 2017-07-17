@@ -142,6 +142,11 @@ class TileROD_Decoder: public AthAlgTool {
     void printErrorCounter(bool printIfNoError);
     int getErrorCounter();
 
+    const TileHid2RESrcID * getHid2reHLT() {
+      if (!m_hid2reHLT) initHid2reHLT();
+      return m_hid2reHLT;
+    }
+
     const TileHid2RESrcID * getHid2re() {
       if (!m_hid2re) initHid2re();
       return m_hid2re;
@@ -500,12 +505,15 @@ class TileROD_Decoder: public AthAlgTool {
     bool m_correctAmplitude;
 
     TileHid2RESrcID * m_hid2re;
+    TileHid2RESrcID * m_hid2reHLT;
 
     std::vector<int> m_list_of_masked_drawers;
     void initHid2re();
+    void initHid2reHLT();
     void initTileMuRcvHid2re();
 
     unsigned int m_maxChannels;
+    unsigned int m_fullTileRODs;
 
     const uint32_t * get_data(const ROBData * rob) {
       const uint32_t * p;
