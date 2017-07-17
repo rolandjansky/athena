@@ -914,7 +914,7 @@ def defineMenu():
     
 
 #CTP IDs are taken from this mapping. Every L1 item needs a unique ctpid.
-#Free CTP IDs (2017-07-17) are: 479, 481, 486, 487, 488
+#Free CTP IDs (2017-07-17) are: 477-479, 481, 486, 487, 488
 # 463-464 are reserved for L1_RD2_BGRP14 and L1_RD3_BGRP15 (in MC_Physics_pp_v7)
 # 509-511 are reserved for CALREQ
 
