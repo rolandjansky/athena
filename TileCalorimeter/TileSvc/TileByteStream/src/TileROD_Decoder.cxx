@@ -70,6 +70,7 @@ TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& nam
   declareProperty("calibrateEnergy", m_calibrateEnergy = true); // convert ADC counts to pCb for RawChannels
   declareProperty("suppressDummyFragments", m_suppressDummyFragments = false);
   declareProperty("maskBadDigits", m_maskBadDigits = false); // put -1 in digits vector for channels with bad BCID or CRC in unpack_frag0
+  declareProperty("MaxWarningPrint", m_maxWarningPrint = 1000);
   declareProperty("MaxErrorPrint", m_maxErrorPrint = 100);
 
   declareProperty("AllowedTimeMin", m_allowedTimeMin = -50.); // set amp to zero if time is below allowed time min
@@ -99,6 +100,7 @@ TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& nam
   m_container = 0;
   m_MBTS = NULL;
   m_cell2Double.reserve(23); // Maximum number of cells in a drawer
+  m_WarningCounter = 0;
   m_ErrorCounter = 0;
   
   m_OFWeights.resize(4 * TileCalibUtils::MAX_DRAWERIDX, NULL);
@@ -128,10 +130,20 @@ const InterfaceID& TileROD_Decoder::interfaceID() {
   return IID_ITileROD_Decoder;
 }
 
+void TileROD_Decoder::printWarningCounter(bool printIfNoWarning) {
+  if (printIfNoWarning || m_WarningCounter > 0) {
+    ATH_MSG_WARNING( "Found " << m_WarningCounter << " warnings in decoding words");
+  }
+}
+
 void TileROD_Decoder::printErrorCounter(bool printIfNoError) {
   if (printIfNoError || m_ErrorCounter > 0) {
     ATH_MSG_ERROR( "Found " << m_ErrorCounter << " errors in decoding words");
   }
+}
+
+int TileROD_Decoder::getWarningCounter() {
+  return m_WarningCounter;
 }
 
 int TileROD_Decoder::getErrorCounter() {
@@ -216,6 +228,7 @@ StatusCode TileROD_Decoder::finalize() {
     m_Rw2Pmt[i].clear();
   }
   m_list_of_masked_drawers.clear();
+  if (m_WarningCounter != 0) printWarningCounter(1);
   if (m_ErrorCounter != 0) printErrorCounter(1);
   return StatusCode::SUCCESS;
 }
@@ -2859,7 +2872,7 @@ void TileROD_Decoder::fillCollectionL2(const ROBData * rob, TileL2Container & v)
     bool V3format = (*(p) == 0xff1234ff); // additional frag marker since Sep 2005
     if (!V3format && version>0xff) {
       V3format = true;
-      if ((m_ErrorCounter++) < m_maxErrorPrint)
+      if ((m_WarningCounter++) < m_maxWarningPrint)
         ATH_MSG_WARNING("fillCollectionL2( corrupted frag separator 0x" << MSG::hex << (*p) << " instead of 0xff1234ff in ROB 0x" << rob->rod_source_id() << MSG::dec );
     }
     if (V3format) ++p; // skip frag marker
@@ -3065,8 +3078,8 @@ void TileROD_Decoder::fillTileLaserObj(const ROBData * rob, TileLaserObject & v)
   bool V3format = (*(p) == 0xff1234ff); // additional frag marker since Sep 2005
   if (!V3format && version>0) {
     V3format = true;
-    if ((m_ErrorCounter++) < m_maxErrorPrint)
-      ATH_MSG_ERROR("fillTileLaserObj: corrupted frag separator 0x" << MSG::hex << (*p) << " instead of 0xff1234ff in ROB 0x" << rob->rod_source_id() << MSG::dec );
+    if ((m_WarningCounter++) < m_maxWarningPrint)
+      ATH_MSG_WARNING("fillTileLaserObj: corrupted frag separator 0x" << MSG::hex << (*p) << " instead of 0xff1234ff in ROB 0x" << rob->rod_source_id() << MSG::dec );
   }
   if (V3format) {
     ++p; // skip frag marker
@@ -3174,8 +3187,8 @@ void TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollection 
     bool V3format = (*(p) == 0xff1234ff); // additional frag marker since Sep 2005
     if (!V3format && version>0xff) {
       V3format = true;
-      if ((m_ErrorCounter++) < m_maxErrorPrint)
-        ATH_MSG_ERROR("fillCollectionHLT: corrupted frag separator 0x" << MSG::hex << (*p) << " instead of 0xff1234ff in ROB 0x" << rob->rod_source_id() << MSG::dec );
+      if ((m_WarningCounter++) < m_maxWarningPrint)
+        ATH_MSG_WARNING("fillCollectionHLT: corrupted frag separator 0x" << MSG::hex << (*p) << " instead of 0xff1234ff in ROB 0x" << rob->rod_source_id() << MSG::dec );
     }
     if (V3format) {
       ++p; // skip frag marker

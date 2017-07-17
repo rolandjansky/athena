@@ -142,6 +142,9 @@ class TileROD_Decoder: public AthAlgTool {
     void printErrorCounter(bool printIfNoError);
     int getErrorCounter();
 
+    void printWarningCounter(bool printIfNoWarning);
+    int getWarningCounter();
+
     const TileHid2RESrcID * getHid2reHLT() {
       if (!m_hid2reHLT) initHid2reHLT();
       return m_hid2reHLT;
@@ -497,12 +500,14 @@ class TileROD_Decoder: public AthAlgTool {
     // Error reporting (needs to be mutable)
     mutable uint32_t m_error;
 
+    int m_maxWarningPrint;
     int m_maxErrorPrint;
 
     // Pointer to TileL2Builder
     TileL2Builder* m_L2Builder;
     std::string m_TileDefaultL2Builder;
 
+    int m_WarningCounter;
     int m_ErrorCounter;
     bool m_correctAmplitude;
 
@@ -538,8 +543,8 @@ class TileROD_Decoder: public AthAlgTool {
         max_allowed_size = 0;
       if (size < 3 && size > 0) {
         if (rob->rod_source_id() > 0x50ffff) m_error |= 0x10000; // indicate error in frag size, but ignore error in laser ROD
-        if (m_ErrorCounter < (m_maxErrorPrint--)) {
-          ATH_MSG_ERROR("ROB " << MSG::hex << rob->source_id()
+        if (m_WarningCounter < (m_maxWarningPrint--)) {
+          ATH_MSG_WARNING("ROB " << MSG::hex << rob->source_id()
               << " ROD " << rob->rod_source_id() << MSG::dec
               << " has unexpected data size: " << size << " - assuming zero size " );
         }
@@ -548,32 +553,32 @@ class TileROD_Decoder: public AthAlgTool {
         if (rob->rod_source_id() > 0x50ffff) m_error |= 0x10000; // indicate error in frag size, but ignore error in laser ROD
 
         if (size - rob->rod_trailer_size_word() < max_allowed_size) {
-          if ((m_ErrorCounter++) < m_maxErrorPrint) {
-            ATH_MSG_ERROR("ROB " << MSG::hex << rob->source_id()
-                          << " ROD " << rob->rod_source_id() << MSG::dec
-                          << " data size " << size << " is longer than allowed size " << max_allowed_size
-                          << " - assuming that ROD trailer is shorter: "
-                          << rob->rod_trailer_size_word()-(size-max_allowed_size)
-                          << " words instead of " << rob->rod_trailer_size_word());
+          if ((m_WarningCounter++) < m_maxWarningPrint) {
+            ATH_MSG_WARNING("ROB " << MSG::hex << rob->source_id()
+                            << " ROD " << rob->rod_source_id() << MSG::dec
+                            << " data size " << size << " is longer than allowed size " << max_allowed_size
+                            << " - assuming that ROD trailer is shorter: "
+                            << rob->rod_trailer_size_word()-(size-max_allowed_size)
+                            << " words instead of " << rob->rod_trailer_size_word());
           }
           max_allowed_size = size;
         } else if (size - rob->rod_trailer_size_word() == max_allowed_size) {
-          if ((m_ErrorCounter++) < m_maxErrorPrint) {
-            ATH_MSG_ERROR("ROB " << MSG::hex << rob->source_id()
-                          << " ROD " << rob->rod_source_id() << MSG::dec
-                          << " data size " << size << " is longer than allowed size " << max_allowed_size
-                          << " - assuming that ROD trailer ("
-                          << rob->rod_trailer_size_word()
-                          << " words) is absent");
+          if ((m_WarningCounter++) < m_maxWarningPrint) {
+            ATH_MSG_WARNING("ROB " << MSG::hex << rob->source_id()
+                            << " ROD " << rob->rod_source_id() << MSG::dec
+                            << " data size " << size << " is longer than allowed size " << max_allowed_size
+                            << " - assuming that ROD trailer ("
+                            << rob->rod_trailer_size_word()
+                            << " words) is absent");
           }
           max_allowed_size = size;
         } else {
           max_allowed_size += rob->rod_trailer_size_word();
-          if ((m_ErrorCounter++) < m_maxErrorPrint) {
-            ATH_MSG_ERROR("ROB " << MSG::hex << rob->source_id()
-                          << " ROD " << rob->rod_source_id() << MSG::dec
-                          << " has unexpected data size: " << size
-                          << " - assuming data size = " << max_allowed_size << " words and no ROD trailer at all" );
+          if ((m_WarningCounter++) < m_maxWarningPrint) {
+            ATH_MSG_WARNING("ROB " << MSG::hex << rob->source_id()
+                            << " ROD " << rob->rod_source_id() << MSG::dec
+                            << " has unexpected data size: " << size
+                            << " - assuming data size = " << max_allowed_size << " words and no ROD trailer at all" );
           }
         }
         return max_allowed_size;
@@ -826,8 +831,8 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
     V3format |= (*(p) == 0x00123400); // additional frag marker since Sep 2005 (can appear in buggy ROD frags)
     if (!V3format && version>0xff) {
       V3format = true;
-      if ((m_ErrorCounter++) < m_maxErrorPrint)
-        ATH_MSG_ERROR("fillCollection: corrupted frag separator 0x" << MSG::hex << (*p) << " instead of 0xff1234ff in ROB 0x" << rob->rod_source_id() << MSG::dec );
+      if ((m_WarningCounter++) < m_maxWarningPrint)
+        ATH_MSG_WARNING("fillCollection: corrupted frag separator 0x" << MSG::hex << (*p) << " instead of 0xff1234ff in ROB 0x" << rob->rod_source_id() << MSG::dec );
     }
     if (V3format) {
       ++p; // skip frag marker
