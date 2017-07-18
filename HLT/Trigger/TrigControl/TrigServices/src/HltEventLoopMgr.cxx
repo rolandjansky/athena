@@ -1966,8 +1966,8 @@ void HltEventLoopMgr::bookHistograms()
 
   // *-- HLT result size plot (Stream Physiscs Main)
   m_hist_Hlt_result_size_physics = 
-    new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Stream (Main:physics))").c_str(),
-              (m_histProp_Hlt_result_size.value().title() + "-(Stream (Main:physics))" + ";words;entries").c_str(),
+    new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Stream (Main_physics))").c_str(),
+              (m_histProp_Hlt_result_size.value().title() + "-(Stream (Main_physics))" + ";words;entries").c_str(),
               m_histProp_Hlt_result_size.value().bins(),
               m_histProp_Hlt_result_size.value().lowEdge(),
               m_histProp_Hlt_result_size.value().highEdge());
@@ -1978,8 +1978,8 @@ void HltEventLoopMgr::bookHistograms()
 
   // *-- HLT result size plot (Stream Express)
   m_hist_Hlt_result_size_express = 
-    new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Stream (express:express))").c_str(),
-              (m_histProp_Hlt_result_size.value().title() + "-(Stream (express:express))" + ";words;entries").c_str(),
+    new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Stream (express_express))").c_str(),
+              (m_histProp_Hlt_result_size.value().title() + "-(Stream (express_express))" + ";words;entries").c_str(),
               m_histProp_Hlt_result_size.value().bins(),
               m_histProp_Hlt_result_size.value().lowEdge(),
               m_histProp_Hlt_result_size.value().highEdge());
@@ -1990,8 +1990,8 @@ void HltEventLoopMgr::bookHistograms()
 
   // *-- HLT result size plot (Stream calibration, DataScouting results)
   m_hist_Hlt_result_size_DataScouting = 
-    new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Streams (DataScouting_*:calibration))").c_str(),
-              (m_histProp_Hlt_result_size.value().title() + "-(Streams (DataScouting_*:calibration))" + ";words;entries").c_str(),
+    new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Streams (DataScouting_*_calibration))").c_str(),
+              (m_histProp_Hlt_result_size.value().title() + "-(Streams (DataScouting_*_calibration))" + ";words;entries").c_str(),
               m_histProp_Hlt_result_size.value().bins(),
               m_histProp_Hlt_result_size.value().lowEdge(),
               m_histProp_Hlt_result_size.value().highEdge());
