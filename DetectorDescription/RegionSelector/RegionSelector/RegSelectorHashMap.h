@@ -101,8 +101,6 @@ class RegSelectorHashMap{
   std::vector<std::vector<uint32_t> > m_robId;
   double m_etaminDet, m_etamaxDet;
   double m_phiminDet, m_phimaxDet;
-  double m_numCols, m_numLines;
-  double m_phiMinVal, m_etaMinVal;
   int m_NumSamples;
   int m_iColumns, m_iLines;
   bool m_readFromFile;
