@@ -205,7 +205,8 @@ class CondDB:
         self.iovdbsvc.Folders+=[folderadd]
 
         if className:
-            condInputLoader.Load += [ (className, folder) ]
+            import string
+            condInputLoader.Load += [ (className, string.split(folder)[0]) ]
 
     def addFolderWithTag(self,ident,folder,tag,force=False,forceMC=False,forceData=False):
         "Add access to the given folder/schema, using a specified tag"
