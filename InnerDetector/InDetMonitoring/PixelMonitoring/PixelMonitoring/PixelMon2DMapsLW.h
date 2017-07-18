@@ -33,11 +33,15 @@ class PixelMon2DMapsLW : public PixMon::HolderTemplate<TH2F_LW> {
   //! Constructor for 2D map objects
   PixelMon2DMapsLW(std::string name, std::string title, const PixMon::HistConf& config, bool copy2DFEval = false);
 
-  //! Main fill method (reimplemented from template)
-  virtual void Fill(Identifier &id, const PixelID* pixID) override;
-
-  //! Weighted fill method --> CANDIDATE FOR MERGE WITH ABOVE METHOD
-  void WeightingFill(Identifier &id, const PixelID* pixID, float weight);
+  /**
+   * Standard method to fill the histograms of this container.
+   *
+   * @param id: the identifier of the pixel unit
+   * @param pixID: instance of the class which translates the above ID
+   *        into readable info (e.g. eta/phi module index)
+   * @param weight: optional weighting factor
+   */
+  void Fill(Identifier &id, const PixelID* pixID, float weight = 1.0);
 
   //! Fill method which takes values from another map
   void Fill2DMon(PixelMon2DMapsLW* oldmap);

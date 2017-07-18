@@ -55,16 +55,6 @@ class HolderTemplate {
     }
   }
 
-  /**
-   * Standard method to fill the histograms of this container. Reimplemented
-   * in the derived classes.
-   *
-   * @param id: the identifier of the pixel unit
-   * @param pixID: instance of the class which translates the above ID
-   * into readable info (e.g. eta/phi module index)
-   */
-  virtual void Fill(Identifier& id, const PixelID* pixID) = 0;
-
   //! Function for histogram formatting. To be reimplemented in derived classes.
   virtual void formatHist() = 0;
 

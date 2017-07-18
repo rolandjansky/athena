@@ -540,7 +540,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
              pixlayeribl2d3d < PixLayerIBL2D3D::COUNT &&
              nChannels_mod[pixlayeribl2d3d] > 0 )
         {
-          m_average_pixocc->WeightingFill(rdoID, m_pixelid, 1.0/( 1.0*nChannels_mod[pixlayeribl2d3d]) );
+          m_average_pixocc->Fill(rdoID, m_pixelid, 1.0/( 1.0*nChannels_mod[pixlayeribl2d3d]) );
         }
 
        
