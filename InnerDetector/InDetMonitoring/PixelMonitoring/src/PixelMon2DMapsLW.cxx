@@ -13,20 +13,7 @@
 #include "GaudiKernel/StatusCode.h"     
 #include <string.h>
 
-PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title, const PixMon::HistConf& config, bool copy2DFEval)
-    : IBL(nullptr),
-      IBL2D(nullptr),
-      IBL3D(nullptr),
-      B0(nullptr),
-      B1(nullptr),
-      B2(nullptr),
-      A(nullptr),
-      C(nullptr),
-      DBMA(nullptr),
-      DBMC(nullptr),
-      m_config(config),
-      m_copy2DFEval(copy2DFEval)
-{
+PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title, const PixMon::HistConf& config, bool copy2DFEval) : HolderTemplate<TH2F_LW>(config, copy2DFEval) {
    std::string setatext = ";shifted eta index of module";
    std::string etatext = ";eta index of module";
    std::string phitext = ";phi index of module";
@@ -84,16 +71,7 @@ PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title, const Pi
                             PixMon::kNumModulesDBM, -0.5, -0.5 + PixMon::kNumModulesDBM);
    }
 
-   m_histograms = {IBL, IBL2D, IBL3D, B0, B1, B2, A, C, DBMA, DBMC};
-
    formatHist();
-}
-
-PixelMon2DMapsLW::~PixelMon2DMapsLW()
-{
-   for (auto& hist : m_histograms) {
-      if (hist) LWHist::safeDelete(hist);
-   }
 }
 
 void PixelMon2DMapsLW::Fill(Identifier &id, const PixelID* pixID)
@@ -180,13 +158,13 @@ void PixelMon2DMapsLW::Fill2DMon(PixelMon2DMapsLW* oldmap)
    for (unsigned int index = 0; index < m_histograms.size(); ++index) {
       auto& hist = m_histograms.at(index);
       auto& oldhist = oldmap->m_histograms.at(index);
-      if (!hist) continue;
-      if (!oldhist) continue;
-      for (unsigned int x = 1; x <= hist->GetNbinsX(); ++x) {
-         for (unsigned int y = 1; y <= hist->GetNbinsY(); ++y) {
-            const auto content = oldhist->GetBinContent(x, y);
-            hist->SetBinContent(x, y, content);
-            oldhist->SetBinContent(x, y, 0);
+      if (!*hist) continue;
+      if (!*oldhist) continue;
+      for (unsigned int x = 1; x <= (*hist)->GetNbinsX(); ++x) {
+         for (unsigned int y = 1; y <= (*hist)->GetNbinsY(); ++y) {
+            const auto content = (*oldhist)->GetBinContent(x, y);
+            (*hist)->SetBinContent(x, y, content);
+            (*oldhist)->SetBinContent(x, y, 0);
          }
       }
    }
@@ -252,29 +230,13 @@ void PixelMon2DMapsLW::formatHist()
    }
 
    for (auto& hist : m_histograms) {
-      if (!hist) continue;
-      if (hist == A || hist == C) {
-         hist->GetYaxis()->SetLabelSize(0.02);
+      if (!*hist) continue;
+      if (*hist == A || *hist == C) {
+         (*hist)->GetYaxis()->SetLabelSize(0.02);
       } else {
-         hist->GetYaxis()->SetLabelSize(0.03);
+         (*hist)->GetYaxis()->SetLabelSize(0.03);
       }
-      hist->SetOption("colz");
-      hist->SetMinimum(0.);
+      (*hist)->SetOption("colz");
+      (*hist)->SetMinimum(0.);
    }
 }
-
-StatusCode PixelMon2DMapsLW::regHist(ManagedMonitorToolBase::MonGroup &group)
-{
-   StatusCode sc = StatusCode::SUCCESS;
-
-   for (auto& hist : m_histograms) {
-      if (!hist) continue;
-      if (group.regHist(hist).isFailure()) {
-         sc = StatusCode::FAILURE;
-      }
-   }
-
-   return sc;
-}
-
-const bool PixelMon2DMapsLW::m_doIBL{true};

@@ -250,10 +250,10 @@ void PixelMon2DProfilesLW::FillFromMap(PixelMon2DMapsLW* inputmap, bool clear_in
       auto& hist = m_histograms.at(index);
       auto& map = inputmap->m_histograms.at(index);
       if (!hist) continue;
-      if (!map) continue;
+      if (!*map) continue;
       for (unsigned int x = 1; x <= hist->GetNbinsX(); x++) {
          for (unsigned int y = 1; y <= hist->GetNbinsY(); y++) {
-            auto content = map->GetBinContent(x, y);
+            auto content = (*map)->GetBinContent(x, y);
             if (hist == IBL || hist == IBL3D || hist == DBMA || hist == DBMC) {
                content *= weightIBL;
             } else if (hist == IBL2D) {
@@ -261,10 +261,10 @@ void PixelMon2DProfilesLW::FillFromMap(PixelMon2DMapsLW* inputmap, bool clear_in
             } else {
                content *= weightPixel;
             }
-            hist->Fill(map->GetXaxis()->GetBinCenter(x), map->GetYaxis()->GetBinCenter(y), content);
+            hist->Fill((*map)->GetXaxis()->GetBinCenter(x), (*map)->GetYaxis()->GetBinCenter(y), content);
          }
       }
-      if (clear_inputmap) map->Reset();
+      if (clear_inputmap) (*map)->Reset();
    }
 }
 
