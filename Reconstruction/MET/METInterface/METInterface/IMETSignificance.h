@@ -37,6 +37,14 @@ public:
   // Additional utility commands
   ///////////////////////////////////////////////////////////////////
 
+  virtual double GetMETOverSqrtSumET() const = 0 ; 
+  virtual double GetMETOverSqrtHT   () const = 0 ; 
+  virtual double GetSignificance()     const = 0 ;
+  virtual double GetSigDirectional()   const = 0 ;
+  virtual double GetRho()              const = 0 ;
+  virtual double GetVarL()             const = 0 ;
+  virtual double GetVarT()             const = 0 ;
+
 };
 
 #endif
