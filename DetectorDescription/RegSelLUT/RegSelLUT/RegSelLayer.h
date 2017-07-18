@@ -42,15 +42,14 @@ public:
   
   RegSelLayer() : 
     ZRObject(0,0,0,0), 
-    m_set(false), m_ID(0), m_detID(0), 
-    m_modules(0),   m_disabled(0), m_Nphi(0),  m_Nz(0), m_Nr(0),
-    m_ideltaphi(0), m_ideltaz(0),  m_phiMin(0), m_phiMax(0), m_phimaps(0) { }   
+    m_set(false), m_ID(0),
+    m_modules(0),   m_disabled(0), m_Nphi(0),
+    m_ideltaphi(0), m_phiMin(0), m_phiMax(0), m_phimaps(0) { }   
   
   RegSelLayer(double rmin, double rmax, double zmin, double zmax) :
     ZRObject(rmin, rmax, zmin, zmax), 
-    m_set(true), m_ID(0), m_detID(0), m_modules(0), m_disabled(0), m_Nphi(0),
-    m_Nz(0), m_Nr(0),
-    m_ideltaphi(0), m_ideltaz(0),  m_phiMin(0), m_phiMax(0), m_phimaps(0) { }    
+    m_set(true), m_ID(0), m_modules(0), m_disabled(0), m_Nphi(0),
+    m_ideltaphi(0), m_phiMin(0), m_phiMax(0), m_phimaps(0) { }    
   
   void reset(); 
 
@@ -99,7 +98,6 @@ private:
 
   bool m_set;
   int  m_ID;
-  int  m_detID;
 
   std::vector<const RegSelModule*> m_modules;
   std::vector<const RegSelModule*> m_disabled;
@@ -108,11 +106,8 @@ private:
 
 
   int m_Nphi;
-  int m_Nz;
-  int m_Nr;
 
   double m_ideltaphi;
-  double m_ideltaz;
 
   double m_phiMin;
   double m_phiMax; 
