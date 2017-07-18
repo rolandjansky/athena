@@ -66,6 +66,9 @@ if len(globalflags.ConditionsTag()):
     from IOVDbSvc.CondDB import conddb
     conddb.setGlobalTag(globalflags.ConditionsTag())
 
+# Temporary work-around - see ATLASSIM-2351
+if ISF_Flags.UsingGeant4():
+    include("G4AtlasApps/G4Atlas.flat.configuration.py") #TEST
 
 #--------------------------------------------------------------
 # Setup the ISF Services
@@ -127,22 +130,6 @@ topSeq += getAlgorithm("BeamEffectsAlg")
 collection_merger_alg = getAlgorithm('ISF_CollectionMerger')
 
 SimKernel = getAlgorithm(ISF_Flags.Simulator.KernelName())
-
-# Temporary work-around - see ATLASSIM-2351
-if ISF_Flags.UsingGeant4():
-
-    # ADS: moved here from iGeant4.py
-    try:
-        # the non-hive version of G4AtlasApps provides PyG4AtlasAlg
-        from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-        topSequence += PyG4AtlasAlg()
-    except ImportError:
-        try:
-            # the hive version provides PyG4AtlasSvc
-            from G4AtlasApps.PyG4Atlas import PyG4AtlasSvc
-            ServiceMgr += PyG4AtlasSvc()
-        except ImportError:
-            print "FATAL: Failed to import PyG4AtlasAlg/Svc"
 
 if ISF_Flags.ValidationMode():
     topSeq += getAlgorithm("ISF_SimHitTreeCreator")

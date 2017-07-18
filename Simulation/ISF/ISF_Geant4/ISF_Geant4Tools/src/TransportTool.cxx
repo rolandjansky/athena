@@ -118,13 +118,6 @@ StatusCode iGeant4::G4TransportTool::initialize()
   ATH_CHECK( m_userActionSvc.retrieve() );
 
   ATH_CHECK(m_g4atlasSvc.retrieve());
-  if(m_useMT) {
-    // Retrieve the python service to trigger its initialization. This is done
-    // here just to make sure things are initialized in the proper order.
-    // Hopefully we can drop this at some point.
-    ServiceHandle<IService> pyG4Svc("PyAthena::Svc/PyG4AtlasSvc", name());
-    ATH_CHECK( pyG4Svc.retrieve() );
-  }
 
   if (m_recordFlux) G4ScoringManager::GetScoringManager();
 
