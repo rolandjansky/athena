@@ -10,7 +10,6 @@
 #include "xAODCore/ShallowAuxContainer.h"
 
 using namespace std;
-using namespace fastjet;
 
 //------------------------------------------------------------------------------
 PuppiWeightTool::PuppiWeightTool(const std::string& name) : JetConstituentModifierBase(name) {
