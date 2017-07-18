@@ -293,12 +293,11 @@ int main( int argc, char** argv ) {
 	
 	if ( veto.size()>0 ) for ( size_t iv=veto.size() ;  iv-- ; )  condition &= !( contains( expl[expected_size-2], veto[iv] ) ||  contains( expl[expected_size-1], veto[iv] ) );
 
-	if ( ( excluded || ( !contains( expl[5], "EFID" )   && !contains( expl[4], "gsc" )   &&
-			     !contains( expl[4], "medium" ) && !contains( expl[4], "loose" ) && 
-			     !contains( expl[4], "2015" )   &&  !contains( expl[4], "_r1_" ) && 
-			     !( contains( expl[4], "_track" ) && !contains( expl[4], "tracktwo") )&&  
-			     !contains( expl[4], "L2Star" ) && !contains( expl[4], "Shifter" ) ) ) && 
-	     condition ) {  
+	if ( condition && ( excluded || ( !contains( expl[5], "EFID" )   && !contains( expl[4], "gsc" )   &&
+                                          !contains( expl[4], "medium" ) && !contains( expl[4], "loose" ) && 
+                                          !contains( expl[4], "2015" )   &&  !contains( expl[4], "_r1_" ) && 
+                                          !( contains( expl[4], "_track" ) && !contains( expl[4], "tracktwo") )&&  
+                                          !contains( expl[4], "L2Star" ) && !contains( expl[4], "Shifter" ) ) ) ) {  
 	  
 	  double thresh_var = std::atof( tmp.c_str() );
 	  int    counts_var = counts;

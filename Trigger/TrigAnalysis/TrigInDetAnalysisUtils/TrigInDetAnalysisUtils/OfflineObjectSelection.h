@@ -14,11 +14,12 @@
 #include "xAODEgamma/Electron.h"
 #include "xAODMuon/Muon.h"
 #include "xAODTau/TauJet.h"
+
        
 namespace TIDA {
-  bool isGoodOffline(const xAOD::Electron& elec, const unsigned int selection = 0, double ETOffline=0 ); 
-  bool isGoodOffline(const xAOD::Muon& muon, double ETOffline=0); 
-  bool isGoodOffline(const xAOD::TauJet& tau,  const unsigned int selection=0, int requireNtracks=0, double EtOffline=0.0 ); 
+  bool isGoodOffline(const xAOD::Electron& elec, const unsigned int selection=0, double ETOffline=0 ); 
+  bool isGoodOffline(const xAOD::Muon&     muon, const unsigned int selection=0, double ETOffline=0 );
+  bool isGoodOffline(const xAOD::TauJet&   tau,  const unsigned int selection=0, int requireNtracks=0, double EtOffline=0.0 ); 
 }
 
 #else 
