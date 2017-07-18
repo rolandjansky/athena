@@ -37,7 +37,7 @@ def swapItems():
 	standby_rulemod		 		= importlib.import_module("TrigMenuRulebook.Standby_%s_rules" % tag)
 	cosmic_rulemod		 		= importlib.import_module("TrigMenuRulebook.Cosmic_%s_rules" % tag)
 	toroidoff_rulemod	 		= importlib.import_module("TrigMenuRulebook.Physics_%s_ToroidOff_rules" % tag)
-	startup_rulemod		 		= importlib.import_module("TrigMenuRulebook.Physics_%s_startup_rules" % tag)
+#	startup_rulemod		 		= importlib.import_module("TrigMenuRulebook.Physics_%s_startup_rules" % tag)
 	monitoring_rulemod.rules = monitoring_rulemod.physics_rules
 #	modules = (physics_rulemod,monitoring_rulemod,standby_rulemod,cosmic_rulemod,toroidoff_rulemod,commissioning_rulemod,startup_rulemod)
 #	modules = (physics_rulemod,monitoring_rulemod,standby_rulemod,cosmic_rulemod,toroidoff_rulemod,commissioning_rulemod)
