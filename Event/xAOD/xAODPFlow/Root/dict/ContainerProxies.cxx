@@ -9,6 +9,8 @@
 
 // Local include(s):
 #include "xAODPFlow/versions/PFOContainer_v1.h"
+#include "xAODPFlow/versions/TrackCaloClusterContainer_v1.h"
 
 // Set up the collection proxies:
 ADD_NS_DV_PROXY( xAOD, PFOContainer_v1 );
+ADD_NS_DV_PROXY( xAOD, TrackCaloClusterContainer_v1 );

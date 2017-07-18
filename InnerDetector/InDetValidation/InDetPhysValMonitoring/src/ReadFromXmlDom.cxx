@@ -20,8 +20,8 @@
 
 namespace {
   bool
-  validAxisName(const std::string& proposedName, const std::array<std::string, 2>& allowedNames) {
-    return((proposedName == allowedNames[0])or(proposedName == allowedNames[1]));
+  validAxisName(const std::string& proposedName, const std::array<std::string, 3>& allowedNames) {
+    return((proposedName == allowedNames[0])or(proposedName == allowedNames[1])or(proposedName == allowedNames[2]));
   }
 }
 
@@ -118,12 +118,11 @@ SingleHistogramDefinition
 ReadFromXmlDom::parseXmlElement(const xercesc::DOMElement* element) {
   SingleHistogramDefinition s;
   enum RegXHistoGroups {
-    TYPE, NAME, TITLE, NX, NY, XLO, YLO, XHI, YHI, XAXIS, YAXIS, FOLDER, NGROUPS
+    TYPE, NAME, TITLE, NX, NY, NZ, XLO, YLO, ZLO, XHI, YHI, ZHI, XAXIS, YAXIS, ZAXIS, FOLDER, NGROUPS
   };
   const std::array<std::string, NGROUPS> attrNames = {
-    "type", "id", "title", "n", "n", "lo", "lo", "hi", "hi", "title", "title", "folder"
+    "type", "id", "title", "n", "n", "n", "lo", "lo", "lo", "hi", "hi", "hi", "title", "title", "title", "folder"
   };
-
   //
   // transform the std::string attribute names to Xerces string attribute names
   std::array<XercesString, NGROUPS> xercesNames;
@@ -133,9 +132,9 @@ ReadFromXmlDom::parseXmlElement(const xercesc::DOMElement* element) {
   // Use this array to store the primary returned attribute values, which will be Xerces strings
   std::array<XercesString, NGROUPS> xercesValues;
   //
-  constexpr unsigned int NAXES = 2; // allow only two axes, could be extended later
+  constexpr unsigned int NAXES = 3; // allow only two axes, could be extended later
   const std::array<std::string, NAXES> allowedAxisNames = {
-    "x", "y"
+    "x", "y", "z"
   };
 
   //
@@ -164,11 +163,14 @@ ReadFromXmlDom::parseXmlElement(const xercesc::DOMElement* element) {
   // only allow two axes, but could be ordered x-y or y-x
   std::string axisName0 = toNative(axisDef0->getTagName());
   std::string axisName1 = toNative(axisDef1->getTagName());
+  const xercesc::DOMElement* axisDef2 = axisDef1->getNextElementSibling();
+  std::string axisName2 = axisDef2 ? toNative(axisDef2->getTagName()) : "z";
   if (validAxisName(axisName0, allowedAxisNames) 
    and validAxisName(axisName1,allowedAxisNames) 
-   and (axisName1 != axisName0)) {
+   and validAxisName(axisName2,allowedAxisNames)
+   and (axisName1 != axisName0) and (axisName2 != axisName1)) {
     // default order
-    unsigned int xIndex = 0, yIndex = 1;
+    unsigned int xIndex = 0, yIndex = 1, zIndex = 2;
     if (axisName0 == allowedAxisNames[1]) {
       // inverted order
       xIndex = 1;
@@ -176,12 +178,16 @@ ReadFromXmlDom::parseXmlElement(const xercesc::DOMElement* element) {
     }
     xercesValues[NX + xIndex] = axisDef0->getAttribute(xercesNames[NX + xIndex].c_str());
     xercesValues[NX + yIndex] = axisDef1->getAttribute(xercesNames[NX + yIndex].c_str());
+    xercesValues[NX + zIndex] = axisDef2 ? axisDef2->getAttribute(xercesNames[NX + zIndex].c_str()) : XercesString();
     xercesValues[XLO + xIndex] = axisDef0->getAttribute(xercesNames[XLO + xIndex].c_str());
     xercesValues[XLO + yIndex] = axisDef1->getAttribute(xercesNames[XLO + yIndex].c_str());
+    xercesValues[XLO + zIndex] = axisDef2 ? axisDef2->getAttribute(xercesNames[XLO + zIndex].c_str()) : XercesString();
     xercesValues[XHI + xIndex] = axisDef0->getAttribute(xercesNames[XHI + xIndex].c_str());
     xercesValues[XHI + yIndex] = axisDef1->getAttribute(xercesNames[XHI + yIndex].c_str());
+    xercesValues[XHI + zIndex] = axisDef2 ? axisDef2->getAttribute(xercesNames[XHI + zIndex].c_str()) : XercesString();
     xercesValues[XAXIS + xIndex] = axisDef0->getAttribute(xercesNames[XAXIS + xIndex].c_str());
     xercesValues[XAXIS + yIndex] = axisDef1->getAttribute(xercesNames[XAXIS + yIndex].c_str());
+    xercesValues[XAXIS + zIndex] = axisDef2 ? axisDef2->getAttribute(xercesNames[XAXIS + zIndex].c_str()) : XercesString();
     // transform Xerces strings to normal std::string
     std::array<std::string, NGROUPS> stringValues {
       ""
@@ -193,13 +199,17 @@ ReadFromXmlDom::parseXmlElement(const xercesc::DOMElement* element) {
     const float NaN = std::nanf(""); // default 'invalid' float is not-a-number (NaN)
     const unsigned int nx = stringValues[NX].empty() ? 0 : (unsigned int) (std::stoul(stringValues[NX]));
     const unsigned int ny = stringValues[NY].empty() ? 0 : (unsigned int) (std::stoul(stringValues[NY]));
+    const unsigned int nz = stringValues[NZ].empty() ? 0 : (unsigned int) (std::stoul(stringValues[NZ]));
     const float xlo = stringValues[XLO].empty() ? NaN : std::stof(stringValues[XLO]);
     const float ylo = stringValues[YLO].empty() ? NaN : std::stof(stringValues[YLO]);
+    const float zlo = stringValues[ZLO].empty() ? NaN : std::stof(stringValues[ZLO]);
     const float xhi = stringValues[XHI].empty() ? NaN : std::stof(stringValues[XHI]);
     const float yhi = stringValues[YHI].empty() ? NaN : std::stof(stringValues[YHI]);
+    const float zhi = stringValues[ZHI].empty() ? NaN : std::stof(stringValues[ZHI]);
     // now build the histogram definition to return
-    SingleHistogramDefinition sx(stringValues[NAME], stringValues[TYPE], stringValues[TITLE], nx, ny, xlo, xhi, ylo,
-                                 yhi, stringValues[XAXIS], stringValues[YAXIS],
+    SingleHistogramDefinition sx(stringValues[NAME], stringValues[TYPE], stringValues[TITLE], 
+				 nx, ny, nz, xlo, xhi, ylo, yhi, zlo, zhi,
+				 stringValues[XAXIS], stringValues[YAXIS], stringValues[ZAXIS],
                                  stringValues[FOLDER]);
     return sx;
   }
