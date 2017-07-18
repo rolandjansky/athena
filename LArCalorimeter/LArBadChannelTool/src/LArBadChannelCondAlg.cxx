@@ -12,8 +12,8 @@
 
 LArBadChannelCondAlg::LArBadChannelCondAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_BCInputKey("/LAr/ElecCalibFlat"),
-  m_BCOutputKey("LArFlatCond","LArFlatCond"),
+  m_BCInputKey("/LAR/BadChannelsOfl/BadChannels"),
+  m_BCOutputKey("LArBadChannel","LArBadChannel"),
   m_condSvc("CondSvc",name)
 {
   declareProperty("ReadKey",m_BCInputKey);
