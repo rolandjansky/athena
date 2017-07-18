@@ -86,6 +86,8 @@ def getGenEventRotator(name="GenEventRotator", **kwargs):
 #--------------------------------------------------------------------------------------------------
 ## Algorithms
 def getBeamEffectsAlg(name="BeamEffectsAlg", **kwargs):
+    kwargs.setdefault('InputMcEventCollection', 'GEN_EVENT')
+    kwargs.setdefault('OutputMcEventCollection', 'BeamTruthEvent')
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("ISFRun", simFlags.ISFRun()) #FIXME Temporary property so that we don't change the output in the initial switch to this code.
     manipulatorList = ['GenEventValidityChecker']

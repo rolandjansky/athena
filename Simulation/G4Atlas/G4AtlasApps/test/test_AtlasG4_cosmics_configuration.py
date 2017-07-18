@@ -5,11 +5,11 @@ import subprocess
 import unittest
 
 
-class TestAtlasG4(unittest.TestCase):
+class TestAtlasG4Cosmics(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        config_picklefilename = 'AtlasG4_config.pkl'
+        config_picklefilename = 'AtlasG4Cosmics_config.pkl'
         command = [
             'AtlasG4_tf.py',
             '--athenaopts', '"--config-only={}"'.format(config_picklefilename),
@@ -19,8 +19,12 @@ class TestAtlasG4(unittest.TestCase):
             '--postInclude', 'PyJobTransforms/UseFrontier.py',
             '--geometryVersion', 'ATLAS-R2-2016-01-00-01',
             '--DataRunNumber', '284500',
-            '--inputEVNTFile', '/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1',
             '--outputHITSFile', 'Hits.atlasg4.pool.root',
+            '--CosmicFilterVolume', 'Calo',
+            '--CosmicFilterVolume2', 'NONE',
+            '--CosmicPtSlice', 'NONE',
+            '--outputEVNT_COSMICSTRFile', 'test.TR.pool.root',
+            '--beamType', 'cosmics',
             # would otherwise fail due to missing HITS file:
             '--outputFileValidation', 'False',
         ]
@@ -104,11 +108,101 @@ class TestAtlasG4(unittest.TestCase):
                          failure_message)
 
 
+    def test___CosmicGenerator_is_at_start_of_AthAlgSeq(self):
+        ath_alg_seqence_as_str = self._job_config_dict['AthAlgSeq']['Members']
+        # need to evaluate to obtain actual Python object
+        ath_alg_seqence_list = eval(ath_alg_seqence_as_str)
+        print ath_alg_seqence_list
+        actual_last_ath_alg_sequence_entry = ath_alg_seqence_list[0]
+        expected_last_ath_alg_sequence_entry = "CosmicGenerator/CosmicGenerator"
+        for key in self._job_config_dict['CosmicGenerator'].keys():
+            print key
+            print self._job_config_dict['CosmicGenerator'][key]
+            pass
+        self.assertEqual(expected_last_ath_alg_sequence_entry,
+                         actual_last_ath_alg_sequence_entry)
+
+
+    def test___CosmicGenerator_emin_setCorrectly(self):
+        expected_property_value = 10000
+        self._assert_Algorithm_property_equal('CosmicGenerator', 'emin', expected_property_value)
+
+
+    def test___CosmicGenerator_emax_setCorrectly(self):
+        expected_property_value = 5000000
+        self._assert_Algorithm_property_equal('CosmicGenerator', 'emax', expected_property_value)
+
+
+    def test___CosmicGenerator_IPx_setCorrectly(self):
+        expected_property_value = 0.0
+        self._assert_Algorithm_property_equal('CosmicGenerator', 'IPx', expected_property_value)
+
+
+    def test___CosmicGenerator_IPy_setCorrectly(self):
+        expected_property_value = 0.0
+        self._assert_Algorithm_property_equal('CosmicGenerator', 'IPy', expected_property_value)
+
+
+    def test___CosmicGenerator_IPz_setCorrectly(self):
+        expected_property_value = 0.0
+        self._assert_Algorithm_property_equal('CosmicGenerator', 'IPz', expected_property_value)
+
+
+    def test___CosmicGenerator_ctcut_setCorrectly(self):
+        expected_property_value = 0.0
+        self._assert_Algorithm_property_equal('CosmicGenerator', 'ctcut', expected_property_value)
+
+
+    def test___CosmicGenerator_xvert_low_setCorrectly(self):
+        expected_property_value = -200000.0
+        self._assert_Algorithm_property_equal('CosmicGenerator', 'xvert_low', expected_property_value)
+
+
+    def test___CosmicGenerator_xvert_hig_setCorrectly(self):
+        expected_property_value = 200000.0
+        self._assert_Algorithm_property_equal('CosmicGenerator', 'xvert_hig', expected_property_value)
+
+
+    def test___CosmicGenerator_yvert_val_setCorrectly(self):
+        expected_property_value = 98300.0
+        self._assert_Algorithm_property_equal('CosmicGenerator', 'yvert_val', expected_property_value)
+
+
+    def test___CosmicGenerator_zvert_low_setCorrectly(self):
+        expected_property_value = -200000.0
+        self._assert_Algorithm_property_equal('CosmicGenerator', 'zvert_low', expected_property_value)
+
+
+    def test___CosmicGenerator_zvert_hig_setCorrectly(self):
+        expected_property_value = 200000.0
+        self._assert_Algorithm_property_equal('CosmicGenerator', 'zvert_hig', expected_property_value)
+
+
+    def test___CosmicGenerator_PartPropSvc_setCorrectly(self):
+        expected_property_value = 'PartPropSvc'
+        self._assert_Algorithm_property_equal('CosmicGenerator', 'PartPropSvc', expected_property_value)
+
+
+    def test___CosmicGenerator_AtRndmGenSvc_setCorrectly(self):
+        expected_property_value = 'AtDSFMTGenSvc'
+        self._assert_Algorithm_property_equal('CosmicGenerator', 'AtRndmGenSvc', expected_property_value)
+
+
+    def test___CosmicGenerator_OptimizeForCavern_setCorrectly(self):
+        expected_property_value = True
+        self._assert_Algorithm_property_equal('CosmicGenerator', 'OptimizeForCavern', expected_property_value)
+
+
+    def test___CosmicGenerator_Radius_setCorrectly(self):
+        expected_property_value = 10000.0
+        self._assert_Algorithm_property_equal('CosmicGenerator', 'Radius', expected_property_value)
+
+
     def test___BeamEffectsAlg_is_before_G4AtlasAlg_in_AthAlgSeq(self):
         ath_alg_seqence_as_str = self._job_config_dict['AthAlgSeq']['Members']
         # need to evaluate to obtain actual Python object
         ath_alg_seqence_list = eval(ath_alg_seqence_as_str)
-        actual_last_ath_alg_sequence_entry = ath_alg_seqence_list[1] #Position 0 should be the timer alg
+        actual_last_ath_alg_sequence_entry = ath_alg_seqence_list[2] # Position 1 is the Sim Timer Alg
         expected_last_ath_alg_sequence_entry = "Simulation::BeamEffectsAlg/BeamEffectsAlg"
         self.assertEqual(expected_last_ath_alg_sequence_entry,
                          actual_last_ath_alg_sequence_entry)
@@ -130,7 +224,7 @@ class TestAtlasG4(unittest.TestCase):
 
 
     def test___BeamEffectsAlg_GenEventManipulators_setCorrectly(self):
-        expected_property_value = ['Simulation::GenEventValidityChecker/GenEventValidityChecker','Simulation::GenEventVertexPositioner/GenEventVertexPositioner']
+        expected_property_value = ['Simulation::GenEventValidityChecker/GenEventValidityChecker']
         self._assert_Algorithm_property_ordered_equal('BeamEffectsAlg', 'GenEventManipulators', expected_property_value) #TODO should check order
 
 
@@ -138,7 +232,6 @@ class TestAtlasG4(unittest.TestCase):
         ath_alg_seqence_as_str = self._job_config_dict['AthAlgSeq']['Members']
         # need to evaluate to obtain actual Python object
         ath_alg_seqence_list = eval(ath_alg_seqence_as_str)
-
         actual_last_ath_alg_sequence_entry = ath_alg_seqence_list[-1]
         expected_last_ath_alg_sequence_entry = "G4AtlasAlg/G4AtlasAlg"
         self.assertEqual(expected_last_ath_alg_sequence_entry,
