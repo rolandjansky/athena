@@ -31,7 +31,7 @@ globalflags.InputFormat="bytestream"
 globalflags.DatabaseInstance=DBInstance
 	
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-01"
+jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-03-01-00"
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOff()
@@ -73,16 +73,39 @@ topSequence = AlgSequence()
 from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
 
 
-conddb.addFolder("","/LAR/BadChannelsOfl/BadChannels"+tagStr+dbStr)
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+
+from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+condSeq+=xAODMaker__EventInfoCnvAlg()
+
+from IOVSvc.IOVSvcConf import CondInputLoader
+theCLI=CondInputLoader( "CondInputLoader")
+condSeq += theCLI 
+
+import StoreGate.StoreGateConf as StoreGateConf
+svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
+
+
+conddb.addFolder("","/LAR/BadChannelsOfl/BadChannels"+tagStr+dbStr,className="CondAttrListCollection")
+#theCLI.Load+=[ ("CondAttrListCollection","/LAR/BadChannelsOfl/BadChannels") ]
 #conddb.addFolder("LAR_OFL","/LAR/BadChannelsOfl/MissingFEBs")
 
 svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2014-01" 
 
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-theLArBadChannelTool=LArBadChanTool()
-theLArBadChannelTool.CoolFolder="/LAR/BadChannelsOfl/BadChannels"
-theLArBadChannelTool.CoolMissingFEBsFolder=""
-ToolSvc+=theLArBadChannelTool
+#from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
+#theLArBadChannelTool=LArBadChanTool()
+#theLArBadChannelTool.CoolFolder="/LAR/BadChannelsOfl/BadChannels"
+#theLArBadChannelTool.CoolMissingFEBsFolder=""
+#ToolSvc+=theLArBadChannelTool
+
+from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg
+theLArBadChannelCondAlg=LArBadChannelCondAlg()
+#theLArBadChannelCondAlg.ReadKey="/LAR/BadChannelsOfl/BadChannels"
+condSeq+=theLArBadChannelCondAlg
+#theLArBadChannelTool.CoolMissingFEBsFolder=""
+#ToolSvc+=theLArBadChannelTool
+
 
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChannel2Ascii
 theLArBadChannels2Ascii=LArBadChannel2Ascii()
@@ -90,3 +113,5 @@ theLArBadChannels2Ascii.FileName=OutputFile
 theLArBadChannels2Ascii.WithMissing=False
 theLArBadChannels2Ascii.ExecutiveSummaryFile=""
 topSequence+=theLArBadChannels2Ascii
+
+svcMgr.MessageSvc.OutputLevel=DEBUG

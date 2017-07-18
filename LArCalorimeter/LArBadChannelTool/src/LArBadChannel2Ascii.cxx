@@ -3,22 +3,25 @@
 */
 
 #include "LArBadChannelTool/LArBadChannel2Ascii.h"
+#include "LArRecConditions/LArBadFeb.h"
 
-#include "StoreGate/StoreGate.h"
+//#include "StoreGate/StoreGate.h"
 
 //#include "LArRecConditions/ILArBadChanTool.h"
-#include "LArBadChannelTool/LArBadChanTool.h"
-#include "LArBadChannelTool/LArBadChannelDBTools.h"
+//#include "LArBadChannelTool/LArBadChanTool.h"
+//#include "LArBadChannelTool/LArBadChannelDBTools.h"
+
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArCabling/LArCablingService.h"
 #include <fstream>
 
 LArBadChannel2Ascii::LArBadChannel2Ascii(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm( name, pSvcLocator),
-  m_BadChanTool("LArBadChanTool"),
+  m_BCKey("LArBadChannel"),
   m_larCablingSvc("LArCablingService")
 {
-  declareProperty("BadChannelTool", m_BadChanTool, "public, shared BadChannelTool");
+  //declareProperty("BadChannelTool", m_BadChanTool, "public, shared BadChannelTool");
+  declareProperty("BCKey",m_BCKey);
   declareProperty("FileName",m_fileName="");
   declareProperty("WithMissing",m_wMissing=false);
   declareProperty("SkipDisconnected",m_skipDisconnected=false);
@@ -31,7 +34,8 @@ LArBadChannel2Ascii::~LArBadChannel2Ascii() {}
 StatusCode LArBadChannel2Ascii::initialize() {
 
   ATH_MSG_INFO ( "initialize()" );
-  ATH_CHECK( m_BadChanTool.retrieve() );
+
+  ATH_CHECK(m_BCKey.initialize());
 
   if (m_skipDisconnected) {
     if(m_larCablingSvc.retrieve().isFailure()) {
@@ -43,13 +47,18 @@ StatusCode LArBadChannel2Ascii::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode LArBadChannel2Ascii::execute() 
+StatusCode LArBadChannel2Ascii::stop() 
 {return StatusCode::SUCCESS;}
 
 StatusCode LArBadChannel2Ascii::finalize() 
 {return StatusCode::SUCCESS;}
 
-StatusCode LArBadChannel2Ascii::stop() {
+StatusCode LArBadChannel2Ascii::execute() {
+
+  SG::ReadCondHandle<LArBadChannelCont> bch{m_BCKey};
+
+  const LArBadChannelCont* badChannelCont{*bch};
+
   const LArOnlineID* larOnlineID;
   ATH_CHECK( detStore()->retrieve(larOnlineID,"LArOnlineID") );
   
@@ -85,7 +94,7 @@ StatusCode LArBadChannel2Ascii::stop() {
     if (m_skipDisconnected && !m_larCablingSvc->isOnlineConnected(chid)) continue;
     ++nConnected;
 
-    LArBadChannel bc1 = m_BadChanTool->status(chid);
+    LArBadChannel bc1 = badChannelCont->status(chid);
     LArBadChannelEnum::BitWord bcw=bc1.packedData();
     if (!m_wMissing) bcw&=missingFEBMask; //Supress missingFEB bit
     LArBadChannel bc(bcw);
@@ -105,7 +114,7 @@ StatusCode LArBadChannel2Ascii::stop() {
     
     if (doExecSummary) {
       HWIdentifier fid=larOnlineID->feb_Id(chid);
-      LArBadFeb bf= m_BadChanTool->febStatus(fid);
+      LArBadFeb bf;//m_BadChanTool->febStatus(fid);
 
       DetPart dp=EMB;
       if (larOnlineID->isEMECchannel(chid)) 
