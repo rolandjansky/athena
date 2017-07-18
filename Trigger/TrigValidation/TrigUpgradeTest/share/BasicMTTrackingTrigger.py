@@ -30,7 +30,7 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 from SGComps.SGCompsConf import SGInputLoader
 topSequence += SGInputLoader( )
-
+topSequence.SGInputLoader.FailIfNoProxy=False
 
 from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc
 from TrigConfigSvc.TrigConfigSvcConfig import findFileInXMLPATH
