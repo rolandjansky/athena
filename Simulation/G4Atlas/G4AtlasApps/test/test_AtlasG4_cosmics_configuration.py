@@ -112,13 +112,8 @@ class TestAtlasG4Cosmics(unittest.TestCase):
         ath_alg_seqence_as_str = self._job_config_dict['AthAlgSeq']['Members']
         # need to evaluate to obtain actual Python object
         ath_alg_seqence_list = eval(ath_alg_seqence_as_str)
-        print ath_alg_seqence_list
         actual_last_ath_alg_sequence_entry = ath_alg_seqence_list[0]
         expected_last_ath_alg_sequence_entry = "CosmicGenerator/CosmicGenerator"
-        for key in self._job_config_dict['CosmicGenerator'].keys():
-            print key
-            print self._job_config_dict['CosmicGenerator'][key]
-            pass
         self.assertEqual(expected_last_ath_alg_sequence_entry,
                          actual_last_ath_alg_sequence_entry)
 
