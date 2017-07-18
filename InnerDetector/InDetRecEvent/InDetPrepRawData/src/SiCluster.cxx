@@ -120,7 +120,6 @@ MsgStream& SiCluster::dump( MsgStream&    stream) const
 	stream << "SiCluster object"<<std::endl;
 	
 	// have to do a lot of annoying checking to make sure that PRD is valid. 
-	if ( &(this->globalPosition() )!=0 ) 
 	{
 		stream << "at global coordinates (x,y,z) = ("<<this->globalPosition().x()<<", "
 			<<this->globalPosition().y()<<", "
@@ -145,7 +144,6 @@ MsgStream& SiCluster::dump( MsgStream&    stream) const
 std::ostream& SiCluster::dump( std::ostream&    stream) const
 {
 	stream << "SiCluster object"<<std::endl;
-	if ( &(this->globalPosition() )!=0 ) 
 	{
 		stream << "at global coordinates (x,y,z) = ("<<this->globalPosition().x()<<", "
 			<<this->globalPosition().y()<<", "
