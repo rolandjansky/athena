@@ -31,7 +31,7 @@ class PixelMonModules
       virtual StatusCode regHist(ManagedMonitorToolBase* thisptr, std::string path, ManagedMonitorToolBase::Interval_t Run) = 0;
    protected:
       int m_nBins;
-      std::string getHistName(int i, bool forPath = false, bool doIBL = false);
+      std::string getHistName(int i, bool forPath = false);
       static const bool m_doIBL;
 };
 
