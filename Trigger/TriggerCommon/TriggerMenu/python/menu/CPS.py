@@ -66,7 +66,7 @@ def defineCPSGroups():
 #                                                'e24_lhmedium_nod0_L1EM18VH', 
 #                                                ],
         
-        "RATE:CPS:HLT_e24_tight_L1EM20VH" :  ['e24_lhtight_L1EM20VH',
+        "RATE:CPS:HLT_e24_tight_L1EM20VH" :  [
                                                 'e24_lhtight_nod0_L1EM20VH',
                                                 ],
         
@@ -553,11 +553,7 @@ def defineCPSGroups():
 
         #Met chains
         'RATE:CPS:HLT_xe35' : ['xe35',
-                               'xe35_tc_lcw',
-                               'xe35_tc_em',
                                'xe35_pueta',
-                               'xe35_pufit',
-                               'xe35_mht',
                                'xe35_wEFMu',
                                'xe35_tc_lcw_wEFMu', 
                                'xe35_tc_em_wEFMu',
@@ -600,19 +596,6 @@ def defineCPSGroups():
    #                                    'xe100_pufit_wEFMu_L1XE50', 
                                        ],         
 
-        'RATE:CPS:HLT_xe45' : ['xe45',
-                               'xe45_mht',
-                               'xe45_mht_wEFMu',
-                               'xe45_pueta',
-                               'xe45_pueta_wEFMu',
-                               'xe45_pufit',
-                               'xe45_pufit_wEFMu',
-                               'xe45_tc_em',
-                               'xe45_tc_em_wEFMu',
-                               'xe45_tc_lcw',
-                               'xe45_tc_lcw_wEFMu',
-                               'xe45_wEFMu',
-                               ],
         'RATE:CPS:HLT_xe100_L1XE35' : ['xe100_L1XE35',  
                                        'xe100_tc_lcw_L1XE35', 
                                        'xe100_tc_em_L1XE35',  
@@ -682,13 +665,9 @@ def defineCPSGroups():
                                                 'e18_etcut_trkcut_xs30_j15_perf_xe30_2dphi15_mt35',],
 
                 
-        'RATE:CPS:HLT_e28_lhvloose_L1EM20VH_3j20noL1' : ['e28_lhvloose_nod0_L1EM20VH_3j20noL1',],
       
-        'RATE:CPS:HLT_e28_lhvloose_L1EM20VH_4j20noL1' : ['e28_lhvloose_nod0_L1EM20VH_4j20noL1',],
       
-        'RATE:CPS:HLT_e28_lhvloose_L1EM20VH_5j15noL1' : ['e28_lhvloose_nod0_L1EM20VH_5j15noL1',],
       
-        'RATE:CPS:HLT_e28_lhvloose_L1EM20VH_6j15noL1' : ['e28_lhvloose_nod0_L1EM20VH_6j15noL1',],
 
         
         'RATE:CPS:HLT_3mu6_bDimu' : ['3mu6_bDimu',
@@ -721,17 +700,6 @@ def defineCPSGroups():
 
     if "v7" in TriggerFlags.triggerMenuSetup():
         HLT_CPS_Groups.update({
-        'RATE:CPS:HLT_xe45' : ['xe45',
-                               'xe45_mht',
-                               'xe45_mht_wEFMu',
-                               'xe45_pufit',
-                               'xe45_pufit_wEFMu',
-                               'xe45_tc_em',
-                               'xe45_tc_em_wEFMu',
-                               'xe45_tc_lcw',
-                               'xe45_tc_lcw_wEFMu',
-                               'xe45_wEFMu',
-                               ],
 
         # Single-jet chains
         'RATE:CPS:HLT_j35' :    [   'j35',
