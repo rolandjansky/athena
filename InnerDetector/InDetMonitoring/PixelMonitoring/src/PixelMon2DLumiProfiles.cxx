@@ -25,30 +25,54 @@ PixelMon2DLumiProfiles::PixelMon2DLumiProfiles(std::string name, std::string tit
       m_config(config)
 {
    const int lbRange = 3000;
-
+   int num_modules;
    if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kIBL)) {
-      IBLlbp= TProfile2D_LW::create((name+"_2D_Profile_IBL").c_str(), (title + ", IBL " + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+static_cast<float>(lbRange),280,-0.5,279.5);
+      num_modules = PixMon::kNumStavesIBL * (PixMon::kNumModulesIBL2D + PixMon::kNumModulesIBL3D);
+      IBLlbp= TProfile2D_LW::create((name+"_2D_Profile_IBL").c_str(), (title + ", IBL " + title + " (Profile);LB;Module;" + zlabel).c_str(),
+                                    lbRange, -0.5, -0.5 + lbRange,
+                                    num_modules, -0.5, -0.5 + num_modules);
    }
    if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kB0)) {
-      B0lbp = TProfile2D_LW::create((name+"_2D_Profile_B0").c_str(),  (title + ", B0 "  + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+static_cast<float>(lbRange),286,-0.5,285.5);
+      num_modules = PixMon::kNumStavesL0 * PixMon::kNumModulesBarrel;
+      B0lbp = TProfile2D_LW::create((name+"_2D_Profile_B0").c_str(),  (title + ", B0 " + title + " (Profile);LB;Module;" + zlabel).c_str(),
+                                    lbRange, -0.5, -0.5 + lbRange,
+                                    num_modules, -0.5, -0.5 + num_modules);
    }
    if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kB1)) {
-      B1lbp = TProfile2D_LW::create((name+"_2D_Profile_B1").c_str(),  (title + ", B1 "  + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+static_cast<float>(lbRange),494,-0.5,493.5);
+      num_modules = PixMon::kNumStavesL1 * PixMon::kNumModulesBarrel;
+      B1lbp = TProfile2D_LW::create((name+"_2D_Profile_B1").c_str(),  (title + ", B1 " + title + " (Profile);LB;Module;" + zlabel).c_str(),
+                                    lbRange, -0.5, -0.5 + lbRange,
+                                    num_modules, -0.5, -0.5 + num_modules);
    }
    if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kB2)) {
-      B2lbp = TProfile2D_LW::create((name+"_2D_Profile_B2").c_str(),  (title + ", B2 "  + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+static_cast<float>(lbRange),676,-0.5,675.5);
+      num_modules = PixMon::kNumStavesL2 * PixMon::kNumModulesBarrel;;
+      B2lbp = TProfile2D_LW::create((name+"_2D_Profile_B2").c_str(),  (title + ", B2 " + title + " (Profile);LB;Module;" + zlabel).c_str(),
+                                    lbRange, -0.5, -0.5 + lbRange,
+                                    num_modules, -0.5, -0.5 + num_modules);
    }
    if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kECA)) {
-      Albp  = TProfile2D_LW::create((name+"_2D_Profile_ECA" ).c_str(),(title + ", ECA " + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+static_cast<float>(lbRange),144,-0.5,143.5);
+      num_modules = PixMon::kNumLayersDisk * PixMon::kNumModulesDisk;
+      Albp = TProfile2D_LW::create((name+"_2D_Profile_ECA" ).c_str(),(title + ", ECA " + title + " (Profile);LB;Module;" + zlabel).c_str(),
+                                   lbRange, -0.5, -0.5 + lbRange,
+                                   num_modules, -0.5, -0.5 + num_modules);
    }
    if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kECC)) {
-      Clbp  = TProfile2D_LW::create((name+"_2D_Profile_ECC" ).c_str(),(title + ", ECC " + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+static_cast<float>(lbRange),144,-0.5,143.5);
+      num_modules = PixMon::kNumLayersDisk * PixMon::kNumModulesDisk;
+      Clbp = TProfile2D_LW::create((name+"_2D_Profile_ECC" ).c_str(),(title + ", ECC " + title + " (Profile);LB;Module;" + zlabel).c_str(),
+                                   lbRange, -0.5, -0.5 + lbRange,
+                                   num_modules, -0.5, -0.5 + num_modules);
    }
    if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kDBMA)) {
-      DBMAlbp = TProfile2D_LW::create((name+"_2D_Profile_DBMA" ).c_str(),(title + ", DBMA " + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+static_cast<float>(lbRange),12,-0.5,11.5);
+      num_modules = PixMon::kNumLayersDBM * PixMon::kNumModulesDBM;
+      DBMAlbp = TProfile2D_LW::create((name+"_2D_Profile_DBMA" ).c_str(),(title + ", DBMA " + title + " (Profile);LB;Module;" + zlabel).c_str(),
+                                      lbRange, -0.5, -0.5 + lbRange,
+                                      num_modules, -0.5, -0.5 + num_modules);
    }
    if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kDBMC)) {
-      DBMClbp = TProfile2D_LW::create((name+"_2D_Profile_DBMC" ).c_str(),(title + ", DBMC " + title + " (Profile);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5+static_cast<float>(lbRange),12,-0.5,11.5);
+      num_modules = PixMon::kNumLayersDBM * PixMon::kNumModulesDBM;
+      DBMClbp = TProfile2D_LW::create((name+"_2D_Profile_DBMC" ).c_str(),(title + ", DBMC " + title + " (Profile);LB;Module;" + zlabel).c_str(),
+                                      lbRange, -0.5, -0.5 + lbRange,
+                                      num_modules, -0.5, -0.5 + num_modules);
    }
 
    // We do not have support for IBL2D/3D in this class, but the histogram

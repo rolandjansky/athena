@@ -36,34 +36,54 @@ PixelMon2DProfilesLW::PixelMon2DProfilesLW(std::string name, std::string title, 
    std::string layertext = ";layer number";
 
    if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kIBL3D)) {
-      IBL3D = TProfile2D_LW::create((name+"_IBL3D").c_str(), (title + ", IBL 3D modules " + etatext + phitext).c_str(),8,-.5,7.5,14,-0.5,13.5);
+      IBL3D = TProfile2D_LW::create((name+"_IBL3D").c_str(), (title + ", IBL 3D modules " + etatext + phitext).c_str(),
+                                    PixMon::kNumModulesIBL3D, -.5, -.5 + PixMon::kNumModulesIBL3D,
+                                    PixMon::kNumStavesIBL, -0.5, -0.5 + PixMon::kNumStavesIBL);
    }
    if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kIBL2D) ){
-      IBL2D = TProfile2D_LW::create((name+"_IBL2D").c_str(), (title + ", IBL planar modules " + setatext + phitext).c_str(),12,-6.5,5.5,14,-0.5,13.5);
+      IBL2D = TProfile2D_LW::create((name+"_IBL2D").c_str(), (title + ", IBL planar modules " + setatext + phitext).c_str(),
+                                    PixMon::kNumModulesIBL2D, -6.5, -6.5 + PixMon::kNumModulesIBL2D,
+                                    PixMon::kNumStavesIBL, -0.5, -0.5 + PixMon::kNumStavesIBL);
    }
    if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kIBL)) {
-      IBL   = TProfile2D_LW::create((name+"_IBL").c_str(),   (title + ", IBL " + setatext + phitext).c_str(),32,-16.5,15.5,14,-0.5,13.5);
+      IBL = TProfile2D_LW::create((name+"_IBL").c_str(), (title + ", IBL " + setatext + phitext).c_str(),
+                                  PixMon::kNumModulesIBL, -16.5, -16.5 + PixMon::kNumModulesIBL,
+                                  PixMon::kNumStavesIBL, -0.5, -0.5 + PixMon::kNumStavesIBL);
    }
    if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kB0)) {
-      B0 = TProfile2D_LW::create((name+"_B0").c_str(),    (title + ", B0 " + etatext + phitext).c_str(),13,-6.5,6.5,22,-0.5,21.5);
+      B0 = TProfile2D_LW::create((name+"_B0").c_str(), (title + ", B0 " + etatext + phitext).c_str(),
+                                 PixMon::kNumModulesBarrel, -6.5, -6.5 + PixMon::kNumModulesBarrel,
+                                 PixMon::kNumStavesL0, -0.5, -0.5 + PixMon::kNumStavesL0);
    }
    if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kB1)) {
-      B1 = TProfile2D_LW::create((name+"_B1").c_str(),    (title + ", B1 " + etatext + phitext).c_str(),13,-6.5,6.5,38,-0.5,37.5);
+      B1 = TProfile2D_LW::create((name+"_B1").c_str(), (title + ", B1 " + etatext + phitext).c_str(),
+                                 PixMon::kNumModulesBarrel, -6.5, -6.5 + PixMon::kNumModulesBarrel,
+                                 PixMon::kNumStavesL1, -0.5, -0.5 + PixMon::kNumStavesL1);
    }
    if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kB2)) {
-      B2 = TProfile2D_LW::create((name+"_B2").c_str(),    (title + ", B2 " + etatext + phitext).c_str(),13,-6.5,6.5,52,-0.5,51.5);
+      B2 = TProfile2D_LW::create((name+"_B2").c_str(), (title + ", B2 " + etatext + phitext).c_str(),
+                                 PixMon::kNumModulesBarrel, -6.5, -6.5 + PixMon::kNumModulesBarrel,
+                                 PixMon::kNumStavesL2, -0.5, -0.5 + PixMon::kNumStavesL2);
    }
    if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kECA)) {
-      A  = TProfile2D_LW::create((name+"_ECA" ).c_str(),  (title + ", ECA " + disktext + phitext).c_str(),3,-0.5,2.5,48,-0.5,47.5);
+      A = TProfile2D_LW::create((name+"_ECA" ).c_str(), (title + ", ECA " + disktext + phitext).c_str(),
+                                PixMon::kNumLayersDisk, -0.5, -0.5 + PixMon::kNumLayersDisk,
+                                PixMon::kNumModulesDisk, -0.5, -0.5 + PixMon::kNumModulesDisk);
    }
    if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kECC)) {
-      C  = TProfile2D_LW::create((name+"_ECC" ).c_str(),  (title + ", ECC " + disktext + phitext).c_str(),3,-0.5,2.5,48,-0.5,47.5);
+      C = TProfile2D_LW::create((name+"_ECC" ).c_str(), (title + ", ECC " + disktext + phitext).c_str(),
+                                PixMon::kNumLayersDisk, -0.5, -0.5 + PixMon::kNumLayersDisk,
+                                PixMon::kNumModulesDisk, -0.5, -0.5 + PixMon::kNumModulesDisk);
    }
    if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kDBMA)) {
-      DBMA = TProfile2D_LW::create((name+"_DBMA").c_str(), (title + ", DBMA " + layertext + phitext).c_str(),3,-0.5,2.5,4,-0.5,3.5);
+      DBMA = TProfile2D_LW::create((name+"_DBMA").c_str(), (title + ", DBMA " + layertext + phitext).c_str(),
+                                   PixMon::kNumLayersDBM, -0.5, -0.5 + PixMon::kNumLayersDBM,
+                                   PixMon::kNumModulesDBM, -0.5, -0.5 + PixMon::kNumModulesDBM);
    }
    if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kDBMC)) {
-      DBMC = TProfile2D_LW::create((name+"_DBMC").c_str(), (title + ", DBMC " + layertext + phitext).c_str(),3,-0.5,2.5,4,-0.5,3.5);
+      DBMC = TProfile2D_LW::create((name+"_DBMC").c_str(), (title + ", DBMC " + layertext + phitext).c_str(),
+                                   PixMon::kNumLayersDBM, -0.5, -0.5 + PixMon::kNumLayersDBM,
+                                   PixMon::kNumModulesDBM, -0.5, -0.5 + PixMon::kNumModulesDBM);
    }
 
    m_histograms = {IBL, IBL2D, IBL3D, B0, B1, B2, A, C, DBMA, DBMC};

@@ -25,29 +25,54 @@ PixelMon2DLumiMaps::PixelMon2DLumiMaps(std::string name, std::string title, std:
       m_config(config)
 {
    const int lbRange = 3000;
+   int num_modules;
    if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kIBL)) {
-      IBLlbm = TH2F_LW::create((name+"_2D_Map_IBL").c_str(),(title + ", IBL " + " (Map);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5 + static_cast<float>(lbRange),280,-0.5,279.5);
+      num_modules = PixMon::kNumStavesIBL * (PixMon::kNumModulesIBL2D + PixMon::kNumModulesIBL3D);
+      IBLlbm = TH2F_LW::create((name+"_2D_Map_IBL").c_str(),(title + ", IBL " + " (Map);LB;Module;" + zlabel).c_str(),
+                               lbRange, -0.5, -0.5 + lbRange,
+                               num_modules, -0.5, -0.5 + num_modules);
    }
    if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kB0)) {
-      B0lbm = TH2F_LW::create((name+"_2D_Map_B0").c_str(),  (title + ", B0 "  + " (Map);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5 + static_cast<float>(lbRange),286,-0.5,285.5);
+      num_modules = PixMon::kNumStavesL0 * PixMon::kNumModulesBarrel;
+      B0lbm = TH2F_LW::create((name+"_2D_Map_B0").c_str(), (title + ", B0 " + " (Map);LB;Module;" + zlabel).c_str(),
+                              lbRange, -0.5, -0.5 + lbRange,
+                              num_modules, -0.5, -0.5 + num_modules);
    }
    if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kB1)) {
-      B1lbm = TH2F_LW::create((name+"_2D_Map_B1").c_str(),  (title + ", B1 "  + " (Map);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5 + static_cast<float>(lbRange),494,-0.5,493.5);
+      num_modules = PixMon::kNumStavesL1 * PixMon::kNumModulesBarrel;
+      B1lbm = TH2F_LW::create((name+"_2D_Map_B1").c_str(), (title + ", B1 " + " (Map);LB;Module;" + zlabel).c_str(),
+                              lbRange, -0.5, -0.5 + lbRange,
+                              num_modules, -0.5, -0.5 + num_modules);
    }
    if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kB2)) {
-      B2lbm = TH2F_LW::create((name+"_2D_Map_B2").c_str(),  (title + ", B2 "  + " (Map);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5 + static_cast<float>(lbRange),676,-0.5,675.5);
+      num_modules = PixMon::kNumStavesL2 * PixMon::kNumModulesBarrel;
+      B2lbm = TH2F_LW::create((name+"_2D_Map_B2").c_str(), (title + ", B2 " + " (Map);LB;Module;" + zlabel).c_str(),
+                              lbRange, -0.5, -0.5 + lbRange,
+                              num_modules, -0.5, -0.5 + num_modules);
    }
    if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kECA)) {
-      Albm  = TH2F_LW::create((name+"_2D_Map_ECA" ).c_str(),(title + ", ECA " + " (Map);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5 + static_cast<float>(lbRange),144,-0.5,143.5);
+      num_modules = PixMon::kNumLayersDisk * PixMon::kNumModulesDisk;
+      Albm = TH2F_LW::create((name+"_2D_Map_ECA" ).c_str(),(title + ", ECA " + " (Map);LB;Module;" + zlabel).c_str(),
+                             lbRange, -0.5, -0.5 + lbRange,
+                             num_modules, -0.5, -0.5 + num_modules);
    }
    if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kECC)) {
-      Clbm  = TH2F_LW::create((name+"_2D_Map_ECC" ).c_str(),(title + ", ECC " + " (Map);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5 + static_cast<float>(lbRange),144,-0.5,143.5);
+      num_modules = PixMon::kNumLayersDisk * PixMon::kNumModulesDisk;
+      Clbm = TH2F_LW::create((name+"_2D_Map_ECC" ).c_str(),(title + ", ECC " + " (Map);LB;Module;" + zlabel).c_str(),
+                             lbRange, -0.5, -0.5 + lbRange,
+                             num_modules, -0.5, -0.5 + num_modules);
    }
    if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kDBMA)) {
-      DBMAlbm = TH2F_LW::create((name+"_2D_Map_DBMA").c_str(),(title + ", DBMA " + " (Map);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5 + static_cast<float>(lbRange),12,-0.5,11.5);
+      num_modules = PixMon::kNumLayersDBM * PixMon::kNumModulesDBM;
+      DBMAlbm = TH2F_LW::create((name+"_2D_Map_DBMA").c_str(),(title + ", DBMA " + " (Map);LB;Module;" + zlabel).c_str(),
+                                lbRange, -0.5, -0.5 + lbRange,
+                                num_modules, -0.5, -0.5 + num_modules);
    }
    if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kDBMC)) {
-      DBMClbm = TH2F_LW::create((name+"_2D_Map_DBMC").c_str(),(title + ", DBMC " + " (Map);LB;Module;" + zlabel).c_str(),lbRange,-0.5,-0.5 + static_cast<float>(lbRange),12,-0.5,11.5);
+      num_modules = PixMon::kNumLayersDBM * PixMon::kNumModulesDBM;
+      DBMClbm = TH2F_LW::create((name+"_2D_Map_DBMC").c_str(),(title + ", DBMC " + " (Map);LB;Module;" + zlabel).c_str(),
+                                lbRange, -0.5, -0.5 + lbRange,
+                                num_modules, -0.5, -0.5 + num_modules);
    }
 
    // We do not have support for IBL2D/3D in this class, but the histogram
