@@ -77,7 +77,9 @@ StatusCode xAODTestWriteCInfoTool::doit (const EventContext& ctx) const
   cinfo->setAFloat ((float)count * 0.1);
   anInt2(*cinfo) = count * 2000;
 
-  cEL(*cinfo).toIndexedElement (*cvec, count % cvec->size());
+  if (!cvec->empty()) {
+    cEL(*cinfo).toIndexedElement (*cvec, count % cvec->size());
+  }
 
   SG::WriteHandle<DMTest::C> cinfoH (m_cinfoKey, ctx);
   std::unique_ptr<const DMTest::C> cinfo_c (std::move (cinfo));

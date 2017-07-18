@@ -1,7 +1,7 @@
-Thu Jul  6 15:07:13 CEST 2017
+Tue Jul 11 15:56:42 CEST 2017
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.0] [x86_64-slc6-gcc62-opt] [atlas-work3g/22c15a400d] -- built on [2017-07-06T1502]
+Py:Athena            INFO using release [AthenaWorkDir-22.0.0] [x86_64-slc6-gcc62-dbg] [atlas-work3/3312b511ea] -- built on [2017-07-11T1442]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
@@ -10,7 +10,7 @@ Py:AlgScheduler      INFO setting up AvalancheSchedulerSvc/AvalancheSchedulerSvc
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestDecorHandle1MT_jo.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestDecorHandle1_jo.py"
-Py:ConfigurableDb    INFO Read module info for 5355 configurables from 2 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5360 configurables from 44 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 [?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
@@ -18,7 +18,7 @@ MessageSvc           INFO Activating in a separate thread
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v28r2)
-                                          running on lxplus064.cern.ch on Thu Jul  6 15:07:36 2017
+                                          running on lxplus000.cern.ch on Tue Jul 11 15:56:56 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -30,7 +30,7 @@ ChronoStatSvc                                      INFO  Number of skipped event
 CoreDumpSvc                                        INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc                                        INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaHiveEventLoopMgr                             INFO Initializing AthenaHiveEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc                                         INFO  getRegistryEntries: read 6680 CLIDRegistry entries for module ALL
+ClassIDSvc                                         INFO  getRegistryEntries: read 6733 CLIDRegistry entries for module ALL
 ClassIDSvc                                         INFO  getRegistryEntries: read 59 CLIDRegistry entries for module ALL
 ThreadPoolSvc                                      INFO no thread init tools attached
 AvalancheSchedulerSvc                              INFO Activating scheduler in a separate thread
@@ -110,7 +110,7 @@ xAODTestReadDecor                       3   0      INFO cvec.dInt1: 1601 1602 16
 xAODTestReadDecor                       3   0      INFO cinfo.dInt1: 12000
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #3, run #0 on slot 0,  4 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  start processing event #4, run #0 on slot 0,  4 events processed so far  <<<===
-xAODTestReadDecor                       4   0      INFO cvec.dInt1: 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010
+xAODTestReadDecor                       4   0      INFO cvec.dInt1:
 xAODTestReadDecor                       4   0      INFO cinfo.dInt1: 15000
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #4, run #0 on slot 0,  5 events processed so far  <<<===
 AthenaHiveEventLoopMgr                             INFO   ===>>>  start processing event #5, run #0 on slot 0,  5 events processed so far  <<<===
@@ -173,7 +173,7 @@ AthenaHiveEventLoopMgr                             INFO   ===>>>  start processi
 xAODTestReadDecor                       19  0      INFO cvec.dInt1: 8001 8002 8003 8004 8005 8006 8007 8008 8009 8010
 xAODTestReadDecor                       19  0      INFO cinfo.dInt1: 60000
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #19, run #0 on slot 0,  20 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO ---> Loop Finished (seconds): 0.316258
+AthenaHiveEventLoopMgr                             INFO ---> Loop Finished (seconds): 0.367787
 ApplicationMgr                                     INFO Application Manager Stopped successfully
 IncidentProcAlg1                                   INFO Finalize
 SGInputLoader                                      INFO Finalizing SGInputLoader...

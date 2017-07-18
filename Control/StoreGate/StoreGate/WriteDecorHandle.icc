@@ -189,7 +189,8 @@ void* WriteDecorHandle<T, D>::typeless_dataPointer_impl (bool quiet)
   void* ptr = ReadHandle<T>::typeless_dataPointer_impl (quiet);
   // Important to call the base class method above before calling vectorData;
   // otherwise, we'll get an infinite recursion.
-  if (ptr) {
+  // Also don't call getDecorationArray if the container is empty.
+  if (ptr && this->vectorData()->size_v() > 0) {
     m_acc.getDecorationArray (*this->vectorData());
   }
   return ptr;
