@@ -134,6 +134,11 @@ class TestAtlasG4(unittest.TestCase):
         self._assert_Algorithm_property_ordered_equal('BeamEffectsAlg', 'GenEventManipulators', expected_property_value) #TODO should check order
 
 
+    def test___Geo2G4Svc_GetTopTransform_setCorrectly(self):
+        expected_property_value = True
+        self._assert_Algorithm_property_equal('Geo2G4Svc', 'GetTopTransform', expected_property_value)
+
+
     def test___G4AtlasAlg_is_at_end_of_AthAlgSeq(self):
         ath_alg_seqence_as_str = self._job_config_dict['AthAlgSeq']['Members']
         # need to evaluate to obtain actual Python object

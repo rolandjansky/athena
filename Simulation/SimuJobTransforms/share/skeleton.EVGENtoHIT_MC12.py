@@ -220,6 +220,7 @@ if jobproperties.Beam.beamType.get_Value() != 'cosmics':
     else:
         simFlags.EventFilter.set_On()
 
+include("G4AtlasApps/G4Atlas.flat.configuration.py") #TEST
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
 
@@ -235,18 +236,6 @@ except:
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 
-# Add G4 alg to alg sequence
-try:
-    # the non-hive version of G4AtlasApps provides PyG4AtlasAlg
-    from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-    topSeq += PyG4AtlasAlg()
-except ImportError:
-    try:
-        # the hive version provides PyG4AtlasSvc
-        from G4AtlasApps.PyG4Atlas import PyG4AtlasSvc
-        svcMgr += PyG4AtlasSvc()
-    except ImportError:
-        atlasG4log.fatal("Failed to import PyG4AtlasAlg/Svc")
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
