@@ -719,7 +719,7 @@
                 </doc>
                 <displayName>MinBias</displayName>
                 <commandLineFlags>
-                    enableCostMonitoring=True;sliceName='minbias';RunningRTT=True;menu='Physics_pp_v7';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;jp.AthenaCommonFlags.FilesInput=['root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7572_tid07644622_00/RDO.07644622._000001.pool.root.1'] 
+                    enableCostMonitoring=True;sliceName='minbias';RunningRTT=True;menu='Physics_pp_v7';jp.AthenaCommonFlags.EvtMax.set_Value_and_Lock(1000);jp.Rec.OutputLevel=WARNING;LVL1OutputLevel=WARNING;HLTOutputLevel=WARNING;jp.AthenaCommonFlags.FilesInput=['root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc15_13TeV.361203.Pythia8_A2_MSTW2008LO_ND_minbias.recon.RDO.e3639_s2606_s2174_r7661_tid07858100_00/RDO.07858100._000087.pool.root.1'] 
                 </commandLineFlags>
                 <!--options>testMinBiasSliceAthenaTrigRDO.py</options-->
                 <options>testCommonSliceAthenaTrigRDO.py</options>
