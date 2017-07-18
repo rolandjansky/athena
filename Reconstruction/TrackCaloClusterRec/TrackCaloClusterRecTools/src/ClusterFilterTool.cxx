@@ -18,7 +18,6 @@ ClusterFilterTool::ClusterFilterTool(const std::string& t, const std::string& n,
   declareProperty("VertexCollection",                 m_vertexCollectionName        = "PrimaryVertices"       );
   declareProperty("ConeSize",                         m_coneSize                    = 0.2                     );
   declareProperty("PtFractionAtPV0",                  m_ptFractionPV0               = 0.1                     );
-  declareProperty("StoreParameters",                  m_storeParameters             = false                   );
 }
 
 ClusterFilterTool::~ClusterFilterTool() {}
@@ -88,15 +87,7 @@ bool ClusterFilterTool::rejectCluster(const xAOD::CaloCluster& cluster) {
       }
     }
   }
-  
-  if (m_storeParameters) {
-    cluster.auxdecor<int>("isNeutral")       = 1;
-    cluster.auxdecor<int>("isRejected")      = (not matchedPV0 and matchedPVX) ? 1 : 0;
-    cluster.auxdecor<int>("isPV0")           = matchedPV0 ? 1 : 0;    
-    cluster.auxdecor<int>("isPVX")           = matchedPVX ? 1 : 0;    
-    cluster.auxdecor<float>("ptFraction")    = (float)pt_PV0/pt_PVX;
-  }    
-  
+      
   if (not matchedPV0 and matchedPVX) return true;
  
   return false;

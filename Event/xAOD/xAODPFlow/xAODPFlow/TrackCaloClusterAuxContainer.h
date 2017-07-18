@@ -1,8 +1,8 @@
-#ifndef XAODTRACKCALOCLUSTER_TRACKCALOCLUSTERAUXCONTAINER_H
-#define XAODTRACKCALOCLUSTER_TRACKCALOCLUSTERAUXCONTAINER_H
+#ifndef XAODPFLOW_TRACKCALOCLUSTERAUXCONTAINER_H
+#define XAODPFLOW_TRACKCALOCLUSTERAUXCONTAINER_H
  
 // Local include(s):
-#include "xAODTrackCaloCluster/versions/TrackCaloClusterAuxContainer_v1.h"
+#include "xAODPFlow/versions/TrackCaloClusterAuxContainer_v1.h"
  
 namespace xAOD {
    /// Definition of the current TrackCaloCluster auxiliary container
@@ -19,4 +19,4 @@ namespace xAOD {
 #include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::TrackCaloClusterAuxContainer, 1284131157, 1 )
  
-#endif // XAODTRACKCALOCLUSTER_TRACKCALOCLUSTERAUXCONTAINER_H
+#endif // XAODPFLOW_TRACKCALOCLUSTERAUXCONTAINER_H

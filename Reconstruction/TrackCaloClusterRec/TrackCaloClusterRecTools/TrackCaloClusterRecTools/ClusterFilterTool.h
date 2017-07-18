@@ -47,9 +47,6 @@ class ClusterFilterTool : virtual public IClusterFilterTool, public AthAlgTool {
     
     // pt fraction at PV0
     double m_ptFractionPV0;
-    
-    bool m_storeParameters;
-    
 
 };
 

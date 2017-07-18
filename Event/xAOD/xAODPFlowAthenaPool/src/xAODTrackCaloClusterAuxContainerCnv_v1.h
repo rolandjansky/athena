@@ -1,14 +1,14 @@
 // Dear emacs, this is -*- c++ -*-
 // $Id$
-#ifndef XAODTRACKCALOCLUSTERATHENAPOOL_XAODTRACKCALOCLUSTERAUXCONTAINERCNV_V1_H
-#define XAODTRACKCALOCLUSTERATHENAPOOL_XAODTRACKCALOCLUSTERAUXCONTAINERCNV_V1_H
+#ifndef XAODPFLOWATHENAPOOL_XAODTRACKCALOCLUSTERAUXCONTAINERCNV_V1_H
+#define XAODPFLOWATHENAPOOL_XAODTRACKCALOCLUSTERAUXCONTAINERCNV_V1_H
 
 // Gaudi/Athena include(s):
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 // EDM include(s):
-#include "xAODTrackCaloCluster/versions/TrackCaloClusterAuxContainer_v1.h"
-#include "xAODTrackCaloCluster/TrackCaloClusterAuxContainer.h"
+#include "xAODPFlow/versions/TrackCaloClusterAuxContainer_v1.h"
+#include "xAODPFlow/TrackCaloClusterAuxContainer.h"
        
 /// Converter class used for reading xAOD::TrackCaloClusterAuxContainer_v1
 ///
@@ -39,4 +39,4 @@ public:
 
 }; // class xAODTrackCaloClusterAuxContainerCnv_v1
        
-#endif // XAODTRACKCALOCLUSTERATHENAPOOL_XAODTRACKCALOCLUSTERAUXCONTAINERCNV_V1_H
+#endif // XAODPFLOWATHENAPOOL_XAODTRACKCALOCLUSTERAUXCONTAINERCNV_V1_H

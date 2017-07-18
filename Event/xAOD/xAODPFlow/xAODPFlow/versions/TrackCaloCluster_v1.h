@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 // $Id: TrackCaloCluster_v1.h $
-#ifndef XAODTRACKCALOCLUSTER_VERSIONS_TRACKCALOCLUSTER_V1_H
-#define XAODTRACKCALOCLUSTER_VERSIONS_TRACKCALOCLUSTER_V1_H
+#ifndef XAODPFLOW_VERSIONS_TRACKCALOCLUSTER_V1_H
+#define XAODPFLOW_VERSIONS_TRACKCALOCLUSTER_V1_H
 
 // Core include(s):
 #include "AthContainers/DataVector.h"
@@ -66,10 +66,6 @@ namespace xAOD {
     void setParameters(float pt, float eta, float phi, float m, TrackCaloCluster_v1::Taste taste, 
 		       const ElementLink<xAOD::TrackParticleContainer> particle, 
 		       const std::vector< ElementLink< xAOD::CaloClusterContainer > > clusters);       
-    /// set the 4-vec
-    void setP4(float pt, float eta, float phi, float m);
-    /// Set the defining parameters.             
-    void setDefiningParameters(float pt, float eta, float phi0, float m);
     /// @}
     
     /// @name Links       
@@ -96,4 +92,4 @@ namespace xAOD {
   
 }
 
-#endif // XAODTRACKCALOCLUSTER_VERSIONS_TRACKCALOCLUSTER_V1_H
+#endif // XAODPFLOW_VERSIONS_TRACKCALOCLUSTER_V1_H

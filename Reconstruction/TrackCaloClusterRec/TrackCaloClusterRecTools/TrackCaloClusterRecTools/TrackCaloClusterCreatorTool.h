@@ -9,7 +9,7 @@ authors : Roland Jansky
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h" //included under assumption you'll want to use some tools! Remove if you don't!
-#include "xAODTrackCaloCluster/TrackCaloClusterContainer.h"
+#include "xAODPFlow/TrackCaloClusterContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODAssociations/TrackParticleClusterAssociationContainer.h"
 

@@ -4,24 +4,11 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h" //included under assumption you'll want to use some tools! Remove if you don't!
 #include "xAODBase/IParticle.h"
-#include "xAODTrackCaloCluster/TrackCaloClusterContainer.h"
+#include "xAODPFlow/TrackCaloClusterContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
 #include "TrackCaloClusterRecTools/TrackCaloClusterWeightsTool.h"
 #include "TrackCaloClusterRecTools/TrackCaloClusterCreatorTool.h"
-
-// #include "fastjet/ClusterSequence.hh"
-// #include "fastjet/JetDefinition.hh"
-// #include "fastjet/PseudoJet.hh"
-// #include "fastjet/Selector.hh"
-// #include "fastjet/AreaDefinition.hh"
-// #include "fastjet/ClusterSequenceArea.hh"
-// #include "fastjet/tools/Filter.hh"
-
-// #include "fastjet/contrib/Nsubjettiness.hh"
-// #include "fastjet/contrib/EnergyCorrelator.hh"
-
-// #include "JetInterface/IJetFromPseudojet.h"
 
 class TrackCaloClusterRecAlg: public ::AthAlgorithm { 
 public: 
@@ -45,7 +32,6 @@ private:
     
   ToolHandle <TrackCaloClusterWeightsTool> m_trackCaloClusterWeightsTool;
   ToolHandle <TrackCaloClusterCreatorTool> m_trackCaloClusterCreatorTool; 
-  // ToolHandle<IJetFromPseudojet> m_bld;  // Tool to build jets.
   
   ///TrackParticle container's name
   std::string m_trkParticleName;
@@ -58,16 +44,7 @@ private:
   
   ///Cluster Collection container
   std::string m_trackCaloClusterContainerName;
-  
-  ///Jet Collection container
-  // std::string m_jetContainerName;
-  
-  bool m_storeStats;
-  
-  void storeStats(const xAOD::TrackParticleClusterAssociationContainer* associatedClusters,
-		  const xAOD::CaloClusterContainer* allClusters, 
-		  const xAOD::TrackParticleContainer* allTracks);
-    
+      
 };
   
 template<class T>

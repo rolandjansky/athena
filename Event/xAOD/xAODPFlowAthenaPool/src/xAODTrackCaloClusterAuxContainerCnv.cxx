@@ -17,7 +17,7 @@
 #include "xAODTrackCaloClusterAuxContainerCnv_v1.h"
 
 // EDM include(s):
-#include "xAODTrackCaloCluster/TrackCaloClusterContainer.h"
+#include "xAODPFlow/TrackCaloClusterContainer.h"
 
 xAODTrackCaloClusterAuxContainerCnv::
 xAODTrackCaloClusterAuxContainerCnv( ISvcLocator* svcLoc )
