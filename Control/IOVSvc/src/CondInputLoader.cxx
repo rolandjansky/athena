@@ -218,6 +218,7 @@ CondInputLoader::execute()
     }
     now.set_run_number(thisEventInfo->runNumber());
     now.set_event_number(thisEventInfo->eventNumber());
+    now.set_lumi_block(thisEventInfo->lumiBlock());
     now.set_time_stamp(thisEventInfo->timeStamp());
     now.set_time_stamp_ns_offset(thisEventInfo->timeStampNSOffset());
   }
@@ -225,11 +226,13 @@ CondInputLoader::execute()
 #ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
     now.set_run_number(getContext().eventID().run_number());
     now.set_event_number(getContext().eventID().event_number());
+    now.set_lumi_block(getContext().eventID().lumi_block());
     now.set_time_stamp(getContext().eventID().time_stamp());
     now.set_time_stamp_ns_offset(getContext().eventID().time_stamp_ns_offset());
 #else
     now.set_run_number(getContext()->eventID().run_number());
     now.set_event_number(getContext()->eventID().event_number());
+    now.set_lumi_block(getContext()->eventID().lumi_block());
     now.set_time_stamp(getContext()->eventID().time_stamp());
     now.set_time_stamp_ns_offset(getContext()->eventID().time_stamp_ns_offset());
 #endif
@@ -245,10 +248,9 @@ CondInputLoader::execute()
       now.set_run_number ((*input)["ConditionsRun"].data<unsigned int>());
   }
 
-  IOVTime t(now.run_number(), now.event_number(), now.time_stamp());
+  IOVTime t(now.run_number(), now.lumi_block(), now.time_stamp());
 
   StatusCode sc(StatusCode::SUCCESS);
-  EventIDRange r;
   std::string tag;
   for (auto &vhk: m_vhk) {
     ATH_MSG_DEBUG( "handling id: " << vhk.fullKey() << " key: " << vhk.key() );
