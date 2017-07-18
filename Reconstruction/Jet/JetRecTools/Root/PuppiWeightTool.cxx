@@ -8,7 +8,6 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODBase/IParticleHelpers.h"
 #include "xAODCore/ShallowAuxContainer.h"
-#include "JetRecTools/Puppi.h"
 
 using namespace std;
 using namespace fastjet;
@@ -32,13 +31,8 @@ PuppiWeightTool::PuppiWeightTool(const std::string& name) : JetConstituentModifi
   declareProperty("PUPenalty", m_PUPenalty=false);
   declareProperty("IncludeCentralNeutralsInAlpha",m_includeCentralNeutralsInAlpha=false);
   declareProperty("IncludeLowPTTracks",m_includeLowPTTracks=false);
-
-  // Where we no longer have charged and neutral information
-  //m_etaBoundary = 2.5;
-
-  //PVMatchedAcc= new SG::AuxElement::Accessor("matchedToPV");
-  //alphaAcc("PUPPI_alpha");
-  //weightAcc("PUPPI_weight");
+  
+  m_puppi = new Puppi(m_R0, m_Rmin, m_beta, m_centralPTCutOffset, m_centralPTCutSlope, m_forwardPTCutOffset, m_forwardPTCutSlope, m_etaBoundary, m_PUPenalty);
 }
 
 //------------------------------------------------------------------------------
@@ -55,7 +49,6 @@ StatusCode PuppiWeightTool::process(xAOD::IParticleContainer* cont) const {
 //------------------------------------------------------------------------------
 
 StatusCode PuppiWeightTool::process(xAOD::PFOContainer* cont) const{
-  //ATH_MSG_WARNING("Testing PUPPI");
 
   const static SG::AuxElement::Accessor<bool> PVMatchedAcc("matchedToPV");
   const static SG::AuxElement::Accessor<double> alphaAcc("PUPPI_alpha");
@@ -73,17 +66,17 @@ StatusCode PuppiWeightTool::process(xAOD::PFOContainer* cont) const{
       return StatusCode::FAILURE;
     }
 
-    if (ppfo->pt()<=0) continue;
+    if (ppfo->pt()<=FLT_MIN) continue;
 
     fastjet::PseudoJet pj(ppfo->p4());
-
-    //pj.set_user_info(new PuppiUserInfo({someOtherChi2,yetAnotherChi2}));
+    //pj.set_user_info(new PuppiUserInfo({someOtherChi2,yetAnotherChi2}));  //example of how additional information could be exploited - needs to be calculated somewhere above
 
     float charge = ppfo->charge();
+    bool isCharged = (fabs(charge) > FLT_MIN);
 
     if(fabs(ppfo->eta()) > m_etaBoundary) forwardVector.push_back(pj);
     else{     
-      if(fabs(charge) > FLT_MIN){
+      if(isCharged){
         bool matchedToPrimaryVertex=PVMatchedAcc(*ppfo);
 	if(matchedToPrimaryVertex) chargedHSVector.push_back(pj);
 	else chargedPUVector.push_back(pj);
@@ -91,7 +84,6 @@ StatusCode PuppiWeightTool::process(xAOD::PFOContainer* cont) const{
       else neutralVector.push_back(pj);
     }
     
-
     //Test inclusion of low pT tracks
     if (m_includeLowPTTracks){
       ATH_MSG_WARNING("You are doing something experimental");
@@ -154,43 +146,31 @@ StatusCode PuppiWeightTool::process(xAOD::PFOContainer* cont) const{
     return StatusCode::FAILURE;
   }
 
-  int NPV=0;
+  int nPV=0;
   for( auto vtx_itr : *pvtxs ){
-    if((int)vtx_itr->nTrackParticles() < 2 ) { continue; }
-    ++NPV;
+    if((int)vtx_itr->nTrackParticles() < 2 ) continue;
+    ++nPV;
   }
 
-  Puppi* puppi = new Puppi(m_R0, m_Rmin, m_beta, m_centralPTCutOffset, m_centralPTCutSlope, m_forwardPTCutOffset, m_forwardPTCutSlope,m_etaBoundary, m_PUPenalty);
-  puppi->setParticles(chargedHSVector, chargedPUVector, neutralVector, forwardVector, NPV);
+  m_puppi->setParticles(chargedHSVector, chargedPUVector, neutralVector, forwardVector, nPV);
 
   for ( xAOD::PFO* ppfo : *cont ) {
+    float charge = ppfo->charge();
+    bool isCharged = (fabs(charge) > FLT_MIN);
+    bool isForward = (fabs(ppfo->eta()) > m_etaBoundary);
+
     fastjet::PseudoJet pj(ppfo->p4());
 
-    double weight = puppi->getWeight(pj);
-    double alpha = puppi->getAlpha(pj);
+    double weight = m_puppi->getWeight(pj);
+    double alpha = m_puppi->getAlpha(pj);
 
-    if (abs(ppfo->charge()) < FLT_MIN && m_applyWeight) ppfo->setP4(weight*ppfo->p4());
+    if ((!isCharged || isForward) && m_applyWeight) ppfo->setP4(weight*ppfo->p4());
     alphaAcc(*ppfo) = alpha;
     weightAcc(*ppfo) = weight;
   }
 
-  /*
-    if(m_limitRemoval){
-    xAOD:PFOContainer neutralAndForward;
-    for ( xAOD::PFO* ppfo : *cont ) {
-    }
-  */
-
-  //if(evtStore()->record( puppi, "puppi" ).isFailure()) ATH_MSG_WARNING("Couldnt store puppi");
-  //evtStore()->record(puppi->getMedian(0),"PUPPI_alpha_median");
-  //evtStore()->record(puppi->getRMS(0),"PUPPI_alpha_RMS");
-
-  //std::cout<<"median: "<<puppi->getMedian()<<std::endl;
-  //std::cout<<"RMS: "<<puppi->getRMS()<<std::endl;
-
-  //ATH_MSG_INFO("Leaving execute");
-
-  delete puppi;
+  ATH_MSG_DEBUG("Median: "<<m_puppi->getMedian());
+  ATH_MSG_DEBUG("RMS: "<<m_puppi->getRMS());
 
   return StatusCode::SUCCESS;
 }
