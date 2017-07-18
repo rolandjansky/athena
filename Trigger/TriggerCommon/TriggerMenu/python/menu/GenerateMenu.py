@@ -584,6 +584,7 @@ class GenerateMenu:
 
         doTopo = self.CheckIntraSignatureTopo(chainDicts) and chainDict["topo"]
 
+
         if len(listOfChainDefs) == 0:# or not (len(listOfChainDefs)==len(chainDicts)):
             return False
         elif len(listOfChainDefs)>1:
@@ -599,6 +600,7 @@ class GenerateMenu:
         #Do TOPO on Combined chains
         if self.doCombinedChains:
             log.info('doTopo for combined chain = %s' % str(doTopo))
+            log.info(theChainDef)
             if doTopo:
                 log.info('run generateCombinedChainDefs')
                 theChainDef = TriggerMenu.combined.generateCombinedChainDefs._addTopoInfo(theChainDef,chainDicts,listOfChainDefs)
@@ -853,7 +855,6 @@ class GenerateMenu:
 
 
             chainDef = self.getChainDef(chainDicts)
-
             #Insert entry for chain counter later
             #For now, just modify it by assigning it automatically
             streams = chain[3]
