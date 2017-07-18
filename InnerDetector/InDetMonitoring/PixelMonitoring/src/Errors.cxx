@@ -270,14 +270,20 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
       sc = m_errhist_femcc_errwords_map->regHist(rodHistos);
    }
   
-   for (int j = kNumErrorStates; j < kNumErrorStates+kNumErrorStatesIBL; j++) {  
+   for (int j = kNumErrorStates; j < kNumErrorStates+kNumErrorStatesIBL; j++) {
+      for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
+         hname = makeHistname((error_state_labelsIBL[j - kNumErrorStates].first+"_per_lumi_"+modlabel2[i]), false);
+         htitles = makeHisttitle(("Average "+error_state_labelsIBL[j - kNumErrorStates].second+" per event per LB, "+modlabel2[i]), (atext_LB+atext_erf), false);
+         sc = rodExpert.regHist(m_errhist_expert_LB[i][j] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
+      }
+   
       hname = makeHistname((error_state_labelsIBL[j - kNumErrorStates].first+"_Map"), false);
       htitles = makeHisttitle((error_state_labelsIBL[j - kNumErrorStates].second + " per event per LB"), "", false);
       m_errhist_expert_maps[j] = new PixelMon2DMapsLW(hname.c_str(), htitles.c_str(), PixMon::HistConf::kIBL2D3D, m_doIBL);
       sc = m_errhist_expert_maps[j]->regHist(rodExpert);
    }
 
-// Replace class PIxLayerIBL2D3DDBM with something like IBL2D3D
+
 
 
    hname = makeHistname("ServiceRecord_Unweighted_IBL", false);
@@ -351,6 +357,7 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
    int num_errors[PixLayerIBL2D3D::COUNT] = {0};
    int num_errors_per_bit[PixLayerIBL2D3D::COUNT][kNumErrorBits] = {0};
    int num_errors_per_state[PixLayer::COUNT - 1][kNumErrorStates] = {0}; // no IBL here
+	int num_errors_per_stateIBL[PixLayerIBL2D3D::COUNT][kNumErrorStatesIBL] = {0}; // IBL
 
 
 
@@ -476,6 +483,7 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
 
             if (getErrorState(bit, is_ibl) != 99) {
                num_errors_per_state[kLayer][getErrorState(bit, is_ibl)]++;
+					num_errors_per_stateIBL[kLayerIBL][getErrorState(bit, is_ibl)]++;
                if (m_errhist_expert_maps[getErrorState(bit, is_ibl)])
                   m_errhist_expert_maps[getErrorState(bit, is_ibl)]->Fill(WaferID, m_pixelid);
                if (m_errhist_expert_LB_maps[getErrorState(bit, is_ibl)])
@@ -585,6 +593,14 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
          }
       }
    }
+
+   for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
+      for (int j = kNumErrorStates; j < kNumErrorStates+kNumErrorStatesIBL; j++) {
+         if (m_errhist_expert_LB[i][j]) {
+            m_errhist_expert_LB[i][j]->Fill(kLumiBlock, (float) num_errors_per_stateIBL[i][j]/m_nActive_mod[i]);
+         }
+      }
+   }    
 
    for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
       if (m_errhist_per_bit_LB[i] && m_nActive_mod[i] > 0) {
