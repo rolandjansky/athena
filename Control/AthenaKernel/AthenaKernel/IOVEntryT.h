@@ -20,8 +20,27 @@
 #include "GaudiKernel/EventIDRange.h"
 #include <set>
 
-template <typename T>
+class EventIDBaseComp
+{
+public:
+  bool operator() (const EventIDBase& e1, const EventIDBase& e2)
+  {
+    auto isRunLumi = [] (const EventIDBase& id)
+      { return id.run_number() != EventIDBase::UNDEFNUM &&
+               id.lumi_block() != EventIDBase::UNDEFNUM; };
+    if (isRunLumi(e1) && isRunLumi(e2)) {
+      unsigned int rn1 = e1.run_number();
+      unsigned int rn2 = e2.run_number();
+      unsigned int lb1 = e1.lumi_block();
+      unsigned int lb2 = e2.lumi_block();
+      return (std::tie(rn1, lb1) <
+              std::tie(rn2, lb2));
+    }
+    return e1 < e2;
+  }
+};
 
+template <typename T>
 class IOVEntryT {
 public: 
 
@@ -29,10 +48,10 @@ public:
   class IOVEntryTStartCritereon {
   public: 
     bool operator() ( const IOVEntryT<T> &p1, const IOVEntryT<T> &p2 ) const {
-      return p1.range().start() > p2.range().start();
+      return EventIDBaseComp() (p2.range().start(), p1.range().start());
     }
     bool operator() ( const IOVEntryT<T> *p1, const IOVEntryT<T> *p2 ) const {
-      return p1->range().start() > p2->range().start();
+      return EventIDBaseComp() (p2->range().start(), p1->range().start());
     }
   };
 
@@ -40,10 +59,10 @@ public:
   class IOVEntryTStopCritereon {
   public: 
     bool operator() ( const IOVEntryT<T> &p1, const IOVEntryT<T> &p2 ) const {
-      return p1.range().stop() < p2.range().stop();
+      return EventIDBaseComp() (p1.range().stop(), p2.range().stop());
     }
     bool operator() ( const IOVEntryT<T> *p1, const IOVEntryT<T> *p2 ) const {
-      return p1->range().stop() < p2->range().stop();
+      return EventIDBaseComp() (p1->range().stop(), p2->range().stop());
     }
   };
 
@@ -74,7 +93,7 @@ template <typename T>
 class IOVEntryComp {
 public:
   bool operator() ( const IOVEntryT<T> &p1, const IOVEntryT<T> &p2 ) const {
-    return p1.range().start() > p2.range().start();
+    return EventIDBaseComp() (p2->range().strart(), p1->range().start());
   }
 };
 
