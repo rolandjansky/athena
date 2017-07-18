@@ -116,33 +116,33 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=False):
         theChainDef.addSignatureL2([preselectionTEName])
 
 
-    if any("dR" in alg for alg in topoAlgs):
-       inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
+    # if any("dR" in alg for alg in topoAlgs):
+    #    inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
 
-       maxdR=-1
-       mindR=-1
-       for topo_item in chainDict['topo']:
-           if 'dR' in topo_item:
-              mindR=float(topo_item.split('dR')[0])
-              maxdR=float(topo_item.split('dR')[1])
-       log.debug("dR cuts at: %d and %d", mindR, maxdR)
-       if mindR==-1 or maxdR==-1:
-          log.error("No dR chain part found in tau-tau dR Topo cut")
+    #    maxdR=-1
+    #    mindR=-1
+    #    for topo_item in chainDict['topo']:
+    #        if 'dR' in topo_item:
+    #           mindR=float(topo_item.split('dR')[0])
+    #           maxdR=float(topo_item.split('dR')[1])
+    #    log.debug("dR cuts at: %d and %d", mindR, maxdR)
+    #    if mindR==-1 or maxdR==-1:
+    #       log.error("No dR chain part found in tau-tau dR Topo cut")
 
-       from TrigTauHypo.TrigTauHypoConfig2012 import EFTauTopoHypo
-       from TrigTauHypo.TrigTauHypoConf       import EFTauTopoFex
+    #    from TrigTauHypo.TrigTauHypoConfig2012 import EFTauTopoHypo
+    #    from TrigTauHypo.TrigTauHypoConf       import EFTauTopoFex
 
-       EFFex  =  EFTauTopoFex()
-       theVars    = ['DRMin','DRMax']
-       theThresh  = [mindR*0.1,maxdR*0.1]
-       TauTaudR_Hypo = EFTauTopoHypo("EFTauTopo_"+str(mindR).replace(".","")+"dR"+str(maxdR).replace(".",""),
-                                           theVars, theThresh)
-       log.debug("Input TEs to dR algorithm: %s", inputTEsEF)
+    #    EFFex  =  EFTauTopoFex()
+    #    theVars    = ['DRMin','DRMax']
+    #    theThresh  = [mindR*0.1,maxdR*0.1]
+    #    TauTaudR_Hypo = EFTauTopoHypo("EFTauTopo_"+str(mindR).replace(".","")+"dR"+str(maxdR).replace(".",""),
+    #                                        theVars, theThresh)
+    #    log.debug("Input TEs to dR algorithm: %s", inputTEsEF)
 
-       EFChainName = "EF_" + chainDict['chainName']
+    #    EFChainName = "EF_" + chainDict['chainName']
 
-       theChainDef.addSequence([EFFex, TauTaudR_Hypo],inputTEsEF,EFChainName)
-       theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])         
+    #    theChainDef.addSequence([EFFex, TauTaudR_Hypo],inputTEsEF,EFChainName)
+    #    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])         
         
     return theChainDef
 
