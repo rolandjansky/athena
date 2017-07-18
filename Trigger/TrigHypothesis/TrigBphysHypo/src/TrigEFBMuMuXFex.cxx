@@ -828,17 +828,16 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     int mu1_TE=-1;
     int mu2_TE=-1;
     if (!m_FTK) {
-      
       if ( inputTE.size() != 2 ) {
         msg() << MSG::DEBUG << "Got different than 2 number of input TEs: " << inputTE.size() << endmsg;
-        //m_mon_Errors.push_back(ERROR_Not_2_InputTEs);
-        //if ( timerSvc() ) m_TotTimer->stop();
-        //return HLT::BAD_JOB_SETUP;
-	mu1_TE=0;
-	mu2_TE=0;
+          //m_mon_Errors.push_back(ERROR_Not_2_InputTEs);
+          //if ( timerSvc() ) m_TotTimer->stop();
+          //return HLT::BAD_JOB_SETUP;
+        mu1_TE=0;
+        mu2_TE=0;
       }else{
-	mu1_TE=0;
-	mu2_TE=1;
+        mu1_TE=0;
+        mu2_TE=1;
       }
     } else {
       if ( inputTE.size() != 3 ) {
@@ -1498,13 +1497,13 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                         if (trigPartBplusMuMuKplus) {
                             m_bphysHelperTool->setBeamlineDisplacement(trigPartBplusMuMuKplus,{*trackEL3,*trackELmu1,*trackELmu2});
                             if(m_maxBpToStore >= 0 && m_countBpToStore >= m_maxBpToStore) {
-                              delete trigPartBplusMuMuKplus;
                               if(m_countBpToStore == m_maxBpToStore) {
                                 ATH_MSG(WARNING) << "Reached maximum number of B+ candidates to store " << m_maxBpToStore << "; following candidates won't be written out" << endmsg;
                                 m_mon_Errors.push_back(ERROR_MaxNumBpReached);
                               }
                               else
                                 ATH_MSG(DEBUG) << "Do not write out " << m_countBpToStore+1 << "th B+ candidate" << endmsg;
+                              delete trigPartBplusMuMuKplus;
                             }
                             else {
                               m_TrigBphysColl_b->push_back(trigPartBplusMuMuKplus);
@@ -1610,14 +1609,14 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartKstar,      {*trackEL3,*trackEL4});
                                         
                                         if(m_maxBdToStore >= 0 && m_countBdToStore >= m_maxBdToStore) {
-                                          delete xaod_trigPartBdMuMuKstar;
-                                          delete xaod_trigPartKstar;
                                           if(m_countBdToStore == m_maxBdToStore) {
                                             ATH_MSG(WARNING) << "Reached maximum number of Bd candidates to store " << m_maxBdToStore << "; following candidates won't be written out" << endmsg;
                                             m_mon_Errors.push_back(ERROR_MaxNumBdReached);
                                           }
                                           else
                                             ATH_MSG(DEBUG) << "Do not write out " << m_countBdToStore+1 << "th Bd candidate" << endmsg;
+                                          delete xaod_trigPartBdMuMuKstar;
+                                          delete xaod_trigPartKstar;
                                         }
                                         else {
                                           m_TrigBphysColl_b->push_back(xaod_trigPartBdMuMuKstar);
@@ -1656,14 +1655,14 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartBdMuMuKstar,{*trackEL4,*trackEL3,*trackELmu1,*trackELmu2});
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartKstar,      {*trackEL4,*trackEL3});
                                         if(m_maxBdToStore >= 0 && m_countBdToStore >= m_maxBdToStore) {
-                                          delete xaod_trigPartBdMuMuKstar;
-                                          delete xaod_trigPartKstar;
                                           if(m_countBdToStore == m_maxBdToStore) {
                                             ATH_MSG(WARNING) << "Reached maximum number of Bd candidates to store " << m_maxBdToStore << "; following candidates won't be written out" << endmsg;
                                             m_mon_Errors.push_back(ERROR_MaxNumBdReached);
                                           }
                                           else
                                             ATH_MSG(DEBUG) << "Do not write out " << m_countBdToStore+1 << "th Bd candidate" << endmsg;
+                                          delete xaod_trigPartBdMuMuKstar;
+                                          delete xaod_trigPartKstar;
                                         }
                                         else {
                                           m_TrigBphysColl_b->push_back(xaod_trigPartBdMuMuKstar);
@@ -1718,14 +1717,14 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartPhi,        {*trackEL3,*trackEL4});
                                         
                                         if(m_maxBsToStore >= 0 && m_countBsToStore >= m_maxBsToStore) {
-                                          delete xaod_trigPartBsMuMuPhi;
-                                          delete xaod_trigPartPhi;
                                           if(m_countBsToStore == m_maxBsToStore) {
                                             ATH_MSG(WARNING) << "Reached maximum number of Bs candidates to store " << m_maxBsToStore << "; following candidates won't be written out" << endmsg;
                                             m_mon_Errors.push_back(ERROR_MaxNumBsReached);
                                           }
                                           else
                                             ATH_MSG(DEBUG) << "Do not write out " << m_countBsToStore+1 << "th Bs candidate" << endmsg;
+                                          delete xaod_trigPartBsMuMuPhi;
+                                          delete xaod_trigPartPhi;
                                         }
                                         else {
                                           m_TrigBphysColl_b->push_back(xaod_trigPartBsMuMuPhi);
@@ -1811,14 +1810,14 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                             m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartLambda,      {*trackEL3,*trackEL4});
                                             
                                             if(m_maxLbToStore >= 0 && m_countLbToStore >= m_maxLbToStore) {
-                                              delete xaod_trigPartLbMuMuLambda;
-                                              delete xaod_trigPartLambda;
                                               if(m_countLbToStore == m_maxLbToStore) {
                                                 ATH_MSG(WARNING) << "Reached maximum number of Lb candidates to store " << m_maxLbToStore << "; following candidates won't be written out" << endmsg;
                                                 m_mon_Errors.push_back(ERROR_MaxNumLbReached);
                                               }
                                               else
                                                 ATH_MSG(DEBUG) << "Do not write out " << m_countLbToStore+1 << "th Lb candidate" << endmsg;
+                                              delete xaod_trigPartLbMuMuLambda;
+                                              delete xaod_trigPartLambda;
                                             }
                                             else {
                                               m_TrigBphysColl_b->push_back(xaod_trigPartLbMuMuLambda);
@@ -1862,14 +1861,14 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                               m_bphysHelperTool->setBeamlineDisplacement(xaod_trigPartLambda,      {*trackEL4,*trackEL3});
                                               
                                               if(m_maxLbToStore >= 0 && m_countLbToStore >= m_maxLbToStore) {
-                                                delete xaod_trigPartLbMuMuLambda;
-                                                delete xaod_trigPartLambda;
                                                 if(m_countLbToStore == m_maxLbToStore) {
                                                   ATH_MSG(WARNING) << "Reached maximum number of Lb candidates to store " << m_maxLbToStore << "; following candidates won't be written out" << endmsg;
                                                   m_mon_Errors.push_back(ERROR_MaxNumLbReached);
                                                 }
                                                 else
                                                   ATH_MSG(DEBUG) << "Do not write out " << m_countLbToStore+1 << "th Lb candidate" << endmsg;
+                                                delete xaod_trigPartLbMuMuLambda;
+                                                delete xaod_trigPartLambda;
                                               }
                                               else {
                                                 m_TrigBphysColl_b->push_back(xaod_trigPartLbMuMuLambda);
@@ -1994,14 +1993,14 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                 nTriedCombinations++;
                                                 if (trigPartBcMuMuDs) {
                                                     if(m_maxBcToStore >= 0 && m_countBcToStore >= m_maxBcToStore) {
-                                                      delete trigPartBcMuMuDs;
-                                                      delete trigPartDs;
                                                       if(m_countBcToStore == m_maxBcToStore) {
                                                         ATH_MSG(WARNING) << "Reached maximum number of Bc candidates to store " << m_maxBcToStore << "; following candidates won't be written out" << endmsg;
                                                         m_mon_Errors.push_back(ERROR_MaxNumBcReached);
                                                       }
                                                       else
                                                         ATH_MSG(DEBUG) << "Do not write out " << m_countBcToStore+1 << "th Bc candidate" << endmsg;
+                                                      delete trigPartBcMuMuDs;
+                                                      delete trigPartDs;
                                                     }
                                                     else {
                                                       m_TrigBphysColl_b->push_back( trigPartBcMuMuDs );
@@ -2145,29 +2144,31 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                       }
                                                       else
                                                         ATH_MSG(DEBUG) << "Do not write out " << m_countBcDplusToStore+1 << "th Bc->D+ candidate" << endmsg;
+                                                      delete trigPartBcMuMuDplus;
+                                                      delete trigPartDplus;
                                                     }
                                                     else {
                                                       m_TrigBphysColl_b->push_back( trigPartBcMuMuDplus );
                                                       m_TrigBphysColl_X->push_back( trigPartDplus );
-                                                    }
 
-                                                    m_bphysHelperTool->setBeamlineDisplacement(trigPartBcMuMuDplus,
-                                                                                               {*trkIt1,*trkIt2,*trkIt3,*trackELmu1,*trackELmu2});
-                                                    m_bphysHelperTool->setBeamlineDisplacement(trigPartDplus,
-                                                                                               {*trkIt1,*trkIt2,*trkIt3});
-                                                    trigPartDplus->addParticleLink(ItrackEL3);
-                                                    trigPartDplus->addParticleLink(ItrackEL4);
-                                                    trigPartDplus->addParticleLink(ItrackEL5);
-                                                   
-                                                    int iDplus = m_TrigBphysColl_X->size() - 1;
-                                                    ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iDplus);
+                                                      m_bphysHelperTool->setBeamlineDisplacement(trigPartBcMuMuDplus,
+                                                                                                {*trkIt1,*trkIt2,*trkIt3,*trackELmu1,*trackELmu2});
+                                                      m_bphysHelperTool->setBeamlineDisplacement(trigPartDplus,
+                                                                                                {*trkIt1,*trkIt2,*trkIt3});
+                                                      trigPartDplus->addParticleLink(ItrackEL3);
+                                                      trigPartDplus->addParticleLink(ItrackEL4);
+                                                      trigPartDplus->addParticleLink(ItrackEL5);
                                                     
-                                                    trigPartBcMuMuDplus->addParticleLink(ItrackEL3);
-                                                    trigPartBcMuMuDplus->addParticleLink(ItrackEL4);
-                                                    trigPartBcMuMuDplus->addParticleLink(ItrackEL5);
-                                                    if(Found1Track) trigPartBcMuMuDplus->addParticleLink(ELmu1);
-                                                    if(Found2Track) trigPartBcMuMuDplus->addParticleLink(ELmu2);
-                                                    trigPartBcMuMuDplus->setSecondaryDecayLink(trigPartXEL);
+                                                      int iDplus = m_TrigBphysColl_X->size() - 1;
+                                                      ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iDplus);
+                                                      
+                                                      trigPartBcMuMuDplus->addParticleLink(ItrackEL3);
+                                                      trigPartBcMuMuDplus->addParticleLink(ItrackEL4);
+                                                      trigPartBcMuMuDplus->addParticleLink(ItrackEL5);
+                                                      if(Found1Track) trigPartBcMuMuDplus->addParticleLink(ELmu1);
+                                                      if(Found2Track) trigPartBcMuMuDplus->addParticleLink(ELmu2);
+                                                      trigPartBcMuMuDplus->setSecondaryDecayLink(trigPartXEL);
+                                                    }
                                                     
                                                     result=true;
                                                     m_mon_BcMuMuDplus_n++;
@@ -2304,29 +2305,31 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                       }
                                                       else
                                                         ATH_MSG(DEBUG) << "Do not write out " << m_countBcDstarToStore+1 << "th Bc->D* candidate" << endmsg;
+                                                      delete trigPartBcMuMuDstar;
+                                                      delete trigPartDstar;
                                                     }
                                                     else {
                                                       m_TrigBphysColl_b->push_back( trigPartBcMuMuDstar );
                                                       m_TrigBphysColl_X->push_back( trigPartDstar );
-                                                    }
 
-                                                    m_bphysHelperTool->setBeamlineDisplacement(trigPartBcMuMuDstar,
-                                                                                               {*trkIt1,*trkIt2,*trkIt3,*trackELmu1,*trackELmu2});
-                                                    m_bphysHelperTool->setBeamlineDisplacement(trigPartDstar,
-                                                                                               {*trkIt1,*trkIt2,*trkIt3});
-                                                    trigPartDstar->addParticleLink(ItrackEL3);
-                                                    trigPartDstar->addParticleLink(ItrackEL4);
-                                                    trigPartDstar->addParticleLink(ItrackEL5);
-                                                   
-                                                    int iDstar = m_TrigBphysColl_X->size() - 1;
-                                                    ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iDstar);
+                                                      m_bphysHelperTool->setBeamlineDisplacement(trigPartBcMuMuDstar,
+                                                                                                {*trkIt1,*trkIt2,*trkIt3,*trackELmu1,*trackELmu2});
+                                                      m_bphysHelperTool->setBeamlineDisplacement(trigPartDstar,
+                                                                                                {*trkIt1,*trkIt2,*trkIt3});
+                                                      trigPartDstar->addParticleLink(ItrackEL3);
+                                                      trigPartDstar->addParticleLink(ItrackEL4);
+                                                      trigPartDstar->addParticleLink(ItrackEL5);
                                                     
-                                                    trigPartBcMuMuDstar->addParticleLink(ItrackEL3);
-                                                    trigPartBcMuMuDstar->addParticleLink(ItrackEL4);
-                                                    trigPartBcMuMuDstar->addParticleLink(ItrackEL5);
-                                                    if(Found1Track) trigPartBcMuMuDstar->addParticleLink(ELmu1);
-                                                    if(Found2Track) trigPartBcMuMuDstar->addParticleLink(ELmu2);
-                                                    trigPartBcMuMuDstar->setSecondaryDecayLink(trigPartXEL);
+                                                      int iDstar = m_TrigBphysColl_X->size() - 1;
+                                                      ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iDstar);
+                                                      
+                                                      trigPartBcMuMuDstar->addParticleLink(ItrackEL3);
+                                                      trigPartBcMuMuDstar->addParticleLink(ItrackEL4);
+                                                      trigPartBcMuMuDstar->addParticleLink(ItrackEL5);
+                                                      if(Found1Track) trigPartBcMuMuDstar->addParticleLink(ELmu1);
+                                                      if(Found2Track) trigPartBcMuMuDstar->addParticleLink(ELmu2);
+                                                      trigPartBcMuMuDstar->setSecondaryDecayLink(trigPartXEL);
+                                                    }
                                                     
                                                     result=true;
                                                     m_mon_BcMuMuDstar_n++;
@@ -2404,27 +2407,29 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                       }
                                                       else
                                                         ATH_MSG(DEBUG) << "Do not write out " << m_countBcD0ToStore+1 << "th Bc->D0 candidate" << endmsg;
+                                                      delete trigPartBcMuMuD0;
+                                                      delete trigPartD0;
                                                     }
                                                     else {
                                                       m_TrigBphysColl_b->push_back( trigPartBcMuMuD0 );
                                                       m_TrigBphysColl_X->push_back( trigPartD0 );
-                                                    }
 
-                                                    m_bphysHelperTool->setBeamlineDisplacement(trigPartBcMuMuD0,
-                                                                                               {*trkIt1,*trkIt2,*trackELmu1,*trackELmu2});
-                                                    m_bphysHelperTool->setBeamlineDisplacement(trigPartD0,
-                                                                                               {*trkIt1,*trkIt2});
-                                                    trigPartD0->addParticleLink(ItrackEL3);
-                                                    trigPartD0->addParticleLink(ItrackEL4);
-                                                   
-                                                    int iD0 = m_TrigBphysColl_X->size() - 1;
-                                                    ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iD0);
+                                                      m_bphysHelperTool->setBeamlineDisplacement(trigPartBcMuMuD0,
+                                                                                                {*trkIt1,*trkIt2,*trackELmu1,*trackELmu2});
+                                                      m_bphysHelperTool->setBeamlineDisplacement(trigPartD0,
+                                                                                                {*trkIt1,*trkIt2});
+                                                      trigPartD0->addParticleLink(ItrackEL3);
+                                                      trigPartD0->addParticleLink(ItrackEL4);
                                                     
-                                                    trigPartBcMuMuD0->addParticleLink(ItrackEL3);
-                                                    trigPartBcMuMuD0->addParticleLink(ItrackEL4);
-                                                    if(Found1Track) trigPartBcMuMuD0->addParticleLink(ELmu1);
-                                                    if(Found2Track) trigPartBcMuMuD0->addParticleLink(ELmu2);
-                                                    trigPartBcMuMuD0->setSecondaryDecayLink(trigPartXEL);
+                                                      int iD0 = m_TrigBphysColl_X->size() - 1;
+                                                      ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iD0);
+                                                      
+                                                      trigPartBcMuMuD0->addParticleLink(ItrackEL3);
+                                                      trigPartBcMuMuD0->addParticleLink(ItrackEL4);
+                                                      if(Found1Track) trigPartBcMuMuD0->addParticleLink(ELmu1);
+                                                      if(Found2Track) trigPartBcMuMuD0->addParticleLink(ELmu2);
+                                                      trigPartBcMuMuD0->setSecondaryDecayLink(trigPartXEL);
+                                                    }
                                                     
                                                     result=true;
                                                     m_mon_BcMuMuD0_n++;
@@ -2772,8 +2777,10 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const ElementLink<xAOD::TrackPar
           ATH_MSG(DEBUG) << " Failed cascade fit for " << "B_c -> Ds" << endmsg;
             delete fitVtx_X;
             delete fitVtx;
+            delete result;
             return nullptr;
         } else {
+          result->getSVOwnership(true); // to deleted the vertices of cascade together with VxCascadeInfo
           ATH_MSG(DEBUG) << " Managed cascade fit for " << "B_c -> Ds" << endmsg;
           m_countPassedBcVtx++;
 
@@ -2791,6 +2798,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const ElementLink<xAOD::TrackPar
             ATH_MSG(DEBUG) << " " << "B_c -> Ds" << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endmsg;
             delete fitVtx_X;
             delete fitVtx;
+            delete result;
             return nullptr;
           } else {
             ATH_MSG(DEBUG) << " " << "B_c -> Ds" << " candidate accepted by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endmsg;
@@ -2816,6 +2824,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const ElementLink<xAOD::TrackPar
               ATH_MSG(DEBUG) << " " << "B_c -> Ds" << " candidate rejected by Lxy cut: Lxy = " << LxyDs << endmsg;
               delete fitVtx_X;
               delete fitVtx;
+              delete result;
               return nullptr;
 	    } else {
               m_countPassedBcDsLxy++;
@@ -2837,6 +2846,14 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const ElementLink<xAOD::TrackPar
               m_mon_BcMuMuDs_pT_Bc.push_back(PtBc/1000.);
               m_mon_BcMuMuDs_VtxMass_Bc.push_back(vtxMassXMuMu/1000.);
               m_mon_BcMuMuDs_Chi2_Bc.push_back(chi2XMuMu);
+              
+              // manually attach the track links to fitVtx
+              for(auto tpel : vec_tracks) {
+                fitVtx->addTrackParticleLink(tpel);
+              }
+              
+              // result of cascate fit is not needed anymore
+              delete result;
                                     
             } // end XMuMu Lxy cut
           } // end XMuMu chi2 cut
@@ -3028,8 +3045,10 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDplus(const ElementLink<xAOD::Track
           ATH_MSG(DEBUG) << " Failed cascade fit for " << "B_c -> Dplus" << endmsg;
             delete fitVtx_X;
             delete fitVtx;
+            delete result;
             return nullptr;
         } else {
+          result->getSVOwnership(true); // to deleted the vertices of cascade together with VxCascadeInfo
           ATH_MSG(DEBUG) << " Managed cascade fit for " << "B_c -> Dplus" << endmsg;
           m_countPassedBcDplusVtx++;
 
@@ -3047,6 +3066,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDplus(const ElementLink<xAOD::Track
             ATH_MSG(DEBUG) << " " << "B_c -> Dplus" << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endmsg;
             delete fitVtx_X;
             delete fitVtx;
+            delete result;
             return nullptr;
           } else {
             ATH_MSG(DEBUG) << " " << "B_c -> Dplus" << " candidate accepted by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endmsg;
@@ -3073,6 +3093,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDplus(const ElementLink<xAOD::Track
               ATH_MSG(DEBUG) << " " << "B_c -> Dplus" << " candidate rejected by Lxy cut: Lxy = " << LxyDplus << endmsg;
               delete fitVtx_X;
               delete fitVtx;
+              delete result;
               return nullptr;
 	    } else {
               m_countPassedBcDplusLxy++;
@@ -3097,6 +3118,14 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDplus(const ElementLink<xAOD::Track
 	      //              m_mon_BcMuMuDplus_InvMass_Bc.push_back(massXMuMu/1000.);
               m_mon_BcMuMuDplus_VtxMass_Bc.push_back(vtxMassXMuMu/1000.);
               m_mon_BcMuMuDplus_Chi2_Bc.push_back(chi2XMuMu);
+              
+              // manually attach the track links to fitVtx
+              for(auto tpel : vec_tracks) {
+                fitVtx->addTrackParticleLink(tpel);
+              }
+              
+              // result of cascate fit is not needed anymore
+              delete result;
                                     
             } // end XMuMu Lxy cut
           } // end XMuMu chi2 cut
@@ -3327,8 +3356,10 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDstar(const ElementLink<xAOD::Track
           ATH_MSG(DEBUG) << " Failed cascade fit for " << "B_c -> Dstar" << endmsg;
             delete fitVtx_X;
             delete fitVtx;
+            delete result;
             return nullptr;
         } else {
+          result->getSVOwnership(true); // to deleted the vertices of cascade together with VxCascadeInfo
           ATH_MSG(DEBUG) << " Managed cascade fit for " << "B_c -> Dstar" << endmsg;
           m_countPassedBcDstarVtx++;
 
@@ -3346,6 +3377,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDstar(const ElementLink<xAOD::Track
             ATH_MSG(DEBUG) << " " << "B_c -> Dstar" << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endmsg;
             delete fitVtx_X;
             delete fitVtx;
+            delete result;
             return nullptr;
           } else {
             ATH_MSG(DEBUG) << " " << "B_c -> Dstar" << " candidate accepted by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endmsg;
@@ -3372,6 +3404,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDstar(const ElementLink<xAOD::Track
               ATH_MSG(DEBUG) << " " << "B_c -> Dstar" << " candidate rejected by Lxy cut: Lxy = " << LxyD0 << endmsg;
               delete fitVtx_X;
               delete fitVtx;
+              delete result;
               return nullptr;
 	    } else {
               m_countPassedBcD0DstarLxy++;
@@ -3403,6 +3436,14 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDstar(const ElementLink<xAOD::Track
 	      //              m_mon_BcMuMuDplus_InvMass_Bc.push_back(massXMuMu/1000.);
               m_mon_BcMuMuDstar_VtxMass_Bc.push_back(vtxMassXMuMu/1000.);
               m_mon_BcMuMuDstar_Chi2_Bc.push_back(chi2XMuMu);
+              
+              // manually attach the track links to fitVtx
+              for(auto tpel : vec_tracks) {
+                fitVtx->addTrackParticleLink(tpel);
+              }
+              
+              // result of cascate fit is not needed anymore
+              delete result;
                                     
             } // end XMuMu Lxy cut
           } // end XMuMu chi2 cut
@@ -3614,8 +3655,10 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuD0(const ElementLink<xAOD::TrackPar
           ATH_MSG(DEBUG) << " Failed cascade fit for " << "B_c -> D0" << endmsg;
             delete fitVtx_X;
             delete fitVtx;
+            delete result;
             return nullptr;
         } else {
+          result->getSVOwnership(true); // to deleted the vertices of cascade together with VxCascadeInfo
           ATH_MSG(DEBUG) << " Managed cascade fit for " << "B_c -> D0" << endmsg;
           m_countPassedBcD0Vtx++;
 
@@ -3633,6 +3676,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuD0(const ElementLink<xAOD::TrackPar
             ATH_MSG(DEBUG) << " " << "B_c -> D0" << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endmsg;
             delete fitVtx_X;
             delete fitVtx;
+            delete result;
             return nullptr;
           } else {
             ATH_MSG(DEBUG) << " " << "B_c -> D0" << " candidate accepted by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endmsg;
@@ -3658,6 +3702,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuD0(const ElementLink<xAOD::TrackPar
               ATH_MSG(DEBUG) << " " << "B_c -> D0" << " candidate rejected by Lxy cut: Lxy = " << LxyD0 << endmsg;
               delete fitVtx_X;
               delete fitVtx;
+              delete result;
               return nullptr;
 	    } else {
               m_countPassedBcD0Lxy++;
@@ -3680,6 +3725,14 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuD0(const ElementLink<xAOD::TrackPar
 	      //              m_mon_BcMuMuDplus_InvMass_Bc.push_back(massXMuMu/1000.);
               m_mon_BcMuMuD0_VtxMass_Bc.push_back(vtxMassXMuMu/1000.);
               m_mon_BcMuMuD0_Chi2_Bc.push_back(chi2XMuMu);
+              
+              // manually attach the track links to fitVtx
+              for(auto tpel : vec_tracks) {
+                fitVtx->addTrackParticleLink(tpel);
+              }
+              
+              // result of cascate fit is not needed anymore
+              delete result;
                                     
             } // end XMuMu Lxy cut
           } // end XMuMu chi2 cut
@@ -3865,8 +3918,10 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkLbMuMuLambda(const ElementLink<xAOD::Trac
           ATH_MSG(DEBUG) << " Failed cascade fit for " << "L_b -> Lambda" << endmsg;
             delete fitVtx_X;
             delete fitVtx;
+            delete result;
             return nullptr;
         } else {
+          result->getSVOwnership(true); // to deleted the vertices of cascade together with VxCascadeInfo
           ATH_MSG(DEBUG) << " Managed cascade fit for " << "L_b -> Lambda" << endmsg;
           m_countPassedLbVtx++;
 
@@ -3884,6 +3939,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkLbMuMuLambda(const ElementLink<xAOD::Trac
             ATH_MSG(DEBUG) << " " << "L_b -> Lambda" << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endmsg;
             delete fitVtx_X;
             delete fitVtx;
+            delete result;
             return nullptr;
           } else {
             ATH_MSG(DEBUG) << " " << "L_b -> Lambda" << " candidate accepted by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endmsg;
@@ -3909,6 +3965,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkLbMuMuLambda(const ElementLink<xAOD::Trac
               ATH_MSG(DEBUG) << " " << "L_b -> Lambda" << " candidate rejected by Lxy cut: Lxy = " << LxyLambda << endmsg;
               delete fitVtx_X;
               delete fitVtx;
+              delete result;
               return nullptr;
 	    } else {
               m_countPassedLbLambdaLxy++;
@@ -3919,12 +3976,18 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkLbMuMuLambda(const ElementLink<xAOD::Trac
     
               if( !(vtxMassX < m_upperLambdaVtxMassCut) ) {
                 ATH_MSG(DEBUG) << " " << "Lambda" << " candidate rejected by the vtx mass cut: m = " << vtxMassX << endmsg;
+                delete fitVtx_X;
+                delete fitVtx;
+                delete result;
                 return nullptr;
               }
               m_countPassedLambdaVtxMass++;
     
               if( !(vtxMassXMuMu > m_lowerLb_LambdaMuMuVtxMassCut && vtxMassXMuMu < m_upperLb_LambdaMuMuVtxMassCut) ) {
                 ATH_MSG(DEBUG) << " " << "L_b -> L" << " candidate rejected by the vtx mass cut: m = " << vtxMassXMuMu << endmsg;
+                delete fitVtx_X;
+                delete fitVtx;
+                delete result;
                 return nullptr;
               }
               m_countPassedLbVtxMass++;
@@ -3948,6 +4011,14 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkLbMuMuLambda(const ElementLink<xAOD::Trac
 
               m_mon_LbMuMuLambda_FinMass_Lambda.push_back(massX/1000.);
               m_mon_LbMuMuLambda_FinMass_Lb.push_back(massXMuMu/1000.);
+              
+              // manually attach the track links to fitVtx
+              for(auto tpel : vec_tracks) {
+                fitVtx->addTrackParticleLink(tpel);
+              }
+              
+              // result of cascate fit is not needed anymore
+              delete result;
                                     
             } // end XMuMu Lxy cut
           } // end XMuMu chi2 cut

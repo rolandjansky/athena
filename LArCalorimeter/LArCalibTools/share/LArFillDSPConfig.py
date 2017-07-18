@@ -1,3 +1,5 @@
+if not 'LowMu' in dir():
+   LowMu=False
 
 DSPConfigFolder="/LAR/Configuration/DSPConfiguration"
 
@@ -23,7 +25,7 @@ svcMgr.IOVDbSvc.DBInstance=""
 
 from LArCalibTools.LArCalibToolsConf import LArFillDSPConfig
 
-topSequence+=LArFillDSPConfig(Foldername=DSPConfigFolder)
+topSequence+=LArFillDSPConfig(Foldername=DSPConfigFolder,isLowMu=LowMu)
 
 from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg
 theOutputConditionsAlg = OutputConditionsAlg("OutputConditionsAlg","dummy.pool.root",["AthenaAttributeList#"+DSPConfigFolder,],["",],True)

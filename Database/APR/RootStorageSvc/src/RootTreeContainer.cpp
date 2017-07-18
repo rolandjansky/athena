@@ -773,32 +773,29 @@ DbStatus RootTreeContainer::open( const DbDatabase& dbH,
       return Success;
     }
     else if ( !hasBeenCreated && mode&pool::CREATE )    {
-      int count, defCompression=1, defSplitLevel=99, 
+      int count, defSplitLevel=99, 
 	 defAutoSave=16*1024*1024, defBufferSize=16*1024,
 	 branchOffsetTabLen=0, containerSplitLevel=defSplitLevel, auxSplitLevel=defSplitLevel;
       DbStatus res = Success;
       try   {
-        DbOption opt1("DEFAULT_COMPRESSION","");
-        DbOption opt2("DEFAULT_SPLITLEVEL","");
-        DbOption opt3("DEFAULT_AUTOSAVE","");
-        DbOption opt4("DEFAULT_BUFFERSIZE","");
-	DbOption opt5("TREE_BRANCH_OFFSETTAB_LEN","");
-        DbOption opt6("CONTAINER_SPLITLEVEL", m_name);
-        DbOption opt7("CONTAINER_SPLITLEVEL", SG::AUX_POSTFIX);
-	dbH.getOption(opt1);
+        DbOption opt1("DEFAULT_SPLITLEVEL","");
+        DbOption opt2("DEFAULT_AUTOSAVE","");
+        DbOption opt3("DEFAULT_BUFFERSIZE","");
+	DbOption opt4("TREE_BRANCH_OFFSETTAB_LEN","");
+        DbOption opt5("CONTAINER_SPLITLEVEL", m_name);
+        DbOption opt6("CONTAINER_SPLITLEVEL", SG::AUX_POSTFIX);
+        dbH.getOption(opt1);
         dbH.getOption(opt2);
         dbH.getOption(opt3);
         dbH.getOption(opt4);
 	dbH.getOption(opt5);
         dbH.getOption(opt6);
-        dbH.getOption(opt7);
-        opt1._getValue(defCompression);
-        opt2._getValue(defSplitLevel);
-        opt3._getValue(defAutoSave);
-        opt4._getValue(defBufferSize);
-	opt5._getValue(branchOffsetTabLen);
-        opt6._getValue(containerSplitLevel);
-        opt7._getValue(auxSplitLevel);
+        opt1._getValue(defSplitLevel);
+        opt2._getValue(defAutoSave);
+        opt3._getValue(defBufferSize);
+	opt4._getValue(branchOffsetTabLen);
+        opt5._getValue(containerSplitLevel);
+        opt6._getValue(auxSplitLevel);
         if (containerSplitLevel == defSplitLevel) {
 	   if ( (m_name.size() >= 5 && m_name.substr(m_name.size()-5, 4) == SG::AUX_POSTFIX)
 	           || info->clazz().Properties().HasProperty("IAuxStore") ) containerSplitLevel = auxSplitLevel;
@@ -1130,6 +1127,8 @@ DbStatus RootTreeContainer::getOption(DbOption& opt)  const  {
         case 'C':
           if ( !strcasecmp(n+7,"COMPRESSION_LEVEL") )
             return opt._setValue(int(b->GetCompressionLevel()));
+          if ( !strcasecmp(n+7,"COMPRESSION_ALGORITHM") )
+            return opt._setValue(int(b->GetCompressionAlgorithm()));
           break;
         case 'E':
           if ( !strcasecmp(n+7,"ENTRIES") )
@@ -1250,6 +1249,12 @@ DbStatus RootTreeContainer::setOption(const DbOption& opt)  {
             int val=1;
             opt._getValue(val);
             b->SetCompressionLevel(val);
+            return Success;
+          }
+          if ( !strcasecmp(n+7,"COMPRESSION_ALGORITHM") )  {
+            int val=1;
+            opt._getValue(val);
+            b->SetCompressionAlgorithm(val);
             return Success;
           }
           break;

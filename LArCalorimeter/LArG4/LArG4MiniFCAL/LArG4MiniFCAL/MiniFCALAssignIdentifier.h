@@ -21,7 +21,6 @@
 #include "G4ThreeVector.hh"
 #include "CLHEP/Geometry/Point3D.h"
 
-#include "LArG4Code/LArVG4DetectorParameters.h"
 #include "globals.hh"
 
 #include <map>

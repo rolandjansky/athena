@@ -110,7 +110,10 @@ std::string hitsSourceComponent(uint8_t source)
         return std::to_string(source);
     }
 }
-}
+
+
+
+} // end of namespace
 
 std::ostream &operator<<(std::ostream &os, const xAOD::CMXEtSums &el)
 {
@@ -341,7 +344,7 @@ StatusCode JEPSimMon::bookHistogramsRecurrent()
     // if (newEventsBlock || newLumiBlock) {
     //}
 
-    if (newRun)
+    if (newRunFlag())
     {
         MgmtAttr_t attr = ATTRIB_UNMANAGED;
         std::string dir1(m_rootDir + "/Errors/Transmission_Simulation");
@@ -761,11 +764,6 @@ StatusCode JEPSimMon::fillHistograms()
         msg(MSG::DEBUG) << "No DAQ JEM RoIs container found" << endmsg;
     }
 
-    // for (const xAOD::JEMTobRoI *jemRoI: *jemRoiTES){
-    //     const xAOD::JEMTobRoI &roi = *jemRoI;
-    //     ATH_MSG_INFO("SASHA1 " << roi); 
-    // }
-
     // Retrieve ROD Headers from SG
     m_rodTES = 0;
     m_limitedRoi = 0;
@@ -908,7 +906,7 @@ StatusCode JEPSimMon::fillHistograms()
     compare(cmxTobSimMap, ctMap, errorsJEM, errorsCMX);
     cmxTobSimMap.clear();
     
-    // Sasha: Delate later, will use simulated tobs later since data tobs does not
+    // Sasha: Delete later, will use simulated tobs later since data tobs does not
     // contains overflow bits
     // delete cmxTobSIM;
     // delete cmxTobSIMAux;
@@ -928,17 +926,12 @@ StatusCode JEPSimMon::fillHistograms()
     }
     CmxJetHitsMap cmxLocalSimMap;
     setupMap(cmxLocalSIM, cmxLocalSimMap);
-    //SASHA
     compare(cmxLocalSimMap, chMap, errorsCMX,
             xAOD::CMXJetHits::Sources::LOCAL_MAIN);
-    // for(auto p: chMap){
-    //     auto key = p.first;
-    //     auto v = p.second;
-    //     ATH_MSG_INFO("SASHA0 DAT " << *v);
-    //     if (cmxLocalSimMap.find(key) != cmxLocalSimMap.end()){
-    //         ATH_MSG_INFO("SASHA0 SIM " << *cmxLocalSimMap[key] << std::endl);
-    //     }
-    // }
+    
+    dumpDataAndSim("Compare Local sums simulated from CMX TOBs with Local sums from data",
+        chMap, cmxLocalSimMap);
+
     cmxLocalSimMap.clear();
     delete cmxLocalSIM;
     delete cmxLocalSIMAux;
@@ -1027,6 +1020,10 @@ StatusCode JEPSimMon::fillHistograms()
     compare(cmxEtLocalSimMap, csMap, errorsCMX,
             xAOD::CMXEtSums::Sources::LOCAL_STANDARD);
 
+    dumpDataAndSim(
+        "Compare Local sums simulated from CMXEtSums with Local sums from data",
+        csMap, cmxEtLocalSimMap);
+
     cmxEtLocalSimMap.clear();
     delete cmxEtLocalSIM;
     delete cmxEtLocalSIMAux;
@@ -1052,6 +1049,11 @@ StatusCode JEPSimMon::fillHistograms()
     setupMap(cmxEtTotalSIM, cmxEtTotalSimMap);
     compare(cmxEtTotalSimMap, csMap, errorsCMX,
             xAOD::CMXEtSums::Sources::TOTAL_STANDARD);
+    
+    dumpDataAndSim(
+      "Compare Total sums simulated from Remote sums with Total sums from data",
+       csMap, cmxEtTotalSimMap
+    );
 
     cmxEtTotalSimMap.clear();
     delete cmxEtTotalSIM;
@@ -1075,6 +1077,12 @@ StatusCode JEPSimMon::fillHistograms()
     setupMap(cmxSumEtSIM, cmxSumEtSimMap);
     compare(cmxSumEtSimMap, csMap, errorsCMX,
               xAOD::CMXEtSums::Sources::SUM_ET_STANDARD);
+    
+    dumpDataAndSim(
+      "Compare Et Maps (sumEt/missingEt/missingEtSig) simulated from Total sums",
+      csMap, cmxSumEtSimMap
+    );
+    
 
     cmxSumEtSimMap.clear();
     delete cmxSumEtSIM;
@@ -1688,16 +1696,7 @@ void JEPSimMon::compare(const CmxJetHitsMap &cmxSimMap,
     if (!local && !remote && !total /* && !topo*/)
         return;
     
-    // ATH_MSG_INFO("SASHA3 " << hitsSourceComponent(selection));
-    // for(auto p: cmxMap){
-    //     auto key = p.first;
-    //     auto v = p.second;
-    //     ATH_MSG_INFO("SASHA0 DAT " << *v);
-    //     if (cmxSimMap.find(key) != cmxSimMap.end()){
-    //         const xAOD::CMXJetHits &hit = *(*cmxSimMap.find(key)).second;
-    //         ATH_MSG_INFO("SASHA0 SIM " << hit << std::endl);
-    //     }
-    // }
+    
 
     unsigned int hitsSimMain0 = 0;
     unsigned int hitsSimMain1 = 0;
@@ -1853,11 +1852,6 @@ void JEPSimMon::compare(const CmxJetHitsMap &cmxSimMap,
             {
                 errors[loc + cmxBins] |= bit;
                 if ((cmxSimHit0 || cmxSimHit1) && (cmxHit0 || cmxHit1)) {
-                    // ATH_MSG_INFO("SASHA2 cmxSimHit0=0x" << std::hex << cmxSimHit0 << std::dec
-                    //  << " cmxSimHit1=0x" << std::hex << cmxSimHit1 << std::dec
-                    //  << " cmxHit0=0x" << std::hex << cmxHit0 << std::dec 
-                    //  << " cmxHit1=0x" << std::hex <<cmxHit1 << std::dec
-                    // );
                     hist = m_h_cmx_1d_thresh_SumsSimNeData;
                 }
                 else if (!cmxHit0 && !cmxHit1)
@@ -2388,16 +2382,6 @@ void JEPSimMon::compare(const CmxEtSumsMap &cmxSimMap,
     const bool etmaps = (selection == xAOD::CMXEtSums::Sources::SUM_ET_STANDARD);
     if (!local && !remote && !total && !etmaps)
         return;
-    // ATH_MSG_INFO("SASHA4 " << sourceComponent(selection));
-    // for(auto p: cmxMap){
-    //     auto key = p.first;
-    //     auto v = p.second;
-    //     ATH_MSG_INFO("SASHA5 DAT " << *v);
-    //     if (cmxSimMap.find(key) != cmxSimMap.end()){
-    //         const xAOD::CMXEtSums &et = *(*cmxSimMap.find(key)).second;
-    //         ATH_MSG_INFO("SASHA0 SIM " << et << std::endl);
-    //     }
-    // }
 
     unsigned int localEt = 0;
     unsigned int localEx = 0;
@@ -2438,7 +2422,6 @@ void JEPSimMon::compare(const CmxEtSumsMap &cmxSimMap,
             ((cmxSimMapIter != cmxSimMapIterEnd) && (cmxKey > cmxSimKey)))
         {
             // Sim CMX EtSums but no Data CMX EtSums
-
             const xAOD::CMXEtSums *cmxS = cmxSimMapIter->second;
             ++cmxSimMapIter;
             source = cmxS->sourceComponent();
@@ -2452,7 +2435,7 @@ void JEPSimMon::compare(const CmxEtSumsMap &cmxSimMap,
                 source != xAOD::CMXEtSums::Sources::TOTAL_RESTRICTED)
                 continue;
             if (etmaps && source != xAOD::CMXEtSums::Sources::SUM_ET_STANDARD &&
-                source != xAOD::CMXEtSums::Sources::SUM_ET_RESTRICTED &&
+                source != xAOD::CMXEtSums::Sources::SUM_ET_RESTRICTED && 
                 source != xAOD::CMXEtSums::Sources::MISSING_ET_STANDARD &&
                 source != xAOD::CMXEtSums::Sources::MISSING_ET_RESTRICTED 
                 /*&& source != xAOD::CMXEtSums::Sources::MISSING_ET_SIG_STANDARD*/)
@@ -2536,9 +2519,18 @@ void JEPSimMon::compare(const CmxEtSumsMap &cmxSimMap,
             cmxEy = cmxD->ey();
             if (!etmaps)
             {
-                cmxSimEt |= ((cmxS->etError() & 0x1) << 15);
-                cmxSimEx |= ((cmxS->exError() & 0x1) << 15);
-                cmxSimEy |= ((cmxS->eyError() & 0x1) << 15);
+                if (source == xAOD::CMXEtSums::Sources::LOCAL_RESTRICTED || source == xAOD::CMXEtSums::Sources::TOTAL_RESTRICTED)
+                {
+                  // Take error bits from data!
+                  cmxSimEt |= ((cmxD->etError() & 0x1) << 15);
+                  cmxSimEx |= ((cmxD->exError() & 0x1) << 15);
+                  cmxSimEy |= ((cmxD->eyError() & 0x1) << 15);
+                } else {
+                  cmxSimEt |= ((cmxS->etError() & 0x1) << 15);
+                  cmxSimEx |= ((cmxS->exError() & 0x1) << 15);
+                  cmxSimEy |= ((cmxS->eyError() & 0x1) << 15);
+                }
+
                 cmxEt |= ((cmxD->etError() & 0x1) << 15);
                 cmxEx |= ((cmxD->exError() & 0x1) << 15);
                 cmxEy |= ((cmxD->eyError() & 0x1) << 15);
@@ -2823,362 +2815,315 @@ void JEPSimMon::compare(const CmxEtSumsMap &cmxSimMap,
 void JEPSimMon::compare(const CmxEtSumsMap &cmxMap, const xAOD::CMXRoI *cmxRoi,
                         ErrorVector &errors)
 {
-    if (m_debug)
-    {
-        msg(MSG::DEBUG) << "Compare Et Maps and Energy Totals with RoIs from data"
-                        << endmsg;
+  if (m_debug) {
+    msg(MSG::DEBUG) << "Compare Et Maps and Energy Totals with RoIs from data"
+                    << endmsg;
+  }
+
+  int sumEtMap = 0;
+  int missEtMap = 0;
+  int missEtSigMap = 0;
+  int et = 0;
+  int ex = 0;
+  int ey = 0;
+  int sumEtRoi = 0;
+  int missEtRoi = 0;
+  int missEtSigRoi = 0;
+  int etRoi = 0;
+  int exRoi = 0;
+  int eyRoi = 0;
+  int sumEtMapM = 0;
+  int missEtMapM = 0;
+  int etM = 0;
+  int exM = 0;
+  int eyM = 0;
+  int sumEtRoiM = 0;
+  int missEtRoiM = 0;
+  int etRoiM = 0;
+  int exRoiM = 0;
+  int eyRoiM = 0;
+  int key = 100 + xAOD::CMXEtSums::Sources::SUM_ET_STANDARD;
+  CmxEtSumsMap::const_iterator iter = cmxMap.find(key);
+  if (iter != cmxMap.end()) {
+    const xAOD::CMXEtSums *sums = iter->second;
+    sumEtMap = sums->et();
+  }
+  key = 100 + xAOD::CMXEtSums::Sources::MISSING_ET_STANDARD;
+  iter = cmxMap.find(key);
+  if (iter != cmxMap.end()) {
+    const xAOD::CMXEtSums *sums = iter->second;
+    missEtMap = sums->et();
+  }
+  key = 100 + xAOD::CMXEtSums::Sources::MISSING_ET_SIG_STANDARD;
+  iter = cmxMap.find(key);
+  if (iter != cmxMap.end()) {
+    const xAOD::CMXEtSums *sums = iter->second;
+    missEtSigMap = sums->et();
+  }
+  key = 100 + xAOD::CMXEtSums::Sources::TOTAL_STANDARD;
+  iter = cmxMap.find(key);
+  if (iter != cmxMap.end()) {
+    const xAOD::CMXEtSums *sums = iter->second;
+    et = (sums->et() | ((sums->etError() & 0x1) << 15));
+    ex = (sums->ex() | ((sums->exError() & 0x1) << 15));
+    ey = (sums->ey() | ((sums->eyError() & 0x1) << 15));
+  }
+  key = 100 + xAOD::CMXEtSums::Sources::SUM_ET_RESTRICTED;
+  iter = cmxMap.find(key);
+  if (iter != cmxMap.end()) {
+    const xAOD::CMXEtSums *sums = iter->second;
+    sumEtMapM = sums->et();
+  }
+  key = 100 + xAOD::CMXEtSums::Sources::MISSING_ET_RESTRICTED;
+  iter = cmxMap.find(key);
+  if (iter != cmxMap.end()) {
+    const xAOD::CMXEtSums *sums = iter->second;
+    missEtMapM = sums->et();
+  }
+  key = 100 + xAOD::CMXEtSums::Sources::TOTAL_RESTRICTED;
+  iter = cmxMap.find(key);
+  if (iter != cmxMap.end()) {
+    const xAOD::CMXEtSums *sums = iter->second;
+    etM = (sums->et() | ((sums->etError() & 0x1) << 15));
+    exM = (sums->ex() | ((sums->exError() & 0x1) << 15));
+    eyM = (sums->ey() | ((sums->eyError() & 0x1) << 15));
+
+  }
+  
+  
+  if (cmxRoi) {
+    sumEtRoi = cmxRoi->sumEtHits();
+    missEtRoi = cmxRoi->missingEtHits();
+    missEtSigRoi = cmxRoi->missingEtSigHits();
+    etRoi = (cmxRoi->et() | ((cmxRoi->etError() & 0x1) << 15));
+    exRoi = (cmxRoi->ex() | ((cmxRoi->exError() & 0x1) << 15));
+    eyRoi = (cmxRoi->ey() | ((cmxRoi->eyError() & 0x1) << 15));
+    sumEtRoiM = cmxRoi->sumEtHits(xAOD::CMXRoI::MASKED);
+    missEtRoiM = cmxRoi->missingEtHits(xAOD::CMXRoI::MASKED);
+    etRoiM =
+        (cmxRoi->et(xAOD::CMXRoI::MASKED) | ((cmxRoi->etError(xAOD::CMXRoI::MASKED) & 0x1) << 15));
+
+    exRoiM =
+        (cmxRoi->ex(xAOD::CMXRoI::MASKED) | ((cmxRoi->exError(xAOD::CMXRoI::MASKED) & 0x1) << 15));
+    eyRoiM =
+        (cmxRoi->ey(xAOD::CMXRoI::MASKED) | ((cmxRoi->eyError(xAOD::CMXRoI::MASKED) & 0x1) << 15));
+  
+    // If CMX RoI restricted et is zero and overflow bit is set, but total restriced et is
+    // zero then explicitly set overflow bit also in total restricted et since readout
+    // currently does not set this bit in total restricted. 
+    if (etM == 0 && (cmxRoi->et(xAOD::CMXRoI::MASKED) == 0)
+        && (cmxRoi->etError(xAOD::CMXRoI::MASKED) & 0x1)) {
+      etM = etRoiM; 
     }
 
-    int sumEtMap = 0;
-    int missEtMap = 0;
-    int missEtSigMap = 0;
-    int et = 0;
-    int ex = 0;
-    int ey = 0;
-    int sumEtRoi = 0;
-    int missEtRoi = 0;
-    int missEtSigRoi = 0;
-    int etRoi = 0;
-    int exRoi = 0;
-    int eyRoi = 0;
-    int sumEtMapM = 0;
-    int missEtMapM = 0;
-    int etM = 0;
-    int exM = 0;
-    int eyM = 0;
-    int sumEtRoiM = 0;
-    int missEtRoiM = 0;
-    int etRoiM = 0;
-    int exRoiM = 0;
-    int eyRoiM = 0;
-    int key = 100 + xAOD::CMXEtSums::Sources::SUM_ET_STANDARD;
-    CmxEtSumsMap::const_iterator iter = cmxMap.find(key);
-    if (iter != cmxMap.end())
-    {
-        const xAOD::CMXEtSums *sums = iter->second;
-        sumEtMap = sums->et();
+    if (exM == 0 && (cmxRoi->ex(xAOD::CMXRoI::MASKED) == 0)
+        && (cmxRoi->exError(xAOD::CMXRoI::MASKED) & 0x1)) {
+      exM = exRoiM; 
     }
-    key = 100 + xAOD::CMXEtSums::Sources::MISSING_ET_STANDARD;
-    iter = cmxMap.find(key);
-    if (iter != cmxMap.end())
-    {
-        const xAOD::CMXEtSums *sums = iter->second;
-        missEtMap = sums->et();
-    }
-    key = 100 + xAOD::CMXEtSums::Sources::MISSING_ET_SIG_STANDARD;
-    iter = cmxMap.find(key);
-    if (iter != cmxMap.end())
-    {
-        const xAOD::CMXEtSums *sums = iter->second;
-        missEtSigMap = sums->et();
-    }
-    key = 100 + xAOD::CMXEtSums::Sources::TOTAL_STANDARD;
-    iter = cmxMap.find(key);
-    if (iter != cmxMap.end())
-    {
-        const xAOD::CMXEtSums *sums = iter->second;
-        et = (sums->et() | ((sums->etError() & 0x1) << 15));
-        ex = (sums->ex() | ((sums->exError() & 0x1) << 15));
-        ey = (sums->ey() | ((sums->eyError() & 0x1) << 15));
-    }
-    key = 100 + xAOD::CMXEtSums::Sources::SUM_ET_RESTRICTED;
-    iter = cmxMap.find(key);
-    if (iter != cmxMap.end())
-    {
-        const xAOD::CMXEtSums *sums = iter->second;
-        sumEtMapM = sums->et();
-    }
-    key = 100 + xAOD::CMXEtSums::Sources::MISSING_ET_RESTRICTED;
-    iter = cmxMap.find(key);
-    if (iter != cmxMap.end())
-    {
-        const xAOD::CMXEtSums *sums = iter->second;
-        missEtMapM = sums->et();
-    }
-    key = 100 + xAOD::CMXEtSums::Sources::TOTAL_RESTRICTED;
-    iter = cmxMap.find(key);
-    if (iter != cmxMap.end())
-    {
-        const xAOD::CMXEtSums *sums = iter->second;
-        etM = (sums->et() | ((sums->etError() & 0x1) << 15));
-        exM = (sums->ex() | ((sums->exError() & 0x1) << 15));
-        eyM = (sums->ey() | ((sums->eyError() & 0x1) << 15));
-    }
-    if (cmxRoi)
-    {
-        sumEtRoi = cmxRoi->sumEtHits();
-        missEtRoi = cmxRoi->missingEtHits();
-        missEtSigRoi = cmxRoi->missingEtSigHits();
-        etRoi = (cmxRoi->et() | ((cmxRoi->etError() & 0x1) << 15));
-        exRoi = (cmxRoi->ex() | ((cmxRoi->exError() & 0x1) << 15));
-        eyRoi = (cmxRoi->ey() | ((cmxRoi->eyError() & 0x1) << 15));
-        sumEtRoiM = cmxRoi->sumEtHits(xAOD::CMXRoI::MASKED);
-        missEtRoiM = cmxRoi->missingEtHits(xAOD::CMXRoI::MASKED);
-        etRoiM =
-            (cmxRoi->et(xAOD::CMXRoI::MASKED) | ((cmxRoi->etError() & 0x1) << 15));
-        exRoiM =
-            (cmxRoi->ex(xAOD::CMXRoI::MASKED) | ((cmxRoi->exError() & 0x1) << 15));
-        eyRoiM =
-            (cmxRoi->ey(xAOD::CMXRoI::MASKED) | ((cmxRoi->eyError() & 0x1) << 15));
-    }
-    if (sumEtMap || sumEtRoi || missEtMap || missEtRoi || missEtSigMap ||
-        missEtSigRoi || et || etRoi || ex || exRoi || ey || eyRoi || sumEtMapM ||
-        sumEtRoiM || missEtMapM || missEtRoiM || etM || etRoiM || exM || exRoiM ||
-        eyM || eyRoiM)
-    {
-        const int crate = 1;
-        const int cmx = 0;
-        const int loc = crate * s_cmxs + cmx;
-        const int cmxBins = s_crates * s_cmxs;
-        const int bit = (1 << EnergyRoIMismatch);
 
-        if (sumEtMap == sumEtRoi && missEtMap == missEtRoi &&
-            missEtSigMap == missEtSigRoi && et == etRoi && ex == exRoi &&
-            ey == eyRoi && sumEtMapM == sumEtRoiM && missEtMapM == missEtRoiM &&
-            etM == etRoiM && exM == exRoiM && eyM == eyRoiM)
-            errors[loc] |= bit;
-        else
-            errors[loc + cmxBins] |= bit;
-        TH2F_LW *hist = 0;
-        if (ex && ex == exRoi)
-            hist = m_h_cmx_2d_energy_SumsSimEqData;
-        else if (ex != exRoi)
-        {
-            if (ex && exRoi)
-                hist = m_h_cmx_2d_energy_SumsSimNeData;
-            else if (!exRoi)
-            {
-                if (!limitedRoiSet(crate))
-                    hist = m_h_cmx_2d_energy_SumsSimNoData;
-            }
-            else
-                hist = m_h_cmx_2d_energy_SumsDataNoSim;
-        }
-        if (hist)
-            hist->Fill(4, 0);
-        hist = 0;
-        if (ey && ey == eyRoi)
-            hist = m_h_cmx_2d_energy_SumsSimEqData;
-        else if (ey != eyRoi)
-        {
-            if (ey && eyRoi)
-                hist = m_h_cmx_2d_energy_SumsSimNeData;
-            else if (!eyRoi)
-            {
-                if (!limitedRoiSet(crate))
-                    hist = m_h_cmx_2d_energy_SumsSimNoData;
-            }
-            else
-                hist = m_h_cmx_2d_energy_SumsDataNoSim;
-        }
-        if (hist)
-            hist->Fill(4, 1);
-        hist = 0;
-        if (et && et == etRoi)
-            hist = m_h_cmx_2d_energy_SumsSimEqData;
-        else if (et != etRoi)
-        {
-            if (et && etRoi)
-                hist = m_h_cmx_2d_energy_SumsSimNeData;
-            else if (!etRoi)
-            {
-                if (!limitedRoiSet(crate))
-                    hist = m_h_cmx_2d_energy_SumsSimNoData;
-            }
-            else
-                hist = m_h_cmx_2d_energy_SumsDataNoSim;
-        }
-        if (hist)
-            hist->Fill(4, 2);
-        hist = 0;
-        if (sumEtMap && sumEtMap == sumEtRoi)
-            hist = m_h_cmx_2d_energy_SumsSimEqData;
-        else if (sumEtMap != sumEtRoi)
-        {
-            if (sumEtMap && sumEtRoi)
-                hist = m_h_cmx_2d_energy_SumsSimNeData;
-            else if (!sumEtRoi)
-            {
-                if (!limitedRoiSet(crate))
-                    hist = m_h_cmx_2d_energy_SumsSimNoData;
-            }
-            else
-                hist = m_h_cmx_2d_energy_SumsDataNoSim;
-        }
-        if (hist)
-            hist->Fill(4, 3);
-        hist = 0;
-        if (missEtMap && missEtMap == missEtRoi)
-            hist = m_h_cmx_2d_energy_SumsSimEqData;
-        else if (missEtMap != missEtRoi)
-        {
-            if (missEtMap && missEtRoi)
-                hist = m_h_cmx_2d_energy_SumsSimNeData;
-            else if (!missEtRoi)
-            {
-                if (!limitedRoiSet(crate))
-                    hist = m_h_cmx_2d_energy_SumsSimNoData;
-            }
-            else
-                hist = m_h_cmx_2d_energy_SumsDataNoSim;
-        }
-        if (hist)
-            hist->Fill(4, 4);
-        hist = 0;
-        if (missEtSigMap && missEtSigMap == missEtSigRoi)
-            hist = m_h_cmx_2d_energy_SumsSimEqData;
-        else if (missEtSigMap != missEtSigRoi)
-        {
-            if (missEtSigMap && missEtSigRoi)
-                hist = m_h_cmx_2d_energy_SumsSimNeData;
-            else if (!missEtSigRoi)
-            {
-                if (!limitedRoiSet(crate))
-                    hist = m_h_cmx_2d_energy_SumsSimNoData;
-            }
-            else
-                hist = m_h_cmx_2d_energy_SumsDataNoSim;
-        }
-        if (hist)
-            hist->Fill(4, 5);
-        hist = 0;
-        if (exM && exM == exRoiM)
-            hist = m_h_cmx_2d_energy_SumsSimEqData;
-        else if (exM != exRoiM)
-        {
-            if (exM && exRoiM)
-                hist = m_h_cmx_2d_energy_SumsSimNeData;
-            else if (!exRoiM)
-            {
-                if (!limitedRoiSet(crate))
-                    hist = m_h_cmx_2d_energy_SumsSimNoData;
-            }
-            else
-                hist = m_h_cmx_2d_energy_SumsDataNoSim;
-        }
-        if (hist)
-            hist->Fill(4, 6);
-        hist = 0;
-        if (eyM && eyM == eyRoiM)
-            hist = m_h_cmx_2d_energy_SumsSimEqData;
-        else if (eyM != eyRoiM)
-        {
-            if (eyM && eyRoiM)
-                hist = m_h_cmx_2d_energy_SumsSimNeData;
-            else if (!eyRoiM)
-            {
-                if (!limitedRoiSet(crate))
-                    hist = m_h_cmx_2d_energy_SumsSimNoData;
-            }
-            else
-                hist = m_h_cmx_2d_energy_SumsDataNoSim;
-        }
-        if (hist)
-            hist->Fill(4, 7);
-        hist = 0;
-        if (etM && etM == etRoiM)
-            hist = m_h_cmx_2d_energy_SumsSimEqData;
-        else if (etM != etRoiM)
-        {
-            if (etM && etRoiM)
-                hist = m_h_cmx_2d_energy_SumsSimNeData;
-            else if (!etRoiM)
-            {
-                if (!limitedRoiSet(crate))
-                    hist = m_h_cmx_2d_energy_SumsSimNoData;
-            }
-            else
-                hist = m_h_cmx_2d_energy_SumsDataNoSim;
-        }
-        if (hist)
-            hist->Fill(4, 8);
-        hist = 0;
-        if (sumEtMapM && sumEtMapM == sumEtRoiM)
-            hist = m_h_cmx_2d_energy_SumsSimEqData;
-        else if (sumEtMapM != sumEtRoiM)
-        {
-            if (sumEtMapM && sumEtRoiM)
-                hist = m_h_cmx_2d_energy_SumsSimNeData;
-            else if (!sumEtRoiM)
-            {
-                if (!limitedRoiSet(crate))
-                    hist = m_h_cmx_2d_energy_SumsSimNoData;
-            }
-            else
-                hist = m_h_cmx_2d_energy_SumsDataNoSim;
-        }
-        if (hist)
-            hist->Fill(4, 9);
-        hist = 0;
-        if (missEtMapM && missEtMapM == missEtRoiM)
-            hist = m_h_cmx_2d_energy_SumsSimEqData;
-        else if (missEtMapM != missEtRoiM)
-        {
-            if (missEtMapM && missEtRoiM)
-                hist = m_h_cmx_2d_energy_SumsSimNeData;
-            else if (!missEtRoiM)
-            {
-                if (!limitedRoiSet(crate))
-                    hist = m_h_cmx_2d_energy_SumsSimNoData;
-            }
-            else
-                hist = m_h_cmx_2d_energy_SumsDataNoSim;
-        }
-        if (hist)
-            hist->Fill(4, 10);
-
-        const int thrLen = 1;
-        const int nThresh = 8;
-        if ((sumEtMap || sumEtRoi) &&
-            !(sumEtMap && !sumEtRoi && limitedRoiSet(crate)))
-        {
-            m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimEqData, 1,
-                                          sumEtRoi & sumEtMap, nThresh, thrLen);
-            m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimNeData, 1,
-                                          sumEtRoi ^ sumEtMap, nThresh, thrLen);
-        }
-        if ((missEtMap || missEtRoi) &&
-            !(missEtMap && !missEtRoi && limitedRoiSet(crate)))
-        {
-            const int offset = 8;
-            m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimEqData, 3,
-                                          missEtRoi & missEtMap, nThresh, thrLen,
-                                          offset);
-            m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimNeData, 3,
-                                          missEtRoi ^ missEtMap, nThresh, thrLen,
-                                          offset);
-        }
-        if ((missEtSigMap || missEtSigRoi) &&
-            !(missEtSigMap && !missEtSigRoi && limitedRoiSet(crate)))
-        {
-            const int offset = 16;
-            m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimEqData, 5,
-                                          missEtSigRoi & missEtSigMap, nThresh,
-                                          thrLen, offset);
-            m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimNeData, 5,
-                                          missEtSigRoi ^ missEtSigMap, nThresh,
-                                          thrLen, offset);
-        }
-        if ((sumEtMapM || sumEtRoiM) &&
-            !(sumEtMapM && !sumEtRoiM && limitedRoiSet(crate)))
-        {
-            m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimEqData, 7,
-                                          sumEtRoiM & sumEtMapM, nThresh, thrLen);
-            m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimNeData, 7,
-                                          sumEtRoiM ^ sumEtMapM, nThresh, thrLen);
-        }
-        if ((missEtMapM || missEtRoiM) &&
-            !(missEtMapM && !missEtRoiM && limitedRoiSet(crate)))
-        {
-            const int offset = 8;
-            m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimEqData, 9,
-                                          missEtRoiM & missEtMapM, nThresh, thrLen,
-                                          offset);
-            m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimNeData, 9,
-                                          missEtRoiM ^ missEtMapM, nThresh, thrLen,
-                                          offset);
-        }
+    if (eyM == 0 && (cmxRoi->ey(xAOD::CMXRoI::MASKED) == 0)
+        && (cmxRoi->eyError(xAOD::CMXRoI::MASKED) & 0x1)) {
+      eyM = eyRoiM; 
     }
+  }
+
+  if (sumEtMap || sumEtRoi || missEtMap || missEtRoi || missEtSigMap ||
+      missEtSigRoi || et || etRoi || ex || exRoi || ey || eyRoi || sumEtMapM ||
+      sumEtRoiM || missEtMapM || missEtRoiM || etM || etRoiM || exM || exRoiM ||
+      eyM || eyRoiM) {
+    const int crate = 1;
+    const int cmx = 0;
+    const int loc = crate * s_cmxs + cmx;
+    const int cmxBins = s_crates * s_cmxs;
+    const int bit = (1 << EnergyRoIMismatch);
+
+    if (sumEtMap == sumEtRoi && missEtMap == missEtRoi &&
+        missEtSigMap == missEtSigRoi && et == etRoi && ex == exRoi &&
+        ey == eyRoi && sumEtMapM == sumEtRoiM && missEtMapM == missEtRoiM &&
+        etM == etRoiM && exM == exRoiM && eyM == eyRoiM)
+      errors[loc] |= bit;
+    else
+      errors[loc + cmxBins] |= bit;
+    TH2F_LW *hist = 0;
+    if (ex && ex == exRoi)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
+    else if (ex != exRoi) {
+      if (ex && exRoi)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
+      else if (!exRoi) {
+        if (!limitedRoiSet(crate)) hist = m_h_cmx_2d_energy_SumsSimNoData;
+      } else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
+    }
+    if (hist) hist->Fill(4, 0);
+    hist = 0;
+    if (ey && ey == eyRoi)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
+    else if (ey != eyRoi) {
+      if (ey && eyRoi)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
+      else if (!eyRoi) {
+        if (!limitedRoiSet(crate)) hist = m_h_cmx_2d_energy_SumsSimNoData;
+      } else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
+    }
+    if (hist) hist->Fill(4, 1);
+    hist = 0;
+    if (et && et == etRoi)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
+    else if (et != etRoi) {
+      if (et && etRoi)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
+      else if (!etRoi) {
+        if (!limitedRoiSet(crate)) hist = m_h_cmx_2d_energy_SumsSimNoData;
+      } else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
+    }
+    if (hist) hist->Fill(4, 2);
+    hist = 0;
+    if (sumEtMap && sumEtMap == sumEtRoi)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
+    else if (sumEtMap != sumEtRoi) {
+      if (sumEtMap && sumEtRoi)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
+      else if (!sumEtRoi) {
+        if (!limitedRoiSet(crate)) hist = m_h_cmx_2d_energy_SumsSimNoData;
+      } else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
+    }
+    if (hist) hist->Fill(4, 3);
+    hist = 0;
+    if (missEtMap && missEtMap == missEtRoi)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
+    else if (missEtMap != missEtRoi) {
+      if (missEtMap && missEtRoi)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
+      else if (!missEtRoi) {
+        if (!limitedRoiSet(crate)) hist = m_h_cmx_2d_energy_SumsSimNoData;
+      } else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
+    }
+    if (hist) hist->Fill(4, 4);
+    hist = 0;
+    if (missEtSigMap && missEtSigMap == missEtSigRoi)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
+    else if (missEtSigMap != missEtSigRoi) {
+      if (missEtSigMap && missEtSigRoi)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
+      else if (!missEtSigRoi) {
+        if (!limitedRoiSet(crate)) hist = m_h_cmx_2d_energy_SumsSimNoData;
+      } else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
+    }
+    if (hist) hist->Fill(4, 5);
+    hist = 0;
+    if (exM && exM == exRoiM)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
+    else if (exM != exRoiM) {
+      if (exM && exRoiM)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
+      else if (!exRoiM) {
+        if (!limitedRoiSet(crate)) hist = m_h_cmx_2d_energy_SumsSimNoData;
+      } else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
+    }
+    if (hist) hist->Fill(4, 6);
+    hist = 0;
+    if (eyM && eyM == eyRoiM)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
+    else if (eyM != eyRoiM) {
+      if (eyM && eyRoiM)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
+      else if (!eyRoiM) {
+        if (!limitedRoiSet(crate)) hist = m_h_cmx_2d_energy_SumsSimNoData;
+      } else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
+    }
+    if (hist) hist->Fill(4, 7);
+    hist = 0;
+    if (etM && etM == etRoiM)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
+    else if (etM != etRoiM) {
+      if (etM && etRoiM)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
+      else if (!etRoiM) {
+        if (!limitedRoiSet(crate)) hist = m_h_cmx_2d_energy_SumsSimNoData;
+      } else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
+    }
+    if (hist) hist->Fill(4, 8);
+    hist = 0;
+    if (sumEtMapM && sumEtMapM == sumEtRoiM)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
+    else if (sumEtMapM != sumEtRoiM) {
+      if (sumEtMapM && sumEtRoiM)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
+      else if (!sumEtRoiM) {
+        if (!limitedRoiSet(crate)) hist = m_h_cmx_2d_energy_SumsSimNoData;
+      } else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
+    }
+    if (hist) hist->Fill(4, 9);
+    hist = 0;
+    if (missEtMapM && missEtMapM == missEtRoiM)
+      hist = m_h_cmx_2d_energy_SumsSimEqData;
+    else if (missEtMapM != missEtRoiM) {
+      if (missEtMapM && missEtRoiM)
+        hist = m_h_cmx_2d_energy_SumsSimNeData;
+      else if (!missEtRoiM) {
+        if (!limitedRoiSet(crate)) hist = m_h_cmx_2d_energy_SumsSimNoData;
+      } else
+        hist = m_h_cmx_2d_energy_SumsDataNoSim;
+    }
+    if (hist) hist->Fill(4, 10);
+
+    const int thrLen = 1;
+    const int nThresh = 8;
+    if ((sumEtMap || sumEtRoi) &&
+        !(sumEtMap && !sumEtRoi && limitedRoiSet(crate))) {
+      m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimEqData, 1,
+                                    sumEtRoi & sumEtMap, nThresh, thrLen);
+      m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimNeData, 1,
+                                    sumEtRoi ^ sumEtMap, nThresh, thrLen);
+    }
+    if ((missEtMap || missEtRoi) &&
+        !(missEtMap && !missEtRoi && limitedRoiSet(crate))) {
+      const int offset = 8;
+      m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimEqData, 3,
+                                    missEtRoi & missEtMap, nThresh, thrLen,
+                                    offset);
+      m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimNeData, 3,
+                                    missEtRoi ^ missEtMap, nThresh, thrLen,
+                                    offset);
+    }
+    if ((missEtSigMap || missEtSigRoi) &&
+        !(missEtSigMap && !missEtSigRoi && limitedRoiSet(crate))) {
+      const int offset = 16;
+      m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimEqData, 5,
+                                    missEtSigRoi & missEtSigMap, nThresh,
+                                    thrLen, offset);
+      m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimNeData, 5,
+                                    missEtSigRoi ^ missEtSigMap, nThresh,
+                                    thrLen, offset);
+    }
+    if ((sumEtMapM || sumEtRoiM) &&
+        !(sumEtMapM && !sumEtRoiM && limitedRoiSet(crate))) {
+      m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimEqData, 7,
+                                    sumEtRoiM & sumEtMapM, nThresh, thrLen);
+      m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimNeData, 7,
+                                    sumEtRoiM ^ sumEtMapM, nThresh, thrLen);
+    }
+    if ((missEtMapM || missEtRoiM) &&
+        !(missEtMapM && !missEtRoiM && limitedRoiSet(crate))) {
+      const int offset = 8;
+      m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimEqData, 9,
+                                    missEtRoiM & missEtMapM, nThresh, thrLen,
+                                    offset);
+      m_histTool->fillXVsThresholds(m_h_cmx_2d_energy_EtMapsThreshSimNeData, 9,
+                                    missEtRoiM ^ missEtMapM, nThresh, thrLen,
+                                    offset);
+    }
+  }
 }
 
 void JEPSimMon::fillEventSample(int err, int loc, bool isJem)

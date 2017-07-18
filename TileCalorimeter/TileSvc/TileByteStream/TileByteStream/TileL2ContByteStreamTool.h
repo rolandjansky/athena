@@ -64,12 +64,10 @@ class TileL2ContByteStreamTool: public AthAlgTool {
  private:
 
   const TileHWID* m_tileHWID;
-  TileHid2RESrcID m_hid2re; 
+  const TileHid2RESrcID* m_hid2re;
   bool m_verbose;
   bool m_doFragTypeMu;
   bool m_doFragTypeEt;
-
-  FullEventAssembler<TileHid2RESrcID> m_fea;
 };
 
 #endif

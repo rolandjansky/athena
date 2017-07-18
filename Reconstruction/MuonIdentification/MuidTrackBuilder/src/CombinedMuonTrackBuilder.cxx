@@ -1599,9 +1599,9 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
                 break;
               }
             }
-            if ((**s).trackParameters()
+            if (s != prefit->trackStateOnSurfaces()->end()
 		&& s != prefit->trackStateOnSurfaces()->begin()
-		&& s != prefit->trackStateOnSurfaces()->end())
+		&& (**s).trackParameters())
 	    {
 		parameters	= (**s).trackParameters()->clone();
 		caloParameters	= parameters;
@@ -1960,6 +1960,12 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
 //
     
     countAEOTs(&combinedTrack," in standalone Refit input combinedTrack ");
+
+    if (!m_magFieldSvc->toroidOn()) {
+      // no standalone refit for Toroid off
+      return 0;
+    }
+
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " StandaloneRefit beam position bs_x " << bs_x << " bs_y " << bs_y << " bs_z " << bs_z << endmsg; 
 
 // vertex will change track by track
@@ -2046,6 +2052,7 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
 	    // fail track as no TSOS with type CaloDeposit
 	    m_messageHelper->printWarning(13);
 	    delete trackStateOnSurfaces;
+	    delete vertex;
 	    return 0;
 	}
 	if ((**s).type(Trk::TrackStateOnSurface::CaloDeposit))
@@ -2079,6 +2086,7 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
 	{
 	  // innerScattering dynamic_cast failed
 	  m_messageHelper->printWarning(16);
+	  delete vertex;
 	  return 0;
 	}
       innerScattering	= meot->scatteringAngles();
@@ -2134,9 +2142,16 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
 	const Trk::MaterialEffectsOnTrack* meot	=
 	    dynamic_cast<const Trk::MaterialEffectsOnTrack*>(materialEffects);
 	if (meot && meot->energyLoss()) energyDeposit = meot->energyLoss()->deltaE();
-	++s;
-	materialEffects	= (**s).materialEffectsOnTrack();
-	parameters	= (**s).trackParameters();
+	if (s != combinedTrack.trackStateOnSurfaces()->end()) ++s;
+
+	if (s != combinedTrack.trackStateOnSurfaces()->end()) {
+	  materialEffects	= (**s).materialEffectsOnTrack();
+	  parameters	= (**s).trackParameters();
+        } else {
+	  materialEffects	= 0;
+	  parameters	= 0;
+        }
+
     }
     else
     {
@@ -2167,6 +2182,7 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
 	  {
 	    // outerScattering dynamic_cast failed
 	    m_messageHelper->printWarning(24);
+	    delete vertex;
 	    return 0;
 	  }
 	outerScattering	= meot->scatteringAngles();
@@ -2185,7 +2201,7 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
 	}
 	*/
 	
-	++s;
+	if (s != combinedTrack.trackStateOnSurfaces()->end()) ++s;
 
 	// get parameters at middleSurface for energy correction,
 	// start with parameters from middle surface when vertex in fit
@@ -2241,6 +2257,7 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
 	delete innerTSOS;
 	delete middleTSOS;
 	delete outerTSOS;
+	delete vertex;
 	return 0;
     }
     
@@ -2346,6 +2363,7 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
 	delete innerTSOS;
 	delete middleTSOS;
 	delete outerTSOS;
+	delete vertex;
 	return 0;
     }
     
@@ -2490,6 +2508,7 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
     //protection against overruning the end of the vector
     if(t==combinedTrack.trackStateOnSurfaces()->end()){
       ATH_MSG_WARNING("At end of TSOS vector");
+      delete vertex;
       return 0;
     }
 
@@ -2517,6 +2536,7 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
 
     if(!checkTrack("standaloneRefit",refittedTrack,standaloneTrack)) {
       delete refittedTrack;
+      delete vertex;
       return 0;
     }
 
@@ -2525,6 +2545,7 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
 	if (! refittedTrack->fitQuality())
 	{
 	    delete refittedTrack;
+	    delete vertex;
 	    return 0;
 	}
 	if (! m_trackQuery->isCaloAssociated(*refittedTrack))
@@ -2532,6 +2553,7 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
 	    // fail as calo incorrectly described
 	    m_messageHelper->printWarning(28);
 	    delete refittedTrack;
+	    delete vertex;
 	    return 0;
 	}
         countAEOTs(refittedTrack," standaloneRefit final refittedTrack ");
@@ -2553,6 +2575,7 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
 	}
     }
 
+    delete vertex;
     return refittedTrack;
 }
 

@@ -31,7 +31,6 @@ public:
   StatusCode execute();
   StatusCode finalize();
   StatusCode beginRun();  
-  StatusCode endRun();
 
 private:
 

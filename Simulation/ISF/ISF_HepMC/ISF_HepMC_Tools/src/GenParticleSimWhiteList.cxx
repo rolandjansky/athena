@@ -74,7 +74,7 @@ bool ISF::GenParticleSimWhiteList::pass(const HepMC::GenParticle& particle) cons
   bool so_far_so_good = pass( particle , vertices );
 
   // Test all parent particles
-  if (particle.production_vertex() && m_qs){
+  if (so_far_so_good && particle.production_vertex() && m_qs){
     for (HepMC::GenVertex::particle_iterator it = particle.production_vertex()->particles_begin(HepMC::parents);
                                              it != particle.production_vertex()->particles_end(HepMC::parents); ++it){
       // Loop breaker
@@ -94,6 +94,8 @@ bool ISF::GenParticleSimWhiteList::pass(const HepMC::GenParticle& particle , std
 {
   // See if the particle is in the white list
   bool passFilter = std::binary_search( m_pdgId.begin() , m_pdgId.end() , particle.pdg_id() ) || MC::PID::isNucleus( particle.pdg_id() );
+  // Remove documentation particles
+  passFilter = passFilter && particle.status()!=3;
 
   // Test all daughter particles
   if (particle.end_vertex() && m_qs && passFilter){
@@ -107,7 +109,7 @@ bool ISF::GenParticleSimWhiteList::pass(const HepMC::GenParticle& particle , std
       } // Loop over daughters
     } // Break loops
   } // particle had daughters
-  else if (!particle.end_vertex() && !passFilter) { // no daughters... No end vertex... Check if this isn't trouble
+  else if (!particle.end_vertex() && !passFilter && particle.status()!=3) { // no daughters... No end vertex... Check if this isn't trouble
     ATH_MSG_ERROR( "Found a particle with no end vertex that does not appear in the white list." );
     ATH_MSG_ERROR( "This is VERY likely pointing to a problem with either the configuration you ");
     ATH_MSG_ERROR( "are using, or a bug in the generator.  Either way it should be fixed.  The");

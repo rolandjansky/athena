@@ -18,8 +18,7 @@ using std::string;
 
 Analysis::CalibrationDataUpdater::CalibrationDataUpdater(const string& name, ISvcLocator* pSvcLocator)
   :
-  Algorithm(name,pSvcLocator),
-  m_log(msgSvc(),name)
+  AthAlgorithm(name,pSvcLocator)
 {
   //  property declarations
   declareProperty("inputRootFile", m_inputRootFile = "", "ROOT file containing new parametrisations");
@@ -41,8 +40,7 @@ StatusCode Analysis::CalibrationDataUpdater::initialize()
 {
   // Code entered here will be executed once at program start.
   
-  m_log.setLevel(outputLevel());
-  m_log << MSG::INFO << name() << " initialize()" << endreq;
+  ATH_MSG_INFO( name() << " initialize()"  );
 
   // basic sanity and consistency checks
 
@@ -51,23 +49,23 @@ StatusCode Analysis::CalibrationDataUpdater::initialize()
   if (newInput) {
     fIn = new TFile(m_inputRootFile.c_str());
     if (fIn->IsZombie()) {
-      m_log << MSG::FATAL << name() << ": requested input ROOT file invalid: "
-	    << m_inputRootFile << endreq;
+      ATH_MSG_FATAL( name() << ": requested input ROOT file invalid: "
+                     << m_inputRootFile  );
       return StatusCode::FAILURE;
     }
   } else if (! m_overrideDefaults) {
-    m_log << MSG::FATAL << name() << ": no input ROOT file given and no defaults to be modified:"
-	  << " no action to be taken" << endreq;
+    ATH_MSG_FATAL( name() << ": no input ROOT file given and no defaults to be modified:"
+                   << " no action to be taken"  );
     return StatusCode::FAILURE;
   }
   if (m_DbRootFile == "") {
-    m_log << MSG::FATAL << name() << ": no DB ROOT file given" << endreq;
+    ATH_MSG_FATAL( name() << ": no DB ROOT file given"  );
     return StatusCode::FAILURE;
   }
   TFile* fOut = new TFile(m_DbRootFile.c_str(), "UPDATE");
   if (fOut->IsZombie()) {
-    m_log << MSG::FATAL << name() << ": DB ROOT file invalid: "
-	  << m_DbRootFile << endreq;
+    ATH_MSG_FATAL( name() << ": DB ROOT file invalid: "
+                   << m_DbRootFile  );
     return StatusCode::FAILURE;
   }
 
@@ -82,19 +80,18 @@ StatusCode Analysis::CalibrationDataUpdater::initialize()
       if (delim != string::npos) to = itname->substr(delim+2);
       copyResults(from, to, fIn, fOut);
     } else if (! isValidName(to)) {
-      m_log << MSG::WARNING << name() << ": invalid parametrisation name: "
-	    << to << endreq;
+      ATH_MSG_WARNING( name() << ": invalid parametrisation name: " << to  );
       continue;
     }
     // 2. make these new results the default (if requested or if no default exists yet)
     setDefaultResults(to, fOut);
   }
-  m_log << MSG::DEBUG << name() << ": all done" << endreq;
+  ATH_MSG_DEBUG( name() << ": all done"  );
 
   if (fIn) fIn->Close();
   fOut->Close();
 
-  m_log << MSG::INFO << "initialize() successful in " << name() << endreq;
+  ATH_MSG_INFO( "initialize() successful in " << name()  );
   return StatusCode::SUCCESS;
 }
 
@@ -103,8 +100,7 @@ void Analysis::CalibrationDataUpdater::setDefaultResults(string Name, TFile* fOu
   fOut->cd("/");
   TObject* obj = fOut->Get(Name.c_str());
   if (! obj) {
-    m_log << MSG::WARNING << name() << ": nonexistent parametrisation name: "
-	  << Name << endreq;
+    ATH_MSG_WARNING( name() << ": nonexistent parametrisation name: " << Name );
     return;
   }
 
@@ -113,9 +109,9 @@ void Analysis::CalibrationDataUpdater::setDefaultResults(string Name, TFile* fOu
   TDirectory* newdir = fOut->GetDirectory(dir.c_str());
   if (! newdir->cd()) {
     // This should never happen, given that the object above apparently exists...
-    m_log << MSG::WARNING << name() << ": Name now: " << Name << "; pwd: "
-	  << gDirectory->GetPath() << "; cd() to subdir "
-	  << dir << " failed!" << endreq;
+    ATH_MSG_WARNING( name() << ": Name now: " << Name << "; pwd: "
+                     << gDirectory->GetPath() << "; cd() to subdir "
+                     << dir << " failed!"  );
   };
 
   // if no change of defaults is requested to begin with, check whether a default
@@ -127,8 +123,8 @@ void Analysis::CalibrationDataUpdater::setDefaultResults(string Name, TFile* fOu
     if (fOut->Get(fullName.c_str())) return;
   }
 
-  m_log << MSG::INFO << name() << ": copying parametrisation name: "
-	<< Name << " (+ stat., syst.) as default" << endreq;
+  ATH_MSG_INFO( name() << ": copying parametrisation name: "
+                << Name << " (+ stat., syst.) as default"  );
 
   // do the actual copying for the parametrisation itself
   obj->Write(defaultName.c_str());
@@ -148,16 +144,15 @@ void Analysis::CalibrationDataUpdater::copyResults(const string& from, const str
 						   TFile* fIn, TFile* fOut) const
 {
   if (! isValidName(to)) {
-    m_log << MSG::WARNING << name() << ": invalid parametrisation name: "
-	  << to << endreq;
+    ATH_MSG_WARNING( name() << ": invalid parametrisation name: " << to  );
     return;
   }
 
   // copy the parametrisation itself
   TObject* in = fIn->Get(from.c_str());
   if (! in) {
-    m_log << MSG::WARNING << name() << ": input parametrisation name not found: "
-	  << from << endreq;
+    ATH_MSG_WARNING( name() << ": input parametrisation name not found: "
+                     << from  );
     return;
   }
   writeOutput(in, to, fOut);
@@ -167,8 +162,8 @@ void Analysis::CalibrationDataUpdater::copyResults(const string& from, const str
   std::string toCov(to); toCov += "_stat";
   in = fIn->Get(fromCov.c_str());
   if (! in) {
-    m_log << MSG::WARNING << name() << ": input parametrisation covariance matrix name not found: "
-	  << fromCov << endreq;
+    ATH_MSG_WARNING( name() << ": input parametrisation covariance matrix name not found: "
+                     << fromCov  );
     return;
   }
   writeOutput(in, toCov, fOut);
@@ -178,8 +173,8 @@ void Analysis::CalibrationDataUpdater::copyResults(const string& from, const str
   std::string toSyst(to); toSyst += "_syst";
   in = fIn->Get(fromSyst.c_str());
   if (! in) {
-    m_log << MSG::WARNING << name() << ": input parametrisation systematics name not found: "
-	  << fromSyst << endreq;
+    ATH_MSG_WARNING( name() << ": input parametrisation systematics name not found: "
+                     << fromSyst  );
     return;
   }
   writeOutput(in, toSyst, fOut);
@@ -216,9 +211,9 @@ void Analysis::CalibrationDataUpdater::writeOutput(TObject* in, string Name, TFi
     TDirectory* newdir = tdir->GetDirectory(dir.c_str());
     if (! newdir) newdir = tdir->mkdir(dir.c_str());
     if (! newdir->cd()) {
-      m_log << MSG::WARNING << name() << ": Name now: " << Name << "; pwd: "
-	    << gDirectory->GetPath() << "; cd() to subdir "
-	    << dir << " failed!" << endreq;
+      ATH_MSG_WARNING( name() << ": Name now: " << Name << "; pwd: "
+                       << gDirectory->GetPath() << "; cd() to subdir "
+                       << dir << " failed!"  );
     };
     tdir = newdir;
     Name = Name.substr(delim+1, string::npos);
@@ -226,8 +221,8 @@ void Analysis::CalibrationDataUpdater::writeOutput(TObject* in, string Name, TFi
   }
 
   // then write the named object
-  m_log << MSG::INFO << name() << ": writing object " << Name << " to directory "
-	<< gDirectory->GetPath() << endreq;
+  ATH_MSG_INFO( name() << ": writing object " << Name << " to directory "
+                << gDirectory->GetPath()  );
   in->Write(Name.c_str());
 }
 

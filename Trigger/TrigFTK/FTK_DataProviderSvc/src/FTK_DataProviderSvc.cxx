@@ -1677,8 +1677,8 @@ const Trk::RIO_OnTrack*  FTK_DataProviderSvc::createPixelCluster(const FTK_RawPi
   Identifier pixel_id = m_pixelId->pixel_id(wafer_id, phi_index, eta_index);
 
 
-  int phiWidth    = raw_pixel_cluster.getRowWidth()+1;
-  int etaWidth    = raw_pixel_cluster.getColWidth()+1;
+  int phiWidth    = raw_pixel_cluster.getRowWidth();
+  int etaWidth    = raw_pixel_cluster.getColWidth();
 
   int colMin = (int)(eta_index-0.5*etaWidth);
   int colMax = colMin+etaWidth;

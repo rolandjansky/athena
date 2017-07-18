@@ -5,8 +5,7 @@
 #   Description:  builds the new egamma project including
 #                 libraries...
 #
-#                  libeventstore.a   
-#                  libtrig.a
+#                  libResplot.a   
 #                  
 #                 and the executable
 #
@@ -19,10 +18,15 @@
 
 
 ifeq ($(AtlasEvent_PLATFORM),)
-  ATLAS_ARCH = $(shell uname)
+  ifeq ($(PLATFORM),)
+    ATLAS_ARCH = $(shell uname)
+  else 
+    ATLAS_ARCH = $(PLATFORM)
+  endif
 else
   ATLAS_ARCH = $(AtlasEvent_PLATFORM)
 endif
+
 
 CMTCONFIG=
 

@@ -18,7 +18,11 @@ import commands
 #
 ###########################################################################
 
-include("LArCalibProcessing/LArCalib_Flags.py")
+if not "SuperCells" in dir():
+   SuperCells=False
+   
+if not SuperCells: include("LArCalibProcessing/LArCalib_Flags.py")
+if SuperCells:     include("LArCalibProcessing/LArCalib_FlagsSC.py")
 #include("RecExCommission/GetInputFiles.py")
 include("LArCalibProcessing/GetInputFiles.py")
 
@@ -484,6 +488,8 @@ if ( runAccumulator ) :
    # this is a OLD jobOptions which can maybe work but only for the barrel                        #
    # can be used as a skeleton if needed but                                                      #
    # need to be updated for the barrel and the patterns for EMEC, HEC and FCAL need to be added   #
+   if SuperCells:
+      ByteStreamAddressProviderSvc =svcMgr.ByteStreamAddressProviderSvc
    include("./LArCalib_CalibrationPatterns.py")
 
 else:
@@ -496,8 +502,9 @@ else:
 
 ## This algorithm verifies that no FEBs are dropping out of the run
 ## If it finds corrupt events, it breaks the event loop and terminates the job rapidly
-include ("LArROD/LArFebErrorSummaryMaker_jobOptions.py")   
-topSequence.LArFebErrorSummaryMaker.CheckAllFEB=False
+if not SuperCells:
+   include ("LArROD/LArFebErrorSummaryMaker_jobOptions.py")   
+   topSequence.LArFebErrorSummaryMaker.CheckAllFEB=False
 if CheckBadEvents:
    from LArCalibDataQuality.LArCalibDataQualityConf import LArBadEventCatcher
    theLArBadEventCatcher=LArBadEventCatcher()
@@ -507,7 +514,7 @@ if CheckBadEvents:
    theLArBadEventCatcher.StopOnError=False
    topSequence+=theLArBadEventCatcher      
       
-EventSelector.SkipEvents=skipEvents
+svcMgr.EventSelector.SkipEvents=skipEvents
 theApp.EvtMax = maxEvents
 
 ##########################################################################
@@ -540,6 +547,9 @@ if 'MissingFEBsLArCalibFolderTag' in dir() :
    conddb.addFolder("",MissingFEBsFolder+"<tag>"+MissingFEBsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
 else :
    conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   
+if SuperCells:
+   conddb.addFolder("","/LAR/IdentifierOfl/OnOffIdMap_SC<db>COOLOFL_LAR/OFLP200</db><tag>LARIdentifierOflOnOffIdMap_SC-000</tag>") 
 
 ## define the DB Gobal Tag :
 svcMgr.IOVDbSvc.GlobalTag   = LArCalib_Flags.globalFlagDB   
@@ -549,25 +559,25 @@ except:
    pass
 
 # Temperature folder
-conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
-svcMgr.EventSelector.InitialTimeStamp = 1284030331
-import cx_Oracle
-import time
-import datetime
-try:
-   connection=cx_Oracle.connect("ATLAS_SFO_T0_R/readmesfotz2008@atlr")
-   cursor=connection.cursor()
-   sRequest=("SELECT RUNNR,CREATION_TIME FROM SFO_TZ_RUN WHERE RUNNR='%s'")%(RunNumberList[0])
-   cursor.execute(sRequest)
-   times= cursor.fetchall()
-   d=times[0][1]
-   iovtemp=int(time.mktime(d.timetuple()))
-except:
-   iovtemp=1283145454
+#conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
+#svcMgr.EventSelector.InitialTimeStamp = 1284030331
+#import cx_Oracle
+#import time
+#import datetime
+#try:
+#   connection=cx_Oracle.connect("ATLAS_SFO_T0_R/readmesfotz2008@atlr")
+#   cursor=connection.cursor()
+#   sRequest=("SELECT RUNNR,CREATION_TIME FROM SFO_TZ_RUN WHERE RUNNR='%s'")%(RunNumberList[0])
+#   cursor.execute(sRequest)
+#   times= cursor.fetchall()
+#   d=times[0][1]
+#   iovtemp=int(time.mktime(d.timetuple()))
+#except:
+#   iovtemp=1283145454
 
 #print "Setting timestamp for run ",RunNumberList[0]," to ",iovtemp
 #svcMgr.IOVDbSvc.forceTimestamp = 1283145454
-svcMgr.IOVDbSvc.forceTimestamp = iovtemp
+#svcMgr.IOVDbSvc.forceTimestamp = iovtemp
 
 from LArCalibProcessing.LArCalibCatalogs import larCalibCatalogs
 svcMgr.PoolSvc.ReadCatalog += larCalibCatalogs
@@ -654,6 +664,7 @@ LArCaliWaveBuilder.CheckEmptyPhases = CheckEmptyPhases
 LArCaliWaveBuilder.NBaseline        = 0 # to avoid the use of the baseline when Pedestal are missing
 LArCaliWaveBuilder.UseDacAndIsPulsedIndex = False # should have an impact only for HEC
 LArCaliWaveBuilder.RecAllCells      = RecAllCells
+LArCaliWaveBuilder.isSC       = SuperCells
 LArCaliWaveBuilder.UsePattern = usePatt
 LArCaliWaveBuilder.NumPattern = numPatt
 
@@ -742,8 +753,9 @@ if doOFC:
 #                                                                        #
 ##########################################################################
 
-from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-topSequence+=xAODMaker__EventInfoCnvAlg()
+if not SuperCells:
+   from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+   topSequence+=xAODMaker__EventInfoCnvAlg()
 
 if ( doLArCalibDataQuality  ) :
    from LArCalibDataQuality.LArCalibDataQualityConf import LArCaliWaveValidationAlg
@@ -835,6 +847,7 @@ if (WriteNtuple):
    LArCaliWaves2Ntuple.AddFEBTempInfo = False
    LArCaliWaves2Ntuple.SaveJitter = SaveJitter
    LArCaliWaves2Ntuple.KeyList     = [ KeyOutput ]
+   LArCaliWaves2Ntuple.isSC = SuperCells
    
    topSequence+=LArCaliWaves2Ntuple
    
@@ -877,6 +890,7 @@ if ( WritePoolFile ) :
 if doOFC:
   from LArCalibUtils.LArCalibUtilsConf import LArAutoCorrDecoderTool
   theLArAutoCorrDecoderTool = LArAutoCorrDecoderTool()
+  theLArAutoCorrDecoderTool.isSC = SuperCells
   ToolSvc += theLArAutoCorrDecoderTool
 
   from LArCalibUtils.LArCalibUtilsConf import LArOFCAlg
@@ -896,6 +910,7 @@ if doOFC:
      LArCaliOFCAlg.DumpOFCfile = "LArOFCCali.dat"
   LArCaliOFCAlg.GroupingType = GroupingType
   LArCaliOFCAlg.DecoderTool=theLArAutoCorrDecoderTool
+  LArCaliOFCAlg.isSC = SuperCells
   topSequence+=LArCaliOFCAlg
 
 
@@ -915,6 +930,7 @@ if doOFC:
    LArOFC2Ntuple.ContainerKey = OFCKey 	   
    LArOFC2Ntuple.NtupleFile = "FILE2" 	   
    LArOFC2Ntuple.AddFEBTempInfo = False 	   
+   LArOFC2Ntuple.isSC = SuperCells
    topSequence+=LArOFC2Ntuple
 
    if os.path.exists(OutputRootFileDir+"/"+OutputOFCRootFileName): 
@@ -922,11 +938,6 @@ if doOFC:
    svcMgr += NTupleSvc()
    svcMgr.NTupleSvc.Output += [ "FILE2 DATAFILE='"+OutputRootFileDir+"/"+OutputOFCRootFileName+"' OPT='NEW'" ]
    
-      if os.path.exists(OutputRootFileDir+"/"+OutputOFCRootFileName): 
-         os.remove(OutputRootFileDir+"/"+OutputOFCRootFileName)  
-      svcMgr += NTupleSvc()
-      svcMgr.NTupleSvc.Output += [ "FILE2 DATAFILE='"+OutputRootFileDir+"/"+OutputOFCRootFileName+"' OPT='NEW'" ]
-
    
 ###########################################################################
 

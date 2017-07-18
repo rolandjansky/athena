@@ -519,21 +519,30 @@ class TileBlobWriter(TileCalibLogger):
         folderTag=tag
 
         #=== print info
+        comment=self.getComment()
+        noComment = (comment is None) or (comment == "None") or (comment.startswith("None") and comment.endswith("None"))
         self.log().info( "Registering folder %s with tag \"%s\"" % (self.__folder.fullPath(),folderTag))
         self.log().info( "... with IOV          : %s"            % iovString                          )
-        self.log().info( "... with comment field: \"%s\""        % self.getComment()                  )
+        if noComment:
+            self.log().info( "... WITHOUT comment field" )
+        else:
+            self.log().info( "... with comment field: \"%s\""        % self.getComment()                  )
 
         #=== register all channels by increasing channel number
         chanList = sorted(self.__chanDictRecord.keys())
         cnt=0
         for chanNum in chanList:
+            if chanNum==1000 and noComment: continue
             data = self.__chanDictRecord[chanNum]
             strout = "cool channel=%4i" % chanNum
             self.log().debug("Registering %s %s" % (strout, data))
             channelId = cool.ChannelId(chanNum)
             self.__folder.storeObject(sinceCool, untilCool, data, channelId, folderTag, userTagOnly)
             cnt+=1
-        self.log().info( "... %d cool channels have been written in total (including comment field)" % cnt )
+        if noComment:
+            self.log().info( "... %d cool channels have been written in total" % cnt )
+        else:
+            self.log().info( "... %d cool channels have been written in total (including comment field)" % cnt )
 
     #____________________________________________________________________
     def setComment(self, author, comment):

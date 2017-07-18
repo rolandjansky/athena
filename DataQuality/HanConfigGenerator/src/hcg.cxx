@@ -1,13 +1,14 @@
 //
-//   @file    hanconfig.cxx         
+//   @file    hcg.cxx
 //            navigates through the directory structure of a monitoring 
 //            root files and write out some han config boiler plate
 //            
 //   @author M.Sutton
 // 
+//   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 //   Copyright (C) 2013 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: hanconfig.cxx, v0.0   Thu  12 March 2015 14:13:47 CEST sutt $
+//   $Id: hcg.cxx  Sat 13 May 2017 15:07:09 CEST sutt$
 
 
 #include <iostream>
@@ -15,6 +16,7 @@
 #include <string>
 #include <map>
 #include <set>
+#include <regex>
 
 #include <cstdlib>
 #include <cstdio>
@@ -51,7 +53,7 @@ std::vector<std::string> savedhistos;
 std::vector<std::string> mapped;
 
 
-/// sadly, includes a return at the end 
+/// get the date *without* the return
 std::string date() { 
   time_t _t;
   time(&_t);
@@ -317,14 +319,308 @@ std::string replace( std::string s, const std::string& s2, const std::string& s3
 
 
 // remove regx from a string
-void depunctuate(std::string& s, const std::string& regex=":") 
+void depunctuate(std::string& s, const std::string& regx=":") 
 {
   std::string::size_type pos;
-  while ( (pos = s.find(regex))!=std::string::npos ) {
-    s.erase(pos, regex.size());
+  while ( (pos = s.find(regx))!=std::string::npos ) {
+    s.erase(pos, regx.size());
   }
 } 
   
+
+
+
+std::string chopto( std::string& s, const std::string& pattern ) { 
+  std::string tag;
+  std::string::size_type pos = s.find_first_of( pattern );
+  if ( pos==std::string::npos ) { 
+    tag = s;
+    s = "";
+  }
+  else { 
+    tag = s.substr(0,pos);
+    s.erase( 0, pos ); 
+  }
+  return tag;
+}
+
+
+// remove strings from a string
+bool remove( std::string& s, const std::string& s2 ) 
+{
+  std::string::size_type ssize = s.size();
+  std::string::size_type pos;
+  while ( (pos=s.find(s2))==0 ) s.erase(pos, s2.size());
+  if ( ssize!=s.size() ) return true;
+  else                   return false;
+} 
+
+
+class histogram : public std::string { 
+  
+public:
+
+  histogram( std::string s="" ) : std::string(s) { construct( s ); }
+  histogram( const char* s    ) : std::string(s) { construct( std::string(s) ); }
+  
+  std::vector<std::string>&       dirs()       { return mdirs; }
+  const std::vector<std::string>& dirs() const { return mdirs; }
+
+private:
+  
+  void construct( std::string s ) { 
+    std::string::size_type pos = s.find("/");
+    while ( pos!=std::string::npos ) { 
+      std::string s0 = chop( s, "/" );
+      mdirs.push_back(s0);
+      pos = s.find("/");
+    } 
+    mdirs.push_back(s);
+  } 
+
+protected:
+
+  std::vector<std::string> mdirs;
+
+};
+
+
+
+/// simple error reporting class - should probably throw an exception, 
+/// only this is simpler
+void error( int i, std::ostream& s ) {  s << std::endl; std::exit(i);  }
+
+
+/// map instances to allow setting of the algorithms 
+/// and descriptions
+
+class hmap_t : public std::map<histogram,std::string> { 
+
+public:
+
+  /// sadly, when matching regular expressions, we need to iterate 
+  /// through the map and cannot use the standard map::find() methods
+  /// which sadly, slows the searching down
+
+  virtual std::map<histogram,std::string>::iterator find( const std::string& s ) {
+    return std::map<histogram,std::string>::find( s );
+  }
+
+  virtual std::map<histogram,std::string>::const_iterator find( const std::string& s ) const { 
+    return std::map<histogram,std::string>::find( s );
+  }
+
+  virtual std::map<histogram,std::string>::iterator match( const std::string& s ) {
+    std::map<histogram,std::string>::iterator  itr = begin();
+    while( itr!=end() ) { 
+      if ( std::regex_match( s, std::regex(itr->first) ) ) return itr;
+      itr++;
+    }
+    return itr;
+  }
+
+  virtual std::map<histogram,std::string>::const_iterator match( const std::string& s ) const { 
+    std::map<histogram,std::string>::const_iterator  itr = begin();
+    while( itr!=end() ) { 
+      if ( std::regex_match( s, std::regex(itr->first) ) ) return itr;
+      itr++;
+    }
+    return itr;
+  }
+  
+};
+
+
+/// store any user histogram to algorithm mapping
+hmap_t algorithms;
+
+/// store any user histogram to description mapping
+hmap_t descriptions;
+
+/// store any user histogram to display mapping
+hmap_t displays;
+
+
+/// store the list of any directories to be wildcarded and 
+/// the algorithms to use for them - use "hist=NULL"; if no 
+/// algorithm is required
+hmap_t  wildcards;
+
+
+
+/// look in a histogram name map and return the regex mapped property name
+/// goes up the tree as far as to 2 subdirectory names of additional 
+/// specialisation for the histogram names  
+/// NB: take care, this is a recursive algorithm !!!
+ 
+std::string match( const hmap_t& m, const node* n, const std::string& obj, const std::string& property ) {    
+  /// don't do anything is the map is empty
+  if ( m.size() && n )  { 
+    hmap_t::const_iterator itr = m.match( obj );
+    if ( itr!=m.end() ) return itr->second;
+    else if ( n->parent() ) return match( m, n->parent(), n->parent()->name()+"/"+obj, property );
+  }
+  return property;
+}
+
+
+
+bool find( const std::string& s, const std::vector<std::string>& regexv ) { 
+  for ( unsigned i=regexv.size() ; i-- ; ) if ( std::regex_match( s, std::regex(regexv[i]) ) ) return true;
+  return false;
+} 
+
+
+
+
+/// look in a histogram name map and return the mapped property name
+/// goes up the tree as far as to 2 subdirectory names of additional 
+/// specialisation for the histogram names  
+/// NB: take care, this is a recursive algorithm !!!
+
+std::string find_internal( const hmap_t& m, const node* n, const std::string& obj, const std::string& property ) {  
+  /// don't do anything if the map is empty
+  if ( m.size() && n ) { 
+    hmap_t::const_iterator itr = m.find( obj );
+    if ( itr!=m.end() ) return itr->second;
+    else if ( n->parent() )  return find_internal( m, n->parent(), n->parent()->name()+"/", property ); 
+  }
+  return property;
+}
+
+
+
+/// look for an exact match first, if you don't find one, search for a regular 
+/// expression match  
+
+std::string find( const hmap_t& m, const node* n, const std::string& obj, const std::string& property ) {  
+  std::string _property = find_internal( m, n, obj, "FAIL" );
+  if ( _property != "FAIL" ) return _property;
+  return match( m, n, obj, property );
+}
+
+
+
+/// parse and individual line - must have the syntax: tag = "value";  
+
+bool parse( const std::string _line, histogram& tag, std::string& val, bool requirequotes=true ) {
+  
+  std::string line = _line;
+
+  tag = "";
+  val = "";
+
+  remove( line, " " ); 
+  if ( line.size()==0 ) return false;
+  tag = chopto( line, " =" );
+  remove( line, " " );  
+  if ( !remove( line, "=" ) ) error( 1, std::cerr << "error : tag incorrectly specified\n\t" << _line ); 
+  remove( line, " " ); 
+  if ( requirequotes ) { 
+    if ( !( line.size()>1 && (val += line[0])=="\"" ) ) error( 1, std::cerr << "error : incorrect value syntax - no opening quote\n\t" << _line );
+    remove( line, "\"" );
+    val += chopto( line, "\"" )+"\"";
+    if ( !( line.size()>0 && line[0]=='"' ) )  error( 1, std::cerr << "error : incorrect value syntax - no closing quote\n\t" << _line ); 
+    remove( line, "\"" );
+  }
+  else { 
+    val += chopto( line, ";" );
+  }
+  remove( line, " " );
+  if ( line.size()<1 || line[0]!=';' )  error( 1, std::cerr << "error : incorrect value syntax - line not correctly terminated\n\t" << _line );
+
+  return true;
+}
+
+
+
+
+std::vector<std::string> read_lines( const std::string& filename ) { 
+
+  std::fstream file( filename );
+  
+  std::vector<std::string> lines;
+  
+  std::string buffer;
+  
+
+  /// add some padding at the beginning and end, extraxt file 
+  /// contents to a more easily managed string 
+  char c;
+  buffer = " ";
+  while ( file.get(c) ) buffer += c;
+  buffer += " ";
+
+  //  std::cout << "buffer: " << buffer << std::endl;
+
+  /// remove all comments and line breaks
+
+  int quotecount = 0;
+
+  bool terminated = true;
+
+  for ( unsigned i=1 ; i<buffer.size() ; i++ ) {
+
+    /// check we are not still inside a quote 
+    if ( buffer[i]=='"' ) quotecount++;
+
+    /// remove comments
+    if ( quotecount%2==0 && buffer[i]=='/' && buffer[i+1]=='/' ) {
+      for ( unsigned j=i+2; j<buffer.size() ; j++, i++ ) if ( buffer[j]==10 ) { i++; break; }
+    }
+    //    else if ( quotecount%2==1 || buffer[i]>31 ) { 
+    else if ( buffer[i]>31 ) { 
+      /// check whether we have an end of line or not
+      if ( quotecount%2!=0 || buffer[i]!=';' ) { 
+	if ( terminated ) lines.push_back("");
+	terminated = false;
+	lines.back() += buffer[i];
+      }
+      else { 
+	lines.back() += ";";
+	terminated = true;
+      }
+    }
+  }
+
+  return lines;
+}
+
+
+std::vector<std::string> parse_wc( const std::string& filename ) { 
+  
+  std::vector<std::string> _lines = read_lines( filename ); 
+
+  std::vector<std::string> out;
+  
+  for ( unsigned i=0 ; i<_lines.size() ; i++ ) {
+    std::string line = _lines[i];
+    remove( line, " " );  
+    std::string val = chopto( line, " ;" );
+    if ( val.size() ) out.push_back( val );
+  }
+    
+  return out;
+}
+
+hmap_t  parse( const std::string& filename, bool requirequotes=true ) {
+
+  hmap_t       lookup;
+
+  std::vector<std::string> lines = read_lines( filename );  
+
+  /// now parse each line 
+    
+  for ( unsigned i=0 ; i<lines.size() ; i++ ) { 
+    histogram     tag = "";
+    std::string value = "";
+    if ( parse( lines[i], tag, value, requirequotes ) ) lookup.insert( hmap_t::value_type( tag, value ) );
+  }
+
+  return lookup;
+}
+
+
 
 
 std::vector<std::string> maphist( const std::vector<std::string>& v ) {   
@@ -532,8 +828,8 @@ public:
     std::string user = std::getenv("USER");
 
     (*outp) << "######################################################################\n";
-    if ( configname=="" )  (*outp) << "# $Id: collisions_run.config " << date() << " " << user << " $\n";
-    else                   (*outp) << "# $Id: " << configname << "  " << date() << " " << user << " $\n";
+    if ( configname=="" )  (*outp) << "# file  collisions_run.config " << date() << " " << user << "\n";
+    else                   (*outp) << "# file  " << configname << "  " << date() << " " << user << "\n";
     (*outp) << "######################################################################\n";
     
     (*outp) << "\n";
@@ -682,11 +978,19 @@ public:
       for ( unsigned i=0 ; i<n.size() ; i++ ) { 
 	if       ( n[i]->type()!=node::HISTOGRAM ) makeass( *n[i], newspacer, path, rawpath, found ) ;
 	else if  ( n[i]->type()==node::HISTOGRAM ) { 
-	  if ( !mallhists ) { 
+
+	  std::string allhists = "";
+	  if ( n[i]->parent() ) allhists = find( wildcards, n[i]->parent(), n[i]->parent()->name(), "" ); 
+
+	  //	  std::cerr << "allhists: " << n[i]->parent()->name() << "\tall: " << allhists << ":" << std::endl;
+
+	  std::string _algorithm = algorithm;
+
+	  if ( !mallhists || allhists!="" ) { 
 	    if ( first_hists ) {
-	      (*outp) << space << "\t"   << "hist .* {\n";
-	      (*outp) << space << "\t\t" << "regex       \t= 1\n";
-	      (*outp) << space << "\t\t" << "algorithm   \t= " << algorithm << "\n";
+	      if ( allhists!="" ) _algorithm = allhists; 
+	      (*outp) << space << "\t"   << "hist   all_in_dir {\n";
+ 	      if ( _algorithm!="NULL" && _algorithm!="0" ) (*outp) << space << "\t\t" << "algorithm   \t= " << _algorithm << "\n";
 	      (*outp) << space << "\t\t" << "description \t= " << description << "\n";
 	      (*outp) << space << "\t\t" << "output      \t= " << path << "\n";
 	      (*outp) << space << "\t\t" << "display     \t= StatBox\n";
@@ -697,11 +1001,16 @@ public:
 	    first_hists = false;
 	  }
 	  else { 
+	    
+	    std::string _algorithm   = find( algorithms,   n[i], n[i]->name(), algorithm );
+	    std::string _description = find( descriptions, n[i], n[i]->name(), description );
+	    std::string _display     = find( displays,     n[i], n[i]->name(), "StatBox" );
+
 	    (*outp) << space << "\t"   << "hist " << n[i]->name() << " {\n";
-	    (*outp) << space << "\t\t" << "algorithm   \t= " << algorithm << "\n";
-	    (*outp) << space << "\t\t" << "description \t= " << description << "\n";
+	    (*outp) << space << "\t\t" << "algorithm   \t= " << _algorithm << "\n";
+	    (*outp) << space << "\t\t" << "description \t= " << _description << "\n";
 	    (*outp) << space << "\t\t" << "output      \t= " << path << "\n";
-	    (*outp) << space << "\t\t" << "display     \t= StatBox\n";
+	    (*outp) << space << "\t\t" << "display     \t= " << _display << "\n";
 	    /// extra user specified tags
 	    for ( unsigned it=0 ; it<tags.size() ; it++ ) (*outp) << space << "\t\t" << replace(tags[it],"=","\t=") << "\n";
 	    (*outp) << space << "\t"   << "}\n";
@@ -874,7 +1183,7 @@ void search( TDirectory* td, const std::string& s, std::string cwd, node* n ) {
 
 	  /// keep the max number of entries updated
 	  if ( std::string(tobj->GetName())=="Chain" ) { 
-	    double N = ((TH1*)get<TObject>(tobj))->GetEntries();
+	    double N = ((TH1*)get<TObject>(tobj))->GetBinContent(1);
 
 	    //	    std::cout << "entries " << np->name() << " " << " " << np->parent()->name() << " " << N << std::endl;
 	    //    std::cout << "\tentries " << np->parent()->name() << "/" << np->name() << "\t" << N << std::endl;
@@ -1035,23 +1344,28 @@ int cost( std::vector<std::string>& files, node& n, const std::string& directory
 
 int usage(std::ostream& s, int , char** argv, int status=-1) { 
   s << "Usage: " << argv[0] << " [OPTIONS] input1.root ... inputN.root\n\n";
-  s << "    -o             FILENAME  \tname of output (filename required)\n";
-  s << "    -b,   --base   DIR       \tuse directory DIR as the base for the han config\n";
-  s << "    -d,   --dir    DIR       \tonly directories below DIR where DIR is a structure such as HLT/TRIDT etc\n";
-  s << "    -x,            DIR       \texclude directory DIR\n";
-  s << "    -s,   --slice  SLICE     \ttrigger signature name (for comments)\n"; 
-  s << "    -r             SRC DST   \tremap directory SRC to directory DST\n"; 
-  s << "    -ds,  --desc   DESCRIP   \tuse DESCRIP as the description\n"; 
-  s << "    -t,   --tag    VALUE     \tadd the VALUE to the list of command per histogram\n";
-  s << "    -a,   --algorithm VALUE  \tuse VALUE as the execution algorithm for each histogram\n";
-  s << "    -wc,  --wildcard         \tprint use hist * rather than a separate entry for each histogram\n";
-  s << "    -dr,  --deleteref        \tdelete unselected histograms\n";
-  s << "    -or,  --outref FILENAME  \tdelete file to write reduced output to (overwrites input otherwise) \n";
-  s << "    -rh,  --relocate         \trelocate selected histograms\n";
-  s << "    -ref, --reference TAG FILE \tadd FILE as a reference file with tag TAG\n";
-  s << "    -rc,  --refconf       FILE \tadd FILE to the config as a reference block\n";
-  s << "    -v,   --verbose          \tprint verbose output\n";
-  s << "    -h,   --help             \tdisplay this help\n";
+  s << "    -o                FILENAME  \tname of output (filename required)\n";
+  s << "    -b,   --base      DIR       \tuse directory DIR as the base for the han config\n";
+  s << "    -d,   --dir       DIR       \tonly directories below DIR where DIR is a structure such as HLT/TRIDT etc\n";
+  s << "    -x,   --exclude   DIR       \texclude directory DIR\n";
+  s << "    -s,   --slice     SLICE     \ttrigger signature name (for comments)\n"; 
+  s << "    -r,   --remap     SRC DST   \tremap directory SRC to directory DST\n"; 
+  s << "    -a,   --algorithm VALUE     \tuse VALUE as the execution algorithm for each histogram\n";
+  s << "    -af,  --algfile   FILENAME  \tread algorithm information from FILENAME\n";
+  s << "    -ds,  --desc      DESCRIP   \tuse DESCRIP as the description\n"; 
+  s << "    -df,  --descfile  FILENAME  \tread descriptions from FILENAME\n"; 
+  s << "    -dp,  --dispfile  FILENAME  \tread display information from FILENAME\n"; 
+  s << "    -t,   --tag       VALUE     \tadd the VALUE to the list of command per histogram\n";
+  s << "    -wc,  --wildcard            \tprint use hist * rather than a separate entry for each histogram\n";
+  s << "    -wf,  --wcfile    FILENAME  \tread list of directories to wildcard from a file\n";
+  s << "    -wd,  --wcdir     DIR=ALG   \tadd wildcard for DIRECTORY using ALG for the algorithm\n";
+  s << "    -dr,  --deleteref           \tdelete unselected histograms\n";
+  s << "    -or,  --outref   FILENAME   \tfile to write reduced output to (overwrites input otherwise) \n";
+  s << "    -rh,  --relocate            \trelocate selected histograms\n";
+  s << "    -ref, --reference TAG FILE  \tadd FILE as a reference file with tag TAG\n";
+  s << "    -rc,  --refconf       FILE  \tadd FILE to the config as a reference block\n";
+  s << "    -v,   --verbose             \tprint verbose output\n";
+  s << "    -h,   --help                \tdisplay this help\n";
   s << std::endl;
   return status;
 }
@@ -1065,18 +1379,13 @@ void referenceblock( const std::string& file ) {
 } 
 
 
+
 int main(int argc, char** argv) { 
-
-  //  std::string cock = "HLT_j150_bperf_split/InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi/Chain"; 
-
-  //  replace 
-
-  //  std::cout << replace 
 
   gStyle->SetPadRightMargin(0.05);
   gStyle->SetPadTopMargin(0.075);
 
-  //  TCanvas* tg = new TCanvas("tg", "tg", 650, 900 );
+
   TCanvas* tg = new TCanvas("tg", "tg", 700, 600 );
   tg->cd();
 
@@ -1089,20 +1398,22 @@ int main(int argc, char** argv) {
   gStyle->SetStatH(0.16);      
 
 
-  //  if ( argc<3 ) usage( std::cerr << "not enough command options", argc, argv );
   if ( argc<2 ) return usage( std::cerr, argc, argv );
 
+  /// handle the help message option before dealing with
+  /// any other arguments 
 
   for ( int i=1 ; i<argc ; i++ ) { 
     if ( std::string(argv[i])=="-h" || std::string(argv[i])=="--help" )  return usage( *outp, argc, argv, 0 ); 
-    //    if ( std::string(argv[i])=="-v" || std::string(argv[i])=="--version" ) {
-    //      (*outp) << argv[0] << " APPLgrid version " << PACKAGE_VERSION << std::endl; 
-    //  return 0;
   }
+
+  /// now properly parse cmdline options and configure
   
   std::string dir = "";
 
   std::vector<std::string> subdirs;
+
+  std::string              wildcardfile;
 
 
   bool deleteref = false;
@@ -1111,96 +1422,110 @@ int main(int argc, char** argv) {
   std::string outfile = "";
   std::string   slice = "";
 
+  std::string descriptionfile = "";
+  std::string displayfile     = "";
+  std::string algfile         = "";
+
 
   int offset = 1;
 
 
   for ( int i=1 ; i<argc ; i++ ) { 
-    if      ( std::string(argv[i])=="-v" || std::string(argv[i])=="--verbose" ) verbose = true;
-    else if ( std::string(argv[i])=="-o" ) {
-      ++i;
-      if ( i<argc-offset ) outfile = argv[i];
+
+    std::string argvi = std::string(argv[i]);
+
+    if      ( argvi=="-v" || argvi=="--verbose" ) verbose = true;
+    else if ( argvi=="-o" ) {
+      if ( ++i<argc-offset ) outfile = argv[i];
       else  return usage( std::cerr, argc, argv );
     } 
-    else if ( std::string(argv[i])=="-or" || std::string(argv[i])=="--outrefr" ) {
-      ++i;
-      if ( i<argc-offset ) outref = argv[i];
+    else if ( argvi=="-or" || argvi=="--outref" ) {
+      if ( ++i<argc-offset ) outref = argv[i];
       else  return usage( std::cerr, argc, argv );
     } 
-    else if ( std::string(argv[i])=="-ref" || std::string(argv[i])=="--reference" ) {
+    else if ( argvi=="-ref" || argvi=="--reference" ) {
       std::string reftag;
       std::string reffile;
-      ++i;
-      if ( i<argc-offset ) reftag = argv[i];
+      if ( ++i<argc-offset ) reftag = argv[i];
       else  return usage( std::cerr, argc, argv );
-      ++i;
-      if ( i<argc-offset ) reffile = argv[i];
+      if ( ++i<argc-offset ) reffile = argv[i];
       else  return usage( std::cerr, argc, argv );
       references.push_back( reference( reftag, reffile ) ); 
       //      std::cerr << references.back() << std::endl;
     } 
-    else if ( std::string(argv[i])=="-rc" || std::string(argv[i])=="-refconf" ) {
-      ++i;
-      if ( i<argc-offset ) referenceblock( argv[i] );
+    else if ( argvi=="-rc" || argvi=="--refconf" ) {
+      if ( ++i<argc-offset ) referenceblock( argv[i] );
       else  return usage( std::cerr, argc, argv );
     } 
-    else if ( std::string(argv[i])=="-s" || std::string(argv[i])=="--slice" ) {
-      ++i;
-      if ( i<argc-offset ) slice = argv[i];
+    else if ( argvi=="-s" || argvi=="--slice" ) {
+      if ( ++i<argc-offset ) slice = argv[i];
       else  return usage( std::cerr, argc, argv );
     } 
-    else if ( std::string(argv[i])=="-dr"  || std::string(argv[i])=="--deleteref" ) deleteref = true;
-    else if ( std::string(argv[i])=="-rh"  || std::string(argv[i])=="--relocate" )  relocate  = true;
-    else if ( std::string(argv[i])=="-wc"  || std::string(argv[i])=="--wildcard"  )  allhists = false;
-    else if ( std::string(argv[i])=="-d"   || std::string(argv[i])=="--dir"       ) {
-      ++i;
-      
-      if ( i<argc-offset ) { 
+    else if ( argvi=="-dr"  || argvi=="--deleteref" ) deleteref = true;
+    else if ( argvi=="-rh"  || argvi=="--relocate" )  relocate  = true;
+    else if ( argvi=="-wc"  || argvi=="--wildcard"  )  allhists = false;
+    else if ( argvi=="-d"   || argvi=="--dir"       ) {
+      if ( ++i<argc-offset ) { 
 	  dirs.insert( std::map<std::string,int>::value_type( argv[i], count( argv[i], "/" ) ) );
-	  
 	  std::string tdir = argv[i];
-	  
-	  //	  std::cerr << "dirs " << argv[i] << std::endl;
-	  
 	  do { 
 	    subdirs.push_back( chop( tdir, "/" ) );
-	    //   std::cerr << "chop  " << subdirs.back() << std::endl;
-	  }
+	  } 
 	  while ( tdir.size() ); 
       }
       else  return usage( std::cerr, argc, argv );
     } 
-    else if ( std::string(argv[i])=="-x" ) {
-      ++i;
-      if ( i<argc-offset ) exclude.insert( argv[i] );
+    else if ( argvi=="-x" || argvi=="--exclude" ) {
+      if ( ++i<argc-offset ) exclude.insert( argv[i] );
       else  return usage( std::cerr, argc, argv );
     } 
-    else if ( std::string(argv[i])=="-ds" || std::string(argv[i]).find("--desc")==0 ) {
-      ++i;
-      if ( i<argc-offset ) description = argv[i];
+    else if ( argvi=="-ds" || argvi.find("--desc")==0 ) {
+      if ( ++i<argc-offset ) description = argv[i];
       else  return usage( std::cerr, argc, argv );
     } 
-    else if ( std::string(argv[i])=="-b" || std::string(argv[i])=="--base" ) {
-      ++i;
-      if ( i<argc-offset ) base = argv[i] ;
+    else if ( argvi=="-df" || argvi.find("--descfile")==0 ) {
+      if ( ++i<argc-offset ) descriptionfile = argv[i];
       else  return usage( std::cerr, argc, argv );
     } 
-    else if ( std::string(argv[i])=="-a" || std::string(argv[i])=="--algorithm" ) {
-      ++i;
-      if ( i<argc-offset ) algorithm = argv[i] ;
+    else if ( argvi=="-af" || argvi.find("--algfile")==0 ) {
+      if ( ++i<argc-offset ) algfile = argv[i];
       else  return usage( std::cerr, argc, argv );
     } 
-    //    else if ( std::string(argv[i])=="-o" ) { 
-    //    ++i;
-    //    if ( i<argc ) output_file = argv[i];
-    //   else  return usage( std::cerr, argc, argv );
-    //   }
-    else if ( std::string(argv[i])=="-t" || std::string(argv[i])=="--tag" ) {
-      ++i;
-      if ( i<argc-offset ) tags.push_back( argv[i] );
+    else if ( argvi=="-dp" || argvi.find("--dispfile")==0 ) {
+      if ( ++i<argc-offset ) displayfile = argv[i];
       else  return usage( std::cerr, argc, argv );
     } 
-    else if ( std::string(argv[i])=="-r" ) { 
+    else if ( argvi=="-wd" || argvi.find("--wcdir")==0 ) {
+      if ( ++i<argc-offset ) { 
+	histogram     tag="";
+	std::string value="";
+	/// parse the input string - add a terminating ";" just in case 
+	if ( parse( std::string(argv[i])+";", tag, value, false ) ) wildcards.insert( hmap_t::value_type( tag, value ) );
+	else  return usage( std::cerr << "Could not parse wildcard directory", argc, argv );
+      }
+      else  return usage( std::cerr, argc, argv );
+    } 
+    else if ( argvi=="-wf" || argvi.find("--wcfile")==0 ) {
+      if ( ++i<argc-offset ) wildcardfile = argv[i];
+      else  return usage( std::cerr, argc, argv );
+    } 
+    else if ( argvi=="-dp" || argvi.find("--dispfile")==0 ) {
+      if ( ++i<argc-offset ) displayfile = argv[i];
+      else  return usage( std::cerr, argc, argv );
+    } 
+    else if ( argvi=="-b" || argvi=="--base" ) {
+      if ( ++i<argc-offset ) base = argv[i] ;
+      else  return usage( std::cerr, argc, argv );
+    } 
+    else if ( argvi=="-a" || argvi=="--algorithm" ) {
+      if ( ++i<argc-offset ) algorithm = argv[i] ;
+      else  return usage( std::cerr, argc, argv );
+    } 
+    else if ( argvi=="-t" || argvi=="--tag" ) {
+      if ( ++i<argc-offset ) tags.push_back( argv[i] );
+      else  return usage( std::cerr, argc, argv );
+    } 
+    else if ( argvi=="-r" || argvi=="--remap" ) { 
       std::string src;
       std::string dest;
       if ( i<argc+2-offset ) { 
@@ -1215,20 +1540,56 @@ int main(int argc, char** argv) {
     }
   }
 
+
   //  std::cout << "tags " << tags.size() << " " << tags << std::endl;
 
   if ( base == "" ) base = dir;
 
-  /// if output file is not defined
-  //  if ( output_file == "" ) return usage( std::cerr, argc, argv );
-  
-  //  dataset data("test_EF");
-  //  files = data.datafiles();
-  
   /// check some input files
 
   if ( files.size()<1 ) return usage( std::cerr, argc, argv );
   
+
+  /// get algorithm information from a file if required 
+
+  if ( algfile!="" ) { 
+    std::cerr << "reading algorithm information from : \t" << algfile << std::endl; 
+    if ( !file_exists( algfile ) ) error( 1, std::cerr << "algorithm file " << algfile << " does not esist" ); 
+    algorithms = parse( algfile, false );
+  }
+
+
+  /// get descriptions from a file if required
+
+  if ( descriptionfile!="" ) { 
+    std::cerr << "reading decriptions from : \t\t" << descriptionfile << std::endl; 
+    if ( !file_exists( descriptionfile ) ) error( 1, std::cerr << "decription file " << descriptionfile << " does not esist" ); 
+    descriptions = parse( descriptionfile );
+  }
+
+
+  /// get display information from file if required
+
+  if ( displayfile!="" ) { 
+    std::cerr << "reading display information from : \t" << displayfile << std::endl; 
+    if ( !file_exists( displayfile ) ) error( 1, std::cerr << "display file " << displayfile << " does not esist" ); 
+    displays = parse( displayfile, false );
+  }
+
+
+  /// parse the wildcard directories 
+
+  if ( wildcardfile!="" ) { 
+    std::cerr << "reading wildcard information from : \t" << wildcardfile << std::endl; 
+    if ( !file_exists( wildcardfile ) ) error( 1, std::cerr << "wildcard file " << wildcardfile << " does not esist" ); 
+    hmap_t _wildcards = parse( wildcardfile, false );
+    wildcards.insert(  _wildcards.begin(), _wildcards.end() );
+  }
+
+  //  for ( hmap_t::const_iterator itr = wildcards.begin() ; itr!=wildcards.end() ; itr++ ) {
+  //     std::cout << "wildcard: " << itr->first << " " << itr->second << std::endl;
+  // }
+
 
   //  time the actual running of the cost() routine
   

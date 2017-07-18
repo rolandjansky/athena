@@ -6,6 +6,7 @@
 #define ManagedMonitorToolBase_H
 
 #define ManagedMonitorToolBase_Uses_API_201401
+#define ManagedMonitorToolBase_Uses_API_201704
 
 #include <string>
 #include <vector>

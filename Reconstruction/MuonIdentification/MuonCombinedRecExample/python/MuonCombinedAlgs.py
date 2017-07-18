@@ -82,10 +82,10 @@ class MuonCombinedReconstruction(ConfiguredMuonRec):
 
         topSequence = AlgSequence()
                       
-        if jobproperties.Beam.beamType()=='collisions':
+        #if jobproperties.Beam.beamType()=='collisions':
             # creates input collections for ID and MS candidates
-            topSequence += getAlgorithm("MuonCombinedInDetCandidateAlg") 
-            topSequence += getAlgorithm("MuonCombinedMuonCandidateAlg") 
+        topSequence += getAlgorithm("MuonCombinedInDetCandidateAlg") 
+        topSequence += getAlgorithm("MuonCombinedMuonCandidateAlg") 
             
             # runs ID+MS combinations (fit, staco, mugirl, ID-taggers)
         if muonCombinedRecFlags.doStatisticalCombination() or muonCombinedRecFlags.doCombinedFit():

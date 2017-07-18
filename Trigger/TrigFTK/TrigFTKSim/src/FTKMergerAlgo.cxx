@@ -143,7 +143,7 @@ FTKMergerAlgo::FTKMergerAlgo(const std::string& name, ISvcLocator* pSvcLocator) 
 		  "FTK layer configuration");
   declareProperty("force_merge",m_force_merge,"Force the merging disabling any check");
  
-  declareProperty("HitWarrior",m_HW_level);
+  declareProperty("HitWarriorMerger",m_HW_level);
   declareProperty("HWNDiff",m_HW_ndiff);
   declareProperty("loadHWConf_path",m_HW_path); 
   declareProperty("KeepRejected",m_keep_rejected); 
@@ -782,7 +782,12 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
               if(m_ftktrack_tomerge_tree[ireg][isub]->FindBranch(Form("FTKTracksStream%d.",regNum))){
                  log << MSG::VERBOSE << "Setting branch with region number: " << regNum << " ireg: " << ireg << " isub: " << isub << endmsg;
                  m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress(Form("FTKTracksStream%d.",regNum),&m_ftktrack_tomerge_stream[ireg][isub],&m_ftktrack_tomerge_branch[ireg][isub]);
-                 
+                 if( m_MergeRoads) {
+                     m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress
+                        (Form("FTKRoadsStream%d.",regNum),
+                         &m_srbanks[ireg][isub],
+                         &m_ftkroad_tomerge_branch[ireg][isub]);
+                 }
               //
               // If not, Try to find branches named after merging has been done
               //
@@ -790,9 +795,21 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
               } else if (m_ftktrack_tomerge_tree[ireg][isub]->FindBranch(Form("FTKMergedTracksStream%d",regNum))) {
                   log << MSG::VERBOSE << "Setting merged branch with region number: " << regNum << " ireg: " << ireg << " isub: " << isub << endmsg;
                  m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress(Form("FTKMergedTracksStream%d",regNum),&m_ftktrack_tomerge_stream[ireg][isub],&m_ftktrack_tomerge_branch[ireg][isub]);
+                  if( m_srbanks[ireg][isub]) {
+                     m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress
+                        (Form("FTKMergedRoadsStream%d.",regNum),
+                         &m_srbanks[ireg][isub],
+                         &m_ftkroad_tomerge_branch[ireg][isub]);
+                  }
               } else {
                  log << MSG::DEBUG << "Setting branch with name: FTKMergedTracksStream" << endmsg;
                  m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress("FTKMergedTracksStream",&m_ftktrack_tomerge_stream[ireg][isub],&m_ftktrack_tomerge_branch[ireg][isub]);
+                 if( m_srbanks[ireg][isub]) {
+                     m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress
+                        ("FTKMergedRoadsStream.",
+                         &m_srbanks[ireg][isub],
+                         &m_ftkroad_tomerge_branch[ireg][isub]);
+                 }
               }
 ///           } // from not used else
            

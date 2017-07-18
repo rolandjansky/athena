@@ -96,8 +96,7 @@ theApp.initialize()
 
 # - Ex1: change the verbosity 
 #-------
-#G4Command=AtlasG4Eng.G4Eng.gbl.G4Commands()
-#G4Command.tracking.verbose(1)
+#SimFlags.G4Commands += ['/tracking/verbose 1']
 
 # - Ex2: change the Pixel position 
 #------

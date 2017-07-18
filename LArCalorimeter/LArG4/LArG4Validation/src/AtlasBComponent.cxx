@@ -16,7 +16,7 @@ namespace Genfun {
   // Constructor:
   AtlasBComponent::AtlasBComponent(unsigned int index)
    : AbsFunction()
-   , _index(index) 
+   , m_index(index) 
    , m_magFieldSvc("MagField::AtlasFieldSvc/AtlasFieldSvc", "G4AtlasFieldSvc") {}
   
   // Destructor:
@@ -25,7 +25,7 @@ namespace Genfun {
   // Copy Constructor:
   AtlasBComponent::AtlasBComponent(const AtlasBComponent &right)
    : AbsFunction()
-   , _index(right._index)
+   , m_index(right.m_index)
    , m_magFieldSvc("MagField::AtlasFieldSvc/AtlasFieldSvc", "G4AtlasFieldSvc") {}
   
   // Dimensionality:
@@ -46,7 +46,7 @@ namespace Genfun {
     double XYZ_in_mm[3] , BXYZ_in_kgmm[3];
     for (int i=0;i<3;++i) *(XYZ_in_mm+i) = a[i];
     magFieldSvcQuick->getField( XYZ_in_mm , BXYZ_in_kgmm );
-    return BXYZ_in_kgmm[_index]*kilogauss;
+    return BXYZ_in_kgmm[m_index]*kilogauss;
   }
 
 }

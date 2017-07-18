@@ -8,6 +8,8 @@
 #include "LArRecConditions/ILArBadChannelMasker.h"
 #include "LArRecConditions/ILArBadChanTool.h"
 #include "CaloIdentifier/CaloIdManager.h"
+#include "CaloIdentifier/LArEM_ID.h"
+#include "CaloIdentifier/LArEM_SuperCell_ID.h"
 
 #include "LArRawConditions/LArCaliWave.h"
 #include "LArRawConditions/LArCaliWaveContainer.h"
@@ -29,6 +31,11 @@
 #include "LArRawConditions/LArTdriftComplete.h"
 #include "LArRawConditions/LArMphysOverMcalComplete.h"
 
+#include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
+
+#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArSuperCellCablingTool.h"
 
 #include "LArCalibUtils/LArPhysWaveTool.h"     // added by FT
 #include "LArCalibUtils/LArPhysWaveHECTool.h"  // added by FT
@@ -52,6 +59,7 @@ LArPhysWavePredictor::LArPhysWavePredictor (const std::string& name, ISvcLocator
   declareProperty("MaskingTool",      m_maskingTool,"Only for messaging");
   declareProperty("TestMode",         m_testmode   = false);
   declareProperty("StoreEmpty",       m_storeEmpty = false);
+  declareProperty("isSC", m_isSC = false);
 
   m_keyCali.clear() ;
   declareProperty("KeyCaliList",      m_keyCali);                  // Keys of LArCaliWaveContainers
@@ -117,28 +125,47 @@ LArPhysWavePredictor::~LArPhysWavePredictor()
 StatusCode LArPhysWavePredictor::initialize() 
 {
     if ( ! m_doubleTriangle ) {
-      msg(MSG::INFO) << "Using standard triangular ionization pulse" << endreq ;
+      msg(MSG::INFO) << "Using standard triangular ionization pulse" << endmsg ;
   } else {
-    msg(MSG::INFO) << "Using refined ionization pulse (double triangle)" << endreq ;
+    msg(MSG::INFO) << "Using refined ionization pulse (double triangle)" << endmsg ;
   }
 
-  StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get LArOnlineID" << endreq;
-    return sc;
+  StatusCode sc;
+  if ( m_isSC ) {
+    const LArOnline_SuperCellID* ll;
+    sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+      return StatusCode::FAILURE;
+    }
+    else {
+      m_onlineHelper = (const LArOnlineID_Base*)ll;
+      ATH_MSG_DEBUG("Found the LArOnlineID helper");
+    }
+  } else { // m_isSC
+    const LArOnlineID* ll;
+    sc = detStore()->retrieve(ll, "LArOnlineID");
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+      return StatusCode::FAILURE;
+    }
+    else {
+      m_onlineHelper = (const LArOnlineID_Base*)ll;
+      ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
+    }
   }
   
 
   sc=m_badChanTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not retrieve BadChannelTool " << m_badChanTool << endreq;
+    msg(MSG::FATAL) << "Could not retrieve BadChannelTool " << m_badChanTool << endmsg;
     return StatusCode::FAILURE;
   }
 
   sc=m_maskingTool.retrieve(); 
   if (sc.isFailure()) {
     msg(MSG::FATAL) << "Could not retrieve BadChannelMask "
-                    << m_maskingTool << endreq;
+                    << m_maskingTool << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -160,7 +187,7 @@ struct FileCloser
 
 StatusCode LArPhysWavePredictor::stop()
 {
-  msg(MSG::INFO) << "... in stop()" << endreq ;
+  msg(MSG::INFO) << "... in stop()" << endmsg ;
   
   LArWaveHelper larWaveHelper;
 
@@ -168,7 +195,7 @@ StatusCode LArPhysWavePredictor::stop()
   //StoreGateSvc* detStore; 
   //StatusCode sc = service("DetectorStore",detStore);
   //if (sc!=StatusCode::SUCCESS) {
-  //  msg(MSG::ERROR) << "Cannot get DetectorStore!" << endreq;
+  //  msg(MSG::ERROR) << "Cannot get DetectorStore!" << endmsg;
   //  return sc;
   //}
   
@@ -176,7 +203,7 @@ StatusCode LArPhysWavePredictor::stop()
   ToolHandle<LArPhysWaveTool> larPhysWaveTool("LArPhysWaveTool");
   StatusCode sc=larPhysWaveTool.retrieve();
   if (sc!=StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << " Can't get LArPhysWaveTool " << endreq;
+    msg(MSG::ERROR) << " Can't get LArPhysWaveTool " << endmsg;
     return sc;
   }
 
@@ -185,27 +212,47 @@ StatusCode LArPhysWavePredictor::stop()
   if(m_isHEC){
     sc=larPhysWaveHECTool.retrieve();
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << " Can't get LArPhysWaveHECTool " << endreq;
+      msg(MSG::ERROR) << " Can't get LArPhysWaveHECTool " << endmsg;
       return sc;
     }}
 
   const CaloIdManager *caloIdMgr = CaloIdManager::instance() ;
-  const LArEM_ID* emId = caloIdMgr->getEM_ID();
+  const LArEM_Base_ID* emId;
+  if ( m_isSC ) {
+    emId=caloIdMgr->getEM_SuperCell_ID();
+  } else {
+    emId=caloIdMgr->getEM_ID();
+  }
   if (!emId) {
-      msg(MSG::ERROR) << "Could not access lar EM ID helper" << endreq;
+      msg(MSG::ERROR) << "Could not access lar EM ID helper" << endmsg;
       return StatusCode::FAILURE;
   }   
   
   // Retrieve LArCablingService
-  ToolHandle<LArCablingService> larCablingSvc("LArCablingService");
-  sc = larCablingSvc.retrieve();
-  if (sc!=StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << " Can't get LArCablingSvc " << endreq;
-    return sc;
+  LArCablingBase* larCablingSvc;
+  if ( m_isSC ) {
+    ToolHandle<LArSuperCellCablingTool> tool("LArSuperCellCablingTool");
+    sc = tool.retrieve();
+    if (sc!=StatusCode::SUCCESS) {
+      msg(MSG::ERROR) << " Can't get LArCablingSvc." << endmsg;
+      return sc;
+    } else larCablingSvc = (LArCablingBase*)&(*tool);
+  } else { // m_isSC
+    ToolHandle<LArCablingService> tool("LArCablingService");
+    sc = tool.retrieve();
+    if (sc!=StatusCode::SUCCESS) {
+      msg(MSG::ERROR) << " Can't get LArCablingSvc." << endmsg;
+      return sc;
+    } else larCablingSvc = (LArCablingBase*)&(*tool);
   }
+  /*sc = larCablingSvc.retrieve();
+  if (sc!=StatusCode::SUCCESS) {
+    msg(MSG::ERROR) << " Can't get LArCablingSvc " << endmsg;
+    return sc;
+  }*/
 
   if(sc.isFailure()){
-      msg(MSG::ERROR) << "Could not retrieve LArCablingService Tool" << endreq;
+      msg(MSG::ERROR) << "Could not retrieve LArCablingService Tool" << endmsg;
       return StatusCode::FAILURE;
   }
 
@@ -218,10 +265,10 @@ StatusCode LArPhysWavePredictor::stop()
   if ( !m_useJOCaliPulseParams ) {
     sc = detStore()->retrieve(larCaliPulseParams);
     if ( sc == StatusCode::FAILURE ) {
-      msg(MSG::WARNING) << "Cannot retrieve LArCaliPulseParams" << endreq ;
+      msg(MSG::WARNING) << "Cannot retrieve LArCaliPulseParams" << endmsg ;
       return sc;
     } else {
-      msg(MSG::INFO) << "LArCaliPulseParams successfully retrieved" << endreq ;
+      msg(MSG::INFO) << "LArCaliPulseParams successfully retrieved" << endmsg ;
     }
   }
 
@@ -229,10 +276,10 @@ StatusCode LArPhysWavePredictor::stop()
     if (!m_isHEC) {
       sc = detStore()->retrieve(larDetCellParams);
       if ( sc == StatusCode::FAILURE ) {
-	msg(MSG::WARNING) << "Cannot retrieve LArDetCellParams" << endreq;
+	msg(MSG::WARNING) << "Cannot retrieve LArDetCellParams" << endmsg;
 	return sc;
       }else {
-	msg(MSG::INFO) << "LArDetCellParams successfully retrieved" << endreq;
+	msg(MSG::INFO) << "LArDetCellParams successfully retrieved" << endmsg;
       }
     }else{
       m_useJODetCellParams = true ;
@@ -242,42 +289,42 @@ StatusCode LArPhysWavePredictor::stop()
   if ( !m_useJOTdrift ) {
     sc = detStore()->retrieve(larTdrift);
     if ( sc == StatusCode::FAILURE ) {
-      msg(MSG::WARNING) << "Cannot retrieve LArTdriftComplete" << endreq;
+      msg(MSG::WARNING) << "Cannot retrieve LArTdriftComplete" << endmsg;
       return sc;
     }else {
-      msg(MSG::INFO) << "LArTdriftComplete successfully retrieved" << endreq;
+      msg(MSG::INFO) << "LArTdriftComplete successfully retrieved" << endmsg;
     }
   }
   
   if ( !m_useJOPhysCaliTdiff ) {
     sc = detStore()->retrieve(larPhysCaliTdiff);
     if ( sc == StatusCode::FAILURE ) {
-      msg(MSG::WARNING) << "Cannot retrieve LArPhysCaliTdiff" << endreq; 
+      msg(MSG::WARNING) << "Cannot retrieve LArPhysCaliTdiff" << endmsg; 
       return sc;
     }else {
-      msg(MSG::INFO) << "LArPhysCaliTdiff successfully retrieved" << endreq;
+      msg(MSG::INFO) << "LArPhysCaliTdiff successfully retrieved" << endmsg;
     }
   }
   
   const ILArFEBTimeOffset* larFebTshift = NULL;  
   if ( m_useJOPhysCaliTdiff ) { // no LArPhysCaliTdiffComplete found, or manual time shift selected
     if ( m_timeShiftByHelper ) {
-      msg(MSG::INFO) << "Will use helper class for start time." << endreq;
+      msg(MSG::INFO) << "Will use helper class for start time." << endmsg;
       m_timeShiftByIndex = -1 ;
       m_timeShiftByLayer = false ;
       m_timeShiftByFEB   = false ;
     }  
     if ( m_timeShiftByIndex != -1 ) {
-      msg(MSG::INFO) << "Manually shifting pulses by time index " << m_timeShiftByIndex << endreq;
+      msg(MSG::INFO) << "Manually shifting pulses by time index " << m_timeShiftByIndex << endmsg;
       m_timeShiftByLayer = false ;
       m_timeShiftByFEB   = false ;
     }
     if ( m_timeShiftByLayer ) {
-      msg(MSG::INFO) << "Manually shifting pulses by *layer-dependent* time indexes." << endreq;
+      msg(MSG::INFO) << "Manually shifting pulses by *layer-dependent* time indexes." << endmsg;
       m_timeShiftByFEB   = false ;
     }
     if ( m_timeShiftByFEB ) {
-      msg(MSG::INFO) << "Manually shifting pulses by *FEB* time indexes." << endreq;
+      msg(MSG::INFO) << "Manually shifting pulses by *FEB* time indexes." << endmsg;
       sc = detStore()->retrieve(larFebTshift);
       if (sc.isFailure())
          larFebTshift = NULL;
@@ -291,13 +338,13 @@ StatusCode LArPhysWavePredictor::stop()
 
   sc=larPhysWaveContainer->setGroupingType(m_groupingType,msg());
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to set groupingType for LArPhysWaveContainer object" << endreq;
+    msg(MSG::ERROR) << "Failed to set groupingType for LArPhysWaveContainer object" << endmsg;
     return sc;
   }
 
   sc=larPhysWaveContainer->initialize(); 
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed initialize LArPhysWaveContainer object" << endreq;
+    msg(MSG::ERROR) << "Failed initialize LArPhysWaveContainer object" << endmsg;
     return sc;
   }   
 
@@ -305,13 +352,13 @@ StatusCode LArPhysWavePredictor::stop()
   LArMphysOverMcalComplete* MphysOverMcalComplete = new LArMphysOverMcalComplete(); 
   sc=MphysOverMcalComplete->setGroupingType(m_groupingType,msg());
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to set groupingType for LArMphysOverMcalComplete object" << endreq;
+    msg(MSG::ERROR) << "Failed to set groupingType for LArMphysOverMcalComplete object" << endmsg;
     return sc;
   }
 
   sc=MphysOverMcalComplete->initialize(); 
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed initialize LArMphysOverMcalComplete object" << endreq;
+    msg(MSG::ERROR) << "Failed initialize LArMphysOverMcalComplete object" << endmsg;
     return sc;
   }   
   
@@ -345,7 +392,7 @@ StatusCode LArPhysWavePredictor::stop()
   const LArPhysWaveContainer* larIdealPhysWaveContainer=0;
   if(m_isHEC){
     ATH_CHECK(detStore()->retrieve(larIdealPhysWaveContainer,m_keyIdealPhys));
-    msg(MSG::INFO) <<"LArPhysWaveContainer with (key = " << m_keyIdealPhys << ") reading from StoreGate" << endreq;
+    msg(MSG::INFO) <<"LArPhysWaveContainer with (key = " << m_keyIdealPhys << ") reading from StoreGate" << endmsg;
   }
   /////////////IDEAL PHYSWAVE/////////////////////////////
     
@@ -362,19 +409,19 @@ StatusCode LArPhysWavePredictor::stop()
     const LArCaliWaveContainer* caliWaveContainer;
     sc = detStore()->retrieve(caliWaveContainer,*key_it);
     if (sc.isFailure()) {
-       //log << MSG::INF0 << "LArCaliWaveContainer (key = " << *key_it << ") not found in StoreGate" << endreq;
+       //log << MSG::INF0 << "LArCaliWaveContainer (key = " << *key_it << ") not found in StoreGate" << endmsg;
        continue;   
     }
     if ( caliWaveContainer == NULL ) {
-       msg(MSG::INFO) << "LArCaliWaveContainer (key = " << *key_it << ") is empty" << endreq;
+       msg(MSG::INFO) << "LArCaliWaveContainer (key = " << *key_it << ") is empty" << endmsg;
        continue;
     }
     
-    msg(MSG::INFO) << "Processing LArCaliWaveContainer from StoreGate, key = " << *key_it << endreq;
+    msg(MSG::INFO) << "Processing LArCaliWaveContainer from StoreGate, key = " << *key_it << endmsg;
     
     for ( unsigned gain = CaloGain::LARHIGHGAIN ; gain < CaloGain::LARNGAIN ; ++ gain ) { // loop over gain in the current   LArCaliWAveContainer
       
-      msg(MSG::INFO) << "Now processing gain = " << gain << " in LArCaliWaveContainer with key = " << *key_it << endreq;
+      msg(MSG::INFO) << "Now processing gain = " << gain << " in LArCaliWaveContainer with key = " << *key_it << endmsg;
     
       // loop over current cali wave container
       typedef LArCaliWaveContainer::ConstConditionsMapIterator const_iterator;
@@ -387,7 +434,7 @@ StatusCode LArPhysWavePredictor::stop()
         LArCaliWaveContainer::LArCaliWaves::const_iterator cont_it_e = (*itVec).end();
 
 	if ( itVec == itVec_e ) {
-          msg(MSG::INFO) << "LArCaliWaveContainer (key = " << *key_it << ") has no wave with gain = " << gain << endreq;
+          msg(MSG::INFO) << "LArCaliWaveContainer (key = " << *key_it << ") has no wave with gain = " << gain << endmsg;
           continue ;
         }
         
@@ -401,7 +448,7 @@ StatusCode LArPhysWavePredictor::stop()
 	  }
 	  nchannel++ ;
 	  if ( nchannel < 100 || ( nchannel < 1000 && nchannel%100==0 ) || nchannel%1000==0 ) 
-	     msg(MSG::INFO) << "Processing calibration waveform number " << nchannel << endreq;
+	     msg(MSG::INFO) << "Processing calibration waveform number " << nchannel << endmsg;
 
 	  const LArCaliWave& larCaliWave = (*cont_it);
 	  
@@ -423,7 +470,7 @@ StatusCode LArPhysWavePredictor::stop()
             id = larCablingSvc->cnvToIdentifier(chid);
           } catch (LArID_Exception & execpt) {
 	    msg(MSG::ERROR) << "LArCabling exception caught for channel 0x" << MSG::hex << chid << MSG::dec 
-	        << ". Skipping channel." << endreq ;
+	        << ". Skipping channel." << endmsg ;
             continue ;
 	  }
 
@@ -489,7 +536,7 @@ StatusCode LArPhysWavePredictor::stop()
 	     if ( Tdrift <= 1.0+LArTdriftComplete::ERRORCODE ) {
 	       notFoundMsg(chid,gain,"Tdrift");
 	       //msg(MSG::ERROR) << "Cannot access Tdrift for channel 0x" << MSG::hex << chid << MSG::dec 
-	       //   << ". Will use jobOption setting." << endreq ;
+	       //   << ". Will use jobOption setting." << endmsg ;
 		if ( layer>=0 && layer<4 ) 
 		  Tdrift = m_Tdrift[layer]; // Set drift time according to layer
 		else 
@@ -511,7 +558,7 @@ StatusCode LArPhysWavePredictor::stop()
 	     if ( Tdiff <= 1.0+LArPhysCaliTdiffComplete::ERRORCODE ) {
 	       notFoundMsg(chid,gain,"Tdiff");
 	       //msg(MSG::WARNING) << "Cannot access Tdiff for channel 0x" << MSG::hex << chid << MSG::dec 
-	       //                    << ", gain = " << gain << ". Will use jobOption setting." << endreq ;
+	       //                    << ", gain = " << gain << ". Will use jobOption setting." << endmsg ;
 	        Tdiff = 0 ;
 		m_useJOPhysCaliTdiff = true ;
 		noTdiff[gain]++;
@@ -549,7 +596,7 @@ StatusCode LArPhysWavePredictor::stop()
 	    double peak = theLArCaliWave.getSample(larWaveHelper.getMax(theLArCaliWave));
             ATH_MSG_VERBOSE("Channel 0x" << MSG::hex << chid << MSG::dec << " -> Applying normalisation (CaliWave peak = " << peak << ")");
             if ( peak <=0 ) {
-               msg(MSG::WARNING) << "Peak value <=0 , cannot normalize!" << endreq ;
+               msg(MSG::WARNING) << "Peak value <=0 , cannot normalize!" << endmsg ;
             } else {
                theLArCaliWave = LArCaliWave( (theLArCaliWave*(1./peak)).getWave(),
 					     theLArCaliWave.getErrors(),
@@ -577,7 +624,7 @@ StatusCode LArPhysWavePredictor::stop()
 	  else 
 	    sc = larPhysWaveTool->makeLArPhysWave(wfParams,theLArCaliWave,region,layer,larPhysWave,MphysMcali);
 	  if (sc.isFailure()) {
-	    msg(MSG::FATAL) << "Cannot predict LArPhysWave for channel 0x" << MSG::hex << chid << MSG::dec << endreq;
+	    msg(MSG::FATAL) << "Cannot predict LArPhysWave for channel 0x" << MSG::hex << chid << MSG::dec << endmsg;
 	    continue;
 	  }
 	  larPhysWave.setFlag( LArWave::predCali ) ;
@@ -591,7 +638,7 @@ StatusCode LArPhysWavePredictor::stop()
 	      float MphysMcali2 ;
 	      sc = larPhysWaveTool->makeLArPhysWave(wfParams2,theLArCaliWave,region,layer,larPhysWave2,MphysMcali2);
 	      if (sc.isFailure()) {
-                msg(MSG::FATAL) << "Cannot predict LArPhysWave for channel 0x" << MSG::hex << chid << MSG::dec << "with double triangle."  << endreq;
+                msg(MSG::FATAL) << "Cannot predict LArPhysWave for channel 0x" << MSG::hex << chid << MSG::dec << "with double triangle."  << endmsg;
                 continue;
 	      }
 	      larPhysWave = LArPhysWave ( ( larPhysWave*(1.-m_wTriangle2[layer])+larPhysWave2*m_wTriangle2[layer] ).getWave() ,
@@ -600,7 +647,7 @@ StatusCode LArPhysWavePredictor::stop()
 	      // Double-triagle predicion was used, Mphys/Mcali should be recomputed... 
 	      MphysMcali = larPhysWave.getSample(larWaveHelper.getMax(larPhysWave))/theLArCaliWave.getSample(larWaveHelper.getMax(theLArCaliWave));
 	    } else {
-	      msg(MSG::WARNING) << "Double triangle implemented only for EMB, skip channel!" << endreq ;
+	      msg(MSG::WARNING) << "Double triangle implemented only for EMB, skip channel!" << endmsg ;
 	    }
 	  } // end if 2nd triangle
           
@@ -627,24 +674,24 @@ StatusCode LArPhysWavePredictor::stop()
 	  if ( m_dumpMphysMcali ) { 
 	     int eta = emId->eta(id);
 	     int phi = emId->phi(id);
-	     fprintf( f , "%2d %2d %3d %3d  %2d %8.3f \n", region, layer, eta, phi, gain, MphysMcali ) ;
+	     fprintf( f , "%2d %2d %3d %3d  %2u %8.3f \n", region, layer, eta, phi, gain, MphysMcali ) ;
 	  }
 	  
 	  if ( m_testmode && nchannel>=10 ) {
 
-	    msg(MSG::INFO) << "Test mode selected, process only one channel!" << endreq ;
+	    msg(MSG::INFO) << "Test mode selected, process only one channel!" << endmsg ;
 	    
 	    // Record LArPhysWaveContainer to DetectorStore
   	    sc = detStore()->record(larPhysWaveContainer,m_keyPhys);
 	    if (sc.isFailure()) {
-	      msg(MSG::FATAL) << "Cannot record LArPhysWaveContainer to StoreGate! key=" << m_keyPhys << endreq;
+	      msg(MSG::FATAL) << "Cannot record LArPhysWaveContainer to StoreGate! key=" << m_keyPhys << endmsg;
 	      return StatusCode::FAILURE;
             }
 
             // Record LArMphysOverMcalComplete to DetectorStore
             sc = detStore()->record(MphysOverMcalComplete,m_keyMphysMcali); 
             if (sc.isFailure()) {
-              msg(MSG::FATAL) << "Cannot record LArMphysOverMcalComplete to StoreGate! key=" << m_keyMphysMcali << endreq;
+              msg(MSG::FATAL) << "Cannot record LArMphysOverMcalComplete to StoreGate! key=" << m_keyMphysMcali << endmsg;
               return StatusCode::FAILURE;
             }
   
@@ -653,10 +700,10 @@ StatusCode LArPhysWavePredictor::stop()
             ILArMphysOverMcal *larMphysOverMcal = NULL;
             sc = detStore()->symLink(MphysOverMcalComplete,larMphysOverMcal);
             if (sc.isFailure()) {
-              msg(MSG::FATAL) << "Could not symlink ILArMphysOverMcal with LArMphysOverMcalComplete." << endreq;
+              msg(MSG::FATAL) << "Could not symlink ILArMphysOverMcal with LArMphysOverMcalComplete." << endmsg;
               return StatusCode::FAILURE;
             } 
-            msg(MSG::INFO) << "ILArMphysOverMcal symlink with LArMphysOverMcalComplete successfully" << endreq ;
+            msg(MSG::INFO) << "ILArMphysOverMcal symlink with LArMphysOverMcalComplete successfully" << endmsg ;
 
 	    return StatusCode::SUCCESS; 
 
@@ -675,50 +722,50 @@ StatusCode LArPhysWavePredictor::stop()
   
   }  // End loop over all CaliWave containers
 
-  //msg(MSG::INFO) << " Summary : Number of cells with a PhysWave values computed : " << larPhysWaveContainer->totalNumberOfConditions()  << endreq;
-  //msg(MSG::INFO) << " Summary : Number of cells with a MphysOverMcal values computed : " << MphysOverMcalComplete->totalNumberOfConditions()  << endreq;
-  msg(MSG::INFO) << " Summary : Number of cells with a PhysWave values computed : " << NPhysWave  << endreq;
-  msg(MSG::INFO) << " Summary : Number of cells with a MphysOverMcal values computed : " << NMPMC  << endreq;
-  msg(MSG::INFO) << " Summary : Number of Barrel PS cells side A or C (connected+unconnected):  3904+ 192 " << endreq;
-  msg(MSG::INFO) << " Summary : Number of Barrel    cells side A or C (connected+unconnected): 50944+2304 " << endreq;
-  msg(MSG::INFO) << " Summary : Number of EMEC      cells side A or C (connected+unconnected): 31872+3456 " << endreq;
-  msg(MSG::INFO) << " Summary : Number of HEC       cells side A or C (connected+unconnected):  2816+ 256 " << endreq;
-  msg(MSG::INFO) << " Summary : Number of FCAL      cells side A or C (connected+unconnected):  1762+  30 " << endreq;
+  //msg(MSG::INFO) << " Summary : Number of cells with a PhysWave values computed : " << larPhysWaveContainer->totalNumberOfConditions()  << endmsg;
+  //msg(MSG::INFO) << " Summary : Number of cells with a MphysOverMcal values computed : " << MphysOverMcalComplete->totalNumberOfConditions()  << endmsg;
+  msg(MSG::INFO) << " Summary : Number of cells with a PhysWave values computed : " << NPhysWave  << endmsg;
+  msg(MSG::INFO) << " Summary : Number of cells with a MphysOverMcal values computed : " << NMPMC  << endmsg;
+  msg(MSG::INFO) << " Summary : Number of Barrel PS cells side A or C (connected+unconnected):  3904+ 192 " << endmsg;
+  msg(MSG::INFO) << " Summary : Number of Barrel    cells side A or C (connected+unconnected): 50944+2304 " << endmsg;
+  msg(MSG::INFO) << " Summary : Number of EMEC      cells side A or C (connected+unconnected): 31872+3456 " << endmsg;
+  msg(MSG::INFO) << " Summary : Number of HEC       cells side A or C (connected+unconnected):  2816+ 256 " << endmsg;
+  msg(MSG::INFO) << " Summary : Number of FCAL      cells side A or C (connected+unconnected):  1762+  30 " << endmsg;
 
   ATH_MSG_DEBUG("LArPhysWaveContainer->totalNumberOfConditions()     = " <<  larPhysWaveContainer->totalNumberOfConditions());
   ATH_MSG_DEBUG("LArMphysOverMcalComplete->totalNumberOfConditions() = " <<  MphysOverMcalComplete->totalNumberOfConditions());
 
   // final report
- msg(MSG::INFO) << "\n Final report \n" << endreq;
+ msg(MSG::INFO) << "\n Final report \n" << endmsg;
   for ( unsigned theGain = CaloGain::LARHIGHGAIN ; theGain < CaloGain::LARNGAIN ; ++theGain ) { 
 
-    msg(MSG::INFO) << " *** Gain = " << theGain << " ***" << endreq;
+    msg(MSG::INFO) << " *** Gain = " << theGain << " ***" << endmsg;
     if ( !m_useJOCaliPulseParams ) {
-       msg(MSG::INFO) << "\t" << noTcali[theGain]  << " / " << nTotal[theGain] << " channel(s) missing Tcali"  << endreq;
-       msg(MSG::INFO) << "\t" << noFstep[theGain]  << " / " << nTotal[theGain] << " channel(s) missing Fstep"  << endreq;
+       msg(MSG::INFO) << "\t" << noTcali[theGain]  << " / " << nTotal[theGain] << " channel(s) missing Tcali"  << endmsg;
+       msg(MSG::INFO) << "\t" << noFstep[theGain]  << " / " << nTotal[theGain] << " channel(s) missing Fstep"  << endmsg;
     }
     if ( !m_useJODetCellParams ) {  
-       msg(MSG::INFO) << "\t" << noOmega0[theGain] << " / " << nTotal[theGain] << " channel(s) missing Omega0"  << endreq;
-       msg(MSG::INFO) << "\t" << noTaur[theGain]   << " / " << nTotal[theGain] << " channel(s) missing Taur"    << endreq;
+       msg(MSG::INFO) << "\t" << noOmega0[theGain] << " / " << nTotal[theGain] << " channel(s) missing Omega0"  << endmsg;
+       msg(MSG::INFO) << "\t" << noTaur[theGain]   << " / " << nTotal[theGain] << " channel(s) missing Taur"    << endmsg;
     }
     if ( !m_useJOTdrift )
-       msg(MSG::INFO) << "\t" << noTdrift[theGain] << " / " << nTotal[theGain] << " channel(s) missing Tdrift" << endreq;
+       msg(MSG::INFO) << "\t" << noTdrift[theGain] << " / " << nTotal[theGain] << " channel(s) missing Tdrift" << endmsg;
     if ( !m_useJOPhysCaliTdiff )
-       msg(MSG::INFO) << "\t" << noTdiff[theGain]  << " / " << nTotal[theGain] << " channel(s) missing Tdiff"  << endreq;	    
+       msg(MSG::INFO) << "\t" << noTdiff[theGain]  << " / " << nTotal[theGain] << " channel(s) missing Tdiff"  << endmsg;	    
   }
-  msg(MSG::INFO) << "\n" << endreq;
+  msg(MSG::INFO) << "\n" << endmsg;
 
   // Record LArPhysWaveContainer to DetectorStore
   sc = detStore()->record(larPhysWaveContainer,m_keyPhys);
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Cannot record LArPhysWaveContainer to StoreGate! key=" << m_keyPhys << endreq;
+    msg(MSG::FATAL) << "Cannot record LArPhysWaveContainer to StoreGate! key=" << m_keyPhys << endmsg;
     return StatusCode::FAILURE;
   }
 
   // Record LArMphysOverMcalComplete to DetectorStore
   sc = detStore()->record(MphysOverMcalComplete,m_keyMphysMcali); 
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Cannot record LArMphysOverMcalComplete to StoreGate! key=" << m_keyMphysMcali << endreq;
+    msg(MSG::FATAL) << "Cannot record LArMphysOverMcalComplete to StoreGate! key=" << m_keyMphysMcali << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -727,12 +774,12 @@ StatusCode LArPhysWavePredictor::stop()
   ILArMphysOverMcal *larMphysOverMcal = NULL;
   sc = detStore()->symLink(MphysOverMcalComplete,larMphysOverMcal);
   if (sc.isFailure()) {
-      msg(MSG::FATAL) << "Could not symlink ILArMphysOverMcal with LArMphysOverMcalComplete." << endreq;
+      msg(MSG::FATAL) << "Could not symlink ILArMphysOverMcal with LArMphysOverMcalComplete." << endmsg;
       return StatusCode::FAILURE;
   } 
-  msg(MSG::INFO) << "ILArMphysOverMcal symlink with LArMphysOverMcalComplete successfully" << endreq ;
+  msg(MSG::INFO) << "ILArMphysOverMcal symlink with LArMphysOverMcalComplete successfully" << endmsg ;
   
-  msg(MSG::INFO) << "LArPhysWavePredictor finalized!" << endreq;  
+  msg(MSG::INFO) << "LArPhysWavePredictor finalized!" << endmsg;  
   
   return StatusCode::SUCCESS;
 }
@@ -740,14 +787,14 @@ StatusCode LArPhysWavePredictor::stop()
 void LArPhysWavePredictor::notFoundMsg(const HWIdentifier chid, const int gain, const char* value) {
   if (m_maskingTool->cellShouldBeMasked(chid,gain))
     msg(MSG::WARNING) << "Cannot access " << value << " for known bad channel channel " << m_onlineHelper->channel_name(chid)
-		      << ", gain = " << gain << ". Will use jobO setting." << endreq ;
+		      << ", gain = " << gain << ". Will use jobO setting." << endmsg ;
   else {    
     LArBadChanBitPacking packer;
     const LArBadChannel bc=m_badChanTool->status(chid);
     const std::string badChanStatus=packer.stringStatus(bc);
 
     msg(MSG::ERROR) << "Cannot access " << value << " for channel " << m_onlineHelper->channel_name(chid) 
-		    << ", gain = " << gain << " BC status=[" << badChanStatus << "]. Will use jobO setting." << endreq ;
+		    << ", gain = " << gain << " BC status=[" << badChanStatus << "]. Will use jobO setting." << endmsg ;
   }
   return;
 }

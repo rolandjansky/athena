@@ -150,9 +150,6 @@ void AnalysisConfig_Ntuple::loop() {
 	  beamline.push_back(zbeam);
 	  m_provider->msg(MSG::INFO) << " beamline values : " << beamline[0] << "\t" << beamline[1]  << "\t" << beamline[2] << endmsg;	
 	}
-	else { 
-	  m_provider->msg(MSG::INFO) << " could not find BeamCondSvc " << endmsg;
-	}
 
 	// get (online) beam position
 	double xbeam_online = 0;
@@ -183,9 +180,6 @@ void AnalysisConfig_Ntuple::loop() {
 				     << "\tx=" << xbeam_online 
 				     << "\ty=" << ybeam_online 
 				     << "\tz=" << zbeam_online << endmsg; 
-	}
-	else { 
-	  m_provider->msg(MSG::INFO) << " could not find OnlineBeamCondSvc " << endmsg;
 	}
 
 	m_provider->msg(MSG::INFO) << " offline beam position\tx=" << xbeam        << "\ty=" << ybeam        << "\tz=" << zbeam        << endmsg; 
@@ -435,8 +429,7 @@ void AnalysisConfig_Ntuple::loop() {
 	    
 	    
 	    if ( chainName.find("_split")!=std::string::npos ) { 
-	  
-	      //	      Trig::FeatureContainer f = (*m_tdt)->features( chainName, TrigDefs::alsoDeactivateTEs);
+
 	      Trig::FeatureContainer f = (*m_tdt)->features( chainName );
 	      Trig::FeatureContainer::combination_const_iterator comb(f.getCombinations().begin()); 
 	      Trig::FeatureContainer::combination_const_iterator combEnd(f.getCombinations().end());
@@ -1459,7 +1452,10 @@ void AnalysisConfig_Ntuple::loop() {
 			      xAOD::VertexContainer::const_iterator vtxitr = vert->begin();
 			  
 			      for ( ; vtxitr != vert->end(); ++vtxitr) {
-				if ( ( (*vtxitr)->nTrackParticles()>0 && (*vtxitr)->vertexType()!=0 ) || vtx_name=="EFHistoPrmVtx" ) {
+				/// leave this code commented so that we have a record of the change - as soon as we can 
+				/// fix the missing track multiplicity from the vertex this will need to go back  
+				//  if ( ( (*vtxitr)->nTrackParticles()>0 && (*vtxitr)->vertexType()!=0 ) || vtx_name=="EFHistoPrmVtx" ) {
+				if ( (*vtxitr)->vertexType()!=0  || vtx_name=="EFHistoPrmVtx" ) {
 				  tidavertices.push_back( TIDA::Vertex( (*vtxitr)->x(),
 								       (*vtxitr)->y(),
 								       (*vtxitr)->z(),
@@ -1552,19 +1548,22 @@ void AnalysisConfig_Ntuple::book() {
 	// get the beam condition services - one for online and one for offline
 
 	m_iBeamCondSvc = 0;
-	if ( m_provider->service( "BeamCondSvc", m_iBeamCondSvc ).isFailure() )  { 
-	  m_provider->msg(MSG::WARNING) << " failed to retrieve BeamCondSvc: " << "BeamCondSvc" << endmsg;
-	}
-	else { 
-	  m_provider->msg(MSG::INFO) << " successfully retrieves BeamCondSvc: " << "BeamCondSvc" << endmsg;
-	}
-
 	m_iOnlineBeamCondSvc = 0;
-	if ( m_provider->service( "InDetBeamSpotOnline", m_iOnlineBeamCondSvc ).isFailure() )  { 
-	  m_provider->msg(MSG::WARNING) << " failed to retrieve Online BeamCondSvc " << "InDetBeamSpotOnline" << endmsg;
-	}
-	else { 
-	  m_provider->msg(MSG::INFO) << " successfuly retrieved Online BeamCondSvc " << "InDetBeamSpotOnline" << endmsg;
+
+	if ( m_useBeamCondSvc ) { 
+	  if ( m_provider->service( "BeamCondSvc", m_iBeamCondSvc ).isFailure() )  { 
+	    m_provider->msg(MSG::WARNING) << " failed to retrieve BeamCondSvc: " << "BeamCondSvc" << endmsg;
+	  }
+	  else { 
+	    m_provider->msg(MSG::INFO) << " successfully retrieves BeamCondSvc: " << "BeamCondSvc" << endmsg;
+	  }
+	  
+	  if ( m_provider->service( "InDetBeamSpotOnline", m_iOnlineBeamCondSvc ).isFailure() )  { 
+	    m_provider->msg(MSG::WARNING) << " failed to retrieve Online BeamCondSvc " << "InDetBeamSpotOnline" << endmsg;
+	  }
+	  else { 
+	    m_provider->msg(MSG::INFO) << " successfuly retrieved Online BeamCondSvc " << "InDetBeamSpotOnline" << endmsg;
+	  }
 	}
 
 	// get the TriggerDecisionTool

@@ -34,6 +34,8 @@ if globalflags.DataSource()=='data':
                 # check format1 & results mode
                 if (larcool.format()==1 and larcool.runType()==2) :
                     larRODFlags.keepDSPRaw = True
+                if (larcool.format()==0):
+                    larRODFlags.keepDSPRaw = False      # raw data transparent mode, no DSP energy
 
    
 

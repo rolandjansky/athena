@@ -150,7 +150,6 @@ std::cout<<"start overlayContainer"<<std::endl;
    if ( outputContainer->addCollection(coll_data, p_data.hashId()).isFailure() ) {
      parent->msg(MSG::WARNING) <<"add data Collection failed for output "<< p_data.hashId()<<endmsg; 
       }
-      delete coll_data;
    }     
 
    /** Add data from the ovl container to the output one */
@@ -184,19 +183,14 @@ std::cout<<"start overlayContainer"<<std::endl;
       outputContainer->removeCollection(p_ovl.hashId());
       if (outputContainer->addCollection(out_coll, p_ovl.hashId()).isFailure() ) {
 	parent->msg(MSG::WARNING) << "overlay addCollection failed " << endreq; 
-        delete out_coll;
       }
-      delete coll_data;
-      delete coll_ovl;
       }
     else {
       /** Copy the complete collection from ovl to output, 
           hopefully preserving the "most derived" type of its raw data */ 
        if ( outputContainer->addCollection(coll_ovl, coll_id).isFailure() ) {
         parent->msg(MSG::WARNING) << "add mc Collection failed " << endreq; 
-        delete coll_ovl;
       }  
-      delete out_coll;
     }   
    }
   }

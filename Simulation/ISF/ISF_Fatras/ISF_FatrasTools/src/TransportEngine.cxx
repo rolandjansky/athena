@@ -263,12 +263,14 @@ ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp
                                                                                   materialLimitX0,
                                                                                   materialLimitL0);
     ecc.materialProcess = materialProcess;
-    if (ecc.materialLimitL0 != -1)
+    if (ecc.materialLimitL0 != -1) {
       ecc.materialL0 = materialL0;
       ecc.addConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitL0);   
-    if (ecc.materialLimitX0 != -1)
+    }
+    if (ecc.materialLimitX0 != -1) {
       ecc.materialX0 = materialX0;
       ecc.addConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitX0);
+    }
       
     ecc.addConfigurationMode(Trk::ExtrapolationMode::FATRAS);   
 
@@ -325,12 +327,14 @@ ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp
                                                                                 materialLimitL0);
     ecc.addConfigurationMode(Trk::ExtrapolationMode::CollectSensitive);
     ecc.materialProcess = materialProcess;
-    if (ecc.materialLimitL0 != -1)
+    if (ecc.materialLimitL0 != -1) {
       ecc.materialL0 = materialL0;
-     ecc.addConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitL0);
-    if (ecc.materialLimitX0 != -1)
+      ecc.addConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitL0);
+    }
+    if (ecc.materialLimitX0 != -1) {
       ecc.materialX0 = materialX0;
       ecc.addConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitX0);
+    }
 
     ecc.addConfigurationMode(Trk::ExtrapolationMode::FATRAS);   
 

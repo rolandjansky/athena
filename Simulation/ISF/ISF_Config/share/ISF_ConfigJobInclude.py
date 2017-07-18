@@ -53,6 +53,11 @@ if globalflags.DetDescrVersion() not in simFlags.SimLayout.get_Value():
 simFlags.load_atlas_flags()
 simFlags.EventFilter.set_Off()
 
+# --- Read in special simulation job option fragments based on
+# --- metadata passed by the evgen stage (move earlier?)
+from ISF_Example.ISF_Metadata import checkForSpecialConfigurationMetadata
+checkForSpecialConfigurationMetadata()
+
 #--------------------------------------------------------------
 # Job setup
 #--------------------------------------------------------------
@@ -121,10 +126,11 @@ topSeq += getAlgorithm("BeamEffectsAlg")
 # ISF kernel configuration
 #--------------------------------------------------------------
 
-# TODO: Find out what to do with these!
-#from ISF_Geant4Tools.ISF_Geant4ToolsConf import iGeant4__SDActivateUserAction
-#ToolSvc += iGeant4__SDActivateUserAction("ISFSDActivateUserAction",
-#                                        OutputLevel=INFO)
+# keep reference to collection merger algorithm to guarantee that
+# any subsequent simulator configuration gets a reference to the same
+# instance when calling confgetter's getAlgorithm
+collection_merger_alg = getAlgorithm('ISF_CollectionMerger')
+
 SimKernel = getAlgorithm(ISF_Flags.Simulator.KernelName())
 
 # Temporary work-around - see ATLASSIM-2351
@@ -162,6 +168,10 @@ from ISF_Example.ISF_Output import ISF_HITSStream
 from ISF_Example.ISF_Metadata import createSimulationParametersMetadata, configureRunNumberOverrides
 createSimulationParametersMetadata()
 configureRunNumberOverrides()
+
+if ISF_Flags.HITSMergingRequired():
+    topSequence += collection_merger_alg
+
 #--------------------------------------------------------------
 # Post kernel configuration
 #--------------------------------------------------------------

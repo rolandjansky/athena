@@ -71,7 +71,7 @@ void AtlasTrajectory::DrawTrajectory(G4int i_mode) const
   G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
   if (!pVVisManager) return;
 
-  const G4double markerSize = abs(i_mode)/1000;
+  const G4double markerSize = abs(i_mode)*0.001;
   G4bool lineRequired (i_mode >= 0);
   G4bool markersRequired (markerSize > 0.);
 

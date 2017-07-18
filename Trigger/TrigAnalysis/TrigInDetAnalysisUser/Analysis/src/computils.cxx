@@ -47,6 +47,14 @@ double  Entries( TH1* h ) {
 }
 
 
+double integral( TH1* h ) { 
+  double n=0;
+  for ( int i=h->GetNbinsX() ; i>0 ; i-- ) n += h->GetBinContent(i);
+  return n;
+}
+
+
+
 void Norm( TH1* h, double scale ) {
   double n = 0;
   for ( int i=h->GetNbinsX()+2 ; --i ; ) n += h->GetBinContent(i);
@@ -164,10 +172,10 @@ std::string globbed( const std::string& s ) {
 
 
 
-double integral( TH1* h ) { 
-  double n=0;
-  for ( int i=h->GetNbinsX() ; i>0 ; i-- ) n += h->GetBinContent(i);
-  return n;
+
+bool empty( TH1* h ) { 
+  for ( int i=h->GetNbinsX() ; i>0 ; i-- ) if ( h->GetBinContent(i)!=0 ) return false;
+  return true;
 }
 
 
@@ -230,9 +238,7 @@ double realmax( TH1* h, bool include_error, double lo, double hi ) {
   double rm = 0;
   if ( h->GetNbinsX()==0 )  return 0; 
 
-  bool first = 0;
-  if ( include_error ) rm += h->GetBinError(1);
-
+  bool first = true;
   for ( int i=1 ; i<=h->GetNbinsX() ; i++ ) { 
 
     if ( lo!=hi ) { 
@@ -242,9 +248,11 @@ double realmax( TH1* h, bool include_error, double lo, double hi ) {
 
     double re = h->GetBinContent(i);
     if ( include_error ) re += h->GetBinError(i);
-    if ( first || rm<re ) { 
-      rm = re;
-      first = false;
+    if ( re!=0 ) {
+      if ( first || rm<re ) { 
+	rm = re;
+	first = false;
+      }
     }
   }
 
@@ -304,16 +312,13 @@ std::vector<int>  findxrange(TH1* h, bool symmetric ) {
   limits[0] = ilo;
   limits[1] = ihi;
 
-
-  double content = integral(h);
-
-  if ( content == 0 ) return limits;
+  if ( empty(h) ) return limits;
 
 #if 1
 
   /// zoom on non-empty bins
-  for ( ; ilo<=ihi ; ilo++ ) if ( h->GetBinContent(ilo)>0 ) break; 
-  for ( ; ihi>=ilo ; ihi-- ) if ( h->GetBinContent(ihi)>0 ) break;
+  for ( ; ilo<=ihi ; ilo++ ) if ( h->GetBinContent(ilo)!=0 ) break; 
+  for ( ; ihi>=ilo ; ihi-- ) if ( h->GetBinContent(ihi)!=0 ) break;
 
 #else
 

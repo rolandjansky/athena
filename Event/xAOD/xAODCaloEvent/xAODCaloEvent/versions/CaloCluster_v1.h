@@ -80,8 +80,14 @@ namespace xAOD {
          Topo_633   = 12,
          // transient cluster for AODCellContainer
          SW_7_11    = 13,
-	 //New (2016) egamma cluster
-	 SuperCluster=14,
+         // cluster representation of towers
+         Tower_01_01 = 14,
+         Tower_005_005 = 15,
+
+
+
+         //New (2016) egamma cluster
+         SuperCluster=14,
          CSize_Unknown = 99
       };
 
@@ -139,24 +145,27 @@ namespace xAOD {
          /// Total em-scale energy of cells with bad HV in this cluster
          ENG_BAD_HV_CELLS  = 828,
          N_BAD_HV_CELLS    = 829, ///< number of cells with bad HV
-	 /// relative spread of pT of constiuent cells = sqrt(n)*RMS/Mean
-	 PTD               = 830,
+         /// relative spread of pT of constiuent cells = sqrt(n)*RMS/Mean
+         PTD               = 830,
+         /// cell based mass i.e. the mass of the 4-vector sum of all massless positive energetic cells         
+         MASS              = 831,
+
          EM_PROBABILITY    = 900, ///< Classification probability to be em-like
          HAD_WEIGHT        = 901, ///< Hadronic weight (E_w/E_em)
          OOC_WEIGHT        = 902, ///< Out-of-cluster weight (E_ooc/E_w)
          DM_WEIGHT         = 903, ///< Dead-material weight (E_dm/E_ooc)
          /// Confidence Level of a tile calorimeter cluster to be noise
          TILE_CONFIDENCE_LEVEL = 904,
-
-	 VERTEX_FRACTION = 1000, /**< Vertex fraction of this cluster wrt. primary vertex of the event. Calculated in CaloRec/CaloClusterVertexFractionMaker.cxx */
-	 NVERTEX_FRACTION = 1001, /**< slightly updated vertex fraction more pile up independent (similar to nJVF) */
-
-	 ETACALOFRAME  = 1100, ///< Eta in the calo frame (for egamma)
-	 PHICALOFRAME  = 1101, ///< Phi in the calo frame (for egamma)
-	 ETA1CALOFRAME = 1102, ///< Eta of sampling 1 in the calo frame (for egamma)
-	 PHI1CALOFRAME = 1103, ///< Phi of sampling 1 in the calo frame (for egamma)
-	 ETA2CALOFRAME = 1104, ///< Eta of sampling 2 in the calo frame (for egamma)
-	 PHI2CALOFRAME = 1105, ///< Phi of sampling 2 in the calo frame (for egamma)
+         
+         VERTEX_FRACTION = 1000, /**< Vertex fraction of this cluster wrt. primary vertex of the event. Calculated in CaloRec/CaloClusterVertexFractionMaker.cxx */
+         NVERTEX_FRACTION = 1001, /**< slightly updated vertex fraction more pile up independent (similar to nJVF) */
+         
+         ETACALOFRAME  = 1100, ///< Eta in the calo frame (for egamma)
+         PHICALOFRAME  = 1101, ///< Phi in the calo frame (for egamma)
+         ETA1CALOFRAME = 1102, ///< Eta of sampling 1 in the calo frame (for egamma)
+         PHI1CALOFRAME = 1103, ///< Phi of sampling 1 in the calo frame (for egamma)
+         ETA2CALOFRAME = 1104, ///< Eta of sampling 2 in the calo frame (for egamma)
+         PHI2CALOFRAME = 1105, ///< Phi of sampling 2 in the calo frame (for egamma)
 
          /// Calibration Hit energy inside the cluster
          ENG_CALIB_TOT     = 10001,

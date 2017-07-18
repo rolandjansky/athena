@@ -1596,6 +1596,12 @@ class TrigMuonCaloTagHypoConfig(TrigMuonCaloTagHypo) :
     self.UseLH = False
     self.TightCaloTag = True
     self.MaxMissingCells = 3
+    import itertools as it
+    for threshold in list(it.islice(args,3,None)) :
+        values = efCombinerThresholds[threshold]
+    self.CombinedMuonThreshold = values[1][0]
+
+
 
 
 class TrigMuonIDTrackMultiHypoConfig(TrigMuonIDTrackMultiHypo) :

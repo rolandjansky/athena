@@ -17,13 +17,14 @@ def usage():
     print "-l, --lumi=     specify lumi block number, default is 0"
     print "-d, --default   print also default values stored in AUX01-AUX20 "
     print "-b, --blob      print additional blob info"
-    print "-H, --hex       write frag id instead of module name"
+    print "-H, --hex       print frag id instead of module name"
+    print "-P, --pmt       print pmt number in addition to channel number"
     print "-s, --schema=   specify schema to use, like 'COOLOFL_TILE/CONDBR2' or 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2' or tileSqlite.db"
     print "-D, --dbname=   specify dbname part of schema if schema only contains file name, default is CONDBR2'"
     print "-w, --warning   suppress warning messages about missing drawers in DB"
     
-letters = "hr:l:s:t:f:D:dbHw"
-keywords = ["help","run=","lumi=","schema=","tag=","folder=","dbname=","default","blob","hex","warning"]
+letters = "hr:l:s:t:f:D:dbHPw"
+keywords = ["help","run=","lumi=","schema=","tag=","folder=","dbname=","default","blob","hex","pmt","warning"]
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
@@ -42,6 +43,7 @@ tag = "UPD4"
 rosmin = 1
 blob = False
 hexid = False
+pmt = False
 warn = 1
 
 for o, a in opts:
@@ -64,6 +66,8 @@ for o, a in opts:
         blob = True
     elif o in ("-H","--hex"):
         hexid = True
+    elif o in ("-P","--pmt"):
+        pmt = True
     elif o in ("-w","--warning"):
         warn = -1
     elif o in ("-h","--help"):
@@ -154,6 +158,21 @@ if len(isBadTimingDef.keys()):
         log.info( msg )
 log.info( "\n" )
 
+##channel2pmt
+##negative means not connected !
+##
+dummy = [0]*48
+barrel = [ 1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
+          13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+          27, 26, 25, 30, 29, 28,-33,-32, 31, 36, 35, 34,
+          39, 38, 37, 42, 41, 40, 45,-44, 43, 48, 47, 46]
+extbar = [ 1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
+          13, 14, 15, 16, 17, 18,-19,-20, 21, 22, 23, 24,
+         -27,-26,-25,-31,-32,-28, 33, 29, 30,-36,-35, 34,
+          44, 38, 37, 43, 42, 41,-45,-39,-40,-48,-47,-46]
+
+ch2pmt = [ dummy, barrel, barrel, extbar, extbar ]
+gname = [ "LG", "HG" ]
 
 #=== Get ADC problems
 
@@ -199,7 +218,10 @@ for ros in xrange(rosmin,5):
                 #log.info( "ADC Problems: " )
                 if len(prbs):
                     modOk = False
-                    msg = "%s %2i %1i " % (modName,chn,adc)
+                    if pmt:
+                        msg = "%s pm %02i ch %02i %s " % ( modName, abs(ch2pmt[ros][chn]), chn, gname[adc] )
+                    else:
+                        msg = "%s %2i %1i " % ( modName,chn,adc )
                     for prbCode in sorted(prbs.keys()):
                         prbDesc = prbs[prbCode]
                         msg += " %5i (%s)" % (prbCode,prbDesc)

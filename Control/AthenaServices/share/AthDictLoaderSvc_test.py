@@ -47,7 +47,7 @@ class AthDictLoaderTestAlg (PyAthena.Alg):
              #'ElementLink<INavigable4MomentumCollection>',
              ))
         import os
-        if os.environ['AtlasProject'] == 'ManaCore':
+        if os.environ.get('AtlasProject','') == 'ManaCore':
             # disable these tests as ElementLinkxyz are not in Mana
             t = []
             for ii in self.dict_tests:

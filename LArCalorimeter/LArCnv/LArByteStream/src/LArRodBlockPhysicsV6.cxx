@@ -21,7 +21,7 @@
 //#define LARBSDBGOUTPUT
 #ifdef LARBSDBGOUTPUT
 #define MYLEVEL (MSG::FATAL)
-#define LARBSDBG(text) logstr<<MYLEVEL<<text<<endreq
+#define LARBSDBG(text) logstr<<MYLEVEL<<text<<endmsg
 #else
 #define LARBSDBG(text)
 #endif
@@ -302,15 +302,15 @@ int LArRodBlockPhysicsV6::getNextRawData(int& channelNumber, std::vector<short>&
 #ifdef LARBSDBGOUTPUT
   MsgStream logstr(Athena::getMessageSvc(), BlockType());
   //Debug output
-  logstr << MYLEVEL << "Let s go in getNextRawData..." << endreq;
-  logstr << MYLEVEL << "GetNextRawData for FEB 0x" << MSG::hex << (uint32_t)getHeader32(FEBID) << MSG::dec << endreq;
+  logstr << MYLEVEL << "Let s go in getNextRawData..." << endmsg;
+  logstr << MYLEVEL << "GetNextRawData for FEB 0x" << MSG::hex << (uint32_t)getHeader32(FEBID) << MSG::dec << endmsg;
   logstr << MYLEVEL << "m_RawDataPointer=" << m_RawDataPointer << " m_RawDataIndex="<<  m_RawDataIndex 
-	 << " m_channelsPerFEB=" << m_channelsPerFEB << endreq;
+	 << " m_channelsPerFEB=" << m_channelsPerFEB << endmsg;
 #endif
 
   if (m_RawDataIndex>=m_channelsPerFEB) { //Already beyond maximal number of channels
 #ifdef LARBSDBGOUTPUT
-    logstr << MYLEVEL << "Maximum number of channels reached" << endreq;
+    logstr << MYLEVEL << "Maximum number of channels reached" << endmsg;
 #endif
     return 0;
   }
@@ -329,8 +329,8 @@ int LArRodBlockPhysicsV6::getNextRawData(int& channelNumber, std::vector<short>&
   const unsigned int ngains   = getHeader16(NGains);
 
 #ifdef LARBSDBGOUTPUT
-  logstr << MYLEVEL << "This FEB has " << nsamples <<  " samples" << endreq;
-  logstr << MYLEVEL << "This FEB has " << ngains   <<  " gains" << endreq;
+  logstr << MYLEVEL << "This FEB has " << nsamples <<  " samples" << endmsg;
+  logstr << MYLEVEL << "This FEB has " << ngains   <<  " gains" << endmsg;
 #endif
 
   if(ngains==0 || nsamples==0) return 0;
@@ -381,11 +381,11 @@ int LArRodBlockPhysicsV6::getNextRawData(int& channelNumber, std::vector<short>&
   gain=RawToOfflineGain(febgain);
 
 #ifdef LARBSDBGOUTPUT
-  logstr << MYLEVEL << " ===> ROD Channel = " << m_RawDataIndex << endreq; 
-  logstr << MYLEVEL << " ===> FEB Channel = " << channelNumber << endreq; 
-  logstr << MYLEVEL << " ===> Gain        = " << gain << endreq;
+  logstr << MYLEVEL << " ===> ROD Channel = " << m_RawDataIndex << endmsg; 
+  logstr << MYLEVEL << " ===> FEB Channel = " << channelNumber << endmsg; 
+  logstr << MYLEVEL << " ===> Gain        = " << gain << endmsg;
   for(int i=0;i<nsamples;i++)
-    logstr << MYLEVEL << " ===> sample " << i << "    = " << samples[i] << endreq;
+    logstr << MYLEVEL << " ===> sample " << i << "    = " << samples[i] << endmsg;
   int n = m_RawDataIndex;
   int32_t e,t,q;
   uint32_t g;
@@ -407,7 +407,7 @@ int LArRodBlockPhysicsV6::getNextRawData(int& channelNumber, std::vector<short>&
 	samples[rearrangeFirstSample]=movedSample;
    }
 #ifdef LARBSDBGOUTPUT
-  logstr << MYLEVEL << "GetNextRawData for FEB finished 0x" << MSG::hex << (uint32_t)getHeader32(FEBID) << MSG::dec << endreq;
+  logstr << MYLEVEL << "GetNextRawData for FEB finished 0x" << MSG::hex << (uint32_t)getHeader32(FEBID) << MSG::dec << endmsg;
 #endif
   return 1;
 }
@@ -418,29 +418,29 @@ int LArRodBlockPhysicsV6::getNextDigits(int& channelNumber, std::vector<short>& 
 #ifdef LARBSDBGOUTPUT
   MsgStream logstr(Athena::getMessageSvc(), BlockType());
   //Debug output
-  logstr << MYLEVEL << "Let s go in getNextDigits..." << endreq;
-  logstr << MYLEVEL << "GetNextDigits for FEB 0x" << MSG::hex << (uint32_t)getHeader32(FEBID) << MSG::dec << endreq;
+  logstr << MYLEVEL << "Let s go in getNextDigits..." << endmsg;
+  logstr << MYLEVEL << "GetNextDigits for FEB 0x" << MSG::hex << (uint32_t)getHeader32(FEBID) << MSG::dec << endmsg;
   logstr << MYLEVEL << "m_DigitsPointer=" << m_DigitsPointer << " m_DigitsIndex="<<  m_DigitsIndex 
 	 << " m_DigitsChannel="<<  m_DigitsChannel 
-	 << " m_channelsPerFEB=" << m_channelsPerFEB << endreq;
+	 << " m_channelsPerFEB=" << m_channelsPerFEB << endmsg;
 #endif
 
   if (m_DigitsChannel>=m_channelsPerFEB) { //Already beyond maximal number of channels
 #ifdef LARBSDBGOUTPUT
-    logstr << MYLEVEL << "Maximum number of channels reached" << endreq;
+    logstr << MYLEVEL << "Maximum number of channels reached" << endmsg;
 #endif
     return 0;
   }
   //const uint16_t block = getHeader16(m_DigitsOff);//Position of the raw FEB data block
   if (!m_DigitsPointer) { //Block does not exist
 #ifdef LARBSDBGOUTPUT
-    logstr << MYLEVEL << "No Digits Block in this FEB" << endreq;
+    logstr << MYLEVEL << "No Digits Block in this FEB" << endmsg;
 #endif
     return 0; 
   }
   if (!m_MaskDigitsPointer) { //Block does not exist
 #ifdef LARBSDBGOUTPUT
-    logstr << MYLEVEL << "No Mask Digits Block in this FEB" << endreq;
+    logstr << MYLEVEL << "No Mask Digits Block in this FEB" << endmsg;
 #endif
     return 0; 
   }
@@ -454,7 +454,7 @@ int LArRodBlockPhysicsV6::getNextDigits(int& channelNumber, std::vector<short>& 
     m_DigitsChannel++;
     if (m_DigitsChannel>=m_channelsPerFEB) { //Already beyond maximal number of channels
 #ifdef LARBSDBGOUTPUT
-      logstr << MYLEVEL << "Maximum number of channels reached" << endreq;
+      logstr << MYLEVEL << "Maximum number of channels reached" << endmsg;
 #endif
       return 0;
     }
@@ -474,7 +474,7 @@ int LArRodBlockPhysicsV6::getNextDigits(int& channelNumber, std::vector<short>& 
   } else gain=0xffffffff;
 
 #ifdef LARBSDBGOUTPUT
-  logstr << MYLEVEL << "This FEB has " << nsamples <<  " samples" << endreq;
+  logstr << MYLEVEL << "This FEB has " << nsamples <<  " samples" << endmsg;
 #endif
 
   if(nsamples==0) return 0;
@@ -523,11 +523,11 @@ int LArRodBlockPhysicsV6::getNextDigits(int& channelNumber, std::vector<short>& 
   }
 
 #ifdef LARBSDBGOUTPUT
-  logstr << MYLEVEL << " ===> ROD Channel = " << m_DigitsChannel << endreq; 
-  logstr << MYLEVEL << " ===> FEB Channel = " << channelNumber << endreq; 
-  logstr << MYLEVEL << " ===> Gain        = " << gain << endreq;
+  logstr << MYLEVEL << " ===> ROD Channel = " << m_DigitsChannel << endmsg; 
+  logstr << MYLEVEL << " ===> FEB Channel = " << channelNumber << endmsg; 
+  logstr << MYLEVEL << " ===> Gain        = " << gain << endmsg;
   for(int i=0;i<nsamples;i++)
-    logstr << MYLEVEL << " ===> sample " << i << "    = " << samples[i] << endreq;
+    logstr << MYLEVEL << " ===> sample " << i << "    = " << samples[i] << endmsg;
 #endif
   //std::cout << "Gain= " << gain << " Febgain=" << febgain << std::endl;
   m_DigitsIndex++;
@@ -546,7 +546,7 @@ int LArRodBlockPhysicsV6::getNextDigits(int& channelNumber, std::vector<short>& 
 	samples[rearrangeFirstSample]=movedSample;
    }
 #ifdef LARBSDBGOUTPUT
-  logstr << MYLEVEL << "GetNextDigits for FEB finished 0x" << MSG::hex << (uint32_t)getHeader32(FEBID) << MSG::dec << endreq;
+  logstr << MYLEVEL << "GetNextDigits for FEB finished 0x" << MSG::hex << (uint32_t)getHeader32(FEBID) << MSG::dec << endmsg;
 #endif
   return 1;
 }
@@ -695,7 +695,7 @@ void LArRodBlockPhysicsV6::initializeFragment(std::vector<uint32_t>& fragment ){
       uint16_t currFebSize=getNumberOfWords(); //Size of this FEB-Block
       if (FebIter+currFebSize>fragment.end()) {
         fragment.clear(); //Clear existing vector
-        //*m_logstr << MSG::ERROR  << "Got inconsistent ROD-Fragment!" << endreq;
+        //*m_logstr << MSG::ERROR  << "Got inconsistent ROD-Fragment!" << endmsg;
         return;
       }
       m_mFebBlocks[currFEBid].assign(FebIter,FebIter+currFebSize); //Copy data from ROD-fragment into FEB-Block
@@ -748,7 +748,7 @@ void LArRodBlockPhysicsV6::setNextEnergy(const int channel, const int32_t energy
  //In the latter case, we fill up the missing  channels with zero
  if (rcNb<m_EnergyIndex) {
    //*m_logstr << MSG::ERROR  << "LArRODBlockStructure ERROR: Internal error. Channels not ordered correctly. rcNb=" << rcNb
-   //          << " m_EnergyIndex=" << m_EnergyIndex << endreq;;
+   //          << " m_EnergyIndex=" << m_EnergyIndex << endmsg;;
    return;
  }
 
@@ -811,7 +811,7 @@ void LArRodBlockPhysicsV6::setNextEnergy(const uint16_t energy,const int16_t tim
 {
   if (m_EnergyIndex>=m_channelsPerFEB)        //Use m_EIndex to count total number of channels
     {//*m_logstr << MSG::ERROR  << "LArRodBlockStructure ERROR: Attempt to write Energy for channel "
-     //       << m_EnergyIndex << " channels into a FEB!" <<endreq;;
+     //       << m_EnergyIndex << " channels into a FEB!" <<endmsg;;
       return;
     }
   //LARBSDBG("LArRodBlockStructure: Setting Energy for channel " << m_EnergyIndex << ". E=" << energy);

@@ -4,8 +4,6 @@
 
 #include "AFP_RawEv/AFP_RawDataCollection.h"
 
-// svn, again...
-
 AFP_RawDataCollection::AFP_RawDataCollection():
 DataVector<AFP_RawData>(),
  m_L1Id(0),
@@ -16,7 +14,8 @@ DataVector<AFP_RawData>(),
  m_BCIdId(0),
  m_header_numberId(0),
  m_ADC2Id(0),
- m_TrigSyncErrId(0)
+  m_TrigSyncErrId(0),
+  m_robID(0)
 { }
 
 
@@ -32,7 +31,8 @@ AFP_RawDataCollection::AFP_RawDataCollection(uint16_t MB_number) :
   m_BCIdId(0),
   m_header_numberId(0),
   m_ADC2Id(0),
-  m_TrigSyncErrId(0)
+  m_TrigSyncErrId(0),
+    m_robID(0)
 { }
 
 
@@ -46,7 +46,8 @@ AFP_RawDataCollection::AFP_RawDataCollection( uint16_t Mrod_number, uint16_t MB_
    m_BCIdId(0),
   m_header_numberId(0),
   m_ADC2Id(0),
-  m_TrigSyncErrId(0)
+  m_TrigSyncErrId(0),
+    m_robID(0)
 { }
 
 

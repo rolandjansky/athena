@@ -3,9 +3,13 @@
 */
 
 #include "LArCalibUtils/LArWFParamTool.h" 
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArSuperCellCablingTool.h"
+#include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArEM_ID.h"
+#include "CaloIdentifier/LArEM_SuperCell_ID.h"
 #include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
 
 #include <math.h>
 #ifndef __APPLE__
@@ -32,7 +36,7 @@ const double LArWFParamTool::m_EPSILON=2.22045e-16;
 
 LArWFParamTool::LArWFParamTool ( const std::string& type, const std::string& name,const IInterface* parent )
   : AthAlgTool(type,name,parent),
-    m_larCablingSvc("LArCablingService"),
+    m_larCablingSvc(0),
     m_NBaseline(0),
     m_ShiftToStart(false),
     m_SubtractBaseline(false),
@@ -45,6 +49,7 @@ LArWFParamTool::LArWFParamTool ( const std::string& type, const std::string& nam
   declareProperty("NBaseline",        m_NBaseline);
   declareProperty("ShiftToStart",     m_ShiftToStart);
   declareProperty("SubtractBaseline", m_SubtractBaseline);
+  declareProperty("isSC", m_isSC = false);
 
   m_DeltaTtail.resize(3);
   int default_deltattail[3] = { 100, 50, 0 } ;
@@ -111,62 +116,99 @@ StatusCode LArWFParamTool::initialize()
 {
   std::string layerName[4] = { "PS" , "Strips" , "Middle" , "Back" } ;
   
-  msg(MSG::INFO) << "TShaper set to " << m_Tshaper << " ns" << endreq ;
+  msg(MSG::INFO) << "TShaper set to " << m_Tshaper << " ns" << endmsg ;
 
-  msg(MSG::INFO) << "Step response (Fstep)        -> Ttail = Tmin + " << m_DeltaTtail[0] << " steps" << endreq ;
+  msg(MSG::INFO) << "Step response (Fstep)        -> Ttail = Tmin + " << m_DeltaTtail[0] << " steps" << endmsg ;
 
   if (!m_UseOmegaScanHelper)
-    msg(MSG::INFO) << "Cosine response (Omega0)     -> Ttail = Tmin + " << m_DeltaTtail[1] << " steps" << endreq ;
+    msg(MSG::INFO) << "Cosine response (Omega0)     -> Ttail = Tmin + " << m_DeltaTtail[1] << " steps" << endmsg ;
   else
-    msg(MSG::INFO) << "Cosine response (Omega0)     -> Will use OmegaScanHelper() to dynamically select settings" << endreq;
+    msg(MSG::INFO) << "Cosine response (Omega0)     -> Will use OmegaScanHelper() to dynamically select settings" << endmsg;
 
-  msg(MSG::INFO) << "Residual oscillations (Taur) -> Ttail = Tmin + " << m_DeltaTtail[2] << " steps" << endreq ;
+  msg(MSG::INFO) << "Residual oscillations (Taur) -> Ttail = Tmin + " << m_DeltaTtail[2] << " steps" << endmsg ;
   
   for ( unsigned layer=0 ; layer<4 ; ++layer ) {
-    msg(MSG::INFO) << "options for Layer " << layer << " (" << layerName[layer] << ")" << endreq ;
+    msg(MSG::INFO) << "options for Layer " << layer << " (" << layerName[layer] << ")" << endmsg ;
 
     msg(MSG::INFO) << "      perform cos resp scan: " ;
     if ( m_cosRespScan[layer] && !m_UseOmegaScanHelper ) 
-      msg(MSG::INFO) << "YES (" << m_npoints[layer] << " points)" << endreq ;
+      msg(MSG::INFO) << "YES (" << m_npoints[layer] << " points)" << endmsg ;
     if ( !m_cosRespScan[layer] && !m_UseOmegaScanHelper ) 
-      msg(MSG::INFO) << "NO" << endreq ;
+      msg(MSG::INFO) << "NO" << endmsg ;
     if ( m_UseOmegaScanHelper )
-      msg(MSG::INFO) << "Will use OmegaScanHelper() to dynamically select settings" << endreq ;
+      msg(MSG::INFO) << "Will use OmegaScanHelper() to dynamically select settings" << endmsg ;
 
     if (!m_UseOmegaScanHelper) {
-      msg(MSG::INFO) << "      search interval: [ " << m_omegamin[layer] << " ; " << m_omegamax[layer] << " ]" << endreq ;
+      msg(MSG::INFO) << "      search interval: [ " << m_omegamin[layer] << " ; " << m_omegamax[layer] << " ]" << endmsg ;
       if ( m_omegamin[layer] >= m_omegamax[layer] ) {
-	msg(MSG::ERROR) << "Omega0Min >= Omega0Max in layer " << layer << " -- exit!" << endreq ;
+	msg(MSG::ERROR) << "Omega0Min >= Omega0Max in layer " << layer << " -- exit!" << endmsg ;
 	return StatusCode::FAILURE ;
       }
     }
 
     msg(MSG::INFO) << "      store residual oscillation wave:" ;
     if ( m_storeResOscill[layer] ) {
-      msg(MSG::INFO) << "YES" << endreq ;
+      msg(MSG::INFO) << "YES" << endmsg ;
     } else {
-      msg(MSG::INFO) << "NO" << endreq ;
+      msg(MSG::INFO) << "NO" << endmsg ;
     }
 
   }
 
-  StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get LArOnlineID helper" << endreq;
-    return sc;
-  } 
+  StatusCode sc;
+  if ( m_isSC ) {
+    const LArOnline_SuperCellID* ll;
+    sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+      return StatusCode::FAILURE;
+    }
+    else {
+      m_onlineHelper = (const LArOnlineID_Base*)ll;
+      ATH_MSG_DEBUG("Found the LArOnlineID helper");
+    }
+    
+    ToolHandle<LArSuperCellCablingTool> tool("LArSuperCellCablingTool");
+    sc = tool.retrieve();
+    if (sc!=StatusCode::SUCCESS) {
+      msg(MSG::ERROR) << " Can't get LArCablingSvc." << endmsg;
+      return sc;
+    } else m_larCablingSvc = (LArCablingBase*)&(*tool);
+  } else { // m_isSC
+    const LArOnlineID* ll;
+    sc = detStore()->retrieve(ll, "LArOnlineID");
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+      return StatusCode::FAILURE;
+    }
+    else {
+      m_onlineHelper = (const LArOnlineID_Base*)ll;
+      ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
+    }
+    
+    ToolHandle<LArCablingService> tool("LArCablingService");
+    sc = tool.retrieve();
+    if (sc!=StatusCode::SUCCESS) {
+      msg(MSG::ERROR) << " Can't get LArCablingSvc." << endmsg;
+      return sc;
+    } else m_larCablingSvc = (LArCablingBase*)&(*tool);
+  }
   
-  sc = detStore()->retrieve(m_emId, "LArEM_ID");
+  /*sc = detStore()->retrieve(m_emId, "LArEM_ID");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get LArOnlineID helper" << endreq;
+    msg(MSG::ERROR) << "Could not get LArOnlineID helper" << endmsg;
     return sc;
-  } 
-
-  sc= m_larCablingSvc.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get LArCablingService" << endreq;
-    return sc;
-  } 
+  }*/
+  const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
+  if ( m_isSC ) {
+    m_emId=caloIdMgr->getEM_SuperCell_ID();
+  } else {
+    m_emId=caloIdMgr->getEM_ID();
+  }
+  if (!m_emId) {
+    msg(MSG::ERROR) << "Could not access lar EM ID helper" << endreq;
+    return StatusCode::FAILURE;
+  }
 
 
   return StatusCode::SUCCESS;
@@ -194,7 +236,7 @@ StatusCode LArWFParamTool::getLArWaveParams(const LArCaliWave& larCaliWave,
     const double Tcal = expTail(gCali,waveTiming) ;
     if ( Tcal < 0 ) {
       msg(MSG::WARNING) << "Could not extract Tcal for ChID=" << chid.get_compact() 
-			<< " gain=" << (int)gain << endreq ;
+			<< " gain=" << (int)gain << endmsg ;
       wfParams.setTcal(FailExtract);
       return StatusCode::FAILURE;
     }
@@ -209,7 +251,7 @@ StatusCode LArWFParamTool::getLArWaveParams(const LArCaliWave& larCaliWave,
     StatusCode sc = GetFstep(gCali,wfParams,waveTiming);
     if ( sc.isFailure() ) {
       msg(MSG::WARNING) << "Could not extract Fstep for ChID=" << chid.get_compact() 
-			<< " gain=" << (int)gain <<  endreq;
+			<< " gain=" << (int)gain <<  endmsg;
       wfParams.setFstep(FailExtract);
       return sc ;
     }
@@ -222,7 +264,7 @@ StatusCode LArWFParamTool::getLArWaveParams(const LArCaliWave& larCaliWave,
     StatusCode sc = RTM_Omega0(gCali,chid,wfParams,waveTiming,omegaScanWave);
     if ( sc.isFailure() ) {
       msg(MSG::WARNING) << "Could not extract Omega0 for ChID=" << chid.get_compact() 
-			<< " gain=" << (int)gain << endreq; 
+			<< " gain=" << (int)gain << endmsg; 
       wfParams.setOmega0(FailExtract) ;
       return sc ;
     }
@@ -243,7 +285,7 @@ StatusCode LArWFParamTool::getLArWaveParams(const LArCaliWave& larCaliWave,
     StatusCode sc = RTM_Taur(gCali, wfParams,waveTiming ) ;
     if ( sc.isFailure() ) {
       msg(MSG::WARNING) << "Could not extract Taur for ChID=" << chid.get_compact() 
-			<< " gain=" << (int)gain << endreq ;
+			<< " gain=" << (int)gain << endmsg ;
       wfParams.setTaur(FailExtract);
       return sc ;
     }
@@ -316,7 +358,7 @@ double LArWFParamTool::expTail(const LArWave& gCali, const WaveTiming_t& wt) con
 
   const double Tcal = -1./A ;
   if ( Tcal < 0 ) {
-    msg(MSG::WARNING) << "Exponential fit yielded negative Tcal " << Tcal << endreq;
+    msg(MSG::WARNING) << "Exponential fit yielded negative Tcal " << Tcal << endmsg;
   }
   ATH_MSG_VERBOSE( "*** Exponential fit\t--> m_Tcal    = " << Tcal ) ;
 
@@ -551,7 +593,7 @@ LArWFParamTool::omegaScanParams_t LArWFParamTool::OmegaScanHelper(const Identifi
 
     ret.DeltaOmega  = 0.001 ;
 
-    //(*m_log) << MSG::WARNING << " m_Tstart= " << m_Tstart << " m_Tcross=" << m_Tcross << endreq ;
+    //(*m_log) << MSG::WARNING << " m_Tstart= " << m_Tstart << " m_Tcross=" << m_Tcross << endmsg ;
 
     const bool IsEMECInnerWheel = m_emId->is_em_endcap_inner(id);//m_onlineHelper->isEMECinHECchannel(m_chID);
     const int eta=m_emId->eta(id); 
@@ -967,7 +1009,7 @@ unsigned LArWFParamTool::checkStatus(const LArCaliWave &larCaliWave) const
 
   unsigned length ;
   if ( (length=larCaliWave.getSize()) < 750 ) {
-   msg(MSG::WARNING) << "Calibration wave is too short!" << endreq ;
+   msg(MSG::WARNING) << "Calibration wave is too short!" << endmsg ;
     return TooShort ;
   }
 
@@ -977,11 +1019,11 @@ unsigned LArWFParamTool::checkStatus(const LArCaliWave &larCaliWave) const
   double maxSample = -9.E+10 ;
   for ( unsigned i=0 ; i<length ; i++ ) {
     if ( larCaliWave.getError(i) < 0 || larCaliWave.getTrigger(i) < 0 ) {
-      msg(MSG::WARNING) << "Calibration wave probably not completely filled" << endreq ;
+      msg(MSG::WARNING) << "Calibration wave probably not completely filled" << endmsg ;
       return NotFilled ;
     }
     if ( larCaliWave.getTrigger(i) < 50 ) {
-      msg(MSG::WARNING) << "Calibration wave with low statistics" << endreq ;
+      msg(MSG::WARNING) << "Calibration wave with low statistics" << endmsg ;
       return LowStat ;
     }
     double thisSample = larCaliWave.getTrigger(i) ;
@@ -999,11 +1041,11 @@ unsigned LArWFParamTool::checkStatus(const LArCaliWave &larCaliWave) const
     }
   }
   if ( sqrt(tremble/length)/maxSample > 0.1 ) {
-    msg(MSG::WARNING) << "Calibration wave is noisy " << sqrt(tremble/length)/maxSample << endreq ;
+    msg(MSG::WARNING) << "Calibration wave is noisy " << sqrt(tremble/length)/maxSample << endmsg ;
     return Noisy ;
   }
   if ( nMax > 1 ) {
-    msg(MSG::WARNING) << "Calibration wave oscillates" << endreq ;
+    msg(MSG::WARNING) << "Calibration wave oscillates" << endmsg ;
     return Oscillating ;
   }
 

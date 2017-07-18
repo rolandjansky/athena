@@ -30,6 +30,12 @@
 #include "TrigT1CaloCalibConditions/L1CaloPprDisabledChannelContainer.h"
 #include "TrigT1CaloCalibConditions/L1CaloPprDisabledChannelContainerRun2.h"
 
+#include "TrigT1CaloCalibConditions/L1CaloDerivedRunPars.h"
+#include "TrigT1CaloCalibConditions/L1CaloDerivedRunParsContainer.h"
+
+#include "TrigT1CaloCalibConditions/L1CaloPprChanStrategy.h"
+#include "TrigT1CaloCalibConditions/L1CaloPprChanStrategyContainer.h"
+
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloTTIdTools.h"
 #include "TrigT1CaloMappingToolInterfaces/IL1CaloMappingTool.h"
 #include "TrigT1CaloToolInterfaces/IL1DynamicPedestalProvider.h"
@@ -178,6 +184,15 @@ namespace { // helper function
     target = C;
     return StatusCode::SUCCESS;
   }
+
+  template<class T, class FolderMap>
+  StatusCode retrieveGenericWithFolders(ServiceHandle<L1CaloCondSvc>& svc, const FolderMap& fmap, boost::any& target) {
+    T* C = nullptr;
+    CHECK_WITH_CONTEXT(svc->retrieve(C, fmap), "L1TriggerTowerTool");
+    target = C;
+    return StatusCode::SUCCESS;
+  }
+
 } // anonymous namespace
 
 /** Retrieve pointers to the L1Calo conditions containers */
@@ -189,16 +204,65 @@ StatusCode L1TriggerTowerTool::retrieveConditions()
     bool verbose = msgLvl(MSG::VERBOSE);
 
     if(m_isRun2) {
-      CHECK(retrieveGeneric<L1CaloPprConditionsContainerRun2>(m_l1CondSvc, m_conditionsContainer));
+      CHECK_WITH_CONTEXT(m_l1CondSvc->retrieve(m_derivedRunParsContainer), "L1TriggerTowerTool");
+      if (std::cbegin(*m_derivedRunParsContainer) == std::cend(*m_derivedRunParsContainer)) {
+        ATH_MSG_WARNING("Empty L1CaloDerivedRunParsContainer");
+        return StatusCode::FAILURE;
+      }
+      std::string timingRegime = std::cbegin(*m_derivedRunParsContainer)->timingRegime();
+
+      CHECK_WITH_CONTEXT(m_l1CondSvc->retrieve(m_strategyContainer), "L1TriggerTowerTool");
+      
+      std::string strategy;
+      for(const auto& it: *m_strategyContainer){
+        if (it.timingRegime() == timingRegime){
+          strategy = it.strategy();
+        }
+      }
+
+      std::map<L1CaloPprConditionsContainerRun2::eCoolFolders, std::string> 
+        coolFoldersKeysMap = {
+           {
+            L1CaloPprConditionsContainerRun2::ePprChanDefaults,
+            "/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults"
+           }
+         };
+
+      if (strategy.empty()){
+        coolFoldersKeysMap[L1CaloPprConditionsContainerRun2::ePprChanCalib] 
+          = "/TRIGGER/L1Calo/V2/Calibration/" + timingRegime + "/PprChanCalib";
+      } else {
+        coolFoldersKeysMap[L1CaloPprConditionsContainerRun2::ePprChanCalibCommon] = 
+            "/TRIGGER/L1Calo/V2/Calibration/" + timingRegime + "/PprChanCommon";
+        coolFoldersKeysMap[L1CaloPprConditionsContainerRun2::ePprChanCalibStrategy] =  
+            "/TRIGGER/L1Calo/V2/Calibration/" + timingRegime + "/PprChan" + strategy;
+      }
+
+      CHECK(retrieveGenericWithFolders<L1CaloPprConditionsContainerRun2>(
+          m_l1CondSvc, coolFoldersKeysMap, m_conditionsContainer));
+
       CHECK(retrieveGeneric<L1CaloPprDisabledChannelContainerRun2>(m_l1CondSvc, m_disabledChannelContainer));
     } else {
       CHECK(retrieveGeneric<L1CaloPprConditionsContainer>(m_l1CondSvc, m_conditionsContainer));
       CHECK(retrieveGeneric<L1CaloPprDisabledChannelContainer>(m_l1CondSvc, m_disabledChannelContainer));
     }
-    ATH_MSG_VERBOSE( "Retrieved ConditionsContainer" );
+
     if(verbose) {
-      if(m_isRun2) boost::any_cast<L1CaloPprConditionsContainerRun2*>(m_conditionsContainer)->dump();
-      else boost::any_cast<L1CaloPprConditionsContainer*>(m_conditionsContainer)->dump();
+      ATH_MSG_VERBOSE( "Retrieved ConditionsContainer" );
+      if(m_isRun2){
+        boost::any_cast<L1CaloPprConditionsContainerRun2*>(m_conditionsContainer)->dump();
+      } else{
+        boost::any_cast<L1CaloPprConditionsContainer*>(m_conditionsContainer)->dump();
+      }
+    }
+
+    if(verbose) {
+      if(m_isRun2){
+        ATH_MSG_VERBOSE( "Retrieved DerivedRunParsContainer" );
+        m_derivedRunParsContainer->dump();
+        ATH_MSG_VERBOSE( "Retrieved StrategyContainer" );
+        m_strategyContainer->dump();
+      }
     }
 
     ATH_MSG_VERBOSE( "Retrieved DisabledChannelContainer" );
@@ -295,7 +359,7 @@ template <typename DST, typename SRC>
 std::vector<DST> convertVectorType(const std::vector<SRC>& s) {
    std::vector<DST> d(s.size());
    std::transform(std::begin(s), std::end(s), std::begin(d),
-		  [](SRC v){return static_cast<DST>(v);});
+      [](SRC v){return static_cast<DST>(v);});
    return d;
 } 
 }
@@ -1512,7 +1576,7 @@ StatusCode L1TriggerTowerTool::loadFTRefs()
   
   if (m_l1CondSvc) {
     ATH_MSG_VERBOSE( "Retrieving FineTimeReferences Containers" );
-    bool verbose = outputLevel() <= MSG::VERBOSE;
+    bool verbose = msgLevel() <= MSG::VERBOSE;
 
 
     sc = m_l1CondSvc->retrieve(m_dbFineTimeRefsTowers);

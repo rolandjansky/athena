@@ -29,6 +29,7 @@ class G4Run;
 class G4Step;
 class G4VSensitiveDetector;
 
+
 #include "G4AtlasInterfaces/IBeginEventAction.h"
 #include "G4AtlasInterfaces/ISteppingAction.h"
 #include "AthenaBaseComps/AthMessaging.h"

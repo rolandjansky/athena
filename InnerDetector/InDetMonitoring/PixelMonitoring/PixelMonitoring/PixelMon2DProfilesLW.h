@@ -12,6 +12,7 @@ class TH2F_LW;
 class Identifier;
 class PixelID;
 class StatusCode;
+class PixelMon2DMaps;
 class PixelMon2DMapsLW;
 
 // A helper class to facilitate definition of per-layer 2D profile maps.
@@ -27,7 +28,7 @@ class PixelMon2DMapsLW;
 class PixelMon2DProfilesLW
 {
 public:
-  PixelMon2DProfilesLW(std::string name, std::string title, bool doIBL, bool errorHist, bool copy2DFEval);
+  PixelMon2DProfilesLW(std::string name, std::string title, bool doIBL, bool errorHist = false, bool copy2DFEval = false);
   ~PixelMon2DProfilesLW();
   TProfile2D_LW* IBL;
   TProfile2D_LW* IBL2D;
@@ -41,14 +42,13 @@ public:
   //TProfile2D_LW* DBMC;
   void Fill(Identifier &id, const PixelID* pixID, float value);
   void Fill2DMon(PixelMon2DProfilesLW* oldmap);
-  void FillFromMap(PixelMon2DMapsLW* inputmap);
+  void FillFromMap(PixelMon2DMaps* inputmap, bool clear_inputmap);
   StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
 private:
-  StatusCode sc;
   void formatHist();
-  bool mDoIBL;
-  bool mDoErrorHist;
-  bool mCopy2DFEval;
+  const bool m_doIBL;
+  const bool m_errorHist;
+  const bool m_copy2DFEval;
 };
 
 #endif

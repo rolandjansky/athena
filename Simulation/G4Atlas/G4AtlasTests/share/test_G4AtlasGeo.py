@@ -1,4 +1,4 @@
-/## Job options file for Geant4 Simulations
+## Job options file for Geant4 Simulations
 
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()

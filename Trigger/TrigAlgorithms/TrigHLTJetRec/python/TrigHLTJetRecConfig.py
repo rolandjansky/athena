@@ -115,8 +115,9 @@ def _getTrimmedJetCalibrationModifier(jet_calib,int_merge_param,cluster_calib,rc
         raise RuntimeError(error%("only R=1.0 is supported"))
 
     # We only have calibrations for rclus=0.2, ptfrac=0.05
-    if rclus != 0.2 or ptfrac != 0.05:
-        raise RuntimeError(error%("only rclus=0.2 and ptfrac=0.05 are supported"))
+    # However, we use ptfrac=0.04 to avoid resolution problems with the ptfrac=0.05 calibrations
+    if rclus != 0.2 or ptfrac != 0.04:
+        raise RuntimeError(error%("only rclus=0.2 and ptfrac=0.04 (in place of 0.05) are supported"))
     
     # If we got here, everything checks out
     # Do a generic build from the arguments
@@ -124,7 +125,8 @@ def _getTrimmedJetCalibrationModifier(jet_calib,int_merge_param,cluster_calib,rc
 
     alg="AntiKt"
     rad=float(int_merge_param)/10.
-    inp="%sTopoTrimmedPtFrac%sSmallR%s"%(cluster_calib,str(int(ptfrac*100+0.1)),str(int(rclus*100+0.1)))
+    #inp="%sTopoTrimmedPtFrac%sSmallR%s"%(cluster_calib,str(int(ptfrac*100+0.1)),str(int(rclus*100+0.1)))
+    inp="%sTopoTrimmedPtFrac%sSmallR%s"%(cluster_calib,str(int(0.05*100+0.1)),str(int(rclus*100+0.1))) #hardcoded for now due to 0.04 vs 0.05 choice
     seq="jm"
     config="triggerTrim"
     evsprefix="HLTKt4"
@@ -143,6 +145,30 @@ def _getTrimmedJetCalibrationModifier(jet_calib,int_merge_param,cluster_calib,rc
     print "Adding calibration modifier: ",str(calibmod)
     return calibmod
 
+def addTrkMomsTool(toolname,
+                    tvSGkey,
+                    vcSGkey, ):
+
+    # declare jtm as global as this function body may modify it
+    # with the += operator
+    global jtm
+    
+    try:
+        trkmomsTool  = getattr(jtm, toolname)
+    except AttributeError:       
+        from JetMomentTools.JetMomentToolsConf import JetTrackMomentsTool
+ 
+        # Build the tool :
+        trkmomsTool = JetTrackMomentsTool(toolname,
+                                          TrackVertexAssociation = tvSGkey, 
+                                          VertexContainer = vcSGkey, 
+                                          AssociatedTracks = "GhostTrack",
+                                          TrackMinPtCuts = [500, 1000],
+                                          TrackSelector = jtm.trackselloose)
+        
+        jtm += trkmomsTool
+        print 'TrigHLTJetRecConfig.addTrkMomsTool '\
+            'Added trkmoms tools "%s" to jtm' % toolname
 
 # *** FTK track moment tool helpers set up ***
 def configTVassocTool(name,
@@ -175,12 +201,16 @@ def _getTVassocTool(toolname, **options):
         # Add the TVA tool to the JetTool Manager,
         tvassocTool = configTVassocTool(toolname, **options)
         jtm += tvassocTool
-        tvassocTool = getattr(jtm, toolname)
         print 'TrigHLTJetRecConfig._getTVassocTool '\
             'Added tvassoc tools "%s" to jtm' % toolname
-
+        
     return tvassocTool
 
+
+def _getIsData():
+    # From Joerg on trig dev list, July 12 2017
+    from AthenaCommon.GlobalFlags import globalflags
+    return globalflags.DataSource() == 'data'
 
 
 def _getJetBuildTool(merge_param,
@@ -221,11 +251,15 @@ def _getJetBuildTool(merge_param,
     print "printing gettersMap keys..."
     print jtm.gettersMap.keys()
 
+    # in situ calibration step is only for data, not MC
+    # this string here allows the following code to be data/MC unaware
+    inSitu = 'i' if _getIsData() else ''
+
     # tell the offline code which calibration is requested
     calib_str = {'jes': 'calib:j:triggerNoPileup:HLTKt4',
                  'subjes': 'calib:aj:trigger:HLTKt4',
                  'sub': 'calib:a:trigger:HLTKt4',
-                 'subjesIS': 'calib:ajgi:trigger2016:HLTKt4'}.get(jet_calib, '')
+                 'subjesIS': 'calib:ajg%s:trigger2016:HLTKt4'%(inSitu)}.get(jet_calib, '')
 
     # with S Schramm very early 18/4/2016
     mymods = [jtm.jetens]
@@ -234,10 +268,14 @@ def _getJetBuildTool(merge_param,
     if outputLabel!='triggerTowerjets': #towers don't have cluster moments
         mymods.append(jtm.clsmoms)
     if secondary_label == 'GhostTrack': # ghost track association expected, will want track moments.
-        jtm.trkmoms.unlock()
-        jtm.trkmoms.AssociatedTracks = secondary_label
-        jtm.trkmoms.lock()
-        mymods.append(jtm.trkmoms)
+        if not hasattr(jtm, 'trkmoms_GhostTracks'):
+            print "In TrigHLTJetRecConfig._getJetBuildTool: Something went wrong. GhostTrack label set but no track moment tools configured. Continuing without trkmodifers."
+        else:        
+            trkmoms_ghosttrack = getattr(jtm, 'trkmoms_GhostTracks')
+            trkmoms_ghosttrack.unlock()
+            trkmoms_ghosttrack.AssociatedTracks = secondary_label
+            trkmoms_ghosttrack.lock()
+            mymods.append(trkmoms_ghosttrack)
 
     if not do_minimalist_setup:
         # add in extra modofiers. This allows monitoring the ability
@@ -310,10 +348,11 @@ def _getJetBuildTool(merge_param,
 #                    print getattr(ToolSvc,name+"Finder").JetBuilder
 #                    getattr(ToolSvc,name+"Finder").unlock()
 #                    getattr(ToolSvc,name+"Finder").OutputLevel = 1
+#                    getattr(ToolSvc,name+"Finder").JetBuilder.setOutputLevel = 1
+#                    getattr(ToolSvc,name+"Finder").lock()
 #                    getattr(ToolSvc,"jbldTrigger").unlock()
 #                    getattr(ToolSvc,"jbldTrigger").OutputLevel = 1
 #                    getattr(ToolSvc,"jbldTrigger").lock()
-                    #getattr(ToolSvc,name+"Finder").JetBuilder.setOutputLevel = 1
     
         except Exception, e:
             print 'error adding new jet finder %s' % name
@@ -714,7 +753,7 @@ class TrigHLTJetRecGroomer(TrigHLTJetRecConf.TrigHLTJetRecGroomer):
                  output_collection_label='defaultJetCollection',
                  pseudojet_labelindex_arg='PseudoJetLabelMapTriggerFromCluster',
                  rclus= 0.2,
-                 ptfrac= 0.05,
+                 ptfrac= 0.04,
                  ):
         
         TrigHLTJetRecConf.TrigHLTJetRecGroomer.__init__(self, name = name)
@@ -1026,22 +1065,24 @@ class TrigHLTTrackMomentHelpers(TrigHLTJetRecConf.TrigHLTTrackMomentHelpers):
         TrigHLTJetRecConf.TrigHLTTrackMomentHelpers.__init__(self,name=name)
         self.trackSGkey = trackSGkey
         self.primVtxSGkey = primVtxSGkey
- 
+
+        #retrieve and configure the TVA tool 
         tvatoolname = 'tvassoc_GhostTracks'
 
-        options = dict(tvSGkey=tvassocSGkey,
+        tvaoptions = dict(tvSGkey=tvassocSGkey,
                        tpcSGkey=trackSGkey,
                        vcSGkey=primVtxSGkey,
                        )
 
-        self.tvassocTool = _getTVassocTool(tvatoolname, **options)
+        self.tvassocTool = _getTVassocTool(tvatoolname, **tvaoptions)
+    
+        # add  a specially configured trkmoms tool to jtm 
+        trkmomstoolname = 'trkmoms_GhostTracks'
         
-        # and configure track moment modifiers here. 
-        global jtm
-        jtm.trkmoms.unlock()
-        jtm.trkmoms.VertexContainer = primVtxSGkey 
-        jtm.trkmoms.TrackVertexAssociation = tvassocSGkey
-        jtm.trkmoms.lock()     
+        trkmomsoptions = dict(tvSGkey=tvassocSGkey,
+                       vcSGkey=primVtxSGkey,
+                       )
+        addTrkMomsTool(trkmomstoolname, **trkmomsoptions)
 
 # Data scouting algorithm
 class TrigHLTJetDSSelector(TrigHLTJetRecConf.TrigHLTJetDSSelector):

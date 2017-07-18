@@ -296,7 +296,7 @@ class cutLevel(InDetFlagsJobProperty):
     statusOn     = True
     allowedTypes = ['int']
     allowedValues= [1,2,3,4,5,6,7,8,9,10,11,12,13,14]
-    StoredValue  = 13
+    StoredValue  = 14
 
 class doBremRecovery(InDetFlagsJobProperty):
     """Turn on running of Brem Recover in tracking"""
@@ -347,11 +347,18 @@ class doParticleCreation(InDetFlagsJobProperty):
     StoredValue  = True
 
 class KeepParameters(InDetFlagsJobProperty):
-    """Keep extra parameters on TrackParticles"""
+    """Keep extra parameters on slimmed tracks"""
     statusOn     = True
     allowedTypes = ['bool']
     #False to drop them
     StoredValue  = True
+
+class KeepFirstParameters(InDetFlagsJobProperty):
+    """Keep the first set of track parameters in addition to the defining ones for TrackParticles."""
+    statusOn     = True
+    allowedTypes = ['bool']
+    #False to drop them
+    StoredValue  = False
 
 class doTrackSegmentsPixel(InDetFlagsJobProperty):
     """Turn running of track segment creation in pixel on and off"""
@@ -1151,6 +1158,13 @@ class doStoreTrackSeeds(InDetFlagsJobProperty):
   statusOn     = True 
   allowedTypes = ['bool']
   StoredValue  = False
+
+class checkDeadElementsOnTrack(InDetFlagsJobProperty): 
+  """Enable check for dead modules and FEs""" 
+  statusOn     = True 
+  allowedTypes = ['bool']
+  StoredValue  = False
+
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -2367,7 +2381,9 @@ class InDetJobProperties(JobPropertyContainer):
        print '* create TrackParticles'
        if self.doSharedHits() :
           print '* - and do shared hits search'
-       if self.KeepParameters() :
+       if self.KeepFirstParameters() :
+          print '* - keep first parameters on track'
+       elif self.KeepParameters() :
           print '* - keep extra parameters on track'
     if self.doV0Finder() :
        print '* run V0 finder'
@@ -2627,6 +2643,7 @@ _list_InDetJobProperties = [Enabled,
                             doHeavyIon,
                             doParticleCreation,
                             KeepParameters,
+                            KeepFirstParameters,
                             doTrackSegmentsPixel,
                             doTrackSegmentsSCT,
                             doTrackSegmentsTRT,
@@ -2757,7 +2774,8 @@ _list_InDetJobProperties = [Enabled,
                             doDBM,
                             doParticleConversion,
                             doStoreTrackSeeds,
-                            doHIP300
+                            doHIP300,
+                            checkDeadElementsOnTrack
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)
