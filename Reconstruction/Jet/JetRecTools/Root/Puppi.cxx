@@ -5,7 +5,6 @@
 #include "JetRecTools/Puppi.h"
 
 using namespace std;
-using namespace fastjet;
 
 //PuppiUserInfo can be used to include additional information in algorithm
 PuppiUserInfo::PuppiUserInfo(): otherChi2Vec(std::vector<double>()) {}
@@ -37,14 +36,14 @@ void Puppi::setParticles(const std::vector<fastjet::PseudoJet> chargedHS, const 
 
 //---------------------------------------------------------------------------------------------------------------------------------
 
-double Puppi::getChi2(const PseudoJet& pfo){
+double Puppi::getChi2(const fastjet::PseudoJet& pfo){
   double chi=(getAlpha(pfo)-m_median)/m_rms;
   return chi*fabs(chi);
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------
 
-double Puppi::getWeight(PseudoJet pfo){
+double Puppi::getWeight(fastjet::PseudoJet pfo){
 
   double chi2Total=getChi2(pfo);
   int nDF=1;
@@ -78,7 +77,7 @@ double Puppi::getWeight(PseudoJet pfo){
 
 //---------------------------------------------------------------------------------------------------------------------------------
 
-double Puppi::getAlpha(const PseudoJet pfo){
+double Puppi::getAlpha(const fastjet::PseudoJet pfo){
   fastjet::Selector sel = fastjet::SelectorCircle(m_R0);
   sel.set_reference(pfo);
 
@@ -86,7 +85,7 @@ double Puppi::getAlpha(const PseudoJet pfo){
   int nNeighbors=0;
 
   if (fabs(pfo.eta())<m_etaBoundary+m_R0){
-    vector<PseudoJet> chargedHSNeighbors = sel(m_chargedHS);
+    vector<fastjet::PseudoJet> chargedHSNeighbors = sel(m_chargedHS);
     for (auto p: chargedHSNeighbors){
       float dR=pfo.delta_R(p);
       if (dR>m_Rmin){
@@ -98,7 +97,7 @@ double Puppi::getAlpha(const PseudoJet pfo){
 
   if (m_includeCentralNeutralsInAlpha){
     if (fabs(pfo.eta())<m_etaBoundary+m_R0){
-      vector<PseudoJet> neutralNeighbors = sel(m_neutral);
+      vector<fastjet::PseudoJet> neutralNeighbors = sel(m_neutral);
       for (auto p: neutralNeighbors){
 	float dR=pfo.delta_R(p);
 	if (dR>m_Rmin){
@@ -111,7 +110,7 @@ double Puppi::getAlpha(const PseudoJet pfo){
 
   if (m_PUPenalty){
     if (fabs(pfo.eta())<m_etaBoundary+m_R0){
-      vector<PseudoJet> chargedPUNeighbors = sel(m_chargedPU);
+      vector<fastjet::PseudoJet> chargedPUNeighbors = sel(m_chargedPU);
       for (auto p: chargedPUNeighbors){
 	float dR=pfo.delta_R(p);
 	if (dR>m_Rmin){
@@ -123,7 +122,7 @@ double Puppi::getAlpha(const PseudoJet pfo){
   }
 
   if (fabs(pfo.eta())>m_etaBoundary-m_R0){
-    vector<PseudoJet> forwardNeighbors = sel(m_forward);
+    vector<fastjet::PseudoJet> forwardNeighbors = sel(m_forward);
     for (auto p: forwardNeighbors){
       float dR=pfo.delta_R(p);
       if (dR>m_Rmin){

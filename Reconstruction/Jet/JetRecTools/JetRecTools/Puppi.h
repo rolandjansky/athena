@@ -5,7 +5,6 @@
 #define JETRECTOOLS_PUPPI_h
 
 using namespace std;
-using namespace fastjet;
 
 //This class can be used to pass in otherchi2 values for each PFO
 class PuppiUserInfo: public fastjet::PseudoJet::UserInfoBase{
@@ -27,26 +26,26 @@ class Puppi{
   void setParticles(const std::vector<fastjet::PseudoJet> chargedHS, const std::vector<fastjet::PseudoJet> chargedPU, const std::vector<fastjet::PseudoJet> neutral, const std::vector<fastjet::PseudoJet> forward, int nPU);
 
   // Returns the weight that would be applied to a particle (assuming it is neutral or forward)
-  double getWeight(const PseudoJet pfo);
+  double getWeight(const fastjet::PseudoJet pfo);
 
   // Returns the value of alpha for this particle
-  double getAlpha(const PseudoJet pfo);
+  double getAlpha(const fastjet::PseudoJet pfo);
 
   double getMedian();
   double getRMS();
 
  private:
 
-  double getChi2(const PseudoJet& pfo);
+  double getChi2(const fastjet::PseudoJet& pfo);
 
   void findAlphaMedianAndRMS();
 
-  std::vector<PseudoJet> m_chargedHS;
-  std::vector<PseudoJet> m_chargedPU;
-  std::vector<PseudoJet> m_neutral;
-  std::vector<PseudoJet> m_forward;
+  std::vector<fastjet::PseudoJet> m_chargedHS;
+  std::vector<fastjet::PseudoJet> m_chargedPU;
+  std::vector<fastjet::PseudoJet> m_neutral;
+  std::vector<fastjet::PseudoJet> m_forward;
 
-  std::vector< std::vector< PseudoJet >* > m_allParticles;
+  std::vector< std::vector< fastjet::PseudoJet >* > m_allParticles;
 
   double m_R0;
   double m_Rmin;
