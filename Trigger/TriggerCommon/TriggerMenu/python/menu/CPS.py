@@ -66,7 +66,7 @@ def defineCPSGroups():
 #                                                'e24_lhmedium_nod0_L1EM18VH', 
 #                                                ],
         
-        "RATE:CPS:HLT_e24_tight_L1EM20VH" :  ['e24_lhtight_L1EM20VH',
+        "RATE:CPS:HLT_e24_tight_L1EM20VH" :  [
                                                 'e24_lhtight_nod0_L1EM20VH',
                                                 ],
         

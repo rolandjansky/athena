@@ -25,8 +25,8 @@ def setupMenu():
     RATE_BphysTag      = 'RATE:Bphysics'
     RATE_BMultiMuonTag = 'RATE:MultiMuon'  # can become RATE:BMultiMuon' with one letter change 
     BW_BphysTag        = 'BW:Bphys'
-    #RATE_DYTag         = 'RATE:Muon'   #not being used at this time
-    #BW_DYTag           = 'BW:Muon'   
+    RATE_DYTag         = 'RATE:Muon'
+    BW_DYTag           = 'BW:Muon'   
     
     
     # ---------------------------------------------------------------------------------------
