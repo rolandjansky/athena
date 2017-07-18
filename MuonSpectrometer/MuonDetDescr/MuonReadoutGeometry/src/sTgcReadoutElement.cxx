@@ -72,10 +72,6 @@ namespace MuonGM {
 
     static const int nLayers = 4;
 
-    m_halfX=std::vector<double>(nLayers);
-    m_minHalfY=std::vector<double>(nLayers);
-    m_maxHalfY=std::vector<double>(nLayers);
-
     for(int layer = 0; layer < nLayers; layer++){
       double length = sTGC->Length(); //Distance between parallel sides of the trapezoid
       double sWidth = sTGC->sWidth(); //Width on short side of trapezoid 
@@ -87,9 +83,6 @@ namespace MuonGM {
 
       reLog() << MSG::INFO << "length: " << length << " ysFrame: " << ysFrame << " ylFrame: " << ylFrame << endmsg; 
 
-      m_halfX[layer] = (length - ysFrame - ylFrame)/2.0;
-      m_minHalfY[layer] = (sWidth - 2.0*xFrame)/2.0;
-      m_maxHalfY[layer] = (lWidth - 2.0*xFrame)/2.0;
     }
 
     
@@ -231,7 +224,70 @@ namespace MuonGM {
 
     // AGDDParameterBagsTGCTech* parameterBagTech = dynamic_cast<AGDDParameterBagsTGCTech*> (AGDDParameterStore::GetParameterStore()->GetParameterBag(stgc->GetName()));
 
+    /* This is where we Calculate the active values of A and B from the given values A and B included in the xml file.
+     * In the Parameter book, A is derived from ActiveA. We simply reverse the procedure here.
+     * To see the calculation, refer to Parameter Book. */
+
+    double activeA;
+    double activeB;
+    double activePadA;
+    double activePadB;
+    double phi;
+
+    /* The current version of the xml file used to get the sTGC parameters
+     * does not include the opening angle to the sTGC.
+     * As such, we can not directly read these values */
+    if (sector_l == 'L') phi = 28.; // if stgc sector is large
+    else if (sector_l == 'S') phi = 17.; // if stgc sector is small
+    else {
+      phi = 0.; 
+      reLog()<<MSG::ERROR <<"Failed To get if Large or Small sector for stgc element :" << stgc->GetName() << endmsg;      
+    }
+    double halfphi = (phi / 2) * (M_PI /180.0); // Calculates phi/2 in radians
+
+    /* Here we define a new variable called sTGC_type.
+     * It is to be used when creating the sTGC trapezoid geometry.
+     * Currently, the default trapezoid surface class creates a geometry which is
+     * offset from the real position, caused by the frames of the detectors in the 2nd and 3rd detectors
+     * An other issue fixed with this is that the QL3 detectors are not normal trapezoids
+     * but rather are cutoff trapezoids.
+     * sTGC_type = 1 : QL1C, QL1P, QS1C, QL1P
+     * sTGC_type = 2 : QL2C, QL2P, QS2C, QL2P, QS3C, QS3P
+     * sTGC_type = 3 : QL3C, QL3P the 2 detectors which are cut-off trapezoids*/
+    std::string quadNo = stgc->GetName().substr(7,1);
+    std::string quadType = stgc->GetName().substr(8,1);
+    if (quadNo == "3" && sector_l == 'L') sTGC_type = 3; // if its QL3P or QL3C
+    else if (quadNo == "1") sTGC_type = 1;
+    else sTGC_type = 2;
+
+    // The values of A and B active as well as A and B for pads should be taken directly from parameter book
+    activeA = sWidth - 2 * (1./cos(halfphi) * xFrame - tan(halfphi)*ysFrame);
+    if (sTGC_type == 3) // if cut-off trapezoid
+      activeB = lWidth - 2 * xFrame;
+    else activeB = lWidth - 2 * (1./cos(halfphi) * xFrame + tan(halfphi)*ylFrame);
+
+    if (sTGC_type ==1 && quadType == "P") { // if QS1P or QL1P, A and B Pads are different
+      // These values should be directly taken from the parameter book
+      double conf_widening = 20.;
+      double small_large_widening = 6.;
+      activePadA = activeA + (small_large_widening - conf_widening) /cos(halfphi);
+      activePadB = activeB + (small_large_widening - conf_widening) /cos(halfphi);
+    }
+    else { // if Pivot for QL1 or QS1
+      activePadA = activeA;
+      activePadB = activeB;
+    }
+
     double stripStagger[4] = {1.6, 3.2, 1.6, 3.2}; // First Strip in sTGC may be staggered. This value corresponds to first strip width
+
+    // This block here was moved from another place in code in order to reduce repetitions 
+    m_halfX=std::vector<double>(m_nlayers);
+    m_minHalfY=std::vector<double>(m_nlayers);
+    m_maxHalfY=std::vector<double>(m_nlayers);
+    // These values are used for the Pad and Wire geometry definition.
+    m_PadhalfX=std::vector<double>(m_nlayers);
+    m_PadminHalfY=std::vector<double>(m_nlayers);
+    m_PadmaxHalfY=std::vector<double>(m_nlayers);
 
     for (int il=0; il<m_nlayers; il++) {
 
@@ -246,8 +302,12 @@ namespace MuonGM {
       m_etaDesign[il].xLength  = length;
       m_etaDesign[il].ysFrame  = ysFrame;
       m_etaDesign[il].ylFrame  = ylFrame;
-      m_etaDesign[il].minYSize = sWidth - 2.0*xFrame;
-      m_etaDesign[il].maxYSize = lWidth - 2.0*xFrame;
+      m_etaDesign[il].minYSize = activeA;
+      m_etaDesign[il].maxYSize = activeB;
+
+      m_halfX[il] = (length - ysFrame - ylFrame)/2.0;
+      m_minHalfY[il] = activeA/2.0;
+      m_maxHalfY[il] = activeB/2.0;
       
       m_etaDesign[il].deadO = 0.;
       m_etaDesign[il].deadI = 0.;
@@ -285,8 +345,12 @@ namespace MuonGM {
       m_phiDesign[il].type=1;
 
       m_phiDesign[il].xSize    = length - ysFrame - ylFrame;
-      m_phiDesign[il].minYSize = sWidth - 2.0*xFrame;
-      m_phiDesign[il].maxYSize = lWidth - 2.0*xFrame;
+      m_phiDesign[il].minYSize = activePadA;
+      m_phiDesign[il].maxYSize = activePadB;
+
+      m_PadhalfX[il] = (length - ysFrame - ylFrame)/2.0;
+      m_PadminHalfY[il] = activePadA/2.0;
+      m_PadmaxHalfY[il] = activePadB/2.0;
 
       m_phiDesign[il].deadO = 0.;
       m_phiDesign[il].deadI = 0.;
@@ -401,7 +465,7 @@ reLog() << MSG::INFO<<"initDesign  Sum Height Check: "<<stgc->GetName()<<" stgc-
 
       //if (abs(getStationEta())<3) {
       m_surfaceData->m_surfBounds.push_back( new Trk::RotatedTrapezoidBounds( m_halfX[layer], m_minHalfY[layer], m_maxHalfY[layer]));  // strips
-      m_surfaceData->m_surfBounds.push_back( new Trk::TrapezoidBounds( m_minHalfY[layer], m_maxHalfY[layer], m_halfX[layer]));         // wires           
+      m_surfaceData->m_surfBounds.push_back( new Trk::TrapezoidBounds( m_PadminHalfY[layer], m_PadmaxHalfY[layer], m_PadhalfX[layer]));         // wires & pads        
 	// }
 
       // identifier of the first channel - wire plane - locX along phi, locY max->min R
