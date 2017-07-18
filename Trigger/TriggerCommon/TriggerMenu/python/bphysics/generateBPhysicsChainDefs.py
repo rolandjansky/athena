@@ -1065,8 +1065,12 @@ def bMuTrackPEB(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom):
 
     mtopo = topoAlgs[0]
     TEname = findL2teBaseName(chainDict['chainName'],topoAlgs)
-    L2TEname = "L2_" + TEname+'_'+mtopo+'_'+chainDict['L1item']
+    if "lowpt" in chainDict['chainName'] :
+        L2TEname = "L2_" + TEname+'_'+mtopo+'_lowpt_'+chainDict['L1item']
+    else :
+        L2TEname = "L2_" + TEname+'_'+mtopo+'_'+chainDict['L1item']
 
+    
     #--- 1: L2 first add large cone before duing superEF
     #[trkfast, trkprec] = TrigInDetSequence("Bphysics", "bphysics", "IDTrig").getSequence()
     [trkfast, trkprec] = TrigInDetSequence("BphysHighPt", "bphysHighPt", "IDTrig").getSequence()
@@ -1088,10 +1092,24 @@ def bMuTrackPEB(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom):
 
     #--- 2: then add L2 multi trk fex+hypo for Jpsi
         
+    fexNameExt,trkmuons, mult, mult_without_noL1  = getBphysThresholds(chainDict)
+
+    if len( trkmuons) == 1 :
+        if "lowpt" in chainDict['chainName'] :
+            trkmuons.append(2000)
+            fexNameExt = fexNameExt + "_"+str(2)
+        else :
+            trkmuons.append(3500)
+            fexNameExt = fexNameExt + "_"+str(4)
+    else :
+         log.error('Bphysics Chain %s can not be constructed, more than 2 muons are requested ' %(chainDict['chainName']))
+            
     from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_Jpsi
-    from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Jpsi
-    L2Fex = TrigMultiTrkFex_Jpsi()
+    L2Fex = TrigMultiTrkFex_Jpsi("TrigMultiTrkFex_TrkPEB"+fexNameExt)
+    L2Fex.setTrackThresholds( trkmuons )
     #L2Fex.trackCollectionKey = "InDetTrigTrackingxAODCnv_Bphysics_IDTrig"
+
+    from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Jpsi
     L2Hypo = EFMultiMuHypo_Jpsi("L2MultiMuTrkHypo_Jpsi")
     L2Hypo.bphysCollectionKey = "MultiTrkFex"
     theChainDef.addSequence([L2Fex, L2Hypo], L2outTEsprec , L2TEname+"MultiTrk")

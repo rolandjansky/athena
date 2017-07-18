@@ -229,12 +229,23 @@ class GenerateMenu:
         for chain in chains:
             log.debug('chain %s', chain)
             l1item = chain[1]
-            if (l1item not in l1itemnames) & (l1item != ''):
+            if (l1item not in l1itemnames) & (l1item != '') and ',' not in l1item:
                 myl1item = getSpecificL1Seeds(l1item, self.trigConfL1.menu.items)
                 if ('ERROR_' in myl1item):
                     if (l1item not in missingL1items):  missingL1items.append(l1item)                    
                 else:
                     chain[1] = myl1item
+            elif ',' in l1item:
+                myl1item = l1item
+                for each_l1item in l1item.split(','):
+                    if each_l1item not in l1itemnames:
+                        myl1item = 'ERROR'
+                        missingL1items.append(l1item)
+                if ('ERROR' in myl1item):
+                    if (l1item not in missingL1items):  missingL1items.append(l1item)                    
+                else:
+                    chain[1] = myl1item
+
         if  len(missingL1items) > 0 :
             log.error('The following L1 items were not found in the corresponding L1 menu: '+str(missingL1items))
 
