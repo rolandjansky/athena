@@ -30,7 +30,7 @@ TileHid2RESrcID::TileHid2RESrcID(const TileHWID* tileHWID, uint32_t runnum)
 {
   m_tileHWID = tileHWID;
   if (m_tileHWID) {
-    // make internal maps 
+    // make internal maps
     initialize(runnum);
     initializeMuRcv(runnum);
   }
@@ -38,19 +38,23 @@ TileHid2RESrcID::TileHid2RESrcID(const TileHWID* tileHWID, uint32_t runnum)
 
 void TileHid2RESrcID::setTileHWID(const TileHWID* tileHWID, uint32_t runnum)
 {
-  m_tileHWID = tileHWID;
-  if (m_tileHWID) {
-    // make internal maps 
-    initialize(runnum);
+  if ( m_tileHWID != tileHWID ||  m_runnum != runnum) {
+    m_tileHWID = tileHWID;
+    if (m_tileHWID) {
+      // make internal maps
+      initialize(runnum);
+    }
   }
 }
 
 void TileHid2RESrcID::setTileMuRcvHWID(const TileHWID* tileHWID, uint32_t runnum)
 {
-  m_tileHWID = tileHWID;
-  if (m_tileHWID) {
-    // make internal maps 
-    initializeMuRcv(runnum);
+  if ( m_tileHWID != tileHWID ||  m_TileMuRcvRunnum != runnum) {
+    m_tileHWID = tileHWID;
+    if (m_tileHWID) {
+      // make internal maps
+      initializeMuRcv(runnum);
+    }
   }
 }
 
@@ -111,7 +115,7 @@ void TileHid2RESrcID::initialize(uint32_t runnum)
 
 void TileHid2RESrcID::initializeMuRcv(uint32_t runnum)
 {
-  m_runnum = runnum;
+  m_TileMuRcvRunnum = runnum;
   eformat::SubDetector detid[6];
 
   detid[0] = eformat::TILECAL_LASER_CRATE;    // 0x50 - beam crate
