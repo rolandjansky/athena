@@ -16,7 +16,7 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventType.h"
 
-#include "xAODTrackCaloCluster/TrackCaloClusterContainer.h"
+#include "xAODPFlow/TrackCaloClusterContainer.h"
 
 #include "xAODParticleEvent/IParticleLink.h"
 #include "xAODParticleEvent/IParticleLinkContainer.h"

@@ -15,7 +15,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
-#include "xAODTrackCaloCluster/TrackCaloClusterContainer.h"
+#include "xAODPFlow/TrackCaloClusterContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
 
 class TCCPlots: public TCCPlotsBase {

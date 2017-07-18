@@ -1,5 +1,5 @@
-#ifndef XAODTRACKCALOCLUSTER_VERSIONS_TRACKCALOCLUSTERCONTAINER_V1_H
-#define XAODTRACKCALOCLUSTER_VERSIONS_TRACKCALOCLUSTERCONTAINER_V1_H
+#ifndef XAODPFLOW_VERSIONS_TRACKCALOCLUSTERCONTAINER_V1_H
+#define XAODPFLOW_VERSIONS_TRACKCALOCLUSTERCONTAINER_V1_H
  
 #include <stdint.h>
  
@@ -8,7 +8,7 @@
 #include "xAODBase/IParticleContainer.h"
  
 // Local include(s):
-#include "xAODTrackCaloCluster/versions/TrackCaloCluster_v1.h"
+#include "xAODPFlow/versions/TrackCaloCluster_v1.h"
 
 // Declare IParticle as a base class of CaloCluster_v1:
 DATAVECTOR_BASE( xAOD::TrackCaloCluster_v1, xAOD::IParticle );
@@ -18,4 +18,4 @@ namespace xAOD {
    typedef DataVector< xAOD::TrackCaloCluster_v1 > TrackCaloClusterContainer_v1;
 }
  
-#endif // XAODTRACKCALOCLUSTER_VERSIONS_TRACKCALOCLUSTERCONTAINER_V1_H
+#endif // XAODPFLOW_VERSIONS_TRACKCALOCLUSTERCONTAINER_V1_H

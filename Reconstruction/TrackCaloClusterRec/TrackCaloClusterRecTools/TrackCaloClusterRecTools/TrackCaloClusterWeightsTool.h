@@ -8,7 +8,7 @@ authors : Roland Jansky
 #define TRACKCALOCLUSTERREC_TRACKCALOCLUSTERRECTOOLS_TRACKCALOCLUSTERWEIGHTSTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "xAODTrackCaloCluster/TrackCaloCluster.h"
+#include "xAODPFlow/TrackCaloCluster.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODAssociations/TrackParticleClusterAssociationContainer.h"
 

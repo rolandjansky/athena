@@ -15,7 +15,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Event/xAOD/xAODBase
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODAssociations
-                          Event/xAOD/xAODTrackCaloCluster     
+                          Event/xAOD/xAODPFlow     
                           Reconstruction/TrackCaloClusterRec/TrackCaloClusterRecTools)
 
 find_package( FastJet )
@@ -26,5 +26,6 @@ atlas_add_component( TrackCaloClusterRecAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${FASTJET_INCLUDE_DIRS} ${FASTJETCONTRIB_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${FASTJET_LIBRARIES} ${FASTJETCONTRIB_LIBRARIES} AthenaBaseComps GaudiKernel AtlasDetDescr xAODBase xAODTracking xAODAssociations xAODTrackCaloCluster TrackCaloClusterRecTools TrkParametersIdentificationHelpers )
+                     LINK_LIBRARIES ${FASTJET_LIBRARIES} ${FASTJETCONTRIB_LIBRARIES} AthenaBaseComps GaudiKernel AtlasDetDescr xAODBase 
+                     xAODTracking xAODAssociations xAODPFlow TrackCaloClusterRecTools TrkParametersIdentificationHelpers )
                      

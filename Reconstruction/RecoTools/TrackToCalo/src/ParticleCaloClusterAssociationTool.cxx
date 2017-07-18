@@ -26,9 +26,7 @@ namespace Rec {
       m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
       m_clustersInConeTool("xAOD::CaloClustersInConeTool/CaloClustersInConeTool"),
       m_caloClusters("CaloCalTopoClusters"),
-      m_caloEntryMapName("ParticleToCaloExtensionMap"),
-      m_storeParameters(false),
-      m_loosetrackvertexassoTool("LooseTrackVertexAssociationTool")
+      m_caloEntryMapName("ParticleToCaloExtensionMap")
   {
     declareInterface<IParticleCaloClusterAssociationTool>(this);
     declareProperty("ParticleCaloExtensionTool",   m_caloExtensionTool );
@@ -39,8 +37,6 @@ namespace Rec {
     //coneSize for including calo cells around track
     declareProperty("ConeSize",                    m_coneSize = 0.1);
     declareProperty("UseCovariance",               m_useCovariance = true);
-    declareProperty("StoreParameters",             m_storeParameters = false);
-    declareProperty("LooseTrackVertexAssoTool",    m_loosetrackvertexassoTool);
   }
 
   ParticleCaloClusterAssociationTool::~ParticleCaloClusterAssociationTool() {}
@@ -51,9 +47,6 @@ namespace Rec {
 
     if (!m_clustersInConeTool.empty()) ATH_CHECK(m_clustersInConeTool.retrieve());
     
-    if (m_storeParameters)
-        ATH_CHECK(m_loosetrackvertexassoTool.retrieve());
-
     return StatusCode::SUCCESS;
   }
 
@@ -134,14 +127,10 @@ namespace Rec {
     if (caloExtensionMap)
       caloExtensionMap->addEntry(&particle,caloExtension->caloEntryLayerIntersection());
          
-//     std::cout << "Container size = " << caloExtensionMap->size() << std::endl;
-//     std::cout << "Element = " << &particle << " --- " << caloExtension->caloEntryLayerIntersection()->momentum().eta() << std::endl;
-
-    
     return true;
     
-    }
-
+  }
+  
   void ParticleCaloClusterAssociationTool::associateClusters( const xAOD::CaloClusterContainer* container, 
                                                               const Trk::CaloExtension& caloExtension,
                                                               float dr,
@@ -158,37 +147,10 @@ namespace Rec {
     
     float eta = pars->position().eta();
     float phi = pars->position().phi();
-    // ATH_MSG_DEBUG("eta trk " << eta << " phi trk " << phi );
-    
-    const xAOD::VertexContainer * allVertices = evtStore()->retrieve< const xAOD::VertexContainer>("PrimaryVertices");
-    bool isPVOCompatible = false;
-    if (m_storeParameters) {
-      if (m_loosetrackvertexassoTool->isCompatible(*(dynamic_cast<const xAOD::TrackParticle*>(&particle)), *(allVertices->at(0))))
-	isPVOCompatible = true;
-      if (isPVOCompatible) particle.auxdecor<int>("IsPV0Compatible") = 1;
-    }
-        
-    int all_clusters      = 0;
-    int matching_clusters = 0;
-    int dr_fix            = 0;
-    int dr_variable       = 0;
-    int dr_fix_only       = 0;
-    int dr_variable_only  = 0;
-    int dr_both           = 0;
-    int dr_match          = 0;
-        
-    std::vector<int> matching = {};
-    std::vector<int> mode     = {};
-     
+         
     if( container ){
       float dr2Cut = dr*dr;
-      float totalEnergy = 0.;
-      if (m_storeParameters) { 
-	for( unsigned int i=0;i<container->size();++i ) {
-	  totalEnergy+=(*container)[i]->e();
-	}
-      }
-      
+            
       for( unsigned int i=0;i<container->size();++i ){
         float dPhi = P4Helpers::deltaPhi( (*container)[i]->phi(), phi);
         float dEta = (*container)[i]->eta()-eta;
@@ -200,7 +162,6 @@ namespace Rec {
             if(pars->covariance()) {
               uncertEta = -2.*sin(pars->position().theta()) / (cos(2.*pars->position().theta())-1.) * sqrt((*pars->covariance())(Trk::theta,Trk::theta));
               uncertPhi = sqrt((*pars->covariance())(Trk::phi,Trk::phi));
-              // ATH_MSG_DEBUG( " TrackParameters have covariance; phi*phi " << sqrt((*pars->covariance())(Trk::phi,Trk::phi)) << " theta*theta  " << sqrt((*pars->covariance())(Trk::theta,Trk::theta)) << " eta " << uncertEta);
             } 
             
             float eInSample = 0.; 
@@ -228,105 +189,30 @@ namespace Rec {
             double sigmaWidth = atan(sqrt(rad)/cent)*cosh((*container)[i]->eta());
             double uncertExtrp = uncertEta*uncertEta + uncertPhi*uncertPhi;
             double uncertClus  = 2.*sigmaWidth*sigmaWidth;
-	    if (m_storeParameters) {
-	      (*container)[i]->auxdecor<int>("ParticleCaloClusterAssociationTool")  = 1;
-	      (*container)[i]->auxdecor<float>("ClusterUnc")    = (float)sqrt(uncertClus);
-	      (*container)[i]->auxdecor<float>("ClusterEta")    = (float)(*container)[i]->eta();
-	      (*container)[i]->auxdecor<float>("ClusterPhi")    = (float)(*container)[i]->phi();
-	      (*container)[i]->auxdecor<float>("ClusterWeight") = (totalEnergy==0.) ? 0. : (float)((*container)[i]->e()/totalEnergy);
-	    }
-	    
-	    all_clusters++;
-	    
+	    	    
             if(uncertExtrp>uncertClus){
               ATH_MSG_DEBUG("Extrapolation uncertainty larger than cluster width! Returning without association.");
-	      //return;
-	      matching.push_back(0);
-	      mode.push_back(0);
 	      continue;
             }
             
-            matching_clusters++;
-	    
             double dr2CutTmp = (sigmaWidth+uncertEta)*(sigmaWidth+uncertEta)+(sigmaWidth+uncertPhi)*(sigmaWidth+uncertPhi);
             
             if(sqrt(dr2)<sqrt(dr2Cut) && dr2 < dr2CutTmp) ATH_MSG_DEBUG("1. selections match! dR " << sqrt(dr2) << " new cut value " << sqrt(dr2CutTmp) << " pt trk " << pars->pT() << " sigma(phi) trk " << uncertPhi << " sigma(eta) trk " << uncertEta << " energy cluster " << (*container)[i]->e() << " sigma width " << sigmaWidth << " em frac " << emfrac);
 	    if(sqrt(dr2)<sqrt(dr2Cut) && dr2 > dr2CutTmp) ATH_MSG_DEBUG("2. only  dR matches! dR " << sqrt(dr2) << " new cut value " << sqrt(dr2CutTmp) << " pt trk " << pars->pT() << " sigma(phi) trk " << uncertPhi << " sigma(eta) trk " << uncertEta << " energy cluster " << (*container)[i]->e() << " sigma width " << sigmaWidth << " em frac " << emfrac);
 	    if(sqrt(dr2)>sqrt(dr2Cut) && dr2 < dr2CutTmp) ATH_MSG_DEBUG("3. only new matches! dR " << sqrt(dr2) << " new cut value " << sqrt(dr2CutTmp) << " pt trk " << pars->pT() << " sigma(phi) trk " << uncertPhi << " sigma(eta) trk " << uncertEta << " energy cluster " << (*container)[i]->e() << " sigma width " << sigmaWidth << " em frac " << emfrac);           
             
-	    if (sqrt(dr2)<sqrt(dr2Cut)) {
-	      dr_fix++; 
-	      if (m_storeParameters) {
-		if (isPVOCompatible)
-		  (*container)[i]->auxdecor<int>("FixedMatchPV0") = 1;
-		else 
-		  (*container)[i]->auxdecor<int>("FixedMatchPVX") = 1;
-		(*container)[i]->auxdecor<int>("ClusterMatchedFixedDeltaR") = 1;
-	      }
-	    }
-	    if (sqrt(dr2)<sqrt(dr2CutTmp)) {
-	      dr_variable++;  
-	      if (m_storeParameters) {
-		if (isPVOCompatible) 
-		  (*container)[i]->auxdecor<int>("VarMatchPV0") = 1;
-		else 
-		  (*container)[i]->auxdecor<int>("VarMatchPVX") = 1;
-		(*container)[i]->auxdecor<int>("ClusterMatchedVariableDeltaR") = 1;
-	      }
-	    }
-	    if (sqrt(dr2)<sqrt(dr2Cut) or sqrt(dr2)<sqrt(dr2CutTmp)) dr_match++;
-	    if (sqrt(dr2)<sqrt(dr2Cut) and sqrt(dr2)<sqrt(dr2CutTmp)) dr_both++;
-	    if (sqrt(dr2)<sqrt(dr2Cut) and sqrt(dr2)>sqrt(dr2CutTmp)) dr_fix_only++;
-	    if (sqrt(dr2)<sqrt(dr2CutTmp) and sqrt(dr2)>sqrt(dr2Cut)) dr_variable_only++;
-	    
-	    // use this convention
-	    // matching mode 0 --> not matching
-	    // matching mode 1 --> fixed dr or variable dr
-	    // matching mode 2 --> only fixed dr
-	    // matching mode 3 --> only variable dr
-	    if (sqrt(dr2)<sqrt(dr2Cut) or sqrt(dr2)<sqrt(dr2CutTmp)) {
-	      matching.push_back(1);
-	      mode.push_back(1);
-	    }
-	    if (sqrt(dr2)<sqrt(dr2Cut) and sqrt(dr2)>sqrt(dr2CutTmp)) {
-	      mode.push_back(2);
-	    }
-	    if (sqrt(dr2)>sqrt(dr2Cut) and sqrt(dr2)<sqrt(dr2CutTmp)) {
-	      mode.push_back(3);
-	    }
 	    dr2Cut = dr2CutTmp;
         }
         
-        if( dr2 < dr2Cut ){
-            clusters.push_back( (*container)[i]);
-	    if (m_storeParameters) (*container)[i]->auxdecor<int>("ClusterMatched") = 1;    
-        } 
+        if( dr2 < dr2Cut )
+	  clusters.push_back( (*container)[i]);
       }
-    }else{
+    } else {
       ATH_MSG_DEBUG("We're at the clustersinconetool." );
       if( !m_clustersInConeTool->particlesInCone(eta,phi,dr,clusters) ) {
         ATH_MSG_WARNING("Failed to get clusters");
       }
     }
-    
-    if (m_storeParameters) {
-      particle.auxdecor<std::vector<int>>("MatchingMode")  = mode    ;
-      particle.auxdecor<std::vector<int>>("IsMatched")     = matching;
-      particle.auxdecor<int>("AssClusters")                = clusters.size();
-      particle.auxdecor<int>("AllClusters")                = all_clusters;
-      particle.auxdecor<int>("MatchingClusters")           = matching_clusters;
-      
-      particle.auxdecor<int>("Match_deltaR")               = dr_match;
-      
-      particle.auxdecor<int>("Match_deltaR_fixed")         = dr_fix;
-      particle.auxdecor<int>("Match_deltaR_variable")      = dr_variable;
-      
-      particle.auxdecor<int>("Match_deltaR_fixedOnly")     = dr_fix_only;
-      particle.auxdecor<int>("Match_deltaR_variableOnly")  = dr_variable_only;
-      
-      particle.auxdecor<int>("Match_deltaR_both")          = dr_both;
-    }
-    // ATH_MSG_DEBUG("associated clusters " << clusters.size() << " using cone " << dr );
   }
   
   const xAOD::CaloClusterContainer* ParticleCaloClusterAssociationTool::getClusterContainer() const {
@@ -341,4 +227,4 @@ namespace Rec {
     return container;
   }
 
-} // end of namespace Trk
+} // end of namespace Rec

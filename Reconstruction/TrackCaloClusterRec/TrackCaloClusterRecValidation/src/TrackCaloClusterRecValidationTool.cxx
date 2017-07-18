@@ -14,7 +14,7 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCore/ShallowCopy.h"
 #include "xAODParticleEvent/IParticleLink.h"
-#include "xAODTrackCaloCluster/TrackCaloClusterContainer.h"
+#include "xAODPFlow/TrackCaloClusterContainer.h"
 
 #include "JetCalibTools/JetCalibrationTool.h"
 

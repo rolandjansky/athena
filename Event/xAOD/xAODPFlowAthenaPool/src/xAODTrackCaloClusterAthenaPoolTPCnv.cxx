@@ -6,8 +6,8 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 // Gaudi/Athena include(s): 
 #include "AthenaKernel/TPCnvFactory.h" 
 // EDM include(s): 
-#include "xAODTrackCaloCluster/TrackCaloClusterAuxContainer.h" 
-#include "xAODTrackCaloCluster/versions/TrackCaloClusterAuxContainer_v1.h" 
+#include "xAODPFlow/TrackCaloClusterAuxContainer.h" 
+#include "xAODPFlow/versions/TrackCaloClusterAuxContainer_v1.h" 
 // Local include(s): 
 #include "xAODTrackCaloClusterAuxContainerCnv_v1.h" 
 

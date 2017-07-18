@@ -11,8 +11,8 @@
        
 // Local include(s):
 #include "xAODTrackCaloClusterAuxContainerCnv_v1.h"
-#include "xAODTrackCaloCluster/TrackCaloClusterContainer.h"
-#include "xAODTrackCaloCluster/versions/TrackCaloClusterContainer_v1.h"
+#include "xAODPFlow/TrackCaloClusterContainer.h"
+#include "xAODPFlow/versions/TrackCaloClusterContainer_v1.h"
        
 /// Convenience macro for setting the level of output messages
 #define MSGLVL MSG::DEBUG

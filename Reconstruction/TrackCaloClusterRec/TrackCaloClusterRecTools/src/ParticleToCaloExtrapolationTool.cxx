@@ -19,14 +19,12 @@ ParticleToCaloExtrapolationTool::ParticleToCaloExtrapolationTool(const std::stri
   : AthAlgTool(t,n,p),
     m_detID(nullptr),
     m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-    m_particleType(Trk::muon),
-    m_storeParameters(false)
+    m_particleType(Trk::muon)
 {
 
   declareInterface<IParticleExtrapolationTool>(this);
   declareProperty("Extrapolator",        m_extrapolator );
   declareProperty("ParticleType",        m_particleTypeName = "pion" );
-  declareProperty("StoreParameters",     m_storeParameters);
 }
 
 ParticleToCaloExtrapolationTool::~ParticleToCaloExtrapolationTool() {}
@@ -171,46 +169,7 @@ Trk::CaloExtension* ParticleToCaloExtrapolationTool::particleToCaloExtrapolate( 
   if(startPar->position().perp()>4200.) idExit = false; 
   Trk::PropDirection propDir = idExit ? Trk::alongMomentum : Trk::oppositeMomentum;
   Trk::CaloExtension* extension = caloExtension(*startPar,propDir,particleType);
-
-  if (m_storeParameters and extension) {
-    particle.auxdecor<int>("CaloExtension")   = 1;
-    // decorating the TrackParticle with
-    // --> extrapolated parameters at the calo entry
-    // --> covariance the the calo entry
-    const Trk::TrackParameters*  pars = extension->caloEntryLayerIntersection();
-    particle.auxdecor<float>("CaloEntryPosX")   = (float)pars->position().x();
-    particle.auxdecor<float>("CaloEntryPosY")   = (float)pars->position().y();
-    particle.auxdecor<float>("CaloEntryPosZ")   = (float)pars->position().z();
-    particle.auxdecor<float>("CaloEntryPosEta") = (double)pars->position().eta();
-    particle.auxdecor<float>("CaloEntryPosPhi") = (double)pars->position().phi();
-    particle.auxdecor<float>("CaloEntryDirEta") = (float)pars->momentum().eta();
-    particle.auxdecor<float>("CaloEntryDirPhi") = (float)pars->momentum().phi();
-    
-    if(pars->covariance()) {
-      particle.auxdecor<float>("CaloEntryUncEta")   = (float)(fabs(2.*sin(pars->position().theta()) / (cos(2.*pars->position().theta())-1.)) * sqrt((*pars->covariance())(Trk::theta,Trk::theta)));
-      particle.auxdecor<float>("CaloEntryUncPhi")   = (float)(sqrt((*pars->covariance())(Trk::phi,Trk::phi)));
-      particle.auxdecor<float>("CaloEntryUncTheta") = (float)(sqrt((*pars->covariance())(Trk::theta,Trk::theta)));
-    }
-    
-    // --> parameters and covariance at the perigee
-    particle.auxdecor<float>("PerigeePosX")   = (float)startPar->position().x();
-    particle.auxdecor<float>("PerigeePosY")   = (float)startPar->position().y();
-    particle.auxdecor<float>("PerigeePosZ")   = (float)startPar->position().z();
-    particle.auxdecor<float>("PerigeePosEta") = (float)startPar->momentum().eta();
-    particle.auxdecor<float>("PerigeePosPhi") = (float)startPar->momentum().phi();
-    
-    if(startPar->covariance()) {
-      particle.auxdecor<float>("PerigeeUncEta")   = (float)(fabs(2.*sin(startPar->momentum().theta()) / (cos(2.*startPar->momentum().theta())-1.))* sqrt((*startPar->covariance())(Trk::theta,Trk::theta)));
-      particle.auxdecor<float>("PerigeeUncPhi")   = (float)(sqrt((*startPar->covariance())(Trk::phi,Trk::phi)));
-      particle.auxdecor<float>("PerigeeUncTheta") = (float)(sqrt((*startPar->covariance())(Trk::theta,Trk::theta)));
-    }
-    
-    // --> production radius of the truth particle associated to the track
-    const xAOD::TruthParticle* assTruth = getTruthPtr(particle);
-    if (assTruth and assTruth->hasProdVtx())
-      particle.auxdecor<float>("ProductionRadius") = assTruth->prodVtx()->perp();
-  }
-  
+ 
   return extension;
 }
 

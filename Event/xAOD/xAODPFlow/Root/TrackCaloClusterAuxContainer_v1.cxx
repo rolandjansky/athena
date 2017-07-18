@@ -1,7 +1,7 @@
 // $Id: TrackCaloClusterAuxContainer_v1.cxx $
 
 // Local include(s):
-#include "xAODTrackCaloCluster/versions/TrackCaloClusterAuxContainer_v1.h"
+#include "xAODPFlow/versions/TrackCaloClusterAuxContainer_v1.h"
  
 namespace xAOD {
  
