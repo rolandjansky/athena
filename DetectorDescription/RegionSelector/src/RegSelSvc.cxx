@@ -779,35 +779,35 @@ void RegSelSvc::getRoIData(DETID detectorID,
   //  std::cout << "RegSelSvc::getRoIData()" << detectorID << std::endl; 
 
 
-  RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+  RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
 
   switch(detectorID){
   case PIXEL: { // Pixel
-    if ( m_newpixel) m_newpixel->getRoIData( _roi, modules );
+    if ( m_newpixel) m_newpixel->getRoIData( selroi, modules );
     break;    
   }
   case SCT:  { // Semiconductor Tracker
-    if ( m_newsct ) m_newsct->getRoIData( _roi, modules );    
+    if ( m_newsct ) m_newsct->getRoIData( selroi, modules );    
     break;
   }
   case TRT:  { // TRT
-    if ( m_newtrt ) m_newtrt->getRoIData( _roi, modules );    
+    if ( m_newtrt ) m_newtrt->getRoIData( selroi, modules );    
     break;
   }
   case RPC: { // RPC (obviously)
-    if ( m_newrpc ) m_newrpc->getRoIData(_roi, modules); 
+    if ( m_newrpc ) m_newrpc->getRoIData(selroi, modules); 
     break;
   }
   case MDT: { // MDT (obviously)
-    if ( m_newmdt ) m_newmdt->getRoIData(_roi, modules); 
+    if ( m_newmdt ) m_newmdt->getRoIData(selroi, modules); 
     break;
   }
   case TGC: { // TGC (obviously)
-    if ( m_newtgc ) m_newtgc->getRoIData(_roi, modules); 
+    if ( m_newtgc ) m_newtgc->getRoIData(selroi, modules); 
     break;
   }
   case CSC: { // CSC (obviously)
-    if ( m_newcsc ) m_newcsc->getRoIData(_roi, modules); 
+    if ( m_newcsc ) m_newcsc->getRoIData(selroi, modules); 
     break;
   }
   default:
@@ -857,43 +857,43 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
 
   switch(detectorID){
   case PIXEL: { // Pixel    
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newpixel ) m_newpixel->getHashList(_roi, IDList); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newpixel ) m_newpixel->getHashList(selroi, IDList); 
     break;
   }
   case SCT: { // Semiconductor Tracker (and pixel)
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newsct ) m_newsct->getHashList(_roi, IDList); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newsct ) m_newsct->getHashList(selroi, IDList); 
     break;
   }
   case TRT: { // TRT (obviously)
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newtrt ) m_newtrt->getHashList(_roi, IDList); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newtrt ) m_newtrt->getHashList(selroi, IDList); 
     break;
   }
   case MDT: { // etc
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newmdt ) m_newmdt->getHashList(_roi, IDList); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newmdt ) m_newmdt->getHashList(selroi, IDList); 
     break;
   }
   case RPC: { 
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newrpc ) m_newrpc->getHashList(_roi, IDList); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newrpc ) m_newrpc->getHashList(selroi, IDList); 
     break;
   }
   case TGC: { 
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newtgc ) m_newtgc->getHashList(_roi, IDList); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newtgc ) m_newtgc->getHashList(selroi, IDList); 
     break;
   }
   case CSC: { 
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newcsc ) m_newcsc->getHashList(_roi, IDList); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newcsc ) m_newcsc->getHashList(selroi, IDList); 
     break;
   }
   case FTK: { // FTK    
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_ftklut ) m_ftklut->getHashList(_roi, IDList); 
+    RegSelRoI roi2( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_ftklut ) m_ftklut->getHashList(roi2, IDList); 
     break;
   }
   case LAR: {  // Liquid Argon Calorimeter
@@ -963,43 +963,43 @@ void RegSelSvc::DetHashIDList(DETID detectorID, long layer,
 
   switch(detectorID){
   case PIXEL: { // Pixel    
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newpixel ) m_newpixel->getHashList(_roi, layer, IDList); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newpixel ) m_newpixel->getHashList(selroi, layer, IDList); 
     break;
   }
   case SCT: { // Semiconductor Tracker 
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newsct ) m_newsct->getHashList(_roi, layer, IDList); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newsct ) m_newsct->getHashList(selroi, layer, IDList); 
     break;
   }
   case TRT: { // TRT (obviously)
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newtrt ) m_newtrt->getHashList(_roi, layer, IDList); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newtrt ) m_newtrt->getHashList(selroi, layer, IDList); 
     break;
   }
   case MDT: { 
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newmdt ) m_newmdt->getHashList(_roi, layer, IDList); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newmdt ) m_newmdt->getHashList(selroi, layer, IDList); 
     break;
   }
   case RPC: { 
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newrpc ) m_newrpc->getHashList(_roi, layer, IDList); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newrpc ) m_newrpc->getHashList(selroi, layer, IDList); 
     break;
   }
   case TGC: {
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newtgc ) m_newtgc->getHashList(_roi, layer, IDList); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newtgc ) m_newtgc->getHashList(selroi, layer, IDList); 
     break;
   }
   case CSC: { 
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newcsc ) m_newcsc->getHashList(_roi, layer, IDList); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newcsc ) m_newcsc->getHashList(selroi, layer, IDList); 
     break;
   }
   case FTK: { // FTK    
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_ftklut ) m_ftklut->getHashList(_roi, layer, IDList); 
+    RegSelRoI roi2( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_ftklut ) m_ftklut->getHashList(roi2, layer, IDList); 
     break;
   }
   case LAR: { // Liquid Argon Calorimeter
@@ -1241,43 +1241,43 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
 
   switch (detectorID) {
   case PIXEL: { // Pixel
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newpixel ) m_newpixel->getRobList(_roi, outputROBIDList, m_duplicateRemoval ); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newpixel ) m_newpixel->getRobList(selroi, outputROBIDList, m_duplicateRemoval ); 
     break;
   }
   case SCT: {  // SCT
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newsct ) m_newsct->getRobList(_roi, outputROBIDList, m_duplicateRemoval ); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newsct ) m_newsct->getRobList(selroi, outputROBIDList, m_duplicateRemoval ); 
     break;
   }
   case TRT: {  // TRT
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newtrt ) m_newtrt->getRobList(_roi, outputROBIDList, m_duplicateRemoval ); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newtrt ) m_newtrt->getRobList(selroi, outputROBIDList, m_duplicateRemoval ); 
     break;
   }
   case MDT: { 
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newmdt ) m_newmdt->getRobList(_roi, outputROBIDList, m_duplicateRemoval ); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newmdt ) m_newmdt->getRobList(selroi, outputROBIDList, m_duplicateRemoval ); 
     break;
   }
   case RPC: { 
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newrpc ) m_newrpc->getRobList(_roi, outputROBIDList, m_duplicateRemoval ); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newrpc ) m_newrpc->getRobList(selroi, outputROBIDList, m_duplicateRemoval ); 
     break;
   }
   case TGC: {
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newtgc ) m_newtgc->getRobList(_roi, outputROBIDList, m_duplicateRemoval ); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newtgc ) m_newtgc->getRobList(selroi, outputROBIDList, m_duplicateRemoval ); 
     break;
   }
   case CSC: { 
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newcsc ) m_newcsc->getRobList(_roi, outputROBIDList, m_duplicateRemoval ); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newcsc ) m_newcsc->getRobList(selroi, outputROBIDList, m_duplicateRemoval ); 
     break;
   }
   case FTK: { 
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_ftklut ) m_ftklut->getRobList(_roi, outputROBIDList, m_duplicateRemoval ); 
+    RegSelRoI roi2( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_ftklut ) m_ftklut->getRobList(roi2, outputROBIDList, m_duplicateRemoval ); 
     break;
   }
   case LAR: {  // Liquid Argon Calorimeter
@@ -1348,43 +1348,43 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
 
   switch (detectorID) {
   case PIXEL: { // Pixel
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newpixel ) m_newpixel->getRobList(_roi, layer, outputROBIDList, m_duplicateRemoval );
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newpixel ) m_newpixel->getRobList(selroi, layer, outputROBIDList, m_duplicateRemoval );
     break;
   }
   case SCT: {  // SCT
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newsct ) m_newsct->getRobList(_roi, layer, outputROBIDList, m_duplicateRemoval ); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newsct ) m_newsct->getRobList(selroi, layer, outputROBIDList, m_duplicateRemoval ); 
     break;
   }
   case TRT: { // TRT
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newtrt ) m_newtrt->getRobList(_roi, layer, outputROBIDList, m_duplicateRemoval ); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newtrt ) m_newtrt->getRobList(selroi, layer, outputROBIDList, m_duplicateRemoval ); 
     break;
   }
   case MDT: { 
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newmdt ) m_newmdt->getRobList(_roi, layer, outputROBIDList, m_duplicateRemoval ); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newmdt ) m_newmdt->getRobList(selroi, layer, outputROBIDList, m_duplicateRemoval ); 
     break;
   }
   case RPC: { 
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newrpc ) m_newrpc->getRobList(_roi, layer, outputROBIDList, m_duplicateRemoval ); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newrpc ) m_newrpc->getRobList(selroi, layer, outputROBIDList, m_duplicateRemoval ); 
     break;
   }
   case TGC: {
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newtgc ) m_newtgc->getRobList(_roi, layer, outputROBIDList, m_duplicateRemoval ); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newtgc ) m_newtgc->getRobList(selroi, layer, outputROBIDList, m_duplicateRemoval ); 
     break;
   }
   case CSC: { 
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_newcsc ) m_newcsc->getRobList(_roi, layer, outputROBIDList, m_duplicateRemoval ); 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newcsc ) m_newcsc->getRobList(selroi, layer, outputROBIDList, m_duplicateRemoval ); 
     break;
   }
   case FTK: { 
-    RegSelRoI _roi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
-    if ( m_ftklut ) m_ftklut->getRobList(_roi, layer, outputROBIDList, m_duplicateRemoval ); 
+    RegSelRoI roi2( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_ftklut ) m_ftklut->getRobList(roi2, layer, outputROBIDList, m_duplicateRemoval ); 
     break;
   }
   case LAR: { // Liquid Argon Calorimeter
