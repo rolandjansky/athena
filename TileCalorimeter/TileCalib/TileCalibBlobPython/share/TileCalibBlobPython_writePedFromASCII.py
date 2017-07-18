@@ -1,4 +1,7 @@
 #!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # TileCalibBlobPython_writePedFromASCII.py
 # Nils Gollub <nils.gollub@cern.ch>, 2008-03-03
 # modified: Lukas Pribyl <lukas.pribyl@cern.ch>, 2008-06-27

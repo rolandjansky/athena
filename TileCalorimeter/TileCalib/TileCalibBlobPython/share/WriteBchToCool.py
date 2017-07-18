@@ -1,4 +1,7 @@
 #!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # WriteBchToCool.py
 # Alexander Solodkov <Sanya.Solodkov@cern.ch>, 2014-09-09
 # change Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24
@@ -31,7 +34,7 @@ keywords = ["help","run=","lumi=","mode=","schema=","inschema=","outschema=","ta
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:], letters, keywords)
-except getopt.GetOptError, err:
+except getopt.GetoptError, err:
     print str(err)
     usage()
     sys.exit(2)

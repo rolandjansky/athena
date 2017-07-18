@@ -1,4 +1,7 @@
 #!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # ReadCalibFromCool.py
 # Andrei Artamonov 2009-11-03
 
@@ -30,7 +33,7 @@ keywords = ["help","run=","lumi=","schema=","tag=","folder=","dbname=","nval=","
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
-except getopt.GetOptError, err:
+except getopt.GetoptError, err:
     print str(err)
     usage()
     sys.exit(2)
