@@ -1,0 +1,146 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace InDetDD {
+
+inline int SiNumerology::numBarrels() const
+{
+  return m_barrelIds.size();
+}
+
+inline int SiNumerology::numEndcaps() const
+{
+  return m_endcapIds.size();
+}
+
+inline int SiNumerology::barrelId(int index) const
+{
+  return m_barrelIds[index];
+}
+
+inline int SiNumerology::endcapId(int index) const
+{
+  return m_endcapIds[index]; 
+}
+
+inline int SiNumerology::numLayers() const
+{
+  return m_numLayers;
+}
+
+inline int SiNumerology::numDisks() const
+{
+  return m_numDisks;
+}
+
+inline int SiNumerology::numRingsForDisk(int disk) const
+{
+  return m_ringsForDisk[disk];
+}
+
+inline int SiNumerology::numPhiModulesForLayer(int layer) const
+{
+  return m_phiModulesForLayer[layer];
+}
+
+inline int SiNumerology::numPhiModulesForDiskRing(int disk, int ring) const
+{
+  return m_phiModulesForDiskRing[disk][ring];
+}
+
+inline int SiNumerology::numEtaModulesForLayer(int layer) const
+{
+  return m_etaModulesForLayer[layer];
+}
+
+inline int SiNumerology::beginEtaModuleForLayer(int layer) const
+{
+  // Assume symmetric about zero.
+  return -m_etaModulesForLayer[layer]/2;
+}
+
+inline int SiNumerology::endEtaModuleForLayer(int layer) const
+{
+  // Assume symmetric about zero.
+  return m_etaModulesForLayer[layer]/2+1;
+}
+  
+inline bool SiNumerology::skipEtaZeroForLayer(int layer) const
+{
+  // If even then no module at eta = 0.
+  return !(m_etaModulesForLayer[layer]%2);
+}
+
+inline int SiNumerology::maxNumBarrelEta() const
+{
+  return m_maxNumBarrelEta;
+}
+
+inline int SiNumerology::maxNumEndcapRings() const
+{
+  return m_maxNumEndcapRings;
+}
+
+inline int SiNumerology::maxNumStrips() const 
+{
+  return m_maxPhiCells; 
+}
+
+inline int SiNumerology::maxNumPhiCells() const
+{
+  return m_maxPhiCells;
+}
+
+inline int SiNumerology::maxNumEtaCells() const
+{
+  return m_maxEtaCells;
+}
+
+
+inline bool SiNumerology::useLayer(int layer) const
+{
+  return (m_phiModulesForLayer[layer] != 0);
+}
+
+inline bool SiNumerology::useDisk(int disk) const
+{
+  return (m_ringsForDisk[disk] != 0);
+}
+
+inline int SiNumerology::numBarrelDBM() const 
+{ 
+  return 0; 
+} 
+	 
+inline int SiNumerology::numDisksDBM() const 
+{ 
+  return m_numDisksDBM; 
+} 
+	 
+inline bool SiNumerology::useDiskDBM(int disk) const 
+{ 
+  return (disk<numDisksDBM())?1:0; 
+} 
+	 
+inline int SiNumerology::numRingsForDiskDBM(int /*currentdisk*/) const 
+{ 
+  return 1; 
+} 
+	 
+inline int SiNumerology::numPhiModulesForDiskRingDBM(int disk, int ring) const 
+{ 
+  return m_phiModulesForDiskRingDBM[disk][ring]; 
+} 
+	 
+inline int SiNumerology::numEndcapsDBM() const 
+{ 
+  return m_endcapIdsDBM.size(); 
+} 
+ 
+inline int SiNumerology::endcapIdDBM(int index) const 
+{ 
+  return m_endcapIdsDBM[index];  
+} 
+
+} // End namespace

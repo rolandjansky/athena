@@ -1,0 +1,10 @@
+Package:      offline/InnerDetector/InDetDetDescr/InDetReadoutGeometry  
+
+Responsible:  Grant Gorfine <Grant.Gorfine@nikhef.nl>
+
+Description:  Detector description managers and readout elements for Pixel
+              SCT and TRT.
+
+Dependencies: Identifier, InDetIdentifier, GeoModelKernel, IdDictDetDescr, StoreGate
+
+Last modified: October 1, 2003 by Grant Gorfine
