@@ -13,46 +13,17 @@ import PerfMonComps.DomainsRegistry as pdr
 from AODFix.AODFix import *
 AODFix_Init()
 
+#First do Calo-Reco
+pdr.flag_domain('calo')
+protectedInclude ("CaloRec/CaloRec_jobOptions.py")
+AODFix_postCaloRec()
 
-runningFatrasID=False #True woudl imply that ID reco runs before Calo Reco
+#then run ID reco:
 
-try:
-    from FastSimulationConfig.FastSimulationFlags import jobproperties
-    if jobproperties.FastSimulation.doFatrasID():
-        runningFatrasID=True
-except:
-    mlog.warning("Could not access 'jobproperties.FastSimulation.doFatrasID'. Assume regular reco job")
-    pass
-
-
-if runningFatrasID:
-    #First do ID/Fatras reco:
-    pdr.flag_domain('id')
-    if DetFlags.detdescr.ID_on():
-        try:
-            include("FatrasExample/Fatras_jobOptions.py")
-        except Exception:
-            treatException("Problem with Fatras_jobOptions. Switched off.")
-
-    #Then run Calo-Reco
-    pdr.flag_domain('calo')
-    protectedInclude ("CaloRec/CaloRec_jobOptions.py")
-    
-else: #Regular case, dont' run Fatras
-    #First do Calo-Reco
-    pdr.flag_domain('calo')
-    protectedInclude ("CaloRec/CaloRec_jobOptions.py")
-    AODFix_postCaloRec()
-
-    #then run ID reco:
-
-    pdr.flag_domain('id')
-    if DetFlags.detdescr.ID_on():
-        protectedInclude( "InDetRecExample/InDetRec_jobOptions.py" )
-        AODFix_postInDetRec()
-
-del runningFatrasID #Not needed any more
-
+pdr.flag_domain('id')
+if DetFlags.detdescr.ID_on():
+    protectedInclude( "InDetRecExample/InDetRec_jobOptions.py" )
+    AODFix_postInDetRec()
 
 # functionality : FTK reconstruction
 if DetFlags.detdescr.FTK_on() :
