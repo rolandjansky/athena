@@ -64,17 +64,17 @@ CondSvc::dump(std::ostringstream& ost) const {
   ost << "CondSvc::dump()";
 
   ost << "\ndumping id->alg map\n";
-  for (auto ent : m_idMap) {
+  for (const auto& ent : m_idMap) {
     ost << std::endl << " + " << ent.first << " : ";
-    for (auto a : ent.second) {
+    for (const auto& a : ent.second) {
       ost << " " << a->name();
     }
   }
 
   ost << "\n\ndumping alg->id map\n";
-  for (auto ent : m_algMap) {
+  for (const auto& ent : m_algMap) {
     ost << std::endl << " + " << ent.first->name() << " : ";
-    for (auto a : ent.second) {
+    for (const auto& a : ent.second) {
       ost << " " << a;
     }
   }
@@ -97,8 +97,15 @@ CondSvc::dump(std::ostringstream& ost) const {
 
 StatusCode
 CondSvc::finalize() {
-
   ATH_MSG_DEBUG( "CondSvc::finalize()" );
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode
+CondSvc::stop() {
+
+  ATH_MSG_DEBUG( "CondSvc::stop()" );
 
   if (msgLvl(MSG::DEBUG)) {
     std::ostringstream ost;
