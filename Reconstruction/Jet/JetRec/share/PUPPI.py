@@ -1,6 +1,6 @@
 theApp.EvtMax = 100
 
-inputName="/eos/atlas/user/j/jstupak/data/DAOD/mc15_13TeV.361021.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ1W.merge.DAOD_JETM8.e3569_s2576_s2132_r7725_r7676_p2794/DAOD_JETM8.09323604._000002.pool.root.1"
+inputName="/eos/atlas/user/j/jstupak/data/AOD/mc15_13TeV.361021.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ1W.merge.AOD.e3569_s2576_s2132_r7725_r7676/AOD.07916735._000053.pool.root.1"
 outputName="JZ1.root"
 
 from AthenaCommon.AppMgr import ServiceMgr
