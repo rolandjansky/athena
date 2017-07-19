@@ -15,6 +15,9 @@ atlas_add_test(test_AtlasG4_tf_configuration
 atlas_add_test(test_AtlasG4_cosmics_configuration
                SCRIPT test/test_AtlasG4_cosmics_configuration.py)
 
+atlas_add_test(test_TestBeam_tf_configuration
+               SCRIPT test/test_TestBeam_tf_configuration.py)
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
