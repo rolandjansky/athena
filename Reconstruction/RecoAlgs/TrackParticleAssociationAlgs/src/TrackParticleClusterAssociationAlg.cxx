@@ -60,14 +60,6 @@ StatusCode TrackParticleClusterAssociationAlg::execute()
   // std::string clusterContainerName = m_trackParticleCollectionName + "AssociatedClusters" + m_outputPostFix;
   std::string associationContainerName = m_trackParticleCollectionName + "ClusterAssociations" + m_outputPostFix;
 
-/*   // Create the xAOD container and its auxiliary store:
-  xAOD::CaloClusterContainer* xaod = CaloClusterStoreHelper::makeContainer(&(*evtStore()),clusterContainerName,msg());
-  if ( !xaod ) {
-    ATH_MSG_WARNING ("makeContainer failed");
-    return StatusCode::SUCCESS;
-  }
-  ATH_MSG_DEBUG( "Recorded CaloClusterContainer with key: " << clusterContainerName );  */   
-
   // Create the xAOD container and its auxiliary store:
   xAOD::TrackParticleClusterAssociationContainer* xaoda = new xAOD::TrackParticleClusterAssociationContainer();
   ATH_CHECK( evtStore()->record( xaoda, associationContainerName ) );
