@@ -10,7 +10,7 @@ use GaudiInterface GaudiInterface-* External
 use StoreGate StoreGate-* Control
 
 use Identifier       Identifier-*          DetectorDescription
-
+use  CaloDetDescr               CaloDetDescr-*                  Calorimeter
 use LArElecCalib     LArElecCalib-*        LArCalorimeter
 use LArIdentifier    LArIdentifier-*       LArCalorimeter
 use LArRawEvent      LArRawEvent-*         LArCalorimeter
@@ -18,13 +18,12 @@ use LArRawEvent      LArRawEvent-*         LArCalorimeter
 use LArRawConditions LArRawConditions-*    LArCalorimeter
 use LArRecUtils      LArRecUtils-*         LArCalorimeter
 use LArCabling       LArCabling-*          LArCalorimeter
-
 use LArRecConditions LArRecConditions-*    LArCalorimeter
 
 use AthenaBaseComps AthenaBaseComps-*      Control
 
 use TBEvent TBEvent-* TestBeam
- 
+
 apply_pattern dual_use_library files="*.cxx tests/*.cxx"
 
 #need dual-use library because LArByteStream (HLT) links against LArROD

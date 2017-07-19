@@ -9,7 +9,7 @@
 #include "LArROD/LArDigitsAccumulator.h"
 #include "LArROD/LArRawChannelBuilderDriver.h"
 #include "LArROD/LArCellBuilderDriver.h"
-#include "LArROD/LArSuperCellBuilderDriver.h"
+//#include "LArROD/LArSuperCellBuilderDriver.h"
 #include "LArROD/LArRawChannelBuilderToolOFC.h"
 #include "LArROD/LArRawChannelBuilderToolOFCIter.h"
 #include "LArROD/LArRawChannelBuilderToolParabola.h"
@@ -24,6 +24,7 @@
 #include "LArROD/LArDigitThinner.h"
 #include "LArROD/LArFebErrorSummaryMaker.h"
 #include "LArROD/LArCalibDigitsAccumulatorFreeGain.h"
+//#include "LArROD/TTToSCTool.h"
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
@@ -46,7 +47,7 @@ DECLARE_ALGORITHM_FACTORY(LArRawChannelBuilderDriver)
 DECLARE_ALGORITHM_FACTORY(LArDigitThinner)
 DECLARE_ALGORITHM_FACTORY(LArFebErrorSummaryMaker)
 DECLARE_ALGORITHM_FACTORY(LArCalibDigitsAccumulatorFreeGain)
-DECLARE_ALGORITHM_FACTORY( LArSuperCellBuilderDriver)
+//DECLARE_ALGORITHM_FACTORY( LArSuperCellBuilderDriver)
 DECLARE_TOOL_FACTORY( LArCellBuilderDriver)
 DECLARE_TOOL_FACTORY( LArRawChannelBuilderToolOFC )
 DECLARE_TOOL_FACTORY( LArRawChannelBuilderToolOFCIter )
@@ -59,6 +60,7 @@ DECLARE_TOOL_FACTORY( LArRawChannelBuilderADC2EConstants )
 DECLARE_TOOL_FACTORY( LArRawChannelBuilderPedestalDataBase )
 DECLARE_TOOL_FACTORY( LArRawChannelBuilderPedestalSampleZero )
 DECLARE_TOOL_FACTORY( LArRawChannelBuilderToolTileInfo )
+//DECLARE_TOOL_FACTORY( TTToSCTool )
 
 
 #include "../tests/SuperCellVsCaloCellTestAlg.h"
@@ -80,7 +82,7 @@ DECLARE_FACTORY_ENTRIES(LArROD) {
     DECLARE_ALGORITHM(LArDigitThinner)
     DECLARE_ALGORITHM(LArFebErrorSummaryMaker)
     DECLARE_ALGORITHM(LArCalibDigitsAccumulatorFreeGain)
-    DECLARE_ALGORITHM( LArSuperCellBuilderDriver)
+	    //DECLARE_ALGORITHM( LArSuperCellBuilderDriver)
     DECLARE_TOOL( LArCellBuilderDriver)
     DECLARE_TOOL( LArRawChannelBuilderToolOFC )
     DECLARE_TOOL( LArRawChannelBuilderToolOFCIter )
@@ -93,5 +95,6 @@ DECLARE_FACTORY_ENTRIES(LArROD) {
     DECLARE_TOOL( LArRawChannelBuilderPedestalDataBase )
     DECLARE_TOOL( LArRawChannelBuilderPedestalSampleZero )
     DECLARE_TOOL( LArRawChannelBuilderToolTileInfo )  
+	    //DECLARE_TOOL( TTToSCTool )  
 }
 
