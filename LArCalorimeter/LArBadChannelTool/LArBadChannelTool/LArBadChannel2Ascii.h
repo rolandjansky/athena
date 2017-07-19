@@ -11,6 +11,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArRecConditions/LArBadChannelCont.h"
+#include "LArRecConditions/LArOnOffIdMapping.h"
 #include <string>
 
 //class LArBadChanTool;
@@ -33,8 +34,10 @@ private:
   //ToolHandle< LArBadChanTool > m_BadChanTool;
   //ReadCondHandleKey<LArBadChannelCont> m_BCKey;
   SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey;
-  ToolHandle<LArCablingService> m_larCablingSvc;
 
+  //ToolHandle<LArCablingService> m_larCablingSvc;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey;
+  
   std::string                  m_dbFolder;
   std::string                  m_fileName;
   std::string                  m_executiveSummaryFile;

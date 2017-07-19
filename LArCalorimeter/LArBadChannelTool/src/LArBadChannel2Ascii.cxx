@@ -5,12 +5,6 @@
 #include "LArBadChannelTool/LArBadChannel2Ascii.h"
 #include "LArRecConditions/LArBadFeb.h"
 
-//#include "StoreGate/StoreGate.h"
-
-//#include "LArRecConditions/ILArBadChanTool.h"
-//#include "LArBadChannelTool/LArBadChanTool.h"
-//#include "LArBadChannelTool/LArBadChannelDBTools.h"
-
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArCabling/LArCablingService.h"
 #include <fstream>
@@ -18,10 +12,11 @@
 LArBadChannel2Ascii::LArBadChannel2Ascii(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm( name, pSvcLocator),
   m_BCKey("LArBadChannel"),
-  m_larCablingSvc("LArCablingService")
+  m_cablingKey("LArOnOffIdMap")
 {
   //declareProperty("BadChannelTool", m_BadChanTool, "public, shared BadChannelTool");
   declareProperty("BCKey",m_BCKey);
+  declareProperty("LArOnOffIdMapKey",m_cablingKey);
   declareProperty("FileName",m_fileName="");
   declareProperty("WithMissing",m_wMissing=false);
   declareProperty("SkipDisconnected",m_skipDisconnected=false);
@@ -37,12 +32,7 @@ StatusCode LArBadChannel2Ascii::initialize() {
 
   ATH_CHECK(m_BCKey.initialize());
 
-  if (m_skipDisconnected) {
-    if(m_larCablingSvc.retrieve().isFailure()) {
-      ATH_MSG_FATAL  ( "Could not retrieve LAr Cabling tool" );
-      return StatusCode::FAILURE;
-    }
-  }
+  if (m_skipDisconnected) ATH_CHECK(m_cablingKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -56,8 +46,14 @@ StatusCode LArBadChannel2Ascii::finalize()
 StatusCode LArBadChannel2Ascii::execute() {
 
   SG::ReadCondHandle<LArBadChannelCont> bch{m_BCKey};
-
   const LArBadChannelCont* badChannelCont{*bch};
+
+  const LArOnOffIdMapping* cabling=nullptr;
+  if (m_skipDisconnected) {
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    cabling=(*cablingHdl);
+  }
+
 
   const LArOnlineID* larOnlineID;
   ATH_CHECK( detStore()->retrieve(larOnlineID,"LArOnlineID") );
@@ -91,7 +87,8 @@ StatusCode LArBadChannel2Ascii::execute() {
   unsigned count=0,nConnected=0;
   for(;it!=it_e;++it) {  
     const HWIdentifier chid=*it;
-    if (m_skipDisconnected && !m_larCablingSvc->isOnlineConnected(chid)) continue;
+    //if (m_skipDisconnected && !m_larCablingSvc->isOnlineConnected(chid)) continue;
+    if (cabling && !cabling->isOnlineConnected(chid)) continue;
     ++nConnected;
 
     LArBadChannel bc1 = badChannelCont->status(chid);
@@ -109,8 +106,13 @@ StatusCode LArBadChannel2Ascii::execute() {
 	     << "0 "; //Dummy 0 for calib-line
       (*out) << packing.stringStatus(bc);
 
-      (*out) << "  # 0x" << std::hex << chid.get_identifier32().get_compact() << std::dec << std::endl;
-    } //End if channel is good (regular printout)
+      (*out) << "  # 0x" << std::hex << chid.get_identifier32().get_compact();
+      if (cabling) {
+	Identifier offid=cabling->cnvToIdentifier(chid);
+	(*out) << " -> 0x" << offid.get_identifier32().get_compact();
+      }
+      (*out) << std::dec << std::endl;
+    } //End if channel is not good (regular printout)
     
     if (doExecSummary) {
       HWIdentifier fid=larOnlineID->feb_Id(chid);

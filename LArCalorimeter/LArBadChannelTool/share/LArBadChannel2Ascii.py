@@ -46,8 +46,8 @@ from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
 
 #Get identifier mapping
-include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
-include( "LArIdCnv/LArIdCnv_joboptions.py" )
+#include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
+#include( "LArIdCnv/LArIdCnv_joboptions.py" )
 
 include( "IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.py" )
 include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py" )
@@ -86,6 +86,7 @@ condSeq += theCLI
 import StoreGate.StoreGateConf as StoreGateConf
 svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
 
+include("LArRecUtils/LArOnOffMappingAlg.py")
 
 conddb.addFolder("","/LAR/BadChannelsOfl/BadChannels"+tagStr+dbStr,className="CondAttrListCollection")
 #theCLI.Load+=[ ("CondAttrListCollection","/LAR/BadChannelsOfl/BadChannels") ]
@@ -108,7 +109,7 @@ condSeq+=theLArBadChannelCondAlg
 
 
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChannel2Ascii
-theLArBadChannels2Ascii=LArBadChannel2Ascii()
+theLArBadChannels2Ascii=LArBadChannel2Ascii(SkipDisconnected=True)
 theLArBadChannels2Ascii.FileName=OutputFile
 theLArBadChannels2Ascii.WithMissing=False
 theLArBadChannels2Ascii.ExecutiveSummaryFile=""
