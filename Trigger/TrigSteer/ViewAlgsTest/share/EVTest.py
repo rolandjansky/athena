@@ -25,7 +25,7 @@ data['ctp'] = ['HLT_e8',
 from TrigUpgradeTest.TestUtils import writeEmulationFiles
 writeEmulationFiles(data)
 
-from TrigUpgradeTest.CFElements import *
+from AthenaCommon.CFElements import seqAND, parOR, stepSeq
 TopHLTSeq = seqAND("TopHLTSeq")
 topSequence += TopHLTSeq
 

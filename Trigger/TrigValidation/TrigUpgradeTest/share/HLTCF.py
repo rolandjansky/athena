@@ -1,4 +1,4 @@
-from TrigUpgradeTest.CFElements import *
+from AthenaCommon.CFElements import parOR, seqAND
 
 allAlgs={}
 def useExisting(name):

@@ -129,6 +129,7 @@ StatusCode EMRoIsUnpackingTool::unpack( const EventContext& ctx,
     MonitoredScope::declare( m_monTool,  RoIsCount, RoIsEta, RoIsPhi );
   }
 
+  ATH_MSG_DEBUG( "Unpackked " <<  trigRoIs->size() << " RoIs" );
   // recording
   {
     SG::WriteHandle<TrigRoiDescriptorCollection> handle( m_trigRoIsKey, ctx );
@@ -142,6 +143,7 @@ StatusCode EMRoIsUnpackingTool::unpack( const EventContext& ctx,
     auto handle = SG::makeHandle( m_decisionsKey, ctx );
     CHECK ( handle.record( std::move( decisionOutput ), std::move( decisionAux )  ) );
   }
+
   return StatusCode::SUCCESS; // what else
   
 

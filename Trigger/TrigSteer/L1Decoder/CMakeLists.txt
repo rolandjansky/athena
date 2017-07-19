@@ -49,8 +49,8 @@ atlas_add_component( L1Decoder
                      AthenaBaseComps CxxUtils xAODTrigger
                      TrigConfHLTData TrigConfL1Data TrigSteeringEvent
                      TrigT1Interfaces TrigT1Result
-		     L1DecoderLib	
-                     )
+		     L1DecoderLib 
+		     )
 
 atlas_install_python_modules( python/*.py)
 # Install files from the package:
