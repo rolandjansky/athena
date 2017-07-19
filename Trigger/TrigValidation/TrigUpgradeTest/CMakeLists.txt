@@ -45,9 +45,9 @@ atlas_add_test( GraphView64 SCRIPT scripts/GraphView.sh
 
 atlas_add_test( mergeTest SCRIPT scripts/mergeTest.sh)
 
-#atlas_add_test( IDRunMC     SCRIPT scripts/IDRunMC.sh
-#                PROPERTIES TIMEOUT 500 
-#              )
+atlas_add_test( IDRunMC     SCRIPT scripts/IDRunMC.sh
+                PROPERTIES TIMEOUT 500 
+              )
 
 #atlas_add_test( IDRunData     SCRIPT scripts/IDRunData.sh
 #                PROPERTIES TIMEOUT 500 

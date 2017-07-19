@@ -107,7 +107,7 @@ rec.doSemiDetailedPerfMon.set_Value_and_Lock( False )
 from PerfMonComps.PerfMonFlags import jobproperties
 jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False )
 #jobproperties.AthenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7572_tid07644622_00/RDO.07644622._000001.pool.root.1"]
-jobproperties.AthenaCommonFlags.FilesInput=["/afs/cern.ch/user/t/tbold/workspace/upgrade-test-data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7572_tid07644622_00/RDO.07644622._000001.pool.root.1"]
+jobproperties.AthenaCommonFlags.FilesInput=["/afs/cern.ch/work/t/tbold/public/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7572_tid07644622_00/RDO.07644622._000001.pool.root.1"]
 
 
 from MuonRecExample.MuonRecFlags import muonRecFlags
