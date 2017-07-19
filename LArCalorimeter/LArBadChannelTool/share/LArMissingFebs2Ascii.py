@@ -18,7 +18,7 @@ globalflags.DataSource="data"
 globalflags.InputFormat="bytestream"
 	
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-GEO-08-00-00"
+jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-03-01-00"
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOff()
@@ -51,21 +51,31 @@ topSequence = AlgSequence()
 ## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
 from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
 
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+
+from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+condSeq+=xAODMaker__EventInfoCnvAlg()
+
+from IOVSvc.IOVSvcConf import CondInputLoader
+theCLI=CondInputLoader( "CondInputLoader")
+condSeq += theCLI 
+
+import StoreGate.StoreGateConf as StoreGateConf
+svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
+
 
 if "sqlite" in dir():
-    conddb.addFolder("","/LAR/BadChannelsOfl/MissingFEBs<db>sqlite://;schema="+sqlite+";dbname="+DBInstance+"</db><tag>LARBadChannelsOflMissingFEBs-RUN2-UPD3-01</tag>")
+    conddb.addFolder("","/LAR/BadChannelsOfl/MissingFEBs<db>sqlite://;schema="+sqlite+";dbname="+DBInstance+"</db><tag>LARBadChannelsOflMissingFEBs-RUN2-UPD3-01</tag>",className='AthenaAttributeList')
 else:
-    conddb.addFolder("LAR_OFL","/LAR/BadChannelsOfl/MissingFEBs")#<tag>LARBadChannelsMissingFEBs-empty</tag>")
+    conddb.addFolder("LAR_OFL","/LAR/BadChannelsOfl/MissingFEBs",className='AthenaAttributeList')#<tag>LARBadChannelsMissingFEBs-empty</tag>")
                  
-svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2014-01" 
+svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2014-01"
 
-
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-theLArBadChannelTool=LArBadChanTool()
-theLArBadChannelTool.CoolFolder=""
-theLArBadChannelTool.CoolMissingFEBsFolder="/LAR/BadChannelsOfl/MissingFEBs"
-ToolSvc+=theLArBadChannelTool
-
+from LArBadChannelTool.LArBadChannelToolConf import LArBadFebCondAlg
+theLArBadFebCondAlg=LArBadFebCondAlg()
+theLArBadFebCondAlg.ReadKey="/LAR/BadChannelsOfl/MissingFEBs"
+condSeq+=theLArBadFebCondAlg
 
 
 from LArBadChannelTool.LArBadChannelToolConf import LArBadFeb2Ascii
