@@ -112,7 +112,7 @@ StatusCode LArBadChannelCondAlg::execute() {
   }
 
   if(writeHandle.record(rangeW,badChannelCont.release()).isFailure()) {
-    ATH_MSG_ERROR("Could not record LArFlatConditions object with " 
+    ATH_MSG_ERROR("Could not record LArBadChannelCont object with " 
 		  << writeHandle.key() 
 		  << " with EventRange " << rangeW
 		  << " into Conditions Store");
