@@ -12,10 +12,12 @@
 LArBadChannel2Ascii::LArBadChannel2Ascii(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm( name, pSvcLocator),
   m_BCKey("LArBadChannel"),
+  m_BFKey("LArBadFeb"),
   m_cablingKey("LArOnOffIdMap")
 {
   //declareProperty("BadChannelTool", m_BadChanTool, "public, shared BadChannelTool");
   declareProperty("BCKey",m_BCKey);
+  declareProperty("BFKey",m_BFKey);
   declareProperty("LArOnOffIdMapKey",m_cablingKey);
   declareProperty("FileName",m_fileName="");
   declareProperty("WithMissing",m_wMissing=false);
@@ -32,6 +34,8 @@ StatusCode LArBadChannel2Ascii::initialize() {
 
   ATH_CHECK(m_BCKey.initialize());
 
+  if (m_executiveSummaryFile.size()) ATH_CHECK(m_BFKey.initialize());
+
   if (m_skipDisconnected) ATH_CHECK(m_cablingKey.initialize());
 
   return StatusCode::SUCCESS;
@@ -45,6 +49,8 @@ StatusCode LArBadChannel2Ascii::finalize()
 
 StatusCode LArBadChannel2Ascii::execute() {
 
+  const bool doExecSummary=(m_executiveSummaryFile.size()!=0);
+
   SG::ReadCondHandle<LArBadChannelCont> bch{m_BCKey};
   const LArBadChannelCont* badChannelCont{*bch};
 
@@ -54,6 +60,11 @@ StatusCode LArBadChannel2Ascii::execute() {
     cabling=(*cablingHdl);
   }
 
+  const LArBadFebCont* badFebCont=nullptr;
+  if (doExecSummary) {
+    SG::ReadCondHandle<LArBadFebCont> badFebHdl{m_BFKey};
+    badFebCont=(*badFebHdl);
+  }
 
   const LArOnlineID* larOnlineID;
   ATH_CHECK( detStore()->retrieve(larOnlineID,"LArOnlineID") );
@@ -69,8 +80,6 @@ StatusCode LArBadChannel2Ascii::execute() {
     else
       ATH_MSG_ERROR ( "Failed to open file " << m_fileName );
   }
-
-  const bool doExecSummary=(m_executiveSummaryFile.size()!=0);
 
   const LArBadChanBitPacking packing;
 
@@ -116,7 +125,7 @@ StatusCode LArBadChannel2Ascii::execute() {
     
     if (doExecSummary) {
       HWIdentifier fid=larOnlineID->feb_Id(chid);
-      LArBadFeb bf;//m_BadChanTool->febStatus(fid);
+      LArBadFeb bf=badFebCont->status(fid);
 
       DetPart dp=EMB;
       if (larOnlineID->isEMECchannel(chid)) 
