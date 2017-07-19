@@ -353,5 +353,15 @@ class TestAtlasG4Cosmics(unittest.TestCase):
         self._assert_Algorithm_property_equal('G4AtlasAlg', 'RecordFlux', expected_property_value)
 
 
+    def test___GeoModelSvc_DetectorTools_setCorrectly(self):
+        expected_property_value = ['PixelDetectorTool/PixelDetectorTool', 'SCT_DetectorTool/SCT_DetectorTool', 'TRT_DetectorTool/TRT_DetectorTool', 'InDetServMatTool/InDetServMatTool', 'LArDetectorToolNV/LArDetectorToolNV', 'TileDetectorTool/TileDetectorTool', 'MuonDetectorTool/MuonDetectorTool', 'BeamPipeDetectorTool/BeamPipeDetectorTool', 'CavernInfraDetectorTool/CavernInfraDetectorTool']
+        self._assert_Algorithm_property_ordered_equal('GeoModelSvc', 'DetectorTools', expected_property_value)
+
+
+    def test___AGDDtoGeoSvc_Builders_setCorrectly(self):
+        expected_property_value = ['MuonAGDDTool/MuonSpectrometer']
+        self._assert_Algorithm_property_ordered_equal('AGDDtoGeoSvc', 'Builders', expected_property_value)
+
+
 if __name__ == '__main__':
     unittest.main()
