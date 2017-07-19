@@ -82,12 +82,13 @@ def getParticleKillerSvc(name="ISF_ParticleKillerSvc", **kwargs):
 def getGenParticleFilters():
     genParticleFilterList = []
     genParticleFilterList = ['ISF_ParticleFinalStateFilter'] # not used for Quasi-stable particle simulation
-    from AthenaCommon.BeamFlags import jobproperties
-    if jobproperties.Beam.beamType() != "cosmics":
-        genParticleFilterList += ['ISF_ParticlePositionFilterDynamic']
-        from G4AtlasApps.SimFlags import simFlags
-        if (not simFlags.CavernBG.statusOn) or simFlags.CavernBG.get_Value() == 'Signal':
-            genParticleFilterList += ['ISF_EtaPhiFilter']
+    from G4AtlasApps.SimFlags import simFlags
+    if "ATLAS" in simFlags.SimLayout():
+        from AthenaCommon.BeamFlags import jobproperties
+        if jobproperties.Beam.beamType() != "cosmics":
+            genParticleFilterList += ['ISF_ParticlePositionFilterDynamic']
+            if (not simFlags.CavernBG.statusOn) or simFlags.CavernBG.get_Value() == 'Signal':
+                genParticleFilterList += ['ISF_EtaPhiFilter']
     genParticleFilterList += ['ISF_GenParticleInteractingFilter']
     return genParticleFilterList
 
