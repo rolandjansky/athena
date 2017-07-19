@@ -37,10 +37,6 @@ def listReplace(l,old,new):
 ############################################################################################
 #Use a sequence and PseudoJetGetter to correct PFO and apply CHS - This reproduces standard EMPflow jets
 
-from JetRecTools.JetRecToolsConf import PFOAnalyzer
-PFOana=PFOAnalyzer('PFOana',JetCollection='AntiKt4EMPFlowJets')
-ToolSvc += PFOana
-
 from JetRec.JetRecConf import PseudoJetGetter
 jtm += PseudoJetGetter("PFCHSGetter",
                        Label = "EMPFlow",
@@ -74,7 +70,7 @@ PFCHSSequence = JetConstituentModSequence("PFCHSSequence",
                                           InputContainer = "JetETMiss",
                                           OutputContainer = "PFCHS",
                                           InputType = "ParticleFlow",
-                                          Modifiers = [correctPFOTool,PFOana,fakePuppiWeightTool,CHSTool],
+                                          Modifiers = [correctPFOTool,fakePuppiWeightTool,CHSTool],
                                           SaveAsShallow = False,
                                           )
 ToolSvc += PFCHSSequence
@@ -120,7 +116,7 @@ PFPUPPICHSSequence = JetConstituentModSequence("PFPUPPICHSSequence",
                                                InputContainer = "JetETMiss",
                                                OutputContainer = "PFPUPPICHS",
                                                InputType = "ParticleFlow",
-                                               Modifiers = [correctPFOTool,PFOana,puppiWeightTool,CHSTool],
+                                               Modifiers = [correctPFOTool,puppiWeightTool,CHSTool],
                                                SaveAsShallow = False,
                                                )
 ToolSvc += PFPUPPICHSSequence
@@ -162,7 +158,7 @@ PFSequence = JetConstituentModSequence("PFSequence",
                                        InputContainer = "JetETMiss",
                                        OutputContainer = "PF",
                                        InputType = "ParticleFlow",
-                                       Modifiers = [correctPFOTool,PFOana,fakePuppiWeightTool],
+                                       Modifiers = [correctPFOTool,fakePuppiWeightTool],
                                        SaveAsShallow = False,
                                        )
 ToolSvc += PFSequence
@@ -204,7 +200,7 @@ PFPUPPISequence = JetConstituentModSequence("PFPUPPISequence",
                                             InputContainer = "JetETMiss",
                                             OutputContainer = "PFPUPPI",
                                             InputType = "ParticleFlow",
-                                            Modifiers = [correctPFOTool,PFOana,puppiWeightTool],
+                                            Modifiers = [correctPFOTool,puppiWeightTool],
                                             SaveAsShallow = False,
                                             )
 ToolSvc += PFPUPPISequence
