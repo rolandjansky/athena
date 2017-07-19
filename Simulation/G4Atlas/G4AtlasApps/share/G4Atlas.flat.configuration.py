@@ -1,3 +1,9 @@
+## _PyG4AtlasComp.__init__
+## If the random number service hasn't been set up already, do it now.
+from G4AtlasApps.SimFlags import simFlags
+simFlags.RandomSeedList.useDefaultSeeds()
+
+## AtlasSimSkeleton._do_jobproperties
 ## Import extra flags if it hasn't already been done
 from G4AtlasApps.SimFlags import simFlags
 if "atlas_flags" not in simFlags.extra_flags:
@@ -73,7 +79,7 @@ jobproperties.print_JobProperties('tree&value')
 if not simFlags.ISFRun:
     jobproperties.lock_JobProperties()
 
-## _do_external
+## AtlasSimSkeleton._do_external
 from AthenaCommon.AppMgr import ToolSvc,ServiceMgr
 from Geo2G4.Geo2G4Conf import Geo2G4Svc
 geo2G4Svc = Geo2G4Svc()
@@ -148,7 +154,7 @@ if DetFlags.Muon_on():
 ## Add configured GeoModelSvc to service manager
 ServiceMgr += gms
 
-##_do_metadata
+## AtlasSimSkeleton._do_metadata
 from G4AtlasApps.SimFlags import simFlags
 if not simFlags.ISFRun:
     from G4AtlasApps.G4Atlas_Metadata import createSimulationParametersMetadata
@@ -317,7 +323,7 @@ if not simFlags.ISFRun:
         configureRunNumberOverrides()
 
 
-    ## _do_readevgen
+    ## SimSkeleton._do_readevgen
     from G4AtlasApps.SimFlags import simFlags
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -345,7 +351,7 @@ if not simFlags.ISFRun:
             msg += "athenaCommonFlags.PoolEvgenInput flag: ignoring event skip request"
             print msg
 
-    ## _do_persistency
+    ## SimSkeleton._do_persistency
     from G4AtlasApps.SimFlags import simFlags
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     if will_write_output_files():
@@ -377,10 +383,8 @@ if not simFlags.ISFRun:
     # Check on run numbers and update them if necessary
     do_run_number_modifications()
 
-## PyG4AtlasAlg.initialize
-#import AthenaCommon.AtlasUnixStandardJob
-#from AthenaCommon.AppMgr import theApp
-#print theApp
+
+## _PyG4AtlasComp.initialize
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 if athenaCommonFlags.EvtMax.statusOn:# and theApp.EvtMax == -1:
     theApp.EvtMax = athenaCommonFlags.EvtMax()
