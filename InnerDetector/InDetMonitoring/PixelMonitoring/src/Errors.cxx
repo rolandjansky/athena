@@ -241,8 +241,8 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
          m_errhist_expert_LB_maps[j]  = new PixelMon2DLumiMaps(error_state_labels[j].first + "_int_LB", error_state_labels[j].second + " per event per LB" + m_histTitleExt, "# Errors", PixMon::HistConf::kPix);
          sc = m_errhist_expert_LB_maps[j]->regHist(rodExpert);
       }
-      for (int j = kNumErrorStates ; j <  kNumErrorStates+kNumErrorStatesIBL; j++) {
-         m_errhist_expert_LB_maps[j]  = new PixelMon2DLumiMaps(error_state_labelsIBL[j - kNumErrorStates].first + "_int_LB", error_state_labelsIBL[j - kNumErrorStates].second + " per event per LB" + m_histTitleExt, "# Errors", PixMon::HistConf::kIBL, m_doIBL);
+      for (int j = kNumErrorStates; j < kNumErrorStates+kNumErrorStatesIBL; j++) {
+         m_errhist_expert_LB_maps[j] = new PixelMon2DLumiMaps(error_state_labelsIBL[j - kNumErrorStates].first + "_int_LB", error_state_labelsIBL[j - kNumErrorStates].second + " per event per LB" + m_histTitleExt, "# Errors", PixMon::HistConf::kIBL);
          sc = m_errhist_expert_LB_maps[j]->regHist(rodExpert);
       }
    }
@@ -266,8 +266,8 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
 
    for (int j = kNumErrorStates; j < kNumErrorStates+kNumErrorStatesIBL; j++) {
       for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
-         hname = makeHistname((error_state_labelsIBL[j - kNumErrorStates].first+"_per_lumi_"+modlabel2[i]), false);
-         htitles = makeHisttitle(("Average "+error_state_labelsIBL[j - kNumErrorStates].second+" per event per LB, "+modlabel2[i]), (atext_LB+atext_erf), false);
+         hname = makeHistname((error_state_labelsIBL[j - kNumErrorStates].first + "_per_lumi_" + modlabel2[i]), false);
+         htitles = makeHisttitle(("Average " + error_state_labelsIBL[j - kNumErrorStates].second + " per event per LB, " + modlabel2[i]), (atext_LB + atext_erf), false);
          sc = rodExpert.regHist(m_errhist_expert_LB[i][j] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
       }
 
