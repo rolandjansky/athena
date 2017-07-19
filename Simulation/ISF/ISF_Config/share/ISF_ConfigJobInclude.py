@@ -68,7 +68,7 @@ if len(globalflags.ConditionsTag()):
 
 # Temporary work-around - see ATLASSIM-2351
 if ISF_Flags.UsingGeant4():
-    include("G4AtlasApps/G4Atlas.flat.configuration.py") #TEST
+    include("G4AtlasApps/G4Atlas.flat.configuration.py") #HACK
 
 #--------------------------------------------------------------
 # Setup the ISF Services
