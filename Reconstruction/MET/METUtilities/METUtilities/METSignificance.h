@@ -63,7 +63,7 @@ namespace met {
     StatusCode  initialize();
     StatusCode  finalize();
       
-    StatusCode varianceMET(xAOD::MissingETContainer* metCont);
+    StatusCode varianceMET(xAOD::MissingETContainer* metCont, std::string jetTermName, std::string softTermName, std::string totalMETName);
 
 
     ///////////////////////////////////////////////////////////////////

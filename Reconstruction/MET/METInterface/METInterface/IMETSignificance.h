@@ -30,7 +30,7 @@ public:
 
   // Convenience methods that creates MET terms internally
   // Version with single soft term
-    virtual StatusCode varianceMET(xAOD::MissingETContainer* metCont)=0;
+  virtual StatusCode varianceMET(xAOD::MissingETContainer* metCont, std::string jetTermName, std::string softTermName, std::string totalMETName)=0;
     
 
   ///////////////////////////////////////////////////////////////////

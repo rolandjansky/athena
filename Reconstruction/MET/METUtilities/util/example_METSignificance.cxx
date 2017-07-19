@@ -46,9 +46,9 @@ int main() {
 #include "JetCalibTools/JetCalibrationTool.h"
 
 #include "METInterface/IMETMaker.h"
+#include "METInterface/IMETSignificance.h"
 #include "METUtilities/CutsMETMaker.h"
 #include "METUtilities/METHelpers.h"
-#include "METUtilities/METSignificance.h"
 
 #include "xAODCore/tools/IOStats.h"
 #include "xAODCore/tools/ReadStats.h"
@@ -56,20 +56,17 @@ int main() {
 using namespace asg::msgUserCode;
 
 int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl;
-  std::cout << "test" << std::endl;
 #ifdef XAOD_STANDALONE
   //enable status code failures
   //  CP::CorrectionCode::enableFailure();
   //  CP::SystematicCode::enableFailure();
   StatusCode::enableFailure();
-  std::cout << "test" << std::endl;
   xAOD::TReturnCode::enableFailure();
   //xAOD::Init() ;
-  std::cout << "test" << std::endl;
 #else
   IAppMgrUI* app = POOL::Init(); //important to do this first!
 #endif
-  std::cout << "config" << std::endl;
+
   std::string jetType = "AntiKt4EMTopo";
   TString fileName = gSystem->Getenv("ASG_TEST_FILE_MC");
   size_t evtmax = 100;
@@ -90,7 +87,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
   ANA_CHECK( ASG_MAKE_ANA_TOOL( jetCalibrationTool, JetCalibrationTool ) );
   jetCalibrationTool.setName("jetCalibTool");
   ANA_CHECK( jetCalibrationTool.setProperty("JetCollection", jetType) );
-  ANA_CHECK( jetCalibrationTool.setProperty("ConfigFile", "JES_MC15cRecommendation_May2016_rel21.config") );
+  ANA_CHECK( jetCalibrationTool.setProperty("ConfigFile", "JES_MC15cRecommendation_May2016.config") );
   ANA_CHECK( jetCalibrationTool.setProperty("CalibSequence", "JetArea_Residual_EtaJES_GSC") );
   ANA_CHECK( jetCalibrationTool.setProperty("IsData", false) );
   ANA_CHECK( jetCalibrationTool.retrieve() );
@@ -102,20 +99,23 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
   // Create a TEvent object to read from file and a transient store in which to place items
 #ifdef XAOD_STANDALONE
   std::unique_ptr<xAOD::TEvent> event(new xAOD::TEvent( xAOD::TEvent::kClassAccess ) );
+  //std::unique_ptr<xAOD::TEvent> event(new xAOD::TEvent( xAOD::TEvent::kAthenaAccess ) );
   std::unique_ptr<xAOD::TStore> store(new xAOD::TStore());
 #else // Athena "Store" is the same StoreGate used by the TEvent
   std::unique_ptr<POOL::TEvent> event(new POOL::TEvent( POOL::TEvent::kClassAccess ));
+  //std::unique_ptr<POOL::TEvent> event(new POOL::TEvent( POOL::TEvent::kAthenaAccess ));
   ServiceHandle<StoreGateSvc>& store = event->evtStore();
 #endif
   ANA_CHECK( event->readFrom( ifile.get() ) );
 
   // declare METSignificance
+  
   asg::AnaToolHandle<IMETSignificance> metSignif;
-  metSignif.setTypeAndName("met::METSignificance/metSignficance");
+  metSignif.setTypeAndName("met::METSignificance/metSignif");
   ANA_CHECK( metSignif.setProperty("SoftTermParam", 0) );
-  ANA_CHECK( metSignif.setProperty("TreatPUJets",   false) );
+  ANA_CHECK( metSignif.setProperty("TreatPUJets",   true) );
   ANA_CHECK( metSignif.retrieve() );
-
+  
   // reconstruct the MET
   asg::AnaToolHandle<IMETMaker> metMaker;
   metMaker.setTypeAndName("met::METMaker/metMaker");
@@ -190,10 +190,17 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
       }
       //this line will mark the electron as invisible if it passes the (inv) electron selection cut
       //this removes the particle and associated clusters from the jet and soft term calculations
-      ANA_CHECK( metMaker->markInvisible(metInvisibleElectrons.asDataVector(),metMap,newMetContainer) );
+      //ANA_CHECK( metMaker->markInvisible(metInvisibleElectrons.asDataVector(),metMap,newMetContainer) );
       // NOTE: Objects marked as invisible should not also be added as part
       // of another term! However, you can e.g. mark some electrons invisible
       // and compute RefEle with others.
+
+      ANA_CHECK(metMaker->rebuildMET("RefEle",
+			       xAOD::Type::Electron,
+			       newMetContainer,
+			       metInvisibleElectrons.asDataVector(),
+			       metMap)
+	   );
     }
 
     //Photons
@@ -225,6 +232,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
       //      if(CutsMETMaker::accept(mu)) metMuons.push_back(mu);
       if(mu->muonType()==xAOD::Muon::Combined && mu->pt()>10e3) metMuons.push_back(mu);
     }
+
     ANA_CHECK(metMaker->rebuildMET("Muons",
 			       xAOD::Type::Muon,
 			       newMetContainer,
@@ -246,7 +254,8 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 				    false            //don't apply jet jvt cut
 				    )
 	     );
-
+    
+    /*
     ANA_CHECK( metMaker->rebuildTrackMET("RefJetTrk",    //name of jet track met
 				      "PVSoftTrk",	  //name of soft track term met
 				      newMetContainer,//adding to this new met container
@@ -255,23 +264,56 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 				      metMap,	  //with this association map
 				      false		  //don't apply jet jvt cut
 				      )
-	     );
+				      );
+    */
 
 
     //this builds the final track and cluster met sums, using systematic varied container
     ANA_CHECK( metMaker->buildMETSum("FinalTrk" , newMetContainer, MissingETBase::Source::Track ) );
     ANA_CHECK( metMaker->buildMETSum("FinalClus", newMetContainer, MissingETBase::Source::LCTopo) );
 
-    // Run MET significance
-    ANA_CHECK( metSignif->varianceMET(newMetContainer));
+    // Run MET significance    
+    ANA_CHECK( metSignif->varianceMET(newMetContainer, "RefJet", "PVSoftTrk","FinalTrk"));
 
+    if(debug){
+      if(newMetContainer->find("Muons")!=newMetContainer->end())
+	std::cout << "Muon term: "  << static_cast<xAOD::MissingET*>(*(newMetContainer->find("Muons")))->met()
+		  << " phi: " << static_cast<xAOD::MissingET*>(*(newMetContainer->find("Muons")))->phi() 
+		  << std::endl;
+      if(newMetContainer->find("MuonEloss")!=newMetContainer->end())
+	std::cout << "MuonEloss term: "  << static_cast<xAOD::MissingET*>(*(newMetContainer->find("MuonEloss")))->met()
+		  << " phi: " << static_cast<xAOD::MissingET*>(*(newMetContainer->find("MuonEloss")))->phi() 
+		  << std::endl;
+      if(newMetContainer->find("RefJet")!=newMetContainer->end())
+	std::cout << "Jet term: "   << static_cast<xAOD::MissingET*>(*(newMetContainer->find("RefJet")))->met() 
+		  << " phi: " << static_cast<xAOD::MissingET*>(*(newMetContainer->find("RefJet")))->phi() 
+		  << std::endl;
+      
+      if(newMetContainer->find("RefEle")!=newMetContainer->end())
+	std::cout << "Ele term: "   << static_cast<xAOD::MissingET*>(*(newMetContainer->find("RefEle")))->met() 
+		  << " phi: " << static_cast<xAOD::MissingET*>(*(newMetContainer->find("RefEle")))->phi() 
+		  << std::endl;
+      if(newMetContainer->find("RefTau")!=newMetContainer->end())
+	std::cout << "Tau term: "   << static_cast<xAOD::MissingET*>(*(newMetContainer->find("RefTau")))->met() 
+		  << " phi: " << static_cast<xAOD::MissingET*>(*(newMetContainer->find("RefTau")))->phi() 
+		  << std::endl;
+      if(newMetContainer->find("RefPhoton")!=newMetContainer->end())
+	std::cout << "Gamma term: " << static_cast<xAOD::MissingET*>(*(newMetContainer->find("RefPhoton")))->met() 
+		  << " phi: " << static_cast<xAOD::MissingET*>(*(newMetContainer->find("RefPhoton")))->phi() 
+		  << std::endl;
+      if(newMetContainer->find("PVSoftTrk")!=newMetContainer->end())
+	std::cout << "Soft term: "  << static_cast<xAOD::MissingET*>(*(newMetContainer->find("PVSoftTrk")))->met() 
+		  << " phi: " << static_cast<xAOD::MissingET*>(*(newMetContainer->find("PVSoftTrk")))->phi() 
+		  << std::endl;
+    }
+      
     ANA_CHECK(store->record( newMetContainer,    "FinalMETContainer"    ));
     ANA_CHECK(store->record( newMetAuxContainer, "FinalMETContainerAux."));
 
 #ifdef XAOD_STANDALONE // POOL::TEvent should handle this when changing events
     //fill the containers stored in the event
     //to the output file and clear the transient store
-    assert(event->fill());
+    //assert(event->fill());
     store->clear();
 #endif
   }
