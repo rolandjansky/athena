@@ -38,6 +38,14 @@ CondInputLoader::CondInputLoader( const std::string& name,
   //
   // Property declaration
   // 
+  auto props = getProperties();
+  for( Property* prop : props ) {
+    if (prop->name() == "ExtraOutputs" || prop->name() == "ExtraInputs") {
+      prop->declareUpdateHandler
+        (&CondInputLoader::extraDeps_update_handler, this);
+    }
+  }
+
   declareProperty( "Load", m_load); 
   //->declareUpdateHandler(&CondInputLoader::loader, this);
   declareProperty( "ShowEventDump", m_dump=false);
@@ -288,3 +296,10 @@ CondInputLoader::execute()
 
 //-----------------------------------------------------------------------------
 
+// need to override the handling of the DataObjIDs that's done by
+// AthAlgorithm, so we don't inject the name of the Default Store
+void 
+CondInputLoader::extraDeps_update_handler( Property& ExtraDeps ) 
+{  
+  // do nothing
+}
