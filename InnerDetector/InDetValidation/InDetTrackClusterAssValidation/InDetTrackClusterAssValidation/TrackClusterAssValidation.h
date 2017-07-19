@@ -9,7 +9,7 @@
 #include <string>
 #include <map>
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "TrkSpacePoint/SpacePointContainer.h" 
 #include "TrkSpacePoint/SpacePointOverlapCollection.h" 
 #include "InDetPrepRawData/SiClusterContainer.h"
@@ -74,7 +74,7 @@ namespace InDet {
 
   // Class-algorithm for track cluster association validation
   //
-  class TrackClusterAssValidation : public AthAlgorithm 
+  class TrackClusterAssValidation : public AthReentrantAlgorithm
     {
 
       ///////////////////////////////////////////////////////////////////
@@ -90,7 +90,7 @@ namespace InDet {
       TrackClusterAssValidation(const std::string &name, ISvcLocator *pSvcLocator);
       virtual ~TrackClusterAssValidation() {}
       StatusCode initialize();
-      StatusCode execute();
+      StatusCode execute_r(const EventContext& ctx) const;
       StatusCode finalize();
 
     protected:
@@ -228,8 +228,9 @@ namespace InDet {
         }
       };
 
-      std::vector<TrackCollectionStat_t>   m_trackCollectionStat;
-      EventStat_t                          m_eventStat;
+      mutable std::mutex                           m_statMutex;
+      mutable std::vector<TrackCollectionStat_t>   m_trackCollectionStat;
+      mutable EventStat_t                          m_eventStat;
 
       unsigned int                       m_clcut                  ;
       unsigned int                       m_clcutTRT               ;
@@ -306,9 +307,9 @@ namespace InDet {
       // Protected methods
       ///////////////////////////////////////////////////////////////////
 
-      void newSpacePointsEvent     (InDet::TrackClusterAssValidation::EventData_t &event_data) const;
-      void newClustersEvent        (InDet::TrackClusterAssValidation::EventData_t &event_data) const;
-      void tracksComparison        (InDet::TrackClusterAssValidation::EventData_t &event_data) const;
+      void newSpacePointsEvent     (const EventContext& ctx, InDet::TrackClusterAssValidation::EventData_t &event_data) const;
+      void newClustersEvent        (const EventContext& ctx, InDet::TrackClusterAssValidation::EventData_t &event_data) const;
+      void tracksComparison        (const EventContext& ctx, InDet::TrackClusterAssValidation::EventData_t &event_data) const;
       void efficiencyReconstruction(InDet::TrackClusterAssValidation::EventData_t &event_data) const;
       bool noReconstructedParticles(const InDet::TrackClusterAssValidation::EventData_t &event_data) const;
 

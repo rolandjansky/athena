@@ -18,7 +18,7 @@
 
 InDet::TrackClusterAssValidation::TrackClusterAssValidation
 (const std::string& name,ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name,pSvcLocator),
+  : AthReentrantAlgorithm(name,pSvcLocator),
     m_truth_locationPixel( "PRD_MultiTruthPixel" ),
     m_truth_locationSCT(   "PRD_MultiTruthSCT" ),
     m_truth_locationTRT(   "PRD_MultiTruthTRT" )
@@ -139,7 +139,7 @@ StatusCode InDet::TrackClusterAssValidation::initialize()
 // Execute
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::TrackClusterAssValidation::execute() 
+StatusCode InDet::TrackClusterAssValidation::execute_r(const EventContext& ctx) const
 { 
 
   if(!m_usePIX && !m_useSCT) return StatusCode::SUCCESS;;
@@ -148,7 +148,7 @@ StatusCode InDet::TrackClusterAssValidation::execute()
   std::vector<SG::ReadHandle<PRD_MultiTruthCollection> > read_handle;
   read_handle.reserve(3);
   if(m_usePIX) {
-    read_handle.push_back(SG::ReadHandle<PRD_MultiTruthCollection>(m_truth_locationPixel));
+    read_handle.push_back(SG::ReadHandle<PRD_MultiTruthCollection>(m_truth_locationPixel,ctx));
     if (not read_handle.back().isValid()) {
       ATH_MSG_FATAL( "Could not find TruthPIX" );
       return StatusCode::FAILURE;
@@ -157,7 +157,7 @@ StatusCode InDet::TrackClusterAssValidation::execute()
   }
 
   if(m_useSCT) {
-    read_handle.push_back(SG::ReadHandle<PRD_MultiTruthCollection>(m_truth_locationSCT));
+    read_handle.push_back(SG::ReadHandle<PRD_MultiTruthCollection>(m_truth_locationSCT,ctx));
     if (not read_handle.back().isValid()) {
       ATH_MSG_FATAL( "Could not find TruthSCT" );
       return StatusCode::FAILURE;
@@ -166,7 +166,7 @@ StatusCode InDet::TrackClusterAssValidation::execute()
   }
 
   if(m_clcutTRT > 0) {
-    read_handle.push_back(SG::ReadHandle<PRD_MultiTruthCollection>(m_truth_locationTRT));
+    read_handle.push_back(SG::ReadHandle<PRD_MultiTruthCollection>(m_truth_locationTRT,ctx));
     if (not read_handle.back().isValid()) {
       ATH_MSG_FATAL( "Could not find TruthTRT" );
       return StatusCode::FAILURE;
@@ -174,10 +174,10 @@ StatusCode InDet::TrackClusterAssValidation::execute()
     event_data.m_truthTRT = &(*read_handle.back());
   }
 
-  newClustersEvent      (event_data);
-  newSpacePointsEvent   (event_data);
+  newClustersEvent      (ctx,event_data);
+  newSpacePointsEvent   (ctx,event_data);
   event_data.m_nqtracks = QualityTracksSelection(event_data);
-  tracksComparison      (event_data);
+  tracksComparison      (ctx,event_data);
   if(event_data.m_particles[0].size() > 0) {
 
     efficiencyReconstruction(event_data); 
@@ -185,11 +185,14 @@ StatusCode InDet::TrackClusterAssValidation::execute()
 
   }
 
-  assert( event_data.m_trackCollectionStat.size() == m_trackCollectionStat.size());
-  for (unsigned int i=0; i< m_trackCollectionStat.size(); ++i ) {
-    m_trackCollectionStat[i] += event_data.m_trackCollectionStat[i];
+  {
+    std::lock_guard<std::mutex> lock(m_statMutex);
+    assert( event_data.m_trackCollectionStat.size() == m_trackCollectionStat.size());
+    for (unsigned int i=0; i< m_trackCollectionStat.size(); ++i ) {
+      m_trackCollectionStat[i] += event_data.m_trackCollectionStat[i];
+    }
+    m_eventStat += event_data.m_eventStat;
   }
-  m_eventStat += event_data.m_eventStat;
 
   if (msgLvl(MSG::DEBUG)) {
     dumpevent(msg(),event_data);
@@ -1190,7 +1193,7 @@ MsgStream& InDet::TrackClusterAssValidation::dumpevent( MsgStream& out, const In
 // New event for clusters information 
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TrackClusterAssValidation::newClustersEvent(InDet::TrackClusterAssValidation::EventData_t &event_data) const
+void InDet::TrackClusterAssValidation::newClustersEvent(const EventContext& ctx,InDet::TrackClusterAssValidation::EventData_t &event_data) const
 {
   // Get pixel clusters container
   // 
@@ -1199,21 +1202,21 @@ void InDet::TrackClusterAssValidation::newClustersEvent(InDet::TrackClusterAssVa
   std::unique_ptr<SG::ReadHandle<TRT_DriftCircleContainer> > trtcontainer;
 
   if(m_usePIX) {
-    pixelcontainer = std::move(std::make_unique<SG::ReadHandle<SiClusterContainer> >(m_clustersPixelname));
+    pixelcontainer = std::move(std::make_unique<SG::ReadHandle<SiClusterContainer> >(m_clustersPixelname,ctx));
     if (!pixelcontainer->isValid()) ATH_MSG_DEBUG("Failed to create Pixel clusters container read handle with key " << m_clustersPixelname.key());
   }
 
   // Get sct   clusters container
   //
   if(m_useSCT) {
-    sctcontainer = std::move(std::make_unique<SG::ReadHandle<SiClusterContainer> >(m_clustersSCTname));
+    sctcontainer = std::move(std::make_unique<SG::ReadHandle<SiClusterContainer> >(m_clustersSCTname,ctx));
     if (!sctcontainer->isValid()) ATH_MSG_DEBUG("Failed to create SCT clusters container read handle with key " << m_clustersSCTname.key());
   } 
 
   // Get trt   cluster container
   //
   if(m_clcutTRT > 0) {
-    trtcontainer = std::move(std::make_unique<SG::ReadHandle<TRT_DriftCircleContainer> >(m_clustersTRTname));
+    trtcontainer = std::move(std::make_unique<SG::ReadHandle<TRT_DriftCircleContainer> >(m_clustersTRTname,ctx));
     if (!trtcontainer->isValid()) ATH_MSG_DEBUG("Failed to create TRT drift circle container read handle with key " << m_clustersTRTname.key());
   }
 
@@ -1297,13 +1300,13 @@ void InDet::TrackClusterAssValidation::newClustersEvent(InDet::TrackClusterAssVa
 // New event for space points information 
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TrackClusterAssValidation::newSpacePointsEvent(InDet::TrackClusterAssValidation::EventData_t &event_data) const
+void InDet::TrackClusterAssValidation::newSpacePointsEvent(const EventContext& ctx, InDet::TrackClusterAssValidation::EventData_t &event_data) const
 {
 
   int Kine[1000];
 
   if(m_usePIX && !m_spacepointsPixelname.key().empty()) {
-    event_data.m_spacePointContainer.push_back(SG::ReadHandle<SpacePointContainer>(m_spacepointsPixelname));
+    event_data.m_spacePointContainer.push_back(SG::ReadHandle<SpacePointContainer>(m_spacepointsPixelname,ctx));
     if (!event_data.m_spacePointContainer.back().isValid()) {
       ATH_MSG_DEBUG( "Invalid Pixels space points container read handle for key " << m_spacepointsPixelname.key()  );
     }
@@ -1331,7 +1334,7 @@ void InDet::TrackClusterAssValidation::newSpacePointsEvent(InDet::TrackClusterAs
   // Get sct space points containers from store gate 
   //
   if(m_useSCT && !m_spacepointsSCTname.key().empty()) {
-    event_data.m_spacePointContainer.push_back(SG::ReadHandle<SpacePointContainer>(m_spacepointsSCTname));
+    event_data.m_spacePointContainer.push_back(SG::ReadHandle<SpacePointContainer>(m_spacepointsSCTname,ctx));
     if (!event_data.m_spacePointContainer.back().isValid()) {
       ATH_MSG_DEBUG( "Invalid SCT space points container read handle for key " << m_spacepointsSCTname.key() ); 
     }
@@ -1361,7 +1364,7 @@ void InDet::TrackClusterAssValidation::newSpacePointsEvent(InDet::TrackClusterAs
   // Get sct overlap space points containers from store gate 
   //
   if(m_useSCT && !m_spacepointsOverlapname.key().empty()) {
-    event_data.m_spacepointsOverlap=std::move(std::make_unique< SG::ReadHandle<SpacePointOverlapCollection> >(m_spacepointsOverlapname));
+    event_data.m_spacepointsOverlap=std::move(std::make_unique< SG::ReadHandle<SpacePointOverlapCollection> >(m_spacepointsOverlapname,ctx));
     if (!event_data.m_spacepointsOverlap->isValid()) {
       ATH_MSG_DEBUG( "Invalid overlap space points container read handle for key " << m_spacepointsOverlapname.key() ); 
     }
@@ -1503,7 +1506,7 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection(InDet::TrackCluster
 // Recontructed track comparison with kine information
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TrackClusterAssValidation::tracksComparison(InDet::TrackClusterAssValidation::EventData_t &event_data) const
+void InDet::TrackClusterAssValidation::tracksComparison(const EventContext& ctx, InDet::TrackClusterAssValidation::EventData_t &event_data) const
 {
   if(!event_data.m_nqtracks) return;
 
@@ -1514,7 +1517,7 @@ void InDet::TrackClusterAssValidation::tracksComparison(InDet::TrackClusterAssVa
     if(++nc >= 100) return;
     event_data.m_tracks[nc].clear();
 
-    event_data.m_trackcontainer.push_back( SG::ReadHandle<TrackCollection>(track_key) );
+    event_data.m_trackcontainer.push_back( SG::ReadHandle<TrackCollection>(track_key,ctx) );
     if (!event_data.m_trackcontainer.back().isValid()) {
       continue;
     }
