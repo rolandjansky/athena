@@ -1,8 +1,8 @@
-import TrigAFPRecoConf
+from TrigAFPReco.TrigAFPRecoConf  import Trig_AFPSiTrkReco
 
-class Trig_AFPSiTrkReco(TrigAFPRecoConf.Trig_AFPSiTrkReco):
+class AFPSiTrkReco(Trig_AFPSiTrkReco):
     def __init__(self,
-                 name = "Trig_AFPSiTrkReco",
+                 name = "AFPSiTrkReco",
                  raw_data_key = "AFP_RawData"):
         super (Trig_AFPSiTrkReco, self).__init__(name)
         from AthenaCommon.AppMgr import ToolSvc
