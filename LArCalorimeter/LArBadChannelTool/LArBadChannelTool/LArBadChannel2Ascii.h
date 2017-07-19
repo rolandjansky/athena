@@ -8,7 +8,6 @@
 #define LArBadChannel2Ascii_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "LArRecConditions/LArOnOffIdMapping.h"
