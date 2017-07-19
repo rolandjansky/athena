@@ -24,6 +24,7 @@ public:
 
   virtual StatusCode initialize();
   virtual StatusCode finalize();
+  virtual StatusCode stop();
 
   // from ICondSvc
 public:
