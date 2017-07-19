@@ -17,7 +17,11 @@
 ///////////////////////////////////////////////////////////////////
 
 InDet::TrackClusterAssValidation::TrackClusterAssValidation
-(const std::string& name,ISvcLocator* pSvcLocator) : AthAlgorithm(name,pSvcLocator)
+(const std::string& name,ISvcLocator* pSvcLocator)
+  : AthAlgorithm(name,pSvcLocator),
+    m_truth_locationPixel( "PRD_MultiTruthPixel" ),
+    m_truth_locationSCT(   "PRD_MultiTruthSCT" ),
+    m_truth_locationTRT(   "PRD_MultiTruthTRT" )
 {
 
   // TrackClusterAssValidation steering parameters
@@ -28,12 +32,6 @@ InDet::TrackClusterAssValidation::TrackClusterAssValidation
   m_clustersPixelname      = "PixelClusters"                  ;
   m_clustersSCTname        = std::string("SCT_Clusters")      ;
   m_clustersTRTname        = "TRT_DriftCircles"               ;
-  m_truth_locationPixel    = "PRD_MultiTruthPixel"            ;
-  m_truth_locationSCT      = std::string("PRD_MultiTruthSCT") ;
-  m_truth_locationTRT      = "PRD_MultiTruthTRT"              ;
-  m_spacepointsSCT         = 0                                ;
-  m_spacepointsPixel       = 0                                ;
-  m_spacepointsOverlap     = 0                                ;
   m_ptcut                  = 1000.                            ;
   m_ptcutmax               = 1.e20                            ;
   m_rapcut                 = 2.6                              ;
@@ -47,13 +45,6 @@ InDet::TrackClusterAssValidation::TrackClusterAssValidation
   m_useTRT                 = true                             ;
   m_useOutliers            = false                            ;
   m_pdg                    = 0                                ;
-  m_outputlevel            = 0                                ;
-  m_nprint                 = 0                                ; 
-  m_ncolection             = 0                                ;
-  m_nspacepoints           = 0                                ;
-  m_nclusters              = 0                                ;
-  m_nclustersTRT           = 0                                ;
-  m_nqtracks               = 0                                ;
   m_events                 = 0                                ; 
   m_eventsPOS              = 0                                ;
   m_eventsNEG              = 0                                ;
@@ -66,12 +57,6 @@ InDet::TrackClusterAssValidation::TrackClusterAssValidation
   m_nclustersNegEP         = 0                                ;
   m_nclustersNegES         = 0                                ;
   m_tcut                   = 0.                               ;
-  m_pixcontainer           = 0                                ;
-  m_sctcontainer           = 0                                ;
-  m_trtcontainer           = 0                                ;
-  m_truthPIX               = 0                                ;
-  m_truthSCT               = 0                                ;
-  m_truthTRT               = 0                                ;
   m_particleDataTable      = 0                                ; 
 
   declareProperty("TracksLocation"        ,m_tracklocation         );
@@ -127,14 +112,6 @@ StatusCode InDet::TrackClusterAssValidation::initialize()
     return StatusCode::FAILURE;
   }
 
-  // Get output print level
-  //
-  m_outputlevel = msg().level()-MSG::DEBUG;
-
-  if(m_outputlevel <= 0) {
-    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endmsg;
-  }
-
   // Erase statistic information
   //
   m_pdg          = fabs(m_pdg)         ;
@@ -145,9 +122,8 @@ StatusCode InDet::TrackClusterAssValidation::initialize()
   m_eventsBTE[1] = 0                   ;
   m_eventsBTE[2] = 0                   ;
   m_eventsBTE[3] = 0                   ;
-  m_ncolection = m_tracklocation.size();
 
-  for(int nc = 0; nc!=m_ncolection; ++nc) {
+  for(SG::ReadHandleKeyArray<TrackCollection>::size_type nc = 0; nc!=m_tracklocation.size(); ++nc) {
     for(int i=0; i!=6; ++i) m_efficiency   [nc][i] = 0;
     for(int i=0; i!=6; ++i) m_efficiencyPOS[nc][i] = 0;
     for(int i=0; i!=6; ++i) m_efficiencyNEG[nc][i] = 0;
@@ -201,6 +177,22 @@ StatusCode InDet::TrackClusterAssValidation::initialize()
   ATH_CHECK(m_clustersSCTname.initialize(m_useSCT));
   ATH_CHECK(m_spacepointsSCTname.initialize(m_useSCT));
 
+  ATH_CHECK( m_clustersPixelname.initialize(m_usePIX));
+  ATH_CHECK( m_spacepointsPixelname.initialize(m_usePIX));
+  ATH_CHECK( m_truth_locationPixel.initialize(m_usePIX));
+
+  ATH_CHECK( m_spacepointsOverlapname.initialize(m_useSCT));
+
+  ATH_CHECK( m_clustersTRTname.initialize(m_useTRT));
+  ATH_CHECK( m_truth_locationTRT.initialize(m_useTRT));
+
+  ATH_CHECK( m_tracklocation.initialize());
+
+  if (msgLvl(MSG::DEBUG)) {
+    dumptools(msg(),MSG::DEBUG);
+    msg() << endmsg;
+  }
+
   return sc;
 }
 
@@ -212,50 +204,51 @@ StatusCode InDet::TrackClusterAssValidation::execute()
 { 
 
   if(!m_usePIX && !m_useSCT) return StatusCode::SUCCESS;;
+  EventData_t event_data(m_tracklocation.size() );
 
-  m_truthPIX  = 0;
-  m_truthSCT  = 0;
-  m_truthTRT  = 0;
-  StatusCode s;
-
+  std::vector<SG::ReadHandle<PRD_MultiTruthCollection> > read_handle;
+  read_handle.reserve(3);
   if(m_usePIX) {
-    s = evtStore()->retrieve(m_truthPIX,m_truth_locationPixel);
-    if (s.isFailure()) {
-      msg(MSG::FATAL)<<"Could not find TruthPixel"<<endmsg;
-      return s;
+    read_handle.push_back(SG::ReadHandle<PRD_MultiTruthCollection>(m_truth_locationPixel));
+    if (not read_handle.back().isValid()) {
+      ATH_MSG_FATAL( "Could not find TruthPIX" );
+      return StatusCode::FAILURE;
     }
+    event_data.m_truthPIX = &(*read_handle.back());
   }
 
   if(m_useSCT) {
-    SG::ReadHandle<PRD_MultiTruthCollection> truthSCT(m_truth_locationSCT);
-    if (not truthSCT.isValid()) {
-      msg(MSG::FATAL)<<"Could not find TruthSCT"<<endmsg;
-      return s;
+    read_handle.push_back(SG::ReadHandle<PRD_MultiTruthCollection>(m_truth_locationSCT));
+    if (not read_handle.back().isValid()) {
+      ATH_MSG_FATAL( "Could not find TruthSCT" );
+      return StatusCode::FAILURE;
     }
-    m_truthSCT = truthSCT.cptr();
+    event_data.m_truthSCT = &(*read_handle.back());
   }
 
-  if( m_clcutTRT > 0) {
-    s = evtStore()->retrieve(m_truthTRT,m_truth_locationTRT);
-    if (s.isFailure()) {
-      msg(MSG::FATAL)<<"Could not find TruthTRT"<<endmsg;
-      return s;
+  if(m_clcutTRT > 0) {
+    read_handle.push_back(SG::ReadHandle<PRD_MultiTruthCollection>(m_truth_locationTRT));
+    if (not read_handle.back().isValid()) {
+      ATH_MSG_FATAL( "Could not find TruthTRT" );
+      return StatusCode::FAILURE;
     }
+    event_data.m_truthTRT = &(*read_handle.back());
   }
 
-  newClustersEvent                   ();
-  newSpacePointsEvent                ();
-  m_nqtracks = QualityTracksSelection();
-  tracksComparison                   ();
-  if(m_particles[0].size() > 0) {
+  newClustersEvent      (event_data);
+  newSpacePointsEvent   (event_data);
+  event_data.m_nqtracks = QualityTracksSelection(event_data);
+  tracksComparison      (event_data);
+  if(event_data.m_particles[0].size() > 0) {
 
-    efficiencyReconstruction(); 
-    if(m_outputlevel<=0) noReconstructedParticles();
+    efficiencyReconstruction(event_data); 
+    if(msgLvl(MSG::DEBUG)) noReconstructedParticles(event_data);
 
   }
 
-  if(m_outputlevel< 0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
+  if (msgLvl(MSG::DEBUG)) {
+    dumpevent(msg(),event_data);
+    msg() << endmsg;
   }
   return StatusCode::SUCCESS;
 }
@@ -682,17 +675,17 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 	   <<std::endl
 	   <<std::endl;
 
-  std::vector<std::string>::const_iterator t=m_tracklocation.begin(),te=m_tracklocation.end();
+  SG::ReadHandleKeyArray<TrackCollection>::const_iterator t=m_tracklocation.begin(),te=m_tracklocation.end();
   int nc = 0;
   for(; t!=te; ++t) {
 
-    int   n     = 47-(*t).size();
+    int   n     = 47-(t->key().size());
     std::string s1; for(int i=0; i<n; ++i) s1.append(" "); s1.append("|");
     
 
     std::cout<<"|-----------------------------------------------------------------------------------|"
 	     <<std::endl;
-    std::cout<<"|                      Statistic for "<<(*t)<<s1<<std::endl;
+    std::cout<<"|                      Statistic for "<<(t->key())<<s1<<std::endl;
     
     double ne = double(m_events);  if(ne < 1.) ne = 1.;
     double ef [6]; for(int i=0; i!=6; ++i) ef [i] = double(m_efficiency   [nc][i])   /ne;
@@ -1121,91 +1114,61 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 }
 
 ///////////////////////////////////////////////////////////////////
-// Overload of << operator MsgStream
-///////////////////////////////////////////////////////////////////
-
-MsgStream& InDet::operator    << 
-  (MsgStream& sl,const InDet::TrackClusterAssValidation& se)
-{ 
-  return se.dump(sl);
-}
-
-///////////////////////////////////////////////////////////////////
-// Overload of << operator std::ostream
-///////////////////////////////////////////////////////////////////
-
-std::ostream& InDet::operator << 
-  (std::ostream& sl,const InDet::TrackClusterAssValidation& se)
-{
-  return se.dump(sl);
-}   
-
-///////////////////////////////////////////////////////////////////
-// Dumps relevant information into the MsgStream
-///////////////////////////////////////////////////////////////////
-
-MsgStream& InDet::TrackClusterAssValidation::dump( MsgStream& out ) const
-{
-  out<<std::endl;
-  if(m_nprint)  return dumpevent(out);
-  return dumptools(out);
-}
-
-///////////////////////////////////////////////////////////////////
 // Dumps conditions information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::TrackClusterAssValidation::dumptools( MsgStream& out ) const
+MsgStream& InDet::TrackClusterAssValidation::dumptools( MsgStream& out, MSG::Level level) const
 {
-  std::vector<std::string>::const_iterator t=m_tracklocation.begin(),te=m_tracklocation.end();
+  SG::ReadHandleKeyArray<TrackCollection>::const_iterator t=m_tracklocation.begin(),te=m_tracklocation.end();
 
   int n;
+  out << level << std::endl;
   out<<"|----------------------------------------------------------------"
      <<"----------------------------------------------------|"
      <<std::endl;
   for(; t!=te; ++t) {
-    n     = 65-(*t).size();
+    n     = 65-t->key().size();
     std::string s1; for(int i=0; i<n; ++i) s1.append(" "); s1.append("|");
 
-    out<<"| Location of input tracks                        | "<<(*t)<<s1
+    out<<"| Location of input tracks                        | "<<t->key()<<s1
        <<std::endl;
   }
-  n     = 65-m_spacepointsPixelname.size();
+  n     = 65-m_spacepointsPixelname.key().size();
   std::string s2; for(int i=0; i<n; ++i) s2.append(" "); s2.append("|");
   n     = 65-m_spacepointsSCTname.key().size();
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
-  n     = 65-m_spacepointsOverlapname.size();
+  n     = 65-m_spacepointsOverlapname.key().size();
   std::string s4; for(int i=0; i<n; ++i) s4.append(" "); s4.append("|");
-  n     = 65-m_clustersPixelname.size();
+  n     = 65-m_clustersPixelname.key().size();
   std::string s5; for(int i=0; i<n; ++i) s5.append(" "); s5.append("|");
   n     = 65-m_clustersSCTname.key().size();
   std::string s6; for(int i=0; i<n; ++i) s6.append(" "); s6.append("|");
-  n     = 65-m_clustersTRTname.size();
+  n     = 65-m_clustersTRTname.key().size();
   std::string s9; for(int i=0; i<n; ++i) s9.append(" "); s9.append("|");
-  n     = 65-m_truth_locationPixel.size();
+  n     = 65-m_truth_locationPixel.key().size();
   std::string s7; for(int i=0; i<n; ++i) s7.append(" "); s7.append("|");
   n     = 65-m_truth_locationSCT.key().size();
   std::string s8; for(int i=0; i<n; ++i) s8.append(" "); s8.append("|");
-  n     = 65-m_truth_locationTRT.size();
+  n     = 65-m_truth_locationTRT.key().size();
   std::string s10; for(int i=0; i<n; ++i) s10.append(" "); s10.append("|");
   
-  out<<"| Pixel    space points                           | "<<m_spacepointsPixelname  <<s2
+  out<<"| Pixel    space points                           | "<<m_spacepointsPixelname.key()  <<s2
      <<std::endl;
-  out<<"| SCT      space points                           | "<<m_spacepointsSCTname.key()<<s3
+  out<<"| SCT      space points                           | "<<m_spacepointsSCTname.key()    <<s3
      <<std::endl;
-  out<<"| Overlap  space points                           | "<<m_spacepointsOverlapname<<s4
+  out<<"| Overlap  space points                           | "<<m_spacepointsOverlapname.key()<<s4
      <<std::endl;
-  out<<"| Pixel    clusters                               | "<<m_clustersPixelname     <<s5
+  out<<"| Pixel    clusters                               | "<<m_clustersPixelname.key()     <<s5
      <<std::endl;
-  out<<"| SCT      clusters                               | "<<m_clustersSCTname.key() <<s6
+  out<<"| SCT      clusters                               | "<<m_clustersSCTname.key()       <<s6
      <<std::endl;
-  out<<"| TRT      clusters                               | "<<m_clustersTRTname       <<s9
+  out<<"| TRT      clusters                               | "<<m_clustersTRTname.key()       <<s9
      <<std::endl;
-  out<<"| Truth location  for pixels                      | "<<m_truth_locationPixel   <<s7
+  out<<"| Truth location  for pixels                      | "<<m_truth_locationPixel.key()   <<s7
      <<std::endl;
-  out<<"| Truth location  for sct                         | "<<m_truth_locationSCT.key()<<s8
+  out<<"| Truth location  for sct                         | "<<m_truth_locationSCT.key()     <<s8
      <<std::endl;
-  out<<"| Truth location  for trt                         | "<<m_truth_locationTRT     <<s10
+  out<<"| Truth location  for trt                         | "<<m_truth_locationTRT.key()     <<s10
      <<std::endl;
   out<<"|         pT cut                                  | "
      <<std::setw(14)<<std::setprecision(5)<<m_ptcut
@@ -1249,88 +1212,74 @@ MsgStream& InDet::TrackClusterAssValidation::dumptools( MsgStream& out ) const
 // Dumps event information into the ostream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::TrackClusterAssValidation::dumpevent( MsgStream& out ) const
+MsgStream& InDet::TrackClusterAssValidation::dumpevent( MsgStream& out, const InDet::TrackClusterAssValidation::EventData_t &event_data ) const
 {
+  out << MSG::DEBUG << std::endl;
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
   out<<"| m_nspacepoints          | "
-     <<std::setw(12)<<m_nspacepoints
+     <<std::setw(12)<<event_data.m_nspacepoints
      <<"                              |"<<std::endl;
   out<<"| m_nclusters             | "
-     <<std::setw(12)<<m_nclusters
+     <<std::setw(12)<<event_data.m_nclusters
      <<"                              |"<<std::endl;
   out<<"| Kine-Clusters    size   | "
-     <<std::setw(12)<<m_kinecluster.size()
+     <<std::setw(12)<<event_data.m_kinecluster.size()
      <<"                              |"<<std::endl;
   out<<"| Kine-TRTClusters size   | "
-     <<std::setw(12)<<m_kineclusterTRT.size()
+     <<std::setw(12)<<event_data.m_kineclusterTRT.size()
      <<"                              |"<<std::endl;
   out<<"| Kine-SpacePoints size   | "
-     <<std::setw(12)<<m_kinespacepoint.size()
+     <<std::setw(12)<<event_data.m_kinespacepoint.size()
      <<"                              |"<<std::endl;
   out<<"| Number good kine tracks | "
-     <<std::setw(12)<<m_nqtracks
+     <<std::setw(12)<<event_data.m_nqtracks
      <<"                              |"<<std::endl;
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
   return out;
 }
 
-///////////////////////////////////////////////////////////////////
-// Dumps relevant information into the ostream
-///////////////////////////////////////////////////////////////////
-
-std::ostream& InDet::TrackClusterAssValidation::dump( std::ostream& out ) const
-{
-  return out;
-}
 
 ///////////////////////////////////////////////////////////////////
 // New event for clusters information 
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TrackClusterAssValidation::newClustersEvent()
+void InDet::TrackClusterAssValidation::newClustersEvent(InDet::TrackClusterAssValidation::EventData_t &event_data) const
 {
-
-  m_nclusters    = 0;
-  m_nclustersTRT = 0;
-  m_kinecluster   .erase(m_kinecluster   .begin(),m_kinecluster   .end());
-  m_kineclusterTRT.erase(m_kineclusterTRT.begin(),m_kineclusterTRT.end());
-   
   // Get pixel clusters container
   // 
-  StatusCode sc;
-  m_pixcontainer = 0;
+  std::unique_ptr<SG::ReadHandle<SiClusterContainer> >       pixelcontainer;
+  std::unique_ptr<SG::ReadHandle<SiClusterContainer> >       sctcontainer;
+  std::unique_ptr<SG::ReadHandle<TRT_DriftCircleContainer> > trtcontainer;
+
   if(m_usePIX) {
-    sc = evtStore()->retrieve(m_pixcontainer,m_clustersPixelname);
-    if (sc.isFailure()) msg(MSG::DEBUG)<<"Pixel clusters container"<<endmsg;
+    pixelcontainer = std::move(std::make_unique<SG::ReadHandle<SiClusterContainer> >(m_clustersPixelname));
+    if (!pixelcontainer->isValid()) ATH_MSG_DEBUG("Failed to create Pixel clusters container read handle with key " << m_clustersPixelname.key());
   }
 
   // Get sct   clusters container
   //
-  m_sctcontainer = 0; 
   if(m_useSCT) {
-    SG::ReadHandle<SiClusterContainer> sctcontainer(m_clustersSCTname);
-    if (not sctcontainer.isValid()) msg(MSG::DEBUG)<<"SCT clusters container"<<endmsg;
-    m_sctcontainer = sctcontainer.cptr();
+    sctcontainer = std::move(std::make_unique<SG::ReadHandle<SiClusterContainer> >(m_clustersSCTname));
+    if (!sctcontainer->isValid()) ATH_MSG_DEBUG("Failed to create SCT clusters container read handle with key " << m_clustersSCTname.key());
   } 
 
   // Get trt   cluster container
   //
-  m_trtcontainer = 0;
   if(m_clcutTRT > 0) {
-    sc            = evtStore()->retrieve(m_trtcontainer,m_clustersTRTname  );
-    if (sc.isFailure()) msg(MSG::DEBUG)<<"TRT drift circles container"<<endmsg;
+    trtcontainer = std::move(std::make_unique<SG::ReadHandle<TRT_DriftCircleContainer> >(m_clustersTRTname));
+    if (!trtcontainer->isValid()) ATH_MSG_DEBUG("Failed to create TRT drift circle container read handle with key " << m_clustersTRTname.key());
   }
 
   int Kine[1000];
 
+  event_data.m_clusterHandles.reserve(3);
   // Loop through all pixel clusters
   //
-  if(m_pixcontainer) {
-
-    InDet::SiClusterContainer::const_iterator w  =  m_pixcontainer->begin();
-    InDet::SiClusterContainer::const_iterator we =  m_pixcontainer->end  ();
+  if(pixelcontainer && pixelcontainer->isValid()) {
+    InDet::SiClusterContainer::const_iterator w  =  (*pixelcontainer)->begin();
+    InDet::SiClusterContainer::const_iterator we =  (*pixelcontainer)->end  ();
 
     for(; w!=we; ++w) {
       
@@ -1339,24 +1288,25 @@ void InDet::TrackClusterAssValidation::newClustersEvent()
       
       for(; c!=ce; ++c) {
 
-	++m_nclusters;
+	++event_data.m_nclusters;
 
-	int nk = kine((*c),Kine,999);
+	int nk = kine(event_data,(*c),Kine,999);
 	for(int i=0; i!=nk; ++i) {
-	  if(!isTheSameDetElement(Kine[i],(*c))) {
-	    m_kinecluster.insert(std::make_pair(Kine[i],(*c)));  
+	  if(!isTheSameDetElement(event_data,Kine[i],(*c))) {
+	    event_data.m_kinecluster.insert(std::make_pair(Kine[i],(*c)));  
 	  }
 	}
       }
     }
+    event_data.m_clusterHandles.push_back(std::move(pixelcontainer));
+
   }
 
   // Loop through all sct clusters
   //
-  if(m_sctcontainer) {
-
-    InDet::SiClusterContainer::const_iterator w  =  m_sctcontainer->begin();
-    InDet::SiClusterContainer::const_iterator we =  m_sctcontainer->end  ();
+  if(sctcontainer && sctcontainer->isValid()) {
+    InDet::SiClusterContainer::const_iterator w  =  (*sctcontainer)->begin();
+    InDet::SiClusterContainer::const_iterator we =  (*sctcontainer)->end  ();
 
     for(; w!=we; ++w) {
       
@@ -1365,34 +1315,36 @@ void InDet::TrackClusterAssValidation::newClustersEvent()
 
       for(; c!=ce; ++c) {
 
-	++m_nclusters;
+	++event_data.m_nclusters;
 	
-	int nk = kine((*c),Kine,999);
+	int nk = kine(event_data,(*c),Kine,999);
 	for(int i=0; i!=nk; ++i) {
-	  if(!isTheSameDetElement(Kine[i],(*c))) m_kinecluster.insert(std::make_pair(Kine[i],(*c)));  
+	  if(!isTheSameDetElement(event_data,Kine[i],(*c))) event_data.m_kinecluster.insert(std::make_pair(Kine[i],(*c)));  
 	}
       }
     }
+    event_data.m_clusterHandles.push_back(std::move(sctcontainer));
   }
 
-  if(!m_trtcontainer) return;
+  if(trtcontainer && trtcontainer->isValid()) {
+    // Loop through all trt clusters
+    //
+    InDet::TRT_DriftCircleContainer::const_iterator  w  = (*trtcontainer)->begin();
+    InDet::TRT_DriftCircleContainer::const_iterator  we = (*trtcontainer)->end  ();
 
-  // Loop through all trt clusters
-  //
-  InDet::TRT_DriftCircleContainer::const_iterator  w  = m_trtcontainer->begin();
-  InDet::TRT_DriftCircleContainer::const_iterator  we = m_trtcontainer->end  ();
+    for(; w!=we; ++w) {
 
-  for(; w!=we; ++w) {
+      InDet::TRT_DriftCircleCollection::const_iterator c  = (*w)->begin();
+      InDet::TRT_DriftCircleCollection::const_iterator ce = (*w)->end  ();
 
-    InDet::TRT_DriftCircleCollection::const_iterator c  = (*w)->begin();
-    InDet::TRT_DriftCircleCollection::const_iterator ce = (*w)->end  ();
+      for(; c!=ce; ++c) {
 
-    for(; c!=ce; ++c) {
-
-      ++m_nclustersTRT;
-      int nk = kine((*c),Kine,999);
-      for(int i=0; i!=nk; ++i) m_kineclusterTRT.insert(std::make_pair(Kine[i],(*c)));  
+        ++event_data.m_nclustersTRT;
+        int nk = kine(event_data,(*c),Kine,999);
+        for(int i=0; i!=nk; ++i) event_data.m_kineclusterTRT.insert(std::make_pair(Kine[i],(*c)));  
+      }
     }
+    event_data.m_clusterHandles.push_back(std::move(trtcontainer));    
   }
 }
 
@@ -1400,41 +1352,31 @@ void InDet::TrackClusterAssValidation::newClustersEvent()
 // New event for space points information 
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TrackClusterAssValidation::newSpacePointsEvent()
+void InDet::TrackClusterAssValidation::newSpacePointsEvent(InDet::TrackClusterAssValidation::EventData_t &event_data) const
 {
-
-  m_nspacepoints = 0;
-  m_kinespacepoint.erase(m_kinespacepoint.begin(),m_kinespacepoint.end());
 
   int Kine[1000];
 
-  m_spacepointsPixel = 0;
+  if(m_usePIX && !m_spacepointsPixelname.key().empty()) {
+    event_data.m_spacePointContainer.push_back(SG::ReadHandle<SpacePointContainer>(m_spacepointsPixelname));
+    if (!event_data.m_spacePointContainer.back().isValid()) {
+      ATH_MSG_DEBUG( "Invalid Pixels space points container read handle for key " << m_spacepointsPixelname.key()  );
+    }
+    else  {
+      SpacePointContainer::const_iterator spc  =  event_data.m_spacePointContainer.back()->begin();
+      SpacePointContainer::const_iterator spce =  event_data.m_spacePointContainer.back()->end  ();
+      for(; spc != spce; ++spc) {
+        SpacePointCollection::const_iterator sp  = (*spc)->begin();
+        SpacePointCollection::const_iterator spe = (*spc)->end  ();
 
-  if(m_usePIX) {
-    if (evtStore()->contains<SpacePointContainer>(m_spacepointsPixelname))
-    {
-      if (evtStore()->retrieve(m_spacepointsPixel,m_spacepointsPixelname).isFailure())
-        msg(MSG::DEBUG)<<"Pixels space points container"<<endmsg;
+        for(; sp != spe; ++sp) {
 
-      if(m_spacepointsPixel) {
-      
-        SpacePointContainer::const_iterator spc  =  m_spacepointsPixel->begin();
-        SpacePointContainer::const_iterator spce =  m_spacepointsPixel->end  ();
-      
-        for(; spc != spce; ++spc) {
-        
-          SpacePointCollection::const_iterator sp  = (*spc)->begin();
-          SpacePointCollection::const_iterator spe = (*spc)->end  ();
-        
-          for(; sp != spe; ++sp) {
-            
-            ++m_nspacepoints;
-            int nk = kine((*sp)->clusterList().first,Kine,999);
-            for(int i=0; i!=nk; ++i) {
-              
-              if(!isTheSameDetElement(Kine[i],(*sp))) {
-                m_kinespacepoint.insert(std::make_pair(Kine[i],(*sp)));
-              }
+          ++event_data.m_nspacepoints;
+          int nk = kine(event_data,(*sp)->clusterList().first,Kine,999);
+          for(int i=0; i!=nk; ++i) {
+
+            if(!isTheSameDetElement(event_data,Kine[i],(*sp))) {
+              event_data.m_kinespacepoint.insert(std::make_pair(Kine[i],(*sp)));
             }
           }
         }
@@ -1443,34 +1385,28 @@ void InDet::TrackClusterAssValidation::newSpacePointsEvent()
   }
   // Get sct space points containers from store gate 
   //
-  m_spacepointsSCT = 0;
-  if(m_useSCT) {
-    if (evtStore()->contains<SpacePointContainer>(m_spacepointsSCTname.key()))
-    {
-      SG::ReadHandle<SpacePointContainer> spacepointsSCT(m_spacepointsSCTname);
-      if (not spacepointsSCT.isValid())
-          msg(MSG::DEBUG)<<"SCT space points container"<<endmsg;
-      m_spacepointsSCT = spacepointsSCT.cptr();
+  if(m_useSCT && !m_spacepointsSCTname.key().empty()) {
+    event_data.m_spacePointContainer.push_back(SG::ReadHandle<SpacePointContainer>(m_spacepointsSCTname));
+    if (!event_data.m_spacePointContainer.back().isValid()) {
+      ATH_MSG_DEBUG( "Invalid SCT space points container read handle for key " << m_spacepointsSCTname.key() ); 
+    }
+    else  {
+      SpacePointContainer::const_iterator spc  =  event_data.m_spacePointContainer.back()->begin();
+      SpacePointContainer::const_iterator spce =  event_data.m_spacePointContainer.back()->end  ();
 
-      if(m_spacepointsSCT) {
-        
-        SpacePointContainer::const_iterator spc  =  m_spacepointsSCT->begin();
-        SpacePointContainer::const_iterator spce =  m_spacepointsSCT->end  ();
-        
-        for(; spc != spce; ++spc) {
-          
-          SpacePointCollection::const_iterator sp  = (*spc)->begin();
-          SpacePointCollection::const_iterator spe = (*spc)->end  ();
-          
-          for(; sp != spe; ++sp) {
-            
-            
-            ++m_nspacepoints;
-            int nk = kine((*sp)->clusterList().first,(*sp)->clusterList().second,Kine,999);
-            for(int i=0; i!=nk; ++i) {
-              if(!isTheSameDetElement(Kine[i],(*sp))) {
-                m_kinespacepoint.insert(std::make_pair(Kine[i],(*sp)));
-              }
+      for(; spc != spce; ++spc) {
+
+        SpacePointCollection::const_iterator sp  = (*spc)->begin();
+        SpacePointCollection::const_iterator spe = (*spc)->end  ();
+
+        for(; sp != spe; ++sp) {
+
+
+          ++event_data.m_nspacepoints;
+          int nk = kine(event_data,(*sp)->clusterList().first,(*sp)->clusterList().second,Kine,999);
+          for(int i=0; i!=nk; ++i) {
+            if(!isTheSameDetElement(event_data,Kine[i],(*sp))) {
+              event_data.m_kinespacepoint.insert(std::make_pair(Kine[i],(*sp)));
             }
           }
         }
@@ -1479,26 +1415,22 @@ void InDet::TrackClusterAssValidation::newSpacePointsEvent()
   }
   // Get sct overlap space points containers from store gate 
   //
-  m_spacepointsOverlap = 0;
-  if(m_useSCT) {
-    if (evtStore()->contains<SpacePointContainer>(m_spacepointsOverlapname))
-    {
-      if (evtStore()->retrieve(m_spacepointsOverlap,m_spacepointsOverlapname).isFailure())
-        msg(MSG::DEBUG)<<"SCT overlap space points container"<<endmsg;
+  if(m_useSCT && !m_spacepointsOverlapname.key().empty()) {
+    event_data.m_spacepointsOverlap=std::move(std::make_unique< SG::ReadHandle<SpacePointOverlapCollection> >(m_spacepointsOverlapname));
+    if (!event_data.m_spacepointsOverlap->isValid()) {
+      ATH_MSG_DEBUG( "Invalid overlap space points container read handle for key " << m_spacepointsOverlapname.key() ); 
+    }
+    else  {
+      SpacePointOverlapCollection::const_iterator sp  = (*(event_data.m_spacepointsOverlap))->begin();
+      SpacePointOverlapCollection::const_iterator spe = (*(event_data.m_spacepointsOverlap))->end  ();
 
-      if(m_spacepointsOverlap) {
-        
-        SpacePointOverlapCollection::const_iterator sp  = m_spacepointsOverlap->begin();
-        SpacePointOverlapCollection::const_iterator spe = m_spacepointsOverlap->end  ();
-        
-        for (; sp!=spe; ++sp) {
-          
-          ++m_nspacepoints;
-          int nk = kine((*sp)->clusterList().first,(*sp)->clusterList().second,Kine,999);
-          for(int i=0; i!=nk; ++i) {
-            if(!isTheSameDetElement(Kine[i],(*sp))) {
-              m_kinespacepoint.insert(std::make_pair(Kine[i],(*sp)));
-            }
+      for (; sp!=spe; ++sp) {
+
+        ++event_data.m_nspacepoints;
+        int nk = kine(event_data,(*sp)->clusterList().first,(*sp)->clusterList().second,Kine,999);
+        for(int i=0; i!=nk; ++i) {
+          if(!isTheSameDetElement(event_data,Kine[i],(*sp))) {
+            event_data.m_kinespacepoint.insert(std::make_pair(Kine[i],(*sp)));
           }
         }
       }
@@ -1509,27 +1441,21 @@ void InDet::TrackClusterAssValidation::newSpacePointsEvent()
 // Good kine tracks  selection
 ///////////////////////////////////////////////////////////////////
 
-int InDet::TrackClusterAssValidation::QualityTracksSelection()
+int InDet::TrackClusterAssValidation::QualityTracksSelection(InDet::TrackClusterAssValidation::EventData_t &event_data)
 {
-  for(int nc = 0; nc!=m_ncolection; ++nc) {
-    m_particles[nc].erase(m_particles[nc].begin(),m_particles[nc].end());
-  }
+  std::multimap<int,const Trk::PrepRawData*>::iterator c = event_data.m_kinecluster   .begin();
+  std::multimap<int,const Trk::PrepRawData*>::iterator u = event_data.m_kineclusterTRT.begin();
+  std::multimap<int,const Trk::SpacePoint*>::iterator  s = event_data.m_kinespacepoint.begin();
 
-  std::multimap<int,const Trk::PrepRawData*>::iterator c = m_kinecluster   .begin();
-  std::multimap<int,const Trk::PrepRawData*>::iterator u = m_kineclusterTRT.begin();
-  std::multimap<int,const Trk::SpacePoint*>::iterator  s = m_kinespacepoint.begin();
-
-  if( c == m_kinecluster   .end()) {
-    m_kinecluster   .erase(m_kinecluster.begin(),m_kinecluster.end());
-    return 0;
-  }
-  if( s == m_kinespacepoint.end()) {
-    m_kinespacepoint.erase(m_kinespacepoint.begin(),m_kinespacepoint.end());
+  if( c == event_data.m_kinecluster.end()) {
     return 0;
   }
 
-  if( m_clcutTRT > 0 && u == m_kineclusterTRT.end()) {
-    m_kineclusterTRT.erase(m_kineclusterTRT.begin(),m_kineclusterTRT.end());
+  if( s == event_data.m_kinespacepoint.end()) {
+    return 0;
+  }
+
+  if( m_clcutTRT > 0 && u == event_data.m_kineclusterTRT.end()) {
     return 0;
   }
 
@@ -1538,63 +1464,63 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection()
   int          rp = 0;
   int          t  = 0;
   int          k0 = (*c).first;
-  int          q0 = k0*charge((*c),rp);
+  int          q0 = k0*charge(event_data,(*c),rp);
   unsigned int nc = 1         ;
      
-  for(++c; c!=m_kinecluster.end(); ++c) {
+  for(++c; c!=event_data.m_kinecluster.end(); ++c) {
 
     if((*c).first==k0) {++nc; continue;}
-    q0 = charge((*c),rp)*k0;
+    q0 = charge(event_data,(*c),rp)*k0;
 
     nc < 50 ?  ++m_particleClusters   [nc]     : ++m_particleClusters   [49];
     nc < 50 ?  ++m_particleClustersBTE[nc][rp] : ++m_particleClustersBTE[49][rp];
 
   
-    int ns = m_kinespacepoint.count(k0);
+    int ns = event_data.m_kinespacepoint.count(k0);
     ns < 50 ?  ++m_particleSpacePoints   [ns]     : ++m_particleSpacePoints   [49];  
     ns < 50 ?  ++m_particleSpacePointsBTE[ns][rp] : ++m_particleSpacePointsBTE[49][rp];  
 
     if     (nc                        < m_clcut   ) worskine.push_back(k0);
-    else if(m_kinespacepoint.count(k0)< m_spcut   ) worskine.push_back(k0);
-    else if(m_kineclusterTRT.count(k0)< m_clcutTRT) worskine.push_back(k0);
+    else if(event_data.m_kinespacepoint.count(k0)< m_spcut   ) worskine.push_back(k0);
+    else if(event_data.m_kineclusterTRT.count(k0)< m_clcutTRT) worskine.push_back(k0);
     else {
-      InDet::Barcode BC(q0,rp); m_particles[0].push_back(BC); ++t;
+      InDet::Barcode BC(q0,rp); event_data.m_particles[0].push_back(BC); ++t;
     }
 
     k0 = (*c).first;
-    q0 =charge((*c),rp)*k0;
+    q0 =charge(event_data,(*c),rp)*k0;
     nc = 1         ;
   }
 
   nc < 50 ?  ++m_particleClusters   [nc]     : ++m_particleClusters   [49];  
   nc < 50 ?  ++m_particleClustersBTE[nc][rp] : ++m_particleClustersBTE[49][rp];
-  int ns = m_kinespacepoint.count(k0);
+  int ns = event_data.m_kinespacepoint.count(k0);
   ns < 50 ?  ++m_particleSpacePoints   [ns]     : ++m_particleSpacePoints   [49];  
   ns < 50 ?  ++m_particleSpacePointsBTE[ns][rp] : ++m_particleSpacePointsBTE[49][rp];  
 
   if     (nc                        < m_clcut   ) worskine.push_back(k0);
-  else if(m_kinespacepoint.count(k0)< m_spcut   ) worskine.push_back(k0);  
-  else if(m_kineclusterTRT.count(k0)< m_clcutTRT) worskine.push_back(k0);
+  else if(event_data.m_kinespacepoint.count(k0)< m_spcut   ) worskine.push_back(k0);  
+  else if(event_data.m_kineclusterTRT.count(k0)< m_clcutTRT) worskine.push_back(k0);
   else {
-    InDet::Barcode BC(q0,rp); m_particles[0].push_back(BC); ++t;
+    InDet::Barcode BC(q0,rp); event_data.m_particles[0].push_back(BC); ++t;
   }
 
 
   std::list<int>::iterator w=worskine.begin(), we=worskine.end();
 
   for(; w!=we; ++w) {
-    m_kinecluster   .erase((*w));
-    m_kineclusterTRT.erase((*w));
-    m_kinespacepoint.erase((*w));
+    event_data.m_kinecluster   .erase((*w));
+    event_data.m_kineclusterTRT.erase((*w));
+    event_data.m_kinespacepoint.erase((*w));
   }
 
-  for(c = m_kinecluster.begin(); c!= m_kinecluster.end(); ++c) {
+  for(c = event_data.m_kinecluster.begin(); c!= event_data.m_kinecluster.end(); ++c) {
     
     const Trk::PrepRawData* 
       d = (*c).second;
     const InDetDD::SiDetectorElement* 
       de= dynamic_cast<const InDetDD::SiDetectorElement*>(d->detectorElement());
-    int q  = charge(*c,rp); 
+    int q  = charge(event_data,*c,rp); 
 
     if     (q<0) {
       if (de->isDBM())
@@ -1620,10 +1546,10 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection()
   }
  
 
-  std::list<InDet::Barcode>::iterator p = m_particles[0].begin(), pe =m_particles[0].end();
+  std::list<InDet::Barcode>::iterator p = event_data.m_particles[0].begin(), pe =event_data.m_particles[0].end();
 
   for(; p!=pe; ++p) {
-    for(int nc=1; nc<m_ncolection; ++nc) m_particles[nc].push_back((*p));
+    for(SG::ReadHandleKeyArray<TrackCollection>::size_type nc=1; nc<m_tracklocation.size(); ++nc) event_data.m_particles[nc].push_back((*p));
   }
   return t;
 }
@@ -1632,29 +1558,29 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection()
 // Recontructed track comparison with kine information
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TrackClusterAssValidation::tracksComparison()
+void InDet::TrackClusterAssValidation::tracksComparison(InDet::TrackClusterAssValidation::EventData_t &event_data)
 {
-  if(!m_nqtracks) return;
+  if(!event_data.m_nqtracks) return;
 
-
-  std::vector<std::string>::const_iterator co =m_tracklocation.begin(),coe=m_tracklocation.end();
 
   int nc = -1;
-  for(; co!=coe; ++co) {
+  event_data.m_trackcontainer.reserve(m_tracklocation.size());
+  for(SG::ReadHandleKey<TrackCollection> &track_key : m_tracklocation ) {
     if(++nc >= 100) return;
-    m_tracks[nc].erase(m_tracks[nc].begin(),m_tracks[nc].end());
+    event_data.m_tracks[nc].clear();
 
-    const TrackCollection*  inputTracks = 0;
-    StatusCode sc	= evtStore()->retrieve(inputTracks, (*co));
-    if (sc.isFailure() || !inputTracks) continue;
+    event_data.m_trackcontainer.push_back( SG::ReadHandle<TrackCollection>(track_key) );
+    if (!event_data.m_trackcontainer.back().isValid()) {
+      continue;
+    }
 
     // Loop through all found tracks
     //
-    TrackCollection::const_iterator t,te = inputTracks->end();
+    TrackCollection::const_iterator t,te = event_data.m_trackcontainer.back()->end();
 
     int KINE[200],NKINE[200];
   
-    for (t=inputTracks->begin(); t!=te; ++t) {
+    for (t=event_data.m_trackcontainer.back()->begin(); t!=te; ++t) {
 
       DataVector<const Trk::TrackStateOnSurface>::const_iterator 
 	s  = (*t)->trackStateOnSurfaces()->begin(),
@@ -1712,7 +1638,7 @@ void InDet::TrackClusterAssValidation::tracksComparison()
 	if(!m_useSCT && dynamic_cast<const InDet::SCT_Cluster*> (si)) continue;
 
 
-	int Kine[1000], nk=kine0(rd,Kine,999); ++NC; if(!nk) ++N0;
+	int Kine[1000], nk=kine0(event_data,rd,Kine,999); ++NC; if(!nk) ++N0;
 
 	for(int k = 0; k!=nk; ++k) {
 	  
@@ -1727,7 +1653,7 @@ void InDet::TrackClusterAssValidation::tracksComparison()
 	if(NKINE[n]==nkm) {
 	  int NQ = 1000*NKINE[n]+(NC-NKINE[n]);
 
-	  m_tracks[nc].insert(std::make_pair(KINE[n],NQ));
+	  event_data.m_tracks[nc].insert(std::make_pair(KINE[n],NQ));
 	  if(qTf) {        
 	    if(NC-N0 > 2) {
 	      ++m_total[nc][NC]; if(NC-NKINE[n] > 2) {++m_fake[nc][NC];}
@@ -1744,22 +1670,22 @@ void InDet::TrackClusterAssValidation::tracksComparison()
 // Particles and reconstructed tracks comparision
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TrackClusterAssValidation::efficiencyReconstruction()
+void InDet::TrackClusterAssValidation::efficiencyReconstruction(InDet::TrackClusterAssValidation::EventData_t &event_data)
 {
-  for(int nc = 0; nc!=m_ncolection; ++nc) {
+  for(SG::ReadHandleKeyArray<TrackCollection>::size_type nc = 0; nc!=m_tracklocation.size(); ++nc) {
 
-    m_difference[nc].erase(m_difference[nc].begin(),m_difference[nc].end());
-    std::list<InDet::Barcode>::iterator p = m_particles[nc].begin(), pe =m_particles[nc].end();
+    event_data.m_difference[nc].clear();
+    std::list<InDet::Barcode>::const_iterator p = event_data.m_particles[nc].begin(), pe =event_data.m_particles[nc].end();
     if(p==pe) return;
-    std::multimap<int,int>::iterator t, te = m_tracks[nc].end(); 
+    std::multimap<int,int>::const_iterator t, te = event_data.m_tracks[nc].end(); 
     
     while (p!=pe) {
     
       int k = (*p).barcode();
-      int n = m_kinecluster.count(k);
+      int n = event_data.m_kinecluster.count(k);
       int m = 0;
       int w = 0;
-      t = m_tracks[nc].find(k);
+      t = event_data.m_tracks[nc].find(k);
       for(; t!=te; ++t) {
 	if((*t).first!=k) break; 
 	int ts = (*t).second/1000;
@@ -1781,8 +1707,8 @@ void InDet::TrackClusterAssValidation::efficiencyReconstruction()
 	++m_events; ch > 0 ? ++m_eventsPOS : ++m_eventsNEG;
 	++m_eventsBTE[(*p).rapidity()];
       }
-      if(d==0) m_particles[nc].erase(p++); 
-      else {m_difference[nc].push_back(n-m);  ++p;}
+      if(d==0) event_data.m_particles[nc].erase(p++); 
+      else {event_data.m_difference[nc].push_back(n-m);  ++p;}
     }
   }
 }
@@ -1792,12 +1718,12 @@ void InDet::TrackClusterAssValidation::efficiencyReconstruction()
 ///////////////////////////////////////////////////////////////////
 
 int InDet::TrackClusterAssValidation::kine
-(const Trk::PrepRawData* d1,const Trk::PrepRawData* d2,int* Kine,int nmax)   
+(const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData* d1,const Trk::PrepRawData* d2,int* Kine,int nmax) const
 {
   int nkine = 0;
   int Kine1[1000],Kine2[1000];
-  int n1 = kine(d1,Kine1,nmax); if(!n1) return nkine;
-  int n2 = kine(d2,Kine2,nmax); if(!n2) return nkine;
+  int n1 = kine(event_data,d1,Kine1,nmax); if(!n1) return nkine;
+  int n2 = kine(event_data,d2,Kine2,nmax); if(!n2) return nkine;
 
   for(int i = 0; i!=n1; ++i) {
     for(int j = 0; j!=n2; ++j) {
@@ -1812,11 +1738,11 @@ int InDet::TrackClusterAssValidation::kine
 ///////////////////////////////////////////////////////////////////
 
 int InDet::TrackClusterAssValidation::kine
-(const Trk::PrepRawData* d,int* Kine,int nmax) 
+(const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData* d,int* Kine,int nmax) const
 {
 
   PRD_MultiTruthCollection::const_iterator mce;
-  PRD_MultiTruthCollection::const_iterator mc = findTruth(d,mce);
+  PRD_MultiTruthCollection::const_iterator mc = findTruth(event_data,d,mce);
 
   Identifier ID    = d->identify();
   int        nkine = 0;
@@ -1865,11 +1791,11 @@ int InDet::TrackClusterAssValidation::kine
 ///////////////////////////////////////////////////////////////////
 
 int InDet::TrackClusterAssValidation::kine0
-(const Trk::PrepRawData* d,int* Kine,int nmax) 
+(const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData* d,int* Kine,int nmax) const
 {
 
   PRD_MultiTruthCollection::const_iterator mce;
-  PRD_MultiTruthCollection::const_iterator mc = findTruth(d,mce);
+  PRD_MultiTruthCollection::const_iterator mc = findTruth(event_data, d,mce);
 
   Identifier ID    = d->identify();
   int        nkine = 0;
@@ -1889,10 +1815,10 @@ int InDet::TrackClusterAssValidation::kine0
 ///////////////////////////////////////////////////////////////////
 
 bool InDet::TrackClusterAssValidation::isTheSameDetElement
-(int K,const Trk::PrepRawData* d) 
+(const InDet::TrackClusterAssValidation::EventData_t &event_data, int K,const Trk::PrepRawData* d) const
 {
-  std::multimap<int,const Trk::PrepRawData*>::iterator k = m_kinecluster.find(K); 
-  for(; k!=m_kinecluster.end(); ++k) {
+  std::multimap<int,const Trk::PrepRawData*>::const_iterator k = event_data.m_kinecluster.find(K); 
+  for(; k!=event_data.m_kinecluster.end(); ++k) {
 
     if((*k).first!= K) return false;
     if(d->detectorElement()==(*k).second->detectorElement()) return true;
@@ -1905,16 +1831,16 @@ bool InDet::TrackClusterAssValidation::isTheSameDetElement
 ///////////////////////////////////////////////////////////////////
 
 bool InDet::TrackClusterAssValidation::isTheSameDetElement
-(int K,const Trk::SpacePoint* sp) 
+(const InDet::TrackClusterAssValidation::EventData_t &event_data, int K,const Trk::SpacePoint* sp) const
 {
   const Trk::PrepRawData*  p1 = sp->clusterList().first; 
   const Trk::PrepRawData*  p2 = sp->clusterList().second; 
 
-  std::multimap<int,const Trk::SpacePoint*>::iterator  k = m_kinespacepoint.find(K);
+  std::multimap<int,const Trk::SpacePoint*>::const_iterator  k = event_data.m_kinespacepoint.find(K);
 
   if(!p2) {
     
-    for(; k!=m_kinespacepoint.end(); ++k) {
+    for(; k!=event_data.m_kinespacepoint.end(); ++k) {
       if((*k).first!= K) return false;
 
       const Trk::PrepRawData*  n1 = (*k).second->clusterList().first ; 
@@ -1927,7 +1853,7 @@ bool InDet::TrackClusterAssValidation::isTheSameDetElement
     return false;
   }
 
-  for(; k!=m_kinespacepoint.end(); ++k) {
+  for(; k!=event_data.m_kinespacepoint.end(); ++k) {
     if((*k).first!= K) return false;
 
     const Trk::PrepRawData*  n1 = (*k).second->clusterList().first ; 
@@ -1946,19 +1872,19 @@ bool InDet::TrackClusterAssValidation::isTheSameDetElement
 // Dump information about no recontructed particles
 //////////////recon/////////////////////////////////////////////////////
 
-bool InDet::TrackClusterAssValidation::noReconstructedParticles()
+bool InDet::TrackClusterAssValidation::noReconstructedParticles(const InDet::TrackClusterAssValidation::EventData_t &event_data) const
 {
 
-  for(int nc=0; nc!=m_ncolection; ++nc) {
+  for(SG::ReadHandleKeyArray<TrackCollection>::size_type nc=0; nc!=m_tracklocation.size(); ++nc) {
 
-    std::list<InDet::Barcode>::iterator p = m_particles[nc].begin(), pe =m_particles[nc].end();
+    std::list<InDet::Barcode>::const_iterator p = event_data.m_particles[nc].begin(), pe =event_data.m_particles[nc].end();
     if(p==pe) continue;
 
-    std::list<int>::iterator dif = m_difference[nc].begin();
+    std::list<int>::const_iterator dif = event_data.m_difference[nc].begin();
 
-    std::multimap<int,const Trk::PrepRawData*>::iterator c,ce = m_kinecluster.end(); 
+    std::multimap<int,const Trk::PrepRawData*>::const_iterator c,ce = event_data.m_kinecluster.end(); 
 
-    int n  = 69-m_tracklocation[nc].size();
+    int n  = 69-m_tracklocation[nc].key().size();
     std::string s1; for(int i=0; i<n; ++i) s1.append(" "); s1.append("|");
 
     std::cout<<"|----------------------------------------------------------------------------------------|"<<std::endl;
@@ -1973,11 +1899,11 @@ bool InDet::TrackClusterAssValidation::noReconstructedParticles()
       
       int k = (*p).barcode();
 
-      c = m_kinecluster.find(k); if(c==ce) continue;
+      c = event_data.m_kinecluster.find(k); if(c==ce) continue;
       const Trk::PrepRawData* d = (*c).second;
 
       PRD_MultiTruthCollection::const_iterator mce;
-      PRD_MultiTruthCollection::const_iterator mc = findTruth(d,mce);
+      PRD_MultiTruthCollection::const_iterator mc = findTruth(event_data,d,mce);
 
       Identifier ID    = d->identify();
       bool Q = false;
@@ -2005,9 +1931,9 @@ bool InDet::TrackClusterAssValidation::noReconstructedParticles()
 	     <<std::setw(4)<<n
 	       <<std::setw(6)<<pa->pdg_id() 
 	       <<std::setw(10)<<pa->barcode()
-	       <<std::setw(4)<<m_kinecluster   .count(k)
-	       <<std::setw(4)<<m_kineclusterTRT.count(k)
-	       <<std::setw(4)<<m_kinespacepoint.count(k)
+	       <<std::setw(4)<<event_data.m_kinecluster   .count(k)
+	       <<std::setw(4)<<event_data.m_kineclusterTRT.count(k)
+	       <<std::setw(4)<<event_data.m_kinespacepoint.count(k)
 	       <<std::setw(4)<<(*dif)
 	       <<std::setw(12)<<std::setprecision(5)<<pt
 	       <<std::setw(12)<<std::setprecision(5)<<ra
@@ -2029,7 +1955,9 @@ bool InDet::TrackClusterAssValidation::noReconstructedParticles()
 
 PRD_MultiTruthCollection::const_iterator 
 InDet::TrackClusterAssValidation::findTruth 
-(const Trk::PrepRawData* d,PRD_MultiTruthCollection::const_iterator& mce)
+(const InDet::TrackClusterAssValidation::EventData_t &event_data,
+ const Trk::PrepRawData* d,
+ PRD_MultiTruthCollection::const_iterator& mce) const
 {
   const InDet::SCT_Cluster    * si = dynamic_cast<const InDet::SCT_Cluster*>    (d);
   const InDet::PixelCluster   * px = dynamic_cast<const InDet::PixelCluster*>   (d);
@@ -2037,10 +1965,19 @@ InDet::TrackClusterAssValidation::findTruth
   
   PRD_MultiTruthCollection::const_iterator mc;
 
-  if     (px && m_truthPIX) {mc=m_truthPIX->find(d->identify()); mce=m_truthPIX->end();}
-  else if(si && m_truthSCT) {mc=m_truthSCT->find(d->identify()); mce=m_truthSCT->end();}
-  else if(tr && m_truthTRT) {mc=m_truthTRT->find(d->identify()); mce=m_truthTRT->end();}
-  //else        {mc=mce=m_truthPIX->end();}
+  if     (px && event_data.m_truthPIX) {mc=event_data.m_truthPIX->find(d->identify()); mce=event_data.m_truthPIX->end();}
+  else if(si && event_data.m_truthSCT) {mc=event_data.m_truthSCT->find(d->identify()); mce=event_data.m_truthSCT->end();}
+  else if(tr && event_data.m_truthTRT) {mc=event_data.m_truthTRT->find(d->identify()); mce=event_data.m_truthTRT->end();}
+  else {
+    const PRD_MultiTruthCollection *truth[] {event_data. m_truthPIX,event_data.m_truthSCT, event_data.m_truthTRT};
+    for (int i=0; i<3; i++) {
+        if (truth[i]) {
+          mce=truth[i]->end();
+          return truth[i]->end();
+        }
+    }
+    throw std::runtime_error("Neither Pixel, SCT nor TRT truth.");
+  }
   return mc;
 }
 
@@ -2048,12 +1985,12 @@ InDet::TrackClusterAssValidation::findTruth
 // Cluster truth information
 //////////////recon/////////////////////////////////////////////////////
 
-int InDet::TrackClusterAssValidation::charge(std::pair<int,const Trk::PrepRawData*> pa,int& rap)
+int InDet::TrackClusterAssValidation::charge(const InDet::TrackClusterAssValidation::EventData_t &event_data,std::pair<int,const Trk::PrepRawData*> pa,int& rap) const
 {
   int                     k = pa.first;
   const Trk::PrepRawData* d = pa.second;
   PRD_MultiTruthCollection::const_iterator mce;
-  PRD_MultiTruthCollection::const_iterator mc = findTruth(d,mce);
+  PRD_MultiTruthCollection::const_iterator mc = findTruth(event_data,d,mce);
   
   for(; mc!=mce; ++mc) {
     if((*mc).second.cptr()->barcode()==k) {

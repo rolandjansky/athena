@@ -19,6 +19,8 @@
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "StoreGate/ReadHandleKey.h"
 
+#include "TrkTrack/TrackCollection.h"
+
 namespace InDet {
 
   /////////////////////////////////////////////////////////////////////////////////
@@ -74,13 +76,13 @@ namespace InDet {
   //
   class TrackClusterAssValidation : public AthAlgorithm 
     {
-    
+
       ///////////////////////////////////////////////////////////////////
       // Public methods:
       ///////////////////////////////////////////////////////////////////
-      
+
     public:
-      
+
       ///////////////////////////////////////////////////////////////////
       // Standard Algotithm methods
       ///////////////////////////////////////////////////////////////////
@@ -90,13 +92,6 @@ namespace InDet {
       StatusCode initialize();
       StatusCode execute();
       StatusCode finalize();
-
-      ///////////////////////////////////////////////////////////////////
-      // Print internal tool parameters and status
-      ///////////////////////////////////////////////////////////////////
-
-      MsgStream&    dump     (MsgStream&    out) const;
-      std::ostream& dump     (std::ostream& out) const;
 
     protected:
 
@@ -109,13 +104,6 @@ namespace InDet {
       bool                               m_useTRT                 ;
       bool                               m_useOutliers            ;
       int                                m_pdg                    ;
-      int                                m_outputlevel            ;
-      int                                m_nprint                 ;
-      int                                m_ncolection             ; 
-      int                                m_nspacepoints           ;
-      int                                m_nclusters              ;
-      int                                m_nclustersTRT           ;
-      int                                m_nqtracks               ;
       int                                m_efficiency   [100][6]  ;
       int                                m_efficiencyN  [100][6][5];
       int                                m_efficiencyBTE[100][6][5][4];
@@ -156,62 +144,92 @@ namespace InDet {
       double                             m_tcut                   ;
       double                             m_rmin                   ;
       double                             m_rmax                   ;
-      std::vector<std::string>           m_tracklocation          ; 
-      SG::ReadHandleKey<SpacePointContainer> m_spacepointsSCTname ;
-      std::string                        m_spacepointsPixelname   ;
-      std::string                        m_spacepointsOverlapname ; 
-      SG::ReadHandleKey<SiClusterContainer> m_clustersSCTname     ;
-      std::string                        m_clustersPixelname      ;
-      std::string                        m_clustersTRTname        ;
-      std::string                        m_truth_locationPixel    ;
-      SG::ReadHandleKey<PRD_MultiTruthCollection> m_truth_locationSCT;
-      std::string                        m_truth_locationTRT      ;
-      const SpacePointContainer        * m_spacepointsSCT         ;
-      const SpacePointContainer        * m_spacepointsPixel       ;
-      const SpacePointOverlapCollection* m_spacepointsOverlap     ;
-      const SiClusterContainer         * m_pixcontainer           ;
-      const SiClusterContainer         * m_sctcontainer           ;
-      const TRT_DriftCircleContainer   * m_trtcontainer           ;
-      const PRD_MultiTruthCollection   * m_truthPIX               ;
-      const PRD_MultiTruthCollection   * m_truthSCT               ;
-      const PRD_MultiTruthCollection   * m_truthTRT               ;
-      std::multimap<int,const Trk::PrepRawData*> m_kinecluster    ;
-      std::multimap<int,const Trk::PrepRawData*> m_kineclusterTRT ;
-      std::multimap<int,const Trk::SpacePoint*>  m_kinespacepoint ;
-      std::list<Barcode>                         m_particles[100] ;
-      std::list<int>                             m_difference[100];
-      std::multimap<int,int>                     m_tracks[100]    ;
+      SG::ReadHandleKeyArray<TrackCollection>        m_tracklocation;
+      SG::ReadHandleKey<SpacePointContainer>         m_spacepointsSCTname;
+      SG::ReadHandleKey<SpacePointContainer>         m_spacepointsPixelname;
+      SG::ReadHandleKey<SpacePointOverlapCollection> m_spacepointsOverlapname;
+      SG::ReadHandleKey<SiClusterContainer>          m_clustersSCTname;
+      SG::ReadHandleKey<SiClusterContainer>          m_clustersPixelname;
+      SG::ReadHandleKey<TRT_DriftCircleContainer>    m_clustersTRTname;
+      SG::ReadHandleKey<PRD_MultiTruthCollection>    m_truth_locationPixel;
+      SG::ReadHandleKey<PRD_MultiTruthCollection>    m_truth_locationSCT;
+      SG::ReadHandleKey<PRD_MultiTruthCollection>    m_truth_locationTRT;
+
+      struct EventData_t {
+      public:
+        EventData_t()
+        : m_nspacepoints(0),
+          m_nclusters(0),
+          m_nqtracks(0),
+          m_nclustersTRT(0),
+          m_truthPIX{},
+          m_truthSCT{},
+          m_truthTRT{}
+	{ }
+
+        EventData_t(unsigned int n_collections)
+        : m_nspacepoints(0),
+          m_nclusters(0),
+          m_nqtracks(0),
+          m_nclustersTRT(0),
+          m_truthPIX{},
+          m_truthSCT{},
+          m_truthTRT{}
+        {
+          m_particles.resize(n_collections);
+          m_difference.resize(n_collections);
+          m_tracks.resize(n_collections);
+        }
+
+        int                                m_nspacepoints           ;
+        int                                m_nclusters              ;
+        int                                m_nqtracks               ;
+        int                                m_nclustersTRT           ;
+
+        std::vector<std::unique_ptr<SG::VarHandleBase> >  m_clusterHandles;
+        std::vector<SG::ReadHandle<TrackCollection> >     m_trackcontainer;
+        std::vector<SG::ReadHandle<SpacePointContainer> > m_spacePointContainer;
+        std::unique_ptr<SG::ReadHandle<SpacePointOverlapCollection> > m_spacepointsOverlap;
+        const PRD_MultiTruthCollection   * m_truthPIX               ;
+        const PRD_MultiTruthCollection   * m_truthSCT               ;
+        const PRD_MultiTruthCollection   * m_truthTRT               ;
+        std::multimap<int,const Trk::PrepRawData*> m_kinecluster    ;
+        std::multimap<int,const Trk::PrepRawData*> m_kineclusterTRT ;
+        std::multimap<int,const Trk::SpacePoint*>  m_kinespacepoint ;
+        std::vector<std::list<Barcode> >           m_particles      ;
+        std::vector<std::list<int> >               m_difference     ;
+        std::vector<std::multimap<int,int> >       m_tracks         ;
+      };
+
       const HepPDT::ParticleDataTable*        m_particleDataTable ;
 
       ///////////////////////////////////////////////////////////////////
       // Protected methods
       ///////////////////////////////////////////////////////////////////
 
-      void newSpacePointsEvent     ();
-      void newClustersEvent        ();
-      void tracksComparison        ();
-      void efficiencyReconstruction();
-      bool noReconstructedParticles();
+      void newSpacePointsEvent     (InDet::TrackClusterAssValidation::EventData_t &event_data) const;
+      void newClustersEvent        (InDet::TrackClusterAssValidation::EventData_t &event_data) const;
+      void tracksComparison        (InDet::TrackClusterAssValidation::EventData_t &event_data);
+      void efficiencyReconstruction(InDet::TrackClusterAssValidation::EventData_t &event_data);
+      bool noReconstructedParticles(const InDet::TrackClusterAssValidation::EventData_t &event_data) const;
 
-      int  QualityTracksSelection();
-      int kine(const Trk::PrepRawData*,const Trk::PrepRawData*,int*,int);
-      int kine (const Trk::PrepRawData*,int*,int);	
-      int kine0(const Trk::PrepRawData*,int*,int);
-      
-      bool isTheSameDetElement(int,const Trk::PrepRawData*);
-      bool isTheSameDetElement(int,const Trk::SpacePoint* );
+      int QualityTracksSelection(InDet::TrackClusterAssValidation::EventData_t &event_data);
+      int kine(const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData*,const Trk::PrepRawData*,int*,int) const;
+      int kine (const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData*,int*,int) const;
+      int kine0(const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData*,int*,int) const;
+
+      bool isTheSameDetElement(const InDet::TrackClusterAssValidation::EventData_t &event_data, int,const Trk::PrepRawData*) const;
+      bool isTheSameDetElement(const InDet::TrackClusterAssValidation::EventData_t &event_data,int,const Trk::SpacePoint* ) const;
 
       PRD_MultiTruthCollection::const_iterator findTruth
-	(const Trk::PrepRawData*,PRD_MultiTruthCollection::const_iterator&);
-      
-      int charge(std::pair<int,const Trk::PrepRawData*>,int&);
+      (const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData*,PRD_MultiTruthCollection::const_iterator&) const;
 
-      MsgStream&    dumptools(MsgStream&    out) const;
-      MsgStream&    dumpevent(MsgStream&    out) const;
+      int charge(const InDet::TrackClusterAssValidation::EventData_t &event_data,std::pair<int,const Trk::PrepRawData*>,int&) const;
+
+      MsgStream&    dumptools(MsgStream&    out, MSG::Level level) const;
+      MsgStream&    dumpevent(MsgStream&    out, const InDet::TrackClusterAssValidation::EventData_t &event_data) const;
 
     };
-  MsgStream&    operator << (MsgStream&   ,const TrackClusterAssValidation&);
-  std::ostream& operator << (std::ostream&,const TrackClusterAssValidation&); 
 
 }
 #endif // TrackClusterAssValidation_H
