@@ -345,18 +345,7 @@ namespace SG {
    */
   bool VarHandleBase::isPresent() const
   {
-    const DataProxy* proxy = m_proxy;
-    if (!proxy) {
-      const IProxyDict* store = m_store;
-      if (!store)
-        store = this->storeHandle().get();
-      if (store)
-        proxy = store->proxy(this->clid(), this->key());
-    }
-    if (proxy) {
-      return proxy->isValid();
-    }
-    return false;
+    return isPresent_impl (key());
   }
 
 
@@ -1002,6 +991,29 @@ namespace SG {
       }
     } // try symlink -- endif
     return ptr;
+  }
+
+
+  /**
+   * @brief Is the referenced object present in SG?
+   * @param key SG key to test.
+   *
+   * Const method; the handle does not change as a result of this.
+   */
+  bool VarHandleBase::isPresent_impl (const std::string& key) const
+  {
+    const DataProxy* proxy = m_proxy;
+    if (!proxy) {
+      const IProxyDict* store = m_store;
+      if (!store)
+        store = this->storeHandle().get();
+      if (store)
+        proxy = store->proxy(this->clid(), key);
+    }
+    if (proxy) {
+      return proxy->isValid();
+    }
+    return false;
   }
 
 
