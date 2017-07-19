@@ -9,10 +9,11 @@
 #include <vector>
 #include <algorithm>
 #include "LArRecConditions/LArBadChannel.h"
+#include "LArRecConditions/LArBadFeb.h"
 #include "Identifier/HWIdentifier.h"
 
 /**
- * @brief Conditions-Data class holding LAr Bad Channel information
+ * @brief Conditions-Data class holding LAr Bad Channel and Bad Feb information
  *
  * Uses internally a vector<pair<channelID,LArBadChannel> >
  * ordered by channel-id to speed up searching 
@@ -21,28 +22,29 @@
  * Downside: Need acess the LArOnline_ID helper class + channel -> hash conversion
  */
 
-class LArBadChannelCont {
+template<class LArBC_t>
+class LArBadXCont {
  public:
   typedef uint32_t ChanId_t;
-  typedef std::pair<ChanId_t,LArBadChannel>    BadChanEntry;
+  typedef std::pair<ChanId_t,LArBC_t>          BadChanEntry;
   typedef std::vector<BadChanEntry>            BadChanVec;
   typedef typename BadChanVec::const_iterator  const_iterator;
   typedef typename BadChanVec::size_type       size_type;
 
 public:
 
-  
   /// Default Constructor
-  LArBadChannelCont() {}
+  
+  LArBadXCont() {}
   
   /// Constructor with payload
-  LArBadChannelCont( const BadChanVec& vec);
+  LArBadXCont( const BadChanVec& vec);
 
   /**@brief Add a channel to the list of bad channels 
    * @param channel HWIdenifier of the channel in question
    * @param stat Bad-Channel object describing the disease this channels suffers
    */
-  void add(const HWIdentifier channel, const LArBadChannel stat);
+  void add(const HWIdentifier channel, const LArBC_t stat);
 
   /**@brief Sort and purge the list of bad channels 
    * The list of bad channels get sorted by channel-ID
@@ -56,7 +58,7 @@ public:
    * @param HWIdentifer of the channel in question
    * @return LArBadChannel object describing the problem of the channel
    */
-  LArBadChannel status(const HWIdentifier channel) const;
+  LArBC_t status(const HWIdentifier channel) const;
 
 
   ///Access to the begin iterator of the underlying vector
@@ -83,30 +85,23 @@ private:
   BadChanVec m_cont;
 };
 
+#include "LArRecConditions/LArBadChannelCont.icc"
 
 
-inline LArBadChannel LArBadChannelCont::status(const HWIdentifier hwid) const {
 
-  const ChanId_t channel=hwid.get_identifier32().get_compact();
-
-  const_iterator i = 
-    std::lower_bound( m_cont.begin(), m_cont.end(), BadChanEntry( channel,(LArBadChannel) 0),
-		      ChannelLess());
-  if (i != m_cont.end() && i->first == channel) {
-    return i->second;
-  }
-  else {
-    return LArBadChannel(0);
-  }
-}
-
-
+typedef LArBadXCont<LArBadChannel> LArBadChannelCont;
 #include "CLIDSvc/CLASS_DEF.h" 
 CLASS_DEF(LArBadChannelCont,64272230,1)
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<LArBadChannelCont>,144954956 , 1 )
 #include "SGTools/BaseInfo.h"
 SG_BASE( CondCont<LArBadChannelCont>, CondContBase );
+
+
+typedef LArBadXCont<LArBadFeb> LArBadFebCont;
+CLASS_DEF(LArBadFebCont,60500160,1)
+CLASS_DEF(CondCont<LArBadFebCont>,18499682, 1)
+SG_BASE( CondCont<LArBadFebCont>, CondContBase );
 
 
 #endif
