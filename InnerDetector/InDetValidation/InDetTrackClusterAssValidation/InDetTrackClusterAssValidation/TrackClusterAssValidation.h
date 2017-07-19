@@ -104,37 +104,133 @@ namespace InDet {
       bool                               m_useTRT                 ;
       bool                               m_useOutliers            ;
       int                                m_pdg                    ;
-      int                                m_efficiency   [100][6]  ;
-      int                                m_efficiencyN  [100][6][5];
-      int                                m_efficiencyBTE[100][6][5][4];
-      int                                m_efficiencyPOS[100][6]  ;
-      int                                m_efficiencyNEG[100][6]  ;
-      int                                m_ntracksPOSB  [100]     ;
-      int                                m_ntracksPOSE  [100]     ;
-      int                                m_ntracksPOSDBM[100];
-      int                                m_ntracksNEGB  [100]     ;
-      int                                m_ntracksNEGE  [100]     ;
-      int                                m_ntracksNEGDBM[100];
-      int                                m_total        [100][50] ;
-      int                                m_fake         [100][50] ;
-      int                                m_events                 ;
-      int                                m_eventsPOS              ;
-      int                                m_eventsNEG              ;
-      int                                m_eventsBTE[4]           ;
-      int                                m_particleClusters   [50];
-      int                                m_particleSpacePoints[50];
-      int                                m_particleClustersBTE   [50][4];
-      int                                m_particleSpacePointsBTE[50][4];
-      int                                m_nclustersPosBP         ;
-      int                                m_nclustersPosBS         ;
-      int                                m_nclustersPosEP         ;
-      int                                m_nclustersPosES         ;
-      int                                m_nclustersPosDBM;
-      int                                m_nclustersNegBP         ;
-      int                                m_nclustersNegBS         ;
-      int                                m_nclustersNegEP         ;
-      int                                m_nclustersNegES         ;
-      int                                m_nclustersNegDBM;
+      struct TrackCollectionStat_t {
+      public:
+        int                                m_efficiency   [6]  ;
+        int                                m_efficiencyN  [6][5];
+        int                                m_efficiencyBTE[6][5][4];
+        int                                m_efficiencyPOS[6]  ;
+        int                                m_efficiencyNEG[6]  ;
+        int                                m_ntracksPOSB       ;
+        int                                m_ntracksPOSE       ;
+        int                                m_ntracksPOSDBM;
+        int                                m_ntracksNEGB       ;
+        int                                m_ntracksNEGE       ;
+        int                                m_ntracksNEGDBM;
+        int                                m_total        [50] ;
+        int                                m_fake         [50] ;
+        int                                m_events                 ;
+        int                                m_eventsPOS              ;
+        int                                m_eventsNEG              ;
+        int                                m_eventsBTE[4]           ;
+
+        TrackCollectionStat_t()
+        : m_efficiency    {},
+          m_efficiencyN   {},
+          m_efficiencyBTE {},
+          m_efficiencyPOS {},
+          m_efficiencyNEG {},
+          m_ntracksPOSB   {},
+          m_ntracksPOSE   {},
+          m_ntracksPOSDBM {},
+          m_ntracksNEGB   {},
+          m_ntracksNEGE   {},
+          m_ntracksNEGDBM {},
+          m_total         {},
+          m_fake          {}
+        {}
+
+        TrackCollectionStat_t &operator+=(const TrackCollectionStat_t &a_stat) {
+            for (int i=0; i<6; ++i) { m_efficiency[i]+=a_stat.m_efficiency[i];}
+            for (int i=0; i<6; ++i) { for (int j=0; j<5; ++j) { m_efficiencyN[i][j]+=a_stat.m_efficiencyN[i][j];}}
+            for (int i=0; i<6; ++i) { for (int j=0; j<5; ++j) { for (int k=0; k<4; ++k) { m_efficiencyBTE[i][j][k]+=a_stat.m_efficiencyBTE[i][j][k];} } }
+            for (int i=0; i<6; ++i) { m_efficiencyPOS[i]+=a_stat.m_efficiencyPOS[i];}
+            for (int i=0; i<6; ++i) { m_efficiencyNEG[i]+=a_stat.m_efficiencyNEG[i];}
+            m_ntracksPOSB+=a_stat.m_ntracksPOSB       ;
+            m_ntracksPOSE+=a_stat.m_ntracksPOSE       ;
+            m_ntracksPOSDBM+=a_stat.m_ntracksPOSDBM;
+            m_ntracksNEGB+=a_stat.m_ntracksNEGB       ;
+            m_ntracksNEGE+=a_stat.m_ntracksNEGE       ;
+            m_ntracksNEGDBM+=a_stat.m_ntracksNEGDBM;
+            for (int i=0; i<50; ++i) { m_total[i]+=a_stat.m_total[i];}
+            for (int i=0; i<50; ++i) { m_fake[i]+=a_stat.m_fake[i];}
+
+            return *this;
+        }
+
+      };
+
+      struct EventStat_t {
+      public:
+        int                                m_events      ;
+        int                                m_eventsPOS   ;
+        int                                m_eventsNEG   ;
+        int                                m_eventsBTE[4];
+
+        int                                m_particleClusters   [50];
+        int                                m_particleSpacePoints[50];
+        int                                m_particleClustersBTE   [50][4];
+        int                                m_particleSpacePointsBTE[50][4];
+
+        int                                m_nclustersPosBP         ;
+        int                                m_nclustersPosBS         ;
+        int                                m_nclustersPosEP         ;
+        int                                m_nclustersPosES         ;
+        int                                m_nclustersPosDBM;
+        int                                m_nclustersNegBP         ;
+        int                                m_nclustersNegBS         ;
+        int                                m_nclustersNegEP         ;
+        int                                m_nclustersNegES         ;
+        int                                m_nclustersNegDBM;
+
+        EventStat_t()
+        : m_events                 {},
+          m_eventsPOS              {},
+          m_eventsNEG              {},
+          m_eventsBTE              {},
+          m_particleClusters       {},
+          m_particleSpacePoints    {},
+          m_particleClustersBTE    {},
+          m_particleSpacePointsBTE {},
+          m_nclustersPosBP         {},
+          m_nclustersPosBS         {},
+          m_nclustersPosEP         {},
+          m_nclustersPosES         {},
+          m_nclustersPosDBM        {},
+          m_nclustersNegBP         {},
+          m_nclustersNegBS         {},
+          m_nclustersNegEP         {},
+          m_nclustersNegES         {},
+          m_nclustersNegDBM        {}
+        {}
+
+        EventStat_t &operator+=(const EventStat_t &a_stat) {
+          m_events += a_stat.m_events;
+          m_eventsPOS += a_stat.m_eventsPOS;
+          m_eventsNEG += a_stat.m_eventsNEG;
+          for (int i=0; i<4; ++i)  { m_eventsBTE[i] += a_stat.m_eventsBTE[i]; }
+          for (int i=0; i<50; ++i) {m_particleClusters[i] += a_stat.m_particleClusters[i]; };
+          for (int i=0; i<50; ++i) {m_particleSpacePoints[i] += a_stat.m_particleSpacePoints[i]; };
+          for (int i=0; i<50; ++i) {for (int j=0; j<4; ++j) { m_particleClustersBTE[i][j] += a_stat.m_particleClustersBTE[i][j]; } }
+          for (int i=0; i<50; ++i) {for (int j=0; j<4; ++j) { m_particleSpacePointsBTE[i][j] += a_stat.m_particleSpacePointsBTE[i][j];} }
+          m_nclustersPosBP  += m_nclustersPosBP;
+          m_nclustersPosBS  += m_nclustersPosBS;
+          m_nclustersPosEP  += m_nclustersPosEP;
+          m_nclustersPosES  += m_nclustersPosES;
+          m_nclustersPosDBM += m_nclustersPosDBM;
+          m_nclustersNegBP  += m_nclustersNegBP;
+          m_nclustersNegBS  += m_nclustersNegBS;
+          m_nclustersNegEP  += m_nclustersNegEP;
+          m_nclustersNegES  += m_nclustersNegES;
+          m_nclustersNegDBM += m_nclustersNegDBM;
+
+          return *this;
+        }
+      };
+
+      std::vector<TrackCollectionStat_t>   m_trackCollectionStat;
+      EventStat_t                          m_eventStat;
+
       unsigned int                       m_clcut                  ;
       unsigned int                       m_clcutTRT               ;
       unsigned int                       m_spcut                  ;
@@ -165,7 +261,7 @@ namespace InDet {
           m_truthPIX{},
           m_truthSCT{},
           m_truthTRT{}
-	{ }
+        {}
 
         EventData_t(unsigned int n_collections)
         : m_nspacepoints(0),
@@ -179,7 +275,8 @@ namespace InDet {
           m_particles.resize(n_collections);
           m_difference.resize(n_collections);
           m_tracks.resize(n_collections);
-        }
+          m_trackCollectionStat.resize(n_collections);
+	}
 
         int                                m_nspacepoints           ;
         int                                m_nclusters              ;
@@ -190,15 +287,17 @@ namespace InDet {
         std::vector<SG::ReadHandle<TrackCollection> >     m_trackcontainer;
         std::vector<SG::ReadHandle<SpacePointContainer> > m_spacePointContainer;
         std::unique_ptr<SG::ReadHandle<SpacePointOverlapCollection> > m_spacepointsOverlap;
-        const PRD_MultiTruthCollection   * m_truthPIX               ;
-        const PRD_MultiTruthCollection   * m_truthSCT               ;
-        const PRD_MultiTruthCollection   * m_truthTRT               ;
+        const PRD_MultiTruthCollection           * m_truthPIX       ;
+        const PRD_MultiTruthCollection           * m_truthSCT       ;
+        const PRD_MultiTruthCollection           * m_truthTRT       ;
         std::multimap<int,const Trk::PrepRawData*> m_kinecluster    ;
         std::multimap<int,const Trk::PrepRawData*> m_kineclusterTRT ;
         std::multimap<int,const Trk::SpacePoint*>  m_kinespacepoint ;
         std::vector<std::list<Barcode> >           m_particles      ;
         std::vector<std::list<int> >               m_difference     ;
         std::vector<std::multimap<int,int> >       m_tracks         ;
+        std::vector<TrackCollectionStat_t>         m_trackCollectionStat;
+        EventStat_t                                m_eventStat;
       };
 
       const HepPDT::ParticleDataTable*        m_particleDataTable ;
@@ -209,11 +308,11 @@ namespace InDet {
 
       void newSpacePointsEvent     (InDet::TrackClusterAssValidation::EventData_t &event_data) const;
       void newClustersEvent        (InDet::TrackClusterAssValidation::EventData_t &event_data) const;
-      void tracksComparison        (InDet::TrackClusterAssValidation::EventData_t &event_data);
-      void efficiencyReconstruction(InDet::TrackClusterAssValidation::EventData_t &event_data);
+      void tracksComparison        (InDet::TrackClusterAssValidation::EventData_t &event_data) const;
+      void efficiencyReconstruction(InDet::TrackClusterAssValidation::EventData_t &event_data) const;
       bool noReconstructedParticles(const InDet::TrackClusterAssValidation::EventData_t &event_data) const;
 
-      int QualityTracksSelection(InDet::TrackClusterAssValidation::EventData_t &event_data);
+      int QualityTracksSelection(InDet::TrackClusterAssValidation::EventData_t &event_data) const;
       int kine(const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData*,const Trk::PrepRawData*,int*,int) const;
       int kine (const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData*,int*,int) const;
       int kine0(const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData*,int*,int) const;

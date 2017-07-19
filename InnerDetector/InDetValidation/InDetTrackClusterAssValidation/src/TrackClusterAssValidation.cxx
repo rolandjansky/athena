@@ -45,17 +45,6 @@ InDet::TrackClusterAssValidation::TrackClusterAssValidation
   m_useTRT                 = true                             ;
   m_useOutliers            = false                            ;
   m_pdg                    = 0                                ;
-  m_events                 = 0                                ; 
-  m_eventsPOS              = 0                                ;
-  m_eventsNEG              = 0                                ;
-  m_nclustersPosBP         = 0                                ;
-  m_nclustersPosBS         = 0                                ;
-  m_nclustersPosEP         = 0                                ;
-  m_nclustersPosES         = 0                                ;
-  m_nclustersNegBP         = 0                                ;
-  m_nclustersNegBS         = 0                                ;
-  m_nclustersNegEP         = 0                                ;
-  m_nclustersNegES         = 0                                ;
   m_tcut                   = 0.                               ;
   m_particleDataTable      = 0                                ; 
 
@@ -115,60 +104,10 @@ StatusCode InDet::TrackClusterAssValidation::initialize()
   // Erase statistic information
   //
   m_pdg          = fabs(m_pdg)         ;
-  m_events       = 0                   ;
-  m_eventsPOS    = 0                   ;
-  m_eventsNEG    = 0                   ;
-  m_eventsBTE[0] = 0                   ;
-  m_eventsBTE[1] = 0                   ;
-  m_eventsBTE[2] = 0                   ;
-  m_eventsBTE[3] = 0                   ;
 
-  for(SG::ReadHandleKeyArray<TrackCollection>::size_type nc = 0; nc!=m_tracklocation.size(); ++nc) {
-    for(int i=0; i!=6; ++i) m_efficiency   [nc][i] = 0;
-    for(int i=0; i!=6; ++i) m_efficiencyPOS[nc][i] = 0;
-    for(int i=0; i!=6; ++i) m_efficiencyNEG[nc][i] = 0;
-    for(int i=0; i!=6; ++i) {
-      for(int j=0; j!=5; ++j) m_efficiencyN  [nc][i][j]    = 0;
-      for(int j=0; j!=5; ++j) m_efficiencyBTE[nc][i][j][0] = 0;
-      for(int j=0; j!=5; ++j) m_efficiencyBTE[nc][i][j][1] = 0;
-      for(int j=0; j!=5; ++j) m_efficiencyBTE[nc][i][j][2] = 0;
-      for(int j=0; j!=5; ++j) m_efficiencyBTE[nc][i][j][3] = 0;
-    }
+  m_trackCollectionStat.resize(m_tracklocation.size());
+  m_eventStat = EventStat_t();
 
-    m_ntracksPOSB [nc] = 0; 
-    m_ntracksPOSE [nc] = 0; 
-    m_ntracksNEGB [nc] = 0; 
-    m_ntracksNEGE [nc] = 0;
-    m_ntracksNEGDBM [nc] = 0;
-    m_ntracksPOSDBM [nc] = 0;
- 
-    for(int i=0; i!=50; ++i) {m_total[nc][i] = 0; m_fake[nc][i] =0;}
-  } 
-  m_nclustersPosBP  = 0; // number barrel pixels clusters for positive particles
-  m_nclustersPosBS  = 0; // number barrel  SCT   clusters for positive particles
-  m_nclustersPosEP  = 0; // number endcap pixels clusters for positive particles
-  m_nclustersPosES  = 0; // number endcap  SCT   clusters for positive particles
-  m_nclustersPosDBM = 0;
-  m_nclustersNegBP  = 0; // number barrel pixels clusters for negative particles
-  m_nclustersNegBS  = 0; // number barrel  SCT   clusters for negative particles
-  m_nclustersNegEP  = 0; // number endcap pixels clusters for negative particles
-  m_nclustersNegES  = 0; // number endcap  SCT   clusters for negative particles
-  m_nclustersNegDBM = 0;
-
-  for(int i=0; i!=50; ++i) {
-    m_particleClusters      [i]    = 0;
-    m_particleClustersBTE   [i][0] = 0;
-    m_particleClustersBTE   [i][1] = 0;
-    m_particleClustersBTE   [i][2] = 0;
-    m_particleClustersBTE   [i][3] = 0;
-
-    m_particleSpacePoints   [i]    = 0;
-    m_particleSpacePointsBTE[i][0] = 0;
-    m_particleSpacePointsBTE[i][1] = 0;
-    m_particleSpacePointsBTE[i][2] = 0;
-    m_particleSpacePointsBTE[i][3] = 0;
-
-  }
   if(!m_useTRT) m_clcutTRT = 0; 
   if(!m_clcutTRT) m_useTRT = false;
 
@@ -246,6 +185,12 @@ StatusCode InDet::TrackClusterAssValidation::execute()
 
   }
 
+  assert( event_data.m_trackCollectionStat.size() == m_trackCollectionStat.size());
+  for (unsigned int i=0; i< m_trackCollectionStat.size(); ++i ) {
+    m_trackCollectionStat[i] += event_data.m_trackCollectionStat[i];
+  }
+  m_eventStat += event_data.m_eventStat;
+
   if (msgLvl(MSG::DEBUG)) {
     dumpevent(msg(),event_data);
     msg() << endmsg;
@@ -259,7 +204,7 @@ StatusCode InDet::TrackClusterAssValidation::execute()
 
 StatusCode InDet::TrackClusterAssValidation::finalize() {
 
-  if(m_events<=0) return StatusCode::SUCCESS;
+  if(m_eventStat.m_events<=0) return StatusCode::SUCCESS;
     
   std::cout<<"|-----------------------------------------------------------------------------------|"
 	   <<std::endl;
@@ -311,133 +256,133 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 
   
   for(int i=48; i>=0; --i) {
-    m_particleClusters      [i]   +=m_particleClusters      [i+1];
-    m_particleClustersBTE   [i][0]+=m_particleClustersBTE   [i+1][0];
-    m_particleClustersBTE   [i][1]+=m_particleClustersBTE   [i+1][1];
-    m_particleClustersBTE   [i][2]+=m_particleClustersBTE   [i+1][2];
-    m_particleClustersBTE   [i][3]+=m_particleClustersBTE   [i+1][3];
-    m_particleSpacePoints   [i]   +=m_particleSpacePoints   [i+1];
-    m_particleSpacePointsBTE[i][0]+=m_particleSpacePointsBTE[i+1][0];
-    m_particleSpacePointsBTE[i][1]+=m_particleSpacePointsBTE[i+1][1];
-    m_particleSpacePointsBTE[i][2]+=m_particleSpacePointsBTE[i+1][2];
-    m_particleSpacePointsBTE[i][3]+=m_particleSpacePointsBTE[i+1][3];
+    m_eventStat.m_particleClusters      [i]   +=m_eventStat.m_particleClusters      [i+1];
+    m_eventStat.m_particleClustersBTE   [i][0]+=m_eventStat.m_particleClustersBTE   [i+1][0];
+    m_eventStat.m_particleClustersBTE   [i][1]+=m_eventStat.m_particleClustersBTE   [i+1][1];
+    m_eventStat.m_particleClustersBTE   [i][2]+=m_eventStat.m_particleClustersBTE   [i+1][2];
+    m_eventStat.m_particleClustersBTE   [i][3]+=m_eventStat.m_particleClustersBTE   [i+1][3];
+    m_eventStat.m_particleSpacePoints   [i]   +=m_eventStat.m_particleSpacePoints   [i+1];
+    m_eventStat.m_particleSpacePointsBTE[i][0]+=m_eventStat.m_particleSpacePointsBTE[i+1][0];
+    m_eventStat.m_particleSpacePointsBTE[i][1]+=m_eventStat.m_particleSpacePointsBTE[i+1][1];
+    m_eventStat.m_particleSpacePointsBTE[i][2]+=m_eventStat.m_particleSpacePointsBTE[i+1][2];
+    m_eventStat.m_particleSpacePointsBTE[i][3]+=m_eventStat.m_particleSpacePointsBTE[i+1][3];
   }
 
-  double pa   =  double(m_particleClusters[0]); if(pa < 1.) pa = 1.;
-  double pc2  = double(m_particleClusters   [ 2])        / pa;
-  double pc3  = double(m_particleClusters   [ 3])        / pa;
-  double pc4  = double(m_particleClusters   [ 4])        / pa;
-  double pc5  = double(m_particleClusters   [ 5])        / pa;
-  double pc6  = double(m_particleClusters   [ 6])        / pa;
-  double pc7  = double(m_particleClusters   [ 7])        / pa;
-  double pc8  = double(m_particleClusters   [ 8])        / pa;
-  double pc9  = double(m_particleClusters   [ 9])        / pa;
-  double pc10 = double(m_particleClusters   [10])        / pa;
-  double pc11 = double(m_particleClusters   [11])        / pa;
+  double pa   =  double(m_eventStat.m_particleClusters[0]); if(pa < 1.) pa = 1.;
+  double pc2  = double(m_eventStat.m_particleClusters   [ 2])        / pa;
+  double pc3  = double(m_eventStat.m_particleClusters   [ 3])        / pa;
+  double pc4  = double(m_eventStat.m_particleClusters   [ 4])        / pa;
+  double pc5  = double(m_eventStat.m_particleClusters   [ 5])        / pa;
+  double pc6  = double(m_eventStat.m_particleClusters   [ 6])        / pa;
+  double pc7  = double(m_eventStat.m_particleClusters   [ 7])        / pa;
+  double pc8  = double(m_eventStat.m_particleClusters   [ 8])        / pa;
+  double pc9  = double(m_eventStat.m_particleClusters   [ 9])        / pa;
+  double pc10 = double(m_eventStat.m_particleClusters   [10])        / pa;
+  double pc11 = double(m_eventStat.m_particleClusters   [11])        / pa;
 
-  pa           = double(m_particleClustersBTE[0][0]); if(pa < 1.) pa = 1.;
-  double pcB2  = double(m_particleClustersBTE[ 2][0])    / pa;
-  double pcB3  = double(m_particleClustersBTE[ 3][0])    / pa;
-  double pcB4  = double(m_particleClustersBTE[ 4][0])    / pa;
-  double pcB5  = double(m_particleClustersBTE[ 5][0])    / pa;
-  double pcB6  = double(m_particleClustersBTE[ 6][0])    / pa;
-  double pcB7  = double(m_particleClustersBTE[ 7][0])    / pa;
-  double pcB8  = double(m_particleClustersBTE[ 8][0])    / pa;
-  double pcB9  = double(m_particleClustersBTE[ 9][0])    / pa;
-  double pcB10 = double(m_particleClustersBTE[10][0])    / pa;
-  double pcB11 = double(m_particleClustersBTE[11][0])    / pa;
-  pa           = double(m_particleClustersBTE[0][1]); if(pa < 1.) pa = 1.;
-  double pcT2  = double(m_particleClustersBTE[ 2][1])    / pa;
-  double pcT3  = double(m_particleClustersBTE[ 3][1])    / pa;
-  double pcT4  = double(m_particleClustersBTE[ 4][1])    / pa;
-  double pcT5  = double(m_particleClustersBTE[ 5][1])    / pa;
-  double pcT6  = double(m_particleClustersBTE[ 6][1])    / pa;
-  double pcT7  = double(m_particleClustersBTE[ 7][1])    / pa;
-  double pcT8  = double(m_particleClustersBTE[ 8][1])    / pa;
-  double pcT9  = double(m_particleClustersBTE[ 9][1])    / pa;
-  double pcT10 = double(m_particleClustersBTE[10][1])    / pa;
-  double pcT11 = double(m_particleClustersBTE[11][1])    / pa;
-  pa           = double(m_particleClustersBTE[0][2]); if(pa < 1.) pa = 1.;
-  double pcE2  = double(m_particleClustersBTE[ 2][2])    / pa;
-  double pcE3  = double(m_particleClustersBTE[ 3][2])    / pa;
-  double pcE4  = double(m_particleClustersBTE[ 4][2])    / pa;
-  double pcE5  = double(m_particleClustersBTE[ 5][2])    / pa;
-  double pcE6  = double(m_particleClustersBTE[ 6][2])    / pa;
-  double pcE7  = double(m_particleClustersBTE[ 7][2])    / pa;
-  double pcE8  = double(m_particleClustersBTE[ 8][2])    / pa;
-  double pcE9  = double(m_particleClustersBTE[ 9][2])    / pa;
-  double pcE10 = double(m_particleClustersBTE[10][2])    / pa;
-  double pcE11 = double(m_particleClustersBTE[11][2])    / pa;
+  pa           = double(m_eventStat.m_particleClustersBTE[0][0]); if(pa < 1.) pa = 1.;
+  double pcB2  = double(m_eventStat.m_particleClustersBTE[ 2][0])    / pa;
+  double pcB3  = double(m_eventStat.m_particleClustersBTE[ 3][0])    / pa;
+  double pcB4  = double(m_eventStat.m_particleClustersBTE[ 4][0])    / pa;
+  double pcB5  = double(m_eventStat.m_particleClustersBTE[ 5][0])    / pa;
+  double pcB6  = double(m_eventStat.m_particleClustersBTE[ 6][0])    / pa;
+  double pcB7  = double(m_eventStat.m_particleClustersBTE[ 7][0])    / pa;
+  double pcB8  = double(m_eventStat.m_particleClustersBTE[ 8][0])    / pa;
+  double pcB9  = double(m_eventStat.m_particleClustersBTE[ 9][0])    / pa;
+  double pcB10 = double(m_eventStat.m_particleClustersBTE[10][0])    / pa;
+  double pcB11 = double(m_eventStat.m_particleClustersBTE[11][0])    / pa;
+  pa           = double(m_eventStat.m_particleClustersBTE[0][1]); if(pa < 1.) pa = 1.;
+  double pcT2  = double(m_eventStat.m_particleClustersBTE[ 2][1])    / pa;
+  double pcT3  = double(m_eventStat.m_particleClustersBTE[ 3][1])    / pa;
+  double pcT4  = double(m_eventStat.m_particleClustersBTE[ 4][1])    / pa;
+  double pcT5  = double(m_eventStat.m_particleClustersBTE[ 5][1])    / pa;
+  double pcT6  = double(m_eventStat.m_particleClustersBTE[ 6][1])    / pa;
+  double pcT7  = double(m_eventStat.m_particleClustersBTE[ 7][1])    / pa;
+  double pcT8  = double(m_eventStat.m_particleClustersBTE[ 8][1])    / pa;
+  double pcT9  = double(m_eventStat.m_particleClustersBTE[ 9][1])    / pa;
+  double pcT10 = double(m_eventStat.m_particleClustersBTE[10][1])    / pa;
+  double pcT11 = double(m_eventStat.m_particleClustersBTE[11][1])    / pa;
+  pa           = double(m_eventStat.m_particleClustersBTE[0][2]); if(pa < 1.) pa = 1.;
+  double pcE2  = double(m_eventStat.m_particleClustersBTE[ 2][2])    / pa;
+  double pcE3  = double(m_eventStat.m_particleClustersBTE[ 3][2])    / pa;
+  double pcE4  = double(m_eventStat.m_particleClustersBTE[ 4][2])    / pa;
+  double pcE5  = double(m_eventStat.m_particleClustersBTE[ 5][2])    / pa;
+  double pcE6  = double(m_eventStat.m_particleClustersBTE[ 6][2])    / pa;
+  double pcE7  = double(m_eventStat.m_particleClustersBTE[ 7][2])    / pa;
+  double pcE8  = double(m_eventStat.m_particleClustersBTE[ 8][2])    / pa;
+  double pcE9  = double(m_eventStat.m_particleClustersBTE[ 9][2])    / pa;
+  double pcE10 = double(m_eventStat.m_particleClustersBTE[10][2])    / pa;
+  double pcE11 = double(m_eventStat.m_particleClustersBTE[11][2])    / pa;
 
-  pa           = double(m_particleClustersBTE[0][3]); if(pa < 1.) pa = 1.;
-  double pcD2  = double(m_particleClustersBTE[ 2][3])    / pa;
-  double pcD3  = double(m_particleClustersBTE[ 3][3])    / pa;
-  double pcD4  = double(m_particleClustersBTE[ 4][3])    / pa;
-  double pcD5  = double(m_particleClustersBTE[ 5][3])    / pa;
-  double pcD6  = double(m_particleClustersBTE[ 6][3])    / pa;
-  double pcD7  = double(m_particleClustersBTE[ 7][3])    / pa;
-  double pcD8  = double(m_particleClustersBTE[ 8][3])    / pa;
-  double pcD9  = double(m_particleClustersBTE[ 9][3])    / pa;
-  double pcD10 = double(m_particleClustersBTE[10][3])    / pa;
-  double pcD11 = double(m_particleClustersBTE[11][3])    / pa;
+  pa           = double(m_eventStat.m_particleClustersBTE[0][3]); if(pa < 1.) pa = 1.;
+  double pcD2  = double(m_eventStat.m_particleClustersBTE[ 2][3])    / pa;
+  double pcD3  = double(m_eventStat.m_particleClustersBTE[ 3][3])    / pa;
+  double pcD4  = double(m_eventStat.m_particleClustersBTE[ 4][3])    / pa;
+  double pcD5  = double(m_eventStat.m_particleClustersBTE[ 5][3])    / pa;
+  double pcD6  = double(m_eventStat.m_particleClustersBTE[ 6][3])    / pa;
+  double pcD7  = double(m_eventStat.m_particleClustersBTE[ 7][3])    / pa;
+  double pcD8  = double(m_eventStat.m_particleClustersBTE[ 8][3])    / pa;
+  double pcD9  = double(m_eventStat.m_particleClustersBTE[ 9][3])    / pa;
+  double pcD10 = double(m_eventStat.m_particleClustersBTE[10][3])    / pa;
+  double pcD11 = double(m_eventStat.m_particleClustersBTE[11][3])    / pa;
 
 
-  pa           = double(m_particleSpacePoints[0]); if(pa < 1.) pa = 1.;
-  double ps2   = double(m_particleSpacePoints[ 2])       / pa;
-  double ps3   = double(m_particleSpacePoints[ 3])       / pa;
-  double ps4   = double(m_particleSpacePoints[ 4])       / pa;
-  double ps5   = double(m_particleSpacePoints[ 5])       / pa;
-  double ps6   = double(m_particleSpacePoints[ 6])       / pa;
-  double ps7   = double(m_particleSpacePoints[ 7])       / pa;
-  double ps8   = double(m_particleSpacePoints[ 8])       / pa;
-  double ps9   = double(m_particleSpacePoints[ 9])       / pa;
-  double ps10  = double(m_particleSpacePoints[10])       / pa;
-  double ps11  = double(m_particleSpacePoints[11])       / pa;
-  pa           = double(m_particleSpacePointsBTE[0][0]); if(pa < 1.) pa = 1.;
-  double psB2  = double(m_particleSpacePointsBTE[ 2][0]) / pa;
-  double psB3  = double(m_particleSpacePointsBTE[ 3][0]) / pa;
-  double psB4  = double(m_particleSpacePointsBTE[ 4][0]) / pa;
-  double psB5  = double(m_particleSpacePointsBTE[ 5][0]) / pa;
-  double psB6  = double(m_particleSpacePointsBTE[ 6][0]) / pa;
-  double psB7  = double(m_particleSpacePointsBTE[ 7][0]) / pa;
-  double psB8  = double(m_particleSpacePointsBTE[ 8][0]) / pa;
-  double psB9  = double(m_particleSpacePointsBTE[ 9][0]) / pa;
-  double psB10 = double(m_particleSpacePointsBTE[10][0]) / pa;
-  double psB11 = double(m_particleSpacePointsBTE[11][0]) / pa;
-  pa           = double(m_particleSpacePointsBTE[0][1]); if(pa < 1.) pa = 1.;
-  double psT2  = double(m_particleSpacePointsBTE[ 2][1]) / pa;
-  double psT3  = double(m_particleSpacePointsBTE[ 3][1]) / pa;
-  double psT4  = double(m_particleSpacePointsBTE[ 4][1]) / pa;
-  double psT5  = double(m_particleSpacePointsBTE[ 5][1]) / pa;
-  double psT6  = double(m_particleSpacePointsBTE[ 6][1]) / pa;
-  double psT7  = double(m_particleSpacePointsBTE[ 7][1]) / pa;
-  double psT8  = double(m_particleSpacePointsBTE[ 8][1]) / pa;
-  double psT9  = double(m_particleSpacePointsBTE[ 9][1]) / pa;
-  double psT10 = double(m_particleSpacePointsBTE[10][1]) / pa;
-  double psT11 = double(m_particleSpacePointsBTE[11][1]) / pa;
-  pa           = double(m_particleSpacePointsBTE[0][2]); if(pa < 1.) pa = 1.; 
-  double psE2  = double(m_particleSpacePointsBTE[ 2][2]) / pa;
-  double psE3  = double(m_particleSpacePointsBTE[ 3][2]) / pa;
-  double psE4  = double(m_particleSpacePointsBTE[ 4][2]) / pa;
-  double psE5  = double(m_particleSpacePointsBTE[ 5][2]) / pa;
-  double psE6  = double(m_particleSpacePointsBTE[ 6][2]) / pa;
-  double psE7  = double(m_particleSpacePointsBTE[ 7][2]) / pa;
-  double psE8  = double(m_particleSpacePointsBTE[ 8][2]) / pa;
-  double psE9  = double(m_particleSpacePointsBTE[ 9][2]) / pa;
-  double psE10 = double(m_particleSpacePointsBTE[10][2]) / pa;
-  double psE11 = double(m_particleSpacePointsBTE[11][2]) / pa;
+  pa           = double(m_eventStat.m_particleSpacePoints[0]); if(pa < 1.) pa = 1.;
+  double ps2   = double(m_eventStat.m_particleSpacePoints[ 2])       / pa;
+  double ps3   = double(m_eventStat.m_particleSpacePoints[ 3])       / pa;
+  double ps4   = double(m_eventStat.m_particleSpacePoints[ 4])       / pa;
+  double ps5   = double(m_eventStat.m_particleSpacePoints[ 5])       / pa;
+  double ps6   = double(m_eventStat.m_particleSpacePoints[ 6])       / pa;
+  double ps7   = double(m_eventStat.m_particleSpacePoints[ 7])       / pa;
+  double ps8   = double(m_eventStat.m_particleSpacePoints[ 8])       / pa;
+  double ps9   = double(m_eventStat.m_particleSpacePoints[ 9])       / pa;
+  double ps10  = double(m_eventStat.m_particleSpacePoints[10])       / pa;
+  double ps11  = double(m_eventStat.m_particleSpacePoints[11])       / pa;
+  pa           = double(m_eventStat.m_particleSpacePointsBTE[0][0]); if(pa < 1.) pa = 1.;
+  double psB2  = double(m_eventStat.m_particleSpacePointsBTE[ 2][0]) / pa;
+  double psB3  = double(m_eventStat.m_particleSpacePointsBTE[ 3][0]) / pa;
+  double psB4  = double(m_eventStat.m_particleSpacePointsBTE[ 4][0]) / pa;
+  double psB5  = double(m_eventStat.m_particleSpacePointsBTE[ 5][0]) / pa;
+  double psB6  = double(m_eventStat.m_particleSpacePointsBTE[ 6][0]) / pa;
+  double psB7  = double(m_eventStat.m_particleSpacePointsBTE[ 7][0]) / pa;
+  double psB8  = double(m_eventStat.m_particleSpacePointsBTE[ 8][0]) / pa;
+  double psB9  = double(m_eventStat.m_particleSpacePointsBTE[ 9][0]) / pa;
+  double psB10 = double(m_eventStat.m_particleSpacePointsBTE[10][0]) / pa;
+  double psB11 = double(m_eventStat.m_particleSpacePointsBTE[11][0]) / pa;
+  pa           = double(m_eventStat.m_particleSpacePointsBTE[0][1]); if(pa < 1.) pa = 1.;
+  double psT2  = double(m_eventStat.m_particleSpacePointsBTE[ 2][1]) / pa;
+  double psT3  = double(m_eventStat.m_particleSpacePointsBTE[ 3][1]) / pa;
+  double psT4  = double(m_eventStat.m_particleSpacePointsBTE[ 4][1]) / pa;
+  double psT5  = double(m_eventStat.m_particleSpacePointsBTE[ 5][1]) / pa;
+  double psT6  = double(m_eventStat.m_particleSpacePointsBTE[ 6][1]) / pa;
+  double psT7  = double(m_eventStat.m_particleSpacePointsBTE[ 7][1]) / pa;
+  double psT8  = double(m_eventStat.m_particleSpacePointsBTE[ 8][1]) / pa;
+  double psT9  = double(m_eventStat.m_particleSpacePointsBTE[ 9][1]) / pa;
+  double psT10 = double(m_eventStat.m_particleSpacePointsBTE[10][1]) / pa;
+  double psT11 = double(m_eventStat.m_particleSpacePointsBTE[11][1]) / pa;
+  pa           = double(m_eventStat.m_particleSpacePointsBTE[0][2]); if(pa < 1.) pa = 1.; 
+  double psE2  = double(m_eventStat.m_particleSpacePointsBTE[ 2][2]) / pa;
+  double psE3  = double(m_eventStat.m_particleSpacePointsBTE[ 3][2]) / pa;
+  double psE4  = double(m_eventStat.m_particleSpacePointsBTE[ 4][2]) / pa;
+  double psE5  = double(m_eventStat.m_particleSpacePointsBTE[ 5][2]) / pa;
+  double psE6  = double(m_eventStat.m_particleSpacePointsBTE[ 6][2]) / pa;
+  double psE7  = double(m_eventStat.m_particleSpacePointsBTE[ 7][2]) / pa;
+  double psE8  = double(m_eventStat.m_particleSpacePointsBTE[ 8][2]) / pa;
+  double psE9  = double(m_eventStat.m_particleSpacePointsBTE[ 9][2]) / pa;
+  double psE10 = double(m_eventStat.m_particleSpacePointsBTE[10][2]) / pa;
+  double psE11 = double(m_eventStat.m_particleSpacePointsBTE[11][2]) / pa;
 
-  pa           = double(m_particleSpacePointsBTE[0][3]); if(pa < 1.) pa = 1.;
-  double psD2  = double(m_particleSpacePointsBTE[ 2][3]) / pa;
-  double psD3  = double(m_particleSpacePointsBTE[ 3][3]) / pa;
-  double psD4  = double(m_particleSpacePointsBTE[ 4][3]) / pa;
-  double psD5  = double(m_particleSpacePointsBTE[ 5][3]) / pa;
-  double psD6  = double(m_particleSpacePointsBTE[ 6][3]) / pa;
-  double psD7  = double(m_particleSpacePointsBTE[ 7][3]) / pa;
-  double psD8  = double(m_particleSpacePointsBTE[ 8][3]) / pa;
-  double psD9  = double(m_particleSpacePointsBTE[ 9][3]) / pa;
-  double psD10 = double(m_particleSpacePointsBTE[10][3]) / pa;
-  double psD11 = double(m_particleSpacePointsBTE[11][3]) / pa;
+  pa           = double(m_eventStat.m_particleSpacePointsBTE[0][3]); if(pa < 1.) pa = 1.;
+  double psD2  = double(m_eventStat.m_particleSpacePointsBTE[ 2][3]) / pa;
+  double psD3  = double(m_eventStat.m_particleSpacePointsBTE[ 3][3]) / pa;
+  double psD4  = double(m_eventStat.m_particleSpacePointsBTE[ 4][3]) / pa;
+  double psD5  = double(m_eventStat.m_particleSpacePointsBTE[ 5][3]) / pa;
+  double psD6  = double(m_eventStat.m_particleSpacePointsBTE[ 6][3]) / pa;
+  double psD7  = double(m_eventStat.m_particleSpacePointsBTE[ 7][3]) / pa;
+  double psD8  = double(m_eventStat.m_particleSpacePointsBTE[ 8][3]) / pa;
+  double psD9  = double(m_eventStat.m_particleSpacePointsBTE[ 9][3]) / pa;
+  double psD10 = double(m_eventStat.m_particleSpacePointsBTE[10][3]) / pa;
+  double psD11 = double(m_eventStat.m_particleSpacePointsBTE[11][3]) / pa;
 
 
   std::cout<<"|         Propability for such charge particles to have some number silicon                          |"
@@ -593,80 +538,80 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 	   <<std::setw(13)<<m_spcut 
 	   <<"                        |"<<std::endl;
 
-  pa  = double(m_particleClusters[0]); if(pa < 1.) pa = 1.;
+  pa  = double(m_eventStat.m_particleClusters[0]); if(pa < 1.) pa = 1.;
   std::cout<<"|           Propability find truth particles with this cuts is "    
-	   <<std::setw(8)<<std::setprecision(5)<<double(m_events)      /pa
+	   <<std::setw(8)<<std::setprecision(5)<<double(m_eventStat.m_events)      /pa
 	   <<"             |"
  	   <<std::endl;
-  pa  = double(m_particleClustersBTE[0][0]); if(pa < 1.) pa = 1.;
+  pa  = double(m_eventStat.m_particleClustersBTE[0][0]); if(pa < 1.) pa = 1.;
   std::cout<<"|                                        For barrel     region "    
-	   <<std::setw(8)<<std::setprecision(5)<<double(m_eventsBTE[0])/pa
+	   <<std::setw(8)<<std::setprecision(5)<<double(m_eventStat.m_eventsBTE[0])/pa
 	   <<"             |"
  	   <<std::endl;
-  pa  = double(m_particleClustersBTE[0][1]); if(pa < 1.) pa = 1.;
+  pa  = double(m_eventStat.m_particleClustersBTE[0][1]); if(pa < 1.) pa = 1.;
   std::cout<<"|                                        For transition region "    
-	   <<std::setw(8)<<std::setprecision(5)<<double(m_eventsBTE[1])/pa
+	   <<std::setw(8)<<std::setprecision(5)<<double(m_eventStat.m_eventsBTE[1])/pa
 	   <<"             |"
  	   <<std::endl;
-  pa  = double(m_particleClustersBTE[0][2]); if(pa < 1.) pa = 1.; 
+  pa  = double(m_eventStat.m_particleClustersBTE[0][2]); if(pa < 1.) pa = 1.; 
   std::cout<<"|                                        For endcap     region "    
-	   <<std::setw(8)<<std::setprecision(5)<<double(m_eventsBTE[2])/pa
+	   <<std::setw(8)<<std::setprecision(5)<<double(m_eventStat.m_eventsBTE[2])/pa
 	   <<"             |"
  	   <<std::endl;
-  pa  = double(m_particleClustersBTE[0][3]); if(pa < 1.) pa = 1.;
+  pa  = double(m_eventStat.m_particleClustersBTE[0][3]); if(pa < 1.) pa = 1.;
   std::cout<<"|                                        For DBM        region "
-           <<std::setw(8)<<std::setprecision(5)<<double(m_eventsBTE[3])/pa
+           <<std::setw(8)<<std::setprecision(5)<<double(m_eventStat.m_eventsBTE[3])/pa
            <<"             |"
            <<std::endl;
 
   std::cout<<"|                                                                                   |"
 	   <<std::endl;
 
-  pa            = double(m_nclustersNegBP); if(pa < 1.) pa = 1.;
-  double ratio  = double(m_nclustersPosBP)/pa;
+  pa            = double(m_eventStat.m_nclustersNegBP); if(pa < 1.) pa = 1.;
+  double ratio  = double(m_eventStat.m_nclustersPosBP)/pa;
   double eratio = sqrt(ratio*(1.+ratio)/pa);
   std::cout<<"|      Ratio barrel pixels clusters for +/- particles ="
 	   <<std::setw(8)<<std::setprecision(5)<<ratio<<" +-"
 	   <<std::setw(8)<<std::setprecision(5)<<eratio
 	   <<"          |"
 	   <<std::endl;
-  pa            = double(m_nclustersNegEP); if(pa < 1.) pa = 1.;
-  ratio         = double(m_nclustersPosEP)/pa;
+  pa            = double(m_eventStat.m_nclustersNegEP); if(pa < 1.) pa = 1.;
+  ratio         = double(m_eventStat.m_nclustersPosEP)/pa;
   eratio        = sqrt(ratio*(1.+ratio)/pa);
   std::cout<<"|      Ratio endcap pixels clusters for +/- particles ="
 	   <<std::setw(8)<<std::setprecision(5)<<ratio<<" +-"
 	   <<std::setw(8)<<std::setprecision(5)<<eratio
 	   <<"          |"
 	   <<std::endl;
-  pa            = double(m_nclustersNegDBM); if(pa < 1.) pa = 1.;
-  ratio         = double(m_nclustersPosDBM)/pa;
+  pa            = double(m_eventStat.m_nclustersNegDBM); if(pa < 1.) pa = 1.;
+  ratio         = double(m_eventStat.m_nclustersPosDBM)/pa;
   eratio        = sqrt(ratio*(1.+ratio)/pa);
   std::cout<<"|      Ratio  DBM  pixels clusters for +/- particles = "
            <<std::setw(8)<<std::setprecision(5)<<ratio<<" +-"
            <<std::setw(8)<<std::setprecision(5)<<eratio
            <<"          |"
            <<std::endl;
-  pa            = double(m_nclustersNegBS); if(pa < 1.) pa = 1.;
-  ratio         = double(m_nclustersPosBS)/pa;
+  pa            = double(m_eventStat.m_nclustersNegBS); if(pa < 1.) pa = 1.;
+  ratio         = double(m_eventStat.m_nclustersPosBS)/pa;
   eratio        = sqrt(ratio*(1.+ratio)/pa);
   std::cout<<"|      Ratio barrel   SCT  clusters for +/- particles ="
 	   <<std::setw(8)<<std::setprecision(5)<<ratio<<" +-"
 	   <<std::setw(8)<<std::setprecision(5)<<eratio
 	   <<"          |"
 	   <<std::endl;
-  pa            = double(m_nclustersNegES); if(pa < 1.) pa = 1.;
-  ratio         = double(m_nclustersPosES)/pa;
+  pa            = double(m_eventStat.m_nclustersNegES); if(pa < 1.) pa = 1.;
+  ratio         = double(m_eventStat.m_nclustersPosES)/pa;
   eratio        = sqrt(ratio*(1.+ratio)/pa);
   std::cout<<"|      Ratio endcap   SCT  clusters for +/- particles ="
 	   <<std::setw(8)<<std::setprecision(5)<<ratio<<" +-"
 	   <<std::setw(8)<<std::setprecision(5)<<eratio
 	   <<"          |"
 	   <<std::endl;
-  pa            = double(m_eventsNEG);      if(pa < 1.) pa = 1.; 
-  ratio         = double(m_eventsPOS)/pa;
+  pa            = double(m_eventStat.m_eventsNEG);      if(pa < 1.) pa = 1.; 
+  ratio         = double(m_eventStat.m_eventsPOS)/pa;
   eratio        = sqrt(ratio*(1.+ratio)/pa);
   std::cout<<"|      Number truth particles and +/- ratio ="
-	   <<std::setw(10)<<m_events
+	   <<std::setw(10)<<m_eventStat.m_events
 	   <<std::setw(8)<<std::setprecision(5)<<ratio<<" +-"
 	   <<std::setw(8)<<std::setprecision(5)<<eratio
 	   <<"          |"
@@ -687,42 +632,42 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 	     <<std::endl;
     std::cout<<"|                      Statistic for "<<(t->key())<<s1<<std::endl;
     
-    double ne = double(m_events);  if(ne < 1.) ne = 1.;
-    double ef [6]; for(int i=0; i!=6; ++i) ef [i] = double(m_efficiency   [nc][i])   /ne;
-    double ef0[6]; for(int i=0; i!=6; ++i) ef0[i] = double(m_efficiencyN  [nc][i][0])/ne;
-    double ef1[6]; for(int i=0; i!=6; ++i) ef1[i] = double(m_efficiencyN  [nc][i][1])/ne;
-    double ef2[6]; for(int i=0; i!=6; ++i) ef2[i] = double(m_efficiencyN  [nc][i][2])/ne;
+    double ne = double(m_eventStat.m_events);  if(ne < 1.) ne = 1.;
+    double ef [6]; for(int i=0; i!=6; ++i) ef [i] = double(m_trackCollectionStat[nc].m_efficiency   [i])   /ne;
+    double ef0[6]; for(int i=0; i!=6; ++i) ef0[i] = double(m_trackCollectionStat[nc].m_efficiencyN  [i][0])/ne;
+    double ef1[6]; for(int i=0; i!=6; ++i) ef1[i] = double(m_trackCollectionStat[nc].m_efficiencyN  [i][1])/ne;
+    double ef2[6]; for(int i=0; i!=6; ++i) ef2[i] = double(m_trackCollectionStat[nc].m_efficiencyN  [i][2])/ne;
     /*
-    double ef3[6]; for(int i=0; i!=6; ++i) ef3[i] = double(m_efficiencyN  [nc][i][3])/ne;
-    double ef4[6]; for(int i=0; i!=6; ++i) ef4[i] = double(m_efficiencyN  [nc][i][4])/ne;
+    double ef3[6]; for(int i=0; i!=6; ++i) ef3[i] = double(m_trackCollectionStat[nc].m_efficiencyN  [i][3])/ne;
+    double ef4[6]; for(int i=0; i!=6; ++i) ef4[i] = double(m_trackCollectionStat[nc].m_efficiencyN  [i][4])/ne;
     */
-    double neBTE = m_eventsBTE[0]; if(neBTE < 1.) neBTE = 1;   
-    double efB0[6]; for(int i=0; i!=6; ++i) efB0[i] = double(m_efficiencyBTE[nc][i][0][0])/neBTE;
-    double efB1[6]; for(int i=0; i!=6; ++i) efB1[i] = double(m_efficiencyBTE[nc][i][1][0])/neBTE;
-    double efB2[6]; for(int i=0; i!=6; ++i) efB2[i] = double(m_efficiencyBTE[nc][i][2][0])/neBTE;
-    double efB3[6]; for(int i=0; i!=6; ++i) efB3[i] = double(m_efficiencyBTE[nc][i][3][0])/neBTE;
-    double efB4[6]; for(int i=0; i!=6; ++i) efB4[i] = double(m_efficiencyBTE[nc][i][4][0])/neBTE;
+    double neBTE = m_eventStat.m_eventsBTE[0]; if(neBTE < 1.) neBTE = 1;   
+    double efB0[6]; for(int i=0; i!=6; ++i) efB0[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][0][0])/neBTE;
+    double efB1[6]; for(int i=0; i!=6; ++i) efB1[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][1][0])/neBTE;
+    double efB2[6]; for(int i=0; i!=6; ++i) efB2[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][2][0])/neBTE;
+    double efB3[6]; for(int i=0; i!=6; ++i) efB3[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][3][0])/neBTE;
+    double efB4[6]; for(int i=0; i!=6; ++i) efB4[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][4][0])/neBTE;
 
-    neBTE = m_eventsBTE[1];        if(neBTE < 1.) neBTE = 1;   
-    double efT0[6]; for(int i=0; i!=6; ++i) efT0[i] = double(m_efficiencyBTE[nc][i][0][1])/neBTE;
-    double efT1[6]; for(int i=0; i!=6; ++i) efT1[i] = double(m_efficiencyBTE[nc][i][1][1])/neBTE;
-    double efT2[6]; for(int i=0; i!=6; ++i) efT2[i] = double(m_efficiencyBTE[nc][i][2][1])/neBTE;
-    double efT3[6]; for(int i=0; i!=6; ++i) efT3[i] = double(m_efficiencyBTE[nc][i][3][1])/neBTE;
-    double efT4[6]; for(int i=0; i!=6; ++i) efT4[i] = double(m_efficiencyBTE[nc][i][4][1])/neBTE;
+    neBTE = m_eventStat.m_eventsBTE[1];        if(neBTE < 1.) neBTE = 1;   
+    double efT0[6]; for(int i=0; i!=6; ++i) efT0[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][0][1])/neBTE;
+    double efT1[6]; for(int i=0; i!=6; ++i) efT1[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][1][1])/neBTE;
+    double efT2[6]; for(int i=0; i!=6; ++i) efT2[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][2][1])/neBTE;
+    double efT3[6]; for(int i=0; i!=6; ++i) efT3[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][3][1])/neBTE;
+    double efT4[6]; for(int i=0; i!=6; ++i) efT4[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][4][1])/neBTE;
 
-    neBTE = m_eventsBTE[2];        if(neBTE < 1.) neBTE = 1;
-    double efE0[6]; for(int i=0; i!=6; ++i) efE0[i] = double(m_efficiencyBTE[nc][i][0][2])/neBTE;
-    double efE1[6]; for(int i=0; i!=6; ++i) efE1[i] = double(m_efficiencyBTE[nc][i][1][2])/neBTE;
-    double efE2[6]; for(int i=0; i!=6; ++i) efE2[i] = double(m_efficiencyBTE[nc][i][2][2])/neBTE;
-    double efE3[6]; for(int i=0; i!=6; ++i) efE3[i] = double(m_efficiencyBTE[nc][i][3][2])/neBTE;
-    double efE4[6]; for(int i=0; i!=6; ++i) efE4[i] = double(m_efficiencyBTE[nc][i][4][2])/neBTE;
+    neBTE = m_eventStat.m_eventsBTE[2];        if(neBTE < 1.) neBTE = 1;
+    double efE0[6]; for(int i=0; i!=6; ++i) efE0[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][0][2])/neBTE;
+    double efE1[6]; for(int i=0; i!=6; ++i) efE1[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][1][2])/neBTE;
+    double efE2[6]; for(int i=0; i!=6; ++i) efE2[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][2][2])/neBTE;
+    double efE3[6]; for(int i=0; i!=6; ++i) efE3[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][3][2])/neBTE;
+    double efE4[6]; for(int i=0; i!=6; ++i) efE4[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][4][2])/neBTE;
 
-    neBTE = m_eventsBTE[3];        if(neBTE < 1.) neBTE = 1;
-    double efD0[6]; for(int i=0; i!=6; ++i) efD0[i] = double(m_efficiencyBTE[nc][i][0][3])/neBTE;
-    double efD1[6]; for(int i=0; i!=6; ++i) efD1[i] = double(m_efficiencyBTE[nc][i][1][3])/neBTE;
-    double efD2[6]; for(int i=0; i!=6; ++i) efD2[i] = double(m_efficiencyBTE[nc][i][2][3])/neBTE;
-    double efD3[6]; for(int i=0; i!=6; ++i) efD3[i] = double(m_efficiencyBTE[nc][i][3][3])/neBTE;
-    double efD4[6]; for(int i=0; i!=6; ++i) efD4[i] = double(m_efficiencyBTE[nc][i][4][3])/neBTE;
+    neBTE = m_eventStat.m_eventsBTE[3];        if(neBTE < 1.) neBTE = 1;
+    double efD0[6]; for(int i=0; i!=6; ++i) efD0[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][0][3])/neBTE;
+    double efD1[6]; for(int i=0; i!=6; ++i) efD1[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][1][3])/neBTE;
+    double efD2[6]; for(int i=0; i!=6; ++i) efD2[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][2][3])/neBTE;
+    double efD3[6]; for(int i=0; i!=6; ++i) efD3[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][3][3])/neBTE;
+    double efD4[6]; for(int i=0; i!=6; ++i) efD4[i] = double(m_trackCollectionStat[nc].m_efficiencyBTE[i][4][3])/neBTE;
 
 
     double efrec  = ef0[0]+ef0[1]+ef0[2]+ef1[0]+ef1[1]+ef2[0];
@@ -731,10 +676,10 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
     double efrecE = efE0[0]+efE0[1]+efE0[2]+efE1[0]+efE1[1]+efE2[0];
     double efrecD = efD0[0]+efD0[1]+efD0[2]+efD1[0]+efD1[1]+efD2[0];    
 
-    ne        = double(m_eventsPOS); if(ne < 1.) ne = 1.;
-    double efP[6]; for(int i=0; i!=6; ++i) efP[i] = double(m_efficiencyPOS[nc][i])/ne;
-    ne        = double(m_eventsNEG); if(ne < 1.) ne = 1.;
-    double efN[6]; for(int i=0; i!=6; ++i) efN[i] = double(m_efficiencyNEG[nc][i])/ne;
+    ne        = double(m_eventStat.m_eventsPOS); if(ne < 1.) ne = 1.;
+    double efP[6]; for(int i=0; i!=6; ++i) efP[i] = double(m_trackCollectionStat[nc].m_efficiencyPOS[i])/ne;
+    ne        = double(m_eventStat.m_eventsNEG); if(ne < 1.) ne = 1.;
+    double efN[6]; for(int i=0; i!=6; ++i) efN[i] = double(m_trackCollectionStat[nc].m_efficiencyNEG[i])/ne;
 
     std::cout<<"|-----------------------------------------------------------------------------------|"
 	     <<std::endl;
@@ -992,43 +937,43 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
 
    std::cout<<"|-----------------------------------------------------------------------------------|"
 	     <<std::endl;
-   pa  = double(m_particleClusters[0]);       if(pa < 1.) pa = 1.;
+   pa  = double(m_eventStat.m_particleClusters[0]);       if(pa < 1.) pa = 1.;
    std::cout<<"| Efficiency reconstruction (number lose+wrong < 3) = "
 	    <<std::setw(9)<<std::setprecision(5)<<efrec
 	    <<" ("
-	    <<std::setw(9)<<std::setprecision(5)<<efrec*double(m_events)/pa
+	    <<std::setw(9)<<std::setprecision(5)<<efrec*double(m_eventStat.m_events)/pa
 	    <<" ) "
 	    <<"       |"
 	    <<std::endl;
-   pa  = double(m_particleClustersBTE[0][0]); if(pa < 1.) pa = 1.;
+   pa  = double(m_eventStat.m_particleClustersBTE[0][0]); if(pa < 1.) pa = 1.;
    std::cout<<"|                             For barrel     region = "
 	    <<std::setw(9)<<std::setprecision(5)<<efrecB
 	    <<" ("
-	    <<std::setw(9)<<std::setprecision(5)<<efrecB*double(m_eventsBTE[0])/pa
+	    <<std::setw(9)<<std::setprecision(5)<<efrecB*double(m_eventStat.m_eventsBTE[0])/pa
 	    <<" ) "
 	    <<"       |"
 	    <<std::endl;
-   pa  = double(m_particleClustersBTE[0][1]);  if(pa < 1.) pa = 1.;
+   pa  = double(m_eventStat.m_particleClustersBTE[0][1]);  if(pa < 1.) pa = 1.;
    std::cout<<"|                             For transition region = "
 	    <<std::setw(9)<<std::setprecision(5)<<efrecT
 	    <<" ("
-	    <<std::setw(9)<<std::setprecision(5)<<efrecT*double(m_eventsBTE[1])/pa
+	    <<std::setw(9)<<std::setprecision(5)<<efrecT*double(m_eventStat.m_eventsBTE[1])/pa
 	    <<" ) "
 	    <<"       |"
 	    <<std::endl;
-   pa  = double(m_particleClustersBTE[0][2]);  if(pa < 1.) pa = 1.;
+   pa  = double(m_eventStat.m_particleClustersBTE[0][2]);  if(pa < 1.) pa = 1.;
    std::cout<<"|                             For endcap     region = "
 	    <<std::setw(9)<<std::setprecision(5)<<efrecE
 	    <<" ("
-	    <<std::setw(9)<<std::setprecision(5)<<efrecE*double(m_eventsBTE[2])/pa
+	    <<std::setw(9)<<std::setprecision(5)<<efrecE*double(m_eventStat.m_eventsBTE[2])/pa
 	    <<" ) "
 	    <<"       |"
 	    <<std::endl;
-   pa  = double(m_particleClustersBTE[0][3]);  if(pa < 1.) pa = 1.;
+   pa  = double(m_eventStat.m_particleClustersBTE[0][3]);  if(pa < 1.) pa = 1.;
    std::cout<<"|                             For DBM        region = "
             <<std::setw(9)<<std::setprecision(5)<<efrecD
             <<" ("
-            <<std::setw(9)<<std::setprecision(5)<<efrecD*double(m_eventsBTE[3])/pa
+            <<std::setw(9)<<std::setprecision(5)<<efrecD*double(m_eventStat.m_eventsBTE[3])/pa
             <<" ) "
             <<"       |"
             <<std::endl;
@@ -1040,33 +985,33 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
     std::cout<<"|-----------------------------------------------------------------------------------|"
 	     <<std::endl; 
 
-    pa     = double(m_ntracksNEGB[nc]);  if(pa < 1.) pa = 1.;
-    ratio  = double(m_ntracksPOSB[nc])/pa;
+    pa     = double(m_trackCollectionStat[nc].m_ntracksNEGB);  if(pa < 1.) pa = 1.;
+    ratio  = double(m_trackCollectionStat[nc].m_ntracksPOSB)/pa;
     eratio = sqrt(ratio*(1.+ratio)/pa);
     
     std::cout<<"| Barrel               "
-	     <<std::setw(10)<<m_ntracksPOSB[nc] 
-	     <<std::setw(11)<<m_ntracksNEGB[nc] 
+	     <<std::setw(10)<<m_trackCollectionStat[nc].m_ntracksPOSB 
+	     <<std::setw(11)<<m_trackCollectionStat[nc].m_ntracksNEGB 
 	     <<std::setw(11)<<std::setprecision(5)<<ratio
 	     <<std::setw(11)<<std::setprecision(5)<<eratio<<"                  |"
 	     <<std::endl;
-    pa     = double(m_ntracksNEGE[nc]); if(pa < 1.) pa = 1.;
-    ratio  = double(m_ntracksPOSE[nc])/pa;
+    pa     = double(m_trackCollectionStat[nc].m_ntracksNEGE); if(pa < 1.) pa = 1.;
+    ratio  = double(m_trackCollectionStat[nc].m_ntracksPOSE)/pa;
     eratio = sqrt(ratio*(1.+ratio)/pa);
 
     std::cout<<"| Endcap               "
-	     <<std::setw(10)<<m_ntracksPOSE[nc] 
-	     <<std::setw(11)<<m_ntracksNEGE[nc] 
+	     <<std::setw(10)<<m_trackCollectionStat[nc].m_ntracksPOSE 
+	     <<std::setw(11)<<m_trackCollectionStat[nc].m_ntracksNEGE 
 	     <<std::setw(11)<<std::setprecision(5)<<ratio
 	     <<std::setw(11)<<std::setprecision(5)<<eratio<<"                  |"
 	     <<std::endl;
-    pa     = double(m_ntracksNEGDBM[nc]); if(pa < 1.) pa = 1.;
-    ratio  = double(m_ntracksPOSDBM[nc])/pa;
+    pa     = double(m_trackCollectionStat[nc].m_ntracksNEGDBM); if(pa < 1.) pa = 1.;
+    ratio  = double(m_trackCollectionStat[nc].m_ntracksPOSDBM)/pa;
     eratio = sqrt(ratio*(1.+ratio)/pa);
 
     std::cout<<"| DBM                  "
-             <<std::setw(10)<<m_ntracksPOSDBM[nc]
-             <<std::setw(11)<<m_ntracksNEGDBM[nc]
+             <<std::setw(10)<<m_trackCollectionStat[nc].m_ntracksPOSDBM
+             <<std::setw(11)<<m_trackCollectionStat[nc].m_ntracksNEGDBM
              <<std::setw(11)<<std::setprecision(5)<<ratio
              <<std::setw(11)<<std::setprecision(5)<<eratio<<"                  |"
              <<std::endl;
@@ -1078,8 +1023,8 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
     int kf=0;
     for(int k = 0; k!=50; ++k) {
       
-      nt+=m_total[nc][k];
-      ft+=m_fake [nc][k];
+      nt+=m_trackCollectionStat[nc].m_total[k];
+      ft+=m_trackCollectionStat[nc].m_fake [k];
       if(!kf && nt) kf = k;
     }
 
@@ -1100,8 +1045,8 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
       for(int k = kf; k!=kf+6; ++k) {
 	double eff = 0.; if(nt>0) eff = double(ft)/double(nt);
 	std::cout<<"|"<<std::setw(12)<<std::setprecision(5)<<eff<<" ";
-	nt-=m_total[nc][k];
-	ft-=m_fake [nc][k];
+	nt-=m_trackCollectionStat[nc].m_total[k];
+	ft-=m_trackCollectionStat[nc].m_fake [k];
       }
       std::cout<<"|"<<std::endl;
       std::cout<<"|-----------------------------------------------------------------------------------|"
@@ -1441,7 +1386,7 @@ void InDet::TrackClusterAssValidation::newSpacePointsEvent(InDet::TrackClusterAs
 // Good kine tracks  selection
 ///////////////////////////////////////////////////////////////////
 
-int InDet::TrackClusterAssValidation::QualityTracksSelection(InDet::TrackClusterAssValidation::EventData_t &event_data)
+int InDet::TrackClusterAssValidation::QualityTracksSelection(InDet::TrackClusterAssValidation::EventData_t &event_data) const
 {
   std::multimap<int,const Trk::PrepRawData*>::iterator c = event_data.m_kinecluster   .begin();
   std::multimap<int,const Trk::PrepRawData*>::iterator u = event_data.m_kineclusterTRT.begin();
@@ -1472,13 +1417,13 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection(InDet::TrackCluster
     if((*c).first==k0) {++nc; continue;}
     q0 = charge(event_data,(*c),rp)*k0;
 
-    nc < 50 ?  ++m_particleClusters   [nc]     : ++m_particleClusters   [49];
-    nc < 50 ?  ++m_particleClustersBTE[nc][rp] : ++m_particleClustersBTE[49][rp];
+    nc < 50 ?  ++event_data.m_eventStat.m_particleClusters   [nc]     : ++event_data.m_eventStat.m_particleClusters   [49];
+    nc < 50 ?  ++event_data.m_eventStat.m_particleClustersBTE[nc][rp] : ++event_data.m_eventStat.m_particleClustersBTE[49][rp];
 
   
     int ns = event_data.m_kinespacepoint.count(k0);
-    ns < 50 ?  ++m_particleSpacePoints   [ns]     : ++m_particleSpacePoints   [49];  
-    ns < 50 ?  ++m_particleSpacePointsBTE[ns][rp] : ++m_particleSpacePointsBTE[49][rp];  
+    ns < 50 ?  ++event_data.m_eventStat.m_particleSpacePoints   [ns]     : ++event_data.m_eventStat.m_particleSpacePoints   [49];  
+    ns < 50 ?  ++event_data.m_eventStat.m_particleSpacePointsBTE[ns][rp] : ++event_data.m_eventStat.m_particleSpacePointsBTE[49][rp];  
 
     if     (nc                        < m_clcut   ) worskine.push_back(k0);
     else if(event_data.m_kinespacepoint.count(k0)< m_spcut   ) worskine.push_back(k0);
@@ -1492,11 +1437,11 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection(InDet::TrackCluster
     nc = 1         ;
   }
 
-  nc < 50 ?  ++m_particleClusters   [nc]     : ++m_particleClusters   [49];  
-  nc < 50 ?  ++m_particleClustersBTE[nc][rp] : ++m_particleClustersBTE[49][rp];
+  nc < 50 ?  ++event_data.m_eventStat.m_particleClusters   [nc]     : ++event_data.m_eventStat.m_particleClusters   [49];  
+  nc < 50 ?  ++event_data.m_eventStat.m_particleClustersBTE[nc][rp] : ++event_data.m_eventStat.m_particleClustersBTE[49][rp];
   int ns = event_data.m_kinespacepoint.count(k0);
-  ns < 50 ?  ++m_particleSpacePoints   [ns]     : ++m_particleSpacePoints   [49];  
-  ns < 50 ?  ++m_particleSpacePointsBTE[ns][rp] : ++m_particleSpacePointsBTE[49][rp];  
+  ns < 50 ?  ++event_data.m_eventStat.m_particleSpacePoints   [ns]     : ++event_data.m_eventStat.m_particleSpacePoints   [49];  
+  ns < 50 ?  ++event_data.m_eventStat.m_particleSpacePointsBTE[ns][rp] : ++event_data.m_eventStat.m_particleSpacePointsBTE[49][rp];  
 
   if     (nc                        < m_clcut   ) worskine.push_back(k0);
   else if(event_data.m_kinespacepoint.count(k0)< m_spcut   ) worskine.push_back(k0);  
@@ -1524,23 +1469,23 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection(InDet::TrackCluster
 
     if     (q<0) {
       if (de->isDBM())
-	++m_nclustersNegDBM;
+	++event_data.m_eventStat.m_nclustersNegDBM;
       else if(de->isBarrel()) {
-	de->isPixel() ? ++m_nclustersNegBP : ++m_nclustersNegBS; 
+	de->isPixel() ? ++event_data.m_eventStat.m_nclustersNegBP : ++event_data.m_eventStat.m_nclustersNegBS; 
       }
       else                                     {
-	de->isPixel() ? ++m_nclustersNegEP : ++m_nclustersNegES; 
+	de->isPixel() ? ++event_data.m_eventStat.m_nclustersNegEP : ++event_data.m_eventStat.m_nclustersNegES; 
       }
 
     }
     else if(q>0) {
       if (de->isDBM())
-	++m_nclustersPosDBM;
+	++event_data.m_eventStat.m_nclustersPosDBM;
       else if(de->isBarrel()) {
-	de->isPixel() ? ++m_nclustersPosBP : ++m_nclustersPosBS; 
+	de->isPixel() ? ++event_data.m_eventStat.m_nclustersPosBP : ++event_data.m_eventStat.m_nclustersPosBS; 
       }
       else                                     {
-	de->isPixel() ? ++m_nclustersPosEP : ++m_nclustersPosES; 
+	de->isPixel() ? ++event_data.m_eventStat.m_nclustersPosEP : ++event_data.m_eventStat.m_nclustersPosES; 
       }
     }
   }
@@ -1558,14 +1503,14 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection(InDet::TrackCluster
 // Recontructed track comparison with kine information
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TrackClusterAssValidation::tracksComparison(InDet::TrackClusterAssValidation::EventData_t &event_data)
+void InDet::TrackClusterAssValidation::tracksComparison(InDet::TrackClusterAssValidation::EventData_t &event_data) const
 {
   if(!event_data.m_nqtracks) return;
 
 
   int nc = -1;
   event_data.m_trackcontainer.reserve(m_tracklocation.size());
-  for(SG::ReadHandleKey<TrackCollection> &track_key : m_tracklocation ) {
+  for(const SG::ReadHandleKey<TrackCollection> &track_key : m_tracklocation ) {
     if(++nc >= 100) return;
     event_data.m_tracks[nc].clear();
 
@@ -1608,14 +1553,14 @@ void InDet::TrackClusterAssValidation::tracksComparison(InDet::TrackClusterAssVa
 	    double pT  = sin(Vp[3])/Vp[4]  ;
 	    double rap = fabs(log(tan(.5*Vp[3])));
 	    if     (pT >  m_ptcut && pT <  m_ptcutmax) {
-	      if     (rap <      1. ) ++m_ntracksPOSB[nc];
-	      else if(rap < 3.0) ++m_ntracksPOSE[nc];
-	      else if(rap < m_rapcut) ++m_ntracksPOSDBM[nc];
+	      if     (rap <      1. ) ++event_data.m_trackCollectionStat[nc].m_ntracksPOSB;
+	      else if(rap < 3.0) ++event_data.m_trackCollectionStat[nc].m_ntracksPOSE;
+	      else if(rap < m_rapcut) ++event_data.m_trackCollectionStat[nc].m_ntracksPOSDBM;
 	    }
 	    else if(pT < -m_ptcut && pT > -m_ptcutmax) {
-	      if     (rap <      1. ) ++m_ntracksNEGB[nc];
-              else if(rap < 3.0) ++m_ntracksNEGE[nc];
-	      else if(rap < m_rapcut) ++m_ntracksNEGDBM[nc];
+	      if     (rap <      1. ) ++event_data.m_trackCollectionStat[nc].m_ntracksNEGB;
+              else if(rap < 3.0) ++event_data.m_trackCollectionStat[nc].m_ntracksNEGE;
+	      else if(rap < m_rapcut) ++event_data.m_trackCollectionStat[nc].m_ntracksNEGDBM;
 	    }
 	  }
 	}
@@ -1656,7 +1601,7 @@ void InDet::TrackClusterAssValidation::tracksComparison(InDet::TrackClusterAssVa
 	  event_data.m_tracks[nc].insert(std::make_pair(KINE[n],NQ));
 	  if(qTf) {        
 	    if(NC-N0 > 2) {
-	      ++m_total[nc][NC]; if(NC-NKINE[n] > 2) {++m_fake[nc][NC];}
+	      ++event_data.m_trackCollectionStat[nc].m_total[NC]; if(NC-NKINE[n] > 2) {++event_data.m_trackCollectionStat[nc].m_fake[NC];}
 	    }
 	  }
 	}
@@ -1670,7 +1615,7 @@ void InDet::TrackClusterAssValidation::tracksComparison(InDet::TrackClusterAssVa
 // Particles and reconstructed tracks comparision
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TrackClusterAssValidation::efficiencyReconstruction(InDet::TrackClusterAssValidation::EventData_t &event_data)
+void InDet::TrackClusterAssValidation::efficiencyReconstruction(InDet::TrackClusterAssValidation::EventData_t &event_data) const
 {
   for(SG::ReadHandleKeyArray<TrackCollection>::size_type nc = 0; nc!=m_tracklocation.size(); ++nc) {
 
@@ -1695,17 +1640,17 @@ void InDet::TrackClusterAssValidation::efficiencyReconstruction(InDet::TrackClus
       }
       int d = n-m; if(d<0) d = 0; else if(d > 5) d=5; if(w>4) w = 4; 
       if(m) {
-	++m_efficiency [nc][d];
-	++m_efficiencyN[nc][d][w];
+	++event_data.m_trackCollectionStat[nc].m_efficiency [d];
+	++event_data.m_trackCollectionStat[nc].m_efficiencyN[d][w];
       }
       int ch = (*p).charge();
       if(m) {
-	++m_efficiencyBTE[nc][d][w][(*p).rapidity()];
-	ch > 0 ? ++m_efficiencyPOS[nc][d] : ++m_efficiencyNEG[nc][d];
+	++event_data.m_trackCollectionStat[nc].m_efficiencyBTE[d][w][(*p).rapidity()];
+	ch > 0 ? ++event_data.m_trackCollectionStat[nc].m_efficiencyPOS[d] : ++event_data.m_trackCollectionStat[nc].m_efficiencyNEG[d];
       }
       if(nc==0) {
-	++m_events; ch > 0 ? ++m_eventsPOS : ++m_eventsNEG;
-	++m_eventsBTE[(*p).rapidity()];
+	++event_data.m_eventStat.m_events; ch > 0 ? ++event_data.m_eventStat.m_eventsPOS : ++event_data.m_eventStat.m_eventsNEG;
+	++event_data.m_eventStat.m_eventsBTE[(*p).rapidity()];
       }
       if(d==0) event_data.m_particles[nc].erase(p++); 
       else {event_data.m_difference[nc].push_back(n-m);  ++p;}
