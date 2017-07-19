@@ -612,6 +612,27 @@ DbStatus RootDatabase::setOption(const DbOption& opt)  {
           }
           return sc;
        }
+       else if ( !strcasecmp(n+5,"MAX_VIRTUAL_SIZE") )  {
+          DbPrint log("RootDatabase.setOption");
+          log << DbPrintLvl::Debug << "Request virtual tree size" << DbPrint::endmsg;
+          if ( !m_file ) return Error;
+          log << DbPrintLvl::Debug << "File name " << m_file->GetName() << DbPrint::endmsg;
+
+          int virtMaxSize = 0;
+          opt._getValue(virtMaxSize);
+          if (!opt.option().size()) {
+             log << DbPrintLvl::Error << "Must set option to tree name to start TREE_MAX_VIRTUAL_SIZE " << DbPrint::endmsg;
+             return Error;
+          }
+          TTree* tree = (TTree*)m_file->Get(opt.option().c_str());
+          if (!tree) {
+             log << DbPrintLvl::Error << "Could not find tree " << opt.option() << DbPrint::endmsg;
+             return Error;
+          }
+          log << DbPrintLvl::Debug << "Got tree " << tree->GetName() << DbPrint::endmsg;
+          tree->SetMaxVirtualSize(virtMaxSize);
+          return Success;
+       }
        else if ( !strcasecmp(n+5,"AUTO_FLUSH") )  {
           return setAutoFlush(opt);
        }
