@@ -122,7 +122,7 @@ CaloCell_ID* make_helper ()
 }
 
 
-CaloCell_SuperCell_ID* make_sc_helper ()
+CaloCell_SuperCell_ID* make_sc_helper (IdDictParser* parser)
 {
   Tile_SuperCell_ID*    tile_id = new Tile_SuperCell_ID;
   LArEM_SuperCell_ID*   em_id   = new LArEM_SuperCell_ID;
@@ -130,7 +130,6 @@ CaloCell_SuperCell_ID* make_sc_helper ()
   LArFCAL_SuperCell_ID* fcal_id = new LArFCAL_SuperCell_ID;
   LArMiniFCAL_ID*       minifcal_id = new LArMiniFCAL_ID;
 
-  IdDictParser* parser = new IdDictParser;
   parser->register_external_entity ("LArCalorimeter",
                                     "IdDictLArCalorimeter.xml");
   IdDictMgr& idd = parser->parse ("IdDictParser/ATLAS_IDS.xml");
@@ -1089,7 +1088,7 @@ void test_errs (const std::vector<CaloCell*>& cells,
 //============================================================================
 
 
-std::vector<CaloCell*> init (ICaloCompactCellTool* & tool)
+std::vector<CaloCell*> init (IdDictParser* parser, ICaloCompactCellTool* & tool)
 {
   ISvcLocator* svcloc;
   if (!Athena_test::initGaudi("CaloCompactCellTool_test.txt", svcloc)) {
@@ -1099,7 +1098,7 @@ std::vector<CaloCell*> init (ICaloCompactCellTool* & tool)
   g_svcloc = svcloc;
 
   CaloCell_ID* helper = make_helper ();
-  CaloCell_SuperCell_ID* schelper = make_sc_helper ();
+  CaloCell_SuperCell_ID* schelper = make_sc_helper (parser);
   CaloIdManager* idmgr = make_idmgr (helper, schelper);
   CaloDetDescrManager* mgr = new CaloDetDescrManager;
   mgr->set_helper (helper);
@@ -1133,10 +1132,10 @@ std::vector<CaloCell*> init (ICaloCompactCellTool* & tool)
 }
 
 
-void runtests ()
+void runtests (IdDictParser* parser)
 {
   ICaloCompactCellTool* tool = 0;
-  std::vector<CaloCell*> cells = init (tool);
+  std::vector<CaloCell*> cells = init (parser, tool);
   if (!tool) std::abort();
 
   seed = 10;
@@ -1228,10 +1227,10 @@ float tv_diff (const timeval& tv1, const timeval& tv2)
 }
 
 
-void timetests (int nrep)
+void timetests (IdDictParser* parser, int nrep)
 {
   ICaloCompactCellTool* tool = 0;
-  std::vector<CaloCell*> cells = init (tool);
+  std::vector<CaloCell*> cells = init (parser, tool);
   if (!tool) std::abort();
 
   CaloCellContainer* cont = fill_cells (10000, cells, true, true);
@@ -1262,13 +1261,14 @@ void timetests (int nrep)
 int main (int argc, char** argv)
 {
   errorcheck::ReportMessage::hideErrorLocus (true);
+  auto parser = std::make_unique<IdDictParser>();
 
   if (argc >= 3 && strcmp (argv[1], "-t") == 0) {
-    timetests (atoi (argv[2]));
+    timetests (parser.get(), atoi (argv[2]));
     return 0;
   }
 
-  runtests ();
+  runtests (parser.get());
 
   return 0;
 }
