@@ -42,10 +42,6 @@ createPersistent( xAOD::VertexContainer* trans ) {
       new xAOD::VertexContainer( trans->begin(), trans->end(),
                                       SG::VIEW_ELEMENTS );
 
-   // Prepare the objects to be written out:
-   xAOD::VertexContainer::iterator itr = result->begin();
-   xAOD::VertexContainer::iterator end = result->end();
-
    // Return the new container:
    return result;
 }

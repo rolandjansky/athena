@@ -43,10 +43,6 @@ createPersistent( xAOD::TrackParticleContainer* trans ) {
       new xAOD::TrackParticleContainer( trans->begin(), trans->end(),
                                       SG::VIEW_ELEMENTS );
 
-   // Prepare the objects to be written out:
-   xAOD::TrackParticleContainer::iterator itr = result->begin();
-   xAOD::TrackParticleContainer::iterator end = result->end();
-
    // Return the new container:
    return result;
 }
