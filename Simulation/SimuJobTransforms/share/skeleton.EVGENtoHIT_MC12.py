@@ -220,7 +220,7 @@ if jobproperties.Beam.beamType.get_Value() != 'cosmics':
     else:
         simFlags.EventFilter.set_On()
 
-include("G4AtlasApps/G4Atlas.flat.configuration.py") #TEST
+include("G4AtlasApps/G4Atlas.flat.configuration.py") #HACK
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
 
@@ -235,6 +235,9 @@ except:
 
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
+
+#from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg #HACK
+#topSeq += PyG4AtlasAlg() #HACK
 
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
