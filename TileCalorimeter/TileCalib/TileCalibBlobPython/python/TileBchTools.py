@@ -57,7 +57,7 @@ class TileBchMgr(TileCalibLogger):
         return TileCalibUtils.getAdcIdx(ros,drawer,channel,adc)
 
     #____________________________________________________________________
-    def __updateFromDb(self, db, folderPath, tag, runLumi, fillTable=1):
+    def __updateFromDb(self, db, folderPath, tag, runLumi, fillTable=1, ros=-1, module=-1):
         """
         Updates the internal bad channel cache with the content
         found in the database. An open database instance (db) has to
@@ -82,8 +82,12 @@ class TileBchMgr(TileCalibLogger):
         self.log().info("... comment: %s" % self.__comment)
 
         #=== loop over the whole detector
-        for ros in xrange(0,TileCalibUtils.max_ros()):
-            for mod in xrange(TileCalibUtils.getMaxDrawer(ros)):
+        rosmin = ros if ros>=0 else 0
+        rosmax = ros+1 if ros>=0 else TileCalibUtils.max_ros()
+        for ros in xrange(rosmin,rosmax):
+            modmin = module if module>=0 else 0
+            modmax = module+1 if module>=0 else TileCalibUtils.getMaxDrawer(ros)
+            for mod in xrange(modmin,modmax):
                 bch = reader.getDrawer(ros, mod, runLumi, False)
                 if bch is None:
                     if fillTable>=0: self.log().warning("Missing IOV in condDB: ros=%i mod=%i runLumi=%s" % (ros,mod,runLumi))
@@ -114,9 +118,9 @@ class TileBchMgr(TileCalibLogger):
         return self.__comment
 
     #____________________________________________________________________
-    def updateFromDb(self, db, folderPath, tag, runLumi, fillTable=1, mode=None):
+    def updateFromDb(self, db, folderPath, tag, runLumi, fillTable=1, mode=None, ros=-1, module=-1):
         if mode: self.__mode = mode
-        self.__updateFromDb(db, folderPath, tag, runLumi, fillTable)
+        self.__updateFromDb(db, folderPath, tag, runLumi, fillTable, ros, module)
 
     #____________________________________________________________________
     def initialize(self, db, folderPath, tag="", runLumi=(MAXRUN,MAXLBK-1), mode=None):
