@@ -22,9 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRecTools/TrackVertexAssociationTool
                           Reconstruction/Jet/JetEDM
                           Reconstruction/Jet/JetInterface
-                          Reconstruction/Jet/JetRec
-                          Reconstruction/PFlow/PFlowUtils
-                          PhysicsAnalysis/MCTruthClassifier )
+                          Reconstruction/Jet/JetRec)
 
 # External dependencies
 find_package( FastJet )
