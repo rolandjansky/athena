@@ -24,15 +24,5 @@ The AmdcOracle package contains:
 
 @section AmdcOracle_ExtrasAmdcOracle Extra Pages
 
-  - @ref used_AmdcOracle
-  - @ref requirements_AmdcOracle
 
-*/
-
-/**
-@page used_AmdcOracle Used Packages
-*/
-
-/**
-@page requirements_AmdcOracle Requirements
 */

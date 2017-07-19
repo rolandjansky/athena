@@ -17,15 +17,4 @@ provides the class Trk::PseudoMeasurementOnTrack for the ATLAS tracking EDM.
  
 @section TrkPseudoMeasurementOnTrack_ExtrasTrkPseudoMeasurementOnTrack Extra Pages
 
- - @ref UsedTrkPseudoMeasurementOnTrack
- - @ref RequirementsTrkPseudoMeasurementOnTrack
 */
-
-/**
-@page UsedTrkPseudoMeasurementOnTrack Used Packages
-*/
-
-/**
-@page RequirementsTrkPseudoMeasurementOnTrack Requirements
-*/
-

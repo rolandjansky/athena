@@ -55,16 +55,4 @@ shower library using the ShowerLib::ShowerLib class.
 
 @section LArG4GenShowerLib_LArG4GenShowerLib Extra Pages
 
-- @ref used_LArG4GenShowerLib
-- @ref requirements_LArG4GenShowerLib
 */
-
-/**
-   @page used_LArG4GenShowerLib Used Packages
-*/
-
-/**
-   @page requirements_LArG4GenShowerLib Requirements
-*/
-
-

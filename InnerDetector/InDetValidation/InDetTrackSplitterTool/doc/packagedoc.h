@@ -31,6 +31,3 @@ m_trackSplitterTool->splitTracks(inputTracks);
 then retrieve the collection from storeGate with the names m_outputUpperTracksName, m_outputLowerTracksName
 
 */
-
-
-

@@ -27,6 +27,7 @@ class StoreID
     METADATA_STORE,
     SIMPLE_STORE,
     SPARE_STORE,
+    PILEUP_STORE,
     UNKNOWN
   } type;
 

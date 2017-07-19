@@ -55,17 +55,6 @@ of a cell, and two used in the HighVoltage description of a cell.
   - LArHVElectrodeID
   - LArHVSpecialElectrodeID
 
-@ref used_LArIdentifier
-
-@ref requirements_LArIdentifier
-
-*/
 
 
-/**
-@page used_LArIdentifier Used Packages
-*/
-
-/**
-@page requirements_LArIdentifier Requirements
 */

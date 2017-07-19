@@ -60,10 +60,12 @@ public: // Non-static members
 
    /// @return a pointer to the first element link.
    ElementLink<ExampleHitContainer>* getElementLink1() { return(&m_elementlink1); }
+   const ElementLink<ExampleHitContainer>* getElementLink1() const { return(&m_elementlink1); }
    /// @return a constant pointer to the first linked object.
    const ExampleHit* getElement1() const { return(*m_elementlink1); }
    /// @return a pointer to the second element link.
    ElementLink<ExampleHitContainer>* getElementLink2() { return(&m_elementlink2); }
+   const ElementLink<ExampleHitContainer>* getElementLink2() const { return(&m_elementlink2); }
    /// @return a constant pointer to the second linked object.
    const ExampleHit* getElement2() const { return(*m_elementlink2); }
 

@@ -93,14 +93,4 @@ Additonal profiles can be dumped on any "Incident" by setting:
     
 @section Valkyrie_ValkyrieExtraPages Extra pages
 
-  - @ref ValkyrieUsedPackages
-  - @ref ValkyrieRequirements
-*/
-
-/**
-   @page ValkyrieUsedPackages Uses packages
-*/
-
-/**
-   @page ValkyrieRequirements Requirements
 */

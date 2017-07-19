@@ -88,6 +88,8 @@ allRoITrk = reco("allRoITrk", Output="TrigTracks", FileName="noreco.dat", Input=
 # the seq of merger & tracking shoudl be enabled by any of the filter
 stepNo += 1
 
+from AthenaCommon.CFElements import stepSeq
+
 steps[stepNo] += stepSeq("emtrk",  useExisting( "Step0EM" ),   [ trkInputMerger, allRoITrk ] )
 steps[stepNo] += stepSeq("mutrk",  useExisting( "Step0MU" ),   [ trkInputMerger, allRoITrk ] )
 steps[stepNo] += stepSeq("muetrk", useExisting( "Step0MU_E" ), [ trkInputMerger, allRoITrk ] )

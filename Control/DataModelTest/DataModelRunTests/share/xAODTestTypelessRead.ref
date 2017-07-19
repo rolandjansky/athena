@@ -1,21 +1,22 @@
-Fri Mar 17 21:56:43 CET 2017
-Preloading tcmalloc_minimal.so
+Wed Jun 21 16:12:16 EDT 2017
+WARNING: TCMALLOCDIR not defined, will use libc malloc
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AthenaExternals-22.0.0] [x86_64-slc6-gcc49-opt] [private/private] -- built on [2017-03-16 21:31]
+Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
-[?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestTypelessRead_jo.py"
-Py:ConfigurableDb    INFO Read module info for 5282 configurables from 2 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 442 configurables from 2 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "EventAthenaPool/EventAthenaPoolItemList_joboptions.py"
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
+# setting LC_ALL to "C"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v28r1)
-                                          running on p05614910w96644.cern.ch on Fri Mar 17 21:56:56 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Wed Jun 21 16:12:41 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -23,55 +24,35 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 8719 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 9499 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 718 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 676 CLIDRegistry entries for module ALL
 DecisionSvc          INFO Inserting stream: Stream1 with no Algs
 MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
 AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
-PoolSvc              INFO Initializing PoolSvc - package version PoolSvc-00-00-00
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://aiatlas036.cern.ch:8000/atlr)(serverurl=http://aiatlas034.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccfrontier01.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccfrontier05.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca20.cern.ch:3128)(proxyurl=http://ca17.cern.ch:3128)(proxyurl=http://atlast0fsquid.cern.ch:3128)(proxyurl=http://atlassquid1.cern.ch:3128)(proxyurl=http://atlassquid2.cern.ch:3128)(proxyurl=http://atlassquid4.cern.ch:3128) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/multithreading/2017-03-16T2130/Athena/22.0.0/InstallArea/x86_64-slc6-gcc49-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host p05614910w96644.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /home/sss/atlas/dvtest/build/share/dbreplica.config
+DBReplicaSvc         INFO No specific match for domain found - use default fallback
+DBReplicaSvc         INFO Total of 1 servers found for host karma [atlas_dd ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is file:xAODTestTypelessRead_catalog.xml
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
 PoolSvc              INFO Re-initializing PoolSvc
 EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query 
-PoolSvc              INFO File is not in Catalog! Attempt to open it anyway.
 RootCollection Info Opening Collection File xaoddata.root in mode: READ
 RootCollection Info File xaoddata.root opened
-DbSession Info     Open     DbSession    
-Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] F951BFB1-7EE9-0D44-8107-A86EA5382814
 Domain[ROOT_All] Info                           xaoddata.root
-RootDatabase.open Info xaoddata.root File version:60802
-xaoddata.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
-Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All] 
-PoolSvc              INFO File is not in Catalog! Attempt to open it anyway.
-DbSession Info     Open     DbSession    
-Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
-Domain[ROOT_All] Info                           xaoddata.root
-RootDatabase.open Info xaoddata.root File version:60802
-xaoddata.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
-Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All] 
-DbSession Info     Open     DbSession    
-Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 14013D9F-6738-9C4D-B4CA-AEC7229B4BDF
-Domain[ROOT_All] Info                           xaoddata.root
-RootDatabase.open Info xaoddata.root File version:60802
+RootDatabase.open Info xaoddata.root File version:60806
 ImplicitCollection Info Opened the implicit collection with connection string "PFN:xaoddata.root"
 ImplicitCollection Info and a name "POOLContainer(DataHeader)"
-PoolSvc              INFO Failed to find container MetaDataHdrDataHeader to get Token.
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-00-00
 EventSelector        INFO reinitialization...
@@ -82,7 +63,7 @@ ImplicitCollection Info Opened the implicit collection with connection string "P
 ImplicitCollection Info and a name "POOLContainer(DataHeader)"
 AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-00-00
 OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 971 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1078 CLIDRegistry entries for module ALL
 Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version OutputStreamAthenaPool-00-00-00
 Stream1.Stream1...   INFO streamProperty ProcessingTag = Stream1
 Stream1.Stream1...   INFO Initializing Stream1.Stream1_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
@@ -93,24 +74,23 @@ HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 xaoddata.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 14013D9F-6738-9C4D-B4CA-AEC7229B4BDF
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] F951BFB1-7EE9-0D44-8107-A86EA5382814
 RootCollection Info Opening Collection File xaoddata.root in mode: READ
 RootCollection Info File xaoddata.root opened
 DbSession Info     Open     DbSession    
 Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 14013D9F-6738-9C4D-B4CA-AEC7229B4BDF
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] F951BFB1-7EE9-0D44-8107-A86EA5382814
 Domain[ROOT_All] Info                           xaoddata.root
-RootDatabase.open Info xaoddata.root File version:60802
+RootDatabase.open Info xaoddata.root File version:60806
 ImplicitCollection Info Opened the implicit collection with connection string "PFN:xaoddata.root"
 ImplicitCollection Info and a name "POOLContainer(DataHeader)"
 ApplicationMgr       INFO Application Manager Started successfully
-PoolSvc              INFO Failed to find container MetaDataHdrDataHeader to get Token.
 AthenaPoolConve...   INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
 AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
-ClassIDSvc           INFO  getRegistryEntries: read 11 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 15 CLIDRegistry entries for module ALL
 1
-ClassIDSvc           INFO  getRegistryEntries: read 44 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 53 CLIDRegistry entries for module ALL
 cvec types: aFloat/float anInt/int anInt2/int cEL/ElementLink<DataVector<DMTest::C_v1,DataModel_detail::NoBase> > dInt1/int dVar1/int dpInt1/unsigned int dpvFloat/std::vector<float,std::allocator<float> > pFloat/float pInt/unsigned int pvFloat/std::vector<float,std::allocator<float> > pvInt/std::vector<int,std::allocator<int> > 
   aFloat: 200.000; anInt: 101; anInt2: 301; cEL: cvec[9]; dInt1: 401; dVar1: 451; dpInt1: 51; 
     dpvFloat: []; pFloat: 0.010; pInt: 501; 
@@ -154,7 +134,7 @@ cvec types: aFloat/float anInt/int anInt2/int cEL/ElementLink<DataVector<DMTest:
     pvInt: [-310 -309 -308 -307 -306 -305 -304 -303 -302 ]; 
 cinfo types: aFloat/float anInt/int anInt2/int cEL/ElementLink<DataVector<DMTest::C_v1,DataModel_detail::NoBase> > dInt1/int 
 aFloat: 0.100; anInt: 1000; anInt2: 2000; cEL: cvec[1]; dInt1: 3000; 
-ClassIDSvc           INFO  getRegistryEntries: read 30 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 32 CLIDRegistry entries for module ALL
 ctrig types: aFloat/float anInt/int anInt2/int dInt1/int 
   aFloat: 600.000; anInt: 501; anInt2: 701; dInt1: 481; 
   aFloat: 600.100; anInt: 502; anInt2: 702; dInt1: 482; 
@@ -280,9 +260,9 @@ hview
   aFloat: 401.500; 
 DbSession Info     Open     DbSession    
 Domain[ROOT_All] Info >   Access   DbDomain     UPDATE    [ROOT_All] 
-Domain[ROOT_All] Info ->  Access   DbDatabase   CREATE    [ROOT_All] 6BB654D5-9FB3-734F-BAD3-EED2A78978A3
+Domain[ROOT_All] Info ->  Access   DbDatabase   CREATE    [ROOT_All] 4D6435DB-E4BA-A14B-8797-1FE0A1464B2E
 Domain[ROOT_All] Info                           xaoddata3.root
-RootDatabase.open Info xaoddata3.root File version:60802
+RootDatabase.open Info xaoddata3.root File version:60806
 StorageSvc Info Building shape according to reflection information using shape ID for:
 StorageSvc Info DataVector<DMTest::H_v2> [CD6C3074-425B-4C08-AF1C-43D7E8C84288]
 StorageSvc Info Building shape according to reflection information using shape ID for:
@@ -800,48 +780,8 @@ AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #0 4 events pr
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #0 4 events processed so far  <<<===
 5
 cvec types: aFloat/float anInt/int anInt2/int cEL/ElementLink<DataVector<DMTest::C_v1,DataModel_detail::NoBase> > dInt1/int dVar1/int dpInt1/unsigned int dpvFloat/std::vector<float,std::allocator<float> > pFloat/float pInt/unsigned int pvFloat/std::vector<float,std::allocator<float> > pvInt/std::vector<int,std::allocator<int> > 
-  aFloat: 1000.000; anInt: 501; anInt2: 1501; cEL: cvec[9]; dInt1: 2001; dVar1: 2251; dpInt1: 251; 
-    dpvFloat: []; pFloat: 0.050; pInt: 2501; 
-    pvFloat: []; 
-    pvInt: []; 
-  aFloat: 1000.100; anInt: 502; anInt2: 1502; cEL: cvec[8]; dInt1: 2002; dVar1: 2252; dpInt1: 252; 
-    dpvFloat: [0.150 ]; pFloat: 1.050; pInt: 2502; 
-    pvFloat: [-0.485 ]; 
-    pvInt: [10 ]; 
-  aFloat: 1000.200; anInt: 503; anInt2: 1503; cEL: cvec[7]; dInt1: 2003; dVar1: 2253; dpInt1: 253; 
-    dpvFloat: [0.250 0.251 ]; pFloat: 2.050; pInt: 2503; 
-    pvFloat: [-0.475 -0.375 ]; 
-    pvInt: [20 21 ]; 
-  aFloat: 1000.300; anInt: 504; anInt2: 1504; cEL: cvec[6]; dInt1: 2004; dVar1: 2254; dpInt1: 254; 
-    dpvFloat: [0.350 0.351 0.352 ]; pFloat: 3.050; pInt: 2504; 
-    pvFloat: [-0.465 -0.365 -0.265 ]; 
-    pvInt: [30 31 32 ]; 
-  aFloat: 1000.400; anInt: 505; anInt2: 1505; cEL: cvec[5]; dInt1: 2005; dVar1: 2255; dpInt1: 255; 
-    dpvFloat: [0.450 0.451 0.452 0.453 ]; pFloat: 4.050; pInt: 2505; 
-    pvFloat: [-0.455 -0.355 -0.255 -0.155 ]; 
-    pvInt: [40 41 42 43 ]; 
-  aFloat: 1000.500; anInt: 506; anInt2: 1506; cEL: cvec[4]; dInt1: 2006; dVar1: 2256; dpInt1: 256; 
-    dpvFloat: [0.550 0.551 0.552 0.553 0.554 ]; pFloat: 5.050; pInt: 2506; 
-    pvFloat: [-0.445 -0.345 -0.245 -0.145 -0.045 ]; 
-    pvInt: [50 51 52 53 54 ]; 
-  aFloat: 1000.600; anInt: 507; anInt2: 1507; cEL: cvec[3]; dInt1: 2007; dVar1: 2257; dpInt1: 257; 
-    dpvFloat: [0.650 0.651 0.652 0.653 0.654 0.655 ]; pFloat: 6.050; pInt: 2507; 
-    pvFloat: [-0.435 -0.335 -0.235 -0.135 -0.035 0.065 ]; 
-    pvInt: [60 61 62 63 64 65 ]; 
-  aFloat: 1000.700; anInt: 508; anInt2: 1508; cEL: cvec[2]; dInt1: 2008; dVar1: 2258; dpInt1: 258; 
-    dpvFloat: [0.750 0.751 0.752 0.753 0.754 0.755 0.756 ]; pFloat: 7.050; pInt: 2508; 
-    pvFloat: [-0.425 -0.325 -0.225 -0.125 -0.025 0.075 0.175 ]; 
-    pvInt: [70 71 72 73 74 75 76 ]; 
-  aFloat: 1000.800; anInt: 509; anInt2: 1509; cEL: cvec[1]; dInt1: 2009; dVar1: 2259; dpInt1: 259; 
-    dpvFloat: [0.850 0.851 0.852 0.853 0.854 0.855 0.856 0.857 ]; pFloat: 8.050; pInt: 2509; 
-    pvFloat: [-0.415 -0.315 -0.215 -0.115 -0.015 0.085 0.185 0.285 ]; 
-    pvInt: [80 81 82 83 84 85 86 87 ]; 
-  aFloat: 1000.900; anInt: 510; anInt2: 1510; cEL: cvec[0]; dInt1: 2010; dVar1: 2260; dpInt1: 260; 
-    dpvFloat: [0.950 0.951 0.952 0.953 0.954 0.955 0.956 0.957 0.958 ]; pFloat: 9.050; pInt: 2510; 
-    pvFloat: [-0.405 -0.305 -0.205 -0.105 -0.005 0.095 0.195 0.295 0.395 ]; 
-    pvInt: [90 91 92 93 94 95 96 97 98 ]; 
 cinfo types: aFloat/float anInt/int anInt2/int cEL/ElementLink<DataVector<DMTest::C_v1,DataModel_detail::NoBase> > dInt1/int 
-aFloat: 0.500; anInt: 5000; anInt2: 10000; cEL: cvec[5]; dInt1: 15000; 
+aFloat: 0.500; anInt: 5000; anInt2: 10000; cEL: [18446744073709551615]; dInt1: 15000; 
 ctrig types: aFloat/float anInt/int anInt2/int dInt1/int 
   aFloat: 3000.000; anInt: 2501; anInt2: 3501; dInt1: 2401; 
   aFloat: 3000.100; anInt: 2502; anInt2: 3502; dInt1: 2402; 
@@ -880,47 +820,6 @@ cvecWD types: aFloat/float anInt/int pFloat/float pInt/unsigned int pvFloat/std:
     pvFloat: []; 
     pvInt: []; 
   aFloat: 0.000; anInt: 1010; pFloat: 0.000; pInt: 0; 
-    pvFloat: []; 
-    pvInt: []; 
-cview
-  aFloat: 1000.900; anInt: 510; anInt2: 1510; cEL: cvec[0]; dInt1: 2010; dVar1: 2260; dpInt1: 260; 
-    dpvFloat: [0.950 0.951 0.952 0.953 0.954 0.955 0.956 0.957 0.958 ]; pFloat: 9.050; pInt: 2510; 
-    pvFloat: [-0.405 -0.305 -0.205 -0.105 -0.005 0.095 0.195 0.295 0.395 ]; 
-    pvInt: [90 91 92 93 94 95 96 97 98 ]; 
-  aFloat: 1000.800; anInt: 509; anInt2: 1509; cEL: cvec[1]; dInt1: 2009; dVar1: 2259; dpInt1: 259; 
-    dpvFloat: [0.850 0.851 0.852 0.853 0.854 0.855 0.856 0.857 ]; pFloat: 8.050; pInt: 2509; 
-    pvFloat: [-0.415 -0.315 -0.215 -0.115 -0.015 0.085 0.185 0.285 ]; 
-    pvInt: [80 81 82 83 84 85 86 87 ]; 
-  aFloat: 1000.700; anInt: 508; anInt2: 1508; cEL: cvec[2]; dInt1: 2008; dVar1: 2258; dpInt1: 258; 
-    dpvFloat: [0.750 0.751 0.752 0.753 0.754 0.755 0.756 ]; pFloat: 7.050; pInt: 2508; 
-    pvFloat: [-0.425 -0.325 -0.225 -0.125 -0.025 0.075 0.175 ]; 
-    pvInt: [70 71 72 73 74 75 76 ]; 
-  aFloat: 1000.600; anInt: 507; anInt2: 1507; cEL: cvec[3]; dInt1: 2007; dVar1: 2257; dpInt1: 257; 
-    dpvFloat: [0.650 0.651 0.652 0.653 0.654 0.655 ]; pFloat: 6.050; pInt: 2507; 
-    pvFloat: [-0.435 -0.335 -0.235 -0.135 -0.035 0.065 ]; 
-    pvInt: [60 61 62 63 64 65 ]; 
-  aFloat: 1000.500; anInt: 506; anInt2: 1506; cEL: cvec[4]; dInt1: 2006; dVar1: 2256; dpInt1: 256; 
-    dpvFloat: [0.550 0.551 0.552 0.553 0.554 ]; pFloat: 5.050; pInt: 2506; 
-    pvFloat: [-0.445 -0.345 -0.245 -0.145 -0.045 ]; 
-    pvInt: [50 51 52 53 54 ]; 
-  aFloat: 1000.400; anInt: 505; anInt2: 1505; cEL: cvec[5]; dInt1: 2005; dVar1: 2255; dpInt1: 255; 
-    dpvFloat: [0.450 0.451 0.452 0.453 ]; pFloat: 4.050; pInt: 2505; 
-    pvFloat: [-0.455 -0.355 -0.255 -0.155 ]; 
-    pvInt: [40 41 42 43 ]; 
-  aFloat: 1000.300; anInt: 504; anInt2: 1504; cEL: cvec[6]; dInt1: 2004; dVar1: 2254; dpInt1: 254; 
-    dpvFloat: [0.350 0.351 0.352 ]; pFloat: 3.050; pInt: 2504; 
-    pvFloat: [-0.465 -0.365 -0.265 ]; 
-    pvInt: [30 31 32 ]; 
-  aFloat: 1000.200; anInt: 503; anInt2: 1503; cEL: cvec[7]; dInt1: 2003; dVar1: 2253; dpInt1: 253; 
-    dpvFloat: [0.250 0.251 ]; pFloat: 2.050; pInt: 2503; 
-    pvFloat: [-0.475 -0.375 ]; 
-    pvInt: [20 21 ]; 
-  aFloat: 1000.100; anInt: 502; anInt2: 1502; cEL: cvec[8]; dInt1: 2002; dVar1: 2252; dpInt1: 252; 
-    dpvFloat: [0.150 ]; pFloat: 1.050; pInt: 2502; 
-    pvFloat: [-0.485 ]; 
-    pvInt: [10 ]; 
-  aFloat: 1000.000; anInt: 501; anInt2: 1501; cEL: cvec[9]; dInt1: 2001; dVar1: 2251; dpInt1: 251; 
-    dpvFloat: []; pFloat: 0.050; pInt: 2501; 
     pvFloat: []; 
     pvInt: []; 
 hvec types: aFloat/float 
@@ -3503,9 +3402,9 @@ hview
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
 Stream1              INFO Records written: 21
 xaoddata.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 14013D9F-6738-9C4D-B4CA-AEC7229B4BDF
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] F951BFB1-7EE9-0D44-8107-A86EA5382814
 xaoddata3.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] 6BB654D5-9FB3-734F-BAD3-EED2A78978A3
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] 4D6435DB-E4BA-A14B-8797-1FE0A1464B2E
 Domain[ROOT_All] Info >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize

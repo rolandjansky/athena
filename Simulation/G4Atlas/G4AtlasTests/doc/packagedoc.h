@@ -43,16 +43,6 @@ including both subdetector specific and general functionality tests.
 
 All histograms are booked in BookHistograms.cxx - this file contains all limits for the histos.
 
-@ref used_G4AtlasTests
 
-@ref requirements_G4AtlasTests
 
-*/
-
-/**
-@page used_G4AtlasTests Used Packages
-*/
-
-/**
-@page requirements_G4AtlasTests Requirements
 */

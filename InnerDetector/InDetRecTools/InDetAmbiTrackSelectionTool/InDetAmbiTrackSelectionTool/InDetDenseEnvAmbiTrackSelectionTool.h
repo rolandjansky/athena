@@ -12,7 +12,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IIncidentSvc.h"
-
+#include "StoreGate/ReadHandleKey.h"
+#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkToolInterfaces/IAmbiTrackSelectionTool.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
@@ -339,7 +340,7 @@ namespace InDet
       float m_minPtSplit;
       float m_phiWidth;
       float m_etaWidth;
-      std::string m_inputHadClusterContainerName;
+      SG::ReadHandleKey<CaloClusterROI_Collection> m_inputHadClusterContainerName;
       
       std::vector<double>   m_hadF;
       std::vector<double>   m_hadE;
@@ -352,7 +353,7 @@ namespace InDet
       float m_phiWidthEm;
       float m_etaWidthEm;
 
-      std::string m_inputEmClusterContainerName;
+      SG::ReadHandleKey<CaloClusterROI_Collection> m_inputEmClusterContainerName;
       std::vector<double>   m_emF;
       std::vector<double>   m_emE;
       std::vector<double>   m_emR;

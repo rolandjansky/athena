@@ -537,11 +537,8 @@ Welcome to AtlCoolConsole. Type 'help' for instructions.
   Name              Description       Count     Size        
 </pre>
 
-@section CoolConvUtilities_requirements requirements
 
 
-@section CoolConvUtilities_uses Packages used
 
 
 */
-

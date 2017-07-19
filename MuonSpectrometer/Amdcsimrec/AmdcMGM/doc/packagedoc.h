@@ -27,15 +27,5 @@ The AmdcMGM package contains:
 
 @section AmdcMGM_ExtrasAmdcMGM Extra Pages
 
-  - @ref used_AmdcMGM
-  - @ref requirements_AmdcMGM
 
-*/
-
-/**
-@page used_AmdcMGM Used Packages
-*/
-
-/**
-@page requirements_AmdcMGM Requirements
 */

@@ -20,10 +20,12 @@
 #include "GaudiKernel/StatusCode.h"
 namespace SG {
   class VarHandleKey;
+  class VarHandleKeyArray;
 }
 namespace Gaudi {
   namespace Parsers {
     StatusCode parse(SG::VarHandleKey& v, const std::string& s);
+    StatusCode parse(SG::VarHandleKeyArray& v, const std::string& s);
   }
 }
 
@@ -129,7 +131,10 @@ public:
 
   template <class T>
   Property& declareProperty(Gaudi::Property<T> &t) {
-    return AthAlgorithm::declareGaudiProperty(t, std::is_base_of<SG::VarHandleKey, T>());
+    return AthAlgorithm::declareGaudiProperty(t, 
+                                              std::is_base_of<SG::VarHandleKey, T>(),
+                                              std::is_base_of<SG::VarHandleKeyArray, T>()
+                                              );
   }
 
 private:
@@ -138,32 +143,55 @@ private:
    *
    */
   template <class T>
-  Property& declareGaudiProperty(Gaudi::Property<T> &hndl, std::true_type) {
-    try {
-      SG::VarHandleKey &vhk = dynamic_cast<SG::VarHandleKey&>( hndl.value() );
+  Property& declareGaudiProperty(Gaudi::Property<T> &hndl, 
+                                 std::true_type, std::false_type) {
+    // FIXME: string mangling can be removed when Gaudi patched
+    std::string doc = hndl.documentation();
+    doc.erase(doc.rfind("["),doc.length());
 
-      this->declare(vhk);
-      vhk.setOwner(this);
+    return *AthAlgorithm::declareProperty(hndl.name(), hndl.value(), doc);
 
-    } catch (...) {
-      ATH_MSG_ERROR("AthAlgorith::declareGaudiProperty: " << hndl 
-                    << " could not dcast to SG::VarHandleKey. "
-                    << "This should not happen!");
-      throw std::runtime_error("AthAlgorith::declareGaudiProperty: not a VarHandleKey (this should not happen)!");
-    }
-
-    return Algorithm::declareProperty(hndl);
   }
 
   /**
-   * @brief specialization for handling everything that's not a
-   * Gaudi::Property<SG::VarHandleKey>
+   * @brief specialization for handling Gaudi::Property<SG::VarHandleKeyArray>
    *
    */
   template <class T>
-  Property& declareGaudiProperty(Gaudi::Property<T> &t, std::false_type) {
+  Property& declareGaudiProperty(Gaudi::Property<T> &hndl, 
+                                 std::false_type, std::true_type) {
+    std::string doc = hndl.documentation();
+    doc.erase(doc.rfind("["),doc.length());
+
+    return *AthAlgorithm::declareProperty(hndl.name(), hndl.value(), doc);
+
+  }
+
+  /**
+   * @brief Error: can't be both a VarHandleKey and VarHandleKeyArray
+   *
+   */
+  template <class T>
+  Property& declareGaudiProperty(Gaudi::Property<T> &t, std::true_type, std::true_type) {
+      ATH_MSG_ERROR("AthAlgorith::declareGaudiProperty: " << t 
+                    << " cannot be both a VarHandleKey and VarHandleKeyArray. "
+                    << "This should not happen!");
+      throw std::runtime_error("AthAlgorith::declareGaudiProperty: cannot be both a VarHandleKey and VarHandleKeyArray (this should not happen)!");
     return Algorithm::declareProperty(t);
   }
+
+
+
+  /**
+   * @brief specialization for handling everything that's not a
+   * Gaudi::Property<SG::VarHandleKey> or a <SG::VarHandleKeyArray>
+   *
+   */
+  template <class T>
+  Property& declareGaudiProperty(Gaudi::Property<T> &t, std::false_type, std::false_type) {
+    return Algorithm::declareProperty(t);
+  }
+
 
   /////////////////////////////////////////////////////////////////
   //

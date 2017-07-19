@@ -42,9 +42,7 @@ can be found in InDetPriVxFinder.
 InDetTrigPriVxFinder contains the following files/classes:
 - TrigVxPrimary.cxx ... the algoritm which steers the vertex fit
 
-@section InDetTrigPriVxFinder_used_packagesInDetTrigPriVxFinder used packages
 
-@section InDetTrigPriVxFinder_requirements Requirements
 
 \namespace Vtx
 A namespace for all vertexing packages and related stuff.

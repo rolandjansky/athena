@@ -18,17 +18,6 @@ The following filters are available:
  - VertexPositioners : This filter changes the initial position of the primary event.  It can be used both for a misplaced beamspot and for smearing the beamspot.
  - VertexRangeChecker : This filter ensures that the primary particles are being created in a sensible place (e.g. not outside of the ATLAS detector)
 
-@ref used_G4AtlasUtilities
 
-@ref requirements_G4AtlasUtilities
 
 */
-
-/**
-@page used_G4AtlasUtilities Used Packages
-*/
-
-/**
-@page requirements_G4AtlasUtilities Requirements
-*/
-

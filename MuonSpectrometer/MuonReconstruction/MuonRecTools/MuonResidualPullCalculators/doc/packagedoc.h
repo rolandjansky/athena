@@ -35,14 +35,4 @@ configured as
 
 @section MuonResidualPullCalculators_ExtrasMuonResidualPullCalculators Extra Pages
 
- - @ref UsedMuonResidualPullCalculators
- - @ref RequirementsMuonResidualPullCalculators
-*/
-
-/**
-@page UsedMuonResidualPullCalculators Used Packages
-*/
-
-/**
-@page RequirementsMuonResidualPullCalculators Requirements
 */

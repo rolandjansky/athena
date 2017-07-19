@@ -36,16 +36,6 @@ The MuonCalibEventBase package contains the following classes :
 - MuonCalib::MuonCalibRawTgcHit         : MuonCalib version of TgcPrepData.
 - MuonCalib::MuonCalibRawCscHit         : MuonCalib version of CscPrepData.
 
-@ref used_MuonCalibEventBase 
 
-@ref requirements_MuonCalibEventBase
 
-*/
-
-/**
-@page used_MuonCalibEventBase Used Packages
-*/
-
-/**
-@page requirements_MuonCalibEventBase Requirements
 */

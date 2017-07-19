@@ -10,6 +10,7 @@ static const std::vector<std::string> STORENAMES {
     "InputMetaDataStore",
     "MetaDataStore",
     "SpareStore",
+    "PileupStore",
     "UnknownStore"
       };
 
@@ -48,6 +49,11 @@ StoreID::findStoreID(const std::string& storeNamePrefix) {
   case 'M':
     {
       return StoreID::SIMPLE_STORE;
+      break;
+    }
+  case 'P':
+    {
+      return StoreID::PILEUP_STORE;
       break;
     }
   case 'S':

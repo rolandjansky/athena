@@ -26,6 +26,5 @@ in propagation order and first detector element is closest to beam axis.
      
 This algorithm uses IMagneticFieldTool and IPropagator tools.
 
-@section TRT_DetElementsRoadTool_xk_TRT_DetElementsRoadTool_xkReq Requirements file
 
 */

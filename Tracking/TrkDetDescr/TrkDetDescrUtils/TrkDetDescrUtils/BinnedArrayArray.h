@@ -98,7 +98,7 @@ namespace Trk {
 
      /** Returns the pointer to the templated class object from the BinnedArrayArray
          it returns 0 if not defined, takes global position */
-     virtual const T* object(const Amg::Vector3D& gp) const {
+     virtual const T* object(const Amg::Vector3D& gp) const override {
          if (m_binUtility->inside(gp)) { 
              BinnedArray<T>* ba = m_binnedArrays[m_binUtility->bin(gp, 0)];
              if (ba) return ba->object(gp);
@@ -107,23 +107,23 @@ namespace Trk {
      }
 
      /** Returns the pointer to the templated class object from the BinnedArrayArray - entry point*/
-     virtual const T* entryObject(const Amg::Vector3D& gp) const
+     virtual const T* entryObject(const Amg::Vector3D& gp) const override
      { return object(gp); }
 
      /** Returns the pointer to the templated class object from the BinnedArrayArray, takes 3D position & direction */
-     virtual const T* nextObject(const Amg::Vector3D& gp, const Amg::Vector3D&, bool) const
+     virtual const T* nextObject(const Amg::Vector3D& gp, const Amg::Vector3D&, bool) const override
      { return object(gp); }
 
      /** Return all objects of the Array */
-     virtual const std::vector< const T* >& arrayObjects() const
+     virtual const std::vector< const T* >& arrayObjects() const override
      { return m_arrayObjects; }
 
      /** Number of Entries in the Array */
-     virtual unsigned int arrayObjectsNumber() const 
+     virtual unsigned int arrayObjectsNumber() const  override
      { return m_arrayObjects.size(); };
 
      /** Return the BinUtility*/
-     virtual const BinUtility* binUtility() const 
+     virtual const BinUtility* binUtility() const override
      { return m_binUtility; }
 
   private:

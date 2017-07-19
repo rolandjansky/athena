@@ -88,15 +88,4 @@ of the TrigMissingET class, containing two kinds of information:
 
 Both TrigMissingET and TrigMissingEtComponent are defined and implemented in 
 the  Trigger/TrigEvent/TrigMissingEtEvent package.
-
-@ref UsedTrigMissingETHypo
-
-@ref RequirementsTrigMissingETHypo
-
-/**
-@page UsedTrigMissingETHypo Used Packages
-*/
-
-/**
-@page RequirementsTrigMissingETHypo Requirements
 */

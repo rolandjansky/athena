@@ -7,6 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
 #include <set>
@@ -82,9 +83,9 @@ namespace InDet {
     /** holds the PRDs associated with each Track (i.e. the Track* is the key)*/
     IPRD_AssociationTool::TrackPrepRawDataMap m_trackPrepRawDataMap;
 
-    const PixelGangedClusterAmbiguities* m_gangedAmbis;
-
-    std::string m_pixelClusterAmbiguitiesMapName;
+    SG::ReadHandleKey<PixelGangedClusterAmbiguities> m_pixelClusterAmbiguitiesMapName;
+    SG::ReadHandle<PixelGangedClusterAmbiguities> m_gangedAmbis;
+    bool m_has_ambi_map;
 
     /** add TRT outliers in the addTrack method to avoid splits due to rejected extensions */
     bool m_addTRToutliers;

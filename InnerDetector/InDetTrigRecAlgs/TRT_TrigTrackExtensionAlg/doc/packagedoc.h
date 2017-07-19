@@ -16,8 +16,6 @@ TrackExtensionMap.
 This algorithm uses standard ITRT_TrackExtensionTool and should know 
 input tracks location and extended track location.
 
-@section TRT_TrigTrackExtensionAlg_used_packagesTRT_TrigTrackExtensionAlg used packages
 
-@section TRT_TrigTrackExtensionAlg_TRT_TrigTrackExtensionAlgReq Requirements file
 
 */

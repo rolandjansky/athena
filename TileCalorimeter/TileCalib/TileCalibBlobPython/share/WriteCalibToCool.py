@@ -1,4 +1,7 @@
 #!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # WriteCalibToCool.py
 # Sanya Solodkov 2014-08-29
 # change Yuri Smirnov 2014-12-24
@@ -42,7 +45,7 @@ keywords = ["help","run=","lumi=","run2=","lumi2=","schema=","inschema=","outsch
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
-except getopt.GetOptError, err:
+except getopt.GetoptError, err:
     print str(err)
     usage()
     sys.exit(2)

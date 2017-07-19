@@ -93,16 +93,6 @@ You may also be interested in:
 
    - \ref AnalysisExamples to see how these classes may be used : FilterExample
 
-@ref used_AnalysisUtils
 
-@ref requirements_AnalysisUtils
 
-*/
-
-/**
-@page used_AnalysisUtils Used Packages
-*/
-
-/**
-@page requirements_AnalysisUtils Requirements
 */

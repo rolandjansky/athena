@@ -13,7 +13,6 @@
 
 >> Please enter a brief description of the package here.
 
-@section MuonPatternSegmentMaker_MuonPatternSegmentMakerReq Requirements
 
 
 */

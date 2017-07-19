@@ -108,14 +108,4 @@ MakeTwoDimBarrelClusters=True.
 
 @section SiClusterOnTrackTool_ExtrasSiClusterOnTrackTool Extra Pages
 
- - @ref UsedSiClusterOnTrackTool
- - @ref RequirementsSiClusterOnTrackTool
-*/
-
-/**
-@page UsedSiClusterOnTrackTool Used Packages
-*/
-
-/**
-@page RequirementsSiClusterOnTrackTool Requirements
 */

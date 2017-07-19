@@ -16,16 +16,6 @@ This package contains a Tools (currently only one in fact), which are used by th
 
   - MuonEventCnvTool which implements the Trk::ITrkEventCnvTool interface.
 
-@ref used_MyPackage
 
-@ref requirements_MyPackage
 
-*/
-
-/**
-@page used_MyPackage Used Packages
-*/
-
-/**
-@page requirements_MyPackage Requirements
 */

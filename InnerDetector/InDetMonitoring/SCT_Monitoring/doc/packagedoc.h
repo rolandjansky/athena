@@ -55,6 +55,5 @@ These should definitely be deprecated and removed as soon as possible:
    - ParsedSCT_RDO
    - SCTHistoTest
    
-@section SCT_Monitoring_SCT_MonitoringReq Requirements
  
  */

@@ -41,10 +41,8 @@ This is the draft of TileGeoModel documentation, under construction ... us usual
   - TileGeoSectionBuilder: %Base class for section construction.
   - TileTBFactory: %Test Beam factory. 
 
-@section TileGeoModel_TileGeoModelReq Requirements
  
 
 */
 
 //- TileOracle: Interface for filling primary numbers with Python tools to the Detector Description Database.
- 

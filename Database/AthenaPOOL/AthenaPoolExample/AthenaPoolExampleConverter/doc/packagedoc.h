@@ -37,11 +37,9 @@ The code can be browsed using LXR
 (http://alxr.usatlas.bnl.gov/lxr/source/atlas/Database/AthenaPOOL/AthenaPoolExample/AthenaPoolExampleConverter/)
 
 
-@section AthenaPoolExampleConverter_Requirements Requirements
 
 
 
-@section AthenaPoolExampleConverter_PackagesUsed Packages Used
 
 
 

@@ -17,10 +17,6 @@ EventTagUtils contains the following algs/files:
 
 - for questions and comments: ketevi@bnl.gov
 
-@section EventTagUtils_used_packagesEventTagUtils Used packages
 
-@section EventTagUtils_requirementsEventTagUtils Requirements
 
 */
-
-

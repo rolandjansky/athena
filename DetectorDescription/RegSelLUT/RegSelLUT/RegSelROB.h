@@ -59,13 +59,13 @@ protected:
  
 };
 
-inline std::ostream& operator<<( std::ostream& s, const RegSelROB& _r ) { 
-  return s << "[ robID 0x" << std::hex << _r.robID() << std::dec
-	   << "\tr: " << _r.rMin() << " " << _r.rMax()
-	   << "\tz: " << _r.zMin() << " " << _r.zMax()
-	   << "\tphi: " << _r.phiMin() << " " << _r.phiMax() 
-	   << "\teta: " << _r.etaMin() << " " << _r.etaMax() 
-	   << "\tsize " << _r.size() << " ]";
+inline std::ostream& operator<<( std::ostream& s, const RegSelROB& r ) { 
+  return s << "[ robID 0x" << std::hex << r.robID() << std::dec
+	   << "\tr: " << r.rMin() << " " << r.rMax()
+	   << "\tz: " << r.zMin() << " " << r.zMax()
+	   << "\tphi: " << r.phiMin() << " " << r.phiMax() 
+	   << "\teta: " << r.etaMin() << " " << r.etaMax() 
+	   << "\tsize " << r.size() << " ]";
     
 }
 

@@ -34,4 +34,3 @@ Computes the barycentre in depth (R in barrel, z in endcaps)
 @author Alexander Khodinov <khodinov@bnl.gov>
 
 */
-

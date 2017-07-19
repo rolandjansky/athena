@@ -16,16 +16,6 @@ This AlgTool will make global eta and phi patterns using uncalibrated muon detec
   - MuonHoughPatternFinderTool: AlgTool that steers the patternfinder and has the dependency to StoreGate
   - MuonHoughPatternTool: finds eta and phi patterns using HoughTransforms
 
-@ref used_MuonHoughPatternTools
 
-@ref requirements_MuonHoughPatternTools
 
-*/
-
-/**
-@page used_MuonHoughPatternTools Used Packages
-*/
-
-/**
-@page requirements_MuonHoughPatternTools Requirements
 */

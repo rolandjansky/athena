@@ -16,17 +16,6 @@ The package contains only one class:
 
  - SleptonsProcessDefinition : This class adds the appropriate physics processes to the slepton (for example transportation).
 
-@ref used_Sleptons
 
-@ref requirements_Sleptons
 
 */
-
-/**
-@page used_Sleptons Used Packages
-*/
-
-/**
-@page requirements_Sleptons Requirements
-*/
-

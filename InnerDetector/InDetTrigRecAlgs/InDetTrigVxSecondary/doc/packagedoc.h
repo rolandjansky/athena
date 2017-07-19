@@ -67,6 +67,5 @@ a given vertex candidate and fit again. Please refer to the
 documentation for InDetVKalVxInJetTool for further details specific to
 the default offline vertex finder.
 
-@section InDetTrigVxSecondary_InDetTrigVxSecondaryReq Requirements
 
 */

@@ -1,4 +1,7 @@
 #!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # ReadBchFromCool.py  --schema='COOLOFL_TILE/CONDBR2'  --folder='OFL02' --tag='UPD4'
 # Sanya Solodkov 2011-07-15
 # change: Yuri Smirnov 2015-08-29, correction for EB* modules' nbad counter
@@ -28,7 +31,7 @@ keywords = ["help","run=","lumi=","schema=","tag=","folder=","dbname=","default"
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
-except getopt.GetOptError, err:
+except getopt.GetoptError, err:
     print str(err)
     usage()
     sys.exit(2)

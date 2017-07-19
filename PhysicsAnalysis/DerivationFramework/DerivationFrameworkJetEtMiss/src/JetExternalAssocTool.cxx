@@ -109,9 +109,9 @@ StatusCode JetExternalAssocTool::addBranches() const{
     // simple dR matching
 
     // initialize list of un-assigned external jets
-    std::vector<const xAOD::Jet*> m_UnAssignedExternalJets;
+    std::vector<const xAOD::Jet*> UnAssignedExternalJets;
     for(auto jet_external : *ExternalJetCollection){
-      m_UnAssignedExternalJets.push_back(jet_external);
+      UnAssignedExternalJets.push_back(jet_external);
     }
 
     // loop
@@ -119,9 +119,9 @@ StatusCode JetExternalAssocTool::addBranches() const{
       // get associated jet
       double mindR = 9e9;
       const xAOD::Jet* associated_jet = 0;
-      std::vector<const xAOD::Jet*>::iterator associated_iter = m_UnAssignedExternalJets.begin();  // random assignment
+      std::vector<const xAOD::Jet*>::iterator associated_iter = UnAssignedExternalJets.begin();  // random assignment
 
-      for(auto external_iter = m_UnAssignedExternalJets.begin(); external_iter != m_UnAssignedExternalJets.end(); external_iter++){
+      for(auto external_iter = UnAssignedExternalJets.begin(); external_iter != UnAssignedExternalJets.end(); external_iter++){
         auto jet_external = (*external_iter);
 
         double dR = jet->p4().DeltaR(jet_external->p4());
@@ -145,7 +145,7 @@ StatusCode JetExternalAssocTool::addBranches() const{
         }
 
         // remove associated jet from unasigned jet list
-        m_UnAssignedExternalJets.erase(associated_iter);
+        UnAssignedExternalJets.erase(associated_iter);
       }
 
       // transfer the link

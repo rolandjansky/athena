@@ -120,14 +120,14 @@ StatusCode CaloClusterCorrDBWriter::finalize()
 			      << " to DetStore.\n  Tools: " << toolnames;
   }
   else {
-    CaloRec::ToolConstants* tc = new CaloRec::ToolConstants;
+    auto tc = std::make_unique<CaloRec::ToolConstants>();
     std::string toolnames;
     for (size_t i = 0; i < m_correctionTools.size(); i++) {
       CHECK( m_correctionTools[i]->mergeConstants (*tc) );
       toolnames += m_correctionTools[i]->name() + " ";
     }
 
-    CHECK( detStore()->record (tc, m_key) );
+    CHECK( detStore()->record (std::move(tc), m_key) );
     REPORT_MESSAGE(MSG::INFO) << "Recorded constants for key " << m_key
 			      << " to DetStore.\n  Tools: " << toolnames;
   }//end else m_inline

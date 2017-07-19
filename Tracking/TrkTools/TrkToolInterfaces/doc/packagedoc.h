@@ -51,15 +51,4 @@ This package is not built as any library, it is a simple include package.
 
 @section TrkToolInterfaces_ExtrasTrkToolInterfaces Extra Pages
 
- - @ref UsedTrkToolInterfaces
- - @ref requirementsTrkToolInterfaces
 */
-
-/**
-@page UsedTrkToolInterfaces Used Packages
-*/
-
-/**
-@page requirementsTrkToolInterfaces Requirements
-*/
-

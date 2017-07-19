@@ -16,7 +16,6 @@ is used. Some inline methods of the selection tool allow the client to use some 
 selection tool.
 
 
-@section MuonAmbiTrackSelectionTool_MuonAmbiTrackSelectionToolReq Requirements
 
 
 */

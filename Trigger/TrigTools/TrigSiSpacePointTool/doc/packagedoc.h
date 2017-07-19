@@ -40,7 +40,6 @@ The interface defines the following methods
 
 Note that getSpacePoints methods are obsolete and must not be used. 
     
-@section TrigSiSpacePointTool_TrigSiSpacePointToolReq Requirements
 
 
 */

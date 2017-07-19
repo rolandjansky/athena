@@ -59,15 +59,5 @@ This package is used to provide the Transient/Persistent separation for TileCal 
 
   - TileHitVectorCnv_p1
 
-@ref used_TileTPCnv
 
-@ref requirements_TileTPCnv
-*/
-
-/**
-@page used_TileTPCnv Used Packages
-*/
-
-/**
-@page requirements_TileTPCnv Requirements
 */

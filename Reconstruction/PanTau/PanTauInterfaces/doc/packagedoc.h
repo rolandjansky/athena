@@ -19,14 +19,4 @@
  *
 @section PanTauInterfaces_@section ExtrasPanTauInterfaces Extra Pages
  *
- *      - @ref UsedPanTauInterfaces
- *      - @ref requirementsPanTauInterfaces
- *       */
-
-/**
- * @page UsedPanTauInterfaces Used Packages
- * */
-
-/**
- * @page requirementsPanTauInterfaces Requirements
- * */
+ **/

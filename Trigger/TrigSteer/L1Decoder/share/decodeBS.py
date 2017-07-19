@@ -119,7 +119,7 @@ if nThreads >= 1:
   #Retrieve input data
   from SGComps.SGCompsConf import SGInputLoader
   topSequence += SGInputLoader( OutputLevel=INFO, ShowEventDump=False )
-  topSequence.SGInputLoader.Load = [ ('ROIB::RoIBResult','RoIBResult') ]
+  topSequence.SGInputLoader.Load = [ ('ROIB::RoIBResult','StoreGateSvc+RoIBResult') ]
 
 from L1Decoder.L1DecoderMonitoring import CTPUnpackingMonitoring, RoIsUnpackingMonitoring
 from L1Decoder.L1DecoderConf import CTPUnpackingTool, EMRoIsUnpackingTool, L1Decoder, MURoIsUnpackingTool

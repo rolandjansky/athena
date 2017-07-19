@@ -60,10 +60,8 @@ The following job options are defined:
  - UseGeomSQLIte (default 'True') - use SQLite replicas for geometry if offered
  - DisableFailover (default 'False') - only allow one (primary) Oracle replica
 
-@section DBReplicaSvc_requirements requirements
 
 
-@section DBReplicaSvc_uses Packages used
 
 
 */

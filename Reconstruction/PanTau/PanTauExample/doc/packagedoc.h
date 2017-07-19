@@ -14,7 +14,6 @@ This package contains job option fragments for PanTau.
 
 Job option fragments for PanTau.
 
-@section PanTauExample_PanTauExampleReq Requirements
 
 
 */

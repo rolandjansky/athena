@@ -18,10 +18,8 @@ AtlasDetectorID also provides facilities for printing out identifiers,
 e.g. show_to_string, and maintains the version tags.
 
 
-@section AtlasDetDescr_requirements requirements
 
 
-@section AtlasDetDescr_uses Packages used
 
 
 */

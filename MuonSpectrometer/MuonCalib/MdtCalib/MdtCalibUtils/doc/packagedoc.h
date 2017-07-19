@@ -23,16 +23,5 @@ The MdtCalibUtils package contains the following classes and structures:
 - MuonCalib::TubeDataFromFile: Manage the I/O of MuonCalib::MdtTubeConstants objects
 - MuonCalib::UpdateCalibHit: Provides the operator to update drift radius and error of a given MuonCalib::MdtCalibHit using the pointer to the MuonCalib::IRtRelation passed to the constructor
                                                                                 
-@ref used_MdtCalibUtils
                                                                                 
-@ref requirements_MdtCalibUtils
 */
-                                                                                
-/**
-@page used_MdtCalibUtils Used Packages
-*/
-                                                                                
-/**
-@page requirements_MdtCalibUtils Requirements
-*/
- 
