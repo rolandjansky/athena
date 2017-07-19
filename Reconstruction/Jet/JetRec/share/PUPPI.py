@@ -1,4 +1,4 @@
-theApp.EvtMax = 100
+theApp.EvtMax = 10
 
 inputName="/eos/atlas/user/j/jstupak/data/AOD/mc15_13TeV.361021.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ1W.merge.AOD.e3569_s2576_s2132_r7725_r7676/AOD.07916735._000053.pool.root.1"
 outputName="JZ1.root"
@@ -13,7 +13,6 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 from JetRec.JetRecFlags import jetFlags
-
 from JetRec.JetRecStandard import jtm
 
 # Flag to show messges while running.
@@ -34,11 +33,6 @@ def listReplace(l,old,new):
   result.pop(i)
   result.insert(i,new)
   return result
-
-############################################################################################
-
-jtm.addJetFinder("MyAntiKt4TruthJets",  "AntiKt", 0.4,  "truth",   "truth",
-                   ghostArea=0.01 , ptmin=2000, ptminFilter=3000)
 
 ############################################################################################
 #Use a sequence and PseudoJetGetter to correct PFO and apply CHS - This reproduces standard EMPflow jets
@@ -87,12 +81,12 @@ ToolSvc += PFCHSSequence
 
 from JetRec.JetRecStandardToolManager import empfgetters,pflow_ungroomed_modifiers
 myPFCHSgetters=listReplace(empfgetters,jtm.empflowget,jtm.PFCHSGetter)
-#from JetRec.JetRecStandardToolManager import filterout
-#pflow_ungroomed_modifiers=filterout(['width'],pflow_ungroomed_modifiers)
-jtm.addJetFinder("MyPFCHSAntiKt4EMPFlowJets",  "AntiKt", 0.4,  myPFCHSgetters, pflow_ungroomed_modifiers, ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="j:pflow")
+pflow_ungroomed_modifiers.remove('calib')
+pflow_ungroomed_modifiers.remove('truthassoc')
+jtm.addJetFinder("MyPFCHSAntiKt4EMPFlowJets",  "AntiKt", 0.4,  myPFCHSgetters, pflow_ungroomed_modifiers, ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="")
 
 ############################################################################################
-#Run default PUPPI
+#Run nominal PUPPI algo (PF+PUPPI+CHS)
 
 from JetRec.JetRecConf import PseudoJetGetter
 jtm += PseudoJetGetter("PFPUPPICHSGetter",
@@ -133,9 +127,9 @@ ToolSvc += PFPUPPICHSSequence
 
 from JetRec.JetRecStandardToolManager import empfgetters,pflow_ungroomed_modifiers
 myPFPUPPICHSgetters=listReplace(empfgetters,jtm.empflowget,jtm.PFPUPPICHSGetter)
-#from JetRec.JetRecStandardToolManager import filterout
-#pflow_ungroomed_modifiers=filterout(['width'],pflow_ungroomed_modifiers)
-jtm.addJetFinder("MyPFPUPPICHSAntiKt4EMPFlowJets",  "AntiKt", 0.4,  myPFPUPPICHSgetters, pflow_ungroomed_modifiers, ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="j:pflow")
+#pflow_ungroomed_modifiers.remove('calib')
+#pflow_ungroomed_modifiers.remove('truthassoc')
+jtm.addJetFinder("MyPFPUPPICHSAntiKt4EMPFlowJets",  "AntiKt", 0.4,  myPFPUPPICHSgetters, pflow_ungroomed_modifiers, ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="")
 
 ############################################################################################
 # CorrectPFO only - For comparison only
@@ -175,9 +169,9 @@ ToolSvc += PFSequence
 
 from JetRec.JetRecStandardToolManager import empfgetters,pflow_ungroomed_modifiers
 myPFgetters=listReplace(empfgetters,jtm.empflowget,jtm.PFGetter)
-#from JetRec.JetRecStandardToolManager import filterout
-#pflow_ungroomed_modifiers=filterout(['width'],pflow_ungroomed_modifiers)
-jtm.addJetFinder("MyPFAntiKt4EMPFlowJets",  "AntiKt", 0.4,  myPFgetters, pflow_ungroomed_modifiers, ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="j:pflow")
+#pflow_ungroomed_modifiers.remove('calib')
+#pflow_ungroomed_modifiers.remove('truthassoc')
+jtm.addJetFinder("MyPFAntiKt4EMPFlowJets",  "AntiKt", 0.4,  myPFgetters, pflow_ungroomed_modifiers, ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="")
 
 ############################################################################################
 #CorrectPFO and PUPPI only - for comparison only
@@ -217,9 +211,9 @@ ToolSvc += PFPUPPISequence
 
 from JetRec.JetRecStandardToolManager import empfgetters,pflow_ungroomed_modifiers
 myPFPUPPIgetters=listReplace(empfgetters,jtm.empflowget,jtm.PFPUPPIGetter)
-#from JetRec.JetRecStandardToolManager import filterout
-#pflow_ungroomed_modifiers=filterout(['width'],pflow_ungroomed_modifiers)
-jtm.addJetFinder("MyPFPUPPIAntiKt4EMPFlowJets",  "AntiKt", 0.4,  myPFPUPPIgetters, pflow_ungroomed_modifiers, ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="j:pflow")
+#pflow_ungroomed_modifiers.remove('calib')
+#pflow_ungroomed_modifiers.remove('truthassoc')
+jtm.addJetFinder("MyPFPUPPIAntiKt4EMPFlowJets",  "AntiKt", 0.4,  myPFPUPPIgetters, pflow_ungroomed_modifiers, ghostArea=0.01 , ptmin=5000, ptminFilter=10000, calibOpt="")
 
 ############################################################################################
 
