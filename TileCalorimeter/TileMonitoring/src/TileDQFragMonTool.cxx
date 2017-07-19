@@ -719,9 +719,9 @@ void TileDQFragMonTool::fillErrHist(int ros, int drawer) {
   } else {
     int status = m_dqStatus->checkGlobalErr(ros + 1, drawer, 0);
     int err = 0;
-    if (status & (TileFagStatus::ALL_FF | TileFagStatus::ALL_00)) {
+    if (status & (TileFragStatus::ALL_FF | TileFragStatus::ALL_00)) {
       err = 12;
-    } else if (status & (TileFagStatus::NO_FRAG | TileFagStatus::NO_ROB)) {
+    } else if (status & (TileFragStatus::NO_FRAG | TileFragStatus::NO_ROB)) {
       err = 13;
     }
 
