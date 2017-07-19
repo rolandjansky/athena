@@ -17,7 +17,6 @@
 #include "JetRecTools/CorrectPFOTool.h"
 #include "JetRecTools/ChargedHadronSubtractionTool.h"
 #include "JetRecTools/PuppiWeightTool.h"
-#include "JetRecTools/PFOAnalyzer.h"
 
 DECLARE_TOOL_FACTORY(JetTrackSelectionTool)
 DECLARE_TOOL_FACTORY(SimpleJetTrackSelectionTool)
@@ -35,7 +34,6 @@ DECLARE_TOOL_FACTORY( JetInputElRemovalTool )
 DECLARE_TOOL_FACTORY( CorrectPFOTool )
 DECLARE_TOOL_FACTORY( ChargedHadronSubtractionTool )
 DECLARE_TOOL_FACTORY( PuppiWeightTool )
-DECLARE_TOOL_FACTORY( PFOAnalyzer )
 
 DECLARE_FACTORY_ENTRIES(JetRecTools) {
   DECLARE_TOOL(JetTrackSelectionTool)
@@ -54,6 +52,5 @@ DECLARE_FACTORY_ENTRIES(JetRecTools) {
   DECLARE_TOOL( CorrectPFOTool )
   DECLARE_TOOL( ChargedHadronSubtractionTool )
   DECLARE_TOOL( PuppiWeightTool )
-  DECLARE_TOOL( PFOAnalyzer )
 
 }
