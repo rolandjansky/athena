@@ -12,6 +12,7 @@
 using namespace std;
 
 //------------------------------------------------------------------------------
+
 PuppiWeightTool::PuppiWeightTool(const std::string& name) : JetConstituentModifierBase(name) {
 #ifdef ASG_TOOL_ATHENA
   declareInterface<IJetConstituentModifier>(this);
@@ -82,6 +83,7 @@ StatusCode PuppiWeightTool::process(xAOD::PFOContainer* cont) const{
     }
   }
 
+  //Count the number of primary vertices
   const xAOD::VertexContainer* pvtxs = 0;
   ATH_CHECK(evtStore()->retrieve(pvtxs, "PrimaryVertices"));
   if ( pvtxs == 0 || pvtxs->size()==0 ) {
