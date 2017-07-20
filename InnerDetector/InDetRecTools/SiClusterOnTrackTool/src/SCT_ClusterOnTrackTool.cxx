@@ -17,6 +17,8 @@
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "TrkSurfaces/AnnulusBounds.h"
+#include "InDetReadoutGeometry/StripStereoAnnulusDesign.h"
+#include "InDetReadoutGeometry/SiCellId.h"
 
 using CLHEP::micrometer;
 using CLHEP::deg;
@@ -75,23 +77,23 @@ StatusCode InDet::SCT_ClusterOnTrackTool::initialize()
     case  2:  msg(MSG::INFO)<< "assign tuned, angle-dependent SCT errors"; break;
     default:  msg(MSG::INFO)<< " -- NO, UNKNOWN. Pls check jobOptions!"; break;
   }
-  msg(MSG::INFO)<< " will be applied during SCT_ClusterOnTrack making" << endmsg;
+  msg(MSG::INFO)<< " will be applied during SCT_ClusterOnTrack making" << endreq;
   if (m_option_correctionStrategy == 0) {
-    msg(MSG::INFO) << "SCT cluster positions will be corrected" << endmsg;
+    msg(MSG::INFO) << "SCT cluster positions will be corrected" << endreq;
   }
 
   if ( m_errorScalingTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_errorScalingTool << endmsg;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_errorScalingTool << endreq;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_errorScalingTool << endmsg;
+    msg(MSG::INFO) << "Retrieved tool " << m_errorScalingTool << endreq;
     m_scaleSctCov   = m_errorScalingTool->needToScaleSct();
-    if (m_scaleSctCov) msg(MSG::DEBUG) << "Detected need for scaling SCT errors." << endmsg;
+    if (m_scaleSctCov) msg(MSG::DEBUG) << "Detected need for scaling SCT errors." << endreq;
   }
 
   //Get ISCT_ModuleDistortionsTool
   if (m_distortionsTool.retrieve().isFailure()) {
-    msg(MSG::FATAL)<< "Could not retrieve distortions tool: " << m_distortionsTool.name() << endmsg;
+    msg(MSG::FATAL)<< "Could not retrieve distortions tool: " << m_distortionsTool.name() << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -114,16 +116,9 @@ StatusCode InDet::SCT_ClusterOnTrackTool::finalize()
 const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correct
 (const Trk::PrepRawData& rio,const Trk::TrackParameters& trackPar) const
 {
+
   const InDet::SCT_Cluster* SC = 0;
   if(!(SC = dynamic_cast<const InDet::SCT_Cluster*> (&rio))) return 0;
-
-  const Trk::TrapezoidBounds *tbounds=dynamic_cast<const Trk::TrapezoidBounds *>(&trackPar.associatedSurface().bounds());
-  const Trk::RectangleBounds *rbounds=dynamic_cast<const Trk::RectangleBounds *>(&trackPar.associatedSurface().bounds());
-
-  if(!tbounds && !rbounds) {
-    const Trk::AnnulusBounds *abounds=dynamic_cast<const Trk::AnnulusBounds *> (&trackPar.associatedSurface().bounds());
-    if(abounds) return correctAnnulus(SC,trackPar); return 0;
-  }
 
   const InDet::SiWidth width = SC->width();
   const Amg::Vector2D& colRow = width.colRow();
@@ -132,7 +127,14 @@ const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correct
   //
   const InDetDD::SiDetectorElement* EL = SC->detectorElement(); 
   if(!EL) return 0;
+ 
   IdentifierHash                    iH = EL->identifyHash();
+
+  const Trk::RectangleBounds *rbounds = dynamic_cast<const Trk::RectangleBounds *>(&trackPar.associatedSurface().bounds()); //Try rectangle (=barrel) first
+  const Trk::TrapezoidBounds *tbounds = dynamic_cast<const Trk::TrapezoidBounds *>(&trackPar.associatedSurface().bounds());//next try trapezoid (=SCT endcap)
+  const Trk::AnnulusBounds *abounds=dynamic_cast<const Trk::AnnulusBounds *> (&trackPar.associatedSurface().bounds());//finally annulus (=ITK endcap) 
+ 
+  if(!abounds && !tbounds && !rbounds) {ATH_MSG_ERROR("Cannot retrieve compatible surface bounds!");return 0;}
 
   // Get local position of track
   //
@@ -152,11 +154,29 @@ const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correct
   Amg::Vector3D localstripdir(-sinAlpha,cosAlpha,0.);
   Amg::Vector3D globalstripdir=trackPar.associatedSurface().transform().linear()*localstripdir;
   double distance=(trackPar.position()-SC->globalPosition()).mag();
-  
-  double boundsy=rbounds ? rbounds->halflengthY(): tbounds->halflengthY();
-  if (distance*cosAlpha> boundsy  ){
+
+  double boundsy = -1;
+  double striphalflength = -1;
+  if (rbounds) boundsy = rbounds->halflengthY();
+  else if (tbounds) boundsy = tbounds->halflengthY();
+  else if (abounds) {//for annuli do something different, since we already have in-sensor stereo rotations which strip length accounts for
+    InDetDD::SiCellId lp = EL->cellIdOfPosition(SC->localPosition());
+    const InDetDD::StripStereoAnnulusDesign * design = dynamic_cast<const InDetDD::StripStereoAnnulusDesign *> (&EL->design());
+    if(design){
+      striphalflength = design->stripLength(lp) / 2.0;
+      if (distance > striphalflength) distance = striphalflength - 1; // subtract 1 to be consistent with below; no sure why this has to be so large...
+    }
+    else {ATH_MSG_ERROR("Cannot retrieve sensor design! Strip bounds may be incorrect!");}
+  }
+  else {
+    ATH_MSG_ERROR("Undefined bounds! Strip position may be off-sensor!"); 
+    boundsy = 1000.0;//if bounds can't be found, just give large tolerance...
+  }
+
+  if (boundsy>0 && distance*cosAlpha> boundsy){
     distance=boundsy/cosAlpha-1;
   }
+
   // SCT_ClusterOnTrack production
   //
   Trk::LocalParameters locpar;
@@ -194,7 +214,7 @@ const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correct
         break;
       }
     // rotation for endcap SCT
-    if(EL->design().shape() == InDetDD::Trapezoid) {
+    if(EL->design().shape() == InDetDD::Trapezoid || EL->design().shape() == InDetDD::Annulus){
           double sn      = EL->sinStereoLocal(SC->localPosition ()); 
           double sn2     = sn*sn;
           double cs2     = 1.-sn2;
@@ -210,7 +230,7 @@ const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correct
   }
 
   Amg::MatrixX  cov(oldcov);
-  if(EL->design().shape()!=InDetDD::Trapezoid) {                     // barrel
+  if(EL->design().shape()!=InDetDD::Trapezoid && EL->design().shape()!=InDetDD::Annulus) {                     // barrel
 
     Trk::DefinedParameter lpos1dim(SC->localPosition().x(),Trk::locX);
     locpar = (m_option_make2dimBarrelClusters)       ?
@@ -354,6 +374,7 @@ double InDet::SCT_ClusterOnTrackTool::getError(double phi, int nstrip) const {
 const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correctAnnulus
     (const InDet::SCT_Cluster* SC, const Trk::TrackParameters&) const
 {
+
   if(!SC) return 0;
   const InDetDD::SiDetectorElement* EL = SC->detectorElement(); if(!EL) return 0;
   IdentifierHash                    iH = EL->identifyHash();

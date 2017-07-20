@@ -27,12 +27,10 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-#include "CoralBase/AttributeListSpecification.h"
-#include "CoralBase/Attribute.h"
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
 using CLHEP::mm;
 using CLHEP::micrometer;
+
+
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -59,9 +57,7 @@ namespace
   }
   
   //avoid a lot of '/sqrt(12)' in loops, declare the constant here
-  // constexpr sqrt is a gcc extension, unsupported by clang.
-  //constexpr double TOPHAT_SIGMA=1./sqrt(12.);
-  static const double TOPHAT_SIGMA=1./sqrt(12.);
+  const double TOPHAT_SIGMA=1./sqrt(12.);
 }
 
 
@@ -71,13 +67,9 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   m_pixDistoTool("PixelDistortionsTool"),
   m_errorScalingTool("Trk::RIO_OnTrackErrorScalingTool/RIO_OnTrackErrorScalingTool"),
   m_calibSvc("PixelOfflineCalibSvc",n),
-  m_detStore(nullptr),
-  m_scalePixelCov{},
   m_disableDistortions(false),
   m_rel13like(false),
-  m_pixelid(nullptr),
   m_applyNNcorrection(false),
-  m_applydRcorrection(false),
   m_NNIBLcorrection(false),
   m_IBLAbsent(true),
   m_NnClusterizationFactory("InDet::NnClusterizationFactory/NnClusterizationFactory"),
@@ -86,8 +78,6 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   m_IBLParameterSvc("IBLParameterSvc",n), 
   m_splitClusterMap(0),
   m_splitClusterMapName("SplitClusterAmbiguityMap"),
-  m_dRMap(0),
-  m_dRMapName("dRMap"),
   m_doNotRecalibrateNN(false),
   m_noNNandBroadErrors(false),
   m_usingTIDE_Ambi(false),
@@ -108,13 +98,11 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   declareProperty("Release13like",            m_rel13like, "Activate release-13 like settigs");
   declareProperty("PixelOfflineCalibSvc",     m_calibSvc, "Offline calibration svc");
   declareProperty("applyNNcorrection",        m_applyNNcorrection);
-  declareProperty("applydRcorrection",        m_applydRcorrection);
-  declareProperty("NNIBLcorrection",        m_NNIBLcorrection);
-  declareProperty("EventStore",              m_storeGate );
-  declareProperty("IncidentService",         m_incidentSvc );
-  declareProperty("NnClusterizationFactory", m_NnClusterizationFactory);
+  declareProperty("NNIBLcorrection",          m_NNIBLcorrection);
+  declareProperty("EventStore",               m_storeGate );
+  declareProperty("IncidentService",          m_incidentSvc );
+  declareProperty("NnClusterizationFactory",  m_NnClusterizationFactory);
   declareProperty("SplitClusterAmbiguityMap", m_splitClusterMapName);
-  declareProperty("dRMapName",                m_dRMapName);
   declareProperty("doNotRecalibrateNN",       m_doNotRecalibrateNN);
   declareProperty("m_noNNandBroadErrors",     m_noNNandBroadErrors);
   declareProperty("RunningTIDE_Ambi",         m_usingTIDE_Ambi);
@@ -161,7 +149,7 @@ StatusCode InDet::PixelClusterOnTrackTool::initialize()
 
    // get the error scaling tool
   if ( m_errorScalingTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_errorScalingTool << endmsg;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_errorScalingTool << endreq;
     return StatusCode::FAILURE;
   } else {
     ATH_MSG_INFO( "Retrieved tool " << m_errorScalingTool);
@@ -171,7 +159,7 @@ StatusCode InDet::PixelClusterOnTrackTool::initialize()
  
   // the NN corrections
   if ( m_applyNNcorrection && m_NnClusterizationFactory.retrieve().isFailure()){
-      msg(MSG::ERROR) << "Can't get " << m_NnClusterizationFactory << endmsg;
+      msg(MSG::ERROR) << "Can't get " << m_NnClusterizationFactory << endreq;
       return StatusCode::FAILURE;
   } else if (m_applyNNcorrection)
       ATH_MSG_INFO( "Retrieved " <<  m_NnClusterizationFactory << " for NN corrections." );
@@ -182,7 +170,7 @@ StatusCode InDet::PixelClusterOnTrackTool::initialize()
     if  (!m_pixDistoTool.empty()) {
       sc = m_pixDistoTool.retrieve();
       if ( sc != StatusCode::SUCCESS ) {
-        msg(MSG::ERROR) << "Can't get pixel distortions tool " << endmsg;
+        msg(MSG::ERROR) << "Can't get pixel distortions tool " << endreq;
       } else {
         ATH_MSG_INFO( "Pixel distortions tool retrieved" );
       }
@@ -197,22 +185,17 @@ StatusCode InDet::PixelClusterOnTrackTool::initialize()
     ATH_MSG_FATAL ("Could not get Pixel ID helper");
     return StatusCode::FAILURE;
   }
-  
-  sc = service("DetectorStore", m_detStore);
-  if ( !sc.isSuccess() || 0 == m_detStore) return msg(MSG:: ERROR) << "Could not find DetStore" << endmsg, StatusCode::FAILURE;
+
   if (m_storeGate.retrieve().isFailure()){
     ATH_MSG_WARNING("Can not retrieve " << m_storeGate << ". Exiting.");
     return StatusCode::FAILURE;
   }
-  
+
   if (m_incidentSvc.retrieve().isFailure()){
     ATH_MSG_WARNING("Can not retrieve " << m_incidentSvc << ". Exiting.");
     return StatusCode::FAILURE;
   }
 
-  if (m_applydRcorrection){
-    m_incidentSvc->addListener( this, IncidentType::BeginEvent);
-  }
   // register to the incident service: EndEvent needed for memory cleanup
   m_incidentSvc->addListener( this, "EndEvent");
 
@@ -231,70 +214,6 @@ StatusCode InDet::PixelClusterOnTrackTool::initialize()
 
  
 void InDet::PixelClusterOnTrackTool::handle(const Incident& inc){
-
-  if ( inc.type() == IncidentType::BeginEvent ){
-      if(m_fX.size()==0){
-          const CondAttrListCollection* atrlistcol=0;
-          if (StatusCode::SUCCESS==m_detStore->retrieve(atrlistcol,"/PIXEL/PixelClustering/PixelCovCorr")) {
-              // loop over objects in collection
-              for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {
-                  std::vector<float> fx, fy, fb, fc, fd;
-                  const coral::AttributeList& atrlist=citr->second;
-                  
-                  fx.push_back(atrlist["fX1"].data<float>());
-                  fx.push_back(atrlist["fX2"].data<float>());
-                  fx.push_back(atrlist["fX3"].data<float>());
-                  fx.push_back(atrlist["fX4"].data<float>());
-                  fx.push_back(atrlist["fX5"].data<float>());
-                  fx.push_back(atrlist["fX6"].data<float>());
-                  fx.push_back(atrlist["fX7"].data<float>());
-                  m_fX.push_back(fx);
-                  
-                  fy.push_back(atrlist["fY1"].data<float>());
-                  fy.push_back(atrlist["fY2"].data<float>());
-                  fy.push_back(atrlist["fY3"].data<float>());
-                  fy.push_back(atrlist["fY4"].data<float>());
-                  fy.push_back(atrlist["fY5"].data<float>());
-                  fy.push_back(atrlist["fY6"].data<float>());
-                  fy.push_back(atrlist["fY7"].data<float>());
-                  m_fY.push_back(fy);
-                  
-                  fb.push_back(atrlist["fB1"].data<float>());
-                  fb.push_back(atrlist["fB2"].data<float>());
-                  fb.push_back(atrlist["fB3"].data<float>());
-                  fb.push_back(atrlist["fB4"].data<float>());
-                  fb.push_back(atrlist["fB5"].data<float>());
-                  fb.push_back(atrlist["fB6"].data<float>());
-                  fb.push_back(atrlist["fB7"].data<float>());
-                  m_fB.push_back(fb);
-                  
-                  fc.push_back(atrlist["fC1"].data<float>());
-                  fc.push_back(atrlist["fC2"].data<float>());
-                  fc.push_back(atrlist["fC3"].data<float>());
-                  fc.push_back(atrlist["fC4"].data<float>());
-                  fc.push_back(atrlist["fC5"].data<float>());
-                  fc.push_back(atrlist["fC6"].data<float>());
-                  fc.push_back(atrlist["fC7"].data<float>());
-                  m_fC.push_back(fc);
-                  
-                  fd.push_back(atrlist["fD1"].data<float>());
-                  fd.push_back(atrlist["fD2"].data<float>());
-                  fd.push_back(atrlist["fD3"].data<float>());
-                  fd.push_back(atrlist["fD4"].data<float>());
-                  fd.push_back(atrlist["fD5"].data<float>());
-                  fd.push_back(atrlist["fD6"].data<float>());
-                  fd.push_back(atrlist["fD7"].data<float>());
-                  m_fD.push_back(fd);
-              }
-          }
-          else {
-                  msg(MSG::ERROR) << "Cannot find covariance corrections for key "
-                  << "/PIXEL/PixelClustering/PixelCovCorr" << " - no correction " << endmsg;
-              return;                                   
-          }
-      }
-  }
-  
   if ( inc.type() == "EndEvent" ){
     ATH_MSG_VERBOSE("'EndEvent' incident caught. Refreshing Cache.");
     m_splitClusterMap = 0;
@@ -323,7 +242,6 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correct
 
   // check if cluster splitting actually could be done you could : switching off will only happen once
   bool clusterMapExists = m_applyNNcorrection ? m_storeGate->contains<InDet::PixelGangedClusterAmbiguities>(m_splitClusterMapName) : false;
-
   if (!clusterMapExists && m_applyNNcorrection){
       ATH_MSG_INFO("No PixelCluster splitting information available, switchng NN recalibration off (was: on).");
       ATH_MSG_INFO(" -> This is expected if you read ESD data prior to release 17.0.2.8");
@@ -404,7 +322,7 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
   
     const InDetDD::PixelModuleDesign* design = 
            dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
-    if (not design) return nullptr;
+
     // get candidate track angle in module local frame
     Amg::Vector3D my_track = trackPar.momentum();
     Amg::Vector3D my_normal = element->normal();
@@ -957,14 +875,12 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctNN
     if( m_scalePixelCov ){
       Amg::MatrixX* newCov = m_errorScalingTool->createScaledPixelCovariance(cov,element->identify());
       if( !newCov ) {
-	ATH_MSG_WARNING("Failed to create scaled error for Pixel");
-	return 0;
+    ATH_MSG_WARNING("Failed to create scaled error for Pixel");
+    return 0;
       }
       cov = *newCov;
-
       delete newCov;
     }
-
     return new InDet::PixelClusterOnTrack(pixelPrepCluster,locpar,cov,iH,glob,pixelPrepCluster->gangedPixel(),false);
   }
 
@@ -975,14 +891,7 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctNN
       return 0;
     } 
   }
-  
-  if (!m_dRMap &&  m_storeGate->contains<InDet::DRMap >(m_dRMapName) && m_applydRcorrection) {
-    StatusCode sc = m_storeGate->retrieve(m_dRMap, m_dRMapName);
-    if (sc.isFailure()) {
-      ATH_MSG_DEBUG("Could not retrieve dR map.");
-    }
-  }
- 
+
   Amg::Vector2D finalposition;
   Amg::MatrixX finalerrormatrix;
   
@@ -1002,12 +911,14 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctNN
     msg(MSG::DEBUG) << " Old position x: " << pixelPrepCluster->localPosition()[0] << 
         " +/- " << sqrt(pixelPrepCluster->localCovariance()(0,0)) 
                     << " y: " << pixelPrepCluster->localPosition()[1] << 
-        " +/- " << sqrt(pixelPrepCluster->localCovariance()(1,1)) << endmsg;
+        " +/- " << sqrt(pixelPrepCluster->localCovariance()(1,1)) << endreq;
     msg(MSG::DEBUG) << " Final position x: " << finalposition[0] << 
         " +/- " << sqrt(finalerrormatrix(0,0)) << 
         " y: " << finalposition[1] << " +/- " << 
-        sqrt(finalerrormatrix(1,1)) << endmsg;
+        sqrt(finalerrormatrix(1,1)) << endreq;
   }
+  
+
 
   Amg::Vector3D my_track = trackPar.momentum();
   Amg::Vector3D my_normal = element->normal();
@@ -1050,11 +961,14 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctNN
 
 }
 
+
+
 bool InDet::PixelClusterOnTrackTool::getErrorsDefaultAmbi( const InDet::PixelCluster* pixelPrepCluster, const Trk::TrackParameters& trackPar, 
                            Amg::Vector2D& finalposition,  Amg::MatrixX&  finalerrormatrix ) const
 {
 
   std::vector<Amg::Vector2D> vectorOfPositions;
+  
   int numberOfSubclusters=1;
   vectorOfPositions.push_back(pixelPrepCluster->localPosition());
   
@@ -1082,8 +996,8 @@ bool InDet::PixelClusterOnTrackTool::getErrorsDefaultAmbi( const InDet::PixelClu
       
       if(msgLvl(MSG::DEBUG))
       {
-        msg(MSG::DEBUG) << "Found one more pixel cluster. Position x: " 
-                        << pixelAddCluster->localPosition()[0] << "y: " << pixelAddCluster->localPosition()[1] << endmsg;
+        msg(MSG::DEBUG) << "Found one more pixel cluster. Posistion x: " 
+                        << pixelAddCluster->localPosition()[0] << "y: " << pixelAddCluster->localPosition()[1] << endreq;
       }
     }//find relevant element of map
   }//iterate over map
@@ -1092,7 +1006,7 @@ bool InDet::PixelClusterOnTrackTool::getErrorsDefaultAmbi( const InDet::PixelClu
   //
   //if (pixelPrepCluster->isSplit() && numberOfSubclusters<2)
   //{
-  //msg(MSG::WARNING) << " Cluster is split but no further clusters found in split cluster map." << endmsg;
+  //msg(MSG::WARNING) << " Cluster is split but no further clusters found in split cluster map." << endreq;
   //}
   
   //now you have numberOfSubclusters and the vectorOfPositions (Amg::Vector2D)
@@ -1100,7 +1014,7 @@ bool InDet::PixelClusterOnTrackTool::getErrorsDefaultAmbi( const InDet::PixelClu
   const Trk::AtaPlane* parameters=dynamic_cast<const Trk::AtaPlane*>(&trackPar);
   if (parameters==0)
   {
-    msg(MSG::WARNING) << "Parameters are not at a plane ! Aborting cluster correction... " << endmsg;
+    msg(MSG::WARNING) << "Parameters are not at a plane ! Aborting cluster correction... " << endreq;
     return false;
   }
 
@@ -1118,24 +1032,24 @@ bool InDet::PixelClusterOnTrackTool::getErrorsDefaultAmbi( const InDet::PixelClu
   {
     if(msgLvl(MSG::DEBUG))
     {
-      msg(MSG::DEBUG) << " Cluster cannot be treated by NN. Giving back to default clusterization " << endmsg;
+      msg(MSG::DEBUG) << " Cluster cannot be treated by NN. Giving back to default clusterization " << endreq;
     }
     return false;
   }
 
   if (allLocalPositions.size() != size_t(numberOfSubclusters))
   {
-    msg(MSG::WARNING) << "Returned position vector size " << allLocalPositions.size() << " not according to expected number of subclusters: " << numberOfSubclusters << ". Abort cluster correction..." << endmsg;
+    msg(MSG::WARNING) << "Returned position vector size " << allLocalPositions.size() << " not according to expected number of subclusters: " << numberOfSubclusters << ". Abort cluster correction..." << endreq;
     return false;
   }
   
+
 
   // GP: now the not so nice part of matching the new result with the old one...
   // Takes the error into account to improve the matching
 
   if (numberOfSubclusters==1)
   {
-
     finalposition=allLocalPositions[0];
     finalerrormatrix=allErrorMatrix[0];
   }
@@ -1156,24 +1070,22 @@ bool InDet::PixelClusterOnTrackTool::getErrorsDefaultAmbi( const InDet::PixelClu
 
     if(msgLvl(MSG::DEBUG))
     {
-      msg(MSG::DEBUG) << " Old pix (1) x: " << vectorOfPositions[0][0] << " y: " << vectorOfPositions[0][1] << endmsg;
-      msg(MSG::DEBUG) << " Old pix (2) x: " << vectorOfPositions[1][0] << " y: " << vectorOfPositions[1][1] << endmsg;
+      msg(MSG::DEBUG) << " Old pix (1) x: " << vectorOfPositions[0][0] << " y: " << vectorOfPositions[0][1] << endreq;
+      msg(MSG::DEBUG) << " Old pix (2) x: " << vectorOfPositions[1][0] << " y: " << vectorOfPositions[1][1] << endreq;
       msg(MSG::DEBUG) << " Pix (1) x: " << allLocalPositions[0][0] << " +/- " << sqrt(allErrorMatrix[0](0,0)) 
-                      << " y: " << allLocalPositions[0][1] << " +/- " << sqrt(allErrorMatrix[0](1,1)) << endmsg;
+                      << " y: " << allLocalPositions[0][1] << " +/- " << sqrt(allErrorMatrix[0](1,1)) << endreq;
       msg(MSG::DEBUG) << " Pix (2) x: " << allLocalPositions[1][0] << " +/- " << sqrt(allErrorMatrix[1](0,0)) 
-                      << " y: " << allLocalPositions[1][1] << " +/- " << sqrt(allErrorMatrix[1](1,1)) << endmsg;
-      msg(MSG::DEBUG) << " Old (1) new (1) dist: " << sqrt(distancesq1) << " Old (1) new (2) " << sqrt(distancesq2) << endmsg;
+                      << " y: " << allLocalPositions[1][1] << " +/- " << sqrt(allErrorMatrix[1](1,1)) << endreq;
+      msg(MSG::DEBUG) << " Old (1) new (1) dist: " << sqrt(distancesq1) << " Old (1) new (2) " << sqrt(distancesq2) << endreq;
     }
     
     if (distancesq1<distancesq2)
     {
-
       finalposition=allLocalPositions[0];
       finalerrormatrix=allErrorMatrix[0];
     }
     else
     {
-
       finalposition=allLocalPositions[1];
       finalerrormatrix=allErrorMatrix[1];
     }
@@ -1209,19 +1121,16 @@ bool InDet::PixelClusterOnTrackTool::getErrorsDefaultAmbi( const InDet::PixelClu
       
     if (smallestDistanceIndex==0 ||  smallestDistanceIndex==1)
     {
-
       finalposition=allLocalPositions[0];
       finalerrormatrix=allErrorMatrix[0];
     }
     if (smallestDistanceIndex==2 ||  smallestDistanceIndex==4)
     {
-
       finalposition=allLocalPositions[1];
       finalerrormatrix=allErrorMatrix[1];
     }
     if (smallestDistanceIndex==3 || smallestDistanceIndex==5)
     {
-
       finalposition=allLocalPositions[2];
       finalerrormatrix=allErrorMatrix[2];
     }
@@ -1229,10 +1138,10 @@ bool InDet::PixelClusterOnTrackTool::getErrorsDefaultAmbi( const InDet::PixelClu
   return true;
 }
 
-bool InDet::PixelClusterOnTrackTool::getErrorsTIDE_Ambi( const InDet::PixelCluster* pixelPrepCluster, 
-							 const Trk::TrackParameters& trackPar,  
-							 Amg::Vector2D& finalposition,  
-							 Amg::MatrixX&  finalerrormatrix ) const
+
+
+bool InDet::PixelClusterOnTrackTool::getErrorsTIDE_Ambi( const InDet::PixelCluster* pixelPrepCluster, const Trk::TrackParameters& trackPar,  
+                        Amg::Vector2D& finalposition,  Amg::MatrixX&  finalerrormatrix ) const
 {
 
 
@@ -1254,7 +1163,7 @@ bool InDet::PixelClusterOnTrackTool::getErrorsTIDE_Ambi( const InDet::PixelClust
     ATH_MSG_WARNING( "Parameters are not at a plane ! Aborting cluster correction... " );
     return false;
   }
-  
+
   std::vector<Amg::Vector2D>     allLocalPositions;
   std::vector<Amg::MatrixX>      allErrorMatrix;
 
@@ -1277,81 +1186,18 @@ bool InDet::PixelClusterOnTrackTool::getErrorsTIDE_Ambi( const InDet::PixelClust
     return false;
   }
   
-  bool correctdR = false;
-  std::vector<float>      correctiondR(3,0.);
-  if(m_applydRcorrection && m_dRMap && m_dRMap->size()>0 && pixelPrepCluster->isSplit() ){
-    const InDetDD::SiDetectorElement* det = pixelPrepCluster->detectorElement(); 
 
-    if (det->isBarrel()){
-        int pixelLayer = m_pixelid->layer_disk(det->identify());
 
-        float correctiondRX = 1.0; // correction factor to be applied to covariance(!)
-        float correctiondRZ = 1.0; // correction factor to be applied to covariance(!)
-        
-        const InDetDD::PixelModuleDesign* design (dynamic_cast<const InDetDD::PixelModuleDesign*>(&det->design()));
-        if (not design) return false;
-        float pitchX = design->phiPitch();
-        float pitchZ = design->etaPitch();
-
-        ATH_MSG_DEBUG("PixelClusterOnTrackTool: Trying to apply dR correction for pixelLayer " << pixelLayer);
-
-        InDet::DRMap::const_iterator it = m_dRMap->find(pixelPrepCluster);
-        if(it!=m_dRMap->end()){
-            correctdR = true;
-            float mindX = it->second.first;
-            float mindZ = it->second.second;
-            float mindXOverPitch = mindX / pitchX;
-            float mindZOverPitch = mindZ / pitchZ;
-        
-            float dR = sqrt(mindX*mindX + mindZ*mindZ);
-            
-            ATH_MSG_DEBUG( " ---- Min dX ---- " << mindX << " mindZ " << mindZ);
-            
-            if(dR > 0. && dR < 2.0) {
-                correctiondRX = splineIBLPullX(mindXOverPitch, pixelLayer);
-                correctiondRZ = splineIBLPullX(mindZOverPitch, pixelLayer);
-                
-                if(correctiondRX > 3.75) correctiondRX = 3.75;
-                if(correctiondRZ > 3.75) correctiondRZ = 3.75;
-            }
-            else{
-                correctiondRX = 2.35;
-                correctiondRZ = 1.70;
-            }
-        
-            ATH_MSG_DEBUG("PixelClusterOnTrackTool: Correction factor calculation for distX/pitch= " << mindXOverPitch << " -> " << correctiondRX <<  " distZ/pitch= " << mindZOverPitch << " -> " << correctiondRZ);
-        }
-        else{
-            ATH_MSG_WARNING("Split Pixel cluster not found in dRmap! " << pixelPrepCluster);
-        }
-    
-        ATH_MSG_DEBUG( " ++++ Hit Error ++++ Layer " << pixelLayer << " Correction Flag " << m_applydRcorrection << " Split " <<pixelPrepCluster->isSplit() << " Scaling " << correctiondRX << " " << correctiondRZ);
-    
-        correctiondRX *= correctiondRX;
-        correctiondRZ *= correctiondRZ;
-        
-        correctiondR[0] = correctiondRX*correctiondRX;
-        correctiondR[1] = correctiondRZ*correctiondRZ;
-        correctiondR[2] = correctiondRX*correctiondRZ;
-    }
-  }
   // AKM: now the not so nice part find the best match position option
   // Takes the error into account to scale the importance of the measurement
 
-  if (numberOfSubclusters==1){
+  if (numberOfSubclusters==1)
+  {
     finalposition=allLocalPositions[0];
-
-    if(correctdR){
-      allErrorMatrix[0](0,0) *= correctiondR[0];
-      allErrorMatrix[0](1,1) *= correctiondR[1];
-      allErrorMatrix[0](0,1) *= correctiondR[2];
-      allErrorMatrix[0](1,0) *= correctiondR[2];
-      ATH_MSG_DEBUG( " ++++ Hit Error ++++ " <<  numberOfSubclusters << " Split " << pixelPrepCluster->isSplit() << " Scaling " << sqrt(correctiondR[0]) << " " << sqrt(correctiondR[1]) << " Rescaled ErrX " << sqrt(allErrorMatrix[0](0,0)) << " Rescaled ErrZ " << sqrt(allErrorMatrix[0](1,1))); 
-    }
-
-    finalerrormatrix=allErrorMatrix[0]; 
+    finalerrormatrix=allErrorMatrix[0];
     return true;
   }
+
 
   //Get the track parameters local position
   const Amg::Vector2D localpos =  trackPar.localPosition();
@@ -1360,6 +1206,7 @@ bool InDet::PixelClusterOnTrackTool::getErrorsTIDE_Ambi( const InDet::PixelClust
   if( trackPar.covariance() ){
     localerr = Amg::Vector2D( sqrt( (*trackPar.covariance())(0,0) ), sqrt( (*trackPar.covariance())(1,1) ) );
   } 
+
 
   double minDistance(1e300);
   int index(0);
@@ -1377,47 +1224,10 @@ bool InDet::PixelClusterOnTrackTool::getErrorsTIDE_Ambi( const InDet::PixelClust
   }
 
   finalposition=allLocalPositions[index];
-
-  if(correctdR){
-    allErrorMatrix[index](0,0) *= correctiondR[0];
-    allErrorMatrix[index](1,1) *= correctiondR[1];
-    allErrorMatrix[index](0,1) *= correctiondR[2];
-    allErrorMatrix[index](1,0) *= correctiondR[2];
-     ATH_MSG_DEBUG( " ++++ Hit Error ++++ " <<  numberOfSubclusters << " Split " << pixelPrepCluster->isSplit() << " Scaling " << sqrt(correctiondR[0]) << " " << sqrt(correctiondR[1]) << " Rescaled ErrX " << sqrt(allErrorMatrix[index](0,0)) << " Rescaled ErrZ " << sqrt(allErrorMatrix[index](1,1))); 
-  }
-
   finalerrormatrix=allErrorMatrix[index];
+ 
   return true;
 
-}
-
-double InDet::PixelClusterOnTrackTool::splineIBLPullX(float x, int layer) const {
-
-   const int fNp = m_fY[layer].size();
-   const int fKstep = 0;
-   const double fDelta = -1;
-   const double fXmin = *std::min_element( std::begin(m_fX[layer]), std::end(m_fX[layer]) );
-   const double fXmax = *std::max_element( std::begin(m_fX[layer]), std::end(m_fX[layer]) );
-
-   int klow=0;
-   if(x<=fXmin) klow=0;
-   else if(x>=fXmax) klow=fNp-1;
-   else {
-     if(fKstep) {
-       // Equidistant knots, use histogramming
-       klow = int((x-fXmin)/fDelta);
-       if (klow < fNp-1) klow = fNp-1;
-     } else {
-       int khig=fNp-1, khalf;
-       // Non equidistant knots, binary search
-       while(khig-klow>1)
-         if(x>m_fX[layer][khalf=(klow+khig)/2]) klow=khalf;
-         else khig=khalf;
-     }
-   }
-   // Evaluate now
-   double dx=x-m_fX[layer][klow];
-   return (m_fY[layer][klow]+dx*(m_fB[layer][klow]+dx*(m_fC[layer][klow]+dx*m_fD[layer][klow])));
 }
 
 void InDet::PixelClusterOnTrackTool::twoDimToThreeDim(Trk::LocalParameters& lpar, Amg::MatrixX& cov, const InDet::PixelCluster& pix) const 
