@@ -144,7 +144,7 @@ def defineMenu():
         'LUCID_A', 'LUCID_C',
         #'LUCID_Coinc_AC', # FTHR
         #'LUCID_COMM',
-        'LUCID_05', 'LUCID_06', # FHTR
+        #'LUCID_05', 'LUCID_06', # FHTR
 
         # 3 x ZDC
         'ZDC_A', 'ZDC_C',
@@ -562,9 +562,7 @@ def defineMenu():
         'L1_LUCID_A_C_EMPTY', 'L1_LUCID_A_C_UNPAIRED_ISO', 'L1_LUCID_A_C_UNPAIRED_NONISO',
         #'L1_LUCID_COMM_EMPTY', 'L1_LUCID_COMM_UNPAIRED_ISO', 
 
-        'L1_LUCID_Bi','L1_LUCID_Bi_UNPAIRED_ISO',
-        'L1_LUCID_BGRP9','L1_LUCID_Bi_BGRP9',
-        'L1_LUCID_BGRP11','L1_LUCID_Bi_BGRP11',
+        'L1_LUCID_BGRP9','L1_LUCID_BGRP11',
         
 
         # ZDC
@@ -914,7 +912,7 @@ def defineMenu():
     
 
 #CTP IDs are taken from this mapping. Every L1 item needs a unique ctpid.
-#Free CTP IDs (2017-07-17) are: 477-479, 481, 486, 487, 488
+#Free CTP IDs (2017-07-20) are: 473-479, 481, 486, 487, 488
 # 463-464 are reserved for L1_RD2_BGRP14 and L1_RD3_BGRP15 (in MC_Physics_pp_v7)
 # 509-511 are reserved for CALREQ
 
@@ -1553,12 +1551,8 @@ def defineMenu():
         'L1_ZDC_A_C':422, 
         'L1_MU4_TE10':470,
 
-        'L1_LUCID_Bi': 471,
-        'L1_LUCID_Bi_BGRP9' : 472,
-        'L1_LUCID_BGRP9' : 473,
-        'L1_LUCID_Bi_BGRP11': 474,
-        'L1_LUCID_BGRP11' : 475,
-        'L1_LUCID_Bi_UNPAIRED_ISO' : 476,
+        'L1_LUCID_BGRP9' : 471,
+        'L1_LUCID_BGRP11' : 472,
         
 #ATR-13743        'L1_ALFA_ELAST1'  : 424,
 #        'L1_ALFA_ELAST2'  : 425,
