@@ -13,13 +13,15 @@
 #include "Identifier/HWIdentifier.h"
 
 /**
- * @brief Conditions-Data class holding LAr Bad Channel and Bad Feb information
+ * @brief Conditions-Data class holding LAr Bad Channel or Bad Feb information
  *
  * Uses internally a vector<pair<channelID,LArBadChannel> >
  * ordered by channel-id to speed up searching 
  * Possible optimization: use a hash-indexed bitset to tell if the channel 
  * is on the list. Avoid searching for 'good' channels which are the majority 
- * Downside: Need acess the LArOnline_ID helper class + channel -> hash conversion
+ * Downside: Need acess the LArOnline_ID helper class for channel to hash conversion
+ * and a template specialization for the different hashes of FEBs and channels
+ * Or even keep a hash-indexed vector LArBadChannels for every channel, even good ones
  */
 
 template<class LArBC_t>
@@ -40,7 +42,7 @@ public:
   /// Constructor with payload
   LArBadXCont( const BadChanVec& vec);
 
-  /**@brief Add a channel to the list of bad channels 
+  /**@brief Add a channel/FEB to the list of bad channels 
    * @param channel HWIdenifier of the channel in question
    * @param stat Bad-Channel object describing the disease this channels suffers
    */
@@ -53,10 +55,10 @@ public:
    */
   void sort(); 
   
-  /**@brief Query the status of a particular channel
+  /**@brief Query the status of a particular channel or FEB
    * This is the main client access method
    * @param HWIdentifer of the channel in question
-   * @return LArBadChannel object describing the problem of the channel
+   * @return LArBadChannel or LArBadFeb object describing the problem
    */
   LArBC_t status(const HWIdentifier channel) const;
 
@@ -89,6 +91,7 @@ private:
 
 
 
+//Template instantiation for LArBadChannel
 typedef LArBadXCont<LArBadChannel> LArBadChannelCont;
 #include "CLIDSvc/CLASS_DEF.h" 
 CLASS_DEF(LArBadChannelCont,64272230,1)
@@ -97,7 +100,7 @@ CLASS_DEF( CondCont<LArBadChannelCont>,144954956 , 1 )
 #include "SGTools/BaseInfo.h"
 SG_BASE( CondCont<LArBadChannelCont>, CondContBase );
 
-
+//Template instantiation for LArBadFeb
 typedef LArBadXCont<LArBadFeb> LArBadFebCont;
 CLASS_DEF(LArBadFebCont,60500160,1)
 CLASS_DEF(CondCont<LArBadFebCont>,18499682, 1)

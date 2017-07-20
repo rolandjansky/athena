@@ -12,7 +12,7 @@ LArBadXCont<LArBC_t>::LArBadXCont( const BadChanVec& vec):
   sort();
 }
 
-//Add a bad channel to the list of bad channels
+//Add a bad channel to the list of bad channels (no sorting!)
 template<class LArBC_t>
 void LArBadXCont<LArBC_t>::add(const HWIdentifier hwid, const LArBC_t stat) {
   m_cont.push_back(std::make_pair(hwid.get_identifier32().get_compact(),stat));
@@ -40,6 +40,7 @@ void LArBadXCont<LArBC_t>::sort() {
   }//end if got at least 2 entries
 }  
 
+//Main client acess method: Check the bad-channel status
 template<class LArBC_t>
 LArBC_t LArBadXCont<LArBC_t>::status(const HWIdentifier hwid) const {
 

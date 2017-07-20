@@ -1,5 +1,3 @@
-//Dear emacs, this is -*- c++ -*-
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -46,7 +44,7 @@ StatusCode LArBadChannelCondAlg::execute() {
   SG::WriteCondHandle<LArBadChannelCont> writeHandle{m_BCOutputKey};
   
    if (writeHandle.isValid()) {
-    writeHandle.updateStore(); //????
+    writeHandle.updateStore();
     msg(MSG::WARNING) << "Found valid write handle" << endmsg;
     return StatusCode::SUCCESS;
   }  
