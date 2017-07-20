@@ -152,7 +152,20 @@ if l1caloRawMon:
         )
         ToolSvc += L1PPrMonTool
         L1CaloMan.AthenaMonTools += [L1PPrMonTool]
-
+        
+        #======================================================================
+        #=================== Monitoring of the Mistimed Stream ================
+        #======================================================================
+        from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__MistimedStreamMon
+        from AthenaCommon.JobProperties import jobproperties
+        L1MistimedStreamTool = LVL1__MistimedStreamMon(
+            name="L1MistimedStreamTool",
+            #OnlineTest = True,
+            #OutputLevel = DEBUG
+        )
+        ToolSvc += L1MistimedStreamTool
+        L1CaloMan.AthenaMonTools += [L1MistimedStreamTool]
+        
         if isData:
 
             from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__PPMSimBSMon
