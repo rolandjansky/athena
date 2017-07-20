@@ -1,0 +1,20 @@
+Package:       InnerDetector/InDetRecAlgs/SiClusterOnTrackTool
+responsible:   Tommaso Lari (Tommaso.Lari@cern.ch)
+content:       Silicon Clustering algorithms
+Inputs:        Silicon Clusters, Track parameters
+Outputs:       Recalibrated Silicon clusters
+Dependencies:  Control/AthenaKernel
+               Control/StoreGate
+               DetectorDescription/DetectorDescrCond/DetectorDescrConditions
+               DetectorDescription/Identifier
+               InnerDetector/InDetConditions/SCT_ConditionsAlgs
+               InnerDetector/InDetRecEvent/InDetRIO_OnTrack
+               InnerDetector/InDetRecEvent/InDetPrepRawData
+               InnerDetector/InDetDetDescr/InDetIdentifier
+               InnerDetector/InDetDetDescr/InDetReadoutGeometry
+               Tools/PathResolver 
+               Tracking/TrkEvent/TrkEventPrimitives
+               Tracking/TrkEvent/TrkParameters
+               Tracking/TrkEvent/TrkPrepRawData
+               Tracking/TrkTools/TrkToolInterfaces
+JobOptions:    
