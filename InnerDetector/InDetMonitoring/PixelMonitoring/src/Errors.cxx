@@ -273,7 +273,7 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    for (int j = kNumErrorStates; j < kNumErrorStates+kNumErrorStatesIBL; j++) {
       hname = makeHistname((error_state_labelsIBL[j - kNumErrorStates].first+"_Map"), false);
       htitles = makeHisttitle((error_state_labelsIBL[j - kNumErrorStates].second + " per event per LB"), "", false);
-      m_errhist_expert_maps[j] = new PixelMon2DMapsLW(hname.c_str(), htitles.c_str(), PixMon::HistConf::kIBL2D3D, m_doIBL);
+      m_errhist_expert_maps[j] = new PixelMon2DMapsLW(hname.c_str(), htitles.c_str(), PixMon::HistConf::kIBL, m_doIBL);
       sc = m_errhist_expert_maps[j]->regHist(rodExpert);
    }
 
