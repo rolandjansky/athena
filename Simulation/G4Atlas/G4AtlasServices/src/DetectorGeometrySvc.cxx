@@ -27,7 +27,7 @@ DetectorGeometrySvc::DetectorGeometrySvc( const std::string& name, ISvcLocator* 
   : AthService(name,pSvcLocator),
     m_detTool("",this),
     m_detConstruction("",this),
-    m_regionCreators(),
+    m_regionCreators(this),
     m_parallelWorlds(this),
     m_fieldManagers(this),
     m_activateParallelWorlds(false)
