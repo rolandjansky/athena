@@ -105,6 +105,21 @@ WriteDecorHandle<T, D>& WriteDecorHandle<T, D>::operator= (WriteDecorHandle&& rh
 
 
 /**
+ * @brief Is the referenced container present in SG?
+ *
+ * Note that this tests for the presence of the _container_,
+ * not for the decoration.
+ *
+ * Const method; the handle does not change as a result of this.
+ */
+template <class T, class D>
+bool WriteDecorHandle<T, D>::isPresent() const
+{
+  return m_contHandle.isPresent();
+}
+
+
+/**
  * @brief Explicitly set the event store.
  * @param store The new event store.
  *

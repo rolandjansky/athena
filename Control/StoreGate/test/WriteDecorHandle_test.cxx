@@ -59,6 +59,7 @@ void test1()
   assert (h1.storeHandle().name() == "StoreGateSvc");
   assert (h1.mode() == Gaudi::DataHandle::Writer);
   assert (h1.auxid() == ityp);
+  assert (!h1.isPresent());
 
   SGTest::TestStore dumstore;
   EventContext ctx5;
@@ -210,6 +211,7 @@ void test3()
   SG::WriteDecorHandle<MyObjCont, int> h1 (k1);
   assert (h1.setProxyDict (&testStore).isSuccess());
   assert (h1.auxid() == ityp);
+  assert (h1.isPresent());
 
   h1.getDecorationArray()[0] = 10;
   h1 (*(*pcont)[1]) = 11;
