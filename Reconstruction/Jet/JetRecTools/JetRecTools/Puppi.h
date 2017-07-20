@@ -21,7 +21,7 @@ class PuppiUserInfo: public fastjet::PseudoJet::UserInfoBase{
 class Puppi{
 
  public:
-  Puppi(double R0, double Rmin, double beta, double centralPTCutOffset, double centralPTCutSlope, double forwardPTCutOffset, double forwardPTCutSlope, double etaBoundary, bool PUPenalty);
+  Puppi(double R0, double Rmin, double beta, double centralPTCutOffset, double centralPTCutSlope, double forwardPTCutOffset, double forwardPTCutSlope, double etaBoundary);
 
   void setParticles(const std::vector<fastjet::PseudoJet> chargedHS, const std::vector<fastjet::PseudoJet> chargedPU, const std::vector<fastjet::PseudoJet> neutral, const std::vector<fastjet::PseudoJet> forward, int nPU);
 
@@ -55,7 +55,6 @@ class Puppi{
   double m_forwardPTCutOffset;
   double m_forwardPTCutSlope;
   double m_etaBoundary;
-  bool m_PUPenalty;
   bool m_includeCentralNeutralsInAlpha;
 
   double m_median;

@@ -232,28 +232,6 @@ if hasattr(topSequence,"jetalgMyPFAntiKt4EMPFlowJets"):
 if hasattr(topSequence,"jetalgMyPFPUPPIAntiKt4EMPFlowJets"):
   topSequence.jetalgMyPFPUPPIAntiKt4EMPFlowJets.Tools.insert(0,PFPUPPISequence)
 
-#For validation only
-from PFlowUtils.PFlowUtilsConf import PFlowMerger
-topSequence+=PFlowMerger('PFCHSMerger',InputContainerNames = [
-  'PFCHSChargedParticleFlowObjects',
-  'PFCHSNeutralParticleFlowObjects'
-  ],OutputContainerName='PFCHSParticleFlowObjects')
-
-topSequence+=PFlowMerger('PFPUPPICHSMerger',InputContainerNames = [
-  'PFPUPPICHSChargedParticleFlowObjects',
-  'PFPUPPICHSNeutralParticleFlowObjects'
-  ],OutputContainerName='PFPUPPICHSParticleFlowObjects')
-
-topSequence+=PFlowMerger('PFMerger',InputContainerNames = [
-  'PFChargedParticleFlowObjects',
-  'PFNeutralParticleFlowObjects'
-  ],OutputContainerName='PFParticleFlowObjects')
-
-topSequence+=PFlowMerger('PFPUPPIMerger',InputContainerNames = [
-  'PFPUPPIChargedParticleFlowObjects',
-  'PFPUPPINeutralParticleFlowObjects'
-  ],OutputContainerName='PFPUPPIParticleFlowObjects')
-
 ############################################################################################
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 xAODStream = MSMgr.NewPoolRootStream( "StreamXAOD", outputName )

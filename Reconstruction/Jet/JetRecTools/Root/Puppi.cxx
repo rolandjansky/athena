@@ -13,8 +13,8 @@ PuppiUserInfo::PuppiUserInfo(double v): otherChi2Vec(std::vector<double>({v})) {
 
 //=================================================================================================================================
 
-Puppi::Puppi(double R0, double Rmin, double beta, double centralPTCutOffset, double centralPTCutSlope, double forwardPTCutOffset, double forwardPTCutSlope, double etaBoundary, bool PUPenalty): 
-  m_R0(R0), m_Rmin(Rmin), m_beta(beta), m_centralPTCutOffset(centralPTCutOffset), m_centralPTCutSlope(centralPTCutSlope), m_forwardPTCutOffset(forwardPTCutOffset), m_forwardPTCutSlope(forwardPTCutSlope), m_etaBoundary(etaBoundary), m_PUPenalty(PUPenalty)
+Puppi::Puppi(double R0, double Rmin, double beta, double centralPTCutOffset, double centralPTCutSlope, double forwardPTCutOffset, double forwardPTCutSlope, double etaBoundary): 
+  m_R0(R0), m_Rmin(Rmin), m_beta(beta), m_centralPTCutOffset(centralPTCutOffset), m_centralPTCutSlope(centralPTCutSlope), m_forwardPTCutOffset(forwardPTCutOffset), m_forwardPTCutSlope(forwardPTCutSlope), m_etaBoundary(etaBoundary)
 {}
 
 //---------------------------------------------------------------------------------------------------------------------------------
@@ -102,19 +102,6 @@ double Puppi::getAlpha(const fastjet::PseudoJet pfo){
 	float dR=pfo.delta_R(p);
 	if (dR>m_Rmin){
 	  sum+=pow(p.pt()/dR, m_beta);
-	  nNeighbors+=1;
-	}
-      }
-    }
-  }
-
-  if (m_PUPenalty){
-    if (fabs(pfo.eta())<m_etaBoundary+m_R0){
-      vector<fastjet::PseudoJet> chargedPUNeighbors = sel(m_chargedPU);
-      for (auto p: chargedPUNeighbors){
-	float dR=pfo.delta_R(p);
-	if (dR>m_Rmin){
-	  sum-=pow(p.pt()/dR, m_beta);  //subtract from alpha rather than add
 	  nNeighbors+=1;
 	}
       }

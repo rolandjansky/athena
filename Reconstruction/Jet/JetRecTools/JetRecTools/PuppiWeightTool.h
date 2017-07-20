@@ -34,11 +34,7 @@ class PuppiWeightTool: public JetConstituentModifierBase {
 
   Puppi* m_puppi;
 
-  //experimental
-  bool m_includeLowPTTracks;
   bool m_includeCentralNeutralsInAlpha;
-  bool m_PUPenalty;
-
   bool m_applyWeight;
 };
 
