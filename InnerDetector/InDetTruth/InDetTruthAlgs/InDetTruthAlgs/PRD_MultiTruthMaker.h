@@ -25,19 +25,19 @@
 namespace InDet {
 
 class PRD_MultiTruthMaker : public AthReentrantAlgorithm  {
-  
+
 public:
   PRD_MultiTruthMaker(const std::string &name,ISvcLocator *pSvcLocator);
 
   virtual StatusCode initialize();
   virtual StatusCode execute_r(const EventContext &ctx) const;
   virtual StatusCode finalize();
-  
+
 private:
-  
+
   SG::ReadHandleKey<InDet::SiClusterContainer>       m_PixelClustersName;
   SG::ReadHandleKey<InDet::SiClusterContainer>       m_SCTClustersName;
-  SG::ReadHandleKey<InDet::TRT_DriftCircleContainer> m_TRTDriftCircleContainerName; 
+  SG::ReadHandleKey<InDet::TRT_DriftCircleContainer> m_TRTDriftCircleContainerName;
   SG::ReadHandleKey<InDetSimDataCollection>          m_simDataMapNamePixel;
   SG::ReadHandleKey<InDetSimDataCollection>          m_simDataMapNameSCT;
   SG::ReadHandleKey<InDetSimDataCollection>          m_simDataMapNameTRT;
@@ -55,7 +55,7 @@ private:
 			 PRD_Container_Iterator collections_end,
 			 const InDetSimDataCollection* simDataMap,
 			 bool pixels) const;
-    
+
   template<class PRD_Collection_Iterator>
   void addPRDRange (PRD_MultiTruthCollection* prdTruth,
 		    PRD_Collection_Iterator range_begin,

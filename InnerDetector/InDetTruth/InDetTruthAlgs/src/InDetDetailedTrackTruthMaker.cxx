@@ -34,7 +34,7 @@ InDetDetailedTrackTruthMaker::InDetDetailedTrackTruthMaker(const std::string &na
 StatusCode InDetDetailedTrackTruthMaker::initialize()
 {
   ATH_MSG_DEBUG ("InDetDetailedTrackTruthMaker::initialize()");
-  
+
   //----------------
   if ( m_truthTool.retrieve().isFailure() ) {
     ATH_MSG_FATAL ("Failed to retrieve tool " << m_truthTool);
@@ -57,7 +57,7 @@ StatusCode InDetDetailedTrackTruthMaker::initialize()
 }
 
 // -----------------------------------------------------------------------------------------------------
-StatusCode InDetDetailedTrackTruthMaker::finalize() 
+StatusCode InDetDetailedTrackTruthMaker::finalize()
 {
   ATH_MSG_DEBUG ("InDetDetailedTrackTruthMaker finalized");
   return StatusCode::SUCCESS;
@@ -129,7 +129,7 @@ StatusCode InDetDetailedTrackTruthMaker::execute_r(const EventContext &ctx) cons
     m_truthTool->buildDetailedTrackTruth(&(*dttc), *tracks, prdCollectionVector);
     return StatusCode::SUCCESS;
   }
- 
+
 }
 
 } // namespace InDet

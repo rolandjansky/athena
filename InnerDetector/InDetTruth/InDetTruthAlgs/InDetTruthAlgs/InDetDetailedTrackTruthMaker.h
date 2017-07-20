@@ -24,19 +24,19 @@ namespace InDet {
 /**
  * This algorithm produces track truth data using InDet PRD truth collections.
  * Calls a DetailedTrackTruthBuilder tool that does the actual job.
- * 
- * @author Andrei Gaponenko <agaponenko@lbl.gov> 
+ *
+ * @author Andrei Gaponenko <agaponenko@lbl.gov>
  */
 
 class InDetDetailedTrackTruthMaker : public AthReentrantAlgorithm  {
-  
+
 public:
   InDetDetailedTrackTruthMaker(const std::string &name,ISvcLocator *pSvcLocator);
-  
+
   virtual StatusCode initialize();
   virtual StatusCode execute_r(const EventContext &ctx) const;
   virtual StatusCode finalize();
-  
+
 private:
   // PRD inputs
   SG::ReadHandleKey<PRD_MultiTruthCollection> m_PRDTruthNamePixel;
@@ -47,7 +47,7 @@ private:
 
   // DetailedTrackTruthCollection output
   SG::WriteHandleKey<DetailedTrackTruthCollection> m_detailedTrackTruthName;
-  
+
   // Tool Handle for truth tool
   ToolHandle<Trk::IDetailedTrackTruthBuilder> m_truthTool;
 

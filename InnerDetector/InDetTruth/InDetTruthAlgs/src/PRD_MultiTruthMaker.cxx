@@ -25,7 +25,7 @@ PRD_MultiTruthMaker::PRD_MultiTruthMaker(const std::string &name, ISvcLocator *p
   m_PRDTruthNameSCT("PRD_MultiTruthSCT"),
   m_PRDTruthNameTRT("PRD_MultiTruthTRT"),
   m_PRDTruthTool("InDet::PRD_MultiTruthBuilder")
-{  
+{
   declareProperty("PixelClusterContainerName",  m_PixelClustersName);
   declareProperty("SCTClusterContainerName",    m_SCTClustersName);
   declareProperty("TRTDriftCircleContainerName",m_TRTDriftCircleContainerName);
@@ -43,14 +43,14 @@ PRD_MultiTruthMaker::PRD_MultiTruthMaker(const std::string &name, ISvcLocator *p
 StatusCode PRD_MultiTruthMaker::initialize()
 {
   ATH_MSG_INFO ("PRD_MultiTruthMaker::initialize()");
-  
+
   if ( m_PRDTruthTool.retrieve().isFailure() ) {
     ATH_MSG_ERROR ("Failed to retrieve tool " << m_PRDTruthTool);
     return StatusCode::FAILURE;
   } else {
     ATH_MSG_INFO ("Retrieved tool " << m_PRDTruthTool);
   }
-  
+
   // Read Handle Key
   ATH_CHECK(m_PixelClustersName.initialize(not m_PixelClustersName.key().empty()));
   ATH_CHECK(m_simDataMapNamePixel.initialize(not m_simDataMapNamePixel.key().empty()));
@@ -71,7 +71,7 @@ StatusCode PRD_MultiTruthMaker::initialize()
 }
 
 // -----------------------------------------------------------------------------------------------------
-StatusCode PRD_MultiTruthMaker::finalize() 
+StatusCode PRD_MultiTruthMaker::finalize()
 {
   ATH_MSG_DEBUG ("PRD_MultiTruthMaker finalized");
   return StatusCode::SUCCESS;
