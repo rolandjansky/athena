@@ -179,6 +179,9 @@ Root::TAccept SmoothedTopTagger::tag(const xAOD::Jet& jet) const {
 
   ATH_MSG_DEBUG( ": Obtaining Smooth top result" );
 
+  //clear all accept values
+  m_accept.clear();
+
   // set the jet validity bits to 1 by default
   m_accept.setCutResult( "ValidPtRangeHigh", true);
   m_accept.setCutResult( "ValidPtRangeLow" , true);
