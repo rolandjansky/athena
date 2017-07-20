@@ -41,7 +41,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkCaloExtension
                           Trigger/TrigAlgorithms/TrigCaloRec
                           Trigger/TrigEvent/TrigMissingEtEvent
-                          Trigger/TrigEvent/TrigNavigation )
+                          Trigger/TrigEvent/TrigNavigation 
+			  Trigger/TrigSteer/DecisionHandling )
 
 # External dependencies:
 find_package( AIDA )
@@ -53,7 +54,7 @@ atlas_add_component( TrigEgammaHypo
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloUtilsLib DataModel StoreGateLib SGtests xAODCaloEvent xAODEgamma xAODTracking xAODTrigCalo xAODTrigEgamma GaudiKernel LumiBlockCompsLib PATCoreLib ElectronPhotonSelectorToolsLib TrkSurfaces VxVertex TrigCaloEvent TrigInDetEvent TrigParticle TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigTimeAlgsLib CaloEvent CxxUtils ITrackToVertex RecoToolInterfaces egammaEvent egammaMVACalibLib TrkCaloExtension TrigCaloRecLib TrigMissingEtEvent TrigNavigationLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloUtilsLib DataModel StoreGateLib SGtests xAODCaloEvent xAODEgamma xAODTracking xAODTrigCalo xAODTrigEgamma GaudiKernel LumiBlockCompsLib PATCoreLib ElectronPhotonSelectorToolsLib TrkSurfaces VxVertex TrigCaloEvent TrigInDetEvent TrigParticle TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigTimeAlgsLib CaloEvent CxxUtils ITrackToVertex RecoToolInterfaces egammaEvent egammaMVACalibLib TrkCaloExtension TrigCaloRecLib TrigMissingEtEvent TrigNavigationLib DecisionHandlingLib )
 
 # Install files from the package:
 atlas_install_headers( TrigEgammaHypo )
