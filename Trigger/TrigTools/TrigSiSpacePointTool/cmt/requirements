@@ -1,6 +1,0 @@
-package TrigSiSpacePointTool 
-
-use AtlasPolicy 		AtlasPolicy-*
-use GaudiInterface 		GaudiInterface-* 		External
-use TrigInDetEvent		TrigInDetEvent-*     	Trigger/TrigEvent
-
