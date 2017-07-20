@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 #********************************************************************************
 # TrigEgammaEmulationTool python configuration
 # Author: Joao Victor da Fonseca Pinto <jodafons@cern.ch>
