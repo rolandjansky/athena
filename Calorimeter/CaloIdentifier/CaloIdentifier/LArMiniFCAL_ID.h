@@ -204,11 +204,11 @@ private:
 
   // Check methods
 
-  void  module_id_checks      ( int pos_neg, int module ) const throw(LArID_Exception);
+  void  module_id_checks      ( int pos_neg, int module ) const;
   void  channel_id_checks     ( int pos_neg,  int module,
-                                int depth,  int eta,      int phi ) const throw(LArID_Exception);
+                                int depth,  int eta,      int phi ) const;
   void  channel_id_checks     ( const Identifier moduleId,
-                                int depth, int eta, int phi) const throw(LArID_Exception);
+                                int depth, int eta, int phi) const;
                              
   /** create expanded Identifier from Identifier (return == 0 for OK) */
   virtual int  get_expanded_id  (const Identifier& id, ExpandedIdentifier& exp_id, const IdContext* context) const;

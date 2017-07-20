@@ -293,16 +293,16 @@ private:
   int  get_expanded_id  (const Identifier& id, ExpandedIdentifier& exp_id, const IdContext* context) const;
 
 
-  void lar_region_id_checks  ( int pos_neg_z, int dmat, int sampling, int region ) const throw(CaloID_Exception);
+  void lar_region_id_checks  ( int pos_neg_z, int dmat, int sampling, int region ) const;
 
-  void tile_region_id_checks  ( int pos_neg_z, int dmat, int sampling, int region ) const throw(CaloID_Exception);
+  void tile_region_id_checks  ( int pos_neg_z, int dmat, int sampling, int region ) const;
 
   void lar_zone_id_checks   	(int pos_neg_z, int dat, int sampling, int region,
-				 int eta,       int phi ) const throw(CaloID_Exception);
+				 int eta,       int phi ) const;
   void tile_zone_id_checks   	(int pos_neg_z, int dat, int sampling, int region,
-				 int eta,       int phi ) const throw(CaloID_Exception);
+				 int eta,       int phi ) const;
   void  zone_id_checks   	(const Identifier& regionId,
-    				 int eta,       int phi )  const throw(CaloID_Exception);
+    				 int eta,       int phi )  const;
 
 
 

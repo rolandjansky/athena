@@ -371,7 +371,7 @@ Tile_Base_ID::tile_gap        ()      const
 
 // For any Tilecal section
 Identifier
-Tile_Base_ID::tile_det        ( int section )        const throw(TileID_Exception)
+Tile_Base_ID::tile_det        ( int section )        const
 {
     if(m_do_checks) {
 	// Check that id is within allowed range
@@ -403,7 +403,7 @@ Tile_Base_ID::tile_det        ( int section )        const throw(TileID_Exceptio
 
 // single region, module, tower, cell, pmt, adc identifiers
 Identifier
-Tile_Base_ID::region_id       ( int index )           const throw(TileID_Exception)
+Tile_Base_ID::region_id       ( int index )           const
 {
     Identifier result;
     IdentifierHash hash_id = index;
@@ -415,7 +415,7 @@ Tile_Base_ID::region_id       ( int index )           const throw(TileID_Excepti
 }
 
 Identifier
-Tile_Base_ID::region_id       ( int section, int side )      const throw(TileID_Exception)
+Tile_Base_ID::region_id       ( int section, int side )      const
 {
     if(m_do_checks) {
 	
@@ -469,7 +469,6 @@ Tile_Base_ID::region_id       ( const Identifier& any_id )   const
 Identifier
 Tile_Base_ID::module_id       ( int section, int side, 
                                 int module ) const
-  throw(TileID_Exception)
 {
     if(m_do_checks) {
 	
@@ -525,7 +524,6 @@ Tile_Base_ID::module_id       ( const Identifier& any_id )   const
 Identifier
 Tile_Base_ID::tower_id        ( int section, int side,
                                 int module,   int tower )     const
-  throw(TileID_Exception)
 {
     if(m_do_checks) {
 	
@@ -595,7 +593,6 @@ Identifier
 Tile_Base_ID::cell_id         ( int section, int side,
                                 int module,   int tower, 
                                 int sample )                  const
-  throw(TileID_Exception)
 {
     if(m_do_checks) {
 	
@@ -653,7 +650,6 @@ Tile_Base_ID::pmt_id          ( const Identifier & any_id )   const
 Identifier
 Tile_Base_ID::pmt_id          ( const Identifier & cell_id, 
                                 int pmt )                     const
-  throw(TileID_Exception)
 {
     Identifier result;
 
@@ -709,7 +705,6 @@ Identifier
 Tile_Base_ID::pmt_id          ( int section, int side,
                                 int module,   int tower,
                                 int sample,   int pmt )       const
-  throw(TileID_Exception)
 {
     if(m_do_checks) {
 	
@@ -756,7 +751,6 @@ Tile_Base_ID::pmt_id          ( int section, int side,
 Identifier
 Tile_Base_ID::adc_id          ( const Identifier & cell_id,
                                 int pmt, int adc )            const
-  throw(TileID_Exception)
 {
     Identifier result;
 
@@ -812,7 +806,6 @@ Tile_Base_ID::adc_id          ( const Identifier & cell_id,
 Identifier
 Tile_Base_ID::adc_id          ( const Identifier & pmt_id,
                                 int adc )                     const
-  throw(TileID_Exception)
 {
     Identifier result;
 
@@ -868,7 +861,6 @@ Identifier
 Tile_Base_ID::adc_id          ( int section, int side,
                                 int module, int tower, int sample, 
                                 int pmt, int adc )            const
-  throw(TileID_Exception)
 {
     if(m_do_checks) {
 	
@@ -1023,7 +1015,6 @@ bool Tile_Base_ID::adc_id     ( const Identifier& cell_id,
 }
 
 Identifier  Tile_Base_ID::cell_id     (const IdentifierHash& hash_id) const
-  throw(TileID_Exception)
 {
   if (hash_id < channels().hash_max()) {
     return channel_id (hash_id);
@@ -1034,7 +1025,6 @@ Identifier  Tile_Base_ID::cell_id     (const IdentifierHash& hash_id) const
 }
 
 IdentifierHash  Tile_Base_ID::cell_hash  (const Identifier& id) const
-  throw(TileID_Exception)
 {
   IdentifierHash ret = 0;
   if (channels().get_hash (id, ret) == 0)

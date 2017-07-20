@@ -65,7 +65,7 @@ public:
   /** build a cell identifier for a channel  <br>
       eta counting includes regions     */
   Identifier  channel_id  ( int pos_neg, int sampling,
-			    int eta,     int phi ) const throw(LArID_Exception) ;
+			    int eta,     int phi ) const;
 
   /** For a specific sector , eta, phi_sector 
    * <pre>
@@ -78,7 +78,7 @@ public:
    * </pre>
    */
   Identifier  channel_id  ( int pos_neg, int sampling, int sector, int region, 
-			    int eta,     int phi_sector ) const throw(LArID_Exception);
+			    int eta,     int phi_sector ) const;
 
   /** allows to know in which region is a channel/cell
       -- valid for both kinds of channels */
@@ -203,11 +203,11 @@ private:
 
   // Check methods
 
-  void  region_id_checks   	(int pos_neg, int sampling, int region ) const throw(LArID_Exception);
+  void  region_id_checks   	(int pos_neg, int sampling, int region ) const;
   void  channel_id_checks   	(int pos_neg, int sampling, int region,
-				 int eta,       int phi ) const throw(LArID_Exception);
+				 int eta,       int phi ) const;
   void  channel_id_checks   	(const Identifier regionId,
-				 int eta,       int phi ) const throw(LArID_Exception);
+				 int eta,       int phi ) const;
 
   /** create expanded Identifier from Identifier (return == 0 for OK) */
   virtual int  get_expanded_id  (const Identifier& id, ExpandedIdentifier& exp_id, const IdContext* context) const;

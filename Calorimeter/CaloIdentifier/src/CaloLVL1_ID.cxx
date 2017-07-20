@@ -603,7 +603,7 @@ CaloLVL1_ID::get_next_in_eta(const IdentifierHash& id, IdentifierHash& next) con
 }
 
 void CaloLVL1_ID::tower_id_checks   ( int pos_neg_z, int sampling, int region,
-				      int eta,       int phi ) const throw(CaloID_Exception)
+				      int eta,       int phi ) const
 {  
   // Fill expanded id
   ExpandedIdentifier id(calo_exp());
@@ -626,7 +626,7 @@ void CaloLVL1_ID::tower_id_checks   ( int pos_neg_z, int sampling, int region,
 
 
 void CaloLVL1_ID::tower_id_checks   ( const Identifier regionId,
-				      int eta,  int phi ) const throw(CaloID_Exception) 
+				      int eta,  int phi ) const 
 {
   // Fill expanded id
     ExpandedIdentifier id; 
@@ -658,7 +658,6 @@ void CaloLVL1_ID::tower_id_checks   ( const Identifier regionId,
 }
 
 void CaloLVL1_ID::region_id_checks (int pos_neg_z, int sampling, int region)const 
-  throw(CaloID_Exception)
 {
     // Fill expanded id
     ExpandedIdentifier id(calo_exp());
@@ -680,7 +679,7 @@ void CaloLVL1_ID::region_id_checks (int pos_neg_z, int sampling, int region)cons
 }
 
 void CaloLVL1_ID::layer_id_checks   ( int pos_neg_z, int sampling, int region,
-				      int eta,       int phi,      int layer ) const throw(CaloID_Exception)
+				      int eta,       int phi,      int layer ) const
 {  
     // Fill expanded id
     ExpandedIdentifier id(calo_exp());
@@ -702,7 +701,7 @@ void CaloLVL1_ID::layer_id_checks   ( int pos_neg_z, int sampling, int region,
 }
 
 void CaloLVL1_ID::layer_id_checks   ( const Identifier towerId,
-				      int layer ) const throw(CaloID_Exception) 
+				      int layer ) const
 {
     // Fill expanded id
     ExpandedIdentifier id; 
