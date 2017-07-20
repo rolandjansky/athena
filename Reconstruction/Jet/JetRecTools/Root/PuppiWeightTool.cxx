@@ -35,6 +35,16 @@ PuppiWeightTool::PuppiWeightTool(const std::string& name) : JetConstituentModifi
 
 //------------------------------------------------------------------------------
 
+StatusCode PuppiWeightTool::initialize() {
+  ATH_MSG_INFO("Initializing tool " << name() << "...");
+  
+  ATH_CHECK(m_vertexContainer_key.initialize());
+
+  return StatusCode::SUCCESS;
+}
+
+//------------------------------------------------------------------------------
+
 StatusCode PuppiWeightTool::process(xAOD::IParticleContainer* cont) const {
   xAOD::PFOContainer* pfoCont = dynamic_cast<xAOD::PFOContainer*> (cont);
   if(pfoCont) return process(pfoCont);
@@ -84,9 +94,15 @@ StatusCode PuppiWeightTool::process(xAOD::PFOContainer* cont) const{
   }
 
   //Count the number of primary vertices
-  const xAOD::VertexContainer* pvtxs = 0;
-  ATH_CHECK(evtStore()->retrieve(pvtxs, "PrimaryVertices"));
-  if ( pvtxs == 0 || pvtxs->size()==0 ) {
+  const xAOD::VertexContainer* pvtxs = nullptr;
+  auto handle = SG::makeHandle(m_vertexContainer_key);
+  if (!handle.isValid()){
+    ATH_MSG_WARNING(" This event has no primary vertices " );
+    return StatusCode::FAILURE;
+  }
+    
+  pvtxs = handle.cptr();
+  if(pvtxs->empty()){
     ATH_MSG_WARNING(" This event has no primary vertices " );
     return StatusCode::FAILURE;
   }

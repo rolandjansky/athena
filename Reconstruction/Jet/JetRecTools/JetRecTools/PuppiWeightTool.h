@@ -17,6 +17,7 @@ class PuppiWeightTool: public JetConstituentModifierBase {
  public:
 
   PuppiWeightTool(const std::string& name);
+  StatusCode initialize();
   StatusCode process(xAOD::IParticleContainer* cont) const;
   StatusCode process(xAOD::PFOContainer* cont) const; 
 
@@ -36,6 +37,9 @@ class PuppiWeightTool: public JetConstituentModifierBase {
 
   bool m_includeCentralNeutralsInAlpha;
   bool m_applyWeight;
+
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainer_key{"PrimaryVertices"};
+
 };
 
 #endif
