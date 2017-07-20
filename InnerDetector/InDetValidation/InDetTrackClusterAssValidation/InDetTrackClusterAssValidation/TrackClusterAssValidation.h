@@ -10,8 +10,8 @@
 #include <map>
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "TrkSpacePoint/SpacePointContainer.h" 
-#include "TrkSpacePoint/SpacePointOverlapCollection.h" 
+#include "TrkSpacePoint/SpacePointContainer.h"
+#include "TrkSpacePoint/SpacePointOverlapCollection.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "HepMC/GenParticle.h"
@@ -31,7 +31,7 @@ namespace InDet {
     {
       ///////////////////////////////////////////////////////////////////
       // Public methods:
-      ///////////////////////////////////////////////////////////////////    
+      ///////////////////////////////////////////////////////////////////
     public:
 
       Barcode()  {};
@@ -48,17 +48,17 @@ namespace InDet {
       int m_barcharge;
       int m_rapidity;
     };
-  
+
   /////////////////////////////////////////////////////////////////////////////////
   // Inline methods
   /////////////////////////////////////////////////////////////////////////////////
-  
+
   inline Barcode::Barcode(const Barcode& BC)
     {
       *this = BC;
     }
-  
-  inline Barcode& Barcode::operator = (const Barcode& BC) 
+
+  inline Barcode& Barcode::operator = (const Barcode& BC)
     {
       if(&BC!=this) {
 	m_barcharge = BC.m_barcharge;
@@ -96,7 +96,7 @@ namespace InDet {
     protected:
 
       ///////////////////////////////////////////////////////////////////
-      // Protected data 
+      // Protected data
       ///////////////////////////////////////////////////////////////////
 
       bool                               m_usePIX                 ;
