@@ -562,10 +562,12 @@ StatusCode ApplySUSYTools::execute()
                                IThinningSvc::Operator::Or) );
   CHECK( m_thinningSvc->filter(*p_MuonSpecTP, *muSpecCutMask,
                                IThinningSvc::Operator::Or) );
-  for(auto si : m_systInfoMUON){ const CP::SystematicSet& sys =
-    si->systset; std::string sysname = sys.name(); if( sysname == "" )
-    sysname = "Nominal"; const xAOD::MuonContainer* mus = 0; CHECK(
-    evtStore()->retrieve(mus, m_MuonsName+sysname) );
+  for(auto si : m_systInfoMUON){
+    const CP::SystematicSet& sys = si->systset;
+    std::string sysname = sys.name();
+    if( sysname == "" ) sysname = "Nominal";
+    const xAOD::MuonContainer* mus = 0;
+    CHECK( evtStore()->retrieve(mus, m_MuonsName+sysname) );
     CHECK( m_thinningSvc->filter(*mus, *muCutMask,
                                  IThinningSvc::Operator::Or) );
   }
