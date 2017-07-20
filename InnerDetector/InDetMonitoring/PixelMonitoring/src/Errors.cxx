@@ -68,7 +68,7 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    std::array <std::pair <std::string, std::string>, kNumErrorStatesIBL > error_state_labelsIBL = {{
        std::make_pair("BCID_errors",                   "Synchronization BCID errors"),
        std::make_pair("LVL1ID_errors",                 "Synchronization LVL1ID errors"),
-       std::make_pair("Row/Column_errors",             "Row/Column errors"),
+       std::make_pair("Row_Column_errors",             "Row Column errors"),
        std::make_pair("Limit_errors",                  "Limit_errors"),
        std::make_pair("Preamble_errors",               "Preamble errors"),
        std::make_pair("Masked_link_errors",            "Masked link errors"),
