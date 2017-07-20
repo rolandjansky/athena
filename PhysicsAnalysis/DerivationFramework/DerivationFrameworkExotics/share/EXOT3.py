@@ -9,14 +9,14 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkCore.WeightMetadata import *
 
 from JetRec.JetRecStandard import jtm
-
-from DerivationFrameworkCore.WeightMetadata import *
 
 exot3Seq = CfgMgr.AthSequencer("EXOT3Sequence")
 
 from AthenaCommon.GlobalFlags import globalflags
+
 isMC = False
 if globalflags.DataSource()=='geant4':
   isMC = True
@@ -96,13 +96,14 @@ EXOT3AKt10JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( nam
 ToolSvc += EXOT3AKt10JetTPThinningTool
 thinningTools.append(EXOT3AKt10JetTPThinningTool)
 
-EXOT3AKt10JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name               = "EXOT3Cam12JetTPThinningTool",
-                                                                        ThinningService         = "EXOT3ThinningSvc",
-                                                                        JetKey                  = "CamKt12LCTopoJets",
-                                                                        SelectionString         = "CamKt12LCTopoJets.pt > 150*GeV && abs(CamKt12LCTopoJets.eta) < 2.8",
-                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += EXOT3AKt10JetTPThinningTool
-thinningTools.append(EXOT3AKt10JetTPThinningTool)
+#FIX #ATLJETMET-744
+#EXOT3AKt10JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name               = "EXOT3Cam12JetTPThinningTool",
+#                                                                        ThinningService         = "EXOT3ThinningSvc",
+#                                                                        JetKey                  = "CamKt12LCTopoJets",
+#                                                                        SelectionString         = "CamKt12LCTopoJets.pt > 150*GeV && abs(CamKt12LCTopoJets.eta) < 2.8",
+#                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
+#ToolSvc += EXOT3AKt10JetTPThinningTool
+#thinningTools.append(EXOT3AKt10JetTPThinningTool)
 
 
 # Calo-cluster thinning
@@ -116,14 +117,15 @@ EXOT3AKt10CCThinningTool = DerivationFramework__JetCaloClusterThinning(name     
 ToolSvc += EXOT3AKt10CCThinningTool
 thinningTools.append(EXOT3AKt10CCThinningTool)
 
-EXOT3CA12CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                  = "EXOT3CA12CCThinningTool",
-                                                                      ThinningService       = "EXOT3ThinningSvc",
-                                                                      SGKey                 = "CamKt12LCTopoJets",
-                                                                      TopoClCollectionSGKey = "CaloCalTopoClusters",
-                                                                      SelectionString       = "CamKt12LCTopoJets.pt > 150*GeV && abs(CamKt12LCTopoJets.eta) < 2.8",
-                                                                      ConeSize              = 0)
-ToolSvc += EXOT3CA12CCThinningTool
-thinningTools.append(EXOT3CA12CCThinningTool)
+#FIX #ATLJETMET-744
+#EXOT3CA12CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                  = "EXOT3CA12CCThinningTool",
+#                                                                      ThinningService       = "EXOT3ThinningSvc",
+#                                                                      SGKey                 = "CamKt12LCTopoJets",
+#                                                                      TopoClCollectionSGKey = "CaloCalTopoClusters",
+#                                                                      SelectionString       = "CamKt12LCTopoJets.pt > 150*GeV && abs(CamKt12LCTopoJets.eta) < 2.8",
+#                                                                      ConeSize              = 0)
+#ToolSvc += EXOT3CA12CCThinningTool
+#thinningTools.append(EXOT3CA12CCThinningTool)
 
 #Truth Thinning
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
@@ -153,91 +155,77 @@ if isMC:
 # SKIMMING TOOL 
 #====================================================================
 
-triggers = ["HLT_j200",
-            "HLT_j260",
-            "HLT_j300",
-            "HLT_j320",
-            "HLT_j360",
-            "HLT_j400",
-            "HLT_j400_sub",
-            "HLT_j400_jes",
-            "HLT_j400_lcw",
-            "HLT_j400_lcw_jes",
-            "HLT_ht700",
+triggers = [
+            "HLT_j260_a10_lcw_L1J75",
+            "HLT_j260_a10_lcw_nojcalib_L1J75",
+            "HLT_j260_a10_nojcalib_L1J75",
+            "HLT_j260_a10_sub_L1J75",
+            "HLT_j260_a10_lcw_sub_L1J75",
+            "HLT_j300_a10_sub_L1J75",
+            "HLT_j300_a10_lcw_L1J75",
+            "HLT_j360_a10_lcw_L1J100",
+            "HLT_j380_a10_lcw_L1J100",
+            "HLT_j400_a10_lcw_L1J100",
+            "HLT_j420_a10_lcw_L1J100",
+            "HLT_j440_a10_lcw_L1J100",
+            "HLT_j460_a10_sub_L1J100",
+            "HLT_j460_a10_lcw_L1J100",
+            "HLT_j460_a10_nojcalib_L1J100",
+            "HLT_j460_a10_lcw_nojcalib_L1J100",
+            "HLT_j460_a10_lcw_sub_L1J100",
+            "HLT_j300_a10_lcw_sub_L1SC85",
+            "HLT_j300_a10_lcw_L1SC85",
+            "HLT_j260_a10r_L1J75",
+            "HLT_j300_a10r_L1J75",
+            "HLT_j360_a10r_L1J100",
+            "HLT_j380_a10r_L1J100",
+            "HLT_j400_a10r_L1J100",
+            "HLT_j420_a10r_L1J100",
+            "HLT_j440_a10r_L1J100",
+            "HLT_j460_a10r_L1J100",
+            "HLT_ht850_L1J75",
+            "HLT_ht850_L1J100",
             "HLT_ht850",
             "HLT_ht1000",
+            "HLT_ht1000_L1J75",
             "HLT_ht1000_L1J100",
-            "HLT_j360_a10_nojcalib",
-            "HLT_j360_a10_nojcalib_L1HT150-J20.ETA31",
-            "HLT_j360_a10_nojcalib_L1J100",
-            "HLT_j360_a10_lcw_nojcalib",
-            "HLT_j360_a10_lcw_nojcalib_L1HT150-J20.ETA31",
-            "HLT_j360_a10_sub",
-            "HLT_j360_a10_sub_L1HT150-J20.ETA31",
-            "HLT_j360_a10_sub_L1J100",
-            "HLT_j360_a10_lcw_sub",
-            "HLT_j360_a10_lcw_sub_L1HT150-J20.ETA31",
-            "HLT_j360_a10_lcw_sub_L1J100",
-            "HLT_j360_a10r",
-            "HLT_j360_a10r_L1J100",
-            "HLT_j460_a10_nojcalib",
-            "HLT_j460_a10_nojcalib_L1HT190-J15.ETA21",
-            "HLT_j460_a10_nojcalib_L1J100",
-            "HLT_j460_a10_lcw_nojcalib",
-            "HLT_j460_a10_lcw_nojcalib_L1HT190-J15.ETA21",
-            "HLT_j460_a10_lcw_nojcalib_L1J100",
-            "HLT_j460_a10_sub",
-            "HLT_j460_a10_sub_L1HT190-J15.ETA21",
-            "HLT_j460_a10_sub_L1J100",
-            "HLT_j460_a10_lcw_sub",
-            "HLT_j460_a10_lcw_sub_L1HT190-J15.ETA21",
-            "HLT_j460_a10_lcw_sub_L1J100",
-            "HLT_j460_a10r",
-            "HLT_j460_a10r_L1HT190-J15.ETA21",
-            "HLT_j460_a10r_L1J100", "EF_J360_a10tcem",
-            'HLT_j380',
-            'HLT_j380_jes',
-            'HLT_j380_lcw',
-            'HLT_j380_lcw_jes',
-            'HLT_j380_lcw_nojcalib',
-            'HLT_j380_nojcalib']
+           ]
 
 
 topology_selection_1jet = "((count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 100*GeV && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_m > 30*GeV)  >= 1)"
-topology_selection_1jet += " || (count (abs(CamKt12LCTopoBDRSFilteredMU100Y4Jets.eta) < 2.8 && CamKt12LCTopoBDRSFilteredMU100Y4Jets.pt > 100*GeV && CamKt12LCTopoBDRSFilteredMU100Y4Jets.m > 30*GeV)  >= 1))"
-topology_selection_2jet = "((count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 100*GeV && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_m > 30*GeV)  >= 2)"
-topology_selection_2jet += " || (count (abs(CamKt12LCTopoBDRSFilteredMU100Y4Jets.eta) < 2.8 && CamKt12LCTopoBDRSFilteredMU100Y4Jets.pt > 100*GeV && CamKt12LCTopoBDRSFilteredMU100Y4Jets.m > 30*GeV)  >= 2))"
-EXOT6_trigger1 = "(EF_g120_loose || EF_xe80_tclcw_tight)"
-EXOT6_trigger2 = "(HLT_g120_loose || HLT_g140_loose || HLT_xe100)"
-EXOT6_selection = "((count(Photons.pt > 100*GeV) > 0) || (count(Electrons.pt > 100*GeV) > 0))"
+topology_selection_1jet += " )"#FIX #ATLJETMET-744
+#topology_selection_1jet += " || (count (abs(CamKt12LCTopoBDRSFilteredMU100Y4Jets.eta) < 2.8 && CamKt12LCTopoBDRSFilteredMU100Y4Jets.pt > 100*GeV && CamKt12LCTopoBDRSFilteredMU100Y4Jets.m > 30*GeV)  >= 1))"#FIX #ATLJETMET-744
 
-beamEnergy = jobproperties.Beam.energy()
-expression = ''
-expression2 = ''
-if (beamEnergy < 4.1e+06):
-    expression = '(((EventInfo.eventTypeBitmask==1) || ' + EXOT6_trigger1 + ') && ' + EXOT6_selection + ' && ' + topology_selection_1jet + ' ) '#|| ( ((EventInfo.eventTypeBitmask==1) || ' + r1_trigger_selection + ' || ' + r2_trigger_selection + ' ) && ' + topology_selection_2jet + ' ) '
-    expression2 = topology_selection_2jet
-if (beamEnergy > 6.0e+06):
-#    expression = '(HLT_g120_loose || HLT_g140_loose || HLT_xe100 || ' + r2_trigger_selection + ' ) && (((count(Photons.Loose && Photons.pt > 100*GeV) > 0) || (count(Electrons.Medium && Electrons.pt > 100*GeV) > 0)) || ' + topology_selection + ')'
-    expression = '( ' + EXOT6_trigger2 + ' && ' + EXOT6_selection + ' && ' + topology_selection_1jet + ' )'# || ( ' + r2_trigger_selection + ' && ' + topology_selection_2jet + ' ) '
-    expression2 = topology_selection_2jet
+topology_selection_2jet = "((count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 100*GeV && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_m > 30*GeV)  >= 2)"
+#topology_selection_2jet += " || (count (abs(CamKt12LCTopoBDRSFilteredMU100Y4Jets.eta) < 2.8 && CamKt12LCTopoBDRSFilteredMU100Y4Jets.pt > 100*GeV && CamKt12LCTopoBDRSFilteredMU100Y4Jets.m > 30*GeV)  >= 2)"#FIX #ATLJETMET-744
+
+topology_selection_2jet_highpt = "(count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 1000*GeV)  >= 2)"
+topology_selection_2jet_highpt += " )"#FIX #ATLJETMET-744
+#topology_selection_2jet_highpt += " || (count (abs(CamKt12LCTopoBDRSFilteredMU100Y4Jets.eta) < 2.8 && CamKt12LCTopoBDRSFilteredMU100Y4Jets.pt > 1000*GeV)  >= 2))"#FIX #ATLJETMET-744
+
+topology_selection_2jet += " || " + topology_selection_2jet_highpt
+
+EXOT3_trigger1 = "(EF_g120_loose || EF_xe80_tclcw_tight)"
+EXOT3_trigger2 = "(HLT_g120_loose || HLT_g140_loose || HLT_xe100 || HLT_xe90_mht_L1XE50 || HLT_xe90_tc_lcw_L1XE50)"
+EXOT3_selection = "((count(Photons.pt > 100*GeV) > 0) || (count(Electrons.pt > 100*GeV) > 0))"
+
+expression = '( ' + EXOT3_trigger2 + ' && ' + EXOT3_selection + ' && ' + topology_selection_1jet + ' )'# || ( ' + r2_trigger_selection + ' && ' + topology_selection_2jet + ' ) '
+expression2 = topology_selection_2jet
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-EXOT3SkimmingTool1 = DerivationFramework__xAODStringSkimmingTool( name = "EXOT3SkimmingTool1",
-                                                                    expression = expression)
+EXOT3SkimmingTool1 = DerivationFramework__xAODStringSkimmingTool(name = "EXOT3SkimmingTool1", expression = expression)
 ToolSvc += EXOT3SkimmingTool1
 
-EXOT3SkimmingTool2 = DerivationFramework__xAODStringSkimmingTool( name = "EXOT3SkimmingTool2",
-                                                                    expression = expression2)
+EXOT3SkimmingTool2 = DerivationFramework__xAODStringSkimmingTool(name = "EXOT3SkimmingTool2", expression = expression2)
 ToolSvc += EXOT3SkimmingTool2
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 EXOT3TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "EXOT3TriggerSkimmingTool",
-                                                                     TriggerListAND = [],
-                                                                     TriggerListOR  = triggers)
+                                                                    TriggerListAND = [],
+                                                                    TriggerListOR  = triggers)
 ToolSvc += EXOT3TriggerSkimmingTool
 
 # topology_selection_2jet && triggers
@@ -248,7 +236,6 @@ ToolSvc += EXOT3ANDSkimmingTool
 EXOT3FinalSkimmingTool = DerivationFramework__FilterCombinationOR(name = "EXOT3ORSkimmingTool", FilterList = [EXOT3ANDSkimmingTool, EXOT3SkimmingTool1])
 ToolSvc += EXOT3FinalSkimmingTool
 
-
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
@@ -256,34 +243,46 @@ ToolSvc += EXOT3FinalSkimmingTool
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += exot3Seq
 
-
 #=======================================
-# Augmentation: Jet Collections
+# JETS
 #=======================================
 
-from JetRec.JetRecConf import JetAlgorithm
+#restore AOD-reduced jet collections
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+OutputJets["EXOT3"] = []
+reducedJetList = [
+    "AntiKt2PV0TrackJets", #flavour-tagged automatically
+    "AntiKt4PV0TrackJets",
+    "AntiKt4TruthJets",
+    "AntiKt10TruthJets",
+    "AntiKt10LCTopoJets"]
+replaceAODReducedJets(reducedJetList,exot3Seq,"EXOT3")
 
-#SplitFiltered
-if isMC:
-  addFilteredJets("CamKt", 1.2, "Truth", mumax=1.0, ymin=0.04, algseq=exot3Seq, outputGroup="EXOT3")
-addFilteredJets("CamKt", 1.2, "LCTopo", mumax=1.0, ymin=0.04, algseq=exot3Seq, outputGroup="EXOT3")
-addFilteredJets("CamKt", 1.2, "PV0Track", mumax=1.0, ymin=0.04, algseq=exot3Seq, outputGroup="EXOT3")
+#AntiKt10*PtFrac5SmallR20Jets must be scheduled *AFTER* the other collections are replaced
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
+addDefaultTrimmedJets(exot3Seq,"EXOT3")
 
-# Trimmed jets
-if isMC:
-  addTrimmedJets("AntiKt", 1.0, "Truth", rclus=0.2, ptfrac=0.05, algseq=exot3Seq, outputGroup="EXOT3")
+#some jets collections are not included in the new jet restoring mechanism and need to be added the old way
 
-#addTrimmedJets("AntiKt", 1.0, "LCTopo", rclus=0.2, ptfrac=0.05, algseq=exot3Seq, outputGroup="EXOT3")
-addDefaultTrimmedJets(exot3Seq, "EXOT3")
-addTrimmedJets("AntiKt", 1.0, "PV0Track", rclus=0.2, ptfrac=0.05, algseq=exot3Seq, outputGroup="EXOT3")
+#split-filtered jets
+#CamKt jets not yet available #FIX #ATLJETMET-744 
+#if isMC:#FIX #ATLJETMET-744
+#  addFilteredJets("CamKt", 1.2, "Truth", mumax=1.0, ymin=0.04, algseq=exot3Seq, outputGroup="EXOT3")#FIX #ATLJETMET-744
+#addFilteredJets("CamKt", 1.2, "LCTopo", mumax=1.0, ymin=0.04, algseq=exot3Seq, outputGroup="EXOT3")#FIX #ATLJETMET-744
+#addFilteredJets("CamKt", 1.2, "PV0Track", mumax=1.0, ymin=0.04, algseq=exot3Seq, outputGroup="EXOT3")#FIX #ATLJETMET-744
 
+#trimmed jets
+addTrimmedJets("AntiKt", 1.0, "PV0Track", rclus=0.2, ptfrac=0.05, algseq=exot3Seq, outputGroup="EXOT3")#AntiKt10PV0TrackTrimmedPtFrac5SmallR20Jets
+
+#jet calibration
 applyJetCalibration_CustomColl("AntiKt10LCTopoTrimmedPtFrac5SmallR20", exot3Seq)
 
+
+#=======================================
+# SKIMMING, THINNING, AUGMENTATION
+#=======================================
 exot3Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel_skim", SkimmingTools = [EXOT3FinalSkimmingTool])
-exot3Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel",
-#									ThinningTools = [EXOT3TPThinningTool,EXOT3MuonTPThinningTool,EXOT3ElectronTPThinningTool, EXOT3PhotonTPThinningTool]
-									ThinningTools = thinningTools
-                                                                      )
+exot3Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel", ThinningTools = thinningTools)
 
 #====================================================================
 # SET UP STREAM   
@@ -317,6 +316,17 @@ EXOT3SlimmingHelper.AllVariables = EXOT3AllVariablesContent
 
 # Add jet collections created by derivation job
 EXOT3SlimmingHelper.StaticContent = EXOT3StaticContent
+
+addJetOutputs(EXOT3SlimmingHelper, ["EXOT3"])
+
+EXOT3SlimmingHelper.AppendToDictionary = {}
+#listJets = ['CamKt12LCTopoBDRSFilteredMU100Y4Jets', 'CamKt12PV0TrackBDRSFilteredMU100Y4Jets', 'CamKt12TruthBDRSFilteredMU100Y4Jets', 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets', 'AntiKt10PV0TrackTrimmedPtFrac5SmallR20Jets']#FIX #ATLJETMET-744
+listJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets', 'AntiKt10PV0TrackTrimmedPtFrac5SmallR20Jets']#FIX #ATLJETMET-744
+if globalflags.DataSource()=='geant4':
+  listJets.extend(['AntiKt10TruthTrimmedPtFrac5SmallR20Jets'])
+for i in listJets:
+  EXOT3SlimmingHelper.AppendToDictionary[i] = 'xAOD::JetContainer'
+  EXOT3SlimmingHelper.AppendToDictionary[i+'Aux'] = 'xAOD::JetAuxContainer'
 
 # (Dont) Add jet triger content
 #EXOT3SlimmingHelper.IncludeJetTauEtMissTriggerContent = True

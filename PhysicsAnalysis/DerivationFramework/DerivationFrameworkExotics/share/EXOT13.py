@@ -2,17 +2,12 @@
 # EXOT13.py 
 # reductionConf flag EXOT13 in Reco_tf.py   
 #********************************************************************
-#from JetRec.JetRecStandard import jtm
-#jtm.modifiersMap["groomed"] += [jtm.ktsplitter] # to add substructure to trimmed jets
-
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-
 from DerivationFrameworkCore.WeightMetadata import *
-
 
 #====================================================================
 # SET UP STREAM   
@@ -20,39 +15,43 @@ from DerivationFrameworkCore.WeightMetadata import *
 streamName = derivationFlags.WriteDAOD_EXOT13Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT13Stream )
 EXOT13Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+
+#attach the output stream to kernel
 EXOT13Stream.AcceptAlgs(["EXOT13Kernel"])
 
+#Create a sequence for a specific stream
 exot13Seq = CfgMgr.AthSequencer("EXOT13Sequence")
 
-triggerNavChains  = ""
-triggerNavChains += "3mu6_msonly|3mu6_msonly_L1MU4_EMPTY|3mu6_msonly_L1MU4_UNPAIRED_ISO|"
-triggerNavChains += "mu20_msonly_mu6noL1_msonly_nscan05|mu20_msonly_mu6noL1_msonly_nscan05_L1MU4_EMPTY|mu20_msonly_mu6noL1_msonly_nscan05_L1MU4_UNPAIRED_ISO|"
-triggerNavChains += "j30_muvtx|j30_muvtx_noiso|j30_muvtx_L1MU4_EMPTY|j30_muvtx_L1MU4_UNPAIRED_ISO|"
-triggerNavChains += "j30_jes_PS_llp_L1TAU30|j30_jes_PS_llp_L1TAU40|j30_jes_PS_llp_L1TAU60|j30_jes_PS_llp_L1TAU8_EMPTY|j30_jes_PS_llp_L1TAU8_UNPAIRED_ISO|j30_jes_PS_llp_noiso_L1TAU60|"
-triggerNavChains += "g15_loose_2mu10_msonly|g15_loose_2mu10_msonly_L1MU4_EMPTY|g15_loose_2mu10_msonly_L1MU4_UNPAIRED_ISO|"
-triggerNavChains += "g35_medium_g25_medium|g35_medium_g25_medium_L1EM7_EMPTY|g35_medium_g25_medium_L1EM7_UNPAIRED_ISO|"
-triggerNavChains += "2mu14|j25|j35|j45|j60|j80|mu26_imedium|mu26|mu40|mu50|e17_lhloose_L1EM15|e60_lhmedium|e24_lhmedium_iloose_L1EM18VH|e24_lhmedium_iloose_L1EM20VH|e24_lhtight_iloose_L1EM20VH|e26_lhtight_iloose|mu20_2mu0noL1_JpsimumuFS|mu18_2mu0noL1_JpsimumuFS|mu20_2mu4_JpsimumuL2|mu18_2mu4_JpsimumuL2"
+#=====================
+# TRIGGER NAV THINNING
+#=====================
+triggerNavChains = "HLT_mu20_msonly_mu6noL1_msonly_nscan05|HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb|HLT_mu20_msonly_mu10noL1_msonly_nscan03_noComb|HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb|HLT_mu20_msonly_mu6noL1_msonly_nscan05_L1MU4_EMPTY|HLT_mu20_msonly_mu6noL1_msonly_nscan05_noComb_L1MU4_EMPTY|HLT_mu20_msonly_mu6noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_ISO|HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb_L1MU6_EMPTY|HLT_mu20_msonly_mu10noL1_msonly_nscan03_noComb_L1MU6_EMPTY|HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_ISO|HLT_mu20_msonly_mu10noL1_msonly_nscan03_noComb_L1MU4_UNPAIRED_ISO|HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_NONISO|HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb_L1MU6_EMPTY|HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_ISO|HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_NONISO|HLT_j85_cleanLLP|HLT_j30_jes_cleanLLP_PS_llp_L1TAU60|HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU60|HLT_j30_jes_cleanLLP_PS_llp_L1LLP-NOMATCH|HLT_j30_jes_cleanLLP_PS_llp_noiso_L1LLP-NOMATCH|HLT_j250_jes_cleanLLP_PS_revllp_L1TAU60|HLT_j230_jes_cleanLLP_PS_revllp_L1TAU60|HLT_j200_jes_cleanLLP_PS_revllp_trkiso_L1TAU60|HLT_j30_jes_cleanLLP_PS_llp_L1TAU8_EMPTY|HLT_j30_jes_cleanLLP_PS_llp_L1TAU8_UNPAIRED_ISO|HLT_j30_jes_cleanLLP_PS_llp_L1TAU8_UNPAIRED_NONISO|HLT_j30_jes_cleanLLP_PS_llp_L1TAU30_EMPTY|HLT_j30_jes_cleanLLP_PS_llp_L1TAU30_UNPAIRED_ISO|HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_EMPTY|HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_UNPAIRED_ISO|HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_UNPAIRED_NONISO|HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU30_EMPTY|HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU30_UNPAIRED_ISO| HLT_3mu6_msonly|HLT_3mu6_msonly_L1MU4_EMPTY| HLT_3mu6_msonly_L1MU6_EMPTY|HLT_3mu6_msonly_L1MU4_UNPAIRED_ISO| HLT_3mu6_msonly_L1MU4_UNPAIRED_NONISO|HLT_e24_lhmedium_L1EM18VH| HLT_e24_lhmedium_L1EM20VH|HLT_e24_lhmedium_iloose_L1EM18VH| HLT_e24_lhtight_nod0_ivarloose|HLT_e24_lhmedium_nod0_L1EM20VHI| HLT_e24_lhtight_nod0_ivarloose|HLT_e24_lhmedium_nod0_L1EM20VHI| HLT_e26_lhtight_nod0_ivarloose|HLT_e60_lhmedium_nod0| HLT_e60_medium|HLT_mu20_iloose_L1MU15|HLT_mu50|HLT_mu60|HLT_mu24_iloose|HLT_mu24_iloose_L1MU15|HLT_mu24_ivarloose|HLT_mu24_ivarloose_L1MU15|HLT_mu40|HLT_mu24_ivarmedium|HLT_mu24_imedium|HLT_mu26_ivarmedium|HLT_mu26_imedium| HLT_j80_xe80|HLT_xe70_L1XE45|HLT_xe70|HLT_xe70_mht|HLT_xe80_tc_lcw_L1XE50|HLT_xe90_mht_L1XE50|HLT_xe80_tc_lcw_L1XE50|HLT_xe100_mht_L1XE50|HLT_xe110_mht_L1XE50|HLT_j25|HLT_j35|HLT_j45|HLT_j55|HLT_j60|HLT_j85"
 
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 EXOT13ThinningHelper = ThinningHelper("EXOT13ThinningHelper")
-#EXOT13ThinningHelper.TriggerChains = triggerNavChains
+EXOT13ThinningHelper.TriggerChains = triggerNavChains
 EXOT13ThinningHelper.AppendToStream(EXOT13Stream)
 
 #=======================================
 # SKIMMING   
 #=======================================
-beamEnergy = jobproperties.Beam.energy()
-expression = ''
-if (beamEnergy < 4.1e+06):
-    expression = '(EventInfo.eventTypeBitmask==1) || EF_3mu6_MSonly || EF_2mu4_mu11_MSonly || EF_g35_medium_g25 || EF_2mu10_MSonly_g12_loose || EF_2mu14'
-if (beamEnergy > 6.0e+06):
-    expression = 'L1_3MU6 || HLT_3mu6 || HLT_mu20_imedium_2mu4noL1 || HLT_g35_medium1_g25_medium1 || HLT_g12_loose1_2mu10_msonly || HLT_2mu14 || HLT_j80_xe80'
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-EXOT13StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "EXOT13StringSkimmingTool",
-                                                                         expression = expression)
+expression = 'HLT_mu20_msonly_mu6noL1_msonly_nscan05||   HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb||    HLT_mu20_msonly_mu10noL1_msonly_nscan03_noComb||    HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb||        HLT_mu20_msonly_mu6noL1_msonly_nscan05_L1MU4_EMPTY||      HLT_mu20_msonly_mu6noL1_msonly_nscan05_noComb_L1MU4_EMPTY||     HLT_mu20_msonly_mu6noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_ISO||     HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb_L1MU6_EMPTY||     HLT_mu20_msonly_mu10noL1_msonly_nscan03_noComb_L1MU6_EMPTY||     HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_ISO||         HLT_mu20_msonly_mu10noL1_msonly_nscan03_noComb_L1MU4_UNPAIRED_ISO||   HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_NONISO||      HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb_L1MU6_EMPTY||        HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_ISO||         HLT_mu20_msonly_mu15noL1_msonly_nscan05_noComb_L1MU4_UNPAIRED_NONISO||    HLT_j85_cleanLLP||     HLT_j30_jes_cleanLLP_PS_llp_L1TAU60||     HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU60||      HLT_j250_jes_cleanLLP_PS_revllp_L1TAU60||        HLT_j230_jes_cleanLLP_PS_revllp_L1TAU60||     HLT_j200_jes_cleanLLP_PS_revllp_trkiso_L1TAU60||      HLT_j30_jes_cleanLLP_PS_llp_L1TAU8_EMPTY||       HLT_j30_jes_cleanLLP_PS_llp_L1TAU8_UNPAIRED_ISO||       HLT_j30_jes_cleanLLP_PS_llp_L1TAU8_UNPAIRED_NONISO||      HLT_j30_jes_cleanLLP_PS_llp_L1TAU30_EMPTY||       HLT_j30_jes_cleanLLP_PS_llp_L1TAU30_UNPAIRED_ISO||      HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_EMPTY||     HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_UNPAIRED_ISO||         HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_UNPAIRED_NONISO||     HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU30_EMPTY||       HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU30_UNPAIRED_ISO||      HLT_3mu6_msonly||    HLT_3mu6_msonly_L1MU4_EMPTY||      HLT_3mu6_msonly_L1MU6_EMPTY||       HLT_3mu6_msonly_L1MU4_UNPAIRED_ISO||    HLT_3mu6_msonly_L1MU4_UNPAIRED_NONISO||        HLT_e24_lhmedium_L1EM18VH||   HLT_e24_lhmedium_L1EM20VH||      HLT_e24_lhmedium_iloose_L1EM18VH||      HLT_e24_lhtight_nod0_ivarloose||       HLT_e24_lhmedium_nod0_L1EM20VHI||    HLT_e24_lhtight_nod0_ivarloose||       HLT_e24_lhmedium_nod0_L1EM20VHI||        HLT_e26_lhtight_nod0_ivarloose||      HLT_e60_lhmedium_nod0||     HLT_e60_medium||      HLT_mu20_iloose_L1MU15||       HLT_mu50||     HLT_mu60||    HLT_mu24_iloose||       HLT_mu24_iloose_L1MU15||    HLT_mu24_ivarloose||    HLT_mu24_ivarloose_L1MU15||     HLT_mu40||     HLT_mu24_ivarmedium||       HLT_mu24_imedium||   HLT_mu26_ivarmedium||   HLT_mu26_imedium||    HLT_j80_xe80||      HLT_xe70_L1XE45||     HLT_xe70||      HLT_xe70_mht||     HLT_xe80_tc_lcw_L1XE50||  HLT_xe90_mht_L1XE50||     HLT_xe80_tc_lcw_L1XE50||  HLT_xe100_mht_L1XE50||     HLT_xe110_mht_L1XE50||    HLT_j25||    HLT_j35||    HLT_j45||     HLT_j55||    HLT_j60||    HLT_j85'
 
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+EXOT13StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "EXOT13StringSkimmingTool", expression = expression)
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+EXOT13TrigDashSkimmingTool = DerivationFramework__TriggerSkimmingTool(name          = "EXOT13TrigDashSkimmingTool",
+                                                                      TriggerListOR = ["HLT_j30_jes_cleanLLP_PS_llp_L1LLP-NOMATCH","HLT_j30_jes_cleanLLP_PS_llp_noiso_L1LLP-NOMATCH","HLT_j30_jes_cleanLLP_PS_llp_L1LLP-RO","HLT_j30_jes_cleanLLP_PS_llp_noiso_L1LLP-RO" ] )
+
+ToolSvc += EXOT13TrigDashSkimmingTool
 ToolSvc += EXOT13StringSkimmingTool
+print EXOT13TrigDashSkimmingTool
 print EXOT13StringSkimmingTool
+
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+EXOT13triggerORTool=DerivationFramework__FilterCombinationOR(name="EXOT13triggerORTool", FilterList=[EXOT13TrigDashSkimmingTool,EXOT13StringSkimmingTool] )
+ToolSvc += EXOT13triggerORTool
+print EXOT13triggerORTool
 
 #=======================================
 # THINNING
@@ -69,34 +68,63 @@ EXOT13TPThinningTool = DerivationFramework__TrackParticleThinning( name         
 ToolSvc += EXOT13TPThinningTool
 thinningTools.append(EXOT13TPThinningTool)
 
-# Thin truth
-from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
-EXOT13MCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT13MCThinningTool",
-                                                             ThinningService = EXOT13ThinningHelper.ThinningSvc(),
-                                                              WritePartons               = False,
-                                                              WriteHadrons               = True,
-                                                              WriteBHadrons              = True,
-                                                              WriteGeant                 = False,
-                                                              GeantPhotonPtThresh        = -1.0,
-                                                              WriteTauHad                = True,
-                                                              PartonPtThresh             = -1.0,
-                                                              WriteBSM                   = True,
-                                                              WriteBosons                = True,
-                                                              WriteBSMProducts           = True,
-                                                              WriteTopAndDecays          = True,
-                                                              WriteEverything            = False,
-                                                              WriteAllLeptons            = True,
-                                                              WriteLeptonsNotFromHadrons         = True,
-                                                              WriteStatus3               = True,
-                                                              WriteFirstN                = -1,
-                                                              PreserveDescendants        = False,
-                                                              PreserveGeneratorDescendants = True,
-                                                              PreserveAncestors = True)
+#Thin calo-clusters 
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
+EXOT13JCCThinningTool = DerivationFramework__JetCaloClusterThinning(name                   = "EXOT13JCCThinningTool",
+                                                                    ThinningService        = "EXOT13ThinningSvc",
+                                                                    SGKey                  = "AntiKt4EMTopoJets",
+                                                                    TopoClCollectionSGKey  = "CaloCalTopoClusters",
+                                                                    SelectionString        = "AntiKt4EMTopoJets.pt > 20*GeV && AntiKt4EMTopoJets.eta >-2.5 && AntiKt4EMTopoJets.eta <2.5",
+                                                                    ConeSize               = 0.5)
+ToolSvc += EXOT13JCCThinningTool
+thinningTools.append(EXOT13JCCThinningTool)
 
-from AthenaCommon.GlobalFlags import globalflags
-if globalflags.DataSource()=='geant4':
-    ToolSvc += EXOT13MCThinningTool
-    thinningTools.append(EXOT13MCThinningTool)
+#Thin all electrons
+#from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
+#EXOT13ElectronsThinningTool = DerivationFramework__GenericObjectThinning( name = "EXOT13ElectronsThinningTool",
+#                                        ThinningService = "EXOT13ThinningSvc",
+#                                        ContainerName = "Electrons",
+#                                        ApplyAnd = False,
+#                                        SelectionString = "Electrons.pt > 20*GeV")
+#ToolSvc += EXOT13ElectronsThinningTool
+#thinningTools.append(EXOT13ElectronsThinningTool)
+
+#Thin all AntiKt4EMTopoJets
+#EXOT13JetsThinningTool = DerivationFramework__GenericObjectThinning( name = "EXOT13JetsThinningTool",
+#                                        ThinningService = "EXOT13ThinningSvc",
+#                                        ContainerName = "AntiKt4EMTopoJets",
+#                                        ApplyAnd = False,
+#                                        SelectionString = "AntiKt4EMTopoJets.pt > 20*GeV && AntiKt4EMTopoJets.eta >-2.5 && AntiKt4EMTopoJets.eta <2.5")
+#ToolSvc += EXOT13JetsThinningTool
+#thinningTools.append(EXOT13JetsThinningTool)
+
+## truth thinning
+#from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
+#EXOT13TruthTool = DerivationFramework__MenuTruthThinning(name                  = "EXOT13TruthTool",
+#                                                        ThinningService       = "EXOT13ThinningSvc",
+#                                                        WritePartons          = False,
+#                                                        WriteHadrons          = True,
+#                                                        WriteBHadrons         = False,
+#                                                        WriteGeant            = False,
+#                                                        WriteTauHad           = False,
+#                                                        PartonPtThresh        = -1.0,
+#                                                        WriteBSM              = True,
+#                                                        WriteBosons           = True,
+#                                                        WriteBSMProducts      = True,
+#                                                        WriteBosonProducts    = True,
+#                                                        WriteTopAndDecays     = False,
+#                                                        WriteEverything       = False,
+#                                                        WriteAllLeptons       = True,
+#                                                        WriteStatus3          = False,
+#                                                        PreserveGeneratorDescendants  = True,
+#                                                        PreserveAncestors     = True,
+#                                                        WriteFirstN           = -1)
+#
+#
+#from AthenaCommon.GlobalFlags import globalflags
+#if globalflags.DataSource()=='geant4':
+#  ToolSvc += EXOT13TruthTool
+#  thinningTools.append(EXOT13TruthTool)
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
@@ -104,9 +132,8 @@ if globalflags.DataSource()=='geant4':
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += exot13Seq
-exot13Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT13Kernel_skim", SkimmingTools = [EXOT13StringSkimmingTool])
+exot13Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT13Kernel_skim", SkimmingTools = [EXOT13triggerORTool])
 exot13Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT13Kernel", ThinningTools = thinningTools)
-
 
 # SPECIAL LINES FOR THINNING
 # Thinning service name must match the one passed to the thinning tools 
@@ -114,7 +141,6 @@ exot13Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT13Kernel", Thinni
 #augStream = MSMgr.GetStream( streamName )
 #evtStream = augStream.GetEventStream()
 #svcMgr += createThinningSvc( svcName="EXOT13ThinningSvc", outStreams=[evtStream] )
-
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -126,9 +152,8 @@ EXOT13SlimmingHelper = SlimmingHelper("EXOT13SlimmingHelper")
 EXOT13SlimmingHelper.SmartCollections = EXOT13SmartContent 
 EXOT13SlimmingHelper.AllVariables = EXOT13AllVariablesContent 
 EXOT13SlimmingHelper.StaticContent = EXOT13UnslimmedContent 
+EXOT13SlimmingHelper.ExtraVariables = EXOT13ExtraVariables
 EXOT13SlimmingHelper.IncludeEGammaTriggerContent = True
 EXOT13SlimmingHelper.IncludeMuonTriggerContent = True
 EXOT13SlimmingHelper.IncludeJetTriggerContent = True
 EXOT13SlimmingHelper.AppendContentToStream(EXOT13Stream)
-
-

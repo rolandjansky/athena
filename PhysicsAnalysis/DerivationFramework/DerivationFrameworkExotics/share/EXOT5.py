@@ -4,6 +4,7 @@
 #********************************************************************
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
@@ -71,6 +72,15 @@ EXOT5ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(
 ToolSvc += EXOT5ElectronTPThinningTool
 thinningTools.append(EXOT5ElectronTPThinningTool)
 
+# Keep tracks associated with photons
+EXOT5PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(
+    name                    = 'EXOT5PhotonTPThinningTool',
+    ThinningService         =  EXOT5ThinningHelper.ThinningSvc(),
+    SGKey                   = 'Photons',
+    InDetTrackParticlesKey  = 'InDetTrackParticles')
+ToolSvc += EXOT5PhotonTPThinningTool
+thinningTools.append(EXOT5PhotonTPThinningTool)
+
 # Keep tracks associated with taus
 EXOT5TauTPThinningTool = DerivationFramework__TauTrackParticleThinning(
     name                    = 'EXOT5TauTPThinningTool',
@@ -100,8 +110,7 @@ ToolSvc += EXOT5TPThinningTool
 thinningTools.append(EXOT5TPThinningTool)
 
 # Cluster thinning
-from DerivationFrameworkCalo.DerivationFrameworkCaloConf import \
-    DerivationFramework__CaloClusterThinning
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 
 # Keep clusters associated to electrons
 EXOT5ElectronCCThinningTool = DerivationFramework__CaloClusterThinning(
@@ -136,8 +145,7 @@ if DerivationFrameworkIsMonteCarlo:
         ParticleCaloExtensionTool = '')
     ToolSvc += EXOT5Classifier
 
-    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import \
-        DerivationFramework__TruthClassificationDecorator
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthClassificationDecorator
 
     EXOT5ClassificationDecorator = DerivationFramework__TruthClassificationDecorator(
         name              = 'EXOT5ClassificationDecorator',
@@ -146,8 +154,7 @@ if DerivationFrameworkIsMonteCarlo:
     ToolSvc += EXOT5ClassificationDecorator
     augmentationTools.append(EXOT5ClassificationDecorator)
 
-    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import \
-        DerivationFramework__MenuTruthThinning
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 
     EXOT5MCThinningTool = DerivationFramework__MenuTruthThinning(
         name                       = 'EXOT5MCThinningTool',
@@ -175,8 +182,7 @@ if DerivationFrameworkIsMonteCarlo:
     ToolSvc += EXOT5MCThinningTool
     thinningTools.append(EXOT5MCThinningTool)
 
-    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import \
-        DerivationFramework__TruthCollectionMaker
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthCollectionMaker
 
     EXOT5TruthElectronTool = DerivationFramework__TruthCollectionMaker(
         name                    = 'EXOT5TruthElectronTool',
@@ -207,8 +213,7 @@ if DerivationFrameworkIsMonteCarlo:
     ToolSvc += EXOT5TruthNeutrinoTool
     augmentationTools.append(EXOT5TruthNeutrinoTool)
 
-    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import \
-        DerivationFramework__TruthDressingTool
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthDressingTool
 
     EXOT5TruthElectronDressingTool = DerivationFramework__TruthDressingTool(
         name                  = 'EXOT5TruthElectronDressingTool',
@@ -231,23 +236,21 @@ if DerivationFrameworkIsMonteCarlo:
 #====================================================================
 # SKIMMING TOOLS
 #====================================================================
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import \
-    DerivationFramework__xAODStringSkimmingTool
-from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import \
-    DerivationFramework__SkimmingToolEXOT5
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__SkimmingToolEXOT5
 
-if DerivationFrameworkIsMonteCarlo:
-    ToolSvc += CfgMgr.JetCalibrationTool('EXOT5JESTool',
-        IsData        = False,
-        ConfigFile    = 'JES_MC15Prerecommendation_April2015.config',
-        CalibSequence = 'JetArea_Residual_Origin_EtaJES_GSC',
-        JetCollection = 'AntiKt4EMTopo')
-else:
-    ToolSvc += CfgMgr.JetCalibrationTool('EXOT5JESTool',
-        IsData        = True,
-        ConfigFile    = 'JES_MC15Prerecommendation_April2015.config',
-        CalibSequence = 'JetArea_Residual_Origin_EtaJES_GSC_Insitu',
-        JetCollection = 'AntiKt4EMTopo')
+# if DerivationFrameworkIsMonteCarlo:
+#     ToolSvc += CfgMgr.JetCalibrationTool('EXOT5JESTool',
+#         IsData        = False,
+#         ConfigFile    = 'JES_MC15cRecommendation_May2016.config',
+#         CalibSequence = 'JetArea_Residual_Origin_EtaJES_GSC',
+#         JetCollection = 'AntiKt4EMTopo')
+# else:
+#     ToolSvc += CfgMgr.JetCalibrationTool('EXOT5JESTool',
+#         IsData        = True,
+#         ConfigFile    = 'JES_MC15cRecommendation_May2016.config',
+#         CalibSequence = 'JetArea_Residual_Origin_EtaJES_GSC_Insitu',
+#         JetCollection = 'AntiKt4EMTopo')
 
 triggers = [
     # MET
@@ -264,6 +267,7 @@ triggers = [
     'HLT_e120_lhloose',
     # Single muon
     'HLT_mu20_iloose_L1MU15',
+    'HLT_mu26_imedium',
     'HLT_mu50',
     # Photons
     'HLT_g140_loose',
@@ -279,6 +283,34 @@ triggers = [
     'HLT_j30_xe60_razor195',
     # VBF
     'HLT_2j40_0eta490_invm250_L1XE55',
+    # new triggers for 2016
+    'HLT_xe80_tc_lcw_L1XE50',
+    'HLT_xe90_tc_lcw_L1XE50',
+    'HLT_xe90_mht_L1XE50',
+    'HLT_xe100_mht_L1XE50',
+    'HLT_xe100_mht_L1XE55',
+    'HLT_xe100_mht_L1XE60',
+    'HLT_xe100_tc_lcw_L1XE50',
+    'HLT_xe110_mht_L1XE50',
+    'HLT_xe120_mht_L1XE50',
+    'HLT_xe130_mht_L1XE50',
+    'HLT_xe140_mht_L1XE50',
+    'HLT_xe100_L1XE50',
+    'HLT_xe110_L1XE50',
+    'HLT_xe120_L1XE50',
+    'HLT_mu24_ivarmedium',
+    'HLT_mu26_ivarmedium',
+    'HLT_e24_lhtight_nod0_ivarloose',
+    'HLT_e26_lhtight_ivarloose',
+    'HLT_e26_lhtight_nod0_ivarloose',
+    'HLT_e60_lhmedium_nod0',
+    'HLT_e60_medium',
+    'HLT_e120_lhloose_nod0',
+    'HLT_e140_lhloose_nod0',
+    'HLT_g140_loose',
+    'HLT_g160_loose',
+    'HLT_g120_tight',
+    'HLT_noalg_L1J400'
     ]
 expression = ' || '.join(triggers)
 
@@ -301,10 +333,23 @@ ToolSvc += EXOT5SkimmingTool
 skimmingTools.append(EXOT5SkimmingTool)
 
 #=======================================
+# JETS
+#=======================================
+
+#restore AOD-reduced jet collections
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+OutputJets["EXOT5"] = []
+reducedJetList = [
+    "AntiKt4TruthJets"]
+replaceAODReducedJets(reducedJetList,exot5Seq,"EXOT5")
+
+#jet calibration
+applyJetCalibration_xAODColl("AntiKt4EMTopo", exot5Seq)
+
+#=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import \
-    DerivationFramework__DerivationKernel
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
 exot5Seq += CfgMgr.DerivationFramework__DerivationKernel(
     'EXOT5Kernel_skim', SkimmingTools=skimmingTools)
@@ -326,6 +371,7 @@ EXOT5SlimmingHelper.SmartCollections = [
     'PrimaryVertices',
     'MET_Reference_AntiKt4EMTopo',
     'BTagging_AntiKt4EMTopo',
+    'AntiKt4EMTopoJets'
     ]
 EXOT5SlimmingHelper.ExtraVariables = [
     'Photons.author.Loose.Tight',
@@ -333,7 +379,7 @@ EXOT5SlimmingHelper.ExtraVariables = [
     'Muons.ptcone20.ptcone30.ptcone40.etcone20.etcone30.etcone40',
     'CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix', # SUSYTools
     'ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix', # SUSYTools
-    'TauJets.TruthCharge.TruthProng.IsTruthMatched.TruthPtVis.truthOrigin.truthType.truthParticleLink.truthJetLink',
+    'TauJets.TruthCharge.TruthProng.IsTruthMatched.TruthPtVis.truthOrigin.truthType.truthParticleLink.truthJetLink'
     ]
 EXOT5SlimmingHelper.AllVariables = [
     'AntiKt4EMTopoJets',
