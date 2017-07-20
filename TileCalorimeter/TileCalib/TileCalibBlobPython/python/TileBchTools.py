@@ -75,11 +75,14 @@ class TileBchMgr(TileCalibLogger):
 
         #=== print status information
         reader = TileCalibTools.TileBlobReader(db,folderPath,tag)
-        self.log().info("Updating dictionary from \'%s\'" % db.databaseName())
-        self.log().info("... using tag \'%s\', run-lumi=%s" % (tag,runLumi))
-        self.__multiVersion = reader.folderIsMultiVersion()
-        self.__comment = reader.getComment(runLumi)
-        self.log().info("... comment: %s" % self.__comment)
+        if ros==-2:
+            ros=0
+            module=TileCalibUtils.definitions_draweridx()
+            self.log().info("Updating dictionary from \'%s\'" % db.databaseName())
+            self.log().info("... using tag \'%s\', run-lumi=%s" % (tag,runLumi))
+            self.__multiVersion = reader.folderIsMultiVersion()
+            self.__comment = reader.getComment(runLumi)
+            self.log().info("... comment: %s" % self.__comment)
 
         #=== loop over the whole detector
         rosmin = ros if ros>=0 else 0
@@ -123,7 +126,7 @@ class TileBchMgr(TileCalibLogger):
         self.__updateFromDb(db, folderPath, tag, runLumi, fillTable, ros, module)
 
     #____________________________________________________________________
-    def initialize(self, db, folderPath, tag="", runLumi=(MAXRUN,MAXLBK-1), mode=None):
+    def initialize(self, db, folderPath, tag="", runLumi=(MAXRUN,MAXLBK-1), mode=None, ros=-1, module=-1):
         """
         Initializes the internal bad channel cache. Any changes applied to the
         cache previous to calling this function are lost. Typically this function
@@ -134,18 +137,22 @@ class TileBchMgr(TileCalibLogger):
         #=== initialize reference to current status
         self.__runLumi = runLumi
         if mode: self.__mode = mode
+        fT = -1
         if self.__mode<0: # silent mode
             self.__mode = -self.__mode
             if self.__mode==2:
-                self.updateFromDb(db,folderPath,tag,runLumi,-3)
+                fT = -3
             else:
-                self.updateFromDb(db,folderPath,tag,runLumi,-2)
+                fT = -2
         else:
             if self.__mode==2:
-                self.updateFromDb(db,folderPath,tag,runLumi,3)
+                fT = 3
             else:
-                self.updateFromDb(db,folderPath,tag,runLumi,2)
+                fT = 2
 
+        if ros!=-2:
+            self.__updateFromDb(db,folderPath,tag,runLumi,fT,-2)
+        self.__updateFromDb(db,folderPath,tag,runLumi,fT,ros,module)
         #=== update TileBchStatus::isBad() definition from DB
         self.log().info("Updating TileBchStatus::isBad() definition from DB")
         status = self.getBadDefinition()
