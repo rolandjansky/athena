@@ -65,7 +65,8 @@ int main() {
    CHECK( missingmassTool.initialize() );
 
    // Connect an input file to the event:
-   const char *FNAME = "/afs/cern.ch/atlas/project/PAT/xAODs/r7725/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.AOD.e3698_s2608_s2183_r7725_r7676/AOD.07915862._000100.pool.root.1";
+   
+   const char *FNAME = getenv("ASG_TEST_FILE_MC");
 
    std::unique_ptr< ::TFile > ifile( ::TFile::Open( FNAME, "READ" ) );
 
