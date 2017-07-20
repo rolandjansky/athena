@@ -34,10 +34,8 @@ G4AtlasRunManager::G4AtlasRunManager()
 
 G4AtlasRunManager* G4AtlasRunManager::GetG4AtlasRunManager()
 {
-  static G4AtlasRunManager* thisManager = nullptr;
-  if (!thisManager) {
-    thisManager = new G4AtlasRunManager; // Leaked
-  }
+  static G4AtlasRunManager *thisManager = nullptr;
+  if (!thisManager) { thisManager = new G4AtlasRunManager; } // Leaked
   return thisManager;
 }
 
@@ -57,13 +55,15 @@ void G4AtlasRunManager::Initialize()
                            methodName, StatusCode::FAILURE);
     }
   }
-  // Call the base class
+  // Call the base class Initialize method. This will call
+  // InitializeGeometry and InitializePhysics.
   G4RunManager::Initialize();
 }
 
 
 void G4AtlasRunManager::InitializeGeometry()
 {
+  ATH_MSG_DEBUG( "InitializeGeometry()" );
   if (m_detGeoSvc.retrieve().isFailure()) {
     ATH_MSG_ERROR ( "Could not retrieve the DetectorGeometrySvc" );
     G4ExceptionDescription description;
@@ -89,7 +89,6 @@ void G4AtlasRunManager::InitializeGeometry()
 
   // Create/assign detector construction
   G4RunManager::SetUserInitialization(m_detGeoSvc->GetDetectorConstruction());
-
   if (userDetector) {
     G4RunManager::InitializeGeometry();
   }
@@ -123,6 +122,7 @@ void G4AtlasRunManager::EndEvent()
 
 void G4AtlasRunManager::InitializePhysics()
 {
+  ATH_MSG_INFO( "InitializePhysics()" );
   kernel->InitializePhysics();
   physicsInitialized = true;
 
@@ -252,9 +252,7 @@ bool G4AtlasRunManager::ProcessEvent(G4Event* event)
     return true;
   }
 
-  if (m_recordFlux) {
-    this->RecordFlux();
-  }
+  if (m_recordFlux) { this->RecordFlux(); }
 
   this->StackPreviousEvent(currentEvent);
   bool abort = currentEvent->IsAborted();
@@ -282,20 +280,14 @@ void G4AtlasRunManager::RecordFlux()
 
 void G4AtlasRunManager::RunTermination()
 {
+  ATH_MSG_DEBUG( " G4AtlasRunManager::RunTermination() " );
   if (m_recordFlux) {
     this->WriteFluxInformation();
   }
-  // std::cout<<" this is G4AtlasRunManager::RunTermination() "<<std::endl;
-#if G4VERSION_NUMBER < 1010
-  for(size_t itr=0;itr<previousEvents->size();itr++) {
-    delete (*previousEvents)[itr];
-  }
-#else
   this->CleanUpPreviousEvents();
-#endif
   previousEvents->clear();
 
-  if(userRunAction) {
+  if (userRunAction) {
     userRunAction->EndOfRunAction(currentRun);
   }
 
@@ -303,28 +295,26 @@ void G4AtlasRunManager::RunTermination()
   currentRun = nullptr;
   runIDCounter++;
 
-  ATH_MSG_INFO( "Changing the state..." );
+  ATH_MSG_VERBOSE( "Changing the state..." );
   G4StateManager* stateManager = G4StateManager::GetStateManager();
   stateManager->SetNewState(G4State_Idle);
 
-  ATH_MSG_INFO( "Opening the geometry back up" );
+  ATH_MSG_VERBOSE( "Opening the geometry back up" );
   G4GeometryManager::GetInstance()->OpenGeometry();
 
-  ATH_MSG_INFO( "Terminating the run...  State is " << stateManager->GetStateString( stateManager->GetCurrentState() ) );
+  ATH_MSG_VERBOSE( "Terminating the run...  State is " << stateManager->GetStateString( stateManager->GetCurrentState() ) );
   kernel->RunTermination();
-  ATH_MSG_INFO( "All done..." );
+  ATH_MSG_VERBOSE( "All done..." );
 
-  // std::cout<<" setting all pointers in G4AtlasRunManager to 0"<<std::endl;
   userRunAction = nullptr;
   userEventAction = nullptr;
   userSteppingAction = nullptr;
   userStackingAction = nullptr;
   userTrackingAction = nullptr;
-  // physicsList = nullptr;
   userDetector = nullptr;
   userPrimaryGeneratorAction = nullptr;
 
-  // std::cout<<" this is G4AtlasRunManager::RunTermination(): done "<<std::endl;
+  return;
 }
 
 void G4AtlasRunManager::WriteFluxInformation()

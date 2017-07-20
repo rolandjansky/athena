@@ -98,7 +98,7 @@ StatusCode ISF::SimHitSvc::initialize()
   // setup for validation mode
   if ( m_validationOutput)
     {
-      CHECK(this->createSimHitsTree());
+      ATH_CHECK(this->createSimHitsTree());
     }
 
   return StatusCode::SUCCESS;
@@ -115,11 +115,10 @@ StatusCode ISF::SimHitSvc::initializeEvent()
 {
   ATH_MSG_DEBUG("initializing hit collections");
 
-  if(!m_senDetTool)
-    {
-      CHECK(m_senDetTool.retrieve());
-    }
-  CHECK(m_senDetTool->BeginOfAthenaEvent());
+  if(!m_senDetTool) {
+    ATH_CHECK(m_senDetTool.retrieve());
+  }
+  ATH_CHECK(m_senDetTool->BeginOfAthenaEvent());
 
   return StatusCode::SUCCESS;
 }

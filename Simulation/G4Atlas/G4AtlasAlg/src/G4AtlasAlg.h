@@ -25,6 +25,7 @@
 #include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
 #include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
 #include "G4AtlasInterfaces/IPhysicsListTool.h"
+#include "G4AtlasInterfaces/IG4AtlasSvc.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 // ISF includes
@@ -88,12 +89,10 @@ private:
   /// Properties for the jobOptions
   std::string m_libList;
   std::string m_physList;
-  std::string m_generator; //@TODO replace FADS code
   std::string m_fieldMap;
   std::string m_rndmGen;
   bool m_releaseGeoModel;
   bool m_recordFlux;
-  bool m_IncludeParentsInG4Event; //@TODO replace FADS code
   bool m_killAbortedEvents;
   bool m_flagAbortedEvents;
   SG::ReadHandle<McEventCollection>    m_inputTruthCollection; //!< input hard scatter collection
@@ -109,6 +108,8 @@ private:
 
   /// Random number Service
   ServiceHandle<IAtRndmGenSvc> m_rndmGenSvc;
+  /// G4Atlas Service - handles G4 initialization
+  ServiceHandle<IG4AtlasSvc> m_g4atlasSvc;
   /// User Action Service
   ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;
   /// Detector Geometry Service (builds G4 Geometry)

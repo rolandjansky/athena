@@ -13,7 +13,7 @@ from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.BeamFlags import jobproperties
 
 import PyG4Atlas, AtlasG4Eng
-from PyG4Atlas import SimSkeleton
+from SimSkeleton import SimSkeleton
 
 
 
@@ -143,24 +143,6 @@ class AtlasSimSkeleton(SimSkeleton):
         ## be required here.
         from G4AtlasApps.SimFlags import simFlags
         include("InDetBeamSpotService/BeamCondSvc.py")
-        if not hasattr(ServiceMgr, 'BeamCondSvc'):
-            from InDetBeamSpotService.InDetBeamSpotServiceConf import BeamCondSvc
-            if simFlags.VertexFromCondDB.statusOn and simFlags.VertexFromCondDB():
-                beamcondsvc = BeamCondSvc('BeamCondSvc')
-            else:
-                ## If hard-coded values other than zero smearing are
-                ## required then the BeamCondSvc should be configured
-                ## in the preInclude job options and added to the
-                ## ServiceMgr at that point.
-                beamcondsvc = BeamCondSvc('BeamCondSvc', posX = 0.0,
-                                          posY = 0.0, posZ = 0.0,
-                                          sigmaX = 0.0, sigmaY = 0.0,
-                                          sigmaZ = 0.0, sigmaXY = 0.0,
-                                          tiltX = 0.0, tiltY = 0.0)
-
-            ServiceMgr += beamcondsvc
-            #theApp.CreateSvc += ["BeamCondSvc"]
-        ServiceMgr.BeamCondSvc.useDB = simFlags.VertexFromCondDB()
 
         ## GeoModel stuff
         ## TODO: Tidy imports etc.
@@ -180,7 +162,6 @@ class AtlasSimSkeleton(SimSkeleton):
         from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
         gms = GeoModelSvc()
         ## Cosmics GeoModel tweaks
-        #from G4AtlasApps.SimFlags import simFlags
         if jobproperties.Beam.beamType() == 'cosmics' or \
            (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
             from CavernInfraGeoModel.CavernInfraGeoModelConf import CavernInfraDetectorTool
@@ -229,12 +210,6 @@ class AtlasSimSkeleton(SimSkeleton):
         ## Add configured GeoModelSvc to service manager
         ServiceMgr += gms
 
-        ## Explicitly create DetectorGeometrySvc - temporary fix
-        from AthenaCommon.CfgGetter import getService, getPublicTool
-        from AthenaCommon.AppMgr import ServiceMgr
-        ServiceMgr += getService('DetectorGeometrySvc')
-        ServiceMgr.ToolSvc += getPublicTool('PhysicsListToolBase')
-
         ## Run the geometry envelope setup earlier than GeoSD
         self._do_GeoEnv() #TODO remove
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_external :: done')
@@ -246,34 +221,6 @@ class AtlasSimSkeleton(SimSkeleton):
         """
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_GeoEnv :: starting')
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_GeoEnv :: done')
-
-
-    @classmethod
-    def do_UserActions(self):
-        """
-        User actions: with the migration ot MT UA, this method is no longer needed.
-        """
-        return
-
-
-    @classmethod
-    def do_GeoSD(self):
-        """ Configure the geometry and SD
-        """
-        AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_GeoSD :: starting')
-
-        ## Calorimeters
-        ##if DetFlags.Calo_on():
-        ##    ## LAr
-        ##    if DetFlags.geometry.LAr_on():
-        ##        from G4AtlasApps.SimFlags import simFlags
-        ##        # if this is an ISF run, allow the collections on store gate to be modified
-        ##        # by other algorithms (i.e. set them non-const)
-        ##        allowSGMods = True if simFlags.ISFRun else False
-        ##        from atlas_calo import PyLArG4RunControler
-        ##        lArG4RunControl = PyLArG4RunControler('PyLArG4RunControl', 'LArG4RunControlDict', allowMods=allowSGMods)
-
-        AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_GeoSD :: done')
 
 
     @classmethod

@@ -62,6 +62,8 @@ simFlags.ReleaseGeoModel = False
 ## Add sim framework to the alg sequence (sim pre-init happens on construction)
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 job += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+job += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 # User algorithms
 from AthenaCommon.AppMgr import ServiceMgr

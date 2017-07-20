@@ -356,6 +356,7 @@ topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 ## Populate alg sequence
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 #ServiceMgr.AthenaOutputStream.StreamHITS.ItemList                  = ['EventInfo#*']
 

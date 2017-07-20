@@ -43,18 +43,17 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
   , m_libList("")
   , m_physList("")
-  , m_generator("") //@TODO replace FADS code
   , m_fieldMap("")
   , m_rndmGen("athena")
   , m_releaseGeoModel(true)
   , m_recordFlux(false)
-  , m_IncludeParentsInG4Event(false) //@TODO replace FADS code
   , m_killAbortedEvents(true)
   , m_flagAbortedEvents(false)
   , m_inputTruthCollection("BeamTruthEvent")
   , m_outputTruthCollection("TruthEvent")
   , m_useMT(false)
   , m_rndmGenSvc("AtDSFMTGenSvc", name)
+  , m_g4atlasSvc("G4AtlasSvc", name)
   , m_userActionSvc("G4UA::UserActionSvc", name) // new user action design
   , m_detGeoSvc("DetectorGeometrySvc", name)
   , m_inputConverter("ISF_InputConverter",name)
@@ -66,14 +65,13 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
 {
   declareProperty( "Dll", m_libList);
   declareProperty( "Physics", m_physList);
-  declareProperty( "Generator", m_generator); //@TODO replace FADS code
   declareProperty( "FieldMap", m_fieldMap);
   declareProperty( "RandomGenerator", m_rndmGen);
   declareProperty( "ReleaseGeoModel", m_releaseGeoModel);
   declareProperty( "RecordFlux", m_recordFlux);
-  declareProperty( "IncludeParentsInG4Event", m_IncludeParentsInG4Event); //@TODO replace FADS code
   declareProperty( "KillAbortedEvents", m_killAbortedEvents);
   declareProperty( "FlagAbortedEvents", m_flagAbortedEvents);
+  declareProperty( "InputTruthCollection", m_inputTruthCollection);
   declareProperty( "OutputTruthCollection", m_outputTruthCollection);
 
   // Verbosities
@@ -84,6 +82,7 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("MultiThreading", m_useMT=false);
   // ServiceHandle properties
   declareProperty("AtRndmGenSvc", m_rndmGenSvc);
+  declareProperty("G4AtlasSvc", m_g4atlasSvc );
   declareProperty("UserActionSvc", m_userActionSvc);
   declareProperty("GeoIDSvc", m_geoIDSvc);
   declareProperty("InputConverter",        m_inputConverter);
@@ -99,7 +98,8 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode G4AtlasAlg::initialize() {
+StatusCode G4AtlasAlg::initialize()
+{
   ATH_MSG_DEBUG("Start of initialize()");
   // Create the scoring manager if requested
   if (m_recordFlux) G4ScoringManager::GetScoringManager();
@@ -114,6 +114,9 @@ StatusCode G4AtlasAlg::initialize() {
   }
 
   ATH_CHECK( m_userActionSvc.retrieve() );
+
+  // FIXME TOO EARLY???
+  ATH_CHECK(m_g4atlasSvc.retrieve());
 
   if(m_useMT) {
     // Retrieve the python service to trigger its initialization. This is done
@@ -132,6 +135,7 @@ StatusCode G4AtlasAlg::initialize() {
 
   ATH_MSG_DEBUG(std::endl << std::endl << std::endl);
 
+
   TruthStrategyManager* sManager = TruthStrategyManager::GetStrategyManager();
   sManager->SetISFTruthSvc( &(*m_truthRecordSvc) );
   sManager->SetISFGeoIDSvc( &(*m_geoIDSvc) );
@@ -141,7 +145,8 @@ StatusCode G4AtlasAlg::initialize() {
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-void G4AtlasAlg::initializeOnce() {
+void G4AtlasAlg::initializeOnce()
+{
   // Assign physics list
   if(m_physListTool.retrieve().isFailure()) {
     throw std::runtime_error("Could not initialize ATLAS PhysicsListTool!");
@@ -226,9 +231,11 @@ void G4AtlasAlg::initializeOnce() {
   /// @todo Reinstate or delete?! This can't actually be called from the Py algs
   //ATH_MSG_INFO("Firing initialization of G4!!!");
   //initializeG4();
+  return;
 }
 
-void G4AtlasAlg::initializeG4() {
+void G4AtlasAlg::initializeG4()
+{
   if (m_verbosities.size()>0) {
     G4TransportationManager *tm = G4TransportationManager::GetTransportationManager();
     G4RunManagerKernel *rmk = G4RunManagerKernel::GetRunManagerKernel();
@@ -260,7 +267,8 @@ void G4AtlasAlg::initializeG4() {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode G4AtlasAlg::finalize() {
+StatusCode G4AtlasAlg::finalize()
+{
   ATH_MSG_DEBUG(std::endl<<std::endl<<std::endl);
   ATH_MSG_INFO("++++++++++++  G4AtlasAlg finalized  ++++++++++++" <<std::endl<<std::endl);
 
@@ -277,7 +285,8 @@ StatusCode G4AtlasAlg::finalize() {
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-void G4AtlasAlg::finalizeOnce() {
+void G4AtlasAlg::finalizeOnce()
+{
   ATH_MSG_DEBUG("\t terminating the current G4 run");
   // TODO: could probably just use G4RunManager base class generically.
   //#ifdef ATHENAHIVE
@@ -291,10 +300,10 @@ void G4AtlasAlg::finalizeOnce() {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode G4AtlasAlg::execute() {
+StatusCode G4AtlasAlg::execute()
+{
   static int n_Event=0;
   ATH_MSG_DEBUG("++++++++++++  G4AtlasAlg execute  ++++++++++++");
-
 
   TruthStrategyManager* sManager = TruthStrategyManager::GetStrategyManager();
   ATH_CHECK( sManager->InitializeWorldVolume() );
