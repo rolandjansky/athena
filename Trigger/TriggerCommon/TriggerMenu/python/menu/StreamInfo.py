@@ -3,41 +3,28 @@
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenu.menu.StreamInfo' )
 
-monStreams = ['monitoring_random', 
-              'CSC',
-              'IDMonitoring',
-              'MetRateStudies',
+monStreams = ['CSC',
+              'IDMonitoring'
               ]
 
 physicsStreams = ['Main',
                   'BphysLS',
-                  'Physics',
                   'Background',
                   'DISCARD',
-                  'Egamma', 
-                  'Bphysics',
-                  'Combined',
-                  'Muon', 
-                  'Met', 'Jet', 'Tau',
                   'MinBias',
                   'ZeroBias',
                   'TauOverlay',
                   'Standby', 
-                  'L1Muon', 'L1Calo', 'L1MinBias', 'L1Topo',
+                  'L1Calo', 'L1Topo',
                   'IDCosmic','CosmicCalo',
                   'HLTPassthrough',
-                  'JetTauEtmiss', # needed for LS1menu
+                  'JetTauEtmiss',
                   'EnhancedBias',
                   'CosmicMuons',
                   'HLT_IDCosmic',
-                  'CosmicID',
                   'Late',
-                  'HardProbes',
-                  'MinBiasOverlay',
-                  'UPC',
                   'Mistimed',
-                  'ExoDelayed',
-                  'BphysDelayed',
+                  'ExoDelayed'
                   ]
 
 calibStreams = [
@@ -49,7 +36,6 @@ calibStreams = [
                 'PixelNoise', 'PixelBeam', 
                 'SCTNoise',
                 'CostMonitoring',
-                'beamspot',
                 'Muon_Calibration',
                 'ALFACalib',
                 'IBLLumi',
@@ -68,12 +54,8 @@ calibStreams = [
 ##NOTE: DataScouting_xx_NAME: 
 ##xx stands for the unique ROB_ID associated with the stream. If you add a new one,
 ##make sure to use a unique number
-dataScoutingStreams = ['DataScouting_01_CosmicMuons',
-                       'DataScouting_02_CosmicMuons',
-                       'DataScouting_03_CosmicMuons',
-                       'DataScouting_04_IDCosmic',                    
-                       'DataScouting_05_Jets',
-                       'DataScouting_06_Jets',
+dataScoutingStreams = ['DataScouting_03_CosmicMuons',
+                       'DataScouting_05_Jets'
                        ]
 
 expressStreams = ['express']
