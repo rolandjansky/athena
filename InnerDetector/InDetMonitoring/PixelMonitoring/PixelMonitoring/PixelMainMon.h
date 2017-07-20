@@ -547,8 +547,9 @@ private:
 
    // Histograms in 'ErrorsExpert' folder
    PixelMon2DLumiMaps*   m_errhist_expert_LB_maps[kNumErrorStates + kNumErrorStatesIBL];
-   PixelMon2DMapsLW*     m_errhist_expert_maps[kNumErrorStates+kNumErrorStatesIBL];
-   TProfile_LW*          m_errhist_expert_LB[PixLayerIBL2D3DDBM::COUNT][kNumErrorStates+kNumErrorStatesIBL];
+   PixelMon2DMapsLW*     m_errhist_expert_maps[kNumErrorStates + kNumErrorStatesIBL];
+   TProfile_LW*          m_errhist_expert_LB[PixLayer::COUNT-1][kNumErrorStates];
+   TProfile_LW*          m_errhist_expert_IBL_LB[kNumErrorStatesIBL];
    TH3F*                 m_errhist_expert_fe_trunc_err_3d[PixLayer::COUNT];
    TH1F_LW*              m_errhist_expert_servrec_ibl_unweighted;
    TH1F_LW*              m_errhist_expert_servrec_ibl_weighted;
