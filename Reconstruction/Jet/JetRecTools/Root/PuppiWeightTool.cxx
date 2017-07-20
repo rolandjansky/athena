@@ -27,11 +27,9 @@ PuppiWeightTool::PuppiWeightTool(const std::string& name) : JetConstituentModifi
   declareProperty("EtaBoundary",m_etaBoundary = 2.5);
 
   declareProperty("ApplyWeight",m_applyWeight=true);
-  declareProperty("PUPenalty", m_PUPenalty=false);
   declareProperty("IncludeCentralNeutralsInAlpha",m_includeCentralNeutralsInAlpha=false);
-  declareProperty("IncludeLowPTTracks",m_includeLowPTTracks=false);
   
-  m_puppi = new Puppi(m_R0, m_Rmin, m_beta, m_centralPTCutOffset, m_centralPTCutSlope, m_forwardPTCutOffset, m_forwardPTCutSlope, m_etaBoundary, m_PUPenalty);
+  m_puppi = new Puppi(m_R0, m_Rmin, m_beta, m_centralPTCutOffset, m_centralPTCutSlope, m_forwardPTCutOffset, m_forwardPTCutSlope, m_etaBoundary);
 }
 
 //------------------------------------------------------------------------------
@@ -81,60 +79,6 @@ StatusCode PuppiWeightTool::process(xAOD::PFOContainer* cont) const{
 	else chargedPUVector.push_back(pj);
       }
       else neutralVector.push_back(pj);
-    }
-    
-    //Test inclusion of low pT tracks
-    if (m_includeLowPTTracks){
-      ATH_MSG_WARNING("You are doing something experimental");
-      const xAOD::Vertex* vtx = nullptr; 
-
-      const xAOD::VertexContainer* pvtxs = 0;
-      ATH_CHECK(evtStore()->retrieve(pvtxs, "PrimaryVertices"));
-      if ( pvtxs == 0 || pvtxs->size()==0 ) {
-	ATH_MSG_WARNING(" This event has no primary vertices " );
-	return StatusCode::FAILURE;
-      }
-
-      //Usually the 0th vertex is the primary one, but this is not always the case. So we will choose the first vertex of type PriVtx
-      for (auto theVertex : *pvtxs) {
-	if (xAOD::VxType::PriVtx == theVertex->vertexType() ) {
-	  vtx = theVertex;
-	  break;
-	}//If we have a vertex of type primary vertex
-      }//iterate over the vertices and check their type
-
-      //If there is no primary vertex, then we cannot correct pflow inputs and hence we return (because this should not happen).
-      if (nullptr == vtx) {
-	ATH_MSG_VERBOSE("Could not find a primary vertex in this event " );
-	for (auto theVertex : *pvtxs) {
-	  if (xAOD::VxType::NoVtx == theVertex->vertexType() ) {
-	    vtx = theVertex;
-	    break;
-	  }
-	}
-	if (nullptr == vtx) {
-	  ATH_MSG_WARNING("Could not find a NoVtx in this event " );
-	  return StatusCode::FAILURE;
-	}
-      }
-
-      const xAOD::TrackParticleContainer *tracks=0;
-      evtStore()->retrieve(tracks, "InDetTrackParticles");
-      for (auto track: *tracks){
-
-	bool matchedToPrimaryVertex = false;
-
-	//vtz.z() provides z of that vertex w.r.t the center of the beamspot (z = 0). Thus we corrext the track z0 to be w.r.t z = 0
-	float z0 = track->z0() + track->vz() - vtx->z();
-	float theta = track->theta();
-	if ( fabs(z0*sin(theta)) < 2.0 ) {
-	  matchedToPrimaryVertex = true;
-	}
-	if( track->pt()<800){  //Not sure what the threshold should be
-	  if(matchedToPrimaryVertex) chargedHSVector.push_back( fastjet::PseudoJet( track->p4() ));
-	  else chargedPUVector.push_back( fastjet::PseudoJet( track->p4() ));
-	}
-      }
     }
   }
 
