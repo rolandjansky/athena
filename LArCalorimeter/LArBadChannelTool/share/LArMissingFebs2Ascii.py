@@ -1,6 +1,18 @@
 if 'DBInstance' not in dir():
    DBInstance="CONDBR2"
 
+if 'sqlite' in dir():
+    dbStr="<db>sqlite://;schema="+sqlite+";dbname="+DBInstance+"</db>"
+    if not 'tag' in dir():
+        tag="LARBadChannelsOflMissingFEBs-UPD4-00"
+else:
+    dbStr="<db>COOLOFL_LAR/"+DBInstance+"</db>"
+
+if 'tag' in dir():
+    tagStr="<tag>"+tag+"</tag>"
+else:
+    tagStr=""
+
 if 'OutputFile' not in dir():
     OutputFile="mf_output.txt"
     
@@ -64,18 +76,10 @@ condSeq += theCLI
 import StoreGate.StoreGateConf as StoreGateConf
 svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
 
-
-if "sqlite" in dir():
-    conddb.addFolder("","/LAR/BadChannelsOfl/MissingFEBs<db>sqlite://;schema="+sqlite+";dbname="+DBInstance+"</db><tag>LARBadChannelsOflMissingFEBs-RUN2-UPD3-01</tag>",className='AthenaAttributeList')
-else:
-    conddb.addFolder("LAR_OFL","/LAR/BadChannelsOfl/MissingFEBs",className='AthenaAttributeList')#<tag>LARBadChannelsMissingFEBs-empty</tag>")
-                 
 svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2014-01"
 
-from LArBadChannelTool.LArBadChannelToolConf import LArBadFebCondAlg
-theLArBadFebCondAlg=LArBadFebCondAlg()
-theLArBadFebCondAlg.ReadKey="/LAR/BadChannelsOfl/MissingFEBs"
-condSeq+=theLArBadFebCondAlg
+from LArBadChannelTool.LArBadFebAccess import LArBadFebAccess
+LArBadFebAccess(dbString="/LAR/BadChannelsOfl/MissingFEBs"+dbStr+tagStr)
 
 
 from LArBadChannelTool.LArBadChannelToolConf import LArBadFeb2Ascii
