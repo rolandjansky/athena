@@ -239,7 +239,8 @@ topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 try:
     # the non-hive version of G4AtlasApps provides PyG4AtlasAlg
     from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-    topSeq += PyG4AtlasAlg()
+    if not hasattr (topSeq, 'PyG4AtlasAlg'):
+        topSeq += PyG4AtlasAlg()
 except ImportError:
     try:
         # the hive version provides PyG4AtlasSvc
