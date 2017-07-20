@@ -397,7 +397,7 @@ int main () {
 #else
   // *********************** init in standalone 
 
-  gErrorIgnoreLevel = kWarning;
+  gErrorIgnoreLevel = kError;
   assert( xAOD::Init() );
   // Create a TEvent object:
   xAOD::TEvent eventstore(xAOD::TEvent::kClassAccess);
