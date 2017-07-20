@@ -20,13 +20,12 @@ class CaloReadLCClassificationFile : public AthAlgorithm
   StatusCode initialize(); 
   StatusCode execute();
   StatusCode finalize();
-  StatusCode initDataFromFile(std::string theLCClassificationFileName);
+  StatusCode initDataFromFile(std::string theLCClassificationFileName,
+                              CaloLocalHadCoeff& data);
 
  private:
   std::string m_key;
   std::string m_LCClassificationFileName;
-
-  CaloLocalHadCoeff * m_data;
 };
 
 #endif
