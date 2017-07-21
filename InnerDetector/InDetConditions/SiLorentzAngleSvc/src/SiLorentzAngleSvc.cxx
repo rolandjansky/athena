@@ -403,8 +403,7 @@ void SiLorentzAngleSvc::updateCache(const IdentifierHash & elementHash, const Am
       }
     }//if p_design
     if( m_ITkL03D == true && element->isInnermostPixelLayer() ) forceLorentzToZero = 0.0; // dirty hack while we develop the ITk to use the cond DB for Si cond - Ben Smart
-    std::cout << "BEN m_ITkL03D=" << m_ITkL03D << " element->isInnermostPixelLayer()=" << element->isInnermostPixelLayer() << " forceLorentzToZero=" << forceLorentzToZero << std::endl;
-  } //if m_isPixel
+    } //if m_isPixel
 
 
   // Protect against invalid temperature
