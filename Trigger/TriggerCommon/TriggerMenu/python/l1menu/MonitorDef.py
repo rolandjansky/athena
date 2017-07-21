@@ -164,6 +164,11 @@ class MonitorDef:
             "L1_DR-TAU20ITAU12I",
             "L1_KF-XE40",
             "L1_DR-TAU20ITAU12I-J25",
+            "L1_JPSI-1M5",
+            "L1_JPSI-1M5-EM7",
+            "L1_JPSI-1M5-EM12",
+            "L1_LATE-MU10_XE40",
+            "L1_LATE-MU10_J50",
             ]
 
         monItemsHF[TBP|TAP|TAV] = [
