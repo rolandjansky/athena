@@ -46,7 +46,8 @@ MistimedStreamMon::MistimedStreamMon(const std::string & type, const std::string
       m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
       m_h_em_2d_etaPhi_tt_classification_mistimedStreamAna(0),
       m_h_1d_selectedEvents_mistimedStreamAna(0),
-      m_h_1d_cutFlow_mistimedStreamAna(0)
+      m_h_1d_cutFlow_mistimedStreamAna(0),
+      m_v_em_2d_etaPhi_tt_lut_cp1_mistimedStreamAna(0)
 {
      declareProperty("PathInRootFile", m_PathInRootFile = "L1Calo/MistimedStream");
      declareProperty("BS_xAODTriggerTowerContainer",
@@ -109,8 +110,9 @@ StatusCode MistimedStreamMon::bookHistogramsRecurrent() // based on bookHistogra
         m_histTool->bookPPMEmEtaVsPhi("em_2d_etaPhi_tt_classification_mistimedStreamAna", title);
 
     m_h_1d_selectedEvents_mistimedStreamAna =
-        m_histTool->bookPPMEmEta("1d_selectedEvents_mistimedStreamAna",
-                                 "Selected events per lumi block by the MistimedStream analysis");
+        m_histTool->book1F("1d_selectedEvents_mistimedStreamAna",
+                           "Selected events per lumi block by the MistimedStream analysis",
+                           9999, 0, 9999); // this plot will "only" cover 9999 lumi blocks
     m_histTool->unsetMonGroup();
     if (newRun)
       m_histBooked = true;
@@ -214,6 +216,25 @@ StatusCode MistimedStreamMon::fillHistograms()
 //       }
 //     }
   }
+
+  
+  std::stringstream buffer;
+//   m_histTool->setMonGroup(&TT_MistimedMon);
+
+  m_v_em_2d_etaPhi_tt_lut_cp1_mistimedStreamAna.clear();
+  for (int i = 0; i < 12; i++) {
+        buffer.str("");
+        buffer << i; // here the lumi block, event number and run number should go
+        std::string name = "em_2d_etaPhi_tt_lut_cp1_mistimedStreamAna_event_" + buffer.str();
+        std::string title = "EM Layer, LUT-CP in time slice 1 for Event No. " + buffer.str();
+        TH2F_LW *hist =
+            m_histTool->bookPPMEmEtaVsPhi(name, title);
+//         m_histTool->numbers(hist, 0, 15, 2);
+//         m_histTool->ppmCrateModule(hist, crate, crate + 1, 0, false);
+        m_v_em_2d_etaPhi_tt_lut_cp1_mistimedStreamAna.push_back(hist);
+      }
+  
+  m_h_1d_selectedEvents_mistimedStreamAna->Fill(42);
   
   return StatusCode::SUCCESS;
 }

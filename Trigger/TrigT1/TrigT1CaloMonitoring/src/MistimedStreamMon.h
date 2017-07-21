@@ -80,9 +80,17 @@ private:
 
   /// Histograms booked flag
   bool m_histBooked;
-  
+  // Histograms
   // eta-phi Map of EM TT classification
   TH2F_LW* m_h_em_2d_etaPhi_tt_classification_mistimedStreamAna;
+  // eta-phi Map of HAD TT classification
+  TH2F_LW* m_h_had_2d_etaPhi_tt_classification_mistimedStreamAna;
+  // eta-phi Map of lut-cp for timeslice 0 = BCID-1
+  TH2F_LW* m_h_em_2d_etaPhi_tt_lut_cp0_mistimedStreamAna;
+  // eta-phi Map of lut-cp for timeslice 1 = BCID
+  std::vector<TH2F_LW*> m_v_em_2d_etaPhi_tt_lut_cp1_mistimedStreamAna;
+  // eta-phi Map of lut-cp for timeslice 2 = BCID+1
+  TH2F_LW* m_h_em_2d_etaPhi_tt_lut_cp2_mistimedStreamAna;  
   // Selected events per lumi block
   TH1F_LW* m_h_1d_selectedEvents_mistimedStreamAna;
   TH1F_LW* m_h_1d_cutFlow_mistimedStreamAna;
