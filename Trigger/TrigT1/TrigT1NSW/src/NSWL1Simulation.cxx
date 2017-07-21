@@ -43,7 +43,7 @@ namespace NSWL1 {
     // Property setting general behaviour:
     declareProperty( "DoOffline",    m_doOffline    = false, "Steers the offline emulation of the LVL1 logic" );
     declareProperty( "DoNtuple",     m_doNtuple     = false, "Create an ntuple for data analysis" );
-    declareProperty( "DoMM",         m_doMM         = false, "Run data analysis for MM" );
+    declareProperty( "DoMM",         m_doMM         = true, "Run data analysis for MM" );
     declareProperty( "DosTGC",       m_dosTGC       = true, "Run data analysis for sTGCs" );
     declareProperty( "DoPadTrigger", m_doPadTrigger = true, "Run the pad trigger simulation" );
 
