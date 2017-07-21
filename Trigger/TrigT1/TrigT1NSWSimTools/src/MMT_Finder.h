@@ -5,23 +5,10 @@
 #ifndef MMT_FINDER_H
 #define MMT_FINDER_H
 
-//C++ language libararies
-#include <vector>
-#include <string>
-#include <fstream>
-#include <cmath>
-#include <cstdlib>
-#include <cstdio>
-
-
 #include "AthenaKernel/MsgStreamMember.h"
 
-//ROOT libraries
-#include "TTree.h"
-#include "TH1F.h"
 #include "MMT_struct.h"
 #include "MMT_Fitter.h"
-using namespace std;
 
 
 class MMT_Finder{

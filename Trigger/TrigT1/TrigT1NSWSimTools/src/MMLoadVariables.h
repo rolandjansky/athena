@@ -67,9 +67,6 @@ class TTree;
 #include "TRandom3.h"
 #include "TF1.h"
 #include "TLorentzVector.h"
-
-#include "TMath.h"
-
 #include "MMT_struct.h"
 #include "MMT_Finder.h"
 #include "MMT_Fitter.h"
