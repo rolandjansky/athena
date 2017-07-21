@@ -127,7 +127,7 @@ StatusCode AthenaPoolAddressProviderSvc::preLoadAddresses(StoreID::type storeID,
 //________________________________________________________________________________
 StatusCode AthenaPoolAddressProviderSvc::loadAddresses(StoreID::type storeID,
 		IAddressProvider::tadList& tads) {
-   if (storeID != StoreID::EVENT_STORE) {
+   if (storeID != StoreID::EVENT_STORE && storeID != StoreID::PILEUP_STORE) {
       return(StatusCode::SUCCESS);
    }
 
@@ -192,7 +192,7 @@ StatusCode AthenaPoolAddressProviderSvc::loadAddresses(StoreID::type storeID,
 StatusCode AthenaPoolAddressProviderSvc::updateAddress(StoreID::type storeID,
 		SG::TransientAddress* tad) {
    assert(tad);
-   if (storeID != StoreID::EVENT_STORE) {
+   if (storeID != StoreID::EVENT_STORE && storeID != StoreID::PILEUP_STORE) {
       return(StatusCode::FAILURE);
    }
    // No BackNavigation to DataHeader or AttributeList

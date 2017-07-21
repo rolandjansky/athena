@@ -45,7 +45,7 @@ namespace errorcheck {
   {
     std::ostringstream ss;
     ss << "VarHandle(" 
-       << context->storeHandle().name() << "/" << context->key()
+       << context->storeHandle().name() << "+" << context->key()
        << "[" << context->clid() << "]"
        << ")";
     return ss.str();
@@ -265,7 +265,7 @@ namespace SG {
     std::cerr << "::VHB:: move assign from " << &rhs
               << " to " << this << ", "
               << "proxy=" << this->m_proxy << ", "
-              << "key=" <<this->m_sgkey
+              << "key=" <<this->key()
               << std::endl;
 #endif
     return *this;
@@ -285,7 +285,7 @@ namespace SG {
       std::cerr << " -- isValid: " << m_proxy->isValid()
                 << " -- isConst: " << m_proxy->isConst();
     }
-    std::cerr << ", key=" <<this->m_sgkey << ")...\n";
+    std::cerr << ", key=" <<this->key() << ")...\n";
 #endif
 
     resetProxy();
@@ -345,18 +345,7 @@ namespace SG {
    */
   bool VarHandleBase::isPresent() const
   {
-    const DataProxy* proxy = m_proxy;
-    if (!proxy) {
-      const IProxyDict* store = m_store;
-      if (!store)
-        store = this->storeHandle().get();
-      if (store)
-        proxy = store->proxy(this->clid(), this->key());
-    }
-    if (proxy) {
-      return proxy->isValid();
-    }
-    return false;
+    return isPresent_impl (key());
   }
 
 
@@ -877,7 +866,7 @@ namespace SG {
    */
   IProxyDict* VarHandleBase::storeFromHandle (const EventContext* ctx) const
   {
-    if (this->storeHandle().name() == "StoreGateSvc") {
+    if (this->storeHandle().name() == StoreID::storeName(StoreID::EVENT_STORE)) {
       if (ctx)
         return ctx->getExtension<Atlas::ExtendedEventContext>()->proxy();
       if (m_storeWasSet && m_store) return m_store;
@@ -1002,6 +991,29 @@ namespace SG {
       }
     } // try symlink -- endif
     return ptr;
+  }
+
+
+  /**
+   * @brief Is the referenced object present in SG?
+   * @param key SG key to test.
+   *
+   * Const method; the handle does not change as a result of this.
+   */
+  bool VarHandleBase::isPresent_impl (const std::string& key) const
+  {
+    const DataProxy* proxy = m_proxy;
+    if (!proxy) {
+      const IProxyDict* store = m_store;
+      if (!store)
+        store = this->storeHandle().get();
+      if (store)
+        proxy = store->proxy(this->clid(), key);
+    }
+    if (proxy) {
+      return proxy->isValid();
+    }
+    return false;
   }
 
 

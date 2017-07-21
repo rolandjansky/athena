@@ -12,6 +12,8 @@
  * StoreGateSvc they are providing addresses for. A hack, really...
  */
 
+#include <string>
+
 class StoreID
 {
 
@@ -25,8 +27,13 @@ class StoreID
     METADATA_STORE,
     SIMPLE_STORE,
     SPARE_STORE,
+    PILEUP_STORE,
     UNKNOWN
   } type;
+
+public:
+  static StoreID::type findStoreID(const std::string& storeName);
+  static const std::string& storeName( const StoreID::type& s );
 
 };
 

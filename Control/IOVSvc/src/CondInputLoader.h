@@ -69,10 +69,15 @@ class CondInputLoader
   /// Default constructor: 
   //  CondInputLoader();
 
+  // need to override the ExtraInputs/Outputs property handler
+  // from AthAlgorithm
+  void extraDeps_update_handler(Property&);
+
   //  void loader(Property&);
 
   /// Containers
   DataObjIDColl m_load;
+  std::vector< SG::VarHandleKey > m_vhk;
 
   bool m_dump;
   bool m_first { true };

@@ -102,10 +102,7 @@ namespace CP
 
     const xAOD::Vertex *vx_tmp=getUniqueMatchVx(trk, vxCont);
     
-    if(vx_tmp!=NULL)
-    {
-      vx_link_tmp.toContainedElement(vxCont,vx_tmp);
-    }
+    vx_link_tmp.toContainedElement(vxCont,vx_tmp);
     return vx_link_tmp;
 
   }
@@ -216,7 +213,6 @@ namespace CP
     float theta=trk.theta();
     // check the vertex, return false if the vertex is a dummy one
     
-    if(&vx!=NULL)
     {
       if(vx.vertexType()!=xAOD::VxType::NoVtx)  // select good vertex
       {
@@ -234,12 +230,6 @@ namespace CP
         return false;
       }
     }
-    else
-    {
-      ATH_MSG_DEBUG("Invalid Vertex pointer, return false");
-      return false;
-    }
-
   }
 
   const xAOD::Vertex* LooseTrackVertexAssociationTool::getUniqueMatchVx( const xAOD::TrackParticle &trk, const xAOD::VertexContainer &vxCont) const // return the  vertex matched with the tracks in the vx_list

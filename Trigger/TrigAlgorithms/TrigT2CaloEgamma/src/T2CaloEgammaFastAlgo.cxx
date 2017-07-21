@@ -65,7 +65,7 @@ StatusCode T2CaloEgammaFastAlgo::initialize()
 
 
   m_emAlgTools.retrieve().ignore();
-  ATH_CHECK(m_regionSelector.retrieve());
+  ATH_CHECK( m_regionSelector.retrieve());
   ATH_CHECK( m_clusterContainerKey.initialize() );
   ATH_CHECK( m_roiCollectionKey.initialize() );
   ATH_MSG_DEBUG( "Initialize done !" );
@@ -88,15 +88,17 @@ StatusCode T2CaloEgammaFastAlgo::execute()
 
   ATH_CHECK( m_trigEmClusterCollection.record( CxxUtils::make_unique<xAOD::TrigEMClusterContainer>(), CxxUtils::make_unique<xAOD::TrigEMClusterAuxContainer>() ) );
 
-  ATH_CHECK(m_roiCollection.isValid());
+  auto roisHandle = SG::makeHandle( m_roiCollectionKey );
+  const TrigRoiDescriptorCollection* roiCollection = roisHandle.cptr();
+  //  ATH_CHECK(m_roiCollectionKey.isValid());
 
 
   const TrigRoiDescriptor* roiDescriptor = 0;
   //TrigRoiDescriptor* roiDescriptor = 0;
 
   // datahandle 
-  TrigRoiDescriptorCollection::const_iterator  roiCollectionIt  = m_roiCollection->begin(); 
-  for(; roiCollectionIt!=m_roiCollection->end(); ++roiCollectionIt){
+  TrigRoiDescriptorCollection::const_iterator  roiCollectionIt  = roiCollection->begin(); 
+  for(; roiCollectionIt != roiCollection->end(); ++roiCollectionIt){
 	roiDescriptor = *roiCollectionIt;
 
   float etaL1, phiL1;

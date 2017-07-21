@@ -36,7 +36,7 @@
 #ifndef VP1TABWIDGET_H
 #define VP1TABWIDGET_H
 
-#include <QtGui/QTabWidget>
+#include <QTabWidget>
 
 class QTab;
 class VP1TabBar;
@@ -52,7 +52,7 @@ class VP1TabWidget : public QTabWidget
 
     VP1TabBar* getVP1TabBar();//Added by TK.
 
-    explicit VP1TabWidget( QWidget *parent = 0, Qt::WFlags flags = 0 );
+    explicit VP1TabWidget( QWidget *parent = 0, Qt::WindowFlags flags = 0 );
 
     virtual ~VP1TabWidget();
 

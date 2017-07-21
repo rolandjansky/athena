@@ -26,6 +26,5 @@ creation of the reconstructed object.
   - SpacePointTruth: class to describe the truth of a given SpacePoint object
   - TrackTruth: class to describe the truth of a given Track object
 
-@section TrkTruthData_TrkTruthDataReq Requirements
 
 */

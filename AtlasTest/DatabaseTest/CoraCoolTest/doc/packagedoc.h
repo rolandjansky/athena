@@ -51,10 +51,8 @@ types (signed and unsigned ints and long longs, floats and doubles), plus
 optionally a Coral BLOB. Created objects include information on the channel and IOV they were created for, so data read back from the database can be
 checked for consistency.
 
-@section CoraCoolTest_requirements requirements
 
 
-@section CoraCoolTest_uses Packages used
 
 
 */

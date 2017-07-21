@@ -51,6 +51,11 @@ DetFlags.writeRIOPool.all_setOff()
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit
 
+# Disable SiLorentzAngleSvc to remove
+# ERROR ServiceLocatorHelper::createService: wrong interface id IID_665279653 for service
+ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=""
+ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=""
+
 from AthenaCommon.AlgSequence import AlgSequence
 
 job = AlgSequence()
@@ -60,14 +65,17 @@ job = AlgSequence()
 #--------------------------------------------------------------
 IOVDbSvc = Service("IOVDbSvc")
 from IOVDbSvc.CondDB import conddb
-IOVDbSvc.GlobalTag="OFLCOND-FDR-01-02-00"
+IOVDbSvc.GlobalTag="OFLCOND-MC16-SDR-18"
 IOVDbSvc.OutputLevel = 3
 
 #ToolSvc = ServiceMgr.ToolSvc
 
-conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/Chip")
-conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/Module")
-conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/MUR")
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Chip", "/SCT/DAQ/Config/Chip")
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Module", "/SCT/DAQ/Config/Module")
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/ROD", "/SCT/DAQ/Config/ROD")
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Geog", "/SCT/DAQ/Config/Geog")
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/RODMUR", "/SCT/DAQ/Config/RODMUR")
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR")
 
 #--------------------------------------------------------------
 # Setup readout test algorithm
@@ -127,11 +135,11 @@ job+= SCT_ReadoutTestAlg
 
 import AthenaCommon.AtlasUnixGeneratorJob
 
-ServiceMgr.EventSelector.RunNumber  = 40341 #1204110576 seconds epoch
+ServiceMgr.EventSelector.RunNumber  = 300000 # MC16c 2017 run number
 import time, calendar
 #time in seconds , now
 #ServiceMgr.EventSelector.InitialTimeStamp  = calendar.timegm(time.gmtime())
-ServiceMgr.EventSelector.InitialTimeStamp  = 1204216576 #found valid in db browser?
+ServiceMgr.EventSelector.InitialTimeStamp  = 1500000000
 theApp.EvtMax                   = 1
 
 ServiceMgr.MessageSvc.Format           = "% F%40W%S%7W%R%T %0W%M"

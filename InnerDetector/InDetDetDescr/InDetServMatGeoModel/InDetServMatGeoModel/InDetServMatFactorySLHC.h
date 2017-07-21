@@ -43,7 +43,7 @@ class InDetServMatFactorySLHC : public InDetDD::DetectorFactoryBase {
   double envelopeRMax(int i = 0) const; 
   
   // Database tables (we name it same as table name):
-  IRDBRecordset_ptr InDetServGenEnvelope;
+  IRDBRecordset_ptr m_InDetServGenEnvelope;
 
   // Need acceess to derived version
   const InDetServMatAthenaComps * m_athenaComps;

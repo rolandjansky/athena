@@ -56,14 +56,4 @@ package, has been moved to a separate package: TrkFitterInterfaces.
 
 @section TrkFitterUtils_ExtrasTrkFitterUtils Extra Pages
 
- - @ref UsedTrkFitterUtils
- - @ref requirementsTrkFitterUtils
-*/
-
-/**
-@page UsedTrkFitterUtils Used Packages
-*/
-
-/**
-@page requirementsTrkFitterUtils Requirements
 */

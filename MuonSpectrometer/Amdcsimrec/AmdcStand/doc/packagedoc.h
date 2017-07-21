@@ -21,15 +21,5 @@ The AmdcStand package contains:
 
 @section AmdcStand_ExtrasAmdcStand Extra Pages
 
-  - @ref used_AmdcStand
-  - @ref requirements_AmdcStand
 
-*/
-
-/**
-@page used_AmdcStand Used Packages
-*/
-
-/**
-@page requirements_AmdcStand Requirements
 */

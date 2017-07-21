@@ -20,7 +20,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Event/EventPrimitives
                           Trigger/TrigDataAccess/TrigSerializeCnvSvc
-                          Trigger/TrigDataAccess/TrigSerializeUtils
                           Trigger/TrigEvent/TrigNavigation )
 
 # External dependencies:

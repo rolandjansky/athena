@@ -7,12 +7,15 @@
 
 #include <string>
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+
+#include "TrkTruthData/DetailedTrackTruthCollection.h"
+#include "TrkTrack/TrackCollection.h"
 
 #include "TrkToolInterfaces/IDetailedTrackTruthBuilder.h"
-
-#include "StoreGate/ReadHandleKey.h"
 
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 
@@ -21,30 +24,30 @@ namespace InDet {
 /**
  * This algorithm produces track truth data using InDet PRD truth collections.
  * Calls a DetailedTrackTruthBuilder tool that does the actual job.
- * 
- * @author Andrei Gaponenko <agaponenko@lbl.gov> 
+ *
+ * @author Andrei Gaponenko <agaponenko@lbl.gov>
  */
 
-class InDetDetailedTrackTruthMaker : public AthAlgorithm  {
-  
+class InDetDetailedTrackTruthMaker : public AthReentrantAlgorithm  {
+
 public:
   InDetDetailedTrackTruthMaker(const std::string &name,ISvcLocator *pSvcLocator);
-  
+
   virtual StatusCode initialize();
-  virtual StatusCode execute();
+  virtual StatusCode execute_r(const EventContext &ctx) const;
   virtual StatusCode finalize();
-  
+
 private:
   // PRD inputs
-  std::string m_PRDTruthNamePixel;
+  SG::ReadHandleKey<PRD_MultiTruthCollection> m_PRDTruthNamePixel;
   SG::ReadHandleKey<PRD_MultiTruthCollection> m_PRDTruthNameSCT;
-  std::string m_PRDTruthNameTRT;
+  SG::ReadHandleKey<PRD_MultiTruthCollection> m_PRDTruthNameTRT;
   // Track input
-  std::string m_trackCollectionName;
+  SG::ReadHandleKey<TrackCollection>          m_trackCollectionName;
 
   // DetailedTrackTruthCollection output
-  std::string m_detailedTrackTruthName;
-  
+  SG::WriteHandleKey<DetailedTrackTruthCollection> m_detailedTrackTruthName;
+
   // Tool Handle for truth tool
   ToolHandle<Trk::IDetailedTrackTruthBuilder> m_truthTool;
 

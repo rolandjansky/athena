@@ -42,4 +42,12 @@ class ILArfSampl {
 
 CLASS_DEF( ILArfSampl,128126607,1) 
 
+//ConditionsContainer clid for athenaMT
+#include "AthenaKernel/CondCont.h"
+CLASS_DEF( CondCont<ILArfSampl>, 155688745, 1 )
+#include "SGTools/BaseInfo.h"
+SG_BASE( CondCont<ILArfSampl>, CondContBase );
+
+
+
 #endif 

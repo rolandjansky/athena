@@ -38,9 +38,9 @@ public:
   virtual void PrintIOStream( std::ostream& o ) const;
  
 protected:
-  TObjString name;
-  TSeqCollection *subAlgs;
-  TSeqCollection *libs;
+  TObjString m_name;
+  TSeqCollection *m_subAlgs;
+  TSeqCollection *m_libs;
 
 //Get rid of Root macros that confuse Doxygen
 ///\cond CLASSDEF

@@ -11,6 +11,7 @@
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include <TFile.h>
 #include <TH2.h>
+#include <memory>
 
 namespace DerivationFramework {
 
@@ -21,10 +22,11 @@ namespace DerivationFramework {
       virtual StatusCode finalize();
       virtual StatusCode addBranches() const;
     private:
-      std::string m_SGPrefix;
+      std::string m_outputName;
       std::string m_LUTFileName;
-      TFile* m_LUTFile;
-      TH2* m_LUT;
+      std::string m_L1METName;
+      std::string m_L1JetName;
+      std::unique_ptr<TH2> m_LUT;
   };
 }
 

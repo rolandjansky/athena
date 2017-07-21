@@ -18,7 +18,7 @@ lbkUntil = sys.argv[4]
 
 print "runUntil ", runUntil, lbkUntil
 
-import PyCintex
+import cppyy
 from PyCool import cool
 from CaloCondBlobAlgs import CaloCondTools, CaloCondLogger
 
@@ -51,8 +51,8 @@ comment  = "Updated pedestal shift values"
 #===
 #==================================================
 #=== set shortcut
-g = PyCintex.gbl
-PyCintex.makeClass('std::vector<float>')
+g = cppyy.gbl
+cppyy.makeClass('std::vector<float>')
 
 #=== get a logger
 log = CaloCondLogger.getLogger("CaloNoiseWriter")

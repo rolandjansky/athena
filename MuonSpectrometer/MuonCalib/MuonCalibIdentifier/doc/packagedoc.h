@@ -30,16 +30,6 @@ All data members and member functions are static, so no instantiation of an MdtH
 
 and many others used internally to provide the above functionalities (see Class list).
 
-@ref used_MuonCalibIdentifier 
 
-@ref requirements_MuonCalibIdentifier
 
-*/
-
-/**
-@page used_MuonCalibIdentifier Used Packages
-*/
-
-/**
-@page requirements_MuonCalibIdentifier Requirements
 */

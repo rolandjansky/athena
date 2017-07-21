@@ -19,8 +19,8 @@
 #ifndef VP1HTTPGETFILE_H
 #define VP1HTTPGETFILE_H
 
-#include <QtCore/QObject>
-#include <QtCore/QByteArray>
+#include <QObject>
+#include <QByteArray>
 
 class VP1HttpGetFile : public QObject {
 

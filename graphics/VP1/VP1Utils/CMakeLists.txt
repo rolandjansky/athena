@@ -44,7 +44,7 @@ find_package( CLHEP )
 find_package( Coin3D )
 find_package( Eigen )
 find_package( HepPDT )
-find_package( Qt4 COMPONENTS QtCore )
+find_package( Qt5 COMPONENTS Core )
 
 # CLHEP definitions:
 add_definitions( -DCLHEP_MAX_MIN_DEFINED
@@ -62,7 +62,7 @@ atlas_add_library( VP1Utils VP1Utils/*.h src/*.cxx src/*.cpp
    ${EIGEN_INCLUDE_DIRS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} SGTools GeoModelKernel EventPrimitives
    GaudiKernel VP1Base StoreGateLib SGtests AthDSoCallBacks MuonIdHelpersLib
-   GeoPrimitives Qt4::QtCore
+   GeoPrimitives Qt5::Core
    PRIVATE_LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${COIN3D_LIBRARIES}
    ${EIGEN_LIBRARIES} CaloIdentifier CaloTTDetDescr CxxUtils AtlasDetDescr
    GeoModelUtilities GeoSpecialShapes Identifier InDetIdentifier

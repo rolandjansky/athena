@@ -32,8 +32,8 @@ namespace dqi {
 
 MiniConfig::
 MiniConfig()
-    : tree(0)
-    , propagateDown(true)
+    : m_tree(0)
+    , m_propagateDown(true)
 {
 }
 
@@ -41,7 +41,7 @@ MiniConfig()
 MiniConfig::
 ~MiniConfig()
 {
-  delete tree;
+  delete m_tree;
 }
 
 
@@ -50,7 +50,7 @@ MiniConfig::
 AddKeyword( std::string keyword_ )
 {
   KeySet_t::value_type keyval( keyword_ );
-  keywords.insert( keyval );
+  m_keywords.insert( keyval );
 }
 
 
@@ -59,14 +59,14 @@ MiniConfig::
 AddAttributeKeyword( std::string keyword_ )
 {
   KeySet_t::value_type keyval( keyword_ );
-  attKeywords.insert( keyval );
+  m_attKeywords.insert( keyval );
 }
 
 void
 MiniConfig::
 SetAttribKeywordPropagateDown( bool propagateDown )
 {
-    this->propagateDown = propagateDown;
+    this->m_propagateDown = propagateDown;
 }
 
 bool
@@ -75,10 +75,10 @@ ReadFile( std::string fileName )
 {
   bool success(true);
   
-  delete tree;
-  tree = new MiniConfigTreeNode( "global", 0 );
-  tree->SetAttribKeywordPropagateDown( propagateDown );
-  MiniConfigTreeNode* node = tree;
+  delete m_tree;
+  m_tree = new MiniConfigTreeNode( "global", 0 );
+  m_tree->SetAttribKeywordPropagateDown( m_propagateDown );
+  MiniConfigTreeNode* node = m_tree;
   
   std::ifstream file( fileName.c_str() );
   if( !file ) {
@@ -139,7 +139,7 @@ ReadFile( std::string fileName )
           std::cerr << "MiniConfig::ReadFile(): "
                     << "unmatched \"}\", line number " << lineNumber << "\n";
           success = false;
-          node = tree;
+          node = m_tree;
         }
       }
       continue;
@@ -183,12 +183,12 @@ ReadFile( std::string fileName )
       continue;
     }
     if( sep == "{" ) {
-      if( keywords.find(key) != keywords.end() 
-	  || keywords.find(lokey) != keywords.end() ) {
+      if( m_keywords.find(key) != m_keywords.end() 
+	  || m_keywords.find(lokey) != m_keywords.end() ) {
         node = node->GetNewDaughter( id );
       }
-      else if( attKeywords.find(key) != attKeywords.end()
-	       || attKeywords.find(lokey) != attKeywords.end() ) {
+      else if( m_attKeywords.find(key) != m_attKeywords.end()
+	       || m_attKeywords.find(lokey) != m_attKeywords.end() ) {
 	node->SetAttribute( id, node->GetPathName(), true );
         node = node->GetNewDaughter( id );
       }
@@ -211,13 +211,13 @@ std::string
 MiniConfig::
 GetStringAttribute( std::string objName, std::string attName ) const
 {
-  if( tree == 0 ) {
+  if( m_tree == 0 ) {
     std::cerr << "MiniConfig::GetStringAttribute(): "
               << "not configured (no file has been read)\n";
     return std::string("");
   }
   
-  const MiniConfigTreeNode* node = tree->GetNode( objName );
+  const MiniConfigTreeNode* node = m_tree->GetNode( objName );
   if( node == 0 ) {
     std::cerr << "MiniConfig::GetStringAttribute(): "
               << "\"" << objName << "\" does not exist\n";
@@ -231,13 +231,13 @@ int
 MiniConfig::
 GetIntAttribute( std::string objName, std::string attName ) const
 {
-  if( tree == 0 ) {
+  if( m_tree == 0 ) {
     std::cerr << "MiniConfig::GetIntAttribute(): "
               << "not configured (no file has been read)\n";
     return 0;
   }
   
-  const MiniConfigTreeNode* node = tree->GetNode( objName );
+  const MiniConfigTreeNode* node = m_tree->GetNode( objName );
   if( node == 0 ) {
     std::cerr << "MiniConfig::GetIntAttribute(): "
               << "\"" << objName << "\" does not exist\n";
@@ -262,13 +262,13 @@ float
 MiniConfig::
 GetFloatAttribute( std::string objName, std::string attName ) const
 {
-  if( tree == 0 ) {
+  if( m_tree == 0 ) {
     std::cerr << "MiniConfig::GetFloatAttribute(): "
               << "not configured (no file has been read)\n";
     return 0;
   }
   
-  const MiniConfigTreeNode* node = tree->GetNode( objName );
+  const MiniConfigTreeNode* node = m_tree->GetNode( objName );
   if( node == 0 ) {
     std::cerr << "MiniConfig::GetFloatAttribute(): "
               << "\"" << objName << "\" does not exist\n";
@@ -280,8 +280,8 @@ GetFloatAttribute( std::string objName, std::string attName ) const
   std::istringstream valstream(valstring);
   valstream >> val;
   if( !valstream ) {
-    std::cerr << "MiniConfig::GetFloatAttribute(): "
-              << "\"" << attName << "\" not a floating-point type\n";
+    std::cerr << "MiniConfig::GetFloatAttribute(): object \"" << objName << "\""
+              << ": \"" << attName << "\" not a floating-point type\n";
     return 0;
   }
   
@@ -295,13 +295,13 @@ GetAttributeNames( std::string objName, std::set<std::string>& attSet ) const
 {
   attSet.clear();
   
-  if( tree == 0 ) {
+  if( m_tree == 0 ) {
     std::cerr << "MiniConfig::GetAttributeNames(): "
               << "not configured (no file has been read)\n";
     return;
   }
   
-  const MiniConfigTreeNode* node = tree->GetNode( objName );
+  const MiniConfigTreeNode* node = m_tree->GetNode( objName );
   if( node == 0 ) {
     std::cerr << "MiniConfig::GetAttributeNames(): "
               << "\"" << objName << "\" does not exist\n";
@@ -316,11 +316,11 @@ void
 MiniConfig::
 SendVisitor( const MiniConfigTreeNode::Visitor& visitor ) const
 {
-  if( tree == 0 ) {
+  if( m_tree == 0 ) {
     std::cerr << "MiniConfig::SendVisitor(): "
               << "not configured (no file has been read)\n";
   } else {
-    tree->Accept(visitor);
+    m_tree->Accept(visitor);
   }
 }
 

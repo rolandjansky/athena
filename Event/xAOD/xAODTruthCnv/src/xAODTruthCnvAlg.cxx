@@ -3,7 +3,7 @@
 */
 
 #include "AthenaKernel/errorcheck.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 #define private public
 #   include "GeneratorObjects/McEventCollection.h"
@@ -44,7 +44,7 @@ namespace xAODMaker {
     
     
     xAODTruthCnvAlg::xAODTruthCnvAlg( const string& name, ISvcLocator* svcLoc )
-    : AthAlgorithm( name, svcLoc ), m_metaStore( "MetaDataStore", name ), inputMetaStore( "StoreGateSvc/InputMetaDataStore",name)
+    : AthAlgorithm( name, svcLoc ), m_metaStore( "MetaDataStore", name ), m_inputMetaStore( "StoreGateSvc/InputMetaDataStore",name)
     {
         declareProperty("AODContainerName", m_aodContainerName="GEN_AOD" );
         declareProperty("xAODTruthEventContainerName", m_xaodTruthEventContainerName="TruthEvents" );
@@ -220,7 +220,7 @@ namespace xAODMaker {
                     if (m_writeMetaData) {
                         //The mcChannelNumber is used as a unique identifier for which truth meta data belongs to
                         const EventStreamInfo* esi = nullptr;
-                        CHECK( inputMetaStore->retrieve(esi));
+                        CHECK( m_inputMetaStore->retrieve(esi));
                         uint32_t mcChannelNumber = esi->getEventTypes().begin()->mc_channel_number();
                         
                         //Inserting in a (unordered_)set returns an <iterator, boolean> pair, where the boolean
@@ -403,8 +403,8 @@ namespace xAODMaker {
             for (const xAOD::TruthEvent* evt : *xTruthEventContainer) {
                 for (const auto& par : evt->truthParticleLinks()) {
                     if ( !par.isValid() ) {
-                        //ATH_MSG_WARNING("Found invalid particle element link in TruthEvent " << evt->eventNumber());
-                        ATH_MSG_WARNING("Found invalid particle element link in TruthEvent"); //< @todo Use HepMC evt number?
+                        // This can happen if particles have been thinned.
+                        ATH_MSG_VERBOSE("Found invalid particle element link in TruthEvent"); //< @todo Use HepMC evt number?
                         continue;
                     }
                     // Create link between HepMC and xAOD truth

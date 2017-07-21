@@ -27,7 +27,7 @@ namespace
 
 //NB. Following ROOT definition This is the excess kurtosis, i.e. fourth standarized momentum -3. K(N(0,1))=0
 dqm_algorithms::KurtosisTest::KurtosisTest( const std::string & name )
-  : name_( name )
+  : m_name( name )
 {
   dqm_core::AlgorithmManager::instance().registerAlgorithm("KurtosisTest_"+name,this);
 }
@@ -35,7 +35,7 @@ dqm_algorithms::KurtosisTest::KurtosisTest( const std::string & name )
 dqm_algorithms::KurtosisTest * 
 dqm_algorithms::KurtosisTest::clone()
 {
-    return new KurtosisTest( name_ );
+    return new KurtosisTest( m_name );
 }
 
 
@@ -82,9 +82,9 @@ dqm_algorithms::KurtosisTest::execute(	const std::string &  name,
   result->tags_["Kurtosis"] = kurtosis;
   result->tags_["ApproxStandardError"]=kurtosis_e;
   
-  if ( CompareKurtosisTest( name_ , kurtosis ,gthreshold)  ) {
+  if ( CompareKurtosisTest( m_name , kurtosis ,gthreshold)  ) {
     result->status_ = dqm_core::Result::Green;
-  } else if ( CompareKurtosisTest( name_, kurtosis, rthreshold) ) {
+  } else if ( CompareKurtosisTest( m_name, kurtosis, rthreshold) ) {
     result->status_ = dqm_core::Result::Yellow;
   } else {
     result->status_ = dqm_core::Result::Red;
@@ -108,7 +108,7 @@ dqm_algorithms::KurtosisTest::CompareKurtosisTest(const std::string & type, doub
 void
 dqm_algorithms::KurtosisTest::printDescription(std::ostream& out)
 {
-  out<<"KurtosisTest_"+name_+" : Checks if the Excess Kurtosis of the distribution is "+name_+" threshold value\n"<<std::endl;
+  out<<"KurtosisTest_"+m_name+" : Checks if the Excess Kurtosis of the distribution is "+m_name+" threshold value\n"<<std::endl;
   
   out<<"Mandatory Green/Red Threshold: K: Value of Kurtosis"<<std::endl;
   

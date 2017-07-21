@@ -14,6 +14,9 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from AthenaCommon.GlobalFlags import globalflags
 from DerivationFrameworkTop.TOPQCommonExtraContent import *
 from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkJetEtMiss.JetCommon import *
+
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as Config
 
 def setup(TOPQname, stream):
   DFisMC = (globalflags.DataSource()=='geant4')
@@ -45,15 +48,22 @@ def setup(TOPQname, stream):
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesElectrons
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesMuons
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesTaus
+  TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesTrackJets
+  TOPQSlimmingHelper.ExtraVariables += Config.GetExtraPromptVariablesForDxAOD()
+  #  TOPQSlimmingHelper.ExtraVariables += ["CaloCalTopoClusters.calE.calEta.calPhi.calM.rawM.rawE.rawEta.rawPhi.e_sampl.eta_sampl.etaCalo.phiCalo"]
+  TOPQSlimmingHelper.ExtraVariables += ["CaloCalTopoClusters.calPt.calEta.calPhi.calM.calE.CENTER_MAG"]
 
   if DFisMC:
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesPhotonsTruth
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesElectronsTruth
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesMuonsTruth
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesTausTruth
-  
+    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVarsBTag_HLT_Container
+    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVarsJet_EF_Container
+    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVarsJet_Split_Container
+
   print "TOPQSlimmingHelper.ExtraVariables: " , TOPQSlimmingHelper.ExtraVariables
-    
+
   #================================
   # EXTRA COLLECTIONS - user added
   #================================
@@ -63,9 +73,9 @@ def setup(TOPQname, stream):
 
   if DFisMC:
     TOPQSlimmingHelper.AllVariables += TOPQExtraContainersTruth
-  
+
   print "TOPQSlimmingHelper.AllVariables: " , TOPQSlimmingHelper.AllVariables
-  
+
   #================================
   # CREATED ON-THE-FLY COLLECTIONS
   #================================
@@ -76,7 +86,7 @@ def setup(TOPQname, stream):
     TOPQSlimmingHelper.StaticContent += TOPQStaticContentTruth
 
   print "TOPQSlimmingHelper.StaticContent: " , TOPQSlimmingHelper.StaticContent
-  
+
   #================================
   # TRIGGER CONTENT
   #================================
@@ -97,6 +107,19 @@ def setup(TOPQname, stream):
   # adds METAssoc_XXXX, MET_Core_XXXX, and MET_Reference_XXXX
   # uses DerivationFrameworkJetEtMiss.METCommon.py
   addMETOutputs(TOPQSlimmingHelper,["AntiKt4EMPFlow"])
+
+  #====================================
+  # ADD CUSTOM JET OUTPUT (new rel 21 method)
+  #====================================
+  addJetOutputs(TOPQSlimmingHelper,["SmallR", "LargeR", TOPQname],
+                [], # smart list
+                ["AntiKt3PV0TrackJets",
+                 "AntiKt4PV0TrackJets",
+                 "AntiKt4LCTopoJets",
+                 "AntiKt10LCTopoJets",
+                 "AntiKt10TruthWZJets",
+                 ]# veto list
+  )
 
   #================================
   # THIS NEEDS TO BE THE LAST LINE

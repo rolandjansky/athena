@@ -256,7 +256,7 @@ CaloLocalHadCoeff * CaloHadDMCoeffFit::process(CaloHadDMCoeffData *myData, CaloL
         const CaloLocalHadCoeff::LocalHadDimension *dimLambda = area->getDimension(CaloLocalHadCoeffHelper::DIM_LAMBDA);
         sprintf(hname,"m_hp2_DmWeight_%d",i_size);
         hp2 = new TProfile2D(hname, hname, dimEner->getNbins(), dimEner->getXmin(), dimEner->getXmax(), dimLambda->getNbins(), dimLambda->getXmin(), dimLambda->getXmax(), 0.0, m_weightMax);
-      }else{
+      }else if (refbin >= 0) {
         hp2 = m_hp2_DmWeight[refbin];
       }
       m_hp2_DmWeight[i_size] = hp2;
@@ -900,10 +900,12 @@ void CaloHadDMCoeffFit::make_report(std::string &sreport)
             gPad->SetRightMargin(0.2);
             hp2[1]->Draw("colz");
             pad2->cd(2);
-            m_hp2_DmWeight[ibin_min]->SetStats(0);
-            m_hp2_DmWeight[ibin_min]->SetMinimum(0.0);
-            m_hp2_DmWeight[ibin_min]->SetMaximum(1.0);
-            m_hp2_DmWeight[ibin_min]->Draw("colz");
+            if (ibin_min >= 0) {
+              m_hp2_DmWeight[ibin_min]->SetStats(0);
+              m_hp2_DmWeight[ibin_min]->SetMinimum(0.0);
+              m_hp2_DmWeight[ibin_min]->SetMaximum(1.0);
+              m_hp2_DmWeight[ibin_min]->Draw("colz");
+            }
             // drawing bin number for histograms
             for(int i_ener=0; i_ener<dimEner->getNbins(); i_ener++) {
               v_indx[CaloLocalHadCoeffHelper::DIM_ENER] = i_ener;

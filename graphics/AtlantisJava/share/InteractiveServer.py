@@ -48,14 +48,7 @@
 import os, sys, math, traceback, random, time, StringIO, getopt, md5, base64
 import SocketServer
 from SimpleXMLRPCServer import SimpleXMLRPCServer,SimpleXMLRPCRequestHandler
-try:
-   import pylcgdict
-except:
-   print "not using pylcgdict"
-try:
-   import PyCintex as pylcgdict
-except:
-   print "not using PyCintex"
+import cppyy
 
 class AsyncXMLRPCServer(SocketServer.ThreadingMixIn, SimpleXMLRPCServer): pass
 
@@ -244,7 +237,7 @@ class InteractiveServer:
 
          print "callVertexFit(tracksId = '%s')" % tracksId
 
-         pylcgdict.loadDictionary('SealSTLDict')
+         cppyy.loadDictionary('SealSTLDict')
 
          g.std.vector(int)
          vi = g.std.vector(int)(0)
@@ -391,14 +384,14 @@ class InteractiveServer:
          #       theApp.toolsvc().retrieve('ToolSvc.VxWrapperTool')._itool
          self.vxTool = \
                  theApp.toolsvc().create('VxWrapperTool','VxWrapperTool',
-                         pylcgdict.Pointer(g.IInterface)(0))._itool
+                         cppyy.Pointer(g.IInterface)(0))._itool
 
          print "Getting JiveXML AlgTool (ToolSvc.EventData2XML)"
          # self.visTool = \
          #       theApp.toolsvc().retrieve('ToolSvc.EventData2XML')._itool
          self.visTool = \
                  theApp.toolsvc().create('EventData2XML','EventData2XML',
-                         pylcgdict.Pointer(g.IInterface)(0))._itool
+                         cppyy.Pointer(g.IInterface)(0))._itool
 
      # createAlgTools() ------------------------------------------------------
 

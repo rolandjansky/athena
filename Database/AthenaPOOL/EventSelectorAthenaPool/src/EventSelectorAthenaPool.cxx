@@ -268,7 +268,9 @@ StatusCode EventSelectorAthenaPool::reinit() {
    // Initialize InputCollectionsIterator
    m_inputCollectionsIterator = m_inputCollectionsProp.value().begin();
    m_curCollection = 0;
-   m_firstEvt[0] = 0;
+   if (!m_firstEvt.empty()) {
+     m_firstEvt[0] = 0;
+   }
    m_evtCount = 0;
    if (!m_eventStreamingTool.empty() && m_eventStreamingTool->isClient()) {
       ATH_MSG_INFO("Done reinitialization for shared reader client");

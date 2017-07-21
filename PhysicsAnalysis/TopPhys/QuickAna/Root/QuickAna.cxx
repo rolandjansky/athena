@@ -214,7 +214,8 @@ namespace ana
 
     if (pimpl->weight == -1)
     {
-      double weight = pimpl->objects->eventWeight();
+      // Rely on local function to do most of the heavy lifting
+      double weight = eventWeight();
 
       auto select = pimpl->objects->eventSelect();
       if (select &&
@@ -229,20 +230,6 @@ namespace ana
         weight *= make_weight (pimpl->internalConfiguration, pimpl->objects->photons());
         weight *= make_weight (pimpl->internalConfiguration, pimpl->objects->jets());
       }
-      // Add the JVT scale factor
-      if (pimpl->objects->eventinfo()->auxdata<float>("JVT_SF"))
-      {
-        weight *= pimpl->objects->eventinfo()->auxdata<float>("JVT_SF");
-      }
-      // Add the pileup weight if we had a random run number (PRW was enabled)
-      if (pimpl->objects->eventinfo()->auxdata<unsigned int>( "RandomRunNumber" ))
-      {
-        weight *= pimpl->objects->eventinfo()->auxdata<float>("PileupWeight");
-      }
-      // In the case of MC, add the MC weight
-      if(pimpl->objects->eventinfo()->eventType( xAOD::EventInfo::IS_SIMULATION ) ){
-        weight *= pimpl->objects->eventinfo()->mcEventWeight();
-      }
 
       pimpl->weight = weight;
     }
@@ -255,7 +242,22 @@ namespace ana
   eventWeight ()
   {
     RCU_CHANGE_INVARIANT (this);
-    return pimpl->objects->eventWeight();
+    float weight = pimpl->objects->eventWeight();
+    // Add the JVT scale factor
+    if (pimpl->objects->eventinfo()->auxdata<float>("JVT_SF"))
+    { 
+      weight *= pimpl->objects->eventinfo()->auxdata<float>("JVT_SF");
+    }
+    // Add the pileup weight if we had a random run number (PRW was enabled)
+    if (pimpl->objects->eventinfo()->auxdata<unsigned int>( "RandomRunNumber" ))
+    { 
+      weight *= pimpl->objects->eventinfo()->auxdata<float>("PileupWeight");
+    }
+    // In the case of MC, add the MC weight
+    if(pimpl->objects->eventinfo()->eventType( xAOD::EventInfo::IS_SIMULATION ) ){
+      weight *= pimpl->objects->eventinfo()->mcEventWeight();
+    }
+    return weight;
   }
 
 

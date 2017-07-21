@@ -525,10 +525,6 @@ Trk::TrackSegment* InDet::TRT_Trajectory_xk::convert()
 
   const Trk::Surface* sur = m_parameters.associatedSurface();
   
-  if(!sur) {
-    Amg::Vector3D GP(0.,0.,0.); sur = new Trk::PerigeeSurface(GP);
-  }
-
   DataVector<const Trk::MeasurementBase>* rio 
       = new DataVector<const Trk::MeasurementBase>;
 

@@ -46,8 +46,6 @@
 #include <string>
 #include <map>
 
-using CLHEP::mg;
-
 class TH1;
 class TH1F;
 class TH2F;

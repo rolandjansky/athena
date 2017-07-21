@@ -17,6 +17,10 @@ use xAODJet                     xAODJet-*               Event/xAOD
 use xAODCore                    xAODCore-*              Event/xAOD
 use xAODPFlow                   xAODPFlow-*             Event/xAOD
 use xAODTracking                xAODTracking-*          Event/xAOD
+use xAODTruth                   xAODTruth-*              Event/xAOD
+use AthenaKernel             AthenaKernel-*       Control
+use xAODCaloEvent               xAODCaloEvent-*              Event/xAOD
+use PFlowUtils                  PFlowUtils-*            Reconstruction/PFlow
 
 use JetInterface		JetInterface-*		Reconstruction/Jet
 use DerivationFrameworkInterfaces DerivationFrameworkInterfaces-* PhysicsAnalysis/DerivationFramework

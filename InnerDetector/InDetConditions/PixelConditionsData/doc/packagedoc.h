@@ -45,14 +45,4 @@ the doc directory of the package PixelConditionsServices.
 
 @section PixelConditionsData_PixelConditionsDataExtras Extra Pages
 
- - @ref PixelConditionsDataUsedPackages
- - @ref PixelConditionsDataRequirements
-*/
-
-/**
-@page PixelConditionsDataUsedPackages Used Packages
-*/
-
-/**
-@page PixelConditionsDataRequirements Requirements
 */

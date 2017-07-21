@@ -15,7 +15,7 @@
 #ifndef VP1CAMERAHELPER_H
 #define VP1CAMERAHELPER_H
 
-#include <QtCore/QObject>
+#include <QObject>
 #include <Inventor/C/errors/debugerror.h>
 #include <Inventor/SbVec3f.h>
 

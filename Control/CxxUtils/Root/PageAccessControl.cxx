@@ -6,12 +6,13 @@
 #include <algorithm> /* sort etc */
 #include <sys/mman.h> /* mprotect */
 #include "CxxUtils/PageAccessControl.h"
-#include "CxxUtils/page_access.h"  
+#include "CxxUtils/page_access.h"
+#include "CxxUtils/checker_macros.h"
 #include <iostream>
 using athena::page_address;
 using athena::next_page_address;
 
-PageAccessControl::Entry::Entry(void* a, size_t l, int p, void* pl): 
+PageAccessControl::Entry::Entry(const void* a, size_t l, int p, void* pl): 
   addr(page_address(a)), lenProt(l), prot(p), leak(pl), restored(0) {}
 
 
@@ -23,8 +24,7 @@ PageAccessControl::sort() {
   }
 }
 bool
-PageAccessControl::restorePageProt(const void * caddr) {
-  void* addr(const_cast<void*>(caddr));
+PageAccessControl::restorePageProt(const void * addr) {
   int rc(-1);
   sort();
   Entry ea(addr,0,0,0);
@@ -33,7 +33,9 @@ PageAccessControl::restorePageProt(const void * caddr) {
   if (entry != m_protected.end() &&
       entry->addr == ea.addr) {
     //found it. Restore page prot
-    rc=mprotect( page_address(entry->addr), entry->lenProt, entry->prot);
+    const void* pageAddr = page_address(entry->addr);
+    void* pageAddr_nc ATLAS_THREAD_SAFE = const_cast<void*> (pageAddr);
+    rc=mprotect( pageAddr_nc, entry->lenProt, entry->prot);
     if (rc==0) {
 #ifdef DEBUG
       printf("PageAccessControl::restorePageProt DEBUG: restored protection %i for page %p containing address %p \n",
@@ -51,13 +53,12 @@ PageAccessControl::restorePageProt(const void * caddr) {
 }
 
 bool
-PageAccessControl::protectPage(const void* caddr, size_t objSize, int prot) {
-  void* addr(const_cast<void*>(caddr));
+PageAccessControl::protectPage(const void* addr, size_t objSize, int prot) {
   int  rc(-1);
   const procmaps::Entry *e=m_pmaps.getEntry(addr,true);
   //this is the length of the range we are going to protect
   if (0 != e) {
-    void *pageAddr = page_address(addr);
+    const void *pageAddr = page_address(addr);
     size_t lenProt = (size_t)addr - (size_t)(pageAddr) + objSize;
     size_t nextProt = (size_t)addr + objSize;
     size_t nextUnprot = (size_t)(next_page_address((void*)(nextProt-1)));
@@ -93,8 +94,9 @@ PageAccessControl::protectPage(const void* caddr, size_t objSize, int prot) {
 // #endif
 // 	}
 //       }
-          
-      if (0 == (rc = mprotect( pageAddr,
+
+      void* pageAddr_nc ATLAS_THREAD_SAFE = const_cast<void*> (pageAddr);
+      if (0 == (rc = mprotect( pageAddr_nc,
 			       lenProt,
 			       prot))) {
 	m_protected.push_back(Entry(pageAddr,lenProt, pageProt, 0));
@@ -116,7 +118,7 @@ PageAccessControl::protectPage(const void* caddr, size_t objSize, int prot) {
 bool PageAccessControl::accessed(const void* address) const {
   bool acc(false);
   //fixme: poor man implementation
-  Entry eaxx(const_cast<void*>(address),0,0,0);
+  Entry eaxx(address,0,0,0);
   PageAccessControl::const_iterator ia(beginProtectedPtrs()),
     ea(endProtectedPtrs());
   while (!acc && ia != ea) {

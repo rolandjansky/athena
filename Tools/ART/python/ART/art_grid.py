@@ -4,12 +4,16 @@
 
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
 
+import atexit
 import datetime
+import glob
+import json
 import os
 import re
 import shutil
 import sys
 import tarfile
+import tempfile
 
 from art_base import ArtBase
 from art_misc import mkdir_p, make_executable, check, run_command
@@ -18,15 +22,18 @@ from art_misc import mkdir_p, make_executable, check, run_command
 class ArtGrid(ArtBase):
     """TBD."""
 
-    def __init__(self, art_directory, nightly_release, project, platform, nightly_tag):
+    def __init__(self, art_directory, nightly_release, project, platform, nightly_tag, script_directory=None, skip_setup=False, submit_directory=None):
         """TBD."""
         self.art_directory = art_directory
         self.nightly_release = nightly_release
         self.project = project
         self.platform = platform
         self.nightly_tag = nightly_tag
+        self.script_directory = script_directory
+        self.skip_setup = skip_setup
+        self.submit_directory = submit_directory
+
         self.cvmfs_directory = '/cvmfs/atlas-nightlies.cern.ch/repo/sw'
-        self.script_directory = None
 
     def get_script_directory(self):
         """On demand script directory, only to be called if directory exists."""
@@ -40,13 +47,12 @@ class ArtGrid(ArtBase):
     def task_list(self, type, sequence_tag):
         """TBD."""
         # job will be submitted from tmp directory
-        submit_directory = 'tmp'
+        submit_directory = tempfile.mkdtemp(dir='.')
 
-        # make sure tmp is removed
-        if os.path.exists(submit_directory):
-            shutil.rmtree(submit_directory)
+        # make sure tmp is removed afterwards
+        atexit.register(shutil.rmtree, submit_directory)
 
-        config = self.get_config()
+        config = None if self.skip_setup else self.get_config()
 
         # make sure script directory exist
         if not os.path.isdir(self.get_script_directory()):
@@ -58,7 +64,7 @@ class ArtGrid(ArtBase):
         # get the test_*.sh from the test directory
         test_directories = self.get_test_directories(self.get_script_directory())
         if not test_directories:
-            print 'No tests found in directories ending in "test"'
+            print 'WARNING: No tests found in directories ending in "test"'
             sys.stdout.flush()
 
         for package, root in test_directories.items():
@@ -85,7 +91,6 @@ class ArtGrid(ArtBase):
                     # get the path of the python classes and support scripts
                     art_python_directory = os.path.join(self.art_directory, '..', 'python', 'ART')
 
-                    # FIXME we need to know where all those files went in the Athena install
                     shutil.copy(os.path.join(self.art_directory, 'art.py'), run)
                     shutil.copy(os.path.join(self.art_directory, 'art-internal.py'), run)
                     shutil.copy(os.path.join(art_python_directory, '__init__.py'), ART)
@@ -102,7 +107,7 @@ class ArtGrid(ArtBase):
                     make_executable(os.path.join(run, 'art.py'))
                     make_executable(os.path.join(run, 'art-internal.py'))
 
-                    command = os.path.join(self.art_directory, 'art-internal.py') + ' task grid ' + package + ' ' + type + ' ' + sequence_tag + ' ' + self.nightly_release + ' ' + self.project + ' ' + self.platform + ' ' + self.nightly_tag
+                    command = os.path.join(self.art_directory, 'art-internal.py') + ' task grid ' + ('--skip-setup' if self.skip_setup else '') + ' ' + submit_directory + ' ' + self.get_script_directory() + ' ' + package + ' ' + type + ' ' + sequence_tag + ' ' + self.nightly_release + ' ' + self.project + ' ' + self.platform + ' ' + self.nightly_tag
                     print command
                     sys.stdout.flush()
                     out = check(run_command(command))
@@ -122,7 +127,7 @@ class ArtGrid(ArtBase):
 
         # run task from Bash Script as is needed in ATLAS setup
         # FIXME we need to parse the output
-        out = check(run_command(os.path.join(self.art_directory, 'art-task-grid.sh') + " " + package + " " + type + " " + sequence_tag + " " + str(number_of_tests) + " " + self.nightly_release + " " + self.project + " " + self.platform + " " + self.nightly_tag))
+        out = check(run_command(os.path.join(self.art_directory, 'art-task-grid.sh') + " " + ('--skip-setup' if self.skip_setup else '') + " " + self.submit_directory + " " + self.get_script_directory() + " " + package + " " + type + " " + sequence_tag + " " + str(number_of_tests) + " " + self.nightly_release + " " + self.project + " " + self.platform + " " + self.nightly_tag))
         print out
         sys.stdout.flush()
         return 0
@@ -168,14 +173,17 @@ class ArtGrid(ArtBase):
         tar_file.close()
         return 0
 
-    def list(self, package, type):
+    def list(self, package, type, json_format=False):
         """TBD."""
         jobs = self.get_list(self.get_script_directory(), package, type)
+        if json_format:
+            json.dump(jobs, sys.stdout, sort_keys=True, indent=4)
+            return 0
         i = 1
         for job in jobs:
             print str(i) + ' ' + job
-            sys.stdout.flush()
             i += 1
+        sys.stdout.flush()
         return 0
 
     def log(self, package, test_name):
@@ -205,21 +213,31 @@ class ArtGrid(ArtBase):
     def compare(self, package, test_name, days, file_names):
         """TBD."""
         previous_nightly_tag = self.get_previous_nightly_tag(days)
+        print "Previous Nightly Tag:", str(previous_nightly_tag)
+        if previous_nightly_tag is None:
+            print "ERROR: No previous nightly tag found"
+            return 1
 
         ref_dir = os.path.join('.', 'ref-' + previous_nightly_tag)
         mkdir_p(ref_dir)
 
         tar = self.get_tar(package, test_name, '_EXT0', previous_nightly_tag)
+        if tar is None:
+            print "ERROR: No comparison tar file found"
+            return 1
+
         for member in tar.getmembers():
             if member.name in file_names:
                 tar.extractall(path=ref_dir, members=[member])
         tar.close()
 
         for file_name in file_names:
-            print "art-compare: " + previous_nightly_tag + " " + file_name
             ref_file = os.path.join(ref_dir, file_name)
-
-            self.compare_ref(file_name, ref_file, 10)
+            if os.path.isfile(ref_file):
+                print "art-compare: " + previous_nightly_tag + " " + file_name
+                self.compare_ref(file_name, ref_file, 10)
+            else:
+                print "ERROR:", ref_file, "not found in tar file"
         return 0
 
     #
@@ -227,6 +245,9 @@ class ArtGrid(ArtBase):
     #
     def excluded(self, config, package):
         """Based on config, decide if a release is excluded from testing."""
+        if config is None:
+            return False
+
         if self.nightly_release not in config.keys():
             return True
 
@@ -247,25 +268,50 @@ class ArtGrid(ArtBase):
         if nightly_tag is None:
             nightly_tag = self.nightly_tag
 
-        type = self.get_type(self.get_test_directories(self.get_script_directory())[package], test_name)
-        index = self.get_list(self.get_script_directory(), package, type).index(test_name)
+        try:
+            type = self.get_type(self.get_test_directories(self.get_script_directory())[package], test_name)
+            print "Type:", type
+            index = self.get_list(self.get_script_directory(), package, type).index(test_name)
+            print "Index:", index
+        except KeyError:
+            print package, "does not exist in tests of ", self.get_script_directory()
+            return None
+
         # Grid counts from 1
         index += 1
 
-        container = 'user.artprod.' + self.nightly_release + '.' + self.project + '.' + self.platform + '.' + nightly_tag + '.*.' + package + extension
-        print container
+        try:
+            tmpdir = os.environ['TMPDIR']
+        except KeyError:
+            tmpdir = '.'
+        print "Using", tmpdir, "for tar file download"
 
-        out = check(run_command("rucio list-dids " + container + " --filter type=container | grep " + nightly_tag + " | sort -r | cut -d ' ' -f 2 | head -n 1"))
-        print out
+        container_list = 'user.artprod.atlas.' + self.nightly_release + '.' + self.project + '.' + self.platform + '.' + nightly_tag + '.*.' + package + extension
+        print "ContainerList:", container_list
 
-        out = check(run_command("rucio list-files --csv " + out + " | grep " + "{0:0>6}".format(index)))
-        print out
+        # print "rucio list-dids"
+        (code, out, err) = run_command("rucio list-dids " + container_list + " --filter type=container | grep " + nightly_tag + " | sort -r | cut -d ' ' -f 2 | head -n 1", tmpdir)
+        if code != 0 or out == '':
+            return None
+        container = out.strip()
+        print "Container:", container
 
-        tar_name = out.split(',')[0]
-        out = check(run_command("rucio download " + tar_name))
-        print out
+        # print "rucio list-files"
+        (code, out, err) = run_command("rucio list-files --csv " + container + " | grep " + "_{0:0>6}.tar".format(index), tmpdir)
+        if code != 0 or out == '':
+            return None
+        entry = out.strip()
+        print "Entry:", entry
 
-        return tarfile.open(tar_name.replace(':', '/', 1))
+        tar_name = entry.split(',')[0]
+        print "Tar Name:", tar_name
+        # print "rucio download"
+        (code, out, err) = run_command("rucio download " + tar_name, tmpdir)
+        if code != 0:
+            print code, out, err
+            return None
+
+        return tarfile.open(os.path.join(tmpdir, tar_name.replace(':', '/', 1)))
 
     def get_previous_nightly_tag(self, days):
         """TBD. 21:00 is cutoff time."""
@@ -273,7 +319,6 @@ class ArtGrid(ArtBase):
         tags = os.listdir(directory)
         tags.sort(reverse=True)
         tags = [x for x in tags if re.match(r'\d{4}-\d{2}-\d{2}T\d{2}\d{2}', x)]
-        # print tags
         found = False
         for tag in tags:
             if tag == self.nightly_tag:
@@ -286,6 +331,8 @@ class ArtGrid(ArtBase):
                 from_dt = nightly_tag_dt.replace(hour=0, minute=0, second=0, microsecond=0) - datetime.timedelta(days=days)
                 to_dt = from_dt + datetime.timedelta(days=1)
                 tag_dt = datetime.datetime.strptime(tag, fmt) + offset
-                if from_dt <= tag_dt and tag_dt < to_dt and os.path.isdir(os.path.join(directory, tag, self.project)):
+                within_days = from_dt <= tag_dt and tag_dt < to_dt
+                target_exists = len(glob.glob(os.path.join(directory, tag, self.project, '*', 'InstallArea', self.platform))) > 0
+                if within_days and target_exists:
                     return tag
         return None

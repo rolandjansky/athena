@@ -15,12 +15,15 @@
 #include "VP1Gui/VP1Gui.h"
 #include "VP1Gui/VP1ExecutionScheduler.h"
 #include "VP1Base/VP1Msg.h"
-#include <QtCore/QStringList>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QUrl>
-#include <QtNetwork/QSslSocket>
+
+#include <QStringList>
+#include <QFile>
+#include <QFileInfo>
+#include <QUrl>
+#include <QSslSocket>
+
 #include <cassert>
+#include <iostream>
 
 //____________________________________________________________________
 class VP1Gui::Imp {
@@ -114,7 +117,7 @@ bool VP1Gui::argumentsAreValid() const
   //Cruise mode:
   if (d->initialCruiseMode!="NONE"&&d->initialCruiseMode!="EVENT"&&d->initialCruiseMode!="TAB"&&d->initialCruiseMode!="BOTH") {
       VP1Msg::message("WARNING: unknown initial cruise mode "+d->initialCruiseMode+" (valid are NONE/EVENT/TAB/BOTH). Assuming NONE.");
-      d->initialCruiseMode=="NONE";
+      d->initialCruiseMode = "NONE";
   }
 
   //Single-Event-Per-File modes:

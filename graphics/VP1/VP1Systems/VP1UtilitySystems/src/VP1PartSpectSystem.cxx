@@ -13,9 +13,9 @@
 #include "QatPlotWidgets/PlotView.h"
 #include "QatDataAnalysis/Hist1D.h"
 #include "QatPlotting/PlotHist1D.h"
-#include <QtGui/QMainWindow>
-#include <QtGui/QToolBar>
-#include <QtGui/QAction>
+#include <QMainWindow>
+#include <QToolBar>
+#include <QAction>
 
 #include "TFile.h"
 #include "TROOT.h"

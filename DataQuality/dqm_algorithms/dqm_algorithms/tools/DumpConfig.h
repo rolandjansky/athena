@@ -32,22 +32,22 @@ namespace dqm_algorithms
 	void DumpRegion();
 	void DumpAgent();
 
-        std::ofstream _myfile;
-	std::map<std::string,double> params;
-	std::map<std::string,double> gthresh;
-	std::map<std::string,double> rthresh;
-	std::vector<std::string> red_id;
-	std::vector<std::string> green_id;
-	std::vector<std::string> param_id;
+        std::ofstream m_myfile;
+	std::map<std::string,double> m_params;
+	std::map<std::string,double> m_gthresh;
+	std::map<std::string,double> m_rthresh;
+	std::vector<std::string> m_red_id;
+	std::vector<std::string> m_green_id;
+	std::vector<std::string> m_param_id;
      
-	std::string _ParameterName;
-	dqm_core::test::DummyAlgorithmConfig  _config;
-	std::string _regionname;
-	std::string _algorithmname;
-	std::string _histogramname;
-	std::string _refhistogramname;
-	std::string _reffilename;
-	float _weight;
+	std::string m_ParameterName;
+	dqm_core::test::DummyAlgorithmConfig  m_config;
+	std::string m_regionname;
+	std::string m_algorithmname;
+	std::string m_histogramname;
+	std::string m_refhistogramname;
+	std::string m_reffilename;
+	float m_weight;
 	
     };
   }

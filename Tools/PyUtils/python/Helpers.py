@@ -16,106 +16,33 @@ from AthenaCommon.Logging import log
 
 
 def ROOT6Setup():
-
-   def addROOTIncludePaths():
-      """
-      Fill ROOT include path list for entries for all packages found in CMTPATH
-      """
-
-      # Most projects make their headers available to root under
-      # root-include-path.  But DetCommon does not.
-      if 'CMTPATH' in os.environ:
-         import glob
-         import PyUtils.RootUtils as ru
-         interp = ru.import_root().gInterpreter
-         for p in os.environ['CMTPATH'].split(':'):
-            if p.find('DetCommon')>=0:
-               idir = os.path.join (p, 'InstallArea', 'include')
-               for ii in glob.glob (os.path.join (idir, '*')):
-                  interp.AddIncludePath (ii)
-            
-
-      # Also need to make Geant headers available.
-      if 'G4INCLUDE' in os.environ:
-          import PyUtils.RootUtils as ru
-          interp = ru.import_root().gInterpreter
-          interp.AddIncludePath( os.environ['G4INCLUDE'] )
-
-
-
-   def cppyyFakeCintex():
-      class Cintex:
-         def Enable(self):
-             pass
-      
-      _load = cppyy.loadDict
-      def loadDict(dict):
-         if dict.find('Reflex') >= 0:
-            log.debug(" LoadDict: ignoring dict " + dict )
-         else:
-            log.debug(" LoadDict: loading dict " + dict )
-            return _load(dict)
-      
-      cppyy.Cintex = Cintex()
-      cppyy.hasFakeCintex = True
-      cppyy.loadDict = loadDict
-
-
-   def install_root6_importhook():
-      import __builtin__
-      oldimporthook = __builtin__.__import__
-      autoload_var_name = 'ROOT6_NamespaceAutoloadHook'
-      
-      def root6_importhook(name, globals={}, locals={}, fromlist=[], level=-1):
-          if name == 'PyCintex':
-             import sys, traceback
-             source, line, f, t = traceback.extract_stack( sys._getframe(1) )[-1]
-             log.warning( 'PyCintex imported (replace with import cppyy) from: %s:%d'%(source,line) )
-          m = oldimporthook(name, globals, locals, fromlist, level)
-          if m and (m.__name__== 'ROOT' or name[0:4]=='ROOT'):
-             log.debug('Python import module=%s  fromlist=%s'%(name, str(fromlist)))
-             if fromlist:
-                #MN: in this case 'm' is the final nested module already, don't walk the full 'name'
-                vars = [ '.'.join(['', fl, autoload_var_name]) for fl in fromlist]
-             else:
-                vars = [ '.'.join([name, autoload_var_name]) ]
-             for v in vars:
-                try:
-                   mm = m
-                   #MN: walk the module chain and try to touch 'autoload_var_name' to trigger ROOT autoloading of namespaces
-                   for comp in v.split('.')[1:]:
-                      mm = getattr(mm, comp)
-                except:
-                   pass
-          return m
-      
-      __builtin__.__import__ = root6_importhook
+   log.info('executing ROOT6Setup')
+   import __builtin__
+   oldimporthook = __builtin__.__import__
+   autoload_var_name = 'ROOT6_NamespaceAutoloadHook'
+   
+   def root6_importhook(name, globals={}, locals={}, fromlist=[], level=-1):
+       m = oldimporthook(name, globals, locals, fromlist, level)
+       if m and (m.__name__== 'ROOT' or name[0:4]=='ROOT'):
+          log.debug('Python import module=%s  fromlist=%s'%(name, str(fromlist)))
+          if fromlist:
+             #MN: in this case 'm' is the final nested module already, don't walk the full 'name'
+             vars = [ '.'.join(['', fl, autoload_var_name]) for fl in fromlist]
+          else:
+             vars = [ '.'.join([name, autoload_var_name]) ]
+          for v in vars:
+             try:
+                mm = m
+                #MN: walk the module chain and try to touch 'autoload_var_name' to trigger ROOT autoloading of namespaces
+                for comp in v.split('.')[1:]:
+                   mm = getattr(mm, comp)
+             except:
+                pass
+       return m
+   
+   __builtin__.__import__ = root6_importhook
       
 
-   try:
-      import cppyy
-      # let cppyy pretend to be PyCintex (and prevent subsequent imports of PyCintex)
-      sys.modules['PyCintex'] = PyCintex = cppyy
-   except ImportError, e:
-    # handle a somewhat common mistake
-      import traceback
-      traceback.print_exception( sys.exc_type,
-          '%s, ROOT version or setup problem?' % str(e), sys.exc_traceback )
-      sys.exit( 1 )
-
-   try:
-       # test if we have Cintex (ROOT5)
-       cppyy.Cintex.Debug
-       # if the previous line did not throw exception, then we have ROOT5 with Cintex and Reflex
-       cppyy.hasCintex = True
-   except AttributeError, e:
-       # no Cintex!  do ROOT6 stuff
-       # but don't initialize more than once
-       if not hasattr(cppyy, 'hasFakeCintex'):
-          log.info('executing ROOT6Setup')
-          cppyyFakeCintex()
-          addROOTIncludePaths()
-          install_root6_importhook()
 
 import re
 from tempfile import NamedTemporaryFile

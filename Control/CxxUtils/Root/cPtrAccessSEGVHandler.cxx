@@ -8,7 +8,7 @@ namespace {
   PtrAccessSEGVHandler* s_pHandler(0);
 }
 
-void setPtrAccessSEGVHandler(PtrAccessSEGVHandler* h) { s_pHandler=h; }
-void cPtrAccessSEGVHandler(int signal, siginfo_t* si, void* old) {
+void setPtrAccessSEGVHandler ATLAS_NOT_THREAD_SAFE (PtrAccessSEGVHandler* h) { s_pHandler=h; }
+void cPtrAccessSEGVHandler ATLAS_NOT_THREAD_SAFE (int signal, siginfo_t* si, void* old) {
   s_pHandler->handle(signal, si, old);
 }

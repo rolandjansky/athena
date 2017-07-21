@@ -47,7 +47,6 @@ Trk::RecVertex, Trk::Vertex and CLHEP::Hep3Vector
 
 <br><br>
 
-@section TrkVertexAnalysisUtils_requirementsTrkVertexAnalysisUtils Requirements
 
 
 */

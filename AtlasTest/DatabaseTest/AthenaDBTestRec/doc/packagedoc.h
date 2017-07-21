@@ -277,13 +277,10 @@ The DetStoreDump_jobOptions.py file:
 @include DetStoreDump_jobOptions.py
 
 
-@section AthenaDBTestRec_requirements requirements
 
 The package requirements file:
 
 
-@section AthenaDBTestRec_uses Packages used
 
 
 */
-

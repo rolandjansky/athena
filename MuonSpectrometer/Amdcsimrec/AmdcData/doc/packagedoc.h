@@ -16,15 +16,5 @@ the source Ascii files for the Muon Spectrometer geometry description
 
 @section AmdcData_ExtrasAmdcData Extra Pages
 
-  - @ref used_AmdcData
-  - @ref requirements_AmdcData
 
-*/
-
-/**
-@page used_AmdcData Used Packages
-*/
-
-/**
-@page requirements_AmdcData Requirements
 */

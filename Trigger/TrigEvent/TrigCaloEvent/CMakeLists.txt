@@ -26,7 +26,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigMinBias
                           Event/xAOD/xAODTrigRinger
                           Trigger/TrigDataAccess/TrigSerializeCnvSvc
-                          Trigger/TrigDataAccess/TrigSerializeUtils
                           Trigger/TrigEvent/TrigNavigation )
 
 # External dependencies:

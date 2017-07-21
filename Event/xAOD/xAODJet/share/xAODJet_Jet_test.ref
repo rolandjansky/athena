@@ -13,6 +13,15 @@ TEST SUCCEEDED : pt changed as expected
 TEST SUCCEEDED : Pt from JetAssignedScaleMomentum as expected
 TEST SUCCEEDED : JetConstitScaleMomentum retrieve by string identical
 
+ ---------------- testLink  
+TEST SUCCEEDED : jet retrieved from asso identical
+TEST SUCCEEDED : jet retrieved  from as IParticle asso identical
+TEST SUCCEEDED : getAssociatedObject(id,o) returned true
+TEST SUCCEEDED : getAssociatedObject(id,o) retrieved identical
+TEST SUCCEEDED : jet retrieved as EL identical
+TEST SUCCEEDED : retrieval of VecJets done
+TEST SUCCEEDED : Retrieved vector jets identical
+
  ---------------- testJetCopy  
  --> testing assignment operator 0.123
 TEST SUCCEEDED : copy0 jet pt identical
@@ -57,15 +66,6 @@ TEST SUCCEEDED : retrieved vector identical
 TEST SUCCEEDED : Scale momentum retrieved as attribute identical to scale
 TEST SUCCEEDED : Scale momentum set as attribute identical when retrived as scale
 
- ---------------- testLink  
-TEST SUCCEEDED : jet retrieved from asso identical
-TEST SUCCEEDED : jet retrieved  from as IParticle asso identical
-TEST SUCCEEDED : getAssociatedObject(id,o) returned true
-TEST SUCCEEDED : getAssociatedObject(id,o) retrieved identical
-TEST SUCCEEDED : jet retrieved as EL identical
-TEST SUCCEEDED : retrieval of VecJets done
-TEST SUCCEEDED : Retrieved vector jets identical
-
  ---------------- testClusterConstituents  
  contit energy  500  cluster energy 500
 TEST SUCCEEDED : EM cluster constituent at expected scale
@@ -75,6 +75,6 @@ TEST SUCCEEDED : LC cluster constituent at expected scale
 TEST SUCCEEDED : LC cluster constituent at expected scale (from iterator)
 TEST SUCCEEDED : LC cluster constituent at expected scale (from iterator at EM scale)
 
- ---------------- testClusterConstituents  
+ ---------------- testShallowCopy  
 TEST SUCCEEDED :  shallow copy pt identical
 TEST SUCCEEDED :  first constit identical

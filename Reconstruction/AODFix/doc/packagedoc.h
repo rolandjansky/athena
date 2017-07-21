@@ -49,12 +49,4 @@ reconstruction.
 @author Jovan Mitrevski
 
 @section AODFix_ExtrasAODFix Extra Pages
- - @ref UsedAODFix
- - @ref RequirementsAODFix
-*/
-/**
-@page UsedAODFix Used Packages
-*/
-/**
-@page RequirementsAODFix Requirements
 */

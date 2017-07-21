@@ -14,7 +14,7 @@
 #ifndef PRDCOMMONFLAGS_H
 #define PRDCOMMONFLAGS_H
 
-#include <QtCore/QFlags>
+#include <QFlags>
 
 class PRDCommonFlags {
 public:

@@ -71,6 +71,10 @@ public:
   std::vector<Gaudi::DataHandle*> outputs;
   std::vector<DataObjID> extra_inputs;
   std::vector<DataObjID> extra_outputs;
+
+  Gaudi::Property< SG::ReadHandleKey<MyObj> > 
+     gp_rkey {this, "gp_rkey", "aaa_gp", "doc for gp_rkey"};
+
 };
 
 
@@ -268,26 +272,35 @@ void test1 (ISvcLocator* svcLoc)
   assert (alg.uhandle.storeHandle().name() == "StoreGateSvc");
   assert (alg.uhandle.mode() == Gaudi::DataHandle::Updater);
 
-  std::vector<std::string> inputKeys { "aaa", "ccc", "ddd", "fff",
-                                       "ggg.qqq", "iii" };
+  assert (alg.gp_rkey.value().clid() == 293847295);
+  assert (alg.gp_rkey.value().key() == "AAA_gp");
+  assert (alg.gp_rkey.value().storeHandle().name() == "StoreGateSvc");
+  assert (alg.gp_rkey.value().mode() == Gaudi::DataHandle::Reader);
+
+  std::vector<std::string> inputKeys { 
+    "StoreGateSvc+AAA_gp", "FooSvc+aaa", "StoreGateSvc+ccc", "FooSvc+ddd", 
+      "StoreGateSvc+fff",  "FooSvc+ggg.qqq", "ConditionStore+iii" };
   assert (alg.inputs.size() == inputKeys.size());
   for (size_t i = 0; i < alg.inputs.size(); i++) {
-    //std::cout << "inp " << alg.inputs[i]->objKey() << "\n";
+    // std::cout << "inp " << alg.inputs[i]->objKey() << " =?= "
+    //           << inputKeys[i] << "\n";
     assert (alg.inputs[i]->objKey() == inputKeys[i]);
   }
 
-  std::vector<std::string> outputKeys { "bbb", "ccc", "eee", "fff",
-                                        "hhh.rrr", "jjj" };
+  std::vector<std::string> outputKeys { 
+    "BarSvc+bbb", "StoreGateSvc+ccc", "BarSvc+eee", "StoreGateSvc+fff",
+      "StoreGateSvc+hhh.rrr", "ConditionStore+jjj" };
   assert (alg.outputs.size() == outputKeys.size());
   for (size_t i = 0; i < alg.outputs.size(); i++) {
-    //std::cout << "out " << alg.outputs[i]->objKey() << "\n";
+    // std::cout << "out " << alg.outputs[i]->objKey() << " =?= " 
+    //           << outputKeys[i] << "\n";
     assert (alg.outputs[i]->objKey() == outputKeys[i]);
   }
 
-  std::vector<std::string> extraInputKeys { "hhh" };
+  std::vector<std::string> extraInputKeys { "StoreGateSvc+hhh" };
   assert (alg.extra_inputs.size() == extraInputKeys.size());
   for (size_t i = 0; i < alg.extra_inputs.size(); i++) {
-    //std::cout << "extra inp " << alg.extra_inputs[i].key() << "\n";
+    //    std::cout << "extra inp " << alg.extra_inputs[i].key() << "\n";
     assert (alg.extra_inputs[i].key() == extraInputKeys[i]);
   }
 
@@ -356,26 +369,30 @@ void test2 (ISvcLocator* svcLoc)
   assert (tool.uhandle.storeHandle().name() == "StoreGateSvc");
   assert (tool.uhandle.mode() == Gaudi::DataHandle::Updater);
 
-  std::vector<std::string> inputKeys { "taa", "tcc", "tdd", "tff",
-                                       "tgg.qqq", "tii" };
+  std::vector<std::string> inputKeys { 
+    "FooSvc+taa", "StoreGateSvc+tcc", "FooSvc+tdd", "StoreGateSvc+tff",
+    "FooSvc+tgg.qqq", "ConditionStore+tii" };
   assert (tool.inputs.size() == inputKeys.size());
   for (size_t i = 0; i < tool.inputs.size(); i++) {
-    //std::cout << "inp " << tool.inputs[i]->objKey() << "\n";
+    // std::cout << "inp " << tool.inputs[i]->objKey() << " =?= "
+    //           << inputKeys[i] << "\n";
     assert (tool.inputs[i]->objKey() == inputKeys[i]);
   }
 
-  std::vector<std::string> outputKeys { "tbb", "tcc", "tee", "tff",
-                                        "thh.rrr", "tjj" };
+  std::vector<std::string> outputKeys { 
+    "BarSvc+tbb", "StoreGateSvc+tcc", "BarSvc+tee", "StoreGateSvc+tff",
+    "StoreGateSvc+thh.rrr", "ConditionStore+tjj" };
   assert (tool.outputs.size() == outputKeys.size());
   for (size_t i = 0; i < tool.outputs.size(); i++) {
-    //std::cout << "out " << tool.outputs[i]->objKey() << "\n";
+    // std::cout << "out " << tool.outputs[i]->objKey() << " =?= "
+    //           << outputKeys[i] << "\n";
     assert (tool.outputs[i]->objKey() == outputKeys[i]);
   }
 
-  std::vector<std::string> extraInputKeys { "thh" };
+  std::vector<std::string> extraInputKeys { "StoreGateSvc+thh" };
   assert (tool.extra_inputs.size() == extraInputKeys.size());
   for (size_t i = 0; i < tool.extra_inputs.size(); i++) {
-    //std::cout << "extra inp " << tool.extra_inputs[i].key() << "\n";
+    // std::cout << "extra inp " << tool.extra_inputs[i].key() << "\n";
     assert (tool.extra_inputs[i].key() == extraInputKeys[i]);
   }
 
@@ -386,7 +403,8 @@ void test2 (ISvcLocator* svcLoc)
 int main()
 {
   ISvcLocator* svcLoc = nullptr;
-  Athena_test::initGaudi ("propertyHandling_test.txt", svcLoc);
+  if (!Athena_test::initGaudi ("propertyHandling_test.txt", svcLoc))
+    return 1;
 
   test1 (svcLoc);
   test2 (svcLoc);

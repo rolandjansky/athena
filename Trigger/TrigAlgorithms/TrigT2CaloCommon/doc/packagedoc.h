@@ -13,17 +13,6 @@ This package provides data access classes and bytestream converters
 objects for calorimeter reconstruction algorithms for L2 trigger.
 In addition it contains classes for (EM) calibration and geometry helpers.
 
-@ref used_TrigT2CaloCommon
 
-@ref requirements_TrigT2CaloCommon
 
 */
-
-/**
-@page used_TrigT2CaloCommon Used Packages
-*/
-
-/**
-@page requirements_TrigT2CaloCommon Requirements
-*/
-

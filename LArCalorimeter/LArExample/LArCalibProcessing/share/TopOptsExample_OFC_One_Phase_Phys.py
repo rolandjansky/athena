@@ -75,8 +75,8 @@ LArOFC2Ntuple.OutputLevel = DEBUG
 #svcMgr.DetectorStore.OutputLevel = DEBUG
 
 #----------------------
-# Dump ConditionsStore
+# Dump ConditionStore
 #----------------------
-#svcMgr.ConditionsStore  = Service("ConditionsStore" )
-#svcMgr.ConditionsStore.Dump = True
-#svcMgr.ConditionsStore.OutputLevel = DEBUG
+#svcMgr.ConditionStore  = Service("ConditionStore" )
+#svcMgr.ConditionStore.Dump = True
+#svcMgr.ConditionStore.OutputLevel = DEBUG

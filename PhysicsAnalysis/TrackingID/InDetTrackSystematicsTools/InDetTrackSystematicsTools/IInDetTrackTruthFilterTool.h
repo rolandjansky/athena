@@ -33,8 +33,6 @@ namespace InDet {
     virtual StatusCode finalize() = 0;
 
     virtual bool accept(const xAOD::TrackParticle* track) const = 0;
-    virtual bool selectTrack(const xAOD::TrackParticle* track) const __attribute__ ((deprecated("use accept(track) instead"))) = 0; // an old name for the above
-
       
     // implement the CP::ISystematicTool interface
       

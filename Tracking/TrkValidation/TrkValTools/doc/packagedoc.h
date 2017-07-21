@@ -337,15 +337,4 @@ fill the RIO data into the ntuple.
 
 @section TrkValTools_ExtrasTrkValTools Extra Pages
 
- - @ref UsedTrkValTools
- - @ref requirementsTrkValTools
 */
-
-/**
-@page UsedTrkValTools Used Packages
-*/
-
-/**
-@page requirementsTrkValTools Requirements
-*/
-

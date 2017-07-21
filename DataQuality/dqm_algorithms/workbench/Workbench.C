@@ -7,8 +7,6 @@ void Workbench()
 {
     gSystem->Load( "libdqm_core.so" );
     gSystem->Load( "libdqm_dummy.so" );
-    gSystem->Load( "libCintex.so" );
-    Cintex::Enable();
     gSystem->Load( "libdqm_tools.so" );
     gSystem->Load( "libdqm_algorithms.so" );
     gROOT->ProcessLine( ".include .." );

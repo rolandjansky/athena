@@ -141,21 +141,21 @@ void test1 (ISvcLocator* svcLoc)
   assert (alg.wdkey.contHandleKey().storeHandle().name() == "StoreGateSvc");
   assert (alg.wdkey.contHandleKey().mode() == Gaudi::DataHandle::Reader);
 
-  std::vector<std::string> inputKeys { "aaa", "yyy.qqq" };
+  std::vector<std::string> inputKeys { "FooSvc+aaa", "FooSvc+yyy.qqq" };
   assert (alg.inputs.size() == inputKeys.size());
   for (size_t i = 0; i < alg.inputs.size(); i++) {
     //std::cout << "inp " << alg.inputs[i]->objKey() << "\n";
     assert (alg.inputs[i]->objKey() == inputKeys[i]);
   }
 
-  std::vector<std::string> outputKeys { "eee", "zzz.rrr" };
+  std::vector<std::string> outputKeys { "BarSvc+eee", "StoreGateSvc+zzz.rrr" };
   assert (alg.outputs.size() == outputKeys.size());
   for (size_t i = 0; i < alg.outputs.size(); i++) {
     //std::cout << "out " << alg.outputs[i]->objKey() << "\n";
     assert (alg.outputs[i]->objKey() == outputKeys[i]);
   }
 
-  std::vector<std::string> extraInputKeys { "zzz" };
+  std::vector<std::string> extraInputKeys { "StoreGateSvc+zzz" };
   assert (alg.extra_inputs.size() == extraInputKeys.size());
   for (size_t i = 0; i < alg.extra_inputs.size(); i++) {
     //std::cout << "extra inp " << alg.extra_inputs[i].key() << "\n";
@@ -188,11 +188,89 @@ void test1 (ISvcLocator* svcLoc)
 }
 
 
+class MyArrAlg : public AthReentrantAlgorithm
+{
+public:
+  MyArrAlg (const std::string& name, ISvcLocator* svcLoc);
+
+  virtual StatusCode execute_r (const EventContext& ctx) const override;
+
+  SG::ReadHandleKey<MyObj> rkey;
+  SG::WriteHandleKey<MyObj> wkey;
+  SG::ReadHandleKeyArray<MyObj> rkeyarr;
+  SG::WriteHandleKeyArray<MyObj> wkeyarr;
+};
+
+
+MyArrAlg::MyArrAlg  (const std::string& name, ISvcLocator* svcLoc)
+  : AthReentrantAlgorithm (name, svcLoc)
+{
+  declareProperty ("rkey",    rkey);
+  declareProperty ("wkey",    wkey);
+  declareProperty ("rkeyarr", rkeyarr);
+  declareProperty ("wkeyarr", wkeyarr);
+
+  rkeyarr.emplace_back ("r1");
+  wkeyarr.emplace_back ("w1");
+}
+
+
+StatusCode MyArrAlg::execute_r (const EventContext& /*ctx*/) const
+{
+  return StatusCode::SUCCESS;
+}
+
+
+void comphandles (const std::vector<Gaudi::DataHandle*>& hvec,
+                  std::vector<std::string> keys)
+{
+  std::vector<std::string> hkeys;
+  for (const Gaudi::DataHandle* h : hvec) {
+    if (h) hkeys.push_back (h->objKey());
+  }
+
+  std::sort (hkeys.begin(), hkeys.end());
+  std::sort (keys.begin(), keys.end());
+  if (keys != hkeys) {
+    std::cout << "Handle list mismatch.\n";
+    std::cout << "Expected: ";
+    for (const std::string& s : keys) std::cout << s << " ";
+    std::cout << "\n:";
+    std::cout << "Got: ";
+    for (const std::string& s : hkeys) std::cout << s << " ";
+    std::cout << "\n:";
+    std::abort();
+  }
+}
+
+
+// Testing handle arrays.
+void test2 (ISvcLocator* svcLoc)
+{
+  std::cout << "test2\n";
+
+  MyArrAlg alg ("arralg", svcLoc);  alg.addRef();
+
+  assert (alg.sysInitialize().isSuccess());
+  #if 0
+
+  comphandles (alg.inputHandles(),{"raa", "rbb", "rcc", "rdd", "ree", "rff", "rrr"});
+  comphandles (alg.outputHandles(),{"waa", "wbb", "wcc", "wdd", "wee", "wff", "www"});
+
+  // Test that circular dependency detection worksd.
+  MyArrAlg alg2 ("arralg2", svcLoc);  alg2.addRef();
+  assert (alg2.sysInitialize().isFailure());
+  #endif
+}
+
+
 int main()
 {
   ISvcLocator* svcLoc = nullptr;
-  Athena_test::initGaudi ("propertyHandling_test.txt", svcLoc);
+  if (!Athena_test::initGaudi ("propertyHandling_test.txt", svcLoc))
+    return 1;
 
   test1 (svcLoc);
+  test2 (svcLoc);
   return 0;
 }

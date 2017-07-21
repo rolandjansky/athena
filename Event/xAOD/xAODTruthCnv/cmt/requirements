@@ -19,7 +19,7 @@ use  xAODTruth                  xAODTruth-*           Event/xAOD
 use  xAODEventInfo              xAODEventInfo-*       Event/xAOD
 use  EventInfo            	EventInfo-*	      Event
 use  StoreGate       		StoreGate-*           Control
-use  DataModel                  DataModel-*           Control
+use  AthLinks                   AthLinks-*            Control
 end_private
 
 #private

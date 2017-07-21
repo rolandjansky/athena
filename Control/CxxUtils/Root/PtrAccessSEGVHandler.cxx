@@ -7,6 +7,7 @@
 #include "CxxUtils/PtrAccessSEGVHandler.h"
 #include "CxxUtils/PageAccessControl.h"
 #include <cstdio>
+#include <cstdlib>
 
 void
 PtrAccessSEGVHandler::handle(int /*signal_number*/,siginfo_t *sigi,void * /*unused*/) {

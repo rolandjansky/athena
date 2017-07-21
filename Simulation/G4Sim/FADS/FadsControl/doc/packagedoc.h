@@ -27,17 +27,6 @@ Three other classes are included in this package:
  - FadsActionBase : A generic action that includes all the G4 action types (stepping actions, tracking actions, run actions, stacking actions).  All other action types can inherit from this one and select the methods they wish to implement.
  - SteppingVerboseDef : An interface for G4 stepping verbose within the athena framework
 
-@ref used_FadsControl
 
-@ref requirements_FadsControl
 
 */
-
-/**
-@page used_FadsControl Used Packages
-*/
-
-/**
-@page requirements_FadsControl Requirements
-*/
-

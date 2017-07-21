@@ -45,17 +45,6 @@ purposes.
    - LArWaves2Ntuple
    - LArWFParams2Ntuple
 
-@ref used_LArCalibTools
 
-@ref requirements_LArCalibTools
 
 */
-
-/**
-@page used_LArCalibTools Used Packages
-*/
-
-/**
-@page requirements_LArCalibTools Requirements
-*/
-

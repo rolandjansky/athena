@@ -18,5 +18,3 @@ conversion. The RIO can then be used as input in the reconstruction, and or the 
 
  - For questions or comments: Ketevi A. Assamagan
    ketevi@bnl.gov
-
-

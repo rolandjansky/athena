@@ -24,11 +24,6 @@ Please let me know of any errors, or if anything is unclear.
 @author Edward.Moyse@cern.ch
 @author Andreas.Salzburger@cern.ch
 
-@section TrkRIO_OnTrack_used_packagesTrkRIO_OnTrack Used Packages
-
-@section TrkRIO_OnTrack_requirements Requirements
-
 @namespace Trk
 A namespace to enclose the Tracking classes.
 */
-

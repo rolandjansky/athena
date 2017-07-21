@@ -36,16 +36,4 @@ based shower parametrisation.
 
 @section LArG4ShowerLib_LArG4ShowerLib Extra Pages
 
-- @ref used_LArG4ShowerLib
-- @ref requirements_LArG4ShowerLib
 */
-
-/**
-   @page used_LArG4ShowerLib Used Packages
-*/
-
-/**
-   @page requirements_LArG4ShowerLib Requirements
-*/
-
-

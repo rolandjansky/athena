@@ -37,7 +37,7 @@ atlas_depends_on_subdirs(
 # External dependencies:
 find_package( CLHEP )
 find_package( Coin3D )
-find_package( Qt4 COMPONENTS QtCore QtGui )
+find_package( Qt5 COMPONENTS Core Gui Widgets)
 
 # Generate UI files automatically:
 set( CMAKE_AUTOUIC TRUE )
@@ -51,8 +51,8 @@ atlas_add_library( VP1PRDSystems VP1PRDSystems/*.h src/*.cxx
    ${CMAKE_CURRENT_BINARY_DIR}
    LINK_LIBRARIES GeoModelKernel GeoPrimitives InDetReadoutGeometry
    InDetPrepRawData MuonPrepRawData TrkPrepRawData TrkSpacePoint VP1Base
-   VP1Utils MuonIdHelpersLib Qt4::QtCore
+   VP1Utils MuonIdHelpersLib Qt5::Core Qt5::Gui
    PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${CLHEP_LIBRARIES} DataModel
    GeoModelUtilities EventPrimitives InDetIdentifier MuonReadoutGeometry
    TrkSurfaces TrkCompetingRIOsOnTrack TrkMeasurementBase TrkRIO_OnTrack
-   TrkSegment TrkTrack VP1HEPVis VP1GuideLineSystems Qt4::QtGui )
+   TrkSegment TrkTrack VP1HEPVis VP1GuideLineSystems  )

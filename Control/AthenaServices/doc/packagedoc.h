@@ -22,7 +22,6 @@ interface defined in AthenaKernel or in GaudiKernel. Among those you'll find
  - SimplePOSIXTimeKeeperSvc_test.cxx
  - SimplePOSIXTimeKeeperSvc_test.py
 
-@section AthenaServices_reqs CMT requirements file
 
 
 @section AthenaServices_refs More Documentation

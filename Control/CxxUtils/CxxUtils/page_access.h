@@ -12,6 +12,7 @@
 namespace athena {
   const size_t PAGESIZE= 0x1000;  //sysconf(_SC_PAGE_SIZE)
 
+  const void* page_address(const void* addr);
   void* page_address(void* addr);
   void* next_page_address(void* addr);
   int page_protect(void* addr, int prot);

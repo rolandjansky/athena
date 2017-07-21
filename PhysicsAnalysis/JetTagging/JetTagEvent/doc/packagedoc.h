@@ -16,8 +16,6 @@ JetTagEvent contains the following files/classes:
 - JetTag ... the basic b jet object.
 - JetTagContainer ... and its container for storegate
 
-@section JetTagEvent_used_packagesJetTagEvent Used packages
 
-@section JetTagEvent_requirementsJetTagEvent Requirements
 
 */

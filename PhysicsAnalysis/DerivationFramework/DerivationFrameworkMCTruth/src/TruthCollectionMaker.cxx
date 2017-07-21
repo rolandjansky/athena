@@ -208,7 +208,13 @@ StatusCode DerivationFramework::TruthCollectionMaker::addBranches() const
                         if (theParticle->prodVtx()->nIncomingParticles() > 0) motherIDDecorator(*xTruthParticle) = theParticle->prodVtx()->incomingParticle(0)->pdgId();
                     }
                     if (theParticle->hasDecayVtx()) {
-                        if (theParticle->decayVtx()->nOutgoingParticles() > 0) daughterIDDecorator(*xTruthParticle) = theParticle->decayVtx()->outgoingParticle(0)->pdgId();
+                      if (theParticle->decayVtx()->nOutgoingParticles() > 0) {
+                        const xAOD::TruthParticle* d =
+                          theParticle->decayVtx()->outgoingParticle(0);
+                        if (d) {
+                          daughterIDDecorator(*xTruthParticle) = d->pdgId();
+                        }
+                      }
                     }
                     // Fill with numerical content
                     xTruthParticle->setPdgId(theParticle->pdgId());

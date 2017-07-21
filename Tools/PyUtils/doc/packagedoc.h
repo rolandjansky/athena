@@ -124,16 +124,6 @@ PyCmt   : INFO     => [PhysicsAnalysis/AnalysisCommon/AnalysisUtils] (AnalysisUt
 PyCmt   : INFO     Found [149] clients for [AthenaKernel]
 @endcode
 
-@ref used_PyUtils
 
-@ref requirements_PyUtils
 
-*/
-
-/**
-@page used_PyUtils Used Packages
-*/
-
-/**
-@page requirements_PyUtils Requirements
 */

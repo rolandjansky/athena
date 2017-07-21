@@ -70,15 +70,15 @@ public:
 
   /// Gaudi Service Implementation
   //@{
-  StatusCode initialize();
-  StatusCode stop();
-  StatusCode finalize();
-  StatusCode queryInterface( const InterfaceID& riid, void** ppvi );
+  virtual StatusCode initialize() override;
+  virtual StatusCode stop() override;
+  virtual StatusCode finalize() override;
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvi ) override;
   //@}
 
 
   /// Incident service handle listening for BeginFile and EndFile.
-  void handle(const Incident& incident);
+  virtual void handle(const Incident& incident) override;
 
   ///////////////////////////////////////////////////////////////////
   // Non-const methods:
@@ -180,9 +180,6 @@ private:
   /// This internal map keeps the association between the instance identifier of each algorithm
   /// to the pointer of associated CutBookkeeper
   CutIDMap_t m_ebkMap;
-
-  /// Internal flag to track if we have already determined the cycle number from the first input file
-  bool m_alreadyDeterminedCycleNumber;
 
 public:
 

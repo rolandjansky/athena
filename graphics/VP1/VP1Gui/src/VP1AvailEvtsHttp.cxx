@@ -16,11 +16,11 @@
 #include "VP1Gui/VP1HttpGetFile.h"
 #include "VP1Gui/VP1EvtsOnServerInfo.h"
 #include "VP1Gui/VP1WebWatcher.h"
-#include <QtCore/QTimer>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QUrl>
+#include <QTimer>
+#include <QFileInfo>
+#include <QDir>
+#include <QFile>
+#include <QUrl>
 
 //____________________________________________________________________
 class VP1AvailEvtsHttp::Imp {

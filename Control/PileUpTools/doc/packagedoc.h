@@ -14,7 +14,6 @@ pileup job.
 
  - Simulation/Digitization/test/TestPileUp.xml
 
-@section PileUpTools_reqs CMT requirements file
 
 
 @section PileUpTools_refs More Documentation

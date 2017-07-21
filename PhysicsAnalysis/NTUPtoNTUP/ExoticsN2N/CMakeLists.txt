@@ -8,8 +8,6 @@ atlas_subdir( ExoticsN2N )
 # External dependencies:
 find_package( ROOT COMPONENTS Hist Physics Tree Core MathCore RIO pthread MathMore Minuit Minuit2 Matrix HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 
-# tag ROOTCintexLibs was not recognized in automatic conversion in cmt2cmake
-
 # Component(s) in the package:
 atlas_add_executable( ExoticsMultiJetSkim
                       src/ExoticsMultiJetSkim.cxx

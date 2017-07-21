@@ -105,6 +105,21 @@ WriteDecorHandle<T, D>& WriteDecorHandle<T, D>::operator= (WriteDecorHandle&& rh
 
 
 /**
+ * @brief Is the referenced container present in SG?
+ *
+ * Note that this tests for the presence of the _container_,
+ * not for the decoration.
+ *
+ * Const method; the handle does not change as a result of this.
+ */
+template <class T, class D>
+bool WriteDecorHandle<T, D>::isPresent() const
+{
+  return m_contHandle.isPresent();
+}
+
+
+/**
  * @brief Explicitly set the event store.
  * @param store The new event store.
  *
@@ -189,7 +204,8 @@ void* WriteDecorHandle<T, D>::typeless_dataPointer_impl (bool quiet)
   void* ptr = ReadHandle<T>::typeless_dataPointer_impl (quiet);
   // Important to call the base class method above before calling vectorData;
   // otherwise, we'll get an infinite recursion.
-  if (ptr) {
+  // Also don't call getDecorationArray if the container is empty.
+  if (ptr && this->vectorData()->size_v() > 0) {
     m_acc.getDecorationArray (*this->vectorData());
   }
   return ptr;

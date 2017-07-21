@@ -28,14 +28,4 @@ according to the weights (assignment probabilities).
 
 @section InDetCompetingRIOsOnTrack_ExtrasInDetCompetingRIOsOnTrack Extra Pages
 
- - @ref UsedInDetCompetingRIOsOnTrack
- - @ref requirementsInDetCompetingRIOsOnTrack
-*/
-
-/**
-@page UsedInDetCompetingRIOsOnTrack Used Packages
-*/
-
-/**
-@page requirementsInDetCompetingRIOsOnTrack Requirements
 */

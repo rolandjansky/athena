@@ -19,14 +19,4 @@
  *
 @section PanTauUtils_@section ExtrasPanTauUtils Extra Pages
  *
- *      - @ref UsedPanTauUtils
- *      - @ref requirementsPanTauUtils
- *       */
-
-/**
- * @page UsedPanTauUtils Used Packages
- * */
-
-/**
- * @page requirementsPanTauUtils Requirements
- * */
+ **/

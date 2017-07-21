@@ -19,11 +19,14 @@
 #ifndef VP1COLLECTIONWIDGET_H
 #define VP1COLLECTIONWIDGET_H
 
-#include <QtGui/QWidget>
-#include <QtCore/QList>
-#include <QtCore/QString>
 #include "VP1Base/VP1Collection.h"
 #include "VP1Base/VP1HelperClassBase.h"
+
+#include <QWidget>
+#include <QList>
+#include <QString>
+
+
 class VP1StdCollection;
 
 class VP1CollectionWidget : public QWidget, public VP1HelperClassBase {

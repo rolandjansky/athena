@@ -25,26 +25,26 @@ namespace
 }
 
 
-dqm_algorithms::L1Calo_OutlierAndFlatnessTest::L1Calo_OutlierAndFlatnessTest( const std::string & name ) : name_( name ) {
+dqm_algorithms::L1Calo_OutlierAndFlatnessTest::L1Calo_OutlierAndFlatnessTest( const std::string & name ) : m_name( name ) {
   dqm_core::AlgorithmManager::instance().registerAlgorithm(name, this);
-  counterSkip = 0;
+  m_counterSkip = 0;
 }
 
 dqm_algorithms::L1Calo_OutlierAndFlatnessTest * dqm_algorithms::L1Calo_OutlierAndFlatnessTest::clone(){
-  return new L1Calo_OutlierAndFlatnessTest( name_ );
+  return new L1Calo_OutlierAndFlatnessTest( m_name );
 }
 
 dqm_core::Result *dqm_algorithms::L1Calo_OutlierAndFlatnessTest::execute( const std::string& name, const TObject& object, 
     const dqm_core::AlgorithmConfig& config) { 
 
-//   if(counterSkip < counterSkipMax){
+//   if(m_counterSkip < counterSkipMax){
 //     dqm_core::Result* result = new dqm_core::Result();
 //     result->status_ = dqm_core::Result::Green;
-//     counterSkip++;
+//     m_counterSkip++;
 //     return result;
 //   }
 
-//   counterSkip = 0;
+//   m_counterSkip = 0;
 
   TH1 const * histogram;
   if( object.IsA()->InheritsFrom( "TH1" ) ) {
@@ -214,7 +214,7 @@ dqm_core::Result *dqm_algorithms::L1Calo_OutlierAndFlatnessTest::execute( const 
 }
 
 void dqm_algorithms::L1Calo_OutlierAndFlatnessTest::printDescription(std::ostream& out) { 
-  out << name_ << ": derivation of OutlierAndFlatnessTest, slimmed and optimized for L1Calo needs"
+  out << m_name << ": derivation of OutlierAndFlatnessTest, slimmed and optimized for L1Calo needs"
     "Checks TH1-inherited histograms for bins which lie either Nsigma or AbsDev away from the mean (by default excludes bins with zero entries). Can also check mean itself\n"
     "Config Parameters:\n"
     "\tCheckSigmaDev:\tCheck for deviation in units of standard deviations from mean (default 1).\n"

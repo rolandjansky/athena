@@ -25,5 +25,3 @@ $Date: 2014-01-11 14:31:58 +0100 (Sat, 11 Jan 2014) $
     - xAOD::PFOAuxContainer: Typedef to the latest pfo auxiliray
       container version.
     - xAOD::PFO_v1: The current latest pfo implementation.
-
-

@@ -19,12 +19,12 @@ public:
   StaveServices( DetType::Type type, DetType::Part part, int layer,
 		 int nhv, int ndcs, int ndata, std::vector<int> lvGauge) :
     m_type( type), m_part(part), m_layer(layer), 
-    m_numHV(nhv), m_numDCS( ndcs), m_numData( ndata), m_numLvTypes(0), m_lvGauge( lvGauge) {}
+    m_numHV(nhv), m_numDCS( ndcs), m_numData( ndata), m_lvGauge( lvGauge) {}
   
   StaveServices( DetType::Type type, DetType::Part part, int layer,
 		 int nhv, int ndcs, int ndata, int lvGauge) :
     m_type( type), m_part(part), m_layer(layer), 
-    m_numHV(nhv), m_numDCS( ndcs), m_numData( ndata), m_numLvTypes(0), m_lvGauge( 1, lvGauge) {}
+    m_numHV(nhv), m_numDCS( ndcs), m_numData( ndata), m_lvGauge( 1, lvGauge) {}
   
   DetType::Type type() const { return m_type;} 
   DetType::Part part() const { return m_part;}
@@ -44,7 +44,6 @@ private:
   int m_numHV;
   int m_numDCS;
   int m_numData;
-  int m_numLvTypes;
   std::vector<int> m_lvGauge;
 
 };

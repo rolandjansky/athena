@@ -16,6 +16,5 @@ the eventphase correction and the per wheel t0 correction (TRT endcap).
 
 @author Christian.Schmitt@cern.ch
 
-@section TRT_SegmentsToTrack_requirementsTRT_SegmentsToTrack Requirements
 
 */

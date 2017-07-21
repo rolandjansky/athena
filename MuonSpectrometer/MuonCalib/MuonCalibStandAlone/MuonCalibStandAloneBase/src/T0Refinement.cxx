@@ -56,7 +56,7 @@ T0Refinement::T0Refinement(void) {
 	m_cfitter = new CurvedPatRec();
 	m_cfitter->setRoadWidth(1.0); // 1.0 mm road width
 	m_cfitter->setTimeOut(m_time_out);
-	delta_t0=30.0;
+	m_delta_t0=30.0;
 }
 
 //*****************************************************************************
@@ -138,9 +138,9 @@ double T0Refinement::getDeltaT0(MuonCalibSegment * segment,
 
 
 	m_qfitter->setFixSelection(true);
-// shift drift times by +delta_t0 and refit //
+// shift drift times by +m_delta_t0 and refit //
 	for (unsigned int k=0; k<seg.mdtHitsOnTrack(); k++) {
-		time = (seg.mdtHOT())[k]->driftTime()+delta_t0;
+		time = (seg.mdtHOT())[k]->driftTime()+m_delta_t0;
 		sigma = (seg.mdtHOT())[k]->sigmaDriftRadius();
 		(seg.mdtHOT())[k]->setDriftRadius(rt->radius(time), sigma);
 	}
@@ -149,7 +149,7 @@ double T0Refinement::getDeltaT0(MuonCalibSegment * segment,
 		return 0.0;
 	}
 
-	my_points[1].set_x1(delta_t0);
+	my_points[1].set_x1(m_delta_t0);
 	if (curved) {
 		my_points[1].set_x2(m_cfitter->chi2());
 	} else {
@@ -158,15 +158,15 @@ double T0Refinement::getDeltaT0(MuonCalibSegment * segment,
 	my_points[1].set_error(1.0);
 
 
-// shift drift times by -delta_t0 and refit //
+// shift drift times by -m_delta_t0 and refit //
 	for (unsigned int k=0; k<seg.mdtHitsOnTrack(); k++) {
 
 		if (my_points[1].x2()>my_points[0].x2()) {
-			time = (seg.mdtHOT())[k]->driftTime()-delta_t0;
-			my_points[2].set_x1(-delta_t0);
+			time = (seg.mdtHOT())[k]->driftTime()-m_delta_t0;
+			my_points[2].set_x1(-m_delta_t0);
 		} else {
-			time = (seg.mdtHOT())[k]->driftTime()+2.0*delta_t0;
-			my_points[2].set_x1(2.0*delta_t0);
+			time = (seg.mdtHOT())[k]->driftTime()+2.0*m_delta_t0;
+			my_points[2].set_x1(2.0*m_delta_t0);
 		}
 		sigma = (seg.mdtHOT())[k]->sigmaDriftRadius();
 		(seg.mdtHOT())[k]->setDriftRadius(rt->radius(time), sigma);
@@ -190,10 +190,10 @@ double T0Refinement::getDeltaT0(MuonCalibSegment * segment,
 my_points[1].set_x1(my_points[2].x1());
 my_points[1].set_x2(my_points[2].x2());
 
-my_points[2].set_x1(-2.0*delta_t0);
+my_points[2].set_x1(-2.0*m_delta_t0);
 
 		for (unsigned int k=0; k<seg.mdtHitsOnTrack(); k++) {
-			time = (seg.mdtHOT())[k]->driftTime()-2.0*delta_t0;
+			time = (seg.mdtHOT())[k]->driftTime()-2.0*m_delta_t0;
 			sigma = (seg.mdtHOT())[k]->sigmaDriftRadius();
 			(seg.mdtHOT())[k]->setDriftRadius(rt->radius(time),
 									sigma);
@@ -215,7 +215,7 @@ my_points[2].set_x1(-2.0*delta_t0);
 	for(unsigned int l=3; my_points[l-1].x2()<my_points[l-2].x2() && 
 			fabs(my_points[l-1].x1())<200.0; l++) {
 		SamplePoint new_point;
-		new_point.set_x1(my_points[l-1].x1()-delta_t0);
+		new_point.set_x1(my_points[l-1].x1()-m_delta_t0);
 
 		for (unsigned int k=0; k<seg.mdtHitsOnTrack(); k++) {
 			time = (seg.mdtHOT())[k]->driftTime()+new_point.x1();
@@ -243,7 +243,7 @@ my_points[2].set_x1(-2.0*delta_t0);
 	for(unsigned int l=3; my_points[l-1].x2()<=my_points[l-2].x2() &&
 			fabs(my_points[l-1].x1())<200.0; l++) {
 		SamplePoint new_point;
-		new_point.set_x1(my_points[l-1].x1()+delta_t0);
+		new_point.set_x1(my_points[l-1].x1()+m_delta_t0);
 		for (unsigned int k=0; k<seg.mdtHitsOnTrack(); k++) {
 			time = (seg.mdtHOT())[k]->driftTime()+new_point.x1();
 			sigma = (seg.mdtHOT())[k]->sigmaDriftRadius();

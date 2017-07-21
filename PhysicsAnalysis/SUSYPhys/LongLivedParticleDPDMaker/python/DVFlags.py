@@ -22,7 +22,7 @@ class DV_MultiJetTriggerFlags(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
     triggers = ["HLT_4j100","HLT_5j85","HLT_5j85_lcw","HLT_5j75_0eta250","EF_6j70","HLT_6j45_0eta240","HLT_7j45"]
-    trigger += ["HLT_4j110","HLT_5j85","HLT_5j65_0eta240_L14J150ETA25","HLT_6j85","HLT_6j55_0eta240_L14J150ETA25"]  #2017
+    triggers += ["HLT_4j110","HLT_5j85","HLT_5j65_0eta240_L14J150ETA25","HLT_6j85","HLT_6j55_0eta240_L14J150ETA25"]  #2017
     pass
 primRPVLLDESDM.add_JobProperty(DV_MultiJetTriggerFlags)
 

@@ -16,7 +16,7 @@ ApplicationMgr.EventLoop = "AthenaEventLoopMgr";
 
 ApplicationMgr.DLLs   += { "StoreGate", "CLIDSvc" };
 ApplicationMgr.ExtSvc += { "ClassIDSvc" };
-ApplicationMgr.ExtSvc += { "StoreGateSvc", "StoreGateSvc/DetectorStore", "StoreGateSvc/ConditionsStore" };
+ApplicationMgr.ExtSvc += { "StoreGateSvc", "StoreGateSvc/DetectorStore", "StoreGateSvc/ConditionStore" };
 ApplicationMgr.ExtSvc += { "ActiveStoreSvc" };
 //FIXME uncomment to verify that your  CLIDs are good!
 //ClassIDSvc.CLIDDBFiles += { "$CLIDSVCROOT/share/clid.db" };
@@ -144,9 +144,9 @@ ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version StoreG
 ServiceManager      DEBUG Initializing service DetectorStore[m
 DetectorStore       DEBUG Service base class initialized successfully[m
 DetectorStore        INFO Initializing DetectorStore - package version StoreGate-02-12-08[m
-ServiceManager      DEBUG Initializing service ConditionsStore[m
-ConditionsStore     DEBUG Service base class initialized successfully[m
-ConditionsStore      INFO Initializing ConditionsStore - package version StoreGate-02-12-08[m
+ServiceManager      DEBUG Initializing service ConditionStore[m
+ConditionStore     DEBUG Service base class initialized successfully[m
+ConditionStore      INFO Initializing ConditionStore - package version StoreGate-02-12-08[m
 ServiceManager      DEBUG Initializing service ActiveStoreSvc[m
 ActiveStoreSvc      DEBUG Service base class initialized successfully[m
 ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-02-12-08[m

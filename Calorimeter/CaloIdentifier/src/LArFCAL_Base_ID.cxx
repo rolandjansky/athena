@@ -246,7 +246,7 @@ int  LArFCAL_Base_ID::initialize_base_from_dictionary (const IdDictMgr& dict_mgr
     
 }
 
-void LArFCAL_Base_ID::module_id_checks ( int pos_neg, int module ) const throw(LArID_Exception)
+void LArFCAL_Base_ID::module_id_checks ( int pos_neg, int module ) const
 {
 	
   // Check that id is within allowed range
@@ -268,7 +268,7 @@ void LArFCAL_Base_ID::module_id_checks ( int pos_neg, int module ) const throw(L
   }
 }
 
-void LArFCAL_Base_ID::channel_id_checks ( int pos_neg, int module, int eta, int phi) const throw(LArID_Exception)
+void LArFCAL_Base_ID::channel_id_checks ( int pos_neg, int module, int eta, int phi) const
 {
 	
   // Check that id is within allowed range
@@ -292,7 +292,7 @@ void LArFCAL_Base_ID::channel_id_checks ( int pos_neg, int module, int eta, int 
 }
 
 void   LArFCAL_Base_ID::channel_id_checks   (const Identifier moduleId,
-				        int eta, int phi) const throw(LArID_Exception)
+				        int eta, int phi) const
 {
   // Check that id is within allowed range
   // Fill expanded id

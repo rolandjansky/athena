@@ -16,17 +16,8 @@
 #include "EventBoost/EventBoost.h"
 #include "GeneratorObjects/McEventCollection.h"
 
-#include "GaudiKernel/AlgFactory.h"
-#include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/DataSvc.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IDataProviderSvc.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ObjectList.h"
 #include "GaudiKernel/IRndmGenSvc.h"
 #include "GaudiKernel/RndmGenerators.h"
-#include "GaudiKernel/IPartPropSvc.h"
 
 #include "StoreGate/StoreGateSvc.h"
 

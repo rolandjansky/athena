@@ -20,7 +20,7 @@
 
 #include "VP1Base/VP1HelperClassBase.h"
 #include "VP1TrackSystems/TrackCommonFlags.h"
-#include <QtCore/QObject>
+#include <QObject>
 
 //Fixme: Should this be a general utility class, to be used in the prd
 //       system as well?

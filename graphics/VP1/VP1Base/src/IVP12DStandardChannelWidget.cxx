@@ -23,14 +23,16 @@
 #include "VP1Base/VP1ColorSelectButton.h"
 #include "VP1Base/VP1Msg.h"
 
-#include <QtGui/QCheckBox>
-#include <QtGui/QGraphicsScene>
-#include <QtCore/QMap>
-#include <QtCore/QBuffer>
-#include <QtCore/QByteArray>
+#include <QVBoxLayout>
+#include <QGraphicsScene>
+#include <QCheckBox>
+#include <QMap>
+#include <QBuffer>
+#include <QByteArray>
+
+
 #include <cassert>
 
-#include <QtGui/QVBoxLayout>
 
 class IVP12DStandardChannelWidget::Imp {
 public:

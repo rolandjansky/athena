@@ -104,8 +104,4 @@ because that calls the function @c MuonRecFlags.sync_DetFlags() and you will los
 
 
 
-@section MuonRecExample_MuonRecExampleUsedPack Used packages
-
-@section MuonRecExample_MuonRecExamplerequirements requirements file
-
 */

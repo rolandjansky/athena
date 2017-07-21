@@ -30,22 +30,21 @@ private:
   bool m_pixelAlongBarrelStrip;
   bool m_ISTexists;
 
-  int c_nInnerPixelLayers;  // FIXME: should come from tracker geometry
+  int m_c_nInnerPixelLayers;  // FIXME: should come from tracker geometry
 
-  double c_bpEosLength;
-  double c_epEosLength;
-  double c_bsEosLength;
-  double c_safetyGap;
+  double m_c_bpEosLength;
+  double m_c_epEosLength;
+  double m_c_bsEosLength;
+  double m_c_safetyGap;
 
-  double c_EosTolerance;
-  double c_halfEosThick;
-  double c_EosTolerance2;
-  double c_ServiceDiskThickness;
-  double c_ServiceCylinderThickness; //!
-  double c_LayerLengthTolerance;
+  double m_c_EosTolerance;
+  double m_c_halfEosThick;
+  double m_c_EosTolerance2;
+  double m_c_ServiceDiskThickness;
+  double m_c_ServiceCylinderThickness; //!
+  double m_c_LayerLengthTolerance;
 
   std::vector<ServiceVolume*> m_volumes;
-  ServicesLayer* previousBarrelLayer;
 
   VRoute m_bpVRoute;
   HRoute m_bpHRoute;

@@ -30,25 +30,28 @@
 
 #include "VP1Base/VP1Settings.h"
 
-#include <QtCore/QTimer>
-#include <QtCore/QQueue>
-#include <QtCore/QSet>
-#include <QtCore/QDir>
+// QtCore
+#include <QTimer>
+#include <QQueue>
+#include <QSet>
+#include <QDir>
 
-#include <QtGui/QWheelEvent>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QGraphicsScene>
-#include <QtGui/QScrollBar>
-#include <QtGui/QGraphicsPathItem>
-#include <QtGui/QPrinter>
-#include <QtGui/QPrintDialog>
-#include <QtGui/QPixmap>
-#include <QtGui/QFileDialog>
-#include <QtGui/QTextDocument>
-#include <QtGui/QAbstractTextDocumentLayout>
+// QtGui
+#include <QWheelEvent>
+#include <QMouseEvent>
+#include <QGraphicsScene>
+#include <QScrollBar>
+#include <QGraphicsPathItem>
+#include <QPrinter>
+#include <QPrintDialog>
+#include <QPixmap>
+#include <QFileDialog>
+#include <QTextDocument>
+#include <QAbstractTextDocumentLayout>
 
-#include <QtOpenGL/QGLWidget>
-#include <QtOpenGL/QGLFormat>
+// Qt OpenGL
+#include <QGLWidget>
+#include <QGLFormat>
 
 #include<iostream>//fixme
 #include <cassert>
@@ -552,7 +555,7 @@ void VP1GraphicsView::mousePressEvent(QMouseEvent *event)
 void VP1GraphicsView::mouseReleaseEvent(QMouseEvent *event)
 {
 
-  //Fixme: transformed pos 
+  //Fixme: transformed pos
   if (d->mode==CHANGEVIEW&&event->buttons()==(Qt::LeftButton|Qt::MidButton)) {
     event->accept();
     d->dragzoom_startpoint=event->pos();

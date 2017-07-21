@@ -154,7 +154,7 @@ namespace MuonCalib {
     TFile *p_file;			   //!< pointer to the histogram file 
     TDirectory *m_regiondir;               //!< pointer to the ROOT directory
 
-    std::vector<T0ClassicHistos*>p_histos; //!< vector of pointers to tube histograms 
+    std::vector<T0ClassicHistos*>m_histos; //!< vector of pointers to tube histograms 
     MdtTubeFitContainer* m_result;         //!<  tube constants 
     bool m_delete_settings;
 

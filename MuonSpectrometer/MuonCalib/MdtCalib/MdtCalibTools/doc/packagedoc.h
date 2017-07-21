@@ -21,16 +21,5 @@ in addition it also contains the following helper Tools:
 - MuonCalib::MuCCaFitterTool: creates an instance of a MuonCalib::IMdtSegmentFitter implementation
 - MuonCalib::DCSLFitterTool: creates an instance of a MuonCalib::IMdtSegmentFitter implementation
                                                                                 
-@ref used_MdtCalibTools
                                                                                 
-@ref requirements_MdtCalibTools
 */
-                                                                                
-/**
-@page used_MdtCalibTools Used Packages
-*/
-                                                                                
-/**
-@page requirements_MdtCalibTools Requirements
-*/
- 

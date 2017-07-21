@@ -31,17 +31,6 @@ For most top options this is done in MuonRec_jobOptions.py in MuonRecExample.  A
 
 
 
-@ref used_MuonPrdSelector
                                                                                 
-@ref requirements_MuonPrdSelector
                                                                                 
 */
-                                                                                
-/**
-@page used_MuonPrdSelector Used Packages
-*/
-                                                                                
-/**
-@page requirements_MuonPrdSelector Requirements
-*/
-

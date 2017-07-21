@@ -10,6 +10,7 @@
 #include <QMap>
 #include <QSet>
 
+#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoDrawStyle.h>
 #include <Inventor/nodes/SoMaterial.h>
 #include <Inventor/nodes/SoSeparator.h>

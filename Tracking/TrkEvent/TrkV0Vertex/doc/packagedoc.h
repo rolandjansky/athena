@@ -28,7 +28,5 @@ plus one or more mass constrained hypotheses (reconstructed from the same pair o
 It represents a collection of <i>Trk::V0Candidate<i>'s reconstructed by a V0 finding
 algorithm and written to the StoreGate for further use.
 
-@section TrkV0Vertex_requirementsTrkV0Vertex Requirements
 
 */
-

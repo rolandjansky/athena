@@ -80,8 +80,6 @@ AddTRTMomConstr::AddTRTMomConstr( const std::string& name, ISvcLocator* pSvcLoca
 AddTRTMomConstr::~AddTRTMomConstr() {}
 
 StatusCode AddTRTMomConstr::initialize() {
-  msg().setLevel(outputLevel()); // individual outputlevel not known before initialise
-
   //retrieve the DetectorStore service
   StatusCode status=detStore().retrieve() ;
   if( status.isFailure() ) {

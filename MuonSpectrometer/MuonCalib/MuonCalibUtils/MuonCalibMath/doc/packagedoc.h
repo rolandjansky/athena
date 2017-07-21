@@ -19,16 +19,5 @@ The MuonCalibMath package contains the following classes:
 - MuonCalib::SamplePoint: This class provides a sample point for the MuonCalib::BaseFunctionFitter
 - MuonCalib::Tschebyscheff_polynomial: This class provides a tschebyscheff polynomial of order k
                                                                                 
-@ref used_MuonCalibMath
                                                                                 
-@ref requirements_MuonCalibMath
 */
-                                                                                
-/**
-@page used_MuonCalibMath Used Packages
-*/
-                                                                                
-/**
-@page requirements_MuonCalibMath Requirements
-*/
- 

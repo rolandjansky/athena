@@ -23,12 +23,10 @@
 #include "VP1Base/VP1Deserialise.h"
 #include "VP1Gui/VP1MainWindow.h"
 
-
-
-
-#include <QtGui/QShortcut>
-#include <QtGui/QCloseEvent>
 #include <QRectF>
+#include <QShortcut>
+#include <QCloseEvent>
+#include <QFileDialog>
 
 #include <iostream>
 
@@ -371,7 +369,7 @@ QString VP1EventDisplayEditor::getEventDetailsLabel()
 
 	QString evtstr = "Run: "+QString::number(_runNumber)+"\n"
 			+ "Event: "+QString::number(_eventNumber)+"\n"
-			+ QString(QDateTime::fromTime_t(_eventTimestamp).toString(Qt::ISODate).replace('T',' ')+ " CEST" );
+			+ QString(_eventTimestamp>0 ? QDateTime::fromTime_t(_eventTimestamp).toString(Qt::ISODate).replace('T',' ')+ " CEST" : "");
 
 	//VP1Msg::messageVerbose(evtstr);
 

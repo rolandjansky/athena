@@ -16,10 +16,6 @@ BPhysTagTools contains the following tools:
 
 - for questions and comments: ketevi@bnl.gov
 
-@section BPhysTagTools_used_packagesBPhysTagTools Used packages
 
-@section BPhysTagTools_requirementsBPhysTagTools Requirements
 
 */
-
-

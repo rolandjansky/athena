@@ -121,7 +121,7 @@ StatusCode GetLCDeadMaterial::initialize()
   ******************************************** */
   CaloLocalHadCoeffHelper dmHelper;
   std::string fileName = PathResolver::find_file (m_HadDMCoeffInputFile, "DATAPATH");
-  CaloLocalHadCoeff * initHadDMCoeff = dmHelper.InitDataFromFile(fileName.c_str());
+  std::unique_ptr<CaloLocalHadCoeff> initHadDMCoeff (dmHelper.InitDataFromFile(fileName.c_str()));
   if( !initHadDMCoeff ) {
     ATH_MSG_FATAL( " Error while initializing default dead material coefficients " );
     return StatusCode::FAILURE;
@@ -152,15 +152,15 @@ StatusCode GetLCDeadMaterial::initialize()
   }
   dmData->SetMaxEventsPerFile(m_MaxEventsPerFile);
 
-  CaloLocalHadCoeff *newHadDMCoeffFit = 0;
-  CaloLocalHadCoeff *newHadDMCoeffMinim = 0;
+  std::unique_ptr<CaloLocalHadCoeff> newHadDMCoeffFit;
+  std::unique_ptr<CaloLocalHadCoeff> newHadDMCoeffMinim;
 
   // TProfile approach (presamplers, material between EMB&TILE, EMEC&HEC)
   // and lookup approach (leakages, unclassified DM energy)
   if(m_doFit) {
     CaloHadDMCoeffFit *dmFit = new CaloHadDMCoeffFit();
     dmFit->SetNormalizationType(m_NormalizationTypeForFit);
-    newHadDMCoeffFit = dmFit->process(dmData.get(), initHadDMCoeff, m_isSingleParticle, m_isTestbeam);
+    newHadDMCoeffFit = std::unique_ptr<CaloLocalHadCoeff>(dmFit->process(dmData.get(), initHadDMCoeff.get(), m_isSingleParticle, m_isTestbeam));
     if( !newHadDMCoeffFit ) {
       ATH_MSG_FATAL( "Failed in CaloHadDMCoeffFit::process()"  );
       delete dmFit;
@@ -176,9 +176,9 @@ StatusCode GetLCDeadMaterial::initialize()
     dmMinim->SetNormalizationType(m_NormalizationTypeForMinim);
     if(newHadDMCoeffFit) {
       // to use previous coefficients as initial values
-      newHadDMCoeffMinim = dmMinim->process(dmData.get(), newHadDMCoeffFit, m_isSingleParticle, m_isTestbeam);
+      newHadDMCoeffMinim = std::unique_ptr<CaloLocalHadCoeff>(dmMinim->process(dmData.get(), newHadDMCoeffFit.get(), m_isSingleParticle, m_isTestbeam));
     }else{
-      newHadDMCoeffMinim = dmMinim->process(dmData.get(), initHadDMCoeff, m_isSingleParticle, m_isTestbeam);
+      newHadDMCoeffMinim = std::unique_ptr<CaloLocalHadCoeff>(dmMinim->process(dmData.get(), initHadDMCoeff.get(), m_isSingleParticle, m_isTestbeam));
     }
     if( !newHadDMCoeffMinim ) {
       ATH_MSG_FATAL( "Failed in CaloHadDMCoeffMinim::process()"  );
@@ -219,9 +219,6 @@ StatusCode GetLCDeadMaterial::initialize()
   }
 
   // end of the game
-  if(newHadDMCoeffFit) delete newHadDMCoeffFit;
-  if(newHadDMCoeffMinim) delete newHadDMCoeffMinim;
-  delete initHadDMCoeff;
   delete pChain;
 
   if(result && !m_doPool) delete result;

@@ -16,10 +16,6 @@ MuonTagTools contains the following tools:
 
 - for questions and comments: ketevi@bnl.gov
 
-@section MuonTagTools_used_packagesMuonTagTools Used packages
 
-@section MuonTagTools_requirementsMuonTagTools Requirements
 
 */
-
-

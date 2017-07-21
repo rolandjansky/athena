@@ -6,6 +6,11 @@ isData = (globalflags.DataSource == 'data')
 eventInfoKey = "ByteStreamEventInfo"
 if not isData:
   eventInfoKey = "McEventInfo"
+if globalflags.isOverlay():
+  if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.TRT_on():
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    if isData:
+      eventInfoKey = (overlayFlags.dataStore() + '+' + eventInfoKey).replace("StoreGateSvc+","")
 
 if not ('conddb' in dir()):
   IOVDbSvc = Service("IOVDbSvc")
@@ -297,7 +302,8 @@ if DetFlags.haveRIO.SCT_on():
             condSequence = AthSequencer("AthCondSeq")
             from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledCondAlg
             condSequence += SCT_TdaqEnabledCondAlg(name = "SCT_TdaqEnabledCondAlg",
-                                                   ReadKey = tdaqFolder)
+                                                   ReadKey = tdaqFolder,
+                                                   EventInfoKey = eventInfoKey)
 
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledSvc
         InDetSCT_TdaqEnabledSvc = SCT_TdaqEnabledSvc(name = "InDetSCT_TdaqEnabledSvc",

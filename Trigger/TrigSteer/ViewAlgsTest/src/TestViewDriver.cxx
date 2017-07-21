@@ -92,8 +92,7 @@ StatusCode TestViewDriver::execute( ) {
     for ( auto cluster: *handle.get( ) ) {
       ATH_MSG_DEBUG( "Cluster of ET " << TestEDM::getClusterEt( cluster ) );
       //outputClusterContainer->push_back(cluster);  // FIXME this is not as simple, we need some trick to do copy
-    }
-    
+    }    
   }
 
   // for now we are not outputting
@@ -105,6 +104,7 @@ StatusCode TestViewDriver::execute( ) {
   {
     auto handle = SG::makeHandle( m_views );
     CHECK( handle.record( std::move( viewVector ) ) );
+    ATH_MSG_DEBUG( "Recorded views under the key: " << m_views.key() );
   }
 
   return StatusCode::SUCCESS;

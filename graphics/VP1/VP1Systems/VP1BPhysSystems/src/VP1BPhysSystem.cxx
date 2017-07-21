@@ -30,8 +30,7 @@
 #include <Inventor/nodes/SoDrawStyle.h>
 #include <Inventor/nodes/SoBaseColor.h>
 #include <Inventor/nodes/SoSwitch.h>
-
-#include <QtGui/QFileDialog>
+#include <QFileDialog>
 
 
 #include "StoreGate/StoreGate.h"

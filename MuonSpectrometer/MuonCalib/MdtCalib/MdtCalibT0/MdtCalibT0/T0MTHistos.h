@@ -52,7 +52,7 @@ namespace MuonCalib {
       m_status_code(1),
       m_tmax_fermi(NULL),
       m_tmax_ok(false),
-      dir(NULL),
+      m_dir(NULL),
       m_settings(NULL) {
       m_chi2=9e9;
     }
@@ -155,7 +155,7 @@ namespace MuonCalib {
     //! is true if tmax fit was successful
     double m_tmax_ok;
     //! TDirectory where debug and result histograms are stored
-    TDirectory *dir;
+    TDirectory *m_dir;
     //! Pointer to settings class
     const T0MTSettings *m_settings;
     //! chi2/NDF value 

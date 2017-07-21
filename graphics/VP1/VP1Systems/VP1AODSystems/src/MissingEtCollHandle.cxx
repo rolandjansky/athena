@@ -34,7 +34,7 @@
 #include "VP1Utils/VP1SGContentsHelper.h"
 
 //Qt
-#include <QtCore/QStringList>
+#include <QStringList>
 
 // SoCoin
 #include <Inventor/C/errors/debugerror.h>
@@ -466,8 +466,8 @@ bool MissingEtCollHandle::cut(AODHandleBase* c) {
 
   } // if(dynamic_cast)
   else{
-    messageVerbose("Not a MissingEtCollHandle. Calling base method...");
-    if (! AODCollHandleBase::cut(handle))
+    messageVerbose("Not a MissingEtCollHandle. Check your code! Returning 'false'...");
+//    if (! AODCollHandleBase::cut(c)) // AODCollHandleBase::cut is pure virtual, now
       return false;
   }
 

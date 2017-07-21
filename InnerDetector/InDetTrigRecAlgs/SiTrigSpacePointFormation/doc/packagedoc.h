@@ -32,6 +32,5 @@ reconstruction.
    SiElementProperties in order to access, for the SCT, the backside wafer
    of a given module and the neighbour ones from other modules.
 
-@section SiTrigSpacePointFormation_SiTrigSpacePointFormationReq Requirements
 
 */

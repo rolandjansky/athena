@@ -10,14 +10,18 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           Control/AthenaBaseComps
+                          Control/AthenaKernel
                           Event/xAOD/xAODCore
                           Event/xAOD/xAODJet
                           Event/xAOD/xAODPFlow
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTrigger
+                          Event/xAOD/xAODTruth
+                          Event/xAOD/xAODCaloEvent
                           PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
                           PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
                           Reconstruction/Jet/JetInterface
+                          Reconstruction/PFlow/PFlowUtils
                           Tools/PathResolver )
 
 # External dependencies:
@@ -29,12 +33,12 @@ atlas_add_library( DerivationFrameworkJetEtMissLib
                    NO_PUBLIC_HEADERS
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps xAODCore xAODJet xAODPFlow xAODTracking xAODTrigger JetInterface PathResolver xAODBTaggingEfficiencyLib )
+                   PRIVATE_LINK_LIBRARIES AthenaBaseComps xAODCore xAODJet xAODPFlow xAODTracking xAODTrigger xAODTruth JetInterface PathResolver PFlowUtils xAODBTaggingEfficiencyLib )
 
 atlas_add_component( DerivationFrameworkJetEtMiss
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps xAODCore xAODJet xAODPFlow xAODTracking xAODTrigger JetInterface PathResolver DerivationFrameworkJetEtMissLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps xAODCore xAODJet xAODPFlow xAODTracking xAODTrigger JetInterface PathResolver PFlowUtils DerivationFrameworkJetEtMissLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

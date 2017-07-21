@@ -35,9 +35,9 @@ namespace dqm_algorithms {
 // *********************************************************************
 
 MDTADCSpectrum::MDTADCSpectrum()
-  : name("MDTADCspectrum")
+  : m_name("MDTADCspectrum")
 {
-  dqm_core::AlgorithmManager::instance().registerAlgorithm( name, this );
+  dqm_core::AlgorithmManager::instance().registerAlgorithm( m_name, this );
 }
 
 
@@ -208,7 +208,7 @@ void
 MDTADCSpectrum::printDescription(std::ostream& out){
   std::string message;
   message += "\n";
-  message += "Algorithm: \"" + name + "\"\n";
+  message += "Algorithm: \"" + m_name + "\"\n";
   message += "Description: Checks if the ratio of hits under treshold is below the limits\n";
   message += "             Comparison with reference is performed \n";
   message += "Mandatory Parameters: Green/Red Threshold: Limits:  warning: ratio limits \n"; 

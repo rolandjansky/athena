@@ -25,14 +25,4 @@
  *
 @section PanTauEvent_@section ExtrasPanTauEvent Extra Pages
  *
- *      - @ref UsedPanTauEvent
- *      - @ref requirementsPanTauEvent
- *       */
-
-/**
- * @page UsedPanTauEvent Used Packages
- * */
-
-/**
- * @page requirementsPanTauEvent Requirements
- * */
+ **/

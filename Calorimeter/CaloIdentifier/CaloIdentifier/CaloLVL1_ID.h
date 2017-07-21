@@ -316,15 +316,15 @@ private:
 
 
   void  tower_id_checks   	(int pos_neg_z, int sampling, int region,
-				 int eta,       int phi ) const throw(CaloID_Exception);
+				 int eta,       int phi ) const;
   void  tower_id_checks   	(const Identifier regionId,
-    				 int eta,       int phi )  const throw(CaloID_Exception);
-  void region_id_checks  ( int pos_neg_z, int sampling, int region ) const throw(CaloID_Exception);
+    				 int eta,       int phi )  const;
+  void region_id_checks  ( int pos_neg_z, int sampling, int region ) const;
 
   void layer_id_checks   ( int pos_neg_z, int sampling, int region,
- 		          int eta,       int phi,      int layer ) const throw(CaloID_Exception);
+ 		          int eta,       int phi,      int layer ) const;
   void layer_id_checks   ( const Identifier towerId,
- 		          int layer ) const throw(CaloID_Exception);
+ 		          int layer ) const;
 
 
   int         initLevelsFromDict(void) ;

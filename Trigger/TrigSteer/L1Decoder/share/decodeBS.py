@@ -21,11 +21,44 @@ assert os.path.isfile('input.data'), 'No input file: see the JO to see how to ge
 #
 #==============================================================
 
+
 ## basic job configuration
 import AthenaCommon.AtlasUnixStandardJob
 #import AthenaCommon.AtlasThreadedJob
 
 include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
+
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.InputFormat='bytestream'  # default for athenaMT/PT
+
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+athenaCommonFlags.BSRDOInput=["input.data"]
+
+# Input format and file for athena running
+
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+TriggerFlags.doMuon=True
+
+include("TriggerRelease/jobOfragment_ReadBS_standalone.py")
+
+from AthenaCommon.DetFlags import DetFlags
+DetFlags.detdescr.Muon_setOn()
+
+
+# Setup IOVDbSvc
+from IOVDbSvc.CondDB import conddb
+svcMgr.IOVDbSvc.GlobalTag=globalflags.ConditionsTag()
+
+# ----------------------------------------------------------------
+# Setting detector geometry
+# ----------------------------------------------------------------
+include ("RecExCond/AllDet_detDescr.py")
+#include("TriggerRelease/Trigger_topOptions_standalone.py")
+import MuonCnvExample.MuonCablingConfig
+import MuonRecExample.MuonReadCalib
+
+
+include ("MuonRecExample/MuonRecLoadTools.py")
 
 ## get a handle on the ServiceManager
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -86,7 +119,7 @@ if nThreads >= 1:
   #Retrieve input data
   from SGComps.SGCompsConf import SGInputLoader
   topSequence += SGInputLoader( OutputLevel=INFO, ShowEventDump=False )
-  topSequence.SGInputLoader.Load = [ ('ROIB::RoIBResult','RoIBResult') ]
+  topSequence.SGInputLoader.Load = [ ('ROIB::RoIBResult','StoreGateSvc+RoIBResult') ]
 
 from L1Decoder.L1DecoderMonitoring import CTPUnpackingMonitoring, RoIsUnpackingMonitoring
 from L1Decoder.L1DecoderConf import CTPUnpackingTool, EMRoIsUnpackingTool, L1Decoder, MURoIsUnpackingTool
@@ -108,7 +141,7 @@ muUnpacker.ThresholdToChainMapping = ["MU6 : HLT_mu6", "MU6 : HLT_mu6idperf", "M
 muUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 )
 # do not know yet how to configure the services for it
 
-l1Decoder.roiUnpackers = [emUnpacker]
+l1Decoder.roiUnpackers = [emUnpacker, muUnpacker]
 l1Decoder.Chains="HLTChainsResult"
 topSequence += l1Decoder
 #Run calo decoder

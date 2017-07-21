@@ -10,11 +10,12 @@
 
 #include <string>
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "InDetTruthInterfaces/IPRD_MultiTruthBuilder.h"
+#include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
@@ -23,27 +24,27 @@
 
 namespace InDet {
 
-class PRD_MultiTruthMaker : public AthAlgorithm  {
-  
+class PRD_MultiTruthMaker : public AthReentrantAlgorithm  {
+
 public:
   PRD_MultiTruthMaker(const std::string &name,ISvcLocator *pSvcLocator);
 
   virtual StatusCode initialize();
-  virtual StatusCode execute();
+  virtual StatusCode execute_r(const EventContext &ctx) const;
   virtual StatusCode finalize();
-  
-private:
-  
-  std::string m_PixelClustersName;
-  SG::ReadHandleKey<InDet::SiClusterContainer> m_SCTClustersName;
-  std::string m_TRTDriftCircleContainerName; 
-  std::string m_simDataMapNamePixel;
-  SG::ReadHandleKey<InDetSimDataCollection> m_simDataMapNameSCT;
-  std::string m_simDataMapNameTRT;
 
-  std::string m_PRDTruthNamePixel;
+private:
+
+  SG::ReadHandleKey<InDet::SiClusterContainer>       m_PixelClustersName;
+  SG::ReadHandleKey<InDet::SiClusterContainer>       m_SCTClustersName;
+  SG::ReadHandleKey<InDet::TRT_DriftCircleContainer> m_TRTDriftCircleContainerName;
+  SG::ReadHandleKey<InDetSimDataCollection>          m_simDataMapNamePixel;
+  SG::ReadHandleKey<InDetSimDataCollection>          m_simDataMapNameSCT;
+  SG::ReadHandleKey<InDetSimDataCollection>          m_simDataMapNameTRT;
+
+  SG::WriteHandleKey<PRD_MultiTruthCollection> m_PRDTruthNamePixel;
   SG::WriteHandleKey<PRD_MultiTruthCollection> m_PRDTruthNameSCT;
-  std::string m_PRDTruthNameTRT;
+  SG::WriteHandleKey<PRD_MultiTruthCollection> m_PRDTruthNameTRT;
 
   ToolHandle<InDet::IPRD_MultiTruthBuilder> m_PRDTruthTool;
 
@@ -53,14 +54,14 @@ private:
 			 PRD_Container_Iterator collections_begin,
 			 PRD_Container_Iterator collections_end,
 			 const InDetSimDataCollection* simDataMap,
-			 bool pixels);
-    
+			 bool pixels) const;
+
   template<class PRD_Collection_Iterator>
   void addPRDRange (PRD_MultiTruthCollection* prdTruth,
 		    PRD_Collection_Iterator range_begin,
 		    PRD_Collection_Iterator range_end,
 		    const InDetSimDataCollection* simDataMap,
-		    bool pixels);
+		    bool pixels) const;
 
 };
 

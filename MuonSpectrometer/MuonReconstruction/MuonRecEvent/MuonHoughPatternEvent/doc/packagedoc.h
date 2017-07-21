@@ -28,16 +28,6 @@ This package contains the different HoughTransforms used in the HoughPatternTool
   - MuonHoughTransformer_xyz: base class for HoughTransformers in carthesian coordinates, straight track model
   - MuonHoughTransformer_yz: HoughTransformer in yz plane with straight track model, currently not in use
 
-@ref used_MuonHoughPatternEvent
 
-@ref requirements_MuonHoughPatternEvent
 
-*/
-
-/**
-@page used_MuonHoughPatternEvent Used Packages
-*/
-
-/**
-@page requirements_MuonHoughPatternEvent Requirements
 */

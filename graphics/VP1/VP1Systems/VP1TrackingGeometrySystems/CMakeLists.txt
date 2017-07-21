@@ -23,7 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( Coin3D )
 find_package( Eigen )
-find_package( Qt4 )
+find_package( Qt5 COMPONENTS Core Gui  )
 
 # Generate UI files automatically:
 set( CMAKE_AUTOUIC TRUE )
@@ -35,7 +35,7 @@ set( CMAKE_AUTORCC TRUE )
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 
-include_directories( /usr/X11R6/include )
+
 
 # Component(s) in the package:
 atlas_add_library( VP1TrackingGeometrySystems VP1TrackingGeometrySystems/*.h src/*.h src/*.cxx src/*.qrc  

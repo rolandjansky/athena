@@ -1,10 +1,10 @@
-// $Id: ToolHandle.cxx 724078 2016-02-15 19:37:16Z will $
+// $Id: ToolHandle.cxx 804869 2017-05-15 20:14:34Z krumnack $
 
 // Local include(s):
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/IAsgTool.h"
 
-ToolHandleBase::ToolHandleBase( const std::string& typeAndName, asg::IAsgTool* parent )
+ToolHandleBase::ToolHandleBase( const std::string& typeAndName, INamedInterface* parent )
 : m_typeAndName( typeAndName ), m_type(), m_name(), m_parentName("ToolSvc") {
 
    if(parent) m_parentName = parent->name();

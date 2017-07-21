@@ -29,4 +29,3 @@ The EDM for the electrons and photons is defined in Event/xAOD/xAODEgamma. Three
 @author C. Anastopoulos <Christos.Anastopoulos@cern.ch>
 @author D. Divalentino <david.di.valentino@cern.ch>
 */
-

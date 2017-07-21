@@ -51,7 +51,8 @@ int CaloDM_ID::eta_min(const Identifier& id) const
     const MultiRange * zoneRange = 0 ;
     if ( is_lar(id) ) {
       zoneRange = &(m_full_lar_zone_range) ;
-    } else if ( is_tile(id) ) {
+    } else {
+      assert ( is_tile(id) );
       zoneRange = &(m_full_tile_zone_range) ;
     }
     for (unsigned int i = 0; i < (*zoneRange).size(); ++i) {
@@ -83,7 +84,8 @@ int CaloDM_ID::eta_max(const Identifier& id) const
     const MultiRange * zoneRange = 0 ;
     if ( is_lar(id) ) {
       zoneRange = &(m_full_lar_zone_range) ;
-    } else if ( is_tile(id) ) {
+    } else {
+      assert ( is_tile(id) );
       zoneRange = &(m_full_tile_zone_range) ;
     }
     for (unsigned int i = 0; i < (*zoneRange).size(); ++i) {
@@ -110,7 +112,8 @@ int CaloDM_ID::phi_min(const Identifier& id) const
     const MultiRange * zoneRange = 0 ;
     if ( is_lar(id) ) {
       zoneRange = &(m_full_lar_zone_range) ;
-    } else if ( is_tile(id) ) {
+    } else {
+      assert ( is_tile(id) );
       zoneRange = &(m_full_tile_zone_range) ;
     }
     for (unsigned int i = 0; i < (*zoneRange).size(); ++i) {
@@ -142,7 +145,8 @@ int CaloDM_ID::phi_max(const Identifier& id) const
     const MultiRange * zoneRange = 0 ;
     if ( is_lar(id) ) {
       zoneRange = &(m_full_lar_zone_range) ;
-    } else if ( is_tile(id) ) {
+    } else {
+      assert ( is_tile(id) );
       zoneRange = &(m_full_tile_zone_range) ;
     }
     for (unsigned int i = 0; i < (*zoneRange).size(); ++i) {
@@ -533,7 +537,7 @@ CaloDM_ID::zone_context              (void) const
 }
 
 
-void CaloDM_ID::lar_region_id_checks (int pos_neg_z, int dmat, int sampling, int region)const  throw(CaloID_Exception)
+void CaloDM_ID::lar_region_id_checks (int pos_neg_z, int dmat, int sampling, int region)const
 {
   // Fill expanded id
   ExpandedIdentifier id(calo_exp());
@@ -554,7 +558,7 @@ void CaloDM_ID::lar_region_id_checks (int pos_neg_z, int dmat, int sampling, int
   }
 }
 
-void CaloDM_ID::tile_region_id_checks (int pos_neg_z, int dmat, int sampling, int region)const  throw(CaloID_Exception)
+void CaloDM_ID::tile_region_id_checks (int pos_neg_z, int dmat, int sampling, int region)const
 {
   // Fill expanded id
   ExpandedIdentifier id(calo_exp());
@@ -578,7 +582,7 @@ void CaloDM_ID::tile_region_id_checks (int pos_neg_z, int dmat, int sampling, in
 
 
  void CaloDM_ID::lar_zone_id_checks   ( int pos_neg_z, int dmat, int sampling, int region,
-					int eta,       int phi ) const throw(CaloID_Exception)
+					int eta,       int phi ) const
 {  
   // Fill expanded id
   ExpandedIdentifier id(calo_exp());
@@ -600,7 +604,7 @@ void CaloDM_ID::tile_region_id_checks (int pos_neg_z, int dmat, int sampling, in
 }
 
  void CaloDM_ID::tile_zone_id_checks   ( int pos_neg_z, int dmat, int sampling, int region,
-					 int eta,       int phi ) const throw(CaloID_Exception)
+					 int eta,       int phi ) const
 {  
   // Fill expanded id
   ExpandedIdentifier id(calo_exp());
@@ -623,7 +627,7 @@ void CaloDM_ID::tile_region_id_checks (int pos_neg_z, int dmat, int sampling, in
 
 
 void CaloDM_ID::zone_id_checks   ( const Identifier& regionId,
-				   int eta,  int phi ) const throw(CaloID_Exception) 
+				   int eta,  int phi ) const
 {
   // Fill expanded id
     ExpandedIdentifier id; 

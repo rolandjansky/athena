@@ -30,7 +30,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/VxSecVertex
                           Tracking/TrkEvent/VxVertex
                           Trigger/TrigDataAccess/TrigSerializeCnvSvc
-                          Trigger/TrigDataAccess/TrigSerializeUtils
                           Trigger/TrigEvent/TrigNavigation )
 
 # External dependencies:

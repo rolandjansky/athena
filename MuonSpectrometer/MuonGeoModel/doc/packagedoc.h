@@ -52,17 +52,6 @@ Position,  AlignPos, Station,  Technology (+ MDT, RPC, TGC, CSC), MYSQL, etc. Th
 
 Please, refer to the Classes section for more details (especially about the Readout Geometry classes).
 
-@ref used_MuonGeoModel
 
-@ref requirements_MuonGeoModel
 
 */
-
-/**
-@page used_MuonGeoModel Used Packages
-*/
-
-/**
-@page requirements_MuonGeoModel Requirements
-*/
-

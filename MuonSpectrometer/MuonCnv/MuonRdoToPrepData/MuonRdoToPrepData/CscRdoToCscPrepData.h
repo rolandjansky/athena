@@ -9,7 +9,9 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 
-
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "IRegionSelector/IRegSelSvc.h"
+#include "MuonPrepRawData/CscStripPrepDataContainer.h"
 /** Algorithm to decode RDO into CscStripPrepData
  - get the RDO container from Storegate
  - loop over the RDO
@@ -34,6 +36,10 @@ private:
   ToolHandle< Muon::IMuonRdoToPrepDataTool >    m_muonRdoToPrepDataTool;
   bool                                    m_print_inputRdo; //!<< If true, will dump information about the input RDOs.  
   bool                                    m_print_prepData; //!<< If true, will dump information about the resulting PRDs.  
+  bool m_seededDecoding;
+  SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
+  ServiceHandle<IRegSelSvc> m_regionSelector; //<! pointer to RegionSelectionSvc
+  SG::WriteHandleKey<Muon::CscStripPrepDataContainer> m_cscCollection;
 };
 
 #endif /// CSCRDOTOCSCPREPDATA_H

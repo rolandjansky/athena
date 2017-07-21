@@ -25,7 +25,7 @@
 #include "VP1PRDSystems/PRDCommonFlags.h"
 #include "VP1PRDSystems/PRDDetTypes.h"
 #include "VP1Utils/InDetProjFlags.h"
-#include <QtCore/QByteArray>
+#include <QByteArray>
 #include <set>
 class VP1CollectionWidget;
 class SoMaterial;

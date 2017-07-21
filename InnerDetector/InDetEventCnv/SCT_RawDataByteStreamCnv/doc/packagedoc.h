@@ -64,11 +64,3 @@ InDetCabling package.
     has to do the bookkeeping and cleanup, and there is no longer any need to write out empty collections.
 
 */
-
-/**
-@page used_SCT_RawDataByteStreamCnv Used Packages
-*/
-
-/**
-@page requirements_SCT_RawDataByteStreamCnv Requirements
-*/

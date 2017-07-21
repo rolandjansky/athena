@@ -1,6 +1,6 @@
-[==========] Running 26 tests from 2 test cases.
+[==========] Running 32 tests from 2 test cases.
 [----------] Global test environment set-up.
-[----------] 13 tests from AssertTest
+[----------] 16 tests from AssertTest
 [ RUN      ] AssertTest.success_success
 [       OK ] AssertTest.success_success (0 ms)
 [ RUN      ] AssertTest.success_failure
@@ -13,8 +13,15 @@
 [       OK ] AssertTest.failure_failure (0 ms)
 [ RUN      ] AssertTest.failure_throw
 [       OK ] AssertTest.failure_throw (0 ms)
+[ RUN      ] AssertTest.failure_regex_success
+[       OK ] AssertTest.failure_regex_success (0 ms)
+[ RUN      ] AssertTest.failure_regex_failure_match
+AsgTools_UserCode   ERROR ../test/gt_UnitTest_test.cxx:48 (StatusCode asg::functionFailure(const string&)): match
+[       OK ] AssertTest.failure_regex_failure_match (149 ms)
+[ RUN      ] AssertTest.failure_REGEX_throw
+[       OK ] AssertTest.failure_REGEX_throw (0 ms)
 [ RUN      ] AssertTest.throw_regex_match
-[       OK ] AssertTest.throw_regex_match (0 ms)
+[       OK ] AssertTest.throw_regex_match (1 ms)
 [ RUN      ] AssertTest.throw_regex_match_preamble
 [       OK ] AssertTest.throw_regex_match_preamble (0 ms)
 [ RUN      ] AssertTest.throw_regex_match_postamble
@@ -27,9 +34,9 @@
 [       OK ] AssertTest.match_regex_match (0 ms)
 [ RUN      ] AssertTest.match_regex_missmatch
 [       OK ] AssertTest.match_regex_missmatch (0 ms)
-[----------] 13 tests from AssertTest (1 ms total)
+[----------] 16 tests from AssertTest (150 ms total)
 
-[----------] 13 tests from ExpectTest
+[----------] 16 tests from ExpectTest
 [ RUN      ] ExpectTest.success_success
 [       OK ] ExpectTest.success_success (0 ms)
 [ RUN      ] ExpectTest.success_failure
@@ -42,6 +49,13 @@
 [       OK ] ExpectTest.failure_failure (0 ms)
 [ RUN      ] ExpectTest.failure_throw
 [       OK ] ExpectTest.failure_throw (0 ms)
+[ RUN      ] ExpectTest.failure_regex_success
+[       OK ] ExpectTest.failure_regex_success (0 ms)
+[ RUN      ] ExpectTest.failure_regex_failure_match
+AsgTools_UserCode   ERROR ../test/gt_UnitTest_test.cxx:48 (StatusCode asg::functionFailure(const string&)): match
+[       OK ] ExpectTest.failure_regex_failure_match (0 ms)
+[ RUN      ] ExpectTest.failure_REGEX_throw
+[       OK ] ExpectTest.failure_REGEX_throw (0 ms)
 [ RUN      ] ExpectTest.throw_regex_match
 [       OK ] ExpectTest.throw_regex_match (0 ms)
 [ RUN      ] ExpectTest.throw_regex_match_preamble
@@ -49,15 +63,18 @@
 [ RUN      ] ExpectTest.throw_regex_match_postamble
 [       OK ] ExpectTest.throw_regex_match_postamble (0 ms)
 [ RUN      ] ExpectTest.throw_regex_missmatch
-[       OK ] ExpectTest.throw_regex_missmatch (0 ms)
+[       OK ] ExpectTest.throw_regex_missmatch (1 ms)
 [ RUN      ] ExpectTest.throw_regex_nonstd
 [       OK ] ExpectTest.throw_regex_nonstd (0 ms)
 [ RUN      ] ExpectTest.match_regex_match
 [       OK ] ExpectTest.match_regex_match (0 ms)
 [ RUN      ] ExpectTest.match_regex_missmatch
 [       OK ] ExpectTest.match_regex_missmatch (0 ms)
-[----------] 13 tests from ExpectTest (0 ms total)
+[----------] 16 tests from ExpectTest (1 ms total)
 
 [----------] Global test environment tear-down
-[==========] 26 tests from 2 test cases ran. (1 ms total)
-[  PASSED  ] 26 tests.
+[==========] 32 tests from 2 test cases ran. (151 ms total)
+[  PASSED  ] 32 tests.
+
+  YOU HAVE 4 DISABLED TESTS
+

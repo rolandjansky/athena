@@ -8,16 +8,16 @@
 #include "VP1Gui/VP1MD5Sum.h"
 #include "VP1Base/VP1Msg.h"
 
-#include <QtNetwork/QNetworkAccessManager>
-#include <QtNetwork/QSslError>
-#include <QtNetwork/QNetworkCookie>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QUrl>
-#include <QtCore/QTimer>
-#include <QtCore/QBuffer>
-#include <QtCore/QStringMatcher>
-#include <QtCore/QDateTime>
+#include <QNetworkAccessManager>
+#include <QSslError>
+#include <QNetworkCookie>
+#include <QFile>
+#include <QFileInfo>
+#include <QUrl>
+#include <QTimer>
+#include <QBuffer>
+#include <QStringMatcher>
+#include <QDateTime>
 
 #include <iostream>
 #include <QMetaType>

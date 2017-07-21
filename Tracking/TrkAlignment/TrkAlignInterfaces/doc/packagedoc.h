@@ -26,16 +26,6 @@ This package contains virtual interfaces for tools to be used for track-based al
   - IJacobianManagerTool: not yet used
   - ITrkAlignDBTool: used to read constants from the database and write constants (to ASCII file for now)
 
-@ref used_TrkAlignInterfaces
 
-@ref requirements_TrkAlignInterfaces
 
-*/
-
-/**
-@page used_TrkAlignInterfaces Used Packages
-*/
-
-/**
-@page requirements_TrkAlignInterfaces Requirements
 */
