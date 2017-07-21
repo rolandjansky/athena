@@ -3,7 +3,8 @@
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenu.menu.StreamInfo' )
 
-monStreams = ['CSC',
+monStreams = ['monitoring_random',
+              'CSC',
               'IDMonitoring'
               ]
 
@@ -18,11 +19,14 @@ physicsStreams = ['Main',
                   'L1Calo', 'L1Topo',
                   'IDCosmic','CosmicCalo',
                   'HLTPassthrough',
-                  'JetTauEtmiss',
+                  'JetTauEtmiss', # needed for LS1menu
                   'EnhancedBias',
                   'CosmicMuons',
                   'HLT_IDCosmic',
                   'Late',
+                  'HardProbes',
+                  'MinBiasOverlay',
+                  'UPC',
                   'Mistimed',
                   'ExoDelayed'
                   ]
