@@ -2563,6 +2563,7 @@ ps_calibmon_list=[
     'lumipeb_L1MBTS_1_UNPAIRED_ISO',
     'lumipeb_L1MBTS_2',
     'lumipeb_L1MBTS_2_UNPAIRED_ISO',
+    'lumipeb_L1MBTS_2_LUCID',
     'lumipeb_vdm_L1MBTS_1',
     'lumipeb_vdm_L1MBTS_1_BGRP11',
     'lumipeb_vdm_L1MBTS_1_BGRP9',
