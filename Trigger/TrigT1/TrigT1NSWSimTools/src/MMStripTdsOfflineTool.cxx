@@ -44,6 +44,7 @@
 // local includes
 #include "TTree.h"
 #include "TVector3.h"
+#include "TMath.h"
 //#include "MMStripUtil.h"
 
 #include <functional>
@@ -722,7 +723,7 @@ namespace NSWL1 {
       }
 
       ATH_MSG_DEBUG( "delivered n. " << mmstrips.size() << " MM Strip hits." );
-      cout << "CHECKCHECK!";
+      // cout << "CHECKCHECK!";
        //comment out end
       return StatusCode::SUCCESS; 
     }
@@ -737,8 +738,8 @@ namespace NSWL1 {
       } 
 
   double MMStripTdsOfflineTool::phi_shift(double athena_phi) const{
-    return athena_phi+(athena_phi>=0?-1:1)*pi();
-    return (-1.*athena_phi+(athena_phi>=0?1.5*pi():-0.5*pi()));
+    return athena_phi+(athena_phi>=0?-1:1)*TMath::Pi();
+    return (-1.*athena_phi+(athena_phi>=0?1.5*TMath::Pi():-0.5*TMath::Pi()));
   }
   void MMStripTdsOfflineTool::xxuv_to_uvxx(TVector3& hit,int plane)const{
     if(plane<4)return;
@@ -749,7 +750,7 @@ namespace NSWL1 {
   }
 
   void MMStripTdsOfflineTool::hit_rot_stereo_fwd(TVector3& hit)const{
-    double degree=degtorad(m_par->stereo_degree.getFloat());
+    double degree=TMath::DegToRad()*(m_par->stereo_degree.getFloat());
     if(striphack) hit.SetY(hit.Y()*cos(degree));
     else{
       double xnew=hit.X()*cos(degree)+hit.Y()*sin(degree),ynew=-hit.X()*sin(degree)+hit.Y()*cos(degree);
@@ -758,7 +759,7 @@ namespace NSWL1 {
   }
 
   void MMStripTdsOfflineTool::hit_rot_stereo_bck(TVector3& hit)const{
-    double degree=-degtorad(m_par->stereo_degree.getFloat());
+    double degree=-TMath::DegToRad()*(m_par->stereo_degree.getFloat());
     if(striphack) hit.SetY(hit.Y()*cos(degree));
     else{
       double xnew=hit.X()*cos(degree)+hit.Y()*sin(degree),ynew=-hit.X()*sin(degree)+hit.Y()*cos(degree);
@@ -784,7 +785,7 @@ namespace NSWL1 {
     if(Y==-9999) return -1;
     //cout<<"Strip (width="<<m_par->strip_width<<") for (X,Y,pl)=("<<X<<","<<Y<<","<<plane<<") is ";
     string setup(m_par->setup);
-    double strip_width=m_par->strip_width.getFloat(), degree=degtorad(m_par->stereo_degree.getFloat());//,vertical_strip_width_UV = strip_width/cos(degree);
+    double strip_width=m_par->strip_width.getFloat(), degree=TMath::DegToRad()*(m_par->stereo_degree.getFloat());//,vertical_strip_width_UV = strip_width/cos(degree);
     double y_hit=Y;
     int setl=setup.length();
     if(plane>=setl||plane<0){
@@ -799,13 +800,13 @@ namespace NSWL1 {
     else if(xuv=="v"){
       if(striphack)return ceil(Y*cos(degree)/strip_width);
       y_hit = -X*sin(degree)+Y*cos(degree);
-      cout<<"-X*sin("<<degree<<")+Y*cos(degree) is"<<-X*sin(degree)+Y*cos(degree)<<endl;
+      // cout<<"-X*sin("<<degree<<")+Y*cos(degree) is"<<-X*sin(degree)+Y*cos(degree)<<endl;
     }
     else if(xuv!="x"){
       cerr<<"Invalid plane option " << xuv << endl; exit(2);
     }
     double strip_hit = ceil(y_hit*1./strip_width); 
-    cout <<"(y_hit="<<y_hit<<"), "<< strip_hit<<endl;
+    // cout <<"(y_hit="<<y_hit<<"), "<< strip_hit<<endl;
     return strip_hit;
   }
 
@@ -842,7 +843,7 @@ namespace NSWL1 {
       */
     }
     double width=m_par->strip_width.getFloat(); string plane_char=m_par->setup.substr(plane,1);
-  //   if(plane_char.compare("u")==0||plane_char.compare("v")==0) width/=cos(degtorad(m_par->stereo_degree));
+  //   if(plane_char.compare("u")==0||plane_char.compare("v")==0) width/=cos(TMath::DegToRad()*(m_par->stereo_degree));
     int base_strip=ceil(ybase/width)+spos;
     return base_strip;
   }
