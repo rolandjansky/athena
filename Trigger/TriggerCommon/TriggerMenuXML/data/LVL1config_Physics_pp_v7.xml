@@ -2061,21 +2061,21 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="262" partition="1" name="L1_JPSI-1M5" complex_deadtime="0" definition="(1INVM5-EMs1-EMs6[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="262" partition="1" name="L1_JPSI-1M5" complex_deadtime="0" definition="(1INVM5-EMs1-EMs6[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:111|HF:000">
       <AND>
         <TriggerCondition multi="1" name="1INVM5-EMs1-EMs6_x1" triggerthreshold="1INVM5-EMs1-EMs6"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="263" partition="1" name="L1_JPSI-1M5-EM7" complex_deadtime="0" definition="(1INVM5-EM7s1-EMs6[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="263" partition="1" name="L1_JPSI-1M5-EM7" complex_deadtime="0" definition="(1INVM5-EM7s1-EMs6[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:111|HF:000">
       <AND>
         <TriggerCondition multi="1" name="1INVM5-EM7s1-EMs6_x1" triggerthreshold="1INVM5-EM7s1-EMs6"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="264" partition="1" name="L1_JPSI-1M5-EM12" complex_deadtime="0" definition="(1INVM5-EM12s1-EMs6[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="264" partition="1" name="L1_JPSI-1M5-EM12" complex_deadtime="0" definition="(1INVM5-EM12s1-EMs6[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:111|HF:000">
       <AND>
         <TriggerCondition multi="1" name="1INVM5-EM12s1-EMs6_x1" triggerthreshold="1INVM5-EM12s1-EMs6"/>
         <InternalTrigger name="BGRP0"/>
@@ -2832,7 +2832,7 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="355" partition="1" name="L1_LATE-MU10_J50" complex_deadtime="0" definition="(LATE-MU10s1[x1]&amp;J50[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="355" partition="1" name="L1_LATE-MU10_J50" complex_deadtime="0" definition="(LATE-MU10s1[x1]&amp;J50[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:111|HF:000">
       <AND>
         <TriggerCondition multi="1" name="LATE-MU10s1_x1" triggerthreshold="LATE-MU10s1"/>
         <TriggerCondition multi="1" name="J50_x1" triggerthreshold="J50"/>
@@ -3774,7 +3774,7 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="466" partition="1" name="L1_LATE-MU10_XE40" complex_deadtime="0" definition="(LATE-MU10s1[x1]&amp;XE40[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="466" partition="1" name="L1_LATE-MU10_XE40" complex_deadtime="0" definition="(LATE-MU10s1[x1]&amp;XE40[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:111|HF:000">
       <AND>
         <TriggerCondition multi="1" name="LATE-MU10s1_x1" triggerthreshold="LATE-MU10s1"/>
         <TriggerCondition multi="1" name="XE40_x1" triggerthreshold="XE40"/>
