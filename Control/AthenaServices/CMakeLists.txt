@@ -6,15 +6,6 @@
 # Declare the package name:
 atlas_subdir( AthenaServices )
 
-
-# Fix to include local CMake module
-set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} 
-  "/afs/cern.ch/user/s/sklutha/public/athenagit/build" )
-set( GCOVR_PATH "/afs/cern.ch/user/s/sklutha/public/local/bin/gcovr" )
-include( CodeCoverage )
-setup_target_for_gcovr( coverage coverage )
-
-
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PRIVATE
