@@ -16,10 +16,12 @@
 #endif
 
 InDet::ToolTester::ToolTester( const std::string& name, ISvcLocator* svcLoc )
-  : AthAlgorithm( name, svcLoc ),
-    m_selTool( "InDet::InDetTrackSelectionTool/TrackSelectionTool", this ) {
+  : AthReentrantAlgorithm( name, svcLoc ),
+    m_sgKey("InDetTrackParticles"),
+    m_selTool( "InDet::InDetTrackSelectionTool/TrackSelectionTool", this )
+{
     
-  declareProperty( "SGKey", m_sgKey = "InDetTrackParticles" );
+  declareProperty( "SGKey", m_sgKey);
 
   declareProperty( "TrackSelectionTool", m_selTool );
 }
@@ -34,15 +36,19 @@ StatusCode InDet::ToolTester::initialize() {
   // Retrieve the tools:
   ATH_CHECK( m_selTool.retrieve() );
 
+  ATH_CHECK( m_sgKey.initialize() );
   // Return gracefully:
   return StatusCode::SUCCESS;
 }
 
-StatusCode InDet::ToolTester::execute() {
+StatusCode InDet::ToolTester::execute_r(const EventContext &ctx) const {
 
   // Retrieve the tracks:
-  const xAOD::TrackParticleContainer* tracks = nullptr;
-  ATH_CHECK( evtStore()->retrieve( tracks, m_sgKey ) );
+  SG::ReadHandle<xAOD::TrackParticleContainer> tracks(m_sgKey,ctx);
+  if (!tracks.isValid()) {
+    ATH_MSG_ERROR("Invalid xAOD::TrackParticleContainer " << m_sgKey.key());
+    return StatusCode::FAILURE;
+  }
   Int_t numberOfTracks = tracks->size();
   ATH_MSG_INFO( "Number of tracks: " << numberOfTracks );
 
