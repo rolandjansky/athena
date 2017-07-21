@@ -7,8 +7,8 @@
 // NAME:     TrigBjetHypo.cxx
 // PACKAGE:  Trigger/TrigHypothesis/TrigBjetHypo
 //
-// AUTHOR:   Andrea Coccaro
-// EMAIL:    Andrea.Coccaro@ge.infn.it
+// AUTHORs:   John Alison    johnda@uchicago.edu
+//            Andrea Coccaro Andrea.Coccaro@ge.infn.it
 // 
 // ************************************************
 
@@ -159,7 +159,7 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
 
   // Retrieve xAOD b-jet object 
   const xAOD::BTaggingContainer* trigBTaggingContainer=0;
- 
+  
   if((getFeature(outputTE, trigBTaggingContainer, "HLTBjetFex") != HLT::OK) && trigBTaggingContainer) {
     if (msgLvl() <= MSG::WARNING)
       msg() << MSG::WARNING << "Failed to get BTaggingContainer" << endmsg;
