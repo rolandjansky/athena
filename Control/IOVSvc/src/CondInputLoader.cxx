@@ -299,7 +299,7 @@ CondInputLoader::execute()
 // need to override the handling of the DataObjIDs that's done by
 // AthAlgorithm, so we don't inject the name of the Default Store
 void 
-CondInputLoader::extraDeps_update_handler( Property& ExtraDeps ) 
+CondInputLoader::extraDeps_update_handler( Property& /*ExtraDeps*/ ) 
 {  
   // do nothing
 }
