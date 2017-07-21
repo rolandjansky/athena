@@ -241,6 +241,7 @@ def _getJetBuildTool(merge_param,
                      cluster_calib,
                      do_minimalist_setup,
                      name='',
+                     trkopt = '',
                      secondary_label='',
                      outputLabel=''):
     """Set up offline tools. do_minimalist_setup controls whether
@@ -260,11 +261,12 @@ def _getJetBuildTool(merge_param,
 
     # Ensure the calibration is valid
     _is_calibration_supported(int_merge_param, jet_calib, cluster_calib)
-    
-    if secondary_label == '':     
+   
+    if secondary_label == '': 
         mygetters = [_getTriggerPseudoJetGetter(cluster_calib)]
     else:   
         mygetters = [_getTriggerPseudoJetGetter(cluster_calib), _getTriggerPseudoJetGetter(secondary_label)]
+   
     jtm.gettersMap["mygetters"] = mygetters
    
     print "my getters are "
@@ -285,18 +287,18 @@ def _getJetBuildTool(merge_param,
     if outputLabel!='triggerTowerjets': #towers don't have cluster moments
         mymods.append(jtm.clsmoms)
     if secondary_label == 'GhostTrack': # ghost track association expected, will want track moments.
-        if not hasattr(jtm, 'trkmoms_GhostTracks'):
+        if not hasattr(jtm, 'trkmoms_'+trkopt):
             print "In TrigHLTJetRecConfig._getJetBuildTool: Something went wrong. GhostTrack label set but no track moment tools configured. Continuing without trkmodifers."
         else:        
-            trkmoms_ghosttrack = getattr(jtm, 'trkmoms_GhostTracks')
+            trkmoms_ghosttrack = getattr(jtm, 'trkmoms_'+trkopt)
             trkmoms_ghosttrack.unlock()
             trkmoms_ghosttrack.AssociatedTracks = secondary_label
             trkmoms_ghosttrack.lock()
             mymods.append(trkmoms_ghosttrack)
-        if not hasattr(jtm, 'jvf_GhostTracks'):
+        if not hasattr(jtm, 'jvf_'+trkopt):
             print "In TrigHLTJetRecConfig._getJetBuildTool: Something went wrong. GhostTrack label set but no JVF tool configured. Continuing without jvf calculations."
         else:        
-            jvf_ghosttrack = getattr(jtm, 'jvf_GhostTracks')
+            jvf_ghosttrack = getattr(jtm, 'jvf_'+trkopt)
             jvf_ghosttrack.unlock()
             jvf_ghosttrack.AssociatedTracks = secondary_label
             jvf_ghosttrack.lock()
@@ -752,7 +754,8 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
             cluster_calib=cluster_calib,
             do_minimalist_setup=do_minimalist_setup,
             name=name,
-            secondary_label=secondary_label, # needed for retrieving the track psjgetter.
+            trkopt = trkopt,
+            secondary_label=secondary_label, # needed for retrieving the track psjgetter and configuring and adding of track modifiers.
             )
         print 'after jetbuild'
         
@@ -1082,6 +1085,7 @@ class TrigHLTTrackMomentHelpers(TrigHLTJetRecConf.TrigHLTTrackMomentHelpers):
 
     def __init__(self,
                  name,
+                 trkopt,
                  tvassocSGkey,
                  trackSGkey,
                  primVtxSGkey,
@@ -1092,7 +1096,7 @@ class TrigHLTTrackMomentHelpers(TrigHLTJetRecConf.TrigHLTTrackMomentHelpers):
         self.primVtxSGkey = primVtxSGkey
 
         #retrieve and configure the TVA tool 
-        tvatoolname = 'tvassoc_GhostTracks'
+        tvatoolname = 'tvassoc_'+trkopt
 
         tvaoptions = dict(tvSGkey=tvassocSGkey,
                        tpcSGkey=trackSGkey,
@@ -1102,7 +1106,7 @@ class TrigHLTTrackMomentHelpers(TrigHLTJetRecConf.TrigHLTTrackMomentHelpers):
         self.tvassocTool = _getTVassocTool(tvatoolname, **tvaoptions)
     
         # add  a specially configured trkmoms tool to jtm 
-        trkmomstoolname = 'trkmoms_GhostTracks'
+        trkmomstoolname = 'trkmoms_'+trkopt
         
         trkmomsoptions = dict(tvSGkey=tvassocSGkey,
                        vcSGkey=primVtxSGkey,
@@ -1110,7 +1114,7 @@ class TrigHLTTrackMomentHelpers(TrigHLTJetRecConf.TrigHLTTrackMomentHelpers):
         addTrkMomsTool(trkmomstoolname, **trkmomsoptions)
         
         # add  a specially configured jvf tool to jtm 
-        jvftoolname = 'jvf_GhostTracks'
+        jvftoolname = 'jvf_'+trkopt
         
         jvfoptions = dict(tvSGkey=tvassocSGkey,
                        tpcSGkey=trackSGkey,
