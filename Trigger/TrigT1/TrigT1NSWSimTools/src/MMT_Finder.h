@@ -13,12 +13,16 @@
 #include <cstdlib>
 #include <cstdio>
 
+
+#include "AthenaKernel/MsgStreamMember.h"
+
 //ROOT libraries
 #include "TTree.h"
 #include "TH1F.h"
 #include "MMT_struct.h"
 #include "MMT_Fitter.h"
 using namespace std;
+
 
 class MMT_Finder{
  public:
@@ -30,6 +34,12 @@ class MMT_Finder{
   void fillHitBuffer(map<pair<int,int>,finder_entry>& evFinder, const Hit& hit) const;
   void checkBufferForHits(vector<bool>& plane_is_hit, vector<Hit>& track, pair<int,int>& key, map<pair<int,int>,finder_entry> hitBuffer) const;
 
+
+  /// Log a message using the Athena controlled logging system
+  MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
+  /// Check whether the logging system is active at the provided verbosity level
+  bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
+
  private:
   vector<int> q_planes(const string& type) const;
   //Finder components
@@ -39,5 +49,8 @@ class MMT_Finder{
   vector<vector<double> > Gate_Flags; 
   vector<vector<finder_entry> > Finder;
   MMT_Parameters* m_par;
+
+  /// Private message stream member
+  mutable Athena::MsgStreamMember m_msg;
 };
 #endif

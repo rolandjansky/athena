@@ -15,10 +15,15 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include "AthenaKernel/MsgStreamMember.h"
+
 //ROOT libraries
 #include "TTree.h"
 #include "TH1F.h"
+#include "TMath.h"
+
 #include "MMT_struct.h"
+
 using namespace std;
 
 class MMT_Fitter{
@@ -32,6 +37,12 @@ class MMT_Fitter{
   int SC_ROI_n_y() const {return m_par->n_y;}
 /*   vector<int> xent,yent; */
   int find_hdst(const vector<hdst_entry>& hdsts, const hdst_key& key) const;
+
+
+  /// Log a message using the Athena controlled logging system
+  MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
+  /// Check whether the logging system is active at the provided verbosity level
+  bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
 
  protected:
   int last;
@@ -65,15 +76,18 @@ class MMT_Fitter{
   float32fixed<4> Slope_Components_ROI_phi(int jy, int ix) const;
   float32fixed<2> DT_Factors_val(int i, int j) const;
 
+
  private:
   //some functions
   vector<Hit> q_hits(const string& type,const vector<Hit>& hits) const;
-  double degtorad(double degree_value) const;
-  double radtodeg(double radian_value) const;
 
   //Fitter components
   int number_LG_regions,n_fit;
   float32fixed<2> LG_min,LG_max;
   vector<int> q_planes(char type) const;//return position of what planes are where
+
+  /// Private message stream member
+  mutable Athena::MsgStreamMember m_msg;
+
 };
 #endif
