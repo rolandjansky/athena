@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 //Author: Russell Smith
 //Email : rsmith@cern.ch
 //Date  : May 2015
@@ -52,6 +53,9 @@ int main() {
 
 #include "xAODCore/tools/IOStats.h"
 #include "xAODCore/tools/ReadStats.h"
+
+static const SG::AuxElement::Decorator< float > dec_uniqueFrac("UniqueFrac");
+static const SG::AuxElement::Decorator< float > dec_METPtDiff("METPtDiff");
 
 using namespace asg::msgUserCode;
 
@@ -254,7 +258,6 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 				    false            //don't apply jet jvt cut
 				    )
 	     );
-    
     /*
     ANA_CHECK( metMaker->rebuildTrackMET("RefJetTrk",    //name of jet track met
 				      "PVSoftTrk",	  //name of soft track term met
@@ -313,7 +316,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 #ifdef XAOD_STANDALONE // POOL::TEvent should handle this when changing events
     //fill the containers stored in the event
     //to the output file and clear the transient store
-    //assert(event->fill());
+    event->fill();
     store->clear();
 #endif
   }

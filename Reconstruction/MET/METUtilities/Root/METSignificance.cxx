@@ -248,8 +248,8 @@ namespace met {
 		dettype=2;//ID
 	      }
 	      
-	      xAOD::Muon *my_muon = NULL;//new xAOD::Muon(); //static_cast<xAOD::Muon>(*muon);
-	      m_muonCalibrationAndSmearingTool->correctedCopy(*muon,my_muon);
+	      xAOD::Muon *my_muon = NULL;
+	      ATH_CHECK(m_muonCalibrationAndSmearingTool->correctedCopy(*muon,my_muon)==CP::CorrectionCode::Ok);
 	      pt_reso=m_muonCalibrationAndSmearingTool->expectedResolution(dettype,*my_muon,!m_isData);
 	      ATH_MSG_VERBOSE("muon: " << pt_reso << " dettype: " << dettype << " " << muon->pt() << " " << muon->p4().Eta() << " " << muon->p4().Phi());
 	      delete my_muon;

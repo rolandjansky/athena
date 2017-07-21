@@ -1080,6 +1080,11 @@ namespace met {
     }
     metCont->reserve(10);
 
+    if(metCont->find(metKey)!=metCont->end()){
+      ATH_MSG_VERBOSE("avoiding adding a duplicate term");
+      return StatusCode::SUCCESS;
+    }
+
     met = new xAOD::MissingET();
     metCont->push_back(met);
 
