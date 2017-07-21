@@ -67,15 +67,16 @@ class TTree;
 #include "TRandom3.h"
 #include "TF1.h"
 #include "TLorentzVector.h"
-#include "MMT_struct.h" 
-#include "MMT_Finder.h" 
-#include "MMT_Fitter.h" 
+
+#include "TMath.h"
+
+#include "MMT_struct.h"
+#include "MMT_Finder.h"
+#include "MMT_Fitter.h"
 namespace MuonGM {
   class MuonDetectorManager;
 }
 
-
-  
 
   class MMLoadVariables {
 
@@ -85,7 +86,7 @@ namespace MuonGM {
    ~MMLoadVariables();
 
     void getMMDigitsInfo(vector<athena_entry>& entries, map<hdst_key,hdst_entry>& Hits_Data_Set_Time, map<int,evInf_entry>& Event_Info);
-    
+
     string nom;
 
     //map<hdst_key,hdst_entry> Hits_Data_Set_Time;//key is hit_index? <BC_time,time>?
@@ -163,36 +164,36 @@ namespace MuonGM {
         std::vector<double> NSWMM_hitGlobalDirectionX;
         std::vector<double> NSWMM_hitGlobalDirectionY;
         std::vector<double> NSWMM_hitGlobalDirectionZ;
-      
+
         std::vector<double> NSWMM_hitLocalPositionX;
         std::vector<double> NSWMM_hitLocalPositionY;
         std::vector<double> NSWMM_hitLocalPositionZ;
-     
+
         std::vector<double> NSWMM_detector_globalPositionX;
         std::vector<double> NSWMM_detector_globalPositionY;
         std::vector<double> NSWMM_detector_globalPositionZ;
         std::vector<double> NSWMM_detector_globalPositionR;
         std::vector<double> NSWMM_detector_globalPositionP;
-     
+
         std::vector<double> NSWMM_hitToDsurfacePositionX;
         std::vector<double> NSWMM_hitToDsurfacePositionY;
         std::vector<double> NSWMM_hitToDsurfacePositionZ;
-      
+
         std::vector<double> NSWMM_hitToRsurfacePositionX;
         std::vector<double> NSWMM_hitToRsurfacePositionY;
         std::vector<double> NSWMM_hitToRsurfacePositionZ;
-     
+
 
         std::vector<int> NSWMM_particleEncoding;
         std::vector<double> NSWMM_kineticEnergy;
         std::vector<double> NSWMM_depositEnergy;
         std::vector<double> NSWMM_StepLength;
-     
+
         std::vector<std::string> NSWMM_sim_stationName;
         std::vector<int> NSWMM_sim_stationEta;
         std::vector<int> NSWMM_sim_stationPhi;
         std::vector<int> NSWMM_sim_multilayer;
-        std::vector<int> NSWMM_sim_layer; 
+        std::vector<int> NSWMM_sim_layer;
         std::vector<int> NSWMM_sim_side;
 
         std::vector<std::string> NSWMM_off_stationName;
@@ -203,13 +204,10 @@ namespace MuonGM {
         std::vector<int> NSWMM_off_channel;
     };
     histogramVariables histVars;
-    
-    
+
+
   private:
 
-    //ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
-    //ServiceHandle< IAtRndmGenSvc >     m_rndmSvc;           //!< Athena random number service
-    //CLHEP::HepRandomEngine*            m_rndmEngine;        //!< Random number engine
     const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
     const MmIdHelper*                  m_MmIdHelper;        //!< MM offline Id helper
     StoreGateSvc*                      m_evtStore;
@@ -217,7 +215,7 @@ namespace MuonGM {
     bool striphack = false;
     std::string getWedgeType(const MmDigitContainer *nsw_MmDigitContainer);
 
-  
+
   };
 
 

@@ -5,14 +5,7 @@
 #ifndef MMTRIGGERTOOL_H
 #define MMTRIGGERTOOL_H
 
-
-
 //basic includes
-// #include "AthenaBaseComps/AthAlgTool.h"
-// #include "GaudiKernel/ServiceHandle.h"
-// #include "GaudiKernel/IIncidentListener.h"
-
-// #include "GaudiKernel/Property.h"
 
 //local includes
 #include "TrigT1NSWSimTools/IMMTriggerTool.h"
@@ -25,50 +18,10 @@ class MmIdHelper;
 class MmDigit;
 class TTree;
 
-//MMT_Loader includes
-
-//C++ language libararies
-// #include <dirent.h>
-// #include <map>
-// #include <vector>
-// #include <string>
-// #include <fstream>
-// #include <cmath>
-// #include <cstdlib>
-// #include <cstdio>
-// #include <iostream>
-
-// //ROOT libraries
-// #include "TMultiGraph.h"
-// #include "TCanvas.h"
-// #include "TColor.h"
-// #include "TGraphErrors.h"
-// #include "TLatex.h"
-// #include "TStyle.h"
-// #include "TH2D.h"
-// #include "Rtypes.h"
-// #include "TTree.h"
-// #include "TFile.h"
-// #include "TObject.h"
-// #include "TROOT.h"
-// #include "TH1F.h"
-// #include "TRandom3.h"
-// #include "TF1.h"
-// #include "TLorentzVector.h"
-// #include "MMT_struct.h" 
-// #include "MMT_Finder.h" 
-// #include "MMT_Fitter.h"
 #include "MMLoadVariables.h"
 #include "MuonDigitContainer/MmDigitContainer.h"
 #include "MuonDigitContainer/MmDigit.h"
-//#include "/afs/cern.ch/user/m/mkhader/mm_trig/MM_Trigger/plots/mmt_plot/atlasstyle-00-03-05/AtlasStyle.h"
 
-
-
-
-// namespace CLHEP {
-//   class HepRandomEngine;
-// }
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -78,15 +31,11 @@ namespace MuonGM {
 // namespace for the NSW LVL1 related classes
 namespace NSWL1 {
 
-
-  
-
   class MMTriggerTool: virtual public IMMTriggerTool,
-    public AthAlgTool, 
+    public AthAlgTool,
     public IIncidentListener {
 
   public:
-
 
     //load event stuff
     vector<hdst_entry> event_hdsts(int find_event, map<hdst_key,hdst_entry>& Hits_Data_Set_Time) const;
@@ -97,7 +46,7 @@ namespace NSWL1 {
 
     //MMT_Loader stuff end
 
-    MMTriggerTool(const std::string& type, 
+    MMTriggerTool(const std::string& type,
 			  const std::string& name,
 			  const IInterface* parent);
 
@@ -109,7 +58,6 @@ namespace NSWL1 {
 
     StatusCode runTrigger();
 
-    
   private:
 
     std::string getWedgeType(const MmDigitContainer *nsw_MmDigitContainer);
@@ -231,36 +179,36 @@ namespace NSWL1 {
     std::vector<double> *m_NSWMM_hitGlobalDirectionX;
     std::vector<double> *m_NSWMM_hitGlobalDirectionY;
     std::vector<double> *m_NSWMM_hitGlobalDirectionZ;
-  
+
     std::vector<double> *m_NSWMM_hitLocalPositionX;
     std::vector<double> *m_NSWMM_hitLocalPositionY;
     std::vector<double> *m_NSWMM_hitLocalPositionZ;
- 
+
     std::vector<double> *m_NSWMM_detector_globalPositionX;
     std::vector<double> *m_NSWMM_detector_globalPositionY;
     std::vector<double> *m_NSWMM_detector_globalPositionZ;
     std::vector<double> *m_NSWMM_detector_globalPositionR;
     std::vector<double> *m_NSWMM_detector_globalPositionP;
- 
+
     std::vector<double> *m_NSWMM_hitToDsurfacePositionX;
     std::vector<double> *m_NSWMM_hitToDsurfacePositionY;
     std::vector<double> *m_NSWMM_hitToDsurfacePositionZ;
-  
+
     std::vector<double> *m_NSWMM_hitToRsurfacePositionX;
     std::vector<double> *m_NSWMM_hitToRsurfacePositionY;
     std::vector<double> *m_NSWMM_hitToRsurfacePositionZ;
- 
+
 
     std::vector<int> *m_NSWMM_particleEncoding;
     std::vector<double> *m_NSWMM_kineticEnergy;
     std::vector<double> *m_NSWMM_depositEnergy;
     std::vector<double> *m_NSWMM_StepLength;
- 
+
     std::vector<std::string> *m_NSWMM_sim_stationName;
     std::vector<int> *m_NSWMM_sim_stationEta;
     std::vector<int> *m_NSWMM_sim_stationPhi;
     std::vector<int> *m_NSWMM_sim_multilayer;
-    std::vector<int> *m_NSWMM_sim_layer; 
+    std::vector<int> *m_NSWMM_sim_layer;
     std::vector<int> *m_NSWMM_sim_side;
 
     std::vector<std::string> *m_NSWMM_off_stationName;
@@ -269,7 +217,7 @@ namespace NSWL1 {
     std::vector<int> *m_NSWMM_off_multiplet;
     std::vector<int> *m_NSWMM_off_gas_gap;
     std::vector<int> *m_NSWMM_off_channel;
-    
+
   };  // end of MMTriggerTool class
 
 } // namespace NSWL1

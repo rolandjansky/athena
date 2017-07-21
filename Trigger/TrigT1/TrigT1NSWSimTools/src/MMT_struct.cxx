@@ -9,10 +9,11 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 
-double pi() {return 4.*atan(1.);}
+
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
+
 double store_const(){return 8192.;}
-double degtorad(double degree_value) {return atan(1.)/45.*degree_value;}
-double radtodeg(double radian_value) {return 45./atan(1.)*radian_value;}
 
 std_align::std_align(int qcm,const TVector3& trans,const TVector3& ang):type(qcm),translate(trans),rotate(ang){
   if(type==0){
@@ -29,7 +30,7 @@ string std_align::par_title(int par_num,bool small_unit)const{
   else if(par_num==4) par_title="#beta_{z}";
   else if(par_num==5) par_title="#alpha_{t}";
   else{
-    cout<<"Parameter number "<<par_num<<" not in [0,"<<parmax()<<"]; returning..."<<endl;
+    // ATH_MSG_DEBUG("Parameter number "<<par_num<<" not in [0,"<<parmax()<<"]; returning...");
     exit(3);
   }
   if(par_num>2){
@@ -48,7 +49,7 @@ string std_align::par_name(int par_num)const{
   else if(par_num==4) par_name="drz";
   else if(par_num==5) par_name="drt";
   else{
-    cout<<"Parameter number "<<par_num<<" not in [0,"<<parmax()<<"]; returning..."<<endl;
+    // ATH_MSG_DEBUG("Parameter number "<<par_num<<" not in [0,"<<parmax()<<"]; returning...");
     exit(3);
   }
   return par_name;
@@ -219,7 +220,6 @@ par_par::par_par(){
 
 //for easy interface with command line parsing input format: (parname):(parval){if misal ::cor at end indicates correct to negate misal}
 void par_par::set_parameter(const string&par){
-  if(debug)cout<<"parsing "<<par<<endl;
   if(par.find(":")==string::npos)return;
   else if(par.find("mal:")==0){
     int start=4;double numbers[6];
@@ -227,10 +227,9 @@ void par_par::set_parameter(const string&par){
       int end=par.find(",",start);
       if(end<0&&i==5)end=par.length();
       else if(end<0||end>=(int)par.length()-1||start==end){
-	cerr<<"";return;
+        return;
       }
       numbers[i]=atof(par.substr(start,end-start).c_str());
-      if(debug)cout<<"mal push back "<<i<<"th "<<numbers[i]<<endl;
       start=end+1;
     }
     set_misalign(numbers[0],numbers[1],numbers[2],numbers[3],numbers[4],numbers[5]);
@@ -242,17 +241,15 @@ void par_par::set_parameter(const string&par){
       int end=par.find(",",start);
       if(end<0&&i==5)end=par.length();
       else if(end<0||end>=(int)par.length()-1||start==end){
-	cerr<<"";return;
+        return;
       }
       numbers[i]=atof(par.substr(start,end-start).c_str());
-      if(debug)cout<<"cor push back "<<i<<"th "<<numbers[i]<<endl;
       start=end+1;
     }
     set_correct(numbers[0],numbers[1],numbers[2],numbers[3],numbers[4],numbers[5]);
   }
   else if(par.find("3cor:")==0){
     if(par.find(",")==string::npos){
-      cerr<<"3cor input "<<par<<" is bad!  Aborting"<<endl;
       exit(9);
     }
     pcrep_dir=par.substr(5,par.find(",")-5);tag=par.substr(par.find(",")+1);
@@ -423,14 +420,14 @@ MMT_Parameters::MMT_Parameters(par_par varied, char wedgeSize, const MuonGM::Muo
   double dY_bottom = 0.5*(maxYSize_bottom-minYSize_bottom);//-2.*design_top->deadS);
 
   if(!islarge){
-    cerr<<"We haven't configured the small wedge parameters yet!  Go bother the developer...kindly...this will likely crash now!\n";
+    ATH_MSG_WARNING("We haven't configured the small wedge parameters yet!  Go bother the developer...kindly...this will likely crash now!\n");
     return;
   }
   //y = vertical distance from beamline
   //z = into wedge along beamline
   //x = horizontal distance from beam looking down
   ////////////  Define the large wedge /////////////////
-//   if(debug) cout<<"MMT_s::MMT_Parameters() start with setup: "<<setup<<endl;
+//   ATH_MSG_DEBUG(<<"MMT_s::MMT_Parameters() start with setup: "<<setup);
   w1=float32fixed<18>(mm_top_mult1->lWidth());   //top
   w2=float32fixed<18>(mm_top_mult1->lWidth()*1./(cos(roParam_top_mult1.stereoAngel.at(3))));  //determined by 33deg angle   //shelves part
   w3=float32fixed<18>(mm_bottom_mult1->sWidth());//582.3);  //bottom
@@ -450,9 +447,8 @@ MMT_Parameters::MMT_Parameters(par_par varied, char wedgeSize, const MuonGM::Muo
   }
 
   if(z_nominal.size() != setup.size()){
-    std::cerr << "Number of planes in setup is "<< setup.size()
-              << ", but we have a nominal "     << z_nominal.size() << " planes." 
-              << std::endl;
+    ATH_MSG_WARNING( "Number of planes in setup is "<< setup.size()
+              << ", but we have a nominal "     << z_nominal.size() << " planes.");
     exit(9);
   }
 
@@ -461,12 +457,12 @@ MMT_Parameters::MMT_Parameters(par_par varied, char wedgeSize, const MuonGM::Muo
   mid_plane_large/=z_nominal.size();
   
   vector<int> xp=q_planes("x"),up=q_planes("u"),vp=q_planes("v");
-//   if(debug) cout<<"MMT_s::MMT_Parameters() mp_large_X ("<<xp.size()<<" planes)\n";
+//   ATH_MSG_DEBUG(<<"MMT_s::MMT_Parameters() mp_large_X ("<<xp.size()<<" planes)\n";
   mid_plane_large_X=float32fixed<18>(0.);
   for(unsigned int ix=0;ix<xp.size();ix++) mid_plane_large_X+=z_nominal[xp[ix]].getFloat();
   mid_plane_large_X /= 1.*xp.size();
 
-//   if(debug) cout<<"MMT_s::MMT_Parameters() mp_large_UV ("<<up.size()+vp.size()<<" planes)\n";
+//   ATH_MSG_DEBUG(<<"MMT_s::MMT_Parameters() mp_large_UV ("<<up.size()+vp.size()<<" planes)\n";
   mid_plane_large_UV=float32fixed<18>(0.);
   for(unsigned int iu=0;iu<up.size();iu++) mid_plane_large_UV+=z_nominal[up[iu]].getFloat();
   for(unsigned int iv=0;iv<vp.size();iv++) mid_plane_large_UV+=z_nominal[vp[iv]].getFloat();
@@ -477,7 +473,7 @@ MMT_Parameters::MMT_Parameters(par_par varied, char wedgeSize, const MuonGM::Muo
   //L=float32fixed<18>(7536.);//7500.); //distance from IP to front side of wedge
 
   strip_width = float32fixed<4>(roParam_top_mult1.stripPitch);  // 0.5;
-  stereo_degree = float32fixed<4>(radtodeg(roParam_top_mult1.stereoAngel.at(2))); //0.75 //3 in degrees!
+  stereo_degree = float32fixed<4>(TMath::RadToDeg()*roParam_top_mult1.stereoAngel.at(2)); //0.75 //3 in degrees!
   float32fixed<2> degree=roParam_top_mult1.stereoAngel.at(2);
   std::cout << "DEGREE" << degree.getFloat()  << " " << stereo_degree.getFloat() << std::endl;
   vertical_strip_width_UV = strip_width.getFloat()/cos(degree.getFloat());
@@ -503,8 +499,8 @@ MMT_Parameters::MMT_Parameters(par_par varied, char wedgeSize, const MuonGM::Muo
   // MM_firststrip_positions returns the position for phi sector 1.
   // => for the small sectors, rotate this by -1/16 of a rotation to make our lives easier.
   // in this coordinate basis, x is up/down the wedge (radial), and y is left/right (phi).
-  float cos_rotation = cos(-2*pi() / 16.0);
-  float sin_rotation = sin(-2*pi() / 16.0);
+  float cos_rotation = cos(-2*TMath::Pi() / 16.0);
+  float sin_rotation = sin(-2*TMath::Pi() / 16.0);
   float x_rotated = 0.0, y_rotated = 0.0, z_rotated = 0.0;
 
   float st_angle = 0.0;
@@ -534,24 +530,24 @@ MMT_Parameters::MMT_Parameters(par_par varied, char wedgeSize, const MuonGM::Muo
 
       // walk from the center of the strip to the position of the strip at the center of the wedge.
       // NB: for X-planes, this is simply the center of the strip: tan(0) = 0.
-      radial_pos = abs(x_rotated - y_rotated*tan(st_angle * pi()/180.0));
+      radial_pos = abs(x_rotated - y_rotated*tan(st_angle * TMath::Pi()/180.0));
 
       if (is_x(layer) && eta==1) radial_pos_xx_1 = radial_pos;
       if (is_x(layer) && eta==2) radial_pos_xx_2 = radial_pos;
       if (is_u(layer) && eta==1) radial_pos_uv_1 = radial_pos;
       if (is_u(layer) && eta==2) radial_pos_uv_2 = radial_pos;
 
-      std::cout << " TUNA MM position"
-                << " wedge "         << wedgeString
-                << " eta "           << eta
-                << " layer "         << layer
-                << " (x, y, z, r, r_proj.) "
-                << "   "             << x_rotated
-                << "   "             << y_rotated
-                << "   "             << z_rotated
-                << "   "             << sqrt(pow(x_rotated, 2) + pow(y_rotated, 2))
-                << "   "             << radial_pos
-                << std::endl;
+      // std::cout << " TUNA MM position"
+      //           << " wedge "         << wedgeString
+      //           << " eta "           << eta
+      //           << " layer "         << layer
+      //           << " (x, y, z, r, r_proj.) "
+      //           << "   "             << x_rotated
+      //           << "   "             << y_rotated
+      //           << "   "             << z_rotated
+      //           << "   "             << sqrt(pow(x_rotated, 2) + pow(y_rotated, 2))
+      //           << "   "             << radial_pos
+      //           << std::endl;
       layer++;
     }
   }
@@ -570,21 +566,23 @@ MMT_Parameters::MMT_Parameters(par_par varied, char wedgeSize, const MuonGM::Muo
 
 
   //now put in the positions at `ly spaced points for a y dependent z
-  bool sho=true&&debug,hack=false,fancy=false;
+  // bool sho=true&&debug;
+  bool hack=false;
+  bool fancy=false;
   z_large=vector<vector<float32fixed<18> > >(ybins,z_nominal);
   double pitch_f=1.*sin(correct.rotate.X())*h1.getFloat()/ybins,pitch_b=0,bumper_up=0.0;
   if(hack){double factor=-1;pitch_f*=factor;pitch_b*=factor;}
-  if(sho)cout<<"Specs: correct.rotate.X()="<<correct.rotate.X()<<",correct.translate.Z()="<<correct.translate.Z()<<",pitch_f="<<pitch_f<<endl;
+  ATH_MSG_DEBUG("Specs: correct.rotate.X()="<<correct.rotate.X()<<",correct.translate.Z()="<<correct.translate.Z()<<",pitch_f="<<pitch_f);
   for(int iy=0;iy<ybins;iy++){
     //z axis in misalignment line points in the opposite direction....TOO LATE! (right handed coordinate system the way we expect for x and y makes this happen)
     double over_f=pitch_f*(iy+bumper_up)-correct.translate.Z(),over_b=0;//pitch_b*(iy+bumper_up)+correct.dzb;
-    if(sho)cout<<"iy="<<iy<<"over_f="<<over_f<<",over_b="<<over_b<<endl;
+    ATH_MSG_DEBUG("iy="<<iy<<"over_f="<<over_f<<",over_b="<<over_b);
     for(int jp=0;jp<8;jp++){
-      if(sho)cout<<"z_large["<<iy<<"]["<<jp<<"]"<<z_large[iy][jp].getFloat()<<"--->";
+      ATH_MSG_DEBUG("z_large["<<iy<<"]["<<jp<<"]"<<z_large[iy][jp].getFloat()<<"--->");
 //       if(jp<4&&fancy)z_large[iy][jp]+=ymid_eta_bin(iy,jp)*sin(correct.rotate.X())-correct.translate.Z();
       if(jp<4)z_large[iy][jp]+=over_f;
       else z_large[iy][jp]+=over_b;
-      if(sho)cout<<z_large[iy][jp].getFloat()<<endl;
+      ATH_MSG_DEBUG(z_large[iy][jp].getFloat());
     }
   }
 
@@ -600,15 +598,15 @@ MMT_Parameters::MMT_Parameters(par_par varied, char wedgeSize, const MuonGM::Muo
 
   //////////  for cut applications  /////////////////
   double tol = 0;  //0.02;
-//   minimum_large_theta = atan((cos(pi()/2-pi()/180*wedge_opening_angle/2)*w3+H)/z_nominal.front())+tol;
-//   if(debug)cout<<"Old min theta has dist_T of "<<(cos(pi()/2-pi()/180*wedge_opening_angle/2)*w3+H)<<" for a min angle of "<<minimum_large_theta<<" eta="<<-log(tan(0.5*minimum_large_theta))<<endl;
+//   minimum_large_theta = atan((cos(TMath::Pi()/2-TMath::Pi()/180*wedge_opening_angle/2)*w3+H)/z_nominal.front())+tol;
+//   ATH_MSG_DEBUG("Old min theta has dist_T of "<<(cos(TMath::Pi()/2-TMath::Pi()/180*wedge_opening_angle/2)*w3+H)<<" for a min angle of "<<minimum_large_theta<<" eta="<<-log(tan(0.5*minimum_large_theta)));
 //   maximum_large_theta = atan((H+h1)/z_nominal.back())-tol;
 
   //BLC had some interesting bounds...let's do the ones that make sense to me
   minimum_large_theta = float32fixed<4>(atan(H.getFloat()/z_nominal.back().getFloat())+tol);
   maximum_large_theta = float32fixed<4>(atan(sqrt(pow(Hnom+h1,2)+0.25*pow(w1.getFloat(),2))/z_nominal.back().getFloat())-tol);
-//   minimum_large_phi = float32fixed<4>(pi()/2-degtorad(0.5*wedge_opening_angle.getFloat())+tol);  maximum_large_phi = float32fixed<4>(pi()/2+degtorad(0.5*wedge_opening_angle.getFloat())-tol);
-  minimum_large_phi = float32fixed<4>(-degtorad(0.5*wedge_opening_angle.getFloat())+tol);  maximum_large_phi = float32fixed<4>(degtorad(0.5*wedge_opening_angle.getFloat())-tol);
+//   minimum_large_phi = float32fixed<4>(TMath::Pi()/2-TMath::DegToRad(0.5*wedge_opening_angle.getFloat())+tol);  maximum_large_phi = float32fixed<4>(TMath::Pi()/2+TMath::DegToRad(0.5*wedge_opening_angle.getFloat())-tol);
+  minimum_large_phi = float32fixed<4>(-TMath::DegToRad()*0.5*wedge_opening_angle.getFloat())+tol;  maximum_large_phi = float32fixed<4>(TMath::DegToRad()*(0.5*wedge_opening_angle.getFloat())-tol);
   ///////////////////////////////////////////////////
 
   double phiseg=(maximum_large_phi-minimum_large_phi)/n_phibins*1.;
@@ -627,16 +625,12 @@ MMT_Parameters::MMT_Parameters(par_par varied, char wedgeSize, const MuonGM::Muo
     n_etabins=m_etabins.size()-1;
   }
   else if(n_etabins==(int)xeta.size()){
-//     cerr<<"Special eta bins"<<endl;
-    //sinh(eta)=cot(theta)
     m_etabins.push_back(etalo);
     for(int i=n_etabins-1;i>=0;i--){
-//       cerr<<"Eta "<<asinh(z_nominal.front()/xeta[i]*1.)<<" asinh("<<z_nominal.front()<<"/"<<xeta[i]<<")"<<endl;
       m_etabins.push_back(asinh(z_nominal.front()/xeta[i]*1.));
     }
   }
   else{
-//     cerr<<"Standard eta bins"<<endl;
     double increment=(etahi-etalo)/n_etabins*1.;
     for(int i=0;i<=n_etabins;i++)m_etabins.push_back(etalo+increment*i);
   }
@@ -697,12 +691,11 @@ std::vector<Amg::Vector3D> MMT_Parameters::MM_firststrip_positions(const MuonGM:
       readout->stripGlobalPosition(strip_id, pos);
       positions.push_back(pos);
 
-      if (debug) std::cout << "global z-pos. (using MMReadoutElement) for"
+      ATH_MSG_DEBUG( "global z-pos. (using MMReadoutElement) for"
                            << " wedge size "       << wedge
                            << " multiplet "        << mult 
                            << " layer "            << layer
-                           << " | z = "            << pos.z()
-                           << std::endl;
+                           << " | z = "            << pos.z() );
     }
   }
 
@@ -716,7 +709,7 @@ int MMT_Parameters::is_v(int plane){ return (std::find(planes_v.begin(), planes_
 vector<int> MMT_Parameters::q_planes(const string& type) const{
   if(type.length()!=1) exit(0);
   if(type.compare("x")!=0&&type.compare("u")!=0&&type.compare("v")!=0){
-    cerr<<"Unsupported plane type " << type << " in q_planes...aborting....\n";
+    ATH_MSG_WARNING("Unsupported plane type " << type << " in q_planes...aborting....\n");
     exit(0);
   }
   vector<int> q_planes;
@@ -733,12 +726,12 @@ par_par MMT_Parameters::param_par() const{
 
 double MMT_Parameters::y_from_eta_wedge(double eta,int plane)const{
   //assumes wedge geometry--average x^2, is 1/3 y^2*tan^2(stereo_degree), for eta/y correspondence
-  double z=z_nominal[plane].getFloat(),zeta=degtorad(0.5*stereo_degree.getFloat());
+  double z=z_nominal[plane].getFloat(),zeta=TMath::DegToRad()*(0.5*stereo_degree.getFloat());
   return z*tan(2*atan(exp(-1.*eta)))/sqrt(1+tan(zeta)*tan(zeta)/3.);
 }
 
 double MMT_Parameters::eta_wedge_from_y(double y,int plane)const{
-  double z=z_nominal[plane].getFloat(),zeta=degtorad(0.5*stereo_degree.getFloat());
+  double z=z_nominal[plane].getFloat(),zeta=TMath::DegToRad()*(0.5*stereo_degree.getFloat());
   return -1.*log(tan(0.5*atan(y/z*sqrt(1+tan(zeta)*tan(zeta)/3.))));
 }
 
@@ -758,7 +751,7 @@ int MMT_Parameters::ybin(double y,int plane)const{
   double segment_length=(eta_max_y-eta_min_y)/ybins;
   for(int i=ybins;i>=0;i--){
     if(eta_y>(eta_max_y-segment_length*i)){
-//       if(debug) cout<<"y="<<y<<" is less than H+l*i="<<H<<"+"<<segment_length<<"*"<<i<<"="<<H+segment_length*i<<" returns a YBIN of "<<i-1<<endl;
+//       ATH_MSG_DEBUG(<<"y="<<y<<" is less than H+l*i="<<H<<"+"<<segment_length<<"*"<<i<<"="<<H+segment_length*i<<" returns a YBIN of "<<i-1);
       return i-1;
     }
   }
@@ -790,11 +783,6 @@ void MMT_Parameters::fill_full_Ak_Bk(){
   vector<int> variable_key(nx,-1);//a grid with all possible 
   do{
     AB_k_local[variable_key]=ak_bk_hit_bins(variable_key);
-    /*
-    if(debug){
-      for(unsigned int i=0;i<variable_key.size();i++)cout<<variable_key[i];
-      cout<<"=("<<AB_k_local[variable_key].first<<","<<AB_k_local[variable_key].second<<")"<<endl;
-      }*/
   }while(!toggle_key(variable_key,-1,ybins-1));
 }
 
@@ -832,7 +820,6 @@ int MMT_Parameters::eta_bin(double theta) const{
   else if(ebin==-999) return n_etabins-1;
   /*
   if(ebin==-1){
-    cerr<<"Theta of "<<theta<<" yields eta of "<<eta<<" not in ["<<etalo<<","<<etahi<<"]...exiting"<<endl;
     exit(6);
     }*/
   return ebin;
@@ -884,7 +871,6 @@ pair<double,double> MMT_Parameters::ak_bk_hit_bins(const vector<int>& hits)const
     nhits++;
   }
   double diff = nhits*sum_xx-sum_x*sum_x;
-//   if(debug)cout<<sum_x<<" " <<sum_xx<<" "<<diff<<endl;
   return pair<double,double>(1.*nhits/sum_x, 1.*sum_x/diff);
 }
 
@@ -895,19 +881,16 @@ void MMT_Parameters::fill_slims(){
     vector<bool>xhits(lcl_int_to_xhits(xdex));
     int ntru=0;
     for(int k=0;k<(int)xhits.size();k++)ntru+=xhits[k];
-    if(debug)cout<<"xdex="<<xdex<<" ("<<ntru<<" hits)\n";
+    ATH_MSG_DEBUG("xdex="<<xdex<<" ("<<ntru<<" hits)");
     for(int ybin=0;ybin<ybins;ybin++){
-      if(debug)cout<<"\tybin="<<ybin<<endl;
+      ATH_MSG_DEBUG("\tybin="<<ybin );
       if(ybin==ybins-1)ntru=1;
       for(int which=0;which<ntru;which++){
- 	if(debug)cout<<"\t\twhich="<<which;
+ 	ATH_MSG_DEBUG("\t\twhich="<<which);
 	vector<int>indices(indices_to_key(xdex,ybin,which));
-	if(debug){
- 	  cout<<" ";
- 	  for(int i=0;i<(int)indices.size();i++)cout<<indices[i];
-	}
+  for(int i=0;i<(int)indices.size();i++)  ATH_MSG_DEBUG(indices[i]);
 	pair<double,double>howdy(ak_bk_hit_bins(indices));
- 	if(debug)cout<<setprecision(8)<<"---akbk.first="<<howdy.first<<", second="<<howdy.second<<endl;
+ 	ATH_MSG_DEBUG(setprecision(8)<<"---akbk.first="<<howdy.first<<", second="<<howdy.second);
 	Ak_local_slim[xdex][ybin].push_back(howdy.first);
 	Bk_local_slim[xdex][ybin].push_back(howdy.second);
       }
@@ -924,7 +907,7 @@ void MMT_Parameters::fill_crep_table(const string&dir,const string&tag){
   int nk=nsimmax_1d();
   ostringstream crep_nom;crep_nom<<dir<<(dir.substr(dir.length()-1)=="/"?"":"/")<<"pcrep"<<bill.print_pars()<<"_"<<tag<<".txt";
   ifstream crep(crep_nom.str().c_str());
-  crep_table=vector<vector<vector<vector<double> > > >(n_etabins,vector<vector<vector<double> > >(n_phibins,vector<vector<double> >(nk,vector<double>(3,0))));
+  crep_table=vector<vector<vector<vector<float> > > >(n_etabins,vector<vector<vector<float> > >(n_phibins,vector<vector<float> >(nk,vector<float>(3,0))));
   if(crep.good()){
     for(int i=0;i<n_etabins;i++){
       string estr=eta_str(i);
@@ -934,7 +917,7 @@ void MMT_Parameters::fill_crep_table(const string&dir,const string&tag){
 	string title;double the,phi,dth;
 	crep>>title;
 	if(title!=estr+pstr+index_to_hit_str(k)){
-	  cerr<<"Something's wrong with your simulation-based correct read-in...you want entries for "<<estr+pstr+index_to_hit_str(k)<<", but you got "<<title<<" in "<<crep_nom.str()<<endl;
+	  ATH_MSG_WARNING("Something's wrong with your simulation-based correct read-in...you want entries for "<<estr+pstr+index_to_hit_str(k)<<", but you got "<<title<<" in "<<crep_nom.str());
 	  exit(2);
 	}
 	crep>>the>>phi>>dth;
@@ -985,11 +968,11 @@ void MMT_Parameters::index_key_test(){
     for(int ybin=0;ybin<ybins;ybin++){
       if(ybin==ybins-1)ntru=1;
       for(int which=0;which<ntru;which++){
-	cout<<"Let's start with ["<<xdex<<"]["<<ybin<<"]["<<which<<"] makes ";
+	ATH_MSG_DEBUG("Let's start with ["<<xdex<<"]["<<ybin<<"]["<<which<<"] makes ");
 	vector<int>key(indices_to_key(xdex,ybin,which));
-	for(int i=0;i<(int)key.size();i++) cout<<key[i]<<" ";
+	for(int i=0;i<(int)key.size();i++) ATH_MSG_DEBUG(key[i]<<" ");
 	int x,y,w; key_to_indices(key,x,y,w);
-	cout<<"...and back to ["<<x<<"]["<<y<<"]["<<w<<"]  "<<endl;
+	ATH_MSG_DEBUG("...and back to ["<<x<<"]["<<y<<"]["<<w<<"]  ");
       }
     }
   }
@@ -1061,12 +1044,12 @@ void MMT_Parameters::Slope_Components_ROI(){
       Slope_to_ROI[jy][ix][1] = phi;
     }
   }
-  if(debug) cout << "return Slope_Components_ROI" << endl;
+  ATH_MSG_DEBUG( "return Slope_Components_ROI" );
 }
 
 void MMT_Parameters::Delta_theta_optimization_LG(){
   DT_Factors.clear();
-  double a=1.;   //sin(pi/2+degtorad(28/4));  //sin(phi);
+  double a=1.;   //sin(pi/2+TMath::DegToRad(28/4));  //sin(phi);
   int number_LG_regions = 256;
   double LG_min = 0, LG_max = 0.5, LG_region_width = (LG_max - LG_min)/number_LG_regions;//LG_min=0 means e no neg slopes
   
@@ -1076,12 +1059,12 @@ void MMT_Parameters::Delta_theta_optimization_LG(){
     bah_humbug.push_back(1 / (a + bah_humbug.front()/a));//mult_factor
     DT_Factors.push_back(bah_humbug);
   }
-  if(debug) cout << "return Delta_theta_optimization_LG" << endl;
+  ATH_MSG_DEBUG( "return Delta_theta_optimization_LG" );
 }
 
 int MMT_Parameters::xhits_to_lcl_int(const vector<bool>& xhits) const{
   if(xhits.size()!=4){
-    cerr<<"There should be 4 xplanes, only "<<xhits.size()<<" in the xhit vector given to local_slope_index()\n"; exit(99);
+    ATH_MSG_WARNING("There should be 4 xplanes, only "<<xhits.size()<<" in the xhit vector given to local_slope_index()\n"); exit(99);
   }
   if(xhits[0]&& xhits[1]&& xhits[2]&& xhits[3]) return 0;
   else if( xhits[0]&& xhits[1]&& xhits[2]&&!xhits[3]) return 1;
@@ -1130,7 +1113,7 @@ string MMT_Parameters::bool_to_hit_str(const vector<bool>&track)const{
 vector<bool> MMT_Parameters::lcl_int_to_xhits(int lcl_int)const{
   vector<bool> xhits(4,true);
   if(lcl_int<0||lcl_int>10){
-    cerr<<"Wherefore dost thou chooseth the hits of planes of X for thy lcl_int "<<lcl_int<<"?  'Tis not in [0,10]!"<<endl; exit(-99);
+    ATH_MSG_WARNING("Wherefore dost thou chooseth the hits of planes of X for thy lcl_int "<<lcl_int<<"?  'Tis not in [0,10]!"); exit(-99);
   }
   if(lcl_int==0) return xhits;
   if(lcl_int==1||lcl_int==5||lcl_int==6||lcl_int==8)xhits[3]=false;
@@ -1154,27 +1137,27 @@ evInf_entry::evInf_entry(int event,int pdg,double e,double p,double ieta,double 
    dtheta(dth),truth_n(trn),mu_n(mun),vertex(tex),truth_roi(troi),N_hits_preVMM(antev),N_hits_postVMM(postv),N_X_hits(nxh),N_UV_hits(nuvh),NX_bg_preVMM(nxbg),
    NUV_bg_preVMM(nuvbg),avg_drift_time(adt),max_less_min_hitsteps_X(difx),max_less_min_hitsteps_UV(difuv),pass_cut(cut),bad_wedge(bad) {}
 void evInf_entry::print() const{
-  cout<<"*****************EVINF_ENTRY****************"<<endl
-      <<"Event ("<<athena_event<<") Info, cuts "<<(pass_cut?"passed":"failed")<<endl
-      <<"truth_n: "<<truth_n<<", pdg_id="<<pdg_id<<", mu_n: "<<mu_n<<"; Incident (E,pt)=("<<E<<","<<pt<<")"
-      <<"  eta---ip: "<<eta_ip<<", pos:"<<eta_pos<<", ent: "<<eta_ent<<endl
-      <<"  phi---ip: "<<phi_ip<<", pos:"<<phi_pos<<", ent: "<<phi_ent<<endl
-      <<"theta---ip: "<<theta_ip<<", pos:"<<theta_pos<<", ent: "<<theta_ent<<endl
-      <<"N_hits---preV: "<<N_hits_preVMM<<", postV:"<<N_hits_postVMM<<", x: "<<N_X_hits<<", uv: "<<N_UV_hits<<", xbg: "<<NX_bg_preVMM<<", uvbg: "<<NUV_bg_preVMM<<endl
-      <<"********************************************"<<endl;
-  //don't currently look at truth_roi, avg drift time, max less min hitstepsX/UV
+  // ATH_MSG_INFO("*****************EVINF_ENTRY****************"<<endl
+  //     <<"Event ("<<athena_event<<") Info, cuts "<<(pass_cut?"passed":"failed")<<endl
+  //     <<"truth_n: "<<truth_n<<", pdg_id="<<pdg_id<<", mu_n: "<<mu_n<<"; Incident (E,pt)=("<<E<<","<<pt<<")"
+  //     <<"  eta---ip: "<<eta_ip<<", pos:"<<eta_pos<<", ent: "<<eta_ent<<endl
+  //     <<"  phi---ip: "<<phi_ip<<", pos:"<<phi_pos<<", ent: "<<phi_ent<<endl
+  //     <<"theta---ip: "<<theta_ip<<", pos:"<<theta_pos<<", ent: "<<theta_ent<<endl
+  //     <<"N_hits---preV: "<<N_hits_preVMM<<", postV:"<<N_hits_postVMM<<", x: "<<N_X_hits<<", uv: "<<N_UV_hits<<", xbg: "<<NX_bg_preVMM<<", uvbg: "<<NUV_bg_preVMM<<endl
+  //     <<"********************************************");
+  // //don't currently look at truth_roi, avg drift time, max less min hitstepsX/UV
 }
 
 evFit_entry::evFit_entry(int event,float32fixed<4> fthe,float32fixed<4> fphi,float32fixed<2> fdth,int roi,int xhit,int uvhit,int bgx,int bguv,float32fixed<2> dth_nd,int hc,int tph,int bgph)
   :athena_event(event),fit_theta(fthe),fit_phi(fphi),fit_dtheta(fdth),fit_roi(roi),X_hits_in_fit(xhit),UV_hits_in_fit(uvhit),bg_X_fit(bgx),
    bg_UV_fit(bguv),dtheta_nodiv(dth_nd),hcode(hc),truth_planes_hit(tph),bg_planes_hit(bgph) {}
 void evFit_entry::print()const{
-  cout<<"----------------EVFIT_ENTRY-----------------"<<endl
-      <<"Event ("<<athena_event<<") Fit,"<<endl
-      <<"fit---theta "<<fit_theta.getFloat()<<", phi: "<<fit_phi.getFloat()<<", dtheta: "<<fit_dtheta.getFloat()<<", roi: "<<fit_roi<<endl
-      <<"fit hits---x: "<<X_hits_in_fit<<", uv:"<<UV_hits_in_fit<<", bgx: "<<bg_X_fit<<", bguv: "<<bg_UV_fit<<endl
-      <<"dtheta no div: "<<dtheta_nodiv.getFloat()<<", truth planes hit:"<<truth_planes_hit<<", bg planes hit: "<<bg_planes_hit<<endl
-      <<"--------------------------------------------"<<endl;
+  // ATH_MSG_INFO("----------------EVFIT_ENTRY-----------------"<<endl
+  //     <<"Event ("<<athena_event<<") Fit,"<<endl
+  //     <<"fit---theta "<<fit_theta.getFloat()<<", phi: "<<fit_phi.getFloat()<<", dtheta: "<<fit_dtheta.getFloat()<<", roi: "<<fit_roi<<endl
+  //     <<"fit hits---x: "<<X_hits_in_fit<<", uv:"<<UV_hits_in_fit<<", bgx: "<<bg_X_fit<<", bguv: "<<bg_UV_fit<<endl
+  //     <<"dtheta no div: "<<dtheta_nodiv.getFloat()<<", truth planes hit:"<<truth_planes_hit<<", bg planes hit: "<<bg_planes_hit<<endl
+  //     <<"--------------------------------------------");
 }
 
 hdst_key::hdst_key(int bct, double t, double gt, int vmm, int ev):BC_time(bct),time(t),gtime(gt),VMM_chip(vmm),event(ev) {}
@@ -1224,38 +1207,35 @@ string hdst_key::str()const{
   return out.str();
 }
 void hdst_key::print()const{
-  cout<<"^^^^^^hdst_key"<<hdr()<<str()<<endl;
+  // ATH_MSG_INFO("^^^^^^hdst_key"<<hdr());
 }
 
 
 hdst_info::hdst_info(int pl,int station_eta,int strip,MMT_Parameters *m_par,const TVector3&tru,double tpos,double ppos):plane(pl){
-  bool quack=false&&debug;
-  quack = true;
-  if(quack)cout<<"BEGIN hdst_info construtor for plane "<<pl<<", esta "<<station_eta<<", m_par: "<<m_par<<", (truth theta: "<<tpos<<",phi: "<<ppos<<") print tru...."<<endl;
-  if(quack)tru.Print();
+  // ATH_MSG_DEBUG( "BEGIN hdst_info construtor for plane "<<pl<<", esta "<<station_eta<<", m_par: "<<m_par<<", (truth theta: "<<tpos<<",phi: "<<ppos<<") print tru....");
+  // ATH_MSG_DEBUG(tru.Print() );
   //The idea here is to calculate/assign a y and a z to a given hit based on its pl/station/strip, the geometry of the detector (in m_par), and misalignment based on position.
   //We start by assigning the plane dependent strip width (the stereo planes come in skew and so get divided by cos(stereo_angle)
   char schar=m_par->setup[plane];
   bool horizontal=(schar=='x'||schar=='X');
-  if(quack)cout<<"We have a "<<(horizontal?"horizontal":"stereo")<<" hit in plane "<<plane<<", station_eta "<<station_eta<<", strip# "<<strip;
+  // ATH_MSG_DEBUG("We have a "<<(horizontal?"horizontal":"stereo")<<" hit in plane "<<plane<<", station_eta "<<station_eta<<", strip# "<<strip);
   double swidth=m_par->strip_width.getFloat(), base=m_par->ybases[plane][station_eta-1].getFloat(),zplane=m_par->z_nominal[plane].getFloat(),planebase=m_par->ybases[plane].front().getFloat();
-  if(!horizontal)swidth/=cos(degtorad(m_par->stereo_degree.getFloat()));
+  if(!horizontal)swidth/=cos(TMath::DegToRad()*(m_par->stereo_degree.getFloat()));
   //Next, we initialize some constants--y will eventually be calculated as y=base+scale*(width*strip+delta_y(misalignment,correction)).
   //The correction portion of delta_y is done in in the calculations on the ybases object in m_par
   //yup, or "y up" is the portion of y above the base of the plane (i.e. in the detector)
   double delta_y=mis_dy(pl,m_par,tpos,ppos),yup_scale=1.;
 //   if(plane<4&&m_par->correct.type==2){yup_scale*=cos(m_par->correct.rotate.X());delta_y+=m_par->correct.translate.Y();}
-  if(quack)cout<<"and a delta_y of "<<delta_y<<endl;
+  // ATH_MSG_DEBUG("and a delta_y of "<<delta_y);
   double yflt=-999;
   yflt=base+(strip*swidth+delta_y)*yup_scale;
-  if(quack)cout<<"Naively, y="<<base<<"+"<<strip<<"*"<<swidth<<"="<<base+strip*swidth<<", but dy(mis,corr)="<<delta_y<<", and yup_scale="<<yup_scale<<", so y="<<yflt;
+  // ATH_MSG_DEBUG("Naively, y="<<base<<"+"<<strip<<"*"<<swidth<<"="<<base+strip*swidth<<", but dy(mis,corr)="<<delta_y<<", and yup_scale="<<yup_scale<<", so y="<<yflt);
   //Note that ybin should be calculated on the basis of a misaligned y, not a corrected one (to get the position on the wedge just right), 
   //but the difference for this part of the calculation should be negligible (an effect of <~ misal/(bin length) ~ (5 mm/(3600 mm/15)) ~ %.
   double bozoY = sqrt(tru.X()*tru.X() + tru.Y()*tru.Y());
   int bin=m_par->ybin(yflt,plane);
-  if(quack)cout<<"....which leads to finding a bin in y of "<<bin<<"....";
+  // ATH_MSG_DEBUG("....which leads to finding a bin in y of "<<bin<<"....");
 
-  std::cout << "LOOK BOZINO " << bozoY << std::endl;
   //We have here both the "perfect" and binned z calculations/lookups; the commented out one is there for reference
   double zflt=m_par->z_large[bin][plane].getFloat();
   if(m_par->correct.type==2&&plane<4&&m_par->correct.rotate.X()!=0){
@@ -1266,43 +1246,51 @@ hdst_info::hdst_info(int pl,int station_eta,int strip,MMT_Parameters *m_par,cons
   y=yflt/store_const();z=zflt/store_const();
 
   slope=y/z;
-  //slope = float32fixed<2>(bozoY/store_const())/z;
-  if(quack){
-    double oslope=(base+(strip)*swidth)/zplane,mslope=yflt/zplane;
-    cout<<"....after correction for a y value of "<<yflt<<", with a z of "<<zflt<<" for slopes...."<<endl
-	<<"an ORIGINAL slope: "<<oslope
-	<<", an ALGORITHM (corr) slope "<<slope.getFloat()<<" (diff_ratio "<<slope.getFloat()/oslope-1.<<")"
-	<<", a MISAL slope: "<<mslope<<" (diff_ratio "<<mslope/oslope-1.<<")"<<endl<<endl;
-  }
+  double oslope=(base+(strip)*swidth)/zplane,mslope=yflt/zplane;
+  // ATH_MSG_DEBUG("....after correction for a y value of "<<yflt<<", with a z of "<<zflt<<" for slopes....");
+  // ATH_MSG_DEBUG("an ORIGINAL slope: "<<oslope );
+  // ATH_MSG_DEBUG(", an ALGORITHM (corr) slope "<<slope.getFloat()<<" (diff_ratio "<<slope.getFloat()/oslope-1.<<")" );
+  // ATH_MSG_DEBUG(", a MISAL slope: "<<mslope<<" (diff_ratio "<<mslope/oslope-1.<<")");
+
 }
 
 double hdst_info::mis_dy(int plane,MMT_Parameters *m_par,double tpos,double ppos)const{
-  bool quack=false&&debug;
+  // bool quack=false&&debug;
   if(m_par->misal.type!=1||plane>3)return 0.;
   double swidth=m_par->strip_width.getFloat(), zplane=m_par->z_nominal[plane].getFloat(),base=m_par->ybases[plane].front().getFloat();
   double s_z0=zplane,s_x0=zplane*tan(tpos)*sin(ppos),s_y0=zplane*tan(tpos)*cos(ppos);//initial position
-  if(quack)cout<<"Projected truth position ("<<s_x0<<","<<s_y0<<","<<s_z0<<") or, in local coordinates, ("<<s_x0<<","<<s_y0-base<<","<<s_z0-zplane<<")"<<endl;
+  // ATH_MSG_DEBUG("Projected truth position ("<<s_x0<<","<<s_y0<<","<<s_z0<<") or, in local coordinates, ("<<s_x0<<","<<s_y0-base<<","<<s_z0-zplane<<")");
   double hats_z0=cos(tpos),hats_x0=sin(tpos)*sin(ppos),hats_y0=sin(tpos)*cos(ppos);//muon track unit vector
   double zeta_y0=s_y0-base;//height in y in the wedge local coordinates--this is what we have to compare in the end
   double alpha=m_par->misal.rotate.Z(),beta=m_par->misal.rotate.Y(),gamma=m_par->misal.rotate.X();//rotation angles
   double ds=m_par->misal.translate.X(),dz=m_par->misal.translate.Y(),dt=-1.*m_par->misal.translate.Z();//t comes in -z
-  if(quack)cout<<"MISALIGNMENT PARAMETERS: (ds,dz,dt;gamma,beta,alpha)=("<<ds<<","<<dz<<","<<dt<<";"<<gamma<<","<<beta<<","<<alpha<<")"<<endl;
+  // ATH_MSG_DEBUG("MISALIGNMENT PARAMETERS: (ds,dz,dt;gamma,beta,alpha)=("<<ds<<","<<dz<<","<<dt<<";"<<gamma<<","<<beta<<","<<alpha<<")");
   double O_bxf=ds,O_byf=base+dz,O_bzf=zplane+dt;//position of bottom of the wedge in global coordinates; subtract this from the final y position (s_yf) for final zeta (comparison to add to y position)
-  if(quack)cout<<"MISALIGNMENT plane base moves from: ("<<0<<","<<base<<","<<zplane<<") to ("<<O_bxf<<","<<O_byf<<","<<O_bzf<<")..."<<endl;
+  // ATH_MSG_DEBUG("MISALIGNMENT plane base moves from: ("<<0<<","<<base<<","<<zplane<<") to ("<<O_bxf<<","<<O_byf<<","<<O_bzf<<")...");
   double yhat_x=-1.*sin(alpha)*cos(beta),yhat_y=(cos(alpha)*cos(gamma)-sin(alpha)*sin(beta)*sin(gamma)),yhat_z=(cos(alpha)*sin(gamma)+sin(alpha)*sin(beta)*cos(gamma));//new y direction after rotations; horizontal case
   char schar=m_par->setup[plane];
   if(!(schar=='x'||schar=='X')){
     //if we're in a stereo plane, calculate different coefficients.
-    double omega=degtorad(m_par->stereo_degree.getFloat()),pm=(schar=='u'||schar=='U'?1.:-1.);
+    double omega=TMath::DegToRad()*(m_par->stereo_degree.getFloat());
+    double pm=(schar=='u'||schar=='U'?1.:-1.);
     yhat_x=pm*cos(alpha)*cos(beta)*sin(omega)-sin(alpha)*cos(beta)*cos(omega);
     yhat_y=pm*sin(omega)*(sin(alpha)*cos(gamma)+cos(alpha)*sin(beta)*sin(gamma))+cos(omega)*(cos(alpha)*cos(gamma)-sin(alpha)*sin(beta)*sin(gamma));
     yhat_z=pm*sin(omega)*(sin(alpha)*sin(gamma)-cos(alpha)*sin(beta)*cos(gamma))+cos(omega)*(cos(alpha)*sin(gamma)+sin(alpha)*sin(beta)*cos(gamma));
     zeta_y0=pm*sin(omega)*s_x0+cos(omega)*(s_y0-base);
   }
   double kprime=(sin(beta)*O_bxf-cos(beta)*sin(gamma)*O_byf+cos(beta)*cos(gamma)*O_bzf)/(sin(beta)*hats_x0-cos(beta)*sin(gamma)*hats_y0+cos(beta)*cos(gamma)*hats_z0);
-  if(quack)cout<<"MISALIGNMENT for plane "<<schar<<" makes a kprime/k of "<<kprime*cos(tpos)/zplane<<" and a yhat of ("<<yhat_x<<","<<yhat_y<<","<<yhat_z<<")...";
+  // ATH_MSG_DEBUG("MISALIGNMENT for plane "<<
+    // schar<<" makes a kprime/k of "<<
+    // kprime*cos(tpos)/zplane<<
+    // " and a yhat of ("<<yhat_x<<","<<yhat_y<<","<<yhat_z<<")...");
   double zeta_xf=kprime*hats_x0-O_bxf,zeta_yf=kprime*hats_y0-O_byf,zeta_zf=kprime*hats_z0-O_bzf;
-  if(quack)cout<<"which leads to, in the old local coordinates, a new intersection point at ("<<zeta_xf<<","<<zeta_yf<<","<<zeta_zf<<")---and in the new global coordinates at ("<<kprime*hats_x0<<","<<kprime*hats_y0<<","<<kprime*hats_z0<<")!"<<endl;
+  // ATH_MSG_DEBUG("which leads to, in the old local coordinates, a new intersection point at ("<<
+  //   zeta_xf<<","<<
+  //   zeta_yf<<","<<
+  //   zeta_zf<<")---and in the new global coordinates at ("<<
+  //   kprime*hats_x0<<","<<
+  //   kprime*hats_y0<<","<<
+  //   kprime*hats_z0<<")!");
   double zetayf_yhatf=zeta_xf*yhat_x+zeta_yf*yhat_y+zeta_zf*yhat_z;
   return zetayf_yhatf-zeta_y0;
 }
@@ -1323,7 +1311,7 @@ string hdst_info::str()const{
   return out.str();
 }
 void hdst_info::print()const{
-  cout<<"-------hdst_info"<<hdr()<<str()<<endl;
+  // ATH_MSG_INFO("------- hdst_info: "<<hdr() );
 }
 
 bool hdst_info::operator==(const hdst_info& rhs) const{
@@ -1339,16 +1327,14 @@ bool Hit::operator==(const Hit& rhs) const{
 }
 
 void Hit::print_track(const vector<Hit>& track) const{
-  cout<<"##########################"<<endl;
-  cout<<track.front().key.hdr()<<track.front().info.hdr()<<endl;
-    for(unsigned int i=0; i<track.size(); i++)cout<<track[i].key.hdr()<<track[i].info.hdr()<<endl;
-  cout<<"##########################"<<endl;
+  // ATH_MSG_INFO(track.front().key.hdr()<<track.front().info.hdr());
+  // for(unsigned int i=0; i<track.size(); i++) ATH_MSG_INFO( track[i].key.hdr()<<track[i].info.hdr() ) ;
 }
 
 void Hit::print() const{
-  cout<<"%%%%%%HIT%%%%%%"<<endl;
-  cout<<key.hdr()<<info.hdr()<<endl;
-  cout<<key.str()<<info.str()<<endl;
+  // ATH_MSG_INFO( "%%%%%%HIT%%%%%%");
+  // ATH_MSG_INFO( key.hdr()<<info.hdr());
+  // ATH_MSG_INFO( key.str()<<info.str());
 }
 
 hdst_entry::hdst_entry(int ev, double gt, double q, int vmm, int pl, int st, int est, double tr_the, double tru_phi,
@@ -1376,20 +1362,21 @@ void hdst_entry::fit_fill(float32fixed<4> fthe,float32fixed<4> fphi, float32fixe
 }
 
 void hdst_entry::print() const{
-  cout<<"%%%%%%%%%%%%%%%%HDST_ENTRY%%%%%%%%%%%%%%%%%%"<<endl
-      <<"(Event,BC_time,time): ("<<event<<","<<BC_time<<","<<time<<"), "<<(truth_nbg?"truth":"bg")<<", charge: "<<charge<<endl
-      <<"Wedge Coord---plane: "<<plane<<", strip: "<<strip<<", est: "<<station_eta<<", vmm: "<<VMM_chip<<", ip theta: "<<tru_theta_ip<<", ip phi: "<<tru_phi_ip<<endl
-      <<"truth angles---dtheta: "<<tru_dtheta<<endl//", theta(loc): "<<tru_theta_local<<", theta(glo): "<<tru_theta_global<<endl
-      <<"Truth vertex: \n";
-  truth.Print();
-  cout<<"Recon vertex: \n";
-  recon.Print();
-  cout<<"FIT---roi: "<<roi<<endl
-      <<"        angles---theta: "<<fit_theta.getValue()<<", phi: "<<fit_phi.getValue()<<", dtheta: "<<fit_dtheta.getValue()<<endl
-      <<"slopes, global---x: "<<M_x_global.getValue()<<", u: "<<M_u_global.getValue()<<", v: "<<M_v_global.getValue()<<endl
-      <<"slopes,  other---x(loc): "<<M_x_local.getValue()<<", x(coord): "<<mx.getValue()<<", y(coord): "<<my.getValue()<<endl
-      <<"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"<<endl;
+  // ATH_MSG_INFO( "%%%%%%%%%%%%%%%%HDST_ENTRY%%%%%%%%%%%%%%%%%%"<<endl
+  //     <<"(Event,BC_time,time): ("<<event<<","<<BC_time<<","<<time<<"), "<<(truth_nbg?"truth":"bg")<<", charge: "<<charge<<endl
+  //     <<"Wedge Coord---plane: "<<plane<<", strip: "<<strip<<", est: "<<station_eta<<", vmm: "<<VMM_chip<<", ip theta: "<<tru_theta_ip<<", ip phi: "<<tru_phi_ip<<endl
+  //     <<"truth angles---dtheta: "<<tru_dtheta<<endl//", theta(loc): "<<tru_theta_local<<", theta(glo): "<<tru_theta_global<<endl
+  //     <<"Truth vertex: \n");
+  // truth.Print();
+  // ATH_MSG_INFO( "Recon vertex: \n");
+  // recon.Print();
+  // ATH_MSG_INFO( "FIT---roi: "<<roi<<endl
+  //     <<"        angles---theta: "<<fit_theta.getValue()<<", phi: "<<fit_phi.getValue()<<", dtheta: "<<fit_dtheta.getValue()<<endl
+  //     <<"slopes, global---x: "<<M_x_global.getValue()<<", u: "<<M_u_global.getValue()<<", v: "<<M_v_global.getValue()<<endl
+  //     <<"slopes,  other---x(loc): "<<M_x_local.getValue()<<", x(coord): "<<mx.getValue()<<", y(coord): "<<my.getValue()<<endl
+  //     <<"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
 }
+
 finder_entry::finder_entry(bool _is_hit, int _clock,const Hit& k):
   is_hit(_is_hit), clock(_clock), hit(k) {}
 

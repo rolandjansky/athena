@@ -2,18 +2,21 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// Athena/Gaudi includes
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
 #include "MMT_Finder.h"
 
-MMT_Finder::MMT_Finder(MMT_Parameters *par){
+MMT_Finder::MMT_Finder(MMT_Parameters *par): m_msg("MMT_Finder"){
   m_par = par;
-  if(debug) cout<<"MMT_Find::building finder"<< endl;
+  ATH_MSG_DEBUG("MMT_Find::building finder");
   roads=ceil(1.*(m_par->slope_max-m_par->slope_min)/m_par->h.getFloat());//initialization, can use floats
   int nplanes=m_par->setup.size();
-  if(debug) cout<<"MMT_Find::finder entries " << roads << " " << m_par->slope_max.getFloat() << " " << m_par->slope_min.getFloat() << " " << m_par->h.getFloat() << endl;
+  ATH_MSG_DEBUG("MMT_Find::finder entries " << roads << " " << m_par->slope_max.getFloat() << " " << m_par->slope_min.getFloat() << " " << m_par->h.getFloat() );
   Gate_Flags=vector<vector<double> >(roads,(vector<double>(2,0)));// sloperoad,   
   //plane, [10*xhits+uvhits,hit yes/no]//[hit yes/no, time_stamp]
   Finder=vector<vector<finder_entry> >(roads,(vector<finder_entry>(nplanes,finder_entry())));  //[strip,slope,hit_index];
-  if(debug) cout<<"MMT_Find::built finder"<< endl;
+  ATH_MSG_DEBUG("MMT_Find::built finder");
 }
 
 void MMT_Finder::fillHitBuffer(map<pair<int,int>,finder_entry>& evFinder, const Hit& hit) const{
@@ -22,7 +25,7 @@ void MMT_Finder::fillHitBuffer(map<pair<int,int>,finder_entry>& evFinder, const 
   float32fixed<3> h=m_par->h.getFloat();
   //Conver hit to slope here
   float32fixed<3> slope=hit.info.slope.getFloat();
-  std::cout << "SLOPE " << hit.info.slope.getFloat() << std::endl;
+  ATH_MSG_DEBUG("SLOPE " << hit.info.slope.getFloat() );
 
   //Plane and key info of the hit
   hdst_key hkey=hit.key;
@@ -73,7 +76,7 @@ void MMT_Finder::checkBufferForHits(vector<bool>& plane_is_hit, vector<Hit>& tra
 int MMT_Finder::Coincidence_Gate(const vector<bool>& plane_hits) const{
   //8 for eight detector planes
   if(plane_hits.size()!=8){
-    std::cout << "HITS NOT EQUAL TO 8!" << std::endl;
+    ATH_MSG_DEBUG("HITS NOT EQUAL TO 8!" );
   }
   //Might want to establish a heirarchy of gates
   //Eg, 4X+4UV > 3+3.   Also,
@@ -94,12 +97,12 @@ int MMT_Finder::Coincidence_Gate(const vector<bool>& plane_hits) const{
   value = 10*X_count+UV_count;
   if(!xpass||!uvpass){
     value*=-1;
-    if(value<-10)cout<<"CG hit count fail with value: "<<value<<endl;
+    if(value<-10) ATH_MSG_INFO("CG hit count fail with value: "<<value);
   }
   else if(!fbpass&&X_count+UV_count>0){
     if(value>0)value*=-1;
     value-=5;
-    cout<<"CG quadruplet fail with value: "<<value<<endl;
+    ATH_MSG_INFO("CG quadruplet fail with value: "<<value);
   }
   return value;
 }

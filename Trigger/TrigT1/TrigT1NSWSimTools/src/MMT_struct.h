@@ -21,15 +21,19 @@
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
+#include "AthenaKernel/MsgStreamMember.h"
+
+
 #include "TTree.h"
 #include "TH1F.h"
 #include "TLorentzVector.h"
+#include "TMath.h"
 
 using namespace std;
 using namespace fpml;
 
 //flags
-const bool debug=false;
+// const bool debug=false;
 const bool use_fix_point = true;
 const double crep_pt=200.;
 /*
@@ -41,10 +45,10 @@ const double crep_pt=200.;
 
 //constants and convsersions
 const int yzdex=2,bkdex=13,zbardex=2;
-double pi();
+// double pi();
 double store_const();
-double degtorad(double degree_value);
-double radtodeg(double radian_value);
+// double degtorad(double degree_value);
+// double radtodeg(double radian_value);
 
 
 
@@ -82,7 +86,7 @@ template<unsigned char T> class float32fixed
     return (*this)*(-1.0);
   }
 
-  
+
   //these operators might not be generic enough, but we're not sure about the ones defined below, so we keep them
   float operator+(float32fixed<T> other) const{
     if(other.useFloat != useFloat){
@@ -122,29 +126,9 @@ template<unsigned char T> class float32fixed
     if(useFloat)
       return this->floatp_content/other.floatp_content;
     else
-      return float(this->fixp_content/other.fixp_content);    
+      return float(this->fixp_content/other.fixp_content);
   }
 
-  /*
-  //can't write for different T values, so these aren't terribly useful
-  float32fixed<T> operator+(float32fixed<T> other) const{
-    if(useFloat) return float32fixed<T>(other.floatp_content+this->floatp_content);
-    else return float32fixed<T>(other.fixp_content+this->fixp_content);
-  }
-  float32fixed<T> operator-(float32fixed<T> other) const{
-    if(useFloat) return float32fixed<T>(this->floatp_content-other.floatp_content);
-    else return float32fixed<T>(this->fixp_content-other.fixp_content);
-  }
-  float32fixed<T> operator*(float32fixed<T> other) const{
-    if(useFloat) return float32fixed<T>(this->floatp_content*other.floatp_content);
-    else return float32fixed<T>(this->fixp_content*other.fixp_content);
-  }
-  float32fixed<T> operator/(float32fixed<T> other) const{
-    if(useFloat) return float32fixed<T>(this->floatp_content/other.floatp_content);
-    else return float32fixed<T>(this->fixp_content/other.fixp_content);
-  }
-  */
-  //x= type operators
   float32fixed<T> operator+=(float other){
     *this=float32fixed<T>(*this+other);
     return *this;
@@ -223,25 +207,25 @@ template<unsigned char T> class float32fixed
     if(useFloat)
       return other==this->floatp_content;
     else
-      return this->fixp_content==fixed_point<int,T>(other);    
+      return this->fixp_content==fixed_point<int,T>(other);
   }
   bool operator==(float other) const{
     if(useFloat)
       return other==this->floatp_content;
     else
-      return this->fixp_content==fixed_point<int,T>(other);    
+      return this->fixp_content==fixed_point<int,T>(other);
   }
   bool operator==(int other) const{
     if(useFloat)
       return other==this->floatp_content;
     else
-      return this->fixp_content==fixed_point<int,T>(other);    
+      return this->fixp_content==fixed_point<int,T>(other);
   }
   bool operator!=(float other) const{
     if(useFloat)
       return other!=this->floatp_content;
     else
-      return fixed_point<int,T>(other)!=this->fixp_content;    
+      return fixed_point<int,T>(other)!=this->fixp_content;
   }
   bool operator==(float32fixed<T> other) const{
     if(other.useFloat != useFloat){
@@ -261,15 +245,27 @@ template<unsigned char T> class float32fixed
       return float(fixp_content);
   }
 
+
+  // /// Log a message using the Athena controlled logging system
+  // MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
+  // /// Check whether the logging system is active at the provided verbosity level
+  // bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
+
+
  private:
   bool useFloat;
 
   fixed_point<int,T> fixp_content;
   float floatp_content;
+
+
+  /// Private message stream member
+  // mutable Athena::MsgStreamMember m_msg;
+
 };
 
 struct std_align{
-  //match alignments in the standard documentation; 
+  //match alignments in the standard documentation;
   //note that we're working in a wedge with \phi_0 in the misalignment document of pi/2; hence,
   //the par_cor_mis (X,Y,Z)-->(T,S,Z)--(end cap side A, (Z>0))-->(s,z,t) rotations (gamma,beta,alpha)
   //so let's do show the correspondence between par_cor_mis and this new std_align, struct (we only do the back quadruplet)
@@ -290,6 +286,16 @@ struct std_align{
   //members
   int type;//corresponds to qcm; 0 (nominal case: no misal/correction), 1 (misalignment), 2 (correction), 3 (sim_correction; do corrections based on simulation results)
   TVector3 translate,rotate;
+
+
+  // /// Log a message using the Athena controlled logging system
+  // MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
+  // /// Check whether the logging system is active at the provided verbosity level
+  // bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
+
+  // /// Private message stream member
+  // mutable Athena::MsgStreamMember m_msg;
+
 };
 
 struct gcm_key{
@@ -318,7 +324,7 @@ struct gcm_key{
 };
 
 struct par_par{
-  par_par(double _h,int xct=0,int uvct=0,double uver=0,const string& setup="",bool ql=true,bool q_dlm=false,bool qbg=0,double _qt=1.,std_align mis=std_align(0),std_align cor=std_align(0),bool fill_tab=true,int cs=0,const string&pd="",const string&tg=""); 
+  par_par(double _h,int xct=0,int uvct=0,double uver=0,const string& setup="",bool ql=true,bool q_dlm=false,bool qbg=0,double _qt=1.,std_align mis=std_align(0),std_align cor=std_align(0),bool fill_tab=true,int cs=0,const string&pd="",const string&tg="");
   par_par();
   void set_parameter(const string&par);
   void set_misalign(double tx=0,double ty=0,double tz=0,double rx=0,double ry=0,double rz=0);
@@ -344,13 +350,24 @@ struct par_par{
   bool fill_val;
   int colskip;
   string pcrep_dir,tag;
+
+
+  // /// Log a message using the Athena controlled logging system
+  // MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
+  // /// Check whether the logging system is active at the provided verbosity level
+  // bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
+
+  // /// Private message stream member
+  // mutable Athena::MsgStreamMember m_msg;
+
+
 };
 
 const par_par standard=par_par(0.0009,4,4,0.0035,"xxuvxxuv",true);
-const par_par dlm=par_par(0.0009,4,4,0.007,"xxuvuvxx",true,true); //.0035 for uv_tol before... 
+const par_par dlm=par_par(0.0009,4,4,0.007,"xxuvuvxx",true,true); //.0035 for uv_tol before...
 
 class MMT_Parameters{
- public: 
+ public:
   MMT_Parameters(par_par varied,char wedgeSize, const MuonGM::MuonDetectorManager* m_detManager);
 
   std::vector<Amg::Vector3D> MM_firststrip_positions(const MuonGM::MuonDetectorManager* m_detManager, const std::string& wedge, int eta);
@@ -417,7 +434,7 @@ class MMT_Parameters{
   //theta, phi, hit code, theta/phi/dtheta
   //hit code: binary stuff....
   //old hit code...%mis X, %mis UV: 2-4 X, 1-4 UV possible fractions: 0,1/2,1/3,2/3,1/4,(3/4,not possible with only one misaligned multiplet), 1: 0,3,4,6,8,12
-  vector<vector<vector<vector<double> > > >crep_table;
+  vector<vector<vector<vector<float> > > >crep_table;
   vector<vector<vector<float32fixed<yzdex> > > >ymod,zmod;
 
   //a toggle
@@ -454,18 +471,27 @@ class MMT_Parameters{
   vector<vector<float32fixed<18> > > ybases;//by stationEta--saved from file, hardcoded, alternative is equally spaced, in MMT_Loader::Get_Strip_Id
   float32fixed<2> m_x_min,m_x_max,m_y_min,m_y_max,h_mx, h_my;
   int n_x,n_y;
-  
+
   float32fixed<3> slope_min, slope_max;
   float32fixed<2> x_error;
   int CT, CT_u, CT_v;
-  
+
   float32fixed<4> minimum_large_theta, maximum_large_theta;
   float32fixed<4> minimum_large_phi, maximum_large_phi;
-  
+
   int n_theta_rois, n_phi_rois, BC_window;
-  
+
   float32fixed<18> mid_plane_large_X, mid_plane_large, mid_plane_large_UV;
   float32fixed<4> vertical_strip_width_UV;
+
+  /// Log a message using the Athena controlled logging system
+  MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
+  /// Check whether the logging system is active at the provided verbosity level
+  bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
+
+  /// Private message stream member
+  mutable Athena::MsgStreamMember m_msg;
+
 
 };
 
@@ -495,6 +521,8 @@ struct evInf_entry{
   double avg_drift_time;
   int max_less_min_hitsteps_X,max_less_min_hitsteps_UV;
   bool pass_cut,bad_wedge;
+
+
 };
 
 struct hdst_key{
@@ -517,6 +545,8 @@ struct hdst_key{
   int BC_time;
   double time,gtime;
   int VMM_chip,event;
+
+
 };
 
 struct evFit_entry{
@@ -534,6 +564,8 @@ struct evFit_entry{
   float32fixed<2> dtheta_nodiv;
   int hcode,truth_planes_hit,bg_planes_hit;
   vector<hdst_key> fit_hit_keys;
+
+
 };
 
 struct evAna_entry{
@@ -548,11 +580,10 @@ struct hdst_info{
   hdst_info(int plane,int station_eta,int strip,MMT_Parameters *m_par,const TVector3& tru,double tpos,double ppos);
   hdst_info(int pl=0,double _y=0,double _z=-999);
   hdst_info(const hdst_info& info){plane=info.plane;y=info.y;z=info.z;slope=info.slope;}
-/*   hdst_info(double y,int pl,MMT_Parameters* m_par); */
   double mis_dy(int pl,MMT_Parameters *m_par,double tpos,double ppos)const;
   string hdr()const;
   string str()const;
-  void print()const; 
+  void print()const;
   bool operator==(const hdst_info& rhs) const;
 
   //members
@@ -560,6 +591,16 @@ struct hdst_info{
   //char addc,vmm,strip;//strip is in a vmm (0-63); char for storage as a byte
   float32fixed<yzdex> y,z;//actual values divided by store_const() to make fixed point calculations doable--all this stuff is dimensionless in the end, so it's okay.
   float32fixed<2> slope;
+
+
+  // /// Log a message using the Athena controlled logging system
+  // MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
+  // /// Check whether the logging system is active at the provided verbosity level
+  // bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
+
+  // private:
+  //   /// Private message stream member
+  //   mutable Athena::MsgStreamMember m_msg;
 };
 
 struct Hit{
@@ -593,7 +634,7 @@ struct hdst_entry{
   int VMM_chip,plane,strip,station_eta;
   double tru_theta_ip,tru_phi_ip;
   bool truth_nbg;//truth (i.e. not bg) if true,
-  int BC_time;/*fit theta, phi, dtheta originally here*/ 
+  int BC_time;/*fit theta, phi, dtheta originally here*/
   double time;
   TVector3 truth,recon;
   float32fixed<4> fit_theta,fit_phi;
@@ -601,6 +642,8 @@ struct hdst_entry{
   double tru_dtheta;//,tru_theta_local,tru_theta_global;
   float32fixed<2> M_x_global,M_u_global,M_v_global,M_x_local,mx,my;
   int roi;
+
+
 };
 
 struct finder_entry{
