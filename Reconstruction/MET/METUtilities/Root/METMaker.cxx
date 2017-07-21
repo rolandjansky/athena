@@ -108,7 +108,7 @@ namespace met {
     declareProperty("DoSoftTruth",        m_doSoftTruth        = false               );
     declareProperty("DoJetTruth",         m_doConstJet         = false               );
 
-    declareProperty("JetSelection",       m_jetSelection       = "Default"           );//Default, Tight, PFlow or Expert
+    declareProperty("JetSelection",       m_jetSelection       = "Tight"             );//Loose, Tight, PFlow or Expert
     declareProperty("CustomCentralJetPt", m_customCenJetPtCut  = 20e3                );
     declareProperty("CustomForwardJetPt", m_customFwdJetPtCut  = 20e3                );
     declareProperty("CustomJetJvtCut",    m_customJvtCut       = 0.59                );
@@ -140,7 +140,7 @@ namespace met {
     
     //default jet selection i.e. pre-recommendation
     ATH_MSG_VERBOSE("Use jet selection criterion: " << m_jetSelection);
-    if (m_jetSelection == "Default")     { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; m_JvtCut = 0.59; m_JvtPtMax = 60e3;}
+    if (m_jetSelection == "Loose")     { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; m_JvtCut = 0.59; m_JvtPtMax = 60e3;}
     else if (m_jetSelection == "PFlow")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; m_JvtCut = 0.2; m_JvtPtMax = 60e3;}
     else if (m_jetSelection == "Tight")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 30e3; m_JvtCut = 0.59; m_JvtPtMax = 60e3;}
     else if (m_jetSelection == "Tier0")  { m_CenJetPtCut = 0;    m_FwdJetPtCut = 0;    m_JvtCut = -1;   m_JvtPtMax = 0;}
@@ -151,7 +151,7 @@ namespace met {
       m_JvtCut = m_customJvtCut;
       m_JvtPtMax = m_customJvtPtMax; 
     }
-    else { ATH_MSG_ERROR( "Error: No available jet selection found! Choose one: Default, Tight, PFlow, Expert" ); return StatusCode::FAILURE; }
+    else { ATH_MSG_ERROR( "Error: No available jet selection found! Choose one: Loose, Tight, PFlow, Expert" ); return StatusCode::FAILURE; }
 
     if (!m_jetRejectionDec.empty()) m_extraJetRejection = true;
 
