@@ -27,12 +27,6 @@
 #include "TTree.h"
 #include "TVector3.h"
 
-#include <functional>
-#include <algorithm>
-#include <map>
-#include <utility>
-
-using namespace std;
 
 namespace NSWL1 {
 

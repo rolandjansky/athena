@@ -5,26 +5,10 @@
 #ifndef MMT_FITTER_H
 #define MMT_FITTER_H
 
-//C++ language libararies
-#include <map>
-#include <vector>
-#include <string>
-#include <fstream>
-#include <cmath>
-#include <iostream>
-#include <cstdlib>
-#include <cstdio>
-
 #include "AthenaKernel/MsgStreamMember.h"
-
-//ROOT libraries
-#include "TTree.h"
-#include "TH1F.h"
-#include "TMath.h"
 
 #include "MMT_struct.h"
 
-using namespace std;
 
 class MMT_Fitter{
  public:
