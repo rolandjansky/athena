@@ -39,6 +39,10 @@ namespace ORUtils
   {
     using std::make_unique;
     ATH_MSG_DEBUG("Initializing " << name());
+    ATH_MSG_DEBUG("Base config options: InputLabel " << m_inputLabel <<
+                  " OutputLabel " << m_outputLabel <<
+                  " OutputPassValue " << m_outputPassValue <<
+                  " UserPrio " << m_enableUserPrio);
 
     // Initialize the decoration helper
     m_decHelper = make_unique<OverlapDecorationHelper>

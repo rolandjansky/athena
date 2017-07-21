@@ -33,6 +33,9 @@ namespace ORUtils
   //---------------------------------------------------------------------------
   StatusCode EleMuSharedTrkOverlapTool::initializeDerived()
   {
+    if(m_removeCaloMuons) {
+      ATH_MSG_DEBUG("Configuring removal of overlapping calo muons");
+    }
     return StatusCode::SUCCESS;
   }
 

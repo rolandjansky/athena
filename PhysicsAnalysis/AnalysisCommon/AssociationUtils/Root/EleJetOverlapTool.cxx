@@ -62,6 +62,7 @@ namespace ORUtils
     }
 
     // Initialize the dR matchers
+    ATH_MSG_DEBUG("Configuring ele-jet inner cone size " << m_innerDR);
     m_dRMatchCone1 = make_unique<DeltaRMatcher>(m_innerDR, m_useRapidity);
     if(m_useSlidingDR) {
       ATH_MSG_DEBUG("Configuring sliding outer cone for ele-jet OR with " <<
@@ -72,7 +73,13 @@ namespace ORUtils
           (m_slidingDRC1, m_slidingDRC2, m_slidingDRMaxCone, m_useRapidity);
     }
     else {
+      ATH_MSG_DEBUG("Configuring ele-jet outer cone size " << m_outerDR);
       m_dRMatchCone2 = make_unique<DeltaRMatcher>(m_outerDR, m_useRapidity);
+    }
+
+    // Additional debug printouts
+    if(m_applyPtRatio) {
+      ATH_MSG_DEBUG("Apply ele/jet PT ratio requirement at " << m_eleJetPtRatio);
     }
 
     return StatusCode::SUCCESS;

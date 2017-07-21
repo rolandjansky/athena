@@ -50,7 +50,10 @@ namespace ORUtils
   //---------------------------------------------------------------------------
   StatusCode OverlapRemovalTool::initialize()
   {
-    ATH_MSG_DEBUG("initialize");
+    ATH_MSG_DEBUG("Initializing master tool " << name());
+    ATH_MSG_DEBUG("Master tool config: InputLabel " << m_inputLabel <<
+                  " OutputLabel " << m_outputLabel <<
+                  " OutputPassValue " << m_outputPassValue);
 
     // Initialize the decoration helper
     m_decHelper =

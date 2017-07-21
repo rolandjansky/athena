@@ -75,10 +75,12 @@ namespace ORUtils
 
     // Initialize the matcher for the 'inner' cone.
     if(m_useGhostAssociation) {
-      ATH_MSG_DEBUG("Configuring ghost association + dR matching for jet-mu OR");
+      ATH_MSG_DEBUG("Configuring ghost association + dR matching for jet-mu OR "
+                    "with inner cone size " << m_innerDR);
       m_dRMatchCone1 = make_unique<MuJetGhostDRMatcher>(m_innerDR, m_useRapidity);
     }
     else {
+      ATH_MSG_DEBUG("Configuring mu-jet inner cone size " << m_innerDR);
       m_dRMatchCone1 = make_unique<DeltaRMatcher>(m_innerDR, m_useRapidity);
     }
 
@@ -92,8 +94,22 @@ namespace ORUtils
           (m_slidingDRC1, m_slidingDRC2, m_slidingDRMaxCone, m_useRapidity);
     }
     else {
+      ATH_MSG_DEBUG("Configuring mu-jet outer cone size " << m_outerDR);
       m_dRMatchCone2 = make_unique<DeltaRMatcher>(m_outerDR, m_useRapidity);
     }
+
+    // Additional config printouts
+    ATH_MSG_DEBUG("Mu-jet matching config: NumJetTrk " << m_numJetTrk <<
+                  " ApplyRelPt " << m_applyRelPt <<
+                  " MuJetPtRatio " << m_muJetPtRatio <<
+                  " MuJetTrkPtRatio " << m_muJetTrkPtRatio);
+    if(!m_jetNumTrkDec.empty()) {
+      ATH_MSG_DEBUG("Using user-defined JetNumTrackDecoration " << m_jetNumTrkDec);
+    }
+    if(!m_jetSumTrkPtDec.empty()) {
+      ATH_MSG_DEBUG("Using user-defined JetSumTrackPTDecoration " << m_jetSumTrkPtDec);
+    }
+
     return StatusCode::SUCCESS;
   }
 
