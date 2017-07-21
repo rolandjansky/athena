@@ -32,6 +32,10 @@ FTKConstGenAlgo.eightLayer= runArgs.eightLayer
 
 FTKConstGenAlgo.nbank=runArgs.NBanks
 
+if not hasattr(runArgs, "ITkMode") :
+    setattr(runArgs, "ITkMode", False)
+FTKConstGenAlgo.ITkMode= runArgs.ITkMode
+
 if not hasattr(runArgs, "allregions") :
     setattr(runArgs, "allregions", False)
 FTKConstGenAlgo.allregion = runArgs.allregions 

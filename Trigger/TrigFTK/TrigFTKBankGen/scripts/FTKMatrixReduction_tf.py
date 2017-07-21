@@ -69,5 +69,8 @@ def addFTKPattGenArgs(parser):
     parser.add_argument('--inputFTKMatrixFile', type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile,runarg=True), 
                        help="input matrix file", group="FTKMatrixReduction" )
 
+    parser.add_argument('--ITkMode', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True), 
+                        help='Use ITk geometry', group='FTKMatrixReduction')
+
 if __name__ == '__main__':
     main()
