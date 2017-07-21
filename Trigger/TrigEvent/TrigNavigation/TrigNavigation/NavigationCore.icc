@@ -92,6 +92,9 @@ bool HLT::NavigationCore::getFeature( const TriggerElement* te, const T*&  featu
   TriggerElement::ObjectIndex objectIndex(fea.getIndex());
   
   HLTNavDetails::Holder<T>* holder = getHolder<T>(objectIndex.subTypeIndex());
+  if (!holder) {
+    return false;
+  }
   
   if ( holder->get(feature, objectIndex) == false ) {
     MLOG(WARNING) << "getFeature: problems while getting objects #" << objectIndex
