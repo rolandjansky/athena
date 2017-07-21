@@ -2,65 +2,29 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Athena/Gaudi includes
-//#include "GaudiKernel/ITHistSvc.h"
-//#include "GaudiKernel/IIncidentSvc.h"
-
 // local includes
 #include "MMLoadVariables.h"
 
-//Event info includes
+// //Event info includes
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
-//#include "HitManagement/TimedHitPtr.h"
-
-// Muon software includes
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonReadoutGeometry/MMReadoutElement.h"
-#include "MuonIdHelpers/MmIdHelper.h"
-#include "MuonDigitContainer/MmDigitContainer.h"
-#include "MuonDigitContainer/MmDigit.h"
-#include "MuonSimData/MuonSimDataCollection.h"
-#include "MuonSimData/MuonSimData.h"
-#include "MuonSimEvent/GenericMuonSimHitCollection.h"
-#include "MuonSimEvent/MM_SimIdToOfflineId.h"
-//#include "MuonReadoutGeometry/NSWenumeration.h"
-//#include "MuonReadoutGeometry/NSWgeometry.h"
-#include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "TrackRecord/TrackRecordCollection.h"
-#include "CLHEP/Vector/ThreeVector.h"
-
-
 // random numbers
-//#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
-// local includes
-#include "TTree.h"
-#include "TVector3.h"
-//#include "MMStripUtil.h"
 
-#include <functional>
-#include <algorithm>
-#include <map>
-#include <utility>
+// using namespace std;
 
-using namespace std;
-
-    MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetectorManager* detManager, const MmIdHelper* idhelper, MMT_Parameters *par){
+MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetectorManager* detManager, const MmIdHelper* idhelper, MMT_Parameters *par){
       m_par = par;
       m_evtStore = evtStore;
       m_detManager = detManager;
       m_MmIdHelper = idhelper;
-    }
+}
 
-    MMLoadVariables::~MMLoadVariables() {
-    }
+MMLoadVariables::~MMLoadVariables() {
+}
 
     void MMLoadVariables::getMMDigitsInfo(vector<athena_entry>& entries, map<hdst_key,hdst_entry>& Hits_Data_Set_Time, map<int,evInf_entry>& Event_Info){
       //*******Following MuonPRD code to access all the variables**********
