@@ -605,8 +605,12 @@ namespace met {
 	break;
 	}
 
-      jettrkmet.setMpx  ( jettrkmet.mpx()*(1 + uncert/(fabs(jettrkmet.mpx())*sqrt(2))));
-      jettrkmet.setMpy  ( jettrkmet.mpy()*(1 + uncert/(fabs(jettrkmet.mpy())*sqrt(2))));
+      if(fabs(jettrkmet.mpx())>0.0)
+	jettrkmet.setMpx  ( jettrkmet.mpx()*(1 + uncert/(fabs(jettrkmet.mpx())*sqrt(2))));
+      else jettrkmet.setMpx (0.0);
+      if(fabs(jettrkmet.mpy())>0.0)
+	jettrkmet.setMpy  ( jettrkmet.mpy()*(1 + uncert/(fabs(jettrkmet.mpy())*sqrt(2))));
+      else jettrkmet.setMpy (0.0);
       jettrkmet.setSumet( jettrkmet.sumet() + uncert);
     }
 
