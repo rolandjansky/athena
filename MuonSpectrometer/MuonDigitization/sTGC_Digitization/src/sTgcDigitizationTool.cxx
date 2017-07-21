@@ -253,7 +253,7 @@ StatusCode sTgcDigitizationTool::initialize() {
   m_readoutThreshold = 0.05; 
   m_neighborOnThreshold = 0.01;
   m_saturation = 1.75; // = 3500. / 2000.;
-  m_hitTimeMergeThreshold = 6.25; //6.25ns = 1 tick of 160 MHz clock
+  m_hitTimeMergeThreshold = 1; //1ns = resolution of peak finding descriminator
   //m_ADC = 0.00171; // = m_saturation / (TMath::Power(2, 10));
   //m_ADC = 0.02734; // = m_saturation / (TMath::Power(2, 6));
   //m_deadtimeStrip = 50.; // 50ns deadtime of electronics after peak found (for strip readout) 
