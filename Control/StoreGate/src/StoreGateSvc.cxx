@@ -350,6 +350,14 @@ StoreGateSvc::proxies() const {
   _SGXCALL(proxies, (), nullV);
 }
 
+/// Return all CLIDs in the store.
+vector<CLID> 
+StoreGateSvc::clids() const
+{
+  vector<CLID> nullV;
+  _SGXCALL(clids, (), nullV);
+}
+
 /// get proxy with given id and key. Does not query ProxyProviderSvc.
 ///  @returns 0 to flag failure
 SG::DataProxy* 
