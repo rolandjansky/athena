@@ -931,22 +931,24 @@ pool::IFileCatalog* PoolSvc::createCatalog() {
    for (std::vector<std::string>::const_iterator iter = m_readCatalog.value().begin(),
 	   last = m_readCatalog.value().end(); iter != last; ++iter) {
       ATH_MSG_DEBUG("POOL ReadCatalog is " << *iter);
-      if (iter->substr(0, 7) == "prfile:") {
-         std::string file = PathResolver::find_file(iter->substr(7), "DATAPATH");
-         if (file.empty()) {
-            ATH_MSG_WARNING("Unable to locate catalog for "
-	            << *iter
-	            << " via PathResolver, check your DATAPATH variable");
-         } else {
-            ATH_MSG_INFO("Resolved path (via DATAPATH) is " << file);
-            ctlg->addReadCatalog("file:" + file);
-         }
-      } else if (iter->substr(0, 8) == "apcfile:") {
+      if (iter->substr(0, 8) == "apcfile:" || iter->substr(0, 7) == "prfile:") {
+         std::string::size_type cpos = iter->find(":");
          // check for file accessed via ATLAS_POOLCOND_PATH
-         std::string file = poolCondPath(iter->substr(8));
+         std::string file = poolCondPath(iter->substr(cpos + 1));
          if (!file.empty()) {
             ATH_MSG_INFO("Resolved path (via ATLAS_POOLCOND_PATH) is " << file);
             ctlg->addReadCatalog("file:" + file);
+         } else {
+            // As backup, check for file accessed via PathResolver
+            std::string file = PathResolver::find_file(iter->substr(cpos + 1), "DATAPATH");
+            if (!file.empty()) {
+               ATH_MSG_INFO("Resolved path (via DATAPATH) is " << file);
+               ctlg->addReadCatalog("file:" + file);
+            } else {
+               ATH_MSG_WARNING("Unable to locate catalog for "
+	               << *iter
+	               << " check your ATLAS_POOLCOND_PATH and DATAPATH variables");
+            }
          }
       } else {
          ctlg->addReadCatalog(*iter);
