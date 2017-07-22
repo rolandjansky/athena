@@ -230,8 +230,6 @@ namespace MuonGM {
 
     double activeA;
     double activeB;
-    double activePadA;
-    double activePadB;
     double phi;
 
     /* The current version of the xml file used to get the sTGC parameters
@@ -260,23 +258,11 @@ namespace MuonGM {
     else if (quadNo == "1") sTGC_type = 1;
     else sTGC_type = 2;
 
-    // The values of A and B active as well as A and B for pads should be taken directly from parameter book
+    // The values of A and B active should be taken directly from parameter book
     activeA = sWidth - 2 * (1./cos(halfphi) * xFrame - tan(halfphi)*ysFrame);
     if (sTGC_type == 3) // if cut-off trapezoid
       activeB = lWidth - 2 * xFrame;
     else activeB = lWidth - 2 * (1./cos(halfphi) * xFrame + tan(halfphi)*ylFrame);
-
-    if (sTGC_type ==1 && quadType == "P") { // if QS1P or QL1P, A and B Pads are different
-      // These values should be directly taken from the parameter book
-      double conf_widening = 20.;
-      double small_large_widening = 6.;
-      activePadA = activeA + (small_large_widening - conf_widening) /cos(halfphi);
-      activePadB = activeB + (small_large_widening - conf_widening) /cos(halfphi);
-    }
-    else { // if Pivot for QL1 or QS1
-      activePadA = activeA;
-      activePadB = activeB;
-    }
 
     double stripStagger[4] = {1.6, 3.2, 1.6, 3.2}; // First Strip in sTGC may be staggered. This value corresponds to first strip width
 
@@ -345,12 +331,8 @@ namespace MuonGM {
       m_phiDesign[il].type=1;
 
       m_phiDesign[il].xSize    = length - ysFrame - ylFrame;
-      m_phiDesign[il].minYSize = activePadA;
-      m_phiDesign[il].maxYSize = activePadB;
-
-      m_PadhalfX[il] = (length - ysFrame - ylFrame)/2.0;
-      m_PadminHalfY[il] = activePadA/2.0;
-      m_PadmaxHalfY[il] = activePadB/2.0;
+      m_phiDesign[il].minYSize = roParam.sPadWidth;
+      m_phiDesign[il].maxYSize = roParam.lPadWidth;
 
       m_phiDesign[il].deadO = 0.;
       m_phiDesign[il].deadI = 0.;
@@ -390,7 +372,10 @@ namespace MuonGM {
       m_padDesign[il].sPadWidth = roParam.sPadWidth;
       m_padDesign[il].lPadWidth = roParam.lPadWidth;
  
-      
+      m_PadhalfX[il] = (length - ysFrame - ylFrame)/2.0;
+      m_PadminHalfY[il] = roParam.sPadWidth/2.0;
+      m_PadmaxHalfY[il] = roParam.lPadWidth/2.0;
+
       m_padDesign[il].deadO = 0.;
       m_padDesign[il].deadI = 0.;
       m_padDesign[il].deadS = 0.;	
