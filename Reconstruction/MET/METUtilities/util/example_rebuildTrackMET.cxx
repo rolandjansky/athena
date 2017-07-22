@@ -261,7 +261,6 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
 #ifdef XAOD_STANDALONE // POOL::TEvent should handle this when changing events
     //fill the containers stored in the event
     //to the output file and clear the transient store
-    assert(event->fill());
     store->clear();
 #endif
   }
