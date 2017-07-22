@@ -34,6 +34,9 @@ namespace {
     {
       free(m_buf);
     }
+
+    CharLiberator (const CharLiberator&) = delete;
+    CharLiberator& operator= (const CharLiberator&) = delete;
   };
 
 }
