@@ -9,6 +9,9 @@ globalflags.DataSource.set_Value_and_Lock('data')
 globalflags.InputFormat.set_Value_and_Lock('bytestream')
 globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')
 
+#workaround to prevent online trigger folders to be enabled
+from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+InDetTrigFlags.useConditionsClasses.set_Value_and_Lock(False)
 
 from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.OutputLevel( INFO )
