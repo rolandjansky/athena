@@ -33,6 +33,7 @@ class FTKRoadInput {
   virtual unsigned long eventNumber(const unsigned int& ibank) const  = 0;
 
   virtual const FTKRoad* nextRoad(int) = 0; // move to the next road and return the pointer
+  virtual const FTKRoad* firstRoad(int) = 0; // move to the first road and return the pointer
   virtual const FTKSS& getSS(const unsigned int&,const unsigned int&,const unsigned int&) const = 0; // retrieve superstrip by (bank,plane,ssid)
   virtual const FTKSS& getUnusedSS(const unsigned int&,const unsigned int&,const unsigned int&) const = 0; // retrieve superstrip by (bank,plane,ssid)
   virtual FTKRoad* getRoad(int region,int roadid,int bankid) = 0; // retrieve road by its indices

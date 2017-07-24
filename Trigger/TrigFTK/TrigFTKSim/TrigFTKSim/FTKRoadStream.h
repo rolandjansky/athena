@@ -196,6 +196,7 @@ public:
 
   unsigned prepareFitList(); // make the list end return the begin  
   FTKRoad* fetchRoad(); // get the current road and point to the next
+  FTKRoad* fetchFirstRoad(); // get the first road and point to the it
   void rewindFitList() { m_fit_iter = m_fit_list.begin(); }
 
   ClassDef(FTKRoadStream,12)

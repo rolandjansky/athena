@@ -581,6 +581,23 @@ FTKRoad* FTKRoadStream:: fetchRoad()
   return res;
 }
 
+/** get the first road and move the cursor to the next road */
+FTKRoad* FTKRoadStream:: fetchFirstRoad()
+{
+  FTKRoad *res = 0x0;
+  m_fit_iter = m_fit_list.begin();
+  if (m_fit_iter!=m_fit_list.end()) {
+    res = (*m_fit_iter)();
+    ++m_fit_iter;
+  }
+  else if (m_nroads>0) {
+    // clean the last road, if there are roads
+    detachHits(m_nroads-1);
+  }
+
+  return res;
+}
+
 
 /** Expand the sub-roads of this road and if these are final roads are apppended to the fit list,
     if there are further level the navigation continues  */
