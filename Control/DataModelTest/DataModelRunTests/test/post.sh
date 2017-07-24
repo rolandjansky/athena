@@ -174,6 +174,7 @@ PP="$PP"'|^GUID: Class|^WARNING: Cannot import TrigEDMConfig.TriggerEDM.getARATy
 PP="$PP"'|^GUID: Class|^AthenaRootStr.* INFO|^Warning in .* found in .* is already in'
 PP="$PP"'|no dictionary for class|INFO eformat version|INFO event storage'
 PP="$PP"'|^RootDatabase.open Info'
+PP="$PP"'|Unable to locate catalog'
 
 # StoreGate INFO messages changed to VERBOSE
 PP="$PP"'|^(StoreGateSvc|DetectorStore|MetaDataStore|InputMetaDataStore|TagMetaDataStore) +(INFO|VERBOSE) (Stop|stop|Start)'
