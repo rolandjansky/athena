@@ -582,8 +582,8 @@ class JobPropertyContainer (object):
                 setattr(self,new_container.__name__,
                         new_container(self._context_name))
             else:
-               self._log.warning('The container %s is already in',
-                                  new_container.__name__)
+               self._log.warning('The container %s is already in %s',
+                                  new_container.__name__,self.__name__)
         else:
            self._log.error('You are not adding a JobPropertyContainer ')
 
@@ -597,8 +597,8 @@ class JobPropertyContainer (object):
             if not(new_flag.__name__ in self.__dict__.keys()):
                 setattr(self,new_flag.__name__,new_flag(self._context_name))
             else:
-                self._log.warning('The flag %s is already in',
-                                   new_flag.__name__) 
+                self._log.warning('The flag %s is already in %s',
+                                   new_flag.__name__, self.__name__) 
         else:
            self._log.error('You are not adding a JobProperty ')
 
