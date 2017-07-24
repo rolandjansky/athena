@@ -111,15 +111,16 @@ Each signal grid has a corresponding text file with the cross-sections per grid 
 
 A parser is provided with ``SUSYTools`` to access it::
 
-   root -l $ROOTCOREDIR/scripts/load_packages.C
-   root [1] SUSY::CrossSectionDB myDB("SUSYTools/data/mc15_13TeV/");
-   root [2] myDB.xsectTimesEff(410000)
+   root [0] gSystem->Load("../build/x86_64-slc6-gcc49-opt/lib/libSUSYToolsLib.so")
+   root [1] #include "SUSYTools/SUSYCrossSection.h"
+   root [2] SUSY::CrossSectionDB myDB("SUSYTools/data/mc15_13TeV/");
+   root [3] myDB.xsectTimesEff(410000)
    (const float)1.37378997802734375e+02
-   root [3] myDB.xsectTimesEff(410000,0)
+   root [4] myDB.xsectTimesEff(410000,0)
    (const float)1.37378997802734375e+02
-   root [4] myDB.xsectTimesEff(164949, 111)
+   root [5] myDB.xsectTimesEff(164949, 111)
    (const float)8.08409880846738815e-04
-   root [5] myDB.xsectTimesEff(164949, 1000022, 1000022)
+   root [6] myDB.xsectTimesEff(164949, 1000022, 1000022)
    (const float)8.08409880846738815e-04
 
 
