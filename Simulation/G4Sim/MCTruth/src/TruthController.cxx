@@ -5,26 +5,26 @@
 #include "MCTruth/TruthController.h"
 #include "SimHelpers/TrackVisualizationHelper.h"
 
-TruthController* TruthController::thePointer=TruthController::GetTruthController() ;
+TruthController* TruthController::s_thePointer=TruthController::getTruthController() ;
 
-TruthController* TruthController::GetTruthController()
+TruthController* TruthController::getTruthController()
 {
-	if (!thePointer) thePointer=new TruthController;
-	return thePointer;
+  if (!s_thePointer) s_thePointer = new TruthController;
+  return s_thePointer;
 }
 
 TruthController::TruthController()
 {
-	theVisHelper=new TrackVisualizationHelper;
+  m_theVisHelper=new TrackVisualizationHelper;
 }
 
 TruthController::~TruthController()
 {
-        if (theVisHelper) delete theVisHelper;
+  if (m_theVisHelper) delete m_theVisHelper;
 }
-void TruthController::SetVisualizationHelper(TrackVisualizationHelper *h)
+void TruthController::setVisualizationHelper(TrackVisualizationHelper *h)
 {
-	if (theVisHelper==h) return;
-	delete theVisHelper;
-	theVisHelper=h;
+  if (m_theVisHelper==h) return;
+  delete m_theVisHelper;
+  m_theVisHelper=h;
 }
