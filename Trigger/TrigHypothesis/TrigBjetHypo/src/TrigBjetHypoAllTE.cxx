@@ -71,7 +71,7 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltInitialize() {
 //  hltExecute
 //
 HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& inputTE, unsigned int output) {
-  
+  std::cout << "Enter TrigBjetHypoAllTE " << std::endl;  
   if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Executing TrigBjetHypoAllTE" << endmsg;
 
   beforeExecMonitors().ignore();
@@ -112,6 +112,7 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
 				    << " TE0: " << inputTE[0].size() 
 				    << " TE1: " << inputTE[1].size() <<  endmsg;  
 
+
   if (inputTE.size() < 1) {
     msg() << MSG::WARNING << "Number of input TEs is " <<  inputTE.size() << " and not 1. Configuration problem." << endmsg;  
     afterExecMonitors().ignore();
@@ -128,23 +129,18 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
   //
   // Retrieve the BTagging container
   //
-  std::vector<HLT::TriggerElement*>& btaggingTE = inputTE.at(0); 
+  std::vector<HLT::TriggerElement*>& btaggingTEs = inputTE.at(0); 
 
-  if(inputTE[0].size() == 0) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "No btagging TE found" << endmsg;
-    return HLT::OK;
-  }
-
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " btaggingTE.size() " << btaggingTE.size() << endmsg;
-
-  if (btaggingTE.size() == 0) {
+  if (btaggingTEs.size() == 0) {
     msg() << MSG::WARNING << "Got an empty inputTE (btagging)" << endmsg;
     afterExecMonitors().ignore();
     return HLT::MISSING_FEATURE; 
   }
 
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " btaggingTE.size() " << btaggingTEs.size() << endmsg;
+
   const xAOD::BTaggingContainer* trigBTaggingContainer=0;
-  HLT::ErrorCode statusBTagging = getFeature(btaggingTE.front(), trigBTaggingContainer, m_btaggingKey); 
+  HLT::ErrorCode statusBTagging = getFeature(btaggingTEs.front(), trigBTaggingContainer, m_btaggingKey); 
 
   if (statusBTagging != HLT::OK) {
     if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features (btagging)" << endmsg;
@@ -156,6 +152,7 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
     return HLT::MISSING_FEATURE;
   }
 
+  std::cout << "Found " << trigBTaggingContainer->size() << " btagging objsects " << std::endl;;
 
   //
   //  Do the multiplicity cut
@@ -166,8 +163,63 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
     std::vector< ElementLink< xAOD::IParticleContainer > >  matchedJets = trigBJet->auxdata< std::vector< ElementLink< xAOD::IParticleContainer > > >("BTagBtagToJetAssociator");  
     std::cout << btagWeight << " " << matchedJets.size() << std::endl;
   }
-  
+
+  //
+  // Testing
+  //
+  unsigned int nOver35 = 0;
+
+  for(HLT::TriggerElement* btagTE : inputTE.at(0)){
+    const xAOD::BTaggingContainer* thisBTaggingContainer=0;
+    HLT::ErrorCode thisStatusBTagging = getFeature(btagTE, thisBTaggingContainer, m_btaggingKey); 
+
+    if (thisStatusBTagging != HLT::OK) {
+      if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features (btagging)" << endmsg;
+      return HLT::NAV_ERROR;
+    }
+
+    if(thisBTaggingContainer==0) {
+      if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature (btagging)." << endmsg;
+      return HLT::MISSING_FEATURE;
+    }
+
+    std::cout << "Found " << thisBTaggingContainer->size() << " btagging objsects " << std::endl;;
+
+    std::cout << "In TrigBjetHypoAllTE round2 " << std::endl;
+    for(xAOD::BTagging* trigBJet : *thisBTaggingContainer){
+      double btagWeight = trigBJet->auxdata<double>("MV2c20_discriminant");  
+      std::vector< ElementLink< xAOD::IParticleContainer > >  matchedJets = trigBJet->auxdata< std::vector< ElementLink< xAOD::IParticleContainer > > >("BTagBtagToJetAssociator");  
+      std::cout << btagWeight << " " << matchedJets.size() << std::endl;
       
+      if(matchedJets.size() != 1){
+	if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature (jet element link) size=" << matchedJets.size() << endmsg;
+	return HLT::MISSING_FEATURE;
+      }
+
+      const xAOD::IParticleContainer* jetCol = matchedJets.at(0).getStorableObjectPointer();
+      std::cout << "jetCol.size() " << jetCol->size() << std::endl;
+      
+      if(jetCol->size() != 1){
+      	if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature (jetCollection) size=" << jetCol->size() << endmsg;
+      	return HLT::MISSING_FEATURE;
+      }
+      
+      const xAOD::JetContainer* jets = dynamic_cast<const xAOD::JetContainer*>(jetCol);
+
+      if(jets->size() != 1){
+	if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature (jets) size=" << jets->size() << endmsg;
+	return HLT::MISSING_FEATURE;
+      }
+
+      std::cout << jets->at(0)->p4().Et()*0.001 << " " << jets->at(0)->eta() << " " << jets->at(0)->phi() << std::endl;
+      if(jets->at(0)->p4().Et() > 35*1000)
+	++nOver35;
+    }
+    
+  }//inputTE.at(0)
+      
+  if(nOver35 > 3) pass = true;
+  
   if (pass) {
     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Accepting the event" << endmsg;
     m_cutCounter=1;
