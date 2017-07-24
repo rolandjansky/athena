@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
- 
+
 // Local include(s):
 #include "SUSYTools/SUSYObjDef_xAOD.h"
 
@@ -112,6 +112,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_muonTerm(""),
     m_outMETTerm(""),
     m_metRemoveOverlappingCaloTaggedMuons(true),
+    m_metDoSetMuonJetEMScale(true),
     m_metDoMuonJetOR(true),
     m_muUncert(-99.),
     m_electronTriggerSFStringSingle(""),
@@ -174,7 +175,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_tauConfigPathBaseline(""),
     m_tauDoTTM(false),
     m_tauRecalcOLR(false),
-    m_tauNoAODFixCheck(false),
+    m_tauNoAODFixCheck(true),
     //
     m_jetPt(-99.),
     m_jetEta(-99.),
@@ -352,6 +353,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "METJetSelection",  m_metJetSelection );
 
   declareProperty( "METRemoveORCaloTaggedMuons", m_metRemoveOverlappingCaloTaggedMuons);
+  declareProperty( "METDoSetMuonJetEMScale", m_metDoSetMuonJetEMScale);
   declareProperty( "METDoMuonJetOR",  m_metDoMuonJetOR );
 
   declareProperty( "METGreedyPhotons",  m_metGreedyPhotons );
@@ -696,32 +698,6 @@ std::string SUSYObjDef_xAOD::EG_WP(const std::string& wp) const {
 }
 
 
-int SUSYObjDef_xAOD::getMCShowerType(const std::string& sample_name) const {
-  /** Get MC generator index for the b-tagging efficiency maps*/
-
-  const static std::vector<TString> m_gen_mc_generator_keys = {"PYTHIAEVTGEN", "HERWIGPPEVTGEN", "PYTHIA8EVTGEN", "SHERPA_CT10", "SHERPA"}; //don't change this order! //MT
-
-  //pre-process sample name
-  TString tmp_name(sample_name);
-  tmp_name.ReplaceAll("Py8EG","PYTHIA8EVTGEN");
-  if(tmp_name.Contains("Pythia") && !tmp_name.Contains("Pythia8") && !tmp_name.Contains("EvtGen")) tmp_name.ReplaceAll("Pythia","PYTHIA8EVTGEN");
-  if(tmp_name.Contains("Pythia8") && !tmp_name.Contains("EvtGen")) tmp_name.ReplaceAll("Pythia8","PYTHIA8EVTGEN");
-
-  //capitalize the entire sample name
-  tmp_name.ToUpper();
-
-  //find shower type in name
-  unsigned int ishower = 0;
-  for( const auto & gen : m_gen_mc_generator_keys ){
-    if( tmp_name.Contains(gen) ){ return ishower; }
-    ishower++;
-  }
-  
-  ATH_MSG_WARNING("Unknown MC generator detected. Returning default 0=PowhegPythia6(410000) ShowerType for btagging MC/MC maps.");
-  return 0;
-}
-
-
 std::vector<std::string> SUSYObjDef_xAOD::getElSFkeys(const std::string& mapFile) const {
   
   if( mapFile.empty() )
@@ -875,6 +851,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["SigPh.RequireIso"] = "SigPhRequireIso";
   m_conf_to_prop["SigLepPh.IsoCloseByOR"] = "SigLepPhIsoCloseByOR";
   m_conf_to_prop["MET.RemoveOverlappingCaloTaggedMuons"] = "METRemoveORCaloTaggedMuons";
+  m_conf_to_prop["MET.DoSetMuonJetEMScale"] = "METDoSetMuonJetEMScale";
   m_conf_to_prop["MET.DoMuonJetOR"] = "METDoMuonJetOR";
   m_conf_to_prop["MET.DoTrkSyst"] = "METDoTrkSyst";
   m_conf_to_prop["MET.DoCaloSyst"] = "METDoCaloSyst";
@@ -951,7 +928,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_tauMVACalib, "Tau.MVACalibration", rEnv, false);
   configFromFile(m_tauDoTTM, "Tau.DoTruthMatching", rEnv, false);
   configFromFile(m_tauRecalcOLR, "Tau.RecalcElOLR", rEnv, false);
-  configFromFile(m_tauNoAODFixCheck, "Tau.IgnoreAODFixCheck", rEnv, false);
+  configFromFile(m_tauNoAODFixCheck, "Tau.IgnoreAODFixCheck", rEnv, true);
   configFromFile(m_tauIDrecalc, "Tau.IDRedecorate", rEnv, false);
   //
   configFromFile(m_jetPt, "Jet.Pt", rEnv, 20000.);
@@ -975,7 +952,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_useBtagging, "Btag.enable", rEnv, true);
   configFromFile(m_BtagTagger, "Btag.Tagger", rEnv, "MV2c10");
   configFromFile(m_BtagWP, "Btag.WP", rEnv, "FixedCutBEff_77");
-  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-04-24_v1.root");
+  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-06-07_v2.root");
   configFromFile(m_BtagSystStrategy, "Btag.SystStrategy", rEnv, "Envelope");
   //
   configFromFile(m_orDoBoostedElectron, "OR.DoBoostedElectron", rEnv, false);
@@ -1019,6 +996,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_muonTerm, "MET.MuonTerm", rEnv, "Muons");
   configFromFile(m_outMETTerm, "MET.OutputTerm", rEnv, "Final");
   configFromFile(m_metRemoveOverlappingCaloTaggedMuons, "MET.RemoveOverlappingCaloTaggedMuons", rEnv, true);
+  configFromFile(m_metDoSetMuonJetEMScale, "Met.DoSetMuonJetEMScale", rEnv, true);
   configFromFile(m_metDoMuonJetOR, "MET.DoMuonJetOR", rEnv, true);
   configFromFile(m_trkMETsyst, "MET.DoTrkSyst", rEnv, true);
   configFromFile(m_caloMETsyst, "MET.DoCaloSyst", rEnv, false);

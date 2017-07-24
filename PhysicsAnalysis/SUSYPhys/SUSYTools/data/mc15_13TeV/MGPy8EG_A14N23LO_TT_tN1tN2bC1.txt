@@ -1,4 +1,4 @@
-DSID     FS   CROSSECTION[pb]     K-FACTOR     FILTEREFF   REL.UNCERT
+#DSID     FS   CROSSECTION[pb]     K-FACTOR     FILTEREFF   REL.UNCERT
 #
 # dM(C1,N1) scan with dM(N2,N1) = 2 * dM(C1,N1)
 #

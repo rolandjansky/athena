@@ -3,7 +3,7 @@
 SUSYTools
 ================
 
-**Current Main Developers**: martin.tripiana@cern.ch, zach.marshall@cern.ch
+**Current Main Developers**: stefano.zambito@cern.ch, zach.marshall@cern.ch
 
 ------------------------------------
 
@@ -16,7 +16,9 @@ SUSYTools
 Recommended tags
 ------------------------------------
 
-**Rel 20.7 Samples :**   Base,2.4.31 + SUSYTools-00-08-61
+**Rel 21.0 Samples :**   Base,21.2.0 + newest SUSYTools
+
+**Rel 20.7 Samples :**   Base,2.4.33 + SUSYTools-00-08-66
 
 **Rel 20.1 Samples :**   Base,2.3.8 + SUSYTools-00-07-58
 
@@ -24,97 +26,79 @@ Recommended tags
 ------------------------------------
 
 ------------------------
-RootCore Setup
+AnalysisBase / AthAnalysisBase Setup
 ------------------------
-Check the latest recommended AnalysisBase release::
+
+Because these two releases are becoming more similar, most of the instructions are the same.  Set up the latest recommended AnalysisBase release::
 
    setupATLAS
-   rcSetup Base,2.4.31
+   asetup AnalysisBase,21.2.0
 
-SUSYTools is now shipped with it, but you can also check a specific tag::
+Or the latest AthAnalysis release::
 
-   rc checkout_pkg $SVNOFF/PhysicsAnalysis/SUSYPhys/SUSYTools/tags/SUSYTools-00-XX-YY
+   setupATLAS
+   asetup AthAnalysis,21.2.0
+
+For working with code, a sparse checkout is pretty straightforward::
+
+   git atlas init-workdir https://:@gitlab.cern.ch:8443/atlas/athena.git
+
+And then the version of SUSYTools in the release can be checked out via::
+
+   cd athena
+   git checkout 21.2.0
+   git atlas addpkg SUSYTools
 
 or the trunk version::
 
-   rc checkout_pkg $SVNOFF/PhysicsAnalysis/SUSYPhys/SUSYTools/trunk
-   
-Additional packages needed on top of the recommended release are documented in ``doc/packages.txt``, and can be easily checked out as::
-   
-   rc checkout SUSYTools/doc/packages.txt
-	   
-Finally, compile everything::
+   cd athena
+   git checkout master
+   git atlas addpkg SUSYTools
 
-   rc find_packages   
-   rc clean   
-   rc compile
-	 
+Then, to compile::
+
+   cd ..
+   mkdir build
+   cd build
+   cmake ../athena/Projects/WorkDir
+   gmake
+   source x86_64-slc6-gcc62-opt/setup.sh
+
+Additional packages needed on top of the recommended release are documented in ``doc/packages.txt``; for now you can add those to your work area via git atlas addpkg.  Afterwards, be sure to recompile everything::
+   
+   cmake ../athena/Projects/WorkDir
+   gmake
+   source x86_64-slc6-gcc62-opt/setup.sh
+
 and you are ready to go!
+
+## Still to add ##
+
+Convenience script for getting packages we recommend -- at the moment, this is not something that is a part of a git workflow.
 
 Testing
 --------------
 
-Get your favourite benchmark sample (e.g. mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.DAOD_SUSY1.e3698_s2608_s2183_r7725_r7676_p2596/), and run::
-   
+To run unit tests, simply go to your build area and type::
+
+   gmake test
+
+To test locally in an AnalysisBase release, get your favourite benchmark sample (e.g. mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.DAOD_SUSY1.e3698_s2608_s2183_r7725_r7676_p2596/), and run::
+
    SUSYToolsTester <myAOD.pool.root> 100 isData=0 isAtlfast=0 Debug=0 NoSyst=0 2>&1 | tee log
-     
+
 The standard ``SUSYToolsTester`` code is meant to test the configuration of all the relevant CP tools and apply a minimal analysis flow. It includes the recalibration and correction of all physics objects, the recalculation of the MissingET, the extraction of SFs and other specific functionalities that are enabled based on the DxAOD stream. All systematic variations available in the central registry are tested by default, and a cutflow is displayed for each of them. This can be disabled by setting ``NoSyst=1``.
 
-A set of unit tests have been defined in addition, which are regularly checked to ensure the framework is stable against the release evolution. To get a list of the available tests do::
-
-   rc test_ut --list --package=SUSYTools
-
-To run one test (as from the list above) you then do::
-
-   rc test_ut <theTest>
-
-or well just:: 
-
-   rc test_ut --package=SUSYTools
-
-to run all tests in the package (i.e. ~ everything under test/ directory)
-
-------------------------------------
-
-------------------------
-CMT Setup
-------------------------
-Check the latest recommended AthAnalysisBase release::
-
-   setupATLAS
-   asetup AthAnalysisBase,2.4.31
-
-SUSYTools is now shipped with it, but you can also check a specific tag::
-	  
-	  pkgco.py SUSYTools-00-XX-YY
-
-or the trunk version::
-
-   pkgco.py -A SUSYTools
-   
-Additional packages needed on top of the recommended release are documented in ``doc/packages.txt``, and can be easily checked out as::
-	   
-	   for file in `cat PhysicsAnalysis/SUSYPhys/SUSYTools/doc/packages.txt | grep -v '#' `; do pkgco.py $(basename $file); done 
-	   
-Then create a work area and build it::
-
-   setupWorkArea.py
-   cd WorkArea/cmt
-   cmt config; cmt bro cmt config; cmt bro make
-
-and you are ready to go!
-
-Testing
---------------
-
-Just run the test jobOption as::
+To test locally in an AthAnalysis release, run the test job options as::
 
    cd ..
    athena.py SUSYTools/minimalExampleJobOptions_mc.py
    
-which is the athena-friendly equivalent of the ``SUSYToolsTester`` code above for running on MC.  You can also change "mc" to "data" or "atlfast" to run on data
-or fast simulation if you would prefer.
+which is the athena-friendly equivalent of the ``SUSYToolsTester`` code above for running on MC.  You can also change "mc" to "data" or "atlfast" to run on data or fast simulation if you would prefer.
 
+## Still to add ##
+
+Unit tests for specific packages
 
 ------------------------------------
 
@@ -141,12 +125,3 @@ A parser is provided with ``SUSYTools`` to access it::
 
 ------------------------------------
 
---------------------------------
-Developers Notes
---------------------------------
-
-To make a new tag do::
-
-   svn cp svn+ssh://svn.cern.ch/reps/atlasoff/PhysicsAnalysis/SUSYPhys/SUSYTools/trunk svn+ssh://svn.cern.ch/reps/atlasoff/PhysicsAnalysis/SUSYPhys/SUSYTools/tags/SUSYTools-XX-YY-ZZ -m "Learning to tag SUSYTools"
-
-and make sure this file is up-to-date with the tags recommendations and extra packages needed.

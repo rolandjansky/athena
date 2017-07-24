@@ -1,6 +1,6 @@
 # author : tripiana@cern.ch (please report any problems)
 # date   : 03/08/2015
-DSID     FS   CROSSECTION[pb]     K-FACTOR     FILTEREFF   REL.UNCERT
+#DSID     FS   CROSSECTION[pb]     K-FACTOR     FILTEREFF   REL.UNCERT
 #
 # stop to bC1 (T1-C1=10 GeV) grid	
 #

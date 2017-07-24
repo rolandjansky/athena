@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
- 
+
 // This source file implements all of the functions related to <OBJECT>
 // in the SUSYObjDef_xAOD class
 
@@ -229,8 +229,8 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
   
   if (input.pt() <= ptcut || fabs(input.eta()) >= etacut) return StatusCode::SUCCESS;
 
-  if (m_mubaselinez0>0. && acc_z0sinTheta(input)>m_mubaselinez0) return StatusCode::SUCCESS;
-  if (m_mubaselined0sig>0. && acc_d0sig(input)>m_mubaselined0sig) return StatusCode::SUCCESS;
+  if (m_mubaselinez0>0. && fabs(acc_z0sinTheta(input))>m_mubaselinez0) return StatusCode::SUCCESS;
+  if (m_mubaselined0sig>0. && fabs(acc_d0sig(input))>m_mubaselined0sig) return StatusCode::SUCCESS;
 
   dec_baseline(input) = true;
   dec_selected(input) = 2;

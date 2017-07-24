@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
- 
+
 #include "SUSYTools/SUSYObjDef_xAOD.h"
 
 using namespace ST;
@@ -430,6 +430,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("SFFile","JetJvtEfficiency/Moriond2017/JvtSFFile_EM.root") );
     } else if (m_jetInputType == xAOD::JetInput::LCTopo){
       ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("SFFile","JetJvtEfficiency/Moriond2017/JvtSFFile_LC.root") );
+    } else if (m_jetInputType == xAOD::JetInput::EMPFlow){
+      ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("SFFile","JetJvtEfficiency/Moriond2017/JvtSFFile_EMPFlow.root") );
     } else {
       ATH_MSG_ERROR("Cannot configure JVT uncertainties for unsupported jet input type (neither EM nor LC)"); 
       return StatusCode::FAILURE;
@@ -456,6 +458,11 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_muonCalibrationAndSmearingTool.isUserConfigured()) {
     toolName = "MuonCalibrationAndSmearingTool";
     SET_DUAL_TOOL(m_muonCalibrationAndSmearingTool, CP::MuonCalibrationAndSmearingTool, toolName);
+#if ROOTCORE_RELEASE_SERIES==24
+    ATH_CHECK( m_muonCalibrationAndSmearingTool.setProperty("StatComb", true) );
+#else
+    ATH_CHECK( m_muonCalibrationAndSmearingTool.setProperty("StatComb", false) );
+#endif
     ATH_CHECK( m_muonCalibrationAndSmearingTool.retrieve() );
   }
 
@@ -696,8 +703,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     if ( !m_elecEfficiencySFTool_iso.isUserConfigured() ) {
       SET_DUAL_TOOL(m_elecEfficiencySFTool_iso, AsgElectronEfficiencyCorrectionTool, toolName);
 
-      // New isolation recommendations - have to keep the map by hand for now
-      ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty ("MapFilePath", egMapFile) );
+      // New isolation recommendations are in the release - no need to update the map file by hand
+      //ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty ("MapFilePath", egMapFile) );
 
       ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty("IdKey", eleId) );
       ATH_CHECK( m_elecEfficiencySFTool_iso.setProperty("IsoKey", m_eleIso_WP) );
@@ -777,7 +784,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "AsgElectronEfficiencyCorrectionTool_trig_singleLep_" + m_eleId;
     if ( !m_elecEfficiencySFTool_trig_singleLep.isUserConfigured() ) {
       SET_DUAL_TOOL(m_elecEfficiencySFTool_trig_singleLep, AsgElectronEfficiencyCorrectionTool, toolName);
-      ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.setProperty("MapFilePath", egMapFile) );
+      //ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.setProperty("MapFilePath", egMapFile) );
       ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.setProperty("TriggerKey", m_electronTriggerSFStringSingle) );
       ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.setProperty("IdKey", eleId) );
       ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.setProperty("IsoKey", triggerEleIso) );   
@@ -790,7 +797,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "AsgElectronEfficiencyCorrectionTool_trig_diLep_" + m_eleId;
     if ( !m_elecEfficiencySFTool_trig_diLep.isUserConfigured() ) {
       SET_DUAL_TOOL(m_elecEfficiencySFTool_trig_diLep, AsgElectronEfficiencyCorrectionTool, toolName);
-      ATH_CHECK( m_elecEfficiencySFTool_trig_diLep.setProperty("MapFilePath", egMapFile) );
+      //ATH_CHECK( m_elecEfficiencySFTool_trig_diLep.setProperty("MapFilePath", egMapFile) );
       ATH_CHECK( m_elecEfficiencySFTool_trig_diLep.setProperty("TriggerKey", m_electronTriggerSFStringDiLepton) );
       ATH_CHECK( m_elecEfficiencySFTool_trig_diLep.setProperty("IdKey", eleId) );
       ATH_CHECK( m_elecEfficiencySFTool_trig_diLep.setProperty("IsoKey", triggerDiEleIso) );
@@ -803,7 +810,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "AsgElectronEfficiencyCorrectionTool_trig_mixLep_" + m_eleId;
     if ( !m_elecEfficiencySFTool_trig_mixLep.isUserConfigured() ) {
       SET_DUAL_TOOL(m_elecEfficiencySFTool_trig_mixLep, AsgElectronEfficiencyCorrectionTool, toolName);
-      ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep.setProperty("MapFilePath", egMapFile) );
+      //ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep.setProperty("MapFilePath", egMapFile) );
       ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep.setProperty("TriggerKey", m_electronTriggerSFStringMixedLepton) );
       ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep.setProperty("IdKey", eleId) );
       ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep.setProperty("IsoKey", triggerMixedEleIso) );   
@@ -817,7 +824,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "AsgElectronEfficiencyCorrectionTool_trigEff_singleLep_" + m_eleId;
     if ( !m_elecEfficiencySFTool_trigEff_singleLep.isUserConfigured() ) {
       SET_DUAL_TOOL(m_elecEfficiencySFTool_trigEff_singleLep, AsgElectronEfficiencyCorrectionTool, toolName);
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_singleLep.setProperty("MapFilePath", egMapFile) );
+      //ATH_CHECK( m_elecEfficiencySFTool_trigEff_singleLep.setProperty("MapFilePath", egMapFile) );
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_singleLep.setProperty("TriggerKey", "Eff_"+m_electronTriggerSFStringSingle) );
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_singleLep.setProperty("IdKey", eleId) );
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_singleLep.setProperty("IsoKey", triggerEleIso) );   
@@ -832,7 +839,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "AsgElectronEfficiencyCorrectionTool_trigEff_diLep_" + m_eleId;
     if ( !m_elecEfficiencySFTool_trigEff_diLep.isUserConfigured() ) {
       SET_DUAL_TOOL(m_elecEfficiencySFTool_trigEff_diLep, AsgElectronEfficiencyCorrectionTool, toolName);
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_diLep.setProperty("MapFilePath", egMapFile) );
+      //ATH_CHECK( m_elecEfficiencySFTool_trigEff_diLep.setProperty("MapFilePath", egMapFile) );
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_diLep.setProperty("TriggerKey", "Eff_"+m_electronTriggerSFStringDiLepton) );
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_diLep.setProperty("IdKey", eleId) );
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_diLep.setProperty("IsoKey", triggerDiEleIso) );   
@@ -845,7 +852,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "AsgElectronEfficiencyCorrectionTool_trig_mixLep_" + m_eleId;
     if ( !m_elecEfficiencySFTool_trigEff_mixLep.isUserConfigured() ) {
       SET_DUAL_TOOL(m_elecEfficiencySFTool_trigEff_mixLep, AsgElectronEfficiencyCorrectionTool, toolName);
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep.setProperty("MapFilePath", egMapFile) );
+      //ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep.setProperty("MapFilePath", egMapFile) );
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep.setProperty("TriggerKey", "Eff_"+m_electronTriggerSFStringMixedLepton) );
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep.setProperty("IdKey", eleId) );
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep.setProperty("IsoKey", triggerMixedEleIso) );   
@@ -975,8 +982,12 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_egammaCalibTool.isUserConfigured()) {
     SET_DUAL_TOOL(m_egammaCalibTool, CP::EgammaCalibrationAndSmearingTool, "EgammaCalibrationAndSmearingTool");
     ATH_MSG_DEBUG( "Initialising EgcalibTool " );
-    //ATH_CHECK( m_egammaCalibTool.setProperty("ESModel", "es2015c_summer") ); //used for analysis using only 2015 data processed with 20.7
-    ATH_CHECK( m_egammaCalibTool.setProperty("ESModel", "es2016data_mc15c") ); //used for analysis using only 2015 data processed with 20.7 (default)
+#if ROOTCORE_RELEASE_SERIES==24  
+    ATH_CHECK( m_egammaCalibTool.setProperty("ESModel", "es2016data_mc15c") ); //want to use _summer as soon as possible; see ATLASG-1255; used for analysis using 2015 or 2016 or 2015+2016 data (all processed with 20.7).
+#else
+    ATH_CHECK( m_egammaCalibTool.setProperty("ESModel", "es2017_R21_PRE") ); //used for analysis using data processed with 21.0
+    //ATH_CHECK( m_egammaCalibTool.setProperty("ESModel", "es2016data_mc15c") );
+#endif
     ATH_CHECK( m_egammaCalibTool.setProperty("decorrelationModel", "1NP_v1") );
     if (isAtlfast()) ATH_CHECK( m_egammaCalibTool.setProperty("useAFII", 1) );
     
@@ -1031,6 +1042,11 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     if(m_tauNoAODFixCheck){
       ATH_CHECK( m_tauSelTool.setProperty("IgnoreAODFixCheck", true) );
     }
+
+#if ROOTCORE_RELEASE_SERIES>24
+    ATH_CHECK( m_tauSelTool.setProperty("IgnoreAODFixCheck", true) );
+    ATH_CHECK( m_tauSelTool.setProperty("RecalcEleOLR", false) );
+#endif
 
     ATH_CHECK( m_tauSelTool.retrieve() );
   }
@@ -1207,6 +1223,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     SET_DUAL_TOOL(m_metMaker, met::METMaker, "METMaker_SUSYTools");
     
     ATH_CHECK( m_metMaker.setProperty("ORCaloTaggedMuons", m_metRemoveOverlappingCaloTaggedMuons) );
+    ATH_CHECK( m_metMaker.setProperty("DoSetMuonJetEMScale", m_metDoSetMuonJetEMScale) );
     //ATH_CHECK( m_metMaker.setProperty("DoMuonJetOR", m_metDoMuonJetOR) );
     // set the jet selection if default empty string is overridden through config file
     if (m_metJetSelection.size()) 

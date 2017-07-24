@@ -15,6 +15,11 @@
 #include "PATInterfaces/SystematicSet.h"
 #include "TStopwatch.h"
 
+// Need truth matching for TauJet CP tools 
+namespace TauAnalysisTools {
+  class IBuildTruthTaus;
+  class ITauTruthMatchingTool;
+}
 
 class SUSYToolsAlg : public AthAnalysisAlgorithm { 
 
@@ -46,12 +51,15 @@ class SUSYToolsAlg : public AthAnalysisAlgorithm {
     std::vector<std::string> syst_ph_weights;
     std::vector<std::string> syst_tau_weights;
     std::vector<std::string> syst_jet_weights;
+    std::vector<std::string> syst_fatjet_weights;
     std::vector<std::string> syst_btag_weights;
     std::vector<std::string> syst_event_weights;
 
     ToolHandle<ST::ISUSYObjDef_xAODTool> m_SUSYTools;
 
     unsigned int m_Nevts;
+    std::string m_configFile;
+    std::string m_FatJetCollection;
 
     TStopwatch m_clock0;
     TStopwatch m_clock1;
@@ -66,6 +74,11 @@ class SUSYToolsAlg : public AthAnalysisAlgorithm {
     int count_el_signal;
     int count_ph_signal;
     int count_mu_signal;
+
+    ToolHandle< TauAnalysisTools::ITauTruthMatchingTool > m_tauTruthTool;
+    ToolHandle< TauAnalysisTools::IBuildTruthTaus > m_tauTruthBuilderTool;
+
+    bool m_CheckTruthJets;
 }; 
 
 

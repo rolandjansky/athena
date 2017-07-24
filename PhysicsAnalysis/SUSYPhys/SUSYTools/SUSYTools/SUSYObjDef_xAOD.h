@@ -127,8 +127,6 @@ namespace ST {
     bool isData() const {return m_dataSource == Data;}
     bool isAtlfast() const {return m_dataSource == AtlfastII;}
 
-    int getMCShowerType(const std::string& sample_name="") const override final;
-
     StatusCode setBoolProperty(const std::string& name, const bool& property) override final;
 
     // Hack to make thisx configurable from python
@@ -357,6 +355,10 @@ namespace ST {
     float getSherpaVjetsNjetsWeight() const override final;
     float getSherpaVjetsNjetsWeight(const std::string& jetContainer) const override final;
 
+    // Helper for b-tagging weights
+    int getMCShowerType(const std::string& sample_name="") const override final { return ST::getMCShowerType(sample_name); }
+
+
   private:
 
     StatusCode SUSYToolsInit();
@@ -448,6 +450,7 @@ namespace ST {
     std::string m_inputMETRef;
     std::string m_outMETTerm;
     bool m_metRemoveOverlappingCaloTaggedMuons;
+    bool m_metDoSetMuonJetEMScale;
     bool m_metDoMuonJetOR;
 
     bool m_metGreedyPhotons;
@@ -708,6 +711,7 @@ namespace ST {
   const static SG::AuxElement::ConstAccessor<char> acc_isol("isol");
   const static SG::AuxElement::ConstAccessor<char> acc_passOR("passOR");
   const static SG::AuxElement::ConstAccessor<char> acc_signal_less_JVT("signal_less_JVT"); //!< Accessor for signal jets without a JVT requirement
+  const static SG::AuxElement::ConstAccessor<char> acc_trigmatched("trigmatched");
   // more decorations that are set externally
   const static SG::AuxElement::ConstAccessor<unsigned int> acc_OQ("OQ");
   const static SG::AuxElement::ConstAccessor<int> acc_truthType("truthType");
