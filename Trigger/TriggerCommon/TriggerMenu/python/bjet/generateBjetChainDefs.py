@@ -28,6 +28,7 @@ from TrigBjetHypo.TrigBjetEtHypoConfig import getBjetEtHypoInstance
 from TrigBjetHypo.TrigGSCFexConfig import getGSCFexSplitInstance
 
 from TrigBjetHypo.TrigBjetHypoConfig import (getBjetHypoInstance,
+                                             getBjetHypoAllTEInstance,
                                              getBjetHypoNoCutInstance,
                                              getBjetHypoSplitInstance,
                                              getBjetHypoSplitNoCutInstance)
@@ -51,7 +52,7 @@ pp = pprint.PrettyPrinter(indent=4, depth=8)
 ###########################################################################
 ###########################################################################
 def generateChainDefs(chainDict):
-    #log.setLevel(0)
+    log.setLevel(0)
     log.debug("In generateChainDefs")
 
     chainDict_orig = deepcopy(chainDict)
@@ -100,9 +101,8 @@ def generateChainDefs(chainDict):
 
     #----------------------------------------------------------------------------
     # --- now merge chain defs so that last TE is from jet serving as input to bjet seq ---
-    # DO NOT CHANGE THE MERGING ORDER PLEASE, OTHERWISE WRONG INPUTTE IS SELECTED
-    log.debug("Trying to merge chainDef for b-jet chain: \n %s ", theBJChainDef)
-    log.debug("AllJetChainDef: \n %s", theAllJetChainDef)
+    # DO NOT CHANGE THE MERGING ORDER PLEASE, OTHERWISE WRONG INPUT IS SELECTED
+    log.debug("Trying to merge chainDef for b-jet chain: \n ")
     theJetChainDef = mergeChainDefs([theAllJetChainDef, theBJChainDef], 'serial', -1, False)
     log.debug("Merged chainDef for b-jet chain: \n %s", theJetChainDef)
     #----------------------------------------------------------------------------
@@ -115,25 +115,32 @@ def generateChainDefs(chainDict):
 
     bjetchainDicts = [cdict for cdict in listofChainDicts if cdict['chainParts']['bTag']] 
     if log.isEnabledFor(logging.DEBUG): log.debug("Final b-jet chainDict: \n %s" , pp.pformat(bjetchainDicts))
-
-    theListOfChainDefs = []
-    for subChainDict in bjetchainDicts:
-        theJetChainDef1 = deepcopy(theJetChainDef)
-        theBjetChainDef = buildBjetChains(theJetChainDef1, subChainDict, True, len(bjetchainDicts))    
-        theListOfChainDefs += [theBjetChainDef] 
-
-
-    if log.isEnabledFor(logging.DEBUG):
-        log.debug("----------------- Beginning of final individual chainDefs for b-jet chains printout -----------------")
-        for chainDef in theListOfChainDefs:
-            log.debug('%s',chainDef)
-        log.debug("----------------- End of final individual chainDefs for b-jet chains printout -----------------")
-        
-    if len(theListOfChainDefs)>1:
-        theFinalChainDef = mergeChainDefs(theListOfChainDefs,strategy="parallel",offset=-1,preserveL2EFOrder=True,removeDuplicateTEs=True,noMergeBJet=True)
+    
+    doAllTEConfig = (chainDict['chainName']=='2j15_gsc35_bmv2c1040_split_2j15_gsc35_boffperf_split_L14J15.0ETA25')
+    
+    if doAllTEConfig:
+        log.debug("Doing new buildBjetChainsAllTE")
+        theFinalChainDef = buildBjetChainsAllTE(theJetChainDef, bjetchainDicts)
     else:
-        theFinalChainDef = theListOfChainDefs[0]
 
+        theListOfChainDefs = []
+        for subChainDict in bjetchainDicts:
+            theJetChainDef1 = deepcopy(theJetChainDef)
+            theBjetChainDef = buildBjetChains(theJetChainDef1, subChainDict, len(bjetchainDicts))    
+            theListOfChainDefs += [theBjetChainDef] 
+    
+
+        if log.isEnabledFor(logging.DEBUG):
+            log.debug("----------------- Beginning of final individual chainDefs for b-jet chains printout -----------------")
+            for chainDef in theListOfChainDefs:
+                log.debug('%s',chainDef)
+            log.debug("----------------- End of final individual chainDefs for b-jet chains printout -----------------")
+            
+        if len(theListOfChainDefs)>1:
+            theFinalChainDef = mergeChainDefs(theListOfChainDefs,strategy="parallel",offset=-1,preserveL2EFOrder=True,removeDuplicateTEs=True,noMergeBJet=True)
+        else:
+            theFinalChainDef = theListOfChainDefs[0]
+    
     log.debug("----------------- Beginning of final merged chainDefs for b-jet chains printout -----------------")
     log.debug('%s',theFinalChainDef)
     log.debug("----------------- End of final merged chainDefs for b-jet chains printout -----------------")
@@ -141,9 +148,137 @@ def generateChainDefs(chainDict):
     return theFinalChainDef
 
 
+#
+#  New AllTE Building (Only do it for split chains and non FTK)
+#
+def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1):
+    log.debug("In buildBjetChainsAllTE")
+    inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements'][0]
+
+    #
+    # super ROI building
+    #
+    theSuperRoi=getSuperRoiBuilderAllTEInstance()
+    superTE = "HLT_super"
+    theChainDef.addSequence(theSuperRoi,      inputTEsEF,   superTE)
+
+    #
+    #  PV Tracking
+    #
+    [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", "2step").getSequence() # new
+    tracking        = "IDTrig"
+    superTrackingTE = superTE+tracking
+    theChainDef.addSequence(trkvtx,  superTE,      superTrackingTE) 
+
+    #
+    #  PV Finding
+    #
+    prmVertexTE     = superTrackingTE+"_prmVtx"
+    theChainDef.addSequence([EFHistoPrmVtxAllTE_Jet()], superTrackingTE, prmVertexTE)
+    comboPrmVtxTE   = prmVertexTE+"Combo"
+    theChainDef.addSequence([EFHistoPrmVtxCombo_Jet()], [superTrackingTE,prmVertexTE], comboPrmVtxTE)
+
+    #
+    #  Jet splitting
+    #
+    # get the minimum et before gsc cut
+    theJetSplit=getJetSplitterAllTEInstance()
+    minBTagThreshold = 1e9
+    for bjetPart in bjetdict:
+        if minBTagThreshold < bjetPart['chainParts']['threshold']: 
+            minBTagThreshold = bjetPart['chainParts']['threshold']
+    log.debug("min jet Pt %s", minBTagThreshold)
+    jetHypoTE       = "HLT_j"+str(minBTagThreshold)+"_eta"
+    jetSplitTE      = jetHypoTE+"_jsplit"
+    theChainDef.addSequence(theJetSplit,  [inputTEsEF, comboPrmVtxTE], jetSplitTE)
+
+    #
+    #  Et cut berfore running precision tracking
+    #
+    algoInstance = "EF"   
+    theBjetEtHypo   = getBjetEtHypoInstance(algoInstance, "Btagging", str(minBTagThreshold)+"GeV" )
+    jetEtHypoTE     = "HLT_j"+str(minBTagThreshold)
+    theChainDef.addSequence(theBjetEtHypo,  jetSplitTE,       jetEtHypoTE )
+
+    #
+    #  Precision tracking
+    #
+    jetTrackTE      = jetSplitTE+"_"+tracking
+    theBjetTracks = trkftf+trkprec
+    theChainDef.addSequence(theBjetTracks,  jetEtHypoTE, jetTrackTE)       
+
+    #
+    #  Secondary Vertexing
+    #
+    theVxSecondary = TrigVxSecondaryCombo_EF()
+    secVtxTE        = jetTrackTE+"__"+"secVtx"
+    theChainDef.addSequence(theVxSecondary, [jetTrackTE, comboPrmVtxTE], secVtxTE)
+
+    #
+    #  GSC calculation
+    #
+    doGSC = False
+    minGSCThreshold = 1e9
+    for bjetPart in bjetdict:
+        if ('gscThreshold' in bjetPart['chainParts']) and (bjetPart['chainParts']['gscThreshold']): 
+            doGSC = True
+            thisGSCThresholdFloat = int(bjetPart['chainParts']['gscThreshold'].replace("gsc",""))
+            if thisGSCThresholdFloat < minGSCThreshold:
+                minGSCThreshold = thisGSCThresholdFloat
+
+    if doGSC:
+        log.debug("Doing GSC Calculation:"+str(minGSCThreshold)+"GeV")
+        theGSCFex      = getGSCFexSplitInstance(algoInstance,"2012","EFID")
+        theGSCEtHypo   = getBjetEtHypoInstance("GSC", "Btagging", str(minGSCThreshold) +"GeV" )
+
+        gsc_jetTrackTEPreCut  = "HLT_precut_gsc"+str(minBTagThreshold)+"_eta"+"_jsplit"+"_"+tracking
+        theChainDef.addSequence(theGSCFex,      secVtxTE                ,       gsc_jetTrackTEPreCut )
+
+        gsc_jetTrackTE        = "HLT_gsc"+str(minGSCThreshold)+"_eta"+"_jsplit"+"_"+tracking
+        theChainDef.addSequence(theGSCEtHypo,   gsc_jetTrackTEPreCut,           gsc_jetTrackTE )
+        jetsForBTagging = gsc_jetTrackTE
+
+    else:
+        log.debug("No GSC Calculation")
+        jetsForBTagging = secVtxTE
+
+
+    #
+    #  the tagging fex
+    #
+    theBjetFex = getBtagFexSplitInstance(algoInstance,"2012","EFID") 
+    btaggingTE = jetsForBTagging+"_btagged"
+    theChainDef.addSequence(theBjetFex, jetsForBTagging, btaggingTE)
+
+
+    #
+    #  The btagging hypo
+    #
+    lastTEout = "HLT_"+bjetdict[0]['chainName']
+    topoThresh = bjetdict[0]['topoThreshold']
+    topoStartFrom = setupTopoStartFrom(topoThresh,theChainDef) if topoThresh else None
+    if topoStartFrom:         lastTEout = lastTEout+'_tsf'
+    theBjetHypoAllTE = getBjetHypoAllTEInstance("EF","2017","mv2c1040")
+
+
+    #chainParts = chainDict['chainParts']
+    #btagthresh = chainParts['threshold']
+    #gscthresh  = chainParts['gscThreshold'] if ('gscThreshold' in chainParts) else ''
+    #btagmult = chainParts['multiplicity']
+    #bjetparts = bjetdict['chainParts']
+    theChainDef.signatureList[-1]['listOfTriggerElements'][0]
+    theChainDef.addSequence(theBjetHypoAllTE, btaggingTE, lastTEout, topo_start_from = topoStartFrom)
+
+    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [lastTEout])
+
+    log.debug("Left buildBjetChainsAllTE")
+    theChainDef.chain_name = 'HLT_'+bjetdict[0]['chainName']
+    return theChainDef
+
+
 ###########################################################################
 ###########################################################################
-def buildBjetChains(jchaindef,bjetdict,doAtL2AndEF=True,numberOfSubChainDicts=1):
+def buildBjetChains(jchaindef,bjetdict,numberOfSubChainDicts=1):
     log.debug("In buildBjetChains")
     inputTEsEF = jchaindef.signatureList[-1]['listOfTriggerElements'][0]
 
@@ -588,49 +723,20 @@ def _prepareJetChainDict(cdict):
 def get_j35_ChainDef():
     return theDictFromChainName.getChainDict( ['j35', 'L1_J20', [], ["Main"], ['RATE:SingleJet',  'BW:Jets'], -1],) 
 
-# def get_j35_ChainDef():
-#     # HACK TO GET j35 chains!!!
-#     j35_chainDict = { 'EBstep': 1, 
-#                       'L1item': 'L1_J20', 
-#                       'chainCounter': 21, 
-#                       'chainName': 'j35', 
-#                       'chainParts': [ { 'L1item': '', 
-#                                         'addInfo': [], 
-#                                         'bTag': 'bmedium', 
-#                                         'calib': 'em', 
-#                                         'jetCalib': 'subjes', 
-#                                         'chainPartName': 'j35', 
-#                                         'dataType': 'tc', 
-#                                         'etaRange': '0eta320', 
-#                                         'extra': '', 
-#                                         'multiplicity': '1', 
-#                                         'recoAlg': 'a4', 
-#                                         'scan': 'FS', 
-#                                         'signature': 'Jet', 
-#                                         'threshold': '35', 
-#                                         'topo': [], 
-#                                         'trigType': 'j'}, ], 
-#                       'groups': ['RATE:MultiJet', 'BW:Jets'], 
-#                       'signature': 'Jet', 
-#                       'signatures': '', 
-#                       'stream': ['Jet'], 
-#                       'topo': []} 
-# 
-#    return j35_chainDict
 
-def get_lastTE_j35(ChainDef):
-    inputTEsEF = ChainDef.signatureList[-1]['listOfTriggerElements']
-    return inputTEsEF
+#def get_lastTE_j35(ChainDef):
+#    inputTEsEF = ChainDef.signatureList[-1]['listOfTriggerElements']
+#    return inputTEsEF
 ###########################################################################
-def getMultThreshBtagInfo(cDict):
-    allInfo = []
-    chainPartInfo = []
-    for cpart in cDict['chainParts']:
-        if cpart['signature'] == 'Jet':
-            chainPartInfo.append(cpart['multiplicity'])        
-            chainPartInfo.append(cpart['threshold'])        
-            chainPartInfo.append(cpart['bTag'])
-            allInfo.append(chainPartInfo)
-
-    return allInfo
+#def getMultThreshBtagInfo(cDict):
+#    allInfo = []
+#    chainPartInfo = []
+#    for cpart in cDict['chainParts']:
+#        if cpart['signature'] == 'Jet':
+#            chainPartInfo.append(cpart['multiplicity'])        
+#            chainPartInfo.append(cpart['threshold'])        
+#            chainPartInfo.append(cpart['bTag'])
+#            allInfo.append(chainPartInfo)
+#
+#    return allInfo
 ###########################################################################

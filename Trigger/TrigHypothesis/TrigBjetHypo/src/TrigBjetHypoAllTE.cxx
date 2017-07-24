@@ -160,6 +160,7 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
   //
   //  Do the multiplicity cut
   //
+  std::cout << "In TrigBjetHypoAllTE " << std::endl;
   for(xAOD::BTagging* trigBJet : *trigBTaggingContainer){
     double btagWeight = trigBJet->auxdata<double>("MV2c20_discriminant");  
     std::vector< ElementLink< xAOD::IParticleContainer > >  matchedJets = trigBJet->auxdata< std::vector< ElementLink< xAOD::IParticleContainer > > >("BTagBtagToJetAssociator");  

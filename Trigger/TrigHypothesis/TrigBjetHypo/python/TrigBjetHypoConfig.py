@@ -1,12 +1,16 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from TrigBjetHypo.TrigBjetHypoConf import TrigBjetHypo
+from TrigBjetHypo.TrigBjetHypoConf import TrigBjetHypoAllTE
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.SystemOfUnits import GeV
 
 def getBjetHypoInstance( instance, version, cut ):
     return BjetHypo( instance=instance, cut=cut, version=version, name=instance+"BjetHypo"+"_"+cut+"_"+version )
+
+def getBjetHypoAllTEInstance( instance, version, cut ):
+    return BjetHypoAllTE( instance=instance, cut=cut, version=version, name=instance+"BjetHypoAllTE"+"_"+cut+"_"+version )
 
 def getBjetHypoNoCutInstance( instance):
     return BjetHypoNoCut( instance=instance, name=instance+"BjetHypoNoCut" )
@@ -298,3 +302,74 @@ class BjetHypoSplitNoCut (TrigBjetHypo):
 
         
 
+#
+#  All TE
+#
+class BjetHypoAllTE (TrigBjetHypoAllTE):
+    __slots__ = []
+    
+    def __init__(self, instance, version, cut, name):
+        super( BjetHypoAllTE, self ).__init__( name )
+        
+        mlog = logging.getLogger('BjetHypoAllTEConfig.py')
+        
+        AllowedCuts      = ["mv2c1040","mv2c1050","mv2c1060","mv2c1070","mv2c1077","mv2c1085" ]
+        AllowedVersions  = ["2017"]
+        AllowedInstances = ["EF"  ]
+        
+        if instance not in AllowedInstances :
+            mlog.error("Instance "+instance+" is not supported!")
+            return None
+        
+        if version not in AllowedVersions :
+            mlog.error("Version "+version+" is not supported!")
+            return None
+        
+        if cut not in AllowedCuts :
+            mlog.error("Cut "+cut+" is not supported!")
+            return None
+
+        self.BTaggingKey = "HLTBjetFex"
+        if instance=="MuJetChain" :
+            #self.JetKey = "FarawayJet"
+            instance = "EF"
+
+        if instance=="EF" :
+            #self.Instance        = "EF"
+            self.UseBeamSpotFlag = False
+            self.OverrideBeamSpotValid = False
+        
+#        if instance=="EF" :
+#            from TrigBjetHypo.TrigBjetHypoMonitoring import TrigEFBjetHypoValidationMonitoring, TrigEFBjetHypoOnlineMonitoring
+#            validation = TrigEFBjetHypoValidationMonitoring()
+#            online     = TrigEFBjetHypoOnlineMonitoring()
+        
+#        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+#        time = TrigTimeHistToolConfig("TimeHistogramForTrigBjetHypo")
+#        time.TimerHistLimits = [0,0.4]
+        
+#        self.AthenaMonTools = [ time, validation, online ]
+            
+#        if instance=="EF" :
+#            if version=="2017" :
+#                self.MethodTag = "MV2c10"
+#                # These are the offline working points
+#                if cut=="mv2c1040":
+#                    # Actually ~45% efficient
+#                    self.CutMV2c10 =  0.978
+#                elif cut=="mv2c1050":
+#                    # Actually ~55% efficient
+#                    self.CutMV2c10 =  0.948
+#                elif cut=="mv2c1060":
+#                    # Actually ~65% efficient
+#                    self.CutMV2c10 =  0.847
+#                elif cut=="mv2c1070":
+#                    # Actually ~75% efficient
+#                    self.CutMV2c10 =  0.580
+#                elif cut=="mv2c1077":
+#                    # Actually ~80% efficient
+#                    self.CutMV2c10 =  0.162
+#                elif cut=="mv2c1085":
+#                    # Actually ~90% efficient
+#                    self.CutMV2c10 = -0.494
+#
