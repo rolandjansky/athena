@@ -31,6 +31,7 @@
 #include "TrigT1CaloUtils/DataError.h"
 
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
+#include "xAODTrigL1Calo/TriggerTowerAuxContainer.h"
 
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
@@ -41,13 +42,29 @@ namespace LVL1 {
 // ============================================================================
 MistimedStreamMon::MistimedStreamMon(const std::string & type, const std::string & name, const IInterface* parent): ManagedMonitorToolBase ( type, name, parent ),
       m_histBooked(false),
+      m_selectedEventCounter(0),
       m_errorTool("LVL1::TrigT1CaloMonErrorTool/TrigT1CaloMonErrorTool"),
       m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"),
-      m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
-      m_h_em_2d_etaPhi_tt_classification_mistimedStreamAna(0),
-      m_h_1d_selectedEvents_mistimedStreamAna(0),
+      m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"), // can provide coolID, prob. not needed
       m_h_1d_cutFlow_mistimedStreamAna(0),
-      m_v_em_2d_etaPhi_tt_lut_cp1_mistimedStreamAna(0)
+      m_h_1d_selectedEvents_mistimedStreamAna(0),
+      m_v_em_2d_etaPhi_tt_classification_mistimedStreamAna(0),
+      m_v_had_2d_etaPhi_tt_classification_mistimedStreamAna(0),
+      m_v_em_2d_etaPhi_tt_pseBits_mistimedStreamAna(0),
+      m_v_had_2d_etaPhi_tt_pseBits_mistimedStreamAna(0),
+      m_v_em_2d_etaPhi_tt_lut_cp0_mistimedStreamAna(0),
+      m_v_em_2d_etaPhi_tt_lut_cp1_mistimedStreamAna(0),
+      m_v_em_2d_etaPhi_tt_lut_cp2_mistimedStreamAna(0),
+      m_v_had_2d_etaPhi_tt_lut_cp0_mistimedStreamAna(0),
+      m_v_had_2d_etaPhi_tt_lut_cp1_mistimedStreamAna(0),
+      m_v_had_2d_etaPhi_tt_lut_cp2_mistimedStreamAna(0),
+      m_v_em_2d_etaPhi_tt_lut_jep0_mistimedStreamAna(0),
+      m_v_em_2d_etaPhi_tt_lut_jep1_mistimedStreamAna(0),
+      m_v_em_2d_etaPhi_tt_lut_jep2_mistimedStreamAna(0),
+      m_v_had_2d_etaPhi_tt_lut_jep0_mistimedStreamAna(0),
+      m_v_had_2d_etaPhi_tt_lut_jep1_mistimedStreamAna(0),
+      m_v_had_2d_etaPhi_tt_lut_jep2_mistimedStreamAna(0) 
+      
 {
      declareProperty("PathInRootFile", m_PathInRootFile = "L1Calo/MistimedStream");
      declareProperty("BS_xAODTriggerTowerContainer",
@@ -74,7 +91,7 @@ StatusCode MistimedStreamMon::initialize()
   CHECK(m_histTool.retrieve());
   CHECK(m_ttTool.retrieve());
 
-  std::cout<<"Hello Julia :)"<<std::endl;
+  std::cout<<"Here comes the MistimedStream Analysis"<<std::endl;
   
   return StatusCode::SUCCESS;
 
@@ -88,6 +105,105 @@ StatusCode MistimedStreamMon::finalize()
   return StatusCode::SUCCESS;
 }
 
+bool MistimedStreamMon::pulseQuality(std::vector<uint16_t> ttPulse, int peakSlice) {
+     
+    bool goodPulse = true;
+    
+    int a = ttPulse[peakSlice-1];
+    int b = ttPulse[peakSlice];
+    int c = ttPulse[peakSlice+1];
+    double tim = (0.5*a-0.5*c)/(a+c-2*b);
+    double wid = (a+c-64.0)/(b-32.0);
+    if ( tim < 0.0 ) goodPulse = false;
+    if ( tim > 0.3 ) goodPulse = false;
+    if ( wid < 1.0 ) goodPulse = false;
+    if ( wid > 1.6 ) goodPulse = false;             
+//     std::cout<<"Pulse qual= "<< goodPulse<<" tim = "<<tim<<" wid = "<<wid <<std::endl;
+//     std::cout<<"a = "<< a <<" b = "<<b<<" c = "<<c <<std::endl;
+    return goodPulse;
+}
+
+
+/*---------------------------------------------------------*/
+void MistimedStreamMon::bookEventHistograms(std::string number) 
+/*---------------------------------------------------------*/
+{
+  // detailed histograms per selected event. Ideally booked before filling. if not possible, write method and create histos for the first 10 events (0 - 9), but not so pretty
+  std::string name, title;
+  name = "em_2d_etaPhi_tt_classification_mistimedStreamAna_event_" + number;
+  title = "#eta - #phi Map of TT classification in the EM layer of selected event number " + number;
+  TH2F_LW *emClass = m_histTool->bookPPMEmEtaVsPhi(name, title);
+  m_v_em_2d_etaPhi_tt_classification_mistimedStreamAna.push_back(emClass);
+  name = "had_2d_etaPhi_tt_classification_mistimedStreamAna_event_" + number;
+  title = "#eta - #phi Map of TT classification in the HAD layer of selected event number " + number;
+  TH2F_LW *hadClass = m_histTool->bookPPMEmEtaVsPhi(name, title);
+  m_v_had_2d_etaPhi_tt_classification_mistimedStreamAna.push_back(hadClass);
+
+  name = "em_2d_etaPhi_tt_pseBits_mistimedStreamAna_event_" + number;
+  title = "#eta - #phi Map of TT PSE Bits in the EM layer of selected event number " + number;
+  TH2F_LW *emPSE = m_histTool->bookPPMEmEtaVsPhi(name, title);
+  m_v_em_2d_etaPhi_tt_pseBits_mistimedStreamAna.push_back(emPSE);
+  name = "had_2d_etaPhi_tt_pseBits_mistimedStreamAna_event_" + number;
+  title = "#eta - #phi Map of TT PSE Bits in the HAD layer of selected event number " + number;
+  TH2F_LW *hadPSE = m_histTool->bookPPMEmEtaVsPhi(name, title);
+  m_v_had_2d_etaPhi_tt_pseBits_mistimedStreamAna.push_back(hadPSE);
+  
+  name = "em_2d_etaPhi_tt_lut_cp0_mistimedStreamAna_event_" + number;
+  title = "#eta - #phi Map of TT LUT CP in timeslice 0 = BCID-1 in the EM layer of selected event number " + number;
+  TH2F_LW *emLUTcp0 = m_histTool->bookPPMEmEtaVsPhi(name, title);
+  m_v_em_2d_etaPhi_tt_lut_cp0_mistimedStreamAna.push_back(emLUTcp0);
+  name = "had_2d_etaPhi_tt_lut_cp0_mistimedStreamAna_event_" + number;
+  title = "#eta - #phi Map of TT LUT CP in timeslice 0 = BCID-1 in the HAD layer of selected event number " + number;
+  TH2F_LW *hadLUTcp0 = m_histTool->bookPPMEmEtaVsPhi(name, title);
+  m_v_had_2d_etaPhi_tt_lut_cp0_mistimedStreamAna.push_back(hadLUTcp0);
+  
+  name = "em_2d_etaPhi_tt_lut_cp1_mistimedStreamAna_event_" + number;
+  title = "#eta - #phi Map of TT LUT CP in timeslice 1 = BCID in the EM layer of selected event number " + number;
+  TH2F_LW *emLUTcp1 = m_histTool->bookPPMEmEtaVsPhi(name, title);
+  m_v_em_2d_etaPhi_tt_lut_cp1_mistimedStreamAna.push_back(emLUTcp1);
+  name = "had_2d_etaPhi_tt_lut_cp1_mistimedStreamAna_event_" + number;
+  title = "#eta - #phi Map of TT LUT CP in timeslice 1 = BCID in the HAD layer of selected event number " + number;
+  TH2F_LW *hadLUTcp1 = m_histTool->bookPPMEmEtaVsPhi(name, title);
+  m_v_had_2d_etaPhi_tt_lut_cp1_mistimedStreamAna.push_back(hadLUTcp1);
+
+  name = "em_2d_etaPhi_tt_lut_cp2_mistimedStreamAna_event_" + number;
+  title = "#eta - #phi Map of TT LUT CP in timeslice 2 = BCID+1 in the EM layer of selected event number " + number;
+  TH2F_LW *emLUTcp2 = m_histTool->bookPPMEmEtaVsPhi(name, title);
+  m_v_em_2d_etaPhi_tt_lut_cp2_mistimedStreamAna.push_back(emLUTcp2);
+  name = "had_2d_etaPhi_tt_lut_cp2_mistimedStreamAna_event_" + number;
+  title = "#eta - #phi Map of TT LUT CP in timeslice 2 = BCID+1 in the HAD layer of selected event number " + number;
+  TH2F_LW *hadLUTcp2 = m_histTool->bookPPMEmEtaVsPhi(name, title);
+  m_v_had_2d_etaPhi_tt_lut_cp2_mistimedStreamAna.push_back(hadLUTcp2);
+
+  name = "em_2d_etaPhi_tt_lut_jep0_mistimedStreamAna_event_" + number;
+  title = "#eta - #phi Map of TT LUT JEP in timeslice 0 = BCID-1 in the EM layer of selected event number " + number;
+  TH2F_LW *emLUTjep0 = m_histTool->bookPPMEmEtaVsPhi(name, title);
+  m_v_em_2d_etaPhi_tt_lut_jep0_mistimedStreamAna.push_back(emLUTjep0);
+  name = "had_2d_etaPhi_tt_lut_jep0_mistimedStreamAna_event_" + number;
+  title = "#eta - #phi Map of TT LUT JEP in timeslice 0 = BCID-1 in the HAD layer of selected event number " + number;
+  TH2F_LW *hadLUTjep0 = m_histTool->bookPPMEmEtaVsPhi(name, title);
+  m_v_had_2d_etaPhi_tt_lut_jep0_mistimedStreamAna.push_back(hadLUTjep0);
+  
+  name = "em_2d_etaPhi_tt_lut_jep1_mistimedStreamAna_event_" + number;
+  title = "#eta - #phi Map of TT LUT JEP in timeslice 1 = BCID in the EM layer of selected event number " + number;
+  TH2F_LW *emLUTjep1 = m_histTool->bookPPMEmEtaVsPhi(name, title);
+  m_v_em_2d_etaPhi_tt_lut_jep1_mistimedStreamAna.push_back(emLUTjep1);
+  name = "had_2d_etaPhi_tt_lut_jep1_mistimedStreamAna_event_" + number;
+  title = "#eta - #phi Map of TT LUT JEP in timeslice 1 = BCID in the HAD layer of selected event number " + number;
+  TH2F_LW *hadLUTjep1 = m_histTool->bookPPMEmEtaVsPhi(name, title);
+  m_v_had_2d_etaPhi_tt_lut_jep1_mistimedStreamAna.push_back(hadLUTjep1);
+
+  name = "em_2d_etaPhi_tt_lut_jep2_mistimedStreamAna_event_" + number;
+  title = "#eta - #phi Map of TT LUT JEP in timeslice 2 = BCID+1 in the EM layer of selected event number " + number;
+  TH2F_LW *emLUTjep2 = m_histTool->bookPPMEmEtaVsPhi(name, title);
+  m_v_em_2d_etaPhi_tt_lut_jep2_mistimedStreamAna.push_back(emLUTjep2);
+  name = "had_2d_etaPhi_tt_lut_jep2_mistimedStreamAna_event_" + number;
+  title = "#eta - #phi Map of TT LUT JEP in timeslice 2 = BCID+1 in the HAD layer of selected event number " + number;
+  TH2F_LW *hadLUTjep2 = m_histTool->bookPPMEmEtaVsPhi(name, title);
+  m_v_had_2d_etaPhi_tt_lut_jep2_mistimedStreamAna.push_back(hadLUTjep2);
+  
+  return;
+}
 
 /*---------------------------------------------------------*/
 StatusCode MistimedStreamMon::bookHistogramsRecurrent() // based on bookHistogramsRecurrent from PPrMon
@@ -100,19 +216,52 @@ StatusCode MistimedStreamMon::bookHistogramsRecurrent() // based on bookHistogra
 
   if (newRun) {
 
-    //create MonGroup with the folder to store histos
+    // create MonGroup with the folder to store histos
     MonGroup TT_MistimedMon(this, m_PathInRootFile, run, attr);
     m_histTool->setMonGroup(&TT_MistimedMon);
-
-    std::string name, title;
-    title = "#eta - #phi Map of TT classification in the EM layer";
-    m_h_em_2d_etaPhi_tt_classification_mistimedStreamAna =
-        m_histTool->bookPPMEmEtaVsPhi("em_2d_etaPhi_tt_classification_mistimedStreamAna", title);
-
+  
+    // overview histograms (only one per run)
     m_h_1d_selectedEvents_mistimedStreamAna =
         m_histTool->book1F("1d_selectedEvents_mistimedStreamAna",
                            "Selected events per lumi block by the MistimedStream analysis",
                            9999, 0, 9999); // this plot will "only" cover 9999 lumi blocks
+    m_h_1d_cutFlow_mistimedStreamAna =
+        m_histTool->book1F("1d_cutFlow_mistimedStreamAna",
+                           "Total events selected by the MistimedStream analysis for this run",
+                           9, 0, 9); // overall cutflow plot
+   
+    m_h_1d_cutFlow_mistimedStreamAna->GetXaxis()->SetBinLabel( 1, "All" );
+    m_h_1d_cutFlow_mistimedStreamAna->GetXaxis()->SetBinLabel( 2, "5 slice readout" );
+    m_h_1d_cutFlow_mistimedStreamAna->GetXaxis()->SetBinLabel( 3, "HLT_mistimemonj400" );
+    m_h_1d_cutFlow_mistimedStreamAna->GetXaxis()->SetBinLabel( 4, "L1_J100" );
+    m_h_1d_cutFlow_mistimedStreamAna->GetXaxis()->SetBinLabel( 5, "<= 4 bad peak TT" );
+    m_h_1d_cutFlow_mistimedStreamAna->GetXaxis()->SetBinLabel( 6, "<= 4 bad central TT" );
+    m_h_1d_cutFlow_mistimedStreamAna->GetXaxis()->SetBinLabel( 7, "<= 4 bad late TT" );
+    m_h_1d_cutFlow_mistimedStreamAna->GetXaxis()->SetBinLabel( 8, ">= 2 late TT" );
+    m_h_1d_cutFlow_mistimedStreamAna->GetXaxis()->SetBinLabel( 9, "<= 3 in-time" );
+    
+    //book 10 events for each run, more mistimed events will be discarded and need to be checked by hand
+    m_v_em_2d_etaPhi_tt_classification_mistimedStreamAna.clear();
+    m_v_had_2d_etaPhi_tt_classification_mistimedStreamAna.clear();
+    m_v_em_2d_etaPhi_tt_pseBits_mistimedStreamAna.clear();
+    m_v_had_2d_etaPhi_tt_pseBits_mistimedStreamAna.clear();
+    m_v_em_2d_etaPhi_tt_lut_cp0_mistimedStreamAna.clear();
+    m_v_em_2d_etaPhi_tt_lut_cp1_mistimedStreamAna.clear();
+    m_v_em_2d_etaPhi_tt_lut_cp2_mistimedStreamAna.clear();
+    m_v_had_2d_etaPhi_tt_lut_cp0_mistimedStreamAna.clear();
+    m_v_had_2d_etaPhi_tt_lut_cp1_mistimedStreamAna.clear();
+    m_v_had_2d_etaPhi_tt_lut_cp2_mistimedStreamAna.clear();
+    m_v_em_2d_etaPhi_tt_lut_jep0_mistimedStreamAna.clear();
+    m_v_em_2d_etaPhi_tt_lut_jep1_mistimedStreamAna.clear();
+    m_v_em_2d_etaPhi_tt_lut_jep2_mistimedStreamAna.clear();
+    m_v_had_2d_etaPhi_tt_lut_jep0_mistimedStreamAna.clear();
+    m_v_had_2d_etaPhi_tt_lut_jep1_mistimedStreamAna.clear();
+    m_v_had_2d_etaPhi_tt_lut_jep2_mistimedStreamAna.clear();
+    
+    for(int histNo = 0; histNo < 10; histNo++){
+        bookEventHistograms(std::to_string(histNo));
+    }
+  
     m_histTool->unsetMonGroup();
     if (newRun)
       m_histBooked = true;
@@ -145,7 +294,6 @@ StatusCode MistimedStreamMon::fillHistograms()
   const xAOD::TriggerTowerContainer_v2 *TriggerTowerTES = 0;
   StatusCode sc =
       evtStore()->retrieve(TriggerTowerTES, m_xAODTriggerTowerContainerName);
-
   if (sc.isFailure() || !TriggerTowerTES) {
     if (debug)
       msg(MSG::DEBUG) << "No TriggerTower found in TES at "
@@ -153,7 +301,15 @@ StatusCode MistimedStreamMon::fillHistograms()
     return StatusCode::SUCCESS;
   }
 
-  // Get Bunch crossing number from EventInfo
+  //Create container for the decorated TT, as well as auxiliary container holding the actual properties
+  xAOD::TriggerTowerContainer*    ttContainer = new xAOD::TriggerTowerContainer;
+  xAOD::TriggerTowerAuxContainer* ttAuxContainer = new xAOD::TriggerTowerAuxContainer;
+  // To tell the TT container in which auxiliary container it should write its member variables
+  ttContainer->setStore(ttAuxContainer); //gives it a new associated aux container
+  //Object holding the decoration, to optimize access speed
+  xAOD::TriggerTower::Decorator<float> myDecoration("pulseClassification");
+  
+  // Retrieve EventInfo from SG and save lumi block number, global event number and run number
   uint32_t bunchCrossing = 0;
   const EventInfo *evInfo = 0;
   sc = evtStore()->retrieve(evInfo);
@@ -166,75 +322,187 @@ StatusCode MistimedStreamMon::fillHistograms()
       bunchCrossing = evID->bunch_crossing_id();
     }
   }
-
+  m_h_1d_cutFlow_mistimedStreamAna->Fill(0.5);
+  
   // =====================================================================
   // ================= Container: TriggerTower ===========================
   // =====================================================================
 
-  xAOD::TriggerTowerContainer_v2::const_iterator TriggerTowerIterator =
+  xAOD::TriggerTowerContainer_v2::const_iterator TriggerTowerIterator = 
       TriggerTowerTES->begin();
   xAOD::TriggerTowerContainer_v2::const_iterator TriggerTowerIteratorEnd =
       TriggerTowerTES->end();
 
+   // right now this code only works on 5 slice readout:
+   if((*TriggerTowerIterator)->adc().size() != 5){
+       msg(MSG::DEBUG) << "Number of ADC slices != 5, aborting..." << endmsg;
+       return StatusCode::SUCCESS;
+   }
+   
+  m_h_1d_cutFlow_mistimedStreamAna->Fill(1.5);
+  //Select events that fired HLT_mistimedmonj400
+  m_h_1d_cutFlow_mistimedStreamAna->Fill(2.5);
+  //Only select events which passed the L1_J100
+  m_h_1d_cutFlow_mistimedStreamAna->Fill(3.5);
+
+
+  // now classify the tower signals by looking at their FADC counts, if it exceeds 70
+  int satCounter = 0; // saturated TT
+  int badCounter = 0; // category 2 really bad
+  int bad2Counter = 0; // category 4 bad peak 2 
+  int bad3Counter = 0; // category 6 bad peak 3 
+  int good3Counter = 0; // category 5 good peak 3 
+  int good2Counter = 0; // category 5 good peak 3 
+  
   for (; TriggerTowerIterator != TriggerTowerIteratorEnd;
        ++TriggerTowerIterator) {
-
-    const int layer = (*TriggerTowerIterator)->layer();
-    const double eta = (*TriggerTowerIterator)->eta();
-    const double phi = (*TriggerTowerIterator)->phi();
+    auto vecIndexTT = std::distance( TriggerTowerTES->begin(), TriggerTowerIterator ) ;
+//     const int layer = (*TriggerTowerIterator)->layer();
+//     const double eta = (*TriggerTowerIterator)->eta();
+//     const double phi = (*TriggerTowerIterator)->phi();
 //     const int cpET = (*TriggerTowerIterator)->cpET();
 //     int jepET = 0;
-//     const std::vector<uint_least8_t> jepETvec =
-//         (*TriggerTowerIterator)->lut_jep();
+//     const std::vector<uint_least8_t> jepETvec = (*TriggerTowerIterator)->lut_jep();
 //     if (jepETvec.size() > 0) {
 //       jepET = (*TriggerTowerIterator)->jepET();
 //     }
+    float ttPulseCategory = 0;
+    // retrieve max ADC value and position, this seems to be buggy in the DAOD
+    std::cout<<vecIndexTT<< " TT index; lumi block "<<lumiBlock<<std::endl;
+//     << " event Number " <<eventNumber<<" run number "<<runNumber 
+    auto maxValIterator = std::max_element(TriggerTowerTES->at(vecIndexTT)->adc().begin(), TriggerTowerTES->at(vecIndexTT)->adc().end());
+    int maxADCval = *maxValIterator;
+    int adcPeakPositon = std::distance(std::begin(TriggerTowerTES->at(vecIndexTT)->adc()), maxValIterator);
 
-    // Check if TT is in EM or HAD layer:
-    
-    if (layer == 0) { //========== ELECTROMAGNETIC LAYER =========================
-      //---------------------------- ADC HitMaps per timeslice -----------------
-      unsigned int tslice = (*TriggerTowerIterator)->adcPeak();
-
-      if (tslice < ((*TriggerTowerIterator)->adc()).size()) {
-//         const int ADC = ((*TriggerTowerIterator)->adc())[tslice];
-//           m_h_1d_selectedEvents_mistimedStreamAna->Fill(eta,1);
-          m_histTool->fillPPMEmEtaVsPhi(m_h_em_2d_etaPhi_tt_classification_mistimedStreamAna, 
-                                        eta, phi, 1);
+    if(maxADCval < 70){
+       ttPulseCategory = 0.1;
+    }else if(maxADCval == 1023) {
+        satCounter++;
+        ttPulseCategory = 1;
+    }else{
+        bool goodQual = pulseQuality(TriggerTowerTES->at(vecIndexTT)->adc(), adcPeakPositon);
+        //look at any of the five FADC values
+        if(adcPeakPositon == 2){ // can be class 3 or 4 now
+          if(goodQual){
+             good2Counter++;
+             ttPulseCategory = 3;
+          }else{
+             bad2Counter++;
+             ttPulseCategory = 4;
+          }
+        }else if(adcPeakPositon == 3){ // can be class 5 or 6 now
+           if(goodQual){
+             good3Counter++;
+             ttPulseCategory = 5;
+           }else{
+             bad3Counter++;
+             ttPulseCategory = 6;
+           }
+        }else{
+          //this is class 2 - really bad
+          badCounter++;
+          ttPulseCategory = 2;
       }
     }
-//     if (layer == 1) { //========== HADRONIC LAYER ===============================
+    // decorate the TT in order to have to recompute the pulse categorisation
+    xAOD::TriggerTower* newTT = new xAOD::TriggerTower; //create a new TT object
+    ttContainer->push_back(newTT); // add the newTT to new output TT container (at the end of it)
+    *newTT = *TriggerTowerTES->at(vecIndexTT); // copy over all information from TT to newTT
+    newTT->auxdata<float>("pulseClassification") = ttPulseCategory; //decorate
+//     myDecoration(*newJet) = 10.0; // same decoration with a Decorator (faster)
+  }
+  
+  if(badCounter > 4){
+    //reject events with more than 4 wrongly peaked towers
+    return StatusCode::SUCCESS;
+  }
+  m_h_1d_cutFlow_mistimedStreamAna->Fill(4.5);
+ 
+  if(bad2Counter > 4){
+    //reject events with more than 4 pulses peaking in slice 2 that are badly timed or mis-shapen
+    return StatusCode::SUCCESS;
+  }
+  m_h_1d_cutFlow_mistimedStreamAna->Fill(5.5);
+  
+  if(bad3Counter > 4){
+    //reject events with more than 4 pulses peaking in slice 3 that are badly timed or mis-shapen
+    return StatusCode::SUCCESS;
+  }
+  m_h_1d_cutFlow_mistimedStreamAna->Fill(6.5);
+  
+  if(good3Counter < 2){
+    //reject events with less than 2 pulses nicely peaking in slice 3 
+    return StatusCode::SUCCESS;
+  }
+  m_h_1d_cutFlow_mistimedStreamAna->Fill(7.5);
+   
+  if(good2Counter > 2){
+    //reject events with more than 2 pulses nicely peaking in slice 2 to avoid event being triggered by pileup 
+    return StatusCode::SUCCESS;
+  }
+  
+  m_h_1d_cutFlow_mistimedStreamAna->Fill(8.5);
+  m_selectedEventCounter++;
+  std::cout<<" m_selectedEventCounter is "<<m_selectedEventCounter<<std::endl;
+    
+//   for (; TriggerTowerIterator != TriggerTowerIteratorEnd;
+//        ++TriggerTowerIterator) {
+// 
+//     const int layer = (*TriggerTowerIterator)->layer();
+//     const double eta = (*TriggerTowerIterator)->eta();
+//     const double phi = (*TriggerTowerIterator)->phi();
+//     const int cpET = (*TriggerTowerIterator)->cpET();
+//     int jepET = 0;
+//     const std::vector<uint_least8_t> jepETvec = (*TriggerTowerIterator)->lut_jep();
+//     if (jepETvec.size() > 0) {
+//       jepET = (*TriggerTowerIterator)->jepET();
+//     }
+//     // Check if TT is in EM or HAD layer:
+//     if (layer == 0) { //========== ELECTROMAGNETIC LAYER =========================
 //       //---------------------------- ADC HitMaps per timeslice -----------------
 //       unsigned int tslice = (*TriggerTowerIterator)->adcPeak();
 // 
 //       if (tslice < ((*TriggerTowerIterator)->adc()).size()) {
-//         const int ADC = ((*TriggerTowerIterator)->adc())[tslice];
-//         if (ADC > m_TT_ADC_HitMap_Thresh) {
-//           m_histTool->fillPPMHadEtaVsPhi(m_h_ppm_had_2d_etaPhi_tt_adc_HitMap,
-//                                          eta, phi, 1);
-//         }
+// //         const int ADC = ((*TriggerTowerIterator)->adc())[tslice];
+// //           m_h_1d_selectedEvents_mistimedStreamAna->Fill(eta,1);
+// //           m_histTool->fillPPMEmEtaVsPhi(m_h_em_2d_etaPhi_tt_classification_mistimedStreamAna, 
+// //                                         eta, phi, 1);
 //       }
 //     }
-  }
-
+// //     if (layer == 1) { //========== HADRONIC LAYER ===============================
+// //       //---------------------------- ADC HitMaps per timeslice -----------------
+// //       unsigned int tslice = (*TriggerTowerIterator)->adcPeak();
+// // 
+// //       if (tslice < ((*TriggerTowerIterator)->adc()).size()) {
+// //         const int ADC = ((*TriggerTowerIterator)->adc())[tslice];
+// //         if (ADC > m_TT_ADC_HitMap_Thresh) {
+// //           m_histTool->fillPPMHadEtaVsPhi(m_h_ppm_had_2d_etaPhi_tt_adc_HitMap,
+// //                                          eta, phi, 1);
+// //         }
+// //       }
+// //     }
+//   }
   
-  std::stringstream buffer;
+
+
+//   //adding the histos dynamically does not seem to work... too bad!!!
+//   std::stringstream buffer;
 //   m_histTool->setMonGroup(&TT_MistimedMon);
-
-  m_v_em_2d_etaPhi_tt_lut_cp1_mistimedStreamAna.clear();
-  for (int i = 0; i < 12; i++) {
-        buffer.str("");
-        buffer << i; // here the lumi block, event number and run number should go
-        std::string name = "em_2d_etaPhi_tt_lut_cp1_mistimedStreamAna_event_" + buffer.str();
-        std::string title = "EM Layer, LUT-CP in time slice 1 for Event No. " + buffer.str();
-        TH2F_LW *hist =
-            m_histTool->bookPPMEmEtaVsPhi(name, title);
-//         m_histTool->numbers(hist, 0, 15, 2);
-//         m_histTool->ppmCrateModule(hist, crate, crate + 1, 0, false);
-        m_v_em_2d_etaPhi_tt_lut_cp1_mistimedStreamAna.push_back(hist);
-      }
-  
-  m_h_1d_selectedEvents_mistimedStreamAna->Fill(42);
+//   m_v_em_2d_etaPhi_tt_lut_cp1_mistimedStreamAna.clear();
+//   for (int i = 0; i < 12; i++) {
+//         buffer.str("");
+//         buffer << i; // here the lumi block, event number and run number should go
+//         std::string name = "em_2d_etaPhi_tt_lut_cp1_mistimedStreamAna_event_" + buffer.str();
+//         std::string title = "EM Layer, LUT-CP in time slice 1 for Event No. " + buffer.str();
+//         TH2F_LW *hist =
+//             m_histTool->bookPPMEmEtaVsPhi(name, title);
+//         m_histTool->fillPPMEmEtaVsPhi(hist, 1, 1, 1);
+// //         m_histTool->numbers(hist, 0, 15, 2);
+// //         m_histTool->ppmCrateModule(hist, crate, crate + 1, 0, false);
+//         m_v_em_2d_etaPhi_tt_lut_cp1_mistimedStreamAna.push_back(hist);
+//       }
+//   
+  m_h_1d_selectedEvents_mistimedStreamAna->Fill(lumiBlock);
   
   return StatusCode::SUCCESS;
 }

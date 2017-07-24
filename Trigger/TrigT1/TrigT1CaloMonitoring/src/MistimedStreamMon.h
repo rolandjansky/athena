@@ -78,23 +78,55 @@ private:
   /// TT simulation tool for Identifiers
   ToolHandle<LVL1::IL1TriggerTowerTool>   m_ttTool;
 
+  void bookEventHistograms(std::string number);
+  bool pulseQuality(std::vector<uint16_t> ttPulse, int peakSlice);
+  
+  int m_selectedEventCounter;
+
   /// Histograms booked flag
   bool m_histBooked;
   // Histograms
-  // eta-phi Map of EM TT classification
-  TH2F_LW* m_h_em_2d_etaPhi_tt_classification_mistimedStreamAna;
-  // eta-phi Map of HAD TT classification
-  TH2F_LW* m_h_had_2d_etaPhi_tt_classification_mistimedStreamAna;
-  // eta-phi Map of lut-cp for timeslice 0 = BCID-1
-  TH2F_LW* m_h_em_2d_etaPhi_tt_lut_cp0_mistimedStreamAna;
-  // eta-phi Map of lut-cp for timeslice 1 = BCID
-  std::vector<TH2F_LW*> m_v_em_2d_etaPhi_tt_lut_cp1_mistimedStreamAna;
-  // eta-phi Map of lut-cp for timeslice 2 = BCID+1
-  TH2F_LW* m_h_em_2d_etaPhi_tt_lut_cp2_mistimedStreamAna;  
+  
+  // Overview histos
+  // Overall selected events and cut flow of analysis
+  TH1F_LW* m_h_1d_cutFlow_mistimedStreamAna;  
   // Selected events per lumi block
   TH1F_LW* m_h_1d_selectedEvents_mistimedStreamAna;
-  TH1F_LW* m_h_1d_cutFlow_mistimedStreamAna;
-
+  
+  // Detailed histos per selected event
+  // eta-phi Map of EM TT classification
+  std::vector<TH2F_LW*> m_v_em_2d_etaPhi_tt_classification_mistimedStreamAna;
+  // eta-phi Map of HAD TT classification
+  std::vector<TH2F_LW*> m_v_had_2d_etaPhi_tt_classification_mistimedStreamAna;
+  // eta-phi Map of EM PSE bits
+  std::vector<TH2F_LW*> m_v_em_2d_etaPhi_tt_pseBits_mistimedStreamAna;
+  // eta-phi Map of HAD PSE bits
+  std::vector<TH2F_LW*> m_v_had_2d_etaPhi_tt_pseBits_mistimedStreamAna;
+  // eta-phi Map of EM lut-cp for timeslice 0 = BCID-1 
+  std::vector<TH2F_LW*> m_v_em_2d_etaPhi_tt_lut_cp0_mistimedStreamAna;
+  // eta-phi Map of EM lut-cp for timeslice 1 = BCID
+  std::vector<TH2F_LW*> m_v_em_2d_etaPhi_tt_lut_cp1_mistimedStreamAna;
+  // eta-phi Map of EM lut-cp for timeslice 2 = BCID+1
+  std::vector<TH2F_LW*> m_v_em_2d_etaPhi_tt_lut_cp2_mistimedStreamAna;
+  // eta-phi Map of HAD lut-cp for timeslice 0 = BCID-1
+  std::vector<TH2F_LW*> m_v_had_2d_etaPhi_tt_lut_cp0_mistimedStreamAna;
+  // eta-phi Map of HAD lut-cp for timeslice 1 = BCID
+  std::vector<TH2F_LW*> m_v_had_2d_etaPhi_tt_lut_cp1_mistimedStreamAna;
+  // eta-phi Map of HAD lut-cp for timeslice 2 = BCID+1
+  std::vector<TH2F_LW*> m_v_had_2d_etaPhi_tt_lut_cp2_mistimedStreamAna;
+  // eta-phi Map of EM lut-jep for timeslice 0 = BCID-1 
+  std::vector<TH2F_LW*> m_v_em_2d_etaPhi_tt_lut_jep0_mistimedStreamAna;
+  // eta-phi Map of EM lut-jep for timeslice 1 = BCID
+  std::vector<TH2F_LW*> m_v_em_2d_etaPhi_tt_lut_jep1_mistimedStreamAna;
+  // eta-phi Map of EM lut-jep for timeslice 2 = BCID+1
+  std::vector<TH2F_LW*> m_v_em_2d_etaPhi_tt_lut_jep2_mistimedStreamAna;
+  // eta-phi Map of HAD lut-jep for timeslice 0 = BCID-1
+  std::vector<TH2F_LW*> m_v_had_2d_etaPhi_tt_lut_jep0_mistimedStreamAna;
+  // eta-phi Map of HAD lut-jep for timeslice 1 = BCID
+  std::vector<TH2F_LW*> m_v_had_2d_etaPhi_tt_lut_jep1_mistimedStreamAna;
+  // eta-phi Map of HAD lut-jep for timeslice 2 = BCID+1
+  std::vector<TH2F_LW*> m_v_had_2d_etaPhi_tt_lut_jep2_mistimedStreamAna;
+  
   //Variables for the properties
   /// Root directory
   std::string m_PathInRootFile;
