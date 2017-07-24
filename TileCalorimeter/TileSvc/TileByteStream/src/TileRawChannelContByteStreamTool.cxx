@@ -69,7 +69,7 @@ StatusCode TileRawChannelContByteStreamTool::initialize() {
   // get TileBadChanTool
   CHECK( m_tileBadChanTool.retrieve() );
 
-  m_maxChannels = TileCalibUtils::MAX_CHAN; // TileCablingService::getInstance()->getMaxChannels();
+  m_maxChannels = TileCablingService::getInstance()->getMaxChannels();
 
   m_channels = new TileFastRawChannel[m_tileHWID->channel_hash_max()];
 
