@@ -26,8 +26,6 @@
 #include "MCTruth/EventInformation.h"
 #include "MCTruth/TrackHelper.h"
 
-#include "SimHelpers/StepHelper.h"
-
 #include "G4EventManager.hh"
 
 // Atlas G4 Helpers

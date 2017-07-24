@@ -108,8 +108,8 @@ void AtlasTrajectory::DrawTrajectory(G4int i_mode) const
 
   if (lineRequired)
     {
-      int visScheme=TruthController::GetTruthController()->
-        GetVisualizationHelper()->TrackVisualizationScheme();
+      int visScheme=TruthController::getTruthController()->
+        getVisualizationHelper()->trackVisualizationScheme();
       G4Colour colour;
       const G4double charge = GetCharge();
       if (visScheme==1)
