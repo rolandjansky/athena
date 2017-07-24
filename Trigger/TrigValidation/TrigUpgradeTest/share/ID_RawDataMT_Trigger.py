@@ -13,6 +13,8 @@ globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 InDetTrigFlags.useConditionsClasses.set_Value_and_Lock(False)
 
+
+
 from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.OutputLevel( INFO )
 AlgScheduler.CheckDependencies( True )
@@ -254,7 +256,7 @@ InDetPixelClusterization = InDet__PixelClusterization(name                    = 
                                                       gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
                                                       DetectorManagerName     = InDetKeys.PixelManager(), 
                                                       DataObjectName          = InDetKeys.PixelRDOs(),
-                                                      ClustersName            = InDetKeys.PixelClusters())
+                                                      ClustersName            = "PixelTrigClusters")
 topSequence += InDetPixelClusterization
 topSequence.InDetPixelClusterization.isRoI_Seeded = True
 topSequence.InDetPixelClusterization.RoIs = "OutputRoIs"
@@ -275,7 +277,7 @@ InDetSCT_Clusterization = InDet__SCT_Clusterization(name                    = "I
                                                     # ChannelStatus         = InDetSCT_ChannelStatusAlg,
                                                     DetectorManagerName     = InDetKeys.SCT_Manager(), 
                                                     DataObjectName          = InDetKeys.SCT_RDOs(),
-                                                    ClustersName            = InDetKeys.SCT_Clusters(),
+                                                    ClustersName            = "SCT_TrigClusters",
                                                     conditionsService       = InDetSCT_ConditionsSummarySvc,
                                                     FlaggedConditionService = InDetSCT_FlaggedConditionSvc)
 topSequence += InDetSCT_Clusterization
@@ -289,10 +291,10 @@ ToolSvc += InDetSiSpacePointMakerTool
 from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiTrackerSpacePointFinder
 InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name                   = "InDetSiTrackerSpacePointFinder",
                                                                   SiSpacePointMakerTool  = InDetSiSpacePointMakerTool,
-                                                                  PixelsClustersName     = InDetKeys.PixelClusters(),
-                                                                  SCT_ClustersName       = InDetKeys.SCT_Clusters(),
-                                                                  SpacePointsPixelName   = InDetKeys.PixelSpacePoints(),
-                                                                  SpacePointsSCTName     = InDetKeys.SCT_SpacePoints(),
+                                                                  PixelsClustersName     = "PixelTrigClusters",
+                                                                  SCT_ClustersName       = "SCT_TrigClusters",
+                                                                  SpacePointsPixelName   = "PixelTrigSpacePoints",
+                                                                  SpacePointsSCTName     = "SCT_TrigSpacePoints",
                                                                   SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
                                                                   ProcessPixels          = DetFlags.haveRIO.pixel_on(),
                                                                   ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
@@ -303,5 +305,5 @@ from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_e
 theFTF = TrigFastTrackFinder_eGamma()
 theFTF.outputLevel=VERBOSE
 
-#topSequence += theFTFMT
+topSequence += theFTF
 
