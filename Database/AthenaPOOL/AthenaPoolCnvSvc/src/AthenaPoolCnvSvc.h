@@ -194,7 +194,9 @@ private: // data
    ServiceHandle<IClassIDSvc>    m_clidSvc;
    ServiceHandle<IAthenaSerializeSvc> m_serializeSvc;
    ToolHandle<IAthenaIPCTool>    m_inputStreamingTool;
-   ToolHandle<IAthenaIPCTool>    m_outputStreamingTool;
+   ToolHandleArray<IAthenaIPCTool>    m_outputStreamingTool;
+   mutable std::vector<std::string>   m_streamClientFiles;
+   std::size_t     m_streamServer;
 
 private: // properties
    /// UseDetailChronoStat, enable detailed output for time and size statistics for AthenaPOOL:
