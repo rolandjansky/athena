@@ -337,9 +337,6 @@ void GetDetectorPositions::writeTwoTRTPositions(Identifier const& trtId){
   int trt_phi_module = m_TRTHelper->phi_module(trtId);
   int trt_straw_layer = m_TRTHelper->straw_layer(trtId);
   int trt_straw = m_TRTHelper->straw(trtId);
-  float trt_x = p3d.x();
-  float trt_y = p3d.y();
-  float trt_z = p3d.z();
  
   // We sample the straw position at two places
   Amg::Vector3D posZSample(0,0,100);
