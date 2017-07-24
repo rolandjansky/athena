@@ -258,7 +258,15 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1):
     topoThresh = bjetdict[0]['topoThreshold']
     topoStartFrom = setupTopoStartFrom(topoThresh,theChainDef) if topoThresh else None
     if topoStartFrom:         lastTEout = lastTEout+'_tsf'
-    theBjetHypoAllTE = getBjetHypoAllTEInstance("EF","2017","mv2c1040")
+
+    #
+    #  Derive multiplicity requirements
+    #
+    btagReqs = []
+    btagReqs.append([35000, "perf", 4])
+    #name = bjetdict[0]['chainName']
+    name = "Test"
+    theBjetHypoAllTE = getBjetHypoAllTEInstance("EF","2017",name,btagReqs)
 
 
     #chainParts = chainDict['chainParts']
