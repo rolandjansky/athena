@@ -4196,6 +4196,27 @@ def setupMenu():
         ['eb_high_L1RD2_FILLED',              'L1_RD2_FILLED',             [], ['EnhancedBias'], ["RATE:EnhancedBias", "BW:Detector"], -1],
         ]
 
+    TriggerFlags.StreamingSlice.signatures = []
+    TriggerFlags.MonitorSlice.signatures = []
+    TriggerFlags.EnhancedBiasSlice.signatures = []
+    TriggerFlags.CosmicSlice.signatures  = [   ]
+    TriggerFlags.CalibSlice.signatures   = [   ]
+    TriggerFlags.MinBiasSlice.signatures = [   ]
+    TriggerFlags.BeamspotSlice.signatures = [  ]
+    TriggerFlags.CombinedSlice.signatures = [  ]
+    TriggerFlags.BphysicsSlice.signatures = [  ]
+    TriggerFlags.EgammaSlice.signatures = [    ]
+    TriggerFlags.TauSlice.signatures = [       ]
+    TriggerFlags.METSlice.signatures = [       ]
+    TriggerFlags.BjetSlice.signatures = [
+        ['2j15_gsc35_boffperf_split_2j15_gsc35_boffperf_split_L14J15.0ETA25','L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet',  'BW:BJet'], -1],
+        
+        ['2j15_gsc35_bmv2c1040_split_2j15_gsc35_boffperf_split_L14J15.0ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['Primary:20000','RATE:MultiBJet', 'BW:BJet'], -1],
+        ]
+    
+    TriggerFlags.JetSlice.signatures = [       ]
+    TriggerFlags.MuonSlice.signatures = [      ]
+    TriggerFlags.AFPSlice.signatures = [       ]
 
     ###############################################################
     #################################################################
