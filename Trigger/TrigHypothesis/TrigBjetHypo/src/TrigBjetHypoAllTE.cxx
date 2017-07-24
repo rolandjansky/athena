@@ -34,6 +34,10 @@ TrigBjetHypoAllTE::TrigBjetHypoAllTE(const std::string& name, ISvcLocator* pSvcL
   declareProperty ("Tagger",                m_tagger = "MV2c10_discriminant");
   declareMonitoredVariable("CutCounter",   m_cutCounter);
 
+  declareProperty("EtThresholds",   m_EtThresholds   ); 
+  declareProperty("BTagCuts",       m_BTagCuts       );
+  declareProperty("Multiplicities", m_Multiplicities );
+
   //declareMonitoredVariable("DeltaRPass",    m_deltaRPass);
   //declareMonitoredVariable("DeltaRAll",    m_deltaRAll);
   //declareMonitoredVariable("DeltaZPass",    m_deltaZPass);
@@ -63,7 +67,21 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltInitialize() {
     msg() << MSG::DEBUG << " BTaggingKey = "   << m_btaggingKey << endmsg;
   }
 
-  m_triggerReqs.push_back(triggerRequirement(35000, -99, 4));
+  unsigned int nRequirements = m_EtThresholds.size();
+
+  if(nRequirements != m_BTagCuts.size()){
+    msg() << MSG::ERROR << "Et and btagging requirement have different sizes! Please Fix" << endmsg;
+    return HLT::ERROR;
+  }
+
+  if(nRequirements != m_Multiplicities.size()){
+    msg() << MSG::ERROR << "Et and multiplicities requirement have different sizes! Please Fix" << endmsg;
+    return HLT::ERROR;
+  }
+
+  for(unsigned int iReq = 0; iReq < nRequirements; ++iReq){
+    m_triggerReqs.push_back(triggerRequirement(m_EtThresholds.at(iReq), m_BTagCuts.at(iReq), m_Multiplicities.at(iReq)));
+  }
   
   return HLT::OK;
 }
@@ -164,7 +182,7 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
     float  btagEt     = jet->p4().Et();
 
     for(triggerRequirement& trigReq:  m_triggerReqs){
-      if(btagEt > trigReq.m_etThreshold  && btagWeight > trigReq.m_btagCut)
+      if(btagEt > trigReq.m_EtThreshold  && btagWeight > trigReq.m_btagCut)
 	++trigReq.m_count;
     }
 
