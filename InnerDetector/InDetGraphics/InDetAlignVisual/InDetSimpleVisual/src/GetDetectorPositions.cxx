@@ -330,8 +330,6 @@ void GetDetectorPositions::writeTRTPositions(Identifier const& trtId){
 void GetDetectorPositions::writeTwoTRTPositions(Identifier const& trtId){
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeTwoTRTPositions()" << endmsg;
 
-  const Amg::Vector3D &p3d = m_TRTDetectorManager->getElement( trtId )->center(trtId);
-  
   int trt_barrel_ec = m_TRTHelper->barrel_ec(trtId);
   int trt_layer_or_wheel = m_TRTHelper->layer_or_wheel(trtId);
   int trt_phi_module = m_TRTHelper->phi_module(trtId);
