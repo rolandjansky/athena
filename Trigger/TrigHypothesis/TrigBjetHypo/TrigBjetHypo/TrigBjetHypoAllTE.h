@@ -39,18 +39,11 @@ class TrigBjetHypoAllTE: public HLT::AllTEAlgo {
 
  private:
 
-  struct triggerRequirement{
-    float          m_etThreshold;
-    float          m_btagCut;
-    unsigned int   m_multiplicity;
-
-    unsigned int   m_count;
-    triggerRequirement(float etThreshold, float btagCut, unsigned multiplicity)  : m_etThreshold(etThreshold), m_btagCut(btagCut), m_multiplicity(multiplicity),  m_count(0) 
-    { }
-    
-  };
-  std::vector<triggerRequirement> m_triggerReqs;
-
+  /** @brief vectors with Et thresholds, btagging cut, and multiplicity requirement */
+  std::vector<double> m_EtThresholds;
+  std::vector<double> m_BTagCuts;
+  std::vector<int>    m_Multiplicities;
+  
   /** @brief string corresponding to the trigger level in which the algorithm is running. */
   //  std::string m_instance;
 
@@ -67,7 +60,21 @@ class TrigBjetHypoAllTE: public HLT::AllTEAlgo {
   /** @brief Used to not apply the correction to the GSC chains */
   bool m_overRideBeamSpotValid;
 
+  /** @brief Used for monitoring. */
   float m_cutCounter;
+
+  struct triggerRequirement{
+    float          m_EtThreshold;
+    float          m_btagCut;
+    unsigned int   m_multiplicity;
+
+    unsigned int   m_count;
+    triggerRequirement(float EtThreshold, float btagCut, unsigned multiplicity)  : m_EtThreshold(EtThreshold), m_btagCut(btagCut), m_multiplicity(multiplicity),  m_count(0) 
+    { }
+    
+  };
+  std::vector<triggerRequirement> m_triggerReqs;
+
 
 };
 
