@@ -138,6 +138,7 @@ public:
    void FillSummaryHistos(PixelMon2DMaps* occupancy, TH1F_LW* A, TH1F_LW* C, TH1F_LW* IBL, TH1F_LW* B0, TH1F_LW* B1, TH1F_LW* B2);
    int ParseDetailsString(std::string & detailsMod);
    bool OnTrack(Identifier id, bool isCluster);
+   double getErrorBitFraction(const Identifier& WaferID, const unsigned int& num_femcc_errorwords);
    int getErrorState(int bit, bool isibl);
 	std::string makeHistname(std::string set, bool ontrk);
 	std::string makeHisttitle(std::string set, std::string axis, bool ontrk);
@@ -298,14 +299,19 @@ private:
 
    double m_occupancy_cut;
 
-   std::vector<double> m_hitocc_stock[PixLayer::COUNT];
-
    int                   m_ClusPerEventArray_disksA[48][3];
    int                   m_ClusPerEventArray_disksC[48][3];
    int                   m_ClusPerEventArray_lI[14][20];
    int                   m_ClusPerEventArray_l0[22][13];
    int                   m_ClusPerEventArray_l1[38][13];
    int                   m_ClusPerEventArray_l2[52][13];
+
+   int                   m_HitPerEventArray_disksA[48][3] = {0};
+   int                   m_HitPerEventArray_disksC[48][3] = {0};
+   int                   m_HitPerEventArray_lI[14][20] = {0};
+   int                   m_HitPerEventArray_l0[22][13] = {0};
+   int                   m_HitPerEventArray_l1[38][13] = {0};
+   int                   m_HitPerEventArray_l2[52][13] = {0};
 
    //////////////////////Histograms///////////////////////////
    
@@ -338,6 +344,7 @@ private:
    TProfile2D_LW*          m_avgocc_per_bcid_per_lumi_mod[PixLayerIBL2D3D::COUNT];
    TProfile_LW*            m_avgocc_active_per_lumi_mod[PixLayerIBL2D3D::COUNT];
    TH2F_LW*                m_maxocc_per_lumi_mod[PixLayerIBL2D3D::COUNT];
+   TH2F_LW*                m_modocc_per_lumi[PixLayer::COUNT];
    TH1F_LW*                m_maxocc_per_bcid_mod[PixLayerIBL2D3D::COUNT];
    PixelMon2DMaps*         m_occupancy;
    PixelMon2DMapsLW*       m_average_pixocc;
@@ -542,6 +549,7 @@ private:
    PixelMon2DMapsLW*     m_errhist_errcat_map[ErrorCategory::COUNT];
    PixelMon2DMapsLW*     m_errhist_errtype_map[ErrorCategoryMODROD::COUNT];
    TProfile_LW*          m_errhist_errcat_avg[ErrorCategory::COUNT][PixLayerIBL2D3D::COUNT];
+   TProfile_LW*          m_errhist_errtype_avg[ErrorCategoryMODROD::COUNT - 3][PixLayerIBL2D3D::COUNT];
    TProfile_LW*          m_errhist_tot_LB[PixLayerIBL2D3D::COUNT];
    TProfile2D_LW*        m_errhist_per_bit_LB[PixLayerIBL2D3D::COUNT];
    TProfile2D_LW*        m_errhist_per_type_LB[PixLayerIBL2D3D::COUNT];
@@ -550,6 +558,7 @@ private:
    TProfile*             m_error_time2;       
    TProfile*             m_error_time3;       
    PixelMonModules1D*    m_errors;
+   PixelMonProfiles*     m_errhist_femcc_errwords_map;
 
    // Histograms in 'ErrorsExpert' folder
    PixelMon2DLumiMaps*   m_errhist_expert_LB_maps[kNumErrorStates];

@@ -16,10 +16,8 @@ namespace LArG4
   HECSDTool::HECSDTool(const std::string& type, const std::string& name,
                        const IInterface* parent)
     : SimpleSDTool(type, name, parent)
-    , m_hitCollName("LArHitHEC")
     , m_heccalc("HECWheelCalculator", name)
   {
-    declareProperty("HitCollectionName", m_hitCollName);
     //declareProperty("SliceVolumes", m_sliceVolumes);
     //declareProperty("LocalVolumes", m_localVolumes);
     declareProperty("WheelVolumes", m_wheelVolumes);
@@ -43,7 +41,7 @@ namespace LArG4
   G4VSensitiveDetector* HECSDTool::makeSD()
   {
     // Create the wrapper
-    auto sdWrapper = new SimpleSDWrapper("LArHECSDWrapper", m_hitCollName);
+    auto sdWrapper = new SimpleSDWrapper("LArHECSDWrapper", m_outputCollectionNames[0]);
 
     // Add the SDs
     //sdWrapper->addSD( makeOneSD("LAr::HEC::Module::Depth::Slice",

@@ -1,4 +1,6 @@
+#
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 
 import ROOT
 import sys
@@ -34,7 +36,7 @@ class L1CaloGeometryConvertor:
          # get database service and open database
          dbSvc = cool.DatabaseSvcFactory.databaseService()
 
-         dbString = 'oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=COMP200'
+         dbString = 'oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=CONDBR2'
          try:
            db = dbSvc.openDatabase(dbString, False)        
          except Exception, e:
@@ -253,8 +255,9 @@ def WriteSqlite(name,input_dict):
   db = dbSvc.createDatabase( connectString )
 
   spec = cool.RecordSpecification()
-  spec.extend('factor',cool.StorageType.Float)
-  spec.extend( 'status', cool.StorageType.UInt32 )
+  spec.extend("factor", cool.StorageType.Float)
+  spec.extend("status", cool.StorageType.UInt32 )
+  folderSpec = cool.FolderSpecification(cool.FolderVersioning.SINGLE_VERSION, spec)
 
   now = int(time.time())
 
@@ -266,10 +269,10 @@ def WriteSqlite(name,input_dict):
   db.createFolderSet('/TRIGGER/Receivers')
   db.createFolderSet('/TRIGGER/Receivers/Factors')
 
-  folder_description = "<timeStamp>time</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"1238547719\"/></addrHeader><typeName>CondAttrListCollection</typeName>"
-  f = db.createFolder( "/TRIGGER/Receivers/Factors/CalibGains" , spec, folder_description )
-#  f = db.createFolder( folder_name , spec, True )
+  folder_description = '<timeStamp>time</timeStamp><addrHeader><address_header service_type="71" clid="1238547719"/></addrHeader><typeName>CondAttrListCollection</typeName>'
+  f = db.createFolder( "/TRIGGER/Receivers/Factors/CalibGains", folderSpec, folder_description)
 
+  print " Now creating sqlite file for ", len(input_dict.keys()), " channels"
   for i in input_dict.keys():
     data = cool.Record( spec )
     data['factor'] = input_dict[i][0]
@@ -280,7 +283,7 @@ def WriteSqlite(name,input_dict):
 
 class GainsFromSqlite:
 
-     def __init__(self,name):
+     def __init__(self,name,geometryMapper):
        
 #       self.cut_gain_low    = 0.5
 #       self.cut_gain_high   = 1.6
@@ -292,6 +295,7 @@ class GainsFromSqlite:
        self.cut_offset_low  = -100.
        self.cut_offset_high = 100.
 
+       self.geometry_convertor = geometryMapper
 
        self.run_nr = None         #will come later
        self.strategy = None     #later
@@ -362,10 +366,16 @@ class GainsFromSqlite:
        good_gains={}
 
        for i in self.measured_gains.keys():
+
          if ((self.measured_gains[i] > self.cut_gain_low and self.measured_gains[i] < self.cut_gain_high) and
-            (self.measured_offset[i] > self.cut_offset_low and self.measured_offset[i] < self.cut_offset_high)):
+            (self.measured_offset[i] > self.cut_offset_low and self.measured_offset[i] < self.cut_offset_high) and
+#            not (self.geometry_convertor.isCoolHad(i) and self.geometry_convertor.isPPMFCAL(i)) ):
+            not (self.geometry_convertor.isPPMFCAL(i)) ):
 
            good_gains[i]=[self.measured_gains[i],self.measured_error_code[i]]      
+
+         else:
+           print "GainsFromSqlite::getGoodGains have rejected channel ", i
 
        return good_gains      # these are gains as a function of PPM Cool
 
@@ -379,7 +389,7 @@ class GainsFromOracle:
        # get database service and open database
        dbSvc = cool.DatabaseSvcFactory.databaseService()
 
-       dbString = 'oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=COMP200'
+       dbString = 'oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=CONDBR2'
        try:
          db = dbSvc.openDatabase(dbString, False)        
        except Exception, e:
@@ -545,17 +555,17 @@ if __name__ == "__main__":
   print "Processing inputs"
   
   if not options.input_file1 == None:
-    gains_1 = GainsFromSqlite(options.input_file1)
+    gains_1 = GainsFromSqlite(options.input_file1,geometry_convertor)
   else:
     gains_1 = None
 
   if not options.input_file2 == None:
-    gains_2 = GainsFromSqlite(options.input_file2)
+    gains_2 = GainsFromSqlite(options.input_file2,geometry_convertor)
   else:
     gains_2 = None
 
   if not options.input_file3 == None:
-    gains_3 = GainsFromSqlite(options.input_file3)
+    gains_3 = GainsFromSqlite(options.input_file3,geometry_convertor)
   else:
     gains_3 = None
 
