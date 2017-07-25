@@ -35,7 +35,7 @@ const double crep_pt=200.;
 
 //constants and convsersions
 const int yzdex=2,bkdex=13,zbardex=2;
-double store_const;
+// double store_const;
 
 
 

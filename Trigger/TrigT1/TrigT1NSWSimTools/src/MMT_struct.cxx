@@ -13,7 +13,9 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 
-double store_const(){return 8192.;}
+// double MMTStructConst{return 8192.;}
+
+float MMTStructConst = 8192.;
 
 std_align::std_align(int qcm,const TVector3& trans,const TVector3& ang):type(qcm),translate(trans),rotate(ang){
   if(type==0){
@@ -758,10 +760,10 @@ int MMT_Parameters::ybin(double y,int plane)const{
 }
 
 int MMT_Parameters::ybin(float32fixed<18> y,int plane)const{
-  return ybin(y.getFloat()*store_const(),plane);
+  return ybin(y.getFloat()*MMTStructConst,plane);
 }
 int MMT_Parameters::ybin(float32fixed<yzdex> y,int plane)const{
-  return ybin(y.getFloat()*store_const(),plane);
+  return ybin(y.getFloat()*MMTStructConst,plane);
 }
 
 double MMT_Parameters::ymid_eta_bin(int bin,int plane)const{
@@ -865,7 +867,7 @@ pair<double,double> MMT_Parameters::ak_bk_hit_bins(const vector<int>& hits)const
   int nhits=0; double sum_x=0,sum_xx=0;
   for(int ih=0;ih<(int)(hits.size());ih++){
     if(hits[ih]<0||hits[ih]>=ybins)continue;
-    double addme=z_large[hits[ih]][x_planes[ih]].getFloat()/store_const();
+    double addme=z_large[hits[ih]][x_planes[ih]].getFloat()/MMTStructConst;
     sum_x  += addme;
     sum_xx += addme*addme;
     nhits++;
@@ -947,11 +949,11 @@ void MMT_Parameters::fill_yzmod(){
 
 	//beta angle--rotation around the y axis; the x coordinate or phi taken care of in correction to slope road limits in x in constructor
 	//z is changed, and so y must be scaled (should it?): THIS SHIT DOESN'T WORK....
-// 	zadd-=1.*x*sin(beta)/store_const();yadd+=yup*zadd/zflt/store_const();
-	zadd-=tan(beta)*tan(theta)*sin(phi)*zflt/store_const();yadd-=tan(beta)*tan(theta)*sin(phi)*yflt/store_const();
+// 	zadd-=1.*x*sin(beta)/MMTStructConst;yadd+=yup*zadd/zflt/MMTStructConst;
+	zadd-=tan(beta)*tan(theta)*sin(phi)*zflt/MMTStructConst;yadd-=tan(beta)*tan(theta)*sin(phi)*yflt/MMTStructConst;
 
 	//alpha angle--rotation around the z axis; z unchanged, y the expected rotation (final rotation taken care of at start)
-	yadd+=((cos(alpha)-1.)*yup+x*sin(alpha))/store_const();
+	yadd+=((cos(alpha)-1.)*yup+x*sin(alpha))/MMTStructConst;
 
 	//add the entries
 	ymod[et][ph][pl]=float32fixed<yzdex>(yadd);zmod[et][ph][pl]=float32fixed<yzdex>(zadd);
@@ -1243,7 +1245,7 @@ hdst_info::hdst_info(int pl,int station_eta,int strip,MMT_Parameters *m_par,cons
 //     yflt=planebase+fltyup*cos(angle);
 //     zflt=zplane+0.5*fltyup*sin(angle)*cos(angle)*(1-tan(angle)*base/zplane)/(1-tan(angle)*1.*yflt/zplane);
   }
-  y=yflt/store_const();z=zflt/store_const();
+  y=yflt/MMTStructConst;z=zflt/MMTStructConst;
 
   slope=y/z;
   double oslope=(base+(strip)*swidth)/zplane,mslope=yflt/zplane;
