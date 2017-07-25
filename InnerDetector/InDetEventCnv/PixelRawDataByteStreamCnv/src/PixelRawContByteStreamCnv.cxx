@@ -34,7 +34,6 @@ PixelRawContByteStreamCnv::PixelRawContByteStreamCnv(ISvcLocator* svcloc) :
   Converter(ByteStream_StorageType, classID(),svcloc),
   m_PixelRawContBSTool(NULL),
   m_ByteStreamEventAccess(NULL),
-  m_PixelRDO_Container(NULL),
   m_StoreGate(NULL),
   m_ChronoStat(NULL),
   m_log(msgSvc(), "PixelRawContByteStreamCnv")
