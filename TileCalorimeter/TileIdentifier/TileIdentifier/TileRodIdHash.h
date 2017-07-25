@@ -27,6 +27,9 @@ class TileRodIdHash  {
   /** initialize */
   void initialize(int offset ); 
 
+  /** new initialize for the HLT */
+  void initialize (int offset, const std::vector<ID>& rmod );
+
   /**Convert ID to int */
   int operator() (const ID& id) const ;
 
