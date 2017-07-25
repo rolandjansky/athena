@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetRecEvent/InDetPrepRawData
+                          InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/TrkTruthData
                           Tracking/TrkTools/TrkToolInterfaces
