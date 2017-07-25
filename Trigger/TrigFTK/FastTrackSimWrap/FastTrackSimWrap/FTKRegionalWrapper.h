@@ -166,8 +166,8 @@ private:
   //offline clusters
   std::vector<float>   *offline_locX;
   std::vector<float>   *offline_locY;
-  std::vector<bool>   *offline_isPixel;
-  std::vector<bool>   *offline_isBarrel;
+  std::vector<int>     *offline_isPixel;
+  std::vector<int>     *offline_isBarrel;
   std::vector<int>     *offline_layer;
   std::vector<int>     *offline_resAssociatedTrack;
   std::vector<int>     *offline_clustID;

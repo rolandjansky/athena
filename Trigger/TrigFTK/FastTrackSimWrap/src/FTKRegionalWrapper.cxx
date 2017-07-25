@@ -479,8 +479,8 @@ StatusCode FTKRegionalWrapper::initOutputFile() {
   if (m_getOffline) {
     offline_locX = new std::vector<float>;
     offline_locY = new std::vector<float>;
-    offline_isPixel = new std::vector<bool>;
-    offline_isBarrel = new std::vector<bool>;
+    offline_isPixel = new std::vector<int>;
+    offline_isBarrel = new std::vector<int>;
     offline_layer = new std::vector<int>;
     offline_clustID = new std::vector<int>;
     offline_trackNumber = new std::vector<int>;
@@ -726,8 +726,8 @@ StatusCode FTKRegionalWrapper::execute()
 	      const Identifier & hitId = hit->identify();
 
 	      if (m_idHelper->is_pixel(hitId)) {
-		offline_isPixel->push_back(true);
-		offline_isBarrel->push_back(m_pixelId->is_barrel(hitId));
+		offline_isPixel->push_back(1);
+		offline_isBarrel->push_back(int(m_pixelId->is_barrel(hitId)));
 		const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(hitId);
 		offline_clustID->push_back(sielement->identifyHash());
 		offline_trackNumber->push_back(iTrk);
@@ -736,8 +736,8 @@ StatusCode FTKRegionalWrapper::execute()
 		offline_locY->push_back((float)measurement->localParameters()[Trk::locY]);
 	      }
 	      else if (m_idHelper->is_sct(hitId)) {
-		offline_isPixel->push_back(false);
-		offline_isBarrel->push_back(m_sctId->is_barrel(hitId));
+		offline_isPixel->push_back(0);
+		offline_isBarrel->push_back(int(m_sctId->is_barrel(hitId)));
 		const InDetDD::SiDetectorElement* sielement = m_SCT_mgr->getDetectorElement(hitId);
 		offline_clustID->push_back(sielement->identifyHash());
 		offline_trackNumber->push_back(iTrk);
