@@ -15,15 +15,13 @@
 namespace G4UA
 {
 
-  // Forward declarations
-  class ISteppingAction;
-
-
   /// @class G4AtlasSteppingAction
   /// @brief Atlas subclass of the G4 stepping action.
   ///
   /// This object maintains a list of custom actions and when invoked by
   /// Geant4 will forward the call to each of them in turn.
+  ///
+  /// @todo TODO lifetime management of wrapper actions.
   ///
   /// @author Steve Farrell <Steven.Farrell@cern.ch>
   ///
@@ -41,12 +39,12 @@ namespace G4UA
       void UserSteppingAction(const G4Step* step) override final;
 
       /// @brief Add one action to the list
-      void addAction(ISteppingAction* action);
+      void addAction(G4UserSteppingAction* action);
 
     private:
 
       /// List of ATLAS stepping actions
-      std::vector<ISteppingAction*> m_actions;
+      std::vector<G4UserSteppingAction*> m_actions;
 
   }; // class G4AtlasSteppingAction
 
