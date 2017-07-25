@@ -58,8 +58,10 @@ const bool DEBUG_CENTROID = 0; // check centroid calc.
   This is the test version for IBL 3D centroid calc.
   Default value is "false".
   If this boolean is "true", you can get the same IBL 3D centorid as the FTK_IM FW.
+
+  20170722 changed to the job option.
 */
-const bool IBL3D_REALISTIC = false;
+//const bool IBL3D_REALISTIC = false;
 
 const unsigned int MOD_ID_PHI_VAL  = 1;
 const unsigned int MOD_ID_PHI_MASK = 100;
@@ -78,6 +80,7 @@ bool SAVE_CLUSTER_CONTENT;
 bool DIAG_CLUSTERING;
 bool SCT_CLUSTERING;
 int PIXEL_CLUSTERING_MODE;
+bool IBL3D_REALISTIC;
 bool DUPLICATE_GANGED;
 bool GANGED_PATTERN_RECOGNITION;
 bool SPLIT_BLAYER_MODULES;
