@@ -10,8 +10,6 @@
 #include "InDetRawData/PixelRDO_Container.h"
 #include "ByteStreamData/RawEvent.h" 
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
-
 class IPixelRodDecoder : virtual public IAlgTool{
 
 public: 
@@ -20,7 +18,7 @@ public:
   // destructor 
   virtual ~IPixelRodDecoder(){}; 
 
-  virtual StatusCode fillCollection  (const ROBFragment *robFrag, PixelRDO_Container* rdoIdc, 
+  virtual StatusCode fillCollection  (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, PixelRDO_Container* rdoIdc, 
 				      std::vector<IdentifierHash>* vecHash = NULL) = 0;
 };
 
