@@ -25,7 +25,7 @@ namespace G4UA
     public:
 
       /// Return the action for current thread.
-      virtual G4UserTrackingAction* getG4TrackingAction() = 0;
+      virtual G4UserTrackingAction* getTrackingAction() = 0;
 
       /// Interface declaration
       static const InterfaceID& interfaceID() {
