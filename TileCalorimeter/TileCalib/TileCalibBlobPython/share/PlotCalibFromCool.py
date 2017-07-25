@@ -231,10 +231,10 @@ if ros!=-1:
     modmax=min(modmax,TileCalibUtils.getMaxDrawer(ros))
 if ros!=-1 and modmin==modmax:
     COOL_part = ros
-    COOL_chan = modmin
+    COOL_chan = modmin-1
 elif ros==0 and modmin==1:
     COOL_part = ros
-    COOL_chan = modmin
+    COOL_chan = modmin-1
 else:
     COOL_part = -1
     COOL_chan = 1000

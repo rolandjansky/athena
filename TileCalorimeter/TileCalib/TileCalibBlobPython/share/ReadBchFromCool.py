@@ -335,7 +335,7 @@ gname = [ "LG", "HG" ]
 pref = ""
 for iovs in iovList:
     if iov:
-        pref = "(%i,%i) " % (iovs[0][0],iovs[0][1])
+        pref = "(%i,%i)  " % (iovs[0][0],iovs[0][1])
     if comment:
         log.info( reader.getComment(iovs[0]) )
     modOk = False
