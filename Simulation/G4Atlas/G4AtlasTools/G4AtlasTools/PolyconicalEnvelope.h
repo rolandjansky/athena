@@ -13,6 +13,8 @@
 #include <string>
 #include <vector>
 
+/// @class PolyconicalEnvelope
+/// @todo TODO needs documentation
 class PolyconicalEnvelope final : public DetectorGeometryBase
 {
  public:

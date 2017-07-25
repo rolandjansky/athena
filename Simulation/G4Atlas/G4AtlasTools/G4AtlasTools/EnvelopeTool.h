@@ -13,10 +13,12 @@
 #include <string>
 #include <vector>
 
+/// @class EnvelopeTool
+/// @todo TODO needs documentation
 class EnvelopeTool final : public DetectorGeometryBase 
 {
 public:
-  // Basic constructor and destructor
+  /// Basic constructor and destructor
   EnvelopeTool(const std::string& type, const std::string& name, const IInterface *parent);
   ~EnvelopeTool() {}
 
