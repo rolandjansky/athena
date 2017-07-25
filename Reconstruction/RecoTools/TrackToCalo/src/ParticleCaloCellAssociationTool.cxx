@@ -4,6 +4,8 @@
 
 #include "ParticleCaloCellAssociationTool.h"
 // forward declares
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+
 #include "ParticleCaloExtension/ParticleCellAssociationCollection.h"
 
 #include "TrackToCalo/CaloCellHelpers.h"
@@ -296,7 +298,7 @@ namespace Rec {
 
     // get the extrapolation into the calo
     const Trk::CaloExtension* caloExtension = 0;
-    if( !m_caloExtensionTool->particleToCaloExtrapolate(particle,caloExtension) ) {
+    if( !m_caloExtensionTool->caloExtension(particle,caloExtension) ) {
       ATH_MSG_DEBUG("Failed to get calo extension");      
       return false;
     }
