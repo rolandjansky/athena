@@ -460,8 +460,15 @@ StatusCode MistimedStreamMon::fillHistograms()
   
   m_h_1d_cutFlow_mistimedStreamAna->Fill(8.5);
 
-  //loop over the decorated TTcollection, if less than 10 events are selected for this run
+  //Only fill the detailed histos for the first 10 selected events in the run
   if(m_selectedEventCounter < 10){
+     //set the title of the classification histos to indicate the run number, event number and lumi block
+    std::string titleEM = "#eta - #phi Map of TT classification, EM layer: event no. " + std::to_string(currentEventNo) + " in lb. " + std::to_string(lumiBlock) + " of run " + std::to_string(currentRunNo);
+    m_v_em_2d_etaPhi_tt_classification_mistimedStreamAna[m_selectedEventCounter]->GetXaxis()->SetTitle(titleEM.c_str());
+    std::string titleHAD = "#eta - #phi Map of TT classification, HAD layer: event no. " + std::to_string(currentEventNo) + " in lb. " + std::to_string(lumiBlock) + " of run " + std::to_string(currentRunNo);
+    m_v_had_2d_etaPhi_tt_classification_mistimedStreamAna[m_selectedEventCounter]->GetXaxis()->SetTitle(titleHAD.c_str());
+    
+    //loop over the decorated TTcollection to fill the classification and pse histos
     for(auto decoratedIterator = ttContainer->begin() ; decoratedIterator != ttContainer->end() ; ++decoratedIterator ){
 
         const int layer = (*decoratedIterator)->layer();
@@ -486,10 +493,8 @@ StatusCode MistimedStreamMon::fillHistograms()
             }            
          }
      }
-   }
-   
-   //loop over the cpm tower container to fill the lut_cp histos 
-   for(auto thisCT:*cpmTowCon){
+     //loop over the cpm tower container to fill the lut_cp histos 
+     for(auto thisCT:*cpmTowCon){
       double eta = thisCT->eta();
       double phi = thisCT->phi();
       std::vector<uint8_t> cpmEMenergy = thisCT->emEnergyVec();
@@ -505,10 +510,9 @@ StatusCode MistimedStreamMon::fillHistograms()
           m_histTool->fillPPMEmEtaVsPhi(m_v_had_2d_etaPhi_tt_lut_cp1_mistimedStreamAna[m_selectedEventCounter], eta, phi, (int) cpmHADenergy.at(1));
           m_histTool->fillPPMEmEtaVsPhi(m_v_had_2d_etaPhi_tt_lut_cp2_mistimedStreamAna[m_selectedEventCounter], eta, phi, (int) cpmHADenergy.at(2));
       }
-   }
-   
-   // the jet element container
-   for(auto thisJE:*jetEleCon){
+     }
+     // the jet element container
+     for(auto thisJE:*jetEleCon){
       double eta = thisJE->eta();
       double phi = thisJE->phi();
       std::vector<uint16_t> jepEMenergy = thisJE->emJetElementETVec();
@@ -525,6 +529,7 @@ StatusCode MistimedStreamMon::fillHistograms()
           m_histTool->fillJEMEtaVsPhi(m_v_had_2d_etaPhi_tt_lut_jep2_mistimedStreamAna[m_selectedEventCounter], eta, phi, (int)jepHADenergy.at(2));
 
       }
+    }
   }
 //   //adding the histos dynamically does not seem to work... too bad!!!
 //   std::stringstream buffer;
