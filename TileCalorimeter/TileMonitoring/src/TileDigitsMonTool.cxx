@@ -189,7 +189,7 @@ void TileDigitsMonTool::bookHists(int ros, int drawer)
     sStr << moduleName << " DMU Header " << gain[3 + gn] << " errors";
     histTitle = sStr.str();
 
-    m_hist2[ros][drawer][adc].push_back(book2F(subDir, histName, histTitle, 16, 0., 16., 6, -0.5, 5.5));
+    m_hist2[ros][drawer][adc].push_back(book2F(subDir, histName, histTitle, 16, 0., 16., 8, -0.5, 7.5));
   }
 
   for (int ch = 0; ch < 48; ++ch) {
@@ -353,6 +353,23 @@ StatusCode TileDigitsMonTool::fillHists()
       if (!m_bookAll) bookHists(ros, drawer);
     }
     
+    uint32_t status = digitsCollection->getFragStatus();
+    if (status != TileFragStatus::ALL_OK) {
+      float bin = 99.;
+      if (status & (TileFragStatus::ALL_FF || TileFragStatus::ALL_00)) {
+        bin = 6.;
+      } else if (status & (TileFragStatus::NO_FRAG || TileFragStatus::NO_ROB)) {
+        bin = 7.;
+      }
+      for (int dmu = 0; dmu < 16; dmu++) {
+        m_corrup[ros][drawer][0][dmu] = true;
+        m_corrup[ros][drawer][1][dmu] = true;
+        m_hist2[ros][drawer][0][0]->Fill(dmu + 0.5, bin, 1.);
+        m_hist2[ros][drawer][1][0]->Fill(dmu + 0.5, bin, 1.);
+      }
+      continue;
+    }
+
     std::vector<uint32_t> headerVec = digitsCollection->getFragChipHeaderWords();
 
     int headsize = headerVec.size();
@@ -1121,6 +1138,8 @@ void TileDigitsMonTool::drawHists(int ros, int drawer, std::string moduleName)
     m_hist2[ros][drawer][gain][0]->GetYaxis()->SetBinLabel(4, "Memory");
     m_hist2[ros][drawer][gain][0]->GetYaxis()->SetBinLabel(5, "SingleStr");
     m_hist2[ros][drawer][gain][0]->GetYaxis()->SetBinLabel(6, "DbleStr");
+    m_hist2[ros][drawer][gain][0]->GetYaxis()->SetBinLabel(7, "DummyFrag");
+    m_hist2[ros][drawer][gain][0]->GetYaxis()->SetBinLabel(8, "NoDataFrag");
     m_hist2[ros][drawer][gain][0]->GetYaxis()->SetTickLength(0.01);
     m_hist2[ros][drawer][gain][0]->GetYaxis()->SetLabelOffset(0.001);
     if (do_plots) {
@@ -1661,12 +1680,12 @@ bool TileDigitsMonTool::DMUheaderCheck(std::vector<uint32_t>* headerVec, int ros
   }
   if (((*headerVec)[dmu] >> 24) & 0x1) {
     //Single Strobe Error
-    m_hist2[ros][drawer][gain][0]->Fill(dmu + 0.5, 5., 1.);
+    m_hist2[ros][drawer][gain][0]->Fill(dmu + 0.5, 4., 1.);
     err = true;
   }
   if (((*headerVec)[dmu] >> 23) & 0x1) {
     //Double Strobe Error
-    m_hist2[ros][drawer][gain][0]->Fill(dmu + 0.5, 0., 1.);
+    m_hist2[ros][drawer][gain][0]->Fill(dmu + 0.5, 5., 1.);
     err = true;
   }
   if (!err) m_hist2[ros][drawer][gain][0]->Fill(dmu + 0.5, 0., 1.);

@@ -125,7 +125,6 @@ StatusCode iGeant4::G4TransportTool::initialize()
   m_pRunMgr->SetSDMasterTool(m_senDetTool.typeAndName() );
   m_pRunMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
   m_pRunMgr->SetPhysListTool(m_physListTool.typeAndName() );
-  m_pRunMgr->SetUserInitialization(m_physListTool->GetPhysicsList());
 
   ATH_CHECK( m_userActionSvc.retrieve() );
 
@@ -190,7 +189,6 @@ StatusCode iGeant4::G4TransportTool::initialize()
     ui->ApplyCommand( g4command );
   }
 
-  ATH_MSG_DEBUG("initalize");
   /*
     if (m_particleBroker.retrieve().isSuccess())
     ATH_MSG_DEBUG("retrieved "<<m_particleBroker);
