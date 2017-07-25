@@ -66,7 +66,7 @@ if( NOT XAOD_STANDALONE )
    atlas_add_component( METUtilities
       src/*.h src/*.cxx src/components/*.cxx
       LINK_LIBRARIES GaudiKernel AthenaBaseComps METInterface xAODEgamma
-      xAODMuon xAODTau xAODMissingET xAODJet MuonSelectorToolsLib JetResolution ElectronPhotonFourMomentumCorrection MuonMomentumCorrections tauRecToolsLib
+      xAODMuon xAODTau xAODMissingET xAODJet MuonSelectorToolsLib JetResolutionLib ElectronPhotonFourMomentumCorrectionLib MuonMomentumCorrectionsLib tauRecToolsLib
       ElectronPhotonSelectorToolsLib TauAnalysisToolsLib METUtilitiesLib  )
 endif()
 
