@@ -52,7 +52,7 @@ atlas_add_library( InDetPhysValMonitoringLib
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} 
                    AthenaBaseComps AthenaMonitoringLib AtlasDetDescr xAODTracking xAODTruth GaudiKernel InDetIdentifier InDetReadoutGeometry
-                   InDetTrackSelectionTool PATCoreLib TrkValHistUtils
+                   InDetTrackSelectionToolLib PATCoreLib TrkValHistUtils
                    PRIVATE_LINK_LIBRARIES AsgTools AthenaKernel GeoPrimitives EventPrimitives 
                    xAODBase xAODEventInfo xAODJet InDetPrepRawData InDetRIO_OnTrack 
                    MCTruthClassifierLib PathResolver TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces )
