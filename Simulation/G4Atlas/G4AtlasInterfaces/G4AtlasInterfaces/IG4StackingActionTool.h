@@ -25,7 +25,7 @@ namespace G4UA
     public:
 
       /// @brief Return the action for current thread.
-      virtual G4UserStackingAction* getG4StackingAction() = 0;
+      virtual G4UserStackingAction* getStackingAction() = 0;
 
       /// Interface declaration
       static const InterfaceID& interfaceID() {
