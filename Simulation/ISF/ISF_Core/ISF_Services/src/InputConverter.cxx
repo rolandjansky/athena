@@ -44,10 +44,6 @@ ISF::InputConverter::InputConverter(const std::string& name, ISvcLocator* svc)
     , m_particleDataTable(nullptr)
     , m_useGeneratedParticleMass(false)
     , m_genParticleFilters(this)
-    , m_worldSolid(nullptr)
-    , m_quasiStableParticlesIncluded(false)
-    , m_barcodeSvc("",name)
-    , m_barcodeGenerationIncrement(Barcode::fUndefinedBarcode)
 {
   // particle mass from particle data table?
   declareProperty("UseGeneratedParticleMass",
