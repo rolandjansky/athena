@@ -150,6 +150,8 @@ StatusCode TileRawChannelContByteStreamCnv::createObj(IOpaqueAddress* pAddr, Dat
         } else {
           m_decoder->fillCollection(robf[0], *rawChannelCollection);
         }
+      } else {
+        rawChannelCollection->setFragGlobalCRC(TileROD_Decoder::NO_ROB);
       }
     }
 

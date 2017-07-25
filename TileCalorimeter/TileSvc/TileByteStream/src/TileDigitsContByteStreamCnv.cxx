@@ -146,7 +146,9 @@ StatusCode TileDigitsContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObj
         } else {
           m_decoder->fillCollection(robf[0], *digitsCollection);
         }
-      }  
+      } else {
+        digitsCollection->setFragBCID((TileROD_Decoder::NO_ROB)<<16);
+      }
     }
 
     ATH_MSG_DEBUG( "Creating digits container " << *(pRE_Addr->par()) );
