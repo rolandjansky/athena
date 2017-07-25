@@ -27,12 +27,6 @@
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandLandau.h"
 
-// Gaudi includes
-#include "GaudiKernel/AlgFactory.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/SystemOfUnits.h"
-
 // DataHandle
 #include "StoreGate/DataHandle.h"
 
