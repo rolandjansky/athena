@@ -94,7 +94,7 @@ namespace iGeant4
 
     HepMC::GenEvent* genEvent() const;
 
-    G4AtlasRunManager    * p_runMgr;
+    G4AtlasRunManager    * m_pRunMgr;
 
     /// Activate multi-threading configuration
     bool m_useMT;
