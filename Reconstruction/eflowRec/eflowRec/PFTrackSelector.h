@@ -53,7 +53,7 @@ private:
   ToolHandle<eflowTrackExtrapolatorBaseAlgTool> m_theTrackExtrapolatorTool;
 
   /** New track selection tool */
-  ToolHandle<InDet::IInDetTrackSelectionTool> m_selTool;
+  ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectorTool;
 
   /** Upper limit on track Pt for input tracks */
   float m_upperTrackPtCut;

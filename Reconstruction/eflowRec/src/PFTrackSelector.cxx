@@ -18,14 +18,14 @@ PFTrackSelector::PFTrackSelector(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty("muonsName",  m_muonsReadHandle);
   declareProperty("eflowRecTracksOutputName",  m_eflowRecTracksWriteHandle);
   declareProperty("trackExtrapolatorTool", m_theTrackExtrapolatorTool, "AlgTool to use for track extrapolation");
-  declareProperty("trackSelectionTool", m_selTool);
+  declareProperty("trackSelectionTool", m_trackSelectorTool);
   declareProperty("upperTrackPtCut",m_upperTrackPtCut);
 }
 
 StatusCode PFTrackSelector::initialize(){
 
   ATH_CHECK(m_theTrackExtrapolatorTool.retrieve());  
-  ATH_CHECK(m_selTool.retrieve());
+  ATH_CHECK(m_trackSelectorTool.retrieve());
 
   ATH_CHECK(m_tracksReadHandle.initialize());
   ATH_CHECK(m_electronsReadHandle.initialize());
@@ -79,7 +79,7 @@ StatusCode PFTrackSelector::execute(){
 StatusCode PFTrackSelector::finalize(){return StatusCode::SUCCESS;}
 
 bool PFTrackSelector::selectTrack(const xAOD::TrackParticle& track) {
-  if (track.pt()*0.001 < m_upperTrackPtCut) return m_selTool->accept(track, track.vertex());
+  if (track.pt()*0.001 < m_upperTrackPtCut) return m_trackSelectorTool->accept(track, track.vertex());
   else return false;
 }
 
