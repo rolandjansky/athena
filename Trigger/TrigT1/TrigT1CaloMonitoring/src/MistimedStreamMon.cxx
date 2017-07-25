@@ -21,6 +21,8 @@
 
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
+#include "TrigDecisionTool/TrigDecisionTool.h"
+
 #include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
 #include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
@@ -48,6 +50,7 @@ MistimedStreamMon::MistimedStreamMon(const std::string & type, const std::string
       m_errorTool("LVL1::TrigT1CaloMonErrorTool/TrigT1CaloMonErrorTool"),
       m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"),
       m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"), // can provide coolID, prob. not needed
+      m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
       m_h_1d_cutFlow_mistimedStreamAna(0),
       m_h_1d_selectedEvents_mistimedStreamAna(0),
       m_v_em_2d_etaPhi_tt_classification_mistimedStreamAna(0),
@@ -69,6 +72,7 @@ MistimedStreamMon::MistimedStreamMon(const std::string & type, const std::string
       
 {
      declareProperty("PathInRootFile", m_PathInRootFile = "L1Calo/MistimedStream");
+     declareProperty("TrigDecisionTool", m_trigDec, "The tool to access TrigDecision" );
      declareProperty("BS_xAODTriggerTowerContainer",
                   m_xAODTriggerTowerContainerName =                     LVL1::TrigT1CaloDefs::xAODTriggerTowerLocation);
 }
@@ -92,6 +96,7 @@ StatusCode MistimedStreamMon::initialize()
   CHECK(m_errorTool.retrieve());
   CHECK(m_histTool.retrieve());
   CHECK(m_ttTool.retrieve());
+  CHECK(m_trigDec.retrieve());
 
   std::cout<<"Here comes the MistimedStream Analysis"<<std::endl;
   
@@ -320,7 +325,9 @@ StatusCode MistimedStreamMon::fillHistograms()
   CHECK(evtStore()->retrieve(jetEleCon,"JetElements")); 
   
   // Retrieve EventInfo from SG and save lumi block number, global event number and run number
-  uint32_t bunchCrossing = 0;
+  unsigned int lumiNo = 0;
+  unsigned int currentRunNo = 0;
+  unsigned int currentEventNo = 0;
   const EventInfo *evInfo = 0;
   sc = evtStore()->retrieve(evInfo);
   if (sc.isFailure() || !evInfo) {
@@ -329,7 +336,9 @@ StatusCode MistimedStreamMon::fillHistograms()
   } else {
     const EventID *evID = evInfo->event_ID();
     if (evID) {
-      bunchCrossing = evID->bunch_crossing_id();
+//       lumiNo = evID->lumi_block();
+      currentRunNo = evID->run_number();
+      currentEventNo = evID->event_number();
     }
   }
   m_h_1d_cutFlow_mistimedStreamAna->Fill(0.5);
@@ -350,11 +359,18 @@ StatusCode MistimedStreamMon::fillHistograms()
    }
    
   m_h_1d_cutFlow_mistimedStreamAna->Fill(1.5);
+  
   //Select events that fired HLT_mistimedmonj400
+  if(! (m_trigDec->isPassed("HLT_mistimemonj400",TrigDefs::requireDecision))){
+    return StatusCode::SUCCESS;
+  }
   m_h_1d_cutFlow_mistimedStreamAna->Fill(2.5);
-  //Only select events which passed the L1_J100
-  m_h_1d_cutFlow_mistimedStreamAna->Fill(3.5);
 
+  //Only select events which passed the L1_J100
+  if(! (m_trigDec->isPassed("L1_J100"))){
+    return StatusCode::SUCCESS;
+  }
+  m_h_1d_cutFlow_mistimedStreamAna->Fill(3.5);
 
   // now classify the tower signals by looking at their FADC counts, if it exceeds 70
   int satCounter = 0; // saturated TT
@@ -443,7 +459,6 @@ StatusCode MistimedStreamMon::fillHistograms()
   }
   
   m_h_1d_cutFlow_mistimedStreamAna->Fill(8.5);
-  m_selectedEventCounter++;
 
   //loop over the decorated TTcollection, if less than 10 events are selected for this run
   if(m_selectedEventCounter < 10){
@@ -533,7 +548,9 @@ StatusCode MistimedStreamMon::fillHistograms()
   //dont forget to delete the decorated TTcontainers
   delete ttContainer;
   delete ttAuxContainer;
-  
+
+  m_selectedEventCounter++;
+
   return StatusCode::SUCCESS;
 }
 

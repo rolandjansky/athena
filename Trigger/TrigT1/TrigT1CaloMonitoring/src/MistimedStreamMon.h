@@ -33,6 +33,10 @@ class TH2I_LW;
 class StatusCode;
 class EventInfo;
 
+namespace Trig {
+  class TrigDecisionTool;
+}
+
 // ============================================================================
 namespace LVL1 {
 // ============================================================================
@@ -77,6 +81,10 @@ private:
   ToolHandle<TrigT1CaloLWHistogramTool>   m_histTool;
   /// TT simulation tool for Identifiers
   ToolHandle<LVL1::IL1TriggerTowerTool>   m_ttTool;
+  /// Tool to retrieve the trigger decision
+  ToolHandle<Trig::TrigDecisionTool> m_trigDec;
+
+    
 
   void bookEventHistograms(std::string number);
   bool pulseQuality(std::vector<uint16_t> ttPulse, int peakSlice);
