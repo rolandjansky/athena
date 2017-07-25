@@ -333,41 +333,23 @@ class AugmentedByteStream( AugmentedStreamBase ):
         return
 
 #############################################################
-class _RootStreamFilterHelper:
-    """This class is used to help the AugmentedRootStream class in handling
-       filter algorithms in the same way as they behaved with the 'old' way of
-       setting up the D3PD::MakerAlg  algorithm.
-    """
-    def __init__( self, stream, seq ):
-        self.stream = stream
-        self.seq = seq
-        return
-    def __iadd__( self, alg ):
-        self.seq += alg
-        self.stream.AddRequireAlgs( alg.getName() )
-        return
 
 class AugmentedRootStream( AugmentedStreamBase ):
-    """This class is used to handle output ROOT (D3PD) streams in Athena.
+    """This class is used to handle output ROOT streams in Athena.
        It inherits from the AugmentedStreamBase class, so implements its
-       interface, but at the same time it behaves for all intents and
-       purposes like a configurable for the D3PD::MakerAlg class.
+       interface, but largely functions as an interface to THistSvc.
     """
-    def  __init__( self, StreamName, FileName, TreeName = None, asAlg = False ):
-        """Constructor for the D3PD stream object.
+    def  __init__( self, StreamName, FileName, TreeName = None ):
+        """Constructor for the ROOT (TTree) stream object.
 
            Arguments:
-              StreamName: Logical name of the D3PD stream. Note that beside
+              StreamName: Logical name of the output stream. Note that beside
                           using it to define the stream in THistSvc, this
                           name is also used as the name of the TTree in the
                           output file in case one is not specified explicitly.
-              FileName: Name of the file to write the D3PD TTree into.
+              FileName: Name of the file to write the TTree into.
               TreeName: Name of the TTree in the output file. If it's not
                         specified, the stream name is used as the tree name.
-              asAlg: If set to True, the D3PD::MakerAlg algorithm is added
-                     to the job as a regular algorithm. When set to False
-                     (default), the D3PD algorithm is added to the application
-                     manager as an output stream.
         """
         # Initialize the base class:
         AugmentedStreamBase.__init__( self, StreamName )
@@ -380,44 +362,6 @@ class AugmentedRootStream( AugmentedStreamBase ):
         self.fileName = FileName
         self.treeName = TreeName
 
-        # We need to add some stuff to the main algorithm sequence:
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-
-        # Create a sequence where the pre-D3PD-making algorithms are run:
-        from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
-        preseq = AlgSequence( D3PDMakerFlags.PreD3PDAlgSeqName(),
-                              StopOverride = True )
-        if not hasattr( topSequence, D3PDMakerFlags.PreD3PDAlgSeqName() ):
-            topSequence += [ preseq ]
-            pass
-        
-
-        # Add the AANT algorithm for making it possible to back navigate
-        # from D3PD events:
-        ParentStreamName = StreamName.split( ':' )[ 0 ]
-        if StreamName.count( ':' ) != 0:
-            if StreamName.count( ':' ) == 1:
-                StreamName = StreamName.split( ':' )[ 1 ]
-            else:
-                raise AttributeError( "Stream name '%s' can't be used!" % StreamName )
-        if not hasattr( topSequence, ParentStreamName + "AANTStream" ):
-            try:
-                from AnalysisTools.AnalysisToolsConf import AANTupleStream
-                topSequence += AANTupleStream( ParentStreamName + "AANTStream",
-                                               ExtraRefNames = ['StreamRDO',
-                                                                'StreamRAW',
-                                                                'StreamESD',
-                                                                'StreamAOD'],
-                                               OutputName = FileName,
-                                               WriteInputDataHeader = True,
-                                               StreamName = ParentStreamName )
-                pass
-            except ImportError:
-                print self.Name,": INFO didn't find AnalysisTools.AnalysisToolsConf in release."
-                pass
-            pass
-        
         # Make sure that THistSvc exists.
         from AthenaCommon.AppMgr import ServiceMgr
         if not hasattr( ServiceMgr, 'THistSvc' ):
@@ -434,41 +378,8 @@ class AugmentedRootStream( AugmentedStreamBase ):
 
         # Add the stream if it's not defined yet:
         if not streamExists:
-            ServiceMgr.THistSvc.Output += [ "%s DATAFILE='%s' OPT='RECREATE' CL='%i'" %
-                                            ( StreamName, FileName,
-                                              D3PDMakerFlags.CompressionLevel() ) ]
-
-        # Finally, create the D3PD::MakerAlg algorithm and add it to the job.
-        # Note that here we're specifying that the D3PDMaker code should use
-        # ROOT output.
-        #
-        # If we're adding as an algorithm directly, then pass the parent sequence
-        # into MakerAlg(...). MakerAlg(...) will then add itself to the sequence
-        # and also set up the accompanying filter sequence. Otherwise, we add it
-        # as a stream; in that case we set up backwards compatibility for
-        # 'filterSeq'.
-        try:
-            import D3PDMakerCoreComps
-            if asAlg:
-                theseq = topSequence
-            else:
-                theseq = None
-                pass
-            self.Stream = D3PDMakerCoreComps.MakerAlg( StreamName + "D3PDMaker", seq = theseq,
-                                                       file = FileName, stream = ParentStreamName,
-                                                       tuplename = TreeName,
-                                                       D3PDSvc = "D3PD::RootD3PDSvc" )
-
-            if not asAlg:
-                from AthenaCommon.AppMgr import theApp
-                theApp.addOutputStream( self.Stream )
-                # Backwards compatibility for the filter algoirthm:
-                self.filterSeq = _RootStreamFilterHelper( self, topSequence )
-                pass
-            pass
-        except ImportError:
-            print self.Name,": INFO didn't find D3PDMakerCoreComps in release."
-            pass
+            ServiceMgr.THistSvc.Output += [ "%s DATAFILE='%s' OPT='RECREATE'" %
+                                            ( StreamName, FileName ) ]
 
         return
 
@@ -574,26 +485,23 @@ class MultipleStreamManager:
     def NewVirtualStream(self,StreamName,FileName="default", asAlg=False):
         return self.NewStream(StreamName,FileName,type='virtual',asAlg=asAlg)
 
-    def NewRootStream(self,StreamName,FileName=None,TreeName=None,asAlg=False):
-        """Function used to create a new D3PD 'stream'. The object returned by
-           it behaves both as an AugmentedStreamBase, and as a D3PD::MakerAlg
-           configurable.
+    def NewRootStream(self,StreamName,FileName=None,TreeName=None):
+        """Function used to create a new ROOT 'stream'. The object returned by
+           it behaves as an AugmentedStreamBase.
 
            Arguments:
-              StreamName: Logical name of the D3PD stream. Used also as the D3PD
+              StreamName: Logical name of the ROOT stream. Used also as the ROOT
                           TTree name in case a tree name is not specified.
-              FileName: Name of the output file into which the D3PD should be
+              FileName: Name of the output file into which the TTree should be
                         written. If not specified, '<StreamName>.root' is used.
               TreeName: Name of the TTree in the created file. If not specified,
                         StreamName is used for the TTree name as well.
-              asAlg: Selects whether the 'stream' should be configured as an
-                     actual stream, or an algorithm.
         """
         # Check if a file name was specified or not:
         if FileName == None:
             FileName = StreamName + ".root"
         # Use the common function for creating the stream:
-        return self.NewStream( StreamName, FileName, type='root', asAlg = asAlg,
+        return self.NewStream( StreamName, FileName, type='root',
                                TreeName = TreeName )
 
     def NewStream(self,StreamName,FileName="default",type='pool',asAlg=False,TreeName=None):
@@ -613,7 +521,7 @@ class MultipleStreamManager:
             elif type=='virtual':
                 self.StreamList += [ AugmentedPoolStream(StreamName,FileName,asAlg,isVirtual=True) ]
             elif type=='root':
-                self.StreamList += [ AugmentedRootStream(StreamName,FileName,TreeName,asAlg) ]
+                self.StreamList += [ AugmentedRootStream(StreamName,FileName,TreeName) ]
             else:
                 raise RuntimeError("Unknown type '%s'"%type)
 
