@@ -6,7 +6,7 @@
 
 using namespace std;
 
-const char PATTERNidentity::inputTag[4][9] = 
+const char PATTERNidentity::s_inputTag[4][9] = 
     { {"Low Pt"},{"Pivot"},{"High Pt"},{"No input"} };
 
 
@@ -52,6 +52,6 @@ void PATTERNidentity::Print(ostream& stream,bool detail) const
     detail = true;
     if(detail)
     {
-        stream << inputTag[input_id()] << ",  layer " << layer_id();
+        stream << s_inputTag[input_id()] << ",  layer " << layer_id();
     }
 }
