@@ -10,9 +10,14 @@ import AthenaPoolCnvSvc.ReadAthenaPool #read xAOD files
 
 theApp.EvtMax = 400 #set to -1 to run on all events
 
-
 inputFile = os.environ['ASG_TEST_FILE_MC'] #test input file
 svcMgr.EventSelector.InputCollections = [ inputFile ] #specify input files here, takes a list
+
+AST99tauTruthTool = CfgMgr.TauAnalysisTools__TauTruthMatchingTool(
+                                        name = "AST99TauTruthMatchingTool",
+                              WriteTruthTaus = True,
+                                 OutputLevel = INFO)
+ToolSvc += AST99tauTruthTool
 
 ToolSvc += CfgMgr.ST__SUSYObjDef_xAOD("SUSYTools")
 
@@ -26,8 +31,6 @@ ToolSvc.SUSYTools.PRWLumiCalcFiles = [
     "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data16_13TeV/20160803/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root"
     ]
 
-
-
 algseq = CfgMgr.AthSequencer("AthAlgSeq") #The main alg sequence
 
 #this bit is used in the ATN nightly tests, for appending event rates to previous results
@@ -37,8 +40,7 @@ try:
 except ImportError:
     myPath="."
 
-algseq += CfgMgr.SUSYToolsAlg("MCAlg",RootStreamName="MYSTREAM",RateMonitoringPath=myPath) #Substitute your alg here
-
+algseq += CfgMgr.SUSYToolsAlg("MCAlg",RootStreamName="MYSTREAM",RateMonitoringPath=myPath,TauTruthMatchingTool=AST99tauTruthTool,CheckTruthJets=True) #Substitute your alg here
 
 #You algorithm can use the SUSYTools through a ToolHandle:
 #

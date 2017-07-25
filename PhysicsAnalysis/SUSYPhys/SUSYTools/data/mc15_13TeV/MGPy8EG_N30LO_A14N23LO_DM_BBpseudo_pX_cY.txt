@@ -4,7 +4,7 @@
 #          Pre-computed values for different settings are also available at https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BBPhiValidation 
 # NOTE: these dataset have a problem in AMI, filter comes from validation logfiles   #fixed : Martin 16.11.16
 #
-DSID     FS CROSSSECTION[pb] K-FACTOR     FILTEREFF   REL.UNCERT
+#DSID     FS CROSSSECTION[pb] K-FACTOR     FILTEREFF   REL.UNCERT
 303165    0      6.252         1.0         6.66e-02       0.02116
 303166    0      4.819         1.0         9.39e-02	  0.01718
 303167    0      1.946         1.0         1.77e-01       0.006541

@@ -1,6 +1,6 @@
 # author : keisuke.yoshihara@cern.ch (please report any problems)
 # date   : 14/02/2017
-DSID     FS   CROSSECTION[pb]     K-FACTOR     FILTEREFF   REL.UNCERT
+#DSID     FS   CROSSECTION[pb]     K-FACTOR     FILTEREFF   REL.UNCERT
 #
 # wino NLSP (M2 = 2*M1) grid (stop pair production)	
 #

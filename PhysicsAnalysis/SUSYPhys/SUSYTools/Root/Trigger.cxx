@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
- 
+
 // This source file implements all of the functions related to <OBJECT>
 // in the SUSYObjDef_xAOD class
 
@@ -24,7 +24,7 @@
 
 namespace ST {
 
-  const static SG::AuxElement::Decorator<int> dec_trigmatched("trigmatched");
+  const static SG::AuxElement::Decorator<char> dec_trigmatched("trigmatched");
 
 bool SUSYObjDef_xAOD::IsMETTrigPassed(unsigned int runnumber, bool j400_OR) const {
 
@@ -226,7 +226,7 @@ void SUSYObjDef_xAOD::TrigMatch(const xAOD::IParticle* p, std::initializer_list<
   for(auto it = i1; it != i2; ++it) {
     auto result = static_cast<int>(this->IsTrigMatched(p, *it));
     dec_trigmatched(*p) += result;
-    p->auxdecor<int>(*it) = result;
+    p->auxdecor<char>(*it) = result;
   }
 }
 
@@ -237,12 +237,12 @@ void SUSYObjDef_xAOD::TrigMatch(const xAOD::IParticle* p, const std::initializer
 
 
 void SUSYObjDef_xAOD::TrigMatch(const xAOD::IParticle* p, const std::vector<std::string>& items) {
-  p->auxdecor<int>("trigger_matched") = 0;
+  dec_trigmatched(*p) = 0;
 
   for(const auto& item: items) {
     auto result = static_cast<int>(this->IsTrigMatched(p, item));
-    p->auxdecor<int>("trigger_matched") += result;
-    p->auxdecor<int>(item) = result;
+    dec_trigmatched(*p) += result;
+    p->auxdecor<char>(item) = result;
   }
 }
 

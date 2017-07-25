@@ -17,7 +17,9 @@ EVTMAX = 1000
 xAODFileName = "DAOD_AST.topaod_jul20.pool.root"
 
 # Input dataset
+# SZ - MIND that if you change this, you should also change accordingly the hard-coded "dataSource = 1" in line 73
 svcMgr.EventSelector.InputCollections= [os.environ['ASG_TEST_FILE_MC']]
+
 
 from glob import glob
 #inputDir = "/usatlas/groups/bnl_local2/paige/SUSY1/mc15_13TeV.387200.MadGraphPythia8EvtGen_A14NNPDF23LO_TT_directTT_800_100.merge.DAOD_SUSY1.e3969_s2608_r7772_r7676_p2666"
@@ -65,6 +67,10 @@ else:
     isData = 1
     dataSource = 0
 
+# SZ - UNFORTUNATELY METADATA IS BROKEN IN R21 :-(
+# UUNCOMMENT BELOW TO HARD-CODE 'dataSource' TO FULLSIM MC
+# SINCE ANYWAY WE'RE RUNNING OVER 'ASG_TEST_FILE_MC'
+#dataSource = 1
 
 ###############
 # Configure job
@@ -130,6 +136,15 @@ AST99tauTruthTool = CfgMgr.TauAnalysisTools__TauTruthMatchingTool(
                                  OutputLevel = INFO)
 ToolSvc += AST99tauTruthTool
 
+# SZ - commenting BuildTruthTaus out, after having discussed this with David Kirchmeier:
+# TauTruthMatchingTool inherits from it and can be used instead
+#
+#AST99tauBuildTruthTaus = CfgMgr.TauAnalysisTools__BuildTruthTaus(
+#                                        name = "AST99TauBuildTruthTaus",
+#                              WriteTruthTaus = True,
+#                                 OutputLevel = INFO)
+#ToolSvc += AST99tauBuildTruthTaus
+
 # Not until https://its.cern.ch/jira/browse/ATLASG-794 is solved
 #tauSmearingTool = CfgMgr.TauAnalysisTools__TauSmearingTool("TauSmearingTool",
 #                                                           SkipTruthMatchCheck = False,
@@ -181,6 +196,7 @@ applyST = CfgMgr.ST__ApplySUSYTools(
                           MaxCount = 10,
                        SUSYObjTool = ToolSvc.AST99ObjDef,
               TauTruthMatchingTool = AST99tauTruthTool,
+                    #BuildTruthTaus = AST99tauBuildTruthTaus, 
                        ThinningSvc = "AST99ThinningSvc",
                        OutputLevel = Lvl.INFO)
 AST99Job += applyST

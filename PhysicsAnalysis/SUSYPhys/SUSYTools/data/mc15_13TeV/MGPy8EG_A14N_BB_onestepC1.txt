@@ -1,6 +1,6 @@
 # contact: jmaurer@cern.ch, cross-sections from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVstopsbottom
 # date: 24/08/2015
-DSID	FS	CROSSECTION[pb]	K-FACTOR	FILTEREFF	REL.UNCERT
+#DSID	FS	CROSSECTION[pb]	K-FACTOR	FILTEREFF	REL.UNCERT
 372300	51	3.786610	1.0 	0.099543	0.136877
 372301	51	1.835370	1.0 	0.101710	0.136985
 372302	51	1.835370	1.0 	0.097245	0.136985

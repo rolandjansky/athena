@@ -21,6 +21,9 @@
       <options_atn>SUSYTools/minimalExampleJobOptions_atlfast.py || { rm monitoring.atlfast.root;exit 1; }</options_atn>
       <timelimit>15</timelimit>
       <author> SUSY Background Forum conveners </author>
+      <!--- For the moment exclude 21.X release AF2 test (no test file -->
+      <nightly_exclude>2.6.X</nightly_exclude>
+      <nightly_exclude>21.2</nightly_exclude>
       <mailto> atlas-phys-susy-bgforum-conveners@cern.ch </mailto>
       <project_exclude>AnalysisBase</project_exclude>
       <postscript>rootcomp.py --html --atnMode --output rootcomp_monitoring.atlfast.root monitoring.atlfast.root
@@ -56,7 +59,8 @@
     </TEST>
 
     <!--- AnalysisBase tests -->
-    <TEST name="SUSYTools_test" type="athena" suite="SUSYTools">
+    <TEST name="SUSYTools_makecheck" type="makecheck" suite="SUSYTools">
+      <package>SUSYTools</package>
       <timelimit>15</timelimit>
       <author> SUSY Background Forum conveners </author>
       <mailto> atlas-phys-susy-bgforum-conveners@cern.ch </mailto>
