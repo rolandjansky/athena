@@ -16,9 +16,6 @@
 #include <vector>
 #include <map>
 
-typedef std::map<std::string, G4ThreeVector, std::less<std::string> > HoleSize;
-typedef std::map<std::string, G4ThreeVector, std::less<std::string> > HolePosition;
-
 /// @class BoxEnvelope
 /// @todo TODO needs documentation
 class BoxEnvelope final : public DetectorGeometryBase
