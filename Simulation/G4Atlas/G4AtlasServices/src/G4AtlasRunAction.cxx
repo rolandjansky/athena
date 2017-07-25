@@ -21,8 +21,8 @@ namespace G4UA
   void G4AtlasRunAction::BeginOfRunAction(const G4Run* run)
   {
     // Loop over my pre-actions and apply each one in turn
-    for(IBeginRunAction* action : m_beginRunActions){
-      action->beginOfRun(run);
+    for(auto action : m_runActions){
+      action->BeginOfRunAction(run);
     }
   }
 
@@ -32,25 +32,17 @@ namespace G4UA
   void G4AtlasRunAction::EndOfRunAction(const G4Run* run)
   {
     // Loop over my post-actions and apply each one in turn
-    for(IEndRunAction* action : m_endRunActions){
-      action->endOfRun(run);
+    for(auto action : m_runActions){
+      action->EndOfRunAction(run);
     }
   }
 
   //---------------------------------------------------------------------------
   // Add one action to the list
   //---------------------------------------------------------------------------
-  void G4AtlasRunAction::addBeginRunAction(IBeginRunAction* action)
+  void G4AtlasRunAction::addRunAction(G4UserRunAction* action)
   {
-    m_beginRunActions.push_back(action);
-  }
-
-  //---------------------------------------------------------------------------
-  // Add one action to the list
-  //---------------------------------------------------------------------------
-  void G4AtlasRunAction::addEndRunAction(IEndRunAction* action)
-  {
-    m_endRunActions.push_back(action);
+    m_runActions.push_back(action);
   }
 
 } // namespace G4UA

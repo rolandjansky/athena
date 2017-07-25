@@ -21,8 +21,8 @@ namespace G4UA
   void G4AtlasEventAction::BeginOfEventAction(const G4Event* event)
   {
     // Loop over my pre-actions and apply each one in turn
-    for(IBeginEventAction* action : m_beginEventActions){
-      action->beginOfEvent(event);
+    for(auto action : m_eventActions){
+      action->BeginOfEventAction(event);
     }
   }
 
@@ -32,25 +32,17 @@ namespace G4UA
   void G4AtlasEventAction::EndOfEventAction(const G4Event* event)
   {
     // Loop over my post-actions and apply each one in turn
-    for(IEndEventAction* action : m_endEventActions){
-      action->endOfEvent(event);
+    for(auto action : m_eventActions){
+      action->EndOfEventAction(event);
     }
   }
 
   //---------------------------------------------------------------------------
   // Add one action to the list
   //---------------------------------------------------------------------------
-  void G4AtlasEventAction::addBeginEventAction(IBeginEventAction* action)
+  void G4AtlasEventAction::addEventAction(G4UserEventAction* action)
   {
-    m_beginEventActions.push_back(action);
-  }
-
-  //---------------------------------------------------------------------------
-  // Add one action to the list
-  //---------------------------------------------------------------------------
-  void G4AtlasEventAction::addEndEventAction(IEndEventAction* action)
-  {
-    m_endEventActions.push_back(action);
+    m_eventActions.push_back(action);
   }
 
 } // namespace G4UA
