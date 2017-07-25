@@ -164,7 +164,7 @@ class L2EFChain_tau(L2EFChainDef):
         elif preselection == 'FTKRefit':
             [trkfast, trkprec[:]] = TrigInDetFTKSequence("Tau","tau",sequenceFlavour=["refit","PT"]).getSequence()
         elif preselection == 'FTKNoPrec':
-            [trkfast] = TrigInDetFTKSequence("Tau","tau","").getSequence()
+            [trkfast] = TrigInDetFTKSequence("Tau","tau",sequenceFlavour=[""]).getSequence()
             [trkprec[:]] = TrigInDetFTKSequence("Tau","tau",sequenceFlavour=["refit"]).getSequence()
         else:
             [trkfast, trkprec[:]] = TrigInDetSequence("Tau", "tau", "IDTrig").getSequence()
