@@ -27,13 +27,13 @@ private:
   void retrieveLCCalCellWeight(const double& energy, const unsigned& index, std::map<IdentifierHash,double>& cellsWeight);
   
   /** ReadHandle for the CaloClusterContainer to be used as input */
-  SG::ReadHandle<xAOD::CaloClusterContainer> m_caloClusterReadHandle;
+  SG::ReadHandle<xAOD::CaloClusterContainer> m_caloClustersReadHandle;
 
   /** ReadHandle for the CaloClusterContainer, at LC scale, to be used as input */
-  SG::ReadHandle<xAOD::CaloClusterContainer> m_caloCalClusterReadHandle;
+  SG::ReadHandle<xAOD::CaloClusterContainer> m_caloCalClustersReadHandle;
 
   /** WriteHandle for the eflowRecClusterContainer to write out: */
-  SG::WriteHandle<eflowRecClusterContainer> m_eflowRecClusterContainerWriteHandle;
+  SG::WriteHandle<eflowRecClusterContainer> m_eflowRecClustersWriteHandle;
   
 
   
