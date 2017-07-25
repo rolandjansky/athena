@@ -41,6 +41,8 @@ atlas_add_dictionary( AthenaKernelDict
    AthenaKernel/selection.xml
    LINK_LIBRARIES GaudiKernel AthenaKernel )
 
+atlas_install_python_modules( python/*.py )
+
 # Test(s) in the package:
 atlas_add_test( getMessageSvc_test
    SOURCES test/getMessageSvc_test.cxx
