@@ -99,6 +99,7 @@ StatusCode RoiCollectionToViews::execute()
     oneRoIColl->clear( SG::VIEW_ELEMENTS ); //Don't delete the RoIs
     oneRoIColl->push_back( roi );
     outputRoICollectionVector.push_back( *oneRoIColl );
+    break;
   }
 
   //Create the views and populate them

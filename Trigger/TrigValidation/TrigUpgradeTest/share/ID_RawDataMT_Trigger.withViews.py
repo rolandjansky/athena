@@ -170,7 +170,6 @@ allViewAlgorithms.alwaysFail.PercentPass = 0.0
 allViewAlgorithms += CfgMgr.AthViews__ViewTestAlg( "viewTest" )
 svcMgr.ViewAlgPool.TopAlg += [ "viewTest" ]
 
-topSequence += allViewAlgorithms
 
 viewTest = True
 
@@ -332,3 +331,75 @@ else:
   topSequence += InDetPixelClusterization
   topSequence.InDetPixelClusterization.isRoI_Seeded = True
   topSequence.InDetPixelClusterization.RoIs = "OutputRoIs"
+
+
+
+#
+# --- SCT_ClusteringTool (public)
+#
+from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
+InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool(name              = "InDetSCT_ClusteringTool",
+                                                    globalPosAlg      = InDetClusterMakerTool,
+                                                    conditionsService = InDetSCT_ConditionsSummarySvc)
+#
+# --- SCT_Clusterization algorithm
+#
+from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__SCT_Clusterization
+InDetSCT_Clusterization = InDet__SCT_Clusterization(name                    = "InDetSCT_Clusterization",
+                                                    clusteringTool          = InDetSCT_ClusteringTool,
+                                                    # ChannelStatus         = InDetSCT_ChannelStatusAlg,
+                                                    DetectorManagerName     = InDetKeys.SCT_Manager(),
+                                                    DataObjectName          = InDetKeys.SCT_RDOs(),
+                                                    ClustersName            = "SCT_TrigClusters",
+                                                    conditionsService       = InDetSCT_ConditionsSummarySvc,
+                                                    FlaggedConditionService = InDetSCT_FlaggedConditionSvc)
+
+if ( viewTest ):
+  allViewAlgorithms += InDetSCT_Clusterization
+  allViewAlgorithms.InDetSCT_Clusterization.isRoI_Seeded = True
+  allViewAlgorithms.InDetSCT_Clusterization.RoIs = "ViewRoIs"
+  allViewAlgorithms.InDetSCT_Clusterization.OutputLevel = VERBOSE
+  svcMgr.ViewAlgPool.TopAlg += [ "InDetSCT_Clusterization" ]
+  topSequence.viewMaker.AlgorithmNameSequence += [ "InDetSCT_Clusterization" ]
+else:
+  topSequence += InDetSCT_Clusterization
+  topSequence.InDetSCT_Clusterization.isRoI_Seeded = True
+  topSequence.InDetSCT_Clusterization.RoIs = "OutputRoIs"
+
+
+#Space points and FTF
+
+from SiSpacePointTool.SiSpacePointToolConf import InDet__SiSpacePointMakerTool
+InDetSiSpacePointMakerTool = InDet__SiSpacePointMakerTool(name = "InDetSiSpacePointMakerTool")
+ToolSvc += InDetSiSpacePointMakerTool
+
+from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiTrackerSpacePointFinder
+InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name                   = "InDetSiTrackerSpacePointFinder",
+                                                                  SiSpacePointMakerTool  = InDetSiSpacePointMakerTool,
+                                                                  PixelsClustersName     = "PixelTrigClusters",
+                                                                  SCT_ClustersName       = "SCT_TrigClusters",
+                                                                  SpacePointsPixelName   = "PixelTrigSpacePoints",
+                                                                  SpacePointsSCTName     = "SCT_TrigSpacePoints",
+                                                                  SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
+                                                                  ProcessPixels          = DetFlags.haveRIO.pixel_on(),
+                                                                  ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
+                                                                  ProcessOverlaps        = DetFlags.haveRIO.SCT_on())
+
+
+from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma
+theFTF = TrigFastTrackFinder_eGamma()
+theFTF.outputLevel=VERBOSE
+
+if ( viewTest ):
+  allViewAlgorithms += InDetSiTrackerSpacePointFinder
+  allViewAlgorithms += theFTF
+  svcMgr.ViewAlgPool.TopAlg += [ "InDetSiTrackerSpacePointFinder", "TrigFastTrackFinder_eGamma" ]
+  topSequence.viewMaker.AlgorithmNameSequence += [ "InDetSiTrackerSpacePointFinder", "TrigFastTrackFinder_eGamma" ]
+  svcMgr.StoreGateSvc.Dump = True
+else:
+  topSequence += InDetSiTrackerSpacePointFinder
+  topSequence += theFTF
+
+#BEN
+topSequence += allViewAlgorithms
+theApp.EvtMax = 10
