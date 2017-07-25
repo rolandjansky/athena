@@ -176,12 +176,8 @@ class TestSUSYTools(unittest.TestCase):
 
     theTest = 'SUSYToolsTester %s 10 isData=0 isAtlfast=0 Debug=0 NoSyst=0 ConfigFile=%s ' % (theSample, theConfig)
 
-    #guess the MC campaign for the prw file
-    releaseSeries = int(os.environ['ROOTCORE_RELEASE_SERIES'])
-    if (releaseSeries > 23):
-        theTest += ' PRWFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/merged_prw_mc15c_July27_afterFix.root'
-    else:
-        theTest += ' PRWFile=/afs/cern.ch/work/t/tripiana/public/atlas/BGF/PRW/merged_prw_mc15_50ns.root'
+    #guess the MC campaign for the prw file if needed
+    theTest += ' PRWFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/merged_prw_mc15c_latest.root'
 
     #Working points
     EL_ID_WP  = ['MediumLLH','TightLLH'] ## 'LooseAndBLayerLLH', ## MT : where do we get this from ??

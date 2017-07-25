@@ -2162,12 +2162,15 @@ unsigned int SUSYObjDef_xAOD::GetRunNumber() const {
 
 }
 
-int SUSYObjDef_xAOD::treatAsYear() const {
-
-  if( GetRunNumber() < 290000 ) //split between 2015 and 2016 runNumbers
-        return 2015;
-  else return 2016; // to be expanded with 2017, etc.
-
+int SUSYObjDef_xAOD::treatAsYear(const int runNumber) const {
+  // Use the run number we are passed if we are passed one, otherwise
+  //  use the run number from the GetRunNumber function
+  int theRunNumber = runNumber>0?runNumber:GetRunNumber();
+  // Split between 2015 and 2016 run numbers: 290000
+  // Split between 2016 and 2017 run numbers: 320000
+  if (theRunNumber<290000) return 2015;
+  else if (theRunNumber<320000) return 2016;
+  return 2017;
 }
 
 StatusCode SUSYObjDef_xAOD::setRunNumber(const int run_number) {
@@ -2181,9 +2184,9 @@ StatusCode SUSYObjDef_xAOD::setRunNumber(const int run_number) {
     rn_2016 = run_number;
   }
 
-  CP::CorrectionCode res1 = m_muonTriggerSFTool2015->setRunNumber(rn_2015);
-  CP::CorrectionCode res2 = m_muonTriggerSFTool2016->setRunNumber(rn_2016);
-  if (res1 != CP::CorrectionCode::Ok || res2 != CP::CorrectionCode::Ok) return StatusCode::FAILURE;
+  // Release 21: we can only set the run number for the SF tool that is applicable
+  if (treatAsYear(run_number)==2015 && m_muonTriggerSFTool2015->setRunNumber(rn_2015)!=CP::CorrectionCode::Ok) return StatusCode::FAILURE;
+  if (treatAsYear(run_number)==2016 && m_muonTriggerSFTool2016->setRunNumber(rn_2016)!=CP::CorrectionCode::Ok) return StatusCode::FAILURE;
 
   return StatusCode::SUCCESS;
 }
