@@ -2,14 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef PolyconicalEnvelope_H
-#define PolyconicalEnvelope_H
+#ifndef G4ATLASTOOLS_PolyconicalEnvelope_H
+#define G4ATLASTOOLS_PolyconicalEnvelope_H
 
 // Base classes
 #include "G4AtlasTools/DetectorGeometryBase.h"
 #include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
-
-// Members
 
 // STL library
 #include <string>

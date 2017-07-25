@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef G4ATLASINTERFACES_FASTSIMULATIONBASE_H
-#define G4ATLASINTERFACES_FASTSIMULATIONBASE_H
+#ifndef G4ATLASTOOLS_FASTSIMULATIONBASE_H
+#define G4ATLASTOOLS_FASTSIMULATIONBASE_H
 
 // Base classes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -23,7 +23,8 @@
 
 class FastSimulationBase : virtual public IFastSimulation, public AthAlgTool {
  public:
-  FastSimulationBase(const std::string& type, const std::string& name, const IInterface *parent);
+  FastSimulationBase(const std::string& type, const std::string& name,
+                     const IInterface *parent);
   virtual ~FastSimulationBase() {}
 
   /** Athena method, used to get out the G4 geometry and set up the fast simulations
