@@ -17,6 +17,7 @@
 #include "eflowRec/eflowVertexInformationSetter.h"
 #include "eflowRec/PFLeptonSelector.h"
 #include "eflowRec/PFTrackSelector.h"
+#include "eflowRec/PFClusterSelector.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_ALGORITHM_FACTORY( eflowBuilder )
@@ -26,6 +27,7 @@ DECLARE_ALGORITHM_FACTORY( eflowObjectBuilder )
 DECLARE_ALGORITHM_FACTORY( eflowOverlapRemoval )
 DECLARE_ALGORITHM_FACTORY( eflowVertexInformationSetter )
 DECLARE_ALGORITHM_FACTORY( PFLeptonSelector )
+DECLARE_ALGORITHM_FACTORY( PFClusterSelector )
 DECLARE_ALGORITHM_FACTORY( PFTrackSelector )
 DECLARE_TOOL_FACTORY( eflowRecoverSplitShowersTool )
 DECLARE_TOOL_FACTORY( eflowCellLevelSubtractionTool )
@@ -47,6 +49,7 @@ DECLARE_FACTORY_ENTRIES(eflowRec) {
     DECLARE_ALGORITHM (eflowOverlapRemoval )
     DECLARE_ALGORITHM ( eflowVertexInformationSetter )
     DECLARE_ALGORITHM( PFLeptonSelector )
+    DECLARE_ALGORITHM( PFClusterSelector )
     DECLARE_ALGORITHM( PFTrackSelector )
     DECLARE_TOOL ( eflowRecoverSplitShowersTool )
     DECLARE_TOOL ( eflowCellLevelSubtractionTool )
