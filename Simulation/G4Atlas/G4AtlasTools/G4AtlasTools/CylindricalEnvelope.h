@@ -13,10 +13,12 @@
 #include <string>
 #include <vector>
 
+/// @class CylindricalEnvelope
+/// @todo TODO needs documentation
 class CylindricalEnvelope final : public DetectorGeometryBase
 {
  public:
-  // Basic constructor and destructor
+  /// Basic constructor and destructor
   CylindricalEnvelope(const std::string& type, const std::string& name, const IInterface *parent);
 
   ~CylindricalEnvelope() {}
