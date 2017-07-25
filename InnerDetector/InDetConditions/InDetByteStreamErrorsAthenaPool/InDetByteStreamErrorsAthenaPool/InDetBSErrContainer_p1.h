@@ -2,15 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef INDETBSERRCONTAINER_P1_H
-#define INDETBSERRCONTAINER_P1_H
+#ifndef INDETBYTESTREAMERRORSATHENAPOOL_INDETBSERRCONTAINER_P1_H
+#define INDETBYTESTREAMERRORSATHENAPOOL_INDETBSERRCONTAINER_P1_H
 
 
 #include <vector>
 #include <stdint.h>
 #include "Identifier/IdentifierHash.h"
 
-class InDetBSErrContainer_p1   
+class InDetBSErrContainer_p1
 {
  public:
 /// Default constructor

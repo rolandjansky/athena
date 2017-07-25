@@ -2,20 +2,20 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/** 
+/**
  * @file TRT_BSIdErrContainerCnv.h
  * @brief Generated header file which defines a typedef for templated converter class
  * @author RD Schaffer <R.D. Schaffer@cern.ch>
  */
 
-#ifndef TRT_BSIdErrContainerCnv_H
-#define TRT_BSIdErrContainerCnv_H
+#ifndef INDETBYTESTREAMERRORSATHENAPOOL_TRT_BSIdErrContainerCnv_H
+#define INDETBYTESTREAMERRORSATHENAPOOL_TRT_BSIdErrContainerCnv_H
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCnv.h"
 #include "InDetByteStreamErrors/TRT_BSIdErrContainer.h"
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
-#include "InDetConditionsAthenaPool/TRT_BSIdErrContainer_p1.h"
+#include "InDetByteStreamErrorsAthenaPool/TRT_BSIdErrContainer_p1.h"
 #include "TRT_BSIdErrContainerCnv_p1.h"
 
 // the latest persistent representation type of DataCollection:
@@ -32,5 +32,3 @@ protected:
   TRT_BSIdErrContainerCnv_p1  m_TPConverter;
 };
 #endif
-
-
