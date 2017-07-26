@@ -110,11 +110,6 @@ This is a dummy function. Functionality will be added soon.
       return StatusCode::SUCCESS;
     }
 
-    MissingETBase::Types::bitmask_t trksource = MissingETBase::Source::Track;
-    if((*newMet)[m_softtrkname]) trksource = (*newMet)[m_softtrkname]->source();
-    MissingETBase::Types::bitmask_t clsource = MissingETBase::Source::LCTopo;
-    if((*newMet)[m_softclname]) clsource = (*newMet)[m_softclname]->source();
-
     return StatusCode::SUCCESS;
   }
 
