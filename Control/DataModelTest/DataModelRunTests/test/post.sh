@@ -191,6 +191,12 @@ PP="$PP"'|Loop Finished'
 # Hive ordering.
 PP="$PP"'|Terminating thread-pool resources|Joining Scheduler thread'
 
+# Cool timing information.
+PP="$PP"'|db-read|read from COOL|ReadTime:'
+
+# EventInfoMgtInit
+PP="$PP"'|Got release version'
+
 
 
 test=$1
