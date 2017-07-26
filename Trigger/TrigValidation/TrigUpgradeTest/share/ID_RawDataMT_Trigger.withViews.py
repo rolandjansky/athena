@@ -139,7 +139,7 @@ from InDetRecExample.InDetKeys import InDetKeys
 include ("InDetRecExample/InDetRecCabling.py")
 
 
-#BEN
+### Begin view setup
 
 # Make a separate alg pool for the view algs
 from GaudiHive.GaudiHiveConf import AlgResourcePool
@@ -159,7 +159,6 @@ viewMaker.ViewBaseName = "testView"
 viewMaker.AlgPoolName = viewAlgPoolName
 viewMaker.InputRoICollection = "OutputRoIs"
 viewMaker.OutputRoICollection = "ViewRoIs"
-viewMaker.AlgorithmNameSequence = [ "viewTest" ] #Eventually scheduler will do this
 topSequence += viewMaker
 
 # Filter to stop view algs from running on whole event
@@ -169,11 +168,14 @@ allViewAlgorithms.alwaysFail.PercentPass = 0.0
 # dummy alg that just says you're running in a view
 allViewAlgorithms += CfgMgr.AthViews__ViewTestAlg( "viewTest" )
 svcMgr.ViewAlgPool.TopAlg += [ "viewTest" ]
+viewMaker.AlgorithmNameSequence = [ "viewTest" ] #Eventually scheduler will do this
 
-
+# test setup
 viewTest = True
+topSequence += allViewAlgorithms
+theApp.EvtMax = 10
 
-#end BEN
+### End view setup
 
 #Pixel
 
@@ -358,7 +360,6 @@ if ( viewTest ):
   allViewAlgorithms += InDetSCT_Clusterization
   allViewAlgorithms.InDetSCT_Clusterization.isRoI_Seeded = True
   allViewAlgorithms.InDetSCT_Clusterization.RoIs = "ViewRoIs"
-  allViewAlgorithms.InDetSCT_Clusterization.OutputLevel = VERBOSE
   svcMgr.ViewAlgPool.TopAlg += [ "InDetSCT_Clusterization" ]
   topSequence.viewMaker.AlgorithmNameSequence += [ "InDetSCT_Clusterization" ]
 else:
@@ -388,18 +389,14 @@ InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name          
 
 from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma
 theFTF = TrigFastTrackFinder_eGamma()
-theFTF.outputLevel=VERBOSE
 
 if ( viewTest ):
   allViewAlgorithms += InDetSiTrackerSpacePointFinder
   allViewAlgorithms += theFTF
+  allViewAlgorithms.TrigFastTrackFinder_eGamma.isRoI_Seeded = True
+  allViewAlgorithms.TrigFastTrackFinder_eGamma.RoIs = "ViewRoIs"
   svcMgr.ViewAlgPool.TopAlg += [ "InDetSiTrackerSpacePointFinder", "TrigFastTrackFinder_eGamma" ]
   topSequence.viewMaker.AlgorithmNameSequence += [ "InDetSiTrackerSpacePointFinder", "TrigFastTrackFinder_eGamma" ]
-  svcMgr.StoreGateSvc.Dump = True
 else:
   topSequence += InDetSiTrackerSpacePointFinder
   topSequence += theFTF
-
-#BEN
-topSequence += allViewAlgorithms
-theApp.EvtMax = 10

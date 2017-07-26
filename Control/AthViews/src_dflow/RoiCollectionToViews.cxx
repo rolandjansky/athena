@@ -93,13 +93,12 @@ StatusCode RoiCollectionToViews::execute()
   std::vector< TrigRoiDescriptorCollection > outputRoICollectionVector;
   for ( auto roi: *inputRoIs )
   {
-    ATH_MSG_INFO( "BEN BEN RoI Eta: " << roi->eta() << " Phi: " << roi->phi() << " RoIWord: " << roi->roiWord() );
+    ATH_MSG_DEBUG( "RoI Eta: " << roi->eta() << " Phi: " << roi->phi() << " RoIWord: " << roi->roiWord() );
     
     auto oneRoIColl = std::make_unique< TrigRoiDescriptorCollection >();
     oneRoIColl->clear( SG::VIEW_ELEMENTS ); //Don't delete the RoIs
     oneRoIColl->push_back( roi );
     outputRoICollectionVector.push_back( *oneRoIColl );
-    break;
   }
 
   //Create the views and populate them
