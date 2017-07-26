@@ -335,15 +335,15 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
   static constexpr int kNumModulesEta[PixLayer::COUNT] = {3, 3, 13, 13, 13, 20};
 
   // Error counters: total; errors by bit; errors by state (sync etc.)
-  int num_errors[PixLayerIBL2D3D::COUNT] = {0};
-  int num_errors_per_bit[PixLayerIBL2D3D::COUNT][kNumErrorBits] = {0};
+  int num_errors[PixLayerIBL2D3DDBM::COUNT] = {0};
+  int num_errors_per_bit[PixLayerIBL2D3DDBM::COUNT][kNumErrorBits] = {0};
   int num_errors_per_state[PixLayer::COUNT - 1][kNumErrorStates] = {0};  // no IBL here
   int num_errors_per_stateIBL[kNumErrorStatesIBL] = {0};                 // IBL
 
   // Counter for erroneous modules on the layer, per error type and
   // category (error cat. = error type w/o ROD/MOD distinction).
-  int num_errormodules_per_cat[PixLayerIBL2D3D::COUNT][ErrorCategory::COUNT] = {0};
-  int num_errormodules_per_type[PixLayerIBL2D3D::COUNT][ErrorCategoryMODROD::COUNT] = {0};
+  int num_errormodules_per_cat[PixLayerIBL2D3DDBM::COUNT][ErrorCategory::COUNT] = {0};
+  int num_errormodules_per_type[PixLayerIBL2D3DDBM::COUNT][ErrorCategoryMODROD::COUNT] = {0};
 
   // Counter for erroneous FEs per module per layer.
   int num_errorFEs_EA[kNumModulesPhi[PixLayer::kECA]][kNumModulesEta[PixLayer::kECA]][kNumFEs] = {0};
@@ -365,10 +365,11 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
 
     bool is_ibl = false;
     if (m_ErrorSvc->isActive(id_hash) && m_pixelid->barrel_ec(WaferID) == 0 && m_pixelid->layer_disk(WaferID) == 0 && m_doIBL) is_ibl = true;
+    if (m_ErrorSvc->isActive(id_hash) && (m_pixelid->barrel_ec(WaferID) == 4 || m_pixelid->barrel_ec(WaferID) == -4) && m_doIBL) is_ibl = true;
 
     // Determine layer; functions return '99' for non-sensible IDs.
-    const int kLayer = getPixLayerID(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
-    const int kLayerIBL = getPixLayerIDIBL2D3D(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_pixelid->eta_module(WaferID), m_doIBL);
+    const int kLayer = getPixLayerIDDBM(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
+    const int kLayerIBL = getPixLayerIDIBL2D3DDBM(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_pixelid->eta_module(WaferID), m_doIBL);
     if (kLayer == 99) continue;
 
     // Boolean whether current module has an error of type/category.
@@ -442,19 +443,19 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
           if (bit == 4) {  // EoC trunc error
             int fephi = 0;
             int feeta = 0;
-            if (kLayer == PixLayer::kB0 && getFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
+            if (kLayer == PixLayerDBM::kB0 && getFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
               num_errorFEs_B0[m_pixelid->phi_module(WaferID)][(int)(fabs(6 + m_pixelid->eta_module(WaferID)))][(int)((8 * fephi) + feeta)] = 1;
             }
-            if (kLayer == PixLayer::kB1 && getFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
+            if (kLayer == PixLayerDBM::kB1 && getFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
               num_errorFEs_B1[m_pixelid->phi_module(WaferID)][(int)(fabs(6 + m_pixelid->eta_module(WaferID)))][(int)((8 * fephi) + feeta)] = 1;
             }
-            if (kLayer == PixLayer::kB2 && getFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
+            if (kLayer == PixLayerDBM::kB2 && getFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
               num_errorFEs_B2[m_pixelid->phi_module(WaferID)][(int)(fabs(6 + m_pixelid->eta_module(WaferID)))][(int)((8 * fephi) + feeta)] = 1;
             }
-            if (kLayer == PixLayer::kECA && getFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
+            if (kLayer == PixLayerDBM::kECA && getFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
               num_errorFEs_EA[m_pixelid->phi_module(WaferID)][(int)m_pixelid->layer_disk(WaferID)][(int)((8 * fephi) + feeta)] = 1;
             }
-            if (kLayer == PixLayer::kECC && getFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
+            if (kLayer == PixLayerDBM::kECC && getFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
               num_errorFEs_EC[m_pixelid->phi_module(WaferID)][(int)m_pixelid->layer_disk(WaferID)][(int)((8 * fephi) + feeta)] = 1;
             }
           }
@@ -469,7 +470,7 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
           if (m_errhist_expert_maps[getErrorState(bit, is_ibl)]) m_errhist_expert_maps[getErrorState(bit, is_ibl)]->fill(WaferID, m_pixelid);
         }
 
-        if (kLayer == PixLayer::kIBL) {
+        if (kLayer == PixLayerDBM::kIBL) {
           if (m_errhist_expert_servrec_ibl_unweighted) m_errhist_expert_servrec_ibl_unweighted->Fill(bit);
           if (m_errhist_expert_servrec_ibl_weighted) m_errhist_expert_servrec_ibl_weighted->Fill(bit, m_ErrorSvc->getServiceRecordCount(bit));
           if (m_errhist_expert_servrec_ibl_count) m_errhist_expert_servrec_ibl_count->Fill(m_ErrorSvc->getServiceRecordCount(bit));
@@ -554,7 +555,7 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
   }  // end loop over all identifiers
 
   double total_errors = 0;
-  for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
+  for (int i = 0; i < PixLayerIBL2D3DDBM::COUNT; i++) {
     total_errors += num_errors[i];
   }
   if (m_error_time1 && m_error_time2 && m_error_time3) {
@@ -578,42 +579,42 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
   for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
     if (m_errhist_per_bit_LB[i] && m_nActive_mod[getPixLayerIDWithDBM(i)] > 0) {
       for (int j = 0; j < kNumErrorBits; j++) {
-        m_errhist_per_bit_LB[i]->Fill(kLumiBlock, j, (float)num_errors_per_bit[i][j] / m_nActive_mod[getPixLayerIDWithDBM(i)]);
+        m_errhist_per_bit_LB[i]->Fill(kLumiBlock, j, (float)num_errors_per_bit[getPixLayerIDWithDBM(i)][j] / m_nActive_mod[getPixLayerIDWithDBM(i)]);
       }
     }
     if (m_errhist_per_type_LB[i] && m_nActive_mod[getPixLayerIDWithDBM(i)] > 0) {
       for (int j = 0; j < ErrorCategoryMODROD::COUNT; j++) {
-        m_errhist_per_type_LB[i]->Fill(kLumiBlock, j, (float)num_errormodules_per_type[i][j] / m_nActive_mod[getPixLayerIDWithDBM(i)]);
+        m_errhist_per_type_LB[i]->Fill(kLumiBlock, j, (float)num_errormodules_per_type[getPixLayerIDWithDBM(i)][j] / m_nActive_mod[getPixLayerIDWithDBM(i)]);
       }
     }
   }
 
   for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
-    if (m_errhist_tot_LB[i]) m_errhist_tot_LB[i]->Fill(kLumiBlock, num_errors[i]);
+    if (m_errhist_tot_LB[i]) m_errhist_tot_LB[i]->Fill(kLumiBlock, num_errors[getPixLayerIDWithDBM(i)]);
 
     for (int j = 0; j < ErrorCategory::COUNT; ++j) {
-      if (m_errhist_errcat_LB[i][j]) m_errhist_errcat_LB[i][j]->Fill(kLumiBlock, num_errormodules_per_cat[i][j]);
+      if (m_errhist_errcat_LB[i][j]) m_errhist_errcat_LB[i][j]->Fill(kLumiBlock, num_errormodules_per_cat[getPixLayerIDWithDBM(i)][j]);
     }
 
     for (int j = 0; j < ErrorCategoryMODROD::COUNT - 3; ++j) {
-      if (m_errhist_errtype_LB[i][j]) m_errhist_errtype_LB[i][j]->Fill(kLumiBlock, num_errormodules_per_type[i][j]);
+      if (m_errhist_errtype_LB[i][j]) m_errhist_errtype_LB[i][j]->Fill(kLumiBlock, num_errormodules_per_type[getPixLayerIDWithDBM(i)][j]);
     }
 
     for (int j = 0; j < ErrorCategory::COUNT; j++) {
       if (m_errhist_errcat_avg[j][i] && m_nActive_mod[getPixLayerIDWithDBM(i)] > 0) {
-        m_errhist_errcat_avg[j][i]->Fill(kLumiBlock, (float)num_errormodules_per_cat[i][j] / m_nActive_mod[getPixLayerIDWithDBM(i)]);
+        m_errhist_errcat_avg[j][i]->Fill(kLumiBlock, (float)num_errormodules_per_cat[getPixLayerIDWithDBM(i)][j] / m_nActive_mod[getPixLayerIDWithDBM(i)]);
       }
     }
     for (int j = 0; j < ErrorCategoryMODROD::COUNT - 3; j++) {
       if (m_errhist_errtype_avg[j][i] && m_nActive_mod[getPixLayerIDWithDBM(i)] > 0) {
-        m_errhist_errtype_avg[j][i]->Fill(kLumiBlock, (float)num_errormodules_per_type[i][j] / m_nActive_mod[getPixLayerIDWithDBM(i)]);
+        m_errhist_errtype_avg[j][i]->Fill(kLumiBlock, (float)num_errormodules_per_type[getPixLayerIDWithDBM(i)][j] / m_nActive_mod[getPixLayerIDWithDBM(i)]);
       }
     }
   }
   if (m_errhist_syncerr_LB_pix) {
-    m_errhist_syncerr_LB_pix->Fill(kLumiBlock, num_errormodules_per_cat[PixLayerIBL2D3D::kB0][ErrorCategory::kSync]
-                                   + num_errormodules_per_cat[PixLayerIBL2D3D::kB1][ErrorCategory::kSync]
-                                   + num_errormodules_per_cat[PixLayerIBL2D3D::kB2][ErrorCategory::kSync]);
+    m_errhist_syncerr_LB_pix->Fill(kLumiBlock, num_errormodules_per_cat[PixLayerIBL2D3DDBM::kB0][ErrorCategory::kSync]
+                                   + num_errormodules_per_cat[PixLayerIBL2D3DDBM::kB1][ErrorCategory::kSync]
+                                   + num_errormodules_per_cat[PixLayerIBL2D3DDBM::kB2][ErrorCategory::kSync]);
   }
 
   for (int i = 0; i < PixLayer::COUNT; i++) {
