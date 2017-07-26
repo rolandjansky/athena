@@ -197,9 +197,10 @@ void TrigT1CaloBaseFex::findTTsAround(const xAOD::TriggerTowerContainer* scells,
 bool TrigT1CaloBaseFex::isCellEmMaximum(const std::vector<CaloCell*>& scells, const CaloCell* cell) const {
         if ( !cell ) return false;
 	if ( cell->caloDDE()->getSampling() >= 8 ) return false;
-	float cellpt = cell->et()+0.001; //make sure you don't get thecell itself
+        float cellpt = 1.0001*cell->et();
 	for(auto scell : scells){ 
 		if ( scell->caloDDE()->getSampling() >= 8 ) continue;
+		if ( scell->ID() == cell->ID()  ) continue;
 		if ( scell->et() > cellpt ) return false;
 	}
 	return true;
@@ -247,17 +248,38 @@ float TrigT1CaloBaseFex::sumHadTTs(const std::vector<const xAOD::TriggerTower*>&
 void TrigT1CaloBaseFex::findCluster(const std::vector<CaloCell*>& scells, float &etaCluster, float &phiCluster) const {
 	etaCluster=0.0;
 	phiCluster=0.0;
-	float energyCluster=0.0;
+	double etaClusterD=0.0;
+	double phiClusterD=0.0;
+
+	double energyCluster=0.0;
+	bool cross_phi_bound=false;
+        int last_sign=0;
+	for(auto scell : scells){
+	  if ( fabsf( scell->phi() ) < 2.7 ) continue;
+	  int layer = scell->caloDDE()->getSampling();
+          if ( ( layer != 2 ) && ( layer != 6 ) ) continue;
+	  int cell_sign = ( scell->phi() >=0 ? 1 : -1 );
+          if ( ( last_sign!=0 ) && ( last_sign != cell_sign ) ) cross_phi_bound = true;
+	  last_sign = cell_sign;
+	}
+
 	for(auto scell : scells){
 	     int layer = scell->caloDDE()->getSampling();
              if ( ( layer != 2 ) && ( layer != 6 ) ) continue;
-             etaCluster+= (scell->et()) * (scell->eta());
-             phiCluster+= (scell->et()) * (scell->phi());
-             energyCluster+= (scell->et()) ;
+	     double scelleta = scell->eta();
+	     double scellphi = scell->phi();
+	     double scellet = scell->et();
+             etaClusterD+= (scellet * scelleta);
+	     if (cross_phi_bound && scellphi < 0 ) scellphi += 2 * M_PI;
+             phiClusterD+= (scellet * scellphi);
+             energyCluster+= (scellet) ;
 	}
 	if ( energyCluster > 0.1 ) {
-		etaCluster/=energyCluster;
-		phiCluster/=energyCluster;
+		etaClusterD/=energyCluster;
+		phiClusterD/=energyCluster;
+		etaCluster = (float)etaClusterD;
+		phiCluster = (float)phiClusterD;
+		if ( phiCluster > M_PI ) phiCluster-=2*M_PI;
 	} else {
 		etaCluster=-999.0;
 		phiCluster=-999.0;

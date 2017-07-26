@@ -17,6 +17,7 @@
 #include "LArCabling/LArSuperCellCablingTool.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
+#include "xAODTruth/TruthParticleContainer.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
 #include "TFile.h"
 #include "TH1F.h"
@@ -67,6 +68,17 @@ StatusCode CaloBandwidth::initialize(){
 		m_allLa1Above3Sig.push_back( new TH1F(titleallLa1Above3Sig,titleallLa1Above3Sig,70,0,70) );
 	}
 
+	m_allLa1_EMBA_noZ = new TH1F("allLa1_EMBA_noZ","allLa1_EMBA_noZ",920,0,920);
+	m_allLa1_EMBA_Z = new TH1F("allLa1_EMBA_Z","allLa1_EMBA_Z",920,0,920);
+	m_allLa1AboveThr_EMBA_noZ = new TH1F("allLa1AboveThr_EMBA_noZ","allLa1AboveThr_EMBA_noZ",920,0,920);
+	m_allLa1AboveThr_EMBA_Z = new TH1F("allLa1AboveThr_EMBA_Z","allLa1AboveThr_EMBA_Z",920,0,920);
+	m_allLa1Above1Sig_EMBA_noZ = new TH1F("allLa1Above1Sig_EMBA_noZ","allLa1Above1Sig_EMBA_noZ",920,0,920);
+	m_allLa1Above1Sig_EMBA_Z = new TH1F("allLa1Above1Sig_EMBA_Z","allLa1Above1Sig_EMBA_Z",920,0,920);
+	m_allLa1Above2Sig_EMBA_noZ = new TH1F("allLa1Above2Sig_EMBA_noZ","allLa1Above2Sig_EMBA_noZ",920,0,920);
+	m_allLa1Above2Sig_EMBA_Z = new TH1F("allLa1Above2Sig_EMBA_Z","allLa1Above2Sig_EMBA_Z",920,0,920);
+	m_allLa1Above3Sig_EMBA_noZ = new TH1F("allLa1Above3Sig_EMBA_noZ","allLa1Above3Sig_EMBA_noZ",920,0,920);
+	m_allLa1Above3Sig_EMBA_Z = new TH1F("allLa1Above3Sig_EMBA_Z","allLa1Above3Sig_EMBA_Z",920,0,920);
+
 	return StatusCode::SUCCESS;
 }
 
@@ -83,7 +95,6 @@ StatusCode CaloBandwidth::execute(){
         MsgStream msg(msgSvc(), name());
 	msg << MSG::DEBUG << "execute CaloBandwidth" << endreq;
 
-	bool caloavail=true;
 	const CaloCellContainer* allcalo;
         if ( evtStore()->retrieve(allcalo,"AllCalo").isFailure() ) {
                 msg << MSG::WARNING << "did not find allcalo container" << endreq;
@@ -99,41 +110,121 @@ StatusCode CaloBandwidth::execute(){
 	std::map< std::pair<float,float> , int > mallLa1Above1Sig;
 	std::map< std::pair<float,float> , int > mallLa1Above2Sig;
 	std::map< std::pair<float,float> , int > mallLa1Above3Sig;
+
+        const xAOD::TruthParticleContainer* truth;
+        if ( evtStore()->retrieve(truth,"TruthParticles").isFailure() ) {
+                msg << MSG::WARNING << "did not find truth particle container" << endreq;
+                return StatusCode::SUCCESS;
+        }
+        std::vector<int> el_idxs;
+        bool event_with_zee=false;
+        bool one_el_in=false;
+        int idx=-1;
+        for( auto tt : *truth ){
+                idx++;
+                if ( tt->status() != 1 ) continue;
+                if ( fabsf(tt->absPdgId()) != 11 ) continue;
+                if ( tt->barcode() >= 10000 ) continue;
+                if ( tt->pt() < 5e3 ) continue;
+                if ( tt->parent()->pdgId()!=23 ) continue; // parent is a Z
+                double ch = tt->charge();
+		if ( el_idxs.size() == 0 ) { el_idxs.push_back(idx); }
+		else {
+                for(unsigned int i=0;i<el_idxs.size();i++){
+                        if (el_idxs.at(i)== idx) continue;
+                        if (truth->at(el_idxs.at(i))->charge()*ch>0) continue;
+                        el_idxs.push_back(idx);
+                }
+		}
+        }
+        if ( el_idxs.size() == 2 ) {
+          event_with_zee=true;
+          for(unsigned int i=0;i<el_idxs.size();i++){
+                int idx = el_idxs.at(i);
+                float eta = truth->at(idx)->eta();
+                if (! ( (eta>=0.0) && (eta<=1.4) ) ) continue;
+                float phi = truth->at(idx)->phi();
+                if (! ( (phi>=0.0) && (phi<=0.2) ) ) continue;
+                one_el_in=true;
+          }
+        }
+
+	int allLa1_EMBA_noZ=0;
+	int allLa1_EMBA_Z=0;
+	int allLa1AboveThr_EMBA_noZ=0;
+	int allLa1AboveThr_EMBA_Z=0;
+	int allLa1Above1Sig_EMBA_noZ=0;
+	int allLa1Above1Sig_EMBA_Z=0;
+	int allLa1Above2Sig_EMBA_noZ=0;
+	int allLa1Above2Sig_EMBA_Z=0;
+	int allLa1Above3Sig_EMBA_noZ=0;
+	int allLa1Above3Sig_EMBA_Z=0;
         for(auto cl : *allcalo) {
 		int samp = cl->caloDDE()->getSampling();
 		ii++;
 		if ( !( (samp==1) || (samp==5) ) ) continue;
 		if ( ! ( (cl->phi() >=0 ) && ( cl->phi() <0.2 ) ) ) continue;
 		int idx=-1;
+		float eta = cl->eta();
 		for(unsigned int i=0;i<m_limits.size(); ++i ) {
 			std::pair<float,float> p = m_limits[i];
-			float eta = cl->eta();
 			if ( (eta>=p.first) && (eta<p.second) ) { idx = i; break; }
 		}
+		bool EMBA(false);
+		if ( (eta>0.0) && (eta<1.4) ) EMBA=true;
 		std::pair<float,float> p = m_limits[idx];
 		if ( mallLa1.find(p) == mallLa1.end() ) mallLa1[p] = 1;
 		else mallLa1[p]++;
-                float et = cl->et();
+                //float et = cl->et();
                 float energy = cl->energy();
                 float sigma = 0.0;
                 sigma = m_noiseTool->getNoise(&(*cl),ICalorimeterNoiseTool::TOTALNOISE);
+		if ( EMBA && event_with_zee ){
+		if ( one_el_in ) allLa1_EMBA_Z++; else allLa1_EMBA_noZ++;
+		}
+
 		if ( energy > 0.1 ) {
 		if ( mallLa1AboveThr.find(p) == mallLa1AboveThr.end() ) mallLa1AboveThr[p] = 1;
 		else mallLa1AboveThr[p]++;
+		if ( EMBA && event_with_zee ){
+		if ( one_el_in ) allLa1AboveThr_EMBA_Z++; else allLa1AboveThr_EMBA_noZ++;
+		}
 		}
 		if ( energy > sigma  ) {
 		if ( mallLa1Above1Sig.find(p) == mallLa1Above1Sig.end() ) mallLa1Above1Sig[p] = 1;
 		else mallLa1Above1Sig[p]++;
+		if ( EMBA && event_with_zee ){
+		if ( one_el_in ) allLa1Above1Sig_EMBA_Z++; else allLa1Above1Sig_EMBA_noZ++;
+		}
 		}
 		if ( energy > 2*sigma  ) {
 		if ( mallLa1Above2Sig.find(p) == mallLa1Above2Sig.end() ) mallLa1Above2Sig[p] = 1;
 		else mallLa1Above2Sig[p]++;
+		if ( EMBA && event_with_zee ){
+		if ( one_el_in ) allLa1Above2Sig_EMBA_Z++; else allLa1Above2Sig_EMBA_noZ++;
+		}
 		}
 		if ( energy > 3*sigma  ) {
 		if ( mallLa1Above3Sig.find(p) == mallLa1Above3Sig.end() ) mallLa1Above3Sig[p] = 1;
 		else mallLa1Above3Sig[p]++;
+		if ( EMBA && event_with_zee ){
+		if ( one_el_in ) allLa1Above3Sig_EMBA_Z++; else allLa1Above3Sig_EMBA_noZ++;
+		}
 		}
 	}
+	if ( event_with_zee ) {
+	m_allLa1_EMBA_noZ->Fill( allLa1_EMBA_noZ );
+	m_allLa1_EMBA_Z->Fill( allLa1_EMBA_Z );
+	m_allLa1AboveThr_EMBA_noZ->Fill( allLa1AboveThr_EMBA_noZ );
+	m_allLa1AboveThr_EMBA_Z->Fill( allLa1AboveThr_EMBA_Z );
+	m_allLa1Above1Sig_EMBA_noZ->Fill( allLa1Above1Sig_EMBA_noZ );
+	m_allLa1Above1Sig_EMBA_Z->Fill( allLa1Above1Sig_EMBA_Z );
+	m_allLa1Above2Sig_EMBA_noZ->Fill( allLa1Above2Sig_EMBA_noZ );
+	m_allLa1Above2Sig_EMBA_Z->Fill( allLa1Above2Sig_EMBA_Z );
+	m_allLa1Above3Sig_EMBA_noZ->Fill( allLa1Above3Sig_EMBA_noZ );
+	m_allLa1Above3Sig_EMBA_Z->Fill( allLa1Above3Sig_EMBA_Z );
+	}
+	
 	for (auto i : mallLa1 ){
 		//std::cout << i.first.first << " " << i.first.second << " " << i.second << std::endl;
 		int idx=-1;

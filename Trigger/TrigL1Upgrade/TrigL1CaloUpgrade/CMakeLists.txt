@@ -20,6 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigL1Calo
                           Event/xAOD/xAODTrigger
                           Event/xAOD/xAODTruth
+                          Event/xAOD/xAODEventInfo
                           LArCalorimeter/LArRawEvent
                           LArCalorimeter/LArTools
 			  LArCalorimeter/LArCabling

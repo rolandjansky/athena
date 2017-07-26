@@ -62,6 +62,17 @@ private :
 	std::vector<TH1F*> m_allLa1Above2Sig;
 	std::vector<TH1F*> m_allLa1Above3Sig;
 
+	TH1F* m_allLa1_EMBA_noZ;
+	TH1F* m_allLa1_EMBA_Z;
+	TH1F* m_allLa1AboveThr_EMBA_noZ;
+	TH1F* m_allLa1AboveThr_EMBA_Z;
+	TH1F* m_allLa1Above1Sig_EMBA_noZ;
+	TH1F* m_allLa1Above1Sig_EMBA_Z;
+	TH1F* m_allLa1Above2Sig_EMBA_noZ;
+	TH1F* m_allLa1Above2Sig_EMBA_Z;
+	TH1F* m_allLa1Above3Sig_EMBA_noZ;
+	TH1F* m_allLa1Above3Sig_EMBA_Z;
+
 };
 
 
