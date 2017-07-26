@@ -23,11 +23,11 @@ namespace G4UA
   }
 
   //---------------------------------------------------------------------------
-  // Initialize - temporarily here for debugging
+  // Initialize
   //---------------------------------------------------------------------------
   StatusCode AthenaStackingActionTool::initialize()
   {
-    ATH_MSG_DEBUG("initialize");
+    ATH_MSG_DEBUG( "Initializing " << name() );
     return StatusCode::SUCCESS;
   }
 
@@ -37,7 +37,7 @@ namespace G4UA
   std::unique_ptr<AthenaStackingAction>
   AthenaStackingActionTool::makeAction()
   {
-    ATH_MSG_DEBUG("makeAction");
+    ATH_MSG_DEBUG("Creating an AthenaStackingAction");
     // Create and configure the action plugin.
     return std::make_unique<AthenaStackingAction>(m_config);
   }

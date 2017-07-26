@@ -28,7 +28,6 @@
 #include "G4Gamma.hh"
 
 
-
 namespace G4UA
 {
 

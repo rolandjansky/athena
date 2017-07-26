@@ -5,14 +5,6 @@
 #ifndef G4AtlasAlg_AthenaTrackingAction_H
 #define G4AtlasAlg_AthenaTrackingAction_H
 
-/// @class AthenaTrackingAction
-/// @brief User action for pre/post tracking truth handling.
-///
-/// This is the current implementation based on the (V1) user action design
-/// as part of the simulation infrastructure migrations. The multi-threaded
-/// (V2) design is still in the works.
-///
-
 #include "AthenaKernel/MsgStreamMember.h"
 #include "G4AtlasInterfaces/IPreTrackingAction.h"
 #include "G4AtlasInterfaces/IPostTrackingAction.h"
@@ -52,8 +44,10 @@ namespace G4UA
       MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
       bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
       mutable Athena::MsgStreamMember m_msg;
+
       /// The saving level for secondaries.
       int m_secondarySavingLevel;
+
   }; // class AthenaTrackingAction
 
 } // namespace G4UA

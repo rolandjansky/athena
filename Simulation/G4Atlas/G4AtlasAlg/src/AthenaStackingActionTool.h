@@ -34,8 +34,8 @@ namespace G4UA
       AthenaStackingActionTool(const std::string& type, const std::string& name,
                                const IInterface* parent);
 
-      /// Initialize the tool (just for debugging printout)
-      virtual StatusCode initialize() override;
+      /// Initialize the tool
+      virtual StatusCode initialize() override final;
 
       /// Retrieve the stepping action
       virtual IStackingAction* getStackingAction() override final

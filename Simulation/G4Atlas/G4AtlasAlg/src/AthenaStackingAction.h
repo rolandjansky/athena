@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #ifndef G4ATLASALG_G4UA_ATHENASTACKINGACTION_H
 #define G4ATLASALG_G4UA_ATHENASTACKINGACTION_H
 
@@ -54,6 +53,7 @@ namespace G4UA
       /// It might be useful to move this kind of functionality
       /// into some standalong helper function(s).
       bool isNeutrino(const G4Track*) const;
+
       /// @brief Identify track as a photon.
       bool isGamma(const G4Track*) const;
 

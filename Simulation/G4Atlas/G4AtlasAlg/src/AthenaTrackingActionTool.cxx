@@ -13,8 +13,8 @@ namespace G4UA
   AthenaTrackingActionTool::
   AthenaTrackingActionTool(const std::string& type, const std::string& name,
                            const IInterface* parent)
-    : ActionToolBase<AthenaTrackingAction>(type, name, parent)
-    , m_secondarySavingLevel(2)
+    : ActionToolBase<AthenaTrackingAction>(type, name, parent),
+      m_secondarySavingLevel(2)
   {
     declareInterface<IPreTrackingActionTool>(this);
     declareInterface<IPostTrackingActionTool>(this);
@@ -26,7 +26,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   StatusCode AthenaTrackingActionTool::initialize()
   {
-    ATH_MSG_DEBUG("initialize");
+    ATH_MSG_DEBUG( "Initializing " << name() );
     return StatusCode::SUCCESS;
   }
 
@@ -38,7 +38,8 @@ namespace G4UA
   {
     ATH_MSG_DEBUG("Constructing an AthenaTrackingAction");
     // Create and configure the action plugin.
-    return std::make_unique<AthenaTrackingAction>( msg().level(), m_secondarySavingLevel );
+    return std::make_unique<AthenaTrackingAction>( msg().level(),
+                                                   m_secondarySavingLevel );
   }
 
 }
