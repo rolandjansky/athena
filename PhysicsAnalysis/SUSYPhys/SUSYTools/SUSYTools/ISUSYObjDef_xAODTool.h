@@ -350,7 +350,7 @@ namespace ST {
     
     virtual unsigned int GetRunNumber() const = 0;
 
-    virtual int treatAsYear() const = 0;
+    virtual int treatAsYear(const int runNumber=-1) const = 0;
      
     virtual StatusCode OverlapRemoval(const xAOD::ElectronContainer *electrons, const xAOD::MuonContainer *muons, const xAOD::JetContainer *jets,
 				      const xAOD::PhotonContainer* gamma = 0, const xAOD::TauJetContainer* taujet = 0, const xAOD::JetContainer *fatjets = 0) = 0;

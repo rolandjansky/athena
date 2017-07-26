@@ -18,14 +18,8 @@ class TestSUSYTools(unittest.TestCase):
     PRW_files = []
     PRW_ilcs  = []
 
-    #guess the MC campaign for the prw file
-    releaseSeries = int(os.environ['ROOTCORE_RELEASE_SERIES'])
-    if (releaseSeries > 23):
-        PRW_files.append('/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root');
-        PRW_files.append('/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root');
-        #PRW_files.append('/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/merged_prw_mc15c.root')
-    else:
-        PRW_files.append('/afs/cern.ch/work/t/tripiana/public/atlas/BGF/PRW/merged_prw_mc15_50ns.root')
+    #guess the MC campaign for the prw file, if necessary
+    PRW_files.append('/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/merged_prw_mc15c_latest.root');
 
     PRW_ilcs.append('/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/ilumicalc_histograms_None_276262-284154_IBLOFF.root')
     #PRW_ilcs.append('/afs/cern.ch/work/k/khoo/public/SUSYTools_example/ilumicalc_histograms_None_266904-267639.root')
