@@ -52,7 +52,7 @@ if not jobproperties.Beam.beamType()=='cosmics':
                                                                          maxNPixelHoles = 1,
                                                                          minNBothInnermostLayersHits = 0,
                                                                          minNInnermostLayerHits = 1,
-                                                                         minPt = 1000,
+                                                                         minPt = 5000,
                                                                          TrackSummaryTool    = InDetTrackSummaryTool,
                                                                          Extrapolator        = InDetExtrapolator))
    
