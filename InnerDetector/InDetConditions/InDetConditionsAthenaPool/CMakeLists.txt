@@ -12,7 +12,6 @@ atlas_depends_on_subdirs(
    Database/AthenaPOOL/AthenaPoolUtilities
    PRIVATE
    GaudiKernel
-   AtlasTest/TestTools
    Database/AthenaPOOL/AthenaPoolCnvSvc
    InnerDetector/InDetConditions/TRT_ConditionsData )
 
@@ -39,13 +38,13 @@ atlas_add_poolcnv_library( InDetConditionsAthenaPoolPoolCnv src/*.cxx
    MULT_CHAN_TYPES TRTCond::StrawT0MultChanContainer
    TRTCond::RtRelationMultChanContainer TRTCond::StrawDxMultChanContainer
    TRTCond::StrawStatusMultChanContainer
-   LINK_LIBRARIES AthenaPoolUtilities TestTools
+   LINK_LIBRARIES AthenaPoolUtilities
    AthenaPoolCnvSvcLib TRT_ConditionsData )
 
 atlas_add_dictionary( InDetConditionsAthenaPoolCnvDict
    InDetConditionsAthenaPool/InDetConditionsAthenaPoolCnvDict.h
    InDetConditionsAthenaPool/selection.xml
-   LINK_LIBRARIES AthenaPoolUtilities TestTools
+   LINK_LIBRARIES AthenaPoolUtilities
    AthenaPoolCnvSvcLib TRT_ConditionsData )
 
 # Install files from the package:
