@@ -157,13 +157,13 @@ if DerivationFrameworkIsMonteCarlo:
 
 if jetFlags.useTruth:
     # CamKt R=1.2 jets
-    #addFilteredJets("CamKt", 1.2, "Truth", mumax=1.0, ymin=0.15, algseq=jetm1Seq, outputGroup="JETM1")
-    #addFilteredJets("CamKt", 1.2, "Truth", mumax=1.0, ymin=0.04, algseq=jetm1Seq, outputGroup="JETM1")
+    addFilteredJets("CamKt", 1.2, "Truth", mumax=1.0, ymin=0.15, algseq=jetm1Seq, outputGroup="JETM1")
+    addFilteredJets("CamKt", 1.2, "Truth", mumax=1.0, ymin=0.04, algseq=jetm1Seq, outputGroup="JETM1")
     pass
 
 # CamKt R=1.2 jets
-#addFilteredJets("CamKt", 1.2, "LCTopo", mumax=1.0, ymin=0.15, algseq=jetm1Seq, outputGroup="JETM1")
-#addFilteredJets("CamKt", 1.2, "LCTopo", mumax=1.0, ymin=0.04, algseq=jetm1Seq, outputGroup="JETM1")
+addFilteredJets("CamKt", 1.2, "LCTopo", mumax=1.0, ymin=0.15, algseq=jetm1Seq, outputGroup="JETM1")
+addFilteredJets("CamKt", 1.2, "LCTopo", mumax=1.0, ymin=0.04, algseq=jetm1Seq, outputGroup="JETM1")
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
