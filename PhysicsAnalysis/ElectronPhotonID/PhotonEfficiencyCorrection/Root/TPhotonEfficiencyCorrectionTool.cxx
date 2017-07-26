@@ -85,7 +85,7 @@ switch (isolationcut){
 	  else if(fabs(eta)<2.37) return 0.0048;
 	}
         return 0;
-     case 7:
+  case 7:
 	if(isConv){
 		if(fabs(eta)<0.6) return 0.011;
 		else if(fabs(eta)<1.37) return 0.0074;
@@ -101,7 +101,7 @@ switch (isolationcut){
 	  else if(fabs(eta)<2.37) return 0.0037;
 	}
         return 0;
-	case 8:
+  case 8:
 	if(isConv){
 		if(fabs(eta)<0.6) return 0.0033;
 		else if(fabs(eta)<1.37) return 0.00051;
