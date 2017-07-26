@@ -17,6 +17,7 @@ namespace G4UA
     : ActionToolBase<AthenaStackingAction>(type, name, parent),
       m_config { /*killAllNeutrinos*/ false, /*photonEnergyCut*/ -1., /*isISFJob*/ false}
   {
+    declareInterface<IG4StackingActionTool>(this);
     declareProperty("KillAllNeutrinos", m_config.killAllNeutrinos,
                     "Toggle killing of all neutrinos");
     declareProperty("PhotonEnergyCut", m_config.photonEnergyCut,
@@ -43,20 +44,6 @@ namespace G4UA
     // Create and configure the action plugin.
     auto action = CxxUtils::make_unique<AthenaStackingAction>(m_config);
     return std::move(action);
-  }
-
-  //---------------------------------------------------------------------------
-  // Query interface
-  //---------------------------------------------------------------------------
-  StatusCode AthenaStackingActionTool::queryInterface(const InterfaceID& riid,
-                                                      void** ppvIf)
-  {
-    if(riid == IStackingActionTool::interfaceID()) {
-      *ppvIf = (IStackingActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    return ActionToolBase<AthenaStackingAction>::queryInterface(riid, ppvIf);
   }
 
 }
