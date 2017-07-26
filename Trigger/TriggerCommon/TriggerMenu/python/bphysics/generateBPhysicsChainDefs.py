@@ -1251,7 +1251,7 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom, d
         
     if 'Ftk' in topoAlgs:
         from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
-        trkftk = TrigInDetFTKSequence("BeamSpot", "beamSpot", "").getSequence()
+        trkftk = TrigInDetFTKSequence("BeamSpot", "beamSpot", [""]).getSequence()
     else:
         from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
         [trkfast, trkprec] = TrigInDetSequence("Bphysics", "bphysics", "IDTrig").getSequence()

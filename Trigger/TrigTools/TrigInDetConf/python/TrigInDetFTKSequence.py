@@ -14,7 +14,6 @@ class TrigInDetFTKSequence(TrigInDetSequence):
   def __init__(self,
                signatureName="Electron",
                signature="electron", 
-               #sequenceType="",
                sequenceFlavour=[""]):
 
     TrigInDetSequenceBase.__init__(self)
@@ -24,8 +23,11 @@ class TrigInDetFTKSequence(TrigInDetSequence):
     self.__sequenceFlavour__  = sequenceFlavour
     self.__step__ = [signature]
 
+    if type(sequenceFlavour)!=type(list()):
+      log.error("TrigInDetFTKSequence invoked with a non-list sequenceFlavour argument %s" )
+      
 
-    if self.__sequenceFlavour__ =="2step":
+    if "2step" in self.__sequenceFlavour__:
       if self.__signature__ == "tau":
         self.__step__ = ["tauCore","tauIso","tau"]; 
       elif self.__signature__ == "muon":
