@@ -6,8 +6,8 @@
 #define G4AtlasAlg_AthenaTrackingAction_H
 
 #include "AthenaKernel/MsgStreamMember.h"
-#include "G4AtlasInterfaces/IPreTrackingAction.h"
-#include "G4AtlasInterfaces/IPostTrackingAction.h"
+
+#include "G4UserTrackingAction.hh"
 
 namespace G4UA
 {
@@ -15,10 +15,7 @@ namespace G4UA
   /// @class AthenaTrackingAction
   /// @brief User action for pre/post tracking truth handling.
   ///
-  /// This is the new/upcoming implementation for multi-threaded simulation.
-  ///
-  class AthenaTrackingAction : public IPreTrackingAction,
-                               public IPostTrackingAction
+  class AthenaTrackingAction : public G4UserTrackingAction
   {
 
     public:
@@ -31,12 +28,12 @@ namespace G4UA
       /// If the track meets certain conditions, we save it in the
       /// EventInformation and possibly construct a new AtlasTrajectory
       /// which will be used for writing out truth particles later.
-      virtual void preTracking(const G4Track*) override;
+      virtual void PreUserTrackingAction(const G4Track*) override final;
 
       /// @brief Called after tracking a particle.
       ///
       /// Here we reset the AtlasTrajectory if it was created.
-      virtual void postTracking(const G4Track*) override;
+      virtual void PostUserTrackingAction(const G4Track*) override final;
 
     private:
 

@@ -12,7 +12,7 @@
 #include "AthenaStackingAction.h"
 
 // Infrastructure includes
-#include "G4AtlasInterfaces/IStackingActionTool.h"
+#include "G4AtlasInterfaces/IG4StackingActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 
 
@@ -25,7 +25,7 @@ namespace G4UA
   /// @author Steve Farrell <Steven.Farrell@cern.ch>
   ///
   class AthenaStackingActionTool : public ActionToolBase<AthenaStackingAction>,
-                                   public IStackingActionTool
+                                   public IG4StackingActionTool
   {
 
     public:
@@ -38,11 +38,8 @@ namespace G4UA
       virtual StatusCode initialize() override final;
 
       /// Retrieve the stepping action
-      virtual IStackingAction* getStackingAction() override final
-      { return static_cast<IStackingAction*>( getAction() ); }
-
-      /// Query interface for gaudi
-      virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
+      virtual G4UserStackingAction* getStackingAction() override final
+      { return static_cast<G4UserStackingAction*>( getAction() ); }
 
     protected:
 

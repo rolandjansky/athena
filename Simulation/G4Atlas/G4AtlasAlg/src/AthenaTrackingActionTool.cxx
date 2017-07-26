@@ -16,9 +16,9 @@ namespace G4UA
     : ActionToolBase<AthenaTrackingAction>(type, name, parent),
       m_secondarySavingLevel(2)
   {
-    declareInterface<IPreTrackingActionTool>(this);
-    declareInterface<IPostTrackingActionTool>(this);
-    declareProperty("SecondarySavingLevel", m_secondarySavingLevel, "Three valid options: 1 - Primaries; 2 - StoredSecondaries(default); 3 - All");
+    declareInterface<IG4TrackingActionTool>(this);
+    declareProperty("SecondarySavingLevel", m_secondarySavingLevel,
+      "Three valid options: 1 - Primaries; 2 - StoredSecondaries(default); 3 - All");
   }
 
   //---------------------------------------------------------------------------

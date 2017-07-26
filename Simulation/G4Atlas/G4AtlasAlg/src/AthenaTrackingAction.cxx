@@ -31,7 +31,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Pre-tracking action.
   //---------------------------------------------------------------------------
-  void AthenaTrackingAction::preTracking(const G4Track* track)
+  void AthenaTrackingAction::PreUserTrackingAction(const G4Track* track)
   {
     ATH_MSG_DEBUG("Starting to track a new particle");
 
@@ -76,7 +76,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Post-tracking action.
   //---------------------------------------------------------------------------
-  void AthenaTrackingAction::postTracking(const G4Track* /*track*/)
+  void AthenaTrackingAction::PostUserTrackingAction(const G4Track* /*track*/)
   {
     ATH_MSG_DEBUG("Finished tracking a particle");
 
