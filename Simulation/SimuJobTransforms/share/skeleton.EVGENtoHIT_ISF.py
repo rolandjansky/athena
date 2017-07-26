@@ -1,13 +1,13 @@
+## Get the logger
+from AthenaCommon.Logging import *
+atlasG4log = logging.getLogger('ISF')
+atlasG4log.info('****************** STARTING ISF ******************')
+
 ## Include common skeleton
 include("SimuJobTransforms/skeleton.EVGENtoHIT.py")
 
 if hasattr(runArgs, 'useISF') and not runArgs.useISF:
     raise RuntimeError("Unsupported configuration! If you want to run with useISF=False, please use AtlasG4_tf.py!")
-
-## Get the logger
-from AthenaCommon.Logging import *
-atlasG4log = logging.getLogger('ISF')
-atlasG4log.info('****************** STARTING ISF ******************')
 
 ## Simulation flags need to be imported first
 from G4AtlasApps.SimFlags import simFlags
