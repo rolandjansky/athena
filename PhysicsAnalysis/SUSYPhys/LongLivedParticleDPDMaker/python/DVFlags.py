@@ -167,7 +167,7 @@ class DV_MeffFilterFlags(JobProperty):
 	      	    "HLT_xe90_topoclPUC_L1XE60","HLT_xe100_topoclPUC_L1XE60","HLT_xe120_topoclPUC_L1XE60"
 		         ]
     pass
-primRPVLLDESDM.add_JobProperty(DV_MeffFilterFlags)
+#primRPVLLDESDM.add_JobProperty(DV_MeffFilterFlags)
 
 class DV_PrescalerFlags(JobProperty):
     statusOn=True
