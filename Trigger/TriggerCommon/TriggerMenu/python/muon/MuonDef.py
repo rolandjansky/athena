@@ -364,7 +364,7 @@ class L2EFChain_mu(L2EFChainDef):
       
       [ftktrkfast, ftktrkprec] = TrigInDetFTKSequence("Muon","muonIso",sequenceFlavour=["PT"]).getSequence()    
       
-      self.L2sequenceList += [[['L2_mu_step2'],
+      self.L2sequenceList += [[['L2_mu_hypo2'],
                                ftktrkfast+ftktrkprec,
                                'L2_mu_step3']]
       from TrigMuonHypo.TrigMuonHypoConfig import MuisoHypoConfig
@@ -378,7 +378,7 @@ class L2EFChain_mu(L2EFChainDef):
                                'L2_mu_step4']]
       self.L2sequenceList += [[['L2_mu_step4'],
                                [theMuonFTKIsolationHypo],
-                               'L2_mu_hypo3']] 
+                               'L2_mu_hypo3']]
 
 
     self.EFsequenceList += [[[EFinputTE],
