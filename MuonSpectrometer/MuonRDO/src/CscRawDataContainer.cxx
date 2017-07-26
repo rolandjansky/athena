@@ -7,9 +7,8 @@
 
 // Default constructor.
 CscRawDataContainer::CscRawDataContainer()
-  : IdentifiableContainer<CscRawDataCollection>(0) 
+  : IdentifiableContainer<CscRawDataCollection>(hashFcn().max()) 
 {
-    DLV::init(hashFcn().max());	
 }
 
 CscRawDataContainer::CscRawDataContainer(unsigned int hashmax)

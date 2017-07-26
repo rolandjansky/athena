@@ -12,6 +12,7 @@
 #include "SCT1_RawDataCnv_p1.h"
 #include "SCT3_RawDataCnv_p1.h"
 #include "SCT_RawDataContainerCnv_p1.h"
+#include "CreateTransientTemplate.h"
 
 void SCT_RawDataContainerCnv_p1::transToPers(const SCT_RDO_Container* transCont, SCT_RawDataContainer_p1* persCont, MsgStream& log) 
 {

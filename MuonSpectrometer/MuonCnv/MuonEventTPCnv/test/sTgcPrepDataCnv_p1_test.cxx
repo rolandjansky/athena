@@ -17,6 +17,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
+#include "MuonEventTPCnv/CreateTransientTemplates.h"
 
 
 void compare (const Trk::PrepRawData& p1,

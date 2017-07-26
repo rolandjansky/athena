@@ -27,13 +27,6 @@ using std::endl;
 // Member functions.
 //**********************************************************************
 
-// Default constructor.
-
-RpcPadContainer::RpcPadContainer()
-: IdentifiableContainer<RpcPad>() 
-{
-    //DLV::init(hashFcn().max());	
-}
 
 //**********************************************************************
 

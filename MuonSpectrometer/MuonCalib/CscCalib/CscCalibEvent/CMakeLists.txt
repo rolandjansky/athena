@@ -22,12 +22,12 @@ atlas_add_library( CscCalibEvent
                    src/*.cxx
                    PUBLIC_HEADERS CscCalibEvent
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES DataModel SGTools Identifier MuonIdHelpersLib
+                   LINK_LIBRARIES DataModel SGTools Identifier MuonIdHelpersLib EventContainers
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( CscCalibEventDict
                       CscCalibEvent/CscCalibEventDict.h
                       CscCalibEvent/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel SGTools Identifier MuonIdHelpersLib CscCalibEvent )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel SGTools Identifier MuonIdHelpersLib CscCalibEvent EventContainers )
 

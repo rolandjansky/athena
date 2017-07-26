@@ -54,19 +54,22 @@ namespace Overlay {
 std::cout<<"start overlayContainer"<<std::endl;
     if(parent->msgLvl(MSG::DEBUG)) { parent->msg(MSG::DEBUG)<<"overlayContainerNew<>() begin"<<endmsg; }
 
+   //There are some use cases where this is empty
+   if(dataContainer != nullptr){
    /** Add data from the data container to the output one */
-   typename IDC_Container::const_iterator p_data = dataContainer->begin();
-   typename IDC_Container::const_iterator p_data_end = dataContainer->end();
+      typename IDC_Container::const_iterator p_data = dataContainer->begin();
+      typename IDC_Container::const_iterator p_data_end = dataContainer->end();
 
-   for(; p_data != p_data_end; ++p_data) {
-   IdentifierHash hashId = p_data.hashId();
-   Collection *coll_data=new Collection(hashId); 
-   copyCollection(p_data->cptr(),coll_data);
+      for(; p_data != p_data_end; ++p_data) {
+      IdentifierHash hashId = p_data.hashId();
+      Collection *coll_data=new Collection(hashId); 
+      copyCollection(*p_data,coll_data);
    
-   if ( outputContainer->addCollection(coll_data, p_data.hashId()).isFailure() ) {
-      parent->msg(MSG::WARNING) <<"add data Collection failed for output "<< p_data.hashId()<<endmsg; //" collectionNo "<<collectionNo<<endmsg; 
+      if ( outputContainer->addCollection(coll_data, p_data.hashId()).isFailure() ) {
+         parent->msg(MSG::WARNING) <<"add data Collection failed for output "<< p_data.hashId   ()<<endmsg; //" collectionNo "<<collectionNo<<endmsg; 
+          }
       }
-   }     
+   }
 
   /** Add data from the ovl container to the output one */
   typename IDC_Container::const_iterator p_ovl = mcContainer->begin(); 
@@ -76,7 +79,7 @@ std::cout<<"start overlayContainer"<<std::endl;
  
   IdentifierHash coll_id = p_ovl.hashId();//(*p_ovl)->identify();
   Collection *coll_ovl=new Collection(coll_id); 
-  copyCollection(p_ovl->cptr(),coll_ovl);
+  copyCollection(*p_ovl,coll_ovl);
 
    /** The newly created stuff will go to the output EventStore SG */
    Collection *out_coll = new Collection( coll_id );
@@ -88,7 +91,7 @@ std::cout<<"start overlayContainer"<<std::endl;
       /** Need to merge the collections
           Retrieve q */
 
-      Collection *coll_data = (Collection *) q->cptr();
+      Collection *coll_data = (Collection *) *q;
       mergeCollectionsNew(coll_data,coll_ovl, out_coll,parent);
 
       outputContainer->removeCollection(p_ovl.hashId());
@@ -133,11 +136,11 @@ std::cout<<"start overlayContainer"<<std::endl;
  
    for(; p_data != p_data_end; ++p_data) {
      IdentifierHash hashId = p_data.hashId();
-     Identifier ident = p_data->cptr()->identify();	
+     Identifier ident = p_data->identify();	
      Collection *coll_data=new Collection(ident, hashId); 
 
-     typename Collection::const_iterator firstData = p_data->cptr()->begin();
-     typename Collection::const_iterator lastData = p_data->cptr()->end();    
+     typename Collection::const_iterator firstData = p_data->begin();
+     typename Collection::const_iterator lastData = p_data->end();    
      for (; firstData != lastData; ++firstData) {		       
         Datum* newData = new Datum (*(dynamic_cast<const Datum*>(*firstData)));
         coll_data->push_back(newData);
@@ -154,11 +157,11 @@ std::cout<<"start overlayContainer"<<std::endl;
 
    for(; p_ovl != p_ovl_end; ++p_ovl) {
     IdentifierHash coll_id = p_ovl.hashId();//(*p_ovl)->identify();
-    Identifier elemId = p_ovl->cptr()->identify();
+    Identifier elemId = p_ovl->identify();
     Collection *coll_ovl=new Collection(elemId, coll_id); 
 
-    typename Collection::const_iterator firstData = p_ovl->cptr()->begin();
-    typename Collection::const_iterator lastData = p_ovl->cptr()->end();    
+    typename Collection::const_iterator firstData = p_ovl->begin();
+    typename Collection::const_iterator lastData = p_ovl->end();    
     for (; firstData != lastData; ++firstData) {		       
         Datum* newData = new Datum (*(dynamic_cast<const Datum*>(*firstData)));
         coll_ovl->push_back(newData);
@@ -173,7 +176,7 @@ std::cout<<"start overlayContainer"<<std::endl;
       /** Need to merge the collections
           Retrieve q */
 
-      Collection *coll_data = (Collection *) q->cptr();
+      Collection *coll_data = (Collection *) *q;
       parent->mergeCollections(coll_data,coll_ovl, out_coll);
 
       outputContainer->removeCollection(p_ovl.hashId());

@@ -447,8 +447,8 @@ FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap,
                     );
 
     if (prevId != elementId) {
-      CscDigitContainer::const_iterator it_coll = m_container->indexFind(coll_hash);
-      if (m_container->end() ==  it_coll) {
+      auto  it_coll = m_container->indexFindPtr(coll_hash);
+      if (nullptr ==  it_coll) {
         CscDigitCollection * newCollection = new CscDigitCollection(elementId,coll_hash);
 
         if (phaseToSet) newCollection->set_samplingPhase();
@@ -466,7 +466,7 @@ FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap,
         collection = newCollection;
 
       } else {  
-        CscDigitCollection * existingCollection = const_cast<CscDigitCollection*>( it_coll->cptr() );
+        CscDigitCollection * existingCollection = const_cast<CscDigitCollection*>( it_coll );
         if (phaseToSet) existingCollection->set_samplingPhase();
         //        const std::vector<float> samplesToPut
         //          = (existingCollection->samplingPhase()) ? samplesOddPhase : samples ;
@@ -573,8 +573,8 @@ FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposit
     } 
     
     if (prevId != elementId) {
-      CscDigitContainer::const_iterator it_coll = m_container->indexFind(coll_hash);
-      if (m_container->end() ==  it_coll) {
+      auto it_coll = m_container->indexFindPtr(coll_hash);
+      if (nullptr ==  it_coll) {
         CscDigitCollection * newCollection = new CscDigitCollection(elementId,coll_hash);
         newCollection->push_back(newDigit);
         collection = newCollection;
@@ -583,7 +583,7 @@ FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposit
           ATH_MSG_ERROR ( "Couldn't record CscDigitCollection with key=" << coll_hash 
                           << " in StoreGate!" );
       } else {  
-        CscDigitCollection * existingCollection = const_cast<CscDigitCollection*>( it_coll->cptr() );
+        CscDigitCollection * existingCollection = const_cast<CscDigitCollection*>( it_coll );
         existingCollection->push_back(newDigit);
         collection = existingCollection;
       }

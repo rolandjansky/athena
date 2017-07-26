@@ -83,7 +83,7 @@ namespace InDet {
     // Get TRT_RDO and produce TRT_RIO collections
     if (!m_roiSeeded) {//Full-scan mode
 
-      for(auto& rdoCollections : *rdoContainer) {
+      for(const auto& rdoCollections : *rdoContainer) {
         const InDetRawDataCollection<TRT_RDORawData>* currentCollection(rdoCollections);
         std::unique_ptr<TRT_DriftCircleCollection> p_rio(m_driftcircle_tool->convert(m_mode_rio_production,
           currentCollection , m_trtBadChannels));

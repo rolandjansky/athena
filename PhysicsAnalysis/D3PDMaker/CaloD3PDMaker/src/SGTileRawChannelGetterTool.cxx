@@ -60,8 +60,7 @@ namespace D3PD{
             m_digItr=m_digEnd;
             return StatusCode::SUCCESS;
         }
-        DataLinkVector<TileRawChannelCollection>::DataHolder* holder=&(*m_evtItr);
-        const TileRawChannelCollection* col=holder->getDataPtr();
+        const TileRawChannelCollection* col=*m_evtItr;
         m_digItr=col->begin();
         m_digEnd=col->end();
 
@@ -70,7 +69,6 @@ namespace D3PD{
 
     const void* SGTileRawChannelGetterTool::nextUntyped(){
         const TileRawChannel* tileR=0;
-        DataLinkVector<TileRawChannelCollection>::DataHolder* holder=0;
         const TileRawChannelCollection* col=0;
         do{
             if(m_evtItr==m_evtEnd)return 0;
@@ -78,8 +76,7 @@ namespace D3PD{
                 tileR=0;
                 ++m_evtItr;
                 if(m_evtItr!=m_evtEnd){
-                    holder=&(*m_evtItr);
-                    col=holder->getDataPtr();
+                    col=*m_evtItr;
                     m_digItr=col->begin();
                     m_digEnd=col->end();
                 }

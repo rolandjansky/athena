@@ -64,12 +64,10 @@ namespace D3PD{
     }
 
     const void* SGTileModuleBitsGetterTool::nextUntyped(){
-        DataLinkVector<TileRawChannelCollection>::DataHolder* holder=0;
         const TileRawChannelCollection* col=0;
         do{
             if(m_evtItr==m_evtEnd)return 0;            
-            holder=&(*m_evtItr);
-            col=holder->getDataPtr();
+            col=*m_evtItr;
             ++m_evtItr;
         }while(!col);
 

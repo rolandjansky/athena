@@ -893,9 +893,9 @@ StatusCode TileHitVecToCntTool::mergeEvent() {
   TileHitContainer::const_iterator endcoll = m_hits->end();
 
   for (; collIt != endcoll; ++collIt) {
-    TileHitCollection* coll = (*collIt).getDataPtr();
-    TileHitCollection::iterator hitItr = coll->begin();
-    TileHitCollection::iterator hitEnd = coll->end();
+    const TileHitCollection* coll = *collIt;
+    TileHitCollection::const_iterator hitItr = coll->begin();
+    TileHitCollection::const_iterator hitEnd = coll->end();
     for (; hitItr != hitEnd; hitItr++) {
 
       double ehit = 0.0;
