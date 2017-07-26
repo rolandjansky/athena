@@ -417,8 +417,8 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
   double nActiveChannels_layer[PixLayerIBL2D3D::COUNT];
   for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
     inv_nChannels_mod[i] = 1.0 / (1.0 * nChannels_mod[i]);
-    nGoodChannels_layer[i] = 1.0 * nChannels_mod[i] * m_nGood_mod[i];
-    nActiveChannels_layer[i] = 1.0 * nChannels_mod[i] * m_nActive_mod[i];
+    nGoodChannels_layer[i] = 1.0 * nChannels_mod[i] * m_nGood_mod[getPixLayerIDWithDBM(i)];
+    nActiveChannels_layer[i] = 1.0 * nChannels_mod[i] * m_nActive_mod[getPixLayerIDWithDBM(i)];
     nGoodChannels_total = +nGoodChannels_layer[i];
   }
 

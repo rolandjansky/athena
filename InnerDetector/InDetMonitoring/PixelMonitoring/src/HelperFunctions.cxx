@@ -49,6 +49,12 @@ int PixelMainMon::getPixLayerID(int ec, int ld, bool ibl) {
   return layer;
 }
 
+int PixelMainMon::getPixLayerIDWithDBM(int id) {
+  // Translate PixLayerID to PixLayerIDDBM
+  if (id >= PixLayer::kIBL) return id + 2;
+  return id;
+}
+
 int PixelMainMon::getPixLayerIDDBM(int ec, int ld, bool ibl) {
   int layer = 99;
   if (ec == 2) {

@@ -563,8 +563,8 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
 
   for (int i = 0; i < PixLayer::COUNT - 1; i++) {
     for (int j = 0; j < kNumErrorStates; j++) {
-      if (m_errhist_expert_LB[i][j]) {
-        m_errhist_expert_LB[i][j]->Fill(kLumiBlock, (float)num_errors_per_state[i][j] / m_nActive_mod[i]);
+      if (m_errhist_expert_LB[i][j] && m_nActive_mod[getPixLayerIDWithDBM(i)] > 0) {
+        m_errhist_expert_LB[i][j]->Fill(kLumiBlock, (float)num_errors_per_state[i][j] / m_nActive_mod[getPixLayerIDWithDBM(i)]);
       }
     }
   }
@@ -576,14 +576,14 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
   }
 
   for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
-    if (m_errhist_per_bit_LB[i] && m_nActive_mod[i] > 0) {
+    if (m_errhist_per_bit_LB[i] && m_nActive_mod[getPixLayerIDWithDBM(i)] > 0) {
       for (int j = 0; j < kNumErrorBits; j++) {
-        m_errhist_per_bit_LB[i]->Fill(kLumiBlock, j, (float)num_errors_per_bit[i][j] / m_nActive_mod[i]);
+        m_errhist_per_bit_LB[i]->Fill(kLumiBlock, j, (float)num_errors_per_bit[i][j] / m_nActive_mod[getPixLayerIDWithDBM(i)]);
       }
     }
-    if (m_errhist_per_type_LB[i] && m_nActive_mod[i] > 0) {
+    if (m_errhist_per_type_LB[i] && m_nActive_mod[getPixLayerIDWithDBM(i)] > 0) {
       for (int j = 0; j < ErrorCategoryMODROD::COUNT; j++) {
-        m_errhist_per_type_LB[i]->Fill(kLumiBlock, j, (float)num_errormodules_per_type[i][j] / m_nActive_mod[i]);
+        m_errhist_per_type_LB[i]->Fill(kLumiBlock, j, (float)num_errormodules_per_type[i][j] / m_nActive_mod[getPixLayerIDWithDBM(i)]);
       }
     }
   }
@@ -600,13 +600,13 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
     }
 
     for (int j = 0; j < ErrorCategory::COUNT; j++) {
-      if (m_errhist_errcat_avg[j][i] && m_nActive_mod[i] > 0) {
-        m_errhist_errcat_avg[j][i]->Fill(kLumiBlock, (float)num_errormodules_per_cat[i][j] / m_nActive_mod[i]);
+      if (m_errhist_errcat_avg[j][i] && m_nActive_mod[getPixLayerIDWithDBM(i)] > 0) {
+        m_errhist_errcat_avg[j][i]->Fill(kLumiBlock, (float)num_errormodules_per_cat[i][j] / m_nActive_mod[getPixLayerIDWithDBM(i)]);
       }
     }
     for (int j = 0; j < ErrorCategoryMODROD::COUNT - 3; j++) {
-      if (m_errhist_errtype_avg[j][i] && m_nActive_mod[i] > 0) {
-        m_errhist_errtype_avg[j][i]->Fill(kLumiBlock, (float)num_errormodules_per_type[i][j] / m_nActive_mod[i]);
+      if (m_errhist_errtype_avg[j][i] && m_nActive_mod[getPixLayerIDWithDBM(i)] > 0) {
+        m_errhist_errtype_avg[j][i]->Fill(kLumiBlock, (float)num_errormodules_per_type[i][j] / m_nActive_mod[getPixLayerIDWithDBM(i)]);
       }
     }
   }

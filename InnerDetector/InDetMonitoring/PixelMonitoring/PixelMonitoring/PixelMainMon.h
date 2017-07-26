@@ -113,6 +113,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
   virtual StatusCode procHistograms();  //!
 
   int getPixLayerID(int ec, int ld, bool ibl);
+  int getPixLayerIDWithDBM(int id);
   int getPixLayerIDIBL2D3D(int ec, int ld, int eta, bool ibl);
   int getPixLayerIDIBL2D3DDBM(int ec, int ld, int eta, bool ibl);
   int getPixLayerIDDBM(int ec, int ld, bool ibl);
@@ -185,8 +186,8 @@ class PixelMainMon : public ManagedMonitorToolBase {
   unsigned int m_currentBCID;
   int m_runNum;
   int m_ntracksPerEvent;
-  int m_nGood_mod[PixLayerIBL2D3D::COUNT];
-  int m_nActive_mod[PixLayerIBL2D3D::COUNT];
+  int m_nGood_mod[PixLayerIBL2D3DDBM::COUNT];
+  int m_nActive_mod[PixLayerIBL2D3DDBM::COUNT];
 
   unsigned int m_nRefresh;
   unsigned int m_nRefresh5min;
