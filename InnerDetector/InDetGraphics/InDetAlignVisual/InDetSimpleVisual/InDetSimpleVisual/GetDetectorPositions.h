@@ -53,7 +53,7 @@ class GetDetectorPositions:public AthAlgorithm {
     unsigned int m_detailLevel;
     bool         m_doTRT;
     std::string m_outputFileName;
-    std::ofstream outputFile;
+    std::ofstream m_outputFile;
     
     /** Tools */
     const PixelID *m_PixelHelper;

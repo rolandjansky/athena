@@ -99,7 +99,7 @@ StatusCode GetDetectorPositions::initialize(){
   }
   
   /** Output text File */
-  outputFile.open((m_outputFileName).c_str());
+  m_outputFile.open((m_outputFileName).c_str());
   
   return StatusCode::SUCCESS;
 }
@@ -138,7 +138,7 @@ StatusCode GetDetectorPositions::finalize() {
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "finalize()" << endmsg;
   
   /** Close the file */
-  outputFile.close();
+  m_outputFile.close();
 
   return StatusCode::SUCCESS;
 }
@@ -165,7 +165,7 @@ void GetDetectorPositions::writePixelPositions(){
     float pix_y = p3d.y();
     float pix_z = p3d.z();
     
-    outputFile << 1 << " "
+    m_outputFile << 1 << " "
 	       << pix_barrel_ec << " " 
 	       << pix_layer_disk << " " 
 	       << pix_phi_module << " "
@@ -203,7 +203,7 @@ void GetDetectorPositions::writeSCTPositions(){
     float sct_y = p3d.y();
     float sct_z = p3d.z();
     
-    outputFile << 2 << " "
+    m_outputFile << 2 << " "
 	       << sct_barrel_ec << " "
 	       << sct_layer_disk << " "
 	       << sct_phi_module << " "
@@ -304,16 +304,16 @@ void GetDetectorPositions::writeTRTPositions(Identifier const& trtId){
   float trt_y = p3d.y();
   float trt_z = p3d.z();
   
-  outputFile << 3 << " "
+  m_outputFile << 3 << " "
 	     << trt_barrel_ec << " "
 	     << trt_layer_or_wheel << " "
 	     << trt_phi_module << " "
 	     << trt_straw_layer << " ";
   
   if(m_detailLevel)	     
-    outputFile << trt_straw << " ";
+    m_outputFile << trt_straw << " ";
   
-  outputFile << trt_x << " "
+  m_outputFile << trt_x << " "
 	     << trt_y << " "
 	     << trt_z << " "
 	     << std::endl;
@@ -349,7 +349,7 @@ void GetDetectorPositions::writeTwoTRTPositions(Identifier const& trtId){
   float second_Y = secondSampling.y();
   float second_Z = secondSampling.z();
   
-  outputFile << 3 << " "
+  m_outputFile << 3 << " "
 	     << trt_barrel_ec << " "
 	     << trt_layer_or_wheel << " "
 	     << trt_phi_module << " "
@@ -360,7 +360,7 @@ void GetDetectorPositions::writeTwoTRTPositions(Identifier const& trtId){
 	     << first_Z << " "
 	     << std::endl;
 
-  outputFile << 3 << " "
+  m_outputFile << 3 << " "
 	     << trt_barrel_ec << " "
 	     << trt_layer_or_wheel << " "
 	     << trt_phi_module << " "

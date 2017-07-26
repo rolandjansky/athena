@@ -54,7 +54,7 @@ class GetDetectorLocalFrames:public AthAlgorithm {
 
     /** Name of the Output file */
     std::string m_outputFileName;
-    std::ofstream outputFile;
+    std::ofstream m_outputFile;
     
     /** Pixel Data */
     
