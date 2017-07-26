@@ -68,35 +68,6 @@ double NPVBeamspotCorrection::GetNVertexBsCorrection(double nRecoVtx)
   return m_g_nvtx_nreco_bs47mm->Eval(m_invGraph->Eval(nRecoVtx));
 }
 
-/*
-double NPVBeamspotCorrection::GetNVertexBsCorrection(double nRecoVtx) {
-
-  //get corresponding NReconstructible (points are already sorted in X, monotonic in Y)
-  double nRecon=-1;
-  if (nRecoVtx < m_g_nvtx_nreco_bs66mm->GetY()[0]) {
-    std::cout << "WARNING - NPVBeamspotCorrection: Requested nVertex outside the expected range: " << nRecoVtx << std::endl;
-    return nRecoVtx; //do not correct
-  }
-  if (nRecoVtx > m_g_nvtx_nreco_bs66mm->GetY()[m_g_nvtx_nreco_bs66mm->GetN()-1]) {
-    std::cout << "WARNING - NPVBeamspotCorrection: Requested nVertex outside the expected range: " << nRecoVtx << std::endl;
-    return nRecoVtx; //do not correct 
-  }
-  for (int i=1; i < m_g_nvtx_nreco_bs66mm->GetN(); i++) {
-    if (nRecoVtx < m_g_nvtx_nreco_bs66mm->GetY()[i]) {
-      //linear interpolation
-      nRecon = m_g_nvtx_nreco_bs66mm->GetX()[i-1]+(nRecoVtx - (m_g_nvtx_nreco_bs66mm->GetY()[i-1])) *
-        (m_g_nvtx_nreco_bs66mm->GetX()[i] - m_g_nvtx_nreco_bs66mm->GetX()[i-1]) / 
-        (m_g_nvtx_nreco_bs66mm->GetY()[i] - m_g_nvtx_nreco_bs66mm->GetY()[i-1]);
-
-      break;
-    }
-  }
-
-  //now return corresponding reconstructed vertices for bs=47mm
-  return m_g_nvtx_nreco_bs47mm->Eval(nRecon);
-}
-*/
-
 TGraph* NPVBeamspotCorrection::NVtx_NReconstructible_bs47mm() {
    TGraph *graph = new TGraph(41);
    graph->SetName("g_shadowedAverage_bs47mm");
