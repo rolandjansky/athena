@@ -258,25 +258,26 @@ GetReference( std::string& groupName, std::string& name )
 }
 
 std::string 
-SplitReference( std::string refName )
+SplitReference(std::string refPath, std::string refName )
 {
   //Split comma sepated inputs into individual file names
   std::string delimiter = ",";
   std::vector<std::string> refFileList;
   size_t pos = 0;
   std::string token;
-  while ((pos = refName.find(delimiter)) != std::string::npos) {
-    token = refName.substr(0, pos);
+  while ((pos = refPath.find(delimiter)) != std::string::npos) {
+    token = refPath.substr(0, pos);
     refFileList.push_back(token);
-    refName.erase(0, pos + delimiter.length());
+    refPath.erase(0, pos + delimiter.length());
   }
-  refFileList.push_back(refName);
+  refFileList.push_back(refPath);
 
   //Try to open each file in the list
   for(int i=0; i<refFileList.size(); i++){
-    std::string fileName=refFileList.at(i);
+    std::string fileName=refFileList.at(i)+refName;
     size_t first = fileName.find_first_not_of(" ");
     fileName.erase(0, first);
+    std::cout << "new name: " << fileName << std::endl;
     if (gROOT->GetListOfFiles()->FindObject(fileName.c_str()) ) {
       return fileName;
     } 
@@ -338,7 +339,10 @@ Visit( const MiniConfigTreeNode* node ) const
 {
   TObject* obj;
   std::string name = node->GetAttribute("name");
-  std::string fileName = SplitReference(node->GetAttribute("file"));
+  std::string fileName = node->GetAttribute("file");
+  if(node->GetAttribute("location")!=""){
+    fileName = SplitReference(node->GetAttribute("location"), fileName);
+  }
   std::string refInfo = node->GetAttribute("info");
   if( fileName != "" && name != "" && name != "same_name" ) {
     std::auto_ptr<TFile> infile( TFile::Open(fileName.c_str()) );
@@ -504,7 +508,10 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	  if( algRefName == "same_name" ) {//sameName alg
 	    algRefName = assessorName;
 	    absAlgRefName += algRefName;
-	    std::string algRefFile( SplitReference( refConfig.GetStringAttribute(thisRefID,"file") ) );
+	    std::string algRefFile( refConfig.GetStringAttribute(thisRefID,"file") );
+	    if(refConfig.GetStringAttribute(thisRefID,"location")!=""){
+	      algRefFile = SplitReference( refConfig.GetStringAttribute(thisRefID,"location"), algRefFile);
+	    }
 	    if( algRefFile != "" ) {
 	      std::shared_ptr<TFile> infile = GetROOTFile(algRefFile);
 	      if ( ! infile.get() ) {
