@@ -72,8 +72,8 @@ namespace AtlasRoot {
 
     m_rootFile = nullptr;
 
-    m_rootFileName = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v11/egammaEnergyCorrectionData.root");
-    
+    m_rootFileName = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v12/egammaEnergyCorrectionData.root");
+        
     if (m_rootFileName.empty()) {
       ATH_MSG_FATAL("cannot find configuration file");
       throw std::runtime_error("cannot find file");
@@ -766,7 +766,7 @@ namespace AtlasRoot {
       m_use_temp_correction201516 = true;
     }
 
-    else if (m_esmodel == egEnergyCorr::es2017 or m_esmodel == egEnergyCorr::es2017_summer or m_esmodel == egEnergyCorr::es2017_R21_PRE) {//add release 21 here for now
+    else if (m_esmodel == egEnergyCorr::es2017 or m_esmodel == egEnergyCorr::es2017_summer or m_esmodel == egEnergyCorr::es2017_summer_improved or m_esmodel == egEnergyCorr::es2017_R21_PRE) {//add release 21 here for now
       m_use_etaCalo_scales = true;
       m_use_new_resolution_model = true;
       m_resolution_tool = new eg_resolution("run2_pre");
@@ -777,16 +777,25 @@ namespace AtlasRoot {
       m_daS12Cor     = (TH1D*) m_rootFile->Get("Scales/es2012c/dalphaS12_cor");                 m_daS12Cor->SetDirectory(0);
 
       m_trkSyst      = (TH1D*) m_rootFile->Get("Scales/es2012c/momentum_errSyst");              m_trkSyst->SetDirectory(0);
+      
       if(m_esmodel == egEnergyCorr::es2017){
       m_zeeNom       = (TH1D*) m_rootFile->Get("Scales/es2017/alphaZee_errStat_period_2016");         m_zeeNom->SetDirectory(0);
       m_zeeNom_data2015 = (TH1D*) m_rootFile->Get("Scales/es2017/alphaZee_errStat_period_2015");      m_zeeNom_data2015->SetDirectory(0);
       }
-      else{
+      else if(m_esmodel == egEnergyCorr::es2017_summer or m_esmodel == egEnergyCorr::es2017_summer_improved){
 	m_zeeNom       = (TH1D*) m_rootFile->Get("Scales/es2017_summer/alphaZee_errStat_period_2016");         m_zeeNom->SetDirectory(0); 
 	m_zeeNom_data2015 = (TH1D*) m_rootFile->Get("Scales/es2017_summer/alphaZee_errStat_period_2015");      m_zeeNom_data2015->SetDirectory(0);
       }
+      else{
+	m_zeeNom       = (TH1D*) m_rootFile->Get("Scales/es2017_R21_PRE/alphaZee_errStat_period_2016");         m_zeeNom->SetDirectory(0);  
+        //SAME HISTO FOR 2015 FOR NOW
+	m_zeeNom_data2015 = (TH1D*) m_rootFile->Get("Scales/es2017_R21_PRE/alphaZee_errStat_period_2016");      m_zeeNom_data2015->SetDirectory(0);
+      }
       if(m_esmodel == egEnergyCorr::es2017){
 	m_zeeSyst      = (TH1D*) m_rootFile->Get("Scales/es2017/alphaZee_errSyst");         m_zeeSyst->SetDirectory(0);
+      }
+      else if(m_esmodel == egEnergyCorr::es2017_summer_improved){
+	m_zeeSyst      = (TH1D*) m_rootFile->Get("Scales/es2017_summer_improved/alphaZee_errSyst");         m_zeeSyst->SetDirectory(0);
       }
       else{
 	m_zeeSyst      = (TH1D*) m_rootFile->Get("Scales/es2017_summer/alphaZee_errSyst");         m_zeeSyst->SetDirectory(0);
@@ -796,14 +805,20 @@ namespace AtlasRoot {
       if(m_esmodel == egEnergyCorr::es2017){
 	m_resNom       = (TH1D*) m_rootFile->Get("Resolution/es2017/ctZee_errStat");        m_resNom->SetDirectory(0);
       }
-      else{
+      else if(m_esmodel == egEnergyCorr::es2017_summer or m_esmodel == egEnergyCorr::es2017_summer_improved){
 	m_resNom       = (TH1D*) m_rootFile->Get("Resolution/es2017_summer/ctZee_errStat");        m_resNom->SetDirectory(0);
+      }
+      else{
+	m_resNom       = (TH1D*) m_rootFile->Get("Resolution/es2017_R21_PRE/ctZee_errStat");        m_resNom->SetDirectory(0); 
       }
       if(m_esmodel == egEnergyCorr::es2017){
 	m_resSyst      = (TH1D*) m_rootFile->Get("Resolution/es2017/ctZee_errSyst");        m_resSyst->SetDirectory(0);
       }
-      else{
+      else if(m_esmodel == egEnergyCorr::es2017_summer or m_esmodel == egEnergyCorr::es2017_R21_PRE){
 	m_resSyst      = (TH1D*) m_rootFile->Get("Resolution/es2017_summer/ctZee_errSyst");        m_resSyst->SetDirectory(0);
+      }
+      else{
+	m_resSyst      = (TH1D*) m_rootFile->Get("Resolution/es2017_summer_improved/ctZee_errSyst");        m_resSyst->SetDirectory(0);
       }
       
       m_pedestals_es2017 = get_object<TH1F>(*m_rootFile, "Pedestals/es2017/pedestals");          m_pedestals_es2017->SetDirectory(0);
@@ -831,7 +846,7 @@ namespace AtlasRoot {
 	m_convFakeRate          = (TH1D*) m_rootFile->Get("Conversions/es2017_summer/convFakeRate");          m_convFakeRate->SetDirectory(0); 
         m_convRecoEfficiency    = (TH1D*) m_rootFile->Get("Conversions/es2017_summer/convRecoEfficiency");    m_convRecoEfficiency->SetDirectory(0);
       }
-
+      
       // TODO: change path when moving to calibarea
       // TODO: better package this somewhere
 
@@ -886,8 +901,16 @@ namespace AtlasRoot {
       const std::string gain_filename1 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsTO.root");
       const std::string gain_filename2 = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/FunctionsG_all.root");
       m_gain_tool = nullptr;
-      m_gain_tool_run2 = new egGain::GainUncertainty();
 
+      std::string gain_tool_run_2_filename;
+      if(m_esmodel == egEnergyCorr::es2017 or m_esmodel == egEnergyCorr::es2017_summer or m_esmodel == egEnergyCorr::es2017_R21_PRE){
+	gain_tool_run_2_filename = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v11/gain_uncertainty_specialRun.root"); 
+      }
+      else{
+	gain_tool_run_2_filename = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v12/gain_uncertainty_specialRun.root");
+      }
+      m_gain_tool_run2 = new egGain::GainUncertainty(gain_tool_run_2_filename);
+      
       m_e1hg_tool = new e1hg_systematics();
       m_use_temp_correction201215 = false;
       m_use_temp_correction201516 = false;

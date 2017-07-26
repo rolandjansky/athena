@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include <string>
 #include <utility>
 
@@ -62,6 +61,7 @@ std::unique_ptr<egGain::GainTool> gainToolFactory(egEnergyCorr::ESModel model)
     }
     case egEnergyCorr::es2017:
     case egEnergyCorr::es2017_summer: 
+    case egEnergyCorr::es2017_summer_improved:
     case egEnergyCorr::es2017_R21_PRE:
       return nullptr;  
     default:
@@ -96,6 +96,7 @@ std::unique_ptr<egammaMVATool> egammaMVAToolFactory(egEnergyCorr::ESModel model)
         case egEnergyCorr::es2016PRE:
         case egEnergyCorr::es2017:
         case egEnergyCorr::es2017_summer:
+        case egEnergyCorr::es2017_summer_improved:
           folder = "egammaMVACalib/offline/v4.0";
           break;
         case egEnergyCorr::es2017_R21_PRE:
@@ -112,7 +113,6 @@ std::unique_ptr<egammaMVATool> egammaMVAToolFactory(egEnergyCorr::ESModel model)
 
     else { return nullptr; }
 }
-
 
 std::unique_ptr<egammaLayerRecalibTool> egammaLayerRecalibToolFactory(egEnergyCorr::ESModel model)
 {
@@ -137,6 +137,7 @@ std::unique_ptr<egammaLayerRecalibTool> egammaLayerRecalibToolFactory(egEnergyCo
     case egEnergyCorr::es2017_R21_PRE:  
       tune = "2012_alt_with_layer2";
     case egEnergyCorr::es2017_summer:
+    case egEnergyCorr::es2017_summer_improved:
       tune = "es2017_20.7_improved";
       break;
     default:
@@ -169,6 +170,7 @@ bool use_intermodule_correction(egEnergyCorr::ESModel model)
     case egEnergyCorr::es2016PRE:
     case egEnergyCorr::es2017:
     case egEnergyCorr::es2017_summer:  
+    case egEnergyCorr::es2017_summer_improved:
     case egEnergyCorr::es2017_R21_PRE:
       return true;
     case egEnergyCorr::UNDEFINED:  // TODO: find better logic
@@ -206,6 +208,7 @@ bool is_run2(egEnergyCorr::ESModel model)
     case egEnergyCorr::es2016PRE:
     case egEnergyCorr::es2017:
     case egEnergyCorr::es2017_summer:
+    case egEnergyCorr::es2017_summer_improved:    
     case egEnergyCorr::es2017_R21_PRE:  
       return true;
     case egEnergyCorr::UNDEFINED:  // TODO: find better logic
@@ -285,6 +288,7 @@ StatusCode EgammaCalibrationAndSmearingTool::initialize() {
   else if (m_ESModel == "es2016PRE") { m_TESModel = egEnergyCorr::es2016PRE; }
   else if (m_ESModel == "es2016data_mc15c") { m_TESModel = egEnergyCorr::es2017; }
   else if (m_ESModel == "es2016data_mc15c_summer") { m_TESModel = egEnergyCorr::es2017_summer; }
+  else if (m_ESModel == "es2016data_mc15c_summer_improved") { m_TESModel = egEnergyCorr::es2017_summer_improved; } 
   else if (m_ESModel == "es2017_R21_PRE") { m_TESModel = egEnergyCorr::es2017_R21_PRE; }
   else if (m_ESModel.empty()) {
     ATH_MSG_ERROR("you must set ESModel property");
@@ -443,7 +447,7 @@ StatusCode EgammaCalibrationAndSmearingTool::initialize() {
     ATH_MSG_ERROR("ep combination not supported yet");
     throw std::runtime_error("ep combination not supported yet");
   }
-
+  
   if (m_useIntermoduleCorrection == AUTO) { m_useIntermoduleCorrection = use_intermodule_correction(m_TESModel); }
   if (m_usePhiUniformCorrection == AUTO) { m_usePhiUniformCorrection = use_phi_uniform_correction(m_TESModel); }
   m_use_mapping_correction = not is_run2(m_TESModel);
@@ -457,11 +461,12 @@ StatusCode EgammaCalibrationAndSmearingTool::initialize() {
     ATH_MSG_ERROR("cannot instantiate gain tool for this model (you can only disable the gain tool, but not enable it)");
   }
 
-  //No scale correction for release 21
-  if (m_ESModel == "es2017_R21_PRE"){
+  //No scale correction for release 21 ==> obsolete
+  /*if (m_ESModel == "es2017_R21_PRE"){
     m_doScaleCorrection = 0;
   }
-  
+  */
+
   ATH_MSG_INFO("ESModel: " << m_ESModel);
   ATH_MSG_INFO("ResolutionType: " << m_ResolutionType);
   ATH_MSG_INFO("layer correction = " << m_useLayerCorrection);
@@ -1149,51 +1154,109 @@ CP::SystematicCode EgammaCalibrationAndSmearingTool::applySystematicVariation(co
 
 double EgammaCalibrationAndSmearingTool::intermodule_correction(double Ecl,  double phi, double eta) const
 {
+    
+  //Intermodule Widening Correction: E_corr = E / (a' - b' * ((1 / (1 + exp((phi_mod - 2 * pi / 32) * c))) * (1 / (1 + exp((phi_mod - 2 * pi / 32) * (d))))))
+  //(phi_min, phi_max) : [a' = a / a, b' = b / a, c, d]
+  
   double Ecl_corr = 0.;
   int DivInt = 0;
   double pi = 3.1415926535897932384626433832795 ;
 
-  //  Definitions of module folding into four quarters (top, left, bottom and right)
-
-  DivInt =  (int) (phi / ((2 * pi) / 16.));
-  double phi_mod = phi - DivInt * (2 * pi / 16.);
-
-
-  //  Centring on the intermodule --> phi_mod will now be in [0,0.4]
-  if (phi_mod < 0) phi_mod += pi / 8.;
-
-  //  The correction concerns only the barrel
-  if(fabs(eta) <= 1.4){
-
-    //  Top quarter
-    if(phi < (3 * pi) / 4. && phi >= pi / 4.){
-Ecl_corr = Ecl / (1-0.131 * ((1 / (1 + exp((phi_mod-0.2) * 199.08))) * (1 / (1 + exp((phi_mod-0.2) * (-130.36))))));
+  if ( m_TESModel == egEnergyCorr::es2017_summer_improved ) {
+    
+    double phi_mod = 0;
+    if (phi < 0)
+      phi_mod = fmod(phi, 2 * pi / 16.) + pi / 8.;
+    else
+      phi_mod = fmod(phi, 2 * pi / 16.);
+    
+    //  The correction concerns only the barrel
+    if(fabs(eta) <= 1.37){
+      
+      if(phi< (-7 * pi / 8) && phi> (-1 * pi))
+	Ecl_corr = Ecl / (1-0.1086 * ((1 / (1 + exp((phi_mod- 2*pi/32.) * 175.2759))) * (1 / (1 + exp((phi_mod- 2*pi/32.) * (-189.3612))))));
+      if(phi< (-6 * pi / 8) && phi> (-7 * pi / 8))
+	Ecl_corr = Ecl / (1-0.0596 * ((1 / (1 + exp((phi_mod- 2*pi/32.) * 170.8305))) * (1 / (1 + exp((phi_mod- 2*pi/32.) * (-233.3782))))));
+      if(phi< (-5 * pi / 8) && phi> (-6 * pi / 8))
+	Ecl_corr = Ecl / (1-0.0596 * ((1 / (1 + exp((phi_mod- 2*pi/32.) * 147.1451))) * (1 / (1 + exp((phi_mod- 2*pi/32.) * (-139.3386))))));
+      if(phi< (-4 * pi / 8) && phi> (-5 * pi / 8))
+	Ecl_corr = Ecl / (1-0.0583 * ((1 / (1 + exp((phi_mod- 2*pi/32.) * 168.4644))) * (1 / (1 + exp((phi_mod- 2*pi/32.) * (-246.2897))))));
+      if(phi< (-3 * pi / 8) && phi> (-4 * pi / 8))
+	Ecl_corr = Ecl / (1-0.0530 * ((1 / (1 + exp((phi_mod- 2*pi/32.) * 177.6703))) * (1 / (1 + exp((phi_mod- 2*pi/32.) * (-198.3227))))));
+      if(phi< (-2 * pi / 8) && phi> (-3 * pi / 8))
+	Ecl_corr = Ecl / (1-0.0672 * ((1 / (1 + exp((phi_mod- 2*pi/32.) * 145.0693))) * (1 / (1 + exp((phi_mod- 2*pi/32.) * (-242.1771))))));
+      if(phi< (-1 * pi / 8) && phi> (-2 * pi / 8))
+	Ecl_corr = Ecl / (1-0.0871 * ((1 / (1 + exp((phi_mod- 2*pi/32.) * 132.3303))) * (1 / (1 + exp((phi_mod- 2*pi/32.) * (-166.1833))))));
+      if(phi< (0 * pi / 8) && phi> (-1 * pi / 8))
+	Ecl_corr = Ecl / (1-0.0948 * ((1 / (1 + exp((phi_mod- 2*pi/32.) * 127.6780))) * (1 / (1 + exp((phi_mod- 2*pi/32.) * (-150.0700))))));
+      if(phi< (1 * pi / 8) && phi> (0 * pi / 8))
+	Ecl_corr = Ecl / (1-0.1166 * ((1 / (1 + exp((phi_mod- 2*pi/32.) * 172.0679))) * (1 / (1 + exp((phi_mod- 2*pi/32.) * (-235.3293))))));
+      if(phi< (2 * pi / 8) && phi> (1 * pi / 8))
+	Ecl_corr = Ecl / (1-0.1172 * ((1 / (1 + exp((phi_mod- 2*pi/32.) * 190.3524))) * (1 / (1 + exp((phi_mod- 2*pi/32.) * (-198.9400))))));
+      if(phi< (3 * pi / 8) && phi> (2 * pi / 8))
+	Ecl_corr = Ecl / (1-0.1292 * ((1 / (1 + exp((phi_mod- 2*pi/32.) * 158.0540))) * (1 / (1 + exp((phi_mod- 2*pi/32.) * (-165.3893))))));
+      if(phi< (4 * pi / 8) && phi> (3 * pi / 8))
+	Ecl_corr = Ecl / (1-0.1557 * ((1 / (1 + exp((phi_mod- 2*pi/32.) * 162.2793))) * (1 / (1 + exp((phi_mod- 2*pi/32.) * (-133.5131))))));
+      if(phi< (5 * pi / 8) && phi> (4 * pi / 8))
+	Ecl_corr = Ecl / (1-0.1659 * ((1 / (1 + exp((phi_mod- 2*pi/32.) * 180.5270))) * (1 / (1 + exp((phi_mod- 2*pi/32.) * (-168.5074))))));
+      if(phi< (6 * pi / 8) && phi> (5 * pi / 8))
+	Ecl_corr = Ecl / (1-0.1123 * ((1 / (1 + exp((phi_mod- 2*pi/32.) * 128.2277))) * (1 / (1 + exp((phi_mod- 2*pi/32.) * (-154.4455))))));
+      if(phi< (7 * pi / 8) && phi> (6 * pi / 8))
+	Ecl_corr = Ecl / (1-0.1394 * ((1 / (1 + exp((phi_mod- 2*pi/32.) * 192.1216))) * (1 / (1 + exp((phi_mod- 2*pi/32.) * (-198.0727))))));
+      if(phi< (8 * pi / 8) && phi> (7 * pi / 8))
+	Ecl_corr = Ecl / (1-0.1001 * ((1 / (1 + exp((phi_mod- 2*pi/32.) * 199.1735))) * (1 / (1 + exp((phi_mod- 2*pi/32.) * (-176.4056))))));
     }
-
-    //  Right quarter
-    if(phi < pi / 4. && phi >= -pi / 4.){
-Ecl_corr = Ecl / (1-0.0879 * ((1 / (1 + exp((phi_mod-0.2) * 221.01))) * (1 / (1 + exp((phi_mod-0.2) * (-149.51))))));
+    
+    
+    //  No correction for the EC
+    else{
+      Ecl_corr = Ecl;
     }
-    //  Bottom quarter
-    if(phi < -pi / 4. && phi >= (-3 * pi) / 4.){
-Ecl_corr = Ecl / (1-0.0605 * ((1 / (1 + exp((phi_mod-0.2) * 281.37))) * (1 / (1 + exp((phi_mod-0.2) * (-170.29))))));
+    
+  }
+  
+  else {
+    
+    //  Definitions of module folding into four quarters (top, left, bottom and right)
+    
+    DivInt =  (int) (phi / ((2 * pi) / 16.));
+    double phi_mod = phi - DivInt * (2 * pi / 16.);
+    
+    
+    //  Centring on the intermodule --> phi_mod will now be in [0,0.4]
+    if (phi_mod < 0) phi_mod += pi / 8.;
+    
+    //  The correction concerns only the barrel
+    if(fabs(eta) <= 1.4){
+      
+      //  Top quarter
+      if(phi < (3 * pi) / 4. && phi >= pi / 4.){
+	Ecl_corr = Ecl / (1-0.131 * ((1 / (1 + exp((phi_mod-0.2) * 199.08))) * (1 / (1 + exp((phi_mod-0.2) * (-130.36))))));
+      }
+      
+      //  Right quarter
+      if(phi < pi / 4. && phi >= -pi / 4.){
+	Ecl_corr = Ecl / (1-0.0879 * ((1 / (1 + exp((phi_mod-0.2) * 221.01))) * (1 / (1 + exp((phi_mod-0.2) * (-149.51))))));
+      }
+      //  Bottom quarter
+      if(phi < -pi / 4. && phi >= (-3 * pi) / 4.){
+	Ecl_corr = Ecl / (1-0.0605 * ((1 / (1 + exp((phi_mod-0.2) * 281.37))) * (1 / (1 + exp((phi_mod-0.2) * (-170.29))))));
+      }
+      //  Left quarter
+      if((phi < (-3 * pi) / 4.) || (phi >= (3 * pi) / 4.)){
+	Ecl_corr = Ecl / (1-0.102 * ((1 / (1 + exp((phi_mod-0.2) * 235.37))) * (1 / (1 + exp((phi_mod-0.2) * (-219.04))))));
+      }
     }
-    //  Left quarter
-    if((phi < (-3 * pi) / 4.) || (phi >= (3 * pi) / 4.)){
-Ecl_corr = Ecl / (1-0.102 * ((1 / (1 + exp((phi_mod-0.2) * 235.37))) * (1 / (1 + exp((phi_mod-0.2) * (-219.04))))));
+    
+    //  No correction for the EC
+    else{
+      Ecl_corr = Ecl;
     }
   }
-
-  //  No correction for the EC
-  else{
-    Ecl_corr = Ecl;
-  }
-
+  
   return Ecl_corr;
-
+  
 }
-
-
 
 double EgammaCalibrationAndSmearingTool::correction_phi_unif(double eta, double phi) const
 {
@@ -1207,44 +1270,95 @@ double EgammaCalibrationAndSmearingTool::correction_phi_unif(double eta, double 
       else if (phi < (13 * PI / 32.) && phi > (12 * PI / 32.)) { Fcorr -= 0.035; }
     }
   }
+  
+  if ( m_TESModel == egEnergyCorr::es2017_summer_improved ) {
 
-  if (eta < 0.6 && eta > 0.4) {
-    if (phi < 0 && phi > (-2 * PI / 32.)) { Fcorr = 1.028; }
-    else if (phi < (-4 * 2 * PI / 32.) && phi > (-5 * 2 * PI / 32.)) { Fcorr = 1.044; }
+    if(eta < 0.2 && eta > 0.) {
+      if (phi < (-7 * 2 * PI / 32.) && phi > (-8 * 2 * PI / 32.)) { Fcorr = 1.016314; }
+    } 
+    
+    else if (eta < 0.6 && eta > 0.4) {
+      if (phi < 0 && phi > (-2 * PI / 32.)) { Fcorr = 1.041591; }
+      else if (phi < (-4 * 2 * PI / 32.) && phi > (-5 * 2 * PI / 32.)) { Fcorr = 1.067346; }
+    }
+    
+    else if (eta < 0.8 && eta > 0.6) {
+      if (phi < (7 * 2 * PI / 32.) && phi > (6 * 2 * PI / 32.)) { Fcorr = 1.027980; }
+    }
+    
+    else if (eta < 1.4 && eta > 1.2) {
+      if (phi < (-9 * 2 * PI / 32.) && phi > (-10 * 2 * PI / 32.)) { Fcorr = 1.020299; }
+      else if (phi < (-11 * 2 * PI / 32.) && phi > (-12 * 2 * PI / 32.)) { Fcorr = 1.051426; }
+    }
+    
+    else if (eta < 2.3 && eta > 2.1) {
+      if (phi < (-12 * 2 * PI / 32.) && phi > (-13 * 2 * PI / 32.)) { Fcorr = 1.071695; }
+    }
+    
+    else if(eta < 0. && eta > -0.2) {
+      if (phi < (-12 * 2 * PI / 32.) && phi > (-13 * 2 * PI / 32.)) { Fcorr = 1.008227; }
+      else if (phi < (-8 * 2 * PI / 32.) && phi > (-9 * 2 * PI / 32.)) { Fcorr = 1.013929; }
+    }
+    
+    else if(eta < -0.2 && eta > -0.4) {
+      if (phi < (-9 * 2 * PI / 32.) && phi > (-10 * 2 * PI / 32.)) { Fcorr = 1.015749; }
+    }
+    
+    else if(eta < -1.2 && eta > -1.4) {
+      if (phi < (-6 * 2 * PI / 32.) && phi > (-7 * 2 * PI / 32.)) { Fcorr = 1.064954; }
+    }
+    
+    else if (eta < -1.6 && eta > -1.8 ) {
+      if (phi < (9 * 2 * PI / 32.) && phi > (8 * 2 * PI / 32.)) { Fcorr = 1.027448; }
+    }
+    
+    else if(eta < -2.3 && eta > -2.5) {
+      if (phi < (-8 * 2 * PI / 32.) && phi > (-9 * 2 * PI / 32.)) { Fcorr = 1.025882; }
+      else if (phi < (5 * 2 * PI / 32.) && phi > (4 * 2 * PI / 32.)) { Fcorr = 1.036616; }
+      else if (phi < (9 * 2 * PI / 32.) && phi > (8 * 2 * PI / 32.)) { Fcorr = 1.053838; }
+      else if (phi < (10 * 2 * PI / 32.) && phi > (9 * 2 * PI / 32.)) { Fcorr = 1.026856; }
+      else if (phi < (11 * 2 * PI / 32.) && phi > (10 * 2 * PI / 32.)) { Fcorr = 0.994382; }
+    }
+    
+  } // es2017_summer_improved end
+  
+  else{
+    if (eta < 0.6 && eta > 0.4) {
+      if (phi < 0 && phi > (-2 * PI / 32.)) { Fcorr = 1.028; }
+      else if (phi < (-4 * 2 * PI / 32.) && phi > (-5 * 2 * PI / 32.)) { Fcorr = 1.044; }
+    }
+
+    else if (eta < 0.8 && eta > 0.6) {
+      if (phi < (7 * 2 * PI / 32.) && phi > (6 * 2 * PI / 32.)) { Fcorr = 1.022; }
+    }
+
+    else if (eta < 1.4 && eta > 1.2) {
+      if (phi < (-11 * 2 * PI / 32.) && phi > (-12 * 2 * PI / 32.)) { Fcorr = 1.038; }
+    }
+
+    else if (eta < 2.0 && eta > 1.9 ) {
+      if (phi < (10 * 2 * PI / 32.) && phi > (9 * 2 * PI / 32.)) { Fcorr = 1.029; }
+    }
+
+    else if(eta < -1.2 && eta > -1.4) {
+      if (phi < (-4 * 2 * PI / 32.) && phi > (-5 * 2 * PI / 32.)) { Fcorr = 1.048; }
+      else if (phi < (-6 * 2 * PI / 32.) && phi > (-7 * 2 * PI / 32.)) { Fcorr = 1.048; }
+    }
+
+    else if (eta < -1.6 && eta > -1.8 ) {
+      if (phi < (9 * 2 * PI / 32.) && phi > (8 * 2 * PI / 32.)) { Fcorr = 1.024; }
+    }
+
+    else if(eta < -2.3 && eta > -2.5) {
+      if (phi < (-8 * 2 * PI / 32.) && phi > (-9 * 2 * PI / 32.)) { Fcorr = 1.037; }
+      else if (phi < (5 * 2 * PI / 32.) && phi > (4 * 2 * PI / 32.)) { Fcorr = 1.031; }
+      else if (phi < (9 * 2 * PI / 32.) && phi > (8 * 2 * PI / 32.)) { Fcorr = 1.040; }
+      else if (phi < (10 * 2 * PI / 32.) && phi > (9 * 2 * PI / 32.)) { Fcorr = 1.030; }
+      else if (phi < (11 * 2 * PI / 32.) && phi > (10 * 2 * PI / 32.)) { Fcorr = 1.020; }
+    }
   }
-
-  else if (eta < 0.8 && eta > 0.6) {
-    if (phi < (7 * 2 * PI / 32.) && phi > (6 * 2 * PI / 32.)) { Fcorr = 1.022; }
-  }
-
-  else if (eta < 1.4 && eta > 1.2) {
-    if (phi < (-11 * 2 * PI / 32.) && phi > (-12 * 2 * PI / 32.)) { Fcorr = 1.038; }
-  }
-
-  else if (eta < 2.0 && eta > 1.9 ) {
-    if (phi < (10 * 2 * PI / 32.) && phi > (9 * 2 * PI / 32.)) { Fcorr = 1.029; }
-  }
-
-  else if(eta < -1.2 && eta > -1.4) {
-    if (phi < (-4 * 2 * PI / 32.) && phi > (-5 * 2 * PI / 32.)) { Fcorr = 1.048; }
-    else if (phi < (-6 * 2 * PI / 32.) && phi > (-7 * 2 * PI / 32.)) { Fcorr = 1.048; }
-  }
-
-  else if (eta < -1.6 && eta > -1.8 ) {
-    if (phi < (9 * 2 * PI / 32.) && phi > (8 * 2 * PI / 32.)) { Fcorr = 1.024; }
-  }
-
-  else if(eta < -2.3 && eta > -2.5) {
-    if (phi < (-8 * 2 * PI / 32.) && phi > (-9 * 2 * PI / 32.)) { Fcorr = 1.037; }
-    else if (phi < (5 * 2 * PI / 32.) && phi > (4 * 2 * PI / 32.)) { Fcorr = 1.031; }
-    else if (phi < (9 * 2 * PI / 32.) && phi > (8 * 2 * PI / 32.)) { Fcorr = 1.040; }
-    else if (phi < (10 * 2 * PI / 32.) && phi > (9 * 2 * PI / 32.)) { Fcorr = 1.030; }
-    else if (phi < (11 * 2 * PI / 32.) && phi > (10 * 2 * PI / 32.)) { Fcorr = 1.020; }
-  }
-
+  
   return Fcorr;
 }
-
-
 
 } // namespace CP
