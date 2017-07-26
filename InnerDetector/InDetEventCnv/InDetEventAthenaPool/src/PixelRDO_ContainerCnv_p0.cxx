@@ -13,6 +13,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include "CreateTransientTemplate.h"
 
 //================================================================
 PixelRDO_Container* PixelRDO_ContainerCnv_p0::createTransient(const PixelRDO_Container_p0* persObj, MsgStream& log) {

@@ -27,9 +27,8 @@ using std::endl;
 // Default constructor.
 
 MdtCsmContainer::MdtCsmContainer()
-: IdentifiableContainer<MdtCsm>() 
+: IdentifiableContainer<MdtCsm>(hashFcn().max()) 
 {
-    DLV::init(hashFcn().max());	
 }
 
 //**********************************************************************

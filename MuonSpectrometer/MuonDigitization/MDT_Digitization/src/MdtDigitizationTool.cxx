@@ -1078,7 +1078,7 @@ MdtDigitCollection* MdtDigitizationTool::getDigitCollection(Identifier elementId
       ATH_MSG_DEBUG ( "New MdtDigitCollection with key=" << coll_hash << " recorded in StoreGate." );
   } 
   else { 
-    digitCollection = const_cast<MdtDigitCollection*>( it_coll->cptr() );
+    digitCollection = const_cast<MdtDigitCollection*>( *it_coll );
   }
   return digitCollection;
 }

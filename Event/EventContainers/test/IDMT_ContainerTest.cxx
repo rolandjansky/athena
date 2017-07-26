@@ -2,11 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// This is a test cxx file for IdentifiableContainer. 
+// This is a test cxx file for IdentifiableContainerMT. 
 //  
-
-#include "EventContainers/IdentifiableContainer.h" 
-#include "EventContainers/SelectAllObject.h" 
+#include "src/IdentifiableCacheBase.cxx"
+#include "EventContainers/IdentifiableContainerMT.h" 
+#include "EventContainers/SelectAllObjectMT.h" 
 #include "ID_ContainerTest.h" 
 #include "GaudiKernel/System.h" 
 #include "CLIDSvc/CLASS_DEF.h"
@@ -71,15 +71,15 @@ namespace IDC_TEST
     }; 
 
     class MyCollectionContainer 
-        :public IdentifiableContainer<MyCollection> 
+        :public   IdentifiableContainerMT<MyCollection> 
     {
     public: 
-        typedef IdentifiableContainer<MyCollection>  MyType; 
+        typedef IdentifiableContainerMT<MyCollection>  MyType; 
 
         // constructor 
         MyCollectionContainer( int m ) :
-                IdentifiableContainer<MyCollection>(false)   {    
-            init(m) ;  
+                IdentifiableContainerMT<MyCollection>(m)   {    
+             
         }
 
     }; 
@@ -97,7 +97,7 @@ using namespace IDC_TEST;
 // Constructor 
 ID_ContainerTest::ID_ContainerTest()
         :
-  m_ncollections(1000),m_nskip(0),m_test(10), m_container(0)
+  m_ncollections(100000),m_nskip(0),m_test(10), m_container(0)
 {
 //     // properties
 //     // number of collections in the containers 
@@ -132,9 +132,9 @@ int ID_ContainerTest::finalize()
 
 int ID_ContainerTest::execute(){
 
-    typedef SelectAllObject<MyCollectionContainer,MyDigit> SELECTOR ;
+    typedef SelectAllObjectMT<MyCollectionContainer,MyDigit> SELECTOR ;
     typedef SELECTOR::const_iterator digit_const_iterator; 
-    typedef MyCollectionContainer::const_iterator collection_iterator;
+//    typedef MyCollectionContainer::const_iterator collection_iterator;
     
     int hfmax = m_ncollections;
 //    int m_nhits = 100;
@@ -220,13 +220,23 @@ int ID_ContainerTest::execute(){
     if(m_test<=0) return 0;
 
     std::cout << "Full Size:" << m_container->fullSize() << " N Coll:" << m_container->numberOfCollections() << std::endl;
-
+    std::cout << "By interation\n";
     startOfUserTime    = System::userTime( System::microSec );
     startOfKernelTime  = System::kernelTime   ( System::microSec );
     startOfElapsedTime = System::ellapsedTime ( System::microSec );
     // Access all COllections
-    collection_iterator it1_coll= m_container->begin(); 
-    collection_iterator it2_coll= m_container->end(); 
+/*    auto hashes= m_container->GetAllCurrentHashs(); 
+    int nc1 = 0 ; 
+    for (auto hash : hashes) {
+        auto coll = m_container->indexFindPtr(hash); 
+        coll->identifyHash(); 
+        ++nc1; 
+    }
+*/
+
+    // Access all COllections
+    auto it1_coll= m_container->begin(); 
+    auto it2_coll= m_container->end(); 
     int nc1 = 0 ; 
     for (  ; it1_coll!=it2_coll; ++it1_coll) {
         const  MyCollection* coll = *it1_coll; 
@@ -245,16 +255,16 @@ int ID_ContainerTest::execute(){
 
     std::cout <<"  Number of Collection  Accessed "<<nc1<<std::endl;
 
+    std::cout << "By GetAllCurrentHashs search\n";
 
     startOfUserTime    = System::userTime( System::microSec );
     startOfKernelTime  = System::kernelTime   ( System::microSec );
     startOfElapsedTime = System::ellapsedTime ( System::microSec );
     // Access all COllections
-    it1_coll= m_container->begin(); 
-    it2_coll= m_container->end(); 
+    auto hashes= m_container->GetAllCurrentHashs(); 
     nc1 = 0 ; 
-    for (  ; it1_coll!=it2_coll; ++it1_coll) {
-        const  MyCollection* coll = *it1_coll; 
+    for (auto hash : hashes) {
+        auto coll = m_container->indexFindPtr(hash); 
         coll->identifyHash(); 
         ++nc1; 
     }
@@ -270,18 +280,18 @@ int ID_ContainerTest::execute(){
 
 
     // Print out some hash ids via iterator
-    it1_coll= m_container->begin(); 
-    it2_coll= m_container->end(); 
+    hashes= m_container->GetAllCurrentHashs();  
     nc1 = 0 ; 
     unsigned int skip1 = 0;
-    for (  ; it1_coll!=it2_coll && nc1 < 10; ++it1_coll, ++skip1) {
+    for ( auto h = hashes.cbegin() ; h!=hashes.cend() && nc1 < 10; ++h, ++skip1) {
         if (skip1%4 != 1)continue;
+        auto it1_coll = m_container->indexFindPtr(*h);
         std::cout << "iter, hash id "
                   << nc1 << " " 
-                  << it1_coll.hashId() << " "
                   << std::endl;
-        MyCollection::const_iterator it_dig      = (*it1_coll)->begin();
-        MyCollection::const_iterator it_dig_last = (*it1_coll)->end();
+        
+        MyCollection::const_iterator it_dig      = (it1_coll)->begin();
+        MyCollection::const_iterator it_dig_last = (it1_coll)->end();
         for (unsigned int nd = 0; it_dig != it_dig_last; ++nd, ++ it_dig) {
             std::cout << "nd, val " << nd << " " << (*it_dig)->val() << std::endl;
         }
@@ -296,16 +306,39 @@ int ID_ContainerTest::execute(){
     startOfKernelTime  = System::kernelTime   ( System::microSec );
     startOfElapsedTime = System::ellapsedTime ( System::microSec );
 
+    int nd = 0 ; 
+{
     SELECTOR select(m_container); 
     digit_const_iterator it1 = select.begin(); 
     digit_const_iterator it2 = select.end(); 
-    int nd = 0 ; 
+
     for(; it1!=it2; ++it1){
         const MyDigit* digit = *it1; 
-        float t = digit->val(); 
+        volatile float t = digit->val(); 
         t = t + 1.; 
         ++nd; 
     }
+    if(nd != m_ncollections*m_nhits) { 
+      std::cout << nd << "!=" <<  m_ncollections*m_nhits << std::endl;
+      std::cout << "SELECTOR Bug LINE " << __LINE__ << std::endl; std::abort();
+    }
+}
+{//Repeat with post incrementor operator
+    SELECTOR select(m_container); 
+    digit_const_iterator it1 = select.begin(); 
+    digit_const_iterator it2 = select.end(); 
+    nd = 0 ; 
+    for(; it1!=it2; it1++){
+        const MyDigit* digit = *it1; 
+        volatile float t = digit->val(); 
+        t = t + 1.; 
+        ++nd; 
+    }
+    if(nd != m_ncollections*m_nhits) { 
+      std::cout << nd << "!=" <<  m_ncollections*m_nhits << std::endl;
+      std::cout << "SELECTOR Bug LINE " << __LINE__ << std::endl; std::abort();
+    }
+}
 
     deltaUser    = System::userTime    ( System::microSec ) - startOfUserTime   ;
     deltaKernel  = System::kernelTime  ( System::microSec ) - startOfKernelTime ;
@@ -344,17 +377,17 @@ int ID_ContainerTest::execute(){
 //       }
 //     }
 
-    MyCollectionContainer::const_iterator
-        it_low=m_container->indexFind(id_low.id());
+    auto
+        it_low=m_container->indexFindPtr(id_low.id());
 
-    MyCollectionContainer::const_iterator
-        it_high=m_container->indexFind(id_high.id());
+    auto
+        it_high=m_container->indexFindPtr(id_high.id());
 
-    if(it_low!=m_container->end()){
-        (*it_low)->identifyHash();
+    if(it_low){
+        (it_low)->identifyHash();
     }
-    if(it_high!=m_container->end()){
-        (*it_high)->identifyHash();
+    if(it_high){
+        (it_high)->identifyHash();
     }
 
     startOfUserTime    = System::userTime( System::microSec );
@@ -362,11 +395,11 @@ int ID_ContainerTest::execute(){
     startOfElapsedTime = System::ellapsedTime ( System::microSec );
     int nColl = 0 ; 
     for (  int i=0; i<hfmax;++i) {
-        MyCollectionContainer::const_iterator
-            it=m_container->indexFind(i);
-        if(it!=m_container->end()) { 
+        auto
+            it=m_container->indexFindPtr(i);
+        if(it) { 
             ++nColl; 
-            (*it)->identifyHash(); 
+            (it)->identifyHash(); 
         }
     }
     deltaUser    = System::userTime    ( System::microSec ) - startOfUserTime   ;
@@ -383,6 +416,7 @@ int ID_ContainerTest::execute(){
 
 
     // Test removal of collections
+/*
     unsigned int collsRemoved = 0;
     for (int coll =0; coll <hfmax; coll += 3) {
         collsRemoved++;
@@ -393,20 +427,102 @@ int ID_ContainerTest::execute(){
     unsigned int collsFound = 0;
     unsigned int collsFound1 = 0;
     for (int coll =0; coll <hfmax; coll += 3) {
-        MyCollectionContainer::const_iterator it_low = m_container->indexFind(coll);
-        if (it_low != m_container->end()) collsFound++;
+        auto it_low = m_container->indexFind(coll);
+        if (it_low != nullptr) collsFound++;
         collsFound1++;
     }
     std::cout << "Removed " << collsRemoved << " collections. Size "
               << vCollRem.size() << " removed collections found again " << collsFound
               << " tested " << collsFound1
               << std::endl;
+*/
+
+
+    auto
+        it_low2=m_container->indexFind(id_low.id());
+
+    auto
+        it_high2=m_container->indexFind(id_high.id());
+
+    if(it_low2!=m_container->end()){
+        if(id_low.id() != (*it_low2)->identifyHash()) std::cout << "wrong hash "<< id_low.id() << '\n';
+    }
+    if(it_high2!=m_container->end()){
+        (*it_high2)->identifyHash();
+    }
+    
+    int count=0;
+    int correct =0;
+    int wrong =0;
+    for(; it_low2!=m_container->end();++it_low2, ++count){
+        if(MyID( low+count ).id() != (*it_low2)->identifyHash()) {
+           std::cout << "wrong hash "<< id_low.id() << '\n';
+           wrong++;
+        }
+        else correct++;
+    }
+
+    auto testend = m_container->end();
+    auto teststa = m_container->begin();
+    int size = m_container->numberOfCollections();
+    count = 0;
+    for(; teststa != testend; teststa++ , count++){
+       if(count >= size) { std::cout << "Error in iterating Line " << __LINE__ << " at count " << count << std::endl; std::abort(); }
+    }
+
+    std::cout << "wrong hash allignment " << wrong <<'/' << correct+wrong << std::endl;
     m_container->cleanup();
     for (unsigned int coll = 0; coll < vCollRem.size(); ++coll) {
         delete vCollRem[coll];
     }
     std::cout << "Deleted collections " << std::endl;
-   
+ 
+
+{
+   auto container2 = new MyCollectionContainer(m_ncollections);
+   int itemsadded=0;
+   for (int coll =0; coll <hfmax; coll=coll+(1+skip) ){
+        MyID id(coll); 
+        MyCollection* dcoll = new MyCollection(id); 
+	sc = container2->addCollection(dcoll, dcoll->identifyHash());
+	if (sc.isFailure())
+            std::cout << "error:addCollection->" << dcoll->identifyHash() << std::endl;
+        if(coll %2 ==0) continue; //Allow some empty containers
+        for(int j=0; j<m_nhits; ++j){
+            float t = j; 
+            MyDigit* digit = new MyDigit(t); 
+            dcoll->add(digit); 
+            itemsadded++;
+        }
+
+    }
+
+    SELECTOR select(container2); 
+    digit_const_iterator it1 = select.begin(); 
+    digit_const_iterator it2 = select.end(); 
+    nd = 0 ; 
+    for(; it1!=it2; it1++){
+        const MyDigit* digit = *it1; 
+        volatile float t = digit->val(); 
+        t = t + 1.; 
+        ++nd; 
+    }
+    if(nd != itemsadded) { 
+      std::cout << nd << "!=" <<  itemsadded << std::endl;
+      std::cout << "SELECTOR Bug LINE " << __LINE__ << std::endl; std::abort();
+    }
+
+//Test Empty
+    MyCollectionContainer* dempty = new MyCollectionContainer(100); 
+    if(dempty->begin() != dempty->end()){
+       std::cout << "empty container not working see LINE " << __LINE__ << std::endl; std::abort();
+    }
+    SELECTOR emptyselect(dempty);
+    if(emptyselect.begin() != emptyselect.end()){
+       std::cout << "empty SELECTOR not working see LINE " << __LINE__ << std::endl; std::abort();
+    }
+
+}
     return 0;
 
 }// end of execute 

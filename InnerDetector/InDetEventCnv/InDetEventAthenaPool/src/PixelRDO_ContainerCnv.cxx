@@ -10,6 +10,8 @@
 
 #include <iostream>
 
+#include "CreateTransientTemplate.h"
+
 //================================================================
 namespace {
   std::string shortPrint(const PixelRDO_Container *main_input_Pixel, unsigned maxprint=25) {

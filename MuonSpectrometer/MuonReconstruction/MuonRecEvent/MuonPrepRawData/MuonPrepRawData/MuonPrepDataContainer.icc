@@ -12,11 +12,6 @@
 ///////////////////////////////////////////////////////////////////
 
 
-template< class CollectionT>
-MuonPrepDataContainer< CollectionT>::MuonPrepDataContainer() :
-  IdentifiableContainer<CollectionT>()
-{
-}
 
 template< class CollectionT>
 // Constructor with parameters:
