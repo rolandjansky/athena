@@ -127,6 +127,8 @@ namespace InDet {
 //    std::string m_spacePointsOverlapName;
     SG::ReadHandle<SCT_ClusterContainer>  m_Sct_clcontainer;
     SG::ReadHandle<PixelClusterContainer> m_Pixel_clcontainer;
+    SG::ReadHandleKey<SCT_ClusterContainer>  m_Sct_clcontainerKey;
+    SG::ReadHandleKey<PixelClusterContainer> m_Pixel_clcontainerKey;
     bool m_selectPixels;
     bool m_selectSCTs;
     bool m_overlap;         // process all overlapping SCT pairs if true.
@@ -158,9 +160,12 @@ namespace InDet {
     const PixelID* m_idHelperPixel;
     SiElementPropertiesTable* m_properties;
     
-    SG::WriteHandle<SpacePointContainer> m_SpacePointContainer_SCT; 
-    SG::WriteHandle<SpacePointContainer> m_SpacePointContainerPixel; 
-    SG::WriteHandle<SpacePointOverlapCollection> m_spacepointoverlapCollection; 
+    SG::WriteHandle<SpacePointContainer> m_SpacePointContainer_SCT;
+    SG::WriteHandle<SpacePointContainer> m_SpacePointContainerPixel;
+    SG::WriteHandle<SpacePointOverlapCollection> m_spacepointoverlapCollection;
+    SG::WriteHandleKey<SpacePointContainer> m_SpacePointContainer_SCTKey;
+    SG::WriteHandleKey<SpacePointContainer> m_SpacePointContainerPixelKey;
+    SG::WriteHandleKey<SpacePointOverlapCollection> m_spacepointoverlapCollectionKey;
 
     ToolHandle< SiSpacePointMakerTool > m_SiSpacePointMakerTool;
   };

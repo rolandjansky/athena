@@ -48,8 +48,8 @@ SiTrackerSpacePointFinder::SiTrackerSpacePointFinder(const std::string&	name,
 //	m_spacePointsSCTName	("SCT_SpacePoints"),
 //	m_spacePointsPixelName	("PixelSpacePoints"),
 //	m_spacePointsOverlapName("OverlapSpacePoints"),
-	m_Sct_clcontainer("SCT_Clusters"),
-	m_Pixel_clcontainer("PixelClusters"),
+	m_Sct_clcontainerKey("SCT_Clusters"),
+	m_Pixel_clcontainerKey("PixelClusters"),
 	m_selectPixels		(true),
 	m_selectSCTs(		true),
 	m_overlap		(true),		// process overlaps of SCT wafers.
@@ -70,20 +70,20 @@ SiTrackerSpacePointFinder::SiTrackerSpacePointFinder(const std::string&	name,
 	m_idHelper		(nullptr),
 	m_idHelperPixel		(nullptr),
 	m_properties		(nullptr),
-	m_SpacePointContainer_SCT	("SCT_SpacePoints"),
-	m_SpacePointContainerPixel	("PixelSpacePoints"),
-	m_spacepointoverlapCollection	("OverlapSpacePoints"),
+	m_SpacePointContainer_SCTKey	("SCT_SpacePoints"),
+	m_SpacePointContainerPixelKey	("PixelSpacePoints"),
+	m_spacepointoverlapCollectionKey	("OverlapSpacePoints"),
 	m_SiSpacePointMakerTool		("InDet::SiSpacePointMakerTool", this)
     {
   //Use the same space point name both for internal use (for graphics) end
   // for storing in TDS. If a name is the empty string, do not retrieve
   // those clusters.
-  declareProperty("SCT_ClustersName",	m_Sct_clcontainer, "SCT clContainer" ) ;
-  declareProperty("PixelsClustersName",	m_Pixel_clcontainer, "Pixel clContainer");
+  declareProperty("SCT_ClustersName",	m_Sct_clcontainerKey, "SCT clContainer" );
+  declareProperty("PixelsClustersName",	m_Pixel_clcontainerKey, "Pixel clContainer");
             
-  declareProperty("SpacePointsSCTName",	m_SpacePointContainer_SCT, "SpacePoint SCT container");
-  declareProperty("SpacePointsPixelName", m_SpacePointContainerPixel, "SpacePoint Pixel container");
-  declareProperty("SpacePointsOverlapName", m_spacepointoverlapCollection, "Space Point Overlap collection" );
+  declareProperty("SpacePointsSCTName",	m_SpacePointContainer_SCTKey, "SpacePoint SCT container");
+  declareProperty("SpacePointsPixelName", m_SpacePointContainerPixelKey, "SpacePoint Pixel container");
+  declareProperty("SpacePointsOverlapName", m_spacepointoverlapCollectionKey, "Space Point Overlap collection" );
   
   
   declareProperty("SiSpacePointMakerTool",	m_SiSpacePointMakerTool);
@@ -112,29 +112,40 @@ StatusCode SiTrackerSpacePointFinder::initialize()
     ATH_MSG_DEBUG( "SiTrackerSpacePointFinder::initialize()" );
   
     // Check that clusters, space points and ids have names
-  
-    if  (m_selectSCTs && m_Sct_clcontainer.name().empty()){
-	ATH_MSG_FATAL( "SCTs selected and no name set for SCT clusters");
-	return StatusCode::FAILURE;
+    if  (m_selectSCTs && m_Sct_clcontainerKey.key().empty()){
+      ATH_MSG_FATAL( "SCTs selected and no name set for SCT clusters");
+      return StatusCode::FAILURE;
     }
-  
-    if (m_SpacePointContainer_SCT.name().empty()){
-	ATH_MSG_FATAL( "No name set for SCT space points");
-	return StatusCode::FAILURE;
+    ATH_CHECK( m_Sct_clcontainerKey.initialize() );
+
+    if  (m_selectPixels && m_Pixel_clcontainerKey.key().empty()){ 
+      ATH_MSG_FATAL( "Pixels selected and no name set for Pixel clusters");
+      return StatusCode::FAILURE;
     }
-    if (m_SpacePointContainerPixel.name().empty()){
-	ATH_MSG_FATAL( "No name set for Pixels space points");
-	return StatusCode::FAILURE;
+    ATH_CHECK( m_Pixel_clcontainerKey.initialize() );
+
+    if (m_SpacePointContainer_SCTKey.key().empty()){
+      ATH_MSG_FATAL( "No name set for SCT space points");
+      return StatusCode::FAILURE;
     }
-    if (m_spacepointoverlapCollection.name().empty()){
-	ATH_MSG_FATAL( "No name set for overlap space points");
-	return StatusCode::FAILURE;
+    ATH_CHECK( m_SpacePointContainer_SCTKey.initialize() );
+
+    if (m_SpacePointContainerPixelKey.key().empty()){
+      ATH_MSG_FATAL( "No name set for Pixels space points");
+      return StatusCode::FAILURE;
     }
+    ATH_CHECK( m_SpacePointContainerPixelKey.initialize() );
+
+    if (m_spacepointoverlapCollectionKey.key().empty()){
+      ATH_MSG_FATAL( "No name set for overlap space points");
+      return StatusCode::FAILURE;
+    }
+    ATH_CHECK( m_spacepointoverlapCollectionKey.initialize() );
   
     // create containers (requires the Identifier Helpers)
     if (m_selectPixels){
-	  ATH_CHECK(detStore()->retrieve(m_idHelperPixel,"PixelID"));
-//	  m_SpacePointContainerPixel = new SpacePointContainer(m_idHelperPixel->wafer_hash_max()); 
+      ATH_CHECK(detStore()->retrieve(m_idHelperPixel,"PixelID"));
+      //	  m_SpacePointContainerPixel = new SpacePointContainer(m_idHelperPixel->wafer_hash_max()); 
 
     }
  
@@ -168,6 +179,12 @@ StatusCode SiTrackerSpacePointFinder::initialize()
 
 StatusCode SiTrackerSpacePointFinder::execute()
 {
+#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT 
+    const EventContext& ctx = getContext();
+#else
+    const EventContext& ctx = *getContext();
+#endif
+
 /*
     if (msgLvl(MSG::DEBUG)){
 	  ATH_MSG_DEBUG( "SiTrackerSpacePointFinder::execute()" );
@@ -198,6 +215,7 @@ StatusCode SiTrackerSpacePointFinder::execute()
 //			   << "' could not be recorded in StoreGate !" );
 //	    return StatusCode::RECOVERABLE;
 //        }
+          m_SpacePointContainerPixel = SG::WriteHandle<SpacePointContainer>( m_SpacePointContainerPixelKey, ctx );
           m_SpacePointContainerPixel = CxxUtils::make_unique<SpacePointContainer>(m_idHelperPixel->wafer_hash_max());
           if (! m_SpacePointContainerPixel.isValid() ){
                msg(MSG:: FATAL) << "SpacePointContainer " << m_SpacePointContainerPixel.name() << "could not be initialised !"<< endmsg;
@@ -210,6 +228,7 @@ StatusCode SiTrackerSpacePointFinder::execute()
     }
   
     if (m_selectSCTs){
+    m_SpacePointContainer_SCT = SG::WriteHandle<SpacePointContainer>( m_SpacePointContainer_SCTKey, ctx );
 	  m_SpacePointContainer_SCT = CxxUtils::make_unique<SpacePointContainer>(m_idHelper->wafer_hash_max());
           if (! m_SpacePointContainer_SCT.isValid() ){
                msg(MSG:: FATAL) << "SpacePointContainer " << m_SpacePointContainer_SCT.name() << "could not be initialised !"<< endmsg;
@@ -225,6 +244,7 @@ StatusCode SiTrackerSpacePointFinder::execute()
     // Note there may not be any, but there could still be pixel clusters.
 //    m_spacepointoverlapCollection = new SpacePointOverlapCollection();
 
+    m_spacepointoverlapCollection = SG::WriteHandle<SpacePointOverlapCollection>( m_spacepointoverlapCollectionKey, ctx );
     m_spacepointoverlapCollection = CxxUtils::make_unique<SpacePointOverlapCollection>();
     if (! m_spacepointoverlapCollection.isValid() ){
        msg(MSG:: FATAL) << "SpacePointOverlapCollection " << m_spacepointoverlapCollection.name() << "could not be initialised !"<< endmsg;
@@ -235,7 +255,9 @@ StatusCode SiTrackerSpacePointFinder::execute()
     ATH_MSG_DEBUG( "Container '" << m_spacepointoverlapCollection.name() << "' initialised" );
     
     if (m_selectSCTs){
+
 	  // retrieve SCT cluster container
+    m_Sct_clcontainer = SG::ReadHandle<SCT_ClusterContainer>( m_Sct_clcontainerKey, ctx );
         if (!m_Sct_clcontainer.isValid()){
           msg(MSG:: FATAL) << "Could not find the data object "<< m_Sct_clcontainer.name() << " !" << endmsg;
           return StatusCode::RECOVERABLE;
@@ -291,6 +313,7 @@ StatusCode SiTrackerSpacePointFinder::execute()
 //	}
 //	ATH_MSG_DEBUG( "Pixel Cluster container found:  " << m_Pixel_clcontainer->size() << " collections" );
 
+      m_Pixel_clcontainer = SG::ReadHandle<PixelClusterContainer>( m_Pixel_clcontainerKey, ctx );
         if (!m_Pixel_clcontainer.isValid()){
           msg(MSG:: FATAL) << "Could not find the data object "<< m_Pixel_clcontainer.name() << " !" << endmsg;
           return StatusCode::RECOVERABLE;
@@ -489,7 +512,7 @@ checkForSCT_Points(const SCT_ClusterCollection* clusters1,
   // Get the cluster collections for these two detectors.
   // Require that (xPhi2 - xPhi1) lie in the range specified.
   // Used for opposite and eta modules
-  
+
   SCT_ClusterContainer::const_iterator
     it(m_Sct_clcontainer->indexFind(id2));
   if (it==m_Sct_clcontainer->end()) return;

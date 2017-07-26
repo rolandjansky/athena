@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Control/SGTools
                           Control/StoreGate
+                          Trigger/TrigEvent/TrigSteeringEvent
                           GaudiKernel
                           PRIVATE
                           Control/CxxUtils )
@@ -30,7 +31,7 @@ atlas_add_component( AthViewsDFlow
                      src_dflow/*.cxx
                      src_dflow/components/*.cxx
                      INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TBB_LIBRARIES} AthenaBaseComps AthenaKernel SGTools StoreGateLib GaudiKernel CxxUtils AthViews )
+                     LINK_LIBRARIES ${TBB_LIBRARIES} AthenaBaseComps AthenaKernel SGTools StoreGateLib GaudiKernel CxxUtils AthViews TrigSteeringEvent )
 
 # Install files from the package:
 atlas_install_headers( AthViews )
