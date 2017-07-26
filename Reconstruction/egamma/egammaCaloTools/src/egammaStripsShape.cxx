@@ -87,7 +87,7 @@ egammaStripsShape::egammaStripsShape(const std::string& type,
   // times 0.025 in eta (corresponds to 19 strips in em barrel)
   //  
   //calculate quantities based on information in a region around the cluster. 
-  declareProperty("Neta",m_neta=2.5,
+  declareProperty("Neta",m_neta=5,
 		  "Number of eta cell in each sampling in which to calculated shower shapes");
 
   declareProperty("Nphi",m_nphi=2.,
@@ -100,6 +100,10 @@ egammaStripsShape::egammaStripsShape(const std::string& type,
   // Calculate some less important variables
   declareProperty("ExecOtherVariables",m_ExecOtherVariables=true,
 		  "Calculate some less important variables");  
+
+  // Use cluster  cells or all cells 
+  declareProperty("UseCellsFromCluster" ,m_UseCellsFromCluster=true,
+		"Use Cells from the cluster");  
 
   InitVariables();
   // initialize the arrays  
@@ -367,7 +371,7 @@ bool egammaStripsShape::FindPosition()
   // if no object then exit
   if (!dde) return false;
   // width in eta is granularity (dde->deta()) times number of cells (m_neta)
-  m_deta = dde->deta()*m_neta;
+  m_deta = dde->deta()*m_neta/2.0;
 
   // use samgran = granularity in first sampling for phi !!!!
   m_calo_dd->decode_sample(m_subcalo, m_barrel, m_sampling_or_module, 
@@ -377,7 +381,7 @@ bool egammaStripsShape::FindPosition()
   // if no object then exit
   if (!dde) return false;
   // width in phi is granularity (dde->dphi()) times number of cells (m_nphi)
-  m_dphi = dde->dphi()*m_nphi/2.;
+  m_dphi = dde->dphi()*m_nphi/2.0;
 
   // Calculate the size of the arrays
   // granularity as for 1st sampling
@@ -401,7 +405,7 @@ bool egammaStripsShape::FindPosition()
   dde = m_calo_dd->get_element(m_subcalo, m_sampling_or_module, m_barrel, m_etamax, m_phimax);
   double deta2 = dde->deta();
 
-  m_sizearrayeta = (int)(2.*m_neta*deta2/deta1);
+  m_sizearrayeta = (int)(m_neta*deta2/deta1);
   m_sizearrayeta = std::min((int)STRIP_ARRAY_SIZE,m_sizearrayeta);
 
   // NB: actually we overwrite this logic as we use a constant size array now
@@ -426,61 +430,60 @@ void egammaStripsShape::setArray(CaloSampling::CaloSample sam,
   //
 
   // two ways can be used to create the array
-  // 1- from the list of cells attached to the cluster
-  //    NB: one has to remember that a strip is added in cluster
-  //        if phi(strip)-phi(layer2)<dphi/2.
-  //        It can happen that in some areas were granularity is different
-  //        that only one value of this is selected,
-  //        and thus no merging is possible in phi
-
+  // 1- From the list of cells attached to the cluster
+  // 2 -Use a calo Cell List
+  // The CaloCellList uses the ATLAS frame
+  
+  
   // temporary array of cell 
   StripArrayHelper stripArray[DOUBLE_STRIP_ARRAY_SIZE];
 
-  // Convert eta, phi to raw.
-  // "raw" stands for Ideal/pointing positions (name is historical) 
-  // the other variables, not labeled as raw, are real and sensitive
-  // to (mis)alignment
-  // in particular it is important in end-cap which is shifted by about 4 cm
+  //Raw --> Calo Frame 
+  //Other variables ATLAS Frame
+  //Difference  is important in end-cap which is shifted by about 4 cm
+  //
   double etaraw = eta;
   double phiraw = phi;
   // look for the corresponding DetDescrElement
   const CaloDetDescrElement* dde =
     m_calo_dd->get_element (sam == CaloSampling::EMB1 ? CaloCell_ID::EMB1 :
-			    CaloCell_ID::EME1,
-                            eta, phi);
+			    CaloCell_ID::EME1, eta, phi);
   // if dde is found 
   if (dde) {
-    etaraw += dde->eta_raw() - dde->eta();
-    phiraw += dde->phi_raw() - dde->phi();
-  } else {
-    // FIX-ME : what to do if dde=0 ! jusr keep (eta,phi) ?
+    etaraw = dde->eta_raw();
+    phiraw = dde->phi_raw();
   }
-  // defines the boundaries around which to select cells
+  else{
+    return;
+  }
+
+
+  //The selection will be done in Raw co-ordinates
+  //defines the boundaries around which to select cells
   double etamin = etaraw - deta;
   double etamax = etaraw + deta;
   double phimin = phiraw - dphi;
-  double phimax = phiraw + dphi;
+  double phimax = phiraw + dphi;  
 
-  
   // index of elements of the array
   int index_array = 0;
   double eta_cell  = 0.;
   double phi_cell0 = 0.;
   double phi_cell  = 0.;
   
-
-  // Now loop over all cells in the cluster  
-  xAOD::CaloCluster::const_cell_iterator first = m_cluster->cell_begin();
-  xAOD::CaloCluster::const_cell_iterator last  = m_cluster->cell_end();
-  for (; first != last; ++first) {        
-    // ensure we are in 1st sampling
-    if( (*first)->caloDDE()->getSampling() == sam ) {
-      // retrieve the eta,phi of the cell
-      eta_cell = (*first)->caloDDE()->eta_raw();
-      // adjust for possible 2*pi offset. 
-      phi_cell0 = (*first)->caloDDE()->phi_raw();
-      phi_cell  = proxim(phi_cell0,phiraw) ;
-      // check if we are within boundaries
+  if(m_UseCellsFromCluster){
+    // Now loop over all cells in the cluster  
+    xAOD::CaloCluster::const_cell_iterator first = m_cluster->cell_begin();
+    xAOD::CaloCluster::const_cell_iterator last  = m_cluster->cell_end();
+    for (; first != last; ++first) {        
+      // ensure we are in 1st sampling
+      if( (*first)->caloDDE()->getSampling() == sam ) {
+	// retrieve the eta,phi of the cell
+	eta_cell = (*first)->caloDDE()->eta_raw();
+	// adjust for possible 2*pi offset. 
+	phi_cell0 = (*first)->caloDDE()->phi_raw();
+	phi_cell  = proxim(phi_cell0,phiraw) ;
+	// check if we are within boundaries
 	if (eta_cell >= etamin && eta_cell <= etamax) {
 	  if (phi_cell >= phimin && phi_cell <= phimax) {	    
 	    // a protection is put to avoid to have an array larger 
@@ -501,13 +504,53 @@ void egammaStripsShape::setArray(CaloSampling::CaloSample sam,
 	    }
 	  }	  
 	}
+      }
+    }
+  }
+  else {
+    CaloCellList *ccl = new CaloCellList(m_cellContainer);
+    //CaloCellList uses ATLAS co-ordinated, make it a bit larger than the final target
+    ccl->select(dde->eta(),dde->phi_raw(),deta*1.25,dphi*1.25,sam);
+    // defines the cells interators
+    CaloCellList::list_iterator first=ccl->begin();
+    CaloCellList::list_iterator last =ccl->end();
+    for (; first != last; ++first) {        
+      // ensure we are in 1st sampling
+      if( (*first)->caloDDE()->getSampling() == sam ) {
+	// retrieve the eta,phi of the cell
+	eta_cell = (*first)->caloDDE()->eta_raw();
+	// adjust for possible 2*pi offset. 
+	phi_cell0 = (*first)->caloDDE()->phi_raw();
+	phi_cell  = proxim(phi_cell0,phiraw) ;
+	// check if we are within boundaries
+	if (eta_cell >= etamin && eta_cell <= etamax) {
+	  if (phi_cell >= phimin && phi_cell <= phimax) {	    
+	    // a protection is put to avoid to have an array larger 
+	    // than 2*STRIP_ARRAY_SIZE
+	    if (index_array<DOUBLE_STRIP_ARRAY_SIZE) {
+	      // energy
+	      stripArray[index_array].energy = (*first)->energy(); 
+	      // eta 
+	      stripArray[index_array].eta  = (*first)->eta();
+	      // eta raw
+	      stripArray[index_array].etaraw  = (*first)->caloDDE()->eta_raw();
+	      // eta granularity
+	      stripArray[index_array].deta  = (*first)->caloDDE()->deta();
+	      // index/number of cells in the array
+	      stripArray[index_array].ncell++;
+	      // increase index 
+	      index_array++;
+	    }
+	  }	  
+	}
+      }
     }
   }
 
   // Exit early if no cells.
-  if (index_array == 0)
+  if (index_array == 0){
     return;
-
+  }
   // sort intermediate array with eta
   std::sort(stripArray,stripArray+index_array);
   
@@ -539,38 +582,25 @@ void egammaStripsShape::setArray(CaloSampling::CaloSample sam,
   }
   // special case for last element which was not treated yet
   int index = index_array-1;
-  //std::cout << " last index = " << index << " " << ieta << std::endl;
   // if previous element had a different eta then append the array
   // NB: this could happen if only one cell in phi was available
   if (index == 0 ||
-      fabs(stripArray[index].etaraw-stripArray[index-1].etaraw)>0.00001)
-  {
+      fabs(stripArray[index].etaraw-stripArray[index-1].etaraw)>0.00001){
     // energy
     if (enecell_arr) enecell_arr[ieta] = stripArray[index].energy;
   }
   if (index != 0 &&
-      fabs(stripArray[index].etaraw-stripArray[index-1].etaraw)<0.00001)
-  {
+      fabs(stripArray[index].etaraw-stripArray[index-1].etaraw)<0.00001){
     // energy
-    if (enecell_arr) enecell_arr[ieta] +=  stripArray[index].energy;
+    if (enecell_arr) {enecell_arr[ieta] +=  stripArray[index].energy;}
   }
   // eta 
-  if (etacell_arr) etacell_arr[ieta] = stripArray[index].eta;
+  if (etacell_arr) {etacell_arr[ieta] = stripArray[index].eta;}
   // eta granularity
-  if (gracell_arr) gracell_arr[ieta] = stripArray[index].deta;
+  if (gracell_arr) {gracell_arr[ieta] = stripArray[index].deta;}
   // index/number of cells in the array
-  if (ncell_arr) ++ncell_arr[ieta];
-  //ieta++;
+  if (ncell_arr) {++ncell_arr[ieta];}
   
-  /*std::cout << " ieta = " << ieta << std::endl;
-  for (int i=0;i<40;i++) {
-    std::cout << " newetacell = " << i
-	      << " " << etacell_arr[i]
-	      << " " << gracell_arr[i]
-	      << " " << enecell_arr[i]
-	      << " " << ncell_arr[i]
-	      << std::endl;
-	      }*/
   return;
 }
 
