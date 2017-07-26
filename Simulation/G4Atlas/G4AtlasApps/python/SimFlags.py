@@ -709,7 +709,7 @@ class TruthStrategy(JobProperty): ## TODO Setting this should automatically upda
     """Steering of ISF: set truthStrategy"""
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = 'MC15'
+    StoredValue  = 'MC12'
     def TruthServiceName(self):
         # Sometimes want to override and use the Validation Truth Service for example
         if  jobproperties.SimFlags.TruthService.statusOn:
