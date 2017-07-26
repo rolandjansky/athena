@@ -626,8 +626,8 @@ void TileDQFragMonTool::fillBadDrawer() {
 
           error = TileRawChannelBuilder::CorruptedData(ROS, drawer, channel, gain, pDigits->samples(), dmin, dmax);
 
-          if ((error > 0) && !(isDisconnected(ROS, drawer, channel)
-                               || m_tileBadChanTool->getAdcStatus(adcId).isBad())) {
+          if ( (error > 0) &&
+              !(isDisconnected(ROS, drawer, channel) || m_tileBadChanTool->getAdcStatus(adcId).isBad()) ) {
             ++nBadCh;
             if (msgLvl(MSG::DEBUG)) {
               msg(MSG::DEBUG) << "LB " << getLumiBlock()
@@ -696,7 +696,6 @@ void TileDQFragMonTool::fillErrHist(int ros, int drawer) {
 /*---------------------------------------------------------*/
 
 
-  //bool hasErr = false;
   int n_error_nonmask_DMU = 0;
   unsigned int cur_lb = getLumiBlock();
 
@@ -746,7 +745,6 @@ void TileDQFragMonTool::fillErrHist(int ros, int drawer) {
       if (m_dqStatus->isChanDQgood(ros + 1, drawer, ichn)) {
         fillOneErrHist(ros, drawer, idmu, 0);
       } else {
-        //hasErr |= CheckhasErr(ros, drawer, idmu);
         if (CheckhasErr(ros, drawer, idmu)) n_error_nonmask_DMU++;
         
         if (err) {
