@@ -57,8 +57,8 @@ StatusCode InsituDataCorrection::initializeTool(const std::string&) {
   //Find the absolute path to the insitu root file
   if ( !insitu_filename.EqualTo("None") ){
     if(m_dev){
+      insitu_filename.Remove(0,32);
       insitu_filename.Insert(0,"JetCalibTools/");
-      insitu_filename.Insert(28,m_calibAreaTag);
     }
     else{insitu_filename.Insert(14,m_calibAreaTag);}
     insitu_filename=PathResolverFindCalibFile(insitu_filename.Data());

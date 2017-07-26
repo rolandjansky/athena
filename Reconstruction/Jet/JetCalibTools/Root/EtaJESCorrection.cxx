@@ -43,8 +43,8 @@ StatusCode EtaJESCorrection::initializeTool(const std::string&) {
   //TString calibFile = FindFile(m_config->GetValue("AbsoluteJES.CalibFile",""));
   TString absoluteJESCalibFile = m_config->GetValue("AbsoluteJES.CalibFile","");
   if(m_dev){
+    absoluteJESCalibFile.Remove(0,33);
     absoluteJESCalibFile.Insert(0,"JetCalibTools/");
-    absoluteJESCalibFile.Insert(28,m_calibAreaTag);
   }
   else{absoluteJESCalibFile.Insert(14,m_calibAreaTag);}
   TString calibFile = PathResolverFindCalibFile(absoluteJESCalibFile.Data());

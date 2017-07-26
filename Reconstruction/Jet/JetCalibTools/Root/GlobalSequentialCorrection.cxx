@@ -80,8 +80,8 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
     return StatusCode::FAILURE;
   }
   if(m_dev){
+    GSCFile.Remove(0,33);
     GSCFile.Insert(0,"JetCalibTools/");
-    GSCFile.Insert(28,m_calibAreaTag);
   }
   else{GSCFile.Insert(14,m_calibAreaTag);}
   TString fileName = PathResolverFindCalibFile(GSCFile.Data());

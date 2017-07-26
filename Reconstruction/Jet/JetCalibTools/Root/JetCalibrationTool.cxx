@@ -31,6 +31,7 @@ JetCalibrationTool::JetCalibrationTool(const std::string& name)
   declareProperty( "IsData", m_isData = true );
   declareProperty( "ConfigDir", m_dir = "JetCalibTools/CalibrationConfigs/" );
   declareProperty( "EventInfoName", m_eInfoName = "EventInfo");
+  declareProperty( "DEVmode", m_devMode = false);
 
 }
 
@@ -83,12 +84,10 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
 
   if ( config.EqualTo("") || !config ) { ATH_MSG_FATAL("No configuration file specified."); return StatusCode::FAILURE; } 
   m_calibAreaTag.insert(0,"CalibArea-00-04-77/"); // Hard-coding the CalibArea tag
-  if(calibSeq.Contains("DEV")){
-    m_devMode = true;
-    ATH_MSG_WARNING("Dev Mode is ON!!! \n\n");
-    ATH_MSG_WARNING("Dev Mode is NOT RECOMMENDED!!! \n\n");
-    dir.insert(0,"JetCalibTools/");
-    dir.insert(28,m_calibAreaTag); // Obtaining the path of the configuration file
+  if(m_devMode){
+    ATH_MSG_WARNING("Dev Mode is ON!!!");
+    ATH_MSG_WARNING("Dev Mode is NOT RECOMMENDED!!!");
+    dir = "JetCalibTools/";
   }
   else{dir.insert(14,m_calibAreaTag);} // Obtaining the path of the configuration file
   std::string configPath=dir+m_config; // Full path
