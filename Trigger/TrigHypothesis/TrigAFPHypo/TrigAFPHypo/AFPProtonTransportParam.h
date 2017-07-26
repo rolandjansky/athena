@@ -14,10 +14,12 @@ public:
   /*! Default destructor of kinRecoVarParam class. */
   ~AFPProtonTransportParam();
 
-  /*! Evaluates value of function */
+  /*! Evaluates value of parameterization given a certain polynomial */
   double evaluate(double x0, double y0, double z0, double sx, double sy, double E) const;
 private:
+  ///Nominal energy
   double m_energy;
+  ///Object of the AFPProtonTransportPolynomial class used for the position calculations
   AFPProtonTransportPolynomial* m_polynomial[8];
 };
 
