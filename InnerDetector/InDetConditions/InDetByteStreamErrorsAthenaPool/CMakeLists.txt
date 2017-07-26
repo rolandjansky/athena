@@ -16,8 +16,7 @@ atlas_depends_on_subdirs(
    AtlasTest/TestTools
    Control/DataModel
    Database/AthenaPOOL/AthenaPoolCnvSvc
-   InnerDetector/InDetConditions/InDetByteStreamErrors
-   InnerDetector/InDetConditions/TRT_ConditionsData )
+   InnerDetector/InDetConditions/InDetByteStreamErrors )
 
 # Component(s) in the package:
 atlas_add_poolcnv_library( InDetByteStreamErrorsAthenaPoolPoolCnv src/*.cxx
@@ -25,13 +24,13 @@ atlas_add_poolcnv_library( InDetByteStreamErrorsAthenaPoolPoolCnv src/*.cxx
    InDetByteStreamErrors/TRT_BSIdErrContainer.h
    InDetByteStreamErrors/TRT_BSErrContainer.h
    LINK_LIBRARIES AthenaPoolUtilities Identifier TestTools DataModel
-   AthenaPoolCnvSvcLib TRT_ConditionsData )
+   AthenaPoolCnvSvcLib )
 
 atlas_add_dictionary( InDetByteStreamErrorsAthenaPoolCnvDict
    InDetByteStreamErrorsAthenaPool/InDetByteStreamErrorsAthenaPoolCnvDict.h
    InDetByteStreamErrorsAthenaPool/selection.xml
    LINK_LIBRARIES AthenaPoolUtilities Identifier TestTools DataModel
-   AthenaPoolCnvSvcLib TRT_ConditionsData )
+   AthenaPoolCnvSvcLib )
 
 # Tests in the package:
 atlas_add_test( InDetBSErrContainerCnv_p1_test
