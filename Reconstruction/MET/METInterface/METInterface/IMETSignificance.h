@@ -18,6 +18,14 @@
 #include "xAODMissingET/MissingETAssociationMap.h"
 #include "xAODJet/JetContainer.h"
 
+namespace met {
+  // Soft term parameterizations
+  enum SoftTermParams{ Random=0,
+		       PthardParam=1,
+		       TSTParam=2
+  };
+}// end met namespace
+
 class IMETSignificance :  virtual public asg::IAsgTool {
   ASG_TOOL_INTERFACE(IMETSignificance)
 
@@ -32,6 +40,7 @@ public:
   // Version with single soft term
   virtual StatusCode varianceMET(xAOD::MissingETContainer* metCont, std::string jetTermName, std::string softTermName, std::string totalMETName)=0;
     
+  virtual StatusCode RotateToPhi(float phi) = 0;
 
   ///////////////////////////////////////////////////////////////////
   // Additional utility commands

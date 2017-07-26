@@ -73,6 +73,12 @@ namespace met {
   //**********************************************************************
 
   StatusCode METSignificanceAlg::execute() {
+    /******************************
+
+This is a dummy function. Functionality will be added soon.
+
+    *******************************/
+
     ATH_MSG_VERBOSE("Executing " << name() << "...");
 
     // Create a MissingETContainer with its aux store

@@ -83,26 +83,31 @@ namespace met {
       m_egammaCalibTool(""),
       m_tCombinedP4FromRecoTaus(""),
       m_GeV(1.0e3),
+      m_softTermParam(met::Random),
       m_significance(0.0),
       m_rho(0.0),
       m_VarL(0.0),
       m_VarT(0.0),
+      m_CvLT(0.0),
+      m_met_VarL(0.0),
+      m_met_VarT(0.0),
+      m_met_CvLT(0.0),
       m_met(0.0),
       m_metphi(0.0),
       m_ht(0.0),
       m_sumet(0.0)
     {
-        //
-        // Property declaration
-        //
-        declareProperty("SoftTermParam",  m_softTermParam = 0       );
-        declareProperty("SoftTermReso",   m_softTermReso  = 10.0    );
-        declareProperty("TreatPUJets",    m_treatPUJets   = true    );
-        declareProperty("DoPhiReso",      m_doPhiReso     = false   );
-
-	// properties to delete eventually
-        declareProperty("IsData",      m_isData     = false   );
-        declareProperty("IsAFII",      m_isAFII     = false   );
+      //
+      // Property declaration
+      //
+      declareProperty("SoftTermParam",  m_softTermParam = met::Random );
+      declareProperty("SoftTermReso",   m_softTermReso  = 10.0        );
+      declareProperty("TreatPUJets",    m_treatPUJets   = true        );
+      declareProperty("DoPhiReso",      m_doPhiReso     = false       );
+      
+      // properties to delete eventually
+      declareProperty("IsData",      m_isData     = false   );
+      declareProperty("IsAFII",      m_isAFII     = false   );
 
     }
     
@@ -188,6 +193,7 @@ namespace met {
 	}
 
 	
+	// Fill the remaining terms
         for(const auto& met : *metCont) {
 
 	  // skip the invisible and total MET
@@ -208,25 +214,9 @@ namespace met {
 	    }
 	    ++nIterSoft;
 	    softSumET=(met->sumet()/m_GeV);
-	    if(m_softTermParam==0){
-	      
-	      ATH_MSG_VERBOSE("Resolution Soft term set to 10GeV");
-	      varx = m_softTermReso*m_softTermReso;
-	      vary = varx; covxy=0.0; //covxy = varx;// treating as uncorrelated
-	      // Rotation (components)
-	      std::tie(Var_L, Var_T, Cv_LT) = CovMatrixRotation(varx , vary, covxy, m_metphi);
-	      //Covariance matrix rotated for all jets
-	      Var_L_j += Var_L;
-	      Var_T_j += Var_T;
-	      Cv_LT_j += Cv_LT;
-	      
-	      ATH_MSG_VERBOSE("SOFT " << met->name() <<" - pt_reso: " << m_softTermReso << " met: " << met->met() << " phi: " << met->phi()
-			<< " " << varx << " " << vary << " Var_L: " << Var_L << " Var_T: " << Var_T 
-			      << " " << Cv_LT);
-	      
-	    }else{
-	      ATH_MSG_ERROR("Soft term parameterization is NOT defined for:" << m_softTermParam);
-	    }
+
+
+	    AddSoftTerm(met, Var_L_j, Var_T_j, Cv_LT_j);
 	    // done with the soft term. go to the next term.
 	    continue;
 	  }
@@ -235,66 +225,20 @@ namespace met {
 	    const IParticle* obj(*el);
 	    float pt_reso=0.0;
 	    if(obj->type()==xAOD::Type::Muon){
-	      const xAOD::Muon* muon(static_cast<const xAOD::Muon*>(obj)); 
-	      
-	      int dettype=-1;
-	      if(muon->muonType()==0){//Combined
-		dettype=3;//CB
-	      }
-	      if(muon->muonType()==1){//MuonStandAlone
-		dettype=1;//MS
-	      }
-	      if(muon->muonType()>1){//Segment, Calo, Silicon
-		dettype=2;//ID
-	      }
-	      
-	      xAOD::Muon *my_muon = NULL;
-	      ATH_CHECK(m_muonCalibrationAndSmearingTool->correctedCopy(*muon,my_muon)==CP::CorrectionCode::Ok);
-	      pt_reso=m_muonCalibrationAndSmearingTool->expectedResolution(dettype,*my_muon,!m_isData);
-	      ATH_MSG_VERBOSE("muon: " << pt_reso << " dettype: " << dettype << " " << muon->pt() << " " << muon->p4().Eta() << " " << muon->p4().Phi());
-	      delete my_muon;
+	      ATH_CHECK(AddMuon(obj, pt_reso));
 	    }else if(obj->type()==xAOD::Type::Jet){
 	      
 	      // make sure the container name matches
 	      if(met->name()!=jetTermName) continue;
 	      
-	      const xAOD::Jet* jet(static_cast<const xAOD::Jet*>(obj));
-	      if(m_isData) pt_reso = m_jerTool->getRelResolutionData(jet);
-	      else         pt_reso = m_jerTool->getRelResolutionMC(jet);
-	      ATH_MSG_VERBOSE("jet: " << pt_reso << " met: " << met->met()  << " jetpT: " << jet->pt() << " " << jet->p4().Eta() << " " << jet->p4().Phi());
-	      //
-	      // Add extra uncertainty for PU jets based on JVT
-	      //
-	      if(m_treatPUJets){
-		double jet_pu_unc  = GetPUProb(jet->eta(), jet->phi(),jet->pt()/m_GeV, acc_jvt(*jet))/4.0;
-		pt_reso = sqrt(jet_pu_unc*jet_pu_unc + pt_reso*pt_reso);
-		ATH_MSG_VERBOSE("jet_pu_unc: " << jet_pu_unc);
-	      }
-	      //
-	      // Use the phi resolution of the jets
-	      // needs to be finished
-	      //
-	      //if(m_doPhiReso){
-	      //	double jet_phi_unc = GetPhiUnc(jet->eta(), jet->phi(),jet->pt()/m_GeV);
-	      //}
+	      AddJet(obj, pt_reso);
 	      
 	    }else if(obj->type()==xAOD::Type::Electron){
-	      // electrons
-	      const xAOD::Electron* ele(static_cast<const xAOD::Electron*>(obj)); 
-	      const auto cl_etaCalo = xAOD::get_eta_calo(*(ele->caloCluster()), ele->author());
-	      pt_reso=m_egammaCalibTool->resolution(ele->e(),ele->caloCluster()->eta(),cl_etaCalo,PATCore::ParticleType::Electron);
-	      ATH_MSG_VERBOSE("el: " << pt_reso << " " << ele->pt() << " " << ele->p4().Eta() << " " << ele->p4().Phi());
-	      
+	      AddElectron(obj, pt_reso);
 	    }else if(obj->type()==xAOD::Type::Photon){
-	      // photons
-	      const xAOD::Egamma* pho(static_cast<const xAOD::Egamma*>(obj)); 
-	      pt_reso=m_egammaCalibTool->getResolution(*pho);
-	      ATH_MSG_VERBOSE("pho: " << pt_reso << " " << pho->pt() << " " << pho->p4().Eta() << " " << pho->p4().Phi());
+	      AddPhoton(obj, pt_reso);
 	    }else if(obj->type()==xAOD::Type::Tau){
-	      // tau objects
-	      const xAOD::TauJet* tau(static_cast<const xAOD::TauJet*>(obj)); 
-	      pt_reso = dynamic_cast<CombinedP4FromRecoTaus*>(m_tCombinedP4FromRecoTaus.get())->GetCaloResolution(tau);
-	      ATH_MSG_VERBOSE("tau: " << pt_reso << " " << tau->pt() << " " << tau->p4().Eta() << " " << tau->p4().Phi());
+	      AddTau(obj, pt_reso);
 	    }
 	    
 	    ATH_MSG_VERBOSE("Resolution: " << pt_reso);
@@ -326,21 +270,23 @@ namespace met {
         }
 
 	// fill variables
-	Var_L = Var_L_j;
-	Var_T = Var_T_j;
-	Cv_LT = Cv_LT_j;
+	m_VarL = Var_L_j;
+	m_VarT = Var_T_j;
+	m_CvLT = Cv_LT_j;
 
-	if( Var_L != 0 ){
-	  Double_t Significance = Significance_LT(m_met,Var_L,Var_T,Cv_LT );
+	
+	// setting the MET directed variables for later phi rotations if requested
+	m_met_VarL=m_VarL;
+	m_met_VarT=m_VarT;
+	m_met_CvLT=m_CvLT;
+	
+	if( m_VarL != 0 ){
+	  m_significance = Significance_LT(m_met, m_VarL, m_VarT, m_CvLT);
 	  
-	  Double_t Rho = Cv_LT  / sqrt( Var_L * Var_T ) ;
-	  m_significance = Significance;
-	  m_rho = Rho;
-	  m_VarL = Var_L;
-	  m_VarT = Var_T;
+	  m_rho = m_CvLT / sqrt( m_VarL * m_VarT ) ;
 	  m_ht-=softSumET;
 	  
-	  ATH_MSG_VERBOSE("     Significance (squared): " << Significance << " rho: " << GetRho()
+	  ATH_MSG_VERBOSE("     Significance (squared): " << m_significance << " rho: " << GetRho()
 		       << " MET: " << m_met << " phi: " << m_metphi << " SUMET: " << m_sumet << " HT: " << m_ht << " sigmaL: " << GetVarL()
 			  << " sigmaT: " << GetVarT() << " MET/sqrt(SumEt): " << GetMETOverSqrtSumET()
 			  << " MET/sqrt(HT): " << GetMETOverSqrtHT()
@@ -353,8 +299,148 @@ namespace met {
         return StatusCode::SUCCESS;
     }
 
+  
+  // Add access to rotate the direction of the MET resolution to a new phi position
+  StatusCode METSignificance::RotateToPhi(float phi){
+
+    // Rotation (components)
+    std::tie(m_VarL, m_VarT, m_CvLT) = CovMatrixRotation(m_met_VarL , m_met_VarT, m_met_CvLT, (phi-m_metphi));
+
+    if( m_VarL != 0 ){
+      m_significance = Significance_LT(m_met,m_VarL,m_VarT,m_CvLT );
+      m_rho = m_CvLT  / sqrt( m_VarL * m_VarT ) ;
+    }
+    ATH_MSG_VERBOSE("     Significance (squared) at new phi: " << m_significance 
+		    << " rho: " << GetRho()
+		    << " MET: " << m_met 
+		    << " sigmaL: " << GetVarL()
+		    << " sigmaT: " << GetVarT() );
+
+    return StatusCode::SUCCESS;
+  }
+
+  ///////////////////////////////////////////////////////////////////
+  //  Private methods
+  ///////////////////////////////////////////////////////////////////
+  //
+  // Muon propagation of resolution
+  //
+  StatusCode METSignificance::AddMuon(const xAOD::IParticle* obj, float &pt_reso){
+    const xAOD::Muon* muon(static_cast<const xAOD::Muon*>(obj)); 
+	      
+    int dettype=-1;
+    if(muon->muonType()==0){//Combined
+      dettype=3;//CB
+    }
+    if(muon->muonType()==1){//MuonStandAlone
+      dettype=1;//MS
+    }
+    if(muon->muonType()>1){//Segment, Calo, Silicon
+      dettype=2;//ID
+    }
     
-    
+    xAOD::Muon *my_muon = NULL;
+    ATH_CHECK(m_muonCalibrationAndSmearingTool->correctedCopy(*muon,my_muon)==CP::CorrectionCode::Ok);
+    pt_reso=m_muonCalibrationAndSmearingTool->expectedResolution(dettype,*my_muon,!m_isData);
+    ATH_MSG_VERBOSE("muon: " << pt_reso << " dettype: " << dettype << " " << muon->pt() << " " << muon->p4().Eta() << " " << muon->p4().Phi());
+    delete my_muon;
+
+    return StatusCode::SUCCESS;
+  }
+
+  //
+  // Electron propagation of resolution
+  //
+  void METSignificance::AddElectron(const xAOD::IParticle* obj, float &pt_reso){
+
+    const xAOD::Electron* ele(static_cast<const xAOD::Electron*>(obj)); 
+    const auto cl_etaCalo = xAOD::get_eta_calo(*(ele->caloCluster()), ele->author());
+    pt_reso=m_egammaCalibTool->resolution(ele->e(),ele->caloCluster()->eta(),cl_etaCalo,PATCore::ParticleType::Electron);
+    ATH_MSG_VERBOSE("el: " << pt_reso << " " << ele->pt() << " " << ele->p4().Eta() << " " << ele->p4().Phi());
+
+  }
+
+  //
+  // Photon propagation of resolution
+  //
+  void METSignificance::AddPhoton(const xAOD::IParticle* obj, float &pt_reso){
+
+    // photons
+    const xAOD::Egamma* pho(static_cast<const xAOD::Egamma*>(obj)); 
+    pt_reso=m_egammaCalibTool->getResolution(*pho);
+    ATH_MSG_VERBOSE("pho: " << pt_reso << " " << pho->pt() << " " << pho->p4().Eta() << " " << pho->p4().Phi());
+  }
+
+  //
+  // Jet propagation of resolution
+  //
+  void METSignificance::AddJet(const xAOD::IParticle* obj, float &pt_reso){
+
+    const xAOD::Jet* jet(static_cast<const xAOD::Jet*>(obj));
+    if(m_isData) pt_reso = m_jerTool->getRelResolutionData(jet);
+    else         pt_reso = m_jerTool->getRelResolutionMC(jet);
+    ATH_MSG_VERBOSE("jet: " << pt_reso  << " jetpT: " << jet->pt() << " " << jet->p4().Eta() << " " << jet->p4().Phi());
+    //
+    // Add extra uncertainty for PU jets based on JVT
+    //
+    if(m_treatPUJets){
+      double jet_pu_unc  = GetPUProb(jet->eta(), jet->phi(),jet->pt()/m_GeV, acc_jvt(*jet))/4.0;
+      pt_reso = sqrt(jet_pu_unc*jet_pu_unc + pt_reso*pt_reso);
+      ATH_MSG_VERBOSE("jet_pu_unc: " << jet_pu_unc);
+    }
+    //
+    // Use the phi resolution of the jets
+    // needs to be finished
+    //
+    //if(m_doPhiReso){
+    //	double jet_phi_unc = GetPhiUnc(jet->eta(), jet->phi(),jet->pt()/m_GeV);
+    //}
+  }
+
+  //
+  // Tau propagation of resolution
+  //
+  void METSignificance::AddTau(const xAOD::IParticle* obj, float &pt_reso){
+
+    // tau objects
+    const xAOD::TauJet* tau(static_cast<const xAOD::TauJet*>(obj)); 
+    pt_reso = dynamic_cast<CombinedP4FromRecoTaus*>(m_tCombinedP4FromRecoTaus.get())->GetCaloResolution(tau);
+    ATH_MSG_VERBOSE("tau: " << pt_reso << " " << tau->pt() << " " << tau->p4().Eta() << " " << tau->p4().Phi());
+  }
+
+  //
+  // Soft term propagation of resolution
+  //
+  void METSignificance::AddSoftTerm(const xAOD::MissingET* met, double &Var_L_j, double &Var_T_j, double &Cv_LT_j){
+
+    if(m_softTermParam==met::Random){
+      
+      float varx=0;
+      float vary=0;
+      float covxy=0;
+
+      double Var_L=0.0, Var_T=0.0, Cv_LT=0.0;
+
+      ATH_MSG_VERBOSE("Resolution Soft term set to 10GeV");
+      varx = m_softTermReso*m_softTermReso;
+      vary = varx; covxy=0.0; //covxy = varx;// treating as uncorrelated
+      // Rotation (components)
+      std::tie(Var_L, Var_T, Cv_LT) = CovMatrixRotation(varx , vary, covxy, m_metphi);
+      //Covariance matrix rotated for all jets
+      Var_L_j += Var_L;
+      Var_T_j += Var_T;
+      Cv_LT_j += Cv_LT;
+      
+      ATH_MSG_VERBOSE("SOFT " << met->name() <<" - pt_reso: " << m_softTermReso << " met: " << met->met() << " phi: " << met->phi()
+		      << " " << varx << " " << vary << " Var_L: " << Var_L << " Var_T: " << Var_T 
+		      << " " << Cv_LT);
+      
+    }else{
+      ATH_MSG_ERROR("Soft term parameterization is NOT defined for:" << m_softTermParam);
+    }
+
+  }
+
     ///////////////////////////////////////////////////////////////////
     // Const methods:
     ///////////////////////////////////////////////////////////////////

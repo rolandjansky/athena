@@ -35,6 +35,8 @@ class ITauToolBase;
 // Forward declaration
 namespace met {
 
+  using xAOD::IParticle;
+
   // typedefs
   typedef ElementLink<xAOD::IParticleContainer> obj_link_t;
 
@@ -65,6 +67,7 @@ namespace met {
       
     StatusCode varianceMET(xAOD::MissingETContainer* metCont, std::string jetTermName, std::string softTermName, std::string totalMETName);
 
+    StatusCode RotateToPhi(float phi);
 
     ///////////////////////////////////////////////////////////////////
     // Const methods:
@@ -95,6 +98,13 @@ namespace met {
     asg::AnaToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_egammaCalibTool;
     asg::AnaToolHandle<ITauToolBase>                          m_tCombinedP4FromRecoTaus;
 
+    StatusCode AddMuon    (const xAOD::IParticle* obj, float &pt_reso);
+    void AddElectron(const xAOD::IParticle* obj, float &pt_reso);
+    void AddPhoton  (const xAOD::IParticle* obj, float &pt_reso);
+    void AddJet     (const xAOD::IParticle* obj, float &pt_reso);
+    void AddTau     (const xAOD::IParticle* obj, float &pt_reso);
+    void AddSoftTerm(const xAOD::MissingET* met, double &Var_L_j, double &Var_T_j, double &Cv_LT_j);
+
     double GetPUProb(double jet_eta, double jet_phi,double jet_pt,  double jet_jvt);
     double GetPhiUnc(double jet_eta, double jet_phi,double jet_pt);
 
@@ -117,6 +127,12 @@ namespace met {
     double m_rho;
     double m_VarL;
     double m_VarT;
+    double m_CvLT;
+
+    double m_met_VarL;
+    double m_met_VarT;
+    double m_met_CvLT;
+
     double m_met;
     double m_metphi;
     double m_ht;

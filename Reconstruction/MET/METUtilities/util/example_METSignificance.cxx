@@ -61,12 +61,8 @@ using namespace asg::msgUserCode;
 
 int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl;
 #ifdef XAOD_STANDALONE
-  //enable status code failures
-  //  CP::CorrectionCode::enableFailure();
-  //  CP::SystematicCode::enableFailure();
   StatusCode::enableFailure();
   xAOD::TReturnCode::enableFailure();
-  //xAOD::Init() ;
 #else
   IAppMgrUI* app = POOL::Init(); //important to do this first!
 #endif
@@ -91,7 +87,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
   ANA_CHECK( ASG_MAKE_ANA_TOOL( jetCalibrationTool, JetCalibrationTool ) );
   jetCalibrationTool.setName("jetCalibTool");
   ANA_CHECK( jetCalibrationTool.setProperty("JetCollection", jetType) );
-  ANA_CHECK( jetCalibrationTool.setProperty("ConfigFile", "JES_MC15cRecommendation_May2016.config") );
+  ANA_CHECK( jetCalibrationTool.setProperty("ConfigFile", "JES_MC15cRecommendation_May2016_rel21.config") );
   ANA_CHECK( jetCalibrationTool.setProperty("CalibSequence", "JetArea_Residual_EtaJES_GSC") );
   ANA_CHECK( jetCalibrationTool.setProperty("IsData", false) );
   ANA_CHECK( jetCalibrationTool.retrieve() );
@@ -116,7 +112,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
   
   asg::AnaToolHandle<IMETSignificance> metSignif;
   metSignif.setTypeAndName("met::METSignificance/metSignif");
-  ANA_CHECK( metSignif.setProperty("SoftTermParam", 0) );
+  ANA_CHECK( metSignif.setProperty("SoftTermParam", met::Random) );
   ANA_CHECK( metSignif.setProperty("TreatPUJets",   true) );
   ANA_CHECK( metSignif.retrieve() );
   
@@ -138,12 +134,8 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
     ANA_CHECK( event->retrieve(coreMet, coreMetKey) );
     if(debug) std::cout << "Using core MET " << coreMet << std::endl;
 
-    //if you wanted to make a particle invisible to MET, i.e., remove the particle and
-    //its clusters/tracks from the MET calculation, you can make a container of invisible particles
-    //and then use selectIfNoOverlaps (below)
-    //in this example, we will treat electrons as invisible
-    const xAOD::ElectronContainer* invisibleElectrons = nullptr;
-    ANA_CHECK( event->retrieve(invisibleElectrons, "Electrons") );
+    const xAOD::ElectronContainer* electrons = nullptr;
+    ANA_CHECK( event->retrieve(electrons, "Electrons") );
 
     const xAOD::MuonContainer* muons = nullptr;
     ANA_CHECK( event->retrieve(muons, "Muons") );
@@ -184,25 +176,18 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
     metMap->resetObjSelectionFlags();
 
     //here we apply some basic cuts and rebuild the met at each step
-    //InvisibleElectrons
-    if(!invisibleElectrons->empty()){
-      ConstDataVector<xAOD::ElectronContainer> metInvisibleElectrons(SG::VIEW_ELEMENTS);
-      for(const auto& el : *invisibleElectrons) {
+    if(!electrons->empty()){
+      ConstDataVector<xAOD::ElectronContainer> metElectrons(SG::VIEW_ELEMENTS);
+      for(const auto& el : *electrons) {
 	if(CutsMETMaker::accept(el)){
-	  metInvisibleElectrons.push_back(el);
+	  metElectrons.push_back(el);
 	}
       }
-      //this line will mark the electron as invisible if it passes the (inv) electron selection cut
-      //this removes the particle and associated clusters from the jet and soft term calculations
-      //ANA_CHECK( metMaker->markInvisible(metInvisibleElectrons.asDataVector(),metMap,newMetContainer) );
-      // NOTE: Objects marked as invisible should not also be added as part
-      // of another term! However, you can e.g. mark some electrons invisible
-      // and compute RefEle with others.
 
       ANA_CHECK(metMaker->rebuildMET("RefEle",
 			       xAOD::Type::Electron,
 			       newMetContainer,
-			       metInvisibleElectrons.asDataVector(),
+			       metElectrons.asDataVector(),
 			       metMap)
 	   );
     }
@@ -258,18 +243,6 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 				    false            //don't apply jet jvt cut
 				    )
 	     );
-    /*
-    ANA_CHECK( metMaker->rebuildTrackMET("RefJetTrk",    //name of jet track met
-				      "PVSoftTrk",	  //name of soft track term met
-				      newMetContainer,//adding to this new met container
-				      calibJets,	  //using this jet collection to calculate jet track met
-				      coreMet,	  //core met container
-				      metMap,	  //with this association map
-				      false		  //don't apply jet jvt cut
-				      )
-				      );
-    */
-
 
     //this builds the final track and cluster met sums, using systematic varied container
     ANA_CHECK( metMaker->buildMETSum("FinalTrk" , newMetContainer, MissingETBase::Source::Track ) );
@@ -310,6 +283,9 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 		  << std::endl;
     }
       
+    // extracting the MET significance
+    std::cout << "MET significance: " << metSignif->GetSignificance() << std::endl;
+
     ANA_CHECK(store->record( newMetContainer,    "FinalMETContainer"    ));
     ANA_CHECK(store->record( newMetAuxContainer, "FinalMETContainerAux."));
 

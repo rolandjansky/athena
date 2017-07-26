@@ -72,9 +72,6 @@ namespace met {
   static const SG::AuxElement::Decorator< std::vector<iplink_t> > dec_constitObjLinks("ConstitObjectLinks");
   static const SG::AuxElement::Decorator< std::vector<float> > dec_constitObjWeights("ConstitObjectWeights");
 
-  static const SG::AuxElement::Decorator< float > dec_uniqueFrac("UniqueFrac");
-  static const SG::AuxElement::Decorator< float > dec_METPtDiff("METPtDiff");
-
   // Implement dphi as well if we start correcting the jet phi.
   // static const SG::AuxElement::Decorator< std::vector<float> > dec_constitObjDphis("ConstitObjectDphis");
 
@@ -785,8 +782,6 @@ namespace met {
 	double opt = sqrt( opx*opx+opy*opy );
 	ATH_MSG_VERBOSE("Jet " << jet->index() << " const pT diff after OR readding muon clusters " << opt-jpt);
 	double uniquefrac = 1. - (calvec.ce() - mu_calovec.ce()) / constjet.E();
-	dec_uniqueFrac(*jet)=uniquefrac;
-	dec_METPtDiff(*jet)=opt;
 	ATH_MSG_VERBOSE( "Jet constscale px, py, pt, E = " << jpx << ", " << jpy << ", " << jpt << ", " << constjet.E() );
 	ATH_MSG_VERBOSE( "Jet overlap E = " << calvec.ce() - mu_calovec.ce() );
 	ATH_MSG_VERBOSE( "Jet OR px, py, pt, E = " << opx << ", " << opy << ", " << opt << ", " << constjet.E() - calvec.ce() );
