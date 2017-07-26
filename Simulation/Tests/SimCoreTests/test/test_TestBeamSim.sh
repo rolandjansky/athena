@@ -3,7 +3,6 @@
 # art-description: Run test-beam simulation outside ISF, generating events on-the-fly, writing HITS
 # art-type: grid
 
-#FIXME need to copy input file to CVMFS
 TestBeam_tf.py --outputHITSFile 'test.HITS.pool.root' --maxEvents '10' --Eta '0.35' --testBeamConfig 'tbtile' --postInclude 'PyJobTransforms/UseFrontier.py'
 
 SCRIPT_DIRECTORY=$1
