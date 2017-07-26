@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "G4UserActions/PhotonKillerTool.h"
 
 namespace G4UA
@@ -22,7 +21,7 @@ namespace G4UA
   std::unique_ptr<PhotonKiller> PhotonKillerTool::makeAction()
   {
     ATH_MSG_DEBUG("makeAction");
-    return CxxUtils::make_unique<PhotonKiller>();
+    return std::make_unique<PhotonKiller>();
   }
 
 } // namespace G4UA

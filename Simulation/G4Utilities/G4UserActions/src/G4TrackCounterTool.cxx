@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "G4UserActions/G4TrackCounterTool.h"
 
 namespace G4UA
@@ -54,8 +53,7 @@ namespace G4UA
   G4TrackCounterTool::makeAction()
   {
     ATH_MSG_DEBUG("makeAction");
-    auto action = CxxUtils::make_unique<G4TrackCounter>();
-    return std::move(action);
+    return std::make_unique<G4TrackCounter>();
   }
 
 }
