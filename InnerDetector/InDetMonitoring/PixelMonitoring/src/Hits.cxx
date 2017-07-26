@@ -387,7 +387,7 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
   memset(m_HitPerEventArray_lI, 0, sizeof(m_HitPerEventArray_lI[0][0]) * nmod_phi[PixLayer::kIBL] * nmod_eta[PixLayer::kIBL]);
 
   double nhits = 0;
-  double nhits_mod[PixLayerIBL2D3D::COUNT] = {0};
+  double nhits_mod[PixLayerIBL2D3DDBM::COUNT] = {0};
 
   int fewithHits_EA[nmod_phi[PixLayer::kECA]][nmod_eta[PixLayer::kECA]][16];
   int fewithHits_EC[nmod_phi[PixLayer::kECC]][nmod_eta[PixLayer::kECC]][16];
@@ -413,13 +413,13 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
   int nChannels_mod[PixLayerIBL2D3D::COUNT] = {46080, 46080, 46080, 46080, 46080, 26880, 53760, 26880};
   double inv_nChannels_mod[PixLayerIBL2D3D::COUNT];
   double nGoodChannels_total = 0.;
-  double nGoodChannels_layer[PixLayerIBL2D3D::COUNT];
-  double nActiveChannels_layer[PixLayerIBL2D3D::COUNT];
+  double nGoodChannels_layer[PixLayerIBL2D3DDBM::COUNT];
+  double nActiveChannels_layer[PixLayerIBL2D3DDBM::COUNT];
   for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
     inv_nChannels_mod[i] = 1.0 / (1.0 * nChannels_mod[i]);
-    nGoodChannels_layer[i] = 1.0 * nChannels_mod[i] * m_nGood_mod[getPixLayerIDWithDBM(i)];
-    nActiveChannels_layer[i] = 1.0 * nChannels_mod[i] * m_nActive_mod[getPixLayerIDWithDBM(i)];
-    nGoodChannels_total = +nGoodChannels_layer[i];
+    nGoodChannels_layer[getPixLayerIDWithDBM(i)] = 1.0 * nChannels_mod[i] * m_nGood_mod[getPixLayerIDWithDBM(i)];
+    nActiveChannels_layer[getPixLayerIDWithDBM(i)] = 1.0 * nChannels_mod[i] * m_nActive_mod[getPixLayerIDWithDBM(i)];
+    nGoodChannels_total = +nGoodChannels_layer[getPixLayerIDWithDBM(i)];
   }
 
   StatusCode sc;
@@ -556,7 +556,7 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
       }
       if (m_pixel_occupancy) m_pixel_occupancy->fill(m_pixelid->eta_index(rdoID), m_pixelid->phi_index(rdoID), rdoID, m_pixelid);
 
-      if (pixlayer != 99) nhits_mod[pixlayer]++;
+      if (pixlayer != 99) nhits_mod[pixlayerdbm]++;
       nhits++;
       nhitsM1++;
       nhitsM2++;
@@ -617,36 +617,36 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
 
   if (m_hits_per_lumi) m_hits_per_lumi->Fill(m_manager->lumiBlockNumber(), nhits);
   for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
-    if (m_hits_per_lumi_mod[i]) m_hits_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), nhits_mod[i]);
+    if (m_hits_per_lumi_mod[i]) m_hits_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), nhits_mod[getPixLayerIDWithDBM(i)]);
   }
 
   if (!m_doOnline && m_occupancy_pix_evt && m_hitmap_tmp) m_occupancy_pix_evt->fillFromMap(m_hitmap_tmp.get(), true);
 
   double avgocc = 0;
-  double avgocc_mod[PixLayerIBL2D3D::COUNT] = {0};
-  double avgocc_active_mod[PixLayerIBL2D3D::COUNT] = {0};
+  double avgocc_mod[PixLayerIBL2D3DDBM::COUNT] = {0};
+  double avgocc_active_mod[PixLayerIBL2D3DDBM::COUNT] = {0};
   if (nGoodChannels_total > 0) avgocc = nhits / nGoodChannels_total;
   if (m_avgocc_per_lumi) m_avgocc_per_lumi->Fill(m_manager->lumiBlockNumber(), avgocc);
 
   for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
-    if (nGoodChannels_layer[i] > 0) avgocc_mod[i] = nhits_mod[i] / nGoodChannels_layer[i];
-    if (nActiveChannels_layer[i] > 0) avgocc_active_mod[i] = nhits_mod[i] / nActiveChannels_layer[i];
+    if (nGoodChannels_layer[getPixLayerIDWithDBM(i)] > 0) avgocc_mod[getPixLayerIDWithDBM(i)] = nhits_mod[getPixLayerIDWithDBM(i)] / nGoodChannels_layer[getPixLayerIDWithDBM(i)];
+    if (nActiveChannels_layer[getPixLayerIDWithDBM(i)] > 0) avgocc_active_mod[getPixLayerIDWithDBM(i)] = nhits_mod[getPixLayerIDWithDBM(i)] / nActiveChannels_layer[getPixLayerIDWithDBM(i)];
 
-    if (m_avgocc_per_lumi_mod[i]) m_avgocc_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), avgocc_mod[i]);
-    if (m_avgocc_per_bcid_mod[i]) m_avgocc_per_bcid_mod[i]->Fill(pix_rod_bcid, avgocc_mod[i]);
-    if (m_avgocc_active_per_lumi_mod[i]) m_avgocc_active_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), avgocc_active_mod[i]);
+    if (m_avgocc_per_lumi_mod[i]) m_avgocc_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), avgocc_mod[getPixLayerIDWithDBM(i)]);
+    if (m_avgocc_per_bcid_mod[i]) m_avgocc_per_bcid_mod[i]->Fill(pix_rod_bcid, avgocc_mod[getPixLayerIDWithDBM(i)]);
+    if (m_avgocc_active_per_lumi_mod[i]) m_avgocc_active_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), avgocc_active_mod[getPixLayerIDWithDBM(i)]);
 
-    if (m_maxocc_per_lumi_mod[i]) m_maxocc_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), avgocc_active_mod[i]);
+    if (m_maxocc_per_lumi_mod[i]) m_maxocc_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), avgocc_active_mod[getPixLayerIDWithDBM(i)]);
     if (m_maxocc_per_bcid_mod[i]) {
       int bin = m_maxocc_per_bcid_mod[i]->GetXaxis()->FindBin(1.0 * pix_rod_bcid);
       double content = m_maxocc_per_bcid_mod[i]->GetBinContent(bin);
-      if (avgocc_mod[i] > content) m_maxocc_per_bcid_mod[i]->SetBinContent(bin, avgocc_mod[i]);
+      if (avgocc_mod[getPixLayerIDWithDBM(i)] > content) m_maxocc_per_bcid_mod[i]->SetBinContent(bin, avgocc_mod[getPixLayerIDWithDBM(i)]);
     }
-    if (m_totalhits_per_bcid_mod[i]) m_totalhits_per_bcid_mod[i]->Fill(1.0 * pix_rod_bcid, nhits_mod[i]);
-    if (avgocc_mod[i] > 0.0007 && m_nlargeevt_per_lumi_mod[i]) m_nlargeevt_per_lumi_mod[i]->Fill(m_lumiBlockNum);
+    if (m_totalhits_per_bcid_mod[i]) m_totalhits_per_bcid_mod[i]->Fill(1.0 * pix_rod_bcid, nhits_mod[getPixLayerIDWithDBM(i)]);
+    if (avgocc_mod[getPixLayerIDWithDBM(i)] > 0.0007 && m_nlargeevt_per_lumi_mod[i]) m_nlargeevt_per_lumi_mod[i]->Fill(m_lumiBlockNum);
   }
 
-  if (avgocc_mod[PixLayer::kB0] > 0 && m_avgocc_ratioIBLB0_per_lumi) m_avgocc_ratioIBLB0_per_lumi->Fill(m_manager->lumiBlockNumber(), avgocc_mod[PixLayer::kIBL] / avgocc_mod[PixLayer::kB0]);
+  if (avgocc_mod[PixLayerIBL2D3DDBM::kB0] > 0 && m_avgocc_ratioIBLB0_per_lumi) m_avgocc_ratioIBLB0_per_lumi->Fill(m_manager->lumiBlockNumber(), avgocc_mod[PixLayerIBL2D3DDBM::kIBL] / avgocc_mod[PixLayerIBL2D3DDBM::kB0]);
 
   if (m_Atlas_BCID_hits) m_Atlas_BCID_hits->Fill(pix_rod_bcid, nhits);
 
