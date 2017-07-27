@@ -12,10 +12,9 @@
 
 // $Id: DataProxy.icc,v 1.6 2008-07-14 22:16:25 calaf Exp $
 
-//<<<<<< INCLUDES                                                       >>>>>>
 #include "SGTools/DataBucketBase.h"
-#include "SGTools/ClassID_traits.h"
 #include "SGTools/StorableConversions.h"
+#include "AthenaKernel/ClassID_traits.h"
 #ifndef NDEBUG
 #  include "AthenaKernel/getMessageSvc.h"
 #  include "GaudiKernel/MsgStream.h"

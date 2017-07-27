@@ -16,7 +16,7 @@
 #include "SGTools/TestStore.h"
 #include "SGTools/CurrentEventStore.h"
 #include "SGTools/T2pMap.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/ILockable.h"
 #include "AthenaKernel/IResetable.h"

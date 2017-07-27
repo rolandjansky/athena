@@ -10,9 +10,9 @@
 #include <boost/type_traits/is_abstract.hpp>
 #include <boost/type_traits/has_trivial_copy.hpp>
 
-#include "SGTools/ClassID_traits.h"
-#include "SGTools/BaseInfo.h"
 #include "SGTools/IRegisterTransient.h"
+#include "AthenaKernel/ClassID_traits.h"
+#include "AthenaKernel/BaseInfo.h"
 #include "AthenaKernel/ILockable.h"
 
 #include <type_traits>

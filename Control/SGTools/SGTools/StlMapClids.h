@@ -11,15 +11,10 @@
 #ifndef SGTOOLS_STLMAPCLIDS_H 
 #define SGTOOLS_STLMAPCLIDS_H 
 
-// STL includes
+#include "AthenaKernel/CLASS_DEF.h"
 #include <map>
 #include <string>
 #include <vector>
-
-// Gaudi includes
-
-// SGTools includes
-#include "SGTools/CLASS_DEF.h"
 
 CLASS_DEF2( std::map<int,int> ,    103402598 , 1 )
 CLASS_DEF2( std::map<int,float> ,  256222847 , 1 )
