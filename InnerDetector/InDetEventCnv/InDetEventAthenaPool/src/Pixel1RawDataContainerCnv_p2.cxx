@@ -39,7 +39,7 @@ void Pixel1RawDataContainerCnv_p2::transToPers(const PixelRDO_Container* transCo
     TRANS::const_iterator it_CollEnd  = transCont->end();
     unsigned int chanBegin = 0;
     unsigned int chanEnd = 0;
-    int numColl = transCont->numberOfCollections();
+    unsigned int numColl = transCont->numberOfCollections();
     //if(numColl == transCont->fullSize() ) { // let's count how many collections we have:
     // numColl = 0;
     // for ( ; it_Coll != it_CollEnd; it_Coll++)
