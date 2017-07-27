@@ -25,6 +25,7 @@ PlotManager::PlotManager(const std::string& name, TFile* outputFile, EL::Worker*
       m_plotDir = outputFile->GetDirectory(m_name.c_str());
       if (!m_plotDir)
         m_plotDir = outputFile->mkdir(m_name.c_str());
+      m_plotDir = outputFile->GetDirectory(m_name.c_str());// this is needed if the name contains a sub-directory
 
       m_plotDir->cd();
     }
@@ -76,6 +77,29 @@ void PlotManager::addHist(const std::string& hname, const std::string& title, in
     m_histograms.insert(make_pair(hname, h));
 }
 
+void PlotManager::addHist(const std::string& hname, const std::string& title, int bins, double* binArray) const {
+    TH1D* h = nullptr;
+    if (!m_wk) {
+        m_plotDir->cd();
+        h = new TH1D(hname.c_str(), title.c_str(), bins, binArray);
+    }
+    else {
+        std::string pathname = m_name + "/" + hname;
+        h = new TH1D(pathname.c_str(), title.c_str(), bins, binArray);
+        m_wk->addOutput(h);
+    }
+
+    if (m_histograms.find(hname) != m_histograms.end()) {
+        std::cout << "ERROR: Running addHist with " << hname << std::endl;
+        std::cout << "but that histogram already exists" << std::endl;
+        std::cout << "will not continue" << std::endl;
+        exit(1);
+    }
+
+    h->Sumw2();
+    m_histograms.insert(make_pair(hname, h));
+}
+
 void PlotManager::addHist(const std::string& hname, const std::string& title,
 			  int xbins, double xstart, double xend,
 			  int ybins, double ystart, double yend) const {
@@ -91,6 +115,35 @@ void PlotManager::addHist(const std::string& hname, const std::string& title,
         h = new TH2D(pathname.c_str(), title.c_str(),
 		     xbins, xstart, xend,
 		     ybins, ystart, yend);
+        m_wk->addOutput(h);
+    }
+
+    if (m_histograms.find(hname) != m_histograms.end()) {
+        std::cout << "ERROR: Running addHist with " << hname << std::endl;
+        std::cout << "but that histogram already exists" << std::endl;
+        std::cout << "will not continue" << std::endl;
+        exit(1);
+    }
+
+    h->Sumw2();
+    m_histograms.insert(make_pair(hname, h));
+}
+
+void PlotManager::addHist(const std::string& hname, const std::string& title,
+                          int xbins, double* xbinArray,
+                          int ybins, double* ybinArray) const {
+    TH2D* h = nullptr;
+    if (!m_wk) {
+        m_plotDir->cd();
+        h = new TH2D(hname.c_str(), title.c_str(),
+                     xbins, xbinArray,
+                     ybins, ybinArray);
+    }
+    else {
+        std::string pathname = m_name + "/" + hname;
+        h = new TH2D(pathname.c_str(), title.c_str(),
+                     xbins, xbinArray,
+                     ybins, ybinArray);
         m_wk->addOutput(h);
     }
 

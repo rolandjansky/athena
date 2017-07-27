@@ -17,6 +17,7 @@ class Worker;
 }
 
 namespace top {
+class TopConfig;
 
 /**
  * @brief An example of how to quickly make some plots at a certain point in
@@ -33,9 +34,11 @@ class JetFlavorPlots : public EventSelectorBase {
    * output file.  e.g. you might have ee, mumu and emu.
    * @param outputFile The output file. Needs setting up at the very start
    * so that we can attach the files.
+   * @param params The arguments, e.g. for the binning of the plots.
+   * @param config Instance of TopConfig
    * @param wk Only used by EventLoop, ok as nullptr as default.
    */
-  JetFlavorPlots(const std::string& name, TFile* outputFile,
+  JetFlavorPlots(const std::string& name, TFile* outputFile, const std::string& params, std::shared_ptr<top::TopConfig> config,
                  EL::Worker* wk = nullptr);
 
   /**
@@ -57,10 +60,30 @@ class JetFlavorPlots : public EventSelectorBase {
   static const double toGeV;
 
   // Easy access to histograms.
-  PlotManager m_hists;
+  std::shared_ptr<PlotManager> m_hists = nullptr;
+  std::shared_ptr<PlotManager> m_hists_Loose = nullptr;
 
   // Nominal hash value
   std::size_t m_nominalHashValue;
+
+  // for detailed plots (e.g. vs. Njets)
+  bool m_detailed;
+
+  // pT and eta bin edges, separated by colons
+  std::string m_ptBins;
+  std::string m_etaBins;
+
+  // max value for nJets, when doing the plots vs. nJets
+  int m_nJetsMax;
+
+  // name of the jet collection - this is needed for the names of the histograms
+  std::string m_jetCollection;
+  
+  // shared pointed to instance of TopConfig
+  std::shared_ptr<top::TopConfig> m_config;
+
+  // function to translate the binnings into vector of bin edges
+  void formatBinning(const std::string& str, std::vector<double>& binEdges );
 };
 
 }  // namespace top
