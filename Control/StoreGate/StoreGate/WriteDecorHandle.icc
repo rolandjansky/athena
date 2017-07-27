@@ -178,6 +178,27 @@ WriteDecorHandle<T, D>::getDecorationArray()
 
 
 /**
+ * @brief Test to see if this variable exists in the store,
+ *        for the referenced object.
+ */
+template <class T, class D>
+inline
+bool WriteDecorHandle<T, D>::isAvailable()
+{
+  const SG::AuxVectorData* obj = static_cast<SG::AuxVectorData*> (this->m_ptr);
+  if (!obj) {
+    obj = static_cast<SG::AuxVectorData*> (ReadHandle<T>::typeless_dataPointer_impl (true));
+  }
+
+  if (obj) {
+    return obj->isAvailable (m_acc.auxid());
+  }
+
+  return false;
+}
+
+
+/**
  * @brief Return the aux id for this variable.
  */
 template <class T, class D>
