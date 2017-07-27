@@ -463,6 +463,6 @@ algo=T2CaloEgamma_FastAlgo("testFastAlgo")
 algo.RoIs="EMRoIs"
 algo.OutputLevel=VERBOSE
 #TopHLTSeq += algo
-#topSequence += algo #BEN BEN
+topSequence += algo
 
 include ("RecExCond/AllDet_detDescr.py")
