@@ -5,23 +5,26 @@
 #ifndef MCTruthBase_MCTruthSteppingAction_H
 #define MCTruthBase_MCTruthSteppingAction_H
 
+// System includes
 #include <map>
 #include <string>
 #include <vector>
 
+// Framework includes
 #include "GaudiKernel/ToolHandle.h"
-#include "RecordingEnvelope.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
+// Local includes
+#include "RecordingEnvelope.h"
 
 #include "G4AtlasInterfaces/IBeginEventAction.h"
 #include "G4AtlasInterfaces/ISteppingAction.h"
-#include "AthenaBaseComps/AthMessaging.h"
 
 namespace G4UA
 {
 
   /// @class MCTruthSteppingAction
-  /// @brief User action which recording-envelope truth tracks.
+  /// @brief User action which handles recording-envelope truth tracks.
   ///
   /// This user action utilizes RecordingEnvelope objects to save truth tracks
   /// at entry/exit layers of certain configured detector layers.

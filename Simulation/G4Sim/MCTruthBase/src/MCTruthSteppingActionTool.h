@@ -36,8 +36,8 @@ namespace G4UA
       MCTruthSteppingActionTool(const std::string& type, const std::string& name,
                                 const IInterface* parent);
 
-      /// Initialize the tool - just for debug printing
-      virtual StatusCode initialize() override;
+      /// Initialize the tool
+      virtual StatusCode initialize() override final;
 
       /// Retrieve the begin-event action
       virtual IBeginEventAction* getBeginEventAction() override final
