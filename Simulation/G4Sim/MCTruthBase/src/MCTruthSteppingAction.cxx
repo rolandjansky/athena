@@ -4,15 +4,11 @@
 
 #include "MCTruthSteppingAction.h"
 #include "MCTruth/TrackHelper.h"
-#include "RecordingEnvelope.h"
 
 #include "G4Step.hh"
 #include "G4StepPoint.hh"
 #include "G4TouchableHistory.hh"
-#include "G4SDManager.hh"
 
-#include <map>
-#include <iostream>
 
 namespace G4UA
 {

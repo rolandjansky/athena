@@ -3,6 +3,8 @@
 */
 
 #include "MCTruthSteppingActionTool.h"
+#include "CxxUtils/make_unique.h"
+
 
 namespace G4UA
 {
@@ -26,7 +28,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   StatusCode MCTruthSteppingActionTool::initialize()
   {
-    ATH_MSG_DEBUG("initializing MCTruthSteppingActionTool");
+    ATH_MSG_DEBUG( "Initializing " << name() );
     return StatusCode::SUCCESS;
   }
 
