@@ -24,7 +24,7 @@ AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
  
 from AthenaCommon.JobProperties import jobproperties
 jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-03-01-00"
- 
+
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOff()  #Switched off to avoid geometry
 DetFlags.ID_setOn()
@@ -307,3 +307,12 @@ theFTF.outputLevel=VERBOSE
 
 topSequence += theFTF
 
+ 
+from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
+RegSelSvc = RegSelSvcDefault()
+RegSelSvc.enablePixel = True
+RegSelSvc.enableSCT   = True
+RegSelSvc.enableTRT   = True
+
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+svcMgr += RegSelSvc
