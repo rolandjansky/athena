@@ -23,8 +23,8 @@ namespace AthViews {
 RoiCollectionToViews::RoiCollectionToViews( const std::string& name,
                       ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
-  m_w_views( "all_views" ),
   m_trigRoIs( "input_rois" ),
+  m_w_views( "all_views" ),
   m_viewRoIs( "output_rois" ),
   m_algorithmNameSequence( std::vector< std::string >() ),
   m_algPoolName( "" ),
