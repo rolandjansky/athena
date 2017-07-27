@@ -118,17 +118,17 @@ StatusCode PixelMainMon::bookHitsMon(void) {
     }
   }
 
-  for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
-    if (!m_doIBL && i >= PixLayerIBL2D3D::kIBL) continue;
-
-    hname = makeHistname(("AvgOcc_per_lumi_" + m_modLabel_PixLayerIBL2D3D[i]), false);
-    htitles = makeHisttitle(("Average pixel occupancy per event, " + m_modLabel_PixLayerIBL2D3D[i]), (atext_LB + atext_occ), false);
+  for (int i = 0; i < PixLayerIBL2D3DDBM::COUNT; i++) {
+    hname = makeHistname(("AvgOcc_per_lumi_" + m_modLabel_PixLayerIBL2D3DDBM[i]), false);
+    htitles = makeHisttitle(("Average pixel occupancy per event, " + m_modLabel_PixLayerIBL2D3DDBM[i]), (atext_LB + atext_occ), false);
     sc = rdoExpert.regHist(m_avgocc_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
 
-    hname = makeHistname(("AvgOcc_per_BCID_" + m_modLabel_PixLayerIBL2D3D[i]), false);
-    htitles = makeHisttitle(("Average pixel occupancy per BCID, " + m_modLabel_PixLayerIBL2D3D[i]), (atext_BCID + atext_occ), false);
+    hname = makeHistname(("AvgOcc_per_BCID_" + m_modLabel_PixLayerIBL2D3DDBM[i]), false);
+    htitles = makeHisttitle(("Average pixel occupancy per BCID, " + m_modLabel_PixLayerIBL2D3DDBM[i]), (atext_BCID + atext_occ), false);
     sc = rdoExpert.regHist(m_avgocc_per_bcid_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_BCID, min_BCID, max_BCID));
+  }
 
+  for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
     hname = makeHistname(("AvgOcc_active_per_lumi_" + m_modLabel_PixLayerIBL2D3D[i]), false);
     htitles = makeHisttitle(("Average pixel occupancy for active per event, " + m_modLabel_PixLayerIBL2D3D[i]), (atext_LB + atext_occ), false);
     sc = rdoExpert.regHist(m_avgocc_active_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
@@ -628,12 +628,18 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
   if (nGoodChannels_total > 0) avgocc = nhits / nGoodChannels_total;
   if (m_avgocc_per_lumi) m_avgocc_per_lumi->Fill(m_manager->lumiBlockNumber(), avgocc);
 
-  for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
-    if (nGoodChannels_layer[getPixLayerIDWithDBM(i)] > 0) avgocc_mod[getPixLayerIDWithDBM(i)] = nhits_mod[getPixLayerIDWithDBM(i)] / nGoodChannels_layer[getPixLayerIDWithDBM(i)];
-    if (nActiveChannels_layer[getPixLayerIDWithDBM(i)] > 0) avgocc_active_mod[getPixLayerIDWithDBM(i)] = nhits_mod[getPixLayerIDWithDBM(i)] / nActiveChannels_layer[getPixLayerIDWithDBM(i)];
+  for (int i = 0; i < PixLayerIBL2D3DDBM::COUNT; i++) {
+    if (nGoodChannels_layer[i] > 0) avgocc_mod[i] = nhits_mod[i] / nGoodChannels_layer[i];
+    if (nActiveChannels_layer[i] > 0) avgocc_active_mod[i] = nhits_mod[i] / nActiveChannels_layer[i];
+  }
 
+
+  for (int i = 0; i < PixLayerIBL2D3DDBM::COUNT; i++) {
     if (m_avgocc_per_lumi_mod[i]) m_avgocc_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), avgocc_mod[getPixLayerIDWithDBM(i)]);
     if (m_avgocc_per_bcid_mod[i]) m_avgocc_per_bcid_mod[i]->Fill(pix_rod_bcid, avgocc_mod[getPixLayerIDWithDBM(i)]);
+  }
+
+  for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
     if (m_avgocc_active_per_lumi_mod[i]) m_avgocc_active_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), avgocc_active_mod[getPixLayerIDWithDBM(i)]);
 
     if (m_maxocc_per_lumi_mod[i]) m_maxocc_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), avgocc_active_mod[getPixLayerIDWithDBM(i)]);
