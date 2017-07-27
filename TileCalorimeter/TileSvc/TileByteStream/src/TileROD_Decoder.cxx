@@ -46,7 +46,9 @@ TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& nam
   , m_tileCondToolOfcCool("TileCondToolOfcCool")
   , m_tileToolEmscale("TileCondToolEmscale")
   , m_hid2re(0)
+  , m_hid2reHLT(0)
   , m_maxChannels(TileCalibUtils::MAX_CHAN)
+  , m_fullTileRODs(320000) // default 2017 full mode
 {
   declareInterface<TileROD_Decoder>(this);
   
@@ -72,6 +74,7 @@ TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& nam
 
   declareProperty("AllowedTimeMin", m_allowedTimeMin = -50.); // set amp to zero if time is below allowed time min
   declareProperty("AllowedTimeMax", m_allowedTimeMax =  50.); // set amp to zero if time is above allowed time max
+  declareProperty("fullTileMode", m_fullTileRODs); // run from which to take the cabling (for the moment, either 320000 - full 2017 mode - or 0 - 2016 mode)
 
   m_correctAmplitude = false;
   updateAmpThreshold(15.);
@@ -115,6 +118,7 @@ TileROD_Decoder::~TileROD_Decoder() {
     delete m_rawchannelMetaData[i];
   }
   if (m_hid2re) delete m_hid2re;
+  if (m_hid2reHLT) delete m_hid2reHLT;
   
   for (unsigned int id = 0; id < 4 * TileCalibUtils::MAX_DRAWERIDX; ++id)
     if (m_OFWeights[id]) delete m_OFWeights[id];
@@ -3852,9 +3856,9 @@ void TileROD_Decoder::loadMBTS_Ptr(TileCellCollection* col,
 void TileROD_Decoder::initHid2re() {
   if (m_hid2re) return;
   
-  m_hid2re = new TileHid2RESrcID();
-  m_hid2re->setTileHWID(m_tileHWID);// setting a frag2RODmap
-  m_hid2re->setTileMuRcvHWID(m_tileHWID);// setting a different frag2RODmap dedicated to TMDB
+  ATH_MSG_DEBUG( "initHid2re() for run " << m_fullTileRODs );
+
+  m_hid2re = new TileHid2RESrcID(m_tileHWID,m_fullTileRODs); // setting normal frag2RODmap and map dedicated to TMDB
   
   // Check whether we want to overwrite default ROB IDs
   
@@ -3868,7 +3872,7 @@ void TileROD_Decoder::initHid2re() {
       
       if (vecProperty.value().size() % 2 == 1) {
         ATH_MSG_DEBUG( "Length of ROD2ROBmap is and odd value, "
-                      << " means that we'll scan event for all fragments to create proper map" );
+                       << " means that we'll scan event for all fragments to create proper map" );
         
         IROBDataProviderSvc* robSvc;
         if (service("ROBDataProviderSvc", robSvc).isSuccess()) {
@@ -3882,19 +3886,28 @@ void TileROD_Decoder::initHid2re() {
             m_hid2re->setROD2ROBmap(event, msg());
           }
         }
+      } else if (vecProperty.value().size() == 0) {
+        ATH_MSG_DEBUG( "Length of ROD2ROBmap vector is zero, "
+                       << " means that predefined mapping for run " << m_fullTileRODs << " will be used " );
       } else {
+        ATH_MSG_DEBUG( "Apply additional remapping for " << vecProperty.value().size()/2 << " fragments from jobOptions ");
         m_hid2re->setROD2ROBmap(vecProperty.value(), msg());
       }
     }
   }
 }
 
+void TileROD_Decoder::initHid2reHLT() {
+  if (m_hid2reHLT) return;
+
+  ATH_MSG_DEBUG( "initHid2reHLT() for run " << m_fullTileRODs );
+
+  m_hid2reHLT = new TileHid2RESrcID(m_tileHWID,m_fullTileRODs); // setting a frag2RODmap and map dedicated to TMDB
+}
+
 void TileROD_Decoder::initTileMuRcvHid2re() {
-  if (m_hid2re) return;
-
-  m_hid2re = new TileHid2RESrcID();
-  m_hid2re->setTileMuRcvHWID(m_tileHWID);
-
+  ATH_MSG_DEBUG( "initTileMuRcvHid2re() for run " << m_fullTileRODs );
+  initHid2re();
 }
 
 uint32_t* TileROD_Decoder::getOFW(int fragId, int unit) {

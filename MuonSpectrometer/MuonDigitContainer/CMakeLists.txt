@@ -24,12 +24,12 @@ atlas_add_library( MuonDigitContainer
                    src/*.cxx
                    PUBLIC_HEADERS MuonDigitContainer
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES DataModel SGTools Identifier MuonIdHelpersLib
+                   LINK_LIBRARIES DataModel SGTools Identifier MuonIdHelpersLib EventContainers
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( MuonDigitContainerDict
                       MuonDigitContainer/MuonDigitContainerDict.h
                       MuonDigitContainer/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel SGTools Identifier MuonIdHelpersLib MuonDigitContainer )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel SGTools Identifier MuonIdHelpersLib MuonDigitContainer EventContainers)
 

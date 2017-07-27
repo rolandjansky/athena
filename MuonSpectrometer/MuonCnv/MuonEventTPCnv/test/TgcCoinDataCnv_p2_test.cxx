@@ -18,7 +18,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
-
+#include "MuonEventTPCnv/CreateTransientTemplates.h"
 
 void compare (const Muon::TgcCoinData& p1,
               const Muon::TgcCoinData& p2)

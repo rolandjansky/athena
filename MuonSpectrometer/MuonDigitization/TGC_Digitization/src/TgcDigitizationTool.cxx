@@ -425,7 +425,7 @@ StatusCode TgcDigitizationTool::digitizeCore() {
 	    ATH_MSG_DEBUG("New TgcHitCollection with key=" << coll_hash << " recorded in StoreGate."); 
 	  }
 	} else {
-	  digitCollection = const_cast<TgcDigitCollection*>(it_coll->cptr());
+	  digitCollection = const_cast<TgcDigitCollection*>(*it_coll);
 
 	  // to avoid to store digits with identical id
 	  TgcDigitCollection::const_iterator it_tgcDigit;

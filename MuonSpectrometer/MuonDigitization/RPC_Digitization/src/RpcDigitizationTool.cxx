@@ -1013,7 +1013,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
 	      ATH_MSG_DEBUG ( "New RpcHitCollection with key=" << coll_hash << " recorded in StoreGate." );
 	    }
 	  } else {
-	    digitCollection = const_cast<RpcDigitCollection*>( it_coll->cptr() );
+	    digitCollection = const_cast<RpcDigitCollection*>( *it_coll );
 	    digitCollection->push_back(newDigit);
 	  }
 

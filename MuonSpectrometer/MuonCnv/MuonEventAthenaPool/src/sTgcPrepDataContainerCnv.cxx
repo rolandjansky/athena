@@ -16,7 +16,7 @@
 // Id includes
 // #include "MuonIdHelpers/sTgcIdHelper.h"
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
-
+#include "MuonEventAthenaPool/CreateTransientTemplates.h"
 // #include "MuonReadoutGeometry/MuonDetectorManager.h"
 // #include "MuonReadoutGeometry/sTgcReadoutElement.h"
 

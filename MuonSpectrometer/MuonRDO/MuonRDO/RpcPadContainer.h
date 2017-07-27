@@ -25,7 +25,6 @@ class RpcPadContainer
    :public IdentifiableContainer<RpcPad> {
 
 public:  
-   RpcPadContainer(); 
    RpcPadContainer(unsigned int hashmax) ; 
   ~RpcPadContainer() ; 
 

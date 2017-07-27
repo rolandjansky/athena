@@ -18,7 +18,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
-
+#include "MuonEventTPCnv/CreateTransientTemplates.h"
 
 #include "make_dd.icc"
 
@@ -64,14 +64,11 @@ void compare (const Muon::MdtPrepDataContainer& p1,
   Muon::MdtPrepDataContainer::const_iterator it2e = p2.end();
   while (it1 != it1e && it2 != it2e) {
     assert (it1.hashId() == it2.hashId());
-    assert (it1->hasData() == it2->hasData());
-    if (it1->hasData()) {
-      const Muon::MdtPrepDataCollection& coll1 = **it1;
-      const Muon::MdtPrepDataCollection& coll2 = **it2;
-      assert (coll1.size() == coll2.size());
-      for (size_t j = 0; j < coll1.size(); j++) {
-        compare (*coll1[j], *coll2[j]);
-      }
+    const Muon::MdtPrepDataCollection& coll1 = **it1;
+    const Muon::MdtPrepDataCollection& coll2 = **it2;
+    assert (coll1.size() == coll2.size());
+    for (size_t j = 0; j < coll1.size(); j++) {
+      compare (*coll1[j], *coll2[j]);
     }
     ++it1;
     ++it2;

@@ -32,7 +32,7 @@ svcMgr.ForwardSchedulerSvc.ShowControlFlow=True
 # topSequence += SGInputLoader( OutputLevel=INFO, ShowEventDump=False )
 # topSequence.SGInputLoader.Load = [ ('ROIB::RoIBResult','RoIBResult') ]
 
-
+from AthenaCommon.CFElements import stepSeq
 
 
 data = {'noreco': [';', ';', ';']}  # in the lists there are the events
@@ -74,8 +74,8 @@ data['photons'] = ['eta:1,phi:1,pt:130000;',
 from TrigUpgradeTest.TestUtils import writeEmulationFiles
 writeEmulationFiles(data)
 
-include("TrigUpgradetest/L1CF.py")
-include("TrigUpgradetest/HLTCF.py")
+include("TrigUpgradeTest/L1CF.py")
+include("TrigUpgradeTest/HLTCF.py")
 
 
 

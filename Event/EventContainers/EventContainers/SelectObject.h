@@ -82,7 +82,7 @@ public:
 
 		const_iterator operator ++ ( int ) // post increment
 			{       const_iterator tmp = *this; 
-				++tmp;  
+				++*this;  
 				return tmp; 
 			}
 
@@ -159,6 +159,5 @@ private:
 	const DCC* m_dcc; 
 
 };
-
 
 #endif 

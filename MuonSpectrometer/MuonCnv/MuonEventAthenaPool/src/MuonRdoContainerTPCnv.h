@@ -18,7 +18,7 @@
 #include "AthContainers/DataVector.h"
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
-
+#include "MuonEventAthenaPool/CreateTransientTemplates.h"
 
 template <class T, class P, class CONV>
 class MuonRdoContainerTPCnv
