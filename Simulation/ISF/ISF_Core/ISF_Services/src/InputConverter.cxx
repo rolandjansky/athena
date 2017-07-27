@@ -39,11 +39,11 @@
 
 /** Constructor **/
 ISF::InputConverter::InputConverter(const std::string& name, ISvcLocator* svc)
-    : AthService(name,svc),
-      m_particlePropSvc("PartPropSvc",name),
-      m_particleDataTable(nullptr),
-      m_useGeneratedParticleMass(false),
-      m_genParticleFilters()
+    : AthService(name,svc)
+    , m_particlePropSvc("PartPropSvc",name)
+    , m_particleDataTable(nullptr)
+    , m_useGeneratedParticleMass(false)
+    , m_genParticleFilters(this)
 {
   // particle mass from particle data table?
   declareProperty("UseGeneratedParticleMass",
