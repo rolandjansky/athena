@@ -1151,7 +1151,7 @@ class checkDeadElementsOnTrack(InDetFlagsJobProperty):
   """Enable check for dead modules and FEs""" 
   statusOn     = True 
   allowedTypes = ['bool']
-  StoredValue  = False
+  StoredValue  = True
 
 
 ##-----------------------------------------------------------------------------
