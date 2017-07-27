@@ -20,6 +20,7 @@
 #include <map>
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetRecToolInterfaces/ISiCombinatorialTrackFinder.h"
@@ -143,8 +144,8 @@ namespace InDet{
       bool                           m_simpleTrack   ;
       bool                           m_heavyion      ;
 
-      SG::ReadHandle<InDet::SiClusterContainer>  m_pixcontainer  ;
-      SG::ReadHandle<InDet::SiClusterContainer>  m_sctcontainer  ;
+      SG::ReadHandleKey<InDet::SiClusterContainer>  m_pixcontainerkey  ;
+      SG::ReadHandleKey<InDet::SiClusterContainer>  m_sctcontainerkey  ;
       MagField::IMagFieldSvc*        m_fieldService  ;
       Trk::MagneticFieldProperties   m_fieldprop     ; // Magnetic field properties
       double                         m_xi2max        ; // max Xi2 for updators
