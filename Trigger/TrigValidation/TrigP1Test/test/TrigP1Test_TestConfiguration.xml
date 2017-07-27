@@ -594,6 +594,14 @@
                 </jobTransformCmd>
                 <group>AtlasHLTChainTest</group>
                 <queue>long</queue>
+		<testToRemove>
+                    <jobGroupName>RTT:Top</jobGroupName>
+                    <testidentifier>CheckFileRunner0</testidentifier>
+                </testToRemove>
+		<testToRemove>
+                    <jobGroupName>RTT:Top</jobGroupName>
+                    <testidentifier>PerfMonRunner</testidentifier>
+                </testToRemove>
             </jobTransform>
             
             <jobTransform userJobId="athenaHLT_LatestRun_MCV7">
@@ -606,6 +614,11 @@
                 </jobTransformCmd>
                 <group>AtlasHLTChainTest</group>
                 <queue>long</queue>
+		<testToRemove>
+                    <jobGroupName>RTT:Top</jobGroupName>
+                    <testidentifier>CheckFileRunner0</testidentifier>
+                </testToRemove>
+
             </jobTransform>
             
             <jobTransform userJobId="athenaHLT_CostMonitoring_PhysicsV7">
@@ -618,6 +631,15 @@
                 </jobTransformCmd>
                 <group>AtlasHLTChainTest</group>
                 <queue>long</queue>
+		<testToRemove>
+                    <jobGroupName>RTT:Top</jobGroupName>
+                    <testidentifier>CheckFileRunner0</testidentifier>
+                </testToRemove>
+		<testToRemove>
+                    <jobGroupName>RTT:Top</jobGroupName>
+                    <testidentifier>PerfMonRunner</testidentifier>
+                </testToRemove>
+
             </jobTransform>
             
         </jobList>
@@ -720,7 +742,7 @@
                     <jobGroupName>RTT:Top</jobGroupName>
                     <testidentifier>PerfMonDozer0</testidentifier>
                 </testToRemove>
-                
+
             </jobGroup>
 
         </jobGroups>
