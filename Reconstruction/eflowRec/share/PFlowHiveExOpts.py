@@ -188,7 +188,7 @@ print StreamESD.ItemList
 #---------------------------------------------------------------------------------#
 # MT-specific code
 if nThreads >=1 :
-   include ( "CaloHiveDeps.py" )
+   include ( "PFlowHiveDeps.py" )
 
 print "==========================================================================================\n"
 
