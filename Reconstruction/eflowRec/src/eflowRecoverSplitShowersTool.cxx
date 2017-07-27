@@ -105,7 +105,7 @@ void eflowRecoverSplitShowersTool::execute(eflowCaloObjectContainer* theEflowCal
 
 StatusCode eflowRecoverSplitShowersTool::finalize(){
 
-  msg(MSG::INFO) << "Produced " << m_nTrackClusterMatches << " track-cluster matches." << endmsg;
+  ATH_MSG_INFO("Produced " << m_nTrackClusterMatches << " track-cluster matches.");
 
   return StatusCode::SUCCESS;
 
