@@ -17,11 +17,7 @@ namespace G4UA
   /// @class G4TrackCounter
   /// @brief A simple action which counts tracks.
   ///
-  /// This action currently implements BeginEvent, EndRun, and PreTracking
-  /// interfaces. It's not clear if we really want to implement EndRun here.
-  /// Presumably we'll need to merge the counter results across threads, so it
-  /// might make sense to move some of that functionality in the finalize
-  /// method of the corresponding tool.
+  /// This action currently implements BeginEvent and PreTracking interfaces.
   ///
   class G4TrackCounter : public IBeginEventAction,
                          public IPreTrackingAction

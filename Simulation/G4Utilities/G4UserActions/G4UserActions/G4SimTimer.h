@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #ifndef G4USERACTIONS_G4UA_G4SIMTIMER_H
 #define G4USERACTIONS_G4UA_G4SIMTIMER_H
 
@@ -24,7 +23,7 @@ namespace G4UA
   /// @class G4SimTimer
   /// @brief A user action for monitoring G4 runtime at event and run level.
   ///
-  /// This class implements the BeginEvent and EndEvent, and BeginRun actions.
+  /// This class implements the event and run action interfaces.
   /// The implementation was mostly taken from the previous G4SimTimer design.
   /// Results across worker threads are merged in finalize method of the
   /// G4SimTimerTool.
@@ -61,9 +60,9 @@ namespace G4UA
         std::pair<double, double> meanAndSigma();
 
 	void merge(const Report& rep){
-	  nEvent+=rep.nEvent;
-	  eventTime+=rep.eventTime;
-	  eventTimeSquared+=rep.eventTimeSquared;
+	  nEvent += rep.nEvent;
+	  eventTime += rep.eventTime;
+	  eventTimeSquared += rep.eventTimeSquared;
 	}
       };
 
