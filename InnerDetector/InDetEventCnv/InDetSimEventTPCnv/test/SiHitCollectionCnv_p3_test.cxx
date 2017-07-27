@@ -1,18 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
 /**
- * @file InDetSimEventTPCnv/test/SiHitCnv_p1_test.cxx
- * @author scott snyder <snyder@bnl.gov>
- * @date Feb, 2016
- * @brief Tests for SiHitCnv_p1.
+ * @file InDetSimEventTPCnv/test/SiHitCollectionCnv_p3_test.cxx
+ * @date Feb, 2018
+ * @brief Tests for SiHitCollectionCnv_p3.
  */
 
 
 #undef NDEBUG
-#include "InDetSimEventTPCnv/InDetHits/SiHitCnv_p1.h"
+#include "InDetSimEventTPCnv/InDetHits/SiHitCollectionCnv_p3.h"
 #include <cassert>
 #include <iostream>
 
@@ -45,13 +44,23 @@ void compare (const SiHit& p1,
 }
 
 
-void testit (const SiHit& trans1)
+void compare (const SiHitCollection& p1,
+              const SiHitCollection& p2)
+{
+  //assert (p1.Name() == p2.Name());
+  assert (p1.size() == p2.size());
+  for (size_t i = 0; i < p1.size(); i++)
+    compare (p1[i], p2[i]);
+}
+
+
+void testit (const SiHitCollection& trans1)
 {
   MsgStream log (0, "test");
-  SiHitCnv_p1 cnv;
-  SiHit_p1 pers;
+  SiHitCollectionCnv_p3 cnv;
+  SiHitCollection_p3 pers;
   cnv.transToPers (&trans1, &pers, log);
-  SiHit trans2;
+  SiHitCollection trans2;
   cnv.persToTrans (&pers, &trans2, log);
 
   compare (trans1, trans2);
@@ -61,14 +70,20 @@ void testit (const SiHit& trans1)
 void test1(std::vector<HepMC::GenParticle*>& genPartVector)
 {
   std::cout << "test1\n";
-  const HepMC::GenParticle* pGenParticle = genPartVector.at(0);
-  HepMcParticleLink trkLink(pGenParticle->barcode(),pGenParticle->parent_event()->event_number());
-  SiHit trans1 (HepGeom::Point3D<double> (10.5, 11.5, 12.5),
-                HepGeom::Point3D<double> (13.5, 14.5, 15.5),
-                16.5,
-                17.5,
-                trkLink,
-                19);
+
+  SiHitCollection trans1 ("coll");
+  for (int i=0; i < 10; i++) {
+    const HepMC::GenParticle* pGenParticle = genPartVector.at(i);
+    HepMcParticleLink trkLink(pGenParticle->barcode(),pGenParticle->parent_event()->event_number());
+    int o = i*100;
+    trans1.Emplace (HepGeom::Point3D<double> (10.5+o, 11.5+o, 12.5+o),
+                    HepGeom::Point3D<double> (13.5+o, 14.5+o, 15.5+o),
+                    16.5+o,
+                    17.5+o,
+                    trkLink,
+                    19+o);
+
+  }
 
   testit (trans1);
 }

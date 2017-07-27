@@ -26,6 +26,7 @@ void compare (const HepMcParticleLink& p1,
   assert ( p1.isValid() == p2.isValid() );
   assert ( p1.barcode() == p2.barcode() );
   assert ( p1.eventIndex() == p2.eventIndex() );
+  assert ( p1.getEventCollectionAsChar() == p2.getEventCollectionAsChar() );
   assert ( p1.cptr() == p2.cptr() );
   assert ( p1 == p2 );
 }
@@ -66,7 +67,7 @@ void test1(std::vector<HepMC::GenParticle*>& genPartVector)
 {
   std::cout << "test1\n";
   const HepMC::GenParticle* pGenParticle = genPartVector.at(0);
-  HepMcParticleLink trkLink(pGenParticle->barcode(),0);
+  HepMcParticleLink trkLink(pGenParticle->barcode(),pGenParticle->parent_event()->event_number());
   TRTUncompressedHit trans1 (101, trkLink, pGenParticle->pdg_id(),
                              104.5, 105.5,
                              106.5, 107.5, 108.5,

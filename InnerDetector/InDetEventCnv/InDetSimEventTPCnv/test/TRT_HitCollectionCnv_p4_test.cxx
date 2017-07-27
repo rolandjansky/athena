@@ -1,24 +1,30 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
 /**
- * @file InDetSimEventTPCnv/test/TRT_HitCollectionCnv_p2_test.cxx
+ * @file InDetSimEventTPCnv/test/TRT_HitCollectionCnv_p4_test.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date Feb, 2016
- * @brief Tests for TRT_HitCollectionCnv_p2.
+ * @brief Tests for TRT_HitCollectionCnv_p4.
  */
 
 
 #undef NDEBUG
-#include "InDetSimEventTPCnv/InDetHits/TRT_HitCollectionCnv_p2.h"
+#include "InDetSimEventTPCnv/InDetHits/TRT_HitCollectionCnv_p4.h"
+#include "TestTools/FLOATassert.h"
 #include <cassert>
 #include <iostream>
+#include <cmath>
 
 #include "GeneratorObjectsTPCnv/initMcEventCollection.h"
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenEvent.h"
+
+using Athena_test::isEqual;
+using std::atan2;
+
 
 void compare (const HepMcParticleLink& p1,
               const HepMcParticleLink& p2)
@@ -38,14 +44,28 @@ void compare (const TRTUncompressedHit& p1,
   compare(p1.particleLink(), p2.particleLink());
   assert (p1.particleLink() == p2.particleLink());
   assert (p1.GetParticleEncoding() == p2.GetParticleEncoding());
-  assert (p1.GetKineticEnergy() == p2.GetKineticEnergy());
-  assert (p1.GetEnergyDeposit() == p2.GetEnergyDeposit());
-  assert (p1.GetPreStepX() == p2.GetPreStepX());
-  assert (p1.GetPreStepY() == p2.GetPreStepY());
-  assert (p1.GetPreStepZ() == p2.GetPreStepZ());
-  assert (p1.GetPostStepX() == p2.GetPostStepX());
-  assert (p1.GetPostStepY() == p2.GetPostStepY());
-  assert (p1.GetPostStepZ() == p2.GetPostStepZ());
+  assert (isEqual (p1.GetKineticEnergy(), p2.GetKineticEnergy(), 5e-4));
+  if (p1.GetParticleEncoding() == 22)
+    assert (p1.GetEnergyDeposit() == p2.GetEnergyDeposit());
+  else
+    assert (0 == p2.GetEnergyDeposit());
+  if (p1.GetPreStepX() > 2) {
+    const double phi1 = atan2 (p1.GetPreStepY(), p1.GetPreStepX());
+    assert (isEqual (2*cos(phi1), p2.GetPreStepX(), 1e-2));
+    assert (isEqual (2*sin(phi1), p2.GetPreStepY(), 2e-2));
+
+    const double phi2 = atan2 (p1.GetPostStepY(), p1.GetPostStepX());
+    assert (isEqual (2*cos(phi2), p2.GetPostStepX(), 2e-2));
+    assert (isEqual (2*sin(phi2), p2.GetPostStepY(), 1e-2));
+  }
+  else {
+    assert (isEqual (p1.GetPreStepX(), p2.GetPreStepX(), 1e-2));
+    assert (isEqual (p1.GetPreStepY(), p2.GetPreStepY(), 1e-2));
+    assert (isEqual (p1.GetPostStepX(), p2.GetPostStepX(), 2e-2));
+    assert (isEqual (p1.GetPostStepY(), p2.GetPostStepY(), 2e-2));
+  }
+  assert (isEqual (p1.GetPreStepZ(), p2.GetPreStepZ(), 0.1));
+  assert (isEqual (p1.GetPostStepZ(), p2.GetPostStepZ(), 0.1));
   assert (p1.GetGlobalTime() == p2.GetGlobalTime());
 }
 
@@ -63,8 +83,8 @@ void compare (const TRTUncompressedHitCollection& p1,
 void testit (const TRTUncompressedHitCollection& trans1)
 {
   MsgStream log (0, "test");
-  TRT_HitCollectionCnv_p2 cnv;
-  TRT_HitCollection_p2 pers;
+  TRT_HitCollectionCnv_p4 cnv;
+  TRT_HitCollection_p4 pers;
   cnv.transToPers (&trans1, &pers, log);
   TRTUncompressedHitCollection trans2;
   cnv.persToTrans (&pers, &trans2, log);
@@ -82,7 +102,7 @@ void test1(std::vector<HepMC::GenParticle*>& genPartVector)
     int o = i*100;
     const HepMC::GenParticle* pGenParticle = genPartVector.at(0);
     HepMcParticleLink trkLink(pGenParticle->barcode(),pGenParticle->parent_event()->event_number());
-    trans1.Emplace (101+o, trkLink, pGenParticle->pdg_id(),
+    trans1.Emplace (101+o, trkLink, 20+o,
                     104.5+o, 105.5+o,
                     (106.5+o)/1000, (107.5+o)/1000, 108.5+o,
                     (109.5+o)/1000, (110.5+o)/1000, 111.5+o,
