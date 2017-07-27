@@ -10,7 +10,6 @@
 // Gaudi 
 #include "GaudiKernel/MsgStream.h"
 // Trk
-#include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/Track.h"
 
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
@@ -28,29 +27,16 @@
 using namespace InDet;
 
 HoleSearchValidation::HoleSearchValidation(const std::string& name, ISvcLocator* pSvcLocator):
-    AthAlgorithm(name, pSvcLocator),
+    AthReentrantAlgorithm(name, pSvcLocator),
 	m_idHelper(0),
 	m_pixelID(0),
 	m_sctID(0),
 	m_trtID(0),
 	m_siliconID(0),
     m_holeSearchTool("InDet::InDetTrackHoleSearchTool"),
-    m_trackCollectionName("Tracks"),
+    m_trackCollectionKey("Tracks"),
 	m_saveNewTracksInSG(false),
-	m_removeSctSide0(true),
-	m_removeSctSide1(true),
-	m_removePix0(false),
-	m_removePix1(false),
-	m_removePix2(false),
-	m_removeSct0(true),
-	m_removeSct1(true),
-	m_removeSct2(false),
-	m_removeSct3(false),
-	m_removeSct4(false),
-	m_removeSct5(false),
-	m_removeSct6(false),
-	m_removeSct7(false),
-	m_removeSct8(false),
+        m_removeParts {},
 	m_removeOverlapHitsOnly(false),
     m_ignoreTrackEnds(true),
 	m_randomRemovalMode(false),
@@ -61,33 +47,38 @@ HoleSearchValidation::HoleSearchValidation(const std::string& name, ISvcLocator*
 
 {
   declareProperty("HoleSearchTool"          , m_holeSearchTool);
-  declareProperty("TrackCollection"         , m_trackCollectionName, "Name of the reference track collection");
+  declareProperty("TrackCollection"         , m_trackCollectionKey, "Name of the reference track collection");
 
   declareProperty("SaveNewTracksInSG"       , m_saveNewTracksInSG  , "Boolean: save tracks in SG");
-  declareProperty("RemoveSCTSide0"          , m_removeSctSide0     , "Remove SCT hits on side 0");
-  declareProperty("RemoveSCTSide1"          , m_removeSctSide1     , "Remove SCT hits on side 1");
 
-  declareProperty("RemovePIX0"              , m_removePix0         , "Remove hit(s) in PIXEL layer 0");
-  declareProperty("RemovePIX1"              , m_removePix1         , "Remove hit(s) in PIXEL layer 1");
-  declareProperty("RemovePIX2"              , m_removePix2         , "Remove hit(s) in PIXEL layer 2");
+  // for (unsigned int part_i=0; part_i<Parts::kNParts; ++part_i) {
+  //   m_removeParts[part_i]=false;
+  // }
+  declareProperty("RemovePIX0"              , m_removeParts[Parts::kPix0]         , "Remove hit(s) in PIXEL layer 0");
+  declareProperty("RemovePIX1"              , m_removeParts[Parts::kPix1]         , "Remove hit(s) in PIXEL layer 1");
+  declareProperty("RemovePIX2"              , m_removeParts[Parts::kPix2]         , "Remove hit(s) in PIXEL layer 2");
 
-  declareProperty("RemoveSCT0"              , m_removeSct0         , "Remove hit(s) in SCT layer 0");
-  declareProperty("RemoveSCT1"              , m_removeSct1         , "Remove hit(s) in SCT layer 1");
-  declareProperty("RemoveSCT2"              , m_removeSct2         , "Remove hit(s) in SCT layer 2");
-  declareProperty("RemoveSCT3"              , m_removeSct3         , "Remove hit(s) in SCT layer 3");
+  declareProperty("RemoveSCT0"              , m_removeParts[Parts::kSct0]         , "Remove hit(s) in SCT layer 0");
+  declareProperty("RemoveSCT1"              , m_removeParts[Parts::kSct1]         , "Remove hit(s) in SCT layer 1");
+  declareProperty("RemoveSCT2"              , m_removeParts[Parts::kSct2]         , "Remove hit(s) in SCT layer 2");
+  declareProperty("RemoveSCT3"              , m_removeParts[Parts::kSct3]         , "Remove hit(s) in SCT layer 3");
 
-  declareProperty("RemoveSCT4"              , m_removeSct4         , "Remove hit(s) in SCT endcap layer 4");
-  declareProperty("RemoveSCT5"              , m_removeSct5         , "Remove hit(s) in SCT endcap layer 5");
-  declareProperty("RemoveSCT6"              , m_removeSct6         , "Remove hit(s) in SCT endcap layer 6");
-  declareProperty("RemoveSCT7"              , m_removeSct7         , "Remove hit(s) in SCT endcap layer 7");
-  declareProperty("RemoveSCT8"              , m_removeSct8         , "Remove hit(s) in SCT endcap layer 8");
+  declareProperty("RemoveSCT4"              , m_removeParts[Parts::kSct4]         , "Remove hit(s) in SCT endcap layer 4");
+  declareProperty("RemoveSCT5"              , m_removeParts[Parts::kSct5]         , "Remove hit(s) in SCT endcap layer 5");
+  declareProperty("RemoveSCT6"              , m_removeParts[Parts::kSct6]         , "Remove hit(s) in SCT endcap layer 6");
+  declareProperty("RemoveSCT7"              , m_removeParts[Parts::kSct7]         , "Remove hit(s) in SCT endcap layer 7");
+  declareProperty("RemoveSCT8"              , m_removeParts[Parts::kSct8]         , "Remove hit(s) in SCT endcap layer 8");
+
+  declareProperty("RemoveSCTSide0"          , m_removeParts[Parts::kSctSide0]     , "Remove SCT hits on side 0");
+  declareProperty("RemoveSCTSide1"          , m_removeParts[Parts::kSctSide1]     , "Remove SCT hits on side 1");
 
   declareProperty("RemoveOverlapHitsOnly"  , m_removeOverlapHitsOnly, "Only remove overlap track hits");
   declareProperty("IgnoreTrackEnds"        , m_ignoreTrackEnds     , "Ignore hits at the end of the track");
   
   declareProperty("RandomRemovalMode"       , m_randomRemovalMode  , "Randomly remove track hits (overwrites the other flags!)");
   declareProperty("MaximalHoles"            , m_maxNumberOfHoles   , "Number of maximal holes to be created");
-  
+
+  declare( m_trackCollectionOutputKey );
 
   // start with 10x10
   m_trackStats = std::vector< std::vector< unsigned int> >(0, std::vector< unsigned int>(0));
@@ -154,43 +145,37 @@ StatusCode HoleSearchValidation::initialize() {
       return StatusCode::FAILURE;
   }
 
+  ATH_CHECK(m_trackCollectionKey.initialize());
+  if (m_saveNewTracksInSG) {
+    m_trackCollectionOutputKey = m_trackCollectionKey.key() + "_removedHits";
+    ATH_CHECK(m_trackCollectionOutputKey.initialize());
+  }
+
   return StatusCode::SUCCESS;
 }
 
-StatusCode HoleSearchValidation::execute() {
+StatusCode HoleSearchValidation::execute_r(const EventContext& ctx) const {
 
+  std::array<bool,Parts::kNParts> remove_parts;
+  for (unsigned int part_i=0; part_i<Parts::kNParts; ++part_i) {
+    remove_parts[part_i]=( !m_randomRemovalMode ? m_removeParts[part_i] : false );
+  }
   ATH_MSG_VERBOSE( "HoleSearchValidation execute() start" ) ;
 
-  StatusCode sc = StatusCode::SUCCESS;
-  
-  const TrackCollection* tracks = 0;
-  TrackCollection* newTrackCollection = 0;
-  if (m_saveNewTracksInSG) {
-    newTrackCollection = new TrackCollection();
-  }
-  
+  std::unique_ptr<TrackCollection>  newTrackCollection( m_saveNewTracksInSG ? std::make_unique<TrackCollection>() : nullptr );
 
   // get track collection
-  if (m_trackCollectionName != "") {
-    sc = evtStore()->retrieve(tracks, m_trackCollectionName);
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "tracks not found:  " << m_trackCollectionName ) ;
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_VERBOSE( "tracks found: " << m_trackCollectionName
-						  << " with size = " << tracks->size() ) ;
-    }
-  }else{
-    ATH_MSG_ERROR( "No track collection name given (empty string)!" );
+  SG::ReadHandle<TrackCollection> tracks(m_trackCollectionKey,ctx);
+  if (!tracks.isValid()) {
+    ATH_MSG_ERROR("Missing input track collection " << m_trackCollectionKey.key());
     return StatusCode::FAILURE;
   }
-
 
   // loop over tracks
   TrackCollection::const_iterator trackIterator = tracks->begin();
   for ( ; trackIterator < tracks->end(); ++trackIterator) {
     if (!((*trackIterator))) {
-      ATH_MSG_WARNING( "TrackCollection " << m_trackCollectionName << "contains empty entries" ) ;
+      ATH_MSG_WARNING( "TrackCollection " << m_trackCollectionKey.key() << "contains empty entries" ) ;
       continue;
     }
 
@@ -198,7 +183,7 @@ StatusCode HoleSearchValidation::execute() {
     const Trk::Track& track = *(*trackIterator);
     const DataVector<const Trk::TrackStateOnSurface>* tsos = track.trackStateOnSurfaces();
     ATH_MSG_DEBUG(  "Perform hole search on unmodified track (" << *trackIterator << ")" 
-		   << " which contains " << tsos->size() <<" track states" ) ;
+                    << " which contains " << tsos->size() <<" track states" ) ;
     // perform hole search
     unsigned int oldHoles = doHoleSearch( *trackIterator );
 
@@ -227,37 +212,37 @@ StatusCode HoleSearchValidation::execute() {
     int maxSctLayerEndcap   = -1;
 
     if (m_ignoreTrackEnds || m_randomRemovalMode){
-        ATH_MSG_VERBOSE(  "Parsing track first to find end layers and maximal numbers" ) ;
-    	for ( ; iTsos != iTsosEnd ; ++iTsos) {
-			// 
-            Identifier plSurfaceID;
-			const Trk::MeasurementBase* plMesb = (*iTsos)->measurementOnTrack();
-	        if (plMesb &&  plMesb->associatedSurface().associatedDetectorElement()){
-            	plSurfaceID = plMesb->associatedSurface().associatedDetectorElement()->identify(); 
-                // to find out whether it is barrel / endcap
-  				// check pixel / sct 
-                if ( m_idHelper->is_pixel( plSurfaceID ) ) {
-	    			int plLayer = abs(m_pixelID->layer_disk( plSurfaceID ));
-                    bool isBarrel = m_pixelID->is_barrel( plSurfaceID );
-                    // set the maximal pixel layer: barrel / ec
-					if ( isBarrel )
-						maxPixelLayerBarrel = plLayer > maxPixelLayerBarrel ? plLayer : maxPixelLayerBarrel;
-                    else 
-						maxPixelLayerEndcap = plLayer > maxPixelLayerEndcap ? plLayer : maxPixelLayerEndcap;
-                } else if (m_idHelper->is_sct( plSurfaceID ) ) {
-				    int plLayer = abs(m_sctID->layer_disk(  plSurfaceID )); 
-                    bool isBarrel = m_sctID->is_barrel( plSurfaceID );
-                    // set the maximal pixel layer: barrel / ec
-					if ( isBarrel )
-						maxSctLayerBarrel = plLayer > maxSctLayerBarrel ? plLayer : maxSctLayerBarrel;
-                    else 
-						maxSctLayerEndcap = plLayer > maxSctLayerEndcap ? plLayer : maxSctLayerEndcap;
-               }
-            }
+      ATH_MSG_VERBOSE(  "Parsing track first to find end layers and maximal numbers" ) ;
+      for ( ; iTsos != iTsosEnd ; ++iTsos) {
+        // 
+        Identifier plSurfaceID;
+        const Trk::MeasurementBase* plMesb = (*iTsos)->measurementOnTrack();
+        if (plMesb &&  plMesb->associatedSurface().associatedDetectorElement()){
+          plSurfaceID = plMesb->associatedSurface().associatedDetectorElement()->identify(); 
+          // to find out whether it is barrel / endcap
+          // check pixel / sct 
+          if ( m_idHelper->is_pixel( plSurfaceID ) ) {
+            int plLayer = abs(m_pixelID->layer_disk( plSurfaceID ));
+            bool isBarrel = m_pixelID->is_barrel( plSurfaceID );
+            // set the maximal pixel layer: barrel / ec
+            if ( isBarrel )
+              maxPixelLayerBarrel = plLayer > maxPixelLayerBarrel ? plLayer : maxPixelLayerBarrel;
+            else 
+              maxPixelLayerEndcap = plLayer > maxPixelLayerEndcap ? plLayer : maxPixelLayerEndcap;
+          } else if (m_idHelper->is_sct( plSurfaceID ) ) {
+            int plLayer = abs(m_sctID->layer_disk(  plSurfaceID )); 
+            bool isBarrel = m_sctID->is_barrel( plSurfaceID );
+            // set the maximal pixel layer: barrel / ec
+            if ( isBarrel )
+              maxSctLayerBarrel = plLayer > maxSctLayerBarrel ? plLayer : maxSctLayerBarrel;
+            else 
+              maxSctLayerEndcap = plLayer > maxSctLayerEndcap ? plLayer : maxSctLayerEndcap;
+          }
         }
-        // sct overrules pixels
-        maxPixelLayerBarrel = maxSctLayerBarrel > 0 ? -1 : maxPixelLayerBarrel;
-        maxPixelLayerEndcap = maxSctLayerEndcap > 0 ? -1 : maxPixelLayerEndcap;
+      }
+      // sct overrules pixels
+      maxPixelLayerBarrel = maxSctLayerBarrel > 0 ? -1 : maxPixelLayerBarrel;
+      maxPixelLayerEndcap = maxSctLayerEndcap > 0 ? -1 : maxPixelLayerEndcap;
       // reset to start the main loop correctly
       iTsos    = tsos->begin();
     }
@@ -270,106 +255,90 @@ StatusCode HoleSearchValidation::execute() {
 	Identifier surfaceID;
 	const Trk::MeasurementBase* mesb = (*iTsos)->measurementOnTrack();
 
-    // also reset the identifiers
-    unsigned int randomHoles = 0;
-    if (m_randomRemovalMode){
-       // ---------------------------------------------------------------------------------------
-       randomHoles = (unsigned int)(m_maxNumberOfHoles*CLHEP::RandFlat::shoot(m_randomEngine));
-       ATH_MSG_VERBOSE("Random mode chosen: will create " << randomHoles << " holes on the track.");
+        // also reset the identifiers
+        unsigned int randomHoles = 0;
+        if (m_randomRemovalMode){
+          // ---------------------------------------------------------------------------------------
+          randomHoles = (unsigned int)(m_maxNumberOfHoles*CLHEP::RandFlat::shoot(m_randomEngine));
+          ATH_MSG_VERBOSE("Random mode chosen: will create " << randomHoles << " holes on the track.");
 
-       // reset the all the triggers (they will be set randomly)
-	   m_removeSctSide0 = false;
-	   m_removeSctSide1 = false;
-	   m_removePix0 = false;
-	   m_removePix1 = false;
-	   m_removePix2 = false;
-	   m_removeSct0 = false;
-	   m_removeSct1 = false;
-	   m_removeSct2 = false;
-	   m_removeSct3 = false;
-	   m_removeSct4 = false;
-	   m_removeSct5 = false;
-	   m_removeSct6 = false;
-	   m_removeSct7 = false;
-	   m_removeSct8 = false;
-
-       // max int pixel  
-       unsigned int maxPixel = maxPixelLayerBarrel > maxPixelLayerEndcap 
-                    ? maxPixelLayerBarrel : maxPixelLayerEndcap;
-       // max int sct
-       unsigned int maxSct = maxSctLayerBarrel > maxSctLayerEndcap 
-                    ? maxSctLayerBarrel : maxSctLayerEndcap;
-       // -------------------------------------------------------------------
-       int maxHit 		  = maxPixel + maxSct;
-       int holesTriggered = 0;
-       maxHit -= m_ignoreTrackEnds ? 1 : 0;
-       // make the switch
-       for (unsigned int ihole = 0; ihole < randomHoles && holesTriggered < int(randomHoles); ++ihole){
+          // max int pixel  
+          unsigned int maxPixel = maxPixelLayerBarrel > maxPixelLayerEndcap 
+            ? maxPixelLayerBarrel : maxPixelLayerEndcap;
+          // max int sct
+          unsigned int maxSct = maxSctLayerBarrel > maxSctLayerEndcap 
+            ? maxSctLayerBarrel : maxSctLayerEndcap;
+          // -------------------------------------------------------------------
+          int maxHit 		  = maxPixel + maxSct;
+          int holesTriggered = 0;
+          maxHit -= m_ignoreTrackEnds ? 1 : 0;
+          // make the switch
+          for (unsigned int ihole = 0; ihole < randomHoles && holesTriggered < int(randomHoles); ++ihole){
             // throw the dices
-			unsigned int holeId = (unsigned int)(maxHit*CLHEP::RandFlat::shoot(m_randomEngine));
+            unsigned int holeId = (unsigned int)(maxHit*CLHEP::RandFlat::shoot(m_randomEngine));
             ATH_MSG_VERBOSE( "Random mode : layer identifier " << holeId << " chosen." );
-           {
-			 // now switch between --------
-             switch (holeId) {
-				case 0 : { m_removePix0 = true; ++holesTriggered; }; break;
-				case 1 : { m_removePix1 = true; ++holesTriggered; }; break;
-				case 2 : { m_removePix2 = true; ++holesTriggered; }; break;
-				case 3 : { m_removeSct0 = true; ++holesTriggered; }; break;
-				case 4 : { m_removeSct1 = true; ++holesTriggered; }; break;
-				case 5 : { m_removeSct2 = true; ++holesTriggered; }; break;
-				case 6 : { m_removeSct3 = true; ++holesTriggered; }; break;
-				case 7 : { m_removeSct4 = true; ++holesTriggered; }; break;
-				case 8 : { m_removeSct5 = true; ++holesTriggered; }; break;
-				case 9 : { m_removeSct6 = true; ++holesTriggered; }; break;
-				case 10 : { m_removeSct7 = true; ++holesTriggered; }; break;
-				case 11 : { m_removeSct8 = true; ++holesTriggered; }; break;
-                default : break;
-            }
-            // make the side decision on the side
-	   		if (holeId > 2) {
+            {
+              // now switch between --------
+              switch (holeId) {
+              case 0 : { remove_parts[Parts::kPix0] = true; ++holesTriggered; }; break;
+              case 1 : { remove_parts[Parts::kPix1] = true; ++holesTriggered; }; break;
+              case 2 : { remove_parts[Parts::kPix2] = true; ++holesTriggered; }; break;
+              case 3 : { remove_parts[Parts::kSct0] = true; ++holesTriggered; }; break;
+              case 4 : { remove_parts[Parts::kSct1] = true; ++holesTriggered; }; break;
+              case 5 : { remove_parts[Parts::kSct2] = true; ++holesTriggered; }; break;
+              case 6 : { remove_parts[Parts::kSct3] = true; ++holesTriggered; }; break;
+              case 7 : { remove_parts[Parts::kSct4] = true; ++holesTriggered; }; break;
+              case 8 : { remove_parts[Parts::kSct5] = true; ++holesTriggered; }; break;
+              case 9 : { remove_parts[Parts::kSct6] = true; ++holesTriggered; }; break;
+              case 10 : { remove_parts[Parts::kSct7] = true; ++holesTriggered; }; break;
+              case 11 : { remove_parts[Parts::kSct8] = true; ++holesTriggered; }; break;
+              default : break;
+              }
+              // make the side decision on the side
+              if (holeId > 2) {
                 double sideDecision = CLHEP::RandFlat::shoot(m_randomEngine);
-				if ( sideDecision < 1./3. )
-					m_removeSctSide0 = true;
-				else if ( sideDecision < 2./3. )
-					m_removeSctSide1 = true;
-				else {
-					m_removeSctSide0 = true;
-					m_removeSctSide1 = true;
-                    ++holesTriggered;
+                if ( sideDecision < 1./3. )
+                  remove_parts[Parts::kSctSide0] = true;
+                else if ( sideDecision < 2./3. )
+                  remove_parts[Parts::kSctSide1] = true;
+                else {
+                  remove_parts[Parts::kSctSide0] = true;
+                  remove_parts[Parts::kSctSide1] = true;
+                  ++holesTriggered;
                 }
+              }
             }
-         }
-	   }
-    }
+          }
+        }
 
 	// hits, outliers
 	if (mesb != 0 && mesb->associatedSurface().associatedDetectorElement() != NULL) {
 	  surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify(); 
-      // the pixel case	  
+          // the pixel case	  
 	  if ( m_idHelper->is_pixel( surfaceID ) ) {
 	    int layer = abs(m_pixelID->layer_disk( surfaceID ));
-        // check barrel / ec
-        bool isBarrel = m_pixelID->is_barrel( surfaceID );
-        // indicate how many pixel hits are per layer
+            // check barrel / ec
+            bool isBarrel = m_pixelID->is_barrel( surfaceID );
+            // indicate how many pixel hits are per layer
 	    pixelHitsPerLayer[layer]++;
-        ATH_MSG_VERBOSE(  "Pixel hits on layer " << layer << " : " << pixelHitsPerLayer[layer] ) ;
-        // check for last layer
-        bool isLastLayer = (isBarrel && layer == maxPixelLayerBarrel) || (!isBarrel && layer == maxPixelLayerEndcap);
-		// only in the ignore track case
-        if (m_ignoreTrackEnds && isLastLayer){
-        	ATH_MSG_VERBOSE(  "This pixel hit is not removed, it is at the track end." ) ;
-        } else if ( !m_removeOverlapHitsOnly || pixelHitsPerLayer[layer] > 1) {
-	      if ( !m_ignoreTrackEnds && layer == 0 && m_removePix0 ) {
+            ATH_MSG_VERBOSE(  "Pixel hits on layer " << layer << " : " << pixelHitsPerLayer[layer] ) ;
+            // check for last layer
+            bool isLastLayer = (isBarrel && layer == maxPixelLayerBarrel) || (!isBarrel && layer == maxPixelLayerEndcap);
+            // only in the ignore track case
+            if (m_ignoreTrackEnds && isLastLayer){
+              ATH_MSG_VERBOSE(  "This pixel hit is not removed, it is at the track end." ) ;
+            } else if ( !m_removeOverlapHitsOnly || pixelHitsPerLayer[layer] > 1) {
+              if ( !m_ignoreTrackEnds && layer == 0 && remove_parts[Parts::kPix0] ) {
 		ATH_MSG_DEBUG(  "Removing PIXEL layer 0 hit" ) ;
 		printInfoTSoS( *iTsos );
 		nRemoved++;
 		continue;
-	      } else if( layer == 1 && m_removePix1 ) {
+              } else if( layer == 1 && remove_parts[Parts::kPix1] ) {
 		ATH_MSG_DEBUG(  "Removing PIXEL layer 1 hit" ) ;
 		printInfoTSoS( *iTsos );
 		nRemoved++;
 		continue;
-	      } else if( layer == 2 && m_removePix2 ) {
+              } else if( layer == 2 && remove_parts[Parts::kPix2] ) {
 		ATH_MSG_DEBUG(  "Removing PIXEL layer 2 hit" ) ;
 		printInfoTSoS( *iTsos );
 		nRemoved++;
@@ -377,73 +346,73 @@ StatusCode HoleSearchValidation::execute() {
 	      } 
 	    }
 	  } else if ( m_idHelper->is_sct( surfaceID ) ) {
-        int layer = abs(m_sctID->layer_disk( surfaceID ));
-        // check barrel / ec
-        bool isBarrel = m_sctID->is_barrel( surfaceID );
-        // counter for number of layers
-        sctHitsPerLayer[layer]++;	    
-        ATH_MSG_VERBOSE(  "SCT hits on layer " << layer << " : " << sctHitsPerLayer[layer] ) ;
-        // steer the side to be removed
+            int layer = abs(m_sctID->layer_disk( surfaceID ));
+            // check barrel / ec
+            bool isBarrel = m_sctID->is_barrel( surfaceID );
+            // counter for number of layers
+            sctHitsPerLayer[layer]++;	    
+            ATH_MSG_VERBOSE(  "SCT hits on layer " << layer << " : " << sctHitsPerLayer[layer] ) ;
+            // steer the side to be removed
 	    int side  = m_sctID->side( surfaceID );
-	    bool canRemoveSide = (side == 0) ? m_removeSctSide0 : m_removeSctSide1;
-        // check for last layer
-        bool isLastLayer = (isBarrel && layer == maxSctLayerBarrel) || (!isBarrel && layer == maxSctLayerEndcap);
-		// only in the ignore track case
-        if (m_ignoreTrackEnds && isLastLayer){
-        	ATH_MSG_VERBOSE(  "This SCT hit is not removed, it is at the track end." ) ;
-        } else if ( layer == 0 && m_removeSct0 && canRemoveSide ) {
+	    bool canRemoveSide = (side == 0) ? remove_parts[Parts::kSctSide0] : remove_parts[Parts::kSctSide1];
+            // check for last layer
+            bool isLastLayer = (isBarrel && layer == maxSctLayerBarrel) || (!isBarrel && layer == maxSctLayerEndcap);
+            // only in the ignore track case
+            if (m_ignoreTrackEnds && isLastLayer){
+              ATH_MSG_VERBOSE(  "This SCT hit is not removed, it is at the track end." ) ;
+            } else if ( layer == 0 && remove_parts[Parts::kSct0] && canRemoveSide ) {
 	      ATH_MSG_DEBUG(  "Removing SCT layer 0 hit" ) ;
 	      printInfoTSoS( *iTsos );
 	      nRemoved++;
 	      continue;
-	    } else if ( layer == 1 && m_removeSct1  && canRemoveSide ) {
+            } else if ( layer == 1 && remove_parts[Parts::kSct1]  && canRemoveSide ) {
 	      ATH_MSG_DEBUG(  "Removing SCT layer 1 hit" ) ;
 	      printInfoTSoS( *iTsos );
 	      nRemoved++;
 	      continue;
-	    } else if ( layer == 2 && m_removeSct2  && canRemoveSide ) {
+            } else if ( layer == 2 && remove_parts[Parts::kSct2]  && canRemoveSide ) {
 	      ATH_MSG_DEBUG(  "Removing SCT layer 2 hit" ) ;
 	      printInfoTSoS( *iTsos );
 	      nRemoved++;
 	      continue;
-	    } else if ( layer == 3 && m_removeSct3  && canRemoveSide ) {
+            } else if ( layer == 3 && remove_parts[Parts::kSct3]  && canRemoveSide ) {
 	      ATH_MSG_DEBUG(  "Removing SCT layer 3 hit" ) ;
 	      printInfoTSoS( *iTsos );
 	      nRemoved++;
 	      continue;
-	    } else if ( layer == 4 && m_removeSct4  && canRemoveSide ) {
+            } else if ( layer == 4 && remove_parts[Parts::kSct4]  && canRemoveSide ) {
 	      ATH_MSG_DEBUG(  "Removing SCT endcap layer 4 hit" ) ;
 	      printInfoTSoS( *iTsos );
 	      nRemoved++;
 	      continue;
-	    } else if ( layer == 5 && m_removeSct5  && canRemoveSide ) {
+            } else if ( layer == 5 && remove_parts[Parts::kSct5]  && canRemoveSide ) {
 	      ATH_MSG_DEBUG(  "Removing SCT endcap layer 5 hit" ) ;
 	      printInfoTSoS( *iTsos );
 	      nRemoved++;
 	      continue;
-	    } else if ( layer == 6 && m_removeSct6  && canRemoveSide ) {
+            } else if ( layer == 6 && remove_parts[Parts::kSct6]  && canRemoveSide ) {
 	      ATH_MSG_DEBUG(  "Removing SCT endcap layer 6 hit" ) ;
 	      printInfoTSoS( *iTsos );
 	      nRemoved++;
 	      continue;
-	    } else if ( layer == 7 && m_removeSct7  && canRemoveSide ) {
+            } else if ( layer == 7 && remove_parts[Parts::kSct7]  && canRemoveSide ) {
 	      ATH_MSG_DEBUG(  "Removing SCT endcap layer 7 hit" ) ;
 	      printInfoTSoS( *iTsos );
 	      nRemoved++;
 	      continue;
-	    } else if ( layer == 8 && m_removeSct8  && canRemoveSide ) {
+            } else if ( layer == 8 && remove_parts[Parts::kSct8]  && canRemoveSide ) {
 	      ATH_MSG_DEBUG(  "Removing SCT endcap layer 8 hit" ) ;
 	      printInfoTSoS( *iTsos );
 	      nRemoved++;
 	      continue;
-	    } 
+            }
 
-	  } // end SCT hit
-	 } // end have identifier
-    } // end TSoS is of type measurement
+          } // end SCT hit
+        } // end have identifier
+      } // end TSoS is of type measurement
 
-     const Trk::TrackStateOnSurface* newTsos = new Trk::TrackStateOnSurface(**iTsos);
-     vecTsos->push_back(newTsos);
+      const Trk::TrackStateOnSurface* newTsos = new Trk::TrackStateOnSurface(**iTsos);
+      vecTsos->push_back(newTsos);
     } // end loop over all TSoS
     
     ATH_MSG_DEBUG(  "Removed total of " << nRemoved << " TSoS on track." ) ;
@@ -462,16 +431,18 @@ StatusCode HoleSearchValidation::execute() {
 
     // fill track statistics
     // first, check size of vectors
-     while (m_trackStats.size() < nRemoved+1) {
-       m_trackStats.push_back( std::vector< unsigned int >(0) );
-     }
-     while (m_trackStats[nRemoved].size() < foundHoles+1) {
-       m_trackStats[nRemoved].push_back( 0 );
-     }
-     ATH_MSG_DEBUG(  "m_trackStats.size()= " << m_trackStats.size() );
-//     // increase counter
-     m_trackStats[nRemoved][foundHoles]++;
-
+    {
+      std::lock_guard<std::mutex> lock(m_trackStatsMutex);
+      while (m_trackStats.size() < nRemoved+1) {
+        m_trackStats.push_back( std::vector< unsigned int >(0) );
+      }
+      while (m_trackStats[nRemoved].size() < foundHoles+1) {
+        m_trackStats[nRemoved].push_back( 0 );
+      }
+      ATH_MSG_DEBUG(  "m_trackStats.size()= " << m_trackStats.size() );
+      //     // increase counter
+      m_trackStats[nRemoved][foundHoles]++;
+    }
 
     // posibly save new track into container and SG
     if (m_saveNewTracksInSG) {
@@ -484,12 +455,13 @@ StatusCode HoleSearchValidation::execute() {
   ATH_MSG_DEBUG(  "Finished looping over all input tracks" ) ;
 
   if (m_saveNewTracksInSG) {
-    // save new tracks to SG
-    ATH_MSG_DEBUG(  "Saving new TrackCollection to SG" ) ;
-    evtStore()->record( newTrackCollection, m_trackCollectionName+"_removedHits");
+    SG::WriteHandle<TrackCollection> newTrackCollection_handle(m_trackCollectionOutputKey,ctx);
+    if (newTrackCollection_handle.record( std::move(newTrackCollection) ).isFailure()){
+      ATH_MSG_ERROR("Failed to record output collection " << m_trackCollectionOutputKey.key());
+      return StatusCode::FAILURE;
+    }
   }
-
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode HoleSearchValidation::finalize() {
@@ -511,7 +483,7 @@ StatusCode HoleSearchValidation::finalize() {
   return StatusCode::SUCCESS;
 }
 
-unsigned int HoleSearchValidation::doHoleSearch( const Trk::Track* track)
+unsigned int HoleSearchValidation::doHoleSearch( const Trk::Track* track) const
 {
   ATH_MSG_VERBOSE(  "start hole search for track ( " << track << ")" ) ;
   unsigned int nHoles(0);
@@ -540,7 +512,7 @@ unsigned int HoleSearchValidation::doHoleSearch( const Trk::Track* track)
 }
 
 
-void HoleSearchValidation::printInfoTSoS( const Trk::TrackStateOnSurface* tsos)
+void HoleSearchValidation::printInfoTSoS( const Trk::TrackStateOnSurface* tsos) const
 {
 
   ATH_MSG_VERBOSE(  "Position : " << tsos->trackParameters()->position()

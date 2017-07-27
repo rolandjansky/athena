@@ -1,7 +1,6 @@
 #################################################
 # Script for the PixelSimulation RTT.
-# It runs digitization and builds a customized version of
-# TrackValidation ntuple with truth information for
+# It runs digitization 
 # pixel clusters.
 #################################################
 #
@@ -177,22 +176,6 @@ job += InDet__SiTrackerSpacePointFinder("PixelSpacePoints",
                                         ProcessSCTs = False)
 print job.PixelSpacePoints
 
-#
-# Include PixelValidationNtuple 
-# with some information about Geant4 hits
-#
-from InDetTrackValidation.InDetTrackValidationConf import InDet__PixelClusterValidationNtupleWriter
-job += InDet__PixelClusterValidationNtupleWriter("PixelNtupleWriter",
-                                                 NtupleFileName 	  = 'TRKVAL',
-                                                 NtupleDirectoryName	  = 'Validation',
-                                                 NtupleTreeName 	  = 'PixelRIOs',
-                                                 PixelClusterContainer    = 'PixelClusters',
-                                                 WriteDetailedPixelInformation = True,
-						 DoHits 		  = True,
-						 DoMC			  = True,
-						 FindNotAssociatedParticle= True
-						 )
-print job.PixelNtupleWriter
 
 theApp.HistogramPersistency = 'ROOT'
 if not 'OutputNTpl' in dir():
