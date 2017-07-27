@@ -4,7 +4,7 @@
 # art-type: grid
 
 
-Digi_tf.py  --inputHITSFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc15a/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._001041.pool.root.1 --outputRDOFile mc15_2015_ttbar.RDO.pool.root --maxEvents 25 --skipEvents 0  --digiSeedOffset1 11 --digiSeedOffset2 22  --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag default:OFLCOND-RUN12-SDR-25 --DataRunNumber 222500 --postInclude 'default:PyJobTransforms/UseFrontier.py'
+Digi_tf.py  --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/HITS.04919495._001041.pool.root.1 --outputRDOFile mc15_2015_ttbar.RDO.pool.root --maxEvents 25 --skipEvents 0  --digiSeedOffset1 11 --digiSeedOffset2 22  --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag default:OFLCOND-RUN12-SDR-25 --DataRunNumber 222500 --postInclude 'default:PyJobTransforms/UseFrontier.py'
 
 SCRIPT_DIRECTORY=$1
 PACKAGE=$2
