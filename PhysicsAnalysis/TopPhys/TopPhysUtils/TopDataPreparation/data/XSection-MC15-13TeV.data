@@ -35,7 +35,7 @@
 410501   397.11    1.1390   pythia8
 410503   76.93     1.1392   pythia8
 410504   22.90     1.1391   pythia8
-410505   4.30      1.1392   pythia8
+410505   4.3082    1.1392   pythia8
 #colour flipped
 410248   396.94    1.1390   pythia8
 # allhad samples, without noC W decays
@@ -47,17 +47,34 @@
 410532   83.261    1.1390   pythia8
 410533   5.035     1.1390   pythia8
 # nonallhad samples, C/B-filtered, boosted
-# FIXME: cross-sections to be checked
-410507   1.10865    1.1390   pythia8
-410508   2.34475    1.1390   pythia8
+410507   1.1237    1.1391   pythia8
+410508   2.3424    1.1391   pythia8
 
 ## Powheg+P8 samples, hdamp=1.5/3.0mt, A14 tune var 3c up/down
+# nonallhad samples
 410511   448.3933  1.0088   pythia8
 410512   348.3145  1.2988   pythia8
-# allhad samples, without noC W decays
+# dilepton samples - cross-sections to be checked, not yet in central pages
+410515   86.873    1.0088   pythia8
+410516   67.474    1.2989   pythia8
+# nonallhad b-filtered samples - cross-sections to be checked, not yet in central pages
+410517   25.861    1.0087   pythia8
+410518   20.087    1.2986   pythia8
+# dilepton b-filtered samples - cross-sections unknown! - not yet in central pages
+410519   5.1368    1.0089   pythia8
+410520   3.6155    1.2989   pythia8
+# allhad samples, full phase-space - not yet generated - cross-sections unknown!
+410513   0  0   pythia8
+410514   0  0   pythia8
+# nonallhad samples, C/B-filtered, boosted - cross-sections unknown! not yet in central pages - not yet in central pages
+410523   1.5352   1.0088   pythia8
+410524   0.87415  1.2988   pythia8
+410568   3.1760   1.0088   pythia8
+410569   1.8315   1.2988   pythia8
+# allhad boosted samples, without noC W decays
 410521   281.98    1.0088   pythia8
 410522   219.10    1.2988   pythia8
-# allhad samples, noC W decays
+# allhad boosted samples, noC W decays
 410534   93.972    1.0088   pythia8
 410535   73.005    1.2988   pythia8
 
@@ -178,8 +195,8 @@
 410069   0.018103     1.20   pythia8  # ttZ on-shell only
 410070   0.030629     1.20   pythia8  # ttZ on-shell only
 410081   0.0080975    1.2231 pythia8  # ttWW
-# ttgamma - see ANALYSISTO-136
-410082   2.982        1.47   pythia8
+# ttgamma - see ANALYSISTO-136 - see ANALYSISTO-326
+410082   2.982        1.9   pythia8
 410083   0.8471       1.47   pythia8
 410084   0.3359       1.47   pythia8
 
@@ -197,7 +214,7 @@
 # ttV Sherpa
 410142   0.11309      1.09   sherpa
 410143   0.68810      1.10   sherpa
-410144   0.6008       1.04   sherpa
+410144   0.57729      1.04   sherpa
 
 
 # ttV aMcatNLO+Pythia8 - in agreement with YR4 https://twiki.cern.ch/twiki/bin/view/AtlasProtected/CrossSectionNLOttV
@@ -222,6 +239,15 @@
 410373   0.036895     1.12      pythia8 # ttmumu
 410374   0.036599     1.12      pythia8 # tttautau
 410375   0.036599     1.12      pythia8 # tttautau
+
+# low mass ttll and top rare decay - ANALYSISTO-350
+410276   0.0184    1.0   pythia8
+410277   0.0184    1.0   pythia8
+410278   0.00197   1.0   pythia8
+410397   0.1874    1.0   pythia8
+410398   0.1873    1.0   pythia8
+410399   0.01885   1.0   pythia8
+
 
 
 # 4 tops, 3 tops SM
@@ -1893,6 +1919,23 @@
 302775	0.0033791	1.0   pythia8
 302776	0.0017625	1.0   pythia8
 
+# Monotop (DM)
+307166 1.0279       1.0 pythia8
+307167 0.039385     1.0 pythia8
+307168 0.0039533    1.0 pythia8
+307169 0.00064243   1.0 pythia8
+307170 0.00014075   1.0 pythia8
+307171 0.95995      1.0 pythia8
+307172 0.00013562   1.0 pythia8
+307173 0.47326      1.0 pythia8
+307174 0.077998     1.0 pythia8
+307175 0.018246     1.0 pythia8
+307176 0.0053478    1.0 pythia8
+307177 0.0018642    1.0 pythia8
+307178 0.46871      1.0 pythia8
+307179 0.0018086    1.0 pythia8
+307180 0.0030724    1.0 pythia8
+
 # Same-sign top (DM) samples
 308073	1.3042		1.0	pythia8
 308074	0.38954		1.0	pythia8
@@ -2032,6 +2075,13 @@
 304738  0      0    pythia8
 304741  0      0    pythia8
 304742  0      0    pythia8
+
+# again VLQ single production - Xsections from ANALYSISTO-356
+307111 0.003813 1.0 pythia8
+307113 0.34063  1.0 pythia8
+307116 0.001524 1.0 pythia8
+307117 0.03520  1.0 pythia8
+307120 0.019595 1.0 pythia8
 
 # ttH(->tautau)
 342170   0.0536   0.0632   herwigpp
@@ -2208,6 +2258,13 @@
 341620       0.02982         1.0   pythia8
 341621       0.02982         1.0   pythia8
 
+# ggZH, H->2a->4b - ANALYSISTO-349
+345278       0.01242         1.0   pythia8
+345279       0.01242         1.0   pythia8
+345280       0.01242         1.0   pythia8
+345281       0.01242         1.0   pythia8
+345282       0.01242         1.0   pythia8
+
 
 # ttbar LFV Pythia8
 ### warning: dummy cross-sections!!
@@ -2251,3 +2308,101 @@
 344368   0.0231    0.324   pythia8
 344369   0.00687   0.342   pythia8
 344370   0.00252   0.360   pythia8
+
+## HH samples
+#hh->4W 2LSS
+343704   0.001            1 herwigpp
+343706   0.001            1 herwigpp
+343709   0.001            1 herwigpp
+343711   0.001            1 herwigpp
+343712   0.001            1 herwigpp
+343714   0.001            1 herwigpp
+343717   0.001            1 herwigpp
+343719   0.001            1 herwigpp
+#hh->4W 3L
+344854   0.001            1 herwigpp
+344859   0.001            1 herwigpp
+344855   0.001            1 herwigpp
+344856   0.001            1 herwigpp
+344857   0.001            1 herwigpp
+344858   0.001            1 herwigpp
+344860   0.001            1 herwigpp
+344861   0.001            1 herwigpp
+344862   0.001            1 herwigpp
+344863   0.001            1 herwigpp
+#SS->4W
+344927   0.001            1 pythia8
+344928   0.001            1 pythia8
+344929   0.001            1 pythia8
+344930   0.001            1 pythia8
+344931   0.001            1 pythia8
+344932   0.001            1 pythia8
+344933   0.001            1 pythia8
+344934   0.001            1 pythia8
+344935   0.001            1 pythia8
+344936   0.001            1 pythia8
+344937   0.001            1 pythia8
+344938   0.001            1 pythia8
+344939   0.001            1 pythia8
+344940   0.001            1 pythia8
+344941   0.001            1 pythia8
+344942   0.001            1 pythia8
+344943   0.001            1 pythia8
+344944   0.001            1 pythia8
+344945   0.001            1 pythia8
+344946   0.001            1 pythia8
+344947   0.001            1 pythia8
+344948   0.001            1 pythia8
+344949   0.001            1 pythia8
+344950   0.001            1 pythia8
+344951   0.001            1 pythia8
+344952   0.001            1 pythia8
+344953   0.001            1 pythia8
+344954   0.001            1 pythia8
+344955   0.001            1 pythia8
+344956   0.001            1 pythia8
+344957   0.001            1 pythia8
+344958   0.001            1 pythia8
+344959   0.001            1 pythia8
+344960   0.001            1 pythia8
+344961   0.001            1 pythia8
+344962   0.001            1 pythia8
+344963   0.001            1 pythia8
+344964   0.001            1 pythia8
+344965   0.001            1 pythia8
+344966   0.001            1 pythia8
+
+# diphoton samples - ANALYSISTO-357
+364500 57.654 1.0 sherpa
+364501 34.568 1.0 sherpa
+364502 6.2934 1.0 sherpa
+364503 0.49159 1.0 sherpa
+364504 0.063052 1.0 sherpa
+364505 57.697 1.0 sherpa
+364506 34.605 1.0 sherpa
+364507 6.2868 1.0 sherpa
+364508 0.49383 1.0 sherpa
+364509 0.063008 1.0 sherpa
+364510 57.654 1.0 sherpa
+364511 34.645 1.0 sherpa
+364512 6.3013 1.0 sherpa
+364513 0.49304 1.0 sherpa
+364514 0.063019 1.0 sherpa
+364517 5.2592 1.0 sherpa
+364518 1.3391 1.0 sherpa
+364519 0.2448 1.0 sherpa
+364521 199.34 1.0 sherpa
+364522 134.41 1.0 sherpa
+364523 19.076 1.0 sherpa
+364524 1.9252 1.0 sherpa
+364525 0.29968 1.0 sherpa
+364526 199.5 1.0 sherpa
+364527 134.5 1.0 sherpa
+364528 19.158 1.0 sherpa
+364529 1.9171 1.0 sherpa
+364530 0.2952 1.0 sherpa
+364531 199.39 1.0 sherpa
+364532 134.5 1.0 sherpa
+364533 19.119 1.0 sherpa
+364534 1.9369 1.0 sherpa
+364535 0.29983 1.0 sherpa
