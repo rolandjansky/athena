@@ -15,8 +15,8 @@ namespace G4UA
                      const IInterface* parent)
     : ActionToolBaseReport<G4TrackCounter>(type, name, parent)
   {
-    declareInterface<IBeginEventActionTool>(this);
-    declareInterface<IPreTrackingActionTool>(this);
+    declareInterface<IG4EventActionTool>(this);
+    declareInterface<IG4TrackingActionTool>(this);
   }
 
   //---------------------------------------------------------------------------

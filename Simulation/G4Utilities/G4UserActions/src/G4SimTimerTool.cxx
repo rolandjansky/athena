@@ -15,8 +15,7 @@ namespace G4UA
                                  const IInterface* parent)
     : ActionToolBaseReport<G4SimTimer>(type, name, parent)
   {
-    declareInterface<IBeginEventActionTool>(this);
-    declareInterface<IEndEventActionTool>(this);
+    declareInterface<IG4EventActionTool>(this);
   }
 
   //---------------------------------------------------------------------------

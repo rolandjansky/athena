@@ -24,7 +24,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Increment event counter
   //---------------------------------------------------------------------------
-  void G4TrackCounter::beginOfEvent(const G4Event* /*event*/)
+  void G4TrackCounter::BeginOfEventAction(const G4Event* /*event*/)
   {
     m_report.nEvents++;
   }
@@ -32,7 +32,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Increment track counters
   //---------------------------------------------------------------------------
-  void G4TrackCounter::preTracking(const G4Track* track)
+  void G4TrackCounter::PreUserTrackingAction(const G4Track* track)
   {
     m_report.nTotalTracks++;
     TrackHelper helper(track);
