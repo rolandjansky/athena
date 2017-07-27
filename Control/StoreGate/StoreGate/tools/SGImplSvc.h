@@ -629,7 +629,10 @@ public:
   /// Find an exact match; no handling of aliases, etc.
   /// Returns 0 to flag failure.
   virtual SG::DataProxy* proxy_exact (SG::sgkey_t sgkey) const override final
-  { return m_pStore->proxy_exact (sgkey); }
+  {
+    lock_t lock (m_mutex);
+    return m_pStore->proxy_exact (sgkey);
+  }
     
 
   //@}
