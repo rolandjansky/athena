@@ -5,9 +5,6 @@
 #ifndef G4USERACTIONS__G4UA_G4TRACKCOUNTERTOOL_H
 #define G4USERACTIONS__G4UA_G4TRACKCOUNTERTOOL_H
 
-// STL includes
-#include <string>
-
 // Infrastructure includes
 #include "G4AtlasInterfaces/IBeginEventActionTool.h"
 #include "G4AtlasInterfaces/IPreTrackingActionTool.h"
@@ -37,11 +34,11 @@ namespace G4UA
       G4TrackCounterTool(const std::string& type, const std::string& name,
                          const IInterface* parent);
 
-      /// Initialize tool - temporarily just for debugging
-      virtual StatusCode initialize() override;
+      /// Initialize tool
+      virtual StatusCode initialize() override final;
 
       /// Finalize and merge results from all threads
-      virtual StatusCode finalize() override;
+      virtual StatusCode finalize() override final;
 
       /// Retrieve the begin-event action interface
       virtual IBeginEventAction* getBeginEventAction() override final
