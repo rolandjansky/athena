@@ -183,6 +183,18 @@ top::TopObjectSelection* loadObjectSelection(std::shared_ptr<top::TopConfig> con
  */
 top::EventSaverBase* loadEventSaver(std::shared_ptr<top::TopConfig> config);
 
+/**
+ * @brief This function will be used to load the metadata object and pull information
+ * from it. We will then need to look at storing the info in TopConfig
+ *
+ * @param inputFile Include a single TFile which we load and read
+ * @param config Pass in the config, before it is fixed, so that we can add info
+ *
+ * @return If successful, return true, else return false
+ */
+
+bool readMetaData(TFile* inputFile, std::shared_ptr<top::TopConfig> config);
+
 }
 
 #endif
