@@ -75,12 +75,14 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("JetUncertainties_BunchSpacing",
                       "25ns (default) or 50ns - for JetUncertainties",
                       "25ns");
-//     registerParameter("JetUncertainties_NPModel","AllNuisanceParameters, 19NP or 3NP (default) - for JetUncertainties","3NP");
-    registerParameter("JetUncertainties_NPModel","AllNuisanceParameters, 29NP_ByCategory, or 21NP (default) - for JetUncertainties","21NP");
+    registerParameter("JetUncertainties_NPModel","AllNuisanceParameters, CategoryReduction, GlobalReduction (default), StrongReduction - for JetUncertainties","GlobalReduction");
+    registerParameter("JetUncertainties_QGFracFile","To specify a root file with quark/gluon fractions,"
+                      " in order to reduce FlavourComposition and response uncertainties."
+                      " Default: None (i.e. no file is used and default flat 50+/-50% fraction is used).","None");
     registerParameter("LargeRSmallRCorrelations",
                       "Do large-small R jet correlation systematics - True or False (default)",
                       "False");
-    registerParameter("JetJERSmearingModel","Full (inc data smearing) or Simple (default)","Simple"); 
+    registerParameter("JetJERSmearingModel","Full (inc data smearing), Full_PseudoData (use MC as pseudo-data) or Simple (1NP, MC only - default)","Simple");
     registerParameter("JetCalibSequence","Jet calibaration sequence, GSC (default) or JMS","GSC");
     registerParameter("JVTinMETCalculation", "Perfom a JVT cut on the jets in the MET recalculation? True (default) or False.", "True" );
     
@@ -95,6 +97,10 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("LargeRJESJMSConfig",
 		      "Calibration for large-R JES/JMS. CombinedMass or CaloMass (default CombinedMass).",
                       "CombinedMass");
+    registerParameter("LargeRToptaggingConfigFile",
+                      "Configuration file for top tagging (default or NFC). default=d23,tau32 (recommended) NFC=m,tau32"
+                      "(alternative not optimized on large-R jet containing a truth top)",
+                      "default");
     
     registerParameter("TrackJetPt", "Track Jet pT cut for object selection (in MeV). Default 7 GeV.", "7000.");
     registerParameter("TrackJetEta", "Absolute Track Jet eta cut for object selection. Default 2.5.", "2.5" );
@@ -236,11 +242,12 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("LHAPDFBaseSet", "Base PDF set used to recalculate XF1,XF2 values if they are zero. Will be added to LHAPDFSets.", " " );
 
     registerParameter("BTaggingWP",
-                      "b-tagging WPs to calculate SF for."
-                      " Can be either a list of cut values written as in "
-                      "the CDI files e.g. -0_4434 (default), or as -0.4434."
-                      " More conviniently it can be a percentage: e.g. 77%.",
-                      "-0_4434");
+                      "b-tagging WPs to use in the analysis, separated by commas."
+                      " The format should follow the convention of the b-tagging CP group, e.g. FixedCutBEff_60, FlatBEff_77, Continuous, etc."
+                      " For fixed-cut WPs, the simpler format 60%, instead of FixedCutBEff_60, is also tolerated."
+                      " The specified WPs which are calibrated for all flavours will have scale-factors computed."
+                      " By default, no WP is used.",
+                      " ");
 
     registerParameter("BTaggingSystExcludedFromEV",
                       "User-defined list of b-tagging systematics to be dextracted from eigenvector decomposition, separated by semi-colons (none by default)",
@@ -268,6 +275,11 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
                       "Use mu dependent random run numbers for MC. "
                       "True or False (default True)",
                       "True");
+    registerParameter("PRWCustomScaleFactor",
+                      "Specify custom scale-factor and up/down variations, for specific studies."
+                      "Format is \'nominal:up:down\'."
+                      "If nothing is set, the default values will be used (recommended).",
+                      " ");
 
     registerParameter("MuonTriggerSF", "Muon trigger SFs to calculate", "HLT_mu20_iloose_L1MU15_OR_HLT_mu50");
     
@@ -292,6 +304,13 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
                      "Set to run HL-LHC studies,"
                      "True or False (default False)",
                      "False");
+
+    registerParameter("SaveBootstrapWeights", "Set to true in order to save Poisson bootstrap weights,"
+		      "True or False (default False)", "False");
+    
+    registerParameter("NumberOfBootstrapReplicas", "Define integer number of replicas to be stored with bootstrapping, "
+		      "Default 100", "100");
+
 }
 
 ConfigurationSettings* ConfigurationSettings::get() {

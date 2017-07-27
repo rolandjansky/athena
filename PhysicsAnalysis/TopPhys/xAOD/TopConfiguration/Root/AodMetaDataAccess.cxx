@@ -4,7 +4,6 @@
 
 #include "TopConfiguration/AodMetaDataAccess.h"
 
-#include <vector>
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
