@@ -79,20 +79,22 @@ PHYSVALSlimmingHelper.AllVariables = [ "Electrons", "Photons", "Muons", "Primary
                                        "AntiKt10TruthWZJets", "AntiKt10LCTopoJets", "AntiKt2PV0TrackJets",
                                        "AntiKt4PV0TrackJets", "AntiKt4TruthJets",
                                        "Kt4EMPFlowEventShape","Kt4LCTopoOriginEventShape","Kt4EMTopoOriginEventShape",
-                                       "BTagging_AntiKt4EMTopoJFVtx","BTagging_AntiKt4EMTopo",
-                                       "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx","BTagging_AntiKt4EMPFlow",
-                                       "BTagging_AntiKtVR30Rmax4Rmin02Track","BTagging_AntiKt4EMPFlowJFVtx",
-                                       #"BTagging_AntiKt4EMPFlowSecVtx","BTagging_AntiKt2TrackSecVtx","BTagging_AntiKt4EMTopoSecVtx",
-                                       #"BTagging_AntiKt4TrackSecVtx","BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx",
                                        "LCOriginTopoClusters","EMOriginTopoClusters",
+                                       "BTagging_AntiKt4EMTopoJFVtx",
+#                                       "BTagging_AntiKt4EMTopoSecVtx",
+                                       "BTagging_AntiKt4EMTopo",
+                                       "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx",
+#                                       "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx",
+                                       "BTagging_AntiKtVR30Rmax4Rmin02Track",
+                                       "BTagging_AntiKt4EMPFlowJFVtx",
+#                                       "BTagging_AntiKt4EMPFlowSecVtx",
+                                       "BTagging_AntiKt4EMPFlow",
                                        "TruthParticles", "TruthEvents", "TruthVertices"
                                      ]
-#PHYSVALSlimmingHelper.ExtraVariables = [ 
-                                         #"BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
-                                         #"BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx.-vxTrackAtVertex",
-                                         #"BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex",
-                                         #"BTagging_AntiKt4TrackSecVtx.-vxTrackAtVertex",
-                                         #"BTagging_AntiKt4EMPFlowSecVtx.-vxTrackAtVertex" ]
+
+#PHYSVALSlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
+#                                         "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx.-vxTrackAtVertex",
+#                                         "BTagging_AntiKt4EMPFlowSecVtx.-vxTrackAtVertex" ]
 
 
 # Trigger content
@@ -112,26 +114,24 @@ PHYSVALSlimmingHelper.IncludeMinBiasTriggerContent = True
 PHYSVALSlimmingHelper.AppendToDictionary = {
   "AntiKtVR30Rmax4Rmin02TrackJets"             :   "xAOD::JetContainer"        ,
   "AntiKtVR30Rmax4Rmin02TrackJetsAux"          :   "xAOD::JetAuxContainer"     ,
+  "BTagging_AntiKt4EMTopoJFVtx"                :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKt4EMTopoJFVtxAux"             :   "xAOD::BTaggingAuxContainer",
+  #"BTagging_AntiKt4EMTopoSecVtx"               :   "xAOD::VertexContainer"     ,
+  #"BTagging_AntiKt4EMTopoSecVtxAux"            :   "xAOD::VertexAuxContainer"  ,
+  "BTagging_AntiKt4EMTopo"                     :   "xAOD::VertexContainer"     ,
+  "BTagging_AntiKt4EMTopoAux"                  :   "xAOD::VertexAuxContainer"  ,
+  "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx"   :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtxAux":   "xAOD::BTaggingAuxContainer",
+  #"BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx"  :   "xAOD::VertexContainer"     ,
+  #"BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtxAux"  :"xAOD::VertexAuxContainer"  ,  
   "BTagging_AntiKtVR30Rmax4Rmin02Track"        :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"     :   "xAOD::BTaggingAuxContainer",
-  "BTagging_AntiKt2Track"                      :   "xAOD::BTaggingContainer"   ,
-  "BTagging_AntiKt2TrackAux"                   :   "xAOD::BTaggingAuxContainer",
-  "BTagging_AntiKt4Track"                      :   "xAOD::BTaggingContainer"   ,
-  "BTagging_AntiKt4TrackAux"                   :   "xAOD::BTaggingAuxContainer",
-  "BTagging_AntiKt2TrackJFVtx"                 :   "xAOD::BTagVertexContainer"   ,
-  "BTagging_AntiKt2TrackJFVtxAux"              :   "xAOD::BTagVertexAuxContainer",
-  "BTagging_AntiKt4TrackJFVtx"                 :   "xAOD::BTagVertexContainer"   ,
-  "BTagging_AntiKt4TrackJFVtxAux"              :   "xAOD::BTagVertexAuxContainer",
-  "BTagging_AntiKt2TrackSecVtx"                :   "xAOD::VertexContainer"   ,
-  "BTagging_AntiKt2TrackSecVtxAux"             :   "xAOD::VertexAuxContainer",
-  "BTagging_AntiKt4TrackSecVtx"                :   "xAOD::VertexContainer"   ,
-  "BTagging_AntiKt4TrackSecVtxAux"             :   "xAOD::VertexAuxContainer",
-  "BTagging_AntiKt4EMTopoSecVtx"               :   "xAOD::VertexContainer"   ,
-  "BTagging_AntiKt4EMTopoSecVtxAux"            :   "xAOD::VertexAuxContainer",
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx"  :   "xAOD::VertexContainer"   ,
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtxAux"  :"xAOD::VertexAuxContainer",  
-  "BTagging_AntiKt4EMPFlowSecVtx"              :   "xAOD::VertexContainer"   ,
-  "BTagging_AntiKt4EMPFlowSecVtxAux"           :   "xAOD::VertexAuxContainer",
+  "BTagging_AntiKt4EMPFlowJFVtx"               :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKt4EMPFlowJFVtxAux"            :   "xAOD::BTaggingAuxContainer",
+  #"BTagging_AntiKt4EMPFlowSecVtx"              :   "xAOD::VertexContainer"     ,
+  #"BTagging_AntiKt4EMPFlowSecVtxAux"           :   "xAOD::VertexAuxContainer"  ,
+  "BTagging_AntiKt4EMPFlow"                    :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKt4EMPFlowAux"                 :   "xAOD::BTaggingAuxContainer",
   }
 #----------------------------------------------------------------------
 
