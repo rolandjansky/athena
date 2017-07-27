@@ -12,17 +12,18 @@
 // 
 // ************************************************
 
-#ifndef TRIGBJETHYPOTOOL_H
-#define TRIGBJETHYPOTOOL_H
+#ifndef TRIGBJETHYPO_TRIGBJETHYPOTOOL_H
+#define TRIGBJETHYPO_TRIGBJETHYPOTOOL_H 1
 
 // This is in current hypo, not sure if needed
 //#include "TrigInterfaces/HypoAlgo.h"
 
-// These are copied fromn Egamma, not sure what is needed, thus commented out
-/* #include "CLHEP/Units/SystemOfUnits.h" */
-/* #include "xAODTrigCalo/TrigEMCluster.h" */
-/* #include "TrigSteeringEvent/TrigRoiDescriptor.h" */
-/* #include "AthenaMonitoring/GenericMonitoringTool.h" */
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "xAODBTagging/BTaggingAuxContainer.h"
+#include "xAODBTagging/BTaggingContainer.h"
+#include "xAODBTagging/BTagging.h"
 
 // Are these new?
 #include "DecisionHandling/HLTIdentifier.h"
@@ -61,16 +62,16 @@ static const InterfaceID IID_TrigBjetHypoTool("TrigBjetHypoTool", 1, 0);
  */
 
 
-class TrigBjetHypo : virtual public ::AthAlgTool {
+class TrigBjetHypoTool : virtual public ::AthAlgTool {
 
  public:
 
   /** @brief Constructor. */
-  TrigBjetHypo (const std::string& type,
+  TrigBjetHypoTool (const std::string& type,
 		const std::string& name,
 		const IInterface* parent );
   /** @brief Destructor. */
-  virtual ~TrigBjetHypo ();
+  virtual ~TrigBjetHypoTool ();
 
   StatusCode initialize() override;
   StatusCode finalize() override;
@@ -86,13 +87,15 @@ class TrigBjetHypo : virtual public ::AthAlgTool {
    * Note it is for a reason a non-virtual method, it is an interface in gaudi sense and implementation.
    * There will be many tools called often to perform this quick operation and we do not want to pay for polymorphism which we do not need to use.
    **/
-  bool decide(  const xAOD::TrigEMCluster* cluster, const TrigRoiDescriptor* roi )  const;  //-------->>>>>>>>
+  bool decide(  const xAOD::BTagging* bTag, const TrigRoiDescriptor* roiDescriptor )  const;  
+  //  bool decide(  const xAOD::BTaggingContainer* trigBTaggingContainer, const TrigRoiDescriptor* roiDescriptor )  const;  
+
 
  private:
 
   HLT::Identifier m_id;
 
-  std::string m_jetKey;
+  //  std::string m_jetKey; // not sure if needed, with some changes new configuration may be established
 
   /** @brief DeclareProperty: if acceptAll flag is set to true, every event is taken. */ 
   bool m_acceptAll;
@@ -100,20 +103,26 @@ class TrigBjetHypo : virtual public ::AthAlgTool {
   std::string m_methodTag; 
   /** @brief DeclareProperty: lower bound of the discriminant variable to be selected (if flag acceptAll is set to false) for MV2 tagger. */
   float m_xcutMV2c20;
+  float m_xcutMV2c10;
 
 
   // Not sure if needed
   /** @brief DeclareProperty: string corresponding to the trigger level in which the algorithm is running. */
-  //  std::string m_instance;
+  std::string m_instance;
 
   /** @brief to check the beam spot flag status. */
   bool m_useBeamSpotFlag;
+
+ /** @brief Overide the requirement that the BS is valid. */
+  /** @brief Used to not apply the correction to the GSC chains */
+  bool m_overRideBeamSpotValid;
+
 
   /** @brief DeclareProperty: to monitor method used to perform the cut. */
   //  float m_monitorMethod;
   ToolHandle<GenericMonitoringTool> m_monTool;
 
-  // Monitored variables, mey not be needed
+  // Monitored variables, may not be needed
 
 /** @brief DeclareProperty: to monitor method used to perform the cut. */
   float m_monitorMethod;
@@ -127,5 +136,5 @@ inline const InterfaceID& TrigBjetHypoTool::interfaceID()
    return IID_TrigBjetHypoTool;
 }
 
-#endif
+#endif // !TRIGBJETHYPO_TRIGBJETHYPOTOOL_H
 

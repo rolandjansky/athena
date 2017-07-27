@@ -10,11 +10,11 @@ TrigBjetHypoAlg::TrigBjetHypoAlg( const std::string& name,
   ::AthReentrantAlgorithm( name, pSvcLocator ),
   m_hypoTools( this ),
   m_roisKey( "RoIs" ),
-  m_btagKey( "BTagging" ),
+  m_bTagKey( "BTagging" ),
   m_decisionsKey( "BjetHypoDecisions" ) {
 
   declareProperty( "HypoTools", m_hypoTools );
-  declareProperty( "BTagging", m_btagKey );
+  declareProperty( "BTagging", m_bTagKey );
   declareProperty( "RoIs", m_roisKey );
   declareProperty( "Decisions", m_decisionsKey ); 
 }
@@ -26,7 +26,7 @@ StatusCode TrigBjetHypoAlg::initialize()
 {
   ATH_MSG_INFO ( "Initializing " << name() << "..." );
   CHECK( m_hypoTools.retrieve() );
-  CHECK( m_btagKey.initialize() );
+  CHECK( m_bTagKey.initialize() );
   CHECK( m_roisKey.initialize() );
   CHECK( m_decisionsKey.initialize() );
   return StatusCode::SUCCESS;
@@ -42,7 +42,7 @@ StatusCode TrigBjetHypoAlg::finalize()
 StatusCode TrigBjetHypoAlg::execute_r( const EventContext& context ) const
 {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
-  auto bTagHandle = SG::makeHandle( m_btagKey, context );
+  auto bTagHandle = SG::makeHandle( m_bTagKey, context );
   auto roisHandle = SG::makeHandle( m_roisKey, context );
   
   auto decisions = std::make_unique<DecisionContainer>();
@@ -64,14 +64,14 @@ StatusCode TrigBjetHypoAlg::execute_r( const EventContext& context ) const
   for ( ; index < decisions->size(); ++index ) {
 
     auto bTag = bTagHandle->at( index );
-    auto roi = roisHandle->at( index );
+    auto roiDescriptor = roisHandle->at( index );
     auto decision = decisions->at( index );
 
 
     for ( auto tool : m_hypoTools ) {
       // interface of the tool needs to be suitable for current system, so no TrigComposite
       // also no support for the multi-electrons yet ( will be additional method )
-      if ( tool->decide( bTag, roi ) ) {   
+      if ( tool->decide( bTag, roiDescriptor ) ) {   
 	addDecisionID( tool->decisionId(), decision );	  
 	ATH_MSG_DEBUG( " + " << tool->name() );
       } else {
@@ -88,5 +88,7 @@ StatusCode TrigBjetHypoAlg::execute_r( const EventContext& context ) const
 
   return StatusCode::SUCCESS;
 }
+
+
 
 
