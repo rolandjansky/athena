@@ -39,6 +39,7 @@ class FrontierCursor2:
         appendix = ":".join([str(v) for v in values])
         queryWithQuestionMarks = re.sub(':[A-z0-9]*','?', query)
         query = queryWithQuestionMarks + ':' + appendix
+        print query
         return query
 
     @classmethod
@@ -50,7 +51,10 @@ class FrontierCursor2:
         for var,val in bindvars.items():
             if query.find(":%s" % var)<0:
                 raise NameError("variable '%s' is not a bound variable in this query: %s" % (var, query) )
-            query = query.replace(":%s" % var,"%r" % val)
+            if type(val) == long:
+                query = query.replace(":%s" % var,"%s" % val)
+            else:
+                query = query.replace(":%s" % var,"%r" % val)
             log.debug("Resolving bound variable '%s' with %r" % (var,val))
         log.debug("Resolved query: %s" % query)
         return query
@@ -218,7 +222,17 @@ Refresh cache:  %s""" % (self.url, self.refreshFlag)
                 fields = [x for i,x in enumerate(firstRow.split()) if i%2==0]
                 types = [x for i,x in enumerate(firstRow.split()) if i%2==1]
                 Nfields = len(fields)
-                ptypes = [int if t.startswith("NUMBER") else str for t in types]
+                ptypes = []
+                for t in types:
+                    if t.startswith("NUMBER"):
+                        if ",0" in t:
+                            ptypes.append(int)
+                        else:
+                            ptypes.append(float)
+                    else:
+                        ptypes.append(str)
+
+
                 log.debug("Fields      : %r" % fields)
                 log.debug("DB Types    : %r" % types)
                 log.debug("Python Types: %r" % ptypes)
