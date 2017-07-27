@@ -36,7 +36,7 @@ class IdentifiableCacheBase
 public:
 
 typedef std::true_type thread_safe;
-
+typedef std::set<IdentifierHash> idset_t;
 #if 0
   struct deleter
   {
@@ -106,7 +106,7 @@ private:
   // Set of currently populated hashes.
   // If a hash has an entry in the set but not in the vector,
   // a conversion is in progress.
-  typedef std::set<IdentifierHash> idset_t;
+
   idset_t m_ids;
 
   typedef std::mutex mutex_t;

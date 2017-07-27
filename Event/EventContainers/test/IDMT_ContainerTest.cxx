@@ -28,13 +28,16 @@ namespace IDC_TEST
 
     class MyDigit 
     {
+    
     public: 
-        MyDigit(float d) :m_digit(d) {} 
-        float val() const { return m_digit ;}  
+        MyDigit(float d) :m_digit(d) {s_total++;} 
+        float val() const { return m_digit ;}
+    ~MyDigit(){ s_total--; }
+    static int s_total;
     private: 
         float m_digit; 
     }; 
-
+    int MyDigit::s_total = 0;
     static const CLID CLID_MYCOLLECTION=10000; 
 
     class MyCollection
@@ -46,7 +49,7 @@ namespace IDC_TEST
         typedef std::vector<DIGIT*>::const_iterator const_iterator; 
 
         MyCollection( ) :m_id(0) { return; } 
-        MyCollection(MyID& id ){ m_id=id; return; } 
+        MyCollection(const MyID& id ){ m_id=id; return; } 
         ~MyCollection()         {
             std::vector<DIGIT*>::const_iterator it = m_vector.begin();
             std::vector<DIGIT*>::const_iterator it_end = m_vector.end();
@@ -82,7 +85,23 @@ namespace IDC_TEST
              
         }
 
+        MyCollectionContainer( EventContainers::IdentifiableCache<MyCollection> *m ) :
+                IdentifiableContainerMT<MyCollection>(m)   {    
+             
+        }
+
     }; 
+
+//Setup cache with a helper class
+class DefaultMaker : public EventContainers::IdentifiableCache<MyCollection>::Maker
+{
+   public:
+    virtual std::unique_ptr<MyCollection> make (IdentifierHash )  const override{
+       return std::make_unique<MyCollection>(); //Create cache element collections
+    }
+
+}; 
+
 
 }  // end of the name space 
 
@@ -511,17 +530,79 @@ int ID_ContainerTest::execute(){
       std::cout << nd << "!=" <<  itemsadded << std::endl;
       std::cout << "SELECTOR Bug LINE " << __LINE__ << std::endl; std::abort();
     }
-
+    delete container2; container2 = nullptr;
 //Test Empty
     MyCollectionContainer* dempty = new MyCollectionContainer(100); 
     if(dempty->begin() != dempty->end()){
-       std::cout << "empty container not working see LINE " << __LINE__ << std::endl; std::abort();
+       std::cout << __FILE__ << " empty container not working see LINE " << __LINE__ << std::endl; std::abort();
     }
     SELECTOR emptyselect(dempty);
     if(emptyselect.begin() != emptyselect.end()){
-       std::cout << "empty SELECTOR not working see LINE " << __LINE__ << std::endl; std::abort();
+       std::cout << __FILE__ << " empty SELECTOR not working see LINE " << __LINE__ << std::endl; std::abort();
+    }
+    delete dempty; dempty = nullptr;
+
+//Test Online IDC
+    static const DefaultMaker* maker= new DefaultMaker();
+    auto cache = new EventContainers::IdentifiableCache<MyCollection>(IdentifierHash(100), maker);
+    cache->add(IdentifierHash(0), new MyCollection(MyID(0)));
+    cache->add(IdentifierHash(3), new MyCollection(MyID(3)));//Some pre cached collections
+
+    auto containerOnline = new MyCollectionContainer(cache);
+    if(containerOnline->FetchOrCreate(IdentifierHash(0)).isFailure()){
+         cout << "Error in FetchOrCreate " << endl; std::abort();
+
+    }
+    if(containerOnline->addCollection(new MyCollection(MyID(10)), IdentifierHash(10)).isFailure()){
+         cout << "Error in addCollection cache link " << endl; std::abort();
+    }
+//	if (sc.isFailure())
+//            std::cout << "error:addCollection->" << p->identifyHash() << std::endl;
+    std::vector<IdentifierHash> cacheshouldcontain = { IdentifierHash(0), IdentifierHash(3), IdentifierHash(10) };
+    std::vector<IdentifierHash> IDCshouldContain = { IdentifierHash(0), IdentifierHash(10) };
+    assert(cache->ids().size() == 3);
+    if(cache->ids() != cacheshouldcontain){
+        std::cout << __FILE__ << " cache does not contain correct elements" << endl;
+        std::abort();
+    }
+    assert(containerOnline->GetAllCurrentHashs().size() == 2);
+    if(containerOnline->GetAllCurrentHashs() != IDCshouldContain){
+        std::cout << __FILE__ << " IDC does not contain correct elements" << endl;
+        std::abort();
     }
 
+    {
+       int l = 0;
+       auto be = containerOnline->begin();
+       auto end = containerOnline->end();
+       while(be!=end){
+	  if(IDCshouldContain[l] != be.hashId()) {
+             std::cout << __FILE__ << " IDC does not contain correct elements " << __LINE__ << endl;
+             std::cout << "should be " << cacheshouldcontain[l]  << " is " << be.hashId() << endl; std::abort();
+          }else{
+             std::cout << "Correctly contains " << cacheshouldcontain[l].value() << endl;
+          }
+//          for(int f=0;f<l;f++) be->add(new MyDigit(l));
+          ++be; ++l;
+       }
+       auto acollection = new MyCollection(MyID(55));
+       for(int f=0;f<20;f++) acollection->add(new MyDigit(f));
+       containerOnline->addCollection(acollection, IdentifierHash(55));
+       SELECTOR select(containerOnline);
+
+       digit_const_iterator it1 = select.begin(); 
+       digit_const_iterator it2 = select.end();  
+       size_t count = 0;
+       for( ; it1!=it2; ++it1) count++;
+       cout << "count is " << count << " should be 20 " << endl;
+       if(count !=20) std::abort();
+    }
+
+
+
+    delete cache;
+    delete containerOnline;
+    cout << "MyDigits left undeleted " << MyDigit::s_total << endl;    
 }
     return 0;
 
