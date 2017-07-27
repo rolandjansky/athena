@@ -17,8 +17,8 @@ namespace G4UA
                             const IInterface* parent)
     : ActionToolBase<MCTruthSteppingAction>(type, name, parent)
   {
-    declareInterface<ISteppingActionTool>(this);
-    declareInterface<IBeginEventActionTool>(this);
+    declareInterface<IG4EventActionTool>(this);
+    declareInterface<IG4SteppingActionTool>(this);
     declareProperty("VolumeCollectionMap", m_volumeCollectionMap,
                     "Map of volume name to output collection name");
   }

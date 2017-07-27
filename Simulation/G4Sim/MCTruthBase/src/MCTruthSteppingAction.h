@@ -14,11 +14,13 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthMessaging.h"
 
+// Geant4 includes
+#include "G4UserEventAction.hh"
+#include "G4UserSteppingAction.hh"
+
 // Local includes
 #include "RecordingEnvelope.h"
 
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/ISteppingAction.h"
 
 namespace G4UA
 {
@@ -29,8 +31,8 @@ namespace G4UA
   /// This user action utilizes RecordingEnvelope objects to save truth tracks
   /// at entry/exit layers of certain configured detector layers.
   ///
-  class MCTruthSteppingAction : public IBeginEventAction,
-                                public ISteppingAction,
+  class MCTruthSteppingAction : public G4UserEventAction,
+                                public G4UserSteppingAction,
                                 public AthMessaging
   {
 
@@ -47,12 +49,12 @@ namespace G4UA
 
       /// Called at the start of each G4 event. Used to ensure that the
       /// TrackRecordCollection WriteHandles are valid.
-      virtual void beginOfEvent(const G4Event*) override final;
+      virtual void BeginOfEventAction(const G4Event*) override final;
 
       /// Process one particle step. If the step crosses a recording
       /// envelope volume boundary, passes the step to the corresponding
       /// RecordingEnvelope to add a TrackRecord.
-      virtual void processStep(const G4Step*) override final;
+      virtual void UserSteppingAction(const G4Step*) override final;
 
     private:
 
