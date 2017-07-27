@@ -121,6 +121,9 @@ StatusCode InDet::InDetTrackSplitterTool::initialize()
     return StatusCode::SUCCESS;
   } 
 
+  ATH_CHECK( m_outputUpperTracksName.initialize() );
+  ATH_CHECK( m_outputLowerTracksName.initialize() );
+
   msg(MSG::DEBUG) << "InDetTrackSplitterTool initialized" << endmsg;
   return StatusCode::SUCCESS;
 
