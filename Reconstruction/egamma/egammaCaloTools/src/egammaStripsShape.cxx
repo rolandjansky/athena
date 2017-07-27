@@ -83,10 +83,11 @@ egammaStripsShape::egammaStripsShape(const std::string& type,
   //
   // calculate quantities base on information in the strips in a region
   // around the cluster. 
+  //
   // Use 2 strips in phi and cover a region of +-1.1875
-  // times 0.025 in eta (corresponds to 19 strips in em barrel)
+  // 5 cells in eta based on second sampling granularity ~0.025 in eta.
+  //Corresponds to ~19 strips in em barrel)
   //  
-  //calculate quantities based on information in a region around the cluster. 
   declareProperty("Neta",m_neta=5,
 		  "Number of eta cell in each sampling in which to calculated shower shapes");
 
@@ -160,19 +161,15 @@ StatusCode egammaStripsShape::execute(const xAOD::CaloCluster *cluster,
 {
   //
   // Estimate shower shapes from first compartment
-  // based on hottest cell and deta,dphi
-  // with eta = m_cluster->eta(sam)
-  //      phi = m_cluster->phi(sam)
-  // and search for hottest cell based on granularity in the second sampling 
+  // based on hottest cell in 2nd sampling , the  deta,dphi,
+  // And the barycenter in the 1st sampling (seed) 
   //
   ATH_MSG_DEBUG(" egammaStripsShape: execute");
-
   // check if cluster is available
   if(!cluster) { 
     ATH_MSG_DEBUG(" egammaStripsShape: Invalid pointer to cluster");
     return StatusCode::SUCCESS;
   }
-
   // check if cell container is available
   if(!cell_container) { 
     ATH_MSG_DEBUG(" egammaStripsShape: Invalid pointer to cell_container");
@@ -214,7 +211,7 @@ StatusCode egammaStripsShape::execute(const xAOD::CaloCluster *cluster,
 
   // From the original (eta,phi) position, find the location
   // (sampling, barrel/end-cap, granularity)
-  if (!FindPosition()) return StatusCode::SUCCESS;
+  if (!FindPosition()) {return StatusCode::SUCCESS;}
   
   // Fill the array in energy and eta from which all relevant
   // quantities are estimated
@@ -330,8 +327,8 @@ bool egammaStripsShape::FindPosition()
   // check if cluster is in barrel or end-cap
   // sam is used in SetArray to check that cells belong to strips
   // samgran is used to estimated window to use cells in eta
-  // it is based on granularity of middle
-  // NB: for phi we use the strip granularity !!!!! 
+  // it is based on granularity of middle layer
+  // For phi we use the strip layer granularity  
   bool in_barrel =  m_egammaEnergyPositionAllSamples->inBarrel();
   // define accordingly position of xAOD::CaloCluster
   if (in_barrel) {
@@ -383,34 +380,7 @@ bool egammaStripsShape::FindPosition()
   // width in phi is granularity (dde->dphi()) times number of cells (m_nphi)
   m_dphi = dde->dphi()*m_nphi/2.0;
 
-  // Calculate the size of the arrays
-  // granularity as for 1st sampling
-  CaloCell_ID::CaloSample samgran1;
-  if (in_barrel) {
-    samgran1 = CaloCell_ID::EMB1; 
-  } else {
-    samgran1 = CaloCell_ID::EME1; 
-  }
-  m_calo_dd->decode_sample(m_subcalo, m_barrel, m_sampling_or_module, samgran1);
-  dde = m_calo_dd->get_element(m_subcalo, m_sampling_or_module, m_barrel, m_etamax, m_phimax);
-  double deta1 = dde->deta();
-
-  // granularity as for 2nd sampling
-  if (in_barrel) {
-    samgran1 = CaloCell_ID::EMB2; 
-  } else {
-    samgran1 = CaloCell_ID::EME2; 
-  }
-  m_calo_dd->decode_sample(m_subcalo, m_barrel, m_sampling_or_module, samgran1);
-  dde = m_calo_dd->get_element(m_subcalo, m_sampling_or_module, m_barrel, m_etamax, m_phimax);
-  double deta2 = dde->deta();
-
-  m_sizearrayeta = (int)(m_neta*deta2/deta1);
-  m_sizearrayeta = std::min((int)STRIP_ARRAY_SIZE,m_sizearrayeta);
-
-  // NB: actually we overwrite this logic as we use a constant size array now
   m_sizearrayeta = (int)STRIP_ARRAY_SIZE;
-  //std::cout << " sizearrayeeta = " << m_sizearrayeta << std::endl;
 
   return true;
 }
@@ -432,9 +402,6 @@ void egammaStripsShape::setArray(CaloSampling::CaloSample sam,
   // two ways can be used to create the array
   // 1- From the list of cells attached to the cluster
   // 2 -Use a calo Cell List
-  // The CaloCellList uses the ATLAS frame
-  
-  
   // temporary array of cell 
   StripArrayHelper stripArray[DOUBLE_STRIP_ARRAY_SIZE];
 
@@ -509,8 +476,8 @@ void egammaStripsShape::setArray(CaloSampling::CaloSample sam,
   }
   else {
     CaloCellList *ccl = new CaloCellList(m_cellContainer);
-    //CaloCellList uses ATLAS co-ordinated, make it a bit larger than the final target
-    ccl->select(dde->eta(),dde->phi_raw(),deta*1.25,dphi*1.25,sam);
+    //CaloCellList uses ATLAS co-ordinates
+    ccl->select(dde->eta(),dde->phi_raw(),deta,dphi,sam);
     // defines the cells interators
     CaloCellList::list_iterator first=ccl->begin();
     CaloCellList::list_iterator last =ccl->end();
@@ -546,7 +513,6 @@ void egammaStripsShape::setArray(CaloSampling::CaloSample sam,
       }
     }
   }
-
   // Exit early if no cells.
   if (index_array == 0){
     return;
@@ -621,14 +587,7 @@ void egammaStripsShape::setIndexSeed(double eta)
     eta_min = m_etacell[ieta]-demi_eta;
     eta_max = m_etacell[ieta]+demi_eta;
     
-    /*std::cout << " eta = " << eta 
-	      << " " << m_etacell[ieta]
-	      << " " << demi_eta
-	      << " " << eta_min
-	      << " " << eta_max
-	      << std::endl;*/
-    // beware that list is arranged from larger values to smaller ones
-    //if (fabs(eta)>fabs(m_etacellseed[ieta]) && fabs(eta)<=fabs(m_etacellseed[ieta+1]))
+    // Beware that list is arranged from larger values to smaller ones
     if ((fabs(eta)>fabs(eta_min) && fabs(eta)<=fabs(eta_max)) ||
 	(fabs(eta)<=fabs(eta_min) && fabs(eta)>fabs(eta_max)))
       m_ncetaseed = ieta;
@@ -896,13 +855,18 @@ int egammaStripsShape::setEmax2()
     if (m_ncell[ieta] == 0) continue;
 
     int ieta_left = ieta - 1;
-    while (ieta_left >= 0 && m_ncell[ieta_left] == 0)
+    while (ieta_left >= 0 && m_ncell[ieta_left] == 0){
       --ieta_left;
-    if (ieta_left < 0) continue;
+    }
+    if (ieta_left < 0) {continue;}
+
     int ieta_right = ieta + 1;
-    while (ieta_right < m_sizearrayeta && m_ncell[ieta_right] ==0)
+    while (ieta_right < m_sizearrayeta && m_ncell[ieta_right] ==0){
       ++ieta_right;
-    if (ieta_right >= m_sizearrayeta) continue;
+    }
+    if (ieta_right >= m_sizearrayeta) {
+      continue;
+    }
 
     double e = m_enecell[ieta]/ m_gracell[ieta];
     double e_left  = m_enecell[ieta_left] / m_gracell[ieta_left];
@@ -924,7 +888,6 @@ int egammaStripsShape::setEmax2()
 	    m_esec    = ecand; 
 	    //ncetasec  = ieta; 
 	}
-
 	// test energy of 2nd hottest local maximum
 	if(e>escalesec1){
           escalesec1 = e;
@@ -1027,24 +990,24 @@ void egammaStripsShape::setFside()
 {
   //
   // fraction of energy outside shower core 
-  //     (E(+/-3strips)-E(+/-1strips))/ E(+/-1strips)
+  // (E(+/-3strips)-E(+/-1strips))/ E(+/-1strips)
   // 
-  
   // NB: threshold defined by M. Seman for DC0 data (or before ?), never tuned since
   double Ehsthr = 0.06*GeV; 
-  // local variable with max energy in strips
+  // Local variable with max energy in strips
   double e1     = m_emaxs1; 
-
   // left index defined as max-1
   int ileft = m_ncetamax-1;
-  while (ileft > 0 && m_ncell[ileft] == 0)
+  while (ileft > 0 && m_ncell[ileft] == 0){
     --ileft;
+  }
   double eleft  = ileft >= 0 ? m_enecell[ileft] : 0;
 
   // right index defined as max+1
   int iright = m_ncetamax+1;
-  while (iright < m_sizearrayeta-1 && m_ncell[iright] == 0)
+  while (iright < m_sizearrayeta-1 && m_ncell[iright] == 0){
     ++iright;
+  }
   double eright = iright < m_sizearrayeta ? m_enecell[iright] : 0;
 
   double fracm=0.;
@@ -1054,7 +1017,6 @@ void egammaStripsShape::setFside()
   // define index of the array from max+3 strips strips (if possible)
   int nhi = std::min(m_ncetamax+3,m_sizearrayeta-1); 
 
-  //std::cout << " e1 = " << e1 << " " << Ehsthr << std::endl;
   if(e1>Ehsthr) {
     for(int ieta=nlo;ieta<=nhi;ieta++){
       if (m_ncell[ieta] == 0) continue;
@@ -1090,9 +1052,9 @@ void egammaStripsShape::setF1core()
   // total ennergy
   double energy = m_cluster->e();
   // build fraction only if both quantities are well defined
-  if ( fabs(energy) > 0. && e132 > x )
+  if ( fabs(energy) > 0. && e132 > x ){
     m_f1core = e132/energy;
-
+  }
   return;  
 }
 
