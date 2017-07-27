@@ -578,15 +578,6 @@ namespace Athena_test
 
 
 
-// Hack to get store from sg svc --- this is declared as a friend.
-class EventDumperSvc
-{
-public:
-  static SG::DataStore* get_store (::StoreGateSvc& sg)
-  { return sg.store(); }
-};
-
-
 namespace Athena_test {
   void test_symlink3 (::StoreGateSvc& sg)
   {
@@ -600,15 +591,14 @@ namespace Athena_test {
       new SG::TransientAddress (ClassID_traits<D1>::ID(), "dd",
                                 pIOA, false);
     DataProxy* dp = new SG::DataProxy (taddr, &cnv);
-    SG::DataStore* store = EventDumperSvc::get_store (sg);
-    assert (store->addToStore (ClassID_traits<D1>::ID(), dp).isSuccess());
+    assert (sg.addToStore (ClassID_traits<D1>::ID(), dp).isSuccess());
     IOpaqueAddress *pIOAB(new TestIOA);
     taddr =
       new SG::TransientAddress (ClassID_traits<D1>::ID(), "dd",
                                 pIOAB, false);
     taddr->setTransientID (ClassID_traits<B1>::ID());
     DataProxy* dpB = new SG::DataProxy (taddr, &cnv);
-    assert (store->addToStore (ClassID_traits<B1>::ID(), dpB).isSuccess());
+    assert (sg.addToStore (ClassID_traits<B1>::ID(), dpB).isSuccess());
 
     D1* d1 = 0;
     B1* b1 = 0;
