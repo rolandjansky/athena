@@ -98,3 +98,7 @@ atlas_add_test( CLIDRegistry_test
 atlas_add_test( ClassName_test
    SOURCES test/ClassName_test.cxx
    LINK_LIBRARIES AthenaKernel )
+
+atlas_add_test( BaseInfo_test
+   SOURCES test/BaseInfo_test.cxx
+   LINK_LIBRARIES AthenaKernel )
