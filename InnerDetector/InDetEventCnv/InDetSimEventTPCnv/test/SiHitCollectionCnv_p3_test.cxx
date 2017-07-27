@@ -1,19 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
 /**
- * @file InDetSimEventTPCnv/test/SiHitCollectionCnv_p2_test.cxx
- * @author scott snyder <snyder@bnl.gov>
- * @date Feb, 2016
- * @brief Tests for SiHitCollectionCnv_p2.
+ * @file InDetSimEventTPCnv/test/SiHitCollectionCnv_p3_test.cxx
+ * @date Feb, 2018
+ * @brief Tests for SiHitCollectionCnv_p3.
  */
 
 
 #undef NDEBUG
-#include "InDetSimEventTPCnv/InDetHits/SiHitCollectionCnv_p2.h"
-#include "TestTools/leakcheck.h"
+#include "InDetSimEventTPCnv/InDetHits/SiHitCollectionCnv_p3.h"
 #include <cassert>
 #include <iostream>
 
@@ -58,8 +56,8 @@ void compare (const SiHitCollection& p1,
 void testit (const SiHitCollection& trans1)
 {
   MsgStream log (0, "test");
-  SiHitCollectionCnv_p2 cnv;
-  SiHitCollection_p2 pers;
+  SiHitCollectionCnv_p3 cnv;
+  SiHitCollection_p3 pers;
   cnv.transToPers (&trans1, &pers, log);
   SiHitCollection trans2;
   cnv.persToTrans (&pers, &trans2, log);
@@ -71,13 +69,6 @@ void testit (const SiHitCollection& trans1)
 void test1(std::vector<HepMC::GenParticle*>& genPartVector)
 {
   std::cout << "test1\n";
-  const HepMC::GenParticle *particle = genPartVector.at(0);
-  // Create HepMcParticleLink outside of leak check.
-  HepMcParticleLink dummyHMPL(particle->barcode(),0);
-  assert(dummyHMPL.cptr()==particle);
-  // Create DVL info outside of leak check.
-  SiHitCollection dum ("coll");
-  Athena_test::Leakcheck check;
 
   SiHitCollection trans1 ("coll");
   for (int i=0; i < 10; i++) {

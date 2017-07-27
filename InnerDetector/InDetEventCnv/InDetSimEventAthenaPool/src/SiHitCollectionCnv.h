@@ -16,10 +16,8 @@
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
 // typedef to the latest persistent version
-//typedef SiHitCollection_p1     SiHitCollection_PERS;
-//typedef SiHitCollectionCnv_p1  SiHitCollectionCnv_PERS;
-typedef SiHitCollection_p2     SiHitCollection_PERS;
-typedef SiHitCollectionCnv_p2  SiHitCollectionCnv_PERS;
+typedef SiHitCollection_p3     SiHitCollection_PERS;
+typedef SiHitCollectionCnv_p3  SiHitCollectionCnv_PERS;
 
 class SiHitCollectionCnv  : public T_AthenaPoolCustomCnv<SiHitCollection, SiHitCollection_PERS > {
   friend class CnvFactory<SiHitCollectionCnv>;

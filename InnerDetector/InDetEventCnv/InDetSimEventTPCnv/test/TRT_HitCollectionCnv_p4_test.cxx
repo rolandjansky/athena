@@ -1,20 +1,19 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
 /**
- * @file InDetSimEventTPCnv/test/TRT_HitCollectionCnv_p3_test.cxx
+ * @file InDetSimEventTPCnv/test/TRT_HitCollectionCnv_p4_test.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date Feb, 2016
- * @brief Tests for TRT_HitCollectionCnv_p3.
+ * @brief Tests for TRT_HitCollectionCnv_p4.
  */
 
 
 #undef NDEBUG
-#include "InDetSimEventTPCnv/InDetHits/TRT_HitCollectionCnv_p3.h"
+#include "InDetSimEventTPCnv/InDetHits/TRT_HitCollectionCnv_p4.h"
 #include "TestTools/FLOATassert.h"
-#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 #include <cmath>
@@ -83,8 +82,8 @@ void compare (const TRTUncompressedHitCollection& p1,
 void testit (const TRTUncompressedHitCollection& trans1)
 {
   MsgStream log (0, "test");
-  TRT_HitCollectionCnv_p3 cnv;
-  TRT_HitCollection_p3 pers;
+  TRT_HitCollectionCnv_p4 cnv;
+  TRT_HitCollection_p4 pers;
   cnv.transToPers (&trans1, &pers, log);
   TRTUncompressedHitCollection trans2;
   cnv.persToTrans (&pers, &trans2, log);
@@ -96,13 +95,6 @@ void testit (const TRTUncompressedHitCollection& trans1)
 void test1(std::vector<HepMC::GenParticle*>& genPartVector)
 {
   std::cout << "test1\n";
-  const HepMC::GenParticle *particle = genPartVector.at(0);
-  // Create HepMcParticleLink outside of leak check.
-  HepMcParticleLink dummyHMPL(particle->barcode(),0);
-  assert(dummyHMPL.cptr()==particle);
-  // Create DVL info outside of leak check.
-  TRTUncompressedHitCollection dum ("coll");
-  Athena_test::Leakcheck check;
 
   TRTUncompressedHitCollection trans1 ("coll");
   for (int i=0; i < 10; i++) {

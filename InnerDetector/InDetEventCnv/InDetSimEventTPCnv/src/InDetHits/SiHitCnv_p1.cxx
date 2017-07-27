@@ -11,7 +11,7 @@
 
 
 void
-SiHitCnv_p1::persToTrans(const SiHit_p1* persObj, SiHit* transObj, 
+SiHitCnv_p1::persToTrans(const SiHit_p1* persObj, SiHit* transObj,
 MsgStream &log)
 {
   HepMcParticleLinkCnv_p1 HepMcPLCnv;
@@ -26,14 +26,14 @@ MsgStream &log)
                                                 persObj->m_enZ),
                       persObj->m_energyLoss,
                       persObj->m_meanTime,
-                      link.barcode(),
+                      link,
                       persObj->m_ID
                       );
 }
 
 
 void
-SiHitCnv_p1::transToPers(const SiHit* transObj, SiHit_p1* persObj, 
+SiHitCnv_p1::transToPers(const SiHit* transObj, SiHit_p1* persObj,
 MsgStream &log)
 {
 //     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "SiHitCnv_p1::transToPers called " << endmsg;
@@ -52,5 +52,5 @@ MsgStream &log)
    persObj->m_energyLoss  = transObj->energyLoss();
    persObj->m_meanTime    = transObj->meanTime();
    persObj->m_ID          = transObj->identify();
-   HepMcPLCnv.transToPers(&(transObj->particleLink()),&(persObj->m_partLink), log);   
+   HepMcPLCnv.transToPers(&(transObj->particleLink()),&(persObj->m_partLink), log);
 }
