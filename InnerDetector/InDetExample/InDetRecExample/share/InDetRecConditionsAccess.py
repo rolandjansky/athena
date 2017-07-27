@@ -256,11 +256,7 @@ if DetFlags.haveRIO.SCT_on():
     if not athenaCommonFlags.isOnline():
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MonitorConditionsSvc
         InDetSCT_MonitorConditionsSvc = SCT_MonitorConditionsSvc(name          = "InDetSCT_MonitorConditionsSvc",
-                                                                 OutputLevel   = INFO,
-                                                                 WriteCondObjs = False,
-                                                                 RegisterIOV   = False,
-                                                                 ReadWriteCool = True,
-                                                                 EventInfoKey  = eventInfoKey)
+                                                                 OutputLevel   = INFO)
         ServiceMgr += InDetSCT_MonitorConditionsSvc
         if (InDetFlags.doPrintConfigurables()):
             print InDetSCT_MonitorConditionsSvc
