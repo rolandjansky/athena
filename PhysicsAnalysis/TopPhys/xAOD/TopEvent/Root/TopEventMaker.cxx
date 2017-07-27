@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TopEventMaker.cxx 795594 2017-02-04 22:12:45Z tpelzer $
+// $Id: TopEventMaker.cxx 808007 2017-07-10 00:12:04Z tpelzer $
 #include "TopEvent/TopEventMaker.h"
 #include "TopEvent/EventTools.h"
 
@@ -62,7 +62,17 @@ namespace top {
     //Primary Vertices
     if (evtStore()->contains<xAOD::VertexContainer>(m_config->sgKeyPrimaryVertices())) {
       top::check(evtStore()->retrieve(event.m_primaryVertices, m_config->sgKeyPrimaryVertices()), "Failed to retrieve Primary Vertices");
-    }   
+    }
+
+    //Poisson bootstrap weights
+    if(m_config->saveBootstrapWeights()){
+      std::vector<int> weight_poisson = top::calculateBootstrapWeights(m_config->getNumberOfBootstrapReplicas(), 
+								       event.m_info->eventNumber(), 
+								       event.m_info->mcChannelNumber());
+      //SG::AuxElement::Decorator< std::vector<int> > decoratePoissonWeights("weight_poisson");
+      //decoratePoissonWeights(*event.m_info) = weight_poisson;
+      event.m_info->auxdecor< std::vector<int> >("weight_poisson") = weight_poisson;
+    }
     
     //electrons
     if (m_config->useElectrons()) {
@@ -257,6 +267,21 @@ namespace top {
       //shallow copies aren't sorted!
       //sort only the selected taus (faster)
       event.m_jets.sort(top::descendingPtSorter);
+      
+      // for JetFlavour composition/response uncertainty, we need to decorate EventInfo with NJets (nominal)
+      // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertainties2015ICHEP2016#Tool_requirements_and_assumption
+      // use the Loose (Tight) definition if only the Loose (Tight) tree is requested
+      // use Tight if both, or none, are requestd (unlikely)
+      if (currentSystematic.hashValue() == m_config->nominalHashValue()) {
+        bool UseLooseNJets = false;
+        if (m_config->doLooseEvents() && !m_config->doTightEvents()) UseLooseNJets = true;
+        if (event.m_isLoose && UseLooseNJets) {
+          event.m_info->auxdecor< int >("Njet") = event.m_jets.size();
+        }
+        else if (!event.m_isLoose && !UseLooseNJets) {
+          event.m_info->auxdecor< int >("Njet") = event.m_jets.size();
+        }
+      }
     }
 
     //large-R jets
