@@ -1,11 +1,6 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id$
 /**
- * @file GeneratorObjectsTPCnv/test/HepMcParticleLinkCnv_p1_test.cxx
- * @brief Tests for HepMcParticleLinkCnv_p1.
+ * @file GeneratorObjectsTPCnv/test/HepMcParticleLinkCnv_p2_test.cxx
+ * @brief Tests for HepMcParticleLinkCnv_p2.
  */
 
 
@@ -19,7 +14,7 @@
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
-#include "GeneratorObjectsTPCnv/HepMcParticleLinkCnv_p1.h"
+#include "GeneratorObjectsTPCnv/HepMcParticleLinkCnv_p2.h"
 #include "StoreGate/WriteHandle.h"
 #include "GeneratorObjects/McEventCollection.h"
 
@@ -75,8 +70,8 @@ HepMC::GenParticle* createMcEventCollectionInStoreGate()
 void testit (const HepMcParticleLink& trans1)
 {
   MsgStream log (0, "test");
-  HepMcParticleLinkCnv_p1 cnv;
-  HepMcParticleLink_p1 pers;
+  HepMcParticleLinkCnv_p2 cnv;
+  HepMcParticleLink_p2 pers;
   cnv.transToPers (&trans1, &pers, log);
   HepMcParticleLink trans2;
   cnv.persToTrans (&pers, &trans2, log);

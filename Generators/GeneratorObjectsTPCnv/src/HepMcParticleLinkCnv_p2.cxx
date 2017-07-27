@@ -23,25 +23,26 @@ void HepMcParticleLinkCnv_p2::persToTrans( const HepMcParticleLink_p2* persObj,
                                            HepMcParticleLink* transObj,
                                            MsgStream &/*msg*/ )
 {
-  //   msg << MSG::DEBUG << "Loading HepMcParticleLink from persistent state..."
-  //       << endreq;
-  if (transObj->m_ptrs.m_dict == nullptr)
-    transObj->init_dict();
   transObj->m_extBarcode =
     HepMcParticleLink::ExtendedBarCode( persObj->m_barcode,
-                                        persObj->m_mcEvtIndex );
+                                        persObj->m_mcEvtIndex,
+                                        persObj->m_evtColl,
+                                        false);
+  transObj->m_have_particle = false;
+  transObj->m_particle = nullptr;
 
-
-  //   msg << MSG::DEBUG << "Loaded HepMcParticleLink from persistent state [OK]"
-  //       << endreq;
   return;
 }
 
-void HepMcParticleLinkCnv_p2::transToPers( const HepMcParticleLink*,
-                                           HepMcParticleLink_p2*,
+void HepMcParticleLinkCnv_p2::transToPers( const HepMcParticleLink* transObj,
+                                           HepMcParticleLink_p2* persObj,
                                            MsgStream &/*msg*/ )
 {
-  throw std::runtime_error("HepMcParticleLinkCnv_p2::transToPers is not supported in this release!");
+  persObj->m_mcEvtIndex = transObj->eventIndex();
+  persObj->m_barcode    = transObj->m_extBarcode.barcode();
+  persObj->m_evtColl    = transObj->m_extBarcode.m_evtColl;
+
+  return;
 }
 
 ///////////////////////////////////////////////////////////////////
