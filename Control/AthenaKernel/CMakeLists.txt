@@ -90,3 +90,11 @@ atlas_add_test( RCUObject_test
    SOURCES test/RCUObject_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} AthenaKernel )
+
+atlas_add_test( CLIDRegistry_test
+   SOURCES test/CLIDRegistry_test.cxx
+   LINK_LIBRARIES AthenaKernel )
+
+atlas_add_test( ClassName_test
+   SOURCES test/ClassName_test.cxx
+   LINK_LIBRARIES AthenaKernel )
