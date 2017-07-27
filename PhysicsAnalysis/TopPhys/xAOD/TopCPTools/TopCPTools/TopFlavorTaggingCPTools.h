@@ -8,6 +8,7 @@
 // Include what you use
 #include <vector>
 #include <string>
+#include <map>
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
@@ -20,6 +21,8 @@
 // Flavor tagging include(s):
 #include "xAODBTaggingEfficiency/IBTaggingEfficiencyTool.h"
 #include "xAODBTaggingEfficiency/IBTaggingSelectionTool.h"
+// Need a pointer for excluded systematic functions
+#include "xAODBTaggingEfficiency/BTaggingEfficiencyTool.h"
 
 namespace top {
 
@@ -50,6 +53,13 @@ class FlavorTaggingCPTools final : public asg::AsgTool {
   // Some tools here
   ToolHandleArray<IBTaggingEfficiencyTool> m_btagging_efficiency_tools;
   ToolHandleArray<IBTaggingSelectionTool> m_btagging_selection_tools;
+  // EV decomposition functions
+  StatusCode checkExcludedSysts(BTaggingEfficiencyTool*, std::string);
+  void createExcludedSystMapping(std::vector<std::string>);
+  std::map<std::string, std::string> m_mapped_excluded_systs;
+  
+
+
 };
 }  // namespace top
 

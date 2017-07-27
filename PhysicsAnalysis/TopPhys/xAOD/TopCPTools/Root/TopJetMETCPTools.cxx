@@ -230,6 +230,12 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
 
   std::string conference = "Moriond2017";
 
+  // interpret uncertainty model aliases
+  if (m_config->jetUncertainties_NPModel() == "GlobalReduction")
+    m_config->jetUncertainties_NPModel("21NP");
+  else if (m_config->jetUncertainties_NPModel() == "CategoryReduction")
+    m_config->jetUncertainties_NPModel("29NP_ByCategory");
+
   // Are we doing multiple JES for the reduced NP senarios?
   if (!m_config->doMultipleJES()) {
     m_jetUncertaintiesTool
@@ -239,32 +245,32 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
                                   + conference
                                   +"/JES2016_"
                                   + m_config->jetUncertainties_NPModel()
-                                  + ".config",nullptr);
+                                  + ".config",nullptr,m_config->jetUncertainties_QGFracFile());
   } else {
     m_jetUncertaintiesToolReducedNPScenario1
       = setupJetUncertaintiesTool("JetUncertaintiesToolReducedNPScenario1",
                                   jetCalibrationName, MC_type,
                                   "JES_2016/"
                                   + conference
-                                  + "/JES2016_SR_Scenario1.config",nullptr);
+                                  + "/JES2016_SR_Scenario1.config",nullptr,m_config->jetUncertainties_QGFracFile());
     m_jetUncertaintiesToolReducedNPScenario2
       = setupJetUncertaintiesTool("JetUncertaintiesToolReducedNPScenario2",
                                   jetCalibrationName, MC_type,
                                   "JES_2016/"
                                   + conference
-                                  + "/JES2016_SR_Scenario2.config",nullptr);
+                                  + "/JES2016_SR_Scenario2.config",nullptr,m_config->jetUncertainties_QGFracFile());
     m_jetUncertaintiesToolReducedNPScenario3
       = setupJetUncertaintiesTool("JetUncertaintiesToolReducedNPScenario3",
                                   jetCalibrationName, MC_type,
                                   "JES_2016/"
                                   + conference
-                                  + "/JES2016_SR_Scenario3.config",nullptr);
+                                  + "/JES2016_SR_Scenario3.config",nullptr,m_config->jetUncertainties_QGFracFile());
     m_jetUncertaintiesToolReducedNPScenario4
       = setupJetUncertaintiesTool("JetUncertaintiesToolReducedNPScenario4",
                                   jetCalibrationName, MC_type,
                                   "JES_2016/"
                                   + conference
-                                  + "/JES2016_SR_Scenario4.config",nullptr);
+                                  + "/JES2016_SR_Scenario4.config",nullptr,m_config->jetUncertainties_QGFracFile());
   }
 
   // JER Tool
@@ -278,6 +284,12 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
     m_jetJERTool = jetJERTool;
   }
 
+  bool JERisMC = m_config->isMC();
+  std::string JERSmearModel = m_config->jetJERSmearingModel();
+  if (JERSmearModel == "Full_PseudoData") {
+    if (JERisMC) JERisMC = false;// consider MC as pseudo-data
+    JERSmearModel = "Full";// this is the Full model
+  }
   // JER Smearing
   const std::string jersmear_name = "JetJERSmearingTool";
   if (asg::ToolStore::contains<IJERSmearingTool>(jersmear_name)) {
@@ -288,9 +300,9 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
                 "Failed to JERTool to " + jersmear_name);
     top::check(asg::setProperty(jetJERSmearingTool, "ApplyNominalSmearing", false),
                 "Failed to ApplyNominalSmearing for " + jersmear_name);
-    top::check(asg::setProperty(jetJERSmearingTool, "isMC", m_config->isMC()),
+    top::check(asg::setProperty(jetJERSmearingTool, "isMC", JERisMC),
                 "Failed to isMC to " + jersmear_name);
-    top::check(asg::setProperty(jetJERSmearingTool, "SystematicMode", m_config->jetJERSmearingModel()),
+    top::check(asg::setProperty(jetJERSmearingTool, "SystematicMode", JERSmearModel),
                 "Failed to SystematicMode for " + jersmear_name);
     top::check(jetJERSmearingTool->initialize(),
                 "Failed to initialize " + jersmear_name);
@@ -459,7 +471,8 @@ JetMETCPTools::setupJetUncertaintiesTool(const std::string& name,
                                         const std::string& jet_def,
                                         const std::string& mc_type,
                                         const std::string& config_file,
-                                        std::vector<std::string>* variables) {
+                                        std::vector<std::string>* variables,
+                                        const std::string& analysis_file) {
   ICPJetUncertaintiesTool* tool = nullptr;
   if (asg::ToolStore::contains<ICPJetUncertaintiesTool>(name)) {
     tool = asg::ToolStore::get<ICPJetUncertaintiesTool>(name);
@@ -474,6 +487,10 @@ JetMETCPTools::setupJetUncertaintiesTool(const std::string& name,
     if (variables != nullptr){
       top::check(asg::setProperty(tool, "VariablesToShift", *variables),
           "Failed to set VariablesToShift for LargeR Jes Uncertainty "+ name);
+    }
+    if (analysis_file != "None") {
+      top::check(asg::setProperty(tool, "AnalysisFile", analysis_file),
+                  "Failed to set AnalysisFile for " + name);
     }
     top::check(tool->initialize(), "Failed to initialize " + name);
   }
