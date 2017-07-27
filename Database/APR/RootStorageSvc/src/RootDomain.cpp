@@ -19,6 +19,7 @@
 #include "TError.h"
 #include "TFile.h"
 #include "TROOT.h"
+#include "TEnv.h"
 #include "TTree.h"
 #include "TVirtualStreamerInfo.h"
 
@@ -57,6 +58,11 @@ DbStatus RootDomain::setOption(const DbOption& opt)  {
           gErrorAbortLevel = lvl;
         }
         return sc;
+      }
+      else if ( !strcasecmp(n, "ASYNC_PREFETCHING") )  {
+        gEnv->SetValue("TFile.AsyncPrefetching", 1);
+        int asyncPrefetching = gEnv->GetValue("TFile.AsyncPrefetching", 0);
+        return opt._getValue(asyncPrefetching);
       }
       break;
     case 'D':
@@ -141,6 +147,9 @@ DbStatus RootDomain::getOption(DbOption& opt) const   {
     case 'A':
       if ( !strcasecmp(n, "ABORT_LEVEL") )  {
         return opt._setValue(int(gErrorAbortLevel));
+      }
+      else if ( !strcasecmp(n, "ASYNC_PREFETCHING") )  {
+        return opt._setValue((int)gEnv->GetValue("TFile.AsyncPrefetching", 0));
       }
       break;
     case 'C':
