@@ -413,7 +413,7 @@ class GenerateMenu:
         log.debug("\n chainDicts1 %s ", chainDicts)
         chainDicts = splitInterSignatureChainDict(chainDicts)        
         log.debug("\n chainDicts2 %s", chainDicts)
-        
+
 
         #print 'doEgammaChains, doMuonChains', self.doEgammaChains, self.doMuonChains
 
@@ -599,10 +599,7 @@ class GenerateMenu:
 
         #Do TOPO on Combined chains
         if self.doCombinedChains:
-            log.info('doTopo for combined chain = %s' % str(doTopo))
-            log.info(theChainDef)
             if doTopo:
-                log.info('run generateCombinedChainDefs')
                 theChainDef = TriggerMenu.combined.generateCombinedChainDefs._addTopoInfo(theChainDef,chainDicts,listOfChainDefs)
                 
         return theChainDef

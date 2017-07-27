@@ -146,22 +146,24 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=False):
         if any('ElectronTau' in x for x in chainDict['groups']):
             chain_type = "eltau"
 
+        if chain_type == 'ditau':
+            log.info("Chain {} is of type {}".format(chainDict['chainName'], chain_type))
 
-        log.info("Chain {} is of type {}".format(chainDict['chainName'], chain_type))
-
-        EFFex  =  EFTauTopoFex(comb=chain_type)
-        theVars    = ['DRMin', 'DRMax']
-        theThresh  = [mindR * 0.1, maxdR * 0.1] # treshold specified as integers -> change them to e.g. 0.3, 3.0
-        TauTaudR_Hypo = EFTauTopoHypo(
+            EFFex  =  EFTauTopoFex(comb=chain_type)
+            theVars    = ['DRMin', 'DRMax']
+            theThresh  = [mindR * 0.1, maxdR * 0.1] # treshold specified as integers -> change them to e.g. 0.3, 3.0
+            TauTaudR_Hypo = EFTauTopoHypo(
             'EFTauTopo_{0}dR{1}_{2}'.format(
                 str(mindR).replace('.', ''), str(maxdR).replace('.', ''), chain_type),
             theVars, theThresh)
-        log.debug("Input TEs to dR algorithm: %s", inputTEsEF)
+            log.info("Input TEs to dR algorithm: %s", inputTEsEF)
 
-        EFChainName = "EF_" + chainDict['chainName']
+            EFChainName = "EF_" + chainDict['chainName']
+            theChainDef.addSequence([EFFex,  TauTaudR_Hypo], inputTEsEF, EFChainName)
+            theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
+        else:
+            log.info('Chain is configured in combined/generareCombinedChainDefs.py')
 
-        theChainDef.addSequence([EFFex,  TauTaudR_Hypo], inputTEsEF, EFChainName)
-        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
 
     # if any("dR" in alg for alg in topoAlgs):
     #    inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
