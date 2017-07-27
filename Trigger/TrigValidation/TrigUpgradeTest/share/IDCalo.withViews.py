@@ -2,147 +2,15 @@
 #  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
 
-from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetGeo.set_Value_and_Lock('atlas')
-globalflags.Luminosity.set_Value_and_Lock('zero')
-globalflags.DataSource.set_Value_and_Lock('data')
-globalflags.InputFormat.set_Value_and_Lock('bytestream')
-globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')
+include("TrigUpgradeTest/testHLT_MT.py")
 
 #workaround to prevent online trigger folders to be enabled
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 InDetTrigFlags.useConditionsClasses.set_Value_and_Lock(False)
 
 
-
-from AthenaCommon.AlgScheduler import AlgScheduler
-AlgScheduler.OutputLevel( INFO )
-AlgScheduler.CheckDependencies( True )
-AlgScheduler.ShowControlFlow( True )
-AlgScheduler.ShowDataDependencies( True )
-AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
- 
-from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-03-01-00"
- 
-from AthenaCommon.DetFlags import DetFlags
-DetFlags.Calo_setOn()  #Switched off to avoid geometry
-DetFlags.ID_setOn()
-DetFlags.Muon_setOff()
-DetFlags.Truth_setOff()
-DetFlags.LVL1_setOff()
-DetFlags.digitize.all_setOff()
-
 from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doCaloSeededBrem = False
-
-#DetFlags.haveRIO.all_off()
-#DetFlags.haveRIO.TRT_on()
-#DetFlags.haveRIO.pixel_setOff()
-#DetFlags.haveRIO.SCT_setOff()
-#DetFlags.TRT_setOn()
-#include("InDetRecExample/InDetRecConditionsAccess.py")
-
-#DetFlags.Print()
- 
-theApp.EvtMax=10
-
-from IOVDbSvc.CondDB import conddb
-conddb.setGlobalTag("CONDBR2-BLKPA-2015-17")
-#conddb.addFolder("TRT_ONL","/TRT/Onl/ROD/Compress")
-#conddb.addFolder("TRT_OFL","/TRT/Calib/HTCalib")
-#conddb.addFolder("TRT_OFL","/TRT/Calib/ToTCalib")
-#conddb.addFolder("TRT_OFL","/TRT/Calib/RT")
-#conddb.addFolder("TRT_OFL","/TRT/Calib/T0")
-
-
- #Set up GeoModel (not really needed but crashes without)
-from AtlasGeoModel import SetGeometryVersion
-from AtlasGeoModel import GeoModelInit
-
-from AthenaCommon.AlgSequence import AlgSequence 
-topSequence = AlgSequence()
-from SGComps.SGCompsConf import SGInputLoader
-topSequence += SGInputLoader( )
-#topSequence.SGInputLoader.Load
-topSequence.SGInputLoader.FailIfNoProxy=False
-# -------------------- Condition Data Access --------------------------------
-# Conditions Service for reading conditions data in serial and MT Athena
-
-from IOVSvc.IOVSvcConf import CondSvc
-svcMgr += CondSvc()
-
-# Special Condition Sequence for CondInputLoader and client Condition Algorithms
-from AthenaCommon.AlgSequence import AthSequencer
-condSeq = AthSequencer("AthCondSeq")
-
-# CondInputLoader and Condition Store
-from IOVSvc.IOVSvcConf import CondInputLoader
-condSeq += CondInputLoader( "CondInputLoader")
-
-include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
-inputfile="root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data16_13TeV.00309640.physics_EnhancedBias.merge.RAW/data16_13TeV.00309640.physics_EnhancedBias.merge.RAW._lb0628._SFO-1._0001.1"
-svcMgr.ByteStreamInputSvc.FullFileName=[inputfile,]
-from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
-athenaCommonFlags.FilesInput=[inputfile,]
-
-from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc
-from TrigConfigSvc.TrigConfigSvcConfig import findFileInXMLPATH
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-
-l1svc = TrigConf__LVL1ConfigSvc("LVL1ConfigSvc")
-l1svc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
-svcMgr += l1svc
-
-if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
-    from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc 
-    svcMgr += ByteStreamAddressProviderSvc()
-
-svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
-    "ROIB::RoIBResult/RoIBResult" ]
-
-
-l1svc = TrigConf__LVL1ConfigSvc("LVL1ConfigSvc")
-l1svc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
-svcMgr += l1svc
-
-
-#from TriggerJobOpts.TriggerFlags import TriggerFlags
-#TriggerFlags.enableMonitoring = ['Validation', 'Time']
-
-# if not hasattr(svcMgr, 'THistSvc'):
-#   from GaudiSvc.GaudiSvcConf import THistSvc
-#   svcMgr += THistSvc()
-# svcMgr.THistSvc.Output = ["EXPERT DATAFILE='expert-monitoring.root', OPT='RECREATE'"]
-
-
-
-
-from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ROBDataProviderSvc
-ServiceMgr += ROBDataProviderSvc()
-
-#Run calo decoder
-from L1Decoder.L1DecoderMonitoring import CTPUnpackingMonitoring, RoIsUnpackingMonitoring
-from L1Decoder.L1DecoderConf import CTPUnpackingTool, EMRoIsUnpackingTool, L1Decoder, MURoIsUnpackingTool
-from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool
-l1Decoder = L1Decoder( OutputLevel=DEBUG )
-ctpUnpacker = CTPUnpackingTool( OutputLevel =  DEBUG, ForceEnableAllChains=True )
-
-allChains = [ "HLT_e5_perf", "HLT_e5_lhloose", "HLT_e5_tight", "HLT_e7_perf" ]
-
-l1Decoder.ctpUnpacker = ctpUnpacker
-l1Decoder.ctpUnpacker.MonTool = CTPUnpackingMonitoring(512, 200)
-#l1Decoder.ctpUnpacker.CTPToChainMapping = ["0:HLT_e3",  "0:HLT_g5", "1:HLT_e7", "2:HLT_2e3", "15:HLT_mu6", "33:HLT_2mu6", "15:HLT_mu6idperf", "42:HLT_e15mu4"] # this are real IDs of L1_* items in pp_v5 menu
-
-emUnpacker = EMRoIsUnpackingTool( OutputLevel=DEBUG, OutputTrigRoIs="EMRoIs" )
-emUnpacker.ThresholdToChainMapping = ["EM3 : "+c for c in allChains ]  # CAVEAT this needs real mapping to from the chain to L1 threshold
-
-#emUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 )
-
-l1Decoder.roiUnpackers = [emUnpacker]
-l1Decoder.Chains="HLTChainsResult"
-
-topSequence += l1Decoder
 
 
 from InDetRecExample.InDetJobProperties import InDetFlags
@@ -155,64 +23,16 @@ InDetFlags.doTRTPhaseCalculation = True
 InDetFlags.doTRTSeededTrackFinder = True
 InDetFlags.doTruth = False
 InDetFlags.init()
-#Determine whether we're running in threaded mode (threads= >=1)
-from AthenaCommon.ConcurrencyFlags import jobproperties as jp
-nThreads = jp.ConcurrencyFlags.NumThreads()
-
-if nThreads >= 1:
-  ## get a handle on the Scheduler
-  from AthenaCommon.AlgScheduler import AlgScheduler
-  AlgScheduler.CheckDependencies( True )
-
-import MagFieldServices.SetupField
 
 # PixelLorentzAngleSvc and SCTLorentzAngleSvc
 include("InDetRecExample/InDetRecConditionsAccess.py")
 
+viewTest = opt.enableViews   # from testHLT_MT.py
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+allViewAlgorithms = topSequence.allViewAlgorithms
+
 from InDetRecExample.InDetKeys import InDetKeys
-
-include ("InDetRecExample/InDetRecCabling.py")
-
-
-### Begin view setup
-
-viewTest = True
-
-if ( viewTest ):
-
-  # Make a separate alg pool for the view algs
-  from GaudiHive.GaudiHiveConf import AlgResourcePool
-  viewAlgPoolName = "ViewAlgPool"
-  svcMgr += AlgResourcePool( viewAlgPoolName )
-
-  # Set of view algs
-  from AthenaCommon.AlgSequence import AthSequencer
-  allViewAlgorithms = AthSequencer( "allViewAlgorithms" )
-  allViewAlgorithms.ModeOR = False
-  allViewAlgorithms.Sequential = True
-  allViewAlgorithms.StopOverride = False
-
-  # view maker
-  viewMaker = CfgMgr.AthViews__RoiCollectionToViews( "viewMaker" )
-  viewMaker.ViewBaseName = "testView"
-  viewMaker.AlgPoolName = viewAlgPoolName
-  viewMaker.InputRoICollection = "EMRoIs"
-  viewMaker.OutputRoICollection = "EMViewRoIs"
-  topSequence += viewMaker
-
-  # Filter to stop view algs from running on whole event
-  allViewAlgorithms += CfgMgr.AthPrescaler( "alwaysFail" )
-  allViewAlgorithms.alwaysFail.PercentPass = 0.0
-
-  # dummy alg that just says you're running in a view
-  allViewAlgorithms += CfgMgr.AthViews__ViewTestAlg( "viewTest" )
-  svcMgr.ViewAlgPool.TopAlg += [ "viewTest" ]
-  viewMaker.AlgorithmNameSequence = [ "viewTest" ] #Eventually scheduler will do this
-
-  # test setup
-  topSequence += allViewAlgorithms
-
-### End view setup
 
 #Pixel
 
@@ -289,10 +109,6 @@ from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSum
 InDetTRTStrawStatusSummarySvc = TRT_StrawStatusSummarySvc(name = "InDetTRTStrawStatusSummarySvc")
 ServiceMgr += InDetTRTStrawStatusSummarySvc
 
-from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-topSequence+=xAODMaker__EventInfoCnvAlg()
-
-
 from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRT_RodDecoder
 InDetTRTRodDecoder = TRT_RodDecoder(name = "InDetTRTRodDecoder",
                                     LoadCompressTableDB = True)#(globalflags.DataSource() != 'geant4'))  
@@ -320,12 +136,6 @@ else:
   topSequence += InDetTRTRawDataProvider
   topSequence.InDetTRTRawDataProvider.isRoI_Seeded = True
   topSequence.InDetTRTRawDataProvider.RoIs = "EMRoIs"
-
-
-# MYSTERY LINES THAT CAUSE A PROBLEM
-#include ("InDetRecExample/ConfiguredInDetPreProcessingTRT.py")
-#InDetPreProcessingTRT = ConfiguredInDetPreProcessingTRT(True,False)
-#include("InDetBeamSpotService/BeamCondSvc.py")
 
 
 #Pixel clusterisation
@@ -440,22 +250,6 @@ else:
   theFTF.RoIs = "EMRoIs"
   topSequence += theFTF
 
-from LArROD.LArRODFlags import larRODFlags
-larRODFlags.doLArFebErrorSummary.set_Value_and_Lock(False)
-#from CaloRec.CaloCellGetter import CaloCellGetter
-#caloCells = CaloCellGetter()
-include("LArConditionsCommon/LArIdMap_comm_jobOptions.py")
-include("CaloConditions/LArTTCellMap_ATLAS_jobOptions.py")
-include("CaloConditions/CaloTTIdMap_ATLAS_jobOptions.py")
-include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
-
-from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
-svcMgr+=RegSelSvcDefault()
-svcMgr.RegSelSvc.enableCalo=True
-svcMgr.RegSelSvc.enableID=True
-
-from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigDataAccess
-svcMgr.ToolSvc+=TrigDataAccess()
 svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
 from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
@@ -464,5 +258,3 @@ algo.RoIs="EMRoIs"
 algo.OutputLevel=VERBOSE
 #TopHLTSeq += algo
 topSequence += algo
-
-include ("RecExCond/AllDet_detDescr.py")
