@@ -50,8 +50,6 @@ private:
 
   std::unique_ptr<Trk::TrackParametersIdHelper> m_trackParametersIdHelper;
 
-  /* Count number of tracks seen for summary report in finalize */
-  //int m_tracksProcessed;
 };
 
 inline const InterfaceID& eflowTrackCaloExtensionTool::interfaceID() {
