@@ -400,3 +400,12 @@ if ( viewTest ):
 else:
   topSequence += InDetSiTrackerSpacePointFinder
   topSequence += theFTF
+
+from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
+RegSelSvc = RegSelSvcDefault()
+RegSelSvc.enablePixel = True
+RegSelSvc.enableSCT   = True
+RegSelSvc.enableTRT   = True
+
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+svcMgr += RegSelSvc
