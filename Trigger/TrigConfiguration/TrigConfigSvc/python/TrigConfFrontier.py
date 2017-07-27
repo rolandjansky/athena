@@ -39,7 +39,6 @@ class FrontierCursor2:
         appendix = ":".join([str(v) for v in values])
         queryWithQuestionMarks = re.sub(':[A-z0-9]*','?', query)
         query = queryWithQuestionMarks + ':' + appendix
-        print query
         return query
 
     @classmethod
