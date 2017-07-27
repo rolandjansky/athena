@@ -7,11 +7,10 @@
 
 // Infrastructure includes
 #include "AthenaKernel/MsgStreamMember.h"
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/IEndEventAction.h"
 
 // Geant4 includes
 #include "G4Timer.hh"
+#include "G4UserEventAction.hh"
 
 // Forward declarations
 class G4Event;
@@ -39,7 +38,7 @@ namespace G4UA
   /// @author Steve Farrell <Steven.Farrell>
   /// @author ???
   ///
-  class G4SimTimer : public IBeginEventAction, public IEndEventAction
+  class G4SimTimer : public G4UserEventAction
   {
 
     public:
@@ -70,10 +69,10 @@ namespace G4UA
       G4SimTimer();
 
       /// Start timing this Geant4 event.
-      virtual void beginOfEvent(const G4Event* event) override;
+      virtual void BeginOfEventAction(const G4Event* event) override final;
 
       /// Finish timing this Geant4 event.
-      virtual void endOfEvent(const G4Event* event) override;
+      virtual void EndOfEventAction(const G4Event* event) override final;
 
       /// Retrieve my timing results
       const Report& getReport() const
