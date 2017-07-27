@@ -61,7 +61,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Beginning of event
   //---------------------------------------------------------------------------
-  void MCTruthSteppingAction::beginOfEvent(const G4Event*)
+  void MCTruthSteppingAction::BeginOfEventAction(const G4Event*)
   {
     // First time initialization
     if(!m_isInitialized) {
@@ -80,7 +80,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Process one tracking step
   //---------------------------------------------------------------------------
-  void MCTruthSteppingAction::processStep(const G4Step* aStep)
+  void MCTruthSteppingAction::UserSteppingAction(const G4Step* aStep)
   {
     if (m_recordingEnvelopes.size() == 0) return;
     TrackHelper trackHelper(aStep->GetTrack());
