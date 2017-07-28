@@ -10,6 +10,9 @@
 #include "TrigBjetHypo/TrigSuperRoiBuilderAllTE.h"
 #include "TrigBjetHypo/TrigBjetEtHypo.h"
 #include "TrigBjetHypo/TrigFarawayJetFinderAllTE.h"
+#include "../TrigBjetHypoAlg.h"
+#include "../TrigBjetHypoTool.h"
+
 
 DECLARE_ALGORITHM_FACTORY( TrigBjetHypo )
 DECLARE_ALGORITHM_FACTORY( TrigBjetFex )
@@ -22,6 +25,9 @@ DECLARE_ALGORITHM_FACTORY( TrigJetSplitterAllTE )
 DECLARE_ALGORITHM_FACTORY( TrigSuperRoiBuilderAllTE )
 DECLARE_ALGORITHM_FACTORY( TrigBjetEtHypo )
 DECLARE_ALGORITHM_FACTORY( TrigFarawayJetFinderAllTE )
+DECLARE_ALGORITHM_FACTORY( TrigBjetHypoAlg )
+DECLARE_TOOL_FACTORY( TrigBjetHypoTool )
+
 
 DECLARE_FACTORY_ENTRIES( TrigBjetHypo ) { 
 
@@ -36,5 +42,8 @@ DECLARE_FACTORY_ENTRIES( TrigBjetHypo ) {
     DECLARE_ALGORITHM( TrigSuperRoiBuilderAllTE )
     DECLARE_ALGORITHM( TrigBjetEtHypo )
     DECLARE_ALGORITHM( TrigFarawayJetFinderAllTE )
+    DECLARE_ALGORITHM( TrigBjetHypoAlg )
+    DECLARE_TOOL( TrigBjetHypoTool )
+
 
 }
