@@ -118,9 +118,9 @@ PHYSVALSlimmingHelper.AppendToDictionary = {
   "BTagging_AntiKt4EMPFlow"                    :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKt4EMPFlowAux"                 :   "xAOD::BTaggingAuxContainer",
   "LCOriginTopoClusters"                       :   "xAOD::CaloClusterContainer",
-  "LCOriginTopoClustersAux"                    :   "xAOD::CaloClusterAuxContainer",
+  "LCOriginTopoClustersAux"                    :   "xAOD::ShallowAuxContainer",
   "EMOriginTopoClusters"                       :   "xAOD::CaloClusterContainer",
-  "EMOriginTopoClustersAux"                    :   "xAOD::CaloClusterAuxContainer", 
+  "EMOriginTopoClustersAux"                    :   "xAOD::ShallowAuxContainer", 
   }
 #----------------------------------------------------------------------
 
