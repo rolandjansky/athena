@@ -7,7 +7,8 @@ atlas_subdir( DataQualityUtils )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PRIVATE
-                          DataQuality/DataQualityInterfaces )
+                          DataQuality/DataQualityInterfaces
+                          DataQuality/ZLumiScripts )
 
 # External dependencies:
 find_package( Boost COMPONENTS regex filesystem thread system )

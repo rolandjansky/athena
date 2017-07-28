@@ -42,6 +42,9 @@ atlas_add_test( CollectionMerger_test
                 LINK_LIBRARIES TestTools GaudiKernel AthenaBaseComps AtlasDetDescr ISF_Event ISF_Interfaces PmbCxxUtils InDetSimEvent LArSimEvent TileSimEvent MuonSimEvent ${GTEST_LIBRARIES} #${GMOCK_LIBRARIES}
                 ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
+atlas_add_test(collection_merger_helpers_tests
+               SCRIPT python/test/test_collection_merger_helpers.py)
+
 # Install files from the package:
 atlas_install_headers( ISF_Algorithms )
 

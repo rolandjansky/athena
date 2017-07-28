@@ -2193,6 +2193,8 @@ void HanOutputFile::ratioplot (TCanvas* myC_upperpad ,TH1* h,TH1* hRef,std::stri
     myC_upperpad->cd();
     myC_upperpad->Clear();
     myC_main->DrawClonePad();
+    delete myC_ratiopad;
+    delete myC_main;
 }
 
 void HanOutputFile::ratioplot2D (TCanvas* canvas_top, TH2* h2, TH2* h2Ref, std::string display) {

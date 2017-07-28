@@ -27,11 +27,13 @@ ClassImp(dqi::HanApp)
 
 namespace {
 
+  /*
 void dummyMethod()
 {
   TCanvas* dummyCanvas = new TCanvas("dummyCanvas","dummyCanvas", 450, 450 );
   dummyCanvas->cd();
 }
+  */
 
   void RecursivelyDeleteCollection(TCollection* seq) {
     TIter it(seq);

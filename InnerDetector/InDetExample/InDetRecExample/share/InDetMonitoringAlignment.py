@@ -48,14 +48,14 @@ if not jobproperties.Beam.beamType()=='cosmics':
     # Track selector that implement the Tracking CP supported cuts for Run2 using tightPrimary cut
     m_alignMonTrackSelectorTool.append(InDet__InDetTrackSelectionTool(name         = "InDetTrackSelectionTool_NoTRT",
                                                                          UseTrkTrackTools = True,
+                                                                         CutLevel = "TightPrimary",
+                                                                         maxNPixelHoles = 1,
+                                                                         minNBothInnermostLayersHits = 0,
+                                                                         minNInnermostLayerHits = 1,
                                                                          minPt = 5000,
-                                                                         maxD0 = 100000,
-                                                                         maxZ0SinTheta = 150,
-                                                                         minNTrtHits = 0,
-                                                                         CutLevel = "LoosePrimary",
                                                                          TrackSummaryTool    = InDetTrackSummaryTool,
                                                                          Extrapolator        = InDetExtrapolator))
-    
+   
     if jobproperties.Beam.beamType()=='singlebeam':
         m_alignMonTrackSelectorTool[0].minPt   = 0.0
         m_alignMonTrackSelectorTool[0].maxZ0SinTheta = 100000.0

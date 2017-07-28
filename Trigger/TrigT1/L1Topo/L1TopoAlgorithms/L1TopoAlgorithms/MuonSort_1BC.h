@@ -31,7 +31,6 @@ namespace TCS {
       parType_t      m_numberOfMuons = { 0 };
       parType_t      m_minEta = { 0 };
       parType_t      m_maxEta = { 0 };
-      //parType_t      m_et = { 0 };
 
    };
 

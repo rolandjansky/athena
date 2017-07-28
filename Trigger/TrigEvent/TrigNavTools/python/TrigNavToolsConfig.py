@@ -21,7 +21,7 @@ def slimmingTool( config ):
   if config['mode'] == 'drop':    
     SlimTool.Actions = [ 'Drop' ]
   if config['mode'] == 'slimming':    
-    SlimTool.Actions = [  'DropFeatures', 'Squeeze', 'Reload', 'DropFeaturelessTerminals', 'SyncThinning', 'DropChains', 'Save', 'Restore']
+    SlimTool.Actions = [  'DropFeatures', 'Squeeze', 'Reload', 'SyncThinning', 'DropChains', 'Save', 'Restore']
   if config['mode'] == 'trigger':    
     SlimTool.Actions = [ 'DropFeatures', 'Reload', 'SyncThinning', 'DropChains', 'Save', 'Restore']
   if config['mode'] == 'cleanup':    

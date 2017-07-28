@@ -866,6 +866,7 @@ if InDetFlags.loadSummaryTool():
                                                           Extrapolator = InDetExtrapolator,
                                                           usePixel      = DetFlags.haveRIO.pixel_on(),
                                                           useSCT        = DetFlags.haveRIO.SCT_on(),                                                          
+                                                          checkBadSCTChip = InDetFlags.checkDeadElementsOnTrack(),
                                                           CountDeadModulesAfterLastHit = True,
                                                           PixelLayerTool = InDetTestPixelLayerTool)
 

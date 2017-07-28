@@ -7,6 +7,8 @@
 
 // Tile includes
 #include "TileConditions/TileCondToolOfc.h"
+#include "TileConditions/TileCablingService.h"
+#include "TileConditions/TileCablingSvc.h"
 
 
 //
@@ -24,6 +26,9 @@ TileCondToolOfc::TileCondToolOfc(const std::string& type, const std::string& nam
     , m_tileToolAutoCr("TileCondToolAutoCr")
 //  , m_tileToolNoiseSample("TileCondToolNoiseSample")
     , m_tileInfo(0)
+    , m_maxChannels(0)
+    , m_maxGains(0)
+    , m_drawerCacheSize(0)
 {
   declareInterface<ITileCondToolOfc>(this);
   declareProperty("nSamples", m_nSamples = 7, "number of samples used in the run");
@@ -79,6 +84,20 @@ StatusCode TileCondToolOfc::initialize() {
 
   //=== Prepare for calculation of OFCs
   m_weights.n_samples = m_nSamples;
+
+  //=== Initialize max values
+  ServiceHandle<TileCablingSvc> cablingSvc("TileCablingSvc", name());
+  CHECK( cablingSvc.retrieve());
+
+  const TileCablingService* cabling = cablingSvc->cablingService();
+  if (!cabling) {
+    ATH_MSG_ERROR( "Unable to retrieve TileCablingService" );
+    return StatusCode::FAILURE;
+  }
+
+  m_maxChannels = cabling->getMaxChannels();
+  m_maxGains = cabling->getMaxGains();
+  m_drawerCacheSize = m_maxChannels * m_maxGains;
 
   // Prepare cache table for all channels (array of pointers to "MAP"s)
   if (m_cache) {
