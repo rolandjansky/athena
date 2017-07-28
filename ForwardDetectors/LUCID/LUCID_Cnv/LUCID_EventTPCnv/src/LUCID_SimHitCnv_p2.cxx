@@ -11,12 +11,12 @@ void LUCID_SimHitCnv_p2::persToTrans(const LUCID_SimHit_p2* persObj, LUCID_SimHi
 
   log << MSG::DEBUG << "LUCID_SimHitCnv_p2::persToTrans called " << endmsg;
 
-  // redundant with m_track.
-  //HepMcParticleLinkCnv_p2 HepMcPLCnv;
-  //HepMcPLCnv.persToTrans(&(persObj->m_partLink),&(transObj->m_partLink), log);
+  HepMcParticleLinkCnv_p2 HepMcPLCnv;
+  HepMcParticleLink link;
+  HepMcPLCnv.persToTrans(&(persObj->m_partLink),&(link), log);
   *transObj = LUCID_SimHit (persObj->m_tubeID,
                             persObj->m_pdgCode,
-                            persObj->m_track,
+                            link,
                             persObj->m_genVolume,
                             persObj->m_stepStartPosX,
                             persObj->m_stepStartPosY,
@@ -30,6 +30,26 @@ void LUCID_SimHitCnv_p2::persToTrans(const LUCID_SimHit_p2* persObj, LUCID_SimHi
                             persObj->m_energy);
 }
 
-void LUCID_SimHitCnv_p2::transToPers(const LUCID_SimHit*, LUCID_SimHit_p2*, MsgStream& /*log*/) {
-  throw std::runtime_error("LUCID_SimHitCnv_p2::transToPers is not supported in this release!");
+void LUCID_SimHitCnv_p2::transToPers(const LUCID_SimHit* transObj, LUCID_SimHit_p2* persObj, MsgStream& log) {
+
+  log << MSG::DEBUG << "LUCID_SimHitCnv_p2::transToPers called " << endmsg;
+
+  HepMcParticleLinkCnv_p2 HepMcPLCnv;
+
+  persObj->m_tubeID        = transObj->GetTubeID();
+  persObj->m_track         = transObj->GetTrack();
+  persObj->m_pdgCode       = transObj->GetPdgCode();
+  persObj->m_genVolume     = transObj->GetGenVolume();
+  persObj->m_stepStartPosX = transObj->GetX();
+  persObj->m_stepStartPosY = transObj->GetY();
+  persObj->m_stepStartPosZ = transObj->GetZ();
+  persObj->m_stepEndPosX   = transObj->GetEPX();
+  persObj->m_stepEndPosY   = transObj->GetEPY();
+  persObj->m_stepEndPosZ   = transObj->GetEPZ();
+  persObj->m_preStepTime   = transObj->GetPreStepTime();
+  persObj->m_postStepTime  = transObj->GetPostStepTime();
+  persObj->m_wavelength    = transObj->GetWavelength();
+  persObj->m_energy        = transObj->GetEnergy();
+
+  HepMcPLCnv.transToPers(&(transObj->particleLink()),&(persObj->m_partLink), log);
 }

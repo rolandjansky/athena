@@ -1,19 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
 /**
- * @file LUCID_EventTPCnv/test/LUCID_SimHitCnv_p1_test.cxx
- * @author scott snyder <snyder@bnl.gov>
- * @date Feb, 2016
- * @brief Tests for LUCID_SimHitCnv_p1.
+ * @file LUCID_EventTPCnv/test/LUCID_SimHitCnv_p2_test.cxx
+ * @date Feb, 2018
+ * @brief Tests for LUCID_SimHitCnv_p2.
  */
 
 
 #undef NDEBUG
-#include "LUCID_EventTPCnv/LUCID_SimHitCnv_p1.h"
-#include "TestTools/leakcheck.h"
+#include "LUCID_EventTPCnv/LUCID_SimHitCnv_p2.h"
 #include <cassert>
 #include <iostream>
 
@@ -58,8 +56,8 @@ void compare (const LUCID_SimHit& p1,
 void testit (const LUCID_SimHit& trans1)
 {
   MsgStream log (0, "test");
-  LUCID_SimHitCnv_p1 cnv;
-  LUCID_SimHit_p1 pers;
+  LUCID_SimHitCnv_p2 cnv;
+  LUCID_SimHit_p2 pers;
   cnv.transToPers (&trans1, &pers, log);
   LUCID_SimHit trans2;
   cnv.persToTrans (&pers, &trans2, log);
@@ -71,12 +69,6 @@ void testit (const LUCID_SimHit& trans1)
 void test1(std::vector<HepMC::GenParticle*>& genPartVector)
 {
   std::cout << "test1\n";
-  const HepMC::GenParticle *particle = genPartVector.at(0);
-  // Create HepMcParticleLink outside of leak check.
-  HepMcParticleLink dummyHMPL(particle->barcode(),0);
-  assert(dummyHMPL.cptr()==particle);
-  Athena_test::Leakcheck check;
-
   HepMcParticleLink trkLink(genPartVector.at(0)->barcode(),genPartVector.at(0)->parent_event()->event_number());
   LUCID_SimHit trans1 (1, genPartVector.at(0)->pdg_id(), trkLink, 4,
                        5.5, 6.5, 7.5,
