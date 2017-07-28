@@ -549,7 +549,7 @@ int ID_ContainerTest::execute(){
     cache->add(IdentifierHash(3), new MyCollection(MyID(3)));//Some pre cached collections
 
     auto containerOnline = new MyCollectionContainer(cache);
-    if(containerOnline->FetchOrCreate(IdentifierHash(0)).isFailure()){
+    if(containerOnline->fetchOrCreate(IdentifierHash(0)).isFailure()){
          cout << "Error in FetchOrCreate " << endl; std::abort();
 
     }

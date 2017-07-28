@@ -218,8 +218,17 @@ public:
     /// if IDC should not take ownership of collection, set ownsColl to false
     StatusCode addCollection(const T* coll, IdentifierHash hashId, bool ownsColl = true);
 
+    /// Tries to add the item to the cache, if the item already exists then it is deleted
+    /// This is a convenience method for online multithreaded scenarios
+    StatusCode addOrDelete(std::unique_ptr<T>, IdentifierHash hashId);
 
-    StatusCode FetchOrCreate(IdentifierHash hashId);
+    /// Looks in the cache to see if item already exists if not it returns false,
+    /// If it does exist it incorporates it into the IDC view but changing the mask.
+    bool tryFetch(IdentifierHash hashId);
+
+    /// Tries will look for item in cache, if it doesn't exist will call the cache IMAKER
+    /// If cache doesn't have an IMAKER then this fails.
+    StatusCode fetchOrCreate(IdentifierHash hashId);
 
 #ifdef IdentifiableCacheBaseRemove
     /// remove collection from container for id hash, returning it
@@ -250,7 +259,10 @@ public:
     }
 
     
-
+    //Returns a collection of all hashes availiable in this IDC.
+    //If this is an "offline" mode IDC then this is identical to the cache
+    //If this is an "online" mode IDC then this is the items that both exist in the cache 
+    //and have a postive mask element
     std::vector<IdentifierHash> GetAllCurrentHashs() const {
         if(not m_OnlineMode) return m_cacheLink->ids();
         else{
@@ -339,7 +351,7 @@ IdentifiableContainerMT<T>::cleanup()
 
 template < class T>
 StatusCode
-IdentifiableContainerMT<T>::FetchOrCreate(IdentifierHash hashId)
+IdentifiableContainerMT<T>::fetchOrCreate(IdentifierHash hashId)
 {
     auto ptr = m_cacheLink->get(hashId);
     if(ptr==nullptr){
@@ -349,7 +361,27 @@ IdentifiableContainerMT<T>::FetchOrCreate(IdentifierHash hashId)
     return StatusCode::SUCCESS; 
 }
 
+template < class T>
+bool
+IdentifiableContainerMT<T>::tryFetch(IdentifierHash hashId)
+{
+    auto ptr = m_cacheLink->find(hashId);
+    if(ptr==nullptr){
+        return false; 
+    }
+    m_mask[hashId] = true;
+    return true; 
+}
 
+template < class T>
+StatusCode
+IdentifiableContainerMT<T>::addOrDelete(std::unique_ptr<T> ptr, IdentifierHash hashId)
+{
+    bool added = m_cacheLink->add(std::move(ptr), hashId);
+    if(added) return StatusCode::SUCCESS;
+    ptr.reset();//Explicity delete my ptr - should not be necessary maybe remove this line for optimization
+    return StatusCode::SUCCESS;
+}
 
 #endif
 
