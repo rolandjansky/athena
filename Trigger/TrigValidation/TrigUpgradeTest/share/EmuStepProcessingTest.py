@@ -78,6 +78,14 @@ include("TrigUpgradeTest/L1CF.py")
 include("TrigUpgradeTest/HLTCF.py")
 
 
+# Cati's menu code
+#print "=============== MEOW ================"
+#include("TrigUpgradeTest/TriggerMenuMT.py")
+#genMenu = GenerateMenu()
+#genMenu.generate()
+#print "=============== WOOF ================"
+
+
 
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
 def emHTool(name):
@@ -86,7 +94,8 @@ def emHTool(name):
 
 
 muChains  = [ 'HLT_mu20', 'HLT_mu8', 'HLT_2mu8' ]
-eChains   = [ 'HLT_e20' ]
+eChains   = [ 'HLT_e20', ]
+eChains_iso = ['HLT_e20_ivarloose' ]
 gChains   = [ 'HLT_g100', 'HLT_2g50' ]
 mueChains = [ 'HLT_mu8_e8' ]
 
