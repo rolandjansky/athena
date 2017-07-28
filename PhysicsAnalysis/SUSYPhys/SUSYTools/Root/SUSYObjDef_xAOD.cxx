@@ -2087,6 +2087,36 @@ StatusCode SUSYObjDef_xAOD::OverlapRemoval(const xAOD::ElectronContainer *electr
 }
 
 
+StatusCode SUSYObjDef_xAOD::NearbyLeptonCorrections(const xAOD::ElectronContainer *electrons, const xAOD::MuonContainer *muons) const
+{
+  //apply close-by corrections to isolation
+  // stores the electrons in a vector
+  std::vector<const xAOD::IParticle*> pVec;
+  for(auto pobj: *electrons) {
+    pVec.push_back((const xAOD::IParticle*) pobj);
+  }
+  // stores the muons in a vector
+  for(auto pobj: *muons) {
+    pVec.push_back((const xAOD::IParticle*) pobj);
+  }
+
+  //correct isolation and propagate to signal deco for electrons
+  for (const auto& electron : *electrons) {
+    dec_isol(*electron) = m_isoCloseByTool->acceptCorrected(*electron, pVec);
+    if(m_doElIsoSignal) dec_signal(*electron) &= acc_isol(*electron); //add isolation to signal deco if requested
+  }
+
+  //correct isolation and propagate to signal deco for electrons
+  for (const auto& muon : *muons) {
+    dec_isol(*muon) = m_isoCloseByTool->acceptCorrected(*muon, pVec);
+    if(m_doMuIsoSignal) dec_signal(*muon) &= acc_isol(*muon); //add isolation to signal deco if requested
+  }
+
+  // All done, all good :-)
+  return StatusCode::SUCCESS;
+}
+
+
 
 float SUSYObjDef_xAOD::GetPileupWeight() {
   
@@ -2184,7 +2214,7 @@ StatusCode SUSYObjDef_xAOD::setRunNumber(const int run_number) {
     rn_2016 = run_number;
   }
 
-  // Release 21: we can only set the run number for the SF tool that is applicable
+  // In release 21, we can only set the run number for the SF tool that is applicable
   if (treatAsYear(run_number)==2015 && m_muonTriggerSFTool2015->setRunNumber(rn_2015)!=CP::CorrectionCode::Ok) return StatusCode::FAILURE;
   if (treatAsYear(run_number)==2016 && m_muonTriggerSFTool2016->setRunNumber(rn_2016)!=CP::CorrectionCode::Ok) return StatusCode::FAILURE;
 
