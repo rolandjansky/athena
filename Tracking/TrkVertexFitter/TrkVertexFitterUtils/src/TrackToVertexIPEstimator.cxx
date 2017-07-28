@@ -210,8 +210,8 @@ namespace Trk
    {
      msg(MSG::WARNING) << " The contribution to z0_err: " << vrtZZCov << " from PV is negative: critical error in PV error matrix! Removing contribution from PV ... "  << endmsg;     
      newIPandSigma->IPz0SinTheta=z0*sin(theta);
-     double _temp = (IPz0JacZ0Theta.transpose()*(covPerigeeZ0Theta*IPz0JacZ0Theta));
-     newIPandSigma->sigmaz0SinTheta=sqrt(_temp);
+     double temp = (IPz0JacZ0Theta.transpose()*(covPerigeeZ0Theta*IPz0JacZ0Theta));
+     newIPandSigma->sigmaz0SinTheta=sqrt(temp);
      newIPandSigma->PVsigmaz0SinTheta=0;
      
      newIPandSigma->IPz0 = z0;

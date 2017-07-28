@@ -157,13 +157,13 @@ namespace Trk
     double phiAtEp;
     int sgnY = (Y<0)? -1:1;
     int sgnX = (X<0)? -1:1;  
-    double m_pi = TMath::Pi();//acos(-1.);
+    double pi = TMath::Pi();//acos(-1.);
     
     if(fabs(X)>fabs(Y)) phiAtEp = sgn_h*sgnX* acos(-sgn_h * Y / S);
     else
     {
      phiAtEp = asin(sgn_h * X / S);    
-     if( (sgn_h * sgnY)> 0) phiAtEp =  sgn_h * sgnX * m_pi - phiAtEp;
+     if( (sgn_h * sgnY)> 0) phiAtEp =  sgn_h * sgnX * pi - phiAtEp;
     }
     
     parAtExpansionPoint[2] = phiAtEp;   
