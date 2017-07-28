@@ -25,21 +25,6 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("PHYSVALK
 
 OutputJets["PHYSVAL"] = ["AntiKtVR30Rmax4Rmin02TrackJets"]
 
-#from JetRecTools.JetRecToolsConfig import ctm
-#clustLCOrigSeq = ctm.buildConstitModifSequence( "JetConstitSeq_LCOrigin",
-#                                                OutputContainer='LCOriginTopoClusters',
-#                                                InputContainer= 'CaloCalTopoClusters',
-#                                                modList = [  'lc_origin' ] )
-#
-#clustEMOrigSeq = ctm.buildConstitModifSequence( "JetConstitSeq_EMOrigin",
-#                                                OutputContainer='EMOriginTopoClusters',
-#                                                InputContainer= 'CaloCalTopoClusters',
-#                                                modList = [  'em_origin' ] )
-#
-#from JetRec.JetRecConf import JetAlgorithm
-#clustSeqAlg = JetAlgorithm("ClusterModifiers", Tools = [clustLCOrigSeq,clustEMOrigSeq])
-#DerivationFrameworkJob += clustSeqAlg
-
 reducedJetList = [ "AntiKt10PV0TrackJets",
                    "AntiKt4TruthWZJets",
                    "AntiKt10TruthJets",
@@ -132,6 +117,10 @@ PHYSVALSlimmingHelper.AppendToDictionary = {
   #"BTagging_AntiKt4EMPFlowSecVtxAux"           :   "xAOD::VertexAuxContainer"  ,
   "BTagging_AntiKt4EMPFlow"                    :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKt4EMPFlowAux"                 :   "xAOD::BTaggingAuxContainer",
+  "LCOriginTopoClusters"                       :   "xAOD::CaloClusterContainer",
+  "LCOriginTopoClustersAux"                    :   "xAOD::CaloClusterAuxContainer",
+  "EMOriginTopoClusters"                       :   "xAOD::CaloClusterContainer",
+  "EMOriginTopoClustersAux"                    :   "xAOD::CaloClusterAuxContainer", 
   }
 #----------------------------------------------------------------------
 
