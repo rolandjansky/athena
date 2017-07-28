@@ -18,7 +18,7 @@ namespace CP {
     
     declareProperty( "MaxEta", m_maxEta = 2.7 );
     //xAOD::MuonQuality enum {Tight, Medium, Loose, VeryLoose}
-    //corresponds to 0, 1, 2, 3, 4=HighPt
+    //corresponds to 0, 1, 2, 3, 4=HighPt, 5=LowPtEfficiency
     declareProperty( "MuQuality", m_quality = 1 );
     declareProperty( "ToroidOff", m_toroidOff = false );
     declareProperty( "TurnOffMomCorr", m_TurnOffMomCorr = false );
@@ -109,6 +109,11 @@ namespace CP {
                      "Selection of muons according to their type/author" );
     m_accept.addCut( "Quality",
 		     "Selection of muons according to their tightness" );
+    // Sanity check
+    if(m_quality>5 ){
+      ATH_MSG_ERROR( "Invalid quality (i.e. selection WP) set: " << m_quality << " - it must be an integer between 0 and 5!" );
+      return StatusCode::FAILURE;
+    }
 
     // Load Tight WP cut-map
     ATH_MSG_INFO( "Initialising tight working point histograms..." );
@@ -143,7 +148,7 @@ namespace CP {
     // 
     file->Close();
     delete file;
-
+    
     // Return gracefully:
     return StatusCode::SUCCESS;
   }
@@ -200,7 +205,7 @@ namespace CP {
     
     // Reset the result:
     m_accept.clear();
-    
+
     // Do the eta cut:
     ATH_MSG_VERBOSE( "Muon eta: " << mu.eta() );
     if( std::abs( mu.eta() ) > m_maxEta ) {
@@ -223,15 +228,20 @@ namespace CP {
     m_accept.setCutResult( "Preselection", true );
 
     // Passes quality requirements 
-    ATH_MSG_VERBOSE( "Muon quality: " << getQuality(mu) << " isHighPt: "<<passedHighPtCuts(mu) );
-    if(m_quality<4 && getQuality(mu) > m_quality){
+    xAOD::Muon::Quality thisMu_quality = getQuality(mu);
+    bool thisMu_highpt = passedHighPtCuts(mu);
+    bool thisMu_lowptE = passedLowPtEfficiencyCuts(mu,thisMu_quality);
+    ATH_MSG_VERBOSE( "Muon quality: " << thisMu_quality << " passes HighPt: "<< thisMu_highpt << " passes LowPtEfficiency: "<< thisMu_lowptE );
+    if(m_quality<4 && thisMu_quality > m_quality){
       return m_accept;
     }
-    if(m_quality>=4 && !passedHighPtCuts(mu)){
+    if(m_quality==4 && !thisMu_highpt){
+      return m_accept;
+    }
+    if(m_quality==5 && !thisMu_lowptE){
       return m_accept;
     }
     m_accept.setCutResult( "Quality", true );
-    
     // Return the result:
     return m_accept;
   }
@@ -255,7 +265,7 @@ namespace CP {
       // rejection muons with out-of-bounds hits
       uint8_t m_combinedTrackOutBoundsPrecisionHits;
       if(!mu.summaryValue(m_combinedTrackOutBoundsPrecisionHits, xAOD::MuonSummaryType::combinedTrackOutBoundsPrecisionHits)) {
-	ATH_MSG_VERBOSE("getQuality - # of out-of-bounds hits missing in combined muon! Aborting.");
+	ATH_MSG_WARNING("getQuality - # of out-of-bounds hits missing in combined muon! Returning VeryLoose...");
         return xAOD::Muon::VeryLoose;
       }
       if (m_combinedTrackOutBoundsPrecisionHits>0){
@@ -265,7 +275,7 @@ namespace CP {
       uint8_t nprecisionLayers,nprecisionHoleLayers;      
       if (!mu.summaryValue(nprecisionLayers, xAOD::SummaryType::numberOfPrecisionLayers) || 
 	  !mu.summaryValue(nprecisionHoleLayers, xAOD::SummaryType::numberOfPrecisionHoleLayers)){
-	ATH_MSG_VERBOSE("getQuality - #precision layers missing in combined muon! Aborting.");
+	ATH_MSG_WARNING("getQuality - #precision layers missing in combined muon! Returning VeryLoose...");
 	return xAOD::Muon::VeryLoose;
       }
 
@@ -312,7 +322,7 @@ namespace CP {
 	       !mu.summaryValue(outerSmallHits, xAOD::MuonSummaryType::outerSmallHits) ||
 	       !mu.summaryValue(outerLargeHits, xAOD::MuonSummaryType::outerLargeHits) ){
 
-	    ATH_MSG_VERBOSE("getQuality - Muon in CSC region and MS hits information missing!!! Returning VeryLoose...");
+	    ATH_MSG_WARNING("getQuality - Muon in CSC region and MS hits information missing!!! Returning VeryLoose...");
 	    return xAOD::Muon::VeryLoose;
 	  }
 	  if( innerSmallHits>1  || innerLargeHits>1  ) nprecisionLayers += 1;
@@ -367,7 +377,7 @@ namespace CP {
 	     !mu.summaryValue(outerLargeHits, xAOD::MuonSummaryType::outerLargeHits) //||
 	     //mu.summaryValue(nGoodPrecLayers, xAOD::numberOfGoodPrecisionLayers) 
 	   ) {
-	  ATH_MSG_VERBOSE("getQuality - SA muon with missing MS hits information!!! Returning VeryLoose...");
+	  ATH_MSG_WARNING("getQuality - SA muon with missing MS hits information!!! Returning VeryLoose...");
 	  return xAOD::Muon::VeryLoose;
 	}
 
@@ -410,7 +420,7 @@ namespace CP {
                !mu.summaryValue(outerLargeHits, xAOD::MuonSummaryType::outerLargeHits)  
 	       //!mu.summaryValue(nGoodPrecLayers, xAOD::numberOfGoodPrecisionLayers) 
 	       ) {
-            ATH_MSG_VERBOSE("getQuality - SAF muon with missing MS hits information!!! Returning VeryLoose...");
+            ATH_MSG_WARNING("getQuality - SAF muon with missing MS hits information!!! Returning VeryLoose...");
             return xAOD::Muon::VeryLoose;
           }
 	  // requiring at least 3 good precision layers (for future improvements)
@@ -468,6 +478,10 @@ namespace CP {
   void MuonSelectionTool::setPassesHighPtCuts( xAOD::Muon& mu ) const {    
     mu.setPassesHighPtCuts(passedHighPtCuts(mu));
   }
+
+  /*void MuonSelectionTool::setPassesLowPtEfficiencyCuts( xAOD::Muon& mu ) const {
+    mu.setPassesLowPtEfficiencyCuts(passedLowPtEfficiencyCuts(mu));
+    }*/
   
   bool MuonSelectionTool::passedIDCuts( const xAOD::Muon& mu ) const {
     //using namespace xAOD;
@@ -532,6 +546,68 @@ namespace CP {
     return IsBadMuon;
   }
 
+  bool MuonSelectionTool::passedLowPtEfficiencyCuts( const xAOD::Muon& mu ) const {
+    xAOD::Muon::Quality thisMu_quality = getQuality(mu);
+    return passedLowPtEfficiencyCuts(mu,thisMu_quality);
+  }
+
+  bool MuonSelectionTool::passedLowPtEfficiencyCuts( const xAOD::Muon& mu, xAOD::Muon::Quality thisMu_quality ) const {
+
+    // requiring combined muons
+    if( mu.muonType() != xAOD::Muon::Combined ) return false;
+    if( mu.author()!=xAOD::Muon::MuGirl && mu.author()!=xAOD::Muon::MuidCo ) return false;
+
+    // applying Medium selection above pT = 18 GeV 
+    if( mu.pt()/1000.>18. ) {
+      if( thisMu_quality <= xAOD::Muon::Medium ) return true;
+      else return false;
+    }
+
+    // requiring Medium in forward regions
+    if( fabs(mu.eta())>1.55 && thisMu_quality > xAOD::Muon::Medium ) return false;
+    
+    // rejection of muons with out-of-bounds hits 
+    uint8_t m_combinedTrackOutBoundsPrecisionHits;
+    if(!mu.summaryValue(m_combinedTrackOutBoundsPrecisionHits, xAOD::MuonSummaryType::combinedTrackOutBoundsPrecisionHits)) {
+      ATH_MSG_WARNING("passedLowPtEfficiencyCuts - # of out-of-bounds hits missing in combined muon! Failing selection...");
+      return false;
+    }
+    if (m_combinedTrackOutBoundsPrecisionHits>0) {
+      return false;
+    }
+
+    // requiring explicitely >=1 station (2 in the |eta|>1.3 region when Medium selection is not explicitely required)
+    uint8_t nprecisionLayers;
+    if (!mu.summaryValue(nprecisionLayers, xAOD::SummaryType::numberOfPrecisionLayers)){
+      ATH_MSG_WARNING("passedLowPtEfficiencyCuts - #precision layers missing in combined muon! Failing selection...");
+      return false;
+    }
+    uint nStationsCut = (fabs(mu.eta())>1.3&&fabs(mu.eta())<1.55) ? 2 : 1;
+    if ( nprecisionLayers<nStationsCut ) {
+      return false;
+    }
+
+    // reject MuGirl muon if not found also by MuTagIMO 
+    if( mu.author()==xAOD::Muon::MuGirl && !mu.isAuthor(xAOD::Muon::MuTagIMO) ) {
+      return false;
+    }
+
+    // apply some loose quality requirements 
+    float momentumBalanceSignificance(0.), scatteringCurvatureSignificance(0.), scatteringNeighbourSignificance(0.);
+    if( !mu.parameter(momentumBalanceSignificance,xAOD::Muon::momentumBalanceSignificance) 
+	|| !mu.parameter(scatteringCurvatureSignificance,xAOD::Muon::scatteringCurvatureSignificance) 
+	|| !mu.parameter(scatteringNeighbourSignificance,xAOD::Muon::scatteringNeighbourSignificance) ) {
+      ATH_MSG_WARNING("passedLowPtEfficiencyCuts - momentum balance, scatternig curvature or neighbour significances missing in combined muon! Failing selection...");
+      return false;
+    }
+    if( fabs(momentumBalanceSignificance)>3. || fabs(scatteringCurvatureSignificance)>3. || fabs(scatteringNeighbourSignificance)>3. ) {
+      return false;
+    }
+
+    // passed low pt selection 
+    return true;
+  }
+
   bool MuonSelectionTool::passedHighPtCuts( const xAOD::Muon& mu ) const {
     using namespace xAOD;
     
@@ -542,7 +618,7 @@ namespace CP {
     // :: Reject muons with out-of-bounds hits
     uint8_t m_combinedTrackOutBoundsPrecisionHits;
     if(!mu.summaryValue(m_combinedTrackOutBoundsPrecisionHits, xAOD::MuonSummaryType::combinedTrackOutBoundsPrecisionHits)) {
-      ATH_MSG_VERBOSE("getQuality - # of out-of-bounds hits missing in combined muon! Aborting.");
+      ATH_MSG_WARNING("passedHighPtCuts - # of out-of-bounds hits missing in combined muon! Failing selection...");
       return false;
     }
     if (m_combinedTrackOutBoundsPrecisionHits>0){
@@ -565,7 +641,7 @@ namespace CP {
 	 !mu.summaryValue(extendedSmallHoles, xAOD::MuonSummaryType::extendedSmallHoles) ||
 	 !mu.summaryValue(isSmallGoodSectors, xAOD::MuonSummaryType::isSmallGoodSectors)
        ){
-      ATH_MSG_VERBOSE("getQuality - MS hits information missing!!! Failing High-pT selection...");
+      ATH_MSG_WARNING("passedHighPtCuts - MS hits information missing!!! Failing High-pT selection...");
       return false;
     }
 
@@ -585,7 +661,7 @@ namespace CP {
 	&& ( mu.muonSpectrometerTrackParticleLink() ).isValid() 
       ) MS_track = mu.trackParticle( xAOD::Muon::MuonSpectrometerTrackParticle );    
     else{
-      ATH_MSG_WARNING( "passedHighPtCuts - No MS track available for muon. Using combined track." );
+      ATH_MSG_VERBOSE( "passedHighPtCuts - No MS track available for muon. Using combined track." );
       MS_track = mu.trackParticle( xAOD::Muon::CombinedTrackParticle );
     }
     
@@ -629,7 +705,7 @@ namespace CP {
 	if( nGoodPrecLayers<4 && (extendedSmallHits>0||extendedSmallHoles>0) ) return false;
       }
     } else {
-      ATH_MSG_VERBOSE( "passedHighPtCuts - MS or CB track missing in muon! Aborting." );
+      ATH_MSG_WARNING( "passedHighPtCuts - MS or CB track missing in muon! Failing High-pT selection..." );
       return false;
     }
 
