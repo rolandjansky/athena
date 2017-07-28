@@ -128,6 +128,7 @@ RecExCommonFlags = {
       'doDetStatus' : True, # include DetStatusSvc_CondDB.py and optionaly DetStatusSvc_ToFileMetaData.py
       'doTimeLimit': False, # if stop execution when allocated time elapsed
       'doTruth' : True, # id use the truth
+      'TruthSubsetOption' : "HSonly", #dump only the HS event in the xAOD::TruthParticle collection
       'doDumpMC' : False, # if dump mc truth in log file
       'doNameAuditor' : False, # if NameAuditor switched on (one line print out per alg)
       'doShowSizeStatistics' : False, # if print pool object size stat of input file
