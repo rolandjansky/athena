@@ -35,9 +35,16 @@ void DetailedTrackTruthCnv_p3::persToTrans( const Trk::DetailedTrackTruth_p3* pe
   msg<<MSG::DEBUG<<"DetailedTrackTruthCnv_p3::persToTrans() DONE"<<endmsg;
 }
 
-void DetailedTrackTruthCnv_p3::transToPers( const DetailedTrackTruth*,
-                                            Trk::DetailedTrackTruth_p3*,
-                                            MsgStream& /*msg*/ )
+void DetailedTrackTruthCnv_p3::transToPers( const DetailedTrackTruth* trans,
+                                            Trk::DetailedTrackTruth_p3* pers,
+                                            MsgStream& msg )
 {
-  throw std::runtime_error("DetailedTrackTruthCnv_p3::transToPers is not supported in this release!");
+  msg<<MSG::DEBUG<<"DetailedTrackTruthCnv_p3::transToPers()"<<endmsg;
+
+  subDetHitStatConverter.transToPers(&trans->statsCommon(), &pers->m_hitsCommon, msg);
+  subDetHitStatConverter.transToPers(&trans->statsTrack(),  &pers->m_hitsTrack,  msg);
+  subDetHitStatConverter.transToPers(&trans->statsTruth(),  &pers->m_hitsTruth,  msg);
+  truthTrajConverter.transToPers(&trans->trajectory(),      &pers->m_trajectory, msg);
+
+  msg<<MSG::DEBUG<<"DetailedTrackTruthCnv_p3::transToPers() DONE"<<endmsg;
 }

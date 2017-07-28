@@ -31,12 +31,12 @@ DetailedTrackTruthCollectionCnv::DetailedTrackTruthCollectionCnv(ISvcLocator* sv
 //================================================================
 DetailedTrackTruthCollectionPERS* DetailedTrackTruthCollectionCnv::createPersistent(DetailedTrackTruthCollection* trans) {
   MsgStream log(msgSvc(), "DetailedTrackTruthCollectionCnv");
-  log<<MSG::DEBUG<<"Writing DetailedTrackTruthCollection_p2"<<endmsg;
+  log<<MSG::DEBUG<<"Writing DetailedTrackTruthCollection_p3"<<endmsg;
 
   //orig: return new DetailedTrackTruthCollectionPERS( *reinterpret_cast<DetailedTrackTruthCollectionPERS*>(trans) );
 
   DetailedTrackTruthCollectionPERS* pers=new DetailedTrackTruthCollectionPERS();
-  m_converter_p2.transToPers(trans,pers,log); 
+  m_converter_p3.transToPers(trans,pers,log);
   return pers;
 }
 

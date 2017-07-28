@@ -24,9 +24,9 @@ PRD_MultiTruthCollectionCnv::PRD_MultiTruthCollectionCnv(ISvcLocator* svcLoc) :
 //================================================================
 PRD_MultiTruthCollectionPERS* PRD_MultiTruthCollectionCnv::createPersistent(PRD_MultiTruthCollection* trans) {
   MsgStream log(msgSvc(), "PRD_MultiTruthCollectionCnv");
-  log<<MSG::DEBUG<<"Writing PRD_MultiTruthCollection_p2"<<endmsg;
+  log<<MSG::DEBUG<<"Writing PRD_MultiTruthCollection_p3"<<endmsg;
   PRD_MultiTruthCollectionPERS* pers=new PRD_MultiTruthCollectionPERS();
-  m_converter_p2.transToPers(trans,pers,log);
+  m_converter_p3.transToPers(trans,pers,log);
   return pers;
 }
 

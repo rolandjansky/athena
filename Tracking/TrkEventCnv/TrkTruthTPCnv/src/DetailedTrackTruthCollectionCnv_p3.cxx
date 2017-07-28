@@ -43,9 +43,23 @@ void DetailedTrackTruthCollectionCnv_p3::persToTrans( const Trk::DetailedTrackTr
   msg<<MSG::DEBUG<<"DetailedTrackTruthCollectionCnv_p3::persToTrans() DONE"<<endmsg;
 }
 
-void DetailedTrackTruthCollectionCnv_p3::transToPers( const DetailedTrackTruthCollection*,
-                                                      Trk::DetailedTrackTruthCollection_p3*,
-                                                      MsgStream& /*msg*/ )
+void DetailedTrackTruthCollectionCnv_p3::transToPers( const DetailedTrackTruthCollection* trans,
+                                                      Trk::DetailedTrackTruthCollection_p3* pers,
+                                                      MsgStream& msg )
 {
-  throw std::runtime_error("DetailedTrackTruthCollectionCnv_p3::transToPers is not supported in this release!");
+  msg<<MSG::DEBUG<<"DetailedTrackTruthCollectionCnv_p3::transToPers()"<<endmsg;
+  msg<<MSG::DEBUG<<"DetailedTrackTruthCollectionCnv_p3::transToPers(): input size = "<<trans->size()<<endmsg;
+
+  dataLinkConverter.transToPers(trans->trackCollectionLink(), pers->m_trackCollectionLink, msg);
+
+  pers->m_entries.resize(trans->size());
+  Trk::DetailedTrackTruthCollection_p3::CollectionType::size_type ipers(0);
+
+  for(DetailedTrackTruthCollection::const_iterator itrans=trans->begin(); itrans!=trans->end(); itrans++, ipers++) {
+    Trk::DetailedTrackTruthCollection_p3::Entry& current = pers->m_entries[ipers];
+    current.key.m_index = itrans->first.index(); // extract index from ElementLink
+    detailedTruthConverter.transToPers(&itrans->second, &current.detailedTruth, msg);
+  }
+
+  msg<<MSG::DEBUG<<"DetailedTrackTruthCollectionCnv_p3::transToPers() DONE"<<endmsg;
 }
