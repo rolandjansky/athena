@@ -16,6 +16,9 @@
 #include "GaudiKernel/ToolHandle.h"
 #include <string>
 
+#include "StoreGate/WriteHandleKey.h"
+#include "TrkTrack/TrackCollection.h"
+
 class AtlasDetectorID;
 
 namespace Trk 
@@ -57,10 +60,9 @@ namespace Trk
 
     private:
 
-        std::string                                         m_outputTrackCollectionName;      //!< output collection for truth tracks
-        std::string                                         m_skippedTrackCollectionName;     //!< output collection for skipped tracks
-        std::string                                         m_outputSegmentCollectionName;    //!< output collection for truths segments
-                                                            
+        SG::WriteHandleKey<TrackCollection>                       m_outputTrackCollectionName;      //!< output collection for truth tracks
+        SG::WriteHandleKey<TrackCollection>                       m_skippedTrackCollectionName;     //!< output collection for skipped tracks
+                                                
         ToolHandle<Trk::IPRD_TruthTrajectoryBuilder>        m_prdTruthTrajectoryBuilder;      //!< truth tools
         ToolHandle<Trk::ITruthTrackBuilder>                 m_truthTrackBuilder;              //!< truth tools
 

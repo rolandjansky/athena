@@ -15,8 +15,6 @@
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
-#include "TrkTrack/TrackCollection.h"
-#include "TrkSegment/SegmentCollection.h"
 // HepMC
 #include "HepMC/GenParticle.h"
 #include "HepMC/SimpleVector.h"
@@ -44,8 +42,6 @@ Trk::TruthTrackCreation::TruthTrackCreation(const std::string& name, ISvcLocator
     // specify the output collection
     declareProperty("OutputTrackCollection",        m_outputTrackCollectionName);
     declareProperty("OutputSkippedTrackCollection", m_skippedTrackCollectionName);
-
-    declareProperty("OutputSegmentCollection",        m_outputSegmentCollectionName = "");
 }
 
 //================ Destructor =================================================
@@ -89,6 +85,9 @@ StatusCode Trk::TruthTrackCreation::initialize()
         return StatusCode::FAILURE;
     }
 
+    ATH_CHECK( m_outputTrackCollectionName.initialize() );
+    ATH_CHECK( m_skippedTrackCollectionName.initialize() );
+ 
     return StatusCode::SUCCESS;
 }
 
@@ -106,10 +105,11 @@ StatusCode Trk::TruthTrackCreation::execute()
 {
     if (!m_assoTool.empty()) m_assoTool->reset();
     // create the track collection
-    TrackCollection* outputTrackCollection = new TrackCollection;
-    TrackCollection* skippedTrackCollection = new TrackCollection;
-
-    SegmentCollection* outputSegmentCollection = m_outputSegmentCollectionName.empty() ? 0 : new SegmentCollection;
+    std::unique_ptr<TrackCollection> outputTrackCollection = std::make_unique<TrackCollection>();
+    std::unique_ptr<TrackCollection> skippedTrackCollection = std::make_unique<TrackCollection>();
+    SG::WriteHandle<TrackCollection> outputTrackCollectionHandle(m_outputTrackCollectionName);
+    SG::WriteHandle<TrackCollection> skippedTrackCollectionHandle(m_skippedTrackCollectionName);
+ 
 
     // set up the PRD trajectory builder
     if ( m_prdTruthTrajectoryBuilder->refreshEvent().isFailure() ){
@@ -142,7 +142,7 @@ StatusCode Trk::TruthTrackCreation::execute()
             if (!passed) continue;
         }
         // create the truth track
-        Trk::Track* truthTrack = m_truthTrackBuilder->createTrack(ttIter->second,outputSegmentCollection);
+        Trk::Track* truthTrack = m_truthTrackBuilder->createTrack(ttIter->second);
         if (!truthTrack){
             ATH_MSG_VERBOSE("Track creation for PRD truth trajectory with size " << (*ttIter).second.prds.size() << " failed. Skipping ...");
             continue;
@@ -185,31 +185,15 @@ StatusCode Trk::TruthTrackCreation::execute()
     }
 
     // ----------------------------------- record & cleanup ---------------------------------------------------------------    
-    if (evtStore()->record(outputTrackCollection,m_outputTrackCollectionName).isFailure()){
-      // the input track collection
-        ATH_MSG_WARNING("Could not record TrackCollection with name " << m_outputTrackCollectionName << ". Deleting it ..." );
-        delete outputTrackCollection;
-        return StatusCode::SUCCESS;
-    } 
+
+    ATH_CHECK(outputTrackCollectionHandle.record(std::move(outputTrackCollection)));
+
     ATH_MSG_VERBOSE("Truth TrackCollection with name " << m_outputTrackCollectionName << " and size " <<  outputTrackCollection->size() << " recorded.");
-    
-    if (evtStore()->record(skippedTrackCollection,m_skippedTrackCollectionName).isFailure()){
-      // the input track collection
-        ATH_MSG_WARNING("Could not record TrackCollection with name " << m_skippedTrackCollectionName << ". Deleting it ..." );
-        delete skippedTrackCollection;
-        return StatusCode::SUCCESS;
-    } 
+
+    ATH_CHECK(skippedTrackCollectionHandle.record(std::move(skippedTrackCollection)));
+ 
     ATH_MSG_VERBOSE("Truth TrackCollection with name " << m_skippedTrackCollectionName << " and size " <<  skippedTrackCollection->size() << " recorded.");
 
-    if ( !m_outputSegmentCollectionName.empty() ) {
-      if( evtStore()->record(outputSegmentCollection,m_outputSegmentCollectionName).isFailure()){
-	// the input track collection
-        ATH_MSG_WARNING("Could not record SegmentCollection with name " << m_outputSegmentCollectionName << ". Deleting it ..." );
-        delete outputSegmentCollection;
-        return StatusCode::SUCCESS;
-      } 
-      ATH_MSG_VERBOSE("Truth SegmentCollection with name " << m_outputSegmentCollectionName << " and size " <<  outputSegmentCollection->size() << " recorded.");
-    }
     // job done
     return StatusCode::SUCCESS;
 }
