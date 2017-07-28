@@ -1,0 +1,16 @@
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v4r1)
+                                          running on lxplus008.cern.ch on Fri Feb  9 16:59:26 2018
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+test1
+ClassIDSvc           INFO  getRegistryEntries: read 1130 CLIDRegistry entries for module ALL
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-00-00
+ClassIDSvc           INFO  getRegistryEntries: read 869 CLIDRegistry entries for module ALL
+HepMcParticleLink    INFO find_hostkey: Using TruthEvent as McEventCollection key for this job 

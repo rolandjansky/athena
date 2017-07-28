@@ -1,18 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
 /**
- * @file MuonEventTPCnv/test/MuonSimDataCnv_p1_test.cxx
+ * @file MuonEventTPCnv/test/MuonSimDataCnv_p2_test.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date Dec, 2015
  * @brief Regression tests.
  */
 
 #undef NDEBUG
-#include "MuonEventTPCnv/MuonDigitContainer/MuonSimDataCnv_p1.h"
-#include "TestTools/leakcheck.h"
+#include "MuonEventTPCnv/MuonDigitContainer/MuonSimDataCnv_p2.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -61,8 +60,8 @@ void compare (const MuonSimData& p1,
 void testit (const MuonSimData& trans1)
 {
   MsgStream log (0, "test");
-  MuonSimDataCnv_p1 cnv;
-  Muon::MuonSimData_p1 pers;
+  MuonSimDataCnv_p2 cnv;
+  Muon::MuonSimData_p2 pers;
   cnv.transToPers (&trans1, &pers, log);
   MuonSimData trans2;
   cnv.persToTrans (&pers, &trans2, log);
@@ -74,11 +73,6 @@ void testit (const MuonSimData& trans1)
 void test1(std::vector<HepMC::GenParticle*>& genPartVector)
 {
   std::cout << "test1\n";
-  const HepMC::GenParticle *particle = genPartVector.at(0);
-  // Create HepMcParticleLink outside of leak check.
-  HepMcParticleLink dummyHMPL(particle->barcode(),0);
-  assert(dummyHMPL.cptr()==particle);
-  Athena_test::Leakcheck check;
 
   std::vector<MuonSimData::Deposit> deps;
   HepMcParticleLink trkLink1(genPartVector.at(0)->barcode(),genPartVector.at(0)->parent_event()->event_number());

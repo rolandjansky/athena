@@ -11,7 +11,7 @@
 #include "MuonEventTPCnv/MuonDigitContainer/MuonSimDataCollectionCnv_p2.h"
 
 // the latest persistent representation type of DataCollection:
-typedef  Muon::MuonSimDataCollection_p1  MuonSimDataCollection_PERS;
+typedef  Muon::MuonSimDataCollection_p2  MuonSimDataCollection_PERS;
 typedef  T_AthenaPoolCustomCnv<MuonSimDataCollection, MuonSimDataCollection_PERS >  MuonSimDataCollectionCnvBase;
 
 /**

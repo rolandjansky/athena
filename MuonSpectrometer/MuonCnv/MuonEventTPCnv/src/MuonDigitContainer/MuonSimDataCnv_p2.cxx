@@ -32,6 +32,21 @@ void MuonSimDataCnv_p2::persToTrans(const Muon::MuonSimData_p2 * persObj, MuonSi
    transObj->setTime(persObj->t);
 }
 
-void MuonSimDataCnv_p2::transToPers( const MuonSimData *, Muon::MuonSimData_p2 *, MsgStream & /*log*/){
-  throw std::runtime_error("MuonSimDataCnv_p2::transToPers is not supported in this release!");
+void MuonSimDataCnv_p2::transToPers( const MuonSimData * transObj, Muon::MuonSimData_p2 * persObj, MsgStream & log){
+  log << MSG::DEBUG << "MuonSimDataCnv_p2::TransToPers" << endmsg;
+  persObj->m_word = transObj->word();
+  Amg::Vector3D pos = transObj->globalPosition();
+  persObj->x = pos.x();
+  persObj->y = pos.y();
+  persObj->z = pos.z();
+  persObj->t = transObj->getTime();
+  persObj->m_deposits.clear();
+  persObj->m_deposits.reserve(transObj->getdeposits().size());
+  for (const MuonSimData::Deposit& d : transObj->getdeposits()) {
+    HepMcParticleLink_p2 persMcPartLink;
+    m_mcpartlinkCnv.transToPers(&d.first, &persMcPartLink, log);
+    Muon::MuonMCData_p1 persMcData;
+    m_mcdataCnv.transToPers(&d.second, &persMcData, log);
+    persObj->m_deposits.emplace_back(persMcPartLink, persMcData);
+  }
 }

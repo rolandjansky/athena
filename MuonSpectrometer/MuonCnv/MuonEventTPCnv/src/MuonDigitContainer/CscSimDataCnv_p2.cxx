@@ -24,6 +24,17 @@ void CscSimDataCnv_p2::persToTrans(const Muon::CscSimData_p2 * persObj, CscSimDa
                            persObj->m_word);
 }
 
-void CscSimDataCnv_p2::transToPers( const CscSimData *, Muon::CscSimData_p2 *, MsgStream & /*log*/){
-  throw std::runtime_error("CscSimDataCnv_p2::transToPers is not supported in this release!");
+void CscSimDataCnv_p2::transToPers( const CscSimData * transObj, Muon::CscSimData_p2 * persObj, MsgStream & log){
+  log << MSG::DEBUG << "CscSimDataCnv_p2::transToPers" << endmsg;
+  persObj->m_word = transObj->word();
+  log << MSG::VERBOSE << "\tconverting m_word:\t" << transObj->word() << "\tto\t" << persObj->m_word << endmsg;
+  persObj->m_deposits.clear();
+  persObj->m_deposits.reserve(transObj->getdeposits().size());
+  for (const CscSimData::Deposit& d : transObj->getdeposits()) {
+    HepMcParticleLink_p2 persMcPartLink;
+    m_mcpartlinkCnv.transToPers(&d.first, &persMcPartLink, log);
+    Muon::CscMcData_p1 persMcData;
+    m_mcdataCnv.transToPers(&d.second, &persMcData, log);
+    persObj->m_deposits.emplace_back (persMcPartLink, persMcData);
+  }
 }
