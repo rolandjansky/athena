@@ -24,10 +24,10 @@
 
 namespace InDetEventAthenaPoolCnvDict
 {
-    std::pair<unsigned int, InDetSimData_p1> t1;
-    std::pair<unsigned long long, InDetSimData_p1> t2;
-    std::vector<std::pair<unsigned int, InDetSimData_p1> > t3;
-    std::vector<std::pair<unsigned long long, InDetSimData_p1> > t4;
+    std::pair<unsigned int, InDetSimData_p2> t1;
+    std::pair<unsigned long long, InDetSimData_p2> t2;
+    std::vector<std::pair<unsigned int, InDetSimData_p2> > t3;
+    std::vector<std::pair<unsigned long long, InDetSimData_p2> > t4;
 }
 
 #endif

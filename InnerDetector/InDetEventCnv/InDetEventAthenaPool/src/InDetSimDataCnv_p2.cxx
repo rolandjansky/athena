@@ -36,9 +36,21 @@ InDetSimDataCnv_p2::persToTrans(const InDetSimData_p2* persObj, InDetSimData* tr
 }
 
 void
-InDetSimDataCnv_p2::transToPers(const InDetSimData*, InDetSimData_p2*, MsgStream &/*log*/)
+InDetSimDataCnv_p2::transToPers(const InDetSimData* transObj, InDetSimData_p2* persObj, MsgStream &log)
 {
-  throw std::runtime_error("InDetSimDataCnv_p2::transToPers is not supported in this release!");}
+   MSG_VERBOSE(log,"InDetSimDataCnv_p2::transToPers called ");
+   HepMcParticleLinkCnv_p2 HepMcPLCnv;
+
+   persObj->m_word = transObj->word();
+   const std::vector<InDetSimData::Deposit> &dep(transObj->getdeposits());
+   persObj->m_links.resize(dep.size() );
+   persObj->m_enDeposits.resize(dep.size() );
+   depositIterator it=dep.begin();
+   for (int icount=0; it != dep.end(); it++, icount++) {
+     HepMcPLCnv.transToPers(&(dep[icount].first), &(persObj->m_links[icount]), log);
+     persObj->m_enDeposits[icount] = dep[icount].second;
+   }
+}
 
 void InDetSimDataCnv_p2::setCurrentStore (IProxyDict* store)
 {

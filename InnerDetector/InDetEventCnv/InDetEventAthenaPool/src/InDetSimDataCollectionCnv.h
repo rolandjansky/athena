@@ -15,8 +15,8 @@
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
 // typedef to the latest persistent version
-typedef  InDetSimDataCollection_p2     InDetSimDataCollection_PERS;
-typedef  InDetSimDataCollectionCnv_p2  InDetSimDataCollectionCnv_PERS;
+typedef  InDetSimDataCollection_p3     InDetSimDataCollection_PERS;
+typedef  InDetSimDataCollectionCnv_p3  InDetSimDataCollectionCnv_PERS;
 
 // base class 
 typedef  T_AthenaPoolCustomCnv<InDetSimDataCollection, InDetSimDataCollection_PERS >   InDetSimDataCollectionCnvBase;
