@@ -148,7 +148,11 @@ namespace met {
       m_JvtCut = m_customJvtCut;
       m_JvtPtMax = m_customJvtPtMax; 
     }
-    else { ATH_MSG_ERROR( "Error: No available jet selection found! Choose one: Loose, Tight, PFlow, Expert" ); return StatusCode::FAILURE; }
+    else { 
+      if (m_jetSelection == "Default") ATH_MSG_WARNING( "WARNING:  Detault is now deprecated" ); 
+      ATH_MSG_ERROR( "Error: No available jet selection found! Please update JetSelection in METMaker. Choose one: Loose, Tight, PFlow, Expert" ); 
+      return StatusCode::FAILURE; 
+    }
 
     if (!m_jetRejectionDec.empty()) m_extraJetRejection = true;
 
