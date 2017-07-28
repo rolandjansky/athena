@@ -157,6 +157,18 @@ namespace G4UA{
 #endif
 
     //  G4cout << "FastCaloSimParamAction::EndOfEventAction: After initial cleanup, N=" << m_eventSteps->size() << G4endl;
+
+    // Unpack map into vector
+    for (auto it : m_hit_map){
+      for (auto a_s : * it.second){
+        // Giving away ownership of the objects!
+        m_eventSteps->push_back( a_s );
+      }
+      it.second->clear();
+      delete it.second;
+    } // Vector of IDs in the map
+    m_hit_map.clear();
+  
     if (m_eventSteps->size()==0) return; //don't need to play with it
     G4cout << "FastCaloSimParamAction::EndOfEventAction: After initial cleanup, N=" << m_eventSteps->size() << G4endl;
 
@@ -641,12 +653,12 @@ namespace G4UA{
                 //double time = results[i].energy)==0 ? 0. : (double) results[i].time/results[i].energy/CLHEP::ns;
                 double time = results[i].time;
                 double energy = results[i].energy/CLHEP::MeV;
-
-                ISF_FCS_Parametrization::FCS_StepInfo* theInfo = new ISF_FCS_Parametrization::FCS_StepInfo(pos, id, energy, time, true, nlarh); //store nlarh as info
+                update_map(pos, id, energy, time, true, nlarh); //store nlarh as info
+                // ISF_FCS_Parametrization::FCS_StepInfo* theInfo = new ISF_FCS_Parametrization::FCS_StepInfo(pos, id, energy, time, true, nlarh); //store nlarh as info
                 //This one stores also StepLength, but it is not yet in SVN...
                 //          ISF_FCS_Parametrization::FCS_StepInfo* theInfo = new ISF_FCS_Parametrization::FCS_StepInfo(pos, id, (double) results[i].energy, (double) results[i].time, true, nlarh, StepLength); //store nlarh as info
                 //std::cout <<"Adding new step info: "<<i<<" at: "<<pos<<" Id: "<<id<<" E: "<<energy<<" time: "<<time<<std::endl;
-                m_eventSteps->push_back(theInfo);
+                // m_eventSteps->push_back(theInfo);
               }//nlarh
             //std::cout <<"----"<<std::endl;
           } //istep
@@ -683,14 +695,15 @@ namespace G4UA{
                 //std::cout <<"Something wrong in identifier: One tile pmt: "<<micHit.pmt_up<<" "<<micHit.pmt_down<<std::endl;
                 //std::cout <<"E up: "<<micHit.e_up<<" E down: "<<micHit.e_down<<" T up: "<<micHit.time_up<<" T down: "<<micHit.time_down<<std::endl;
               }
-            ISF_FCS_Parametrization::FCS_StepInfo* theInfo_Tile_up = new ISF_FCS_Parametrization::FCS_StepInfo(pos, micHit.pmt_up, micHit.e_up, micHit.time_up, true,1);
+            update_map(pos, micHit.pmt_up, micHit.e_up, micHit.time_up, true,1); 
+            // ISF_FCS_Parametrization::FCS_StepInfo* theInfo_Tile_up = new ISF_FCS_Parametrization::FCS_StepInfo(pos, micHit.pmt_up, micHit.e_up, micHit.time_up, true,1);
             //Commented out version needs ISF_Event which is not yet in SVN..
             //      ISF_FCS_Parametrization::FCS_StepInfo* theInfo_Tile_up = new ISF_FCS_Parametrization::FCS_StepInfo(pos, micHit.pmt_up, micHit.e_up, micHit.time_up, true,1,StepLength);
-            m_eventSteps->push_back(theInfo_Tile_up);
-
-            ISF_FCS_Parametrization::FCS_StepInfo* theInfo_Tile_down = new ISF_FCS_Parametrization::FCS_StepInfo(pos, micHit.pmt_down, micHit.e_down,micHit.time_down , true,1);
+            // m_eventSteps->push_back(theInfo_Tile_up);
+            update_map(pos, micHit.pmt_down, micHit.e_down,micHit.time_down , true,1);
+            // ISF_FCS_Parametrization::FCS_StepInfo* theInfo_Tile_down = new ISF_FCS_Parametrization::FCS_StepInfo(pos, micHit.pmt_down, micHit.e_down,micHit.time_down , true,1);
             //ISF_FCS_Parametrization::FCS_StepInfo* theInfo_Tile_down = new ISF_FCS_Parametrization::FCS_StepInfo(pos, micHit.pmt_down, micHit.e_down,micHit.time_down , true,1,StepLength);
-            m_eventSteps->push_back(theInfo_Tile_down);
+            // m_eventSteps->push_back(theInfo_Tile_down);
 
             //std::cout << "GG: GetTileMicroHit: pmtID_up,pmtID_down,edep_up,edep_down,scin_Time_up,scin_Time_down:\t" << micHit.pmt_up <<";\t"<< micHit.pmt_down <<";\t"<< micHit.e_up <<";\t"<< micHit.e_down <<";\t" << micHit.time_up <<";\t"<< micHit.time_down << std::endl;
 
@@ -711,5 +724,89 @@ namespace G4UA{
 
 
   }
+
+
+// We are keeping a map instead of trying to keep the full vector
+// At the end of run we'll push the map back into the flat vector for storage in StoreGate
+void FastCaloSimParamAction::update_map(const CLHEP::Hep3Vector & l_vec, const Identifier & l_cell, double l_energy, double l_time, bool l_valid, int l_detector)
+{
+  // Drop any hits that don't have a good identifier attached
+  if (!m_calo_dd_man->get_element(l_cell)) return;
+
+  auto map_item = m_hit_map.find( l_cell );
+  if (map_item==m_hit_map.end()){
+    m_hit_map[l_cell] = new std::vector< ISF_FCS_Parametrization::FCS_StepInfo* >;
+    m_hit_map[l_cell]->push_back( new ISF_FCS_Parametrization::FCS_StepInfo( l_vec , l_cell , l_energy , l_time , l_valid , l_detector ) );
+  } 
+  else {
+
+    // Get the appropriate merging limits
+    double tsame;
+    const CaloCell_ID::CaloSample& layer = m_calo_dd_man->get_element(l_cell)->getSampling();
+    if (layer >= CaloCell_ID::PreSamplerB && layer <= CaloCell_ID::EME3){
+      tsame = m_config.m_maxTimeLAr;
+    } else if (layer >= CaloCell_ID::HEC0  && layer <= CaloCell_ID::HEC3){
+      tsame = m_config.m_maxTimeHEC;
+    } else if (layer >= CaloCell_ID::TileBar0 && layer <= CaloCell_ID::TileExt2){
+      tsame = m_config.m_maxTimeTile;
+    } else if (layer >=CaloCell_ID::FCAL0 && layer <= CaloCell_ID::FCAL2){
+      tsame = m_config.m_maxTimeFCAL;
+    } else {
+      tsame = m_config.m_maxTime;
+    }
+
+    bool match = false;
+    for (auto map_it : * map_item->second){
+      // Time check is straightforward
+      if ( fabs(map_it->time()-l_time)>=tsame ) continue;
+      // Distance check is less straightforward
+      CLHEP::Hep3Vector a_diff = l_vec - map_it->position();
+      double a_inv_length = 1./a_diff.mag();
+      if (layer==CaloCell_ID::PreSamplerB || layer==CaloCell_ID::PreSamplerE){
+        // 5mm in eta, 5mm in phi, no cut in r
+        if (fabs(sin(l_vec.phi()-map_it->position().phi())*a_diff.mag())>=5) continue; // phi
+        if (fabs(sin(l_vec.theta()-map_it->position().theta())*a_diff.mag())>=5) continue; // eta
+      } else if (layer==CaloCell_ID::EMB1 || layer==CaloCell_ID::EME1){
+        // 1mm in eta, 5mm in phi, 15mm in r
+        if ( a_diff.dot( l_vec ) * a_inv_length >= 15 ) continue; // r
+        if (fabs(sin(l_vec.phi()-map_it->position().phi())*a_diff.mag())>=5) continue; // phi
+        if (fabs(sin(l_vec.theta()-map_it->position().theta())*a_diff.mag())>=1) continue; // eta
+      } else if (layer==CaloCell_ID::EMB2 || layer==CaloCell_ID::EME2){
+        // 5mm in eta, 5mm in phi, 60mm in r
+        if ( a_diff.dot( l_vec ) * a_inv_length >= 60 ) continue; // r
+        if (fabs(sin(l_vec.phi()-map_it->position().phi())*a_diff.mag())>=5) continue; // phi
+        if (fabs(sin(l_vec.theta()-map_it->position().theta())*a_diff.mag())>=5) continue; // eta
+      } else if (layer==CaloCell_ID::EMB3 || layer==CaloCell_ID::EMB3){
+        // 5mm in eta, 5mm in phi, 8mm in r
+        if ( a_diff.dot( l_vec ) * a_inv_length >= 8 ) continue; // r
+        if (fabs(sin(l_vec.phi()-map_it->position().phi())*a_diff.mag())>=5) continue; // phi
+        if (fabs(sin(l_vec.theta()-map_it->position().theta())*a_diff.mag())>=5) continue; // eta
+      } else if (layer >= CaloCell_ID::PreSamplerB && layer <= CaloCell_ID::EME3){
+        if ( map_it->position().diff2( l_vec ) >= m_config.m_maxRadiusLAr ) continue;
+      } else if (layer >= CaloCell_ID::HEC0  && layer <= CaloCell_ID::HEC3){
+        if ( map_it->position().diff2( l_vec ) >= m_config.m_maxRadiusHEC ) continue;
+      } else if (layer >= CaloCell_ID::TileBar0 && layer <= CaloCell_ID::TileExt2){
+        if ( map_it->position().diff2( l_vec ) >= m_config.m_maxRadiusTile ) continue;
+      } else if (layer >=CaloCell_ID::FCAL0 && layer <= CaloCell_ID::FCAL2){
+        if ( map_it->position().diff2( l_vec ) >= m_config.m_maxRadiusFCAL ) continue;
+      } else {
+        if ( map_it->position().diff2( l_vec ) >= m_config.m_maxRadius ) continue;
+      }
+
+      // Found a match.  Make a temporary that will be deleted!
+      ISF_FCS_Parametrization::FCS_StepInfo my_info( l_vec , l_cell , l_energy , l_time , l_valid , l_detector );
+      *map_it += my_info;
+      match = true;
+      break;
+    } // End of search for match in time and space
+    if (!match){
+      map_item->second->push_back( new ISF_FCS_Parametrization::FCS_StepInfo( l_vec , l_cell , l_energy , l_time , l_valid , l_detector ) );
+    } // Didn't match
+  } // ID already in the map
+
+} // That's it for updating the map!
+
+
+
 
 } // namespace G4UA

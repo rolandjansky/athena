@@ -29,6 +29,18 @@ namespace G4UA{
     declareProperty("shift_lar_subhit",m_config.shift_lar_subhit, "");
     declareProperty("shorten_lar_step",m_config.shorten_lar_step, "");
 
+    declareProperty("maxRadius",m_config.m_maxRadius, "");
+    declareProperty("maxRadiusLAr",m_config.m_maxRadiusLAr, "");
+    declareProperty("maxRadiusHEC",m_config.m_maxRadiusHEC, "");
+    declareProperty("maxRadiusFCAL",m_config.m_maxRadiusFCAL, "");
+    declareProperty("maxRadiusTile",m_config.m_maxRadiusTile, "");
+ 
+    declareProperty("maxTime",m_config.m_maxTime, "");
+    declareProperty("maxTimeLAr",m_config.m_maxTimeLAr, "");
+    declareProperty("maxTimeHEC",m_config.m_maxTimeHEC, "");
+    declareProperty("maxTimeFCAL",m_config.m_maxTimeFCAL, "");
+    declareProperty("maxTimeTile",m_config.m_maxTimeTile, "");
+
     declareProperty("EMECPosIWCalculator", m_emepiwcalc);
     declareProperty("EMECNegIWCalculator", m_emeniwcalc);
     declareProperty("EMECPosOWCalculator", m_emepowcalc);

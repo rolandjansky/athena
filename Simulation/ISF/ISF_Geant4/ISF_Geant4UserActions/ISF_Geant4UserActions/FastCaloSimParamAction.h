@@ -13,9 +13,15 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 
+// CLHEP include for Hep3Vector
+#include "CLHEP/Vector/ThreeVector.h"
+#include "Identifier/Identifier.h"
+
+
 // forward declarations in namespaces
 namespace ISF_FCS_Parametrization {
   class FCS_StepInfoCollection;
+  class FCS_StepInfo;
 }
 namespace HepMC {
   class GenParticle;
@@ -30,6 +36,7 @@ class LArIdentifierConverter;
 class TileGeoG4SDCalc;
 class CaloDetDescrManager;
 class LArEM_ID;
+class Hep3Vector;
 /**
  *
  *   @short Class for collecting G4 hit information
@@ -85,6 +92,20 @@ namespace G4UA{
       ILArCalculatorSvc* calculator_EMEPS=nullptr;                 //!< pointer to endcap presampler calculator
       //ILArCalculatorSvc* calculator_HECLocal=nullptr;
       ITileCalculator* calculator_TILE=nullptr;                    //!< pointer to tile calculator
+
+      // Merging properties
+      DoubleProperty            m_maxRadius=25.;                //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
+      DoubleProperty            m_maxRadiusLAr=25.;             //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
+      DoubleProperty            m_maxRadiusHEC=100.;             //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
+      DoubleProperty            m_maxRadiusFCAL=100.;            //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
+      DoubleProperty            m_maxRadiusTile=100.;            //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
+ 
+      DoubleProperty            m_maxTime=25.;
+      DoubleProperty            m_maxTimeLAr=25.;
+      DoubleProperty            m_maxTimeHEC=25.;
+      DoubleProperty            m_maxTimeFCAL=25.;
+      DoubleProperty            m_maxTimeTile=25.;
+
     };
 
     FastCaloSimParamAction(const Config& config);
@@ -115,6 +136,10 @@ namespace G4UA{
     LArG4SimpleSD *m_lar_helper;
     const LArEM_ID *m_lar_emID;
     const CaloDetDescrManager *m_calo_dd_man;
+
+
+    void update_map(const CLHEP::Hep3Vector & l_vec, const Identifier & l_cell, double l_energy, double l_time, bool l_valid, int l_detector);
+    std::map< Identifier , std::vector< ISF_FCS_Parametrization::FCS_StepInfo* >* > m_hit_map;
 
     ISF_FCS_Parametrization::FCS_StepInfoCollection *m_eventSteps;    //!< collection of StepInfo
     std::map<std::string,int> m_detectormap;
