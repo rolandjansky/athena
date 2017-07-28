@@ -11,7 +11,7 @@
 #include "GaudiKernel/ITHistSvc.h"
 
 #include "TrigT1CaloEvent/EmTauROI_ClassDEF.h"
-#include "TrigT1CaloEvent/CPCMXTopoData.h"
+
 
 #include "TrigT1Interfaces/CPRoIDecoder.h"
 
@@ -44,6 +44,8 @@ EMTauInputProvider::initialize() {
    CHECK(incidentSvc.retrieve());
    incidentSvc->addListener(this,"BeginRun", 100);
    incidentSvc.release().ignore();
+
+   CHECK(m_emTauLocation.initialize());
 
    return StatusCode::SUCCESS;
 }
@@ -90,11 +92,9 @@ EMTauInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 
    // Retrieve EMTAU RoIs (they are built by EMTAUTrigger)
 
-   DataVector<CPCMXTopoData> * emtau = 0;
-   if( evtStore()->contains<DataVector<CPCMXTopoData>>(m_emTauLocation) ) {
-      CHECK( evtStore()->retrieve(emtau, m_emTauLocation) );
-   } else {
-      ATH_MSG_WARNING("No CPCMXTopoDataCollection with SG key '" << m_emTauLocation.toString() << "' found in the event. No EM or TAU input for the L1Topo simulation.");
+   SG::ReadHandle<DataVector < CPCMXTopoData> > emtau(m_emTauLocation);
+   if( !emtau.isValid() ) {
+      ATH_MSG_WARNING("No CPCMXTopoDataCollection with SG key '" << m_emTauLocation.key() << "' found in the event. No EM or TAU input for the L1Topo simulation.");
       return StatusCode::RECOVERABLE;
    }
 
@@ -136,11 +136,12 @@ EMTauInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 
 void 
 EMTauInputProvider::CalculateCoordinates(int32_t roiWord, double & eta, double & phi) const {
-   static CPRoIDecoder get;
-   static double TwoPI = 2 * M_PI;
+   CPRoIDecoder get;
+   constexpr double TwoPI = 2 * M_PI;
    CoordinateRange coordRange = get.coordinate( roiWord );
    
    eta = coordRange.eta();
    phi = coordRange.phi();
    if( phi > M_PI ) phi -= TwoPI;
 }
+
