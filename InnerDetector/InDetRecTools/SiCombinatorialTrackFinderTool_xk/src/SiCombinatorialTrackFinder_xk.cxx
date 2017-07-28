@@ -481,7 +481,6 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracks
 
   ++m_inputseeds;
   if(!m_pix && !m_sct) {
-    ATH_MSG_INFO("failed on line" << __LINE__);
     return m_tracks;
   }
 
@@ -532,7 +531,6 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracksWi
 
   ++m_inputseeds;
   if(!m_pix && !m_sct) {
-    ATH_MSG_INFO("failed on line" << __LINE__);
     return m_tracks;
   }
 
@@ -615,7 +613,6 @@ bool InDet::SiCombinatorialTrackFinder_xk::findTrack
 
   if     (Sp.size() > 1) {
     if(!spacePointsToClusters(Sp,Cl)) {
-      ATH_MSG_INFO("failed on line" << __LINE__);
       return false;
     }
     if(Sp.size()<=2) TWO = true;
