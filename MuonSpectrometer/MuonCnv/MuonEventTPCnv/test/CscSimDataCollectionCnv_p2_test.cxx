@@ -1,21 +1,21 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
 /**
- * @file MuonEventTPCnv/test/CscSimDataCnv_p1_test.cxx
+ * @file MuonEventTPCnv/test/CscSimDataCollectionCnv_p2_test.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date Dec, 2015
  * @brief Regression tests.
  */
 
 #undef NDEBUG
-#include "MuonEventTPCnv/MuonDigitContainer/CscSimDataCnv_p1.h"
-#include "TestTools/leakcheck.h"
+#include "MuonEventTPCnv/MuonDigitContainer/CscSimDataCollectionCnv_p2.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
+
 
 #include "GeneratorObjectsTPCnv/initMcEventCollection.h"
 #include "HepMC/GenEvent.h"
@@ -59,13 +59,26 @@ void compare (const CscSimData& p1,
 }
 
 
-void testit (const CscSimData& trans1)
+void compare (const CscSimDataCollection& p1,
+              const CscSimDataCollection& p2)
+{
+  assert (p1.size() == p2.size());
+  CscSimDataCollection::const_iterator it1 = p1.begin();
+  CscSimDataCollection::const_iterator it2 = p2.begin();
+  for (; it1 != p1.end(); ++it1, ++it2) {
+    assert (it1->first == it2->first);
+    compare (it1->second, it2->second);
+  }
+}
+
+
+void testit (const CscSimDataCollection& trans1)
 {
   MsgStream log (0, "test");
-  CscSimDataCnv_p1 cnv;
-  Muon::CscSimData_p1 pers;
+  CscSimDataCollectionCnv_p2 cnv;
+  Muon::CscSimDataCollection_p2 pers;
   cnv.transToPers (&trans1, &pers, log);
-  CscSimData trans2;
+  CscSimDataCollection trans2;
   cnv.persToTrans (&pers, &trans2, log);
 
   compare (trans1, trans2);
@@ -76,17 +89,20 @@ void test1(std::vector<HepMC::GenParticle*>& genPartVector)
 {
   std::cout << "test1\n";
 
-  std::vector<CscSimData::Deposit> deps;
-  HepMcParticleLink trkLink1(genPartVector.at(0)->barcode(),genPartVector.at(0)->parent_event()->event_number());
-  deps.emplace_back (trkLink1, CscMcData ( 2.5,  3.5,  4.5));
-  HepMcParticleLink trkLink2(genPartVector.at(1)->barcode(),genPartVector.at(1)->parent_event()->event_number());
-  deps.emplace_back (trkLink2, CscMcData (12.5, 13.5, 14.5));
-  HepMcParticleLink trkLink3(genPartVector.at(2)->barcode(),genPartVector.at(2)->parent_event()->event_number());
-  deps.emplace_back (trkLink3, CscMcData (22.5, 23.5, 24.5));
-  deps[0].second.setCharge ( 5.5);
-  deps[1].second.setCharge (15.5);
-  deps[2].second.setCharge (25.5);
-  CscSimData trans1 (deps, 4321);
+  CscSimDataCollection trans1;
+  for (int i=0; i < 3; i++) {
+    std::vector<CscSimData::Deposit> deps;
+    HepMcParticleLink trkLink1(genPartVector.at(0+(3*i))->barcode(),genPartVector.at(0+(3*i))->parent_event()->event_number());
+    deps.emplace_back (trkLink1, CscMcData ( 2.5,  3.5,  4.5));
+    HepMcParticleLink trkLink2(genPartVector.at(1+(3*i))->barcode(),genPartVector.at(1+(3*i))->parent_event()->event_number());
+    deps.emplace_back (trkLink2, CscMcData (12.5, 13.5, 14.5));
+    HepMcParticleLink trkLink3(genPartVector.at(2+(3*i))->barcode(),genPartVector.at(2+(3*i))->parent_event()->event_number());
+    deps.emplace_back (trkLink3, CscMcData (22.5, 23.5, 24.5));
+    deps[0].second.setCharge ( 5.5+i);
+    deps[1].second.setCharge (15.5+i);
+    deps[2].second.setCharge (25.5+i);
+    trans1[Identifier(1234+i)] = CscSimData (deps, 4321+i);
+  }
   testit (trans1);
 }
 

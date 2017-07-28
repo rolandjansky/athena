@@ -1,21 +1,21 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
 /**
- * @file MuonEventTPCnv/test/CscSimDataCnv_p1_test.cxx
+ * @file MuonEventTPCnv/test/CscSimDataCnv_p2_test.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date Dec, 2015
  * @brief Regression tests.
  */
 
 #undef NDEBUG
-#include "MuonEventTPCnv/MuonDigitContainer/CscSimDataCnv_p1.h"
-#include "TestTools/leakcheck.h"
+#include "MuonEventTPCnv/MuonDigitContainer/CscSimDataCnv_p2.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
+
 
 #include "GeneratorObjectsTPCnv/initMcEventCollection.h"
 #include "HepMC/GenEvent.h"
@@ -62,8 +62,8 @@ void compare (const CscSimData& p1,
 void testit (const CscSimData& trans1)
 {
   MsgStream log (0, "test");
-  CscSimDataCnv_p1 cnv;
-  Muon::CscSimData_p1 pers;
+  CscSimDataCnv_p2 cnv;
+  Muon::CscSimData_p2 pers;
   cnv.transToPers (&trans1, &pers, log);
   CscSimData trans2;
   cnv.persToTrans (&pers, &trans2, log);
