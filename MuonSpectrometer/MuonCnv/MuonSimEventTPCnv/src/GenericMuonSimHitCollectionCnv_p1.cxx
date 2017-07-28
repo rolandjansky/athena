@@ -112,7 +112,7 @@ void GenericMuonSimHitCollectionCnv_p1::persToTrans(const Muon::GenericMuonSimHi
     HepMcParticleLink link;
     hepMcPLCnv.persToTrans(&persCont->m_partLink[i],&link, log);   
 
-    transCont->Emplace(persCont->m_GenericId[i], persCont->m_globalTime[i], persCont->m_globalpreTime[i], position, loc_position, preposition, loc_preposition, persCont->m_particleEncoding[i], persCont->m_kineticEnergy[i], direction, persCont->m_depositEnergy[i], persCont->m_StepLength[i], link.barcode());
+    transCont->Emplace(persCont->m_GenericId[i], persCont->m_globalTime[i], persCont->m_globalpreTime[i], position, loc_position, preposition, loc_preposition, persCont->m_particleEncoding[i], persCont->m_kineticEnergy[i], direction, persCont->m_depositEnergy[i], persCont->m_StepLength[i], link);
   }
 }
 

@@ -14,7 +14,7 @@
 
 
 // the latest persistent representation type of DataCollection:
-typedef  Muon::RPCSimHitCollection_p2  RPCSimHitCollection_PERS;
+typedef  Muon::RPCSimHitCollection_p3  RPCSimHitCollection_PERS;
 typedef  T_AthenaPoolCustomCnv<RPCSimHitCollection, RPCSimHitCollection_PERS >  RPCSimHitCollectionCnvBase;
 
 /**

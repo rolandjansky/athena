@@ -15,9 +15,47 @@
 // Athena
 #include "StoreGate/StoreGateSvc.h"
 
-void RPCSimHitCollectionCnv_p3::transToPers(const RPCSimHitCollection*, Muon::RPCSimHitCollection_p3*, MsgStream &/*log*/)
+void RPCSimHitCollectionCnv_p3::transToPers(const RPCSimHitCollection* transCont, Muon::RPCSimHitCollection_p3* persCont, MsgStream &log)
 {
-  throw std::runtime_error("RPCSimHitCollectionCnv_p3::transToPers is not supported in this release!");
+  // for reasons of efficiency, set size before hand
+  unsigned int size=transCont->size();
+  persCont->m_RPCid.reserve(size);
+  persCont->m_globalTime.reserve(size);
+  persCont->m_stX.reserve(size);
+  persCont->m_stY.reserve(size);
+  persCont->m_stZ.reserve(size);
+  persCont->m_partLink.reserve(size);
+  persCont->m_stopX.reserve(size);
+  persCont->m_stopY.reserve(size);
+  persCont->m_stopZ.reserve(size);
+  persCont->m_energyDeposit.reserve(size);
+  persCont->m_stepLength.reserve(size);
+  persCont->m_particleEncoding.reserve(size);
+  persCont->m_kineticEnergy.reserve(size);
+
+  // make convertor to handle HepMcParticleLinks
+  HepMcParticleLinkCnv_p2 hepMcPLCnv;
+  HepMcParticleLink_p2 persLink; // will use this as a temp object inside the loop
+
+  // loop through container, filling pers object
+  RPCSimHitCollection::const_iterator it = transCont->begin(), itEnd = transCont->end();
+  for (; it != itEnd; ++it) {
+    persCont->m_RPCid.push_back(it->RPCid());
+    persCont->m_globalTime.push_back(it->globalTime());
+    persCont->m_stX.push_back(it->localPosition().x());
+    persCont->m_stY.push_back(it->localPosition().y());
+    persCont->m_stZ.push_back(it->localPosition().z());
+
+    hepMcPLCnv.transToPers(&it->particleLink(),&persLink, log);
+    persCont->m_partLink.push_back(persLink);
+    persCont->m_stopX.push_back(it->postLocalPosition().x());
+    persCont->m_stopY.push_back(it->postLocalPosition().y());
+    persCont->m_stopZ.push_back(it->postLocalPosition().z());
+    persCont->m_energyDeposit.push_back(it->energyDeposit());
+    persCont->m_stepLength.push_back(it->stepLength());
+    persCont->m_particleEncoding.push_back(it->particleEncoding());
+    persCont->m_kineticEnergy.push_back(it->kineticEnergy());
+  }
 }
 
 
@@ -42,8 +80,9 @@ void RPCSimHitCollectionCnv_p3::persToTrans(const Muon::RPCSimHitCollection_p3* 
     hepMcPLCnv.persToTrans(&persCont->m_partLink[i],&link, log);
 
     transCont->Emplace(persCont->m_RPCid[i], persCont->m_globalTime[i], position,
-                       link.barcode(), postPosition,
+                       link, postPosition,
                        persCont->m_energyDeposit[i], persCont->m_stepLength[i],
                        persCont->m_particleEncoding[i], persCont->m_kineticEnergy[i]);
   }
 }
+

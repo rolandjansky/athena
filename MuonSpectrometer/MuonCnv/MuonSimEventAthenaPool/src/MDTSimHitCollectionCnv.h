@@ -13,7 +13,7 @@
 #include "MuonSimEventTPCnv/MDTSimHitCollectionCnv_p3.h"
 
 // the latest persistent representation type of DataCollection:
-typedef  Muon::MDTSimHitCollection_p2  MDTSimHitCollection_PERS;
+typedef  Muon::MDTSimHitCollection_p3  MDTSimHitCollection_PERS;
 typedef  T_AthenaPoolCustomCnv<MDTSimHitCollection, MDTSimHitCollection_PERS >  MDTSimHitCollectionCnvBase;
 
 /**

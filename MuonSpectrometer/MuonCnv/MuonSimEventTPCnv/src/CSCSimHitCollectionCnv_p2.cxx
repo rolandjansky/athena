@@ -78,7 +78,7 @@ void CSCSimHitCollectionCnv_p2::persToTrans(const Muon::CSCSimHitCollection_p2* 
       hepMcPLCnv.persToTrans(&persCont->m_partLink[i],&link, log);   
       
       transCont->Emplace (persCont->m_CSCid[i], persCont->m_globalTime[i], persCont->m_energyDeposit[i], start, end, persCont->m_particleID[i],
-                          link.barcode(), persCont->m_kineticEnergy[i]);
+                          link, persCont->m_kineticEnergy[i]);
   }
 }
 
