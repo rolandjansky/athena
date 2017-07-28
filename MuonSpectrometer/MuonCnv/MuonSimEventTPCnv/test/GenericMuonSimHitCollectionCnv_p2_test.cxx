@@ -1,25 +1,24 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
 /**
- * @file MuonSimEventTPCnv/test/GenericMuonSimHitCollectionCnv_p1_test.cxx
+ * @file MuonSimEventTPCnv/test/GenericMuonSimHitCollectionCnv_p2_test.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date Mar, 2016
- * @brief Tests for GenericMuonSimHitCollectionCnv_p1.
+ * @brief Tests for GenericMuonSimHitCollectionCnv_p2.
  */
 
 
 #undef NDEBUG
-#include "MuonSimEventTPCnv/GenericMuonSimHitCollectionCnv_p1.h"
+#include "MuonSimEventTPCnv/GenericMuonSimHitCollectionCnv_p2.h"
 #include <cassert>
 #include <iostream>
 
 #include "GeneratorObjectsTPCnv/initMcEventCollection.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenParticle.h"
-
 
 void compare (const HepMcParticleLink& p1,
               const HepMcParticleLink& p2)
@@ -65,8 +64,8 @@ void compare (const GenericMuonSimHitCollection& p1,
 void testit (const GenericMuonSimHitCollection& trans1)
 {
   MsgStream log (0, "test");
-  GenericMuonSimHitCollectionCnv_p1 cnv;
-  Muon::GenericMuonSimHitCollection_p1 pers;
+  GenericMuonSimHitCollectionCnv_p2 cnv;
+  Muon::GenericMuonSimHitCollection_p2 pers;
   cnv.transToPers (&trans1, &pers, log);
   GenericMuonSimHitCollection trans2;
   cnv.persToTrans (&pers, &trans2, log);

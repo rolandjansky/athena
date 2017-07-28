@@ -27,6 +27,7 @@ void compare (const HepMcParticleLink& p1,
   assert ( p1.isValid() == p2.isValid() );
   assert ( p1.barcode() == p2.barcode() );
   assert ( p1.eventIndex() == p2.eventIndex() );
+  assert ( p1.getEventCollectionAsChar() == p2.getEventCollectionAsChar() );
   assert ( p1.cptr() == p2.cptr() );
   assert ( p1 == p2 );
 }
@@ -84,10 +85,11 @@ void test1(std::vector<HepMC::GenParticle*>& genPartVector)
   CSCSimHitCollection trans1 ("coll");
   for (int i=0; i < 10; i++) {
     const HepMC::GenParticle* pGenParticle = genPartVector.at(i);
+    HepMcParticleLink trkLink(pGenParticle->barcode(),pGenParticle->parent_event()->event_number());
     trans1.Emplace (123, 10.5, 11.5,
                     Amg::Vector3D (12.5, 13.5, 14.5),
                     Amg::Vector3D (15.5, 16.5, 17.5),
-                    lundCode(pGenParticle->pdg_id()), pGenParticle->barcode(), 20.5
+                    lundCode(pGenParticle->pdg_id()), trkLink, 20.5
                     );
   }
 
