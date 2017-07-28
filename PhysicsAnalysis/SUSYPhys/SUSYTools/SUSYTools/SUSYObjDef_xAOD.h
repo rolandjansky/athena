@@ -309,6 +309,8 @@ namespace ST {
     StatusCode OverlapRemoval(const xAOD::ElectronContainer *electrons, const xAOD::MuonContainer *muons, const xAOD::JetContainer *jets,
                               const xAOD::PhotonContainer* gamma = 0, const xAOD::TauJetContainer* taujet = 0, const xAOD::JetContainer *fatjets = 0) override final;
 
+    StatusCode NearbyLeptonCorrections(const xAOD::ElectronContainer *electrons = nullptr, const xAOD::MuonContainer *muons = nullptr) const override final;
+
 // ZM - not implemented?
 //    StatusCode IsoOverlapRemoval(const xAOD::IParticleContainer *parts);
 

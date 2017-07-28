@@ -28,7 +28,7 @@ int main()
   // pick PRW file based on what release series we have, 20.1 input for 2.3 and 20.7 input for 2.4
   //int releaseSeries = atoi(getenv("ROOTCORE_RELEASE_SERIES"));
   cmd.append(" PRWFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/merged_prw_mc15c_latest.root");
-    
+
   cmd.append(" ilumicalcFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/ilumicalc_histograms_None_276262-284154.root");
   cmd.append(" ilumicalcFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/ilumicalc_histograms_None_297730-299243.root");
 
