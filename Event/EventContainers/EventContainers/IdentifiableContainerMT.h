@@ -255,7 +255,10 @@ public:
 
     /// return number of collections
     size_t numberOfCollections() const {
-        return m_cacheLink->numberOfHashes();
+        if(!m_OnlineMode) return m_cacheLink->numberOfHashes();
+        size_t count =0;
+        for(auto b : m_mask) count += b;
+        return count;
     }
 
     
