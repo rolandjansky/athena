@@ -445,6 +445,10 @@ namespace SG {
   VarHandleBase::setState()
   {
     CHECK( initialize() );
+    if (!m_storeWasSet) {
+      IProxyDict* store = storeFromHandle (nullptr);
+      if (store) m_store = store;
+    }
 
     StatusCode sc = this->setState(m_store->proxy(this->clid(), this->key()));
 
