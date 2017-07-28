@@ -121,6 +121,7 @@ StatusCode MuonPRD_MultiTruthMaker::buildPRD_Truth(SG::ReadHandleKey<PrepDataCon
   }
 
   // Create and fill the PRD truth structure
+  ATH_MSG_DEBUG("make PRD truth for "<<outputKey.key());
   SG::WriteHandle<PRD_MultiTruthCollection> output(outputKey);
   ATH_CHECK(output.record(std::make_unique<PRD_MultiTruthCollection>()));
   addPRDCollections(output, prdContainer->begin(), prdContainer->end(), simDataMap);
