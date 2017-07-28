@@ -9,6 +9,9 @@ atlas_subdir( ISF_Config )
 atlas_depends_on_subdirs( PRIVATE
                           TestPolicy )
 
+atlas_add_test(test_Sim_tf_configuration
+               SCRIPT test/test_Sim_tf_configuration.py)
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )

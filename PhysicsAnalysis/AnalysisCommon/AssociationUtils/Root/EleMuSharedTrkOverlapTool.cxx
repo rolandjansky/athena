@@ -15,12 +15,6 @@
 // Local includes
 #include "AssociationUtils/EleMuSharedTrkOverlapTool.h"
 
-namespace
-{
-  /// Unit conversion constant
-  const float invGeV = 0.001;
-}
-
 namespace ORUtils
 {
 
@@ -40,6 +34,9 @@ namespace ORUtils
   //---------------------------------------------------------------------------
   StatusCode EleMuSharedTrkOverlapTool::initializeDerived()
   {
+    if(m_removeCaloMuons) {
+      ATH_MSG_DEBUG("Configuring removal of overlapping calo muons");
+    }
     return StatusCode::SUCCESS;
   }
 

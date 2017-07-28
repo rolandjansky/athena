@@ -558,7 +558,7 @@ StatusCode TRT_FastRDOAnalysis::execute() {
         const int strawD((*detElement).strawDirection());
 
         // all straws in layer
-        for (int i = 0; i != strawN; ++i) {
+        for (unsigned int i = 0; i != strawN; ++i) {
           const Amg::Vector3D& strawCenter((*detElement).strawCenter(i));
           const float strawCenter_x(strawCenter.x());
           const float strawCenter_y(strawCenter.y());

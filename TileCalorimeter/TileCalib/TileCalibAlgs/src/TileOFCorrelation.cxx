@@ -52,7 +52,7 @@ TileOFCorrelation::~TileOFCorrelation()
 void TileOFCorrelation::SetCorrelationZero(MsgStream & log, int dignum)
 {
 
-  log<<MSG::DEBUG<<"TileOFCorrelation::SetCorrelationZero(log)"<<endreq;
+  log<<MSG::DEBUG<<"TileOFCorrelation::SetCorrelationZero(log)"<<endmsg;
   for (int ros=0;ros<4;ros++)
     for (int drawer=0;drawer<64;drawer++)
       for (int channel=0;channel<48;channel++)
@@ -91,7 +91,7 @@ void TileOFCorrelation::SetCorrelationZero(MsgStream & log, int dignum)
 ////////////////////////////////////////
 void TileOFCorrelation::SetCorrelationDelta(MsgStream & log, int dignum)
 {
-  log<<MSG::DEBUG<<"TileOFCorrelation::SetCorrelationDelta(log)"<<endreq;
+  log<<MSG::DEBUG<<"TileOFCorrelation::SetCorrelationDelta(log)"<<endmsg;
 
   for (int ros=0;ros<4;ros++)
     for (int drawer=0;drawer<64;drawer++)
@@ -149,7 +149,7 @@ void TileOFCorrelation::Sum(vector<float> &digits, int ros, int drawer, int chan
 ////////////////////////////////////////
 void TileOFCorrelation::CalcCorrelation(MsgStream & log, int dignum, bool flag_7to9, bool doRobustCov)
 {
-  log<<MSG::DEBUG<<"TileOFCorrelation::CalcCorrelation"<<endreq;
+  log<<MSG::DEBUG<<"TileOFCorrelation::CalcCorrelation"<<endmsg;
 
   double denominator=0.;
   
@@ -203,21 +203,21 @@ void TileOFCorrelation::CalcCorrelation(MsgStream & log, int dignum, bool flag_7
                for (int j=0;j<9;j++)
                  m_R[ros][drawer][channel][gain][j][j]=1.;
 
-	       for (int i=0;i<dignum;i++){
-                 for (int j=0;j<dignum;j++){
-                    if (N_d>0.){
-                       denominator= (N_d*m_SS[ros][drawer][channel][gain][i][i]-m_S[ros][drawer][channel][gain][i]*m_S[ros][drawer][channel][gain][i])*
-                         (N_d*m_SS[ros][drawer][channel][gain][j][j]-m_S[ros][drawer][channel][gain][j]*m_S[ros][drawer][channel][gain][j]);
-                       if(denominator!=0){
-                         m_R[ros][drawer][channel][gain][i][j]=
-                           (N_d*m_SS[ros][drawer][channel][gain][i][j]-m_S[ros][drawer][channel][gain][i]*m_S[ros][drawer][channel][gain][j])/sqrt(denominator);
-                       }else{
-                         m_R[ros][drawer][channel][gain][i][j]=0.;
-                       }
-                    }
-                    else m_R[ros][drawer][channel][gain][i][j]=-1234.;
+             for (int i=0;i<dignum;i++){
+               for (int j=0;j<dignum;j++){
+                 if (N_d>0.){
+                   denominator= (N_d*m_SS[ros][drawer][channel][gain][i][i]-m_S[ros][drawer][channel][gain][i]*m_S[ros][drawer][channel][gain][i])*
+                     (N_d*m_SS[ros][drawer][channel][gain][j][j]-m_S[ros][drawer][channel][gain][j]*m_S[ros][drawer][channel][gain][j]);
+                   if(denominator!=0){
+                     m_R[ros][drawer][channel][gain][i][j]=
+                       (N_d*m_SS[ros][drawer][channel][gain][i][j]-m_S[ros][drawer][channel][gain][i]*m_S[ros][drawer][channel][gain][j])/sqrt(denominator);
+                   }else{
+                     m_R[ros][drawer][channel][gain][i][j]=0.;
+                   }
                  }
+                 else m_R[ros][drawer][channel][gain][i][j]=-1234.;
                }
+             }
 	   }
        }
   delete [] Row;
@@ -235,7 +235,7 @@ void TileOFCorrelation::CalcCorrelation(MsgStream & log, int dignum, bool flag_7
 ////////////////////////////////////////
 void TileOFCorrelation::RunningCorrelation(vector<float> &digits, int ros, int drawer, int channel, int gain, MsgStream & log, bool /*debug*/, int &dignum, int chthres)
 {
-  log<<MSG::VERBOSE<<"TileOFCorrelation::RunningCorrelation"<<endreq;
+  log<<MSG::VERBOSE<<"TileOFCorrelation::RunningCorrelation"<<endmsg;
   dignum=digits.size();
 
   double denominator=0.;
@@ -247,7 +247,7 @@ void TileOFCorrelation::RunningCorrelation(vector<float> &digits, int ros, int d
   m_N_d=double(m_jentry);
 
   if (ros==1 && drawer==1 && channel==0 && gain==1)
-    log<<MSG::VERBOSE<<"Computing RunningCorrelation for jentry="<<m_jentry<<endreq;
+    log<<MSG::VERBOSE<<"Computing RunningCorrelation for jentry="<<m_jentry<<endmsg;
 
   for (m_lag=1;m_lag<dignum;m_lag++){
     for (int i=0; i<dignum-m_lag; i++){	            
@@ -259,7 +259,7 @@ void TileOFCorrelation::RunningCorrelation(vector<float> &digits, int ros, int d
       m_N_pairs[ros][drawer][channel][gain][m_lag-1]++;	
     }
     if (m_lag==1 && ros==1 && drawer==1 && channel==0 && gain==1)
-      log<<MSG::VERBOSE<<" jentry="<<m_jentry<<" m_N="<<m_N_pairs[ros][drawer][channel][gain][m_lag-1]<<" S1="<<m_S1[ros][drawer][channel][gain][m_lag-1]<<endreq;
+      log<<MSG::VERBOSE<<" jentry="<<m_jentry<<" m_N="<<m_N_pairs[ros][drawer][channel][gain][m_lag-1]<<" S1="<<m_S1[ros][drawer][channel][gain][m_lag-1]<<endmsg;
     
     
     if (m_jentry>chthres){
@@ -283,7 +283,7 @@ void TileOFCorrelation::RunningCorrelation(vector<float> &digits, int ros, int d
 	   <<" m_corr2="<<m_corr2[m_lag-1]
 	   <<" m_corr_sum="<<m_corr_sum[ros][drawer][channel][gain][m_lag-1]
 	   <<" m_corr_sum_sq="<<m_corr_sum_sq[ros][drawer][channel][gain][m_lag-1]
-	   <<endreq;
+	   <<endmsg;
 
       m_corr_sum[ros][drawer][channel][gain][m_lag-1]+=m_corr2[m_lag-1];
       m_corr_sum_sq[ros][drawer][channel][gain][m_lag-1]+=m_corr2[m_lag-1]*m_corr2[m_lag-1];
@@ -297,7 +297,7 @@ void TileOFCorrelation::RunningCorrelation(vector<float> &digits, int ros, int d
 	   <<" sum RMS="<<m_corr_sum_sq[ros][drawer][channel][gain][m_lag-1]
 	   <<" RMS="<<sqrt(m_corr_sum_sq[ros][drawer][channel][gain][m_lag-1]*(m_jentry-chthres)
 			   -m_corr_sum[ros][drawer][channel][gain][m_lag-1]*m_corr_sum[ros][drawer][channel][gain][m_lag-1])/(m_jentry-chthres)
-	   <<endreq;
+	   <<endmsg;
     }
   }
 }
@@ -405,12 +405,12 @@ void TileOFCorrelation::SaveCorrelationSumm(bool deltaCorrelation,
 					  MsgStream & log,
 					  int dignum)
 {
-  log<<MSG::DEBUG<<" TileOFCorrelation::SaveCorrelationSumm"<<endreq;
+  log<<MSG::DEBUG<<" TileOFCorrelation::SaveCorrelationSumm"<<endmsg;
   
   HepMatrix M_correlation(dignum,1,0);
 
   fstream *f_correlation = new fstream(OptFilterFile_CorrelationSumm.c_str(),fstream::out);
-  if (f_correlation->is_open()) log<<MSG::INFO<<OptFilterFile_CorrelationSumm<<" file open"<<endreq;
+  if (f_correlation->is_open()) log<<MSG::INFO<<OptFilterFile_CorrelationSumm<<" file open"<<endmsg;
 
   if (deltaCorrelation){
       //      for (int i=0;i<dignum;i++)
@@ -437,7 +437,7 @@ void TileOFCorrelation::SaveCorrelationSumm(bool deltaCorrelation,
 		 <<"  channel "<<channel
 		 <<"  gain "<<gain
 		 <<"  m_N "<<m_N[ros][drawer][channel][gain]
-		 <<endreq;
+		 <<endmsg;
 	      
 	      if (m_N[ros][drawer][channel][gain]>0){
 		//for (int i=0;i<dignum;i++)
@@ -501,12 +501,12 @@ void TileOFCorrelation::SaveCorrelationMatrix(bool deltaCorrelation,
 					      MsgStream & log,
 					      int dignum)
 {
-  log<<MSG::DEBUG<<" TileOFCorrelation::SaveCorrelationMatrix"<<endreq;
+  log<<MSG::DEBUG<<" TileOFCorrelation::SaveCorrelationMatrix"<<endmsg;
   
   HepMatrix M_correlation(dignum,dignum,0);
   
   fstream *f_correlation = new fstream(OptFilterFile_CorrelationMatrix.c_str(),fstream::out);
-  if (f_correlation->is_open()) log<<MSG::INFO<<OptFilterFile_CorrelationMatrix<<" file open"<<endreq;
+  if (f_correlation->is_open()) log<<MSG::INFO<<OptFilterFile_CorrelationMatrix<<" file open"<<endmsg;
 
   if (deltaCorrelation){
     for (int i=0;i<dignum;i++)
@@ -532,7 +532,7 @@ void TileOFCorrelation::SaveCorrelationMatrix(bool deltaCorrelation,
 	       <<"  channel "<<channel
 	       <<"  gain "<<gain
 	       <<"  m_N "<<m_N[ros][drawer][channel][gain]
-	       <<endreq;
+	       <<endmsg;
 	    
 	    if (m_N[ros][drawer][channel][gain]>0){
 	      for (int i=0;i<dignum;i++)
@@ -576,7 +576,7 @@ void TileOFCorrelation::CalcWeights(bool of2,
 				    int gain,
 				    int dignum)
 {
-  log<<MSG::DEBUG<<" TileOFCorrelation::CalcWeights"<<endreq;
+  log<<MSG::DEBUG<<" TileOFCorrelation::CalcWeights"<<endmsg;
   
   HepMatrix Correlation(dignum,dignum,0), Inverse(dignum,dignum,0), Zero(dignum,dignum,0);
   HepMatrix PulseShape(dignum,1,0), DPulseShape(dignum,1,0);
@@ -589,11 +589,11 @@ void TileOFCorrelation::CalcWeights(bool of2,
   else
     log<<MSG::INFO<<" Calculating OF1 weights ";
   if (deltaCorrelation)
-    log<<MSG::INFO<<"with Delta correlation matrix "<<endreq;
+    log<<MSG::INFO<<"with Delta correlation matrix "<<endmsg;
   else
-    log<<MSG::INFO<<"with correlation matrix obtained from data "<<endreq;
+    log<<MSG::INFO<<"with correlation matrix obtained from data "<<endmsg;
   log<<MSG::INFO<<"for ros="<<ros<<" drawer="<<drawer<<" channel="<<channel<<
-    " gain="<<gain<<endreq;
+    " gain="<<gain<<endmsg;
   
   
 
@@ -720,8 +720,8 @@ void TileOFCorrelation::CalcWeights(bool of2,
       
       if(ierr!=0){
 	log<<MSG::WARNING<<" Correlation matrix cannot be inverted for ros="<<ros<<" drawer="<<drawer
-	   <<" channel="<<channel<<" gain="<<gain<<endreq;
-	log<<MSG::WARNING<<" Weights set to zero for this channel..."<<endreq;
+	   <<" channel="<<channel<<" gain="<<gain<<endmsg;
+	log<<MSG::WARNING<<" Weights set to zero for this channel..."<<endmsg;
 	for (int i=0; i<dignum; i++){
 	  for (int j=0; j<dignum; j++){
 	    printf("%4.4f  ",m_R[ros][drawer][channel][gain][i][j]);
@@ -852,7 +852,7 @@ void TileOFCorrelation::CalcWeights(bool of2,
     
   }// IF delta
   
-  log<<MSG::VERBOSE<<"...weights calculated"<<endreq;
+  log<<MSG::VERBOSE<<"...weights calculated"<<endmsg;
  
 }
 
@@ -866,12 +866,12 @@ void TileOFCorrelation::BuildPulseShape(vector<double> &pulseShape,
 				      int dignum,
 				      MsgStream &log)
 { 
-  log<<MSG::DEBUG<<"TileCalorimeter::BuildPulseShape"<<endreq;
+  log<<MSG::DEBUG<<"TileCalorimeter::BuildPulseShape"<<endmsg;
   
   //1: set pulseShape
   int shape_size=(dignum-1)*25+200;
   pulseShape.resize(shape_size);
-  log<<MSG::DEBUG<<"Set dimension of pulseShape to shape_sie="<<shape_size<<endreq;
+  log<<MSG::DEBUG<<"Set dimension of pulseShape to shape_sie="<<shape_size<<endmsg;
 
   //2: scan pulseShapeT for: tmin, tmax, nt0 and size: pulseShapeX[nt0]=1.0;
   int nt0=0, size;
@@ -889,7 +889,7 @@ void TileOFCorrelation::BuildPulseShape(vector<double> &pulseShape,
     }
     if (pulseShapeT[i]==0) nt0=i;
   }
-  log<<MSG::DEBUG<<"pulseShapeX & pulseShapeT size ="<<size<<", tmin="<<tmin<<", tmax="<<tmax<<"  nt0="<<nt0<<" pulseShapeT[nt0]="<<pulseShapeT[nt0]<<" pulseShapeX[nt0]="<<pulseShapeX[nt0]<<endreq;
+  log<<MSG::DEBUG<<"pulseShapeX & pulseShapeT size ="<<size<<", tmin="<<tmin<<", tmax="<<tmax<<"  nt0="<<nt0<<" pulseShapeT[nt0]="<<pulseShapeT[nt0]<<" pulseShapeX[nt0]="<<pulseShapeX[nt0]<<endmsg;
   
   //3: fill pulseShape
   bool exact;
@@ -925,12 +925,12 @@ void TileOFCorrelation::BuildPulseShape(vector<double> &pulseShape,
       }	  
       
       if (exact)	    
-	log<<MSG::VERBOSE<<"exact value found for time="<<-i<<" pulseShape="<<pulseShape[(shape_size)/2-i]<<endreq;
+	log<<MSG::VERBOSE<<"exact value found for time="<<-i<<" pulseShape="<<pulseShape[(shape_size)/2-i]<<endmsg;
       else{
 	//	  if (exact)	    
 	log<<MSG::VERBOSE<<"exact value NOT found for time="<<-i
 	   <<" nminn="<<nminn<<" pulseShapeT="<<pulseShapeT[nminn]<<" pulseShapeX="<<pulseShapeX[nminn]<<std::endl 
-	   <<" nminp="<<nminp<<" pulseShapeT="<<pulseShapeT[nminp]<<" pulseShapeX="<<pulseShapeX[nminp]<<endreq;	  
+	   <<" nminp="<<nminp<<" pulseShapeT="<<pulseShapeT[nminp]<<" pulseShapeX="<<pulseShapeX[nminp]<<endmsg;	  
 	pulseShape[(shape_size)/2-i]=pulseShapeX[nminn]+(pulseShapeX[nminp]-pulseShapeX[nminn])/(pulseShapeT[nminp]-pulseShapeT[nminn])*(-i-pulseShapeT[nminn]);
       }
       
@@ -965,12 +965,12 @@ void TileOFCorrelation::BuildPulseShape(vector<double> &pulseShape,
 	}
       }
       if (exact)	    
-	log<<MSG::VERBOSE<<"exact value found for time="<<i<<" pulseShape="<<pulseShape[(shape_size)/2+i]<<endreq;
+	log<<MSG::VERBOSE<<"exact value found for time="<<i<<" pulseShape="<<pulseShape[(shape_size)/2+i]<<endmsg;
       else{
 	//	  if (exact)	    
 	log<<MSG::VERBOSE<<"exact value NOT found for time="<<i
 	   <<" nminn="<<nminn<<" pulseShapeT="<<pulseShapeT[nminn]<<" pulseShapeX="<<pulseShapeX[nminn]<<std::endl 
-	   <<" nminp="<<nminp<<" pulseShapeT="<<pulseShapeT[nminp]<<" pulseShapeX="<<pulseShapeX[nminp]<<endreq;	  
+	   <<" nminp="<<nminp<<" pulseShapeT="<<pulseShapeT[nminp]<<" pulseShapeX="<<pulseShapeX[nminp]<<endmsg;	  
 	
 	pulseShape[(shape_size)/2+i]=pulseShapeX[nminn]+(pulseShapeX[nminp]-pulseShapeX[nminn])/(pulseShapeT[nminp]-pulseShapeT[nminn])*(i-pulseShapeT[nminn]);
       }
@@ -993,15 +993,15 @@ void TileOFCorrelation::WriteWeightsToFile(bool deltaCorrelation,
 					   const TileHWID *tileHWID,
 					   MsgStream & log)
 {
-  log<<MSG::DEBUG<<" TileOFCorrelation::WriteWeightsToFile"<<endreq;
+  log<<MSG::DEBUG<<" TileOFCorrelation::WriteWeightsToFile"<<endmsg;
   fstream *f_ai_lo = new fstream(OptFilterFile_ai_lo.c_str(), fstream::app| fstream::out);
   fstream *f_bi_lo = new fstream(OptFilterFile_bi_lo.c_str(), fstream::app|fstream::out);
   fstream *f_ai_hi = new fstream(OptFilterFile_ai_hi.c_str(), fstream::app|fstream::out);
   fstream *f_bi_hi = new fstream(OptFilterFile_bi_hi.c_str(), fstream::app|fstream::out);
 
   //Open Weights files
-  if (f_ai_lo->is_open()&&f_ai_lo->is_open()&&f_ai_lo->is_open()&&f_ai_lo->is_open()) log<<MSG::INFO<<" Weights files open"<<endreq;
-  else log<<MSG::INFO<<" Weights files didn't open succesfully"<<endreq;
+  if (f_ai_lo->is_open()&&f_ai_lo->is_open()&&f_ai_lo->is_open()&&f_ai_lo->is_open()) log<<MSG::INFO<<" Weights files open"<<endmsg;
+  else log<<MSG::INFO<<" Weights files didn't open succesfully"<<endmsg;
   
   if(!deltaCorrelation && m_N[ros][drawer][channel][gain]>0){
     int frag= tileHWID->frag(ros+1,drawer);
@@ -1082,7 +1082,7 @@ void TileOFCorrelation::OpenWeightsFile(string OptFilterFile_ai_lo,
 					 string OptFilterFile_bi_hi, 
 					 MsgStream & log)
 {
-  log<<MSG::DEBUG<<" TileOFCorrelation::OpenWeightsFile"<<endreq;
+  log<<MSG::DEBUG<<" TileOFCorrelation::OpenWeightsFile"<<endmsg;
   fstream *f_ai_lo = new fstream(OptFilterFile_ai_lo.c_str(), fstream::trunc|fstream::out);
   fstream *f_bi_lo = new fstream(OptFilterFile_bi_lo.c_str(), fstream::trunc|fstream::out);
   fstream *f_ai_hi = new fstream(OptFilterFile_ai_hi.c_str(), fstream::trunc|fstream::out);

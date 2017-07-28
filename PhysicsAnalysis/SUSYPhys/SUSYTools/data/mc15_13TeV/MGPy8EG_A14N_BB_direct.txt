@@ -2,7 +2,7 @@
 # date   : 10/07/2015
 # source : https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVstopsbottom
 #
-DSID    FS    XSEC[pb]   K-FACTOR  FILTEREFF   REL.UNCERT
+#DSID    FS    XSEC[pb]   K-FACTOR  FILTEREFF   REL.UNCERT
 387000  51    64.5085      1.0     0.61617      0.144098    
 387001  51    64.5085      1.0     0.4687       0.144098    
 387002  51    64.5085      1.0     0.23115    	0.144098    

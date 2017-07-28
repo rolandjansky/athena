@@ -12,12 +12,6 @@
 // Local includes
 #include "AssociationUtils/TauLooseEleOverlapTool.h"
 
-namespace
-{
-  /// Unit conversion constant
-  const float invGeV = 0.001;
-}
-
 namespace ORUtils
 {
 

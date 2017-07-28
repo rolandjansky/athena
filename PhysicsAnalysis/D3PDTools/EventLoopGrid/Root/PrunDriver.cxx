@@ -131,7 +131,7 @@ static SH::MetaObject defaultOpts()
   o.setString("nc_mergeOutput", "true");
   o.setString("nc_rootVer", gROOT->GetVersion());
 #ifdef USE_CMAKE
-  o.setString("nc_cmtConfig", "x86_64-slc6-gcc49-opt");
+  o.setString("nc_cmtConfig", gSystem->ExpandPathName("$AnalysisBase_PLATFORM"));
   o.setString("nc_useAthenaPackages", "true");
 #endif
 #ifndef USE_CMAKE

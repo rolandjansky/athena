@@ -9,7 +9,7 @@ DiTauTruthMatchingTool
 
 **NOTE:** To use this tool it is necessary that the decoration
 ``n_subjets`` is available for each boosted di-tau candidate. 
-This information is decorated by `tauRecTools/DiTauIDVarCalculator <https://svnweb.cern.ch/trac/atlasoff/browser/Reconstruction/tauRecTools/tags/tauRecTools-00-00-12-21/Root/DiTauIDVarCalculator.cxx>`_, which should run before DiTauEfficiencyCorrectionsTool.
+This information is decorated by `tauRecTools/DiTauIDVarCalculator <https://svnweb.cern.ch/trac/atlasoff/browser/Reconstruction/tauRecTools/tags/tauRecTools-00-00-12-21/Root/DiTauIDVarCalculator.cxx>`_, which should run before DiTauTruthMatchingTool.
 
 ------------
 Introduction

@@ -126,10 +126,11 @@ topSeq += getAlgorithm("BeamEffectsAlg")
 # ISF kernel configuration
 #--------------------------------------------------------------
 
-# TODO: Find out what to do with these!
-#from ISF_Geant4Tools.ISF_Geant4ToolsConf import iGeant4__SDActivateUserAction
-#ToolSvc += iGeant4__SDActivateUserAction("ISFSDActivateUserAction",
-#                                        OutputLevel=INFO)
+# keep reference to collection merger algorithm to guarantee that
+# any subsequent simulator configuration gets a reference to the same
+# instance when calling confgetter's getAlgorithm
+collection_merger_alg = getAlgorithm('ISF_CollectionMerger')
+
 SimKernel = getAlgorithm(ISF_Flags.Simulator.KernelName())
 
 # Temporary work-around - see ATLASSIM-2351
@@ -169,7 +170,6 @@ createSimulationParametersMetadata()
 configureRunNumberOverrides()
 
 if ISF_Flags.HITSMergingRequired():
-    collection_merger_alg = getAlgorithm('ISF_CollectionMerger')
     topSequence += collection_merger_alg
 
 #--------------------------------------------------------------

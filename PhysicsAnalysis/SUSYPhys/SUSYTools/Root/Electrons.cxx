@@ -184,8 +184,10 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
     }
   }
 
+#if ROOTCORE_RELEASE_SERIES==24
   if ( m_egammaCalibTool->applyCorrection(input) != CP::CorrectionCode::Ok)
     ATH_MSG_ERROR( "FillElectron: EgammaCalibTool applyCorrection failed ");
+#endif
 
   if (m_isoCorrTool->applyCorrection(input)  != CP::CorrectionCode::Ok)
     ATH_MSG_ERROR("FillElectron: IsolationCorrectionTool applyCorrection failed");
@@ -194,8 +196,8 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
 
   if (input.pt() < etcut) return StatusCode::SUCCESS;
 
-  if (m_elebaselinez0>0. && acc_z0sinTheta(input)>m_elebaselinez0) return StatusCode::SUCCESS;
-  if (m_elebaselined0sig>0. && acc_d0sig(input)>m_elebaselined0sig) return StatusCode::SUCCESS;
+  if (m_elebaselinez0>0. && fabs(acc_z0sinTheta(input))>m_elebaselinez0) return StatusCode::SUCCESS;
+  if (m_elebaselined0sig>0. && fabs(acc_d0sig(input))>m_elebaselined0sig) return StatusCode::SUCCESS;
 
   dec_baseline(input) = true;
   dec_selected(input) = 2;
@@ -345,7 +347,7 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
     //check matching
     this->TrigMatch({&el}, trigMChains);
     
-    if(el.auxdata<int>("trigger_matched")==0){
+    if(!el.isAvailable<char>("trigmatched") or !acc_trigmatched(el)){
       ATH_MSG_DEBUG( "Electron was not matched to trigger " << theExpr << " - scale factor does not apply (year " << this->treatAsYear() << ")  Returning 1." );
     }
     else{ //is trig-matched electron, go for it!

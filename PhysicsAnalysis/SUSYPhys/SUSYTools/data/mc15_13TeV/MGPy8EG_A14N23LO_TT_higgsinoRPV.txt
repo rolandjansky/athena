@@ -4,7 +4,7 @@
 #          and      https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVn2x1hino
 # The generated samples contain separately C1N1, N2N1, TT.
 # The process C1N2 also exists and has same xsec as C1N1. If you want to include it multiply the xsec by 2
-DSID     FS   CROSSECTION[pb]     K-FACTOR     FILTEREFF   REL.UNCERT
+#DSID     FS   CROSSECTION[pb]     K-FACTOR     FILTEREFF   REL.UNCERT
 ## C1pN1+C1mN1+C1pN2+C1mN2
 #404360	11x		0.848332   		1.			1.		0.0474465			#	C1N1_200
 #404361	11x		0.1816334   	1.			1.		0.0603606			#	C1N1_300

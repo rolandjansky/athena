@@ -43,7 +43,7 @@ namespace met {
   {
     ATH_MSG_DEBUG (__PRETTY_FUNCTION__ );
 
-    declareProperty( "ConfigPrefix",      m_configPrefix      = "METUtilities/data16_13TeV/rec_Dec16v1");
+    declareProperty( "ConfigPrefix",      m_configPrefix      = "METUtilities/data17_13TeV/prerec_July21v1");
     declareProperty( "ConfigSoftTrkFile", m_configSoftTrkFile = "TrackSoftTerms.config"                     );
     //    declareProperty( "ConfigSoftTrkFile", m_configSoftTrkFile = "TrackSoftTerms_afii.config"            );//for ATLFAST
     declareProperty( "ConfigJetTrkFile",  m_configJetTrkFile  = ""                                          );
@@ -605,8 +605,12 @@ namespace met {
 	break;
 	}
 
-      jettrkmet.setMpx  ( jettrkmet.mpx()*(1 + uncert/(fabs(jettrkmet.mpx())*sqrt(2))));
-      jettrkmet.setMpy  ( jettrkmet.mpy()*(1 + uncert/(fabs(jettrkmet.mpy())*sqrt(2))));
+      if(fabs(jettrkmet.mpx())>0.0)
+	jettrkmet.setMpx  ( jettrkmet.mpx()*(1 + uncert/(fabs(jettrkmet.mpx())*sqrt(2))));
+      else jettrkmet.setMpx (0.0);
+      if(fabs(jettrkmet.mpy())>0.0)
+	jettrkmet.setMpy  ( jettrkmet.mpy()*(1 + uncert/(fabs(jettrkmet.mpy())*sqrt(2))));
+      else jettrkmet.setMpy (0.0);
       jettrkmet.setSumet( jettrkmet.sumet() + uncert);
     }
 

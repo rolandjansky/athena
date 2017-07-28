@@ -19,12 +19,6 @@
 
 namespace
 {
-  /// Unit conversion factor
-  const double invGeV = 1e-3;
-}
-
-namespace
-{
 
   /// Check for dummy float values of variables.
   /// Assuming -999 is the only value of interest for now.
@@ -69,6 +63,11 @@ namespace ORUtils
   //---------------------------------------------------------------------------
   StatusCode EleEleOverlapTool::initializeDerived()
   {
+    ATH_MSG_DEBUG("UseTrackMatch " << m_useTrackMatch <<
+                  " UseClusterMatch " << m_useClusterMatch <<
+                  " ClusterDeltaEta " << m_clusterDeltaEta <<
+                  " ClusterDeltaPhi " << m_clusterDeltaPhi);
+
     // Sanity check
     if(!m_useTrackMatch && !m_useClusterMatch) {
       ATH_MSG_ERROR("You must enable at least one: UseTrackMatch or UseClusterMatch");

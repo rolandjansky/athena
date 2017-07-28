@@ -18,7 +18,6 @@
 #include "DataModel/DataVector.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "xAODTracking/TrackParticle.h"
-#include "xAODMuon/MuonContainer.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
@@ -35,6 +34,9 @@ namespace Trk {
 }
 namespace InDet { class VertexPointEstimator; }
 
+namespace xAOD{
+   class BPhysHelper;
+}
 
 namespace Analysis {
     
@@ -45,28 +47,28 @@ namespace Analysis {
     public:
         JpsiPlus2Tracks(const std::string& t, const std::string& n, const IInterface*  p);
         ~JpsiPlus2Tracks();
-        StatusCode initialize();
-        StatusCode finalize();
+        StatusCode initialize() override;
+        StatusCode finalize() override;
         
         static const InterfaceID& interfaceID() { return IID_JpsiPlus2Tracks;};
         
         //-------------------------------------------------------------------------------------
         //Doing Calculation and inline functions
         StatusCode performSearch(xAOD::VertexContainer*& , xAOD::VertexAuxContainer*& );
-        static double getPt(const xAOD::TrackParticle*, const xAOD::TrackParticle*);
-        static double getPt(const xAOD::TrackParticle*, const xAOD::TrackParticle*, const xAOD::TrackParticle*, const xAOD::TrackParticle*);
+
         static double getInvariantMass(const xAOD::TrackParticle*, double, const xAOD::TrackParticle*, double);
         static double getInvariantMass(const xAOD::TrackParticle*, double, const xAOD::TrackParticle*, double,
                                 const xAOD::TrackParticle*, double, const xAOD::TrackParticle*, double);
         static bool   oppositeCharges(const xAOD::TrackParticle*, const xAOD::TrackParticle*);
-        static bool   isContainedIn(const xAOD::TrackParticle*, std::vector<const xAOD::TrackParticle*>);
-        static bool   isContainedIn(const xAOD::TrackParticle*, const xAOD::MuonContainer*);
+
+        bool  passCuts(xAOD::BPhysHelper &bHelper, const std::vector<double> &masses, const std::string &str) const;
+
         xAOD::Vertex* fit(const std::vector<const xAOD::TrackParticle*>&,
                           bool, double, const xAOD::TrackParticleContainer*);
         //-------------------------------------------------------------------------------------
         
     private:
-        const HepPDT::ParticleDataTable *m_particleDataTable;
+        //const HepPDT::ParticleDataTable *m_particleDataTable;
         bool m_pipiMassHyp;
         bool m_kkMassHyp;
         bool m_kpiMassHyp;

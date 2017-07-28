@@ -166,6 +166,8 @@ if( XAOD_STANDALONE )
       SCRIPT test/ut_SUSYTools_config_checker.py )
    atlas_add_test( ut_SUSYTools_wp_checker
       SCRIPT test/ut_SUSYTools_wp_checker.py )
+   # This test takes a bit longer, but it's worth it
+   set_tests_properties( SUSYTools_ut_SUSYTools_wp_checker_ctest PROPERTIES TIMEOUT 250)
    atlas_add_test( ut_SUSYToolsTester_atlfast
       SOURCES test/ut_SUSYToolsTester_atlfast.cxx )
    atlas_add_test( ut_SUSYToolsTester_data

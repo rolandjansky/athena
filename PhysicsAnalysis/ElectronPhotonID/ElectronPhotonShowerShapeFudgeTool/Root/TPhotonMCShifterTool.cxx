@@ -6,6 +6,7 @@
 
 #include "ElectronPhotonShowerShapeFudgeTool/TPhotonMCShifterTool.h"
 #include "PathResolver/PathResolver.h"
+#include <AsgTools/AsgMessaging.h>
 #include "TMath.h"
 #include "TFile.h"
 #include <iostream>
@@ -31,14 +32,15 @@ void TPhotonMCShifterTool::FudgeShowers( double  pt     ,
 					 double& deltae ,
 					 double& eratio ,
 					 int     isConv   ,
-					 int     preselection)
+					 int     preselection,
+           std::string m_corr_file)
 {
   // only load new FF histograms if the tune changes
   if (preselection<0) preselection = m_preselection;
   if (preselection>0 && preselection!=m_preselection) {
     m_preselection = preselection;
-    this->LoadFFs(preselection);
-  }
+    this->LoadFFs(preselection, m_corr_file);
+}
 
   //fudge showers
   rhad1  = Fudge_Rhad1(rhad1, pt, eta2, isConv);
@@ -71,13 +73,14 @@ void TPhotonMCShifterTool::FudgeShowers( float  pt     ,
 					 float& deltae ,
 					 float& eratio ,
 					 int     isConv   ,
-					 int     preselection)
+					 int     preselection,
+           std::string m_corr_file)
 {
   // only load new FF histograms if the tune changes
   if (preselection<0) preselection = m_preselection;
   if (preselection>0 && preselection!=m_preselection) {
     m_preselection = preselection;
-    this->LoadFFs(preselection);
+    this->LoadFFs(preselection, m_corr_file);
   }
 
   //fudge showers
@@ -110,7 +113,8 @@ void TPhotonMCShifterTool::FudgeShowers(  std::vector<float> clE,
 					  std::vector<float>& deltae ,
 					  std::vector<float>& eratio ,
 					  std::vector<int> isConv  ,
-					  int    preselection)
+					  int    preselection,
+            std::string m_corr_file)
 {
   // Assume all vectors have the same size
   for (unsigned int i = 0; i < clE.size(); ++i)
@@ -129,24 +133,34 @@ void TPhotonMCShifterTool::FudgeShowers(  std::vector<float> clE,
 		 deltae[i] ,
 		 eratio[i] ,
 		 isConv[i],
-		 preselection);
+		 preselection,
+     m_corr_file);
 }
 
 
-void TPhotonMCShifterTool::LoadFFs(int preselection)
+void TPhotonMCShifterTool::LoadFFs(int preselection, std::string m_corr_file)
 {
   if (preselection == m_preselection) return;
   m_preselection = preselection;
+  
+  std::string filename = PathResolverFindCalibFile( m_corr_file );
+  if (filename.empty()){
+    throw std::runtime_error("FudgeMCTool  ERROR  Could NOT resolve file name "+ m_corr_file);
+  } else{
+    Info("FudgeMCTool", "Path found = %s", filename.c_str()); 
+  }
+  m_corr_file = filename;
 
-  static const std::string FILE_NAME =
-     "ElectronPhotonShowerShapeFudgeTool/PhotonFudgeFactors.root";
-  const std::string filePath = PathResolverFindCalibFile( FILE_NAME );
-  std::unique_ptr< TFile > f( TFile::Open( filePath.c_str(), "READ" ) );
+  //static const std::string FILE_NAME =
+  //   "ElectronPhotonShowerShapeFudgeTool/PhotonFudgeFactors.root";
+  //const std::string filePath = PathResolverFindCalibFile( FILE_NAME );
+  std::unique_ptr< TFile > f( TFile::Open( m_corr_file.c_str(), "READ" ) );
+  
   if( ( ! f.get() ) || f->IsZombie() ) {
-     throw std::runtime_error( "Couldn't open file: " + FILE_NAME );
+     throw std::runtime_error( "FudgeMCTool Couldn't open file: " + m_corr_file );
   }
   if (!f->FindKey(Form("TUNE%d",preselection))) {
-    std::cout << "Directory TUNE" << preselection << " does not exist in fudge factor file. Aborting" << std::endl;
+    Error("FudgeMCTool", "Directory Tune %d does not exist in the fudge factor file. Aborting", preselection); 
     exit(-1);
   }
   
@@ -340,9 +354,9 @@ TH2D* TPhotonMCShifterTool::GetFFTH2D(int var, int isConv, int preselection){
 
 
 //Get graph of FFs
-TGraphErrors* TPhotonMCShifterTool::GetFFmap(int var, double eta, int isConv, int preselection ){
+TGraphErrors* TPhotonMCShifterTool::GetFFmap(int var, double eta, int isConv, int preselection){
   if (preselection>=0 && preselection != m_preselection)
-    this->LoadFFs(preselection);
+    this->LoadFFs(preselection, m_corr_file);
 
   if (h_u_rhad1==0) return 0;
   

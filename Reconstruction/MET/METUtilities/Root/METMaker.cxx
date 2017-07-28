@@ -71,6 +71,7 @@ namespace met {
 
   static const SG::AuxElement::Decorator< std::vector<iplink_t> > dec_constitObjLinks("ConstitObjectLinks");
   static const SG::AuxElement::Decorator< std::vector<float> > dec_constitObjWeights("ConstitObjectWeights");
+
   // Implement dphi as well if we start correcting the jet phi.
   // static const SG::AuxElement::Decorator< std::vector<float> > dec_constitObjDphis("ConstitObjectDphis");
 
@@ -104,7 +105,7 @@ namespace met {
     declareProperty("DoSoftTruth",        m_doSoftTruth        = false               );
     declareProperty("DoJetTruth",         m_doConstJet         = false               );
 
-    declareProperty("JetSelection",       m_jetSelection       = "Default"           );//Default, Tight, PFlow or Expert
+    declareProperty("JetSelection",       m_jetSelection       = "Tight"             );//Loose, Tight, PFlow or Expert
     declareProperty("CustomCentralJetPt", m_customCenJetPtCut  = 20e3                );
     declareProperty("CustomForwardJetPt", m_customFwdJetPtCut  = 20e3                );
     declareProperty("CustomJetJvtCut",    m_customJvtCut       = 0.59                );
@@ -136,7 +137,7 @@ namespace met {
     
     //default jet selection i.e. pre-recommendation
     ATH_MSG_VERBOSE("Use jet selection criterion: " << m_jetSelection);
-    if (m_jetSelection == "Default")     { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; m_JvtCut = 0.59; m_JvtPtMax = 60e3;}
+    if (m_jetSelection == "Loose")     { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; m_JvtCut = 0.59; m_JvtPtMax = 60e3;}
     else if (m_jetSelection == "PFlow")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; m_JvtCut = 0.2; m_JvtPtMax = 60e3;}
     else if (m_jetSelection == "Tight")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 30e3; m_JvtCut = 0.59; m_JvtPtMax = 60e3;}
     else if (m_jetSelection == "Tier0")  { m_CenJetPtCut = 0;    m_FwdJetPtCut = 0;    m_JvtCut = -1;   m_JvtPtMax = 0;}
@@ -147,7 +148,7 @@ namespace met {
       m_JvtCut = m_customJvtCut;
       m_JvtPtMax = m_customJvtPtMax; 
     }
-    else { ATH_MSG_ERROR( "Error: No available jet selection found! Choose one: Default, Tight, PFlow, Expert" ); return StatusCode::FAILURE; }
+    else { ATH_MSG_ERROR( "Error: No available jet selection found! Choose one: Loose, Tight, PFlow, Expert" ); return StatusCode::FAILURE; }
 
     if (!m_jetRejectionDec.empty()) m_extraJetRejection = true;
 
@@ -743,20 +744,17 @@ namespace met {
 	    }
 	  } // end muon-jet overlap-removal
 
-	  //m_muEloss && 
-	  if(!isMuFSRJet) {
-	    switch(mu_in_jet->energyLossType()) {
-	    case xAOD::Muon::Parametrized:
-	    case xAOD::Muon::MOP:
-	    case xAOD::Muon::Tail:
-	    case xAOD::Muon::FSRcandidate:
-	    case xAOD::Muon::NotIsolated:
-	      // For now don't differentiate the behaviour
-	      // Remove the Eloss assuming the parameterised value
-	      // The correction is limited to the selected clusters
-	      total_eloss += mu_Eloss;
-	      muons_selflags |= (1<<assoc->findIndex(mu_in_jet));
-	    }
+	  switch(mu_in_jet->energyLossType()) {
+	  case xAOD::Muon::Parametrized:
+	  case xAOD::Muon::MOP:
+	  case xAOD::Muon::Tail:
+	  case xAOD::Muon::FSRcandidate:
+	  case xAOD::Muon::NotIsolated:
+	    // For now don't differentiate the behaviour
+	    // Remove the Eloss assuming the parameterised value
+	    // The correction is limited to the selected clusters
+	    total_eloss += mu_Eloss;
+	    muons_selflags |= (1<<assoc->findIndex(mu_in_jet));
 	  }
 	}
 	ATH_MSG_VERBOSE("Muon selection flags: " << muons_selflags);
@@ -769,9 +767,9 @@ namespace met {
 	  if(selector) mu_calovec += assoc->calVec(iKey);
 	  ATH_MSG_VERBOSE("This key: " << assoc->calkey()[iKey] << ", selector: " << selector);
 	}
-	ATH_MSG_VERBOSE("Mu calovec pt, no Eloss:   " << mu_calovec.cpt());
+	ATH_MSG_VERBOSE("Mu calovec pt, no Eloss:   " << mu_calovec.cpt() << " e: " << mu_calovec.ce());
 	if(m_muEloss) mu_calovec *= std::max(0.,1-(total_eloss/mu_calovec.ce()));
-	ATH_MSG_VERBOSE("Mu calovec pt, with Eloss: " << mu_calovec.cpt());
+	ATH_MSG_VERBOSE("Mu calovec pt, with Eloss: " << mu_calovec.cpt() << " e: " << mu_calovec.ce());
 
 	// re-add calo components of muons beyond Eloss correction
 	ATH_MSG_VERBOSE("Jet " << jet->index() << " const pT before OR " << jpt);
@@ -1073,6 +1071,11 @@ namespace met {
       return StatusCode::FAILURE;
     }
     metCont->reserve(10);
+
+    if(metCont->find(metKey)!=metCont->end()){
+      ATH_MSG_VERBOSE("avoiding adding a duplicate term");
+      return StatusCode::SUCCESS;
+    }
 
     met = new xAOD::MissingET();
     metCont->push_back(met);

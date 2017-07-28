@@ -38,6 +38,12 @@
 
 #include "MCTruthClassifier/MCTruthClassifier.h"
 
+// For string search
+#include "TString.h"
+
+// System includes
+#include <iostream> // For warnings in static functions
+
 namespace ST {
 
   struct SystInfo{
@@ -139,6 +145,31 @@ namespace ST {
     return "Unknown";
   }
 
+  static inline int getMCShowerType(const std::string& sample_name) {
+    /** Get MC generator index for the b-tagging efficiency maps*/
+    //don't change this order! //MT
+    const static std::vector<TString> gen_mc_generator_keys = {"PYTHIAEVTGEN", "HERWIGPPEVTGEN", "PYTHIA8EVTGEN", "SHERPA_CT10", "SHERPA"};
+
+    //pre-process sample name
+    TString tmp_name(sample_name);
+    tmp_name.ReplaceAll("Py8EG","PYTHIA8EVTGEN");
+    if(tmp_name.Contains("Pythia") && !tmp_name.Contains("Pythia8") && !tmp_name.Contains("EvtGen")) tmp_name.ReplaceAll("Pythia","PYTHIA8EVTGEN");
+    if(tmp_name.Contains("Pythia8") && !tmp_name.Contains("EvtGen")) tmp_name.ReplaceAll("Pythia8","PYTHIA8EVTGEN");
+
+    //capitalize the entire sample name
+    tmp_name.ToUpper();
+
+    //find shower type in name
+    unsigned int ishower = 0;
+    for( const auto & gen : gen_mc_generator_keys ){
+      if( tmp_name.Contains(gen) ){ return ishower; }
+      ishower++;
+    }
+
+    std::cout << "WARNING: Unknown MC generator detected. Returning default 0=PowhegPythia6(410000) ShowerType for btagging MC/MC maps." << std::endl;
+    return 0;
+  }
+
 
   // Simple interface
   //
@@ -153,7 +184,7 @@ namespace ST {
     public:
     virtual StatusCode readConfig() = 0;
 
-    virtual int getMCShowerType(const std::string& sample_name="") const = 0;
+    virtual int getMCShowerType(const std::string& sample_name) const = 0;
 
     // override the AsgTool setProperty function for booleans
     virtual StatusCode setBoolProperty(const std::string& name, const bool& property) = 0;
@@ -314,12 +345,12 @@ namespace ST {
     virtual double GetSumOfWeights(int channel) = 0;
     
     virtual unsigned int GetRandomRunNumber(bool muDependentRRN = true) = 0;
-    
+
     virtual StatusCode ApplyPRWTool(bool muDependentRRN = true) = 0;
     
     virtual unsigned int GetRunNumber() const = 0;
 
-    virtual int treatAsYear() const = 0;
+    virtual int treatAsYear(const int runNumber=-1) const = 0;
      
     virtual StatusCode OverlapRemoval(const xAOD::ElectronContainer *electrons, const xAOD::MuonContainer *muons, const xAOD::JetContainer *jets,
 				      const xAOD::PhotonContainer* gamma = 0, const xAOD::TauJetContainer* taujet = 0, const xAOD::JetContainer *fatjets = 0) = 0;

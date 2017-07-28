@@ -31,7 +31,7 @@ namespace ana
 {
   /// TODO: needs documentation
   class QuickAna : virtual public IQuickAna,
-		   virtual public asg::AsgTool,
+                   public asg::AsgTool,
 		   public Configuration
   {
     //

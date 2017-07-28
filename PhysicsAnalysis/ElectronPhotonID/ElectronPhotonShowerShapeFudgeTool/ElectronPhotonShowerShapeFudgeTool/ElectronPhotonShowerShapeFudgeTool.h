@@ -4,7 +4,7 @@
 
 #ifndef _ELECTRONPHOTONSHOWERSHAPEFUDGETOOL_H
 #define _ELECTRONPHOTONSHOWERSHAPEFUDGETOOL_H
-
+#define USE_NEW_TOOL
 /**
    @class ElectronPhotonShowerShapeFudgeTool
    @brief Tool to fudge photon MC shower shapes.
@@ -67,6 +67,7 @@ private:
    int m_preselection;
 
    std::string m_configFile;
+   std::string m_ffFile;
 
    /** Copied over from the configuration helper so that the selector tools do not need to be included */
    std::vector<float> GetFloatVector(const std::string& input,  TEnv& env);

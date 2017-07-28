@@ -82,7 +82,7 @@ The tool can be used to retrieve scale factors for a specific
 
    * - ``VarNameJetIDHadTau``
      - ``std::string``
-     - ``"TauScaleFactorJetIDHadTau"``
+     - ``"DiTauScaleFactorJetIDHadTau"``
 
 Details
 =======
@@ -128,6 +128,22 @@ Jet ID scale factors are provided for a couple of working points:
 These can be accessed, for example via::
 
   TauEffTool.setProperty("IDLevel", (int)JETIDBDTLOOSE);
+
+
+Scale Factor Extraction
+=========================
+
+This is minimal code example on how to extract scale factors (including systematic variations) for a list of recommended systematics::
+
+  for (auto sSystematicSet: DiTauEffTool->recommendedSystematics())
+  {
+    ANA_CHECK( DiTauEffTool->applySystematicVariation(sSystematicSet));
+    ANA_CHECK( DiTauEffTool->applyEfficiencyScaleFactor(*xDiTau) );
+    Info( "execute()",
+          "SystType %s: JetIDSF: %g",
+          sSystematicSet.name().c_str(),
+          xDiTau->auxdata< double >( "DiTauScaleFactorJetIDHadTau" ));
+  }
 
 
 ----------

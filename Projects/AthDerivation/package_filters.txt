@@ -197,6 +197,7 @@
 + PhysicsAnalysis/AnalysisCommon/PileupReweighting
 + PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
 + PhysicsAnalysis/AraTool
++ PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/CommonTools/ExpressionEvaluation
 + PhysicsAnalysis/D3PDTools/RootCoreUtils
 + PhysicsAnalysis/DerivationFramework/.*
@@ -218,11 +219,13 @@
 + PhysicsAnalysis/PATJobTransforms
 + PhysicsAnalysis/POOLRootAccess
 + PhysicsAnalysis/PrimaryDPDMaker
-- hysicsAnalysis/PyAnalysis/PyAnalysisExamples
+- PhysicsAnalysis/PyAnalysis/PyAnalysisExamples
 + PhysicsAnalysis/PyAnalysis/.*
 + PhysicsAnalysis/RingerSelectorTools
 + PhysicsAnalysis/TauID/TauAnalysisTools
 + PhysicsAnalysis/TruthParticleID/.*
++ PhysicsAnalysis/TrackingID/InDetTrackSystematicsTools
++ PhysicsAnalysis/JetMissingEtID/JetSelectorTools
 
 # Reconstruction package(s):
 + Reconstruction/AODFix

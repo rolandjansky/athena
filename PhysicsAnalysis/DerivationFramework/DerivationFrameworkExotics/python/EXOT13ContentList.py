@@ -1,53 +1,29 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-EXOT13SmartContent = []
-EXOT13AllVariablesContent = [
-#might want to smart-slim in future
-"PrimaryVertices",
-"Muons", 
-"Electrons",
-"Photons",
-"MET_Reference_AntiKt4LCTopo",
-"AntiKt4LCTopoJets",
-"BTagging_AntiKt4LCTopo",
-"InDetTrackParticles",
-#smart-containers don't exist yet
-"MuonSegments", 
-"AntiKt10LCTopoJets", 
-"AntiKt10TruthJets", 
-"AntiKt4EMTopoJets", 
-#"AntiKt6EMTopoJets", 
-#"AntiKt6LCTopoJets", 
-"AntiKt4TruthJets", 
-#"MET_RefFinalFix",
-"MET_Truth",
-"TruthParticles",
-"TruthEvents",
-"TruthVertices",
-"CombinedMuonTrackParticles",
-"ExtrapolatedMuonTrackParticles",
-"MuonSpectrometerTrackParticles",
-"GSFTrackParticles",
-"GSFConversionVertices",
-"egammaClusters",
-"egammaTopoSeededClusters"
-#PFOs
-#"TauPi0ChargedPFOContainer", 
-#"TauPi0NeutralPFOContainer", 
-#"TauShotPFOContainer", 
-#"chargedJetETMissPFO_eflowRec", 
-#"chargedTauPFO_eflowRec", 
-#"neutralJetETMissPFO_eflowRec", 
-#"neutralJetETMiss_LCPFO_NonModified_eflowRec", 
-#"neutralJetETMiss_LCPFO_eflowRec", 
-#"neutralTauPFO_eflowRec",
-#"JetETMissChargedParticleFlowObjects",
-#"JetETMissNeutralParticleFlowObjects",
-#"TauChargedParticleFlowObjects",
-#"TauHadronicParticleFlowObjects",
-#"TauNeutralParticleFlowObjects",
-#"TauShotParticleFlowObjects"
+EXOT13SmartContent = [
+    #"InDetTrackParticles",
+    "Electrons",
+    "PrimaryVertices",
+    "AntiKt4EMTopoJets"
 ]
 
-EXOT13UnslimmedContent = [
+EXOT13AllVariablesContent = [
+    "ExtrapolatedMuonTrackParticles",
+    "Muons",
+    "MuonSpectrometerTrackParticles",
+    "METAssoc_AntiKt4EMTopo",
+    "MET_Core_AntiKt4EMTopo",
+    "MET_Reference_AntiKt4EMTopo",
+    "TruthEvents",
+    "TruthVertices",
+    "TruthParticles"
 ]
+
+EXOT13ExtraVariables = [
+    "AntiKt4EMTopoJets.EMfrac.Width.Timing",
+    "MuonSegments.x.y.z.px.py.pz.t0.chamberIndex",
+    "CaloCalTopoClusters.e_sampl.calM.calE.calEta.calPhi",
+    "InDetTrackParticles.phi.theta.qOverP.numberOfPixelHits.numberOfPixelHoles.numberOfPixelDeadSensors.numberOfSCTHits.numberOfSCTHoles.numberOfSCTDeadSensors.numberOfTRTHits.numberOfTRTOutliers.numberOfPrecisionLayers.d0.z0.vz.vertexLink.chiSquared.numberDoF.numberOfPhiLayers.numberOfPhiHoleLayers.numberOfPrecisionHoleLayers"
+]
+
+EXOT13UnslimmedContent = []

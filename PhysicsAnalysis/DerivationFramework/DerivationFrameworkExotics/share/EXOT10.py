@@ -8,7 +8,6 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-
 from DerivationFrameworkCore.WeightMetadata import *
 
 exot10Seq = CfgMgr.AthSequencer("EXOT10Sequence")
@@ -28,11 +27,7 @@ EXOT10Stream.AcceptAlgs(["EXOT10Kernel"])
 # Establish the thinning helper (which will set up the services behind the scenes)
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 EXOT10ThinningHelper = ThinningHelper( "EXOT10ThinningHelper" )
-beamEnergy = jobproperties.Beam.energy()
-if (beamEnergy < 4.1e+06):
-	EXOT10ThinningHelper.TriggerChains = 'EF_2g20_tight1 | EF_2g50_loose | HLT_g35_medium_g25_medium'
-if (beamEnergy > 6.0e+06):
-	EXOT10ThinningHelper.TriggerChains = 'HLT_2g20_loose | HLT_2g50_loose | HLT_g35_medium_g25_medium'
+EXOT10ThinningHelper.TriggerChains = 'HLT_2g20_loose | HLT_2g50_loose | HLT_g35_medium_g25_medium'
 EXOT10ThinningHelper.AppendToStream( EXOT10Stream )
 
 #====================================================================
@@ -98,8 +93,6 @@ EXOT10ElectronCCThinningTool = DerivationFramework__CaloClusterThinning( name   
 ToolSvc += EXOT10ElectronCCThinningTool
 
 
-
-
 #=======================================
 # INVARIANT MASS TOOL
 #=======================================
@@ -113,19 +106,23 @@ ToolSvc += EXOT10ElectronCCThinningTool
 #=======================================
 # CREATE THE SKIMMING TOOL
 #=======================================
-
-expression = ''	#'( count(PhotonCollection.pt > 30*GeV) > 0 )'
-if (beamEnergy < 4.1e+06):
-    expression = '( ( ((EventInfo.eventTypeBitmask==1) || EF_g35_loose1_g25_loose1) || (EF_g35_medium1_g25_medium1 || EF_g35_medium1_g25_medium1_L12EM15V) ) || EF_2g20_tight1 || EF_2g50_loose ) && ( (count(Photons.pt > 30*GeV) >= 2) || (count(Photons.pt > 30*GeV) > 0 && count(Electrons.pt > 30*GeV) > 0) || (count(Electrons.pt > 30*GeV) >= 2) )'
-if (beamEnergy > 6.0e+06):
-    #expression = '( (EventInfo.eventTypeBitmask == 1) || HLT_g35_loose1_g25_loose1 || HLT_g35_medium1_g25_medium1 || HLT_g35_medium1_g25_medium1_L12EM15V || HLT_2g20_tight1 ||  HLT_2g50_loose ) && ( (count(Photons.pt > 30*GeV) >= 2) || (count(Photons.pt > 30*GeV) > 0 && count(Electrons.pt > 30*GeV) > 0) || (count(Electrons.pt > 30*GeV) >= 2) )'
-    expression = '( (EventInfo.eventTypeBitmask == 1) || HLT_g35_loose_g25_loose || HLT_g35_medium_g25_medium || HLT_g35_medium_g25_medium_L12EM15V || HLT_2g20_tight ||  HLT_2g50_loose ) && ( (count(Photons.pt > 30*GeV) >= 2) || (count(Photons.pt > 30*GeV) > 0 && count(Electrons.pt > 30*GeV) > 0) || (count(Electrons.pt > 30*GeV) >= 2) )'
-
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-EXOT10SkimmingTool = DerivationFramework__xAODStringSkimmingTool(	name = "EXOT10SkimmingTool1",
-																	expression = expression)
+expression = '( (EventInfo.eventTypeBitmask == 1) || HLT_g35_loose_g25_loose || HLT_g35_medium_g25_medium || HLT_g35_medium_g25_medium_L12EM15V || HLT_2g20_tight ||  HLT_2g50_loose ) && ( (count(Photons.pt > 30*GeV) >= 2) || (count(Photons.pt > 30*GeV) > 0 && count(Electrons.pt > 30*GeV) > 0) || (count(Electrons.pt > 30*GeV) >= 2) )'
+EXOT10SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "EXOT10SkimmingTool1", expression = expression)
 ToolSvc += EXOT10SkimmingTool
 print EXOT10SkimmingTool
+
+#=======================================
+# JETS
+#=======================================
+
+#restore AOD-reduced jet collections
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+OutputJets["EXOT10"] = []
+reducedJetList = [
+    "AntiKt4PV0TrackJets",
+    "AntiKt4TruthJets"]
+replaceAODReducedJets(reducedJetList,exot10Seq,"EXOT10")
 
 #====================================================================
 # Max Cell sum decoration tool
@@ -162,7 +159,6 @@ EXOT10SlimmingHelper.AllVariables = EXOT10AllVariablesContent
 EXOT10SlimmingHelper.UserContent = EXOT10Content
 EXOT10SlimmingHelper.ExtraVariables = EXOT10ExtraVariables
 EXOT10SlimmingHelper.IncludeEGammaTriggerContent = True
-addMETOutputs(EXOT10SlimmingHelper)
+addMETOutputs(EXOT10SlimmingHelper, ["EXOT10"])
 
 EXOT10SlimmingHelper.AppendContentToStream(EXOT10Stream)
-

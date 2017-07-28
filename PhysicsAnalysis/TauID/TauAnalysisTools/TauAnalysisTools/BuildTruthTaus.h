@@ -81,9 +81,9 @@ protected:
   const xAOD::JetContainer* m_xTruthJetContainerConst;
   xAOD::TruthParticleContainer* m_xTruthTauContainer;
 
-  mutable bool m_bIsTruthMatchedAvailable;
-  mutable bool m_bIsTruthMatchedAvailableChecked;
-  mutable bool m_bNewEvent;
+  bool m_bIsTruthMatchedAvailable;
+  bool m_bIsTruthMatchedAvailableChecked;
+  bool m_bNewEvent;
 
 private:
 

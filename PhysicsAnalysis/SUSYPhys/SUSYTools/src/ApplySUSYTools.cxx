@@ -36,6 +36,9 @@
 #include "xAODEgamma/PhotonAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
+// For the forcing of the tau truth container build
+#include "TauAnalysisTools/IBuildTruthTaus.h"
+
 #include "xAODCore/ShallowCopy.h"
 #include "AthContainers/AuxElement.h"
 #include "AsgTools/AsgMetadataTool.h"
@@ -109,6 +112,7 @@ ApplySUSYTools::ApplySUSYTools( const std::string& name,
   m_configFile("SUSYTools/SUSYTools_Default.conf"),
   m_objTool("SUSYObjDef_xAOD/dummy"),
   m_tauTruthTool("TauTruthMatchingTool/dummy"),
+  //m_tauTruthBuilderTool("BuildTruthTaus/dummy"),
   m_thinningSvc("ThinningSvc/ThinningSvc", name)
 {
 
@@ -138,7 +142,8 @@ ApplySUSYTools::ApplySUSYTools( const std::string& name,
   declareProperty("IsData", m_isData);
   declareProperty("MaxCount", m_maxCount);
   declareProperty("SUSYObjTool",  m_objTool);
-  declareProperty("TauTruthMatchingTool", m_tauTruthTool),
+  declareProperty("TauTruthMatchingTool", m_tauTruthTool);
+  //declareProperty("BuildTruthTaus", m_tauTruthBuilderTool);
   declareProperty("ThinningSvc",m_thinningSvc);
   //declareProperty("", );
 }
@@ -180,10 +185,11 @@ StatusCode ApplySUSYTools::initialize()
   // Use jobOptions for now. :-(
 
   // Need truth matching for tau CP tools
-
   if( !m_isData ){
     ATH_MSG_INFO("ApplySUSYTools::initialize(): retrieve m_tauTruthTool");
     CHECK( m_tauTruthTool.retrieve() );
+    //ATH_MSG_INFO("ApplySUSYTools::initialize(): retrieve m_tauTruthBuilderTool");
+    //CHECK( m_tauTruthBuilderTool.retrieve() );
   }
 
   // Systematics
@@ -558,16 +564,15 @@ StatusCode ApplySUSYTools::execute()
 
   // Muons thinning
   //int muonsSize = p_Muons->size();
-  CHECK( m_thinningSvc->filter(*p_Muons, *muCutMask, 
-                               IThinningSvc::Operator::Or) );
-  CHECK( m_thinningSvc->filter(*p_MuonSpecTP, *muSpecCutMask,
-                               IThinningSvc::Operator::Or) );
-  for(auto si : m_systInfoMUON){ const CP::SystematicSet& sys =
-    si->systset; std::string sysname = sys.name(); if( sysname == "" )
-    sysname = "Nominal"; const xAOD::MuonContainer* mus = 0; CHECK(
-    evtStore()->retrieve(mus, m_MuonsName+sysname) );
-    CHECK( m_thinningSvc->filter(*mus, *muCutMask,
-                                 IThinningSvc::Operator::Or) );
+  CHECK( m_thinningSvc->filter(*p_Muons, *muCutMask, IThinningSvc::Operator::Or) );
+  CHECK( m_thinningSvc->filter(*p_MuonSpecTP, *muSpecCutMask, IThinningSvc::Operator::Or) );
+  for(auto si : m_systInfoMUON){ 
+    const CP::SystematicSet& sys = si->systset; 
+    std::string sysname = sys.name(); 
+    if( sysname == "" ) sysname = "Nominal"; 
+    const xAOD::MuonContainer* mus = 0; 
+    CHECK( evtStore()->retrieve(mus, m_MuonsName+sysname) );
+    CHECK( m_thinningSvc->filter(*mus, *muCutMask, IThinningSvc::Operator::Or) );
   }
 
   ////////////
@@ -755,6 +760,10 @@ StatusCode ApplySUSYTools::execute()
 
   if( !m_isData  && 
   !evtStore()->contains<xAOD::TruthParticleContainer>("TruthTaus") ){
+    // If there are no taus, then we need to force the building of the container
+    //if (0==p_TauJets->size()) CHECK( m_tauTruthBuilderTool->retrieveTruthTaus() );
+    if (0==p_TauJets->size()) CHECK( m_tauTruthTool->retrieveTruthTaus() );
+
     for(const auto& tau : *p_TauJets){
       const xAOD::TruthParticle* trueTau = 0;
       trueTau = m_tauTruthTool->getTruth(*tau);
@@ -771,6 +780,7 @@ StatusCode ApplySUSYTools::execute()
       }
     } 
   }//end TruthTaus
+  
 
   for(auto si : m_systInfoTAU){
     const CP::SystematicSet& sys = si->systset;
@@ -1077,8 +1087,9 @@ StatusCode ApplySUSYTools::execute()
   // Truth Jets
   /////////////
 
+  // SZ - TRUTH JETS MISSING IN R21 xAODs - commenting out for now
   // Only for Monte Carlo
-  if( m_TruthJetsName != "" && m_isData==0 ){
+  /*if( m_TruthJetsName != "" && m_isData==0 ){
     const xAOD::JetContainer* p_TruthJets = 0;
     CHECK( evtStore()->retrieve(p_TruthJets, m_TruthJetsName) );
     if( doPrint ) ATH_MSG_DEBUG("Got p_TruthJets size =  " <<p_TruthJets->size());
@@ -1095,7 +1106,7 @@ StatusCode ApplySUSYTools::execute()
     CHECK( m_thinningSvc->filter(*p_TruthJets, *truthJetCutMask, 
                                  IThinningSvc::Operator::Or) );
   }//end m_TruthJetsName
-
+  */
 
   //////////
   // Trigger

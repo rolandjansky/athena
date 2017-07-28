@@ -9,7 +9,9 @@ EXOT10SmartContent = [
 	"BTagging_AntiKt4EMTopo",
 	"TauJets",
 	"AntiKt4EMTopoJets",
-	"AntiKt4LCTopoJets"
+	"AntiKt4LCTopoJets",
+    "MET_Reference_AntiKt4EMTopo",
+    "MET_Reference_AntiKt4LCTopo"
 ]
 
 EXOT10AllVariablesContent = [
@@ -30,15 +32,14 @@ EXOT10AllVariablesContent = [
  	"METAssoc_AntiKt4LCTopo",
  	"MET_Core_AntiKt4LCTopo",
  	"MET_Reference_AntiKt4LCTopo",
-    "AntiKt4PV0TrackJets",
- 	"BTagging_AntiKt4Track"
+    "AntiKt4PV0TrackJets"
 ]
 
-EXOT10Content = [
-]
+EXOT10Content = []
 
 EXOT10ExtraVariables = [
-	"Electrons.author.Medium.Tight.Loose.charge",
+	"Electrons.author.Medium.Tight.Loose.charge.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z.isEMLoose.zvertex.errz.etap.depth",
+	"Photons.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z.isEMLoose.zvertex.errz.etap.depth",
 	"BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
 	"Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
 	"AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500",
@@ -46,6 +47,5 @@ EXOT10ExtraVariables = [
 	"CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
 	"ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
 	"TauJets.TruthCharge.TruthProng.IsTruthMatched.TruthPtVis.truthOrigin.truthType",
-	"MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",
-	#     "AntiKt4LCTopoJets.AverageLArQF"
+	"MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType"
 ]

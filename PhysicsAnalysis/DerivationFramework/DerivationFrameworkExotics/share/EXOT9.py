@@ -7,10 +7,10 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-
 from DerivationFrameworkCore.WeightMetadata import *
 
 from AthenaCommon.GlobalFlags import globalflags
+
 isMC = False
 if globalflags.DataSource()=='geant4':
   isMC = True
@@ -42,6 +42,16 @@ EXOT9ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(n
                                                                                ConeSize                =  0.4)
 ToolSvc += EXOT9ElectronTPThinningTool
 thinningTools.append(EXOT9ElectronTPThinningTool)
+
+# Tracks associated with Photons
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
+EXOT9PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "EXOT9PhotonTPThinningTool",
+                                                                             ThinningService         = "EXOT9ThinningSvc",
+                                                                             SGKey                   = "Photons",
+                                                                             InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                             ConeSize                =  0.4)
+ToolSvc += EXOT9PhotonTPThinningTool
+thinningTools.append(EXOT9PhotonTPThinningTool)
 
 # truth thinning
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
@@ -85,17 +95,9 @@ if isMC:
 #=======================================
 # CREATE THE SKIMMING TOOL   
 #=======================================
-beamEnergy = jobproperties.Beam.energy()
-expression = ''
-if (beamEnergy < 4.1e+06):
-    triggerStrategy = '(EventInfo.eventTypeBitmask==1) || (EF_xe80_tclcw || EF_xe80_tclcw_loose || EF_e24vhi_medium1 || EF_e60_medium1 || EF_mu24i_tight || EF_mu36_tight || EF_g120_loose)'
-if (beamEnergy > 6.0e+06):
-    #triggerStrategy = '(EventInfo.eventTypeBitmask==1) || (HLT_mu26_imedium || HLT_mu50 || HLT_mu60_msonly_0eta105 || HLT_e28_tight_iloose || HLT_e60_medium || HLT_g140_loose || HLT_xe100 || HLT_g60_loose_xe60 || HLT_e140_loose)'
-    triggerStrategy = '(count(Electrons.pt > 50*GeV && (Electrons.DFCommonElectronsLHLoose||Electrons.DFCommonElectronsLHMedium||Electrons.DFCommonElectronsLHTight||Electrons.DFCommonElectronsIsEMLoose||Electrons.DFCommonElectronsIsEMMedium||Electrons.DFCommonElectronsIsEMTight)) >= 1) || (count(Muons.pt > 50*GeV && (Muons.DFCommonGoodMuon && Muons.muonType == 0)) >= 1)'
-
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-EXOT9SkimmingTool = DerivationFramework__xAODStringSkimmingTool(	name = "EXOT9SkimmingTool1", 
-									expression = triggerStrategy)
+triggerStrategy = '(count(Electrons.pt > 60*GeV && (Electrons.DFCommonElectronsLHLoose||Electrons.DFCommonElectronsLHMedium||Electrons.DFCommonElectronsLHTight||Electrons.DFCommonElectronsIsEMLoose||Electrons.DFCommonElectronsIsEMMedium||Electrons.DFCommonElectronsIsEMTight)) >= 1)'
+EXOT9SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "EXOT9SkimmingTool1", expression = triggerStrategy)
 ToolSvc += EXOT9SkimmingTool
 print EXOT9SkimmingTool
 
@@ -107,6 +109,17 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 DerivationFrameworkJob += exot9Seq
 exot9Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT9Kernel_skim", SkimmingTools = [EXOT9SkimmingTool])
 exot9Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT9Kernel", ThinningTools = thinningTools)
+
+#=======================================
+# JETS
+#=======================================
+
+#restore AOD-reduced jet collections
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+OutputJets["EXOT9"] = []
+reducedJetList = [
+  "AntiKt4TruthWZJets"]
+replaceAODReducedJets(reducedJetList,exot9Seq,"EXOT9")
 
 #====================================================================
 # SET UP STREAM   
@@ -121,6 +134,7 @@ augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
 svcMgr += createThinningSvc( svcName="EXOT9ThinningSvc", outStreams=[evtStream] )
 
+
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
@@ -132,4 +146,5 @@ EXOT9SlimmingHelper.AllVariables = EXOT9AllVariables
 EXOT9SlimmingHelper.SmartCollections = EXOT9SmartCollections
 EXOT9SlimmingHelper.IncludeEGammaTriggerContent = True
 EXOT9SlimmingHelper.IncludeMuonTriggerContent = True
+addMETOutputs(EXOT9SlimmingHelper, ["EXOT9", "Track"], ["AntiKt4EMTopo"])
 EXOT9SlimmingHelper.AppendContentToStream(EXOT9Stream)

@@ -53,7 +53,7 @@ public:                         // Interface functions
 
 private:                        // private helper functions
 
-  StatusCode findTruthTau(const xAOD::DiTauJet& xDiTau) const;
+  StatusCode findTruthTau(const xAOD::DiTauJet& xDiTau);
   StatusCode checkTruthMatch (const xAOD::DiTauJet& xDiTau, const xAOD::TruthParticleContainer& xTauContainer) const;
   StatusCode truthMatch (const TLorentzVector& vSubjetTLV,
                          const xAOD::TruthParticleContainer& xTruthTauContainer, 

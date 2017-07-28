@@ -33,6 +33,10 @@
 #ifdef ATHENAHIVE
 #include "../AthenaHiveEventLoopMgr.h"
 #endif
+#include "../AthenaSharedMemoryTool.h"
+#ifdef HAVE_YAMPL
+#   include "../AthenaYamplTool.h"
+#endif // HAVE_YAMPL
 
 DECLARE_ALGORITHM_FACTORY( AthenaOutputStream )
 DECLARE_ALGORITHM_FACTORY( AthenaConditionStream )
@@ -67,3 +71,7 @@ DECLARE_SERVICE_FACTORY( OutputStreamSequencerSvc )
 DECLARE_TOOL_FACTORY( AthenaOutputStreamTool )
 DECLARE_TOOL_FACTORY( ThinningOutputTool )
 DECLARE_ALGORITHM_FACTORY( AthenaStopperAlg )
+DECLARE_TOOL_FACTORY( AthenaSharedMemoryTool )
+#if HAVE_YAMPL
+   DECLARE_TOOL_FACTORY( AthenaYamplTool )
+#endif // HAVE_YAMPL
