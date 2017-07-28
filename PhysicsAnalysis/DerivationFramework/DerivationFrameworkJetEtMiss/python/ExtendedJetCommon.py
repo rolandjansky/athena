@@ -16,8 +16,10 @@ extjetlog = Logging.logging.getLogger('ExtendedJetCommon')
 
 def addDefaultTrimmedJets(sequence,outputlist,dotruth=True,writeUngroomed=False):
     if DerivationFrameworkIsMonteCarlo and dotruth:
-        addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
-    addTrimmedJets('AntiKt', 1.0, 'LCTopo', rclus=0.2, ptfrac=0.05, algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
+        addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, mods="groomed",
+                       algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
+    addTrimmedJets('AntiKt', 1.0, 'LCTopo', rclus=0.2, ptfrac=0.05, mods="lctopo_groomed",
+                   algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
 
 ##################################################################              
 # Add AntiKt jets                                                               
