@@ -3,12 +3,6 @@
 */
 
 // SUSYToolsAlg.cxx
-//=================================================
-// June 24, 2017, @szambito d(^_^)b
-//-------------------------------------------------
-// N.B. turned off electron trigger matching + SF 
-// and signal jets / JVT + SF: broken in R21
-//=================================================
 
 #include "SUSYToolsAlg.h"
 #include "SUSYTools/ISUSYObjDef_xAODTool.h"
