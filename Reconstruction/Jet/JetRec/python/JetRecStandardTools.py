@@ -194,7 +194,7 @@ if jetFlags.useTruth:
                                  MCTruthClassifier=truthClassifier)
     jtm += CopyTruthJetParticles("truthpartcopywz", OutputName="JetInputTruthParticlesNoWZ",
                                  MCTruthClassifier=truthClassifier,
-                                 IncludePromptLeptons=False,
+                                 IncludePromptLeptons=False,IncludePromptPhotons=False,
                                  IncludeMuons=True,IncludeNeutrinos=True)
 
 
