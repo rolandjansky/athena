@@ -440,7 +440,6 @@ StatusCode TrigFastTrackFinder::execute() {
   m_countTotalRoI++;
   m_tcs.roiDescriptor = &internalRoI;
 
-  m_outputTracksKey = m_attachedFeatureName;
   SG::WriteHandle<TrackCollection> outputTracks(m_outputTracksKey);
   outputTracks = std::make_unique<TrackCollection>();
 
