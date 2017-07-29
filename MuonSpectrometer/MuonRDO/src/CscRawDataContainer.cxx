@@ -28,8 +28,8 @@ CscRawDataContainer::idToHash(unsigned int id) const
 }
 
 /// Convert identifier to idhash
-CscRawDataCollectionIdHash& 
-CscRawDataContainer::hashFcn() const
+const CscRawDataCollectionIdHash& 
+CscRawDataContainer::hashFcn()
 {
 
     static CscRawDataCollectionIdHash hashFcn;

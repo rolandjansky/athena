@@ -55,10 +55,10 @@ MdtCsmContainer::idToHash(unsigned int id) const
 }
 
 //**********************************************************************
-MdtCsmIdHash& 
-MdtCsmContainer::hashFcn() const
+const MdtCsmIdHash& 
+MdtCsmContainer::hashFcn()
 {
-    static MdtCsmIdHash hashFcn;
+    static const MdtCsmIdHash hashFcn;
     return (hashFcn);
 }
 
