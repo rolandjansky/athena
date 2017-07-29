@@ -70,9 +70,9 @@ TrigHLTJetHypo_DijetMassDEtaTool::~TrigHLTJetHypo_DijetMassDEtaTool(){
 
 
  
-std::shared_ptr<IJetGrouper> TrigHLTJetHypo_DijetMassDEtaTool::getJetGrouper()  const{
+std::unique_ptr<IJetGrouper> TrigHLTJetHypo_DijetMassDEtaTool::getJetGrouper()  const{
 
-  return std::make_shared<CombinationsGrouper>(2);
+  return std::make_unique<CombinationsGrouper>(2);
 }
 
 

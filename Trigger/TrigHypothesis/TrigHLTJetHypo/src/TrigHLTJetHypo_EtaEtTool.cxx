@@ -48,8 +48,8 @@ Conditions TrigHLTJetHypo_EtaEtTool::getConditions() const {
  }
 
  
-std::shared_ptr<IJetGrouper> TrigHLTJetHypo_EtaEtTool::getJetGrouper() const {
-  return std::make_shared<SingleJetGrouper>();
+std::unique_ptr<IJetGrouper> TrigHLTJetHypo_EtaEtTool::getJetGrouper() const {
+  return std::make_unique<SingleJetGrouper>();
 }
 
 StatusCode TrigHLTJetHypo_EtaEtTool::checkVals() const {

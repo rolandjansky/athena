@@ -11,7 +11,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerBridge.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJetGrouper.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoHelper.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoHelper2.h"
 
 #include "xAODJet/Jet.h"
 
@@ -31,17 +31,17 @@ class TrigHLTJetHypoTool : virtual public ITrigHLTJetHypoTool,
   // to allow access to the IHelloTool interface
   StatusCode queryInterface( const InterfaceID& riid, void** ppvIf );
   StatusCode initialize() override;
-  StatusCode doesItPass(const xAOD::JetContainer*, bool&) override;
+  StatusCode decide(const xAOD::JetContainer*, bool&) const override;
   
  protected:
   
   // set values provided by sub classes
   void setConditions();
-  void setJetGrouper();
+  // void setJetGrouper();
   
   // methods provided by subclasses:
   virtual std::vector<std::shared_ptr<ICleaner>> getCleaners() const = 0;
-  virtual std::shared_ptr<IJetGrouper> getJetGrouper() const = 0;
+  virtual std::unique_ptr<IJetGrouper> getJetGrouper() const = 0;
   virtual Conditions getConditions() const = 0;
   virtual StatusCode checkVals() const = 0;
 
@@ -51,23 +51,13 @@ class TrigHLTJetHypoTool : virtual public ITrigHLTJetHypoTool,
   
   void setCleaners();
 
-  void publishResult(const TrigHLTJetHypoHelper&, bool,
-                     const xAOD::JetContainer*);
-  void bumpCounters(bool, int);
-  void monitorLeadingJet(const xAOD::Jet* jet);
   void writeDebug(bool,
                   const HypoJetVector&,
                   const HypoJetVector&) const;
 
-  void resetCounters();
-
   void accumulateTime(nanoseconds) noexcept;
 
   std::string m_chainName;  // used for configuration of dimass chains
-
-  int m_accepted{0};
-  int m_rejected{0};
-  int m_errors{0};
 
   // Switch to accept all the events.
   bool m_acceptAll{false};
@@ -75,12 +65,6 @@ class TrigHLTJetHypoTool : virtual public ITrigHLTJetHypoTool,
   // Switch on Monitoring:
   bool m_doMonitoring{false};
 
-  // monitored variables
-  int m_njet{0};
-  double m_et{0.};
-  double m_eta{0.};
-  double m_phi{0.};
-  
   // switch on cleaning
   std::string m_cleaningAlg;  // determines cleaner obj
   std::string m_matchingAlg;  // determines matcher obj;
@@ -116,7 +100,7 @@ class TrigHLTJetHypoTool : virtual public ITrigHLTJetHypoTool,
   float m_avLarQFLlpThreshold{0.};
 
   std::vector<CleanerBridge> m_cleaners;
-  std::shared_ptr<IJetGrouper> m_grouper;
+  // std::shared_ptr<IJetGrouper> m_grouper;
   Conditions m_conditions;
     
   double m_chainTimeAv{0.}; //std::chrono

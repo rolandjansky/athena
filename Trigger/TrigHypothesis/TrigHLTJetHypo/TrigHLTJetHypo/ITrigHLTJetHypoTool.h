@@ -10,7 +10,7 @@
 
 class ITrigHLTJetHypoTool : virtual public IAlgTool {
 public:
-  virtual StatusCode doesItPass(const xAOD::JetContainer*, bool&) = 0;
+  virtual StatusCode decide(const xAOD::JetContainer*, bool&) const = 0;
    static const InterfaceID& interfaceID() {
      static const InterfaceID _ITrigHLTJetHypoToolID("ITrigHLTJetHypoTool", 
                                                      1, 

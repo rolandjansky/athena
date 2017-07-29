@@ -28,7 +28,7 @@ class TrigHLTJetHypo_TLATool : virtual public ITrigHLTJetHypoTool,
   ~TrigHLTJetHypo_TLATool();
 
   std::vector<std::shared_ptr<ICleaner>> getCleaners() const override;
-  std::shared_ptr<IJetGrouper> getJetGrouper() const override;
+  std::unique_ptr<IJetGrouper> getJetGrouper() const override;
   Conditions getConditions() const override;
   StatusCode checkVals()  const override;
 

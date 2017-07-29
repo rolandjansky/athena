@@ -99,12 +99,15 @@ StatusCode TrigHLTJetHypoTool::initialize(){
   ATH_CHECK(checkVals());
   
   setConditions();
-  setJetGrouper();
+  // setJetGrouper();
 
   ATH_CHECK(!m_conditions.empty());
 
   auto matcher = groupsMatcherFactory(m_conditions);
-  auto helper = TrigHLTJetHypoHelper(m_cleaners, m_grouper, std::move(matcher));
+  auto grouper = getJetGrouper();
+  auto helper = TrigHLTJetHypoHelper2(m_cleaners, 
+                                      std::move(grouper), 
+                                      std::move(matcher));
 
 
   // print out the TrigHLTJetHypoHelper configuration
@@ -123,12 +126,12 @@ StatusCode TrigHLTJetHypoTool::initialize(){
 
 
 StatusCode 
-TrigHLTJetHypoTool::doesItPass(const xAOD::JetContainer* jets, 
-                               bool& pass) {
+TrigHLTJetHypoTool::decide(const xAOD::JetContainer* jets, 
+                               bool& pass) const {
   ATH_MSG_DEBUG("Executing " << name() << "...");
   ATH_CHECK(jets != nullptr);
 
-  resetCounters();
+  // resetCounters();
 
   HypoJetVector hypoJets(jets->size());
 
@@ -139,7 +142,10 @@ TrigHLTJetHypoTool::doesItPass(const xAOD::JetContainer* jets,
  
   // make a new CleanerMatcher every event
   auto matcher = groupsMatcherFactory(m_conditions);
-  auto helper = TrigHLTJetHypoHelper(m_cleaners, m_grouper, std::move(matcher));
+  auto grouper = getJetGrouper();
+  auto helper = TrigHLTJetHypoHelper2(m_cleaners, 
+                                      std::move(grouper), 
+                                      std::move(matcher));
 
    /* apply cleaning and hypothesis alg */
   ATH_MSG_DEBUG("hypo helper start... " 
@@ -148,58 +154,28 @@ TrigHLTJetHypoTool::doesItPass(const xAOD::JetContainer* jets,
                 << jets->size() 
                 << "...");
 
-  steady_clock::time_point t =  steady_clock::now();
+  // steady_clock::time_point t =  steady_clock::now();
 
   try{
     pass = !jets->empty() && (m_acceptAll || helper.pass(hypoJets));
   } catch(std::exception& e){
-    ATH_MSG_ERROR("Exception raised by the TrigHLTJetHypoHelper: " 
+    ATH_MSG_ERROR("Exception raised by the TrigHLTJetHypoHelper2: " 
                   << e.what());
     return StatusCode::FAILURE;
   }
 
-  accumulateTime(steady_clock::now() - t);
+  // accumulateTime(steady_clock::now() - t);
   
   ATH_MSG_DEBUG("hypo testing done... " << name() << "...");
   
-  publishResult(helper, pass, jets);
-  
+  if(m_dumpJets){writeDebug(pass, helper.passedJets(), helper.failedJets());}
+
   // delete the xAOD::Jet wrappers
   for(auto i : hypoJets){delete i;}
 
   return StatusCode::SUCCESS;
 }
 
-void TrigHLTJetHypoTool::publishResult(const TrigHLTJetHypoHelper& helper,
-                                       bool pass,
-                                       const xAOD::JetContainer* jets){
-  ATH_MSG_DEBUG("Publishing " << name() << "...");
-  
-  /* The jets used to satisfy the hypo conditions may not contain 
-     the leading jet, so find this now */
-  
-  if(pass){
-    auto leading_jet = 
-      std::max_element(jets->begin(),
-                        jets->end(),
-                       [](const xAOD::Jet* j0,
-                          const xAOD::Jet* j1){
-                         return j0->p4().Et() < j1->p4().Et();});
-    
-    monitorLeadingJet(*leading_jet);
-  }
-  
-  if(m_dumpJets){writeDebug(pass, helper.passedJets(), helper.failedJets());}
-  bumpCounters(pass, helper.passedJets().size());
-}
-
-void TrigHLTJetHypoTool::monitorLeadingJet(const xAOD::Jet* jet){
-   ATH_MSG_DEBUG("monitoringLeadingJet " << name() << "...");
-   m_et = jet->p4().Et();
-   m_eta = jet->eta();
-   m_phi = jet->phi();
-   ATH_MSG_DEBUG("monitoringLeadingJet done " << name() << "...");
- }
 
 void  TrigHLTJetHypoTool::setCleaners() {
 
@@ -237,6 +213,7 @@ void  TrigHLTJetHypoTool::setCleaners() {
   ATH_MSG_INFO("No of Cleaners " << m_cleaners.size());
 }
 
+/*
 void TrigHLTJetHypoTool::bumpCounters(bool pass, int multiplicity){
    if (pass){
      ++m_accepted;
@@ -245,7 +222,7 @@ void TrigHLTJetHypoTool::bumpCounters(bool pass, int multiplicity){
      ++m_rejected;
    }
  }
-
+*/
 
 void TrigHLTJetHypoTool::writeDebug(bool pass,
                                     const HypoJetVector& passedJets,
@@ -295,6 +272,7 @@ void TrigHLTJetHypoTool::writeDebug(bool pass,
   
 }
 
+/*
 void TrigHLTJetHypoTool::resetCounters(){
   m_njet = std::numeric_limits<int>::max();
   m_et = std::numeric_limits<double>::max();
@@ -317,14 +295,20 @@ void  TrigHLTJetHypoTool::accumulateTime(nanoseconds duration) noexcept{
   
   m_nCalls += 1;
   m_chainTimeAv = (m_chainTimeAv * (m_nCalls - 1) +  counts)/m_nCalls;
-  //m_chainTimeSquareAv += 
-  //  (m_chainTimeSquareAv * (m_nCalls - 1) + countssq)/m_nCalls;
+*/
+/* error in here somewhere
+  m_chainTimeSquareAv += 
+    (m_chainTimeSquareAv * (m_nCalls - 1) + countssq)/m_nCalls;
+*/
+/*
 }
-
+*/
 void  TrigHLTJetHypoTool::setConditions() {
   m_conditions = getConditions();
 }
 
+/*
 void  TrigHLTJetHypoTool::setJetGrouper() {
   m_grouper = getJetGrouper();
 }
+*/

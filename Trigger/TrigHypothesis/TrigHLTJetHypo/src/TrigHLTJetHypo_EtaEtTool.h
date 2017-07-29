@@ -27,7 +27,7 @@ class TrigHLTJetHypo_EtaEtTool: virtual public ITrigHLTJetHypoTool,
   ~TrigHLTJetHypo_EtaEtTool();
 
   std::vector<std::shared_ptr<ICleaner>> getCleaners() const override;
-  std::shared_ptr<IJetGrouper> getJetGrouper() const override;
+  std::unique_ptr<IJetGrouper> getJetGrouper() const override;
   Conditions getConditions() const override;
 
  private:

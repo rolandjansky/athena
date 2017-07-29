@@ -72,8 +72,8 @@ std::vector<double> TrigHLTJetHypo_SMCTool::getStringBoundaries (const std::vect
 
 
  
-std::shared_ptr<IJetGrouper> TrigHLTJetHypo_SMCTool::getJetGrouper() const {
-  return std::make_shared<SingleJetGrouper>();
+std::unique_ptr<IJetGrouper> TrigHLTJetHypo_SMCTool::getJetGrouper() const {
+  return std::make_unique<SingleJetGrouper>();
 }
 
 StatusCode TrigHLTJetHypo_SMCTool::checkVals() const {

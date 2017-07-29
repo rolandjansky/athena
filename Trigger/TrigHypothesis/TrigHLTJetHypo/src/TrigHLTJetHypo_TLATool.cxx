@@ -52,8 +52,8 @@ Conditions TrigHLTJetHypo_TLATool::getConditions() const {
  }
 
  
-std::shared_ptr<IJetGrouper> TrigHLTJetHypo_TLATool::getJetGrouper() const {
-  return std::make_shared<IndexedJetsGrouper>(m_jetvec_indices);
+std::unique_ptr<IJetGrouper> TrigHLTJetHypo_TLATool::getJetGrouper() const {
+  return std::make_unique<IndexedJetsGrouper>(m_jetvec_indices);
 }
 
 
