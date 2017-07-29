@@ -21,6 +21,8 @@ namespace CP {
 
 const static SystematicVariation JvtEfficiencyUp("JET_JvtEfficiency__1up");
 const static SystematicVariation JvtEfficiencyDown("JET_JvtEfficiency__1down");
+const static SystematicVariation fJvtEfficiencyUp("JET_fJvtEfficiency__1up");
+const static SystematicVariation fJvtEfficiencyDown("JET_fJvtEfficiency__1down");
 
 class IJetJvtEfficiency : public virtual CP::ISystematicsTool {
 
