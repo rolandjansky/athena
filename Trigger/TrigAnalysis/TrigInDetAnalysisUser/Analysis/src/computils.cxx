@@ -474,7 +474,7 @@ std::string findrun( TFile* f ) {
 
 
 
-/// copy the release info TTree because CloneTree does not work;  
+/// copy the release info TTree
 
 void copyReleaseInfo( TFile* finput, TFile* foutdir ) { 
 
