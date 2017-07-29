@@ -70,6 +70,29 @@ const FTKRoad* FTKRoadFileInput::nextRoad(int ibank)
   return m_cur_object[ibank];
 }
 
+/** this function go to the first road and return the pointer to the
+    current road. return 0 if all the roads were used */
+const FTKRoad* FTKRoadFileInput::firstRoad(int ibank)
+{
+  // if the bank isn't active a NULL is returned
+  if (!m_data[ibank]) return 0x0;
+
+  // get the road
+  m_cur_object[ibank] = m_data[ibank]->fetchFirstRoad();
+  m_cur_iobject[ibank] = 0; 
+
+  // check if the bank has enough roads
+  if (!m_cur_object[ibank]) {
+    m_cur_object[ibank] = 0;
+  }
+  else {
+    // increment road counter
+    m_cur_iobject[ibank] += 1; 
+  }
+
+  return m_cur_object[ibank];
+}
+
 // retrieve superstrip by (bank,plane,ssid)
 const FTKSS&
 FTKRoadFileInput::getSS(const unsigned int& ibank,const unsigned int& iplane,const unsigned int& ssid) const

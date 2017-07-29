@@ -205,6 +205,8 @@ def addTrigFTKSimTFOptions(parser):
                         help="Hit Warrior threshold", group='TrigFTKTrackFitter')
     parser.add_argument('--HitWarrior', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help="Hit Warrior type: 0 none, 1 local, 2 global (def)", group='TrigFTKTrackFitter')
+    parser.add_argument('--FirstStageHitWarrior', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help="First Stage Hit Warrior type: 0 No First Stage Overlap Removal, 1 Overlap Removal within the Same Road (def), 2 Overlap Removal within the Same Sector", group='TrigFTKTrackFitter')
     parser.add_argument('--HitWarriorMerger', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help="Hit Warrior Merger (merge) type", group='TrigFTKTrackFitter')
 

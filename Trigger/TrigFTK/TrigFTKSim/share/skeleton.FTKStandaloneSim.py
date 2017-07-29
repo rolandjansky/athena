@@ -161,6 +161,7 @@ runArgsFromTrfOptionalTF = {
     'Chi2DofCut': 4, # if >0 the previous values are ignored
     'Chi2Cut_VetoMaj': -1, # no majority veto by default
     'HitWarrior': 2,
+    'FirstStageHitWarrior': 1,
     'KeepRejected': 0,
     'FitRemoved': 0,
     'HWNDiff': 6,
