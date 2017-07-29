@@ -4,7 +4,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// filename: TrigFastTrackFinderMT.h
+// filename: TrigFastTrackFinder.h
 // 
 // Description: a part of L2+EF HLT ID tracking
 // 
@@ -14,8 +14,8 @@
 // ATLAS Collaboration
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef TRIGFASTTRACKFINDER_TRIGFASTTRACKFINDERMT_H
-#define TRIGFASTTRACKFINDER_TRIGFASTTRACKFINDERMT_H
+#ifndef TRIGFASTTRACKFINDER_TRIGFASTTRACKFINDER_H
+#define TRIGFASTTRACKFINDER_TRIGFASTTRACKFINDER_H
 
 #include<string>
 #include<vector>
@@ -23,9 +23,6 @@
 //#include<algorithm>
 
 #include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/WriteHandleKey.h"
 #include "TrigInterfaces/FexAlgo.h"
 
 
@@ -65,26 +62,24 @@ class PixelID;
 class SCT_ID;
 class AtlasDetectorID;
 
-class TrigFastTrackFinderMT : public HLT::FexAlgo {
+class TrigFastTrackFinder : public HLT::FexAlgo {
 
  public:
   
-  TrigFastTrackFinderMT(const std::string& name, ISvcLocator* pSvcLocator);
-  ~TrigFastTrackFinderMT();
-
-  StatusCode execute();
+  TrigFastTrackFinder(const std::string& name, ISvcLocator* pSvcLocator);
+  ~TrigFastTrackFinder();
   HLT::ErrorCode hltInitialize();
   HLT::ErrorCode hltFinalize();
   HLT::ErrorCode hltBeginRun();
 
+  StatusCode execute();
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE,
 			    HLT::TriggerElement* outputTE);
 
+  StatusCode findTracks(const TrigRoiDescriptor& roi, TrackCollection& outputTracks);
+
   double trackQuality(const Trk::Track* Tr);
   void filterSharedTracks(std::vector<std::tuple<bool, double, Trk::Track*>>& QT);
-  void convertToTrigInDetTrack(const TrackCollection& offlineTracks, TrigInDetTrackCollection& trigInDetTracks);
-  HLT::ErrorCode getRoI(const HLT::TriggerElement* outputTE, const IRoiDescriptor*& roi);
-  StatusCode findTracks(const TrigRoiDescriptor& roi, TrackCollection& fittedTracks);
 
 protected: 
 
@@ -112,6 +107,8 @@ protected:
   ToolHandle< Trk::ITrackSummaryTool > m_trackSummaryTool;
   ServiceHandle<IFTK_DataProviderSvc > m_ftkDataProviderSvc;
   std::string m_ftkDataProviderSvcName;
+
+  //DataHandles
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
   SG::WriteHandleKey<TrackCollection> m_outputTracksKey;
 
@@ -189,7 +186,7 @@ protected:
   std::vector<float> m_trk_dPhi0;
   std::vector<float> m_trk_dEta;
   //std::vector<double> m_sp_x, m_sp_y, m_sp_z, m_sp_r;//Spacepoint coordinates
-
+  //
   std::vector<float> m_IBL_layer;
   std::vector<float> m_PixB_layer;
   std::vector<float> m_PixEC_layer;
@@ -240,9 +237,10 @@ protected:
   //Setup functions
   void clearMembers();
   void getBeamSpot();
+  HLT::ErrorCode getRoI(const HLT::TriggerElement* inputTE, const IRoiDescriptor*& roi);
 
   // Timers 
-  //
+
   TrigTimer* m_SpacePointConversionTimer;
   TrigTimer* m_ZFinderTimer;
   TrigTimer* m_PatternRecoTimer; 
@@ -252,8 +250,7 @@ protected:
 
   // Internal bookkeeping
 
-  std::string m_instanceName, m_attachedFeatureName, m_attachedFeatureName_TIDT,
-    m_outputCollectionSuffix;
+  std::string m_instanceName, m_attachedFeatureName, m_outputCollectionSuffix;
 
   unsigned int m_countTotalRoI;
   unsigned int m_countRoIwithEnoughHits;
@@ -281,4 +278,4 @@ protected:
 
 };
 
-#endif
+#endif // not TRIGFASTTRACKFINDER_TRIGFASTTRACKFINDER_H
