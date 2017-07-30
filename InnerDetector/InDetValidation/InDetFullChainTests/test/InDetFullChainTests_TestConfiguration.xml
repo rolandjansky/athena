@@ -112,7 +112,7 @@
 
    <TEST name="Reco_trf_R1_single_particle_reco" type="script" suite="InDetFullChainTests_trf">
       <options_atn>
-        Reco_tf.py inputRDOFile=OUT.RDO.pool.root outputESDFile=OUT.ESD.root outputAODFile=OUT.AOD.root postInclude=PyJobTransforms/UseFrontier.py --omitvalidation=ALL --test
+        Reco_tf.py --inputRDOFile=OUT.RDO.pool.root --outputESDFile=OUT.ESD.root --outputAODFile=OUT.AOD.root --postInclude=PyJobTransforms/UseFrontier.py --fileValidation=False
       </options_atn>
       <timelimit>20</timelimit>
       <author>Nick Styles</author>
@@ -124,6 +124,7 @@
        </expectations>
    </TEST>
 
+   <!--
    <TEST name="Reco_trf_R1_single_particle_reco_ESDtoESD" type="script" suite="IBL_Example_trf">
       <options_atn>
         Reco_tf.py inputESDFile=OUT.ESD.root outputESDFile=OUT.ESD.copy.root postInclude=PyJobTransforms/UseFrontier.py  --omitvalidation=ALL --test
@@ -137,6 +138,7 @@
             <returnValue>0</returnValue>
        </expectations>
    </TEST>
+   -->
 
     <TEST name="AtlasG4_trf_R2_single_particle_sim" type="script" suite="InDetFullChainTests_trf">
       <options_atn>
@@ -168,7 +170,7 @@
 
        <TEST name="Reco_trf_R2_single_particle_reco" type="script" suite="InDetFullChainTests_trf">
       <options_atn>
-        Reco_tf.py inputRDOFile=OUT.RDO.pool.root outputESDFile=OUT.ESD.root outputAODFile=OUT.AOD.root postInclude=PyJobTransforms/UseFrontier.py --omitvalidation=ALL --test
+        Reco_tf.py --inputRDOFile=OUT.RDO.pool.root --outputESDFile=OUT.ESD.root --outputAODFile=OUT.AOD.root --postInclude=PyJobTransforms/UseFrontier.py --fileValidation=False
       </options_atn>
       <timelimit>20</timelimit>
       <author>Nick Styles</author>
@@ -180,6 +182,7 @@
        </expectations>
    </TEST>
 
+       <!---
         <TEST name="Reco_trf_R2_single_particle_reco_ESDtoESD" type="script" suite="IBL_Example_trf">
       <options_atn>
         Reco_tf.py inputESDFile=OUT.ESD.root outputESDFile=OUT.ESD.copy.root postInclude=PyJobTransforms/UseFrontier.py  --omitvalidation=ALL --test
@@ -193,6 +196,7 @@
             <returnValue>0</returnValue>
        </expectations>
    </TEST>
+   -->
 
  </atn>
 </unifiedTestConfiguration>
