@@ -7,15 +7,18 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "xAODJet/JetContainer.h"
+#include "DecisionHandling/TrigCompositeUtils.h"
 
 class ITrigHLTJetHypoTool : virtual public IAlgTool {
 public:
-  virtual StatusCode decide(const xAOD::JetContainer*, bool&) const = 0;
    static const InterfaceID& interfaceID() {
      static const InterfaceID _ITrigHLTJetHypoToolID("ITrigHLTJetHypoTool", 
                                                      1, 
                                                      0 );
      return _ITrigHLTJetHypoToolID;
    }
+
+  virtual StatusCode decide(const xAOD::JetContainer*, bool&) const = 0;
+  virtual TrigCompositeUtils::DecisionID decisionId() const = 0; 
 };
 #endif

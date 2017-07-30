@@ -26,7 +26,7 @@ private:
 
 TrigHLTJetHypoTool::TrigHLTJetHypoTool( const std::string& type, 
                                         const std::string& name,
-                                        const IInterface* parent ): AthAlgTool( type, name, parent ) {
+                                        const IInterface* parent ): AthAlgTool( type, name, parent ), m_id(name) {
 
   declareProperty("AcceptAll",      m_acceptAll=false);
   declareProperty("chain_name",      m_chainName="Unknown");
@@ -119,6 +119,8 @@ StatusCode TrigHLTJetHypoTool::initialize(){
   for(auto l : lines){
     ATH_MSG_INFO(l);
   }
+
+  ATH_MSG_DEBUG("Tool configured for chain/id: " << m_id);
 
   return StatusCode::SUCCESS;
 }
@@ -306,6 +308,12 @@ void  TrigHLTJetHypoTool::accumulateTime(nanoseconds duration) noexcept{
 void  TrigHLTJetHypoTool::setConditions() {
   m_conditions = getConditions();
 }
+
+TrigCompositeUtils::DecisionID TrigHLTJetHypoTool::decisionId() const{
+  return m_id.numeric();
+}  
+
+
 
 /*
 void  TrigHLTJetHypoTool::setJetGrouper() {

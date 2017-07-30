@@ -9,14 +9,17 @@
 #include "../TrigHLTJetHypo_DijetMassDEtaTool.h"
 #include "../TrigHLTJetHypo_SMCTool.h"
 #include "../TrigHLTJetHypo_TLATool.h"
+#include "../TrigJetHypo.h"
 
 DECLARE_ALGORITHM_FACTORY(TrigHLTJetHypo2)
+DECLARE_ALGORITHM_FACTORY(TrigJetHypo)
 
 DECLARE_ALGORITHM_FACTORY(TrigEFRazorAllTE)
 DECLARE_ALGORITHM_FACTORY(TrigEFDPhiMetJetAllTE)
 
 DECLARE_FACTORY_ENTRIES(TrigHLTJetHypo) {
   DECLARE_ALGORITHM(TrigHLTJetHypo2)
+    DECLARE_ALGORITHM(TrigJetHypo)
     // DECLARE_ALGORITHM(TrigHLTJetHypo_EtaEt)
     // DECLARE_ALGORITHM(TrigHLTJetHypo_HT)
     DECLARE_ALGORITHM(TrigEFRazorAllTE)

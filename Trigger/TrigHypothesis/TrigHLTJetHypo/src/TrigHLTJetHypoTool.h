@@ -12,6 +12,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJetGrouper.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoHelper2.h"
+#include "DecisionHandling/HLTIdentifier.h"
 
 #include "xAODJet/Jet.h"
 
@@ -19,6 +20,7 @@
 #include <chrono>
 
 using namespace std::chrono;
+using namespace TrigCompositeUtils;
 
 class TrigHLTJetHypoTool : virtual public ITrigHLTJetHypoTool, 
 // virtual public AthAlgTool {
@@ -32,7 +34,9 @@ class TrigHLTJetHypoTool : virtual public ITrigHLTJetHypoTool,
   StatusCode queryInterface( const InterfaceID& riid, void** ppvIf );
   StatusCode initialize() override;
   StatusCode decide(const xAOD::JetContainer*, bool&) const override;
-  
+
+  DecisionID decisionId() const override;
+
  protected:
   
   // set values provided by sub classes
@@ -98,6 +102,8 @@ class TrigHLTJetHypoTool : virtual public ITrigHLTJetHypoTool,
   float m_hecfLlpThreshold{0.};
   float m_hecqLlpThreshold{0.};
   float m_avLarQFLlpThreshold{0.};
+
+  HLT::Identifier m_id;
 
   std::vector<CleanerBridge> m_cleaners;
   // std::shared_ptr<IJetGrouper> m_grouper;

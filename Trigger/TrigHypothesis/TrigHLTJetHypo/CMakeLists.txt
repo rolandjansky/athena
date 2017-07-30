@@ -13,7 +13,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigParticle
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigSteer/TrigInterfaces
-                          Trigger/TrigTools/TrigTimeAlgs )
+                          Trigger/TrigTools/TrigTimeAlgs
+                          Trigger/TrigSteer/DecisionHandling )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -24,13 +25,13 @@ atlas_add_library( TrigHLTJetHypoLib
                    src/TrigHLTJetHypoUtils/*.cxx
                    PUBLIC_HEADERS TrigHLTJetHypo
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES xAODJet GaudiKernel TrigParticle TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib
+                   LINK_LIBRARIES xAODJet GaudiKernel TrigParticle TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib DecisionHandlingLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_component( TrigHLTJetHypo
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} xAODJet GaudiKernel TrigParticle TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib TrigHLTJetHypoLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} xAODJet GaudiKernel TrigParticle TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib TrigHLTJetHypoLib DecisionHandlingLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py ) 
