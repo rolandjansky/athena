@@ -891,8 +891,7 @@ namespace TrigSim {
         return sc;
     }
 //------------------------------------------------------------------------------
-    StatusCode MergingEventLoopMgr::executeEvent(void *par) {
-        par = par;
+    StatusCode MergingEventLoopMgr::executeEvent(void */*par*/) {
         m_log << MSG::ERROR
               << "executeEvent(...) is not implemented for MergingEventLoopMgr"
               << endmsg;
@@ -917,8 +916,7 @@ namespace TrigSim {
         return sc;
     }
 //------------------------------------------------------------------------------
-    StatusCode MergingEventLoopMgr::seek(int evt) {
-        evt = evt;
+    StatusCode MergingEventLoopMgr::seek(int /*evt*/) {
         m_log << MSG::ERROR
               << "seek() is not implemented for MergingEventLoopMgr"
               << endmsg;
