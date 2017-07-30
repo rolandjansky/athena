@@ -414,9 +414,11 @@ class  ConfiguredNewTrackingSiPattern:
                                                                usePixel                = NewTrackingCuts.usePixel(),
                                                                useSCT                  = NewTrackingCuts.useSCT(),
                                                                InputEmClusterContainerName = InDetKeys.CaloClusterROIContainer(),
-                                                               doEmCaloSeed            = True and InDetFlags.doCaloSeededBrem(),
+                                                               doEmCaloSeed            = True and InDetFlags.doCaloSeededBrem() and DetFlags.detdescr.Calo_allOn(),
                                                                minTRTonTrk             = 0,
                                                                minTRTPrecisionFraction = 0);
+            if not InDetAmbiScoringTool.doEmCaloSeed:
+               InDetAmbiScoringTool.InputEmClusterContainerName = ''
             # allow for some overlap for low-pt tracking
             #if InDetFlags.doLowPt() and not NewTrackingCuts.mode() == "LowPt":
             #   InDetAmbiScoringTool.minPt = NewTrackingCuts.minPT()-100.*Units.MeV
