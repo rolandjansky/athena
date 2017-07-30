@@ -1,6 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   */
+
 
 /**********************************************************************
  * AsgTool: TrigEgammaL2SelectorTool
@@ -40,7 +41,7 @@ StatusCode TrigEgammaL2SelectorTool::initialize() {
   }
   
   for(auto& tool : m_caloCutIDSelectors){
-    tool->setParents(m_trigdec, m_storeGate, m_decorations);
+    tool->setParents(m_trigdec, m_storeGate);
     sc = tool->initialize();
     if(sc.isFailure()){
       ATH_MSG_WARNING("TrigEgammaL2CaloSelectorTool::initialize() failed");
@@ -49,7 +50,7 @@ StatusCode TrigEgammaL2SelectorTool::initialize() {
   }// loop over pids: Tight, Medium, Loose and VeryLoose
   
   for(auto& tool : m_caloRingerSelectors){
-    tool->setParents(m_trigdec, m_storeGate, m_decorations);
+    tool->setParents(m_trigdec, m_storeGate);
     sc = tool->initialize();
     if(sc.isFailure()){
       ATH_MSG_WARNING("TrigEgammaL2CaloRingerSelectorTool::initialize() failed");
@@ -59,7 +60,7 @@ StatusCode TrigEgammaL2SelectorTool::initialize() {
  
 
   ATH_MSG_INFO("Initialising L2(Track) Electron Selector tool...");
-  m_electronSelector->setParents(m_trigdec, m_storeGate, m_decorations);
+  m_electronSelector->setParents(m_trigdec, m_storeGate);
   sc = m_electronSelector->initialize();
   if(sc.isFailure()){
     ATH_MSG_WARNING("TrigEgammaL2ElectronSelectorTool::initialize() failed");
@@ -91,26 +92,26 @@ bool TrigEgammaL2SelectorTool::emulation(const xAOD::TrigEMCluster *emCluster,  
     return true;
   }else if(info.ringer){
     ATH_MSG_DEBUG("Ringer chain...");
-    if(boost::contains(pidname,"Tight") )
+    if(pidname == "Tight" )
       m_caloRingerSelectors[0]->emulation(emCluster, pass, info);
-    else if(boost::contains(pidname,"Medium") )
+    else if(pidname == "Medium" )
       m_caloRingerSelectors[1]->emulation(emCluster, pass, info);
-    else if(boost::contains(pidname,"Loose") )
+    else if(pidname == "Loose" ) 
       m_caloRingerSelectors[2]->emulation(emCluster, pass, info);
-    else if(boost::contains(pidname,"VLoose") )
+    else if(pidname == "VLoose")
       m_caloRingerSelectors[3]->emulation(emCluster, pass, info);
     else{
       ATH_MSG_WARNING("No pidname found");
       return false;
     }
   }else{//pid tools
-    if(boost::contains(pidname,"Tight") )
+    if(pidname == "Tight" )
       m_caloCutIDSelectors[0]->emulation(emCluster, pass, info);
-    else if(boost::contains(pidname,"Medium") )
+    else if(pidname == "Medium" )
       m_caloCutIDSelectors[1]->emulation(emCluster, pass, info);
-    else if(boost::contains(pidname,"Loose") )
+    else if(pidname == "Loose" ) // should be this order because of the "else if"
       m_caloCutIDSelectors[2]->emulation(emCluster, pass, info);
-    else if(boost::contains(pidname,"VLoose") )
+    else if(pidname == "VLoose" )
       m_caloCutIDSelectors[3]->emulation(emCluster, pass, info);
     else{
       ATH_MSG_WARNING("No pidname found");
@@ -126,7 +127,8 @@ bool TrigEgammaL2SelectorTool::emulation(const xAOD::TrigEMCluster *emCluster,  
 bool TrigEgammaL2SelectorTool::emulation( const xAOD::IParticleContainer *container, bool &pass, const Trig::Info &info)
 {
   pass=false;
-  if(info.idperf || info.etcut || info.hltcalo || info.perf || info.ringer){
+  //if(info.idperf || info.etcut || info.hltcalo || info.perf || info.ringer){
+  if(info.idperf || info.etcut || info.hltcalo || info.perf){
     pass=true;
     return true;
   }else if(info.type == "electron"){
