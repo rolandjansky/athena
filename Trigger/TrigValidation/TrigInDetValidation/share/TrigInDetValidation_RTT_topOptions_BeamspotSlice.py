@@ -48,12 +48,8 @@ include("TrigInDetValidation/TrigInDetValidation_RTT_Common.py")
 topSequence.TrigSteer_HLT.terminateAlgo.Prescale=1.
 
 if 'fastZFinder' in dir() and fastZFinder==True:
-  FTF = topSequence.TrigSteer_HLT.TrigFastTrackFinder_BeamSpot_IDTrig
-
-  # set fast ZFinder settings here
-  # from AthenaCommon.ConfigurableDb import getConfigurable
-  # zfinder = getConfigurable("TrigZFinder")
-  zfinder = FTF.trigZFinder
+  from AthenaCommon.AppMgr import ToolSvc
+  zfinder = ToolSvc.TrigZFinder
 
   zfinder.NumberOfPeaks = 4
   zfinder.TripletMode = 1
@@ -63,6 +59,5 @@ if 'fastZFinder' in dir() and fastZFinder==True:
   zfinder.MinVtxSignificance = 10
   zfinder.Percentile = 0.95
 
+  print 'zfinder settings modified by TrigInDetValidation_RTT_topOptions_BeamspotSlice.py'
   print zfinder
-
-
