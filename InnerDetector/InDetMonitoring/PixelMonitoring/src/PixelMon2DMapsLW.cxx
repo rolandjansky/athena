@@ -8,11 +8,13 @@
 
 #include "PixelMonitoring/PixelMon2DMapsLW.h"
 #include "InDetIdentifier/PixelID.h"
+//#include "TH2I.h"
+#include "TH2F.h"
 #include "LWHists/TH2F_LW.h"
 #include "GaudiKernel/StatusCode.h"     
 #include <string.h>
 
-PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title, bool doIBL, bool errorHist, bool copy2DFEval) : m_doIBL(doIBL), m_errorHist(errorHist), m_copy2DFEval(copy2DFEval)
+PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title, bool doIBL, bool errorHist) : m_doIBL(doIBL), m_errorHist(errorHist)
 {
    std::string setatext = ";shifted eta index of module";
    std::string etatext = ";eta index of module";
@@ -91,7 +93,7 @@ void PixelMon2DMapsLW::Fill(Identifier &id, const PixelID* pixID)
             IBL3D->Fill(em - 2,pm); 
 	 }
 	 IBL->Fill(emf, pm);
-         if (m_copy2DFEval && copy) IBL->Fill(emf + 1, pm);
+         if (copy) IBL->Fill(emf + 1, pm);
       }
    }
 }
@@ -135,77 +137,56 @@ void PixelMon2DMapsLW::WeightingFill(Identifier &id, const PixelID* pixID, float
    }
 }   
 
-void PixelMon2DMapsLW::Fill2DMon(PixelMon2DMapsLW* oldmap)
+void PixelMon2DMapsLW::FillNormalized(PixelMon2DMapsLW* old, int nevent)
 {
-   for (unsigned int x = 1; x <= DBMA->GetNbinsX(); x++) {
-      for (unsigned int y = 1; y <= DBMA->GetNbinsY(); y++) {
-         float content = oldmap->DBMA->GetBinContent(x, y);
-         DBMA->SetBinContent(x, y, content);
-         oldmap->DBMA->SetBinContent(x, y, 0);
+   double nactivechannels_ECA   = 1.0*nevent;
+   double nactivechannels_ECC   = 1.0*nevent;
+   double nactivechannels_IBL2D = 1.0*nevent;
+   double nactivechannels_IBL3D = 1.0*nevent;
+   double nactivechannels_IBL   = nactivechannels_IBL2D + nactivechannels_IBL3D;
+   double nactivechannels_B0    = 1.0*nevent;
+   double nactivechannels_B1    = 1.0*nevent;
+   double nactivechannels_B2    = 1.0*nevent;
+
+   for (unsigned int x = 1; x <= A->GetXaxis()->GetNbins(); x++) {
+      for (unsigned int y = 1; y <= A->GetYaxis()->GetNbins(); y++) {
+         A->SetBinContent(x, y, old->A->GetBinContent(x, y)/nactivechannels_ECA);
       }
    }
-   for (unsigned int x = 1; x <= DBMC->GetNbinsX(); x++) {
-      for (unsigned int y = 1; y <= DBMC->GetNbinsY(); y++) {
-         float content = oldmap->DBMC->GetBinContent(x, y);
-         DBMC->SetBinContent(x, y, content);
-         oldmap->DBMC->SetBinContent(x, y, 0);
+   for (unsigned int x = 1; x <= C->GetXaxis()->GetNbins(); x++) {
+      for (unsigned int y = 1; y <= C->GetYaxis()->GetNbins(); y++) {
+         C->SetBinContent(x, y, old->C->GetBinContent(x, y)/nactivechannels_ECC);
       }
    }
-   for (unsigned int x = 1; x <= A->GetNbinsX(); x++) {
-      for (unsigned int y = 1; y <= A->GetNbinsY(); y++) {
-         float content = oldmap->A->GetBinContent(x, y);
-         A->SetBinContent(x, y, content);
-         oldmap->A->SetBinContent(x, y, 0);
+   for (unsigned int x = 1; x <= B0->GetXaxis()->GetNbins(); x++) {
+      for (unsigned int y = 1; y <= B0->GetYaxis()->GetNbins(); y++) {
+         B0->SetBinContent(x, y, old->B0->GetBinContent(x, y)/nactivechannels_B0);
       }
    }
-   for (unsigned int x = 1; x <= C->GetNbinsX(); x++) {
-      for (unsigned int y = 1; y <= C->GetNbinsY(); y++) {
-         float content = oldmap->C->GetBinContent(x, y);
-         C->SetBinContent(x, y, content);
-         oldmap->C->SetBinContent(x, y, 0);
+   for (unsigned int x = 1; x <= B1->GetXaxis()->GetNbins(); x++) {
+      for (unsigned int y = 1; y <= B1->GetYaxis()->GetNbins(); y++) {
+         B1->SetBinContent(x, y, old->B1->GetBinContent(x, y)/nactivechannels_B1);
       }
    }
-   for (unsigned int x = 1; x <= B0->GetNbinsX(); x++) {
-      for (unsigned int y = 1; y <= B0->GetNbinsY(); y++) {
-         float content = oldmap->B0->GetBinContent(x, y);
-         B0->SetBinContent(x, y, content);
-         oldmap->B0->SetBinContent(x, y, 0);
+   for (unsigned int x = 1; x <= B2->GetXaxis()->GetNbins(); x++) {
+      for (unsigned int y = 1; y <= B2->GetYaxis()->GetNbins(); y++) {
+         B2->SetBinContent(x, y, old->B2->GetBinContent(x, y)/nactivechannels_B2);
       }
    }
-   for (unsigned int x = 1; x <= B1->GetNbinsX(); x++) {
-      for (unsigned int y = 1; y <= B1->GetNbinsY(); y++) {
-         float content = oldmap->B1->GetBinContent(x, y);
-         B1->SetBinContent(x, y, content);
-         oldmap->B1->SetBinContent(x, y, 0);
-      }
-   }
-   for (unsigned int x = 1; x <= B2->GetNbinsX(); x++) {
-      for (unsigned int y = 1; y <= B2->GetNbinsY(); y++) {
-         float content = oldmap->B2->GetBinContent(x, y);
-         B2->SetBinContent(x, y, content );
-         oldmap->B2->SetBinContent(x, y, 0);
-      }
-   }
-   if (m_doIBL) {
-      for (unsigned int x = 1; x <= IBL->GetNbinsX(); x++) {
-         for (unsigned int y = 1; y <= IBL->GetNbinsY(); y++) {
-            float content = oldmap->IBL->GetBinContent(x, y);
-            IBL->SetBinContent(x, y, content);
-            oldmap->IBL->SetBinContent(x, y, 0);
+   if (m_doIBL && !m_errorHist) {
+      for (unsigned int x = 1; x <= IBL->GetXaxis()->GetNbins(); x++) {
+         for (unsigned int y = 1; y <= IBL->GetYaxis()->GetNbins(); y++) {
+            IBL->SetBinContent(x, y, old->IBL->GetBinContent(x, y)/nactivechannels_IBL);
          }
       }
-      for (unsigned int x = 1; x <= IBL2D->GetNbinsX(); x++) {
-         for (unsigned int y = 1; y <= IBL2D->GetNbinsY(); y++) {
-            float content = oldmap->IBL2D->GetBinContent(x, y);
-            IBL2D->SetBinContent(x, y, content);
-            oldmap->IBL2D->SetBinContent(x, y, 0);
+      for (unsigned int x = 1; x <= IBL2D->GetXaxis()->GetNbins(); x++) {
+         for (unsigned int y = 1; y <= IBL2D->GetYaxis()->GetNbins(); y++) {
+            IBL2D->SetBinContent(x, y, old->IBL2D->GetBinContent(x, y)/nactivechannels_IBL2D);
          }
       }
-      for (unsigned int x = 1; x <= IBL3D->GetNbinsX(); x++) {
-         for (unsigned int y = 1; y <= IBL3D->GetNbinsY(); y++) {
-            float content = oldmap->IBL3D->GetBinContent(x, y);
-            IBL3D->SetBinContent(x, y, content);
-            oldmap->IBL3D->SetBinContent(x, y, 0);
+      for (unsigned int x = 1; x <= IBL3D->GetXaxis()->GetNbins(); x++) {
+         for (unsigned int y = 1; y <= IBL3D->GetYaxis()->GetNbins(); y++) {
+            IBL3D->SetBinContent(x, y, old->IBL3D->GetBinContent(x, y)/nactivechannels_IBL3D);
          }
       }
    }

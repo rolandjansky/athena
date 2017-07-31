@@ -21,9 +21,9 @@
 #include "LWHists/TProfile_LW.h"
 #include "InDetIdentifier/PixelID.h"
 #include <sstream>
-#include "PixelMonitoring/PixelMon2DMapsLW.h"
-#include "PixelMonitoring/PixelMon2DProfilesLW.h"
+#include "PixelMonitoring/PixelMon2DMaps.h"
 #include "PixelMonitoring/PixelMonModules.h"
+#include "PixelMonitoring/PixelMonProfiles.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////////booking methods//////////////////////////////////////////
@@ -45,11 +45,11 @@ StatusCode PixelMainMon::BookStatusMon(void)
 
   StatusCode sc;
 
-  m_status = new PixelMon2DProfilesLW("Map_Of_Modules_Status", ("Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive)" + m_histTitleExt).c_str(), m_doIBL, false, true);
+  m_status = new PixelMonProfiles("Map_Of_Modules_Status", ("Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive)" + m_histTitleExt).c_str(), m_doIBL);
   sc = m_status->regHist(statusHistos);
   m_status->SetMaxValue( 2.0 );
 
-  m_status_mon = new PixelMon2DProfilesLW("Map_Of_Modules_Status_Mon", ("Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive) for monitoring" + m_histTitleExt).c_str(), m_doIBL, false, true);
+  m_status_mon = new PixelMonProfiles("Map_Of_Modules_Status_Mon", ("Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive) for monitoring" + m_histTitleExt).c_str(), m_doIBL);
   sc = m_status_mon->regHist(statusHistos);
   m_status_mon->SetMaxValue( 2.0 );
 
@@ -62,7 +62,7 @@ StatusCode PixelMainMon::BookStatusMon(void)
     }
   if (m_doOffline)
     { 
-      m_dqStatus = new PixelMon2DMapsLW("Ok_modules", ("module problems, empty bin means dead module not listed in status database"+ m_histTitleExt).c_str(), m_doIBL);
+      m_dqStatus = new PixelMon2DMaps("Ok_modules", ("module problems, empty bin means dead module not listed in status database"+ m_histTitleExt).c_str(), m_doIBL);
       sc = m_dqStatus->regHist(statusHistos);
     }
 
@@ -106,7 +106,7 @@ StatusCode PixelMainMon::BookStatusLumiBlockMon(void)
   if (m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnPixelTrack");
   MonGroup lumiBlockHist(this, path.c_str(), lowStat, ATTRIB_MANAGED);
 
-  m_status_LB = new PixelMon2DProfilesLW("Map_Of_Modules_Status_LB", ("Module Status (0=Active+Good, 1=Active+Bad, 2=Inactive)"+ m_histTitleExt).c_str(), m_doIBL, false, true);
+  m_status_LB = new PixelMonProfiles("Map_Of_Modules_Status_LB", ("Module Status (0=Active+Good, 1=Active+Bad, 2=Inactive)"+ m_histTitleExt).c_str(), m_doIBL);
   StatusCode sc = m_status_LB->regHist(lumiBlockHist);
   m_status_LB->SetMaxValue( 2.0 );
      

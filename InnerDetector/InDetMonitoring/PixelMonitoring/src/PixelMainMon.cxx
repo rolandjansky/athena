@@ -28,6 +28,9 @@
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "TH2S.h"
 #include "TProfile2D.h"
+#include "PixelMonitoring/DBMMon2DMaps.h"
+#include "PixelMonitoring/PixelMon2DMaps.h"
+#include "PixelMonitoring/PixelMonProfiles.h"
 #include "LWHists/TH2F_LW.h"
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH1I_LW.h"
@@ -365,6 +368,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_status = 0;
    m_status_mon = 0;
    m_status_LB = 0;           
+   m_disabled = 0;
    m_dqStatus = 0;
    m_disabledModules_per_lumi_PIX = 0;
    memset(m_badModules_per_lumi_mod, 0, sizeof(m_badModules_per_lumi_mod));

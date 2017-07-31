@@ -2,12 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef PIXELMON2DLUMIMAPS_H_
-#define PIXELMON2DLUMIMAPS_H_
+#ifndef DBMMON2DMAPS_H_
+#define DBMMON2DMAPS_H_
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include <string.h>
 
-class TH2F_LW;
+class TH2F;
 class Identifier;
 class PixelID;
 class StatusCode;
@@ -18,25 +18,19 @@ class StatusCode;
 // This books and formats the histograms in the constructor. The fill method will take the identifier 
 // as the input and fill the correct histogram and bin. The histograms are also public so that they
 // can be formated/accessed like any other histograms in the monitoring.
- 
-class PixelMon2DLumiMaps
+
+class DBMMon2DMaps
 {
    public:
-      PixelMon2DLumiMaps(std::string name, std::string title, std::string zlabel, bool doIBL, bool errorHist = false);
-      ~PixelMon2DLumiMaps();
-      TH2F_LW* IBLlbm;
-      TH2F_LW* B0lbm;
-      TH2F_LW* B1lbm;
-      TH2F_LW* B2lbm;
-      TH2F_LW* Albm;
-      TH2F_LW* Clbm;
-      void Fill(double LB,Identifier &id, const PixelID* pixID, double weight = 1);
+      DBMMon2DMaps(std::string name, std::string title);
+      ~DBMMon2DMaps();
+      TH2F* DBMA;
+      TH2F* DBMC;
+      void Fill(Identifier &id, const PixelID* pixID);
       void Scale(double number);
       StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
 private:
       void formatHist();
-      const bool m_doIBL;
-      const bool m_errorHist;
       
 };
 

@@ -94,7 +94,8 @@ class PixelMonModules2D : public PixelMonModules
       TH2F* A[3][48];
       TH2F* C[3][48];
       virtual void formatHist(std::string opt="");  //pass the bin labels here if needed
-      void Fill(double value0, double value1, Identifier &id, const PixelID* pixID, double weight = 1.);
+      void Fill(double value0, double value1, Identifier &id, const PixelID* pixID, double weight);
+      void Fill(double value0, double value1, Identifier &id, const PixelID* pixID);
       virtual void Reset();
    private:
       TH2F* m_Dummy;           //shouldn't be used unless messed up;
