@@ -54,6 +54,15 @@ namespace EL
     void SetRunTime(std::string run_time);
     void SetMemory(std::string memory);
     void SetConstrain(std::string constraint);
+    /* Set extra configuration lines in the job script.
+     * The content of this string will be executed in the job script on the worker node
+     * before the main executable is run.
+     */
+    void SetExtraConfigLines(std::string configLines);
+    /** Append a command before the main executable is called
+     * This is useful is you want to execute the command e.g. within shifter.
+     */
+    void SetWrapperExec(std::string wrapperExec);
 
     //
     // interface inherited from BatchDriver
@@ -81,6 +90,8 @@ namespace EL
     std::string m_run_time;
     std::string m_memory;
     std::string m_constraint;
+    std::string m_extraConfigLines;
+    std::string m_wrapperExec;
 
     bool m_b_job_name;
     bool m_b_account;
