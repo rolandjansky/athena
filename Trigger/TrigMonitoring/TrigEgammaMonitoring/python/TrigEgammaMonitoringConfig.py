@@ -231,7 +231,7 @@ class TrigEgammaMonToolBuilder:
         # Need to ensure the correct tools are configured 
         # for each monitoring mode
         if self.mc_mode == True or self.pp_mode == True:
-            if(self.derivation == True):
+            if(self.derivation == True or self.emulation == True):
                 self.configureTPMonTool(HLTEgammaPlotTool,toolList)
             else:
                 self.configureAllMonTools(HLTEgammaPlotTool,toolList)
@@ -256,7 +256,7 @@ class TrigEgammaMonToolBuilder:
         from AthenaCommon.AppMgr import ToolSvc
         toolList=['TrigEgammaMonTool/HLTEgammaMon'];
         if self.mc_mode == True or self.pp_mode == True:
-            if(self.derivation == True):
+            if(self.derivation == True or self.emulation==True):
                 tool = TrigEgammaMonTool( name = "HLTEgammaMon", 
                         histoPathBase=self.basePath,
                         IgnoreTruncationCheck=True,

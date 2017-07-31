@@ -31,6 +31,7 @@ using namespace std;
 // not the best solution but we will move to athena where this comes for free
 #define LOG cout << "TCS::InvariantMassInclusive2:     "
 
+
 TCS::InvariantMassInclusive2::InvariantMassInclusive2(const std::string & name) : DecisionAlg(name)
 {
    defineParameter("InputWidth1", 9);

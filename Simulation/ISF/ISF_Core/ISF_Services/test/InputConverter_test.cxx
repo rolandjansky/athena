@@ -103,15 +103,6 @@ class InputConverter_test: public ::testing::Test {
   }
 
   virtual void TearDown() override {
-   // @TODO: for newer Gaudi versions (atlasoff rel 21+)
-    // an approach like this would be much cleaner
-    // than releasing the tools by hand in the individual
-    // test functions
-    //const auto tools = m_toolSvc->getTools();
-    //for (auto& tool: tools) {
-    //  ASSERT_TRUE( TearDownTool(tool).isSuccess() );
-    //}
-
     m_svcMgr->removeService(m_svc);
     ASSERT_TRUE( m_svc->finalize().isSuccess() );
     ASSERT_TRUE( m_svc->terminate().isSuccess() );
@@ -122,31 +113,11 @@ class InputConverter_test: public ::testing::Test {
     Gaudi::setInstance( static_cast<IAppMgrUI*>(nullptr)) ;
   }
 
-  MockFilterTool* SetUpMockFilterTool(const std::string& name) const {
-    IAlgTool* mockFilterITool = nullptr;
-    m_toolSvc->retrieveTool(name, mockFilterITool);
-
-    MockFilterTool* mockFilterTool = dynamic_cast<MockFilterTool*>(mockFilterITool);
-    return mockFilterTool;
-  }
-
   void ReleaseSmartIFComponent(IInterface* comp) {
     size_t finalRefCount = 1; // keep one reference for the SmartIF destructor
     for (size_t refCount = comp->refCount(); refCount>finalRefCount; refCount--) {
       comp->release();
     }
-  }
-
-  // release given tool from the ToolService until it reaches a
-  // reference count of 1
-  StatusCode TearDownTool(IAlgTool* tool) const {
-    for (size_t refCount = tool->refCount(); refCount>0; refCount--) {
-      StatusCode sc = m_toolSvc->releaseTool(tool);
-      if ( !sc.isSuccess() ) {
-        return StatusCode::FAILURE;
-      }
-    }
-    return StatusCode::SUCCESS;
   }
 
   //
@@ -164,6 +135,9 @@ class InputConverter_test: public ::testing::Test {
     return m_svc->passesFilters(std::forward<Args>(args)...);
   }
 
+  ToolHandleArray<ISF::IGenParticleFilter>& getGenParticleFilters() const {
+    return m_svc->m_genParticleFilters;
+  }
   //
   // protected member variables 
   //
@@ -369,11 +343,12 @@ TEST_F(InputConverter_test, passesFilters_empty_filters) {
 
 TEST_F(InputConverter_test, passesFilters_one_pass_filter) {
   // retrieve mockable GenParticleFilter tool and point InputConverter to the same instance
-  MockFilterTool* filterTool = SetUpMockFilterTool("ISFTesting::MockFilterTool/DummyFilter");
-  ASSERT_TRUE( filterTool );
   m_svc->setProperty("GenParticleFilters", "['ISFTesting::MockFilterTool/DummyFilter']");
   ASSERT_TRUE( m_svc->initialize().isSuccess() );
-
+  ToolHandleArray<ISF::IGenParticleFilter>& genParticleFilters = getGenParticleFilters();
+  ASSERT_EQ (genParticleFilters.size(), 1);
+  MockFilterTool* filterTool = dynamic_cast<MockFilterTool*>(&*(genParticleFilters[0]));
+  ASSERT_TRUE( filterTool );
   const HepMC::GenParticle genPart{};
   HepMC::FourVector mom(12.3, 45.6, 78.9, 0.12);
   HepMC::GenParticle genPart2(mom,
@@ -382,21 +357,21 @@ TEST_F(InputConverter_test, passesFilters_one_pass_filter) {
                               );
 
   EXPECT_CALL(*filterTool, pass(genPart))
-      .Times(1)
-      .WillOnce(::testing::Return(true));
+             .Times(1)
+             .WillOnce(::testing::Return(true));
 
   ASSERT_TRUE( passesFilters(genPart) );
-
-  ASSERT_TRUE( TearDownTool(filterTool).isSuccess() );
 }
 
 
 TEST_F(InputConverter_test, passesFilters_one_nonpass_filter) {
   // retrieve mockable GenParticleFilter tool and point InputConverter to the same instance
-  MockFilterTool* filterTool = SetUpMockFilterTool("ISFTesting::MockFilterTool/DummyFilter");
-  ASSERT_TRUE( filterTool );
   m_svc->setProperty("GenParticleFilters", "['ISFTesting::MockFilterTool/DummyFilter']");
   ASSERT_TRUE( m_svc->initialize().isSuccess() );
+  ToolHandleArray<ISF::IGenParticleFilter>& genParticleFilters = getGenParticleFilters();
+  ASSERT_EQ (genParticleFilters.size(), 1);
+  MockFilterTool* filterTool = dynamic_cast<MockFilterTool*>(&*(genParticleFilters[0]));
+  ASSERT_TRUE( filterTool );
 
   const HepMC::GenParticle genPart{};
   HepMC::FourVector mom(12.3, 45.6, 78.9, 0.12);
@@ -410,19 +385,19 @@ TEST_F(InputConverter_test, passesFilters_one_nonpass_filter) {
       .WillOnce(::testing::Return(false));
 
   ASSERT_FALSE( passesFilters(genPart) );
-
-  ASSERT_TRUE( TearDownTool(filterTool).isSuccess() );
 }
 
 
 TEST_F(InputConverter_test, passesFilters_two_filters) {
   // retrieve mockable GenParticleFilter tool and point InputConverter to the same instance
-  MockFilterTool* filterTool1 = SetUpMockFilterTool("ISFTesting::MockFilterTool/DummyFilterZ");
-  MockFilterTool* filterTool2 = SetUpMockFilterTool("ISFTesting::MockFilterTool/DummyFilterY");
-  ASSERT_TRUE( filterTool1 );
-  ASSERT_TRUE( filterTool2 );
   m_svc->setProperty("GenParticleFilters", "['ISFTesting::MockFilterTool/DummyFilterZ', 'ISFTesting::MockFilterTool/DummyFilterY']");
   ASSERT_TRUE( m_svc->initialize().isSuccess() );
+  ToolHandleArray<ISF::IGenParticleFilter>& genParticleFilters = getGenParticleFilters();
+  ASSERT_EQ (genParticleFilters.size(), 2);
+  MockFilterTool* filterTool1 = dynamic_cast<MockFilterTool*>(&*(genParticleFilters[0]));
+  ASSERT_TRUE( filterTool1 );
+  MockFilterTool* filterTool2 = dynamic_cast<MockFilterTool*>(&*(genParticleFilters[1]));
+  ASSERT_TRUE( filterTool2 );
 
   const HepMC::GenParticle genPart{};
   HepMC::FourVector mom(12.3, 45.6, 78.9, 0.12);
@@ -441,12 +416,6 @@ TEST_F(InputConverter_test, passesFilters_two_filters) {
 
   ASSERT_TRUE( passesFilters(genPart) );
 
-  // apparently it's our responsibility to reduce the reference
-  // counter to 0 to make sure the tools are properly destructed
-  ASSERT_TRUE( m_toolSvc->releaseTool(filterTool1).isSuccess() );
-  ASSERT_TRUE( m_toolSvc->releaseTool(filterTool1).isSuccess() );
-  ASSERT_TRUE( m_toolSvc->releaseTool(filterTool2).isSuccess() );
-  ASSERT_TRUE( m_toolSvc->releaseTool(filterTool2).isSuccess() );
 }
 
 } // <-- namespace ISFTesting

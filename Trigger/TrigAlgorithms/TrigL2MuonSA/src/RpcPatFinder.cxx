@@ -547,7 +547,7 @@ void TrigL2MuonSA::RpcPatFinder::abcal(unsigned int result_pat, size_t index[], 
   }//else 
 
   for(int i=1;i<3;i++){
-    if(hot_max[i]!=999 && hot_min[i]!=-999){
+    if(hot_max[i]!=-999 && hot_min[i]!=999){
       if(Z[hot_max[i]]!=Z[hot_min[i]]){
         aw[i] = (R[hot_max[i]]- R[hot_min[i]]) / (Z[hot_max[i]]-Z[hot_min[i]]);
         bw[i] = R[hot_max[i]] - Z[hot_max[i]]*aw[i];

@@ -227,7 +227,8 @@ from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleS
 InDetHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetHoleSearchTool",
                                                       Extrapolator = InDetExtrapolator,
                                                       usePixel      = DetFlags.haveRIO.pixel_on(),
-                                                      useSCT        = DetFlags.haveRIO.SCT_on())
+                                                      useSCT        = DetFlags.haveRIO.SCT_on(),
+                                                      checkBadSCTChip = InDetFlags.checkDeadElementsOnTrack())
 InDetHoleSearchTool.SctSummarySvc = None
   
 ToolSvc += InDetHoleSearchTool
