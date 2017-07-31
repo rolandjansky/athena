@@ -36,34 +36,17 @@ namespace Muon {
     m_muonMgr(0)
   {  
     
-    //m_trackRecordCollectionNames.push_back("CaloEntryLayer");
-    //m_trackRecordCollectionNames.push_back("MuonEntryLayer");
-    //m_trackRecordCollectionNames.push_back("MuonExitLayer");
-
     // Get parameter values from jobOptions file
     declareProperty("TruthParticleContainerName"    , m_truthParticleContainerName = "TruthParticles");
     declareProperty("MuonTruthParticleContainerName", m_muonTruthParticleContainerName = "MuonTruthParticles");
     declareProperty("MuonTruthSegmentName"          , m_muonTruthSegmentContainerName = "MuonTruthSegments" );
     declareProperty("TrackRecordCollectionNames"    , m_trackRecordCollectionNames={"CaloEntryLayer","MuonEntryLayer","MuonExitLayer"});
 
-    //m_PRD_TruthNames.push_back("CSC_TruthMap");
-    //m_PRD_TruthNames.push_back("RPC_TruthMap");
-    //m_PRD_TruthNames.push_back("TGC_TruthMap");
-    //m_PRD_TruthNames.push_back("MDT_TruthMap");
-    //m_PRD_TruthNames.push_back("MM_TruthMap");
-    //m_PRD_TruthNames.push_back("STGC_TruthMap");
-
     declareProperty("PRD_TruthMaps",m_PRD_TruthNames={"CSC_TruthMap","RPC_TruthMap","TGC_TruthMap","MDT_TruthMap","MM_TruthMap","STGC_TruthMap"});
 
     m_CSC_SDO_TruthNames = "CSC_SDO";
-    //m_SDO_TruthNames.push_back("RPC_SDO");
-    //m_SDO_TruthNames.push_back("TGC_SDO");
-    //m_SDO_TruthNames.push_back("MDT_SDO");
-    //m_SDO_TruthNames.push_back("MM_SDO");
-    //m_SDO_TruthNames.push_back("STGC_SDO");
     declareProperty("CSCSDOs",   m_CSC_SDO_TruthNames);
     declareProperty("SDOs",      m_SDO_TruthNames={"RPC_SDO","TGC_SDO","MDT_SDO","MM_SDO","STGC_SDO"});
-    //std::stable_sort(m_SDO_TruthNames.begin(),m_SDO_TruthNames.end());
 
     declareProperty("xAODTruthLinkVector",m_truthLinkVecName="xAODTruthLinks");
 
