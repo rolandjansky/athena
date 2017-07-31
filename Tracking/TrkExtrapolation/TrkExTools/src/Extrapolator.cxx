@@ -923,7 +923,10 @@ Trk::Extrapolator::extrapolate(const IPropagator &prop,
   // the final - desperate backup --- just try to hit the surface
   if (!resultParameters && !m_stopWithNavigationBreak && !m_stopWithUpdateZero) {
     if(finalNextParameters) ATH_MSG_DEBUG("propagate using parameters "<<*finalNextParameters);
-    else ATH_MSG_DEBUG("no finalNextParameters");
+    else{
+      ATH_MSG_DEBUG("no finalNextParameters, bailing out of extrapolateDirectly");
+      return returnResult(0,refParameters);
+    }
     ATH_MSG_DEBUG("  [-] Fallback to extrapolateDirectly triggered ! ");
     resultParameters = prop.propagate(*finalNextParameters,
                                       sf,
