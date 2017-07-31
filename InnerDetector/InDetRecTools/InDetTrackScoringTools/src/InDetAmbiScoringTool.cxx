@@ -166,7 +166,7 @@ StatusCode InDet::InDetAmbiScoringTool::initialize()
   
   if (m_useAmbigFcn || m_useTRT_AmbigFcn) setupScoreModifiers();
 
-  m_has_EM_clusters = m_inputEmClusterContainerName.initialize().isSuccess();
+  ATH_CHECK( m_inputEmClusterContainerName.initialize(m_useEmClusSeed) );
   
   return StatusCode::SUCCESS;
 }
@@ -903,7 +903,7 @@ InDet::InDetAmbiScoringTool::getInfo() const
   if (rh.isValid())
     return rh.cptr();
 
-  if (m_has_EM_clusters) {
+  if (m_useEmClusSeed) {
     SG::ReadHandle<CaloClusterROI_Collection> calo(m_inputEmClusterContainerName);
     auto info = std::make_unique<ROIInfoVec>();
     for( const Trk::CaloClusterROI* ccROI : *calo) {

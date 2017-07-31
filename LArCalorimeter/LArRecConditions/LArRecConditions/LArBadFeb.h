@@ -47,6 +47,8 @@ public:
   bool operator==(BitWord other) {return m_word == other;}
   bool operator==(LArBadFeb other) {return m_word == other.packedData();}
 
+  LArBadFeb& operator|=(LArBadFeb other) {m_word|=other.m_word; return *this;}
+
   BitWord packedData() const {return m_word;}
 
 private:

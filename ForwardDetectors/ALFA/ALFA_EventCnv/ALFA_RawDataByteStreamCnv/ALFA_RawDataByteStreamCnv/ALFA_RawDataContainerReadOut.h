@@ -43,7 +43,6 @@ class ALFA_RawDataContainerReadOut : public ALFA_ReadOut
   // Raw data word and word header
  
   uint32_t m_wordMarker;
-  uint32_t m_dataWord;
 
   // Data members
   uint16_t m_subdetId;   // Sub-detector Id 

@@ -19,7 +19,6 @@ PixelRawDataProviderTool::PixelRawDataProviderTool
      m_decoder   ("PixelRodDecoder"),
      m_bsErrSvc  ("PixelByteStreamErrorsSvc",name),
      m_robIdSet(),
-     m_lastLvl1ID(0),
      m_LVL1Collection(nullptr),
      m_BCIDCollection(nullptr)
 {

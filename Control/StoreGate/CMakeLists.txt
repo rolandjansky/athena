@@ -147,25 +147,25 @@ atlas_add_test( DecorKeyHelpers_test
 atlas_add_test( ReadDecorHandleKey_test
    SOURCES test/ReadDecorHandleKey_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-   LINK_LIBRARIES StoreGateLib
+   LINK_LIBRARIES StoreGateLib TestTools
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( WriteDecorHandleKey_test
    SOURCES test/WriteDecorHandleKey_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-   LINK_LIBRARIES StoreGateLib
+   LINK_LIBRARIES StoreGateLib TestTools
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( ReadDecorHandle_test
    SOURCES test/ReadDecorHandle_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-   LINK_LIBRARIES StoreGateLib AthContainers
+   LINK_LIBRARIES StoreGateLib AthContainers TestTools
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( WriteDecorHandle_test
    SOURCES test/WriteDecorHandle_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-   LINK_LIBRARIES StoreGateLib AthContainers
+   LINK_LIBRARIES StoreGateLib AthContainers TestTools
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 # Install files from the package:

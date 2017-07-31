@@ -27,6 +27,23 @@
 
   <class name="xAOD::PFOAuxContainer_v1"
          id="F691F845-4A3D-466A-9187-FED7837D9372" />
+  
+  <!-- TrackCaloCluster_v1 dictionaries: -->
+  <class name="xAOD::TrackCaloCluster_v1">
+         <field name="m_p4" transient="true"/>
+  </class>
+  
+  <read sourceClass="xAOD::TrackCaloCluster_v1" version="[1-]"
+        targetClass="xAOD::TrackCaloCluster_v1" source="" target="m_p4Cached" >
+    <![CDATA[
+       m_p4Cached = false;
+    ]]>
+  </read>
+   
+  <class name="xAOD::TrackCaloClusterAuxContainer_v1"
+         id="E3492C37-2469-4346-BCBA-7A18CACD46AC"/>
+  <class name="xAOD::TrackCaloClusterContainer_v1"
+         id="84C52180-1AC0-4877-BAD3-B5C7A71F9125"/>
 
   <!-- Link types pointing at clusters: -->
   <class name="DataLink<xAOD::PFOContainer_v1>" />
@@ -39,10 +56,18 @@
   <class name="ElementLink<xAOD::IParticleContainer>" />
   <class name="std::vector< ElementLink<xAOD::IParticleContainer> >" />
   <class name="std::vector<std::vector< ElementLink<xAOD::IParticleContainer> > >" />
-
+    
   <enum pattern="xAOD::PFODetails::*" />
   <class name="std::vector<xAOD::PFODetails::PFOLeptonType>" />
 
+  <!-- All smart pointer dictionaries for xAOD::IParticle -->
+  <class name="DataLink<xAOD::TrackCaloClusterContainer_v1>" />
+  <class name="std::vector<DataLink<xAOD::TrackCaloClusterContainer_v1> >" />
+ 
+  <class name="ElementLink<xAOD::TrackCaloClusterContainer_v1>" />
+  <class name="std::vector<ElementLink<xAOD::TrackCaloClusterContainer_v1> >" />
+  <class name="std::vector<std::vector<ElementLink<xAOD::TrackCaloClusterContainer_v1> > >" />
+      
   <!-- Suppress the unwanted classes found by ROOT 6. -->
   <!-- Hopefully we can remove these extra lines at one point... -->
   <exclusion>

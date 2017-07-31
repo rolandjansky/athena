@@ -39,7 +39,6 @@ public:
     typedef typename _TCollection::TCollection_const_iterator TCollection_const_iterator ;
 
     typedef IdentifiableContainer<_TCollection> MyBase;
-    typedef typename MyBase::DLV DLV;
     typedef TileFragHash::TYPE TYPE;
     typedef TileRawChannelUnit::UNIT UNIT;
 

@@ -1230,8 +1230,8 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
     }
     
 
-    int n_run(0);
-    int n_evt(0);
+    EventID::number_type n_run(0);
+    EventID::number_type n_evt(0);
 
     const EventInfo* pEvent(0);
     if (m_whiteboard->selectStore(thisFinishedEvtContext->slot()).isSuccess()) {

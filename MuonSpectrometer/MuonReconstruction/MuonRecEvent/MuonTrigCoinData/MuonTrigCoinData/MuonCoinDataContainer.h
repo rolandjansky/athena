@@ -37,7 +37,7 @@ class MuonCoinDataContainer : public IdentifiableContainer<CollectionT> {
 public:
 
     //default for POOL
-      MuonCoinDataContainer();
+//      MuonCoinDataContainer();
     
   // Constructor with parameters:
   MuonCoinDataContainer(unsigned int max);

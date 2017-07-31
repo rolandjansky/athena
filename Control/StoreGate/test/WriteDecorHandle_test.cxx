@@ -211,11 +211,13 @@ void test3()
   SG::WriteDecorHandle<MyObjCont, int> h1 (k1);
   assert (h1.setProxyDict (&testStore).isSuccess());
   assert (h1.auxid() == ityp);
+  assert (!h1.isAvailable());
   assert (h1.isPresent());
 
   h1.getDecorationArray()[0] = 10;
   h1 (*(*pcont)[1]) = 11;
   h1 (2) = 12;
+  assert (h1.isAvailable());
 
   MyObj::Accessor<int> adec ("aaa");
   assert (adec (*(*pcont)[0]) == 10);

@@ -149,7 +149,14 @@ bool CondCont<T>::insert(const EventIDRange& r, T* t) {
 
   std::lock_guard<std::mutex> lock(m_mut);
 
-  if (r.start().isRunEvent() && r.stop().isRunEvent()) {
+  auto isRunLumi = [] (const EventIDBase& id)
+    { return id.run_number() != EventIDBase::UNDEFNUM &&
+             id.lumi_block() != EventIDBase::UNDEFNUM; };
+
+  if ((r.start().isRunEvent() && r.stop().isRunEvent()) ||
+      // LBN part of stop() will be UNDEFNUM for an open-ended range.
+      (isRunLumi(r.start()) && r.stop().run_number() != EventIDBase::UNDEFNUM))
+  {
     m_condSet_RE.emplace( IOVEntryT<T>(t, r) );
   } else if (r.start().isTimeStamp() && r.stop().isTimeStamp()) {
     m_condSet_clock.emplace( IOVEntryT<T>(t,r) );
@@ -165,6 +172,14 @@ bool CondCont<T>::insert(const EventIDRange& r, T* t) {
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+namespace SG {
+  inline
+  bool isInRange (const EventIDRange& r, const EventIDBase& id)
+  {
+    return !EventIDBaseComp() (id, r.start()) && EventIDBaseComp() (id, r.stop());
+  }
+}
+
 template <typename T>
 bool CondCont<T>::valid(const EventIDBase& it) const {
   typename CondContSet::const_iterator itr;
@@ -174,7 +189,7 @@ bool CondCont<T>::valid(const EventIDBase& it) const {
   if (it.isRunEvent()) {
     itr = m_condSet_RE.begin();
     for (; itr != m_condSet_RE.end(); ++itr) {
-      if ( itr->range().isInRange( it ) ) {
+      if ( SG::isInRange (itr->range(), it) ) {
         return true;
       }
     }
@@ -182,7 +197,7 @@ bool CondCont<T>::valid(const EventIDBase& it) const {
   if (it.isTimeStamp()) {
     itr = m_condSet_clock.begin();
     for (; itr != m_condSet_clock.end(); ++itr) {
-      if ( itr->range().isInRange( it ) ) {
+      if ( SG::isInRange (itr->range(), it) ) {
         return true;
       }
     }
@@ -203,7 +218,7 @@ bool CondCont<T>::find(const EventIDBase& it, T*& t) const {
   if (it.isRunEvent()) {
     itr = m_condSet_RE.begin();
     for (; itr != m_condSet_RE.end(); ++itr) {
-      if ( itr->range().isInRange( it ) ) {
+      if ( SG::isInRange (itr->range(), it) ) {
         t = itr->objPtr();
         return true;
       }
@@ -212,7 +227,7 @@ bool CondCont<T>::find(const EventIDBase& it, T*& t) const {
   if (it.isTimeStamp()) {
     itr = m_condSet_clock.begin();
     for (; itr != m_condSet_clock.end(); ++itr) {
-      if ( itr->range().isInRange( it ) ) {
+      if ( SG::isInRange (itr->range(), it) ) {
         t = itr->objPtr();
         return true;
       }
@@ -234,7 +249,7 @@ bool CondCont<T>::findEntry(const EventIDBase& it, const IOVEntryT<T>*& t) const
   if (it.isRunEvent()) {
     itr = m_condSet_RE.begin();
     for (; itr != m_condSet_RE.end(); ++itr) {
-      if ( itr->range().isInRange( it ) ) {
+      if ( SG::isInRange (itr->range(), it) ) {
         t = &(*itr);
         return true;
       }
@@ -243,7 +258,7 @@ bool CondCont<T>::findEntry(const EventIDBase& it, const IOVEntryT<T>*& t) const
   if (it.isTimeStamp()) {
     itr = m_condSet_clock.begin();
     for (; itr != m_condSet_clock.end(); ++itr) {
-      if ( itr->range().isInRange( it ) ) {
+      if ( SG::isInRange (itr->range(), it) ) {
         t = &(*itr);
         return true;
       }
@@ -311,7 +326,7 @@ CondCont<T>::range(const EventIDBase& now, EventIDRange& r) const {
   if (now.isRunEvent()) {
     itr = m_condSet_RE.begin();
     for (; itr != m_condSet_RE.end(); ++itr) {
-      if ( itr->range().isInRange( now ) ) {
+      if ( SG::isInRange (itr->range(), now) ) {
         r = itr->range();
         return true;
       }
@@ -320,7 +335,7 @@ CondCont<T>::range(const EventIDBase& now, EventIDRange& r) const {
   if (now.isTimeStamp()) {
     itr = m_condSet_clock.begin();
     for (; itr != m_condSet_clock.end(); ++itr) {
-      if ( itr->range().isInRange( now ) ) {
+      if ( SG::isInRange (itr->range(), now) ) {
         r = itr->range();
         return true;
       }

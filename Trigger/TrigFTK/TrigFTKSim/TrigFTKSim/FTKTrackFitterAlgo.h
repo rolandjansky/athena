@@ -63,6 +63,7 @@ private:
   bool m_doAuxFW;
  
   int m_HitWarrior;
+  int m_HitWarrior_first;
   int m_KeepRejected; 
   int m_FitRemoved;
   int m_DoMajority;

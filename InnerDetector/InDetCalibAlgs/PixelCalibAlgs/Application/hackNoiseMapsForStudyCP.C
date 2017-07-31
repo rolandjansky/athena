@@ -10,6 +10,7 @@
 #include<iostream>
 #include<fstream>
 #include<cstdlib> // std::atoi
+#include<algorithm>
 
 #include "TFile.h"
 #include "TH1.h"

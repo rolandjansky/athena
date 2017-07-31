@@ -16,8 +16,6 @@
 ////////////////////////
 ALFA_RawDataProvider_charge::ALFA_RawDataProvider_charge(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm (name, pSvcLocator),
-  m_nRawDataCollection(0),
-  m_nRawData(0),
   m_robDataProvider("ROBDataProviderSvc",name),
   m_rawDataTool_charge("ALFA_RawDataProviderTool_charge"),
   m_ALFA_RawDataCollectionKey_charge(),

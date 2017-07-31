@@ -13,6 +13,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include "CreateTransientTemplate.h"
 
 //================================================================
 TRT_RDO_Container* TRT_RDO_ContainerCnv_p0::createTransient(const TRT_RDO_Container_p0* persObj, MsgStream& log) {

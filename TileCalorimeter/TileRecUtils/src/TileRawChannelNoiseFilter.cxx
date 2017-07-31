@@ -142,9 +142,9 @@ StatusCode TileRawChannelNoiseFilter::process(const TileRawChannelContainer *rch
     memset(chanmap, 0, sizeof(chanmap));
 
     // iterate over all channels in a collection
-    TileRawChannelCollection* coll = (*collItr).getDataPtr();
-    TileRawChannelCollection::iterator rchItr = coll->begin();
-    TileRawChannelCollection::iterator lastRch = coll->end();
+    const TileRawChannelCollection* coll = *collItr;
+    TileRawChannelCollection::const_iterator rchItr = coll->cbegin();
+    TileRawChannelCollection::const_iterator lastRch = coll->cend();
 
     for (; rchItr != lastRch; ++rchItr) {
       const TileRawChannel* rch = (*rchItr);

@@ -112,6 +112,18 @@ TileTBBeamMonTool::TileTBBeamMonTool(const std::string & type, const std::string
   declareProperty("BC1Z", m_beamBC1Z  = 15600.0);
   declareProperty("BC2Z", m_beamBC2Z  = 2600.0); 
 
+  // June 2017 calibration, https://pcata007.cern.ch/elog/TB2017/550 (schae@cern.ch)
+  declareProperty("BC1HorizontalSlope", m_horizontal_slope1 = -0.175220);
+  declareProperty("BC1HorizontalOffset", m_horizontal_offset1 = 0.153584934082);
+  declareProperty("BC1VerticalSlope", m_vertical_slope1 = -0.176567356723);
+  declareProperty("BC1VerticalOffset", m_vertical_offset1 = -0.493246053303);
+
+  declareProperty("BC2HorizontalSlope", m_horizontal_slope2 = -0.176122);
+  declareProperty("BC2HorizontalOffset", m_horizontal_offset2 = 0.414611893278);
+  declareProperty("BC2VerticalSlope", m_vertical_slope2 = -0.173472808704);
+  declareProperty("BC2VerticalOffset", m_vertical_offset2 = 0.150807740888);
+
+  /*
   // Constant updated 29-09-26 by Joakim Olsson: https://pcata007.cern.ch/elog/TB2016/300
   declareProperty("BC1HorizontalSlope", m_horizontal_slope1 = -0.172098);
   declareProperty("BC1HorizontalOffset", m_horizontal_offset1 = 0.100857923042);
@@ -122,6 +134,7 @@ TileTBBeamMonTool::TileTBBeamMonTool(const std::string & type, const std::string
   declareProperty("BC2HorizontalOffset", m_horizontal_offset2 = 0.271555258578);
   declareProperty("BC2VerticalSlope", m_vertical_slope2 = -0.173805131744);
   declareProperty("BC2VerticalOffset", m_vertical_offset2 = 0.305483228502);
+  */
 
 //  //Constants updated 13-10-15 by Vincent & Michaela: https://pcata007.cern.ch/elog/TB2015/107
 //  declareProperty("BC1HorizontalSlope", m_horizontal_slope1 = -0.175666);
@@ -269,7 +282,7 @@ StatusCode TileTBBeamMonTool::storeBeamElements() {
 	  }
 
           if(cha < 6) {
-            m_muBack[cha] = amplitude;
+            m_muBack[8+cha] = amplitude;
             m_total_muon_energy += amplitude;
           }
 
@@ -279,7 +292,7 @@ StatusCode TileTBBeamMonTool::storeBeamElements() {
           
           FRAG_FOUND(frag, cha, dsize);
           
-          if (cha < 8) m_btdc[cha] = amplitude;
+          if (cha < 16) m_btdc[cha] = amplitude;
           else WRONG_CHANNEL(frag, cha);
           break;
           

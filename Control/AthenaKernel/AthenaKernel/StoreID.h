@@ -19,6 +19,8 @@ class StoreID
 
  public:
 
+  // DEFINITIONS HERE MUST BE KEPT SYNCHRONIZED WITH AthenaKernel/python/StoreID.py.
+
   typedef enum {
 
     EVENT_STORE = 0,

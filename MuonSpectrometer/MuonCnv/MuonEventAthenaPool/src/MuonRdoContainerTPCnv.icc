@@ -8,6 +8,7 @@
 #include <memory>
 #include "Identifier/IdentifierHash.h"
 
+
 template <class T, class P, class CONV>
 MuonRdoContainerTPCnv<T,P, CONV >::MuonRdoContainerTPCnv(ISvcLocator* svcloc)
   : T_AthenaPoolCustomCnv<T,P >(svcloc)
@@ -56,7 +57,7 @@ MuonRdoContainerTPCnv<T,P, CONV >
 {
    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Using old RDO container converter"  << endmsg;
 
-   std::unique_ptr<T> rdoC( new T );
+   std::unique_ptr<T> rdoC( new T(col_vect->size()) );
    //COLL_vector	*col_vect = (COLL_vector*) colV;
    typename COLL_vector::const_iterator it_Coll  = col_vect->begin();
    typename COLL_vector::const_iterator it_CollE = col_vect->end();

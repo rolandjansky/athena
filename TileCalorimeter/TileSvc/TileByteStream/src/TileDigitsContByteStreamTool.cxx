@@ -10,6 +10,7 @@
 
 // Tile includes
 #include "TileByteStream/TileDigitsContByteStreamTool.h"
+#include "TileByteStream/TileROD_Decoder.h"
 #include "TileByteStream/TileROD_Encoder.h"
 #include "TileEvent/TileDigitsCollection.h"
 #include "TileEvent/TileDigitsContainer.h"
@@ -33,6 +34,8 @@ const InterfaceID& TileDigitsContByteStreamTool::interfaceID( )
 TileDigitsContByteStreamTool::TileDigitsContByteStreamTool( const std::string& type
     , const std::string& name,const IInterface* parent )
   : AthAlgTool(type, name, parent)
+  , m_tileHWID(0)
+  , m_hid2re(0)
   , m_verbose(false)
 {
   declareInterface< TileDigitsContByteStreamTool >( this );
@@ -50,14 +53,10 @@ StatusCode TileDigitsContByteStreamTool::initialize() {
 
   CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
 
-  // rodid 4 modules/rodid
-  m_hid2re.setTileHWID(m_tileHWID);
-  m_fea.idMap().setTileHWID(m_tileHWID);
+  ToolHandle<TileROD_Decoder> dec("TileROD_Decoder");
+  CHECK( dec.retrieve() );
 
-  // rodid 8 modules/rodid
-  m_TileMuRcv_hid2re.setTileMuRcvHWID(m_tileHWID);
-  m_TileMuRcv_fea.idMap().setTileMuRcvHWID(m_tileHWID);
-
+  m_hid2re = dec->getHid2reHLT();
 
   return StatusCode::SUCCESS;
 }
@@ -86,10 +85,10 @@ StatusCode TileDigitsContByteStreamTool::convert(DIGITS* digitsContainer, FullEv
     TileDigitsCollection::ID frag_id = digitsCollection->identify(); 
 
     if (isTMDB){  
-       reid = m_TileMuRcv_hid2re.getRodTileMuRcvID(frag_id);    
+       reid = m_hid2re->getRodTileMuRcvID(frag_id);
        mapEncoder[reid].setTileHWID(m_tileHWID);
     } else {
-       reid = m_hid2re.getRodID(frag_id);
+       reid = m_hid2re->getRodID(frag_id);
        mapEncoder[reid].setTileHWID(m_tileHWID, m_verbose, 1);
     }
 

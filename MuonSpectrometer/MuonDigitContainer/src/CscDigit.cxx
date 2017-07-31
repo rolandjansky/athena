@@ -5,6 +5,7 @@
 /** CscDigit.cxx */
 
 #include "MuonDigitContainer/CscDigit.h"
+#include <algorithm>
 
 /** Member functions */
 

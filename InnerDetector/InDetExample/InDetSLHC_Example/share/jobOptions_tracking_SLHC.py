@@ -133,7 +133,6 @@ InDetFlags.doSGDeletion     = False
 InDetFlags.doTrkD3PD        = False
 
 InDetFlags.doPixelTrkNtuple = False
-InDetFlags.doPixelClusterNtuple = False
 # InDetFlags.doSctTrkNtuple = True
 # InDetFlags.doSctClusterNtuple = True
 

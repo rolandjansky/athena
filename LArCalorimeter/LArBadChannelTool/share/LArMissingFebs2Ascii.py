@@ -1,6 +1,18 @@
 if 'DBInstance' not in dir():
    DBInstance="CONDBR2"
 
+if 'sqlite' in dir():
+    dbStr="<db>sqlite://;schema="+sqlite+";dbname="+DBInstance+"</db>"
+    if not 'tag' in dir():
+        tag="LARBadChannelsOflMissingFEBs-UPD4-00"
+else:
+    dbStr="<db>COOLOFL_LAR/"+DBInstance+"</db>"
+
+if 'tag' in dir():
+    tagStr="<tag>"+tag+"</tag>"
+else:
+    tagStr=""
+
 if 'OutputFile' not in dir():
     OutputFile="mf_output.txt"
     
@@ -18,7 +30,7 @@ globalflags.DataSource="data"
 globalflags.InputFormat="bytestream"
 	
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-GEO-08-00-00"
+jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-03-01-00"
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOff()
@@ -51,21 +63,23 @@ topSequence = AlgSequence()
 ## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
 from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
 
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
 
-if "sqlite" in dir():
-    conddb.addFolder("","/LAR/BadChannelsOfl/MissingFEBs<db>sqlite://;schema="+sqlite+";dbname="+DBInstance+"</db><tag>LARBadChannelsOflMissingFEBs-RUN2-UPD3-01</tag>")
-else:
-    conddb.addFolder("LAR_OFL","/LAR/BadChannelsOfl/MissingFEBs")#<tag>LARBadChannelsMissingFEBs-empty</tag>")
-                 
-svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2014-01" 
+from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+condSeq+=xAODMaker__EventInfoCnvAlg()
 
+from IOVSvc.IOVSvcConf import CondInputLoader
+theCLI=CondInputLoader( "CondInputLoader")
+condSeq += theCLI 
 
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-theLArBadChannelTool=LArBadChanTool()
-theLArBadChannelTool.CoolFolder=""
-theLArBadChannelTool.CoolMissingFEBsFolder="/LAR/BadChannelsOfl/MissingFEBs"
-ToolSvc+=theLArBadChannelTool
+import StoreGate.StoreGateConf as StoreGateConf
+svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
 
+svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2014-01"
+
+from LArBadChannelTool.LArBadFebAccess import LArBadFebAccess
+LArBadFebAccess(dbString="/LAR/BadChannelsOfl/MissingFEBs"+dbStr+tagStr)
 
 
 from LArBadChannelTool.LArBadChannelToolConf import LArBadFeb2Ascii

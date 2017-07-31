@@ -204,6 +204,13 @@ public:
 
 
   /**
+   * @brief Test to see if this variable exists in the store,
+   *        for the referenced object.
+   */
+  bool isAvailable();
+
+
+  /**
    * @brief Return the aux id for this variable.
    */
   SG::auxid_t auxid() const;

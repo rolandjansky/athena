@@ -88,10 +88,8 @@ if rec.doWriteESD() or rec.doWriteAOD() or ('doWriteESD' in dir() and doWriteESD
         InDetFlags.doSctTrkNtuple = False
         InDetFlags.doTrtTrkNtuple = False
         if InDetFlags.doTrkNtuple():
-            InDetFlags.doPixelClusterNtuple = True
             InDetFlags.doSctClusterNtuple = True
         else:
-            InDetFlags.doPixelClusterNtuple = False
             InDetFlags.doSctClusterNtuple = False
 
         # --- do tracking D3PD

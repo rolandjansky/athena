@@ -721,19 +721,7 @@ class materialInteractionsType(InDetFlagsJobProperty):
     allowedValues= [0,1,2,3,4,5]
     StoredValue  = 3
 
-class doPixelClusterNtuple(InDetFlagsJobProperty):
-    """  """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-        
 class doSctClusterNtuple(InDetFlagsJobProperty):
-    """  """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-
-class doTrtDriftCircleNtuple(InDetFlagsJobProperty):
     """  """
     statusOn     = True
     allowedTypes = ['bool']
@@ -1163,7 +1151,7 @@ class checkDeadElementsOnTrack(InDetFlagsJobProperty):
   """Enable check for dead modules and FEs""" 
   statusOn     = True 
   allowedTypes = ['bool']
-  StoredValue  = False
+  StoredValue  = True
 
 
 ##-----------------------------------------------------------------------------
@@ -1982,7 +1970,7 @@ class InDetJobProperties(JobPropertyContainer):
     return (self.useDCS() and DetFlags.dcs.TRT_on())  
 
   def doNtupleCreation(self):
-    return (self.doPixelClusterNtuple() or self.doSctClusterNtuple() or self.doTrtDriftCircleNtuple() or
+    return (self.doSctClusterNtuple() or
 	    self.doTrkNtuple() or self.doPixelTrkNtuple() or self.doSctTrkNtuple() or
             self.doTrtTrkNtuple() or self.doVtxNtuple() or self.doConvVtxNtuple() or
             self.doV0VtxNtuple())
@@ -2420,13 +2408,9 @@ class InDetJobProperties(JobPropertyContainer):
        print '* run Physics Validation Monitoring'
     if self.doNtupleCreation():
        ntupleString = '* Ntuple cluster/drift circle trees activated:'
-       if self.doPixelClusterNtuple():
-          ntupleString += ' Pixel'
        if self.doSctClusterNtuple():
           ntupleString += ' SCT'
-       if self.doTrtDriftCircleNtuple():
-          ntupleString += ' TRT'
-       if self.doPixelClusterNtuple() or self.doSctClusterNtuple() or self.doTrtDriftCircleNtuple():
+       if self.doSctClusterNtuple():
           print ntupleString
 
        ntupleString = '* Ntuple track trees activated:'
@@ -2702,9 +2686,7 @@ _list_InDetJobProperties = [Enabled,
                             doPhysValMon,
                             materialInteractions,
                             materialInteractionsType,
-                            doPixelClusterNtuple,
                             doSctClusterNtuple,
-                            doTrtDriftCircleNtuple,
                             doTrkNtuple,
                             doPixelTrkNtuple,
                             doSctTrkNtuple,

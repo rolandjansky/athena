@@ -360,8 +360,8 @@ StatusCode InDetOverlay::overlayExecute() {
    if(dataContainer.isValid() && mcContainer.isValid() && outputContainer.isValid()) {
      if (m_do_TRT_background ) overlayContainerNew(dataContainer.cptr(), mcContainer.cptr(), outputContainer.ptr());
      else if(!m_do_TRT_background){
-       TRT_RDO_Container nobkg;
-       overlayContainerNew(&nobkg , mcContainer.cptr() , outputContainer.ptr());
+       TRT_RDO_Container* nobkg = nullptr;
+       overlayContainerNew(nobkg , mcContainer.cptr() , outputContainer.ptr());
      }
      ATH_MSG_INFO("TRT Result = "<<shortPrint(outputContainer.cptr()));
    }
@@ -389,8 +389,8 @@ StatusCode InDetOverlay::overlayExecute() {
     if(dataContainer.isValid() && mcContainer.isValid() && outputContainer.isValid()) {
       if(m_do_SCT_background) overlayContainerNew(dataContainer.cptr(), mcContainer.cptr(), outputContainer.ptr());
       else if(!m_do_SCT_background){
-	SCT_RDO_Container nobkg;
-	overlayContainerNew(&nobkg , mcContainer.cptr() , outputContainer.ptr());
+        SCT_RDO_Container *nobkg = nullptr;
+	overlayContainerNew(nobkg , mcContainer.cptr() , outputContainer.ptr());
        }
       ATH_MSG_INFO("SCT Result = "<<shortPrint(outputContainer.ptr(), 50));   
     }
@@ -452,8 +452,8 @@ for (containerItr=mcContainer->begin(); containerItr!=mcContainer->end(); ++cont
     if(dataContainer.isValid() && mcContainer.isValid()&&outputContainer.isValid()) {  
       if(m_do_Pixel_background) overlayContainerNew(dataContainer.cptr(), mcContainer.cptr(), outputContainer.ptr());
       else if(!m_do_Pixel_background){
-	PixelRDO_Container nobkg;
-	overlayContainerNew(&nobkg , mcContainer.cptr() , outputContainer.ptr());
+        PixelRDO_Container *nobkg = nullptr;
+	overlayContainerNew(nobkg, mcContainer.cptr() , outputContainer.ptr());
        }
       ATH_MSG_INFO("Pixel Result = "<<shortPrint(outputContainer.ptr()));
     }

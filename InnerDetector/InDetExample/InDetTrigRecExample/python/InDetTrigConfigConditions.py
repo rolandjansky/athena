@@ -354,11 +354,7 @@ class SCT_ConditionsServicesSetup:
       monitorSvc = getattr(self.svcMgr, instanceName); 
     else:        
       from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MonitorConditionsSvc
-      monitorSvc = SCT_MonitorConditionsSvc(name = instanceName, 
-                                            WriteCondObjs = False,
-                                            RegisterIOV   = False,
-                                            ReadWriteCool = True,
-                                            EventInfoKey  = self.eventInfoKey)
+      monitorSvc = SCT_MonitorConditionsSvc(name = instanceName)
                                             #OutputLevel = INFO)
       self.svcMgr += monitorSvc
 

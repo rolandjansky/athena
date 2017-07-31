@@ -109,7 +109,6 @@ private:
   template <typename DATA, typename KEY>
   bool isLive(const KEY& key, int iXing);   ///< is iXing live for DATA/key?
   bool isLive(CLID id, const std::string& dataKey, int iXing);
-  bool doRefresh(CLID id, const std::string& dataKey, int iXing);
 
   void decodeIntervals();
 
@@ -157,6 +156,8 @@ private:
   ToolHandle<ITriggerTime> m_pITriggerTime; ///< allows to apply a trigger time offset
   ///< controls PileUpTimedEventIndex for TimedData returned by retrieveSubEvts
   BooleanProperty m_returnTimedData; 
+
+  bool doRefresh(const Range& r, int iXing);
 
 protected:
   /// Standard Gaudi Constructor

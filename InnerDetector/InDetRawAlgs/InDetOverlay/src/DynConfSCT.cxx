@@ -188,8 +188,8 @@ const SCT_RDORawData *DynConfSCT::getRDO(const SCT_RDO_Container *container) con
   for(SCT_RDO_Container::const_iterator p = container->begin();
       p != container->end(); ++p) {
 
-    for(SCT_RDO_Container::IDENTIFIABLE::const_iterator c = p->cptr()->begin();
-        c != p->cptr()->end(); ++c) {
+    for(SCT_RDO_Container::IDENTIFIABLE::const_iterator c = (*p)->begin();
+        c != (*p)->end(); ++c) {
 
       if(*c) {
         return *c;

@@ -12,9 +12,8 @@
 
 // Default constructor.
 TgcRdoContainer::TgcRdoContainer()
-  : IdentifiableContainer<TgcRdo>() 
+  : IdentifiableContainer<TgcRdo>(hashFcn().max()) 
 {
-    DLV::init(hashFcn().max());	
 }
 
 // Default constructor.

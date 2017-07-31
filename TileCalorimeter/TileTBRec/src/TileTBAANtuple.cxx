@@ -172,6 +172,7 @@ TileTBAANtuple::TileTBAANtuple(std::string name, ISvcLocator* pSvcLocator)
   , m_tof(0)
   , m_btdc1(0)
   , m_btdc2(0)
+  , m_tjitter(0)
   , m_xChN2(0.0F)
   , m_yChN2(0.0F)
   , m_xChN1(0.0F)
@@ -392,7 +393,7 @@ StatusCode TileTBAANtuple::ntuple_initialize() {
 //      -------
 //      m_xCha1 = -0.0462586 + (-0.175666)*(m_btdc1[1] - m_btdc1[0]);
 //      m_yCha1 = -0.051923 + (-0.176809)*(m_btdc1[2] - m_btdc1[3]);
-//      
+//
 //      For BC2
 //      -------
 //      m_xCha2 = 0.25202 + (-0.18053)*(m_btdc1[5] - m_btdc1[4]);
@@ -420,25 +421,25 @@ StatusCode TileTBAANtuple::ntuple_initialize() {
 // Center : 610212
 // Left/up : 610210
 // Right/down : 610209
-// 
+//
 // BC2:
 // Center : 610256
 // Left/up : 610321
 // Right/down : 610320
-// 
+//
 // Here are the new constants :
-// 
+//
 // BC1
 // horizontal slope = -0.171928
 // horizontal offset = -0.047624
-// 
+//
 // vertical slope = -0.172942
 // vertical offset = -0.0958677
-// 
+//
 // BC2
 // horizontal slope = -0.175698
 // horizontal offset = -1.04599
-// 
+//
 // vertical slope = -0.174535
 // vertical offset = -3.10666
 
@@ -458,20 +459,33 @@ StatusCode TileTBAANtuple::ntuple_initialize() {
       //m_beamBC2Z  = 2760 /* 2600. */;
 
       // September 2016 calibration, https://pcata007.cern.ch/elog/TB2016/300 (joakim.olsson@cern.ch)
-      m_beamBC1X1 = 0.100857923042;
-      m_beamBC1X2 = -0.172098;
-      m_beamBC1Y1 = -0.133045996607;
-      m_beamBC1Y2 = -0.172855178323;
+      //m_beamBC1X1 = 0.100857923042;
+      //m_beamBC1X2 = -0.172098;
+      //m_beamBC1Y1 = -0.133045996607;
+      //m_beamBC1Y2 = -0.172855178323;
+      //m_beamBC1Z  = 13000. + 2760 /* 2600. */;
+      //
+      //m_beamBC2X1 = 0.271555258578 ;
+      //m_beamBC2X2 = -0.173463 ;
+      //m_beamBC2Y1 = 0.305483228502;
+      //m_beamBC2Y2 = -0.173805131744 ;
+      //m_beamBC2Z  = 2760 /* 2600. */;
+
+      // June 2017 calibration, https://pcata007.cern.ch/elog/TB2017/550 (schae@cern.ch)
+      m_beamBC1X1 =  0.153584934082;
+      m_beamBC1X2 = -0.175220;
+      m_beamBC1Y1 = -0.493246053303;
+      m_beamBC1Y2 = -0.176567356723;
       m_beamBC1Z  = 13000. + 2760 /* 2600. */;
 
-      m_beamBC2X1 = 0.271555258578 ;
-      m_beamBC2X2 = -0.173463 ;
-      m_beamBC2Y1 = 0.305483228502;
-      m_beamBC2Y2 = -0.173805131744 ;
+      m_beamBC2X1 = 0.414611893278;
+      m_beamBC2X2 = -0.176122;
+      m_beamBC2Y1 = 0.150807740888;
+      m_beamBC2Y2 = -0.173472808704;
       m_beamBC2Z  = 2760 /* 2600. */;
     }
   }
-  
+
   if (m_unpackAdder) {
     // get TileRawChannelBuilderFlatFilter for adder energy calculation
     CHECK( m_adderFilterAlgTool.retrieve() );
@@ -848,9 +862,11 @@ StatusCode TileTBAANtuple::storeBeamElements() {
       for (; beamItr != lastBeam; ++beamItr) {
         HWIdentifier id = (*beamItr)->adc_HWID();
         std::vector<uint32_t> digits = (*beamItr)->get_digits();
-        msg(MSG::VERBOSE) << " --- TileBeamElem -- Identifier " << m_tileHWID->to_string(id) << " ";
-        msg(MSG::VERBOSE) << (*beamItr)->get_digits().size() << " " << digits.size() << endmsg;
-        msg(MSG::VERBOSE) << MSG::VERBOSE << " --- TileBeamElem -- BeamElem : " << MSG::dec;
+        msg(MSG::VERBOSE) << " --- TileBeamElem -- Identifier " << m_tileHWID->to_string(id)
+                          << MSG::hex << " frag: 0x" << (*collItr)->identify()
+                          << MSG::dec << " channel " << m_tileHWID->channel(id)
+                          << " digits size " << digits.size() << endmsg;
+        msg(MSG::VERBOSE) << " --- TileBeamElem -- BeamElem : ";
         for (unsigned int k = 0; k < digits.size(); k++)
           msg(MSG::VERBOSE) << digits[k] << " ";
         msg(MSG::VERBOSE) << endmsg;
@@ -886,8 +902,8 @@ StatusCode TileTBAANtuple::storeBeamElements() {
 
         } else if ( dsize != 1              && frag != ADD_FADC_FRAG    &&
                     frag != BEAM_TDC_FRAG   && frag != COMMON_TDC1_FRAG &&
-                    frag != COMMON_TOF_FRAG && frag != COMMON_TDC2_FRAG && 
-		    !(frag == ECAL_ADC_FRAG && cha == 15)) {
+                    frag != COMMON_TOF_FRAG && frag != COMMON_TDC2_FRAG &&
+                    !(frag == ECAL_ADC_FRAG && cha == 15)) {
 
           WRONG_SAMPLE(frag,cha,dsize);
 
@@ -1024,29 +1040,29 @@ StatusCode TileTBAANtuple::storeBeamElements() {
 
           case ECAL_ADC_FRAG:
 
-	    if (m_TBperiod > 2015) {
+            if (m_TBperiod > 2015) {
 
-	      if(cha < 15) {
-		m_qdc[cha] = amplitude;
-	      } else if (cha == 15) {
-		for (int idx = 0; idx < dsize && idx < 18; ++idx) {
-		  m_qdc[idx + 15] = digits[idx];
-		}
-	      } else {
-		WRONG_CHANNEL(frag, cha);
-	      }
+              if(cha < 15) {
+                m_qdc[cha] = amplitude;
+              } else if (cha == 15) {
+                for (int idx = 0; idx < dsize && idx < 18; ++idx) {
+                  m_qdc[idx + 15] = digits[idx];
+                }
+              } else {
+                WRONG_CHANNEL(frag, cha);
+              }
 
-	    } else {
-	      if(cha < 8) m_ecal[cha] = amplitude;
-	      else WRONG_CHANNEL(frag, cha);
-	    }
+            } else {
+              if(cha < 8) m_ecal[cha] = amplitude;
+              else WRONG_CHANNEL(frag, cha);
+            }
 
             break;
 
           case DIGI_PAR_FRAG:
 
             if(cha < 16) m_cispar[cha] = amplitude; //m_cispar->at(cha)=amplitude;
-	          else WRONG_CHANNEL(frag,cha);
+            else WRONG_CHANNEL(frag,cha);
             break;
 
           case COMMON_ADC1_FRAG:
@@ -1115,8 +1131,8 @@ StatusCode TileTBAANtuple::storeBeamElements() {
               int idx = cha * 32;
               for (int ibit = 0; ibit < 32; ++ibit){
                 m_coincTrig1[idx++] = (amplitude >> ibit) & 1;
-	            }
-	          } else if (cha == 3) {
+              }
+            } else if (cha == 3) {
               m_coincFlag1 = amplitude;
             } else WRONG_CHANNEL(frag, cha);
 
@@ -1128,8 +1144,8 @@ StatusCode TileTBAANtuple::storeBeamElements() {
               int idx = cha * 32;
               for (int ibit=0; ibit < 32; ++ibit){
                 m_coincTrig2[idx++] = (amplitude >> ibit) & 1;
-	            }
-	          } else if (cha == 3) {
+              }
+            } else if (cha == 3) {
               m_coincFlag2 = amplitude;
             } else WRONG_CHANNEL(frag, cha);
 
@@ -1141,8 +1157,8 @@ StatusCode TileTBAANtuple::storeBeamElements() {
               int idx = cha * 32;
               for (int ibit = 0; ibit < 32; ++ibit){
                 m_coincTrig3[idx++] = (amplitude >> ibit) & 1;
-	            }
-	          } else if (cha == 3) {
+              }
+            } else if (cha == 3) {
               m_coincFlag3 = amplitude;
             } else WRONG_CHANNEL(frag,cha);
 
@@ -1154,8 +1170,8 @@ StatusCode TileTBAANtuple::storeBeamElements() {
               int idx = cha * 32;
               for (int ibit = 0; ibit < 32; ++ibit){
                 m_coincTrig4[idx++] = (amplitude >> ibit) & 1;
-	            }
-	          } else if (cha == 3) {
+              }
+            } else if (cha == 3) {
               m_coincFlag4 = amplitude;
             } else WRONG_CHANNEL(frag, cha);
 
@@ -1167,8 +1183,8 @@ StatusCode TileTBAANtuple::storeBeamElements() {
               int idx = cha * 32;
               for (int ibit = 0; ibit < 32; ++ibit){
                 m_coincTrig5[idx++] = (amplitude >> ibit) & 1;
-	            }
-	          } else if (cha == 3) {
+              }
+            } else if (cha == 3) {
               m_coincFlag5 = amplitude;
             } else WRONG_CHANNEL(frag, cha);
 
@@ -1180,8 +1196,8 @@ StatusCode TileTBAANtuple::storeBeamElements() {
               int idx = cha * 32;
               for (int ibit = 0; ibit < 32; ++ibit){
                 m_coincTrig6[idx++] = (amplitude >> ibit) & 1;
-	            }
-	          } else if (cha == 3) {
+              }
+            } else if (cha == 3) {
               m_coincFlag6 = amplitude;
             } else WRONG_CHANNEL(frag, cha);
 
@@ -1193,8 +1209,8 @@ StatusCode TileTBAANtuple::storeBeamElements() {
               int idx = cha * 32;
               for (int ibit = 0; ibit < 32; ++ibit){
                 m_coincTrig7[idx++] = (amplitude >> ibit) & 1;
-	            }
-	          } else if (cha == 3) {
+              }
+            } else if (cha == 3) {
               m_coincFlag7 = amplitude;
             } else WRONG_CHANNEL(frag,cha);
 
@@ -1206,8 +1222,8 @@ StatusCode TileTBAANtuple::storeBeamElements() {
               int idx = cha * 32;
               for (int ibit = 0; ibit < 32; ++ibit){
                 m_coincTrig8[idx++] = (amplitude >> ibit) & 1;
-	            }
-	          } else if (cha == 3) {
+              }
+            } else if (cha == 3) {
               m_coincFlag8 = amplitude;
             } else WRONG_CHANNEL(frag, cha);
 
@@ -1228,7 +1244,7 @@ StatusCode TileTBAANtuple::storeBeamElements() {
 //      -------
 //      m_xCha1 = -0.0462586 + (-0.175666)*(m_btdc1[1] - m_btdc1[0]);
 //      m_yCha1 = -0.051923 + (-0.176809)*(m_btdc1[2] - m_btdc1[3]);
-//      
+//
 //      For BC2
 //      -------
 //      m_xCha2 = 0.25202 + (-0.18053)*(m_btdc1[5] - m_btdc1[4]);
@@ -1238,6 +1254,8 @@ StatusCode TileTBAANtuple::storeBeamElements() {
       m_yCha1 = m_beamBC1Y1 + m_beamBC1Y2*(m_btdc1[2] - m_btdc1[3]);
       m_xCha2 = m_beamBC2X1 + m_beamBC2X2*(m_btdc1[5] - m_btdc1[4]);
       m_yCha2 = m_beamBC2Y1 + m_beamBC2Y2*(m_btdc1[6] - m_btdc1[7]);
+
+      m_tjitter = m_btdc1[8];
 
       m_xImp  = m_xCha2 + (m_xCha2 - m_xCha1)*m_beamBC2Z/(m_beamBC1Z - m_beamBC2Z);
       m_yImp  = m_yCha2 + (m_yCha2 - m_yCha1)*m_beamBC2Z/(m_beamBC1Z - m_beamBC2Z);
@@ -1373,7 +1391,7 @@ StatusCode TileTBAANtuple::storeRawChannels(std::string containerId
     ATH_MSG_DEBUG( "DSP flag is 0x" << MSG::hex << m_dspFlags << MSG::dec  << " DSP unit is " << m_dspUnit );
 
   } else if ((m_useDspUnits || m_finalUnit >= TileRawChannelUnit::OnlineADCcounts)
-	            && rChUnit != TileRawChannelUnit::ADCcounts) {
+             && rChUnit != TileRawChannelUnit::ADCcounts) {
 
       ATH_MSG_ERROR( "RawChannel units are not ADC counts, can't apply DSP-like calibration" );
       return StatusCode::FAILURE;
@@ -1451,22 +1469,22 @@ StatusCode TileTBAANtuple::storeRawChannels(std::string containerId
         }
 
         // cabling for testbeam (convert to pmt#-1)
-        if ((m_TBperiod < 2015 || 
+        if ((m_TBperiod < 2015 ||
              (m_TBperiod==2015 && fragType<3) ||
-             (m_TBperiod==2016 && (/* fragId != 0x100 && */(fragId&0xFF)<4 && fragId != 0x201)) ) 
+             (m_TBperiod==2016 && (/* fragId != 0x100 && */(fragId&0xFF)<4 && fragId != 0x201)) )
             && fragType > 0 && m_pmtOrder)
           channel = digiChannel2PMT(fragType, channel);
 
-        //	if  ( int((eneVec->at(index))->size()) < (channel+1) ) (eneVec->at(index))->resize(channel+1); //ugly
+        //     if  ( int((eneVec->at(index))->size()) < (channel+1) ) (eneVec->at(index))->resize(channel+1); //ugly
         (eneVec->at(index))[channel] = energy;
-        //	if  ( int((timeVec->at(index))->size()) < (channel+1) ) (timeVec->at(index))->resize(channel+1); //ugly
+        //     if  ( int((timeVec->at(index))->size()) < (channel+1) ) (timeVec->at(index))->resize(channel+1); //ugly
         (timeVec->at(index))[channel] = rch->time();
         if (chi2Vec != 0) {
-          //	  if  ( int((chi2Vec->at(index))->size()) < (channel+1) ) (chi2Vec->at(index))->resize(channel+1); //ugly
+          //     if  ( int((chi2Vec->at(index))->size()) < (channel+1) ) (chi2Vec->at(index))->resize(channel+1); //ugly
           (chi2Vec->at(index))[channel] = rch->quality();
         }
         if (pedVec != 0) {
-          //	  if  ( int((pedVec->at(index))->size()) < (channel+1) ) (pedVec->at(index))->resize(channel+1); //ugly
+          //     if  ( int((pedVec->at(index))->size()) < (channel+1) ) (pedVec->at(index))->resize(channel+1); //ugly
           (pedVec->at(index))[channel] = rch->pedestal();
         }
 
@@ -1667,13 +1685,13 @@ StatusCode TileTBAANtuple::storeDigits() {
             channel = m_tileHWID->channel(hwid);
             // cabling for testbeam (convert to pmt#-1)
 
-            if ((m_TBperiod < 2015 || 
+            if ((m_TBperiod < 2015 ||
                  (m_TBperiod==2015 && fragType<3) ||
-                 (m_TBperiod==2016 && (/* fragId != 0x100 && */ (fragId&0xFF)<4 && fragId != 0x201)) ) 
+                 (m_TBperiod==2016 && (/* fragId != 0x100 && */ (fragId&0xFF)<4 && fragId != 0x201)) )
                 && fragType > 0 && m_pmtOrder)
               channel = digiChannel2PMT(fragType, channel);
 
-            /*	    if  ( int((m_gainVec.at(type))->size()) < (channel+1) ) {
+            /*     if  ( int((m_gainVec.at(type))->size()) < (channel+1) ) {
              (m_gainVec.at(type))->resize(channel+1); //ugly
              }*/
 
@@ -1754,9 +1772,9 @@ StatusCode TileTBAANtuple::storeDigits() {
           // determine channel
           channel = m_tileHWID->channel(hwid);
           // cabling for testbeam
-          if ((m_TBperiod < 2015 || 
+          if ((m_TBperiod < 2015 ||
                (m_TBperiod==2015 && fragType<3) ||
-               (m_TBperiod==2016 && (/* fragId != 0x100 && */ (fragId&0xFF)<4 && fragId != 0x201)) ) 
+               (m_TBperiod==2016 && (/* fragId != 0x100 && */ (fragId&0xFF)<4 && fragId != 0x201)) )
               && fragType > 0 && m_pmtOrder)
             channel = digiChannel2PMT(fragType, channel);
 
@@ -1782,7 +1800,7 @@ StatusCode TileTBAANtuple::storeDigits() {
           }
 
           for (n = 0; n < siz; n++) {
-            //	    ((m_sampleVec.at(type))->at(channel)).push_back((int)sampleVec[n]);
+            //((m_sampleVec.at(type))->at(channel)).push_back((int)sampleVec[n]);
             //(*m_sampleVec[type])[channel][n] = sampleVec[n];
             (m_sampleVec.at(type))[channel][n] = (int) sampleVec[n];
           }
@@ -2184,11 +2202,11 @@ void TileTBAANtuple::getEta() {
 ///
 ///  - C : a character string terminated by the 0 character
 ///  - B : an 8 bit signed integer
-///  - b : an 8 bit unsigned integer			2^8=256
+///  - b : an 8 bit unsigned integer                    2^8=256
 ///  - S : a 16 bit signed integer (i.e. a "short")
-///  - s : a 16 bit unsigned integer			2^16=65536
+///  - s : a 16 bit unsigned integer                    2^16=65536
 ///  - I : a 32 bit signed integer (i.e an "int")
-///  - i : a 32 bit unsigned integer			2^32=4294967296
+///  - i : a 32 bit unsigned integer                    2^32=4294967296
 ///  - F : a 32 bit floating point (i.e. a "float")
 ///  - D : a 64 bit floating point (i.e. a "double")
 ///  - L : a 64 bit signed integer
@@ -2598,6 +2616,7 @@ void TileTBAANtuple::BEAM_addBranch(void) {
     if (m_beamIdList[COMMON_TDC1_FRAG]) {
       m_btdc1 = new int[16];
       m_ntuplePtr->Branch("btdc1", m_btdc1, "m_btdc1[8]/I");
+      m_ntuplePtr->Branch("tjitter", &m_tjitter, "m_tjitter/I");
     }
   } else if (!m_unpackAdder) {
     if (m_beamIdList[COMMON_ADC2_FRAG]) {
@@ -2874,7 +2893,7 @@ void TileTBAANtuple::DIGI_addBranch(void)
   std::ostringstream oss;
   oss << m_nSamples;
   std::string nSampStr=oss.str();
-  
+
   unsigned int listSize = std::min (m_nDrawers, static_cast<unsigned int>(m_drawerMap.size()) );
 
   if (listSize > 0) {
@@ -3084,7 +3103,7 @@ void TileTBAANtuple::DIGI_addBranch(void)
          m_ntuplePtr->Branch(("DMUMask"+suffixArr[i]).c_str(),m_dmuMaskVec.back(),("dmumask"+suffixArr[i]+"[2]/I").c_str()); // int
          m_ntuplePtr->Branch(("SlinkCRC"+suffixArr[i]).c_str(),m_slinkCRCVec.back(),("crc"+suffixArr[i]+"[2]/I").c_str()); // int
       }
-      
+
       m_ntuplePtr->Branch(("Gain"+suffixArr[i]).c_str(),m_gainVec.back(),("gain"+suffixArr[i]+"[48]/I").c_str()); // int
 
        if (m_nSamples > 0) {
@@ -3097,7 +3116,7 @@ void TileTBAANtuple::DIGI_addBranch(void)
           m_ntuplePtr->Branch(("feCRC" + suffixArr[i]).c_str(), m_feCRCVec.back(), ("fe_crc" + suffixArr[i] + "[16]/I").c_str()); // int
           m_ntuplePtr->Branch(("rodCRC" + suffixArr[i]).c_str(), m_rodCRCVec.back(), ("rod_crc" + suffixArr[i] + "[16]/I").c_str()); // int
         }
-        
+
         if (m_flatRawChannelContainer.size() > 0) {
 
           m_ntuplePtr->Branch(("Ene" + suffixArr[i]).c_str(), m_eneVec.back(), ("ene" + suffixArr[i] + "[48]/F").c_str()); // float

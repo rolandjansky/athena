@@ -38,7 +38,7 @@ atlas_add_component( TileRecAlgs
                      src/MBTSTimeDiffEventInfoAlg.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CaloIdentifier AthenaBaseComps StoreGateLib SGtests GaudiKernel TileIdentifier CaloDetDescrLib CaloEvent AthenaKernel Identifier xAODEventInfo TileCalibBlobObjs TileConditionsLib TileDetDescr TileEvent TileRecUtilsLib TileSimEvent )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CaloIdentifier AthenaBaseComps StoreGateLib SGtests GaudiKernel TileIdentifier CaloDetDescrLib CaloEvent AthenaKernel Identifier xAODEventInfo TileCalibBlobObjs TileConditionsLib TileDetDescr TileEvent TileRecUtilsLib TileSimEvent EventContainers )
 
 
 atlas_add_test( TileDigitsThresholdFilter_test

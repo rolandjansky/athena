@@ -11,6 +11,8 @@
 #include "Pixel1RawDataCnv_p2.h"
 #include "Pixel1RawDataContainerCnv_p2.h"
 #include "MsgUtil.h"
+#include "CreateTransientTemplate.h"
+
 
 void Pixel1RawDataContainerCnv_p2::transToPers(const PixelRDO_Container* transCont, InDetRawDataContainer_p2* persCont, MsgStream &log) 
 {
@@ -35,10 +37,9 @@ void Pixel1RawDataContainerCnv_p2::transToPers(const PixelRDO_Container* transCo
     Pixel1RawDataCnv_p2  chanCnv;
     TRANS::const_iterator it_Coll     = transCont->begin();
     TRANS::const_iterator it_CollEnd  = transCont->end();
-    unsigned int collIndex;
     unsigned int chanBegin = 0;
     unsigned int chanEnd = 0;
-    int numColl = transCont->numberOfCollections();
+    unsigned int numColl = transCont->numberOfCollections();
     //if(numColl == transCont->fullSize() ) { // let's count how many collections we have:
     // numColl = 0;
     // for ( ; it_Coll != it_CollEnd; it_Coll++)
@@ -46,14 +47,16 @@ void Pixel1RawDataContainerCnv_p2::transToPers(const PixelRDO_Container* transCo
     // it_Coll     = transCont->begin(); // reset the iterator, we used it!
     //}
     persCont->m_collections.resize(numColl);
-    MSG_DEBUG(log," Preparing " << persCont->m_collections.size() << "Collections");
-  
-    for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
+    log << MSG::INFO << " Preparing " << persCont->m_collections.size() << " Collections" << endmsg;
+
+    for (unsigned int collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
         // Add in new collection
         const PixelRDO_Collection& collection = (**it_Coll);
         chanBegin  = chanEnd;
         chanEnd   += collection.size();
+        if(collIndex >= numColl) log << MSG::ERROR << "Accessing collIndex " << collIndex << "/" << numColl << endmsg;
         InDetRawDataCollection_p1& pcollection = persCont->m_collections[collIndex];
+
         pcollection.m_id    = collection.identify().get_identifier32().get_compact();
         pcollection.m_hashId = (unsigned int) collection.identifyHash();
         pcollection.m_begin = chanBegin;

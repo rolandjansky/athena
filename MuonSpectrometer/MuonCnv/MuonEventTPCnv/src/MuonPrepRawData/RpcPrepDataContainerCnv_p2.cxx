@@ -22,7 +22,7 @@
 
 // Athena
 #include "StoreGate/StoreGateSvc.h"
-
+#include "MuonEventTPCnv/CreateTransientTemplates.h"
 
 
 #include "AthAllocators/DataPool.h"

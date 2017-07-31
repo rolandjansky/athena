@@ -49,7 +49,6 @@ private:
   
   // bookkeeping if we have decoded a ROB already
   std::set<uint32_t> m_robIdSet;
-  unsigned int      m_lastLvl1ID;
 
   InDetTimeCollection* m_LVL1Collection;
   InDetTimeCollection* m_BCIDCollection;
