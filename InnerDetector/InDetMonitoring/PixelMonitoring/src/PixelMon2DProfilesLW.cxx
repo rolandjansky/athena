@@ -8,10 +8,9 @@
 
 #include "PixelMonitoring/PixelMon2DProfilesLW.h"
 #include "PixelMonitoring/PixelMon2DMapsLW.h"
-#include "PixelMonitoring/PixelMon2DMaps.h"
 #include "InDetIdentifier/PixelID.h"
-#include "LWHists/TProfile2D_LW.h"
 #include "LWHists/TH2F_LW.h"
+#include "LWHists/TProfile2D_LW.h"
 #include "GaudiKernel/StatusCode.h"     
 #include <string.h>
 
@@ -51,6 +50,30 @@ PixelMon2DProfilesLW::~PixelMon2DProfilesLW()
    LWHist::safeDelete(C);
    //LWHist::safeDelete(DBMA);
    //LWHist::safeDelete(DBMC);
+}
+
+void PixelMon2DProfilesLW::SetMaxValue(float max)
+{
+   IBL->SetMaximum(max);
+   IBL2D->SetMaximum(max);
+   IBL3D->SetMaximum(max);
+   B0->SetMaximum(max);
+   B1->SetMaximum(max);
+   B2->SetMaximum(max);
+   A->SetMaximum(max);
+   C->SetMaximum(max);
+}
+
+void PixelMon2DProfilesLW::Reset()
+{
+   IBL->Reset();
+   IBL2D->Reset();
+   IBL3D->Reset();
+   B0->Reset();
+   B1->Reset();
+   B2->Reset();
+   A->Reset();
+   C->Reset();
 }
 
 void PixelMon2DProfilesLW::Fill(Identifier &id, const PixelID* pixID, float weight)
@@ -316,7 +339,7 @@ void PixelMon2DProfilesLW::Fill2DMon(PixelMon2DProfilesLW* oldmap)
    }
 }
 
-void PixelMon2DProfilesLW::FillFromMap(PixelMon2DMaps* inputmap, bool clear_inputmap)
+void PixelMon2DProfilesLW::FillFromMap(PixelMon2DMapsLW* inputmap, bool clear_inputmap)
 {
   float weightIBL   = 1.0 / 26880.0;
   float weightPixel = 1.0 / 46080.0;

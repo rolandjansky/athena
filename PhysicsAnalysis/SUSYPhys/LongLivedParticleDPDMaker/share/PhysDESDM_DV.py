@@ -333,29 +333,29 @@ RPVLLfilterNames.extend(["RPVLL_DV_METFilterKernel"])
 #########################################################################
 ### M_eff filter - use the MET trigger, but then cut on Meff, or MET/Meff
 #######################################################################
-
-DVMeffTriggerFilter = skimtool( name = "DVMeffTriggerFilter",
-                               expression = DVTriggerSelectionString(primRPVLLDESDM.DV_MeffFilterFlags)
-                               )
-
-ToolSvc+=DVMeffTriggerFilter
-
-from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__DVMeffFilterTool
-DVMeffFilterTool = DerivationFramework__DVMeffFilterTool(name = "DVMeffFilterTool",
-                                                         METContainerKey = METContainer,
-                                                         MeffCut=primRPVLLDESDM.DV_MeffFilterFlags.cutMeffMin,
-                                                         METCut=primRPVLLDESDM.DV_MeffFilterFlags.cutMETMin,
-                                                         METoverMeffCutMin=primRPVLLDESDM.DV_MeffFilterFlags.cutMEToverMeffMin,
-                                                         METoverMeffCutMax=primRPVLLDESDM.DV_MeffFilterFlags.cutMEToverMeffMax)
-ToolSvc += DVMeffFilterTool
-
-DV_MeffFinalFilter = DerivationFramework__FilterCombinationAND( name = "DV_MEffFinalFilter",
-                                                               FilterList=[DVMeffFilterTool,DVMeffTriggerFilter],
-##                                                               OutputLevel=DEBUG
-                                                                )
-ToolSvc += DV_MeffFinalFilter
-
-topSequence += kernel( "RPVLL_DV_MeffFilterKernel",
-                       SkimmingTools = [DV_MeffFinalFilter],
-                       )
-RPVLLfilterNames.extend(["RPVLL_DV_MeffFilterKernel"])
+# turning off DVMeffFilter 
+#DVMeffTriggerFilter = skimtool( name = "DVMeffTriggerFilter",
+#                               expression = DVTriggerSelectionString(primRPVLLDESDM.DV_MeffFilterFlags)
+#                               )
+#
+#ToolSvc+=DVMeffTriggerFilter
+#
+#from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__DVMeffFilterTool
+#DVMeffFilterTool = DerivationFramework__DVMeffFilterTool(name = "DVMeffFilterTool",
+#                                                         METContainerKey = METContainer,
+#                                                         MeffCut=primRPVLLDESDM.DV_MeffFilterFlags.cutMeffMin,
+#                                                         METCut=primRPVLLDESDM.DV_MeffFilterFlags.cutMETMin,
+#                                                         METoverMeffCutMin=primRPVLLDESDM.DV_MeffFilterFlags.cutMEToverMeffMin,
+#                                                         METoverMeffCutMax=primRPVLLDESDM.DV_MeffFilterFlags.cutMEToverMeffMax)
+#ToolSvc += DVMeffFilterTool
+#
+#DV_MeffFinalFilter = DerivationFramework__FilterCombinationAND( name = "DV_MEffFinalFilter",
+#                                                               FilterList=[DVMeffFilterTool,DVMeffTriggerFilter],
+###                                                               OutputLevel=DEBUG
+#                                                                )
+#ToolSvc += DV_MeffFinalFilter
+#
+#topSequence += kernel( "RPVLL_DV_MeffFilterKernel",
+#                       SkimmingTools = [DV_MeffFinalFilter],
+#                       )
+#RPVLLfilterNames.extend(["RPVLL_DV_MeffFilterKernel"])

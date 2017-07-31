@@ -1,6 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   */
+
 
 #ifndef TrigEgammaL2ElectronSelectorTool_H
 #define TrigEgammaL2ElectronSelectorTool_H
@@ -34,31 +35,18 @@ class TrigEgammaL2ElectronSelectorTool:
     void setTrackPt( float );
     unsigned int getTrackAlgoID( const std::string &);
 
-
     const xAOD::EmTauRoIContainer *m_emTauRois; 
-
     //good emulator parameters
     float m_etThr;
-    // Properties:
-    unsigned int m_trackalgoID; //!<  integer that assigns the tracking algorihtm used
     //tracking cut
     float  m_trackPtthr; //!< pT cut on track
     //calo-tracking cuts
-    std::vector<float> m_etabin;
-    std::vector<float> m_calotrackdeta; //!<  deta between calo and track
-    std::vector<float> m_calotrackdphi;  //!<  dphi between calo and track
-    std::vector<float> m_calotrackdeoverp_low;  //!<  E/p lower cut between calo and track
-    std::vector<float> m_calotrackdeoverp_high; //!<  E/p upper cut between calo and track 
+    float m_calotrackdeta; //!<  deta between calo and track
+    float m_calotrackdphi;  //!<  dphi between calo and track
+    float m_calotrackdeoverp_low;  //!<  E/p lower cut between calo and track
+    float m_calotrackdeoverp_high; //!<  E/p upper cut between calo and track 
     //TRT cuts
-    std::vector<float> m_trtratio; //!< cut on ratio of NTRHits/NTRStrawHits for IDScan and SiTrack tracks
-    //TRTSegFinder cuts
-    float  m_trackPtthrTRT; //!< pT cut on track
-    std::vector<float> m_etabinTRT; //!< eta bins for TRT cuts
-    std::vector<float> m_trtratioTRT; //!< cut on ratio of NTRHits/NTRStrawHits for TRTSegFinder tracks
-    std::vector<float> m_calotrackdetaTRT; //!<  deta between calo and track
-    std::vector<float> m_calotrackdphiTRT;  //!<  dphi between calo and track
-    std::vector<float> m_calotrackdeoverp_lowTRT;  //!<  E/p lower cut between calo and track
-    std::vector<float> m_calotrackdeoverp_highTRT; //!<  E/p upper cut between calo and track 
+    float  m_trtratio; //!< cut on ratio of NTRHits/NTRStrawHits for IDScan and SiTrack tracks
  
 };
 
