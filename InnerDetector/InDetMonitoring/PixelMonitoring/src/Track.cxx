@@ -35,6 +35,7 @@
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrackSummary/InDetTrackSummary.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
+#include "PixelMonitoring/PixelMon2DMaps.h"
 #include "PixelMonitoring/PixelMon2DMapsLW.h"
 #include "PixelMonitoring/PixelMon2DProfilesLW.h"
 #include "PixelMonitoring/PixelMonModules.h"
@@ -111,11 +112,11 @@ StatusCode PixelMainMon::BookTrackMon(void)
   m_degFactorMap->SetMaximum(2.0);
   
   if (m_do2DMaps && !m_doOnline) {
-    m_tsos_hitmap = new PixelMon2DMapsLW("TSOS_Measurement", ("TSOS of type Measurement" + m_histTitleExt), m_doIBL, false, true);
+    m_tsos_hitmap = new PixelMon2DMapsLW("TSOS_Measurement", ("TSOS of type Measurement" + m_histTitleExt), m_doIBL);
     sc = m_tsos_hitmap->regHist(trackHistos);
-    m_tsos_holemap = new PixelMon2DMapsLW("TSOS_Hole", ("TSOS of type Hole" + m_histTitleExt), m_doIBL, false, true);
+    m_tsos_holemap = new PixelMon2DMapsLW("TSOS_Hole", ("TSOS of type Hole" + m_histTitleExt), m_doIBL);
     sc = m_tsos_holemap->regHist(trackHistos);
-    m_tsos_outliermap = new PixelMon2DMapsLW("TSOS_Outlier", ("TSOS of type Outlier" + m_histTitleExt), m_doIBL, false, true);
+    m_tsos_outliermap = new PixelMon2DMapsLW("TSOS_Outlier", ("TSOS of type Outlier" + m_histTitleExt), m_doIBL);
     sc = m_tsos_outliermap->regHist(trackHistos);
     
     //m_tsos_measratio = new PixelMon2DProfilesLW("TSOS_MeasRatio", ("TSOS of type Meas per track" + m_histTitleExt), m_doIBL, false, true);

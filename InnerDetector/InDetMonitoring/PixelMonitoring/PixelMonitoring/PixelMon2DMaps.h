@@ -2,12 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef PIXELMON2DLUMIMAPS_H_
-#define PIXELMON2DLUMIMAPS_H_
+#ifndef PIXELMON2DMAPS_H_
+#define PIXELMON2DMAPS_H_
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include <string.h>
 
-class TH2F_LW;
+class TH2F;
 class Identifier;
 class PixelID;
 class StatusCode;
@@ -18,26 +18,34 @@ class StatusCode;
 // This books and formats the histograms in the constructor. The fill method will take the identifier 
 // as the input and fill the correct histogram and bin. The histograms are also public so that they
 // can be formated/accessed like any other histograms in the monitoring.
- 
-class PixelMon2DLumiMaps
+
+class PixelMon2DMaps
 {
    public:
-      PixelMon2DLumiMaps(std::string name, std::string title, std::string zlabel, bool doIBL, bool errorHist = false);
-      ~PixelMon2DLumiMaps();
-      TH2F_LW* IBLlbm;
-      TH2F_LW* B0lbm;
-      TH2F_LW* B1lbm;
-      TH2F_LW* B2lbm;
-      TH2F_LW* Albm;
-      TH2F_LW* Clbm;
-      void Fill(double LB,Identifier &id, const PixelID* pixID, double weight = 1);
+      PixelMon2DMaps(std::string name, std::string title, bool doIBL);
+      ~PixelMon2DMaps();
+      TH2F* IBL2D;
+      TH2F* IBL3D;
+      TH2F* IBL;
+      TH2F* B0;
+      TH2F* B1;
+      TH2F* B2;
+      TH2F* A;
+      TH2F* C;
+      TH2F* DBMA;
+      TH2F* DBMC;
+      int m_cnt;
+      void Reset();
+      void Fill(Identifier &id, const PixelID* pixID);
+      void WeightingFill(Identifier &id, const PixelID* pixID, float weight);
       void Scale(double number);
+      void ScaleByNChannels(int nActive_IBL2D, int nActive_IBL3D, int nActive_B0, int nActive_B1, int nActive_B2, int nActive_ECA, int nActive_ECC, int nActive_DBMA, int nActive_DBMC);
+      void ScaleBynPixnEvt(int nevent);
+      void Fill2DMon(PixelMon2DMaps* oldmap);
       StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
 private:
       void formatHist();
       const bool m_doIBL;
-      const bool m_errorHist;
-      
 };
 
 #endif
