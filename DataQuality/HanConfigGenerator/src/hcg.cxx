@@ -45,6 +45,8 @@
 #include "TPad.h"
 #include "TStyle.h"
 
+#include "utils.h"
+#include "hmap.h"
 
 
 /// file names and file pointers
@@ -54,24 +56,8 @@ std::vector<TFile*>      fptr;
 std::vector<std::string> savedhistos;
 std::vector<std::string> mapped;
 
-
-/// get the date *without* the newline
-std::string date() { 
-  time_t _t;
-  time(&_t);
-  std::string a = ctime(&_t);
-  std::string b = "";
-  for ( unsigned i=0 ; i<a.size()-1 ; i++ ) b+=a[i];
-  return b;
-}
-
-
-bool file_exists( const std::string& file ) { 
-  struct stat buff;
-  return stat(file.c_str(),&buff)==0;   
-}
-
-bool verbose = false; 
+bool  verbose = false; 
+bool vverbose = false; 
 
 /// send output to here ...
 std::ostream* outp = &std::cout;
@@ -95,46 +81,6 @@ std::string description = "https://twiki.cern.ch/twiki/bin/view/Atlas/HltTrackin
 /// list of directories to be explicitly remapped
 std::map<std::string, std::string> remap;
 
-/// list of directories to be excluded
-std::set<std::string> exclude; 
-
-/// list of directories to be explicitly included, together with 
-/// corresponding depths of subdirectories
-std::map<std::string, int> dirs;
-
-
-std::vector<std::string> tags;
-
-template<typename T>
-std::ostream& operator<<( std::ostream& s, const std::vector<T>& v ) {
-  if ( v.empty() ) return s;
-  for ( size_t i=0 ; i<v.size() ; i++ ) s << v[i] << "\n";
-  return s;
-}
-
-bool contains( const std::string& s, const std::string& regx ) { return s.find(regx)!=std::string::npos; } 
-
-
-
-template<typename T>
-std::ostream& operator<<( std::ostream& s, const std::vector<T*>& v ) {
-  if ( v.empty() ) return s;
-  for ( int i=0 ; i<v.size() ; i++ ) s << *v[i] << "\n";
-  return s;
-}
-
-
-
-/// get a TObject* from a TKey* 
-/// (why can't a TObject be a TKey?)
-template<class T>
-T* get( TKey* tobj ) { 
-  TObject* a = tobj->ReadObj()->Clone();
-  ((TH1*)a)->SetDirectory(0);
-  return (T*)a;
-}
-
-
 /// return a remapped string
 std::string find( const std::string& s ) { 
   std::map<std::string, std::string>::const_iterator itr = remap.find(s);
@@ -143,294 +89,14 @@ std::string find( const std::string& s ) {
 } 
 
 
-/// count how many occurances of a regx are in a string 
-int count( std::string s, const std::string& regx ) {
-  size_t p = s.find( regx );
-  int i=0;
-  while ( p!=std::string::npos ) {
-    i++;
-    s.erase( 0, p+1 );
-    p = s.find( regx );
-  } 
-  return i;
-}
+/// list of directories to be excluded
+std::set<std::string> exclude; 
 
+/// list of directories to be explicitly included, together with 
+/// corresponding depths of subdirectories
+std::map<std::string, int> dirs;
 
-
-
-// chop tokens off the front of a string
-std::string chop(std::string& s1, const std::string& s2)
-{
-  std::string::size_type pos = s1.find(s2);
-  std::string s3;
-  if ( pos == std::string::npos ) {
-    s3 = s1;
-    s1.erase(0, s1.size());
-  }
-  else {
-    s3 = s1.substr(0, pos); 
-    s1.erase(0, pos+s2.size());
-  }
-  return s3;
-} 
-
-
-std::vector<std::string> split( const std::string& s, const std::string& t=":"  ) {
-    
-    std::string _s = s;
-    size_t pos = _s.find(t);
-    
-    std::vector<std::string> tags;
-    
-    while ( pos!=std::string::npos ) { 
-      tags.push_back( chop(_s,t) );
-      pos = _s.find(t);
-    }
-    
-    tags.push_back(_s);
-    
-    return tags;
-}
-
-
-// chop tokens off the front of a string but not including 
-// chop character
-std::string chopex(std::string& s1, const std::string& s2)
-{
-  std::string::size_type pos = s1.find(s2);
-  std::string s3;
-  if ( pos == std::string::npos ) {
-    s3 = s1;
-    s1.erase(0, s1.size());
-  }
-  else {
-    s3 = s1.substr(0, pos); 
-    s1.erase(0, pos+s2.size());
-  }
-  return s3;
-} 
-
-
-// chomp them off the end
-std::string chomp(std::string& s1, const std::string& s2)
-{
-  std::string::size_type pos = s1.find(s2);
-  std::string s3;
-  if ( pos == std::string::npos ) {
-    s3 = s1;
-    s1.erase(0,s1.size());    
-  }
-  else {
-    s3 = s1.substr(pos+s2.size(),s1.size());
-    s1.erase(pos,s1.size()); 
-  } 
-  return s3;
-} 
-
-
-
-// chop tokens off the end of a string, leave string unchanged
-// return choped string
-std::string choptoken(std::string& s1, const std::string& s2)
-{
-  std::string s3 = "";
-  std::string::size_type pos = s1.find(s2);
-  if ( pos != std::string::npos ) {
-    s3 = s1.substr(0, pos+s2.size()); 
-    s1.erase(0, pos+s2.size());
-  }
-  return s3;
-} 
-
-
-// chop tokens off the end of a string, leave string unchanged
-// return choped string
-std::string chomptoken(std::string& s1, const std::string& s2)
-{
-  std::string s3 = "";
-  std::string::size_type pos = s1.find(s2);
-  if ( pos != std::string::npos ) {
-    s3 = s1.substr(pos, s1.size());
-    s1.erase(pos, s1.size()); 
-  }
-  return s3;
-} 
-
-
-// chop tokens off the front of a string
-std::string chopfirst(std::string& s1, const std::string& s2)
-{
-  std::string s3;
-  std::string::size_type pos = s1.find_first_not_of(s2);
-  if ( pos != std::string::npos ) {
-    s3 = s1.substr(0, pos); 
-    s1.erase(0, pos);
-  }
-  else {
-    s3 = s1;
-    s1 = "";
-  } 
-  return s3;
-} 
-
-
-std::string choplast(std::string& s1, const std::string& s2)
-{
-  std::string s3 = "";
-  std::string::size_type pos = s1.find_last_not_of(s2);
-  if ( pos != std::string::npos ) {
-    s3 = s1.substr(pos+1, s1.size());
-    s1.erase(pos+1, s1.size());
-  }
-  return s3;
-} 
-
-
-
-// chop tokens off the front and end of a string
-std::string chopends(std::string& s1, const std::string& s2)
-{
-  chopfirst(s1, s2);
-  choplast(s1, s2);
-  return s1;
-} 
-
-
-
-// remove strings from a string
-void removespace(std::string& s, const std::string& s2) 
-{
-  std::string::size_type pos;
-  while ( (pos = s.find(s2))!=std::string::npos ) {
-    s.erase(pos, s2.size());
-  }
-} 
-
-
-// replace from a string
-std::string replace( std::string s, const std::string& s2, const std::string& s3) {
-  std::string::size_type pos;
-  //  while ( (pos = s.find(" "))!=std::string::npos ) {
-  //    s.replace(pos, 1, "-");
-  while ( (pos = s.find(s2))!=std::string::npos ) {
-    s.replace(pos, s2.size(), s3);
-    if ( contains(s3,s2) ) break;
-  }
-  return s;
-} 
-
-
-// remove regx from a string
-void depunctuate(std::string& s, const std::string& regx=":") 
-{
-  std::string::size_type pos;
-  while ( (pos = s.find(regx))!=std::string::npos ) {
-    s.erase(pos, regx.size());
-  }
-} 
-  
-
-
-
-std::string chopto( std::string& s, const std::string& pattern ) { 
-  std::string tag;
-  std::string::size_type pos = s.find_first_of( pattern );
-  if ( pos==std::string::npos ) { 
-    tag = s;
-    s = "";
-  }
-  else { 
-    tag = s.substr(0,pos);
-    s.erase( 0, pos ); 
-  }
-  return tag;
-}
-
-
-// remove strings from a string
-bool remove( std::string& s, const std::string& s2 ) 
-{
-  std::string::size_type ssize = s.size();
-  std::string::size_type pos;
-  while ( (pos=s.find(s2))==0 ) s.erase(pos, s2.size());
-  if ( ssize!=s.size() ) return true;
-  else                   return false;
-} 
-
-
-class histogram : public std::string { 
-  
-public:
-
-  histogram( std::string s="" ) : std::string(s) { construct( s ); }
-  histogram( const char* s    ) : std::string(s) { construct( std::string(s) ); }
-  
-  std::vector<std::string>&       dirs()       { return mdirs; }
-  const std::vector<std::string>& dirs() const { return mdirs; }
-
-private:
-  
-  void construct( std::string s ) { 
-    std::string::size_type pos = s.find("/");
-    while ( pos!=std::string::npos ) { 
-      std::string s0 = chop( s, "/" );
-      mdirs.push_back(s0);
-      pos = s.find("/");
-    } 
-    mdirs.push_back(s);
-  } 
-
-protected:
-
-  std::vector<std::string> mdirs;
-
-};
-
-
-
-/// simple error reporting function - should probably throw an exception, 
-/// only this is simpler
-void error( int i, std::ostream& s ) {  s << std::endl; std::exit(i);  }
-
-
-/// map instances to allow setting of the algorithms 
-/// and descriptions
-
-class hmap_t : public std::map<histogram,std::string> { 
-
-public:
-
-  /// sadly, when matching regular expressions, we need to iterate 
-  /// through the map and cannot use the standard map::find() methods
-  /// which sadly, slows the searching down
-
-  virtual std::map<histogram,std::string>::iterator find( const std::string& s ) {
-    return std::map<histogram,std::string>::find( s );
-  }
-
-  virtual std::map<histogram,std::string>::const_iterator find( const std::string& s ) const { 
-    return std::map<histogram,std::string>::find( s );
-  }
-
-  virtual std::map<histogram,std::string>::iterator match( const std::string& s ) {
-    std::map<histogram,std::string>::iterator  itr = begin();
-    while( itr!=end() ) { 
-      if ( std::regex_match( s, std::regex(itr->first) ) ) return itr;
-      itr++;
-    }
-    return itr;
-  }
-
-  virtual std::map<histogram,std::string>::const_iterator match( const std::string& s ) const { 
-    std::map<histogram,std::string>::const_iterator  itr = begin();
-    while( itr!=end() ) { 
-      if ( std::regex_match( s, std::regex(itr->first) ) ) return itr;
-      itr++;
-    }
-    return itr;
-  }
-  
-};
+std::vector<std::string> tags;
 
 
 /// store any user histogram to algorithm mapping
@@ -451,8 +117,8 @@ hmap_t  wildcards;
 
 
 /// look in a histogram name map and return the regex mapped property name
-/// goes up the tree as far as to 2 subdirectory names of additional 
-/// specialisation for the histogram names  
+/// goes up the tree of subdirectory name of additional 
+/// specialisation for the histogram names all the way to the top if need be 
 /// NB: take care, this is a recursive algorithm !!!
  
 std::string match( const hmap_t& m, const node* n, const std::string& obj, const std::string& property ) {    
@@ -467,17 +133,9 @@ std::string match( const hmap_t& m, const node* n, const std::string& obj, const
 
 
 
-bool find( const std::string& s, const std::vector<std::string>& regexv ) { 
-  for ( unsigned i=regexv.size() ; i-- ; ) if ( std::regex_match( s, std::regex(regexv[i]) ) ) return true;
-  return false;
-} 
-
-
-
-
 /// look in a histogram name map and return the mapped property name
-/// goes up the tree as far as to 2 subdirectory names of additional 
-/// specialisation for the histogram names  
+/// goes up the tree of subdirectory names of additional 
+/// specialisation for the histogram names all the way to the top if need be 
 /// NB: take care, this is a recursive algorithm !!!
 
 std::string find_internal( const hmap_t& m, const node* n, const std::string& obj, const std::string& property ) {  
@@ -505,7 +163,7 @@ std::string find( const hmap_t& m, const node* n, const std::string& obj, const 
 
 /// parse and individual line - must have the syntax: tag = "value";  
 
-bool parse( const std::string _line, histogram& tag, std::string& val, bool requirequotes=true ) {
+bool parse( const std::string _line, histogram_name& tag, std::string& val, bool requirequotes=true ) {
   
   std::string line = _line;
 
@@ -614,8 +272,8 @@ hmap_t  parse( const std::string& filename, bool requirequotes=true ) {
   /// now parse each line 
     
   for ( unsigned i=0 ; i<lines.size() ; i++ ) { 
-    histogram     tag = "";
-    std::string value = "";
+    histogram_name     tag = "";
+    std::string      value = "";
     if ( parse( lines[i], tag, value, requirequotes ) ) lookup.insert( hmap_t::value_type( tag, value ) );
   }
 
@@ -877,16 +535,11 @@ public:
       
       /// always try to remap the name
 
-      //      bool exclude_dir = false;
-
       if ( exclude.find(n.name())!=exclude.end() )  { 
 	print = false;
-	//	exclude_dir = true;
 	return;
       }
 
-      //      if ( found && ( dirs.size() && dirs.find(n.name())==dirs.end() ) ) print = false;
-   
       std::string newspacer = space;
       
       if ( print ) newspacer += spacer;
@@ -1008,6 +661,7 @@ public:
 	    std::string description_tmp = find( descriptions, n[i], n[i]->name(), description );
 	    std::string display_tmp     = find( displays,     n[i], n[i]->name(), "StatBox" );
 
+	    if ( vverbose ) std::cout << "histogram: " << n[i]->path() << "\n";
 	    (*outp) << space << "\t"   << "hist " << n[i]->name() << " {\n";
 	    (*outp) << space << "\t\t" << "algorithm   \t= " << algorithm_tmp   << "\n";
 	    (*outp) << space << "\t\t" << "description \t= " << description_tmp << "\n";
@@ -1074,6 +728,8 @@ void search( TDirectory* td, const std::string& s, std::string cwd, node* n ) {
 
   //  gDirectory->pwd();
 
+  std::string basedir = here->GetName();
+
   td->cd();
   
   if ( cwd!="" ) cwd += "/";
@@ -1124,7 +780,10 @@ void search( TDirectory* td, const std::string& s, std::string cwd, node* n ) {
   }
   
 
-  if ( found_dir ) { 
+  if ( found_dir ) {
+
+    if ( basedir=="HLT" ) np->path( basedir );
+ 
     node* np_ = addnode( np, fulldir, td );
     np = np_;
   }
@@ -1330,7 +989,7 @@ int cost( std::vector<std::string>& files, node& n, const std::string& directory
     //    int tcount = 0;
 
     /// navigate the directory structure to 
-    /// extracting all the info
+    /// extract all the info
 
     search( gDirectory, "", "", &n );
 
@@ -1500,7 +1159,8 @@ int main(int argc, char** argv) {
 
     std::string argvi = std::string(argv[i]);
 
-    if      ( argvi=="-v" || argvi=="--verbose" ) verbose = true;
+    if      ( argvi=="-v"  || argvi=="--verbose"  ) verbose = true;
+    else if ( argvi=="-vv" || argvi=="--vverbose" ) verbose = vverbose = true;
     else if ( argvi=="-o" ) {
       if ( ++i<argc-offset ) outfile = argv[i];
       else  return usage( std::cerr, argc, argv );
@@ -1563,8 +1223,8 @@ int main(int argc, char** argv) {
     } 
     else if ( argvi=="-wd" || argvi.find("--wcdir")==0 ) {
       if ( ++i<argc-offset ) { 
-	histogram     tag="";
-	std::string value="";
+	histogram_name     tag="";
+	std::string      value="";
 	/// parse the input string - add a terminating ";" just in case 
 	if ( parse( std::string(argv[i])+";", tag, value, false ) ) wildcards.insert( hmap_t::value_type( tag, value ) );
 	else  return usage( std::cerr << "Could not parse wildcard directory", argc, argv );

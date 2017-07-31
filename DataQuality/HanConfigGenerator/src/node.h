@@ -28,9 +28,10 @@ public:
 public:
   
   node( node* n=0, const std::string d="", TObject* t=0 ) : 
-    mname("duff"), mparent(n), mtype(DUFF), mpath(""), mdepth(d), mobj(t) { 
+    mname("duff"), mparent(n), mtype(DUFF), mpath( n && n->path()!="" ? n->path()+"/" : "" ), mdepth(d), mobj(t) { 
     if ( t!=0 )  mname = t->GetName();
-    mhirate = std::pair<std::string, double>( "", 0); 
+    mhirate = std::pair<std::string, double>( "", 0);
+    if ( t!=0 ) mpath += mname;
   } 
   
   virtual ~node() { } 
