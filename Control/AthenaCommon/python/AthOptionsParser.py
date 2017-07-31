@@ -53,9 +53,10 @@ _allowed_values = {
 
 _error_msg = """\
 Accepted command line options:
-     --evtMax=<numEvents>             ...  Max number of events to process
-     --skipEvents=<numEvents>         ...  Number of events to skip
-     --filesInput=<files>             ...  Run over given files
+     --evtMax=<numEvents>             ...  Max number of events to process (only used in batch mode)
+     --skipEvents=<numEvents>         ...  Number of events to skip (only used in batch mode)
+     --filesInput=<files>             ...  Set the FilesInput job property 
+                                            (comma-separated list, which can include wild characters)
  -b, --batch                          ...  batch mode [DEFAULT]
  -i, --interactive                    ...  interactive mode
      --no-display                           prompt, but no graphics display
@@ -156,8 +157,8 @@ def parse(chk_tcmalloc=True):
     opts.cppyy_minvmem = None    # artificial vmem bump around cppyy's import
     opts.minimal = False         # private, undocumented
     opts.user_opts = []          # left-over opts after '-'
-    opts.evtMaxIsSet = False     # says if user specified evtMax on command line
-    opts.skipEventsIsSet = False # says if user specified skipEvents on command line
+    opts.evtMax = None           # evtMax on command line (or None if unspecified)
+    opts.skipEvents = None # skipEvents on command line (or None if unspecified)
 
     ldpreload = os.getenv('LD_PRELOAD') or ''
 
@@ -412,20 +413,20 @@ def parse(chk_tcmalloc=True):
             jps.AthenaCommonFlags.FilesInput.set_Value_and_Lock(files)
 
         elif opt in("--evtMax",):
-            opts.evtMaxIsSet=True
             from AthenaCommonFlags import jobproperties as jps
             try: arg = int(arg)
             except Exception,err:
-                print "ERROR:",err
+                print "ERROR: --evtMax option - ",err
                 _help_and_exit()
+            opts.evtMax = arg
             jps.AthenaCommonFlags.EvtMax.set_Value_and_Lock(arg)
         elif opt in("--skipEvents",):
-            opts.skipEventsIsSet=True
             from AthenaCommonFlags import jobproperties as jps
             try: arg = int(arg)
             except Exception,err:
-                print "ERROR:",err
+                print "ERROR: --skipEvents option - ",err
                 _help_and_exit()
+            opts.skipEvents = arg
             jps.AthenaCommonFlags.SkipEvents.set_Value_and_Lock(arg)
 
     # Unconditionally set this environment (see JIRA ATEAM-241)

@@ -9,9 +9,9 @@
 
 try:
    #first check if command-line evtMax or skipEvents options were provided
-   if opts.evtMaxIsSet:
+   if opts.evtMax != None:
       theApp.EvtMax = jps.AthenaCommonFlags.EvtMax()
-   if opts.skipEventsIsSet:
+   if opts.skipEvents != None:
       if hasattr(svcMgr,"EventSelector"):
          svcMgr.EventSelector.SkipEvents = jps.AthenaCommonFlags.SkipEvents()
 
