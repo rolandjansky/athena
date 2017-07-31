@@ -174,20 +174,20 @@ bool parse( const std::string& linein, histogram_name& tag, std::string& val, bo
   if ( line.size()==0 ) return false;
   tag = chopto( line, " =" );
   remove( line, " " );  
-  if ( !remove( line, "=" ) ) error( 1, std::cerr << "error : tag incorrectly specified\n\t" << _line ); 
+  if ( !remove( line, "=" ) ) error( 1, std::cerr << "error : tag incorrectly specified\n\t" << linein ); 
   remove( line, " " ); 
   if ( requirequotes ) { 
-    if ( !( line.size()>1 && (val += line[0])=="\"" ) ) error( 1, std::cerr << "error : incorrect value syntax - no opening quote\n\t" << _line );
+    if ( !( line.size()>1 && (val += line[0])=="\"" ) ) error( 1, std::cerr << "error : incorrect value syntax - no opening quote\n\t" << linein );
     remove( line, "\"" );
     val += chopto( line, "\"" )+"\"";
-    if ( !( line.size()>0 && line[0]=='"' ) )  error( 1, std::cerr << "error : incorrect value syntax - no closing quote\n\t" << _line ); 
+    if ( !( line.size()>0 && line[0]=='"' ) )  error( 1, std::cerr << "error : incorrect value syntax - no closing quote\n\t" << linein ); 
     remove( line, "\"" );
   }
   else { 
     val += chopto( line, ";" );
   }
   remove( line, " " );
-  if ( line.size()<1 || line[0]!=';' )  error( 1, std::cerr << "error : incorrect value syntax - line not correctly terminated\n\t" << _line );
+  if ( line.size()<1 || line[0]!=';' )  error( 1, std::cerr << "error : incorrect value syntax - line not correctly terminated\n\t" << linein );
 
   return true;
 }
