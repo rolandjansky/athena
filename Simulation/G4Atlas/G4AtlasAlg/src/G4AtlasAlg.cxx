@@ -5,6 +5,8 @@
 // Local includes
 #include "G4AtlasAlg.h"
 
+#include "AthenaKernel/RNGWrapper.h"
+
 // Can we safely include all of these?
 #include "G4AtlasMTRunManager.h"
 #include "G4AtlasWorkerRunManager.h"
@@ -53,7 +55,7 @@ G4AtlasAlg::G4AtlasAlg(const std::string& name, ISvcLocator* pSvcLocator)
   , m_inputTruthCollection("BeamTruthEvent")
   , m_outputTruthCollection("TruthEvent")
   , m_useMT(false)
-  , m_rndmGenSvc("AtDSFMTGenSvc", name)
+  , m_rndmGenSvc("AthRNGSvc", name)
   , m_g4atlasSvc("G4AtlasSvc", name)
   , m_userActionSvc("G4UA::UserActionSvc", name) // new user action design
   , m_detGeoSvc("DetectorGeometrySvc", name)
@@ -205,7 +207,7 @@ void G4AtlasAlg::initializeOnce()
       // better control. Then, for now, let's just throw.
       throw std::runtime_error("Could not initialize ATLAS Random Generator Service");
     }
-    CLHEP::HepRandomEngine* engine = m_rndmGenSvc->GetEngine("AtlasG4");
+    CLHEP::HepRandomEngine* engine = (*m_rndmGenSvc->GetEngine("AtlasG4"));
     CLHEP::HepRandom::setTheEngine(engine);
     ATH_MSG_INFO("Random nr. generator is set to Athena");
   }
