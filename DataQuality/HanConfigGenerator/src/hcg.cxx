@@ -163,9 +163,9 @@ std::string find( const hmap_t& m, const node* n, const std::string& obj, const 
 
 /// parse and individual line - must have the syntax: tag = "value";  
 
-bool parse( const std::string _line, histogram_name& tag, std::string& val, bool requirequotes=true ) {
+bool parse( const std::string& linein, histogram_name& tag, std::string& val, bool requirequotes=true ) {
   
-  std::string line = _line;
+  std::string line = linein;
 
   tag = "";
   val = "";
