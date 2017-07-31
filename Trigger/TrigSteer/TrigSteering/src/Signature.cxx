@@ -169,13 +169,13 @@ HLT::ErrorCode Signature::execute( bool& pass )
       pass = false;
       return retCode;
     }
+
+
   }
 
-  if ( m_requiredTEs.size() > 1 ) {
-  // Make sure all parts of this signature come from different RoIs. But only if there is more than one TE type in signature, else, by definition, TEs are from separate Rois
-    m_foundOverlap = checkRoIOverlap();
-    pass = m_foundOverlap;
-  }
+  // Make sure all parts of this signature come from different RoIs.
+  m_foundOverlap = checkRoIOverlap();
+  pass = m_foundOverlap;
 
   // Debug output
   if (m_config->getMsgLvl() <= MSG::DEBUG) {
