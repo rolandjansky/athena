@@ -45,9 +45,9 @@ template <class TYPE> class SvcFactory;
 
 //class Identifier;
 
-  /** This class contains a Service that reads SCT calibration data and makes it available to 
-      other algorithms. The current implementation reads the data from a COOL database. 
-  */
+/** This class contains a Service that reads SCT calibration data and makes it available to 
+    other algorithms. The current implementation reads the data from a COOL database. 
+*/
 
 class SCT_ReadCalibChipDataSvc: virtual public ISCT_ReadCalibChipDataSvc, virtual public AthService{
   friend class SvcFactory<SCT_ReadCalibChipDataSvc>;

@@ -3,7 +3,7 @@
 */
 
 /** @file SCT_ReadCalibChipDataSvc.cxx Implementation file for SCT_ReadCalibChipDataSvc.
-@author Per Johansson (23/03/09), Shaun Roe (17/2/2010)
+    @author Per Johansson (23/03/09), Shaun Roe (17/2/2010)
 */
 
 // Include SCT_ReadCalibChipDataSvc.h 
@@ -34,7 +34,6 @@
 #include "boost/tokenizer.hpp"
 #include "boost/lexical_cast.hpp"
 
-
 using namespace std;
 using namespace SCT_ConditionsServices;
 
@@ -61,7 +60,7 @@ namespace{
   }
 
   template <typename C> 
-  bool fillFromString(const std::string& source, C & userContainer){
+    bool fillFromString(const std::string& source, C & userContainer){
     if (source.empty()) return false;
     typedef typename C::value_type V_t;
     V_t errVal(numeric_limits<V_t>::has_quiet_NaN?(numeric_limits<V_t>::quiet_NaN()):0);
@@ -83,13 +82,13 @@ namespace{
     return noNan;
   }
 
-/**
-  //decide whether folder contains noise occupancy or gain
-  FolderType folderType(const std::string & folderName){
-    if ( folderName.find("Gain")!=std::string::npos) return NPTGAIN;
-    if ( folderName.find("Noise")!=std::string::npos) return NOISEOCC;
-    return UNKNOWN_FOLDER;
-  }
+  /**
+   //decide whether folder contains noise occupancy or gain
+   FolderType folderType(const std::string & folderName){
+   if ( folderName.find("Gain")!=std::string::npos) return NPTGAIN;
+   if ( folderName.find("Noise")!=std::string::npos) return NOISEOCC;
+   return UNKNOWN_FOLDER;
+   }
   **/
 }//end of anon namespace
 
@@ -97,7 +96,7 @@ namespace{
 
 //----------------------------------------------------------------------
 SCT_ReadCalibChipDataSvc::SCT_ReadCalibChipDataSvc (const std::string& name, ISvcLocator* pSvcLocator) :
-AthService(name, pSvcLocator),
+  AthService(name, pSvcLocator),
   m_storeGateSvc("StoreGateSvc", name),
   m_detStoreSvc("DetectorStore", name),
   m_IOVDbSvc("IOVDbSvc", name),
@@ -106,32 +105,32 @@ AthService(name, pSvcLocator),
   m_id_sct{nullptr},
   m_dataFilled(false),
   m_printCalibDataMaps(false)
-{
-  declareProperty("PrintCalibDataMaps",    m_printCalibDataMaps    = false, "Print data read from the Calib Data map?");
-  declareProperty("AttrListCollFolders",   m_atrcollist, "List of calibration data folder?"); 
-  declareProperty("NoiseLevel",            m_noiseLevel = 1800.0, "Noise Level for isGood if ever used");
-  std::vector<std::string> names(2);
-  names[0] = std::string("/SCT/DAQ/Calibration/ChipGain");
-  names[1] = std::string("/SCT/DAQ/Calibration/ChipNoise");
-  m_atrcollist.setValue(names);
-  //initialize boost arrays
-  ModuleGain_t oneModuleGain;
-  oneModuleGain.assign(0);
-  ModuleNoise_t oneModuleNoise;
-  oneModuleNoise.assign(0);
-  //
-  GainParameters_t oneModuleGainParameters;
-  oneModuleGainParameters.assign(oneModuleGain);
-  NoiseOccParameters_t oneModuleNoiseParameters;
-  oneModuleNoiseParameters.assign(oneModuleNoise);
-  //
-  m_nPtGainData.assign(oneModuleGainParameters);
-  m_noiseOccData.assign(oneModuleNoiseParameters);
-}
+  {
+    declareProperty("PrintCalibDataMaps",    m_printCalibDataMaps    = false, "Print data read from the Calib Data map?");
+    declareProperty("AttrListCollFolders",   m_atrcollist, "List of calibration data folder?"); 
+    declareProperty("NoiseLevel",            m_noiseLevel = 1800.0, "Noise Level for isGood if ever used");
+    std::vector<std::string> names(2);
+    names[0] = std::string("/SCT/DAQ/Calibration/ChipGain");
+    names[1] = std::string("/SCT/DAQ/Calibration/ChipNoise");
+    m_atrcollist.setValue(names);
+    //initialize boost arrays
+    ModuleGain_t oneModuleGain;
+    oneModuleGain.assign(0);
+    ModuleNoise_t oneModuleNoise;
+    oneModuleNoise.assign(0);
+    //
+    GainParameters_t oneModuleGainParameters;
+    oneModuleGainParameters.assign(oneModuleGain);
+    NoiseOccParameters_t oneModuleNoiseParameters;
+    oneModuleNoiseParameters.assign(oneModuleNoise);
+    //
+    m_nPtGainData.assign(oneModuleGainParameters);
+    m_noiseOccData.assign(oneModuleNoiseParameters);
+  }
 
 //----------------------------------------------------------------------
 SCT_ReadCalibChipDataSvc::~SCT_ReadCalibChipDataSvc(){ 
-//nop
+  //nop
 }
 
 //----------------------------------------------------------------------
@@ -249,7 +248,7 @@ StatusCode SCT_ReadCalibChipDataSvc::fillData(int& /*i*/ , std::list<std::string
 StatusCode SCT_ReadCalibChipDataSvc::fillCalibData(std::list<std::string>& keys){
   const string noiseOccFolder("/SCT/DAQ/Calibration/ChipNoise");
   const string nPtGainFolder("/SCT/DAQ/Calibration/ChipGain");
-    // Retrieve CondAttrListCollection
+  // Retrieve CondAttrListCollection
   if (std::find(keys.begin(), keys.end(),noiseOccFolder) != keys.end()){
     if (m_detStoreSvc->retrieve(m_coolNoiseData,noiseOccFolder).isFailure()) return msg(MSG:: ERROR) << "Could not retrieve CondAttrListCollection for: " << noiseOccFolder << endmsg, StatusCode::FAILURE;
     // loop over collection
@@ -258,12 +257,12 @@ StatusCode SCT_ReadCalibChipDataSvc::fillCalibData(std::list<std::string>& keys)
     for (; itLoop!=itLoop_end; ++itLoop) {
       CondAttrListCollection::ChanNum chanNum = itLoop->first;
       const coral::AttributeList & anAttrList = itLoop->second;
-        // Convert chanNum=offlineID into identifier
+      // Convert chanNum=offlineID into identifier
 
       Identifier32 moduleId(chanNum);
-        //find the corresponding hash
+      //find the corresponding hash
       const IdentifierHash hashId = m_id_sct->wafer_hash(moduleId);
-        //find the index to the module (hash is for each side), to use as index into array
+      //find the index to the module (hash is for each side), to use as index into array
       const unsigned int moduleIdx=hashId/2;
       NoiseOccParameters_t & theseCalibData=m_noiseOccData[moduleIdx];
       insertNoiseOccFolderData(theseCalibData, anAttrList);
@@ -277,11 +276,11 @@ StatusCode SCT_ReadCalibChipDataSvc::fillCalibData(std::list<std::string>& keys)
     for (; itLoop!=itLoop_end; ++itLoop) {
       CondAttrListCollection::ChanNum chanNum = itLoop->first;
       coral::AttributeList anAttrList = itLoop->second;
-        // Convert chanNum=offlineID into identifier
+      // Convert chanNum=offlineID into identifier
       Identifier32 moduleId(chanNum);
-        //find the corresponding hash
+      //find the corresponding hash
       const IdentifierHash hashId = m_id_sct->wafer_hash(moduleId);
-        //find the index to the module (hash is for each side), to use as index into array
+      //find the index to the module (hash is for each side), to use as index into array
       const unsigned int moduleIdx=hashId/2;
       GainParameters_t & theseCalibData=m_nPtGainData[moduleIdx];
       insertNptGainFolderData(theseCalibData, anAttrList);
@@ -295,18 +294,18 @@ StatusCode SCT_ReadCalibChipDataSvc::fillCalibData(std::list<std::string>& keys)
 // Returns a bool summary of the data
 bool SCT_ReadCalibChipDataSvc::isGood(const IdentifierHash & elementHashId){
   int moduleIdx=elementHashId/2;
-    // Retrieve defect data from map
+  // Retrieve defect data from map
   NoiseOccParameters_t &noiseOccData = m_noiseOccData[moduleIdx];
 
-    // Retrieve the data
+  // Retrieve the data
   int i=noiseOccIndex("NoiseByChip");
   if (i==-1) return  msg(MSG:: ERROR) << "This NoiseOccupancy noise data does not exist" << endmsg, true;
   ModuleNoise_t & moduleNoiseData=noiseOccData[i];
 
-    // Calcuate module status
-    // For now just simple check NO mean noise level
-    // Chip could be 0 if bypassed, need to check
-      //int side = m_id_sct->side(waferId);
+  // Calcuate module status
+  // For now just simple check NO mean noise level
+  // Chip could be 0 if bypassed, need to check
+  //int side = m_id_sct->side(waferId);
   int side=elementHashId % 2;
   int chip=side * 6;
   const int endChip=6+chip;
@@ -345,11 +344,11 @@ SCT_ReadCalibChipDataSvc::getNPtGainData(const Identifier & moduleId, const int 
   // Print where you are
   ATH_MSG_DEBUG ( "in getNPtGainData()" );
   std::vector<float> waferData;
-    //find hash
+  //find hash
   const IdentifierHash hashId = m_id_sct->wafer_hash(moduleId);
-    //make indx
+  //make indx
   const int idx=hashId/2;
-    //Retrieve defect data from map
+  //Retrieve defect data from map
   try{
     GainParameters_t & wantedNPGData = m_nPtGainData.at(idx);
     //find the correct index for the required data
@@ -370,25 +369,25 @@ SCT_ReadCalibChipDataSvc::getNPtGainData(const Identifier & moduleId, const int 
     waferData.assign(it,end);    
     return waferData;
   } catch (std::out_of_range e){
-     return waferData; 
-   }
+    return waferData; 
+  }
 } //SCT_ReadCalibChipDataSvc::getNPtGainData()
 
 //----------------------------------------------------------------------
 std::vector<float> 
 SCT_ReadCalibChipDataSvc::getNoiseOccupancyData(const Identifier & moduleId, const int side, const std::string & datatype){
-    // Print where you are
+  // Print where you are
   ATH_MSG_DEBUG ( "in getNoiseOccupancyData()" );
   std::vector<float> waferData;
-   //find hash
+  //find hash
   const IdentifierHash hashId = m_id_sct->wafer_hash(moduleId);
-   //make indx
+  //make indx
   const int idx=hashId/2;
   try{
-     //Retrieve defect data from array
+    //Retrieve defect data from array
     NoiseOccParameters_t & wantedNoiseData = m_noiseOccData.at(idx);
 
-     //find the correct index for the required data
+    //find the correct index for the required data
     int dataIdx=noiseOccIndex(datatype);
     if (dataIdx<0){
       msg(MSG:: ERROR) << "This Noise Occupancy data: " << datatype << " does not exist" << endmsg;
@@ -408,13 +407,13 @@ SCT_ReadCalibChipDataSvc::getNoiseOccupancyData(const Identifier & moduleId, con
   }
 } // SCT_ReadCalibChipDataSvc::getNoiseOccupancyData()
 //---------------------------------------------------------------------- 
- //fill appropriate folder
+//fill appropriate folder
 void 
 SCT_ReadCalibChipDataSvc::insertNptGainFolderData(GainParameters_t & theseCalibData, const coral::AttributeList & folderData){
   for (int i(0);i!=N_NPTGAIN;++i){
     ModuleGain_t & datavec=theseCalibData[i];
     std::string dbData = ((folderData)[nPtGainDbParameterNames[i] ]).data<std::string>();
-     fillFromString(dbData, datavec);
+    fillFromString(dbData, datavec);
   }
 }
 
@@ -426,4 +425,3 @@ SCT_ReadCalibChipDataSvc::insertNoiseOccFolderData(NoiseOccParameters_t & theseC
     fillFromString(dbData, datavec);
   }
 }
-
