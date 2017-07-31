@@ -1007,6 +1007,9 @@ namespace MuonCombined {
         ATH_MSG_DEBUG("Track doesn't have extrapolated track. Skipping");
       if (extrapolatedTrack && !extrapolatedTrack->perigeeParameters()) 
         ATH_MSG_DEBUG("Track doesn't have perigee parameters on extrapolated track. Skipping");
+      if( updatedExtrapolatedTrack ) {
+	delete updatedExtrapolatedTrack;
+      }
       //ATH_MSG_DEBUG("Set values to -999.0.");
       //muon.setParameter( (float)-999.0, xAOD::Muon::d0_sa);
       //muon.setParameter( (float)-999.0, xAOD::Muon::z0_sa);
@@ -1113,6 +1116,9 @@ namespace MuonCombined {
 	}
 	else{
 	  ATH_MSG_WARNING("failed to create ME track particle for SA muon");
+	}
+	if( updatedExtrapolatedTrack ) {
+	  delete updatedExtrapolatedTrack;
 	}
       }
     }
