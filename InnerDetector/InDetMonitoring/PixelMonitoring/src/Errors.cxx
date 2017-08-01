@@ -441,7 +441,7 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
       unsigned int num_femcc_errwords = 0;
 
       // Do the same bit-shifting again, this time for FE/MCC error words.
-      if (kFeErrorWords.find(id_hash) != kFeErrorWords.end()) {
+      if (!is_ibl && kFeErrorWords.find(id_hash) != kFeErrorWords.end()) {
          // Collection of: FE ID, associated error word
          std::map<unsigned int, unsigned int> fe_errorword_map = kFeErrorWords.find(id_hash)->second;
          if (fe_errorword_map.size() > 0) {
