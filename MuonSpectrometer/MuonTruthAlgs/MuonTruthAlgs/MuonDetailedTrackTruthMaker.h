@@ -11,8 +11,14 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/WriteHandleKeyArray.h"
+#include "StoreGate/ReadHandleKeyArray.h"
 
 #include "TrkToolInterfaces/IDetailedTrackTruthBuilder.h"
+
+#include "TrkTrack/TrackCollection.h"
+#include "TrkTruthData/PRD_MultiTruthCollection.h"
+#include "TrkTruthData/DetailedTrackTruthCollection.h"
 
 /**
  * This algorithm produces track truth data using Muon PRD truth collections.
@@ -32,13 +38,13 @@ public:
   
 private:
   // PRD truth maps in any order
-  std::vector<std::string> m_PRD_TruthNames;
+  SG::ReadHandleKeyArray<PRD_MultiTruthCollection> m_PRD_TruthNames;
 
   // Track input
-  std::vector<std::string> m_trackCollectionNames;
+  SG::ReadHandleKeyArray<TrackCollection> m_trackCollectionNames;
 
   // DetailedTrackTruthCollection output
-  std::vector<std::string> m_detailedTrackTruthNames;
+  SG::WriteHandleKeyArray<DetailedTrackTruthCollection> m_detailedTrackTruthNames;
 
   // Tool Handle for truth tool
   ToolHandle<Trk::IDetailedTrackTruthBuilder> m_truthTool;
