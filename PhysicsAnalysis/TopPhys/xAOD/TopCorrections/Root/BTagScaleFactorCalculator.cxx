@@ -2,8 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BTagScaleFactorCalculator.cxx 806282 2017-06-08 15:48:40Z iconnell $
+// $Id: BTagScaleFactorCalculator.cxx 807496 2017-06-28 14:52:29Z iconnell $
 #include "TopCorrections/BTagScaleFactorCalculator.h"
+#include "TopCorrections/TopCorrectionsTools.h"
 #include "TopConfiguration/TopConfig.h"
 #include "TopEvent/EventTools.h"
 
@@ -148,12 +149,23 @@ namespace top{
             btageff -> setMapIndex("B",     MapIndex);
             btageff -> setMapIndex("T",     MapIndex);
 
-	    top::check( btageff->applySystematicVariation(m_nominal),
+	    // Check if this jet collection systematic matches with one removed from the EV decomposition (TopCorrectionsTools)
+	    std::string bTagSystName = top::bTagNamedSystCheck(m_config, currentSystematic.second, tagWP, false);
+	    // If this string is not empty, we need to search and find the appropriate systematic set to apply
+	    if (bTagSystName != ""){
+	      CP::SystematicSet bTagSyst;
+	      bTagSyst.insert( sysSet.getSystematicByBaseName(bTagSystName) );	     
+	      top::check( btageff->applySystematicVariation(bTagSyst),
+			 "Failed to set new b-tagging SF to a shifted systematic set : "+bTagSystName );
+	    }
+	    else{
+	      top::check( btageff->applySystematicVariation(m_nominal),
 			"Failed to set new b-tagging SF to nominal" );
+	    }
 
 	    float btag_SF(1.0);
             bool  isTagged = false;//unused in case of Continuous
-            if (std::fabs(jetPtr->eta()) < 2.5 ) {
+            if (std::fabs(jetPtr->eta()) <= 2.5 ) {
               if (tagWP != "Continuous") {
                 isTagged = btagsel->accept(*jetPtr);
                 if(isTagged)
@@ -179,7 +191,7 @@ namespace top{
                 syst_set.insert( variation );
                 top::check( btageff->applySystematicVariation(syst_set),
                             "Failed to set new b-tagging systematic variation "+syst_set.name() );
-                if (std::fabs(jetPtr->eta()) < 2.5 ) {
+                if (std::fabs(jetPtr->eta()) <= 2.5 ) {
                   if (tagWP != "Continuous") {
                     if (isTagged)
                       top::check( btageff->getScaleFactor(*jetPtr, btag_SF),

@@ -12,8 +12,9 @@ atlas_depends_on_subdirs( PUBLIC
                           xAODJet
                           xAODMissingET
                           xAODCutFlow
+			  xAODMetaData
                           AsgTools
-                          AthContainers
+                          AthContainers			  
                           PATInterfaces
                           TopCPTools
                           TopEventSelectionTools
@@ -51,6 +52,7 @@ atlas_add_library( TopAnalysis Root/*.cxx Root/*.h Root/*.icc
                                   xAODJet
                                   xAODMissingET
                                   xAODCutFlow
+				  xAODMetaData
                                   AsgTools
                                   AthContainers
                                   PATInterfaces
@@ -85,6 +87,7 @@ atlas_add_executable( top-xaod
                                      xAODJet
                                      xAODMissingET
                                      xAODCutFlow
+				     xAODMetaData
                                      AsgTools
                                      AthContainers
                                      PATInterfaces
@@ -112,6 +115,7 @@ atlas_add_executable( top-tool-ftag
                                      xAODJet
                                      xAODMissingET
                                      xAODCutFlow
+				     xAODMetaData
                                      AsgTools
                                      AthContainers
                                      PATInterfaces

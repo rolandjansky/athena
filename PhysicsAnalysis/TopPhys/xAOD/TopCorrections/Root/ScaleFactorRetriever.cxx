@@ -3,6 +3,7 @@
 */
 
 #include "TopCorrections/ScaleFactorRetriever.h"
+#include "TopCorrections/TopCorrectionsTools.h"
 
 #include <vector>
 #include <string>
@@ -880,10 +881,16 @@ namespace top {
                                      std::string WP, bool do_trackjets, std::string uncert_name) const {
     float sf(1.);
     std::string decoration = "btag_SF_"+WP+"_nom";
-
+    std::string systematicName, bTagSystName;
     switch (SFSyst) {
     case top::topSFSyst::nominal :
-      break;  // is btag_SF_nom by default
+      // If this is the nominal tree, we proceed as normal
+      // If not nominal tree, we need to know which systematic this event corresponds to, 
+      // in case the systematic is removed from EV decomposition (will enter as a nominal retrieval)
+      systematicName = m_config->systematicName(event.m_hashValue);
+      bTagSystName   = top::bTagNamedSystCheck(m_config, systematicName, WP, false);
+      if (bTagSystName != "") decoration = "btag_SF_"+WP+"_"+bTagSystName; // Only change decoration if found, otherwise we will use the nominal
+      break;
     case top::topSFSyst::BTAG_SF_NAMED_UP :
       if (uncert_name=="") {
         std::cout << "Named b-tagging systematics should have a name. Please provide one." << std::endl;

@@ -16,6 +16,9 @@
 #include "AthContainers/DataVector.h"
 #include <unordered_map>
 
+// fwd declare particle-level class
+class ParticleLevelRCJetObjectLoader;
+
 namespace top {
 
 // fwd declare upgrade class
@@ -63,6 +66,8 @@ public:
      * removal (if requested) applied to it.
      */
     virtual void saveEvent(const top::Event& event);
+    virtual void calculateEvent(const top::Event& event);
+    virtual void fillEvent(const top::Event& event);
 
     /**
      * @breif Run for every event
@@ -73,6 +78,8 @@ public:
      *   TopPartons
      */
     virtual void saveTruthEvent();
+    virtual void calculateTruthEvent();
+    virtual void fillTruthEvent();
 
     /*!
      * @brief Store the particle level event's content in the particle level
@@ -86,6 +93,8 @@ public:
      * written to the output.
      */
     virtual void saveParticleLevelEvent(const top::ParticleLevelEvent& plEvent);
+    virtual void calculateParticleLevelEvent(const top::ParticleLevelEvent& plEvent);
+    virtual void fillParticleLevelEvent();
 
     /*!
      * @brief Store the upgrade event's content in the upgrade
@@ -99,6 +108,8 @@ public:
      * written to the output.
      */
     virtual void saveUpgradeEvent(const top::ParticleLevelEvent& plEvent);
+    virtual void calculateUpgradeEvent(const top::ParticleLevelEvent& plEvent);
+    virtual void fillUpgradeEvent();
 
     /**
      * @brief Not used by the flat ntuple code yet, but needed by the xAOD code.
@@ -153,7 +164,7 @@ protected:
      * @brief Internal function which configures the particle level tree
      * manager. It does branch setup etc.
      */
-    void setupParticleLevelTreeManager(const top::ParticleLevelEvent& plEvent);
+    void setupParticleLevelTreeManager(/*const top::ParticleLevelEvent& plEvent*/);
 
     /*!
      * @brief Internal function which configures the upgrade tree manager.
@@ -404,6 +415,8 @@ private:
     /// m_fakesMM_weights[selection][configuration]
     std::unordered_map<std::string,std::unordered_map<std::string, float>> m_fakesMM_weights;
 
+    /// Weights for bootstrapping
+    std::vector<int> m_weight_poisson;
 
     //event info
     unsigned long long m_eventNumber;
@@ -491,6 +504,13 @@ private:
     std::vector<float> m_ljet_e;
     std::vector<float> m_ljet_m;
     std::vector<float> m_ljet_sd12;
+
+    std::vector<char> m_ljet_isTopTagged_50;
+    std::vector<char> m_ljet_isTopTagged_80;
+    std::vector<char> m_ljet_isWTagged_80;
+    std::vector<char> m_ljet_isWTagged_50;
+    std::vector<char> m_ljet_isZTagged_80;
+    std::vector<char> m_ljet_isZTagged_50;
 
     //track jets
     std::vector<float> m_tjet_pt;
@@ -680,6 +700,12 @@ private:
     std::vector<int> m_jet_Ghosts_CHadron_Final_Count;
     std::vector<int> m_ljet_Ghosts_BHadron_Final_Count;
     std::vector<int> m_ljet_Ghosts_CHadron_Final_Count;
+    std::vector<std::vector<int>> m_rcjetsub_Ghosts_BHadron_Final_Count;
+    std::vector<std::vector<int>> m_rcjetsub_Ghosts_CHadron_Final_Count;
+
+    // for rc jets at particle level
+    std::unique_ptr<ParticleLevelRCJetObjectLoader> m_rcjet_particle;
+    std::string m_RCJetContainerParticle;       // name for RC jets container
 
 
     // Truth tree inserted variables

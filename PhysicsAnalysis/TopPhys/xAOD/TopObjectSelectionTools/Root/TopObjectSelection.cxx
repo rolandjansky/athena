@@ -94,6 +94,22 @@ TopObjectSelection::TopObjectSelection( const std::string& name ) :
     top::check( m_trkjet_btagSelTools[WP].retrieve(), "Failed to retrieve b-tagging Selection tool" );
   }
   
+  // boosted tagging stuff
+  if (m_config->useLargeRJets()) {
+    m_topTag50 = ToolHandle<SmoothedTopTagger>("topTag50");
+    top::check( m_topTag50.retrieve(), "Failed to retrieve 50% top-tagging tool" );
+    m_topTag80 = ToolHandle<SmoothedTopTagger>("topTag80");
+    top::check( m_topTag80.retrieve(), "Failed to retrieve 80% top-tagging tool" );
+    m_WTag50 = ToolHandle<SmoothedWZTagger>("WTag50");
+    top::check( m_WTag50.retrieve(), "Failed to retrieve 50% W-tagging tool" );
+    m_WTag80 = ToolHandle<SmoothedWZTagger>("WTag80");
+    top::check( m_WTag80.retrieve(), "Failed to retrieve 80% W-tagging tool" );
+    m_ZTag50 = ToolHandle<SmoothedWZTagger>("ZTag50");
+    top::check( m_ZTag50.retrieve(), "Failed to retrieve 50% Z-tagging tool" );
+    m_ZTag80 = ToolHandle<SmoothedWZTagger>("ZTag80");
+    top::check( m_ZTag80.retrieve(), "Failed to retrieve 80% Z-tagging tool" );
+  }
+  
   return StatusCode::SUCCESS;  
 }
 
@@ -274,7 +290,7 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJets()
       for (auto& WP : availableWPs) {
         if (WP!= "Continuous") {
           bool  isTagged = false;
-          if (std::fabs(jetPtr->eta()) < 2.5 ) {
+          if (std::fabs(jetPtr->eta()) <= 2.5 ) {
             ToolHandle<IBTaggingSelectionTool>& btagsel = m_btagSelTools[WP];
             isTagged = btagsel->accept(*jetPtr);
           }
@@ -282,7 +298,7 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJets()
         }
         else {
           int tagWeightBin = -2; // AT default
-          if (std::fabs(jetPtr->eta()) < 2.5 ) {
+          if (std::fabs(jetPtr->eta()) <= 2.5 ) {
             ToolHandle<IBTaggingSelectionTool>& btagsel = m_btagSelTools[WP];
             tagWeightBin = btagsel->getQuantile(*jetPtr);
           }
@@ -357,6 +373,28 @@ void TopObjectSelection::applySelectionPreOverlapRemovalLargeRJets()
             jetPtr->auxdecor<char>( m_passPreORSelectionLoose ) = decoration;
             jetPtr->auxdecor<char>( m_ORToolDecorationLoose ) = decoration * 2;
           }
+          //decorate with boosted-tagging flags
+#if ROOTCORE_RELEASE_SERIES==25
+          char isTop_80 = m_topTag80->tag(*jetPtr).getCutResultInverted()==0?1:0;
+          char isTop_50 = m_topTag50->tag(*jetPtr).getCutResultInverted()==0?1:0;
+          char Wtagged_80  = m_WTag80->tag(*jetPtr).getCutResultInverted()==0?1:0;
+          char Wtagged_50  = m_WTag50->tag(*jetPtr).getCutResultInverted()==0?1:0;
+          char Ztagged_80  = m_ZTag80->tag(*jetPtr).getCutResultInverted()==0?1:0;
+          char Ztagged_50  = m_ZTag50->tag(*jetPtr).getCutResultInverted()==0?1:0;
+#else
+          char isTop_80 = m_topTag80->tag(*jetPtr,false);
+          char isTop_50 = m_topTag50->tag(*jetPtr,false);
+          char Wtagged_80  = m_WTag80->tag(*jetPtr,false);
+          char Wtagged_50  = m_WTag50->tag(*jetPtr,false);
+          char Ztagged_80  = m_ZTag80->tag(*jetPtr,false);
+          char Ztagged_50  = m_ZTag50->tag(*jetPtr,false);
+#endif
+          jetPtr->auxdecor<char>("isTopTagged_80")  = isTop_80;
+          jetPtr->auxdecor<char>("isTopTagged_50")  = isTop_50;
+          jetPtr->auxdecor<char>("isWTagged_80") = Wtagged_80;
+          jetPtr->auxdecor<char>("isWTagged_50") = Wtagged_50;
+          jetPtr->auxdecor<char>("isZTagged_80") = Ztagged_80;
+          jetPtr->auxdecor<char>("isZTagged_50") = Ztagged_50;
         }
     }
 }

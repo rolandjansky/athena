@@ -123,7 +123,9 @@ namespace top {
 
     ///-- Overlap removal --///
     /// single parameter: boolean to do OR with large-R jets
-    objectSelection->overlapRemovalPostSelection(new top::OverlapRemovalASG( (topConfig->doLargeJetOverlapRemoval() && topConfig->useLargeRJets())) );
+    if (!topConfig->isTruthDxAOD()) {
+      objectSelection->overlapRemovalPostSelection(new top::OverlapRemovalASG( (topConfig->doLargeJetOverlapRemoval() && topConfig->useLargeRJets())) );
+    }
 
     return objectSelection;
   }

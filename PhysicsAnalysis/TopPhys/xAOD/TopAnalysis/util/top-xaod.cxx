@@ -170,6 +170,12 @@ int main(int argc, char** argv) {
         }
 
         std::unique_ptr<TFile> testFile(TFile::Open(usethisfile.c_str()));
+	
+	if(! top::readMetaData(testFile.get(), topConfig)){
+	  std::cerr << "Unable to access metadata object in this file : " << usethisfile << std::endl;
+	  std::cerr << "Please report this message" << std::endl;
+	}
+
 
         bool const isMC = (useAodMetaData ?
               topConfig->aodMetaData().isSimulation() :

@@ -6,6 +6,7 @@
 #define EVENTTOOLS_H_
 
 #include <string>
+#include <vector>
 
 #include "xAODMissingET/MissingET.h"
 
@@ -112,6 +113,15 @@ bool isSimulation(const top::Event& event);
  *
  */
 bool descendingPtSorter(const xAOD::IParticle* p0, const xAOD::IParticle* p1);
+
+/**
+ * @brief Function used to create poisson weights (mean of 1) for bootstrapping
+ * 
+ * @param nreplicas The number of replicas to fill (corresponds to size of output vector)
+ * @param eventNumber The event number used to seed TRandom3
+ * @param mcChannelNumber The DSID of MC event used to seed TRandom3
+ */
+std::vector<int> calculateBootstrapWeights(int nreplicas, int eventNumber, int mcChannelNumber);
 
 }
 

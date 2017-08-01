@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TopObjectSelection.h 802995 2017-04-17 01:23:28Z tpelzer $
+// $Id: TopObjectSelection.h 808170 2017-07-12 18:19:57Z tpelzer $
 #ifndef ANALYSISTOP_TOPOBJECTSELECTONTOOLS_TOPOBJECTSELECTION_H
 #define ANALYSISTOP_TOPOBJECTSELECTONTOOLS_TOPOBJECTSELECTION_H
 
@@ -12,8 +12,8 @@
   * @brief TopObjectSelection
   *   Selects top objects according to the ObjectLoaderBase type
   * 
-  * $Revision: 802995 $
-  * $Date: 2017-04-17 02:23:28 +0100 (Mon, 17 Apr 2017) $
+  * $Revision: 808170 $
+  * $Date: 2017-07-12 19:19:57 +0100 (Wed, 12 Jul 2017) $
   * 
   **/ 
 
@@ -31,9 +31,14 @@
 #include "TopObjectSelectionTools/TauSelectionBase.h"
 #include "TopObjectSelectionTools/PhotonSelectionBase.h"
 #include "TopObjectSelectionTools/OverlapRemovalBase.h"
-
 #include "TopSystematicObjectMaker/ElectronInJetSubtractionCollectionMaker.h"
+
+// b-tagging includes
 #include "xAODBTaggingEfficiency/BTaggingSelectionTool.h"
+
+// boosted-tagging includes
+#include "BoostedJetTaggers/SmoothedTopTagger.h"
+#include "BoostedJetTaggers/SmoothedWZTagger.h"
 
 #include "TopEvent/Event.h"
 
@@ -249,6 +254,14 @@ private:
     // do decorate the jets with the b-tagging flags
     std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool>> m_btagSelTools;
     std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool>> m_trkjet_btagSelTools;
+    
+    // do decorate the large-R jets with the boosted-tagging flags
+    ToolHandle<SmoothedTopTagger> m_topTag50;
+    ToolHandle<SmoothedTopTagger> m_topTag80;
+    ToolHandle<SmoothedWZTagger>  m_WTag50;
+    ToolHandle<SmoothedWZTagger>  m_WTag80;
+    ToolHandle<SmoothedWZTagger>  m_ZTag50;
+    ToolHandle<SmoothedWZTagger>  m_ZTag80;
 };
 }
 #endif

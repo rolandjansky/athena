@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JetObjectCollectionMaker.cxx 802997 2017-04-17 01:24:36Z tpelzer $
+// $Id: JetObjectCollectionMaker.cxx 808050 2017-07-10 15:50:58Z tpelzer $
 #include "TopSystematicObjectMaker/JetObjectCollectionMaker.h"
 #include "TopConfiguration/TopConfig.h"
 #include "TopEvent/EventTools.h"
@@ -115,6 +115,7 @@ StatusCode JetObjectCollectionMaker::initialize() {
       m_doJER = true;
     if (!m_config->isMC() && m_doFull_JER)
       m_doJER = true;
+    /// NB: for "Full_PseudoData", no need to smear the data, so m_doJER is false on data unless it's "Full"
 
 
     if (m_config->isMC()) {
@@ -152,6 +153,12 @@ StatusCode JetObjectCollectionMaker::initialize() {
       syst.clear();
       systLargeR.clear();
     }
+    if (m_config->contains(syst, "AllSmallRJets")) {
+      syst.clear();
+    }
+    if (m_config->contains(syst, "AllLargeRJets")) {
+      systLargeR.clear();
+    }
   }
 
   // If we are using particle flow jets then we
@@ -160,7 +167,7 @@ StatusCode JetObjectCollectionMaker::initialize() {
   if (!m_config->useParticleFlowJets()) {
     ///-- JES systematics --///
     if (m_config->isMC()) {
-      std::string allNP("JET_"+m_config->jetUncertainties_NPModel()+"_"),np1("JET_NPScenario1_"),np2("JET_NPScenario2_"),np3("JET_NPScenario3_"),np4("JET_NPScenario4_");
+      std::string allNP("JET_"+m_config->jetUncertainties_NPModel()+"_"),np1("JET_SR_Scenario1_"),np2("JET_SR_Scenario2_"),np3("JET_SR_Scenario3_"),np4("JET_SR_Scenario4_");
       std::string largeR_strong("LARGERJET_Strong_"),
         largeR_medium("LARGERJET_Medium_"),
         largeR_weak("LARGERJET_Weak_");
@@ -175,9 +182,9 @@ StatusCode JetObjectCollectionMaker::initialize() {
         specifiedSystematics( syst , m_jetUncertaintiesToolReducedNPScenario4 , m_systMap_ReducedNPScenario4 , np4 );
       }
       if (m_config->useLargeRJets()) {
-        specifiedSystematics( syst , m_jetUncertaintiesToolLargeR_strong , m_systMap_LargeR_strong , largeR_strong , true);
-        specifiedSystematics( syst , m_jetUncertaintiesToolLargeR_medium , m_systMap_LargeR_medium , largeR_medium , true);
-        specifiedSystematics( syst , m_jetUncertaintiesToolLargeR_weak , m_systMap_LargeR_weak , largeR_weak , true);
+        specifiedSystematics( systLargeR , m_jetUncertaintiesToolLargeR_strong , m_systMap_LargeR_strong , largeR_strong , true);
+        specifiedSystematics( systLargeR , m_jetUncertaintiesToolLargeR_medium , m_systMap_LargeR_medium , largeR_medium , true);
+        specifiedSystematics( systLargeR , m_jetUncertaintiesToolLargeR_weak , m_systMap_LargeR_weak , largeR_weak , true);
       }
     }
 
@@ -301,8 +308,8 @@ StatusCode JetObjectCollectionMaker::calibrate(const bool isLargeR) {
       if(JSF != 1.0 || bJSF != 1.0){
 
         int truthflav = -1;
-        if(jet->isAvailable<int>("HadronConeExclTruthLabelID")){
-          jet->getAttribute("HadronConeExclTruthLabelID", truthflav);
+        if(jet->isAvailable<int>("PartonTruthLabelID")){
+          jet->getAttribute("PartonTruthLabelID", truthflav);
         }
   
 	xAOD::JetFourMom_t jet_p4 = jet->jetP4()*JSF;
@@ -663,11 +670,11 @@ void JetObjectCollectionMaker::specifiedSystematics( const std::set<std::string>
 StatusCode JetObjectCollectionMaker::decorateBJets(xAOD::Jet& jet) {
   // initialise decorator and accessor
   static SG::AuxElement::Decorator<char> isbjet("IsBjet");
-  static const std::string labelB = "HadronConeExclTruthLabelID";
+  static const std::string labelB = "PartonTruthLabelID";
   static SG::AuxElement::Accessor<int> truth_label(labelB);
 
-  // Is b-jet if truth label == 5 and pT > 20 GeV
-  isbjet(jet) = (jet.pt() > 20000. && truth_label(jet) == 5);
+  // Is b-jet if truth label == 5 and pT > 15 GeV
+  isbjet(jet) = (jet.pt() > 15000. && truth_label(jet) == 5);
 
   return StatusCode::SUCCESS;
 }

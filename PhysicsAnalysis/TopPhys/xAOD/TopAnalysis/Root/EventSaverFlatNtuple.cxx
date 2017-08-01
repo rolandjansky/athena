@@ -17,6 +17,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "TopParticleLevel/ParticleLevelEvent.h"
+#include "TopParticleLevel/ParticleLevelRCJetObjectLoader.h"
 
 #include "TopFakes/TopFakesMMWeightCalculator.h"
 
@@ -252,7 +253,7 @@ namespace top {
             m_truthTreeManager->makeOutputVariable(m_weight_pileup, "weight_pileup");
             if (m_config->isMC() && m_config->doPileupReweighting()) m_truthTreeManager->makeOutputVariable(m_randomRunNumber, "randomRunNumber");
             m_truthTreeManager->makeOutputVariable(m_mcChannelNumber, "mcChannelNumber");
-
+	    
             // Only if you really really want it - this is BIG
             if (m_config->useTruthParticles() && m_config->doTruthBlockInfo() ) {
                 m_truthTreeManager->makeOutputVariable(m_mc_pt, "mc_pt");
@@ -318,7 +319,7 @@ namespace top {
                     }
                 }
             }
-
+	    
         }
 
         //loop over systematics and attach variables
@@ -560,6 +561,11 @@ namespace top {
 		  }
 		}
             }
+	    
+	    /// Bootstrapping poisson weights
+	    if (m_config->saveBootstrapWeights()){
+	      systematicTree->makeOutputVariable(m_weight_poisson, "weight_poisson");
+	    }
 
             //event info
             systematicTree->makeOutputVariable(m_eventNumber,     "eventNumber");
@@ -666,6 +672,12 @@ namespace top {
                 systematicTree->makeOutputVariable(m_ljet_e,    "ljet_e");
                 systematicTree->makeOutputVariable(m_ljet_m,    "ljet_m");
                 systematicTree->makeOutputVariable(m_ljet_sd12, "ljet_sd12");
+                systematicTree->makeOutputVariable(m_ljet_isTopTagged_50, "ljet_isTopTagged_50");
+                systematicTree->makeOutputVariable(m_ljet_isTopTagged_80, "ljet_isTopTagged_80"); 
+                systematicTree->makeOutputVariable(m_ljet_isWTagged_80, "ljet_isWTagged_80");
+                systematicTree->makeOutputVariable(m_ljet_isWTagged_50, "ljet_isWTagged_50");
+                systematicTree->makeOutputVariable(m_ljet_isZTagged_80, "ljet_isZTagged_80");
+                systematicTree->makeOutputVariable(m_ljet_isZTagged_50, "ljet_isZTagged_50");
             }
 
             //track jets
@@ -689,9 +701,9 @@ namespace top {
 	      systematicTree->makeOutputVariable(m_rcjet_eta,    "rcjet_eta");
 	      systematicTree->makeOutputVariable(m_rcjet_phi,    "rcjet_phi");
 	      systematicTree->makeOutputVariable(m_rcjet_e,      "rcjet_e");
-	      systematicTree->makeOutputVariable(m_rcjet_d12,    "rcjet_d12"); // requires >= 2 subjets                                                              
-	      systematicTree->makeOutputVariable(m_rcjet_d23,    "rcjet_d23"); // requires >= 3 subjets                                                                                                      
-	      systematicTree->makeOutputVariable(m_rcjetsub_pt,  "rcjetsub_pt");  // vector of vectors for subjet info                                                                                                        
+	      systematicTree->makeOutputVariable(m_rcjet_d12,    "rcjet_d12"); // requires >= 2 subjets
+	      systematicTree->makeOutputVariable(m_rcjet_d23,    "rcjet_d23"); // requires >= 3 subjets
+	      systematicTree->makeOutputVariable(m_rcjetsub_pt,  "rcjetsub_pt");  // vector of vectors for subjet info
 	      systematicTree->makeOutputVariable(m_rcjetsub_eta, "rcjetsub_eta");
 	      systematicTree->makeOutputVariable(m_rcjetsub_phi, "rcjetsub_phi");
 	      systematicTree->makeOutputVariable(m_rcjetsub_e,   "rcjetsub_e");
@@ -876,9 +888,12 @@ namespace top {
                 systematicTree->makeOutputVariable( trig_name.second, "mu_trigMatch_"+trig_name.first );
 
         }
+
+        setupUpgradeTreeManager();
+        setupParticleLevelTreeManager();
     }
 
-    void EventSaverFlatNtuple::setupParticleLevelTreeManager(const top::ParticleLevelEvent& plEvent){
+    void EventSaverFlatNtuple::setupParticleLevelTreeManager(/*const top::ParticleLevelEvent& plEvent*/){
         // Quick return if particle level is disabled or the tree is already initialised.
         // If particle level is disabled, no tree will be created.
         if ( not m_config->doTopParticleLevel() or m_particleLevelTreeManager ){
@@ -972,6 +987,26 @@ namespace top {
             m_particleLevelTreeManager->makeOutputVariable(m_ljet_Ghosts_CHadron_Final_Count, "ljet_nGhosts_cHadron");
         }
 
+        // RC branches
+        if (m_makeRCJets){
+          // first initialise the ParticleLevelRCJetObjectLoader
+          m_rcjet_particle = std::unique_ptr<ParticleLevelRCJetObjectLoader> ( new ParticleLevelRCJetObjectLoader( m_config ) );
+          top::check(m_rcjet_particle->initialize(),"Failed to initialize ParticleLevelRCJetObjectLoader");
+          // then create the branches
+          m_particleLevelTreeManager->makeOutputVariable(m_rcjet_pt,     "rcjet_pt");
+          m_particleLevelTreeManager->makeOutputVariable(m_rcjet_eta,    "rcjet_eta");
+          m_particleLevelTreeManager->makeOutputVariable(m_rcjet_phi,    "rcjet_phi");
+          m_particleLevelTreeManager->makeOutputVariable(m_rcjet_e,      "rcjet_e");
+          m_particleLevelTreeManager->makeOutputVariable(m_rcjet_d12,    "rcjet_d12"); // requires >= 2 subjets
+          m_particleLevelTreeManager->makeOutputVariable(m_rcjet_d23,    "rcjet_d23"); // requires >= 3 subjets
+          m_particleLevelTreeManager->makeOutputVariable(m_rcjetsub_pt,  "rcjetsub_pt");  // vector of vectors for subjet info
+          m_particleLevelTreeManager->makeOutputVariable(m_rcjetsub_eta, "rcjetsub_eta");
+          m_particleLevelTreeManager->makeOutputVariable(m_rcjetsub_phi, "rcjetsub_phi");
+          m_particleLevelTreeManager->makeOutputVariable(m_rcjetsub_e,   "rcjetsub_e");
+          m_particleLevelTreeManager->makeOutputVariable(m_rcjetsub_Ghosts_BHadron_Final_Count, "rcjetsub_nGhosts_bHadron");
+          m_particleLevelTreeManager->makeOutputVariable(m_rcjetsub_Ghosts_CHadron_Final_Count, "rcjetsub_nGhosts_cHadron");
+        }
+
         //met
         if ( m_config->useTruthMET() ){
             m_particleLevelTreeManager->makeOutputVariable(m_met_met, "met_met");
@@ -1010,10 +1045,9 @@ namespace top {
         //     and the .second is the actual variable.
         // (2) Secondly, we need to attach the newly created variables to the
         //     particle level tree manager.
-        m_particleLevel_SelectionDecisions.reserve( plEvent.m_selectionDecisions.size() );
-        for ( const auto & selectionDecision : plEvent.m_selectionDecisions ){
-            m_particleLevel_SelectionDecisions.push_back( std::make_pair( selectionDecision.first,
-                                                                          selectionDecision.second ) );
+        m_particleLevel_SelectionDecisions.reserve( m_extraBranches.size() );
+        for ( const auto & selection : m_extraBranches ){
+            m_particleLevel_SelectionDecisions.push_back( std::make_pair( selection, int() ) );
         }
 
         for ( auto & selectionDecision : m_particleLevel_SelectionDecisions ){
@@ -1087,11 +1121,14 @@ namespace top {
     }
 
     void EventSaverFlatNtuple::saveEvent(const top::Event& event) {
+      // record the event?
+      if (m_config->saveOnlySelectedEvents() && !event.m_saveEvent)
+          return;
+      this -> calculateEvent(event);
+      this -> fillEvent(event);
+    }
 
-        // record the event?
-        if (m_config->saveOnlySelectedEvents() && !event.m_saveEvent)
-            return;
-
+    void EventSaverFlatNtuple::calculateEvent(const top::Event& event) {
         //We have decorated event-info with a variable for each selection - with pass / fail
         recordSelectionDecision(event);
 
@@ -1304,6 +1341,12 @@ namespace top {
                   }
                 }
             }
+
+	    /// Bootstrapping poisson weights
+	    if(m_config->saveBootstrapWeights()){
+	      m_weight_poisson = event.m_info->auxdataConst<std::vector<int> >("weight_poisson");
+	    }
+
         }
 
         ///-- weights for matrix-method fakes estimate --///
@@ -1564,7 +1607,11 @@ namespace top {
                 m_jet_eta[i] = jetPtr->eta();
                 m_jet_phi[i] = jetPtr->phi();
                 m_jet_e[i] = jetPtr->e();
-                m_jet_ip3dsv1[i] = jetPtr->btagging()->SV1plusIP3D_discriminant();
+                double SV1IP3 = -999;
+                const xAOD::BTagging* btag(nullptr);
+                btag = jetPtr->btagging();
+                if (btag) SV1IP3 = btag->SV1plusIP3D_discriminant();
+                m_jet_ip3dsv1[i] = SV1IP3;
                 if (m_config->isMC()) {
                   m_jet_truthflav[i] = -99;
                   if(jetPtr->isAvailable<int>("HadronConeExclTruthLabelID")){
@@ -1595,13 +1642,13 @@ namespace top {
                 // for studies on high performance b-tagging
                 // the following are in DC14
                 double mvx = -999;
-                jetPtr->btagging()->MVx_discriminant("MV2c00", mvx);
+                if (btag) btag->MVx_discriminant("MV2c00", mvx);
                 m_jet_mv2c00[i] = mvx;
                 mvx = -999;
-                jetPtr->btagging()->MVx_discriminant("MV2c10", mvx);
+                if (btag) btag->MVx_discriminant("MV2c10", mvx);
                 m_jet_mv2c10[i] = mvx;
                 mvx = -999;
-                jetPtr->btagging()->MVx_discriminant("MV2c20", mvx);
+                if (btag) btag->MVx_discriminant("MV2c20", mvx);
                 m_jet_mv2c20[i] = mvx;
 
                 m_jet_jvt[i] = -1;
@@ -1626,6 +1673,12 @@ namespace top {
             m_ljet_e.resize(event.m_largeJets.size());
             m_ljet_m.resize(event.m_largeJets.size());
             m_ljet_sd12.resize(event.m_largeJets.size());
+            m_ljet_isTopTagged_50.resize(  event.m_largeJets.size() );
+            m_ljet_isTopTagged_80.resize(  event.m_largeJets.size() );
+            m_ljet_isWTagged_80.resize(   event.m_largeJets.size() );
+            m_ljet_isWTagged_50.resize( event.m_largeJets.size() );
+            m_ljet_isZTagged_80.resize(   event.m_largeJets.size() );
+            m_ljet_isZTagged_50.resize( event.m_largeJets.size() );
             for (const auto* const jetPtr : event.m_largeJets) {
                 m_ljet_pt[i] = jetPtr->pt();
                 m_ljet_eta[i] = jetPtr->eta();
@@ -1636,6 +1689,13 @@ namespace top {
                 float Split12 = 0;
                 jetPtr->getAttribute("Split12", Split12);
                 m_ljet_sd12[i] = Split12;
+
+                try { m_ljet_isTopTagged_50[i]  = jetPtr->getAttribute<char>("isTopTagged_50" );} catch (...) { }
+                try { m_ljet_isTopTagged_80[i]  = jetPtr->getAttribute<char>("isTopTagged_80" );} catch (...) { }
+                try { m_ljet_isWTagged_80[i] = jetPtr->getAttribute<char>("isWTagged_80");} catch (...) { }
+                try { m_ljet_isWTagged_50[i] = jetPtr->getAttribute<char>("isWTagged_50");} catch (...) { }
+                try { m_ljet_isZTagged_80[i] = jetPtr->getAttribute<char>("isZTagged_80"); } catch (...) { }
+                try { m_ljet_isZTagged_50[i] = jetPtr->getAttribute<char>("isZTagged_50"); } catch (...) { }
 
                 ++i;
             }
@@ -1661,14 +1721,16 @@ namespace top {
                 m_tjet_phi[i] = jetPtr->phi();
                 m_tjet_e[i] = jetPtr->e();
 
+                const xAOD::BTagging* btag(nullptr);
+                btag = jetPtr->btagging();
                 double mvx = -999;
-                jetPtr->btagging()->MVx_discriminant("MV2c00", mvx);
+                if (btag) btag->MVx_discriminant("MV2c00", mvx);
                 m_tjet_mv2c00[i] = mvx;
                 mvx = -999;
-                jetPtr->btagging()->MVx_discriminant("MV2c10", mvx);
+                if (btag) btag->MVx_discriminant("MV2c10", mvx);
                 m_tjet_mv2c10[i] = mvx;
                 mvx = -999;
-                jetPtr->btagging()->MVx_discriminant("MV2c20", mvx);
+                if (btag) btag->MVx_discriminant("MV2c20", mvx);
                 m_tjet_mv2c20[i] = mvx;
                 for( auto& tagWP : m_config -> bTagWP_available_trkJet()){
                   if (tagWP!= "Continuous") {
@@ -2029,38 +2091,38 @@ namespace top {
                 }
 
                 // now take the best permutation and build the tops and the ttbar system!
+                if(nPermutations != 0){
+                    TLorentzVector bhad,blep,lq1,lq2,lep,nu,top_had,top_lep,ttbar;
 
-                TLorentzVector bhad,blep,lq1,lq2,lep,nu,top_had,top_lep,ttbar;
+                    bhad.SetPtEtaPhiE(m_klfitter_model_bhad_pt[bestPerm], m_klfitter_model_bhad_eta[bestPerm], m_klfitter_model_bhad_phi[bestPerm], m_klfitter_model_bhad_E[bestPerm]);
+                    blep.SetPtEtaPhiE(m_klfitter_model_blep_pt[bestPerm], m_klfitter_model_blep_eta[bestPerm], m_klfitter_model_blep_phi[bestPerm], m_klfitter_model_blep_E[bestPerm]);
+                    lq1.SetPtEtaPhiE(m_klfitter_model_lq1_pt[bestPerm],   m_klfitter_model_lq1_eta[bestPerm],  m_klfitter_model_lq1_phi[bestPerm],  m_klfitter_model_lq1_E[bestPerm]);
+                    lq2.SetPtEtaPhiE(m_klfitter_model_lq2_pt[bestPerm],   m_klfitter_model_lq2_eta[bestPerm],  m_klfitter_model_lq2_phi[bestPerm],  m_klfitter_model_lq2_E[bestPerm]);
+                    lep.SetPtEtaPhiE(m_klfitter_model_lep_pt[bestPerm],   m_klfitter_model_lep_eta[bestPerm],  m_klfitter_model_lep_phi[bestPerm],  m_klfitter_model_lep_E[bestPerm]);
+                    nu.SetPtEtaPhiE(m_klfitter_model_nu_pt[bestPerm],     m_klfitter_model_nu_eta[bestPerm],   m_klfitter_model_nu_phi[bestPerm],   m_klfitter_model_nu_E[bestPerm]);
 
-                bhad.SetPtEtaPhiE(m_klfitter_model_bhad_pt[bestPerm], m_klfitter_model_bhad_eta[bestPerm], m_klfitter_model_bhad_phi[bestPerm], m_klfitter_model_bhad_E[bestPerm]);
-                blep.SetPtEtaPhiE(m_klfitter_model_blep_pt[bestPerm], m_klfitter_model_blep_eta[bestPerm], m_klfitter_model_blep_phi[bestPerm], m_klfitter_model_blep_E[bestPerm]);
-                lq1.SetPtEtaPhiE(m_klfitter_model_lq1_pt[bestPerm],   m_klfitter_model_lq1_eta[bestPerm],  m_klfitter_model_lq1_phi[bestPerm],  m_klfitter_model_lq1_E[bestPerm]);
-                lq2.SetPtEtaPhiE(m_klfitter_model_lq2_pt[bestPerm],   m_klfitter_model_lq2_eta[bestPerm],  m_klfitter_model_lq2_phi[bestPerm],  m_klfitter_model_lq2_E[bestPerm]);
-                lep.SetPtEtaPhiE(m_klfitter_model_lep_pt[bestPerm],   m_klfitter_model_lep_eta[bestPerm],  m_klfitter_model_lep_phi[bestPerm],  m_klfitter_model_lep_E[bestPerm]);
-                nu.SetPtEtaPhiE(m_klfitter_model_nu_pt[bestPerm],     m_klfitter_model_nu_eta[bestPerm],   m_klfitter_model_nu_phi[bestPerm],   m_klfitter_model_nu_E[bestPerm]);
+                    top_had = bhad+lq1+lq2;
+                    top_lep = blep+lep+nu;
+                    ttbar   = top_had+top_lep;
 
-                top_had = bhad+lq1+lq2;
-                top_lep = blep+lep+nu;
-                ttbar   = top_had+top_lep;
+                    m_klfitter_bestPerm_topLep_pt  = top_lep.Pt();
+                    m_klfitter_bestPerm_topLep_eta = top_lep.Eta();
+                    m_klfitter_bestPerm_topLep_phi = top_lep.Phi();
+                    m_klfitter_bestPerm_topLep_E   = top_lep.E();
+                    m_klfitter_bestPerm_topLep_m   = top_lep.M();
 
-                m_klfitter_bestPerm_topLep_pt  = top_lep.Pt();
-                m_klfitter_bestPerm_topLep_eta = top_lep.Eta();
-                m_klfitter_bestPerm_topLep_phi = top_lep.Phi();
-                m_klfitter_bestPerm_topLep_E   = top_lep.E();
-                m_klfitter_bestPerm_topLep_m   = top_lep.M();
+                    m_klfitter_bestPerm_topHad_pt  = top_had.Pt();
+                    m_klfitter_bestPerm_topHad_eta = top_had.Eta();
+                    m_klfitter_bestPerm_topHad_phi = top_had.Phi();
+                    m_klfitter_bestPerm_topHad_E   = top_had.E();
+                    m_klfitter_bestPerm_topHad_m   = top_had.M();
 
-                m_klfitter_bestPerm_topHad_pt  = top_had.Pt();
-                m_klfitter_bestPerm_topHad_eta = top_had.Eta();
-                m_klfitter_bestPerm_topHad_phi = top_had.Phi();
-                m_klfitter_bestPerm_topHad_E   = top_had.E();
-                m_klfitter_bestPerm_topHad_m   = top_had.M();
-
-                m_klfitter_bestPerm_ttbar_pt   = ttbar.Pt();
-                m_klfitter_bestPerm_ttbar_eta  = ttbar.Eta();
-                m_klfitter_bestPerm_ttbar_phi  = ttbar.Phi();
-                m_klfitter_bestPerm_ttbar_E    = ttbar.E();
-                m_klfitter_bestPerm_ttbar_m    = ttbar.M();
-
+                    m_klfitter_bestPerm_ttbar_pt   = ttbar.Pt();
+                    m_klfitter_bestPerm_ttbar_eta  = ttbar.Eta();
+                    m_klfitter_bestPerm_ttbar_phi  = ttbar.Phi();
+                    m_klfitter_bestPerm_ttbar_E    = ttbar.E();
+                    m_klfitter_bestPerm_ttbar_m    = ttbar.M();
+                }
 		
 
             }
@@ -2095,15 +2157,21 @@ namespace top {
 
 	  }
 	}
+ 
+    }
 
+    void EventSaverFlatNtuple::fillEvent(const top::Event& event) {
         //do it!
         m_treeManagers[event.m_ttreeIndex]->fill();
     }
 
 
-    void EventSaverFlatNtuple::saveTruthEvent()
-    {
+    void EventSaverFlatNtuple::saveTruthEvent() {
+       this -> calculateTruthEvent();
+       this -> fillTruthEvent();
+    }
 
+    void EventSaverFlatNtuple::calculateTruthEvent() {
         const xAOD::EventInfo* eventInfo(nullptr);
         top::check( evtStore()->retrieve(eventInfo,m_config->sgKeyEventInfo()) , "Failed to retrieve EventInfo" );
 
@@ -2118,6 +2186,7 @@ namespace top {
         m_runNumber       = eventInfo -> runNumber();
         m_mcChannelNumber = eventInfo -> mcChannelNumber();
         m_mu = eventInfo->averageInteractionsPerCrossing();
+
         if (m_config->doPileupReweighting() && !m_config->isTruthDxAOD()) {
             m_weight_pileup = eventInfo->auxdataConst<float>("PileupWeight");
             m_randomRunNumber = eventInfo->auxdataConst<unsigned int>("RandomRunNumber");
@@ -2198,25 +2267,26 @@ namespace top {
             loadPdfWeights();
         }
 
-        m_truthTreeManager->fill();
+    }
 
+    void EventSaverFlatNtuple::fillTruthEvent() {
+        m_truthTreeManager->fill();
     }
 
     void EventSaverFlatNtuple::saveParticleLevelEvent(const top::ParticleLevelEvent& plEvent){
-        // Quick return if particle level is disabled. No tree will be created!
+        // Quick return if particle level is disabled.
         if ( not m_config->doTopParticleLevel() ){
             return;
         }
-
-        // Setup the TTree. This should come at the very top in order to make sure
-        // that event for non-MC data, the TTree will be created (but remains empty).
-        setupParticleLevelTreeManager( plEvent );
-
         // No need to attempt to write out anything for non-MC data.
         if ( ! m_config->isMC() ){
             return;
         }
+        this -> calculateParticleLevelEvent(plEvent);
+        this -> fillParticleLevelEvent();
+    }
 
+    void EventSaverFlatNtuple::calculateParticleLevelEvent(const top::ParticleLevelEvent& plEvent) {
         for ( auto & selectionDecision : m_particleLevel_SelectionDecisions ){
             selectionDecision.second = plEvent.m_selectionDecisions[ selectionDecision.first ];
         }
@@ -2370,6 +2440,77 @@ namespace top {
             }
         }
 
+        if(m_makeRCJets){
+            // Execute the re-clustering code
+            // - make jet container of small-r jets in the event, put it in TStore, do re-clustering
+            top::check(m_rcjet_particle->execute(plEvent),"Failed to execute ParticleLevelRCJetObjectLoader container");
+
+            // Get the name of the container of re-clustered jets
+            std::string m_RCJetContainerParticle = m_rcjet_particle->rcjetContainerName();
+
+            // -- Retrieve the re-clustered jets from TStore & save good re-clustered jets -- //
+            const xAOD::JetContainer* rc_jets_particle(nullptr);
+            top::check(evtStore()->retrieve(rc_jets_particle,m_RCJetContainerParticle),"Failed to retrieve particle RC JetContainer");
+            
+            // re-clustered jet substructure
+            static SG::AuxElement::ConstAccessor<float> RCSplit12("Split12");
+            static SG::AuxElement::ConstAccessor<float> RCSplit23("Split23");
+            
+            // Initialize the vectors to be saved as branches
+            unsigned int sizeOfRCjets(rc_jets_particle->size());
+            
+            m_rcjet_pt.resize(sizeOfRCjets,-999.);
+            m_rcjet_eta.resize(sizeOfRCjets,-999.);
+            m_rcjet_phi.resize(sizeOfRCjets,-999.);
+            m_rcjet_e.resize(sizeOfRCjets,-999.);
+            m_rcjet_d12.resize(sizeOfRCjets,-999.);
+            m_rcjet_d23.resize(sizeOfRCjets,-999.);
+            m_rcjetsub_pt.resize(sizeOfRCjets, std::vector<float>());
+            m_rcjetsub_eta.resize(sizeOfRCjets, std::vector<float>());
+            m_rcjetsub_phi.resize(sizeOfRCjets, std::vector<float>());
+            m_rcjetsub_e.resize(sizeOfRCjets, std::vector<float>());
+            m_rcjetsub_Ghosts_BHadron_Final_Count.resize(sizeOfRCjets, std::vector<int>());
+            m_rcjetsub_Ghosts_CHadron_Final_Count.resize(sizeOfRCjets, std::vector<int>());
+            
+            unsigned int i = 0;
+            std::vector<int> rc_particle_selected_jets;
+            rc_particle_selected_jets.clear();
+            
+            for (xAOD::JetContainer::const_iterator jet_itr = rc_jets_particle->begin(); jet_itr != rc_jets_particle->end(); ++jet_itr) {
+                const xAOD::Jet* rc_jet = *jet_itr;
+                if (!m_rcjet_particle->passSelection(*rc_jet))
+                    continue;
+                
+                rc_particle_selected_jets.push_back(rc_jet->index());
+                
+                m_rcjet_pt[i]   = rc_jet->pt();
+                m_rcjet_eta[i]  = rc_jet->eta();
+                m_rcjet_phi[i]  = rc_jet->phi();
+                m_rcjet_e[i]    = rc_jet->e();
+                
+                m_rcjet_d12[i] = (RCSplit12.isAvailable(*rc_jet)) ? RCSplit12(*rc_jet) : -999.;
+                m_rcjet_d23[i] = (RCSplit23.isAvailable(*rc_jet)) ? RCSplit23(*rc_jet) : -999.;
+                
+                // loop over subjets
+                m_rcjetsub_pt[i].clear();     // clear the vector size (otherwise it grows out of control!)
+                m_rcjetsub_eta[i].clear();
+                m_rcjetsub_phi[i].clear();
+                m_rcjetsub_e[i].clear();
+                
+                const xAOD::Jet* subjet(nullptr);
+                for(auto rc_jet_subjet : rc_jet->getConstituents()){
+                    subjet = static_cast<const xAOD::Jet*>(rc_jet_subjet->rawConstituent());
+                    m_rcjetsub_pt[i].push_back(subjet->pt());
+                    m_rcjetsub_eta[i].push_back(subjet->eta());
+                    m_rcjetsub_phi[i].push_back(subjet->phi());
+                    m_rcjetsub_e[i].push_back(subjet->e());
+                    m_rcjetsub_Ghosts_BHadron_Final_Count[i].push_back(subjet->auxdata<int>( "GhostBHadronsFinalCount" ));
+                    m_rcjetsub_Ghosts_CHadron_Final_Count[i].push_back(subjet->auxdata<int>( "GhostCHadronsFinalCount" ));
+                } // end for-loop over subjets
+                ++i;
+            } // end for-loop over re-clustered jets
+        }
+
         //met
         if ( m_config->useTruthMET() ){
             m_met_met = plEvent.m_met->met();
@@ -2422,26 +2563,27 @@ namespace top {
           }
 	}
 
+    }
 
-
+    void EventSaverFlatNtuple::fillParticleLevelEvent() {
         //do it!
         m_particleLevelTreeManager->fill();
     }
 
     void EventSaverFlatNtuple::saveUpgradeEvent(const top::ParticleLevelEvent& upgradeEvent){
-        // Quick return if upgrade is disabled. No tree will be created!
+        // Quick return if upgrade is disabled.
         if ( not m_config->HLLHC() ){
             return;
         }
-
-        // Setup the TTree. This should come at the very top in order to make sure
-        // that event for non-MC data, the TTree will be created (but remains empty).
-        setupUpgradeTreeManager( /*upgradeEvent*/ );
-
         // No need to attempt to write out anything for non-MC data.
         if ( ! m_config->isMC() ){
             return;
         }
+       this -> calculateUpgradeEvent(upgradeEvent);
+       this -> fillUpgradeEvent();
+    }
+
+    void EventSaverFlatNtuple::calculateUpgradeEvent(const top::ParticleLevelEvent& upgradeEvent) {
         
         // to get the fixed mc weight
         const xAOD::TruthEventContainer * truthEvent(nullptr);
@@ -2527,6 +2669,9 @@ namespace top {
        m_met_met = upgradeEvent.m_met->met();
        m_met_phi = upgradeEvent.m_met->phi();
        
+    }
+
+    void EventSaverFlatNtuple::fillUpgradeEvent() {
        // fill the tree
        m_upgradeTreeManager->fill();
 
