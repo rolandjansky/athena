@@ -137,18 +137,20 @@ void PixelMon2DMapsLW::WeightingFill(Identifier &id, const PixelID* pixID, float
 
 void PixelMon2DMapsLW::Fill2DMon(PixelMon2DMapsLW* oldmap)
 {
-   for (unsigned int x = 1; x <= DBMA->GetNbinsX(); x++) {
-      for (unsigned int y = 1; y <= DBMA->GetNbinsY(); y++) {
-         float content = oldmap->DBMA->GetBinContent(x, y);
-         DBMA->SetBinContent(x, y, content);
-         oldmap->DBMA->SetBinContent(x, y, 0);
+   if (!m_errorHist) {
+      for (unsigned int x = 1; x <= DBMA->GetNbinsX(); x++) {
+         for (unsigned int y = 1; y <= DBMA->GetNbinsY(); y++) {
+            float content = oldmap->DBMA->GetBinContent(x, y);
+            DBMA->SetBinContent(x, y, content);
+            oldmap->DBMA->SetBinContent(x, y, 0);
+         }
       }
-   }
-   for (unsigned int x = 1; x <= DBMC->GetNbinsX(); x++) {
-      for (unsigned int y = 1; y <= DBMC->GetNbinsY(); y++) {
-         float content = oldmap->DBMC->GetBinContent(x, y);
-         DBMC->SetBinContent(x, y, content);
-         oldmap->DBMC->SetBinContent(x, y, 0);
+      for (unsigned int x = 1; x <= DBMC->GetNbinsX(); x++) {
+         for (unsigned int y = 1; y <= DBMC->GetNbinsY(); y++) {
+            float content = oldmap->DBMC->GetBinContent(x, y);
+            DBMC->SetBinContent(x, y, content);
+            oldmap->DBMC->SetBinContent(x, y, 0);
+         }
       }
    }
    for (unsigned int x = 1; x <= A->GetNbinsX(); x++) {
@@ -186,7 +188,7 @@ void PixelMon2DMapsLW::Fill2DMon(PixelMon2DMapsLW* oldmap)
          oldmap->B2->SetBinContent(x, y, 0);
       }
    }
-   if (m_doIBL) {
+   if (m_doIBL && !m_errorHist) {
       for (unsigned int x = 1; x <= IBL->GetNbinsX(); x++) {
          for (unsigned int y = 1; y <= IBL->GetNbinsY(); y++) {
             float content = oldmap->IBL->GetBinContent(x, y);
