@@ -191,7 +191,7 @@ Trk::MaterialEffectsUpdator::update(const TrackParameters *parm,
   // TODO, if the parm doesn't have a surface (i.e. its in
   // curvilinear) then should we fall through?
   if (particle == Trk::geantino || particle == Trk::nonInteractingMuon || (!m_doMs && !m_doEloss) ||
-      !(&parm->associatedSurface()) || parm->associatedSurface() != meff.associatedSurface()) {
+      parm->associatedSurface() != meff.associatedSurface()) {
     return(parm);
   }
 

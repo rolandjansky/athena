@@ -3279,8 +3279,8 @@ Trk::Extrapolator::insideVolumeStaticLayers(
     ATH_MSG_VERBOSE("  [+] In starting volume: check for eventual necessary postUpdate and overlapSearch.");
 
     // check if the parameter is on the layer
-    const Trk::Layer *parsLayer = &nextParameters->associatedSurface() ?
-                                  (nextParameters->associatedSurface()).associatedLayer() : 0;
+    const Trk::Layer *parsLayer = 
+      nextParameters->associatedSurface().associatedLayer();
     if ((parsLayer && parsLayer == associatedLayer)
         || associatedLayer->surfaceRepresentation().isOnSurface(parm.position(),
                                                                 false,
