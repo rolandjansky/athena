@@ -205,7 +205,8 @@ TileGeoG4SDCalc::~TileGeoG4SDCalc() {
   delete m_lookup;
 }
 
-G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep) {
+G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep, TileHitData& hitData) const
+{
   if (m_options.verboseLevel > 10)
     G4cout << "Process Hits" << G4endl;
 
@@ -258,30 +259,30 @@ G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep) {
   // Check current TileSectionDescription
   int sect = 0;
   if (namePhysSection.find("EBarrel") != G4String::npos) {
-    m_hitData.section = m_lookup->GetSection(TileDddbManager::TILE_EBARREL);
-    m_hitData.nDetector = 2;
+    hitData.section = m_lookup->GetSection(TileDddbManager::TILE_EBARREL);
+    hitData.nDetector = 2;
     sect = 2;
   } else if (namePhysSection.find("Barrel") != G4String::npos) {
-    m_hitData.section = m_lookup->GetSection(TileDddbManager::TILE_BARREL);
-    m_hitData.nDetector = 1;
+    hitData.section = m_lookup->GetSection(TileDddbManager::TILE_BARREL);
+    hitData.nDetector = 1;
     sect = 1;
   } else if (namePhysSection.find("ITC") != G4String::npos) {
-    m_hitData.nDetector = 3;
+    hitData.nDetector = 3;
     G4String namePlug = theTouchable->GetVolume(level - 3)->GetName();
     if (namePlug.find("Plug1") != G4String::npos) {
-      m_hitData.section = m_lookup->GetSection(TileDddbManager::TILE_PLUG1);
+      hitData.section = m_lookup->GetSection(TileDddbManager::TILE_PLUG1);
       sect = 3;
     } else {
-      m_hitData.section = m_lookup->GetSection(TileDddbManager::TILE_PLUG2);
+      hitData.section = m_lookup->GetSection(TileDddbManager::TILE_PLUG2);
       sect = 4;
     }
   } else if (namePhysSection.find("Gap") != G4String::npos) {
-    m_hitData.section = m_lookup->GetSection(TileDddbManager::TILE_PLUG3);
-    m_hitData.nDetector = 3;
+    hitData.section = m_lookup->GetSection(TileDddbManager::TILE_PLUG3);
+    hitData.nDetector = 3;
     sect = 5;
   } else if (namePhysSection.find("Crack") != G4String::npos) {
-    m_hitData.section = m_lookup->GetSection(TileDddbManager::TILE_PLUG4);
-    m_hitData.nDetector = 3;
+    hitData.section = m_lookup->GetSection(TileDddbManager::TILE_PLUG4);
+    hitData.nDetector = 3;
     sect = 6;
   } else {
     G4cout << "FATAL: Wrong name for tile scin section --> " << namePhysSection.c_str() << G4endl;
@@ -289,31 +290,31 @@ G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep) {
   }
 
   // Check the copy number of the module (1-64)
-  // m_hitData.nModule = theTouchable->GetVolume(level-2)->GetCopyNo();
-  m_hitData.nModule = theTouchable->GetReplicaNumber(level - 2);
+  // hitData.nModule = theTouchable->GetVolume(level-2)->GetCopyNo();
+  hitData.nModule = theTouchable->GetReplicaNumber(level - 2);
   if (theTouchable->GetVolume(level - 2)->IsReplicated())
-    m_hitData.nModule++;
-  if (m_hitData.nModule > m_hitData.section->nrOfModules) {
-    G4cout << "FATAL: Wrong module index -->" << m_hitData.nModule << G4endl;
+    hitData.nModule++;
+  if (hitData.nModule > hitData.section->nrOfModules) {
+    G4cout << "FATAL: Wrong module index -->" << hitData.nModule << G4endl;
     return false;
   }
 
   // Check the side
-  m_hitData.nSide = 1;
-  m_hitData.isNegative = false;
+  hitData.nSide = 1;
+  hitData.isNegative = false;
   if ((namePhysSection.find("Barrel") != G4String::npos) &&
     (namePhysSection.find("EBarrel") == G4String::npos) ) {}
   else {
     if (namePhysSection.find("Neg") != G4String::npos) {
-      m_hitData.nSide = -1;
-      m_hitData.isNegative = true;
+      hitData.nSide = -1;
+      hitData.isNegative = true;
     }
   }
 
   // Get the number of scintillator inside module 0 - ...
   G4VPhysicalVolume* physVol = theTouchable->GetVolume();
-  m_hitData.tileSize = physVol->GetCopyNo();
-  m_hitData.tilePeriod = theTouchable->GetReplicaNumber(2);
+  hitData.tileSize = physVol->GetCopyNo();
+  hitData.tilePeriod = theTouchable->GetReplicaNumber(2);
 
   // 1. Move to period volume check if it's replicated and take the replica number
   //    If the period is not replicated that means we are in the second Absorber Child
@@ -326,61 +327,61 @@ G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep) {
   // tileperiod = _section->nrOfPeriods - 1;
 
   if (m_options.verboseLevel > 10) {
-    G4cout << "Section number: " << sect*m_hitData.nSide << G4endl;
-    G4cout << "Module number:  " << m_hitData.nModule << G4endl;
-    G4cout << "Period number:  " << m_hitData.tilePeriod << G4endl;
-    G4cout << "Scin Copy No:   " << m_hitData.tileSize << G4endl;
+    G4cout << "Section number: " << sect*hitData.nSide << G4endl;
+    G4cout << "Module number:  " << hitData.nModule << G4endl;
+    G4cout << "Period number:  " << hitData.tilePeriod << G4endl;
+    G4cout << "Scin Copy No:   " << hitData.tileSize << G4endl;
   }
 
-  int nScin = m_hitData.tilePeriod * m_hitData.section->nrOfScintillators + m_hitData.tileSize;
-  m_hitData.cell = m_hitData.section->ScinToCell(nScin);
-  if (!m_hitData.cell) {
+  int nScin = hitData.tilePeriod * hitData.section->nrOfScintillators + hitData.tileSize;
+  hitData.cell = hitData.section->ScinToCell(nScin);
+  if (!hitData.cell) {
     G4cout << "ERROR: Zero pointer to current cell, nScin=" << nScin << G4endl;
-    m_hitData.section->PrintScinToCell("ERROR in _cell");
+    hitData.section->PrintScinToCell("ERROR in _cell");
     return false;
   }
 
-  m_hitData.nrOfPMT = m_hitData.cell->nrOfPMT;
+  hitData.nrOfPMT = hitData.cell->nrOfPMT;
   if (m_options.verboseLevel > 10)
-    G4cout << "Number of PMTs: " << m_hitData.nrOfPMT << G4endl;
+    G4cout << "Number of PMTs: " << hitData.nrOfPMT << G4endl;
 
   // Attach special D4 cell to cell D5 in ext.barrel
   if (sect == 3) {
-    if ( m_lookup->TileGeoG4npmtD4(std::max(0, m_hitData.nSide), m_hitData.nModule - 1) == 0 ) {
-      m_hitData.section = m_lookup->GetSection(TileDddbManager::TILE_EBARREL);
-      m_hitData.nDetector = 2;  //ext.barrel
-      m_hitData.tileSize += 9;
-      nScin = m_hitData.tileSize; //last tile row in first period
-      m_hitData.cell = m_hitData.section->ScinToCell(nScin);
+    if ( m_lookup->TileGeoG4npmtD4(std::max(0, hitData.nSide), hitData.nModule - 1) == 0 ) {
+      hitData.section = m_lookup->GetSection(TileDddbManager::TILE_EBARREL);
+      hitData.nDetector = 2;  //ext.barrel
+      hitData.tileSize += 9;
+      nScin = hitData.tileSize; //last tile row in first period
+      hitData.cell = hitData.section->ScinToCell(nScin);
       if (m_options.verboseLevel > 10) {
         char nm[5] = {'X', 'A', 'B', 'D', 'E'};
         G4cout << "Disabling special D4, all energy goes to cell "
-        << nm[m_hitData.cell->sample] << m_hitData.cell->cellNum << G4endl;
+        << nm[hitData.cell->sample] << hitData.cell->cellNum << G4endl;
       }
     }
   } else if (sect == 4) {
     // Change number of PMTs in Special C10 Cells
-    m_hitData.nrOfPMT = m_lookup->TileGeoG4npmtC10(std::max(0, m_hitData.nSide), m_hitData.nModule - 1);
-    if (m_options.verboseLevel > 10 && m_hitData.nrOfPMT != 2) {
-      G4cout << "Changing number of PMTs in special C10 to " << m_hitData.nrOfPMT << G4endl;
+    hitData.nrOfPMT = m_lookup->TileGeoG4npmtC10(std::max(0, hitData.nSide), hitData.nModule - 1);
+    if (m_options.verboseLevel > 10 && hitData.nrOfPMT != 2) {
+      G4cout << "Changing number of PMTs in special C10 to " << hitData.nrOfPMT << G4endl;
     }
-  } else if (sect == 6 && m_hitData.cell->tower > 16) {
+  } else if (sect == 6 && hitData.cell->tower > 16) {
     // Check number of PMTs in Special E4' Cells (side C, modules 32,33)
-    m_hitData.nrOfPMT = m_lookup->TileGeoG4npmtE5(std::max(0, m_hitData.nSide), m_hitData.nModule - 1);
-    if (m_hitData.nrOfPMT != m_hitData.cell->nrOfPMT) {
-      G4cout << "WARNING: Changing number of PMTs in special E4' from " << m_hitData.cell->nrOfPMT << " to " << m_hitData.nrOfPMT << G4endl;
+    hitData.nrOfPMT = m_lookup->TileGeoG4npmtE5(std::max(0, hitData.nSide), hitData.nModule - 1);
+    if (hitData.nrOfPMT != hitData.cell->nrOfPMT) {
+      G4cout << "WARNING: Changing number of PMTs in special E4' from " << hitData.cell->nrOfPMT << " to " << hitData.nrOfPMT << G4endl;
     }
   }
 
   // Determine tower and sample
-  m_hitData.nTower = m_hitData.cell->tower;
-  if (m_hitData.nTower < 0)
-    m_hitData.nTower *= -1;
-  m_hitData.nSample = m_hitData.cell->sample;
+  hitData.nTower = hitData.cell->tower;
+  if (hitData.nTower < 0)
+    hitData.nTower *= -1;
+  hitData.nSample = hitData.cell->sample;
 
   // If that's central barrel then determine the side
-  if ((m_hitData.nDetector == 1) && (m_hitData.cell->cellNum < 0))
-    m_hitData.nSide = -1;
+  if ((hitData.nDetector == 1) && (hitData.cell->cellNum < 0))
+    hitData.nSide = -1;
 
   return true;
 }
@@ -676,14 +677,14 @@ TileMicroHit TileGeoG4SDCalc::GetTileMicroHit(const G4Step* aStep) {
   microHit.time_down = 0.0;
   //microHit.period  = 0;               microHit.tilerow   = 0; // prepared for future use
 
-  G4bool stat = FindTileScinSection(aStep);  //Search for the tilecal sub-section, its module and some identifiers
+  G4bool stat = this->FindTileScinSection(aStep, m_hitData);  //Search for the tilecal sub-section, its module and some identifiers
   if (!stat) {
     if (m_options.verboseLevel > 5)
       G4cout << "GetTileMicroHit: FindTileScinSection(aStep) is false!" << G4endl;
     return microHit;
   }
 
-  stat = MakePmtEdepTime(aStep, m_hitData);  //calculation of pmtID, edep and scin_Time with aStep
+  stat = this->MakePmtEdepTime(aStep, m_hitData);  //calculation of pmtID, edep and scin_Time with aStep
   if (!stat) {
     if (m_options.verboseLevel > 5)
       G4cout << "MakePmtEdepTime: wrong pmtID_up,pmtID_down,edep_up,"
