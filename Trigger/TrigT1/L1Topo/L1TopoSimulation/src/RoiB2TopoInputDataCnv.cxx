@@ -47,6 +47,8 @@ LVL1::RoiB2TopoInputDataCnv::initialize()
    ATH_CHECK(m_emTauLocation.initialize());
    ATH_CHECK(m_jetLocation.initialize());
    ATH_CHECK(m_energyLocation.initialize());
+
+   return StatusCode::SUCCESS;
 }
 
 StatusCode
