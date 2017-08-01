@@ -290,7 +290,7 @@ G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*
       //BESIDE A CALIBRATION HIT THERE ORDINARY
       //HITS SHOULD BE ALSO CREATED OR UPDATED
       if (m_doBirkFlag) {
-        m_calc->MakePmtEdepTime(m_aStep);  //calculation of pmtID, edep and scin_Time with aStep
+        m_calc->MakePmtEdepTime(m_aStep, m_calc->m_hitData);  //calculation of pmtID, edep and scin_Time with aStep
         m_calc->ManageScintHit(m_calc->m_hitData);//create or update ordinary hit object in the collection
       }
       ScintIDCalculator();
