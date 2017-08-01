@@ -22,6 +22,7 @@
 + Calorimeter/CaloDetDescr
 + Calorimeter/CaloDmDetDescr
 + Calorimeter/CaloEvent
++ Calorimeter/CaloExample/CaloRecEx
 + Calorimeter/CaloGeoHelpers
 + Calorimeter/CaloIdentifier
 + Calorimeter/CaloInterface
@@ -203,6 +204,9 @@
 + PhysicsAnalysis/DerivationFramework/.*
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
 + PhysicsAnalysis/ElectronPhotonID/.*
++ PhysicsAnalysis/EventTag/TagEvent
++ PhysicsAnalysis/EventTag/EventTagTPCnv
++ PhysicsAnalysis/EventTag/EventTagAthenaPOOL
 + PhysicsAnalysis/Interfaces/.*
 + PhysicsAnalysis/JetTagging/JetTagAlgs/.*
 + PhysicsAnalysis/JetTagging/JetTagCalibUtils/.*
@@ -229,6 +233,7 @@
 
 # Reconstruction package(s):
 + Reconstruction/AODFix
++ Reconstruction/DiTauRec
 + Reconstruction/eflowRec
 + Reconstruction/egamma/egammaConditions
 + Reconstruction/egamma/egammaEvent
@@ -263,6 +268,7 @@
 + Reconstruction/RecExample/RecExPers
 + Reconstruction/RecJobTransforms
 + Reconstruction/RecoAlgs/CaloRingerAlgs
++ Reconstruction/RecoAlgs/IsolationAlgs
 + Reconstruction/RecoEvent/ParticleCaloExtension
 + Reconstruction/RecoTools/CaloClusterMatching
 + Reconstruction/RecoTools/CaloRingerTools
