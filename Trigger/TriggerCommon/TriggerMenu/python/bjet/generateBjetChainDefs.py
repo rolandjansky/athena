@@ -116,13 +116,25 @@ def generateChainDefs(chainDict):
     bjetchainDicts = [cdict for cdict in listofChainDicts if cdict['chainParts']['bTag']] 
     if log.isEnabledFor(logging.DEBUG): log.debug("Final b-jet chainDict: \n %s" , pp.pformat(bjetchainDicts))
     
-    doAllTEConfig = (chainDict['chainName']=='2j15_gsc35_bmv2c1040_split_2j15_gsc35_boffperf_split_L14J15.0ETA25')
+    isSplitChain = (not chainDict['chainName'].find("split") == -1)
+    isMuDr       = (not chainDict['chainName'].find("mu") == -1 and not chainDict['chainName'].find("_dr") == -1)
+    isMuDz       = (not chainDict['chainName'].find("mu") == -1 and not chainDict['chainName'].find("_dz") == -1)
     
+    #
+    # Only run the All TE on split chains
+    #
+    doAllTEConfig = isSplitChain
+
+    #
+    # Need all the ouput bjet TEs to properly match to muons
+    #
+    if isMuDz or isMuDr:         doAllTEConfig = False
+
     if doAllTEConfig:
         log.debug("Doing new buildBjetChainsAllTE")
         theFinalChainDef = buildBjetChainsAllTE(theJetChainDef, bjetchainDicts)
     else:
-
+        log.debug("Doing buildBjetChains")
         theListOfChainDefs = []
         for subChainDict in bjetchainDicts:
             theJetChainDef1 = deepcopy(theJetChainDef)
@@ -156,6 +168,40 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1):
     inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements'][0]
 
     #
+    #  Initial Config
+    #
+    ###############################3
+
+    #
+    # Get the min threshold for tracking
+    #
+    minBTagThreshold = 1e9
+    for bjetPart in bjetdict:
+        thisBTagThresholdInt = int(bjetPart['chainParts']['threshold'])
+        if thisBTagThresholdInt < minBTagThreshold: 
+            minBTagThreshold = thisBTagThresholdInt
+    log.debug("min jet Pt %s", minBTagThreshold)
+
+    #
+    # Configure the GSC calibration
+    #
+    doGSC = False
+    minGSCThreshold = 1e9
+    for bjetPart in bjetdict:
+        if ('gscThreshold' in bjetPart['chainParts']) and (bjetPart['chainParts']['gscThreshold']): 
+            doGSC = True
+            thisGSCThresholdInt = int(bjetPart['chainParts']['gscThreshold'].replace("gsc",""))
+            if thisGSCThresholdInt < minGSCThreshold:
+                minGSCThreshold = thisGSCThresholdInt
+
+    if doGSC: log.debug("Doing GSC Calculation:"+str(minGSCThreshold)+"GeV")
+
+    #
+    # Now build the chain
+    #
+    ###########################3
+
+    #
     # super ROI building
     #
     theSuperRoi=getSuperRoiBuilderAllTEInstance()
@@ -183,19 +229,18 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1):
     #
     # get the minimum et before gsc cut
     theJetSplit=getJetSplitterAllTEInstance()
-    minBTagThreshold = 1e9
-    for bjetPart in bjetdict:
-        if minBTagThreshold < bjetPart['chainParts']['threshold']: 
-            minBTagThreshold = bjetPart['chainParts']['threshold']
-    log.debug("min jet Pt %s", minBTagThreshold)
     jetHypoTE       = "HLT_j"+str(minBTagThreshold)+"_eta"
     jetSplitTE      = jetHypoTE+"_jsplit"
     theChainDef.addSequence(theJetSplit,  [inputTEsEF, comboPrmVtxTE], jetSplitTE)
 
     #
-    #  Et cut berfore running precision tracking
+    # If do the btagging in away muons 
     #
     algoInstance = "EF"   
+
+    #
+    #  Et cut berfore running precision tracking
+    #
     theBjetEtHypo   = getBjetEtHypoInstance(algoInstance, "Btagging", str(minBTagThreshold)+"GeV" )
     jetEtHypoTE     = "HLT_j"+str(minBTagThreshold)
     theChainDef.addSequence(theBjetEtHypo,  jetSplitTE,       jetEtHypoTE )
@@ -217,27 +262,16 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1):
     #
     #  GSC calculation
     #
-    doGSC = False
-    minGSCThreshold = 1e9
-    for bjetPart in bjetdict:
-        if ('gscThreshold' in bjetPart['chainParts']) and (bjetPart['chainParts']['gscThreshold']): 
-            doGSC = True
-            thisGSCThresholdFloat = int(bjetPart['chainParts']['gscThreshold'].replace("gsc",""))
-            if thisGSCThresholdFloat < minGSCThreshold:
-                minGSCThreshold = thisGSCThresholdFloat
-
     if doGSC:
-        log.debug("Doing GSC Calculation:"+str(minGSCThreshold)+"GeV")
-        theGSCFex      = getGSCFexSplitInstance(algoInstance,"2012","EFID")
-        theGSCEtHypo   = getBjetEtHypoInstance("GSC", "Btagging", str(minGSCThreshold) +"GeV" )
-
         gsc_jetTrackTEPreCut  = "HLT_precut_gsc"+str(minBTagThreshold)+"_eta"+"_jsplit"+"_"+tracking
+        theGSCFex      = getGSCFexSplitInstance(algoInstance)
         theChainDef.addSequence(theGSCFex,      secVtxTE                ,       gsc_jetTrackTEPreCut )
 
+        algoInstance = "GSC"   
         gsc_jetTrackTE        = "HLT_gsc"+str(minGSCThreshold)+"_eta"+"_jsplit"+"_"+tracking
+        theGSCEtHypo   = getBjetEtHypoInstance(algoInstance, "Btagging", str(minGSCThreshold) +"GeV" )
         theChainDef.addSequence(theGSCEtHypo,   gsc_jetTrackTEPreCut,           gsc_jetTrackTE )
         jetsForBTagging = gsc_jetTrackTE
-
     else:
         log.debug("No GSC Calculation")
         jetsForBTagging = secVtxTE
@@ -246,14 +280,15 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1):
     #
     #  the tagging fex
     #
-    theBjetFex = getBtagFexSplitInstance(algoInstance,"2012","EFID") 
+    log.debug("Getting tagging fex")
+    theBjetFex = getBtagFexSplitInstance(algoInstance, "2012", "EFID") 
     btaggingTE = jetsForBTagging+"_btagged"
     theChainDef.addSequence(theBjetFex, jetsForBTagging, btaggingTE)
-
 
     #
     #  The btagging hypo
     #
+    log.debug("Getting tagging hypo")
     lastTEout = "HLT_"+bjetdict[0]['chainName']
     topoThresh = bjetdict[0]['topoThreshold']
     topoStartFrom = setupTopoStartFrom(topoThresh,theChainDef) if topoThresh else None
@@ -262,21 +297,31 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1):
     #
     #  Derive multiplicity requirements
     #
+    log.debug("Derive multiplicity requirements")
     btagReqs = []
-    btagReqs.append([35000, "perf", 4])
-    #name = bjetdict[0]['chainName']
-    name = "Test"
+
+    name = bjetdict[0]['chainName']
+    
+    for bjetchain in bjetdict:
+        print bjetdict
+        btagCut = bjetchain['chainParts']['bTag']
+        mult    = bjetchain['chainParts']['multiplicity']
+
+        threshold = bjetchain['chainParts']['threshold']
+        if 'gscThreshold' in bjetchain['chainParts']:
+            threshold = bjetchain['chainParts']['gscThreshold'].replace("gsc","")
+
+        btagReqs.append([threshold,btagCut,mult])
+    
+    log.debug("Config the ALLTE Hypo")
     theBjetHypoAllTE = getBjetHypoAllTEInstance("EF","2017",name,btagReqs)
 
 
-    #chainParts = chainDict['chainParts']
-    #btagthresh = chainParts['threshold']
-    #gscthresh  = chainParts['gscThreshold'] if ('gscThreshold' in chainParts) else ''
-    #btagmult = chainParts['multiplicity']
-    #bjetparts = bjetdict['chainParts']
-    theChainDef.signatureList[-1]['listOfTriggerElements'][0]
+    #theChainDef.signatureList[-1]['listOfTriggerElements'][0]
+    log.debug("Adding Sequence")
     theChainDef.addSequence(theBjetHypoAllTE, btaggingTE, lastTEout, topo_start_from = topoStartFrom)
 
+    log.debug("Adding Signature")
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [lastTEout])
 
     log.debug("Left buildBjetChainsAllTE")
@@ -388,7 +433,7 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     #--------------------
     # GSC
     if ('gscThreshold' in chainParts) and chainParts['gscThreshold']:
-        theGSCFex      = getGSCFexSplitInstance(algoInstance,"2012","EFID")
+        theGSCFex      = getGSCFexSplitInstance(algoInstance)
         #from TrigBjetHypo.TrigBjetEtHypoConfig import getBjetEtHypoInstance
         theGSCEtHypo   = getBjetEtHypoInstance("GSC", "Btagging", gscthresh.replace("gsc","")+"GeV" )
     #--------------------
@@ -490,7 +535,7 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     superTrackingTE = superTE+tracking
     prmVertexTE     = superTrackingTE+"_prmVtx"
     comboPrmVtxTE   = prmVertexTE+"Combo"
-    secVtxTE        = jetTrackTE+"__"+"superVtx"
+    secVtxTE        = jetTrackTE+"__"+"secVtx"
     lastTEout       = "HLT_bjet_"+chainParts['chainPartName'] if numberOfSubChainDicts>1 else EFChainName
 
     if 'FTKVtx' in chainParts['bTracking'] or 'FTK' in chainParts['bTracking']  or 'FTKRefit' in chainParts['bTracking']:

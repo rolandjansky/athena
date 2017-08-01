@@ -315,11 +315,23 @@ class BjetHypoAllTE (TrigBjetHypoAllTE):
         super( BjetHypoAllTE, self ).__init__( name )
         
         mlog = logging.getLogger('BjetHypoAllTEConfig.py')
-        
-        AllowedCuts      = ["perf","mv2c1040","mv2c1050","mv2c1060","mv2c1070","mv2c1077","mv2c1085" ]
-        CutsRequiringBS  = ["mv2c1040","mv2c1050","mv2c1060","mv2c1070","mv2c1077","mv2c1085" ]
-        AllowedVersions  = ["2017"]
+        mlog.setLevel(0)
+        AllowedVersions  = ["2015","2017"]
         AllowedInstances = ["EF"  ]
+
+        mlog.debug("btagReqs were")
+        mlog.debug(btagReqs)
+        
+        #
+        # Format cut values
+        #
+        for req in btagReqs:
+            req[0] = float(req[0])*1000
+            req[1] = req[1].replace("bmv","mv").replace("boff","")
+            req[2] = int(req[2])
+
+        mlog.debug( "btagReqs are")
+        mlog.debug( btagReqs)
 
         if instance not in AllowedInstances :
             mlog.error("Instance "+instance+" is not supported!")
@@ -329,15 +341,20 @@ class BjetHypoAllTE (TrigBjetHypoAllTE):
             mlog.error("Version "+version+" is not supported!")
             return None
 
+        #
+        # These have to be from tighest to loosest
+        #
+        if version == "2017":
+            self.Tagger = "MV2c10_discriminant"
+            AllowedCuts      = ["mv2c1040","mv2c1050","mv2c1060","mv2c1070","mv2c1077","mv2c1085","perf"]
+            CutsRequiringBS  = ["mv2c1040","mv2c1050","mv2c1060","mv2c1070","mv2c1077","mv2c1085"       ]
+
         for req in btagReqs:
             if req[1] not in AllowedCuts :
                 mlog.error("Cut "+req[1]+" is not supported!")
                 return None
 
         self.BTaggingKey = "HLTBjetFex"
-        if instance=="MuJetChain" :
-            #self.JetKey = "FarawayJet"
-            instance = "EF"
 
         if instance=="EF" :
             #self.Instance        = "EF"
@@ -350,22 +367,113 @@ class BjetHypoAllTE (TrigBjetHypoAllTE):
         for req in btagReqs:
             if req[1] in CutsRequiringBS:
                 self.OverrideBeamSpotValid = False
+         
+        #
+        # Get a list of differnt operation points in this chain
+        #
+        CutsInThisChain = []
+        for req in btagReqs:
+            if req[1] not in CutsInThisChain: 
+                CutsInThisChain.append(AllowedCuts.index(req[1]))
+        CutsInThisChain.sort()
 
+        fullTrigReqAND     = {}
+        for jetReq in btagReqs:
+            thisPt   = jetReq[0]
+            thisBTag = AllowedCuts.index(jetReq[1])
+            thisMult = jetReq[2]
+            thisMaxBTag = 99
+
+            if (thisPt,thisBTag,thisMaxBTag) not in fullTrigReqAND:
+                fullTrigReqAND[(thisPt,thisBTag,thisMaxBTag)] = thisMult
+            else:
+                fullTrigReqAND[(thisPt,thisBTag,thisMaxBTag)] += thisMult
+
+            for point in CutsInThisChain:
+                if point > thisBTag:
+                    if (thisPt,point,thisMaxBTag) not in fullTrigReqAND:
+                        fullTrigReqAND[(thisPt,point,thisMaxBTag)] = thisMult
+                    else:
+                        fullTrigReqAND[(thisPt,point,thisMaxBTag)] += thisMult
+
+        #
+        # Update the pt thresholds                                                                                                                           
+        #
+        for jetDef in fullTrigReqAND:
+            for otherJetDefs in fullTrigReqAND:
+                if jetDef == otherJetDefs: continue
+                if jetDef[0] > otherJetDefs[0] and jetDef[1] == otherJetDefs[1] :
+                    fullTrigReqAND[otherJetDefs] += fullTrigReqAND[jetDef]
+                
+
+        mlog.debug( "full btagReqsAND are")
+        mlog.debug( fullTrigReqAND)
         
         EtThresholds   = []
-        BTagCuts       = []
+        BTagMin        = []
+        BTagMax        = []
         Multiplicities = []
-        for req in btagReqs:
-            EtThresholds  .append(float(req[0]))
-            BTagCuts      .append(float(self.getCutValue(req[1])))
-            Multiplicities.append(int  (req[2]))
+        for reqAND in fullTrigReqAND:
+            EtThresholds  .append(float(reqAND[0]))
+            BTagMin       .append(float(self.getCutValue(AllowedCuts[reqAND[1]])))
+            BTagMax       .append(float(reqAND[2]))
+            Multiplicities.append(int  (fullTrigReqAND[reqAND]))
 
 
         self.EtThresholds   = EtThresholds
-        self.BTagCuts       = BTagCuts
+        self.BTagMin        = BTagMin
+        self.BTagMax        = BTagMax
         self.Multiplicities = Multiplicities
-        self.Tagger = "MV2c10_discriminant"
 
+
+        #
+        # Handle the cases where have a higher pt looser leg
+        #
+        fullTrigReqOR      = []
+        for jetDef in fullTrigReqAND:
+            for otherJetDefs in fullTrigReqAND:
+                if jetDef == otherJetDefs: continue
+                if jetDef[0] > otherJetDefs[0] and jetDef[1] > otherJetDefs[1]  :
+                    fullTrigReqOR.append({otherJetDefs: (fullTrigReqAND[otherJetDefs] + fullTrigReqAND[jetDef])})
+                    fullTrigReqOR.append({otherJetDefs : fullTrigReqAND[otherJetDefs],
+                                          (jetDef[0],jetDef[1],otherJetDefs[1]) :  fullTrigReqAND[jetDef]})
+
+
+        mlog.debug( "full btagReqsOR are")
+        mlog.debug( fullTrigReqOR)
+
+        EtThresholdsOR   = []
+        BTagMinOR        = []
+        BTagMaxOR        = []
+        MultiplicitiesOR = []
+
+
+        for jetReqAndComo in fullTrigReqOR:
+            thisEtThresholdsOR   = []
+            thisBTagMinOR        = []
+            thisBTagMaxOR        = []
+            thisMultiplicitiesOR = []
+
+            for jetReq in jetReqAndComo:
+                thisEtThresholdsOR    .append(jetReq[0])
+                thisBTagMinOR         .append(self.getCutValue(AllowedCuts[jetReq[1]]))
+                if jetReq[2] in AllowedCuts:
+                    thisBTagMaxOR         .append(self.getCutValue(AllowedCuts[jetReq[2]]))
+                else:
+                    thisBTagMaxOR         .append(jetReq[2])
+                thisMultiplicitiesOR  .append(jetReqAndComo[jetReq])
+
+            EtThresholdsOR   .append(thisEtThresholdsOR)
+            BTagMinOR        .append(thisBTagMinOR)
+            BTagMaxOR        .append(thisBTagMaxOR)
+            MultiplicitiesOR .append(thisMultiplicitiesOR)
+
+
+
+        self.EtThresholdsOR    = EtThresholdsOR   
+        self.BTagMinOR         = BTagMinOR        
+        self.BTagMaxOR         = BTagMaxOR        
+        self.MultiplicitiesOR  = MultiplicitiesOR 
 
 #        if instance=="EF" :
 #            from TrigBjetHypo.TrigBjetHypoMonitoring import TrigEFBjetHypoValidationMonitoring, TrigEFBjetHypoOnlineMonitoring
@@ -379,7 +487,6 @@ class BjetHypoAllTE (TrigBjetHypoAllTE):
 #        self.AthenaMonTools = [ time, validation, online ]
 
 
-    
     def getCutValue(self, cut):
 
         # These are the offline working points

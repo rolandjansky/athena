@@ -4196,27 +4196,32 @@ def setupMenu():
         ['eb_high_L1RD2_FILLED',              'L1_RD2_FILLED',             [], ['EnhancedBias'], ["RATE:EnhancedBias", "BW:Detector"], -1],
         ]
 
-    TriggerFlags.StreamingSlice.signatures = []
-    TriggerFlags.MonitorSlice.signatures = []
-    TriggerFlags.EnhancedBiasSlice.signatures = []
-    TriggerFlags.CosmicSlice.signatures  = [   ]
-    TriggerFlags.CalibSlice.signatures   = [   ]
-    TriggerFlags.MinBiasSlice.signatures = [   ]
-    TriggerFlags.BeamspotSlice.signatures = [  ]
-    TriggerFlags.CombinedSlice.signatures = [  ]
-    TriggerFlags.BphysicsSlice.signatures = [  ]
-    TriggerFlags.EgammaSlice.signatures = [    ]
-    TriggerFlags.TauSlice.signatures = [       ]
-    TriggerFlags.METSlice.signatures = [       ]
-    TriggerFlags.BjetSlice.signatures = [
-        ['2j15_gsc35_boffperf_split_2j15_gsc35_boffperf_split_L14J15.0ETA25','L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet',  'BW:BJet'], -1],
-        
-        ['2j15_gsc35_bmv2c1040_split_2j15_gsc35_boffperf_split_L14J15.0ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['Primary:20000','RATE:MultiBJet', 'BW:BJet'], -1],
-        ]
-    
-    TriggerFlags.JetSlice.signatures = [       ]
-    TriggerFlags.MuonSlice.signatures = [      ]
-    TriggerFlags.AFPSlice.signatures = [       ]
+    #TriggerFlags.StreamingSlice.signatures = []
+    #TriggerFlags.MonitorSlice.signatures = []
+    #TriggerFlags.EnhancedBiasSlice.signatures = []
+    #TriggerFlags.CosmicSlice.signatures  = [   ]
+    #TriggerFlags.CalibSlice.signatures   = [   ]
+    #TriggerFlags.MinBiasSlice.signatures = [   ]
+    #TriggerFlags.BeamspotSlice.signatures = [  ]
+    #TriggerFlags.CombinedSlice.signatures = [  
+    #    ['mu4_j15_boffperf_split_dr05_dz02', 'L1_MU4',     ['L1_MU4', ''], [PhysicsStream], ['RATE:MuonBJet', 'BW:BJet_combined'], -1,['serial',-1,['mu4', 'j15_boffperf_split'] ]],
+    #    ]
+    #TriggerFlags.BphysicsSlice.signatures = [  ]
+    #TriggerFlags.EgammaSlice.signatures = [    ]
+    #TriggerFlags.TauSlice.signatures = [       ]
+    #TriggerFlags.METSlice.signatures = [       ]
+    #TriggerFlags.BjetSlice.signatures = [
+    #    #['2j15_gsc35_boffperf_split_2j15_gsc35_boffperf_split_L14J15.0ETA25','L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet',  'BW:BJet'], -1],
+    #    
+    #    #['2j15_gsc35_bmv2c1040_split_2j15_gsc35_boffperf_split_L14J15.0ETA25', 'L1_4J15.0ETA25', [], [PhysicsStream], ['Primary:20000','RATE:MultiBJet', 'BW:BJet'], -1],
+    #    #['j110_gsc150_boffperf_split_2j35_gsc55_bmv2c1070_split_L1J85_3J30', 'L1_J85_3J30', [], [PhysicsStream], ['Primary:20000','RATE:MultiBJet', 'BW:BJet'], -1],
+    #    #['j110_gsc150_boffperf_split_2j35_gsc55_boffperf_split_L1J85_3J30', 'L1_J85_3J30', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+    #    #['mu4_2j40_dr05_j40_bmv2c1077_split_antimatchdr05mu_L13J15_BTAG-MU4J15', 'L1_3J15_BTAG-MU4J15', ['L1_MU4', '', ''], [PhysicsStream], ['RATE:MuonBJet', 'BW:BJet_combined'], -1,['serial',-1,['mu4', '2j40', 'j40_bmv2c1077_split_antimatchdr05mu'] ], False],
+    #    ]
+    #
+    #TriggerFlags.JetSlice.signatures = [       ]
+    #TriggerFlags.MuonSlice.signatures = [      ]
+    #TriggerFlags.AFPSlice.signatures = [       ]
 
     ###############################################################
     #################################################################
