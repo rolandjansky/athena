@@ -1,4 +1,5 @@
 #!/usr/bin env python
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 # Script to browse the unmerged HIST files and extract LBs for which at least N occurences of an object is found
 # at a position foundas noisy
 # Uses the pathExtract library to extract the EOS path
@@ -453,7 +454,6 @@ for iHisto in histoKeys:
     
     sortedLB[iHisto][i] = i
     if (nbHitInHot[iHisto][i]>=minInLB):
-#      print "LB: %d -> %d hits"%(i,nbHitInHot[iHisto][i])
       suspiciousLBlist.append(i)
     if (nbHitInHot[iHisto][i]>maxNbInHot):
       maxNbInHot = nbHitInHot[iHisto][i]
