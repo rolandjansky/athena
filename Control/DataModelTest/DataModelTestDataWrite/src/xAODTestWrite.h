@@ -47,7 +47,7 @@ public:
   /**
    * @brief Algorithm initialization; called at the beginning of the job.
    */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
 
   /**
@@ -59,7 +59,7 @@ public:
   /**
    * @brief Algorithm finalization; called at the end of the job.
    */
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
 
 
 private:
