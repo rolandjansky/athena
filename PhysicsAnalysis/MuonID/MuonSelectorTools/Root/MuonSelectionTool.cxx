@@ -111,7 +111,7 @@ namespace CP {
 		     "Selection of muons according to their tightness" );
     // Sanity check
     if(m_quality>5 ){
-      ATH_MSG_ERROR( "Invalid quality (i.e. selection WP) set: " << m_quality << " - it must be an integer between 0 and 5!" );
+      ATH_MSG_ERROR( "Invalid quality (i.e. selection WP) set: " << m_quality << " - it must be an integer between 0 and 5! (0=Tight, 1=Medium, 2=Loose, 3=Veryloose, 4=HighPt, 5=LowPtEfficiency)" );
       return StatusCode::FAILURE;
     }
 
