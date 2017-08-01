@@ -1399,6 +1399,21 @@ def setupMenu():
 	['xe110_mht_xe70_L1KF-XE75', 'L1_KF-XE75', ['L1_KF-XE75','L1_KF-XE75'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_mht','xe70_L1KF-XE75'] ]],
 	['xe120_mht_xe70_L1KF-XE75', 'L1_KF-XE75', ['L1_KF-XE75','L1_KF-XE75'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe120_mht','xe70_L1KF-XE75'] ]],
 
+### ATR-16713 mht+pufit
+
+        ['xe100_trkmht_xe100_pufit_L1XE55','L1_XE55', ['L1_XE55','L1_XE55'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe100_trkmht','xe100_pufit_L1XE55'] ]],
+        ['xe100_trkmht_xe100_pufit_L1XE60','L1_XE60', ['L1_XE60','L1_XE60'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe100_trkmht','xe100_pufit_L1XE60'] ]],
+        ['xe110_trkmht_xe100_pufit_L1XE55','L1_XE55', ['L1_XE55','L1_XE55'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_trkmht','xe100_pufit_L1XE55'] ]],
+        ['xe110_trkmht_xe100_pufit_L1XE60','L1_XE60', ['L1_XE60','L1_XE60'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_trkmht','xe100_pufit_L1XE60'] ]],
+        ['xe120_trkmht_xe100_pufit_L1XE55','L1_XE55', ['L1_XE55','L1_XE55'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe120_trkmht','xe100_pufit_L1XE55'] ]],
+        ['xe120_trkmht_xe100_pufit_L1XE60','L1_XE60', ['L1_XE60','L1_XE60'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe120_trkmht','xe100_pufit_L1XE60'] ]],
+
+        ['xe110_trkmht_xe110_mht_xe80_L1XE55','L1_XE55', ['L1_XE55','L1_XE55','L1_XE55'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_trkmht','xe110_mht','xe80_L1XE55'] ]],
+        ['xe110_trkmht_xe110_mht_xe80_L1XE60','L1_XE60', ['L1_XE60','L1_XE60','L1_XE60'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_trkmht','xe110_mht','xe80_L1XE60'] ]],
+        ['xe120_trkmht_xe110_mht_xe80_L1XE55','L1_XE55', ['L1_XE55','L1_XE55','L1_XE55'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe120_trkmht','xe110_mht','xe80_L1XE55'] ]],
+        ['xe120_trkmht_xe110_mht_xe80_L1XE60','L1_XE60', ['L1_XE60','L1_XE60','L1_XE60'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe120_trkmht','xe110_mht','xe80_L1XE60'] ]],
+
+
     ## XS triggers ##	
         ['xs15_L1XS20',                            'L1_XS20',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xs20_L1XS30',                            'L1_XS30',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
