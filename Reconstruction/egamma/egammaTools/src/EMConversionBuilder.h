@@ -50,7 +50,8 @@ class EMConversionBuilder : public egammaBaseTool, virtual public IEMConversionB
   /** @brief initialize method*/
   StatusCode initialize();
   /** @brief execute method*/
-  virtual StatusCode contExecute();
+  virtual StatusCode contExecute() { return StatusCode::FAILURE; }
+  virtual StatusCode contExecute(EgammaRecContainer& cont);
   /** @brief execute method*/
   virtual StatusCode executeRec(egammaRec* egRec);
   /** @brief execute method*/
@@ -71,9 +72,6 @@ private:
   // configuration:
   /** @brief Name of conversion container*/
   std::string		m_conversionContainerName; 
-
-  /** @brief Name of egammaRec container*/
-  std::string		m_egammaRecContainerName; 
 
 
   /** @brief EMExtrapolationTools */

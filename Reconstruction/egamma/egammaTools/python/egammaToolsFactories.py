@@ -83,7 +83,6 @@ EMBremCollectionBuilder = ToolFactory( egammaBremCollectionBuilder,
 
 
 EMConversionBuilder = ToolFactory( egammaToolsConf.EMConversionBuilder,
-                                   egammaRecContainerName = egammaKeys.outputEgammaRecKey(),
                                    ConversionContainerName = egammaKeys.outputConversionKey(),
                                    ExtrapolationTool = EMExtrapolationTools)   
 
