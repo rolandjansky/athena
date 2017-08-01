@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 #!/usr/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 import os,sys,subprocess,datetime,copy,math,array,shutil,ROOT,re,string
 from ROOT import gROOT

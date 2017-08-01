@@ -2371,6 +2371,7 @@ id/I:name/C:xsec/F:kfac/F:eff/F:relunc/F
 
 # Very low mll
 364288  Sherpa_222_NNPDF30NNLO_llll_lowMllPtComplement    1.4318    1.0  1.0  1.0
+364289  Sherpa_222_NNPDF30NNLO_lllv_lowMllPtComplement    2.9152    1.0  1.0  1.0	
 364290  Sherpa_222_NNPDF30NNLO_llvv_lowMllPtComplement    0.17046   1.0  1.0  1.0
 
 ################################################################################################################
@@ -2396,9 +2397,9 @@ id/I:name/C:xsec/F:kfac/F:eff/F:relunc/F
 301535	Sherpa_CT10_eegammaPt10_35	52.706		1.	1.	 1.
 301536	Sherpa_CT10_mumugammaPt10_35	52.708		1.	1.	 1.
 304776	Sherpa_CT10_tautaugammaPt10_35	52.708		1.	1.	 1.
-301887  Sherpa_CT10_enugammaPt10_35		0.20075	1.	1.	1.
-301888  Sherpa_CT10_munugammaPt10_35	0.20091	1.	1.	1.
-301889  Sherpa_CT10_taunugammaPt10_35	0.20078	1.	1.	1.
+301887  Sherpa_CT10_enugammaPt10_35		200.75	1.	1.	1.
+301888  Sherpa_CT10_munugammaPt10_35	200.91	1.	1.	1.
+301889  Sherpa_CT10_taunugammaPt10_35	200.78	1.	1.	1.
 301890	Sherpa_CT10_enugammaPt35_70	15.348		1.	1.	 1.
 301891	Sherpa_CT10_enugammaPt70_140	1.5282		1.	1.	 1.
 301892	Sherpa_CT10_enugammaPt140	0.24155		1.	1.	 1.
