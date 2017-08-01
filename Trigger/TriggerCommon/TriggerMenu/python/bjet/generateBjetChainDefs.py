@@ -117,6 +117,8 @@ def generateChainDefs(chainDict):
     if log.isEnabledFor(logging.DEBUG): log.debug("Final b-jet chainDict: \n %s" , pp.pformat(bjetchainDicts))
     
     isSplitChain = (not chainDict['chainName'].find("split") == -1)
+    isRunITagger = (not chainDict['chainName'].find("btight") == -1 or not chainDict['chainName'].find("bmedium") == -1 or not chainDict['chainName'].find("bloose") == -1)
+    is2015Tagger = (not chainDict['chainName'].find("bmv2c20") == -1 or not chainDict['chainName'].find("bperf") == -1)
     isMuDr       = (not chainDict['chainName'].find("mu") == -1 and not chainDict['chainName'].find("_dr") == -1)
     isMuDz       = (not chainDict['chainName'].find("mu") == -1 and not chainDict['chainName'].find("_dz") == -1)
     
@@ -126,9 +128,16 @@ def generateChainDefs(chainDict):
     doAllTEConfig = isSplitChain
 
     #
-    # Need all the ouput bjet TEs to properly match to muons
+    #  New AllTE config currently supported on new mv2c10 taggers
     #
-    if isMuDz or isMuDr:         doAllTEConfig = False
+    if isRunITagger or is2015Tagger: doAllTEConfig = False
+
+    #
+    # Need all the ouput bjet TEs to properly match to muons
+    #  so dont use all TE here either
+    #
+    if isMuDz or isMuDr: doAllTEConfig = False
+
 
     if doAllTEConfig:
         log.debug("Doing new buildBjetChainsAllTE")
