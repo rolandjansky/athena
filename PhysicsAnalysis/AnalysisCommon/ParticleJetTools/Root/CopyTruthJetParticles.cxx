@@ -32,6 +32,7 @@ CopyTruthJetParticles::CopyTruthJetParticles(const std::string& name)
   declareProperty("IncludeNeutrinos",  m_includeNu=false, "Include neutrinos in the output collection");
   declareProperty("IncludeMuons",      m_includeMu=false, "Include muons in the output collection");
   declareProperty("IncludePromptLeptons",  m_includePromptLeptons=true,  "Include leptons from prompt decays (i.e. not from hadron decays) in the output collection");
+  declareProperty("IncludePromptPhotons",  m_includePromptPhotons=true,  "Include photons from Higgs and other decays that produce isolated photons");
   //  declareProperty("IncludeTauLeptons", m_includeTau=true, "Include leptons from tau decays in the output collection");
 
   // -- added for dark jet clustering -- //
@@ -109,7 +110,15 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int 
     }
   }
 
+  // Exclude prompt photons, particularly those from Higgs decays to start
+  if (!m_includePromptPhotons && MC::PID::isPhoton(pdgid) && tp->hasProdVtx()){
+    ParticleOrigin orig = getPartOrigin(tp, originMap);
+    if (orig==Higgs || orig==HiggsMSSM) return false;
+  }
+
+  // Pseudo-rapidity cut
   if(fabs(tp->eta())>m_maxAbsEta) return false;
+
   // Made it! 
   return true;
 }

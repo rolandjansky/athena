@@ -39,6 +39,7 @@ private:
   bool m_includeNu; //!< Include neutrinos in particles
   bool m_includeMu; //!< Include muons in particles
   bool m_includePromptLeptons; //!< Include particles from prompt decays, i.e. not from hadrons
+  bool m_includePromptPhotons; //!< Include photons from prompt decays, e.g. Higgs decays
   //  bool m_includeTau; //!< Include particles from tau decays
   // -- added for dark jet clustering -- //
   bool m_includeSM; //!< Include SM particles
