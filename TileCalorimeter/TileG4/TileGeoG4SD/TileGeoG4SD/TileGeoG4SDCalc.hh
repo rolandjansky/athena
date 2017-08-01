@@ -81,7 +81,7 @@ public:
   /// Search for the tilecal sub-section, its module and some identifiers
   G4bool FindTileScinSection(const G4Step*);//, TileHitData& hitData) const;
   /// Calculation of pmtID, edep and scin_Time with aStep (Sergey)
-  G4bool MakePmtEdepTime(const G4Step*);//, TileHitData& hitData) const;
+  G4bool MakePmtEdepTime(const G4Step*, TileHitData& hitData) const;
   /// Calculation of pmtID, edep and scin_Time with aStep (Sergey)
   G4bool ManageScintHit(TileHitData& hitData) const;
   /// Used by FastCaloSimParamAction
@@ -146,7 +146,7 @@ private:
   // double m_totalTimeDown;
 
   /** @brief granularity in time for hits */
-  double m_deltaT;
+  mutable double m_deltaT; // HACK FIXME
 
   /** @brief function to calculate Birks correction */
   G4double BirkLaw(const G4Step* aStep) const;

@@ -56,7 +56,7 @@ G4bool TileGeoG4SD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/) {
     return false;
   }
 
-  if ( !(m_calc->MakePmtEdepTime(aStep)) ) { //calculation of pmtID, edep and scin_Time with aStep (Sergey)
+  if ( !(m_calc->MakePmtEdepTime(aStep, m_calc->m_hitData)) ) { //calculation of pmtID, edep and scin_Time with aStep (Sergey)
 
     if (verboseLevel > 10)
       G4cout << "ProcessHits: wrong pmtID_up,pmtID_down,edep_up,edep_down,"
