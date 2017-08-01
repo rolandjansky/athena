@@ -19,6 +19,8 @@
 #ifndef TILEGEOG4SD_TILEGEOG4SDCALC_H
 #define TILEGEOG4SD_TILEGEOG4SDCALC_H
 
+#include "TileG4Interfaces/ITileCalculator.h"
+
 // package headers
 #include "TileGeoG4SD/TileSDOptions.h"
 
@@ -43,51 +45,21 @@ class TileGeoG4Cell;
 
 class StoreGateSvc;
 
-struct TileMicroHit {
-  Identifier pmt_up, pmt_down;
-  G4double e_up, e_down;
-  double time_up, time_down;
-  //int         period,     tilerow; // prepared for future use
-};
-
-/// Variables to identify Hit objects
-struct TileHitData {
-  TileGeoG4Section *section = nullptr;
-  TileGeoG4Cell *cell = nullptr;
-  int nModule = 0;
-  int nDetector = 0;
-  int nTower = 0;
-  int nSample = 0;
-  int nSide = 0;
-  int nrOfPMT = 0;
-  int tileSize = 0;
-  int tilePeriod = 0;
-  double totalTimeUp = 0.0;
-  double totalTimeDown = 0.0;
-  bool isNegative = false;
-  Identifier pmtID_up;
-  Identifier pmtID_down;
-  G4double edep_up = 0.0;
-  G4double edep_down = 0.0;
-  double scin_Time_up = 0.0;
-  double scin_Time_down = 0.0;
-};
-
-class TileGeoG4SDCalc {
+class TileGeoG4SDCalc: virtual public ITileCalculator {
 public:
   TileGeoG4SDCalc(TileSDOptions opts);
   ~TileGeoG4SDCalc();
 
   /// Search for the tilecal sub-section, its module and some identifiers
-  G4bool FindTileScinSection(const G4Step*, TileHitData& hitData) const;
+  virtual G4bool FindTileScinSection(const G4Step*, TileHitData& hitData) const override final;
   /// Calculation of pmtID, edep and scin_Time with aStep (Sergey)
-  G4bool MakePmtEdepTime(const G4Step*, TileHitData& hitData) const;
+  virtual G4bool MakePmtEdepTime(const G4Step*, TileHitData& hitData) const override final;
   /// Calculation of pmtID, edep and scin_Time with aStep (Sergey)
-  G4bool ManageScintHit(TileHitData& hitData) const;
+  virtual G4bool ManageScintHit(TileHitData& hitData) const override final;
   /// Used by FastCaloSimParamAction
-  TileMicroHit GetTileMicroHit(const G4Step*, TileHitData& hitData) const;
+  virtual TileMicroHit GetTileMicroHit(const G4Step*, TileHitData& hitData) const override final;
   ///
-  inline TileGeoG4LookupBuilder* GetLookupBuilder() const
+  inline virtual TileGeoG4LookupBuilder* GetLookupBuilder() const override final
   {
     return m_lookup;
   }

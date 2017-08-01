@@ -24,7 +24,7 @@
 #include "StoreGate/WriteHandle.h"
 #include "TileSimEvent/TileHitVector.h"
 
-class TileGeoG4SDCalc;
+class ITileCalculator;
 class TileGeoG4LookupBuilder;
 
 class G4HCofThisEvent;
@@ -40,7 +40,7 @@ public:
   G4bool ProcessHits(G4Step*, G4TouchableHistory*) override final;
   void EndOfAthenaEvent();
 
-  TileGeoG4SDCalc* GetCalculator() {
+  ITileCalculator* GetCalculator() {
     return m_calc;
   }
 
@@ -50,7 +50,7 @@ public:
 
 private:
 
-  TileGeoG4SDCalc* m_calc;
+  ITileCalculator* m_calc;
   TileGeoG4LookupBuilder* m_lookup;
   const TileSDOptions m_options;
 
