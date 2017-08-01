@@ -35,8 +35,10 @@ IT is faster to iterate over the container with this method:
 */
 
 template < class T>
-class IdentifiableContainerMT : public EventContainers::IdentifiableCache<T>, public DataObject
+class IdentifiableContainerMT : public DataObject
 {
+
+
 public:
 
     typedef T        IDENTIFIABLE;
@@ -50,6 +52,13 @@ public:
     typedef T* const * const_pointer;
     typedef T          base_value_type;
     typedef std::vector<IdentifierHash> Hash_Container;
+
+private:
+    ICACHE *m_cacheLink;
+    std::vector<bool> m_mask;
+    bool m_OnlineMode;
+
+public:
 
     class const_iterator
     {
@@ -74,7 +83,7 @@ public:
             if(m_end) return *this;
             //If called on iterator created by "fast" iterator method const_iterator( const MyType* idC, IdentifierHash hash  )
             if(!m_sptr) { 
-                auto ids = m_idContainer->ids();
+                auto ids = m_idContainer->GetAllCurrentHashs();
                 m_sptr    = std::shared_ptr<Hash_Container> (new Hash_Container());
                 m_sptr->swap(ids);
                 m_hashItr = std::find(m_sptr->begin(), m_sptr->end(), m_hash);
@@ -149,7 +158,7 @@ public:
         const_iterator(const MyType* idC, bool end) : m_sptr(), m_current(nullptr), m_idContainer(idC), m_end(end)
         {
             if(!m_end) {
-                auto ids = m_idContainer->ids();
+                auto ids = m_idContainer->GetAllCurrentHashs();
                 if(ids.empty()) {//For empty containers
                     m_end = true;
                 } else {
@@ -184,8 +193,16 @@ public:
 
 
 
-    // default constructor initializes the collection to hash max
-    IdentifiableContainerMT(IdentifierHash hashMax, const typename EventContainers::IdentifiableCache<T>::Maker* maker = 0);
+    // constructor initializes the collection the hashmax, OFFLINE usages pattern
+    IdentifiableContainerMT(IdentifierHash hashMax);
+
+    // constructor initializes with a link to a cache, ONLINE usage pattern
+    IdentifiableContainerMT(ICACHE *cache);
+
+    ~IdentifiableContainerMT() { if(!m_OnlineMode) delete m_cacheLink; }
+
+
+
 
     /// return pointer on the found entry or null if out of
     ///  range using hashed index - fast version, does not call cnv
@@ -201,6 +218,17 @@ public:
     /// if IDC should not take ownership of collection, set ownsColl to false
     StatusCode addCollection(const T* coll, IdentifierHash hashId, bool ownsColl = true);
 
+    /// Tries to add the item to the cache, if the item already exists then it is deleted
+    /// This is a convenience method for online multithreaded scenarios
+    StatusCode addOrDelete(std::unique_ptr<T>, IdentifierHash hashId);
+
+    /// Looks in the cache to see if item already exists if not it returns false,
+    /// If it does exist it incorporates it into the IDC view but changing the mask.
+    bool tryFetch(IdentifierHash hashId);
+
+    /// Tries will look for item in cache, if it doesn't exist will call the cache IMAKER
+    /// If cache doesn't have an IMAKER then this fails.
+    StatusCode fetchOrCreate(IdentifierHash hashId);
 
 #ifdef IdentifiableCacheBaseRemove
     /// remove collection from container for id hash, returning it
@@ -212,30 +240,39 @@ public:
     /// the hash max
     void setAllCollections(unsigned int hashMax);
 
-    /// reset m_hashids and call DLV's cleanup
+    /// reset m_hashids and call IdentifiableCache's cleanup
     void cleanup();
 
     /// return full size of container
     size_t fullSize() const {
-        using namespace EventContainers;
-        return IdentifiableCacheBase::fullSize();
+        return m_cacheLink->fullSize();
     }
 
     //Duplicate of fullSize for backwards compatability
     size_t size() const {
-        using namespace EventContainers;
-        return IdentifiableCacheBase::fullSize();
+        return m_cacheLink->fullSize();
     }    
 
     /// return number of collections
     size_t numberOfCollections() const {
-        using namespace EventContainers;
-        return IdentifiableCacheBase::numberOfHashes();
+        if(!m_OnlineMode) return m_cacheLink->numberOfHashes();
+        size_t count =0;
+        for(auto b : m_mask) count += b;
+        return count;
     }
 
+    
+    //Returns a collection of all hashes availiable in this IDC.
+    //If this is an "offline" mode IDC then this is identical to the cache
+    //If this is an "online" mode IDC then this is the items that both exist in the cache 
+    //and have a postive mask element
     std::vector<IdentifierHash> GetAllCurrentHashs() const {
-        using namespace EventContainers;
-        return IdentifiableCacheBase::ids();
+        if(not m_OnlineMode) return m_cacheLink->ids();
+        else{
+	    std::vector<IdentifierHash> ids;
+            for(size_t i =0 ; i < m_mask.size(); ++i) if(m_mask[i]) ids.emplace_back(i);
+            return ids;
+        }
     }
 
     /// return const_iterator for first entry
@@ -257,19 +294,29 @@ T*
 IdentifiableContainerMT<T>::removeCollection( IdentifierHash hashId )
 {
     using namespace EventContainers;
-    const T* ptr = reinterpret_cast<const T*> (IdentifiableCacheBase::find (hashId));
-    IdentifiableCacheBase::remove(hashId);
+    const T* ptr = reinterpret_cast<const T*> (m_cacheLink->find (hashId));
+    m_cacheLink->remove(hashId);
+    m_mask[hashId] = false;
     return const_cast<T*>(ptr);
 }
 #endif
 
 
-// default constructor initializes the IndentifiableCache
-template < class T>
-IdentifiableContainerMT<T>::IdentifiableContainerMT(IdentifierHash maxHash, const typename EventContainers::IdentifiableCache<T>::Maker* maker)
-    :  EventContainers::IdentifiableCache<T>(maxHash, maker)
-{
 
+// Constructor for OFFLINE style IDC
+template < class T>
+IdentifiableContainerMT<T>::IdentifiableContainerMT(IdentifierHash maxHash) : m_cacheLink(new ICACHE(maxHash, nullptr))
+{
+    m_mask.assign(maxHash, true);
+    m_OnlineMode = false;
+}
+
+// Constructor for ONLINE style IDC
+template < class T>
+IdentifiableContainerMT<T>::IdentifiableContainerMT(ICACHE *cache) : m_cacheLink(cache)
+{
+    m_mask.assign(cache->fullSize(), false);
+    m_OnlineMode = true;
 }
 
 // return valuetype on the found entry or null if out of
@@ -279,7 +326,8 @@ template < class T>
 const T*
 IdentifiableContainerMT<T>::indexFindPtr( IdentifierHash hashId ) const
 {
-    return ICACHE::find(hashId);
+    if(m_mask[hashId])  return m_cacheLink->find(hashId);
+    else                return nullptr;
 }
 
 // insert collection into container with id hash
@@ -288,7 +336,8 @@ StatusCode
 IdentifiableContainerMT<T>::addCollection(const T* coll, IdentifierHash hashId, bool ownsColl)
 {
     // update m_hashids
-    if (! ICACHE::add(hashId, coll, ownsColl)) return StatusCode::FAILURE;
+    if (! m_cacheLink->add(hashId, coll, ownsColl)) return StatusCode::FAILURE;
+    m_mask[hashId] = true;
     return StatusCode::SUCCESS;
 
 }
@@ -299,8 +348,42 @@ template < class T>
 void
 IdentifiableContainerMT<T>::cleanup()
 {
-    using namespace EventContainers;
-    IdentifiableCacheBase::clear (EventContainers::IdentifiableCacheBase::void_unique_ptr::Deleter<T>::deleter);
+    if(m_OnlineMode) { m_mask.assign(m_cacheLink->fullSize(), false);  }
+    else { m_cacheLink->clearCache(); }
+}
+
+template < class T>
+StatusCode
+IdentifiableContainerMT<T>::fetchOrCreate(IdentifierHash hashId)
+{
+    auto ptr = m_cacheLink->get(hashId);
+    if(ptr==nullptr){
+        return StatusCode::FAILURE; 
+    }
+    m_mask[hashId] = true;
+    return StatusCode::SUCCESS; 
+}
+
+template < class T>
+bool
+IdentifiableContainerMT<T>::tryFetch(IdentifierHash hashId)
+{
+    auto ptr = m_cacheLink->find(hashId);
+    if(ptr==nullptr){
+        return false; 
+    }
+    m_mask[hashId] = true;
+    return true; 
+}
+
+template < class T>
+StatusCode
+IdentifiableContainerMT<T>::addOrDelete(std::unique_ptr<T> ptr, IdentifierHash hashId)
+{
+    bool added = m_cacheLink->add(std::move(ptr), hashId);
+    if(added) return StatusCode::SUCCESS;
+    ptr.reset();//Explicity delete my ptr - should not be necessary maybe remove this line for optimization
+    return StatusCode::SUCCESS;
 }
 
 #endif

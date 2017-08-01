@@ -28,6 +28,8 @@ class IdentifiableCache
   : public IdentifiableCacheBase
 {
 public:
+  
+
   class Maker
     : public IMaker
   {
@@ -71,6 +73,9 @@ public:
     return IdentifiableCacheBase::add (hash, void_unique_ptr(std::move(p)));
   }
 
+  void clearCache(){
+    IdentifiableCacheBase::clear (void_unique_ptr::Deleter<T>::deleter);
+  }
 };
 
 
