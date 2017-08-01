@@ -33,7 +33,7 @@ TileGeoG4SD::TileGeoG4SD(G4String name, const std::string& hitCollectionName, co
   m_calc = new TileGeoG4SDCalc(m_options);
 
   //build tilecal ordinary look-up table
-  m_lookup = m_calc->lookup;
+  m_lookup = m_calc->GetLookupBuilder();
   if (verboseLevel > 5)
     G4cout << "Lookup built for Tile" << G4endl;
 }
@@ -60,24 +60,24 @@ G4bool TileGeoG4SD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/) {
 
     if (verboseLevel > 10)
       G4cout << "ProcessHits: wrong pmtID_up,pmtID_down,edep_up,edep_down,"
-             << "scin_Time_up,scin_Time_down:\t" << m_calc->pmtID_up
-             << "\t" << m_calc->pmtID_down
-             << "\t" << m_calc->edep_up
-             << "\t" << m_calc->edep_down
-             << "\t" << m_calc->scin_Time_up
-             << "\t" << m_calc->scin_Time_down << G4endl;
+             << "scin_Time_up,scin_Time_down:\t" << m_calc->m_hitData.pmtID_up
+             << "\t" << m_calc->m_hitData.pmtID_down
+             << "\t" << m_calc->m_hitData.edep_up
+             << "\t" << m_calc->m_hitData.edep_down
+             << "\t" << m_calc->m_hitData.scin_Time_up
+             << "\t" << m_calc->m_hitData.scin_Time_down << G4endl;
     return false;
   }
 
   if ( !(m_calc->ManageScintHit()) ) { //create or update hit object in the collection
 
     G4cout << "ProcessHits: TileHit can not be produced; pmtID_up,pmtID_down,edep_up,edep_down,"
-           << "scin_Time_up,scin_Time_down:\t" << m_calc->pmtID_up
-           << "\t" << m_calc->pmtID_down
-           << "\t" << m_calc->edep_up
-           << "\t" << m_calc->edep_down
-           << "\t" << m_calc->scin_Time_up
-           << "\t" << m_calc->scin_Time_down << G4endl;
+           << "scin_Time_up,scin_Time_down:\t" << m_calc->m_hitData.pmtID_up
+           << "\t" << m_calc->m_hitData.pmtID_down
+           << "\t" << m_calc->m_hitData.edep_up
+           << "\t" << m_calc->m_hitData.edep_down
+           << "\t" << m_calc->m_hitData.scin_Time_up
+           << "\t" << m_calc->m_hitData.scin_Time_down << G4endl;
     return false;
   }
 

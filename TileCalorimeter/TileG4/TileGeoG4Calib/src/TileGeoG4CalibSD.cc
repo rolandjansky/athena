@@ -175,7 +175,7 @@ TileGeoG4CalibSD::TileGeoG4CalibSD(const G4String& name, const std::vector<std::
   }
 
   //BUILD TILECAL ORDINARY AND CALIBRATION LOOK-UP TABLES
-  m_lookup = m_calc->lookup;
+  m_lookup = m_calc->GetLookupBuilder();
   m_lookupDM = new TileGeoG4DMLookupBuilder(m_lookup, m_rdbSvc, m_geoModSvc, detStore, verboseLevel);
 
   if (m_options.tileTB) {
