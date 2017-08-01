@@ -370,8 +370,8 @@ Identifier TileGeoG4CalibSD::CellIDCalculator() {
   return m_id;
 }
 
-Identifier TileGeoG4CalibSD::ScintIDCalculator() {
-  m_cell = m_calc->m_hitData.cell;  //retrieve Cell from TileGeoG4SDCalc
+Identifier TileGeoG4CalibSD::ScintIDCalculator(TileHitData& hitData) {
+  m_cell = hitData.cell;  //retrieve Cell from TileGeoG4SDCalc
   if (!m_cell) {
     G4cout << "ERROR: ScintIDCalculator: zero pointer to the current cell!" << G4endl;
     m_defaultHit = true;
@@ -385,15 +385,15 @@ Identifier TileGeoG4CalibSD::ScintIDCalculator() {
   m_calibHitType = 1;  //Cell Active CalibHit
 
   //determine remined ID fields
-  m_detector = m_calc->m_hitData.nDetector;
-  m_sample = m_calc->m_hitData.nSample - 1;
-  m_tower = m_calc->m_hitData.nTower - 1;
-  m_module = m_calc->m_hitData.nModule - 1;
-  m_side = m_calc->m_hitData.nSide;
+  m_detector = hitData.nDetector;
+  m_sample = hitData.nSample - 1;
+  m_tower = hitData.nTower - 1;
+  m_module = hitData.nModule - 1;
+  m_side = hitData.nSide;
   m_cellNum = m_cell->cellNum;
 
   //just a debugging of CaloCell ID fields
-  DebugCellIDFields();
+  this->DebugCellIDFields();
 
 #ifdef HITSINFO    //added by Sergey
   if (IDcalc==0 || IDcalc==2) {
@@ -401,7 +401,7 @@ Identifier TileGeoG4CalibSD::ScintIDCalculator() {
     det_side = -abs(m_detector);
     else
     det_side = m_detector;
-    if (doHitsTXT) HitsInfoPrint(false,2);  // 2-ScintIDCalculator
+    if (doHitsTXT) this->HitsInfoPrint(false,2);  // 2-ScintIDCalculator
     if (doHitsNTup) m_ntuple->storeHit(det_side,m_module,m_tower,m_sample,m_cellNum,
         2,nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
   }
@@ -409,8 +409,8 @@ Identifier TileGeoG4CalibSD::ScintIDCalculator() {
 
   //reetrieve CaloCell & Tile IDs
   m_id = m_caloCell_ID->cell_id(m_subCalo, m_detector, m_side, m_module, m_tower, m_sample);
-  m_id_pmt_down = m_calc->m_hitData.pmtID_down;
-  m_id_pmt_up = m_calc->m_hitData.pmtID_up;
+  m_id_pmt_down = hitData.pmtID_down;
+  m_id_pmt_up = hitData.pmtID_up;
 
   return m_id;
 }

@@ -49,35 +49,37 @@ void TileGeoG4SD::Initialize(G4HCofThisEvent* /*HCE*/) {
 }
 
 G4bool TileGeoG4SD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/) {
-  if (! (m_calc->FindTileScinSection(aStep, m_calc->m_hitData))) { //Search for the tilecal sub-section, its module and some identifiers
+  TileHitData hitData;
+
+  if (! (m_calc->FindTileScinSection(aStep, hitData))) { //Search for the tilecal sub-section, its module and some identifiers
 
     if (verboseLevel > 5)
       G4cout << "ProcessHits: FindTileScinSection(aStep) is false!" << G4endl;
     return false;
   }
 
-  if ( !(m_calc->MakePmtEdepTime(aStep, m_calc->m_hitData)) ) { //calculation of pmtID, edep and scin_Time with aStep (Sergey)
+  if ( !(m_calc->MakePmtEdepTime(aStep, hitData)) ) { //calculation of pmtID, edep and scin_Time with aStep (Sergey)
 
     if (verboseLevel > 10)
       G4cout << "ProcessHits: wrong pmtID_up,pmtID_down,edep_up,edep_down,"
-             << "scin_Time_up,scin_Time_down:\t" << m_calc->m_hitData.pmtID_up
-             << "\t" << m_calc->m_hitData.pmtID_down
-             << "\t" << m_calc->m_hitData.edep_up
-             << "\t" << m_calc->m_hitData.edep_down
-             << "\t" << m_calc->m_hitData.scin_Time_up
-             << "\t" << m_calc->m_hitData.scin_Time_down << G4endl;
+             << "scin_Time_up,scin_Time_down:\t" << hitData.pmtID_up
+             << "\t" << hitData.pmtID_down
+             << "\t" << hitData.edep_up
+             << "\t" << hitData.edep_down
+             << "\t" << hitData.scin_Time_up
+             << "\t" << hitData.scin_Time_down << G4endl;
     return false;
   }
 
-  if ( !(m_calc->ManageScintHit(m_calc->m_hitData)) ) { //create or update hit object in the collection
+  if ( !(m_calc->ManageScintHit(hitData)) ) { //create or update hit object in the collection
 
     G4cout << "ProcessHits: TileHit can not be produced; pmtID_up,pmtID_down,edep_up,edep_down,"
-           << "scin_Time_up,scin_Time_down:\t" << m_calc->m_hitData.pmtID_up
-           << "\t" << m_calc->m_hitData.pmtID_down
-           << "\t" << m_calc->m_hitData.edep_up
-           << "\t" << m_calc->m_hitData.edep_down
-           << "\t" << m_calc->m_hitData.scin_Time_up
-           << "\t" << m_calc->m_hitData.scin_Time_down << G4endl;
+           << "scin_Time_up,scin_Time_down:\t" << hitData.pmtID_up
+           << "\t" << hitData.pmtID_down
+           << "\t" << hitData.edep_up
+           << "\t" << hitData.edep_down
+           << "\t" << hitData.scin_Time_up
+           << "\t" << hitData.scin_Time_down << G4endl;
     return false;
   }
 

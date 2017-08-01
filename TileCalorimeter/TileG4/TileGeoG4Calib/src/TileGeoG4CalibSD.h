@@ -78,6 +78,8 @@ class G4VPhysicalVolume;
 
 class EventInformation;
 
+struct TileHitData;
+
 #include <string>
 #include <vector>
 typedef std::vector<double> E_4;
@@ -103,7 +105,7 @@ class TileGeoG4CalibSD: public G4VSensitiveDetector {
     //CALIBRATION HITS ON THE CURRENT STEP
     void ClassifyEnergy();bool FindTileCalibSection();
     Identifier CellIDCalculator();
-    Identifier ScintIDCalculator();
+    Identifier ScintIDCalculator(TileHitData& hitData);
     Identifier GirderCellIDCalculator();
     Identifier PlateCellIDCalculator();
     Identifier DefaultHitIDCalculator();
