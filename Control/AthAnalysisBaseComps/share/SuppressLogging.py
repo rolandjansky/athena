@@ -1,5 +1,4 @@
-
-MessageSvc.setWarning += {"ClassIDSvc",
+MessageSvc.setWarning += ["ClassIDSvc",
                           "PoolSvc",
                           "AthDictLoaderSvc",
                           "AthenaPoolAddressProviderSvc",
@@ -17,7 +16,7 @@ MessageSvc.setWarning += {"ClassIDSvc",
                           "ActiveStoreSvc",
                           "AthenaEventLoopMgr",
                           "AthOutSeq",
-                          "AthRegSeq"};
+                          "AthRegSeq"]
 
 #also silence storegates if not dumping
 if not hasattr(StoreGateSvc,"Dump") or not StoreGateSvc.Dump: MessageSvc.setWarning += ["StoreGateSvc"]
