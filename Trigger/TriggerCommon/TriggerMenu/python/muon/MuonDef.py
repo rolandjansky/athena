@@ -303,7 +303,7 @@ class L2EFChain_mu(L2EFChainDef):
       log.error("Chain built with %s but so far only l2muonSA is supported." % (self.chainPart['L2SAAlg']))
       return False
     
-    [trkfast, trkiso, trkprec] = TrigInDetSequence("Muon", "muon", "IDTrig", sequenceFlavour="2step").getSequence()
+    [trkfast, trkiso, trkprec] = TrigInDetSequence("Muon", "muon", "IDTrig", sequenceFlavour=["2step"]).getSequence()
     
     
 
@@ -1063,7 +1063,7 @@ class L2EFChain_mu(L2EFChainDef):
       return False
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFExtrapolatorHypoConfig
     theTrigMuonEFExtrapolatorHypoConfig = TrigMuonEFExtrapolatorHypoConfig(EFRecoAlgName, EFExtrapolatorThresh)
-    [trkfast, trkiso, trkprec] = TrigInDetSequence("Muon", "muon", "IDTrig", sequenceFlavour="2step").getSequence()
+    [trkfast, trkiso, trkprec] = TrigInDetSequence("Muon", "muon", "IDTrig", sequenceFlavour=["2step"]).getSequence()
     if "wOvlpRm" in self.chainPart['overlapRemoval']:
       from TrigMuonHypo.TrigEFMuonOverlapRemoverConfig import TrigEFMuonOverlapRemoverConfig
       theEFOvlpRmConfig = TrigEFMuonOverlapRemoverConfig('MuExtr','loose')
@@ -2267,7 +2267,7 @@ class L2EFChain_mu(L2EFChainDef):
     theL2StandAloneHypo = MufastHypoConfig(L2AlgName, muFastThresh)
     
     from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-    [trkfast, trkiso, trkprec] = TrigInDetSequence("Muon", "muon", "IDTrig", sequenceFlavour="2step").getSequence()
+    [trkfast, trkiso, trkprec] = TrigInDetSequence("Muon", "muon", "IDTrig", sequenceFlavour=["2step"]).getSequence()
     
     theTrigMuSuperEF = CfgGetter.getAlgorithm("TrigMuSuperEF")
     EFRecoAlgName = "Muon"

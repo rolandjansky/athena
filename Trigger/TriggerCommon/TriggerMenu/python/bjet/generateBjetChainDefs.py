@@ -453,10 +453,9 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     elif 'FTK' in chainParts['bTracking']:
         [ftkvtx, trkftf, trkprec] = TrigInDetFTKSequence("Bjet", "bjet", sequenceFlavour=["FTKVtx","PT"]).getSequence() # new
     elif useTRT :
-        [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", "2step").getSequence() # new
+        [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", sequenceFlavour=["2step"]).getSequence()         
     else :
-        [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", "2step","noTRT").getSequence() # new
-
+        [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", sequenceFlavour=["2step","noTRT"]).getSequence() 
 
     # for b-tagging
     theBjetTracks = trkftf+trkprec
@@ -680,9 +679,9 @@ def myBjetConfig1(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1):
 
     # tracking
     if useTRT :
-        [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", "2step").getSequence() 
+        [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", sequenceFlavour=["2step"]).getSequence() 
     else :
-        [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", "2step","noTRT").getSequence() 
+        [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", sequenceFlavour=["2step","noTRT"]).getSequence() 
     ef_bjet_tracks = trkftf+trkprec
 
 
