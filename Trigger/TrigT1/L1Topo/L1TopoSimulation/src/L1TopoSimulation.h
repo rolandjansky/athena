@@ -81,7 +81,7 @@ namespace LVL1 {
       BooleanProperty m_enableBitwise { false }; // for enabling bitwise algorithms
 
       StringProperty  m_inputDumpFile { "inputdump.txt" }; // input dump file
-      SG::ReadHandleKey<EventInfo> m_EventInfoKey;
+//      SG::ReadHandleKey<EventInfo> m_EventInfoKey;
       SG::WriteHandleKey<LVL1::FrontPanelCTP>  m_topoCTPLocation { "" }; ///< SG key of decision bits for CTP
       SG::WriteHandleKey<LVL1::FrontPanelCTP>  m_topoOverflowCTPLocation { "" }; ///< SG key of overflow bits for CTP
       int m_topoOutputLevel{TrigConf::MSGTC::WARNING};                                  // property to set the outputlevel of the topo algorithms

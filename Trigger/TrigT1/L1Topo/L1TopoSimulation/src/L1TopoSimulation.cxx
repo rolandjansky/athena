@@ -65,7 +65,7 @@ L1TopoSimulation::L1TopoSimulation(const std::string &name, ISvcLocator *pSvcLoc
    m_jetInputProvider("LVL1::JetInputProvider/JetInputProvider", this),
    m_energyInputProvider("LVL1::EnergyInputProvider/EnergyInputProvider", this),
    m_muonInputProvider("LVL1::MuonInputProvider/MuonInputProvider", this),
-   m_EventInfoKey("EventInfo"),
+//   m_EventInfoKey("EventInfo"),
    m_topoSteering( unique_ptr<TCS::TopoSteering>(new TCS::TopoSteering()) )
 {
    declareProperty( "TrigConfigSvc", m_l1topoConfigSvc, "Service to provide the L1Topo menu");
@@ -84,7 +84,7 @@ L1TopoSimulation::L1TopoSimulation(const std::string &name, ISvcLocator *pSvcLoc
    declareProperty( "TopoOutputLevel", m_topoOutputLevel, "OutputLevel for L1Topo algorithms" );
    declareProperty( "TopoSteeringOutputLevel", m_topoSteeringOutputLevel, "OutputLevel for L1Topo steering" );
    declareProperty("Prescale", m_prescale = 1, "Internal prescale factor for this algorithm, implemented with a periodic scaler: so 1 means run every time, N means run every 1 in N times it is called; the other times it will exit without doing anything");
-   declareProperty("EventInfoKey", m_EventInfoKey);
+//   declareProperty("EventInfoKey", m_EventInfoKey);
 
 
    const TCS::GlobalDecision & dec = m_topoSteering->simulationResult().globalDecision();
@@ -129,7 +129,7 @@ L1TopoSimulation::initialize() {
 
    CHECK(m_topoCTPLocation.initialize());
    CHECK(m_topoOverflowCTPLocation.initialize());
-   CHECK(m_EventInfoKey.initialize());
+//   CHECK(m_EventInfoKey.initialize());
 
    ATH_MSG_DEBUG("Prescale factor set to " << m_prescale);
    ATH_MSG_DEBUG("Output trigger key property " << m_topoCTPLocation.key());
@@ -239,7 +239,11 @@ L1TopoSimulation::execute() {
    TCS::TopoInputEvent & inputEvent = m_topoSteering->inputEvent();
 
    // Event Info
-   SG::ReadHandle< EventInfo > evt(m_EventInfoKey);
+//ReadHandle doesn't seem to work yet for eventinfo
+//   SG::ReadHandle< EventInfo > evt(m_EventInfoKey);
+//   CHECK(evt.isValid());
+   const EventInfo *evt;
+   CHECK(evtStore()->retrieve(evt));
    inputEvent.setEventInfo(evt->event_ID()->run_number(),evt->event_ID()->event_number(),evt->event_ID()->lumi_block(),evt->event_ID()->bunch_crossing_id());
 
    // EM TAU
