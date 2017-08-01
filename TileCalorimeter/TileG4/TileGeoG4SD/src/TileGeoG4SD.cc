@@ -49,7 +49,7 @@ void TileGeoG4SD::Initialize(G4HCofThisEvent* /*HCE*/) {
 }
 
 G4bool TileGeoG4SD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/) {
-  if (! (m_calc->FindTileScinSection(aStep))) { //Search for the tilecal sub-section, its module and some identifiers
+  if (! (m_calc->FindTileScinSection(aStep, m_calc->m_hitData))) { //Search for the tilecal sub-section, its module and some identifiers
 
     if (verboseLevel > 5)
       G4cout << "ProcessHits: FindTileScinSection(aStep) is false!" << G4endl;

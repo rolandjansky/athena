@@ -79,7 +79,7 @@ public:
   ~TileGeoG4SDCalc();
 
   /// Search for the tilecal sub-section, its module and some identifiers
-  G4bool FindTileScinSection(const G4Step*);//, TileHitData& hitData) const;
+  G4bool FindTileScinSection(const G4Step*, TileHitData& hitData) const;
   /// Calculation of pmtID, edep and scin_Time with aStep (Sergey)
   G4bool MakePmtEdepTime(const G4Step*, TileHitData& hitData) const;
   /// Calculation of pmtID, edep and scin_Time with aStep (Sergey)
