@@ -1,4 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 // $Id: IMuonSelectionTool.h 299883 2014-03-28 17:34:16Z krasznaa $
 #ifndef MUONSELECTORTOOLS_IMUONSELECTIONTOOL_H
 #define MUONSELECTORTOOLS_IMUONSELECTIONTOOL_H
