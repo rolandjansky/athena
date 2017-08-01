@@ -133,17 +133,17 @@ void PixelMon2DProfilesLW::Fill(Identifier &id, const PixelID* pixID, float weig
          int feid = 0;
          int emf = 0;
          bool copy = false;
-         if (em < 6 && em > -7 && IBL2D) {
+         if (em < 6 && em > -7) {
             if (pixID->eta_index(id) >= 80) feid = 1;
             emf = 2 * em + feid; 
-            IBL2D->Fill(em, pm, weight);
+            if (IBL2D) IBL2D->Fill(em, pm, weight);
             copy = true;
-         } else if (em < -6 && IBL3D) {
+         } else if (em < -6) {
             emf = em - 6;
-            IBL3D->Fill(em + 10, pm, weight); 
-         } else if (IBL3D) {
+            if (IBL3D) IBL3D->Fill(em + 10, pm, weight);
+         } else {
             emf = em + 6;
-            IBL3D->Fill(em - 2, pm, weight);
+            if (IBL3D) IBL3D->Fill(em - 2, pm, weight);
          }
          IBL->Fill(emf, pm, weight);
          if (m_copy2DFEval && copy) IBL->Fill(emf + 1, pm, weight);

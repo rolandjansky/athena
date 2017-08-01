@@ -104,17 +104,17 @@ void PixelMon2DMapsLW::Fill(Identifier &id, const PixelID* pixID)
          int feid = 0;
          int emf = 0;
          bool copy = false;
-         if (em < 6 && em > -7 && IBL2D) {
+         if (em < 6 && em > -7) {
             if (pixID->eta_index(id) >= 80) feid = 1;
             emf = 2 * em + feid; 
-            IBL2D->Fill(em, pm);
+            if (IBL2D) IBL2D->Fill(em, pm);
             copy = true;
-         } else if (em < -6 && IBL3D) {
+         } else if (em < -6) {
             emf = em - 6;
-            IBL3D->Fill(em + 10, pm); 
-         } else if (IBL3D) {
+            if (IBL3D) IBL3D->Fill(em + 10, pm);
+         } else {
             emf = em + 6;
-            IBL3D->Fill(em - 2,pm); 
+            if (IBL3D) IBL3D->Fill(em - 2, pm);
          }
          IBL->Fill(emf, pm);
          if (m_copy2DFEval && copy) IBL->Fill(emf + 1, pm);
@@ -144,16 +144,16 @@ void PixelMon2DMapsLW::WeightingFill(Identifier &id, const PixelID* pixID, float
       } else if (ld == -1 && IBL) {
          int feid = 0;
          int emf = 0;
-         if (em < 6 && em > -7 && IBL2D) {
+         if (em < 6 && em > -7) {
             if (pixID->eta_index(id) >= 80) feid = 1;
             emf = 2 * em + feid; 
-            IBL2D->Fill(em, pm, weight);
-         } else if (em < -6 && IBL3D) {
+            if (IBL2D) IBL2D->Fill(em, pm, weight);
+         } else if (em < -6) {
             emf = em - 6;
-            IBL3D->Fill(em + 10, pm, weight);
-         } else if (IBL3D) {
+            if (IBL3D) IBL3D->Fill(em + 10, pm, weight);
+         } else {
             emf = em + 6;
-            IBL3D->Fill(em - 2, pm, weight);
+            if (IBL3D) IBL3D->Fill(em - 2, pm, weight);
          }
          IBL->Fill(emf, pm, weight);
       }
