@@ -22,7 +22,7 @@
 #include "TileGeoG4CalibSD.h"
 #include "TileGeoG4DMLookupBuilder.h"
 #include "TileEscapedEnergyProcessing.h"
-#include "TileGeoG4SD/TileGeoG4SDCalc.hh"
+#include "TileG4Interfaces/ITileCalculator.h"
 #include "TileGeoG4SD/TileGeoG4Lookup.hh"
 #include "TileGeoG4SD/TileGeoG4LookupBuilder.hh"
 #include "TileSimEvent/TileHitVector.h"
@@ -58,7 +58,7 @@
 #include <string>
 
 //CONSTRUCTOR
-TileGeoG4CalibSD::TileGeoG4CalibSD(const G4String& name, const std::vector<std::string>& outputCollectionNames,
+TileGeoG4CalibSD::TileGeoG4CalibSD(const G4String& name, const std::vector<std::string>& outputCollectionNames, ITileCalculator* tileCalculator,
                                    ServiceHandle<StoreGateSvc> &detStore, const TileSDOptions &opts)
     : G4VSensitiveDetector(name),
       m_tileActiveCellCalibHits(outputCollectionNames[1]),
@@ -72,7 +72,7 @@ TileGeoG4CalibSD::TileGeoG4CalibSD(const G4String& name, const std::vector<std::
       m_ntuple("TileCalibHitNtuple/TileCalibHitNtuple"),
       m_ntupleCnt("TileCalibHitCntNtup/TileCalibHitCntNtup"),
 #endif
-      m_calc(0),
+      m_calc(tileCalculator),
       m_lookupDM(0),
       m_simEn(0),
       m_tile_eep(0),
@@ -157,12 +157,6 @@ TileGeoG4CalibSD::TileGeoG4CalibSD(const G4String& name, const std::vector<std::
     G4cout << "FATAL: Failed to retrieve DM ID helper" << G4endl;
     abort();
   }
-
-//**************************************************************************************************
-  //Sensitive Detector initialisation for TileCal G4 simulations (Sergey)
-  // Owns this now
-  m_calc = new TileGeoG4SDCalc(m_options);
-//**************************************************************************************************
 
   // Grab the service handles
   if (m_rdbSvc.retrieve().isFailure()) {

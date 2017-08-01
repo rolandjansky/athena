@@ -11,6 +11,8 @@
 
 #include "TileGeoG4CalibSDTool.h"
 #include "TileGeoG4CalibSD.h"
+#include "TileGeoG4SD/TileGeoG4SDCalc.hh"
+#include <memory>
 
 TileGeoG4CalibSDTool::TileGeoG4CalibSDTool(const std::string& type, const std::string& name, const IInterface* parent)
     : SensitiveDetectorBase(type, name, parent) {
@@ -35,7 +37,8 @@ G4VSensitiveDetector* TileGeoG4CalibSDTool::makeSD() {
     ATH_MSG_ERROR( "Expected 4 output collection names, found " << m_outputCollectionNames.size()
                    << ". Expect the job to crash when the SD is created.");
   }
-  return new TileGeoG4CalibSD(name(), m_outputCollectionNames, detStore(), m_options);
+  std::unique_ptr<TileGeoG4SDCalc> tileCalculator = std::make_unique<TileGeoG4SDCalc>(m_options);
+  return new TileGeoG4CalibSD(name(), m_outputCollectionNames, tileCalculator.release(), detStore(), m_options);
 }
 
 StatusCode TileGeoG4CalibSDTool::Gather() {

@@ -86,7 +86,7 @@ typedef std::vector<double> E_4;
 
 class TileGeoG4CalibSD: public G4VSensitiveDetector {
 public:
-  TileGeoG4CalibSD(const G4String& name, const std::vector<std::string>& m_outputCollectionNames,
+  TileGeoG4CalibSD(const G4String& name, const std::vector<std::string>& m_outputCollectionNames, ITileCalculator* tileCalculator,
                    ServiceHandle<StoreGateSvc> &detStore, const TileSDOptions &opts);
   ~TileGeoG4CalibSD();
 
