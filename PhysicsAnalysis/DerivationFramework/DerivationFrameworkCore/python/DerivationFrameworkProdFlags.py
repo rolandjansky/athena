@@ -12,6 +12,23 @@ listAODtoDPD=[]
 listAllKnownDPD=[]  
 
 ####################################
+# Defined for physics validation
+####################################
+
+class WriteDAOD_PHYSVALStream(JobProperty):
+    """ DAOD_PHYSVAL - special format for physics validation """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    StreamName   = "StreamDAOD_PHYSVAL"
+    FileName     = ""
+    isVirtual      = False
+    DPDMakerScript = "DerivationFrameworkExamples/PHYSVAL.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_PHYSVALStream)
+listAODtoDPD.append(WriteDAOD_PHYSVALStream.StreamName)
+
+####################################
 # Defined by ASG for tests/examples
 ####################################
 
