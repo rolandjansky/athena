@@ -25,6 +25,7 @@
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
+#include "TrkSurfaces/DiamondBounds.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "MuonAGDDDescription/sTGCDetectorDescription.h"
 #include "MuonAGDDDescription/sTGCDetectorHelper.h"
@@ -264,7 +265,11 @@ namespace MuonGM {
       activeB = lWidth - 2 * xFrame;
     else activeB = lWidth - 2 * (1./cos(halfphi) * xFrame + tan(halfphi)*ylFrame);
 
-    double stripStagger[4] = {1.6, 3.2, 1.6, 3.2}; // First Strip in sTGC may be staggered. This value corresponds to first strip width
+    double firstStripPitch[4] = {1.6, 3.2, 1.6, 3.2}; // First Strip in sTGC may be staggered. This value corresponds to first strip width
+
+    double ycutout;
+    if (sTGC_type == 3) ycutout = length - ysFrame - ylFrame - (activeB-activeA) / (2.*tan(halfphi));
+    else ycutout = 0;
 
     // This block here was moved from another place in code in order to reduce repetitions 
     m_halfX=std::vector<double>(m_nlayers);
@@ -283,6 +288,9 @@ namespace MuonGM {
       if (chMax<0) chMax = 350;*/
 
       m_etaDesign[il].type=0;
+
+      m_etaDesign[il].cutoutH=ycutout;
+      m_etaDesign[il].firstPitch=firstStripPitch[il];
 
       m_etaDesign[il].xSize    = length - ysFrame - ylFrame;
       m_etaDesign[il].xLength  = length;
@@ -310,8 +318,10 @@ namespace MuonGM {
 	m_etaDesign[il].thickness = stgc->GetTechnology()->gasThickness;//+stgc->GetTechnology()->pcbThickness;
       }
 	
-      // m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize + 0.5*(parameterBagTech->stripPitch);
-      m_etaDesign[il].firstPos = -0.5*length + ysFrame + stripStagger[il]; // First Strip position is start of active region + first strip width
+      // These values depend on local geometry. When using DiamondBounds for QL3, the origin (0,0) is not at the center of the gas volume, but rather where the yCutout begins.
+      if (sTGC_type == 3) m_etaDesign[il].firstPos = -(m_etaDesign[il].xSize -ycutout) + m_etaDesign[il].firstPitch;
+      else m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize + m_etaDesign[il].firstPitch;
+
       reLog() << MSG::INFO
 	      << "firstPos: " << m_etaDesign[il].firstPos << endmsg;
       m_etaDesign[il].sAngle = 0.;
@@ -449,7 +459,12 @@ reLog() << MSG::INFO<<"initDesign  Sum Height Check: "<<stgc->GetName()<<" stgc-
     for( int layer = 0; layer < m_nlayers; ++layer ){
 
       //if (abs(getStationEta())<3) {
-      m_surfaceData->m_surfBounds.push_back( new Trk::RotatedTrapezoidBounds( m_halfX[layer], m_minHalfY[layer], m_maxHalfY[layer]));  // strips
+      // Here we define the geometry for the strips. If QL3, a cutoff trapezoid, we use diamondBounds. otherwise, we now use trapezoid instead of rotatedTrapezoid
+      // Wire and pad geometry QL3 correction is currently being worked on
+      if (sTGC_type == 3)
+        m_surfaceData->m_surfBounds.push_back( new Trk::DiamondBounds(m_minHalfY[layer],m_maxHalfY[layer],m_maxHalfY[layer],m_halfX[layer] - m_etaDesign[layer].cutoutH/2,m_etaDesign[layer].cutoutH/2) );
+      else
+        m_surfaceData->m_surfBounds.push_back( new Trk::TrapezoidBounds( m_minHalfY[layer], m_maxHalfY[layer], m_halfX[layer]));    
       m_surfaceData->m_surfBounds.push_back( new Trk::TrapezoidBounds( m_PadminHalfY[layer], m_PadmaxHalfY[layer], m_PadhalfX[layer]));         // wires & pads        
 	// }
 
@@ -477,9 +492,21 @@ reLog() << MSG::INFO<<"initDesign  Sum Height Check: "<<stgc->GetName()<<" stgc-
 
       // need to operate switch x<->z because of GeoTrd definition
       m_surfaceData->m_layerSurfaces.push_back( new Trk::PlaneSurface(*this, id) );
-      m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*
-						 Amg::Translation3D(shift,0.,0.)*
-						 Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.)) );
+
+      // If the top and bottom frames are not the same widths, the active geometry is incorrectly positionned by half the difference
+      double offset = 0.5*(m_etaDesign[layer].ylFrame-m_etaDesign[layer].ysFrame);
+
+      if (sTGC_type == 1 || sTGC_type == 2)
+        m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*
+						 Amg::Translation3D(shift,0.,-offset)*
+						 Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.))*
+						 Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,0.,1.)) );
+      else if (sTGC_type == 3) // if QL3, diamond. have to shift geometry to account for origin not being in center
+        m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*
+					Amg::Translation3D(shift,0.,-offset + m_halfX[layer] - m_etaDesign[layer].cutoutH)*
+					Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.))*
+					Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,0.,1.)) );
+      else reLog()<<MSG::ERROR << "sTGC_type : " << sTGC_type << " is not valid! Geometry not Created!" << endmsg;
 
       // is this cache really needed ? 
       m_surfaceData->m_layerCenters.push_back(m_surfaceData->m_layerTransforms.back().translation());

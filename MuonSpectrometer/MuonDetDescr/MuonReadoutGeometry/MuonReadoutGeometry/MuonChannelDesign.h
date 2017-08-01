@@ -35,6 +35,7 @@ namespace MuonGM {
     double signY;
     //Amg::Vector2D firstChannelPos;
     double firstPos;
+    double firstPitch; // Pitch of 1st strip
     double xSize;
     double xLength;
     double ysFrame;
@@ -42,6 +43,7 @@ namespace MuonGM {
     double minYSize;
     double maxYSize;
     double thickness;
+    double cutoutH; // H active - yCutout
 
     /** channel transform */
     //HepGeom::Transform3D  channelTransform( int channel ) const;
@@ -127,7 +129,12 @@ namespace MuonGM {
     if (type==MuonChannelDesign::etaStrip) {      // "eta"  orientation , assumes constant stereo angle
 
       double xMfirst = firstPos;
-      double xMid = pos.x() - pos.y()*tan(sAngle);
+      double xMid;
+      // sTGC strips no longer use the "eta" orientation in their local geometry.
+      // Its coordinates are "rotated". sTGC strip pitch == 3.2mm is a way to check if sTGC only
+      if (inputPitch == 3.2) xMid = pos.y() - pos.x()*tan(sAngle);
+      else xMid = pos.x() - pos.y()*tan(sAngle);
+      //double xMid = pos.x() - pos.y()*tan(sAngle);
       int chNum = int( cos(sAngle)*(xMid - xMfirst)/inputPitch+1.5 );
       if (chNum<1) return -1;
       if (chNum>nch) return -1;     // used also for calculation of the number of strips
@@ -180,12 +187,19 @@ namespace MuonGM {
       if (sAngle==0.) {
 
 	double x = firstPos + inputPitch*(st-1);
-        if (st == nch) { // Strip Staggering: either first strip or last strip is only half-width
-          if (firstPos == -0.5*xLength + ysFrame + inputPitch) // if 1st strip is not staggered
-            x = x - inputPitch*0.5; // stagger first strip
+        if (inputPitch == 3.2) { // check if sTGC, preferably 2 unique values
+          if (st == nch) { // Strip Staggering: either first strip or last strip is only half-width
+            if (firstPitch == 3.2) // if 1st strip is not staggered
+              x = x - inputPitch*0.5; // stagger first strip
+          }
+          // Here we "rotate" the coordinates. We changed the local geometry from a RotatedTrapezoid to a Trapezoid
+          pos[0] = 0;
+          pos[1] = x;
         }
-	pos[0] = x;
-	pos[1] = 0;
+        else { // default
+	  pos[0] = x;
+	  pos[1] = 0;
+        }
 	return true;
 
       }
