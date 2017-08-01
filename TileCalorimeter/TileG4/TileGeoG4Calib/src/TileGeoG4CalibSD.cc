@@ -60,67 +60,67 @@
 //CONSTRUCTOR
 TileGeoG4CalibSD::TileGeoG4CalibSD(const G4String& name, const std::vector<std::string>& outputCollectionNames, ITileCalculator* tileCalculator,
                                    ServiceHandle<StoreGateSvc> &detStore, const TileSDOptions &opts)
-    : G4VSensitiveDetector(name),
-      m_tileActiveCellCalibHits(outputCollectionNames[1]),
-      m_tileInactiveCellCalibHits(outputCollectionNames[2]),
-      m_tileDeadMaterialCalibHits(outputCollectionNames[3]),
-      m_tileHits(outputCollectionNames[0]),
-      m_options(opts),
-      m_rdbSvc(opts.rDBAccessSvcName, name),
-      m_geoModSvc(opts.geoModelSvcName, name),
+: G4VSensitiveDetector(name),
+  m_tileActiveCellCalibHits(outputCollectionNames[1]),
+  m_tileInactiveCellCalibHits(outputCollectionNames[2]),
+  m_tileDeadMaterialCalibHits(outputCollectionNames[3]),
+  m_tileHits(outputCollectionNames[0]),
+  m_options(opts),
+  m_rdbSvc(opts.rDBAccessSvcName, name),
+  m_geoModSvc(opts.geoModelSvcName, name),
 #ifdef HITSINFO    //added by Sergey
-      m_ntuple("TileCalibHitNtuple/TileCalibHitNtuple"),
-      m_ntupleCnt("TileCalibHitCntNtup/TileCalibHitCntNtup"),
+  m_ntuple("TileCalibHitNtuple/TileCalibHitNtuple"),
+  m_ntupleCnt("TileCalibHitCntNtup/TileCalibHitCntNtup"),
 #endif
-      m_calc(tileCalculator),
-      m_lookupDM(0),
-      m_simEn(0),
-      m_tile_eep(0),
-      m_E_tot(0.0),
-      m_E_em(0.0),
-      m_E_nonem(0.0),
-      m_E_invisible(0.0),
-      m_E_escaped(0.0),
-      m_E0(0.0),
-      m_E1(0.0),
-      m_E2(0.0),
-      m_E3(0.0),
-      m_stepTouchable(0),
-      m_stepPhysVol(0),
-      m_cSection(0),
-      m_cell(0),
-      m_pCell(0),
-      m_gCell(0),
-      m_result(),
-      m_id(),
-      m_id_pmt_up(),
-      m_id_pmt_down(),
-      m_calibHitType(0),
-      m_subCalo(0),
-      m_detector(0),
-      m_side(0),
-      m_module(0),
-      m_tower(0),
-      m_sample(0),
-      m_dm_subDet(0),
-      m_dm_type(0),
-      m_dm_sample(0),
-      m_dm_region(0),
-      m_dm_neta(0),
-      m_dm_nphi(0),
-      m_xGlobal(0.0),
-      m_yGlobal(0.0),
-      m_zGlobal(0.0),
-      m_phiGlobal(0.0),
-      m_cellNum(0),
+  m_calc(tileCalculator),
+  m_lookupDM(0),
+  m_simEn(0),
+  m_tile_eep(0),
+  m_E_tot(0.0),
+  m_E_em(0.0),
+  m_E_nonem(0.0),
+  m_E_invisible(0.0),
+  m_E_escaped(0.0),
+  m_E0(0.0),
+  m_E1(0.0),
+  m_E2(0.0),
+  m_E3(0.0),
+  m_stepTouchable(0),
+  m_stepPhysVol(0),
+  m_cSection(0),
+  m_cell(0),
+  m_pCell(0),
+  m_gCell(0),
+  m_result(),
+  m_id(),
+  m_id_pmt_up(),
+  m_id_pmt_down(),
+  m_calibHitType(0),
+  m_subCalo(0),
+  m_detector(0),
+  m_side(0),
+  m_module(0),
+  m_tower(0),
+  m_sample(0),
+  m_dm_subDet(0),
+  m_dm_type(0),
+  m_dm_sample(0),
+  m_dm_region(0),
+  m_dm_neta(0),
+  m_dm_nphi(0),
+  m_xGlobal(0.0),
+  m_yGlobal(0.0),
+  m_zGlobal(0.0),
+  m_phiGlobal(0.0),
+  m_cellNum(0),
 #ifdef HITSINFO    //added by Sergey
-      m_nEvent(1),
-      m_det_side(0),
+  m_nEvent(1),
+  m_det_side(0),
 #endif
-      m_defaultHit(false),
-      m_doBirkFlag(false),
-      m_isExtended(false),
-      m_isNegative(false)
+  m_defaultHit(false),
+  m_doBirkFlag(false),
+  m_isExtended(false),
+  m_isNegative(false)
 {
 
   m_simEn = new CaloG4::SimulationEnergies();
@@ -311,14 +311,14 @@ G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*
 
   //FRONT AND END PLATES
   else if((nameVol.find("Plate") != G4String::npos)
-           || (nameVol.find("IrUp") != G4String::npos)
-           || (nameVol.find("IrDw") != G4String::npos)
-           || (nameVol.find("IrBox") != G4String::npos)
-           || (nameVol.find("Iron1") != G4String::npos)
-           || (nameVol.find("Iron2") != G4String::npos)
-           || (nameVol.find("Iron3") != G4String::npos)
-           || (nameVol.find("Iron4") != G4String::npos)
-        /* || (nameVol.find("SaddleModule") != G4String::npos) */) {
+          || (nameVol.find("IrUp") != G4String::npos)
+          || (nameVol.find("IrDw") != G4String::npos)
+          || (nameVol.find("IrBox") != G4String::npos)
+          || (nameVol.find("Iron1") != G4String::npos)
+          || (nameVol.find("Iron2") != G4String::npos)
+          || (nameVol.find("Iron3") != G4String::npos)
+          || (nameVol.find("Iron4") != G4String::npos)
+          /* || (nameVol.find("SaddleModule") != G4String::npos) */) {
 
     PlateCellIDCalculator();
   } else if((nameVol.find("Girder") != G4String::npos)
@@ -331,15 +331,15 @@ G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*
     GirderCellIDCalculator(); //GIRDER AND FINGER MATERIALS
   }  else {
 
-  //HIT IS IN THE VOLUME, WHICH  CAN'T BE IDENTIFIED
-  //FLAG IT TO BE PUT IN A DEFAULT CALIBHIT
+    //HIT IS IN THE VOLUME, WHICH  CAN'T BE IDENTIFIED
+    //FLAG IT TO BE PUT IN A DEFAULT CALIBHIT
 
     m_defaultHit = true;
   }
 
-//-----------------------------------------------------
-// --- M A N A G E   C A L I B R A T I O N   H I T ---
-//-----------------------------------------------------
+  //-----------------------------------------------------
+  // --- M A N A G E   C A L I B R A T I O N   H I T ---
+  //-----------------------------------------------------
 
   // --------------------------------------------------------------------------
   // G.P.: now comes new hit processing (see LArCalibHitMerger.cxx for details)
@@ -351,32 +351,32 @@ G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*
     else throw std::runtime_error("CalibrationSensitiveDetector: Unable to retrieve barcode!");
 
     /*
-     else {
+      else {
 
-     // normal steps should have a G4Track:
-     if (step->GetTrack()) {
-     const VTrackInformation* trackInfo=dynamic_cast<const VTrackInformation*>(step->GetTrack()->GetUserInformation());
+      // normal steps should have a G4Track:
+      if (step->GetTrack()) {
+      const VTrackInformation* trackInfo=dynamic_cast<const VTrackInformation*>(step->GetTrack()->GetUserInformation());
 
-     if (trackInfo && trackInfo->GetISFParticle()) {
-     const ISF::ISFParticle* isfp = trackInfo->GetISFParticle();
-     m_primary_id = isfp->barcode();
-     }
-     else
-     throw std::runtime_error("CalibrationSensitiveDetector: Unable to retrieve barcode!");
-     }
+      if (trackInfo && trackInfo->GetISFParticle()) {
+      const ISF::ISFParticle* isfp = trackInfo->GetISFParticle();
+      m_primary_id = isfp->barcode();
+      }
+      else
+      throw std::runtime_error("CalibrationSensitiveDetector: Unable to retrieve barcode!");
+      }
 
-     // escaped energy have fake steps with no G4Track, so get particle from m_event_info (retrieving it first if not done already)
-     else {
-     if (NULL==m_event_info)
-     m_event_info = dynamic_cast<EventInformation*>(G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
+      // escaped energy have fake steps with no G4Track, so get particle from m_event_info (retrieving it first if not done already)
+      else {
+      if (NULL==m_event_info)
+      m_event_info = dynamic_cast<EventInformation*>(G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
 
-     if (m_event_info && m_event_info->GetCurrentISFPrimary())
-     m_primary_id = m_event_info->GetCurrentISFPrimary()->barcode();
-     else
-     throw std::runtime_error("CalibrationSensitiveDetector: Unable to retrieve barcode!");
-     }
-     }
-     */
+      if (m_event_info && m_event_info->GetCurrentISFPrimary())
+      m_primary_id = m_event_info->GetCurrentISFPrimary()->barcode();
+      else
+      throw std::runtime_error("CalibrationSensitiveDetector: Unable to retrieve barcode!");
+      }
+      }
+    */
   }
 
   Identifier id = m_id;
@@ -468,51 +468,51 @@ void TileGeoG4CalibSD::EndOfAthenaEvent() {
 
   //CREATE CALIBHITS FROME THEIR VECTORS AND
   //STORE THEM IN THE RESPECTIEVE CONTAINERS
-      m_calibrationHits_ptr_t it;
+  m_calibrationHits_ptr_t it;
 
   // Cell Active Material Container
-      m_tileActiveCellCalibHits->reserve(m_activeCalibrationHits.size());
-      for( auto &it : m_activeCalibrationHits ) {
-        m_tileActiveCellCalibHits->push_back(std::move(it));
-      }
+  m_tileActiveCellCalibHits->reserve(m_activeCalibrationHits.size());
+  for( auto &it : m_activeCalibrationHits ) {
+    m_tileActiveCellCalibHits->push_back(std::move(it));
+  }
 
-      // Cell Inactive Material Container
-      m_tileInactiveCellCalibHits->reserve(m_inactiveCalibrationHits.size());
-      for( auto &it : m_inactiveCalibrationHits ) {
-        m_tileInactiveCellCalibHits->push_back(std::move(it));
-      }
+  // Cell Inactive Material Container
+  m_tileInactiveCellCalibHits->reserve(m_inactiveCalibrationHits.size());
+  for( auto &it : m_inactiveCalibrationHits ) {
+    m_tileInactiveCellCalibHits->push_back(std::move(it));
+  }
 
-      // Tile Dead Material Container
-      m_tileDeadMaterialCalibHits->reserve(m_deadCalibrationHits.size());
-      for( auto &it : m_deadCalibrationHits ) {
-        m_tileDeadMaterialCalibHits->push_back(std::move(it));
-      }
+  // Tile Dead Material Container
+  m_tileDeadMaterialCalibHits->reserve(m_deadCalibrationHits.size());
+  for( auto &it : m_deadCalibrationHits ) {
+    m_tileDeadMaterialCalibHits->push_back(std::move(it));
+  }
 
-      // copy ordinary hits to tileHits vector and reset all pointers
-      m_lookup->ResetCells(&*m_tileHits);
+  // copy ordinary hits to tileHits vector and reset all pointers
+  m_lookup->ResetCells(&*m_tileHits);
 
 #ifdef HITSINFO  // added by Sergey
-      m_ntupleCnt->StoreCNT(&*m_tileActiveCellCalibHits,&*m_tileInactiveCellCalibHits,&*m_tileDeadMaterialCalibHits);
+  m_ntupleCnt->StoreCNT(&*m_tileActiveCellCalibHits,&*m_tileInactiveCellCalibHits,&*m_tileDeadMaterialCalibHits);
 #endif
 
-      //DEBUG CALIBHITS ENERGIES CALCULATED BY SIMPLE CALCULATOR
-      //AND DEBUG THE SAME ENERIES DIRECTLE FROM CALIBHITS. THEY
-      //MUST BE THE SAME IF EVERITHING WENT ON WELL
-      //
-      //NOTE: ATHENA DEBUGGING LEVEL SHOULD BE SET 'INFO' OR HIGHER
-      DebugEnergies();
+  //DEBUG CALIBHITS ENERGIES CALCULATED BY SIMPLE CALCULATOR
+  //AND DEBUG THE SAME ENERIES DIRECTLE FROM CALIBHITS. THEY
+  //MUST BE THE SAME IF EVERITHING WENT ON WELL
+  //
+  //NOTE: ATHENA DEBUGGING LEVEL SHOULD BE SET 'INFO' OR HIGHER
+  DebugEnergies();
 
-      m_activeCalibrationHits.clear();
-      m_inactiveCalibrationHits.clear();
-      m_deadCalibrationHits.clear();
+  m_activeCalibrationHits.clear();
+  m_inactiveCalibrationHits.clear();
+  m_deadCalibrationHits.clear();
 
-      //RESET CELL, GIRDER CELL AND
-      //PLATE CELL HITS COUNTER VECTORS
-      m_lookupDM->ResetCells();
+  //RESET CELL, GIRDER CELL AND
+  //PLATE CELL HITS COUNTER VECTORS
+  m_lookupDM->ResetCells();
 
 #ifdef HITSINFO  //INCREMENT OF EVENT COUNTER -- added by Sergey
-      if (doHitsNTup || doHitsTXT) m_nEvent++;
+  if (doHitsNTup || doHitsTXT) m_nEvent++;
 #endif
 
-    }
+}
 

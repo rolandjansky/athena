@@ -15,7 +15,7 @@
 #include <memory>
 
 TileGeoG4SDTool::TileGeoG4SDTool(const std::string& type, const std::string& name, const IInterface* parent)
-    : SensitiveDetectorBase(type,name,parent)
+  : SensitiveDetectorBase(type,name,parent)
 {
   declareInterface<ISensitiveDetector>(this);
 

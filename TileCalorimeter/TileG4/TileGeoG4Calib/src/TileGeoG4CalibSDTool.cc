@@ -15,7 +15,7 @@
 #include <memory>
 
 TileGeoG4CalibSDTool::TileGeoG4CalibSDTool(const std::string& type, const std::string& name, const IInterface* parent)
-    : SensitiveDetectorBase(type, name, parent) {
+  : SensitiveDetectorBase(type, name, parent) {
   declareInterface<ISensitiveDetector>(this);
 
   declareProperty("DeltaTHit", m_options.deltaTHit);

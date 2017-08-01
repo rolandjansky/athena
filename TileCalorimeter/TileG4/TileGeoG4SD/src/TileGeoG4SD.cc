@@ -25,10 +25,10 @@
 #include "G4Step.hh"
 
 TileGeoG4SD::TileGeoG4SD(G4String name, const std::string& hitCollectionName, ITileCalculator* tileCalculator, const TileSDOptions opts)
-    : G4VSensitiveDetector(name)
-    , m_calc(tileCalculator)
-    , m_options(opts)
-    , m_HitColl(hitCollectionName)
+  : G4VSensitiveDetector(name)
+  , m_calc(tileCalculator)
+  , m_options(opts)
+  , m_HitColl(hitCollectionName)
 {
   //build tilecal ordinary look-up table
   m_lookup = m_calc->GetLookupBuilder();

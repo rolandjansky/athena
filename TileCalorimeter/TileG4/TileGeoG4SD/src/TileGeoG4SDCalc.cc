@@ -53,8 +53,8 @@
 static const double tanPi64 = 0.049126849769467254105343321271314; //FIXME!!!!!
 
 TileGeoG4SDCalc::TileGeoG4SDCalc(TileSDOptions opt)
-    : m_lookup(nullptr)
-    , m_options(opt)
+  : m_lookup(nullptr)
+  , m_options(opt)
 {
   // Get MessageSvc pointers
   ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
@@ -84,7 +84,7 @@ TileGeoG4SDCalc::TileGeoG4SDCalc(TileSDOptions opt)
     G4cout << "GeoModelSvc initialized." << G4endl;
 
   const TileDetectorTool* tileDetectorTool = dynamic_cast<const TileDetectorTool *>(geoModSvc->getTool(
-        "TileDetectorTool"));
+                                                                                                       "TileDetectorTool"));
 
   int UshapeFromGM = (tileDetectorTool) ? tileDetectorTool->Ushape() : 0;
 
@@ -111,12 +111,12 @@ TileGeoG4SDCalc::TileGeoG4SDCalc(TileSDOptions opt)
     G4cout << "Using U-shape flag from GeoModel = "
            << UshapeFromGM
            << ( (m_options.Ushape > 0) ? "  Scintillator width is equal to width of master plate "
-                                       : "  Scintillator width is smaller than width of master plate ")
-    << G4endl;
+                : "  Scintillator width is smaller than width of master plate ")
+           << G4endl;
   } else if (m_options.Ushape == UshapeFromGM) {
     G4cout << "Using U-shape = " << m_options.Ushape
            << ((m_options.Ushape > 0) ? "  Scintillator width is equal to width of master plate "
-                                      : "  Scintillator width is smaller than width of master plate ") << G4endl;
+               : "  Scintillator width is smaller than width of master plate ") << G4endl;
   } else {
     if (UshapeFromGM > 0 && m_options.Ushape > 0) { // both are > 0, so it's fine to use value from SimOptions
       G4cout << "Using U-shape from Simulation flags = " << m_options.Ushape
@@ -303,7 +303,7 @@ G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep, TileHitData& hi
   hitData.nSide = 1;
   hitData.isNegative = false;
   if ((namePhysSection.find("Barrel") != G4String::npos) &&
-    (namePhysSection.find("EBarrel") == G4String::npos) ) {}
+      (namePhysSection.find("EBarrel") == G4String::npos) ) {}
   else {
     if (namePhysSection.find("Neg") != G4String::npos) {
       hitData.nSide = -1;
@@ -356,7 +356,7 @@ G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep, TileHitData& hi
       if (m_options.verboseLevel > 10) {
         char nm[5] = {'X', 'A', 'B', 'D', 'E'};
         G4cout << "Disabling special D4, all energy goes to cell "
-        << nm[hitData.cell->sample] << hitData.cell->cellNum << G4endl;
+               << nm[hitData.cell->sample] << hitData.cell->cellNum << G4endl;
       }
     }
   } else if (sect == 4) {
@@ -464,66 +464,66 @@ G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep, TileHitData& hitDat
       } else {
         switch (m_options.Ushape) {
 
-          case 1:  // using the best U-shape known up to now (see #define in header file)
-            hitData.edep_up = edep * Tile_1D_profile(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
-            hitData.edep_down = edep * Tile_1D_profile(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide);
-            break;
+        case 1:  // using the best U-shape known up to now (see #define in header file)
+          hitData.edep_up = edep * Tile_1D_profile(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
+          hitData.edep_down = edep * Tile_1D_profile(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide);
+          break;
 
-          case 0:  // the same as default case below (i.e. no ushape at all)
-            hitData.edep_up = edep * (0.3 + 0.2 * dy1Local / halfYLocal);
-            hitData.edep_down = edep - hitData.edep_up;
-            break;
+        case 0:  // the same as default case below (i.e. no ushape at all)
+          hitData.edep_up = edep * (0.3 + 0.2 * dy1Local / halfYLocal);
+          hitData.edep_down = edep - hitData.edep_up;
+          break;
 
-          case 14:
-            hitData.edep_up = edep * Tile_1D_profileRescaled(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
-            hitData.edep_down = edep * Tile_1D_profileRescaled(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide);
-            break;
+        case 14:
+          hitData.edep_up = edep * Tile_1D_profileRescaled(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
+          hitData.edep_down = edep * Tile_1D_profileRescaled(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide);
+          break;
 
-          case 20:
-          case 21:
-          case 22:
-          case 23:
-            hitData.edep_up = edep * Tile_1D_profileRescaled_zeroBins(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide,
-                                                         m_options.Ushape - 20);
-            hitData.edep_down = edep * Tile_1D_profileRescaled_zeroBins(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide,
-                                                           m_options.Ushape - 20);
-            break;
+        case 20:
+        case 21:
+        case 22:
+        case 23:
+          hitData.edep_up = edep * Tile_1D_profileRescaled_zeroBins(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide,
+                                                                    m_options.Ushape - 20);
+          hitData.edep_down = edep * Tile_1D_profileRescaled_zeroBins(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide,
+                                                                      m_options.Ushape - 20);
+          break;
 
-          case 13:
-            hitData.edep_up = edep * Tile_1D_profileFunc(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
-            hitData.edep_down = edep * Tile_1D_profileFunc(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide);
-            break;
+        case 13:
+          hitData.edep_up = edep * Tile_1D_profileFunc(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
+          hitData.edep_down = edep * Tile_1D_profileFunc(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide);
+          break;
 
-          case 12:
-            hitData.edep_up = edep * Tile_1D_profileSym(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
-            hitData.edep_down = edep * Tile_1D_profileSym(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide);
-            break;
+        case 12:
+          hitData.edep_up = edep * Tile_1D_profileSym(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
+          hitData.edep_down = edep * Tile_1D_profileSym(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide);
+          break;
 
-          case 11:
-            hitData.edep_up = edep * Tile_1D_profileAsym(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
-            hitData.edep_down = edep * Tile_1D_profileAsym(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide);
-            break;
+        case 11:
+          hitData.edep_up = edep * Tile_1D_profileAsym(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
+          hitData.edep_down = edep * Tile_1D_profileAsym(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide);
+          break;
 
-          case - 2: {
-              int ind = hitData.nDetector - 1;
-              if (1 == hitData.nDetector && 2 == hitData.nSample && 9 == hitData.nTower) { // read info about B-9 from ITC vector
-                ind = 2;                                          // because barrel vector contains info for
-              }                                                     // BC cells only (average over 6 rows)
-              double Izero = m_row->OpticalRatio[ind].at(hitData.tileSize);
-              double AttenuationLength = m_row->attLen[ind].at(hitData.tileSize);
-              if (m_options.verboseLevel > 10) {
-                G4cout << "Izero = " << Izero << G4endl;
-                G4cout << "Tile Row = " << hitData.tileSize << G4endl;
-                G4cout << "Attenuation Length = " << AttenuationLength << G4endl;
-              }
-              hitData.edep_up = edep * exp( -dy2Local / AttenuationLength) / Izero;
-              hitData.edep_down = edep * exp( -dy1Local / AttenuationLength) / Izero;
-              break;
-            }
+        case - 2: {
+          int ind = hitData.nDetector - 1;
+          if (1 == hitData.nDetector && 2 == hitData.nSample && 9 == hitData.nTower) { // read info about B-9 from ITC vector
+            ind = 2;                                          // because barrel vector contains info for
+          }                                                     // BC cells only (average over 6 rows)
+          double Izero = m_row->OpticalRatio[ind].at(hitData.tileSize);
+          double AttenuationLength = m_row->attLen[ind].at(hitData.tileSize);
+          if (m_options.verboseLevel > 10) {
+            G4cout << "Izero = " << Izero << G4endl;
+            G4cout << "Tile Row = " << hitData.tileSize << G4endl;
+            G4cout << "Attenuation Length = " << AttenuationLength << G4endl;
+          }
+          hitData.edep_up = edep * exp( -dy2Local / AttenuationLength) / Izero;
+          hitData.edep_down = edep * exp( -dy1Local / AttenuationLength) / Izero;
+          break;
+        }
 
-          default:
-            hitData.edep_up = edep * (0.3 + 0.2 * dy1Local / halfYLocal);
-            hitData.edep_down = edep - hitData.edep_up;
+        default:
+          hitData.edep_up = edep * (0.3 + 0.2 * dy1Local / halfYLocal);
+          hitData.edep_down = edep - hitData.edep_up;
         }
 
       }
@@ -549,7 +549,7 @@ G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep, TileHitData& hitDat
     if (m_options.doTOFCorrection) {
       correction = (hitData.cell->r * (1.0 * ref_ind_fiber - 2.0 / hitData.cell->sinTh)
                     + magn_hit * (1.0 - ref_ind_fiber * sqrt(1.0 - cosTh_hit * cosTh_hit)))
-                   / CLHEP::c_light;
+        / CLHEP::c_light;
       //now it is time with correction due to fiber length.
       //additional term "-1/_cell->sinTh" is distance to cell's center (TOF correction)
     } else {
