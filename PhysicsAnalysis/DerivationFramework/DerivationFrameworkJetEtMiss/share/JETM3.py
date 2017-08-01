@@ -186,14 +186,14 @@ else:
 jetm3Seq += lowptjetalg
 OutputJets["JETM3"].append("AntiKt4LCTopoLowPtJets")
 #EMPFlow
-if "jetalgAntiKt4EMPFlowLowPtJets" in DFJetAlgs.keys():
-    lowptjetalg = DFJetAlgs["jetalgAntiKt4EMPFlowLowPtJets"]
-else:
-    jtm.addJetFinder("AntiKt4EMPFlowLowPtJets", "AntiKt", 0.4, "empflow", "pflow_ungroomed", ghostArea=0.01, ptmin= 2000, ptminFilter= 2000, calibOpt="ar:pflow")
-    lowptjetalg = CfgMgr.JetAlgorithm("jetalgAntiKt4EMPFlowLowPtJets", Tools = [jtm.AntiKt4EMPFlowLowPtJets])
-    DFJetAlgs["jetalgAntiKt4EMPFlowLowPtJets"] = lowptjetalg;
-jetm3Seq += lowptjetalg
-OutputJets["JETM3"].append("AntiKt4EMPFlowLowPtJets")
+#if "jetalgAntiKt4EMPFlowLowPtJets" in DFJetAlgs.keys():
+#    lowptjetalg = DFJetAlgs["jetalgAntiKt4EMPFlowLowPtJets"]
+#else:
+#    jtm.addJetFinder("AntiKt4EMPFlowLowPtJets", "AntiKt", 0.4, "empflow", "pflow_ungroomed", ghostArea=0.01, ptmin= 2000, ptminFilter= 2000, calibOpt="ar:pflow")
+#    lowptjetalg = CfgMgr.JetAlgorithm("jetalgAntiKt4EMPFlowLowPtJets", Tools = [jtm.AntiKt4EMPFlowLowPtJets])
+#    DFJetAlgs["jetalgAntiKt4EMPFlowLowPtJets"] = lowptjetalg;
+#jetm3Seq += lowptjetalg
+#OutputJets["JETM3"].append("AntiKt4EMPFlowLowPtJets")
 
 #=======================================
 # SCHEDULE CUSTOM MET RECONSTRUCTION
