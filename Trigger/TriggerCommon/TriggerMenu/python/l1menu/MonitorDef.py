@@ -169,6 +169,8 @@ class MonitorDef:
             "L1_JPSI-1M5-EM12",
             "L1_LATE-MU10_XE40",
             "L1_LATE-MU10_J50",
+            "L1_LUCID_BGRP9",
+            "L1_LUCID_BGRP11",
             ]
 
         monItemsHF[TBP|TAP|TAV] = [
