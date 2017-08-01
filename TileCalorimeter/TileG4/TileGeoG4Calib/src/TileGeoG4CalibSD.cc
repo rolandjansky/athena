@@ -285,15 +285,16 @@ G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*
     if (verboseLevel > 10) G4cout << "FindTileCalibSection: The Section can't be found, RETURN DEFAULT ID" << G4endl;
     m_defaultHit = true;
   } else if (nameVol.find("Scintillator") != G4String::npos) {//SENSITIVE MATERIAL CELL (SCINTILLATOR)
-    bool is_scin = m_calc->FindTileScinSection(m_aStep, m_calc->m_hitData);
+    TileHitData hitData;
+    bool is_scin = m_calc->FindTileScinSection(m_aStep, hitData);
     if (is_scin) {
       //BESIDE A CALIBRATION HIT THERE ORDINARY
       //HITS SHOULD BE ALSO CREATED OR UPDATED
       if (m_doBirkFlag) {
-        m_calc->MakePmtEdepTime(m_aStep, m_calc->m_hitData);  //calculation of pmtID, edep and scin_Time with aStep
-        m_calc->ManageScintHit(m_calc->m_hitData);//create or update ordinary hit object in the collection
+        m_calc->MakePmtEdepTime(m_aStep, hitData);  //calculation of pmtID, edep and scin_Time with aStep
+        m_calc->ManageScintHit(hitData);//create or update ordinary hit object in the collection
       }
-      this->ScintIDCalculator();
+      this->ScintIDCalculator(hitData);
     } else {
       if (verboseLevel>10) G4cout << "ProcessHits: FindTileScinSection returns false" << G4endl;
       m_defaultHit = true;

@@ -97,8 +97,6 @@ public:
     return m_options;
   }
 
-  TileHitData m_hitData; //HACK temporarily pubilc
-
 private:
   void CreateScintHit(int pmt, TileHitData& hitData) const;
   void UpdateScintHit(int pmt, TileHitData& hitData) const;
