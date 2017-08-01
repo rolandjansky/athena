@@ -70,7 +70,7 @@ G4bool TileGeoG4SD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/) {
     return false;
   }
 
-  if ( !(m_calc->ManageScintHit()) ) { //create or update hit object in the collection
+  if ( !(m_calc->ManageScintHit(m_calc->m_hitData)) ) { //create or update hit object in the collection
 
     G4cout << "ProcessHits: TileHit can not be produced; pmtID_up,pmtID_down,edep_up,edep_down,"
            << "scin_Time_up,scin_Time_down:\t" << m_calc->m_hitData.pmtID_up

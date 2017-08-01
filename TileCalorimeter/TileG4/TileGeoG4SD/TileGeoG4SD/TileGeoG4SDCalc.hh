@@ -83,7 +83,7 @@ public:
   /// Calculation of pmtID, edep and scin_Time with aStep (Sergey)
   G4bool MakePmtEdepTime(const G4Step*);//, TileHitData& hitData) const;
   /// Calculation of pmtID, edep and scin_Time with aStep (Sergey)
-  G4bool ManageScintHit();//TileHitData& hitData) const;
+  G4bool ManageScintHit(TileHitData& hitData) const;
   /// Used by FastCaloSimParamAction
   TileMicroHit GetTileMicroHit(const G4Step*);
   ///

@@ -53,27 +53,8 @@
 static const double tanPi64 = 0.049126849769467254105343321271314; //FIXME!!!!!
 
 TileGeoG4SDCalc::TileGeoG4SDCalc(TileSDOptions opt)
-    : // section(0),
-    // cell(0),
-    // nModule(0),
-    // nDetector(0),
-    // nTower(0),
-    // nSample(0),
-    // nSide(0),
-    // pmtID_up(),
-    // pmtID_down(),
-    // edep_up(0),
-    // edep_down(0),
-    // scin_Time_up(0),
-    // scin_Time_down(0),
-    m_options(opt)// ,
-    // m_nrOfPMT(0),
-    // m_tileSize(0),
-    // m_tilePeriod(0),
-    // m_isNegative(0),
-    // m_totalTimeUp(0),
-    // m_totalTimeDown(0)
-
+    : m_lookup(nullptr)
+    , m_options(opt)
 {
   // Get MessageSvc pointers
   ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
@@ -724,8 +705,9 @@ TileMicroHit TileGeoG4SDCalc::GetTileMicroHit(const G4Step* aStep) {
   return microHit;
 }
 
-G4bool TileGeoG4SDCalc::ManageScintHit() {
-  //Having _cell and m_hitData.nModule (number of current module) we need to
+G4bool TileGeoG4SDCalc::ManageScintHit(TileHitData& hitData) const
+{
+  //Having hitData.cell and hitData.nModule (number of current module) we need to
   //determine if a Hit object already exists for this cell and module.
   //If YES: we just add energy to the existing hit object
   //If No: we create a new object, fill it and place in the collection
@@ -733,60 +715,44 @@ G4bool TileGeoG4SDCalc::ManageScintHit() {
   bool newTileHitUp = true, newTileHitDown = true;
 
   // Debugging of special E5(E4') cells
-  //if (m_hitData.nTower>16) G4cout <<" Cells E5: nModule="<<m_hitData.nModule
-  //                       <<"  edep_up="<<m_hitData.edep_up<<"  edep_down="<<m_hitData.edep_down
-  //                       <<"  pmtID_up="<<m_hitData.pmtID_up<<"  pmtID_down="<<m_hitData.pmtID_down<<G4endl;
+  //if (hitData.nTower>16) G4cout <<" Cells E5: hitData.nModule="<<hitData.nModule
+  //                       <<"  edep_up="<<hitData.edep_up<<"  edep_down="<<hitData.edep_down
+  //                       <<"  pmtID_up="<<hitData.pmtID_up<<"  pmtID_down="<<hitData.pmtID_up<<G4endl;
 
-  if (m_hitData.isNegative) {
-    if (m_hitData.nrOfPMT == 2) {
-      if (m_hitData.cell->moduleToHitUpNegative[m_hitData.nModule - 1])
-        newTileHitUp = false;
-      if (m_hitData.cell->moduleToHitDownNegative[m_hitData.nModule - 1])
-        newTileHitDown = false;
-    } else if (m_hitData.nrOfPMT == 1) {
-      if (m_hitData.cell->moduleToHitDownNegative[m_hitData.nModule - 1])
-        newTileHitDown = false;
-    } else if (m_hitData.nrOfPMT == -1) {
-      if (m_hitData.cell->moduleToHitUpNegative[m_hitData.nModule - 1])
-        newTileHitUp = false;
+  if (hitData.isNegative) {
+    if (hitData.nrOfPMT == 2) {
+      if (hitData.cell->moduleToHitUpNegative[hitData.nModule - 1]) { newTileHitUp = false; }
+      if (hitData.cell->moduleToHitDownNegative[hitData.nModule - 1]) { newTileHitDown = false; }
+    } else if (hitData.nrOfPMT == 1) {
+      if (hitData.cell->moduleToHitDownNegative[hitData.nModule - 1]) { newTileHitDown = false; }
+    } else if (hitData.nrOfPMT == -1) {
+      if (hitData.cell->moduleToHitUpNegative[hitData.nModule - 1]) { newTileHitUp = false; }
     } else {
-      G4cout << "FATAL ERROR: ManageScintHit: Unexpected number of PMTs in a Cell -->" << m_hitData.nrOfPMT << G4endl;
+      G4cout << "FATAL ERROR: ManageScintHit: Unexpected number of PMTs in a Cell -->" << hitData.nrOfPMT << G4endl;
       return false;
     }
   } else { //positive
-    if (m_hitData.nrOfPMT == 2) {
-      if (m_hitData.cell->moduleToHitUp[m_hitData.nModule - 1])
-        newTileHitUp = false;
-      if (m_hitData.cell->moduleToHitDown[m_hitData.nModule - 1])
-        newTileHitDown = false;
-    } else if (m_hitData.nrOfPMT == 1) {
-      if (m_hitData.cell->moduleToHitDown[m_hitData.nModule - 1])
-        newTileHitDown = false;
-    } else if (m_hitData.nrOfPMT == -1) {
-      if (m_hitData.cell->moduleToHitUp[m_hitData.nModule - 1])
-        newTileHitUp = false;
+    if (hitData.nrOfPMT == 2) {
+      if (hitData.cell->moduleToHitUp[hitData.nModule - 1]) { newTileHitUp = false; }
+      if (hitData.cell->moduleToHitDown[hitData.nModule - 1]) { newTileHitDown = false; }
+    } else if (hitData.nrOfPMT == 1) {
+      if (hitData.cell->moduleToHitDown[hitData.nModule - 1]) { newTileHitDown = false; }
+    } else if (hitData.nrOfPMT == -1) {
+      if (hitData.cell->moduleToHitUp[hitData.nModule - 1]) { newTileHitUp = false; }
     } else {
-      G4cout << "FATAL ERROR: ManageScintHit: Unexpected number of PMTs in a Cell -->" << m_hitData.nrOfPMT << G4endl;
+      G4cout << "FATAL ERROR: ManageScintHit: Unexpected number of PMTs in a Cell -->" << hitData.nrOfPMT << G4endl;
       return false;
     }
   }
 
-  if (m_hitData.edep_up != 0.) {
-    if (newTileHitUp) {
-      this->CreateScintHit(1, m_hitData);
-    }
-    else {
-      this->UpdateScintHit(1, m_hitData);
-    }
+  if (hitData.edep_up != 0.) {
+    if (newTileHitUp) { this->CreateScintHit(1, hitData); }
+    else { this->UpdateScintHit(1, hitData); }
   }
 
-  if (m_hitData.edep_down != 0.) {
-    if (newTileHitDown) {
-      this->CreateScintHit(0, m_hitData);
-    }
-    else {
-      this->UpdateScintHit(0, m_hitData);
-    }
+  if (hitData.edep_down != 0.) {
+    if (newTileHitDown) { this->CreateScintHit(0, hitData); }
+    else { this->UpdateScintHit(0, hitData); }
   }
 
   return true;
