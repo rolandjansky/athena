@@ -21,7 +21,7 @@ ALFA_RawDataReadOut_charge::ALFA_RawDataReadOut_charge() :
   m_bit12(0),
   m_bit24_27(0),	
   m_bit27_24(0),
-  ChargeChan()
+  m_ChargeChan()
 {  }
 
 ALFA_RawDataReadOut_charge::~ALFA_RawDataReadOut_charge()
@@ -35,7 +35,7 @@ void ALFA_RawDataReadOut_charge::decodeWord(uint32_t dataWord)
   setZero();
   m_dataWord = dataWord;
   m_word = dataWord;
-  m_wordHeader = (dataWord>>headerPos)&headerBits;
+  m_wordHeader = (dataWord>>s_headerPos)&s_headerBits;
 
   if (is_TDCch())         // TDC single measurement
     {
