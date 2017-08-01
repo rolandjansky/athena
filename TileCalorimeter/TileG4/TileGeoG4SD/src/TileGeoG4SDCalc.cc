@@ -667,7 +667,8 @@ G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep, TileHitData& hitDat
   return true;
 }
 
-TileMicroHit TileGeoG4SDCalc::GetTileMicroHit(const G4Step* aStep) {
+TileMicroHit TileGeoG4SDCalc::GetTileMicroHit(const G4Step* aStep, TileHitData& hitData) const
+{
   TileMicroHit microHit;
   microHit.pmt_up = m_invalid_id;
   microHit.pmt_down = m_invalid_id;
@@ -677,32 +678,32 @@ TileMicroHit TileGeoG4SDCalc::GetTileMicroHit(const G4Step* aStep) {
   microHit.time_down = 0.0;
   //microHit.period  = 0;               microHit.tilerow   = 0; // prepared for future use
 
-  G4bool stat = this->FindTileScinSection(aStep, m_hitData);  //Search for the tilecal sub-section, its module and some identifiers
+  G4bool stat = this->FindTileScinSection(aStep, hitData);  //Search for the tilecal sub-section, its module and some identifiers
   if (!stat) {
     if (m_options.verboseLevel > 5)
       G4cout << "GetTileMicroHit: FindTileScinSection(aStep) is false!" << G4endl;
     return microHit;
   }
 
-  stat = this->MakePmtEdepTime(aStep, m_hitData);  //calculation of pmtID, edep and scin_Time with aStep
+  stat = this->MakePmtEdepTime(aStep, hitData);  //calculation of pmtID, edep and scin_Time with aStep
   if (!stat) {
     if (m_options.verboseLevel > 5)
       G4cout << "MakePmtEdepTime: wrong pmtID_up,pmtID_down,edep_up,"
              << "edep_down,scin_Time_up,scin_Time_down:\t"
-             << m_hitData.pmtID_up << "\t"
-             << m_hitData.pmtID_down << "\t"
-             << m_hitData.edep_up << "\t"
-             << m_hitData.edep_down << "\t"
-             << m_hitData.scin_Time_up << "\t"
-             << m_hitData.scin_Time_down << G4endl;
+             << hitData.pmtID_up << "\t"
+             << hitData.pmtID_down << "\t"
+             << hitData.edep_up << "\t"
+             << hitData.edep_down << "\t"
+             << hitData.scin_Time_up << "\t"
+             << hitData.scin_Time_down << G4endl;
     return microHit;
   }
-  microHit.pmt_up = m_hitData.pmtID_up;
-  microHit.pmt_down = m_hitData.pmtID_down;
-  microHit.e_up = m_hitData.edep_up;
-  microHit.e_down = m_hitData.edep_down;
-  microHit.time_up = m_hitData.totalTimeUp;
-  microHit.time_down = m_hitData.totalTimeDown;
+  microHit.pmt_up = hitData.pmtID_up;
+  microHit.pmt_down = hitData.pmtID_down;
+  microHit.e_up = hitData.edep_up;
+  microHit.e_down = hitData.edep_down;
+  microHit.time_up = hitData.totalTimeUp;
+  microHit.time_down = hitData.totalTimeDown;
   //microHit.period  = tileperiod;      microHit.tilerow   = tilesize; // prepared for future use
   return microHit;
 }
