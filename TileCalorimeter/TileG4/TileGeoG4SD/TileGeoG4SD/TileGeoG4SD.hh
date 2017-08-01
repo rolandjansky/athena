@@ -33,7 +33,7 @@ class G4String;
 
 class TileGeoG4SD: public G4VSensitiveDetector {
 public:
-  TileGeoG4SD(G4String name, const std::string& hitCollectionName, const TileSDOptions opts);
+  TileGeoG4SD(G4String name, const std::string& hitCollectionName, ITileCalculator* tileCalculator, const TileSDOptions opts);
   ~TileGeoG4SD();
 
   void Initialize(G4HCofThisEvent*) override final;

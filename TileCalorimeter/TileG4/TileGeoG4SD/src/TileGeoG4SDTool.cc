@@ -11,7 +11,8 @@
 
 #include "TileGeoG4SDTool.h"
 #include "TileGeoG4SD/TileGeoG4SD.hh"
-
+#include "TileGeoG4SD/TileGeoG4SDCalc.hh"
+#include <memory>
 
 TileGeoG4SDTool::TileGeoG4SDTool(const std::string& type, const std::string& name, const IInterface* parent)
     : SensitiveDetectorBase(type,name,parent)
@@ -56,6 +57,7 @@ G4VSensitiveDetector* TileGeoG4SDTool::makeSD()
   // Create a fresh SD
   if(msgLvl(MSG::VERBOSE))    { m_options.verboseLevel = 10; }
   else if(msgLvl(MSG::DEBUG)) { m_options.verboseLevel = 5;  }
-  return new TileGeoG4SD(name(), m_outputCollectionNames[0], m_options);
+  std::unique_ptr<TileGeoG4SDCalc> tileCalculator = std::make_unique<TileGeoG4SDCalc>(m_options);
+  return new TileGeoG4SD(name(), m_outputCollectionNames[0], tileCalculator.release(), m_options);
 }
 

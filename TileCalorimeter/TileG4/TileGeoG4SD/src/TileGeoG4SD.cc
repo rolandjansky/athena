@@ -16,7 +16,7 @@
 // class header
 #include "TileGeoG4SD/TileGeoG4SD.hh"
 // package headers
-#include "TileGeoG4SD/TileGeoG4SDCalc.hh"
+#include "TileG4Interfaces/ITileCalculator.h"
 #include "TileGeoG4SD/TileGeoG4LookupBuilder.hh"
 #include "TileGeoG4SD/TileGeoG4Lookup.hh"
 // athena headers
@@ -24,14 +24,12 @@
 // Geant4 headers
 #include "G4Step.hh"
 
-TileGeoG4SD::TileGeoG4SD(G4String name, const std::string& hitCollectionName, const TileSDOptions opts)
-    : G4VSensitiveDetector(name),
-    m_options(opts),
-    m_HitColl(hitCollectionName)
+TileGeoG4SD::TileGeoG4SD(G4String name, const std::string& hitCollectionName, ITileCalculator* tileCalculator, const TileSDOptions opts)
+    : G4VSensitiveDetector(name)
+    , m_calc(tileCalculator)
+    , m_options(opts)
+    , m_HitColl(hitCollectionName)
 {
-  //Sensitive Detector initialisation for TileCal G4 simulations
-  m_calc = new TileGeoG4SDCalc(m_options);
-
   //build tilecal ordinary look-up table
   m_lookup = m_calc->GetLookupBuilder();
   if (verboseLevel > 5)
