@@ -889,10 +889,6 @@ namespace asg
   private:
     std::string m_name;
 
-    /// \brief the name of the parent
-  private:
-    std::string m_parentName;
-
     /// \brief the pointer to the parent
   private:
     parentType_t *m_parentPtr = nullptr;
