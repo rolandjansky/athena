@@ -23,9 +23,7 @@
 #include "LArG4Code/LArG4SimpleSD.h"
 
 // TileCAL calculators
-#include "TileGeoG4SD/TileGeoG4SDCalc.hh"
-#include "G4SDManager.hh"
-#include "TileGeoG4SD/TileGeoG4SD.hh"
+#include "TileG4Interfaces/ITileCalculator.h"
 
 #include "ISF_FastCaloSimEvent/FCS_StepInfo.h"
 #include "ISF_FastCaloSimEvent/FCS_StepInfoCollection.h"
@@ -50,7 +48,6 @@ namespace G4UA{
     m_current_calculator_Tile(nullptr),
     m_current_solid(nullptr),
     m_current_transform(nullptr),
-    m_calculator_Tile(nullptr),
     m_lar_helper(nullptr),
     m_lar_emID(nullptr),
     m_calo_dd_man(nullptr),
@@ -70,22 +67,6 @@ namespace G4UA{
     //G4cout << "############################################" << G4endl
     // << "##    FastCaloSimParamAction - BeginOfRun ##" << G4endl
     // << "############################################" << G4endl;
-    // ?? Ok, where do I need this??
-    // init tile calculator
-    if (m_calculator_Tile == nullptr)
-      {
-        // Get the tile calculator from the SD
-        G4SDManager *sdManager = G4SDManager::GetSDMpointer();
-        TileGeoG4SD * tileSD = dynamic_cast<TileGeoG4SD*>( sdManager->FindSensitiveDetector("TileGeoG4SD") );
-        if (tileSD){
-          m_calculator_Tile = tileSD->GetCalculator();
-        } else {
-          G4ExceptionDescription description;
-          description << "FastCaloSimParamAction::BeginOfRunAction - can't find TileGeoG4SDCalc";
-          G4Exception("FastCaloSimParamAction", "NoTileGeoG4SDCalc", FatalException, description);
-          abort();
-        }
-      }
 
     if (m_current_transform == nullptr)
       {
@@ -113,12 +94,6 @@ namespace G4UA{
            << "##    FastCaloSimParamAction - EndOfRun   ##" << G4endl
            << "##          deleting calculators          ##" << G4endl
            << "############################################" << G4endl;
-
-    if (m_calculator_Tile !=0) {
-      delete m_calculator_Tile;
-      m_calculator_Tile = 0;
-
-    }
 
     G4cout << "ZH good detector map: " << G4endl;
     for (std::map<std::string, int>::iterator it = m_detectormap.begin(); it!= m_detectormap.end(); ++it)
@@ -148,22 +123,6 @@ namespace G4UA{
     //G4cout << "############################################" << G4endl
     //     << "##  FastCaloSimParamAction - BeginOfEvent ##" << G4endl
     //     << "############################################" << G4endl;
-
-    // init tile calculator
-    if (m_calculator_Tile == nullptr)
-      {
-        // Get the tile calculator from the SD
-        G4SDManager *sdManager = G4SDManager::GetSDMpointer();
-        TileGeoG4SD * tileSD = dynamic_cast<TileGeoG4SD*>( sdManager->FindSensitiveDetector("TileGeoG4SD") );
-        if (tileSD){
-          m_calculator_Tile = tileSD->GetCalculator();
-        } else {
-          G4ExceptionDescription description;
-          description << "FastCaloSimParamAction::BeginOfEventAction - can't find TileGeoG4SDCalc";
-          G4Exception("FastCaloSimParamAction", "NoTileGeoG4SDCalc", FatalException, description);
-          abort();
-        }
-      }
 
     if (m_current_transform == nullptr)
       {
@@ -388,7 +347,7 @@ namespace G4UA{
           }
         else if (CurrentLogicalVolumeName.find(tilestring)!= std::string::npos)
           {
-            m_current_calculator_Tile = m_calculator_Tile;
+            m_current_calculator_Tile = m_config.calculator_TILE;
             break;
           }
 
@@ -708,7 +667,8 @@ namespace G4UA{
           //std::cout<<"GG: Hello" << std::endl;
 
           //calculation of MicroHit with aStep
-          TileMicroHit micHit = m_calculator_Tile->TileGeoG4SDCalc::GetTileMicroHit(aStep);
+          TileHitData hitData;
+          TileMicroHit micHit = m_current_calculator_Tile->GetTileMicroHit(aStep, hitData);
           Identifier m_invalid_id;
 
           //Check if MicroHit is not in scintillator

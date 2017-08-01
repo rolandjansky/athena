@@ -15,6 +15,8 @@
 #include "ISF_Geant4UserActions/FastCaloSimParamAction.h"
 
 class ILArCalculatorSvc;
+class ITileCalculator;
+
 namespace G4UA{
 
   /// @class FastCaloSimParamActionTool
@@ -68,6 +70,7 @@ namespace G4UA{
     ServiceHandle<ILArCalculatorSvc> m_heccalc;     //!< HEC wheel calculator
     ServiceHandle<ILArCalculatorSvc> m_pscalc;      //!< Barrel presampler calculator
     ServiceHandle<ILArCalculatorSvc> m_emepscalc;   //!< Endcap presampler calculator
+    ServiceHandle<ITileCalculator> m_tileCalculator; //!< Tile calculator
 
   }; // class FastCaloSimParamActionTool
 

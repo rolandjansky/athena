@@ -5,6 +5,7 @@
 #include "CxxUtils/make_unique.h"
 #include "ISF_Geant4UserActions/FastCaloSimParamActionTool.h"
 #include "LArG4Code/ILArCalculatorSvc.h"
+#include "TileG4Interfaces/ITileCalculator.h"
 
 namespace G4UA{
 
@@ -23,6 +24,7 @@ namespace G4UA{
     , m_heccalc("HECWheelCalculator", name)
     , m_pscalc("EMBPresamplerCalculator", name)
     , m_emepscalc("EMECPresamplerCalculator", name)
+    , m_tileCalculator("TileGeoG4SDCalc", name)
   {
     declareProperty("shift_lar_subhit",m_config.shift_lar_subhit, "");
     declareProperty("shorten_lar_step",m_config.shorten_lar_step, "");
@@ -39,6 +41,7 @@ namespace G4UA{
     declareProperty("HECWheelCalculator", m_heccalc);
     declareProperty("EMBPSCalculator",m_pscalc);
     declareProperty("EMECPSCalculator", m_emepscalc);
+    declareProperty( "TileCalculator", m_tileCalculator);
     }
 
   StatusCode FastCaloSimParamActionTool::initialize()
@@ -55,6 +58,7 @@ namespace G4UA{
     ATH_CHECK(m_heccalc.retrieve());
     ATH_CHECK(m_pscalc.retrieve());
     ATH_CHECK(m_emepscalc.retrieve());
+    ATH_CHECK(m_tileCalculator.retrieve());
     m_config.calculator_EMECIW_pos = &*m_emepiwcalc;
     m_config.calculator_EMECIW_neg = &*m_emeniwcalc;
     m_config.calculator_EMECOW_pos = &*m_emepowcalc;
@@ -66,7 +70,7 @@ namespace G4UA{
     m_config.calculator_FCAL3      = &*m_fcal3calc;
     m_config.calculator_HEC        = &*m_heccalc;
     m_config.calculator_EMBPS      = &*m_pscalc;
-    m_config.calculator_EMEPS      = &*m_emepscalc;
+    m_config.calculator_TILE       = &*m_tileCalculator;
 
     return StatusCode::SUCCESS;
   }

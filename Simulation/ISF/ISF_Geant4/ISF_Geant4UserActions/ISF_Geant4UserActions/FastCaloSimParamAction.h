@@ -22,6 +22,7 @@ namespace HepMC {
 }
 // forward declarations in global namespace
 class ILArCalculatorSvc;
+class ITileCalculator;
 class G4VSolid;
 class G4AffineTransform;
 class LArG4SimpleSD;
@@ -83,7 +84,7 @@ namespace G4UA{
       ILArCalculatorSvc* calculator_EMBPS=nullptr;                 //!< pointer to barrel presampler calculator
       ILArCalculatorSvc* calculator_EMEPS=nullptr;                 //!< pointer to endcap presampler calculator
       //ILArCalculatorSvc* calculator_HECLocal=nullptr;
-
+      ITileCalculator* calculator_TILE=nullptr;                    //!< pointer to tile calculator
     };
 
     FastCaloSimParamAction(const Config& config);
@@ -105,13 +106,10 @@ namespace G4UA{
     /* data members */
 
     ILArCalculatorSvc *m_current_calculator;
-    TileGeoG4SDCalc *m_current_calculator_Tile;
+    ITileCalculator *m_current_calculator_Tile;
 
     G4VSolid *m_current_solid;
     G4AffineTransform *m_current_transform;
-
-    // calculators
-    TileGeoG4SDCalc *m_calculator_Tile;
 
     // helper
     LArG4SimpleSD *m_lar_helper;
