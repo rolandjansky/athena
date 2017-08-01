@@ -91,12 +91,6 @@ public:
   {
     return m_lookup;
   }
-  ///
-  inline const TileSDOptions GetOptions() const
-  {
-    return m_options;
-  }
-
 private:
   void CreateScintHit(int pmt, TileHitData& hitData) const;
   void UpdateScintHit(int pmt, TileHitData& hitData) const;
