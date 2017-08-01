@@ -17,11 +17,10 @@
 //************************************************************
 
 //class header
-#include "TileGeoG4SD/TileGeoG4SDCalc.hh"
+#include "TileGeoG4SDCalc.hh"
 //package headers
 #include "TileGeoG4SD/TileGeoG4LookupBuilder.hh"
 #include "TileGeoG4SD/TileGeoG4Lookup.hh"
-#include "TileGeoG4SD/TileGeoG4SD.hh"
 //Athena headers
 #include "CxxUtils/make_unique.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"

@@ -1,6 +1,6 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 #include "../TileGeoG4SDTool.h"
-#include "TileGeoG4SD/TileGeoG4SDCalc.hh"
+#include "../TileGeoG4SDCalc.hh"
 
 DECLARE_TOOL_FACTORY( TileGeoG4SDTool )
 DECLARE_SERVICE_FACTORY( TileGeoG4SDCalc )

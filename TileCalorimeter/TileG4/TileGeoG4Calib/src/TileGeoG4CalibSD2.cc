@@ -23,7 +23,7 @@
 #include "TileGeoG4DMLookupBuilder.h"
 #include "TileGeoG4DMLookup.h"
 #include "TileEscapedEnergyProcessing.h"
-#include "TileGeoG4SD/TileGeoG4SDCalc.hh"
+#include "TileG4Interfaces/ITileCalculator.h"
 #include "TileGeoG4SD/TileGeoG4Lookup.hh"
 #include "TileGeoG4SD/TileGeoG4LookupBuilder.hh"
 #include "TileSimEvent/TileHitVector.h"
