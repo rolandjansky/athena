@@ -3797,7 +3797,7 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="471" partition="1" name="L1_LUCID_BGRP9" complex_deadtime="0" definition="((LUCID_A[x1]|LUCID_C[x1])&amp;BGRP0&amp;BGRP9)" trigger_type="10100000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="471" partition="1" name="L1_LUCID_BGRP9" complex_deadtime="0" definition="((LUCID_A[x1]|LUCID_C[x1])&amp;BGRP0&amp;BGRP9)" trigger_type="10100000" monitor="LF:111|HF:000">
       <AND>
         <OR>
           <TriggerCondition multi="1" name="LUCID_A_x1" triggerthreshold="LUCID_A"/>
@@ -3807,7 +3807,7 @@
         <InternalTrigger name="BGRP9"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="472" partition="1" name="L1_LUCID_BGRP11" complex_deadtime="0" definition="((LUCID_A[x1]|LUCID_C[x1])&amp;BGRP0&amp;BGRP11)" trigger_type="10100000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="472" partition="1" name="L1_LUCID_BGRP11" complex_deadtime="0" definition="((LUCID_A[x1]|LUCID_C[x1])&amp;BGRP0&amp;BGRP11)" trigger_type="10100000" monitor="LF:111|HF:000">
       <AND>
         <OR>
           <TriggerCondition multi="1" name="LUCID_A_x1" triggerthreshold="LUCID_A"/>
