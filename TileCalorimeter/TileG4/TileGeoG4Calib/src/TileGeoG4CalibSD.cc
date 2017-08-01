@@ -227,7 +227,7 @@ void TileGeoG4CalibSD::Initialize(G4HCofThisEvent* /*HCE*/) {
 //  ProcessHits - CALLED AT EACH STEP INSIDE SENSITIVE VOLUMES
 //-----------------------------------------------------------------------------
 G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*/) {
-  if (m_calc->GetOptions().doCalibHitParticleID && !m_event_info)
+  if (m_options.doCalibHitParticleID && !m_event_info)
     m_event_info = dynamic_cast<EventInformation*>(G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
 
   if (verboseLevel > 10) G4cout << "Process Hits" << G4endl;
@@ -345,7 +345,7 @@ G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*
   // G.P.: now comes new hit processing (see LArCalibHitMerger.cxx for details)
   // --------------------------------------------------------------------------
   int primary_id = 0;
-  if (m_calc->GetOptions().doCalibHitParticleID) {
+  if (m_options.doCalibHitParticleID) {
 
     if (m_event_info && m_event_info->GetCurrentPrimary()) primary_id = m_event_info->GetCurrentPrimary()->barcode();
     else throw std::runtime_error("CalibrationSensitiveDetector: Unable to retrieve barcode!");
