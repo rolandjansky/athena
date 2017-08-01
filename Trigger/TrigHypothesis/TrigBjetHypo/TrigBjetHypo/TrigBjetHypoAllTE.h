@@ -41,8 +41,14 @@ class TrigBjetHypoAllTE: public HLT::AllTEAlgo {
 
   /** @brief vectors with Et thresholds, btagging cut, and multiplicity requirement */
   std::vector<double> m_EtThresholds;
-  std::vector<double> m_BTagCuts;
+  std::vector<double> m_BTagMin;
+  std::vector<double> m_BTagMax;
   std::vector<int>    m_Multiplicities;
+
+  std::vector<std::vector<double> > m_EtThresholdsOR;
+  std::vector<std::vector<double> > m_BTagMinOR;
+  std::vector<std::vector<double> > m_BTagMaxOR;
+  std::vector<std::vector<double> > m_MultiplicitiesOR;
   
   /** @brief string corresponding to the trigger level in which the algorithm is running. */
   //  std::string m_instance;
@@ -65,15 +71,32 @@ class TrigBjetHypoAllTE: public HLT::AllTEAlgo {
 
   struct triggerRequirement{
     float          m_EtThreshold;
-    float          m_btagCut;
+    float          m_btagMin;
+    float          m_btagMax;
     unsigned int   m_multiplicity;
 
     unsigned int   m_count;
-    triggerRequirement(float EtThreshold, float btagCut, unsigned multiplicity)  : m_EtThreshold(EtThreshold), m_btagCut(btagCut), m_multiplicity(multiplicity),  m_count(0) 
+    triggerRequirement(float EtThreshold, float btagMin,  float btagMax, unsigned int multiplicity)  : 
+      m_EtThreshold(EtThreshold), 
+      m_btagMin(btagMin), 
+      m_btagMax(btagMax), 
+      m_multiplicity(multiplicity),  
+      m_count(0) 
     { }
+
+    bool pass(){
+      return bool(m_count >= m_multiplicity);
+    }
+    
+    void countJet(float btagEt, float btagWeight){
+      if((btagEt > m_EtThreshold) && (btagWeight > m_btagMin) && (btagWeight < m_btagMax))
+	++m_count;
+    }
     
   };
-  std::vector<triggerRequirement> m_triggerReqs;
+  std::vector<triggerRequirement>               m_triggerReqsAND;
+  std::vector<std::vector<triggerRequirement> > m_triggerReqsOR;
+
 
 
 };
