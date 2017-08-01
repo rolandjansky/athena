@@ -63,7 +63,7 @@ class TileCalibHitNtuple;
 class TileCalibHitCntNtup;
 #endif
 
-class TileGeoG4SDCalc;
+class ITileCalculator;
 class TileGeoG4LookupBuilder;
 class TileGeoG4DMLookupBuilder;
 
@@ -168,7 +168,7 @@ private:
 #endif
 
   //ORDINARY AND CALIBRATION LOOKUP BUILDERS
-  TileGeoG4SDCalc* m_calc;
+  ITileCalculator* m_calc;
   TileGeoG4LookupBuilder* m_lookup;
   TileGeoG4DMLookupBuilder* m_lookupDM;
 
