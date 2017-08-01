@@ -371,7 +371,7 @@ Identifier TileGeoG4CalibSD::CellIDCalculator() {
 }
 
 Identifier TileGeoG4CalibSD::ScintIDCalculator() {
-  m_cell = m_calc->cell;  //retrieve Cell from TileGeoG4SDCalc
+  m_cell = m_calc->m_hitData.cell;  //retrieve Cell from TileGeoG4SDCalc
   if (!m_cell) {
     G4cout << "ERROR: ScintIDCalculator: zero pointer to the current cell!" << G4endl;
     m_defaultHit = true;
@@ -385,11 +385,11 @@ Identifier TileGeoG4CalibSD::ScintIDCalculator() {
   m_calibHitType = 1;  //Cell Active CalibHit
 
   //determine remined ID fields
-  m_detector = m_calc->nDetector;
-  m_sample = m_calc->nSample - 1;
-  m_tower = m_calc->nTower - 1;
-  m_module = m_calc->nModule - 1;
-  m_side = m_calc->nSide;
+  m_detector = m_calc->m_hitData.nDetector;
+  m_sample = m_calc->m_hitData.nSample - 1;
+  m_tower = m_calc->m_hitData.nTower - 1;
+  m_module = m_calc->m_hitData.nModule - 1;
+  m_side = m_calc->m_hitData.nSide;
   m_cellNum = m_cell->cellNum;
 
   //just a debugging of CaloCell ID fields
@@ -409,8 +409,8 @@ Identifier TileGeoG4CalibSD::ScintIDCalculator() {
 
   //reetrieve CaloCell & Tile IDs
   m_id = m_caloCell_ID->cell_id(m_subCalo, m_detector, m_side, m_module, m_tower, m_sample);
-  m_id_pmt_down = m_calc->pmtID_down;
-  m_id_pmt_up = m_calc->pmtID_up;
+  m_id_pmt_down = m_calc->m_hitData.pmtID_down;
+  m_id_pmt_up = m_calc->m_hitData.pmtID_up;
 
   return m_id;
 }
