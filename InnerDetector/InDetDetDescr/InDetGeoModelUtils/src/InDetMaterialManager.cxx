@@ -521,7 +521,7 @@ InDetMaterialManager::getMaterialForVolume(const std::string & materialName, dou
     double weight = iter->second.weight;
     double density = weight/volume;
     if (iter->second.linearWeightFlag) {
-      msg(MSG::ERROR) << "Material defined by linear weight cannot be created with getMaterialForVolume method: " << materialName << endmsg;
+      msg(MSG::WARNING) << "Material defined by linear weight cannot be created with getMaterialForVolume method: " << materialName << endmsg;
     } 
 
     if (msgLvl(MSG::VERBOSE)) { 
