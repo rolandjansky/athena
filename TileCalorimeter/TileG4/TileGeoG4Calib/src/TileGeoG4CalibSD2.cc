@@ -359,7 +359,7 @@ Identifier TileGeoG4CalibSD::CellIDCalculator() {
       det_side = -abs(m_detector);
     else
       det_side = m_detector;
-    if (doHitsTXT) HitsInfoPrint(false,1);  // 1-CellIDCalculator
+    if (doHitsTXT) this->HitsInfoPrint(false,1);  // 1-CellIDCalculator
     if (doHitsNTup) m_ntuple->storeHit(det_side,m_module,m_tower,m_sample,m_cellNum,
                                        1,nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
   }

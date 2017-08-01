@@ -73,12 +73,12 @@ class TileGeoG4CalibSection;
 class TileGeoG4PlateCell;
 class TileGeoG4GirderCell;
 
+struct TileHitData;
+
 class G4TouchableHistory;
 class G4VPhysicalVolume;
 
 class EventInformation;
-
-struct TileHitData;
 
 #include <string>
 #include <vector>
@@ -86,8 +86,9 @@ typedef std::vector<double> E_4;
 
 class TileGeoG4CalibSD: public G4VSensitiveDetector {
 public:
-  TileGeoG4CalibSD(const G4String& name, const std::vector<std::string>& m_outputCollectionNames, ITileCalculator* tileCalculator,
-                   ServiceHandle<StoreGateSvc> &detStore, const TileSDOptions &opts);
+  TileGeoG4CalibSD(const G4String& name, const std::vector<std::string>& m_outputCollectionNames,
+                   ITileCalculator* tileCalculator, ServiceHandle<StoreGateSvc> &detStore,
+                   const TileSDOptions &opts);
   ~TileGeoG4CalibSD();
 
   void InvokeUserRunAction();

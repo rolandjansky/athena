@@ -22,6 +22,7 @@
 // Geant4 headers
 #include "G4Types.hh"
 
+#include "GaudiKernel/IService.h"
 #include "Identifier/Identifier.h"
 
 class G4Step;
@@ -62,12 +63,17 @@ struct TileHitData {
   double scin_Time_down = 0.0;
 };
 
-class ITileCalculator {
+class ITileCalculator : virtual public IService {
   public:
   ///
   ITileCalculator() {}
   ///
   virtual ~ITileCalculator() {}
+  ///
+  static const InterfaceID& interfaceID() {
+    static const InterfaceID IID_ITileCalculator( "ITileCalculator" , 1 , 0 ) ;
+    return IID_ITileCalculator;
+  }
 
   /// Search for the tilecal sub-section, its module and some identifiers
   virtual G4bool FindTileScinSection(const G4Step*, TileHitData& hitData) const = 0;

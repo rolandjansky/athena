@@ -21,9 +21,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Simulation/G4Atlas/G4AtlasTools
                           Simulation/G4Sim/MCTruth
                           TileCalorimeter/TileDetDescr
-                          TileCalorimeter/TileG4/TileG4Interfaces
                           TileCalorimeter/TileG4/TileGeoG4SD
                           TileCalorimeter/TileSimEvent
+                          TileCalorimeter/TileG4/TileG4Interfaces
                           Tools/PathResolver )
 
 # External dependencies:
