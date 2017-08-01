@@ -40,10 +40,10 @@ const CLID& TgcRdoContainer::classID()
   return ClassID_traits<TgcRdoContainer>::ID();       
 }
 
-TgcRdoIdHash&
-TgcRdoContainer::hashFcn() const
+const TgcRdoIdHash&
+TgcRdoContainer::hashFcn()
 {
-    static TgcRdoIdHash hashFcn;
+    static const TgcRdoIdHash hashFcn;
     return(hashFcn);
 }
 

@@ -43,7 +43,7 @@ public:
   
 private:
 
-    MdtCsmIdHash& hashFcn() const;
+    static const MdtCsmIdHash& hashFcn();
   
 };
 
