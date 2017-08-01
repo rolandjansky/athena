@@ -52,7 +52,7 @@ pp = pprint.PrettyPrinter(indent=4, depth=8)
 ###########################################################################
 ###########################################################################
 def generateChainDefs(chainDict):
-    log.setLevel(0)
+    #log.setLevel(0)
     log.debug("In generateChainDefs")
 
     chainDict_orig = deepcopy(chainDict)
@@ -785,20 +785,3 @@ def _prepareJetChainDict(cdict):
 def get_j35_ChainDef():
     return theDictFromChainName.getChainDict( ['j35', 'L1_J20', [], ["Main"], ['RATE:SingleJet',  'BW:Jets'], -1],) 
 
-
-#def get_lastTE_j35(ChainDef):
-#    inputTEsEF = ChainDef.signatureList[-1]['listOfTriggerElements']
-#    return inputTEsEF
-###########################################################################
-#def getMultThreshBtagInfo(cDict):
-#    allInfo = []
-#    chainPartInfo = []
-#    for cpart in cDict['chainParts']:
-#        if cpart['signature'] == 'Jet':
-#            chainPartInfo.append(cpart['multiplicity'])        
-#            chainPartInfo.append(cpart['threshold'])        
-#            chainPartInfo.append(cpart['bTag'])
-#            allInfo.append(chainPartInfo)
-#
-#    return allInfo
-###########################################################################
