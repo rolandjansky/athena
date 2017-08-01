@@ -772,69 +772,75 @@ G4bool TileGeoG4SDCalc::ManageScintHit() {
   }
 
   if (m_hitData.edep_up != 0.) {
-    if (newTileHitUp)
-      CreateScintHit(1);
-    else
-      UpdateScintHit(1);
+    if (newTileHitUp) {
+      this->CreateScintHit(1, m_hitData);
+    }
+    else {
+      this->UpdateScintHit(1, m_hitData);
+    }
   }
 
   if (m_hitData.edep_down != 0.) {
-    if (newTileHitDown)
-      CreateScintHit(0);
-    else
-      UpdateScintHit(0);
+    if (newTileHitDown) {
+      this->CreateScintHit(0, m_hitData);
+    }
+    else {
+      this->UpdateScintHit(0, m_hitData);
+    }
   }
 
   return true;
 }
 
-void TileGeoG4SDCalc::CreateScintHit(int pmt) {
+void TileGeoG4SDCalc::CreateScintHit(int pmt, TileHitData& hitData) const
+{
   TileSimHit* aHit;
 
-  if (pmt == 1) { //Uper PMT of Cell
-    aHit = new TileSimHit(m_hitData.pmtID_up, m_hitData.edep_up, m_hitData.totalTimeUp, m_deltaT);
+  if (pmt == 1) { //Upper PMT of Cell
+    aHit = new TileSimHit(hitData.pmtID_up, hitData.edep_up, hitData.totalTimeUp, m_deltaT);
     if (m_options.doTileRow)
-      aHit->add(m_hitData.edep_up, m_hitData.scin_Time_up, m_deltaT);
+      aHit->add(hitData.edep_up, hitData.scin_Time_up, m_deltaT);
 
-    if (m_hitData.isNegative)
-      m_hitData.cell->moduleToHitUpNegative[m_hitData.nModule - 1] = aHit;
+    if (hitData.isNegative)
+      hitData.cell->moduleToHitUpNegative[hitData.nModule - 1] = aHit;
     else
-      m_hitData.cell->moduleToHitUp[m_hitData.nModule - 1] = aHit;
+      hitData.cell->moduleToHitUp[hitData.nModule - 1] = aHit;
 
   } else { //Down PMT of Cell
-    aHit = new TileSimHit(m_hitData.pmtID_down, m_hitData.edep_down, m_hitData.totalTimeDown, m_deltaT);
+    aHit = new TileSimHit(hitData.pmtID_down, hitData.edep_down, hitData.totalTimeDown, m_deltaT);
     if (m_options.doTileRow)
-      aHit->add(m_hitData.edep_down, m_hitData.scin_Time_down, m_deltaT);
+      aHit->add(hitData.edep_down, hitData.scin_Time_down, m_deltaT);
 
-    if (m_hitData.isNegative)
-      m_hitData.cell->moduleToHitDownNegative[m_hitData.nModule - 1] = aHit;
+    if (hitData.isNegative)
+      hitData.cell->moduleToHitDownNegative[hitData.nModule - 1] = aHit;
     else
-      m_hitData.cell->moduleToHitDown[m_hitData.nModule - 1] = aHit;
+      hitData.cell->moduleToHitDown[hitData.nModule - 1] = aHit;
   }
 }
 
-void TileGeoG4SDCalc::UpdateScintHit(int pmt) {
-  TileSimHit* aHit;
+void TileGeoG4SDCalc::UpdateScintHit(int pmt, TileHitData& hitData) const
+{
+  TileSimHit* aHit(nullptr);
 
-  if (pmt == 1) { //Uper PMT of Cell
-    if (m_hitData.isNegative)
-      aHit = m_hitData.cell->moduleToHitUpNegative[m_hitData.nModule - 1];
+  if (pmt == 1) { //Upper PMT of Cell
+    if (hitData.isNegative)
+      aHit = hitData.cell->moduleToHitUpNegative[hitData.nModule - 1];
     else
-      aHit = m_hitData.cell->moduleToHitUp[m_hitData.nModule - 1];
+      aHit = hitData.cell->moduleToHitUp[hitData.nModule - 1];
 
-    aHit->add(m_hitData.edep_up, m_hitData.totalTimeUp, m_deltaT);
+    aHit->add(hitData.edep_up, hitData.totalTimeUp, m_deltaT);
     if (m_options.doTileRow)
-      aHit->add(m_hitData.edep_up, m_hitData.scin_Time_up, m_deltaT);
+      aHit->add(hitData.edep_up, hitData.scin_Time_up, m_deltaT);
 
   } else { // Down PMT of Cell
-    if (m_hitData.isNegative)
-      aHit = m_hitData.cell->moduleToHitDownNegative[m_hitData.nModule - 1];
+    if (hitData.isNegative)
+      aHit = hitData.cell->moduleToHitDownNegative[hitData.nModule - 1];
     else
-      aHit = m_hitData.cell->moduleToHitDown[m_hitData.nModule - 1];
+      aHit = hitData.cell->moduleToHitDown[hitData.nModule - 1];
 
-    aHit->add(m_hitData.edep_down, m_hitData.totalTimeDown, m_deltaT);
+    aHit->add(hitData.edep_down, hitData.totalTimeDown, m_deltaT);
     if (m_options.doTileRow)
-      aHit->add(m_hitData.edep_down, m_hitData.scin_Time_down, m_deltaT);
+      aHit->add(hitData.edep_down, hitData.scin_Time_down, m_deltaT);
   }
 }
 

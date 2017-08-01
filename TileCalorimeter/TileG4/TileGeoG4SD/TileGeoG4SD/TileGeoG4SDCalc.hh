@@ -100,8 +100,8 @@ public:
   TileHitData m_hitData; //HACK temporarily pubilc
 
 private:
-  void CreateScintHit(int pmt);//, TileHitData& hitData) const;
-  void UpdateScintHit(int pmt);//, TileHitData& hitData) const;
+  void CreateScintHit(int pmt, TileHitData& hitData) const;
+  void UpdateScintHit(int pmt, TileHitData& hitData) const;
 
   /** @brief function to give PMT responce as a function of distance
       from tile center in mm (along phi direction) */
