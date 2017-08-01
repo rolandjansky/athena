@@ -52,6 +52,10 @@ def generateChainDefs(chainDict, thisIsBphysChain=False):
     if (len(listOfChainDicts) > 1): asymDiMuonChain = True
     else: asymDiMuonChain = False
 
+    asymMultiMuonChain = False
+    if(len(listOfChainDicts) > 1 and "noL1" not in chainDict["chainName"] and sum(map(int, [subChainDict["chainParts"]["multiplicity"] for subChainDict in listOfChainDicts])) > 1):
+        asymMultiMuonChain = True
+
     modifyNscanInputTE = False
     modifyCalotagInputTE = False
 
@@ -65,7 +69,7 @@ def generateChainDefs(chainDict, thisIsBphysChain=False):
             else:
                 AllMuons=[]
 
-            Muon = L2EFChain_mu(subChainDict, asymDiMuonChain, AllMuons, thisIsBphysChain)
+            Muon = L2EFChain_mu(subChainDict, asymDiMuonChain, asymMultiMuonChain, AllMuons, thisIsBphysChain)
 
         listOfChainDefs += [Muon.generateHLTChainDef()]
         
@@ -120,7 +124,7 @@ def _modifyTEinChainDef(theChainDef,chainDict):
 
 def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
 
-    # maxL2SignatureIndex = -1
+    #maxL2SignatureIndex = -1
     # for signatureIndex,signature in enumerate(theChainDef.signatureList):
     #     if signature['listOfTriggerElements'][0][0:2] == "L2":
     #         maxL2SignatureIndex = max(maxL2SignatureIndex,signatureIndex)
@@ -161,7 +165,7 @@ def _AsymmChainConfig(theChainDef,chainDict):
             maxL2SignatureIndex = max(maxL2SignatureIndex,signatureIndex)
     
     inputTEsL2 = theChainDef.signatureList[maxL2SignatureIndex]['listOfTriggerElements'] 
-    inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']  
+    inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
 
     idmultiArr = []
     listOfChainDicts = splitChainDict(chainDict)

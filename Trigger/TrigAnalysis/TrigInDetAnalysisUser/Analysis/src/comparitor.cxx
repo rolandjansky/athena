@@ -553,9 +553,12 @@ int main(int argc, char** argv) {
   
   // Make output directory                                                                                                                           
   if (dir != "") {
+    std::cout << "tyying to make directory" << std::endl;
     dir += "/";
-    if ( mkdir( dir.c_str(), 0777 ) ) std::cerr << "main() couldn't create directory " << dir << std::endl;
-    else                              std::cout << "main() output will be sent to directory " << dir << std::endl; 
+    if ( !exists(dir) ) { 
+      if ( mkdir( dir.c_str(), 0777 ) ) std::cerr << "main() couldn't create directory " << dir << std::endl;
+      else                              std::cout << "main() output will be sent to directory " << dir << std::endl; 
+    }
   }
 
   TFile& ftest = *_ftest;

@@ -128,7 +128,7 @@ void PixelMonModulesProf::Reset()
 StatusCode PixelMonModulesProf::regHist(ManagedMonitorToolBase* thisptr, std::string path, ManagedMonitorToolBase::Interval_t Run)
 {
    for (int i = 0; i < 1744 + 280 * m_doIBL; i++) {
-      ManagedMonitorToolBase::MonGroup mgroup(thisptr, (path+"/"+getHistName(i,true)).c_str(),Run);
+     ManagedMonitorToolBase::MonGroup mgroup(thisptr, (path+"/"+getHistName(i,true,m_doIBL)).c_str(),Run);
       if (mgroup.regHist(getHist(i)).isFailure()) {
          return StatusCode::FAILURE;
       }
@@ -244,7 +244,7 @@ void PixelMonModules1D::Fill(double value, Identifier &id, const PixelID* pixID)
 StatusCode PixelMonModules1D::regHist(ManagedMonitorToolBase* thisptr, std::string path, ManagedMonitorToolBase::Interval_t Run)
 {
    for (int i = 0; i < 1744 + 280 * m_doIBL; i++) {
-      ManagedMonitorToolBase::MonGroup mgroup(thisptr, (path+"/"+getHistName(i,true)).c_str(),Run);
+     ManagedMonitorToolBase::MonGroup mgroup(thisptr, (path+"/"+getHistName(i,true,m_doIBL)).c_str(),Run);
       if (mgroup.regHist(getHist(i)).isFailure()) {
          return StatusCode::FAILURE;
       }
@@ -255,7 +255,7 @@ StatusCode PixelMonModules1D::regHist(ManagedMonitorToolBase* thisptr, std::stri
 StatusCode PixelMonModules2D::regHist(ManagedMonitorToolBase* thisptr, std::string path, ManagedMonitorToolBase::Interval_t Run)
 {
    for (int i = 0; i < 1744 + 280 * m_doIBL; i++) {
-      ManagedMonitorToolBase::MonGroup mgroup(thisptr, (path+"/"+getHistName(i,true)).c_str(),Run);
+     ManagedMonitorToolBase::MonGroup mgroup(thisptr, (path+"/"+getHistName(i,true,m_doIBL)).c_str(),Run);
       if (mgroup.regHist(getHist(i)).isFailure()) {
          return StatusCode::FAILURE;
       }

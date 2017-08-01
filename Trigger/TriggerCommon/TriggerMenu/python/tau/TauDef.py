@@ -164,7 +164,7 @@ class L2EFChain_tau(L2EFChainDef):
         elif preselection == 'FTKRefit':
             [trkfast, trkprec[:]] = TrigInDetFTKSequence("Tau","tau",sequenceFlavour=["refit","PT"]).getSequence()
         elif preselection == 'FTKNoPrec':
-            [trkfast] = TrigInDetFTKSequence("Tau","tau","").getSequence()
+            [trkfast] = TrigInDetFTKSequence("Tau","tau",sequenceFlavour=[""]).getSequence()
             [trkprec[:]] = TrigInDetFTKSequence("Tau","tau",sequenceFlavour=["refit"]).getSequence()
         else:
             [trkfast, trkprec[:]] = TrigInDetSequence("Tau", "tau", "IDTrig").getSequence()
@@ -198,7 +198,6 @@ class L2EFChain_tau(L2EFChainDef):
 #        from TrigInDetConf.TrigInDetSequence import vertexXAODCnvNeeded 
 #        if vertexXAODCnvNeeded():
 #           theTrigFTK_VxPrimary_EF.vxContainerName = 'PrimVxFTK'
-#           theTrigFTK_VxPrimary_EF.getVertexContainer = False
 #           theInDet__TrigVertexxAODCnv = InDet__TrigVertexxAODCnv(name="FTKTauVtxConversion")
 #           theInDet__TrigVertexxAODCnv.InputVxContainerKey = 'PrimVxFTK'
 #           theInDet__TrigVertexxAODCnv.OutputVxContainerKey = 'PrimVertexFTK'
@@ -206,7 +205,6 @@ class L2EFChain_tau(L2EFChainDef):
 #           self.EFsequenceList += [[[ self.currentItem ],vertexAlgorithms,self.continueChain('L2', 'vertex')]]          
 #        else:
         theTrigFTK_VxPrimary_EF.vertexContainerName= 'PrimVertexFTK'
-        theTrigFTK_VxPrimary_EF.getVertexContainer = True
         vertexAlgorithms = [theTrigFTK_VxPrimary_EF]
         self.EFsequenceList += [[[ self.currentItem ], vertexAlgorithms, self.continueChain('L2', 'vertex')]]
         
@@ -379,7 +377,7 @@ class L2EFChain_tau(L2EFChainDef):
                                      self.continueChain('EF', 'tr')]]
 
             # TrigTauRec and Hypo (no BDT)
-            if selection == 'kaonpi1' or selection == 'kaonpi2' or selection == 'dipion1' or selection=='dipion1loose' or selection == 'dipion2' or selection == 'dikaon' or selection == 'dikaontight' or selection == 'dikaonmass' or selection == 'dikaonmasstight' or selection == 'singlepion' or selection == 'singlepiontight':
+            if selection == 'kaonpi1' or selection == 'kaonpi2' or selection == 'dipion1' or selection=='dipion1loose' or selection == 'dipion2' or selection == 'dipion3' or selection == 'dikaon' or selection == 'dikaontight' or selection == 'dikaonmass' or selection == 'dikaonmasstight' or selection == 'singlepion' or selection == 'singlepiontight':
                 self.EFsequenceList += [[[ self.currentItem ],
                                          [recmerged_2012, theEFHypo],
                                          self.continueChain('EF', 'effinal')]]                

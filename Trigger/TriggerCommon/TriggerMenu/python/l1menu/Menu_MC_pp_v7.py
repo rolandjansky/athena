@@ -90,7 +90,7 @@ def defineMenu():
         # 8 x TE
         #'TE3', 'TE5', 'TE10', 'TE15', 'TE20', 'TE25', 'TE30', 'TE40',
         #'TE5', 'TE30', 'TE40', 'TE45', 'TE50', 'TE55', 'TE60', 'TE65',
-        'TE5', 'TE10', 'TE15', 'TE20', 'TE25', 'TE30', 'TE40', 'TE70',
+        'TE5', 'TE10', 'TE20', 'TE30', 'TE40', 'TE50', 'TE60', 'TE70',
 
         # 8 x XE (for standard XE)
         #'XE35', 'XE40', 'XE45', 'XE50', 'XE55', 'XE60', 'XE70', 'XE80',
@@ -520,11 +520,14 @@ def defineMenu():
         # TE
         #"L1_TE3",        "L1_TE5",        "L1_TE10",        "L1_TE15",        "L1_TE20",        "L1_TE25",        "L1_TE30",        "L1_TE40",
         #"L1_TE5",        "L1_TE30",        "L1_TE40",        "L1_TE45",        "L1_TE50",        "L1_TE55",        "L1_TE60",        "L1_TE65",
-        "L1_TE5",        "L1_TE10",        "L1_TE15",   "L1_TE20",  "L1_TE25",  "L1_TE30",        "L1_TE40",      "L1_TE70",      
+        "L1_TE5",        "L1_TE10",   "L1_TE20",  "L1_TE30",        "L1_TE40",        "L1_TE50",        "L1_TE60",      "L1_TE70",      
 
         #"L1_TE3.0ETA24", "L1_TE5.0ETA24", "L1_TE10.0ETA24", "L1_TE15.0ETA24", "L1_TE20.0ETA24", "L1_TE25.0ETA24", "L1_TE30.0ETA24", "L1_TE40.0ETA24", 
         #"L1_TE5.0ETA24", "L1_TE30.0ETA24", "L1_TE40.0ETA24", "L1_TE45.0ETA24", "L1_TE50.0ETA24", "L1_TE55.0ETA24", "L1_TE60.0ETA24", "L1_TE65.0ETA24", 
         "L1_TE5.0ETA24", "L1_TE10.0ETA24", "L1_TE15.0ETA24", "L1_TE20.0ETA24", "L1_TE25.0ETA24", "L1_TE30.0ETA24", "L1_TE40.0ETA24","L1_TE70.0ETA24",
+
+        #TE + MU
+        "L1_MU4_TE10",
 
         # MBTS
         "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1",
@@ -558,6 +561,9 @@ def defineMenu():
         'L1_LUCID', 'L1_LUCID_EMPTY', 'L1_LUCID_UNPAIRED_ISO', 
         'L1_LUCID_A_C_EMPTY', 'L1_LUCID_A_C_UNPAIRED_ISO', 'L1_LUCID_A_C_UNPAIRED_NONISO',
         #'L1_LUCID_COMM_EMPTY', 'L1_LUCID_COMM_UNPAIRED_ISO', 
+
+        'L1_LUCID_BGRP9','L1_LUCID_BGRP11',
+        
 
         # ZDC
         'L1_ZDC_A', 'L1_ZDC_C', 'L1_ZDC_A_C',
@@ -893,7 +899,7 @@ def defineMenu():
         'L1_MU21_FTK',
         'L1_TAU12IM_FTK', 
         'L1_TAU20IM_FTK',
-        'L1_MU21_TAU12IM_FTK', 
+        'L1_MU20_TAU12IM_FTK', 
         'L1_TAU20IM_2TAU12IM_J25_2J20_3J12_FTK',
         'L1_DR-TAU20ITAU12I-J25_FTK',
         'L1_4J20_FTK',
@@ -906,11 +912,12 @@ def defineMenu():
     
 
 #CTP IDs are taken from this mapping. Every L1 item needs a unique ctpid.
-#Free CTP IDs (2017-05-15) are: 470-479, 481, 486, 487, 488
+#Free CTP IDs (2017-07-20) are: 473-479, 481, 486, 487, 488
 # 463-464 are reserved for L1_RD2_BGRP14 and L1_RD3_BGRP15 (in MC_Physics_pp_v7)
 # 509-511 are reserved for CALREQ
 
     Lvl1Flags.CtpIdMap = {
+
         'L1_EM3' : 0,
         'L1_EM7' : 1,
         'L1_EM12' : 2,
@@ -1077,8 +1084,8 @@ def defineMenu():
 
        
         'L1_TE10' : 138,
-        'L1_TE15' : 82,
-        'L1_TE25' : 143,
+        'L1_TE50' : 82,
+        'L1_TE60' : 143,
 
         'L1_5J15.0ETA25' : 140,
         'L1_2J15_XE55' : 141,
@@ -1542,6 +1549,10 @@ def defineMenu():
         'L1_ZDC_C':420,
         'L1_ZDC_AND':421, 
         'L1_ZDC_A_C':422, 
+        'L1_MU4_TE10':470,
+
+        'L1_LUCID_BGRP9' : 471,
+        'L1_LUCID_BGRP11' : 472,
         
 #ATR-13743        'L1_ALFA_ELAST1'  : 424,
 #        'L1_ALFA_ELAST2'  : 425,
@@ -1631,7 +1642,7 @@ def defineMenu():
         'L1_J15_FTK'                           : 506,
         'L1_J40_FTK'                           : 507,
         'L1_J100_FTK'                          : 508,           
-        'L1_MU21_TAU12IM_FTK'                  : 498,
+        'L1_MU20_TAU12IM_FTK'                  : 498,
 #        'L1_ALFA_B7L1U_OD' : 497,
 #        'L1_ALFA_B7L1L_OD' : 498,
 #        'L1_ALFA_A7L1U_OD' : 499,

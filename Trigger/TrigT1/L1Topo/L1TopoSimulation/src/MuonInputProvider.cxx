@@ -272,24 +272,33 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
       }
     }
     
-    //BC+1 ... this can only come from simulation, in data taking this is collected by the L1Topo at its input
-    // so no need to do anything else here
+    //BC+1
+    // first see if L1Muctpi simulation already ran and object is in storegate, if not
+    // call tool version of the L1MuctpiSimulation and create it on the fly
+    std::vector<MuCTPIL1TopoCandidate> candList;
     if( evtStore()->contains<LVL1::MuCTPIL1Topo>(m_MuCTPItoL1TopoLocation.toString()+std::to_string(1)) ) {
       LVL1::MuCTPIL1Topo* l1topoBC1  {nullptr};
       CHECK( evtStore()->retrieve( l1topoBC1,m_MuCTPItoL1TopoLocation.toString()+std::to_string(1)));
       ATH_MSG_DEBUG( "Contains L1Topo LateMuons L1Muctpi object from StoreGate!" );
       //      l1topoBC1->print();
-      
-      std::vector<MuCTPIL1TopoCandidate> candList = l1topoBC1->getCandidates();
-      for(  std::vector<MuCTPIL1TopoCandidate>::const_iterator iMuCand = candList.begin(); iMuCand != candList.end(); iMuCand++)
-	{
-	  //or would it be better to create muon and dynamic_cast?
-	  ATH_MSG_DEBUG("MuonInputProvider addLateMuon ");
-	  inputEvent.addLateMuon( MuonInputProvider::createLateMuonTOB( *iMuCand ) );	   
-	}
-     }  
+      candList = l1topoBC1->getCandidates();
+    }else{
+      ATH_MSG_DEBUG("Use MuCTPiToTopo granularity Muon ROIs: calculate from ROIs sent to ROS");
+      LVL1::MuCTPIL1Topo l1topoBC1;
+      int bcidOffset = 1;
+      CHECK(m_MuctpiSimTool->fillMuCTPIL1Topo(l1topoBC1, bcidOffset));
+      l1topoBC1.setBcidOffset(bcidOffset);
+      //l1topoBC1.print();
+      candList = l1topoBC1.getCandidates();
+    }  
+    
+    for(  std::vector<MuCTPIL1TopoCandidate>::const_iterator iMuCand = candList.begin(); iMuCand != candList.end(); iMuCand++)
+      {
+	//or would it be better to create muon and dynamic_cast?
+	ATH_MSG_DEBUG("MuonInputProvider addLateMuon ");
+	inputEvent.addLateMuon( MuonInputProvider::createLateMuonTOB( *iMuCand ) );	   
+      }
   }
-
-
-   return StatusCode::SUCCESS;
+  
+  return StatusCode::SUCCESS;
 }

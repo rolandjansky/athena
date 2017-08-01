@@ -1127,7 +1127,11 @@ class TrigHLTTrackMomentHelpers(TrigHLTJetRecConf.TrigHLTTrackMomentHelpers):
         addTrkMomsTool(trkmomstoolname, **trkmomsoptions)
         
         # add  a specially configured jvf tool to jtm 
+<<<<<<< HEAD
         jvftoolname = 'jvf_'+trkopt
+=======
+        jvftoolname = 'jvf_GhostTracks'
+>>>>>>> nightly/21.1/2017-07-31T2135
         
         jvfoptions = dict(tvSGkey=tvassocSGkey,
                        tpcSGkey=trackSGkey,

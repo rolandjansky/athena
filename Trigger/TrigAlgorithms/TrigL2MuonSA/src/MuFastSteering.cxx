@@ -104,6 +104,7 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
   declareMonitoredVariable("AbsPt", m_absolute_pt);
   declareMonitoredVariable("Sagitta", m_sagitta);
   declareMonitoredVariable("TrackPt", m_track_pt);
+  declareMonitoredVariable("InvalidRpcRoINumber", m_invalid_rpc_roi_number);
   declareMonitoredStdContainer("ResInner", m_res_inner);
   declareMonitoredStdContainer("ResMiddle", m_res_middle);
   declareMonitoredStdContainer("ResOuter", m_res_outer);
@@ -328,6 +329,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
   m_inner_mdt_hits  = -1;
   m_middle_mdt_hits = -1;
   m_outer_mdt_hits  = -1;
+  m_invalid_rpc_roi_number = -1;
   
   m_fit_residuals.clear();
   m_res_inner.clear();
@@ -1393,6 +1395,8 @@ StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                
                                          const TrigL2MuonSA::MdtHits&             mdtHits,
                                          std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns)
 {
+  ATH_MSG_INFO("Updating Monitor!!");
+  
   const float ZERO_LIMIT = 1e-5;
   
   if( trackPatterns.size() > 0 ) {
@@ -1434,6 +1438,9 @@ StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                
     m_inner_mdt_hits  = count_inner;
     m_middle_mdt_hits = count_middle;
     m_outer_mdt_hits  = count_outer;
+
+    if ( m_rpcErrToDebugStream && m_dataPreparator->isRpcFakeRoi() ) 
+      m_invalid_rpc_roi_number = roi->getRoINumber();
     
     m_track_pt    = (fabs(pattern.pt ) > ZERO_LIMIT)? pattern.charge*pattern.pt: 9999.;
     m_absolute_pt = fabs(m_track_pt);
