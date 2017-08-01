@@ -1,4 +1,5 @@
 <lcgdict>
+  <class name="InDet::IInDetTrackSelectionTool" />
   <class name="InDet::InDetTrackSelectionTool" />
 
   <!-- Suppress the unwanted classes found by ROOT 6. -->
