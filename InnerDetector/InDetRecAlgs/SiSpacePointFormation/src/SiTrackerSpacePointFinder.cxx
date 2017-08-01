@@ -184,19 +184,6 @@ StatusCode SiTrackerSpacePointFinder::execute()
   const EventContext& ctx = *getContext();
 #endif
 
-  /*
-  if (msgLvl(MSG::DEBUG)){
-    ATH_MSG_DEBUG( "SiTrackerSpacePointFinder::execute()" );
-    // Put out info about event.
-    const DataHandle<xAOD::EventInfo> eventInfo;
-    StatusCode sc = evtStore()->retrieve(eventInfo);
-    if (sc.isFailure()){
-      ATH_MSG_ERROR( "Could not get event" );
-      return StatusCode::RECOVERABLE;
-    }
-    ATH_MSG_DEBUG( "Event number event_" + std::to_string(eventInfo->eventNumber()) );
-  }
-  */
   ++m_numberOfEvents;
 
   if (! m_overrideBS){
@@ -208,21 +195,13 @@ StatusCode SiTrackerSpacePointFinder::execute()
   // register the IdentifiableContainer into StoreGate
   SG::WriteHandle<SpacePointContainer> spacePointContainerPixel;
   if (m_selectPixels){
-    //m_SpacePointContainerPixel->cleanup();
-    //StatusCode sc = evtStore()->record(m_SpacePointContainerPixel,m_spacePointsPixelName,false);
-    //if (sc.isFailure()){
-    //  ATH_MSG_ERROR( "Container '" << m_spacePointsPixelName
-    //  << "' could not be recorded in StoreGate !" );
-    //  return StatusCode::RECOVERABLE;
-    //}
+
     spacePointContainerPixel = SG::WriteHandle<SpacePointContainer>( m_SpacePointContainerPixelKey, ctx );
     spacePointContainerPixel.record( CxxUtils::make_unique<SpacePointContainer>(m_idHelperPixel->wafer_hash_max()) );
     if (! spacePointContainerPixel.isValid() ){
       msg(MSG:: FATAL) << "SpacePointContainer " << spacePointContainerPixel.name() << "could not be initialised !"<< endmsg;
       return StatusCode::FAILURE;
     }
-    // prevent SG from deleting object:
-    //m_SpacePointContainerPixel->addRef();
 
     ATH_MSG_DEBUG( "Container '" << spacePointContainerPixel.name() << "' initialised and recorded in StoreGate" );
   }
@@ -239,11 +218,6 @@ StatusCode SiTrackerSpacePointFinder::execute()
     //m_SpacePointContainer_SCT->addRef();
     ATH_MSG_DEBUG( "Container '" << spacePointContainer_SCT.name() << "' initialised and recorded in StoreGate" );
   }
-
-  // Get hold of IdentifiableContainer holding SCT clusters from TDS
-  // ( because we need random access to get the second side).
-  // Note there may not be any, but there could still be pixel clusters.
-  //m_spacepointoverlapCollection = new SpacePointOverlapCollection();
 
   SG::WriteHandle<SpacePointOverlapCollection> spacepointoverlapCollection( m_spacepointoverlapCollectionKey, ctx );
   spacepointoverlapCollection.record( CxxUtils::make_unique<SpacePointOverlapCollection>() );
@@ -304,15 +278,6 @@ StatusCode SiTrackerSpacePointFinder::execute()
 
   if (m_selectPixels)
   {
-    // retrieve Pixel cluster container
-    //m_Pixel_clcontainer=0;
-    //StatusCode sc = evtStore()->retrieve(m_Pixel_clcontainer, m_PixelsClustersName);
-    //if (sc.isFailure() || ! m_Pixel_clcontainer)
-    //{
-    //  ATH_MSG_ERROR( "Pixel Cluster container not found" );
-    //  return StatusCode::RECOVERABLE;
-    //}
-    //ATH_MSG_DEBUG( "Pixel Cluster container found: " << m_Pixel_clcontainer->size() << " collections" );
 
     SG::ReadHandle<PixelClusterContainer> pixel_clcontainer( m_Pixel_clcontainerKey, ctx );
     if (!pixel_clcontainer.isValid()){
@@ -377,14 +342,7 @@ StatusCode SiTrackerSpacePointFinder::execute()
   {
     ATH_MSG_DEBUG( spacepointoverlapCollection->size() <<" overlap space points registered." );
   }
-  /*
-  StatusCode sc = evtStore()->record(m_spacepointoverlapCollection, m_spacePointsOverlapName, false);
-  if (sc.isFailure())
-  {
-    ATH_MSG_ERROR( "Failed to register overlap space points" );
-    return StatusCode::RECOVERABLE;
-  }
-  */
+
   return StatusCode::SUCCESS;
 }
 
@@ -393,19 +351,7 @@ StatusCode SiTrackerSpacePointFinder::finalize()
 {
   ATH_MSG_INFO( "SiTrackerSpacePointFinder::finalize()" );
   ATH_MSG_INFO( m_numberOfEvents << " events processed" );
-  /*
-  if (m_selectPixels)
-  {
-    m_SpacePointContainerPixel->cleanup();
-    m_SpacePointContainerPixel->release();
-  }
 
-  if (m_selectSCTs)
-  {
-    m_SpacePointContainer_SCT->cleanup();
-    m_SpacePointContainer_SCT->release();
-  }
-  */
   delete m_properties;
 
   return StatusCode::SUCCESS;
