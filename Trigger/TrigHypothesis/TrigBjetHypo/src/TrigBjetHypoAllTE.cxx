@@ -23,6 +23,8 @@
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
 
+using std::vector;
+
 
 TrigBjetHypoAllTE::TrigBjetHypoAllTE(const std::string& name, ISvcLocator* pSvcLocator) :
   HLT::AllTEAlgo(name, pSvcLocator),
@@ -35,8 +37,14 @@ TrigBjetHypoAllTE::TrigBjetHypoAllTE(const std::string& name, ISvcLocator* pSvcL
   declareMonitoredVariable("CutCounter",   m_cutCounter);
 
   declareProperty("EtThresholds",   m_EtThresholds   ); 
-  declareProperty("BTagCuts",       m_BTagCuts       );
+  declareProperty("BTagMin",        m_BTagMin       );
+  declareProperty("BTagMax",        m_BTagMax       );
   declareProperty("Multiplicities", m_Multiplicities );
+
+  declareProperty("EtThresholdsOR",   m_EtThresholdsOR   ); 
+  declareProperty("BTagMinOR",        m_BTagMinOR       );
+  declareProperty("BTagMaxOR",        m_BTagMaxOR       );
+  declareProperty("MultiplicitiesOR", m_MultiplicitiesOR );
 
   //declareMonitoredVariable("DeltaRPass",    m_deltaRPass);
   //declareMonitoredVariable("DeltaRAll",    m_deltaRAll);
@@ -67,22 +75,89 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltInitialize() {
     msg() << MSG::DEBUG << " BTaggingKey = "   << m_btaggingKey << endmsg;
   }
 
-  unsigned int nRequirements = m_EtThresholds.size();
+  //
+  //  Configure the AND requrements
+  //
 
-  if(nRequirements != m_BTagCuts.size()){
+  unsigned int nRequirementsAND = m_EtThresholds.size();
+
+  if(nRequirementsAND != m_BTagMin.size()){
     msg() << MSG::ERROR << "Et and btagging requirement have different sizes! Please Fix" << endmsg;
     return HLT::ERROR;
   }
 
-  if(nRequirements != m_Multiplicities.size()){
+  if(nRequirementsAND != m_BTagMax.size()){
+    msg() << MSG::ERROR << "Et and max btagging requirement have different sizes! Please Fix" << endmsg;
+    return HLT::ERROR;
+  }
+
+  if(nRequirementsAND != m_Multiplicities.size()){
     msg() << MSG::ERROR << "Et and multiplicities requirement have different sizes! Please Fix" << endmsg;
     return HLT::ERROR;
   }
 
-  for(unsigned int iReq = 0; iReq < nRequirements; ++iReq){
-    m_triggerReqs.push_back(triggerRequirement(m_EtThresholds.at(iReq), m_BTagCuts.at(iReq), m_Multiplicities.at(iReq)));
+  for(unsigned int iReq = 0; iReq < nRequirementsAND; ++iReq){
+    m_triggerReqsAND.push_back(triggerRequirement(m_EtThresholds.at(iReq), m_BTagMin.at(iReq), m_BTagMax.at(iReq), m_Multiplicities.at(iReq)));
   }
-  
+
+
+  //
+  //  Configure the OR
+  //
+  unsigned int nRequirementsOR = m_EtThresholdsOR.size();
+
+  if(nRequirementsOR != m_BTagMinOR.size()){
+    msg() << MSG::ERROR << "Et and btagging OR requirement have different sizes! Please Fix" << endmsg;
+    return HLT::ERROR;
+  }
+
+  if(nRequirementsOR != m_BTagMaxOR.size()){
+    msg() << MSG::ERROR << "Et and max btagging OR requirement have different sizes! Please Fix" << endmsg;
+    return HLT::ERROR;
+  }
+
+  if(nRequirementsOR != m_MultiplicitiesOR.size()){
+    msg() << MSG::ERROR << "Et and multiplicities OR requirement have different sizes! Please Fix" << endmsg;
+    return HLT::ERROR;
+  }
+
+  for(unsigned int iOR = 0 ; iOR < nRequirementsOR; ++iOR){
+    unsigned int nSubRequirement = m_EtThresholdsOR.at(iOR).size();    
+
+    if(nSubRequirement != m_BTagMinOR.at(iOR).size()){
+      msg() << MSG::ERROR << "Et and btagging OR sub requirement have different sizes! Please Fix" << endmsg;
+      return HLT::ERROR;
+    }
+
+    if(nSubRequirement != m_BTagMaxOR.at(iOR).size()){
+      msg() << MSG::ERROR << "Et and max btagging OR sub requirement have different sizes! Please Fix" << endmsg;
+      return HLT::ERROR;
+    }
+
+    if(nSubRequirement != m_MultiplicitiesOR.at(iOR).size()){
+      msg() << MSG::ERROR << "Et and multiplicities OR sub requirement have different sizes! Please Fix" << endmsg;
+      return HLT::ERROR;
+    }
+
+    m_triggerReqsOR.push_back(vector<triggerRequirement>());
+    msg() << MSG::DEBUG << "TrigBjetHypoAllTE::"  << name() << " or Requirements " << endmsg;
+    for(unsigned int iSub = 0 ; iSub < nSubRequirement; ++iSub){
+      m_triggerReqsOR.back().push_back(triggerRequirement(m_EtThresholdsOR  .at(iOR).at(iSub), 
+							  m_BTagMinOR       .at(iOR).at(iSub), 
+							  m_BTagMaxOR       .at(iOR).at(iSub), 
+							  m_MultiplicitiesOR.at(iOR).at(iSub)));
+      msg() << MSG::DEBUG << "\t (" 
+	    << m_EtThresholdsOR.at(iOR).at(iSub) 
+	    << " " << m_BTagMinOR.at(iOR).at(iSub) 
+	    << " " << m_BTagMaxOR.at(iOR).at(iSub) 
+	    << " " << int(m_MultiplicitiesOR.at(iOR).at(iSub) )
+	    << ")";
+    }
+    msg() << MSG::DEBUG << endmsg;
+  }
+
+
+
   return HLT::OK;
 }
 
@@ -91,7 +166,7 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltInitialize() {
 //  hltExecute
 //
 HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& inputTE, unsigned int output) {
-  std::cout << "Enter TrigBjetHypoAllTE " << std::endl;  
+
   if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Executing TrigBjetHypoAllTE" << endmsg;
 
   beforeExecMonitors().ignore();
@@ -179,11 +254,15 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
     }
     
     double btagWeight = btagInfo->auxdata<double>(m_tagger);  
-    float  btagEt     = jet->p4().Et();
+    double  btagEt     = jet->p4().Et();
+    for(triggerRequirement& trigReq:  m_triggerReqsAND){
+      trigReq.countJet(btagEt, btagWeight);
+    }
 
-    for(triggerRequirement& trigReq:  m_triggerReqs){
-      if(btagEt > trigReq.m_EtThreshold  && btagWeight > trigReq.m_btagCut)
-	++trigReq.m_count;
+    for(vector<triggerRequirement>& ORReq:  m_triggerReqsOR){
+      for(triggerRequirement& subORReq:  ORReq){
+	subORReq.countJet(btagEt, btagWeight);
+      }
     }
 
     //
@@ -230,11 +309,26 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
 //
 bool TrigBjetHypoAllTE::eventPassesTrigger(){
   bool passAND = true;
-  for(triggerRequirement& trigReq:  m_triggerReqs){
-    if(trigReq.m_count < trigReq.m_multiplicity)
+  for(triggerRequirement& trigReq:  m_triggerReqsAND){
+    if(!trigReq.pass())
       passAND = false;
   }
-  return passAND;
+
+  bool passOR = false;
+  if(!m_triggerReqsOR.size()){
+    passOR = true;
+  }else{
+    for(vector<triggerRequirement>& ORReq:  m_triggerReqsOR){
+      bool passThisOR = true;
+      for(triggerRequirement& subORReq:  ORReq){
+	if(!subORReq.pass())
+	  passThisOR = false;
+      }
+      if(passThisOR) passOR = true;
+    }
+  }
+  
+  return passAND && passOR;
 }
 
 //
@@ -242,12 +336,17 @@ bool TrigBjetHypoAllTE::eventPassesTrigger(){
 //
 void TrigBjetHypoAllTE::clearCounters(){
 
-  for(triggerRequirement& trigReq:  m_triggerReqs){
+  for(triggerRequirement& trigReq:  m_triggerReqsAND){
     trigReq.m_count = 0;
   }
 
-}
+  for(vector<triggerRequirement>& ORReq:  m_triggerReqsOR){
+    for(triggerRequirement& subORReq:  ORReq){
+      subORReq.m_count = 0;
+    }
+  }
 
+}
 
 //
 // hltFinalize
