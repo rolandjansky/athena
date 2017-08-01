@@ -85,7 +85,7 @@ public:
   /// Calculation of pmtID, edep and scin_Time with aStep (Sergey)
   G4bool ManageScintHit(TileHitData& hitData) const;
   /// Used by FastCaloSimParamAction
-  TileMicroHit GetTileMicroHit(const G4Step*);
+  TileMicroHit GetTileMicroHit(const G4Step*, TileHitData& hitData) const;
   ///
   inline TileGeoG4LookupBuilder* GetLookupBuilder() const
   {
