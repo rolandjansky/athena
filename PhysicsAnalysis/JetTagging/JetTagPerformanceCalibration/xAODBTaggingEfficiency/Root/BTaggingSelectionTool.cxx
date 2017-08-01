@@ -251,8 +251,8 @@ const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const
 	}else{
   	return accept(pT, eta, dl1_pb, dl1_pc ,dl1_pu);
 	}
+    }
 }
-
 const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double weight_mv2) const
 {
   m_accept.clear();
