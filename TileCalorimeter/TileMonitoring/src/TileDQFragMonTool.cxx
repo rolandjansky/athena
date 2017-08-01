@@ -95,7 +95,7 @@ TileDQFragMonTool::TileDQFragMonTool(const std::string & type, const std::string
   m_ErrorsLabels.push_back("MASKED");             // Error: 14
   m_ErrorsLabels.push_back("ALL_M_BAD_DCS");      // Error: 15
   m_ErrorsLabels.push_back("ANY_CH_BAD_HV");      // Error: 16
-  assert( m_ErrorsLabels.size() != NERROR );
+  assert( m_ErrorsLabels.size() == NERROR );
   // corrupted data
   m_ErrorsLabels.push_back("0 -> 1023");          // Error: NERROR - 1 + 1
   m_ErrorsLabels.push_back("Zeros");              // Error: NERROR - 1 + 2
@@ -110,7 +110,7 @@ TileDQFragMonTool::TileDQFragMonTool(const std::string & type, const std::string
   m_ErrorsLabels.push_back("Single Dn LG_s6");    // Error: NERROR - 1 + 11
   m_ErrorsLabels.push_back("Up LG_s0_s6 or Gap"); // Error: NERROR - 1 + 12
   m_ErrorsLabels.push_back("Dn LG_s0_s6 or Gap"); // Error: NERROR - 1 + 13
-  assert( m_ErrorsLabels.size() != (NERROR+NCORRUPTED) );
+  assert( m_ErrorsLabels.size() == (NERROR+NCORRUPTED) );
   
   m_PartitionsLabels.push_back("LBA");
   m_PartitionsLabels.push_back("LBC");
