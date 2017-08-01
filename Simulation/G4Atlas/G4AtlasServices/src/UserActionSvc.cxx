@@ -177,7 +177,6 @@ namespace G4UA
     // Assign stacking plugins
     for(auto& stackTool : m_stackingActionTools){
       auto stackPlugin = stackTool->getStackingAction();
-      ATH_MSG_INFO("stackPlugin " << stackPlugin);
       stackAction->addAction( stackPlugin );
     }
     G4RunManager::GetRunManager()->SetUserAction( stackAction.get() );
