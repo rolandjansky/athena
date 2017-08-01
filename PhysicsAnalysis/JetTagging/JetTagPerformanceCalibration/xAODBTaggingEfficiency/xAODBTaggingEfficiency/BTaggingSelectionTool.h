@@ -52,7 +52,8 @@ class BTaggingSelectionTool: public asg::AsgTool,
 
   /// Get the decision using thet jet's pt and mv2c20 weight values
   virtual const Root::TAccept& accept(double /* jet pt */, double /* jet eta */, double /* mv2c20 weight */ ) const;
-  virtual const Root::TAccept& accept(double /* jet pt */, double /* jet eta */, double /* mv2c00 weight */, double /* mv2c100 weight */ ) const;
+  virtual const Root::TAccept& accept(double /* jet pt */, double /* jet eta */, double /* mv2cl100 weight */, double /* mv2c100 weight */ ) const;
+  virtual const Root::TAccept& accept(double /* jet pt */, double /* jet eta */, double /* dl1pb */, double /* dl1pc  */ , double /* dl1pu  */) const;
 
   /// Decide in which quantile of the MV2c20 weight distribution the jet belongs (continuous tagging)
   /// The return value represents the bin index of the quantile distribution
@@ -74,6 +75,7 @@ private:
   double m_maxEta;
   double m_minPt;
   double m_maxRangePt;
+  double m_fraction; 
   std::string m_CutFileName;
   std::string m_taggerName;
   std::string m_OP;
