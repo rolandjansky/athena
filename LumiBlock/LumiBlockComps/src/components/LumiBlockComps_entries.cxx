@@ -25,10 +25,14 @@ DECLARE_SERVICE_FACTORY( LumiCalcSvc )
 #endif
 DECLARE_TOOL_FACTORY( LumiBlockMetaDataTool )
 
+#include "../xAOD2NtupLumiSvc.h"
+DECLARE_SERVICE_FACTORY( xAOD2NtupLumiSvc )
+
 DECLARE_FACTORY_ENTRIES(LumiBlockComps) {
   DECLARE_ALGORITHM( CreateLumiBlockCollectionFromFile );
   //  DECLARE_ALGORITHM( CreateAANTFromLumiBlockCollection );
   DECLARE_ALGTOOL( LumiBlockMetaDataTool);
+  DECLARE_SERVICE( xAOD2NtupLumiSvc );
 
 #ifndef XAOD_ANALYSIS
   DECLARE_ALGORITHM( LumiBlockMuWriter );
