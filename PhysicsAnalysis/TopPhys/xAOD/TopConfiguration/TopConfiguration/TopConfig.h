@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TopConfig.h 806047 2017-06-07 00:30:47Z tpelzer $
+// $Id: TopConfig.h 808115 2017-07-11 17:40:10Z tpelzer $
 #ifndef ANALYSISTOP_TOPCONFIGURATION_TOPCONFIG_H
 #define ANALYSISTOP_TOPCONFIGURATION_TOPCONFIG_H
 
@@ -12,8 +12,8 @@
  * @brief TopConfig
  *   A simple configuration that is NOT a singleton
  *
- * $Revision: 806047 $
- * $Date: 2017-06-07 01:30:47 +0100 (Wed, 07 Jun 2017) $
+ * $Revision: 808115 $
+ * $Date: 2017-07-11 18:40:10 +0100 (Tue, 11 Jul 2017) $
  *
  *
  **/
@@ -464,10 +464,12 @@ class TopConfig final {
   inline virtual void largeRJetEtacut(const float eta)  {if(!m_configFixed){m_largeRJetEtacut = eta;}}
   inline virtual void largeRJESUncertaintyConfig(const std::string& largeR_config) {if(!m_configFixed){m_largeRJESUncertaintyConfig = largeR_config;}}
   inline virtual void largeRJESJMSConfig(const std::string& largeR_config) {if(!m_configFixed){m_largeRJESJMSConfig = largeR_config;}}
+  inline virtual void largeRtoptaggingConfigFile(const std::string& topTagging_config) {if(!m_configFixed){m_largeRtoptaggingConfigFile = topTagging_config;}}
   inline virtual float largeRJetPtcut()  const {return m_largeRJetPtcut;}
   inline virtual float largeRJetEtacut() const {return m_largeRJetEtacut;}
   inline virtual const std::string& largeRJESUncertaintyConfig() const {return m_largeRJESUncertaintyConfig;}
   inline virtual const std::string& largeRJESJMSConfig() const {return m_largeRJESJMSConfig;}
+  inline virtual const std::string& largeRtoptaggingConfigFile() const {return m_largeRtoptaggingConfigFile;}
 
   inline virtual void trackJetPtcut(const float pt)    {if(!m_configFixed){m_trackJetPtcut = pt;}}
   inline virtual void trackJetEtacut(const float eta)  {if(!m_configFixed){m_trackJetEtacut = eta;}}
@@ -502,9 +504,11 @@ class TopConfig final {
   inline virtual const std::string& jetUncertainties_BunchSpacing() const {return m_jetUncertainties_BunchSpacing;}
 
   virtual void jetUncertainties_NPModel( const std::string& s );
+  virtual void jetUncertainties_QGFracFile( const std::string& s );
   inline bool doMultipleJES() const {return m_doMultipleJES;}
   inline bool doLargeRSmallRCorrelations() const {return m_largeRSmallRCorrelations;}
   inline virtual const std::string& jetUncertainties_NPModel() const {return m_jetUncertainties_NPModel;}
+  inline virtual const std::string& jetUncertainties_QGFracFile() const {return m_jetUncertainties_QGFracFile;}
 
   inline virtual void jetJERSmearingModel( const std::string& s ){if(!m_configFixed){m_jetJERSmearingModel = s;}}
   inline virtual const std::string& jetJERSmearingModel() const {return m_jetJERSmearingModel;}
@@ -736,6 +740,8 @@ class TopConfig final {
   const std::vector<std::string>& PileupLumiCalc(){ return m_pileup_reweighting.lumi_calc_files; };
 
   bool PileupMuDependent(){return m_pileup_reweighting.mu_dependent;};
+  
+  const std::vector<double>& PileUpCustomScaleFactors(){ return m_pileup_reweighting.custom_SF; };
 
   inline const std::string& muonTriggerSF() const {return m_muon_trigger_SF;}
 
@@ -829,6 +835,12 @@ class TopConfig final {
   // Function to handle release series such that it can be cleaner to update in the future
   void setReleaseSeries();
   inline int getReleaseSeries() const { return m_release_series; }
+
+  // Create bootstrapping weights
+  inline bool saveBootstrapWeights() const { return m_saveBootstrapWeights; }
+  inline void setSaveBootstrapWeights(const bool value) { m_saveBootstrapWeights = value; }  
+  inline int getNumberOfBootstrapReplicas() const { return m_BootstrapReplicas; }
+  inline void setNumberOfBootstrapReplicas(const int value) { m_BootstrapReplicas = value; }
 
  private:
   // Prevent any more configuration
@@ -1031,6 +1043,7 @@ class TopConfig final {
   std::string m_fwdJetAndMET; // type of treatment of forward jets, including for MET calculation
   std::string m_jetUncertainties_BunchSpacing; // 25ns or 50ns
   std::string m_jetUncertainties_NPModel; // AllNuisanceParameters, 19NP or 3NP
+  std::string m_jetUncertainties_QGFracFile; // to improve Flavour composition and response
   bool m_doMultipleJES;
   bool m_largeRSmallRCorrelations = false; // Add correlations of large/small R jets
   std::string m_jetJERSmearingModel; // Full or Simple
@@ -1043,6 +1056,7 @@ class TopConfig final {
   std::string m_largeRJESUncertaintyConfig; // large R jet JES uncertainty configuration file
   // see: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertainties2015PrerecLargeR
   std::string m_largeRJESJMSConfig; // large R jet JES/JMS calibration choice - see ANALYSISTO-210
+  std::string m_largeRtoptaggingConfigFile;
 
   // Track jet configuration
   float m_trackJetPtcut; // track jet object selection pT cut
@@ -1223,6 +1237,8 @@ class TopConfig final {
     // that are crucial for things like MVA training.
     bool mu_dependent = true;
 
+    std::vector<double> custom_SF = {};
+
   } m_pileup_reweighting;
 
   // Muon Trigger SF configuration
@@ -1369,6 +1385,10 @@ class TopConfig final {
 
   // Int holding the release series value
   int m_release_series;
+
+  // Bool to hold whether we generate and store poisson bootstrap weights
+  bool m_saveBootstrapWeights;
+  int  m_BootstrapReplicas;
 
 };
 }  // namespace top

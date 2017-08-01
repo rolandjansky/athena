@@ -6,6 +6,7 @@
 
 #include <map>
 #include <string>
+#include <cstdio>
 
 // Top includes
 #include "TopConfiguration/TopConfig.h"
@@ -107,14 +108,31 @@ StatusCode OtherCPTools::setupPileupReweighting() {
     top::check(asg::setProperty(pileupReweightingTool, "ConfigFiles", pileup_config),
               "Failed to set pileup reweighting config files");
 
+    // data scale-factors, initialised to recommended values
+    // can also be customised, thanks to PRWCustomScaleFactor option
+    double SF_nominal = 1.0/1.09;
+    double SF_up = 1.0;
+    double SF_down = 1.0/1.18;
+
+    // if custom data SFs
+    if (m_config->PileUpCustomScaleFactors().size()!=0) {
+      SF_nominal = m_config->PileUpCustomScaleFactors()[0];
+      SF_up = m_config->PileUpCustomScaleFactors()[1];
+      SF_down = m_config->PileUpCustomScaleFactors()[2];
+      ATH_MSG_INFO("Using custom Data Scale-Factors for pile-up reweighting");
+      std::ostringstream oss;
+      oss << "Nominal:" << SF_nominal << " up:"<< SF_up << " down:" << SF_down  << std::endl;
+      ATH_MSG_INFO(oss.str());
+    }
+
     top::check(asg::setProperty(pileupReweightingTool, "LumiCalcFiles", pileup_lumi_calc),
               "Failed to set pileup reweighting lumicalc files");
     // see [http://cern.ch/go/hx7d]
-    top::check(asg::setProperty(pileupReweightingTool, "DataScaleFactor", 1/1.09),
+    top::check(asg::setProperty(pileupReweightingTool, "DataScaleFactor", static_cast<Float_t>(SF_nominal)),
               "Failed to set pileup reweighting data scale factor");
-    top::check(asg::setProperty(pileupReweightingTool, "DataScaleFactorUP", 1.0),
+    top::check(asg::setProperty(pileupReweightingTool, "DataScaleFactorUP", SF_up),
               "Failed to set pileup reweighting data scale factor up");
-    top::check(asg::setProperty(pileupReweightingTool, "DataScaleFactorDOWN", 1/1.18),
+    top::check(asg::setProperty(pileupReweightingTool, "DataScaleFactorDOWN", SF_down),
               "Failed to set pileup reweighting data scale factor down");
     top::check(pileupReweightingTool->initialize(),
               "Failed to initialize pileup reweighting tool");

@@ -134,7 +134,7 @@ namespace top {
     else if (toolname == "EXAMPLEPLOTS")
       return new top::ExamplePlots(name, outputFile, wk, config);
     else if (toolname == "JETFLAVORPLOTS")
-      return new top::JetFlavorPlots(name, outputFile, wk);
+      return new top::JetFlavorPlots(name, outputFile, param, config, wk);
     else if (toolname == "GRL")
         return new top::GRLSelector();
     else if (toolname == "TRIGDEC")

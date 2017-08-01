@@ -30,6 +30,8 @@
 #include "PATInterfaces/SystematicCode.h"
 #include "PATInterfaces/CorrectionCode.h"
 
+#include "AsgTools/AsgMetadataTool.h"
+
 #ifndef ROOTCORE
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 #endif
@@ -74,12 +76,14 @@ bool isFilePrimaryxAOD(TFile* inputFile) {
 }
 
 bool isFileSimulation(TFile* inputFile, const std::string& eventInfoName) {
+
     xAOD::TEvent xaodEvent(xAOD::TEvent::kClassAccess);
     top::check(xaodEvent.readFrom(inputFile), "Tools::isFileSimulation Failed to read file in");
 
     xaodEvent.getEntry(0);
     const xAOD::EventInfo* eventInfo(0);
     top::check(xaodEvent.retrieve(eventInfo, eventInfoName) , "Tools::isFileSimulation Failed to get " + eventInfoName);
+
     return eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);
 }
 
@@ -389,5 +393,74 @@ top::EventSaverBase* loadEventSaver(std::shared_ptr<top::TopConfig> config) {
 
     return bc;
 }
+
+
+  bool readMetaData(TFile* inputFile, std::shared_ptr<top::TopConfig> config){
+
+  // Load the file into a TEvent
+  xAOD::TEvent xaodEvent(xAOD::TEvent::kClassAccess);
+  top::check(xaodEvent.readFrom(inputFile), "Cannot load inputFile");
+  xaodEvent.getEntry(0);
+
+  // Magical metadata tool to access FileMetaData object
+  asg::AsgMetadataTool ATMetaData("OurNewMetaDataObject");
+
+  // Check it exists, and if it does we will work with it
+  if ( ! ATMetaData.inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData") ) {
+    std::cout << "TopAnalysis::Tools::readMetaData - There is no FileMetaData in the input file." << std::endl;
+    return false;
+  }
+
+  // Create pointer for FileMetaData which we will load
+  const xAOD::FileMetaData* FMD = 0;
+  top::check(ATMetaData.inputMetaStore()->retrieve(FMD, "FileMetaData"), "Failed to retrieve metadata from AsgMetadataTool");
+  // Let's get all the info we can...
+  // https://gitlab.cern.ch/atlas/athena/blob/21.2/Event/xAOD/xAODMetaData/xAODMetaData/versions/FileMetaData_v1.h#L47
+  std::string productionRelease, amiTag, AODFixVersion, AODCalibVersion, dataType, geometryVersion, conditionsTag, beamType, simFlavour;
+  float beamEnergy, mcProcID;
+  /// Release that was used to make the file [string]  
+  FMD->value(xAOD::FileMetaData::productionRelease, productionRelease);
+  /// AMI tag used to process the file the last time [string]
+  FMD->value(xAOD::FileMetaData::amiTag, amiTag);
+  /// Version of AODFix that was used on the file last [string]
+  FMD->value(xAOD::FileMetaData::AODFixVersion, AODFixVersion);
+  /// Version of AODCalib that was used on the file last [string]
+  FMD->value(xAOD::FileMetaData::AODCalibVersion, AODCalibVersion);
+  /// Data type that's in the file [string]
+  FMD->value(xAOD::FileMetaData::dataType, dataType);
+  /// Geometry version [string]
+  FMD->value(xAOD::FileMetaData::geometryVersion, geometryVersion);
+  /// Conditions version used for simulation/reconstruction [string]
+  FMD->value(xAOD::FileMetaData::conditionsTag, conditionsTag);
+  /// Beam energy [float]
+  FMD->value(xAOD::FileMetaData::beamEnergy, beamEnergy);
+  /// Beam type [string]
+  FMD->value(xAOD::FileMetaData::beamType, beamType);
+  /// Same as mc_channel_number [float]
+  FMD->value(xAOD::FileMetaData::mcProcID, mcProcID);
+  /// Fast or Full sim [string]
+  FMD->value(xAOD::FileMetaData::simFlavour, simFlavour);
+  /// It is also possible to access any other info in metadata with 
+  /// FMD->value("SomeMetaInfo", someObject);
+  
+  /// Print out this information as a cross-check
+  std::cout << "Using AsgMetadataTool to access the following information" << std::endl;
+  std::cout << "TopAnalysis::Tools::readMetaData : productionRelease  -> "  << productionRelease << std::endl;
+  std::cout << "TopAnalysis::Tools::readMetaData : amiTag             -> "  << amiTag << std::endl;
+  std::cout << "TopAnalysis::Tools::readMetaData : AODFixVersion      -> "  << AODFixVersion << std::endl;
+  std::cout << "TopAnalysis::Tools::readMetaData : AODCalibVersion    -> "  << AODCalibVersion << std::endl;
+  std::cout << "TopAnalysis::Tools::readMetaData : dataType           -> "  << dataType << std::endl;
+  std::cout << "TopAnalysis::Tools::readMetaData : geometryVersion    -> "  << geometryVersion << std::endl;
+  std::cout << "TopAnalysis::Tools::readMetaData : conditionsTag      -> "  << conditionsTag << std::endl;
+  std::cout << "TopAnalysis::Tools::readMetaData : beamEnergy         -> "  << beamEnergy << std::endl;
+  std::cout << "TopAnalysis::Tools::readMetaData : beamType           -> "  << beamType << std::endl;
+  std::cout << "TopAnalysis::Tools::readMetaData : mcProcID           -> "  << mcProcID << std::endl;
+  std::cout << "TopAnalysis::Tools::readMetaData : simFlavour         -> "  << simFlavour << std::endl;
+  std::cout << "This information is not yet propagated to TopConfig      "  << std::endl;
+
+  return true;
+
+}
+
 
 }

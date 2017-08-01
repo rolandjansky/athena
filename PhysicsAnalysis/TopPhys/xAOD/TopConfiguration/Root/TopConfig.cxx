@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TopConfig.cxx 806279 2017-06-08 15:46:45Z iconnell $
+// $Id: TopConfig.cxx 808115 2017-07-11 17:40:10Z tpelzer $
 #include "TopConfiguration/TopConfig.h"
 #include "TopConfiguration/AodMetaDataAccess.h"
 #include "TopConfiguration/ConfigurationSettings.h"
@@ -175,6 +175,7 @@ namespace top{
     m_fwdJetAndMET("Default"),
     m_jetUncertainties_BunchSpacing("25ns"),
     m_jetUncertainties_NPModel("AllNuisanceParameters"),
+    m_jetUncertainties_QGFracFile("None"),
     m_doMultipleJES(false),
     m_jetJERSmearingModel("Simple"),
     m_jetCalibSequence("GSC"),
@@ -184,6 +185,7 @@ namespace top{
     m_largeRJetEtacut(2.5),
     m_largeRJESUncertaintyConfig("SetMe"),
     m_largeRJESJMSConfig("SetMe"),
+    m_largeRtoptaggingConfigFile("SetMe"),
 
     m_trackJetPtcut(7000.0),
     m_trackJetEtacut(2.5),
@@ -331,7 +333,9 @@ namespace top{
     m_systAllTTreeNames(nullptr),
     m_systPersistantAllTTreeNames(nullptr),
     m_systAllTTreeIndex(nullptr),
-    m_systAllTTreeLooseIndex(nullptr)
+    m_systAllTTreeLooseIndex(nullptr),
+    m_saveBootstrapWeights(false),
+    m_BootstrapReplicas(100)
   {
     m_allSelectionNames = std::shared_ptr<std::vector<std::string>> ( new std::vector<std::string> );
 
@@ -425,6 +429,7 @@ namespace top{
     // Nominal has value
     CP::SystematicSet nominal;
     m_nominalHashValue = nominal.hash();
+
   }
 
   void TopConfig::setConfigSettings( top::ConfigurationSettings* const& settings )
@@ -548,6 +553,14 @@ namespace top{
       else{
 	this->ReadIsAFII(settings);
       }
+
+      // Bootstrapping weights (only for MC)
+      if(settings->value("SaveBootstrapWeights") == "True") {
+	this->setSaveBootstrapWeights(true);
+	this->setNumberOfBootstrapReplicas(std::atoi(settings->value("NumberOfBootstrapReplicas").c_str()));
+      }
+      
+
     }
 
     if (this->isMC()) {
@@ -640,6 +653,7 @@ namespace top{
     this->fwdJetAndMET( settings->value("FwdJetAndMET") );
     this->jetUncertainties_BunchSpacing( settings->value("JetUncertainties_BunchSpacing") );
     this->jetUncertainties_NPModel( settings->value("JetUncertainties_NPModel") );
+    this->jetUncertainties_QGFracFile( settings->value("JetUncertainties_QGFracFile") );
     this->jetJERSmearingModel( settings->value("JetJERSmearingModel") );
     this->jetCalibSequence( settings->value("JetCalibSequence") );
     this->doJVTinMET( (settings->value("JVTinMETCalculation") == "True" ? true : false) );
@@ -649,6 +663,7 @@ namespace top{
     this->largeRJetEtacut( std::stof(settings->value("LargeRJetEta")) );
     this->largeRJESUncertaintyConfig( settings->value("LargeRJESUncertaintyConfig") );
     this->largeRJESJMSConfig( settings->value("LargeRJESJMSConfig") );
+    this->largeRtoptaggingConfigFile( settings->value("LargeRToptaggingConfigFile") );
 
     this->trackJetPtcut( std::stof(settings->value("TrackJetPt")) );
     this->trackJetEtacut( std::stof(settings->value("TrackJetEta")) );
@@ -826,6 +841,53 @@ namespace top{
     if ( m_pileup_reweighting.apply && m_grlFile.size() > 0 && settings->value("PRWUseGRLTool") == "True" )
       m_pileup_reweighting.use_grl_tool = true;
 
+    // if provided, using custom Data Scale-Factors for pile-up reweighting
+    // nominal:up:down
+    // also allowing to specify under this form: 1/1.2:1.0:1/1.4
+    if ( m_pileup_reweighting.apply && settings->value("PRWCustomScaleFactor") != " ") {
+      std::vector<std::string> SFs_tokens;
+      tokenize(settings->value("PRWCustomScaleFactor"), SFs_tokens, ":");
+      if (SFs_tokens.size()!=3)
+        throw std::runtime_error{"TopConfig: Option PRWCustomScaleFactor should be of the form \'nominal:up:down\'"};
+      try {
+        std::vector<std::string> nomSF_tokens;
+        tokenize(SFs_tokens[0], nomSF_tokens, "/");
+        if (nomSF_tokens.size()==1)
+          m_pileup_reweighting.custom_SF.push_back(std::stof(nomSF_tokens[0]));
+        else if (nomSF_tokens.size()==2)
+          m_pileup_reweighting.custom_SF.push_back(std::stof(nomSF_tokens[0])/std::stof(nomSF_tokens[1]));
+        else
+          throw std::runtime_error{"TopConfig: issue in division"};
+      } catch (...) {
+        throw std::runtime_error{"TopConfig: can't convert provided PRW nominal Data SF into float"};
+      }
+      try {
+        std::vector<std::string> upSF_tokens;
+        tokenize(SFs_tokens[1], upSF_tokens, "/");
+        if (upSF_tokens.size()==1)
+          m_pileup_reweighting.custom_SF.push_back(std::stof(upSF_tokens[0]));
+        else if (upSF_tokens.size()==2)
+          m_pileup_reweighting.custom_SF.push_back(std::stof(upSF_tokens[0])/std::stof(upSF_tokens[1]));
+        else
+          throw std::runtime_error{"TopConfig: issue in division"};
+      } catch (...) {
+        throw std::runtime_error{"TopConfig: can't convert provided PRW up Data SF into float"};
+      }
+      try {
+        std::vector<std::string> downSF_tokens;
+        tokenize(SFs_tokens[2], downSF_tokens, "/");
+        if (downSF_tokens.size()==1)
+          m_pileup_reweighting.custom_SF.push_back(std::stof(downSF_tokens[0]));
+        else if (downSF_tokens.size()==2)
+          m_pileup_reweighting.custom_SF.push_back(std::stof(downSF_tokens[0])/std::stof(downSF_tokens[1]));
+        else
+          throw std::runtime_error{"TopConfig: issue in division"};
+      } catch (...) {
+        throw std::runtime_error{"TopConfig: can't convert provided PRW down Data SF into float"};
+      }
+      std::cout << "Custom PRW scale-factors - nominal:" << SFs_tokens[0]<<"="<<m_pileup_reweighting.custom_SF[0] << " up:"<< SFs_tokens[1]<<"=" << m_pileup_reweighting.custom_SF[1] << " down:" << SFs_tokens[2]<<"="<< m_pileup_reweighting.custom_SF[2]  << std::endl;
+    }
+
     // TRUTH derivations do not contain pile-up weights
     if(m_isTruthDxAOD)
         m_pileup_reweighting.apply = false;
@@ -888,9 +950,16 @@ namespace top{
     if (!m_configFixed) {
       m_jetUncertainties_NPModel = s;
       m_doMultipleJES = false;
-      if (m_jetUncertainties_NPModel == "3NP") {
+      if (m_jetUncertainties_NPModel == "StrongReduction") {
         m_doMultipleJES = true;
       }
+    }
+  }
+
+  void TopConfig::jetUncertainties_QGFracFile( const std::string& s )
+  {
+    if (!m_configFixed) {
+      m_jetUncertainties_QGFracFile = s;
     }
   }
 

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BTagScaleFactorCalculator.h 805660 2017-05-30 12:01:32Z iconnell $
+// $Id: BTagScaleFactorCalculator.h 807496 2017-06-28 14:52:29Z iconnell $
 #ifndef ANALYSISTOP_TOPCORRECTIONS_BTAGSCALEFACTORCALCULATOR_H
 #define ANALYSISTOP_TOPCORRECTIONS_BTAGSCALEFACTORCALCULATOR_H
 
@@ -13,7 +13,7 @@
   *   Calculate all jet scale factors and decorate
   * 
   * $Revision: 
-  * $Date: 2017-05-30 13:01:32 +0100 (Tue, 30 May 2017) $
+  * $Date: 2017-06-28 15:52:29 +0100 (Wed, 28 Jun 2017) $
   * 
   **/ 
 
@@ -71,7 +71,7 @@ namespace top{
       std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool>> m_trkjet_btagSelTools;
 
       int m_release_series = 24;  // Default to 2.4
-
+      
   };
 } // namespace
 #endif

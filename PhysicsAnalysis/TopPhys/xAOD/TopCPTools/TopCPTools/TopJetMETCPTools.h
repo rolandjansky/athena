@@ -97,7 +97,8 @@ class JetMETCPTools final : public asg::AsgTool {
                               const std::string& jet_def,
                               const std::string& mc_type,
                               const std::string& config_file,
-                              std::vector<std::string>* variables);
+                              std::vector<std::string>* variables,
+                              const std::string& analysis_file = "");
 
   IJetSelector* setupJetCleaningTool(const std::string& WP);
 };
