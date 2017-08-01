@@ -27,3 +27,12 @@ def getTileCTBGeoG4SD(name="TileCTBGeoG4SD", **kwargs):
     kwargs.setdefault("LogicalVolumeNames", ["Tile::Scintillator"])
     kwargs.setdefault("OutputCollectionNames", ["TileHitVec"])
     return CfgMgr.TileGeoG4SDTool(name, **kwargs)
+
+
+def getTileGeoG4SDCalc(name="TileGeoG4SDCalc", **kwargs):
+    from G4AtlasApps.SimFlags import simFlags
+    from AthenaCommon.BeamFlags import jobproperties
+    if jobproperties.Beam.beamType() == 'cosmics' or (hasattr(simFlags, "ReadTR") and simFlags.ReadTR.statusOn):
+        kwargs.setdefault("DeltaTHit", [1])
+        kwargs.setdefault("DoTOFCorrection", False)
+    return CfgMgr.TileGeoG4SDCalc(name, **kwargs)

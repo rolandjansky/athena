@@ -19,7 +19,9 @@
 #ifndef TILEGEOG4SD_TILEGEOG4SDCALC_H
 #define TILEGEOG4SD_TILEGEOG4SDCALC_H
 
+
 #include "TileG4Interfaces/ITileCalculator.h"
+#include "AthenaBaseComps/AthService.h"
 
 // package headers
 #include "TileGeoG4SD/TileSDOptions.h"
@@ -36,7 +38,6 @@
 #include <memory>
 
 class TileGeoG4LookupBuilder;
-
 class G4Step;
 
 class TileRow;
@@ -44,17 +45,22 @@ class TileGeoG4Section;
 class TileGeoG4Cell;
 
 class StoreGateSvc;
+class IGeoModelSvc;
 
-class TileGeoG4SDCalc: virtual public ITileCalculator {
+class TileGeoG4SDCalc: public AthService, virtual public ITileCalculator {
 public:
-  TileGeoG4SDCalc(TileSDOptions opts);
-  ~TileGeoG4SDCalc();
+  TileGeoG4SDCalc(const std::string& name, ISvcLocator * pSvcLocator);
+  virtual ~TileGeoG4SDCalc();
+
+  virtual StatusCode initialize() override final;
+
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override final;
 
   /// Search for the tilecal sub-section, its module and some identifiers
   virtual G4bool FindTileScinSection(const G4Step*, TileHitData& hitData) const override final;
   /// Calculation of pmtID, edep and scin_Time with aStep (Sergey)
   virtual G4bool MakePmtEdepTime(const G4Step*, TileHitData& hitData) const override final;
-  /// Calculation of pmtID, edep and scin_Time with aStep (Sergey)
+  /// Create or update hit object in the collection
   virtual G4bool ManageScintHit(TileHitData& hitData) const override final;
   /// Used by FastCaloSimParamAction
   virtual TileMicroHit GetTileMicroHit(const G4Step*, TileHitData& hitData) const override final;
@@ -66,6 +72,15 @@ public:
 private:
   void CreateScintHit(int pmt, TileHitData& hitData) const;
   void UpdateScintHit(int pmt, TileHitData& hitData) const;
+
+  int getUshapeFromGM() const;
+
+  /** @brief function to calculate Birks correction */
+  G4double BirkLaw(const G4Step* aStep) const;
+
+  // Private copy-constructor
+  TileGeoG4SDCalc& operator=(const TileGeoG4SDCalc&) = delete;
+  TileGeoG4SDCalc(const TileGeoG4SDCalc&) = delete;
 
   /** @brief function to give PMT responce as a function of distance
       from tile center in mm (along phi direction) */
@@ -79,41 +94,20 @@ private:
   // the default function which is used in simulation in the case Ushape=1
 #define Tile_1D_profile Tile_1D_profileRescaled
 
-  StoreGateSvc* detStore; // used by TileGeoG4CalibSD.cc
+  ServiceHandle<StoreGateSvc> m_detStore; // used by TileGeoG4CalibSD.cc
+  ServiceHandle<IGeoModelSvc> m_geoModSvc;
 
   TileGeoG4LookupBuilder* m_lookup;
 
-  // TileGeoG4Section* section;
-  // TileGeoG4Cell* cell;
-  //variables to identify Hit objects
-  // int nModule;
-  // int nDetector;
-  // int nTower;
-  // int nSample;
-  // int nSide;
-  Identifier m_invalid_id;
-  // Identifier pmtID_up, pmtID_down;
-  // G4double edep_up, edep_down;
-  // double scin_Time_up, scin_Time_down;
+  Identifier m_invalid_id; /// FIXME just a default-constructed Identifier???
 
-  // Private copy-constructor
-  TileGeoG4SDCalc& operator=(const TileGeoG4SDCalc&) = delete;
-  TileGeoG4SDCalc(const TileGeoG4SDCalc&) = delete;
+  TileMicroHit m_microHit;
 
   TileSDOptions m_options;
 
-  // int m_nrOfPMT;
-  // int m_tileSize;
-  // int m_tilePeriod;
-  // bool m_isNegative;
-  // double m_totalTimeUp;
-  // double m_totalTimeDown;
 
   /** @brief granularity in time for hits */
-  mutable double m_deltaT; // HACK FIXME
-
-  /** @brief function to calculate Birks correction */
-  G4double BirkLaw(const G4Step* aStep) const;
+  mutable double m_deltaT; // FIXME set during initialize, then reset during MakePmtEdepTime
 
   /** @brief Structure holding the attenuation lengths */
   std::unique_ptr<TileRow> m_row;

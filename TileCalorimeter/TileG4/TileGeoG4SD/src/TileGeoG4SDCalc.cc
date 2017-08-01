@@ -49,53 +49,58 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
+#include <memory>
 
 static const double tanPi64 = 0.049126849769467254105343321271314; //FIXME!!!!!
 
-TileGeoG4SDCalc::TileGeoG4SDCalc(TileSDOptions opt)
-  : m_lookup(nullptr)
-  , m_options(opt)
+TileGeoG4SDCalc::TileGeoG4SDCalc(const std::string& name, ISvcLocator *pSvcLocator)
+  : AthService(name, pSvcLocator)
+  , m_detStore("DetectorStore",name)
+  , m_geoModSvc("GeoModelSvc",name)
+  , m_lookup(nullptr)
 {
-  // Get MessageSvc pointers
-  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
+  declareProperty( "DetectorStore", m_detStore );
+  declareProperty( "GeoModelSvc", m_geoModSvc );
+  declareProperty( "DeltaTHit" , m_options.deltaTHit );
+  declareProperty( "TimeCut" , m_options.timeCut );
+  declareProperty( "TileTB" , m_options.tileTB );
+  declareProperty( "Ushape" , m_options.Ushape );
+  declareProperty( "DoBirk" , m_options.doBirk );
+  declareProperty( "DoTileRow" , m_options.doTileRow );
+  declareProperty( "DoTOFCorrection" , m_options.doTOFCorrection );
+}
 
-  // Get DetectorStore pointers
-  if (svcLocator->service("DetectorStore", detStore).isFailure())
-    G4cout << "Unable to get pointer to DetectorStore Service" << G4endl;
-  else if (m_options.verboseLevel > 5)
-    G4cout << "DetectorStore Svc initialized." << G4endl;
+TileGeoG4SDCalc::~TileGeoG4SDCalc() {
+  delete m_lookup;
+}
+
+StatusCode TileGeoG4SDCalc::initialize() {
+
+  ATH_CHECK(m_detStore.retrieve());
+  ATH_MSG_DEBUG("DetectorStore Svc initialized.");
 
   // Retrieve TileID helper from DetectorStore
-  if (detStore->retrieve(m_tileID).isFailure())
-    G4cout << "Unable to retrieve TileID helper from DetectorStore" << G4endl;
-  else if (m_options.verboseLevel > 5)
-    G4cout << "TileID helper retrieved" << G4endl;
+  ATH_CHECK(m_detStore->retrieve(m_tileID));
+  ATH_MSG_VERBOSE("TileID helper retrieved");
 
   // Retrieve TileTBID helper from DetectorStore
-  if (detStore->retrieve(m_tileTBID).isFailure())
-    G4cout << "Unable to retrieve TileTBID helper from DetectorStore" << G4endl;
-  else if (m_options.verboseLevel > 5)
-    G4cout << "TileTBID helper retrieved" << G4endl;
+  ATH_CHECK(m_detStore->retrieve(m_tileTBID));
+  ATH_MSG_VERBOSE("TileTBID helper retrieved");
 
-  IGeoModelSvc* geoModSvc;
-  if (svcLocator->service("GeoModelSvc", geoModSvc).isFailure())
-    G4cout << "GeoModelSvc not found!" << G4endl;
-  else if (m_options.verboseLevel > 5)
-    G4cout << "GeoModelSvc initialized." << G4endl;
+  ATH_CHECK(m_geoModSvc.retrieve());
+  ATH_MSG_VERBOSE("GeoModelSvc initialized.");
 
-  const TileDetectorTool* tileDetectorTool = dynamic_cast<const TileDetectorTool *>(geoModSvc->getTool(
-                                                                                                       "TileDetectorTool"));
-
-  int UshapeFromGM = (tileDetectorTool) ? tileDetectorTool->Ushape() : 0;
+  const int UshapeFromGM = this->getUshapeFromGM();
 
   // Unpack TileG4SimOptions from DetectorStore
 
-  // Detemine time window for hit to be recorded
+  // Determine time window for hit to be recorded
   m_deltaT = m_options.deltaTHit[m_options.deltaTHit.size() - 1] * CLHEP::ns;
 
-  // Detemine variable time window for hit to be recorded
-  for (int i = m_options.deltaTHit.size() - 1; i > -1; --i)
+  // Determine variable time window for hit to be recorded
+  for (int i = m_options.deltaTHit.size() - 1; i > -1; --i) {
     m_options.deltaTHit[i] *= CLHEP::ns;
+  }
   // protection agaist wrong vector size
   if (m_options.deltaTHit.size() % 3 != 1 || m_deltaT <= 0.0) {
     m_options.deltaTHit.resize(1);
@@ -108,37 +113,35 @@ TileGeoG4SDCalc::TileGeoG4SDCalc(TileSDOptions opt)
   // Include or not tilecal optical model
   if (m_options.Ushape == -1) {
     m_options.Ushape = UshapeFromGM; // U-shape not set, take value from GeoModel
-    G4cout << "Using U-shape flag from GeoModel = "
-           << UshapeFromGM
-           << ( (m_options.Ushape > 0) ? "  Scintillator width is equal to width of master plate "
-                : "  Scintillator width is smaller than width of master plate ")
-           << G4endl;
+    ATH_MSG_INFO("Using U-shape flag from GeoModel = " << UshapeFromGM <<
+                 ( (m_options.Ushape > 0) ? "  Scintillator width is equal to width of master plate "
+                   : "  Scintillator width is smaller than width of master plate "));
   } else if (m_options.Ushape == UshapeFromGM) {
-    G4cout << "Using U-shape = " << m_options.Ushape
-           << ((m_options.Ushape > 0) ? "  Scintillator width is equal to width of master plate "
-               : "  Scintillator width is smaller than width of master plate ") << G4endl;
+    ATH_MSG_INFO("Using U-shape = " << m_options.Ushape <<
+                 ((m_options.Ushape > 0) ? "  Scintillator width is equal to width of master plate "
+                  : "  Scintillator width is smaller than width of master plate "));
   } else {
     if (UshapeFromGM > 0 && m_options.Ushape > 0) { // both are > 0, so it's fine to use value from SimOptions
-      G4cout << "Using U-shape from Simulation flags = " << m_options.Ushape
-             << "  Scintillator width is equal to width of master plate " << G4endl;
+      ATH_MSG_INFO("Using U-shape from Simulation flags = " << m_options.Ushape <<
+                   "  Scintillator width is equal to width of master plate ");
     } else if (UshapeFromGM == 0 && m_options.Ushape < -1) { // special case - negative value below -1
-      G4cout << "Using U-shape from Simulation flags = " << m_options.Ushape
-             << "  Scintillator width is smaller than width of master plate " << G4endl;
+      ATH_MSG_INFO("Using U-shape from Simulation flags = " << m_options.Ushape <<
+                   "  Scintillator width is smaller than width of master plate ");
     } else {
-      G4cout << "ERROR U-shape flag in GeoModel = " << UshapeFromGM << G4endl;
-      G4cout << "ERROR U-shape flag in Simulation = " << m_options.Ushape << G4endl;
-      G4cout << "Please, use correct GeoModel tag or make sure that you set both "
-             << "tileSimInfoConfigurator.Ushape and GeoModelSvc.DetectorTools[ \"TileDetectorTool\" ].Ushape to the same value"
-             << G4endl;
-      throw std::runtime_error( "Inconsistent U-shape parameters for TileCal" );
+      ATH_MSG_ERROR("U-shape flag in GeoModel = " << UshapeFromGM);
+      ATH_MSG_ERROR("U-shape flag in Simulation = " << m_options.Ushape);
+      ATH_MSG_ERROR("Please, use correct GeoModel tag or make sure that you set both " <<
+                    "tileSimInfoConfigurator.Ushape and GeoModelSvc.DetectorTools[ \"TileDetectorTool\" ].Ushape to the same value");
+      ATH_MSG_FATAL( "Inconsistent U-shape parameters for TileCal" );
+      return StatusCode::FAILURE;
     }
   }
   if (m_options.Ushape < -2) {
-    G4cout << "WARNING: Changing U-shape from " << m_options.Ushape << " to -2" << G4endl;
+    ATH_MSG_WARNING("Changing U-shape from " << m_options.Ushape << " to -2");
     m_options.Ushape = -2;
   }
   if (m_options.Ushape > 1 && m_options.Ushape < 10) {
-    G4cout << "WARNING: Changing U-shape from " << m_options.Ushape << " to 1" << G4endl;
+    ATH_MSG_WARNING("Changing U-shape from " << m_options.Ushape << " to 1");
     m_options.Ushape = 1;
   }
 
@@ -196,24 +199,35 @@ TileGeoG4SDCalc::TileGeoG4SDCalc(TileSDOptions opt)
   }
 
   //build tilecal ordinary look-up table
-  m_lookup = new TileGeoG4LookupBuilder(detStore, m_options.verboseLevel);
-  m_lookup->BuildLookup(opt.tileTB);
-
+  m_lookup = new TileGeoG4LookupBuilder(&*m_detStore, m_options.verboseLevel);
+  m_lookup->BuildLookup(m_options.tileTB);
+  return StatusCode::SUCCESS;
 }
 
-TileGeoG4SDCalc::~TileGeoG4SDCalc() {
-  delete m_lookup;
+StatusCode TileGeoG4SDCalc::queryInterface(const InterfaceID& riid, void** ppvInterface)
+{
+  if ( ITileCalculator::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<ITileCalculator*>(this);
+    addRef();
+    return StatusCode::SUCCESS;
+  }
+  // Interface is not directly available : try out a base class
+  return AthService::queryInterface(riid, ppvInterface);
+}
+
+int TileGeoG4SDCalc::getUshapeFromGM() const {
+  const TileDetectorTool* tileDetectorTool =
+    dynamic_cast<const TileDetectorTool *>(m_geoModSvc->getTool("TileDetectorTool"));
+  return (tileDetectorTool) ? tileDetectorTool->Ushape() : 0;
 }
 
 G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep, TileHitData& hitData) const
 {
-  if (m_options.verboseLevel > 10)
-    G4cout << "Process Hits" << G4endl;
+  ATH_MSG_VERBOSE("Process Hits");
 
   G4double edep = aStep->GetTotalEnergyDeposit();
   if (edep == 0. && aStep->GetTrack()->GetDefinition() != G4Geantino::GeantinoDefinition()) {
-    if (m_options.verboseLevel > 10)
-      G4cout << "Edep=0" << G4endl;
+    ATH_MSG_VERBOSE("Edep=0");
     return false;
   }
 
@@ -227,10 +241,9 @@ G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep, TileHitData& hi
   for (int i = 0; i < level; i++) {
     G4VPhysicalVolume* pv = theTouchable->GetVolume(i);
     G4LogicalVolume* lv = pv->GetLogicalVolume();
-    if (m_options.verboseLevel > 10)
-      G4cout << " Level--> " << i
-             << ", LogVol--> " << (lv->GetName()).c_str()
-             << ", PhysVol--> " << (pv->GetName()).c_str() << G4endl;
+    ATH_MSG_VERBOSE(" Level--> " << i <<
+                    ", LogVol--> " << (lv->GetName()).c_str() <<
+                    ", PhysVol--> " << (pv->GetName()).c_str());
   }
 
   // Find envelope of TileCal
@@ -239,8 +252,7 @@ G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep, TileHitData& hi
     level--;
     nameLogiVol = theTouchable->GetVolume(level - 1)->GetLogicalVolume()->GetName();
   }
-  if (m_options.verboseLevel > 10)
-    G4cout << "Tile volume level --->" << level << G4endl;
+  ATH_MSG_VERBOSE("Tile volume level --->" << level);
 
   level--;  // Move to the level of sections Barrel, EBarrelPos, EBarrelNeg, Gap etc...
 
@@ -326,12 +338,10 @@ G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep, TileHitData& hi
   // else
   // tileperiod = _section->nrOfPeriods - 1;
 
-  if (m_options.verboseLevel > 10) {
-    G4cout << "Section number: " << sect*hitData.nSide << G4endl;
-    G4cout << "Module number:  " << hitData.nModule << G4endl;
-    G4cout << "Period number:  " << hitData.tilePeriod << G4endl;
-    G4cout << "Scin Copy No:   " << hitData.tileSize << G4endl;
-  }
+  ATH_MSG_VERBOSE("Section number: " << sect*hitData.nSide);
+  ATH_MSG_VERBOSE("Module number:  " << hitData.nModule);
+  ATH_MSG_VERBOSE("Period number:  " << hitData.tilePeriod);
+  ATH_MSG_VERBOSE("Scin Copy No:   " << hitData.tileSize);
 
   int nScin = hitData.tilePeriod * hitData.section->nrOfScintillators + hitData.tileSize;
   hitData.cell = hitData.section->ScinToCell(nScin);
@@ -391,7 +401,7 @@ G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep, TileHitData& hitDat
   if (hitData.nrOfPMT == 0)
     return false;
 
-  bool isE5 = (hitData.nTower > 16);  //special E5(E4') cells in EBC (should be in negative side only)
+  const bool isE5 = (hitData.nTower > 16);  //special E5(E4') cells in EBC (should be in negative side only)
 
   // Take into account Birk's saturation law in organic scintillators.
   G4double edep;
@@ -399,6 +409,7 @@ G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep, TileHitData& hitDat
     edep = BirkLaw(aStep);
   else
     edep = aStep->GetTotalEnergyDeposit();
+  //const G4double edep = (m_options.doBirk) ? this->BirkLaw(aStep) : aStep->GetTotalEnergyDeposit();
 
   double deltaT_up = 0, deltaT_down = 0;
   double ref_ind_tile = 1.59, ref_ind_fiber = 1.59;  //refraction indexes of tiles and fibers
@@ -619,7 +630,7 @@ G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep, TileHitData& hitDat
       G4cout << " hit time set to " << totalTime << G4endl;
   }
   // calculate unique deltaT bin width for both up and down PMT, ignoring additional deltas
-  m_deltaT = deltaT(totalTime);
+  m_deltaT = this->deltaT(totalTime);
   double scin_Time = totalTime + (hitData.tileSize + 1) * m_tileSizeDeltaT;
   hitData.scin_Time_up = hitData.scin_Time_down = scin_Time;
   hitData.totalTimeUp = hitData.totalTimeDown = totalTime;
@@ -656,7 +667,7 @@ G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep, TileHitData& hitDat
   }
 
   if (m_options.verboseLevel > 10)
-    G4cout << "MakePmtEdepTime: right pmtID_up,pmtID_down," << "edep_up,hitData.edep_down,scin_Time_up,scin_Time_down:\t"
+    G4cout << "MakePmtEdepTime: right pmtID_up,pmtID_down," << "edep_up,edep_down,scin_Time_up,scin_Time_down:\t"
            << hitData.pmtID_up << "\t"
            << hitData.pmtID_down << "\t"
            << hitData.edep_up << "\t"
@@ -720,7 +731,7 @@ G4bool TileGeoG4SDCalc::ManageScintHit(TileHitData& hitData) const
   // Debugging of special E5(E4') cells
   //if (hitData.nTower>16) G4cout <<" Cells E5: hitData.nModule="<<hitData.nModule
   //                       <<"  edep_up="<<hitData.edep_up<<"  edep_down="<<hitData.edep_down
-  //                       <<"  pmtID_up="<<hitData.pmtID_up<<"  pmtID_down="<<hitData.pmtID_up<<G4endl;
+  //                       <<"  pmtID_up="<<hitData.pmtID_up<<"  pmtID_down="<<hitData.pmtID_down<<G4endl;
 
   if (hitData.isNegative) {
     if (hitData.nrOfPMT == 2) {
@@ -813,7 +824,8 @@ void TileGeoG4SDCalc::UpdateScintHit(int pmt, TileHitData& hitData) const
   }
 }
 
-G4double TileGeoG4SDCalc::BirkLaw(const G4Step* aStep) const {
+G4double TileGeoG4SDCalc::BirkLaw(const G4Step* aStep) const
+{
   // *** apply BIRK's saturation law to energy deposition ***
   // *** only organic scintillators implemented in this version MODEL=1
   //
@@ -1827,3 +1839,4 @@ G4double TileGeoG4SDCalc::Tile_1D_profileRescaled_zeroBins(int row, G4double x, 
 
   return amplitude;
 }
+

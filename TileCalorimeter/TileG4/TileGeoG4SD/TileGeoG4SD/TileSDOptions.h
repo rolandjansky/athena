@@ -40,30 +40,41 @@ struct TileSDOptions {
       for [-75,75] ns interval granularity 0.5ns will be used
       and 5ns granularity will be used for all other hits  */
   std::vector<double> deltaTHit;
+
   /** Time cut for hits, all hits go to one single time bin if time is above this cut */
-  double timeCut;
+  double timeCut; /// used in TileGeoG4SDCalc only
+
   /** Flag to indicate TileCal TestBeam configuration */
-  bool tileTB;
+  bool tileTB; // used in TileGeoG4CalibSD and TileGeoG4SDCalc
+
   /** Special flag for Calibration Hits. If true then Tile
       Plates are the parts of the adjacent Tile cells.
       If false then they are Dead Materials */
-  bool plateToCell;
+  bool plateToCell; /// Not used anywhere?!
+
   /** Flag to enable simulation of light attenuation in tiles */
-  int Ushape;
+  int Ushape; /// used in TileGeoG4SDCalc only
+
   /** Flag to enable Birk's law */
-  bool doBirk;
+  bool doBirk; /// used in TileGeoG4SDCalc only
+
   /** Flag to enable energy per tile row in TileHit */
-  bool doTileRow;
+  bool doTileRow; /// used in TileGeoG4SDCalc only
+
   /** Flag to apply TOF correction (subtract Time Of Flight from ATLAS center) */
-  bool doTOFCorrection;
+  bool doTOFCorrection; /// used in TileGeoG4SDCalc only
+
   /** Flag to produce calibration hits signed with primary particle ID */
-  bool doCalibHitParticleID;
+  bool doCalibHitParticleID; /// used in TileGeoG4CalibSD only
+
   /** Helper to keep the same verbosity everywhere */
   int verboseLevel;
+
   //** Name of the RDBAccessSvc instance to use */
-  std::string rDBAccessSvcName;
+  std::string rDBAccessSvcName; /// used in TileGeoG4CalibSD only
+
   //** Name of the GeoModelSvc instance to use */
-  std::string geoModelSvcName;
+  std::string geoModelSvcName; /// used in TileGeoG4CalibSD only
 };
 
 #endif

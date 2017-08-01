@@ -37,8 +37,6 @@ TileGeoG4SD::TileGeoG4SD(G4String name, const std::string& hitCollectionName, IT
 }
 
 TileGeoG4SD::~TileGeoG4SD() {
-  delete m_calc;
-  delete m_lookup;
 }
 
 void TileGeoG4SD::Initialize(G4HCofThisEvent* /*HCE*/) {
@@ -48,7 +46,6 @@ void TileGeoG4SD::Initialize(G4HCofThisEvent* /*HCE*/) {
 
 G4bool TileGeoG4SD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/) {
   TileHitData hitData;
-
   if (! (m_calc->FindTileScinSection(aStep, hitData))) { //Search for the tilecal sub-section, its module and some identifiers
 
     if (verboseLevel > 5)
