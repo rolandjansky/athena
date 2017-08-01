@@ -35,6 +35,9 @@ _userlongopts = [
     "pycintex_minvmem=", "cppyy_minvmem",
     "minimal",                     # private, undocumented
     "threads=",
+    "evtMax=",    #will set theApp.EvtMax just before theApp.run() in runbatch.py
+    "skipEvents=",#will set svcMgr.EventSelector.SkipEvents just before theApp.run() in runbatch.py 
+    "filesInput=" #will set the AthenaCommonFlags.FilesInput job option and lock it
     ]
 
 _allowed_values = {
@@ -50,6 +53,10 @@ _allowed_values = {
 
 _error_msg = """\
 Accepted command line options:
+     --evtMax=<numEvents>             ...  Max number of events to process (only used in batch mode)
+     --skipEvents=<numEvents>         ...  Number of events to skip (only used in batch mode)
+     --filesInput=<files>             ...  Set the FilesInput job property 
+                                            (comma-separated list, which can include wild characters)
  -b, --batch                          ...  batch mode [DEFAULT]
  -i, --interactive                    ...  interactive mode
      --no-display                           prompt, but no graphics display
@@ -150,8 +157,8 @@ def parse(chk_tcmalloc=True):
     opts.cppyy_minvmem = None    # artificial vmem bump around cppyy's import
     opts.minimal = False         # private, undocumented
     opts.user_opts = []          # left-over opts after '-'
-
-
+    opts.evtMax = None           # evtMax on command line (or None if unspecified)
+    opts.skipEvents = None # skipEvents on command line (or None if unspecified)
 
     ldpreload = os.getenv('LD_PRELOAD') or ''
 
@@ -393,6 +400,34 @@ def parse(chk_tcmalloc=True):
 
         elif opt in ("--debugWorker",):
             opts.debug_worker = True
+
+        elif opt in("--filesInput",):
+            #set the jps.AthenaCommonFlags.FilesInput property
+            from AthenaCommonFlags import jobproperties as jps
+            from glob import glob
+            #split string by , character
+            #and for each use glob to expand path
+            files = []
+            for fe in arg.split(","):
+                files += glob(fe)
+            jps.AthenaCommonFlags.FilesInput.set_Value_and_Lock(files)
+
+        elif opt in("--evtMax",):
+            from AthenaCommonFlags import jobproperties as jps
+            try: arg = int(arg)
+            except Exception,err:
+                print "ERROR: --evtMax option - ",err
+                _help_and_exit()
+            opts.evtMax = arg
+            jps.AthenaCommonFlags.EvtMax.set_Value_and_Lock(arg)
+        elif opt in("--skipEvents",):
+            from AthenaCommonFlags import jobproperties as jps
+            try: arg = int(arg)
+            except Exception,err:
+                print "ERROR: --skipEvents option - ",err
+                _help_and_exit()
+            opts.skipEvents = arg
+            jps.AthenaCommonFlags.SkipEvents.set_Value_and_Lock(arg)
 
     # Unconditionally set this environment (see JIRA ATEAM-241)
     # This behavior can be controlled by a flag, if needed
