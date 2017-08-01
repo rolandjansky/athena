@@ -668,8 +668,8 @@ namespace xAOD {
 
       // Create the only branch in it:
       metatree->Branch( "EventFormat",
-                        ClassName< xAOD::EventFormat >::name().c_str(),
-                        &m_outputEventFormat );
+         SG::normalizedTypeinfoName( typeid( xAOD::EventFormat ) ).c_str(),
+         &m_outputEventFormat );
 
       // Create a copy of the m_outputMetaObjects variable. This is necessary
       // because the putAux(...) function will modify this variable while we
