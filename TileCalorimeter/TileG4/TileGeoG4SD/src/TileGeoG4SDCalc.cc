@@ -397,21 +397,24 @@ G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep, TileHitData& hi
 
   // Determine tower and sample
   hitData.nTower = hitData.cell->tower;
-  if (hitData.nTower < 0)
+  if (hitData.nTower < 0) {
     hitData.nTower *= -1;
+  }
   hitData.nSample = hitData.cell->sample;
 
   // If that's central barrel then determine the side
-  if ((hitData.nDetector == 1) && (hitData.cell->cellNum < 0))
+  if ((hitData.nDetector == 1) && (hitData.cell->cellNum < 0)) {
     hitData.nSide = -1;
+  }
 
   return true;
 }
 
 G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep, TileHitData& hitData) const
 {
-  if (hitData.nrOfPMT == 0)
+  if (hitData.nrOfPMT == 0) {
     return false;
+  }
 
   const bool isE5 = (hitData.nTower > 16);  //special E5(E4') cells in EBC (should be in negative side only)
 
@@ -443,9 +446,9 @@ G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep, TileHitData& hitDat
   if (hitData.nDetector == 1 || hitData.nSide > 0)
     yLocal *= -1;  // LBA,LBC,EBA have yLocal inverse to the EBC one
 
-  if (scinSolid != 0 || booleanScin != 0) {
-    if (booleanScin != 0) {
-      scinSolid = 0;
+  if (scinSolid || booleanScin) {
+    if (booleanScin) {
+      scinSolid = nullptr;
       // The first step inside boolean solid
       G4VSolid* solid1 = booleanScin->GetConstituentSolid(0);
 
@@ -534,8 +537,8 @@ G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep, TileHitData& hitDat
           if (1 == hitData.nDetector && 2 == hitData.nSample && 9 == hitData.nTower) { // read info about B-9 from ITC vector
             ind = 2;                                          // because barrel vector contains info for
           }                                                     // BC cells only (average over 6 rows)
-          double Izero = m_row->OpticalRatio[ind].at(hitData.tileSize);
-          double AttenuationLength = m_row->attLen[ind].at(hitData.tileSize);
+          const double Izero = m_row->OpticalRatio[ind].at(hitData.tileSize);
+          const double AttenuationLength = m_row->attLen[ind].at(hitData.tileSize);
           ATH_MSG_VERBOSE("Izero = " << Izero);
           ATH_MSG_VERBOSE("Tile Row = " << hitData.tileSize);
           ATH_MSG_VERBOSE("Attenuation Length = " << AttenuationLength);
@@ -563,10 +566,10 @@ G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep, TileHitData& hitDat
   G4double totalTime = aStep->GetPostStepPoint()->GetGlobalTime();  //added by Mike
 
   if (m_deltaT > 0.0) {
-    G4ThreeVector position = aStep->GetPostStepPoint()->GetPosition();  //position of the hit
-    double cosTh_hit = position.cosTheta();
-    double magn_hit = position.mag();
-    double r_hit = position.perp();  //hit radius r = sqrt(x*x + y*y)
+    const G4ThreeVector position = aStep->GetPostStepPoint()->GetPosition();  //position of the hit
+    const double cosTh_hit = position.cosTheta();
+    const double magn_hit = position.mag();
+    const double r_hit = position.perp();  //hit radius r = sqrt(x*x + y*y)
     double correction(0.0);
 
     if (m_options.doTOFCorrection) {
@@ -642,7 +645,7 @@ G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep, TileHitData& hitDat
   }
   // calculate unique deltaT bin width for both up and down PMT, ignoring additional deltas
   m_deltaT = this->deltaT(totalTime);
-  double scin_Time = totalTime + (hitData.tileSize + 1) * m_tileSizeDeltaT;
+  const double scin_Time = totalTime + (hitData.tileSize + 1) * m_tileSizeDeltaT;
   hitData.scin_Time_up = hitData.scin_Time_down = scin_Time;
   hitData.totalTimeUp = hitData.totalTimeDown = totalTime;
 
@@ -734,7 +737,8 @@ G4bool TileGeoG4SDCalc::ManageScintHit(TileHitData& hitData) const
   //If YES: we just add energy to the existing hit object
   //If No: we create a new object, fill it and place in the collection
 
-  bool newTileHitUp = true, newTileHitDown = true;
+  bool newTileHitUp = true;
+  bool newTileHitDown = true;
 
   // Debugging of special E5(E4') cells
   //if (hitData.nTower>16) G4cout <<" Cells E5: hitData.nModule="<<hitData.nModule
@@ -782,27 +786,28 @@ G4bool TileGeoG4SDCalc::ManageScintHit(TileHitData& hitData) const
 
 void TileGeoG4SDCalc::CreateScintHit(int pmt, TileHitData& hitData) const
 {
-  TileSimHit* aHit;
-
   if (pmt == 1) { //Upper PMT of Cell
-    aHit = new TileSimHit(hitData.pmtID_up, hitData.edep_up, hitData.totalTimeUp, m_deltaT);
-    if (m_options.doTileRow)
+    std::unique_ptr<TileSimHit> aHit = std::make_unique<TileSimHit>(hitData.pmtID_up, hitData.edep_up, hitData.totalTimeUp, m_deltaT);
+    if (m_options.doTileRow) {
       aHit->add(hitData.edep_up, hitData.scin_Time_up, m_deltaT);
-
-    if (hitData.isNegative)
-      hitData.cell->moduleToHitUpNegative[hitData.nModule - 1] = aHit;
-    else
-      hitData.cell->moduleToHitUp[hitData.nModule - 1] = aHit;
-
+    }
+    if (hitData.isNegative) {
+      hitData.cell->moduleToHitUpNegative[hitData.nModule - 1] = aHit.release();
+    }
+    else {
+      hitData.cell->moduleToHitUp[hitData.nModule - 1] = aHit.release();
+    }
   } else { //Down PMT of Cell
-    aHit = new TileSimHit(hitData.pmtID_down, hitData.edep_down, hitData.totalTimeDown, m_deltaT);
-    if (m_options.doTileRow)
+    std::unique_ptr<TileSimHit> aHit = std::make_unique<TileSimHit>(hitData.pmtID_down, hitData.edep_down, hitData.totalTimeDown, m_deltaT);
+    if (m_options.doTileRow) {
       aHit->add(hitData.edep_down, hitData.scin_Time_down, m_deltaT);
-
-    if (hitData.isNegative)
-      hitData.cell->moduleToHitDownNegative[hitData.nModule - 1] = aHit;
-    else
-      hitData.cell->moduleToHitDown[hitData.nModule - 1] = aHit;
+    }
+    if (hitData.isNegative) {
+      hitData.cell->moduleToHitDownNegative[hitData.nModule - 1] = aHit.release();
+    }
+    else {
+      hitData.cell->moduleToHitDown[hitData.nModule - 1] = aHit.release();
+    }
   }
 }
 
@@ -811,24 +816,27 @@ void TileGeoG4SDCalc::UpdateScintHit(int pmt, TileHitData& hitData) const
   TileSimHit* aHit(nullptr);
 
   if (pmt == 1) { //Upper PMT of Cell
-    if (hitData.isNegative)
+    if (hitData.isNegative) {
       aHit = hitData.cell->moduleToHitUpNegative[hitData.nModule - 1];
-    else
+    }
+    else {
       aHit = hitData.cell->moduleToHitUp[hitData.nModule - 1];
-
+    }
     aHit->add(hitData.edep_up, hitData.totalTimeUp, m_deltaT);
-    if (m_options.doTileRow)
+    if (m_options.doTileRow) {
       aHit->add(hitData.edep_up, hitData.scin_Time_up, m_deltaT);
-
+    }
   } else { // Down PMT of Cell
-    if (hitData.isNegative)
+    if (hitData.isNegative) {
       aHit = hitData.cell->moduleToHitDownNegative[hitData.nModule - 1];
-    else
+    }
+    else {
       aHit = hitData.cell->moduleToHitDown[hitData.nModule - 1];
-
+    }
     aHit->add(hitData.edep_down, hitData.totalTimeDown, m_deltaT);
-    if (m_options.doTileRow)
+    if (m_options.doTileRow) {
       aHit->add(hitData.edep_down, hitData.scin_Time_down, m_deltaT);
+    }
   }
 }
 
