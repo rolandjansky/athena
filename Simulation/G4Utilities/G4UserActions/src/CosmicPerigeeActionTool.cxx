@@ -22,7 +22,6 @@ namespace G4UA
     declareInterface<IPreTrackingActionTool>(this);
     declareProperty("pMinPrimary", m_config.pMinPrimary);
   }
-  
 
   //---------------------------------------------------------------------------
   // Create the action on request
@@ -33,5 +32,5 @@ namespace G4UA
     auto action = CxxUtils::make_unique<CosmicPerigeeAction>(m_config);
     return std::move(action);
   }
-  
+
 }

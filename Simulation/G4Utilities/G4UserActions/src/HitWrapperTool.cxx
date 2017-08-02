@@ -5,7 +5,8 @@
 #include "CxxUtils/make_unique.h"
 #include "G4UserActions/HitWrapperTool.h"
 
-namespace G4UA{ 
+namespace G4UA
+{
 
   //---------------------------------------------------------------------------
   HitWrapperTool::HitWrapperTool(const std::string& type, const std::string& name,
@@ -14,12 +15,11 @@ namespace G4UA{
   {
     declareProperty("Time", m_config.time);
   }
-  
+
   //---------------------------------------------------------------------------
-  std::unique_ptr<HitWrapper>  HitWrapperTool::makeAction(){
+  std::unique_ptr<HitWrapper> HitWrapperTool::makeAction(){
     ATH_MSG_DEBUG("makeAction");
-    auto action = CxxUtils::make_unique<HitWrapper>(m_config);
-    return std::move(action);
+    return CxxUtils::make_unique<HitWrapper>(m_config);
   }
   
   //---------------------------------------------------------------------------
@@ -31,5 +31,5 @@ namespace G4UA{
       return StatusCode::SUCCESS;
     } return ActionToolBase<HitWrapper>::queryInterface(riid, ppvIf);
   }
-  
-} // namespace G4UA 
+
+} // namespace G4UA
