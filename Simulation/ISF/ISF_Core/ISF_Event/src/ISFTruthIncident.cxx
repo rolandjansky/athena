@@ -78,8 +78,7 @@ int ISF::ISFTruthIncident::parentPdgCode() const {
 }
 
 HepMC::GenParticle* ISF::ISFTruthIncident::parentParticle() const {
-
-  if ( m_parent.getTruthBinding() ) {
+  if ( m_parent.getTruthBinding() || m_parent.getParticleLink()) {
     return getHepMCTruthParticle(m_parent);
   } else {
     return updateHepMCTruthParticle(m_parent, &m_parent);
@@ -104,8 +103,10 @@ HepMC::GenParticle* ISF::ISFTruthIncident::parentParticleAfterIncident(Barcode::
 
   // only update the parent particle, if it survived the interaction
 
+  // set a new barcode
   m_parent.setBarcode( newBC );
 
+  // and update truth info (including the ISFParticle's HMPL)
   return updateHepMCTruthParticle(m_parent, &m_parent);
 }
 
@@ -136,6 +137,7 @@ HepMC::GenParticle* ISF::ISFTruthIncident::childParticle(unsigned short index,
     sec->setBarcode( bc);
   }
 
+  // and update truth info (including the ISFParticle's HMPL)
   return updateHepMCTruthParticle( *sec, &m_parent );
 }
 
@@ -151,8 +153,8 @@ void ISF::ISFTruthIncident::setAllChildrenBarcodes(Barcode::ParticleBarcode bc) 
     // the current particle
     ISF::ISFParticle *p = m_children[i];
 
-    // set a new barcode
-    p->setBarcode( bc);
+    // set a new barcode and update the ISFParticle's HMPL
+    p->setBarcodeAndUpdateHepMcParticleLink(bc);
   }
 
   return;
@@ -163,6 +165,13 @@ void ISF::ISFTruthIncident::setAllChildrenBarcodes(Barcode::ParticleBarcode bc) 
 HepMC::GenParticle* ISF::ISFTruthIncident::getHepMCTruthParticle( const ISF::ISFParticle& particle ) const {
   auto* truthBinding     = particle.getTruthBinding();
   auto* hepTruthParticle = truthBinding ? truthBinding->getTruthParticle() : nullptr;
+
+  // HepMC::GenParticle not in TruthBinding -> see if the HepMcParticleLink can retrieve it
+  if (!hepTruthParticle) {
+    const HepMcParticleLink* oldHMPL = particle.getParticleLink();
+    if (oldHMPL && oldHMPL->cptr())
+      hepTruthParticle = const_cast<HepMC::GenParticle*>(oldHMPL->cptr());
+  }
 
   return hepTruthParticle;
 }
@@ -184,6 +193,16 @@ HepMC::GenParticle* ISF::ISFTruthIncident::updateHepMCTruthParticle( ISF::ISFPar
     particle.setTruthBinding(truthBinding);
   }
 
+  //register the new GenParticle as HepMcParticleLink, copying over some old properties if present
+  const HepMcParticleLink* oldHMPL = particle.getParticleLink();
+  HepMcParticleLink* newHMPL = nullptr;
+  if (oldHMPL) {
+    newHMPL = new HepMcParticleLink(hepTruthParticle, oldHMPL->eventIndex(), oldHMPL->getEventCollection());
+    delete oldHMPL;
+  } else {
+    newHMPL = new HepMcParticleLink(hepTruthParticle);
+  }
+  particle.setParticleLink(newHMPL);
+
   return hepTruthParticle;
 }
-
