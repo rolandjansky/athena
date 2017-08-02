@@ -55,8 +55,7 @@ namespace G4UA
   LooperKillerTool::makeAction()
   {
     ATH_MSG_DEBUG("makeAction");
-    auto action = CxxUtils::make_unique<LooperKiller>(m_config);
-    return std::move(action);
+    return CxxUtils::make_unique<LooperKiller>(m_config);
   }
 
   //---------------------------------------------------------------------------

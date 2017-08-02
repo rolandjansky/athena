@@ -4,10 +4,6 @@
 
 #include "G4UserActions/G4TrackCounter.h"
 #include "MCTruth/TrackHelper.h"
-#include <iostream>
-
-
-#include "G4ios.hh"
 
 namespace G4UA
 {
@@ -29,7 +25,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   void G4TrackCounter::beginOfEvent(const G4Event* /*event*/)
   {
-     m_report.nEvents++;
+    m_report.nEvents++;
   }
 
   //---------------------------------------------------------------------------
@@ -37,7 +33,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   void G4TrackCounter::preTracking(const G4Track* track)
   {
-     m_report.nTotalTracks++;
+    m_report.nTotalTracks++;
     TrackHelper helper(track);
 
     // Primary tracks

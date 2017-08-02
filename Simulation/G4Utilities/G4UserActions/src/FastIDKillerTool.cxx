@@ -20,8 +20,7 @@ namespace G4UA
   std::unique_ptr<FastIDKiller> FastIDKillerTool::makeAction()
   {
     ATH_MSG_DEBUG("makeAction");
-    auto action = CxxUtils::make_unique<FastIDKiller>(m_config);
-    return std::move(action);
+    return CxxUtils::make_unique<FastIDKiller>(m_config);
   }
 
   StatusCode FastIDKillerTool::queryInterface(const InterfaceID& riid, void** ppvIf)

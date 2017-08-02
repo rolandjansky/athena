@@ -16,10 +16,10 @@ namespace G4UA
   {}
 
   //---------------------------------------------------------------------------
-  std::unique_ptr<PhotonKiller>  PhotonKillerTool::makeAction(){
+  std::unique_ptr<PhotonKiller> PhotonKillerTool::makeAction()
+  {
     ATH_MSG_DEBUG("makeAction");
-    auto action = CxxUtils::make_unique<PhotonKiller>();
-    return std::move(action);
+    return CxxUtils::make_unique<PhotonKiller>();
   }
 
   //---------------------------------------------------------------------------

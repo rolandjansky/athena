@@ -120,6 +120,7 @@ namespace G4UA
   void FluxRecorder::findVolume( const double r1 , const double z1 , const double r2 , const double z2 )
   {
 
+    // This horrible code should be fixed
     const static double dim[lastVol][4] = {
       {980.,1000.,0.,400.} , {980.,1000.,400.,800.} , {980.,1000.,800.,1200.} ,
       {750.,770.,0.,200.} , {750.,770.,200.,450.} , {750.,770.,450.,850.} ,
