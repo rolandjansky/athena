@@ -10,6 +10,7 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include <string>
 #include "PFlowUtils/IRetrievePFOTool.h"
+#include "xAODTracking/VertexContainer.h"
 
 class PhysValPFO : public ManagedMonitorToolBase {
 
@@ -29,6 +30,9 @@ public:
 
  private:
 
+  /** ReadHandle to retrieve xAOD::VertexContainer */
+  SG::ReadHandle<xAOD::VertexContainer> m_vertexContainerReadHandle;
+  
   /** Pointer to class that deals with histograms for charged PFO */
   std::unique_ptr<PFOChargedValidationPlots> m_PFOChargedValidationPlots;
 

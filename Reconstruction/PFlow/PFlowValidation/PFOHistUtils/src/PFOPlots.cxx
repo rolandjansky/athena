@@ -23,8 +23,8 @@ namespace PFO {
     m_PFO_charge = Book1D("PFO_charge",m_sPFOContainerName + "_charge (Entries/unit charge)",5,-2,2);
     
     m_PFO_pt_etaBinA = Book1D("PFO_Pt_A",m_sPFOContainerName + "_Pt (Entries/1 GeV, |eta| < 1 )",30,-10.0,20.0);
-    m_PFO_pt_etaBinB = Book1D("PFO_Pt_B)",m_sPFOContainerName + "_Pt (Entries/1 GeV,  1 <= |eta| < 2 )",30,-10.0,20.0);
-    m_PFO_pt_etaBinC = Book1D("PFO_Pt_C)",m_sPFOContainerName + "_Pt (Entries/1 GeV, |eta| >= 2 )",30,-10.0,20.0);
+    m_PFO_pt_etaBinB = Book1D("PFO_Pt_B",m_sPFOContainerName + "_Pt (Entries/1 GeV,  1 <= |eta| < 2 )",30,-10.0,20.0);
+    m_PFO_pt_etaBinC = Book1D("PFO_Pt_C",m_sPFOContainerName + "_Pt (Entries/1 GeV, |eta| >= 2 )",30,-10.0,20.0);
   }
 
   void PFOPlots::fill(const xAOD::PFO& PFO){
