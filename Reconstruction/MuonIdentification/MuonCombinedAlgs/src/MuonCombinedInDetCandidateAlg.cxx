@@ -5,9 +5,6 @@
 #include "MuonCombinedInDetCandidateAlg.h"
 #include "MuonCombinedToolInterfaces/IInDetCandidateTool.h"
 
-#include "xAODTracking/TrackParticleContainer.h"
-#include "MuonCombinedEvent/InDetCandidateCollection.h"
-
 
 MuonCombinedInDetCandidateAlg::MuonCombinedInDetCandidateAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
@@ -17,14 +14,12 @@ MuonCombinedInDetCandidateAlg::MuonCombinedInDetCandidateAlg(const std::string& 
   declareProperty("InDetForwardCandidateTool",m_indetForwardCandidateTool);
   declareProperty("TrackParticleLocation",m_indetTrackParticleLocation = "InDetTrackParticles");
   declareProperty("ForwardParticleLocation",m_indetForwardTrackParticleLocation = "InDetForwardTrackParticles");
-  declareProperty("InDetCandidateLocation",m_candidateCollectionName = "InDetCandidates" );
-  declareProperty("DoSiliconAssocForwardMuons",m_doSiliconForwardMuons=false);
+  declareProperty("InDetCandidateLocation", m_candidateCollectionName = "InDetCandidates");
+  // declareProperty("ReadInDetCandidateLocation", m_indetCandidateCollectionName = "InDetCandidates");
+  declareProperty("DoSiliconAssocForwardMuons",m_doSiliconForwardMuons = false);
 }
 
-MuonCombinedInDetCandidateAlg::~MuonCombinedInDetCandidateAlg()
-{
-
-}
+MuonCombinedInDetCandidateAlg::~MuonCombinedInDetCandidateAlg(){}
 
 StatusCode MuonCombinedInDetCandidateAlg::initialize()
 {
@@ -32,15 +27,20 @@ StatusCode MuonCombinedInDetCandidateAlg::initialize()
   if (m_doSiliconForwardMuons) {
     ATH_CHECK(m_indetForwardCandidateTool.retrieve());
   }
+  ATH_CHECK(m_indetTrackParticleLocation.initialize());
+  ATH_CHECK(m_indetForwardTrackParticleLocation.initialize());
+  ATH_CHECK(m_candidateCollectionName.initialize());
+  // ATH_CHECK(m_indetCandidateCollectionName.initialize());
+
   return StatusCode::SUCCESS; 
 }
 
 StatusCode MuonCombinedInDetCandidateAlg::execute()
 {
-
+  ATH_MSG_INFO("MARCUS: execute InDetAlg");
   // retrieve MuonSpectrometer tracks
   std::vector<ToolHandle<MuonCombined::IInDetCandidateTool> > canTool;
-  std::vector<std::string> trackParticleLoc;
+  std::vector<SG::ReadHandleKey<xAOD::TrackParticleContainer> > trackParticleLoc;
 
   canTool.push_back(m_indetCandidateTool);
   trackParticleLoc.push_back(m_indetTrackParticleLocation);
@@ -52,41 +52,34 @@ StatusCode MuonCombinedInDetCandidateAlg::execute()
 
 
   //output collection
-  InDetCandidateCollection* indetCandidateCollection = NULL ; 
+  auto collection = std::make_unique<InDetCandidateCollection>(SG::OWN_ELEMENTS);
 
   for (unsigned int i(0);i<canTool.size();++i){
 
-    const xAOD::TrackParticleContainer* indetTrackParticles = 0;
-    if(evtStore()->contains<xAOD::TrackParticleContainer>(trackParticleLoc[i])){
-      if(evtStore()->retrieve(indetTrackParticles,trackParticleLoc[i]).isFailure()) {
-        ATH_MSG_FATAL( "Unable to retrieve " << trackParticleLoc[i] );
-        return StatusCode::FAILURE;
-      }
+    SG::ReadHandle<xAOD::TrackParticleContainer> indetTrackParticles(trackParticleLoc[i]);
+    if(!indetTrackParticles.isValid()){
+      ATH_MSG_ERROR("Could not read "<< trackParticleLoc[i]);
+      return StatusCode::FAILURE;
     }
-
-    if( !indetTrackParticles ){ 
-      continue;
-    }
-
+  
     InDetCandidateCollection* tempCandidates = new InDetCandidateCollection(SG::VIEW_ELEMENTS);
     canTool[i]->create(*indetTrackParticles,*tempCandidates);
 
-    //Copy indetCandidateCollection into output collection
-    if (!indetCandidateCollection) indetCandidateCollection = new InDetCandidateCollection(SG::OWN_ELEMENTS);
-    indetCandidateCollection->insert(indetCandidateCollection->end(), tempCandidates->begin(), tempCandidates->end());
+    collection->insert(collection->end(), tempCandidates->begin(), tempCandidates->end());
 
     delete tempCandidates;
   }
+  SG::WriteHandle<InDetCandidateCollection> indetCandidateCollection(m_candidateCollectionName);
+  ATH_CHECK(indetCandidateCollection.record(std::move(collection)));
+  ATH_MSG_DEBUG("MARCUS: INDET SIZE: " << indetCandidateCollection->size());
+  ATH_MSG_INFO("MARCUS: INDET SIZE: " << indetCandidateCollection->size());
 
-  if(!indetCandidateCollection){
-    ATH_MSG_WARNING("InDetTrackParticles tracks not found in StoreGate");
-    return StatusCode::SUCCESS;
-  }
-
-  if(evtStore()->record(indetCandidateCollection,m_candidateCollectionName).isFailure()) {
-    ATH_MSG_FATAL( "Could not record " << m_candidateCollectionName );
-    return StatusCode::FAILURE;
-  }    
+  // SG::ReadHandle<InDetCandidateCollection> indetCandidateCollection2(m_indetCandidateCollectionName);
+  // if(!indetCandidateCollection2.isValid()){
+  //   ATH_MSG_ERROR("Could not read "<< m_indetCandidateCollectionName);
+  //   return StatusCode::FAILURE;
+  // }
+  // ATH_MSG_INFO("MARCUS: INDET 2 SIZE: " << indetCandidateCollection2->size());
 
   return StatusCode::SUCCESS;
 }
