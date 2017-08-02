@@ -13,6 +13,9 @@ namespace G4UA
                                      const IInterface* parent)
     : ActionToolBaseReport<FastIDKiller>(type, name, parent)
   {
+    declareInterface<IBeginRunActionTool>(this);
+    declareInterface<ISteppingActionTool>(this);
+
     declareProperty("R", m_config.R);
     declareProperty("Z", m_config.Z);
   }
@@ -21,23 +24,6 @@ namespace G4UA
   {
     ATH_MSG_DEBUG("makeAction");
     return CxxUtils::make_unique<FastIDKiller>(m_config);
-  }
-
-  StatusCode FastIDKillerTool::queryInterface(const InterfaceID& riid, void** ppvIf)
-  {
-    if(riid == IBeginRunActionTool::interfaceID())
-      {
-        *ppvIf = (IBeginRunActionTool*) this;
-        addRef();
-        return StatusCode::SUCCESS;
-      }
-    if(riid == ISteppingActionTool::interfaceID())
-      {
-        *ppvIf = (ISteppingActionTool*) this;
-        addRef();
-        return StatusCode::SUCCESS;
-      }
-    return ActionToolBase<FastIDKiller>::queryInterface(riid, ppvIf);
   }
 
   StatusCode FastIDKillerTool::finalize()

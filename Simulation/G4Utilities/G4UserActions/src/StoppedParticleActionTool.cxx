@@ -13,24 +13,15 @@ namespace G4UA
                                                        const std::string& name,
                                                        const IInterface* parent)
     : ActionToolBase<StoppedParticleAction>(type, name, parent)
-  {}
+  {
+    declareInterface<ISteppingActionTool>(this);
+  }
 
   //---------------------------------------------------------------------------
   std::unique_ptr<StoppedParticleAction> StoppedParticleActionTool::makeAction()
   {
     ATH_MSG_DEBUG("makeAction");
     return CxxUtils::make_unique<StoppedParticleAction>();
-  }
-
-  //---------------------------------------------------------------------------
-  StatusCode StoppedParticleActionTool::queryInterface(const InterfaceID& riid,
-                                                       void** ppvIf)
-  {
-    if(riid == ISteppingActionTool::interfaceID()) {
-      *ppvIf = (ISteppingActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    } return ActionToolBase<StoppedParticleAction>::queryInterface(riid, ppvIf);
   }
 
 } // namespace G4UA

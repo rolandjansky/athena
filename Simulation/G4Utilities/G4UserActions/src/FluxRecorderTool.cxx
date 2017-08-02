@@ -13,36 +13,16 @@ namespace G4UA
                                      const IInterface* parent)
     : ActionToolBase<FluxRecorder>(type, name, parent)
   {
+    declareInterface<IBeginRunActionTool>(this);
+    declareInterface<IEndRunActionTool>(this);
+    declareInterface<IEndEventActionTool>(this);
+    declareInterface<ISteppingActionTool>(this);
   }
 
   std::unique_ptr<FluxRecorder> FluxRecorderTool::makeAction()
   {
     ATH_MSG_DEBUG("makeAction");
     return CxxUtils::make_unique<FluxRecorder>();
-  }
-  StatusCode FluxRecorderTool::queryInterface(const InterfaceID& riid, void** ppvIf){
-    
-    if(riid == IBeginRunActionTool::interfaceID()) {
-      *ppvIf = (IBeginRunActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == IEndRunActionTool::interfaceID()) {
-      *ppvIf = (IEndRunActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == IEndEventActionTool::interfaceID()) {
-      *ppvIf = (IEndEventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == ISteppingActionTool::interfaceID()) {
-      *ppvIf = (ISteppingActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    return ActionToolBase<FluxRecorder>::queryInterface(riid, ppvIf);
   }
 
 } // namespace G4UA

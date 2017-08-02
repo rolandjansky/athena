@@ -15,8 +15,11 @@ namespace G4UA
                                  const std::string& name,
                                  const IInterface* parent)
     : ActionToolBaseReport<G4SimTimer>(type, name, parent)
-  {}
-  
+  {
+    declareInterface<IBeginEventActionTool>(this);
+    declareInterface<IEndEventActionTool>(this);
+  }
+
   //---------------------------------------------------------------------------
   // Initialize - temporarily here for debugging
   //---------------------------------------------------------------------------
@@ -55,24 +58,5 @@ namespace G4UA
     auto action = CxxUtils::make_unique<G4SimTimer>();
     return std::move(action);
   }
-  
-  //---------------------------------------------------------------------------
-  // Query interface
-  //---------------------------------------------------------------------------
-  StatusCode G4SimTimerTool::queryInterface(const InterfaceID& riid, void** ppvIf)
-  {
-    if(riid == IBeginEventActionTool::interfaceID()) {
-      *ppvIf = (IBeginEventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == IEndEventActionTool::interfaceID()) {
-      *ppvIf = (IEndEventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    
-    return ActionToolBase<G4SimTimer>::queryInterface(riid, ppvIf);
-  }
-  
+
 }

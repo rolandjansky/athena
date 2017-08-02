@@ -13,7 +13,10 @@ namespace G4UA
                                                              const std::string& name,
                                                              const IInterface* parent)
     : ActionToolBase<ScoringVolumeTrackKiller>(type, name, parent)
-  {}
+  {
+    declareInterface<IEndEventActionTool>(this);
+    declareInterface<ISteppingActionTool>(this);
+  }
 
   //---------------------------------------------------------------------------
   std::unique_ptr<ScoringVolumeTrackKiller>
@@ -21,21 +24,6 @@ namespace G4UA
   {
     ATH_MSG_DEBUG("makeAction");
     return CxxUtils::make_unique<ScoringVolumeTrackKiller>();
-  }
-
-  //---------------------------------------------------------------------------
-  StatusCode ScoringVolumeTrackKillerTool::queryInterface(const InterfaceID& riid,
-                                                          void** ppvIf)
-  {
-    if(riid == IEndEventActionTool::interfaceID()) {
-      *ppvIf = (IEndEventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    } if(riid == ISteppingActionTool::interfaceID()) {
-      *ppvIf = (ISteppingActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    } return ActionToolBase<ScoringVolumeTrackKiller>::queryInterface(riid, ppvIf);
   }
 
 } // namespace G4UA
