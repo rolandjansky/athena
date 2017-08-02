@@ -197,7 +197,7 @@ void TrigT1CaloBaseFex::findTTsAround(const xAOD::TriggerTowerContainer* scells,
 bool TrigT1CaloBaseFex::isCellEmMaximum(const std::vector<CaloCell*>& scells, const CaloCell* cell) const {
         if ( !cell ) return false;
 	if ( cell->caloDDE()->getSampling() >= 8 ) return false;
-        float cellpt = 1.0001*cell->et();
+	float cellpt = 1.0001*cell->et(); //make sure you don't get thecell itself
 	for(auto scell : scells){ 
 		if ( scell->caloDDE()->getSampling() >= 8 ) continue;
 		if ( scell->ID() == cell->ID()  ) continue;

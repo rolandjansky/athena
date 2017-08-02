@@ -41,11 +41,11 @@ ToolSvc+=LArSuperCellCablingTool()
 from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import SimpleLArDigitsChecks
 from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import TrigT1CaloEFex
 from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import TrigT1CaloTauFex
-from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import EFexAnalysis
-from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import DumpAll
+#from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import EFexAnalysis
+#from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import DumpAll
 from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import LArFex
-from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import LArFexAnalysis
-from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import CaloBandwidth
+#from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import LArFexAnalysis
+#from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import CaloBandwidth
 
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool=CaloNoiseToolDefault()

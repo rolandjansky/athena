@@ -23,7 +23,7 @@
 #include "TH2F.h"
 #include "TH1I.h"
 #include <math.h>
-#include "BCID.h"
+#include "TrigL1CaloUpgrade/BCID.h"
 
 SimpleSuperCellChecks::SimpleSuperCellChecks( const std::string& name, ISvcLocator* pSvcLocator ) : AthAlgorithm (name, pSvcLocator), m_scidtool("CaloSuperCellIDTool")  {
 }

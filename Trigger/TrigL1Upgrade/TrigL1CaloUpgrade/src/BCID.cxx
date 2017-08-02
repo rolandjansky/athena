@@ -3,7 +3,7 @@
 */
 
 
-#include "BCID.h"
+#include "TrigL1CaloUpgrade/BCID.h"
 
 
 int bcids_from_start(const int& bcid) {
