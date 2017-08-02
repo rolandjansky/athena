@@ -14,7 +14,7 @@
 //************************************************************
 
 // class header
-#include "TileGeoG4SD/TileGeoG4SD.hh"
+#include "TileGeoG4SD.hh"
 // package headers
 #include "TileG4Interfaces/ITileCalculator.h"
 #include "TileGeoG4SD/TileGeoG4LookupBuilder.hh"
