@@ -6,11 +6,6 @@ include.block ( "CaloConditions/LArTTCellMap_ATLAS_jobOptions.py" )
 #
 #==================================================================
 
-from PoolSvc.PoolSvcConf import PoolSvc
-ServiceMgr += PoolSvc()
-if not "prfile:poolcond/PoolCat_oflcond.xml" in ServiceMgr.PoolSvc.ReadCatalog :
-    ServiceMgr.PoolSvc.ReadCatalog+= [ "prfile:poolcond/PoolCat_oflcond.xml" ]
-
 from AthenaCommon.Logging import logging
 logger = logging.getLogger( 'LArTTCellMap_ATLAS_jobOptions.py' )
 
