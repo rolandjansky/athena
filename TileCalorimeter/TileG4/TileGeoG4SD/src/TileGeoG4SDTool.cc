@@ -10,7 +10,7 @@
 //************************************************************
 
 #include "TileGeoG4SDTool.h"
-#include "TileGeoG4SD/TileGeoG4SD.hh"
+#include "TileGeoG4SD.hh"
 #include "TileG4Interfaces/ITileCalculator.h"
 
 TileGeoG4SDTool::TileGeoG4SDTool(const std::string& type, const std::string& name, const IInterface* parent)
