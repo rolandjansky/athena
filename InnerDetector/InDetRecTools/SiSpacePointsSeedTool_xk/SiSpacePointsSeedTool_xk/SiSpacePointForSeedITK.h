@@ -30,13 +30,13 @@ namespace InDet {
   public:
     
     SiSpacePointForSeedITK();
-    SiSpacePointForSeedITK(Trk::SpacePoint*const&,const float*,bool,int);
+    SiSpacePointForSeedITK(Trk::SpacePoint*const&,const float*);
     SiSpacePointForSeedITK(Trk::SpacePoint*const&,const float*,const float*);
     SiSpacePointForSeedITK(const SiSpacePointForSeedITK&);
     virtual ~SiSpacePointForSeedITK()                 ;
     SiSpacePointForSeedITK& operator  = (const SiSpacePointForSeedITK&);
 
-    void set(Trk::SpacePoint*const&,const float*,bool,int)  ;
+    void set(Trk::SpacePoint*const&,const float*)  ;
     void set(Trk::SpacePoint*const&,const float*,const float*);
     void setQuality(float);
     void setParam(const float&);
@@ -51,17 +51,10 @@ namespace InDet {
     const float&       covz() const {return m_covz;}
     const float&      param() const {return m_param;}
     const float&    quality() const {return m_q ;}
-    const Trk::Surface* sur() const {return m_su;}
-    const Trk::Surface* sun() const {return m_sn;}
 
     bool coordinates(float*,float*);
-    bool barrel() const {return m_barrel;}
-    int  layer () const {return m_layer ;}
     
   protected:
-
-    bool  m_barrel;
-    int   m_layer ;
 
     float m_x   ; // x-coordinate in beam system coordinates  
     float m_y   ; // y-coordinate in beam system coordinates
@@ -76,9 +69,6 @@ namespace InDet {
     float m_b1[3];
     float m_dr[3];
     float m_r0[3];
-
-    const Trk::Surface* m_su;
-    const Trk::Surface* m_sn;
   };
 
 
@@ -97,10 +87,6 @@ namespace InDet {
       m_covz  = 0.;
       m_param = 0.;
       m_q     = 0.;
-      m_su    = 0 ;
-      m_sn    = 0 ;
-      m_layer = 0 ;
-      m_barrel= false;
       for(int i=0; i!=3; ++i) {m_b0[i]=0.; m_b1[i]=0.; m_dr[i]=0.; m_r0[i]=0.;}
    }
 
@@ -116,22 +102,21 @@ namespace InDet {
 	m_covr      = sp.m_covr    ;
 	m_covz      = sp.m_covz    ;
 	m_q         = sp.m_q       ;
-	m_su        = sp.m_su      ;
-	m_sn        = sp.m_sn      ;     
-	m_layer     = sp.m_layer   ;
-	m_barrel    = sp.m_barrel  ;
-	for(int i=0; i!=3; ++i) m_b0[i]=sp.m_b0[i];
-	for(int i=0; i!=3; ++i) m_b1[i]=sp.m_b1[i];
-	for(int i=0; i!=3; ++i) m_dr[i]=sp.m_dr[i];
- 	for(int i=0; i!=3; ++i) m_r0[i]=sp.m_r0[i];
-       }
+
+	for(int i=0; i!=3; ++i) {
+	  m_b0[i]=sp.m_b0[i];
+	  m_b1[i]=sp.m_b1[i];
+	  m_dr[i]=sp.m_dr[i];
+	  m_r0[i]=sp.m_r0[i];
+	}
+      }
       return(*this);
     }
  
   inline SiSpacePointForSeedITK::SiSpacePointForSeedITK
-    (Trk::SpacePoint*const& sp,const float* r,bool ba,int la) 
+    (Trk::SpacePoint*const& sp,const float* r) 
     {
-      set(sp,r,ba,la); m_param = 0.;
+      set(sp,r); m_param = 0.;
     }
 
   inline SiSpacePointForSeedITK::SiSpacePointForSeedITK
@@ -162,11 +147,9 @@ namespace InDet {
   /////////////////////////////////////////////////////////////////////////////////
 
   inline void SiSpacePointForSeedITK::set
-    (Trk::SpacePoint*const& sp,const float* r,bool ba,int la)
+    (Trk::SpacePoint*const& sp,const float* r)
     {
       spacepoint = sp  ;
-      m_barrel   = ba  ;
-      m_layer    = la  ;
       m_x        = r[0];
       m_y        = r[1];
       m_z        = r[2];
@@ -185,7 +168,6 @@ namespace InDet {
 	cov*=16.;
 	m_covz = cov*(r[3]*r[3]+r[4]*r[4]); 
 	m_covr = cov*(r[5]*r[5]);
-	m_sn   = 0;
       }
       else                {
 
@@ -193,12 +175,10 @@ namespace InDet {
 	float f22 = float(v(1,1));
 	if(de->isBarrel()) {m_covz = 8.*f22; m_covr = .1;} 
 	else               {m_covr = 8.*f22; m_covz = .1;} 
-	m_sn =  &sp->clusterList().second->detectorElement()->surface();
 
 	for(int i=0; i!=3; ++i) {m_b0[i]=r[3 +i]; m_b1[i]=r[6 +i]; m_dr[i]=r[9 +i]; m_r0[i]=r[12+i];}
 	
       }
-      m_su = &sp->clusterList().first->detectorElement()->surface();
     } 
 
   /////////////////////////////////////////////////////////////////////////////////
@@ -231,7 +211,6 @@ namespace InDet {
 	cov*=16.;
 	m_covz = cov*(r[3]*r[3]+r[4]*r[4]); 
 	m_covr = cov*(r[5]*r[5]);
-	m_sn   = 0;
       }
       else                {
 
@@ -239,11 +218,9 @@ namespace InDet {
 	float f22 = float(v(1,1));
 	if(de->isBarrel()) {m_covz = 8.*f22*sc[2]; m_covr = .1;} 
 	else               {m_covr = 8.*f22*sc[3]; m_covz = .1;} 
-	m_sn =  &sp->clusterList().second->detectorElement()->surface();
 
 	for(int i=0; i!=3; ++i) {m_b0[i]=r[3 +i]; m_b1[i]=r[6 +i]; m_dr[i]=r[9 +i]; m_r0[i]=r[12+i];}
       }
-      m_su = &sp->clusterList().first->detectorElement()->surface();
     }
 
   inline void SiSpacePointForSeedITK::setParam(const float& p)
@@ -264,20 +241,20 @@ namespace InDet {
 
   inline bool SiSpacePointForSeedITK::coordinates(float* d,float* r)
     {
-      float d0[3] = {m_b1[1]*d[2]-m_b1[2]*d[1],m_b1[2]*d[0]-m_b1[0]*d[2],m_b1[0]*d[1]-m_b1[1]*d[0]};
-      float bd0   =  m_b0[0]*d0[0]+m_b0[1]*d0[1]+m_b0[2]*d0[2];       if(     bd0==0.          ) return false;
-      float s0    =-(m_dr[0]*d0[0]+m_dr[1]*d0[1]+m_dr[2]*d0[2])/bd0;  if(s0 < -.05 || s0 > 1.05) return false;
-
       float d1[3] = {m_b0[1]*d[2]-m_b0[2]*d[1],m_b0[2]*d[0]-m_b0[0]*d[2],m_b0[0]*d[1]-m_b0[1]*d[0]};
-      float bd1   =  m_b1[0]*d1[0]+m_b1[1]*d1[1]+m_b1[2]*d1[2];       if(       bd1==0.        ) return false;
-      float s1    = (m_dr[0]*d1[0]+m_dr[1]*d1[1]+m_dr[2]*d1[2])/bd1;  if(s1 < -.05 || s1 > 1.05) return false;
+      float d0[3] = {m_b1[1]*d[2]-m_b1[2]*d[1],m_b1[2]*d[0]-m_b1[0]*d[2],m_b1[0]*d[1]-m_b1[1]*d[0]};
+
+      float bd1   =  m_b1[0]*d1[0]+m_b1[1]*d1[1]+m_b1[2]*d1[2];      if(       bd1==0.        ) return false;
+      float s1    = (m_dr[0]*d1[0]+m_dr[1]*d1[1]+m_dr[2]*d1[2])/bd1; if(s1 < -.05 || s1 > 1.05) return false;
+
+      float bd0   =  m_b0[0]*d0[0]+m_b0[1]*d0[1]+m_b0[2]*d0[2];      if(       bd0==0.        ) return false;
+      float s0    =-(m_dr[0]*d0[0]+m_dr[1]*d0[1]+m_dr[2]*d0[2])/bd0; if(s0 < -.05 || s0 > 1.05) return false;
 
       r[0] = m_r0[0]+m_b0[0]*s0;
       r[1] = m_r0[1]+m_b0[1]*s0;
       r[2] = m_r0[2]+m_b0[2]*s0;
       return true;
     }
-
 } // end of name space
 
 #endif  // SiSpacePointForSeedITK_h

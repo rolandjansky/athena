@@ -25,21 +25,12 @@
 #include "TrkSpacePoint/SpacePointContainer.h" 
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
-
-#include "InDetPrepRawData/PixelCluster.h" // needed for ITK long barrel  
-#include "InDetIdentifier/PixelID.h" // needed for ITK long barrel   
-#include "InDetIdentifier/SCT_ID.h" // needed for ITK long barrel   
-#include "InDetReadoutGeometry/PixelModuleDesign.h" // needed for ITK long barrel
-
 #include "SiSpacePointsSeedTool_xk/SiSpacePointForSeedITK.h"
 #include "SiSpacePointsSeedTool_xk/SiSpacePointsProSeedITK.h" 
 
+
 class MsgStream   ;
 class IBeamCondSvc;
-
-class PixelID; // needed for ITK long barrel  
-class SCT_ID; // needed for ITK long barrel
-class PixelModuleDesign; // needed for ITK long barrel  
 
 namespace Trk {
   class IPRD_AssociationTool;
@@ -203,12 +194,10 @@ namespace InDet {
       std::list<InDet::SiSpacePointForSeedITK*>  rfzv_Sorted[   300] ;
       std::list<InDet::SiSpacePointForSeedITK*>  l_spforseed         ;
       std::list<InDet::SiSpacePointForSeedITK*>::iterator i_spforseed; 
-      std::vector<InDet::SiSpacePointForSeedITK*>::iterator m_rMin   ;
 
       int m_ns,m_nsaz,m_nsazv                                     ;
       int m_fNmax[3],m_fvNmax                                     ;
       int m_fNmin,m_fvNmin                                        ;
-      int m_zMin                                                  ;
       int  m_nr     ; int* r_index   ; int* r_map                 ;
       int  m_nrfz   , rfz_index  [2211], rfz_map  [2211]          ;
       int  m_nrfzv  , rfzv_index [300], rfzv_map [300]            ;
@@ -218,41 +207,12 @@ namespace InDet {
       float m_sFv                                                 ;
 
       ///////////////////////////////////////////////////////////////////
-      // Switches and cuts for ITK extended barrel
-      ///////////////////////////////////////////////////////////////////
-      bool m_usePixelClusterCleanUp;              // switch to reject pixel clusters before seed search
-      bool m_usePixelClusterCleanUp_sizeZcutsB;   // sizeZ cuts for barrel
-      bool m_usePixelClusterCleanUp_sizePhicutsB; // size-phi cuts for barrel
-      bool m_usePixelClusterCleanUp_sizeZcutsE;   // sizeZ cuts for end-cap
-      bool m_usePixelClusterCleanUp_sizePhicutsE; // size-phi cuts for end-cap
-
-      int m_pix_sizePhiCut; // cut on the size-phi of pixel clusters
-      float m_pix_sizePhi2sizeZCut_p0B; // cut on size-phi/sizeZ of pixel clusters in barrel: p0/sizeZ-p1 
-      float m_pix_sizePhi2sizeZCut_p1B; // cut on size-phi/sizeZ of pixel clusters in barrel: p0/sizeZ-p1 
-      float m_pix_sizePhi2sizeZCut_p0E; // cut on size-phi/sizeZ of pixel clusters in end-cap: p0/sizeZ-p1 
-      float m_pix_sizePhi2sizeZCut_p1E; // cut on size-phi/sizeZ of pixel clusters in end-cap: p0/sizeZ-p1 
-
-      bool m_useITKseedCuts;          // global switch to use special ITK cuts
-      bool m_useITKseedCuts_dR;       // cut to reject seeds with both links in the same barrel pixel layer
-      bool m_useITKseedCuts_PixHole;  // cut to reject seeds with Pixel hole
-      bool m_useITKseedCuts_SctHole;  // cut to reject seeds with SCT hole
-      bool m_useITKseedCuts_hit;      // cut to require bottom hit in barrel layer-0,1 if middle link is in layer-0 of endcap rings
-      bool m_useITKseedCuts_dSize;    // cut to reject pixel barrel hits if |sizeZ-predicted_sizeZ| is too large
-      bool m_useITKseedCuts_sizeDiff; // cut to reject pixel barrel hits if |sizeZ(layer-i)-sizeZ(layer-j)| is too large
-
-      float m_Nsigma_clSizeZcut; // size of the cut on the cluster sizeZ at cluster clean-up stage: |sizeZ-predicted|<m_Nsigma_clSizeZcut*sigma 
-      float parR_clSizeZ0cut[3][5]; // right RMS for sizeZ-predicted_sizeZ(Z=0)
-      float parL_clSizeZ0cut[5]; // left RMS for sizeZ-predicted_sizeZ(Z=0)
-      float parR_clSizeZcut[2][5]; // right RMS for sizeZ-predicted_sizeZ(Z=Zvx)
-      float parL_clSizeZcut[5]; // left RMS for sizeZ-predicted_sizeZ(Z=Zvx)
-
-      ///////////////////////////////////////////////////////////////////
       // Tables for 3 space points seeds search
       ///////////////////////////////////////////////////////////////////
      
       int    m_maxsizeSP                                          ; 
       InDet::SiSpacePointForSeedITK** m_SP                        ;
-      float               *  m_Zo                                 ; 
+
       float               *  m_Tz                                 ;
       float               *  m_R                                  ;
       float               *  m_U                                  ;
@@ -262,7 +222,7 @@ namespace InDet {
       float               *  m_Er                                 ;
       float               *  m_L                                  ;
       float               *  m_Im                                 ;
-      
+
       InDet::SiSpacePointsSeed* m_seedOutput                      ;
 
       std::list<InDet::SiSpacePointsProSeedITK*>           l_seeds;
@@ -322,31 +282,24 @@ namespace InDet {
 	(SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,
 	 SiSpacePointForSeedITK*&,float,float)                       ;
 
-      void newOneSeedWithCurvaturesComparison
-	(SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,float);
       void newOneSeedWithCurvaturesComparisonPPP
 	(SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,float);
       void newOneSeedWithCurvaturesComparisonSSS
 	(SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,float);
-      void newOneSeedWithCurvaturesComparisonMIXED
-	(SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,float);
       void newOneSeedWithCurvaturesComparisonPPS
 	(SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,float);
-
-      void fillSeeds()                                            ;
-      void fillLists     ()                                       ;
-      void fillListsSSS  ()                                       ;
-      void fillListsPPP  ()                                       ;
-      void fillListsPPS  ()                                       ;
-      void erase         ()                                       ;
-      void production2Sp ()                                       ;
-      void production3Sp ()                                       ;
-      void production3SpSSS     ()                                ;
-      void production3SpPPP     ()                                ;
-      void production3SpPPPold  ()                                ;
-      void production3SpMIXED   ()                                ;
-      void production3SpMIXEDold()                                ;
-      void production3SpPPS     ()                                ;
+ 
+      void fillSeeds       () ;
+      void fillLists       () ;
+      void fillListsSSS    () ;
+      void fillListsPPP    () ;
+      void fillListsPPS    () ;
+      void erase           () ;
+      void production2Sp   () ;
+      void production3Sp   () ;
+      void production3SpSSS() ;
+      void production3SpPPP() ;
+      void production3SpPPS() ;
 
       void production3SpSSS
 	(std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
@@ -360,31 +313,13 @@ namespace InDet {
 	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
 	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
 	 int,int,int&);
-      void production3SpPPPold
-	(std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
-	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
-	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
-	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
-	 int,int,int&);
-      void production3SpMIXED
-	(std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
-	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
-	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
-	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
-	 int,int,int&);
-      void production3SpMIXEDold
-	(std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
-	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
-	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
-	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
-	 int,int,int&);
-       void production3SpTrigger
+       void production3SpPPS
 	 (std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
 	  std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
 	  std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
 	  std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
 	  int,int,int&);
-       void production3SpPPS
+       void production3SpTrigger
 	 (std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
 	  std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
 	  std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
@@ -396,23 +331,10 @@ namespace InDet {
       bool isZCompatible     (float&,float&,float&)               ;
       void convertToBeamFrameWork(Trk::SpacePoint*const&,float*)  ;
       bool isUsed(const Trk::SpacePoint*); 
-      bool pixInform(Trk::SpacePoint*const&,bool&,int&,float*);
-      void sctInform(Trk::SpacePoint*const&,bool&,int&,float*);
+      
+      void pixInform(Trk::SpacePoint*const&,float*);
+      void sctInform(Trk::SpacePoint*const&,float*);
       float AzimuthalStep(float,float,float,float);
-
-      // new methods for ITK long barrel -------------------------------------
-      double predictedClusterLength(const InDet::SiSpacePointForSeedITK*,  double thickness, float seed_zvx);
-      double predictedClusterLength(const Trk::SpacePoint*,  double thickness, float seed_zvx);
-      int deltaSize(double sizeZ, double predictedSize, double pixel_pitch);
-      bool isAwayFromChipBoundary(const InDet::SiSpacePointForSeedITK* sp, double size_phi, double size_z, double pitch_phi, double pitch_z);
-      bool isAwayFromChipBoundary(const Trk::SpacePoint* sp, double size_phi, double size_z, double pitch_phi, double pitch_z);
-      bool ClusterSizeCuts(const InDet::SiSpacePointForSeedITK* sp_low,const InDet::SiSpacePointForSeedITK* sp_high, const double z_seed);
-/*       bool ClusterCleanupSizeZCuts(const InDet::SiSpacePointForSeed* sp, const double sizeZ, const double zvx,  */
-/* 				   const double pitch, const double thickness, const int layerNum, const float Nsigma_clus); */
-      bool ClusterCleanupSizeZCuts(const Trk::SpacePoint* sp, const double sizePhi, const double sizeZ, const double zvx, 
-				   const double pitch_phi, const double pitch_z, const double thickness, const int layerNum, const float Nsigma_clus);
-      bool PixelSpacePointFilter(const Trk::SpacePoint*);
-      //---------- end of new methods for ITK long barrel --------------------
    
    };
 
@@ -472,16 +394,15 @@ namespace InDet {
 	float y = r[1]*m_dzdrmin     ;
 	if((z*z )<(x*x+y*y)) return 0;
       }
-      bool barrel;
-      int  layer ;
-      if(!sp->clusterList().second) {if(!pixInform(sp,barrel,layer,r)) return 0;} 
-      else                          {    sctInform(sp,barrel,layer,r);          }
+
+      if(!sp->clusterList().second) {pixInform(sp,r);} 
+      else                          {sctInform(sp,r);}
 
       if(i_spforseed!=l_spforseed.end()) {
-	sps = (*i_spforseed++); sps->set(sp,r,barrel,layer); 
+	sps = (*i_spforseed++); sps->set(sp,r); 
       }
       else                               {
-	l_spforseed.push_back((sps=new SiSpacePointForSeedITK(sp,r,barrel,layer)));
+	l_spforseed.push_back((sps=new SiSpacePointForSeedITK(sp,r)));
 	i_spforseed = l_spforseed.end();	
       }
       
@@ -514,20 +435,6 @@ namespace InDet {
 ///////////////////////////////////////////////////////////////////
 
 class comCurvatureITK  {
-public:
-  bool operator ()
-  (const std::pair<float,InDet::SiSpacePointForSeedITK*>& i1, 
-   const std::pair<float,InDet::SiSpacePointForSeedITK*>& i2)
-  {
-    return i1.first < i2.first;
-  }
-};
-
-///////////////////////////////////////////////////////////////////
-// Object-function for curvature seeds comparison
-///////////////////////////////////////////////////////////////////
-
-class comCurvatureITKn  {
 public:
   bool operator ()
   (const std::pair<float,int>& i1, 
