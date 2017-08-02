@@ -33,12 +33,6 @@ atlas_add_dictionary( SGToolsDict
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                       LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel CxxUtils GaudiKernel TestTools SGAudCore SGTools )
 
-atlas_add_test( CLIDRegistry_test
-                SOURCES
-                test/CLIDRegistry_test.cxx
-                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel CxxUtils GaudiKernel TestTools SGAudCore SGTools )
-
 atlas_add_test( VersionedKey_test
                 SOURCES
                 test/VersionedKey_test.cxx
@@ -51,12 +45,6 @@ atlas_add_test( DataBucket_test
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel CxxUtils GaudiKernel TestTools SGAudCore SGTools
                 EXTRA_PATTERNS "^HistogramPersis.* INFO" )
-
-atlas_add_test( BaseInfo_test
-                SOURCES
-                test/BaseInfo_test.cxx
-                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel CxxUtils GaudiKernel TestTools SGAudCore SGTools )
 
 atlas_add_test( safe_clid_test
                 SOURCES
@@ -79,12 +67,6 @@ atlas_add_test( exceptions_test
 atlas_add_test( StringPool_test
                 SOURCES
                 test/StringPool_test.cxx
-                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel CxxUtils GaudiKernel TestTools SGAudCore SGTools )
-
-atlas_add_test( ClassName_test
-                SOURCES
-                test/ClassName_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel CxxUtils GaudiKernel TestTools SGAudCore SGTools )
 

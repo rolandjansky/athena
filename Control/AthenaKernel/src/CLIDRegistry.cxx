@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "SGTools/CLIDRegistry.h"
+#include "AthenaKernel/CLIDRegistry.h"
 #include <unordered_map>
 #include <memory>
 /* #include <algorithm> */

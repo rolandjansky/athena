@@ -4,7 +4,7 @@
 
 // $Id: BaseInfo.icc,v 1.9 2008-12-15 15:12:39 ssnyder Exp $
 /**
- * @file  SGTools/BaseInfo.icc
+ * @file  AthenaKernel/BaseInfo.icc
  * @author scott snyder
  * @date Nov 2005
  * @brief Provide an interface for finding inheritance information

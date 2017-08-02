@@ -3,7 +3,7 @@
 */
 
 #include <cassert>
-#include "SGTools/ClassName.h"
+#include "AthenaKernel/ClassName.h"
 
 class A {};
 class B {};

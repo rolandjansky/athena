@@ -4,7 +4,7 @@
 
 // $Id$
 /**
- * @file  SGTools/BaseInfo_test.cxx
+ * @file  AthenaKernel/test/BaseInfo_test.cxx
  * @author scott snyder
  * @date A while ago.
  * @brief Regression test for BaseInfo.
@@ -13,8 +13,8 @@
 
 #undef NDEBUG
 
-#include "SGTools/BaseInfo.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/BaseInfo.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "boost/assign/list_of.hpp"
 #include <iostream>
 #include <algorithm>

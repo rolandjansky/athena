@@ -11,13 +11,8 @@
 #ifndef SGTOOLS_BUILTINSCLIDS_H 
 #define SGTOOLS_BUILTINSCLIDS_H 
 
-// STL includes
+#include "AthenaKernel/CLASS_DEF.h"
 #include <string>
-
-// Gaudi includes
-
-// SGTools includes
-#include "SGTools/CLASS_DEF.h"
 
 CLASS_DEF( char ,          81926032 , 1 )
 CLASS_DEF( bool ,         134610868 , 1 )

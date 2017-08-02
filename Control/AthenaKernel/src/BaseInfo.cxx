@@ -4,7 +4,7 @@
 
 // $Id: BaseInfo.cxx,v 1.9 2008-11-25 21:45:04 ssnyder Exp $
 /**
- * @file  SGTools/BaseInfo.cxx
+ * @file  AthenaKernel/src/BaseInfo.cxx
  * @author scott snyder
  * @date Nov 2005
  * @brief Provide an interface for finding inheritance information
@@ -12,8 +12,8 @@
  *        Out-of-line implementation.
  */
 
-#include "SGTools/BaseInfo.h"
-#include "SGTools/CLIDRegistry.h"
+#include "AthenaKernel/BaseInfo.h"
+#include "AthenaKernel/CLIDRegistry.h"
 #include "GaudiKernel/System.h"
 #include <mutex>
 #include <map>

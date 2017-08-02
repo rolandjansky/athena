@@ -13,7 +13,7 @@
 
 #undef NDEBUG
 
-#include "SGTools/CLIDRegistry.h"
+#include "AthenaKernel/CLIDRegistry.h"
 
 #include <algorithm>
 #include <cassert>
@@ -45,7 +45,7 @@ int main () {
   assert( distance(er.first, er.second) == 2 );
   assert( get<0>(*(CLIDRegistry::end()-2)) == 1234 );
   assert( get<1>(*(CLIDRegistry::end()-2)) == "Foo" );
-  assert( get<2>(*(CLIDRegistry::end()-2)).name() == "SGTools" );
+  assert( get<2>(*(CLIDRegistry::end()-2)).name() == "AthenaKernel" );
 
   assert (CLIDRegistry::CLIDToTypeinfo (4321) == &typeid(Bar));
   assert (CLIDRegistry::CLIDToTypeinfo (43213) == 0);

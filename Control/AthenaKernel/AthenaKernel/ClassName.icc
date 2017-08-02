@@ -4,7 +4,7 @@
 
 // $Id: ClassName.icc,v 1.1 2009-01-15 19:07:29 binet Exp $
 /**
- * @file  DataModel/ClassName.icc
+ * @file  AthenaKernel/ClassName.icc
  * @author scott snyder
  * @date Jul 2005
  * @brief An interface for getting the name of a class as a string.
