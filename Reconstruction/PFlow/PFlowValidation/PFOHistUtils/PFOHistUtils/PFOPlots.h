@@ -14,9 +14,9 @@ namespace PFO {
 
   public:
 
-     PFOPlots(PlotBase *pParent, std::string sDir, std::string sPFOContainerName);
+    PFOPlots(PlotBase *pParent, std::string sDir, std::string sPFOContainerName);
 
-     void fill(const xAOD::PFO& PFO);
+    void fill(const xAOD::PFO& PFO);
 
   private:
     TH1* m_PFO_pt;

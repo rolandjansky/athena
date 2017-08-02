@@ -5,7 +5,8 @@
 #ifndef PHYSVALPFO_H
 #define PHYSVALPFO_H
 
-#include "PFOValidationPlots.h"
+#include "PFOChargedValidationPlots.h"
+#include "PFONeutralValidationPlots.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include <string>
 #include "PFlowUtils/IRetrievePFOTool.h"
@@ -31,9 +32,12 @@ class PhysValPFO : public ManagedMonitorToolBase {
   /** String that defines with PFO container to use */
   std::string m_PFOContainerName;
 
-  /** Pointer to class that defines which histogram blocks to fill */
-  std::unique_ptr<PFOValidationPlots> m_PFOValidationPlots;
+  /** Pointer to class that deals with histograms for charged PFO */
+  std::unique_ptr<PFOChargedValidationPlots> m_PFOChargedValidationPlots;
 
+  /** Pointer to class that deals with histograms for neutral PFO */
+  std::unique_ptr<PFONeutralValidationPlots> m_PFONeutralValidationPlots;
+  
   /** Tool to retrieve PFO */
   ToolHandle<CP::IRetrievePFOTool> m_retrievePFOTool;
 
@@ -44,7 +48,7 @@ class PhysValPFO : public ManagedMonitorToolBase {
   bool m_useNeutralPFO;
 
   /** Select whether to fill EM scale histograms up */
-  bool m_fillEMHistograms;
+  //bool m_fillEMHistograms;
 
 };
 #endif

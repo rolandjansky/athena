@@ -5,12 +5,11 @@
 #include "PhysValPFO.h"
 #include "xAODPFlow/PFOContainer.h"
 
-PhysValPFO::PhysValPFO (const std::string& type, const std::string& name, const IInterface* parent ) : ManagedMonitorToolBase( type, name, parent ), m_retrievePFOTool("RetrievePFOTool",this), m_useLCScale(false), m_useNeutralPFO(false), m_fillEMHistograms(false) {
+PhysValPFO::PhysValPFO (const std::string& type, const std::string& name, const IInterface* parent ) : ManagedMonitorToolBase( type, name, parent ), m_retrievePFOTool("RetrievePFOTool",this), m_useLCScale(false), m_useNeutralPFO(false) {
   declareProperty( "PFOContainerName", m_PFOContainerName="");
   declareProperty("RetrievePFOTool",m_retrievePFOTool,"Name of PFO getter");
   declareProperty("useLCScale",m_useLCScale, " Select which PFO setup to use - LC or EM ");
   declareProperty("useNeutralPFO", m_useNeutralPFO, "Select whether to use neutral or charged PFO");
-  declareProperty("fillEMHistograms", m_fillEMHistograms, "Select whether to plot EM scale 4-vector");
 }
 
 PhysValPFO::~PhysValPFO() {}
@@ -34,11 +33,20 @@ StatusCode PhysValPFO::bookHistograms(){
 
   std::string theName = "PFlow/PFO_JetETMiss/JetETMiss_"+scale+"_"+type;
 
-  m_PFOValidationPlots.reset(new PFOValidationPlots(0,theName, theName));
-  m_PFOValidationPlots->setDetailLevel(100);
-  m_PFOValidationPlots->initialize();
-  std::vector<HistData> hists = m_PFOValidationPlots->retrieveBookedHistograms();
-
+  std::vector<HistData> hists;
+  if (false == m_useNeutralPFO){
+    m_PFOChargedValidationPlots.reset(new PFOChargedValidationPlots(0,theName, theName));
+    m_PFOChargedValidationPlots->setDetailLevel(100);
+    m_PFOChargedValidationPlots->initialize();
+    hists = m_PFOChargedValidationPlots->retrieveBookedHistograms();
+  }
+  else if (true == m_useNeutralPFO){
+    m_PFONeutralValidationPlots.reset(new PFONeutralValidationPlots(0,theName, theName));
+    m_PFONeutralValidationPlots->setDetailLevel(100);
+    m_PFONeutralValidationPlots->initialize();
+    hists = m_PFONeutralValidationPlots->retrieveBookedHistograms();
+  }
+  
   for (auto hist : hists) {
     ATH_CHECK(regHist(hist.first,hist.second,all));
   }
@@ -67,7 +75,8 @@ StatusCode PhysValPFO::fillHistograms(){
 
   for (; firstPFO != lastPFO; ++firstPFO) {
     const xAOD::PFO* thePFO = *firstPFO;
-    m_PFOValidationPlots->fill(*thePFO, m_fillEMHistograms);
+    if (false == m_useNeutralPFO) m_PFOChargedValidationPlots->fill(*thePFO);
+    else if (true == m_useNeutralPFO) m_PFONeutralValidationPlots->fill(*thePFO);
   }
 
   return StatusCode::SUCCESS;
