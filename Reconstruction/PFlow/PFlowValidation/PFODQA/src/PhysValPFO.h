@@ -13,7 +13,7 @@
 
 class PhysValPFO : public ManagedMonitorToolBase {
 
- public:
+public:
 
   /** Standard Constructor */
   PhysValPFO (const std::string& type, const std::string& name, const IInterface* parent );
@@ -29,9 +29,6 @@ class PhysValPFO : public ManagedMonitorToolBase {
 
  private:
 
-  /** String that defines with PFO container to use */
-  std::string m_PFOContainerName;
-
   /** Pointer to class that deals with histograms for charged PFO */
   std::unique_ptr<PFOChargedValidationPlots> m_PFOChargedValidationPlots;
 
@@ -46,9 +43,6 @@ class PhysValPFO : public ManagedMonitorToolBase {
   
   /** Select whether to use neutral or charged PFO */
   bool m_useNeutralPFO;
-
-  /** Select whether to fill EM scale histograms up */
-  //bool m_fillEMHistograms;
 
 };
 #endif

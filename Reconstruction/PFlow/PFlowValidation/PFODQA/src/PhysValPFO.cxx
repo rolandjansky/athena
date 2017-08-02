@@ -6,7 +6,6 @@
 #include "xAODPFlow/PFOContainer.h"
 
 PhysValPFO::PhysValPFO (const std::string& type, const std::string& name, const IInterface* parent ) : ManagedMonitorToolBase( type, name, parent ), m_retrievePFOTool("RetrievePFOTool",this), m_useLCScale(false), m_useNeutralPFO(false) {
-  declareProperty( "PFOContainerName", m_PFOContainerName="");
   declareProperty("RetrievePFOTool",m_retrievePFOTool,"Name of PFO getter");
   declareProperty("useLCScale",m_useLCScale, " Select which PFO setup to use - LC or EM ");
   declareProperty("useNeutralPFO", m_useNeutralPFO, "Select whether to use neutral or charged PFO");
