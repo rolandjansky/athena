@@ -27,37 +27,37 @@ public:
 
   virtual ~AFPProtonTransportTool();
 
-  /*! Loads parametrization file and gets the value of positions, slopes and nominal energy. */
+  /// Loads parametrization file and gets the value of positions, slopes and nominal energy.
   int load(std::string filename);
 
 
-  /*! Evaluates value of horizontal position equation. */
+  /// Evaluates value of horizontal position equation.
   double x(double x0, double y0, double z0, double sx0, double sy0, double E) const {
     return m_px->evaluate(x0 + m_xPositionInitIP, y0 + m_yPositionInitIP, z0 + m_zPositionInitIP, sx0 + m_xSlopeInitIP,
                           sy0 + m_ySlopeInitIP, E);
   }
 
-  /*! Evaluates value of vertical position equation. */
+  /// Evaluates value of vertical position equation. 
   double y(double x0, double y0, double z0, double sx0, double sy0, double E) const {
     return m_py->evaluate(x0 + m_xPositionInitIP, y0 + m_yPositionInitIP, z0 + m_zPositionInitIP, sx0 + m_xSlopeInitIP,
                           sy0 + m_ySlopeInitIP, E);
   }
 
-  /*! Evaluates value of horizontal slope equation. */
+  /// Evaluates value of horizontal slope equation. 
   double sx(double x0, double y0, double z0, double sx0, double sy0, double E) const {
     return m_psx->evaluate(x0 + m_xPositionInitIP, y0 + m_yPositionInitIP, z0 + m_zPositionInitIP, sx0 + m_xSlopeInitIP,
                            sy0 + m_ySlopeInitIP, E);
   }
 
-  /*! Evaluates value of vertical slope equation. */
+  /// Evaluates value of vertical slope equation.
   double sy(double x0, double y0, double z0, double sx0, double sy0, double E) const {
    return m_psy->evaluate(x0 + m_xPositionInitIP, y0 + m_yPositionInitIP, z0 + m_zPositionInitIP, sx0 + m_xSlopeInitIP, sy0 + m_ySlopeInitIP, E);
                                                                                                                                                  }
 
-  /*! Returns position for which parametrization was performed. */
+  /// Returns position for which parametrization was performed.
   double parametrisationPosition() const {return m_parametrisationPosition;}
 
-  /*! Returns nominal energy for which parametrization was performed. */
+  /// Returns nominal energy for which parametrization was performed.
   double energy() const {return m_energy;};
 private:
 
