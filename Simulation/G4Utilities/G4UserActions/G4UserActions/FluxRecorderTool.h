@@ -43,8 +43,6 @@ namespace G4UA
       /// retrieves the stepping action
       virtual ISteppingAction* getSteppingAction() override final
       { return static_cast<ISteppingAction*>( getAction() ); }
-      /// Gaudi interface handling
-      virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
     protected:
       /// create action for this thread
       virtual std::unique_ptr<FluxRecorder> makeAction() override final;

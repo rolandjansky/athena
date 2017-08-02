@@ -15,6 +15,7 @@ namespace G4UA
                                  const IInterface* parent)
     : ActionToolBaseReport<LooperKiller>(type, name, parent)
   {
+    declareInterface<ISteppingActionTool>(this);
     declareProperty("MaxSteps", m_config.MaxSteps);
     declareProperty("PrintSteps",m_config.PrintSteps);
     declareProperty("VerboseLevel", m_config.VerboseLevel);
@@ -56,20 +57,6 @@ namespace G4UA
   {
     ATH_MSG_DEBUG("makeAction");
     return CxxUtils::make_unique<LooperKiller>(m_config);
-  }
-
-  //---------------------------------------------------------------------------
-  // Query interface
-  //---------------------------------------------------------------------------
-  StatusCode LooperKillerTool::queryInterface(const InterfaceID& riid, void** ppvIf)
-  {
-    if(riid == ISteppingActionTool::interfaceID()) {
-      *ppvIf = (ISteppingActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-
-    return ActionToolBase<LooperKiller>::queryInterface(riid, ppvIf);
   }
 
 }
