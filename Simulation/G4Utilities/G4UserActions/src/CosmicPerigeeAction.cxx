@@ -100,6 +100,8 @@ namespace G4UA
       theStep = postStep;
     }
 
+    // Could the following code be optimized?
+    // There seems to be a bit of object copying.
     int pdgcode = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
     double ener = theStep->GetTotalEnergy();
     G4ThreeVector pos = theStep->GetPosition();
