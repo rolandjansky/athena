@@ -46,8 +46,6 @@ namespace G4UA
       /// retrieves EoE action
       virtual IEndEventAction* getEndEventAction() override final
       { return static_cast<IEndEventAction*>( getAction() ); }
-      /// gaudi interface manipulation
-      virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
     protected:
       /// creates the action instances
       virtual std::unique_ptr<ScoringPlane> makeAction() override final;
