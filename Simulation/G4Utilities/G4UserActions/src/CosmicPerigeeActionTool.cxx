@@ -16,51 +16,22 @@ namespace G4UA
                                                    const IInterface* parent)
     : ActionToolBase<CosmicPerigeeAction>(type, name, parent)
   {
-    declareProperty("pMinPrimary",m_config.pMinPrimary);
+    declareInterface<ISteppingActionTool>(this);
+    declareInterface<IBeginEventActionTool>(this);
+    declareInterface<IEndEventActionTool>(this);
+    declareInterface<IPreTrackingActionTool>(this);
+    declareProperty("pMinPrimary", m_config.pMinPrimary);
   }
   
 
   //---------------------------------------------------------------------------
   // Create the action on request
   //---------------------------------------------------------------------------
-  std::unique_ptr<CosmicPerigeeAction>
-  CosmicPerigeeActionTool::makeAction()
+  std::unique_ptr<CosmicPerigeeAction> CosmicPerigeeActionTool::makeAction()
   {
     ATH_MSG_DEBUG("makeAction");
     auto action = CxxUtils::make_unique<CosmicPerigeeAction>(m_config);
     return std::move(action);
-  }
-
-  //---------------------------------------------------------------------------
-  // Query interface
-  //---------------------------------------------------------------------------
-  StatusCode CosmicPerigeeActionTool::queryInterface(const InterfaceID& riid, void** ppvIf)
-  {
-    if(riid == ISteppingActionTool::interfaceID()) {
-      *ppvIf = (ISteppingActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    
-    if(riid == IEndEventActionTool::interfaceID()) {
-      *ppvIf = (IEndEventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    
-    if(riid == IBeginEventActionTool::interfaceID()) {
-      *ppvIf = (IBeginEventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    
-    if(riid == IPreTrackingActionTool::interfaceID()) {
-      *ppvIf = (IPreTrackingActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    
-    return ActionToolBase<CosmicPerigeeAction>::queryInterface(riid, ppvIf);
   }
   
 }
