@@ -69,6 +69,8 @@ public:
   {
     return m_lookup;
   }
+  /// Method used by TileFastCaloSim/TileFCSmStepToTileHitVec
+  virtual void pmtEdepFromFCS_StepInfo(TileHitData& hitData, double ene, double yLocal, double halfYLocal, double zLocal, int Ushape) const override final;
 private:
   void CreateScintHit(int pmt, TileHitData& hitData) const;
   void UpdateScintHit(int pmt, TileHitData& hitData) const;
