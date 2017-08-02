@@ -10,9 +10,6 @@
 
 #undef NDEBUG
 
-// Tested service
-#include "../src/InputConverter.h"
-
 // Framework
 #include "GaudiKernel/PhysicalConstants.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
@@ -42,10 +39,15 @@
 // HepMC
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"
+#include "GeneratorObjects/HepMcParticleLink.h"
+#include "CxxUtils/make_unique.h"
+#include "GeneratorObjects/McEventCollection.h"
 
 // STL includes
 #include <cstdlib> // quick_exit
 
+// Tested service
+#include "../src/InputConverter.h"
 
 namespace ISFTesting {
 
@@ -161,8 +163,7 @@ TEST_F(InputConverter_test, initialize_empty) {
 
 TEST_F(InputConverter_test, convertParticle_nullptr) {
   ISF::ISFParticle* expected = nullptr;
-  int bcid = 1;
-  ASSERT_EQ( expected, convertParticle(nullptr, bcid) );
+  ASSERT_EQ( expected, convertParticle(nullptr, EBC_MAINEVCOLL) );
 }
 
 
@@ -173,8 +174,7 @@ TEST_F(InputConverter_test, convertParticle_without_production_vertex) {
                                                        1 // status
                                                       );
   ISF::ISFParticle* expected = nullptr;
-  int bcid = 99;
-  ASSERT_EQ( expected, convertParticle(genPart, bcid) );
+  ASSERT_EQ( expected, convertParticle(genPart, EBC_FIRSTPUEVCOLL) );
   delete genPart;
 }
 
@@ -183,6 +183,7 @@ TEST_F(InputConverter_test, convertParticle_using_generated_mass) {
   m_svc->setProperty("UseGeneratedParticleMass", "True");
   ASSERT_TRUE( m_svc->initialize().isSuccess() );
 
+  const int particleBarcode(546);
   HepMC::FourVector mom(12.3, 45.6, 78.9, 0.12);
   // dynamic allocation necessary as particle ownership is
   // handed over to a HepMC::GenVertex later
@@ -191,17 +192,28 @@ TEST_F(InputConverter_test, convertParticle_using_generated_mass) {
                                                        1 // status
                                                       );
   genPart->set_generated_mass(1234.56);
-  genPart->suggest_barcode(9876352);
+  genPart->suggest_barcode(particleBarcode);
 
   HepMC::FourVector pos(9.8, 7.65, 4.3, 0.321); // NB: 4th component is time*c
   int vtx_id = -123;
-  HepMC::GenVertex prodVtx(pos, vtx_id);
-  prodVtx.add_particle_out(genPart);
+  HepMC::GenVertex *prodVtx = new HepMC::GenVertex(pos, vtx_id);
+  prodVtx->add_particle_out(genPart);
+
+  // create dummy input McEventCollection containing a dummy GenEvent
+  SG::WriteHandle<McEventCollection> inputTestDataHandle{"GEN_EVENT_HighPtPU"};
+  inputTestDataHandle = CxxUtils::make_unique<McEventCollection>();
+  inputTestDataHandle->push_back(new HepMC::GenEvent());
+  HepMC::GenEvent& ge = *(inputTestDataHandle->at(0));
+  ge.add_vertex( prodVtx );
+  HepMcParticleLink* trackLink = new HepMcParticleLink(particleBarcode, 0, EBC_SECONDPUEVCOLL);
 
   Amg::Vector3D expectedPos(9.8, 7.65, 4.3);
   Amg::Vector3D expectedMom(12.3, 45.6, 78.9);
   ISF::DetRegionSvcIDPair expectedHistory(AtlasDetDescr::fUndefinedAtlasRegion, ISF::fEventGeneratorSimID);
   auto* expectedTruthBinding = new ISF::TruthBinding(genPart);
+  const int expectedBCID(1); // FIXME for now convertParticle forces
+                             // the bcid for pile-up
+                             // McEventCollections to be 1.
   ISF::ISFParticle expected(expectedPos,
                             expectedMom,
                             1234.56,
@@ -209,14 +221,13 @@ TEST_F(InputConverter_test, convertParticle_using_generated_mass) {
                             11, // pdg id
                             0.321/Gaudi::Units::c_light, // time
                             expectedHistory,
-                            563, // bcid
-                            9876352, // barcode
-                            expectedTruthBinding
-                            );
+                            expectedBCID, // bcid
+                            particleBarcode, // barcode
+                            expectedTruthBinding,
+                            trackLink);
 
-  int bcid = 563;
   // call the InputConverter's private method
-  ISF::ISFParticle* returned = convertParticle(genPart, bcid);
+  ISF::ISFParticle* returned = convertParticle(genPart, EBC_SECONDPUEVCOLL);
   ASSERT_TRUE( returned );
 
   ASSERT_EQ( expected, *returned );
@@ -229,6 +240,7 @@ TEST_F(InputConverter_test, convertParticle_using_particleDataTable_photon) {
   m_svc->setProperty("UseGeneratedParticleMass", "False");
   ASSERT_TRUE( m_svc->initialize().isSuccess() );
 
+  const int particleBarcode(546);
   HepMC::FourVector mom(12.3, 45.6, 78.9, 0.12);
   // dynamic allocation necessary as particle ownership is
   // handed over to a HepMC::GenVertex later
@@ -237,17 +249,26 @@ TEST_F(InputConverter_test, convertParticle_using_particleDataTable_photon) {
                                                        1 // status
                                                       );
   genPart->set_generated_mass(1234.56); // should be ignored later on
-  genPart->suggest_barcode(9876352);
+  genPart->suggest_barcode(particleBarcode);
 
   HepMC::FourVector pos(9.8, 7.65, 4.3, 0.321); // NB: 4th component is time*c
   int vtx_id = -123;
-  HepMC::GenVertex prodVtx(pos, vtx_id);
-  prodVtx.add_particle_out(genPart);
+  HepMC::GenVertex *prodVtx = new HepMC::GenVertex(pos, vtx_id);
+  prodVtx->add_particle_out(genPart);
+
+  // create dummy input McEventCollection containing a dummy GenEvent
+  SG::WriteHandle<McEventCollection> inputTestDataHandle{"GEN_EVENT"};
+  inputTestDataHandle = CxxUtils::make_unique<McEventCollection>();
+  inputTestDataHandle->push_back(new HepMC::GenEvent());
+  HepMC::GenEvent& ge = *(inputTestDataHandle->at(0));
+  ge.add_vertex( prodVtx );
+  HepMcParticleLink* trackLink = new HepMcParticleLink(particleBarcode);
 
   Amg::Vector3D expectedPos(9.8, 7.65, 4.3);
   Amg::Vector3D expectedMom(12.3, 45.6, 78.9);
   ISF::DetRegionSvcIDPair expectedHistory(AtlasDetDescr::fUndefinedAtlasRegion, ISF::fEventGeneratorSimID);
   auto* expectedTruthBinding = new ISF::TruthBinding(genPart);
+  const int expectedBCID(0);
   ISF::ISFParticle expected(expectedPos,
                             expectedMom,
                             0., // mass from ParticleDataTable
@@ -255,14 +276,14 @@ TEST_F(InputConverter_test, convertParticle_using_particleDataTable_photon) {
                             22, // pdg id
                             0.321/Gaudi::Units::c_light, // time
                             expectedHistory,
-                            0, // bcid
-                            9876352, // barcode
-                            expectedTruthBinding
+                            expectedBCID, // bcid
+                            particleBarcode, // barcode
+                            expectedTruthBinding,
+                            trackLink
                             );
 
-  int bcid = 0;
   // call the InputConverter's private method
-  ISF::ISFParticle* returned = convertParticle(genPart, bcid);
+  ISF::ISFParticle* returned = convertParticle(genPart, EBC_MAINEVCOLL);
   ASSERT_TRUE( returned );
 
   ASSERT_EQ( expected, *returned );
@@ -275,6 +296,7 @@ TEST_F(InputConverter_test, convertParticle_using_particleDataTable_electron) {
   m_svc->setProperty("UseGeneratedParticleMass", "False");
   ASSERT_TRUE( m_svc->initialize().isSuccess() );
 
+  const int particleBarcode(546);
   HepMC::FourVector mom(12.3, 45.6, 78.9, 0.12);
   // dynamic allocation necessary as particle ownership is
   // handed over to a HepMC::GenVertex later
@@ -283,17 +305,28 @@ TEST_F(InputConverter_test, convertParticle_using_particleDataTable_electron) {
                                                        1 // status
                                                       );
   genPart->set_generated_mass(1234.56); // should be ignored later on
-  genPart->suggest_barcode(9876352);
+  genPart->suggest_barcode(particleBarcode);
 
   HepMC::FourVector pos(9.8, 7.65, 4.3, 0.321); // NB: 4th component is time*c
   int vtx_id = -123;
-  HepMC::GenVertex prodVtx(pos, vtx_id);
-  prodVtx.add_particle_out(genPart);
+  HepMC::GenVertex *prodVtx = new HepMC::GenVertex(pos, vtx_id);
+  prodVtx->add_particle_out(genPart);
+
+  // create dummy input McEventCollection containing a dummy GenEvent
+  SG::WriteHandle<McEventCollection> inputTestDataHandle{"GEN_EVENT_PU"};
+  inputTestDataHandle = CxxUtils::make_unique<McEventCollection>();
+  inputTestDataHandle->push_back(new HepMC::GenEvent());
+  HepMC::GenEvent& ge = *(inputTestDataHandle->at(0));
+  ge.add_vertex( prodVtx );
+  HepMcParticleLink* trackLink = new HepMcParticleLink(particleBarcode, 0, EBC_FIRSTPUEVCOLL);
 
   Amg::Vector3D expectedPos(9.8, 7.65, 4.3);
   Amg::Vector3D expectedMom(12.3, 45.6, 78.9);
   ISF::DetRegionSvcIDPair expectedHistory(AtlasDetDescr::fUndefinedAtlasRegion, ISF::fEventGeneratorSimID);
   auto* expectedTruthBinding = new ISF::TruthBinding(genPart);
+  const int expectedBCID(1); // FIXME for now convertParticle forces
+                             // the bcid for pile-up
+                             // McEventCollections to be 1.
   ISF::ISFParticle expected(expectedPos,
                             expectedMom,
                             0.51099891/Gaudi::Units::MeV, // from particle
@@ -301,14 +334,14 @@ TEST_F(InputConverter_test, convertParticle_using_particleDataTable_electron) {
                             11, // pdg id
                             0.321/Gaudi::Units::c_light, // time
                             expectedHistory,
-                            11, // bcid
-                            9876352, // barcode
-                            expectedTruthBinding
+                            expectedBCID, // bcid
+                            particleBarcode, // barcode
+                            expectedTruthBinding,
+                            trackLink
                             );
 
-  int bcid = 11;
   // call the InputConverter's private method
-  ISF::ISFParticle* returned = convertParticle(genPart, bcid);
+  ISF::ISFParticle* returned = convertParticle(genPart, EBC_FIRSTPUEVCOLL);
   ASSERT_TRUE( returned );
 
   ASSERT_EQ( expected, *returned );
@@ -328,13 +361,14 @@ TEST_F(InputConverter_test, passesFilters_empty_filters_defaultconstructed_genpa
 TEST_F(InputConverter_test, passesFilters_empty_filters) {
   ASSERT_TRUE( m_svc->initialize().isSuccess() );
 
+  const int particleBarcode(546);
   HepMC::FourVector mom(12.3, 45.6, 78.9, 0.12);
   HepMC::GenParticle genPart(mom,
                               11, // pdg id (e-)
                               1 // status
                              );
   genPart.set_generated_mass(1234.56);
-  genPart.suggest_barcode(9876352);
+  genPart.suggest_barcode(particleBarcode);
   const HepMC::GenParticle constGenPart(std::move(genPart));
 
   ASSERT_TRUE( passesFilters(constGenPart) );
