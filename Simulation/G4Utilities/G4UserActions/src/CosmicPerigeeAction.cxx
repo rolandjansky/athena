@@ -112,11 +112,11 @@ namespace G4UA
     if (aStep->GetTrack()->GetDefinition() == G4Geantino::Definition() ) pdgcode=999;
     if (aStep->GetTrack()->GetDefinition() == G4ChargedGeantino::Definition() ) pdgcode=998;
 
-    //create the TimedTrackRecord
+    // Create the TimedTrackRecord
     TrackHelper trHelp(aStep->GetTrack());
     int barcode = trHelp.GetBarcode();
-    m_trackRecordCollection->Emplace(pdgcode,ener,mom,pos,time,barcode,preVol->GetName());
-
+    m_trackRecordCollection->Emplace(pdgcode, ener, mom, pos, time, barcode,
+                                     preVol->GetName());
   }
 
 } // namespace G4UA
