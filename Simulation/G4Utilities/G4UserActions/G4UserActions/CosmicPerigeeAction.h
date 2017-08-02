@@ -27,8 +27,7 @@ namespace G4UA
 
     struct Config
     {
-      bool AllowMods=false;
-      float pMinPrimary=100*CLHEP::MeV;
+      float pMinPrimary = 100*CLHEP::MeV;
     };
 
     CosmicPerigeeAction(const Config& config);
