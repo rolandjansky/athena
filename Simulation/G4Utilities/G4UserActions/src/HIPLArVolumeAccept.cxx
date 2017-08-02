@@ -3,7 +3,6 @@
 */
 
 #include "G4UserActions/HIPLArVolumeAccept.h"
-#include <iostream>
 
 #include "G4Event.hh"
 #include "G4Step.hh"

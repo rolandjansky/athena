@@ -16,11 +16,11 @@ namespace G4UA
   {}
 
   //---------------------------------------------------------------------------
-  std::unique_ptr<ScoringVolumeTrackKiller> ScoringVolumeTrackKillerTool::makeAction()
+  std::unique_ptr<ScoringVolumeTrackKiller>
+  ScoringVolumeTrackKillerTool::makeAction()
   {
     ATH_MSG_DEBUG("makeAction");
-    auto action = CxxUtils::make_unique<ScoringVolumeTrackKiller>();
-    return std::move(action);
+    return CxxUtils::make_unique<ScoringVolumeTrackKiller>();
   }
 
   //---------------------------------------------------------------------------

@@ -16,10 +16,10 @@ namespace G4UA
   {}
   
   //---------------------------------------------------------------------------
-  std::unique_ptr<HIPLArVolumeAccept>  HIPLArVolumeAcceptTool::makeAction(){
+  std::unique_ptr<HIPLArVolumeAccept> HIPLArVolumeAcceptTool::makeAction()
+  {
     ATH_MSG_DEBUG("makeAction");
-    auto action = CxxUtils::make_unique<HIPLArVolumeAccept>();
-    return std::move(action);
+    return CxxUtils::make_unique<HIPLArVolumeAccept>();
   }
 
   //---------------------------------------------------------------------------
