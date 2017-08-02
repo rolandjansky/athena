@@ -13,16 +13,15 @@ namespace G4UA
 {
 
   //---------------------------------------------------------------------------
-  // merge results
+  // Merge results
   //---------------------------------------------------------------------------
-
-  void G4TrackCounter::Report::merge(const G4TrackCounter::Report& rep){
-
-    nEvents+=rep.nEvents;
-    nTotalTracks+=rep.nTotalTracks;
-    nPrimaryTracks+=rep.nPrimaryTracks;
-    nSecondaryTracks+=rep.nSecondaryTracks;
-    n50MeVTracks+=rep.n50MeVTracks;
+  void G4TrackCounter::Report::merge(const G4TrackCounter::Report& rep)
+  {
+    nEvents += rep.nEvents;
+    nTotalTracks += rep.nTotalTracks;
+    nPrimaryTracks += rep.nPrimaryTracks;
+    nSecondaryTracks += rep.nSecondaryTracks;
+    n50MeVTracks += rep.n50MeVTracks;
   }
 
   //---------------------------------------------------------------------------
