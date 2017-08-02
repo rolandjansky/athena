@@ -881,6 +881,42 @@ G4double TileGeoG4SDCalc::BirkLaw(const G4Step* aStep) const
   }
 }
 
+void TileGeoG4SDCalc::pmtEdepFromFCS_StepInfo(TileHitData& hitData, double ene, double yLocal, double halfYLocal, double zLocal, int Ushape) const
+{
+  /// Code moved here from TileFastCaloSim/src/TileFCSmStepToTileHitVec.cxx
+  switch (Ushape) {
+  case 1:
+    hitData.edep_down = ene * this->Tile_1D_profile(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide);
+    hitData.edep_up = ene * this->Tile_1D_profile(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
+    break;
+
+  case 14:
+    hitData.edep_down = ene * this->Tile_1D_profileRescaled(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide);
+    hitData.edep_up = ene * this->Tile_1D_profileRescaled(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
+    break;
+
+  case 13:
+    hitData.edep_down = ene * this->Tile_1D_profileFunc(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide);
+    hitData.edep_up = ene * this->Tile_1D_profileFunc(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
+    break;
+
+  case 12:
+    hitData.edep_down = ene * this->Tile_1D_profileSym(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide);
+    hitData.edep_up = ene * this->Tile_1D_profileSym(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
+    break;
+
+  case 11:
+    hitData.edep_down = ene * this->Tile_1D_profileAsym(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide);
+    hitData.edep_up = ene * this->Tile_1D_profileAsym(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
+    break;
+
+  default:
+    hitData.edep_down = ene * ( 0.5 - 0.2 * yLocal/halfYLocal ); // should get 0.7 for yLocal = -halfYLocal
+    hitData.edep_up = ene - hitData.edep_down;
+  }
+  return;
+}
+
 G4double TileGeoG4SDCalc::Tile_1D_profileAsym(int row, G4double x, G4double y, int PMT, int nDetector, int) {
 
   const double xlow = -0.0505; //dPhi low [rad]

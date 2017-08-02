@@ -85,6 +85,9 @@ class ITileCalculator : virtual public IService {
   virtual TileMicroHit GetTileMicroHit(const G4Step*, TileHitData& hitData) const = 0;
   ///
   virtual TileGeoG4LookupBuilder* GetLookupBuilder() const = 0;
+  /// Method used by TileFastCaloSim/TileFCSmStepToTileHitVec
+  virtual void pmtEdepFromFCS_StepInfo(TileHitData& hitData, double ene, double yLocal, double halfYLocal, double zLocal, int Ushape) const = 0;
+
 };
 //class ITileCalculator
 
