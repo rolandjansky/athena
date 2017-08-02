@@ -12,7 +12,6 @@
 #include <TError.h>
 
 // EDM include(s):
-#include "AthContainers/ClassName.h"
 #include "AthContainers/normalizedTypeinfoName.h"
 
 // Local include(s):
@@ -75,7 +74,8 @@ namespace xAOD {
    TReturnCode TStore::record( T* obj, const std::string& key ) {
 
       // Check if it's possible to record the object with a dictionary:
-      TReturnCode result = record( obj, key, ClassName< T >::name() );
+      TReturnCode result = record( obj, key,
+                                   SG::normalizedTypeinfoName( typeid( T ) ) );
       // If it's a success or a failure, let's stop here. Only go on for a
       // recoverable error:
       if( ! result.isRecoverable() ) {
@@ -97,7 +97,8 @@ namespace xAOD {
                                const std::string& key ) {
 
       // Check if it's possible to record the object with a dictionary:
-      TReturnCode result = record( obj.get(), key, ClassName< T >::name() );
+      TReturnCode result = record( obj.get(), key,
+                                   SG::normalizedTypeinfoName( typeid( T ) ) );
       // If it's a success or a failure, let's stop here. Only go on for a
       // recoverable error:
       if( ! result.isRecoverable() ) {
