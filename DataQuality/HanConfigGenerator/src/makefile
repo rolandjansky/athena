@@ -16,7 +16,7 @@ endif
 ROOTCFLAGS = $(shell root-config --cflags)
 ROOTLIBS   = $(shell root-config --libs)
 
-SOURCES = hcg.cxx addnode.cxx
+SOURCES = hcg.cxx addnode.cxx utils.cxx
 
 INSTALLDIR=$(TestArea)/build/$(ATLAS_ARCH)/bin
 
