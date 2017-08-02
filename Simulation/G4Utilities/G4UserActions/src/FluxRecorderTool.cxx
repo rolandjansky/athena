@@ -5,12 +5,18 @@
 #include "CxxUtils/make_unique.h"
 #include "G4UserActions/FluxRecorderTool.h"
 
-namespace G4UA{ 
+namespace G4UA
+{
 
-  FluxRecorderTool::FluxRecorderTool(const std::string& type, const std::string& name,const IInterface* parent):
-    ActionToolBase<FluxRecorder>(type, name, parent){
+  FluxRecorderTool::FluxRecorderTool(const std::string& type,
+                                     const std::string& name,
+                                     const IInterface* parent)
+    : ActionToolBase<FluxRecorder>(type, name, parent)
+  {
   }
-  std::unique_ptr<FluxRecorder>  FluxRecorderTool::makeAction(){
+
+  std::unique_ptr<FluxRecorder> FluxRecorderTool::makeAction()
+  {
     ATH_MSG_DEBUG("makeAction");
     auto action = CxxUtils::make_unique<FluxRecorder>();
     return std::move(action);
@@ -39,5 +45,5 @@ namespace G4UA{
     }
     return ActionToolBase<FluxRecorder>::queryInterface(riid, ppvIf);
   }
-  
-} // namespace G4UA 
+
+} // namespace G4UA

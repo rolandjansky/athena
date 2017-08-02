@@ -20,16 +20,16 @@
 #include "G4StepPoint.hh"
 
 
-namespace G4UA{
-
+namespace G4UA
+{
 
   FluxRecorder::FluxRecorder()
     : m_nev(0.0)
   {
   }
-  
-  void FluxRecorder::beginOfRun(const G4Run*){
 
+  void FluxRecorder::beginOfRun(const G4Run*)
+  {
     char nom[120];
     double timebins[101],ebins[101];
     for (int i=0;i<101;++i){
@@ -49,8 +49,8 @@ namespace G4UA{
 
   }
 
-  void FluxRecorder::endOfEvent(const G4Event*){;
-
+  void FluxRecorder::endOfEvent(const G4Event*)
+  {
     m_nev+=1.;
   }
 
@@ -179,4 +179,5 @@ namespace G4UA{
       } // if we scored
     } // Loop over all volumes
   }
+
 } // namespace G4UA

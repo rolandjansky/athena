@@ -21,7 +21,7 @@ namespace G4UA
     declareProperty("AbortEvent", m_config.AbortEvent);
     declareProperty("SetError", m_config.SetError);
   }
-  
+
   //---------------------------------------------------------------------------
   // Initialize - temporarily here for debugging
   //---------------------------------------------------------------------------
@@ -41,9 +41,9 @@ namespace G4UA
     ATH_MSG_INFO(" Set to kill tracks over " << m_config.MaxSteps << " steps");
     ATH_MSG_INFO(" and give " << m_config.PrintSteps << " steps of verbose output");
     ATH_MSG_INFO(" We killed " << m_report.killed_tracks << " tracks this run.");
-    ATH_MSG_INFO(" Was set to " << (m_config.AbortEvent?"":"not ") << "abort events and "); 
+    ATH_MSG_INFO(" Was set to " << (m_config.AbortEvent?"":"not ") << "abort events and ");
     ATH_MSG_INFO( (m_config.SetError?"":"not ") << "set an error state." );
-    
+
     return StatusCode::SUCCESS;
   }
 

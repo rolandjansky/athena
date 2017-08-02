@@ -6,8 +6,8 @@
 #include "G4UserActions/MomentumConservationTool.h"
 
 namespace G4UA
-{ 
-  
+{
+
   //---------------------------------------------------------------------------
   MomentumConservationTool::MomentumConservationTool(const std::string& type,
                                                      const std::string& name,
@@ -36,4 +36,4 @@ namespace G4UA
     } return ActionToolBase<MomentumConservation>::queryInterface(riid, ppvIf);
   }
 
-} // namespace G4UA 
+} // namespace G4UA

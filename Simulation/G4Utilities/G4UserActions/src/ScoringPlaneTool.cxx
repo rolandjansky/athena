@@ -5,19 +5,22 @@
 #include "CxxUtils/make_unique.h"
 #include "G4UserActions/ScoringPlaneTool.h"
 
-namespace G4UA{ 
 
-  
-  ScoringPlaneTool::ScoringPlaneTool(const std::string& type, const std::string& name,const IInterface* parent):
-    ActionToolBase<ScoringPlane>(type, name, parent), m_config(){
+namespace G4UA
+{
 
-    declareProperty("Plane",m_config.plane);
-    declareProperty("PKill",m_config.pkill);
-    declareProperty("FName",m_config.fname);
-    
+  ScoringPlaneTool::ScoringPlaneTool(const std::string& type,
+                                     const std::string& name,
+                                     const IInterface* parent)
+    : ActionToolBase<ScoringPlane>(type, name, parent)
+  {
+    declareProperty("Plane", m_config.plane);
+    declareProperty("PKill", m_config.pkill);
+    declareProperty("FName", m_config.fname);
   }
 
-  std::unique_ptr<ScoringPlane>  ScoringPlaneTool::makeAction(){
+  std::unique_ptr<ScoringPlane> ScoringPlaneTool::makeAction()
+  {
     ATH_MSG_DEBUG("makeAction");
     auto action = CxxUtils::make_unique<ScoringPlane>(m_config);
     return std::move(action);

@@ -16,14 +16,14 @@ namespace G4UA
 {
 
   /// @class MomentumConservation
-  /// @brief checks momentum conservation 
+  /// @brief checks momentum conservation
   class MomentumConservation : public IEndEventAction, public ISteppingAction
   {
     public:
 
       MomentumConservation()
         : m_msg("MomentumConservation"), _sum_edep(0), _sum_eesc(0)
-      {};
+      {}
 
       virtual void endOfEvent(const G4Event*) override;
       virtual void processStep(const G4Step*) override;
@@ -36,11 +36,11 @@ namespace G4UA
       /// Private message stream member and access to evtstore
       mutable Athena::MsgStreamMember m_msg;
 
-     /// Sum of energy deposited in the detector
-     double _sum_edep;
+      /// Sum of energy deposited in the detector
+      double _sum_edep;
 
-     /// Sum of energy escaping the detector (volume = 0)
-     double _sum_eesc;
+      /// Sum of energy escaping the detector (volume = 0)
+      double _sum_eesc;
 
   }; // class MomentumConservation
 
