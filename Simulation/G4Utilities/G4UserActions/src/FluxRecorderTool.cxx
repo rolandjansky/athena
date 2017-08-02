@@ -18,8 +18,7 @@ namespace G4UA
   std::unique_ptr<FluxRecorder> FluxRecorderTool::makeAction()
   {
     ATH_MSG_DEBUG("makeAction");
-    auto action = CxxUtils::make_unique<FluxRecorder>();
-    return std::move(action);
+    return CxxUtils::make_unique<FluxRecorder>();
   }
   StatusCode FluxRecorderTool::queryInterface(const InterfaceID& riid, void** ppvIf){
     

@@ -32,4 +32,4 @@ namespace G4UA
     } return ActionToolBase<HIPKiller>::queryInterface(riid, ppvIf);
   }
 
-} // namespace G4UA 
+} // namespace G4UA

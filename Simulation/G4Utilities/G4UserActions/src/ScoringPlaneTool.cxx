@@ -22,8 +22,7 @@ namespace G4UA
   std::unique_ptr<ScoringPlane> ScoringPlaneTool::makeAction()
   {
     ATH_MSG_DEBUG("makeAction");
-    auto action = CxxUtils::make_unique<ScoringPlane>(m_config);
-    return std::move(action);
+    return CxxUtils::make_unique<ScoringPlane>(m_config);
   }
   StatusCode ScoringPlaneTool::queryInterface(const InterfaceID& riid, void** ppvIf){
     
@@ -54,5 +53,5 @@ namespace G4UA
     }
     return ActionToolBase<ScoringPlane>::queryInterface(riid, ppvIf);
   }
-  
-} // namespace G4UA 
+
+} // namespace G4UA
