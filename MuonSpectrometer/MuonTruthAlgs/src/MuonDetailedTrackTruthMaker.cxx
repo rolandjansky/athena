@@ -57,7 +57,7 @@ StatusCode MuonDetailedTrackTruthMaker::initialize()
   }
 
   m_detailedTrackTruthNames.reserve ( m_trackCollectionNames.size());
-  for(int i=0;i<m_trackCollectionNames.size();i++){
+  for(unsigned int i=0;i<m_trackCollectionNames.size();i++){
     m_detailedTrackTruthNames.emplace_back(m_trackCollectionNames.at(i).key()+"Truth");
     ATH_MSG_INFO("process "<<m_trackCollectionNames.at(i).key()<<" for detailed truth collection "<<m_detailedTrackTruthNames.at(i).key());
   }
@@ -80,8 +80,6 @@ StatusCode MuonDetailedTrackTruthMaker::finalize()
 // -----------------------------------------------------------------------------------------------------
 StatusCode MuonDetailedTrackTruthMaker::execute() {
   ATH_MSG_DEBUG( "MuonDetailedTrackTruthMaker::execute()");
-
-  StatusCode sc;
 
   //----------------------------------------------------------------
   // Retrieve prep raw data truth
