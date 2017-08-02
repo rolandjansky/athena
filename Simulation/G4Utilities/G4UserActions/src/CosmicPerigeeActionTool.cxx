@@ -16,7 +16,6 @@ namespace G4UA
                                                    const IInterface* parent)
     : ActionToolBase<CosmicPerigeeAction>(type, name, parent)
   {
-    declareProperty("AllowMods", m_config.AllowMods);
     declareProperty("pMinPrimary",m_config.pMinPrimary);
   }
   
