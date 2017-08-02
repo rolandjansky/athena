@@ -195,7 +195,6 @@ namespace InDet {
 
 
 	if(  (*it)->trackParameters() !=0 &&
-	     &((*it)->trackParameters()->associatedSurface()) !=0 &&  
 	     (*it)->trackParameters()->associatedSurface().associatedDetectorElement() !=0 && 
 	     (*it)->trackParameters()->associatedSurface().associatedDetectorElement()->identify() !=0 )
 	  {  
@@ -249,7 +248,6 @@ namespace InDet {
 
 
 	if(  (*it)->trackParameters() !=0 &&
-	     &((*it)->trackParameters()->associatedSurface()) !=0 &&  
 	     (*it)->trackParameters()->associatedSurface().associatedDetectorElement() !=0 && 
 	     (*it)->trackParameters()->associatedSurface().associatedDetectorElement()->identify() !=0 )
 	  {  
