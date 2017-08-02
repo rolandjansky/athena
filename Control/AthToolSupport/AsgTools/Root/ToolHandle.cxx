@@ -5,9 +5,8 @@
 #include "AsgTools/IAsgTool.h"
 
 ToolHandleBase::ToolHandleBase( const std::string& typeAndName, INamedInterface* parent )
-: m_typeAndName( typeAndName ), m_type(), m_name(), m_parentName("ToolSvc") {
+: m_typeAndName( typeAndName ), m_type(), m_name(), m_parent(parent) {
 
-   if(parent) m_parentName = parent->name();
    setTypeAndName(typeAndName);
 }
 
@@ -48,5 +47,8 @@ const std::string& ToolHandleBase::name() const {
 
 const std::string& ToolHandleBase::parentName() const {
 
-   return m_parentName;
+  if (m_parent)
+    return m_parent->name();
+  static const std::string toolSvcName = "ToolSvc";
+  return toolSvcName;
 }
