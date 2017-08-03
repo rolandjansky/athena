@@ -35,7 +35,7 @@ namespace G4UA
   {}
 
   //---------------------------------------------------------------------------
-  void HitWrapper::endOfEvent(const G4Event*)
+  void HitWrapper::EndOfEventAction(const G4Event*)
   {
 
     SG::WriteHandle<CSCSimHitCollection> csc("CSC_Hits");

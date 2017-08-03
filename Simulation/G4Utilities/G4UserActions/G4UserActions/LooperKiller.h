@@ -9,7 +9,7 @@
 
 // Infrastructure includes
 #include "AthenaKernel/MsgStreamMember.h"
-#include "G4AtlasInterfaces/ISteppingAction.h"
+#include "G4UserSteppingAction.hh"
 #include "AthenaBaseComps/AthMessaging.h"
 
 class StoreGateSvc;
@@ -20,7 +20,7 @@ namespace G4UA
   /// @class LooperKiller
   /// @brief A user action to kill looping tracks.
   ///
-  class LooperKiller final : public ISteppingAction, public AthMessaging
+  class LooperKiller final : public G4UserSteppingAction, public AthMessaging
   {
 
     public:
@@ -44,7 +44,7 @@ namespace G4UA
 
       LooperKiller(const Config& config);
 
-      virtual void processStep(const G4Step*) override;
+      virtual void UserSteppingAction(const G4Step*) override;
       /// Retrieve  results
       const Report& getReport() const
       { return m_report; }
