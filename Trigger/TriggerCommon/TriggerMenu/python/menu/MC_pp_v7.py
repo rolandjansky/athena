@@ -522,11 +522,6 @@ def setupMenu():
         TriggerFlags.JetSlice.signatures = TriggerFlags.JetSlice.signatures() + [
             ['j100_ftk',                   'L1_J25',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
             ['j75_ftk_L1J20',              'L1_J20', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
-            #ATR-16749   
-            ['j100_ftkrefit',           'L1_J25',  [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-            ['3j30_ftk',                'L1_TE10', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
-            ['j420_ftk',                'L1_J100', [], [PhysicsStream], ['Rate:SingleJet', 'BW:Jet'], -1],
-
             ] 
 
     TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
@@ -1490,8 +1485,7 @@ def setupMenu():
 
 
           
-
-        ['mu6_mu4_bUpsimumu_L1BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-B', 'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-B',     ['L1_MU6','L1_MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
+        ['mu6_mu4_bUpsimumu_L1BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-B', 'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-B',     ['L1_MU6','L1_MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False], 
 
 
         ['2mu4_bBmumuxv2',                'L1_2MU4', [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
@@ -2658,7 +2652,9 @@ ps_beamspot_list=[
     'beamspot_trkFS_trkfast',
     'beamspot_trkFS_trkfast_L1TRT_EMPTY',
     'beamspot_trkFS_trkfast_L1TRT_FILLED',
-    'beamspot_activeTE_trkfast_peb_L13J15',
+    'beamspot_trkFS_trkfast_L1J15',
+    'beamspot_allTE_trkfast_peb_L1J15',
+    'beamspot_activeTE_trkfast_peb_L1J15',
     'beamspot_allTE_trkfast_peb_L13J15',
     'beamspot_trkFS_trkfast_L13J15',
     'beamspot_activeTE_trkfast_peb_L13J15'
@@ -3109,17 +3105,6 @@ ps_perform_list = [
     'j75_bperf_split_3j75',
     'j75_bperf_split_3j75_L13J25.0ETA23',
 
-    'e35_lhtight_nod0_ivarloose',
-    'e40_lhtight_nod0_ivarloose',
-    'e50_lhtight_nod0_ivarloose',
-
-    'e5_etcut_L1W-HT20-JJ15.ETA49',
-    'e13_etcut_L1EM12_W-MT25',
-    'e18_etcut_trkcut',
-    'e18_etcut_L1EM15_W-MT35',
-
-
-
     'mu14_tau25_medium1_tracktwo_L1DR-MU10TAU12I',
     'mu14_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12I-J25',
     'mu14_tau25_medium1_tracktwo_L1MU10_TAU12I-J25',
@@ -3138,51 +3123,7 @@ ps_perform_list = [
     'e17_lhmedium_iloose_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25',
     'e17_lhmedium_iloose_tau25_medium1_tracktwo_L1EM15TAU12I-J25',
 
-    'xe90_trkmht_xe80_mht_L1XE50',
-    'xe100_trkmht_xe80_mht_L1XE50',
-    'xe110_trkmht_xe80_mht_L1XE50',
-    'xe110_trkmht_wEFMu_xe80_mht_L1XE50',
-    'xe120_trkmht_xe80_mht_L1XE50',
-    'xe100_trkmht_xe90_mht_L1XE50',
-    'xe110_trkmht_xe90_mht_L1XE50',
-    'xe110_trkmht_wEFMu_xe90_mht_L1XE50',
-    'xe120_trkmht_xe90_mht_L1XE50',
-    'xe110_trkmht_xe100_mht_L1XE50',
-    'xe110_trkmht_wEFMu_xe100_mht_L1XE50',
-    'xe120_trkmht_xe100_mht_L1XE50',
-    'xe90_trkmht_xe80_mht_L1XE55',
-    'xe100_trkmht_xe80_mht_L1XE55',
-    'xe110_trkmht_xe80_mht_L1XE55',
-    'xe110_trkmht_wEFMu_xe80_mht_L1XE55',
-    'xe120_trkmht_xe80_mht_L1XE55',
-    'xe130_trkmht_xe80_mht_L1XE55',
-    'xe100_trkmht_xe90_mht_L1XE55',
-    'xe110_trkmht_xe90_mht_L1XE55',
-    'xe110_trkmht_wEFMu_xe90_mht_L1XE55',
-    'xe120_trkmht_xe90_mht_L1XE55',
-    'xe130_trkmht_xe90_mht_L1XE55',
-    'xe110_trkmht_xe100_mht_L1XE55',
-    'xe110_trkmht_wEFMu_xe100_mht_L1XE55',
-    'xe120_trkmht_xe100_mht_L1XE55',
-    'xe130_trkmht_xe100_mht_L1XE55',
-    'xe90_trkmht_xe80_mht_L1XE60',
-    'xe100_trkmht_xe80_mht_L1XE60',
-    'xe110_trkmht_xe80_mht_L1XE60',
-    'xe120_trkmht_xe80_mht_L1XE60',
-    'xe120_trkmht_wEFMu_xe80_mht_L1XE60',
-    'xe130_trkmht_xe80_mht_L1XE60',
-    'xe140_trkmht_xe80_mht_L1XE60',
-    'xe100_trkmht_xe90_mht_L1XE60',
-    'xe110_trkmht_xe90_mht_L1XE60',
-    'xe120_trkmht_xe90_mht_L1XE60',
-    'xe120_trkmht_wEFMu_xe90_mht_L1XE60',
-    'xe130_trkmht_xe90_mht_L1XE60',
-    'xe140_trkmht_xe90_mht_L1XE60',
-    'xe110_trkmht_xe100_mht_L1XE60',
-    'xe120_trkmht_xe100_mht_L1XE60',
-    'xe120_trkmht_wEFMu_xe100_mht_L1XE60',
-    'xe130_trkmht_xe100_mht_L1XE60',
-    'xe140_trkmht_xe100_mht_L1XE60',
+
 
     'xe100_mht_xe65_L1XE70',
     'xe100_mht_xe70_L1XE70',
@@ -3681,10 +3622,6 @@ ps_streamers_list = [
      'noalg_L1AFP_A_OR_C_TE5',
      'noalg_L1AFP_A_OR_C_UNPAIRED_ISO',
      'noalg_L1AFP_A_OR_C_UNPAIRED_NONISO',
-     'noalg_L1AFP_A_OR_C_EM3',
-     'noalg_L1AFP_A_AND_C_EM3',
-     'noalg_L1AFP_A_OR_C_MU4',
-     'noalg_L1AFP_A_AND_C_MU4',
      'noalg_L1AFP_C',
      'noalg_L1BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4',
      'noalg_L1DR-MU10TAU12I',
@@ -3816,7 +3753,6 @@ ps_streamers_list = [
      'noalg_bkg_L1MBTS_4_C_UNPAIRED_ISO',
      'noalg_bkg_L1MU4_UNPAIRED_ISO',
      'noalg_bkg_L1RD0_UNPAIRED_ISO',
-     'noalg_l1calo_L1J400',
      'noalg_l1calo_L1EM12',
      'noalg_l1calo_L1EM15',
      'noalg_l1calo_L1EM7',
@@ -4019,6 +3955,8 @@ Prescales.L1Prescales_tight_mc_prescale  = deepcopy(Prescales.L1Prescales)
 Prescales.HLTPrescales_tight_mc_prescale = deepcopy(Prescales.HLTPrescales_tightperf_mc_prescale)
 chain_list=ps_streamers_list + ps_perform_list + ps_Bphys_list#+ps_Jpsi_list # enabling JPSI ee again ATR-15162
 
+#Prescales.HLTPrescales_tight_mc_prescale = deepcopy(Prescales.HLTPrescales_loose_mc_prescale)
+#chain_list=ps_eb_list+ps_fwdphys_list+ps_minb_list+ps_ftk_list+ps_perform_list
 Prescales.HLTPrescales_tight_mc_prescale.update(dict(map(None,chain_list,len(chain_list)*[ [-1, 0,-1] ])))
 ######################################################
 
@@ -4027,4 +3965,4 @@ Prescales.L1Prescales_upgrade_mc_prescale  = deepcopy(Prescales.L1Prescales)
 Prescales.HLTPrescales_upgrade_mc_prescale = deepcopy(Prescales.HLTPrescales_tight_mc_prescale)
 # Note: "upgrade" prescales are set with regular expressions at the end
 #       of the setupMenu() function above 
-######################################################	
+######################################################

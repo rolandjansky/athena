@@ -2291,9 +2291,6 @@ def setupMenu():
 
 
 
-
-
-
         ['mu11_mu6noL1_bTau_L1LFV-MU', 'L1_LFV-MU', ['L1_MU10','L2_mu6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu11','mu6noL1']]],
         
         # new baseline triggers, ATR-15503
