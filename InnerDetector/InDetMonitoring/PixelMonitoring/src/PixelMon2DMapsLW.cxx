@@ -174,132 +174,60 @@ void PixelMon2DMapsLW::Fill2DMon(PixelMon2DMapsLW* oldmap)
 
 void PixelMon2DMapsLW::formatHist()
 {
-   const int ndisk = 3;
-   const int nphi  = 48;
-   const int nphi_dbm  = 4;
-   const char *disk[ndisk] = { "Disk 1", "Disk 2", "Disk 3" };
-   const char *layer_dbm[ndisk] = {"Layer 0", "Layer 1", "Layer 2"};
-   const char *phi_dbm[nphi_dbm] = {"M3", "M4", "M1", "M2"};
-   const int nmod = 13;
-   const int nmodIBL2D = 12;
-   const int nmodIBL3D = 8;
-   const int nmodIBL = 32;
-   const char *mod[nmod] = { "M6C", "M5C", "M4C", "M3C", "M2C", "M1C", "M0","M1A", "M2A", "M3A", "M4A", "M5A", "M6A" } ;
-   const char *modIBL2D[nmodIBL2D] = { "M3_C6", "M3_C5", "M2_C4", "M1_C3", "M1_C2", "M1_C1", "M1_A1", "M1_A2", "M2_A3", "M2_A4", "M3_A5", "M3_A6" } ;
-   const char *modIBL3D[nmodIBL3D] = {"M4_C8_2","M4_C8_1","M4_C7_2","M4_C7_1","M4_A7_1","M4_A7_2","M4_A8_1","M4_A8_2"};
-   const char *modIBL[nmodIBL] = {"C8","","C7","",
-                                  "C6","","C5","",
-                                  "C4","","C3","",
-                                  "C2","","C1","",
-                                  "A1","","A2","",
-                                  "A3","","A4","",
-                                  "A5","","A6","",
-                                  "A7","","A8",""};
-   const int nstaveb = 14;
-   const char *staveb[nstaveb] = {
-      "S01", "S02", "S03", "S04", "S05", "S06","S07",
-      "S08", "S09", "S10", "S11", "S12", "S13","S14"};
-   const int nstave0 = 22;
-   const char *stave0[nstave0] = {
-      "B11_S2", "B01_S1", "B01_S2", "B02_S1", "B02_S2", "B03_S1",
-      "B03_S2", "B04_S1", "B04_S2", "B05_S1", "B05_S2", "B06_S1",
-      "B06_S2", "B07_S1", "B07_S2", "B08_S1", "B08_S2", "B09_S1",
-      "B09_S2","B10_S1", "B10_S2", "B11_S1" };
-   const int nstave1 = 38;
-   const char *stave1[nstave1] = {
-      "B01_S1", "B01_S2", "B02_S1", "B02_S2", "B03_S1", "B03_S2",
-      "B04_S1", "B04_S2", "B05_S1", "B05_S2", "B06_S1", "B06_S2",
-      "B07_S1", "B07_S2", "B08_S1", "B08_S2", "B09_S1", "B09_S2",
-      "B10_S1", "B10_S2", "B11_S1", "B11_S2", "B12_S1", "B12_S2",
-      "B13_S1", "B13_S2", "B14_S1", "B14_S2", "B15_S1", "B15_S2",
-      "B16_S1", "B16_S2", "B17_S1", "B17_S2", "B18_S1", "B18_S2",
-      "B19_S1", "B19_S2" };
-   const int nstave2 = 52;
-   const char *stave2[nstave2] = {          
-      "B01_S2", "B02_S1", "B02_S2", "B03_S1", "B03_S2", "B04_S1",
-      "B04_S2", "B05_S1", "B05_S2", "B06_S1", "B06_S2", "B07_S1",
-      "B07_S2", "B08_S1", "B08_S2", "B09_S1", "B09_S2", "B10_S1",
-      "B10_S2", "B11_S1", "B11_S2", "B12_S1", "B12_S2", "B13_S1",
-      "B13_S2", "B14_S1", "B14_S2", "B15_S1", "B15_S2", "B16_S1",
-      "B16_S2", "B17_S1", "B17_S2", "B18_S1", "B18_S2", "B19_S1",
-      "B19_S2", "B20_S1", "B20_S2", "B21_S1", "B21_S2", "B22_S1",
-      "B22_S2", "B23_S1", "B23_S2", "B24_S1", "B24_S2", "B25_S1",
-      "B25_S2", "B26_S1", "B26_S2", "B01_S1" };
-   const char *nstaveA[nphi] = {
-      "B01_S2_M1", "B01_S2_M6", "B01_S2_M2", "B01_S2_M5", "B01_S2_M3", "B01_S2_M4", 
-      "B02_S1_M1", "B02_S1_M6", "B02_S1_M2", "B02_S1_M5", "B02_S1_M3", "B02_S1_M4", 
-      "B02_S2_M1", "B02_S2_M6", "B02_S2_M2", "B02_S2_M5", "B02_S2_M3", "B02_S2_M4", 
-      "B03_S1_M1", "B03_S1_M6", "B03_S1_M2", "B03_S1_M5", "B03_S1_M3", "B03_S1_M4", 
-      "B03_S2_M1", "B03_S2_M6", "B03_S2_M2", "B03_S2_M5", "B03_S2_M3", "B03_S2_M4", 
-      "B04_S1_M1", "B04_S1_M6", "B04_S1_M2", "B04_S1_M5", "B04_S1_M3", "B04_S1_M4", 
-      "B04_S2_M1", "B04_S2_M6", "B04_S2_M2", "B04_S2_M5", "B04_S2_M3", "B04_S2_M4", 
-      "B01_S1_M1", "B01_S1_M6", "B01_S1_M2", "B01_S1_M5", "B01_S1_M3", "B01_S1_M4"};
-   const char *nstaveC[nphi] = {
-      "B01_S2_M4", "B01_S2_M3", "B01_S2_M5", "B01_S2_M2", "B01_S2_M6", "B01_S2_M1", 
-      "B02_S1_M4", "B02_S1_M3", "B02_S1_M5", "B02_S1_M2", "B02_S1_M6", "B02_S1_M1", 
-      "B02_S2_M4", "B02_S2_M3", "B02_S2_M5", "B02_S2_M2", "B02_S2_M6", "B02_S2_M1", 
-      "B03_S1_M4", "B03_S1_M3", "B03_S1_M5", "B03_S1_M2", "B03_S1_M6", "B03_S1_M1", 
-      "B03_S2_M4", "B03_S2_M3", "B03_S2_M5", "B03_S2_M2", "B03_S2_M6", "B03_S2_M1", 
-      "B04_S1_M4", "B04_S1_M3", "B04_S1_M5", "B04_S1_M2", "B04_S1_M6", "B04_S1_M1", 
-      "B04_S2_M4", "B04_S2_M3", "B04_S2_M5", "B04_S2_M2", "B04_S2_M6", "B04_S2_M1", 
-      "B01_S1_M4", "B01_S1_M3", "B01_S1_M5", "B01_S1_M2", "B01_S1_M6", "B01_S1_M1"};
-
    if (A && C) {
-      for (int i = 0; i < nphi; i++) {
-         A->GetYaxis()->SetBinLabel(i + 1, nstaveA[i]);
-         C->GetYaxis()->SetBinLabel(i + 1, nstaveC[i]);
+      for (unsigned int i = 0; i < PixMon::kNumModulesDisk; ++i) {
+         A->GetYaxis()->SetBinLabel(i + 1, PixMon::ModulesECA.at(i).c_str());
+         C->GetYaxis()->SetBinLabel(i + 1, PixMon::ModulesECC.at(i).c_str());
       }
-      for (int i = 0; i < ndisk; i++) {
-         A->GetXaxis()->SetBinLabel(i + 1, disk[i]);
-         C->GetXaxis()->SetBinLabel(i + 1, disk[i]);
+      for (unsigned int i = 0; i < PixMon::kNumLayersDisk; ++i) {
+         A->GetXaxis()->SetBinLabel(i + 1, PixMon::LayersDisk.at(i).c_str());
+         C->GetXaxis()->SetBinLabel(i + 1, PixMon::LayersDisk.at(i).c_str());
       }
    }
    if (DBMA && DBMC) {
-      for (int i = 0; i < nphi_dbm; i++) {
-         DBMA->GetYaxis()->SetBinLabel(i + 1, phi_dbm[i]);
-         DBMC->GetYaxis()->SetBinLabel(i + 1, phi_dbm[i]);
+      for (unsigned int i = 0; i < PixMon::kNumModulesDBM; ++i) {
+         DBMA->GetYaxis()->SetBinLabel(i + 1, PixMon::ModulesDBM.at(i).c_str());
+         DBMC->GetYaxis()->SetBinLabel(i + 1, PixMon::ModulesDBM.at(i).c_str());
       }
-      for (int i = 0; i < ndisk; i++) {
-         DBMA->GetXaxis()->SetBinLabel(i + 1, layer_dbm[i]);
-         DBMC->GetXaxis()->SetBinLabel(i + 1, layer_dbm[i]);
+      for (unsigned int i = 0; i < PixMon::kNumLayersDBM; ++i) {
+         DBMA->GetXaxis()->SetBinLabel(i + 1, PixMon::LayersDBM.at(i).c_str());
+         DBMC->GetXaxis()->SetBinLabel(i + 1, PixMon::LayersDBM.at(i).c_str());
       }
    }
    if (B0 && B1 && B2) {
-      for (int i = 0; i < nmod; i++) {
-         B0->GetXaxis()->SetBinLabel(i + 1, mod[i]);  // bin 0 is underflow
-         B1->GetXaxis()->SetBinLabel(i + 1, mod[i]);
-         B2->GetXaxis()->SetBinLabel(i + 1, mod[i]);
+      for (unsigned int i = 0; i < PixMon::kNumModulesBarrel; ++i) {
+         B0->GetXaxis()->SetBinLabel(i + 1, PixMon::ModulesBarrel.at(i).c_str());
+         B1->GetXaxis()->SetBinLabel(i + 1, PixMon::ModulesBarrel.at(i).c_str());
+         B2->GetXaxis()->SetBinLabel(i + 1, PixMon::ModulesBarrel.at(i).c_str());
       }
-      for (int i = 0; i < nstave0; i++) {
-         B0->GetYaxis()->SetBinLabel(i + 1, stave0[i]);
+      for (unsigned int i = 0; i < PixMon::kNumStavesL0; ++i) {
+         B0->GetYaxis()->SetBinLabel(i + 1, PixMon::StavesL0.at(i).c_str());
       }
-      for (int i = 0; i < nstave1; i++) {
-         B1->GetYaxis()->SetBinLabel(i + 1, stave1[i]);
+      for (unsigned int i = 0; i < PixMon::kNumStavesL1; ++i) {
+         B1->GetYaxis()->SetBinLabel(i + 1, PixMon::StavesL1.at(i).c_str());
       }
-      for (int i = 0; i < nstave2; i++) {
-         B2->GetYaxis()->SetBinLabel(i + 1, stave2[i]);
+      for (unsigned int i = 0; i < PixMon::kNumStavesL2; ++i) {
+         B2->GetYaxis()->SetBinLabel(i + 1, PixMon::StavesL2.at(i).c_str());
       }
    }
    if (IBL) {
-      for (int i = 0; i < nmodIBL; i++) {
-         IBL->GetXaxis()->SetBinLabel(i + 1, modIBL[i]);
+      for (unsigned int i = 0; i < PixMon::kNumModulesIBL; ++i) {
+         IBL->GetXaxis()->SetBinLabel(i + 1, PixMon::ModulesIBL.at(i).c_str());
       }
-      for (int i = 0; i < nstaveb; i++) {
-         IBL->GetYaxis()->SetBinLabel(i + 1, staveb[i]);
+      for (unsigned int i = 0; i < PixMon::kNumStavesIBL; ++i) {
+         IBL->GetYaxis()->SetBinLabel(i + 1, PixMon::StavesIBL.at(i).c_str());
       }
    }
    if (IBL2D && IBL3D) {
-      for (int i = 0; i < nmodIBL2D; i++){
-         IBL2D->GetXaxis()->SetBinLabel(i + 1, modIBL2D[i]);
+      for (unsigned int i = 0; i < PixMon::kNumModulesIBL2D; ++i){
+         IBL2D->GetXaxis()->SetBinLabel(i + 1, PixMon::ModulesIBL2D.at(i).c_str());
       }
-      for (int i = 0; i < nstaveb; i++) {
-         IBL2D->GetYaxis()->SetBinLabel(i + 1, staveb[i]);
+      for (unsigned int i = 0; i < PixMon::kNumModulesIBL3D; ++i) {
+         IBL3D->GetXaxis()->SetBinLabel(i + 1, PixMon::ModulesIBL3D.at(i).c_str());
       }
-      for (int i = 0; i < nmodIBL3D; i++) {
-         IBL3D->GetXaxis()->SetBinLabel(i + 1, modIBL3D[i]);
-      }
-      for (int i = 0; i < nstaveb; i++) {
-         IBL3D->GetYaxis()->SetBinLabel(i + 1, staveb[i]);
+      for (unsigned int i = 0; i < PixMon::kNumStavesIBL; ++i) {
+         IBL2D->GetYaxis()->SetBinLabel(i + 1, PixMon::StavesIBL.at(i).c_str());
+         IBL3D->GetYaxis()->SetBinLabel(i + 1, PixMon::StavesIBL.at(i).c_str());
       }
    }
 
