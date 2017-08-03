@@ -14,6 +14,7 @@
 #include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
 #include "AthenaKernel/ExtendedEventContext.h"
+#include "AthenaKernel/EventContextClid.h"
 
 #include "GaudiKernel/IAlgorithm.h"
 #include "GaudiKernel/SmartIF.h"
@@ -718,6 +719,13 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   Gaudi::Hive::setCurrentContext( m_eventContext );
 
   m_aess->reset(m_eventContext);
+  if (eventStore()->record(std::make_unique<EventContext> (m_eventContext),
+                           "EventContext").isFailure())
+  {
+    m_msg << MSG::ERROR 
+          << "Error recording event context object" << endmsg;
+    return (StatusCode::FAILURE);
+  }
 
 
   /// Fire begin-Run incident if new run:
