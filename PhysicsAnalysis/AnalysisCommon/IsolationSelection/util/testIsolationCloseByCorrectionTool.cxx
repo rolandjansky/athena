@@ -2,10 +2,11 @@
  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
  */
 
-#ifndef CPANALYSISEXAMPLES_ERRORCHECK_H
-#define CPANALYSISEXAMPLES_ERRORCHECK_H
 
-#define CHECK( ARG )                                     \
+#ifndef CPANALYSISEXAMPLES_ERRORSCHECK_H
+#define CPANALYSISEXAMPLES_ERRORSCHECK_H
+
+#define SCHECK( ARG )                                     \
    do {                                                  \
       const bool result = ARG;                           \
       if( ! result ) {                                   \
@@ -15,18 +16,24 @@
       }                                                  \
    } while( false )
 
-#endif // CPANALYSISEXAMPLES_ERRORCHECK_H
+#endif // CPANALYSISEXAMPLES_ERRORSCHECK_H
+
+
+// System include(s):
+#include <memory>
+#include <cstdlib>
+#include <utility>
 
 // ROOT include(s):
 #include <TFile.h>
-#include <TTree.h>
+#include <TError.h>
+#include <TString.h>
 
 // Infrastructure include(s):
-#ifdef ROOTCORE
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
-#include "xAODRootAccess/tools/ReturnCheck.h"
-#endif // ROOTCORE
+#include "xAODRootAccess/TStore.h"
+
 
 // EDM include(s):
 #include "xAODEventInfo/EventInfo.h"
@@ -75,7 +82,7 @@ int main(int argc, char** argv) {
 
     gErrorIgnoreLevel = 0;
     const char* APP_NAME = "test_IsolationCloseByCorrectionTool";
-    CHECK(xAOD::Init());
+    SCHECK(xAOD::Init());
 
     TString outputTree = "test_IsolationCloseByCorrectionTool.root";
 
@@ -90,43 +97,43 @@ int main(int argc, char** argv) {
     ifile.get();
     // Create a TEvent object:
     xAOD::TEvent event(xAOD::TEvent::kClassAccess);
-    CHECK(event.readFrom(ifile.get()));
+    SCHECK(event.readFrom(ifile.get()));
 
     // Creating the tools.
 
     //Define first the isolation selection tool with all WP
     asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoSelTool;
     SET_DUAL_TOOL(m_isoSelTool, CP::IsolationSelectionTool, "IsolationSelectionTool");
-    CHECK(m_isoSelTool.setProperty("MuonWP", "FixedCutLoose"));
-    CHECK(m_isoSelTool.setProperty("ElectronWP", "Loose"));
-    CHECK(m_isoSelTool.setProperty("PhotonWP", "FixedCutTightCaloOnly"));
-    CHECK(m_isoSelTool.retrieve());
+    SCHECK(m_isoSelTool.setProperty("MuonWP", "FixedCutLoose"));
+    SCHECK(m_isoSelTool.setProperty("ElectronWP", "Loose"));
+    SCHECK(m_isoSelTool.setProperty("PhotonWP", "FixedCutTightCaloOnly"));
+    SCHECK(m_isoSelTool.retrieve());
 
     //Now let's come to the IsolaionCloseByCorrecitonTool
     asg::AnaToolHandle<CP::IIsolationCloseByCorrectionTool> m_isoCloseByTool;
     SET_DUAL_TOOL(m_isoCloseByTool, CP::IsolationCloseByCorrectionTool, "IsolationCloseByCorrectionTool");
 
     //pass the instance of the created isolation tool
-    CHECK(m_isoCloseByTool.setProperty("IsolationSelectionTool", m_isoSelTool.getHandle()));
+    SCHECK(m_isoCloseByTool.setProperty("IsolationSelectionTool", m_isoSelTool.getHandle()));
 
     //Name of the quality decorator defining all nearby particles used to correct the isolation of a given particle
-    CHECK(m_isoCloseByTool.setProperty("SelectionDecorator", "isCloseByObject"));
+    SCHECK(m_isoCloseByTool.setProperty("SelectionDecorator", "isCloseByObject"));
 
     //If you want to use only particles survivving the overlap removal. Then just add this line. Only particles with auxdata<char>("passOR") == 1 are used
-    //CHECK(m_isoCloseByTool.setProperty("PassOverlapDecorator","passOR"));
+    //SCHECK(m_isoCloseByTool.setProperty("PassOverlapDecorator","passOR"));
 
     //What is the name of the final isolation decorator. The tool internally calls P->auxdata<char>("CorrectedIsol") = m_IsoTool->accept(*P)
-    CHECK(m_isoCloseByTool.setProperty("IsolationSelectionDecorator", "CorrectedIsol"));
+    SCHECK(m_isoCloseByTool.setProperty("IsolationSelectionDecorator", "CorrectedIsol"));
 
     //By default all particles in the container are corrected. For the purpose of saving processing time one can optionally
     //define this property. Then the isolation of the particle is only corrected only if the particle passes the input quality or if this decorator is set to true
-    //CHECK(m_isoCloseByTool.setProperty("CorrectIsolationOf", "CorrectTheThing"));
+    //SCHECK(m_isoCloseByTool.setProperty("CorrectIsolationOf", "CorrectTheThing"));
 
     //The closeByIsoCorrectionTool accesses the default variables of a particle via the original container links
     //Optionally one can backup the isolation values before correction. Then the tool creates an auxelement called <BackupPrefix>_<IsoVariable> This might be interesting if the people are interested in writing
     //out the default values using CxAODs
-    CHECK(m_isoCloseByTool.setProperty("BackupPrefix", "Default"));
-    CHECK(m_isoCloseByTool.retrieve());
+    SCHECK(m_isoCloseByTool.setProperty("BackupPrefix", "Default"));
+    SCHECK(m_isoCloseByTool.retrieve());
 
     //Define  the output
     TFile* ofile;
@@ -160,7 +167,7 @@ int main(int argc, char** argv) {
 
         event.getEntry(entry);
         const xAOD::EventInfo* ei = 0;
-        CHECK(event.retrieve(ei, "EventInfo"));
+        SCHECK(event.retrieve(ei, "EventInfo"));
 
         if (entry % INTERVAL == 0) {
             Info(APP_NAME, "%lld events processed, on event %llu of run %u", entry, ei->eventNumber(), ei->runNumber());
@@ -203,9 +210,9 @@ int main(int argc, char** argv) {
         // The final result  whether the object  passes the isolation criteria now can be stored in the 'IsolationSelectionDecorator' e.g. 'CorrectedIso'
 
         //Store everything in the final ntuples
-        CHECK(eleBranches.Fill(Electrons));
-        CHECK(muoBranches.Fill(Muons));
-        CHECK(phoBranches.Fill(Photons));
+        SCHECK(eleBranches.Fill(Electrons));
+        SCHECK(muoBranches.Fill(Muons));
+        SCHECK(phoBranches.Fill(Photons));
         tree->Fill();
 
     }
