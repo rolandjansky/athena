@@ -148,7 +148,6 @@ void iGeant4::G4TransportTool::initializeOnce()
   m_pRunMgr->SetSDMasterTool(m_senDetTool.typeAndName() );
   m_pRunMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
   m_pRunMgr->SetPhysListTool(m_physListTool.typeAndName() );
-  m_pRunMgr->SetUserInitialization(m_physListTool->GetPhysicsList());
 
   G4UImanager *ui = G4UImanager::GetUIpointer();
 
@@ -193,7 +192,7 @@ void iGeant4::G4TransportTool::initializeOnce()
     ui->ApplyCommand( g4command );
   }
 
-   return;
+  return;
 }
 
 //________________________________________________________________________
