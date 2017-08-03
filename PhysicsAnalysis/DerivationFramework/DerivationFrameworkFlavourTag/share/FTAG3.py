@@ -9,7 +9,7 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
-from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
@@ -59,24 +59,30 @@ DerivationFrameworkJob += FTAG3Seq
 
 
 #====================================================================
-# Special Jets
+# Basic Jet Collections 
 #====================================================================
-addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=FTAG3Seq, outputGroup="FTAG3")
-addStandardJets("AntiKt", 0.2, "PV0Track", 2000, mods="track_ungroomed", algseq=FTAG3Seq, outputGroup="FTAG3")
-if globalflags.DataSource()!='data': 
-    addStandardJets("AntiKt", 1.0, "TruthWZ", 40000, mods="truth_ungroomed", algseq=FTAG3Seq, outputGroup="FTAG3")
-    addStandardJets("AntiKt", 0.4, "Truth", 5000, mods="truth_ungroomed", algseq=FTAG3Seq, outputGroup="FTAG3")
+
+OutputJets["FTAG3"] = []
+reducedJetList = ["AntiKt2PV0TrackJets",
+                  "AntiKt4PV0TrackJets",
+                  "AntiKt10TruthWZJets",
+                  "AntiKt4TruthJets"]
+replaceAODReducedJets(reducedJetList,FTAG3Seq,"FTAG3")
+
 addDefaultTrimmedJets(FTAG3Seq,"FTAG3",dotruth=True)
-OutputJets["FTAG3"] = ["AntiKt4TruthJets","AntiKt4EMTopoJets","AntiKt4PV0TrackJets","AntiKt2PV0TrackJets","AntiKt10TruthWZJets"]
 
 #===================================================================
-# Run b-tagging
+# Prepare jets for output
 #===================================================================
 
-FlavorTagInit(isFTAG1 = False, JetCollections  = ['AntiKt2PV0TrackJets',
-                                                  'AntiKt4EMTopoJets',
-                                                  'AntiKt4PV0TrackJets',
-                                                  'AntiKt10TruthWZJets',], Sequencer = FTAG3Seq)
+# run flavor tagging on untagged and custom collections
+FlavorTagInit(JetCollections  = ['AntiKt4EMTopoJets'],Sequencer = FTAG3Seq)
+
+OutputJets["FTAG3"] = ["AntiKt4TruthJets",
+                       "AntiKt4EMTopoJets",
+                       "AntiKt4PV0TrackJets",
+                       "AntiKt2PV0TrackJets",
+                       "AntiKt10TruthWZJets"]
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
@@ -114,8 +120,6 @@ FTAG3SlimmingHelper.AllVariables =  ["AntiKt4EMTopoJets",
                                      "BTagging_AntiKt4EMTopoJFVtx",
                                      "BTagging_AntiKt2Track",
                                      "BTagging_AntiKt2TrackJFVtx", 
-                                     "BTagging_AntiKt4Track", 
-                                     "BTagging_AntiKt4TrackJFVtx",
                                      "BTagging_AntiKt10TruthWZ",
                                      "BTagging_AntiKt10TruthWZJFVtx",
                                      "TruthEvents",
@@ -133,16 +137,10 @@ FTAG3SlimmingHelper.ExtraVariables += ["BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtV
 FTAG3SlimmingHelper.AppendToDictionary = {
   "BTagging_AntiKt2Track"                      :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKt2TrackAux"                   :   "xAOD::BTaggingAuxContainer",
-  "BTagging_AntiKt4Track"                      :   "xAOD::BTaggingContainer"   ,
-  "BTagging_AntiKt4TrackAux"                   :   "xAOD::BTaggingAuxContainer",
   "BTagging_AntiKt2TrackJFVtx"                 :   "xAOD::BTagVertexContainer"   ,
   "BTagging_AntiKt2TrackJFVtxAux"              :   "xAOD::BTagVertexAuxContainer",
-  "BTagging_AntiKt4TrackJFVtx"                 :   "xAOD::BTagVertexContainer"   ,
-  "BTagging_AntiKt4TrackJFVtxAux"              :   "xAOD::BTagVertexAuxContainer",
   "BTagging_AntiKt2TrackSecVtx"                :   "xAOD::VertexContainer"   ,
   "BTagging_AntiKt2TrackSecVtxAux"             :   "xAOD::VertexAuxContainer",
-  "BTagging_AntiKt4TrackSecVtx"                :   "xAOD::VertexContainer"   ,
-  "BTagging_AntiKt4TrackSecVtxAux"             :   "xAOD::VertexAuxContainer",
   "BTagging_AntiKt10TruthWZ"                   :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKt10TruthWZAux"                :   "xAOD::BTaggingAuxContainer"   ,
   "BTagging_AntiKt10TruthWZJFVtx"              :   "xAOD::BTagVertexContainer"   ,

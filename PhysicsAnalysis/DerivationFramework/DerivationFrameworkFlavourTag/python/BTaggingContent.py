@@ -51,13 +51,11 @@ def BTaggingStandardContent(jetcol):
 
 
     jetcontent = \
-        [ jetcol
-        , ".".join( [ jetcol + "Aux" ] + JetStandardAux )
+        [ ".".join( [ jetcol ] + JetStandardAux )
         ]
 
     btagcontent = \
-        [ btagjetcol
-        , ".".join( [ btagjetcol + "Aux" ] + BTaggingStandardAux )
+        [ ".".join( [ btagjetcol ] + BTaggingStandardAux )
         ]
 
     return jetcontent + btagcontent
