@@ -13,7 +13,7 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "LArG4Code/ILArCalculatorSvc.h"
-#include "TileG4Interfaces/ILArCalculatorSvc.h"
+#include "TileG4Interfaces/ITileCalculator.h"
 
 // CLHEP include for Hep3Vector
 #include "CLHEP/Vector/ThreeVector.h"
