@@ -862,12 +862,12 @@ G4double TileGeoG4SDCalc::BirkLaw(const G4Step* aStep) const
   const G4double birk2 = 9.6e-6 * CLHEP::g / (CLHEP::MeV * CLHEP::cm2) * CLHEP::g / (CLHEP::MeV * CLHEP::cm2);
   G4double response = 0.;
 
-  G4double destep = aStep->GetTotalEnergyDeposit();
+  const G4double destep = aStep->GetTotalEnergyDeposit();
   //  doesn't work with shower parameterisation
   //  G4Material* material = aStep->GetTrack()->GetMaterial();
   //  G4double charge      = aStep->GetTrack()->GetDefinition()->GetPDGCharge();
-  G4Material* material = aStep->GetPreStepPoint()->GetMaterial();
-  G4double charge = aStep->GetPreStepPoint()->GetCharge();
+  const G4Material* material = aStep->GetPreStepPoint()->GetMaterial();
+  const G4double charge = aStep->GetPreStepPoint()->GetCharge();
 
   // --- no saturation law for neutral particles ---
   // ---  and materials other than scintillator  ---
@@ -881,7 +881,8 @@ G4double TileGeoG4SDCalc::BirkLaw(const G4Step* aStep) const
     if (aStep->GetStepLength() != 0) {
       G4double dedx = destep / (aStep->GetStepLength()) / (material->GetDensity());
       response = destep / (1. + rkb * dedx + birk2 * dedx * dedx);
-    } else {
+    }
+    else {
       ATH_MSG_DEBUG("BirkLaw() - Current Step in scintillator has zero length." << "Ignore Birk Law for this Step");
       response = destep;
     }
@@ -891,7 +892,8 @@ G4double TileGeoG4SDCalc::BirkLaw(const G4Step* aStep) const
     // << " response after Birk: "  << response/CLHEP::keV << " keV" << G4endl;
     // }
     return response;
-  } else {
+  }
+  else {
     return destep;
   }
 }
@@ -1116,8 +1118,8 @@ G4double TileGeoG4SDCalc::Tile_1D_profileAsym(int row, G4double x, G4double y, i
   const double size2 = (double) size / 2.;
 
   if (row < 0 || row >= 11) return 0.0;
-  double phi = atan(x / (y + R[row]));
-  int index = int(phi * sizerange + size2);
+  const double phi = atan(x / (y + R[row]));
+  const int index = int(phi * sizerange + size2);
   if (index < 0 || index >= size) return 0.0;
 
   G4double amplitude = 0.0;
@@ -1293,8 +1295,8 @@ G4double TileGeoG4SDCalc::Tile_1D_profileSym(int row, G4double x, G4double y, in
   const double size2 = (double) size / 2.;
 
   if (row < 0 || row >= 11) return 0.0;
-  double phi = atan(x / (y + R[row]));
-  int index = int(phi * sizerange + size2);
+  const double phi = atan(x / (y + R[row]));
+  const int index = int(phi * sizerange + size2);
   if (index < 0 || index >= size) return 0.0;
 
   G4double amplitude = 0.0;
@@ -1478,8 +1480,8 @@ G4double TileGeoG4SDCalc::Tile_1D_profileFunc(int row, G4double x, G4double y, i
   const double size2 = (double) size / 2.;
 
   if (row < 0 || row >= 11) return 0.0;
-  double phi = atan(x / (y + R[row]));
-  int index = int(phi * sizerange + size2);
+  const double phi = atan(x / (y + R[row]));
+  const int index = int(phi * sizerange + size2);
   if (index < 0 || index >= size) return 0.0;
 
   G4double amplitude = 0.0;
@@ -1662,8 +1664,8 @@ G4double TileGeoG4SDCalc::Tile_1D_profileRescaled(int row, G4double x, G4double 
   const double size2 = (double) size / 2.;
 
   if (row < 0 || row >= 11) return 0.0;
-  double phi = atan(x / (y + R[row]));
-  int index = int(phi * sizerange + size2);
+  const double phi = atan(x / (y + R[row]));
+  const int index = int(phi * sizerange + size2);
   if (index < 0 || index >= size) return 0.0;
 
   G4double amplitude = 0.0;
@@ -1847,8 +1849,8 @@ G4double TileGeoG4SDCalc::Tile_1D_profileRescaled_zeroBins(int row, G4double x, 
   const double size2 = (double) size / 2.;
 
   if (row < 0 || row >= 11) return 0.0;
-  double phi = atan(x / (y + R[row]));
-  int index = int(phi * sizerange + size2);
+  const double phi = atan(x / (y + R[row]));
+  const int index = int(phi * sizerange + size2);
   if (index < nZeroBins || index >= size - nZeroBins) return 0.0;
 
   G4double amplitude = 0.0;
