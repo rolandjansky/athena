@@ -101,7 +101,7 @@ inline std::ostream& operator<<( std::ostream& s, const node& n ) {
   else if ( n.size() ) {  
     if ( n.parent() ) s << "\t( parent " << n.parent()->name() << " )";
     if ( n.rate().first!="" )s << "\t\t:::(max rate chain " << n.rate().first << " " << n.rate().second << " ):::";
-    for ( unsigned i=0 ; i<n.size() ; i++ ) { 
+    for ( size_t i=0 ; i<n.size() ; i++ ) { 
       //      if ( n[i]->type()!=node::HISTOGRAM ) 
       s << "\n" << i << " " << n.depth() << " " << *n[i];
     }
@@ -125,7 +125,7 @@ inline std::string travel( node* n, const std::string& regx="", int depth=0 ) {
     std::cout << n->name() << "\t" << n->path() << "\n";
   }
 
-  for ( int i=0 ; i<n->children().size() ; i++ ) {
+  for ( size_t i=0 ; i<n->children().size() ; i++ ) {
     std::string s = travel( n->children()[i], regx, depth+1 );
     if ( s!="" ) return s;
   }
