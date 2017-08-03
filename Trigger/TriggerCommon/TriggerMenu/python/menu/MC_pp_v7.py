@@ -3066,11 +3066,12 @@ ps_minb_list=[
 
 ps_rerun_list = [
 
-
-
-
-
-
+    'xe0noL1_l2fsperf',
+    'xe0noL1_l2fsperf_mht',
+    'xe0noL1_l2fsperf_mht_em',
+    'xe0noL1_l2fsperf_pufit',
+    'xe0noL1_l2fsperf_tc_em',
+    'xe0noL1_l2fsperf_tc_lcw',
 
     ]
 
@@ -3194,12 +3195,6 @@ ps_perform_list = [
     'xe45_wEFMu',
     'xe50',
     'xe50_mht_FStracks_L1XE50',
-    'xe0noL1_l2fsperf',
-    'xe0noL1_l2fsperf_mht',
-    'xe0noL1_l2fsperf_mht_em',
-    'xe0noL1_l2fsperf_pufit',
-    'xe0noL1_l2fsperf_tc_em',
-    'xe0noL1_l2fsperf_tc_lcw',   
     'xe110_mht_em_L1KF-XE60',
     'xe110_mht_em_L1KF-XE65',
     'xe110_mht_em_L1KF-XE75',
