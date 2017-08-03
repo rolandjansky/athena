@@ -69,6 +69,7 @@ StatusCode AthenaPoolCnvSvc::initialize() {
    }
    // Retrieve OutputStreamingTool (if configured)
    if (!m_outputStreamingTool.empty()) {
+      m_streamClientFiles = m_streamClientFilesProp.value();
       if (!m_outputStreamingTool.retrieve().isSuccess()) {
          ATH_MSG_FATAL("Cannot get Output AthenaIPCTool");
          return(StatusCode::FAILURE);
@@ -989,7 +990,6 @@ AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLoc
 	m_serializeSvc("AthenaRootSerializeSvc", name),
 	m_inputStreamingTool("", this),
 	m_outputStreamingTool(this),
-	m_streamClientFiles(),
 	m_streamServer(0),
 	m_containerPrefix(),
 	m_containerNameHint(),
@@ -1002,6 +1002,7 @@ AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLoc
    declareProperty("SubLevelBranchName", m_branchNameHintProp = "<type>/<key>");
    declareProperty("PoolAttributes", m_poolAttr);
    declareProperty("InputPoolAttributes", m_inputPoolAttr);
+   declareProperty("OutputPoolFileAllocator", m_streamClientFilesProp);
    declareProperty("PrintInputAttrPerEvt", m_inputPoolAttrPerEvent);
    declareProperty("MaxFileSizes", m_maxFileSizes);
    declareProperty("CommitInterval", m_commitInterval = 0);
