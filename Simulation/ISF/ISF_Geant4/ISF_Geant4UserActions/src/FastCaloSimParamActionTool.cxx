@@ -34,7 +34,7 @@ namespace G4UA{
     declareProperty("maxRadiusHEC",m_config.m_maxRadiusHEC, "");
     declareProperty("maxRadiusFCAL",m_config.m_maxRadiusFCAL, "");
     declareProperty("maxRadiusTile",m_config.m_maxRadiusTile, "");
- 
+
     declareProperty("maxTime",m_config.m_maxTime, "");
     declareProperty("maxTimeLAr",m_config.m_maxTimeLAr, "");
     declareProperty("maxTimeHEC",m_config.m_maxTimeHEC, "");
@@ -58,31 +58,19 @@ namespace G4UA{
 
   StatusCode FastCaloSimParamActionTool::initialize()
   {
-    ATH_CHECK(m_emepiwcalc.retrieve());
-    ATH_CHECK(m_emeniwcalc.retrieve());
-    ATH_CHECK(m_emepowcalc.retrieve());
-    ATH_CHECK(m_emenowcalc.retrieve());
-    ATH_CHECK(m_emeobarcalc.retrieve());
-    ATH_CHECK(m_embcalc.retrieve());
-    ATH_CHECK(m_fcal1calc.retrieve());
-    ATH_CHECK(m_fcal2calc.retrieve());
-    ATH_CHECK(m_fcal3calc.retrieve());
-    ATH_CHECK(m_heccalc.retrieve());
-    ATH_CHECK(m_pscalc.retrieve());
-    ATH_CHECK(m_emepscalc.retrieve());
-    ATH_CHECK(m_tileCalculator.retrieve());
-    m_config.calculator_EMECIW_pos = &*m_emepiwcalc;
-    m_config.calculator_EMECIW_neg = &*m_emeniwcalc;
-    m_config.calculator_EMECOW_pos = &*m_emepowcalc;
-    m_config.calculator_EMECOW_neg = &*m_emenowcalc;
-    m_config.calculator_BOB        = &*m_emeobarcalc;
-    m_config.calculator_EMB        = &*m_embcalc;
-    m_config.calculator_FCAL1      = &*m_fcal1calc;
-    m_config.calculator_FCAL2      = &*m_fcal2calc;
-    m_config.calculator_FCAL3      = &*m_fcal3calc;
-    m_config.calculator_HEC        = &*m_heccalc;
-    m_config.calculator_EMBPS      = &*m_pscalc;
-    m_config.calculator_TILE       = &*m_tileCalculator;
+    m_config.calculator_EMECIW_pos.setTypeAndName(m_emepiwcalc.typeAndName());
+    m_config.calculator_EMECIW_neg.setTypeAndName(m_emeniwcalc.typeAndName());
+    m_config.calculator_EMECOW_pos.setTypeAndName(m_emepowcalc.typeAndName());
+    m_config.calculator_EMECOW_neg.setTypeAndName(m_emenowcalc.typeAndName());
+    m_config.calculator_BOB.setTypeAndName(m_emeobarcalc.typeAndName());
+    m_config.calculator_EMB.setTypeAndName(m_embcalc.typeAndName());
+    m_config.calculator_FCAL1.setTypeAndName(m_fcal1calc.typeAndName());
+    m_config.calculator_FCAL2.setTypeAndName(m_fcal2calc.typeAndName());
+    m_config.calculator_FCAL3.setTypeAndName(m_fcal3calc.typeAndName());
+    m_config.calculator_HEC.setTypeAndName(m_heccalc.typeAndName());
+    m_config.calculator_EMBPS.setTypeAndName(m_pscalc.typeAndName());
+    m_config.calculator_EMEPS.setTypeAndName(m_emepscalc.typeAndName());
+    m_config.calculator_TILE.setTypeAndName(m_tileCalculator.typeAndName());
 
     return StatusCode::SUCCESS;
   }
