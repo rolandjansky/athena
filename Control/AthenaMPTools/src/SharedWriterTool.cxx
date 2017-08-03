@@ -70,12 +70,13 @@ int SharedWriterTool::makePool(int /*maxevt*/, int nprocs, const std::string& to
   }
   else {
     std::string propertyName("OutputStreamingTool");
-    StringArrayProperty writeClientsProp(propertyName,m_writer);
+    std::vector<std::string> writeClients(m_writer);
+    StringArrayProperty writeClientsProp(propertyName,writeClients);
     if(propertyServer->getProperty(&writeClientsProp).isFailure()) {
       ATH_MSG_INFO("Conversion service does not have OutputStreamingTool property");
     }
     else {
-      m_writer = writeClientsProp.size();
+      m_writer = writeClientsProp.value().size();
     }
   }
 
