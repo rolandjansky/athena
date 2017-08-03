@@ -62,7 +62,7 @@ def TrigL2CaloHypoToolFromName( name ):
             
 
         tool.MonTool = monTool
-        tool.MonTool.HistogramsGroupName = 'L2CaloHypo/'+tool.name()
+        tool.MonTool.HistPath = 'L2CaloHypo/'+tool.name()
 
 
         

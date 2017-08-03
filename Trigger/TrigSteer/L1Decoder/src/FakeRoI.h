@@ -10,6 +10,7 @@
 #define L1Decoder_FakeRoI_h
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaMonitoring/GenericMonitoringTool.h"
 
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigConfL1Data/ThresholdConfig.h"
@@ -20,7 +21,6 @@
 #include "TrigT1Interfaces/RecEmTauRoI.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TrigT1Result/RoIBResult.h"
-#include "TrigMonitorBase/IExtMonitorTool.h"
 
 //#include "AthViews/View.h"
 
@@ -58,7 +58,7 @@ private:
 	std::string m_inputFilename;
 	std::vector<std::vector<FakeRoI::SingleFakeRoI>> m_inputData;
 	unsigned m_currentRowNumber;
-	ToolHandleArray<IExtMonitorTool> m_monTools;
+    ToolHandle<GenericMonitoringTool> m_monTool;
 };
 
 #endif
