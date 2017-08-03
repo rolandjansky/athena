@@ -64,9 +64,13 @@ StatusCode BTaggingSelectionTool::initialize() {
   }
 
   // The tool supports only Akt4TopoEM, Akt4PV0Track and Akt2PV0Track jets, and VR track jets (AntiKtVR30Rmax4Rmin02TrackJets)
-  if ("MV2c20"!=m_taggerName&&
-      "MV2c10"!=m_taggerName&&
-      "MV2cl100_MV2c100"!=m_taggerName){
+  if ("DL1"!=m_taggerName&&
+	      "DL1mu"!=m_taggerName&&
+	      "DL1rnn"!=m_taggerName&&
+	      "MV2c10"!=m_taggerName&&
+	      "MV2c10mu"!=m_taggerName&&
+	      "MV2c10rnn"!=m_taggerName&&
+	      "MV2cl100_MV2c100"!=m_taggerName){ 
     ATH_MSG_ERROR( "BTaggingSelectionTool doesn't support tagger: "+m_taggerName );
     return StatusCode::FAILURE;
   }
@@ -92,6 +96,13 @@ StatusCode BTaggingSelectionTool::initialize() {
 
   // Operating point reading
   TString cutname = m_OP;
+ if("DL1"    ==m_taggerName){ m_fraction = 0.08; }
+ if("DL1mu"  ==m_taggerName){ m_fraction = 0.08; }
+ if("DL1rnn" ==m_taggerName){ m_fraction = 0.03; }
+ 
+ if(m_OP == "CTag_Loose"){ m_fraction = 0.08; }
+ if(m_OP == "CTag_Tight"){ m_fraction = 0.02; }
+
   if ("Continuous"==cutname(0,10)){  // For continuous tagging load all flat-cut WPs
     //100% efficiency => MVXWP=-infinity
     m_continuouscuts[0] = -1.e4;
@@ -125,7 +136,7 @@ StatusCode BTaggingSelectionTool::initialize() {
       m_constcut = (TVector*) m_inf->Get(cutname);
       if (m_constcut == nullptr) ATH_MSG_ERROR( "Invalid operating point" );
     }
-    else if ("FlatBEff"==cutname(0,8)){
+    else if ("FlatBEff"==cutname(0,8) || "HybBEff"==cutname(0,7) ){
       cutname = m_taggerName+"/"+m_jetAuthor+"/"+m_OP+"/cutprofile";
       m_spline = (TSpline3*) m_inf->Get(cutname);
       if (m_spline == nullptr) ATH_MSG_ERROR( "Invalid operating point" );
@@ -191,7 +202,7 @@ const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const
 
   // Retrieve the tagger weight which was assigned to the jet
   TString cutname = m_OP;
-  if ("2D"!=cutname(0,2)){
+  if ( m_taggerName.find("MV2c10") != string::npos && m_taggerName!="MV2cl100_MV2c100" ){
     double weight_mv2(-10.);
     const xAOD::BTagging* btag = jet.btagging();
     if ((!btag) || (!btag->MVx_discriminant(m_taggerName, weight_mv2))){
@@ -200,7 +211,7 @@ const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const
     ATH_MSG_VERBOSE( "MV2c20 " <<  weight_mv2 );
     return accept(pT, eta, weight_mv2);
   }
-  else {
+  else if(m_taggerName=="MV2cl100_MV2c100"){
     double weight_mv2c100(-10.);
     double weight_mv2cl100(-10.);
     const xAOD::BTagging* btag = jet.btagging();
@@ -215,8 +226,37 @@ const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const
     return accept(pT, eta, weight_mv2cl100, weight_mv2c100 );
 
   }
-}
+  else if(m_taggerName.find("DL1") != string::npos){
 
+	double dl1_pb(-10.);
+	double dl1_pc(-10.);
+	double dl1_pu(-10.);
+
+	const xAOD::BTagging* btag = jet.btagging();
+
+	if ((!btag)){
+  	ATH_MSG_ERROR("Failed to retrieve the BTagging information");
+	}
+
+	if ( (!btag->pb(m_taggerName, dl1_pb ))
+  	|| (!btag->pc(m_taggerName, dl1_pc ))
+  	|| (!btag->pu(m_taggerName, dl1_pu )) ){
+  	ATH_MSG_ERROR("Failed to retrieve the BTagging "+m_taggerName+" weight!");
+	}
+	ATH_MSG_VERBOSE( "pb " <<  dl1_pb );
+	ATH_MSG_VERBOSE( "pc " <<  dl1_pc );
+	ATH_MSG_VERBOSE( "pu " <<  dl1_pu );
+  	if(m_OP.find("CTag") != string::npos){
+  	return accept(pT, eta, dl1_pc, dl1_pb ,dl1_pu);
+	}else{
+  	return accept(pT, eta, dl1_pb, dl1_pc ,dl1_pu);
+	}
+    }
+    
+    //if we got here the tagger name is not configured properly
+    ATH_MSG_ERROR("BTaggingSelectionTool doesn't support tagger: "+m_taggerName);
+    return m_accept;
+}
 const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double weight_mv2) const
 {
   m_accept.clear();
@@ -297,7 +337,51 @@ const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double
 }
 
 
-
+const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double pb, double pc, double pu) const
+ {
+   m_accept.clear();
+ 
+   if (! m_initialised) {
+     ATH_MSG_ERROR("BTaggingSelectionTool has not been initialised");
+     return m_accept;
+   }
+ 
+   // flat cut for out of range pTs
+   if (pT>m_maxRangePt)
+     pT = m_maxRangePt-500; // 500 MeV below the maximum authorized range
+ 
+   eta = std::fabs(eta);
+ 
+   if (! checkRange(pT, eta))
+     return m_accept;
+ 
+   // After initialization, either m_spline or m_constcut should be non-zero
+   // Else, the initialization was incorrect and should be revisited
+   double cutvalue(DBL_MAX);
+   if (m_spline != nullptr && m_constcut == nullptr) {
+     cutvalue = m_spline->Eval(pT/1000.);
+   }
+   else if (m_constcut != nullptr && m_spline == nullptr) {
+     cutvalue = m_constcut[0](0);
+   }
+   else ATH_MSG_ERROR( "Bad cut configuration!" );
+   ATH_MSG_VERBOSE( "Cut value " << cutvalue );
+ 
+ 
+   float weight = -1;
+ 
+   bool valid_input = (!std::isnan(pu) && pb>0 && pc>0 && pu>0);
+ 
+   if (valid_input){ weight = log( pb/(m_fraction*pc+(1.-m_fraction)*pu) ); }
+ 
+   if ( !valid_input ||  weight < cutvalue ){
+     return m_accept;
+   }
+   m_accept.setCutResult( "WorkingPoint", true );
+ 
+   // Return the result:
+   return m_accept;
+ }
 
 int BTaggingSelectionTool::getQuantile( const xAOD::IParticle* p ) const {
   // Check if this is a jet:
