@@ -4,29 +4,28 @@
  */
 // $Id$
 /**
- * @file DataModelTestDataCommon/src/CondReaderAlg.h
+ * @file DataModelTestDataCommon/src/CondAlg1.h
  * @author scott snyder <snyder@bnl.gov>
  * @date Jul, 2017
- * @brief Testing conditions handling.
+ * @brief Testing conditions algorithms.
  */
 
 
-#ifndef DATAMODELTESTDATACOMMON_CONDREADERALG_H
-#define DATAMODELTESTDATACOMMON_CONDREADERALG_H
+#ifndef DATAMODELTESTDATACOMMON_CONDALG1_H
+#define DATAMODELTESTDATACOMMON_CONDALG1_H
 
 
-#include "DataModelTestDataCommon/S1Cond.h"
-#include "EventInfo/EventInfo.h"
+#include "DataModelTestDataCommon/S2Cond.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
-#include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/WriteCondHandleKey.h"
 
 
 namespace DMTest {
 
 
-class CondReaderAlg
+class CondAlg1
   : public AthReentrantAlgorithm
 {
 public:
@@ -35,7 +34,7 @@ public:
    * @param name The algorithm name.
    * @param pSvcLocator The service locator.
    */
-  CondReaderAlg (const std::string &name, ISvcLocator *pSvcLocator);
+  CondAlg1 (const std::string &name, ISvcLocator *pSvcLocator);
 
 
   /**
@@ -51,13 +50,12 @@ public:
 
 
 private:
-  SG::ReadHandleKey<EventInfo> m_eventInfoKey;
   SG::ReadCondHandleKey<AthenaAttributeList> m_attrListKey;
-  SG::ReadCondHandleKey<DMTest::S1> m_scondKey;
+  SG::WriteCondHandleKey<DMTest::S2> m_scondKey;
 };
 
 
 } // namespace DMTest
 
 
-#endif // not DATAMODELTESTDATACOMMON_CONDREADERALG_H
+#endif // not DATAMODELTESTDATACOMMON_CONDALG1_H
