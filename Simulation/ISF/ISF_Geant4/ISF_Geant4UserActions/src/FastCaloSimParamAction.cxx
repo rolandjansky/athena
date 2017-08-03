@@ -359,7 +359,7 @@ namespace G4UA{
           }
         else if (CurrentLogicalVolumeName.find(tilestring)!= std::string::npos)
           {
-            m_current_calculator_Tile = m_config.calculator_TILE;
+            m_current_calculator_Tile = &*m_config.calculator_TILE;
             break;
           }
 
