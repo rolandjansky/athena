@@ -12,6 +12,8 @@
 // athena simulation includes
 
 #include "GaudiKernel/ServiceHandle.h"
+#include "LArG4Code/ILArCalculatorSvc.h"
+#include "TileG4Interfaces/ILArCalculatorSvc.h"
 
 // CLHEP include for Hep3Vector
 #include "CLHEP/Vector/ThreeVector.h"
@@ -27,8 +29,6 @@ namespace HepMC {
   class GenParticle;
 }
 // forward declarations in global namespace
-class ILArCalculatorSvc;
-class ITileCalculator;
 class G4VSolid;
 class G4AffineTransform;
 class LArG4SimpleSD;
@@ -77,21 +77,21 @@ namespace G4UA{
       bool shift_lar_subhit=true;
       bool shorten_lar_step=false;
       // calculators
-      ILArCalculatorSvc* calculator_EMECIW_pos=nullptr;            //!< pointer to EMEC positive inner wheel calculator
-      ILArCalculatorSvc* calculator_EMECIW_neg=nullptr;            //!< pointer to EMEC negative inner wheel calculator
-      ILArCalculatorSvc* calculator_EMECOW_pos=nullptr;            //!< pointer to EMEC positive outer wheel calculator
-      ILArCalculatorSvc* calculator_EMECOW_neg=nullptr;            //!< pointer to EMEC negative outer wheel calculator
-      //ILArCalculatorSvc* calculator_BIB=nullptr;                 //!< pointer to EMEC Back Inner Barrette wheel calculator
-      ILArCalculatorSvc* calculator_BOB=nullptr;                   //!< pointer to EMEC Back Outer Barrette wheel calculator
-      ILArCalculatorSvc* calculator_EMB=nullptr;                   //!< pointer to barrel calculator
-      ILArCalculatorSvc* calculator_FCAL1=nullptr;
-      ILArCalculatorSvc* calculator_FCAL2=nullptr;
-      ILArCalculatorSvc* calculator_FCAL3=nullptr;
-      ILArCalculatorSvc* calculator_HEC=nullptr;
-      ILArCalculatorSvc* calculator_EMBPS=nullptr;                 //!< pointer to barrel presampler calculator
-      ILArCalculatorSvc* calculator_EMEPS=nullptr;                 //!< pointer to endcap presampler calculator
-      //ILArCalculatorSvc* calculator_HECLocal=nullptr;
-      ITileCalculator* calculator_TILE=nullptr;                    //!< pointer to tile calculator
+      ServiceHandle<ILArCalculatorSvc> calculator_EMECIW_pos=ServiceHandle<ILArCalculatorSvc>("EMECPosInnerWheelCalculator", "FastCaloSimParamAction");            //!< handle to EMEC positive inner wheel calculator
+      ServiceHandle<ILArCalculatorSvc> calculator_EMECIW_neg=ServiceHandle<ILArCalculatorSvc>("EMECNegInnerWheelCalculator", "FastCaloSimParamAction");            //!< handle to EMEC negative inner wheel calculator
+      ServiceHandle<ILArCalculatorSvc> calculator_EMECOW_pos=ServiceHandle<ILArCalculatorSvc>("EMECPosOuterWheelCalculator", "FastCaloSimParamAction");            //!< handle to EMEC positive outer wheel calculator
+      ServiceHandle<ILArCalculatorSvc> calculator_EMECOW_neg=ServiceHandle<ILArCalculatorSvc>("EMECNegOuterWheelCalculator", "FastCaloSimParamAction");            //!< handle to EMEC negative outer wheel calculator
+      //ServiceHandle<ILArCalculatorSvc> calculator_BIB;                 //!< handle to EMEC Back Inner Barrette wheel calculator
+      ServiceHandle<ILArCalculatorSvc> calculator_BOB=ServiceHandle<ILArCalculatorSvc>("EMECBackOuterBarretteCalculator", "FastCaloSimParamAction");                   //!< handle to EMEC Back Outer Barrette wheel calculator
+      ServiceHandle<ILArCalculatorSvc> calculator_EMB=ServiceHandle<ILArCalculatorSvc>("EMBCalculator", "FastCaloSimParamAction");                   //!< handle to barrel calculator
+      ServiceHandle<ILArCalculatorSvc> calculator_FCAL1=ServiceHandle<ILArCalculatorSvc>("FCAL1Calculator", "FastCaloSimParamAction");
+      ServiceHandle<ILArCalculatorSvc> calculator_FCAL2=ServiceHandle<ILArCalculatorSvc>("FCAL2Calculator", "FastCaloSimParamAction");
+      ServiceHandle<ILArCalculatorSvc> calculator_FCAL3=ServiceHandle<ILArCalculatorSvc>("FCAL3Calculator", "FastCaloSimParamAction");
+      ServiceHandle<ILArCalculatorSvc> calculator_HEC=ServiceHandle<ILArCalculatorSvc>("HECWheelCalculator", "FastCaloSimParamAction");
+      ServiceHandle<ILArCalculatorSvc> calculator_EMBPS=ServiceHandle<ILArCalculatorSvc>("EMBPresamplerCalculator", "FastCaloSimParamAction");                 //!< handle to barrel presampler calculator
+      ServiceHandle<ILArCalculatorSvc> calculator_EMEPS=ServiceHandle<ILArCalculatorSvc>("EMECPresamplerCalculator", "FastCaloSimParamAction");                 //!< handle to endcap presampler calculator
+      //ServiceHandle<ILArCalculatorSvc> calculator_HECLocal;
+      ServiceHandle<ITileCalculator> calculator_TILE=ServiceHandle<ITileCalculator>("TileGeoG4SDCalc", "FastCaloSimParamAction");                    //!< pointer to tile calculator
 
       // Merging properties
       DoubleProperty            m_maxRadius=25.;                //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink

@@ -284,78 +284,78 @@ namespace G4UA{
         if(CurrentLogicalVolumeName == "LArMgr::LAr::FCAL::Module1::Absorber")
           {
             // shower is inside FCAL1
-            m_current_calculator = m_config.calculator_FCAL1;
+            m_current_calculator = &*m_config.calculator_FCAL1;
             //m_current_calculator = nullptr;
             break;
           }
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::FCAL::Module2::Absorber")
           {
             // shower is inside FCAL2
-            m_current_calculator = m_config.calculator_FCAL2;
+            m_current_calculator = &*m_config.calculator_FCAL2;
             //m_current_calculator = nullptr; //try disable..
             break;
           }
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::FCAL::Module3::Absorber")
           {
             // shower is inside FCAL3
-            m_current_calculator = m_config.calculator_FCAL3;
+            m_current_calculator = &*m_config.calculator_FCAL3;
             break;
           }
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::EMEC::Pos::InnerWheel")
           {
-            m_current_calculator = m_config.calculator_EMECIW_pos;
+            m_current_calculator = &*m_config.calculator_EMECIW_pos;
             break;
           }
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::EMEC::Neg::InnerWheel")
           {
             // shower is inside inner EMEC
-            m_current_calculator = m_config.calculator_EMECIW_neg;
+            m_current_calculator = &*m_config.calculator_EMECIW_neg;
             break;
           }
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::EMEC::Pos::OuterWheel")
           {
-            m_current_calculator = m_config.calculator_EMECOW_pos;
+            m_current_calculator = &*m_config.calculator_EMECOW_pos;
             break;
           }
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::EMEC::Neg::OuterWheel")
           {
             // shower is inside outer EMEC positive
-            m_current_calculator = m_config.calculator_EMECOW_neg;
+            m_current_calculator = &*m_config.calculator_EMECOW_neg;
             break;
           }
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::EMB::STAC")
           {
             // shower is inside EMB positive
-            m_current_calculator = m_config.calculator_EMB;
+            m_current_calculator = &*m_config.calculator_EMB;
             break;
           }
         //else if (CurrentLogicalVolumeName == "LArMgr::LAr::EMEC::FrontInnerBarrette::Module::Phidiv")
         //	{
-        //          m_current_calculator = m_config.calculator_BIB;
+        //          m_current_calculator = &*m_config.calculator_BIB;
         //          break;
         //	}
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::EMEC::BackOuterBarrette::Module::Phidiv")
           {
-            m_current_calculator = m_config.calculator_BOB;
+            m_current_calculator = &*m_config.calculator_BOB;
             break;
           }
         //else if (CurrentLogicalVolumeName == "LArMgr::LAr::HEC::Module::Depth::Slice::Local")
         //{
-        //  m_current_calculator = m_config.calculator_HECLocal;
+        //  m_current_calculator = &*m_config.calculator_HECLocal;
         //  break;
         //} //doesn't exist anymore
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::HEC::Module::Depth::Slice")
           {
-            m_current_calculator = m_config.calculator_HEC;
+            m_current_calculator = &*m_config.calculator_HEC;
             break;
           }
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::Barrel::Presampler::Module")
           {
-            m_current_calculator = m_config.calculator_EMBPS;
+            m_current_calculator = &*m_config.calculator_EMBPS;
           }
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::Endcap::Presampler::LiquidArgon")
           {
-            m_current_calculator = m_config.calculator_EMEPS;
+            m_current_calculator = &*m_config.calculator_EMEPS;
           }
         else if (CurrentLogicalVolumeName.find(tilestring)!= std::string::npos)
           {

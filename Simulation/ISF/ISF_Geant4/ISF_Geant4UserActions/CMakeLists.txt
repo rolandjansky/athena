@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Simulation/G4Atlas/G4AtlasInterfaces
                           Simulation/G4Atlas/G4AtlasTools
+                          TileCalorimeter/TileG4/TileG4Interfaces
                           PRIVATE
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloIdentifier
@@ -19,7 +20,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Generators/GeneratorObjects
                           LArCalorimeter/LArG4/LArG4Code
                           Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimEvent
-                          TileCalorimeter/TileG4/TileG4Interfaces )
                           DetectorDescription/Identifier )
 
 # External dependencies:
