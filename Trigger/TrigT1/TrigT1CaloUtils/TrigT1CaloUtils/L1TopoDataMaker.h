@@ -45,19 +45,20 @@ namespace LVL1
       virtual ~L1TopoDataMaker ();
       
       /** Fill DataVector of CPCMXTopoData from RoIBResult */
-      virtual void makeCPCMXTopoData(const ROIB::RoIBResult* roibResult, DataVector<CPCMXTopoData>* topoData);
+      virtual void makeCPCMXTopoData(const ROIB::RoIBResult* roibResult, DataVector<CPCMXTopoData>* topoData) const;
       /** Fill DataVector of CPCMXTopoData from RoIBResult */
-      virtual void makeCPCMXTopoData(const std::vector<ROIB::EMTauResult> & roibData, DataVector<CPCMXTopoData>* topoData);
+      virtual void makeCPCMXTopoData(const std::vector<ROIB::EMTauResult> & roibData, DataVector<CPCMXTopoData>* topoData) const;
       
       /** Fill DataVector of JetCMXTopoData from RoIBResult */
-      virtual void makeJetCMXTopoData(const ROIB::RoIBResult* roibResult, DataVector<JetCMXTopoData>* topoData);
+      virtual void makeJetCMXTopoData(const ROIB::RoIBResult* roibResult, DataVector<JetCMXTopoData>* topoData) const;
       /** Fill DataVector of JetCMXTopoData from RoIBResult */
-      virtual void makeJetCMXTopoData(const std::vector<ROIB::JetEnergyResult> & roibData, DataVector<JetCMXTopoData>* topoData);
+      virtual void makeJetCMXTopoData(const std::vector<ROIB::JetEnergyResult> & roibData, DataVector<JetCMXTopoData>* topoData) const;
        
       /** Fill EnergyTopoData from RoIBResult */
-      virtual void makeEnergyTopoData(const ROIB::RoIBResult* roibResult, EnergyTopoData* topoData);
+      virtual void makeEnergyTopoData(const ROIB::RoIBResult* roibResult, EnergyTopoData* topoData) const;
+
       /** Fill EnergyTopoData from RoIBResult */
-      virtual void makeEnergyTopoData(const std::vector<ROIB::JetEnergyResult> & roibData, EnergyTopoData* topoData);
+      virtual void makeEnergyTopoData(const std::vector<ROIB::JetEnergyResult> & roibData, EnergyTopoData* topoData) const;
             
    private:
                    
