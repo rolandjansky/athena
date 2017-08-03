@@ -22,22 +22,17 @@
 CondAlgX::CondAlgX( const std::string& name, 
             ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
-  m_evt("McEventInfo"),
-  m_wchk("X2","X2"),
   m_cs("CondSvc",name),
   m_cds("ASCIICondDbSvc",name)
 {
-  
-  declareProperty("EvtInfo", m_evt);
-  declareProperty("Key_CH", m_wchk);
-  declareProperty("Key_DB", m_dbKey);
-
 }
 
 CondAlgX::~CondAlgX() {}
 
 StatusCode CondAlgX::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
+
+  ATH_CHECK( m_evt.initialize() );
 
   if (m_cs.retrieve().isFailure()) {
     ATH_MSG_ERROR("unable to retrieve CondSvc");
@@ -71,20 +66,21 @@ StatusCode CondAlgX::finalize() {
 StatusCode CondAlgX::execute() {
   ATH_MSG_DEBUG("execute " << name());
 
-  if (!m_evt.isValid()) {
+  SG::ReadHandle<EventInfo> evt( m_evt );
+  if (!evt.isValid()) {
     ATH_MSG_ERROR ("Could not retrieve EventInfo");
     return StatusCode::FAILURE;
   }
 
-  ATH_MSG_DEBUG("   EventInfo:  r: " << m_evt->event_ID()->run_number()
-                << " e: " << m_evt->event_ID()->event_number() );
+  ATH_MSG_DEBUG("   EventInfo:  r: " << evt->event_ID()->run_number()
+                << " e: " << evt->event_ID()->event_number() );
 
 
   SG::WriteCondHandle<CondDataObj> wch(m_wchk);
 
   EventIDBase now(getContext().eventID());
 
-  if (m_evt->event_ID()->event_number() == 10) {
+  if (evt->event_ID()->event_number() == 10) {
       std::this_thread::sleep_for(std::chrono::milliseconds( 500 ));
   }
 

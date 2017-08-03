@@ -32,8 +32,11 @@ public:
   
 private:
   
-  SG::WriteCondHandleKey<CondDataObjY> m_wch1, m_wch2;
-  std::string m_dbk1, m_dbk2;
+  SG::WriteCondHandleKey<CondDataObjY> m_wch1 {this, "Key_CH1", "Y1", "cond handle key 1"};
+  SG::WriteCondHandleKey<CondDataObjY> m_wch2 {this, "Key_CH2", "Y2", "cond handle key 2"};
+
+  Gaudi::Property<std::string> m_dbk1 {this, "Key_DB1", "Y1", "explicit dbKey for cond handle 1"};
+  Gaudi::Property<std::string> m_dbk2 {this, "Key_DB2", "Y2", "explicit dbKey for cond handle 2"};
 
   ServiceHandle<ICondSvc> m_cs;
   ServiceHandle<IASCIICondDbSvc> m_cds;

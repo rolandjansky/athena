@@ -9,10 +9,9 @@
 
 class IHelloTool : virtual public IAlgTool {
 public:
-   virtual StatusCode saySomething() = 0;
-   static const InterfaceID& interfaceID() {
-     static const InterfaceID _IHelloToolID( "IHelloTool", 1, 0 );
-     return _IHelloToolID;
-   }
+  virtual StatusCode saySomething() = 0;
+
+  DeclareInterfaceID( IHelloTool, 1, 0);
+
 };
 #endif // !ATHEXHELLOWORLD_IHELLOTOOL_H
