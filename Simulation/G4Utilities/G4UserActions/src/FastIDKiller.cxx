@@ -32,7 +32,7 @@ namespace G4UA
   }
 
   //---------------------------------------------------------------------------
-  void FastIDKiller::beginOfRun(const G4Run*)
+  void FastIDKiller::BeginOfRunAction(const G4Run*)
   {
     ATH_MSG_INFO( "Including the Fast Inner Detector Killer." << std::endl
                   << "\t This piece of code will kill all particles leaving the" << std::endl
@@ -73,7 +73,7 @@ namespace G4UA
 
 
   //---------------------------------------------------------------------------
-  void FastIDKiller::processStep(const G4Step* aStep){
+  void FastIDKiller::UserSteppingAction(const G4Step* aStep){
 
     if (msgLvl(MSG::VERBOSE)){
       ATH_MSG_DEBUG( " ===================================================== " );

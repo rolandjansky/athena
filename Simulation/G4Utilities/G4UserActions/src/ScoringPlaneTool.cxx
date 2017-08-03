@@ -14,11 +14,9 @@ namespace G4UA
                                      const IInterface* parent)
     : ActionToolBase<ScoringPlane>(type, name, parent)
   {
-    declareInterface<IBeginRunActionTool>(this);
-    declareInterface<IEndRunActionTool>(this);
-    declareInterface<ISteppingActionTool>(this);
-    declareInterface<IBeginEventActionTool>(this);
-    declareInterface<IEndEventActionTool>(this);
+    declareInterface<IG4RunActionTool>(this);
+    declareInterface<IG4SteppingActionTool>(this);
+    declareInterface<IG4EventActionTool>(this);
     declareProperty("Plane", m_config.plane);
     declareProperty("PKill", m_config.pkill);
     declareProperty("FName", m_config.fname);

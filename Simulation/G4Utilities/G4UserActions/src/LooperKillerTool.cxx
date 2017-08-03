@@ -15,7 +15,7 @@ namespace G4UA
                                  const IInterface* parent)
     : ActionToolBaseReport<LooperKiller>(type, name, parent)
   {
-    declareInterface<ISteppingActionTool>(this);
+    declareInterface<IG4SteppingActionTool>(this);
     declareProperty("MaxSteps", m_config.MaxSteps);
     declareProperty("PrintSteps",m_config.PrintSteps);
     declareProperty("VerboseLevel", m_config.VerboseLevel);

@@ -7,10 +7,9 @@
 
 
 
-#include "G4AtlasInterfaces/IBeginRunAction.h"
-#include "G4AtlasInterfaces/IEndRunAction.h"
-#include "G4AtlasInterfaces/IEndEventAction.h"
-#include "G4AtlasInterfaces/ISteppingAction.h"
+#include "G4UserRunAction.hh"
+#include "G4UserEventAction.hh"
+#include "G4UserSteppingAction.hh"
 
 #include <vector>
 
@@ -20,16 +19,17 @@ class TH1D;
 namespace G4UA
 {
 
-  class FluxRecorder : public IBeginRunAction, public IEndRunAction,
-                       public IEndEventAction, public ISteppingAction
+  class FluxRecorder : public G4UserRunAction,
+                       public G4UserEventAction,
+                       public G4UserSteppingAction
   {
 
   public:
     FluxRecorder();
-    virtual void beginOfRun(const G4Run*) override;
-    virtual void endOfRun(const G4Run*) override;
-    virtual void endOfEvent(const G4Event*) override;
-    virtual void processStep(const G4Step*) override;
+    virtual void BeginOfRunAction(const G4Run*) override;
+    virtual void EndOfRunAction(const G4Run*) override;
+    virtual void EndOfEventAction(const G4Event*) override;
+    virtual void UserSteppingAction(const G4Step*) override;
   private:
     enum scoringVolume {RPCOlz,RPCOmz,RPCOhz,RPCMlz,RPCMmz,RPCMhz,MDTIlz,MDTImz,MDTIhz,
                         LMDTo,LMDTm,LMDTi,BMDTo,BMDTm,BMDTi,SWo,SWm,SWi,SWc,SWt,

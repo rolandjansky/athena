@@ -8,10 +8,9 @@
 #include "StoreGate/WriteHandle.h"
 #include "TrackRecord/TrackRecordCollection.h" // Can't be forward declared - it's a type def
 
-#include "G4AtlasInterfaces/ISteppingAction.h"
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/IEndEventAction.h"
-#include "G4AtlasInterfaces/IPreTrackingAction.h"
+#include "G4UserSteppingAction.hh"
+#include "G4UserEventAction.hh"
+#include "G4UserTrackingAction.hh"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -19,8 +18,9 @@ namespace G4UA
 {
 
   /// @brief NEEDS DOCUMENTATION
-  class CosmicPerigeeAction final : public ISteppingAction, public IEndEventAction,
-                                    public IBeginEventAction, public IPreTrackingAction
+  class CosmicPerigeeAction final : public G4UserSteppingAction,
+                                    public G4UserEventAction,
+                                    public G4UserTrackingAction
   {
 
   public:
@@ -32,10 +32,10 @@ namespace G4UA
 
     CosmicPerigeeAction(const Config& config);
 
-    virtual void processStep(const G4Step*) override;
-    virtual void endOfEvent(const G4Event*) override;
-    virtual void beginOfEvent(const G4Event*) override;
-    virtual void preTracking(const G4Track*) override;
+    virtual void UserSteppingAction(const G4Step*) override;
+    virtual void EndOfEventAction(const G4Event*) override;
+    virtual void BeginOfEventAction(const G4Event*) override;
+    virtual void PreUserTrackingAction(const G4Track*) override;
 
   private:
 

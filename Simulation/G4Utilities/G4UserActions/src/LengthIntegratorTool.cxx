@@ -17,9 +17,8 @@ namespace G4UA
     : ActionToolBase<LengthIntegrator>(type, name, parent),
       m_hSvc("THistSvc", name)
   {
-    declareInterface<IBeginEventActionTool>(this);
-    declareInterface<IEndEventActionTool>(this);
-    declareInterface<ISteppingActionTool>(this);
+    declareInterface<IG4EventActionTool>(this);
+    declareInterface<IG4SteppingActionTool>(this);
     declareProperty("HistoSvc", m_hSvc);
   }
 

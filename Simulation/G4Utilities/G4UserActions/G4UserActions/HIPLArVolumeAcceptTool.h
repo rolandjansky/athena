@@ -5,9 +5,8 @@
 #ifndef G4USERACTIONS_G4UA__HIPLARVOLUMEACCEPTTOOL_H
 #define G4USERACTIONS_G4UA__HIPLARVOLUMEACCEPTTOOL_H
 
-#include "G4AtlasInterfaces/ISteppingActionTool.h"
-#include "G4AtlasInterfaces/IBeginEventActionTool.h"
-#include "G4AtlasInterfaces/IEndEventActionTool.h"
+#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
+#include "G4AtlasInterfaces/IG4EventActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 #include "G4UserActions/HIPLArVolumeAccept.h"
 
@@ -17,9 +16,8 @@ namespace G4UA
   /// Tool which manages the HIPLArVolumeAccept action
   ///
   class HIPLArVolumeAcceptTool : public ActionToolBaseReport<HIPLArVolumeAccept>,
-                                 public ISteppingActionTool,
-                                 public IBeginEventActionTool,
-                                 public IEndEventActionTool
+                                 public IG4SteppingActionTool,
+                                 public IG4EventActionTool
   {
 
     public:
@@ -28,14 +26,11 @@ namespace G4UA
       HIPLArVolumeAcceptTool(const std::string& type, const std::string& name,
                              const IInterface* parent);
 
-      virtual ISteppingAction* getSteppingAction() override final
-      { return static_cast<ISteppingAction*>( getAction() ); }
+      virtual G4UserSteppingAction* getSteppingAction() override final
+      { return static_cast<G4UserSteppingAction*>( getAction() ); }
 
-      virtual IBeginEventAction* getBeginEventAction() override final
-      { return static_cast<IBeginEventAction*>( getAction() ); }
-
-      virtual IEndEventAction* getEndEventAction() override final
-      { return static_cast<IEndEventAction*>( getAction() ); }
+      virtual G4UserEventAction* getEventAction() override final
+      { return static_cast<G4UserEventAction*>( getAction() ); }
 
       virtual StatusCode finalize() override;
 

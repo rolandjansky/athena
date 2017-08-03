@@ -5,9 +5,8 @@
 #ifndef G4UserActions_MomentumConservation_H
 #define G4UserActions_MomentumConservation_H
 
-
-#include "G4AtlasInterfaces/IEndEventAction.h"
-#include "G4AtlasInterfaces/ISteppingAction.h"
+#include "G4UserEventAction.hh"
+#include "G4UserSteppingAction.hh"
 #include "AthenaKernel/MsgStreamMember.h"
 
 #include <iostream>
@@ -17,7 +16,7 @@ namespace G4UA
 
   /// @class MomentumConservation
   /// @brief checks momentum conservation
-  class MomentumConservation : public IEndEventAction, public ISteppingAction
+  class MomentumConservation : public G4UserEventAction, public G4UserSteppingAction
   {
     public:
 
@@ -25,8 +24,8 @@ namespace G4UA
         : m_msg("MomentumConservation"), _sum_edep(0), _sum_eesc(0)
       {}
 
-      virtual void endOfEvent(const G4Event*) override;
-      virtual void processStep(const G4Step*) override;
+      virtual void EndOfEventAction(const G4Event*) override;
+      virtual void UserSteppingAction(const G4Step*) override;
 
     private:
 
