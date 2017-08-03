@@ -912,6 +912,8 @@ private:
   void releaseObject(const CLID& id, const std::string& key);
 
 
+  /// access emptyTrash
+  friend class PileUpMergeSvc;
   ///access  clearProxyPayload
   friend class IOVDbSvc;
   friend class IOVSvcTool;
@@ -925,10 +927,6 @@ private:
   /// Unlike DataProxy::reset this method correctly updates SGSvc internals
   void clearProxyPayload(SG::DataProxy*);
 
-  ///access store()
-  friend class CondSvc;
-  friend class IOVSvc;              // FIXME
-  friend class PileUpMergeSvc;      // FIXME needs to call tRange
   ///access typeless_record
   friend class ThinningSvc;
   friend class SG::VarHandleBase;
@@ -949,10 +947,6 @@ private:
                                  bool noHist=false,
                                  const std::type_info* tinfo=0);
 
-  //FIXME need to add wrapper like this class, to make relevant DataStore methods thread-safe
-  ///thread UNSAFE access to underlying DataStore. Use at your own risk
-  const SG::DataStore* store() const { return currentStore()->store(); }
-  SG::DataStore* store() { return currentStore()->store(); } ///< DEPRECATED                                                   
   bool isSymLinked(const CLID& linkID, SG::DataProxy* dp);
 
   StatusCode addSymLink(const CLID& linkid, SG::DataProxy* dp);
