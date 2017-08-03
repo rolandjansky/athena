@@ -273,6 +273,8 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
   std::vector<const Trk::ITrackLink*> selectedTracks;
 
   xAOD::Vertex beamposition;
+  beamposition.makePrivateStore();
+
   beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
   beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
 
