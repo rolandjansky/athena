@@ -15,7 +15,6 @@ MuonCombinedInDetCandidateAlg::MuonCombinedInDetCandidateAlg(const std::string& 
   declareProperty("TrackParticleLocation",m_indetTrackParticleLocation = "InDetTrackParticles");
   declareProperty("ForwardParticleLocation",m_indetForwardTrackParticleLocation = "InDetForwardTrackParticles");
   declareProperty("InDetCandidateLocation", m_candidateCollectionName = "InDetCandidates");
-  // declareProperty("ReadInDetCandidateLocation", m_indetCandidateCollectionName = "InDetCandidates");
   declareProperty("DoSiliconAssocForwardMuons",m_doSiliconForwardMuons = false);
 }
 
@@ -30,7 +29,6 @@ StatusCode MuonCombinedInDetCandidateAlg::initialize()
   ATH_CHECK(m_indetTrackParticleLocation.initialize());
   ATH_CHECK(m_indetForwardTrackParticleLocation.initialize());
   ATH_CHECK(m_candidateCollectionName.initialize());
-  // ATH_CHECK(m_indetCandidateCollectionName.initialize());
 
   return StatusCode::SUCCESS; 
 }
