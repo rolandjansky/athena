@@ -56,8 +56,9 @@ std::vector<TFile*>      fptr;
 std::vector<std::string> savedhistos;
 std::vector<std::string> mapped;
 
-bool  verbose = false; 
-bool vverbose = false; 
+bool   verbose = false; 
+bool  vverbose = false; 
+bool vvverbose = false; 
 
 /// send output to here ...
 std::ostream* outp = &std::cout;
@@ -427,7 +428,6 @@ public:
 	if ( contains( dir, "run_" ) ) {
 	  dir.erase( 0, std::string( "run_").size() ); 
 	  mrun = std::atoi( dir.c_str() );
-	  
 	  break;
 	}
        
@@ -709,6 +709,8 @@ void search( TDirectory* td, const std::string& s, std::string cwd, node* n ) {
 
   if ( std::string(td->GetName()).find("_LB")!=std::string::npos ) return;
   if ( std::string(td->GetName()).find("lb_")!=std::string::npos ) return;
+
+  if ( std::regex_match( std::string(td->GetName()), std::regex("run_.*") ) ) std::cerr << "run: " << td->GetName() << "\n";
 
   //  std::cout << "search() in  " << s << td->GetName() << ":    :" << cwd << ":" << std::endl;
 
@@ -1159,8 +1161,9 @@ int main(int argc, char** argv) {
 
     std::string argvi = std::string(argv[i]);
 
-    if      ( argvi=="-v"  || argvi=="--verbose"  ) verbose = true;
-    else if ( argvi=="-vv" || argvi=="--vverbose" ) verbose = vverbose = true;
+    if      ( argvi=="-v"   || argvi=="--verbose"  )  verbose = true;
+    else if ( argvi=="-vv"  || argvi=="--vverbose" )  verbose = vverbose = true;
+    else if ( argvi=="-vvv" || argvi=="--vvverbose" ) verbose = vverbose = vvverbose = true;
     else if ( argvi=="-o" ) {
       if ( ++i<argc-offset ) outfile = argv[i];
       else  return usage( std::cerr, argc, argv );
@@ -1325,10 +1328,14 @@ int main(int argc, char** argv) {
 
   /// create the structure ...
 
-  node n(0, "" );
+  node n(0, "");
   n.name( "top_level" );
 
+  //  if ( verbose ) std::cout << "run: " << mrun << " " << dir << "\n"; 
+
   int status = cost( files, n, "", deleteref, relocate );
+
+  if ( vvverbose )  travel( &n );
 
   //  std::cerr << "\n\nnodes " << n << std::endl;
 
