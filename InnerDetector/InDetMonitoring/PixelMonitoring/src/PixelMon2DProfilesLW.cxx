@@ -68,7 +68,7 @@ void PixelMon2DProfilesLW::SetMaxValue(float max)
 
 void PixelMon2DProfilesLW::Reset()
 {
-   if (m_doIBL && m_errorHist) {
+   if (m_doIBL && !m_errorHist) {
       IBL->Reset();
       IBL2D->Reset();
       IBL3D->Reset();
