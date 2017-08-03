@@ -23,6 +23,7 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       Event/xAOD/xAODTau
       Event/xAOD/xAODEgamma
       Event/xAOD/xAODTracking
+      PhysicsAnalysis/MCTruthClassifier
       Reconstruction/MVAUtils
       PRIVATE
       Event/FourMomUtils
@@ -43,6 +44,7 @@ else()
       Event/xAOD/xAODTau
       Event/xAOD/xAODEgamma
       Event/xAOD/xAODTracking
+      PhysicsAnalysis/MCTruthClassifier
       Reconstruction/Particle
       Reconstruction/MVAUtils
       PRIVATE
@@ -86,7 +88,7 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} ${Boost_LIBRARIES}
       AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODEgamma xAODTau
-      xAODTracking
+      xAODTracking MCTruthClassifierLib
       PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} FourMomUtils xAODJet
       PathResolver MVAUtils ElectronPhotonSelectorToolsLib )
 else()
@@ -98,7 +100,7 @@ else()
       PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} ${Boost_LIBRARIES}
       AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODEgamma xAODTau
-      xAODTracking CaloUtilsLib Particle
+      xAODTracking MCTruthClassifierLib CaloUtilsLib Particle
       PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} FourMomUtils xAODJet
       PathResolver MVAUtils ElectronPhotonSelectorToolsLib)
 endif()

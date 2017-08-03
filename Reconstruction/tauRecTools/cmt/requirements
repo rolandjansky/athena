@@ -19,6 +19,7 @@ use  MVAUtils                   MVAUtils-*                      Reconstruction
 #use  xAODTruth                  xAODTruth-*                     Event/xAOD
 use  xAODCaloEvent              xAODCaloEvent-*                 Event/xAOD
 use  xAODPFlow                  xAODPFlow-*                     Event/xAOD
+use  MCTruthClassifier          MCTruthClassifier-*             PhysicsAnalysis
 
 private
 use  xAODJet                    xAODJet-*                       Event/xAOD

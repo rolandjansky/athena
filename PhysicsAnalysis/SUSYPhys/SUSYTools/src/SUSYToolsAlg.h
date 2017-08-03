@@ -76,7 +76,7 @@ class SUSYToolsAlg : public AthAnalysisAlgorithm {
     int count_mu_signal;
 
     ToolHandle< TauAnalysisTools::ITauTruthMatchingTool > m_tauTruthTool;
-    ToolHandle< TauAnalysisTools::IBuildTruthTaus > m_tauTruthBuilderTool;
+    ToolHandle< tauRecTools::IBuildTruthTaus > m_tauTruthBuilderTool;
 
     bool m_CheckTruthJets;
 }; 

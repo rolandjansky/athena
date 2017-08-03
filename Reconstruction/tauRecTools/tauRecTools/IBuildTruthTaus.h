@@ -4,17 +4,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUANALYSISTOOLS_IBUILDTRUTHTAUS_H
-#define TAUANALYSISTOOLS_IBUILDTRUTHTAUS_H
+#ifndef TAURECTOOLS_IBUILDTRUTHTAUS_H
+#define TAURECTOOLS_IBUILDTRUTHTAUS_H
 
 /*
   author: Dirk Duschinger
   mail: dirk.duschinger@cern.ch
-  documentation in: ../README.rst
-                    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
-		    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
 */
 
 // Framework include(s):
@@ -24,7 +19,7 @@
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticleAuxContainer.h"
 
-namespace TauAnalysisTools
+namespace tauRecTools
 {
 
 class IBuildTruthTaus :
@@ -32,7 +27,7 @@ class IBuildTruthTaus :
 {
 
   /// Declare the interface that the class provides
-  ASG_TOOL_INTERFACE( TauAnalysisTools::IBuildTruthTaus )
+  ASG_TOOL_INTERFACE( tauRecTools::IBuildTruthTaus )
 
 public:
   // initialize the tool
@@ -48,6 +43,6 @@ public:
 
 }; // class IBuildTruthTaus
 
-} // namespace TauAnalysisTools
+} // namespace tauRecTools
 
-#endif // TAUANALYSISTOOLS_IBUILDTRUTHTAUS_H
+#endif // TAURECTOOLS_IBUILDTRUTHTAUS_H

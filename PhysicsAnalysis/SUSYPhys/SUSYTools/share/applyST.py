@@ -139,7 +139,7 @@ ToolSvc += AST99tauTruthTool
 # SZ - commenting BuildTruthTaus out, after having discussed this with David Kirchmeier:
 # TauTruthMatchingTool inherits from it and can be used instead
 #
-#AST99tauBuildTruthTaus = CfgMgr.TauAnalysisTools__BuildTruthTaus(
+#AST99tauBuildTruthTaus = CfgMgr.tauRecTools__BuildTruthTaus(
 #                                        name = "AST99TauBuildTruthTaus",
 #                              WriteTruthTaus = True,
 #                                 OutputLevel = INFO)
