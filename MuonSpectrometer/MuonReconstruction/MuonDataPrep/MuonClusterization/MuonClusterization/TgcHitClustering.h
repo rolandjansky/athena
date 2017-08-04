@@ -16,7 +16,8 @@
 
 namespace Muon {
 
-  struct TgcClusterObj {
+  class TgcClusterObj {
+  public:
     
     typedef std::vector< const TgcPrepData* > HitList;
     typedef HitList::iterator                 HitIt;
@@ -69,7 +70,8 @@ namespace Muon {
     HitList hitList;
   };
 
-  struct TgcClusterObj3D {
+  class TgcClusterObj3D {
+  public:
     TgcClusterObj3D( const TgcClusterObj& etaC, const TgcClusterObj& phiC )  : etaCluster(etaC), phiCluster(phiC) {}
 
     TgcClusterObj etaCluster;
