@@ -62,7 +62,8 @@ DerivationFrameworkJob += FTAG3Seq
 # Basic Jet Collections 
 #====================================================================
 
-OutputJets["FTAG3"] = []
+OutputJets["FTAG3"] = ["AntiKt4EMTopoJets"]
+
 reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
                   "AntiKt10TruthWZJets",
@@ -72,17 +73,10 @@ replaceAODReducedJets(reducedJetList,FTAG3Seq,"FTAG3")
 addDefaultTrimmedJets(FTAG3Seq,"FTAG3",dotruth=True)
 
 #===================================================================
-# Prepare jets for output
+# Tag custom or pre-built jet collections 
 #===================================================================
 
-# run flavor tagging on untagged and custom collections
 FlavorTagInit(JetCollections  = ['AntiKt4EMTopoJets'],Sequencer = FTAG3Seq)
-
-OutputJets["FTAG3"] = ["AntiKt4TruthJets",
-                       "AntiKt4EMTopoJets",
-                       "AntiKt4PV0TrackJets",
-                       "AntiKt2PV0TrackJets",
-                       "AntiKt10TruthWZJets"]
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
@@ -132,6 +126,9 @@ FTAG3SlimmingHelper.AllVariables =  ["AntiKt4EMTopoJets",
                                      ]
 
 FTAG3SlimmingHelper.ExtraVariables += ["BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex"]
+
+addJetOutputs(FTAG3SlimmingHelper,["FTAG3"],[],[])
+
 #----------------------------------------------------------------------
 # Add needed dictionary stuff
 FTAG3SlimmingHelper.AppendToDictionary = {

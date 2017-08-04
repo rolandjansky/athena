@@ -62,16 +62,16 @@ print "using DstarVertexing package to add D0 vertex information"
 print FTAG1DstarVertexing
 
 #Add unbiased track parameters to track particles
-FTAG1IPETool = Trk__TrackToVertexIPEstimator(name = "FTAG1IPETool")
-ToolSvc += FTAG1IPETool
-print FTAG1IPETool
+#FTAG1IPETool = Trk__TrackToVertexIPEstimator(name = "FTAG1IPETool")
+#ToolSvc += FTAG1IPETool
+#print FTAG1IPETool
 
-FTAG1TrackToVertexWrapper= DerivationFramework__TrackToVertexWrapper(name = "FTAG1TrackToVertexWrapper",
-        TrackToVertexIPEstimator = FTAG1IPETool,
-        DecorationPrefix = "FTAG1",
-        ContainerName = "InDetTrackParticles")
-ToolSvc += FTAG1TrackToVertexWrapper
-print FTAG1TrackToVertexWrapper
+#FTAG1TrackToVertexWrapper= DerivationFramework__TrackToVertexWrapper(name = "FTAG1TrackToVertexWrapper",
+#        TrackToVertexIPEstimator = FTAG1IPETool,
+#        DecorationPrefix = "FTAG1",
+#        ContainerName = "InDetTrackParticles")
+#ToolSvc += FTAG1TrackToVertexWrapper
+#print FTAG1TrackToVertexWrapper
 
 #====================================================================
 # CREATE PRIVATE SEQUENCE
@@ -84,9 +84,10 @@ DerivationFrameworkJob += FTAG1Seq
 # Basic Jet Collections 
 #====================================================================
 
-#these jets are b-tagged automatically in the JetETMiss code
+#put custom jet names here
+OutputJets["FTAG1"] = ["AntiKtVR30Rmax4Rmin02TrackJets",
+                       "AntiKt4EMTopoJets"]
 
-OutputJets["FTAG1"] = []
 reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
                   "AntiKt10LCTopoJets",
@@ -109,19 +110,10 @@ addVRJets(FTAG1Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet"
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 
 #===================================================================
-# Prepare jets for output 
+# Tag custom or pre-built jet collections
 #===================================================================
 
-# run flavor tagging on untagged and custom collections
 FlavorTagInit(isFTAG1 = True, JetCollections  = ['AntiKt4EMTopoJets'],Sequencer = FTAG1Seq)
-
-OutputJets["FTAG1"] = ["AntiKt4TruthJets",
-                       "AntiKt4EMTopoJets",
-                       "AntiKtVR30Rmax4Rmin02TrackJets",
-                       "AntiKt4PV0TrackJets",
-                       "AntiKt2PV0TrackJets",
-                       "AntiKt10LCTopoJets"]
-
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
@@ -129,7 +121,7 @@ OutputJets["FTAG1"] = ["AntiKt4TruthJets",
 
 FTAG1Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG1Kernel",
                                                          SkimmingTools = [FTAG1TriggerSkimmingTool],
-                                                         AugmentationTools = [FTAG1DstarVertexing, FTAG1TrackToVertexWrapper]
+                                                         AugmentationTools = [FTAG1DstarVertexing]
                                                          )
 
 #====================================================================
@@ -159,7 +151,6 @@ FTAG1SlimmingHelper.SmartCollections = ["Electrons","Muons",
 FTAG1SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                     "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx",
-                                    "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx",
                                     "BTagging_AntiKt4EMTopo",
                                     "BTagging_AntiKt2Track",
                                     "BTagging_AntiKt4EMTopoJFVtx",
@@ -191,7 +182,8 @@ FTAG1SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet.GhostVR30Rmax4Rmin02TrackJetPt.GhostVR30Rmax4Rmin02TrackJetCount",
                                        "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex",
-                                       "InDetTrackParticles.FTAG1_unbiased_d0.FTAG1_unbiased_z0.FTAG1_unbiased_d0Sigma.FTAG1_unbiased_z0Sigma", 
+                                       "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx.-vxTrackAtVertex",
+                                       #"InDetTrackParticles.FTAG1_unbiased_d0.FTAG1_unbiased_z0.FTAG1_unbiased_d0Sigma.FTAG1_unbiased_z0Sigma", 
                                        "CaloCalTopoClusters.calM.calE.calEta.calPhi",
                                        "PrimaryVertices.x.y.trackParticleLinks.vertexType.neutralParticleLinks",
                                        "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF.vz",
@@ -202,6 +194,8 @@ FTAG1SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
 
 for FT1_bjetTriggerTracks in FTExtraVars_bjetTriggerTracks:
     FTAG1SlimmingHelper.ExtraVariables.append(FT1_bjetTriggerTracks)
+
+addJetOutputs(FTAG1SlimmingHelper,["FTAG1"],[],[])
 
 #----------------------------------------------------------------------
 # Add needed dictionary stuff
