@@ -49,9 +49,9 @@ atlas_add_test( IDRunMC     SCRIPT scripts/IDRunMC.sh
                 PROPERTIES TIMEOUT 500 
               )
 
-#atlas_add_test( IDRunData     SCRIPT scripts/IDRunData.sh
-#                PROPERTIES TIMEOUT 500 
-#              )
+atlas_add_test( IDRunData     SCRIPT scripts/IDRunData.sh
+                PROPERTIES TIMEOUT 500 
+              )
 
 atlas_add_test( caloRunData   SCRIPT scripts/caloRunData.sh
                 PROPERTIES TIMEOUT 500 
