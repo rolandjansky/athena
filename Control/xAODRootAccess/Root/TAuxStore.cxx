@@ -1006,10 +1006,14 @@ namespace xAOD {
       }
 
       // Create a new branch handle:
+      const std::type_info* objType = brType;
+      if (containerBranch) {
+        objType = m_vecs[ auxid ]->objType();
+        if (!objType)
+          objType = SG::AuxTypeRegistry::instance().getType( auxid );
+      }
       m_branches[ auxid ] = new TBranchHandle( staticBranch, primitiveBranch,
-                                               (containerBranch ?
-                                                m_vecs[ auxid ]->objType() :
-                                                brType),
+                                               objType,
                                                ( containerBranch ?
                                                  m_vecs[ auxid ]->toVector() :
                                                  m_vecs[ auxid ]->toPtr() ),
