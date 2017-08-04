@@ -990,14 +990,14 @@ namespace MuonCalib {
       if (!sc.isFailure()) {
       
 	uint32_t ibit, bit_pos = 0;
-	float m_charge = 0;
+	float charge = 0;
 	// Discriminate the signals
 	TileCellContainer::const_iterator itr = tileCellCnt->begin();
 	TileCellContainer::const_iterator itr_end = tileCellCnt->end();
 	for(; itr != itr_end; ++itr) {
-	  m_charge = (*itr)->energy();
-	  log << MSG::DEBUG << "Energy =" << m_charge << "pC" << endmsg;
-	  if(m_charge > m_mbts_threshold) {
+	  charge = (*itr)->energy();
+	  log << MSG::DEBUG << "Energy =" << charge << "pC" << endmsg;
+	  if(charge > m_mbts_threshold) {
 	    Identifier id=(*itr)->ID();
 	    // cache type, module and channel
 	    // MBTS Id type is  "side"  +/- 1
@@ -1099,50 +1099,50 @@ namespace MuonCalib {
       for( ;seg_it!=seg_it_end;++seg_it ){ 
 	
 	//Filling the mdtMap with the hits
-	MuonCalibSegment::MdtHitCit m_mdt_it = (*seg_it)->mdtHOTBegin();
-	MuonCalibSegment::MdtHitCit m_mdt_it_end = (*seg_it)->mdtHOTEnd();
-	for( ;m_mdt_it!=m_mdt_it_end;++m_mdt_it){ 
-	  std::map<MuonFixedId, int>::iterator position = mdtMap.find( (*m_mdt_it)->identify() );
+	MuonCalibSegment::MdtHitCit mdt_it = (*seg_it)->mdtHOTBegin();
+	MuonCalibSegment::MdtHitCit mdt_it_end = (*seg_it)->mdtHOTEnd();
+	for( ;mdt_it!=mdt_it_end;++mdt_it){ 
+	  std::map<MuonFixedId, int>::iterator position = mdtMap.find( (*mdt_it)->identify() );
 	  if(position == mdtMap.end() ){
-	    mdtMap[ (*m_mdt_it)->identify() ] = 1;
+	    mdtMap[ (*mdt_it)->identify() ] = 1;
 	  } else {
-	    ++mdtMap[ (*m_mdt_it)->identify() ] ; 
+	    ++mdtMap[ (*mdt_it)->identify() ] ; 
 	  }	    
 	}
 	
 	//Filling the rpcMap with the hits
-	MuonCalibSegment::RpcHitCit m_rpc_it = (*seg_it)->rpcHOTBegin();
-	MuonCalibSegment::RpcHitCit m_rpc_it_end = (*seg_it)->rpcHOTEnd();
-	for( ;m_rpc_it!=m_rpc_it_end;++m_rpc_it){ 
-	  std::map<MuonFixedId, int>::iterator position = rpcMap.find( (*m_rpc_it)->identify() );
+	MuonCalibSegment::RpcHitCit rpc_it = (*seg_it)->rpcHOTBegin();
+	MuonCalibSegment::RpcHitCit rpc_it_end = (*seg_it)->rpcHOTEnd();
+	for( ;rpc_it!=rpc_it_end;++rpc_it){ 
+	  std::map<MuonFixedId, int>::iterator position = rpcMap.find( (*rpc_it)->identify() );
 	  if(position == rpcMap.end() ){
-	    rpcMap[ (*m_rpc_it)->identify() ] = 1;
+	    rpcMap[ (*rpc_it)->identify() ] = 1;
 	  } else {
-	    ++rpcMap[ (*m_rpc_it)->identify() ] ; 
+	    ++rpcMap[ (*rpc_it)->identify() ] ; 
 	  }	    
 	}
 	
 	//Filling the tgcMap with the hits
-	MuonCalibSegment::TgcHitCit m_tgc_it = (*seg_it)->tgcHOTBegin();
-	MuonCalibSegment::TgcHitCit m_tgc_it_end = (*seg_it)->tgcHOTEnd();
-	for( ;m_tgc_it!=m_tgc_it_end;++m_tgc_it){
-	  std::map<MuonFixedId, int>::iterator position = tgcMap.find( (*m_tgc_it)->identify() );
+	MuonCalibSegment::TgcHitCit tgc_it = (*seg_it)->tgcHOTBegin();
+	MuonCalibSegment::TgcHitCit tgc_it_end = (*seg_it)->tgcHOTEnd();
+	for( ;tgc_it!=tgc_it_end;++tgc_it){
+	  std::map<MuonFixedId, int>::iterator position = tgcMap.find( (*tgc_it)->identify() );
 	  if(position == tgcMap.end() ){
-	    tgcMap[ (*m_tgc_it)->identify() ] = 1;
+	    tgcMap[ (*tgc_it)->identify() ] = 1;
 	  } else {
-	    ++tgcMap[ (*m_tgc_it)->identify() ] ; 
+	    ++tgcMap[ (*tgc_it)->identify() ] ; 
 	  }	    
 	}
 	
 	//Filling the cscMap with the hits
-	MuonCalibSegment::CscHitCit m_csc_it = (*seg_it)->cscHOTBegin();
-	MuonCalibSegment::CscHitCit m_csc_it_end = (*seg_it)->cscHOTEnd();
-	for( ;m_csc_it!=m_csc_it_end;++m_csc_it){ 
-	  std::map<MuonFixedId, int>::iterator position = cscMap.find( (*m_csc_it)->identify() );
+	MuonCalibSegment::CscHitCit csc_it = (*seg_it)->cscHOTBegin();
+	MuonCalibSegment::CscHitCit csc_it_end = (*seg_it)->cscHOTEnd();
+	for( ;csc_it!=csc_it_end;++csc_it){ 
+	  std::map<MuonFixedId, int>::iterator position = cscMap.find( (*csc_it)->identify() );
 	  if(position == cscMap.end() ){
-	    cscMap[ (*m_csc_it)->identify() ] = 1;
+	    cscMap[ (*csc_it)->identify() ] = 1;
 	  } else {
-	    ++cscMap[ (*m_csc_it)->identify() ] ; 
+	    ++cscMap[ (*csc_it)->identify() ] ; 
 	  }	    
 	}
       }
