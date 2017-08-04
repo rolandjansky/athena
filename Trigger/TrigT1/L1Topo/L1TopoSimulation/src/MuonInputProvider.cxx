@@ -200,7 +200,8 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
       for( const ROIB::MuCTPIRoI & muonRoI : rois ) {
 
 	if( !( muonRoI.roIWord() & LVL1::CandidateVetoMask  )  )
-	  inputEvent.addMuon( MuonInputProvider::createMuonTOB( muonRoI.roIWord() ) );
+        inputEvent.addMuon(MuonInputProvider::hackMuonTOB(
+                               MuonInputProvider::createMuonTOB( muonRoI.roIWord() )));
     // overflow implemented only for reduced granularity encoding (see below)
 	else
 	  ATH_MSG_DEBUG(" Ignore Vetoed L1 Mu RoI " <<  muonRoI.roIWord() );
@@ -223,7 +224,8 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 	  continue;
        
 	if( !( roiword & LVL1::CandidateVetoMask  )  )
-	  inputEvent.addMuon( MuonInputProvider::createMuonTOB( roiword ) );
+        inputEvent.addMuon(MuonInputProvider::hackMuonTOB(
+                               MuonInputProvider::createMuonTOB( roiword )));
 	else
 	  ATH_MSG_DEBUG(" Ignore Vetoed L1 Mu RoI " << roiword );
        
@@ -247,7 +249,8 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
       for(  std::vector<MuCTPIL1TopoCandidate>::const_iterator iMuCand = candList.begin(); iMuCand != candList.end(); iMuCand++)
 	{
 	  //MuonInputProvider::createMuonTOB( *iMuCand );
-	  inputEvent.addMuon( MuonInputProvider::createMuonTOB( *iMuCand ) );
+        inputEvent.addMuon(MuonInputProvider::hackMuonTOB(
+                               MuonInputProvider::createMuonTOB( *iMuCand )));
       if(iMuCand->moreThan2CandidatesOverflow()){
           inputEvent.setOverflowFromMuonInput(true);
           ATH_MSG_DEBUG("setOverflowFromMuonInput : true (MuCTPIL1TopoCandidate from SG)");
@@ -264,7 +267,8 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
       
             
       for( const MuCTPIL1TopoCandidate & cand : l1topo.getCandidates() ) {
-          inputEvent.addMuon( MuonInputProvider::createMuonTOB( cand ) );
+          inputEvent.addMuon(MuonInputProvider::hackMuonTOB(
+                                 MuonInputProvider::createMuonTOB( cand )));
           if(cand.moreThan2CandidatesOverflow()){
               inputEvent.setOverflowFromMuonInput(true);
               ATH_MSG_DEBUG("setOverflowFromMuonInput : true (MuCTPIL1TopoCandidate from MuctpiSimTool)");
@@ -301,4 +305,15 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
   }
   
   return StatusCode::SUCCESS;
+}
+
+TCS::MuonTOB
+MuonInputProvider::hackMuonTOB(const TCS::MuonTOB &muon) const
+{
+    TCS::MuonTOB mu = muon;
+    if(mu.Et()>10) {
+        mu.setEt(10);
+        mu.setEtDouble(10.0);
+    }
+    return mu;
 }
