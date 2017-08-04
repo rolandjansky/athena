@@ -21,7 +21,7 @@ SOURCES = hcg.cxx addnode.cxx utils.cxx
 INSTALLDIR=$(TestArea)/build/$(ATLAS_ARCH)/bin
 
 hcg : $(SOURCES) 
-	g++ $(ROOTCFLAGS) -O3 -o $@ $(SOURCES) $(ROOTLIBS) $(READLIB)
+	g++ $(ROOTCFLAGS) -Wall -O3 -o $@ $(SOURCES) $(ROOTLIBS) $(READLIB)
 
 archive :  $(SOURCES) node.h addnode.h simpletimer.h spacer.h makefile README
 	tar -czf hcg.tgz $?
