@@ -1,5 +1,4 @@
 #!/usr/bin env python
-
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 # Script to browse the unmerged HIST files and extract LBs for which at least N occurences of an object is found
 # at a position foundas noisy
@@ -441,18 +440,29 @@ for iHisto in histoKeys:
   totalInRegionRecomp[iHisto] = 0
   totalInRegion[iHisto] = 0
 # Then count the number of events and check if equal
+# Also sort the LB to highlight most problematic LB
+sortedLB = {}
+
 for iHisto in histoKeys:
   print "======= ",histoLegend[iHisto]
   for iBin in regionBins[iHisto]:
     totalInRegion[iHisto] = totalInRegion[iHisto] + histo[iHisto].GetBinContent(iBin)
+  
+  sortedLB[iHisto] = [0] * nLB
   for i in range(nLB):
     totalInRegionRecomp[iHisto] = totalInRegionRecomp[iHisto] + nbHitInHot[iHisto][i]
+    
+    sortedLB[iHisto][i] = i
     if (nbHitInHot[iHisto][i]>=minInLB):
-      print "LB: %d -> %d hits"%(i,nbHitInHot[iHisto][i])
       suspiciousLBlist.append(i)
     if (nbHitInHot[iHisto][i]>maxNbInHot):
       maxNbInHot = nbHitInHot[iHisto][i]
-
+      
+  sortedLB[iHisto].sort(key=dict(zip(sortedLB[iHisto],nbHitInHot[iHisto])).get,reverse=True)
+  for i in range(nLB):
+    if nbHitInHot[iHisto][sortedLB[iHisto][i]]>=minInLB:
+      print "%d-LB: %d -> %d hits"%(i,sortedLB[iHisto][i],nbHitInHot[iHisto][sortedLB[iHisto][i]])
+ 
   print "In the whole run, there are %d entries"%(totalInRegion[iHisto])
   if (totalInRegionRecomp[iHisto] != totalInRegion[iHisto]):
     print "To be compared with %d entries cumulated from unmerged files"%(totalInRegionRecomp[iHisto])
