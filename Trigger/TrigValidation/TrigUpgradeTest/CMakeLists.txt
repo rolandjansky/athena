@@ -57,6 +57,10 @@ atlas_add_test( caloRunData   SCRIPT scripts/caloRunData.sh
                 PROPERTIES TIMEOUT 500 
               )
 
+#atlas_add_test( idCaloRunData   SCRIPT scripts/IDCaloRunData.sh
+#                PROPERTIES TIMEOUT 500 
+#              )
+
 atlas_add_test( EmuL1DecodingTest SCRIPT scripts/EmuL1DecodingTest.sh)
 
 atlas_add_test( DataL1DecodingTest SCRIPT scripts/DataL1DecodingTest.sh )
