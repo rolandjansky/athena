@@ -101,7 +101,7 @@ namespace EL
       file << "\n";
       //note: no "\n" at the of this string since this goes as pre-command to the execution of the next line
       file << options.castString(Job::optBatchSlurmWrapperExec); 
-      file << "source run ${SLURM_ARRAY_TASK_ID}\n";
+      file << "./run ${SLURM_ARRAY_TASK_ID}\n";
     }
 
     {
