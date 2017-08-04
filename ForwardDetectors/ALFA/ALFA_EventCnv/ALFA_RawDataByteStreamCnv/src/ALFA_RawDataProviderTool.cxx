@@ -64,7 +64,7 @@ StatusCode ALFA_RawDataProviderTool::initialize() {
 // convert() -
 ////////////////////////
 
-StatusCode ALFA_RawDataProviderTool::convert( std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, ALFA_RawDataContainer* rdoCont)
+StatusCode ALFA_RawDataProviderTool::convert( std::vector<const ROBFragment*>& vecRobs, ALFA_RawDataContainer* rdoCont)
 
 {
   msg(MSG::DEBUG) << "CONVERT ALFA_RawDataProviderTool" << endmsg;
