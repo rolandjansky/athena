@@ -2350,7 +2350,7 @@ id/I:name/C:xsec/F:kfac/F:eff/F:relunc/F
 363357 Sherpa_221_NNPDF30NNLO_WqqZvv   6.7973 1. 1.      1.
 363358 Sherpa_221_NNPDF30NNLO_WqqZll   3.437  1. 1.      1.
 363359 Sherpa_221_NNPDF30NNLO_WpqqWmlv 24.717 1. 1.      1.
-363360 Sherpa_221_NNPDF30NNLO_WplvWmqq 112.74 1. 1.      1.
+363360 Sherpa_221_NNPDF30NNLO_WplvWmqq 24.734 1. 1.      1.
 363489 Sherpa_221_NNPDF30NNLO_WlvZqq   11.413 1. 1.      1.
 
 ################################################################################################################
@@ -2371,6 +2371,7 @@ id/I:name/C:xsec/F:kfac/F:eff/F:relunc/F
 
 # Very low mll
 364288  Sherpa_222_NNPDF30NNLO_llll_lowMllPtComplement    1.4318    1.0  1.0  1.0
+364289  Sherpa_222_NNPDF30NNLO_lllv_lowMllPtComplement    2.9152    1.0  1.0  1.0	
 364290  Sherpa_222_NNPDF30NNLO_llvv_lowMllPtComplement    0.17046   1.0  1.0  1.0
 
 ################################################################################################################

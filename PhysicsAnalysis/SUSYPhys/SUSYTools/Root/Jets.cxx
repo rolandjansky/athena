@@ -106,15 +106,15 @@ namespace ST {
         if( fabs((*jet).eta()) > m_fwdjetEtaMin ){
           dec_passJvt(*jet) = acc_passFJvt(*jet); 
           //dec_baseline(*jet) &= dec_passJvt(*jet); //redefine baseline after that
-	  
-	  //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object 
-	  if ( acc_baseline(*jet) ){
-	    if( acc_passJvt(*jet) )     dec_selected(*jet) = 2;
-	    else                        dec_selected(*jet) = 1;
-	  }
-	  else{  
-	    dec_selected(*jet) = 0;    
-	  }
+          
+          //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object 
+          if ( acc_baseline(*jet) ){
+            if( acc_passJvt(*jet) )     dec_selected(*jet) = 2;
+            else                        dec_selected(*jet) = 1;
+          }
+          else{  
+            dec_selected(*jet) = 0;    
+          }
         }
         this->IsBadJet(*jet);
         this->IsSignalJet(*jet, m_jetPt, m_jetEta);
@@ -181,6 +181,13 @@ namespace ST {
       else{
         dec_wtagged(*jet) = -1;
         dec_ztagged(*jet) = -1;
+      }
+      //  For OR, selected if it passed cuts
+      if ( acc_baseline(*jet) ){
+        dec_selected(*jet) = 1;
+      }
+      else{
+        dec_selected(*jet) = 0;
       }
     }
     if (recordSG) {
@@ -270,8 +277,8 @@ namespace ST {
       //central jvt
       float jvt = m_jetJvtUpdateTool->updateJvt(input);
       ATH_MSG_VERBOSE("JVT recalculation: "
-		      << acc_jvt(input) << " (before)"
-		      << jvt << " (after)");
+                      << acc_jvt(input) << " (before)"
+                      << jvt << " (after)");
 
       dec_jvt(input) = jvt;
     }
@@ -287,17 +294,17 @@ namespace ST {
 
     if (input.pt() > 15e3) {
       if(!isFat){
-	CP::CorrectionCode result = m_jetUncertaintiesTool->applyCorrection(input);
-	switch (result) {
-	case CP::CorrectionCode::Error:
-	  ATH_MSG_ERROR( "Failed to apply JES correction" );
-	  break;
-	case CP::CorrectionCode::OutOfValidityRange:
-	  ATH_MSG_WARNING( "JES correction OutOfValidity range (|eta|<2.0)."); // Jet (pt,eta,phi) = (" << input.pt() << ", " << input.eta() << ", " << input.phi() << ")");
-	  break;
-	default:
-	  break;
-	}	  
+        CP::CorrectionCode result = m_jetUncertaintiesTool->applyCorrection(input);
+        switch (result) {
+        case CP::CorrectionCode::Error:
+          ATH_MSG_ERROR( "Failed to apply JES correction" );
+          break;
+        case CP::CorrectionCode::OutOfValidityRange:
+          ATH_MSG_WARNING( "JES correction OutOfValidity range (|eta|<2.0)."); // Jet (pt,eta,phi) = (" << input.pt() << ", " << input.eta() << ", " << input.phi() << ")");
+          break;
+        default:
+          break;
+        }          
       }
     }
   
@@ -315,11 +322,11 @@ namespace ST {
 
     //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object 
     if (acc_baseline(input) ){
-      if( acc_passJvt(input) ) 	dec_selected(input) = 2;
-      else                  	dec_selected(input) = 1;
+      if( acc_passJvt(input) ) dec_selected(input) = 2;
+      else                     dec_selected(input) = 1;
     }
     else{
-      	dec_selected(input) = 0;
+      dec_selected(input) = 0;
     }
 
     // if (!acc_passJvt(input)) {

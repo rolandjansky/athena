@@ -210,8 +210,10 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
     dec_ecisBDT(input) = bdt;
 
     //get ElectronChargeEfficiencyCorrectionTool decorations in this case
-    if(m_elecChargeEffCorrTool->applyEfficiencyScaleFactor(input) != CP::CorrectionCode::Ok)
-      ATH_MSG_ERROR( "FillElectron: ElectronChargeEfficiencyCorrectionTool SF decoration failed ");
+    if( !isData() ) {
+      if(m_elecChargeEffCorrTool->applyEfficiencyScaleFactor(input) != CP::CorrectionCode::Ok)
+        ATH_MSG_ERROR( "FillElectron: ElectronChargeEfficiencyCorrectionTool SF decoration failed ");
+    }
   }
   else{ 
     dec_passChID(input) = true;
