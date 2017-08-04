@@ -42,11 +42,11 @@ namespace xAOD {
   };
 
   PFO_v1::PFO_v1()
-    : IParticle(), m_p4(), m_p4Cached( false ), m_p4EM(),  m_p4EMCached(false), m_floatCompressionFactor(1000) {
+    : IParticle(), m_p4(), m_p4Cached( false ), m_p4EM(),  m_p4EMCached(false), m_floatCompressionFactor(1000), m_chargeTolerance(0.001) {
     
   }
 
-  PFO_v1::PFO_v1(const PFO_v1& other) :  IParticle(), m_p4(), m_p4Cached( false ), m_p4EM(),  m_p4EMCached(false), m_floatCompressionFactor(1000) {
+  PFO_v1::PFO_v1(const PFO_v1& other) :  IParticle(), m_p4(), m_p4Cached( false ), m_p4EM(),  m_p4EMCached(false), m_floatCompressionFactor(1000), m_chargeTolerance(0.001) {
     this->makePrivateStore(other);
   }
 
@@ -158,8 +158,8 @@ namespace xAOD {
    }
 
   const PFO_v1::FourMom_t& PFO_v1::p4EM() const { 
-    
-    if (0.0 != this->charge()) return this->p4();
+
+    if (this->charge() > chargeTolerance) return this->p4();
 
     if (!m_p4EMCached){
 
@@ -212,7 +212,7 @@ namespace xAOD {
 
    double PFO_v1::ptEM() const {
 
-     if (0.0 != this->charge()) return this->pt();
+     if (this->charge() > chargeTolerance) return this->pt();
 
      const static Accessor<float> accPt("ptEM");
      float pt = accPt(*this);
@@ -221,29 +221,29 @@ namespace xAOD {
    }
 
    double PFO_v1::etaEM() const {
-
-     if (0.0 != this->charge()) return this->eta();
+          
+     if (this->charge() > chargeTolerance) return this->eta();
 
      return p4EM().Eta();
    }
 
    double PFO_v1::phiEM() const {
 
-     if (0.0 != this->charge()) return this->phi();
+     if (this->charge() > chargeTolerance) return this->phi();
 
      return p4EM().Phi();
    }
 
    double PFO_v1::mEM() const {
 
-     if (0.0 != this->charge()) return this->m();
+     if (this->charge() > chargeTolerance) return this->m();
 
      return p4EM().M();
    }
 
    double PFO_v1::eEM() const {
 
-     if (0.0 != this->charge()) return this->e();
+     if (this->charge() > chargeTolerance) return this->e();
 
      const static Accessor<float> accPt("ptEM");
      float pt = accPt(*this);
