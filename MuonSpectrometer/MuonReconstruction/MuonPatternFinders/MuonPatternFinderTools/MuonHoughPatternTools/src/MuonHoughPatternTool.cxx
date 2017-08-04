@@ -254,7 +254,7 @@ void MuonHoughPatternTool::makePatterns(int id_number) const
 	  if( m_use_histos && level == 0 && id_number == MuonHough::hough_curved_at_a_cylinder ){
 	    const MuonHoughHisto2DContainer& histos = houghtransform->histos();
 	    TDirectory* dir = gDirectory;
-	    f_file->cd();
+	    m_file->cd();
 	    for( int i=0;i<histos.size();++i ){
 
 	      TString hname = "hough_call_";
@@ -295,7 +295,7 @@ StatusCode MuonHoughPatternTool::initialize()
   if (m_use_histos == true) // debug histos
     {
       TString file = "HoughPattern.root";
-      f_file = new TFile(file,"RECREATE");
+      m_file = new TFile(file,"RECREATE");
     }
 
   ATH_MSG_DEBUG("Use Cosmic Settings: " << m_use_cosmics);
@@ -356,10 +356,10 @@ StatusCode MuonHoughPatternTool::finalize()
 
   if (m_use_histos == true)
     {
-      f_file->Write();
-      f_file->Close();
-      delete f_file;
-      f_file=0;
+      m_file->Write();
+      m_file->Close();
+      delete m_file;
+      m_file=0;
     }
 
   return sc;

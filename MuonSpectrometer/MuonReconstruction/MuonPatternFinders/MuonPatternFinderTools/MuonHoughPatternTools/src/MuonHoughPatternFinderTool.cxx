@@ -116,7 +116,7 @@ namespace Muon {
   StatusCode MuonHoughPatternFinderTool::initialize()
   {
     if (m_use_histos == true) {
-      f_file = new TFile("Hough_histos.root","RECREATE");
+      m_file = new TFile("Hough_histos.root","RECREATE");
       m_weighthistogram =  new TH1F("weighthisto","weighthisto",100,-0.5,2);
       m_weighthistogrammdt =  new TH1F("weighthistomdt","weighthistomdt",100,-0.3,2.2);
       m_weighthistogramrpc =  new TH1F("weighthistorpc","weighthistorpc",100,-0.3,2.2);
@@ -271,11 +271,11 @@ namespace Muon {
   StatusCode MuonHoughPatternFinderTool::finalize()
   {
     if (m_use_histos == true) {
-      f_file->Write();
-      f_file->Close();
+      m_file->Write();
+      m_file->Close();
       ATH_MSG_DEBUG ("MuonHoughPatternFinderTool:: delete rootfile");
-      delete f_file;
-      f_file=0;
+      delete m_file;
+      m_file=0;
       ATH_MSG_DEBUG ("MuonHoughPatternFinderTool::delete Histogram: ");
     }
     delete m_phietahitassociation;
