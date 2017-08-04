@@ -107,7 +107,7 @@ StatusCode ALFA_Decoder::finalize()
 ////////////////////////
 // fillCollection() -
 ////////////////////////
-StatusCode ALFA_Decoder::fillCollection(const ROBFragment *robFrag, ALFA_RawDataContainer* rdoCont, std::vector<unsigned int>* )
+StatusCode ALFA_Decoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, ALFA_RawDataContainer* rdoCont, std::vector<unsigned int>* )
 {
   msg(MSG::DEBUG) << " ALFA_RoDDecoder::fillCollection" << endmsg;
 

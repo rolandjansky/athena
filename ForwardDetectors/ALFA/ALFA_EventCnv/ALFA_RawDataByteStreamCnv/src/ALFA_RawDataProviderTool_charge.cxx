@@ -4,6 +4,8 @@
 
 #include "ALFA_RawDataByteStreamCnv/ALFA_RawDataProviderTool_charge.h"
 
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+
 static const InterfaceID IID_IALFA_RawCollByteStreamTool("ALFA_RawDataProviderTool_charge", 1, 0);
 const InterfaceID& ALFA_RawDataProviderTool_charge::interfaceID( )
 { return IID_IALFA_RawCollByteStreamTool; }

@@ -33,7 +33,6 @@
 // Decoding methods for a block
 // S. Diglio
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 class ALFA_RawDataCollectionReadOut : public ALFA_ReadOut
 {
