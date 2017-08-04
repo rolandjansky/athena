@@ -300,9 +300,9 @@ float SCT_SurfaceChargesGenerator::DriftTime(float zhit) const {
 	  }
 	  return -1.0;
         }
-        else { // (m_biasVoltage<vdepl) can happen with underdepleted sensors, lose
-               // charges in that volume
-            // ATH_MSG_DEBUG ( "DriftTime: ->infinity since vdepl>m_biasVoltage, zhit: "
+        else { // (m_biasVoltage<m_depletionVoltage) can happen with
+               // underdepleted sensors, lose charges in that volume
+            // ATH_MSG_DEBUG ( "DriftTime: ->infinity since m_depletionVoltage>m_biasVoltage, zhit: "
             // << zhit );
             return -10.0;
         }
