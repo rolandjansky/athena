@@ -26,7 +26,8 @@
 
 egammaAODFixAlg::egammaAODFixAlg( const std::string& name,
 				  ISvcLocator* svcLoc )
-  : AthAlgorithm( name, svcLoc )
+  : AthAlgorithm( name, svcLoc ),
+    m_stripsShapeTool("egammaStripsShape/egammastripsshape")
 {
   declareProperty("ElectronContainerName",
 		  m_electronContainerName="Electrons",
