@@ -236,7 +236,6 @@ InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name          
 
 from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma
 theFTF = TrigFastTrackFinder_eGamma()
-theFTF.OutputLevel = VERBOSE
 
 if ( viewTest ):
   allViewAlgorithms += InDetSiTrackerSpacePointFinder
