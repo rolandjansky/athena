@@ -16,8 +16,8 @@
 //Gaudi
 #include "GaudiKernel/MsgStream.h"
 //STD
-#include <iostream>
-#include <iomanip>
+//#include <iostream>
+//#include <iomanip>
 
 //Eigen
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -127,12 +127,13 @@ const Amg::Vector3D& Trk::DiscSurface::globalReferencePoint() const
     const Trk::DiscBounds* dbo = dynamic_cast<const Trk::DiscBounds*>(&(bounds()));
     if (dbo) {
       double rMedium = bounds().r();
-      double phi     = dbo ? dbo->averagePhi() : 0.;
+      double phi     = dbo->averagePhi() ;
       Amg::Vector3D gp(rMedium*cos(phi), rMedium*sin(phi), 0.);
       m_referencePoint = new Amg::Vector3D(transform()*gp);
     } else {
       const Trk::DiscTrapezoidalBounds* dtbo = dynamic_cast<const Trk::DiscTrapezoidalBounds*>(&(bounds()));
-      double rMedium = dtbo ? bounds().r() : dtbo->rCenter() ;
+      //double rMedium = dtbo ? bounds().r() : dtbo->rCenter() ; //nonsense, or logic inverted?
+      double rMedium = bounds().r(); 
       double phi     = dtbo ? dtbo->averagePhi() : 0.;
       Amg::Vector3D gp(rMedium*cos(phi), rMedium*sin(phi), 0.);
       m_referencePoint = new Amg::Vector3D(transform()*gp);
