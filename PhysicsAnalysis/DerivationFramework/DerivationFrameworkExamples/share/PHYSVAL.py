@@ -29,7 +29,7 @@ reducedJetList = [ "AntiKt10PV0TrackJets",
                    "AntiKt4TruthWZJets",
                    "AntiKt10TruthJets",
                    "AntiKt10TruthWZJets",
-                   "AntiKt10LCTopoJets"
+                   "AntiKt10LCTopoJets",
                    "AntiKt2PV0TrackJets",
                    "AntiKt4PV0TrackJets",
                    "AntiKt4TruthJets"]
@@ -97,6 +97,22 @@ PHYSVALSlimmingHelper.IncludeMinBiasTriggerContent = True
 #----------------------------------------------------------------------
 # NamesAndTypes lookup table for on-the-fly containers
 PHYSVALSlimmingHelper.AppendToDictionary = {
+  "AntiKt10PV0TrackJets"                       :   "xAOD::JetContainer"        ,
+  "AntiKt10PV0TrackJetsAux"                    :   "xAOD::JetAuxContainer"     ,
+  "AntiKt4TruthWZJets"                         :   "xAOD::JetContainer"        ,
+  "AntiKt4TruthWZJetsAux"                      :   "xAOD::JetAuxContainer"     ,
+  "AntiKt10TruthJets"                          :   "xAOD::JetContainer"        ,
+  "AntiKt10TruthJetsAux"                       :   "xAOD::JetAuxContainer"     ,
+  "AntiKt10TruthWZJets"                        :   "xAOD::JetContainer"        ,
+  "AntiKt10TruthWZJetsAux"                     :   "xAOD::JetAuxContainer"     ,
+  "AntiKt10LCTopoJets"                         :   "xAOD::JetContainer"        ,
+  "AntiKt10LCTopoJetsAux"                      :   "xAOD::JetAuxContainer"     ,
+  "AntiKt2PV0TrackJets"                        :   "xAOD::JetContainer"        ,
+  "AntiKt2PV0TrackJetsAux"                     :   "xAOD::JetAuxContainer"     ,
+  "AntiKt4PV0TrackJets"                        :   "xAOD::JetContainer"        ,
+  "AntiKt4PV0TrackJetsAux"                     :   "xAOD::JetAuxContainer"     ,
+  "AntiKt4TruthJets"                           :   "xAOD::JetContainer"        ,
+  "AntiKt4TruthJetsAux"                        :   "xAOD::JetAuxContainer"     ,
   "AntiKtVR30Rmax4Rmin02TrackJets"             :   "xAOD::JetContainer"        ,
   "AntiKtVR30Rmax4Rmin02TrackJetsAux"          :   "xAOD::JetAuxContainer"     ,
   "BTagging_AntiKt4EMTopoJFVtx"                :   "xAOD::BTaggingContainer"   ,
