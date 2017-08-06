@@ -158,7 +158,9 @@ StatusCode egammaAODFixAlg::fixEgamma(xAOD::Egamma* eg,  const CaloCellContainer
   // E in 3x2 cells in S1
   float e132 = static_cast<float>(m_stripsShapeTool->e132());
   eg->setShowerShapeValue(e132, xAOD::EgammaParameters::e132);
-  // E in 15x2 cells in S1 
+  // E in 15x2 cells in S1
+  float olde1152 = 0;
+  bool validOlde1152 = eg->showerShapeValue(olde1152, xAOD::EgammaParameters::e1152);
   float e1152 = static_cast<float>(m_stripsShapeTool->e1152());
   eg->setShowerShapeValue(e1152, xAOD::EgammaParameters::e1152);
   // fraction of E in S1
@@ -209,63 +211,15 @@ StatusCode egammaAODFixAlg::fixEgamma(xAOD::Egamma* eg,  const CaloCellContainer
   //
   // information combining all samplings
   //
-  // ratio of energy in 3x3/3x7 cells
-  float e011 = 0;
-  if (!eg->showerShapeValue(e011, xAOD::EgammaParameters::e011)) {
-    ATH_MSG_WARNING("Missing parameter e011");
-    return StatusCode::RECOVERABLE;
-  }
-  float e033 = 0;
-  if (!eg->showerShapeValue(e033, xAOD::EgammaParameters::e033)) {
-    ATH_MSG_WARNING("Missing parameter e033");
-    return StatusCode::RECOVERABLE;
-  }
-
-  float e233 = 0;
-  if (!eg->showerShapeValue(e233, xAOD::EgammaParameters::e233)) {
-    ATH_MSG_WARNING("Missing parameter e233");
-    return StatusCode::RECOVERABLE;
-  }
-
-  float e237 = 0;
-  if (!eg->showerShapeValue(e237, xAOD::EgammaParameters::e237)) {
-    ATH_MSG_WARNING("Missing parameter e237");
-    return StatusCode::RECOVERABLE;
-  }
-
-  float e333 = 0;
-  if (!eg->showerShapeValue(e333, xAOD::EgammaParameters::e333)) {
-    ATH_MSG_WARNING("Missing parameter e333");
-    return StatusCode::RECOVERABLE;
-  }
-
-  float e337 = 0;
-  if (!eg->showerShapeValue(e337, xAOD::EgammaParameters::e337)) {
-    ATH_MSG_WARNING("Missing parameter e337");
-    return StatusCode::RECOVERABLE;
-  }
-
-  float e33 = e011 + e132 + e233 + e333;
-  float e37 = e033 + e1152 + e237 + e337;
-
-  float reta3337_allcalo = std::abs(e37) > 0. ? 1.-e33/e37 : 1.;
-  eg->setShowerShapeValue(reta3337_allcalo, xAOD::EgammaParameters::r33over37allcalo);
   // core energy
-
-  float e255 = 0;
-  if (!eg->showerShapeValue(e255, xAOD::EgammaParameters::e255)) {
-    ATH_MSG_WARNING("Missing parameter e255");
-    return StatusCode::RECOVERABLE;
+  float unfixedecore = 0;
+  if (validOlde1152 && eg->showerShapeValue(unfixedecore, xAOD::EgammaParameters::ecore)) {
+    float ecore = unfixedecore - olde1152 + e1152;
+    eg->setShowerShapeValue(ecore, xAOD::EgammaParameters::ecore);
+  } else {
+    ATH_MSG_WARNING("Missing parameter ecore or e1152");
   }
-
-  float e335 = 0;
-  if (!eg->showerShapeValue(e335, xAOD::EgammaParameters::e335)) {
-    ATH_MSG_WARNING("Missing parameter e335");
-    return StatusCode::RECOVERABLE;
-  }
-
-  float ecore = e033 + e1152 + e255 + e335;
-  eg->setShowerShapeValue(ecore, xAOD::EgammaParameters::ecore);
+  
   //
   // information combining different shower shape
   //
