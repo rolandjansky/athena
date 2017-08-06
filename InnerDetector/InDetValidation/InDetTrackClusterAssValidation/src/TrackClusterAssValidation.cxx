@@ -648,27 +648,27 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
   std::cout<<"|-----------------------------------------------------------------------------------|"
 	   <<std::endl;
 
-  m_nclustersPTOT    /=m_nevents;
-  m_nclustersSTOT    /=m_nevents;    
-  m_nspacepointsPTOT /=m_nevents;
-  m_nspacepointsSTOT /=m_nevents;
-  m_nspacepointsOTOT /=m_nevents;
-  int nn = 0;
-  std::cout<<"| Detector                            Pixel         SCT      SCT(ov)      Total     |"
+  double cPTOT = double(m_nclustersPTOT   )/double(m_nevents);
+  double cSTOT = double(m_nclustersSTOT   )/double(m_nevents);    
+  double sPTOT = double(m_nspacepointsPTOT)/double(m_nevents);
+  double sSTOT = double(m_nspacepointsSTOT)/double(m_nevents);
+  double sOTOT = double(m_nspacepointsOTOT)/double(m_nevents);
+  double nn = 0.;
+  std::cout<<"| Detector                            Pixel        SCT        SCT(ov)     Total     |"
 	   <<std::endl;
 
   std::cout<<"| Number clusters     per event"
-	   <<std::setw(12)<<m_nclustersPTOT
-	   <<std::setw(12)<<m_nclustersSTOT
-	   <<std::setw(12)<<nn
-	   <<std::setw(12)<<(m_nclustersPTOT+m_nclustersSTOT)<<"     |"
+	   <<std::setw(12)<<std::setprecision(2)<<cPTOT
+	   <<std::setw(12)<<std::setprecision(2)<<cSTOT
+	   <<std::setw(12)<<std::setprecision(2)<<nn
+	   <<std::setw(12)<<std::setprecision(2)<<(cPTOT+cSTOT)<<"     |"
 	   <<std::endl;
   
   std::cout<<"| Number space points per event"
-	   <<std::setw(12)<<m_nspacepointsPTOT
-	   <<std::setw(12)<<m_nspacepointsSTOT
-	   <<std::setw(12)<<m_nspacepointsOTOT
-	   <<std::setw(12)<<m_nspacepointsPTOT+m_nspacepointsSTOT+m_nspacepointsOTOT<<"     |" 
+	   <<std::setw(12)<<std::setprecision(2)<<sPTOT
+	   <<std::setw(12)<<std::setprecision(2)<<sSTOT
+	   <<std::setw(12)<<std::setprecision(2)<<sOTOT
+	   <<std::setw(12)<<std::setprecision(2)<<sPTOT+sSTOT+sOTOT<<"     |" 
 	   <<std::endl; 
   
   std::cout<<"|-----------------------------------------------------------------------------------|"
