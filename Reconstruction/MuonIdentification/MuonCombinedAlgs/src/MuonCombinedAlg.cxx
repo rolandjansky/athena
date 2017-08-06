@@ -33,8 +33,6 @@ StatusCode MuonCombinedAlg::execute()
     ATH_MSG_ERROR("Could not read "<< m_indetCandidateCollectionName);
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("MARCUS MCA: " << indetCandidateCollection);
-  ATH_MSG_INFO("MARCUS MCA size: " << indetCandidateCollection->size());
   // InDetCandidateCollection* indetCandidateCollection = 0;
   // if(evtStore()->contains<InDetCandidateCollection>(m_indetCandidateCollectionName)) {
   //   if(evtStore()->retrieve(indetCandidateCollection,m_indetCandidateCollectionName).isFailure()) {
@@ -60,9 +58,7 @@ StatusCode MuonCombinedAlg::execute()
     ATH_MSG_WARNING("MuonCandidates not found in StoreGate");
     return StatusCode::SUCCESS;
   }
-  ATH_MSG_INFO("MARCUS: somehow end up here");
   m_muonCombinedTool->combine(*muonCandidateCollection,*indetCandidateCollection);
-  ATH_MSG_INFO("MARCUS: in fact somehow end up here");
   return StatusCode::SUCCESS;
 }
 

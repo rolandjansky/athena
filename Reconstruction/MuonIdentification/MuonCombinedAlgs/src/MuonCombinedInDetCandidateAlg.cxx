@@ -12,7 +12,7 @@ MuonCombinedInDetCandidateAlg::MuonCombinedInDetCandidateAlg(const std::string& 
 {  
   declareProperty("InDetCandidateTool",m_indetCandidateTool);
   declareProperty("InDetForwardCandidateTool",m_indetForwardCandidateTool);
-  declareProperty("TrackParticleLocation",m_indetTrackParticleLocation = "InDetTrackParticles");
+  declareProperty("TrackParticleLocation",m_indetTrackParticleLocation = {"InDetTrackParticles"});
   declareProperty("ForwardParticleLocation",m_indetForwardTrackParticleLocation = "InDetForwardTrackParticles");
   declareProperty("InDetCandidateLocation", m_candidateCollectionName = "InDetCandidates");
   declareProperty("DoSiliconAssocForwardMuons",m_doSiliconForwardMuons = false);
@@ -35,17 +35,14 @@ StatusCode MuonCombinedInDetCandidateAlg::initialize()
 
 StatusCode MuonCombinedInDetCandidateAlg::execute()
 {
-  ATH_MSG_INFO("MARCUS: execute InDetAlg");
   // retrieve MuonSpectrometer tracks
   std::vector<ToolHandle<MuonCombined::IInDetCandidateTool> > canTool;
-  std::vector<SG::ReadHandleKey<xAOD::TrackParticleContainer> > trackParticleLoc;
 
   canTool.push_back(m_indetCandidateTool);
-  trackParticleLoc.push_back(m_indetTrackParticleLocation);
 
   if (m_doSiliconForwardMuons){
     canTool.push_back(m_indetForwardCandidateTool);
-    trackParticleLoc.push_back(m_indetForwardTrackParticleLocation);
+    m_indetTrackParticleLocation.push_back(m_indetForwardTrackParticleLocation);
   }
 
 
@@ -54,9 +51,9 @@ StatusCode MuonCombinedInDetCandidateAlg::execute()
 
   for (unsigned int i(0);i<canTool.size();++i){
 
-    SG::ReadHandle<xAOD::TrackParticleContainer> indetTrackParticles(trackParticleLoc[i]);
+    SG::ReadHandle<xAOD::TrackParticleContainer> indetTrackParticles(m_indetTrackParticleLocation[i]);
     if(!indetTrackParticles.isValid()){
-      ATH_MSG_ERROR("Could not read "<< trackParticleLoc[i]);
+      ATH_MSG_ERROR("Could not read "<< m_indetTrackParticleLocation[i]);
       return StatusCode::FAILURE;
     }
   
@@ -69,15 +66,6 @@ StatusCode MuonCombinedInDetCandidateAlg::execute()
   }
   SG::WriteHandle<InDetCandidateCollection> indetCandidateCollection(m_candidateCollectionName);
   ATH_CHECK(indetCandidateCollection.record(std::move(collection)));
-  ATH_MSG_DEBUG("MARCUS: INDET SIZE: " << indetCandidateCollection->size());
-  ATH_MSG_INFO("MARCUS: INDET SIZE: " << indetCandidateCollection->size());
-
-  // SG::ReadHandle<InDetCandidateCollection> indetCandidateCollection2(m_indetCandidateCollectionName);
-  // if(!indetCandidateCollection2.isValid()){
-  //   ATH_MSG_ERROR("Could not read "<< m_indetCandidateCollectionName);
-  //   return StatusCode::FAILURE;
-  // }
-  // ATH_MSG_INFO("MARCUS: INDET 2 SIZE: " << indetCandidateCollection2->size());
 
   return StatusCode::SUCCESS;
 }

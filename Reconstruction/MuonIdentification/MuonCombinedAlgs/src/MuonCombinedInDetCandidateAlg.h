@@ -33,7 +33,7 @@ class MuonCombinedInDetCandidateAlg : public AthAlgorithm
   ToolHandle<MuonCombined::IInDetCandidateTool> m_indetCandidateTool;
   ToolHandle<MuonCombined::IInDetCandidateTool> m_indetForwardCandidateTool;
   
-  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_indetTrackParticleLocation;
+  SG::ReadHandleKeyArray<xAOD::TrackParticleContainer> m_indetTrackParticleLocation;
   SG::ReadHandleKey<xAOD::TrackParticleContainer>  m_indetForwardTrackParticleLocation;
   // SG::ReadHandleKey<InDetCandidateCollection> m_indetCandidateCollectionName;
   SG::WriteHandleKey<InDetCandidateCollection> m_candidateCollectionName;
