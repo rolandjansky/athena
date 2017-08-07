@@ -589,11 +589,19 @@
                 </doc>
                 <jobTransformJobName>athenaHLT_on_data_leakCheck</jobTransformJobName>
                 <jobTransformCmd>
-                    export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/$CMTCONFIG/lib/libunwind.so; 
+                    export LD_PRELOAD=/cvmfs/sft.cern.ch/lcg/releases/libunwind/5c2cade-76996/$CMTCONFIG/lib/libunwind.so; 
                     athenaHLT.py --stdcmalloc --leak-check-execute  -o HLT_physicsV7  -n 25 -f '/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data16_13TeV.00309640.physics_EnhancedBias.merge.RAW/data16_13TeV.00309640.physics_EnhancedBias.merge.RAW._lb0628._SFO-1._0001.1' -c "setMenu='Physics_pp_v7_tight_physics_prescale';setLVL1XML='TriggerMenuXML/LVL1config_Physics_pp_v7.xml';setL1TopoXML=setLVL1XML.replace('/LVL1','/L1Topo');HLTOutputLevel=WARNING;doValidation=True" TrigP1Test/runHLT_standaloneRTT_leakCheck.py
                 </jobTransformCmd>
                 <group>AtlasHLTChainTest</group>
                 <queue>long</queue>
+		<testToRemove>
+                    <jobGroupName>RTT:Top</jobGroupName>
+                    <testidentifier>CheckFileRunner0</testidentifier>
+                </testToRemove>
+		<testToRemove>
+                    <jobGroupName>RTT:Top</jobGroupName>
+                    <testidentifier>PerfMonRunner</testidentifier>
+                </testToRemove>
             </jobTransform>
             
             <jobTransform userJobId="athenaHLT_LatestRun_MCV7">
@@ -606,6 +614,11 @@
                 </jobTransformCmd>
                 <group>AtlasHLTChainTest</group>
                 <queue>long</queue>
+		<testToRemove>
+                    <jobGroupName>RTT:Top</jobGroupName>
+                    <testidentifier>CheckFileRunner0</testidentifier>
+                </testToRemove>
+
             </jobTransform>
             
             <jobTransform userJobId="athenaHLT_CostMonitoring_PhysicsV7">
@@ -614,10 +627,19 @@
                 </doc>
                 <jobTransformJobName>athenaHLT_CostMonitoring_PhysicsV7</jobTransformJobName>
                 <jobTransformCmd>
-                    athenaHLT.py -f '/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data16_13TeV.00309640.physics_EnhancedBias.merge.RAW/data16_13TeV.00309640.physics_EnhancedBias.merge.RAW._lb0628._SFO-1._0001.1' -c "setMenu='Physics_pp_v7_tight_physics_prescale';setLVL1XML='TriggerMenuXML/LVL1config_Physics_pp_v7.xml';setL1TopoXML=setLVL1XML.replace('/LVL1','/L1Topo');rerunLVL1=True;enableCostD3PD=True;enableCostForCAF=True" TriggerRelease/runHLT_standalone.py
+                    athenaHLT.py -f '/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1' -c "setMenu='Physics_pp_v7_unprescaled_only_physics_prescale';setLVL1XML='TriggerMenuXML/LVL1config_Physics_pp_v7.xml';setL1TopoXML=setLVL1XML.replace('/LVL1','/L1Topo');rerunLVL1=True;enableCostD3PD=True;enableCostForCAF=True" TriggerRelease/runHLT_standalone.py
                 </jobTransformCmd>
                 <group>AtlasHLTChainTest</group>
                 <queue>long</queue>
+		<testToRemove>
+                    <jobGroupName>RTT:Top</jobGroupName>
+                    <testidentifier>CheckFileRunner0</testidentifier>
+                </testToRemove>
+		<testToRemove>
+                    <jobGroupName>RTT:Top</jobGroupName>
+                    <testidentifier>PerfMonRunner</testidentifier>
+                </testToRemove>
+
             </jobTransform>
             
         </jobList>
@@ -720,7 +742,7 @@
                     <jobGroupName>RTT:Top</jobGroupName>
                     <testidentifier>PerfMonDozer0</testidentifier>
                 </testToRemove>
-                
+
             </jobGroup>
 
         </jobGroups>

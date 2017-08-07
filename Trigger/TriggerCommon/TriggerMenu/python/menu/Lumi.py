@@ -32,6 +32,9 @@ def lumi(triggerPythonConfig):
         elif 'tight' in menu_name:
             L1Prescales = Prescales.L1Prescales_tight_physics_prescale
             HLTPrescales = Prescales.HLTPrescales_tight_physics_prescale
+        elif 'unprescaled_only' in menu_name:
+            L1Prescales = Prescales.L1Prescales_unprescaled_only_physics_prescale
+            HLTPrescales = Prescales.HLTPrescales_unprescaled_only_physics_prescale
         else:
             L1Prescales = Prescales.L1Prescales
             HLTPrescales = Prescales.HLTPrescales

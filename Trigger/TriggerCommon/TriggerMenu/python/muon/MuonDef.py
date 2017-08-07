@@ -49,7 +49,7 @@ class L2EFChain_mu(L2EFChainDef):
   fullScanSeqMap = getFullScanCaloSequences()
   # ----------------------------------------------------------------
 
-  def __init__(self, chainDict, asymDiMuonChain = False, AllMuons = [], thisIsBphysChain=False):
+  def __init__(self, chainDict, asymDiMuonChain = False, asymMultiMuonChain = False, AllMuons = [], thisIsBphysChain=False):
     self.L2sequenceList   = []
     self.EFsequenceList   = []
     self.L2signatureList  = []
@@ -97,6 +97,7 @@ class L2EFChain_mu(L2EFChainDef):
     # --- when to run with ovlp removal ---
     self.ovlpRm = self.chainPart['overlapRemoval']
     self.asymDiMuonChain = asymDiMuonChain
+    self.asymMultiMuonChain = asymMultiMuonChain
 
     self.doOvlpRm = False
     if "nscan" in self.chainName or "bTau" in self.chainName :
@@ -107,6 +108,8 @@ class L2EFChain_mu(L2EFChainDef):
       self.doOvlpRm = True
     elif "bJpsi" in self.chainName or "bDimu" in self.chainName or "bUpsi" in self.chainName or self.thisIsBphysChain :
       self.doOvlpRm = False
+    elif self.asymMultiMuonChain and not self.chainPart['extra'] and not self.chainPart['reccalibInfo'] and not self.thisIsBphysChain:
+      self.doOvlpRm = True
     elif (self.asymDiMuonChain) and (self.mult > 1) and not self.chainPart['extra'] and not self.chainPart['reccalibInfo'] :
       self.doOvlpRm = True
     else: self.doOvlpRm = False
@@ -361,7 +364,7 @@ class L2EFChain_mu(L2EFChainDef):
       
       [ftktrkfast, ftktrkprec] = TrigInDetFTKSequence("Muon","muonIso",sequenceFlavour=["PT"]).getSequence()    
       
-      self.L2sequenceList += [[['L2_mu_step2'],
+      self.L2sequenceList += [[['L2_mu_hypo2'],
                                ftktrkfast+ftktrkprec,
                                'L2_mu_step3']]
       from TrigMuonHypo.TrigMuonHypoConfig import MuisoHypoConfig
@@ -375,7 +378,7 @@ class L2EFChain_mu(L2EFChainDef):
                                'L2_mu_step4']]
       self.L2sequenceList += [[['L2_mu_step4'],
                                [theMuonFTKIsolationHypo],
-                               'L2_mu_hypo3']] 
+                               'L2_mu_hypo3']]
 
 
     self.EFsequenceList += [[[EFinputTE],
@@ -2229,7 +2232,7 @@ class L2EFChain_mu(L2EFChainDef):
       'EF_mu_hypo1': mergeRemovingOverlap('EF_SuperEFhyp_',   idmulti+'_'+self.chainPartNameNoMult.replace(self.chainPart['specialStream'], '')+'_'+self.L2InputTE).replace('__', '_'),
       }
 
-    # OI this makes no sense , as we already cut on good tracks at L2, there is no rejection, skip it (at least in 2017)
+    # OI this part gives problem to EF 2TE algos; keep it for v6 only.
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     if "_v6" in TriggerFlags.triggerMenuSetup():
       self.EFsequenceList += [[['EF_mu_hypo1'],

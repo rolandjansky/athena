@@ -304,7 +304,7 @@ TrigHLTJetRecBase<InputContainer>::checkforSecondaryPseudoJets(
                                                  const HLT::TriggerElement* outputTE, 
                                                  LabelIndex* indexMap,
                                                  PseudoJetVector& pjv_secondary){
-  ATH_MSG_INFO("No actions for loading of secondary pseudojets as input not of type calo cluster.");
+  ATH_MSG_DEBUG("No actions for loading of secondary pseudojets as input not of type calo cluster.");
   return HLT::OK;
 }
 

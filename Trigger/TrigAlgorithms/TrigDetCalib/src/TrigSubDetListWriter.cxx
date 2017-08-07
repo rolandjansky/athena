@@ -79,6 +79,10 @@ HLT::ErrorCode TrigSubDetListWriter::hltInitialize()
 
   for(std::vector<std::string>::iterator detit = m_detId.begin(); detit != m_detId.end(); ++detit){
      //if (m_detSpec.find("HLTResult") != std::string::npos) {
+     if (*detit=="RPC") { 
+        m_sourceid.push_back(eformat::MUON_RPC_BARREL_A_SIDE);
+        m_sourceid.push_back(eformat::MUON_RPC_BARREL_C_SIDE);
+     }
      if (*detit=="HLTResult") {
         m_sourceid.push_back(eformat::TDAQ_HLT);
         m_sourceid.push_back(eformat::TDAQ_CTP);

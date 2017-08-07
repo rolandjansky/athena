@@ -60,7 +60,9 @@ LArNoisyROTool::LArNoisyROTool( const std::string& type,
 	                                              961052672, // EMBA FT 9 Slot 2
   	                                              961839104, // EMBA FT 10 Slot 10
 	                                              961970176, // EMBA FT 10 Slot 14
-	                                              972980224  // EMBA FT 31 Slot 14
+	                                              972980224,  // EMBA FT 31 Slot 14
+	961445888, // EMBA FT 9 Slot 14 - added August 1st 2017
+	944144384  // EMBC FT 8 Slot 14 - added August 1st 2017
 	                                             });
 
   declareProperty( "MNBLooseCut",m_MNBLooseCut=5,"Number of cells above CellQualityCut");

@@ -63,7 +63,7 @@ AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu', 'bDimu2700', 'bNocut','bVertex2'
                       'BcmumuDs' ,   'BcmumuDsloose' ,
                       '7invm9', 'noos', 'noid', 'novtx',
                       '11invm60','18invm60', 'bUpsi',
-                      'Trkloose',  'TrkPEB', 'Zmumu', 'noL2', 'noEFbph',
+                      'Trkloose',  'TrkPEB', "lowpt",'Zmumu', 'noL2', 'noEFbph',
                       'noinvm', 'ss', 'BpmumuKp', 'Taumumux', 'Dsmumux', 'LbmumuLambda',
                       'trkTau', 'bTauTrk', 'bDsPhiX', 'bPhi','bDsPhiXtight',
                       '11invm24', '24invm60',
@@ -272,7 +272,7 @@ TauChainParts = {
     'chainPartName': '',
     'threshold'    : '',
     'preselection' : ['r1', 'FTK', 'FTKRefit', 'FTKNoPrec', 'calo', 'track', 'mvonly', 'ptonly', 'caloonly', 'trackonly', 'tracktwo', 'trackcalo', 'tracktwocalo','tracktwo2015'],
-    'selection'    : ['medium0','loose1', 'medium1', 'tight1', 'perf', 'perf0', 'r1medium1', 'r1perf', 'cosmic', 'kaonpi1', 'kaonpi2', 'dipion1', 'dipion1loose', 'dipion2', 'dikaon', 'dikaontight', 'dikaonmass', 'dikaonmasstight', 'singlepion', 'singlepiontight',  'medium1HighptL', 'medium1HighptM', 'medium1HighptH'],
+    'selection'    : ['medium0','loose1', 'medium1', 'tight1', 'perf', 'perf0', 'r1medium1', 'r1perf', 'cosmic', 'kaonpi1', 'kaonpi2', 'dipion1', 'dipion1loose', 'dipion2', 'dipion3', 'dikaon', 'dikaontight', 'dikaonmass', 'dikaonmasstight', 'singlepion', 'singlepiontight',  'medium1HighptL', 'medium1HighptM', 'medium1HighptH'],
     'multiplicity' : '',
     'trigType'     : ['tau'],   
     'trkInfo'      : ['idperf'],
@@ -383,7 +383,7 @@ ElectronChainParts = {
     'caloInfo'       : ['L2EFCalo','HLTCalo'],
     'lhInfo'         : ['cutd0dphideta','nod0','nodphires','nodeta','smooth'],
     'L2IDAlg'        : ['L2StarA','L2StarB','L2StarC','FTK','TRT','SiTrack','IdScan'],
-    'addInfo'        : ['etcut','ringer','conv','etisem','gsf','trkcut',
+    'addInfo'        : ['etcut','ringer','noringer','conv','etisem','gsf','trkcut',
                         'L2Star','perf','IdTest'],
     }
 # ---- Egamma Dictinary of default Values ----
@@ -500,12 +500,14 @@ CombinedChainParts_Default['topo'] = []
 # ---- AFP Dictinary of all allowed Values ----
 AFPChainParts = {
     'signature'      : ['AFP'],
-    'L1item'         : '',
+    'L1item'         : ['AFP_A_AND_C'],
     'chainPartName'  : '',
     'multiplicity'   : '',
+    'calib'        : ['lcw','had','em'],
     'trigType'       : ['afp'],
+    'jetCalib'     : JetChainParts['jetCalib'],
     'threshold'      : '',
-    'extra'          : [],
+    'extra'          : ['jetexc'],
     'addInfo'        : []
     }
 # ---- AFPDictinary of default Values ----
@@ -514,7 +516,9 @@ AFPChainParts_Default = {
     'L1item'         : '',
     'chainPartName'  : '',
     'multiplicity'   : '',
+    'calib'          : 'lcw',
     'trigType'       : ['afp'],
+    'jetCalib'       : JetChainParts_Default['jetCalib'],
     'threshold'      : '',
     'extra'          : '',
     'addInfo'        : []
@@ -537,10 +541,10 @@ MinBiasChainParts = {
     'ZDCinfo'        : ['lg', 'hg'],
     'trkInfo'        : ['hlttr', 'ftk', 'costr'],
     'hypoL2Info'     : ['sp2', 'sp3', 'sp5', 'sp10', 'sp15', 'sp100', 'sp300', 'sp400', 'sp500', 'sp600', 'sp700', 'sp800', 'sp900',
-                        'sp1000', 'sp1200', 'sp1300', 'sp1400', 'sp1500', 'sp1600', 'sp1700', 'sp1800', 
+                        'sp1000', 'sp1100', 'sp1200', 'sp1300', 'sp1400', 'sp1500', 'sp1600', 'sp1700', 'sp1800', 'sp1900',
                         'sp2000', 'sp2100', 'sp2200', 'sp2300', 'sp2400', 'sp2500', 'sp2700', 'sp2800', 'sp2900', 'sp3000',
                         'sp3100', 'sp3500', 'sp4100', 'sp4500', 'sp4800', 'sp5000', 'sp5200',],
-    'pileupInfo'     : ['pusup200','pusup300','pusup350', 'pusup400', 'pusup450', 'pusup500', 'pusup550', 'pusup600', 'pusup700', 'pusup750', 'pusup800', 'pusup900',
+    'pileupInfo'     : ['pusup200','pusup300','pusup350', 'pusup400', 'pusup450', 'pusup500', 'pusup550', 'pusup600', 'pusup650', 'pusup700', 'pusup750', 'pusup800', 'pusup850', 'pusup900',
                         'pusup1000', 'pusup1100', 'pusup1200', 'pusup1300', 'pusup1400', 'pusup1500',],
     'hypoEFInfo'     : ['trk3','trk5','trk10','trk15',  'trk20',  'trk30',  'trk40', 'trk45', 'trk50', 'trk55', 'trk60', 'trk65', 'trk70', 'trk75', 'trk80', 'trk90',
                         'trk100', 'trk110', 'trk120', 'trk130', 'trk140', 'trk150', 'trk160', 'trk180', 'trk200', 'trk220', 'trk240', 'trk260', 'trk280',      
@@ -713,6 +717,8 @@ AllowedCalibChainIdentifiers = ['csccalib',
                                 'l1satmon',
                                 'zdcpeb',
                                 'calibAFP',
+                                'rpcpeb',
+                                'idpsl1'
                                 ]
 
 # ---- Calib Chain Dictinary of all allowed Values ----
