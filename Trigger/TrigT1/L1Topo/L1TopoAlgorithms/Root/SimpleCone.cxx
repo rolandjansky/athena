@@ -152,16 +152,16 @@ TCS::SimpleCone::process( const std::vector<TCS::TOBArray const *> & input,
   for(unsigned int i=0; i<numberOutputBits(); ++i) {
 
     bool accept = leadingET > p_MinSumET[i];
-    
+    const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+    const bool fillReject = fillHistos() and not fillAccept;
     decision.setBit( i, accept );
     
     if(accept) {
       output[i]->push_back( CompositeTOB( GenericTOB::createOnHeap( GenericTOB(leadingET,0,0) ) ));
     }
-    const bool fillAccept = (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
     if(fillAccept)
         m_histAcceptSimpleCone[i]->Fill(leadingET);
-    else
+    else if(fillReject)
         m_histRejectSimpleCone[i]->Fill(leadingET);
     
     

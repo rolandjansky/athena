@@ -140,10 +140,8 @@ TCS::DeltaEtaIncl1::processBitCorrect( const std::vector<TCS::TOBArray const *> 
                          << " , eta=" << (*tob2)->eta() 
                          << ", DeltaEta = " << deltaEta << " -> ";
                    accept = deltaEta >= p_DeltaEtaMin[i] && deltaEta <= p_DeltaEtaMax[i];
-                   const bool fillAccept = (fillHistosBasedOnHardware() ?
-                                            getDecisionHardwareBit(i) :
-                                            accept);
-                   const bool fillReject = not fillAccept;
+                   const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+                   const bool fillReject = fillHistos() and not fillAccept;
                    const bool alreadyFilled = decision.bit(i);
                    if( accept ) {
                        decision.setBit(i, true);
@@ -196,10 +194,8 @@ TCS::DeltaEtaIncl1::process( const std::vector<TCS::TOBArray const *> & input,
                          << " , eta=" << (*tob2)->eta()
                          << ", DeltaEta = " << deltaEta << " -> ";
                    accept = deltaEta >= p_DeltaEtaMin[i] && deltaEta <= p_DeltaEtaMax[i];
-                   const bool fillAccept = (fillHistosBasedOnHardware() ?
-                                            getDecisionHardwareBit(i) :
-                                            accept);
-                   const bool fillReject = not fillAccept;
+                   const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+                   const bool fillReject = fillHistos() and not fillAccept;
                    const bool alreadyFilled = decision.bit(i);
                    if( accept ) {
                        decision.setBit(i, true);

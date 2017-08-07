@@ -162,10 +162,8 @@ TCS::InvariantMassInclusive2::processBitCorrect( const std::vector<TCS::TOBArray
                       ((aeta1 < p_MinEta1 || aeta1 > p_MaxEta1 ) ||
                        (aeta2 < p_MinEta2 || aeta2 > p_MaxEta2 ) ))  continue;
                    accept = invmass2 >= p_InvMassMin[i] && invmass2 <= p_InvMassMax[i];
-                   const bool fillAccept = (fillHistosBasedOnHardware() ?
-                                            getDecisionHardwareBit(i) :
-                                            accept);
-                   const bool fillReject = not fillAccept;
+                   const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+                   const bool fillReject = fillHistos() and not fillAccept;
                    const bool alreadyFilled = decision.bit(i);
                    if( accept ) {
                        decision.setBit(i, true);
@@ -219,10 +217,8 @@ TCS::InvariantMassInclusive2::process( const std::vector<TCS::TOBArray const *> 
                       ((aeta1 < p_MinEta1 || aeta1 > p_MaxEta1 ) ||
                        (aeta2 < p_MinEta2 || aeta2 > p_MaxEta2 ) )) continue;
                    bool accept = invmass2 >= p_InvMassMin[i] && invmass2 <= p_InvMassMax[i];
-                   const bool fillAccept = (fillHistosBasedOnHardware() ?
-                                            getDecisionHardwareBit(i) :
-                                            accept);
-                   const bool fillReject = not fillAccept;
+                   const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+                   const bool fillReject = fillHistos() and not fillAccept;
                    const bool alreadyFilled = decision.bit(i);
                    if( accept ) {
                        decision.setBit(i, true);

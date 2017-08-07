@@ -95,3 +95,8 @@ bool TCS::DecisionAlg::skipHistos() const
     return m_skipHistos;
 }
 //----------------------------------------------------------
+bool TCS::DecisionAlg::fillHistos() const
+{
+    return (not m_fillHistosBasedOnHardware or not m_skipHistos);
+}
+//----------------------------------------------------------
