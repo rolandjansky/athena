@@ -110,6 +110,14 @@ namespace TCS {
          propagateHardwareBitsToAlgos at each event.
        */
       void setOutputAlgosFillBasedOnHardware(const bool &value);
+      /**
+         @brief skip filling the histos
+
+         When filling the histograms based on the hdw decision we want
+         to skip filling them if we didn't fetch the hdw bits from the
+         ROS. The flag is then toggled on/off depending on the prescaler.
+       */
+      void setOutputAlgosSkipHistograms(const bool &value);
    private:
 
       // execution
@@ -146,7 +154,6 @@ namespace TCS {
 
       std::bitset<numberOfL1TopoBits> m_triggerHdwBits;
       std::bitset<numberOfL1TopoBits> m_ovrflowHdwBits;
-
    };
 
    

@@ -93,6 +93,7 @@ L1TopoSimulation::L1TopoSimulation(const std::string &name, ISvcLocator *pSvcLoc
    declareProperty( "TopoOutputLevel", m_topoOutputLevel, "OutputLevel for L1Topo algorithms" );
    declareProperty( "TopoSteeringOutputLevel", m_topoSteeringOutputLevel, "OutputLevel for L1Topo steering" );
    declareProperty("Prescale", m_prescale = 1, "Internal prescale factor for this algorithm, implemented with a periodic scaler: so 1 means run every time, N means run every 1 in N times it is called; the other times it will exit without doing anything");
+   declareProperty("PrescaleDAQROBAccess", m_prescaleForDAQROBAccess = 4, "Prescale factor for requests for DAQ ROBs: can be used to avoid overloading ROS. Zero means disabled, 1 means always, N means sample only 1 in N events");
 
 
    const TCS::GlobalDecision & dec = m_topoSteering->simulationResult().globalDecision();
@@ -136,6 +137,16 @@ L1TopoSimulation::initialize() {
    CHECK( m_muonInputProvider.retrieve() );
 
    ATH_MSG_DEBUG("Prescale factor set to " << m_prescale);
+   ATH_MSG_DEBUG("PrescaleDAQROBAccess factor set to " << m_prescaleForDAQROBAccess);
+   ATH_MSG_DEBUG("FillHistoBasedOnHardware " << m_fillHistogramsBasedOnHardwareDecision);
+   if(m_fillHistogramsBasedOnHardwareDecision and
+      (m_prescaleForDAQROBAccess % m_prescale)) {
+      ATH_MSG_FATAL("PrescaleDAQROBAccess must be a multiple of Prescale"
+                    <<" : current values :"
+                    <<" "<<m_prescaleForDAQROBAccess
+                    <<", "<<m_prescale);
+      return StatusCode::FAILURE;
+   }
    ATH_MSG_DEBUG("Output trigger key property " << m_topoCTPLocation);
    ATH_MSG_DEBUG("Output overflow key property " << m_topoOverflowCTPLocation);
 
@@ -226,7 +237,7 @@ StatusCode
 L1TopoSimulation::execute() {
   
 
-   if (m_prescale>1 && m_scaler->decision(m_prescale)){
+   if (m_prescale>1 && not m_scaler->decision(m_prescale)){
       ATH_MSG_DEBUG( "This event not processed due to prescale");
       return StatusCode::SUCCESS;
       // do not record dummy output: 
@@ -265,9 +276,14 @@ L1TopoSimulation::execute() {
 
    inputEvent.dump();
    
-   if(m_fillHistogramsBasedOnHardwareDecision and
-      retrieveHardwareDecision()){
-       m_topoSteering->propagateHardwareBitsToAlgos();
+   if(m_fillHistogramsBasedOnHardwareDecision){
+       if(m_scaler->decision(m_prescaleForDAQROBAccess) and
+          retrieveHardwareDecision()){
+           m_topoSteering->propagateHardwareBitsToAlgos();
+           m_topoSteering->setOutputAlgosSkipHistograms(false);
+       } else {
+           m_topoSteering->setOutputAlgosSkipHistograms(true);
+       }
    }
 
    // execute the toposteering

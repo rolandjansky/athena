@@ -55,6 +55,10 @@ namespace TCS {
       DecisionAlg& setFillHistosBasedOnHardware(const bool &value);
       ///! getter
       bool fillHistosBasedOnHardware() const;
+      ///! toggle m_skipHistos (see TopoSteering::setOutputAlgosSkipHistograms)
+      DecisionAlg& setSkipHistos(const bool &value);
+      ///! getter
+      bool skipHistos() const;
 
    private:
 
@@ -70,6 +74,8 @@ namespace TCS {
       uint32_t m_hardwareOverflowBits {0};
       ///! fill accept/reject monitoring histos based on hdw decision
       bool m_fillHistosBasedOnHardware {0};
+      ///! skip filling monitoring histos, used only when m_fillHistosBasedOnHardware==true
+      bool m_skipHistos {0};
    };
 
 }
