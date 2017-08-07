@@ -705,7 +705,7 @@
                   --outputDAOD_IDTRKVALIDFile=SLHCtest.InclinedQuads_GMX.InDetDxAOD.pool.root \
                   --maxEvents=10 \
                   --digiSteeringConf 'StandardInTimeOnlyTruth' \
-                  --geometryVersion=ATLAS-P2-ITK-16-00-00 \
+                  --geometryVersion=ATLAS-P2-ITK-19-00-00 \
                   --conditionsTag=OFLCOND-MC15c-SDR-14-02 \
                   --postInclude 'all:InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py' 'HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py' 'RAWtoESD:InDetSLHC_Example/postInclude.DigitalClustering.py,InDetSLHC_Example/postInclude.NoJetPtFilter.py' \
                   --preExec 'all:from AthenaCommon.GlobalFlags import globalflags; globalflags.DataSource.set_Value_and_Lock("geant4");from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.doGMX.set_Value_and_Lock(True);SLHC_Flags.LayoutOption="InclinedQuads"' 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"];' 'ESDtoDPD:rec.DPDMakerScripts.set_Value_and_Lock(["InDetPrepRawDataToxAOD/InDetDxAOD.py","PrimaryDPDMaker/PrimaryDPDMaker.py"]);' \
@@ -855,7 +855,7 @@
                   --outputDAOD_IDTRKVALIDFile=SLHCtest.InclinedDuals_GMX.InDetDxAOD.pool.root \
                   --maxEvents=10 \
                   --digiSteeringConf 'StandardInTimeOnlyTruth' \
-                  --geometryVersion=ATLAS-P2-ITK-16-00-00 \
+                  --geometryVersion=ATLAS-P2-ITK-20-00-00 \
                   --conditionsTag=OFLCOND-MC15c-SDR-14-02 \
                   --postInclude 'all:InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py' 'HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py' 'RAWtoESD:InDetSLHC_Example/postInclude.DigitalClustering.py,InDetSLHC_Example/postInclude.NoJetPtFilter.py' \
                   --preExec 'all:from AthenaCommon.GlobalFlags import globalflags; globalflags.DataSource.set_Value_and_Lock("geant4");from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.doGMX.set_Value_and_Lock(True);SLHC_Flags.LayoutOption="InclinedDuals"' 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"];' 'ESDtoDPD:rec.DPDMakerScripts.set_Value_and_Lock(["InDetPrepRawDataToxAOD/InDetDxAOD.py","PrimaryDPDMaker/PrimaryDPDMaker.py"]);' \
