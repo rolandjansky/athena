@@ -25,21 +25,21 @@ StatusCode PhysValPFO::bookHistograms(){
   std::string scale = "EM";
   std::string type = "charged";
 
-  if (true == m_useLCScale) scale = "LC";
+  if (m_useLCScale) scale = "LC";
 
-  if (true == m_useNeutralPFO) type = "neutral";
+  if (m_useNeutralPFO) type = "neutral";
   else scale = "";
 
   std::string theName = "PFlow/PFO_JetETMiss/JetETMiss_"+scale+"_"+type;
 
   std::vector<HistData> hists;
-  if (false == m_useNeutralPFO){
+  if (!m_useNeutralPFO){
     m_PFOChargedValidationPlots.reset(new PFOChargedValidationPlots(0,theName, theName));
     m_PFOChargedValidationPlots->setDetailLevel(100);
     m_PFOChargedValidationPlots->initialize();
     hists = m_PFOChargedValidationPlots->retrieveBookedHistograms();
   }
-  else if (true == m_useNeutralPFO){
+  else if (m_useNeutralPFO){
     m_PFONeutralValidationPlots.reset(new PFONeutralValidationPlots(0,theName, theName));
     m_PFONeutralValidationPlots->setDetailLevel(100);
     m_PFONeutralValidationPlots->initialize();
@@ -58,7 +58,7 @@ StatusCode PhysValPFO::fillHistograms(){
 
   const xAOD::Vertex* theVertex = nullptr;
 
-  if (false == m_useNeutralPFO){
+  if (!m_useNeutralPFO){
     if(!m_vertexContainerReadHandle.isValid()){
       ATH_MSG_WARNING("Invalid ReadHandle for xAOD::VertexContainer with key: " << m_vertexContainerReadHandle.key());
     }
@@ -90,9 +90,9 @@ StatusCode PhysValPFO::fillHistograms(){
   
   const xAOD::PFOContainer* thePFOContainer = nullptr;
 
-  if (false == m_useNeutralPFO) thePFOContainer = m_retrievePFOTool->retrievePFO(CP::EM,CP::charged);
+  if (!m_useNeutralPFO) thePFOContainer = m_retrievePFOTool->retrievePFO(CP::EM,CP::charged);
   else{
-    if (false == m_useLCScale) thePFOContainer = m_retrievePFOTool->retrievePFO(CP::EM,CP::neutral);
+    if (!m_useLCScale) thePFOContainer = m_retrievePFOTool->retrievePFO(CP::EM,CP::neutral);
     else thePFOContainer = m_retrievePFOTool->retrievePFO(CP::LC,CP::neutral);
   }
 
@@ -106,8 +106,8 @@ StatusCode PhysValPFO::fillHistograms(){
 
   for (; firstPFO != lastPFO; ++firstPFO) {
     const xAOD::PFO* thePFO = *firstPFO;
-    if (false == m_useNeutralPFO) m_PFOChargedValidationPlots->fill(*thePFO,theVertex);
-    else if (true == m_useNeutralPFO) m_PFONeutralValidationPlots->fill(*thePFO);
+    if (!m_useNeutralPFO) m_PFOChargedValidationPlots->fill(*thePFO,theVertex);
+    else if (m_useNeutralPFO) m_PFONeutralValidationPlots->fill(*thePFO);
   }
 
   return StatusCode::SUCCESS;
