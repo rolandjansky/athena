@@ -29,6 +29,7 @@
 
 #include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
 #include "AthenaKernel/ExtendedEventContext.h"
+#include "AthenaKernel/EventContextClid.h"
 
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "GaudiKernel/Algorithm.h"
@@ -497,6 +498,13 @@ namespace TrigSim {
             Gaudi::Hive::setCurrentContext( m_eventContext );
 
             m_aess->reset(m_eventContext);
+            if (m_primEvtStore->record(std::make_unique<EventContext> (m_eventContext),
+                                       "EventContext").isFailure())
+            {
+              m_log << MSG::ERROR 
+                    << "Error recording event context object" << endmsg;
+              return (StatusCode::FAILURE);
+            }
 
 
             /*
