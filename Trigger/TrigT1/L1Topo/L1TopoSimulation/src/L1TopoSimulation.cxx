@@ -21,7 +21,6 @@
 #include "L1TopoInterfaces/IL1TopoHistSvc.h"
 #include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
-#include "TrigT1Interfaces/FrontPanelCTP.h"
 #include "TrigT1CaloEvent/EmTauROI_ClassDEF.h"
 
 // #include "TrigSteering/Scaler.h"
@@ -66,6 +65,7 @@ L1TopoSimulation::L1TopoSimulation(const std::string &name, ISvcLocator *pSvcLoc
    m_jetInputProvider("LVL1::JetInputProvider/JetInputProvider", this),
    m_energyInputProvider("LVL1::EnergyInputProvider/EnergyInputProvider", this),
    m_muonInputProvider("LVL1::MuonInputProvider/MuonInputProvider", this),
+//   m_EventInfoKey("EventInfo"),
    m_topoSteering( unique_ptr<TCS::TopoSteering>(new TCS::TopoSteering()) )
 {
    declareProperty( "TrigConfigSvc", m_l1topoConfigSvc, "Service to provide the L1Topo menu");
@@ -84,6 +84,7 @@ L1TopoSimulation::L1TopoSimulation(const std::string &name, ISvcLocator *pSvcLoc
    declareProperty( "TopoOutputLevel", m_topoOutputLevel, "OutputLevel for L1Topo algorithms" );
    declareProperty( "TopoSteeringOutputLevel", m_topoSteeringOutputLevel, "OutputLevel for L1Topo steering" );
    declareProperty("Prescale", m_prescale = 1, "Internal prescale factor for this algorithm, implemented with a periodic scaler: so 1 means run every time, N means run every 1 in N times it is called; the other times it will exit without doing anything");
+//   declareProperty("EventInfoKey", m_EventInfoKey);
 
 
    const TCS::GlobalDecision & dec = m_topoSteering->simulationResult().globalDecision();
@@ -126,9 +127,13 @@ L1TopoSimulation::initialize() {
    ATH_MSG_DEBUG("retrieving " << m_muonInputProvider);
    CHECK( m_muonInputProvider.retrieve() );
 
+   CHECK(m_topoCTPLocation.initialize());
+   CHECK(m_topoOverflowCTPLocation.initialize());
+//   CHECK(m_EventInfoKey.initialize());
+
    ATH_MSG_DEBUG("Prescale factor set to " << m_prescale);
-   ATH_MSG_DEBUG("Output trigger key property " << m_topoCTPLocation);
-   ATH_MSG_DEBUG("Output overflow key property " << m_topoOverflowCTPLocation);
+   ATH_MSG_DEBUG("Output trigger key property " << m_topoCTPLocation.key());
+   ATH_MSG_DEBUG("Output overflow key property " << m_topoOverflowCTPLocation.key());
 
    const TXC::L1TopoMenu* menu = m_l1topoConfigSvc->menu();
    if(menu == nullptr) {
@@ -234,6 +239,9 @@ L1TopoSimulation::execute() {
    TCS::TopoInputEvent & inputEvent = m_topoSteering->inputEvent();
 
    // Event Info
+//ReadHandle doesn't seem to work yet for eventinfo
+//   SG::ReadHandle< EventInfo > evt(m_EventInfoKey);
+//   CHECK(evt.isValid());
    const EventInfo *evt;
    CHECK(evtStore()->retrieve(evt));
    inputEvent.setEventInfo(evt->event_ID()->run_number(),evt->event_ID()->event_number(),evt->event_ID()->lumi_block(),evt->event_ID()->bunch_crossing_id());
@@ -270,8 +278,8 @@ L1TopoSimulation::execute() {
     */
 
    const TCS::GlobalDecision & dec = m_topoSteering->simulationResult().globalDecision();
-   LVL1::FrontPanelCTP * topoDecision2CTP = new LVL1::FrontPanelCTP();
-   LVL1::FrontPanelCTP * topoOverflow2CTP = new LVL1::FrontPanelCTP();
+   auto topoDecision2CTP = std::make_unique< LVL1::FrontPanelCTP >();
+   auto topoOverflow2CTP = std::make_unique< LVL1::FrontPanelCTP >();
    for(unsigned int clock=0; clock<2; ++clock) {
       topoDecision2CTP->setCableWord0( clock, 0 ); // ALFA
       topoDecision2CTP->setCableWord1( clock, dec.decision( 0, clock) );  // TOPO 0
@@ -280,8 +288,10 @@ L1TopoSimulation::execute() {
       topoOverflow2CTP->setCableWord1( clock, dec.overflow( 0, clock) );  // TOPO 0
       topoOverflow2CTP->setCableWord2( clock, dec.overflow( 1, clock) );  // TOPO 1
    } 
-   CHECK(evtStore()->record( topoDecision2CTP, m_topoCTPLocation ));
-   CHECK(evtStore()->record( topoOverflow2CTP, m_topoOverflowCTPLocation ));
+   
+   CHECK(SG::makeHandle(m_topoCTPLocation)        .record(std::move(topoDecision2CTP)));
+   CHECK(SG::makeHandle(m_topoOverflowCTPLocation).record(std::move(topoOverflow2CTP)));
+   
 
    // TODO: get the output combination data and put into SG
 

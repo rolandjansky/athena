@@ -7,6 +7,8 @@
 #include "PixelRawDataByteStreamCnv/IPixelRodDecoder.h"
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+
 //#define PIXEL_DEBUG
 //#define PLOTS
 

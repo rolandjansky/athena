@@ -205,7 +205,6 @@ private:
   // mutable const Volume*    m_caloEntrance2; 
   mutable const TrackingVolume*    m_msEntrance; 
 
-  bool m_option_allowEmptyROT;
   bool m_signedradius;
   mutable bool m_calomat,m_extmat,m_idmat;
   bool m_fillderivmatrix; 
@@ -236,7 +235,6 @@ private:
   int m_maxit;
   mutable int m_nfits,m_nsuccessfits,m_matrixinvfailed,m_notenoughmeas,m_propfailed,m_invalidangles,m_notconverge,m_highchi2,m_lowmomentum;
   mutable FitterStatusCode m_fittercode;
-  mutable bool m_kinkallowed;
   mutable bool m_acceleration;
   mutable bool m_numderiv; 
   mutable int m_lastiter;
@@ -246,7 +244,6 @@ private:
   MagneticFieldProperties *m_fieldpropnofield;
   MagneticFieldProperties *m_fieldpropfullfield;
   mutable MagneticFieldProperties *m_fieldprop;
-  mutable int m_prefit;
   static std::vector<CLHEP::HepMatrix> m_derivpool;
   mutable TMatrixDSym m_a,m_ainv;
   ParticleMasses   m_particleMasses;

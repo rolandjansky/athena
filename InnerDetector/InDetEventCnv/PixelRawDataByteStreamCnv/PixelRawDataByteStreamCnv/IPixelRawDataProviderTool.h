@@ -9,8 +9,6 @@
 #include "ByteStreamData/RawEvent.h" 
 #include "InDetRawData/PixelRDO_Container.h"
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
-
 // the tool to decode a ROB frament
 class IPixelRawDataProviderTool : virtual public IAlgTool
 {
@@ -24,7 +22,7 @@ class IPixelRawDataProviderTool : virtual public IAlgTool
   virtual ~IPixelRawDataProviderTool(){};
 
   //! this is the main decoding method
-  virtual StatusCode convert( std::vector<const ROBFragment*>& vecRobs,
+  virtual StatusCode convert( std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
 		      PixelRDO_Container*               rdoIdc ) = 0;
 
 };

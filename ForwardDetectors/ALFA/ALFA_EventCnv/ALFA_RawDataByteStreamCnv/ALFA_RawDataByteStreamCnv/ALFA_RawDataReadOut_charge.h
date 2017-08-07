@@ -30,7 +30,6 @@
 // Decoding methods for raw data words 
 // S. Diglio Sept 2009
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 class ALFA_RawDataReadOut_charge : public ALFA_ReadOut {  
 

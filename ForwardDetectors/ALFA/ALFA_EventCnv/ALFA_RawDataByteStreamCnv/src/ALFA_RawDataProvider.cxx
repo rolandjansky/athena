@@ -87,7 +87,7 @@ StatusCode ALFA_RawDataProvider::execute()
 
 
 
-  std::vector<const ROBFragment*> listOfRobf;
+  std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> listOfRobf;
   std::vector<unsigned int> ROBIDs;
   ROBIDs.push_back(0x00840000);
   ROBIDs.push_back(0x00840001);

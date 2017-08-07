@@ -27,22 +27,17 @@ public:
   //@name main methods
   //@{
   /// add defect
-  void fill( const CondAttrListCollection::ChanNum& chanNum , const std::string param);
+  void fill(const CondAttrListCollection::ChanNum& chanNum, const std::string param);
   /// remove a defect
-  void remove( const CondAttrListCollection::ChanNum& chanNum , const std::string param);
+  void remove(const CondAttrListCollection::ChanNum& chanNum, const std::string param);
   /// copy all defects to a users vector, the return value is the size
-  int output( const CondAttrListCollection::ChanNum & chanNum,std::vector< std::string > & usersVector);
-  //@}
-  
-  //@name methods re-instated to satisfy 14.2.2X-VAL compilation
-  //@{
-  void fill( const CondAttrListCollection::ChanNum& chanNum , const int status);//!< dummy, to fix rel 14.2 
-  bool check( const CondAttrListCollection::ChanNum& chanNum , const int status); //!< dummy, to fix rel 14.2 
+  int output(const CondAttrListCollection::ChanNum& chanNum, std::vector<std::string>& usersVector);
+  ///
   int output(const CondAttrListCollection::ChanNum & chanNum);
   //@}
   
 private:
-  typedef std::map<CondAttrListCollection::ChanNum, std::vector< std::string > > DCSConditions;
+  typedef std::map<CondAttrListCollection::ChanNum, std::vector<std::string> > DCSConditions;
   DCSConditions m_bad_channels;
 };
 

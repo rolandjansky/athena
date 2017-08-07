@@ -15,16 +15,12 @@
 #include "GaudiKernel/Property.h"
 
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
-#include "TrigT1Result/RoIBResult.h"
 
-#include "TrigT1CaloEvent/EnergyTopoData.h"
-#include "TrigT1CaloEvent/CPCMXTopoData.h"
-#include "TrigT1CaloEvent/JetCMXTopoDataCollection.h"
 
 // Constructor
 LVL1::RoiB2TopoInputDataCnv::RoiB2TopoInputDataCnv( const std::string& name, 
                                                     ISvcLocator* pSvcLocator ) : 
-   ::AthAlgorithm( name, pSvcLocator ),
+   ::AthReentrantAlgorithm( name, pSvcLocator ),
    datamaker( new LVL1::L1TopoDataMaker() ),
    m_roibLocation( "RoIBResult" ),
    m_emTauLocation( TrigT1CaloDefs::EmTauTopoTobLocation ),
@@ -44,67 +40,57 @@ LVL1::RoiB2TopoInputDataCnv::~RoiB2TopoInputDataCnv()
    delete datamaker;
 }
 
-
-// Athena Algorithm's Hooks
 StatusCode
 LVL1::RoiB2TopoInputDataCnv::initialize()
 {
-   ATH_MSG_INFO ("Initializing " << name() << "...");
-   
+   ATH_CHECK(m_roibLocation.initialize());
+   ATH_CHECK(m_emTauLocation.initialize());
+   ATH_CHECK(m_jetLocation.initialize());
+   ATH_CHECK(m_energyLocation.initialize());
+
    return StatusCode::SUCCESS;
 }
 
 StatusCode
-LVL1::RoiB2TopoInputDataCnv::finalize()
-{
-   ATH_MSG_INFO ("Finalizing " << name() << "...");
-   
-   return StatusCode::SUCCESS;
-}
-
-StatusCode
-LVL1::RoiB2TopoInputDataCnv::execute()
+LVL1::RoiB2TopoInputDataCnv::execute_r (const EventContext& ctx) const
 {  
    ATH_MSG_DEBUG ("Executing " << name() << "...");
    
-   const ROIB::RoIBResult* roibResult{nullptr};
+   SG::ReadHandle<ROIB::RoIBResult> roibResult(m_roibLocation, ctx);
 
-   if( evtStore()->contains<ROIB::RoIBResult>(m_roibLocation) ) {
-      CHECK( evtStore()->retrieve(roibResult, m_roibLocation) );
-   } else {
-      ATH_MSG_WARNING("No RoIBResults with SG key '" << m_roibLocation.toString() << "' found in the event. Can not create any information needed for L1Topo simulation.");
+   if( !roibResult.isValid() ) {
+      ATH_MSG_WARNING("No RoIBResults with SG key '" << m_roibLocation.key() << "' found in the event. Can not create any information needed for L1Topo simulation.");
       return StatusCode::RECOVERABLE;
    }
 
-
+   SG::WriteHandle<DataVector<CPCMXTopoData>> emtauTopoData(m_emTauLocation, ctx);
    // emtau
-   if(evtStore()->contains<DataVector<CPCMXTopoData>>(m_emTauLocation)) {
-      ATH_MSG_WARNING("DataVector<CPCMXTopoData> with SG key '" << m_emTauLocation.toString() << "' already exists in SG, will not create a new one.");
+   if(emtauTopoData.isPresent()) {
+      ATH_MSG_WARNING("DataVector<CPCMXTopoData> with SG key '" << m_emTauLocation.key() << "' already exists in SG, will not create a new one.");
    } else {
-      DataVector<CPCMXTopoData>* emtauTopoData(new DataVector<CPCMXTopoData>());
-      datamaker->makeCPCMXTopoData(roibResult, emtauTopoData);
-      ATH_MSG_DEBUG("Recording DataVector<CPCMXTopoData> with SG key '" << m_emTauLocation.toString() << "'.");
-      CHECK(evtStore()->record( emtauTopoData, m_emTauLocation ));
+      ATH_MSG_DEBUG("Recording DataVector<CPCMXTopoData> with SG key '" << m_emTauLocation.key() << "'.");
+      emtauTopoData.record(std::make_unique< DataVector<CPCMXTopoData> >());
+      datamaker->makeCPCMXTopoData(roibResult.cptr(), emtauTopoData.ptr());
    }
    
    // jet
-   if(evtStore()->contains<DataVector<JetCMXTopoData>>(m_jetLocation)) {
-      ATH_MSG_WARNING("DataVector<JetCMXTopoData> with SG key '" << m_jetLocation.toString() << "' already exists in SG, will not create a new one.");
+   SG::WriteHandle<DataVector<JetCMXTopoData>> jetTopoData(m_jetLocation, ctx);
+   if(jetTopoData.isPresent()) {
+      ATH_MSG_WARNING("DataVector<JetCMXTopoData> with SG key '" << m_jetLocation.key() << "' already exists in SG, will not create a new one.");
    } else {
-      DataVector<JetCMXTopoData>* jetTopoData(new DataVector<JetCMXTopoData>());
-      datamaker->makeJetCMXTopoData(roibResult, jetTopoData);
-      ATH_MSG_DEBUG("Recording DataVector<JetCMXTopoData> with SG key '" << m_jetLocation.toString() << "'.");
-      CHECK(evtStore()->record( jetTopoData, m_jetLocation ));
+      ATH_MSG_DEBUG("Recording DataVector<JetCMXTopoData> with SG key '" << m_jetLocation.key() << "'.");
+      jetTopoData.record(std::make_unique<DataVector<JetCMXTopoData>>());
+      datamaker->makeJetCMXTopoData(roibResult.cptr(), jetTopoData.ptr());
    }
 
    // energy
-   if(evtStore()->contains<EnergyTopoData>(m_energyLocation)) {
-      ATH_MSG_WARNING("EnergyTopoData with SG key '" << m_energyLocation.toString() << "' already exists in SG, will not create a new one.");
+   SG::WriteHandle<EnergyTopoData> energyTopoData(m_energyLocation, ctx);
+   if(energyTopoData.isPresent()) {
+      ATH_MSG_WARNING("EnergyTopoData with SG key '" << m_energyLocation.key() << "' already exists in SG, will not create a new one.");
    } else {
-      EnergyTopoData* energyTopoData(new EnergyTopoData());
-      datamaker->makeEnergyTopoData(roibResult, energyTopoData);
-      ATH_MSG_DEBUG("Recording EnergyTopoData with SG key '" << m_energyLocation.toString() << "'.");
-      CHECK(evtStore()->record( energyTopoData, m_energyLocation ));
+      ATH_MSG_DEBUG("Recording EnergyTopoData with SG key '" << m_energyLocation.key() << "'.");
+      energyTopoData.record(std::make_unique<EnergyTopoData>());
+      datamaker->makeEnergyTopoData(roibResult.cptr(), energyTopoData.ptr());
    }
 
    return StatusCode::SUCCESS;

@@ -197,11 +197,7 @@ StatusCode SiTrackerSpacePointFinder::execute()
   if (m_selectPixels){
 
     spacePointContainerPixel = SG::WriteHandle<SpacePointContainer>( m_SpacePointContainerPixelKey, ctx );
-    spacePointContainerPixel.record( CxxUtils::make_unique<SpacePointContainer>(m_idHelperPixel->wafer_hash_max()) );
-    if (! spacePointContainerPixel.isValid() ){
-      msg(MSG:: FATAL) << "SpacePointContainer " << spacePointContainerPixel.name() << "could not be initialised !"<< endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( spacePointContainerPixel.record( CxxUtils::make_unique<SpacePointContainer>(m_idHelperPixel->wafer_hash_max()) ) );
 
     ATH_MSG_DEBUG( "Container '" << spacePointContainerPixel.name() << "' initialised and recorded in StoreGate" );
   }
@@ -209,22 +205,14 @@ StatusCode SiTrackerSpacePointFinder::execute()
   SG::WriteHandle<SpacePointContainer> spacePointContainer_SCT;
   if (m_selectSCTs){
     spacePointContainer_SCT = SG::WriteHandle<SpacePointContainer>( m_SpacePointContainer_SCTKey, ctx );
-    spacePointContainer_SCT.record( CxxUtils::make_unique<SpacePointContainer>(m_idHelper->wafer_hash_max()) );
-    if (! spacePointContainer_SCT.isValid() ){
-      msg(MSG:: FATAL) << "SpacePointContainer " << spacePointContainer_SCT.name() << "could not be initialised !"<< endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( spacePointContainer_SCT.record( CxxUtils::make_unique<SpacePointContainer>(m_idHelper->wafer_hash_max()) ) );
 
     //m_SpacePointContainer_SCT->addRef();
     ATH_MSG_DEBUG( "Container '" << spacePointContainer_SCT.name() << "' initialised and recorded in StoreGate" );
   }
 
   SG::WriteHandle<SpacePointOverlapCollection> spacepointoverlapCollection( m_spacepointoverlapCollectionKey, ctx );
-  spacepointoverlapCollection.record( CxxUtils::make_unique<SpacePointOverlapCollection>() );
-  if (! spacepointoverlapCollection.isValid() ){
-    msg(MSG:: FATAL) << "SpacePointOverlapCollection " << spacepointoverlapCollection.name() << "could not be initialised !"<< endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( spacepointoverlapCollection.record( CxxUtils::make_unique<SpacePointOverlapCollection>() ) );
 
   //m_spacepointoverlapCollection->addRef();
   ATH_MSG_DEBUG( "Container '" << spacepointoverlapCollection.name() << "' initialised" );

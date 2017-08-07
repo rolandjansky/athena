@@ -37,7 +37,7 @@ public:
   StatusCode initialize();
   StatusCode finalize();
 
-  StatusCode fillCollection  (const ROBFragment *robFrag, PixelRDO_Container* rdoIdc, 
+  StatusCode fillCollection  (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, PixelRDO_Container* rdoIdc, 
 			std::vector<IdentifierHash>* vecHash = NULL);
 
   inline void setDet( const eformat::SubDetector det );

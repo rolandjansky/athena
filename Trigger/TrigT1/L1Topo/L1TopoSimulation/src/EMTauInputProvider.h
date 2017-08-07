@@ -8,7 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "L1TopoSimulation/IInputTOBConverter.h"
 #include "GaudiKernel/IIncidentListener.h"
-
+#include "TrigT1CaloEvent/CPCMXTopoData.h"
 class TH1I;
 class TH2I;
 
@@ -36,7 +36,7 @@ namespace LVL1 {
 
       ServiceHandle<ITHistSvc> m_histSvc;
 
-      StringProperty m_emTauLocation;    //!<  EMTAU ROI SG key
+      SG::ReadHandleKey<DataVector<LVL1::CPCMXTopoData>> m_emTauLocation;    //!<  EMTAU ROI SG key
 
       TH1I * m_hEMEt {nullptr};
       TH2I * m_hEMEtaPhi {nullptr};

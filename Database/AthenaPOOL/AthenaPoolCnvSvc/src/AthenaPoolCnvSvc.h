@@ -194,7 +194,6 @@ private: // data
    ServiceHandle<IAthenaSerializeSvc> m_serializeSvc;
    ToolHandle<IAthenaIPCTool>    m_inputStreamingTool;
    ToolHandleArray<IAthenaIPCTool>    m_outputStreamingTool;
-   mutable std::vector<std::string>   m_streamClientFiles;
    std::size_t     m_streamServer;
 
 private: // properties
@@ -224,6 +223,10 @@ private: // properties
    /// to be printed each event
    StringArrayProperty m_inputPoolAttrPerEvent;
    std::vector<std::vector<std::string> > m_inputAttrPerEvent;
+
+   /// Output FileNames to be associated with Stream Clients
+   StringArrayProperty m_streamClientFilesProp;
+   mutable std::vector<std::string>   m_streamClientFiles;
 
    /// MaxFileSizes, vector with maximum file sizes for Athena POOL output files
    StringArrayProperty m_maxFileSizes;
