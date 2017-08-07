@@ -45,9 +45,13 @@ theApp.EvtMax = 20
 
 
 from DataModelTestDataCommon.DataModelTestDataCommonConf import \
-     DMTest__CondReaderAlg
+     DMTest__CondReaderAlg, DMTest__CondAlg1
 topSequence += DMTest__CondReaderAlg()
 
+
+from AthenaCommon.AlgSequence import AthSequencer             
+condSequence = AthSequencer("AthCondSeq")             
+condSequence += DMTest__CondAlg1()
 
 
 #--------------------------------------------------------------

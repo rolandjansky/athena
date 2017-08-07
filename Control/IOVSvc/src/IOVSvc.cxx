@@ -893,7 +893,7 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
   
   EventIDRange r2 = range;
   
-  if (!ccb->insert( r2, v)) {
+  if (!ccb->typelessInsert (r2, v)) {
     ATH_MSG_ERROR("unable to insert Object at " << v << " into CondCont " 
                   << ccb->id() << " for range " << r2 );
     return StatusCode::FAILURE;
