@@ -17,6 +17,9 @@
 #include "MuonRecToolInterfaces/IMuonTrackTruthTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
+#include "xAODMuon/MuonSegmentContainer.h"
+#include "StoreGate/WriteDecorHandleKey.h"
+
 namespace Muon {
 
 class MuonSegmentTruthAssociationAlg : public AthAlgorithm  {
@@ -34,8 +37,8 @@ private:
   ToolHandle<Muon::MuonIdHelperTool>    m_idHelper;
   ToolHandle<Muon::MuonEDMPrinterTool>  m_printer;
   ToolHandle<Muon::IMuonTrackTruthTool> m_muonTrackTruthTool;
-  std::string m_muonTruthSegmentContainerName;
-  std::string m_muonSegmentCollectionName;
+  SG::WriteDecorHandleKey<xAOD::MuonSegmentContainer> m_muonTruthSegmentContainerName;
+  SG::WriteDecorHandleKey<xAOD::MuonSegmentContainer> m_muonSegmentCollectionName;
   int m_barcodeOffset;
 };
 
