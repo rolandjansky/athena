@@ -261,7 +261,7 @@ void PixelMon2DProfilesLW::FillFromMap(PixelMon2DMapsLW* inputmap, bool clear_in
             } else {
                content *= weightPixel;
             }
-            hist->Fill(map->GetXaxis()->GetBinCenter(x), map->GetYaxis()->GetBinCenter(y), content * weightIBL);
+            hist->Fill(map->GetXaxis()->GetBinCenter(x), map->GetYaxis()->GetBinCenter(y), content);
          }
       }
       if (clear_inputmap) map->Reset();
