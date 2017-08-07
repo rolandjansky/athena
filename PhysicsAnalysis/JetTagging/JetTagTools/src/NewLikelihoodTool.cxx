@@ -215,61 +215,70 @@ namespace Analysis {
     if(h) {
       double norm = h->Integral();
       if(norm) {
-        // check if smoothing of histogram is not vetoed:
-        bool veto = false;
-        for(unsigned int iv=0; iv<m_vetoSmoothingOf.size(); iv++) {
-          if(hname.find(m_vetoSmoothingOf[iv])!=std::string::npos) {
-            veto = true;
-            ATH_MSG_VERBOSE("#BTAG# Smoothing of " << hname << " is vetoed !");
-            break;
-          }
-        }
-        if(1==h->GetDimension() && m_smoothNTimes) {
-          if(!veto) {
-            if(norm>10000)h->Smooth(m_smoothNTimes);
-            else h->Smooth((int)(m_smoothNTimes*100./sqrt(norm)));
-          }
-        }
-        if(2==h->GetDimension()) {
-          int m2d=3;
-          //if(hname.find("#B/")==std::string::npos) m2d=5; //VK oversmoothing!!!
-          if(!veto) {
-	    TH2 * dc_tmp = dynamic_cast<TH2*>(h);
-	    if (dc_tmp) {
-              HistoHelperRoot::smoothASH2D(dc_tmp, m2d, m2d, msgLvl(MSG::DEBUG));
+        //check if the histogram have not been already smoothed and normalized (seen in case of AODFix in derivation mode, does not modify reconstruction mode)
+        if ( fabs(norm - 1.) < 0.00001) {
+          ATH_MSG_VERBOSE("#BTAG# histogram already smoothed and normalized " << hname);
+	}
+        else {
+          // check if smoothing of histogram is not vetoed:
+          bool veto = false;
+          for(unsigned int iv=0; iv<m_vetoSmoothingOf.size(); iv++) {
+            if(hname.find(m_vetoSmoothingOf[iv])!=std::string::npos) {
+              veto = true;
+              ATH_MSG_VERBOSE("#BTAG# Smoothing of " << hname << " is vetoed !");
+              break;
             }
           }
-        }
-        if(3==h->GetDimension()) {
-          int m3d1=3;
-          int m3d3=2;
-          if(!veto) {
-	    TH3 * dc_tmp = dynamic_cast<TH3*>(h);
-	    if (dc_tmp) {
-	      int Nx=dc_tmp->GetNbinsX();
-	      int Ny=dc_tmp->GetNbinsY();
-	      int Nz=dc_tmp->GetNbinsZ();
-	      if(Nz == 7)         //==========Old SV2
-                HistoHelperRoot::smoothASH3D(dc_tmp, m3d1, m3d1, m3d3, msgLvl(MSG::DEBUG));
- 	      else if(Nz == 6){   //==========New SV2Pt
-                double total=dc_tmp->Integral(1,Nx,1,Ny,1,Nz,"");
-	        for(int iz=1; iz<=Nz; iz++){
-                  double content=dc_tmp->Integral(1,Nx,1,Ny,iz,iz,""); if(content==0.)content=Nz;
-		  double dnorm=total/content/Nz;
-	          for(int ix=1; ix<=Nx; ix++){for(int iy=1; iy<=Ny; iy++){
-		    double cbin=dc_tmp->GetBinContent(ix,iy,iz)*dnorm; cbin= cbin>0. ? cbin : 0.1; //Protection against empty bins
-		    dc_tmp->SetBinContent(ix,iy,iz, cbin);
-	          }}
-                }
-                HistoHelperRoot::smoothASH3D(dc_tmp, m3d1, m3d1, m3d3, msgLvl(MSG::DEBUG));
+          if(1==h->GetDimension() && m_smoothNTimes) {
+            if(!veto) {
+              if(norm>10000)h->Smooth(m_smoothNTimes);
+              else h->Smooth((int)(m_smoothNTimes*100./sqrt(norm)));
+            }
+          }
+          if(2==h->GetDimension()) {
+            int m2d=3;
+            //if(hname.find("#B/")==std::string::npos) m2d=5; //VK oversmoothing!!!
+            if(!veto) {
+	      TH2 * dc_tmp = dynamic_cast<TH2*>(h);
+	      if (dc_tmp) {
+                HistoHelperRoot::smoothASH2D(dc_tmp, m2d, m2d, msgLvl(MSG::DEBUG));
               }
             }
           }
-        }
-        // normalize:
-        norm = h->Integral();
-        h->Scale(1./norm);
-      } else {
+          if(3==h->GetDimension()) {
+            int m3d1=3;
+            int m3d3=2;
+            if(!veto) {
+	      TH3 * dc_tmp = dynamic_cast<TH3*>(h);
+	      if (dc_tmp) {
+	        int Nx=dc_tmp->GetNbinsX();
+	        int Ny=dc_tmp->GetNbinsY();
+	        int Nz=dc_tmp->GetNbinsZ();
+	        if(Nz == 7)         //==========Old SV2
+                  HistoHelperRoot::smoothASH3D(dc_tmp, m3d1, m3d1, m3d3, msgLvl(MSG::DEBUG));
+ 	        else if(Nz == 6){   //==========New SV2Pt
+                  double total=dc_tmp->Integral(1,Nx,1,Ny,1,Nz,"");
+	          for(int iz=1; iz<=Nz; iz++){
+                    double content=dc_tmp->Integral(1,Nx,1,Ny,iz,iz,""); if(content==0.)content=Nz;
+		    double dnorm=total/content/Nz;
+	            for(int ix=1; ix<=Nx; ix++) {
+                      for(int iy=1; iy<=Ny; iy++){
+		          double cbin=dc_tmp->GetBinContent(ix,iy,iz)*dnorm; cbin= cbin>0. ? cbin : 0.1; //Protection against empty bins
+		          dc_tmp->SetBinContent(ix,iy,iz, cbin);
+	              }
+                    }
+                  }
+                  HistoHelperRoot::smoothASH3D(dc_tmp, m3d1, m3d1, m3d3, msgLvl(MSG::DEBUG));
+                }
+              }
+            }
+          }
+          // normalize:
+          norm = h->Integral();
+          h->Scale(1./norm);
+        } //end dim not equal to 1 
+      }
+      else {
         ATH_MSG_DEBUG("#BTAG# Histo "<<h<<" is empty!");
       }
     }

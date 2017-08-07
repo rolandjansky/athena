@@ -282,6 +282,7 @@ namespace Analysis
 	if (m_priVtx) {
 	  distnrm=get3DSignificance(m_priVtx, vecVertices,
 				    Amg::Vector3D(jetToTag.p4().Px(),jetToTag.p4().Py(),jetToTag.p4().Pz()));
+          if ( m_isFlipped ) distnrm=-1*distnrm;
 	} else {
 	  ATH_MSG_WARNING("#BTAG# Tagging requested, but no primary vertex supplied.");
 	  distnrm=0.;
