@@ -92,7 +92,7 @@ TCS::MinDeltaPhiIncl2::initialize() {
 TCS::StatusCode
 TCS::MinDeltaPhiIncl2::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
                             const std::vector<TCS::TOBArray *> & output,
-                            Decision & decison )
+                            Decision & decision )
 {
 
    // mindphi 
@@ -140,15 +140,14 @@ TCS::MinDeltaPhiIncl2::processBitCorrect( const std::vector<TCS::TOBArray const 
 
       for(unsigned int i=0; i<numberOutputBits(); ++i) {
           bool accept = mindphi > p_DeltaPhiMin[i] ;
-          const bool fillAccept = (fillHistosBasedOnHardware() ?
-                                   getDecisionHardwareBit(i) :
-                                   accept);
-          const bool fillReject = not fillAccept;
+          const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+          const bool fillReject = fillHistos() and not fillAccept;
+          const bool alreadyFilled = decision.bit(i);
           if( accept ) {
-              decison.setBit(i, true);
+              decision.setBit(i, true);
               output[i]->push_back(TCS::CompositeTOB(*tobmin1, *tobmin2));
           }
-          if(fillAccept){
+          if(fillAccept and not alreadyFilled){
               m_histAcceptMinDPhi2[i]->Fill((float)mindphi*0.10);
           } else if(fillReject){
               m_histRejectMinDPhi2[i]->Fill((float)mindphi*0.10);
@@ -165,7 +164,7 @@ TCS::MinDeltaPhiIncl2::processBitCorrect( const std::vector<TCS::TOBArray const 
 TCS::StatusCode
 TCS::MinDeltaPhiIncl2::process( const std::vector<TCS::TOBArray const *> & input,
                             const std::vector<TCS::TOBArray *> & output,
-                            Decision & decison )
+                            Decision & decision )
 {
 
    // mindphi 
@@ -213,15 +212,14 @@ TCS::MinDeltaPhiIncl2::process( const std::vector<TCS::TOBArray const *> & input
 
       for(unsigned int i=0; i<numberOutputBits(); ++i) {
           bool accept = mindphi > p_DeltaPhiMin[i] ;
-          const bool fillAccept = (fillHistosBasedOnHardware() ?
-                                   getDecisionHardwareBit(i) :
-                                   accept);
-          const bool fillReject = not fillAccept;
+          const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+          const bool fillReject = fillHistos() and not fillAccept;
+          const bool alreadyFilled = decision.bit(i);
           if( accept) {
-              decison.setBit(i, true);
+              decision.setBit(i, true);
               output[i]->push_back(TCS::CompositeTOB(*tobmin1, *tobmin2));
           }
-          if(fillAccept){
+          if(fillAccept and not alreadyFilled){
               m_histAcceptMinDPhi2[i]->Fill((float)mindphi*0.10);
           } else if(fillReject) {
               m_histRejectMinDPhi2[i]->Fill((float)mindphi*0.10);

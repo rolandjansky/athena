@@ -130,17 +130,15 @@ TCS::JetHT::process( const std::vector<TCS::TOBArray const *> & input,
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
 
       bool accept = sumET > p_HT[i];
-      const bool fillAccept = (fillHistosBasedOnHardware() ?
-                               getDecisionHardwareBit(i) :
-                               accept);
-      const bool fillReject = not fillAccept;
-
+      const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+      const bool fillReject = fillHistos() and not fillAccept;
+      const bool alreadyFilled = decision.bit(i);
       decision.setBit( i, accept );
 
       if(accept) {
          output[i]->push_back( CompositeTOB( GenericTOB::createOnHeap( GenericTOB(sumET,0,0) ) ));
       }
-      if(fillAccept) {
+      if(fillAccept and not alreadyFilled) {
           m_histAcceptHT[i]->Fill(sumET);
       } else if(fillReject) {
           m_histRejectHT[i]->Fill(sumET);

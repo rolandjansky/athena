@@ -59,6 +59,13 @@ namespace TCS {
       DecisionAlg& setSkipHistos(const bool &value);
       ///! getter
       bool skipHistos() const;
+      /**
+         @brief whether the monitoring histograms should be filled
+
+         Either we are filling based on the simulated decision,
+         or based on the hdw decision with skipHistos==false.
+      */
+      bool fillHistos() const;
 
    private:
 

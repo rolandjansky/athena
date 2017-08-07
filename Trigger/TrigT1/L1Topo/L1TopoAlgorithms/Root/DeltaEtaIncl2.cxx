@@ -130,10 +130,8 @@ TCS::DeltaEtaIncl2::processBitCorrect( const std::vector<TCS::TOBArray const *> 
                         if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
                         if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
                         accept = deltaEta >= p_DeltaEtaMin[i] && deltaEta <= p_DeltaEtaMax[i];
-                        const bool fillAccept = (fillHistosBasedOnHardware() ?
-                                                 getDecisionHardwareBit(i) :
-                                                 accept);
-                        const bool fillReject = not fillAccept;
+                        const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+                        const bool fillReject = fillHistos() and not fillAccept;
                         const bool alreadyFilled = decision.bit(i);
                         if( accept ) {
                             decision.setBit(i, true);
@@ -175,10 +173,8 @@ TCS::DeltaEtaIncl2::process( const std::vector<TCS::TOBArray const *> & input,
                         if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
                         if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
                         accept = deltaEta >= p_DeltaEtaMin[i] && deltaEta <= p_DeltaEtaMax[i];
-                        const bool fillAccept = (fillHistosBasedOnHardware() ?
-                                                 getDecisionHardwareBit(i) :
-                                                 accept);
-                        const bool fillReject = not fillAccept;
+                        const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+                        const bool fillReject = fillHistos() and not fillAccept;
                         const bool alreadyFilled = decision.bit(i);
                         if( accept ) {
                             decision.setBit(i, true);

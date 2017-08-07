@@ -152,9 +152,8 @@ TCS::InvariantMassInclusive1::processBitCorrect( const std::vector<TCS::TOBArray
                    if( parType_t((*tob2)->Et()) <= min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
                    if( (parType_t((*tob1)->Et()) <= max(p_MinET1[i],p_MinET2[i])) && (parType_t((*tob2)->Et()) <= max(p_MinET1[i],p_MinET2[i]))) continue;
                    accept = invmass2 >= p_InvMassMin[i] && invmass2 <= p_InvMassMax[i]; //
-                   const bool fillHistos = (not fillHistosBasedOnHardware() or not skipHistos());
-                   const bool fillAccept = fillHistos and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
-                   const bool fillReject = fillHistos and not fillAccept;
+                   const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+                   const bool fillReject = fillHistos() and not fillAccept;
                    const bool alreadyFilled = decision.bit(i);
                    if( accept ) {
                        decision.setBit(i, true);
@@ -212,9 +211,8 @@ TCS::InvariantMassInclusive1::process( const std::vector<TCS::TOBArray const *> 
                   if( parType_t((*tob2)->Et()) <= min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
                   if( (parType_t((*tob1)->Et()) <= max(p_MinET1[i],p_MinET2[i])) && (parType_t((*tob2)->Et()) <= max(p_MinET1[i],p_MinET2[i]))) continue;
                   accept = invmass2 >= p_InvMassMin[i] && invmass2 <= p_InvMassMax[i]; // 
-                  const bool fillHistos = (not fillHistosBasedOnHardware() or not skipHistos());
-                  const bool fillAccept = fillHistos and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
-                  const bool fillReject = fillHistos and not fillAccept;
+                  const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+                  const bool fillReject = fillHistos() and not fillAccept;
                   const bool alreadyFilled = decision.bit(i);
                   if( accept ) {
                       decision.setBit(i, true);
