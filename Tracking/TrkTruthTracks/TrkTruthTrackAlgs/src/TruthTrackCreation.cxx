@@ -24,24 +24,19 @@
 Trk::TruthTrackCreation::TruthTrackCreation(const std::string& name, ISvcLocator* pSvcLocator)
     :
     AthAlgorithm(name,pSvcLocator),
-    m_outputTrackCollectionName("TruthTracks"),
-    m_skippedTrackCollectionName("SkippedTruthTracks"),
     m_prdTruthTrajectoryBuilder("Trk::PRD_TruthTrajectoryBuilder/InDetPRD_TruthTrajectoryBuilder"),
     m_truthTrackBuilder("Trk::TruthTrackBuilder/InDetTruthTrackBuilder"),
     m_assoTool(""),
     m_trackSummaryTool("")
 {
     // Trk Truth Tools
-    declareProperty("PRD_TruthTrajectoryBuilder",   m_prdTruthTrajectoryBuilder);
-    declareProperty("TruthTrackBuilder",            m_truthTrackBuilder);
-    declareProperty("PRD_TruthTrajectorySelectors", m_prdTruthTrajectorySelectors);
+  declareProperty("PRD_TruthTrajectoryBuilder",   m_prdTruthTrajectoryBuilder, "Truth Trajectory Builder Tool");
+  declareProperty("TruthTrackBuilder",            m_truthTrackBuilder, "Truth Track Builder Tool");
+  declareProperty("PRD_TruthTrajectorySelectors", m_prdTruthTrajectorySelectors, "PRD truth trajectory selectors");
     // Trk Tools
-    declareProperty("TrackSelectors",               m_trackSelectors);
-    declareProperty("AssoTool",                     m_assoTool);
-    declareProperty("TrackSummaryTool",             m_trackSummaryTool);
-    // specify the output collection
-    declareProperty("OutputTrackCollection",        m_outputTrackCollectionName);
-    declareProperty("OutputSkippedTrackCollection", m_skippedTrackCollectionName);
+  declareProperty("TrackSelectors",               m_trackSelectors, "Track selectors for a posteriori track selection");
+  declareProperty("AssoTool",                     m_assoTool, "Association tool for PRDs");
+  declareProperty("TrackSummaryTool",             m_trackSummaryTool, "Summary tool for completing the track with its summary info");
 }
 
 //================ Destructor =================================================

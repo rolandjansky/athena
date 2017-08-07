@@ -60,8 +60,8 @@ namespace Trk
 
     private:
 
-        SG::WriteHandleKey<TrackCollection>                       m_outputTrackCollectionName;      //!< output collection for truth tracks
-        SG::WriteHandleKey<TrackCollection>                       m_skippedTrackCollectionName;     //!< output collection for skipped tracks
+       Gaudi::Property<SG::WriteHandleKey<TrackCollection>> m_outputTrackCollectionName{this, "OutputTrackCollection", "TruthTracks", "Output Truth Track Collection"};
+       Gaudi::Property<SG::WriteHandleKey<TrackCollection>> m_skippedTrackCollectionName{this, "OutputSkippedTrackCollection", "SkippedTruthTracks", "Output Skipped Truth Track Collection"};    
                                                 
         ToolHandle<Trk::IPRD_TruthTrajectoryBuilder>        m_prdTruthTrajectoryBuilder;      //!< truth tools
         ToolHandle<Trk::ITruthTrackBuilder>                 m_truthTrackBuilder;              //!< truth tools
