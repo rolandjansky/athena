@@ -30,6 +30,69 @@ StatusCode HLTTauMonTool::proc()
 	      }
         }
 */
+
+		//Efficiency Ratio plots
+		// attempt to compare the efficiency of the FTK vs the NOMINAL chains through the _proc file
+		// many problems in the handling of the TProfiles/Histograms
+		/*
+		if (m_doEfficiencyRatioPlots && effRatioChains_Active)
+		{
+		 	//addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/HLTefficiency/EffRatios_FTKvsNonFTK",run));
+			setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency/EffRatios_FTKvsNonFTK");
+
+			std::string TProfName = "TProfRecoHLTPtEfficiency";
+			//TProfile * num  = new TProfile;
+			//TProfile * den  = new TProfile;
+			//TProfile * div  = new TProfile;
+			for(unsigned int i=0; i<3; i++)
+			{	
+				std::string FTK_chain = m_LST_HLTsel_FTK_chains.at(i);
+				std::string trackTwo_chain = m_LST_HLTsel_tracktwo_chains.at(i);
+				std::string ratio_name = m_Ratio.at(i);
+				std::string TProfFolderFTK = "HLT/TauMon/Expert/"+m_LST_HLTsel_FTK_chains.at(i)+"/TurnOnCurves/RecoEfficiency";
+				std::string TProfFoldertracktwo = "HLT/TauMon/Expert/"+m_LST_HLTsel_tracktwo_chains.at(i)+"/TurnOnCurves/RecoEfficiency";
+
+				//cloneProfileSlnt("TProfRecoHLTPtEfficiency", "HLT/TauMon/Expert/"+FTK_chain+"/TurnOnCurves/RecoEfficiency", FTK_chain);
+				std::string TProfNameFTK_slnt( profile(TProfName, TProfFolderFTK)->GetName() );
+				TProfNameFTK_slnt += "_"+FTK_chain;				
+				//addProfile( (TProfile*)profile(TProfName,TProfFolderFTK)->Clone( TProfNameFTK_slnt.c_str() ) );
+
+				//cloneProfileSlnt("TProfRecoHLTPtEfficiency", "HLT/TauMon/Expert/"+trackTwo_chain+"/TurnOnCurves/RecoEfficiency", trackTwo_chain);
+				//cloneProfileSlnt("TProfRecoHLTPtEfficiency", "HLT/TauMon/Expert/tau25_idperf_tracktwo/TurnOnCurves/RecoEfficiency", "tau25_idperf_tracktwo");
+				std::string TProfNameTrackTwo_slnt( profile(TProfName, TProfFoldertracktwo)->GetName() );
+				TProfNameTrackTwo_slnt += "_"+trackTwo_chain;				
+				//addProfile( (TProfile*)profile(TProfName,TProfFoldertracktwo)->Clone( TProfNameTrackTwo_slnt.c_str() ) );
+
+				//hist("hRecoHLTPtEfficiencyRatio_idperf_numFTK")->Clone ( profile(TProfNameFTK_slnt,TProfFolderFTK)->ProjectionX() );
+				//TH1D* hRecoHLTPtEfficiencyRatio_idperf_numFTK = profile(TProfNameFTK_slnt,TProfFolderFTK)->ProjectionX();
+				getTProfXaxis(TProfNameFTK_slnt, TProfFolderFTK, "hRecoHLTPtEfficiencyRatio_idperf_numFTK", "HLT/TauMon/Expert/HLTefficiency/EffRatios_FTKvsNonFTK");
+
+				//hist("hRecoHLTPtEfficiencyRatio_idperf__denTrackTwo") ->Clone ( profile(TProfNameTrackTwo_slnt,TProfFoldertracktwo)->ProjectionX() );
+				//TH1D* hRecoHLTPtEfficiencyRatio_idperf_denTrackTwo = profile(TProfNameTrackTwo_slnt,TProfFolderFTK)->ProjectionX();
+				//getTProfXaxis("hRecoHLTPtEfficiencyRatio_idperf_denTrackTwo", TProfNameTrackTwo_slnt);
+
+			    //const int nbin_pt = 13;
+				//double bins_pt[nbin_pt] = {20.,25.,30.,35.,40.,45.,50.,60.,70.,80.,100.,150.,200.};
+				//TH1D* hRecoHLTPtEfficiencyRatio_idperf;
+				//hist("hRecoHLTPtEfficiencyRatio_idperf_numFTK")->Clone("hRecoHLTPtEfficiencyRatio_idperf");
+				//hist("hRecoHLTPtEfficiencyRatio_idperf")->Divide(hRecoHLTPtEfficiencyRatio_idperf_denTrackTwo);
+				//addHistogram( (TH1D*)hist("hRecoHLTPtEfficiencyRatio_idperf","HLT/TauMon/Expert/HLTefficiency/EffRatios_FTKvsNonFTK")->Clone( "hRecoHLTPtEfficiencyRatio_idperf" ) );
+				//divide("hRecoHLTPtEfficiencyRatio_idperf_numFTK","hRecoHLTPtEfficiencyRatio_idperf_denTrackTwo","hRecoHLTPtEfficiencyRatio_idperf","HLT/TauMon/Expert/HLTefficiency/EffRatios_FTKvsNonFTK");
+
+				//cloneProfileSlnt("TProfRecoHLTPtEfficiency", "HLT/TauMon/Expert/"+FTK_chain+"/TurnOnCurves/RecoEfficiency");
+				//divideTProf(profile("TProfRecoHLTPtEfficiency"+FTK_chain+ratio_name), profile("TProfRecoHLTPtEfficiency"+trackTwo_chain+ratio_name), profile("TProfRecoHLTPtEfficiencyRatio_"+ratio_name));
+				/*
+				setCurrentMonGroup("HLT/TauMon/Expert/"+FTK_chain+"/TurnOnCurves/RecoEfficiency");
+				setCurrentMonGroup("HLT/TauMon/Expert/"+trackTwo_chain+"/TurnOnCurves/RecoEfficiency");
+				den = profile("TProfRecoHLTPtEfficiency");
+				setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency/EffRatios_FTKvsNonFTK");
+				div = profile("TProfRecoHLTPtEfficiencyRatio");
+				num->Copy(*div);
+				divideTProf(num, den, div);
+				div->Divide(den);	// divide the new TProfile by the denominator
+				*/
+			//}
+		//} // end of Efficiency Ratio plots
 	
         for(unsigned int i=0;i<m_trigItems.size();++i)
 	  {
@@ -469,14 +532,14 @@ StatusCode HLTTauMonTool::proc()
 
 	}
 
-    	for(unsigned int i=0;i<m_topo_chains.size(); ++i){ 
-        	setCurrentMonGroup("HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains.at(i));  
+    	for(unsigned int i=0;i<m_topo_chains_ditau.size(); ++i){ 
+        	setCurrentMonGroup("HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains_ditau.at(i));  
 		plotUnderOverFlow(hist("hHLTdR"));  
     	}
 
 	if(m_doTopoValidation){
-		for(unsigned int topo=0;topo<m_topo_chains.size();topo++){
-			setCurrentMonGroup("HLT/TauMon/Expert/TopoValidation/"+m_topo_chains.at(topo));
+		for(unsigned int topo=0;topo<m_topo_chains_ditau.size();topo++){
+			setCurrentMonGroup("HLT/TauMon/Expert/TopoValidation/"+m_topo_chains_ditau.at(topo));
 			plotUnderOverFlow(hist("hDR"));	
 			plotUnderOverFlow(hist("hDRjets"));
 			plotUnderOverFlow(hist("hDRnoJets"));
@@ -666,9 +729,9 @@ StatusCode HLTTauMonTool::proc()
 	    cloneHistogram("hL1Counts","HLT/TauMon/Expert");
 	    cloneHistogram("hHLTCounts","HLT/TauMon/Expert");
 	    if(m_emulation) cloneProfile("hL1Emulation","HLT/TauMon/Expert/Emulation");
-            for(unsigned int j=0;j<m_topo_chains.size(); ++j){
-		setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_names.at(i)+"/OtherPlots/"+m_topo_chains.at(j));
-		cloneProfile("TProfRecoL1_dREfficiency","HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains.at(j));	
+            for(unsigned int j=0;j<m_topo_chains_ditau.size(); ++j){
+		setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_names.at(i)+"/OtherPlots/"+m_topo_chains_ditau.at(j));
+		cloneProfile("TProfRecoL1_dREfficiency","HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains_ditau.at(j));	
             }
 	    
             

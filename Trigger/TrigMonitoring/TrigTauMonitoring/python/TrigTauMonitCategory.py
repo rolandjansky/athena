@@ -34,7 +34,6 @@ monitoring_tau = [
     'tau35_medium1_tracktwo_tau25_medium1_tracktwo',
     'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM',
     'mu14_iloose_tau25_perf_tracktwo',
-    'tau160_idperf_track',
     'tau160_idperf_tracktwo_L1TAU100', # TES change. 'tau160_idperf_tracktwo',
     'tau160_perf_tracktwo_L1TAU100', # TES change. 'tau160_perf_tracktwo',
     'tau160_medium1_tracktwo_L1TAU100', # TES change. 'tau160_medium1_tracktwo',
@@ -55,7 +54,7 @@ monitoring_tau_pp = [
     'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM',  #keep this as reference for the L1Topo plots
     'tau35_medium1_tracktwo_xe70_L1XE45', # tau+xe
     'tau35_medium1_L1TAU20_tau25_medium1_L1TAU12_xe50', # 2tau+xe
-    'tau40_medium1_tracktwo_tau35_medium1_tracktwo', # tau+mu, high ET
+    #'tau40_medium1_tracktwo_tau35_medium1_tracktwo', # tau+mu, high ET
     'tau80_medium1_tracktwo_L1TAU60_tau50_medium1_tracktwo_L1TAU12', # 2tau 
     'tau80_medium1_tracktwo_L1TAU60_tau60_medium1_tracktwo_L1TAU40', # 2tau 
     'tau160_idperf_tracktwo_L1TAU100', # TES change. 'tau160_idperf_tracktwo',
@@ -73,19 +72,19 @@ monitoring_tau_pp = [
     'tau25_idperf_tracktwo_L1TAU12IM_FTK',
     'tau25_perf_tracktwo_L1TAU12IM_FTK',
     'tau25_medium1_tracktwo_L1TAU12IM_FTK',
-    'mu14_ivarloose_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12I-J25', # tau+mu L1TOPO
-    'mu14_ivarloose_tau25_medium1_tracktwo_L1MU10_TAU20IM_J25_2J20', # tau+mu non-L1TOPO
-    'mu14_ivarloose_tau35_medium1_tracktwo', # tau+mu, high ET
-    'mu14_ivarloose_tau25_medium1_tracktwo_xe50', # tau+mu+xe
+    #'mu14_ivarloose_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12I-J25', # tau+mu L1TOPO
+    #'mu14_ivarloose_tau25_medium1_tracktwo_L1MU10_TAU20IM_J25_2J20', # tau+mu non-L1TOPO
+    #'mu14_ivarloose_tau35_medium1_tracktwo', # tau+mu, high ET
+    #'mu14_ivarloose_tau25_medium1_tracktwo_xe50', # tau+mu+xe
     #'e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25', # tau+e+J L1TOPO
-    'e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo', # tau+e+J non-L1TOPO
-    'e24_lhmedium_nod0_ivarloose_tau35_medium1_tracktwo', # tau+e, high ET
-    'e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_xe50' # tau+e+xe
+    #'e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo', # tau+e+J non-L1TOPO
+    #'e24_lhmedium_nod0_ivarloose_tau35_medium1_tracktwo', # tau+e, high ET
+    #'e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_xe50' # tau+e+xe
 ]
 # removed monitoring_tau_pp chains:
 #    'tau0_perf_ptonly_L1TAU60',
 #    'mu14_iloose_tau25_perf_tracktwo',   # need to move to the ivarloose chain
-#    'tau160_idperf_track',
+#    'tau160_idperf_track', # no longer used
 # moved to tau_topo_chains
     #'tau35_medium1_tracktwo_tau25_medium1_tracktwo', # 2tau non-L1TOPO    -- moved to tau_topo_chains
     #'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I-J25', # 2tau L1TOPO+J    -- moved to tau_topo_chains
@@ -122,7 +121,6 @@ monitoring_tau_validation = [
     'tau125_medium1_tracktwo',
     'tau125_perf_tracktwo',
     'tau125_perf_ptonly',
-    'tau160_idperf_track',
     'tau160_idperf_tracktwo_L1TAU100', # 'tau160_idperf_tracktwo',
     'tau160_perf_tracktwo_L1TAU100', # 'tau160_perf_tracktwo',
     'tau160_medium1_tracktwo',
