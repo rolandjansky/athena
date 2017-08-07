@@ -447,10 +447,6 @@ void MagField::AtlasFieldSvc::getField(const double *xyz, double *bxyz, double *
       bxyz[0] = bxyz[1] = bxyz[2] = defaultB;
       // return zero gradient if requested
       if ( deriv ) for ( int i = 0; i < 9; i++ ) deriv[i] = 0.;
-      // check NaN in input
-      if ( x!=x || y!=y || z!=z ) {
-        ATH_MSG_WARNING( "getFieldStandard was called for xyz = " << x << "," << y << "," << z );
-      }
       return;
     }
   }
