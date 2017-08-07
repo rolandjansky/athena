@@ -3,7 +3,7 @@
 */
 
 //============================================================================
-// BPhysMetadataBase.h, (c) ATLAS Detector software
+// BPhysMetadataBase.h
 //============================================================================
 // 
 // Author : Wolfgang Walkowiak <Wolfgang.Walkowiak@cern.ch.>

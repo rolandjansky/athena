@@ -3,7 +3,7 @@
 */
 
 //============================================================================
-// BVertexClosestTrackTool.cxx, (c) ATLAS Detector software
+// BVertexClosestTrackTool.cxx
 //============================================================================
 // 
 // Author : Wolfgang Walkowiak <Wolfgang.Walkowiak@cern.ch.>

@@ -3,7 +3,7 @@
 */
 
 //============================================================================
-// CfAthAlgTool.h, (c) ATLAS Detector software
+// CfAthAlgTool.h
 //============================================================================
 // 
 // Author : Wolfgang Walkowiak <Wolfgang.Walkowiak@cern.ch.>

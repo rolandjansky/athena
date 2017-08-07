@@ -3,7 +3,7 @@
 */
 
 //============================================================================
-// BVertexTrackIsoTool.h, (c) ATLAS Detector software
+// BVertexTrackIsoTool.h
 //============================================================================
 // 
 // Author : Wolfgang Walkowiak <Wolfgang.Walkowiak@cern.ch.>

@@ -3,7 +3,7 @@
 */
 
 //============================================================================
-// BTrackVertexMapLogger.cxx, (c) ATLAS Detector software
+// BTrackVertexMapLogger.cxx
 //============================================================================
 // 
 // Author : Wolfgang Walkowiak <Wolfgang.Walkowiak@cern.ch.>

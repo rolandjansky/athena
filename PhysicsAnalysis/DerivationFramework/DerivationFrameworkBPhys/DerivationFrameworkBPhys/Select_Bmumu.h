@@ -3,7 +3,7 @@
 */
 
 //============================================================================
-// Select_Bmumu.h, (c) ATLAS Detector software
+// Select_Bmumu.h
 //============================================================================
 // 
 // Author : Wolfgang Walkowiak <Wolfgang.Walkowiak@cern.ch.>

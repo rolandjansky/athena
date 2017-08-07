@@ -3,7 +3,7 @@
 */
 
 //============================================================================
-// BMuonTrackIsoTool.h, (c) ATLAS Detector software
+// BMuonTrackIsoTool.h
 //============================================================================
 // 
 // Author : Wolfgang Walkowiak <Wolfgang.Walkowiak@cern.ch.>

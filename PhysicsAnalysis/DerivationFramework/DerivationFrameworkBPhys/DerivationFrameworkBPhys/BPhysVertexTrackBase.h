@@ -3,7 +3,7 @@
 */
 
 //============================================================================
-// BPhysVertexTrackBase.h, (c) ATLAS Detector software
+// BPhysVertexTrackBase.h
 //============================================================================
 // 
 // Author : Wolfgang Walkowiak <Wolfgang.Walkowiak@cern.ch.>

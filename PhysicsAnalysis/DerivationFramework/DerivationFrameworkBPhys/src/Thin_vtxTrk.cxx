@@ -3,7 +3,7 @@
 */
 
 /////////////////////////////////////////////////////////////////
-// Thin_vtxTrk.cxx, (c) ATLAS Detector software
+// Thin_vtxTrk.cxx
 ///////////////////////////////////////////////////////////////////
 // Author: James Catmore (James.Catmore@cern.ch)
 // This is a trivial example of an implementation of a thinning tool
