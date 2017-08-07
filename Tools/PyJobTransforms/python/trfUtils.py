@@ -309,7 +309,7 @@ def lineByLine(filename, strip = True, removeTimestamp = True):
     for line in f:
         linecounter += 1
         if removeTimestamp:
-            line = line.lstrip('0123456789:')
+            line = line.lstrip('0123456789:-, ') # Remove timestamps in both serial and MP mode.
         if strip:
             line = line.strip()
         yield line, linecounter
