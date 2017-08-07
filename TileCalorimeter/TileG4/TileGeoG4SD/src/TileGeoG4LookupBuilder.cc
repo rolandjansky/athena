@@ -26,12 +26,12 @@
 #include "G4ios.hh"
 
 TileGeoG4LookupBuilder::TileGeoG4LookupBuilder(StoreGateSvc* pDetStore, const int verboseLevel)
-    : m_tileID(0),
-      m_dbManager(0),
-      m_cellMap(0),
-      m_sectionMap(0),
-      m_isE5(false),
-      m_verboseLevel(verboseLevel) {
+  : m_tileID(0),
+    m_dbManager(0),
+    m_cellMap(0),
+    m_sectionMap(0),
+    m_isE5(false),
+    m_verboseLevel(verboseLevel) {
 
   const DataHandle<GeoModelExperiment> theExpt;
   StatusCode sc = pDetStore->retrieve(theExpt, "ATLAS");
@@ -53,7 +53,7 @@ TileGeoG4LookupBuilder::TileGeoG4LookupBuilder(StoreGateSvc* pDetStore, const in
     G4cout << "ERROR: Unable to retrieve TileID helper from DetectorStore" << G4endl;
     abort();
   }
-}
+    }
 
 TileGeoG4LookupBuilder::~TileGeoG4LookupBuilder() {
   delete m_cellMap;
@@ -73,13 +73,13 @@ void TileGeoG4LookupBuilder::BuildLookup(bool is_tb) {
   m_cellMap->clear();
 
   /*
-   // Debug printings
-   TileGeoG4SectionMap::const_iterator first = m_sectionMap->begin();
-   TileGeoG4SectionMap::const_iterator last = m_sectionMap->end();
-   for(;first!=last;first++)
-   first->second->PrintScinToCell("");
-   // ---------------- Debug printings
-   */
+  // Debug printings
+  TileGeoG4SectionMap::const_iterator first = m_sectionMap->begin();
+  TileGeoG4SectionMap::const_iterator last = m_sectionMap->end();
+  for(;first!=last;first++)
+  first->second->PrintScinToCell("");
+  // ---------------- Debug printings
+  */
 }
 
 TileGeoG4Section* TileGeoG4LookupBuilder::GetSection(TileDddbManager::TileSections key) const {
@@ -165,56 +165,56 @@ void TileGeoG4LookupBuilder::CreateGeoG4Cells() {
 
     //Create cell name depending of the detector and sample
     switch (static_cast<int>(m_dbManager->TICLdetector())) {
-      case 1:  // Central Barrel
+    case 1:  // Central Barrel
       {
         if (static_cast<int>(m_dbManager->TICLsample()) == 1) {
           cellPrefix = "A";
           if (m_dbManager->TICLncell() < 0)
-          cellPrefix += "neg";
+            cellPrefix += "neg";
           else
-          cellPrefix += "pos";
+            cellPrefix += "pos";
         } else if (static_cast<int>(m_dbManager->TICLsample()) == 2) {
           cellPrefix = "BC";
           if (m_dbManager->TICLncell() < 0)
-          cellPrefix += "neg";
+            cellPrefix += "neg";
           else
-          cellPrefix += "pos";
+            cellPrefix += "pos";
         } else if (static_cast<int>(m_dbManager->TICLsample()) == 3) {
           cellPrefix = "D";
           if (m_dbManager->TICLncell() < 0)
-          cellPrefix += "neg";
+            cellPrefix += "neg";
           else if (m_dbManager->TICLncell() > 0)
-          cellPrefix += "pos";
+            cellPrefix += "pos";
         }
         break;
       }
-      case 2:  // Extended Barrel
+    case 2:  // Extended Barrel
       {
         if (static_cast<int>(m_dbManager->TICLsample()) == 1)
-        cellPrefix = "A";
+          cellPrefix = "A";
         else if (static_cast<int>(m_dbManager->TICLsample()) == 2)
-        cellPrefix = "B";
+          cellPrefix = "B";
         else if (static_cast<int>(m_dbManager->TICLsample()) == 3)
-        cellPrefix = "D";
+          cellPrefix = "D";
         break;
       }
-      case 3:  // ITC
+    case 3:  // ITC
       {
         if (static_cast<int>(m_dbManager->TICLsample()) == 2)
-        cellPrefix = "C";
+          cellPrefix = "C";
         else if (static_cast<int>(m_dbManager->TICLsample()) == 3)
-        cellPrefix = "D";
+          cellPrefix = "D";
         break;
       }
-      case 4:  // Gap/Crack
+    case 4:  // Gap/Crack
       {
         cellPrefix = "E";
         break;
       }
-      default: {
-        G4cout << "ERROR: CreateGeoG4Cells() - Unexpected detector ---> " << m_dbManager->TICLdetector() << G4endl;
-        abort();
-      }
+    default: {
+      G4cout << "ERROR: CreateGeoG4Cells() - Unexpected detector ---> " << m_dbManager->TICLdetector() << G4endl;
+      abort();
+    }
     }
 
     sprintf(buff, "%i", abs(static_cast<int>(m_dbManager->TICLncell())));
@@ -236,16 +236,16 @@ void TileGeoG4LookupBuilder::CreateGeoG4Cells() {
 
     int mtower = std::min(abs(cell->tower), 16);
     if (cell->tower < 0)
-    mtower *= -1;
+      mtower *= -1;
     Identifier cell_id = m_tileID->cell_id(std::min(cell->detector, 3), (int)copysign(1.1, mtower), 0, abs(mtower) - 1, cell->sample - 1);
     CaloDetDescrElement * caloDDE = m_theManager->get_cell_element(cell_id);
     cell->sinTh = caloDDE->sinTh();
     cell->r = caloDDE->r();
     if (m_verboseLevel > 5)
-    G4cout << "  Cell " << nameCell
-           << ": cell_id=" << m_tileID->to_string(cell_id, -2)
-           << "  r=" << cell->r
-           << "  sinTh=" << cell->sinTh << G4endl;
+      G4cout << "  Cell " << nameCell
+             << ": cell_id=" << m_tileID->to_string(cell_id, -2)
+             << "  r=" << cell->r
+             << "  sinTh=" << cell->sinTh << G4endl;
 
     //added by Sergey
     TileCellDim* cellDim = m_theManager->get_cell_dim(cell_id);
@@ -273,23 +273,23 @@ void TileGeoG4LookupBuilder::CreateGeoG4Cells() {
       cell->sinTh = sin(theta);
       cell->r = z * tan(theta);
       if (m_verboseLevel > 5)
-      G4cout << "  Cell " << nameCell << " corrected values: "
-             << "  r=" << cell->r
-             << "  sinTh=" << cell->sinTh
-             << "  z=" << z
-             << "  eta=" << eta << G4endl;
+        G4cout << "  Cell " << nameCell << " corrected values: "
+               << "  r=" << cell->r
+               << "  sinTh=" << cell->sinTh
+               << "  z=" << z
+               << "  eta=" << eta << G4endl;
     }
 
     // (*m_log)<< MSG::DEBUG <<" Zmin="<<_cell->zMin<<"  Zmax="<<_cell->zMax
     // <<"  Zmin2="<<_cell->zMin2<<"  Zmax2="<<_cell->zMax2<<endreq;
 
     for (i = 0; i <= (cell->lastRow - cell->firstRow); i++)
-    cell->nrOfTilesInRow.push_back(static_cast<int>(m_dbManager->TICLntilesrow(i)));
+      cell->nrOfTilesInRow.push_back(static_cast<int>(m_dbManager->TICLntilesrow(i)));
 
     cell->nrOfPMT = static_cast<int>(m_dbManager->TICLnpmt());
 
     for (i = 0; i < cell->nrOfPMT; i++)
-    cell->holes.push_back(static_cast<int>(m_dbManager->TICLholes(i)));
+      cell->holes.push_back(static_cast<int>(m_dbManager->TICLholes(i)));
 
     // Put it there...
     m_cellMap->operator[](nameCell) = cell;
@@ -322,7 +322,7 @@ void TileGeoG4LookupBuilder::CreateGeoG4Sections(bool is_tb) {
 
   int nSections = (is_tb) ? 4 : m_dbManager->GetNumTilb();
   if (m_dbManager->GetNumberOfEnv() == 1)
-  nSections = 1;
+    nSections = 1;
   nSections = std::min(6, nSections);
 
   int nModules = (is_tb) ? 3 : 64;
@@ -335,151 +335,151 @@ void TileGeoG4LookupBuilder::CreateGeoG4Sections(bool is_tb) {
     key = TileDddbManager::TileSections(counter);
 
     switch (key) {
-      case TileDddbManager::TILE_BARREL: {
-        // Collect all cells for this section
-        // SAMPLE A
-        cellPrefix = "Aneg";
-        for (j = 10; j > 0; j--) {
-          sprintf(buff, "%i", j);
-          cellName = cellPrefix + std::string(buff);
-          sectionCells.push_back(m_cellMap->operator[](cellName));
-        }
-        cellPrefix = "Apos";
-        for (j = 1; j < 11; j++) {
-          sprintf(buff, "%i", j);
-          cellName = cellPrefix + std::string(buff);
-          sectionCells.push_back(m_cellMap->operator[](cellName));
-        }
-
-        //SAMPLE BC
-        cellPrefix = "BCneg";
-        for (j = 9; j > 0; j--) {
-          sprintf(buff, "%i", j);
-          cellName = cellPrefix + std::string(buff);
-          sectionCells.push_back(m_cellMap->operator[](cellName));
-        }
-        cellPrefix = "BCpos";
-        for (j = 1; j < 10; j++) {
-          sprintf(buff, "%i", j);
-          cellName = cellPrefix + std::string(buff);
-          sectionCells.push_back(m_cellMap->operator[](cellName));
-        }
-
-        //SAMPLE D
-        cellPrefix = "Dneg";
-        for (j = 3; j > 0; j--) {
-          sprintf(buff, "%i", j);
-          cellName = cellPrefix + std::string(buff);
-          sectionCells.push_back(m_cellMap->operator[](cellName));
-        }
-        cellName = "D0";
+    case TileDddbManager::TILE_BARREL: {
+      // Collect all cells for this section
+      // SAMPLE A
+      cellPrefix = "Aneg";
+      for (j = 10; j > 0; j--) {
+        sprintf(buff, "%i", j);
+        cellName = cellPrefix + std::string(buff);
         sectionCells.push_back(m_cellMap->operator[](cellName));
-        cellPrefix = "Dpos";
-        for (j = 1; j < 4; j++) {
-          sprintf(buff, "%i", j);
-          cellName = cellPrefix + std::string(buff);
-          sectionCells.push_back(m_cellMap->operator[](cellName));
-        }
-        if (m_verboseLevel>5)
+      }
+      cellPrefix = "Apos";
+      for (j = 1; j < 11; j++) {
+        sprintf(buff, "%i", j);
+        cellName = cellPrefix + std::string(buff);
+        sectionCells.push_back(m_cellMap->operator[](cellName));
+      }
+
+      //SAMPLE BC
+      cellPrefix = "BCneg";
+      for (j = 9; j > 0; j--) {
+        sprintf(buff, "%i", j);
+        cellName = cellPrefix + std::string(buff);
+        sectionCells.push_back(m_cellMap->operator[](cellName));
+      }
+      cellPrefix = "BCpos";
+      for (j = 1; j < 10; j++) {
+        sprintf(buff, "%i", j);
+        cellName = cellPrefix + std::string(buff);
+        sectionCells.push_back(m_cellMap->operator[](cellName));
+      }
+
+      //SAMPLE D
+      cellPrefix = "Dneg";
+      for (j = 3; j > 0; j--) {
+        sprintf(buff, "%i", j);
+        cellName = cellPrefix + std::string(buff);
+        sectionCells.push_back(m_cellMap->operator[](cellName));
+      }
+      cellName = "D0";
+      sectionCells.push_back(m_cellMap->operator[](cellName));
+      cellPrefix = "Dpos";
+      for (j = 1; j < 4; j++) {
+        sprintf(buff, "%i", j);
+        cellName = cellPrefix + std::string(buff);
+        sectionCells.push_back(m_cellMap->operator[](cellName));
+      }
+      if (m_verboseLevel>5)
         G4cout << " TILE_BARREL: samples A, BC, D are filled" << G4endl;
-        break;
+      break;
+    }
+    case TileDddbManager::TILE_EBARREL: {
+      // Collect all cells for this section
+      // SAMPLE A
+      cellPrefix = "A";
+      for (j = 12; j < 17; j++) {
+        sprintf(buff, "%i", j);
+        cellName = cellPrefix + std::string(buff);
+        sectionCells.push_back(m_cellMap->operator[](cellName));
       }
-      case TileDddbManager::TILE_EBARREL: {
-        // Collect all cells for this section
-        // SAMPLE A
-        cellPrefix = "A";
-        for (j = 12; j < 17; j++) {
-          sprintf(buff, "%i", j);
-          cellName = cellPrefix + std::string(buff);
-          sectionCells.push_back(m_cellMap->operator[](cellName));
-        }
 
-        // SAMPLE B
-        cellPrefix = "B";
-        for (j = 11; j < 16; j++) {
-          sprintf(buff, "%i", j);
-          cellName = cellPrefix + std::string(buff);
-          sectionCells.push_back(m_cellMap->operator[](cellName));
-        }
+      // SAMPLE B
+      cellPrefix = "B";
+      for (j = 11; j < 16; j++) {
+        sprintf(buff, "%i", j);
+        cellName = cellPrefix + std::string(buff);
+        sectionCells.push_back(m_cellMap->operator[](cellName));
+      }
 
-        // SAMPLE D
-        cellPrefix = "D";
-        for (j = 5; j < 7; j++) {
-          sprintf(buff, "%i", j);
-          cellName = cellPrefix + std::string(buff);
-          sectionCells.push_back(m_cellMap->operator[](cellName));
-        }
-        if (m_verboseLevel>5)
+      // SAMPLE D
+      cellPrefix = "D";
+      for (j = 5; j < 7; j++) {
+        sprintf(buff, "%i", j);
+        cellName = cellPrefix + std::string(buff);
+        sectionCells.push_back(m_cellMap->operator[](cellName));
+      }
+      if (m_verboseLevel>5)
         G4cout << " TILE_EBARREL: samples A, B, D are filled" << G4endl;
-        break;
-      }
-      case TileDddbManager::TILE_PLUG1: {
-        // Collect all cells for this section
-        // Sample D
-        cellName = "D4";
-        sectionCells.push_back(m_cellMap->operator[](cellName));
+      break;
+    }
+    case TileDddbManager::TILE_PLUG1: {
+      // Collect all cells for this section
+      // Sample D
+      cellName = "D4";
+      sectionCells.push_back(m_cellMap->operator[](cellName));
 
-        // filling PMT array for D4 Cells
-        MakeTileGeoG4npmtD4();
-        if (m_verboseLevel>5)
+      // filling PMT array for D4 Cells
+      MakeTileGeoG4npmtD4();
+      if (m_verboseLevel>5)
         G4cout << " TILE_PLUG1: cell D4 is filled" << G4endl;
-        break;
-      }
-      case TileDddbManager::TILE_PLUG2: {
-        // Collect all cells for this section
-        // Sample C
-        cellName = "C10";
-        sectionCells.push_back(m_cellMap->operator[](cellName));
+      break;
+    }
+    case TileDddbManager::TILE_PLUG2: {
+      // Collect all cells for this section
+      // Sample C
+      cellName = "C10";
+      sectionCells.push_back(m_cellMap->operator[](cellName));
 
-        // filling PMT array for C10 Cells
-        MakeTileGeoG4npmtC10();
-        if (m_verboseLevel>5)
+      // filling PMT array for C10 Cells
+      MakeTileGeoG4npmtC10();
+      if (m_verboseLevel>5)
         G4cout << " TILE_PLUG2: cell C10 is filled" << G4endl;
-        break;
-      }
-      case TileDddbManager::TILE_PLUG3: {
-        // Collect all cells for this section
-        // Sample E
-        cellName = "E2";
-        sectionCells.push_back(m_cellMap->operator[](cellName));
-        cellName = "E1";
-        sectionCells.push_back(m_cellMap->operator[](cellName));
-        if (m_verboseLevel>5)
+      break;
+    }
+    case TileDddbManager::TILE_PLUG3: {
+      // Collect all cells for this section
+      // Sample E
+      cellName = "E2";
+      sectionCells.push_back(m_cellMap->operator[](cellName));
+      cellName = "E1";
+      sectionCells.push_back(m_cellMap->operator[](cellName));
+      if (m_verboseLevel>5)
         G4cout << " TILE_PLUG3: cells E2, E1 are filled" << G4endl;
-        break;
-      }
-      case TileDddbManager::TILE_PLUG4: {
-        // Collect all cells for this section
-        // Sample E
-        cellName = "E4";
-        sectionCells.push_back(m_cellMap->operator[](cellName));
-        cellName = "E3";
-        sectionCells.push_back(m_cellMap->operator[](cellName));
-        if (m_verboseLevel>5)
+      break;
+    }
+    case TileDddbManager::TILE_PLUG4: {
+      // Collect all cells for this section
+      // Sample E
+      cellName = "E4";
+      sectionCells.push_back(m_cellMap->operator[](cellName));
+      cellName = "E3";
+      sectionCells.push_back(m_cellMap->operator[](cellName));
+      if (m_verboseLevel>5)
         G4cout << " TILE_PLUG4: cells E4, E3 are filled" << G4endl;
 
-        // filling PMT array for E4' Cells
-        MakeTileGeoG4npmtE5();
-        if (m_isE5) {
-          cellName = "E5";  //E4' cells
-          sectionCells.push_back(m_cellMap->operator[](cellName));
-          if (m_verboseLevel>5)
+      // filling PMT array for E4' Cells
+      MakeTileGeoG4npmtE5();
+      if (m_isE5) {
+        cellName = "E5";  //E4' cells
+        sectionCells.push_back(m_cellMap->operator[](cellName));
+        if (m_verboseLevel>5)
           G4cout << " TILE_PLUG4: special cells E5(E4') are filled" << G4endl;
-        }
+      }
 
-        break;
-      }
-      default: { // Don't do anything
-        if (m_verboseLevel > 5)
+      break;
+    }
+    default: { // Don't do anything
+      if (m_verboseLevel > 5)
         G4cout << " counter=" << counter << "  key=" << key << "  Default: Don't do anything" << G4endl;
-        continue;
-      }
+      continue;
+    }
     }
 
     if (m_isE5 && key == 6)
-    m_dbManager->SetCurrentSection(key + 10);
+      m_dbManager->SetCurrentSection(key + 10);
     else
-    m_dbManager->SetCurrentSection(key);
+      m_dbManager->SetCurrentSection(key);
     section = new TileGeoG4Section(m_verboseLevel);
 
     section->nrOfModules = nModules;
@@ -487,11 +487,11 @@ void TileGeoG4LookupBuilder::CreateGeoG4Sections(bool is_tb) {
     section->nrOfScintillators = m_dbManager->TILBnscin();
 
     if (m_verboseLevel > 5)
-    G4cout << " counter=" << counter
-           << "  key=" << key
-           << "  nrOfModules=" << section->nrOfModules
-           << "  nrOfPeriods=" << section->nrOfPeriods
-           << "  nrOfScintillators=" << section->nrOfScintillators << G4endl;
+      G4cout << " counter=" << counter
+             << "  key=" << key
+             << "  nrOfModules=" << section->nrOfModules
+             << "  nrOfPeriods=" << section->nrOfPeriods
+             << "  nrOfScintillators=" << section->nrOfScintillators << G4endl;
 
     // iterate through all section cells and group them into samples
     cell = sectionCells[0];
