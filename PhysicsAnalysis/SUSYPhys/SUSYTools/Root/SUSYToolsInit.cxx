@@ -1072,6 +1072,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_CHECK( m_tauSelToolBaseline.setProperty("IgnoreAODFixCheck", true) );
     }
 
+    ATH_CHECK( m_tauSelToolBaseline.setProperty("IgnoreAODFixCheck", true) );
+    ATH_CHECK( m_tauSelToolBaseline.setProperty("RecalcEleOLR", false) );
+
     ATH_CHECK( m_tauSelToolBaseline.retrieve() );
   }
 
