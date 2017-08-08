@@ -67,6 +67,7 @@ extern BinConfig tauBinConfig;
 extern BinConfig bjetBinConfig;
 extern BinConfig cosmicBinConfig;
 
+void copyReleaseInfo( TTree* tree, TFile* foutdir );
 
 
 
@@ -395,6 +396,8 @@ int main(int argc, char** argv)
   int nsct = 6;
   int nbl = -1;
 
+  int nsiholes = 2;
+
   double chi2prob = 0;
 
   //int npix_rec = 1; // JK removed (unused)
@@ -440,12 +443,13 @@ int main(int argc, char** argv)
   if ( inputdata.isTagDefined("NMod") )   NMod   = inputdata.GetValue("NMod");
 
 
-  if ( inputdata.isTagDefined("eta") )  eta  = inputdata.GetValue("eta");
-  if ( inputdata.isTagDefined("zed") )  zed  = inputdata.GetValue("zed");
-  if ( inputdata.isTagDefined("npix") ) npix = inputdata.GetValue("npix");
-  if ( inputdata.isTagDefined("nsct") ) nsct = inputdata.GetValue("nsct");
-  if ( inputdata.isTagDefined("nbl") )  nbl  = inputdata.GetValue("nbl");
-  if ( inputdata.isTagDefined("chi2prob") )  chi2prob  = inputdata.GetValue("chi2prob");
+  if ( inputdata.isTagDefined("eta") )      eta      = inputdata.GetValue("eta");
+  if ( inputdata.isTagDefined("zed") )      zed      = inputdata.GetValue("zed");
+  if ( inputdata.isTagDefined("npix") )     npix     = inputdata.GetValue("npix");
+  if ( inputdata.isTagDefined("nsiholes") ) nsiholes = inputdata.GetValue("nsiholes");
+  if ( inputdata.isTagDefined("nsct") )     nsct     = inputdata.GetValue("nsct");
+  if ( inputdata.isTagDefined("nbl") )      nbl      = inputdata.GetValue("nbl");
+  if ( inputdata.isTagDefined("chi2prob") ) chi2prob = inputdata.GetValue("chi2prob");
 
   /// only if not set from the command line
   if ( pdgId==0 && inputdata.isTagDefined("pdgId") ) pdgId = inputdata.GetValue("pdgId");
@@ -775,7 +779,7 @@ int main(int argc, char** argv)
 
   Filter_Vertex filter_vertex(a0v, z0v);
 
-  Filter_Track filter_offline( eta, 1000,  2000, pT, npix, nsct, -1, nbl,  -2, -2, chi2prob ); /// include chi2 probability cut 
+  Filter_Track filter_offline( eta, 1000,  2000, pT, npix, nsct, -1, nbl,  -2, -2, chi2prob, 20, 20, nsiholes  ); /// include chi2 probability cut 
   if ( selectcharge!=0 ) filter_offline.chargeSelection( selectcharge );
   if ( pTMax>pT )        filter_offline.maxpT( pTMax );
 
