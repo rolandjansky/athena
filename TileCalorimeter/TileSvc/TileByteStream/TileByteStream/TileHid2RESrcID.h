@@ -79,7 +79,7 @@ private:
   const TileHWID* m_tileHWID;
   typedef std::map<int, uint32_t> FRAGRODMAP; 
   FRAGRODMAP m_frag2ROD, m_TileMuRcvFrag2ROD;
-  uint32_t m_runnum;
+  uint32_t m_runnum, m_TileMuRcvRunnum;
 };
 
 #endif 

@@ -439,7 +439,8 @@ publishMissingDQPars()
   DQParSet_t::const_iterator unpubEnd  = m_unpublishedDQPars.end();
   for( ; unpubIter != unpubEnd; ++unpubIter ) {
     const std::string& name = *unpubIter;
-    std::cout << "--> Publishing missing object: \"" << name << "\"\n";
+    //reduce verbosity
+    //std::cout << "--> Publishing missing object: \"" << name << "\"\n";
     publishResult( name, result );
   }
   

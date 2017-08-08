@@ -9,6 +9,7 @@
 //STL includes
 #include <string>
 #include <set>
+#include <map>
 
 //Gaudi includes
 #include "AthenaBaseComps/AthService.h"
@@ -56,6 +57,30 @@ public:
 
   virtual unsigned int getModuleErrors(IdentifierHash hashID) {return m_module_errors[(int) hashID];}
 
+  // Get full map of FE errors
+  virtual const std::map<IdentifierHash, std::map<unsigned int, unsigned int> > & getAllFeErrors() {
+    return m_all_FE_errors;
+  }
+
+  // Get error code for given FE. Return 0 if no errors
+  virtual unsigned int getFeErrorCode(IdentifierHash module, unsigned int fe_number) {
+    std::map<IdentifierHash, std::map<unsigned int, unsigned int> >::iterator mod_itr = m_all_FE_errors.find(module);
+    if (mod_itr != m_all_FE_errors.end()) {
+        std::map<unsigned int, unsigned int>::iterator fe_itr = mod_itr->second.find(fe_number);
+        if (fe_itr != mod_itr->second.end()) {
+            return fe_itr->second;
+        }
+    }
+    return 0;
+  } 
+
+  // Set FE error code
+  virtual void setFeErrorCode(IdentifierHash module, unsigned int fe_number, unsigned int errorcode) {
+    m_all_FE_errors[module][fe_number] = errorcode;
+  }
+
+
+
   virtual void setModuleErrors(IdentifierHash hashID, unsigned int errorcode) {
     if( static_cast<unsigned int>(hashID) < m_max_hashes ){
       m_module_errors[static_cast<unsigned int>(hashID)] = errorcode;
@@ -67,6 +92,18 @@ public:
       m_moduleROD_errors[static_cast<unsigned int>(hashID)] = errorcode;
     }
   };
+  
+  virtual void setModuleFragmentSize(IdentifierHash hashID, unsigned int size) {
+    m_module_fragment_size[hashID] = size;
+  }
+
+  virtual unsigned int getModuleFragmentSize(IdentifierHash hashID) {
+    std::map<IdentifierHash, unsigned int>::iterator itr = m_module_fragment_size.find(hashID);
+    if (itr != m_module_fragment_size.end()) {
+        return itr->second;
+    }
+    return 0;
+  }
   
   virtual void resetCounts(); // for the counts used by HLT 
   virtual int getNumberOfErrors(int errorType); // for HLT 
@@ -137,6 +174,13 @@ private:
   int m_numRODErrors;
   int m_numLinkMaskedByPPC;
   int m_numLimitError;
+  
+  // Collection of all FE errors in the event
+  // m_all_FE_errors[moduleID][FEnumber] = errorcode
+  std::map<IdentifierHash, std::map<unsigned int, unsigned int> > m_all_FE_errors;
+
+  // ROB fragment length for each module
+  std::map<IdentifierHash, unsigned int> m_module_fragment_size;
 
   // FE-I4B service record codes
   // Array of counters for each code, i.e. m_ServiceRecords[0] is the

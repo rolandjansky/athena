@@ -94,6 +94,9 @@ protected:
     TFile* outfile;
     HanConfig::DirMap_t& directories;
     TMap* m_refsourcedata;
+    // File cache
+    mutable std::map<std::string, std::shared_ptr<TFile> > m_filecache;
+    std::shared_ptr<TFile> GetROOTFile(std::string& fname) const;
   };
   
   

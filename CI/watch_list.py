@@ -4,7 +4,7 @@
 WATCH_LIST = {}
 
 WATCH_LIST['^CI$']       = set(['cgumpert'])
-WATCH_LIST['Simulation'] = set(['ritsch','jchapman'])
+WATCH_LIST['Simulation'] = set(['ritsch','jchapman','vpascuzz'])
 WATCH_LIST['Digitization'] = set(['jchapman'])
 WATCH_LIST['Overlay'] = set(['jchapman','ahaas','tkharlam'])
 WATCH_LIST['TrkiPatFitter'] = set(['pop'])
@@ -15,3 +15,4 @@ WATCH_LIST['MuonEfficiencyCorrections'] = set(['nkoehler','jojungge'])
 WATCH_LIST['MuonTPTools'] = set(['nkoehler','jojungge'])
 WATCH_LIST['MuonPerformanceAlgs'] = set(['nkoehler','jojungge'])
 WATCH_LIST['MuonPerformanceHistUtils'] = set(['nkoehler','jojungge'])
+WATCH_LIST['(PixelMonitoring)|(PixelConditionsServices)|(PixelRawData)'] = set(['kzoch','ibragimo'])

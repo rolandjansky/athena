@@ -7,7 +7,6 @@ Digi_tf.py --inputHITSFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Co
 
 Reco_tf.py --outputTAGFile=myTAG_ttbar_2.root --outputHISTFile=myMergedMonitoring_ttbar_2.root --maxEvents=500 --outputESDFile=myESD_ttbar_2.pool.root --outputAODFile=myAOD_ttbar_2.AOD.pool.root --inputRDOFile=MCtest_ttbar.digit.pool.root --autoConfiguration=everything --triggerConfig=NONE --preExec 'rec.doTrigger=False;'
 
-lsetup rucio
 SCRIPT_DIRECTORY=$1 
 PACKAGE=$2
 TYPE=$3
@@ -17,4 +16,4 @@ PROJECT=$6
 PLATFORM=$7
 NIGHTLY_TAG=$8
 
-./art.py compare grid $NIGHTLY_RELEASE $PROJECT $PLATFORM $NIGHTLY_TAG $PACKAGE $TEST_NAME myAOD.pool.root myESD.pool.root
+art.py compare grid $NIGHTLY_RELEASE $PROJECT $PLATFORM $NIGHTLY_TAG $PACKAGE $TEST_NAME myAOD_ttbar_2.AOD.pool.root myESD_ttbar_2.pool.root

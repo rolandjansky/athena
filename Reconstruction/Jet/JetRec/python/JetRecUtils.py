@@ -5,40 +5,16 @@ from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger('JetRec_jobOptions')
 
+# Define the jet content list for AODs
 def retrieveAODList():
     from JetRec.JetRecFlags import jetFlags, JetContentDetail
     from RecExConfig.RecFlags import rec
 
-    if rec.doESD():
-        return jetFlags.jetAODList()
-    # then we are merging or doing a AOD ?
     # We can not simply copy what we have from input since some
-    # jobs starts from empty files. See ATEAM-191.
+    # jobs start from empty files. See ATEAM-191.
     # We hard code the list here while waiting for a more robust solution
 
-    exclusionStr = ""
-    # Build a list of branches to be excluded from writing
-    if jetFlags.detailLevel()==JetContentDetail.Reduced:
-        excludedMoments = [
-            'GhostBHadronsFinalCount',    'GhostBHadronsFinalPt',
-            'GhostBHadronsInitialCount',  'GhostBHadronsInitialPt',
-            'GhostBQuarksFinalCount',     'GhostBQuarksFinalPt',
-            'GhostCHadronsFinalCount',    'GhostCHadronsFinalPt', 
-            'GhostCHadronsInitialCount',  'GhostCHadronsInitialPt',
-            'GhostCQuarksFinalCount',     'GhostCQuarksFinalPt',
-            'GhostHBosonsCount',          'GhostHBosonsPt',
-            'GhostPartonsCount',          'GhostPartonsPt',
-            'GhostTQuarksFinalCount',     'GhostTQuarksFinalPt',
-            'GhostTausFinalCount',        'GhostTausFinalPt',
-            'GhostTruthCount',            'GhostTruthPt',
-            'GhostWBosonsCount',          'GhostWBosonsPt',
-            'GhostZBosonsCount',          'GhostZBosonsPt',
-            'GhostAntiKt4TrackJetCount',  'GhostAntiKt4TrackJetPt',
-            'GhostTrackCount',            'GhostTrackPt',
-            'GhostAntiKt2TrackJetCount',
-            ]
-        exclusionStr = ".".join(["-"+mom for mom in excludedMoments])
-
+    # These objects are always written out
     l = [
         # event shape objects
         'xAOD::EventShape#Kt4EMPFlowEventShape',                    'xAOD::EventShapeAuxInfo#Kt4EMPFlowEventShapeAux.',
@@ -53,11 +29,13 @@ def retrieveAODList():
         'xAOD::EventShape#TopoClusterIsoCentralEventShape',         'xAOD::EventShapeAuxInfo#TopoClusterIsoCentralEventShapeAux.',
         'xAOD::EventShape#TopoClusterIsoForwardEventShape',         'xAOD::EventShapeAuxInfo#TopoClusterIsoForwardEventShapeAux.',
 
-        'xAOD::JetContainer#AntiKt4EMPFlowJets',                    'xAOD::JetAuxContainer#AntiKt4EMPFlowJetsAux.'+exclusionStr,
-        'xAOD::JetContainer#AntiKt4EMTopoJets',                     'xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.'+exclusionStr,
-        'xAOD::JetContainer#AntiKt4LCTopoJets',                     'xAOD::JetAuxContainer#AntiKt4LCTopoJetsAux.'+exclusionStr,
+        'xAOD::JetContainer#AntiKt4EMPFlowJets',                    'xAOD::JetAuxContainer#AntiKt4EMPFlowJetsAux.',
+        'xAOD::JetContainer#AntiKt4EMTopoJets',                     'xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.',
+        'xAOD::JetContainer#AntiKt4LCTopoJets',                     'xAOD::JetAuxContainer#AntiKt4LCTopoJetsAux.',
         ]
 
+    # Prior to R21, i.e. without the AOD size reduction, these were also always written.
+    # However, the reduction TF decided that these should be dropped.
     if jetFlags.detailLevel()>=JetContentDetail.Full:
         l += [
             'xAOD::JetContainer#AntiKt10LCTopoJets',                    'xAOD::JetAuxContainer#AntiKt10LCTopoJetsAux.',
@@ -78,6 +56,8 @@ def retrieveAODList():
                 'xAOD::JetContainer#CamKt12TruthWZJets',                'xAOD::JetAuxContainer#CamKt12TruthWZJetsAux.',
                 ]
 
+    # For physics validation we would want the option to also validate the trimmed jets
+    # but this is not presently done directly from AOD.
     if jetFlags.detailLevel()>=JetContentDetail.Validation:
         l += [
             'xAOD::JetContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets',
@@ -99,6 +79,15 @@ def retrieveAODList():
 
     ## return esdjets
 
+# Define the jet content list for ESDs
+# Here we need a few more items for monitoring purposes,
+# and because ESDs are not (usually) saved, we simply write out
+# everything that we built, which is automatically recorded
+# in jetFlags.jetAODList
+def retrieveESDList():
+    from JetRec.JetRecFlags import jetFlags
+    return jetFlags.jetAODList()
+    
 # define the convention that we write R truncating the decimal point
 # if R>=1, then we write R*10
 def formatRvalue(parameter):

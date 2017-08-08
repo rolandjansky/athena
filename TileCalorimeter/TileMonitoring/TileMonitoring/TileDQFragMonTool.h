@@ -114,7 +114,10 @@ class TileDQFragMonTool: public TileFatherMonTool {
     TProfile* m_hist_error_lb[4][64];
 
 
-    static const int NERROR = 15;
+    static const int NERROR = 17;
+    static const int MASKEDERROR = NERROR - 3;
+    static const int DCSERROR = NERROR - 2;
+    static const int HVERROR = NERROR - 1;
     static const int NCORRUPTED = 13;
     static const int NDMU = 16;
 
