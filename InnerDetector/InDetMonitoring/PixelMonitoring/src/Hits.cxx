@@ -236,7 +236,7 @@ StatusCode PixelMainMon::BookHitsMon(void)
        m_occupancy = new PixelMon2DMapsLW("Occupancy", ("hit map"+ m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D);
        sc = m_occupancy->regHist(rdoShift);
        
-       m_average_pixocc = new PixelMon2DMapsLW("Occupancy_per_pixel", ("#hits / pixel" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, true);
+       m_average_pixocc = new PixelMon2DMapsLW("Occupancy_per_pixel", ("#hits / pixel" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, false);
        sc = m_average_pixocc->regHist(rdoShift);
        
        m_occupancy_pix_evt = new PixelMon2DProfilesLW("Occupancy_per_pixel_event", ("#hits / pixel / event" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D);
