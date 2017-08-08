@@ -1395,7 +1395,6 @@ StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                
                                          const TrigL2MuonSA::MdtHits&             mdtHits,
                                          std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns)
 {
-  ATH_MSG_INFO("Updating Monitor!!");
   
   const float ZERO_LIMIT = 1e-5;
   
