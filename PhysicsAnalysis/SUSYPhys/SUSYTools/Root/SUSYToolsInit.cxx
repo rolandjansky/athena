@@ -1199,11 +1199,16 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       }
     }
 
-    std::string MCshowerID = "410000";                 //PowhegPy6
+    std::string MCshowerID = "410501";                 //PowhegPy8 default...
+    if (m_showerType!=0){
+      ATH_MSG_WARNING("MC-MC scale factors are not currently available!  Using PowhegPy8 default.");
+    }
+    /*
     if (m_showerType == 1) MCshowerID = "410004";      //HerwigPP
     else if (m_showerType == 2) MCshowerID = "410500"; //PowhegPy8
     else if (m_showerType == 3) MCshowerID = "410021"; //Sherpa 2.1.1
     else if (m_showerType == 4) MCshowerID = "410187"; //Sherpa 2.2.0
+    */
 
     toolName = "BTagSF_" + jetcollBTag;
     SET_DUAL_TOOL(m_btagEffTool, BTaggingEfficiencyTool, toolName);        
