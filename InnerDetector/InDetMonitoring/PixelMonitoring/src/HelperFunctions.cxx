@@ -19,7 +19,7 @@
 #include <sstream>
 #include <algorithm>
 #include "InDetIdentifier/PixelID.h"
-#include "PixelMonitoring/PixelMon2DMaps.h"
+#include "PixelMonitoring/PixelMon2DMapsLW.h"
 
 
 std::string PixelMainMon :: makeHistname(std::string set, bool ontrk)
@@ -315,7 +315,7 @@ void PixelMainMon::FillTimeHisto(double value, TProfile* one=0, TProfile* two=0,
    }
 }
 
-void PixelMainMon::FillSummaryHistos (PixelMon2DMaps* occupancy, TH1F_LW* A, TH1F_LW* C, TH1F_LW* IBL, TH1F_LW* B0, TH1F_LW* B1, TH1F_LW* B2)
+void PixelMainMon::FillSummaryHistos (PixelMon2DMapsLW* occupancy, TH1F_LW* A, TH1F_LW* C, TH1F_LW* IBL, TH1F_LW* B0, TH1F_LW* B1, TH1F_LW* B2)
 {
        
    if( !(A && C && B0 && B1 && B2 && occupancy) )return; //if the histos don't exist, dont' fill them
