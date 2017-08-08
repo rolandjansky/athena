@@ -8,22 +8,18 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
 from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
 from AthenaCommon.AppMgr import ServiceMgr
 from PathResolver import PathResolver
-
-ServiceMgr += AthenaEventLoopMgr(EventPrintoutInterval = 5000)
-ServiceMgr += THistSvc()
-OutFileName = "AnalysisOutput.root" if not "outFile" in globals() else outFile
-ServiceMgr.THistSvc.Output += ["XAMPP DATAFILE='{}' OPT='RECREATE'".format(OutFileName)]
-ROOTFiles = []
-  
 import AthenaPoolCnvSvc.ReadAthenaPool
 
-
 ServiceMgr += AthenaEventLoopMgr(EventPrintoutInterval = 5000)
 ServiceMgr += THistSvc()
-
-
 OutFileName = "AnalysisOutput.root" if not "outFile" in globals() else outFile
 ServiceMgr.THistSvc.Output += ["ISOCORRECTION DATAFILE='{}' OPT='RECREATE'".format(OutFileName)]
+ROOTFiles = []
+  
+
+
+
+
 
 
 
@@ -57,7 +53,7 @@ ToolSvc += CfgMgr.CP__IsolationCloseByCorrectionTool("IsolationCloseByCorrection
                                                      IsolationSelectionTool=ToolSvc.MySelectionTool,
                                                      SelectionDecorator = "isCloseByObject",
 #                                                      PassOverlapDecorator = "passOR",
-                                                      IsolationSelectionDecorator = "CorrectedIsol" ,
+                                                      IsolationSelectionDecorator = "correctedIsol" ,
                                                       BackupPrefix = "Default")
 
 

@@ -2,7 +2,6 @@
  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
  */
 
-
 #ifndef CPANALYSISEXAMPLES_ERRORSCHECK_H
 #define CPANALYSISEXAMPLES_ERRORSCHECK_H
 
@@ -18,7 +17,6 @@
 
 #endif // CPANALYSISEXAMPLES_ERRORSCHECK_H
 
-
 // System include(s):
 #include <memory>
 #include <cstdlib>
@@ -33,7 +31,6 @@
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
 #include "xAODRootAccess/TStore.h"
-
 
 // EDM include(s):
 #include "xAODEventInfo/EventInfo.h"
@@ -53,10 +50,6 @@
 #include "IsolationSelection/IsolationSelectionTool.h"
 
 #include "AsgTools/AnaToolHandle.h"
-
-#define SET_DUAL_TOOL( TOOLHANDLE, TOOLTYPE, TOOLNAME )                \
-  ASG_SET_ANA_TOOL_TYPE(TOOLHANDLE, TOOLTYPE);                        \
-  TOOLHANDLE.setName(TOOLNAME);
 
 const float GeV = 1000.;
 const float iGeV = 0.001;
@@ -105,16 +98,14 @@ int main(int argc, char** argv) {
     // Creating the tools.
 
     //Define first the isolation selection tool with all WP
-    asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoSelTool;
-    SET_DUAL_TOOL(m_isoSelTool, CP::IsolationSelectionTool, "IsolationSelectionTool");
+    asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoSelTool("CP::IsolationSelectionTool/IsoSelectionTool");
     SCHECK(m_isoSelTool.setProperty("MuonWP", "FixedCutLoose"));
     SCHECK(m_isoSelTool.setProperty("ElectronWP", "Loose"));
     SCHECK(m_isoSelTool.setProperty("PhotonWP", "FixedCutTightCaloOnly"));
     SCHECK(m_isoSelTool.retrieve());
 
     //Now let's come to the IsolaionCloseByCorrecitonTool
-    asg::AnaToolHandle<CP::IIsolationCloseByCorrectionTool> m_isoCloseByTool;
-    SET_DUAL_TOOL(m_isoCloseByTool, CP::IsolationCloseByCorrectionTool, "IsolationCloseByCorrectionTool");
+    asg::AnaToolHandle<CP::IIsolationCloseByCorrectionTool> m_isoCloseByTool("CP::IsolationCloseByCorrectionTool/IsoCorrectionTool");
 
     //pass the instance of the created isolation tool
     SCHECK(m_isoCloseByTool.setProperty("IsolationSelectionTool", m_isoSelTool.getHandle()));
@@ -126,7 +117,7 @@ int main(int argc, char** argv) {
     //SCHECK(m_isoCloseByTool.setProperty("PassOverlapDecorator","passOR"));
 
     //What is the name of the final isolation decorator. The tool internally calls P->auxdata<char>("CorrectedIsol") = m_IsoTool->accept(*P)
-    SCHECK(m_isoCloseByTool.setProperty("IsolationSelectionDecorator", "CorrectedIsol"));
+    SCHECK(m_isoCloseByTool.setProperty("IsolationSelectionDecorator", "correctedIsol"));
 
     //By default all particles in the container are corrected. For the purpose of saving processing time one can optionally
     //define this property. Then the isolation of the particle is only corrected only if the particle passes the input quality or if this decorator is set to true
@@ -135,7 +126,7 @@ int main(int argc, char** argv) {
     //The closeByIsoCorrectionTool accesses the default variables of a particle via the original container links
     //Optionally one can backup the isolation values before correction. Then the tool creates an auxelement called <BackupPrefix>_<IsoVariable> This might be interesting if the people are interested in writing
     //out the default values using CxAODs
-    SCHECK(m_isoCloseByTool.setProperty("BackupPrefix", "Default"));
+    SCHECK(m_isoCloseByTool.setProperty("BackupPrefix", "default"));
     SCHECK(m_isoCloseByTool.retrieve());
 
     //Define  the output
