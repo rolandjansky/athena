@@ -70,7 +70,7 @@ topSequence+=HiveAlgG(OutputLevel=DEBUG,Time=10)
 topSequence+=HiveAlgF(OutputLevel=DEBUG,Time=30)
 
 topSequence+=HiveAlgV(OutputLevel=DEBUG,Time=30)
-# topSequence.HiveAlgV.Key_RV = [ "a1", "a2", "d1", "e1", "C1" ]
+topSequence.HiveAlgV.Key_RV = [ "a1", "a2", "d1", "e1", "C1" ]
 topSequence.HiveAlgV.Key_WV = [ "V1", "V2", "V3" ]
 
 #--------------------------------------------------------------
