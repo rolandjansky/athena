@@ -1,19 +1,9 @@
-// dear emacs, this is -*- C++ -*-
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_COREDUMPSVC_H
 #define ATHENASERVICES_COREDUMPSVC_H 1
-
-/**
- * @file   CoreDumpSvc.h
- * @brief  Interface of the CoreDumpSvc
- * @author Frank Winklmeier
- *
- * $Id: CoreDumpSvc.h,v 1.6 2008-12-15 13:24:23 fwinkl Exp $
- */
 
 // System includes
 #include <signal.h>
@@ -55,9 +45,9 @@ namespace CoreDumpSvcHandler {
  * For a list of job option properties see CoreDumpSvc::CoreDumpSvc(). 
  */
 
-class CoreDumpSvc : virtual public ICoreDumpSvc,
-                    virtual public IIncidentListener,
-                    public AthService {
+class CoreDumpSvc : public extends<AthService, 
+                                   ICoreDumpSvc,
+                                   IIncidentListener> {
 
 protected:
   friend class SvcFactory<CoreDumpSvc>;
@@ -79,6 +69,9 @@ public:
   /// Set a name/value pair in the core dump record
   virtual void setCoreDumpInfo( const std::string& name, const std::string& value );
 
+  /// Set a name/value pair in the core dump record for given EventContext
+  virtual void setCoreDumpInfo( const EventContext& ctx, const std::string& name, const std::string& value );
+
   /// Print all core dump records
   virtual std::string dump() const;
   //@}
@@ -86,7 +79,6 @@ public:
 
   /// \name Gaudi implementation
   //@{
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
   virtual StatusCode initialize();
   virtual StatusCode start();
   virtual StatusCode finalize();
@@ -102,17 +94,31 @@ private:
     std::string EvId;
   };
   typedef tbb::concurrent_unordered_map<std::string,std::string > UserCore_t;
-  std::vector<UserCore_t>  m_usrCoreDumps;   ///< User defined core dump info
-  std::vector<sysDumpRec> m_sysCoreDumps;   ///< Core dump info collected by this service  
-  siginfo_t* m_siginfo;       ///< Pointer to siginfo_t struct (set by signal handler)
-  std::atomic<EventID::number_type> m_eventCounter;       ///< Event counter
+  std::vector<UserCore_t>  m_usrCoreDumps;               ///< User defined core dump info
+  std::vector<sysDumpRec> m_sysCoreDumps;                ///< Core dump info collected by this service  
+  siginfo_t* m_siginfo{nullptr};                         ///< Pointer to siginfo_t struct (set by signal handler)
+  std::atomic<EventID::number_type> m_eventCounter{0};   ///< Event counter
   
-  // Properties
-  IntegerArrayProperty  m_signals;         ///< Signals to catch
-  BooleanProperty       m_callOldHandler;  ///< Call previous handlers?
-  StringProperty        m_coreDumpStream;  ///< Stream to use for printouts
-  IntegerProperty       m_fatalHandlerFlags; ///< configuration flag(s) given
-                                             ///< to the fatal handler
+  ///@{ Properties
+
+  Gaudi::Property<std::vector<int>> m_signals{this, "Signals", {SIGSEGV,SIGBUS,SIGILL,SIGFPE}, 
+      "List of signals to catch"};
+
+  Gaudi::Property<bool> m_callOldHandler{this, "CallOldHandler", true, 
+      "Call previous signal handler"};
+
+  Gaudi::Property<std::string> m_coreDumpStream{this, "CoreDumpStream", "stdout",
+      "Stream to use for core dump [stdout,stderr,MsgStream]"};
+
+  Gaudi::Property<int> m_fatalHandlerFlags{this, "FatalHandler", 0, 
+      "Flags given to the fatal handler this service installs\n"
+      "if the flag is zero, no fatal handler is installed"};
+
+  Gaudi::Property<double> m_timeout{this, "TimeOut", 30.0*60*1e9,
+      "Terminate job after it this reaches the time out in Wallclock time, "
+      "usually due to hanging during stack unwinding. Timeout given in Nanoseconds."};
+	   
+  ///@}
 
   /// Property handler
   void propertyHandler(Property& p);
@@ -130,11 +136,7 @@ private:
   StatusCode uninstallSignalHandler(); 
   
   /// Algorithm timer to terminate job if it's looping during stack unwinding
-  Athena::AlgorithmTimer m_abortTimer;
-  
-  /// set time out during above protection, default is 15min
-  double m_timeout;
-
+  Athena::AlgorithmTimer m_abortTimer;  
 }; 
 
 
