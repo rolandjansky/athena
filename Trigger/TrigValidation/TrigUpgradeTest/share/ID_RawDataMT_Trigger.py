@@ -24,7 +24,7 @@ AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
  
 from AthenaCommon.JobProperties import jobproperties
 jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-03-01-00"
-
+ 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOff()  #Switched off to avoid geometry
 DetFlags.ID_setOn()
@@ -138,6 +138,45 @@ from InDetRecExample.InDetKeys import InDetKeys
 
 include ("InDetRecExample/InDetRecCabling.py")
 
+
+### Begin view setup
+
+# Make a separate alg pool for the view algs
+from GaudiHive.GaudiHiveConf import AlgResourcePool
+viewAlgPoolName = "ViewAlgPool"
+svcMgr += AlgResourcePool( viewAlgPoolName )
+
+# Set of view algs
+from AthenaCommon.AlgSequence import AthSequencer
+allViewAlgorithms = AthSequencer( "allViewAlgorithms" )
+allViewAlgorithms.ModeOR = False
+allViewAlgorithms.Sequential = True
+allViewAlgorithms.StopOverride = False
+
+# view maker
+viewMaker = CfgMgr.AthViews__RoiCollectionToViews( "viewMaker" )
+viewMaker.ViewBaseName = "testView"
+viewMaker.AlgPoolName = viewAlgPoolName
+viewMaker.InputRoICollection = "OutputRoIs"
+viewMaker.OutputRoICollection = "ViewRoIs"
+topSequence += viewMaker
+
+# Filter to stop view algs from running on whole event
+allViewAlgorithms += CfgMgr.AthPrescaler( "alwaysFail" )
+allViewAlgorithms.alwaysFail.PercentPass = 0.0
+
+# dummy alg that just says you're running in a view
+allViewAlgorithms += CfgMgr.AthViews__ViewTestAlg( "viewTest" )
+svcMgr.ViewAlgPool.TopAlg += [ "viewTest" ]
+viewMaker.AlgorithmNameSequence = [ "viewTest" ] #Eventually scheduler will do this
+
+# test setup
+viewTest = True
+topSequence += allViewAlgorithms
+theApp.EvtMax = 10
+
+### End view setup
+
 #Pixel
 
 from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRodDecoder
@@ -156,9 +195,19 @@ from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawData
 InDetPixelRawDataProvider = PixelRawDataProvider(name         = "InDetPixelRawDataProvider",
                                                  RDOKey       = InDetKeys.PixelRDOs(),
                                                  ProviderTool = InDetPixelRawDataProviderTool)
-topSequence += InDetPixelRawDataProvider
-topSequence.InDetPixelRawDataProvider.isRoI_Seeded = True
-topSequence.InDetPixelRawDataProvider.RoIs = "OutputRoIs"
+
+if ( viewTest ):
+  allViewAlgorithms += InDetPixelRawDataProvider
+  allViewAlgorithms.InDetPixelRawDataProvider.isRoI_Seeded = True
+  allViewAlgorithms.InDetPixelRawDataProvider.RoIs = "ViewRoIs"
+  svcMgr.ViewAlgPool.TopAlg += [ "InDetPixelRawDataProvider" ]
+  topSequence.viewMaker.AlgorithmNameSequence += [ "InDetPixelRawDataProvider" ]
+else:
+  topSequence += InDetPixelRawDataProvider
+  topSequence.InDetPixelRawDataProvider.isRoI_Seeded = True
+  topSequence.InDetPixelRawDataProvider.RoIs = "OutputRoIs"
+
+
 if (InDetFlags.doPrintConfigurables()):
   print          InDetPixelRawDataProvider
 
@@ -182,9 +231,17 @@ InDetSCTRawDataProvider = SCTRawDataProvider(name         = "InDetSCTRawDataProv
                                             RDOKey       = InDetKeys.SCT_RDOs(),
                                             ProviderTool = InDetSCTRawDataProviderTool)
 
-topSequence += InDetSCTRawDataProvider
-topSequence.InDetSCTRawDataProvider.isRoI_Seeded = True
-topSequence.InDetSCTRawDataProvider.RoIs = "OutputRoIs"
+if ( viewTest ):
+  allViewAlgorithms += InDetSCTRawDataProvider
+  allViewAlgorithms.InDetSCTRawDataProvider.isRoI_Seeded = True
+  allViewAlgorithms.InDetSCTRawDataProvider.RoIs = "ViewRoIs"
+  svcMgr.ViewAlgPool.TopAlg += [ "InDetSCTRawDataProvider" ]
+  topSequence.viewMaker.AlgorithmNameSequence += [ "InDetSCTRawDataProvider" ]
+else:
+  topSequence += InDetSCTRawDataProvider
+  topSequence.InDetSCTRawDataProvider.isRoI_Seeded = True
+  topSequence.InDetSCTRawDataProvider.RoIs = "OutputRoIs"
+
 
 #TRT
 from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
@@ -203,29 +260,38 @@ from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRT_RodDecoder
 InDetTRTRodDecoder = TRT_RodDecoder(name = "InDetTRTRodDecoder",
                                     LoadCompressTableDB = True)#(globalflags.DataSource() != 'geant4'))  
 ToolSvc += InDetTRTRodDecoder
-  
+
 from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRTRawDataProviderTool
 InDetTRTRawDataProviderTool = TRTRawDataProviderTool(name    = "InDetTRTRawDataProviderTool",
                                                       Decoder = InDetTRTRodDecoder)
 ToolSvc += InDetTRTRawDataProviderTool
 
-  
+
 # load the TRTRawDataProvider
 from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRTRawDataProvider
 InDetTRTRawDataProvider = TRTRawDataProvider(name         = "InDetTRTRawDataProvider",
                                              RDOKey       = "TRT_RDOs",
                                               ProviderTool = InDetTRTRawDataProviderTool)
-topSequence += InDetTRTRawDataProvider
-topSequence.InDetTRTRawDataProvider.isRoI_Seeded = True
-topSequence.InDetTRTRawDataProvider.RoIs = "OutputRoIs"
-  
+
+if ( viewTest ):
+  allViewAlgorithms += InDetTRTRawDataProvider
+  allViewAlgorithms.InDetTRTRawDataProvider.isRoI_Seeded = True
+  allViewAlgorithms.InDetTRTRawDataProvider.RoIs = "ViewRoIs"
+  svcMgr.ViewAlgPool.TopAlg += [ "InDetTRTRawDataProvider" ]
+  topSequence.viewMaker.AlgorithmNameSequence += [ "InDetTRTRawDataProvider" ]
+else:
+  topSequence += InDetTRTRawDataProvider
+  topSequence.InDetTRTRawDataProvider.isRoI_Seeded = True
+  topSequence.InDetTRTRawDataProvider.RoIs = "OutputRoIs"
 
 
-include ("InDetRecExample/ConfiguredInDetPreProcessingTRT.py")
-InDetPreProcessingTRT = ConfiguredInDetPreProcessingTRT(True,False)
+# MYSTERY LINES THAT CAUSE A PROBLEM
+#include ("InDetRecExample/ConfiguredInDetPreProcessingTRT.py")
+#InDetPreProcessingTRT = ConfiguredInDetPreProcessingTRT(True,False)
+#include("InDetBeamSpotService/BeamCondSvc.py")
 
 
-include("InDetBeamSpotService/BeamCondSvc.py")
+#Pixel clusterisation
 
 from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
 InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool",
@@ -237,7 +303,7 @@ ToolSvc += InDetClusterMakerTool
 
 
 from SiClusterizationTool.SiClusterizationToolConf import InDet__MergedPixelsTool
-InDetMergedPixelsTool = InDet__MergedPixelsTool(name                    = "InDetMergedPixelsTool", 
+InDetMergedPixelsTool = InDet__MergedPixelsTool(name                    = "InDetMergedPixelsTool",
                                                 globalPosAlg            = InDetClusterMakerTool,
                                                 MinimalSplitSize        = 0,
                                                 MaximalSplitSize        = 49,
@@ -254,12 +320,21 @@ from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__Pixel
 InDetPixelClusterization = InDet__PixelClusterization(name                    = "InDetPixelClusterization",
                                                       clusteringTool          = InDetMergedPixelsTool,
                                                       gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
-                                                      DetectorManagerName     = InDetKeys.PixelManager(), 
+                                                      DetectorManagerName     = InDetKeys.PixelManager(),
                                                       DataObjectName          = InDetKeys.PixelRDOs(),
                                                       ClustersName            = "PixelTrigClusters")
-topSequence += InDetPixelClusterization
-topSequence.InDetPixelClusterization.isRoI_Seeded = True
-topSequence.InDetPixelClusterization.RoIs = "OutputRoIs"
+if ( viewTest ):
+  allViewAlgorithms += InDetPixelClusterization
+  allViewAlgorithms.InDetPixelClusterization.isRoI_Seeded = True
+  allViewAlgorithms.InDetPixelClusterization.RoIs = "ViewRoIs"
+  svcMgr.ViewAlgPool.TopAlg += [ "InDetPixelClusterization" ]
+  topSequence.viewMaker.AlgorithmNameSequence += [ "InDetPixelClusterization" ]
+else:
+  topSequence += InDetPixelClusterization
+  topSequence.InDetPixelClusterization.isRoI_Seeded = True
+  topSequence.InDetPixelClusterization.RoIs = "OutputRoIs"
+
+
 
 #
 # --- SCT_ClusteringTool (public)
@@ -275,14 +350,25 @@ from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__SCT_C
 InDetSCT_Clusterization = InDet__SCT_Clusterization(name                    = "InDetSCT_Clusterization",
                                                     clusteringTool          = InDetSCT_ClusteringTool,
                                                     # ChannelStatus         = InDetSCT_ChannelStatusAlg,
-                                                    DetectorManagerName     = InDetKeys.SCT_Manager(), 
+                                                    DetectorManagerName     = InDetKeys.SCT_Manager(),
                                                     DataObjectName          = InDetKeys.SCT_RDOs(),
                                                     ClustersName            = "SCT_TrigClusters",
                                                     conditionsService       = InDetSCT_ConditionsSummarySvc,
                                                     FlaggedConditionService = InDetSCT_FlaggedConditionSvc)
-topSequence += InDetSCT_Clusterization
-topSequence.InDetSCT_Clusterization.isRoI_Seeded = True
-topSequence.InDetSCT_Clusterization.RoIs = "OutputRoIs"
+
+if ( viewTest ):
+  allViewAlgorithms += InDetSCT_Clusterization
+  allViewAlgorithms.InDetSCT_Clusterization.isRoI_Seeded = True
+  allViewAlgorithms.InDetSCT_Clusterization.RoIs = "ViewRoIs"
+  svcMgr.ViewAlgPool.TopAlg += [ "InDetSCT_Clusterization" ]
+  topSequence.viewMaker.AlgorithmNameSequence += [ "InDetSCT_Clusterization" ]
+else:
+  topSequence += InDetSCT_Clusterization
+  topSequence.InDetSCT_Clusterization.isRoI_Seeded = True
+  topSequence.InDetSCT_Clusterization.RoIs = "OutputRoIs"
+
+
+#Space points and FTF
 
 from SiSpacePointTool.SiSpacePointToolConf import InDet__SiSpacePointMakerTool
 InDetSiSpacePointMakerTool = InDet__SiSpacePointMakerTool(name = "InDetSiSpacePointMakerTool")
@@ -299,20 +385,19 @@ InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name          
                                                                   ProcessPixels          = DetFlags.haveRIO.pixel_on(),
                                                                   ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
                                                                   ProcessOverlaps        = DetFlags.haveRIO.SCT_on())
-topSequence += InDetSiTrackerSpacePointFinder
+
 
 from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma
 theFTF = TrigFastTrackFinder_eGamma()
-theFTF.outputLevel=VERBOSE
 
-topSequence += theFTF
+if ( viewTest ):
+  allViewAlgorithms += InDetSiTrackerSpacePointFinder
+  allViewAlgorithms += theFTF
+  allViewAlgorithms.TrigFastTrackFinder_eGamma.isRoI_Seeded = True
+  allViewAlgorithms.TrigFastTrackFinder_eGamma.RoIs = "ViewRoIs"
+  svcMgr.ViewAlgPool.TopAlg += [ "InDetSiTrackerSpacePointFinder", "TrigFastTrackFinder_eGamma" ]
+  topSequence.viewMaker.AlgorithmNameSequence += [ "InDetSiTrackerSpacePointFinder", "TrigFastTrackFinder_eGamma" ]
+else:
+  topSequence += InDetSiTrackerSpacePointFinder
+  topSequence += theFTF
 
- 
-from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
-RegSelSvc = RegSelSvcDefault()
-RegSelSvc.enablePixel = True
-RegSelSvc.enableSCT   = True
-RegSelSvc.enableTRT   = True
-
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-svcMgr += RegSelSvc
