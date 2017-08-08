@@ -19,7 +19,7 @@ def getParticleBrokerSvcNoOrdering(name="ISF_ParticleBrokerSvcNoOrdering", **kwa
     kwargs.setdefault('ValidateGeoIDs', ISF_Flags.ValidationMode())
     kwargs.setdefault('ValidationOutput', ISF_Flags.ValidationMode())
     kwargs.setdefault('ValidationStreamName', "ParticleBroker")
-    from G4tlasApps.SimFlags import simFlags
+    from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault('BarcodeService', simFlags.TruthStrategy.BarcodeServiceName())
     return CfgMgr.ISF__ParticleBrokerDynamicOnReadIn(name, **kwargs)
 
@@ -74,7 +74,7 @@ def getParticleKillerSvc(name="ISF_ParticleKillerSvc", **kwargs):
     return CfgMgr.ISF__ParticleKillerSimSvc(name, **kwargs)
 
 def getInputConverter(name="ISF_InputConverter", **kwargs):
-    from G4tlasApps.SimFlags import simFlags
+    from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault('BarcodeSvc', simFlags.TruthStrategy.BarcodeServiceName())
     kwargs.setdefault("UseGeneratedParticleMass", False)
     genParticleFilters = ['ISF_ParticleFinalStateFilter']
@@ -101,12 +101,13 @@ def getLongLivedInputConverter(name="ISF_LongLivedInputConverter", **kwargs):
 #
 
 def getGenericTruthService(name="ISF_TruthService", **kwargs):
-    from G4tlasApps.SimFlags import simFlags
+    from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault('BarcodeSvc', simFlags.TruthStrategy.BarcodeServiceName())
     kwargs.setdefault('SkipIfNoChildren', True)
     kwargs.setdefault('SkipIfNoParentBarcode', True)
     kwargs.setdefault('ForceEndVtxInRegions', [])
     long_lived_simulators = ['LongLived', 'longLived']
+    from ISF_Config.ISF_jobProperties import ISF_Flags
     is_long_lived_simulation = any(x in ISF_Flags.Simulator() for x in long_lived_simulators) #FIXME this should be set in a nicer way.
     if is_long_lived_simulation:
         kwargs.setdefault('QuasiStableParticlesIncluded', True)
