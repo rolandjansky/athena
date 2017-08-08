@@ -51,9 +51,6 @@ namespace G4UA
       virtual IPreTrackingAction* getPreTrackingAction() override final
       { return static_cast<IPreTrackingAction*>( getAction() ); }
 
-      /// Query interface for gaudi
-      virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
-
     protected:
 
       /// Create action for this thread

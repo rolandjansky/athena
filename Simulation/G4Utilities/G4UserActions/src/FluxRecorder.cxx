@@ -20,16 +20,16 @@
 #include "G4StepPoint.hh"
 
 
-namespace G4UA{
-
+namespace G4UA
+{
 
   FluxRecorder::FluxRecorder()
     : m_nev(0.0)
   {
   }
-  
-  void FluxRecorder::beginOfRun(const G4Run*){
 
+  void FluxRecorder::beginOfRun(const G4Run*)
+  {
     char nom[120];
     double timebins[101],ebins[101];
     for (int i=0;i<101;++i){
@@ -49,8 +49,8 @@ namespace G4UA{
 
   }
 
-  void FluxRecorder::endOfEvent(const G4Event*){;
-
+  void FluxRecorder::endOfEvent(const G4Event*)
+  {
     m_nev+=1.;
   }
 
@@ -120,6 +120,7 @@ namespace G4UA{
   void FluxRecorder::findVolume( const double r1 , const double z1 , const double r2 , const double z2 )
   {
 
+    // This horrible code should be fixed
     const static double dim[lastVol][4] = {
       {980.,1000.,0.,400.} , {980.,1000.,400.,800.} , {980.,1000.,800.,1200.} ,
       {750.,770.,0.,200.} , {750.,770.,200.,450.} , {750.,770.,450.,850.} ,
@@ -179,4 +180,5 @@ namespace G4UA{
       } // if we scored
     } // Loop over all volumes
   }
+
 } // namespace G4UA

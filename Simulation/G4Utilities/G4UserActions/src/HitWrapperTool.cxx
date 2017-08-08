@@ -5,31 +5,22 @@
 #include "CxxUtils/make_unique.h"
 #include "G4UserActions/HitWrapperTool.h"
 
-namespace G4UA{ 
+namespace G4UA
+{
 
   //---------------------------------------------------------------------------
   HitWrapperTool::HitWrapperTool(const std::string& type, const std::string& name,
                                  const IInterface* parent)
     : ActionToolBase<HitWrapper>(type, name, parent)
   {
+    declareInterface<IEndEventActionTool>(this);
     declareProperty("Time", m_config.time);
   }
-  
+
   //---------------------------------------------------------------------------
-  std::unique_ptr<HitWrapper>  HitWrapperTool::makeAction(){
+  std::unique_ptr<HitWrapper> HitWrapperTool::makeAction(){
     ATH_MSG_DEBUG("makeAction");
-    auto action = CxxUtils::make_unique<HitWrapper>(m_config);
-    return std::move(action);
+    return CxxUtils::make_unique<HitWrapper>(m_config);
   }
-  
-  //---------------------------------------------------------------------------
-  StatusCode HitWrapperTool::queryInterface(const InterfaceID& riid, void** ppvIf){
-    
-    if(riid == IEndEventActionTool::interfaceID()) {
-      *ppvIf = (IEndEventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    } return ActionToolBase<HitWrapper>::queryInterface(riid, ppvIf);
-  }
-  
-} // namespace G4UA 
+
+} // namespace G4UA

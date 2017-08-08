@@ -19,7 +19,6 @@
 // For setting an error state in event info
 #include "EventInfo/EventInfo.h"
 
-
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IMessageSvc.h"
