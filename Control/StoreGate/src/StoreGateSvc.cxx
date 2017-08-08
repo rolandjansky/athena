@@ -217,7 +217,7 @@ StatusCode StoreGateSvc::stop()    {
   //HACK ALERT: ID event store objects refer to det store objects
   //by setting an ad-hoc priority for event store(s) we make sure they are finalized and hence cleared first
   // see e.g. https://savannah.cern.ch/bugs/index.php?99993
-  if (store()->storeID() == StoreID::EVENT_STORE) {
+  if (m_defaultStore->store()->storeID() == StoreID::EVENT_STORE) {
     ISvcManager* pISM(dynamic_cast<ISvcManager*>(serviceLocator().get()));
     if (!pISM)
       return StatusCode::FAILURE;
