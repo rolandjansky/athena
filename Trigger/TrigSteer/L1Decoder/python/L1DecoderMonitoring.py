@@ -7,7 +7,7 @@ import math
 
 def CTPUnpackingMonitoring( maxItems, maxChains ):
     tool = GenericMonitoringTool( 'CTPUnpackingMonitoring' )
-    tool.HistogramsGroupName="L1Decoder";
+    tool.HistPath="L1Decoder";
     tool.Histograms = [defineHistogram( 'TAVItems', path='EXPERT', type='TH1F', title='Number of active L1 TAV items;N Items;N Events',
                                        xbins=maxItems, xmin=0, xmax=maxItems ),
                        defineHistogram( 'Chains', path='EXPERT', type='TH1F', title='Number of activated Chains;N Chains;N Events',
@@ -17,7 +17,7 @@ def CTPUnpackingMonitoring( maxItems, maxChains ):
 
 def RoIsUnpackingMonitoring( prefix, maxCount, maxEta=3. ):    
     tool = GenericMonitoringTool( prefix+'RoIsUnpackingMonitoring' )
-    tool.HistogramsGroupName="L1Decoder/RoIs"+prefix;
+    tool.HistPath="L1Decoder/RoIs"+prefix;
     tool.Histograms = [ defineHistogram( 'count', path='EXPERT', type='TH1F', title='Number of RoIs;N RoIs;N Events',
                                         xbins=maxCount, xmin=0, xmax=maxCount ),
                         defineHistogram( 'eta', path='EXPERT', type='TH1F', title='Eta distribution;eta;N RoIs',
