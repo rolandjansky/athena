@@ -95,7 +95,7 @@ TileDQFragMonTool::TileDQFragMonTool(const std::string & type, const std::string
   m_ErrorsLabels.push_back("MASKED");             // Error: 14
   m_ErrorsLabels.push_back("ALL_M_BAD_DCS");      // Error: 15
   m_ErrorsLabels.push_back("ANY_CH_BAD_HV");      // Error: 16
-  assert( m_ErrorsLabels.size() != NERROR );
+  assert( m_ErrorsLabels.size() == NERROR );
   // corrupted data
   m_ErrorsLabels.push_back("0 -> 1023");          // Error: NERROR - 1 + 1
   m_ErrorsLabels.push_back("Zeros");              // Error: NERROR - 1 + 2
@@ -110,7 +110,7 @@ TileDQFragMonTool::TileDQFragMonTool(const std::string & type, const std::string
   m_ErrorsLabels.push_back("Single Dn LG_s6");    // Error: NERROR - 1 + 11
   m_ErrorsLabels.push_back("Up LG_s0_s6 or Gap"); // Error: NERROR - 1 + 12
   m_ErrorsLabels.push_back("Dn LG_s0_s6 or Gap"); // Error: NERROR - 1 + 13
-  assert( m_ErrorsLabels.size() != (NERROR+NCORRUPTED) );
+  assert( m_ErrorsLabels.size() == (NERROR+NCORRUPTED) );
   
   m_PartitionsLabels.push_back("LBA");
   m_PartitionsLabels.push_back("LBC");
@@ -626,8 +626,8 @@ void TileDQFragMonTool::fillBadDrawer() {
 
           error = TileRawChannelBuilder::CorruptedData(ROS, drawer, channel, gain, pDigits->samples(), dmin, dmax);
 
-          if ((error > 0) && !(isDisconnected(ROS, drawer, channel)
-                               || m_tileBadChanTool->getAdcStatus(adcId).isBad())) {
+          if ( (error > 0) &&
+              !(isDisconnected(ROS, drawer, channel) || m_tileBadChanTool->getAdcStatus(adcId).isBad()) ) {
             ++nBadCh;
             if (msgLvl(MSG::DEBUG)) {
               msg(MSG::DEBUG) << "LB " << getLumiBlock()
@@ -696,7 +696,6 @@ void TileDQFragMonTool::fillErrHist(int ros, int drawer) {
 /*---------------------------------------------------------*/
 
 
-  //bool hasErr = false;
   int n_error_nonmask_DMU = 0;
   unsigned int cur_lb = getLumiBlock();
 
@@ -746,7 +745,6 @@ void TileDQFragMonTool::fillErrHist(int ros, int drawer) {
       if (m_dqStatus->isChanDQgood(ros + 1, drawer, ichn)) {
         fillOneErrHist(ros, drawer, idmu, 0);
       } else {
-        //hasErr |= CheckhasErr(ros, drawer, idmu);
         if (CheckhasErr(ros, drawer, idmu)) n_error_nonmask_DMU++;
         
         if (err) {
@@ -969,6 +967,7 @@ void TileDQFragMonTool::fillMasking()
     for (int drawer = 0; drawer < 64; ++drawer) {
       unsigned int idx = TileCalibUtils::getDrawerIdx(ros + 1, drawer);
       for (int ch = 0; ch < 48; ch += 3) {
+        int dmu = ch / 3;
         TileBchStatus status0 = m_tileBadChanTool->getAdcStatus(idx, ch, 1);
         status0 += m_tileBadChanTool->getAdcStatus(idx, ch, 0);
         TileBchStatus status1 = m_tileBadChanTool->getAdcStatus(idx, ch + 1, 1);
@@ -982,19 +981,19 @@ void TileDQFragMonTool::fillMasking()
           sp_EB = false;
 
         if (status0.isBad() && status1.isBad() && status2.isBad()) {
-          m_hist_error[ros][drawer]->Fill(ch / 3, MASKEDERROR, 1);
+          m_hist_error[ros][drawer]->Fill(dmu, MASKEDERROR, 1);
         } else if ((ros > 1) && ((ch == 18 && !sp_EB) || ch == 33)) { //disconnected channels for EBs
-          if (status2.isBad()) m_hist_error[ros][drawer]->Fill(ch / 3, MASKEDERROR, 1);
+          if (status2.isBad()) m_hist_error[ros][drawer]->Fill(dmu, MASKEDERROR, 1);
         } else if ((ros < 2) && (ch == 30)) { //disconnected channels for LBs
-          if (status2.isBad()) m_hist_error[ros][drawer]->Fill(ch / 3, MASKEDERROR, 1);
+          if (status2.isBad()) m_hist_error[ros][drawer]->Fill(dmu, MASKEDERROR, 1);
         } else if ((ros < 2) && (ch == 42)) { //disconnected channels for LBs
-          if (status0.isBad() && status2.isBad()) m_hist_error[ros][drawer]->Fill(ch / 3, MASKEDERROR, 1);
+          if (status0.isBad() && status2.isBad()) m_hist_error[ros][drawer]->Fill(dmu, MASKEDERROR, 1);
         } else if ((ros > 1) && (ch == 24 || ch == 27 || ch == 42 || ch == 45)) { // void DMUs for EBs
-          m_hist_error[ros][drawer]->Fill(ch / 3, MASKEDERROR, 1);
+          m_hist_error[ros][drawer]->Fill(dmu, MASKEDERROR, 1);
         } else if (sp_EB && (ch == 0)) { // void DMU 0 for EBA15, EBC18
-          m_hist_error[ros][drawer]->Fill(ch / 3, MASKEDERROR, 1);
+          m_hist_error[ros][drawer]->Fill(dmu, MASKEDERROR, 1);
         } else if (sp_EB && (ch == 3)) { // disconnected PMT of DMU 1 for EBA15, EBC18
-          if (status1.isBad() && status2.isBad()) m_hist_error[ros][drawer]->Fill(ch / 3, MASKEDERROR, 1);
+          if (status1.isBad() && status2.isBad()) m_hist_error[ros][drawer]->Fill(dmu, MASKEDERROR, 1);
         }
       } //chan loop
     } // drawer loop
