@@ -191,8 +191,6 @@ namespace xAOD {
     mutable bool m_p4EMCached;
     /** this defines the factor to compress floats by */
     int m_floatCompressionFactor;
-    /** this defines the tolerance for comparing charge to zero - define in PFO_v1.cxx as 0.01 */
-    float m_chargeTolerance;
 
   }; // class PFO
 

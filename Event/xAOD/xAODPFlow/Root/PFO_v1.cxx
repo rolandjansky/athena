@@ -1,3 +1,4 @@
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -42,11 +43,11 @@ namespace xAOD {
   };
 
   PFO_v1::PFO_v1()
-    : IParticle(), m_p4(), m_p4Cached( false ), m_p4EM(),  m_p4EMCached(false), m_floatCompressionFactor(1000), m_chargeTolerance(0.001) {
+    : IParticle(), m_p4(), m_p4Cached( false ), m_p4EM(),  m_p4EMCached(false), m_floatCompressionFactor(1000) {
     
   }
 
-  PFO_v1::PFO_v1(const PFO_v1& other) :  IParticle(), m_p4(), m_p4Cached( false ), m_p4EM(),  m_p4EMCached(false), m_floatCompressionFactor(1000), m_chargeTolerance(0.001) {
+  PFO_v1::PFO_v1(const PFO_v1& other) :  IParticle(), m_p4(), m_p4Cached( false ), m_p4EM(),  m_p4EMCached(false), m_floatCompressionFactor(1000) {
     this->makePrivateStore(other);
   }
 
@@ -159,7 +160,7 @@ namespace xAOD {
 
   const PFO_v1::FourMom_t& PFO_v1::p4EM() const { 
 
-    if (this->charge() > m_chargeTolerance) return this->p4();
+    if (fabs(this->charge()) > FLT_MIN) return this->p4();
 
     if (!m_p4EMCached){
 
@@ -212,7 +213,7 @@ namespace xAOD {
 
    double PFO_v1::ptEM() const {
 
-     if (this->charge() > m_chargeTolerance) return this->pt();
+     if (fabs(this->charge()) > FLT_MIN) return this->pt();
 
      const static Accessor<float> accPt("ptEM");
      float pt = accPt(*this);
@@ -222,28 +223,28 @@ namespace xAOD {
 
    double PFO_v1::etaEM() const {
           
-     if (this->charge() > m_chargeTolerance) return this->eta();
+     if (fabs(this->charge()) > FLT_MIN) return this->eta();
 
      return p4EM().Eta();
    }
 
    double PFO_v1::phiEM() const {
 
-     if (this->charge() > m_chargeTolerance) return this->phi();
+     if (fabs(this->charge()) > FLT_MIN) return this->phi();
 
      return p4EM().Phi();
    }
 
    double PFO_v1::mEM() const {
 
-     if (this->charge() > m_chargeTolerance) return this->m();
+     if (fabs(this->charge()) > FLT_MIN) return this->m();
 
      return p4EM().M();
    }
 
    double PFO_v1::eEM() const {
 
-     if (this->charge() > m_chargeTolerance) return this->e();
+     if (fabs(this->charge()) > FLT_MIN) return this->e();
 
      const static Accessor<float> accPt("ptEM");
      float pt = accPt(*this);
