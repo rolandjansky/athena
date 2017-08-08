@@ -26,5 +26,4 @@ from TrkTruthTrackAlgs.TrkTruthTrackAlgsConf import Trk__TruthTrackCreation
 topSequence += Trk__TruthTrackCreation("MuonTruthTrackCreation",
                                        PRD_TruthTrajectoryBuilder=ToolSvc.MuonPRD_TruthTrajectoryBuilder,
                                        TruthTrackBuilder = ToolSvc.MuonTruthTrackBuilder,
-                                       OutputTrackCollection = OutputTracks,
-                                       OutputSegmentCollection = OutputSegments )
+                                       OutputTrackCollection = OutputTracks)
