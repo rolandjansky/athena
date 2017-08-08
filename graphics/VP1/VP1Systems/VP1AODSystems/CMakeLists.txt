@@ -28,7 +28,7 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( Coin3D )
-find_package( Qt5 COMPONENTS Core Gui Widgets )
+find_package( Qt5 COMPONENTS Core Gui Widgets HINTS ${QT5_ROOT} )
 
 # Generate UI files automatically:
 # Note: add the "Widgets" component to "find_package( Qt5 ...)" if you have UI files, otherwise UIC, even if CMAKE_AUTOUIC is set to ON, is not run
