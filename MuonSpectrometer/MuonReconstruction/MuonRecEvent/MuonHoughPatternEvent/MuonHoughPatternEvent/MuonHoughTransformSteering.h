@@ -61,8 +61,6 @@ class MuonHoughTransformSteering
 
   /** maximum residu for hit to be associated to pattern */
   bool m_maximum_residu_mm;
-  /** residu_grad maximum residu for hit to be associated to pattern */
-  bool m_maximum_residu_grad;
 };
 
 #endif // MUONHOUGHPATTERNEVENT_MUONHOUGHTRANSFORMSTEERING_H
