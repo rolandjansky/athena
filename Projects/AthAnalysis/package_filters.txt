@@ -162,7 +162,7 @@
 
 # Needed for CutFlowSvc when using filter algs
 + Event/EventBookkeeperTools
-+ Event/EventBookkeeperMetadata
++ Event/EventBookkeeperMetaData
 
 # Other extras (would very much like to eliminate!) :
 + Event/EventInfo.*
