@@ -8,14 +8,10 @@
 
 #include "PixelMonitoring/PixelMonModules.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "TH1I.h"
-#include "TH2I.h"
-#include "TProfile.h"
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TProfile_LW.h"
 #include "InDetIdentifier/PixelID.h"
 #include "GaudiKernel/StatusCode.h"       
-#include <iostream>
 #include <string.h>
 
 PixelMonModules::~PixelMonModules()
@@ -162,24 +158,6 @@ void PixelMonModulesProf::Fill(double value0, double value1, Identifier &id, con
    else if (bec == 0) {
       if (m_doIBL) ld--;
       const int em = pixID->eta_module(id);
-      if (ld == 0) B0[em+6][pm]->Fill(value0, value1);
-      else if (ld == 1) B1[em+6][pm]->Fill(value0, value1);
-      else if (ld == 2) B2[em+6][pm]->Fill(value0, value1);
-      else if (ld == -1) IBL[em+10][pm]->Fill(value0, value1);
-   }
-}
-
-void PixelMonModules2D::Fill(double value0, double value1, Identifier &id, const PixelID* pixID)
-{
-   const int bec = pixID->barrel_ec(id);
-   const int pm  = pixID->phi_module(id);
-   int ld = pixID->layer_disk(id);
-
-   if (bec == 2) A[ld][pm]->Fill(value0, value1); 
-   else if (bec == -2) C[ld][pm]->Fill(value0, value1);
-   else if (bec == 0) {
-      if (m_doIBL) ld--;
-      const int em  = pixID->eta_module(id);
       if (ld == 0) B0[em+6][pm]->Fill(value0, value1);
       else if (ld == 1) B1[em+6][pm]->Fill(value0, value1);
       else if (ld == 2) B2[em+6][pm]->Fill(value0, value1);
