@@ -9,6 +9,8 @@
 #include <AsgTools/AnaToolHandle.h>
 
 #include <IsolationSelection/IIsolationCloseByCorrectionTool.h>
+#include <IsolationSelection/IsoVariableHelper.h>
+#include <IsolationSelection/IsolationWP.h>
 #include <IsolationSelection/Defs.h>
 
 #include "IsolationSelection/IIsolationSelectionTool.h"
@@ -31,10 +33,6 @@ namespace InDet {
     class IInDetTrackSelectionTool;
 }
 namespace CP {
-    class IsolationWP;
-    class IsoVariableHelper;
-
-
 
     //For tracks it does not matter whether we're using a set of a vector
     typedef std::set<const xAOD::TrackParticle*> TrackCollection;

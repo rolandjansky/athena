@@ -66,13 +66,13 @@ if( XAOD_ANALYSIS )
    atlas_add_executable( testIsolationCloseByCorrectionTool
       util/testIsolationCloseByCorrectionTool.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma POOLRootAccessLib
       xAODMuon xAODCore IsolationSelectionLib )
 
    atlas_add_executable( testIsolationSelectionTool
       util/testIsolationSelectionTool.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEgamma xAODMuon
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEgamma xAODMuon POOLRootAccessLib
       xAODPrimitives IsolationSelectionLib )
 endif()
 

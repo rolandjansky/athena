@@ -3,8 +3,6 @@
  */
 
 #include <IsolationSelection/IsolationCloseByCorrectionTool.h>
-#include <IsolationSelection/IsolationWP.h>
-#include <IsolationSelection/IsoVariableHelper.h>
 
 #include <xAODPrimitives/IsolationHelpers.h>
 
