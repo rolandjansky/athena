@@ -36,45 +36,6 @@
   #include "GeneratorObjects/McEventCollection.h"
 #endif
 
-namespace {
-	  std::ostream &operator<<(std::ostream &out, const AmgSymMatrix(5) &matrix) {
-	    out << std::endl;
-	    const unsigned int N=5;
-	     for (unsigned int i = 0; i < N; ++i) {
-	         for (unsigned int j = 0; j < N; ++j) {
-	           if (j==0) {
-	             if (i==0) {
-	               out << "/ ";
-	             }
-	             else if (i+1==N) {
-	               out << "\\ ";
-	             }
-	             else {
-	               out << "| ";
-	             }
-	
-	           }
-	           out << std::setw(14) << matrix(i,j) << " ";
-	           if (j+1==N) {
-	             if (i==0) {
-	               out << " \\ ";
-	             }
-	             else if (i+1==N) {
-	               out << " /";
-	             }
-	             else {
-	               out << " |";
-	             }
-	
-	           }
-	         }
-	         out << std::endl;
-	     }
-	     out << std::endl;
-	     return out;
-	  }
-}
-	
 bool Trk::DenseEnvironmentsAmbiguityProcessorTool::_checkTrack( const Trk::Track *track) const {
 	  if (!track )return true;
 	
