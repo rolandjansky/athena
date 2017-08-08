@@ -49,11 +49,14 @@ void setNSlotsHiveMgrName ATLAS_NOT_THREAD_SAFE (const std::string& s);
  * @c get() also takes an optional event context argument, to allow specifying
  * the slot explicitly, rather than looking it up in a thread-local global.
  *
- * This class does not do anything itself to synchronize the contents
- * of the payload objects.  Be aware that multiple threads may be executing
- * simultaneously for the same slot, so @c T may need to do locking internally.
+ * This class does not do anything itself to protect the contents
+ * of the payload objects against simultaneous access from different threads.
+ * Especially if the owner is a service or a reentrant algorithm,
+ * multiple threads may be executing  simultaneously for the same slot.
+ * In such cases, @c T must be safe against simultaneous access from
+ * multiple threads, possibly with an internal lock or using std::atomic.
  *
- * This is similiar to @c ContextSpecificPtr from gaudi, but with some
+ * This is similiar to @c ContextSpecificPtr from Gaudi, but with some
  * important differences:
  *
  *   - The payload objects are managed and owned by this class.
