@@ -21,7 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           graphics/VP1/VP1UtilsBase )
 
 # External dependencies:
-find_package( Qt4 COMPONENTS QtCore QtOpenGL QtGui )
+find_package( Qt5 COMPONENTS Core OpenGL Gui HINTS ${QT5_ROOT} )
 
 
 
@@ -29,7 +29,7 @@ find_package( Qt4 COMPONENTS QtCore QtOpenGL QtGui )
 atlas_add_component( VP1AlgsBatch
                      src/*.cxx
                      src/components/*.cxx
-                   LINK_LIBRARIES ${QT4_LIBRARIES} GL AthenaBaseComps GaudiKernel CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc EventInfo PathResolver VP1UtilsBase )
+                   LINK_LIBRARIES ${QT5_LIBRARIES} GL AthenaBaseComps GaudiKernel CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc EventInfo PathResolver VP1UtilsBase )
 
 # Install files from the package:
 atlas_install_headers( VP1AlgsBatch )
