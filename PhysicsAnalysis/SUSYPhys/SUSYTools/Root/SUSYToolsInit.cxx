@@ -167,6 +167,10 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     //std::string JES_config_file("JES_MC15cRecommendation_May2016_rel21.config");
     //:: +SZ
     std::string JES_config_file("JES_MC16Recommendation_Aug2017.config");
+    if (isData()){
+      // The in-situ correction only works in 20.7 for the moment
+      JES_config_file = "JES_data2016_data2015_Recommendation_Dec2016_rel21.config";
+    }
     if(!m_JMScalib.empty()){ //with JMS calibration (if requested)
       JES_config_file = "JES_data2016_data2015_Recommendation_Dec2016_JMS_rel21.config";
     }
@@ -198,6 +202,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     std::string calibseq("JetArea_Residual_Origin_EtaJES_GSC");
 #else    
     std::string calibseq("JetArea_Residual_EtaJES");
+    if (isData()){
+      calibseq = "JetArea_Residual_EtaJES_GSC";
+    }
 #endif
 //:: !SZ
     if(!m_JMScalib.empty()){
