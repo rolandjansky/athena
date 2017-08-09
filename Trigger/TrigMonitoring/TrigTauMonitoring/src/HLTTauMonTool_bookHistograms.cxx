@@ -846,21 +846,21 @@ void HLTTauMonTool::bookHistogramsAllItem(){
    	addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains_ditau.at(i),run));
     	setCurrentMonGroup("HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains_ditau.at(i));
         addProfile(new TProfile("TProfRecoL1_dREfficiency", "dR eff; dR(tau,tau); Efficiency",50,0.,4.));
-        addHistogram(new TH1F("hHLTdR", "dR; dR(tau,tau); Events",50,0.,4.));        
+        addHistogram(new TH1F("hHLTdR", "dR; dR(tau,tau); Events",50,0.,5.));        
     }
 
     for(unsigned int i=0;i<m_topo_chains_mutau.size(); ++i){
    	addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/TopoMuTau/"+m_topo_chains_mutau.at(i),run));
     	setCurrentMonGroup("HLT/TauMon/Expert/TopoMuTau/"+m_topo_chains_mutau.at(i));
         addProfile(new TProfile("TProfRecoL1_dREfficiency", "dR eff; dR(muon,tau); Efficiency",50,0.,4.)); 
-        addHistogram(new TH1F("hHLTdR", "dR; dR(muon,tau); Events",50,0.,4.));        
+        addHistogram(new TH1F("hHLTdR", "dR; dR(muon,tau); Events",50,0.,5.));        
     }
 
     for(unsigned int i=0;i<m_topo_chains_eltau.size(); ++i){
    	addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/TopoElTau/"+m_topo_chains_eltau.at(i),run));
     	setCurrentMonGroup("HLT/TauMon/Expert/TopoElTau/"+m_topo_chains_eltau.at(i));
         addProfile(new TProfile("TProfRecoL1_dREfficiency", "dR eff; dR(electron,tau); Efficiency",50,0.,4.));
-        addHistogram(new TH1F("hHLTdR", "dR; dR(electron,tau); Events",50,0.,4.));        
+        addHistogram(new TH1F("hHLTdR", "dR; dR(electron,tau); Events",50,0.,5.));        
     }
 
     if(m_doTopoValidation){

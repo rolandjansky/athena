@@ -194,8 +194,12 @@ StatusCode HLTTauMonTool::L1TopoLeptons(const std::string & trigItem, const std:
 					{
 						hist("hHLTdR")->Fill(dR);
 					}
+					else
+					{
+						if (m_doL1TopoLeptonsMonitoringWarnings) ATH_MSG_WARNING("mutau dR=0 ! Processing run: " << evtInfo->runNumber() << ", event: " << evtInfo->eventNumber() << ". Chain: "<< chain << ". Kinematics: dR=" << dR << ". muonTLV_maxPt: (" << muonTLV_maxPt(0) << ", " << muonTLV_maxPt(1) << ", " << muonTLV_maxPt(2) << ", " << muonTLV_maxPt(3) << "), v_eta_muon=" << v_eta_muon << ", v_phi_muon=" << v_phi_muon << ". tauTLV_maxPt: (" << tauTLV_maxPt(0) << ", " << tauTLV_maxPt(1) << ", " << tauTLV_maxPt(2) << ", " << tauTLV_maxPt(3) << "), v_eta_tau=" << v_eta_tau << ", v_phi_tau=" << v_phi_tau);
+					}
 					// some monitoring messages:
-					if (dR>3.) || (dR==-999.))
+					if ( (dR>3.) || (dR<.1) )
 					{
 						if (m_doL1TopoLeptonsMonitoringWarnings) ATH_MSG_WARNING("Processing run: " << evtInfo->runNumber() << ", event: " << evtInfo->eventNumber() << ". Chain: "<< chain << ". Kinematics: dR=" << dR << ". muonTLV_maxPt: (" << muonTLV_maxPt(0) << ", " << muonTLV_maxPt(1) << ", " << muonTLV_maxPt(2) << ", " << muonTLV_maxPt(3) << "), v_eta_muon=" << v_eta_muon << ", v_phi_muon=" << v_phi_muon << ". tauTLV_maxPt: (" << tauTLV_maxPt(0) << ", " << tauTLV_maxPt(1) << ", " << tauTLV_maxPt(2) << ", " << tauTLV_maxPt(3) << "), v_eta_tau=" << v_eta_tau << ", v_phi_tau=" << v_phi_tau);
 					}
@@ -310,8 +314,12 @@ StatusCode HLTTauMonTool::L1TopoLeptons(const std::string & trigItem, const std:
 					{
 						hist("hHLTdR")->Fill(dR);
 					}
+					else
+					{
+						if (m_doL1TopoLeptonsMonitoringWarnings) ATH_MSG_WARNING("mutau dR=0 ! Processing run: " << evtInfo->runNumber() << ", event: " << evtInfo->eventNumber() << ". Chain: "<< chain << ". Kinematics: dR=" << dR << ". electronTLV_maxPt: (" << electronTLV_maxPt(0) << ", " << electronTLV_maxPt(1) << ", " << electronTLV_maxPt(2) << ", " << electronTLV_maxPt(3) << "), v_eta_electron=" << v_eta_electron << ", v_phi_electron=" << v_phi_electron << ". tauTLV_maxPt: (" << tauTLV_maxPt(0) << ", " << tauTLV_maxPt(1) << ", " << tauTLV_maxPt(2) << ", " << tauTLV_maxPt(3) << "), v_eta_tau=" << v_eta_tau << ", v_phi_tau=" << v_phi_tau);
+					}
 					// some monitoring messages:
-					if ( (dR>3.) || (dR==-999.) )
+					if ( (dR>3.) || (dR<.1) )
 					{
 						if (m_doL1TopoLeptonsMonitoringWarnings) ATH_MSG_WARNING("Processing run: " << evtInfo->runNumber() << ", event: " << evtInfo->eventNumber() << ". Chain: "<< chain << ". Kinematics: dR=" << dR << ". electronTLV_maxPt: (" << electronTLV_maxPt(0) << ", " << electronTLV_maxPt(1) << ", " << electronTLV_maxPt(2) << ", " << electronTLV_maxPt(3) << "), v_eta_electron=" << v_eta_electron << ", v_phi_electron=" << v_phi_electron << ". tauTLV_maxPt: (" << tauTLV_maxPt(0) << ", " << tauTLV_maxPt(1) << ", " << tauTLV_maxPt(2) << ", " << tauTLV_maxPt(3) << "), v_eta_tau=" << v_eta_tau << ", v_phi_tau=" << v_phi_tau);
 					}
