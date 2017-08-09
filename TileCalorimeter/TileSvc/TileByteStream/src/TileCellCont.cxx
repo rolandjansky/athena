@@ -95,7 +95,7 @@ StatusCode TileCellCont::initialize() {
 
   // Get pointer to TileCablingService
   TileCablingService* cabling = TileCablingService::getInstance();
-  int maxChannels = TileCalibUtils::MAX_CHAN; // cabling->getMaxChannels();
+  int maxChannels = cabling->getMaxChannels();
 
   //m_hash.initialize(0);
   m_mbts_rods.clear();
