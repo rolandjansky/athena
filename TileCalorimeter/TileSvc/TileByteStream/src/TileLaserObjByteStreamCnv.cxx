@@ -32,6 +32,7 @@
 #include "TileByteStream/TileHid2RESrcID.h"
 #include "TileIdentifier/TileTBFrag.h"
 #include "TileEvent/TileLaserObject.h"
+#include "TileByteStream/TileROD_Decoder.h"
 
 
 
@@ -43,6 +44,7 @@ TileLaserObjByteStreamCnv::TileLaserObjByteStreamCnv(ISvcLocator* svcloc)
   , m_decoder("TileROD_Decoder")
   , m_robFrag(0)
   , m_ROBID()
+  , m_hid2re(0)
   , m_container(0)
 {
 }
@@ -61,11 +63,12 @@ StatusCode TileLaserObjByteStreamCnv::initialize() {
   // retrieve Tool
   CHECK( m_decoder.retrieve() );
 
+  m_hid2re = m_decoder->getHid2re();
+
   m_ROBID.clear();
   // m_ROBID.push_back( 0x500000 );
   // m_ROBID.push_back( 0x520010 );
-  const TileHid2RESrcID* hid2re = m_decoder->getHid2reHLT();
-  m_ROBID.push_back( hid2re->getRobFromFragID(LASER_OBJ_FRAG) );
+  m_ROBID.push_back( m_hid2re->getRobFromFragID(LASER_OBJ_FRAG) );
 
   return StatusCode::SUCCESS ;
 }

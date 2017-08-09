@@ -54,15 +54,11 @@ class TileDigitsContByteStreamTool: public AthAlgTool {
 
     const TileHWID* m_tileHWID;
 
-    TileHid2RESrcID m_hid2re;
-    TileHid2RESrcID m_TileMuRcv_hid2re;
+    const TileHid2RESrcID* m_hid2re;
 
     bool m_verbose;
     bool m_doFragType1;
     bool m_doFragType5;
-
-    FullEventAssembler<TileHid2RESrcID> m_fea;
-    FullEventAssembler<TileHid2RESrcID> m_TileMuRcv_fea;
 };
 
 #endif

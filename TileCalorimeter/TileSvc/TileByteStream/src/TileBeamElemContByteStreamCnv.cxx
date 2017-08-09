@@ -54,9 +54,8 @@ StatusCode TileBeamElemContByteStreamCnv::initialize() {
   ATH_MSG_DEBUG( " initialize " );
 
   // retrieve Tool
-  
   CHECK( m_decoder.retrieve() );
-  m_hid2re = m_decoder->getHid2reHLT();
+  m_hid2re = m_decoder->getHid2re();
 
   CHECK( m_robSvc.retrieve() );
 

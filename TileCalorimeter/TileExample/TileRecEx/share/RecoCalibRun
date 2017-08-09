@@ -4,8 +4,16 @@ disp=false
 castor=false
 team5=false
 calnt=false
+nocopy=false
 
 command=""
+
+if [ $1 = "-nn" ]
+    then
+    echo Will not copy results anywhere
+    nocopy=yes
+	shift
+fi
 
 if [ $1 = "-o" ]
     then
@@ -113,7 +121,6 @@ version=$4
 dir=$5
 jo=$6
 
-year=2012
 if [ $run -lt 100000 ]
 then year=2008
 elif [ $run -lt 142682 ]
@@ -122,14 +129,37 @@ elif [ $run -lt 171194 ]
 then year=2010
 elif [ $run -lt 194688 ]
 then year=2011
+elif [ $run -lt 216816 ]
+then year=2012
+elif [ $run -lt 224305 ]
+then year=2013
+elif [ $run -lt 248584 ]
+then year=2014
+elif [ $run -lt 287952 ]
+then year=2015
+elif [ $run -lt 314450 ]
+then year=2016
+else year=`date "+%Y"`
 fi
 
-rundate=`/usr/bin/mysql -u reader -h pcata007.cern.ch -NB -e "select date from tile.comminfo where run=$run and setup!='ATLAS'"`
-if [ ! -z "$rundate" ] 
+if [ $run -lt 238000 ]
 then
-   timestamp=`/bin/date --date="$rundate" "+%s"`
-   command="ForceTimeStamp=$timestamp; $command"
-fi 
+     rundate=`/usr/bin/mysql -u reader -h pcata007.cern.ch -NB -e "select date from tile.comminfo where run=$run and setup!='ATLAS'"`
+     if [ ! -z "$rundate" ] 
+     then
+          timestamp=`/bin/date --date="$rundate" "+%s"`
+          command="ForceTimeStamp=$timestamp; $command"
+     fi
+fi
+#if [ $type = "L1calo" ] || [ $type = "L1Calo" ] || [ $type = "l1calo" ] 
+#then
+#     rundate=`/usr/bin/mysql -u reader -h pcata007.cern.ch -NB -e "select date from tile.comminfo where run=$run"`
+#     if [ ! -z "$rundate" ] 
+#     then
+#          timestamp=`/bin/date --date="$rundate" "+%s"`
+#          command="ForceTimeStamp=$timestamp; $command"
+#     fi
+#fi
 
 castorloc=`echo $castorloc | sed "s|year|$year|g"`
 
@@ -154,13 +184,13 @@ elif [ $type = "Ped" ] || [ $type = "PED" ]
     command="TilePedRun=True; $command"
 
 elif [ $type = "MonoCis" ] || [ $type = "MonoCIS" ] 
-    then type="MonoCis"
-    echo "MonoCis run"
+    then type="MonoCIS"
+    echo "MonoCIS run"
     command="TileMonoRun=True; $command"
 
 elif [ $type = "RampCis" ] || [ $type = "RampCIS" ] 
-    then type="RampCis"
-    echo "RampCis run"
+    then type="RampCIS"
+    echo "RampCIS run"
     command="TileRampRun=True; $command"
 
 elif [ $type = "L1calo" ] || [ $type = "L1Calo" ] 
@@ -169,7 +199,7 @@ elif [ $type = "L1calo" ] || [ $type = "L1Calo" ]
     command="TileL1CaloRun=True; $command"
 
 else
-    echo "Invalid Run Type.  Please choose from: Phys, Las, Ped, CIS, MonoCis, RampCis, L1Calo"
+    echo "Invalid Run Type.  Please choose from: Phys, Las, Ped, CIS, MonoCIS, RampCIS, L1Calo"
     echo "Exiting"
     exit
 fi
@@ -182,9 +212,14 @@ version=$type.$version
 
 command="Version=\"$version\" ; RunNumber=$run ; $command"
 
+josuf=`basename $jo .py`
+jonam=`basename $jo`
 if [ X$jo = "X" ] || [ X$jo = "XX" ]  
     then
     jo="jobOptions_TileCalibRec.py"
+elif [ "$josuf" = "$jonam" ]
+    then
+    jo="jobOptions_TileCalibRec_${josuf}.py"
 fi
 
 if [ X$events = "X" ] 
@@ -221,25 +256,38 @@ fi
 tuple_name="tileD3PD_${run}_${version}.root"
 echo "tuple_name=\"$tuple_name\""
 echo "tuple_name=\"$tuple_name\"" >> $outdir/jo.py
+histo_name="tilemon_${run}_${version}.root"
+echo "histo_name=\"$histo_name\""
+echo "histo_name=\"$histo_name\""  >> $outdir/jo.py
 
-athena.py -s $outdir/jo.py $jo
+athena.py -s $outdir/jo.py $jo | tee athena.log
 
 ls -al
 ls -al $outdir
 
-if [ $team5 = "yes" ]
+if [ $nocopy = "yes" ]
     then
-    echo Copying Team5 plots to $team5loc
-    RUN=`echo $run | awk '{printf "r%5.5d",$1}'`
-    tmpdir="$RUN.$type"
-    mkdir $tmpdir
-    files=(`/bin/ls -1 . | grep -e "\.ps" -e "\.png" `)
-    for file in ${files[@]}
-      do
-      /bin/mv $file $tmpdir
-    done
-    /usr/bin/rsync -auv -e ssh $tmpdir $team5loc/
+    echo Will not copy results anywhere
+    exit
 fi
+
+if [ $USER = tilebeam ]
+then mv athena.log /afs/cern.ch/user/t/tilecomm/w0/commissioning/lsflog/all/${run}_${version}.log
+fi
+
+#if [ $team5 = "yes" ]
+#    then
+#    echo Copying Team5 plots to $team5loc
+#    RUN=`echo $run | awk '{printf "r%5.5d",$1}'`
+#    tmpdir="$RUN.$type"
+#    mkdir $tmpdir
+#    files=(`/bin/ls -1 . | grep -e "\.ps" -e "\.png" `)
+#    for file in ${files[@]}
+#      do
+#      /bin/mv $file $tmpdir
+#    done
+#    /usr/bin/rsync -auv -e ssh $tmpdir $team5loc/
+#fi
 
 if [ $calnt = "yes" ]
     then
@@ -319,16 +367,24 @@ if [ $castor = "yes" ]
     for file in ${files[@]}
       do
       echo Copying $file to ${castorloc}
-      ret=`xrd eosatlas existdir $castorloc | grep not`
+      ret=`xrdfs eosatlas stat $castorloc 2>&1 | grep ERROR`
       if [ ! -z "$ret" ] 
-          then xrd eosatlas mkdir ${castorloc}
+          then xrdfs eosatlas mkdir ${castorloc}
       fi 
-      #ret=`xrd eosatlas existfile $castorloc/$file | grep exist`
-      #if [ ! -z "$ret" ]
-      #then xrd eosatlas rm $castorloc/$file 
+      #ret=`xrdfs eosatlas stat $castorloc/$file 2>&1 | grep ERROR`
+      #if [ -z "$ret" ]
+      #then xrdfs eosatlas rm $castorloc/$file 
       #fi
       try=0;
-      until (xrdcp -f -s $outdir/$file root://eosatlas/${castorloc}/); do let try=$try+1; if [ $try -gt 100 ]; then echo "All $try tries failed, exiting"; break; else echo "Try $try - copy failed, trying again"; xrd eosatlas rm $castorloc/$file; fi; done
+      until (xrdcp -f -s $outdir/$file root://eosatlas/${castorloc}/$file)
+      do let try=$try+1
+         if [ $try -gt 100 ]
+         then echo "All $try tries failed, exiting"
+              break
+         else echo "Try $try - copy failed, trying again"
+              xrdfs eosatlas rm $castorloc/$file
+         fi
+      done
     done
 
 fi
