@@ -210,6 +210,17 @@ class athenaLogFileReportTests(unittest.TestCase):
 09:36:22 Py:Athena            INFO including file "eflowRec/eflowRecESDList.py"
 09:36:22 Py:Athena            ERROR too many floobles'''
 
+        testLogExcerptMP = '''
+10:43:11 Thu Mar 30 10:43:11 CEST 2017
+10:47:28 2017-03-30 10:46:30,037 AthMpEvtLoopMgr.SharedEvtQueueProvider            INFO Logs redirected in the AthenaMP event event counter PID=18296
+10:47:29 2017-03-30 10:47:03,885 ToolSvc.InDetImpactPoint3dEstimator               WARNING  DeltaR and MomentumDir are not orthogonal'''
+
+        testErrorExcerptMP = '''
+10:43:11 Thu Mar 30 10:43:11 CEST 2017
+10:47:28 2017-03-30 10:46:30,037 AthMpEvtLoopMgr.SharedEvtQueueProvider            INFO Logs redirected in the AthenaMP event event counter PID=18296
+10:47:29 2017-03-30 10:47:03,885 ToolSvc.InDetImpactPoint3dEstimator               WARNING  DeltaR and MomentumDir are not orthogonal
+10:47:28 2017-03-30 10:47:14,698 DRAW_TOPSLMUKernel                                ERROR Incompatible vectors - different length'''
+
         testBadAlloc = '''
 22:41:12 EventCounter                                         INFO EventCounter:EventCounter::execute - seen events: 9800
 22:41:14 AthenaEventLoopMgr                                   INFO   ===>>>  start processing event #5328391, run #204158 9800 events processed so far  <<<===
@@ -513,6 +524,9 @@ class athenaLogFileReportTests(unittest.TestCase):
             print >> f8, testMissedBadAlloc
         with open('file9', 'w') as f9:
             print >> f9, testDbMonitor
+        with open('file10', 'w') as f10:
+            print >> f10, testLogExcerptMP
+            print >> f10, testErrorExcerptMP
 
         self.myFileReport1 = athenaLogFileReport('file1')
         self.myFileReport2 = athenaLogFileReport('file2')
@@ -523,9 +537,10 @@ class athenaLogFileReportTests(unittest.TestCase):
         self.myFileReport7 = athenaLogFileReport('file7')
         self.myFileReport8 = athenaLogFileReport('file8')
         self.myFileReport9 = athenaLogFileReport('file9')
+        self.myFileReport10 = athenaLogFileReport('file10')
 
     def tearDown(self):
-        for f in 'file1', 'file2', 'file3', 'file4', 'file5', 'file6', 'file7', 'file8', 'file9':
+        for f in 'file1', 'file2', 'file3', 'file4', 'file5', 'file6', 'file7', 'file8', 'file9', 'file10':
             try:
                 os.unlink(f)
             except OSError:
@@ -548,6 +563,11 @@ class athenaLogFileReportTests(unittest.TestCase):
         self.assertEqual(self.myFileReport3.worstError(), {'level': 'ERROR', 'nLevel': logging.ERROR, 
                                                            'firstError': {'count': 1, 'firstLine': 15,
                                                                           'message': 'Py:Athena            ERROR too many floobles'},})
+
+    def test_logscanErrorMP(self):
+        self.assertEqual(self.myFileReport10.worstError(), {'level': 'ERROR', 'nLevel': logging.ERROR,
+                                                           'firstError': {'count': 1, 'firstLine': 9,
+                                                                          'message': 'DRAW_TOPSLMUKernel                                ERROR Incompatible vectors - different length'},})
 
     def test_badAlloc(self):
         self.assertEqual(self.myFileReport4.worstError(), {'level': 'CATASTROPHE', 'nLevel': stdLogLevels['CATASTROPHE'],
