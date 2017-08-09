@@ -2,21 +2,22 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef PFOPLOTS_H
-#define PFOPLOTS_H
+#ifndef PFOPVMATCHEDPLOTS_H
+#define PFOPVMATCHEDPLOTS_H
 
 #include "TrkValHistUtils/PlotBase.h"
 #include "xAODPFlow/PFO.h"
+#include "xAODTracking/Vertex.h" 
 
 namespace PFO {
 
-  class PFOPlots : public PlotBase {
+  class PFOPVMatchedPlots : public PlotBase {
 
   public:
 
-    PFOPlots(PlotBase *pParent, std::string sDir, std::string sPFOContainerName);
+    PFOPVMatchedPlots(PlotBase *pParent, std::string sDir, std::string sPFOContainerName);
 
-    void fill(const xAOD::PFO& PFO);
+    void fill(const xAOD::PFO& PFO, const xAOD::Vertex& theVertex);
 
   private:
     TH1* m_PFO_pt;
