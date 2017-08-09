@@ -160,8 +160,9 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
         'HLT_xe130_mht_L1XE50'        
         ]
     cutsEtMin = [80.0*Units.GeV, 40.0*Units.GeV]
-    cutsEtMinForMultiJets = [150.0*Units.GeV, 50.0*Units.GeV, 50.0*Units.GeV]
+    cutsEtMinForMultiJets = [50.0*Units.GeV, 50.0*Units.GeV, 50.0*Units.GeV]
     jetMetPtMin = 40.0*Units.GeV
+    cutMetHt = 8.0
     cutEtaMax = 3.2
     doLeptonVeto = True
     requireIsolatedTrack = True

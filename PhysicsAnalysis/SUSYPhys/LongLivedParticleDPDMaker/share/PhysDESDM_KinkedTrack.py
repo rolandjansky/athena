@@ -63,7 +63,8 @@ KinkTrkSingleJetMetFilterTool = DerivationFramework__KinkTrkSingleJetMetFilterTo
                                                                                    JetEtaMax            = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutEtaMax,
                                                                                    JetNumCut            = 1,
                                                                                    JetMetDphiMin        = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.jetMetDphiMin,
-                                                                                   JetMetPtMin        = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.jetMetPtMin,
+                                                                                   JetMetPtMin          = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.jetMetPtMin,
+                                                                                   MetHtCut             = -1,
                                                                                    LeptonPtCut          = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.leptonPtMax,
                                                                                    LeptonEtaMax         = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.leptonEtaMax)
 
@@ -94,8 +95,9 @@ KinkTrkMultiJetFilterTool = DerivationFramework__KinkTrkSingleJetMetFilterTool(n
                                                                                JetPtCuts            = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutsEtMinForMultiJets,
                                                                                JetEtaMax            = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutEtaMax,
                                                                                JetNumCut            = 3,
-                                                                               JetMetDphiMin        = -1.0,
-                                                                               JetMetPtMin          = 999.9*Units.GeV,
+                                                                               JetMetDphiMin        = 0.2,
+                                                                               JetMetPtMin          = 50.0*Units.GeV,
+                                                                               MetHtCut             = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.cutMetHt,
                                                                                LeptonPtCut          = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.leptonPtMax,
                                                                                LeptonEtaMax         = primRPVLLDESDM.KinkedTrack_singleJetMetFilterFlags.leptonEtaMax)
 
