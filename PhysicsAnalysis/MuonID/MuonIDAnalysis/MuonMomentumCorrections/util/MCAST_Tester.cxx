@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // System include(s):
 #include <memory>
 #include <cstdlib>
@@ -123,6 +119,7 @@ int main( int argc, char* argv[] ) {
   corrTool.setProperty("doSagittaMCDistortion",false);
   corrTool.setProperty("noEigenDecor",false);
   //corrTool.setProperty("FilesPath","/afs/cern.ch/work/g/gabarone/public/TestSingleMuon/Run/test_itk/");
+  //corrTool.setProperty("FilesPath","/afs/cern.ch/work/g/gabarone/public/TestSingleMuon/Run/testSebastian/MuonMomentumCorrections/");
   if(corrTool.initialize()!=StatusCode::SUCCESS) return 1;
 
   

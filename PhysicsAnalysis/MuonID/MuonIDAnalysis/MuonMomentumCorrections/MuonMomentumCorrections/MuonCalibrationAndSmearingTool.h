@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #ifndef MCAST_MUONCALIBRATIONANDMEARINGTOOL_H
 #define MCAST_MUONCALIBRATIONANDMEARINGTOOL_H
 
@@ -214,6 +210,12 @@ protected:
   std::vector <TProfile2D*> *m_sagittasCB;
   std::vector <TProfile2D*> *m_sagittasID;
   std::vector <TProfile2D*> *m_sagittasME;
+
+  bool m_SagittaCorrPhaseSpace;
+  TProfile2D *m_sagittaPhaseSpaceCB;
+  TProfile2D *m_sagittaPhaseSpaceID;
+  TProfile2D *m_sagittaPhaseSpaceME;
+  
 
   bool m_doSagittaCorrection;
   std::vector <double> m_GlobalZScales;
