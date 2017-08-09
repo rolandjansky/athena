@@ -28,6 +28,7 @@
 // Local include(s):
 #include "MuonEfficiencyCorrections/MuonTriggerScaleFactors.h"
 #include "PATInterfaces/ISystematicsTool.h"
+#include "PATInterfaces/SystematicsUtil.h"
 
 #define CHECK_CPSys(Arg) \
     if (Arg.code() == CP::SystematicCode::Unsupported){    \
@@ -142,16 +143,6 @@ int main(int argc, char* argv[]) {
             nrOfEntriesToRunOver = e;
         }
     }
-    
-    std::vector<CP::SystematicSet> systematics;
-    const CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
-    const CP::SystematicSet& recommendedSystematics = registry.recommendedSystematics();
-
-    systematics.push_back(CP::SystematicSet());
-    for (CP::SystematicSet::const_iterator sysItr = recommendedSystematics.begin(); sysItr != recommendedSystematics.end(); ++sysItr) {
-        systematics.push_back(CP::SystematicSet());
-        systematics.back().insert(*sysItr);
-    }
 
     std::vector<std::vector<CP::MuonTriggerScaleFactors*>> triggerSFTools;
     for (size_t i = 0; i < qualities.size(); i++) {
@@ -175,6 +166,8 @@ int main(int argc, char* argv[]) {
         triggerSFTools.push_back(tools);
     }
     
+    std::vector<CP::SystematicSet> systematics = CP::make_systematics_vector(CP::SystematicRegistry::getInstance().recommendedSystematics());
+
     int errorsCount = 0;
     int warningsCount = 0;
     for(Long64_t entry = 0; entry < nrOfEntriesToRunOver; entry++) {
