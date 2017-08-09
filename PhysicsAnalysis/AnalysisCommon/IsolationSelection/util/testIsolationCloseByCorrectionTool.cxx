@@ -155,7 +155,7 @@ int main(int argc, char** argv) {
     xAOD::PhotonContainer* Photons = nullptr;
 
     SG::AuxElement::Decorator<char> dec_PassQuality("isCloseByObject");
-    SG::AuxElement::Decorator<char> dec_PassIsol("DefaultIso");
+    SG::AuxElement::Decorator<char> dec_PassIsol("defaultIso");
 
     for (Long64_t entry = 0; entry < maxEVT; ++entry) {
 

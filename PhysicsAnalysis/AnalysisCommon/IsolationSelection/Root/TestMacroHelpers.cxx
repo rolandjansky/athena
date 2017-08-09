@@ -51,11 +51,11 @@ namespace CP {
             for (auto& C : W->conditions()) {
                 // The 'Default' has been fixed in the Athena JO and util macro
                 if (xAOD::Iso::IsolationFlavour::ptcone == xAOD::Iso::isolationFlavour(C->type())) {
-                    m_TrackAcc = IsoHelperPtr(new IsoVariableHelper(C->type(), "Default"));
+                    m_TrackAcc = IsoHelperPtr(new IsoVariableHelper(C->type(), "default"));
                 } else if (xAOD::Iso::IsolationFlavour::ptvarcone == xAOD::Iso::isolationFlavour(C->type())) {
-                    m_TrackAcc = IsoHelperPtr(new IsoVariableHelper(C->type(), "Default"));
+                    m_TrackAcc = IsoHelperPtr(new IsoVariableHelper(C->type(), "default"));
                 } else if (xAOD::Iso::IsolationFlavour::topoetcone == xAOD::Iso::isolationFlavour(C->type())) {
-                    m_CaloAcc = IsoHelperPtr(new IsoVariableHelper(C->type(), "Default"));
+                    m_CaloAcc = IsoHelperPtr(new IsoVariableHelper(C->type(), "default"));
                 }
             }
             //Assume only 1 WP
@@ -156,5 +156,10 @@ namespace CP {
     void IsoCorrectionTestHelper::CorrectedIsolation(const std::string &DecorName){
        m_acc_passCorrected = SelectionAccessor(new CharAccessor(DecorName));
     }
+    void IsoCorrectionTestHelper::BackupPreFix(const std::string &PreFix){
+        if (m_TrackAcc.get() != nullptr) m_TackAcc = IsoHelperPtr(new IsoVariableHelper(m_TackAcc->isotype(), PreFix));
+        if (m_CaloAcc.get() != nullptr) m_CaloAcc = IsoHelperPtr(new IsoVariableHelper(m_CaloAcc->isotype(), PreFix));
+    }
+            
          
 }

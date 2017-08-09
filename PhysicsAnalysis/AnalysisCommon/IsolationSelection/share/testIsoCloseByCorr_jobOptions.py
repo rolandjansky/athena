@@ -54,7 +54,7 @@ ToolSvc += CfgMgr.CP__IsolationCloseByCorrectionTool("IsolationCloseByCorrection
                                                      SelectionDecorator = "isCloseByObject",
 #                                                      PassOverlapDecorator = "passOR",
                                                       IsolationSelectionDecorator = "correctedIsol" ,
-                                                      BackupPrefix = "Default")
+                                                      BackupPrefix = "default")
 
 
 ## Test algorithm
