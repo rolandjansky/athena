@@ -19,7 +19,6 @@ namespace G4UA
       virtual void processStep(const G4Step*) override;
       virtual void preTracking(const G4Track*) override;
     private:
-      G4Track* m_lastTrack;
       int m_count;
       float m_energy;
   }; // class PhotonKiller

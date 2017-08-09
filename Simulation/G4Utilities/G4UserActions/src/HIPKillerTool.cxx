@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "G4UserActions/HIPKillerTool.h"
 
 namespace G4UA
@@ -20,8 +19,7 @@ namespace G4UA
   std::unique_ptr<HIPKiller>  HIPKillerTool::makeAction()
   {
     ATH_MSG_DEBUG("makeAction");
-    auto action = CxxUtils::make_unique<HIPKiller>();
-    return std::move(action);
+    return std::make_unique<HIPKiller>();
   }
 
 } // namespace G4UA
