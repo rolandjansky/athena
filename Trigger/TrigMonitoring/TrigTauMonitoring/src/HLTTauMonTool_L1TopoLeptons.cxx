@@ -4,6 +4,8 @@
 #include "HLTTauMonTool.h"
 #include "AthenaKernel/Units.h"
 #include "xAODEventInfo/EventInfo.h"
+//#include "GaudiKernel/Property.h"
+
 using namespace std;
 using Athena::Units::GeV;
 StatusCode HLTTauMonTool::L1TopoLeptons(const std::string & trigItem, const std::string & typeOfChain){
@@ -11,21 +13,13 @@ StatusCode HLTTauMonTool::L1TopoLeptons(const std::string & trigItem, const std:
     ATH_MSG_DEBUG ("HLTTauMonTool::L1TopoLeptons");
    
 	const xAOD::EventInfo* evtInfo = 0;	
-	if( !evtStore()->retrieve(evtInfo, "EventInfo" ).isSuccess() )
-	{
-		ATH_MSG_DEBUG("Failed to retrieve EventInfo container.");
-		//ATH_MSG_WARNING("Failed to retrieve EventInfo container.");
-	}
+	ATH_CHECK ( evtStore()->retrieve(evtInfo) );
 
     std::string chain = "HLT_"+trigItem;
 
 	std::string chain_ditau_nonL1Topo = "HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM";
 	std::string chain_eltau_nonL1Topo = "HLT_e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo";
 	std::string chain_mutau_nonL1Topo = "HLT_mu14_ivarloose_tau25_medium1_tracktwo";//_L1MU10_TAU12I-J25";
-
-	int counter_ditau;
-	int counter_mutau;
-	int counter_eltau;
 
 	if (typeOfChain == "ditau")
 	{
@@ -35,9 +29,9 @@ StatusCode HLTTauMonTool::L1TopoLeptons(const std::string & trigItem, const std:
 			// creating the feature container
             Trig::FeatureContainer f = ( getTDT()->features(chain,m_HLTTriggerCondition) );
             Trig::FeatureContainer::combination_const_iterator comb(f.getCombinations().begin()), combEnd(f.getCombinations().end());
-			//ATH_MSG_WARNING("Trigger chain " << chain << " contains " << comb->size() << " di-tau combinations.");
-            if(comb->size()!=2){
-                    ATH_MSG_DEBUG("Number of combinations for chain " << chain << " is "<< comb->size());		                    
+			if(comb->size()!=2){
+                    ATH_MSG_DEBUG("Number of di-tau combinations for chain " << chain << " is "<< comb->size());
+					if (m_doL1TopoLeptonsMonitoringWarnings) ATH_MSG_WARNING("Number of di-tau combinations for chain " << chain << " is "<< comb->size()); 		                    
             }
             std::vector<float> v_eta, v_phi, v_pt;
 			for(;comb!=combEnd;++comb)
@@ -46,7 +40,7 @@ StatusCode HLTTauMonTool::L1TopoLeptons(const std::string & trigItem, const std:
 				std::vector<Trig::Feature<xAOD::TauJetContainer> >::const_iterator topoTau = vec_HLTtau.begin(), topoTau_e = vec_HLTtau.end();
 				if(topoTau==topoTau_e) ATH_MSG_DEBUG("TrigTauMerged TauJet container EMPTY in " << chain);
 				ATH_MSG_DEBUG("Item "<< chain << ": " << vec_HLTtau.size() << " " << topoTau->label() << " containers");
-				//ATH_MSG_WARNING("comb# "<< (comb-f.getCombinations().begin())+1 << " out of: " << comb->size() << ", has: " << vec_HLTtau.size() << " " << topoTau->label() << " containers");
+				if (m_doL1TopoLeptonsMonitoringWarnings) ATH_MSG_WARNING("comb# "<< (comb-f.getCombinations().begin())+1 << " out of: " << comb->size() << ", has: " << vec_HLTtau.size() << " " << topoTau->label() << " containers");
 
 				for(; topoTau != topoTau_e; ++topoTau)
 				{
@@ -62,14 +56,13 @@ StatusCode HLTTauMonTool::L1TopoLeptons(const std::string & trigItem, const std:
 						}
 					}
 				}
-				counter_ditau++;
 			} // end of possible combinations loop
 			if(v_eta.size()!=2)
 			{
 				ATH_MSG_DEBUG("Number of taus for chain " << chain << " is "<< v_eta.size());
 			}
 			float min_dR(999.);
-			float min_eta1, min_eta2, min_phi1, min_phi2;
+			float min_eta1(999.), min_eta2(999.), min_phi1(999.), min_phi2(999.);
 			for(unsigned int t1=0;t1<v_eta.size();t1++)
 			{
 				for(unsigned int t2=t1+1;t2<v_eta.size();t2++)
@@ -92,11 +85,10 @@ StatusCode HLTTauMonTool::L1TopoLeptons(const std::string & trigItem, const std:
 			}
 			if (min_dR>3.0)
 			{
-				//ATH_MSG_WARNING("Processing run: " << evtInfo->runNumber() << ", event: " << evtInfo->eventNumber() << ". Chain: "<< chain << ". Kinematics: dR=" << min_dR << ". v_eta_tau1=" << min_eta1 << ", v_phi_tau1=" << min_phi1 << ". v_eta_tau2=" << min_eta2 << ", v_phi_tau2=" << min_phi2);
+				if (m_doL1TopoLeptonsMonitoringWarnings) ATH_MSG_WARNING("Processing run: " << evtInfo->runNumber() << ", event: " << evtInfo->eventNumber() << ". Chain: "<< chain << ". Kinematics: dR=" << min_dR << ". v_eta_tau1=" << min_eta1 << ", v_phi_tau1=" << min_phi1 << ". v_eta_tau2=" << min_eta2 << ", v_phi_tau2=" << min_phi2);
 			}
 
             hist("hHLTdR")->Fill(min_dR);
-			//ATH_MSG_WARNING("Final taus: v_eta_tau1=" << min_eta1 << ", v_phi_tau1=" << min_phi1 << ", v_eta_tau2=" << min_eta2 << ", v_phi_tau2=" << min_phi2 << " and dR=" << min_dR);
 
 			// check if chain is "HLT_mu14_ivarloose_tau25_medium1_tracktwo_L1MU10_TAU12I-J25", i.e. reference nonL1Topo to calculate the L1DR efficiency
 			if (chain == chain_ditau_nonL1Topo)
@@ -124,10 +116,9 @@ StatusCode HLTTauMonTool::L1TopoLeptons(const std::string & trigItem, const std:
 			// creating the feature container
 			Trig::FeatureContainer f = ( getTDT()->features(chain,m_HLTTriggerCondition) );
 	  		const std::vector<Trig::Combination>& mutauCombinations = f.getCombinations();
-			//ATH_MSG_WARNING("Trigger contains " << mutauCombinations.size() << " mu-tau combinations.");
-
-            float v_eta_muon, v_phi_muon;
-            float v_eta_tau, v_phi_tau;
+			
+            float v_eta_muon(999.), v_phi_muon(999.);
+            float v_eta_tau(999.), v_phi_tau(999.);
 
 			// loop over all possible combinations
 			std::vector<Trig::Combination>::const_iterator cIt;
@@ -139,12 +130,10 @@ StatusCode HLTTauMonTool::L1TopoLeptons(const std::string & trigItem, const std:
 
 				muonCont = comb.get<xAOD::MuonContainer>("",m_HLTTriggerCondition);
 				ATH_MSG_DEBUG("Combination has " << tauCont.size() << " TauJetContainer and " << muonCont.size() << " MuonContainer.");
-				//ATH_MSG_WARNING("Comb#: " << (cIt-mutauCombinations.begin())+1  << " out of: " << mutauCombinations.size() << ", has " << tauCont.size() << " TauJetContainer and " << muonCont.size() << " MuonContainer.");
+				if (m_doL1TopoLeptonsMonitoringWarnings) ATH_MSG_WARNING("Comb#: " << (cIt-mutauCombinations.begin())+1  << " out of: " << mutauCombinations.size() << ", has " << tauCont.size() << " TauJetContainer and " << muonCont.size() << " MuonContainer.");
 
 				if(tauCont.size()>0 || muonCont.size()>0) 
 				{
-					//ATH_MSG_WARNING("Looking at TauJet combination with " << taus->size() << " taus and " << muon->size() << " muons," << " this one was " << (comb.active()?"":"not ") << "active.");
-
 					// Tau
 					std::vector<Trig::Feature<xAOD::TauJetContainer> >::const_iterator topoTau = tauCont.begin(), topoTau_e = tauCont.end();
 					if(topoTau==topoTau_e) ATH_MSG_DEBUG("TrigTauMerged TauJet container EMPTY in " << chain);
@@ -171,34 +160,10 @@ StatusCode HLTTauMonTool::L1TopoLeptons(const std::string & trigItem, const std:
 						}
 					} // end loop over topoTau
 
-/*
-					// Match highest-pt tau to an offline tau
-					const xAOD::TauJetContainer * tau_cont = 0; // offline tau container
-					if(evtStore()->retrieve(tau_cont, "Taus").isFailure()) 
-					{
-						ATH_MSG_WARNING("Failed to retrieve Taus container. Exiting.");
-						return StatusCode::FAILURE;
-					}
-					else 
-					{
-						xAOD::TauJetContainer::const_iterator tauItr, tau_cont_end = tau_cont->end();
-						for(tauItr=tau_cont->begin(); tauItr!=tau_cont_end; ++tauItr)
-						{
-							TLorentzVector offineTauTLV = (*tauItr)->p4();
-							float dR = offineTauTLV.DeltaR(tauTLV_maxPt);
-							if (dR < tmpR)
-							{
-								tmpR = dR;
-								matchedOfflineTau = offineTauTLV;
-							}
-						}
-						ATH_MSG_WARNING("Found matched Tau to Offline container! tmpR = " << tmpR << " and TLV.Mag(): " << matchedOfflineTau.Mag() << ".");
-					}
-*/
 					// Muon
 					std::vector<Trig::Feature<xAOD::MuonContainer> >::const_iterator topoMuon = muonCont.begin(), topoMuon_e = muonCont.end();
 					if(topoMuon==topoMuon_e) ATH_MSG_DEBUG("Muon container EMPTY in " << chain);
-						// find the muon with the highest pT (in case there are multiple muons in the container)
+					// find the muon with the highest pT (in case there are multiple muons in the container)
 					for(; topoMuon != topoMuon_e; ++topoMuon)
 					{
 						if(topoMuon->cptr())
@@ -221,58 +186,19 @@ StatusCode HLTTauMonTool::L1TopoLeptons(const std::string & trigItem, const std:
 						}
 					} // end loop over topoMuon
 
-/*
-					// Match highest-pt muon to an offline muon
-					const xAOD::MuonContainer * muon_cont = 0; // offline muon container
-					if(evtStore()->retrieve(muon_cont, "Muons").isFailure()) 
-					{
-						ATH_MSG_WARNING("Failed to retrieve Muons container. Exiting.");
-						return StatusCode::FAILURE;
-					}
-					else 
-					{
-						xAOD::MuonContainer::const_iterator muonItr, muon_cont_end = muon_cont->end();
-						for(muonItr=muon_cont->begin(); muonItr!=muon_cont_end; ++muonItr)
-						{
-							TLorentzVector offineMuonTLV = (*muonItr)->p4();
-							float dR = offineMuonTLV.DeltaR(muonTLV_maxPt);
-							if (dR < tmpR)
-							{
-								tmpR = dR;
-								matchedOfflineMuon = offineMuonTLV;
-							}
-						}
-						ATH_MSG_WARNING("Found matched Muon to Offline container! tmpR = " << tmpR << " and TLV.Mag(): " << matchedOfflineMuon.Mag() << ".");
-					}
-*/
 					// Calculate the dR between the (highest-pT tau) and (highest-pT muon)
 					float dR(999.);
-					//dR = matchedOfflineTau.DeltaR(matchedOfflineMuon);
-					//dR = tauTLV_maxPt.DeltaR(muonTLV_maxPt);
 					dR = deltaR(v_eta_tau,v_eta_muon,v_phi_tau,v_phi_muon);
-
-					// some monitoring messages:
-					if ((dR==-999.) || (dR==999.))
-					{
-						//profile("TProfRecoL1_dR999_pt")->Fill(tauTLV_maxPt,muonTLV_maxPt);
-						profile("TProfRecoL1_dR999_eta")->Fill(v_eta_tau,v_eta_muon);
-						profile("TProfRecoL1_dR999_phi")->Fill(v_phi_tau,v_phi_muon);
-						//ATH_MSG_WARNING("Processing run: " << evtInfo->runNumber() << ", event: " << evtInfo->eventNumber() << ". Chain: "<< chain << ". Kinematics: dR=" << dR << ". muonTLV_maxPt: (" << muonTLV_maxPt(0) << ", " << muonTLV_maxPt(1) << ", " << muonTLV_maxPt(2) << ", " << muonTLV_maxPt(3) << "), v_eta_muon=" << v_eta_muon << ", v_phi_muon=" << v_phi_muon << ". tauTLV_maxPt: (" << tauTLV_maxPt(0) << ", " << tauTLV_maxPt(1) << ", " << tauTLV_maxPt(2) << ", " << tauTLV_maxPt(3) << "), v_eta_tau=" << v_eta_tau << ", v_phi_tau=" << v_phi_tau);
-					}
-					if (dR>3.)
-					{
-						//ATH_MSG_WARNING("Processing run: " << evtInfo->runNumber() << ", event: " << evtInfo->eventNumber() << ". Chain: "<< chain << ". Kinematics: dR=" << dR << ". muonTLV_maxPt: (" << muonTLV_maxPt(0) << ", " << muonTLV_maxPt(1) << ", " << muonTLV_maxPt(2) << ", " << muonTLV_maxPt(3) << "), v_eta_muon=" << v_eta_muon << ", v_phi_muon=" << v_phi_muon << ". tauTLV_maxPt: (" << tauTLV_maxPt(0) << ", " << tauTLV_maxPt(1) << ", " << tauTLV_maxPt(2) << ", " << tauTLV_maxPt(3) << "), v_eta_tau=" << v_eta_tau << ", v_phi_tau=" << v_phi_tau);
-					}
 
 					if (dR!=0.)
 					{
 						hist("hHLTdR")->Fill(dR);
 					}
-					else
+					// some monitoring messages:
+					if (dR>3.) || (dR==-999.))
 					{
-						counterOfdR0_Topomutau++;
+						if (m_doL1TopoLeptonsMonitoringWarnings) ATH_MSG_WARNING("Processing run: " << evtInfo->runNumber() << ", event: " << evtInfo->eventNumber() << ". Chain: "<< chain << ". Kinematics: dR=" << dR << ". muonTLV_maxPt: (" << muonTLV_maxPt(0) << ", " << muonTLV_maxPt(1) << ", " << muonTLV_maxPt(2) << ", " << muonTLV_maxPt(3) << "), v_eta_muon=" << v_eta_muon << ", v_phi_muon=" << v_phi_muon << ". tauTLV_maxPt: (" << tauTLV_maxPt(0) << ", " << tauTLV_maxPt(1) << ", " << tauTLV_maxPt(2) << ", " << tauTLV_maxPt(3) << "), v_eta_tau=" << v_eta_tau << ", v_phi_tau=" << v_phi_tau);
 					}
-					//ATH_MSG_WARNING("Processing run: " << evtInfo->runNumber() << ", event: " << evtInfo->eventNumber() << ". Chain: "<< chain << ". Kinematics: dR=" << dR << ". muonTLV_maxPt: (" << muonTLV_maxPt(0) << ", " << muonTLV_maxPt(1) << ", " << muonTLV_maxPt(2) << ", " << muonTLV_maxPt(3) << "), v_eta_muon=" << v_eta_muon << ", v_phi_muon=" << v_phi_muon << ". tauTLV_maxPt: (" << tauTLV_maxPt(0) << ", " << tauTLV_maxPt(1) << ", " << tauTLV_maxPt(2) << ", " << tauTLV_maxPt(3) << "), v_eta_tau=" << v_eta_tau << ", v_phi_tau=" << v_phi_tau);
 
 					// check if chain is "HLT_mu14_ivarloose_tau25_medium1_tracktwo_L1MU10_TAU12I-J25", i.e. reference nonL1Topo to calculate the L1DR efficiency
 					if (chain == chain_mutau_nonL1Topo)
@@ -290,7 +216,6 @@ StatusCode HLTTauMonTool::L1TopoLeptons(const std::string & trigItem, const std:
 				{
 					ATH_MSG_WARNING("MuonContainer or MuonContainer missing.");
 				}
-				counter_mutau++;
 			} // end of possible combinations loop
 		} // end of: "if(getTDT()->isPassed(chain))"
 	} // end of: "if (typeOfChain == "mutau")"
@@ -306,10 +231,10 @@ StatusCode HLTTauMonTool::L1TopoLeptons(const std::string & trigItem, const std:
 			// creating the feature container
 			Trig::FeatureContainer f = ( getTDT()->features(chain,m_HLTTriggerCondition) );
 	  		const std::vector<Trig::Combination>& eltauCombinations = f.getCombinations();
-			//ATH_MSG_WARNING("Trigger contains " << eltauCombinations.size() << " el-tau combinations.");
+			if (m_doL1TopoLeptonsMonitoringWarnings) ATH_MSG_WARNING("Trigger contains " << eltauCombinations.size() << " el-tau combinations.");
 
-            float v_eta_electron, v_phi_electron;
-            float v_eta_tau, v_phi_tau;
+            float v_eta_electron(999.), v_phi_electron(999.);
+            float v_eta_tau(999.), v_phi_tau(999.);
 
 			// loop over all possible combinations
 			std::vector<Trig::Combination>::const_iterator cIt;
@@ -319,13 +244,10 @@ StatusCode HLTTauMonTool::L1TopoLeptons(const std::string & trigItem, const std:
 				std::vector< Trig::Feature<xAOD::TauJetContainer> > tauCont = comb.get<xAOD::TauJetContainer>("TrigTauRecMerged",m_HLTTriggerCondition);
 				std::vector< Trig::Feature<xAOD::ElectronContainer> > electronCont;
 				electronCont = comb.get<xAOD::ElectronContainer>("",m_HLTTriggerCondition);
-				//std::vector< Trig::Feature<JetCollection> >   jetC = comb.get<xAOD::JetCollection>();
-				//ATH_MSG_WARNING("Comb#: " << (cIt-eltauCombinations.begin())+1  << " out of: " << eltauCombinations.size() << ", has " << tauCont.size() << " TauJetContainer and " << electronCont.size() << " ElectronContainer.");
+				if (m_doL1TopoLeptonsMonitoringWarnings) ATH_MSG_WARNING("Comb#: " << (cIt-eltauCombinations.begin())+1  << " out of: " << eltauCombinations.size() << ", has " << tauCont.size() << " TauJetContainer and " << electronCont.size() << " ElectronContainer.");
 
 				if(tauCont.size()>0 || electronCont.size()>0) 
 				{
-					//ATH_MSG_WARNING("Looking at TauJet combination with " << taus->size() << " taus and " << muon->size() << " muons," << " this one was " << (comb.active()?"":"not ") << "active.");
-
 					// Tau
 					std::vector<Trig::Feature<xAOD::TauJetContainer> >::const_iterator topoTau = tauCont.begin(), topoTau_e = tauCont.end();
 					if(topoTau==topoTau_e) ATH_MSG_DEBUG("TrigTauMerged TauJet container EMPTY in " << chain);
@@ -352,31 +274,6 @@ StatusCode HLTTauMonTool::L1TopoLeptons(const std::string & trigItem, const std:
 							}
 						}
 					} // end loop over topoTau
-
-/*
-					// Match highest-pt tau to an offline tau
-					const xAOD::TauJetContainer * tau_cont = 0; // offline tau container
-					if(evtStore()->retrieve(tau_cont, "Taus").isFailure()) 
-					{
-						ATH_MSG_WARNING("Failed to retrieve Taus container. Exiting.");
-						return StatusCode::FAILURE;
-					}
-					else 
-					{
-						xAOD::TauJetContainer::const_iterator tauItr, tau_cont_end = tau_cont->end();
-						for(tauItr=tau_cont->begin(); tauItr!=tau_cont_end; ++tauItr)
-						{
-							TLorentzVector offineTauTLV = (*tauItr)->p4();
-							float dR = offineTauTLV.DeltaR(tauTLV_maxPt);
-							if (dR < tmpR)
-							{
-								tmpR = dR;
-								matchedOfflineTau = offineTauTLV;
-							}
-						}
-						ATH_MSG_WARNING("Found matched Tau to Offline container! tmpR = " << tmpR << " and TLV.Mag(): " << matchedOfflineTau.Mag() << ".");
-					}
-*/
 
 					// Electron
 					std::vector<Trig::Feature<xAOD::ElectronContainer> >::const_iterator topoElectron = electronCont.begin(), topoElectron_e = electronCont.end();
@@ -405,58 +302,19 @@ StatusCode HLTTauMonTool::L1TopoLeptons(const std::string & trigItem, const std:
 						}
 					} // end loop over topoElectron
 
-/*
-					// Match highest-pt electron to an offline electron
-					const xAOD::ElectronContainer * electron_cont = 0; // offline electron container
-					if(evtStore()->retrieve(electron_cont, "Electrons").isFailure()) 
-					{
-						ATH_MSG_WARNING("Failed to retrieve Electrons container. Exiting.");
-						return StatusCode::FAILURE;
-					}
-					else 
-					{
-						xAOD::ElectronContainer::const_iterator electronItr, electron_cont_end = electron_cont->end();
-						for(electronItr=electron_cont->begin(); electronItr!=electron_cont_end; ++electronItr)
-						{
-							TLorentzVector offineElectronTLV = (*electronItr)->p4();
-							float dR = offineElectronTLV.DeltaR(electronTLV_maxPt);
-							if (dR < tmpR)
-							{
-								tmpR = dR;
-								matchedOfflineElectron = offineElectronTLV;
-							}
-						}
-						ATH_MSG_WARNING("Found matched Electron to Offline container! tmpR = " << tmpR << " and TLV.Mag(): " << matchedOfflineElectron.Mag() << ".");
-					}
-*/
 					// Calculate the dR between the (highest-pT offline tau) and (highest-pT offline electron)
 				    float dR(999.);
-					//dR = matchedOfflineTau.DeltaR(matchedOfflineElectron);
-					//dR = tauTLV_maxPt.DeltaR(electronTLV_maxPt);
 					dR = deltaR(v_eta_tau,v_eta_electron,v_phi_tau,v_phi_electron);
-
-					// some monitoring messages:
-					if ((dR==-999.) || (dR==999.))
-					{
-						//profile("TProfRecoL1_dR999_pt")->Fill(tauTLV_maxPt,electronTLV_maxPt);
-						profile("TProfRecoL1_dR999_eta")->Fill(v_eta_tau,v_eta_electron);
-						profile("TProfRecoL1_dR999_phi")->Fill(v_phi_tau,v_phi_electron);
-						//ATH_MSG_WARNING("Processing run: " << evtInfo->runNumber() << ", event: " << evtInfo->eventNumber() << ". Chain: "<< chain << ". Kinematics: dR=" << dR << ". electronTLV_maxPt: (" << electronTLV_maxPt(0) << ", " << electronTLV_maxPt(1) << ", " << electronTLV_maxPt(2) << ", " << electronTLV_maxPt(3) << "), v_eta_electron=" << v_eta_electron << ", v_phi_electron=" << v_phi_electron << ". tauTLV_maxPt: (" << tauTLV_maxPt(0) << ", " << tauTLV_maxPt(1) << ", " << tauTLV_maxPt(2) << ", " << tauTLV_maxPt(3) << "), v_eta_tau=" << v_eta_tau << ", v_phi_tau=" << v_phi_tau);
-					}
-					if (dR>3.)
-					{
-						//ATH_MSG_WARNING("Processing run: " << evtInfo->runNumber() << ", event: " << evtInfo->eventNumber() << ". Chain: "<< chain << ". Kinematics: dR=" << dR << ". electronTLV_maxPt: (" << electronTLV_maxPt(0) << ", " << electronTLV_maxPt(1) << ", " << electronTLV_maxPt(2) << ", " << electronTLV_maxPt(3) << "), v_eta_electron=" << v_eta_electron << ", v_phi_electron=" << v_phi_electron << ". tauTLV_maxPt: (" << tauTLV_maxPt(0) << ", " << tauTLV_maxPt(1) << ", " << tauTLV_maxPt(2) << ", " << tauTLV_maxPt(3) << "), v_eta_tau=" << v_eta_tau << ", v_phi_tau=" << v_phi_tau);
-					}
 
 					if (dR!=0.)
 					{
 						hist("hHLTdR")->Fill(dR);
 					}
-					else
+					// some monitoring messages:
+					if ( (dR>3.) || (dR==-999.) )
 					{
-						counterOfdR0_Topoeltau++;
+						if (m_doL1TopoLeptonsMonitoringWarnings) ATH_MSG_WARNING("Processing run: " << evtInfo->runNumber() << ", event: " << evtInfo->eventNumber() << ". Chain: "<< chain << ". Kinematics: dR=" << dR << ". electronTLV_maxPt: (" << electronTLV_maxPt(0) << ", " << electronTLV_maxPt(1) << ", " << electronTLV_maxPt(2) << ", " << electronTLV_maxPt(3) << "), v_eta_electron=" << v_eta_electron << ", v_phi_electron=" << v_phi_electron << ". tauTLV_maxPt: (" << tauTLV_maxPt(0) << ", " << tauTLV_maxPt(1) << ", " << tauTLV_maxPt(2) << ", " << tauTLV_maxPt(3) << "), v_eta_tau=" << v_eta_tau << ", v_phi_tau=" << v_phi_tau);
 					}
-					//ATH_MSG_WARNING("Processing run: " << evtInfo->runNumber() << ", event: " << evtInfo->eventNumber() << ". Chain: "<< chain << ". Kinematics: dR=" << dR << ". electronTLV_maxPt: (" << electronTLV_maxPt(0) << ", " << electronTLV_maxPt(1) << ", " << electronTLV_maxPt(2) << ", " << electronTLV_maxPt(3) << "), v_eta_electron=" << v_eta_electron << ", v_phi_electron=" << v_phi_electron << ". tauTLV_maxPt: (" << tauTLV_maxPt(0) << ", " << tauTLV_maxPt(1) << ", " << tauTLV_maxPt(2) << ", " << tauTLV_maxPt(3) << "), v_eta_tau=" << v_eta_tau << ", v_phi_tau=" << v_phi_tau);
 
 					// check if chain is "HLT_e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo", i.e. reference nonL1Topo to calculate the L1DR efficiency
 					if (chain == chain_eltau_nonL1Topo)
@@ -475,7 +333,6 @@ StatusCode HLTTauMonTool::L1TopoLeptons(const std::string & trigItem, const std:
 				{
 					ATH_MSG_WARNING("TauJetContainer or ElectronContainer missing.");
 				}
-				counter_eltau++;
 			} // end of possible combinations loop
 		} // end of: "if(getTDT()->isPassed(chain))"
 	} // end of: "if (typeOfChain == "eltau")"

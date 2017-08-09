@@ -133,6 +133,7 @@ HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, co
     declareProperty("doL1JetPlots", 		m_doL1JetPlots=false);
     declareProperty("doEFTProfiles", 		m_doEFTProfiles=false);
 	declareProperty("domuCut40", 		m_domuCut40=false);    
+	declareProperty("doL1TopoLeptonsMonitoringWarnings",	m_doL1TopoLeptonsMonitoringWarnings=false);
     declareProperty("topo_ditau_chains",    m_topo_chains_ditau);
     declareProperty("topo_eltau_chains",    m_topo_chains_eltau);
     declareProperty("topo_mutau_chains",    m_topo_chains_mutau);
@@ -251,12 +252,6 @@ StatusCode HLTTauMonTool::init() {
 	m_LST_HLTsel0Prong_FTKNoPrec_chains = {"tau12_idperf_FTK", "tau12_perf0_FTK", "tau12_medium0_FTKNoPrec"};
 	m_LST_HLTsel_tracktwo_chains = {"tau25_idperf_tracktwo", "tau25_perf_tracktwo", "tau25_medium1_tracktwo"};	// Reference 
 	m_Ratio = {"idperf", "perf", "medium1"};
-	// store the mu-tau and e-tau chains from m_topo_chains in separate string vectors.
-/*    for(std::vector<std::string>::iterator it = m_topo_chains.begin(); it != m_topo_chains.end(); ++it) {
-		std::string thisChain = *it;
-		if(thisChain.find("mu14")!=std::string::npos) m_topo_chains_Muon.push_back(*it);
-		if(thisChain.find("e17")!=std::string::npos) m_topo_chains_Electron.push_back(*it);
-    }*/
 
 // 	HERE DOESN'T WORK SINCE TDT NOT YET INITIALISED
 //	const Trig::ChainGroup* m_allHLTTauItems = getTDT()->getChainGroup("HLT_.*");
@@ -879,52 +874,6 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
           }
      	} // end comb loop
      } // end events passing HLT chain
-
-     // L1Topo Tests
-	// * moved to L1TopoLeptons
-	/*
-     if(trig_item_EF=="HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM" && getTDT()->isPassed(trig_item_EF)){
-
-      		Trig::FeatureContainer f = ( getTDT()->features(trig_item_EF,m_HLTTriggerCondition) );
-       		Trig::FeatureContainer::combination_const_iterator comb(f.getCombinations().begin()), combEnd(f.getCombinations().end());
-       		if(comb->size()!=2){
-        		ATH_MSG_DEBUG("Number of combinations for chain " << trig_item_EF<< " is "<< comb->size()); 
-         		//return StatusCode::FAILURE;
-                }
-	        std::vector<float> v_eta, v_phi;
-                for(;comb!=combEnd;++comb){
-         		const std::vector< Trig::Feature<xAOD::TauJetContainer> > vec_HLTtau = comb->get<xAOD::TauJetContainer>("TrigTauRecMerged",m_HLTTriggerCondition);
-         		std::vector<Trig::Feature<xAOD::TauJetContainer> >::const_iterator ditauCI = vec_HLTtau.begin(), ditauCI_e = vec_HLTtau.end();
-         		if(ditauCI==ditauCI_e) ATH_MSG_DEBUG("TrigTauMerged TauJet container EMPTY in " << trig_item_EF);
-         		ATH_MSG_DEBUG("Item "<< trigItem << ": " << vec_HLTtau.size() << " " << ditauCI->label() << " containers");
-         		for(; ditauCI != ditauCI_e; ++ditauCI){
-           			if(ditauCI->cptr()){
-             				if(ditauCI->cptr()->size()==0) ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << ditauCI->cptr()->size() << " TauJets");
-             				ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << ditauCI->cptr()->size() << " TauJets");
-             				xAOD::TauJetContainer::const_iterator tauItr = ditauCI->cptr()->begin();
-             				xAOD::TauJetContainer::const_iterator tauEnd = ditauCI->cptr()->end();
-					for(; tauItr != tauEnd; ++tauItr){				
-						v_eta.push_back((*tauItr)->eta()); v_phi.push_back((*tauItr)->phi());
-					}
-				}
-			}
-		}
-		float min_dR(999.);
-		for(unsigned int t1=0;t1<v_eta.size();t1++)
-			for(unsigned int t2=t1+1;t2<v_eta.size();t2++){ 
-				float dR = deltaR(v_eta.at(t1),v_eta.at(t2),v_phi.at(t1),v_phi.at(t2));
-				if(dR<min_dR  && dR!=0.) min_dR=dR;
-		}
-
-    		for(unsigned int i=0;i<m_topo_chains_ditau.size(); ++i){
-        		setCurrentMonGroup("HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains_ditau.at(i));
-			int pass(0);
-		        std::string chain = "HLT_"+m_topo_chains_ditau.at(i);	
-                        if(getTDT()->isPassed(chain)) pass = 1;
-			profile("TProfRecoL1_dREfficiency")->Fill(min_dR,pass);	
-    		}
-
-     }*/
    }
     
     if( m_turnOnCurves) {

@@ -847,9 +847,6 @@ void HLTTauMonTool::bookHistogramsAllItem(){
     	setCurrentMonGroup("HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains_ditau.at(i));
         addProfile(new TProfile("TProfRecoL1_dREfficiency", "dR eff; dR(tau,tau); Efficiency",50,0.,4.));
         addHistogram(new TH1F("hHLTdR", "dR; dR(tau,tau); Events",50,0.,4.));        
-        //addProfile(new TProfile("TProfRecoL1_dR999_pt", "tau(pt) vs tau(pt) (dR=999); tau pT; tau pT",7, {100, 150, 200, 250, 300, 350, 400, 600})); 
-        addProfile(new TProfile("TProfRecoL1_dR999_eta", "tau(eta) vs tau(eta) (dR=999); tau eta; tau eta", nbin_eta_temp-1, bins_eta_temp)); 
-        addProfile(new TProfile("TProfRecoL1_dR999_phi", "tau(phi) vs tau(phi) (dR=999); tau phi; tau phi",16,-3.2,3.2)); 
     }
 
     for(unsigned int i=0;i<m_topo_chains_mutau.size(); ++i){
@@ -857,9 +854,6 @@ void HLTTauMonTool::bookHistogramsAllItem(){
     	setCurrentMonGroup("HLT/TauMon/Expert/TopoMuTau/"+m_topo_chains_mutau.at(i));
         addProfile(new TProfile("TProfRecoL1_dREfficiency", "dR eff; dR(muon,tau); Efficiency",50,0.,4.)); 
         addHistogram(new TH1F("hHLTdR", "dR; dR(muon,tau); Events",50,0.,4.));        
-        //addProfile(new TProfile("TProfRecoL1_dR999_pt", "tau(pt) vs mu(pt) (dR=999); muon pT; tau pT",7, {100, 150, 200, 250, 300, 350, 400, 600})); 
-        addProfile(new TProfile("TProfRecoL1_dR999_eta", "tau(eta) vs mu(eta) (dR=999); muon eta; tau eta", nbin_eta_temp-1, bins_eta_temp)); 
-        addProfile(new TProfile("TProfRecoL1_dR999_phi", "tau(phi) vs mu(phi) (dR=999); muon phi; tau phi",16,-3.2,3.2)); 
     }
 
     for(unsigned int i=0;i<m_topo_chains_eltau.size(); ++i){
@@ -867,9 +861,6 @@ void HLTTauMonTool::bookHistogramsAllItem(){
     	setCurrentMonGroup("HLT/TauMon/Expert/TopoElTau/"+m_topo_chains_eltau.at(i));
         addProfile(new TProfile("TProfRecoL1_dREfficiency", "dR eff; dR(electron,tau); Efficiency",50,0.,4.));
         addHistogram(new TH1F("hHLTdR", "dR; dR(electron,tau); Events",50,0.,4.));        
-        //addProfile(new TProfile("TProfRecoL1_dR999_pt", "tau(pt) vs el(pt) (dR=999); el pT; tau pT",7, {100, 150, 200, 250, 300, 350, 400, 600})); 
-        addProfile(new TProfile("TProfRecoL1_dR999_eta", "tau(eta) vs el(eta) (dR=999); el eta; tau eta", nbin_eta_temp-1, bins_eta_temp)); 
-        addProfile(new TProfile("TProfRecoL1_dR999_phi", "tau(phi) vs el(phi) (dR=999); el phi; tau phi",16,-3.2,3.2)); 
     }
 
     if(m_doTopoValidation){

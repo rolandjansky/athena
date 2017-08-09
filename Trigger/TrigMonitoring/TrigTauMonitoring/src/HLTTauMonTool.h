@@ -141,7 +141,6 @@ class HLTTauMonTool : public IHLTMonTool {
   float deltaR(const xAOD::TauJet* aEFTau, const xAOD::EmTauRoI* l1Tau);
   void plotUnderOverFlow(TH1* hist);
   void cloneProfile(const std::string name, const std::string folder);
-  void getTProfXaxis(const std::string name_orig, const std::string folder_orig, const std::string name_dest, const std::string folder_dest);
   void cloneHistogram(const std::string name, const std::string folder); 
   void cloneHistogram2(const std::string name, const std::string folder);
   /* StatusCode OfflineEfficiency(const std::string & trigItem); */
@@ -166,6 +165,7 @@ class HLTTauMonTool : public IHLTMonTool {
   bool m_doEFTProfiles;
   bool m_domuCut40; 
   bool m_doEfficiencyRatioPlots;
+  bool m_doL1TopoLeptonsMonitoringWarnings;
   bool m_bootstrap;
   bool m_isData;
 
