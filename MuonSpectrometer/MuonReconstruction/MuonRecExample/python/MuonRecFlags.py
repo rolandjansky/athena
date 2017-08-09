@@ -361,6 +361,12 @@ class makePRDs(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
+# @brief Run the isolation for muons
+class doMuonIso(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
 
 
 ## The flags to steer muon reconstruction
@@ -390,6 +396,7 @@ class MuonRec(JobPropertyContainer):
         setDefault(self.useAlignmentCorrections,DetFlags.detdescr.Muon_on() and rec.doMuon())
         setDefault(self.writeSDOs, rec.doWriteESD() and globalflags.DataSource != 'data')
         setDefault(self.useTGCPriorNextBC,True)
+        setDefault(self.doMuonIso,False)
 
         if beamFlags.beamType == 'cosmics' or beamFlags.beamType == 'singlebeam':
             setDefault(self.doSegmentT0Fit,True)
