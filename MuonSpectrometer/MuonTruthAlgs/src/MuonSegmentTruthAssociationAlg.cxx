@@ -24,9 +24,9 @@ namespace Muon {
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_muonTrackTruthTool("Muon::MuonTrackTruthTool/MuonTrackTruthTool")
   {  
-    declareProperty("MuonTruthSegmentName",m_muonTruthSegmentContainerName = "MuonTruthSegments" );
-    declareProperty("MuonSegmentLocation", m_muonSegmentCollectionName = "MuonSegments" );
-    declareProperty("BarcodeOffset",       m_barcodeOffset = 1000000 );
+    declareProperty("MuonTruthSegmentName",m_muonTruthSegmentContainerName = "MuonTruthSegments","muon truth segment container name" );
+    declareProperty("MuonSegmentLocation", m_muonSegmentCollectionName = "MuonSegments" ,"muon segment container name");
+    declareProperty("BarcodeOffset",       m_barcodeOffset = 1000000 ,"barcode offset for matching truth particles");
   }
 
   // Initialize method:
