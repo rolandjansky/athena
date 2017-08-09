@@ -31,14 +31,12 @@ MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const std::strin
   declareProperty( "Year", m_year = "Data16" );
   declareProperty( "Algo", m_algo = "muons" );
   declareProperty( "SmearingType", m_type = "q_pT" );
-  //declareProperty( "Release", m_release = "Recs2016_08_07" );
   declareProperty( "Release", m_release = "Recs2016_15_07" );
   declareProperty( "ToroidOff", m_toroidOff = false );
   declareProperty( "FilesPath", m_FilesPath = "" );
   declareProperty( "StatComb", m_useStatComb = false);  
   declareProperty( "MinCombPt", m_StatCombPtThreshold=300.0); 
   declareProperty( "SagittaCorr", m_doSagittaCorrection = false); 
-  //declareProperty("SagittaRelease", m_SagittaRelease = "sagittaBiasDataAll_06_02_17");
   declareProperty("SagittaRelease", m_SagittaRelease = "sagittaBiasDataAll_25_07_17");
   declareProperty("doSagittaMCDistortion",m_doSagittaMCDistortion=false);
   declareProperty("SagittaCorrPhaseSpace",m_SagittaCorrPhaseSpace=false);
