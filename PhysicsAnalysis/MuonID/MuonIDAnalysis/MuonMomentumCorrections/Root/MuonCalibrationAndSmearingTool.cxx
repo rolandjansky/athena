@@ -179,8 +179,6 @@ MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const MuonCalibr
   declareProperty( "Algo", m_algo = "muons" );
   declareProperty( "SmearingType", m_type = "q_pT" );
   declareProperty( "Release", m_release = "Recs2016_15_07" );
-  //declareProperty( "Release", m_release = "Recs2016_08_07" );
-  //declareProperty( "Release", m_release = "PreRecs2016_05_23" );
   declareProperty( "ToroidOff", m_toroidOff = false );
   declareProperty( "FilesPath", m_FilesPath = "" );
   
