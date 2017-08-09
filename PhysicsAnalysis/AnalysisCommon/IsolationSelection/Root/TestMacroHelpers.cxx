@@ -157,7 +157,7 @@ namespace CP {
        m_acc_passCorrected = SelectionAccessor(new CharAccessor(DecorName));
     }
     void IsoCorrectionTestHelper::BackupPreFix(const std::string &PreFix){
-        if (m_TrackAcc.get() != nullptr) m_TackAcc = IsoHelperPtr(new IsoVariableHelper(m_TackAcc->isotype(), PreFix));
+        if (m_TrackAcc.get() != nullptr) m_TrackAcc = IsoHelperPtr(new IsoVariableHelper(m_TrackAcc->isotype(), PreFix));
         if (m_CaloAcc.get() != nullptr) m_CaloAcc = IsoHelperPtr(new IsoVariableHelper(m_CaloAcc->isotype(), PreFix));
     }
             
