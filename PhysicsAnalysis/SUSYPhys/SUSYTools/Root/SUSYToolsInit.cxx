@@ -166,7 +166,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 #else
     //std::string JES_config_file("JES_MC15cRecommendation_May2016_rel21.config");
     //:: +SZ
-    std::string JES_config_file("JES_data2016_data2015_Recommendation_Dec2016_rel21.config"); 
+    std::string JES_config_file("JES_MC16Recommendation_Aug2017.config");
     if(!m_JMScalib.empty()){ //with JMS calibration (if requested)
       JES_config_file = "JES_data2016_data2015_Recommendation_Dec2016_JMS_rel21.config";
     }
@@ -197,7 +197,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 #if ROOTCORE_RELEASE_SERIES==24    
     std::string calibseq("JetArea_Residual_Origin_EtaJES_GSC");
 #else    
-    std::string calibseq("JetArea_Residual_EtaJES_GSC");
+    std::string calibseq("JetArea_Residual_EtaJES");
 #endif
 //:: !SZ
     if(!m_JMScalib.empty()){
@@ -1239,8 +1239,10 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
     if (m_jetInputType == xAOD::JetInput::EMPFlow) {
       ATH_CHECK( m_metMaker.setProperty("DoPFlow", true) );
+#if ROOTCORE_RELEASE_SERIES == 24
       ATH_CHECK( m_metMaker.setProperty("JetSelection", "Expert") );
       ATH_CHECK( m_metMaker.setProperty("CustomJetJvtCut", -1.) );
+#endif
     }
 
 //#ifdef ASGSeries24
