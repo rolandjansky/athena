@@ -34,6 +34,7 @@
 #include "TileByteStream/TileROD_Decoder.h"
 #include "TileByteStream/TileHid2RESrcID.h"
 #include "TileEvent/TileDigitsContainer.h"
+#include "TileByteStream/TileROD_Decoder.h"
 
 #include <vector> 
 #include <string> 
@@ -69,10 +70,10 @@ StatusCode TileDigitsContByteStreamCnv::initialize() {
   m_byteStreamCnvSvc = dynamic_cast<ByteStreamCnvSvc*>(&*m_byteStreamEventAccess);
 
   // retrieve Tool
-  CHECK( m_tool.retrieve() );
-
   CHECK( m_decoder.retrieve() );
-  m_hid2re = m_decoder->getHid2reHLT();
+  m_hid2re = m_decoder->getHid2re();
+
+  CHECK( m_tool.retrieve() );
 
   CHECK( m_robSvc.retrieve() );
 
@@ -145,7 +146,9 @@ StatusCode TileDigitsContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObj
         } else {
           m_decoder->fillCollection(robf[0], *digitsCollection);
         }
-      }  
+      } else {
+        digitsCollection->setFragBCID((TileROD_Decoder::NO_ROB)<<16);
+      }
     }
 
     ATH_MSG_DEBUG( "Creating digits container " << *(pRE_Addr->par()) );
