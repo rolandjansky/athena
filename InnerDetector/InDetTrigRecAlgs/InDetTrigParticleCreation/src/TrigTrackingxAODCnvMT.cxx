@@ -253,7 +253,7 @@ namespace InDet
       //      tmp_phi_roi = 0;
     } else {
 
-      TrigRoiDescriptor* roi = *(roiCollection->begin());
+      //TrigRoiDescriptor* roi = *(roiCollection->begin());
       //tmp_eta_roi = roi->eta();
       //tmp_phi_roi = roi->phi();
     }
