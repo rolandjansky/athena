@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef MCAST_TOOLTESTER_H
 #define MCAST_TOOLTESTER_H
 
