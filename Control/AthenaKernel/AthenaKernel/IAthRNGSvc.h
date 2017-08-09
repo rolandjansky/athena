@@ -1,6 +1,9 @@
 /** @class IAthRNGSvc
-  * @brief manage multiple RandomEngines
+  * @brief manage multiple RandomEngines in thread-safe way.
   * 
+  * Access to the RandomEngine is wrapped in the RNGWrapper
+  * in order to ensure thread-safe access in the event loop.
+  *
   * @author Sami Kama <sami.kama@cern.ch>
   */
 

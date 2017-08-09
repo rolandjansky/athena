@@ -19,6 +19,14 @@ namespace CLHEP{
   class HepRandomEngine;
 }
 
+/// @class AthRNGSvc
+/// @brief A service to manage multiple RNG streams in thread-safe way.
+///
+/// The random engines are provided via the RNGWrapper which dereferences to
+/// the appropriate slot-local engine.
+///
+/// @todo Move from manual pointer management to smart pointer management.
+///
 class AthRNGSvc : virtual public IAthRNGSvc,
                   virtual public IIncidentListener,
                   public AthService
