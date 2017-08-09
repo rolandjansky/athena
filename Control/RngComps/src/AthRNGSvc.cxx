@@ -148,11 +148,12 @@ bool AthRNGSvc::setAllOnDefinedSeeds (uint64_t /*eventNumber*/, uint64_t /*runNu
   return false;
 }
 
-AthRNGSvc::~AthRNGSvc(){
-  std::unordered_map<std::string,std::pair<ATHRNG::RNGWrapper*,CLHEP::HepRandomEngine*>>::iterator it=m_wrappers.begin();
-  for(;it!=m_wrappers.end();++it){
-    delete it->second.second;
-    delete it->second.first;
+AthRNGSvc::~AthRNGSvc()
+{
+  // Clean up the RNGWrappers and HepRandomEngines
+  for(auto& wrapperPair : m_wrappers) {
+    delete wrapperPair.second.first;
+    delete wrapperPair.second.second;
   }
 }
 
