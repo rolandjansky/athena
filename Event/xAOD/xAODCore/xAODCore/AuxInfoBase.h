@@ -102,6 +102,9 @@ namespace xAOD {
       /// Get the size of the container
       virtual size_t size() const;
 
+      /// Lock a decoration.
+      virtual void lockDecoration (SG::auxid_t auxid);
+
       /// @}
 
       /// @name Functions implementing the SG::IAuxStore interface
