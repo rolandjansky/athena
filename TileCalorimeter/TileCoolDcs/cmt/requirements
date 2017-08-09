@@ -1,0 +1,11 @@
+package TileCoolDcs
+
+author Sergey Baranov <Sergey.Baranov@cern.ch>
+author Nils Gollub <nils.gollub@cern.ch>
+
+use AtlasPolicy AtlasPolicy-*
+use AtlasConditionsRunTime AtlasConditionsRunTime-* 
+
+apply_pattern declare_python_modules files="*.py"
+apply_pattern declare_scripts  files="*.py"
+apply_pattern declare_runtime files="*.dat"
