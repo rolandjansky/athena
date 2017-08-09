@@ -11,6 +11,8 @@
 namespace Monitored {
   namespace MonitoredTimer{
 
+    constexpr const char* MonitoredTimer::TIMER_PREFIX;
+
     MonitoredTimer::MonitoredTimer(std::string name)
     : IMonitoredVariable(std::move(name)) {
       // Enforce some naming convention for timers
