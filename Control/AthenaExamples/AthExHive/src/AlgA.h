@@ -29,9 +29,10 @@ public:
   
 private:
 
-  SG::WriteHandleKey<HiveDataObj> m_wrh1;
-  SG::WriteHandleKey<HiveDataObj> m_wrh2;
-  SG::ReadHandleKey<EventInfo> m_evt;
+  SG::WriteHandleKey<HiveDataObj> m_wrh1 {this, "Key_W1", "a1", "write key 1"};
+  SG::WriteHandleKey<HiveDataObj> m_wrh2 {this, "Key_W2", "a2", "write key 2"};
+  SG::ReadHandleKey<EventInfo>    m_evt  {this, "EvtInfo", "McEventInfo", 
+      "EventInfo name"};
 
   std::atomic<int> m_i {1};
   

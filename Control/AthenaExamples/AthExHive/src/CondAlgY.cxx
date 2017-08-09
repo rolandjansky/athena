@@ -18,18 +18,9 @@
 CondAlgY::CondAlgY( const std::string& name, 
             ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
-  m_wch1("Y1","Y1"),  m_wch2("Y2","Y2"),
-  m_dbk1("Y1"),  m_dbk2("Y2"),
   m_cs("CondSvc",name),
   m_cds("ASCIICondDbSvc",name)
 {
-  
-  declareProperty("Key_CH1", m_wch1);
-  declareProperty("Key_CH2", m_wch2);
-
-  declareProperty("Key_DB1", m_dbk1);
-  declareProperty("Key_DB2", m_dbk2);
-
 }
 
 CondAlgY::~CondAlgY() {}

@@ -145,9 +145,9 @@ private:
   template <class T>
   Property& declareGaudiProperty(Gaudi::Property<T> &hndl, 
                                  std::true_type, std::false_type) {
-    std::string doc = hndl.documentation();
 
-    return *AthAlgorithm::declareProperty(hndl.name(), hndl.value(), doc);
+    return *AthAlgorithm::declareProperty(hndl.name(), hndl.value(), 
+                                          hndl.documentation());
 
   }
 
@@ -158,9 +158,9 @@ private:
   template <class T>
   Property& declareGaudiProperty(Gaudi::Property<T> &hndl, 
                                  std::false_type, std::true_type) {
-    std::string doc = hndl.documentation();
 
-    return *AthAlgorithm::declareProperty(hndl.name(), hndl.value(), doc);
+    return *AthAlgorithm::declareProperty(hndl.name(), hndl.value(), 
+                                          hndl.documentation());
 
   }
 

@@ -12,14 +12,8 @@
 
 AlgB::AlgB( const std::string& name, 
             ISvcLocator* pSvcLocator ) : 
-  ::AthAlgorithm( name, pSvcLocator ),
-  m_rdh1("a1"),
-  m_wrh1("a3")
+  ::AthAlgorithm( name, pSvcLocator )
 {
-  
-  declareProperty("Key_R1",m_rdh1);
-  declareProperty("Key_W1",m_wrh1);
-
 }
 
 AlgB::~AlgB() {}
