@@ -9,9 +9,8 @@
 #########################################################
 
 atlasG4log.info("G4 PIX Config: Setting PIX cut")
-
-from AthenaCommon.CfgGetter import getPublicTool
-pixelRegionTool = getPublicTool('PixelPhysicsRegionTool')
+from AthenaCommon.CfgGetter import getService
+pixelRegionTool = getService('DetectorGeometrySvc').RegionCreators['PixelPhysicsRegionTool']
 pixelRegionTool.ElectronCut = 0.05
 pixelRegionTool.PositronCut = 0.05
 pixelRegionTool.GammaCut = 0.05
