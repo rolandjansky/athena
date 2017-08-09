@@ -5,7 +5,7 @@
   */
 
 #ifndef ATHENAKERNEL_IATHRNGSVC_H
-# define ATHENAKERNEL_IATHRNGSVC_H
+#define ATHENAKERNEL_IATHRNGSVC_H
 
 #include "GaudiKernel/IService.h"
 #include <string>
@@ -21,10 +21,10 @@ public:
   //@{
   virtual ATHRNG::RNGWrapper* GetEngine(const std::string& streamName)=0;
   virtual ATHRNG::RNGWrapper* setOnDefinedSeeds(uint64_t theSeed,
-	 				            const std::string& streamName)=0;
+                                                const std::string& streamName)=0;
   virtual ATHRNG::RNGWrapper* setOnDefinedSeeds(uint64_t eventNumber,
-						    uint64_t runNumber,
-	 				            const std::string& streamName)=0;
+                                                uint64_t runNumber,
+                                                const std::string& streamName)=0;
   ///seed all streams we manage, combining theSeed and the stream names
   virtual bool setAllOnDefinedSeeds (uint64_t theSeed)=0; 
   ///seed all streams, combining eventNumber, runNumber and the stream names
@@ -44,6 +44,7 @@ public:
   static const InterfaceID& interfaceID();
 
 };
+
 inline
 const InterfaceID& 
 IAthRNGSvc::interfaceID() {

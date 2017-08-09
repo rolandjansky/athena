@@ -20,24 +20,24 @@ namespace CLHEP{
 }
 
 class AthRNGSvc : virtual public IAthRNGSvc,
-		  virtual public IIncidentListener,
-		  public AthService
+                  virtual public IIncidentListener,
+                  public AthService
 {
 
 public:
   virtual ATHRNG::RNGWrapper* GetEngine(const std::string& streamName) override final;
   virtual ATHRNG::RNGWrapper* setOnDefinedSeeds(uint64_t theSeed,
-						const std::string& streamName) override final;
+                                                const std::string& streamName) override final;
   virtual ATHRNG::RNGWrapper* setOnDefinedSeeds(uint64_t eventNumber,
-						uint64_t runNumber,
-						const std::string& streamName) override final;
+                                                uint64_t runNumber,
+                                                const std::string& streamName) override final;
   ///seed all streams we manage, combining theSeed and the stream names
-  virtual bool setAllOnDefinedSeeds (uint64_t theSeed) override final; 
+  virtual bool setAllOnDefinedSeeds (uint64_t theSeed) override final;
   ///seed all streams, combining eventNumber, runNumber and the stream names
-  virtual bool setAllOnDefinedSeeds (uint64_t eventNumber, uint64_t runNumber)override final;
+  virtual bool setAllOnDefinedSeeds (uint64_t eventNumber, uint64_t runNumber) override final;
   AthRNGSvc(const std::string& name, ISvcLocator* svc);
   virtual ~AthRNGSvc();
-  virtual void handle( const Incident& incident );  
+  virtual void handle( const Incident& incident );
   virtual void print(const std::string& streamName) override final;
   virtual void print() override final;
   StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
@@ -46,10 +46,11 @@ public:
   StatusCode finalize() override final;
 
 private:
-  void CreateStream(uint64_t seed1, uint64_t seed2, 
-			    const std::string& streamName);
-  size_t hashCombine(size_t h1,size_t h2){ return (h1^(h2+(h1<<6)+(h1>>2)));};
-  std::unordered_map<std::string,std::pair<ATHRNG::RNGWrapper*,CLHEP::HepRandomEngine*>> m_wrappers;
+  void CreateStream(uint64_t seed1, uint64_t seed2,
+                    const std::string& streamName);
+  size_t hashCombine(size_t h1, size_t h2){ return (h1^(h2+(h1<<6)+(h1>>2)));};
+  std::unordered_map<std::string,
+    std::pair<ATHRNG::RNGWrapper*, CLHEP::HepRandomEngine*>> m_wrappers;
   std::mutex m_mutex;
   std::string m_RNGType;
   std::size_t m_numSlots;
@@ -57,7 +58,6 @@ private:
   bool m_initialized;
   typedef std::function<CLHEP::HepRandomEngine*(void)> factoryFunc;
   factoryFunc m_fact;
-
 };
-#endif
 
+#endif
