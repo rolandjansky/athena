@@ -126,7 +126,7 @@ void AthRNGSvc::handle( const Incident& incident )
 ATHRNG::RNGWrapper* AthRNGSvc::setOnDefinedSeeds(uint64_t /*theSeed*/,
                                                  const std::string& /*streamName*/)
 {
-  ATH_MSG_ERROR("You should not call this method");
+  ATH_MSG_ERROR("You should not call AthRNGSvc::setAllOnDefinedSeeds");
   return nullptr;
 }
 
@@ -134,17 +134,17 @@ ATHRNG::RNGWrapper* AthRNGSvc::setOnDefinedSeeds(uint64_t /*eventNumber*/,
                                                  uint64_t /*runNumber*/,
                                                  const std::string& /*streamName*/)
 {
-  ATH_MSG_ERROR("You should not call this method");
+  ATH_MSG_ERROR("You should not call AthRNGSvc::setAllOnDefinedSeeds");
   return nullptr;
 }
 ///seed all streams we manage, combining theSeed and the stream names
 bool AthRNGSvc::setAllOnDefinedSeeds (uint64_t /*theSeed*/){
-  ATH_MSG_ERROR("You should not call this method");
+  ATH_MSG_ERROR("You should not call AthRNGSvc::setAllOnDefinedSeeds");
   return false;
 }
 ///seed all streams, combining eventNumber, runNumber and the stream names
 bool AthRNGSvc::setAllOnDefinedSeeds (uint64_t /*eventNumber*/, uint64_t /*runNumber*/){
-  ATH_MSG_ERROR("You should not call this method");
+  ATH_MSG_ERROR("You should not call AthRNGSvc::setAllOnDefinedSeeds");
   return false;
 }
 
