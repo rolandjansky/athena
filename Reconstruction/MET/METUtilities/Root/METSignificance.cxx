@@ -64,7 +64,7 @@ namespace met {
     static SG::AuxElement::Accessor<float> acc_varX("varX");
     static SG::AuxElement::Accessor<float> acc_varY("varY");
     static SG::AuxElement::Accessor<float> acc_covXY("covXY");
-    static SG::AuxElement::Accessor<float>  acc_jvt("Jvt");
+    static SG::AuxElement::Accessor<float> acc_jvt("Jvt");
 
     static const SG::AuxElement::Decorator< std::vector<iplink_t > > dec_constitObjLinks("ConstitObjectLinks");
     
@@ -142,7 +142,8 @@ namespace met {
 	m_egammaCalibTool.setTypeAndName("CP::EgammaCalibrationAndSmearingTool/STAutoConf_" + toolName);
 	ATH_CHECK(m_egammaCalibTool.setProperty("ESModel", "es2016PRE"));
 	ATH_CHECK(m_egammaCalibTool.setProperty("decorrelationModel", "1NP_v1"));
-	if(m_isAFII) ATH_CHECK(m_egammaCalibTool.setProperty("useAFII", m_isAFII));
+	if(m_isAFII) ATH_CHECK(m_egammaCalibTool.setProperty("useAFII", 1));
+	else ATH_CHECK(m_egammaCalibTool.setProperty("useAFII", 0));
 
 	toolName = "TauPerfTool";
 	m_tCombinedP4FromRecoTaus.setTypeAndName("CombinedP4FromRecoTaus/STAutoConf_" + toolName);
