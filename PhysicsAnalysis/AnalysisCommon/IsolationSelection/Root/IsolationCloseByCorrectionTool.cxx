@@ -78,7 +78,7 @@ namespace CP {
 
         //set default properties of track selection tool, if the user hasn't configured it
         if (!m_trkselTool.isUserConfigured()) {
-            m_trkselTool.setTypeAndName("InDet::InDetTrackSelectionTool/TackParticleSelectionTool");
+            m_trkselTool.setTypeAndName("InDet::InDetTrackSelectionTool/TrackParticleSelectionTool");
             ATH_MSG_INFO("No TrackSelectionTool provided, so I will create and configure my own, called: " << m_trkselTool.name());
             ATH_CHECK(m_trkselTool.setProperty("maxZ0SinTheta", 3.));
             ATH_CHECK(m_trkselTool.setProperty("minPt", 1000.));
