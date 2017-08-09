@@ -75,6 +75,6 @@ MuonTagTool = ConfiguredMuonTagTool(Container              = theMuonCollection,
                                     GradientLooseIsolation = GradientLooseIsoTool,
                                     FixedCutTightTrackOnlyIsolation= FixedCutTightTrackOnlyIsoTool,
                                     FixedCutLooseIsolation         = FixedCutLooseIsoTool,
-                                    DoIsolation = False
+                                    DoIsolation = muonRecFlags.doMuonIso()
                                     )
 ToolSvc += MuonTagTool
