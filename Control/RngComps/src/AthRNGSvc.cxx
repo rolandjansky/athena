@@ -123,25 +123,27 @@ void AthRNGSvc::handle( const Incident& incident )
   }
 }
 
-ATHRNG::RNGWrapper* AthRNGSvc::setOnDefinedSeeds(uint64_t theSeed,
-							 const std::string& streamName){
+ATHRNG::RNGWrapper* AthRNGSvc::setOnDefinedSeeds(uint64_t /*theSeed*/,
+                                                 const std::string& /*streamName*/)
+{
   ATH_MSG_ERROR("You should not call this method");
   return nullptr;
 }
 
-ATHRNG::RNGWrapper* AthRNGSvc::setOnDefinedSeeds(uint64_t eventNumber,
-							 uint64_t runNumber,
-							 const std::string& streamName){
+ATHRNG::RNGWrapper* AthRNGSvc::setOnDefinedSeeds(uint64_t /*eventNumber*/,
+                                                 uint64_t /*runNumber*/,
+                                                 const std::string& /*streamName*/)
+{
   ATH_MSG_ERROR("You should not call this method");
   return nullptr;
 }
 ///seed all streams we manage, combining theSeed and the stream names
-bool AthRNGSvc::setAllOnDefinedSeeds (uint64_t theSeed){
+bool AthRNGSvc::setAllOnDefinedSeeds (uint64_t /*theSeed*/){
   ATH_MSG_ERROR("You should not call this method");
   return false;
 }
 ///seed all streams, combining eventNumber, runNumber and the stream names
-bool AthRNGSvc::setAllOnDefinedSeeds (uint64_t eventNumber, uint64_t runNumber){
+bool AthRNGSvc::setAllOnDefinedSeeds (uint64_t /*eventNumber*/, uint64_t /*runNumber*/){
   ATH_MSG_ERROR("You should not call this method");
   return false;
 }
@@ -154,7 +156,7 @@ AthRNGSvc::~AthRNGSvc(){
   }
 }
 
-void AthRNGSvc::print(const std::string& streamName){
+void AthRNGSvc::print(const std::string& /*streamName*/){
   ATH_MSG_WARNING("This is not implemented");
 }
 
