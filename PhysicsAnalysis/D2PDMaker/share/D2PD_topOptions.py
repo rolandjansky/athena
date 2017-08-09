@@ -57,14 +57,10 @@ D2PDFlags.WriteDAOD_H4lBremRecStream.ApplySkimming = False
 from AthenaCommon.AthenaCommonFlags import jobproperties as jp
 #jp.AthenaCommonFlags.FilesInput=["/afs/cern.ch/atlas/project/PAT/data/data.physics_Egamma.AOD.pool.root"]
 
-#myPath = "/eos/atlas/atlasgroupdisk/phys-higgs/dq2/mc12_8TeV/AOD/e1191_s1469_s1470_r3542_r3549/mc12_8TeV.160156.PowhegPythia8_AU2CT10_ggH130_ZZ4lep.merge.AOD.e1191_s1469_s1470_r3542_r3549_tid781452_00/"
-myPath = "/eos/atlas/atlasgroupdisk/phys-higgs/dq2/mc12_8TeV/AOD/e1191_s1469_s1470_r3542_r3549/mc12_8TeV.160155.PowhegPythia8_AU2CT10_ggH125_ZZ4lep.merge.AOD.e1191_s1469_s1470_r3542_r3549_tid781451_00/"
-
-
-from InDetBeamSpotExample import DiskUtils
-inFileList = DiskUtils.filelist( myPath, "root://eosatlas.cern.ch/" )
-jp.AthenaCommonFlags.FilesInput = inFileList
-#jp.AthenaCommonFlags.FilesInput=["root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/phys-higgs/dq2/mc12_8TeV/AOD/e1191_s1469_s1470_r3542_r3549/mc12_8TeV.160155.PowhegPythia8_AU2CT10_ggH125_ZZ4lep.merge.AOD.e1191_s1469_s1470_r3542_r3549_tid781451_00/AOD.781451._000019.pool.root.1"]
+from glob import glob
+myPath = "/eos/atlas/atlasgroupdisk/phys-higgs/dq2/mc12_8TeV/AOD/e1191_s1469_s1470_r3542_r3549/mc12_8TeV.160155.PowhegPythia8_AU2CT10_ggH125_ZZ4lep.merge.AOD.e1191_s1469_s1470_r3542_r3549_tid781451_00/*"
+jp.AthenaCommonFlags.FilesInput = glob(myPath)
+#jp.AthenaCommonFlags.FilesInput=["/eos/atlas/atlasgroupdisk/phys-higgs/dq2/mc12_8TeV/AOD/e1191_s1469_s1470_r3542_r3549/mc12_8TeV.160155.PowhegPythia8_AU2CT10_ggH125_ZZ4lep.merge.AOD.e1191_s1469_s1470_r3542_r3549_tid781451_00/AOD.781451._000019.pool.root.1"]
 
 # ==============================================================================
 # You can change the location and name of your output file with
