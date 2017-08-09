@@ -8,8 +8,7 @@
 #########################################################
 
 atlasG4log.info("G4 TRT Config: Setting TRT cut")
-
-from AthenaCommon.CfgGetter import getPublicTool
-getPublicTool('TRTPhysicsRegionTool').ElectronCut=500. #FIXME Units?!
+from AthenaCommon.CfgGetter import getService
+getService('DetectorGeometrySvc').RegionCreators['TRTPhysicsRegionTool'].ElectronCut=500. #FIXME Units?!
 # FIXME: Is it correct to alter only the e- cut and leave the e+ and
 # photon cuts unchanged?
