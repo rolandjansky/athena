@@ -215,15 +215,15 @@ def addTrigFTKSimTFOptions(parser):
                         help="Print SSB Constants in firmware-style", group='TrigFTKTrackFitter')
 
     parser.add_argument('--dTIBL', type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True),
-                        help="dT for IBL temperature shifts in SSB fit.", group='TrigFTKSim')
+                        help="dT for IBL temperature shifts in SSB fit.", group='TrigFTKTrackFitter')
 
 
     parser.add_argument('--doAuxFW', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
-                        help="Enables firmware-style constants", group='TrigFTKSim')
+                        help="Enables firmware-style constants", group='TrigFTKTrackFitter')
     parser.add_argument('--MaxNcomb', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
-                        help="Limit on the number of combinations per road", group='TrigFTKSim')
+                        help="Limit on the number of combinations per road", group='TrigFTKTrackFitter')
     parser.add_argument('--MaxNhitsPerPlane', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
-                        help="limit the number of hits per plane per road", group='TrigFTKSim')
+                        help="limit the number of hits per plane per road", group='TrigFTKTrackFitter')
 
     parser.add_argument("--Save1stStageTrks", type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="Save the tracks after the first stage", group='TrigFTKTrackFitter')
