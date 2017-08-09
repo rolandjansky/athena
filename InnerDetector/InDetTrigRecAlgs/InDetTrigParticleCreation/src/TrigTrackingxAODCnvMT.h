@@ -67,7 +67,7 @@ namespace InDet
   private:
     void ResetMon();
     void FillMonPerTrack(const xAOD::TrackParticle *, const double&, const double&);
-    void FillMonPerRoi(const TrigRoiDescriptor* , const double&, const double&);
+    void FillMonPerRoi(const TrigRoiDescriptor* , const TrackCollection* tracks, const double&, const double&);
     void fillIBLResidual(const Trk::Track *track);
 
   private:
@@ -75,8 +75,6 @@ namespace InDet
     ToolHandle< Trk::IResidualPullCalculator > m_residualCalc;
     const AtlasDetectorID* m_idHelper;
     const PixelID* m_pixelId;
-
-    const TrackCollection*       m_tracks;
 
     bool                         m_doIBLresidual;
 

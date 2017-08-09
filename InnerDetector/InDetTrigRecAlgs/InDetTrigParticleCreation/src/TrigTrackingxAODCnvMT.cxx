@@ -40,7 +40,6 @@ namespace InDet
     : AthAlgorithm (name, pSvcLocator),
       m_particleCreatorTool("Trk::ParticleCreatorTool"),
       m_residualCalc("Trk::ResidualPullCalculator"),
-      m_tracks(0),
       m_doIBLresidual(false),
       m_slice_name(""),
       m_mon_doSliceSpecific(true),
@@ -225,7 +224,6 @@ namespace InDet
     //const TrackCollection* allTracksFromStoreGate;
 
     //initialize monitored objects
-    m_tracks = 0;
     bool runAlg = true;
     StatusCode statCode(StatusCode::SUCCESS);
 
@@ -234,20 +232,33 @@ namespace InDet
     }
 
     //+++ DQM (SA): monitoring
-    ResetMon();
+    //    ResetMon();
 
+    auto ctx = getContext();
+    auto tpHandle =   SG::makeHandle (m_trackParticleKey, ctx);
+    
+    ATH_CHECK( tpHandle.record (std::make_unique<xAOD::TrackParticleContainer>(),
+                           std::make_unique<xAOD::TrackParticleAuxContainer>()) );
+    xAOD::TrackParticleContainer* tpCont=tpHandle.ptr();
     //
-    float tmp_eta_roi = -999;  
-    float tmp_phi_roi = -999;  
+    //float tmp_eta_roi = -999;  
+    //float tmp_phi_roi = -999;  
+    ATH_MSG_DEBUG(" Getting RoI");
+    auto roiCollection = SG::makeHandle(m_roiCollectionKey, ctx);
+    ATH_MSG_DEBUG(" Got RoICollection size "<<roiCollection->size() );
 
-    auto roiCollection = SG::makeHandle(m_roiCollectionKey);
-    TrigRoiDescriptor* roi = *(roiCollection->begin());
-    tmp_eta_roi = roi->eta();
-    tmp_phi_roi = roi->phi();
+    if (roiCollection->size()==0) {
+      ATH_MSG_DEBUG("RoICollection size 0");
+      //      tmp_eta_roi = 0;
+      //      tmp_phi_roi = 0;
+    } else {
 
+      TrigRoiDescriptor* roi = *(roiCollection->begin());
+      //tmp_eta_roi = roi->eta();
+      //tmp_phi_roi = roi->phi();
+    }
 
-    m_tracks = 0;
-    auto tracks = SG::makeHandle(m_trackKey);
+    auto tracks = SG::makeHandle(m_trackKey, ctx);
 
     ATH_MSG_VERBOSE(" Input track collection has size " << tracks->size());
     if ( tracks->size() == 0 ) {
@@ -257,23 +268,19 @@ namespace InDet
     
     
     //convert tracks
-    auto tpHandle =   SG::makeHandle (m_trackParticleKey);
-    xAOD::TrackParticleContainer* tpCont=tpHandle.ptr();
-    ATH_CHECK( tpHandle.record (std::make_unique<xAOD::TrackParticleContainer>(),
-                           std::make_unique<xAOD::TrackParticleAuxContainer>()) );
 
     
-    //Memory Alloc
-    //    if(doTiming()) m_timerMemAlloc->start();
-    tpCont->reserve(m_tracks->size());                                                     
-    //    if(doTiming()) m_timerMemAlloc->stop();
     
 
-    if(m_tracks && runAlg) {
-      for(unsigned int idtr=0; idtr< m_tracks->size(); ++idtr) {
-        const ElementLink<TrackCollection> trackLink(*m_tracks, idtr);
+    if(runAlg) {
+      //Memory Alloc
+      //    if(doTiming()) m_timerMemAlloc->start();
+      tpCont->reserve(tracks->size());                                                     
+      //    if(doTiming()) m_timerMemAlloc->stop();
+      for(unsigned int idtr=0; idtr< tracks->size(); ++idtr) {
+        const ElementLink<TrackCollection> trackLink(*tracks, idtr);
 
-	if (m_doIBLresidual) fillIBLResidual(m_tracks->at(idtr));
+	if (m_doIBLresidual) fillIBLResidual(tracks->at(idtr));
 
 	//	if(doTiming()) m_timerTrackConversion->start();
         xAOD::TrackParticle* tp = m_particleCreatorTool->createParticle( trackLink, tpCont);
@@ -311,14 +318,14 @@ namespace InDet
     
     ATH_MSG_DEBUG("REGTEST container size = " << tpCont->size());
 
-    for (xAOD::TrackParticleContainer::iterator itr = tpCont->begin(); itr != tpCont->end(); ++itr)  {
-      FillMonPerTrack(*itr, tmp_eta_roi, tmp_phi_roi);
-    }
+    //    for (xAOD::TrackParticleContainer::iterator itr = tpCont->begin(); itr != tpCont->end(); ++itr)  {
+    //FillMonPerTrack(*itr, tmp_eta_roi, tmp_phi_roi);
+    //}
 
     if (runAlg){
       //+++ DQM (SA): per RoI quantities
-      FillMonPerRoi(roi, tmp_eta_roi, tmp_phi_roi);
-      ++m_mon_counter;
+      //      FillMonPerRoi(roi, *tracks, tmp_eta_roi, tmp_phi_roi);
+      //++m_mon_counter;
       
       return StatusCode::SUCCESS;
     } else {
@@ -483,7 +490,7 @@ namespace InDet
   }
 
 
-  void TrigTrackingxAODCnvMT::FillMonPerRoi(const TrigRoiDescriptor* roi, const double &tmp_eta_roi, const double &tmp_phi_roi) {
+  void TrigTrackingxAODCnvMT::FillMonPerRoi(const TrigRoiDescriptor* roi, const TrackCollection* tracks, const double &tmp_eta_roi, const double &tmp_phi_roi) {
 
     //+++ Prescale
     if (m_mon_counter >= m_mon_prescale) {
@@ -494,7 +501,7 @@ namespace InDet
 
 
     //+++ Common for all slices
-    if (m_tracks) m_dqm_ntrk = m_tracks->size();
+    if (tracks) m_dqm_ntrk = tracks->size();
 
     if (roi)
     {
@@ -511,8 +518,8 @@ namespace InDet
       //+++ Bjet
       if (m_slice_name == "Bjet") {
         const Trk::Perigee* tmpMp = 0;
-	if (m_tracks) {
-          for (auto track : *m_tracks) {
+	if (tracks) {
+          for (auto track : *tracks) {
 	    tmpMp = track->perigeeParameters();
 	    if (tmpMp) {
 	      m_dqm_bj_sumpt += tmpMp->pT()/1000;
@@ -529,8 +536,8 @@ namespace InDet
 	const Trk::Track* tpL = 0;
 	const Trk::Perigee* tmpMp = 0;
 	float tmp_pt_max = 0;
-	if (m_tracks) {
-          for (auto track : *m_tracks) {
+	if (tracks) {
+          for (auto track : *tracks) {
 	    tmpMp = track->perigeeParameters();
 	    if (tmpMp) {
 	      float tmp_pt = tmpMp->pT()/1000;
@@ -581,8 +588,8 @@ namespace InDet
 	float tmp_py = 0;
 	float tmp_pz = 0;
 	float tmp_e  = 0;
-	if (m_tracks) {
-          for (auto track : *m_tracks) {
+	if (tracks) {
+          for (auto track : *tracks) {
 	    tmpLMp = track->perigeeParameters();
 	    if (tmpLMp) {
 	      float tmp_qOverP = tmpLMp->parameters()[Trk::qOverP];

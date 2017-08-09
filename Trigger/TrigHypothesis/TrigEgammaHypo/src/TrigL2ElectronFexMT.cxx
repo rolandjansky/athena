@@ -140,16 +140,23 @@ StatusCode TrigL2ElectronFexMT::execute() {
   // NULL value is specially important to avoid crashs in monitoring
   //m_trigElecColl = NULL;
 
-  auto trigElecColl =   SG::makeHandle (m_outputElectronsKey);
+  auto ctx = getContext();
+
+  auto trigElecColl =   SG::makeHandle (m_outputElectronsKey, ctx);
   ATH_CHECK( trigElecColl.record (std::make_unique<xAOD::TrigElectronContainer>(),
                            std::make_unique<xAOD::TrigEMClusterAuxContainer>()) );
 
-  auto roiCollection = SG::makeHandle(m_roiCollectionKey);
+  auto roiCollection = SG::makeHandle(m_roiCollectionKey, ctx);
 
   //JTB For the moment assume 1 RoI (as in TrigL2ElectronFex) - could change to SuperRoI later
 
   //TrigRoiDescriptorCollection::const_iterator roiDescriptor = roiCollection->begin();
   //TrigRoiDescriptorCollection::const_iterator roiE = roiCollection->end();
+
+  if (roiCollection->size()==0) {
+    ATH_MSG_DEBUG(" RoI collection size = 0");
+    return StatusCode::SUCCESS;
+  }
 
   TrigRoiDescriptor* roiDescriptor = *(roiCollection->begin());
 
@@ -159,7 +166,7 @@ StatusCode TrigL2ElectronFexMT::execute() {
   
   float calo_eta(999), calo_phi(999), calo_et(-1);
 
-  auto clusContainer = SG::makeHandle (m_TrigEMClusterContainerKey);
+  auto clusContainer = SG::makeHandle (m_TrigEMClusterContainerKey, ctx);
   
   
   //JTB Should only be 1 cluster in each RoI 
@@ -178,7 +185,9 @@ StatusCode TrigL2ElectronFexMT::execute() {
   ATH_MSG_DEBUG("searching a matching track: loop over tracks");
 
 
-  SG::ReadHandle<xAOD::TrackParticleContainer> tracks(m_TrackParticleContainerKey);
+
+  SG::ReadHandle<xAOD::TrackParticleContainer> tracks(m_TrackParticleContainerKey, ctx);
+
 
   if (tracks->size() < 1){
       ATH_MSG_ERROR("No track collection, vector < 1");
