@@ -434,6 +434,13 @@ StatusCode TrigFastTrackFinder::execute() {
   TrigRoiDescriptor internalRoI;
   for (; roi != roiE; ++roi) {
     internalRoI.push_back(*roi);
+    m_roiEta = (*roi)->eta();
+    m_roiEtaWidth = (*roi)->etaPlus() - (*roi)->etaMinus();
+    m_roiPhi = (*roi)->phi();
+    m_roiPhiWidth = HLT::wrapPhi((*roi)->phiPlus() - (*roi)->phiMinus());
+    m_roiZ = (*roi)->zed();
+    m_roiZ_Width = (*roi)->zedPlus() - (*roi)->zedMinus();
+
   }
   internalRoI.manageConstituents(false);//Don't try to delete RoIs at the end
   m_currentStage = 1;
