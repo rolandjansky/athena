@@ -1,6 +1,9 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-import PyCintex
+try:
+    import PyCintex
+except:
+    import cppyy as PyCintex
 
 TileCalibUtils = PyCintex.gbl.TileCalibUtils
 TileCalibDrawerCmt = PyCintex.gbl.TileCalibDrawerCmt
