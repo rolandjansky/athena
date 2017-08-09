@@ -331,6 +331,9 @@ svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1confi
 if globalflags.InputFormat.is_bytestream():
     from TrigUpgradeTest.TestUtils import L1DecoderTest
     topSequence += L1DecoderTest(OutputLevel = opt.HLTOutputLevel)
+else:
+    from TrigUpgradeTest.TestUtils import L1EmulationTest
+    topSequence += L1EmulationTest(OutputLevel = opt.HLTOutputLevel)
 
 # ----------------------------------------------------------------
 # Setup Views
