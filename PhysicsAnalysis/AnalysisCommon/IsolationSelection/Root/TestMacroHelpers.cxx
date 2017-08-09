@@ -150,5 +150,11 @@ namespace CP {
         Corrected.push_back(IsoValue);
         return StatusCode::SUCCESS;
     }
-
+    void IsoCorrectionTestHelper::DefaultIsolation(const std::string &DecorName){
+        m_acc_passDefault= SelectionAccessor(new CharAccessor(DecorName));
+    }
+    void IsoCorrectionTestHelper::CorrectedIsolation(const std::string &DecorName){
+       m_acc_passCorrected = SelectionAccessor(new CharAccessor(DecorName));
+    }
+         
 }
