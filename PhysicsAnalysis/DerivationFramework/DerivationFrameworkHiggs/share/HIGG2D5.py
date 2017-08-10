@@ -12,11 +12,11 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
-from DerivationFrameworkCore.WeightMetadata import *
+# from DerivationFrameworkCore.WeightMetadata import *
 import AthenaCommon.SystemOfUnits as Units
 
 # Add sumOfWeights metadata for LHE3 multiweights =======
-from DerivationFrameworkCore.LHE3WeightMetadata import *
+# from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 #====================================================================
 # SET UP STREAM
@@ -447,6 +447,10 @@ print "HIGG2D5.py SkipTriggerRequirement", SkipTriggerRequirement
 TriggerJPSI= []
 TriggerPHI = [] 
 TriggerRHO = [] 
+TriggerKSHORT = []
+TriggerKSTAR = []
+TriggerD0 = []
+TriggerWPIGAMMA = []
 if not SkipTriggerRequirement:
     TriggerJPSI               = ["HLT_mu24_imedium", "HLT_mu26_imedium", "HLT_mu50", "HLT_2mu10", "HLT_2mu14", "HLT_mu24_mu8noL1"]
     if jobproperties.Beam.energy()==4000000.0:
