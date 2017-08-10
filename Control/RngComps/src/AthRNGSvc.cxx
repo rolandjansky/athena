@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "AthRNGSvc.h"
 #include "AthenaKernel/RNGWrapper.h"
 #include <functional>
@@ -25,15 +29,15 @@ StatusCode AthRNGSvc::initialize()
     ATH_MSG_WARNING("Seeds are ignored. A hash composed of event number, " <<
                     "run number and stream/algorithm name is used as a seed");
   }
-  if(m_RNGType=="dSFMT"){
+  if(m_RNGType == "dSFMT"){
     m_fact = [](void)->CLHEP::HepRandomEngine*{
       return new CLHEP::dSFMTEngine();
     };
-  }else if(m_RNGType=="Ranlux64"){
+  }else if(m_RNGType == "Ranlux64"){
     m_fact = [](void)->CLHEP::HepRandomEngine*{
       return new CLHEP::Ranlux64Engine();
     };
-  }else if(m_RNGType=="Ranecu"){
+  }else if(m_RNGType == "Ranecu"){
     m_fact = [](void)->CLHEP::HepRandomEngine*{
       return new CLHEP::RanecuEngine();
     };

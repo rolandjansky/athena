@@ -1,12 +1,18 @@
 // -*- c++ -*-
-#ifndef _ATHENA_RNGWRAPPER_H
-#define  _ATHENA_RNGWRAPPER_H
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+#ifndef ATHENAKERNEL_RNGWRAPPER_H
+#define ATHENAKERNEL_RNGWRAPPER_H
+
 #include <string>
 #include <cstdint>
 #include <vector>
 #include <functional>
+
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ThreadLocalContext.h"
+
 namespace CLHEP{
   class HepRandomEngine;
 }
@@ -14,6 +20,7 @@ namespace CLHEP{
 namespace ATHRNG{
   class RNGWrapper{
     typedef std::function<CLHEP::HepRandomEngine*(void)> factoryFunc;
+
   public:
     RNGWrapper(factoryFunc& genFact,size_t nSlots);
     ~RNGWrapper();
@@ -26,11 +33,14 @@ namespace ATHRNG{
     CLHEP::HepRandomEngine* getEngine(const EventContext &ctx){
       return m_engines[ctx.slot()];
     }
+
   private:
     std::vector<CLHEP::HepRandomEngine*> m_engines;
     uint64_t m_evNum;
     uint64_t m_runNum;
+
   };
+
 }
 
 #endif

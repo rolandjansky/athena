@@ -1,6 +1,10 @@
 // -*- c++ -*-
-#ifndef _ATHENA_ATHRNGSVC_H
-#define _ATHENA_ATHRNGSVC_H
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef RNGCOMPS_ATHRNGSVC_H
+#define RNGCOMPS_ATHRNGSVC_H
 
 #include <unordered_map>
 #include <vector>

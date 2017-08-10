@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 /** @class IAthRNGSvc
   * @brief manage multiple RandomEngines in thread-safe way.
   * 
@@ -18,8 +22,11 @@ namespace ATHRNG {
   class RNGWrapper;
 }
 
-class IAthRNGSvc : virtual public IService {
+class IAthRNGSvc : virtual public IService
+{
+
 public:
+
   /// Interface to the CLHEP engine
   //@{
   virtual ATHRNG::RNGWrapper* GetEngine(const std::string& streamName)=0;
