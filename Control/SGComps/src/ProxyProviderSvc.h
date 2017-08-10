@@ -64,8 +64,8 @@ public:
 				       IProxyRegistry& storeToModify);
 
   /// update a transient Address
-  virtual StatusCode updateAddress(StoreID::type storeID,
-				   SG::TransientAddress* tad);
+  StatusCode updateAddress(StoreID::type storeID,
+                           SG::TransientAddress* tad);
 
  ///create a list of transient Addresses:
   StatusCode addAddresses(IProxyRegistry& dataStore,
