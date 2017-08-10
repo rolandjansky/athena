@@ -10,10 +10,10 @@
 
 
 AFPProtonTransportTool::AFPProtonTransportTool(std::string filename) {
-  m_px = nullptr;
-  m_py = nullptr;
-  m_psx = nullptr;
-  m_psy = nullptr;
+  m_x_position = nullptr;
+  m_y_position = nullptr;
+  m_x_slope = nullptr;
+  m_y_slope = nullptr;
   m_xPositionInitIP = 0;
   m_yPositionInitIP = 0;
   m_zPositionInitIP = 0;
@@ -30,32 +30,32 @@ AFPProtonTransportTool::AFPProtonTransportTool(std::string filename) {
       }
     }
 
-    m_px = new AFPProtonTransportParam(m_energy, pol[0]);
-    m_py = new AFPProtonTransportParam(m_energy, pol[1]);
-    m_psx = new AFPProtonTransportParam(m_energy, pol[2]);
-    m_psy = new AFPProtonTransportParam(m_energy, pol[3]);
+    m_x_position = new AFPProtonTransportParam(m_energy, pol[0]);
+    m_y_position = new AFPProtonTransportParam(m_energy, pol[1]);
+    m_x_slope = new AFPProtonTransportParam(m_energy, pol[2]);
+    m_y_slope = new AFPProtonTransportParam(m_energy, pol[3]);
   }
 }
 
 AFPProtonTransportTool::~AFPProtonTransportTool () {
-  if (m_px) {
-    delete m_px;
-    m_px = nullptr;
+  if (m_x_position) {
+    delete m_x_position;
+    m_x_position = nullptr;
   }
 
-  if (m_py) {
-    delete m_py;
-    m_py = nullptr;
+  if (m_y_position) {
+    delete m_y_position;
+    m_y_position = nullptr;
   }
 
-  if (m_psx) {
-    delete m_psx;
-    m_psx = nullptr;
+  if (m_x_slope) {
+    delete m_x_slope;
+    m_x_slope = nullptr;
   }
 
-  if (m_psy) {
-    delete m_psy;
-    m_psy = nullptr;
+  if (m_y_slope) {
+    delete m_y_slope;
+    m_y_slope = nullptr;
   }
 }
 
@@ -130,10 +130,10 @@ int AFPProtonTransportTool::load(std::string filename) {
 	  }
   }
   //Creating the Parameterization objects with the polynomials created
-  m_px = new AFPProtonTransportParam(m_energy, pol[0]);
-  m_py = new AFPProtonTransportParam(m_energy, pol[1]);
-  m_psx = new AFPProtonTransportParam(m_energy, pol[2]);
-  m_psy = new AFPProtonTransportParam(m_energy, pol[3]);
+  m_x_position = new AFPProtonTransportParam(m_energy, pol[0]);
+  m_y_position = new AFPProtonTransportParam(m_energy, pol[1]);
+  m_x_slope = new AFPProtonTransportParam(m_energy, pol[2]);
+  m_y_slope = new AFPProtonTransportParam(m_energy, pol[3]);
 
   return 0;
 }
