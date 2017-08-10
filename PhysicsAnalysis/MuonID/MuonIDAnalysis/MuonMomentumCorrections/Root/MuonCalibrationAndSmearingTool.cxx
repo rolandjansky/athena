@@ -28,10 +28,7 @@ MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const std::strin
   m_g0( 0. ), m_g1( 0. ), m_g2( 0. ), m_g3( 0. ), m_g4( 0. ), m_charge( 0. ),
   
   m_loadNames( false ), m_nb_regions( 0. ), m_doMacroRegions( false ), 
-  m_StatCombPtThreshold(300.00),  m_useStatComb(true), m_doSagittaCorrection(false),m_SagittaRelease("sagittaBiasDataAll"),
-  m_doSagittaMCDistortion(false),
-  m_SagittaCorrPhaseSpace(false){
-  
+  m_StatCombPtThreshold(300.00), m_useStatComb(false), m_SagittaCorrPhaseSpace(false), m_doSagittaCorrection(false),m_doSagittaMCDistortion(false),m_SagittaRelease("sagittaBiasDataAll_25_07_17"){
   declareProperty( "Year", m_year = "Data16" );
   declareProperty( "Algo", m_algo = "muons" );
   declareProperty( "SmearingType", m_type = "q_pT" );
@@ -174,11 +171,11 @@ MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const MuonCalibr
   m_currentParameters( NULL),
   m_StatCombPtThreshold(tool.m_StatCombPtThreshold),
   m_useStatComb(tool.m_useStatComb),
+  m_SagittaCorrPhaseSpace(tool.m_SagittaCorrPhaseSpace), 
   m_doSagittaCorrection(tool.m_doSagittaCorrection),
-  m_GlobalZScales(tool.m_GlobalZScales),
-  m_SagittaCorrPhaseSpace(tool.m_SagittaCorrPhaseSpace),
   m_doNotUseAMGMATRIXDECOR(tool.m_doNotUseAMGMATRIXDECOR),
-  m_SagittaIterations(tool.m_SagittaIterations){
+  m_SagittaIterations(tool.m_SagittaIterations),
+  m_GlobalZScales(tool.m_GlobalZScales){
   declareProperty( "Year", m_year = "Data16" );
   declareProperty( "Algo", m_algo = "muons" );
   declareProperty( "SmearingType", m_type = "q_pT" );
