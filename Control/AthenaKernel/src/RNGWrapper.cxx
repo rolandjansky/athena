@@ -8,6 +8,7 @@
 ATHRNG::RNGWrapper::RNGWrapper(factoryFunc& genFact, size_t nSlots)
   : m_evNum(0), m_runNum(0)
 {
+  // Construct the random engines; one per event slot.
   m_engines.reserve(nSlots);
   for(size_t t = 0; t < nSlots; t++){
     m_engines.emplace_back(genFact());
