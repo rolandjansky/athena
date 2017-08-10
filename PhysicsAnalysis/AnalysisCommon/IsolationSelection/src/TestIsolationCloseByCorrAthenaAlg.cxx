@@ -17,8 +17,6 @@
 #include <IsolationSelection/TestMacroHelpers.h>
 #include <IsolationSelection/Defs.h>
 
-
-
 namespace CP {
     static CharDecorator dec_PassQuality("isCloseByObject");
     static CharDecorator dec_PassIsol("defaultIso");
@@ -42,9 +40,9 @@ namespace CP {
 
         m_tree = new TTree("IsoCorrTest", "Test tree for the isolaiton correction tool");
 
-        m_ele_helper = std::unique_ptr < IsoCorrectionTestHelper > (new IsoCorrectionTestHelper(m_tree, "Electrons",m_isoSelectorTool->getElectronWPs()));
-        m_muo_helper = std::unique_ptr < IsoCorrectionTestHelper > (new IsoCorrectionTestHelper(m_tree, "Muons",m_isoSelectorTool->getMuonWPs()));
-        m_pho_helper = std::unique_ptr < IsoCorrectionTestHelper > (new IsoCorrectionTestHelper(m_tree, "Photons",m_isoSelectorTool->getPhotonWPs()));
+        m_ele_helper = std::unique_ptr < IsoCorrectionTestHelper > (new IsoCorrectionTestHelper(m_tree, "Electrons", m_isoSelectorTool->getElectronWPs()));
+        m_muo_helper = std::unique_ptr < IsoCorrectionTestHelper > (new IsoCorrectionTestHelper(m_tree, "Muons", m_isoSelectorTool->getMuonWPs()));
+        m_pho_helper = std::unique_ptr < IsoCorrectionTestHelper > (new IsoCorrectionTestHelper(m_tree, "Photons", m_isoSelectorTool->getPhotonWPs()));
 
         ATH_CHECK(m_histSvc->regTree("/ISOCORRECTION/IsoCorrTest", m_tree));
 

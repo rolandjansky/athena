@@ -27,7 +27,10 @@ namespace CP {
         public:
             IsoCorrectionTestHelper(TTree* outTree, const std::string& ContainerName, const std::vector<IsolationWP*> &WP);
             StatusCode Fill(xAOD::IParticleContainer* Particles);
-
+            void BackupPreFix(const std::string &PreFix);
+            void DefaultIsolation(const std::string &DecorName);
+            void CorrectedIsolation(const std::string &DecorName);
+            
         private:
 
             template<typename T> bool AddBranch(const std::string &Name, T &Element);

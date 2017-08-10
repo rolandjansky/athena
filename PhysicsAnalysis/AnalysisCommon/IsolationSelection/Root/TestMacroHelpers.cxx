@@ -37,8 +37,8 @@ namespace CP {
                 m_corr_passIso(),
                 m_TrackAcc(),
                 m_CaloAcc(),
-                m_acc_passDefault(SelectionAccessor(new CharAccessor("DefaultIso"))),
-                m_acc_passCorrected(SelectionAccessor(new CharAccessor("CorrectedIsol"))) {
+                m_acc_passDefault(SelectionAccessor(new CharAccessor("defaultIso"))),
+                m_acc_passCorrected(SelectionAccessor(new CharAccessor("correctedIsol"))) {
 
         if (!AddBranch(ContainerName + "_pt", m_pt)) m_init = false;
         if (!AddBranch(ContainerName + "_eta", m_eta)) m_init = false;
@@ -51,11 +51,11 @@ namespace CP {
             for (auto& C : W->conditions()) {
                 // The 'Default' has been fixed in the Athena JO and util macro
                 if (xAOD::Iso::IsolationFlavour::ptcone == xAOD::Iso::isolationFlavour(C->type())) {
-                    m_TrackAcc = IsoHelperPtr(new IsoVariableHelper(C->type(), "Default"));
+                    m_TrackAcc = IsoHelperPtr(new IsoVariableHelper(C->type(), "default"));
                 } else if (xAOD::Iso::IsolationFlavour::ptvarcone == xAOD::Iso::isolationFlavour(C->type())) {
-                    m_TrackAcc = IsoHelperPtr(new IsoVariableHelper(C->type(), "Default"));
+                    m_TrackAcc = IsoHelperPtr(new IsoVariableHelper(C->type(), "default"));
                 } else if (xAOD::Iso::IsolationFlavour::topoetcone == xAOD::Iso::isolationFlavour(C->type())) {
-                    m_CaloAcc = IsoHelperPtr(new IsoVariableHelper(C->type(), "Default"));
+                    m_CaloAcc = IsoHelperPtr(new IsoVariableHelper(C->type(), "default"));
                 }
             }
             //Assume only 1 WP
@@ -103,12 +103,23 @@ namespace CP {
             m_phi.push_back(object->phi());
             m_e.push_back(object->e());
             m_Q.push_back(Charge(object));
-            if (!FillIsolationBranches(object, m_TrackAcc, m_orig_TrackIsol, m_corr_TrackIsol).isSuccess()) return StatusCode::FAILURE;
-            if (!FillIsolationBranches(object, m_CaloAcc, m_orig_CaloIsol, m_corr_CaloIsol).isSuccess()) return StatusCode::FAILURE;
-            if (!m_acc_passDefault->isAvailable(*object)) return StatusCode::FAILURE;
-            else m_orig_passIso.push_back(m_acc_passDefault->operator()(*object));
-            if (!m_acc_passCorrected->isAvailable(*object)) return StatusCode::FAILURE;
-            else m_corr_passIso.push_back(m_acc_passCorrected->operator()(*object));
+            if (!FillIsolationBranches(object, m_TrackAcc, m_orig_TrackIsol, m_corr_TrackIsol).isSuccess()) {
+                Error("IsoCorrectionTestHelper()", "Failed to fill track isolation");
+                return StatusCode::FAILURE;
+            }
+            if (!FillIsolationBranches(object, m_CaloAcc, m_orig_CaloIsol, m_corr_CaloIsol).isSuccess()) {
+                Error("IsoCorrectionTestHelper()", "Failed to fill calorimeter isolation");
+                return StatusCode::FAILURE;
+            }
+            if (!m_acc_passDefault->isAvailable(*object)) {
+                Error("IsoCorrectionTestHelper()", "It has not been stored whether the particle passes the default isolation");
+                return StatusCode::FAILURE;
+            } else m_orig_passIso.push_back(m_acc_passDefault->operator()(*object));
+
+            if (!m_acc_passCorrected->isAvailable(*object)) {
+                Error("IsoCorrectionTestHelper()", "It has not been stored whether the particle passes the corrected isolation.");
+                return StatusCode::FAILURE;
+            } else m_corr_passIso.push_back(m_acc_passCorrected->operator()(*object));
         }
         return StatusCode::SUCCESS;
     }
@@ -139,5 +150,16 @@ namespace CP {
         Corrected.push_back(IsoValue);
         return StatusCode::SUCCESS;
     }
-
+    void IsoCorrectionTestHelper::DefaultIsolation(const std::string &DecorName){
+        m_acc_passDefault= SelectionAccessor(new CharAccessor(DecorName));
+    }
+    void IsoCorrectionTestHelper::CorrectedIsolation(const std::string &DecorName){
+       m_acc_passCorrected = SelectionAccessor(new CharAccessor(DecorName));
+    }
+    void IsoCorrectionTestHelper::BackupPreFix(const std::string &PreFix){
+        if (m_TrackAcc.get() != nullptr) m_TrackAcc = IsoHelperPtr(new IsoVariableHelper(m_TrackAcc->isotype(), PreFix));
+        if (m_CaloAcc.get() != nullptr) m_CaloAcc = IsoHelperPtr(new IsoVariableHelper(m_CaloAcc->isotype(), PreFix));
+    }
+            
+         
 }

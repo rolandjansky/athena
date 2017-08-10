@@ -3,8 +3,6 @@
  */
 
 #include <IsolationSelection/IsolationCloseByCorrectionTool.h>
-#include <IsolationSelection/IsolationWP.h>
-#include <IsolationSelection/IsoVariableHelper.h>
 
 #include <xAODPrimitives/IsolationHelpers.h>
 
@@ -12,7 +10,7 @@
 #include <xAODPrimitives/tools/getIsolationCorrectionAccessor.h>
 
 #include <IsolationSelection/IsolationSelectionTool.h>
-#include <InDetTrackSelectionTool/InDetTrackSelectionTool.h>
+#include <InDetTrackSelectionTool/IInDetTrackSelectionTool.h>
 
 #include <xAODBase/ObjectType.h>
 #include <xAODBase/IParticleHelpers.h>
@@ -26,9 +24,6 @@
 
 //Tools includes:
 #include <cmath>
-#define SET_DUAL_TOOL( TOOLHANDLE, TOOLTYPE, TOOLNAME )                \
-  ASG_SET_ANA_TOOL_TYPE(TOOLHANDLE, TOOLTYPE);                        \
-  TOOLHANDLE.setName(TOOLNAME);
 
 namespace CP {
 
@@ -83,7 +78,7 @@ namespace CP {
 
         //set default properties of track selection tool, if the user hasn't configured it
         if (!m_trkselTool.isUserConfigured()) {
-            SET_DUAL_TOOL(m_trkselTool, InDet::InDetTrackSelectionTool, "TackParticleSelectionTool");
+            m_trkselTool.setTypeAndName("InDet::InDetTrackSelectionTool/TrackParticleSelectionTool");
             ATH_MSG_INFO("No TrackSelectionTool provided, so I will create and configure my own, called: " << m_trkselTool.name());
             ATH_CHECK(m_trkselTool.setProperty("maxZ0SinTheta", 3.));
             ATH_CHECK(m_trkselTool.setProperty("minPt", 1000.));
