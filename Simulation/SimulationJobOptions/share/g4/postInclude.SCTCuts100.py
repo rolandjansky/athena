@@ -12,9 +12,8 @@
 #########################################################
 
 atlasG4log.info("G4 SCT Config: Setting SCT cut")
-
-from AthenaCommon.CfgGetter import getPublicTool
-sctRegionTool = getPublicTool('SCTPhysicsRegionTool')
+from AthenaCommon.CfgGetter import getService
+sctRegionTool = getService('DetectorGeometrySvc').RegionCreators['SCTPhysicsRegionTool']
 sctRegionTool.ElectronCut = 0.1
 sctRegionTool.PositronCut = 0.1
 sctRegionTool.GammaCut = 0.1
